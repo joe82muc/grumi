@@ -116,6 +116,11 @@
       <div class="phonetic" id="phonetic"></div>
       <button class="speak-btn" id="speak-btn" onclick="speak()">🔊 anhören</button>
       <div class="audio-row">
+        <select id="example-level" class="btn-secondary" style="padding:.45rem .7rem">
+          <option value="A2">Level A2</option>
+          <option value="A2+" selected>Level A2+</option>
+          <option value="B1">Level B1</option>
+        </select>
         <button class="btn-secondary" id="example-btn" onclick="generateExampleSentence()">🧠 Beispielsatz</button>
         <button class="btn-secondary" id="example-speak-btn" onclick="speakExampleSentence()" disabled>🔊 Satz anhören</button>
       </div>
@@ -265,7 +270,6 @@ let queue=[], current=null, right=0, wrong=0, direction='en-de', answered=false;
 let ttsUnlocked = false;
 let fallbackAudio = null;
 let currentExampleSentence = "";
-const exampleSentenceCache = {};
 const API_BASE = (location.hostname.includes('github.io') || location.protocol === 'file:') ? 'https://englisch-9.onrender.com' : '';
 
 const E9_TOKEN = localStorage.getItem('e9_token') || '';
@@ -379,19 +383,12 @@ async function generateExampleSentence(){
   if(!current) return;
   const word = current.en;
   const topic = current.topic || "topic2";
+  const level = String((document.getElementById('example-level') || {}).value || 'A2+');
   const exBtn = document.getElementById('example-btn');
   const exSpeakBtn = document.getElementById('example-speak-btn');
   const exBox = document.getElementById('example-box');
   if(exBtn) exBtn.disabled = true;
   if(exBox) exBox.textContent = 'KI erstellt Beispielsatz...';
-
-  if(exampleSentenceCache[word]){
-    currentExampleSentence = exampleSentenceCache[word];
-    if(exBox) exBox.textContent = currentExampleSentence;
-    if(exSpeakBtn) exSpeakBtn.disabled = false;
-    if(exBtn) exBtn.disabled = false;
-    return;
-  }
 
   try{
     const response = await fetch(API_BASE + '/api/vocab/example', {
@@ -403,8 +400,9 @@ async function generateExampleSentence(){
       body: JSON.stringify({
         word,
         topic,
-        level: 'A2-B1',
-        classLevel: 'grade9'
+        level: level,
+        classLevel: 'grade9',
+        variationSeed: Date.now()
       })
     });
 
@@ -415,11 +413,15 @@ async function generateExampleSentence(){
     const sentence = String(data?.sentence || '').trim();
     if(!sentence) throw new Error('Kein Satz erhalten');
     currentExampleSentence = sentence;
-    exampleSentenceCache[word] = sentence;
     if(exBox) exBox.textContent = sentence;
     if(exSpeakBtn) exSpeakBtn.disabled = false;
   }catch(error){
-    const fallback = word + ' is an important word in Unit 4.';
+    const fallbackOptions = [
+      'Today we used "' + word + '" in a short classroom dialogue.',
+      'In Unit 4, we practised "' + word + '" in a useful sentence.',
+      'I can use "' + word + '" correctly in English now.'
+    ];
+    const fallback = fallbackOptions[Math.floor(Math.random() * fallbackOptions.length)];
     currentExampleSentence = fallback;
     if(exBox) exBox.textContent = fallback;
     if(exSpeakBtn) exSpeakBtn.disabled = false;
