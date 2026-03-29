@@ -37,7 +37,9 @@
   .direction-label{text-align:center;color:var(--muted);font-size:.77rem;margin:.5rem 0 .75rem;letter-spacing:.03em}
   .question-word{text-align:center;color:var(--blue);font-size:clamp(1.4rem,5vw,2.2rem);font-weight:800;line-height:1.2}
   .phonetic{text-align:center;color:var(--muted);font-size:.88rem;margin-top:.15rem;font-style:italic;min-height:1.2rem}
-  .speak-btn{display:block;margin:.65rem auto .95rem;padding:.33rem .9rem;border:1px solid #b8cff8;background:#fff;border-radius:999px;color:#355f95;font-weight:700;cursor:pointer}
+  .speak-btn{display:block;margin:.65rem auto .55rem;padding:.33rem .9rem;border:1px solid #b8cff8;background:#fff;border-radius:999px;color:#355f95;font-weight:700;cursor:pointer}
+  .audio-row{display:flex;flex-wrap:wrap;justify-content:center;gap:.45rem;margin:.25rem 0 .75rem}
+  .example-box{max-width:560px;margin:.2rem auto .75rem;padding:.55rem .7rem;border:1.5px dashed #c8daf9;border-radius:10px;background:#f6f9ff;color:#24456f;font-size:.92rem;min-height:2.2rem}
   .choices{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
   .choice{padding:.75rem .5rem;background:#f4f8ff;border:1.5px solid #d1e1ff;border-radius:10px;text-align:center;cursor:pointer;font-weight:700;color:#20426f}
   .choice.correct{background:#e8f8f0;border-color:#9be3c0;color:var(--ok)}
@@ -113,6 +115,11 @@
       <div class="question-word" id="qword">-</div>
       <div class="phonetic" id="phonetic"></div>
       <button class="speak-btn" id="speak-btn" onclick="speak()">🔊 anhören</button>
+      <div class="audio-row">
+        <button class="btn-secondary" id="example-btn" onclick="generateExampleSentence()">🧠 Beispielsatz</button>
+        <button class="btn-secondary" id="example-speak-btn" onclick="speakExampleSentence()" disabled>🔊 Satz anhören</button>
+      </div>
+      <div class="example-box" id="example-box">Klicke auf „Beispielsatz“, um einen KI-Satz zum Wort zu bekommen.</div>
 
       <div id="mc-area"><div class="choices" id="choices"></div></div>
       <div id="type-area" style="display:none">
@@ -142,7 +149,7 @@
 
 <script>
 const vocab = [
-  {en:"New Zealand",de:"Neuseeland",pron:"nju: zi:lənd",topic:"intro"},
+  {en:"New Zealand",de:"Neuseeland",pron:"ˌnjuː ˈziːlənd",topic:"intro"},
   {en:"careers",de:"Berufe",pron:"kəˈrɪəz",topic:"intro"},
   {en:"advisor",de:"Berater; Beraterin",pron:"ədˈvaɪzə",topic:"intro"},
   {en:"around",de:"ungefähr",pron:"əˈraʊnd",topic:"intro"},
@@ -159,27 +166,27 @@ const vocab = [
   {en:"Ms",de:"Frau",pron:"mɪz",topic:"topic1"},
   {en:"suitability",de:"Eignung; Tauglichkeit",pron:"ˌsuːtəˈbɪləti",topic:"topic1"},
   {en:"test",de:"Test; Klassenarbeit",pron:"test",topic:"topic1"},
-  {en:"to complete",de:"ausfüllen; machen",pron:"kəmˈpliːt",topic:"topic1"},
+  {en:"to complete",de:"ausfüllen; machen",pron:"tə kəmˈpliːt",topic:"topic1"},
   {en:"result",de:"Ergebnis",pron:"rɪˈzʌlt",topic:"topic1"},
   {en:"thank you very much",de:"Vielen Dank; Herzlichen Dank",pron:"θæŋk juː veri mʌtʃ",topic:"topic1"},
   {en:"mechanic",de:"Mechaniker; Mechanikerin",pron:"mɪˈkænɪk",topic:"topic1"},
   {en:"garage",de:"Kfz-Werkstatt; Garage",pron:"ˈgærɑːʒ",topic:"topic1"},
-  {en:"to prefer",de:"bevorzugen",pron:"prɪˈfɜː",topic:"topic1"},
+  {en:"to prefer",de:"bevorzugen",pron:"tə prɪˈfɜː",topic:"topic1"},
   {en:"compromise",de:"Kompromiss",pron:"ˈkɒmprəmaɪz",topic:"topic1"},
   {en:"conflict",de:"Konflikt; Auseinandersetzung",pron:"ˈkɒnflɪkt",topic:"topic1"},
   {en:"calm",de:"ruhig; friedlich",pron:"kɑːm",topic:"topic1"},
   {en:"support",de:"Unterstützung; Hilfe",pron:"səˈpɔːt",topic:"topic1"},
   {en:"communication",de:"Kommunikation",pron:"kəˌmjuːnɪˈkeɪʃn",topic:"topic1"},
   {en:"tourist information centre",de:"Touristeninformation",pron:"ˈtʊərɪst ˌɪnfəˈmeɪʃn sentə",topic:"topic1"},
-  {en:"to study",de:"studieren; lernen",pron:"ˈstʌdi",topic:"topic1"},
+  {en:"to study",de:"studieren; lernen",pron:"tə ˈstʌdi",topic:"topic1"},
   {en:"certificate",de:"Zertifikat; Bescheinigung",pron:"səˈtɪfɪkət",topic:"topic1"},
-  {en:"to take an exam",de:"eine Prüfung schreiben",pron:"ɪgˈzæm",topic:"topic1"},
+  {en:"to take an exam",de:"eine Prüfung schreiben",pron:"tə teɪk ən ɪgˈzæm",topic:"topic1"},
   {en:"careers day",de:"Berufsinformationstag",pron:"kəˈrɪəz deɪ",topic:"topic1"},
   {en:"employer",de:"Arbeitgeber; Arbeitgeberin",pron:"ɪmˈplɔɪə",topic:"topic1"},
   {en:"if I were you",de:"wenn ich du wäre",pron:"ɪf aɪ wɜː juː",topic:"topic1"},
   {en:"might",de:"könnte",pron:"maɪt",topic:"topic1"},
   {en:"best of luck",de:"viel Glück",pron:"best əv lʌk",topic:"topic1"},
-  {en:"to count on",de:"sich auf jmdn. verlassen",pron:"kaʊnt ɒn",topic:"topic1"},
+  {en:"to count on",de:"sich auf jmdn. verlassen",pron:"tə kaʊnt ɒn",topic:"topic1"},
   {en:"tool",de:"Werkzeug; Gerät",pron:"tuːl",topic:"topic1"},
 
   {en:"retail",de:"Einzelhandel",pron:"ˈriːteɪl",topic:"topic2"},
@@ -192,39 +199,39 @@ const vocab = [
   {en:"baker",de:"Bäcker; Bäckerin",pron:"ˈbeɪkə",topic:"topic2"},
   {en:"product",de:"Produkt; Erzeugnis",pron:"ˈprɒdʌkt",topic:"topic2"},
   {en:"checkout",de:"Kasse",pron:"ˈtʃekaʊt",topic:"topic2"},
-  {en:"to fill",de:"füllen; befüllen",pron:"fɪl",topic:"topic2"},
-  {en:"to present",de:"präsentieren",pron:"prɪˈzent",topic:"topic2"},
-  {en:"to work",de:"funktionieren",pron:"wɜːk",topic:"topic2"},
+  {en:"to fill",de:"füllen; befüllen",pron:"tə fɪl",topic:"topic2"},
+  {en:"to present",de:"präsentieren",pron:"tə prɪˈzent",topic:"topic2"},
+  {en:"to work",de:"funktionieren",pron:"tə wɜːk",topic:"topic2"},
   {en:"supplier",de:"Zulieferer; Anbieter",pron:"səˈplaɪə",topic:"topic2"},
   {en:"refrigerated warehouse",de:"Kühllager",pron:"rɪˈfrɪdʒəreɪtɪd ˈweəhaʊs",topic:"topic2"},
   {en:"refrigerated",de:"gekühlt",pron:"rɪˈfrɪdʒəreɪtɪd",topic:"topic2"},
   {en:"warehouse",de:"Lager; Lagerhalle",pron:"ˈweəhaʊs",topic:"topic2"},
   {en:"may",de:"können; dürfen",pron:"meɪ",topic:"topic2"},
-  {en:"to take a look at",de:"einen Blick werfen auf",pron:"teɪk ə lʊk ət",topic:"topic2"},
-  {en:"to donate",de:"spenden; stiften",pron:"dəʊˈneɪt",topic:"topic2"},
-  {en:"to reduce",de:"reduzieren; verringern",pron:"rɪˈdjuːs",topic:"topic2"},
+  {en:"to take a look at",de:"einen Blick werfen auf",pron:"tə teɪk ə lʊk ət",topic:"topic2"},
+  {en:"to donate",de:"spenden; stiften",pron:"tə dəʊˈneɪt",topic:"topic2"},
+  {en:"to reduce",de:"reduzieren; verringern",pron:"tə rɪˈdjuːs",topic:"topic2"},
   {en:"worth",de:"im Wert von",pron:"wɜːθ",topic:"topic2"},
-  {en:"to be included",de:"mit enthalten sein",pron:"ɪnˈkluːdɪd",topic:"topic2"},
+  {en:"to be included",de:"mit enthalten sein",pron:"tə bi ɪnˈkluːdɪd",topic:"topic2"},
   {en:"intern",de:"Praktikant; Praktikantin",pron:"ˈɪntɜːn",topic:"topic2"},
-  {en:"to take place",de:"stattfinden",pron:"teɪk pleɪs",topic:"topic2"},
+  {en:"to take place",de:"stattfinden",pron:"tə teɪk pleɪs",topic:"topic2"},
 
   {en:"rider",de:"Reiter; Reiterin",pron:"ˈraɪdə",topic:"text"},
   {en:"great-grandmother",de:"Urgroßmutter",pron:"ˌgreɪt ˈgrænˌmʌðə",topic:"text"},
   {en:"chief",de:"Häuptling",pron:"tʃiːf",topic:"text"},
-  {en:"to found",de:"gründen",pron:"faʊnd",topic:"text"},
+  {en:"to found",de:"gründen",pron:"tə faʊnd",topic:"text"},
   {en:"prayer",de:"Gebet",pron:"preə",topic:"text"},
   {en:"although",de:"obwohl",pron:"ɔːlˈðəʊ",topic:"text"},
-  {en:"to try hard",de:"sich anstrengen",pron:"traɪ hɑːd",topic:"text"},
-  {en:"to feel sorry for",de:"Mitleid haben mit",pron:"fiːl ˈsɒri fə",topic:"text"},
-  {en:"to push",de:"schubsen; drängeln",pron:"pʊʃ",topic:"text"},
+  {en:"to try hard",de:"sich anstrengen",pron:"tə traɪ hɑːd",topic:"text"},
+  {en:"to feel sorry for",de:"Mitleid haben mit",pron:"tə fiːl ˈsɒri fə",topic:"text"},
+  {en:"to push",de:"schubsen; drängeln",pron:"tə pʊʃ",topic:"text"},
   {en:"mask",de:"Maske",pron:"mɑːsk",topic:"text"},
   {en:"stingray",de:"Stachelrochen",pron:"ˈstɪŋreɪ",topic:"text"},
   {en:"towards",de:"auf ... zu; in Richtung",pron:"təˈwɔːdz",topic:"text"},
   {en:"bottom",de:"Grund; Boden",pron:"ˈbɒtəm",topic:"text"},
   {en:"breath",de:"Atemzug; Atem",pron:"breθ",topic:"text"},
-  {en:"to point",de:"zeigen",pron:"pɔɪnt",topic:"text"},
+  {en:"to point",de:"zeigen",pron:"tə pɔɪnt",topic:"text"},
   {en:"dolphin",de:"Delfin",pron:"ˈdɒlfɪn",topic:"text"},
-  {en:"to pick up",de:"aufheben",pron:"pɪk ʌp",topic:"text"},
+  {en:"to pick up",de:"aufheben",pron:"tə pɪk ʌp",topic:"text"},
   {en:"crayfish",de:"Languste; Flusskrebs",pron:"ˈkreɪfɪʃ",topic:"text"},
   {en:"carving",de:"Schnitzerei",pron:"ˈkɑːvɪŋ",topic:"text"},
 
@@ -239,7 +246,7 @@ const vocab = [
   {en:"kayaker",de:"Kajakfahrer; Kajakfahrerin",pron:"ˈkaɪækə",topic:"more"},
   {en:"hiking",de:"Wandern",pron:"ˈhaɪkɪŋ",topic:"more"},
   {en:"gateway",de:"Tor; Eingangstor",pron:"ˈɡeɪtweɪ",topic:"more"},
-  {en:"to recognise",de:"anerkennen; erkennen",pron:"ˈrekəɡnaɪz",topic:"more"},
+  {en:"to recognise",de:"anerkennen; erkennen",pron:"tə ˈrekəɡnaɪz",topic:"more"},
   {en:"explorer",de:"Entdecker; Entdeckerin",pron:"ɪkˈsplɔːrə",topic:"more"},
   {en:"expedition",de:"Expedition; Forschungsreise",pron:"ˌekspəˈdɪʃn",topic:"more"},
   {en:"Antarctic",de:"südpolar; antarktisch",pron:"ænˈtɑːktɪk",topic:"more"},
@@ -257,13 +264,16 @@ let mode='mc', dirSetting='random', filterTopic='all';
 let queue=[], current=null, right=0, wrong=0, direction='en-de', answered=false;
 let ttsUnlocked = false;
 let fallbackAudio = null;
+let currentExampleSentence = "";
+const exampleSentenceCache = {};
+const API_BASE = (location.hostname.includes('github.io') || location.protocol === 'file:') ? 'https://englisch-9.onrender.com' : '';
 
 const E9_TOKEN = localStorage.getItem('e9_token') || '';
 
 async function sendVocabProgress(percent,total){
   if(!E9_TOKEN) return;
   try{
-    await fetch((location.hostname.includes('github.io')||location.protocol==='file:'?'https://englisch-9.onrender.com':'') + '/api/progress/record',{
+    await fetch(API_BASE + '/api/progress/record',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+E9_TOKEN},
       body:JSON.stringify({
@@ -326,7 +336,7 @@ function nextCard(){
 
   document.getElementById('dir-label').textContent = isEnDe ? 'Englisch → Deutsch' : 'Deutsch → Englisch';
   document.getElementById('qword').textContent = qWord;
-  document.getElementById('phonetic').textContent = isEnDe ? '[' + current.pron + ']' : '';
+  document.getElementById('phonetic').textContent = current.pron ? '[' + current.pron + ']' : '';
   document.getElementById('feedback').textContent='';
   document.getElementById('feedback').className='feedback';
   document.getElementById('skip-btn').style.display='';
@@ -337,6 +347,11 @@ function nextCard(){
 
   const sBtn=document.getElementById('speak-btn');
   sBtn.textContent='🔊 anhören';
+  const exBtn = document.getElementById('example-speak-btn');
+  const exBox = document.getElementById('example-box');
+  currentExampleSentence = "";
+  if(exBtn) exBtn.disabled = true;
+  if(exBox) exBox.textContent = 'Klicke auf „Beispielsatz“, um einen KI-Satz zum Wort zu bekommen.';
 
   updateProgress();
   if(mode==='mc') buildChoices(aWord,isEnDe);
@@ -358,6 +373,107 @@ function buildChoices(correct,isEnDe){
     btn.onclick=()=>checkChoice(btn,opt,correct);
     cont.appendChild(btn);
   });
+}
+
+async function generateExampleSentence(){
+  if(!current) return;
+  const word = current.en;
+  const topic = current.topic || "topic2";
+  const exBtn = document.getElementById('example-btn');
+  const exSpeakBtn = document.getElementById('example-speak-btn');
+  const exBox = document.getElementById('example-box');
+  if(exBtn) exBtn.disabled = true;
+  if(exBox) exBox.textContent = 'KI erstellt Beispielsatz...';
+
+  if(exampleSentenceCache[word]){
+    currentExampleSentence = exampleSentenceCache[word];
+    if(exBox) exBox.textContent = currentExampleSentence;
+    if(exSpeakBtn) exSpeakBtn.disabled = false;
+    if(exBtn) exBtn.disabled = false;
+    return;
+  }
+
+  try{
+    const response = await fetch(API_BASE + '/api/vocab/example', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(E9_TOKEN ? { 'Authorization': 'Bearer ' + E9_TOKEN } : {})
+      },
+      body: JSON.stringify({
+        word,
+        topic,
+        level: 'A2-B1',
+        classLevel: 'grade9'
+      })
+    });
+
+    if(!response.ok){
+      throw new Error('HTTP ' + response.status);
+    }
+    const data = await response.json();
+    const sentence = String(data?.sentence || '').trim();
+    if(!sentence) throw new Error('Kein Satz erhalten');
+    currentExampleSentence = sentence;
+    exampleSentenceCache[word] = sentence;
+    if(exBox) exBox.textContent = sentence;
+    if(exSpeakBtn) exSpeakBtn.disabled = false;
+  }catch(error){
+    const fallback = word + ' is an important word in Unit 4.';
+    currentExampleSentence = fallback;
+    if(exBox) exBox.textContent = fallback;
+    if(exSpeakBtn) exSpeakBtn.disabled = false;
+  }finally{
+    if(exBtn) exBtn.disabled = false;
+  }
+}
+
+async function speakTextViaAzure(text){
+  const res = await fetch(API_BASE + '/api/speech/speak', {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      ...(E9_TOKEN ? { 'Authorization': 'Bearer ' + E9_TOKEN } : {})
+    },
+    body: JSON.stringify({ text, voice: 'en-US-JennyNeural' })
+  });
+  if(!res.ok) throw new Error('HTTP ' + res.status);
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  await new Promise((resolve,reject)=>{
+    const audio = new Audio(url);
+    audio.onended = () => { URL.revokeObjectURL(url); resolve(true); };
+    audio.onerror = () => { URL.revokeObjectURL(url); reject(new Error('audio-error')); };
+    const p = audio.play();
+    if(p && typeof p.then === 'function'){
+      p.catch(reject);
+    }
+  });
+}
+
+async function speakExampleSentence(){
+  if(!current) return;
+  if(!currentExampleSentence){
+    await generateExampleSentence();
+  }
+  if(!currentExampleSentence) return;
+  const fb = document.getElementById("feedback");
+  try{
+    await speakTextViaAzure(currentExampleSentence);
+  }catch(_e){
+    try{
+      const u = new SpeechSynthesisUtterance(currentExampleSentence);
+      u.lang = "en-US";
+      u.rate = 0.92;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(u);
+    }catch(_e2){
+      if(fb){
+        fb.className = "feedback bad";
+        fb.textContent = "Satz-Audio nicht verfuegbar.";
+      }
+    }
+  }
 }
 
 function checkChoice(btn,chosen,correct){
@@ -444,76 +560,86 @@ function speak(){
   if(!current) return;
   const fb = document.getElementById("feedback");
   const btn = document.getElementById("speak-btn");
+  const word = current.en;
 
-  if(!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined"){
-    fb.className = "feedback bad";
-    fb.textContent = "Audio wird von diesem Browser nicht unterstützt.";
-    return;
-  }
+  btn.textContent = "🔊 laedt ...";
+  speakTextViaAzure(word)
+    .then(() => {
+      btn.textContent = "🔊 anhören";
+    })
+    .catch(async () => {
+      btn.textContent = "🔊 anhören";
 
-  unlockTTS();
-
-  const u = new SpeechSynthesisUtterance(current.en);
-  const voice = getEnglishVoice();
-  u.lang = voice ? voice.lang : "en-US";
-  if (voice) u.voice = voice;
-  u.rate = 0.9;
-  u.pitch = 1;
-  let started = false;
-  let fallbackTimer = null;
-
-  u.onstart = () => {
-    started = true;
-    if (fallbackTimer) clearTimeout(fallbackTimer);
-    btn.textContent = "🔊 läuft ...";
-  };
-  u.onend = () => {
-    if (fallbackTimer) clearTimeout(fallbackTimer);
-    btn.textContent = "🔊 anhören";
-  };
-  u.onerror = async () => {
-    if (fallbackTimer) clearTimeout(fallbackTimer);
-    btn.textContent = "🔊 anhören";
-    try{
-      await playAudioFallback(current.en);
-      fb.className = "feedback good";
-      fb.textContent = "Audio über Fallback abgespielt.";
-    }catch(e){
-      fb.className = "feedback bad";
-      fb.textContent = "Audio blockiert. Bitte Lautlosmodus aus und Lautstärke prüfen.";
-    }
-  };
-
-  try{
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(u);
-    fallbackTimer = setTimeout(async () => {
-      if (started) return;
-      try{
-        await playAudioFallback(current.en);
-        fb.className = "feedback good";
-        fb.textContent = "Audio über Fallback abgespielt.";
-      }catch(e){
+      if(!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined"){
         fb.className = "feedback bad";
-        fb.textContent = "Kein Audio. Bitte Safari/Chrome nutzen und Lautlosmodus aus.";
-      }finally{
-        btn.textContent = "🔊 anhören";
+        fb.textContent = "Audio wird von diesem Browser nicht unterstützt.";
+        return;
       }
-    }, 1000);
-  }catch(e){
-    playAudioFallback(current.en)
-      .then(() => {
-        fb.className = "feedback good";
-        fb.textContent = "Audio über Fallback abgespielt.";
-      })
-      .catch(() => {
-        fb.className = "feedback bad";
-        fb.textContent = "Audio konnte nicht gestartet werden.";
-      })
-      .finally(() => {
+
+      unlockTTS();
+
+      const u = new SpeechSynthesisUtterance(current.en);
+      const voice = getEnglishVoice();
+      u.lang = voice ? voice.lang : "en-US";
+      if (voice) u.voice = voice;
+      u.rate = 0.9;
+      u.pitch = 1;
+      let started = false;
+      let fallbackTimer = null;
+
+      u.onstart = () => {
+        started = true;
+        if (fallbackTimer) clearTimeout(fallbackTimer);
+        btn.textContent = "🔊 läuft ...";
+      };
+      u.onend = () => {
+        if (fallbackTimer) clearTimeout(fallbackTimer);
         btn.textContent = "🔊 anhören";
-      });
-  }
+      };
+      u.onerror = async () => {
+        if (fallbackTimer) clearTimeout(fallbackTimer);
+        btn.textContent = "🔊 anhören";
+        try{
+          await playAudioFallback(current.en);
+          fb.className = "feedback good";
+          fb.textContent = "Audio über Fallback abgespielt.";
+        }catch(e){
+          fb.className = "feedback bad";
+          fb.textContent = "Audio blockiert. Bitte Lautlosmodus aus und Lautstärke prüfen.";
+        }
+      };
+
+      try{
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(u);
+        fallbackTimer = setTimeout(async () => {
+          if (started) return;
+          try{
+            await playAudioFallback(current.en);
+            fb.className = "feedback good";
+            fb.textContent = "Audio über Fallback abgespielt.";
+          }catch(e){
+            fb.className = "feedback bad";
+            fb.textContent = "Kein Audio. Bitte Safari/Chrome nutzen und Lautlosmodus aus.";
+          }finally{
+            btn.textContent = "🔊 anhören";
+          }
+        }, 1000);
+      }catch(e){
+        playAudioFallback(current.en)
+          .then(() => {
+            fb.className = "feedback good";
+            fb.textContent = "Audio über Fallback abgespielt.";
+          })
+          .catch(() => {
+            fb.className = "feedback bad";
+            fb.textContent = "Audio konnte nicht gestartet werden.";
+          })
+          .finally(() => {
+            btn.textContent = "🔊 anhören";
+          });
+      }
+    });
 }
 function updateScore(){ document.getElementById('sc-right').textContent=right; document.getElementById('sc-wrong').textContent=wrong; document.getElementById('sc-total').textContent=right+wrong; }
 function updateProgress(){ const total=filteredVocab().length||1; document.getElementById('pbar').style.width=((total-queue.length)/total*100)+'%'; }
@@ -531,9 +657,9 @@ restart();
   function homeUrl(){
     var href=String(window.location.href||'');
     if(href.indexOf('/grumi/9/Englisch_9/')>-1){ return href.split('/grumi/9/Englisch_9/')[0]+'/grumi/9/Englisch_9/index.html'; }
+    if(href.indexOf('/Apps/GRUMI_APP/9/Englisch_9/')>-1){ return href.split('/Apps/GRUMI_APP/9/Englisch_9/')[0]+'/Apps/GRUMI_APP/9/Englisch_9/index.html'; }
     if(href.indexOf('/Apps_verbessert/')>-1){ return href.split('/Apps_verbessert/')[0]+'/Apps_verbessert/index.html'; }
-    if(href.indexOf('/Apps/')>-1){ return href.split('/Apps/')[0]+'/Apps/index.html'; }
-    return 'index.html';
+    return '../index.html';
   }
   var home=document.getElementById('globalNavHome');
   var back=document.getElementById('globalNavBack');
@@ -543,6 +669,9 @@ restart();
 </script>
 </body>
 </html>
+
+
+
 
 
 
