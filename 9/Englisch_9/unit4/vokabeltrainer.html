@@ -276,6 +276,7 @@ let queue=[], current=null, right=0, wrong=0, direction='en-de', answered=false;
 let ttsUnlocked = false;
 let fallbackAudio = null;
 let currentExampleSentence = "";
+let currentExampleSource = "";
 const exampleHistory = {};
 const API_BASE = (location.hostname.includes('github.io') || location.protocol === 'file:') ? 'https://englisch-9.onrender.com' : '';
 
@@ -361,6 +362,7 @@ function nextCard(){
   const exBtn = document.getElementById('example-speak-btn');
   const exBox = document.getElementById('example-box');
   currentExampleSentence = "";
+  currentExampleSource = "";
   if(exBtn) exBtn.disabled = true;
   if(exBox) exBox.textContent = 'Klicke auf „Beispielsatz“, um einen KI-Satz zum Wort zu bekommen.';
 
@@ -414,6 +416,7 @@ async function generateExampleSentence(){
         topic,
         level: level,
         sentenceMode,
+        provider: 'anthropic',
         classLevel: 'grade9',
         variationSeed: Date.now(),
         previousSentences: previous.slice(-5)
@@ -425,6 +428,7 @@ async function generateExampleSentence(){
     }
     const data = await response.json();
     let sentence = String(data?.sentence || '').trim();
+    currentExampleSource = String(data?.source || '');
     if(!sentence) throw new Error('Kein Satz erhalten');
     if(previous.includes(sentence)){
       const response2 = await fetch(API_BASE + '/api/vocab/example', {
@@ -439,6 +443,7 @@ async function generateExampleSentence(){
           topic,
           level: level,
           sentenceMode,
+          provider: 'anthropic',
           classLevel: 'grade9',
           variationSeed: Date.now() + 1,
           previousSentences: previous.concat([sentence]).slice(-6)
@@ -452,29 +457,57 @@ async function generateExampleSentence(){
     }
     currentExampleSentence = sentence;
     exampleHistory[historyKey] = previous.concat([sentence]).slice(-8);
-    if(exBox) exBox.textContent = sentence;
+    if(exBox) exBox.textContent = sentence + (currentExampleSource ? (' [' + currentExampleSource + ']') : '');
     if(exSpeakBtn) exSpeakBtn.disabled = false;
   }catch(error){
-    let fallbackOptions = [
-      'Today we used "' + word + '" in a short classroom dialogue.',
-      'In Unit 4, we practised "' + word + '" in a useful sentence.',
-      'I can use "' + word + '" correctly in English now.'
-    ];
-    fallbackOptions = fallbackOptions.filter(s => !previous.includes(s));
-    if(!fallbackOptions.length){
-      fallbackOptions = [
-        'Our class used "' + word + '" in a speaking task today.',
-        'I can now use "' + word + '" in a new sentence.'
-      ];
-    }
-    const fallback = fallbackOptions[Math.floor(Math.random() * fallbackOptions.length)];
+    const fallback = buildLocalExampleSentence(word, topic, level, sentenceMode, previous);
+    currentExampleSource = 'local-fallback';
     currentExampleSentence = fallback;
     exampleHistory[historyKey] = previous.concat([fallback]).slice(-8);
-    if(exBox) exBox.textContent = fallback;
+    if(exBox) exBox.textContent = fallback + ' [local-fallback]';
     if(exSpeakBtn) exSpeakBtn.disabled = false;
   }finally{
     if(exBtn) exBtn.disabled = false;
   }
+}
+
+function buildLocalExampleSentence(word, topic, level, mode, previous){
+  const w = String(word || 'word').trim();
+  const p = Array.isArray(previous) ? previous : [];
+  const modeKey = String(mode || 'mixed').toLowerCase();
+  const packs = {
+    daily: [
+      `I used "${w}" when talking to my friend after school.`,
+      `Today I heard "${w}" in a normal daily situation.`,
+      `In class, we used "${w}" in a short dialogue.`
+    ],
+    definition: [
+      `"${w}" is a useful word we learn in Unit 4.`,
+      `A simple definition of "${w}" helps me remember it.`,
+      `"${w}" is an important term in this topic.`
+    ],
+    paraphrase: [
+      `Another way to explain "${w}" is with easy words.`,
+      `I can paraphrase "${w}" in a short sentence.`,
+      `We described "${w}" in different words today.`
+    ],
+    mixed: [
+      `We used "${w}" in a short speaking exercise today.`,
+      `My partner explained "${w}" with an everyday example.`,
+      `I wrote one clear sentence with "${w}" in class.`
+    ]
+  };
+  let pool = packs[modeKey] || packs.mixed;
+  if(String(level).toUpperCase() === 'B1'){
+    pool = pool.concat([
+      `I used "${w}" confidently while explaining my opinion.`,
+      `During discussion, "${w}" helped me express my idea clearly.`
+    ]);
+  }
+  const filtered = pool.filter(s => !p.includes(s));
+  const use = filtered.length ? filtered : pool;
+  const idx = Math.floor(Math.random() * use.length);
+  return use[idx];
 }
 
 async function speakTextViaAzure(text){
