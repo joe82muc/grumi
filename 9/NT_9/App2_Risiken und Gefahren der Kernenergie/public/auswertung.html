@@ -1,0 +1,166 @@
+﻿<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auswertung | NT Präsentationen</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="wrap">
+    <section class="card">
+      <div class="topbar">
+        <h1>Auswertung der Gruppen</h1>
+        <button id="logoutBtn" type="button" class="ghost">Abmelden</button>
+      </div>
+      <p>Durchschnittswerte pro Gruppe (1-5).</p>
+
+      <div id="lockBox" class="lock-box hidden">
+        <p><strong>Auswertung ist noch gesperrt.</strong> Erst nach Freigabe sichtbar.</p>
+        <div class="row inline">
+          <input id="releaseCode" type="password" placeholder="Lehrer-Freigabecode" />
+          <button id="releaseBtn" type="button">Jetzt freigeben</button>
+        </div>
+      </div>
+
+      <div id="tableArea" class="hidden">
+        <table id="table">
+          <thead>
+            <tr>
+              <th>Gruppe</th>
+              <th>Anzahl</th>
+              <th>Fachlich</th>
+              <th>Klarheit</th>
+              <th>Plakat</th>
+              <th>Vortrag</th>
+              <th>Gesamt</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+
+        <h2>Kommentare</h2>
+        <div id="comments"></div>
+      </div>
+
+      <p id="msg" class="msg"></p>
+      <p><a href="feedback.html">Zurück zur Feedbackseite</a></p>
+    </section>
+  </main>
+
+  <script>
+    const lockBox = document.getElementById("lockBox");
+    const tableArea = document.getElementById("tableArea");
+    const msg = document.getElementById("msg");
+    const releaseCodeInput = document.getElementById("releaseCode");
+    const releaseBtn = document.getElementById("releaseBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    function setMessage(text, ok = true) {
+      msg.textContent = text;
+      msg.className = ok ? "msg ok" : "msg bad";
+    }
+
+    async function loadStatus() {
+      const res = await fetch("/api/status");
+      const data = await res.json();
+
+      if (!data.authenticated) {
+        location.href = "/login.html?next=auswertung.html";
+        return;
+      }
+
+      const open = !!data.feedbackOpen;
+      lockBox.classList.toggle("hidden", open);
+      tableArea.classList.toggle("hidden", !open);
+
+      if (open) {
+        setMessage("Auswertung freigegeben.", true);
+        await loadSummary();
+      } else {
+        setMessage("Auswertung noch gesperrt.", false);
+      }
+    }
+
+    async function openFeedback() {
+      const adminPassword = releaseCodeInput.value;
+      if (!adminPassword) {
+        setMessage("Bitte Freigabecode eingeben.", false);
+        return;
+      }
+
+      const res = await fetch("/api/admin/open-feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ adminPassword })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setMessage(data.message || "Freigabe fehlgeschlagen.", false);
+        return;
+      }
+
+      releaseCodeInput.value = "";
+      await loadStatus();
+      setMessage("Freigabe aktiv.", true);
+    }
+
+    async function logout() {
+      await fetch("/api/logout", { method: "POST" });
+      location.href = "/login.html";
+    }
+
+    async function loadSummary() {
+      const res = await fetch('/api/summary');
+      const data = await res.json();
+      if (!res.ok) {
+        setMessage(data.message || 'Fehler beim Laden der Auswertung.', false);
+        return;
+      }
+
+      const tbody = document.querySelector('#table tbody');
+      const comments = document.getElementById('comments');
+      tbody.innerHTML = '';
+      comments.innerHTML = '';
+
+      const sorted = data.summary.slice().sort((a, b) => b.avg.gesamt - a.avg.gesamt);
+      sorted.forEach((row) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>Gruppe ${row.group}</td>
+          <td>${row.count}</td>
+          <td>${row.avg.fachlich}</td>
+          <td>${row.avg.klarheit}</td>
+          <td>${row.avg.plakat}</td>
+          <td>${row.avg.vortrag}</td>
+          <td><strong>${row.avg.gesamt}</strong></td>
+        `;
+        tbody.appendChild(tr);
+
+        const box = document.createElement('details');
+        box.className = 'comment-box';
+        box.innerHTML = `<summary>Gruppe ${row.group} (${row.comments.length} Kommentare)</summary>`;
+        if (!row.comments.length) {
+          const p = document.createElement('p');
+          p.textContent = 'Noch keine Kommentare.';
+          box.appendChild(p);
+        } else {
+          const ul = document.createElement('ul');
+          row.comments.forEach((c) => {
+            const li = document.createElement('li');
+            li.textContent = c;
+            ul.appendChild(li);
+          });
+          box.appendChild(ul);
+        }
+        comments.appendChild(box);
+      });
+    }
+
+    releaseBtn.addEventListener("click", openFeedback);
+    logoutBtn.addEventListener("click", logout);
+    loadStatus();
+  </script>
+</body>
+</html>

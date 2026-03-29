@@ -1,0 +1,215 @@
+﻿<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feedback | NT Präsentationen</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="wrap">
+    <section class="card">
+      <div class="topbar">
+        <h1>Feedback zu den Gruppenpräsentationen</h1>
+        <button id="logoutBtn" type="button" class="ghost">Abmelden</button>
+      </div>
+      <p>Gib deinen Code ein und bewerte eine Gruppe (1-6). Deine eigene Gruppe ist gesperrt.</p>
+
+      <div id="lockBox" class="lock-box hidden">
+        <p><strong>Feedback ist noch gesperrt.</strong> Bitte erst nach den Gruppenpräsentationen starten.</p>
+        <div class="row inline">
+          <input id="releaseCode" type="password" placeholder="Lehrer-Freigabecode" />
+          <button id="releaseBtn" type="button">Feedback freigeben</button>
+        </div>
+      </div>
+
+      <div id="feedbackArea" class="hidden">
+        <div class="row">
+          <label for="token">Schüler-Code</label>
+          <input id="token" type="text" placeholder="z. B. S01-AB12" />
+          <button id="checkToken" type="button">Code prüfen</button>
+        </div>
+
+        <div id="tokenInfo" class="info"></div>
+
+        <form id="feedbackForm" class="hidden">
+          <div class="row">
+            <label for="targetGroup">Zu bewertende Gruppe</label>
+            <select id="targetGroup" required>
+              <option value="">Bitte wählen</option>
+              <option value="1">Gruppe 1</option>
+              <option value="2">Gruppe 2</option>
+              <option value="3">Gruppe 3</option>
+              <option value="4">Gruppe 4</option>
+              <option value="5">Gruppe 5</option>
+              <option value="6">Gruppe 6</option>
+            </select>
+          </div>
+
+          <div class="grid">
+            <label>Fachlich korrekt
+              <select id="fachlich" required><option value="">-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+            </label>
+            <label>Verständlichkeit
+              <select id="klarheit" required><option value="">-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+            </label>
+            <label>Plakat/Visualisierung
+              <select id="plakat" required><option value="">-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+            </label>
+            <label>Vortrag
+              <select id="vortrag" required><option value="">-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+            </label>
+          </div>
+
+          <div class="row">
+            <label for="comment">Kurzer Kommentar (optional)</label>
+            <textarea id="comment" maxlength="400" placeholder="Was war besonders gut? Was kann verbessert werden?"></textarea>
+          </div>
+
+          <button type="submit">Bewertung speichern</button>
+        </form>
+      </div>
+
+      <p id="msg" class="msg"></p>
+      <p><a href="auswertung.html">Zur Auswertung</a></p>
+    </section>
+  </main>
+
+  <script>
+    const tokenInput = document.getElementById("token");
+    const checkBtn = document.getElementById("checkToken");
+    const infoBox = document.getElementById("tokenInfo");
+    const form = document.getElementById("feedbackForm");
+    const msg = document.getElementById("msg");
+    const lockBox = document.getElementById("lockBox");
+    const feedbackArea = document.getElementById("feedbackArea");
+    const releaseBtn = document.getElementById("releaseBtn");
+    const releaseCodeInput = document.getElementById("releaseCode");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    let tokenState = null;
+    let feedbackOpen = false;
+
+    function setMessage(text, ok = true) {
+      msg.textContent = text;
+      msg.className = ok ? "msg ok" : "msg bad";
+    }
+
+    async function loadStatus() {
+      const res = await fetch("/api/status");
+      const data = await res.json();
+
+      if (!data.authenticated) {
+        location.href = "/login.html?next=feedback.html";
+        return;
+      }
+
+      feedbackOpen = !!data.feedbackOpen;
+      lockBox.classList.toggle("hidden", feedbackOpen);
+      feedbackArea.classList.toggle("hidden", !feedbackOpen);
+
+      if (!feedbackOpen) {
+        setMessage("Feedback ist noch nicht freigeschaltet.", false);
+      } else {
+        setMessage("Feedback ist freigeschaltet.", true);
+      }
+    }
+
+    async function checkToken() {
+      const token = tokenInput.value.trim();
+      if (!token) {
+        setMessage("Bitte Code eingeben.", false);
+        return;
+      }
+
+      const res = await fetch("/api/token-check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        tokenState = null;
+        form.classList.add("hidden");
+        infoBox.textContent = "";
+        setMessage(data.message || "Code ungültig.", false);
+        return;
+      }
+
+      tokenState = { token, ...data };
+      form.classList.remove("hidden");
+      infoBox.textContent = `Eigene Gruppe: ${data.ownGroup}. Bereits bewertet: ${data.submittedGroups.length ? data.submittedGroups.join(", ") : "keine"}.`;
+      setMessage("Code ist gültig.");
+    }
+
+    async function openFeedback() {
+      const adminPassword = releaseCodeInput.value;
+      if (!adminPassword) {
+        setMessage("Bitte Freigabecode eingeben.", false);
+        return;
+      }
+
+      const res = await fetch("/api/admin/open-feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ adminPassword })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setMessage(data.message || "Freigabe fehlgeschlagen.", false);
+        return;
+      }
+
+      releaseCodeInput.value = "";
+      await loadStatus();
+      setMessage("Feedback freigeschaltet.", true);
+    }
+
+    async function logout() {
+      await fetch("/api/logout", { method: "POST" });
+      location.href = "/login.html";
+    }
+
+    checkBtn.addEventListener("click", checkToken);
+    releaseBtn.addEventListener("click", openFeedback);
+    logoutBtn.addEventListener("click", logout);
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!tokenState) {
+        setMessage("Bitte zuerst Code prüfen.", false);
+        return;
+      }
+
+      const targetGroup = Number(document.getElementById("targetGroup").value);
+      const scores = {
+        fachlich: Number(document.getElementById("fachlich").value),
+        klarheit: Number(document.getElementById("klarheit").value),
+        plakat: Number(document.getElementById("plakat").value),
+        vortrag: Number(document.getElementById("vortrag").value)
+      };
+      const comment = document.getElementById("comment").value.trim();
+
+      const res = await fetch("/api/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: tokenState.token, targetGroup, scores, comment })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setMessage(data.message || "Fehler beim Speichern.", false);
+        return;
+      }
+
+      setMessage("Bewertung gespeichert.");
+      form.reset();
+      await checkToken();
+    });
+
+    loadStatus();
+  </script>
+</body>
+</html>

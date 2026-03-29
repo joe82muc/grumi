@@ -1,0 +1,62 @@
+﻿<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | NT Feedback</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="wrap">
+    <section class="card">
+      <h1>Login NT Feedback</h1>
+      <p>Melde dich an, um die NT-Themenseiten und später das Feedback zu nutzen.</p>
+
+      <form id="loginForm" class="row">
+        <label for="username">Benutzername</label>
+        <input id="username" type="text" autocomplete="username" required />
+
+        <label for="password">Passwort</label>
+        <input id="password" type="password" autocomplete="current-password" required />
+
+        <button type="submit">Anmelden</button>
+      </form>
+
+      <p id="msg" class="msg"></p>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById("loginForm");
+    const msg = document.getElementById("msg");
+
+    function setMessage(text, ok = false) {
+      msg.textContent = text;
+      msg.className = ok ? "msg ok" : "msg bad";
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value;
+
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setMessage(data.message || "Login fehlgeschlagen.", false);
+        return;
+      }
+
+      setMessage("Login erfolgreich.", true);
+      const params = new URLSearchParams(location.search);
+      const next = params.get("next") || "feedback.html";
+      location.href = next;
+    });
+  </script>
+</body>
+</html>
