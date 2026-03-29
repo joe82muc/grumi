@@ -121,6 +121,12 @@
           <option value="A2+" selected>Level A2+</option>
           <option value="B1">Level B1</option>
         </select>
+        <select id="example-mode" class="btn-secondary" style="padding:.45rem .7rem">
+          <option value="mixed" selected>Gemischt</option>
+          <option value="daily">Alltag</option>
+          <option value="definition">Worterklärung</option>
+          <option value="paraphrase">Umschreibung</option>
+        </select>
         <button class="btn-secondary" id="example-btn" onclick="generateExampleSentence()">🧠 Beispielsatz</button>
         <button class="btn-secondary" id="example-speak-btn" onclick="speakExampleSentence()" disabled>🔊 Satz anhören</button>
       </div>
@@ -383,8 +389,10 @@ function buildChoices(correct,isEnDe){
 async function generateExampleSentence(){
   if(!current) return;
   const word = current.en;
+  const meaning = current.de || "";
   const topic = current.topic || "topic2";
   const level = String((document.getElementById('example-level') || {}).value || 'A2+');
+  const sentenceMode = String((document.getElementById('example-mode') || {}).value || 'mixed');
   const historyKey = (word + '|' + level).toLowerCase();
   const previous = Array.isArray(exampleHistory[historyKey]) ? exampleHistory[historyKey] : [];
   const exBtn = document.getElementById('example-btn');
@@ -402,8 +410,10 @@ async function generateExampleSentence(){
       },
       body: JSON.stringify({
         word,
+        meaning,
         topic,
         level: level,
+        sentenceMode,
         classLevel: 'grade9',
         variationSeed: Date.now(),
         previousSentences: previous.slice(-5)
@@ -425,8 +435,10 @@ async function generateExampleSentence(){
         },
         body: JSON.stringify({
           word,
+          meaning,
           topic,
           level: level,
+          sentenceMode,
           classLevel: 'grade9',
           variationSeed: Date.now() + 1,
           previousSentences: previous.concat([sentence]).slice(-6)
