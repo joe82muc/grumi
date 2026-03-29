@@ -307,6 +307,9 @@ app.post("/api/vocab/example", async (req, res) => {
     const topic = clean(req.body?.topic || "topic2").toLowerCase();
     const level = clean(req.body?.level || "A2+");
     const variationSeed = String(req.body?.variationSeed || Date.now());
+    const previousSentences = Array.isArray(req.body?.previousSentences)
+      ? req.body.previousSentences.map((s) => String(s || "").trim()).filter(Boolean).slice(-8)
+      : [];
     if (!word) return res.status(400).json({ error: "word fehlt." });
 
     let sentence = "";
@@ -320,10 +323,11 @@ app.post("/api/vocab/example", async (req, res) => {
         "Keep it simple and school-friendly. Max 16 words.",
         "Use the given word exactly once if possible.",
         "Vary the wording each time.",
+        "Do not repeat any previous sentence from the provided list.",
         "No list, no explanation, sentence only."
       ].join("\n");
 
-      const user = `Word: ${word}\nTopic: ${topic}\nLevel: ${level}\nVariation: ${variationSeed}`;
+      const user = `Word: ${word}\nTopic: ${topic}\nLevel: ${level}\nVariation: ${variationSeed}\nPrevious: ${previousSentences.join(" || ") || "-"}`;
       const aiRaw = await askAzureOpenAI(system, user, 120);
       sentence = normalizeEnglishSentence(aiRaw);
       source = sentence ? "azure-openai" : source;
@@ -331,14 +335,14 @@ app.post("/api/vocab/example", async (req, res) => {
 
     if (!sentence && ANTHROPIC_API_KEY) {
       const sys = "Write one short natural English sentence for grade 9. Return sentence only.";
-      const user = `Word: ${word}\nTopic: ${topic}\nLevel: ${level}\nVariation: ${variationSeed}`;
+      const user = `Word: ${word}\nTopic: ${topic}\nLevel: ${level}\nVariation: ${variationSeed}\nPrevious: ${previousSentences.join(" || ") || "-"}`;
       const raw = await askAnthropic(sys, user, 80);
       sentence = normalizeEnglishSentence(raw);
       source = sentence ? "anthropic" : source;
     }
 
     if (!sentence) {
-      sentence = buildFallbackExampleSentence(word, topic, level);
+      sentence = buildFallbackExampleSentence(word, topic, level, previousSentences);
       source = "fallback";
     }
 
@@ -348,7 +352,10 @@ app.post("/api/vocab/example", async (req, res) => {
     const word = clean(req.body?.word || "word");
     const topic = clean(req.body?.topic || "topic2").toLowerCase();
     const level = clean(req.body?.level || "A2+");
-    return res.status(200).json({ ok: true, sentence: buildFallbackExampleSentence(word, topic, level), source: "fallback-error" });
+    const previousSentences = Array.isArray(req.body?.previousSentences)
+      ? req.body.previousSentences.map((s) => String(s || "").trim()).filter(Boolean).slice(-8)
+      : [];
+    return res.status(200).json({ ok: true, sentence: buildFallbackExampleSentence(word, topic, level, previousSentences), source: "fallback-error" });
   }
 });
 
@@ -753,10 +760,11 @@ function normalizeEnglishSentence(raw) {
   return text;
 }
 
-function buildFallbackExampleSentence(word, topic, level) {
+function buildFallbackExampleSentence(word, topic, level, previousSentences) {
   const cleanWord = String(word || "word").trim() || "word";
   const lower = cleanWord.toLowerCase();
   const levelKey = String(level || "A2+").toUpperCase();
+  const previous = Array.isArray(previousSentences) ? new Set(previousSentences.map((s) => String(s || "").trim())) : new Set();
   const byTopic = {
     writing: [
       `I used "${lower}" in my short application letter.`,
@@ -801,8 +809,10 @@ function buildFallbackExampleSentence(word, topic, level) {
       `During discussion, I used "${lower}" in a clear sentence.`
     ]);
   }
-  const idx = Math.floor(Math.random() * pool.length);
-  return pool[idx];
+  const filtered = pool.filter((s) => !previous.has(s));
+  const use = filtered.length ? filtered : pool;
+  const idx = Math.floor(Math.random() * use.length);
+  return use[idx];
 }
 
 function escapeXml(text) {
