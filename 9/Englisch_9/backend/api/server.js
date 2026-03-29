@@ -54,6 +54,9 @@ app.get("/api/health", (_req, res) => {
   });
 });
 
+const sessions = new Map();
+const siteSessions = new Map();
+
 app.post("/api/site/login", (req, res) => {
   const username = clean(req.body?.username);
   const password = clean(req.body?.password);
@@ -80,8 +83,6 @@ app.post("/api/site/logout", (req, res) => {
   if (token) siteSessions.delete(token);
   return res.json({ ok: true });
 });
-const sessions = new Map();
-const siteSessions = new Map();
 
 app.post("/api/auth/login", (req, res) => {
   const firstName = clean(req.body?.firstName);
@@ -1040,6 +1041,8 @@ function buildStudentOverview(records) {
   overview.sort((a, b) => String(b.lastAt).localeCompare(String(a.lastAt)));
   return overview;
 }
+
+
 
 
 
