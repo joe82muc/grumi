@@ -196,21 +196,64 @@
       const status = document.getElementById("statusText");
       const badge = document.getElementById("loginBadge");
       const menu = document.getElementById("mainMenu");
-      const validUser = "1";
-      const validPassword = "2";
+      const AUTH_BASE = "https://englisch-9.onrender.com";
+      const TOKEN_KEY = "grumi_site_token";
 
-      form.addEventListener("submit", function (event) {
-        event.preventDefault();
-        const username = document.getElementById("username").value.trim();
-        const password = document.getElementById("password").value;
-
-        if (username === validUser && password === validPassword) {
+      function setLockedState(isLoggedIn) {
+        if (isLoggedIn) {
           status.textContent = "Login erfolgreich. Das Menü ist jetzt freigeschaltet.";
           status.classList.add("ok");
           badge.textContent = "Status: Eingeloggt";
           menu.classList.remove("locked");
           menu.removeAttribute("aria-disabled");
         } else {
+          status.textContent = "Bitte Benutzername und Passwort eingeben.";
+          status.classList.remove("ok");
+          badge.textContent = "Status: Nicht eingeloggt";
+          menu.classList.add("locked");
+          menu.setAttribute("aria-disabled", "true");
+        }
+      }
+
+      async function verifyExistingLogin() {
+        const token = localStorage.getItem(TOKEN_KEY);
+        if (!token) {
+          setLockedState(false);
+          return;
+        }
+        try {
+          const response = await fetch(`${AUTH_BASE}/api/site/verify`, {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (!response.ok) throw new Error("invalid token");
+          setLockedState(true);
+        } catch (_error) {
+          localStorage.removeItem(TOKEN_KEY);
+          setLockedState(false);
+        }
+      }
+
+      form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value;
+
+        try {
+          const response = await fetch(`${AUTH_BASE}/api/site/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password })
+          });
+
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok || !data.token) {
+            throw new Error(data.error || "Login fehlgeschlagen");
+          }
+
+          localStorage.setItem(TOKEN_KEY, data.token);
+          setLockedState(true);
+        } catch (_error) {
           status.textContent = "Login fehlgeschlagen. Bitte erneut versuchen.";
           status.classList.remove("ok");
           badge.textContent = "Status: Nicht eingeloggt";
@@ -218,10 +261,13 @@
           menu.setAttribute("aria-disabled", "true");
         }
       });
+
+      verifyExistingLogin();
     })();
   </script>
 </body>
 </html>
+
 
 
 
