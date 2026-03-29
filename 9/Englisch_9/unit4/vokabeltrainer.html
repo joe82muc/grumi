@@ -270,6 +270,7 @@ let queue=[], current=null, right=0, wrong=0, direction='en-de', answered=false;
 let ttsUnlocked = false;
 let fallbackAudio = null;
 let currentExampleSentence = "";
+const exampleHistory = {};
 const API_BASE = (location.hostname.includes('github.io') || location.protocol === 'file:') ? 'https://englisch-9.onrender.com' : '';
 
 const E9_TOKEN = localStorage.getItem('e9_token') || '';
@@ -384,6 +385,8 @@ async function generateExampleSentence(){
   const word = current.en;
   const topic = current.topic || "topic2";
   const level = String((document.getElementById('example-level') || {}).value || 'A2+');
+  const historyKey = (word + '|' + level).toLowerCase();
+  const previous = Array.isArray(exampleHistory[historyKey]) ? exampleHistory[historyKey] : [];
   const exBtn = document.getElementById('example-btn');
   const exSpeakBtn = document.getElementById('example-speak-btn');
   const exBox = document.getElementById('example-box');
@@ -402,7 +405,8 @@ async function generateExampleSentence(){
         topic,
         level: level,
         classLevel: 'grade9',
-        variationSeed: Date.now()
+        variationSeed: Date.now(),
+        previousSentences: previous.slice(-5)
       })
     });
 
@@ -410,19 +414,50 @@ async function generateExampleSentence(){
       throw new Error('HTTP ' + response.status);
     }
     const data = await response.json();
-    const sentence = String(data?.sentence || '').trim();
+    let sentence = String(data?.sentence || '').trim();
     if(!sentence) throw new Error('Kein Satz erhalten');
+    if(previous.includes(sentence)){
+      const response2 = await fetch(API_BASE + '/api/vocab/example', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(E9_TOKEN ? { 'Authorization': 'Bearer ' + E9_TOKEN } : {})
+        },
+        body: JSON.stringify({
+          word,
+          topic,
+          level: level,
+          classLevel: 'grade9',
+          variationSeed: Date.now() + 1,
+          previousSentences: previous.concat([sentence]).slice(-6)
+        })
+      });
+      if(response2.ok){
+        const data2 = await response2.json();
+        const s2 = String(data2?.sentence || '').trim();
+        if(s2 && !previous.includes(s2)) sentence = s2;
+      }
+    }
     currentExampleSentence = sentence;
+    exampleHistory[historyKey] = previous.concat([sentence]).slice(-8);
     if(exBox) exBox.textContent = sentence;
     if(exSpeakBtn) exSpeakBtn.disabled = false;
   }catch(error){
-    const fallbackOptions = [
+    let fallbackOptions = [
       'Today we used "' + word + '" in a short classroom dialogue.',
       'In Unit 4, we practised "' + word + '" in a useful sentence.',
       'I can use "' + word + '" correctly in English now.'
     ];
+    fallbackOptions = fallbackOptions.filter(s => !previous.includes(s));
+    if(!fallbackOptions.length){
+      fallbackOptions = [
+        'Our class used "' + word + '" in a speaking task today.',
+        'I can now use "' + word + '" in a new sentence.'
+      ];
+    }
     const fallback = fallbackOptions[Math.floor(Math.random() * fallbackOptions.length)];
     currentExampleSentence = fallback;
+    exampleHistory[historyKey] = previous.concat([fallback]).slice(-8);
     if(exBox) exBox.textContent = fallback;
     if(exSpeakBtn) exSpeakBtn.disabled = false;
   }finally{
