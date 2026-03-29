@@ -136,6 +136,62 @@
 
   <script>
     (function () {
+      const galleryPool = [
+        { src: "images_school/1abc327483604c0daaf249d7fb5ee3de.6e7b65d0.jpg", alt: "Schulbild 1" },
+        { src: "images_school/6043ab7ff6f9213a5000d8e9_1_UHH.jpg", alt: "Schulbild 2" },
+        { src: "images_school/6043ab8ceb50aa857954536c_5_UHH.jpg", alt: "Schulbild 3" },
+        { src: "images_school/csm_159_2_1_9da89987ba.jpg", alt: "Schulbild 4" },
+        { src: "images_school/dsc-4.jpg", alt: "Schulbild 5" },
+        { src: "images_school/gms_11.jpg", alt: "Schulbild 6" },
+        { src: "images_school/Grund Mittelschule Unterhaching (11).a7c22b1c92ccf593e6569c67338277a7500.jpg", alt: "Schulbild 7" },
+        { src: "images_school/Grund Mittelschule Unterhaching (12).a7c22b1c92ccf593e6569c67338277a7500.jpg", alt: "Schulbild 8" }
+      ];
+      let lastGallerySignature = "";
+
+      function shuffle(arr) {
+        const out = arr.slice();
+        for (let i = out.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const tmp = out[i];
+          out[i] = out[j];
+          out[j] = tmp;
+        }
+        return out;
+      }
+
+      function rotateGallery() {
+        const figures = Array.from(document.querySelectorAll(".gallery figure"));
+        if (!figures.length) return;
+
+        const maxCount = Math.min(figures.length, galleryPool.length);
+        let chosen = [];
+        let signature = "";
+        let tries = 0;
+
+        do {
+          chosen = shuffle(galleryPool).slice(0, maxCount);
+          signature = chosen.map((x) => x.src).join("|");
+          tries++;
+        } while (signature === lastGallerySignature && tries < 6);
+
+        lastGallerySignature = signature;
+
+        figures.forEach((figure, index) => {
+          const item = chosen[index];
+          if (!item) return;
+          const anchor = figure.querySelector("a");
+          const image = figure.querySelector("img");
+          if (anchor) anchor.href = item.src;
+          if (image) {
+            image.src = item.src;
+            image.alt = item.alt;
+          }
+        });
+      }
+
+      rotateGallery();
+      setInterval(rotateGallery, 7000);
+
       const form = document.getElementById("loginForm");
       const status = document.getElementById("statusText");
       const badge = document.getElementById("loginBadge");
