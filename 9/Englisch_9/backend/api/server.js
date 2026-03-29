@@ -305,7 +305,8 @@ app.post("/api/vocab/example", async (req, res) => {
   try {
     const word = clean(req.body?.word);
     const topic = clean(req.body?.topic || "topic2").toLowerCase();
-    const level = clean(req.body?.level || "A2-B1");
+    const level = clean(req.body?.level || "A2+");
+    const variationSeed = String(req.body?.variationSeed || Date.now());
     if (!word) return res.status(400).json({ error: "word fehlt." });
 
     let sentence = "";
@@ -315,19 +316,29 @@ app.post("/api/vocab/example", async (req, res) => {
       const system = [
         "You are an English teacher assistant for German grade 9 students.",
         "Write exactly one short and natural English example sentence.",
-        "Level: A2-B1. Max 14 words.",
+        "Use level as requested (A2, A2+, or B1).",
+        "Keep it simple and school-friendly. Max 16 words.",
         "Use the given word exactly once if possible.",
+        "Vary the wording each time.",
         "No list, no explanation, sentence only."
       ].join("\n");
 
-      const user = `Word: ${word}\nTopic: ${topic}\nLevel: ${level}`;
-      const aiRaw = await askAzureOpenAI(system, user, 90);
+      const user = `Word: ${word}\nTopic: ${topic}\nLevel: ${level}\nVariation: ${variationSeed}`;
+      const aiRaw = await askAzureOpenAI(system, user, 120);
       sentence = normalizeEnglishSentence(aiRaw);
       source = sentence ? "azure-openai" : source;
     }
 
+    if (!sentence && ANTHROPIC_API_KEY) {
+      const sys = "Write one short natural English sentence for grade 9. Return sentence only.";
+      const user = `Word: ${word}\nTopic: ${topic}\nLevel: ${level}\nVariation: ${variationSeed}`;
+      const raw = await askAnthropic(sys, user, 80);
+      sentence = normalizeEnglishSentence(raw);
+      source = sentence ? "anthropic" : source;
+    }
+
     if (!sentence) {
-      sentence = buildFallbackExampleSentence(word, topic);
+      sentence = buildFallbackExampleSentence(word, topic, level);
       source = "fallback";
     }
 
@@ -335,7 +346,9 @@ app.post("/api/vocab/example", async (req, res) => {
   } catch (error) {
     console.error("Fehler bei /api/vocab/example:", error.message);
     const word = clean(req.body?.word || "word");
-    return res.status(200).json({ ok: true, sentence: buildFallbackExampleSentence(word, "topic2"), source: "fallback-error" });
+    const topic = clean(req.body?.topic || "topic2").toLowerCase();
+    const level = clean(req.body?.level || "A2+");
+    return res.status(200).json({ ok: true, sentence: buildFallbackExampleSentence(word, topic, level), source: "fallback-error" });
   }
 });
 
@@ -740,14 +753,56 @@ function normalizeEnglishSentence(raw) {
   return text;
 }
 
-function buildFallbackExampleSentence(word, topic) {
+function buildFallbackExampleSentence(word, topic, level) {
   const cleanWord = String(word || "word").trim() || "word";
   const lower = cleanWord.toLowerCase();
-  if (topic === "writing") return `I used the word "${lower}" in my application letter yesterday.`;
-  if (topic === "text") return `In the story, the word "${lower}" helped me understand the scene.`;
-  if (topic === "topic1") return `I can use "${lower}" when I talk about jobs and skills.`;
-  if (topic === "topic2") return `At work, we often need the word "${lower}" in daily tasks.`;
-  return `Today we practiced the word "${lower}" in English class.`;
+  const levelKey = String(level || "A2+").toUpperCase();
+  const byTopic = {
+    writing: [
+      `I used "${lower}" in my short application letter.`,
+      `In writing class, I practiced "${lower}" today.`,
+      `My teacher liked my sentence with "${lower}".`
+    ],
+    text: [
+      `In the story, "${lower}" was an important word.`,
+      `I understood the text better after learning "${lower}".`,
+      `We found "${lower}" in the reading task today.`
+    ],
+    topic1: [
+      `I can use "${lower}" when talking about jobs.`,
+      `In careers class, we practiced "${lower}" together.`,
+      `My partner used "${lower}" in a good sentence.`
+    ],
+    topic2: [
+      `At work, "${lower}" is useful in daily tasks.`,
+      `In the shop role-play, I used "${lower}" correctly.`,
+      `We needed "${lower}" in our business exercise.`
+    ],
+    intro: [
+      `Today we learned "${lower}" in Unit 4.`,
+      `Our class practiced "${lower}" with simple examples.`,
+      `I can remember "${lower}" from today's lesson.`
+    ],
+    more: [
+      `I used "${lower}" while talking about New Zealand.`,
+      `In our project, "${lower}" was a helpful word.`,
+      `We built a short dialogue with "${lower}".`
+    ]
+  };
+  const simple = [
+    `Today we practiced "${lower}" in English class.`,
+    `I can use "${lower}" in a correct sentence now.`,
+    `My classmate and I used "${lower}" in a dialogue.`
+  ];
+  let pool = byTopic[topic] || simple;
+  if (levelKey === "B1") {
+    pool = pool.concat([
+      `I can use "${lower}" confidently when explaining my ideas.`,
+      `During discussion, I used "${lower}" in a clear sentence.`
+    ]);
+  }
+  const idx = Math.floor(Math.random() * pool.length);
+  return pool[idx];
 }
 
 function escapeXml(text) {
