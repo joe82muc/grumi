@@ -304,8 +304,13 @@ app.post("/api/vocab/generate", authRequired, (req, res) => {
 app.post("/api/vocab/example", async (req, res) => {
   try {
     const word = clean(req.body?.word);
+    const meaning = clean(req.body?.meaning || "");
     const topic = clean(req.body?.topic || "topic2").toLowerCase();
     const level = clean(req.body?.level || "A2+");
+    const sentenceModeRaw = clean(req.body?.sentenceMode || "mixed").toLowerCase();
+    const allowedModes = new Set(["mixed", "daily", "definition", "paraphrase"]);
+    const sentenceMode = allowedModes.has(sentenceModeRaw) ? sentenceModeRaw : "mixed";
+    const modeForPrompt = sentenceMode === "mixed" ? ["daily", "definition", "paraphrase"][Math.floor(Math.random() * 3)] : sentenceMode;
     const variationSeed = String(req.body?.variationSeed || Date.now());
     const previousSentences = Array.isArray(req.body?.previousSentences)
       ? req.body.previousSentences.map((s) => String(s || "").trim()).filter(Boolean).slice(-8)
@@ -321,13 +326,14 @@ app.post("/api/vocab/example", async (req, res) => {
         "Write exactly one short and natural English example sentence.",
         "Use level as requested (A2, A2+, or B1).",
         "Keep it simple and school-friendly. Max 16 words.",
-        "Use the given word exactly once if possible.",
+        "Use the given word exactly once.",
+        "The sentence must match the real meaning of the word.",
         "Vary the wording each time.",
         "Do not repeat any previous sentence from the provided list.",
         "No list, no explanation, sentence only."
       ].join("\n");
 
-      const user = `Word: ${word}\nTopic: ${topic}\nLevel: ${level}\nVariation: ${variationSeed}\nPrevious: ${previousSentences.join(" || ") || "-"}`;
+      const user = `Word: ${word}\nMeaning hint (German): ${meaning || "-"}\nTopic: ${topic}\nLevel: ${level}\nSentence mode: ${modeForPrompt}\nVariation: ${variationSeed}\nPrevious: ${previousSentences.join(" || ") || "-"}`;
       const aiRaw = await askAzureOpenAI(system, user, 120);
       sentence = normalizeEnglishSentence(aiRaw);
       source = sentence ? "azure-openai" : source;
@@ -335,14 +341,14 @@ app.post("/api/vocab/example", async (req, res) => {
 
     if (!sentence && ANTHROPIC_API_KEY) {
       const sys = "Write one short natural English sentence for grade 9. Return sentence only.";
-      const user = `Word: ${word}\nTopic: ${topic}\nLevel: ${level}\nVariation: ${variationSeed}\nPrevious: ${previousSentences.join(" || ") || "-"}`;
+      const user = `Word: ${word}\nMeaning hint (German): ${meaning || "-"}\nTopic: ${topic}\nLevel: ${level}\nSentence mode: ${modeForPrompt}\nVariation: ${variationSeed}\nPrevious: ${previousSentences.join(" || ") || "-"}`;
       const raw = await askAnthropic(sys, user, 80);
       sentence = normalizeEnglishSentence(raw);
       source = sentence ? "anthropic" : source;
     }
 
     if (!sentence) {
-      sentence = buildFallbackExampleSentence(word, topic, level, previousSentences);
+      sentence = buildFallbackExampleSentence(word, topic, level, previousSentences, modeForPrompt, meaning);
       source = "fallback";
     }
 
@@ -350,12 +356,17 @@ app.post("/api/vocab/example", async (req, res) => {
   } catch (error) {
     console.error("Fehler bei /api/vocab/example:", error.message);
     const word = clean(req.body?.word || "word");
+    const meaning = clean(req.body?.meaning || "");
     const topic = clean(req.body?.topic || "topic2").toLowerCase();
     const level = clean(req.body?.level || "A2+");
+    const sentenceModeRaw = clean(req.body?.sentenceMode || "mixed").toLowerCase();
+    const allowedModes = new Set(["mixed", "daily", "definition", "paraphrase"]);
+    const sentenceMode = allowedModes.has(sentenceModeRaw) ? sentenceModeRaw : "mixed";
+    const modeForPrompt = sentenceMode === "mixed" ? ["daily", "definition", "paraphrase"][Math.floor(Math.random() * 3)] : sentenceMode;
     const previousSentences = Array.isArray(req.body?.previousSentences)
       ? req.body.previousSentences.map((s) => String(s || "").trim()).filter(Boolean).slice(-8)
       : [];
-    return res.status(200).json({ ok: true, sentence: buildFallbackExampleSentence(word, topic, level, previousSentences), source: "fallback-error" });
+    return res.status(200).json({ ok: true, sentence: buildFallbackExampleSentence(word, topic, level, previousSentences, modeForPrompt, meaning), source: "fallback-error" });
   }
 });
 
@@ -760,11 +771,38 @@ function normalizeEnglishSentence(raw) {
   return text;
 }
 
-function buildFallbackExampleSentence(word, topic, level, previousSentences) {
+function buildFallbackExampleSentence(word, topic, level, previousSentences, mode, meaning) {
   const cleanWord = String(word || "word").trim() || "word";
   const lower = cleanWord.toLowerCase();
   const levelKey = String(level || "A2+").toUpperCase();
+  const modeKey = String(mode || "daily").toLowerCase();
+  const meaningHint = String(meaning || "").trim();
   const previous = Array.isArray(previousSentences) ? new Set(previousSentences.map((s) => String(s || "").trim())) : new Set();
+
+  const modeSentences = {
+    daily: [
+      `I used "${lower}" in a short conversation after school.`,
+      `Today I heard "${lower}" in a normal daily situation.`,
+      `My friend and I used "${lower}" while talking about our day.`
+    ],
+    definition: [
+      `"${lower}" means ${meaningHint || "something important in this topic"}.`,
+      `In simple words, "${lower}" is ${meaningHint || "a useful term for Unit 4"}.`,
+      `A short definition: "${lower}" is ${meaningHint || "a key word in this lesson"}.`
+    ],
+    paraphrase: [
+      `You can say "${lower}" when you want to describe ${meaningHint || "this idea"} in another way.`,
+      `Another way to explain "${lower}" is to use easy words for ${meaningHint || "its meaning"}.`,
+      `I can paraphrase "${lower}" by describing ${meaningHint || "it"} in simple English.`
+    ]
+  };
+
+  if (modeSentences[modeKey]) {
+    const filteredMode = modeSentences[modeKey].filter((s) => !previous.has(s));
+    const useMode = filteredMode.length ? filteredMode : modeSentences[modeKey];
+    return useMode[Math.floor(Math.random() * useMode.length)];
+  }
+
   const byTopic = {
     writing: [
       `I used "${lower}" in my short application letter.`,
