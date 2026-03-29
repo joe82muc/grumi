@@ -307,6 +307,8 @@ app.post("/api/vocab/example", async (req, res) => {
     const meaning = clean(req.body?.meaning || "");
     const topic = clean(req.body?.topic || "topic2").toLowerCase();
     const level = clean(req.body?.level || "A2+");
+    const providerRaw = clean(req.body?.provider || "anthropic").toLowerCase();
+    const provider = providerRaw === "azure" ? "azure" : "anthropic";
     const sentenceModeRaw = clean(req.body?.sentenceMode || "mixed").toLowerCase();
     const allowedModes = new Set(["mixed", "daily", "definition", "paraphrase"]);
     const sentenceMode = allowedModes.has(sentenceModeRaw) ? sentenceModeRaw : "mixed";
@@ -320,31 +322,41 @@ app.post("/api/vocab/example", async (req, res) => {
     let sentence = "";
     let source = "fallback";
 
-    if (AZURE_OPENAI_ENDPOINT && AZURE_OPENAI_API_KEY && AZURE_OPENAI_DEPLOYMENT) {
-      const system = [
-        "You are an English teacher assistant for German grade 9 students.",
-        "Write exactly one short and natural English example sentence.",
-        "Use level as requested (A2, A2+, or B1).",
-        "Keep it simple and school-friendly. Max 16 words.",
-        "Use the given word exactly once.",
-        "The sentence must match the real meaning of the word.",
-        "Vary the wording each time.",
-        "Do not repeat any previous sentence from the provided list.",
-        "No list, no explanation, sentence only."
-      ].join("\n");
+    const system = [
+      "You are an English teacher assistant for German grade 9 students.",
+      "Write exactly one short and natural English example sentence.",
+      "Use level as requested (A2, A2+, or B1).",
+      "Keep it simple and school-friendly. Max 16 words.",
+      "Use the given word exactly once.",
+      "The sentence must match the real meaning of the word.",
+      "Vary the wording each time.",
+      "Do not repeat any previous sentence from the provided list.",
+      "No list, no explanation, sentence only."
+    ].join("\n");
+    const userPrompt = `Word: ${word}\nMeaning hint (German): ${meaning || "-"}\nTopic: ${topic}\nLevel: ${level}\nSentence mode: ${modeForPrompt}\nVariation: ${variationSeed}\nPrevious: ${previousSentences.join(" || ") || "-"}`;
 
-      const user = `Word: ${word}\nMeaning hint (German): ${meaning || "-"}\nTopic: ${topic}\nLevel: ${level}\nSentence mode: ${modeForPrompt}\nVariation: ${variationSeed}\nPrevious: ${previousSentences.join(" || ") || "-"}`;
-      const aiRaw = await askAzureOpenAI(system, user, 120);
-      sentence = normalizeEnglishSentence(aiRaw);
-      source = sentence ? "azure-openai" : source;
-    }
-
-    if (!sentence && ANTHROPIC_API_KEY) {
-      const sys = "Write one short natural English sentence for grade 9. Return sentence only.";
-      const user = `Word: ${word}\nMeaning hint (German): ${meaning || "-"}\nTopic: ${topic}\nLevel: ${level}\nSentence mode: ${modeForPrompt}\nVariation: ${variationSeed}\nPrevious: ${previousSentences.join(" || ") || "-"}`;
-      const raw = await askAnthropic(sys, user, 80);
-      sentence = normalizeEnglishSentence(raw);
-      source = sentence ? "anthropic" : source;
+    if (provider === "anthropic") {
+      if (ANTHROPIC_API_KEY) {
+        const raw = await askAnthropic(system, userPrompt, 110);
+        sentence = normalizeEnglishSentence(raw);
+        source = sentence ? "anthropic" : source;
+      }
+      if (!sentence && AZURE_OPENAI_ENDPOINT && AZURE_OPENAI_API_KEY && AZURE_OPENAI_DEPLOYMENT) {
+        const aiRaw = await askAzureOpenAI(system, userPrompt, 120);
+        sentence = normalizeEnglishSentence(aiRaw);
+        source = sentence ? "azure-openai-fallback" : source;
+      }
+    } else {
+      if (AZURE_OPENAI_ENDPOINT && AZURE_OPENAI_API_KEY && AZURE_OPENAI_DEPLOYMENT) {
+        const aiRaw = await askAzureOpenAI(system, userPrompt, 120);
+        sentence = normalizeEnglishSentence(aiRaw);
+        source = sentence ? "azure-openai" : source;
+      }
+      if (!sentence && ANTHROPIC_API_KEY) {
+        const raw = await askAnthropic(system, userPrompt, 110);
+        sentence = normalizeEnglishSentence(raw);
+        source = sentence ? "anthropic-fallback" : source;
+      }
     }
 
     if (!sentence) {
