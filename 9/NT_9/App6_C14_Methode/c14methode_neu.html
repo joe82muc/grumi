@@ -1,0 +1,643 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Die C-14-Methode – NT 9</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0f1117;--bg2:#181b24;--bg3:#1e2230;--accent:#f0a030;--accent2:#e8c547;--green:#4ecdc4;--red:#ff6b6b;--purple:#a78bfa;--text:#e8e6e1;--text2:#9ca3af;--success:#22c55e;--wrong:#ef4444;--radius:14px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+.hero{position:relative;min-height:45vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:50px 20px 30px;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 500px 350px at 35% 45%,rgba(240,160,48,.1),transparent),radial-gradient(ellipse 400px 300px at 65% 55%,rgba(78,205,196,.08),transparent);pointer-events:none}
+.hero-badge{display:inline-block;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0f1117;font-weight:700;font-size:.75rem;letter-spacing:2px;text-transform:uppercase;padding:6px 18px;border-radius:30px;margin-bottom:16px}
+.hero h1{font-size:clamp(1.8rem,4.5vw,3.2rem);font-weight:800;line-height:1.1;margin-bottom:10px;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-size:1.05rem;color:var(--text2);max-width:580px;line-height:1.6}
+.hero-icon{font-size:4rem;margin:20px 0 6px;filter:drop-shadow(0 0 20px rgba(240,160,48,.3))}
+
+.content-wrap{max-width:920px;margin:0 auto;padding:0 20px 60px}
+.section{background:var(--bg2);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);padding:30px 26px;margin-bottom:22px;position:relative;overflow:hidden}
+.section::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--green),var(--purple))}
+.section h2{font-size:1.35rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.section h2 .icon{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.section p,.section li{font-family:'Crimson Pro',serif;font-size:1.08rem;line-height:1.72;color:var(--text2)}
+.section p+p{margin-top:10px}
+.strong-accent{color:var(--accent);font-weight:600}
+
+.merke{background:linear-gradient(135deg,rgba(240,160,48,.1),rgba(240,160,48,.03));border:1px solid rgba(240,160,48,.3);border-radius:var(--radius);padding:18px;margin-top:18px}
+.merke h3{font-size:.9rem;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.merke p{font-family:'Crimson Pro',serif;font-size:1.02rem;color:var(--text);line-height:1.65}
+
+/* ─── BEISPIEL-KARTEN ─── */
+.example-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-top:18px}
+.example-card{border-radius:var(--radius);padding:22px;position:relative;overflow:hidden;transition:transform .25s}
+.example-card:hover{transform:translateY(-3px)}
+.example-card.milk{background:linear-gradient(135deg,rgba(78,205,196,.1),rgba(78,205,196,.03));border:1px solid rgba(78,205,196,.25)}
+.example-card.mummy{background:linear-gradient(135deg,rgba(240,160,48,.1),rgba(240,160,48,.03));border:1px solid rgba(240,160,48,.25)}
+.example-card.tree{background:linear-gradient(135deg,rgba(167,139,250,.1),rgba(167,139,250,.03));border:1px solid rgba(167,139,250,.25)}
+.example-card .card-icon{font-size:2rem;margin-bottom:8px}
+.example-card h3{font-size:1.1rem;font-weight:700;margin-bottom:8px}
+.example-card.milk h3{color:var(--green)}
+.example-card.mummy h3{color:var(--accent)}
+.example-card.tree h3{color:var(--purple)}
+.example-card p{font-family:'Crimson Pro',serif;font-size:.98rem;color:var(--text2);line-height:1.6}
+
+/* ─── STEP BOXES ─── */
+.steps{margin-top:18px}
+.step{display:flex;gap:14px;margin-bottom:14px;align-items:flex-start}
+.step-num{flex-shrink:0;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.95rem;margin-top:2px}
+.step-num.s1{background:rgba(78,205,196,.15);color:var(--green)}
+.step-num.s2{background:rgba(240,160,48,.15);color:var(--accent)}
+.step-num.s3{background:rgba(167,139,250,.15);color:var(--purple)}
+.step-num.s4{background:rgba(255,107,107,.15);color:var(--red)}
+.step p{font-family:'Crimson Pro',serif;font-size:1.02rem;color:var(--text2);line-height:1.6}
+
+/* ─── INTERAKTIVES DIAGRAMM ─── */
+.chart-wrap{background:var(--bg3);border-radius:var(--radius);padding:20px;margin-top:18px}
+.chart-wrap h3{font-size:1rem;font-weight:700;color:var(--green);margin-bottom:12px}
+.chart-container{position:relative;height:300px;background:var(--bg);border-radius:10px;padding:10px}
+.chart-info{margin-top:14px;padding:14px;background:var(--bg);border-radius:10px;font-family:'Crimson Pro',serif;font-size:1rem;color:var(--text);line-height:1.6;display:none}
+.chart-info.show{display:block;animation:fadeIn .4s}
+
+.slider-row{display:flex;align-items:center;gap:14px;margin-top:16px;flex-wrap:wrap}
+.slider-row label{font-size:.9rem;color:var(--text2);min-width:140px}
+.slider-row input[type=range]{flex:1;min-width:150px;accent-color:var(--accent);height:6px;cursor:pointer}
+.slider-val{font-weight:700;color:var(--accent);min-width:80px;text-align:right;font-size:.95rem}
+
+/* ─── AUFGABEN ─── */
+.aufgaben-btn-wrap{text-align:center;margin:34px 0 14px}
+.aufgaben-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--accent),#d4891a);color:#0f1117;font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:700;padding:14px 34px;border:none;border-radius:50px;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 20px rgba(240,160,48,.35)}
+.aufgaben-btn:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(240,160,48,.5)}
+.aufgaben-btn .arrow{font-size:1.2rem;transition:transform .2s}
+.aufgaben-btn:hover .arrow{transform:translateX(4px)}
+
+#aufgabenArea{display:none}
+#aufgabenArea.show{display:block;animation:fadeIn .5s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+.tabs{display:flex;gap:5px;margin-bottom:18px;flex-wrap:wrap}
+.tab-btn{background:var(--bg3);color:var(--text2);border:1px solid rgba(255,255,255,.08);padding:9px 16px;border-radius:10px;font-family:'Outfit',sans-serif;font-size:.83rem;font-weight:600;cursor:pointer;transition:all .2s}
+.tab-btn:hover{background:rgba(240,160,48,.1);color:var(--text)}
+.tab-btn.active{background:linear-gradient(135deg,var(--accent),#d4891a);color:#0f1117;border-color:transparent}
+.tab-content{display:none}
+.tab-content.active{display:block;animation:fadeIn .4s ease}
+
+.luecken-text{font-family:'Crimson Pro',serif;font-size:1.08rem;line-height:2.2;color:var(--text)}
+.luecken-text .gap{display:inline-block;min-width:125px;border-bottom:2.5px dashed rgba(240,160,48,.5);padding:2px 8px;margin:0 4px;min-height:26px;vertical-align:bottom;border-radius:4px;transition:all .3s;cursor:pointer;background:rgba(240,160,48,.05)}
+.luecken-text .gap.filled{border-bottom-color:var(--accent);background:rgba(240,160,48,.12);color:var(--accent);font-weight:600}
+.luecken-text .gap.correct{border-bottom-color:var(--success);background:rgba(34,197,94,.12);color:var(--success)}
+.luecken-text .gap.wrong{border-bottom-color:var(--wrong);background:rgba(239,68,68,.12);color:var(--wrong)}
+
+.word-bank{display:flex;flex-wrap:wrap;gap:9px;margin:16px 0;padding:13px;background:var(--bg3);border-radius:var(--radius);min-height:46px}
+.word-card{display:inline-block;background:linear-gradient(135deg,rgba(240,160,48,.18),rgba(240,160,48,.06));border:1.5px solid rgba(240,160,48,.35);color:var(--accent);font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:600;padding:7px 15px;border-radius:10px;cursor:grab;user-select:none;transition:all .2s}
+.word-card:hover{transform:scale(1.05);box-shadow:0 4px 12px rgba(240,160,48,.25)}
+.word-card.used{opacity:.3;pointer-events:none;transform:scale(.95)}
+
+.btn-row{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.check-btn,.reset-btn{font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:600;padding:10px 22px;border-radius:10px;border:none;cursor:pointer;transition:all .2s}
+.check-btn{background:linear-gradient(135deg,var(--success),#16a34a);color:#fff}
+.check-btn:hover{box-shadow:0 4px 16px rgba(34,197,94,.35);transform:translateY(-2px)}
+.reset-btn{background:var(--bg3);color:var(--text2);border:1px solid rgba(255,255,255,.1)}
+.reset-btn:hover{background:rgba(255,255,255,.08);color:var(--text)}
+.result-msg{margin-top:12px;padding:11px 16px;border-radius:10px;font-weight:600;font-size:.88rem;display:none}
+.result-msg.show{display:block;animation:fadeIn .3s}
+.result-msg.good{background:rgba(34,197,94,.12);color:var(--success);border:1px solid rgba(34,197,94,.3)}
+.result-msg.bad{background:rgba(239,68,68,.12);color:var(--wrong);border:1px solid rgba(239,68,68,.3)}
+
+/* ─── QUIZ ─── */
+.quiz-q{background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);padding:18px;margin-bottom:14px}
+.quiz-q h4{font-size:.95rem;font-weight:700;color:var(--accent);margin-bottom:10px}
+.quiz-option{display:block;width:100%;text-align:left;background:var(--bg);border:1.5px solid rgba(255,255,255,.1);padding:10px 16px;border-radius:10px;font-family:'Crimson Pro',serif;font-size:1rem;color:var(--text);cursor:pointer;margin-bottom:6px;transition:all .2s}
+.quiz-option:hover{border-color:var(--accent);background:rgba(240,160,48,.04)}
+.quiz-option.selected{border-color:var(--accent);background:rgba(240,160,48,.1);font-weight:600}
+.quiz-option.correct-ans{border-color:var(--success);background:rgba(34,197,94,.1);color:var(--success)}
+.quiz-option.wrong-ans{border-color:var(--wrong);background:rgba(239,68,68,.1);color:var(--wrong)}
+
+/* ─── KI-RECHERCHE ─── */
+.recherche-card{background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);padding:18px;margin-bottom:12px;position:relative;overflow:hidden}
+.recherche-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--accent),var(--accent2))}
+.recherche-card h4{font-size:.95rem;font-weight:700;color:var(--accent);margin-bottom:6px}
+.recherche-card p{font-family:'Crimson Pro',serif;font-size:1rem;color:var(--text2);line-height:1.55}
+.star-badge{display:inline-block;background:rgba(240,160,48,.12);color:var(--accent);font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:5px;letter-spacing:1px}
+.prompt-box{margin-top:10px;background:rgba(167,139,250,.06);border:1px solid rgba(167,139,250,.2);border-radius:10px;padding:11px 13px}
+.prompt-label{display:block;font-family:'Outfit',sans-serif;font-size:.75rem;font-weight:700;color:var(--purple);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px}
+.prompt-example{font-family:'Crimson Pro',serif;font-size:1rem;color:var(--text);line-height:1.5;font-style:italic;padding-left:11px;border-left:3px solid var(--purple)}
+.ki-antwort{display:block;width:100%;min-height:85px;margin-top:10px;padding:11px 13px;font-family:'Crimson Pro',serif;font-size:1rem;line-height:1.55;color:var(--text);background:var(--bg);border:2px solid rgba(255,255,255,.1);border-radius:10px;resize:vertical;transition:border-color .3s}
+.ki-antwort:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(240,160,48,.15)}
+.ki-antwort::placeholder{color:var(--text2);font-style:italic}
+
+.footer{text-align:center;padding:26px 20px;color:var(--text2);font-size:.78rem;border-top:1px solid rgba(255,255,255,.05)}
+@media(max-width:600px){.section{padding:20px 16px}.example-grid{grid-template-columns:1fr}.tabs{gap:3px}.tab-btn{padding:7px 11px;font-size:.78rem}}
+</style>
+</head>
+<body>
+
+<!-- ═══════ HERO ═══════ -->
+<div class="hero">
+  <span class="hero-badge">Natur und Technik 9 · Bayern</span>
+  <h1>Die C-14-Methode</h1>
+  <p>Wie bestimmt man das Alter von Mumien, Knochen oder versteinerten Bäumen? Mit einer eingebauten Uhr in jedem Lebewesen!</p>
+  <div class="hero-icon">🦴</div>
+</div>
+
+<!-- ═══════ CONTENT ═══════ -->
+<div class="content-wrap">  <div class="section">
+  <h2><span class="icon" style="background:rgba(167,139,250,.15);color:var(--purple);">???</span> Schema zur C-14-Methode</h2>
+  <div style="background:var(--bg3);border-radius:var(--radius);padding:14px;border:1px solid rgba(255,255,255,.08);">
+    <img src="C14.PNG" alt="Schema zur C-14-Methode" style="width:100%;max-width:520px;height:auto;display:block;margin:0 auto;border-radius:10px;border:1px solid rgba(255,255,255,.08);">
+  </div>  <p>
+    Das Bild zeigt den Weg von <strong>C-14</strong>: In der Atmosph&auml;re entsteht es durch kosmische Strahlung, gelangt als CO2 in Pflanzen
+    und dann &uuml;ber die Nahrung in Tiere und Menschen. Solange ein Organismus lebt, nimmt er st&auml;ndig neues C-14 auf. Nach dem Tod wird kein neues
+    C-14 mehr aufgenommen und der vorhandene Anteil zerf&auml;llt Schritt f&uuml;r Schritt. Genau diesen Restanteil messen Forscher, um das Alter eines Fundes zu bestimmen.
+  </p>
+</div>
+
+  <!-- ── DIE IDEE ── -->
+  <div class="section">
+    <h2><span class="icon" style="background:rgba(240,160,48,.15);color:var(--accent);">💡</span> Die Idee: Eine Uhr in jedem Lebewesen</h2>
+    <p>In der Luft gibt es ein ganz besonderes Atom: <strong>Kohlenstoff-14</strong> (kurz: C-14). Es ist <strong>radioaktiv</strong>, das heißt, es zerfällt mit der Zeit. Aber keine Angst – die Menge ist winzig klein und völlig ungefährlich!</p>
+    <p>Solange ein Lebewesen <strong>lebt</strong> (Mensch, Tier, Baum), nimmt es ständig neues C-14 aus der Luft auf – beim Atmen oder über die Nahrung. Deshalb bleibt die Menge an C-14 im Körper immer gleich.</p>
+    <p>Aber sobald das Lebewesen <strong>stirbt</strong>, nimmt es kein neues C-14 mehr auf. Ab jetzt tickt die Uhr! Das vorhandene C-14 zerfällt langsam – und zwar immer mit der gleichen Geschwindigkeit.</p>
+
+    <div class="merke">
+      <h3>📌 Der Trick</h3>
+      <p>Je <strong>weniger C-14</strong> noch in einem Fund steckt, desto <strong>älter</strong> ist er. Die Halbwertszeit von C-14 beträgt <strong>5.730 Jahre</strong>. Das heißt: Nach 5.730 Jahren ist nur noch die Hälfte des C-14 übrig.</p>
+    </div>
+  </div>
+
+  <!-- ── WIE MISST MAN DAS? ── -->
+  <div class="section">
+    <h2><span class="icon" style="background:rgba(78,205,196,.15);color:var(--green);">🔬</span> Wie misst man das?</h2>
+    <p>Radioaktive Atome senden beim Zerfall winzige Signale aus – wie ein leises „Klick". Diese Signale kann man mit einem speziellen Gerät zählen: dem <strong>Geiger-Müller-Zähler</strong>. Je öfter es „klickt", desto mehr radioaktive Atome sind noch da.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num s1">1</div>
+        <div><p>Man nimmt eine <strong>Probe</strong> vom Fund (ein kleines Stückchen Knochen, Holz oder anderes Material).</p></div>
+      </div>
+      <div class="step">
+        <div class="step-num s2">2</div>
+        <div><p>Man hält den <strong>Geiger-Müller-Zähler</strong> an die Probe und zählt, wie oft es pro Minute „klickt". Das nennt man die <strong>Aktivität</strong> (gemessen in <strong>Becquerel</strong> = Zerfälle pro Sekunde).</p></div>
+      </div>
+      <div class="step">
+        <div class="step-num s3">3</div>
+        <div><p>Man <strong>vergleicht</strong> die gemessene Aktivität mit der Aktivität, die ein <strong>frisches</strong> (lebendes) Material hätte.</p></div>
+      </div>
+      <div class="step">
+        <div class="step-num s4">4</div>
+        <div><p>Aus dem Unterschied liest man an der <strong>Zerfallskurve</strong> das Alter ab!</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DREI BEISPIELE ── -->
+  <div class="section">
+    <h2><span class="icon" style="background:rgba(167,139,250,.15);color:var(--purple);">🧪</span> Drei Beispiele aus dem Alltag</h2>
+
+    <div class="example-grid">
+      <div class="example-card milk">
+        <div class="card-icon">🥛</div>
+        <h3>Milch messen</h3>
+        <p>Frische Milch enthält C-14, weil die Kuh Gras gefressen hat (das C-14 aus der Luft aufgenommen hat). Misst man mit dem Geiger-Müller-Zähler 1 Liter Milch, erhält man etwa <strong>300 „Klicks" pro Sekunde</strong> (= 300 Becquerel). Das ist der <strong>Startwert</strong> – so viel C-14 hat frisches Material.</p>
+      </div>
+      <div class="example-card mummy">
+        <div class="card-icon">🧟</div>
+        <h3>Ötzi – die Mumie</h3>
+        <p>1991 fanden Wanderer in den Ötztaler Alpen eine Mumie im Eis: den <strong>„Ötzi"</strong>. Wissenschaftler nahmen eine winzige Probe und maßen die C-14-Aktivität. Sie war viel <strong>niedriger</strong> als bei frischem Material. Ergebnis: Ötzi ist etwa <strong>5.300 Jahre</strong> alt – fast eine ganze Halbwertszeit!</p>
+      </div>
+      <div class="example-card tree">
+        <div class="card-icon">🌳</div>
+        <h3>Versteinerter Baum</h3>
+        <p>Ein versteinerter Baumstamm hat <strong>fast kein C-14</strong> mehr. Das bedeutet: Viele Halbwertszeiten sind vergangen. Wenn nur noch 25% C-14 da sind, sind <strong>2 Halbwertszeiten</strong> vergangen = ca. <strong>11.460 Jahre</strong>. Bei noch weniger C-14 ist der Baum noch älter!</p>
+      </div>
+    </div>
+
+    <div class="merke" style="margin-top:18px;">
+      <h3>📌 So schließt man auf das Alter</h3>
+      <p><strong>100% C-14</strong> → gerade gestorben (0 Jahre)<br>
+      <strong>50% C-14</strong> → 1 Halbwertszeit vergangen (5.730 Jahre)<br>
+      <strong>25% C-14</strong> → 2 Halbwertszeiten (11.460 Jahre)<br>
+      <strong>12,5% C-14</strong> → 3 Halbwertszeiten (17.190 Jahre)<br>
+      <strong>6,25% C-14</strong> → 4 Halbwertszeiten (22.920 Jahre)</p>
+    </div>
+  </div>
+
+  <!-- ── INTERAKTIVES DIAGRAMM ── -->
+  <div class="section">
+    <h2><span class="icon" style="background:rgba(78,205,196,.15);color:var(--green);">📊</span> Interaktive Zerfallskurve von C-14</h2>
+    <p>Bewege den Schieberegler und beobachte, wie der C-14-Anteil über die Jahrtausende abnimmt. Klicke auf die Beispiele, um zu sehen, wo Milch, Ötzi und ein versteinerter Baum auf der Kurve liegen!</p>
+
+    <div class="chart-wrap">
+      <h3>Zerfallskurve von C-14</h3>
+      <div class="chart-container">
+        <canvas id="c14Chart"></canvas>
+      </div>
+
+      <div class="slider-row">
+        <label>⏱️ Vergangene Zeit:</label>
+        <input type="range" id="timeSlider" min="0" max="40000" step="100" value="0" oninput="updateSlider()">
+        <div class="slider-val" id="sliderVal">0 Jahre</div>
+      </div>
+      <div class="slider-row">
+        <label>📊 C-14 übrig:</label>
+        <div class="slider-val" id="c14Val" style="color:var(--green);">100%</div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+        <button class="reset-btn" onclick="setExample(0)" style="border-color:rgba(78,205,196,.3);color:var(--green);">🥛 Frische Milch</button>
+        <button class="reset-btn" onclick="setExample(5300)" style="border-color:rgba(240,160,48,.3);color:var(--accent);">🧟 Ötzi (5.300 J.)</button>
+        <button class="reset-btn" onclick="setExample(11460)" style="border-color:rgba(167,139,250,.3);color:var(--purple);">🌳 Baum (11.460 J.)</button>
+        <button class="reset-btn" onclick="setExample(22920)" style="border-color:rgba(255,107,107,.3);color:var(--red);">🦴 Sehr alter Fund</button>
+      </div>
+
+      <div class="chart-info" id="chartInfo"></div>
+    </div>
+  </div>
+
+  <!-- ═══════ AUFGABEN ═══════ -->
+  <div class="aufgaben-btn-wrap">
+    <button class="aufgaben-btn" onclick="toggleAufgaben()">Zu den Aufgaben <span class="arrow">→</span></button>
+  </div>
+
+  <div id="aufgabenArea">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(event,'luecken')">📝 Lückentext</button>
+      <button class="tab-btn" onclick="switchTab(event,'quiz')">❓ Quiz</button>
+      <button class="tab-btn" onclick="switchTab(event,'wortkarten')">🃏 Wortkarten</button>
+      <button class="tab-btn" onclick="switchTab(event,'ki')">🤖 KI-Recherche</button>
+    </div>
+
+    <!-- TAB: LÜCKENTEXT -->
+    <div id="tab-luecken" class="tab-content active">
+      <div class="section">
+        <h2>📝 Aufgabe 1 – Lückentext</h2>
+        <p style="margin-bottom:12px;color:var(--text2);">Klicke auf eine Lücke, dann auf das passende Wort.</p>
+        <div class="luecken-text" id="lueckenText">
+          In der Luft gibt es das radioaktive Atom <span class="gap" data-answer="C-14" data-idx="0"></span>. Solange ein Lebewesen lebt, nimmt es ständig neues C-14 auf. Wenn es <span class="gap" data-answer="stirbt" data-idx="1"></span>, hört das auf.
+
+          Ab jetzt <span class="gap" data-answer="zerfällt" data-idx="2"></span> das C-14 langsam. Nach einer <span class="gap" data-answer="Halbwertszeit" data-idx="3"></span> von 5.730 Jahren ist nur noch die <span class="gap" data-answer="Hälfte" data-idx="4"></span> übrig.
+
+          Um das Alter eines Fundes zu bestimmen, misst man die Aktivität mit einem <span class="gap" data-answer="Geiger-Müller-Zähler" data-idx="5"></span>. Je weniger C-14 noch vorhanden ist, desto <span class="gap" data-answer="älter" data-idx="6"></span> ist der Fund.
+
+          Die Mumie „Ötzi" aus den Ötztaler Alpen ist etwa <span class="gap" data-answer="5.300 Jahre" data-idx="7"></span> alt.
+        </div>
+        <div class="word-bank" id="wordBank1"></div>
+        <div class="btn-row">
+          <button class="check-btn" onclick="checkLuecken()">✓ Überprüfen</button>
+          <button class="reset-btn" onclick="resetLuecken()">↺ Zurücksetzen</button>
+        </div>
+        <div class="result-msg" id="lueckenResult"></div>
+      </div>
+    </div>
+
+    <!-- TAB: QUIZ -->
+    <div id="tab-quiz" class="tab-content">
+      <div class="section">
+        <h2>❓ Aufgabe 2 – Quiz zur Zerfallskurve</h2>
+        <p style="margin-bottom:14px;color:var(--text2);">Lies die Antworten aus der C-14-Zerfallskurve ab!</p>
+
+        <div class="quiz-q" id="q1">
+          <h4>1. Ein Knochen enthält noch 50% C-14. Wie alt ist er ungefähr?</h4>
+          <button class="quiz-option" onclick="answer(1,this,'b')">a) 2.800 Jahre</button>
+          <button class="quiz-option" onclick="answer(1,this,'b')">b) 5.730 Jahre</button>
+          <button class="quiz-option" onclick="answer(1,this,'b')">c) 11.460 Jahre</button>
+          <button class="quiz-option" onclick="answer(1,this,'b')">d) 17.190 Jahre</button>
+        </div>
+
+        <div class="quiz-q" id="q2">
+          <h4>2. Ein Holzstück enthält noch 25% C-14. Wie viele Halbwertszeiten sind vergangen?</h4>
+          <button class="quiz-option" onclick="answer(2,this,'b')">a) 1 Halbwertszeit</button>
+          <button class="quiz-option" onclick="answer(2,this,'b')">b) 2 Halbwertszeiten</button>
+          <button class="quiz-option" onclick="answer(2,this,'b')">c) 3 Halbwertszeiten</button>
+          <button class="quiz-option" onclick="answer(2,this,'b')">d) 4 Halbwertszeiten</button>
+        </div>
+
+        <div class="quiz-q" id="q3">
+          <h4>3. Was misst man mit dem Geiger-Müller-Zähler?</h4>
+          <button class="quiz-option" onclick="answer(3,this,'c')">a) Die Temperatur des Fundes</button>
+          <button class="quiz-option" onclick="answer(3,this,'c')">b) Das Gewicht des C-14</button>
+          <button class="quiz-option" onclick="answer(3,this,'c')">c) Die Anzahl der Zerfälle pro Sekunde</button>
+          <button class="quiz-option" onclick="answer(3,this,'c')">d) Die Farbe der Strahlung</button>
+        </div>
+
+        <div class="quiz-q" id="q4">
+          <h4>4. Warum funktioniert die C-14-Methode nur bei Dingen, die einmal gelebt haben?</h4>
+          <button class="quiz-option" onclick="answer(4,this,'a')">a) Nur Lebewesen nehmen C-14 aus der Luft auf</button>
+          <button class="quiz-option" onclick="answer(4,this,'a')">b) Steine enthalten mehr C-14 als Knochen</button>
+          <button class="quiz-option" onclick="answer(4,this,'a')">c) C-14 entsteht nur in Lebewesen</button>
+          <button class="quiz-option" onclick="answer(4,this,'a')">d) Tote Dinge zerfallen nicht</button>
+        </div>
+
+        <div class="quiz-q" id="q5">
+          <h4>5. Frische Milch (1 Liter) hat eine Aktivität von 300 Becquerel. Was bedeutet das?</h4>
+          <button class="quiz-option" onclick="answer(5,this,'b')">a) Die Milch ist 300 Jahre alt</button>
+          <button class="quiz-option" onclick="answer(5,this,'b')">b) Es gibt 300 Zerfälle pro Sekunde</button>
+          <button class="quiz-option" onclick="answer(5,this,'b')">c) Die Milch enthält 300 g C-14</button>
+          <button class="quiz-option" onclick="answer(5,this,'b')">d) Die Milch ist radioaktiv verseucht</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: WORTKARTEN -->
+    <div id="tab-wortkarten" class="tab-content">
+      <div class="section">
+        <h2>🃏 Aufgabe 3 – Wortkarten schieben</h2>
+        <p style="margin-bottom:12px;color:var(--text2);">Schiebe die Wortkarten in die Lücken!</p>
+        <div class="luecken-text" id="wortkartenText">
+          Archäologen finden einen alten Knochen. Sie messen die <span class="gap" data-answer="Aktivität" data-idx="w0"></span> mit dem Geiger-Müller-Zähler.
+
+          Das Ergebnis: Der Knochen hat nur noch <span class="gap" data-answer="12,5%" data-idx="w1"></span> des ursprünglichen C-14. Das bedeutet: Es sind <span class="gap" data-answer="3" data-idx="w2"></span> Halbwertszeiten vergangen.
+
+          Eine Halbwertszeit von C-14 dauert <span class="gap" data-answer="5.730 Jahre" data-idx="w3"></span>. Also ist der Knochen etwa <span class="gap" data-answer="17.190 Jahre" data-idx="w4"></span> alt.
+
+          Den Verlauf des Zerfalls kann man in einer <span class="gap" data-answer="Zerfallskurve" data-idx="w5"></span> ablesen.
+        </div>
+        <div class="word-bank" id="wordBank2"></div>
+        <div class="btn-row">
+          <button class="check-btn" onclick="checkWortkarten()">✓ Überprüfen</button>
+          <button class="reset-btn" onclick="resetWortkarten()">↺ Zurücksetzen</button>
+        </div>
+        <div class="result-msg" id="wortkartenResult"></div>
+      </div>
+    </div>
+
+    <!-- TAB: KI-RECHERCHE -->
+    <div id="tab-ki" class="tab-content">
+      <div class="section">
+        <h2>🤖 KI-Recherche – C-14-Methode</h2>
+        <p style="margin-bottom:8px;color:var(--text2);">Nutze <strong>ChatGPT</strong>, <strong>Gemini</strong> oder <strong>Claude.ai</strong>. Gib den Prompt selbst ein – die KI soll in <strong>3 Sätzen</strong> antworten.</p>
+        <p style="margin-bottom:16px;color:var(--accent);font-size:.85rem;">💡 Tipp: „Erkläre mir in genau 3 Sätzen, …"</p>
+
+        <div class="recherche-card">
+          <span class="star-badge">🤖 AUFGABE 1</span>
+          <h4>Wie alt kann man mit C-14 messen?</h4>
+          <p>Die C-14-Methode hat eine Grenze – sehr alte Dinge kann man damit nicht mehr datieren. Frage eine KI: <em>Bis zu welchem Alter funktioniert die C-14-Methode und warum gibt es eine Grenze?</em></p>
+          <div class="prompt-box">
+            <span class="prompt-label">Dein Prompt:</span>
+            <div class="prompt-example">„Erkläre mir in genau 3 Sätzen: Bis zu welchem Alter funktioniert die C-14-Methode und warum kann man damit keine Dinosaurier-Knochen datieren?"</div>
+          </div>
+          <textarea class="ki-antwort" placeholder="Antwort der KI hier einfügen (3 Sätze) …"></textarea>
+        </div>
+
+        <div class="recherche-card">
+          <span class="star-badge">🤖 AUFGABE 2</span>
+          <h4>Berühmte Funde</h4>
+          <p>Viele bekannte Funde wurden mit der C-14-Methode datiert. Frage eine KI: <em>Welche berühmten Funde wurden mit C-14 datiert?</em></p>
+          <div class="prompt-box">
+            <span class="prompt-label">Dein Prompt:</span>
+            <div class="prompt-example">„Nenne mir in genau 3 Sätzen drei berühmte historische Funde, deren Alter mit der C-14-Methode bestimmt wurde."</div>
+          </div>
+          <textarea class="ki-antwort" placeholder="Antwort der KI hier einfügen (3 Sätze) …"></textarea>
+        </div>
+
+        <div class="recherche-card">
+          <span class="star-badge">🤖 AUFGABE 3</span>
+          <h4>Gibt es andere Methoden?</h4>
+          <p>Für Dinge, die älter als 50.000 Jahre sind, braucht man andere Methoden. Frage eine KI!</p>
+          <div class="prompt-box">
+            <span class="prompt-label">Dein Prompt:</span>
+            <div class="prompt-example">„Erkläre mir in genau 3 Sätzen: Welche anderen Methoden gibt es neben der C-14-Methode, um das Alter von sehr alten Gesteinen oder Fossilien zu bestimmen?"</div>
+          </div>
+          <textarea class="ki-antwort" placeholder="Antwort der KI hier einfügen (3 Sätze) …"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">NT 9 · Natur und Technik · Mittelschule Bayern</div>
+
+<script>
+// ══════════════════════════════════════
+// C-14 CHART
+// ══════════════════════════════════════
+let c14Chart = null;
+let markerPoint = null;
+
+function initC14Chart() {
+  const ctx = document.getElementById('c14Chart').getContext('2d');
+  const HWZ = 5730;
+  const labels = []; const data = [];
+  for (let y = 0; y <= 40000; y += 500) {
+    labels.push(y);
+    data.push(100 * Math.pow(0.5, y / HWZ));
+  }
+
+  c14Chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'C-14 Anteil (%)',
+          data,
+          borderColor: '#4ecdc4',
+          backgroundColor: 'rgba(78,205,196,.08)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 0,
+          borderWidth: 2.5
+        },
+        {
+          label: 'Markierung',
+          data: [{x:0, y:100}],
+          borderColor: '#f0a030',
+          backgroundColor: '#f0a030',
+          pointRadius: 8,
+          pointHoverRadius: 10,
+          showLine: false,
+          type: 'scatter'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: { enabled: false }
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          title: { display: true, text: 'Jahre', color: '#9ca3af', font: { family:'Outfit' } },
+          ticks: { color: '#9ca3af', callback: v => v >= 1000 ? (v/1000)+'k' : v },
+          grid: { color: 'rgba(255,255,255,.05)' },
+          min: 0, max: 40000
+        },
+        y: {
+          title: { display: true, text: 'C-14 Anteil (%)', color: '#9ca3af', font: { family:'Outfit' } },
+          ticks: { color: '#9ca3af' },
+          grid: { color: 'rgba(255,255,255,.05)' },
+          min: 0, max: 105
+        }
+      }
+    }
+  });
+}
+
+function updateSlider() {
+  const years = parseInt(document.getElementById('timeSlider').value);
+  const pct = 100 * Math.pow(0.5, years / 5730);
+  document.getElementById('sliderVal').textContent = years.toLocaleString('de-DE') + ' Jahre';
+  document.getElementById('c14Val').textContent = pct.toFixed(1) + '%';
+
+  // Move marker
+  if (c14Chart) {
+    c14Chart.data.datasets[1].data = [{x: years, y: pct}];
+    c14Chart.update('none');
+  }
+}
+
+function setExample(years) {
+  document.getElementById('timeSlider').value = years;
+  updateSlider();
+
+  const pct = 100 * Math.pow(0.5, years / 5730);
+  const info = document.getElementById('chartInfo');
+  info.classList.add('show');
+
+  if (years === 0) {
+    info.innerHTML = `<strong style="color:var(--green);">🥛 Frische Milch (0 Jahre)</strong><br>Die Milch ist gerade von der Kuh – sie enthält noch <strong>100% C-14</strong>. Wenn man sie mit dem Geiger-Müller-Zähler misst, bekommt man pro Liter etwa <strong>300 Becquerel</strong> (= 300 „Klicks" pro Sekunde). Das ist der Startwert, mit dem man alle alten Funde vergleicht.`;
+  } else if (years === 5300) {
+    info.innerHTML = `<strong style="color:var(--accent);">🧟 Ötzi – die Mumie (ca. 5.300 Jahre)</strong><br>Der C-14-Anteil liegt bei etwa <strong>${pct.toFixed(0)}%</strong>. Das ist fast eine Halbwertszeit (5.730 Jahre). Der Geiger-Müller-Zähler „klickt" bei Ötzis Knochen also nur noch ungefähr <strong>halb so oft</strong> wie bei frischem Material. So wussten die Forscher: Ötzi hat vor über 5.000 Jahren gelebt!`;
+  } else if (years === 11460) {
+    info.innerHTML = `<strong style="color:var(--purple);">🌳 Versteinerter Baum (ca. 11.460 Jahre)</strong><br>Nach 2 Halbwertszeiten sind nur noch <strong>${pct.toFixed(0)}%</strong> C-14 übrig – also ein <strong>Viertel</strong> des Anfangswerts. Der Geiger-Müller-Zähler zeigt nur noch ca. <strong>75 Becquerel</strong> pro Liter-Äquivalent. Dieser Baum ist am Ende der letzten Eiszeit gestorben!`;
+  } else if (years === 22920) {
+    info.innerHTML = `<strong style="color:var(--red);">🦴 Sehr alter Fund (ca. 22.920 Jahre)</strong><br>Nach 4 Halbwertszeiten sind nur noch <strong>${pct.toFixed(1)}%</strong> C-14 übrig. Der Zähler „klickt" kaum noch. Noch ältere Funde (über 50.000 Jahre) kann man mit C-14 <strong>nicht mehr messen</strong> – es ist einfach zu wenig übrig.`;
+  }
+}
+
+// ══════════════════════════════════════
+// TABS & AUFGABEN
+// ══════════════════════════════════════
+function toggleAufgaben() {
+  const a = document.getElementById('aufgabenArea');
+  a.classList.toggle('show');
+  if (a.classList.contains('show')) a.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function switchTab(e, name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  e.target.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+// ══════════════════════════════════════
+// LÜCKENTEXT
+// ══════════════════════════════════════
+let selectedGap = null;
+const lWords = ['C-14','stirbt','zerfällt','Halbwertszeit','Hälfte','Geiger-Müller-Zähler','älter','5.300 Jahre'];
+const lExtra = ['jünger','C-12','verdoppelt'];
+
+function initLuecken() {
+  const bank = document.getElementById('wordBank1'); bank.innerHTML = '';
+  shuffle([...lWords,...lExtra]).forEach(w => {
+    const c = document.createElement('span'); c.className='word-card'; c.textContent=w; c.dataset.word=w;
+    c.addEventListener('click',()=>pickWord(c,'luecken')); bank.appendChild(c);
+  });
+  document.querySelectorAll('#lueckenText .gap').forEach(g => {
+    g.textContent='';g.className='gap';g.dataset.current='';
+    g.addEventListener('click',()=>selectGap(g,'luecken'));
+  });
+}
+function selectGap(g,m) {
+  const c = m==='luecken'?'#lueckenText':'#wortkartenText';
+  document.querySelectorAll(c+' .gap').forEach(x=>x.style.outline='');
+  g.style.outline='2px solid var(--accent)';g.style.outlineOffset='2px';
+  selectedGap={el:g,mode:m};
+  if(g.dataset.current){returnWord(g.dataset.current,m);g.textContent='';g.dataset.current='';g.classList.remove('filled');}
+}
+function pickWord(card,m) {
+  if(!selectedGap||selectedGap.mode!==m||card.classList.contains('used'))return;
+  selectedGap.el.textContent=card.dataset.word;selectedGap.el.dataset.current=card.dataset.word;
+  selectedGap.el.classList.add('filled');selectedGap.el.style.outline='';card.classList.add('used');selectedGap=null;
+}
+function returnWord(w,m) {
+  const b=m==='luecken'?'wordBank1':'wordBank2';
+  document.querySelectorAll('#'+b+' .word-card').forEach(c=>{if(c.dataset.word===w&&c.classList.contains('used'))c.classList.remove('used');});
+}
+function checkLuecken() {
+  let ok=0;const gaps=document.querySelectorAll('#lueckenText .gap');
+  gaps.forEach(g=>{g.classList.remove('correct','wrong');if(g.dataset.current===g.dataset.answer){g.classList.add('correct');ok++;}else if(g.dataset.current)g.classList.add('wrong');});
+  showResult('lueckenResult',ok,gaps.length);
+}
+function resetLuecken(){document.getElementById('lueckenResult').classList.remove('show');initLuecken();}
+
+// ══════════════════════════════════════
+// WORTKARTEN
+// ══════════════════════════════════════
+const wWords = ['Aktivität','12,5%','3','5.730 Jahre','17.190 Jahre','Zerfallskurve'];
+const wExtra = ['25%','2','11.460 Jahre'];
+
+function initWortkarten() {
+  const bank = document.getElementById('wordBank2'); bank.innerHTML = '';
+  shuffle([...wWords,...wExtra]).forEach(w => {
+    const c = document.createElement('span'); c.className='word-card'; c.textContent=w; c.dataset.word=w;
+    c.addEventListener('click',()=>pickWord(c,'wortkarten')); bank.appendChild(c);
+  });
+  document.querySelectorAll('#wortkartenText .gap').forEach(g => {
+    g.textContent='';g.className='gap';g.dataset.current='';
+    g.addEventListener('click',()=>selectGap(g,'wortkarten'));
+  });
+}
+function checkWortkarten() {
+  let ok=0;const gaps=document.querySelectorAll('#wortkartenText .gap');
+  gaps.forEach(g=>{g.classList.remove('correct','wrong');if(g.dataset.current===g.dataset.answer){g.classList.add('correct');ok++;}else if(g.dataset.current)g.classList.add('wrong');});
+  showResult('wortkartenResult',ok,gaps.length);
+}
+function resetWortkarten(){document.getElementById('wortkartenResult').classList.remove('show');initWortkarten();}
+
+// ══════════════════════════════════════
+// QUIZ
+// ══════════════════════════════════════
+const quizAnswers = {1:'b',2:'b',3:'c',4:'a',5:'b'};
+const quizDone = {};
+
+function answer(qNum, btn, correctLetter) {
+  if (quizDone[qNum]) return;
+  const options = btn.parentElement.querySelectorAll('.quiz-option');
+  const clickedLetter = ['a','b','c','d'][Array.from(options).indexOf(btn)];
+
+  if (clickedLetter === quizAnswers[qNum]) {
+    btn.classList.add('correct-ans');
+    quizDone[qNum] = true;
+  } else {
+    btn.classList.add('wrong-ans');
+    // Show correct
+    const correctIdx = 'abcd'.indexOf(quizAnswers[qNum]);
+    options[correctIdx].classList.add('correct-ans');
+    quizDone[qNum] = true;
+  }
+}
+
+// ══════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function showResult(id,ok,total){
+  const el=document.getElementById(id);const pct=Math.round(ok/total*100);
+  if(pct===100){el.textContent=`🎉 Super! Alle ${total} richtig!`;el.className='result-msg show good';}
+  else if(pct>=50){el.textContent=`👍 ${ok} von ${total} richtig (${pct}%). Fast geschafft!`;el.className='result-msg show good';}
+  else{el.textContent=`${ok} von ${total} richtig (${pct}%). Lies den Text nochmal!`;el.className='result-msg show bad';}
+}
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+initC14Chart();
+initLuecken();
+initWortkarten();
+</script>
+</body>
+</html>
+
+
+
+
+
+
