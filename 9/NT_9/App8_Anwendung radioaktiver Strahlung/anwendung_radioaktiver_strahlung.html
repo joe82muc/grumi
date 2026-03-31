@@ -362,7 +362,7 @@
 
   <div class="info-box">
     <strong>Aufgabe:</strong> Beantworte die folgenden Fragen zum Buchtext S. 130/131. Schreibe in <strong>ganzen Sätzen</strong> und verwende <strong>Fachbegriffe</strong>. Die KI bewertet nicht nur Begriffe, sondern auch ob deine Erklärung <strong>logisch und zusammenhängend</strong> ist.
-    <br><strong>Bewertung:</strong> Pro Aufgabe bis zu <strong>10 Punkte</strong> (gesamt <strong>20 Punkte</strong>). Pro Kriterium gilt: <strong>2,0</strong> = Fachbegriff + logisch vollständig erklärt, <strong>1,5</strong> = Fachbegriff da, aber ungenau erklärt, <strong>0</strong> = Fachbegriff fehlt oder fachlich falsch.
+    <br><strong>Bewertung:</strong> Pro Aufgabe bis zu <strong>10 Punkte</strong> (gesamt <strong>20 Punkte</strong>). Pro Kriterium gilt: <strong>2</strong> = Fachbegriff + logisch vollständig erklärt, <strong>1</strong> = Fachbegriff da, aber ungenau erklärt, <strong>0</strong> = nur Fachbegriff ohne Erklärung oder fachlich falsch. Rechtschreibung und Grammatik werden nicht bewertet.
   </div>
 
   <!-- AUFGABE A -->
@@ -416,7 +416,7 @@
   <!-- SCORE -->
   <div class="score-bar">
     <div class="label">Deine Punkte</div>
-    <div><span class="points" id="totalPoints">0,0</span> <span class="max">/ 20</span></div>
+    <div><span class="points" id="totalPoints">0</span> <span class="max">/ 20</span></div>
   </div>
 
 </div>
@@ -504,12 +504,11 @@ function fallbackCheck(task, text, fb) {
   let found = 0;
   kw[task].forEach(k => { if (lower.includes(k)) found++; });
   const ratio = found / kw[task].length;
-  const hasSentence = /[.!?]/.test(text) && text.split(/\s+/).length >= 10;
+  const hasEnoughContent = text.split(/\s+/).length >= 8;
   const hasLogic = /(weil|dadurch|deshalb|zuerst|dann|um .* zu|so kann)/i.test(text);
   let pts = 0;
-  if (ratio >= 0.75 && hasSentence && hasLogic) pts = 8;
-  else if (ratio >= 0.5 && hasSentence) pts = 6;
-  else if (ratio >= 0.3) pts = 4;
+  if (ratio >= 0.75 && hasLogic) pts = 10;
+  else if (ratio >= 0.4 && hasEnoughContent) pts = 5;
   else pts = 0;
 
   scores[task] = pts;
@@ -518,7 +517,7 @@ function fallbackCheck(task, text, fb) {
   fb.className = pts >= 8.5 ? 'feedback success' : pts >= 5 ? 'feedback partial' : 'feedback needs-work';
       fb.innerHTML = '<div class="fb-title">' + (pts >= 8.5 ? '🎉 Gut!' : pts >= 5 ? '👍 Ansatz da' : '🔄 Überarbeiten') + ' (' + formatPoints(pts) + '/10 - Offline)</div>' +
     'KI-Bewertung war nicht verfügbar. Begriffscheck: ' + found + '/' + kw[task].length + ' Fachbegriffe erkannt.' +
-    (pts < 2 ? ' Versuche es erneut für die vollständige KI-Bewertung.' : '');
+    (pts < 10 ? ' Versuche es erneut für die vollständige KI-Bewertung.' : '');
 }
 
 function showHint(task) {
@@ -536,7 +535,7 @@ function updateTotal() {
 }
 
 function formatPoints(value) {
-  return Number(value || 0).toFixed(1).replace('.', ',');
+  return String(Math.round(Number(value || 0)));
 }
 </script>
 
