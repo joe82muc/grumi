@@ -362,6 +362,7 @@
 
   <div class="info-box">
     <strong>Aufgabe:</strong> Beantworte die folgenden Fragen zum Buchtext S. 130/131. Schreibe in <strong>ganzen Sätzen</strong> und verwende <strong>Fachbegriffe</strong>. Die KI bewertet nicht nur Begriffe, sondern auch ob deine Erklärung <strong>logisch und zusammenhängend</strong> ist.
+    <br><strong>Bewertung:</strong> Pro Aufgabe bis zu <strong>10 Punkte</strong> (gesamt <strong>20 Punkte</strong>). Pro Kriterium gilt: <strong>2,0</strong> = Fachbegriff + logisch vollständig erklärt, <strong>1,5</strong> = Fachbegriff da, aber ungenau erklärt, <strong>0</strong> = Fachbegriff fehlt oder fachlich falsch.
   </div>
 
   <!-- AUFGABE A -->
@@ -415,7 +416,7 @@
   <!-- SCORE -->
   <div class="score-bar">
     <div class="label">Deine Punkte</div>
-    <div><span class="points" id="totalPoints">0</span> <span class="max">/ 4</span></div>
+    <div><span class="points" id="totalPoints">0,0</span> <span class="max">/ 20</span></div>
   </div>
 
 </div>
@@ -469,21 +470,21 @@ async function checkAnswer(task) {
     if (!response.ok) throw new Error('API ' + response.status);
 
     const result = await response.json();
-    const pts = Number.isFinite(Number(result.points)) ? Math.max(0, Math.min(2, Number(result.points))) : 0;
+    const pts = Number.isFinite(Number(result.points)) ? Math.max(0, Math.min(10, Number(result.points))) : 0;
     const aiFeedback = String(result.feedback || 'Bitte erklaere die Antwort logischer und zusammenhaengender.');
 
     scores[task] = pts;
     updateTotal();
 
-    if (pts >= 2) {
+    if (pts >= 8.5) {
       fb.className = 'feedback success';
-      fb.innerHTML = '<div class="fb-title">Sehr gut! (' + pts + '/2 Punkte)</div>' + aiFeedback;
-    } else if (pts === 1) {
+      fb.innerHTML = '<div class="fb-title">Sehr gut! (' + formatPoints(pts) + '/10 Punkte)</div>' + aiFeedback;
+    } else if (pts >= 5) {
       fb.className = 'feedback partial';
-      fb.innerHTML = '<div class="fb-title">Ansatz erkennbar (' + pts + '/2 Punkte)</div>' + aiFeedback;
+      fb.innerHTML = '<div class="fb-title">Ansatz erkennbar (' + formatPoints(pts) + '/10 Punkte)</div>' + aiFeedback;
     } else {
       fb.className = 'feedback needs-work';
-      fb.innerHTML = '<div class="fb-title">Noch nicht ausreichend (' + pts + '/2 Punkte)</div>' + aiFeedback;
+      fb.innerHTML = '<div class="fb-title">Noch nicht ausreichend (' + formatPoints(pts) + '/10 Punkte)</div>' + aiFeedback;
     }
 
   } catch (err) {
@@ -503,14 +504,19 @@ function fallbackCheck(task, text, fb) {
   let found = 0;
   kw[task].forEach(k => { if (lower.includes(k)) found++; });
   const ratio = found / kw[task].length;
-  let pts = ratio >= 0.6 ? (ratio >= 0.8 ? 2 : 1) : 0;
-  if (!text.includes('.') && pts > 0) pts = Math.max(pts - 1, 0);
+  const hasSentence = /[.!?]/.test(text) && text.split(/\s+/).length >= 10;
+  const hasLogic = /(weil|dadurch|deshalb|zuerst|dann|um .* zu|so kann)/i.test(text);
+  let pts = 0;
+  if (ratio >= 0.75 && hasSentence && hasLogic) pts = 8;
+  else if (ratio >= 0.5 && hasSentence) pts = 6;
+  else if (ratio >= 0.3) pts = 4;
+  else pts = 0;
 
   scores[task] = pts;
   updateTotal();
 
-  fb.className = pts >= 2 ? 'feedback success' : pts === 1 ? 'feedback partial' : 'feedback needs-work';
-      fb.innerHTML = '<div class="fb-title">' + (pts >= 2 ? '🎉 Gut!' : pts === 1 ? '👍 Ansatz da' : '🔄 Überarbeiten') + ' (' + pts + '/2 - Offline)</div>' +
+  fb.className = pts >= 8.5 ? 'feedback success' : pts >= 5 ? 'feedback partial' : 'feedback needs-work';
+      fb.innerHTML = '<div class="fb-title">' + (pts >= 8.5 ? '🎉 Gut!' : pts >= 5 ? '👍 Ansatz da' : '🔄 Überarbeiten') + ' (' + formatPoints(pts) + '/10 - Offline)</div>' +
     'KI-Bewertung war nicht verfügbar. Begriffscheck: ' + found + '/' + kw[task].length + ' Fachbegriffe erkannt.' +
     (pts < 2 ? ' Versuche es erneut für die vollständige KI-Bewertung.' : '');
 }
@@ -526,7 +532,11 @@ function showSolution(task) {
 }
 
 function updateTotal() {
-  document.getElementById('totalPoints').textContent = scores.A + scores.B;
+  document.getElementById('totalPoints').textContent = formatPoints(scores.A + scores.B);
+}
+
+function formatPoints(value) {
+  return Number(value || 0).toFixed(1).replace('.', ',');
 }
 </script>
 
