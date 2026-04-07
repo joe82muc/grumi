@@ -1,785 +1,576 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Die Kettenreaktion</title>
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #1a1a2e;
-            --bg-card: #16213e;
-            --gold: #f0a030;
-            --gold-light: #f5c060;
-            --gold-dark: #c07820;
-            --text: #e8e8e8;
-            --text-muted: #a0a0b8;
-            --green: #4caf50;
-            --red: #ef5350;
-            --blue: #42a5f5;
-            --orange: #ff9800;
-            --radius: 12px;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Outfit', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        .hero {
-            position: relative;
-            padding: 50px 20px 32px;
-            text-align: center;
-            background: radial-gradient(ellipse at 50% 80%, rgba(240,160,48,0.12) 0%, transparent 60%);
-        }
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, var(--gold), transparent);
-        }
-        .hero-icon {
-            font-size: 44px;
-            margin-bottom: 10px;
-            animation: pulse-glow 2s ease-in-out infinite;
-        }
-        @keyframes pulse-glow {
-            0%, 100% { filter: drop-shadow(0 0 8px rgba(240,160,48,0.4)); }
-            50% { filter: drop-shadow(0 0 20px rgba(240,160,48,0.8)); }
-        }
-        .hero h1 {
-            font-family: 'Crimson Pro', serif;
-            font-size: clamp(1.9rem, 5vw, 2.8rem);
-            font-weight: 700;
-            color: var(--gold);
-            margin-bottom: 6px;
-        }
-        .hero .subtitle { font-size: 1rem; color: var(--text-muted); font-weight: 300; }
-        .nav-bar {
-            display: flex; justify-content: center; gap: 6px; padding: 14px 20px; flex-wrap: wrap;
-            position: sticky; top: 0; z-index: 100;
-            background: rgba(26,26,46,0.95); backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(240,160,48,0.15);
-        }
-        .nav-btn {
-            padding: 8px 16px; border: 1px solid rgba(240,160,48,0.25); border-radius: 20px;
-            background: transparent; color: var(--text-muted);
-            font-family: 'Outfit', sans-serif; font-size: 0.85rem; cursor: pointer; transition: all 0.3s;
-        }
-        .nav-btn:hover, .nav-btn.active { background: var(--gold); color: var(--bg); border-color: var(--gold); font-weight: 600; }
-        .container { max-width: 900px; margin: 0 auto; padding: 0 20px 60px; }
-        .section { display: none; animation: fadeIn 0.5s ease; }
-        .section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-        .section-title {
-            font-family: 'Crimson Pro', serif; font-size: 1.5rem; color: var(--gold);
-            margin: 28px 0 14px; padding-bottom: 8px; border-bottom: 2px solid rgba(240,160,48,0.2);
-        }
-        .card {
-            background: var(--bg-card); border: 1px solid rgba(240,160,48,0.1);
-            border-radius: var(--radius); padding: 22px; margin-bottom: 18px; transition: border-color 0.3s;
-        }
-        .card:hover { border-color: rgba(240,160,48,0.3); }
-        .info-text { font-size: 1rem; line-height: 1.75; color: var(--text); margin-bottom: 10px; }
-        .info-text strong { color: var(--gold); }
-        .merke-box {
-            background: linear-gradient(135deg, rgba(240,160,48,0.12), rgba(240,160,48,0.04));
-            border-left: 4px solid var(--gold); border-radius: 0 var(--radius) var(--radius) 0;
-            padding: 18px 22px; margin: 18px 0;
-        }
-        .merke-box h3 { color: var(--gold); font-family: 'Crimson Pro', serif; font-size: 1.1rem; margin-bottom: 8px; }
-        .merke-box ul { list-style: none; padding: 0; }
-        .merke-box li { padding: 4px 0 4px 20px; position: relative; line-height: 1.6; }
-        .merke-box li::before { content: '▸'; color: var(--gold); position: absolute; left: 0; }
-        .vocab { position: relative; color: var(--gold); cursor: help; border-bottom: 1px dashed var(--gold-dark); }
-        .vocab:hover::after {
-            content: attr(data-tip); position: absolute; bottom: calc(100% + 8px); left: 50%;
-            transform: translateX(-50%); padding: 8px 14px; background: var(--bg-card);
-            border: 1px solid var(--gold); border-radius: 8px; font-size: 0.82rem; color: var(--text);
-            white-space: nowrap; z-index: 50; box-shadow: 0 4px 16px rgba(0,0,0,0.4);
-        }
-        .video-wrapper {
-            position: relative; width: 100%; aspect-ratio: 16/9; border-radius: var(--radius);
-            overflow: hidden; margin: 16px 0; border: 1px solid rgba(240,160,48,0.15);
-        }
-        .video-wrapper iframe { width: 100%; height: 100%; border: none; }
-        .quiz-question {
-            background: var(--bg-card); border: 1px solid rgba(240,160,48,0.1);
-            border-radius: var(--radius); padding: 22px; margin-bottom: 14px;
-        }
-        .quiz-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; gap: 10px; flex-wrap: wrap; }
-        .quiz-question h4 { color: var(--gold); font-family: 'Crimson Pro', serif; font-size: 1.05rem; flex: 1; }
-        .time-badge {
-            display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px;
-            background: rgba(66,165,245,0.12); border: 1px solid rgba(66,165,245,0.3);
-            border-radius: 16px; font-size: 0.78rem; color: var(--blue); cursor: pointer;
-            transition: all 0.3s; white-space: nowrap; flex-shrink: 0;
-        }
-        .time-badge:hover { background: rgba(66,165,245,0.25); transform: scale(1.05); }
-        .quiz-options { display: flex; flex-direction: column; gap: 7px; }
-        .quiz-option {
-            display: flex; align-items: center; gap: 12px; padding: 11px 16px;
-            border: 1px solid rgba(240,160,48,0.12); border-radius: 8px; cursor: pointer;
-            transition: all 0.3s; background: rgba(255,255,255,0.02); font-size: 0.95rem; line-height: 1.5;
-        }
-        .quiz-option:hover { background: rgba(240,160,48,0.07); border-color: rgba(240,160,48,0.3); }
-        .quiz-option.correct { background: rgba(76,175,80,0.15); border-color: var(--green); }
-        .quiz-option.wrong { background: rgba(239,83,80,0.12); border-color: var(--red); }
-        .indicator {
-            width: 24px; height: 24px; border-radius: 50%; border: 2px solid rgba(240,160,48,0.25);
-            flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-            font-size: 0.78rem; font-weight: 700;
-        }
-        .quiz-option.correct .indicator { background: var(--green); border-color: var(--green); color: #fff; }
-        .quiz-option.wrong .indicator { background: var(--red); border-color: var(--red); color: #fff; }
-        .quiz-feedback { margin-top: 10px; padding: 10px 14px; border-radius: 8px; font-size: 0.9rem; display: none; line-height: 1.5; }
-        .quiz-feedback.show { display: block; }
-        .quiz-feedback.correct { background: rgba(76,175,80,0.1); border: 1px solid rgba(76,175,80,0.3); color: #a5d6a7; }
-        .quiz-feedback.wrong { background: rgba(239,83,80,0.1); border: 1px solid rgba(239,83,80,0.3); color: #ef9a9a; }
-        .score-bar {
-            display: flex; justify-content: space-between; align-items: center; padding: 16px 20px;
-            background: var(--bg-card); border-radius: var(--radius); margin: 20px 0;
-            border: 1px solid rgba(240,160,48,0.1);
-        }
-        .score-text { font-size: 1.05rem; font-weight: 600; }
-        .score-value { color: var(--gold); font-size: 1.25rem; font-weight: 700; }
-        .progress-bar-bg { flex: 1; height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; margin: 0 20px; overflow: hidden; }
-        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold-dark), var(--gold)); border-radius: 4px; transition: width 0.5s ease; }
-        .grade-display { text-align: center; padding: 12px; font-size: 1.1rem; }
-        .grade-badge { display: inline-block; padding: 6px 18px; border-radius: 8px; font-weight: 700; font-size: 1.3rem; margin-top: 6px; }
-        .grade-1, .grade-2 { background: rgba(76,175,80,0.2); color: var(--green); }
-        .grade-3 { background: rgba(255,152,0,0.2); color: var(--orange); }
-        .grade-4 { background: rgba(255,193,7,0.2); color: #ffd54f; }
-        .grade-5, .grade-6 { background: rgba(239,83,80,0.2); color: var(--red); }
-        .gap-exercise { line-height: 2.1; font-size: 1rem; }
-        .gap-input {
-            display: inline-block; width: 150px; padding: 4px 10px;
-            border: none; border-bottom: 2px solid rgba(240,160,48,0.4);
-            background: rgba(240,160,48,0.06); color: var(--text);
-            font-family: 'Outfit', sans-serif; font-size: 0.95rem; outline: none;
-            transition: all 0.3s; text-align: center; border-radius: 4px 4px 0 0;
-        }
-        .gap-input:focus { border-bottom-color: var(--gold); background: rgba(240,160,48,0.1); }
-        .gap-input.correct { border-bottom-color: var(--green); background: rgba(76,175,80,0.1); color: #a5d6a7; }
-        .gap-input.wrong { border-bottom-color: var(--red); background: rgba(239,83,80,0.1); color: #ef9a9a; }
-        .task-btn-row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
-        .task-btn {
-            padding: 10px 20px; border: none; border-radius: 8px;
-            font-family: 'Outfit', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.3s;
-        }
-        .task-btn.check { background: var(--gold); color: var(--bg); }
-        .task-btn.check:hover { background: var(--gold-light); }
-        .task-btn.hint { background: rgba(66,165,245,0.15); color: var(--blue); border: 1px solid rgba(66,165,245,0.3); }
-        .task-btn.hint:hover { background: rgba(66,165,245,0.25); }
-.word-bank {
-    margin-top: 16px;
-    padding: 12px 14px;
-    border-radius: 8px;
-    border: 1px dashed rgba(240,160,48,0.35);
-    background: rgba(240,160,48,0.06);
-}
-.word-bank-title {
-    font-weight: 600;
-    color: var(--gold);
-    margin-bottom: 8px;
-    font-size: 0.9rem;
-}
-.word-chip {
-    display: inline-block;
-    margin: 4px 6px 0 0;
-    padding: 5px 10px;
-    border-radius: 999px;
-    border: 1px solid rgba(240,160,48,0.35);
-    background: rgba(240,160,48,0.12);
-    font-size: 0.88rem;
-}
-        .match-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
-        .match-col-title { font-weight: 600; color: var(--gold); text-align: center; padding: 8px; font-size: 0.9rem; }
-        .match-item {
-            padding: 12px 14px; border-radius: 8px; cursor: pointer; transition: all 0.3s;
-            text-align: center; font-size: 0.88rem; line-height: 1.4;
-        }
-        .match-item.left { background: rgba(66,165,245,0.1); border: 1px solid rgba(66,165,245,0.25); color: var(--blue); }
-        .match-item.right { background: rgba(240,160,48,0.08); border: 1px solid rgba(240,160,48,0.2); color: var(--gold-light); }
-        .match-item.selected { transform: scale(1.03); box-shadow: 0 0 12px rgba(240,160,48,0.3); }
-        .match-item.left.selected { border-color: var(--blue); background: rgba(66,165,245,0.2); }
-        .match-item.right.selected { border-color: var(--gold); background: rgba(240,160,48,0.15); }
-        .match-item.matched { opacity: 0.5; cursor: default; }
-        .match-item.matched.correct-match { border-color: var(--green) !important; background: rgba(76,175,80,0.1) !important; color: #a5d6a7 !important; }
-        .task-feedback { margin-top: 12px; padding: 12px 16px; border-radius: 8px; font-size: 0.92rem; line-height: 1.6; display: none; white-space: pre-wrap; }
-        .task-feedback.show { display: block; }
-        .task-feedback.ai { background: rgba(240,160,48,0.08); border: 1px solid rgba(240,160,48,0.2); }
-        .task-textarea {
-            width: 100%; min-height: 100px; padding: 14px;
-            background: rgba(255,255,255,0.04); border: 1px solid rgba(240,160,48,0.2);
-            border-radius: 8px; color: var(--text); font-family: 'Outfit', sans-serif;
-            font-size: 0.95rem; resize: vertical; outline: none; transition: border-color 0.3s;
-        }
-        .task-textarea:focus { border-color: var(--gold); }
-        .task-textarea::placeholder { color: var(--text-muted); }
-        .domino-area { position: relative; width: 100%; height: 180px; background: rgba(0,0,0,0.2); border-radius: var(--radius); overflow: hidden; margin: 14px 0; }
-        .domino {
-            position: absolute; bottom: 20px; width: 16px; height: 55px;
-            background: linear-gradient(to bottom, #e0e0e0, #bdbdbd); border-radius: 3px;
-            transform-origin: bottom center; transition: transform 0.4s ease; border: 1px solid #999;
-        }
-        .domino.fallen { transform: rotate(70deg); }
-        .domino-push-btn {
-            position: absolute; top: 10px; left: 10px; padding: 7px 14px;
-            background: var(--gold); color: var(--bg); border: none; border-radius: 6px;
-            font-family: 'Outfit', sans-serif; font-weight: 600; cursor: pointer; font-size: 0.83rem; z-index: 2;
-        }
-        .animation-container {
-            position: relative; width: 100%; aspect-ratio: 16/10;
-            background: radial-gradient(ellipse at center, #0d1b3e 0%, #0a0f1e 100%);
-            border-radius: var(--radius); border: 1px solid rgba(240,160,48,0.15); overflow: hidden; margin: 16px 0;
-        }
-        .animation-container canvas { width: 100%; height: 100%; }
-        .anim-controls { display: flex; justify-content: center; gap: 12px; margin: 12px 0 18px; flex-wrap: wrap; }
-        .anim-btn {
-            padding: 10px 22px; border: none; border-radius: 8px;
-            font-family: 'Outfit', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.3s;
-        }
-        .anim-btn.primary { background: var(--gold); color: var(--bg); }
-        .anim-btn.primary:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(240,160,48,0.3); }
-        .anim-btn.secondary { background: rgba(240,160,48,0.1); color: var(--gold); border: 1px solid rgba(240,160,48,0.3); }
-        .anim-btn.secondary:hover { background: rgba(240,160,48,0.2); }
-        .legend { display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; margin: 8px 0 14px; font-size: 0.83rem; }
-        .legend-item { display: flex; align-items: center; gap: 6px; }
-        .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
-        .quiz-step-bar {
-            background: var(--bg-card); border: 1px solid rgba(240,160,48,0.15);
-            border-radius: var(--radius); padding: 14px 20px; margin-bottom: 16px;
-        }
-        .quiz-step-label {
-            font-size: 0.9rem; font-weight: 600; color: var(--gold); margin-bottom: 8px; text-align: center;
-        }
-        .quiz-nav-row {
-            display: flex; justify-content: space-between; gap: 12px; margin: 16px 0 20px;
-        }
-        .quiz-nav-row .anim-btn { flex: 1; text-align: center; }
-        .quiz-nav-row .anim-btn:disabled {
-            opacity: 0.35; cursor: not-allowed; transform: none !important; box-shadow: none !important;
-        }
-        .loading-spinner {
-            display: inline-block; width: 18px; height: 18px;
-            border: 2px solid rgba(240,160,48,0.3); border-top-color: var(--gold);
-            border-radius: 50%; animation: spin 0.6s linear infinite; margin-right: 8px; vertical-align: middle;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @media (max-width: 600px) {
-            .match-container { grid-template-columns: 1fr; }
-            .hero h1 { font-size: 1.7rem; }
-            .quiz-header { flex-direction: column; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Die Kettenreaktion – NT 9</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0a;--bg2:#141414;--bg3:#1c1c1c;--accent:#ffd000;--accent2:#ffe44d;--green:#ffd000;--red:#ff4444;--purple:#ffaa00;--text:#f0ead6;--text2:#a8a08c;--success:#22c55e;--wrong:#ef4444;--radius:14px;--warn:#ffd000}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* HERO */
+.hero{position:relative;min-height:44vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:50px 20px 30px;overflow:hidden;background:#0a0a0a}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 500px 400px at 50% 50%,rgba(255,208,0,.08),transparent),radial-gradient(ellipse 300px 200px at 50% 60%,rgba(255,68,68,.04),transparent);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:repeating-linear-gradient(90deg,var(--accent) 0,var(--accent) 30px,#0a0a0a 30px,#0a0a0a 60px)}
+.hero-badge{display:inline-block;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0f1117;font-weight:700;font-size:.75rem;letter-spacing:2px;text-transform:uppercase;padding:6px 18px;border-radius:30px;margin-bottom:16px}
+.hero h1{font-size:clamp(1.8rem,4.5vw,3.2rem);font-weight:800;line-height:1.1;margin-bottom:10px;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-size:1.05rem;color:var(--text2);max-width:580px;line-height:1.6}
+
+/* HERO ANIMATION */
+.hero-anim{position:relative;width:min(500px,90vw);height:180px;margin:20px auto 0}
+.hero-atom{position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.7rem;color:#0a0a0a;transition:all .8s cubic-bezier(.4,0,.2,1)}
+.hero-atom.uranium{width:60px;height:60px;background:radial-gradient(circle at 35% 35%,#ffe44d,#d4a800);box-shadow:0 0 20px rgba(255,208,0,.4)}
+.hero-atom.neutron{width:22px;height:22px;background:radial-gradient(circle at 35% 35%,#ffd000,#b89700);box-shadow:0 0 12px rgba(255,208,0,.6);font-size:.55rem}
+.hero-atom.fragment{width:38px;height:38px;background:radial-gradient(circle at 35% 35%,#ff8c00,#cc6600);box-shadow:0 0 14px rgba(255,140,0,.4);opacity:0}
+.hero-flash{position:absolute;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(255,208,0,.6),transparent 70%);opacity:0;pointer-events:none;transition:opacity .3s}
+@keyframes drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.hero-atom.uranium{animation:drift 3s ease-in-out infinite}
+
+/* NAV */
+.nav-bar{display:flex;justify-content:center;gap:5px;padding:14px 20px;flex-wrap:wrap;position:sticky;top:0;z-index:100;background:rgba(10,10,10,.96);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,208,0,.12)}
+.nav-btn{background:var(--bg3);color:var(--text2);border:1px solid rgba(255,255,255,.08);padding:9px 16px;border-radius:10px;font-family:'Outfit',sans-serif;font-size:.83rem;font-weight:600;cursor:pointer;transition:all .2s}
+.nav-btn:hover{background:rgba(255,208,0,.1);color:var(--text)}
+.nav-btn.active{background:linear-gradient(135deg,var(--accent),#e6bb00);color:#0a0a0a;border-color:transparent}
+
+/* LAYOUT */
+.content-wrap{max-width:920px;margin:0 auto;padding:0 20px 60px}
+.section-page{display:none;animation:fadeIn .5s ease}.section-page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.section{background:var(--bg2);border:1px solid rgba(255,208,0,.1);border-radius:var(--radius);padding:30px 26px;margin-bottom:22px;position:relative;overflow:hidden}
+.section::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:repeating-linear-gradient(90deg,var(--accent) 0,var(--accent) 20px,#0a0a0a 20px,#0a0a0a 40px)}
+.section h2{font-size:1.35rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.section h2 .icon{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.section p,.section li{font-family:'Crimson Pro',serif;font-size:1.08rem;line-height:1.72;color:var(--text2)}
+.section p+p{margin-top:10px}
+.strong-accent{color:var(--accent);font-weight:600}
+
+/* MERKE */
+.merke{background:linear-gradient(135deg,rgba(255,68,68,.1),rgba(255,68,68,.03));border:1px solid rgba(255,68,68,.35);border-left:4px solid var(--red);border-radius:var(--radius);padding:18px;margin-top:18px}
+.merke h3{font-size:.9rem;font-weight:700;color:var(--red);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.merke p{font-family:'Crimson Pro',serif;font-size:1.02rem;color:var(--text);line-height:1.65}
+.merke-gold{background:linear-gradient(135deg,rgba(255,208,0,.08),rgba(255,208,0,.02));border:1px solid rgba(255,208,0,.3);border-left:4px solid var(--accent);border-radius:var(--radius);padding:18px;margin-top:18px}
+.merke-gold h3{font-size:.9rem;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.merke-gold p,.merke-gold li{font-family:'Crimson Pro',serif;font-size:1.02rem;color:var(--text);line-height:1.65}
+.merke-gold ul{list-style:none;padding:0;margin-top:6px}
+.merke-gold li{padding:4px 0 4px 18px;position:relative}
+.merke-gold li::before{content:'▸';color:var(--accent);position:absolute;left:0;font-weight:700}
+
+/* VIDEO */
+.video-wrapper{position:relative;width:100%;aspect-ratio:16/9;border-radius:var(--radius);overflow:hidden;margin:16px 0;border:2px solid rgba(255,208,0,.2)}
+.video-wrapper iframe{width:100%;height:100%;border:none}
+
+/* CANVAS */
+.anim-wrap{background:var(--bg3);border-radius:var(--radius);padding:20px;margin-top:18px;border:1px solid rgba(255,208,0,.15)}
+.anim-wrap h3{font-size:1rem;font-weight:700;color:var(--accent);margin-bottom:12px}
+.anim-stage{position:relative;background:#000;border-radius:10px;overflow:hidden;border:2px solid rgba(255,208,0,.2);width:100%;aspect-ratio:16/10}
+.anim-stage canvas{width:100%;height:100%}
+.anim-controls{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.anim-btn{font-family:'Outfit',sans-serif;font-size:.85rem;font-weight:600;padding:10px 20px;border-radius:10px;border:none;cursor:pointer;transition:all .2s}
+.anim-btn.go{background:linear-gradient(135deg,var(--accent),#e6bb00);color:#0a0a0a}
+.anim-btn.go:hover{box-shadow:0 4px 16px rgba(255,208,0,.4);transform:translateY(-2px)}
+.anim-btn.rst{background:var(--bg3);color:var(--text2);border:1px solid rgba(255,255,255,.1)}
+.anim-btn.rst:hover{background:rgba(255,255,255,.08)}
+.legend{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin:10px 0;font-size:.82rem;color:var(--text2)}
+.legend-item{display:flex;align-items:center;gap:6px}
+.legend-dot{width:12px;height:12px;border-radius:50%}
+
+/* QUIZ */
+.quiz-step-bar{background:var(--bg2);border:1px solid rgba(255,208,0,.12);border-radius:var(--radius);padding:14px 20px;margin-bottom:16px}
+.quiz-step-label{font-size:.9rem;font-weight:600;color:var(--accent);margin-bottom:8px;text-align:center}
+.progress-bar-bg{height:8px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,#b89700,var(--accent));border-radius:4px;transition:width .5s ease}
+.quiz-nav-row{display:flex;justify-content:space-between;gap:12px;margin:16px 0 20px}
+.quiz-nav-row .anim-btn{flex:1;text-align:center}
+.quiz-nav-row .anim-btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+
+.quiz-q{background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);padding:18px;margin-bottom:14px}
+.quiz-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;gap:10px;flex-wrap:wrap}
+.quiz-q h4{font-size:.95rem;font-weight:700;color:var(--accent);flex:1}
+.time-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;background:rgba(255,208,0,.1);border:1px solid rgba(255,208,0,.3);border-radius:16px;font-size:.78rem;color:var(--accent);cursor:pointer;transition:all .3s;white-space:nowrap;flex-shrink:0}
+.time-badge:hover{background:rgba(255,208,0,.2);transform:scale(1.05)}
+
+.quiz-option{display:block;width:100%;text-align:left;background:var(--bg);border:1.5px solid rgba(255,255,255,.1);padding:10px 16px;border-radius:10px;font-family:'Crimson Pro',serif;font-size:1rem;color:var(--text);cursor:pointer;margin-bottom:6px;transition:all .2s}
+.quiz-option:hover{border-color:var(--accent);background:rgba(255,208,0,.04)}
+.quiz-option.correct-ans{border-color:var(--success);background:rgba(34,197,94,.1);color:var(--success)}
+.quiz-option.wrong-ans{border-color:var(--wrong);background:rgba(239,68,68,.1);color:var(--wrong)}
+.quiz-feedback{margin-top:10px;padding:10px 14px;border-radius:10px;font-size:.9rem;display:none;line-height:1.5;font-family:'Crimson Pro',serif}
+.quiz-feedback.show{display:block}
+.quiz-feedback.correct{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:var(--success)}
+.quiz-feedback.wrong{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);color:var(--wrong)}
+
+/* SCORE / GRADE */
+.score-bar{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;background:var(--bg2);border-radius:var(--radius);margin:20px 0;border:1px solid rgba(255,208,0,.1)}
+.score-text{font-size:1.05rem;font-weight:600}.score-value{color:var(--accent);font-size:1.25rem;font-weight:700}
+.grade-display{text-align:center;padding:12px;font-size:1.1rem}
+.grade-badge{display:inline-block;padding:6px 18px;border-radius:8px;font-weight:700;font-size:1.3rem;margin-top:6px}
+.grade-1,.grade-2{background:rgba(34,197,94,.15);color:var(--success)}.grade-3{background:rgba(255,170,0,.15);color:var(--purple)}
+.grade-4{background:rgba(255,208,0,.12);color:var(--accent)}.grade-5,.grade-6{background:rgba(239,68,68,.15);color:var(--wrong)}
+
+/* GAP FILL */
+.luecken-text{font-family:'Crimson Pro',serif;font-size:1.08rem;line-height:2.2;color:var(--text)}
+.gap{display:inline-block;min-width:110px;border-bottom:2.5px dashed rgba(255,208,0,.5);padding:2px 8px;margin:0 4px;min-height:26px;vertical-align:bottom;border-radius:4px;transition:all .3s;cursor:pointer;background:rgba(255,208,0,.05);text-align:center;user-select:none;-webkit-tap-highlight-color:transparent}
+.gap:empty::before{content:'?';color:var(--text2)}
+.gap.active{border-bottom-color:var(--accent);background:rgba(255,208,0,.15);box-shadow:0 2px 10px rgba(255,208,0,.2)}
+.gap.filled{border-bottom-color:var(--accent);background:rgba(255,208,0,.12);color:var(--accent);font-weight:600}
+.gap.correct{border-bottom-color:var(--success);background:rgba(34,197,94,.12);color:var(--success)}
+.gap.wrong{border-bottom-color:var(--wrong);background:rgba(239,68,68,.12);color:var(--wrong)}
+.word-bank{display:flex;flex-wrap:wrap;gap:9px;margin:16px 0;padding:13px;background:var(--bg3);border-radius:var(--radius);min-height:46px;border:1px solid rgba(255,208,0,.1);justify-content:center}
+.word-card{display:inline-block;background:linear-gradient(135deg,rgba(255,208,0,.18),rgba(255,208,0,.06));border:1.5px solid rgba(255,208,0,.4);color:var(--accent);font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:600;padding:7px 15px;border-radius:10px;cursor:pointer;user-select:none;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.word-card:hover{transform:scale(1.05);box-shadow:0 4px 12px rgba(255,208,0,.3)}
+.word-card.used{opacity:.3;pointer-events:none;transform:scale(.95)}
+
+.btn-row{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.check-btn,.reset-btn{font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:600;padding:10px 22px;border-radius:10px;border:none;cursor:pointer;transition:all .2s}
+.check-btn{background:linear-gradient(135deg,var(--success),#16a34a);color:#fff}
+.check-btn:hover{box-shadow:0 4px 16px rgba(34,197,94,.35);transform:translateY(-2px)}
+.reset-btn{background:var(--bg3);color:var(--text2);border:1px solid rgba(255,255,255,.1)}
+.reset-btn:hover{background:rgba(255,255,255,.08);color:var(--text)}
+.result-msg{margin-top:12px;padding:11px 16px;border-radius:10px;font-weight:600;font-size:.88rem;display:none}
+.result-msg.show{display:block;animation:fadeIn .3s}
+.result-msg.good{background:rgba(34,197,94,.12);color:var(--success);border:1px solid rgba(34,197,94,.3)}
+.result-msg.bad{background:rgba(239,68,68,.12);color:var(--wrong);border:1px solid rgba(239,68,68,.3)}
+
+/* MATCHING */
+.match-row{display:flex;gap:12px;align-items:stretch;margin-bottom:10px}
+.match-term{flex:0 0 140px;padding:12px 14px;background:var(--bg3);border:1px solid rgba(255,255,255,.08);border-radius:10px;font-family:'Crimson Pro',serif;font-size:.98rem;color:var(--text);display:flex;align-items:center;justify-content:center;text-align:center;font-weight:600}
+.match-drop{flex:1;padding:12px 14px;background:var(--bg);border:2px dashed rgba(255,208,0,.25);border-radius:10px;font-family:'Crimson Pro',serif;font-size:.92rem;color:var(--text2);display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;transition:all .3s;min-height:48px;user-select:none;-webkit-tap-highlight-color:transparent}
+.match-drop:empty::before{content:'– wählen –';color:rgba(168,160,140,.4)}
+.match-drop.active{border-color:var(--accent);background:rgba(255,208,0,.08);box-shadow:0 0 10px rgba(255,208,0,.15)}
+.match-drop.filled{border-style:solid;border-color:rgba(255,208,0,.3);color:var(--accent);background:rgba(255,208,0,.06)}
+.match-drop.correct{border-color:var(--success);background:rgba(34,197,94,.08);color:var(--success)}
+.match-drop.wrong{border-color:var(--wrong);background:rgba(239,68,68,.08);color:var(--wrong)}
+.match-pool-label{font-size:.82rem;color:var(--text2);margin-bottom:8px;text-align:center}
+.match-pool-items{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.match-chip{display:inline-block;padding:9px 14px;background:linear-gradient(135deg,rgba(255,208,0,.12),rgba(255,208,0,.04));border:1px solid rgba(255,208,0,.25);border-radius:10px;color:var(--accent);font-size:.85rem;line-height:1.4;cursor:pointer;transition:all .2s;user-select:none;text-align:center;font-family:'Crimson Pro',serif;-webkit-tap-highlight-color:transparent}
+.match-chip:hover{transform:scale(1.03);box-shadow:0 4px 12px rgba(255,208,0,.2)}
+.match-chip.used{opacity:.25;pointer-events:none;text-decoration:line-through}
+
+/* FREE TEXT */
+.ki-antwort{display:block;width:100%;min-height:85px;margin-top:10px;padding:11px 13px;font-family:'Crimson Pro',serif;font-size:1rem;line-height:1.55;color:var(--text);background:var(--bg);border:2px solid rgba(255,255,255,.1);border-radius:10px;resize:vertical;transition:border-color .3s}
+.ki-antwort:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,208,0,.15)}
+.ki-antwort::placeholder{color:var(--text2);font-style:italic}
+.loading-spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,208,0,.3);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;margin-right:6px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.footer{text-align:center;padding:26px 20px;color:var(--text2);font-size:.78rem;border-top:1px solid rgba(255,255,255,.05)}
+@media(max-width:600px){.section{padding:20px 16px}.quiz-header{flex-direction:column}.match-row{flex-direction:column;gap:4px}.match-term{flex:none}}
+</style>
 </head>
 <body>
 
+<!-- HERO -->
 <div class="hero">
-    <div class="hero-icon">⚛️</div>
+    <span class="hero-badge">⚛️ Natur und Technik 9 · Bayern</span>
     <h1>Die Kettenreaktion</h1>
-    <p class="subtitle">Kernspaltung · Kettenreaktion · Kritische Masse · Moderatoren</p>
+    <p>Ein einziges Neutron löst eine Lawine aus – und setzt dabei unvorstellbare Energie frei!</p>
+    <div class="hero-anim" id="heroAnim"></div>
 </div>
 
+<!-- NAV -->
 <nav class="nav-bar">
-    <button class="nav-btn active" onclick="showSection('info', this)">📖 Info</button>
-    <button class="nav-btn" onclick="showSection('animation', this)">🎬 Animation</button>
-    <button class="nav-btn" onclick="showSection('video', this)">🎥 Film + Quiz</button>
-    <button class="nav-btn" onclick="showSection('aufgaben', this)">✍️ Aufgaben</button>
+    <button class="nav-btn active" onclick="showSection('info',this)">📖 Info</button>
+    <button class="nav-btn" onclick="showSection('animation',this)">⚛️ Simulation</button>
+    <button class="nav-btn" onclick="showSection('video',this)">🎥 Film + Quiz</button>
+    <button class="nav-btn" onclick="showSection('aufgaben',this)">✍️ Aufgaben</button>
 </nav>
 
-<div class="container">
+<div class="content-wrap">
 
 <!-- ===== INFO ===== -->
-<div id="info" class="section active">
-    <h2 class="section-title">1. Kettenreaktion mit Dominosteinen</h2>
-    <div class="card">
-        <p class="info-text">Stelle dir eine Reihe Dominosteine vor, die so aufgestellt sind, dass sie beim Umfallen einander berühren. Wenn du den <strong>ersten Stein</strong> umwirfst, fällt einer nach dem anderen um.</p>
-        <div class="domino-area" id="dominoArea">
-            <button class="domino-push-btn" onclick="startDominos()">▶ Ersten Stein anstoßen</button>
-        </div>
-        <p class="info-text">Der <strong>Dominostein</strong> entspricht einem <span class="vocab" data-tip="Ungeladenes Teilchen im Atomkern">Neutron</span>. Die anderen Steine stehen für <strong>U-235 Kerne</strong>, die nach der Spaltung wieder Neutronen aussenden.</p>
-    </div>
+<div id="info" class="section-page active">
 
-    <h2 class="section-title">2. Die Kettenreaktion</h2>
-    <div class="card">
-        <p class="info-text">Da <strong>U-235</strong> selbst radioaktiv ist und Neutronen aussendet, kommt es im angereicherten Zustand zu einer <strong>Kettenreaktion</strong>. Die Zahl der Spaltungen wächst im Bruchteil von Sekunden ins Millionenfache. Dabei wird eine <strong>gewaltige Energiemenge</strong> frei.</p>
-    </div>
-
-    <h2 class="section-title">3. Kettenreaktion steuern</h2>
-    <div class="card">
-        <p class="info-text">Um die Energie sinnvoll nutzen zu können, muss man die Kettenreaktion <strong>steuern</strong>. Das erreicht man, indem so viele Neutronen abgefangen werden, dass nur noch <strong>ein Neutron pro Spaltung</strong> übrigbleibt. So bleibt die Energieausbeute im Kraftwerk konstant.</p>
-    </div>
-
-    <h2 class="section-title">4. Kritische Masse</h2>
-    <div class="card">
-        <p class="info-text">Es muss genügend spaltbares Material (<strong>U-235</strong>) vorhanden sein. Im Natururan beträgt der Anteil nur etwa <strong>0,7%</strong>. Deshalb muss es auf <strong>3–4%</strong> angereichert werden. Unter diesem Anteil ist keine Kettenreaktion möglich – die <span class="vocab" data-tip="Mindestmenge an spaltbarem Material für eine sich selbst erhaltende Kettenreaktion">kritische Masse</span> wäre nicht erreicht.</p>
-    </div>
-
-    <h2 class="section-title">5. Moderatoren</h2>
-    <div class="card">
-        <p class="info-text">Um die Kernspaltung aufrecht zu erhalten, müssen die freiwerdenden Neutronen <strong>abgebremst</strong> werden. Dies geschieht mit Wasser, Deuterium, Sauerstoff oder Graphit. Man nennt diese Stoffe <span class="vocab" data-tip="Stoffe, die Neutronen abbremsen, damit sie weitere Kerne spalten können">Moderatoren</span>.</p>
-    </div>
-
-    <div class="merke-box">
-        <h3>📌 MERKE</h3>
-        <ul>
-            <li>Für eine Kettenreaktion muss die <strong>kritische Masse</strong> erreicht sein.</li>
-            <li>Die Kettenreaktion kann durch <strong>Moderatoren</strong> gesteuert werden.</li>
-            <li><strong>Unkontrolliert</strong> → schlagartig extrem viel Energie (Atombombe)</li>
-            <li><strong>Kontrolliert</strong> → Energieausbeute konstant (Kernkraftwerk)</li>
-        </ul>
-    </div>
+<div class="section">
+    <h2><span class="icon" style="background:rgba(255,208,0,.15);color:var(--accent);">🎯</span> Kettenreaktion mit Dominosteinen</h2>
+    <p>Stelle dir eine Reihe Dominosteine vor, die so aufgestellt sind, dass sie beim Umfallen einander berühren. Wenn du den <strong class="strong-accent">ersten Stein</strong> umwirfst, fällt einer nach dem anderen um – immer schneller und unaufhaltsam.</p>
+    <p>Der <strong class="strong-accent">Dominostein</strong> entspricht einem <strong>Neutron</strong>. Die anderen Steine stehen für <strong class="strong-accent">U-235 Kerne</strong>, die nach der Spaltung wieder Neutronen aussenden.</p>
 </div>
 
-<!-- ===== ANIMATION ===== -->
-<div id="animation" class="section">
-    <h2 class="section-title">Kettenreaktion – Simulation</h2>
-    <div class="card">
-        <p class="info-text">Beobachte, wie ein einzelnes Neutron eine <strong>Kettenreaktion</strong> auslöst. Jeder gespaltene U-235-Kern setzt 2–3 neue Neutronen frei.</p>
-    </div>
+<div class="section">
+    <h2><span class="icon" style="background:rgba(255,208,0,.15);color:var(--accent);">⚛️</span> Die Kettenreaktion</h2>
+    <p>Da <strong class="strong-accent">U-235</strong> selbst radioaktiv ist und Neutronen aussendet, kommt es im angereicherten Zustand zu einer <strong class="strong-accent">Kettenreaktion</strong>. Die Zahl der Spaltungen wächst im Bruchteil von Sekunden ins Millionenfache. Dabei wird eine <strong>gewaltige Energiemenge</strong> frei.</p>
+</div>
+
+<div class="section">
+    <h2><span class="icon" style="background:rgba(255,208,0,.15);color:var(--accent);">🔧</span> Kettenreaktion steuern</h2>
+    <p>Um die Energie sinnvoll nutzen zu können, muss man die Kettenreaktion <strong class="strong-accent">steuern</strong>. Das erreicht man, indem so viele Neutronen abgefangen werden, dass nur noch <strong class="strong-accent">ein Neutron pro Spaltung</strong> übrigbleibt. So bleibt die Energieausbeute im Kraftwerk konstant.</p>
+</div>
+
+<div class="section">
+    <h2><span class="icon" style="background:rgba(255,170,0,.15);color:var(--purple);">⚖️</span> Kritische Masse</h2>
+    <p>Es muss genügend spaltbares Material (<strong class="strong-accent">U-235</strong>) vorhanden sein. Im Natururan beträgt der Anteil nur etwa <strong class="strong-accent">0,7%</strong>. Deshalb muss es auf <strong class="strong-accent">3–4%</strong> angereichert werden. Unter diesem Anteil ist keine Kettenreaktion möglich.</p>
+</div>
+
+<div class="section">
+    <h2><span class="icon" style="background:rgba(255,208,0,.15);color:var(--accent);">💧</span> Moderatoren</h2>
+    <p>Um die Kernspaltung aufrecht zu erhalten, müssen die freiwerdenden Neutronen <strong class="strong-accent">abgebremst</strong> werden. Dies geschieht mit Wasser, Deuterium, Sauerstoff oder Graphit. Man nennt diese Stoffe <strong class="strong-accent">Moderatoren</strong>.</p>
+</div>
+
+<div class="merke-gold">
+    <h3>📌 Merke</h3>
+    <ul>
+        <li>Für eine Kettenreaktion muss die <strong>kritische Masse</strong> erreicht sein.</li>
+        <li>Die Kettenreaktion kann durch <strong>Moderatoren</strong> gesteuert werden.</li>
+        <li><strong>Unkontrolliert</strong> → schlagartig extrem viel Energie (Atombombe)</li>
+        <li><strong>Kontrolliert</strong> → Energieausbeute konstant (Kernkraftwerk)</li>
+    </ul>
+</div>
+</div>
+
+<!-- ===== SIMULATION ===== -->
+<div id="animation" class="section-page">
+<div class="section">
+    <h2><span class="icon" style="background:rgba(255,208,0,.15);color:var(--accent);">⚛️</span> Kettenreaktion – Simulation</h2>
+    <p>Beobachte, wie ein einzelnes Neutron eine <strong class="strong-accent">Kettenreaktion</strong> auslöst. Jeder gespaltene U-235-Kern setzt 2–3 neue Neutronen frei.</p>
     <div class="legend">
-        <div class="legend-item"><div class="legend-dot" style="background:#42a5f5;"></div> Neutron</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#f0a030;"></div> U-235</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#ef5350;"></div> Trümmerkern</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ffd000;"></div> Neutron</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ffaa00;"></div> U-235</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ff4444;"></div> Trümmerkern</div>
     </div>
-    <div class="animation-container">
-        <canvas id="chainCanvas"></canvas>
+    <div class="anim-wrap">
+        <div class="anim-stage"><canvas id="chainCanvas"></canvas></div>
+        <div class="anim-controls">
+            <button class="anim-btn go" onclick="startChainReaction()">▶ Starten</button>
+            <button class="anim-btn rst" onclick="resetChainReaction()">↺ Zurücksetzen</button>
+        </div>
     </div>
-    <div class="anim-controls">
-        <button class="anim-btn primary" onclick="startChainReaction()">▶ Starten</button>
-        <button class="anim-btn secondary" onclick="resetChainReaction()">↺ Zurücksetzen</button>
-    </div>
+</div>
 </div>
 
 <!-- ===== FILM + QUIZ ===== -->
-<div id="video" class="section">
-    <h2 class="section-title">Lernfilm: Kernspaltung & Kettenreaktion</h2>
-    <div class="card">
-        <p class="info-text">Schau dir den Film aufmerksam an. Beantworte danach die <strong>18 Fragen</strong>. Klicke auf den <span style="color:var(--blue);">⏱ Zeitstempel</span>, um zur passenden Stelle im Film zu springen.</p>
-    </div>
-
+<div id="video" class="section-page">
+<div class="section">
+    <h2><span class="icon" style="background:rgba(255,208,0,.15);color:var(--accent);">🎥</span> Lernfilm: Kernspaltung & Kettenreaktion</h2>
+    <p>Schau dir den Film aufmerksam an. Beantworte danach die <strong class="strong-accent">18 Fragen</strong>. Klicke auf den <span style="color:var(--accent);">⏱ Zeitstempel</span>, um zur passenden Stelle zu springen.</p>
     <div class="video-wrapper">
         <iframe id="ytPlayer" src="https://www.youtube.com/embed/24UmCX_DGXE?enablejsapi=1&rel=0" title="Kernspaltung und Kettenreaktion" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>
+</div>
 
-    <h2 class="section-title">🧪 Filmquiz – 18 Fragen (18 Punkte)</h2>
-    <div class="card" style="padding: 14px 18px; margin-bottom: 18px;">
-        <p class="info-text" style="margin-bottom:0; font-size:0.9rem;">📊 <strong>Bewertung</strong> (bayerisch, 50% = Note 4): 18–16P = 1 · 15–13P = 2 · 12–11P = 3 · <strong>10–9P = 4</strong> · 8–5P = 5 · 4–0P = 6</p>
-    </div>
-
-    <!-- Step progress -->
-    <div class="quiz-step-bar">
-        <div class="quiz-step-label" id="quizStepLabel">Frage 1 von 18</div>
-        <div class="progress-bar-bg" style="margin:0;"><div class="progress-bar-fill" id="quizStepFill" style="width:5.56%;"></div></div>
-    </div>
-
-    <div id="filmQuizContainer"></div>
-
-    <div class="quiz-nav-row" id="quizNavRow">
-        <button class="anim-btn secondary" id="btnPrev" onclick="prevQuestion()" disabled>← Zurück</button>
-        <button class="anim-btn primary" id="btnNext" onclick="nextQuestion()" disabled>Nächste Frage →</button>
-    </div>
-
-    <div class="score-bar" id="filmQuizScore" style="display:none;">
-        <span class="score-text">Ergebnis:</span>
-        <div class="progress-bar-bg"><div class="progress-bar-fill" id="filmProgressFill" style="width:0%;"></div></div>
-        <span class="score-value" id="filmScoreValue">0/18</span>
-<span class="score-text" id="filmGradeInline" style="margin-left:10px; color: var(--gold);">Note: -</span>
-    </div>
-    <div id="filmGradeDisplay" class="grade-display" style="display:none;"></div>
+<div class="quiz-step-bar">
+    <div class="quiz-step-label" id="quizStepLabel">Frage 1 von 18</div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="quizStepFill" style="width:5.56%;"></div></div>
+</div>
+<div id="filmQuizContainer"></div>
+<div class="quiz-nav-row" id="quizNavRow">
+    <button class="anim-btn rst" id="btnPrev" onclick="prevQuestion()" disabled>← Zurück</button>
+    <button class="anim-btn go" id="btnNext" onclick="nextQuestion()" disabled>Nächste Frage →</button>
+</div>
+<div class="score-bar" id="filmQuizScore" style="display:none;">
+    <span class="score-text">Ergebnis:</span>
+    <div class="progress-bar-bg" style="flex:1;margin:0 16px;"><div class="progress-bar-fill" id="filmProgressFill" style="width:0%;"></div></div>
+    <span class="score-value" id="filmScoreValue">0/18</span>
+</div>
+<div id="filmGradeDisplay" class="grade-display" style="display:none;"></div>
 </div>
 
 <!-- ===== AUFGABEN ===== -->
-<div id="aufgaben" class="section">
-    <h2 class="section-title">Lückentext: Kettenreaktion</h2>
-    <div class="card">
-        <div class="gap-exercise" id="gapExercise">
-            Bei der Kernspaltung wird ein <input type="text" class="gap-input" data-answer="U-235" placeholder="?" size="8"> Kern von einem <input type="text" class="gap-input" data-answer="Neutron" placeholder="?" size="10"> getroffen und spaltet sich in zwei <input type="text" class="gap-input" data-answer="Trümmerkerne" placeholder="?" size="14">. Dabei werden 2–3 neue <input type="text" class="gap-input" data-answer="Neutronen" placeholder="?" size="12"> frei. Diesen Vorgang nennt man <input type="text" class="gap-input" data-answer="Kettenreaktion" placeholder="?" size="16">.<br><br>
-            Damit eine Kettenreaktion stattfinden kann, muss die <input type="text" class="gap-input" data-answer="kritische Masse" placeholder="?" size="16"> erreicht sein. Im Natururan beträgt der Anteil von U-235 nur <input type="text" class="gap-input" data-answer="0,7" placeholder="?" size="5"> %. Deshalb muss das Uran auf <input type="text" class="gap-input" data-answer="3" placeholder="?" size="3"> bis 4% angereichert werden.<br><br>
-            Um die Kettenreaktion zu steuern, werden <input type="text" class="gap-input" data-answer="Moderatoren" placeholder="?" size="14"> eingesetzt. Beispiele sind Wasser, <input type="text" class="gap-input" data-answer="Graphit" placeholder="?" size="10"> oder Deuterium.
-        </div>
-        <div class="word-bank">
-            <div class="word-bank-title">L�sungsw�rter zum Einsetzen:</div>
-            <span class="word-chip">U-235</span>
-            <span class="word-chip">Neutron</span>
-            <span class="word-chip">Tr�mmerkerne</span>
-            <span class="word-chip">Neutronen</span>
-            <span class="word-chip">Kettenreaktion</span>
-            <span class="word-chip">kritische Masse</span>
-            <span class="word-chip">0,7</span>
-            <span class="word-chip">3</span>
-            <span class="word-chip">Moderatoren</span>
-            <span class="word-chip">Graphit</span>
-        </div>
-        <div class="task-btn-row"> 
-            <button class="task-btn check" onclick="checkGaps()">✓ Überprüfen</button>
-            <button class="task-btn hint" onclick="showGapHints()">💡 Lösung zeigen</button>
-        </div>
-        <div class="score-bar" id="gapScore" style="display:none;">
-            <span class="score-text">Ergebnis:</span>
-            <div class="progress-bar-bg"><div class="progress-bar-fill" id="gapProgressFill" style="width:0%;"></div></div>
-            <span class="score-value" id="gapScoreValue">0/10</span>
-        </div>
-    </div>
+<div id="aufgaben" class="section-page">
 
-    <h2 class="section-title">Zuordnung: Begriffe & Erklärungen</h2>
-    <div class="card">
-        <div class="match-container" id="matchContainer">
-            <div>
-                <div class="match-col-title">Begriffe</div>
-                <div class="match-item left" data-match="A" onclick="selectMatch(this,'left')">Kettenreaktion</div>
-                <div class="match-item left" data-match="B" onclick="selectMatch(this,'left')">Kritische Masse</div>
-                <div class="match-item left" data-match="C" onclick="selectMatch(this,'left')">Moderator</div>
-                <div class="match-item left" data-match="D" onclick="selectMatch(this,'left')">Absorber</div>
-            </div>
-            <div>
-                <div class="match-col-title">Erklärungen</div>
-                <div class="match-item right" data-match="D" onclick="selectMatch(this,'right')">Fängt Neutronen ein (z.B. Bor, Kadmium)</div>
-                <div class="match-item right" data-match="A" onclick="selectMatch(this,'right')">Sich selbst erhaltender Spaltungsprozess</div>
-                <div class="match-item right" data-match="C" onclick="selectMatch(this,'right')">Bremst Neutronen ab (z.B. Wasser, Graphit)</div>
-                <div class="match-item right" data-match="B" onclick="selectMatch(this,'right')">Mindestmenge an U-235 für Kettenreaktion</div>
-            </div>
-        </div>
-        <div id="matchFeedback" class="task-feedback"></div>
+<div class="section">
+    <h2><span class="icon" style="background:rgba(255,208,0,.15);color:var(--accent);">📝</span> Lückentext: Kettenreaktion</h2>
+    <p style="font-size:.92rem;color:var(--text2);margin-bottom:10px;">Tippe auf eine Lücke, dann auf das passende Wort.</p>
+    <div class="luecken-text" id="gapExercise"></div>
+    <div class="word-bank" id="wordBank"></div>
+    <div class="btn-row">
+        <button class="check-btn" onclick="checkGaps()">✓ Überprüfen</button>
+        <button class="reset-btn" onclick="resetGaps()">↺ Zurücksetzen</button>
+        <button class="reset-btn" onclick="showGapHints()">💡 Lösung</button>
     </div>
-
-    <h2 class="section-title">Freitext: Erkläre die Kettenreaktion</h2>
-    <div class="quiz-question">
-        <h4>Erkläre in eigenen Worten, was bei einer Kettenreaktion passiert und wie man sie steuern kann.</h4>
-        <textarea class="task-textarea" id="freeText1" placeholder="Schreibe deine Antwort hier..."></textarea>
-        <div class="task-btn-row">
-            <button class="task-btn check" onclick="checkFreeText('freeText1','feedback1')">✓ KI-Bewertung</button>
-        </div>
-        <div class="task-feedback ai" id="feedback1"></div>
+    <div class="score-bar" id="gapScore" style="display:none;">
+        <span class="score-text">Ergebnis:</span>
+        <div class="progress-bar-bg" style="flex:1;margin:0 16px;"><div class="progress-bar-fill" id="gapProgressFill" style="width:0%;"></div></div>
+        <span class="score-value" id="gapScoreValue">0/10</span>
     </div>
 </div>
 
+<div class="section">
+    <h2><span class="icon" style="background:rgba(255,208,0,.15);color:var(--accent);">🔗</span> Zuordnung: Begriffe & Erklärungen</h2>
+    <p style="font-size:.92rem;color:var(--text2);margin-bottom:10px;">Tippe auf ein Feld, dann auf die passende Erklärung.</p>
+    <div id="matchRows"></div>
+    <div id="matchPool" style="margin-top:14px;"></div>
+    <div id="matchFeedback" class="result-msg"></div>
+    <div class="btn-row">
+        <button class="check-btn" onclick="checkMatch()">✓ Überprüfen</button>
+        <button class="reset-btn" onclick="resetMatch()">↺ Zurücksetzen</button>
+    </div>
 </div>
+
+<div class="section">
+    <h2><span class="icon" style="background:rgba(255,208,0,.15);color:var(--accent);">✏️</span> Freitext: Erkläre die Kettenreaktion</h2>
+    <p>Erkläre in eigenen Worten, was bei einer Kettenreaktion passiert und wie man sie steuern kann.</p>
+    <textarea class="ki-antwort" id="freeText1" placeholder="Schreibe deine Antwort hier..."></textarea>
+    <div class="btn-row">
+        <button class="check-btn" onclick="checkFreeText('freeText1','feedback1')">✓ KI-Bewertung</button>
+    </div>
+    <div class="result-msg" id="feedback1"></div>
+</div>
+</div>
+
+</div><!-- content-wrap -->
+<div class="footer">NT 9 · Die Kettenreaktion · Interaktive Lernseite</div>
 
 <script>
 // ===== NAV =====
-function showSection(id, btn) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+function showSection(id,btn){
+    document.querySelectorAll('.section-page').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
     document.getElementById(id).classList.add('active');
-    if (btn) btn.classList.add('active');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (id === 'animation') initChainCanvas();
+    if(btn)btn.classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+    if(id==='animation')initChainCanvas();
 }
+
+// ===== HERO ANIMATION =====
+function buildHeroAnim(){
+    const c=document.getElementById('heroAnim');
+    c.innerHTML='';
+    const atoms=[
+        {x:'38%',y:'40%',cls:'uranium',label:'U-235',id:'hu1'},
+        {x:'62%',y:'35%',cls:'uranium',label:'U-235',id:'hu2'},
+        {x:'50%',y:'70%',cls:'uranium',label:'U-235',id:'hu3'},
+    ];
+    atoms.forEach(a=>{
+        const el=document.createElement('div');
+        el.className='hero-atom '+a.cls;el.id=a.id;
+        el.style.left=a.x;el.style.top=a.y;el.textContent=a.label;
+        el.style.transform='translate(-50%,-50%)';
+        c.appendChild(el);
+    });
+    // Initial neutron
+    const n=document.createElement('div');
+    n.className='hero-atom neutron';n.id='hn0';
+    n.style.left='5%';n.style.top='42%';n.textContent='n';
+    n.style.transform='translate(-50%,-50%)';
+    c.appendChild(n);
+    // Flash
+    const fl=document.createElement('div');
+    fl.className='hero-flash';fl.id='hflash';
+    fl.style.left='calc(38% - 60px)';fl.style.top='calc(40% - 60px)';
+    c.appendChild(fl);
+    // Animate
+    setTimeout(()=>{n.style.left='38%';n.style.top='40%';},300);
+    setTimeout(()=>{
+        n.style.opacity='0';
+        document.getElementById('hflash').style.opacity='1';
+        const u1=document.getElementById('hu1');
+        u1.style.opacity='0';u1.style.transform='translate(-50%,-50%) scale(0)';
+        // Fragments
+        const f1=document.createElement('div');f1.className='hero-atom fragment';
+        f1.style.left='38%';f1.style.top='40%';f1.style.transform='translate(-50%,-50%)';f1.textContent='Ba';
+        c.appendChild(f1);
+        const f2=document.createElement('div');f2.className='hero-atom fragment';
+        f2.style.left='38%';f2.style.top='40%';f2.style.transform='translate(-50%,-50%)';f2.textContent='Kr';
+        c.appendChild(f2);
+        setTimeout(()=>{f1.style.opacity='1';f1.style.left='22%';f1.style.top='20%';f2.style.opacity='1';f2.style.left='28%';f2.style.top='65%';},50);
+        // New neutrons
+        ['15%,30%','10%,55%','30%,15%'].forEach((pos,i)=>{
+            const nn=document.createElement('div');nn.className='hero-atom neutron';
+            nn.style.left='38%';nn.style.top='40%';nn.style.transform='translate(-50%,-50%)';nn.textContent='n';
+            c.appendChild(nn);
+            const[tx,ty]=pos.split(',');
+            setTimeout(()=>{nn.style.left=tx;nn.style.top=ty;},100+i*60);
+        });
+    },1200);
+    setTimeout(()=>{document.getElementById('hflash').style.opacity='0';},1800);
+    // Second wave
+    setTimeout(()=>{
+        const fl2=document.createElement('div');fl2.className='hero-flash';
+        fl2.style.left='calc(62% - 60px)';fl2.style.top='calc(35% - 60px)';fl2.style.opacity='1';
+        c.appendChild(fl2);
+        const u2=document.getElementById('hu2');
+        u2.style.opacity='0';u2.style.transform='translate(-50%,-50%) scale(0)';
+        setTimeout(()=>{fl2.style.opacity='0';},500);
+    },2800);
+    setTimeout(()=>{
+        const fl3=document.createElement('div');fl3.className='hero-flash';
+        fl3.style.left='calc(50% - 60px)';fl3.style.top='calc(70% - 60px)';fl3.style.opacity='1';
+        c.appendChild(fl3);
+        const u3=document.getElementById('hu3');
+        u3.style.opacity='0';u3.style.transform='translate(-50%,-50%) scale(0)';
+        setTimeout(()=>{fl3.style.opacity='0';},500);
+    },3200);
+    // Loop
+    setTimeout(()=>{buildHeroAnim();},5500);
+}
+buildHeroAnim();
 
 // ===== YOUTUBE API =====
-let ytPlayerReady = false, ytPlayerObj = null;
-const tag = document.createElement('script');
-tag.src = 'https://www.youtube.com/iframe_api';
-document.head.appendChild(tag);
-function onYouTubeIframeAPIReady() {
-    ytPlayerObj = new YT.Player('ytPlayer', { events: { 'onReady': () => { ytPlayerReady = true; } } });
-}
-function seekTo(seconds) {
-    if (ytPlayerReady && ytPlayerObj) { ytPlayerObj.seekTo(seconds, true); ytPlayerObj.playVideo(); }
-}
+let ytPlayerReady=false,ytPlayerObj=null;
+const tag=document.createElement('script');tag.src='https://www.youtube.com/iframe_api';document.head.appendChild(tag);
+function onYouTubeIframeAPIReady(){ytPlayerObj=new YT.Player('ytPlayer',{events:{'onReady':()=>{ytPlayerReady=true;}}});}
+function seekTo(s){if(ytPlayerReady&&ytPlayerObj){ytPlayerObj.seekTo(s,true);ytPlayerObj.playVideo();}}
 
-// ===== FILM QUIZ DATA =====
-const filmQuestions = [
-    { q:"Wie viele Teilchen hat der Atomkern von Uran-235?", time:"0:06–0:12", seek:6, opts:["92","143","235","327"], c:2, ex:"U-235 hat 235 Nukleonen (Kernbausteine) im Kern." },
-    { q:"Woraus besteht Uran-235?", time:"0:12–0:18", seek:12, opts:["92 Protonen, 143 Neutronen","143 Protonen, 92 Neutronen","nur Protonen","nur Neutronen"], c:0, ex:"U-235 hat 92 Protonen und 143 Neutronen (92+143=235)." },
-    { q:"Welche Aussage über Protonen und Neutronen ist richtig?", time:"0:18–0:23", seek:18, opts:["Protonen sind neutral","Neutronen sind negativ geladen","Protonen positiv, Neutronen neutral","Beide sind negativ"], c:2, ex:"Protonen tragen positive Ladung, Neutronen sind elektrisch neutral." },
-    { q:"Was entsteht, wenn Uran-235 ein Neutron aufnimmt?", time:"0:23–0:30", seek:23, opts:["Uran-234","Uran-236","Plutonium","Helium"], c:1, ex:"U-235 + 1 Neutron = U-236 (ein instabiler Zwischenkern)." },
-    { q:"Was passiert mit Uran-236?", time:"0:30–0:37", seek:30, opts:["Es bleibt stabil","Es zerfällt schnell","Es wird größer","Es verschwindet"], c:1, ex:"U-236 ist extrem instabil und zerfällt sofort in zwei Bruchstücke." },
-    { q:"Welche Produkte entstehen bei der Spaltung?", time:"0:35–0:43", seek:35, opts:["Barium, Krypton + Neutronen","Sauerstoff und Wasser","Gold und Silber","nur Energie"], c:0, ex:"Typische Spaltprodukte sind Barium und Krypton, plus 2–3 Neutronen." },
-    { q:"Was wird zusätzlich freigesetzt?", time:"0:41–0:45", seek:41, opts:["Licht","Wärme","viel Energie","Sauerstoff"], c:2, ex:"Bei der Spaltung wird eine große Menge Energie freigesetzt." },
-    { q:"Welche Neutronen braucht man für weitere Spaltungen?", time:"0:45–0:50", seek:45, opts:["schnelle","langsame","große","geladene"], c:1, ex:"Nur langsame (thermische) Neutronen können U-235 effektiv spalten." },
-    { q:"Welche Stoffe wirken als Moderatoren?", time:"0:53–0:58", seek:53, opts:["Eisen und Kupfer","Wasser oder Graphit","Gold und Silber","Luft"], c:1, ex:"Wasser und Graphit sind typische Moderatoren im Kernkraftwerk." },
-    { q:"Was bewirken Moderatoren?", time:"1:02–1:07", seek:62, opts:["Sie erzeugen Energie","Sie bremsen Neutronen ab","Sie zerstören Kerne","Sie laden Neutronen auf"], c:1, ex:"Moderatoren bremsen schnelle Neutronen auf thermische Geschwindigkeit ab." },
-    { q:"Was passiert durch gebremste Neutronen?", time:"1:07–1:11", seek:67, opts:["Nichts","Weitere Kernspaltungen werden möglich","Die Reaktion stoppt","Die Neutronen verschwinden"], c:1, ex:"Langsame Neutronen können weitere U-235-Kerne spalten → Kettenreaktion!" },
-    { q:"Wie nennt man diesen Prozess?", time:"1:11–1:14", seek:71, opts:["Fusion","Explosion","Kettenreaktion","Verdampfung"], c:2, ex:"Der sich selbst erhaltende Spaltungsprozess heißt Kettenreaktion." },
-    { q:"Was braucht man für eine kontrollierte Kettenreaktion?", time:"1:16–1:21", seek:76, opts:["Sauerstoff","Bor oder Kadmium","Gold","Wasserstoff"], c:1, ex:"Bor und Kadmium sind Absorber, die überschüssige Neutronen einfangen." },
-    { q:"Was machen diese Stoffe (Absorber)?", time:"1:21–1:24", seek:81, opts:["Sie erzeugen Neutronen","Sie bremsen Protonen","Sie fangen Neutronen ein","Sie erhitzen das Wasser"], c:2, ex:"Absorber (Steuerstäbe) fangen überschüssige Neutronen ein." },
-    { q:"Warum ist das Einfangen von Neutronen wichtig?", time:"1:24–1:29", seek:84, opts:["Damit mehr Energie entsteht","Damit die Reaktion kontrolliert bleibt","Damit alles schneller geht","Damit neue Elemente entstehen"], c:1, ex:"Durch Neutronen-Einfangen wird die Kettenreaktion kontrolliert und sicher." },
-    { q:"Wie ist das Verhältnis bei einer kontrollierten Reaktion?", time:"1:29–1:32", seek:89, opts:["2 : 1","1 : 2","1 : 1","3 : 1"], c:2, ex:"Bei kontrollierter Reaktion: 1 Neutron löst genau 1 neue Spaltung aus → 1:1." },
-    { q:"Was bedeutet dieses Verhältnis?", time:"1:32–1:36", seek:92, opts:["Zwei Kerne entstehen","Ein Neutron spaltet genau einen neuen Kern","Es entstehen keine neuen Neutronen","Die Reaktion stoppt sofort"], c:1, ex:"Pro Spaltung bleibt genau 1 Neutron übrig, das 1 weiteren Kern spaltet." },
-    { q:"Wie nennt man diese stabile Situation?", time:"1:36–1:39", seek:96, opts:["Unkontrollierte Reaktion","Explosion","Kontrollierte Kettenreaktion","Stillstand"], c:2, ex:"Die kontrollierte Kettenreaktion hält die Energieausbeute im Kraftwerk konstant." }
+// ===== FILM QUIZ =====
+const filmQ=[
+{q:"Wie viele Teilchen hat der Atomkern von Uran-235?",t:"0:06–0:12",s:6,o:["92","143","235","327"],c:2,e:"U-235 hat 235 Nukleonen im Kern."},
+{q:"Woraus besteht Uran-235?",t:"0:12–0:18",s:12,o:["92 Protonen, 143 Neutronen","143 Protonen, 92 Neutronen","nur Protonen","nur Neutronen"],c:0,e:"U-235 hat 92 Protonen und 143 Neutronen (92+143=235)."},
+{q:"Welche Aussage über Protonen und Neutronen ist richtig?",t:"0:18–0:23",s:18,o:["Protonen sind neutral","Neutronen sind negativ geladen","Protonen positiv, Neutronen neutral","Beide sind negativ"],c:2,e:"Protonen tragen positive Ladung, Neutronen sind elektrisch neutral."},
+{q:"Was entsteht, wenn Uran-235 ein Neutron aufnimmt?",t:"0:23–0:30",s:23,o:["Uran-234","Uran-236","Plutonium","Helium"],c:1,e:"U-235 + 1 Neutron = U-236 (ein instabiler Zwischenkern)."},
+{q:"Was passiert mit Uran-236?",t:"0:30–0:37",s:30,o:["Es bleibt stabil","Es zerfällt schnell","Es wird größer","Es verschwindet"],c:1,e:"U-236 ist extrem instabil und zerfällt sofort."},
+{q:"Welche Produkte entstehen bei der Spaltung?",t:"0:35–0:43",s:35,o:["Barium, Krypton + Neutronen","Sauerstoff und Wasser","Gold und Silber","nur Energie"],c:0,e:"Typische Spaltprodukte: Barium und Krypton, plus 2–3 Neutronen."},
+{q:"Was wird zusätzlich freigesetzt?",t:"0:41–0:45",s:41,o:["Licht","Wärme","viel Energie","Sauerstoff"],c:2,e:"Bei der Spaltung wird eine große Menge Energie freigesetzt."},
+{q:"Welche Neutronen braucht man für weitere Spaltungen?",t:"0:45–0:50",s:45,o:["schnelle","langsame","große","geladene"],c:1,e:"Nur langsame (thermische) Neutronen können U-235 effektiv spalten."},
+{q:"Welche Stoffe wirken als Moderatoren?",t:"0:53–0:58",s:53,o:["Eisen und Kupfer","Wasser oder Graphit","Gold und Silber","Luft"],c:1,e:"Wasser und Graphit sind typische Moderatoren."},
+{q:"Was bewirken Moderatoren?",t:"1:02–1:07",s:62,o:["Sie erzeugen Energie","Sie bremsen Neutronen ab","Sie zerstören Kerne","Sie laden Neutronen auf"],c:1,e:"Moderatoren bremsen schnelle Neutronen auf thermische Geschwindigkeit ab."},
+{q:"Was passiert durch gebremste Neutronen?",t:"1:07–1:11",s:67,o:["Nichts","Weitere Kernspaltungen werden möglich","Die Reaktion stoppt","Die Neutronen verschwinden"],c:1,e:"Langsame Neutronen können weitere U-235-Kerne spalten."},
+{q:"Wie nennt man diesen Prozess?",t:"1:11–1:14",s:71,o:["Fusion","Explosion","Kettenreaktion","Verdampfung"],c:2,e:"Der sich selbst erhaltende Spaltungsprozess heißt Kettenreaktion."},
+{q:"Was braucht man für eine kontrollierte Kettenreaktion?",t:"1:16–1:21",s:76,o:["Sauerstoff","Bor oder Kadmium","Gold","Wasserstoff"],c:1,e:"Bor und Kadmium sind Absorber, die überschüssige Neutronen einfangen."},
+{q:"Was machen diese Stoffe (Absorber)?",t:"1:21–1:24",s:81,o:["Sie erzeugen Neutronen","Sie bremsen Protonen","Sie fangen Neutronen ein","Sie erhitzen das Wasser"],c:2,e:"Absorber (Steuerstäbe) fangen überschüssige Neutronen ein."},
+{q:"Warum ist das Einfangen von Neutronen wichtig?",t:"1:24–1:29",s:84,o:["Damit mehr Energie entsteht","Damit die Reaktion kontrolliert bleibt","Damit alles schneller geht","Damit neue Elemente entstehen"],c:1,e:"Durch Neutronen-Einfangen wird die Kettenreaktion kontrolliert."},
+{q:"Wie ist das Verhältnis bei einer kontrollierten Reaktion?",t:"1:29–1:32",s:89,o:["2 : 1","1 : 2","1 : 1","3 : 1"],c:2,e:"Kontrolliert: 1 Neutron löst genau 1 neue Spaltung aus → 1:1."},
+{q:"Was bedeutet dieses Verhältnis?",t:"1:32–1:36",s:92,o:["Zwei Kerne entstehen","Ein Neutron spaltet genau einen neuen Kern","Keine neuen Neutronen","Die Reaktion stoppt sofort"],c:1,e:"Pro Spaltung bleibt genau 1 Neutron, das 1 weiteren Kern spaltet."},
+{q:"Wie nennt man diese stabile Situation?",t:"1:36–1:39",s:96,o:["Unkontrollierte Reaktion","Explosion","Kontrollierte Kettenreaktion","Stillstand"],c:2,e:"Die kontrollierte Kettenreaktion hält die Energieausbeute konstant."}
 ];
 
-// ===== BUILD FILM QUIZ (step-by-step) =====
-let filmCorrect = 0, filmAnswered = 0, currentQ = 0;
-function buildFilmQuiz() {
-    const c = document.getElementById('filmQuizContainer');
-    const letters = ['A','B','C','D'];
-    filmQuestions.forEach((fq, idx) => {
-        const qId = 'fq' + idx;
-        let optsH = '';
-        fq.opts.forEach((o, oi) => {
-            optsH += '<div class="quiz-option" onclick="checkFilmQ(this,' + (oi === fq.c) + ',\'' + qId + '\',' + idx + ')"><span class="indicator">' + letters[oi] + '</span>' + o + '</div>';
-        });
-        const vis = idx === 0 ? '' : 'display:none;';
-        c.innerHTML += '<div class="quiz-question" id="' + qId + '" style="' + vis + '"><div class="quiz-header"><h4>Frage ' + (idx+1) + ': ' + fq.q + '</h4><span class="time-badge" onclick="seekTo(' + fq.seek + ')">⏱ ' + fq.time + '</span></div><div class="quiz-options">' + optsH + '</div><div class="quiz-feedback" id="' + qId + '-fb"></div></div>';
+let filmCorrect=0,filmAnswered=0,currentQ=0;
+function buildFilmQuiz(){
+    const c=document.getElementById('filmQuizContainer');c.innerHTML='';
+    filmQ.forEach((fq,idx)=>{
+        const qId='fq'+idx;const L=['A','B','C','D'];
+        let oh='';fq.o.forEach((o,oi)=>{oh+='<button class="quiz-option" onclick="checkFilmQ(this,'+(oi===fq.c)+',\''+qId+'\','+idx+')">'+L[oi]+') '+o+'</button>';});
+        const vis=idx===0?'':'display:none;';
+        c.innerHTML+='<div class="quiz-q" id="'+qId+'" style="'+vis+'"><div class="quiz-header"><h4>Frage '+(idx+1)+': '+fq.q+'</h4><span class="time-badge" onclick="seekTo('+fq.s+')">⏱ '+fq.t+'</span></div>'+oh+'<div class="quiz-feedback" id="'+qId+'-fb"></div></div>';
     });
     updateStepUI();
 }
-function updateStepUI() {
-    const total = filmQuestions.length;
-    document.getElementById('quizStepLabel').textContent = 'Frage ' + (currentQ+1) + ' von ' + total;
-    document.getElementById('quizStepFill').style.width = (((currentQ+1)/total)*100) + '%';
-    document.getElementById('btnPrev').disabled = currentQ === 0;
-    // Next enabled only if current question is answered
-    const curEl = document.getElementById('fq' + currentQ);
-    const isAnswered = curEl && curEl.dataset.answered;
-    const isLast = currentQ >= total - 1;
-    const btn = document.getElementById('btnNext');
-    if (isLast && isAnswered) {
-        btn.style.display = '';
-        btn.disabled = false;
-        btn.textContent = '📊 Ergebnis anzeigen';
-    } else {
-        btn.style.display = '';
-        btn.disabled = !isAnswered;
-        btn.textContent = 'Nächste Frage →';
-    }
+function updateStepUI(){
+    const total=filmQ.length;
+    document.getElementById('quizStepLabel').textContent='Frage '+(currentQ+1)+' von '+total;
+    document.getElementById('quizStepFill').style.width=(((currentQ+1)/total)*100)+'%';
+    document.getElementById('btnPrev').disabled=currentQ===0;
+    const curEl=document.getElementById('fq'+currentQ);
+    const isAns=curEl&&curEl.dataset.answered;
+    const isLast=currentQ>=total-1;
+    const btn=document.getElementById('btnNext');
+    btn.disabled=!isAns;
+    btn.textContent=isLast&&isAns?'📊 Ergebnis anzeigen':'Nächste Frage →';
 }
-function showQuestion(idx) {
-    filmQuestions.forEach((_, i) => {
-        document.getElementById('fq' + i).style.display = i === idx ? '' : 'none';
-    });
-    currentQ = idx;
+function showQuestion(i){filmQ.forEach((_,j)=>{document.getElementById('fq'+j).style.display=j===i?'':'none';});currentQ=i;updateStepUI();}
+function nextQuestion(){if(currentQ<filmQ.length-1)showQuestion(currentQ+1);else{showFilmScore();document.getElementById('quizNavRow').style.display='none';document.getElementById('fq'+currentQ).style.display='none';document.querySelector('.quiz-step-bar').style.display='none';}}
+function prevQuestion(){if(currentQ>0)showQuestion(currentQ-1);}
+function checkFilmQ(el,ok,qId,idx){
+    const q=document.getElementById(qId);if(q.dataset.answered)return;q.dataset.answered='true';filmAnswered++;
+    q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none');
+    const fb=document.getElementById(qId+'-fb');const fq=filmQ[idx];
+    if(ok){el.classList.add('correct-ans');filmCorrect++;fb.className='quiz-feedback show correct';fb.textContent='✅ '+fq.e;}
+    else{el.classList.add('wrong-ans');q.querySelectorAll('.quiz-option')[fq.c].classList.add('correct-ans');fb.className='quiz-feedback show wrong';fb.textContent='❌ '+fq.e;}
     updateStepUI();
 }
-function nextQuestion() {
-    const total = filmQuestions.length;
-    if (currentQ < total - 1) {
-        showQuestion(currentQ + 1);
-    } else {
-        // Last question answered → show result
-        showFilmScore();
-        document.getElementById('quizNavRow').style.display = 'none';
-        document.getElementById('fq' + currentQ).style.display = 'none';
-        document.querySelector('.quiz-step-bar').style.display = 'none';
-    }
+function showFilmScore(){
+    const total=filmQ.length,pct=(filmCorrect/total)*100;
+    document.getElementById('filmQuizScore').style.display='flex';
+    document.getElementById('filmScoreValue').textContent=filmCorrect+'/'+total;
+    document.getElementById('filmProgressFill').style.width=pct+'%';
+    let g;if(filmCorrect>=16)g=1;else if(filmCorrect>=13)g=2;else if(filmCorrect>=11)g=3;else if(filmCorrect>=9)g=4;else if(filmCorrect>=5)g=5;else g=6;
+    const gn={1:'sehr gut',2:'gut',3:'befriedigend',4:'ausreichend',5:'mangelhaft',6:'ungenügend'};
+    const em={1:'🏆',2:'💪',3:'👍',4:'✅',5:'📖',6:'🔄'};
+    const msgs={1:'Hervorragend! Du hast das Thema perfekt verstanden. Absolute Spitzenleistung!',2:'Stark! Du kennst dich richtig gut aus. Nur Kleinigkeiten fehlen zur Eins!',3:'Gute Arbeit! Die Grundlagen sitzen. Schau den Film nochmal für die Details!',4:'Bestanden! Lies die Merke-Box nochmal und schau den Film ein zweites Mal.',5:'Knapp nicht bestanden – aber nicht aufgeben! Schau den Film nochmal langsam an.',6:'Das Thema braucht noch Übung. Arbeite die Info-Seite durch und schau den Film Schritt für Schritt.'};
+    const d=document.getElementById('filmGradeDisplay');d.style.display='block';
+    d.innerHTML='<div style="font-size:2.5rem;margin-bottom:4px;">'+em[g]+'</div><div>Deine Note:</div><div class="grade-badge grade-'+g+'">Note '+g+' – '+gn[g]+'</div><div style="margin-top:8px;font-size:.85rem;color:var(--text2);">'+filmCorrect+' von '+total+' Punkten ('+Math.round(pct)+'%)</div><div style="margin-top:14px;padding:16px 20px;background:var(--bg3);border:1px solid rgba(255,208,0,.15);border-radius:var(--radius);font-family:Crimson Pro,serif;font-size:1rem;line-height:1.65;text-align:left;color:var(--text);">'+msgs[g]+'</div>'+(g>=4?'<div style="margin-top:12px;"><button class="anim-btn go" onclick="restartFilmQuiz()">🔄 Nochmal versuchen</button></div>':'');
 }
-function prevQuestion() {
-    if (currentQ > 0) showQuestion(currentQ - 1);
-}
-function checkFilmQ(el, isCorrect, qId, idx) {
-    const question = document.getElementById(qId);
-    if (question.dataset.answered) return;
-    question.dataset.answered = 'true';
-    filmAnswered++;
-    const opts = question.querySelectorAll('.quiz-option');
-    opts.forEach(o => o.style.pointerEvents = 'none');
-    const fb = document.getElementById(qId + '-fb');
-    const fq = filmQuestions[idx];
-    if (isCorrect) {
-        el.classList.add('correct'); el.querySelector('.indicator').textContent = '✓';
-        filmCorrect++;
-        fb.className = 'quiz-feedback show correct'; fb.textContent = '✅ ' + fq.ex;
-    } else {
-        el.classList.add('wrong'); el.querySelector('.indicator').textContent = '✗';
-        opts[fq.c].classList.add('correct'); opts[fq.c].querySelector('.indicator').textContent = '✓';
-        fb.className = 'quiz-feedback show wrong'; fb.textContent = '❌ ' + fq.ex;
-    }
-    updateStepUI();
-}
-function showFilmScore() {
-    const total = filmQuestions.length, pct = (filmCorrect / total) * 100;
-    document.getElementById('filmQuizScore').style.display = 'flex';
-    document.getElementById('filmScoreValue').textContent = filmCorrect + '/' + total;
-    document.getElementById('filmProgressFill').style.width = pct + '%';
-    let grade;
-    if (filmCorrect >= 16) grade = 1;
-    else if (filmCorrect >= 13) grade = 2;
-    else if (filmCorrect >= 11) grade = 3;
-    else if (filmCorrect >= 9) grade = 4;
-    else if (filmCorrect >= 5) grade = 5;
-    else grade = 6;
-    const names = {1:'sehr gut',2:'gut',3:'befriedigend',4:'ausreichend',5:'mangelhaft',6:'ungenügend'};
-    const emojis = {1:'🏆',2:'💪',3:'👍',4:'✅',5:'📖',6:'🔄'};
-    const msgs = {
-        1:'Hervorragend! Du hast das Thema Kernspaltung und Kettenreaktion perfekt verstanden. Absolute Spitzenleistung – weiter so!',
-        2:'Stark! Du kennst dich richtig gut aus mit der Kettenreaktion. Nur ein paar Kleinigkeiten fehlen noch zur Eins – das schaffst du locker!',
-        3:'Gute Arbeit! Du hast die wichtigsten Grundlagen verstanden. Schau dir den Film nochmal an und achte besonders auf die Details bei Moderatoren und Absorber – dann wird es noch besser!',
-        4:'Bestanden! Die Grundlagen sitzen schon. Tipp: Lies dir die Merke-Box im Info-Bereich nochmal in Ruhe durch und schau den Film ein zweites Mal – du wirst sehen, dass vieles dann klarer wird!',
-        5:'Knapp nicht bestanden – aber nicht aufgeben! Das Thema ist nicht einfach. Schau dir den Film nochmal langsam an, nutze die Zeitstempel-Buttons und lies die Info-Seite. Beim nächsten Versuch klappt es bestimmt!',
-        6:'Das Thema braucht noch etwas Übung. Kein Problem – schau dir den Film Schritt für Schritt nochmal an und arbeite die Info-Seite durch. Frag deinen Lehrer, wenn du etwas nicht verstehst. Du schaffst das!'
-    };
-    const gradeInline = document.getElementById('filmGradeInline'); if (gradeInline) gradeInline.textContent = 'Note: ' + grade + ' (' + names[grade] + ')';
-    const d = document.getElementById('filmGradeDisplay');
-    d.style.display = 'block';
-    d.innerHTML = '<div style="font-size:2.5rem;margin-bottom:4px;">' + emojis[grade] + '</div>'
-        + '<div>Deine Note:</div>'
-        + '<div class="grade-badge grade-' + grade + '">Note ' + grade + ' – ' + names[grade] + '</div>'
-        + '<div style="margin-top:8px;font-size:0.85rem;color:var(--text-muted);">' + filmCorrect + ' von ' + total + ' Punkten (' + Math.round(pct) + '%)</div>'
-        + '<div style="margin-top:14px;padding:16px 20px;background:rgba(240,160,48,0.08);border:1px solid rgba(240,160,48,0.2);border-radius:10px;font-size:0.95rem;line-height:1.65;text-align:left;color:var(--text);">' + msgs[grade] + '</div>'
-        + (grade >= 4 ? '<div style="margin-top:12px;"><button class="anim-btn primary" onclick="restartFilmQuiz()">🔄 Nochmal versuchen</button></div>' : '');
-}
-function restartFilmQuiz() {
-    filmCorrect = 0; filmAnswered = 0; currentQ = 0;
-    document.getElementById('filmQuizContainer').innerHTML = '';
-    document.getElementById('filmQuizScore').style.display = 'none';
-    document.getElementById('filmGradeDisplay').style.display = 'none';
-    const gradeInline = document.getElementById('filmGradeInline'); if (gradeInline) gradeInline.textContent = 'Note: -';
-    document.getElementById('quizNavRow').style.display = '';
-    document.querySelector('.quiz-step-bar').style.display = '';
-    buildFilmQuiz();
-}
+function restartFilmQuiz(){filmCorrect=0;filmAnswered=0;currentQ=0;document.getElementById('filmQuizScore').style.display='none';document.getElementById('filmGradeDisplay').style.display='none';document.getElementById('quizNavRow').style.display='';document.querySelector('.quiz-step-bar').style.display='';buildFilmQuiz();}
 buildFilmQuiz();
 
-// ===== DOMINOS =====
-function initDominos() {
-    const a = document.getElementById('dominoArea');
-    a.querySelectorAll('.domino').forEach(d => d.remove());
-    for (let i = 0; i < 15; i++) {
-        const d = document.createElement('div');
-        d.className = 'domino'; d.style.left = (55 + i * 36) + 'px'; d.id = 'domino-' + i;
-        a.appendChild(d);
-    }
-}
-initDominos();
-function startDominos() {
-    initDominos();
-    for (let i = 0; i < 15; i++) setTimeout(() => { const d = document.getElementById('domino-' + i); if (d) d.classList.add('fallen'); }, i * 180);
-}
-
 // ===== CHAIN REACTION CANVAS =====
-let chainCanvas, chainCtx, chainAnimId, particles = [], uraniumAtoms = [], generation = 0;
-function initChainCanvas() {
-    chainCanvas = document.getElementById('chainCanvas');
-    if (!chainCanvas) return;
-    const r = chainCanvas.parentElement.getBoundingClientRect();
-    chainCanvas.width = r.width * 2; chainCanvas.height = r.height * 2;
-    chainCtx = chainCanvas.getContext('2d'); chainCtx.scale(2, 2);
-    resetChainReaction();
+let chainCanvas,chainCtx,chainAnimId,particles=[],uraniumAtoms=[],generation=0;
+function initChainCanvas(){
+    chainCanvas=document.getElementById('chainCanvas');if(!chainCanvas)return;
+    const r=chainCanvas.parentElement.getBoundingClientRect();
+    chainCanvas.width=r.width*2;chainCanvas.height=r.height*2;
+    chainCtx=chainCanvas.getContext('2d');chainCtx.scale(2,2);resetChainReaction();
 }
-function resetChainReaction() {
-    if (chainAnimId) cancelAnimationFrame(chainAnimId);
-    particles = []; uraniumAtoms = []; generation = 0;
-    if (!chainCanvas) return;
-    const w = chainCanvas.width / 2, h = chainCanvas.height / 2;
-    for (let r = 0; r < 5; r++) for (let c = 0; c < 8; c++) {
-        uraniumAtoms.push({ x: (w/9)*(c+1)+(Math.random()-0.5)*18, y: (h/6)*(r+1)+(Math.random()-0.5)*12, radius: 16, alive: true, splitting: false, fragments: [] });
-    }
+function resetChainReaction(){
+    if(chainAnimId)cancelAnimationFrame(chainAnimId);particles=[];uraniumAtoms=[];generation=0;
+    if(!chainCanvas)return;const w=chainCanvas.width/2,h=chainCanvas.height/2;
+    for(let r=0;r<5;r++)for(let c=0;c<8;c++)
+        uraniumAtoms.push({x:(w/9)*(c+1)+(Math.random()-.5)*18,y:(h/6)*(r+1)+(Math.random()-.5)*12,radius:16,alive:true,splitting:false,fragments:[]});
     drawChain();
 }
-function drawChain() {
-    if (!chainCtx) return;
-    const w = chainCanvas.width/2, h = chainCanvas.height/2;
-    chainCtx.clearRect(0,0,w,h);
-    uraniumAtoms.forEach(a => {
-        if (a.alive && !a.splitting) {
-            chainCtx.beginPath(); chainCtx.arc(a.x,a.y,a.radius,0,Math.PI*2);
-            const g = chainCtx.createRadialGradient(a.x-3,a.y-3,2,a.x,a.y,a.radius);
-            g.addColorStop(0,'#ffd54f'); g.addColorStop(1,'#f0a030');
-            chainCtx.fillStyle = g; chainCtx.fill();
-            chainCtx.fillStyle = '#1a1a2e'; chainCtx.font = 'bold 8px Outfit'; chainCtx.textAlign = 'center';
-            chainCtx.fillText('U-235',a.x,a.y+3);
-        }
-        a.fragments.forEach(f => { if (f.alpha > 0) { chainCtx.globalAlpha = f.alpha; chainCtx.beginPath(); chainCtx.arc(f.x,f.y,8,0,Math.PI*2); chainCtx.fillStyle = '#ef5350'; chainCtx.fill(); chainCtx.globalAlpha = 1; } });
+function drawChain(){
+    if(!chainCtx)return;const w=chainCanvas.width/2,h=chainCanvas.height/2;chainCtx.clearRect(0,0,w,h);
+    uraniumAtoms.forEach(a=>{
+        if(a.alive&&!a.splitting){chainCtx.beginPath();chainCtx.arc(a.x,a.y,a.radius,0,Math.PI*2);const g=chainCtx.createRadialGradient(a.x-3,a.y-3,2,a.x,a.y,a.radius);g.addColorStop(0,'#ffe44d');g.addColorStop(1,'#d4a800');chainCtx.fillStyle=g;chainCtx.fill();chainCtx.fillStyle='#0a0a0a';chainCtx.font='bold 8px Outfit';chainCtx.textAlign='center';chainCtx.fillText('U-235',a.x,a.y+3);}
+        a.fragments.forEach(f=>{if(f.alpha>0){chainCtx.globalAlpha=f.alpha;chainCtx.beginPath();chainCtx.arc(f.x,f.y,8,0,Math.PI*2);chainCtx.fillStyle='#ff4444';chainCtx.fill();chainCtx.globalAlpha=1;}});
     });
-    particles.forEach(p => {
-        if (p.alive) {
-            chainCtx.beginPath(); chainCtx.arc(p.x,p.y,5,0,Math.PI*2);
-            const ng = chainCtx.createRadialGradient(p.x,p.y,1,p.x,p.y,5);
-            ng.addColorStop(0,'#90caf9'); ng.addColorStop(1,'#42a5f5');
-            chainCtx.fillStyle = ng; chainCtx.fill();
-            chainCtx.beginPath(); chainCtx.arc(p.x,p.y,10,0,Math.PI*2); chainCtx.fillStyle = 'rgba(66,165,245,0.15)'; chainCtx.fill();
-        }
-    });
-    chainCtx.fillStyle = 'rgba(240,160,48,0.8)'; chainCtx.font = '13px Outfit'; chainCtx.textAlign = 'left';
-    chainCtx.fillText('Generation: '+generation,12,22);
-    chainCtx.fillText('Spaltungen: '+uraniumAtoms.filter(a=>!a.alive).length,12,40);
+    particles.forEach(p=>{if(p.alive){chainCtx.beginPath();chainCtx.arc(p.x,p.y,5,0,Math.PI*2);const ng=chainCtx.createRadialGradient(p.x,p.y,1,p.x,p.y,5);ng.addColorStop(0,'#ffe44d');ng.addColorStop(1,'#ffd000');chainCtx.fillStyle=ng;chainCtx.fill();chainCtx.beginPath();chainCtx.arc(p.x,p.y,10,0,Math.PI*2);chainCtx.fillStyle='rgba(255,208,0,.15)';chainCtx.fill();}});
+    chainCtx.fillStyle='rgba(255,208,0,.8)';chainCtx.font='13px Outfit';chainCtx.textAlign='left';
+    chainCtx.fillText('Generation: '+generation,12,22);chainCtx.fillText('Spaltungen: '+uraniumAtoms.filter(a=>!a.alive).length,12,40);
 }
-function startChainReaction() {
+function startChainReaction(){
     resetChainReaction();
-    particles.push({x:0,y:chainCanvas.height/4+Math.random()*chainCanvas.height/4,vx:2.5,vy:(Math.random()-0.5)*0.5,alive:true,gen:0});
-    function anim() {
-        const w=chainCanvas.width/2, h=chainCanvas.height/2;
-        particles.forEach(p => {
-            if (!p.alive) return; p.x+=p.vx; p.y+=p.vy;
-            if (p.x<-10||p.x>w+10||p.y<-10||p.y>h+10){p.alive=false;return;}
-            uraniumAtoms.forEach(a => {
-                if (!a.alive) return;
-                if (Math.sqrt((p.x-a.x)**2+(p.y-a.y)**2)<a.radius+5) {
-                    p.alive=false; a.alive=false; a.splitting=true;
-                    generation=Math.max(generation,p.gen+1);
-                    for(let i=0;i<2;i++){const ang=Math.random()*Math.PI*2; a.fragments.push({x:a.x,y:a.y,vx:Math.cos(ang)*1.5,vy:Math.sin(ang)*1.5,alpha:1});}
-                    const nc=2+Math.floor(Math.random()*2);
-                    for(let i=0;i<nc;i++){const ang=(Math.PI*2/nc)*i+(Math.random()-0.5)*0.8; particles.push({x:a.x,y:a.y,vx:Math.cos(ang)*(1.8+Math.random()),vy:Math.sin(ang)*(1.8+Math.random()),alive:true,gen:p.gen+1});}
-                }
-            });
-        });
-        uraniumAtoms.forEach(a=>a.fragments.forEach(f=>{f.x+=f.vx;f.y+=f.vy;f.alpha-=0.005;}));
-        drawChain();
-        if(particles.some(p=>p.alive)||uraniumAtoms.some(a=>a.fragments.some(f=>f.alpha>0))) chainAnimId=requestAnimationFrame(anim);
-    }
-    chainAnimId=requestAnimationFrame(anim);
+    particles.push({x:0,y:chainCanvas.height/4+Math.random()*chainCanvas.height/4,vx:2.5,vy:(Math.random()-.5)*.5,alive:true,gen:0});
+    function anim(){const w=chainCanvas.width/2,h=chainCanvas.height/2;
+        particles.forEach(p=>{if(!p.alive)return;p.x+=p.vx;p.y+=p.vy;if(p.x<-10||p.x>w+10||p.y<-10||p.y>h+10){p.alive=false;return;}
+            uraniumAtoms.forEach(a=>{if(!a.alive)return;if(Math.sqrt((p.x-a.x)**2+(p.y-a.y)**2)<a.radius+5){p.alive=false;a.alive=false;a.splitting=true;generation=Math.max(generation,p.gen+1);for(let i=0;i<2;i++){const ang=Math.random()*Math.PI*2;a.fragments.push({x:a.x,y:a.y,vx:Math.cos(ang)*1.5,vy:Math.sin(ang)*1.5,alpha:1});}const nc=2+Math.floor(Math.random()*2);for(let i=0;i<nc;i++){const ang=(Math.PI*2/nc)*i+(Math.random()-.5)*.8;particles.push({x:a.x,y:a.y,vx:Math.cos(ang)*(1.8+Math.random()),vy:Math.sin(ang)*(1.8+Math.random()),alive:true,gen:p.gen+1});}}});});
+        uraniumAtoms.forEach(a=>a.fragments.forEach(f=>{f.x+=f.vx;f.y+=f.vy;f.alpha-=.005;}));drawChain();
+        if(particles.some(p=>p.alive)||uraniumAtoms.some(a=>a.fragments.some(f=>f.alpha>0)))chainAnimId=requestAnimationFrame(anim);
+    }chainAnimId=requestAnimationFrame(anim);
 }
 
 // ===== GAP FILL =====
-function checkGaps() {
-    const inputs=document.querySelectorAll('#gapExercise .gap-input'); let correct=0;
-    inputs.forEach(inp=>{
-        const ans=inp.dataset.answer.toLowerCase().trim(), val=inp.value.toLowerCase().trim();
-        if(val&&(val===ans||val.replace(/[- ]/g,'')=== ans.replace(/[- ]/g,''))){inp.classList.remove('wrong');inp.classList.add('correct');correct++;}
-        else if(val){inp.classList.remove('correct');inp.classList.add('wrong');}
-        else inp.classList.remove('correct','wrong');
+const gapData=[
+{text:'Bei der Kernspaltung wird ein ',answer:'U-235'},{text:' Kern von einem ',answer:'Neutron'},{text:' getroffen und spaltet sich in zwei ',answer:'Trümmerkerne'},{text:'. Dabei werden 2–3 neue ',answer:'Neutronen'},{text:' frei. Diesen Vorgang nennt man ',answer:'Kettenreaktion'},{text:'.|Damit eine Kettenreaktion stattfinden kann, muss die ',answer:'kritische Masse'},{text:' erreicht sein. Im Natururan beträgt der Anteil von U-235 nur ',answer:'0,7'},{text:' %. Deshalb muss das Uran auf ',answer:'3'},{text:' bis 4% angereichert werden.|Um die Kettenreaktion zu steuern, werden ',answer:'Moderatoren'},{text:' eingesetzt. Beispiele sind Wasser, ',answer:'Graphit'},{text:' oder Deuterium.',answer:null}
+];
+const decoys=['Plutonium','Elektronen','12'];
+let activeSlot=null;
+function buildGapExercise(){
+    const c=document.getElementById('gapExercise'),b=document.getElementById('wordBank');c.innerHTML='';b.innerHTML='';activeSlot=null;
+    document.getElementById('gapScore').style.display='none';
+    gapData.forEach((g,i)=>{
+        g.text.split('|').forEach((part,pi)=>{if(pi>0){c.appendChild(document.createElement('br'));c.appendChild(document.createElement('br'));}c.appendChild(document.createTextNode(part));});
+        if(g.answer!==null){const s=document.createElement('span');s.className='gap';s.dataset.answer=g.answer;s.dataset.idx=i;s.addEventListener('click',function(){clickSlot(this);});c.appendChild(s);}
     });
-    document.getElementById('gapScore').style.display='flex';
-    document.getElementById('gapScoreValue').textContent=correct+'/'+inputs.length;
-    document.getElementById('gapProgressFill').style.width=((correct/inputs.length)*100)+'%';
+    const answers=gapData.filter(g=>g.answer!==null).map(g=>g.answer);
+    const all=[...answers,...decoys];for(let i=all.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[all[i],all[j]]=[all[j],all[i]];}
+    all.forEach(w=>{const ch=document.createElement('span');ch.className='word-card';ch.textContent=w;ch.dataset.word=w;ch.addEventListener('click',function(){clickWord(this);});b.appendChild(ch);});
 }
-function showGapHints() {
-    const inputs=document.querySelectorAll('#gapExercise .gap-input');
-    inputs.forEach(inp=>{inp.value=inp.dataset.answer;inp.classList.remove('wrong');inp.classList.add('correct');});
-    document.getElementById('gapScore').style.display='flex';
-    document.getElementById('gapScoreValue').textContent=inputs.length+'/'+inputs.length;
-    document.getElementById('gapProgressFill').style.width='100%';
+function clickSlot(s){
+    if(s.classList.contains('filled')){const w=s.textContent;s.textContent='';s.classList.remove('filled','correct','wrong');document.querySelectorAll('#wordBank .word-card').forEach(c=>{if(c.dataset.word===w&&c.classList.contains('used'))c.classList.remove('used');});}
+    document.querySelectorAll('.gap.active').forEach(x=>x.classList.remove('active'));s.classList.add('active');activeSlot=s;
 }
+function clickWord(ch){
+    if(ch.classList.contains('used')||!activeSlot)return;
+    if(activeSlot.classList.contains('filled')){const ow=activeSlot.textContent;document.querySelectorAll('#wordBank .word-card').forEach(c=>{if(c.dataset.word===ow&&c.classList.contains('used'))c.classList.remove('used');});}
+    activeSlot.textContent=ch.dataset.word;activeSlot.classList.add('filled');activeSlot.classList.remove('active','correct','wrong');ch.classList.add('used');
+    activeSlot=null;document.querySelectorAll('.gap').forEach(s=>{if(!s.classList.contains('filled')&&!activeSlot){s.classList.add('active');activeSlot=s;}});
+}
+function checkGaps(){
+    const slots=document.querySelectorAll('.gap');let correct=0;
+    slots.forEach(s=>{s.classList.remove('active');const a=s.dataset.answer.toLowerCase().trim(),v=(s.textContent||'').toLowerCase().trim();
+    if(v&&(v===a||v.replace(/[- ]/g,'')=== a.replace(/[- ]/g,''))){s.classList.remove('wrong');s.classList.add('correct');correct++;}else if(v){s.classList.remove('correct');s.classList.add('wrong');}});
+    activeSlot=null;document.getElementById('gapScore').style.display='flex';document.getElementById('gapScoreValue').textContent=correct+'/'+slots.length;document.getElementById('gapProgressFill').style.width=((correct/slots.length)*100)+'%';
+}
+function showGapHints(){document.querySelectorAll('.gap').forEach(s=>{s.textContent=s.dataset.answer;s.classList.remove('wrong','active');s.classList.add('filled','correct');});document.querySelectorAll('#wordBank .word-card').forEach(c=>c.classList.add('used'));activeSlot=null;const sl=document.querySelectorAll('.gap');document.getElementById('gapScore').style.display='flex';document.getElementById('gapScoreValue').textContent=sl.length+'/'+sl.length;document.getElementById('gapProgressFill').style.width='100%';}
+function resetGaps(){buildGapExercise();}
+buildGapExercise();
 
 // ===== MATCHING =====
-let selectedLeft=null,selectedRight=null,matchCount=0;
-function selectMatch(el,side){
-    if(el.classList.contains('matched'))return;
-    if(side==='left'){if(selectedLeft)selectedLeft.classList.remove('selected');selectedLeft=el;}
-    else{if(selectedRight)selectedRight.classList.remove('selected');selectedRight=el;}
-    el.classList.add('selected');
-    if(selectedLeft&&selectedRight){
-        if(selectedLeft.dataset.match===selectedRight.dataset.match){
-            selectedLeft.classList.add('matched','correct-match');selectedRight.classList.add('matched','correct-match');
-            selectedLeft.classList.remove('selected');selectedRight.classList.remove('selected');matchCount++;
-            if(matchCount>=4){const fb=document.getElementById('matchFeedback');fb.className='task-feedback show ai';fb.textContent='🎉 Alle Begriffe richtig zugeordnet!';}
-        } else {
-            selectedLeft.classList.add('wrong');selectedRight.classList.add('wrong');
-            const l=selectedLeft,r=selectedRight;
-            setTimeout(()=>{l.classList.remove('selected','wrong');r.classList.remove('selected','wrong');},600);
-        }
-        selectedLeft=null;selectedRight=null;
-    }
+const matchData=[{id:'A',term:'Kettenreaktion',def:'Sich selbst erhaltender Spaltungsprozess'},{id:'B',term:'Kritische Masse',def:'Mindestmenge an U-235 für Kettenreaktion'},{id:'C',term:'Moderator',def:'Bremst Neutronen ab (z.B. Wasser, Graphit)'},{id:'D',term:'Absorber',def:'Fängt Neutronen ein (z.B. Bor, Kadmium)'}];
+let activeDrop=null;
+function shuffleArr(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function buildMatch(){
+    activeDrop=null;const rows=document.getElementById('matchRows'),pool=document.getElementById('matchPool'),fb=document.getElementById('matchFeedback');rows.innerHTML='';pool.innerHTML='';fb.className='result-msg';fb.style.display='none';
+    matchData.forEach(d=>{const row=document.createElement('div');row.className='match-row';row.innerHTML='<div class="match-term">'+d.term+'</div>';const drop=document.createElement('div');drop.className='match-drop';drop.dataset.id=d.id;drop.addEventListener('click',function(){clickDrop(this);});row.appendChild(drop);rows.appendChild(row);});
+    pool.innerHTML='<div class="match-pool-label">📙 Erklärungen:</div>';const items=document.createElement('div');items.className='match-pool-items';
+    shuffleArr(matchData).forEach(d=>{const ch=document.createElement('div');ch.className='match-chip';ch.textContent=d.def;ch.dataset.id=d.id;ch.addEventListener('click',function(){clickMatchChip(this);});items.appendChild(ch);});pool.appendChild(items);
 }
+function clickDrop(d){if(d.classList.contains('filled')){const oid=d.dataset.filled;d.textContent='';d.classList.remove('filled','correct','wrong');delete d.dataset.filled;document.querySelectorAll('.match-chip').forEach(c=>{if(c.dataset.id===oid&&c.classList.contains('used'))c.classList.remove('used');});}document.querySelectorAll('.match-drop.active').forEach(x=>x.classList.remove('active'));d.classList.add('active');activeDrop=d;}
+function clickMatchChip(ch){if(ch.classList.contains('used')||!activeDrop)return;if(activeDrop.classList.contains('filled')){const oid=activeDrop.dataset.filled;document.querySelectorAll('.match-chip').forEach(c=>{if(c.dataset.id===oid&&c.classList.contains('used'))c.classList.remove('used');});}activeDrop.textContent=ch.textContent;activeDrop.dataset.filled=ch.dataset.id;activeDrop.classList.add('filled');activeDrop.classList.remove('active','correct','wrong');ch.classList.add('used');activeDrop=null;document.querySelectorAll('.match-drop').forEach(d=>{if(!d.classList.contains('filled')&&!activeDrop){d.classList.add('active');activeDrop=d;}});}
+function checkMatch(){const drops=document.querySelectorAll('.match-drop');let c=0;drops.forEach(d=>{d.classList.remove('active');if(d.dataset.filled===d.dataset.id){d.classList.remove('wrong');d.classList.add('correct');c++;}else if(d.dataset.filled){d.classList.remove('correct');d.classList.add('wrong');}});activeDrop=null;const fb=document.getElementById('matchFeedback');if(c===matchData.length){fb.className='result-msg show good';fb.textContent='🎉 Alle '+c+' Begriffe richtig zugeordnet!';}else{fb.className='result-msg show bad';fb.textContent=c+' von '+matchData.length+' richtig. Tippe auf ein rotes Feld, um es zu ändern.';}}
+function resetMatch(){buildMatch();}
+buildMatch();
 
 // ===== FREE TEXT (AI) =====
 async function checkFreeText(tid,fid){
-    const text=document.getElementById(tid).value.trim(), fb=document.getElementById(fid);
-    if(text.length<15){fb.className='task-feedback show ai';fb.textContent='⚠️ Bitte schreibe mindestens 2–3 Sätze.';return;}
-    fb.className='task-feedback show ai'; fb.innerHTML='<span class="loading-spinner"></span> KI bewertet deine Antwort...';
-    try{
-        const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1000,
-                messages:[{role:'user',content:'Du bist ein freundlicher Lehrer an einer bayerischen Mittelschule (9. Klasse, NT). Bewerte diese Antwort zum Thema "Kettenreaktion".\n\nErwartete Inhalte: Neutron trifft U-235, Spaltung in Trümmerkerne + Neutronen, diese spalten weitere Kerne, Steuerung durch Absorber (1:1), Moderatoren bremsen Neutronen, kritische Masse nötig.\n\nAntwort: "'+text+'"\n\nGib Feedback in 3-5 Sätzen. Vergib Note 1-6 (bay. System). Deutsch, einfach, ermutigend.'}]})
-        });
-        const data=await res.json();
-        fb.textContent=data.content?.[0]?.text||'Fehler.';
-    }catch(e){fb.textContent='⚠️ KI-Bewertung nicht verfügbar. Prüfe deine Antwort anhand der Merke-Box.';}
+    const text=document.getElementById(tid).value.trim(),fb=document.getElementById(fid);
+    if(text.length<15){fb.className='result-msg show bad';fb.textContent='⚠️ Bitte schreibe mindestens 2–3 Sätze.';return;}
+    fb.className='result-msg show good';fb.innerHTML='<span class="loading-spinner"></span> KI bewertet...';
+    try{const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1000,messages:[{role:'user',content:'Du bist ein freundlicher Lehrer an einer bayerischen Mittelschule (9. Klasse, NT). Bewerte diese Antwort zum Thema "Kettenreaktion".\n\nErwartete Inhalte: Neutron trifft U-235, Spaltung, 2-3 Neutronen frei, spalten weitere Kerne, Steuerung durch Absorber (1:1), Moderatoren bremsen Neutronen, kritische Masse nötig.\n\nAntwort: "'+text+'"\n\nFeedback in 3-5 Sätzen. Note 1-6 (bay. System). Deutsch, einfach, ermutigend.'}]})});const data=await res.json();fb.className='result-msg show good';fb.textContent=data.content?.[0]?.text||'Fehler.';}
+    catch(e){fb.className='result-msg show bad';fb.textContent='⚠️ KI-Bewertung nicht verfügbar.';}
 }
 
-window.addEventListener('resize',()=>{
-    if(document.getElementById('animation').classList.contains('active')) initChainCanvas();
-    initDominos();
-});
+window.addEventListener('resize',()=>{if(document.getElementById('animation').classList.contains('active'))initChainCanvas();});
 </script>
 </body>
 </html>
-
