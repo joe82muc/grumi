@@ -38,6 +38,16 @@
 .merke-gold p,.merke-gold li{font-family:'Crimson Pro',serif;font-size:1.02rem;color:var(--text);line-height:1.65}
 .merke-gold ul{list-style:disc;padding-left:22px;margin-top:6px}
 .merke-gold li{padding:4px 0}
+.diagram-thumb-wrap{margin-top:14px;display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.diagram-thumb-btn{display:inline-block;padding:0;border:none;background:transparent;cursor:zoom-in}
+.diagram-thumb{display:block;width:min(320px,100%);height:auto;border-radius:10px;border:2px solid rgba(255,208,0,.25);box-shadow:0 8px 24px rgba(0,0,0,.35);transition:transform .2s ease,border-color .2s ease}
+.diagram-thumb-btn:hover .diagram-thumb{transform:scale(1.02);border-color:rgba(255,208,0,.45)}
+.diagram-hint{font-size:.85rem;color:var(--text2)}
+.img-lightbox{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.78);padding:20px;z-index:1200}
+.img-lightbox.open{display:flex}
+.img-lightbox-inner{position:relative;max-width:min(1100px,96vw);max-height:90vh}
+.img-lightbox-inner img{display:block;max-width:100%;max-height:90vh;border-radius:10px;border:2px solid rgba(255,208,0,.35);background:#111}
+.img-lightbox-close{position:absolute;top:-10px;right:-10px;width:34px;height:34px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:#0f1117;color:#fff;font-size:22px;line-height:30px;cursor:pointer}
 
 .video-wrapper{position:relative;width:100%;aspect-ratio:16/9;border-radius:var(--radius);overflow:hidden;margin:16px 0;border:2px solid rgba(255,208,0,.2)}
 .video-wrapper iframe{width:100%;height:100%;border:none}
@@ -187,6 +197,12 @@
     <h2><span class="icon" style="background:rgba(255,208,0,.15);color:var(--accent);">🔧</span> Aufbau eines Druckwasserreaktors</h2>
     <p>Im <strong class="strong-accent">Reaktordruckbehälter</strong> (1) aus 20-25 cm dickem Stahl befindet sich der Reaktorkern. Er besteht aus ungefähr <strong class="strong-accent">200 Brennelementen</strong> (3), die angereichertes Uran enthalten. Die <strong class="strong-accent">Steuerstäbe</strong> (2) enthalten Bor und Cadmium und fangen Neutronen ein.</p>
     <p>Der <strong class="strong-accent">Druckhalter</strong> (4) hält den Druck im Primärkreislauf konstant, damit das Wasser trotz 300°C nicht verdampft. Im Sekundärkreislauf treibt der Dampf eine <strong class="strong-accent">Hochdruckturbine</strong> (5) und eine <strong class="strong-accent">Niederdruckturbine</strong> (6) an. Der <strong class="strong-accent">Generator</strong> (7) erzeugt Strom, der über den <strong class="strong-accent">Transformator</strong> (8) ins Netz eingespeist wird. Der <strong class="strong-accent">Kondensator</strong> (9) kühlt den Dampf ab, und der <strong class="strong-accent">Kühlturm</strong> (10) gibt überschüssige Wärme ab.</p>
+    <div class="diagram-thumb-wrap">
+        <button type="button" class="diagram-thumb-btn" data-open-image="kernkraft.PNG" data-image-alt="Aufbau eines Druckwasserreaktors">
+            <img class="diagram-thumb" src="kernkraft.PNG" alt="Aufbau eines Druckwasserreaktors" loading="lazy">
+        </button>
+        <p class="diagram-hint">Zum Vergrößern auf das Bild klicken.</p>
+    </div>
 </div>
 <div class="section">
     <h2><span class="icon" style="background:rgba(255,208,0,.15);color:var(--accent);">🔄</span> Drei getrennte Kreisläufe</h2>
@@ -283,6 +299,12 @@
 </div>
 
 </div>
+<div class="img-lightbox" id="imgLightbox" aria-hidden="true">
+    <div class="img-lightbox-inner">
+        <button type="button" class="img-lightbox-close" id="imgLightboxClose" aria-label="Bild schließen">&times;</button>
+        <img id="imgLightboxImage" src="" alt="">
+    </div>
+</div>
 <div class="footer">☢️ NT 9 · Natur und Technik · Mittelschule Bayern | <a href="../übersicht_themen.html">Zur Themenübersicht NT</a></div>
 
 <script>
@@ -298,6 +320,35 @@ function showSection(id,btn){
     if(id!=='video' && typeof stopWatch==='function')stopWatch();
     if(id!=='video' && typeof ytO!=='undefined' && ytO && typeof ytO.pauseVideo==='function')ytO.pauseVideo();
 }
+
+// Bild-Overlay (Klick zum Vergrößern)
+const imgLightbox=document.getElementById('imgLightbox');
+const imgLightboxImage=document.getElementById('imgLightboxImage');
+const imgLightboxClose=document.getElementById('imgLightboxClose');
+
+function openImageLightbox(src,alt){
+    if(!imgLightbox||!imgLightboxImage)return;
+    imgLightboxImage.src=src;
+    imgLightboxImage.alt=alt||'Vergrößertes Bild';
+    imgLightbox.classList.add('open');
+    imgLightbox.setAttribute('aria-hidden','false');
+}
+function closeImageLightbox(){
+    if(!imgLightbox||!imgLightboxImage)return;
+    imgLightbox.classList.remove('open');
+    imgLightbox.setAttribute('aria-hidden','true');
+    imgLightboxImage.src='';
+}
+document.querySelectorAll('[data-open-image]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+        openImageLightbox(btn.getAttribute('data-open-image'),btn.getAttribute('data-image-alt'));
+    });
+});
+if(imgLightboxClose)imgLightboxClose.addEventListener('click',closeImageLightbox);
+if(imgLightbox){
+    imgLightbox.addEventListener('click',(e)=>{if(e.target===imgLightbox)closeImageLightbox();});
+}
+document.addEventListener('keydown',(e)=>{if(e.key==='Escape')closeImageLightbox();});
 
 // =======================================
 // REACTOR CANVAS ANIMATION
