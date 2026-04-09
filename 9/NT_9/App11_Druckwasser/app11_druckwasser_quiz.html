@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>App11 Druckwasserreaktor - Filmquiz</title>
+<style>
+:root{
+  --bg:#0d1117;
+  --panel:#151b23;
+  --line:#283548;
+  --text:#e7edf6;
+  --muted:#9eb0c8;
+  --accent:#ffd24d;
+  --ok:#22c55e;
+  --bad:#ef4444;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
+.wrap{max-width:980px;margin:0 auto;padding:20px}
+h1{margin:0 0 8px;font-size:1.7rem}
+.sub{margin:0 0 16px;color:var(--muted)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+.video-box{position:relative;width:100%;aspect-ratio:16/9;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+#player{width:100%;height:100%}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:none;border-radius:9px;padding:10px 14px;font-weight:700;cursor:pointer}
+.btn.main{background:var(--accent);color:#111}
+.btn.alt{background:#202a38;color:var(--text);border:1px solid #34465d}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.badge{display:inline-block;padding:5px 10px;border-radius:999px;background:#1d2633;border:1px solid #314257;color:var(--muted);font-size:.9rem}
+.qtitle{font-size:1.08rem;margin:4px 0 12px}
+.options{display:grid;gap:8px}
+.opt{width:100%;text-align:left;padding:10px 12px;border-radius:9px;border:1px solid #34465d;background:#0f1621;color:var(--text);cursor:pointer}
+.opt:hover{border-color:var(--accent)}
+.opt.ok{border-color:var(--ok);background:rgba(34,197,94,.14)}
+.opt.bad{border-color:var(--bad);background:rgba(239,68,68,.14)}
+.feedback{margin-top:10px;padding:10px 12px;border-radius:9px;display:none}
+.feedback.show{display:block}
+.feedback.ok{background:rgba(34,197,94,.14);border:1px solid rgba(34,197,94,.45)}
+.feedback.bad{background:rgba(239,68,68,.14);border:1px solid rgba(239,68,68,.45)}
+.progress{height:10px;background:#0f1621;border-radius:999px;overflow:hidden;border:1px solid #2c3d54}
+.fill{height:100%;width:0%;background:linear-gradient(90deg,#d7b126,var(--accent));transition:width .3s}
+.score{font-weight:700;color:var(--accent)}
+.note{color:var(--muted);font-size:.95rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Druckwasserreaktor - Filmquiz (20 Fragen)</h1>
+  <p class="sub">Das Video stoppt automatisch an passenden Stellen. Dann beantwortest du die zugeh&ouml;rige Frage.</p>
+
+  <div class="card">
+    <div class="video-box"><div id="player"></div></div>
+    <div class="row" style="margin-top:12px">
+      <span class="badge" id="stepBadge">Frage 1 von 20</span>
+      <span class="badge" id="timeBadge">Clip: 0:00 - 0:00</span>
+      <button class="btn alt" id="replayBtn" type="button">Clip erneut abspielen</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="progress"><div class="fill" id="bar"></div></div>
+    <p class="qtitle" id="qText"></p>
+    <div class="options" id="opts"></div>
+    <div class="feedback" id="fb"></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn alt" id="prevBtn" type="button">Zur&uuml;ck</button>
+      <button class="btn main" id="nextBtn" type="button" disabled>N&auml;chste Frage</button>
+      <span class="score" id="scoreText">Punkte: 0 / 20</span>
+    </div>
+    <p class="note" id="stateNote" style="margin-top:10px">Hinweis: Warte, bis der Clip stoppt. Dann wird die Frage freigegeben.</p>
+  </div>
+</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+const QUIZ = [
+  {start:6, stop:18, q:"Woher kommt Strom laut Video nicht direkt?", a:["Aus der Steckdose","Aus Batterien","Aus WLAN","Aus Handys"], c:0, e:"Im Video wird gesagt: Strom kommt nicht direkt aus der Steckdose."},
+  {start:18, stop:29, q:"Welche Quellen werden als Beispiele genannt?", a:["Nur Solarzellen","Nur Windr&auml;der","Nur Kohlekraft","Kohle, Wind, Solar oder Kernkraft"], c:3, e:"Genannt werden Kohle, Wind, Solar und Kernkraft."},
+  {start:29, stop:44, q:"Aus wie vielen wichtigen Geb&auml;uden besteht das Kernkraftwerk?", a:["2","3","4","5"], c:1, e:"Es werden drei wichtige Geb&auml;ude genannt."},
+  {start:34, stop:42, q:"Was ist in der Maschinenhalle?", a:["Nur Pumpen","Turbinen und Generator","Nur Reaktor","Nur Brennstofflager"], c:1, e:"In der Maschinenhalle sind Turbinen und Generator."},
+  {start:54, stop:62, q:"Wie viele Wasserkreisl&auml;ufe gibt es insgesamt?", a:["1","2","3","4"], c:2, e:"Das Video erkl&auml;rt drei Wasserkreisl&auml;ufe."},
+  {start:58, stop:66, q:"Wo verl&auml;uft der Prim&auml;rkreislauf?", a:["Nur im Reaktorgeb&auml;ude","Nur im K&uuml;hlturm","Nur im Maschinenhaus","Im Fluss"], c:0, e:"Der Prim&auml;rkreislauf verl&auml;uft nur im Reaktorgeb&auml;ude."},
+  {start:62, stop:71, q:"Zwischen welchen Bereichen verl&auml;uft der Sekund&auml;rkreislauf?", a:["Reaktorgeb&auml;ude und Maschinenhaus","Maschinenhaus und Fluss","Nur K&uuml;hlturm","Nur Reaktorgeb&auml;ude"], c:0, e:"Sekund&auml;rkreislauf: Reaktorgeb&auml;ude plus Maschinenhaus."},
+  {start:69, stop:75, q:"Wobei hilft der K&uuml;hlkreislauf?", a:["Beim Spalten von Uran","Beim K&uuml;hlen zwischen K&uuml;hlturm und Maschinenhaus","Beim Antreiben der Turbine direkt","Beim Erzeugen von Radioaktivit&auml;t"], c:1, e:"Der K&uuml;hlkreislauf dient der W&auml;rmeabfuhr."},
+  {start:81, stop:92, q:"Was passiert im Kernreaktor?", a:["Fusion","Kernspaltung","Verbrennung","Elektrolyse"], c:1, e:"Im Kernreaktor findet Kernspaltung statt."},
+  {start:92, stop:101, q:"Auf welche Temperatur wird das Prim&auml;rwasser etwa erhitzt?", a:["100 Grad","200 Grad","300 Grad","500 Grad"], c:2, e:"Im Video werden rund 300 Grad genannt."},
+  {start:101, stop:111, q:"Warum kocht das Prim&auml;rwasser bei 300 Grad nicht?", a:["Wegen Salz im Wasser","Wegen hohem Druck","Wegen Vakuum","Wegen K&auml;lte"], c:1, e:"Durch den hohen Druck bleibt es fl&uuml;ssig."},
+  {start:111, stop:126, q:"Was passiert im ersten W&auml;rmetauscher?", a:["Radioaktivit&auml;t wird &uuml;bertragen","Nur Licht wird &uuml;bertragen","W&auml;rme geht vom Prim&auml;r- auf den Sekund&auml;rkreislauf","Wasser wird gemischt"], c:2, e:"Es wird W&auml;rme &uuml;bertragen, nicht das Wasser gemischt."},
+  {start:126, stop:136, q:"Was geschieht im Sekund&auml;rkreislauf bei normalem Druck?", a:["Wasser gefriert","Wasser bleibt kalt","Wasser kocht zu Dampf","Wasser verschwindet"], c:2, e:"Das Wasser wird zu Dampf."},
+  {start:136, stop:151, q:"Was treibt der Wasserdampf an?", a:["K&uuml;hlturm","Turbine","Reaktorgeb&auml;ude","Steckdose"], c:1, e:"Der Dampf treibt die Turbine an."},
+  {start:151, stop:184, q:"Welche Wirkung nennt das Video im Generator?", a:["Fotosynthese","Elektromagnetische Induktion","Reibungselektrizit&auml;t","Kondensation"], c:1, e:"Im Generator entsteht Spannung durch elektromagnetische Induktion."},
+  {start:199, stop:211, q:"Warum muss der Dampf nach der Turbine wieder abgek&uuml;hlt werden?", a:["Damit er farblos wird","Damit er wieder als Wasser erhitzt werden kann","Damit der Generator stoppt","Damit mehr Uran entsteht"], c:1, e:"Nur so l&auml;uft der Kreislauf dauerhaft."},
+  {start:211, stop:225, q:"Welches Bauteil k&uuml;hlt den Dampf im Sekund&auml;rkreislauf wieder ab?", a:["Ein weiterer W&auml;rmetauscher","Der Transformator","Der Reaktor","Die Turbine"], c:0, e:"Ein zweiter W&auml;rmetauscher k&uuml;hlt den Dampf."},
+  {start:225, stop:240, q:"Woher kommt das kalte Wasser f&uuml;r den K&uuml;hlkreis?", a:["Aus Batterien","Aus K&uuml;hlturm oder Fluss","Aus dem Reaktor","Aus dem Generator"], c:1, e:"Kalte Wasserquelle ist K&uuml;hlturm oder Fluss."},
+  {start:240, stop:256, q:"Warum gibt es drei getrennte Kreisl&auml;ufe?", a:["Wegen sch&ouml;ner Farben","Damit radioaktives Wasser getrennt bleibt","Damit man weniger Rohre braucht","Wegen mehr Turbinen"], c:1, e:"Die Trennung dient der Sicherheit."},
+  {start:256, stop:270, q:"Warum verl&auml;sst das Prim&auml;rwasser nie das Reaktorgeb&auml;ude?", a:["Es ist zu kalt","Es ist zu teuer","Es ist stark radioaktiv","Es ist zu sauber"], c:2, e:"Das Prim&auml;rwasser ist stark radioaktiv und bleibt abgeschirmt."}
+];
+
+let player=null;
+let idx=0;
+let score=0;
+let answered={};
+let canAnswer=false;
+let timer=null;
+
+const qText=document.getElementById('qText');
+const opts=document.getElementById('opts');
+const fb=document.getElementById('fb');
+const nextBtn=document.getElementById('nextBtn');
+const prevBtn=document.getElementById('prevBtn');
+const replayBtn=document.getElementById('replayBtn');
+const scoreText=document.getElementById('scoreText');
+const stepBadge=document.getElementById('stepBadge');
+const timeBadge=document.getElementById('timeBadge');
+const bar=document.getElementById('bar');
+const stateNote=document.getElementById('stateNote');
+
+function secToMMSS(s){
+  const m=Math.floor(s/60); const r=s%60;
+  return m+':' + String(r).padStart(2,'0');
+}
+
+function updateHeader(){
+  const item=QUIZ[idx];
+  stepBadge.textContent='Frage '+(idx+1)+' von '+QUIZ.length;
+  timeBadge.textContent='Clip: '+secToMMSS(item.start)+' - '+secToMMSS(item.stop);
+  scoreText.textContent='Punkte: '+score+' / '+QUIZ.length;
+  bar.style.width=(((idx+1)/QUIZ.length)*100)+'%';
+  prevBtn.disabled=(idx===0);
+  nextBtn.disabled=!answered[idx];
+}
+
+function lockAnswers(msg){
+  canAnswer=false;
+  stateNote.textContent=msg;
+}
+
+function unlockAnswers(){
+  canAnswer=true;
+  stateNote.textContent='Clip ist angehalten. Jetzt die Frage beantworten.';
+}
+
+function renderQuestion(){
+  const item=QUIZ[idx];
+  qText.innerHTML='Frage '+(idx+1)+': '+item.q;
+  opts.innerHTML='';
+  fb.className='feedback';
+  fb.textContent='';
+
+  item.a.forEach((text,i)=>{
+    const b=document.createElement('button');
+    b.type='button';
+    b.className='opt';
+    b.innerHTML=String.fromCharCode(65+i)+') '+text;
+    b.addEventListener('click',()=>check(i,b));
+    opts.appendChild(b);
+  });
+
+  if(answered[idx]){
+    const all=[...opts.querySelectorAll('.opt')];
+    all.forEach(x=>x.disabled=true);
+    all[item.c].classList.add('ok');
+    const chosen=answered[idx].chosen;
+    if(chosen!==item.c) all[chosen].classList.add('bad');
+    fb.className='feedback show '+(answered[idx].ok?'ok':'bad');
+    fb.innerHTML=(answered[idx].ok?'Richtig. ':'Nicht richtig. ')+item.e;
+    lockAnswers('Frage wurde bereits beantwortet. Du kannst weitergehen oder den Clip erneut abspielen.');
+  } else {
+    lockAnswers('Hinweis: Warte, bis der Clip stoppt. Dann wird die Frage freigegeben.');
+    playClipForCurrentQuestion();
+  }
+
+  updateHeader();
+}
+
+function stopTimer(){ if(timer){ clearInterval(timer); timer=null; } }
+
+function startTimer(){
+  stopTimer();
+  timer=setInterval(()=>{
+    if(!player || typeof player.getCurrentTime!=='function') return;
+    const t=player.getCurrentTime();
+    const stop=QUIZ[idx].stop;
+    if(t>=stop){
+      player.pauseVideo();
+      stopTimer();
+      unlockAnswers();
+    }
+  },250);
+}
+
+function playClipForCurrentQuestion(){
+  if(!player) return;
+  const item=QUIZ[idx];
+  lockAnswers('Clip l&auml;uft... Er stoppt automatisch zur Frage.');
+  try{
+    player.seekTo(item.start,true);
+    player.playVideo();
+    startTimer();
+  }catch(e){}
+}
+
+function check(choice,btn){
+  if(!canAnswer || answered[idx]) return;
+  const item=QUIZ[idx];
+  const all=[...opts.querySelectorAll('.opt')];
+  all.forEach(x=>x.disabled=true);
+
+  const ok=(choice===item.c);
+  if(ok){ score++; btn.classList.add('ok'); }
+  else { btn.classList.add('bad'); all[item.c].classList.add('ok'); }
+
+  answered[idx]={ok:ok,chosen:choice};
+  fb.className='feedback show '+(ok?'ok':'bad');
+  fb.innerHTML=(ok?'Richtig. ':'Nicht richtig. ')+item.e;
+  nextBtn.disabled=false;
+  scoreText.textContent='Punkte: '+score+' / '+QUIZ.length;
+  lockAnswers('Antwort gespeichert. Du kannst zur n&auml;chsten Frage gehen.');
+}
+
+nextBtn.addEventListener('click',()=>{
+  if(idx<QUIZ.length-1){ idx++; renderQuestion(); }
+  else {
+    qText.innerHTML='Fertig! Du hast '+score+' von '+QUIZ.length+' Punkten erreicht.';
+    opts.innerHTML='';
+    fb.className='feedback show ok';
+    fb.textContent='Super, du hast alle Fragen bearbeitet.';
+    nextBtn.disabled=true;
+    lockAnswers('Quiz abgeschlossen.');
+  }
+});
+
+prevBtn.addEventListener('click',()=>{
+  if(idx>0){ idx--; renderQuestion(); }
+});
+
+replayBtn.addEventListener('click',()=>{
+  playClipForCurrentQuestion();
+});
+
+function onYouTubeIframeAPIReady(){
+  player=new YT.Player('player',{
+    videoId:'Hxz3ub94bHY',
+    playerVars:{rel:0,modestbranding:1},
+    events:{
+      onReady:()=>{ renderQuestion(); },
+      onStateChange:(ev)=>{
+        if(ev.data===YT.PlayerState.PLAYING) startTimer();
+        if(ev.data!==YT.PlayerState.PLAYING) stopTimer();
+      }
+    }
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,692 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arbeitsweise eines Kernkraftwerks &ndash; NT 9</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0a;--bg2:#141414;--bg3:#1c1c1c;--accent:#ffd000;--accent2:#ffe44d;--green:#ffd000;--red:#ff4444;--purple:#ffaa00;--text:#f0ead6;--text2:#a8a08c;--success:#22c55e;--wrong:#ef4444;--radius:14px;--warn:#ffd000}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+.hero{position:relative;min-height:44vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:50px 20px 30px;overflow:hidden;background:#0a0a0a}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 500px 400px at 50% 50%,rgba(255,208,0,.08),transparent),radial-gradient(ellipse 300px 200px at 50% 60%,rgba(255,68,68,.04),transparent);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:repeating-linear-gradient(90deg,var(--accent) 0,var(--accent) 30px,#0a0a0a 30px,#0a0a0a 60px)}
+.hero-badge{display:inline-block;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0f1117;font-weight:700;font-size:.75rem;letter-spacing:2px;text-transform:uppercase;padding:6px 18px;border-radius:30px;margin-bottom:16px}
+.hero h1{font-size:clamp(1.8rem,4.5vw,3.2rem);font-weight:800;line-height:1.1;margin-bottom:10px;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-size:1.05rem;color:var(--text2);max-width:580px;line-height:1.6}
+.hero-anim{position:relative;width:min(560px,95vw);min-height:132px;margin:20px auto 0}.simple-flow{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;padding:16px 10px;border:1px solid rgba(255,208,0,.2);border-radius:12px;background:rgba(255,208,0,.04)}.flow-node{padding:10px 14px;border-radius:10px;border:1px solid rgba(255,208,0,.25);font-size:.85rem;font-weight:700;color:var(--text)}.flow-reactor{background:rgba(255,68,68,.16)}.flow-steam{background:rgba(68,136,255,.16)}.flow-turbine{background:rgba(255,208,0,.12)}.flow-arrow{font-size:1.2rem;color:var(--accent);font-weight:700;animation:flowPulse 1.6s ease-in-out infinite}.flow-caption{margin-top:10px;font-size:.9rem;color:var(--text2);text-align:center}@keyframes flowPulse{0%,100%{opacity:.4;transform:translateX(0)}50%{opacity:1;transform:translateX(3px)}}
+
+.nav-bar{display:flex;justify-content:center;gap:5px;padding:14px 20px;flex-wrap:wrap;position:sticky;top:0;z-index:100;background:rgba(10,10,10,.96);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,208,0,.12)}
+.nav-btn{background:var(--bg3);color:var(--text2);border:1px solid rgba(255,255,255,.08);padding:9px 16px;border-radius:10px;font-family:'Outfit',sans-serif;font-size:.83rem;font-weight:600;cursor:pointer;transition:all .2s}
+.nav-btn:hover{background:rgba(255,208,0,.1);color:var(--text)}
+.nav-btn.active{background:linear-gradient(135deg,var(--accent),#e6bb00);color:#0a0a0a;border-color:transparent}
+
+.content-wrap{max-width:920px;margin:0 auto;padding:0 20px 60px}
+.section-page{display:none;animation:fadeIn .5s ease}.section-page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.section{background:var(--bg2);border:1px solid rgba(255,208,0,.1);border-radius:var(--radius);padding:30px 26px;margin-bottom:22px;position:relative;overflow:hidden}
+.section::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:repeating-linear-gradient(90deg,var(--accent) 0,var(--accent) 20px,#0a0a0a 20px,#0a0a0a 40px)}
+.section h2{font-size:1.35rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.section h2 .icon{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.section p,.section li{font-family:'Crimson Pro',serif;font-size:1.08rem;line-height:1.72;color:var(--text2)}
+.section p+p{margin-top:10px}
+.strong-accent{color:var(--accent);font-weight:600}
+
+.merke-gold{background:linear-gradient(135deg,rgba(255,208,0,.08),rgba(255,208,0,.02));border:1px solid rgba(255,208,0,.3);border-left:4px solid var(--accent);border-radius:var(--radius);padding:18px;margin-top:18px}
+.merke-gold h3{font-size:.9rem;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.merke-gold p,.merke-gold li{font-family:'Crimson Pro',serif;font-size:1.02rem;color:var(--text);line-height:1.65}
+.merke-gold ul{list-style:disc;padding-left:22px;margin-top:6px}
+.merke-gold li{padding:4px 0}
+
+.video-wrapper{position:relative;width:100%;aspect-ratio:16/9;border-radius:var(--radius);overflow:hidden;margin:16px 0;border:2px solid rgba(255,208,0,.2)}
+.video-wrapper iframe{width:100%;height:100%;border:none}
+
+/* REACTOR CANVAS */
+.reactor-wrap{background:var(--bg3);border-radius:var(--radius);padding:20px;margin-top:18px;border:1px solid rgba(255,208,0,.15)}
+.reactor-stage{position:relative;background:#060810;border-radius:10px;overflow:hidden;border:2px solid rgba(255,208,0,.2);width:100%}
+.reactor-stage canvas{width:100%;height:100%;display:block}
+.reactor-controls{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;align-items:center}
+.anim-btn{font-family:'Outfit',sans-serif;font-size:.85rem;font-weight:600;padding:10px 20px;border-radius:10px;border:none;cursor:pointer;transition:all .2s}
+.anim-btn.go{background:linear-gradient(135deg,var(--accent),#e6bb00);color:#0a0a0a}
+.anim-btn.go:hover{box-shadow:0 4px 16px rgba(255,208,0,.4);transform:translateY(-2px)}
+.anim-btn.rst{background:var(--bg3);color:var(--text2);border:1px solid rgba(255,255,255,.1)}
+.anim-btn.rst:hover{background:rgba(255,255,255,.08)}
+.slider-wrap{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text2)}
+.slider-wrap input[type=range]{width:100px;accent-color:var(--accent)}
+.status-badge{display:inline-block;padding:4px 12px;border-radius:8px;font-size:.78rem;font-weight:700;margin-left:auto;transition:all .4s}
+.status-on{background:rgba(34,197,94,.15);color:var(--success);border:1px solid rgba(34,197,94,.3)}
+.status-off{background:rgba(239,68,68,.15);color:var(--wrong);border:1px solid rgba(239,68,68,.3)}
+
+.steps-row{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;justify-content:center}
+.step-card{flex:1;min-width:130px;max-width:175px;background:var(--bg3);border:1px solid rgba(255,208,0,.12);border-radius:10px;padding:9px 10px;text-align:center;transition:all .4s}
+.step-card.active-step{border-color:var(--accent);background:rgba(255,208,0,.06);box-shadow:0 0 12px rgba(255,208,0,.12)}
+.step-num{display:inline-block;width:20px;height:20px;line-height:20px;border-radius:50%;font-size:.65rem;font-weight:800;color:#fff;margin-bottom:3px}
+.step-card h4{font-size:.72rem;font-weight:700;color:var(--accent);margin-bottom:2px}
+.step-card p{font-size:.64rem;color:var(--text2);line-height:1.3;font-family:'Crimson Pro',serif}
+.legend{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin:8px 0;font-size:.8rem;color:var(--text2)}
+.legend-item{display:flex;align-items:center;gap:5px}
+.legend-dot{width:12px;height:12px;border-radius:50%}
+.ensi-anim-wrapper{background:var(--bg3);border-radius:var(--radius);padding:16px;margin-top:18px;border:1px solid rgba(255,208,0,.15)}
+.ensi-anim-wrapper img{display:block;width:100%;max-width:700px;margin:0 auto;border-radius:10px;border:2px solid rgba(255,208,0,.2);background:#f2f2f2}
+.ensi-credit{margin-top:10px;text-align:center;font-size:.8rem;color:var(--text2)}
+.ensi-credit a{color:var(--accent);text-decoration:none}
+.animation-explain{margin-top:14px;padding:14px 16px;background:rgba(255,208,0,.06);border:1px solid rgba(255,208,0,.22);border-radius:10px}
+.animation-explain h3{font-size:1rem;color:var(--accent);margin-bottom:8px}
+.animation-explain p{font-size:1rem;line-height:1.6;color:var(--text)}
+.animation-explain ul{margin:8px 0 0 18px}
+.animation-explain li{font-size:.98rem;line-height:1.55;color:var(--text2)}
+
+/* QUIZ + AUFGABEN */
+.quiz-step-bar{background:var(--bg2);border:1px solid rgba(255,208,0,.12);border-radius:var(--radius);padding:14px 20px;margin-bottom:16px}
+.quiz-step-label{font-size:.9rem;font-weight:600;color:var(--accent);margin-bottom:8px;text-align:center}
+.progress-bar-bg{height:8px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,#b89700,var(--accent));border-radius:4px;transition:width .5s ease}
+.quiz-nav-row{display:flex;justify-content:space-between;gap:12px;margin:16px 0 20px}
+.quiz-nav-row .anim-btn{flex:1;text-align:center}
+.quiz-nav-row .anim-btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+.quiz-q{background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);padding:18px;margin-bottom:14px}
+.quiz-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;gap:10px;flex-wrap:wrap}
+.quiz-q h4{font-size:.95rem;font-weight:700;color:var(--accent);flex:1}
+.quiz-option{display:block;width:100%;text-align:left;background:var(--bg);border:1.5px solid rgba(255,255,255,.1);padding:10px 16px;border-radius:10px;font-family:'Crimson Pro',serif;font-size:1rem;color:var(--text);cursor:pointer;margin-bottom:6px;transition:all .2s}
+.quiz-option:hover{border-color:var(--accent);background:rgba(255,208,0,.04)}
+.quiz-option.correct-ans{border-color:var(--success);background:rgba(34,197,94,.1);color:var(--success)}
+.quiz-option.wrong-ans{border-color:var(--wrong);background:rgba(239,68,68,.1);color:var(--wrong)}
+.quiz-feedback{margin-top:10px;padding:10px 14px;border-radius:10px;font-size:.9rem;display:none;line-height:1.5;font-family:'Crimson Pro',serif}
+.quiz-feedback.show{display:block}
+.quiz-feedback.correct{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:var(--success)}
+.quiz-feedback.wrong{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);color:var(--wrong)}
+.score-bar{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;background:var(--bg2);border-radius:var(--radius);margin:20px 0;border:1px solid rgba(255,208,0,.1)}
+.score-text{font-size:1.05rem;font-weight:600}.score-value{color:var(--accent);font-size:1.25rem;font-weight:700}
+.grade-display{text-align:center;padding:12px;font-size:1.1rem}
+.grade-badge{display:inline-block;padding:6px 18px;border-radius:8px;font-weight:700;font-size:1.3rem;margin-top:6px}
+.grade-1,.grade-2{background:rgba(34,197,94,.15);color:var(--success)}.grade-3{background:rgba(255,170,0,.15);color:var(--purple)}
+.grade-4{background:rgba(255,208,0,.12);color:var(--accent)}.grade-5,.grade-6{background:rgba(239,68,68,.15);color:var(--wrong)}
+.luecken-text{font-family:'Crimson Pro',serif;font-size:1.08rem;line-height:2.2;color:var(--text)}
+.gap{display:inline-block;min-width:110px;border-bottom:2.5px dashed rgba(255,208,0,.5);padding:2px 8px;margin:0 4px;min-height:26px;vertical-align:bottom;border-radius:4px;transition:all .3s;cursor:pointer;background:rgba(255,208,0,.05);text-align:center;user-select:none;-webkit-tap-highlight-color:transparent}
+.gap:empty::before{content:'…';color:var(--text2)}
+.gap.active{border-bottom-color:var(--accent);background:rgba(255,208,0,.15);box-shadow:0 2px 10px rgba(255,208,0,.2)}
+.gap.filled{border-bottom-color:var(--accent);background:rgba(255,208,0,.12);color:var(--accent);font-weight:600}
+.gap.correct{border-bottom-color:var(--success);background:rgba(34,197,94,.12);color:var(--success)}
+.gap.wrong{border-bottom-color:var(--wrong);background:rgba(239,68,68,.12);color:var(--wrong)}
+.word-bank{display:flex;flex-wrap:wrap;gap:9px;margin:16px 0;padding:13px;background:var(--bg3);border-radius:var(--radius);min-height:46px;border:1px solid rgba(255,208,0,.1);justify-content:center}
+.word-card{display:inline-block;background:linear-gradient(135deg,rgba(255,208,0,.18),rgba(255,208,0,.06));border:1.5px solid rgba(255,208,0,.4);color:var(--accent);font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:600;padding:7px 15px;border-radius:10px;cursor:pointer;user-select:none;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.word-card:hover{transform:scale(1.05);box-shadow:0 4px 12px rgba(255,208,0,.3)}
+.word-card.used{opacity:.3;pointer-events:none;transform:scale(.95)}
+.btn-row{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.check-btn,.reset-btn{font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:600;padding:10px 22px;border-radius:10px;border:none;cursor:pointer;transition:all .2s}
+.check-btn{background:linear-gradient(135deg,var(--success),#16a34a);color:#fff}
+.check-btn:hover{box-shadow:0 4px 16px rgba(34,197,94,.35);transform:translateY(-2px)}
+.reset-btn{background:var(--bg3);color:var(--text2);border:1px solid rgba(255,255,255,.1)}
+.reset-btn:hover{background:rgba(255,255,255,.08);color:var(--text)}
+.result-msg{margin-top:12px;padding:11px 16px;border-radius:10px;font-weight:600;font-size:.88rem;display:none}
+.result-msg.show{display:block;animation:fadeIn .3s}
+.result-msg.good{background:rgba(34,197,94,.12);color:var(--success);border:1px solid rgba(34,197,94,.3)}
+.result-msg.bad{background:rgba(239,68,68,.12);color:var(--wrong);border:1px solid rgba(239,68,68,.3)}
+.match-row{display:flex;gap:12px;align-items:stretch;margin-bottom:10px}
+.match-term{flex:0 0 140px;padding:12px 14px;background:var(--bg3);border:1px solid rgba(255,255,255,.08);border-radius:10px;font-family:'Crimson Pro',serif;font-size:.98rem;color:var(--text);display:flex;align-items:center;justify-content:center;text-align:center;font-weight:600}
+.match-drop{flex:1;padding:12px 14px;background:var(--bg);border:2px dashed rgba(255,208,0,.25);border-radius:10px;font-family:'Crimson Pro',serif;font-size:.92rem;color:var(--text2);display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;transition:all .3s;min-height:48px;user-select:none;-webkit-tap-highlight-color:transparent}
+.match-drop:empty::before{content:'🧩 wählen 🧩';color:rgba(168,160,140,.4)}
+.match-drop.active{border-color:var(--accent);background:rgba(255,208,0,.08);box-shadow:0 0 10px rgba(255,208,0,.15)}
+.match-drop.filled{border-style:solid;border-color:rgba(255,208,0,.3);color:var(--accent);background:rgba(255,208,0,.06)}
+.match-drop.correct{border-color:var(--success);background:rgba(34,197,94,.08);color:var(--success)}
+.match-drop.wrong{border-color:var(--wrong);background:rgba(239,68,68,.08);color:var(--wrong)}
+.match-pool-label{font-size:.82rem;color:var(--text2);margin-bottom:8px;text-align:center}
+.match-pool-items{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.match-chip{display:inline-block;padding:9px 14px;background:linear-gradient(135deg,rgba(255,208,0,.12),rgba(255,208,0,.04));border:1px solid rgba(255,208,0,.25);border-radius:10px;color:var(--accent);font-size:.85rem;line-height:1.4;cursor:pointer;transition:all .2s;user-select:none;text-align:center;font-family:'Crimson Pro',serif;-webkit-tap-highlight-color:transparent}
+.match-chip:hover{transform:scale(1.03);box-shadow:0 4px 12px rgba(255,208,0,.2)}
+.match-chip.used{opacity:.25;pointer-events:none;text-decoration:line-through}
+.ki-antwort{display:block;width:100%;min-height:85px;margin-top:10px;padding:11px 13px;font-family:'Crimson Pro',serif;font-size:1rem;line-height:1.55;color:var(--text);background:var(--bg);border:2px solid rgba(255,255,255,.1);border-radius:10px;resize:vertical;transition:border-color .3s}
+.ki-antwort:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,208,0,.15)}
+.ki-antwort::placeholder{color:var(--text2);font-style:italic}
+.loading-spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,208,0,.3);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;margin-right:6px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.energy-flow{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;margin:16px 0;padding:14px}
+.energy-step{background:rgba(255,208,0,.08);border:1px solid rgba(255,208,0,.2);border-radius:10px;padding:10px 14px;text-align:center;font-size:.82rem;font-weight:600;color:var(--accent);min-width:90px}
+.energy-arrow{color:var(--accent);font-size:1.2rem;margin:0 4px;flex-shrink:0}
+.footer{text-align:center;padding:26px 20px;color:var(--text2);font-size:.78rem;border-top:1px solid rgba(255,255,255,.05)}
+.footer a{color:var(--accent);text-decoration:none;font-weight:600}
+@media(max-width:600px){.section{padding:20px 16px}.quiz-header{flex-direction:column}.match-row{flex-direction:column;gap:4px}.match-term{flex:none}.steps-row{gap:4px}.step-card{min-width:100px;padding:7px 5px}.step-card p{font-size:.58rem}.hero-anim{width:100%}.simple-flow{gap:6px}.flow-node{font-size:.78rem;padding:8px 10px}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+    <span class="hero-badge">&#9883;&#65039; Natur und Technik 9 · Bayern</span>
+    <h1>Arbeitsweise eines Kernkraftwerks</h1>
+    <p>Wie aus Kernspaltung elektrischer Strom wird &ndash; der Druckwasserreaktor im Detail.</p>
+    <div class="hero-anim">
+        <div class="simple-flow">
+            <div class="flow-node flow-reactor">Reaktor</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node flow-steam">Dampf</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node flow-turbine">Turbine + Generator</div>
+        </div>
+        <p class="flow-caption">Wärme → Bewegung → elektrische Energie</p>
+    </div>
+</div>
+
+<nav class="nav-bar">
+    <button class="nav-btn active" onclick="showSection('info',this)">&#128214; Info</button>
+    <button class="nav-btn" onclick="showSection('animation',this)">&#128300; Simulation</button>
+    <button class="nav-btn" onclick="showSection('video',this)">&#127909; Film + Quiz</button>
+    <button class="nav-btn" onclick="showSection('aufgaben',this)">&#9997;&#65039; Aufgaben</button>
+</nav>
+
+<div class="content-wrap">
+
+<!-- INFO -->
+<div id="info" class="section-page active">
+<div class="section">
+    <h2><span class="icon" style="background:rgba(255,208,0,.15);color:var(--accent);">🏭</span> Was ist ein Atomkraftwerk?</h2>
+    <p>Atomkraftwerke (AKWs) funktionieren im Grunde wie herkömmliche <strong class="strong-accent">Heizkraftwerke</strong>. Eine Wärmequelle erzeugt Wasserdampf, der eine <strong class="strong-accent">Turbine</strong> antreibt. Die Turbine ist mit einem <strong class="strong-accent">Generator</strong> verbunden, der elektrischen Strom erzeugt.</p>
+    <p>In einem AKW ist die Wärmequelle allerdings ein <strong class="strong-accent">Atomreaktor</strong>, der durch kontrollierte Kernspaltung die nötige Energie bereitstellt.</p>
+</div>
+<div class="section">
+    <h2><span class="icon" style="background:rgba(255,208,0,.15);color:var(--accent);">🔧</span> Aufbau eines Druckwasserreaktors</h2>
+    <p>Im <strong class="strong-accent">Reaktordruckbehälter</strong> (1) aus 20-25 cm dickem Stahl befindet sich der Reaktorkern. Er besteht aus ungefähr <strong class="strong-accent">200 Brennelementen</strong> (3), die angereichertes Uran enthalten. Die <strong class="strong-accent">Steuerstäbe</strong> (2) enthalten Bor und Cadmium und fangen Neutronen ein.</p>
+    <p>Der <strong class="strong-accent">Druckhalter</strong> (4) hält den Druck im Primärkreislauf konstant, damit das Wasser trotz 300°C nicht verdampft. Im Sekundärkreislauf treibt der Dampf eine <strong class="strong-accent">Hochdruckturbine</strong> (5) und eine <strong class="strong-accent">Niederdruckturbine</strong> (6) an. Der <strong class="strong-accent">Generator</strong> (7) erzeugt Strom, der über den <strong class="strong-accent">Transformator</strong> (8) ins Netz eingespeist wird. Der <strong class="strong-accent">Kondensator</strong> (9) kühlt den Dampf ab, und der <strong class="strong-accent">Kühlturm</strong> (10) gibt überschüssige Wärme ab.</p>
+</div>
+<div class="section">
+    <h2><span class="icon" style="background:rgba(255,208,0,.15);color:var(--accent);">🔄</span> Drei getrennte Kreisläufe</h2>
+    <p><strong class="strong-accent">Primärkreislauf (rot, radioaktiv):</strong> Heißes Wasser (ca. 300°C) unter hohem Druck fließt vom Reaktor zum Dampferzeuger und gibt Wärme ab. Es bleibt flüssig und fließt zurück.</p>
+    <p><strong class="strong-accent">Sekundärkreislauf (blau):</strong> Im Dampferzeuger entsteht Dampf, der HD- und ND-Turbine antreibt. Der Generator erzeugt Strom. Danach wird der Dampf im Kondensator zu Wasser.</p>
+    <p><strong class="strong-accent">Kühlwasserkreislauf (hellblau):</strong> Kühlt den Kondensator. Die Wärme wird im Kühlturm an die Luft abgegeben.</p>
+</div>
+<div class="section">
+    <h2><span class="icon" style="background:rgba(255,208,0,.15);color:var(--accent);">&#9889;</span> Energieumwandlung</h2>
+    <div class="energy-flow">
+        <div class="energy-step">☢️<br>Kern-<br>energie</div><span class="energy-arrow">➜</span>
+        <div class="energy-step">🔥<br>Wärme</div><span class="energy-arrow">➜</span>
+        <div class="energy-step">💨<br>Dampf-<br>energie</div><span class="energy-arrow">➜</span>
+        <div class="energy-step">⚙️<br>mech.<br>Energie</div><span class="energy-arrow">➜</span>
+        <div class="energy-step">&#9889;<br>elektr.<br>Energie</div>
+    </div>
+</div>
+<div class="merke-gold">
+    <h3>&#128204; Merke</h3>
+    <ul>
+        <li>Die Energie eines AKWs wird durch <strong>kontrollierte Kernspaltung</strong> bereitgestellt.</li>
+        <li>Der <strong>Druckwasserreaktor</strong> hat drei getrennte Kreisläufe.</li>
+        <li><strong>Steuerstäbe</strong> (Bor/Cadmium) regulieren die Kettenreaktion.</li>
+        <li>Das radioaktive Wasser bleibt stets im geschlossenen <strong>Primärkreislauf</strong>.</li>
+    </ul>
+</div>
+</div>
+
+<!-- SIMULATION -->
+<div id="animation" class="section-page">
+<div class="section">
+    <h2><span class="icon" style="background:rgba(255,208,0,.15);color:var(--accent);">&#128300;</span> Druckwasserreaktor &ndash; Simulation</h2>
+    <p>Hier siehst du die <strong class="strong-accent">stark vereinfachte ENSI-Animation</strong> zum Druckwasserreaktor mit den wichtigsten Kreisl&auml;ufen.</p>
+    <div class="ensi-anim-wrapper">
+        <img src="https://ensi.admin.ch/de/wp-content/uploads/sites/2/2013/05/druckwasser_anim_700px.gif" alt="Animation Druckwasserreaktor (ENSI)">
+        <p class="ensi-credit">Quelle: <a href="https://ensi.admin.ch/de/faq-und-serien/druckwasserreaktor-und-siedewasserreaktor-stark-vereinfacht/" target="_blank" rel="noopener noreferrer">ENSI &ndash; Druckwasserreaktor und Siedewasserreaktor (stark vereinfacht)</a></p>
+    </div>
+    <div class="animation-explain">
+        <h3>Erkl&auml;rung (mit den Nummern 1&ndash;10)</h3>
+        <p>So liest du die Grafik Schritt f&uuml;r Schritt:</p>
+        <ul>
+            <li>(1) Im Reaktordruckbeh&auml;lter startet alles. Dort wird W&auml;rme erzeugt.</li>
+            <li>(2) Die Steuerst&auml;be regeln, wie schnell die Reaktion abl&auml;uft.</li>
+            <li>(3) Die Brennelemente liefern die Energie f&uuml;r die Erw&auml;rmung.</li>
+            <li>(4) Der Druckhalter sorgt daf&uuml;r, dass das Wasser im Prim&auml;rkreislauf bei hoher Temperatur fl&uuml;ssig bleibt.</li>
+            <li>(5) Der hei&szlig;e Dampf treibt zuerst die Hochdruckturbine an.</li>
+            <li>(6) Danach treibt der Dampf noch die Niederdruckturbine an.</li>
+            <li>(7) Die Turbinen drehen den Generator. Hier entsteht elektrischer Strom.</li>
+            <li>(8) Im Transformator wird der Strom f&uuml;r das Stromnetz angepasst.</li>
+            <li>(9) Im Kondensator wird Dampf wieder zu Wasser, damit er erneut genutzt werden kann.</li>
+            <li>(10) Im K&uuml;hlturm wird &uuml;bersch&uuml;ssige W&auml;rme an die Luft abgegeben.</li>
+        </ul>
+        <p><strong>Wichtig:</strong> Es gibt getrennte Kreisl&auml;ufe. So bleibt radioaktives Wasser im Reaktorbereich.</p>
+    </div>
+</div>
+</div>
+<!-- FILM + QUIZ -->
+<div id="video" class="section-page">
+<div class="section">
+    <h2><span class="icon" style="background:rgba(255,208,0,.15);color:var(--accent);">&#127909;</span> Lernfilm: So funktioniert ein Atomkraftwerk</h2>
+    <p>Schau dir den Film aufmerksam an. Beantworte danach die <strong class="strong-accent">20 Fragen</strong>.</p>
+    <div class="video-wrapper"><iframe id="ytPlayer" src="https://www.youtube.com/embed/Hxz3ub94bHY?enablejsapi=1&rel=0" title="Atomkraftwerk" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe></div>
+</div>
+<div class="quiz-step-bar"><div class="quiz-step-label" id="quizStepLabel">Frage 1 von 20</div><div class="progress-bar-bg"><div class="progress-bar-fill" id="quizStepFill" style="width:5%;"></div></div></div>
+<div id="filmQuizContainer"></div>
+<div class="quiz-nav-row" id="quizNavRow"><button class="anim-btn rst" id="btnPrev" onclick="prevQ()" disabled>&#8617;&#65039; Zurück</button><button class="anim-btn go" id="btnNext" onclick="nextQ()" disabled>Nächste Frage &#10145;&#65039;</button></div>
+<div class="score-bar" id="filmQuizScore" style="display:none;"><span class="score-text">Ergebnis:</span><div class="progress-bar-bg" style="flex:1;margin:0 16px;"><div class="progress-bar-fill" id="filmProgressFill" style="width:0%;"></div></div><span class="score-value" id="filmScoreValue">0/20</span></div>
+<div id="filmGradeDisplay" class="grade-display" style="display:none;"></div>
+</div>
+
+<!-- AUFGABEN -->
+<div id="aufgaben" class="section-page">
+<div class="section">
+    <h2><span class="icon" style="background:rgba(255,208,0,.15);color:var(--accent);">📝</span> Lückentext: Druckwasserreaktor</h2>
+    <p style="font-size:.92rem;color:var(--text2);margin-bottom:10px;">Tippe auf eine Lücke, dann auf das passende Wort.</p>
+    <div class="luecken-text" id="gapExercise"></div>
+    <div class="word-bank" id="wordBank"></div>
+    <div class="btn-row"><button class="check-btn" onclick="checkGaps()">Ueberpruefen</button><button class="reset-btn" onclick="resetGaps()">Zuruecksetzen</button><button class="reset-btn" onclick="showGapHints()">Loesung</button></div>
+    <div class="score-bar" id="gapScore" style="display:none;"><span class="score-text">Ergebnis:</span><div class="progress-bar-bg" style="flex:1;margin:0 16px;"><div class="progress-bar-fill" id="gapProgressFill" style="width:0%;"></div></div><span class="score-value" id="gapScoreValue">0/10</span></div>
+</div>
+<div class="section">
+    <h2><span class="icon" style="background:rgba(255,208,0,.15);color:var(--accent);">🔗</span> Zuordnung: Bauteile & Funktionen</h2>
+    <p style="font-size:.92rem;color:var(--text2);margin-bottom:10px;">Tippe auf ein Feld, dann auf die passende Erklärung.</p>
+    <div id="matchRows"></div><div id="matchPool" style="margin-top:14px;"></div><div id="matchFeedback" class="result-msg"></div>
+    <div class="btn-row"><button class="check-btn" onclick="checkMatch()">Ueberpruefen</button><button class="reset-btn" onclick="resetMatch()">Zuruecksetzen</button></div>
+</div>
+<div class="section">
+    <h2><span class="icon" style="background:rgba(255,208,0,.15);color:var(--accent);">✏️</span> Freitext: Erkläre den Druckwasserreaktor</h2>
+    <p>Erkläre in eigenen Worten, wie ein Druckwasserreaktor funktioniert.</p>
+    <textarea class="ki-antwort" id="freeText1" placeholder="Schreibe deine Antwort hier..."></textarea>
+    <div class="btn-row"><button class="check-btn" onclick="checkFreeText('freeText1','feedback1')">KI-Bewertung</button></div>
+    <div class="result-msg" id="feedback1"></div>
+</div>
+</div>
+
+</div>
+<div class="footer">☢️ NT 9 · Natur und Technik · Mittelschule Bayern | <a href="../übersicht_themen.html">Zur Themenübersicht NT</a></div>
+
+<script>
+// NAV
+function showSection(id,btn){
+    document.querySelectorAll('.section-page').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if(btn)btn.classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+    if(id==='animation')initR();
+    if(id==='video' && typeof cueClip==='function')cueClip(cQ);
+    if(id!=='video' && typeof stopWatch==='function')stopWatch();
+    if(id!=='video' && typeof ytO!=='undefined' && ytO && typeof ytO.pauseVideo==='function')ytO.pauseVideo();
+}
+
+// =======================================
+// REACTOR CANVAS ANIMATION
+// =======================================
+let RC,RX,RA,PWR=60,SCRAM=false,TA=0,ST=0;
+const CW=960,CH=540,DPR=Math.min(window.devicePixelRatio||1,2);
+let PP=[],PS=[],PC=[];
+
+// Paths matching the reference image layout
+// Primary: Reactor(left) → hot pipe up+right → Steam Gen → cold pipe down+left → back
+const PATH_P=[
+    [155,180],[155,135],[175,110],[230,100],[275,100],[305,110],[305,150],
+    [305,160],[305,280],[305,340],[275,370],[230,380],[175,380],[150,365],[150,330],[150,280],[150,220],[155,180]
+];
+// Secondary: Steam Gen right → pipe → HD Turb → ND Turb → down → Condenser → back up
+const PATH_S=[
+    [350,150],[350,110],[380,90],[430,85],[480,85],[520,95],[545,110],
+    [575,125],[600,125],[630,110],[660,125],
+    [690,135],[700,170],[700,270],[700,370],[700,400],
+    [660,415],[600,420],[530,420],[460,420],[400,415],
+    [355,395],[350,360],[350,280],[350,200],[350,150]
+];
+// Cooling: Condenser → Cooling tower → back
+const PATH_C=[
+    [730,400],[770,410],[810,400],[835,360],[845,300],[840,270],
+    [830,300],[820,360],[800,390],[760,395],[730,390],[720,380],[730,400]
+];
+
+function lerp(path,t){
+    t=((t%1)+1)%1;const n=path.length-1,s=Math.floor(t*n),l=t*n-s,i=Math.min(s,n-1);
+    return[path[i][0]+(path[i+1][0]-path[i][0])*l, path[i][1]+(path[i+1][1]-path[i][1])*l];
+}
+
+function initR(){
+    RC=document.getElementById('reactorCanvas');if(!RC)return;
+    const r=RC.parentElement.getBoundingClientRect(),cw=r.width,ch=cw*CH/CW;
+    RC.style.height=ch+'px';RC.width=Math.round(cw*DPR);RC.height=Math.round(ch*DPR);
+    RX=RC.getContext('2d');RX.setTransform(DPR*cw/CW,0,0,DPR*ch/CH,0,0);
+    PP=[];PS=[];PC=[];
+    for(let i=0;i<14;i++)PP.push({t:i/14});
+    for(let i=0;i<16;i++)PS.push({t:i/16});
+    for(let i=0;i<6;i++)PC.push({t:i/6});
+    if(!RA)tick();
+}
+
+function tick(){drawFrame();RA=requestAnimationFrame(tick);}
+
+function drawFrame(){
+    if(!RX)return;
+    const c=RX, pw=SCRAM?0:PWR, sp=0.0008+pw/100*0.005;
+    c.clearRect(0,0,CW,CH);
+
+    // Grid bg
+    c.strokeStyle='rgba(255,208,0,.025)';c.lineWidth=.5;
+    for(let x=0;x<CW;x+=30){c.beginPath();c.moveTo(x,0);c.lineTo(x,CH);c.stroke();}
+    for(let y=0;y<CH;y+=30){c.beginPath();c.moveTo(0,y);c.lineTo(CW,y);c.stroke();}
+
+    const hotI=pw/100;
+
+    // === CONTAINMENT ===
+    c.beginPath();c.moveTo(70,460);c.lineTo(70,180);c.quadraticCurveTo(70,55,220,45);c.quadraticCurveTo(370,55,370,180);c.lineTo(370,460);c.closePath();
+    c.fillStyle='rgba(180,185,195,.05)';c.fill();
+    c.strokeStyle='rgba(200,200,210,.15)';c.lineWidth=2.5;c.setLineDash([7,5]);c.stroke();c.setLineDash([]);
+
+    // === PRIMARY PIPES ===
+    drawPipePath(c,PATH_P.slice(0,7),'rgba('+(180+Math.round(pw*.7))+',50,30,'+(0.35+hotI*0.3)+')',10);
+    drawPipePath(c,PATH_P.slice(7),'rgba(180,90,60,'+(0.25+hotI*0.2)+')',10);
+    // Flow arrows on pipes
+    if(pw>5){drawArrow(c,230,95,1,0,'rgba(255,80,40,.5)');drawArrow(c,230,385,-1,0,'rgba(180,100,80,.4)');}
+
+    // === REACTOR VESSEL ===
+    if(pw>0){const g=c.createRadialGradient(220,265,10,220,265,110);g.addColorStop(0,'rgba(255,50,20,'+pw/180+')');g.addColorStop(1,'transparent');c.fillStyle=g;c.fillRect(100,120,240,300);}
+    rRect(c,130,115,180,310,14);
+    const vg=c.createLinearGradient(130,115,130,425);
+    vg.addColorStop(0,'rgba('+(140+Math.round(pw))+',40,20,0.65)');
+    vg.addColorStop(1,'rgba(80,50,40,0.4)');
+    c.fillStyle=vg;c.fill();c.strokeStyle='rgba(255,208,0,.3)';c.lineWidth=2.5;c.stroke();
+
+    // Fuel rods
+    for(let i=0;i<6;i++){c.fillStyle='rgba('+(200+Math.round(pw*.5))+','+(80+Math.round(pw*.3))+',0,'+(0.5+pw*.004)+')';rRect(c,160+i*24,200,10,160,3);c.fill();}
+
+    // Control rods
+    const rodIns=1-pw/100, rH=Math.round(150*rodIns), rT=135+(150-rH);
+    for(let i=0;i<5;i++){const rx=168+i*24;
+        c.fillStyle='#667';rRect(c,rx,rT,8,rH,2);c.fill();c.strokeStyle='#889';c.lineWidth=.5;c.stroke();
+        c.beginPath();c.moveTo(rx+4,rT);c.lineTo(rx+4,110);c.strokeStyle='rgba(150,150,160,.3)';c.lineWidth=1;c.stroke();
+    }
+
+    // Labels: Reactor
+    numBadge(c,88,130,'1','#d4380d');txtLbl(c,88,152,'Reaktordruck-','#c8a060',8);txtLbl(c,88,163,'behälter','#c8a060',8);
+    numBadge(c,88,200,'2','#d48806');txtLbl(c,88,222,'Steuerstäbe','#c8a060',8);
+    numBadge(c,88,360,'3','#d4380d');txtLbl(c,88,380,'Brennelemente','#c8a060',8);
+
+    // === DRUCKHALTER ===
+    rRect(c,255,50,35,55,10);c.fillStyle='rgba(90,140,210,.25)';c.fill();c.strokeStyle='rgba(255,208,0,.2)';c.lineWidth=1.5;c.stroke();
+    c.beginPath();c.moveTo(272,105);c.lineTo(272,115);c.strokeStyle='rgba(255,208,0,.2)';c.lineWidth=3;c.stroke();
+    numBadge(c,275,42,'4','#d48806');txtLbl(c,273,118,'Druckhalter','#c8a060',7.5);
+
+    // Pump
+    c.beginPath();c.arc(190,430,14,0,Math.PI*2);c.fillStyle='rgba(0,0,0,.5)';c.fill();c.strokeStyle='rgba(255,208,0,.25)';c.lineWidth=1.5;c.stroke();
+    c.fillStyle='#ffd000';c.font='bold 10px Outfit';c.textAlign='center';c.fillText('P',190,434);
+    txtLbl(c,190,458,'Pumpe','#c8a060',7.5);
+
+    // === STEAM GENERATOR ===
+    rRect(c,325,115,55,280,14);
+    const sg=c.createLinearGradient(325,115,380,395);sg.addColorStop(0,'rgba(200,70,40,.35)');sg.addColorStop(.5,'rgba(140,90,110,.25)');sg.addColorStop(1,'rgba(50,90,190,.25)');
+    c.fillStyle=sg;c.fill();c.strokeStyle='rgba(255,208,0,.25)';c.lineWidth=2;c.stroke();
+    for(let y=145;y<370;y+=28){c.beginPath();c.moveTo(337,y);c.quadraticCurveTo(352,y-9,367,y);c.strokeStyle='rgba(255,90,50,.2)';c.lineWidth=2;c.stroke();}
+    c.save();c.translate(352,260);c.rotate(-Math.PI/2);c.fillStyle='#ffd000';c.font='bold 9px Outfit';c.textAlign='center';c.fillText('Dampferzeuger',0,0);c.restore();
+
+    // === SECONDARY PIPES ===
+    drawPipePath(c,PATH_S.slice(0,11),'rgba(40,90,200,'+(0.3+hotI*0.2)+')',8);
+    drawPipePath(c,PATH_S.slice(11),'rgba(60,130,220,'+(0.2+hotI*0.15)+')',7);
+    if(pw>5){txtLbl(c,450,75,'Dampf →','rgba(80,150,255,.5)',8);}
+
+    // === HD TURBINE ===
+    drawTurb(c,560,125,34,pw);numBadge(c,538,80,'5','#389e0d');txtLbl(c,560,172,'HD-Turbine','#7cb8e8',8.5);
+    // shaft
+    c.beginPath();c.moveTo(594,125);c.lineTo(618,125);c.strokeStyle='rgba(255,208,0,.25)';c.lineWidth=4;c.stroke();
+
+    // === ND TURBINE ===
+    drawTurb(c,655,125,42,pw);numBadge(c,630,70,'6','#389e0d');txtLbl(c,655,180,'ND-Turbine','#7cb8e8',8.5);
+    c.beginPath();c.moveTo(697,125);c.lineTo(722,125);c.strokeStyle='rgba(255,208,0,.3)';c.lineWidth=5;c.stroke();
+
+    // === GENERATOR ===
+    rRect(c,722,95,65,60,12);
+    const gg=c.createLinearGradient(722,95,787,155);gg.addColorStop(0,'rgba(200,160,30,.2)');gg.addColorStop(1,'rgba(180,140,20,.08)');
+    c.fillStyle=gg;c.fill();c.strokeStyle='rgba(255,208,0,.3)';c.lineWidth=2;c.stroke();
+    c.fillStyle='#ffd000';c.font='bold 20px Outfit';c.textAlign='center';c.fillText('G',754,132);
+    numBadge(c,735,83,'7','#1d39c4');txtLbl(c,754,170,'Generator','#c8a060',9);
+
+    // === TRANSFORMER ===
+    rRect(c,810,100,40,50,7);c.fillStyle='rgba(200,160,30,.12)';c.fill();c.strokeStyle='rgba(255,208,0,.2)';c.lineWidth=1.5;c.stroke();
+    for(let y=110;y<145;y+=9){c.beginPath();c.moveTo(815,y);c.lineTo(845,y);c.strokeStyle='rgba(255,208,0,.15)';c.lineWidth=1;c.stroke();}
+    c.beginPath();c.moveTo(787,125);c.lineTo(810,125);c.strokeStyle='rgba(255,208,0,.25)';c.lineWidth=3;c.stroke();
+    numBadge(c,820,88,'8','#1d39c4');txtLbl(c,830,163,'Transformator','#c8a060',7.5);
+
+    // Pylon + wire
+    c.beginPath();c.moveTo(850,125);c.lineTo(895,125);c.lineTo(895,40);c.strokeStyle='rgba(255,208,0,.15)';c.lineWidth=2;c.stroke();
+    c.beginPath();c.moveTo(888,70);c.lineTo(902,70);c.moveTo(885,55);c.lineTo(905,55);c.moveTo(890,40);c.lineTo(900,40);c.moveTo(895,70);c.lineTo(895,30);c.strokeStyle='rgba(255,208,0,.15)';c.lineWidth=1.5;c.stroke();
+    if(pw>5){c.fillStyle='#ffd000';c.font='15px sans-serif';c.textAlign='center';c.fillText('&#9889;',920,55);c.font='bold 10px Outfit';c.fillText(Math.round(pw*14)+' MW',925,73);}
+
+    // === CONDENSER ===
+    rRect(c,560,385,170,75,10);c.fillStyle='rgba(50,110,200,.12)';c.fill();c.strokeStyle='rgba(90,170,240,.25)';c.lineWidth=2;c.stroke();
+    for(let x=575;x<720;x+=15){c.beginPath();c.moveTo(x,395);c.lineTo(x,450);c.strokeStyle='rgba(80,160,230,.2)';c.lineWidth=3;c.stroke();}
+    numBadge(c,620,478,'9','#531dab');txtLbl(c,645,478,'Kondensator','#7cb8e8',9);
+
+    // Sec pump
+    c.beginPath();c.arc(450,438,12,0,Math.PI*2);c.fillStyle='rgba(0,0,0,.4)';c.fill();c.strokeStyle='rgba(80,150,230,.25)';c.lineWidth=1;c.stroke();
+    c.fillStyle='#5bb8ee';c.font='bold 8px Outfit';c.textAlign='center';c.fillText('P',450,441);
+
+    // === COOLING PIPES ===
+    drawPipePath(c,PATH_C,'rgba(90,185,240,'+(0.15+hotI*0.1)+')',6);
+
+    // === COOLING TOWER ===
+    c.beginPath();c.moveTo(790,490);c.quadraticCurveTo(805,330,818,295);c.quadraticCurveTo(830,280,842,295);c.quadraticCurveTo(855,330,870,490);c.closePath();
+    c.fillStyle='rgba(200,200,210,.06)';c.fill();c.strokeStyle='rgba(200,200,210,.18)';c.lineWidth=2;c.stroke();
+    numBadge(c,830,505,'10','#531dab');txtLbl(c,830,505,'Kühlturm','#9ab8d0',8);
+
+    // Steam clouds from tower
+    if(pw>8){
+        for(let i=0;i<5;i++){
+            const sx=822+Math.sin(ST*.015+i*1.8)*14;
+            const sy=280-i*20-Math.sin(ST*.02+i)*6;
+            const sr=5+i*3.5+Math.sin(ST*.008+i)*2;
+            c.beginPath();c.arc(sx,sy,sr,0,Math.PI*2);c.fillStyle='rgba(200,210,220,'+(0.06-i*.01)+')';c.fill();
+        }
+    }
+
+    // === PARTICLES ===
+    PP.forEach(p=>{p.t=(p.t+sp)%1;if(pw<3)return;const pos=lerp(PATH_P,p.t),hot=p.t<0.4;
+        c.beginPath();c.arc(pos[0],pos[1],5.5,0,Math.PI*2);c.fillStyle=hot?'rgba(230,45,25,'+(0.6+hotI*.3)+')':'rgba(195,85,55,'+(0.45+hotI*.2)+')';c.fill();
+        c.beginPath();c.arc(pos[0],pos[1],11,0,Math.PI*2);c.fillStyle=hot?'rgba(255,50,25,.12)':'rgba(200,85,55,.08)';c.fill();});
+    PS.forEach(p=>{p.t=(p.t+sp*.85)%1;if(pw<3)return;const pos=lerp(PATH_S,p.t),stm=p.t<0.38;
+        c.beginPath();c.arc(pos[0],pos[1],4.5,0,Math.PI*2);c.fillStyle=stm?'rgba(40,90,220,.65)':'rgba(70,140,240,.45)';c.fill();
+        c.beginPath();c.arc(pos[0],pos[1],9,0,Math.PI*2);c.fillStyle=stm?'rgba(40,90,220,.1)':'rgba(70,140,240,.06)';c.fill();});
+    PC.forEach(p=>{p.t=(p.t+sp*.5)%1;if(pw<3)return;const pos=lerp(PATH_C,p.t);
+        c.beginPath();c.arc(pos[0],pos[1],3.5,0,Math.PI*2);c.fillStyle='rgba(90,185,240,.45)';c.fill();
+        c.beginPath();c.arc(pos[0],pos[1],7,0,Math.PI*2);c.fillStyle='rgba(90,185,240,.07)';c.fill();});
+
+    // === INFO BOX ===
+    rRect(c,12,12,110,60,8);c.fillStyle='rgba(0,0,0,.55)';c.fill();c.strokeStyle='rgba(255,208,0,.12)';c.lineWidth=1;c.stroke();
+    c.fillStyle='#ffd000';c.font='bold 8px Outfit';c.textAlign='left';c.fillText('LEISTUNG',22,28);
+    c.font='bold 16px Outfit';c.fillStyle=pw>80?'#ff4444':pw>0?'#ffd000':'#555';c.fillText(Math.round(pw*14)+' MW',22,48);
+    c.font='8px Outfit';c.fillStyle='#a8a08c';c.fillText(Math.round(150+pw*1.5)+'°C Primär',22,63);
+
+    if(SCRAM){rRect(c,CW/2-140,CH/2-28,280,56,10);c.fillStyle='rgba(180,0,0,.18)';c.fill();c.strokeStyle='#ff4444';c.lineWidth=2.5;c.stroke();c.fillStyle='#ff4444';c.font='bold 18px Outfit';c.textAlign='center';c.fillText('⚠️  SCRAM &ndash; ABGESCHALTET',CW/2,CH/2+6);c.textAlign='left';}
+
+    ST++;
+    const as=pw<3?-1:Math.floor((ST/120)%5)+1;
+    for(let i=1;i<=5;i++){const el=document.getElementById('step'+i);if(el)el.classList.toggle('active-step',i===as);}
+    TA=(TA+pw*.08)%360;
+}
+
+// Helpers
+function rRect(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.lineTo(a+w-r,b);x.quadraticCurveTo(a+w,b,a+w,b+r);x.lineTo(a+w,b+h-r);x.quadraticCurveTo(a+w,b+h,a+w-r,b+h);x.lineTo(a+r,b+h);x.quadraticCurveTo(a,b+h,a,b+h-r);x.lineTo(a,b+r);x.quadraticCurveTo(a,b,a+r,b);x.closePath();}
+function drawPipePath(c,pts,col,w){if(pts.length<2)return;c.beginPath();c.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)c.lineTo(pts[i][0],pts[i][1]);c.strokeStyle=col;c.lineWidth=w;c.lineCap='round';c.lineJoin='round';c.stroke();}
+function drawArrow(c,x,y,dx,dy,col){c.beginPath();c.moveTo(x,y);c.lineTo(x+dx*12,y+dy*12);c.lineTo(x+dx*8-dy*5,y+dy*8+dx*5);c.moveTo(x+dx*12,y+dy*12);c.lineTo(x+dx*8+dy*5,y+dy*8-dx*5);c.strokeStyle=col;c.lineWidth=2;c.stroke();}
+function drawTurb(c,cx,cy,r,pw){
+    c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);c.fillStyle='rgba(255,208,0,.03)';c.fill();c.strokeStyle='rgba(255,208,0,.22)';c.lineWidth=2;c.stroke();
+    c.save();c.translate(cx,cy);c.rotate(TA*Math.PI/180);
+    for(let i=0;i<8;i++){c.rotate(Math.PI/4);c.beginPath();c.moveTo(0,0);c.lineTo(0,-r+4);c.strokeStyle='rgba(255,208,0,.35)';c.lineWidth=2;c.stroke();}
+    c.restore();
+}
+function numBadge(c,x,y,n,bg){c.beginPath();c.arc(x,y,11,0,Math.PI*2);c.fillStyle=bg;c.fill();c.fillStyle='#fff';c.font='bold 10px Outfit';c.textAlign='center';c.fillText(n,x,y+3.5);}
+function txtLbl(c,x,y,t,col,sz){c.fillStyle=col;c.font=(sz||8)+'px Outfit';c.textAlign='center';c.fillText(t,x,y);}
+
+function setPower(v){PWR=+v;SCRAM=false;document.getElementById('rodLbl').textContent=v+'%';const b=document.getElementById('stBadge');if(v==0){b.className='status-badge status-off';b.textContent='⏹ Abgeschaltet';}else{b.className='status-badge status-on';b.textContent='&#9889; '+Math.round(v*14)+' MW';}}
+function doScram(){SCRAM=true;PWR=0;document.getElementById('rodSlider').value=0;document.getElementById('rodLbl').textContent='0%';const b=document.getElementById('stBadge');b.className='status-badge status-off';b.textContent='&#128721; SCRAM';setTimeout(()=>{if(SCRAM)SCRAM=false;},4000);}
+
+// YT
+let ytR=false,ytO=null,ytTimer=null,ytClipIdx=0;
+const tg=document.createElement('script');tg.src='https://www.youtube.com/iframe_api';document.head.appendChild(tg);
+
+function stopWatch(){if(ytTimer){clearInterval(ytTimer);ytTimer=null;}}
+function startWatch(i){
+    stopWatch();
+    const idx=(typeof i==='number'?i:ytClipIdx);
+    ytTimer=setInterval(()=>{
+        if(!ytO||!ytR)return;
+        const q=FQ[idx]; if(!q||typeof q.stop!=='number')return;
+        const t=ytO.getCurrentTime();
+        if(t>=q.stop){ ytO.pauseVideo(); stopWatch(); }
+    },250);
+}
+function cueClip(i){
+    if(!ytR||!ytO||!FQ[i])return;
+    ytClipIdx=i;
+    const q=FQ[i];
+    try{ ytO.seekTo(q.start,true); ytO.playVideo(); startWatch(i); }catch(e){}
+}
+
+function onYouTubeIframeAPIReady(){
+    ytO=new YT.Player('ytPlayer',{
+        events:{
+            'onReady':()=>{ytR=true; if(document.getElementById('video').classList.contains('active'))cueClip(cQ);},
+            'onStateChange':(ev)=>{ if(ev.data===YT.PlayerState.PLAYING)startWatch(ytClipIdx); else stopWatch(); }
+        }
+    });
+}
+
+// FILM QUIZ (20 Fragen + passende Clip-Stopps)
+const FQ=[
+{start:6,stop:18,q:"Woher kommt Strom laut Video nicht direkt?",o:["Aus der Steckdose","Aus Batterien","Aus WLAN","Aus Handys"],c:0,e:"Im Video wird gesagt: Strom kommt nicht direkt aus der Steckdose."},
+{start:18,stop:29,q:"Welche Quelle wird als Beispiel fuer Strom genannt?",o:["Nur Solarzellen","Nur Windraeder","Nur Kohle","Kohle, Wind, Solar oder Kernkraft"],c:3,e:"Genannt werden Kohle, Wind, Solar und Kernkraft."},
+{start:29,stop:44,q:"Aus wie vielen wichtigen Gebaeuden besteht das Kernkraftwerk im Video?",o:["2","3","4","5"],c:1,e:"Es werden drei wichtige Gebaeude genannt."},
+{start:34,stop:42,q:"Was ist in der Maschinenhalle?",o:["Nur Pumpen","Turbinen und Generator","Nur Reaktor","Nur Brennstofflager"],c:1,e:"In der Maschinenhalle sind Turbinen und ein Generator."},
+{start:54,stop:62,q:"Wie viele Wasserkreislaeufe gibt es insgesamt?",o:["1","2","3","4"],c:2,e:"Das Video erklaert drei Wasserkreislaeufe."},
+{start:58,stop:66,q:"Wo verlaeuft der Primaerkreislauf?",o:["Nur im Reaktorgebaeude","Nur im Kuehlturm","Nur im Maschinenhaus","Im Fluss"],c:0,e:"Der Primaerkreislauf verlaeuft nur im Reaktorgebaeude."},
+{start:62,stop:71,q:"Zwischen welchen Bereichen verlaeuft der Sekundaerkreislauf?",o:["Reaktorgebaeude und Maschinenhaus","Maschinenhaus und Fluss","Nur Kuehlturm","Nur Reaktorgebaeude"],c:0,e:"Sekundaerkreislauf: Reaktorgebaeude plus Maschinenhaus."},
+{start:69,stop:75,q:"Wobei hilft der Kuehlkreislauf?",o:["Beim Spalten von Uran","Beim Kuehlen zwischen Kuehlturm und Maschinenhaus","Beim Antreiben der Turbine direkt","Beim Erzeugen von Radioaktivitaet"],c:1,e:"Der Kuehlkreislauf verbindet Kuehlturm und Maschinenhaus zum Kuehlen."},
+{start:81,stop:92,q:"Was passiert im Kernreaktor laut Video?",o:["Fusion","Kernspaltung","Verbrennung","Elektrolyse"],c:1,e:"Im Kernreaktor findet Kernspaltung statt."},
+{start:92,stop:101,q:"Auf etwa welche Temperatur wird das Wasser im Primaerkreislauf erhitzt?",o:["100 Grad","200 Grad","300 Grad","500 Grad"],c:2,e:"Das Video nennt rund 300 Grad."},
+{start:101,stop:111,q:"Warum kocht das Primaerwasser bei 300 Grad nicht?",o:["Weil Salz drin ist","Wegen hohem Druck","Wegen Vakuum","Wegen Kaelte"],c:1,e:"Durch den hohen Druck bleibt es fluessig."},
+{start:111,stop:126,q:"Was passiert im ersten Waermetauscher?",o:["Radioaktivitaet wird uebertragen","Nur Licht wird uebertragen","Waerme geht vom Primaer- auf den Sekundaerkreislauf","Wasser wird gemischt"],c:2,e:"Es wird nur Waerme uebertragen, kein Mischen."},
+{start:126,stop:136,q:"Was geschieht im Sekundaerkreislauf bei normalem Druck?",o:["Wasser gefriert","Wasser bleibt immer kalt","Wasser kocht zu Dampf","Wasser verschwindet"],c:2,e:"Bei 300 Grad wird das Wasser zu Dampf."},
+{start:136,stop:151,q:"Was treibt der Wasserdampf an?",o:["Kuehlturm","Turbine","Reaktorgebaeude","Steckdose"],c:1,e:"Der Dampf stroemt zur Turbine und dreht sie."},
+{start:151,stop:184,q:"Welche physikalische Wirkung nennt das Video im Generator?",o:["Fotosynthese","Elektromagnetische Induktion","Reibungselektrizitaet","Kondensation"],c:1,e:"Im Generator entsteht Spannung durch elektromagnetische Induktion."},
+{start:199,stop:211,q:"Warum muss Dampf nach der Turbine wieder abgekuehlt werden?",o:["Damit er farblos wird","Damit er erneut als Wasser erhitzt werden kann","Damit der Generator stoppt","Damit mehr Uran entsteht"],c:1,e:"Nur so kann der Kreislauf weiterlaufen."},
+{start:211,stop:225,q:"Welches Bauteil kuehlt den Dampf im Sekundaerkreislauf wieder ab?",o:["Ein weiterer Waermetauscher","Der Transformator","Der Reaktor","Die Turbine"],c:0,e:"Das macht ein zweiter Waermetauscher am Kuehlkreis."},
+{start:225,stop:240,q:"Woher kommt das kalte Wasser fuer den Kuehlkreis laut Video?",o:["Aus einer Batterie","Aus Kuehlturm oder Fluss","Aus dem Reaktor","Aus dem Generator"],c:1,e:"Das kalte Wasser kommt aus Kuehlturm oder angrenzendem Fluss."},
+{start:240,stop:256,q:"Was ist laut Video die Idee hinter den drei getrennten Kreislaeufen?",o:["Schoenere Farben","Radioaktives Wasser bleibt getrennt","Weniger Rohre","Mehr Turbinen"],c:1,e:"Trennung dient vor allem der Sicherheit und Sauberkeit der anderen Kreislaeufe."},
+{start:256,stop:270,q:"Warum verlaesst das Wasser des Primaerkreislaufs nie das Reaktorgebaeude?",o:["Zu kalt","Zu teuer","Es ist stark radioaktiv","Es ist zu sauber"],c:2,e:"Das Primaerwasser ist stark radioaktiv und bleibt deshalb abgeschirmt."}
+];
+
+let fC=0,fA=0,cQ=0;
+
+function buildFQ(){
+    const c=document.getElementById('filmQuizContainer');
+    c.innerHTML='';
+    FQ.forEach((q,i)=>{
+        const id='fq'+i,L='ABCD';
+        let oh='';
+        q.o.forEach((o,j)=>{oh+='<button class="quiz-option" onclick="chkFQ(this,'+(j===q.c)+',\''+id+'\','+i+')">'+L[j]+') '+o+'</button>';});
+        c.innerHTML+='<div class="quiz-q" id="'+id+'" style="'+(i?'display:none;':'')+'"><div class="quiz-header"><h4>Frage '+(i+1)+': '+q.q+'</h4></div>'+oh+'<div class="quiz-feedback" id="'+id+'-fb"></div></div>';
+    });
+    uSUI();
+}
+
+function uSUI(){
+    const t=FQ.length;
+    document.getElementById('quizStepLabel').textContent='Frage '+(cQ+1)+' von '+t;
+    document.getElementById('quizStepFill').style.width=(((cQ+1)/t)*100)+'%';
+    document.getElementById('btnPrev').disabled=cQ===0;
+    const el=document.getElementById('fq'+cQ),a=el&&el.dataset.answered,l=cQ>=t-1,b=document.getElementById('btnNext');
+    b.disabled=!a;
+    b.textContent=l&&a?'Ergebnis anzeigen':'Naechste Frage';
+}
+
+function showQ(i){
+    FQ.forEach((_,j)=>{document.getElementById('fq'+j).style.display=j===i?'':'none';});
+    cQ=i;
+    uSUI();
+    if(document.getElementById('video').classList.contains('active'))cueClip(i);
+}
+
+function nextQ(){
+    if(cQ<FQ.length-1)showQ(cQ+1);
+    else{
+        showFS();
+        document.getElementById('quizNavRow').style.display='none';
+        document.getElementById('fq'+cQ).style.display='none';
+        document.querySelector('.quiz-step-bar').style.display='none';
+    }
+}
+
+function prevQ(){if(cQ>0)showQ(cQ-1);}
+
+function chkFQ(el,ok,id,i){
+    const q=document.getElementById(id);if(q.dataset.answered)return;
+    q.dataset.answered='true';fA++;
+    q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none');
+    const fb=document.getElementById(id+'-fb'),fq=FQ[i];
+    if(ok){el.classList.add('correct-ans');fC++;fb.className='quiz-feedback show correct';fb.textContent='Richtig: '+fq.e;}
+    else{el.classList.add('wrong-ans');q.querySelectorAll('.quiz-option')[fq.c].classList.add('correct-ans');fb.className='quiz-feedback show wrong';fb.textContent='Nicht ganz: '+fq.e;}
+    uSUI();
+}
+
+function showFS(){
+    const t=FQ.length,p=(fC/t)*100;
+    document.getElementById('filmQuizScore').style.display='flex';
+    document.getElementById('filmScoreValue').textContent=fC+'/'+t;
+    document.getElementById('filmProgressFill').style.width=p+'%';
+
+    let g;
+    if(p>=92)g=1; else if(p>=80)g=2; else if(p>=67)g=3; else if(p>=50)g=4; else if(p>=30)g=5; else g=6;
+    const gn={1:'sehr gut',2:'gut',3:'befriedigend',4:'ausreichend',5:'mangelhaft',6:'ungenuegend'};
+    const ms={1:'Hervorragend!',2:'Stark!',3:'Gute Arbeit!',4:'Bestanden, weiter so!',5:'Knapp nicht bestanden - schau den Film nochmal.',6:'Noch Uebung noetig.'};
+
+    const d=document.getElementById('filmGradeDisplay');
+    d.style.display='block';
+    d.innerHTML='<div>Deine Note:</div><div class="grade-badge grade-'+g+'">Note '+g+' - '+gn[g]+'</div><div style="margin-top:8px;font-size:.85rem;color:var(--text2);">'+fC+' von '+t+' Punkten ('+Math.round(p)+'%)</div><div style="margin-top:14px;padding:16px 20px;background:var(--bg3);border:1px solid rgba(255,208,0,.15);border-radius:var(--radius);font-family:Crimson Pro,serif;font-size:1rem;line-height:1.65;text-align:left;color:var(--text);">'+ms[g]+'</div>'+(g>=4?'<div style="margin-top:12px;"><button class="anim-btn go" onclick="rstFQ()">Nochmal</button></div>':'');
+}
+
+function rstFQ(){
+    fC=0;fA=0;cQ=0;
+    document.getElementById('filmQuizScore').style.display='none';
+    document.getElementById('filmGradeDisplay').style.display='none';
+    document.getElementById('quizNavRow').style.display='';
+    document.querySelector('.quiz-step-bar').style.display='';
+    buildFQ();
+    showQ(0);
+}
+
+buildFQ();
+showQ(0);
+
+// GAP FILL
+const GD=[{text:'In einem Atomkraftwerk ist die Wärmequelle ein ',answer:'Atomreaktor'},{text:', der durch kontrollierte ',answer:'Kernspaltung'},{text:' Energie bereitstellt.|Im Reaktordruckbehälter befinden sich ca. 200 ',answer:'Brennelemente'},{text:', die angereichertes ',answer:'Uran'},{text:' enthalten. Als Moderator wirkt ',answer:'Wasser'},{text:', das die Neutronen abbremst.|Die ',answer:'Steuerstäbe'},{text:' enthalten Bor und Cadmium. Sie können ',answer:'Neutronen'},{text:' einfangen und so die Leistung steuern.|Der Druckwasserreaktor hat drei getrennte ',answer:'Kreisläufe'},{text:'. Im ',answer:'Dampferzeuger'},{text:' wird die Wärme übertragen. Der Dampf treibt die ',answer:'Turbinen'},{text:' an.',answer:null}];
+const DEC=['Elektronen','Plutonium','Generator'];
+let aSlot=null;
+function buildGE(){const c=document.getElementById('gapExercise'),b=document.getElementById('wordBank');c.innerHTML='';b.innerHTML='';aSlot=null;document.getElementById('gapScore').style.display='none';GD.forEach((g,i)=>{g.text.split('|').forEach((p,j)=>{if(j>0){c.appendChild(document.createElement('br'));c.appendChild(document.createElement('br'));}c.appendChild(document.createTextNode(p));});if(g.answer!==null){const s=document.createElement('span');s.className='gap';s.dataset.answer=g.answer;s.dataset.idx=i;s.addEventListener('click',function(){clkS(this);});c.appendChild(s);}});const ans=GD.filter(g=>g.answer!==null).map(g=>g.answer),all=[...ans,...DEC];for(let i=all.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[all[i],all[j]]=[all[j],all[i]];}all.forEach(w=>{const ch=document.createElement('span');ch.className='word-card';ch.textContent=w;ch.dataset.word=w;ch.addEventListener('click',function(){clkW(this);});b.appendChild(ch);});}
+function clkS(s){if(s.classList.contains('filled')){const w=s.textContent;s.textContent='';s.classList.remove('filled','correct','wrong');document.querySelectorAll('#wordBank .word-card').forEach(c=>{if(c.dataset.word===w&&c.classList.contains('used'))c.classList.remove('used');});}document.querySelectorAll('.gap.active').forEach(x=>x.classList.remove('active'));s.classList.add('active');aSlot=s;}
+function clkW(ch){if(ch.classList.contains('used')||!aSlot)return;if(aSlot.classList.contains('filled')){const ow=aSlot.textContent;document.querySelectorAll('#wordBank .word-card').forEach(c=>{if(c.dataset.word===ow&&c.classList.contains('used'))c.classList.remove('used');});}aSlot.textContent=ch.dataset.word;aSlot.classList.add('filled');aSlot.classList.remove('active','correct','wrong');ch.classList.add('used');aSlot=null;document.querySelectorAll('.gap').forEach(s=>{if(!s.classList.contains('filled')&&!aSlot){s.classList.add('active');aSlot=s;}});}
+function checkGaps(){const sl=document.querySelectorAll('.gap');let c=0;sl.forEach(s=>{s.classList.remove('active');const a=s.dataset.answer.toLowerCase().trim(),v=(s.textContent||'').toLowerCase().trim();if(v&&(v===a||v.replace(/[- ]/g,'')===a.replace(/[- ]/g,''))){s.classList.remove('wrong');s.classList.add('correct');c++;}else if(v){s.classList.remove('correct');s.classList.add('wrong');}});aSlot=null;document.getElementById('gapScore').style.display='flex';document.getElementById('gapScoreValue').textContent=c+'/'+sl.length;document.getElementById('gapProgressFill').style.width=((c/sl.length)*100)+'%';}
+function showGapHints(){document.querySelectorAll('.gap').forEach(s=>{s.textContent=s.dataset.answer;s.classList.remove('wrong','active');s.classList.add('filled','correct');});document.querySelectorAll('#wordBank .word-card').forEach(c=>c.classList.add('used'));aSlot=null;const sl=document.querySelectorAll('.gap');document.getElementById('gapScore').style.display='flex';document.getElementById('gapScoreValue').textContent=sl.length+'/'+sl.length;document.getElementById('gapProgressFill').style.width='100%';}
+function resetGaps(){buildGE();}
+buildGE();
+
+// MATCHING
+const MD=[{id:'A',term:'Reaktordruckbehälter',def:'Enthält den Reaktorkern aus Stahl (20-25 cm)'},{id:'B',term:'Steuerstäbe',def:'Fangen Neutronen ein (Bor, Cadmium)'},{id:'C',term:'Brennelemente',def:'Enthalten angereichertes Uran (U-235)'},{id:'D',term:'Dampferzeuger',def:'Überträgt Wärme vom Primär- zum Sekundärkreislauf'},{id:'E',term:'Kondensator',def:'Kühlt den Dampf ab und macht ihn zu Wasser'},{id:'F',term:'Kühlturm',def:'Gibt überschüssige Wärme an die Umgebung ab'}];
+let aDrop=null;
+function shuf(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function buildM(){aDrop=null;const r=document.getElementById('matchRows'),p=document.getElementById('matchPool'),f=document.getElementById('matchFeedback');r.innerHTML='';p.innerHTML='';f.className='result-msg';f.style.display='none';MD.forEach(d=>{const row=document.createElement('div');row.className='match-row';row.innerHTML='<div class="match-term">'+d.term+'</div>';const dr=document.createElement('div');dr.className='match-drop';dr.dataset.id=d.id;dr.addEventListener('click',function(){clkD(this);});row.appendChild(dr);r.appendChild(row);});p.innerHTML='<div class="match-pool-label">📙 Erklärungen:</div>';const it=document.createElement('div');it.className='match-pool-items';shuf(MD).forEach(d=>{const ch=document.createElement('div');ch.className='match-chip';ch.textContent=d.def;ch.dataset.id=d.id;ch.addEventListener('click',function(){clkMC(this);});it.appendChild(ch);});p.appendChild(it);}
+function clkD(d){if(d.classList.contains('filled')){const oid=d.dataset.filled;d.textContent='';d.classList.remove('filled','correct','wrong');delete d.dataset.filled;document.querySelectorAll('.match-chip').forEach(c=>{if(c.dataset.id===oid&&c.classList.contains('used'))c.classList.remove('used');});}document.querySelectorAll('.match-drop.active').forEach(x=>x.classList.remove('active'));d.classList.add('active');aDrop=d;}
+function clkMC(ch){if(ch.classList.contains('used')||!aDrop)return;if(aDrop.classList.contains('filled')){const oid=aDrop.dataset.filled;document.querySelectorAll('.match-chip').forEach(c=>{if(c.dataset.id===oid&&c.classList.contains('used'))c.classList.remove('used');});}aDrop.textContent=ch.textContent;aDrop.dataset.filled=ch.dataset.id;aDrop.classList.add('filled');aDrop.classList.remove('active','correct','wrong');ch.classList.add('used');aDrop=null;document.querySelectorAll('.match-drop').forEach(d=>{if(!d.classList.contains('filled')&&!aDrop){d.classList.add('active');aDrop=d;}});}
+function checkMatch(){const dr=document.querySelectorAll('.match-drop');let c=0;dr.forEach(d=>{d.classList.remove('active');if(d.dataset.filled===d.dataset.id){d.classList.remove('wrong');d.classList.add('correct');c++;}else if(d.dataset.filled){d.classList.remove('correct');d.classList.add('wrong');}});aDrop=null;const f=document.getElementById('matchFeedback');if(c===MD.length){f.className='result-msg show good';f.textContent='&#127881; Alle '+c+' richtig!';}else{f.className='result-msg show bad';f.textContent=c+' von '+MD.length+' richtig.';}}
+function resetMatch(){buildM();}
+buildM();
+
+// FREE TEXT
+const NT_API='https://englisch-9.onrender.com';
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+async function checkFreeText(tid,fid){const inp=document.getElementById(tid),fb=document.getElementById(fid),txt=String(inp?.value||'').trim(),st=Math.max(1,Math.min(4,+(inp?.dataset?.step||1)));if(txt.length<20){fb.className='result-msg show bad';fb.textContent='Bitte schreibe mindestens 2-3 Saetze.';return;}fb.className='result-msg show good';fb.innerHTML='<span class="loading-spinner"></span> KI bewertet...';try{const r=await fetch(`${NT_API}/api/nt/app10/coach`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:'Erklaere, wie ein Druckwasserreaktor funktioniert. Gehe auf die drei Kreislaeufe und die Energieumwandlung ein.',answer:txt,step:st})});if(!r.ok)throw new Error();const d=await r.json(),ns=Math.max(1,Math.min(4,+(d.step||st)));if(inp)inp.dataset.step=''+ns;const mi=(Array.isArray(d.microTasks)?d.microTasks:[]).map(x=>'<li>'+esc(x)+'</li>').join(''),fr=(Array.isArray(d.sentenceFrames)?d.sentenceFrames:[]).map(x=>'<li><code>'+esc(x)+'</code></li>').join('');fb.className='result-msg show good';fb.innerHTML='<strong>KI-Coaching (Schritt '+ns+'/4)</strong><br>Punkte: <strong>'+esc(d.points)+'</strong>/10 - Note: <strong>'+esc(d.grade)+'</strong><br><br><strong>Feedback:</strong> '+esc(d.feedback||'')+'<br><br><strong>Mini-Schritte:</strong><ul>'+(mi||'<li>Beschreibe die Waermequelle.</li>')+'</ul><strong>Satzrahmen:</strong><ul>'+(fr||'<li><code>Im Primaerkreislauf ____.</code></li>')+'</ul><strong>Auftrag:</strong> '+esc(d.rewriteHint||'Ueberarbeite deine Antwort.');}catch(e){fb.className='result-msg show bad';fb.textContent='KI nicht verfuegbar.';}}
+
+window.addEventListener('resize',()=>{if(document.getElementById('animation').classList.contains('active'))initR();});
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
