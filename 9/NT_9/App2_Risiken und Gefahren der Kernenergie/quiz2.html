@@ -1,0 +1,458 @@
+﻿<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz 2 | Risiken und Gefahren der Kernenergie</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Open Sans', sans-serif;
+      background: #0e0f11;
+      color: #d5d9e3;
+      line-height: 1.45;
+    }
+    .wrap {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .head {
+      background: #181b23;
+      border: 1px solid #2b3140;
+      border-left: 4px solid #f0a030;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .head h1 {
+      margin: 0 0 .25rem;
+      font-size: 1.7rem;
+      color: #fff;
+    }
+    .head p {
+      margin: 0;
+      color: #aeb6c8;
+      font-size: 1.06rem;
+    }
+    .navlink {
+      display: inline-block;
+      margin-top: .6rem;
+      color: #f0a030;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: .85rem;
+    }
+
+    .progress {
+      background: #1a1e28;
+      border: 1px solid #2c3342;
+      border-radius: 12px;
+      padding: .8rem .9rem;
+      margin-bottom: .9rem;
+    }
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      gap: .6rem;
+      font-size: 1.04rem;
+      color: #b9c2d8;
+      margin-bottom: .45rem;
+    }
+    .bar {
+      width: 100%;
+      height: 10px;
+      background: #12151d;
+      border: 1px solid #2b3140;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #f0a030, #ffc86e);
+      transition: width .25s ease;
+    }
+
+    .q {
+      background: #1a1e28;
+      border: 1px solid #2c3342;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: .9rem;
+    }
+    .qimg {
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+      display: block;
+      border-bottom: 1px solid #2c3342;
+      background: #111;
+    }
+    .qimg.contain {
+      object-fit: contain;
+      background: #0f131b;
+    }
+    .crop {
+      width: 100%;
+      height: 280px;
+      border-bottom: 1px solid #2c3342;
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-position: center;
+    }
+    .qbody { padding: 1rem; }
+    .qtitle {
+      margin: 0 0 .8rem;
+      font-size: 1.28rem;
+      color: #fff;
+      font-weight: 700;
+    }
+    .opts label {
+      display: block;
+      margin: .45rem 0;
+      font-size: 1.12rem;
+      color: #d5d9e3;
+      cursor: pointer;
+      padding: .6rem .65rem;
+      border: 1px solid #2c3342;
+      border-radius: 8px;
+      background: #171b24;
+    }
+    .opts input { margin-right: .5rem; }
+    .opts label.correct {
+      border-color: #4aca79;
+      background: rgba(72,199,116,.16);
+      color: #aef2c3;
+    }
+    .opts label.wrong {
+      border-color: #f0678a;
+      background: rgba(241,70,104,.12);
+      color: #ffc1cf;
+    }
+    .opts.disabled label {
+      cursor: default;
+    }
+
+    .feedback {
+      margin-top: .8rem;
+      font-size: 1.02rem;
+      padding: .7rem .8rem;
+      border-radius: 8px;
+      display: none;
+      border: 1px solid #2c3342;
+      background: #141923;
+    }
+    .feedback.ok {
+      color: #9df0b8;
+      border-color: rgba(72,199,116,.45);
+      background: rgba(72,199,116,.13);
+    }
+    .feedback.bad {
+      color: #ffc4d1;
+      border-color: rgba(241,70,104,.45);
+      background: rgba(241,70,104,.12);
+    }
+
+    .actions {
+      display: flex;
+      gap: .6rem;
+      justify-content: flex-end;
+    }
+    .btn {
+      background: #f0a030;
+      color: #0e0f11;
+      border: 0;
+      border-radius: 8px;
+      padding: .8rem 1.2rem;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 1.05rem;
+    }
+    .btn[disabled] {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    .result {
+      margin-top: 1rem;
+      background: #1a1e28;
+      border: 1px solid #2c3342;
+      border-radius: 12px;
+      padding: 1rem;
+      display: none;
+      text-align: center;
+    }
+    .thumb {
+      font-size: 6rem;
+      line-height: 1;
+      margin: .2rem 0 .6rem;
+      display: inline-block;
+      transform-origin: center;
+    }
+    .thumb.mid { transform: rotate(90deg); }
+    .thumb.down { transform: rotate(180deg); }
+    .score {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: .35rem;
+    }
+    .hint {
+      font-size: 1.08rem;
+      color: #b7c0d4;
+      margin: 0;
+    }
+
+    @media (max-width: 700px) {
+      .qimg, .crop { height: 210px; }
+    }
+
+    /* 16:9 / Beamer-Modus: kompakter, damit alles sichtbar bleibt */
+    @media (min-width: 1024px) and (min-aspect-ratio: 16/10) {
+      .wrap {
+        max-width: min(1400px, 96vw);
+        padding: .6rem .8rem;
+      }
+      .head {
+        padding: .7rem .85rem;
+        margin-bottom: .55rem;
+      }
+      .head h1 { font-size: 1.18rem; }
+      .head p { font-size: .98rem; }
+      .navlink { margin-top: .35rem; font-size: .95rem; }
+
+      .progress {
+        padding: .55rem .7rem;
+        margin-bottom: .55rem;
+      }
+      .progress-top {
+        font-size: 1rem;
+        margin-bottom: .3rem;
+      }
+      .bar { height: 8px; }
+
+      .q {
+        margin-bottom: .55rem;
+      }
+      .q.has-media {
+        display: grid;
+        grid-template-columns: 42% 58%;
+        min-height: 52vh;
+        max-height: 58vh;
+      }
+      .q.has-media .qimg,
+      .q.has-media .crop {
+        height: 100%;
+        max-height: 58vh;
+        border-bottom: 0;
+        border-right: 1px solid #2c3342;
+      }
+      .qbody {
+        padding: .7rem .8rem;
+        overflow: auto;
+      }
+      .qtitle {
+        margin: 0 0 .5rem;
+        font-size: 1.18rem;
+      }
+      .opts label {
+        margin: .3rem 0;
+        font-size: 1.03rem;
+        padding: .46rem .56rem;
+      }
+      .feedback {
+        margin-top: .45rem;
+        font-size: .98rem;
+        padding: .42rem .52rem;
+      }
+      .actions { justify-content: flex-end; }
+      .btn {
+        font-size: 1rem;
+        padding: .62rem 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="head">
+      <h1>Quiz 2: Kernenergie (18 Fragen)</h1>
+      <p>Es ist immer nur eine Frage sichtbar. Nach deiner Auswahl siehst du sofort die Auflösung.</p>
+      <a class="navlink" href="übersicht_gruppenarbeit.html#radioaktivitaet">Zur Übersicht</a>
+    </header>
+
+    <section class="progress">
+      <div class="progress-top">
+        <span id="progressText">Frage 1 von 18</span>
+        <span id="progressRight">0 richtig</span>
+      </div>
+      <div class="bar"><div id="barFill" class="bar-fill"></div></div>
+    </section>
+
+    <section id="questionCard" class="q"></section>
+
+    <div class="actions">
+      <button id="nextBtn" class="btn" type="button" disabled>Weiter</button>
+    </div>
+
+    <section id="result" class="result">
+      <div id="thumb" class="thumb">👍</div>
+      <div id="score" class="score"></div>
+      <p id="msg" class="hint"></p>
+    </section>
+  </div>
+
+  <script>
+    const questions = [
+      { t: '1) In welchem Jahr passierte der schwere Reaktorunfall in Tschernobyl?', img: 'Tschernobyl/zerstörung.jpeg', a: ['1979', '1986', '1999', '2011'], c: 1 },
+      { t: '2) Was war ein zentraler Auslöser in Tschernobyl laut Ablauf?', img: 'Tschernobyl/2.jpg', a: ['Tsunami im Pazifik', 'Testfehler + abgeschaltete Schutzsysteme', 'Meteoriteneinschlag', 'Nur Materialermüdung'], c: 1 },
+      { t: '3) Was folgt im Tschernobyl-Ablauf auf "Explosion und Brand"?', img: 'Tschernobyl/1.jpg', a: ['Sofortiges Endlager', 'Radioaktive Wolke', 'Neubau des Reaktors', 'Wiederanlauf des Betriebs'], c: 1 },
+      { t: '4) Was bedeutet "Sperrzone"?', img: 'Tschernobyl/spielplatz.jpg', a: ['Ein Freizeitpark', 'Ein Gebiet wird gesperrt und bleibt lange unbewohnbar', 'Ein Schutzanzug', 'Ein Messgerät'], c: 1 },
+      { t: '5) Was löste die Katastrophe von Fukushima aus?', img: 'Fukushima/fukushima_epizentrum.png', a: ['Waldbrand', 'Stromüberschuss', 'Starkes Seebeben mit Tsunami', 'Vulkanausbruch'], c: 2 },
+      { t: '6) Warum wurde die Lage im Kraftwerk Fukushima so kritisch?', img: 'Fukushima/fukushima_luftbild.jpg', a: ['Zu viel Personal', 'Kühlung fiel aus nach Stromausfall', 'Zu kleiner Reaktor', 'Zu wenig Brennstoff'], c: 1 },
+      { t: '7) Was bildet sich bei Überhitzung, bevor Explosionen auftreten können?', img: 'Fukushima/fukushima_bloecke.jpg', a: ['Sauerstoff', 'Wasserdampf', 'Wasserstoff', 'Stickstoff'], c: 2 },
+      { t: '8) Wie viele Menschen wurden in Fukushima ungefähr evakuiert?', img: 'Fukushima/fukushima_tsunami.webp', a: ['ca. 15.400', 'ca. 154.000', 'ca. 1,54 Mio.', 'ca. 540.000'], c: 1 },
+      { t: '9) Was beschreibt die Halbwertszeit?', img: 'Radioaktiver_Abfall/halbwert.PNG', a: ['Zeit bis ein Reaktor halb voll ist', 'Zeit bis die Hälfte radioaktiver Atome zerfallen ist', 'Zeit einer Schicht im Kraftwerk', 'Zeit bis ein CASTOR voll ist'], c: 1 },
+      { t: '10) Welche Halbwertszeit hat Plutonium-239 ungefähr?', img: 'Radioaktiver_Abfall/endlager.PNG', a: ['24 Tage', '240 Jahre', '2.400 Jahre', '24.000 Jahre'], c: 3 },
+      { t: '11) Wozu dienen CASTOR-Behälter?', img: 'Radioaktiver_Abfall/Castortransport.PNG', a: ['Sicherer Transport und Lagerung radioaktiver Stoffe', 'Uranabbau in Minen', 'Reaktorsteuerung', 'Kühlung von Turbinen'], c: 0 },
+      { t: '12) Was ist mit Mehrbarrierenprinzip gemeint?', img: 'Radioaktiver_Abfall/endlager_deutschland.PNG', a: ['Mehrere Kraftwerke nebeneinander', 'Mehrere Schutzschichten: Behälter, Verfüllung, Gestein', 'Mehrere Züge pro Tag', 'Mehrere Schulbücher'], c: 1 },
+      { t: '13) Welche Reihenfolge ist beim Abfallweg richtig?', a: ['Endlager -> Uranabbau -> Nutzung -> Abkühlen', 'Uranabbau -> Brennelemente -> Nutzung -> Abkühlen', 'Nutzung -> Uranabbau -> Endlager -> Zwischenlager', 'Brennelemente -> Uranabbau -> Transport -> Nutzung'], c: 1 },
+      { t: '14) Was passiert direkt nach dem Abkühlen laut Ablaufgrafik?', a: ['Sofortiger Abtransport ins Ausland', 'Zwischenlagerung', 'Wiederverwendung im selben Reaktor', 'Verbrennung'], c: 1 },
+      { t: '15) Was ist das Ziel der Endlagerung?', img: 'Radioaktiver_Abfall/endlager_deutschland.PNG', a: ['Kurzfristige Lagerung für Wochen', 'Sichere, sehr langfristige Einschließung tief unter der Erde', 'Stromproduktion steigern', 'Tourismus fördern'], c: 1 },
+      { t: '16) Welche Aussage zu Tschernobyl-Folgen passt?', img: 'Tschernobyl/kind.jpg', a: ['Folgen nur wenige Tage', 'Langzeitfolgen betreffen Gesundheit, Umwelt und Gesellschaft', 'Keine Evakuierung notwendig', 'Nur technischer Schaden ohne Umweltwirkung'], c: 1 },
+      { t: '17) Warum waren Regionen in Europa unterschiedlich stark belastet?', img: 'Tschernobyl/1.jpg', a: ['Nur wegen Entfernung', 'Wegen Wind- und Regenlagen', 'Wegen Sprache im Land', 'Wegen Bevölkerungszahl'], c: 1 },
+      { t: '18) Welche politische Folge gab es in Deutschland nach Fukushima?', img: 'Fukushima/fukushima_luftbild.jpg', a: ['Neubau vieler Kernkraftwerke', 'Keine Änderung', 'Beschluss zum Atomausstieg', 'Nur mehr Kohlekraft'], c: 2 }
+    ];
+
+    const questionCard = document.getElementById('questionCard');
+    const progressText = document.getElementById('progressText');
+    const progressRight = document.getElementById('progressRight');
+    const barFill = document.getElementById('barFill');
+    const nextBtn = document.getElementById('nextBtn');
+
+    const result = document.getElementById('result');
+    const thumb = document.getElementById('thumb');
+    const score = document.getElementById('score');
+    const msg = document.getElementById('msg');
+
+    let current = 0;
+    let points = 0;
+    let answered = false;
+
+    function updateProgress() {
+      progressText.textContent = `Frage ${Math.min(current + 1, questions.length)} von ${questions.length}`;
+      progressRight.textContent = `${points} richtig`;
+      const done = current;
+      barFill.style.width = `${(done / questions.length) * 100}%`;
+    }
+
+    function renderQuestion() {
+      const q = questions[current];
+      answered = false;
+      nextBtn.disabled = true;
+      questionCard.classList.toggle('has-media', !!(q.crop || q.img));
+
+      let media = '';
+      if (q.crop) {
+        media = `<div class="crop" style="background-image:url('${q.crop.src}');background-position:${q.crop.pos};"></div>`;
+      } else if (q.img) {
+        const fitClass = q.fit === 'contain' ? ' contain' : '';
+        media = `<img class="qimg${fitClass}" src="${q.img}" alt="Bild zur Frage ${current + 1}">`;
+      }
+
+      const opts = q.a.map((opt, i) => {
+        return `<label data-opt="${i}"><input type="radio" name="q" value="${i}"> ${opt}</label>`;
+      }).join('');
+
+      questionCard.innerHTML = `
+        ${media}
+        <div class="qbody">
+          <p class="qtitle">${q.t}</p>
+          <div id="opts" class="opts">${opts}</div>
+          <div id="feedback" class="feedback"></div>
+        </div>
+      `;
+
+      const optsBox = document.getElementById('opts');
+      const feedback = document.getElementById('feedback');
+
+      optsBox.querySelectorAll('input[type="radio"]').forEach(input => {
+        input.addEventListener('change', () => {
+          if (answered) return;
+          answered = true;
+
+          const picked = Number(input.value);
+          const correct = q.c;
+          const labels = Array.from(optsBox.querySelectorAll('label'));
+
+          labels.forEach((label, idx) => {
+            const radio = label.querySelector('input');
+            radio.disabled = true;
+            if (idx === correct) label.classList.add('correct');
+            if (idx === picked && picked !== correct) label.classList.add('wrong');
+          });
+
+          optsBox.classList.add('disabled');
+          if (picked === correct) {
+            points++;
+            feedback.className = 'feedback ok';
+            feedback.textContent = 'Richtig. Gute Antwort!';
+          } else {
+            feedback.className = 'feedback bad';
+            feedback.textContent = `Falsch. Richtige Antwort: ${q.a[correct]}`;
+          }
+          feedback.style.display = 'block';
+
+          nextBtn.disabled = false;
+          updateProgress();
+        });
+      });
+
+      updateProgress();
+    }
+
+    function showResult() {
+      const percent = (points / questions.length) * 100;
+      thumb.className = 'thumb';
+      thumb.textContent = '👍';
+
+      if (percent > 80) {
+        msg.textContent = 'Stark! Mehr als 80% erreicht.';
+      } else if (percent >= 50) {
+        thumb.classList.add('mid');
+        msg.textContent = 'Solide! Zwischen 50% und 80% erreicht.';
+      } else {
+        thumb.classList.add('down');
+        msg.textContent = 'Unter 50%. Bitte nochmal wiederholen.';
+      }
+
+      score.textContent = `${points} / ${questions.length} richtig (${Math.round(percent)}%)`;
+      barFill.style.width = '100%';
+      progressText.textContent = `Fertig: ${questions.length} von ${questions.length}`;
+      progressRight.textContent = `${points} richtig`;
+
+      questionCard.style.display = 'none';
+      nextBtn.style.display = 'none';
+      result.style.display = 'block';
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+
+    nextBtn.addEventListener('click', () => {
+      if (!answered) return;
+      current++;
+      if (current >= questions.length) {
+        showResult();
+      } else {
+        renderQuestion();
+      }
+    });
+
+    renderQuestion();
+  </script>
+</body>
+</html>
