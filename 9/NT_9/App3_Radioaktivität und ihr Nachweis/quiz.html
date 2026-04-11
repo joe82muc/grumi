@@ -1,0 +1,539 @@
+﻿<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz | Radioaktivität und Nachweis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #181818;
+      --bg-card: #222222;
+      --gold: #f0a030;
+      --gold-dim: #c4842a;
+      --gold-glow: rgba(240,160,48,.15);
+      --text: #e8e0d4;
+      --text-muted: #a09888;
+      --green: #27ae60;
+      --red: #c0392b;
+      --radius: 12px;
+      --shadow: 0 4px 24px rgba(0,0,0,.45);
+      --font-display: 'Outfit', sans-serif;
+      --font-body: 'Crimson Pro', Georgia, serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    .site-header {
+      background: linear-gradient(135deg, #1a1a1a 0%, #222 100%);
+      border-bottom: 3px solid var(--gold);
+      padding: 2rem 2rem 1.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .site-header::before {
+      content: '';
+      position: absolute;
+      top: -60%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, var(--gold-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .brand-kicker {
+      font-family: var(--font-display);
+      font-size: .8rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: .3rem;
+    }
+    .site-header h1 {
+      font-family: var(--font-display);
+      font-size: clamp(1.2rem, 3.5vw, 1.9rem);
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.25;
+    }
+    .subtitle {
+      font-size: .9rem;
+      color: var(--text-muted);
+      margin-top: .3rem;
+    }
+    .main-nav {
+      display: flex;
+      justify-content: center;
+      gap: .8rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .main-nav a {
+      font-family: var(--font-display);
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--gold);
+      text-decoration: none;
+      padding: .4rem 1rem;
+      border: 1.5px solid var(--gold-dim);
+      border-radius: 100px;
+      transition: all .25s;
+    }
+    .main-nav a:hover {
+      background: var(--gold);
+      color: var(--bg);
+    }
+
+    .detail-main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+    }
+    .detail-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2rem 2rem 2.5rem;
+    }
+
+    .btn {
+      font-family: var(--font-display);
+      font-size: .82rem;
+      font-weight: 600;
+      padding: .5rem 1.1rem;
+      border-radius: 100px;
+      text-decoration: none;
+      display: inline-block;
+      transition: all .25s;
+      cursor: pointer;
+      border: none;
+    }
+    .btn.primary {
+      background: var(--gold);
+      color: var(--bg);
+    }
+    .btn.primary:hover {
+      background: #ffb840;
+    }
+    .btn.ghost {
+      background: transparent;
+      color: var(--gold);
+      border: 1.5px solid var(--gold-dim);
+    }
+    .btn.ghost:hover {
+      background: var(--gold);
+      color: var(--bg);
+    }
+
+    /* --- PROGRESS --- */
+    #quizProgress {
+      font-family: var(--font-display);
+      font-size: .95rem;
+      color: var(--gold);
+      margin-bottom: 1.2rem;
+      text-align: center;
+    }
+
+    /* --- QUIZ ITEMS --- */
+    .quiz-item {
+      display: none;
+    }
+    .quiz-image {
+      width: 100%;
+      max-height: 240px;
+      object-fit: cover;
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+      border: 1px solid #333;
+    }
+    .quiz-item h3 {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+    .quiz-item label {
+      display: block;
+      font-size: 1rem;
+      padding: .65rem 1rem;
+      margin-bottom: .5rem;
+      background: #2a2a2a;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+      border: 1.5px solid transparent;
+    }
+    .quiz-item label:hover {
+      background: #333;
+      border-color: var(--gold-dim);
+    }
+    .quiz-item input[type="radio"] {
+      accent-color: var(--gold);
+      margin-right: .5rem;
+      transform: scale(1.15);
+      vertical-align: middle;
+    }
+
+    .question-feedback {
+      margin-top: .7rem;
+      padding: .6rem 1rem;
+      border-radius: var(--radius);
+      font-family: var(--font-display);
+      font-size: .9rem;
+      font-weight: 600;
+      min-height: 1.2em;
+    }
+    .question-feedback:empty {
+      display: none;
+    }
+    .question-feedback.ok {
+      background: rgba(39,174,96,.15);
+      color: var(--green);
+      border: 1px solid rgba(39,174,96,.3);
+    }
+    .question-feedback.bad {
+      background: rgba(192,57,43,.12);
+      color: #e74c3c;
+      border: 1px solid rgba(192,57,43,.25);
+    }
+
+    /* --- NAV BUTTONS --- */
+    .actions {
+      display: flex;
+      gap: .6rem;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+      justify-content: center;
+    }
+
+    /* --- RESULT --- */
+    #auswertung {
+      display: none;
+      margin-top: 1.5rem;
+      background: #1e1e1e;
+      border: 1.5px solid var(--gold-dim);
+      border-radius: var(--radius);
+      padding: 1.3rem 1.5rem;
+    }
+    #auswertung h3 {
+      font-family: var(--font-display);
+      color: var(--gold);
+      margin-bottom: .5rem;
+    }
+    #auswertung p {
+      margin-bottom: .4rem;
+    }
+    #auswertung ul {
+      list-style: none;
+      margin-top: .5rem;
+    }
+    #auswertung li {
+      font-size: .95rem;
+      padding: .25rem 0;
+      border-bottom: 1px solid #2a2a2a;
+    }
+
+    @media (max-width: 600px) {
+      .detail-card { padding: 1.2rem 1rem 2rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand-wrap">
+      <p class="brand-kicker">Mittelschule am Sportpark</p>
+      <h1>Quiz: Radioaktivität und Nachweis</h1>
+      <p class="subtitle">Teste dein Wissen mit 9 Fragen</p>
+    </div>
+        <nav class="main-nav" aria-label="Navigation">
+      <a href="uebersich_gruppenarbeit.html">Zur Übersicht</a>
+      <a href="radioaktivitaet-ueberall.html">Text 1</a>
+      <a href="nachweis-radioaktiver-strahlung.html">Text 2</a>
+      <a href="arbeitsauftraege-text1.html">Aufträge T1</a>
+      <a href="arbeitsauftraege-text2.html">Aufträge T2</a>
+    </nav>
+  </header>
+
+  <main class="detail-main" id="quiz">
+    <section class="detail-card">
+
+      <div id="quizProgress"></div>
+
+      <div class="quiz-list">
+        <article class="quiz-item">
+          <img src="images/Bild%20von%20Uranproben%20im%20Studio-Layout_ki.png" alt="Uranproben" class="quiz-image" />
+          <h3>1) Welche Aussage zur natürlichen Radioaktivität ist richtig?</h3>
+          <label><input type="radio" name="q1" value="a" /> Es gibt sie nur in Kernkraftwerken.</label>
+          <label><input type="radio" name="q1" value="b" /> Sie ist überall vorhanden, aber unterschiedlich stark.</label>
+          <label><input type="radio" name="q1" value="c" /> Sie kommt nur im Weltraum vor.</label>
+          <label><input type="radio" name="q1" value="d" /> Sie ist in ganz Deutschland gleich.</label>
+        </article>
+
+        <article class="quiz-item">
+          <img src="images/akw_ki.png" alt="Atomkraftwerk" class="quiz-image" />
+          <h3>2) Wodurch entsteht künstliche Radioaktivität laut Text?</h3>
+          <label><input type="radio" name="q2" value="a" /> Vor allem in Kernkraftwerken und in der Medizin.</label>
+          <label><input type="radio" name="q2" value="b" /> Nur in Vulkanen.</label>
+          <label><input type="radio" name="q2" value="c" /> Nur durch Flugzeuge.</label>
+          <label><input type="radio" name="q2" value="d" /> Nur in Gewittern.</label>
+        </article>
+
+        <article class="quiz-item">
+          <img src="images/fotoplatten_ki.png" alt="Fotoplatte" class="quiz-image" />
+          <h3>3) Was zeigte die geschwärzte Fotoplatte bei Becquerel?</h3>
+          <label><input type="radio" name="q3" value="a" /> Das Papier war nass.</label>
+          <label><input type="radio" name="q3" value="b" /> Das Uran sendete unsichtbare Strahlung aus.</label>
+          <label><input type="radio" name="q3" value="c" /> Es war gar kein Uran vorhanden.</label>
+          <label><input type="radio" name="q3" value="d" /> Die Fotoplatte war kaputt.</label>
+        </article>
+
+        <article class="quiz-item">
+          <img src="images/nebelkammer_ki.png" alt="Nebelkammer" class="quiz-image" />
+          <h3>4) Was macht eine Nebelkammer sichtbar?</h3>
+          <label><input type="radio" name="q4" value="a" /> Nur Lichtstrahlen.</label>
+          <label><input type="radio" name="q4" value="b" /> Spuren der Strahlung als feine Linien.</label>
+          <label><input type="radio" name="q4" value="c" /> Nur Temperaturen.</label>
+          <label><input type="radio" name="q4" value="d" /> Nur Geräusche.</label>
+        </article>
+
+        <article class="quiz-item">
+          <img src="images/Messaufbau%20zur%20Detektion%20von%20Strahlung.png" alt="Geiger-Müller-Zähler" class="quiz-image" />
+          <h3>5) Was misst ein Geiger-Müller-Zähler?</h3>
+          <label><input type="radio" name="q5" value="a" /> Die Farbe von Gestein.</label>
+          <label><input type="radio" name="q5" value="b" /> Die Stärke der Strahlung über Impulse.</label>
+          <label><input type="radio" name="q5" value="c" /> Den Luftdruck im Klassenraum.</label>
+          <label><input type="radio" name="q5" value="d" /> Nur die Uhrzeit.</label>
+        </article>
+
+        <article class="quiz-item">
+          <img src="images/Messaufbau%20zur%20Detektion%20von%20Strahlung.png" alt="Messgerät" class="quiz-image" />
+          <h3>6) Was bedeutet "Zählrate"?</h3>
+          <label><input type="radio" name="q6" value="a" /> Anzahl der Stromimpulse/Klicks pro Minute.</label>
+          <label><input type="radio" name="q6" value="b" /> Anzahl der Schülerinnen und Schüler.</label>
+          <label><input type="radio" name="q6" value="c" /> Anzahl der Fotos.</label>
+          <label><input type="radio" name="q6" value="d" /> Anzahl der Kraftwerke.</label>
+        </article>
+
+        <article class="quiz-item">
+          <img src="images/Messaufbau%20zur%20Detektion%20von%20Strahlung.png" alt="Nullrate" class="quiz-image" />
+          <h3>7) Was ist die Nullrate?</h3>
+          <label><input type="radio" name="q7" value="a" /> Die höchste Tagesstrahlung.</label>
+          <label><input type="radio" name="q7" value="b" /> Die Strahlung ohne Messgerät.</label>
+          <label><input type="radio" name="q7" value="c" /> Die natürliche Hintergrundstrahlung ohne Probe.</label>
+          <label><input type="radio" name="q7" value="d" /> Ein Messfehler.</label>
+        </article>
+
+        <article class="quiz-item">
+          <img src="images/Bild%20von%20Uranproben%20im%20Studio-Layout_ki.png" alt="Glühstrumpf" class="quiz-image" />
+          <h3>8) Warum ist der Glühstrumpf ein gutes Beispiel?</h3>
+          <label><input type="radio" name="q8" value="a" /> Er sendet starke, sofort gefährliche Strahlung aus.</label>
+          <label><input type="radio" name="q8" value="b" /> Seine Strahlung liegt nur wenig über der Nullrate.</label>
+          <label><input type="radio" name="q8" value="c" /> Er erzeugt Strom.</label>
+          <label><input type="radio" name="q8" value="d" /> Er misst die Strahlung selbst.</label>
+        </article>
+
+        <article class="quiz-item">
+          <img src="images/Currie_Quelle%20Wikimedia%20Commons%20Public%20Domain.jfif" alt="Pierre und Marie Curie" class="quiz-image" />
+          <h3>9) Welche Aussage zu Curie und Becquerel passt?</h3>
+          <label><input type="radio" name="q9" value="a" /> Becquerel entdeckte 1896 die Radioaktivität, Curie forschten weiter.</label>
+          <label><input type="radio" name="q9" value="b" /> Curie entdeckten das Internet.</label>
+          <label><input type="radio" name="q9" value="c" /> Becquerel baute das erste Atomkraftwerk.</label>
+          <label><input type="radio" name="q9" value="d" /> Keiner von ihnen forschte zu Strahlung.</label>
+        </article>
+      </div>
+
+      <div class="actions" id="quizNav">
+        <a class="btn ghost" href="uebersich_gruppenarbeit.html">Zur Übersicht</a>
+        <button class="btn ghost" type="button" id="prevQuestion">Zurück</button>
+        <button class="btn primary" type="button" id="nextQuestion">Weiter</button>
+        <button class="btn primary" type="button" id="checkQuiz" style="display:none;">Quiz auswerten</button>
+        <button class="btn ghost" type="button" id="resetQuiz">Zurücksetzen</button>
+      </div>
+
+      <div id="auswertung"></div>
+    </section>
+  </main>
+
+  <script>
+    const solutions = {
+      q1: 'b', q2: 'a', q3: 'b',
+      q4: 'b', q5: 'b', q6: 'a',
+      q7: 'c', q8: 'b', q9: 'a'
+    };
+
+    const praisePool = [
+      'Stark, das ist richtig.',
+      'Sehr gut, genau so.',
+      'Richtig beantwortet, top.',
+      'Perfekt, weiter so.',
+      'Klasse, diese Antwort passt.'
+    ];
+
+    const critiquePool = [
+      'Noch nicht richtig.',
+      'Knapp daneben, versuch es nochmal.',
+      'Diese Option stimmt leider nicht.',
+      'Das war nicht die richtige Antwort.',
+      'Fast, aber hier musst du nochmal prüfen.'
+    ];
+
+    const quizItems = Array.from(document.querySelectorAll('.quiz-item'));
+    const progressBox = document.getElementById('quizProgress');
+    const prevBtn = document.getElementById('prevQuestion');
+    const nextBtn = document.getElementById('nextQuestion');
+    const checkBtn = document.getElementById('checkQuiz');
+    const resetBtn = document.getElementById('resetQuiz');
+    const resultBox = document.getElementById('auswertung');
+    const feedbackState = {};
+    let currentIndex = 0;
+
+    function nextMessage(pool, key, type) {
+      if (!feedbackState[key]) feedbackState[key] = { ok: 0, bad: 0 };
+      const index = feedbackState[key][type] % pool.length;
+      feedbackState[key][type] += 1;
+      return pool[index];
+    }
+
+    function getCorrectText(questionName) {
+      const correctValue = solutions[questionName];
+      const correctInput = document.querySelector(`input[name="${questionName}"][value="${correctValue}"]`);
+      if (!correctInput) return '';
+      const label = correctInput.closest('label');
+      return label ? label.textContent.trim() : '';
+    }
+
+    function ensureFeedbackBox(item) {
+      let box = item.querySelector('.question-feedback');
+      if (!box) {
+        box = document.createElement('div');
+        box.className = 'question-feedback';
+        box.setAttribute('aria-live', 'polite');
+        item.appendChild(box);
+      }
+      return box;
+    }
+
+    function showImmediateFeedback(input) {
+      const questionName = input.name;
+      const picked = input.value;
+      const item = input.closest('.quiz-item');
+      if (!item) return;
+
+      const box = ensureFeedbackBox(item);
+      const isCorrect = solutions[questionName] === picked;
+
+      if (isCorrect) {
+        box.className = 'question-feedback ok';
+        box.textContent = nextMessage(praisePool, questionName, 'ok');
+      } else {
+        box.className = 'question-feedback bad';
+        const critique = nextMessage(critiquePool, questionName, 'bad');
+        box.textContent = `${critique} Richtige Antwort: ${getCorrectText(questionName)}`;
+      }
+    }
+
+    function renderQuestion() {
+      quizItems.forEach((item, idx) => {
+        item.style.display = idx === currentIndex ? 'block' : 'none';
+      });
+
+      progressBox.innerHTML = `<strong>Frage ${currentIndex + 1} von ${quizItems.length}</strong>`;
+      prevBtn.style.display = currentIndex === 0 ? 'none' : 'inline-block';
+
+      const isLast = currentIndex === quizItems.length - 1;
+      nextBtn.style.display = isLast ? 'none' : 'inline-block';
+      checkBtn.style.display = isLast ? 'inline-block' : 'none';
+    }
+
+    function evaluateQuiz() {
+      let score = 0;
+      let answered = 0;
+      const feedback = [];
+
+      Object.keys(solutions).forEach((q, idx) => {
+        const picked = document.querySelector(`input[name="${q}"]:checked`);
+        if (picked) {
+          answered++;
+          if (picked.value === solutions[q]) {
+            score++;
+            feedback.push(`<li>Frage ${idx + 1}: richtig</li>`);
+          } else {
+            feedback.push(`<li>Frage ${idx + 1}: falsch</li>`);
+          }
+        } else {
+          feedback.push(`<li>Frage ${idx + 1}: nicht beantwortet</li>`);
+        }
+      });
+
+      let note = 'Gut gemacht, weiter so.';
+      if (score <= 3) note = 'Bitte wiederhole die Infoseiten und versuche es erneut.';
+      if (score >= 8) note = 'Sehr stark. Du bist gut vorbereitet.';
+
+      resultBox.style.display = 'block';
+      resultBox.innerHTML = `
+        <h3>Ergebnis</h3>
+        <p><strong>${score} von 9 Punkten</strong> (${answered} beantwortet)</p>
+        <p>${note}</p>
+        <ul>${feedback.join('')}</ul>
+      `;
+      location.hash = 'auswertung';
+    }
+
+    function resetQuiz() {
+      document.querySelectorAll('input[type="radio"]').forEach((el) => { el.checked = false; });
+      document.querySelectorAll('.question-feedback').forEach((box) => {
+        box.textContent = '';
+        box.className = 'question-feedback';
+      });
+      Object.keys(feedbackState).forEach((k) => delete feedbackState[k]);
+      resultBox.style.display = 'none';
+      resultBox.innerHTML = '';
+      currentIndex = 0;
+      renderQuestion();
+      location.hash = 'quiz';
+    }
+
+    quizItems.forEach((item) => {
+      ensureFeedbackBox(item);
+      item.querySelectorAll('input[type="radio"]').forEach((input) => {
+        input.addEventListener('change', () => showImmediateFeedback(input));
+      });
+    });
+
+    prevBtn.addEventListener('click', () => {
+      if (currentIndex > 0) {
+        currentIndex -= 1;
+        renderQuestion();
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (currentIndex < quizItems.length - 1) {
+        currentIndex += 1;
+        renderQuestion();
+      }
+    });
+
+    checkBtn.addEventListener('click', evaluateQuiz);
+    resetBtn.addEventListener('click', resetQuiz);
+
+    renderQuestion();
+  </script>
+</body>
+</html>
+
+
+
