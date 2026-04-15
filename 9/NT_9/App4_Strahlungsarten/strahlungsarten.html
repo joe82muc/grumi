@@ -1183,7 +1183,15 @@ function showResult(id, correct, total) {
 // ═══════════════════════════════════════════
 // KI-RECHERCHE (TAB 4)
 // ═══════════════════════════════════════════
-const NT_API_BASE = 'https://englisch-9.onrender.com';
+const NT_API_FALLBACK = 'https://englisch-9.onrender.com';
+const NT_API_BASES = (() => {
+  const list = [];
+  if (location.protocol === 'http:' || location.protocol === 'https:') {
+    list.push(location.origin);
+  }
+  list.push(NT_API_FALLBACK);
+  return [...new Set(list)];
+})();
 const kiFragen = {
   1: 'Erklaere in 3 kurzen Saetzen, welche Strahlungsart in Rauchmeldern verwendet wird und wie das Prinzip funktioniert.',
   2: 'Erklaere in 3 kurzen Saetzen, wie Gammastrahlung in der Medizin genutzt wird.',
@@ -1195,6 +1203,25 @@ function escHtml(s) {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
+}
+
+async function waitMs(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function postJsonWithTimeout(url, payload, timeoutMs) {
+  const controller = new AbortController();
+  const t = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
+  } finally {
+    clearTimeout(t);
+  }
 }
 
 async function checkKiRecherche(nr) {
@@ -1213,17 +1240,28 @@ async function checkKiRecherche(nr) {
   feedback.textContent = 'KI bewertet...';
 
   try {
-    const res = await fetch(`${NT_API_BASE}/api/nt/app10/coach`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        question: frage,
-        answer: text,
-        step: 1
-      })
-    });
+    const payload = { question: frage, answer: text, step: 1 };
+    let res = null;
+    let lastErr = null;
 
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    for (const base of NT_API_BASES) {
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+          res = await postJsonWithTimeout(`${base}/api/nt/app10/coach`, payload, 25000);
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          break;
+        } catch (err) {
+          lastErr = err;
+          if (attempt < 2) {
+            feedback.textContent = 'KI wird gestartet... bitte kurz warten.';
+            await waitMs(2500);
+          }
+        }
+      }
+      if (res && res.ok) break;
+    }
+
+    if (!res || !res.ok) throw (lastErr || new Error('Unbekannter Fehler'));
     const data = await res.json();
 
     const microTasks = Array.isArray(data.microTasks)
@@ -1238,8 +1276,10 @@ async function checkKiRecherche(nr) {
       '<strong>Rückmeldung:</strong> ' + escHtml(data.feedback || 'Gut gemacht, versuche noch genauer zu formulieren.') +
       (microTasks ? '<br><br><strong>Nächste Schritte:</strong><ul>' + microTasks + '</ul>' : '');
   } catch (e) {
+    const msg = String(e && e.message ? e.message : e);
+    console.error('KI-Recherche Fehler:', e);
     feedback.className = 'result-msg show bad';
-    feedback.textContent = 'KI-Bewertung nicht verfügbar. Prüfe bitte den Render-Deploy und die URL.';
+    feedback.textContent = 'KI-Bewertung nicht verfügbar (' + msg + '). Prüfe Render-Deploy, Internet oder CORS.';
   }
 }
 
