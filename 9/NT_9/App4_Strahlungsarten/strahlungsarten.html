@@ -863,7 +863,11 @@ body {
             <span class="prompt-label">Dein Prompt an die KI:</span>
             <div class="prompt-example">„Erkläre mir in genau 3 Sätzen: Welche radioaktive Strahlungsart steckt in einem Rauchmelder und wie funktioniert das?"</div>
           </div>
-          <textarea class="ki-antwort" placeholder="Füge hier die Antwort der KI ein (3 Sätze) …"></textarea>
+          <textarea class="ki-antwort" id="kiAntwort1" placeholder="Füge hier die Antwort der KI ein (3 Sätze) …"></textarea>
+          <div class="btn-row">
+            <button class="check-btn" onclick="checkKiRecherche(1)">Abschicken & KI-Feedback</button>
+          </div>
+          <div class="result-msg" id="kiFeedback1"></div>
         </div>
 
         <div class="recherche-card">
@@ -874,7 +878,11 @@ body {
             <span class="prompt-label">Dein Prompt an die KI:</span>
             <div class="prompt-example">„Erkläre mir in genau 3 Sätzen: Wie wird Gammastrahlung in der Medizin genutzt, zum Beispiel bei Krebs oder beim Röntgen?"</div>
           </div>
-          <textarea class="ki-antwort" placeholder="Füge hier die Antwort der KI ein (3 Sätze) …"></textarea>
+          <textarea class="ki-antwort" id="kiAntwort2" placeholder="Füge hier die Antwort der KI ein (3 Sätze) …"></textarea>
+          <div class="btn-row">
+            <button class="check-btn" onclick="checkKiRecherche(2)">Abschicken & KI-Feedback</button>
+          </div>
+          <div class="result-msg" id="kiFeedback2"></div>
         </div>
 
         <div class="recherche-card">
@@ -885,7 +893,11 @@ body {
             <span class="prompt-label">Dein Prompt an die KI:</span>
             <div class="prompt-example">„Erkläre mir in genau 3 Sätzen: Warum werden manche Lebensmittel mit Strahlung behandelt und ist das Essen danach radioaktiv?"</div>
           </div>
-          <textarea class="ki-antwort" placeholder="Füge hier die Antwort der KI ein (3 Sätze) …"></textarea>
+          <textarea class="ki-antwort" id="kiAntwort3" placeholder="Füge hier die Antwort der KI ein (3 Sätze) …"></textarea>
+          <div class="btn-row">
+            <button class="check-btn" onclick="checkKiRecherche(3)">Abschicken & KI-Feedback</button>
+          </div>
+          <div class="result-msg" id="kiFeedback3"></div>
         </div>
       </div>
     </div>
@@ -1165,6 +1177,69 @@ function showResult(id, correct, total) {
   } else {
     el.textContent = `${correct} von ${total} richtig (${pct}%). Lies den Text nochmal und versuche es erneut!`;
     el.className = 'result-msg show bad';
+  }
+}
+
+// ═══════════════════════════════════════════
+// KI-RECHERCHE (TAB 4)
+// ═══════════════════════════════════════════
+const NT_API_BASE = 'https://englisch-9.onrender.com';
+const kiFragen = {
+  1: 'Erklaere in 3 kurzen Saetzen, welche Strahlungsart in Rauchmeldern verwendet wird und wie das Prinzip funktioniert.',
+  2: 'Erklaere in 3 kurzen Saetzen, wie Gammastrahlung in der Medizin genutzt wird.',
+  3: 'Erklaere in 3 kurzen Saetzen, warum Lebensmittel bestrahlt werden und ob das Essen danach radioaktiv ist.'
+};
+
+function escHtml(s) {
+  return String(s || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+async function checkKiRecherche(nr) {
+  const input = document.getElementById('kiAntwort' + nr);
+  const feedback = document.getElementById('kiFeedback' + nr);
+  const text = String(input?.value || '').trim();
+  const frage = kiFragen[nr] || 'Erklaere das Thema in 3 einfachen Saetzen.';
+
+  if (text.length < 20) {
+    feedback.className = 'result-msg show bad';
+    feedback.textContent = 'Bitte schreibe mindestens 2-3 sinnvolle Sätze in das Feld.';
+    return;
+  }
+
+  feedback.className = 'result-msg show good';
+  feedback.textContent = 'KI bewertet...';
+
+  try {
+    const res = await fetch(`${NT_API_BASE}/api/nt/app10/coach`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        question: frage,
+        answer: text,
+        step: 1
+      })
+    });
+
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    const microTasks = Array.isArray(data.microTasks)
+      ? data.microTasks.map(x => '<li>' + escHtml(x) + '</li>').join('')
+      : '';
+
+    feedback.className = 'result-msg show good';
+    feedback.innerHTML =
+      '<strong>KI-Feedback</strong><br>' +
+      'Punkte: <strong>' + escHtml(data.points) + '</strong>/10 - ' +
+      'Note: <strong>' + escHtml(data.grade) + '</strong><br><br>' +
+      '<strong>Rückmeldung:</strong> ' + escHtml(data.feedback || 'Gut gemacht, versuche noch genauer zu formulieren.') +
+      (microTasks ? '<br><br><strong>Nächste Schritte:</strong><ul>' + microTasks + '</ul>' : '');
+  } catch (e) {
+    feedback.className = 'result-msg show bad';
+    feedback.textContent = 'KI-Bewertung nicht verfügbar. Prüfe bitte den Render-Deploy und die URL.';
   }
 }
 
