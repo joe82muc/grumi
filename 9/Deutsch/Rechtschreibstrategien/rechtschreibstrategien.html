@@ -1,0 +1,1236 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rechtschreibstrategien – Übungen</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --surface2: #1e1e1e;
+    --gold: #ffd000;
+    --gold2: #f0a030;
+    --text: #f0f0f0;
+    --muted: #888;
+    --correct: #4caf50;
+    --wrong: #e53935;
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 3px solid var(--gold);
+    padding: 24px 20px 20px;
+    text-align: center;
+  }
+
+  header h1 {
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    font-weight: 900;
+    color: var(--gold);
+    letter-spacing: -0.5px;
+  }
+
+  header p {
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin-top: 4px;
+  }
+
+  /* Score bar */
+  #scorebar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #0d0d0d;
+    border-bottom: 2px solid #2a2a2a;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 20px;
+    flex-wrap: wrap;
+  }
+
+  #score-display {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--gold);
+  }
+
+  #score-display span { color: var(--text); font-weight: 400; font-size: 0.85rem; margin-left: 6px; }
+
+  #progress-wrap {
+    flex: 1;
+    min-width: 120px;
+    background: #2a2a2a;
+    border-radius: 20px;
+    height: 8px;
+    overflow: hidden;
+  }
+
+  #progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold2), var(--gold));
+    width: 0%;
+    transition: width 0.4s ease;
+    border-radius: 20px;
+  }
+
+  #badge {
+    font-size: 0.8rem;
+    background: var(--surface2);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-weight: 600;
+    transition: all 0.3s;
+  }
+
+  /* Main layout */
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 30px 16px 0;
+  }
+
+  /* Strategy section */
+  .strategy-block {
+    background: var(--surface);
+    border: 1px solid #2a2a2a;
+    border-radius: var(--radius);
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+
+  .strategy-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    background: var(--surface2);
+    border-bottom: 2px solid var(--gold);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .strategy-icon {
+    font-size: 1.4rem;
+    width: 36px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .strategy-title-wrap { flex: 1; }
+
+  .strategy-title {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--gold);
+  }
+
+  .strategy-subtitle {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .strategy-pts {
+    font-size: 0.8rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .strategy-pts b {
+    color: var(--gold);
+    font-size: 1rem;
+  }
+
+  .strategy-arrow {
+    color: var(--muted);
+    font-size: 0.9rem;
+    transition: transform 0.3s;
+  }
+
+  .strategy-block.open .strategy-arrow { transform: rotate(180deg); }
+
+  /* Rule hint */
+  .rule-hint {
+    background: #111;
+    border-left: 3px solid var(--gold2);
+    padding: 10px 18px;
+    font-size: 0.85rem;
+    color: #ccc;
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  /* Exercises container */
+  .exercises {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* Single exercise */
+  .exercise {
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+
+  .ex-prompt {
+    font-size: 0.92rem;
+    color: var(--text);
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+
+  .ex-prompt strong { color: var(--gold); }
+
+  /* MC options */
+  .mc-options {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .mc-btn {
+    background: var(--surface2);
+    border: 1px solid #333;
+    border-radius: 7px;
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.88rem;
+    padding: 9px 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .mc-btn:hover:not(:disabled) {
+    background: #272727;
+    border-color: var(--gold);
+  }
+
+  .mc-btn.correct {
+    background: rgba(76, 175, 80, 0.18);
+    border-color: var(--correct);
+    color: #a5d6a7;
+  }
+
+  .mc-btn.wrong {
+    background: rgba(229, 57, 53, 0.15);
+    border-color: var(--wrong);
+    color: #ef9a9a;
+  }
+
+  /* Gap fill */
+  .gap-input {
+    background: #1a1a1a;
+    border: 1.5px solid #444;
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem;
+    padding: 7px 10px;
+    outline: none;
+    min-width: 80px;
+    max-width: 160px;
+    transition: border-color 0.2s;
+  }
+
+  .gap-input:focus { border-color: var(--gold); }
+  .gap-input.correct { border-color: var(--correct); color: #a5d6a7; }
+  .gap-input.wrong { border-color: var(--wrong); color: #ef9a9a; }
+
+  .check-btn {
+    background: var(--gold);
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.82rem;
+    padding: 7px 16px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: opacity 0.2s;
+  }
+
+  .check-btn:hover { opacity: 0.85; }
+  .check-btn:disabled { opacity: 0.4; cursor: default; }
+
+  /* Sort exercise */
+  .sort-words {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .sort-word {
+    background: var(--surface2);
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    user-select: none;
+  }
+
+  .sort-word:hover { background: #2a2a2a; border-color: var(--gold); }
+  .sort-word.selected { background: rgba(255,208,0,0.15); border-color: var(--gold); color: var(--gold); }
+  .sort-word.correct { background: rgba(76,175,80,0.15); border-color: var(--correct); color: #a5d6a7; }
+  .sort-word.wrong { background: rgba(229,57,53,0.12); border-color: var(--wrong); color: #ef9a9a; }
+
+  .sort-target {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+
+  .sort-bucket {
+    flex: 1;
+    min-width: 120px;
+    background: #0f0f0f;
+    border: 1.5px dashed #333;
+    border-radius: 8px;
+    padding: 10px 12px;
+    min-height: 60px;
+  }
+
+  .sort-bucket-label {
+    font-size: 0.75rem;
+    color: var(--gold2);
+    font-weight: 600;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Feedback */
+  .feedback {
+    font-size: 0.82rem;
+    margin-top: 8px;
+    padding: 6px 10px;
+    border-radius: 5px;
+    display: none;
+  }
+
+  .feedback.show { display: block; }
+  .feedback.ok { background: rgba(76,175,80,0.12); color: #a5d6a7; border: 1px solid rgba(76,175,80,0.3); }
+  .feedback.fail { background: rgba(229,57,53,0.1); color: #ef9a9a; border: 1px solid rgba(229,57,53,0.3); }
+
+  /* Points pop */
+  .pts-pop {
+    position: fixed;
+    pointer-events: none;
+    font-weight: 900;
+    font-size: 1.6rem;
+    color: var(--gold);
+    text-shadow: 0 0 20px rgba(255,208,0,0.6);
+    animation: floatup 1.2s ease forwards;
+    z-index: 9999;
+  }
+
+  @keyframes floatup {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-70px) scale(1.4); }
+  }
+
+  /* Section collapse */
+  .strategy-content { display: none; }
+  .strategy-block.open .strategy-content { display: block; }
+
+  /* Summary */
+  #summary {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+    background: var(--surface);
+    border: 2px solid var(--gold);
+    border-radius: var(--radius);
+    margin: 30px 0;
+  }
+
+  #summary h2 { color: var(--gold); font-size: 2rem; margin-bottom: 8px; }
+  #summary p { color: var(--muted); margin-bottom: 20px; }
+  #summary .big-score { font-size: 3rem; font-weight: 900; color: var(--gold); }
+  #summary .grade { font-size: 1.2rem; color: var(--text); margin-top: 4px; }
+
+  .reset-btn {
+    background: transparent;
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 12px 32px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background 0.2s;
+  }
+
+  .reset-btn:hover { background: rgba(255,208,0,0.1); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📝 Rechtschreibstrategien – Übungen</h1>
+  <p>Klasse 9 · Deutsch · GMS Unterhaching am Sportpark</p>
+</header>
+
+<div id="scorebar">
+  <div id="score-display">⭐ <span id="pts">0</span> / <span id="maxpts">0</span> Punkte <span id="pct"></span></div>
+  <div id="progress-wrap"><div id="progress-bar"></div></div>
+  <div id="badge">Note ?</div>
+</div>
+
+<main>
+
+<!-- ═══════════════════════════════════════════════ STRATEGIE 1 -->
+<div class="strategy-block open" data-strategy="1">
+  <div class="strategy-header" onclick="toggleBlock(this)">
+    <div class="strategy-icon">🔤</div>
+    <div class="strategy-title-wrap">
+      <div class="strategy-title">Wortart überprüfen</div>
+      <div class="strategy-subtitle">Groß- und Kleinschreibung</div>
+    </div>
+    <div class="strategy-pts"><b id="pts-s1">0</b>/6 Pkt.</div>
+    <div class="strategy-arrow">▼</div>
+  </div>
+  <div class="strategy-content">
+    <div class="rule-hint">Schreibe <strong>groß</strong>, wenn ein Nomen, ein Eigenname oder ein höfliches Anredepronomen vorliegt.</div>
+    <div class="exercises">
+
+      <!-- MC 1 -->
+      <div class="exercise" id="ex-s1-1">
+        <div class="ex-prompt">Welches Wort ist in diesem Satz <strong>falsch</strong> geschrieben?<br><em>„Die lehrerin erklärte die Aufgabe schnell, weil die Zeit knapp war."</em></div>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="checkMC(this,'s1-1',true)">lehrerin</button>
+          <button class="mc-btn" onclick="checkMC(this,'s1-1',false)">schnell</button>
+          <button class="mc-btn" onclick="checkMC(this,'s1-1',false)">weil</button>
+          <button class="mc-btn" onclick="checkMC(this,'s1-1',false)">die</button>
+        </div>
+        <div class="feedback" id="fb-s1-1"></div>
+      </div>
+
+      <!-- MC 2 -->
+      <div class="exercise" id="ex-s1-2">
+        <div class="ex-prompt">„Ich schreibe <strong>Ihnen</strong> morgen." – Warum wird „Ihnen" großgeschrieben?</div>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="checkMC(this,'s1-2',false)">Es ist ein Nomen.</button>
+          <button class="mc-btn" onclick="checkMC(this,'s1-2',true)">Es ist ein höfliches Anredepronomen.</button>
+          <button class="mc-btn" onclick="checkMC(this,'s1-2',false)">Es steht am Satzanfang.</button>
+          <button class="mc-btn" onclick="checkMC(this,'s1-2',false)">Es ist ein Eigenname.</button>
+        </div>
+        <div class="feedback" id="fb-s1-2"></div>
+      </div>
+
+      <!-- Gap fill -->
+      <div class="exercise" id="ex-s1-3">
+        <div class="ex-prompt">Ergänze mit Groß- oder Kleinschreibung: Das _______ (spielen/Spielen) macht uns Spaß. – Hier wird das Wort zum <em>Nomen</em> → Schreibe: <input class="gap-input" id="gap-s1-3" placeholder="?"></div>
+        <button class="check-btn" onclick="checkGap('s1-3',['Spielen'])">Prüfen</button>
+        <div class="feedback" id="fb-s1-3"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ STRATEGIE 2 -->
+<div class="strategy-block" data-strategy="2">
+  <div class="strategy-header" onclick="toggleBlock(this)">
+    <div class="strategy-icon">🚦</div>
+    <div class="strategy-title-wrap">
+      <div class="strategy-title">Signalwörter beachten</div>
+      <div class="strategy-subtitle">Groß- und Kleinschreibung</div>
+    </div>
+    <div class="strategy-pts"><b id="pts-s2">0</b>/6 Pkt.</div>
+    <div class="strategy-arrow">▼</div>
+  </div>
+  <div class="strategy-content">
+    <div class="rule-hint">Signalwörter sind z. B. Artikel, Präposition + Artikel (zum, beim …), Pronomen, Mengenangaben und begleitende Adjektive – sie zeigen: Danach folgt oft ein <strong>Nomen → Großschreibung!</strong></div>
+    <div class="exercises">
+
+      <div class="exercise" id="ex-s2-1">
+        <div class="ex-prompt">Welches Wort ist ein Signalwort für Großschreibung?</div>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="checkMC(this,'s2-1',false)">und</button>
+          <button class="mc-btn" onclick="checkMC(this,'s2-1',true)">beim</button>
+          <button class="mc-btn" onclick="checkMC(this,'s2-1',false)">weil</button>
+          <button class="mc-btn" onclick="checkMC(this,'s2-1',false)">dann</button>
+        </div>
+        <div class="feedback" id="fb-s2-1"></div>
+      </div>
+
+      <div class="exercise" id="ex-s2-2">
+        <div class="ex-prompt">„Sie freute sich beim _____ (laufen)." Das Signalwort „beim" zeigt: Es folgt ein Nomen. Schreibe korrekt: <input class="gap-input" id="gap-s2-2" placeholder="?"></div>
+        <button class="check-btn" onclick="checkGap('s2-2',['Laufen'])">Prüfen</button>
+        <div class="feedback" id="fb-s2-2"></div>
+      </div>
+
+      <div class="exercise" id="ex-s2-3">
+        <div class="ex-prompt">Markiere das Signalwort: „Er ist zum <strong>Tanzen</strong> gegangen." – Was ist das Signalwort?</div>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="checkMC(this,'s2-3',false)">Er</button>
+          <button class="mc-btn" onclick="checkMC(this,'s2-3',true)">zum</button>
+          <button class="mc-btn" onclick="checkMC(this,'s2-3',false)">Tanzen</button>
+          <button class="mc-btn" onclick="checkMC(this,'s2-3',false)">gegangen</button>
+        </div>
+        <div class="feedback" id="fb-s2-3"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ STRATEGIE 3 -->
+<div class="strategy-block" data-strategy="3">
+  <div class="strategy-header" onclick="toggleBlock(this)">
+    <div class="strategy-icon">📰</div>
+    <div class="strategy-title-wrap">
+      <div class="strategy-title">Artikelprobe machen</div>
+      <div class="strategy-subtitle">Groß- und Kleinschreibung</div>
+    </div>
+    <div class="strategy-pts"><b id="pts-s3">0</b>/6 Pkt.</div>
+    <div class="strategy-arrow">▼</div>
+  </div>
+  <div class="strategy-content">
+    <div class="rule-hint">Kannst du <em>der / die / das</em> davorsetzen? Dann ist es ein Nomen → <strong>Großschreibung</strong>!</div>
+    <div class="exercises">
+
+      <div class="exercise" id="ex-s3-1">
+        <div class="ex-prompt">Vor welchem Wort kann man „das" setzen? → Großschreibung!</div>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="checkMC(this,'s3-1',false)">laut</button>
+          <button class="mc-btn" onclick="checkMC(this,'s3-1',false)">rennen (Verb)</button>
+          <button class="mc-btn" onclick="checkMC(this,'s3-1',true)">Rennen (Nomen)</button>
+          <button class="mc-btn" onclick="checkMC(this,'s3-1',false)">schneller</button>
+        </div>
+        <div class="feedback" id="fb-s3-1"></div>
+      </div>
+
+      <div class="exercise" id="ex-s3-2">
+        <div class="ex-prompt">Funktioniert die Artikelprobe? „_____ Lesen fällt ihr leicht." Welcher Artikel passt?</div>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="checkMC(this,'s3-2',true)">Das</button>
+          <button class="mc-btn" onclick="checkMC(this,'s3-2',false)">Kein Artikel möglich</button>
+          <button class="mc-btn" onclick="checkMC(this,'s3-2',false)">Einem</button>
+        </div>
+        <div class="feedback" id="fb-s3-2"></div>
+      </div>
+
+      <div class="exercise" id="ex-s3-3">
+        <div class="ex-prompt">„Sie übt das _____ (schreiben/Schreiben) täglich." Mach die Artikelprobe und schreibe korrekt: <input class="gap-input" id="gap-s3-3" placeholder="?"></div>
+        <button class="check-btn" onclick="checkGap('s3-3',['Schreiben'])">Prüfen</button>
+        <div class="feedback" id="fb-s3-3"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ STRATEGIE 4 -->
+<div class="strategy-block" data-strategy="4">
+  <div class="strategy-header" onclick="toggleBlock(this)">
+    <div class="strategy-icon">🔚</div>
+    <div class="strategy-title-wrap">
+      <div class="strategy-title">Wortendung beachten</div>
+      <div class="strategy-subtitle">Groß- und Kleinschreibung</div>
+    </div>
+    <div class="strategy-pts"><b id="pts-s4">0</b>/6 Pkt.</div>
+    <div class="strategy-arrow">▼</div>
+  </div>
+  <div class="strategy-content">
+    <div class="rule-hint">Nomenendungen wie <strong>-heit, -keit, -nis, -ung, -schaft, -tum, -ion, -ling</strong> zeigen: Großschreibung!</div>
+    <div class="exercises">
+
+      <div class="exercise" id="ex-s4-1">
+        <div class="ex-prompt">Welches Wort hat eine typische Nomenendung?</div>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="checkMC(this,'s4-1',false)">laufen</button>
+          <button class="mc-btn" onclick="checkMC(this,'s4-1',true)">Freiheit</button>
+          <button class="mc-btn" onclick="checkMC(this,'s4-1',false)">schön</button>
+          <button class="mc-btn" onclick="checkMC(this,'s4-1',false)">wegen</button>
+        </div>
+        <div class="feedback" id="fb-s4-1"></div>
+      </div>
+
+      <div class="exercise" id="ex-s4-2">
+        <div class="ex-prompt">Sortiere die Wörter: Welche haben eine Nomenendung (-heit/-keit/-ung/-schaft)? Klicke sie an!</div>
+        <div class="sort-words" id="sort-s4-2">
+          <div class="sort-word" onclick="toggleSort(this,'s4-2')">Freundschaft</div>
+          <div class="sort-word" onclick="toggleSort(this,'s4-2')">spielen</div>
+          <div class="sort-word" onclick="toggleSort(this,'s4-2')">Lösung</div>
+          <div class="sort-word" onclick="toggleSort(this,'s4-2')">groß</div>
+          <div class="sort-word" onclick="toggleSort(this,'s4-2')">Neuigkeit</div>
+          <div class="sort-word" onclick="toggleSort(this,'s4-2')">rennen</div>
+        </div>
+        <button class="check-btn" onclick="checkSort('s4-2',['Freundschaft','Lösung','Neuigkeit'])">Prüfen</button>
+        <div class="feedback" id="fb-s4-2"></div>
+      </div>
+
+      <div class="exercise" id="ex-s4-3">
+        <div class="ex-prompt">Schreibe das Wort korrekt: „die _____ (bewerbung)" → Nomenendung -ung: <input class="gap-input" id="gap-s4-3" placeholder="?"></div>
+        <button class="check-btn" onclick="checkGap('s4-3',['Bewerbung'])">Prüfen</button>
+        <div class="feedback" id="fb-s4-3"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ STRATEGIE 5 -->
+<div class="strategy-block" data-strategy="5">
+  <div class="strategy-header" onclick="toggleBlock(this)">
+    <div class="strategy-icon">🎵</div>
+    <div class="strategy-title-wrap">
+      <div class="strategy-title">Betonungsprobe machen</div>
+      <div class="strategy-subtitle">Getrennt- und Zusammenschreibung</div>
+    </div>
+    <div class="strategy-pts"><b id="pts-s5">0</b>/4 Pkt.</div>
+    <div class="strategy-arrow">▼</div>
+  </div>
+  <div class="strategy-content">
+    <div class="rule-hint">Gibt es nur <strong>eine Hauptbetonung</strong>? → Zusammenschreiben! Gibt es zwei Betonungen? → Getrennt schreiben.</div>
+    <div class="exercises">
+
+      <div class="exercise" id="ex-s5-1">
+        <div class="ex-prompt">„teilnehmen" – eine Hauptbetonung. Was gilt?</div>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="checkMC(this,'s5-1',true)">Zusammenschreiben: teilnehmen</button>
+          <button class="mc-btn" onclick="checkMC(this,'s5-1',false)">Getrennt schreiben: teil nehmen</button>
+        </div>
+        <div class="feedback" id="fb-s5-1"></div>
+      </div>
+
+      <div class="exercise" id="ex-s5-2">
+        <div class="ex-prompt">„Klavier spielen" – beide Wörter werden betont. Was gilt?</div>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="checkMC(this,'s5-2',false)">Zusammenschreiben: klavierspielen</button>
+          <button class="mc-btn" onclick="checkMC(this,'s5-2',true)">Getrennt schreiben: Klavier spielen</button>
+        </div>
+        <div class="feedback" id="fb-s5-2"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ STRATEGIE 6 -->
+<div class="strategy-block" data-strategy="6">
+  <div class="strategy-header" onclick="toggleBlock(this)">
+    <div class="strategy-icon">💡</div>
+    <div class="strategy-title-wrap">
+      <div class="strategy-title">Bedeutungsprobe machen</div>
+      <div class="strategy-subtitle">Getrennt- und Zusammenschreibung</div>
+    </div>
+    <div class="strategy-pts"><b id="pts-s6">0</b>/4 Pkt.</div>
+    <div class="strategy-arrow">▼</div>
+  </div>
+  <div class="strategy-content">
+    <div class="rule-hint">Entsteht eine <strong>neue, übertragene Gesamtbedeutung</strong>? → Zusammenschreiben!</div>
+    <div class="exercises">
+
+      <div class="exercise" id="ex-s6-1">
+        <div class="ex-prompt">„Schreib das <strong>auf</strong>." vs. „Er will <strong>aufschreiben</strong>." – Im zweiten Fall hat sich die Bedeutung verändert. Was schreibt man?</div>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="checkMC(this,'s6-1',true)">zusammen: aufschreiben</button>
+          <button class="mc-btn" onclick="checkMC(this,'s6-1',false)">getrennt: auf schreiben</button>
+        </div>
+        <div class="feedback" id="fb-s6-1"></div>
+      </div>
+
+      <div class="exercise" id="ex-s6-2">
+        <div class="ex-prompt">„Er will das Geheimnis preisgeben." Entsteht hier eine neue Gesamtbedeutung?</div>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="checkMC(this,'s6-2',true)">Ja → preisgeben (zusammen)</button>
+          <button class="mc-btn" onclick="checkMC(this,'s6-2',false)">Nein → preis geben (getrennt)</button>
+        </div>
+        <div class="feedback" id="fb-s6-2"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ STRATEGIE 7 -->
+<div class="strategy-block" data-strategy="7">
+  <div class="strategy-header" onclick="toggleBlock(this)">
+    <div class="strategy-icon">🔍</div>
+    <div class="strategy-title-wrap">
+      <div class="strategy-title">Wort verlängern</div>
+      <div class="strategy-subtitle">Auslautverhärtung (b/p, g/k, d/t)</div>
+    </div>
+    <div class="strategy-pts"><b id="pts-s7">0</b>/6 Pkt.</div>
+    <div class="strategy-arrow">▼</div>
+  </div>
+  <div class="strategy-content">
+    <div class="rule-hint">Verlängere das Wort (z. B. Plural oder andere Form): Klingt der Laut dann <strong>weich</strong> → b/g/d. Bleibt er hart → p/k/t.</div>
+    <div class="exercises">
+
+      <div class="exercise" id="ex-s7-1">
+        <div class="ex-prompt">„der Weg oder der Wek?" → Verlängern: „die Wege" → der Endlaut wird weich. Wie schreibt man es richtig?</div>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="checkMC(this,'s7-1',true)">Weg (g, weil „Wege" → weich)</button>
+          <button class="mc-btn" onclick="checkMC(this,'s7-1',false)">Wek (k, weil es hart klingt)</button>
+        </div>
+        <div class="feedback" id="fb-s7-1"></div>
+      </div>
+
+      <div class="exercise" id="ex-s7-2">
+        <div class="ex-prompt">„der Kor___" – b oder p? Verlängere das Wort selbst und entscheide. Schreibe das vollständige Wort: <input class="gap-input" id="gap-s7-2" placeholder="?"></div>
+        <button class="check-btn" onclick="checkGap('s7-2',['Korb'])">Prüfen</button>
+        <div class="feedback" id="fb-s7-2"></div>
+      </div>
+
+      <div class="exercise" id="ex-s7-3">
+        <div class="ex-prompt">„der Hun___" – d oder t? Verlängern: „die Hunde". Welche Schreibung stimmt?</div>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="checkMC(this,'s7-3',true)">Hund (d, weil „Hunde" → weich)</button>
+          <button class="mc-btn" onclick="checkMC(this,'s7-3',false)">Hunt (t)</button>
+        </div>
+        <div class="feedback" id="fb-s7-3"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ STRATEGIE 8 -->
+<div class="strategy-block" data-strategy="8">
+  <div class="strategy-header" onclick="toggleBlock(this)">
+    <div class="strategy-icon">🔄</div>
+    <div class="strategy-title-wrap">
+      <div class="strategy-title">Grundform bilden</div>
+      <div class="strategy-subtitle">Gleichklingende Laute (e/ä, eu/äu)</div>
+    </div>
+    <div class="strategy-pts"><b id="pts-s8">0</b>/4 Pkt.</div>
+    <div class="strategy-arrow">▼</div>
+  </div>
+  <div class="strategy-content">
+    <div class="rule-hint">Schreibe <strong>ä/äu</strong>, wenn man das Wort in der Grundform mit <strong>a</strong> bzw. <strong>au</strong> schreibt.</div>
+    <div class="exercises">
+
+      <div class="exercise" id="ex-s8-1">
+        <div class="ex-prompt">„H___user" – Grundform: „das Haus". Deshalb:</div>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="checkMC(this,'s8-1',true)">Häuser (äu, weil Haus → au)</button>
+          <button class="mc-btn" onclick="checkMC(this,'s8-1',false)">Heuser (eu)</button>
+        </div>
+        <div class="feedback" id="fb-s8-1"></div>
+      </div>
+
+      <div class="exercise" id="ex-s8-2">
+        <div class="ex-prompt">„___lter" – Grundform: „alt". Deshalb: <input class="gap-input" id="gap-s8-2" placeholder="Ä oder E?"> lter</div>
+        <button class="check-btn" onclick="checkGap('s8-2',['Ä','ä'])">Prüfen</button>
+        <div class="feedback" id="fb-s8-2"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ STRATEGIE 9 -->
+<div class="strategy-block" data-strategy="9">
+  <div class="strategy-header" onclick="toggleBlock(this)">
+    <div class="strategy-icon">🎚️</div>
+    <div class="strategy-title-wrap">
+      <div class="strategy-title">Vokallänge untersuchen</div>
+      <div class="strategy-subtitle">Doppelkonsonant / tz/ck · i-Laute (i/ie)</div>
+    </div>
+    <div class="strategy-pts"><b id="pts-s9">0</b>/6 Pkt.</div>
+    <div class="strategy-arrow">▼</div>
+  </div>
+  <div class="strategy-content">
+    <div class="rule-hint">Kurzer betonter Vokal + nur ein Konsonant hörbar → <strong>Doppelkonsonant / tz / ck</strong>. Langer i-Laut → meistens <strong>ie</strong>.</div>
+    <div class="exercises">
+
+      <div class="exercise" id="ex-s9-1">
+        <div class="ex-prompt">„Si___en" – der Vokal i klingt kurz und du hörst nur einen Konsonanten. Was schreibst du?</div>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="checkMC(this,'s9-1',false)">Sisen – nein, nach kurzem i-Laut schreibt man in diesem Fall tz</button>
+          <button class="mc-btn" onclick="checkMC(this,'s9-1',true)">Sitzen (tz nach kurzem Vokal)</button>
+        </div>
+        <div class="feedback" id="fb-s9-1"></div>
+      </div>
+
+      <div class="exercise" id="ex-s9-2">
+        <div class="ex-prompt">„Mu___er" – der u-Laut ist kurz. Nach kurzem Vokal wird der Konsonant oft verdoppelt. Schreibe korrekt: <input class="gap-input" id="gap-s9-2" placeholder="?"></div>
+        <button class="check-btn" onclick="checkGap('s9-2',['Mutter'])">Prüfen</button>
+        <div class="feedback" id="fb-s9-2"></div>
+      </div>
+
+      <div class="exercise" id="ex-s9-3">
+        <div class="ex-prompt">„sp___len" – langer i-Laut. Welche Schreibung ist korrekt?</div>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="checkMC(this,'s9-3',true)">spielen (ie)</button>
+          <button class="mc-btn" onclick="checkMC(this,'s9-3',false)">spilen (i)</button>
+        </div>
+        <div class="feedback" id="fb-s9-3"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ STRATEGIE 10 -->
+<div class="strategy-block" data-strategy="10">
+  <div class="strategy-header" onclick="toggleBlock(this)">
+    <div class="strategy-icon">🔊</div>
+    <div class="strategy-title-wrap">
+      <div class="strategy-title">Stimmhaftigkeit untersuchen</div>
+      <div class="strategy-subtitle">s-Laute (s / ss / ß)</div>
+    </div>
+    <div class="strategy-pts"><b id="pts-s10">0</b>/6 Pkt.</div>
+    <div class="strategy-arrow">▼</div>
+  </div>
+  <div class="strategy-content">
+    <div class="rule-hint"><strong>s</strong> = stimmhaft (weich) · <strong>ss</strong> = stimmlos + kurzer Vokal davor · <strong>ß</strong> = stimmlos + langer Vokal davor</div>
+    <div class="exercises">
+
+      <div class="exercise" id="ex-s10-1">
+        <div class="ex-prompt">Welches Wort ist richtig geschrieben?<br><em>„Er ißt gerne Pizza." oder „Er isst gerne Pizza."</em></div>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="checkMC(this,'s10-1',false)">ißt</button>
+          <button class="mc-btn" onclick="checkMC(this,'s10-1',true)">isst</button>
+        </div>
+        <div class="feedback" id="fb-s10-1"></div>
+      </div>
+
+      <div class="exercise" id="ex-s10-2">
+        <div class="ex-prompt">Wie schreibt man das Wort richtig? „der Schlü___el"</div>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="checkMC(this,'s10-2',true)">Schlüssel</button>
+          <button class="mc-btn" onclick="checkMC(this,'s10-2',false)">Schlüßel</button>
+          <button class="mc-btn" onclick="checkMC(this,'s10-2',false)">Schlüsel</button>
+        </div>
+        <div class="feedback" id="fb-s10-2"></div>
+      </div>
+
+      <div class="exercise" id="ex-s10-3">
+        <div class="ex-prompt">Schreibe das Wort richtig: „Sie genie___t gerne Musik." <input class="gap-input" id="gap-s10-3" placeholder="?"></div>
+        <button class="check-btn" onclick="checkGap('s10-3',['genießt','Genießt','geniesst','Geniesst','ß','ss'])">Prüfen</button>
+        <div class="feedback" id="fb-s10-3"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ STRATEGIE 11 -->
+<div class="strategy-block" data-strategy="11">
+  <div class="strategy-header" onclick="toggleBlock(this)">
+    <div class="strategy-icon">✂️</div>
+    <div class="strategy-title-wrap">
+      <div class="strategy-title">Nach Silben trennen</div>
+      <div class="strategy-subtitle">Silbentrennendes h · Doppelkonsonant / tz/ck</div>
+    </div>
+    <div class="strategy-pts"><b id="pts-s11">0</b>/4 Pkt.</div>
+    <div class="strategy-arrow">▼</div>
+  </div>
+  <div class="strategy-content">
+    <div class="rule-hint">Silbentrennendes <strong>h</strong> steht zwischen zwei Vokalen und gehört zur nächsten Silbe (z. B. ge-hen). Bei Doppelkonsonanten wird zwischen den Konsonanten getrennt (Ham-mer). <strong>Ausnahme ck:</strong> bleibt zusammen und geht zur nächsten Silbe (We-cker, nicht Wec-ker).</div>
+    <div class="exercises">
+
+      <div class="exercise" id="ex-s11-1">
+        <div class="ex-prompt">Wie wird „Hammer" getrennt?</div>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="checkMC(this,'s11-1',true)">Ham-mer</button>
+          <button class="mc-btn" onclick="checkMC(this,'s11-1',false)">H-ammer</button>
+          <button class="mc-btn" onclick="checkMC(this,'s11-1',false)">Hamm-er</button>
+        </div>
+        <div class="feedback" id="fb-s11-1"></div>
+      </div>
+
+      <div class="exercise" id="ex-s11-2">
+        <div class="ex-prompt">Schreibe die Silbentrennung von „Wecker": <input class="gap-input" id="gap-s11-2" placeholder="We-..."></div>
+        <button class="check-btn" onclick="checkGap('s11-2',['We-cker','we-cker'])">Prüfen</button>
+        <div class="feedback" id="fb-s11-2"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ STRATEGIE 12 -->
+<div class="strategy-block" data-strategy="12">
+  <div class="strategy-header" onclick="toggleBlock(this)">
+    <div class="strategy-icon">🔗</div>
+    <div class="strategy-title-wrap">
+      <div class="strategy-title">Verwandte Wörter suchen</div>
+      <div class="strategy-subtitle">Alle Schwierigkeiten</div>
+    </div>
+    <div class="strategy-pts"><b id="pts-s12">0</b>/4 Pkt.</div>
+    <div class="strategy-arrow">▼</div>
+  </div>
+  <div class="strategy-content">
+    <div class="rule-hint">Diese Strategie hilft, wenn du mit einer anderen Strategie nicht weiterkommst. Suche verwandte Wörter und leite die Schreibung davon ab.</div>
+    <div class="exercises">
+
+      <div class="exercise" id="ex-s12-1">
+        <div class="ex-prompt">„k___lter" – kelter oder kälter? Verwandtes Wort: „kalt". Also:</div>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="checkMC(this,'s12-1',true)">kälter (ä, weil Stammvokal a)</button>
+          <button class="mc-btn" onclick="checkMC(this,'s12-1',false)">kelter (e)</button>
+        </div>
+        <div class="feedback" id="fb-s12-1"></div>
+      </div>
+
+      <div class="exercise" id="ex-s12-2">
+        <div class="ex-prompt">„Ärg___nis" – verwandtes Wort: „ärgern". Welcher Buchstabe fehlt?</div>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="checkMC(this,'s12-2',false)">Ärgernis mit doppeltem r: Ärggernis</button>
+          <button class="mc-btn" onclick="checkMC(this,'s12-2',true)">Ärgernis (ein r, wie in ärgern)</button>
+        </div>
+        <div class="feedback" id="fb-s12-2"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ STRATEGIE 13 -->
+<div class="strategy-block" data-strategy="13">
+  <div class="strategy-header" onclick="toggleBlock(this)">
+    <div class="strategy-icon">📚</div>
+    <div class="strategy-title-wrap">
+      <div class="strategy-title">Merkwörter / Nachschlagewörter</div>
+      <div class="strategy-subtitle">Alle Schwierigkeiten</div>
+    </div>
+    <div class="strategy-pts"><b id="pts-s13">0</b>/4 Pkt.</div>
+    <div class="strategy-arrow">▼</div>
+  </div>
+  <div class="strategy-content">
+    <div class="rule-hint">Fremdwörter, Wörter mit Dehnungs-h usw. müssen <strong>gelernt oder nachgeschlagen</strong> werden – keine Regel hilft hier direkt!</div>
+    <div class="exercises">
+
+      <div class="exercise" id="ex-s13-1">
+        <div class="ex-prompt">Welches Wort muss man als Merkwort lernen, weil keine Strategie hilft?</div>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="checkMC(this,'s13-1',false)">Freiheit (Nomenendung -heit)</button>
+          <button class="mc-btn" onclick="checkMC(this,'s13-1',true)">Rhythmus (Fremdwort)</button>
+          <button class="mc-btn" onclick="checkMC(this,'s13-1',false)">Häuser (Grundform: Haus)</button>
+        </div>
+        <div class="feedback" id="fb-s13-1"></div>
+      </div>
+
+      <div class="exercise" id="ex-s13-2">
+        <div class="ex-prompt">„Das Wort ‚Yacht' kann ich nicht ableiten." Welche Strategie bleibt?</div>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="checkMC(this,'s13-2',false)">Wort verlängern</button>
+          <button class="mc-btn" onclick="checkMC(this,'s13-2',false)">Artikelprobe</button>
+          <button class="mc-btn" onclick="checkMC(this,'s13-2',true)">Merkwort lernen / nachschlagen</button>
+        </div>
+        <div class="feedback" id="fb-s13-2"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Summary -->
+<div id="summary">
+  <h2>🏆 Fertig!</h2>
+  <p>Du hast alle Übungen abgeschlossen.</p>
+  <div class="big-score" id="sum-pts">0</div>
+  <div class="grade" id="sum-grade"></div>
+  <button class="reset-btn" onclick="resetAll()">🔁 Nochmal üben</button>
+</div>
+
+</main>
+
+<script>
+// ─── State ───────────────────────────────────────────
+const state = {
+  points: 0,
+  maxPoints: 0,
+  answered: new Set(),
+  strategyPoints: {}
+};
+
+// Count max points on load
+function countMax() {
+  document.querySelectorAll('.exercise').forEach(ex => {
+    state.maxPoints += 2;
+  });
+  document.getElementById('maxpts').textContent = state.maxPoints;
+}
+
+// ─── Toggle blocks ────────────────────────────────────
+function toggleBlock(header) {
+  const block = header.closest('.strategy-block');
+  block.classList.toggle('open');
+}
+
+// ─── Score system ─────────────────────────────────────
+function awardPoints(exId, pts, strategyId) {
+  if (state.answered.has(exId)) return 0;
+  state.answered.add(exId);
+  state.points += pts;
+  const sid = 's' + strategyId;
+  if (!state.strategyPoints[sid]) state.strategyPoints[sid] = 0;
+  state.strategyPoints[sid] += pts;
+  updateScoreUI();
+  showPop(pts);
+  updateStrategyDisplay();
+  checkAllDone();
+  return pts;
+}
+
+function updateScoreUI() {
+  const pts = state.points;
+  const max = state.maxPoints;
+  const pct = max > 0 ? Math.round(pts / max * 100) : 0;
+  document.getElementById('pts').textContent = pts;
+  document.getElementById('pct').textContent = `(${pct}%)`;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  // Grade
+  const grade = calcGrade(pct);
+  const badge = document.getElementById('badge');
+  badge.textContent = 'Note ' + grade;
+  badge.style.borderColor = gradeColor(grade);
+  badge.style.color = gradeColor(grade);
+}
+
+function calcGrade(pct) {
+  if (pct >= 92) return 1;
+  if (pct >= 81) return 2;
+  if (pct >= 67) return 3;
+  if (pct >= 50) return 4;
+  if (pct >= 30) return 5;
+  return 6;
+}
+
+function gradeColor(g) {
+  if (g <= 2) return '#4caf50';
+  if (g === 3) return '#8bc34a';
+  if (g === 4) return '#ffd000';
+  if (g === 5) return '#ff9800';
+  return '#e53935';
+}
+
+function updateStrategyDisplay() {
+  for (let i = 1; i <= 13; i++) {
+    const sid = 's' + i;
+    const el = document.getElementById('pts-' + sid);
+    if (el && state.strategyPoints[sid]) {
+      el.textContent = state.strategyPoints[sid];
+    }
+  }
+}
+
+function showPop(pts) {
+  const pop = document.createElement('div');
+  pop.className = 'pts-pop';
+  pop.textContent = '+' + pts + ' ⭐';
+  pop.style.left = (Math.random() * 60 + 20) + '%';
+  pop.style.top = '80px';
+  document.body.appendChild(pop);
+  setTimeout(() => pop.remove(), 1300);
+}
+
+function checkAllDone() {
+  if (state.answered.size === document.querySelectorAll('.exercise').length) {
+    setTimeout(showSummary, 600);
+  }
+}
+
+function showSummary() {
+  const pct = Math.round(state.points / state.maxPoints * 100);
+  const grade = calcGrade(pct);
+  document.getElementById('sum-pts').textContent = state.points + ' / ' + state.maxPoints + ' Punkte';
+  document.getElementById('sum-grade').textContent =
+    `${pct}% → Note ${grade} · ${gradeText(grade)}`;
+  document.getElementById('summary').style.display = 'block';
+  document.getElementById('summary').scrollIntoView({ behavior: 'smooth' });
+}
+
+function gradeText(g) {
+  return ['', 'Sehr gut 🌟', 'Gut 👍', 'Befriedigend ✅', 'Ausreichend 📝', 'Mangelhaft ⚠️', 'Ungenügend ❌'][g];
+}
+
+// ─── Exercise types ───────────────────────────────────
+
+// Extract strategy number from exercise id "ex-s3-2"
+function getStrategyFromId(exId) {
+  const m = exId.match(/ex-s(\d+)/);
+  return m ? parseInt(m[1]) : 0;
+}
+
+// MC check
+function checkMC(btn, exId, isCorrect) {
+  const ex = document.getElementById('ex-' + exId);
+  if (!ex || ex.dataset.done) return;
+  const fb = document.getElementById('fb-' + exId);
+  const btns = ex.querySelectorAll('.mc-btn');
+  const isRetry = ex.dataset.retry === '1';
+
+  if (isCorrect) {
+    ex.dataset.done = '1';
+    btns.forEach(b => b.disabled = true);
+    btn.classList.add('correct');
+    const pts = isRetry ? 1 : 2;
+    fb.className = 'feedback show ok';
+    fb.textContent = `✅ Richtig! +${pts} Punkt${pts === 1 ? '' : 'e'}`;
+    awardPoints('ex-' + exId, pts, getStrategyFromId('ex-' + exId));
+  } else {
+    btn.classList.add('wrong');
+    btn.disabled = true;
+    if (!isRetry) {
+      // First wrong attempt → allow retry
+      ex.dataset.retry = '1';
+      fb.className = 'feedback show fail';
+      fb.textContent = '❌ Falsch – versuch es nochmal! (noch 1 Punkt möglich)';
+    } else {
+      // Second wrong attempt → lock everything
+      ex.dataset.done = '1';
+      btns.forEach(b => b.disabled = true);
+      btns.forEach(b => {
+        if (b.onclick && b.onclick.toString().includes('true')) b.classList.add('correct');
+      });
+      fb.className = 'feedback show fail';
+      fb.textContent = '❌ Leider nicht richtig. 0 Punkte';
+      state.answered.add('ex-' + exId);
+      updateScoreUI();
+      checkAllDone();
+    }
+  }
+}
+
+// Gap fill check
+function checkGap(exId, correctAnswers) {
+  const ex = document.getElementById('ex-' + exId);
+  if (!ex || ex.dataset.done) return;
+
+  const input = document.getElementById('gap-' + exId);
+  const val = input ? input.value.trim() : '';
+  const fb = document.getElementById('fb-' + exId);
+  const ok = correctAnswers.some(a => a.toLowerCase() === val.toLowerCase());
+  const isRetry = ex.dataset.retry === '1';
+
+  if (ok) {
+    ex.dataset.done = '1';
+    if (input) { input.disabled = true; input.classList.add('correct'); }
+    ex.querySelector('.check-btn').disabled = true;
+    const pts = isRetry ? 1 : 2;
+    fb.className = 'feedback show ok';
+    fb.textContent = `✅ Richtig! +${pts} Punkt${pts === 1 ? '' : 'e'}`;
+    awardPoints('ex-' + exId, pts, getStrategyFromId('ex-' + exId));
+  } else {
+    if (!isRetry) {
+      ex.dataset.retry = '1';
+      if (input) { input.classList.add('wrong'); input.value = ''; input.placeholder = 'Nochmal versuchen…'; input.addEventListener('input', () => input.classList.remove('wrong'), { once: true }); }
+      fb.className = 'feedback show fail';
+      fb.textContent = '❌ Falsch – versuch es nochmal! (noch 1 Punkt möglich)';
+    } else {
+      ex.dataset.done = '1';
+      if (input) { input.disabled = true; input.classList.add('wrong'); }
+      ex.querySelector('.check-btn').disabled = true;
+      fb.className = 'feedback show fail';
+      fb.textContent = `❌ Leider nicht richtig. 0 Punkte`;
+      state.answered.add('ex-' + exId);
+      updateScoreUI();
+      checkAllDone();
+    }
+  }
+}
+
+// Sort / select exercise
+function toggleSort(el, exId) {
+  const ex = document.getElementById('ex-' + exId);
+  if (ex && ex.dataset.done) return;
+  el.classList.toggle('selected');
+}
+
+function checkSort(exId, correctWords) {
+  const ex = document.getElementById('ex-' + exId);
+  if (!ex || ex.dataset.done) return;
+
+  const selected = Array.from(ex.querySelectorAll('.sort-word.selected')).map(w => w.textContent.trim());
+  const fb = document.getElementById('fb-' + exId);
+  const isRetry = ex.dataset.retry === '1';
+
+  const allCorrect = correctWords.every(w => selected.includes(w)) &&
+                     selected.every(w => correctWords.includes(w));
+
+  if (allCorrect) {
+    ex.dataset.done = '1';
+    ex.querySelectorAll('.sort-word').forEach(w => {
+      w.style.cursor = 'default';
+      w.classList.remove('selected');
+      if (correctWords.includes(w.textContent.trim())) w.classList.add('correct');
+    });
+    ex.querySelector('.check-btn').disabled = true;
+    const pts = isRetry ? 1 : 2;
+    fb.className = 'feedback show ok';
+    fb.textContent = `✅ Alle richtigen Wörter gefunden! +${pts} Punkt${pts === 1 ? '' : 'e'}`;
+    awardPoints('ex-' + exId, pts, getStrategyFromId('ex-' + exId));
+  } else {
+    // Mark wrong selections red, but don't reveal correct ones yet
+    ex.querySelectorAll('.sort-word').forEach(w => {
+      if (w.classList.contains('selected') && !correctWords.includes(w.textContent.trim())) {
+        w.classList.remove('selected');
+        w.classList.add('wrong');
+        setTimeout(() => w.classList.remove('wrong'), 1200);
+      }
+    });
+    if (!isRetry) {
+      ex.dataset.retry = '1';
+      fb.className = 'feedback show fail';
+      fb.textContent = '❌ Nicht ganz – versuch es nochmal! (noch 1 Punkt möglich)';
+    } else {
+      ex.dataset.done = '1';
+      ex.querySelectorAll('.sort-word').forEach(w => {
+        w.style.cursor = 'default';
+        if (correctWords.includes(w.textContent.trim())) w.classList.add('correct');
+      });
+      ex.querySelector('.check-btn').disabled = true;
+      fb.className = 'feedback show fail';
+      fb.textContent = `❌ Leider nicht richtig. 0 Punkte`;
+      state.answered.add('ex-' + exId);
+      updateScoreUI();
+      checkAllDone();
+    }
+  }
+}
+
+// ─── Reset ────────────────────────────────────────────
+function resetAll() {
+  location.reload();
+}
+
+// ─── Init ─────────────────────────────────────────────
+countMax();
+updateScoreUI();
+</script>
+</body>
+</html>
+
+

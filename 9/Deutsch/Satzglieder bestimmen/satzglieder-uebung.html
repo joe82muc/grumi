@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Satzglieder bestimmen – Deutsch</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#1a1a2e;--card:#16213e;--accent:#e94560;--gold:#f0c040;--green:#4ecca3;--text:#eaeaea;--muted:#8892b0;--border:#2a3a5c;--correct:#4ecca3;--wrong:#e94560;--select-bg:#0f3460}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Source Serif 4',Georgia,serif;line-height:1.7;min-height:100vh}
+.hero{background:linear-gradient(135deg,#0f3460 0%,#1a1a2e 50%,#16213e 100%);padding:3rem 1.5rem 2rem;text-align:center;border-bottom:3px solid var(--accent);position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 50%,rgba(233,69,96,.08) 0%,transparent 50%),radial-gradient(circle at 70% 50%,rgba(240,192,64,.06) 0%,transparent 50%);animation:bgP 8s ease-in-out infinite alternate}
+@keyframes bgP{0%{transform:scale(1) rotate(0)}100%{transform:scale(1.05) rotate(2deg)}}
+.hero h1{font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(2rem,5vw,3.2rem);color:#fff;position:relative;letter-spacing:-.02em}
+.hero h1 span{color:var(--accent)}
+.hero .subtitle{font-size:1.1rem;color:var(--muted);margin-top:.5rem;position:relative}
+.hero .badge{display:inline-block;background:var(--accent);color:#fff;font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:600;padding:.25rem .75rem;border-radius:20px;margin-top:.8rem;position:relative}
+.container{max-width:900px;margin:0 auto;padding:1.5rem}
+.toggle-info{background:none;border:1px solid var(--border);color:var(--muted);padding:.5rem 1.2rem;border-radius:8px;cursor:pointer;font-family:'Source Serif 4',serif;font-size:.9rem;margin:1rem 0;transition:all .3s}
+.toggle-info:hover{border-color:var(--accent);color:var(--text)}
+.info-section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:2rem;margin:1rem 0 1.5rem;position:relative;display:none}
+.info-section::before{content:'📖';font-size:1.5rem;position:absolute;top:-.8rem;left:1.5rem;background:var(--card);padding:0 .5rem}
+.info-section h2{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--gold);margin-bottom:1rem}
+.info-section h3{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--accent);margin:1.2rem 0 .3rem}
+.info-section p,.info-section li{font-size:.92rem;color:var(--muted);line-height:1.8}
+.info-section ul{list-style:none;padding-left:0}
+.info-section li::before{content:'▸ ';color:var(--accent);font-weight:bold}
+.info-section li{margin-bottom:.25rem}
+.example-box{background:rgba(15,52,96,.5);border-left:3px solid var(--gold);padding:.7rem 1rem;border-radius:0 8px 8px 0;margin:.5rem 0;font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--text)}
+.example-box .label{color:var(--gold);font-weight:600}
+
+/* Scoreboard */
+.scoreboard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem 1.5rem;margin:1.5rem 0;display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.score-item{text-align:center}
+.score-item .num{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900}
+.score-item .lbl{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.score-item .num.g{color:var(--correct)}.score-item .num.r{color:var(--wrong)}.score-item .num.y{color:var(--gold)}
+.progress-track{flex:1;min-width:100px;height:8px;background:var(--select-bg);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));border-radius:4px;transition:width .5s;width:0%}
+.score-satz{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);white-space:nowrap}
+
+/* Cards */
+.sentence-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.2rem 1.5rem;margin-bottom:.8rem;transition:all .3s;position:relative}
+.sentence-card:hover{border-color:#3a4a6c}
+.sentence-card.correct-card{border-color:var(--correct);background:rgba(78,204,163,.06)}
+.sentence-card.wrong-card{border-color:var(--wrong);background:rgba(233,69,96,.06)}
+.sentence-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem}
+.sentence-num{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--accent);font-weight:600}
+.sentence-points{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted)}
+.sentence-points.earned{color:var(--gold);font-weight:600}
+.sentence-text{font-size:1rem;color:var(--text);line-height:2;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem .12rem}
+
+/* Clickable word hints */
+.word{position:relative;cursor:pointer;border-bottom:1px dashed rgba(240,192,64,.3);padding-bottom:1px;transition:all .2s;white-space:nowrap}
+.word:hover{border-bottom-color:var(--gold);color:#fff}
+.word-hint{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#0f3460;border:1px solid var(--gold);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:.72rem;padding:.35rem .7rem;border-radius:6px;white-space:nowrap;z-index:50;box-shadow:0 4px 12px rgba(0,0,0,.4);animation:fadeS .2s ease;pointer-events:none}
+.word-hint::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--gold)}
+.word.hint-visible .word-hint{display:block}
+
+select.sg-select{appearance:none;-webkit-appearance:none;background:var(--select-bg);color:var(--gold);border:1px solid var(--border);padding:.25rem 1.5rem .25rem .45rem;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:.73rem;cursor:pointer;transition:all .2s;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23f0c040'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .4rem center;min-width:46px}
+select.sg-select:hover{border-color:var(--gold)}
+select.sg-select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 2px rgba(240,192,64,.2)}
+select.sg-select.is-correct{border-color:var(--correct);color:var(--correct);background-color:rgba(78,204,163,.12)}
+select.sg-select.is-wrong{border-color:var(--wrong);color:var(--wrong);background-color:rgba(233,69,96,.12)}
+
+.check-btn{display:inline-block;margin-top:.7rem;background:var(--accent);color:#fff;border:none;padding:.4rem 1.3rem;border-radius:6px;font-family:'Source Serif 4',serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .25s}
+.check-btn:hover{background:#d63a52;transform:translateY(-1px);box-shadow:0 3px 10px rgba(233,69,96,.25)}
+.check-btn:disabled{background:var(--border);color:var(--muted);cursor:default;transform:none;box-shadow:none}
+
+.feedback{display:none;margin-top:.7rem;padding:.7rem 1rem;border-radius:8px;font-size:.85rem;line-height:1.7;animation:fadeS .35s ease}
+@keyframes fadeS{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.feedback.fb-correct{background:rgba(78,204,163,.08);border:1px solid rgba(78,204,163,.25)}
+.feedback.fb-wrong{background:rgba(233,69,96,.08);border:1px solid rgba(233,69,96,.25)}
+.feedback .fb-title{font-family:'Playfair Display',serif;font-weight:700;font-size:.95rem;margin-bottom:.2rem}
+.feedback.fb-correct .fb-title{color:var(--correct)}
+.feedback.fb-wrong .fb-title{color:var(--wrong)}
+.feedback .fb-detail{font-size:.78rem;color:var(--muted);font-family:'JetBrains Mono',monospace;line-height:1.9}
+.feedback .fb-detail strong{color:var(--gold);font-weight:600}
+
+/* Zwischennote */
+.interim-box{background:linear-gradient(135deg,rgba(15,52,96,.6),rgba(22,33,62,.9));border:1px solid var(--gold);border-radius:12px;padding:1.5rem;margin:1.2rem 0 1.8rem;text-align:center;animation:fadeS .5s ease}
+.interim-box h3{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--gold);margin-bottom:.3rem}
+.interim-box .interim-stats{display:flex;justify-content:center;gap:2rem;margin:.6rem 0;flex-wrap:wrap}
+.interim-box .ist{text-align:center}
+.interim-box .ist .iv{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900}
+.interim-box .ist .il{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);text-transform:uppercase}
+.interim-box .interim-grade{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:900;margin-top:.3rem}
+
+/* Result */
+.result-box{display:none;background:var(--card);border:2px solid var(--gold);border-radius:14px;padding:2.5rem 2rem;margin:2rem 0;text-align:center;animation:fadeS .5s ease}
+.result-box h2{font-family:'Playfair Display',serif;font-size:1.7rem;color:var(--gold);margin-bottom:.3rem}
+.result-emoji{font-size:3.2rem;margin-bottom:.4rem}
+.result-stats{display:flex;justify-content:center;gap:2rem;margin:1rem 0;flex-wrap:wrap}
+.stat{text-align:center}
+.stat-num{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900}
+.stat-num.green{color:var(--correct)}.stat-num.red{color:var(--wrong)}.stat-num.gold{color:var(--gold)}
+.stat-label{font-size:.7rem;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.grade-display{font-family:'Playfair Display',serif;font-size:3.2rem;font-weight:900;margin:.5rem 0}
+.grade-1{color:#4ecca3}.grade-2{color:#7ec8e3}.grade-3{color:#f0c040}.grade-4{color:#e8a035}.grade-5{color:#e07030}.grade-6{color:#e94560}
+.grade-scale{display:flex;justify-content:center;gap:.35rem;margin-top:.8rem;flex-wrap:wrap}
+.grade-scale span{font-family:'JetBrains Mono',monospace;font-size:.65rem;padding:.2rem .5rem;border-radius:4px;background:var(--select-bg);color:var(--muted)}
+.grade-scale span.active{color:#fff;font-weight:600;background:var(--accent)}
+
+.btn-row{display:flex;gap:1rem;margin:1.5rem 0;flex-wrap:wrap;justify-content:center}
+.btn{font-family:'Source Serif 4',serif;font-size:.95rem;font-weight:600;padding:.7rem 1.8rem;border-radius:8px;border:none;cursor:pointer;transition:all .3s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#d63a52;transform:translateY(-2px);box-shadow:0 4px 15px rgba(233,69,96,.3)}
+.btn-secondary{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--gold);color:var(--gold)}
+.btn-retry{background:var(--gold);color:#1a1a2e}
+.btn-retry:hover{background:#e0b030;transform:translateY(-2px);box-shadow:0 4px 15px rgba(240,192,64,.3)}
+
+.combined-box{display:none;background:var(--card);border:2px solid var(--green);border-radius:14px;padding:2.5rem 2rem;margin:2rem 0;text-align:center;animation:fadeS .5s ease}
+.combined-box h2{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--green);margin-bottom:.5rem}
+.calc-line{font-family:'JetBrains Mono',monospace;font-size:.9rem;color:var(--muted);margin:.3rem 0;line-height:1.8}
+.calc-line strong{color:var(--gold)}
+
+.phase-label{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--accent);text-align:center;margin:2rem 0 1rem;padding:.6rem;border-bottom:1px solid var(--border)}
+
+@media(max-width:600px){.container{padding:1rem}.info-section{padding:1.5rem 1rem}.sentence-card{padding:1rem}.sentence-text{font-size:.9rem}select.sg-select{font-size:.68rem;padding:.2rem 1.3rem .2rem .3rem;min-width:40px}.scoreboard{padding:.7rem .8rem;gap:.7rem}.score-item .num{font-size:1.2rem}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Satzglieder <span>bestimmen</span></h1>
+  <div class="subtitle">Interaktive Übung · Deutsch · Klasse 9</div>
+  <div class="badge">50 SÄTZE · ZWISCHENNOTEN · ENDNOTE</div>
+</div>
+
+<div class="container">
+
+<button class="toggle-info" id="toggleBtn" onclick="toggleInfo()">📖 Erklärung anzeigen</button>
+<div class="info-section" id="infoSection">
+  <h2>Satzglieder – Übersicht</h2>
+  <p>Jeder Satz besteht aus verschiedenen <strong>Satzgliedern</strong>. Verwende die <strong>Umstellprobe</strong> und die <strong>Frageproben</strong>, um sie zu bestimmen.</p>
+  <h3>S – Subjekt</h3><p><strong>Wer oder was?</strong> → Nominativ</p>
+  <div class="example-box"><span class="label">Bsp:</span> <strong>Der Hund</strong> bellt. → Wer bellt? = S</div>
+  <h3>P – Prädikat</h3><p><strong>Was geschieht?</strong> → konjugiertes Verb</p>
+  <div class="example-box"><span class="label">Bsp:</span> Der Hund <strong>bellt</strong>. = P</div>
+  <h3>MP – Mehrteiliges Prädikat</h3><p>Hilfsverb + Partizip, Modalverb + Infinitiv, trennbares Präfix</p>
+  <div class="example-box"><span class="label">Bsp:</span> Er <strong>hat</strong> … <strong>geworfen</strong>. → hat = MP, geworfen = MP</div>
+  <h3>GenO – Genitivobjekt</h3><p><strong>Wessen?</strong></p>
+  <div class="example-box"><span class="label">Bsp:</span> Er bedarf <strong>deiner Hilfe</strong>. = GenO</div>
+  <h3>DatO – Dativobjekt</h3><p><strong>Wem?</strong></p>
+  <div class="example-box"><span class="label">Bsp:</span> Sie gibt <strong>dem Kind</strong> einen Ball. = DatO</div>
+  <h3>AkkO – Akkusativobjekt</h3><p><strong>Wen oder was?</strong></p>
+  <div class="example-box"><span class="label">Bsp:</span> Er liest <strong>ein Buch</strong>. = AkkO</div>
+  <h3>Adverbiale Bestimmungen</h3>
+  <ul>
+    <li><strong>ABO</strong> – Wo? Wohin? Woher? (Ort)</li>
+    <li><strong>ABZ</strong> – Wann? Wie lange? Wie oft? (Zeit)</li>
+    <li><strong>ABAW</strong> – Wie? Auf welche Weise? (Art &amp; Weise)</li>
+    <li><strong>ABG</strong> – Warum? Weshalb? Wozu? (Grund)</li>
+  </ul>
+  <h3>Notenschlüssel</h3>
+  <p>1 ≥ 92% · 2 ≥ 80% · 3 ≥ 65% · <strong>4 ≥ 50%</strong> · 5 ≥ 25% · 6 &lt; 25%</p>
+</div>
+
+<div class="scoreboard" id="scoreboard">
+  <div class="score-item"><div class="num g" id="scCorrect">0</div><div class="lbl">Richtig</div></div>
+  <div class="score-item"><div class="num r" id="scWrong">0</div><div class="lbl">Falsch</div></div>
+  <div class="score-item"><div class="num y" id="scPoints">0</div><div class="lbl">Punkte</div></div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="score-satz" id="scStatus">0 / 50</div>
+</div>
+
+<div id="sentenceContainer"></div>
+<div id="resultArea"></div>
+
+</div>
+
+<script>
+const OPTIONS=["—","S","P","MP","GenO","DatO","AkkO","ABO","ABZ","ABAW","ABG"];
+const QMAP={
+  S:"Wer oder was? → Subjekt (Nominativ)",
+  P:"Was geschieht? → Prädikat (konjugiertes Verb)",
+  MP:"Mehrteiliges Prädikat (Hilfsverb, Modalverb, Vorsilbe, Partizip oder Infinitiv)",
+  GenO:"Wessen? → Genitivobjekt",
+  DatO:"Wem? → Dativobjekt",
+  AkkO:"Wen oder was? → Akkusativobjekt",
+  ABO:"Wo? Wohin? Woher? → Adv. Best. des Ortes",
+  ABZ:"Wann? Wie lange? Wie oft? → Adv. Best. der Zeit",
+  ABAW:"Wie? Auf welche Weise? → Adv. Best. der Art und Weise",
+  ABG:"Warum? Weshalb? Wozu? → Adv. Best. des Grundes"
+};
+
+// Hints: nur die Frage, NICHT die Antwort!
+const HINT={
+  S:"Frage: Wer oder was …?",
+  P:"Frage: Was geschieht? (Verb!)",
+  MP:"Gehört das zum Verb? (Hilfsverb, Vorsilbe, Infinitiv, Partizip?)",
+  GenO:"Frage: Wessen …?",
+  DatO:"Frage: Wem …?",
+  AkkO:"Frage: Wen oder was …?",
+  ABO:"Frage: Wo? Wohin? Woher?",
+  ABZ:"Frage: Wann? Wie lange? Wie oft?",
+  ABAW:"Frage: Wie? Auf welche Weise?",
+  ABG:"Frage: Warum? Weshalb? Wozu?"
+};
+
+const sentences=[
+  [["Die Schüler","S"],["schreiben","P"],["seit einer Stunde","ABZ"],["konzentriert","ABAW"],["einen Aufsatz","AkkO"],["im Klassenzimmer","ABO"]],
+  [["Gestern","ABZ"],["hat","MP"],["mein Bruder","S"],["seinem Freund","DatO"],["ein Geschenk","AkkO"],["gegeben","MP"]],
+  [["Wegen des Sturms","ABG"],["blieben","P"],["alle Kinder","S"],["den ganzen Tag","ABZ"],["zu Hause","ABO"]],
+  [["Der Lehrer","S"],["erklärte","P"],["den Schülern","DatO"],["die Aufgabe","AkkO"],["geduldig","ABAW"]],
+  [["Im Park","ABO"],["spielen","P"],["die Kinder","S"],["jeden Nachmittag","ABZ"],["fröhlich","ABAW"]],
+  [["Der Richter","S"],["klagte","P"],["den Angeklagten","AkkO"],["des Diebstahls","GenO"],["an","MP"]],
+  [["Meine Mutter","S"],["kauft","P"],["auf dem Markt","ABO"],["frisches Gemüse","AkkO"],["für das Abendessen","ABG"]],
+  [["Trotz des Regens","ABG"],["joggte","P"],["die Sportlerin","S"],["entschlossen","ABAW"],["durch den Wald","ABO"]],
+  [["Der alte Mann","S"],["erinnert","P"],["sich","AkkO"],["gerne","ABAW"],["seiner Jugend","GenO"]],
+  [["Am Montag","ABZ"],["wird","MP"],["der Direktor","S"],["den Eltern","DatO"],["die Ergebnisse","AkkO"],["mitteilen","MP"]],
+  [["Die Katze","S"],["schläft","P"],["gemütlich","ABAW"],["auf dem Sofa","ABO"]],
+  [["Während der Pause","ABZ"],["erzählte","P"],["Lisa","S"],["ihrer Freundin","DatO"],["eine Geschichte","AkkO"],["leise","ABAW"]],
+  [["Der Arzt","S"],["riet","P"],["dem Patienten","DatO"],["zu mehr Bewegung","AkkO"],["eindringlich","ABAW"]],
+  [["Wegen der Kälte","ABG"],["trug","P"],["das Mädchen","S"],["einen dicken Schal","AkkO"]],
+  [["Nächste Woche","ABZ"],["werden","MP"],["wir","S"],["unsere Großeltern","AkkO"],["in München","ABO"],["besuchen","MP"]],
+  [["Der Hund","S"],["brachte","P"],["seinem Besitzer","DatO"],["den Stock","AkkO"],["freudig","ABAW"],["zurück","MP"]],
+  [["In der Bibliothek","ABO"],["liest","P"],["der Student","S"],["täglich","ABZ"],["wissenschaftliche Artikel","AkkO"]],
+  [["Die Mannschaft","S"],["gewann","P"],["das Spiel","AkkO"],["am Samstag","ABZ"],["überzeugend","ABAW"]],
+  [["Er","S"],["bedarf","P"],["dringend","ABAW"],["deiner Unterstützung","GenO"]],
+  [["Aus Angst","ABG"],["rannte","P"],["das Kind","S"],["schnell","ABAW"],["nach Hause","ABO"]],
+  [["Die Lehrerin","S"],["hat","MP"],["dem Schüler","DatO"],["das Buch","AkkO"],["vor der Stunde","ABZ"],["gegeben","MP"]],
+  [["Heute Morgen","ABZ"],["fährt","P"],["mein Vater","S"],["mit dem Zug","ABAW"],["zur Arbeit","ABO"]],
+  [["Der Künstler","S"],["malt","P"],["ein Porträt","AkkO"],["in seinem Atelier","ABO"],["mit großer Sorgfalt","ABAW"]],
+  [["Die Polizei","S"],["verdächtigte","P"],["den Mann","AkkO"],["des Betrugs","GenO"]],
+  [["Vor dem Unterricht","ABZ"],["bereitet","P"],["der Lehrer","S"],["die Materialien","AkkO"],["sorgfältig","ABAW"],["vor","MP"]],
+  [["Wegen des Staus","ABG"],["kam","P"],["sie","S"],["zu spät","ABAW"],["zur Schule","ABO"]],
+  [["Am Wochenende","ABZ"],["hilft","P"],["der Junge","S"],["seinen Eltern","DatO"],["im Garten","ABO"]],
+  [["Die Ärztin","S"],["verschrieb","P"],["der Patientin","DatO"],["ein Medikament","AkkO"],["gegen die Schmerzen","ABG"]],
+  [["Der Vogel","S"],["singt","P"],["laut","ABAW"],["auf dem Ast","ABO"],["jeden Morgen","ABZ"]],
+  [["Seit drei Stunden","ABZ"],["wartet","P"],["der Kunde","S"],["ungeduldig","ABAW"],["im Wartezimmer","ABO"]],
+  [["Die Schülerin","S"],["konnte","MP"],["die Frage","AkkO"],["nicht","ABAW"],["beantworten","MP"]],
+  [["Zur Belohnung","ABG"],["schenkte","P"],["die Oma","S"],["dem Enkel","DatO"],["ein Spielzeug","AkkO"]],
+  [["Der Fluss","S"],["fließt","P"],["ruhig","ABAW"],["durch das Tal","ABO"]],
+  [["Man","S"],["beschuldigte","P"],["ihn","AkkO"],["des Verrats","GenO"],["vor dem Gericht","ABO"]],
+  [["Im Sommer","ABZ"],["fliegen","P"],["viele Touristen","S"],["gerne","ABAW"],["nach Spanien","ABO"]],
+  [["Das Baby","S"],["wurde","MP"],["von der Mutter","ABAW"],["liebevoll","ABAW"],["in den Schlaf","ABO"],["gesungen","MP"]],
+  [["Trotz der Müdigkeit","ABG"],["lernte","P"],["der Schüler","S"],["fleißig","ABAW"],["für die Prüfung","ABG"]],
+  [["Die Nachbarin","S"],["bringt","P"],["uns","DatO"],["jeden Freitag","ABZ"],["frische Eier","AkkO"]],
+  [["Der Wind","S"],["wehte","P"],["heftig","ABAW"],["über das Feld","ABO"],["am Abend","ABZ"]],
+  [["Sie","S"],["enthob","P"],["den Minister","AkkO"],["seines Amtes","GenO"],["nach dem Skandal","ABZ"]],
+  [["Im Kino","ABO"],["sahen","P"],["die Freunde","S"],["einen spannenden Film","AkkO"],["am Samstagabend","ABZ"]],
+  [["Wegen der Hitze","ABG"],["öffnete","P"],["der Lehrer","S"],["das Fenster","AkkO"],["weit","ABAW"]],
+  [["Die Mutter","S"],["las","P"],["dem Kind","DatO"],["eine Geschichte","AkkO"],["vor dem Einschlafen","ABZ"],["vor","MP"]],
+  [["Schnell","ABAW"],["lief","P"],["der Dieb","S"],["um die Ecke","ABO"]],
+  [["Der Chef","S"],["dankte","P"],["den Mitarbeitern","DatO"],["herzlich","ABAW"],["für ihren Einsatz","ABG"]],
+  [["Auf dem Spielplatz","ABO"],["tobten","P"],["die Kinder","S"],["ausgelassen","ABAW"],["nach der Schule","ABZ"]],
+  [["Er","S"],["wurde","MP"],["des Landes","GenO"],["verwiesen","MP"]],
+  [["Am Abend","ABZ"],["kochte","P"],["die Familie","S"],["gemeinsam","ABAW"],["ein leckeres Essen","AkkO"],["in der Küche","ABO"]],
+  [["Der Autor","S"],["widmete","P"],["seiner Frau","DatO"],["das Buch","AkkO"],["aus Dankbarkeit","ABG"]],
+  [["Morgens","ABZ"],["steht","P"],["meine Schwester","S"],["immer","ABZ"],["sehr früh","ABAW"],["auf","MP"]]
+];
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function pctToGrade(p){if(p>=92)return 1;if(p>=80)return 2;if(p>=65)return 3;if(p>=50)return 4;if(p>=25)return 5;return 6;}
+function gradeEmoji(g){return['','🌟','💪','👍','📝','📚','🔄'][g];}
+function gradeText(g){return['','Hervorragend!','Sehr gut!','Gut gemacht!','Bestanden!','Mehr üben!','Nochmal versuchen!'][g];}
+function gradeClass(g){return'grade-'+g;}
+
+// State
+let phase='main'; // 'main' or 'retry'
+let shuffledIdx=[];
+let completed=0, pointsEarned=0, pointsMax=0, correctCount=0, wrongCount=0;
+let wrongSentenceIndices=[]; // original sentence indices that had errors in main phase
+let sectionPointsEarned=0, sectionPointsMax=0;
+
+// For combined grade
+let mainGradeNum=0, retryGradeNum=0;
+
+function init(){
+  phase='main';
+  shuffledIdx=shuffle([...Array(sentences.length).keys()]);
+  completed=0; pointsEarned=0; pointsMax=0; correctCount=0; wrongCount=0;
+  wrongSentenceIndices=[]; sectionPointsEarned=0; sectionPointsMax=0;
+  mainGradeNum=0; retryGradeNum=0;
+  document.getElementById('resultArea').innerHTML='';
+  buildAll(shuffledIdx,'main');
+  updateScoreboard();
+}
+
+function buildAll(indices, phaseId){
+  const c=document.getElementById('sentenceContainer');
+  c.innerHTML='';
+  completed=0; pointsEarned=0; correctCount=0; wrongCount=0;
+  pointsMax=0; sectionPointsEarned=0; sectionPointsMax=0;
+  indices.forEach((si,di)=>pointsMax+=sentences[si].length);
+
+  if(phaseId==='retry'){
+    const lbl=document.createElement('div'); lbl.className='phase-label';
+    lbl.innerHTML='🔄 Teil 2 – Falsche Sätze wiederholen ('+indices.length+' Sätze)';
+    c.appendChild(lbl);
+  }
+
+  indices.forEach((si,di)=>{
+    const sent=sentences[si];
+    const card=document.createElement('div');
+    card.className='sentence-card'; card.id='card-'+phaseId+'-'+di; card.dataset.si=si; card.dataset.di=di; card.dataset.phase=phaseId;
+
+    const hdr=document.createElement('div'); hdr.className='sentence-header';
+    const nm=document.createElement('div'); nm.className='sentence-num'; nm.textContent='SATZ '+(di+1);
+    const pt=document.createElement('div'); pt.className='sentence-points'; pt.id='pts-'+phaseId+'-'+di;
+    pt.textContent=sent.length+' Pkt. möglich';
+    hdr.appendChild(nm); hdr.appendChild(pt); card.appendChild(hdr);
+
+    const td=document.createElement('div'); td.className='sentence-text';
+    sent.forEach((p,pi)=>{
+      const sp=document.createElement('span'); sp.className='word';
+      sp.textContent=p[0];
+      // Add hint tooltip
+      const hintEl=document.createElement('span'); hintEl.className='word-hint';
+      hintEl.textContent='💡 '+HINT[p[1]];
+      sp.appendChild(hintEl);
+      sp.addEventListener('click',function(e){
+        // Close all other hints
+        document.querySelectorAll('.word.hint-visible').forEach(w=>{if(w!==sp)w.classList.remove('hint-visible');});
+        sp.classList.toggle('hint-visible');
+        e.stopPropagation();
+      });
+      td.appendChild(sp);
+      const sel=document.createElement('select'); sel.className='sg-select';
+      sel.dataset.answer=p[1]; sel.dataset.word=p[0]; sel.id='sel-'+phaseId+'-'+di+'-'+pi;
+      OPTIONS.forEach(o=>{const op=document.createElement('option');op.value=o;op.textContent=o;sel.appendChild(op);});
+      td.appendChild(sel);
+      if(pi<sent.length-1) td.appendChild(document.createTextNode(' '));
+    });
+    card.appendChild(td);
+
+    const btn=document.createElement('button'); btn.className='check-btn'; btn.id='cb-'+phaseId+'-'+di;
+    btn.textContent='✓ Prüfen'; btn.onclick=()=>checkSentence(phaseId,di,indices); card.appendChild(btn);
+
+    const fb=document.createElement('div'); fb.className='feedback'; fb.id='fb-'+phaseId+'-'+di; card.appendChild(fb);
+    c.appendChild(card);
+
+    // After every 5th sentence, insert interim placeholder
+    if((di+1)%5===0 && di+1<indices.length){
+      const ip=document.createElement('div'); ip.id='interim-'+phaseId+'-'+(di+1); c.appendChild(ip);
+    }
+  });
+
+  // Reset button at bottom
+  const br=document.createElement('div'); br.className='btn-row'; br.id='bottomBtns-'+phaseId;
+  const rb=document.createElement('button'); rb.className='btn btn-secondary'; rb.textContent='↺ Alles zurücksetzen';
+  rb.onclick=()=>{init();window.scrollTo({top:0,behavior:'smooth'});};
+  br.appendChild(rb);
+  c.appendChild(br);
+
+  updateScoreboard();
+}
+
+function checkSentence(phaseId,di,indices){
+  const si=indices[di];
+  const sent=sentences[si];
+  const fb=document.getElementById('fb-'+phaseId+'-'+di);
+  const pt=document.getElementById('pts-'+phaseId+'-'+di);
+  const btn=document.getElementById('cb-'+phaseId+'-'+di);
+  const card=document.getElementById('card-'+phaseId+'-'+di);
+
+  let allOk=true;
+  sent.forEach((_,pi)=>{if(document.getElementById('sel-'+phaseId+'-'+di+'-'+pi).value==='—')allOk=false;});
+  if(!allOk){fb.className='feedback fb-wrong';fb.style.display='block';fb.innerHTML='<div class="fb-title">⚠ Bitte alle Felder ausfüllen!</div>';return;}
+
+  let cc=0,wrongs=[];
+  sent.forEach((p,pi)=>{
+    const sel=document.getElementById('sel-'+phaseId+'-'+di+'-'+pi);
+    if(sel.value===p[1]){sel.classList.add('is-correct');sel.classList.remove('is-wrong');cc++;}
+    else{sel.classList.add('is-wrong');sel.classList.remove('is-correct');wrongs.push({word:p[0],given:sel.value,correct:p[1]});}
+    sel.disabled=true;
+  });
+
+  correctCount+=cc; wrongCount+=(sent.length-cc); pointsEarned+=cc; sectionPointsEarned+=cc; sectionPointsMax+=sent.length;
+  completed++;
+
+  if(wrongs.length>0 && phaseId==='main'){
+    if(!wrongSentenceIndices.includes(si)) wrongSentenceIndices.push(si);
+  }
+
+  pt.textContent=cc+'/'+sent.length+' Pkt.'; pt.classList.add('earned');
+  btn.disabled=true; btn.textContent='✓ Geprüft';
+
+  if(wrongs.length===0){
+    card.classList.add('correct-card');
+    fb.className='feedback fb-correct'; fb.style.display='block';
+    fb.innerHTML='<div class="fb-title">✓ Alles richtig! +'+cc+' Punkte</div>';
+  } else {
+    card.classList.add('wrong-card');
+    fb.className='feedback fb-wrong'; fb.style.display='block';
+    let h='<div class="fb-title">✗ '+cc+' von '+sent.length+' richtig → +'+cc+' Punkte</div><div class="fb-detail">';
+    wrongs.forEach(w=>{
+      h+='• <strong>„'+w.word+'"</strong> → richtig: <strong>'+w.correct+'</strong> (du: '+w.given+')<br>';
+      h+='  <span style="color:var(--muted);font-size:.75rem">↳ '+QMAP[w.correct]+'</span><br>';
+    });
+    h+='</div>'; fb.innerHTML=h;
+  }
+
+  updateScoreboard();
+
+  // Interim grade every 5 sentences
+  if(completed%5===0 && completed<indices.length){
+    showInterim(phaseId,completed,indices.length);
+  }
+
+  // All done
+  if(completed===indices.length){
+    setTimeout(()=>showPhaseResult(phaseId,indices),500);
+    return;
+  }
+
+  // Scroll to next
+  const next=document.querySelector('.sentence-card:not(.correct-card):not(.wrong-card)');
+  if(next) setTimeout(()=>next.scrollIntoView({behavior:'smooth',block:'center'}),350);
+}
+
+function showInterim(phaseId,count,total){
+  const slot=document.getElementById('interim-'+phaseId+'-'+count);
+  if(!slot)return;
+  const pct=Math.round(sectionPointsEarned/sectionPointsMax*100);
+  const g=pctToGrade(pct);
+  const block=Math.ceil(count/5);
+  slot.innerHTML=`
+    <div class="interim-box">
+      <h3>📊 Zwischenstand nach ${count} von ${total} Sätzen (Abschnitt ${block})</h3>
+      <div class="interim-stats">
+        <div class="ist"><div class="iv" style="color:var(--correct)">${sectionPointsEarned}</div><div class="il">Abschnitt-Pkt.</div></div>
+        <div class="ist"><div class="iv" style="color:var(--gold)">${pct}%</div><div class="il">Abschnitt</div></div>
+        <div class="ist"><div class="iv" style="color:var(--correct)">${pointsEarned}</div><div class="il">Gesamt-Pkt.</div></div>
+        <div class="ist"><div class="iv" style="color:var(--gold)">${Math.round(pointsEarned/pointsMax*100)}%</div><div class="il">Gesamt</div></div>
+      </div>
+      <div class="interim-grade ${gradeClass(g)}">Zwischennote: ${g} ${gradeEmoji(g)}</div>
+    </div>`;
+  sectionPointsEarned=0; sectionPointsMax=0;
+  slot.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function showPhaseResult(phaseId,indices){
+  // Final interim for last section
+  if(sectionPointsMax>0){
+    const pct2=Math.round(sectionPointsEarned/sectionPointsMax*100);
+    const g2=pctToGrade(pct2);
+    const block2=Math.ceil(completed/5);
+    const lastInterim=document.createElement('div');
+    lastInterim.innerHTML=`
+      <div class="interim-box">
+        <h3>📊 Letzter Abschnitt ${block2}</h3>
+        <div class="interim-stats">
+          <div class="ist"><div class="iv" style="color:var(--correct)">${sectionPointsEarned}</div><div class="il">Abschnitt-Pkt.</div></div>
+          <div class="ist"><div class="iv" style="color:var(--gold)">${pct2}%</div><div class="il">Abschnitt</div></div>
+        </div>
+        <div class="interim-grade ${gradeClass(g2)}">Abschnittsnote: ${g2} ${gradeEmoji(g2)}</div>
+      </div>`;
+    document.getElementById('sentenceContainer').appendChild(lastInterim);
+  }
+
+  const pct=Math.round(pointsEarned/pointsMax*100);
+  const g=pctToGrade(pct);
+  const ra=document.getElementById('resultArea');
+
+  if(phaseId==='main'){
+    mainGradeNum=g;
+    let html=`
+      <div class="result-box" style="display:block" id="mainResult">
+        <div class="result-emoji">${gradeEmoji(g)}</div>
+        <h2>Teil 1 abgeschlossen – ${gradeText(g)}</h2>
+        <div class="result-stats">
+          <div class="stat"><div class="stat-num green">${correctCount}</div><div class="stat-label">Richtig</div></div>
+          <div class="stat"><div class="stat-num red">${wrongCount}</div><div class="stat-label">Falsch</div></div>
+          <div class="stat"><div class="stat-num gold">${pointsEarned}/${pointsMax}</div><div class="stat-label">Punkte</div></div>
+          <div class="stat"><div class="stat-num gold">${pct}%</div><div class="stat-label">Prozent</div></div>
+        </div>
+        <div class="grade-display ${gradeClass(g)}">Note ${g}</div>
+        <div class="grade-scale" id="gs1"></div>
+        <div class="btn-row" style="margin-top:1.2rem">`;
+    if(wrongSentenceIndices.length>0){
+      html+=`<button class="btn btn-retry" onclick="startRetry()">🔄 ${wrongSentenceIndices.length} falsche Sätze wiederholen</button>`;
+    } else {
+      html+=`<div style="color:var(--correct);font-family:'JetBrains Mono',monospace;font-size:.9rem;margin:.5rem 0">🎉 Keine Fehler – perfekt!</div>`;
+    }
+    html+=`<button class="btn btn-secondary" onclick="init();window.scrollTo({top:0,behavior:'smooth'})">↺ Alles neu starten</button>
+        </div>
+      </div>`;
+    ra.innerHTML=html;
+    fillScale('gs1',g);
+  } else {
+    // Retry phase done
+    retryGradeNum=pctToGrade(pct);
+    const combined=Math.round((mainGradeNum+retryGradeNum)/2*10)/10;
+    const combinedRounded=Math.round(combined);
+    const finalGrade=Math.min(Math.max(combinedRounded,1),6);
+
+    let html=`
+      <div class="result-box" style="display:block">
+        <div class="result-emoji">${gradeEmoji(retryGradeNum)}</div>
+        <h2>Teil 2 (Wiederholung) – ${gradeText(retryGradeNum)}</h2>
+        <div class="result-stats">
+          <div class="stat"><div class="stat-num green">${correctCount}</div><div class="stat-label">Richtig</div></div>
+          <div class="stat"><div class="stat-num red">${wrongCount}</div><div class="stat-label">Falsch</div></div>
+          <div class="stat"><div class="stat-num gold">${pointsEarned}/${pointsMax}</div><div class="stat-label">Punkte</div></div>
+          <div class="stat"><div class="stat-num gold">${pct}%</div><div class="stat-label">Prozent</div></div>
+        </div>
+        <div class="grade-display ${gradeClass(retryGradeNum)}">Note ${retryGradeNum}</div>
+        <div class="grade-scale" id="gs2"></div>
+      </div>
+      <div class="combined-box" style="display:block">
+        <h2>📋 Gesamtergebnis</h2>
+        <div class="calc-line">Note Teil 1: <strong>${mainGradeNum}</strong></div>
+        <div class="calc-line">Note Teil 2 (Wiederholung): <strong>${retryGradeNum}</strong></div>
+        <div class="calc-line" style="margin-top:.6rem;font-size:1rem;color:var(--text)">
+          (<strong>${mainGradeNum}</strong> + <strong>${retryGradeNum}</strong>) ÷ 2 = <strong>${combined.toFixed(1)}</strong>
+        </div>
+        <div class="grade-display ${gradeClass(finalGrade)}" style="margin-top:.5rem">Endnote: ${finalGrade}</div>
+        <div class="calc-line">${gradeEmoji(finalGrade)} ${gradeText(finalGrade)}</div>
+        <div class="grade-scale" id="gs3" style="margin-top:.8rem"></div>
+        <div class="btn-row" style="margin-top:1.2rem">
+          <button class="btn btn-primary" onclick="init();window.scrollTo({top:0,behavior:'smooth'})">↺ Komplett neu starten</button>
+        </div>
+      </div>`;
+    ra.innerHTML=html;
+    fillScale('gs2',retryGradeNum);
+    fillScale('gs3',finalGrade);
+  }
+
+  ra.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function fillScale(id,active){
+  const el=document.getElementById(id);
+  if(!el)return;
+  [{g:1,p:'≥92%'},{g:2,p:'≥80%'},{g:3,p:'≥65%'},{g:4,p:'≥50%'},{g:5,p:'≥25%'},{g:6,p:'<25%'}].forEach(t=>{
+    const sp=document.createElement('span'); sp.textContent=t.g+' ('+t.p+')';
+    if(t.g===active)sp.classList.add('active'); el.appendChild(sp);
+  });
+}
+
+function startRetry(){
+  phase='retry';
+  const retryIdx=shuffle([...wrongSentenceIndices]);
+  sectionPointsEarned=0; sectionPointsMax=0;
+  document.getElementById('resultArea').innerHTML='';
+  buildAll(retryIdx,'retry');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function updateScoreboard(){
+  document.getElementById('scCorrect').textContent=correctCount;
+  document.getElementById('scWrong').textContent=wrongCount;
+  document.getElementById('scPoints').textContent=pointsEarned;
+  const total=phase==='main'?sentences.length:(wrongSentenceIndices.length);
+  document.getElementById('scStatus').textContent=completed+' / '+total;
+  document.getElementById('progressFill').style.width=(total>0?completed/total*100:0)+'%';
+}
+
+function toggleInfo(){
+  const s=document.getElementById('infoSection'),b=document.getElementById('toggleBtn');
+  if(s.style.display==='none'||!s.style.display){s.style.display='block';b.textContent='📖 Erklärung ausblenden';}
+  else{s.style.display='none';b.textContent='📖 Erklärung anzeigen';}
+}
+
+init();
+document.addEventListener('click',()=>{document.querySelectorAll('.word.hint-visible').forEach(w=>w.classList.remove('hint-visible'));});
+</script>
+</body>
+</html>
