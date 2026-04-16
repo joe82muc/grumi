@@ -69,12 +69,12 @@
       margin-bottom:.9rem;
     }
     .image-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.7rem;margin-bottom:.95rem}
-    .image-option{aspect-ratio:4/3;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .2s;position:relative;background:#020617}
+    .image-option{aspect-ratio:16/10;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .2s;position:relative;background:#020617}
     .image-option:hover{border-color:var(--accent-2);transform:translateY(-1px)}
-    .image-option.selected{border-color:var(--accent);box-shadow:0 0 0 1px rgba(56,189,248,.25), 0 0 18px rgba(56,189,248,.22)}
+    .image-option.selected{border-color:var(--accent);box-shadow:0 0 0 1px rgba(56,189,248,.25), 0 0 18px rgba(56,189,248,.22);transform:scale(1.03)}
     .image-option img{width:100%;height:100%;object-fit:cover;background:#020617}
     .image-label{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(180deg, transparent, rgba(2,6,23,.85));color:#e0f2fe;font-size:.75rem;padding:.28rem;text-align:center}
-    .selected-preview{width:100%;border-radius:10px;margin-bottom:1rem;display:none;border:1px solid var(--border)}
+    .selected-preview{width:100%;max-height:420px;object-fit:cover;border-radius:10px;margin-bottom:1rem;display:none;border:1px solid var(--border)}
     .selected-preview.visible{display:block}
     .progress-bar{display:flex;gap:.5rem;margin-bottom:1rem}
     .progress-dot{width:12px;height:12px;border-radius:50%;background:#243146}
@@ -200,17 +200,40 @@
     let apiResolvePromise = null;
     let lastApiBase = '';
 
-    document.getElementById('thumb1').src = imageData[1];
-    document.getElementById('thumb2').src = imageData[2];
-    document.getElementById('thumb3').src = imageData[3];
-    document.getElementById('thumb4').src = imageData[4];
-    document.getElementById('thumb5').src = imageData[5];
+    function loadThumb(num){
+      const img = document.getElementById(`thumb${num}`);
+      if(!img || img.dataset.loaded === '1') return;
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.fetchPriority = 'low';
+      img.src = imageData[num];
+      img.dataset.loaded = '1';
+    }
+
+    function warmupThumbs(){
+      // Start mit wenigen Bildern fuer schnellen First Paint, Rest gestaffelt.
+      loadThumb(1);
+      setTimeout(()=>loadThumb(2), 80);
+      const remaining = [3,4,5];
+      let i = 0;
+      const tick = () => {
+        if(i >= remaining.length) return;
+        loadThumb(remaining[i]);
+        i += 1;
+        setTimeout(tick, 220);
+      };
+      setTimeout(tick, 260);
+    }
 
     function selectImage(num){
+      loadThumb(num);
       selectedImage = num;
       document.querySelectorAll('.image-option').forEach(el=>el.classList.remove('selected'));
       document.querySelector(`[data-image="${num}"]`).classList.add('selected');
       const preview = document.getElementById('selectedPreview');
+      preview.loading = 'eager';
+      preview.decoding = 'async';
+      preview.fetchPriority = 'high';
       preview.src = imageData[num];
       preview.classList.add('visible');
       if(currentStep===0){ currentStep=1; showStep(1); }
@@ -292,9 +315,21 @@
 
     function renderStructuredFeedback(fb){
       const list = (arr)=> Array.isArray(arr)&&arr.length ? '<ul>'+arr.map(x=>`<li>${escapeHtml(String(x))}</li>`).join('')+'</ul>' : '<p>-</p>';
+      const rubric = fb && fb.rubric ? fb.rubric : null;
+      const rubricBlock = rubric ? `
+        <p><strong>KI-Kriterien (A2+/B1):</strong></p>
+        <ul>
+          <li>Inhalt: ${Number(rubric.content?.score||0)}/${Number(rubric.content?.max||4)} - ${escapeHtml(String(rubric.content?.note||''))}</li>
+          <li>Wortschatz: ${Number(rubric.vocabulary?.score||0)}/${Number(rubric.vocabulary?.max||4)} - ${escapeHtml(String(rubric.vocabulary?.note||''))}</li>
+          <li>Satzbau: ${Number(rubric.sentence_build?.score||0)}/${Number(rubric.sentence_build?.max||4)} - ${escapeHtml(String(rubric.sentence_build?.note||''))}</li>
+          <li>Struktur: ${Number(rubric.structure?.score||0)}/${Number(rubric.structure?.max||4)} - ${escapeHtml(String(rubric.structure?.note||''))}</li>
+        </ul>
+        <p><strong>Gesamt:</strong> ${Number(rubric.total?.score||0)}/${Number(rubric.total?.max||16)} (${escapeHtml(String(rubric.total?.level||''))})</p>
+      ` : '';
       return `
         <p><strong>Summary:</strong> ${escapeHtml(String(fb.summary||''))}</p>
         <p><strong>Word count:</strong> ${Number(fb.wordCount||0)} (Target: ${Number(fb.target?.min||100)}-${Number(fb.target?.max||150)})</p>
+        ${rubricBlock}
         <p><strong>Strengths:</strong></p>${list(fb.strengths)}
         <p><strong>What is still missing?</strong></p>${list(fb.missing)}
         <p><strong>Logic check:</strong> ${escapeHtml(String(fb.logic?.status||''))} (Score: ${escapeHtml(String(fb.logic?.score||'-'))}/5)</p>
@@ -536,6 +571,7 @@
       if(!ta) return;
       ta.addEventListener('blur', ()=>{ rewriteStepInput(step, false); });
     });
+    warmupThumbs();
     resolveApiBase();
 
     function copyWord(el){ navigator.clipboard.writeText(el.textContent); }
