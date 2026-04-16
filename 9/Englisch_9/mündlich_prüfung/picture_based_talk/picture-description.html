@@ -103,6 +103,11 @@
     .vocab-chip{background:var(--card-2);border:1px solid var(--border);padding:.25rem .6rem;border-radius:20px;font-size:.85rem;cursor:pointer;transition:all .2s}
     .vocab-chip:hover{border-color:var(--accent);color:var(--accent)}
     .action-buttons{display:flex;gap:.75rem;margin-top:1rem;flex-wrap:wrap}
+    .live-note{margin-top:.7rem;padding:.5rem .7rem;border-radius:8px;border:1px solid var(--border);font-size:.87rem;color:#cbd5e1;background:rgba(11,18,32,.6);display:none}
+    .live-note.visible{display:block}
+    .live-note.warn{border-color:#f59e0b;color:#fde68a}
+    .live-note.bad{border-color:#ef4444;color:#fecaca}
+    .live-note.good{border-color:#10b981;color:#bbf7d0}
   </style>
 </head>
 <body>
@@ -136,6 +141,7 @@
           <div class="step" id="step4"><div class="step-title"><span class="step-number">4</span>Actions (Present Progressive)</div><div class="step-question">What are the people doing right now?</div><div class="step-hint">Important: <code>They are ...ing</code></div><textarea id="input4"></textarea><button class="btn" onclick="nextStep(4)">Next -&gt;</button></div>
           <div class="step" id="step5"><div class="step-title"><span class="step-number">5</span>Opinion and atmosphere</div><div class="step-question">How does the picture make you feel?</div><div class="step-hint">Use: <code>I think...</code>, <code>The atmosphere is...</code></div><textarea id="input5"></textarea><button class="btn" onclick="generateText()">Create text</button></div>
         </div>
+        <div class="live-note" id="liveCorrectionNote"></div>
 
         <div class="vocab-box"><div class="vocab-title">Useful words</div><div class="vocab-list"><span class="vocab-chip" onclick="copyWord(this)">foreground</span><span class="vocab-chip" onclick="copyWord(this)">background</span><span class="vocab-chip" onclick="copyWord(this)">atmosphere</span><span class="vocab-chip" onclick="copyWord(this)">excited</span></div></div>
       </div>
@@ -158,10 +164,31 @@
       4: 'file_00000000972c7246a0b65fe0129165cf.png',
       5: 'file_000000006660724681164c65a1adafc0.png'
     };
+    const API_BASE_CANDIDATES = window.location.protocol === 'file:'
+      ? [
+          'https://englisch-9.onrender.com',
+          'http://127.0.0.1:3000',
+          'http://localhost:3000',
+          'http://127.0.0.1:3210',
+          'http://localhost:3210',
+          'http://127.0.0.1:8080',
+          'http://localhost:8080'
+        ]
+      : [''];
+    const imageDescriptions = {
+      1: 'Picnic: Four young people are sitting on a blanket in a park, eating fruit and snacks, with people playing basketball in the background',
+      2: 'Airport: A family is greeting each other in the arrivals hall, two people are hugging, suitcases and flight information boards are visible',
+      3: 'Camping: Four friends are sitting by a campfire in the evening, roasting marshmallows, with tents and string lights in the background',
+      4: 'Safari: Five people in an open jeep are watching wildlife, elephants on the left, and a giraffe with a mountain in the background; sunny savanna landscape',
+      5: 'Football stadium: A group of young fans is cheering in a packed stadium, taking a selfie, holding a Germany scarf and flag, with a loud and excited atmosphere'
+    };
 
     let selectedImage = null;
     let currentStep = 0;
     let userInputs = {};
+    const rewriteBusy = new Set();
+    let resolvedApiBase = null;
+    let apiResolvePromise = null;
 
     document.getElementById('thumb1').src = imageData[1];
     document.getElementById('thumb2').src = imageData[2];
@@ -177,6 +204,7 @@
       preview.src = imageData[num];
       preview.classList.add('visible');
       if(currentStep===0){ currentStep=1; showStep(1); }
+      showLiveNote('good', 'Picture selected. Your sentences will now be checked automatically.');
     }
 
     function showStep(step){
@@ -191,7 +219,8 @@
       currentStep=step;
     }
 
-    function nextStep(fromStep){
+    async function nextStep(fromStep){
+      await rewriteStepInput(fromStep, true);
       const input = document.getElementById(`input${fromStep}`).value.trim();
       if(input) userInputs[fromStep]=input;
       updateResultPreview();
@@ -211,7 +240,8 @@
       document.getElementById('feedbackBtn').disabled = words < 20;
     }
 
-    function generateText(){
+    async function generateText(){
+      await rewriteStepInput(5, true);
       const input=document.getElementById('input5').value.trim();
       if(input) userInputs[5]=input;
       updateResultPreview();
@@ -226,16 +256,9 @@
       feedbackEl.classList.add('visible');
       contentEl.innerHTML = '<div>Analyzing your text...</div>';
 
-      const imageDescriptions = {
-        1: 'Picnic: Four young people are sitting on a blanket in a park, eating fruit and snacks, with people playing basketball in the background',
-        2: 'Airport: A family is greeting each other in the arrivals hall, two people are hugging, suitcases and flight information boards are visible',
-        3: 'Camping: Four friends are sitting by a campfire in the evening, roasting marshmallows, with tents and string lights in the background',
-        4: 'Safari: Five people in an open jeep are watching wildlife, elephants on the left, and a giraffe with a mountain in the background; sunny savanna landscape',
-        5: 'Football stadium: A group of young fans is cheering in a packed stadium, taking a selfie, holding a Germany scarf and flag, with a loud and excited atmosphere'
-      };
-
       try{
-        const response = await fetch('/api/picture-description/feedback',{
+        const endpoint = await apiUrl('/api/picture-description/feedback');
+        const response = await fetch(endpoint,{
           method:'POST',
           headers:{'Content-Type':'application/json'},
           body:JSON.stringify({ text, selectedImage, imageDescription:imageDescriptions[selectedImage] || 'a photo with people' })
@@ -269,6 +292,209 @@
       return String(value||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
     }
 
+    function showLiveNote(type, message){
+      const note = document.getElementById('liveCorrectionNote');
+      note.classList.remove('good','warn','bad','visible');
+      if(!message){
+        note.textContent = '';
+        return;
+      }
+      if(type) note.classList.add(type);
+      note.textContent = message;
+      note.classList.add('visible');
+    }
+
+    async function resolveApiBase(){
+      if(resolvedApiBase !== null) return resolvedApiBase;
+      if(apiResolvePromise) return apiResolvePromise;
+
+      apiResolvePromise = (async ()=>{
+        const queryApi = new URLSearchParams(window.location.search).get('api');
+        const candidates = queryApi
+          ? [queryApi, ...API_BASE_CANDIDATES.filter((x)=>x !== queryApi)]
+          : [...API_BASE_CANDIDATES];
+
+        for(const base of candidates){
+          try{
+            const response = await fetch(`${base}/api/health`, { method:'GET' });
+            if(response.ok){
+              resolvedApiBase = base;
+              return resolvedApiBase;
+            }
+          }catch(_e){}
+        }
+
+        resolvedApiBase = '';
+        return resolvedApiBase;
+      })();
+
+      return apiResolvePromise;
+    }
+
+    async function apiUrl(path){
+      const base = await resolveApiBase();
+      return `${base}${path}`;
+    }
+
+    function normalizeSentence(text){
+      let out = String(text || '').replace(/\s+/g, ' ').trim();
+      if(!out) return '';
+      out = out.replace(/\bi\b/g,'I')
+               .replace(/\bim\b/gi,"I'm")
+               .replace(/\bdont\b/gi,"don't")
+               .replace(/\bdoesnt\b/gi,"doesn't")
+               .replace(/\bfreinds\b/gi,'friends')
+               .replace(/\bfrends\b/gi,'friends')
+               .replace(/\bnthe\b/gi,'in the')
+               .replace(/\bi nthe\b/gi,'in the')
+               .replace(/\bbackgrund\b/gi,'background')
+               .replace(/\bbakground\b/gi,'background')
+               .replace(/\belefant\b/gi,'elephant')
+               .replace(/\bgirafe\b/gi,'giraffe')
+               .replace(/\bthare\b/gi,'there')
+               .replace(/\bthexare\b/gi,'there are');
+      out = out.charAt(0).toUpperCase() + out.slice(1);
+      if(!/[.!?]$/.test(out)) out += '.';
+      return out;
+    }
+
+    function localRuleCheck(sentence, step){
+      const s = Number(step || 1);
+      const txt = String(sentence || '');
+      if(s === 1 && !/\b(this picture shows|in this picture (i can see|you can see)|the picture shows)\b/i.test(txt)){
+        return { status:'unsicher', reason:"Step 1 needs an introduction like 'This picture shows ...'." };
+      }
+      if(s === 2 && !/\b(foreground|background|on the left|on the right|in the middle|at the top|at the bottom)\b/i.test(txt)){
+        return { status:'passt_nicht', reason:'Step 2 needs location words (foreground/background/left/right).' };
+      }
+      if(s === 3 && !/\b(there (is|are)|people|person|boy|girl|man|woman|family|friends|wearing|looks like)\b/i.test(txt)){
+        return { status:'unsicher', reason:'Step 3 should describe people or clothes.' };
+      }
+      if(s === 4 && !/\b(am|is|are)\s+\w+ing\b/i.test(txt)){
+        return { status:'passt_nicht', reason:'Step 4 needs Present Progressive (am/is/are + verb-ing).' };
+      }
+      if(s === 5 && !/\b(i think|in my opinion|i like|i don't like|the atmosphere is|it looks)\b/i.test(txt)){
+        return { status:'unsicher', reason:'Step 5 should include opinion or atmosphere.' };
+      }
+      return { status:'passt', reason:'Sentence matches this step.' };
+    }
+
+    function localImageCheck(sentence, imageDescription){
+      const lowerText = String(sentence || '').toLowerCase();
+      const lowerImage = String(imageDescription || '').toLowerCase();
+      const imageTokens = lowerImage.split(/[^a-z]+/).filter(w => w.length >= 4);
+      const textTokens = new Set(lowerText.split(/[^a-z]+/).filter(Boolean));
+      const overlap = imageTokens.filter(t => textTokens.has(t)).length;
+      if(/\b(snow|classroom|kitchen|bedroom|office|hospital)\b/.test(lowerText) && !/\b(snow|classroom|kitchen|bedroom|office|hospital)\b/.test(lowerImage)){
+        return { status:'passt_nicht', reason:'Content does not fit the selected picture.' };
+      }
+      if(overlap >= 2) return { status:'passt', reason:'Content fits the selected picture.' };
+      return { status:'unsicher', reason:'Picture match is possible but unclear.' };
+    }
+
+    function mergeStatus(a, b){
+      const rank = { passt:0, unsicher:1, passt_nicht:2 };
+      const sa = String(a?.status || 'unsicher');
+      const sb = String(b?.status || 'unsicher');
+      const worst = (rank[sa] >= rank[sb]) ? sa : sb;
+      const reason = `${String(a?.reason || '').trim()} ${String(b?.reason || '').trim()}`.trim();
+      return { status: worst, reason };
+    }
+
+    function localRewriteFallback(text, step){
+      const correctedText = normalizeSentence(text);
+      const imageDescription = imageDescriptions[selectedImage] || 'a photo with people';
+      const byImage = localImageCheck(correctedText, imageDescription);
+      const byStep = localRuleCheck(correctedText, step);
+      return {
+        correctedText,
+        imageMatch: mergeStatus(byImage, byStep)
+      };
+    }
+
+    async function requestKiRewrite(payload){
+      const rewriteEndpoint = await apiUrl('/api/picture-description/rewrite-sentence');
+      const rewriteResp = await fetch(rewriteEndpoint,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload)
+      });
+
+      if(rewriteResp.ok){
+        return await rewriteResp.json();
+      }
+
+      if(rewriteResp.status === 404){
+        const legacyEndpoint = await apiUrl('/api/korrektur');
+        const legacyResp = await fetch(legacyEndpoint,{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({ studentAnswer: payload.text })
+        });
+        if(!legacyResp.ok) throw new Error('LEGACY_API_ERROR_'+legacyResp.status);
+        const legacyData = await legacyResp.json();
+        const corrected = normalizeSentence(String(legacyData.corrected || legacyData.suggestion || payload.text));
+        const byImage = localImageCheck(corrected, payload.imageDescription);
+        const byStep = localRuleCheck(corrected, payload.step);
+        return {
+          ok:true,
+          correctedText: corrected,
+          imageMatch: mergeStatus(byImage, byStep),
+          source:'legacy-korrektur'
+        };
+      }
+
+      throw new Error('API_ERROR_'+rewriteResp.status);
+    }
+
+    async function rewriteStepInput(step, silent){
+      const ta = document.getElementById(`input${step}`);
+      if(!ta) return;
+      const text = ta.value.trim();
+      if(!text || !selectedImage) return;
+      if(rewriteBusy.has(step)) return;
+
+      rewriteBusy.add(step);
+      if(!silent) showLiveNote('', 'Checking grammar and picture logic...');
+
+      try{
+        const data = await requestKiRewrite({
+          text,
+          step,
+          selectedImage,
+          imageDescription:imageDescriptions[selectedImage] || 'a photo with people'
+        });
+        const corrected = data && data.correctedText ? String(data.correctedText).trim() : text;
+        if(corrected && corrected !== ta.value.trim()) ta.value = corrected;
+        userInputs[step] = ta.value.trim();
+        updateResultPreview();
+
+        const match = data && data.imageMatch ? data.imageMatch : null;
+        if(match){
+          const status = String(match.status || '').toLowerCase();
+          if(status === 'passt_nicht'){
+            showLiveNote('bad', `Sentence corrected. Picture check: ${String(match.reason || 'The content does not match the selected picture.')}`);
+          }else if(status === 'unsicher'){
+            showLiveNote('warn', `Sentence corrected. Picture check: ${String(match.reason || 'Please make your sentence more specific.')}`);
+          }else{
+            showLiveNote('good', `Sentence corrected. Picture check: ${String(match.reason || 'Looks good for the selected picture.')}`);
+          }
+        }else{
+          showLiveNote('good', 'Sentence corrected.');
+        }
+      }catch(_e){
+        showLiveNote('bad', 'KI-Korrektur derzeit nicht erreichbar. Bitte Backend/AI-Konfiguration prüfen.');
+      }finally{
+        rewriteBusy.delete(step);
+      }
+    }
+
+    [1,2,3,4,5].forEach((step)=>{
+      const ta = document.getElementById(`input${step}`);
+      if(!ta) return;
+      ta.addEventListener('blur', ()=>{ rewriteStepInput(step, false); });
+    });
+
     function copyWord(el){ navigator.clipboard.writeText(el.textContent); }
     function copyResult(){ navigator.clipboard.writeText(document.getElementById('resultText').textContent); }
     function resetAll(){
@@ -283,6 +509,7 @@
       document.getElementById('wordCount').classList.remove('good','low');
       document.getElementById('aiFeedback').classList.remove('visible');
       document.getElementById('feedbackBtn').disabled=true;
+      showLiveNote('', '');
     }
   </script>
 </body>
