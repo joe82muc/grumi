@@ -49,6 +49,11 @@
     .subtitle{color:var(--text-dim)}
     .main-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
     @media (max-width:900px){.main-grid{grid-template-columns:1fr}}
+    .ai-status{margin:.55rem auto 0;display:inline-flex;align-items:center;gap:.45rem;padding:.32rem .65rem;border:1px solid var(--border);border-radius:999px;font-size:.84rem;color:#cbd5e1;background:rgba(11,18,32,.45)}
+    .ai-status .dot{width:9px;height:9px;border-radius:50%;background:#64748b}
+    .ai-status.ok .dot{background:#22c55e;box-shadow:0 0 10px rgba(34,197,94,.5)}
+    .ai-status.warn .dot{background:#f59e0b;box-shadow:0 0 10px rgba(245,158,11,.45)}
+    .ai-status.bad .dot{background:#ef4444;box-shadow:0 0 10px rgba(239,68,68,.45)}
     .panel{
       background:linear-gradient(180deg, rgba(30,41,59,.96), rgba(11,18,32,.96));
       border:1px solid var(--border);
@@ -115,6 +120,7 @@
     <header>
       <h1>Talking about a Picture</h1>
       <p class="subtitle">AI Assistant for Picture Descriptions (100 Words)</p>
+      <div class="ai-status warn" id="aiStatus"><span class="dot"></span><span id="aiStatusText">Checking AI connection...</span></div>
     </header>
 
     <div class="main-grid">
@@ -192,6 +198,7 @@
     const rewriteBusy = new Set();
     let resolvedApiBase = null;
     let apiResolvePromise = null;
+    let lastApiBase = '';
 
     document.getElementById('thumb1').src = imageData[1];
     document.getElementById('thumb2').src = imageData[2];
@@ -223,7 +230,10 @@
     }
 
     async function nextStep(fromStep){
-      await rewriteStepInput(fromStep, true);
+      const result = await rewriteStepInput(fromStep, true);
+      if(!result || !result.accepted){
+        return;
+      }
       const input = document.getElementById(`input${fromStep}`).value.trim();
       if(input) userInputs[fromStep]=input;
       updateResultPreview();
@@ -244,7 +254,10 @@
     }
 
     async function generateText(){
-      await rewriteStepInput(5, true);
+      const result = await rewriteStepInput(5, true);
+      if(!result || !result.accepted){
+        return;
+      }
       const input=document.getElementById('input5').value.trim();
       if(input) userInputs[5]=input;
       updateResultPreview();
@@ -307,6 +320,15 @@
       note.classList.add('visible');
     }
 
+    function setAiStatus(type, message){
+      const el = document.getElementById('aiStatus');
+      const text = document.getElementById('aiStatusText');
+      if(!el || !text) return;
+      el.classList.remove('ok','warn','bad');
+      el.classList.add(type || 'warn');
+      text.textContent = message || 'AI status unknown';
+    }
+
     async function resolveApiBase(){
       if(resolvedApiBase !== null) return resolvedApiBase;
       if(apiResolvePromise) return apiResolvePromise;
@@ -322,12 +344,17 @@
             const response = await fetch(`${base}/api/health`, { method:'GET' });
             if(response.ok){
               resolvedApiBase = base;
+              lastApiBase = base;
+              const label = base ? base.replace(/^https?:\/\//,'') : 'same-origin';
+              setAiStatus('ok', `AI connected: ${label}`);
               return resolvedApiBase;
             }
           }catch(_e){}
         }
 
         resolvedApiBase = '';
+        lastApiBase = '';
+        setAiStatus('bad', 'AI disconnected');
         return resolvedApiBase;
       })();
 
@@ -424,6 +451,7 @@
       });
 
       if(rewriteResp.ok){
+        setAiStatus('ok', `AI connected: ${(lastApiBase || 'same-origin').replace(/^https?:\/\//,'')}`);
         return await rewriteResp.json();
       }
 
@@ -436,6 +464,7 @@
         });
         if(!legacyResp.ok) throw new Error('LEGACY_API_ERROR_'+legacyResp.status);
         const legacyData = await legacyResp.json();
+        setAiStatus('ok', `AI connected (legacy): ${(lastApiBase || 'same-origin').replace(/^https?:\/\//,'')}`);
         const corrected = normalizeSentence(String(legacyData.corrected || legacyData.suggestion || payload.text));
         const byImage = localImageCheck(corrected, payload.imageDescription);
         const byStep = localRuleCheck(corrected, payload.step);
@@ -452,10 +481,10 @@
 
     async function rewriteStepInput(step, silent){
       const ta = document.getElementById(`input${step}`);
-      if(!ta) return;
+      if(!ta) return { accepted:false, status:'unsicher' };
       const text = ta.value.trim();
-      if(!text || !selectedImage) return;
-      if(rewriteBusy.has(step)) return;
+      if(!text || !selectedImage) return { accepted:false, status:'unsicher' };
+      if(rewriteBusy.has(step)) return { accepted:false, status:'unsicher' };
 
       rewriteBusy.add(step);
       if(!silent) showLiveNote('', 'Checking grammar and picture logic...');
@@ -469,24 +498,34 @@
         });
         const corrected = data && data.correctedText ? String(data.correctedText).trim() : text;
         if(corrected && corrected !== ta.value.trim()) ta.value = corrected;
-        userInputs[step] = ta.value.trim();
-        updateResultPreview();
 
         const match = data && data.imageMatch ? data.imageMatch : null;
         if(match){
           const status = String(match.status || '').toLowerCase();
-          if(status === 'passt_nicht'){
-            showLiveNote('bad', `Sentence corrected. Picture check: ${String(match.reason || 'The content does not match the selected picture.')}`);
-          }else if(status === 'unsicher'){
-            showLiveNote('warn', `Sentence corrected. Picture check: ${String(match.reason || 'Please make your sentence more specific.')}`);
-          }else{
-            showLiveNote('good', `Sentence corrected. Picture check: ${String(match.reason || 'Looks good for the selected picture.')}`);
+          if(status === 'passt'){
+            userInputs[step] = ta.value.trim();
+            updateResultPreview();
+            showLiveNote('good', `Sentence accepted. ${String(match.reason || 'Good match.')}`);
+            return { accepted:true, status };
           }
+          delete userInputs[step];
+          updateResultPreview();
+          if(status === 'passt_nicht'){
+            showLiveNote('bad', `Noch nicht akzeptiert: ${String(match.reason || 'The content does not match the selected picture.')} Bitte korrigieren.`);
+          }else{
+            showLiveNote('warn', `Noch zu ungenau: ${String(match.reason || 'Please make your sentence more specific.')} Bitte korrigieren.`);
+          }
+          return { accepted:false, status };
         }else{
-          showLiveNote('good', 'Sentence corrected.');
+          delete userInputs[step];
+          updateResultPreview();
+          showLiveNote('warn', 'AI result unclear. Please rewrite this sentence.');
+          return { accepted:false, status:'unsicher' };
         }
       }catch(_e){
+        setAiStatus('bad', 'AI disconnected');
         showLiveNote('bad', 'KI-Korrektur derzeit nicht erreichbar. Bitte Backend/AI-Konfiguration prüfen.');
+        return { accepted:false, status:'error' };
       }finally{
         rewriteBusy.delete(step);
       }
@@ -497,6 +536,7 @@
       if(!ta) return;
       ta.addEventListener('blur', ()=>{ rewriteStepInput(step, false); });
     });
+    resolveApiBase();
 
     function copyWord(el){ navigator.clipboard.writeText(el.textContent); }
     function copyResult(){ navigator.clipboard.writeText(document.getElementById('resultText').textContent); }
