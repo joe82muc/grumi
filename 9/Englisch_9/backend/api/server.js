@@ -28,10 +28,38 @@ const STATIC_ROOT = resolveStaticRoot();
 const DATA_DIR = path.join(__dirname, "..", "data");
 const STUDENTS_FILE = path.join(DATA_DIR, "students.json");
 const PROGRESS_FILE = path.join(DATA_DIR, "progress.json");
+const PICTURE_BASED_TALK_ROOT = resolveFirstExistingDir([
+  path.join(__dirname, "..", "..", "mündlich_prüfung", "picture_based_talk"),
+  path.join(__dirname, "..", "..", "muendlich_pruefung", "picture_based_talk"),
+  path.join(__dirname, "..", "..", "muendliche_pruefung", "picture_based_talk"),
+  path.join(__dirname, "..", "..", "mündliche_pruefung", "picture_based_talk")
+]);
 
 ensureDataFiles();
 
 app.use(express.static(STATIC_ROOT));
+
+if (PICTURE_BASED_TALK_ROOT) {
+  app.use("/picture-based-talk", express.static(PICTURE_BASED_TALK_ROOT));
+}
+
+app.get("/api/picture-based-talk/images", (_req, res) => {
+  if (!PICTURE_BASED_TALK_ROOT) {
+    return res.status(404).json({ ok: false, error: "picture_based_talk_not_found" });
+  }
+
+  const files = fs.readdirSync(PICTURE_BASED_TALK_ROOT, { withFileTypes: true })
+    .filter((entry) => entry.isFile())
+    .map((entry) => entry.name)
+    .filter((name) => /\.(png|jpe?g|webp|gif|svg)$/i.test(name));
+
+  const images = files.map((name) => ({
+    name,
+    url: `/picture-based-talk/${encodeURIComponent(name)}`
+  }));
+
+  return res.json({ ok: true, images });
+});
 
 app.get("/", (_req, res) => {
   const indexAtRoot = path.join(STATIC_ROOT, "index.html");
@@ -714,12 +742,26 @@ const NT_APP8_TASKS = {
     question: "Erklaere, wie ein Szintigramm erstellt wird.",
     modelAnswer: "Dem Patienten werden winzige Mengen radioaktiver Iod-Isotope in die Blutbahn gespritzt. Da sich die radioaktiven Isotope chemisch genauso verhalten wie normales Iod, gelangen sie in die Schilddruese und reichern sich dort an. Die radioaktiven Strahlen, die jetzt ausgesendet werden, koennen mit einem Messgeraet aufgezeichnet und am Computer zu einem Bild der Schilddruese zusammengesetzt werden. Dieses Abbild nennt man Szintigramm.",
     keyConcepts: ["iod-isotope", "blutbahn", "schilddruese", "messgeraet", "abbild/szintigramm"],
+    criteria: [
+      { id: "stoffgabe", concept: "iod-isotope/blutbahn", target: "radioaktive Iod-Isotope in die Blutbahn" },
+      { id: "anreicherung", concept: "schilddruese", target: "Anreicherung in der Schilddruese" },
+      { id: "messung", concept: "messgeraet/strahlen", target: "Aussendung und Messung der Strahlung" },
+      { id: "bildentstehung", concept: "computer/bild/abbild/szintigramm", target: "Zusammensetzen zum Bild (Szintigramm)" },
+      { id: "logik", concept: "prozesslogik", target: "logische Reihenfolge mit Ursache-Wirkung" }
+    ],
     logicConnectors: ["zuerst", "dann", "danach", "weil", "dadurch", "deshalb"]
   },
   B: {
     question: "Begruende, warum die Leckstellensuche mit Xenon eine sinnvolle Methode ist.",
     modelAnswer: "Die Leckstellensuche in unterirdisch verlegten Gasleitungen kann sehr aufwaendig sein, da man Leitungen ueber laengere Strecken aufgraben muss. Um den Aufwand zu minimieren, versetzt man das Erdgas mit dem radioaktiven Gas Xenon. Mithilfe eines Geiger-Mueller-Zaehler kann man feststellen, wo Gas zusammen mit Xenon austritt und so die Leckstelle gezielt finden.",
     keyConcepts: ["unterirdische leitungen", "aufgraben/aufwand", "xenon", "geiger-mueller-zaehler", "leckstelle/austritt"],
+    criteria: [
+      { id: "problem", concept: "unterirdische leitungen/aufgraben/aufwand", target: "Problem: aufwaendige Lecksuche durch Aufgraben" },
+      { id: "xenon", concept: "xenon/erdgas", target: "Xenon wird dem Erdgas beigemischt" },
+      { id: "messprinzip", concept: "geiger-mueller-zaehler", target: "Messung mit Geiger-Mueller-Zaehler" },
+      { id: "nutzwert", concept: "austritt/leckstelle", target: "Austritt zeigt Leckstelle gezielt" },
+      { id: "logik", concept: "prozesslogik", target: "klare Begruendung, warum Methode sinnvoll ist" }
+    ],
     logicConnectors: ["weil", "um ... zu", "dadurch", "deshalb", "so kann"]
   }
 };
@@ -740,6 +782,13 @@ app.post("/api/nt/app8/evaluate", async (req, res) => {
     const keyConcepts = Array.isArray(req.body?.keyConcepts)
       ? req.body.keyConcepts.map((x) => clean(x)).filter(Boolean)
       : (task ? task.keyConcepts : []);
+    const criteria = Array.isArray(req.body?.criteria)
+      ? req.body.criteria.map((c) => ({
+          id: clean(c?.id),
+          concept: clean(c?.concept),
+          target: clean(c?.target)
+        })).filter((c) => c.id && c.target)
+      : (task ? task.criteria : []);
     const logicConnectors = Array.isArray(req.body?.logicConnectors)
       ? req.body.logicConnectors.map((x) => clean(x).toLowerCase()).filter(Boolean)
       : (task ? task.logicConnectors : []);
@@ -752,6 +801,7 @@ app.post("/api/nt/app8/evaluate", async (req, res) => {
       answer,
       question,
       keyConcepts,
+      criteria,
       logicConnectors,
       minWords
     });
@@ -768,15 +818,20 @@ app.post("/api/nt/app8/evaluate", async (req, res) => {
       "Du bist ein strenger, aber fairer NT-Lehrer (9. Klasse, Bayern).",
       "Pruefe eine Schuelerantwort gegen die Musterloesung aus dem Schulbuch.",
       "Wichtig: Begriffe aufzuzaehlen reicht NICHT. Der inhaltliche Zusammenhang und die Logik sind entscheidend.",
-      "Wenn nur Stichwoerter ohne logische Erklaerung vorhanden sind: maximal 1 Punkt.",
-      "Bewerte nach: Logik, Vollstaendigkeit, Fachsprache, sachliche Richtigkeit.",
+      "Bewerte mit diesem Rubriksystem: pro Kriterium sind nur 2, 1 oder 0 Punkte erlaubt.",
+      "2 Punkte = vollstaendige, logische Erklaerung mit passendem Fachbegriff.",
+      "1 Punkt = Fachbegriff vorhanden, aber Erklaerung ungenau/zu knapp.",
+      "0 Punkte = nur Fachbegriff ohne Erklaerung ODER fachlich falsch.",
+      "Ignoriere Rechtschreibung und Grammatik komplett; bewerte nur Fachinhalt + Logik.",
+      "Es gibt 5 Kriterien, also max. 10 Punkte pro Aufgabe.",
       "Antworte nur als JSON ohne Markdown.",
-      'Schema: {"points":0|1|2,"verdict":"Richtig|Teilweise|Ueberarbeiten","isLogical":true|false,"feedback":"2-4 Saetze ohne Musterloesung","missing":["..."],"strength":["..."],"scores":{"logic":0-100,"content":0-100,"terminology":0-100}}'
+      'Schema: {"points":0-10,"verdict":"Richtig|Teilweise|Ueberarbeiten","isLogical":true|false,"feedback":"2-4 Saetze ohne Musterloesung","criteria":[{"id":"...","score":0|1|2,"note":"..."}],"missing":["..."],"strength":["..."],"scores":{"logic":0-100,"content":0-100,"terminology":0-100}}'
     ].join("\n");
 
     const user = [
       `Frage: ${question}`,
       `Musterloesung (nur fuer Bewertung): ${modelAnswer}`,
+      `Kriterien (5x): ${criteria.map((c, i) => `${i + 1}) ${c.id}: ${c.target}`).join(" | ") || "-"}`,
       `Erwartete Schluesselkonzepte: ${keyConcepts.join(", ") || "-"}`,
       `Schuelerantwort: ${answer}`,
       `Mindestlaenge: ${minWords} Woerter`
@@ -788,14 +843,21 @@ app.post("/api/nt/app8/evaluate", async (req, res) => {
       return res.json({ ok: true, source: "fallback-parse", ...fallback });
     }
 
-    const points = clampNtPoints(parsed.points);
+    const points = clampNtPoints10(parsed.points);
     return res.json({
       ok: true,
       source: "anthropic",
       points,
-      verdict: String(parsed.verdict || (points === 2 ? "Richtig" : points === 1 ? "Teilweise" : "Ueberarbeiten")),
+      verdict: String(parsed.verdict || (points >= 8 ? "Richtig" : points >= 4 ? "Teilweise" : "Ueberarbeiten")),
       isLogical: Boolean(parsed.isLogical),
       feedback: String(parsed.feedback || fallback.feedback),
+      criteria: Array.isArray(parsed.criteria)
+        ? parsed.criteria.map((c) => ({
+            id: String(c?.id || ""),
+            score: clampCriterionScore(c?.score),
+            note: String(c?.note || "")
+          })).slice(0, 5)
+        : fallback.criteria,
       missing: Array.isArray(parsed.missing) ? parsed.missing.map((x) => String(x)).slice(0, 6) : fallback.missing,
       strength: Array.isArray(parsed.strength) ? parsed.strength.map((x) => String(x)).slice(0, 4) : fallback.strength,
       scores: {
@@ -813,10 +875,705 @@ app.post("/api/nt/app8/evaluate", async (req, res) => {
       answer,
       question: clean(req.body?.question || (task ? task.question : "")),
       keyConcepts: task ? task.keyConcepts : [],
+      criteria: task ? task.criteria : [],
       logicConnectors: task ? task.logicConnectors : [],
       minWords: Math.max(8, Number(req.body?.minWords || 12))
     });
     return res.status(200).json({ ok: true, source: "fallback-error", ...fallback });
+  }
+});
+
+const NT_APP10_KEY_CONCEPTS = [
+  "u-235",
+  "neutron",
+  "spaltung",
+  "truemmerkern",
+  "energie",
+  "kettenreaktion",
+  "moderator",
+  "graphit",
+  "kritische masse",
+  "absorber",
+  "1:1"
+];
+
+const NT_APP4_KEY_CONCEPTS = [
+  "alpha",
+  "beta",
+  "gamma",
+  "heliumkern",
+  "elektron",
+  "elektromagnetische welle",
+  "ladung",
+  "positiv",
+  "negativ",
+  "nicht abgelenkt",
+  "papier",
+  "aluminium",
+  "blei",
+  "rauchmelder",
+  "americium",
+  "medizin",
+  "lebensmittel",
+  "nicht radioaktiv"
+];
+
+app.post("/api/nt/app10/coach", async (req, res) => {
+  try {
+    const answer = String(req.body?.answer ?? req.body?.studentAnswer ?? "").trim();
+    const question = clean(req.body?.question || "Erklaere die Kettenreaktion in 2-4 logischen Saetzen.");
+    const stepRequested = Number(req.body?.step || 0);
+
+    if (!answer) {
+      return res.status(400).json({ ok: false, error: "answer fehlt." });
+    }
+
+    const base = buildNtApp10CoachFallback({ answer, question, stepRequested });
+
+    if (!ANTHROPIC_API_KEY) {
+      return res.json({ ok: true, source: "fallback-no-key", ...base });
+    }
+
+    const system = [
+      "Du bist ein NT-Lehrer (9. Klasse, Bayern) mit Fokus auf kleinschrittiges Coaching.",
+      "Ziel: Schueler sollen in kleinen Schritten zu 2-3 korrekten Loesungssaetzen kommen.",
+      "Wichtig: Gib NICHT die komplette Musterloesung aus.",
+      "Stattdessen: nenne naechste Mikro-Schritte und Satzrahmen mit Luecken (__).",
+      "Ton: klar, freundlich, konkret, schuelernah.",
+      "Antworte NUR als JSON.",
+      'Schema: {"feedback":"...","nextStep":1|2|3|4,"microTasks":["..."],"sentenceFrames":["..."],"checklist":["..."],"rewriteHint":"..."}'
+    ].join("\n");
+
+    const user = [
+      `Frage: ${question}`,
+      `Schuelerantwort: ${answer}`,
+      `Voranalyse (intern): Punkte=${base.points}/10, Note=${base.grade}, Schritt=${base.step}`,
+      `Gefundene Konzepte: ${base.meta.foundConcepts.join(", ") || "-"}`,
+      `Fehlende Konzepte: ${base.missing.join(", ") || "-"}`,
+      "Erzeuge ein kleinschrittiges Coaching fuer den naechsten Lernschritt."
+    ].join("\n\n");
+
+    const raw = await askAnthropic(system, user, 420);
+    const parsed = parseNtApp10CoachJson(raw);
+
+    if (!parsed) {
+      return res.json({ ok: true, source: "fallback-parse", ...base });
+    }
+
+    const nextStep = inferNtApp10Step(Number(parsed.nextStep || base.step), base.points);
+    const microTasks = Array.isArray(parsed.microTasks)
+      ? parsed.microTasks.map((x) => String(x || "").trim()).filter(Boolean).slice(0, 4)
+      : base.microTasks;
+    const sentenceFrames = Array.isArray(parsed.sentenceFrames)
+      ? parsed.sentenceFrames.map((x) => String(x || "").trim()).filter(Boolean).slice(0, 4)
+      : base.sentenceFrames;
+    const checklist = Array.isArray(parsed.checklist)
+      ? parsed.checklist.map((x) => String(x || "").trim()).filter(Boolean).slice(0, 5)
+      : base.checklist;
+
+    return res.json({
+      ok: true,
+      source: "anthropic",
+      points: base.points,
+      grade: base.grade,
+      verdict: base.verdict,
+      step: nextStep,
+      feedback: String(parsed.feedback || base.feedback),
+      microTasks: microTasks.length ? microTasks : base.microTasks,
+      sentenceFrames: sentenceFrames.length ? sentenceFrames : base.sentenceFrames,
+      checklist: checklist.length ? checklist : base.checklist,
+      rewriteHint: String(parsed.rewriteHint || base.rewriteHint),
+      missing: base.missing,
+      strengths: base.strengths,
+      meta: base.meta
+    });
+  } catch (error) {
+    console.error("Fehler bei /api/nt/app10/coach:", error.message);
+    const answer = String(req.body?.answer ?? req.body?.studentAnswer ?? "").trim();
+    const question = clean(req.body?.question || "Erklaere die Kettenreaktion in 2-4 logischen Saetzen.");
+    const stepRequested = Number(req.body?.step || 0);
+    const fallback = buildNtApp10CoachFallback({ answer, question, stepRequested });
+    return res.status(200).json({ ok: true, source: "fallback-error", ...fallback });
+  }
+});
+
+function buildNtApp10CoachFallback({ answer, question, stepRequested }) {
+  const text = String(answer || "").trim();
+  const lower = text.toLowerCase();
+  const words = text.split(/\s+/).filter(Boolean);
+  const foundConcepts = NT_APP10_KEY_CONCEPTS.filter((c) => {
+    if (c === "truemmerkern") return /truemmerkern|tr[üu]mmerkern/i.test(text);
+    if (c === "1:1") return /1\s*:\s*1/.test(lower) || /eins\s*zu\s*eins/.test(lower);
+    if (c === "u-235") return /u\s*-?\s*235/.test(lower);
+    return lower.includes(c);
+  });
+
+  const logicHits = ["weil", "dadurch", "damit", "deshalb", "dann", "somit", "so dass"].filter((w) => lower.includes(w)).length;
+  const sentenceCount = text.split(/[.!?]+/).map((s) => s.trim()).filter(Boolean).length;
+
+  let points = 0;
+  points += Math.min(6, foundConcepts.length * 0.8);
+  if (sentenceCount >= 2) points += 1;
+  if (logicHits >= 1) points += 1.5;
+  if (logicHits >= 2) points += 1.5;
+  points = clampNtPoints10(points);
+
+  const grade = computeNtGradeFrom10(points);
+  const step = inferNtApp10Step(stepRequested, points);
+  const missing = NT_APP10_KEY_CONCEPTS.filter((c) => !foundConcepts.includes(c)).slice(0, 6);
+
+  const stepKits = {
+    1: {
+      feedback: "Guter Start. Wir bauen jetzt zuerst die Grundkette in kurzen Teilsaetzen auf.",
+      microTasks: [
+        "Nenne zuerst den Ausloeser: Neutron trifft U-235.",
+        "Schreibe dann, was direkt passiert: Spaltung in Truemmerkerne.",
+        "Ergaenze erst danach den Energie-Aspekt."
+      ],
+      sentenceFrames: [
+        "Ein Neutron trifft auf ____. ",
+        "Dadurch spaltet sich der Kern in ____. ",
+        "Dabei wird ____ frei."
+      ],
+      checklist: [
+        "Mindestens 2 vollstaendige Saetze",
+        "U-235 genannt",
+        "Spaltung + Energie genannt"
+      ],
+      rewriteHint: "Verbinde zuerst nur Ausloeser und direkte Folge in zwei klaren Saetzen."
+    },
+    2: {
+      feedback: "Die Basis stimmt. Jetzt ergaenzen wir die Kettenreaktion mit Ursache und Wirkung.",
+      microTasks: [
+        "Erklaere, dass neue Neutronen weitere Kerne spalten.",
+        "Nutze mindestens ein Logik-Wort (z. B. dadurch, deshalb).",
+        "Halte die Reihenfolge im Ablauf ein."
+      ],
+      sentenceFrames: [
+        "Bei der Spaltung entstehen neue ____. ",
+        "Diese treffen weitere ____ und loesen neue Spaltungen aus.",
+        "So entsteht eine ____."
+      ],
+      checklist: [
+        "Ablauf logisch verknuepft",
+        "Neutronen als Folge genannt",
+        "Begriff Kettenreaktion korrekt verwendet"
+      ],
+      rewriteHint: "Schreibe einen dritten Satz, der klar zeigt, wie aus einer Spaltung viele werden."
+    },
+    3: {
+      feedback: "Inhaltlich gut. Jetzt fehlt die kontrollierte Variante im Kraftwerk.",
+      microTasks: [
+        "Baue Moderatoren oder Absorber passend ein.",
+        "Erklaere kurz den Sinn der Steuerung.",
+        "Nutze den 1:1-Gedanken fuer stabile Leistung."
+      ],
+      sentenceFrames: [
+        "Moderatoren bremsen die ____ ab.",
+        "Absorber fangen ueberschuessige ____ ein.",
+        "Bei einer kontrollierten Reaktion gilt ungefaehr ____ (ein Neutron loest eine neue Spaltung aus)."
+      ],
+      checklist: [
+        "Steuerung erklaert",
+        "Moderator/Absorber fachlich richtig",
+        "1:1-Verhaeltnis sinngemaess enthalten"
+      ],
+      rewriteHint: "Ergaenze einen Satz, der den Unterschied zwischen unkontrolliert und kontrolliert zeigt."
+    },
+    4: {
+      feedback: "Sehr nah an einer Musterantwort. Jetzt nur noch sprachlich praezise und kompakt formulieren.",
+      microTasks: [
+        "Pruefe Fachbegriffe auf Genauigkeit.",
+        "Verkuerze zu 2-4 klaren Loesungssaetzen.",
+        "Achte auf klare Reihenfolge: Ausloeser -> Folge -> Steuerung."
+      ],
+      sentenceFrames: [
+        "Ausloeser: ____.",
+        "Folgekette: ____.",
+        "Kontrolle im Kraftwerk: ____.",
+        "Bedingung: kritische Masse von ____ muss erreicht sein."
+      ],
+      checklist: [
+        "2-4 klare Saetze",
+        "Fachlich vollstaendig",
+        "Logik durchgehend nachvollziehbar"
+      ],
+      rewriteHint: "Formuliere jetzt deine Endversion mit maximal vier praezisen Saetzen."
+    }
+  };
+
+  const kit = stepKits[step] || stepKits[2];
+  const verdict = points >= 8 ? "Richtig" : points >= 4 ? "Teilweise" : "Ueberarbeiten";
+
+  return {
+    points,
+    grade,
+    verdict,
+    step,
+    feedback: kit.feedback,
+    microTasks: kit.microTasks,
+    sentenceFrames: kit.sentenceFrames,
+    checklist: kit.checklist,
+    rewriteHint: kit.rewriteHint,
+    missing,
+    strengths: foundConcepts.slice(0, 6),
+    meta: {
+      question,
+      wordCount: words.length,
+      sentenceCount,
+      logicHits,
+      foundConcepts
+    }
+  };
+}
+
+app.post("/api/nt/app4/coach", async (req, res) => {
+  try {
+    const answer = String(req.body?.answer ?? req.body?.studentAnswer ?? "").trim();
+    const question = clean(req.body?.question || "Erklaere Alpha-, Beta- und Gammastrahlung in 2-4 logischen Saetzen.");
+    const stepRequested = Number(req.body?.step || 0);
+
+    if (!answer) {
+      return res.status(400).json({ ok: false, error: "answer fehlt." });
+    }
+
+    const base = buildNtApp4CoachFallback({ answer, question, stepRequested });
+
+    if (!ANTHROPIC_API_KEY) {
+      return res.json({ ok: true, source: "fallback-no-key", ...base });
+    }
+
+    const system = [
+      "Du bist ein NT-Lehrer (9. Klasse, Bayern) mit Fokus auf kleinschrittiges Coaching.",
+      "Thema: Strahlungsarten (Alpha, Beta, Gamma) und Anwendungen im Alltag.",
+      "Ziel: Schueler sollen in kleinen Schritten zu 2-4 korrekten Loesungssaetzen kommen.",
+      "Wichtig: Gib NICHT die komplette Musterloesung aus.",
+      "Stattdessen: nenne naechste Mikro-Schritte und Satzrahmen mit Luecken (__).",
+      "Ton: klar, freundlich, konkret, schuelernah.",
+      "Antworte NUR als JSON.",
+      'Schema: {"feedback":"...","nextStep":1|2|3|4,"microTasks":["..."],"sentenceFrames":["..."],"checklist":["..."],"rewriteHint":"..."}'
+    ].join("\n");
+
+    const user = [
+      `Frage: ${question}`,
+      `Schuelerantwort: ${answer}`,
+      `Voranalyse (intern): Punkte=${base.points}/10, Note=${base.grade}, Schritt=${base.step}`,
+      `Gefundene Konzepte: ${base.meta.foundConcepts.join(", ") || "-"}`,
+      `Fehlende Konzepte: ${base.missing.join(", ") || "-"}`,
+      "Erzeuge ein kleinschrittiges Coaching fuer den naechsten Lernschritt."
+    ].join("\n\n");
+
+    const raw = await askAnthropic(system, user, 420);
+    const parsed = parseNtApp10CoachJson(raw);
+
+    if (!parsed) {
+      return res.json({ ok: true, source: "fallback-parse", ...base });
+    }
+
+    const nextStep = inferNtApp10Step(Number(parsed.nextStep || base.step), base.points);
+    const microTasks = Array.isArray(parsed.microTasks)
+      ? parsed.microTasks.map((x) => String(x || "").trim()).filter(Boolean).slice(0, 4)
+      : base.microTasks;
+    const sentenceFrames = Array.isArray(parsed.sentenceFrames)
+      ? parsed.sentenceFrames.map((x) => String(x || "").trim()).filter(Boolean).slice(0, 4)
+      : base.sentenceFrames;
+    const checklist = Array.isArray(parsed.checklist)
+      ? parsed.checklist.map((x) => String(x || "").trim()).filter(Boolean).slice(0, 5)
+      : base.checklist;
+
+    return res.json({
+      ok: true,
+      source: "anthropic",
+      points: base.points,
+      grade: base.grade,
+      verdict: base.verdict,
+      step: nextStep,
+      feedback: String(parsed.feedback || base.feedback),
+      microTasks: microTasks.length ? microTasks : base.microTasks,
+      sentenceFrames: sentenceFrames.length ? sentenceFrames : base.sentenceFrames,
+      checklist: checklist.length ? checklist : base.checklist,
+      rewriteHint: String(parsed.rewriteHint || base.rewriteHint),
+      missing: base.missing,
+      strengths: base.strengths,
+      meta: base.meta
+    });
+  } catch (error) {
+    console.error("Fehler bei /api/nt/app4/coach:", error.message);
+    const answer = String(req.body?.answer ?? req.body?.studentAnswer ?? "").trim();
+    const question = clean(req.body?.question || "Erklaere Alpha-, Beta- und Gammastrahlung in 2-4 logischen Saetzen.");
+    const stepRequested = Number(req.body?.step || 0);
+    const fallback = buildNtApp4CoachFallback({ answer, question, stepRequested });
+    return res.status(200).json({ ok: true, source: "fallback-error", ...fallback });
+  }
+});
+
+function buildNtApp4CoachFallback({ answer, question, stepRequested }) {
+  const text = String(answer || "").trim();
+  const lower = text.toLowerCase();
+  const words = text.split(/\s+/).filter(Boolean);
+
+  const foundConcepts = NT_APP4_KEY_CONCEPTS.filter((c) => {
+    if (c === "alpha") return /\b(alpha|α)\b/i.test(text);
+    if (c === "beta") return /\b(beta|β)\b/i.test(text);
+    if (c === "gamma") return /\b(gamma|γ)\b/i.test(text);
+    if (c === "heliumkern") return /heliumkern|heliumkerne|2 protonen/i.test(lower);
+    if (c === "elektron") return /elektron|elektronen/i.test(lower);
+    if (c === "elektromagnetische welle") return /elektromagnetisch|welle/i.test(lower);
+    if (c === "nicht abgelenkt") return /nicht abgelenkt|keine ablenkung/i.test(lower);
+    if (c === "americium") return /americium|am-?241/i.test(lower);
+    if (c === "nicht radioaktiv") return /nicht radioaktiv|wird nicht radioaktiv/i.test(lower);
+    return lower.includes(c);
+  });
+
+  const logicHits = ["weil", "dadurch", "deshalb", "dann", "zum beispiel", "im vergleich", "waehrend", "wahrend"].filter((w) => lower.includes(w)).length;
+  const sentenceCount = text.split(/[.!?]+/).map((s) => s.trim()).filter(Boolean).length;
+
+  let points = 0;
+  points += Math.min(6, foundConcepts.length * 0.6);
+  if (sentenceCount >= 2) points += 1;
+  if (sentenceCount >= 3) points += 1;
+  if (logicHits >= 1) points += 1;
+  if (logicHits >= 2) points += 1;
+  points = clampNtPoints10(points);
+
+  const grade = computeNtGradeFrom10(points);
+  const step = inferNtApp10Step(stepRequested, points);
+  const missing = NT_APP4_KEY_CONCEPTS.filter((c) => !foundConcepts.includes(c)).slice(0, 6);
+
+  const stepKits = {
+    1: {
+      feedback: "Guter Start. Wir sichern zuerst die Grundlagen zu Alpha, Beta und Gamma.",
+      microTasks: [
+        "Nenne alle drei Strahlungsarten explizit.",
+        "Ordne jeder Art kurz die Zusammensetzung zu.",
+        "Ergaenze die Ladung (positiv/negativ/keine)."
+      ],
+      sentenceFrames: [
+        "Alpha-Strahlung besteht aus ____. ",
+        "Beta-Strahlung besteht aus ____ und ist ____ geladen.",
+        "Gamma-Strahlung ist eine ____ mit ____ Ladung."
+      ],
+      checklist: [
+        "Alpha, Beta und Gamma genannt",
+        "Teilchen vs. Welle korrekt",
+        "Ladungen fachlich richtig"
+      ],
+      rewriteHint: "Formuliere zuerst drei kurze Saetze: je ein Satz pro Strahlungsart."
+    },
+    2: {
+      feedback: "Die Basis stimmt. Jetzt vergleichen wir Reichweite und Abschirmung.",
+      microTasks: [
+        "Erklaere, was Alpha, Beta und Gamma abschirmt.",
+        "Nutze Vergleichswoerter (waehrend, dagegen, im Vergleich).",
+        "Nenne mindestens ein korrektes Material pro Strahlungsart."
+      ],
+      sentenceFrames: [
+        "Alpha wird schon durch ____ abgeschirmt.",
+        "Beta braucht zur Abschirmung ____.",
+        "Gamma ist am durchdringendsten und braucht ____."
+      ],
+      checklist: [
+        "Papier, Aluminium, Blei korrekt zugeordnet",
+        "Durchdringung richtig verglichen",
+        "Mindestens 3 logische Saetze"
+      ],
+      rewriteHint: "Baue einen Vergleichssatz ein, der alle drei Arten direkt gegeneinander stellt."
+    },
+    3: {
+      feedback: "Sehr gut. Jetzt kommt die Anwendung im Alltag (Rauchmelder, Medizin, Lebensmittel).",
+      microTasks: [
+        "Nenne eine Anwendung mit Strahlungsart (z. B. Rauchmelder).",
+        "Erklaere den Nutzen in der Medizin in einem Satz.",
+        "Erwaehne bei Lebensmitteln, dass Bestrahlung nicht automatisch radioaktiv macht."
+      ],
+      sentenceFrames: [
+        "Im Rauchmelder wird meist ____ verwendet, weil ____.",
+        "In der Medizin nutzt man ____ zum ____.",
+        "Bestrahlte Lebensmittel sind danach ____."
+      ],
+      checklist: [
+        "Mindestens eine Alltagsanwendung korrekt",
+        "Nutzen fachlich passend erklaert",
+        "Keine fachlichen Widersprueche"
+      ],
+      rewriteHint: "Ergaenze einen vierten Satz mit einer konkreten Alltagsanwendung."
+    },
+    4: {
+      feedback: "Fast fertig. Jetzt nur noch praezise, kurz und fachlich sauber formulieren.",
+      microTasks: [
+        "Streiche Wiederholungen und halte 3-4 Saetze ein.",
+        "Pruefe Fachbegriffe und Zuordnungen.",
+        "Achte auf klare Reihenfolge: Art -> Eigenschaft -> Anwendung."
+      ],
+      sentenceFrames: [
+        "Alpha/Beta/Gamma unterscheiden sich in ____ und ____.",
+        "Die Abschirmung erfolgt durch ____ / ____ / ____.",
+        "Eine typische Anwendung ist ____.",
+        "Deshalb gilt: ____."
+      ],
+      checklist: [
+        "3-4 klare Saetze",
+        "Fachlich konsistent",
+        "Saubere Struktur"
+      ],
+      rewriteHint: "Schreibe jetzt deine Endversion in maximal vier praezisen Saetzen."
+    }
+  };
+
+  const kit = stepKits[step] || stepKits[2];
+  const verdict = points >= 8 ? "Richtig" : points >= 4 ? "Teilweise" : "Ueberarbeiten";
+
+  return {
+    points,
+    grade,
+    verdict,
+    step,
+    feedback: kit.feedback,
+    microTasks: kit.microTasks,
+    sentenceFrames: kit.sentenceFrames,
+    checklist: kit.checklist,
+    rewriteHint: kit.rewriteHint,
+    missing,
+    strengths: foundConcepts.slice(0, 6),
+    meta: {
+      question,
+      wordCount: words.length,
+      sentenceCount,
+      logicHits,
+      foundConcepts
+    }
+  };
+}
+
+function computeNtGradeFrom10(points) {
+  const p = Math.max(0, Math.min(10, Number(points) || 0));
+  if (p >= 9) return 1;
+  if (p >= 8) return 2;
+  if (p >= 6) return 3;
+  if (p >= 5) return 4;
+  if (p >= 3) return 5;
+  return 6;
+}
+
+function inferNtApp10Step(stepRequested, points) {
+  const req = Number(stepRequested);
+  if (Number.isFinite(req) && req >= 1 && req <= 4) return Math.round(req);
+  const p = Number(points) || 0;
+  if (p <= 2) return 1;
+  if (p <= 5) return 2;
+  if (p <= 7) return 3;
+  return 4;
+}
+
+function parseNtApp10CoachJson(raw) {
+  if (!raw) return null;
+  try {
+    const cleanRaw = String(raw).replace(/```json\s*/gi, "").replace(/```/g, "").trim();
+    const parsed = JSON.parse(cleanRaw);
+    if (!parsed || typeof parsed !== "object") return null;
+    return parsed;
+  } catch (_e) {
+    return null;
+  }
+}
+app.post("/api/picture-description/feedback", async (req, res) => {
+  try {
+    const text = clean(req.body?.text);
+    const imageDescription = clean(req.body?.imageDescription || "ein Bild mit Personen");
+    const targetMin = 100;
+    const targetMax = 100;
+
+    if (!text) return res.status(400).json({ ok: false, error: "text fehlt." });
+
+    const words = text.split(/\s+/).filter(Boolean).length;
+    const quick = {
+      hasIntro: /\b(this picture shows|in this picture (i can see|you can see)|the picture shows)\b/i.test(text),
+      hasLocation: /\b(foreground|background|on the left|on the right|in the middle|at the top|at the bottom)\b/i.test(text),
+      hasPeople: /\b(there (is|are)|people|person|boy|girl|man|woman|family|friends)\b/i.test(text),
+      hasPresentProgressive: /\b(am|is|are)\s+\w+ing\b/i.test(text),
+      hasOpinion: /\b(i think|in my opinion|i like|i don't like|the atmosphere is|it looks)\b/i.test(text)
+    };
+
+    const missingBlocks = [];
+    if (!quick.hasIntro) missingBlocks.push("Einleitung (z. B. 'This picture shows ...')");
+    if (!quick.hasLocation) missingBlocks.push("Ortsangaben (foreground/background/left/right)");
+    if (!quick.hasPeople) missingBlocks.push("klare Personenbeschreibung");
+    if (!quick.hasPresentProgressive) missingBlocks.push("Present Progressive (is/are + Verb-ing)");
+    if (!quick.hasOpinion) missingBlocks.push("eigene Meinung / Atmosphaere");
+
+    const baseSystem = [
+      "Du bist ein strenger, aber freundlicher Englischlehrer fuer Klasse 9 (A2/B1).",
+      "Pruefe eine Bildbeschreibung auf VOLLSTAENDIGKEIT und LOGIK.",
+      "Achte auf Reihenfolge/Logik: allgemein -> Ort -> Personen -> Handlungen (Present Progressive) -> Meinung.",
+      "Gib NUR valides JSON im folgenden Format zurueck:",
+      "{",
+      "  \"summary\": \"...\",",
+      "  \"strengths\": [\"...\"],",
+      "  \"missing\": [\"...\"],",
+      "  \"logic\": { \"score\": 1-5, \"status\": \"stark|teilweise|schwach\", \"details\": [\"...\"] },",
+      "  \"next_steps\": [\"...\"],",
+      "  \"example_upgrade\": \"ein verbesserter Beispielsatz\"",
+      "}",
+      "Keine Markdown-Ausgabe, keine Erklaerungen ausserhalb des JSON."
+    ].join("\n");
+
+    const userPrompt = [
+      `Bildkontext: ${imageDescription}`,
+      `Text (${words} Woerter):`,
+      text,
+      "",
+      "Pruefe besonders, was inhaltlich noch fehlt und ob die Aussagen logisch zusammenhaengen."
+    ].join("\n");
+
+    let ai = null;
+    if (ANTHROPIC_API_KEY) {
+      try {
+        const raw = await askAnthropic(baseSystem, userPrompt, 420);
+        ai = parsePictureFeedbackJson(raw);
+      } catch (_e) {
+        ai = null;
+      }
+    }
+
+    const fallback = buildPictureFeedbackFallback({ text, words, missingBlocks, quick, targetMin, targetMax });
+
+    const logicScore = Number(ai?.logic?.score);
+    const finalLogicScore = Number.isFinite(logicScore) ? Math.max(1, Math.min(5, Math.round(logicScore))) : fallback.logic.score;
+
+    const payload = {
+      ok: true,
+      feedback: {
+        summary: String(ai?.summary || fallback.summary),
+        strengths: Array.isArray(ai?.strengths) && ai.strengths.length ? ai.strengths.slice(0, 5).map((x) => String(x)) : fallback.strengths,
+        missing: Array.isArray(ai?.missing) && ai.missing.length ? ai.missing.slice(0, 6).map((x) => String(x)) : fallback.missing,
+        logic: {
+          score: finalLogicScore,
+          status: String(ai?.logic?.status || fallback.logic.status),
+          details: Array.isArray(ai?.logic?.details) && ai.logic.details.length ? ai.logic.details.slice(0, 4).map((x) => String(x)) : fallback.logic.details
+        },
+        next_steps: Array.isArray(ai?.next_steps) && ai.next_steps.length ? ai.next_steps.slice(0, 4).map((x) => String(x)) : fallback.next_steps,
+        example_upgrade: String(ai?.example_upgrade || fallback.example_upgrade),
+        wordCount: words,
+        target: { min: targetMin, max: targetMax }
+      }
+    };
+
+    return res.json(payload);
+  } catch (error) {
+    console.error("Fehler bei /api/picture-description/feedback:", error.message);
+    return res.status(500).json({ ok: false, error: "picture_feedback_failed" });
+  }
+});
+
+app.post("/api/picture-description/rewrite-sentence", async (req, res) => {
+  try {
+    const text = clean(req.body?.text);
+    const imageDescription = clean(req.body?.imageDescription || "a photo with people");
+    const step = Math.max(1, Math.min(5, Number(req.body?.step || 1)));
+    const stepExpectation = getPictureStepExpectation(step);
+    const canAnthropic = Boolean(ANTHROPIC_API_KEY);
+    const canAzure = Boolean(AZURE_OPENAI_ENDPOINT && AZURE_OPENAI_API_KEY && AZURE_OPENAI_DEPLOYMENT);
+
+    if (!text || text.length < 3) {
+      return res.status(400).json({ ok: false, error: "text fehlt oder ist zu kurz." });
+    }
+
+    if (!canAnthropic && !canAzure) {
+      return res.status(503).json({
+        ok: false,
+        error: "ai_unavailable",
+        message: "Keine KI fuer Korrektur konfiguriert (Anthropic/Azure OpenAI)."
+      });
+    }
+
+    const system = [
+      "Du bist ein Englischlehrer fuer Klasse 9 (A2/B1).",
+      "Korrigiere NUR Grammatik und Rechtschreibung, ohne Inhalt stark zu veraendern.",
+      "Pruefe ausserdem, ob der Satz logisch zum Bildkontext passt.",
+      "Pruefe streng, ob der Satz zum erwarteten Schritt passt.",
+      "Antworte NUR als valides JSON in diesem Format:",
+      "{",
+      "  \"correctedText\": \"...\",",
+      "  \"imageMatch\": {",
+      "    \"status\": \"passt|unsicher|passt_nicht\",",
+      "    \"reason\": \"...\"",
+      "  }",
+      "}",
+      "Regeln:",
+      "- correctedText muss genau ein korrekter englischer Satz sein.",
+      "- Wenn der Satz die Schritt-Erwartung nicht erfuellt, setze status auf 'passt_nicht' oder 'unsicher'.",
+      "- Keine Erklaerungen ausserhalb des JSON.",
+      "- Wenn unklar, nimm status=unsicher."
+    ].join("\n");
+
+    const userPrompt = [
+      `Schritt: ${step}`,
+      `Erwartung fuer diesen Schritt: ${stepExpectation}`,
+      `Bildkontext: ${imageDescription}`,
+      "",
+      "Schuelersatz:",
+      text
+    ].join("\n");
+
+    let raw = "";
+    let source = "";
+    let lastError = null;
+
+    if (canAnthropic) {
+      try {
+        raw = await askAnthropic(system, userPrompt, 240);
+        source = raw ? "anthropic" : "";
+      } catch (e) {
+        lastError = e;
+      }
+    }
+    if (!raw && canAzure) {
+      try {
+        raw = await askAzureOpenAI(system, userPrompt, 260);
+        source = raw ? "azure-openai" : source;
+      } catch (e) {
+        lastError = e;
+      }
+    }
+
+    if (!raw) {
+      return res.status(502).json({
+        ok: false,
+        error: "ai_no_response",
+        message: "KI konnte keine Korrektur liefern.",
+        detail: lastError ? String(lastError.message || "unknown_error").slice(0, 220) : "no_response"
+      });
+    }
+
+    const parsed = parsePictureSentenceRewriteJson(raw);
+    if (!parsed?.correctedText) {
+      return res.status(502).json({
+        ok: false,
+        error: "ai_invalid_response",
+        message: "KI-Antwort konnte nicht als JSON gelesen werden."
+      });
+    }
+
+    let correctedText = normalizeEnglishSentence(parsed.correctedText);
+    correctedText = normalizePictureStudentTypos(correctedText);
+
+    let imageMatch = {
+      status: normalizeImageMatchStatus(parsed?.imageMatch?.status || "unsicher"),
+      reason: String(parsed?.imageMatch?.reason || "KI-Bewertung ohne Begruendung.").trim()
+    };
+
+    const ruleCheck = evaluatePictureSentenceRules({ text: correctedText, imageDescription, step });
+    imageMatch = mergeImageMatch(imageMatch, ruleCheck);
+
+    return res.json({
+      ok: true,
+      correctedText,
+      imageMatch,
+      source
+    });
+  } catch (error) {
+    console.error("Fehler bei /api/picture-description/rewrite-sentence:", error.message);
+    return res.status(500).json({ ok: false, error: "rewrite_sentence_failed" });
   }
 });
 app.listen(PORT, () => {
@@ -824,7 +1581,7 @@ app.listen(PORT, () => {
   console.log(`Static root: ${STATIC_ROOT}`);
 });
 
-function evaluateNtAnswerFallback({ answer, question, keyConcepts, logicConnectors, minWords }) {
+function evaluateNtAnswerFallback({ answer, question, keyConcepts, criteria, logicConnectors, minWords }) {
   const text = String(answer || "").trim();
   const words = text.split(/\s+/).filter(Boolean);
   const lower = text.toLowerCase();
@@ -836,34 +1593,53 @@ function evaluateNtAnswerFallback({ answer, question, keyConcepts, logicConnecto
   const conceptRatio = keyConcepts?.length ? foundConcepts.length / keyConcepts.length : 0;
 
   const connectorHits = (logicConnectors || []).filter((c) => lower.includes(String(c).toLowerCase())).length;
-  const hasSentenceStructure = /[.!?]/.test(text) && words.length >= minWords;
-  const isLikelyKeywordList = !/[.!?]/.test(text) || words.length < Math.max(6, Math.floor(minWords * 0.65));
-  const looksLogical = hasSentenceStructure && connectorHits >= 1 && !isLikelyKeywordList;
+  const hasEnoughContent = words.length >= Math.max(6, Math.floor(minWords * 0.6));
+  const sentenceCount = text.split(/[.!?]+/).map((s) => s.trim()).filter(Boolean).length;
+  const hasProcessFlow = sentenceCount >= 2 && /(wird|wurden|gelangt|gelangen|dann|dadurch|so|um|anschlie|anschlie)/i.test(text);
+  const looksLikeKeywordList = words.length <= 8 && connectorHits === 0 && sentenceCount <= 1;
+  const looksLogical = hasEnoughContent && (connectorHits >= 1 || hasProcessFlow) && !looksLikeKeywordList;
 
-  let points = 0;
-  if (conceptRatio >= 0.75 && looksLogical) points = 2;
-  else if (conceptRatio >= 0.4 && hasSentenceStructure) points = 1;
+  const criteriaList = Array.isArray(criteria) && criteria.length
+    ? criteria
+    : (keyConcepts || []).slice(0, 5).map((k, i) => ({ id: `k${i + 1}`, concept: k, target: k }));
+
+  const criteriaScores = criteriaList.map((c) => {
+    if (String(c.id).toLowerCase() === "logik" || String(c.concept).toLowerCase() === "prozesslogik") {
+      const score = looksLogical ? 2 : (hasEnoughContent ? 1 : 0);
+      return { id: c.id, score, note: score === 2 ? "Logische Verknuepfung klar." : score === 1 ? "Logik teilweise vorhanden." : "Logik fehlt." };
+    }
+    const candidates = String(c.concept || "").toLowerCase().split("/").map((x) => x.trim()).filter(Boolean);
+    const hasConcept = candidates.some((k) => lower.includes(k));
+    const score = hasConcept ? (looksLogical ? 2 : (hasEnoughContent ? 1 : 0)) : 0;
+    return {
+      id: c.id,
+      score,
+      note: score === 2 ? "Fachbegriff + logische Erklaerung." : score === 1 ? "Fachbegriff da, aber ungenau erklaert." : "Nur Fachbegriff oder fachlich falsch."
+    };
+  });
+  const points = Number(criteriaScores.reduce((sum, c) => sum + Number(c.score || 0), 0).toFixed(1));
 
   const missing = (keyConcepts || []).filter((k) => !foundConcepts.includes(k)).slice(0, 6);
   const strength = [];
   if (foundConcepts.length) strength.push(`Fachbegriffe genutzt: ${foundConcepts.join(", ")}`);
   if (connectorHits > 0) strength.push("Logik-Woerter erkennbar (z. B. weil/dadurch).");
 
-  const feedback = points === 2
-    ? "Inhalt und Ablauf sind logisch und fachlich stimmig. Gute Erklaerung in zusammenhaengenden Saetzen."
-    : points === 1
-      ? "Die Grundidee ist erkennbar, aber die logische Verknuepfung ist noch nicht durchgehend klar. Erklaere die Schritte staerker als Ursache-und-Wirkung."
-      : "Aktuell sind zu wenig zusammenhaengende Erklaerungen enthalten. Nenne die Schritte/Begruendung in logischer Reihenfolge statt nur Stichwoerter.";
+  const feedback = points >= 8.5
+    ? "Inhalt und Ablauf sind logisch und fachlich stimmig. Du erklaerst die Kernschritte fair und praezise."
+    : points >= 4
+      ? "Die Grundidee ist erkennbar, aber einige Punkte sind noch zu knapp erklaert. Verknuepfe Fachbegriffe staerker mit Ursache und Wirkung."
+      : "Aktuell reichen Begriffe allein noch nicht aus. Erklaere die Fachbegriffe in vollstaendigen, logischen Saetzen.";
 
   return {
     points,
-    verdict: points === 2 ? "Richtig" : points === 1 ? "Teilweise" : "Ueberarbeiten",
+    verdict: points >= 8 ? "Richtig" : points >= 4 ? "Teilweise" : "Ueberarbeiten",
     isLogical: looksLogical,
     feedback,
+    criteria: criteriaScores,
     missing,
     strength,
     scores: {
-      logic: Math.min(100, (hasSentenceStructure ? 45 : 20) + connectorHits * 15),
+      logic: Math.min(100, (hasEnoughContent ? 45 : 20) + connectorHits * 15),
       content: Math.round(conceptRatio * 100),
       terminology: Math.round(conceptRatio * 100)
     },
@@ -889,12 +1665,19 @@ function parseNtEvaluation(raw) {
   }
 }
 
-function clampNtPoints(value) {
+function clampCriterionScore(value) {
   const n = Number(value);
   if (!Number.isFinite(n)) return 0;
-  if (n <= 0) return 0;
-  if (n >= 2) return 2;
-  return 1;
+  if (n >= 1.75) return 2;
+  if (n >= 0.5) return 1;
+  return 0;
+}
+
+function clampNtPoints10(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return 0;
+  const clamped = Math.max(0, Math.min(10, n));
+  return Math.round(clamped);
 }
 
 async function askAnthropic(system, user, maxTokens) {
@@ -1088,6 +1871,12 @@ function escapeXml(text) {
     .replace(/'/g, "&apos;");
 }
 
+function resolveFirstExistingDir(candidates) {
+  for (const candidate of candidates || []) {
+    if (fs.existsSync(candidate)) return candidate;
+  }
+  return "";
+}
 function resolveStaticRoot() {
   const candidates = [__dirname, path.join(__dirname, ".."), path.join(__dirname, "..", "..")];
   for (const dir of candidates) {
@@ -1139,6 +1928,209 @@ function getAuthToken(req) {
   return auth.slice(7).trim();
 }
 
+function parsePictureFeedbackJson(raw) {
+  if (!raw) return null;
+  try {
+    const cleanRaw = String(raw).replace(/```json\s*/gi, "").replace(/```/g, "").trim();
+    const parsed = JSON.parse(cleanRaw);
+    if (!parsed || typeof parsed !== "object") return null;
+    return parsed;
+  } catch (_e) {
+    return null;
+  }
+}
+
+function parsePictureSentenceRewriteJson(raw) {
+  if (!raw) return null;
+  try {
+    const cleanRaw = String(raw).replace(/```json\s*/gi, "").replace(/```/g, "").trim();
+    const parsed = JSON.parse(cleanRaw);
+    if (!parsed || typeof parsed !== "object") return null;
+    return parsed;
+  } catch (_e) {
+    return null;
+  }
+}
+
+function normalizeImageMatchStatus(status) {
+  const key = String(status || "").trim().toLowerCase();
+  if (key === "passt" || key === "ok" || key === "fit") return "passt";
+  if (key === "passt_nicht" || key === "falsch" || key === "no_fit") return "passt_nicht";
+  return "unsicher";
+}
+
+function getPictureStepExpectation(step) {
+  const s = Number(step) || 1;
+  if (s === 1) return "General introduction to the picture (e.g. 'This picture shows ...').";
+  if (s === 2) return "Place description with location markers (foreground/background/left/right/middle).";
+  if (s === 3) return "People description (who they are, look, clothes).";
+  if (s === 4) return "Actions in Present Progressive (am/is/are + verb-ing).";
+  return "Opinion or atmosphere (e.g. I think..., The atmosphere is ...).";
+}
+
+function mergeImageMatch(primary, secondary) {
+  const rank = { passt: 0, unsicher: 1, passt_nicht: 2 };
+  const a = normalizeImageMatchStatus(primary?.status);
+  const b = normalizeImageMatchStatus(secondary?.status);
+  const worst = rank[a] >= rank[b] ? a : b;
+  const reasons = [String(primary?.reason || "").trim(), String(secondary?.reason || "").trim()].filter(Boolean);
+  return {
+    status: worst,
+    reason: reasons.join(" ")
+  };
+}
+
+function evaluatePictureSentenceRules({ text, imageDescription, step }) {
+  const sentence = String(text || "").trim();
+  const lowerText = sentence.toLowerCase();
+  const lowerImage = String(imageDescription || "").toLowerCase();
+
+  const imageTokens = lowerImage.split(/[^a-z]+/).filter((w) => w.length >= 4);
+  const textTokens = new Set(lowerText.split(/[^a-z]+/).filter(Boolean));
+  const overlap = imageTokens.filter((t) => textTokens.has(t)).length;
+
+  let imageStatus = "unsicher";
+  let imageReason = "Bildbezug ist moeglich, aber noch nicht eindeutig.";
+  if (overlap >= 2) {
+    imageStatus = "passt";
+    imageReason = "Mehrere Inhalte passen zum ausgewaehlten Bild.";
+  }
+  if (/\b(snow|classroom|kitchen|bedroom|office|hospital)\b/.test(lowerText) && !/\b(snow|classroom|kitchen|bedroom|office|hospital)\b/.test(lowerImage)) {
+    imageStatus = "passt_nicht";
+    imageReason = "Der Satz nennt Inhalte, die nicht zum Bildkontext passen.";
+  }
+
+  let stepStatus = "passt";
+  let stepReason = "Der Satz passt zum erwarteten Schritt.";
+  const s = Number(step) || 1;
+
+  if (s === 1) {
+    const ok = /\b(this picture shows|in this picture (i can see|you can see)|the picture shows)\b/i.test(sentence);
+    if (!ok) {
+      stepStatus = "unsicher";
+      stepReason = "Schritt 1 braucht eine klare Einleitung (z. B. 'This picture shows ...').";
+    }
+  } else if (s === 2) {
+    const ok = /\b(foreground|background|on the left|on the right|in the middle|at the top|at the bottom)\b/i.test(sentence);
+    if (!ok) {
+      stepStatus = "passt_nicht";
+      stepReason = "Schritt 2 braucht Ortsangaben wie foreground/background/left/right.";
+    }
+  } else if (s === 3) {
+    const ok = /\b(there (is|are)|people|person|boy|girl|man|woman|family|friends|wearing|looks like)\b/i.test(sentence);
+    if (!ok) {
+      stepStatus = "unsicher";
+      stepReason = "Schritt 3 sollte Personen oder Kleidung klar beschreiben.";
+    }
+  } else if (s === 4) {
+    const ok = /\b(am|is|are)\s+\w+ing\b/i.test(sentence);
+    if (!ok) {
+      stepStatus = "passt_nicht";
+      stepReason = "Schritt 4 verlangt Present Progressive (am/is/are + Verb-ing).";
+    }
+  } else if (s === 5) {
+    const ok = /\b(i think|in my opinion|i like|i don't like|the atmosphere is|it looks)\b/i.test(sentence);
+    if (!ok) {
+      stepStatus = "unsicher";
+      stepReason = "Schritt 5 sollte Meinung oder Atmosphaere enthalten.";
+    }
+  }
+
+  return mergeImageMatch(
+    { status: imageStatus, reason: imageReason },
+    { status: stepStatus, reason: stepReason }
+  );
+}
+
+function buildPictureSentenceRewriteFallback({ text, imageDescription, step }) {
+  let corrected = normalizeEnglishSentence(text);
+  corrected = normalizePictureStudentTypos(corrected);
+
+  const check = evaluatePictureSentenceRules({
+    text: corrected,
+    imageDescription,
+    step
+  });
+
+  return {
+    correctedText: corrected,
+    imageMatch: check
+  };
+}
+
+function normalizePictureStudentTypos(input) {
+  let out = String(input || "");
+  out = out
+    .replace(/\bi\b/g, "I")
+    .replace(/\bim\b/gi, "I'm")
+    .replace(/\bi'm\b/gi, "I'm")
+    .replace(/\bdont\b/gi, "don't")
+    .replace(/\bdoesnt\b/gi, "doesn't")
+    .replace(/\bisnt\b/gi, "isn't")
+    .replace(/\baren't\b/gi, "aren't")
+    .replace(/\bpeoples\b/gi, "people")
+    .replace(/\bchilds\b/gi, "children")
+    .replace(/\bfreinds\b/gi, "friends")
+    .replace(/\bfrends\b/gi, "friends")
+    .replace(/\bnthe\b/gi, "in the")
+    .replace(/\bi nthe\b/gi, "in the")
+    .replace(/\bbackgrund\b/gi, "background")
+    .replace(/\bbakground\b/gi, "background")
+    .replace(/\belefant\b/gi, "elephant")
+    .replace(/\bgirafe\b/gi, "giraffe")
+    .replace(/\bthare\b/gi, "there")
+    .replace(/\bthexare\b/gi, "there are");
+  out = out.replace(/\s+/g, " ").trim();
+  if (out) out = out.charAt(0).toUpperCase() + out.slice(1);
+  if (out && !/[.!?]$/.test(out)) out += ".";
+  return out;
+}
+
+function buildPictureFeedbackFallback({ text, words, missingBlocks, quick, targetMin, targetMax }) {
+  const sentences = String(text || "").split(/[.!?]+/).map((s) => s.trim()).filter(Boolean);
+  const connectors = (String(text || "").match(/\b(and|because|while|then|also|after that|first|finally|however)\b/gi) || []).length;
+
+  let logicScore = 5;
+  if (sentences.length < 3) logicScore -= 1;
+  if (connectors < 1) logicScore -= 1;
+  if (!quick.hasLocation || !quick.hasPresentProgressive) logicScore -= 1;
+  logicScore = Math.max(1, Math.min(5, logicScore));
+
+  const logicStatus = logicScore >= 4 ? "stark" : logicScore >= 3 ? "teilweise" : "schwach";
+  const logicDetails = [];
+  if (sentences.length < 3) logicDetails.push("Die Beschreibung ist noch zu kurz fuer einen klaren Gedankengang.");
+  if (connectors < 1) logicDetails.push("Nutze Verbindungswoerter (z. B. 'and', 'because', 'while') fuer bessere Logik.");
+  if (!quick.hasLocation) logicDetails.push("Die Raumlogik fehlt teilweise (foreground/background/left/right).");
+  if (!quick.hasPresentProgressive) logicDetails.push("Handlungen im Present Progressive fehlen fuer eine stimmige Situationsbeschreibung.");
+  if (!logicDetails.length) logicDetails.push("Die Abfolge der Informationen wirkt insgesamt logisch und gut nachvollziehbar.");
+
+  const strengths = [];
+  if (quick.hasIntro) strengths.push("Du hast eine erkennbare Einleitung.");
+  if (quick.hasLocation) strengths.push("Du nutzt Ortsangaben.");
+  if (quick.hasPeople) strengths.push("Personen werden genannt.");
+  if (quick.hasPresentProgressive) strengths.push("Present Progressive ist vorhanden.");
+  if (quick.hasOpinion) strengths.push("Eine eigene Meinung/Atmosphaere ist enthalten.");
+  if (!strengths.length) strengths.push("Du hast eine gute Basis gestartet.");
+
+  const nextSteps = [
+    missingBlocks[0] ? `Ergaenze zuerst: ${missingBlocks[0]}.` : "Formuliere die Einleitung noch praeziser.",
+    words < targetMin ? `Erweitere auf mindestens ${targetMin} Woerter mit konkreten Details.` : words > targetMax ? `Kuerze auf maximal ${targetMax} Woerter und streiche Wiederholungen.` : "Behalte die gute Laenge bei und verbessere Details.",
+    "Ordne deine Saetze klar: allgemein -> Ort -> Personen -> Handlungen -> Meinung."
+  ];
+
+  return {
+    summary: "Dein Text ist ein guter Anfang. Mit klareren Details und besserer Satzverknuepfung wird er deutlich staerker.",
+    strengths,
+    missing: missingBlocks.length ? missingBlocks : ["Keine groesseren Inhaltsluecken erkannt."],
+    logic: {
+      score: logicScore,
+      status: logicStatus,
+      details: logicDetails
+    },
+    next_steps: nextSteps,
+    example_upgrade: "In the foreground, two friends are sharing food, while another boy is talking and smiling."
+  };
+}
 function clean(v) { return String(v || "").trim(); }
 
 function normalizeKey(firstName, lastName, className) {
@@ -1225,6 +2217,10 @@ function buildStudentOverview(records) {
   overview.sort((a, b) => String(b.lastAt).localeCompare(String(a.lastAt)));
   return overview;
 }
+
+
+
+
 
 
 
