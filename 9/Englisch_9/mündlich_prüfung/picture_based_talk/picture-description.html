@@ -95,6 +95,10 @@
     .btn-secondary{background:transparent;border:1px solid var(--accent);color:var(--accent)}
     .btn-secondary:hover{background:rgba(56,189,248,.09)}
     .result-text{background:var(--card-2);border:1px solid var(--border);border-radius:10px;padding:1rem;font-size:1.03rem;line-height:1.75;min-height:150px;white-space:pre-wrap}
+    .step-summary{display:grid;gap:.45rem;margin-bottom:.85rem}
+    .step-item{background:rgba(11,18,32,.55);border:1px solid var(--border);border-radius:8px;padding:.48rem .6rem}
+    .step-item b{color:#bae6fd;font-size:.82rem;display:block;margin-bottom:.15rem}
+    .step-item span{font-size:.86rem;color:#cbd5e1}
     .word-count{text-align:right;font-size:.92rem;margin-top:.5rem;color:var(--text-dim)}
     .word-count span{color:var(--accent);font-weight:700}
     .word-count.good span{color:var(--success)}
@@ -154,6 +158,13 @@
 
       <div class="panel result-panel">
         <div class="panel-title">Your picture description</div>
+        <div class="step-summary" id="stepSummary">
+          <div class="step-item"><b>Step 1</b><span id="sum1">-</span></div>
+          <div class="step-item"><b>Step 2</b><span id="sum2">-</span></div>
+          <div class="step-item"><b>Step 3</b><span id="sum3">-</span></div>
+          <div class="step-item"><b>Step 4</b><span id="sum4">-</span></div>
+          <div class="step-item"><b>Step 5</b><span id="sum5">-</span></div>
+        </div>
         <div class="result-text" id="resultText">First choose a picture and answer the questions step by step. Your text will appear here.</div>
         <div class="word-count" id="wordCount">Words: <span>0</span> / 100</div>
         <div class="ai-feedback" id="aiFeedback"><div class="ai-feedback-title">AI Feedback</div><div id="feedbackContent"></div></div>
@@ -282,23 +293,27 @@
     }
 
     function buildCombinedText(){
-      const seen = new Set();
       const out = [];
       for(let i=1;i<=5;i++){
         if(!userInputs[i]) continue;
         const cleaned = sanitizeStepText(userInputs[i]);
-        for(const sentence of splitIntoSentences(cleaned)){
-          const key = sentence.toLowerCase().replace(/\s+/g, ' ').trim();
-          if(!key || seen.has(key)) continue;
-          seen.add(key);
-          out.push(sentence);
-        }
+        if(cleaned) out.push(cleaned);
       }
       return out.join(' ').trim();
     }
 
+    function updateStepSummary(){
+      for(let i=1;i<=5;i++){
+        const el = document.getElementById(`sum${i}`);
+        if(!el) continue;
+        const txt = sanitizeStepText(userInputs[i] || '');
+        el.textContent = txt || '-';
+      }
+    }
+
     function updateResultPreview(){
       const text = buildCombinedText();
+      updateStepSummary();
       const resultEl=document.getElementById('resultText');
       resultEl.textContent = text.trim() || 'First choose a picture and answer the questions step by step. Your text will appear here.';
       const words = text.trim().split(/\s+/).filter(Boolean).length;
@@ -618,11 +633,8 @@
       }
     }
 
-    [1,2,3,4,5].forEach((step)=>{
-      const ta = document.getElementById(`input${step}`);
-      if(!ta) return;
-      ta.addEventListener('blur', ()=>{ rewriteStepInput(step, false); });
-    });
+    // Schritt-fuer-Schritt: Uebernahme nur ueber die Next/Create-Buttons,
+    // damit Eingaben nicht unbemerkt ueberschrieben werden.
     warmupThumbs();
     resolveApiBase();
 
@@ -640,8 +652,10 @@
       document.getElementById('wordCount').classList.remove('good','low');
       document.getElementById('aiFeedback').classList.remove('visible');
       document.getElementById('feedbackBtn').disabled=true;
+      updateStepSummary();
       showLiveNote('', '');
     }
+    updateStepSummary();
   </script>
 </body>
 </html>
