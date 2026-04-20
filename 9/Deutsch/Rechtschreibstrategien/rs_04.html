@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strategie 4 – Wortendung beachten</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1e1e1e;--gold:#ffd000;--gold2:#f0a030;--text:#f0f0f0;--muted:#888;--correct:#4caf50;--wrong:#e53935;--radius:10px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:60px}
+header{background:var(--surface);border-bottom:3px solid var(--gold);padding:24px 20px 20px;text-align:center}
+header h1{font-size:clamp(1.4rem,4vw,2.2rem);font-weight:900;color:var(--gold);letter-spacing:-.5px}
+header p{color:var(--muted);font-size:.95rem;margin-top:4px}
+#scorebar{position:sticky;top:0;z-index:100;background:#0d0d0d;border-bottom:2px solid #2a2a2a;display:flex;align-items:center;gap:16px;padding:10px 20px;flex-wrap:wrap}
+#score-display{font-size:1.1rem;font-weight:700;color:var(--gold)}
+#score-display span{color:var(--text);font-weight:400;font-size:.85rem;margin-left:6px}
+#progress-wrap{flex:1;min-width:120px;background:#2a2a2a;border-radius:20px;height:8px;overflow:hidden}
+#progress-bar{height:100%;background:linear-gradient(90deg,var(--gold2),var(--gold));width:0%;transition:width .4s ease;border-radius:20px}
+#badge{font-size:.8rem;background:var(--surface2);border:1px solid var(--gold);color:var(--gold);border-radius:20px;padding:3px 12px;font-weight:600;transition:all .3s}
+main{max-width:860px;margin:0 auto;padding:30px 16px 0}
+.rule-hint{background:#111;border-left:3px solid var(--gold2);padding:12px 18px;font-size:.88rem;color:#ccc;font-family:'Crimson Pro',serif;font-style:italic;line-height:1.6;margin-bottom:20px;border-radius:0 var(--radius) var(--radius) 0}
+.rule-hint strong{color:var(--gold)}
+.exercises{display:flex;flex-direction:column;gap:16px}
+.exercise{background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:14px 16px}
+.ex-prompt{font-size:.92rem;color:var(--text);margin-bottom:10px;line-height:1.6}
+.ex-prompt em{color:var(--gold2)}
+.ex-prompt strong{color:var(--gold)}
+.mc-options{display:flex;flex-direction:column;gap:8px}
+.mc-btn{background:var(--surface2);border:1.5px solid #333;border-radius:8px;color:var(--text);padding:10px 14px;font-size:.88rem;font-family:inherit;cursor:pointer;text-align:left;transition:all .2s}
+.mc-btn:hover:not(:disabled){border-color:var(--gold);background:#222}
+.mc-btn.correct{background:rgba(76,175,80,.12);border-color:var(--correct);color:#a5d6a7}
+.mc-btn.wrong{background:rgba(229,57,53,.1);border-color:var(--wrong);color:#ef9a9a}
+.mc-btn:disabled{cursor:default;opacity:.7}
+.gap-input{background:var(--surface2);border:2px solid #333;border-radius:6px;color:#fff;font-family:'Outfit',sans-serif;font-size:.9rem;padding:6px 10px;width:180px;text-align:center;outline:none;transition:border-color .3s,background .3s}
+.gap-input:focus{border-color:var(--gold)}
+.gap-input.correct{border-color:var(--correct);color:#a5d6a7}
+.gap-input.wrong{border-color:var(--wrong);color:#ef9a9a}
+.check-btn{background:var(--gold);color:#000;border:none;border-radius:6px;padding:8px 20px;font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer;margin-top:6px;transition:all .2s}
+.check-btn:hover{background:var(--gold2)}
+.check-btn:disabled{opacity:.4;cursor:default}
+.sort-words{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.sort-word{background:var(--surface2);border:1.5px solid #333;border-radius:8px;padding:8px 14px;font-size:.85rem;cursor:pointer;transition:all .2s;user-select:none}
+.sort-word:hover{border-color:var(--gold)}
+.sort-word.selected{border-color:var(--gold);background:rgba(255,208,0,.1);color:var(--gold)}
+.sort-word.correct{background:rgba(76,175,80,.15);border-color:var(--correct);color:#a5d6a7}
+.sort-word.wrong{background:rgba(229,57,53,.1);border-color:var(--wrong);color:#ef9a9a}
+.feedback{font-size:.82rem;margin-top:6px;min-height:1.2em;line-height:1.4}
+.feedback.show.ok{color:var(--correct)}.feedback.show.fail{color:var(--wrong)}
+.pts-pop{position:fixed;font-size:1.2rem;font-weight:900;color:var(--gold);pointer-events:none;animation:popUp 1.2s ease forwards;z-index:999}
+@keyframes popUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-60px)}}
+#summary{display:none;text-align:center;padding:2.5rem 1rem;margin-top:2rem;background:var(--surface);border:2px solid var(--gold);border-radius:var(--radius)}
+#summary h2{color:var(--gold);font-size:1.6rem;margin-bottom:.8rem}
+.big-score{font-size:2rem;font-weight:900;color:var(--gold);margin:.5rem 0}
+.grade{font-size:1.1rem;color:var(--text)}
+.reset-btn{margin-top:1rem;background:var(--gold);color:#000;border:none;border-radius:8px;padding:10px 28px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit}
+.nav{display:flex;justify-content:space-between;margin-top:2rem;padding-bottom:2rem}
+.nav a{color:var(--gold);text-decoration:none;font-weight:600;font-size:.88rem;border-bottom:1px dashed var(--gold);transition:color .3s}
+.nav a:hover{color:var(--gold2)}
+@media(max-width:600px){header h1{font-size:1.4rem}.gap-input{width:140px}.exercise{padding:10px 12px}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🔚 Strategie 4: Wortendung beachten</h1>
+  <p>Groß- und Kleinschreibung · 10 Aufgaben · je 2 Punkte</p>
+</header>
+
+<div id="scorebar">
+  <div id="score-display">&#11088; <span id="pts">0</span> / <span id="maxpts">20</span> Punkte <span id="pct"></span></div>
+  <div id="progress-wrap"><div id="progress-bar"></div></div>
+  <div id="badge">Note ?</div>
+</div>
+
+<main>
+
+<div class="rule-hint">Typische Nomenendungen zeigen Großschreibung an: <strong>-heit, -keit, -nis, -ung, -schaft, -tum, -tion, -ling</strong>. Beispiel: Freiheit, Lösung, Freundschaft.</div>
+
+<div class="exercises">
+<div class="exercise" id="ex-s4-1">
+  <div class="ex-prompt">Welches Wort hat eine typische Nomenendung?</div>
+  <div class="mc-options">
+    <button class="mc-btn" onclick="checkMC(this,'s4-1',false)">laufen</button>
+    <button class="mc-btn" onclick="checkMC(this,'s4-1',true)">Freiheit</button>
+    <button class="mc-btn" onclick="checkMC(this,'s4-1',false)">schön</button>
+    <button class="mc-btn" onclick="checkMC(this,'s4-1',false)">wegen</button>
+  </div>
+  <div class="feedback" id="fb-s4-1"></div>
+</div>
+<div class="exercise" id="ex-s4-2">
+  <div class="ex-prompt">Welche Wörter haben eine Nomenendung? Klicke sie an!</div>
+  <div class="sort-words" id="sort-s4-2">
+    <div class="sort-word" onclick="toggleSort(this,'s4-2')">Freundschaft</div>
+    <div class="sort-word" onclick="toggleSort(this,'s4-2')">spielen</div>
+    <div class="sort-word" onclick="toggleSort(this,'s4-2')">Lösung</div>
+    <div class="sort-word" onclick="toggleSort(this,'s4-2')">groß</div>
+    <div class="sort-word" onclick="toggleSort(this,'s4-2')">Neuigkeit</div>
+    <div class="sort-word" onclick="toggleSort(this,'s4-2')">rennen</div>
+    <div class="sort-word" onclick="toggleSort(this,'s4-2')">Finsternis</div>
+    <div class="sort-word" onclick="toggleSort(this,'s4-2')">Eigentum</div>
+  </div>
+  <button class="check-btn" onclick="checkSort('s4-2',["Freundschaft", "Lösung", "Neuigkeit", "Finsternis", "Eigentum"])">Prüfen</button>
+  <div class="feedback" id="fb-s4-2"></div>
+</div>
+<div class="exercise" id="ex-s4-3">
+  <div class="ex-prompt">"die ______ (bewerbung)" – Nomenendung -ung: <input class="gap-input" id="gap-s4-3" placeholder="?"></div>
+  <button class="check-btn" onclick="checkGap('s4-3',["Bewerbung"])">Prüfen</button>
+  <div class="feedback" id="fb-s4-3"></div>
+</div>
+<div class="exercise" id="ex-s4-4">
+  <div class="ex-prompt">Welche Endung ist KEINE typische Nomenendung?</div>
+  <div class="mc-options">
+    <button class="mc-btn" onclick="checkMC(this,'s4-4',false)">-heit</button>
+    <button class="mc-btn" onclick="checkMC(this,'s4-4',false)">-ung</button>
+    <button class="mc-btn" onclick="checkMC(this,'s4-4',true)">-lich</button>
+    <button class="mc-btn" onclick="checkMC(this,'s4-4',false)">-keit</button>
+  </div>
+  <div class="feedback" id="fb-s4-4"></div>
+</div>
+<div class="exercise" id="ex-s4-5">
+  <div class="ex-prompt">"die ______ (gesundheit)" – Nomenendung -heit: <input class="gap-input" id="gap-s4-5" placeholder="?"></div>
+  <button class="check-btn" onclick="checkGap('s4-5',["Gesundheit"])">Prüfen</button>
+  <div class="feedback" id="fb-s4-5"></div>
+</div>
+<div class="exercise" id="ex-s4-6">
+  <div class="ex-prompt">Welche Wörter sind Nomen aufgrund ihrer Endung?</div>
+  <div class="sort-words" id="sort-s4-6">
+    <div class="sort-word" onclick="toggleSort(this,'s4-6')">Heizung</div>
+    <div class="sort-word" onclick="toggleSort(this,'s4-6')">Bildung</div>
+    <div class="sort-word" onclick="toggleSort(this,'s4-6')">fröhlich</div>
+    <div class="sort-word" onclick="toggleSort(this,'s4-6')">Frechheit</div>
+    <div class="sort-word" onclick="toggleSort(this,'s4-6')">Kenntnis</div>
+    <div class="sort-word" onclick="toggleSort(this,'s4-6')">schneller</div>
+    <div class="sort-word" onclick="toggleSort(this,'s4-6')">Anerkennung</div>
+    <div class="sort-word" onclick="toggleSort(this,'s4-6')">Gemeinschaft</div>
+  </div>
+  <button class="check-btn" onclick="checkSort('s4-6',["Heizung", "Bildung", "Frechheit", "Kenntnis", "Anerkennung", "Gemeinschaft"])">Prüfen</button>
+  <div class="feedback" id="fb-s4-6"></div>
+</div>
+<div class="exercise" id="ex-s4-7">
+  <div class="ex-prompt">"Erziehung" hat die Endung -ung. Deshalb wird es:</div>
+  <div class="mc-options">
+    <button class="mc-btn" onclick="checkMC(this,'s4-7',true)">großgeschrieben</button>
+    <button class="mc-btn" onclick="checkMC(this,'s4-7',false)">kleingeschrieben</button>
+    <button class="mc-btn" onclick="checkMC(this,'s4-7',false)">beides möglich</button>
+  </div>
+  <div class="feedback" id="fb-s4-7"></div>
+</div>
+<div class="exercise" id="ex-s4-8">
+  <div class="ex-prompt">"die ______ (höflichkeit)" – Nomenendung -keit: <input class="gap-input" id="gap-s4-8" placeholder="?"></div>
+  <button class="check-btn" onclick="checkGap('s4-8',["Höflichkeit"])">Prüfen</button>
+  <div class="feedback" id="fb-s4-8"></div>
+</div>
+<div class="exercise" id="ex-s4-9">
+  <div class="ex-prompt">Welches Wort enthält die Endung -nis?</div>
+  <div class="mc-options">
+    <button class="mc-btn" onclick="checkMC(this,'s4-9',false)">Tennis</button>
+    <button class="mc-btn" onclick="checkMC(this,'s4-9',true)">Finsternis</button>
+    <button class="mc-btn" onclick="checkMC(this,'s4-9',false)">Kürbis</button>
+    <button class="mc-btn" onclick="checkMC(this,'s4-9',false)">Paris</button>
+  </div>
+  <div class="feedback" id="fb-s4-9"></div>
+</div>
+<div class="exercise" id="ex-s4-10">
+  <div class="ex-prompt">"die ______ (mannschaft)" – Nomenendung -schaft: <input class="gap-input" id="gap-s4-10" placeholder="?"></div>
+  <button class="check-btn" onclick="checkGap('s4-10',["Mannschaft"])">Prüfen</button>
+  <div class="feedback" id="fb-s4-10"></div>
+</div>
+
+</div>
+
+<div id="summary">
+  <h2>&#127942; Fertig!</h2>
+  <p>Du hast alle Aufgaben bearbeitet.</p>
+  <div class="big-score" id="sum-pts">0</div>
+  <div class="grade" id="sum-grade"></div>
+  <button class="reset-btn" onclick="resetAll()">&#128257; Nochmal</button>
+</div>
+
+<div class="nav">
+  <a href="rs_03.html">&larr; Strategie 3</a>
+  <a href="rs_index.html">Alle Strategien</a>
+  <a href="rs_05.html">Strategie 5 &rarr;</a>
+</div>
+
+</main>
+
+<script>
+const TOTAL=20;
+const state={points:0,answered:new Set()};
+
+function updateUI(){
+  const pct=TOTAL>0?Math.round(state.points/TOTAL*100):0;
+  document.getElementById('pts').textContent=state.points;
+  document.getElementById('pct').textContent='('+pct+'%)';
+  document.getElementById('progress-bar').style.width=pct+'%';
+  const g=pct>=92?1:pct>=81?2:pct>=67?3:pct>=50?4:pct>=30?5:6;
+  const b=document.getElementById('badge');
+  b.textContent='Note '+g;
+  const c=g<=2?'#4caf50':g===3?'#8bc34a':g===4?'#ffd000':g===5?'#ff9800':'#e53935';
+  b.style.borderColor=c;b.style.color=c;
+}
+
+function award(eid,pts){
+  if(state.answered.has(eid))return 0;
+  state.answered.add(eid);state.points+=pts;updateUI();
+  const pop=document.createElement('div');pop.className='pts-pop';pop.textContent='+'+pts+' \u2B50';
+  pop.style.left=(Math.random()*60+20)+'%';pop.style.top='80px';document.body.appendChild(pop);
+  setTimeout(()=>pop.remove(),1300);
+  if(state.answered.size===document.querySelectorAll('.exercise').length)setTimeout(showSummary,600);
+  return pts;
+}
+
+function checkMC(btn,exId,isCorrect){
+  const ex=document.getElementById('ex-'+exId);if(!ex||ex.dataset.done)return;
+  const fb=document.getElementById('fb-'+exId);const btns=ex.querySelectorAll('.mc-btn');
+  const isRetry=ex.dataset.retry==='1';
+  if(isCorrect){
+    ex.dataset.done='1';btns.forEach(b=>b.disabled=true);btn.classList.add('correct');
+    const pts=isRetry?1:2;
+    fb.className='feedback show ok';fb.textContent='\u2705 Richtig! +'+pts+' Punkt'+(pts===1?'':'e');
+    award('ex-'+exId,pts);
+  }else{
+    btn.classList.add('wrong');btn.disabled=true;
+    if(!isRetry){ex.dataset.retry='1';fb.className='feedback show fail';fb.textContent='\u274C Falsch \u2013 versuch es nochmal! (noch 1 Punkt m\u00f6glich)';}
+    else{ex.dataset.done='1';btns.forEach(b=>b.disabled=true);btns.forEach(b=>{if(b.onclick&&b.onclick.toString().includes('true'))b.classList.add('correct');});
+    fb.className='feedback show fail';fb.textContent='\u274C Leider nicht richtig. 0 Punkte';state.answered.add('ex-'+exId);updateUI();
+    if(state.answered.size===document.querySelectorAll('.exercise').length)setTimeout(showSummary,600);}
+  }
+}
+
+function checkGap(exId,correctAnswers){
+  const ex=document.getElementById('ex-'+exId);if(!ex||ex.dataset.done)return;
+  const input=document.getElementById('gap-'+exId);const val=input?input.value.trim():'';
+  const fb=document.getElementById('fb-'+exId);
+  const ok=correctAnswers.some(a=>a.toLowerCase()===val.toLowerCase());
+  const isRetry=ex.dataset.retry==='1';
+  if(ok){
+    ex.dataset.done='1';if(input){input.disabled=true;input.classList.add('correct');}
+    ex.querySelector('.check-btn').disabled=true;const pts=isRetry?1:2;
+    fb.className='feedback show ok';fb.textContent='\u2705 Richtig! +'+pts+' Punkt'+(pts===1?'':'e');
+    award('ex-'+exId,pts);
+  }else{
+    if(!isRetry){ex.dataset.retry='1';if(input){input.classList.add('wrong');input.value='';input.placeholder='Nochmal...';input.addEventListener('input',()=>input.classList.remove('wrong'),{once:true});}
+    fb.className='feedback show fail';fb.textContent='\u274C Falsch \u2013 nochmal! (noch 1 Punkt)';}
+    else{ex.dataset.done='1';if(input){input.disabled=true;input.classList.add('wrong');}
+    ex.querySelector('.check-btn').disabled=true;fb.className='feedback show fail';fb.textContent='\u274C Leider nicht richtig. L\u00f6sung: '+correctAnswers[0];
+    state.answered.add('ex-'+exId);updateUI();
+    if(state.answered.size===document.querySelectorAll('.exercise').length)setTimeout(showSummary,600);}
+  }
+}
+
+function toggleSort(el,exId){
+  const ex=document.getElementById('ex-'+exId);if(ex&&ex.dataset.done)return;
+  el.classList.toggle('selected');
+}
+
+function checkSort(exId,correctWords){
+  const ex=document.getElementById('ex-'+exId);if(!ex||ex.dataset.done)return;
+  const selected=Array.from(ex.querySelectorAll('.sort-word.selected')).map(w=>w.textContent.trim());
+  const fb=document.getElementById('fb-'+exId);const isRetry=ex.dataset.retry==='1';
+  const allCorrect=correctWords.every(w=>selected.includes(w))&&selected.every(w=>correctWords.includes(w));
+  if(allCorrect){
+    ex.dataset.done='1';ex.querySelectorAll('.sort-word').forEach(w=>{w.style.cursor='default';w.classList.remove('selected');if(correctWords.includes(w.textContent.trim()))w.classList.add('correct');});
+    ex.querySelector('.check-btn').disabled=true;const pts=isRetry?1:2;
+    fb.className='feedback show ok';fb.textContent='\u2705 Alle richtig! +'+pts+' Punkt'+(pts===1?'':'e');
+    award('ex-'+exId,pts);
+  }else{
+    ex.querySelectorAll('.sort-word').forEach(w=>{if(w.classList.contains('selected')&&!correctWords.includes(w.textContent.trim())){w.classList.remove('selected');w.classList.add('wrong');setTimeout(()=>w.classList.remove('wrong'),1200);}});
+    if(!isRetry){ex.dataset.retry='1';fb.className='feedback show fail';fb.textContent='\u274C Nicht ganz \u2013 nochmal! (noch 1 Punkt)';}
+    else{ex.dataset.done='1';ex.querySelectorAll('.sort-word').forEach(w=>{w.style.cursor='default';if(correctWords.includes(w.textContent.trim()))w.classList.add('correct');});
+    ex.querySelector('.check-btn').disabled=true;fb.className='feedback show fail';fb.textContent='\u274C Leider nicht richtig. 0 Punkte';
+    state.answered.add('ex-'+exId);updateUI();
+    if(state.answered.size===document.querySelectorAll('.exercise').length)setTimeout(showSummary,600);}
+  }
+}
+
+function showSummary(){
+  const pct=Math.round(state.points/TOTAL*100);
+  const g=pct>=92?1:pct>=81?2:pct>=67?3:pct>=50?4:pct>=30?5:6;
+  const txt=['','Sehr gut \uD83C\uDF1F','Gut \uD83D\uDC4D','Befriedigend \u2705','Ausreichend \uD83D\uDCDD','Mangelhaft \u26A0\uFE0F','Ungen\u00fcgend \u274C'][g];
+  document.getElementById('sum-pts').textContent=state.points+' / '+TOTAL+' Punkte';
+  document.getElementById('sum-grade').textContent=pct+'% \u2192 Note '+g+' \u00b7 '+txt;
+  document.getElementById('summary').style.display='block';
+  document.getElementById('summary').scrollIntoView({behavior:'smooth'});
+}
+
+function resetAll(){location.reload();}
+updateUI();
+</script>
+</body>
+</html>
