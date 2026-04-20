@@ -257,15 +257,48 @@
       if(!result || !result.accepted){
         return;
       }
-      const input = document.getElementById(`input${fromStep}`).value.trim();
-      if(input) userInputs[fromStep]=input;
       updateResultPreview();
       if(fromStep<5) showStep(fromStep+1);
     }
 
+    function splitIntoSentences(text){
+      return String(text || '')
+        .match(/[^.!?]+[.!?]?/g)
+        ?.map(s => s.replace(/\s+/g, ' ').trim())
+        .filter(Boolean) || [];
+    }
+
+    function sanitizeStepText(text){
+      const parts = splitIntoSentences(text);
+      const seen = new Set();
+      const unique = [];
+      for(const p of parts){
+        const key = p.toLowerCase().replace(/\s+/g, ' ').trim();
+        if(!key || seen.has(key)) continue;
+        seen.add(key);
+        unique.push(p);
+      }
+      return unique.join(' ').trim();
+    }
+
+    function buildCombinedText(){
+      const seen = new Set();
+      const out = [];
+      for(let i=1;i<=5;i++){
+        if(!userInputs[i]) continue;
+        const cleaned = sanitizeStepText(userInputs[i]);
+        for(const sentence of splitIntoSentences(cleaned)){
+          const key = sentence.toLowerCase().replace(/\s+/g, ' ').trim();
+          if(!key || seen.has(key)) continue;
+          seen.add(key);
+          out.push(sentence);
+        }
+      }
+      return out.join(' ').trim();
+    }
+
     function updateResultPreview(){
-      let text='';
-      for(let i=1;i<=5;i++){ if(userInputs[i]) text += userInputs[i] + ' '; }
+      const text = buildCombinedText();
       const resultEl=document.getElementById('resultText');
       resultEl.textContent = text.trim() || 'First choose a picture and answer the questions step by step. Your text will appear here.';
       const words = text.trim().split(/\s+/).filter(Boolean).length;
@@ -281,8 +314,6 @@
       if(!result || !result.accepted){
         return;
       }
-      const input=document.getElementById('input5').value.trim();
-      if(input) userInputs[5]=input;
       updateResultPreview();
       document.querySelectorAll('.progress-dot').forEach(dot=>{dot.classList.remove('current');dot.classList.add('completed');});
     }
@@ -532,15 +563,21 @@
           imageDescription:imageDescriptions[selectedImage] || 'a photo with people'
         });
         const corrected = data && data.correctedText ? String(data.correctedText).trim() : text;
-        if(corrected && corrected !== ta.value.trim()) ta.value = corrected;
+        const cleaned = sanitizeStepText(corrected || ta.value.trim());
+        if(cleaned && cleaned !== ta.value.trim()) ta.value = cleaned;
 
         const match = data && data.imageMatch ? data.imageMatch : null;
         if(match){
           const status = String(match.status || '').toLowerCase();
-          if(status === 'passt'){
-            userInputs[step] = ta.value.trim();
+          // Schrittweise Arbeiten: "unsicher" darf uebernommen werden, nur klares "passt_nicht" blockiert.
+          if(status !== 'passt_nicht'){
+            userInputs[step] = sanitizeStepText(ta.value.trim());
             updateResultPreview();
-            showLiveNote('good', `Sentence accepted. ${String(match.reason || 'Good match.')}`);
+            if(status === 'unsicher'){
+              showLiveNote('warn', `Satz uebernommen (mit Hinweis): ${String(match.reason || 'Bitte im naechsten Schritt genauer werden.')}`);
+            } else {
+              showLiveNote('good', `Satz uebernommen. ${String(match.reason || 'Good match.')}`);
+            }
             return { accepted:true, status };
           }
           delete userInputs[step];
