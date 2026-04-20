@@ -1,0 +1,122 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprachbetrachtung 9: Satzbau und Stil</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0f1e;--surface:#121a2f;--surface2:#1a2542;--line:#314166;--text:#e6eeff;--muted:#9fb1d9;--accent:#5fd3ff;--ok:#4caf50;--bad:#ef5350}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Outfit',sans-serif;background:radial-gradient(900px 450px at 10% -20%,rgba(95,211,255,.18),transparent 55%),var(--bg);color:var(--text);min-height:100vh}
+header{padding:24px 16px 18px;text-align:center;border-bottom:1px solid var(--line);background:rgba(10,15,30,.82)}
+header h1{font-size:clamp(1.35rem,3.6vw,2rem);color:var(--accent)}
+header p{color:var(--muted);margin-top:4px}
+#scorebar{position:sticky;top:0;z-index:10;display:flex;gap:12px;align-items:center;padding:10px 14px;background:#0d1427;border-bottom:1px solid var(--line)}
+#progressWrap{flex:1;height:8px;background:#243255;border-radius:999px;overflow:hidden}
+#progressBar{height:100%;width:0;background:linear-gradient(90deg,#4fc3f7,var(--accent));transition:width .25s}
+main{max-width:900px;margin:0 auto;padding:18px 12px 26px}
+.hint{background:var(--surface);border-left:3px solid var(--accent);border:1px solid var(--line);padding:10px 12px;border-radius:0 8px 8px 0;color:var(--muted);margin-bottom:12px}
+.ex{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:10px}
+.q{margin-bottom:8px;line-height:1.45}
+.opts{display:grid;gap:8px}
+button.opt{background:var(--surface2);color:var(--text);border:1px solid #3a4d79;border-radius:8px;padding:9px 10px;text-align:left;cursor:pointer}
+button.opt:hover{border-color:var(--accent)}
+button.opt.ok{border-color:var(--ok);color:#9ae6a0}
+button.opt.bad{border-color:var(--bad);color:#ffb4b4}
+button.opt:disabled{cursor:default;opacity:.9}
+.fb{font-size:.86rem;color:var(--muted);margin-top:6px;min-height:1.1em}
+#summary{display:none;text-align:center;margin-top:16px;padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.nav{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:16px}
+.nav a{color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Sprachbetrachtung 9: Satzbau und Stil</h1>
+  <p>Nominalstil / Verbalstil · 6 Aufgaben</p>
+</header>
+<div id="scorebar">
+  <div><b id="pts">0</b> / 12 Punkte</div>
+  <div id="progressWrap"><div id="progressBar"></div></div>
+  <div id="grade">Note ?</div>
+</div>
+<main>
+  <div class="hint">Verbalstil wirkt oft lebendiger, Nominalstil oft sachlicher.</div>
+  <div id="quiz"></div>
+  <div id="summary"></div>
+  <div class="nav">
+    <a href="sb_08.html">&larr; Zurück</a>
+    <a href="index.html">Übersicht</a>
+    <a href="sb_10.html">Weiter &rarr;</a>
+  </div>
+</main>
+<script>
+const QUESTIONS = [{"q":"Welche Variante ist eher Verbalstil?","correct":1,"options":["Die Durchführung der Messung erfolgte gestern.","Wir führten die Messung gestern durch.","Gestern: Durchführung der Messung."]},{"q":"Nominalstil nutzt häufig ...","correct":1,"options":["mehr Verben","mehr Nomen","nur Adjektive"]},{"q":"Welche Aussage stimmt?","correct":0,"options":["Verbalstil ist oft leichter verständlich.","Nominalstil hat nie Nomen.","Verbalstil vermeidet Prädikate."]},{"q":"Welche Variante ist eher Nominalstil?","correct":1,"options":["Sie traf schnell eine Entscheidung.","Die schnelle Entscheidung der Schülerin überraschte alle.","Sie entschied schnell."]},{"q":"Für einen Bericht in der Schule ist oft sinnvoll ...","correct":0,"options":["klarer Satzbau mit passenden Verben","nur Stichwörter","nur Nominalgruppen"]},{"q":"Welche Formulierung klingt lebendiger?","correct":1,"options":["Die Beobachtung fand statt.","Wir beobachteten das Experiment.","Die Beobachtung wurde durchgeführt."]}];
+const state={pts:0,done:new Set()};
+function grade(p){const pct=Math.round((p/12)*100);if(pct>=92)return 1;if(pct>=81)return 2;if(pct>=67)return 3;if(pct>=50)return 4;if(pct>=30)return 5;return 6;}
+function render(){
+  const root=document.getElementById('quiz');
+  root.innerHTML='';
+  QUESTIONS.forEach(function(q,i){
+    const box=document.createElement('div');box.className='ex';box.id='ex'+i;
+    const qEl=document.createElement('div');qEl.className='q';qEl.textContent=(i+1)+') '+q.q;box.appendChild(qEl);
+    const opts=document.createElement('div');opts.className='opts';
+    q.options.forEach(function(opt,idx){
+      const b=document.createElement('button');b.className='opt';b.textContent=opt;
+      b.onclick=function(){choose(i,idx,b)};opts.appendChild(b);
+    });
+    box.appendChild(opts);
+    const fb=document.createElement('div');fb.className='fb';fb.id='fb'+i;box.appendChild(fb);
+    root.appendChild(box);
+  });
+}
+function updateBar(){
+  document.getElementById('pts').textContent=state.pts;
+  const pct=Math.round((state.pts/12)*100);
+  document.getElementById('progressBar').style.width=pct+'%';
+  document.getElementById('grade').textContent='Note '+grade(state.pts);
+}
+function wrongExplanation(q){
+  if(q && q.explain) return String(q.explain);
+  const correctText = q && q.options && q.options[q.correct] ? q.options[q.correct] : '';
+  return correctText ? ('Richtig wäre: "'+correctText+'".') : 'Achte auf die Regel und den Satzkontext.';
+}
+function choose(i,idx,btn){
+  const id='ex'+i;if(state.done.has(id))return;
+  const ex=document.getElementById(id);const buttons=[].slice.call(ex.querySelectorAll('button.opt'));const fb=document.getElementById('fb'+i);
+  const retry=ex.dataset.retry==='1';
+  const q = QUESTIONS[i];
+  const ok = idx===q.correct;
+  if(ok){
+    btn.classList.add('ok');buttons.forEach(function(b){b.disabled=true});state.done.add(id);state.pts += retry?1:2;
+    fb.textContent='Richtig! +'+(retry?1:2)+' Punkte';
+    updateBar();checkEnd();
+  }else{
+    btn.classList.add('bad');btn.disabled=true;
+    const expl = wrongExplanation(q);
+    if(!retry){
+      ex.dataset.retry='1';
+      fb.textContent='Nicht ganz. '+expl+' Versuche es noch einmal (noch 1 Punkt möglich).';
+    }
+    else{
+      buttons.forEach(function(b){b.disabled=true});
+      const correctText = q.options[q.correct];
+      if(buttons[q.correct]) buttons[q.correct].classList.add('ok');
+      state.done.add(id);
+      fb.textContent='Leider nicht richtig. '+expl+' Richtige Antwort: "'+correctText+'".';
+      updateBar();checkEnd();
+    }
+  }
+}
+function checkEnd(){
+  if(state.done.size!==QUESTIONS.length)return;
+  const s=document.getElementById('summary');
+  s.style.display='block';
+  s.innerHTML='<h2 style="color:var(--accent);margin-bottom:6px">Fertig!</h2><p>'+state.pts+' / 12 Punkte · Note '+grade(state.pts)+'</p>';
+}
+render();updateBar();
+</script>
+</body>
+</html>
+
