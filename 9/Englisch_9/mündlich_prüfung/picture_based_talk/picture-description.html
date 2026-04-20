@@ -566,7 +566,8 @@
         const cleaned = sanitizeStepText(corrected || ta.value.trim());
         if(cleaned && cleaned !== ta.value.trim()) ta.value = cleaned;
 
-        const match = data && data.imageMatch ? data.imageMatch : null;
+        const fallback = localRewriteFallback(cleaned, step);
+        const match = (data && data.imageMatch) ? data.imageMatch : fallback.imageMatch;
         if(match){
           const status = String(match.status || '').toLowerCase();
           // Schrittweise Arbeiten: "unsicher" darf uebernommen werden, nur klares "passt_nicht" blockiert.
@@ -589,15 +590,29 @@
           }
           return { accepted:false, status };
         }else{
-          delete userInputs[step];
+          // Sollte praktisch nicht mehr vorkommen, da oben immer ein Fallback gesetzt wird.
+          userInputs[step] = sanitizeStepText(ta.value.trim());
           updateResultPreview();
-          showLiveNote('warn', 'AI result unclear. Please rewrite this sentence.');
-          return { accepted:false, status:'unsicher' };
+          showLiveNote('warn', 'Satz übernommen (Fallback). Bitte kurz prüfen.');
+          return { accepted:true, status:'unsicher' };
         }
       }catch(_e){
         setAiStatus('bad', 'AI disconnected');
-        showLiveNote('bad', 'KI-Korrektur derzeit nicht erreichbar. Bitte Backend/AI-Konfiguration prüfen.');
-        return { accepted:false, status:'error' };
+        // Lokaler Fallback: Satz trotzdem übernehmen, solange er nicht klar unpassend ist.
+        const fallback = localRewriteFallback(ta.value.trim(), step);
+        const cleaned = sanitizeStepText(fallback.correctedText || ta.value.trim());
+        if(cleaned && cleaned !== ta.value.trim()) ta.value = cleaned;
+        const status = String(fallback.imageMatch?.status || 'unsicher').toLowerCase();
+        if(status === 'passt_nicht'){
+          delete userInputs[step];
+          updateResultPreview();
+          showLiveNote('bad', `Noch nicht akzeptiert: ${String(fallback.imageMatch?.reason || 'The content does not match the selected picture.')}`);
+          return { accepted:false, status };
+        }
+        userInputs[step] = sanitizeStepText(ta.value.trim());
+        updateResultPreview();
+        showLiveNote('warn', 'KI offline: Satz wurde mit lokaler Prüfung übernommen.');
+        return { accepted:true, status };
       }finally{
         rewriteBusy.delete(step);
       }
