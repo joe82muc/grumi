@@ -136,6 +136,7 @@
           <div class="image-option" data-image="3" onclick="selectImage(3)"><img id="thumb3" alt="Camping"><div class="image-label">Camping</div></div>
           <div class="image-option" data-image="4" onclick="selectImage(4)"><img id="thumb4" alt="Safari"><div class="image-label">Safari</div></div>
           <div class="image-option" data-image="5" onclick="selectImage(5)"><img id="thumb5" alt="Football Stadium"><div class="image-label">Football Stadium</div></div>
+          <div class="image-option" data-image="6" onclick="selectImage(6)"><img id="thumb6" alt="Job Interview"><div class="image-label">Job Interview</div></div>
         </div>
 
         <img class="selected-preview" id="selectedPreview" alt="Selected picture">
@@ -179,7 +180,8 @@
       2: 'file_00000000ed5471f497238024eb0a0752.png',
       3: 'file_00000000218c71f4a3a24ee3ea8e0da7.png',
       4: 'file_00000000972c7246a0b65fe0129165cf.png',
-      5: 'file_000000006660724681164c65a1adafc0.png'
+      5: 'file_000000006660724681164c65a1adafc0.png',
+      6: 'file_000000007c3072468d62f527a688e414.png'
     };
     const API_BASE_CANDIDATES = window.location.protocol === 'file:'
       ? [
@@ -196,11 +198,12 @@
           ''
         ];
     const imageDescriptions = {
-      1: 'Picnic: Four young people are sitting on a blanket in a park, eating fruit and snacks, with people playing basketball in the background',
-      2: 'Airport: A family is greeting each other in the arrivals hall, two people are hugging, suitcases and flight information boards are visible',
-      3: 'Camping: Four friends are sitting by a campfire in the evening, roasting marshmallows, with tents and string lights in the background',
-      4: 'Safari: Five people in an open jeep are watching wildlife, elephants on the left, and a giraffe with a mountain in the background; sunny savanna landscape',
-      5: 'Football stadium: A group of young fans is cheering in a packed stadium, taking a selfie, holding a Germany scarf and flag, with a loud and excited atmosphere'
+      1: 'Picnic: A group of friends is having a picnic in a park. In the foreground, four people are sitting on a blanket, smiling, talking, and eating fruit, bread, and salad. There are drinks and a basket. In the background, people are playing basketball and jogging. The atmosphere is sunny, relaxed, and friendly.',
+      2: 'Airport: A busy airport scene. In the foreground, a young couple is hugging and smiling. On the left side, two adults are waving and greeting. There are many suitcases. In the background, departure and arrival boards and many travelers are visible. The atmosphere is lively and emotional.',
+      3: 'Camping: A group of friends is camping outdoors. In the foreground, four people are sitting around a campfire, talking and roasting marshmallows. A kettle and food are near the fire. In the background, there are tents, trees, and string lights. The atmosphere is warm and friendly.',
+      4: 'Safari: A safari scene with tourists and a guide. In the foreground, a guide stands in front of a jeep and points to the left. In the jeep, tourists are sitting and holding cameras. On the left, elephants stand near water; in the middle, there is a giraffe. In the background, trees and a mountain are visible. The weather is sunny and warm.',
+      5: 'Football stadium: A group of young football fans is taking a selfie in a crowded stadium. They look happy and excited, with painted faces in black, red, and gold. They wear Deutschland scarves, and one person holds a German flag. In the foreground, there are snacks and drinks. In the background, there is a crowd and the football pitch. The atmosphere is energetic and joyful.',
+      6: 'Job interview: A job interview situation in an office. In the foreground, an applicant is sitting with her back to the camera. In front of her, two interviewers are sitting at a desk, smiling and holding pens. On the table, there are documents, a glass of water, and a laptop. In the background, there is a shelf with folders and a whiteboard with Bewerbungsgespraech points: introduction, motivation, experience, and goals. The atmosphere is professional and friendly.'
     };
 
     let selectedImage = null;
@@ -223,9 +226,11 @@
 
     function warmupThumbs(){
       // Start mit wenigen Bildern fuer schnellen First Paint, Rest gestaffelt.
-      loadThumb(1);
-      setTimeout(()=>loadThumb(2), 80);
-      const remaining = [3,4,5];
+      const ids = Object.keys(imageData).map(Number).sort((a,b)=>a-b);
+      if(!ids.length) return;
+      loadThumb(ids[0]);
+      if(ids[1] !== undefined) setTimeout(()=>loadThumb(ids[1]), 80);
+      const remaining = ids.slice(2);
       let i = 0;
       const tick = () => {
         if(i >= remaining.length) return;
