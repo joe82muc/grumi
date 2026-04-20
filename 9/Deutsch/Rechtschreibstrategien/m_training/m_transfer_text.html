@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M-Training 4 – Transfer im Text</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0f14;--card:#161a22;--line:#2a3242;--text:#ecf1ff;--muted:#a4afc4;--accent:#ffd84f;--ok:#62c370;--bad:#e15b64}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text)}
+header{padding:20px;text-align:center;background:#121722;border-bottom:2px solid var(--accent)} h1{font-size:clamp(1.35rem,4vw,2rem);color:var(--accent)} header p{color:var(--muted)}
+.bar{position:sticky;top:0;background:#0e121a;padding:10px 14px;border-bottom:1px solid var(--line)} .bar b{color:var(--accent)}
+main{max-width:880px;margin:0 auto;padding:18px 12px 26px}.hint{background:#141b27;border-left:3px solid var(--accent);padding:10px 12px;border-radius:0 8px 8px 0;color:var(--muted)}
+.ex{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:10px}.q{margin-bottom:8px;line-height:1.45}
+button,.btn{background:#202838;color:var(--text);border:1px solid #33405a;border-radius:8px;padding:8px 10px;cursor:pointer}
+button:hover,.btn:hover{border-color:var(--accent)} .ok{border-color:var(--ok)!important;color:var(--ok)!important}.bad{border-color:var(--bad)!important;color:var(--bad)!important}
+input{background:#202838;color:var(--text);border:1px solid #33405a;border-radius:8px;padding:7px 9px;min-width:240px}
+.fb{font-size:.85rem;color:var(--muted);margin-top:6px}.nav{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:14px}.nav a{color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent)}
+</style>
+</head>
+<body>
+<header><h1>M-Training 4: Transfer im Text</h1><p>8 Aufgaben · 16 Punkte</p></header>
+<div class="bar"><b id="score">0</b> / 16 Punkte</div>
+<main>
+<div class="hint">Hier werden typische Fehler aus Schülertexten korrigiert. Achte auf Regel und Kontext, nicht nur auf das Einzelwort.</div>
+
+<div class="ex" id="e1"><div class="q">1) Fehlerkorrektur: „Beim zuhören machte ich Notizen.“</div>
+  <button onclick="mc(this,'e1',0,true)">Beim Zuhören machte ich Notizen.</button>
+  <button onclick="mc(this,'e1',1,false)">Beim zuHören machte ich Notizen.</button>
+  <button onclick="mc(this,'e1',2,false)">Beim zuhören machte ich notizen.</button><div class="fb" id="f1"></div></div>
+
+<div class="ex" id="e2"><div class="q">2) Ergänze: „Wir wünschen ______ viel Erfolg.“ (ihnen/Ihnen)</div>
+  <input id="g2"><button class="btn" onclick="gap('e2','g2',['Ihnen'],'f2')">Prüfen</button><div class="fb" id="f2"></div></div>
+
+<div class="ex" id="e3"><div class="q">3) Welche Korrektur ist richtig? „Sie will die Ergebnisse bekanntgeben.“</div>
+  <button onclick="mc(this,'e3',0,true)">Sie will die Ergebnisse bekannt geben.</button>
+  <button onclick="mc(this,'e3',1,false)">Der Satz ist korrekt.</button>
+  <button onclick="mc(this,'e3',2,false)">Sie will die Ergebnisse Bekannt geben.</button><div class="fb" id="f3"></div></div>
+
+<div class="ex" id="e4"><div class="q">4) Ergänze: „Der Hun___ rannte über den Hof.“</div>
+  <input id="g4"><button class="btn" onclick="gap('e4','g4',['Hund'],'f4')">Prüfen</button><div class="fb" id="f4"></div></div>
+
+<div class="ex" id="e5"><div class="q">5) Welche Form ist korrekt?</div>
+  <button onclick="mc(this,'e5',0,false)">Er muße noch warten.</button>
+  <button onclick="mc(this,'e5',1,true)">Er musste noch warten.</button>
+  <button onclick="mc(this,'e5',2,false)">Er muste noch warten.</button><div class="fb" id="f5"></div></div>
+
+<div class="ex" id="e6"><div class="q">6) Ergänze: „Die Stra___e wurde gesperrt.“</div>
+  <input id="g6"><button class="btn" onclick="gap('e6','g6',['Straße'],'f6')">Prüfen</button><div class="fb" id="f6"></div></div>
+
+<div class="ex" id="e7"><div class="q">7) Welche Begründung passt zu „Zum Arbeiten brauche ich Ruhe“?</div>
+  <button onclick="mc(this,'e7',0,true)">„Arbeiten“ ist nominalisiert und wird großgeschrieben.</button>
+  <button onclick="mc(this,'e7',1,false)">Nach „zum“ schreibt man grundsätzlich klein.</button>
+  <button onclick="mc(this,'e7',2,false)">Nur Satzanfänge werden großgeschrieben.</button><div class="fb" id="f7"></div></div>
+
+<div class="ex" id="e8"><div class="q">8) Ergänze: „Das war das größ___ Problem des Tages.“</div>
+  <input id="g8"><button class="btn" onclick="gap('e8','g8',['größte'],'f8')">Prüfen</button><div class="fb" id="f8"></div></div>
+
+<div class="nav">
+  <a href="m_laute_ableitung.html">← M3</a>
+  <a href="index.html">M-Übersicht</a>
+  <a href="../rs_01.html">Zur Strategie 1 →</a>
+</div>
+</main>
+<script>
+const S={pts:0,done:new Set()};const MAX=16;function upd(){document.getElementById('score').textContent=S.pts;}function fin(id,p){if(S.done.has(id))return;S.done.add(id);S.pts+=p;upd();}
+function mc(btn,id,opt,ok){const ex=document.getElementById(id);if(ex.dataset.done)return;const retry=ex.dataset.retry==="1";const fb=ex.querySelector('.fb');if(ok){btn.classList.add('ok');ex.dataset.done="1";[...ex.querySelectorAll('button')].forEach(b=>b.disabled=true);const p=retry?1:2;fb.textContent="Richtig! +"+p;fin(id,p);}else{btn.classList.add('bad');btn.disabled=true;if(!retry){ex.dataset.retry="1";fb.textContent="Noch einmal versuchen.";}else{ex.dataset.done="1";[...ex.querySelectorAll('button')].forEach(b=>b.disabled=true);fb.textContent="Leider nicht richtig.";fin(id,0);}}}
+function gap(id,inputId,answers,fbId){const ex=document.getElementById(id);if(ex.dataset.done)return;const inp=document.getElementById(inputId);const fb=document.getElementById(fbId);const retry=ex.dataset.retry==="1";const ok=answers.some(a=>a.toLowerCase()===inp.value.trim().toLowerCase());if(ok){inp.classList.add('ok');inp.disabled=true;ex.dataset.done="1";ex.querySelector('.btn').disabled=true;const p=retry?1:2;fb.textContent="Richtig! +"+p;fin(id,p);}else{inp.classList.add('bad');if(!retry){ex.dataset.retry="1";fb.textContent="Noch einmal versuchen.";inp.addEventListener('input',()=>inp.classList.remove('bad'),{once:true});}else{inp.disabled=true;ex.querySelector('.btn').disabled=true;ex.dataset.done="1";fb.textContent="Lösung: "+answers[0];fin(id,0);}}}
+upd();
+</script>
+</body>
+</html>
