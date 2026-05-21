@@ -33,8 +33,10 @@
       equations: [
         "3x + 5 = -7",
         "-3x - (-5) = -7",
+        "2x + (-6) = -18",
         "-4x + 8 = -12",
         "5x - 9 = -24",
+        "-5x - (-10) = 25",
         "-2x + 6 = -18",
       ],
     },
@@ -45,8 +47,14 @@
         "3(x + 4) = 24",
         "2(x + 7) = 30",
         "5(x - 3) = 25",
+        "2(-3x + 2) = -20",
         "4(x + 2) + 6 = 34",
+        "-(4 + 3x) = -19",
         "3(x - 5) + 9 = 24",
+        "5x - (2x + 6) = 9",
+        "6 - (2x - 8) = 4",
+        "3(-2x + 5) = -9",
+        "-(6 - 2x) = 8",
       ],
     },
     {
@@ -72,6 +80,34 @@
         "-4x + 2(x - 3) + 10 = -8",
       ],
     },
+    {
+      name: "Stufe 6",
+      description: "Komplexe Klammergleichungen: Minusklammern, Faktoren und Dezimalzahlen.",
+      equations: [
+        "-5(6x + 12) + (20 + 34x) = 0",
+        "-(5 - 9x) + 4(7 - 6x) = -22",
+        "3(-5x + 1) + 7(3 - 2x) = -63",
+        "5,6 + 3(2,1x - 1,3) + (4 - 5x) = 10,9",
+        "7 - (4x - 5,4) - 6(1,1x - 9) = 24",
+        "2,5x - (3,5x - 8) + 5(2,4x - 3) = 37",
+        "-3(-1,2x + 2,1) - (0,6x + 2,7) - 5 = 4",
+        "8 + (3x - 5)(-4) = -44",
+        "7x - (-4x + 3) + 4(2 - 2x) = 17",
+        "4(x + 2) - 3(2x - 5) + 2(1 - x) = -15",
+      ],
+    },
+    {
+      name: "Stufe 7",
+      description: "Gleichungen mit Bruechen, Dezimalzahlen, Klammern und gemeinsamem Nenner.",
+      equations: [
+        "5 - (12x/25 + 2) = -3/50",
+        "42 - 4x/3 = 41 - 9x/7",
+        "(3/5)(x - 1) = (2/3)x + 0,2",
+        "-(x - 3/20) = 3(-2x + 3/5)",
+        "x/2 - 3(5 + x) = (1/2)(42 - 3x)",
+        "(8 - 4x)(3/4) = -(3/2)x",
+      ],
+    },
   ];
   const solved = levels.map(() => new Set());
   let currentImage = null;
@@ -93,6 +129,25 @@
       .replaceAll("<", "&lt;")
       .replaceAll(">", "&gt;")
       .replaceAll('"', "&quot;");
+  }
+
+  function formatEquation(value) {
+    const text = String(value ?? "");
+    const fractionPattern = /(\d+(?:,\d+)?[a-zA-Z]?|[a-zA-Z]\d*|\d+(?:,\d+)?\s*[·*]\s*[a-zA-Z])\s*\/\s*(\d+(?:,\d+)?)/g;
+    let html = "";
+    let lastIndex = 0;
+    let match;
+
+    while ((match = fractionPattern.exec(text)) !== null) {
+      const fractionEnd = match.index + match[0].length;
+      const hasOnlyFractionParentheses = text[match.index - 1] === "(" && text[fractionEnd] === ")";
+      const textBeforeFraction = text.slice(lastIndex, hasOnlyFractionParentheses ? match.index - 1 : match.index);
+      html += escapeHtml(textBeforeFraction);
+      html += `<span class="math-frac"><span class="math-frac-top">${escapeHtml(match[1])}</span><span class="math-frac-bottom">${escapeHtml(match[2])}</span></span>`;
+      lastIndex = hasOnlyFractionParentheses ? fractionEnd + 1 : fractionEnd;
+    }
+
+    return html + escapeHtml(text.slice(lastIndex));
   }
 
   function splitFeedbackText(value) {
@@ -146,7 +201,7 @@
         const isSolved = solved[currentLevelIndex].has(equation);
         return `
           <button type="button" class="${isActive ? "active" : ""} ${isSolved ? "solved" : ""}" data-equation-index="${index}">
-            <span>${escapeHtml(equation)}</span>
+            <span class="equation-text">${formatEquation(equation)}</span>
             <strong>${isSolved ? "richtig" : `${index + 1}`}</strong>
           </button>
         `;
@@ -165,12 +220,30 @@
     currentEquationIndex = (index + level.equations.length) % level.equations.length;
     const equation = level.equations[currentEquationIndex];
     equationInput.value = equation;
-    equationDisplay.textContent = equation;
+    equationDisplay.innerHTML = `<span class="equation-line">${formatEquation(equation)}</span>`;
+    fitEquationDisplay();
     previewPanel.classList.remove("preview-ok", "preview-no");
     statusPill.classList.remove("ok", "error");
     updateProgress();
     renderLevelButtons();
     renderEquationButtons();
+  }
+
+  function fitEquationDisplay() {
+    requestAnimationFrame(() => {
+      const maxSize = 48;
+      const minSize = 10;
+      const equationLine = equationDisplay.querySelector(".equation-line") || equationDisplay;
+      equationDisplay.style.fontSize = `${maxSize}px`;
+
+      while (
+        equationLine.scrollWidth > equationDisplay.clientWidth - 44 &&
+        parseFloat(equationDisplay.style.fontSize) > minSize
+      ) {
+        const nextSize = parseFloat(equationDisplay.style.fontSize) - 1;
+        equationDisplay.style.fontSize = `${nextSize}px`;
+      }
+    });
   }
 
   function setLevel(index, equationIndex = 0) {
@@ -297,7 +370,10 @@
     formData.append("equation", equationInput.value.trim() || currentLevel().equations[0]);
     formData.append("image", file);
 
-    setFeedback("muted", "<h3>Prüfe...</h3><p>Ich lese den Rechenweg und suche den ersten Fehler.</p>");
+    setFeedback(
+      "muted",
+      "<h3>Prüfe...</h3><p>Da dies eine Testversion ist, kann es beim ersten Mal etwas länger dauern, bis der Server im Hintergrund hochfährt.</p>",
+    );
     previewPanel.classList.remove("preview-ok", "preview-no");
     statusPill.classList.remove("ok", "error");
     statusPill.textContent = "Prüft";
@@ -347,4 +423,6 @@
 
   setEquation(0);
   drawPreview();
+  window.addEventListener("resize", fitEquationDisplay);
+  document.fonts?.ready?.then(fitEquationDisplay);
 })();
