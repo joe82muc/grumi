@@ -12,6 +12,8 @@
   const taskLevelInput = document.querySelector("#task-level");
   const taskStepInput = document.querySelector("#task-step");
   const imageInput = document.querySelector("#image");
+  const cameraInput = document.querySelector("#camera-image");
+  const cameraButton = document.querySelector("#camera-button");
   const imageLabel = document.querySelector("#image-label");
   const checkButton = document.querySelector("#check-button");
   const feedback = document.querySelector("#feedback");
@@ -319,6 +321,7 @@
   const solved = levels.map(() => new Set());
   const photoStepProgress = levels.map((level) => level.equations.map(() => 0));
   let currentImage = null;
+  let selectedImageFile = null;
   let currentLevelIndex = 0;
   let currentEquationIndex = 0;
   let currentTaskStepIndex = 0;
@@ -344,6 +347,8 @@
 
   function clearImageSelection() {
     imageInput.value = "";
+    cameraInput.value = "";
+    selectedImageFile = null;
     currentImage = null;
     drawPreview();
   }
@@ -737,11 +742,13 @@
   function loadImage(file) {
     previewPanel.classList.remove("preview-ok", "preview-no");
     if (!file) {
+      selectedImageFile = null;
       currentImage = null;
       drawPreview();
       return;
     }
 
+    selectedImageFile = file;
     const img = new Image();
     img.onload = () => {
       URL.revokeObjectURL(img.src);
@@ -814,10 +821,12 @@
   }
 
   imageInput.addEventListener("change", () => loadImage(imageInput.files[0]));
+  cameraInput.addEventListener("change", () => loadImage(cameraInput.files[0]));
+  cameraButton.addEventListener("click", () => cameraInput.click());
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const file = imageInput.files[0];
+    const file = selectedImageFile;
     if (!file) {
       setFeedback("no", "<h3>Foto fehlt</h3><p>Wähle zuerst ein Foto vom Rechenweg aus.</p>");
       return;
