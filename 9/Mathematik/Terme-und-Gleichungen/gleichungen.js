@@ -1,13 +1,19 @@
 (() => {
   const apiUrl =
     window.GRUMI_MATH_KI_API_URL ||
-    (location.hostname === "localhost" || location.hostname === "127.0.0.1"
-      ? "http://localhost:3000/api/check"
+    (location.protocol === "file:" ||
+    location.hostname === "localhost" ||
+    location.hostname === "127.0.0.1"
+      ? "http://127.0.0.1:3000/api/check"
       : "https://grumi-mathe-ki.onrender.com/api/check");
   const form = document.querySelector("#check-form");
   const equationInput = document.querySelector("#equation");
   const equationDisplay = document.querySelector("#equation-display");
+  const taskLevelInput = document.querySelector("#task-level");
+  const taskStepInput = document.querySelector("#task-step");
   const imageInput = document.querySelector("#image");
+  const imageLabel = document.querySelector("#image-label");
+  const checkButton = document.querySelector("#check-button");
   const feedback = document.querySelector("#feedback");
   const canvas = document.querySelector("#preview-canvas");
   const emptyPreview = document.querySelector("#empty-preview");
@@ -20,102 +26,326 @@
   const levelTitle = document.querySelector("#level-title");
   const levelDescription = document.querySelector("#level-description");
   const levelProgress = document.querySelector("#level-progress");
+  const taskStepPanel = document.querySelector("#task-step-panel");
   const ctx = canvas.getContext("2d");
+  const wordProblemPhotoSteps = [
+    {
+      title: "x festlegen",
+      shortTitle: "x + Tabelle",
+      description:
+        "Lege x fest. Schreibe eine Tabelle: Bei Stufe 14 und 15 steht eine Grundgröße als x allein; bei Stufe 16 darf x auch die Gesamtzahl sein. Markiere die Gesamtangabe mit einer geschweiften Klammer.",
+      hint: "Foto 1 muss x-Festlegung, Tabelle und geschweifte Klammer zeigen.",
+    },
+    {
+      title: "Gleichung aufstellen",
+      shortTitle: "Gleichung",
+      description:
+        "Stelle aus der Tabelle und der Gesamtangabe eine passende Gleichung auf.",
+      hint: "Foto 2 muss die Gleichung zur Sachaufgabe zeigen.",
+    },
+    {
+      title: "Gleichung lösen",
+      shortTitle: "x lösen",
+      description:
+        "Löse die Gleichung Schritt für Schritt bis x = ... .",
+      hint: "Foto 3 muss die Umformungen und den x-Wert zeigen.",
+    },
+    {
+      title: "Bereiche ausrechnen",
+      shortTitle: "Werte + Antwort",
+      description:
+        "Setze x in alle Terme ein und berechne die gesuchten Werte. Ein sinngemäßer Antwortsatz ist erlaubt, aber nicht Pflicht.",
+      hint: "Foto 4 muss Einsetzen und alle gesuchten Werte zeigen. Antwortsatz optional.",
+    },
+  ];
   const levels = [
     {
       name: "Stufe 1",
       description: "Einfache Gleichungen ohne Klammern und ohne negative Zahlen.",
-      equations: ["3x + 15 = 36", "4x + 8 = 28", "5x + 12 = 42"],
+      equations: [
+        "x + 4 = 10",
+        "2x = 16",
+        "2x + 6 = 22",
+        "3x + 4 = 22",
+        "4x - 8 = 24",
+        "5x + 10 = 60",
+        "6x - 12 = 36",
+        "7x + 14 = 70",
+        "8x - 16 = 48",
+        "9x + 18 = 108",
+      ],
     },
     {
       name: "Stufe 2",
       description: "Gleichungen mit negativen Zahlen.",
       equations: [
-        "3x + 5 = -7",
-        "-3x - (-5) = -7",
-        "2x + (-6) = -18",
-        "-4x + 8 = -12",
-        "5x - 9 = -24",
-        "-5x - (-10) = 25",
-        "-2x + 6 = -18",
+        "x + 5 = -3",
+        "2x = -12",
+        "3x + 6 = -12",
+        "-2x + 4 = 16",
+        "4x - 8 = -40",
+        "-5x - 10 = 30",
+        "6x + 12 = -36",
+        "-7x + 14 = 70",
+        "-3x - 15 = 9",
+        "-4x + 6 = 38",
       ],
     },
     {
       name: "Stufe 3",
       description: "Gleichungen mit Klammern.",
       equations: [
-        "3(x + 4) = 24",
-        "2(x + 7) = 30",
-        "5(x - 3) = 25",
+        "2(x + 2) = 16",
+        "3(x + 4) = 30",
+        "2(x - 5) = 10",
+        "4(x + 2) - 8 = 24",
+        "3(x - 2) + 6 = 30",
+        "5(x - 4) + 10 = 20",
         "2(-3x + 2) = -20",
-        "4(x + 2) + 6 = 34",
-        "-(4 + 3x) = -19",
-        "3(x - 5) + 9 = 24",
-        "5x - (2x + 6) = 9",
-        "6 - (2x - 8) = 4",
-        "3(-2x + 5) = -9",
-        "-(6 - 2x) = 8",
+        "-(2x - 8) = -12",
+        "3(x - 5) + 2(x + 4) = 33",
+        "4(x + 2) - 3(2x - 5) = 7",
       ],
     },
     {
       name: "Stufe 4",
       description: "Gleichungen mit Dezimalzahlen, teilweise mit negativen Zahlen.",
       equations: [
-        "2,5x + 1,5 = 11,5",
-        "-4x + 2,5 = -13,5",
-        "(-5x) + 1,5 = -18,5",
-        "0,5x + (-8) = -3",
-        "-3,5x - 1,5 = -15,5",
+        "0,5x = 1,2",
+        "2x + 1,4 = 6,2",
+        "2,5x = 6",
+        "1,5x + 2,1 = 5,7",
+        "-2x + 1,2 = 5,2",
+        "3,5x - 1,4 = 7",
+        "-4x + 2,8 = 10,8",
+        "0,5x + (-8) = -6,8",
+        "-3,5x - 1,5 = -9,9",
+        "2,5x + 1,5 = 7,5",
       ],
     },
     {
       name: "Stufe 5",
       description: "Gemischte und längere Gleichungen, auch mit negativen Zahlen und Zusammenfassen.",
       equations: [
-        "3x + 5 + 2x = 30",
-        "4(x + 2) + 3x = 36",
-        "-2x + 7 - x + (-8) = -16",
-        "3(x - 2) + 2(x + 4) = 22",
+        "3x + 5 + 2x = 45",
+        "4x + 7 - x = 31",
+        "-2x + 7 - x + (-8) = -25",
+        "3(x - 2) + 2(x + 4) = 42",
         "2,5x + 3 + (-1,5x) = 11",
-        "-4x + 2(x - 3) + 10 = -8",
+        "4(x + 2) + 3x = 64",
+        "-4x + 2(x - 3) + 10 = -12",
+        "5x - (2x + 6) + 4 = 22",
+        "6 - (2x - 8) + 4x = 30",
+        "3(x - 4) + 2(2x + 5) - x = 46",
       ],
     },
     {
       name: "Stufe 6",
       description: "Komplexe Klammergleichungen: Minusklammern, Faktoren und Dezimalzahlen.",
       equations: [
-        "-5(6x + 12) + (20 + 34x) = 0",
-        "-(5 - 9x) + 4(7 - 6x) = -22",
-        "3(-5x + 1) + 7(3 - 2x) = -63",
-        "5,6 + 3(2,1x - 1,3) + (4 - 5x) = 10,9",
+        "-(x - 6) = 4",
+        "2(-3x + 2) = -20",
+        "-(4 + 3x) = -16",
+        "3(-2x + 5) = -9",
+        "4(x + 2) - 3(2x - 5) = 15",
+        "-5(2x - 4) + 3x = -8",
         "7 - (4x - 5,4) - 6(1,1x - 9) = 24",
-        "2,5x - (3,5x - 8) + 5(2,4x - 3) = 37",
-        "-3(-1,2x + 2,1) - (0,6x + 2,7) - 5 = 4",
-        "8 + (3x - 5)(-4) = -44",
-        "7x - (-4x + 3) + 4(2 - 2x) = 17",
+        "-3(-1,2x + 2,1) - (0,6x + 2,7) - 5 = -2",
+        "-5(6x + 12) + (20 + 34x) = -32",
         "4(x + 2) - 3(2x - 5) + 2(1 - x) = -15",
       ],
     },
     {
       name: "Stufe 7",
-      description: "Gleichungen mit Bruechen, Dezimalzahlen, Klammern und gemeinsamem Nenner.",
+      description: "Gleichungen mit Brüchen, Dezimalzahlen, Klammern und gemeinsamem Nenner.",
       equations: [
-        "5 - (12x/25 + 2) = -3/50",
-        "42 - 4x/3 = 41 - 9x/7",
+        "1/2x = 6",
+        "3/4x = 6",
+        "2/5x = -4",
+        "3/7x = 8 - 1/7x",
+        "13 = 1/2x + 9",
+        "-5 = 5/11x",
+        "1/9x = -7/9x + 16",
+        "5/7x + 2 = 13/14 + 0,5x",
         "(3/5)(x - 1) = (2/3)x + 0,2",
-        "-(x - 3/20) = 3(-2x + 3/5)",
         "x/2 - 3(5 + x) = (1/2)(42 - 3x)",
-        "(8 - 4x)(3/4) = -(3/2)x",
+      ],
+    },
+    {
+      name: "Stufe 8",
+      description: "Bruchgleichungen wie im Buch: einfache Brüche, ganze und negative Ergebnisse.",
+      equations: [
+        "1/2x = 6",
+        "1/4x = 3",
+        "2/5x = 8",
+        "3/7x = 12",
+        "12 = 1/3x",
+        "-5 = 5/10x",
+        "3/7x = 8 - 1/7x",
+        "1/9x = -7/9x + 16",
+        "3/4x - 2 = 1/2x + 1",
+        "5/6x - 3 = 7/8x - 1,5",
+      ],
+    },
+    {
+      name: "Stufe 9",
+      description: "Bruchgleichungen mit Hauptnenner, Klammern und Dezimalzahlen; Ergebnisse sind ganze Zahlen.",
+      equations: [
+        "1/2x - 9 = -2x - 4",
+        "5/7x + 2 = 13/14 + 0,5x",
+        "8/15x + (2x - 0,2) = 1/3x + 4,2",
+        "5 - (4/5x + 12) = 1/2(-5,6x + 2)",
+        "(2x - 13)/7 = (x - 9)/21",
+        "3/4x - (18/25x + 3) = -1,07x + 30",
+        "7 - (x - 1/5) = -4(-1/2x - 0,3)",
+        "5(1/6x - 2/5) = 9 + 2x/9",
+        "2,5x - (3,5x - 8) + 5(2,4x - 3) = 37",
+        "7 - (4x - 5,4) - 6(1,1x - 9) = 24",
+      ],
+    },
+    {
+      name: "Stufe 10",
+      description: "M-Stoff, nicht Quali-relevant: erst Definitionsmenge, dann Hauptnenner x oder x plus/minus Zahl, am Ende Lösungsmenge.",
+      equations: [
+        "60/x = 48/x + 2",
+        "100/x = 170/x - 7",
+        "400/x = 180/x + 11",
+        "480/x - 20 = 160/x",
+        "180/x - 9 = 84/x - 3",
+        "48/(x - 8) = 12",
+        "85/(x - 5) = 5",
+        "96/(x - 8) = 3",
+        "144/(x + 3) = -16",
+        "480/(x + 20) = -24",
+      ],
+    },
+    {
+      name: "Stufe 11",
+      description: "M-Stoff: erst Definitionsmenge, zwei Nennerfaktoren ohne quadratische Gleichung, am Ende Lösungsmenge.",
+      equations: [
+        "6/x = 1/(x - 5)",
+        "2/(x - 5) + 4/x = 1/(x - 5)",
+        "4/(x - 5) = 2/x",
+        "10/x - 3/(x - 5) = 2/x",
+        "7/(x - 5) - 2/x = 4/(x - 5)",
+        "7/(2x + 15) = 1/(x - 5)",
+        "6/(2x + 15) = 2/(x - 5)",
+        "1/(2x + 15) = 1/(x - 5)",
+        "5/(2x + 15) + 1/(x - 5) = 2/(2x + 15)",
+        "4/(2x + 15) - 1/(x - 5) = 1/(2x + 15)",
+      ],
+    },
+    {
+      name: "Stufe 12",
+      description: "M-Stoff: zwei Klammern ausmultiplizieren und gleichartige Terme zusammenfassen.",
+      equations: [
+        "Multipliziere: (x + 3)(x + 4)",
+        "Multipliziere: (x - 4)(x + 7)",
+        "Multipliziere: (x - 5)(x - 6)",
+        "Multipliziere: (2x + 3)(x + 5)",
+        "Multipliziere: (3x - 2)(x + 4)",
+        "Multipliziere: (5 - x)(x + 8)",
+        "Multipliziere: (-3 + x)(7 - x)",
+        "Multipliziere: (4x - 1)(2x + 5)",
+        "Multipliziere: (10 - x)(5 - x)",
+        "Multipliziere: (12 + x)(x - 9)",
+      ],
+    },
+    {
+      name: "Stufe 13",
+      description: "M-Stoff: quadratische Gleichungen lösen und die Lösungsmenge angeben.",
+      equations: [
+        "x² = 36",
+        "x² = 0",
+        "x² - 49 = 0",
+        "3x² = 192",
+        "2x² + 14 = 64",
+        "0,25x² - 50 = 350",
+        "160 - 0,75x² = 52",
+        "x² + 9 = 0",
+        "(x - 5)(x + 5) = 24",
+        "(2x - 3)(2x + 3) = 391",
+      ],
+    },
+    {
+      name: "Stufe 14",
+      description: "Einfache Sachaufgaben: x steht allein, die anderen Größen sind nur x plus oder minus eine Zahl.",
+      equations: [
+        "Sachaufgabe: Eine Schule bestellt 390 Hefte in drei Farben. Von den roten Heften werden 50 mehr bestellt als von den blauen Heften. Von den gelben Heften werden 20 weniger bestellt als von den blauen Heften. Wie viele Hefte jeder Farbe werden bestellt? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: In einem Lager stehen 315 Kartons in drei Reihen. In Reihe A stehen 25 weniger als in Reihe B. In Reihe C stehen 40 mehr als in Reihe B. Wie viele Kartons stehen in jeder Reihe? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: Eine Klasse sammelt 210 Pfandflaschen in drei Größen. Von den kleinen Flaschen gibt es 30 mehr als von den mittleren Flaschen. Von den großen Flaschen gibt es 15 weniger als von den mittleren Flaschen. Wie viele Flaschen jeder Größe wurden gesammelt? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: Ein Sportgeschäft verkauft 310 Bälle in drei Farben. Von den roten Bällen werden 20 mehr verkauft als von den blauen Bällen. Von den gelben Bällen werden 10 weniger verkauft als von den blauen Bällen. Wie viele Bälle jeder Farbe werden verkauft? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: Eine Bibliothek verleiht 450 Bücher in drei Wochen. In Woche 1 werden 60 Bücher weniger verliehen als in Woche 2. In Woche 3 werden 90 Bücher mehr verliehen als in Woche 2. Wie viele Bücher werden in jeder Woche verliehen? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: Eine Bäckerei verkauft 240 Brötchen in drei Sorten. Von den Körnerbrötchen werden 18 weniger verkauft als von den normalen Brötchen. Von den Käsebrötchen werden 42 mehr verkauft als von den normalen Brötchen. Wie viele Brötchen jeder Sorte werden verkauft? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: In einer Werkstatt liegen 560 Schrauben in drei Kisten. In der kleinen Kiste liegen 80 weniger als in der mittleren Kiste. In der großen Kiste liegen 160 mehr als in der mittleren Kiste. Wie viele Schrauben liegen in jeder Kiste? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: Eine Gärtnerei verkauft 270 Pflanzen in drei Größen. Von den kleinen Pflanzen werden 45 mehr verkauft als von den mittleren Pflanzen. Von den großen Pflanzen werden 30 weniger verkauft als von den mittleren Pflanzen. Wie viele Pflanzen jeder Größe werden verkauft? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: Für ein Schulfest werden 380 Getränke in drei Sorten gekauft. Von den Wasserflaschen gibt es 40 mehr als von den Saftflaschen. Von den Limonadenflaschen gibt es 20 weniger als von den Saftflaschen. Wie viele Flaschen jeder Sorte gibt es? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: Die Kita Mäusenest kauft 688 Holzklötze in drei Farben. Von den roten Holzklötzen werden 76 mehr bestellt als von den blauen Klötzen. Von den gelben Holzklötzen werden 102 weniger angeschafft als von den blauen Holzklötzen. Wie viele Holzklötze von jeder Farbe werden bestellt? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+      ],
+    },
+    {
+      name: "Stufe 15",
+      description: "Buchähnliche Sachaufgaben: x steht allein; doppelt, Hälfte, feste Werte und erste Klammern sind möglich.",
+      equations: [
+        "Sachaufgabe: Die Kita Mäusenest kauft 688 Holzklötze in drei Farben. Von den roten Holzklötzen werden halb so viele wie von den blauen Klötzen bestellt. Von den gelben Holzklötzen werden 102 weniger angeschafft als von den blauen Holzklötzen. Wie viele Holzklötze von jeder Farbe werden bestellt? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: Eine Schule bestellt 410 Hefte in drei Farben. Von den roten Heften werden doppelt so viele wie von den blauen Heften bestellt. Von den gelben Heften werden 30 weniger bestellt als von den blauen Heften. Wie viele Hefte jeder Farbe werden bestellt? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: In einer Werkstatt liegen 560 Schrauben in drei Kisten. In der kleinen Kiste liegen halb so viele Schrauben wie in der mittleren Kiste. In der großen Kiste liegen 140 Schrauben mehr als in der mittleren Kiste. Wie viele Schrauben liegen in jeder Kiste? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: Für ein Schulfest werden 360 Getränke in drei Sorten gekauft. Von den Wasserflaschen gibt es doppelt so viele wie von den Saftflaschen. Von den Limonadenflaschen gibt es 40 mehr als von den Saftflaschen. Wie viele Flaschen jeder Sorte gibt es? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: Eine Bücherei verleiht 450 Bücher in drei Bereichen. Kinderbücher werden halb so oft verliehen wie Jugendbücher. Sachbücher werden 90-mal mehr verliehen als Jugendbücher. Wie viele Bücher werden in jedem Bereich verliehen? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: Drei Jugendliche sammeln zusammen 200 € Spenden. Julia sammelt 20 € mehr als Marcus. Corinna sammelt doppelt so viel wie Marcus. Wie viel sammelt jede Person? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: Für ein Spiel werden 270 Eintrittskarten verkauft. Von den Sitzplatzkarten werden halb so viele verkauft wie von den Stehplatzkarten. Von den Familienkarten werden 90 mehr verkauft als von den Stehplatzkarten. Wie viele Karten jeder Art wurden verkauft? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: Sandi kauft einen Tisch, einen Schrank und eine Couch für insgesamt 1518 €. Die Couch kostet 256 €. Der Schrank kostet doppelt so viel wie Tisch und Couch zusammen. Wie viel kosten Tisch, Schrank und Couch? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: Die Klasse 9a sammelt für eine Hilfsaktion 912 €. Die Klasse 9b sammelt 30 € mehr als 9a. Die Klasse 9c sammelt doppelt so viel wie 9a. Wie viel sammelt jede Klasse? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: Für einen Skikurs werden vier Gruppen gebildet. Gruppe A hat x Personen. Gruppe B hat 4 Personen mehr als A. Gruppe C hat doppelt so viele Personen wie A. Gruppe D hat 6 Personen weniger als C. Insgesamt nehmen 70 Personen teil. Wie viele Personen sind in jeder Gruppe? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+      ],
+    },
+    {
+      name: "Stufe 16",
+      description: "Schwere Buchaufgaben mit mindestens vier Bereichen: Anteile, Preise, feste Restwerte und gewichtete Gleichungen.",
+      equations: [
+        "Sachaufgabe: Bei einem Schulfest werden Lose verkauft. Ein Drittel aller Lose sind rote Lose. Ein Sechstel aller Lose sind blaue Lose. 150 Lose sind gelb. 50 Lose sind grün. Wie viele Lose wurden insgesamt verkauft und wie viele Lose jeder Farbe gibt es? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: Eine Schule sammelt Spenden. Klasse 9a sammelt ein Drittel der Gesamtsumme. Klasse 9b sammelt ein Sechstel der Gesamtsumme. Klasse 9c sammelt 450 €. Klasse 9d sammelt 300 € mehr als Klasse 9c. Wie viel Geld wurde insgesamt gesammelt und wie viel sammelte jede Klasse? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: In einer Gärtnerei werden Pflanzen verkauft. Ein Drittel aller Pflanzen sind Rosen. Ein Sechstel aller Pflanzen sind Tulpen. 180 Pflanzen sind Kräuter. Von den Stauden werden 60 mehr verkauft als von den Kräutern. Wie viele Pflanzen wurden insgesamt verkauft und wie viele Pflanzen jeder Art sind es? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: Fischer Fritz verkauft seinen Fang. Ein Drittel des Fangs kauft der Hotelkoch. Der Fischhändler kauft 60 Fische mehr als der Hotelkoch. Ein Viertel des Fangs geht an eine Großküche. Einen Fisch kauft die Schiffskatze. 38 Fische räuchert Fritz. Wie viele Fische hat Fritz gefangen und wie viele Fische bekommt jeder Bereich? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: Für ein Bundesligaspiel werden Karten verkauft. Ein Viertel aller Karten geht an die Haupttribüne. Ein Drittel der übrigen Karten geht an die Gegentribüne. Ein Sechstel aller Karten geht an die Nordkurve. Für die Südkurve werden 5500 Karten mehr verkauft als für die Nordkurve. Wie viele Karten wurden insgesamt verkauft und wie viele Karten gehen an jeden Bereich? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: Für einen Skikurs werden vier Gruppen gebildet. Gruppe A hat x Personen. Gruppe B hat 4 Personen mehr als A. Gruppe C hat doppelt so viele Personen wie A. Gruppe D hat 6 Personen weniger als C. Der Wochenskipass kostet pro Person: A 27 €, B 27 €, C 31,50 €, D 54 €. Insgesamt wurden 909 € eingesammelt. Wie viele Personen sind in jeder Gruppe? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: Eine Schule richtet ein Schullandheim ein. Es gibt viermal so viele 4-Bett-Zimmer wie 6-Bett-Zimmer. Außerdem gibt es drei 2-Bett-Zimmer und zwei Einzelzimmer. Insgesamt sind 294 Betten vorhanden. Wie viele Zimmer jeder Art gibt es? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: Eine Klasse sammelt Pfandflaschen. 25-Cent-Flaschen gibt es dreimal so viele wie 15-Cent-Flaschen. 8-Cent-Flaschen gibt es 20 weniger als 25-Cent-Flaschen. 50-Cent-Flaschen gibt es 10 mehr als 15-Cent-Flaschen. Insgesamt erhält die Klasse 167,40 €. Wie viele Flaschen jeder Sorte wurden gesammelt? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: Für ein Konzert werden vier Kartenarten verkauft. Haupttribünenkarten kosten 72,50 €, Gegentribünenkarten 63,00 €, Nordkurvenkarten 34,50 € und Südkurvenkarten 45,00 €. Haupttribünenkarten sind ein Drittel der Nordkurvenkarten, Gegentribünenkarten die Hälfte der Nordkurvenkarten und Südkurvenkarten 5500 mehr als Nordkurvenkarten. Insgesamt werden 1058500 € eingenommen. Wie viele Karten jeder Art wurden verkauft? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
+        "Sachaufgabe: Für ein Trainingslager zahlen 10 Mädchen und 6 Jungen den vollen Preis. Drei Trainerinnen erhalten je 80 € Rabatt. Zwei Helfer erhalten je 120 € Rabatt. Insgesamt werden 4560 € bezahlt. Wie hoch ist der volle Preis und wie viel zahlen Trainerinnen und Helfer? Strategie wie im Beispiel: x festlegen, Terme bilden, Gleichung aufstellen, lösen, Werte einsetzen, Antwortsatz optional.",
       ],
     },
   ];
   const solved = levels.map(() => new Set());
+  const photoStepProgress = levels.map((level) => level.equations.map(() => 0));
   let currentImage = null;
   let currentLevelIndex = 0;
   let currentEquationIndex = 0;
+  let currentTaskStepIndex = 0;
 
   function currentLevel() {
     return levels[currentLevelIndex];
+  }
+
+  function isStepwiseWordProblemLevel() {
+    return ["Stufe 14", "Stufe 15", "Stufe 16"].includes(currentLevel().name);
+  }
+
+  function getStoredPhotoStepIndex() {
+    return photoStepProgress[currentLevelIndex]?.[currentEquationIndex] ?? 0;
+  }
+
+  function setStoredPhotoStepIndex(index) {
+    photoStepProgress[currentLevelIndex][currentEquationIndex] = Math.max(
+      0,
+      Math.min(index, wordProblemPhotoSteps.length - 1),
+    );
+  }
+
+  function clearImageSelection() {
+    imageInput.value = "";
+    currentImage = null;
+    drawPreview();
   }
 
   function setFeedback(kind, html) {
@@ -131,19 +361,176 @@
       .replaceAll('"', "&quot;");
   }
 
+  function isTextTask(value) {
+    return /^sachaufgabe\s*:/i.test(String(value ?? "")) || String(value ?? "").length > 90;
+  }
+
+  function splitTextTask(value) {
+    const withoutPrefix = String(value ?? "").replace(/^sachaufgabe\s*:\s*/i, "").trim();
+    const [taskText, strategyText = ""] = withoutPrefix.split(/\s*Strategie wie im Beispiel:\s*/i);
+    return {
+      taskText: taskText.trim(),
+      strategyText: strategyText.trim().replace(/\.$/, ""),
+    };
+  }
+
+  function getTextTaskTopic(value) {
+    const { taskText } = splitTextTask(value);
+    const rules = [
+      [/theater/i, "Theaterkarten"],
+      [/sparschwein|münzen/i, "Münzen"],
+      [/mäusenest|holzklötze/i, "Holzklötze"],
+      [/hefte/i, "Hefte"],
+      [/werkstatt|schrauben/i, "Schrauben"],
+      [/getränke|wasserflaschen|saftflaschen|limonaden/i, "Getränke"],
+      [/gärtnerei|pflanzen/i, "Pflanzen"],
+      [/bibliothek|bücherei|bücher/i, "Bücher"],
+      [/eintrittskarten|kartenarten|haupttribünenkarten|nordkurvenkarten/i, "Eintrittskarten"],
+      [/tisch|schrank|couch/i, "Möbelkauf"],
+      [/hilfsaktion|klasse 9a/i, "Hilfsaktion"],
+      [/turnier|punkte/i, "Turnierpunkte"],
+      [/lager|kartons|reihe/i, "Kartons"],
+      [/bäckerei|brötchen/i, "Brötchen"],
+      [/pfandflaschen|flaschen/i, "Flaschen"],
+      [/sportgeschäft|bälle/i, "Bälle"],
+      [/lena|ben|älter/i, "Alter"],
+      [/dreieck|seiten/i, "Dreieck"],
+      [/hefte|stift/i, "Hefte & Stift"],
+      [/zoo/i, "Zoo-Karten"],
+      [/lisa|murat|nele/i, "Sammelgeld"],
+      [/kilometer|läuft/i, "Kilometer"],
+      [/buch|hardcover|taschenbuch/i, "Bücher"],
+      [/klötze|farbe/i, "Klötze"],
+      [/bus/i, "Busfahrt"],
+      [/kochtöpfe/i, "Kochtöpfe"],
+      [/zulieferer/i, "Zulieferer"],
+      [/rockkonzert|preisklasse/i, "Konzertkarten"],
+      [/sportgruppe|trainingslager/i, "Trainingslager"],
+      [/stefan|markus|torsten|spenden/i, "Spenden"],
+      [/julia|marcus|corinna/i, "Spenden"],
+      [/wahl|stimmen/i, "Wahlstimmen"],
+      [/schrauben/i, "Schrauben"],
+      [/schulausflug/i, "Schulausflug"],
+      [/skikurs|skipass/i, "Skikurs"],
+      [/fischer|fische/i, "Fischer Fritz"],
+      [/bundesligaspiel/i, "Bundesliga"],
+      [/startkapital/i, "Startkapital"],
+      [/schullandheim|zimmer|betten/i, "Zimmer & Betten"],
+      [/schulfest/i, "Schulfest"],
+      [/pfandflaschen/i, "Pfandflaschen"],
+    ];
+    const match = rules.find(([pattern]) => pattern.test(taskText));
+
+    if (match) return match[1];
+
+    return taskText.split(/[.?!]/)[0].slice(0, 28).trim() || "Sachaufgabe";
+  }
+
+  function renderTextTask(value) {
+    const { taskText, strategyText } = splitTextTask(value);
+    const steps = strategyText
+      ? strategyText
+          .split(/\s*,\s*/)
+          .map((step) => step.trim())
+          .map((step) => step.replace(/^Gleichung aufstellen$/i, "Gleichung"))
+          .filter(Boolean)
+      : [];
+
+    return `
+      <span class="task-card">
+        <span class="task-badge">Sachaufgabe</span>
+        <span class="task-text">${formatEquation(taskText)}</span>
+        ${
+          steps.length
+            ? `<span class="task-strategy" aria-label="Strategie">${steps
+                .map((step) => `<span>${escapeHtml(step)}</span>`)
+                .join("")}</span>`
+            : ""
+        }
+      </span>
+    `;
+  }
+
+  function renderTaskStepPanel() {
+    if (!isStepwiseWordProblemLevel()) {
+      taskStepInput.value = "";
+      taskStepPanel.hidden = true;
+      taskStepPanel.innerHTML = "";
+      imageLabel.textContent = "Foto vom Rechenweg";
+      checkButton.textContent = "Rechenweg prüfen";
+      return;
+    }
+
+    currentTaskStepIndex = solved[currentLevelIndex].has(equationInput.value)
+      ? wordProblemPhotoSteps.length - 1
+      : getStoredPhotoStepIndex();
+    const activeStep = wordProblemPhotoSteps[currentTaskStepIndex];
+    taskStepInput.value = String(currentTaskStepIndex + 1);
+    taskStepPanel.hidden = false;
+    imageLabel.textContent = `${currentTaskStepIndex + 1}. Foto: ${activeStep.title}`;
+    checkButton.textContent = `Foto ${currentTaskStepIndex + 1} prüfen`;
+    taskStepPanel.innerHTML = `
+      <div class="task-step-head">
+        <strong>Foto ${currentTaskStepIndex + 1}: ${escapeHtml(activeStep.title)}</strong>
+        <span>${currentTaskStepIndex + 1} / ${wordProblemPhotoSteps.length}</span>
+      </div>
+      <p>${escapeHtml(activeStep.description)}</p>
+      <div class="task-step-list" aria-label="Foto-Schritte">
+        ${wordProblemPhotoSteps
+          .map((step, index) => {
+            const state =
+              index < currentTaskStepIndex
+                ? "done"
+                : index === currentTaskStepIndex
+                  ? "active"
+                  : "";
+            return `<span class="${state}"><b>${index + 1}</b>${escapeHtml(step.shortTitle)}</span>`;
+          })
+          .join("")}
+      </div>
+      <small>${escapeHtml(activeStep.hint)}</small>
+    `;
+  }
+
+  function getEquationStatusText(equation, index) {
+    if (solved[currentLevelIndex].has(equation)) return "richtig";
+    if (isStepwiseWordProblemLevel()) {
+      const stepIndex = photoStepProgress[currentLevelIndex]?.[index] ?? 0;
+      return `Foto ${stepIndex + 1}/4`;
+    }
+
+    return isTextTask(equation) ? "" : `${index + 1}`;
+  }
+
+  function getTaskPreview(value, index) {
+    if (!isTextTask(value)) return formatEquation(value);
+
+    return `<span class="task-preview-index">${index + 1}</span><span>${escapeHtml(getTextTaskTopic(value))}</span>`;
+  }
+
   function formatEquation(value) {
-    const text = String(value ?? "");
-    const fractionPattern = /(\d+(?:,\d+)?[a-zA-Z]?|[a-zA-Z]\d*|\d+(?:,\d+)?\s*[·*]\s*[a-zA-Z])\s*\/\s*(\d+(?:,\d+)?)/g;
+    const text = String(value ?? "").replace(/\^2/g, "²");
+    const fractionPattern = /(\([^()]+\)|-?\d+(?:,\d+)?[a-zA-Z]?|-?[a-zA-Z]\d*|-?\d+(?:,\d+)?\s*[·*]\s*[a-zA-Z])\s*\/\s*(\([^()]+\)|-?[a-zA-Z]\d*|\d+(?:,\d+)?)/g;
     let html = "";
     let lastIndex = 0;
     let match;
+
+    function cleanFractionPart(part) {
+      const trimmed = String(part ?? "").trim();
+
+      if (trimmed.startsWith("(") && trimmed.endsWith(")")) {
+        return trimmed.slice(1, -1).trim();
+      }
+
+      return trimmed;
+    }
 
     while ((match = fractionPattern.exec(text)) !== null) {
       const fractionEnd = match.index + match[0].length;
       const hasOnlyFractionParentheses = text[match.index - 1] === "(" && text[fractionEnd] === ")";
       const textBeforeFraction = text.slice(lastIndex, hasOnlyFractionParentheses ? match.index - 1 : match.index);
       html += escapeHtml(textBeforeFraction);
-      html += `<span class="math-frac"><span class="math-frac-top">${escapeHtml(match[1])}</span><span class="math-frac-bottom">${escapeHtml(match[2])}</span></span>`;
+      html += `<span class="math-frac"><span class="math-frac-top">${escapeHtml(cleanFractionPart(match[1]))}</span><span class="math-frac-bottom">${escapeHtml(cleanFractionPart(match[2]))}</span></span>`;
       lastIndex = hasOnlyFractionParentheses ? fractionEnd + 1 : fractionEnd;
     }
 
@@ -158,12 +545,44 @@
       .filter(Boolean);
   }
 
+  function isMissingHint(value) {
+    return /^fehlt\s*:/i.test(String(value ?? "").trim());
+  }
+
   function renderLineList(lines) {
     if (lines.length === 0) return "";
 
     return `
       <ol class="solution-lines">
-        ${lines.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}
+        ${lines
+          .map((line) => `<li class="${isMissingHint(line) ? "missing-hint" : ""}">${formatEquation(line)}</li>`)
+          .join("")}
+      </ol>
+    `;
+  }
+
+  function splitSuggestionText(value) {
+    return String(value ?? "")
+      .replace(/\s*,\s*dann\s+/gi, "\nDann ")
+      .replace(/\s*;\s*/g, "\n")
+      .replace(/\s*\n+\s*/g, "\n")
+      .split(/\n|(?<=\.)\s+(?=[A-ZÄÖÜ])/)
+      .map((line) => line.trim())
+      .filter(Boolean);
+  }
+
+  function renderSuggestion(value) {
+    const lines = splitSuggestionText(value);
+    const singleLineClass = isMissingHint(lines[0] || value) ? " missing-hint" : "";
+    if (lines.length <= 1) {
+      return `<p class="feedback-math${singleLineClass}">${formatEquation(lines[0] || value)}</p>`;
+    }
+
+    return `
+      <ol class="solution-lines next-steps">
+        ${lines
+          .map((line) => `<li class="${isMissingHint(line) ? "missing-hint" : ""}">${formatEquation(line)}</li>`)
+          .join("")}
       </ol>
     `;
   }
@@ -199,10 +618,11 @@
       .map((equation, index) => {
         const isActive = index === currentEquationIndex;
         const isSolved = solved[currentLevelIndex].has(equation);
+        const textTask = isTextTask(equation);
         return `
           <button type="button" class="${isActive ? "active" : ""} ${isSolved ? "solved" : ""}" data-equation-index="${index}">
-            <span class="equation-text">${formatEquation(equation)}</span>
-            <strong>${isSolved ? "richtig" : `${index + 1}`}</strong>
+            <span class="equation-text${textTask ? " text-task-text" : ""}">${getTaskPreview(equation, index)}</span>
+            <strong>${getEquationStatusText(equation, index)}</strong>
           </button>
         `;
       })
@@ -219,18 +639,30 @@
     const level = currentLevel();
     currentEquationIndex = (index + level.equations.length) % level.equations.length;
     const equation = level.equations[currentEquationIndex];
+    const textTask = isTextTask(equation);
+    currentTaskStepIndex = getStoredPhotoStepIndex();
     equationInput.value = equation;
-    equationDisplay.innerHTML = `<span class="equation-line">${formatEquation(equation)}</span>`;
+    taskLevelInput.value = level.name;
+    equationDisplay.classList.toggle("text-task", textTask);
+    equationDisplay.innerHTML = textTask
+      ? renderTextTask(equation)
+      : `<span class="equation-line">${formatEquation(equation)}</span>`;
     fitEquationDisplay();
     previewPanel.classList.remove("preview-ok", "preview-no");
     statusPill.classList.remove("ok", "error");
     updateProgress();
+    renderTaskStepPanel();
     renderLevelButtons();
     renderEquationButtons();
   }
 
   function fitEquationDisplay() {
     requestAnimationFrame(() => {
+      if (equationDisplay.classList.contains("text-task")) {
+        equationDisplay.style.fontSize = "";
+        return;
+      }
+
       const maxSize = 48;
       const minSize = 10;
       const equationLine = equationDisplay.querySelector(".equation-line") || equationDisplay;
@@ -334,6 +766,14 @@
     statusPill.classList.toggle("ok", data.correct);
     statusPill.classList.toggle("error", !data.correct);
     statusPill.textContent = data.correct ? "Richtig" : "Fehler gefunden";
+    let extraFeedback = "";
+    if (data.correct && isStepwiseWordProblemLevel()) {
+      const nextStep = wordProblemPhotoSteps[currentTaskStepIndex + 1];
+      extraFeedback = nextStep
+        ? `<div class="feedback-section next-photo-note"><span class="feedback-label">Weiter:</span><p>Jetzt ${escapeHtml(nextStep.title)} fotografieren.</p></div>`
+        : `<div class="feedback-section next-photo-note"><span class="feedback-label">${escapeHtml(currentLevel().name)}:</span><p>Alle vier Fotos zu dieser Aufgabe sind erledigt.</p></div>`;
+    }
+
     setFeedback(kind, `
       <h3>${title}</h3>
       <p class="feedback-summary">${escapeHtml(data.summary)}</p>
@@ -343,13 +783,30 @@
       </div>
       <div class="feedback-section">
         <span class="feedback-label">${suggestionTitle}:</span>
-        <p>${escapeHtml(data.suggestion)}</p>
+        ${renderSuggestion(data.suggestion)}
       </div>
+      ${extraFeedback}
     `);
 
     if (data.correct) {
+      if (
+        isStepwiseWordProblemLevel() &&
+        currentTaskStepIndex < wordProblemPhotoSteps.length - 1
+      ) {
+        setStoredPhotoStepIndex(currentTaskStepIndex + 1);
+        currentTaskStepIndex = getStoredPhotoStepIndex();
+        renderTaskStepPanel();
+        renderEquationButtons();
+        clearImageSelection();
+        statusPill.classList.remove("error");
+        statusPill.classList.add("ok");
+        statusPill.textContent = `Foto ${currentTaskStepIndex + 1}`;
+        return;
+      }
+
       solved[currentLevelIndex].add(equationInput.value);
       updateProgress();
+      renderTaskStepPanel();
       renderLevelButtons();
       renderEquationButtons();
       unlockNextLevelIfReady();
@@ -368,6 +825,14 @@
 
     const formData = new FormData();
     formData.append("equation", equationInput.value.trim() || currentLevel().equations[0]);
+    formData.append("taskLevel", currentLevel().name);
+    formData.append("taskStep", taskStepInput.value);
+    formData.append(
+      "taskStepTitle",
+      isStepwiseWordProblemLevel()
+        ? wordProblemPhotoSteps[currentTaskStepIndex].title
+        : "",
+    );
     formData.append("image", file);
 
     setFeedback(
