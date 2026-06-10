@@ -20,6 +20,8 @@
   const canvas = document.querySelector("#preview-canvas");
   const emptyPreview = document.querySelector("#empty-preview");
   const statusPill = document.querySelector("#server-status");
+  const levelDownButton = document.querySelector("#prev-level");
+  const levelUpButton = document.querySelector("#next-level");
   const nextButton = document.querySelector("#sample-button");
   const prevButton = document.querySelector("#prev-equation");
   const previewPanel = document.querySelector(".preview-panel");
@@ -29,13 +31,13 @@
   const levelDescription = document.querySelector("#level-description");
   const levelProgress = document.querySelector("#level-progress");
   const taskStepPanel = document.querySelector("#task-step-panel");
+  const taskProgressDots = document.querySelector("#task-progress-dots");
   const ctx = canvas.getContext("2d");
   const wordProblemPhotoSteps = [
     {
       title: "x festlegen",
       shortTitle: "x + Tabelle",
-      description:
-        "Lege x fest. Schreibe eine Tabelle: Bei Stufe 14 und 15 steht eine Grundgröße als x allein; bei Stufe 16 darf x auch die Gesamtzahl sein. Markiere die Gesamtangabe mit einer geschweiften Klammer.",
+      description: "Lege x fest. Schreibe eine Tabelle.",
       hint: "Foto 1 muss x-Festlegung, Tabelle und geschweifte Klammer zeigen.",
     },
     {
@@ -322,6 +324,8 @@
   const photoStepProgress = levels.map((level) => level.equations.map(() => 0));
   let currentImage = null;
   let selectedImageFile = null;
+  let selectedUploadFile = null;
+  let imageReadyPromise = Promise.resolve(null);
   let currentLevelIndex = 0;
   let currentEquationIndex = 0;
   let currentTaskStepIndex = 0;
@@ -349,6 +353,8 @@
     imageInput.value = "";
     cameraInput.value = "";
     selectedImageFile = null;
+    selectedUploadFile = null;
+    imageReadyPromise = Promise.resolve(null);
     currentImage = null;
     drawPreview();
   }
@@ -432,26 +438,12 @@
   }
 
   function renderTextTask(value) {
-    const { taskText, strategyText } = splitTextTask(value);
-    const steps = strategyText
-      ? strategyText
-          .split(/\s*,\s*/)
-          .map((step) => step.trim())
-          .map((step) => step.replace(/^Gleichung aufstellen$/i, "Gleichung"))
-          .filter(Boolean)
-      : [];
+    const { taskText } = splitTextTask(value);
 
     return `
       <span class="task-card">
         <span class="task-badge">Sachaufgabe</span>
         <span class="task-text">${formatEquation(taskText)}</span>
-        ${
-          steps.length
-            ? `<span class="task-strategy" aria-label="Strategie">${steps
-                .map((step) => `<span>${escapeHtml(step)}</span>`)
-                .join("")}</span>`
-            : ""
-        }
       </span>
     `;
   }
@@ -476,10 +468,9 @@
     checkButton.textContent = `Foto ${currentTaskStepIndex + 1} prüfen`;
     taskStepPanel.innerHTML = `
       <div class="task-step-head">
-        <strong>Foto ${currentTaskStepIndex + 1}: ${escapeHtml(activeStep.title)}</strong>
+        <strong>Foto ${currentTaskStepIndex + 1}</strong>
         <span>${currentTaskStepIndex + 1} / ${wordProblemPhotoSteps.length}</span>
       </div>
-      <p>${escapeHtml(activeStep.description)}</p>
       <div class="task-step-list" aria-label="Foto-Schritte">
         ${wordProblemPhotoSteps
           .map((step, index) => {
@@ -493,7 +484,6 @@
           })
           .join("")}
       </div>
-      <small>${escapeHtml(activeStep.hint)}</small>
     `;
   }
 
@@ -542,11 +532,25 @@
     return html + escapeHtml(text.slice(lastIndex));
   }
 
+  function cleanFeedbackLineLabel(value) {
+    return String(value ?? "")
+      .trim()
+      .replace(/\b(?:sichtbare\s+)?zeile\s*\d*\s*[:.)-]?\s*/gi, "")
+      .replace(/\s{2,}/g, " ")
+      .replace(/^\s*(?!:\s*\d)[:.)-]\s*/, "")
+      .trim();
+  }
+
+  function isStandaloneCheckMark(value) {
+    return /^[✓✔️✔√]+\.?$/u.test(String(value ?? "").trim());
+  }
+
   function splitFeedbackText(value) {
     return String(value ?? "")
       .replace(/\s*\n+\s*/g, "\n")
       .split(/\n|(?=\b(?:Schritt|Zeile)\s*\d+\s*:)/i)
-      .map((line) => line.trim())
+      .map((line) => cleanFeedbackLineLabel(line))
+      .filter((line) => !isStandaloneCheckMark(line))
       .filter(Boolean);
   }
 
@@ -554,13 +558,111 @@
     return /^fehlt\s*:/i.test(String(value ?? "").trim());
   }
 
-  function renderLineList(lines) {
-    if (lines.length === 0) return "";
+  function formatProbeNumber(value) {
+    if (!Number.isFinite(value)) return "";
+    const rounded = Math.round(value * 1000) / 1000;
+    return Number.isInteger(rounded)
+      ? String(rounded)
+      : String(rounded).replace(".", ",");
+  }
+
+  function evaluateNumericExpression(value) {
+    const expression = String(value ?? "")
+      .replace(/,/g, ".")
+      .replace(/·/g, "*")
+      .replace(/−/g, "-")
+      .replace(/\s+/g, "")
+      .replace(/(\d(?:\.\d+)?)\(/g, "$1*(")
+      .replace(/\)(\d)/g, ")*$1");
+
+    if (!/^[\d+\-*/().]+$/.test(expression) || !/\d/.test(expression)) {
+      return null;
+    }
+
+    try {
+      const result = Function(`"use strict"; return (${expression});`)();
+      return Number.isFinite(result) ? Number(result) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function renderProbeCheckLine(text, equation) {
+    if (!/\bprobe\b/i.test(text)) return "";
+
+    const equationParts = equation
+      .split("=")
+      .map((part) => part.trim())
+      .filter(Boolean);
+
+    if (equationParts.length < 2) return "";
+
+    const leftValue = evaluateNumericExpression(equationParts[0]);
+    const rightValue = evaluateNumericExpression(equationParts[equationParts.length - 1]);
+
+    if (
+      leftValue === null ||
+      rightValue === null ||
+      Math.abs(leftValue - rightValue) > 0.001
+    ) {
+      return "";
+    }
+
+    const checkEquation = `${formatProbeNumber(leftValue)} = ${formatProbeNumber(rightValue)}`;
+    return `
+      <span class="probe-check-line">
+        <span class="feedback-equation-line probe-result-line">${formatEquation(checkEquation)}</span>
+        <span class="line-check mini-check" aria-label="Probe stimmt">✓</span>
+      </span>
+    `;
+  }
+
+  function formatFeedbackLine(value) {
+    const text = cleanFeedbackLineLabel(value);
+    const equationPattern = /([()xX\d\s+\-−*/·,:;=.]+=[()xX\d\s+\-−*/·,:;.]+)/;
+    const match = text.match(equationPattern);
+
+    if (!match) {
+      return formatEquation(text);
+    }
+
+    const equation = match[1]
+      .trim()
+      .replace(/^\s*(?!:\s*\d)[:.)-]\s*/, "")
+      .replace(/^(?:zeile\s*)?\d+\s*[.:)]\s*/i, "")
+      .replace(/[.;,:]+$/, "");
+    const before = cleanFeedbackLineLabel(text.slice(0, match.index));
+    const after = cleanFeedbackLineLabel(
+      text.slice(match.index + match[1].length).replace(/^[–-]\s*/, ""),
+    );
 
     return `
-      <ol class="solution-lines">
+      ${before ? `<span class="feedback-line-text">${formatEquation(before)}</span>` : ""}
+      <span class="feedback-equation-line">${formatEquation(equation)}</span>
+      ${renderProbeCheckLine(text, equation)}
+      ${after ? `<span class="feedback-line-text">${formatEquation(after)}</span>` : ""}
+    `;
+  }
+
+  function renderLineList(lines, options = {}) {
+    if (lines.length === 0) return "";
+
+    const { checked = false, className = "" } = options;
+
+    return `
+      <ol class="solution-lines ${className}">
         ${lines
-          .map((line) => `<li class="${isMissingHint(line) ? "missing-hint" : ""}">${formatEquation(line)}</li>`)
+          .map((line, index) => {
+            const missingHint = isMissingHint(line);
+            const showCheck = checked && !missingHint;
+            return `
+              <li class="${missingHint ? "missing-hint" : ""} ${showCheck ? "checked" : ""}">
+                <span class="step-box">${index + 1}.</span>
+                <span class="solution-line-body">${formatFeedbackLine(line)}</span>
+                ${showCheck ? `<span class="line-check" aria-label="richtig">✓</span>` : ""}
+              </li>
+            `;
+          })
           .join("")}
       </ol>
     `;
@@ -572,21 +674,34 @@
       .replace(/\s*;\s*/g, "\n")
       .replace(/\s*\n+\s*/g, "\n")
       .split(/\n|(?<=\.)\s+(?=[A-ZÄÖÜ])/)
-      .map((line) => line.trim())
+      .map((line) => cleanFeedbackLineLabel(line))
+      .filter((line) => !isStandaloneCheckMark(line))
       .filter(Boolean);
   }
 
   function renderSuggestion(value) {
     const lines = splitSuggestionText(value);
-    const singleLineClass = isMissingHint(lines[0] || value) ? " missing-hint" : "";
     if (lines.length <= 1) {
-      return `<p class="feedback-math${singleLineClass}">${formatEquation(lines[0] || value)}</p>`;
+      const line = lines[0] || value;
+      return `
+        <ol class="solution-lines next-steps single-step">
+          <li class="${isMissingHint(line) ? "missing-hint" : ""}">
+            <span class="step-box">1.</span>
+            <span class="solution-line-body">${formatFeedbackLine(line)}</span>
+          </li>
+        </ol>
+      `;
     }
 
     return `
       <ol class="solution-lines next-steps">
         ${lines
-          .map((line) => `<li class="${isMissingHint(line) ? "missing-hint" : ""}">${formatEquation(line)}</li>`)
+          .map((line, index) => `
+            <li class="${isMissingHint(line) ? "missing-hint" : ""}">
+              <span class="step-box">${index + 1}.</span>
+              <span class="solution-line-body">${formatFeedbackLine(line)}</span>
+            </li>
+          `)
           .join("")}
       </ol>
     `;
@@ -599,6 +714,20 @@
     levelDescription.textContent = level.description;
     levelProgress.textContent = `${done} / ${level.equations.length} richtig`;
     statusPill.textContent = level.name;
+    [levelDownButton, levelUpButton].forEach((button) => {
+      button.classList.toggle("complete", done === level.equations.length);
+      button.classList.toggle("working", done < level.equations.length);
+    });
+    taskProgressDots.innerHTML = level.equations
+      .map((equation, index) => {
+        const state = solved[currentLevelIndex].has(equation)
+          ? "done"
+          : index === currentEquationIndex
+            ? "active"
+            : "";
+        return `<span class="${state}" aria-label="Aufgabe ${index + 1}"></span>`;
+      })
+      .join("");
   }
 
   function renderLevelButtons() {
@@ -707,6 +836,10 @@
     setLevel(nextLevelIndex, targetEquationIndex);
   }
 
+  function stepLevel(direction) {
+    setLevel(currentLevelIndex + direction, 0);
+  }
+
   function unlockNextLevelIfReady() {
     const level = currentLevel();
     const isComplete = solved[currentLevelIndex].size === level.equations.length;
@@ -739,22 +872,85 @@
     ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
   }
 
+  function makeJpegFileName(file) {
+    const fallback = "rechenweg.jpg";
+    if (!file?.name) return fallback;
+
+    return file.name.replace(/\.[^.]+$/, "") + ".jpg";
+  }
+
+  function normalizeImageForUpload(img, file) {
+    return new Promise((resolve) => {
+      const maxSide = 1800;
+      const longestSide = Math.max(img.naturalWidth, img.naturalHeight);
+      const scale = Math.min(1, maxSide / longestSide);
+      const width = Math.max(1, Math.round(img.naturalWidth * scale));
+      const height = Math.max(1, Math.round(img.naturalHeight * scale));
+      const uploadCanvas = document.createElement("canvas");
+      const uploadContext = uploadCanvas.getContext("2d");
+
+      if (!uploadContext) {
+        resolve(file);
+        return;
+      }
+
+      uploadCanvas.width = width;
+      uploadCanvas.height = height;
+      uploadContext.drawImage(img, 0, 0, width, height);
+      uploadCanvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            resolve(file);
+            return;
+          }
+
+          resolve(
+            new File([blob], makeJpegFileName(file), {
+              type: "image/jpeg",
+              lastModified: Date.now(),
+            }),
+          );
+        },
+        "image/jpeg",
+        0.9,
+      );
+    });
+  }
+
   function loadImage(file) {
     previewPanel.classList.remove("preview-ok", "preview-no");
     if (!file) {
       selectedImageFile = null;
+      selectedUploadFile = null;
+      imageReadyPromise = Promise.resolve(null);
       currentImage = null;
       drawPreview();
       return;
     }
 
     selectedImageFile = file;
+    selectedUploadFile = file;
     const img = new Image();
-    img.onload = () => {
-      URL.revokeObjectURL(img.src);
-      currentImage = img;
-      drawPreview();
-    };
+    imageReadyPromise = new Promise((resolve) => {
+      img.onload = async () => {
+        URL.revokeObjectURL(img.src);
+        currentImage = img;
+        drawPreview();
+        selectedUploadFile = await normalizeImageForUpload(img, file);
+        resolve(selectedUploadFile);
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(img.src);
+        selectedUploadFile = file;
+        currentImage = null;
+        drawPreview();
+        setFeedback(
+          "no",
+          "<h3>Foto nicht lesbar</h3><p>Die Kamera-Aufnahme konnte nicht vorbereitet werden. Bitte versuche es noch einmal oder wähle ein JPG-Foto aus.</p>",
+        );
+        resolve(file);
+      };
+    });
     img.src = URL.createObjectURL(file);
   }
 
@@ -766,7 +962,9 @@
     const analysisLines = splitFeedbackText(
       data.analysis || "Kein Fehler im Rechenweg gefunden.",
     );
-    const suggestionTitle = data.correct ? "Fertig" : "Nächster Schritt";
+    const resultMark = data.correct ? "✓" : "×";
+    const resultText = data.correct ? "Richtig" : "Falsch";
+    const suggestionTitle = "So geht's weiter";
 
     previewPanel.classList.toggle("preview-ok", data.correct);
     previewPanel.classList.toggle("preview-no", !data.correct);
@@ -782,14 +980,17 @@
     }
 
     setFeedback(kind, `
-      <h3>${title}</h3>
+      <div class="feedback-headline">
+        <h3>${title}</h3>
+        <span class="feedback-result-mark ${kind}" aria-label="${resultText}">${resultMark}</span>
+      </div>
       <p class="feedback-summary">${escapeHtml(data.summary)}</p>
       <div class="feedback-section">
         <span class="feedback-label">${data.correct ? "Lösung:" : "Fehlerbeschreibung:"}</span>
-        ${renderLineList(analysisLines)}
+        ${renderLineList(analysisLines, { checked: data.correct })}
       </div>
-      <div class="feedback-section">
-        <span class="feedback-label">${suggestionTitle}:</span>
+      <div class="feedback-section tip-section">
+        <span class="feedback-label tip-label">${suggestionTitle}:</span>
         ${renderSuggestion(data.suggestion)}
       </div>
       ${extraFeedback}
@@ -820,13 +1021,50 @@
     }
   }
 
+  function getServerFeedback(payload) {
+    if (payload?.feedbackData && typeof payload.feedbackData === "object") {
+      return payload.feedbackData;
+    }
+
+    if (typeof payload?.feedback === "string") {
+      try {
+        return JSON.parse(payload.feedback);
+      } catch {
+        return null;
+      }
+    }
+
+    return null;
+  }
+
+  function renderFailedRequest(title, data, fallbackMessage) {
+    const analysisLines = splitFeedbackText(data?.analysis || "");
+    const suggestion = data?.suggestion || "Bitte versuche es gleich noch einmal.";
+
+    setFeedback("no", `
+      <h3>${escapeHtml(title)}</h3>
+      <p class="feedback-summary">${escapeHtml(data?.summary || fallbackMessage)}</p>
+      ${analysisLines.length
+        ? `<div class="feedback-section">
+            <span class="feedback-label">Servermeldung:</span>
+            ${renderLineList(analysisLines)}
+          </div>`
+        : ""}
+      <div class="feedback-section">
+        <span class="feedback-label">Nächster Schritt:</span>
+        ${renderSuggestion(suggestion)}
+      </div>
+    `);
+  }
+
   imageInput.addEventListener("change", () => loadImage(imageInput.files[0]));
   cameraInput.addEventListener("change", () => loadImage(cameraInput.files[0]));
   cameraButton.addEventListener("click", () => cameraInput.click());
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const file = selectedImageFile;
+    const file =
+      (await imageReadyPromise) || selectedUploadFile || selectedImageFile;
     if (!file) {
       setFeedback("no", "<h3>Foto fehlt</h3><p>Wähle zuerst ein Foto vom Rechenweg aus.</p>");
       return;
@@ -860,6 +1098,7 @@
         body: formData,
       });
       const payload = await response.json().catch(() => ({}));
+      const serverFeedback = getServerFeedback(payload);
       if (!response.ok) {
         failureTitle = response.status === 502
           ? "Antwort nicht lesbar"
@@ -867,9 +1106,22 @@
         failureStatus = response.status === 502
           ? "Antwort nicht lesbar"
           : "Prüfung fehlgeschlagen";
-        throw new Error(payload?.feedbackData?.summary || payload?.feedback || "Die Prüfung ist fehlgeschlagen.");
+        if (serverFeedback) {
+          previewPanel.classList.remove("preview-ok", "preview-no");
+          statusPill.classList.remove("ok");
+          statusPill.classList.add("error");
+          statusPill.textContent = failureStatus;
+          renderFailedRequest(
+            failureTitle,
+            serverFeedback,
+            "Die Prüfung ist fehlgeschlagen.",
+          );
+          return;
+        }
+
+        throw new Error("Die Prüfung ist fehlgeschlagen.");
       }
-      renderFeedback(payload.feedbackData || JSON.parse(payload.feedback));
+      renderFeedback(serverFeedback || JSON.parse(payload.feedback));
     } catch (error) {
       if (error instanceof TypeError) {
         failureTitle = "Prüfung nicht erreichbar";
@@ -889,6 +1141,8 @@
 
   nextButton.addEventListener("click", () => stepEquation(1));
   prevButton.addEventListener("click", () => stepEquation(-1));
+  levelDownButton.addEventListener("click", () => stepLevel(-1));
+  levelUpButton.addEventListener("click", () => stepLevel(1));
   levelSwitch.addEventListener("click", (event) => {
     const button = event.target.closest("[data-level-index]");
     if (!button) return;
