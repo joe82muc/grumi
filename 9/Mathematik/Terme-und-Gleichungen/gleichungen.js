@@ -524,8 +524,13 @@
       const fractionEnd = match.index + match[0].length;
       const hasOnlyFractionParentheses = text[match.index - 1] === "(" && text[fractionEnd] === ")";
       const textBeforeFraction = text.slice(lastIndex, hasOnlyFractionParentheses ? match.index - 1 : match.index);
+      const denominator = cleanFractionPart(match[2]);
+      const shouldWrapVariableDenominator = !hasOnlyFractionParentheses && /^[a-zA-Z]\d*$/.test(denominator);
+      const fractionHtml = `<span class="math-frac"><span class="math-frac-top">${escapeHtml(cleanFractionPart(match[1]))}</span><span class="math-frac-bottom">${escapeHtml(denominator)}</span></span>`;
       html += escapeHtml(textBeforeFraction);
-      html += `<span class="math-frac"><span class="math-frac-top">${escapeHtml(cleanFractionPart(match[1]))}</span><span class="math-frac-bottom">${escapeHtml(cleanFractionPart(match[2]))}</span></span>`;
+      html += shouldWrapVariableDenominator
+        ? `<span class="math-frac-wrap">( ${fractionHtml} )</span>`
+        : fractionHtml;
       lastIndex = hasOnlyFractionParentheses ? fractionEnd + 1 : fractionEnd;
     }
 
@@ -535,9 +540,10 @@
   function cleanFeedbackLineLabel(value) {
     return String(value ?? "")
       .trim()
-      .replace(/\b(?:sichtbare\s+)?zeile\s*\d*\s*[:.)-]?\s*/gi, "")
+      .replace(/\b(?:sichtbare\s+)?(?:schritt|zeile)\s*\d+(?:\s*[-–]\s*\d+)?\s*[:.)-]?\s*/gi, "")
+      .replace(/\b(?:sichtbare\s+)?(?:schritt|zeile)\s*[:.)-]?\s*/gi, "")
       .replace(/\s{2,}/g, " ")
-      .replace(/^\s*(?!:\s*\d)[:.)-]\s*/, "")
+      .replace(/^\s*(?!:\s*\d)[:.)]\s*/, "")
       .trim();
   }
 
@@ -545,17 +551,135 @@
     return /^[✓✔️✔√]+\.?$/u.test(String(value ?? "").trim());
   }
 
-  function splitFeedbackText(value) {
+  function isDanglingExampleStart(value) {
+    return /^\(?\s*z\.?\s*(?:b\.?)?\s*\.?\s*\)?$/i.test(String(value ?? "").trim());
+  }
+
+  function normalizeFeedbackSentences(value) {
     return String(value ?? "")
+      .replace(/\bdann\s+([+\-−]\s*\d+(?:[,.]\d+)?x|[+\-−]\s*x|[+\-−]\s*\d+(?:[,.]\d+)?|[:÷]\s*\(?[+\-−]?\d+(?:[,.]\d+)?\)?):?/gi, "\n$1 auf beiden Seiten:")
+      .replace(/\s*,\s*(?=[+\-−:÷]\s*(?:\(?[+\-−]?\d|\d+(?:[,.]\d+)?x|x))/g, "\n")
+      .replace(/[;]\s*(?=[+\-−:÷]\s*(?:\(?[+\-−]?\d|\d+(?:[,.]\d+)?x|x))/g, "\n")
+      .replace(/\s*→\s*(?=[+\-−:÷]\s*(?:\(?[+\-−]?\d|\d+(?:[,.]\d+)?x|x))/g, "\n")
+      .replace(/auf beiden Seiten:\s*:/g, "auf beiden Seiten:")
+      .replace(/\bAlle\s+e\s+korrekt\.?/gi, "Alles korrekt.");
+  }
+
+  function splitProbeSideSentences(value) {
+    return String(value ?? "")
+      .replace(/\s+und\s+((?=[^.\n]*=)[^.\n]+=\s*-?\d+(?:[,.]\d+)?\s*\.?\s*[✓✔]?)/gi, "\nRechte Seite: $1");
+  }
+
+  function normalizeOperationListLine(value) {
+    return String(value ?? "").replace(/Umformungsschritte\s*\((.*)\)\s*sind\s+rechnerisch\s+korrekt/i, (_match, operations) => {
+      const cleanOperations = String(operations).split(/\s*,\s*/).join(", ");
+
+      return `Umformungsschritte: ${cleanOperations} sind rechnerisch korrekt`;
+    }).replace(/Umformungen\s*\((.*)\)\s*(?:alle\s+)?korrekt\s*→/i, (_match, operations) => {
+      const cleanOperations = String(operations)
+        .split(/\s*,\s*/)
+        .map((operation) => {
+          const text = operation.trim();
+          const division = text.match(/^\(([+\-−]?\d+(?:[,.]\d+)?)\)$/);
+
+          return division ? `:(${division[1]})` : text;
+        })
+        .join(", ");
+
+      return `Umformungen: ${cleanOperations} →`;
+    });
+  }
+
+  function mergeSplitExampleLines(lines) {
+    return lines.reduce((merged, line) => {
+      const previous = merged[merged.length - 1] || "";
+      const openParentheses = (previous.match(/\(/g) || []).length;
+      const closeParentheses = (previous.match(/\)/g) || []).length;
+      const previousNeedsExample = /\(?\s*z\.?\s*$/i.test(previous);
+      const currentContinuesExample = /^b\.?\s+/i.test(line);
+      const currentIsShortExampleFragment = /^(?:b\.?|d|l|=.*)$/i.test(line.trim());
+      const previousEndsWithEquals = /=\s*$/.test(previous);
+      const currentContinuesEquals = /^[^=]+(?:\{|\}|≠|\\|Q|R|N|Z|\d)/i.test(line.trim());
+      const previousIsExamplePrefix = /\(?\s*z\.?\s*b\.?\s*\.?\s*$/i.test(previous);
+      const currentIsDefinitionExample = /^[dD]\s*=?\s*$/.test(line) || /^[=]\s*.+/.test(line);
+      const previousHasOpenOperationList = /umformungen\b[^(]*\([^)]*$/i.test(previous);
+      const previousMentionsOpenOperationSteps = /umformungsschritte\b[^(]*\([^)]*$/i.test(previous);
+      const currentContinuesOperationList = /^(?:[+\-−]\s*\d+(?:[,.]\d+)?x?|[·*]\s*x|[:÷]\s*\d+(?:[,.]\d+)?|\(?[+\-−]\s*\d+(?:[,.]\d+)?\)?\)?)\s*/i.test(line);
+
+      if (previousNeedsExample && currentContinuesExample) {
+        const prefix = previous.replace(/\s*\(?\s*z\.?\s*$/i, "").trim();
+        const suffix = line.replace(/\)\s*$/, "");
+        merged[merged.length - 1] = `${prefix} (z. ${suffix})`;
+        return merged;
+      }
+
+      if (currentIsShortExampleFragment && previous) {
+        merged[merged.length - 1] = `${previous} ${line}`.replace(/\s+/g, " ").trim();
+        return merged;
+      }
+
+      if (previousEndsWithEquals && currentContinuesEquals) {
+        merged[merged.length - 1] = `${previous} ${line}`.replace(/\s+/g, " ").trim();
+        return merged;
+      }
+
+      if (previousIsExamplePrefix && currentIsDefinitionExample) {
+        const separator = /^[=]/.test(line.trim()) ? " " : " ";
+        merged[merged.length - 1] = `${previous}${separator}${line}`.replace(/\s+/g, " ").trim();
+        return merged;
+      }
+
+      if (previousHasOpenOperationList && currentContinuesOperationList) {
+        merged[merged.length - 1] = `${previous}, ${line}`;
+        return merged;
+      }
+
+      if (previousMentionsOpenOperationSteps && currentContinuesOperationList) {
+        merged[merged.length - 1] = `${previous}, ${line}`;
+        return merged;
+      }
+
+      if (openParentheses > closeParentheses) {
+        merged[merged.length - 1] = `${previous} ${line}`;
+        return merged;
+      }
+
+      merged.push(line);
+      return merged;
+    }, []);
+  }
+
+  function splitFeedbackText(value) {
+    const lines = normalizeFeedbackSentences(value)
       .replace(/\s*\n+\s*/g, "\n")
+      .replace(/\s+und\s+((?=[^.\n]*=)[^.\n]+=\s*-?\d+(?:[,.]\d+)?\s*\.?\s*[✓✔]?)/gi, "\nRechte Seite: $1")
       .split(/\n|(?=\b(?:Schritt|Zeile)\s*\d+\s*:)/i)
-      .map((line) => cleanFeedbackLineLabel(line))
+      .map((line) => cleanFeedbackLineLabel(line));
+
+    return mergeSplitExampleLines(lines)
+      .map((line) => normalizeOperationListLine(line))
       .filter((line) => !isStandaloneCheckMark(line))
+      .filter((line) => !isDanglingExampleStart(line))
       .filter(Boolean);
   }
 
   function isMissingHint(value) {
     return /^fehlt\s*:/i.test(String(value ?? "").trim());
+  }
+
+  function isCorrectPartialLine(value) {
+    const text = String(value ?? "").trim().toLowerCase();
+
+    return /\b(korrekt|richtig|stimmt)\b/.test(text) && !/\b(nicht|falsch|fehler|fehlt)\b/.test(text);
+  }
+
+  function describeEquationAction(value) {
+    const text = String(value ?? "").trim();
+    const match = text.match(/^([+\-−·*:÷]\s*(?:\(?-?\d+(?:[,.]\d+)?\)?|x))\s*(?:(→|->)|ergibt)?\s*:?$/i);
+
+    if (!match) return text;
+
+    return `${match[1]} auf beiden Seiten ${match[2] ? "→" : text.toLowerCase().includes("ergibt") ? "ergibt" : "→"}`;
   }
 
   function formatProbeNumber(value) {
@@ -571,6 +695,7 @@
       .replace(/,/g, ".")
       .replace(/·/g, "*")
       .replace(/−/g, "-")
+      .replace(/÷/g, "/")
       .replace(/\s+/g, "")
       .replace(/(\d(?:\.\d+)?)\(/g, "$1*(")
       .replace(/\)(\d)/g, ")*$1");
@@ -619,6 +744,24 @@
 
   function formatFeedbackLine(value) {
     const text = cleanFeedbackLineLabel(value);
+    const sideMatch = text.match(/^(.*?\bLinks\s*:?\s*)(.+?)(?:\.\s*|\s+)Rechts\s*:?\s*(.+?)(?:\.\s*(.*)|$)/i);
+
+    if (sideMatch) {
+      const intro = cleanFeedbackLineLabel(sideMatch[1]);
+      const left = sideMatch[2].trim().replace(/[.;,:]+$/, "");
+      const right = sideMatch[3].trim().replace(/[.;,:]+$/, "");
+      const rest = cleanFeedbackLineLabel(sideMatch[4] || "");
+
+      return `
+        ${intro ? `<span class="feedback-line-text">${formatEquation(intro)}</span>` : ""}
+        <span class="feedback-line-text">Links:</span>
+        <span class="feedback-equation-line">${formatEquation(left)}</span>
+        <span class="feedback-line-text">Rechts:</span>
+        <span class="feedback-equation-line">${formatEquation(right)}</span>
+        ${rest ? `<span class="feedback-line-text">${formatEquation(rest)}</span>` : ""}
+      `;
+    }
+
     const equationPattern = /([()xX\d\s+\-−*/·,:;=.]+=[()xX\d\s+\-−*/·,:;.]+)/;
     const match = text.match(equationPattern);
 
@@ -626,15 +769,56 @@
       return formatEquation(text);
     }
 
-    const equation = match[1]
+    let equation = match[1]
       .trim()
-      .replace(/^\s*(?!:\s*\d)[:.)-]\s*/, "")
+      .replace(/^\s*[:;]\s*/, "")
+      .replace(/^\s*(?!:\s*\d)[:.)]\s*/, "")
       .replace(/^(?:zeile\s*)?\d+\s*[.:)]\s*/i, "")
+      .replace(/\s+\($/, "")
       .replace(/[.;,:]+$/, "");
-    const before = cleanFeedbackLineLabel(text.slice(0, match.index));
-    const after = cleanFeedbackLineLabel(
+    if (!/[xX\d]/.test(equation)) {
+      return formatEquation(text);
+    }
+    let before = describeEquationAction(cleanFeedbackLineLabel(text.slice(0, match.index)))
+      .replace(/\s*\(\s*$/g, "")
+      .replace(/\s*\(\|\s*$/g, "")
+      .trim();
+    if (/\(hauptnenner$/i.test(before)) {
+      before += ")";
+    }
+    const divisionMatch = equation.match(/^\(?([+\-−]?\d+(?:[,.]\d+)?)\)?\s*:\s*([xX].*=.*)$/);
+
+    if (divisionMatch && /division\s+durch/i.test(before)) {
+      before = `durch ${divisionMatch[1].replace("−", "-")} teilen`;
+      equation = divisionMatch[2].trim();
+    }
+
+    const operationPrefixMatch = equation.match(/^\(?([+\-−]\s*\d+(?:[,.]\d+)?|[+\-−]\s*x|[+\-−]\s*\d+(?:[,.]\d+)?x)\)?\s*:\s*(.+)$/i);
+
+    if (operationPrefixMatch) {
+      const operation = operationPrefixMatch[1].replace(/\s+/g, "").replace("−", "-");
+      const unsignedOperation = operation.replace(/^[+-]/, "");
+      equation = operationPrefixMatch[2].trim();
+      before = before.replace(/\s*(?:\(\|?\s*)?$/g, "").trim();
+      if (before) {
+        before = new RegExp(`\\b(?:subtrahiere|addiere)\\s+${unsignedOperation.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(before)
+          ? before
+          : `${before} und ${operation} auf beiden Seiten`;
+      } else {
+        before = `${operation} auf beiden Seiten`;
+      }
+    }
+
+    equation = equation
+      .trim()
+      .replace(/^\s*[:;]\s*/, "")
+      .replace(/\s+\($/, "")
+      .replace(/[.;,:]+$/, "");
+
+    const rawAfter = cleanFeedbackLineLabel(
       text.slice(match.index + match[1].length).replace(/^[–-]\s*/, ""),
     );
+    const after = isStandaloneCheckMark(rawAfter) ? "" : rawAfter;
 
     return `
       ${before ? `<span class="feedback-line-text">${formatEquation(before)}</span>` : ""}
@@ -647,16 +831,17 @@
   function renderLineList(lines, options = {}) {
     if (lines.length === 0) return "";
 
-    const { checked = false, className = "" } = options;
+    const { checked = false, className = "", showChecks = checked } = options;
 
     return `
       <ol class="solution-lines ${className}">
         ${lines
           .map((line, index) => {
             const missingHint = isMissingHint(line);
-            const showCheck = checked && !missingHint;
+            const lineChecked = !missingHint && (checked || isCorrectPartialLine(line));
+            const showCheck = showChecks && lineChecked;
             return `
-              <li class="${missingHint ? "missing-hint" : ""} ${showCheck ? "checked" : ""}">
+              <li class="${missingHint ? "missing-hint" : ""} ${lineChecked ? "checked" : ""}">
                 <span class="step-box">${index + 1}.</span>
                 <span class="solution-line-body">${formatFeedbackLine(line)}</span>
                 ${showCheck ? `<span class="line-check" aria-label="richtig">✓</span>` : ""}
@@ -669,13 +854,17 @@
   }
 
   function splitSuggestionText(value) {
-    return String(value ?? "")
+    const lines = splitProbeSideSentences(normalizeFeedbackSentences(value))
       .replace(/\s*,\s*dann\s+/gi, "\nDann ")
       .replace(/\s*;\s*/g, "\n")
       .replace(/\s*\n+\s*/g, "\n")
       .split(/\n|(?<=\.)\s+(?=[A-ZÄÖÜ])/)
-      .map((line) => cleanFeedbackLineLabel(line))
+      .map((line) => cleanFeedbackLineLabel(line));
+
+    return mergeSplitExampleLines(lines)
+      .map((line) => normalizeOperationListLine(line))
       .filter((line) => !isStandaloneCheckMark(line))
+      .filter((line) => !isDanglingExampleStart(line))
       .filter(Boolean);
   }
 
@@ -987,7 +1176,7 @@
       <p class="feedback-summary">${escapeHtml(data.summary)}</p>
       <div class="feedback-section">
         <span class="feedback-label">${data.correct ? "Lösung:" : "Fehlerbeschreibung:"}</span>
-        ${renderLineList(analysisLines, { checked: data.correct })}
+        ${renderLineList(analysisLines, { checked: data.correct, showChecks: false })}
       </div>
       <div class="feedback-section tip-section">
         <span class="feedback-label tip-label">${suggestionTitle}:</span>
