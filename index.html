@@ -551,6 +551,35 @@
       outline: 2px solid var(--pop-yellow);
       outline-offset: 3px;
     }
+    .donate-progress { margin-top: 16px; }
+    .donate-progress-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 8px;
+      font-size: 0.92rem;
+    }
+    .donate-months { color: var(--text-muted); }
+    .donate-bar {
+      height: 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid var(--line-soft);
+      overflow: hidden;
+    }
+    .donate-bar-fill {
+      width: 0;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--pop-green), var(--pop-yellow));
+      transition: width 0.7s ease;
+    }
+    .donate-hint {
+      margin-top: 8px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
     .contribute-box a {
       color: var(--pop-yellow);
       font-weight: 800;
@@ -1023,6 +1052,16 @@
           die ich momentan privat bezahle. &Uuml;ber jede Unterst&uuml;tzung freue ich mich &ndash;
           der Betrag ist frei w&auml;hlbar.
         </p>
+        <div class="donate-progress">
+          <div class="donate-progress-top">
+            <span>Bereits gespendet: <strong id="donate-current">0 &euro;</strong> von <span id="donate-goal">40 &euro;</span></span>
+            <span id="donate-months" class="donate-months"></span>
+          </div>
+          <div class="donate-bar" id="donate-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="donate-bar-fill" id="donate-bar-fill"></div>
+          </div>
+          <p class="donate-hint">Schon 10 &euro; decken etwa 3 Monate KI-Token. Jeder Beitrag hilft, GRUMI kostenlos zu halten.</p>
+        </div>
         <a class="donate-btn" href="https://www.paypal.com/donate/?business=j-moessner%40gmx.de&amp;item_name=Lernplattform&amp;currency_code=EUR" target="_blank" rel="noopener noreferrer">
           Mit PayPal spenden
         </a>
@@ -1095,6 +1134,25 @@
       var addr = user + '@' + domain;
       a.href = 'mailto:' + addr;
       a.textContent = addr;
+    })();
+
+    /* === Spendenstand-Leiste === ▸ Wert hier pflegen, sobald Spenden eingehen === */
+    (function () {
+      var SPENDEN = {
+        aktuell: 0,   /* aktueller Spendenstand in Euro (hier eintragen) */
+        ziel: 40      /* Spendenziel in Euro (40 € decken ca. 1 Jahr) */
+      };
+      var KOSTEN_PRO_MONAT = 10 / 3; /* 10 € decken ca. 3 Monate Token */
+      var fill = document.getElementById('donate-bar-fill');
+      if (!fill) return;
+      var pct = SPENDEN.ziel > 0 ? Math.max(0, Math.min(100, Math.round(SPENDEN.aktuell / SPENDEN.ziel * 100))) : 0;
+      fill.style.width = pct + '%';
+      var bar = document.getElementById('donate-bar');
+      if (bar) bar.setAttribute('aria-valuenow', String(pct));
+      document.getElementById('donate-current').textContent = SPENDEN.aktuell + ' €';
+      document.getElementById('donate-goal').textContent = SPENDEN.ziel + ' €';
+      var monate = Math.round(SPENDEN.aktuell / KOSTEN_PRO_MONAT);
+      document.getElementById('donate-months').textContent = monate >= 1 ? ('deckt ca. ' + monate + ' Monate') : '';
     })();
   </script>
 </body>
