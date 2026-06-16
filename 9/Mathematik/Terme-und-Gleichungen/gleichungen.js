@@ -1,4 +1,4 @@
-(() => {
+﻿(() => {
   const apiUrl =
     window.GRUMI_MATH_KI_API_URL ||
     (location.protocol === "file:" ||
@@ -161,23 +161,7 @@
     },
     {
       name: "Stufe 7",
-      description: "Gleichungen mit Brüchen, Dezimalzahlen, Klammern und gemeinsamem Nenner.",
-      equations: [
-        "1/2x = 6",
-        "3/4x = 6",
-        "2/5x = -4",
-        "3/7x = 8 - 1/7x",
-        "13 = 1/2x + 9",
-        "-5 = 5/11x",
-        "1/9x = -7/9x + 16",
-        "5/7x + 2 = 13/14 + 0,5x",
-        "(3/5)(x - 1) = (2/3)x + 0,2",
-        "x/2 - 3(5 + x) = (1/2)(42 - 3x)",
-      ],
-    },
-    {
-      name: "Stufe 8",
-      description: "Bruchgleichungen wie im Buch: einfache Brüche, ganze und negative Ergebnisse.",
+      description: "Einfache Bruchgleichungen: ein Bruchterm oder ein leichter Zusatzterm.",
       equations: [
         "1/2x = 6",
         "1/4x = 3",
@@ -185,10 +169,26 @@
         "3/7x = 12",
         "12 = 1/3x",
         "-5 = 5/10x",
+        "(3/8)x - 12 = 15",
+        "(5/4)x + 35 = 80",
+        "(5/7)x - 60 = -35",
+        "43 = 1 + (7/10)x",
+      ],
+    },
+    {
+      name: "Stufe 8",
+      description: "Bruchgleichungen mit Brüchen auf beiden Seiten und erstem Hauptnenner.",
+      equations: [
         "3/7x = 8 - 1/7x",
         "1/9x = -7/9x + 16",
         "3/4x - 2 = 1/2x + 1",
         "5/6x - 3 = 7/8x - 1,5",
+        "5/7x + 2 = 13/14 + 0,5x",
+        "(3/5)(x - 1) = (2/3)x + 0,2",
+        "(2x - 12)/9 = (x + 3)/9",
+        "(x - 1)/15 = (3x + 2)/5",
+        "(3x + 7)/4 = (4x - 8)/5 + 3",
+        "(12x + 20)/8 = (5x + 4)/3",
       ],
     },
     {
@@ -201,7 +201,7 @@
         "5 - (4/5x + 12) = 1/2(-5,6x + 2)",
         "(2x - 13)/7 = (x - 9)/21",
         "3/4x - (18/25x + 3) = -1,07x + 30",
-        "7 - (x - 1/5) = -4(-1/2x - 0,3)",
+        "7 - (x - 1/5) = 4(1/2x + 0,3)",
         "5(1/6x - 2/5) = 9 + 2x/9",
         "2,5x - (3,5x - 8) + 5(2,4x - 3) = 37",
         "7 - (4x - 5,4) - 6(1,1x - 9) = 24",
@@ -373,7 +373,7 @@
   }
 
   function isTextTask(value) {
-    return /^sachaufgabe\s*:/i.test(String(value ?? "")) || String(value ?? "").length > 90;
+    return /^sachaufgabe\s*:/i.test(String(value ?? ""));
   }
 
   function splitTextTask(value) {
@@ -526,7 +526,10 @@
       const textBeforeFraction = text.slice(lastIndex, hasOnlyFractionParentheses ? match.index - 1 : match.index);
       const denominator = cleanFractionPart(match[2]);
       const shouldWrapVariableDenominator = !hasOnlyFractionParentheses && /^[a-zA-Z]\d*$/.test(denominator);
-      const fractionHtml = `<span class="math-frac"><span class="math-frac-top">${escapeHtml(cleanFractionPart(match[1]))}</span><span class="math-frac-bottom">${escapeHtml(denominator)}</span></span>`;
+      const numerator = cleanFractionPart(match[1]);
+      const hasNegativeNumerator = numerator.startsWith("-");
+      const displayedNumerator = hasNegativeNumerator ? numerator.slice(1).trim() : numerator;
+      const fractionHtml = `${hasNegativeNumerator ? `<span class="math-sign">-</span>` : ""}<span class="math-frac"><span class="math-frac-top">${escapeHtml(displayedNumerator)}</span><span class="math-frac-bottom">${escapeHtml(denominator)}</span></span>`;
       html += escapeHtml(textBeforeFraction);
       html += shouldWrapVariableDenominator
         ? `<span class="math-frac-wrap">( ${fractionHtml} )</span>`
@@ -548,7 +551,7 @@
   }
 
   function isStandaloneCheckMark(value) {
-    return /^[✓✔️✔√]+\.?$/u.test(String(value ?? "").trim());
+    return /^[✓✔✔√]+\.?$/u.test(String(value ?? "").trim());
   }
 
   function isDanglingExampleStart(value) {
@@ -963,10 +966,15 @@
     currentEquationIndex = (index + level.equations.length) % level.equations.length;
     const equation = level.equations[currentEquationIndex];
     const textTask = isTextTask(equation);
+    const displaySize = getEquationDisplaySize(equation);
     currentTaskStepIndex = getStoredPhotoStepIndex();
     equationInput.value = equation;
     taskLevelInput.value = level.name;
     equationDisplay.classList.toggle("text-task", textTask);
+    equationDisplay.classList.remove("dense-equation", "compact-equation");
+    if (!textTask && displaySize) {
+      equationDisplay.classList.add(displaySize);
+    }
     equationDisplay.innerHTML = textTask
       ? renderTextTask(equation)
       : `<span class="equation-line">${formatEquation(equation)}</span>`;
@@ -986,19 +994,31 @@
         return;
       }
 
-      const maxSize = 48;
-      const minSize = 10;
+      equationDisplay.style.fontSize = "";
       const equationLine = equationDisplay.querySelector(".equation-line") || equationDisplay;
-      equationDisplay.style.fontSize = `${maxSize}px`;
+      const computedSize = parseFloat(getComputedStyle(equationDisplay).fontSize) || 36;
+      const minSize = equationDisplay.clientWidth < 420 ? 7 : 9;
+      equationDisplay.style.fontSize = `${computedSize}px`;
 
       while (
-        equationLine.scrollWidth > equationDisplay.clientWidth - 44 &&
+        equationLine.scrollWidth > equationDisplay.clientWidth - 28 &&
         parseFloat(equationDisplay.style.fontSize) > minSize
       ) {
         const nextSize = parseFloat(equationDisplay.style.fontSize) - 1;
         equationDisplay.style.fontSize = `${nextSize}px`;
       }
     });
+  }
+
+  function getEquationDisplaySize(value) {
+    const text = String(value ?? "");
+    const fractionCount = (text.match(/\//g) || []).length;
+    const bracketCount = (text.match(/[()]/g) || []).length;
+    const score = text.length + fractionCount * 8 + bracketCount * 2;
+
+    if (score >= 72 || fractionCount >= 4) return "compact-equation";
+    if (score >= 46 || fractionCount >= 2) return "dense-equation";
+    return "";
   }
 
   function setLevel(index, equationIndex = 0) {
