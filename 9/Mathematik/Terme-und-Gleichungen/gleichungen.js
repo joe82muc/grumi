@@ -1,4 +1,4 @@
-﻿(() => {
+(() => {
   const apiUrl =
     window.GRUMI_MATH_KI_API_URL ||
     (location.protocol === "file:" ||
@@ -24,6 +24,7 @@
   const levelUpButton = document.querySelector("#next-level");
   const nextButton = document.querySelector("#sample-button");
   const prevButton = document.querySelector("#prev-equation");
+  const helpLink = document.querySelector("#help-link");
   const previewPanel = document.querySelector(".preview-panel");
   const equationGrid = document.querySelector("#equation-grid");
   const levelSwitch = document.querySelector("#level-switch");
@@ -131,11 +132,11 @@
       name: "Stufe 5",
       description: "Gemischte und längere Gleichungen, auch mit negativen Zahlen und Zusammenfassen.",
       equations: [
-        "3x + 5 + 2x = 45",
-        "4x + 7 - x = 31",
-        "-2x + 7 - x + (-8) = -25",
-        "3(x - 2) + 2(x + 4) = 42",
-        "2,5x + 3 + (-1,5x) = 11",
+        "3x - 6 + 2x + 4 - 14 = 40 - 2x - 10 - 4",
+        "12x + 4 - 12 + 4x - 32 = 10x - 10 - 4x",
+        "14x + 8 - 4x = 2x + 12 + 9x - 3 + 3x + 5",
+        "55 - 14x + 20 + 4x + 7x - 30 - 2x = 0",
+        "35x - 15 - 200 + 24x = 42x + 24 - 6x - 15 - 33x",
         "4(x + 2) + 3x = 64",
         "-4x + 2(x - 3) + 10 = -12",
         "5x - (2x + 6) + 4 = 22",
@@ -147,16 +148,16 @@
       name: "Stufe 6",
       description: "Komplexe Klammergleichungen: Minusklammern, Faktoren und Dezimalzahlen.",
       equations: [
-        "-(x - 6) = 4",
-        "2(-3x + 2) = -20",
-        "-(4 + 3x) = -16",
-        "3(-2x + 5) = -9",
-        "4(x + 2) - 3(2x - 5) = 15",
-        "-5(2x - 4) + 3x = -8",
-        "7 - (4x - 5,4) - 6(1,1x - 9) = 24",
-        "-3(-1,2x + 2,1) - (0,6x + 2,7) - 5 = -2",
-        "-5(6x + 12) + (20 + 34x) = -32",
-        "4(x + 2) - 3(2x - 5) + 2(1 - x) = -15",
+        "28x - 6(2x - 9) = 8(4x - 16) + 22",
+        "2,5x - (9 - 2x) * 3 = 2,5 * (5x + 12) - 2x",
+        "2x + 7,75 - 0,5(6 - 5x) = 4,5(4 - 5x) + 6,75x + 7",
+        "5x - (324 - 72x) : 6 = 5 * (5x + 12) - 4x",
+        "-5(x + 2) - 35 = 21x + 4(10 - 12x) - 3(15 - 6x)",
+        "(200x + 600) : 20 + (1 - 20x) : 4 = 55,25 - (5x + 2) : 2",
+        "3(x - 2) + (30x - 40) : 5 = (10x + 4) : 2 - 2(3x + 2)",
+        "(x - 3) * 10 - (25 - 150x) : 5 = 5(x - 7) + (10x + 60) : 2",
+        "(2,352x + 2,94) : 2,8 - (0,864 - 4,896x) : 2,4 = 2(1,368 - 0,265x)",
+        "2,8(0,3x + 0,375) - (0,15 - 0,85x) * 2,4 = (42,76 - 8,48x) : 4",
       ],
     },
     {
@@ -165,14 +166,14 @@
       equations: [
         "1/2x = 6",
         "1/4x = 3",
-        "2/5x = 8",
-        "3/7x = 12",
-        "12 = 1/3x",
-        "-5 = 5/10x",
         "(3/8)x - 12 = 15",
         "(5/4)x + 35 = 80",
-        "(5/7)x - 60 = -35",
+        "(5/7)x - 60 = 35",
+        "(4/3)x + 34 = -32",
         "43 = 1 + (7/10)x",
+        "40 = 10 + (3/4)x",
+        "96 = 100 + (5/2)x",
+        "20 = 10 + (4/3)x",
       ],
     },
     {
@@ -181,14 +182,14 @@
       equations: [
         "3/7x = 8 - 1/7x",
         "1/9x = -7/9x + 16",
-        "3/4x - 2 = 1/2x + 1",
-        "5/6x - 3 = 7/8x - 1,5",
-        "5/7x + 2 = 13/14 + 0,5x",
-        "(3/5)(x - 1) = (2/3)x + 0,2",
-        "(2x - 12)/9 = (x + 3)/9",
-        "(x - 1)/15 = (3x + 2)/5",
-        "(3x + 7)/4 = (4x - 8)/5 + 3",
-        "(12x + 20)/8 = (5x + 4)/3",
+        "2/3x - 5/6 = 1/2x + 1/6",
+        "3/4x + 1/5 = 7/8x - 3/10",
+        "1 1/8x - 2 1/5 = 20 + 1/5x",
+        "3/5x - 1/2 = 12 5/6 - 1/15x",
+        "1/3(x - 18) = 1/2(2x - 6)",
+        "7/5 - 1/3(9x - 6) = -2/5(3x - 4)",
+        "1/9(21x + 18) - 2/3x = 5 1/2 - 1/2(5x - 2)",
+        "1/6(10x - 4) + 2 = 1/2(5x - 3) - 4 1/3",
       ],
     },
     {
@@ -197,14 +198,14 @@
       equations: [
         "1/2x - 9 = -2x - 4",
         "5/7x + 2 = 13/14 + 0,5x",
-        "8/15x + (2x - 0,2) = 1/3x + 4,2",
-        "5 - (4/5x + 12) = 1/2(-5,6x + 2)",
-        "(2x - 13)/7 = (x - 9)/21",
-        "3/4x - (18/25x + 3) = -1,07x + 30",
-        "7 - (x - 1/5) = 4(1/2x + 0,3)",
-        "5(1/6x - 2/5) = 9 + 2x/9",
-        "2,5x - (3,5x - 8) + 5(2,4x - 3) = 37",
-        "7 - (4x - 5,4) - 6(1,1x - 9) = 24",
+        "(3x + 7)/4 = (4x - 8)/5 + 3",
+        "(12x + 20)/8 = (5x + 4)/3",
+        "2(x - 1)/3 = 40 - 3(x - 4)/5",
+        "(3x - 19)/3 = (x - 12)/2 + 5x/18",
+        "7 + (x + 1/5) = 4(1/2x + 0,3)",
+        "8x - 1/4(4x + 32) + 1/2(8x - 4) + 3 = 1/8(48 + 64x) - (10x - 35) * 1/5",
+        "(27x + 19,2) : 6 - 8,25 = 0,8(10 + 0,5x) - (3x - 6) : 4",
+        "34,25x - 48 - 3,5(23 + x) = (166,25 + 20x) : 2,5 + 6,5x",
       ],
     },
     {
@@ -372,8 +373,28 @@
       .replaceAll('"', "&quot;");
   }
 
+  function updateHelpLink() {
+    if (!helpLink) return;
+
+    const params = new URLSearchParams({
+      level: currentLevel().name,
+      task: String(currentEquationIndex + 1),
+      equation: equationInput.value,
+    });
+
+    if (isStepwiseWordProblemLevel()) {
+      params.set("step", String(currentTaskStepIndex + 1));
+    }
+
+    helpLink.href = `hilfe.html?${params.toString()}`;
+    helpLink.setAttribute(
+      "aria-label",
+      `Erklärung zu ${currentLevel().name}, Aufgabe ${currentEquationIndex + 1}`,
+    );
+  }
+
   function isTextTask(value) {
-    return /^sachaufgabe\s*:/i.test(String(value ?? ""));
+    return /^sachaufgabe\s*:/i.test(String(value ?? "")) || String(value ?? "").length > 90;
   }
 
   function splitTextTask(value) {
@@ -485,6 +506,7 @@
           .join("")}
       </div>
     `;
+    updateHelpLink();
   }
 
   function getEquationStatusText(equation, index) {
@@ -504,7 +526,7 @@
   }
 
   function formatEquation(value) {
-    const text = String(value ?? "").replace(/\^2/g, "²");
+    const text = String(value ?? "").replace(/\^2/g, "²").replace(/\*/g, "·");
     const fractionPattern = /(\([^()]+\)|-?\d+(?:,\d+)?[a-zA-Z]?|-?[a-zA-Z]\d*|-?\d+(?:,\d+)?\s*[·*]\s*[a-zA-Z])\s*\/\s*(\([^()]+\)|-?[a-zA-Z]\d*|\d+(?:,\d+)?)/g;
     let html = "";
     let lastIndex = 0;
@@ -551,7 +573,7 @@
   }
 
   function isStandaloneCheckMark(value) {
-    return /^[✓✔✔√]+\.?$/u.test(String(value ?? "").trim());
+    return /^[✓✔️✔√]+\.?$/u.test(String(value ?? "").trim());
   }
 
   function isDanglingExampleStart(value) {
@@ -821,7 +843,7 @@
     const rawAfter = cleanFeedbackLineLabel(
       text.slice(match.index + match[1].length).replace(/^[–-]\s*/, ""),
     );
-    const after = isStandaloneCheckMark(rawAfter) ? "" : rawAfter;
+    const after = isStandaloneCheckMark(rawAfter) || isDanglingExampleStart(rawAfter) ? "" : rawAfter;
 
     return `
       ${before ? `<span class="feedback-line-text">${formatEquation(before)}</span>` : ""}
@@ -985,6 +1007,7 @@
     renderTaskStepPanel();
     renderLevelButtons();
     renderEquationButtons();
+    updateHelpLink();
   }
 
   function fitEquationDisplay() {
