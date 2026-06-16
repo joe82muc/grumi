@@ -102,7 +102,7 @@
       given: ["d = 6,0 m", "hₖ = 2,0 m", "10 % Verschnitt"],
       searched: "M mit Zuschlag",
       labels: { d: "6,0 m", r: "3,0 m", h: "2,0 m", s: "?" },
-      plan: ["s² = r² + hₖ²", "M = π · r · s", "M · 1,10"],
+      plan: ["r = d : 2", "s² = r² + hₖ²", "M = π · r · s", "M · 1,10"],
       solution: "r = 3,0 m; s = √(3² + 2²) ≈ 3,61 m; M ≈ 34,0 m²; mit 10 %: ≈ 37,4 m².",
       result: "Blechbedarf ≈ 37,4 m²",
     },
@@ -140,7 +140,7 @@
       labels: { d: "18 cm", r: "9 cm", h: "?", s: "15 cm" },
       plan: ["r = d : 2", "G = π · r²", "M = π · r · s", "O = G + M"],
       solution: "r = 9 cm; G = 81π ≈ 254,5 cm²; M = 135π ≈ 424,1 cm²; O = 216π ≈ 678,6 cm².",
-      result: "O ≈ 678,6 cm²",
+      result: "G ≈ 254,5 cm²; M ≈ 424,1 cm²; O ≈ 678,6 cm²",
     },
     {
       id: "10",
