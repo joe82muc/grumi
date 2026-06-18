@@ -33,133 +33,179 @@
     },
   ];
 
+  // Hinweis: Die Zahlenwerte sind bewusst leicht gegenüber dem Buch verändert
+  // (Urheberrecht). Aufgabentyp und Rechenweg bleiben gleich; alles ist neu
+  // durchgerechnet. Fortlaufend nummeriert; die letzten beiden Aufgaben sind
+  // zusammengesetzte Körper (Kegel mit Quader bzw. Zylinder).
   const tasks = [
     {
       id: "1",
-      group: "Bestimmungsdreieck",
-      title: "Schultüte: Körperhöhe",
-      text: "Eine Schultüte hat den Durchmesser d = 10 cm und die Mantellinie s = 13 cm. Berechne die Körperhöhe hₖ.",
-      given: ["d = 10 cm", "s = 13 cm"],
-      searched: "hₖ",
-      labels: { d: "10 cm", r: "5 cm", h: "?", s: "13 cm" },
-      plan: ["r = d : 2", "s² = r² + hₖ²", "hₖ² = s² - r²"],
-      solution: "r = 5 cm; hₖ² = 13² - 5² = 144; hₖ = 12 cm.",
-      result: "hₖ = 12 cm",
+      group: "Tabelle",
+      title: "Kegelgrößen bestimmen",
+      text: "Berechne die fehlenden Werte in der Tabelle. Runde auf zwei Nachkommastellen.",
+      table: {
+        cols: ["a", "b", "c", "d", "e"],
+        rows: [
+          { label: "r", cells: ["5 cm", "8 dm", "", "", ""] },
+          { label: "s", cells: ["", "17 dm", "10 m", "", ""] },
+          { label: "hₖ", cells: ["12 cm", "", "8 m", "9 dm", ""] },
+          { label: "G", cells: ["", "", "", "", "2 m²"] },
+          { label: "V", cells: ["", "", "", "600 dm³", "10 m³"] },
+        ],
+      },
+      given: ["a) r = 5 cm; hₖ = 12 cm", "b) r = 8 dm; s = 17 dm", "c) s = 10 m; hₖ = 8 m", "d) hₖ = 9 dm; V = 600 dm³", "e) G = 2 m²; V = 10 m³"],
+      searched: "r, s, hₖ, G und V",
+      labels: { d: "", r: "r", h: "hₖ", s: "s" },
+      plan: ["s² = r² + hₖ²", "G = π · r²", "V = ⅓ · G · hₖ"],
+      solution: "a) s = √(5² + 12²) = 13 cm; G = π · 5² ≈ 78,54 cm²; V = ⅓ · 78,54 · 12 ≈ 314,16 cm³. b) hₖ = √(17² − 8²) = 15 dm; G ≈ 201,06 dm²; V ≈ 1005,31 dm³. c) r = √(10² − 8²) = 6 m; G ≈ 113,10 m²; V ≈ 301,59 m³. d) G = 3 · 600 : 9 ≈ 200 dm²; r = √(200/π) ≈ 7,98 dm; s = √(7,98² + 9²) ≈ 12,03 dm. e) hₖ = 3 · 10 : 2 = 15 m; r = √(2/π) ≈ 0,80 m; s = √(0,80² + 15²) ≈ 15,02 m.",
+      result: "Lösungen siehe Lösungsweg (eigene Werte – kein 1:1-Buchabdruck)",
     },
     {
       id: "2",
-      group: "Bestimmungsdreieck",
-      title: "Verkehrskegel: Mantellinie",
-      text: "Ein Verkehrskegel hat d = 16 cm und hₖ = 15 cm. Berechne die Mantellinie s.",
-      given: ["d = 16 cm", "hₖ = 15 cm"],
-      searched: "s",
-      labels: { d: "16 cm", r: "8 cm", h: "15 cm", s: "?" },
-      plan: ["r = d : 2", "s² = r² + hₖ²", "s = √(r² + hₖ²)"],
-      solution: "r = 8 cm; s² = 8² + 15² = 289; s = 17 cm.",
-      result: "s = 17 cm",
+      group: "Umkehraufgabe",
+      title: "Sandhaufen: Höhe aus Umfang",
+      text: "Ein kegelförmiger Sandhaufen hat am Boden den Umfang u = 43,96 m und ein Volumen von V = 205 m³. Berechne die Höhe des Sandhaufens. Runde auf zwei Dezimalstellen.",
+      given: ["u = 43,96 m", "V = 205 m³"],
+      searched: "hₖ",
+      labels: { d: "", r: "?", h: "?", s: "" },
+      plan: ["r = u : (2 · π)", "G = π · r²", "hₖ = 3V : G"],
+      solution: "r = 43,96 : (2 · π) ≈ 7,00 m; G = π · 7² ≈ 153,94 m²; hₖ = 3 · 205 : 153,94 ≈ 4,00 m.",
+      result: "hₖ ≈ 4,00 m",
     },
     {
       id: "3",
-      group: "Volumen",
-      title: "Eistüte: Rauminhalt",
-      text: "Eine Eistüte wird näherungsweise als Kegel betrachtet. Sie hat d = 6 cm und hₖ = 12 cm. Berechne das Volumen.",
-      given: ["d = 6 cm", "hₖ = 12 cm"],
-      searched: "V",
-      labels: { d: "6 cm", r: "3 cm", h: "12 cm", s: "" },
-      plan: ["r = d : 2", "V = ⅓ · π · r² · hₖ", "Ergebnis in cm³"],
-      solution: "r = 3 cm; V = 1/3 · π · 3² · 12 = 36π ≈ 113,1 cm³.",
-      result: "V ≈ 113,1 cm³",
+      group: "Sachaufgabe",
+      title: "Bleiwürfel: Kegel gießen",
+      text: "Ein Würfel aus Blei mit der Kantenlänge a = 10 cm wird eingeschmolzen. Aus der Schmelze wird ein Kegel mit dem Radius r = 5 cm gegossen. Berechne die Höhe und die Länge der Mantellinie s des Kegels. Runde auf zwei Dezimalstellen.",
+      given: ["Würfel: a = 10 cm", "Kegel: r = 5 cm"],
+      searched: "hₖ und s",
+      labels: { d: "", r: "5 cm", h: "?", s: "?" },
+      plan: ["V = a³ (Würfel)", "hₖ = 3V : (π · r²)", "s² = r² + hₖ²"],
+      solution: "V = 10³ = 1000 cm³; hₖ = 3 · 1000 : (π · 5²) ≈ 38,20 cm; s = √(5² + 38,20²) ≈ 38,53 cm.",
+      result: "hₖ ≈ 38,20 cm; s ≈ 38,53 cm",
     },
     {
       id: "4",
       group: "Umkehraufgabe",
-      title: "Gussform: Höhe gesucht",
-      text: "Eine kegelförmige Gussform hat d = 14 cm und das Volumen V = 462 cm³. Berechne die Höhe hₖ.",
-      given: ["d = 14 cm", "V = 462 cm³"],
-      searched: "hₖ",
-      labels: { d: "14 cm", r: "7 cm", h: "?", s: "" },
-      plan: ["r = d : 2", "V = ⅓ · π · r² · hₖ", "hₖ = 3V : (π · r²)"],
-      solution: "r = 7 cm; hₖ = 3 · 462 : (π · 7²) ≈ 9,0 cm.",
-      result: "hₖ ≈ 9,0 cm",
+      title: "Massiver Kegel: Höhe in dm",
+      text: "Ein massiver Kegel hat ein Volumen von V = 35 dm³. Seine Grundfläche beträgt G = 1000 cm². Berechne die Höhe des Kegels in dm. Runde auf zwei Dezimalstellen.",
+      given: ["V = 35 dm³", "G = 1000 cm²"],
+      searched: "hₖ in dm",
+      labels: { d: "", r: "", h: "?", s: "" },
+      plan: ["G umrechnen: 1000 cm² = 10 dm²", "V = ⅓ · G · hₖ", "hₖ = 3V : G"],
+      solution: "G = 1000 cm² = 10 dm²; hₖ = 3 · 35 : 10 = 10,50 dm.",
+      result: "hₖ = 10,50 dm",
     },
     {
       id: "5",
       group: "Sachaufgabe",
-      title: "Partyhut: Papierfläche",
-      text: "Ein Partyhut ist ein Kegel ohne Grundfläche. Er hat d = 20 cm und hₖ = 24 cm. Berechne die benötigte Papierfläche.",
-      given: ["d = 20 cm", "hₖ = 24 cm"],
-      searched: "M",
-      labels: { d: "20 cm", r: "10 cm", h: "24 cm", s: "?" },
-      plan: ["r = d : 2", "s² = r² + hₖ²", "M = π · r · s"],
-      solution: "r = 10 cm; s = √(10² + 24²) = 26 cm; M = π · 10 · 26 ≈ 817 cm².",
-      result: "M ≈ 817 cm²",
+      title: "Spitzhüte: Folie",
+      text: "Für 24 Kinder sollen kegelförmige Spitzhüte außen mit Metallfolie beklebt werden. Jeder Hut hat den Durchmesser d = 20 cm und die Mantellinie s = 25 cm. a) Wie viele m² Folie werden insgesamt benötigt, wenn 20 % Verschnitt eingeplant werden? b) Die Folie gibt es in Bögen von 75 cm × 50 cm zu je 7,50 €. Wie viel muss bezahlt werden? Runde Zwischenergebnisse auf zwei Dezimalstellen.",
+      given: ["24 Hüte", "d = 20 cm, s = 25 cm", "20 % Verschnitt", "Bogen 75 cm × 50 cm = 7,50 €"],
+      searched: "Folienfläche und Kosten",
+      labels: { d: "20 cm", r: "10 cm", h: "", s: "25 cm" },
+      plan: ["r = d : 2", "M = π · r · s (ein Hut)", "Folie = 24 · M · 1,20", "Bögen = Folie : (0,75 m · 0,50 m), aufrunden", "Kosten = Bögen · 7,50 €"],
+      solution: "r = 10 cm; M = π · 10 · 25 ≈ 785,40 cm²; 24 Hüte ≈ 18 849,56 cm² ≈ 1,88 m²; mit 20 %: ≈ 2,26 m². Ein Bogen = 0,375 m²; 2,26 : 0,375 ≈ 6,03 → 7 Bögen; Kosten = 7 · 7,50 € = 52,50 €.",
+      result: "≈ 2,26 m² Folie; 7 Bögen; 52,50 €",
     },
     {
       id: "6",
       group: "Sachaufgabe",
-      title: "Kegeldach: Blechbedarf",
-      text: "Ein rundes Kegeldach hat d = 6,0 m und hₖ = 2,0 m. Für Verschnitt werden 10 % zusätzlich eingeplant. Berechne den Blechbedarf.",
-      given: ["d = 6,0 m", "hₖ = 2,0 m", "10 % Verschnitt"],
-      searched: "M mit Zuschlag",
-      labels: { d: "6,0 m", r: "3,0 m", h: "2,0 m", s: "?" },
-      plan: ["r = d : 2", "s² = r² + hₖ²", "M = π · r · s", "M · 1,10"],
-      solution: "r = 3,0 m; s = √(3² + 2²) ≈ 3,61 m; M ≈ 34,0 m²; mit 10 %: ≈ 37,4 m².",
-      result: "Blechbedarf ≈ 37,4 m²",
+      title: "Eisenzylinder: Kegel fräsen",
+      text: "Aus einem massiven Eisenzylinder mit dem Durchmesser d = 20 cm und der Höhe 12 cm wird ein Kegel mit gleicher Grundfläche und gleicher Höhe gefräst. a) 1 cm³ Eisen wiegt 7,8 g. Wie schwer ist der fertige Kegel? Runde auf ganze Gramm. b) Aus dem Abfall wird ein Quader gegossen, der 12 cm lang und 6 cm breit sein soll. Berechne seine Höhe (auf eine Dezimalstelle).",
+      given: ["d = 20 cm; Höhe 12 cm", "1 cm³ Eisen = 7,8 g", "Quader 12 cm × 6 cm"],
+      searched: "Masse des Kegels und Höhe des Quaders",
+      labels: { d: "20 cm", r: "10 cm", h: "12 cm", s: "" },
+      shape: "zylinderkegel",
+      plan: ["r = d : 2", "V_Kegel = ⅓ · π · r² · h", "Masse = V_Kegel · 7,8 g", "Abfall = π · r² · h − V_Kegel", "h_Quader = Abfall : (12 · 6)"],
+      solution: "r = 10 cm; V_Kegel = ⅓ · π · 10² · 12 = 400π ≈ 1256,64 cm³; Masse ≈ 1256,64 · 7,8 ≈ 9802 g. Abfall = 1200π − 400π = 800π ≈ 2513,27 cm³; h = 2513,27 : (12 · 6) ≈ 34,9 cm.",
+      result: "Masse ≈ 9802 g; Quaderhöhe ≈ 34,9 cm",
     },
     {
       id: "7",
       group: "Sachaufgabe",
-      title: "Sandhaufen: Kosten",
-      text: "Ein Sandhaufen hat ungefähr die Form eines Kegels mit d = 4,0 m und hₖ = 1,5 m. 1 m³ Sand kostet 36 €. Berechne die Kosten.",
-      given: ["d = 4,0 m", "hₖ = 1,5 m", "36 € pro m³"],
-      searched: "Kosten",
-      labels: { d: "4,0 m", r: "2,0 m", h: "1,5 m", s: "" },
-      plan: ["r = d : 2", "V = ⅓ · π · r² · hₖ", "Kosten = V · 36 €"],
-      solution: "r = 2,0 m; V = 1/3 · π · 2² · 1,5 = 2π ≈ 6,28 m³; Kosten ≈ 6,28 · 36 € ≈ 226 €.",
-      result: "Kosten ≈ 226 €",
+      title: "Pavillon: Kupferdach",
+      text: "Auf einem kreisrunden Pavillon mit dem Umfang u = 31,40 m wird ein kegelförmiges Kupferdach mit der Höhe hₖ = 3 m errichtet. Bei der Montage fallen 12 % Verschnitt an. a) Wie viele m² Kupferblech werden benötigt? b) 1 m² Kupferblech kostet 95 €, die Montage 4800 €. Wie teuer wird das Dach insgesamt? Runde Zwischenergebnisse auf zwei Dezimalstellen.",
+      given: ["u = 31,40 m", "hₖ = 3 m", "12 % Verschnitt", "95 €/m²; Montage 4800 €"],
+      searched: "Kupferblech in m² und Gesamtkosten",
+      labels: { d: "", r: "?", h: "3 m", s: "?" },
+      plan: ["r = u : (2 · π)", "s² = r² + hₖ²", "M = π · r · s; mit 12 %: M · 1,12", "Kosten = M · 95 € + 4800 €"],
+      solution: "r = 31,40 : (2 · π) ≈ 5,00 m; s = √(5² + 3²) = √34 ≈ 5,83 m; M = π · 5 · 5,83 ≈ 91,58 m²; mit 12 %: ≈ 102,57 m². Kosten = 102,57 · 95 € + 4800 € ≈ 14 544,15 €.",
+      result: "≈ 102,57 m² Kupferblech; Gesamtkosten ≈ 14 544,15 €",
     },
     {
       id: "8",
-      group: "Umkehraufgabe",
-      title: "Lampenschirm: Durchmesser",
-      text: "Der Mantel eines kegelförmigen Lampenschirms hat M = 471 cm². Die Mantellinie beträgt s = 25 cm. Berechne den Durchmesser d.",
-      given: ["M = 471 cm²", "s = 25 cm"],
-      searched: "d",
-      labels: { d: "?", r: "?", h: "", s: "25 cm" },
-      plan: ["M = π · r · s", "r = M : (π · s)", "d = 2r"],
-      solution: "r = 471 : (π · 25) ≈ 6,0 cm; d ≈ 12,0 cm.",
-      result: "d ≈ 12,0 cm",
+      group: "Sachaufgabe",
+      title: "Sandberg: Formsand",
+      text: "In einem Ziegelwerk liegt V = 300 m³ Formsand als kegelförmiger Sandberg auf Halde. Der Grundkreis hat den Umfang u = 43,96 m. Rechne mit π = 3,14. a) Berechne die Grundfläche. b) Wie hoch ist der Sandberg (auf ganze Meter)? c) Wie viele Fahrten sind nötig, wenn ein Lkw mit 20 t Ladegewicht alles wegschafft? 1 m³ Sand wiegt 1,5 t.",
+      given: ["V = 300 m³", "u = 43,96 m", "π = 3,14", "Lkw 20 t; 1 m³ = 1,5 t"],
+      searched: "G, hₖ und Anzahl Fahrten",
+      labels: { d: "", r: "?", h: "?", s: "" },
+      plan: ["r = u : (2 · π)", "G = π · r²", "hₖ = 3V : G", "Masse = V · 1,5 t", "Fahrten = Masse : 20 t (aufrunden)"],
+      solution: "r = 43,96 : (2 · 3,14) = 7,00 m; G = 3,14 · 7² = 153,86 m²; hₖ = 3 · 300 : 153,86 ≈ 5,85 m ≈ 6 m. Masse = 300 · 1,5 = 450 t; Fahrten = 450 : 20 = 22,5 → 23 Fahrten.",
+      result: "G = 153,86 m²; hₖ ≈ 6 m; 23 Fahrten",
     },
     {
       id: "9",
-      group: "Oberfläche",
-      title: "Dekokegel: Gesamtoberfläche",
-      text: "Ein Dekokegel hat d = 18 cm und s = 15 cm. Berechne Grundfläche, Mantelfläche und Gesamtoberfläche.",
-      given: ["d = 18 cm", "s = 15 cm"],
-      searched: "G, M und O",
-      labels: { d: "18 cm", r: "9 cm", h: "?", s: "15 cm" },
-      plan: ["r = d : 2", "G = π · r²", "M = π · r · s", "O = G + M"],
-      solution: "r = 9 cm; G = 81π ≈ 254,5 cm²; M = 135π ≈ 424,1 cm²; O = 216π ≈ 678,6 cm².",
-      result: "G ≈ 254,5 cm²; M ≈ 424,1 cm²; O ≈ 678,6 cm²",
+      group: "Sachaufgabe",
+      title: "Kerzen: Preis-Leistung",
+      text: "Auf dem Weihnachtsmarkt werden kegelförmige Kerzen verkauft. Kerze A: r = 3 cm, hₖ = 8 cm, 2,49 €. Kerze B: d = 8 cm, hₖ = 10 cm, 4,99 €. Kerze C: u = 28 cm, hₖ = 14 cm, 8,99 €. Welche Kerze hat das beste Preis-Leistungs-Verhältnis (meiste cm³ pro €)? Runde auf zwei Dezimalstellen.",
+      given: ["A: r = 3 cm, hₖ = 8 cm, 2,49 €", "B: d = 8 cm, hₖ = 10 cm, 4,99 €", "C: u = 28 cm, hₖ = 14 cm, 8,99 €"],
+      searched: "bestes Preis-Leistungs-Verhältnis",
+      labels: { d: "", r: "?", h: "?", s: "" },
+      plan: ["V = ⅓ · π · r² · hₖ (r aus d bzw. u)", "cm³ pro € = V : Preis", "größter Wert = beste Kerze"],
+      solution: "A: V = ⅓ · π · 3² · 8 ≈ 75,40 cm³ → 75,40 : 2,49 ≈ 30,28 cm³/€. B: r = 4 cm, V = ⅓ · π · 4² · 10 ≈ 167,55 cm³ → 167,55 : 4,99 ≈ 33,58 cm³/€. C: r = 28 : (2π) ≈ 4,46 cm, V = ⅓ · π · 4,46² · 14 ≈ 291,64 cm³ → 291,64 : 8,99 ≈ 32,44 cm³/€. Kerze B liefert die meisten cm³ pro €.",
+      result: "Kerze B hat das beste Preis-Leistungs-Verhältnis (≈ 33,58 cm³/€)",
     },
     {
       id: "10",
-      group: "Einheiten",
-      title: "Fülltrichter: Liter",
-      text: "Ein kegelförmiger Trichter hat d = 8 cm und hₖ = 15 cm. Berechne das Volumen in cm³ und in Litern.",
-      given: ["d = 8 cm", "hₖ = 15 cm"],
-      searched: "V in cm³ und l",
-      labels: { d: "8 cm", r: "4 cm", h: "15 cm", s: "" },
-      plan: ["r = d : 2", "V = ⅓ · π · r² · hₖ", "1000 cm³ = 1 l"],
-      solution: "r = 4 cm; V = 1/3 · π · 4² · 15 = 80π ≈ 251,3 cm³ ≈ 0,25 l.",
-      result: "V ≈ 251,3 cm³ ≈ 0,25 l",
+      group: "Zusammengesetzt",
+      title: "Größter Kegel aus einem Quader",
+      text: "Ein Feinmechaniker dreht aus einem Quader mit quadratischer Grundfläche (a = 36 cm) den größtmöglichen Kegel mit der Mantellinie s = 30 cm. Quader und Kegel haben die gleiche Körperhöhe. a) Berechne die Höhe des Kegels. b) Berechne den entstehenden Abfall in cm³ und in Prozent. Runde auf zwei Dezimalstellen.",
+      given: ["Quader: a = 36 cm", "Kegel: s = 30 cm", "gleiche Höhe"],
+      searched: "hₖ und Abfall (cm³ und %)",
+      labels: { a: "36 cm", d: "", r: "18 cm", h: "?", s: "30 cm" },
+      shape: "quaderkegel",
+      plan: ["r = a : 2", "hₖ = √(s² − r²)", "V_Quader = a² · hₖ", "V_Kegel = ⅓ · π · r² · hₖ", "Abfall = V_Quader − V_Kegel", "Prozent = Abfall : V_Quader · 100"],
+      solution: "r = 36 : 2 = 18 cm; hₖ = √(30² − 18²) = √576 = 24 cm. V_Quader = 36² · 24 = 31 104 cm³; V_Kegel = ⅓ · π · 18² · 24 = 2592π ≈ 8143,01 cm³; Abfall = 31 104 − 8143,01 ≈ 22 960,99 cm³; Prozent = 22 960,99 : 31 104 · 100 ≈ 73,82 %.",
+      result: "hₖ = 24 cm; Abfall ≈ 22 960,99 cm³ (≈ 73,82 %)",
+    },
+    {
+      id: "11",
+      group: "Zusammengesetzt",
+      title: "Werkstück aus Zylinder und zwei Kegeln",
+      text: "Ein Werkstück besteht aus einem Zylinder und zwei gleichen Kegeln (siehe Skizze). Beide Kegel haben r = 6 cm und die Mantellinie s = 10 cm. Der zusammengesetzte Körper hat ein Volumen von 800 cm³. a) Höhe eines Kegels. b) Volumen eines Kegels. c) Volumen des Zylinders. d) Höhe des Zylinders h_z. e) Oberfläche des Werkstücks. Runde auf zwei Dezimalstellen.",
+      given: ["r = 6 cm", "s = 10 cm", "V_gesamt = 800 cm³"],
+      searched: "hₖ, V_Kegel, V_Zylinder, h_z und O",
+      labels: { d: "", r: "6 cm", h: "?", s: "10 cm" },
+      shape: "spindel",
+      plan: ["hₖ = √(s² − r²)", "V_Kegel = ⅓ · π · r² · hₖ", "V_Zylinder = V_gesamt − 2 · V_Kegel", "h_z = V_Zylinder : (π · r²)", "O = 2 · π · r · s + 2 · π · r · h_z"],
+      solution: "hₖ = √(10² − 6²) = √64 = 8 cm; V_Kegel = ⅓ · π · 6² · 8 = 96π ≈ 301,59 cm³; V_Zylinder = 800 − 2 · 301,59 ≈ 196,81 cm³; h_z = 196,81 : (π · 6²) ≈ 1,74 cm; O = 2 · π · 6 · 10 + 2 · π · 6 · 1,74 ≈ 442,59 cm².",
+      result: "hₖ = 8 cm; V_Kegel ≈ 301,59 cm³; V_Zylinder ≈ 196,81 cm³; h_z ≈ 1,74 cm; O ≈ 442,59 cm²",
     },
   ];
+
+  const hintLabels = ["gegeben & gesucht", "Skizze", "Grundformel"];
+
+  const baseFormulas = {
+    "1": ["s² = r² + hₖ²", "G = π · r²", "V = ⅓ · G · hₖ"],
+    "2": ["u = 2 · π · r", "G = π · r²", "V = ⅓ · G · hₖ"],
+    "3": ["V = a³", "V = ⅓ · π · r² · hₖ", "s² = r² + hₖ²"],
+    "4": ["V = ⅓ · G · hₖ", "1 dm² = 100 cm²"],
+    "5": ["r = d : 2", "M = π · r · s"],
+    "6": ["V_Kegel = ⅓ · π · r² · h", "V_Zylinder = π · r² · h"],
+    "7": ["u = 2 · π · r", "s² = r² + hₖ²", "M = π · r · s"],
+    "8": ["u = 2 · π · r", "G = π · r²", "V = ⅓ · G · hₖ"],
+    "9": ["V = ⅓ · π · r² · hₖ"],
+    "10": ["r = a : 2", "s² = r² + hₖ²", "V_Quader = a² · hₖ", "V_Kegel = ⅓ · π · r² · hₖ"],
+    "11": ["s² = r² + hₖ²", "V_Kegel = ⅓ · π · r² · hₖ", "V_Zylinder = π · r² · h_z", "M_Kegel = π · r · s", "M_Zylinder = 2 · π · r · h_z"],
+  };
 
   let currentTaskIndex = 0;
   let currentStepIndex = 0;
   let selectedFile = null;
   let previewUrl = "";
+  let tipsShown = 0;
   const completed = new Set();
 
   function escapeHtml(value) {
@@ -173,6 +219,23 @@
 
   function completedKey(taskIndex = currentTaskIndex, stepIndex = currentStepIndex) {
     return `${taskIndex}:${stepIndex}`;
+  }
+
+  // Rendert die "gegeben"-Werte einer Tabellen-Aufgabe als übersichtliche
+  // Tabelle (Spalten a–e, Zeilen = Größen; leere Zellen = gesucht).
+  function givensTable(task) {
+    const t = task.table;
+    if (!t) return "";
+    const head = t.cols.map((c) => `<th scope="col">${escapeHtml(c)})</th>`).join("");
+    const body = t.rows
+      .map((row) => {
+        const cells = row.cells
+          .map((cell) => (cell ? `<td>${escapeHtml(cell)}</td>` : `<td class="empty">?</td>`))
+          .join("");
+        return `<tr><th scope="row">${escapeHtml(row.label)}</th>${cells}</tr>`;
+      })
+      .join("");
+    return `<div class="givens-wrap"><table class="givens-table"><thead><tr><td class="corner"></td>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
   }
 
   function setFeedback(kind, title, body, lines = []) {
@@ -190,15 +253,16 @@
     if (stepIndex === 0) {
       return [
         "Kegel oder Bestimmungsdreieck zeichnen",
-        `gegeben notieren: ${task.given.join(", ")}`,
-        `gesucht notieren: ${task.searched}`,
+        "gegebene Werte aus dem Text herausschreiben",
+        "notieren, was gesucht ist",
         "Einheiten mit aufschreiben",
       ];
     }
     if (stepIndex === 1) {
       return [
-        "passende Formel(n) auswählen",
-        ...task.plan,
+        "passende Formel(n) selbst auswählen",
+        "den Rechenweg in sinnvoller Reihenfolge planen",
+        "bei d zuerst den Radius r bilden",
         "kurz markieren, welcher Wert zuerst berechnet wird",
       ];
     }
@@ -229,6 +293,103 @@
     const slantLabel = task.labels.s ? `s = ${sLabel}` : "s";
     const radiusLabel = task.labels.r ? `r = ${rLabel}` : "r";
     const diameterLabel = task.labels.d ? `d = ${dLabel}` : "d";
+
+    if (task.shape === "spindel") {
+      return `
+      <svg viewBox="0 0 500 270" role="img" aria-label="Skizze: Werkstück aus zwei Kegeln und einem Zylinder">
+        <defs>
+          <marker id="quali-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"></path>
+          </marker>
+        </defs>
+        <path d="M 84 168 L 150 250 L 216 168 Z" fill="rgba(251,146,60,.18)" stroke="#9a3412" stroke-width="2"/>
+        <ellipse cx="150" cy="168" rx="66" ry="17" fill="rgba(20,184,166,.10)" stroke="#0f766e" stroke-width="2"/>
+        <path d="M 84 132 L 84 168 L 216 168 L 216 132 Z" fill="rgba(20,184,166,.16)" stroke="#0f766e" stroke-width="2"/>
+        <path d="M 84 132 L 150 24 L 216 132 Z" fill="rgba(251,146,60,.22)" stroke="#9a3412" stroke-width="2"/>
+        <ellipse cx="150" cy="132" rx="66" ry="17" fill="rgba(20,184,166,.10)" stroke="#0f766e" stroke-width="2"/>
+        <line x1="150" y1="24" x2="150" y2="250" stroke="#64748b" stroke-width="1.4" stroke-dasharray="6 5"/>
+        <line x1="150" y1="132" x2="216" y2="132" stroke="#0f766e" stroke-width="3"/>
+        <text class="svg-label" x="170" y="126" fill="#0f766e">${radiusLabel}</text>
+        <text class="svg-label" x="186" y="78" fill="#334155" transform="rotate(58 186 78)">${slantLabel}</text>
+        <line x1="64" y1="132" x2="64" y2="168" stroke="#be185d" stroke-width="2.5" marker-start="url(#quali-arrow)" marker-end="url(#quali-arrow)"/>
+        <text class="svg-label" x="8" y="155" fill="#be185d">h_z = ?</text>
+        <text x="62" y="16" fill="#52627a" font-size="13" font-weight="700">Werkstück</text>
+        <polygon points="300,205 440,205 300,98" fill="rgba(20,184,166,.10)" stroke="#0f766e" stroke-width="3"/>
+        <path d="M 300 181 L 324 181 L 324 205" fill="none" stroke="#172033" stroke-width="3"/>
+        <line x1="300" y1="205" x2="440" y2="205" stroke="#0f766e" stroke-width="5"/>
+        <line x1="300" y1="205" x2="300" y2="98" stroke="#be185d" stroke-width="5"/>
+        <line x1="300" y1="98" x2="440" y2="205" stroke="#334155" stroke-width="5"/>
+        <text class="svg-label" x="350" y="228" fill="#0f766e">r = ${rLabel}</text>
+        <text class="svg-label" x="250" y="150" fill="#be185d">hₖ = ${hLabel}</text>
+        <text class="svg-label" x="366" y="135" fill="#334155" transform="rotate(37 366 135)">s = ${sLabel}</text>
+        <text x="300" y="78" fill="#52627a" font-size="13" font-weight="700">Bestimmungsdreieck</text>
+      </svg>`;
+    }
+
+    // Kegel, der aus einem Zylinder gefräst wird (Aufgabe 520).
+    if (task.shape === "zylinderkegel") {
+      return `
+      <svg viewBox="0 0 500 270" role="img" aria-label="Skizze: Kegel aus Zylinder gefräst">
+        <defs>
+          <marker id="quali-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"></path>
+          </marker>
+        </defs>
+        <path d="M 150 70 L 150 210" stroke="#0f766e" stroke-width="2"/>
+        <path d="M 330 70 L 330 210" stroke="#0f766e" stroke-width="2"/>
+        <ellipse cx="240" cy="210" rx="90" ry="22" fill="rgba(20,184,166,.10)" stroke="#0f766e" stroke-width="2"/>
+        <path d="M 150 210 A 90 22 0 0 0 330 210" fill="rgba(20,184,166,.10)" stroke="#0f766e" stroke-width="2"/>
+        <ellipse cx="240" cy="70" rx="90" ry="22" fill="rgba(20,184,166,.16)" stroke="#0f766e" stroke-width="2"/>
+        <polygon points="240,70 150,210 330,210" fill="rgba(251,146,60,.22)" stroke="#9a3412" stroke-width="2.5"/>
+        <line x1="240" y1="70" x2="240" y2="210" stroke="#be185d" stroke-width="2" stroke-dasharray="6 5"/>
+        <line x1="150" y1="48" x2="330" y2="48" stroke="#334155" stroke-width="2" marker-start="url(#quali-arrow)" marker-end="url(#quali-arrow)"/>
+        <text class="svg-label" x="214" y="40" fill="#334155">d = ${dLabel}</text>
+        <line x1="356" y1="70" x2="356" y2="210" stroke="#334155" stroke-width="2" marker-start="url(#quali-arrow)" marker-end="url(#quali-arrow)"/>
+        <text class="svg-label" x="362" y="148" fill="#be185d">h = ${hLabel}</text>
+        <text x="150" y="30" fill="#52627a" font-size="13" font-weight="700">Kegel im Zylinder</text>
+        <text class="svg-label" x="186" y="150" fill="#9a3412">Kegel</text>
+        <text class="svg-label" x="262" y="150" fill="#0f766e">Abfall</text>
+      </svg>`;
+    }
+
+    // Größter Kegel in einem Quader (Aufgabe 10).
+    if (task.shape === "quaderkegel") {
+      const aLabel = label("a", "a");
+      return `
+      <svg viewBox="0 0 500 270" role="img" aria-label="Skizze: größter Kegel in einem Quader">
+        <defs>
+          <marker id="quali-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"></path>
+          </marker>
+        </defs>
+        <polygon points="60,70 190,70 230,40 100,40" fill="rgba(20,184,166,.06)" stroke="#0f766e" stroke-width="1.6"/>
+        <polygon points="190,70 230,40 230,180 190,210" fill="rgba(20,184,166,.06)" stroke="#0f766e" stroke-width="1.6"/>
+        <rect x="60" y="70" width="130" height="140" fill="rgba(20,184,166,.05)" stroke="#0f766e" stroke-width="2"/>
+        <line x1="60" y1="210" x2="100" y2="180" stroke="#0f766e" stroke-width="1.4" stroke-dasharray="5 4"/>
+        <line x1="100" y1="180" x2="230" y2="180" stroke="#0f766e" stroke-width="1.4" stroke-dasharray="5 4"/>
+        <line x1="100" y1="180" x2="100" y2="40" stroke="#0f766e" stroke-width="1.4" stroke-dasharray="5 4"/>
+        <ellipse cx="125" cy="210" rx="65" ry="16" fill="rgba(251,146,60,.16)" stroke="#9a3412" stroke-width="2"/>
+        <polygon points="125,70 60,210 190,210" fill="rgba(251,146,60,.24)" stroke="#9a3412" stroke-width="2.5"/>
+        <line x1="125" y1="70" x2="125" y2="210" stroke="#be185d" stroke-width="2" stroke-dasharray="6 5"/>
+        <line x1="125" y1="210" x2="190" y2="210" stroke="#9a3412" stroke-width="2"/>
+        <text class="svg-label" x="150" y="206" fill="#9a3412">r = ${rLabel}</text>
+        <text class="svg-label" x="92" y="150" fill="#be185d">hₖ = ${hLabel}</text>
+        <text class="svg-label" x="150" y="120" fill="#334155" transform="rotate(56 150 120)">s = ${sLabel}</text>
+        <line x1="60" y1="232" x2="190" y2="232" stroke="#334155" stroke-width="2" marker-start="url(#quali-arrow)" marker-end="url(#quali-arrow)"/>
+        <text class="svg-label" x="104" y="252" fill="#0f766e">a = ${aLabel}</text>
+        <text x="60" y="28" fill="#52627a" font-size="13" font-weight="700">Kegel im Quader</text>
+        <polygon points="320,205 440,205 320,90" fill="rgba(251,146,60,.10)" stroke="#9a3412" stroke-width="3"/>
+        <path d="M 320 181 L 344 181 L 344 205" fill="none" stroke="#172033" stroke-width="3"/>
+        <line x1="320" y1="205" x2="440" y2="205" stroke="#0f766e" stroke-width="5"/>
+        <line x1="320" y1="205" x2="320" y2="90" stroke="#be185d" stroke-width="5"/>
+        <line x1="320" y1="90" x2="440" y2="205" stroke="#9a3412" stroke-width="5"/>
+        <text class="svg-label" x="368" y="226" fill="#0f766e">r = ${rLabel}</text>
+        <text class="svg-label" x="280" y="150" fill="#be185d">hₖ</text>
+        <text class="svg-label" x="384" y="140" fill="#9a3412" transform="rotate(43 384 140)">s = ${sLabel}</text>
+        <text x="318" y="78" fill="#52627a" font-size="13" font-weight="700">Bestimmungsdreieck</text>
+      </svg>`;
+    }
+
     const rightPanel = triangleHidden
       ? `
         <circle cx="350" cy="142" r="55" fill="rgba(20,184,166,.13)" stroke="#0f766e" stroke-width="3"/>
@@ -268,6 +429,37 @@
       </svg>`;
   }
 
+  function hintBlocks(task) {
+    const blocks = [];
+    if (tipsShown >= 1) {
+      blocks.push(`
+        <div class="hint-block">
+          <h4><span class="hint-num">1</span> Gegeben &amp; gesucht</h4>
+          <div class="task-meta">
+            ${task.given.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}
+            <span>gesucht: ${escapeHtml(task.searched)}</span>
+          </div>
+        </div>`);
+    }
+    if (tipsShown >= 2) {
+      blocks.push(`
+        <div class="hint-block">
+          <h4><span class="hint-num">2</span> Skizze</h4>
+          <div class="sketch-frame">${sketch(task)}</div>
+        </div>`);
+    }
+    if (tipsShown >= 3) {
+      blocks.push(`
+        <div class="hint-block">
+          <h4><span class="hint-num">3</span> Grundformel (noch nicht umgestellt)</h4>
+          <div class="mini-plan">
+            ${(baseFormulas[task.id] || task.plan).map((line) => `<div>${escapeHtml(line)}</div>`).join("")}
+          </div>
+        </div>`);
+    }
+    return blocks.join("");
+  }
+
   function taskAiText(task, stepIndex) {
     return [
       "Thema: Kegel Quali-Aufgabe Mathematik 9.",
@@ -275,6 +467,7 @@
       task.text,
       `Gegeben: ${task.given.join(", ")}`,
       `Gesucht: ${task.searched}`,
+      `Erwarteter Rechenplan: ${task.plan.join("; ")}`,
       `Erwarteter Rechenweg: ${task.solution}`,
       `Erwartetes Ergebnis: ${task.result}`,
       `Aktueller Foto-Schritt: Foto ${stepIndex + 1} - ${photoSteps[stepIndex].title}`,
@@ -354,6 +547,7 @@
     currentTaskIndex = (currentTaskIndex + delta + tasks.length) % tasks.length;
     currentStepIndex = 0;
     selectedFile = null;
+    tipsShown = 0;
     render();
   }
 
@@ -393,10 +587,7 @@
             </div>
           </div>
           <p class="task-text">${escapeHtml(task.text)}</p>
-          <div class="task-meta">
-            ${task.given.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}
-            <span>gesucht: ${escapeHtml(task.searched)}</span>
-          </div>
+          ${givensTable(task)}
         </article>
 
         <div class="step-tabs" aria-label="Foto-Schritte">
@@ -408,12 +599,13 @@
         </div>
 
         <div class="quali-grid">
-          <section class="sketch-card">
-            <h3>Mathetools-Skizze</h3>
-            <div class="sketch-frame">${sketch(task)}</div>
-            <div class="mini-plan">
-              ${task.plan.map((line) => `<div>${escapeHtml(line)}</div>`).join("")}
-            </div>
+          <section class="sketch-card hint-card">
+            <h3>Tipps</h3>
+            <p class="hint-intro">Versuche die Aufgabe zuerst selbst. Brauchst du Hilfe, blende dir nacheinander „gegeben &amp; gesucht“, die Skizze und die Grundformel ein.</p>
+            ${tipsShown < 3
+              ? `<button class="hint-button" type="button" id="show-hint">Tipp ${tipsShown + 1} anzeigen: ${escapeHtml(hintLabels[tipsShown])}</button>`
+              : `<p class="hint-done">Alle Tipps sind eingeblendet.</p>`}
+            ${hintBlocks(task)}
           </section>
 
           <section class="photo-card">
@@ -459,6 +651,7 @@
         currentTaskIndex = Number(button.dataset.task);
         currentStepIndex = 0;
         selectedFile = null;
+        tipsShown = 0;
         render();
       });
     });
@@ -484,6 +677,10 @@
     root.querySelector("#photo-file")?.addEventListener("change", (event) => chooseFile(event.target.files?.[0]));
     root.querySelector("#photo-camera")?.addEventListener("change", (event) => chooseFile(event.target.files?.[0]));
     root.querySelector("#check-photo")?.addEventListener("click", checkPhoto);
+    root.querySelector("#show-hint")?.addEventListener("click", () => {
+      tipsShown = Math.min(3, tipsShown + 1);
+      render();
+    });
   }
 
   render();

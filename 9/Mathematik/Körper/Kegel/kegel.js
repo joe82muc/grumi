@@ -165,49 +165,62 @@
 
   function renderConeNet(svg, radius, height) {
     svg.replaceChildren();
-    svg.setAttribute("viewBox", "0 0 520 315");
+    svg.setAttribute("viewBox", "0 0 520 340");
     ensureMarker(svg, "net-arrow", "#0f766e");
+
     const s = Math.hypot(radius, height);
-    const angle = (radius / s) * Math.PI * 2;
-    const start = -Math.PI / 2 - angle / 2;
-    const end = -Math.PI / 2 + angle / 2;
-    const cx = 160;
-    const cy = 170;
-    const sr = 112;
-    const sp = { x: cx + sr * Math.cos(start), y: cy + sr * Math.sin(start) };
-    const ep = { x: cx + sr * Math.cos(end), y: cy + sr * Math.sin(end) };
-    const large = angle > Math.PI ? 1 : 0;
-    const br = clamp((radius / s) * sr, 24, 78);
+    const theta = (radius / s) * Math.PI * 2; // Öffnungswinkel des Mantel-Sektors
+    const scale = clamp(Math.min(250 / (s + 2 * radius), 232 / s), 6, 70);
+    const S = s * scale; // Sektorradius (Mantellinie) in px
+    const rp = radius * scale; // Grundkreisradius in px
+    const cx = 260;
+    const totalH = S + 2 * rp;
+    const apexY = clamp((340 - totalH) / 2 + 4, 48, 150);
+
+    // Mantel = Kreisausschnitt: Spitze oben, Bogen unten, symmetrisch.
+    const phi1 = Math.PI / 2 - theta / 2;
+    const phi2 = Math.PI / 2 + theta / 2;
+    const p1 = { x: cx + S * Math.cos(phi1), y: apexY + S * Math.sin(phi1) };
+    const p2 = { x: cx + S * Math.cos(phi2), y: apexY + S * Math.sin(phi2) };
+    const large = theta > Math.PI ? 1 : 0;
+
     svg.appendChild(el("path", {
-      d: `M ${cx} ${cy} L ${sp.x.toFixed(1)} ${sp.y.toFixed(1)} A ${sr} ${sr} 0 ${large} 1 ${ep.x.toFixed(1)} ${ep.y.toFixed(1)} Z`,
-      fill: "rgba(20,184,166,.18)",
-      stroke: "#0f766e",
+      d: `M ${cx} ${apexY.toFixed(1)} L ${p1.x.toFixed(1)} ${p1.y.toFixed(1)} A ${S.toFixed(1)} ${S.toFixed(1)} 0 ${large} 1 ${p2.x.toFixed(1)} ${p2.y.toFixed(1)} Z`,
+      fill: "rgba(251,146,60,.22)",
+      stroke: "#9a3412",
       "stroke-width": 2,
+      "stroke-linejoin": "round",
     }));
+    // Bogen betonen (Bogenlänge = Umfang des Grundkreises = 2πr).
     svg.appendChild(el("path", {
-      d: `M ${sp.x.toFixed(1)} ${sp.y.toFixed(1)} A ${sr} ${sr} 0 ${large} 1 ${ep.x.toFixed(1)} ${ep.y.toFixed(1)}`,
+      d: `M ${p1.x.toFixed(1)} ${p1.y.toFixed(1)} A ${S.toFixed(1)} ${S.toFixed(1)} 0 ${large} 1 ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`,
       fill: "none",
-      stroke: "#14b8a6",
+      stroke: "#fb923c",
       "stroke-width": 5,
       "stroke-linecap": "round",
     }));
-    svg.appendChild(el("line", { x1: cx, y1: cy, x2: sp.x, y2: sp.y, stroke: "#0f766e", "stroke-width": 2 }));
-    svg.appendChild(el("line", { x1: cx, y1: cy, x2: ep.x, y2: ep.y, stroke: "#0f766e", "stroke-width": 2 }));
-    svg.appendChild(el("text", { x: cx - 12, y: cy - 10, fill: "#134e4a", "font-size": 15, "font-weight": 700 }, "s"));
-    svg.appendChild(el("text", { x: 42, y: 292, fill: "#0f766e", "font-size": 13, "font-weight": 700 }, "Mantel: Kreisausschnitt, Bogenlänge 2πr"));
-    svg.appendChild(el("circle", { cx: 386, cy: 170, r: br, fill: "rgba(20,184,166,.16)", stroke: "#0f766e", "stroke-width": 2 }));
+
+    // Grundkreis unten an den Bogen angesetzt -> zusammenhängendes Netz.
+    const baseCy = apexY + S + rp;
+    svg.appendChild(el("circle", { cx, cy: baseCy, r: rp, fill: "rgba(20,184,166,.18)", stroke: "#0f766e", "stroke-width": 2.5 }));
     svg.appendChild(el("line", {
-      x1: 386,
-      y1: 170,
-      x2: 386 + br,
-      y2: 170,
+      x1: cx,
+      y1: baseCy,
+      x2: cx + rp,
+      y2: baseCy,
       stroke: "#0f766e",
       "stroke-width": 2,
       "marker-start": "url(#net-arrow)",
       "marker-end": "url(#net-arrow)",
     }));
-    svg.appendChild(el("text", { x: 390 + br / 2, y: 158, fill: "#134e4a", "font-size": 15, "font-weight": 700 }, "r"));
-    svg.appendChild(el("text", { x: 338, y: 292, fill: "#0f766e", "font-size": 13, "font-weight": 700 }, "Grundfläche"));
+
+    // Beschriftungen im Stil des Pyramiden-Netzes.
+    const sMidX = (cx + p1.x) / 2;
+    const sMidY = (apexY + p1.y) / 2;
+    svg.appendChild(el("text", { x: cx, y: baseCy + 5, fill: "#0f4f74", "font-size": 15, "font-weight": 800, "text-anchor": "middle" }, "G = π · r²"));
+    svg.appendChild(el("text", { x: cx + rp / 2, y: baseCy - 8, fill: "#0f766e", "font-size": 14, "font-weight": 800, "text-anchor": "middle" }, "r"));
+    svg.appendChild(el("text", { x: sMidX - 18, y: sMidY, fill: "#9a3412", "font-size": 14, "font-weight": 800 }, "s"));
+    svg.appendChild(el("text", { x: 18, y: 26, fill: "#52627a", "font-size": 13, "font-weight": 700 }, "Netz: 1 Grundkreis + 1 Kreisausschnitt (Mantel)"));
   }
 
   function setupRotationsPage() {
@@ -219,27 +232,40 @@
     const netSvg = root.querySelector("#cone-net");
     const formulas = root.querySelector("#formula-values");
     const values = () => ({ radius: Number(radiusInput.value), height: Number(heightInput.value) });
-    const drawModel = attachConeViewer(modelSvg, values);
+    const drawModel = attachConeViewer(modelSvg, values, { labels: { r: "r", hk: "hₖ", s: "s", d: "d" } });
     function update() {
       const { radius, height } = values();
+      const slant = Math.hypot(radius, height);
+      const baseArea = Math.PI * radius * radius;
+      const mantleArea = Math.PI * radius * slant;
+      const surfaceArea = baseArea + mantleArea;
+      const volume = baseArea * height / 3;
       drawModel();
       renderConeNet(netSvg, radius, height);
       formulas.innerHTML = `
-        <div class="formula formula-wide">
-          <div class="formula-title">Mantellinie s</div>
-          <div class="math-line">s<sup>2</sup> = h<sub>k</sub><sup>2</sup> + r<sup>2</sup></div>
+        <div class="formula">
+          <div class="formula-title">1. Schräge Seite</div>
+          <div class="math-line">s² = r² + h<sub>k</sub>²</div>
+          <div class="math-line">s ≈ ${fmt(slant)} cm</div>
         </div>
         <div class="formula">
-          <div class="formula-title">Volumen</div>
-          <div class="math-line">V = <span class="frac"><span>1</span><span>3</span></span> · π · r<sup>2</sup> · h<sub>k</sub></div>
+          <div class="formula-title">2. Grundfläche</div>
+          <div class="math-line">G = π · r²</div>
+          <div class="math-line">G ≈ ${fmt(baseArea)} cm²</div>
         </div>
         <div class="formula">
-          <div class="formula-title">Mantelfläche</div>
+          <div class="formula-title">3. Mantel</div>
           <div class="math-line">M = π · r · s</div>
+          <div class="math-line">M ≈ ${fmt(mantleArea)} cm²</div>
         </div>
         <div class="formula">
-          <div class="formula-title">Oberfläche</div>
-          <div class="math-line">O = G + M = π · r<sup>2</sup> + M</div>
+          <div class="formula-title">4. Oberfläche</div>
+          <div class="math-line">O = G + M</div>
+          <div class="math-line">O ≈ ${fmt(surfaceArea)} cm²</div>
+        </div>
+        <div class="formula formula-wide">
+          <div class="formula-title">Volumen</div>
+          <div class="math-line">V = <span class="frac"><span>1</span><span>3</span></span> · π · r² · h<sub>k</sub> ≈ ${fmt(volume)} cm³</div>
         </div>`;
     }
     [radiusInput, heightInput].forEach((input) => input.addEventListener("input", update));
@@ -346,7 +372,7 @@
     const drawCone = attachConeViewer(modelSvg, () => {
       const v = values();
       return { radius: v.r, height: Math.max(v.h, 0.1) };
-    }, { fine: true });
+    }, { fine: true, labels: { r: "r", hk: "hₖ", s: "s", d: "d" } });
     function update() {
       const v = values();
       steps.forEach((step) => step.classList.toggle("active", step.dataset.step === active));
@@ -356,13 +382,22 @@
       });
       drawCone();
       drawTriangle(triangleSvg, v.r, v.s, v.h);
-      calc.innerHTML = `
-        <div class="calc-line ${active === "formel" ? "active" : ""}">s<sup>2</sup> = hk<sup>2</sup> + r<sup>2</sup></div>
-        <div class="calc-line ${active === "rechnung" ? "active" : ""}">${fmt(v.s)}<sup>2</sup> = hk<sup>2</sup> + ${fmt(v.r)}<sup>2</sup></div>
-        <div class="calc-line ${active === "rechnung" ? "active" : ""}">${fmt(v.s * v.s)} = hk<sup>2</sup> + ${fmt(v.r * v.r)} &nbsp;&nbsp; | - ${fmt(v.r * v.r)}</div>
-        <div class="calc-line ${active === "rechnung" ? "active" : ""}">hk<sup>2</sup> = ${fmt(v.h2)} &nbsp;&nbsp; | √</div>
-        <div class="calc-line ${active === "antwort" ? "active" : ""}">hk = ${fmt(v.h)}</div>`;
       root.querySelector("#given").innerHTML = `d = ${fmt(v.d)} cm, also r = ${fmt(v.r)} cm (Kathete)<br>s = ${fmt(v.s)} cm (Hypotenuse)`;
+      const isPossible = v.s > v.r;
+      answer.classList.toggle("warning", !isPossible);
+      if (!isPossible) {
+        calc.innerHTML = `
+          <div class="calc-line warning">s muss größer als r sein. Sonst kann s nicht die längste Seite im Dreieck sein.</div>
+          <div class="calc-line">r = d : 2 = ${fmt(v.d)} : 2 = ${fmt(v.r)} cm</div>`;
+        answer.textContent = "Prüfe die Werte: Die Mantellinie s muss länger als der Radius r sein.";
+        return;
+      }
+      calc.innerHTML = `
+        <div class="calc-line ${active === "gegeben" ? "active" : ""}">r = d : 2 = ${fmt(v.d)} : 2 = ${fmt(v.r)} cm</div>
+        <div class="calc-line ${active === "formel" ? "active" : ""}">s² = h<sub>k</sub>² + r²</div>
+        <div class="calc-line ${active === "rechnung" ? "active" : ""}">h<sub>k</sub>² = s² - r²</div>
+        <div class="calc-line ${active === "rechnung" ? "active" : ""}">h<sub>k</sub>² = ${fmt(v.s)}² - ${fmt(v.r)}² = ${fmt(v.h2)}</div>
+        <div class="calc-line ${active === "rechnung" ? "active" : ""}">h<sub>k</sub> = √${fmt(v.h2)} = ${fmt(v.h)} cm</div>`;
       answer.textContent = `Antwort: Die Höhe des Kegels beträgt ${fmt(v.h)} cm.`;
     }
     [diameterInput, slantInput].forEach((input) => input.addEventListener("input", update));
