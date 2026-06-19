@@ -1,0 +1,184 @@
+window.GEO_QUALI = {
+  levelLabel: "Vierecke",
+  themeLine: "Thema: Vierecke (Quadrat, Rechteck, Parallelogramm, Raute, Drachen, Trapez), Mathematik 9.",
+  tasks: [
+    {
+      id: "1",
+      group: "Tabelle",
+      title: "Quadrat: fehlende Werte",
+      text: "Berechne für die Quadrate die fehlenden Werte. Runde, falls nötig, auf zwei Dezimalstellen.",
+      table: {
+        cols: ["a", "b", "c"],
+        rows: [
+          { label: "a", cells: ["12 cm", "", ""] },
+          { label: "u", cells: ["", "", "100 dm"] },
+          { label: "A", cells: ["", "121 cm²", ""] },
+          { label: "d", cells: ["", "", ""] },
+        ],
+      },
+      given: ["a) a = 12 cm", "b) A = 121 cm²", "c) u = 100 dm"],
+      searched: "a, u, A und Diagonale d",
+      noSketch: true,
+      plan: ["u = 4 · a", "A = a²", "a = √A", "a = u : 4", "d = √(a² + a²)"],
+      solution: "a) u = 4 · 12 = 48 cm; A = 12² = 144 cm²; d = √(12² + 12²) = √288 ≈ 16,97 cm. b) a = √121 = 11 cm; u = 44 cm; d = √(11² + 11²) ≈ 15,56 cm. c) a = 100 : 4 = 25 dm; A = 625 dm²; d = √(25² + 25²) ≈ 35,36 dm.",
+      result: "a) u = 48 cm, A = 144 cm², d ≈ 16,97 cm; b) a = 11 cm, u = 44 cm, d ≈ 15,56 cm; c) a = 25 dm, A = 625 dm², d ≈ 35,36 dm",
+    },
+    {
+      id: "2",
+      group: "Quadrat",
+      title: "Quadrat aus der Fläche",
+      text: "Ein Quadrat hat den Flächeninhalt A = 49 cm². Berechne die Seitenlänge, den Umfang und die Diagonale. Runde auf zwei Dezimalstellen.",
+      given: ["A = 49 cm²"],
+      searched: "Seitenlänge a, Umfang u und Diagonale d",
+      plan: ["a = √A", "u = 4 · a", "d = √(a² + a²)"],
+      solution: "a = √49 = 7 cm; u = 4 · 7 = 28 cm; d = √(7² + 7²) = √98 ≈ 9,90 cm.",
+      result: "a = 7 cm; u = 28 cm; d ≈ 9,90 cm",
+    },
+    {
+      id: "3",
+      group: "Rechteck",
+      title: "Umfang und Fläche",
+      text: "Ein Rechteck hat die Seiten a = 8 cm und b = 5 cm. Berechne den Umfang und den Flächeninhalt.",
+      given: ["a = 8 cm", "b = 5 cm"],
+      searched: "Umfang u und Flächeninhalt A",
+      plan: ["u = 2 · (a + b)", "A = a · b"],
+      solution: "u = 2 · (8 + 5) = 2 · 13 = 26 cm; A = 8 · 5 = 40 cm².",
+      result: "u = 26 cm; A = 40 cm²",
+    },
+    {
+      id: "4",
+      group: "Pythagoras",
+      title: "Diagonale im Rechteck",
+      text: "Ein Rechteck hat die Seiten a = 12 cm und b = 9 cm. Berechne die Länge der Diagonale d.",
+      given: ["a = 12 cm", "b = 9 cm"],
+      searched: "Diagonale d",
+      figure: "Die Diagonale teilt das Rechteck in zwei rechtwinklige Dreiecke mit den Katheten a und b.",
+      plan: ["d² = a² + b²", "d = √(a² + b²)"],
+      solution: "d² = 12² + 9² = 144 + 81 = 225; d = √225 = 15 cm.",
+      result: "d = 15 cm",
+    },
+    {
+      id: "5",
+      group: "Tabelle",
+      title: "Parallelogramm: fehlende Werte",
+      text: "Berechne für die Parallelogramme die fehlenden Werte.",
+      table: {
+        cols: ["a", "b", "c"],
+        rows: [
+          { label: "g", cells: ["6 cm", "8 m", ""] },
+          { label: "h", cells: ["4 cm", "", "5 cm"] },
+          { label: "A", cells: ["", "48 m²", "30 cm²"] },
+        ],
+      },
+      given: ["a) g = 6 cm, h = 4 cm", "b) A = 48 m², g = 8 m", "c) A = 30 cm², h = 5 cm"],
+      searched: "fehlende Werte g, h oder A",
+      noSketch: true,
+      plan: ["A = g · h", "h = A : g", "g = A : h"],
+      solution: "a) A = 6 · 4 = 24 cm². b) h = 48 : 8 = 6 m. c) g = 30 : 5 = 6 cm.",
+      result: "a) A = 24 cm²; b) h = 6 m; c) g = 6 cm",
+    },
+    {
+      id: "6",
+      group: "Parallelogramm",
+      title: "Höhe aus der Fläche",
+      text: "Ein Parallelogramm hat den Flächeninhalt A = 72 cm² und die Grundseite g = 12 cm. Berechne die Höhe h.",
+      given: ["A = 72 cm²", "g = 12 cm"],
+      searched: "Höhe h",
+      plan: ["A = g · h", "h = A : g"],
+      solution: "h = 72 : 12 = 6 cm.",
+      result: "h = 6 cm",
+    },
+    {
+      id: "7",
+      group: "Pythagoras",
+      title: "Raute",
+      text: "Eine Raute hat die Diagonalen e = 12 cm und f = 16 cm. Berechne den Flächeninhalt, die Seitenlänge und den Umfang.",
+      given: ["e = 12 cm", "f = 16 cm"],
+      searched: "Flächeninhalt A, Seitenlänge a und Umfang u",
+      figure: "Die Diagonalen stehen senkrecht und halbieren sich; eine Seite a bildet mit e/2 und f/2 ein rechtwinkliges Dreieck.",
+      figureSvg: `<svg viewBox="0 0 240 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Raute mit Diagonalen">
+  <polygon points="120,30 180,110 120,190 60,110" fill="rgba(20,184,166,.12)" stroke="#0f766e" stroke-width="2"/>
+  <line x1="60" y1="110" x2="180" y2="110" stroke="#475569" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <line x1="120" y1="30" x2="120" y2="190" stroke="#475569" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <path d="M132 110 L132 122 L120 122" fill="none" stroke="#475569" stroke-width="1.2"/>
+  <text x="138" y="104">e = 12 cm</text>
+  <text x="126" y="74">f = 16 cm</text>
+  <text x="150" y="158">a</text>
+</svg>`,
+      plan: ["A = (e · f)/2", "a = √((e/2)² + (f/2)²)", "u = 4 · a"],
+      solution: "A = (12 · 16)/2 = 96 cm²; a = √(6² + 8²) = √100 = 10 cm; u = 4 · 10 = 40 cm.",
+      result: "A = 96 cm²; a = 10 cm; u = 40 cm",
+    },
+    {
+      id: "8",
+      group: "Drachen",
+      title: "Drachenviereck",
+      text: "Ein Drachenviereck hat die Diagonalen e = 10 cm und f = 14 cm. Berechne den Flächeninhalt.",
+      given: ["e = 10 cm", "f = 14 cm"],
+      searched: "Flächeninhalt A",
+      plan: ["A = (e · f)/2"],
+      solution: "A = (10 · 14)/2 = 140/2 = 70 cm².",
+      result: "A = 70 cm²",
+    },
+    {
+      id: "9",
+      group: "Trapez",
+      title: "Fläche eines Trapezes",
+      text: "Ein Trapez hat die parallelen Seiten a = 18 cm und c = 12 cm sowie die Höhe h = 8 cm. Berechne den Flächeninhalt.",
+      given: ["a = 18 cm", "c = 12 cm", "h = 8 cm"],
+      searched: "Flächeninhalt A",
+      figureSvg: `<svg viewBox="0 0 260 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Trapez">
+  <polygon points="40,150 220,150 185,70 75,70" fill="rgba(20,184,166,.12)" stroke="#0f766e" stroke-width="2"/>
+  <line x1="75" y1="70" x2="75" y2="150" stroke="#475569" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <path d="M75 138 L87 138 L87 150" fill="none" stroke="#475569" stroke-width="1.2"/>
+  <text x="130" y="168" text-anchor="middle">a = 18 cm</text>
+  <text x="130" y="62" text-anchor="middle">c = 12 cm</text>
+  <text x="92" y="114">h = 8 cm</text>
+</svg>`,
+      plan: ["A = ((a + c)/2) · h"],
+      solution: "A = ((18 + 12)/2) · 8 = (30/2) · 8 = 15 · 8 = 120 cm².",
+      result: "A = 120 cm²",
+    },
+    {
+      id: "10",
+      group: "Umkehraufgabe",
+      title: "Trapezhöhe aus der Fläche",
+      text: "Ein Trapez hat den Flächeninhalt A = 56 cm² und die parallelen Seiten a = 9 cm und c = 5 cm. Berechne die Höhe h.",
+      given: ["A = 56 cm²", "a = 9 cm", "c = 5 cm"],
+      searched: "Höhe h",
+      plan: ["A = ((a + c)/2) · h", "h = 2 · A : (a + c)"],
+      solution: "h = 2 · 56 : (9 + 5) = 112 : 14 = 8 cm.",
+      result: "h = 8 cm",
+    },
+    {
+      id: "11",
+      group: "Sachaufgabe",
+      title: "Zimmer mit Teppich",
+      text: "Ein quadratisches Zimmer hat den Umfang u = 16 m. a) Berechne die Seitenlänge und die Bodenfläche. b) Der Boden wird für 15,50 € je m² mit Teppich ausgelegt. Wie viel kostet das?",
+      given: ["Zimmer quadratisch", "Umfang u = 16 m", "Teppich 15,50 €/m²"],
+      searched: "Seitenlänge, Bodenfläche und Kosten",
+      partHints: {
+        a: { sketch: true, formulas: ["a = u : 4", "A = a²"] },
+        b: { sketch: false, formulas: ["Kosten = A · 15,50 €"] },
+      },
+      plan: ["a = u : 4", "A = a²", "Kosten = A · 15,50 €"],
+      solution: "a) a = 16 : 4 = 4 m; A = 4² = 16 m². b) Kosten = 16 · 15,50 € = 248,00 €.",
+      result: "a = 4 m; A = 16 m²; Kosten = 248,00 €",
+    },
+    {
+      id: "12",
+      group: "Sachaufgabe",
+      title: "Grundstück einzäunen",
+      text: "Ein rechteckiges Grundstück ist 30 m lang und 20 m breit. a) Berechne den Umfang. b) Das Grundstück wird eingezäunt; ein 3 m breites Tor bleibt frei. Ein Meter Zaun kostet 12,50 €. Berechne die Kosten.",
+      given: ["Länge a = 30 m", "Breite b = 20 m", "Tor 3 m bleibt frei", "Zaun 12,50 €/m"],
+      searched: "Umfang und Zaunkosten",
+      partHints: {
+        a: { sketch: true, formulas: ["u = 2 · (a + b)"] },
+        b: { sketch: false, formulas: ["Zaunlänge = u − 3 m", "Kosten = Zaunlänge · 12,50 €"] },
+      },
+      plan: ["u = 2 · (a + b)", "Zaunlänge = u − 3 m", "Kosten = Zaunlänge · 12,50 €"],
+      solution: "a) u = 2 · (30 + 20) = 2 · 50 = 100 m. b) Zaunlänge = 100 − 3 = 97 m; Kosten = 97 · 12,50 € = 1212,50 €.",
+      result: "u = 100 m; Kosten = 1212,50 €",
+    },
+  ],
+};
