@@ -1,4 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { randomUUID } from "node:crypto";
+import { mkdir, writeFile } from "node:fs/promises";
+import { join } from "node:path";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -41,6 +44,23 @@ type FeedbackData = {
   annotations?: ImageAnnotation[];
 };
 
+const studentUploadRoot = "student-uploads";
+const supportedMediaTypes = [
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+] as const;
+
+type SupportedMediaType = (typeof supportedMediaTypes)[number];
+
+const uploadFileExtensions: Record<SupportedMediaType, string> = {
+  "image/jpeg": ".jpg",
+  "image/png": ".png",
+  "image/gif": ".gif",
+  "image/webp": ".webp",
+};
+
 const apiKey = process.env.ANTHROPIC_API_KEY;
 if (!apiKey) {
   console.error(
@@ -73,6 +93,81 @@ export function OPTIONS() {
     status: 204,
     headers: corsHeaders,
   });
+}
+
+function getSafeUploadBaseName(fileName: string): string {
+  const lastPathPart = fileName.split(/[/\\]/).pop() || "foto";
+  const withoutExtension = lastPathPart.replace(/\.[^.]*$/, "");
+  const safeName = withoutExtension
+    .normalize("NFKD")
+    .replace(/[^a-zA-Z0-9_-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
+
+  return safeName || "foto";
+}
+
+function padDatePart(value: number, length = 2): string {
+  return String(value).padStart(length, "0");
+}
+
+function formatUploadDay(date: Date): string {
+  return [
+    date.getFullYear(),
+    padDatePart(date.getMonth() + 1),
+    padDatePart(date.getDate()),
+  ].join("-");
+}
+
+function formatUploadTimestamp(date: Date): string {
+  return [
+    formatUploadDay(date),
+    [
+      padDatePart(date.getHours()),
+      padDatePart(date.getMinutes()),
+      padDatePart(date.getSeconds()),
+    ].join("-"),
+    padDatePart(date.getMilliseconds(), 3),
+  ].join("_");
+}
+
+async function saveStudentUpload(
+  image: File,
+  mediaType: SupportedMediaType,
+  bytes: ArrayBuffer,
+) {
+  const uploadedAt = new Date();
+  const dayFolder = formatUploadDay(uploadedAt);
+  const timestamp = formatUploadTimestamp(uploadedAt);
+  const uploadDirectory = join(process.cwd(), studentUploadRoot, dayFolder);
+  const fileName = [
+    timestamp,
+    randomUUID(),
+    getSafeUploadBaseName(image.name),
+  ].join("-");
+  const filePath = join(
+    uploadDirectory,
+    `${fileName}${uploadFileExtensions[mediaType]}`,
+  );
+
+  await mkdir(uploadDirectory, { recursive: true });
+  await writeFile(filePath, Buffer.from(bytes));
+
+  return filePath;
+}
+
+async function trySaveStudentUpload(
+  image: File,
+  mediaType: SupportedMediaType,
+  bytes: ArrayBuffer,
+) {
+  try {
+    const filePath = await saveStudentUpload(image, mediaType, bytes);
+    console.info("Student upload saved:", filePath);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn("Student upload could not be saved:", message);
+  }
 }
 
 function sanitizeCorrectionLabel(label: unknown): string {
@@ -345,20 +440,6 @@ function fixContradictoryCorrectionFeedback(
 
 export async function POST(req: Request) {
   try {
-    if (!apiKey) {
-      return feedbackResponse(
-        {
-          summary:
-            "Die KI-Analyse ist noch nicht eingerichtet, weil der Anthropic API-Key fehlt.",
-          correct: false,
-          analysis: "",
-          suggestion:
-            "Trage ANTHROPIC_API_KEY in .env.local ein und starte den Dev-Server neu.",
-        },
-        500,
-      );
-    }
-
     const contentType = req.headers.get("content-type") ?? "";
     if (
       !contentType.includes("multipart/form-data") &&
@@ -390,12 +471,6 @@ export async function POST(req: Request) {
       );
     }
 
-    const supportedMediaTypes = [
-      "image/jpeg",
-      "image/png",
-      "image/gif",
-      "image/webp",
-    ] as const;
     const mediaType = supportedMediaTypes.find((type) => type === image.type);
 
     if (!mediaType) {
@@ -411,6 +486,22 @@ export async function POST(req: Request) {
     }
 
     const bytes = await image.arrayBuffer();
+    await trySaveStudentUpload(image, mediaType, bytes);
+
+    if (!apiKey) {
+      return feedbackResponse(
+        {
+          summary:
+            "Die KI-Analyse ist noch nicht eingerichtet, weil der Anthropic API-Key fehlt.",
+          correct: false,
+          analysis: "",
+          suggestion:
+            "Trage ANTHROPIC_API_KEY in .env.local ein und starte den Dev-Server neu.",
+        },
+        500,
+      );
+    }
+
     const base64 = Buffer.from(bytes).toString("base64");
 
     const equation = String(formData.get("equation") ?? "2x + 4 = 10");
@@ -443,8 +534,8 @@ Regeln:
 - "correct" ist true, wenn alle sichtbaren Zeilen im Foto mathematisch korrekt sind. Das gilt auch dann, wenn der Rechenweg noch nicht fertig ist und bisher nur die Originalgleichung korrekt abgeschrieben wurde.
 - Werte fehlende weitere Lösungsschritte nicht als Fehler. Wenn nur die korrekte Ausgangsgleichung zu sehen ist, setze "correct": true, schreibe in "summary", dass die Gleichung richtig abgeschrieben wurde, und gib in "suggestion" den nächsten sinnvollen Lösungsschritt an.
 - Setze "correct": false nur, wenn eine sichtbare Zeile mathematisch falsch ist, falsch abgeschrieben wurde oder ein sichtbarer Umformungsschritt nicht korrekt aus der vorherigen Zeile folgt.
-- "analysis" enthält 1 bis 3 kurze Prüfzeilen. Trenne mehrere Zeilen mit \\n, zum Beispiel "Schritt 1: ...\\nSchritt 2: ...".
-- "suggestion" ist ein kurzer nächster Schritt oder Korrekturhinweis. Wenn alles fertig und richtig ist, schreibe kurz "Fertig gelöst." plus optional eine knappe Probe.
+- "analysis" enthält 1 bis 3 kurze Prüfzeilen. Trenne mehrere Zeilen mit \\n, zum Beispiel "Schritt 1: ...\\nSchritt 2: ...". Schreibe jede sichtbare Umformung als eigene Zeile.
+- "suggestion" enthält 1 bis 3 kurze, gut strukturierte nächste Schritte. Trenne mehrere Schritte mit \\n. Wenn alles fertig und richtig ist, schreibe kurz "Fertig gelöst." plus optional eine knappe Probe.
 - Wichtig bei Schülerkorrekturen: Wenn eine Zahl, ein Term oder eine Zeile durchgestrichen ist und direkt darüber, daneben oder dahinter eine Ersatzschreibweise steht, gilt die Ersatzschreibweise als endgültige Schülerlösung. Das Durchgestrichene ist dann verworfen und darf nicht als Fehler gezählt werden.
 - Beispiel: Wenn rechts erst "46" steht, die 46 ist durchgestrichen und darüber steht "21", dann prüfe mit 21 weiter. Markiere oder bemängele nicht die durchgestrichene 46.
 - Wenn die alte falsche Zahl durchgestrichen und durch die richtige Zahl ersetzt wurde, muss "correct": true sein. Erwähne dann nicht im Summary, dass ein Fehler passiert ist.
@@ -457,6 +548,14 @@ Regeln:
 - Bei negativen Zahlen und Doppelminus genau auf Vorzeichen achten. Beispiel: -3x - (-5) = -7 wird zu -3x + 5 = -7.
 - Bei Klammern muss zuerst korrekt ausmultipliziert werden. Beispiel: 3(x + 4) = 24 wird zu 3x + 12 = 24.
 - Bei Dezimalzahlen sind Komma und Punkt als Dezimaltrennzeichen erlaubt. Beispiel: 2,5x + 1,5 = 11,5.
+- Prüfe Dezimalkommas extrem streng, besonders im Endergebnis. Lies und bewerte die sichtbare Schuelerzahl exakt so, wie sie geschrieben ist. Ein fehlendes Komma ist ein mathematischer Fehler: 6375 ist nicht dasselbe wie 6,375. Wenn rechnerisch x = 6,375 herauskommt, der Schueler aber sichtbar x = 6375 ohne Komma schreibt, setze zwingend "correct": false und erklaere den Kommafehler klar. Schreibe in "analysis" dann ausdrücklich: "Sichtbar steht x = 6375; richtig wäre x = 6,375." Ergaenze ein fehlendes Komma niemals stillschweigend und werte "6375" niemals als "6,375".
+- Interpretiere handschriftliche Zahlen ohne sichtbares Dezimalkomma als ganze Zahlen. Nur wenn ein Komma oder Punkt wirklich sichtbar ist, darf die Zahl als Dezimalzahl gelesen werden. Bei undeutlichem Komma darfst du nicht automatisch zugunsten des Schuelers ein Komma annehmen; setze dann "correct": false und erwaehne, dass das Komma im Endergebnis nicht sicher lesbar ist.
+- Beispiel fuer diese Regel: -0,48x = -3,06 und :(-0,48) ergibt x = 6,375. Wenn im Foto unten sichtbar x = 6375 steht, ist der Rechenweg bis zur Division richtig, aber die Endantwort ist wegen des fehlenden Kommas falsch. Gib dann nicht "Richtig geloest" aus.
+- Bei Bruchtermen mit Variable sind gleichwertige Schreibweisen erlaubt und duerfen nicht als Abschreibfehler gelten. Beispiele: 12x/25 = (12/25)x = 12/25 * x; 4x/3 = (4/3)x; 9x/7 = (9/7)x. Erkenne diese Varianten auch dann als gleich, wenn OCR den Bruchstrich, Klammern oder das Multiplikationszeichen unterschiedlich liest. Wenn ein x rechts oben neben einem Bruch steht, hinter einer Bruchklammer steht oder im Zaehler steht, ist das bei einem einzelnen Faktor gleichwertig: 12/25 mit x daneben = (12/25)x = 12x/25.
+- Beim Erweitern von Bruechen und beim Wechsel in Dezimalschreibweise sind gleichwertige Zwischenschritte korrekt. Beispiele: 12x/25 = 48x/100 = 0,48x = 0.48x; -3/50 = -6/100 = -0,06 = -0.06. Wenn ein Schueler so erweitert oder in Dezimalzahlen umschreibt, werte das als korrekten naechsten Schritt.
+- Prüfe bei jeder Aufgabe, ob Dezimalschreibweise sinnvoller und einfacher ist als Bruchrechnung. Das gilt besonders bei Nennern 10, 20, 25, 50 oder 100. Wenn der Schueler korrekt mit Bruechen rechnet, markiere das nicht als Fehler, aber gib in "suggestion" einen klaren Hinweis wie: "Dein Weg mit Brüchen ist richtig. Hier ist die Dezimalschreibweise einfacher: 12x/25 = 0,48x und -3/50 = -0,06." Wenn der Schueler korrekt mit Dezimalzahlen rechnet, bestaetige diesen Weg.
+- Beim Loesen von Gleichungen der Form -a*x = b sind zwei Wege korrekt: direkt durch -a teilen, oder zuerst durch a teilen und im naechsten Schritt das Vorzeichen durch Teilen durch -1 bzw. Multiplizieren mit -1 korrigieren. Beispiel: -0,48x = -3,06 darf direkt mit :(-0,48) geloest werden; alternativ erst :0,48 und danach :(-1). Werte beide Wege als korrekt, solange die Vorzeichen stimmen.
+- Schreibe Brüche in analysis und suggestion in einfacher Schülernotation mit Schrägstrich, zum Beispiel 12x/25 oder -3/50. Schreibe Rechenzeilen einzeln und nicht als langen Fließtext.
 - Bei längeren Gleichungen müssen gleichartige Terme korrekt zusammengefasst werden. Beispiel: 3x + 5 + 2x = 30 wird zu 5x + 5 = 30.
 - Beschreibe Fehler nur in Textform in "analysis". Schreibe keine Fehler ins Bild und gib keine Markierungsdaten zurueck.
 
