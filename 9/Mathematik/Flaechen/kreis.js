@@ -134,4 +134,31 @@ window.GEO_QUALI = {
       result: "a) A = 78,5 m²; b) A = 314 m² (4-mal so groß)",
     },
   ],
+  // Erklärvideos (Lehrer Schmidt) je Aufgabentyp: Umfang, Fläche, Umkehrung, Kreisring.
+  videos: {
+    "1": [{ id: "eASZX0ocAc8", label: "Kreis: Umfang & Fläche" }],
+    "2": [{ id: "k9Mpm-PG-Y8", label: "Kreis: Umfang" }],
+    "3": [{ id: "8PqMj4L0BsE", label: "Kreis: Fläche" }],
+    "4": [{ id: "k9Mpm-PG-Y8", label: "Kreis: Umfang" }],
+    "5": [{ id: "suzwj9mYEJg", label: "Radius aus Fläche" }, { id: "8PqMj4L0BsE", label: "Kreis: Fläche" }],
+    "6": [{ id: "k9Mpm-PG-Y8", label: "Kreis: Umfang" }],
+    "7": [{ id: "k9Mpm-PG-Y8", label: "Kreis: Umfang" }],
+    "8": [{ id: "Foio7fElCOE", label: "Kreisring" }, { id: "8PqMj4L0BsE", label: "Kreis: Fläche" }],
+    "9": [{ id: "8PqMj4L0BsE", label: "Kreis: Fläche" }],
+  },
+  // Nur die Grundformel als Tipp (nicht schon umgestellt).
+  baseFormulas: {
+    "1": ["d = 2 · r", "u = 2 · π · r", "A = π · r²"],
+    "2": ["u = 2 · π · r"],
+    "3": ["A = π · r²"],
+    "4": ["u = 2 · π · r"],
+    "5": ["A = π · r²"],
+    "8": ["A = π · R² − π · r²"],
+  },
+  // Schritt für Schritt: Werte einsetzen, dann nach der gesuchten Größe umstellen.
+  rearrange: {
+    "1": ["Beispiel c) u gegeben, r gesucht", "u = 2 · π · r", "31,4 = 2 · 3,14 · r", "31,4 = 6,28 · r", "| : 6,28:  r = 31,4 : 6,28"],
+    "4": ["u = 2 · π · r", "18,84 = 2 · 3,14 · r", "18,84 = 6,28 · r", "| : 6,28:  r = 18,84 : 6,28"],
+    "5": ["A = π · r²", "50,24 = 3,14 · r²", "| : 3,14:  r² = 50,24 : 3,14", "r² = 16", "r = √16"],
+  },
 };

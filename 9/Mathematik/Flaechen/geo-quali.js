@@ -7,6 +7,10 @@
   const tasks = Array.isArray(cfg.tasks) ? cfg.tasks : [];
   const levelLabel = cfg.levelLabel || "Geometrie";
   const themeLine = cfg.themeLine || "Thema: Berechnungen an geometrischen Figuren, Mathematik 9.";
+  // Nur die Grundformel(n) als Tipp; Umstellen mit eingesetzten Werten als eigener Tipp.
+  const baseFormulas = cfg.baseFormulas || {};
+  const rearrange = cfg.rearrange || {};
+  const videos = cfg.videos || {};
   if (!tasks.length) {
     root.innerHTML = '<p class="menu-note">Für dieses Thema sind noch keine Aufgaben hinterlegt.</p>';
     return;
@@ -104,6 +108,257 @@
       .join("");
     return `<div class="givens-wrap"><table class="givens-table"><thead><tr><td class="corner"></td>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
   }
+
+  function svgWrap(label, body, viewBox = "0 0 280 210") {
+    return `<svg viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${label}">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3.5" orient="auto">
+      <path d="M0 0 L7 3.5 L0 7 Z" fill="#475569"/>
+    </marker>
+  </defs>
+  ${body}
+</svg>`;
+  }
+
+  function txt(x, y, value, anchor = "middle", size = 13, color = "#334155") {
+    return `<text x="${x}" y="${y}" text-anchor="${anchor}" font-size="${size}" fill="${color}">${value}</text>`;
+  }
+
+  function rightAngle(x, y, dx = 16, dy = -16, color = "#475569") {
+    return `<path d="M${x} ${y + dy} L${x + dx} ${y + dy} L${x + dx} ${y}" fill="none" stroke="${color}" stroke-width="1.4"/>`;
+  }
+
+  function triangleHeightSvg(baseLabel, heightLabel, extra = "") {
+    return svgWrap("Dreieck mit Grundseite und Hoehe", `
+  <polygon points="42,170 238,170 150,42" fill="rgba(20,184,166,.13)" stroke="#0f766e" stroke-width="2"/>
+  <line x1="150" y1="42" x2="150" y2="170" stroke="#475569" stroke-width="1.5" stroke-dasharray="5 4"/>
+  ${rightAngle(150, 170)}
+  ${txt(140, 190, baseLabel)}
+  ${txt(160, 112, heightLabel, "start")}
+  ${extra}
+`, "0 0 280 210");
+  }
+
+  function equilateralTriangleSvg() {
+    return svgWrap("Gleichseitiges Dreieck mit Hoehe", `
+  <polygon points="45,172 235,172 140,42" fill="rgba(20,184,166,.13)" stroke="#0f766e" stroke-width="2"/>
+  <line x1="140" y1="42" x2="140" y2="172" stroke="#475569" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <line x1="140" y1="172" x2="235" y2="172" stroke="#f59e0b" stroke-width="2.4"/>
+  ${rightAngle(140, 172)}
+  ${txt(140, 195, "a = 8 cm")}
+  ${txt(188, 164, "4 cm", "middle", 12, "#92400e")}
+  ${txt(84, 104, "a = 8 cm", "middle", 12)}
+  ${txt(148, 112, "h gesucht", "start", 13, "#0b6b58")}
+`, "0 0 280 220");
+  }
+
+  function rightTriangleSvg(baseLabel, heightLabel, hypLabel = "", areaLabel = "") {
+    return svgWrap("Rechtwinkliges Dreieck", `
+  <polygon points="50,160 226,160 50,52" fill="rgba(20,184,166,.13)" stroke="#0f766e" stroke-width="2"/>
+  ${rightAngle(50, 160, 16, -16, "#0f766e")}
+  ${txt(138, 182, baseLabel)}
+  ${txt(36, 110, heightLabel, "middle")}
+  ${hypLabel ? txt(142, 96, hypLabel, "middle") : ""}
+  ${areaLabel ? txt(132, 140, areaLabel, "middle", 12, "#0b6b58") : ""}
+`, "0 0 280 210");
+  }
+
+  function squareSvg(sideLabel, opts = {}) {
+    const diagonal = opts.diagonal
+      ? `<line x1="70" y1="170" x2="190" y2="50" stroke="#475569" stroke-width="1.5" stroke-dasharray="5 4"/>
+  ${txt(146, 104, opts.diagonal, "middle", 12)}`
+      : "";
+    const fill = opts.fill || "rgba(20,184,166,.12)";
+    return svgWrap("Quadrat", `
+  <rect x="70" y="50" width="120" height="120" fill="${fill}" stroke="#0f766e" stroke-width="2"/>
+  ${diagonal}
+  ${txt(130, 190, sideLabel)}
+  ${opts.area ? txt(130, 116, opts.area, "middle", 13, "#0b6b58") : ""}
+`, "0 0 260 220");
+  }
+
+  function rectangleSvg(widthLabel, heightLabel, opts = {}) {
+    const diagonal = opts.diagonal
+      ? `<line x1="46" y1="152" x2="226" y2="58" stroke="#475569" stroke-width="1.5" stroke-dasharray="5 4"/>
+  ${txt(148, 94, opts.diagonal, "middle", 12)}`
+      : "";
+    const gate = opts.gate
+      ? `<path d="M112 152 H150" stroke="#f59e0b" stroke-width="5" stroke-linecap="round"/>
+  ${txt(131, 174, opts.gate, "middle", 12, "#92400e")}`
+      : "";
+    return svgWrap("Rechteck", `
+  <rect x="46" y="58" width="180" height="94" fill="rgba(20,184,166,.12)" stroke="#0f766e" stroke-width="2"/>
+  ${diagonal}
+  ${gate}
+  ${txt(136, opts.gate ? 48 : 178, widthLabel)}
+  ${txt(32, 108, heightLabel, "middle")}
+  ${opts.area ? txt(136, 112, opts.area, "middle", 13, "#0b6b58") : ""}
+`, "0 0 280 210");
+  }
+
+  function parallelogramSvg(baseLabel, heightLabel, areaLabel = "") {
+    return svgWrap("Parallelogramm mit Hoehe", `
+  <polygon points="54,160 214,160 246,72 86,72" fill="rgba(20,184,166,.12)" stroke="#0f766e" stroke-width="2"/>
+  <line x1="86" y1="72" x2="86" y2="160" stroke="#475569" stroke-width="1.5" stroke-dasharray="5 4"/>
+  ${rightAngle(86, 160)}
+  ${txt(134, 184, baseLabel)}
+  ${txt(98, 118, heightLabel, "start")}
+  ${areaLabel ? txt(150, 122, areaLabel, "middle", 13, "#0b6b58") : ""}
+`, "0 0 300 210");
+  }
+
+  function trapezoidSvg(aLabel, cLabel, hLabel, extra = "") {
+    return svgWrap("Trapez mit Hoehe", `
+  <polygon points="44,160 236,160 196,70 86,70" fill="rgba(20,184,166,.12)" stroke="#0f766e" stroke-width="2"/>
+  <line x1="86" y1="70" x2="86" y2="160" stroke="#475569" stroke-width="1.5" stroke-dasharray="5 4"/>
+  ${rightAngle(86, 160)}
+  ${txt(140, 184, aLabel)}
+  ${txt(141, 62, cLabel)}
+  ${txt(98, 118, hLabel, "start")}
+  ${extra}
+`, "0 0 280 210");
+  }
+
+  function kiteSvg() {
+    return svgWrap("Drachenviereck mit Diagonalen", `
+  <polygon points="130,28 205,112 130,190 62,112" fill="rgba(20,184,166,.12)" stroke="#0f766e" stroke-width="2"/>
+  <line x1="62" y1="112" x2="205" y2="112" stroke="#475569" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <line x1="130" y1="28" x2="130" y2="190" stroke="#475569" stroke-width="1.5" stroke-dasharray="5 4"/>
+  ${rightAngle(130, 112, 13, 13)}
+  ${txt(162, 104, "e = 10 cm", "middle")}
+  ${txt(140, 73, "f = 14 cm", "start")}
+`, "0 0 260 220");
+  }
+
+  function circleSvg(opts = {}) {
+    const radiusLine = opts.radius ? `<line x1="120" y1="120" x2="200" y2="120" stroke="#0f766e" stroke-width="1.7"/>${txt(162, 112, opts.radius, "middle", 12)}` : "";
+    const diameterLine = opts.diameter ? `<line x1="40" y1="120" x2="200" y2="120" stroke="#475569" stroke-width="1.5" stroke-dasharray="5 4"/>${txt(120, 142, opts.diameter, "middle", 12)}` : "";
+    const circumference = opts.circumference ? `<path d="M188 62 A82 82 0 0 1 198 168" fill="none" stroke="#f59e0b" stroke-width="3" marker-end="url(#arrow)"/>${txt(208, 116, opts.circumference, "start", 12, "#92400e")}` : "";
+    return svgWrap("Kreis", `
+  <circle cx="120" cy="120" r="80" fill="rgba(20,184,166,.13)" stroke="#0f766e" stroke-width="2"/>
+  <circle cx="120" cy="120" r="3" fill="#0f766e"/>
+  ${radiusLine}
+  ${diameterLine}
+  ${circumference}
+  ${opts.area ? txt(120, 96, opts.area, "middle", 13, "#0b6b58") : ""}
+`, "0 0 260 240");
+  }
+
+  function tireSvg() {
+    return svgWrap("Reifen mit Durchmesser und Strecke", `
+  <line x1="34" y1="168" x2="286" y2="168" stroke="#94a3b8" stroke-width="3"/>
+  <circle cx="92" cy="118" r="50" fill="rgba(20,184,166,.12)" stroke="#0f766e" stroke-width="3"/>
+  <circle cx="92" cy="118" r="26" fill="#fff" stroke="#0f766e" stroke-width="1.8"/>
+  <line x1="42" y1="118" x2="142" y2="118" stroke="#475569" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <path d="M128 82 A50 50 0 0 1 141 129" fill="none" stroke="#f59e0b" stroke-width="3" marker-end="url(#arrow)"/>
+  ${txt(92, 108, "d = 50 cm")}
+  ${txt(210, 190, "Strecke 1 km")}
+`, "0 0 320 220");
+  }
+
+  function clockSvg() {
+    return svgWrap("Turmuhr mit zwei Zeigern", `
+  <circle cx="135" cy="115" r="82" fill="rgba(20,184,166,.09)" stroke="#0f766e" stroke-width="2"/>
+  <circle cx="135" cy="115" r="4" fill="#0f766e"/>
+  <line x1="135" y1="115" x2="135" y2="35" stroke="#0f766e" stroke-width="3" stroke-linecap="round"/>
+  <line x1="135" y1="115" x2="192" y2="115" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+  <path d="M185 58 A72 72 0 0 1 204 127" fill="none" stroke="#0f766e" stroke-width="2" marker-end="url(#arrow)"/>
+  ${txt(148, 56, "3 m", "start", 12)}
+  ${txt(165, 106, "2 m", "start", 12, "#92400e")}
+  ${txt(135, 218, "Weg der Zeigerspitze = Kreisumfang")}
+`, "0 0 280 240");
+  }
+
+  function goatAreaSvg() {
+    return svgWrap("Kreisflaeche mit Strick als Radius", `
+  <circle cx="135" cy="112" r="58" fill="rgba(20,184,166,.12)" stroke="#0f766e" stroke-width="2"/>
+  <circle cx="135" cy="112" r="100" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="7 5"/>
+  <circle cx="135" cy="112" r="4" fill="#475569"/>
+  <line x1="135" y1="112" x2="193" y2="112" stroke="#0f766e" stroke-width="1.6"/>
+  <line x1="135" y1="112" x2="235" y2="112" stroke="#f59e0b" stroke-width="1.6"/>
+  ${txt(164, 104, "5 m", "middle", 12)}
+  ${txt(207, 132, "10 m", "middle", 12, "#92400e")}
+  ${txt(135, 222, "Strick = Radius der Grasflaeche")}
+`, "0 0 280 240");
+  }
+
+  function polygonPoints(n, cx = 140, cy = 112, r = 78, rotation = -90) {
+    return Array.from({ length: n }, (_, i) => {
+      const angle = (Math.PI / 180) * (rotation + (360 / n) * i);
+      return `${(cx + r * Math.cos(angle)).toFixed(1)},${(cy + r * Math.sin(angle)).toFixed(1)}`;
+    }).join(" ");
+  }
+
+  function regularPolygonSvg(n, opts = {}) {
+    const points = polygonPoints(n);
+    const angle = (Math.PI / 180) * (-90 + 360 / n);
+    const p1 = { x: 140 + 78 * Math.cos(-Math.PI / 2), y: 112 + 78 * Math.sin(-Math.PI / 2) };
+    const p2 = { x: 140 + 78 * Math.cos(angle), y: 112 + 78 * Math.sin(angle) };
+    const mid = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+    return svgWrap(`Regelmaessiges ${n}-Eck`, `
+  <polygon points="${points}" fill="rgba(20,184,166,.11)" stroke="#0f766e" stroke-width="2"/>
+  <line x1="140" y1="112" x2="${p1.x.toFixed(1)}" y2="${p1.y.toFixed(1)}" stroke="#475569" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <line x1="140" y1="112" x2="${p2.x.toFixed(1)}" y2="${p2.y.toFixed(1)}" stroke="#475569" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <line x1="140" y1="112" x2="${mid.x.toFixed(1)}" y2="${mid.y.toFixed(1)}" stroke="#f59e0b" stroke-width="1.5"/>
+  ${txt(140, 106, opts.center || "M", "middle", 12)}
+  ${txt(((p1.x + p2.x) / 2).toFixed(1), (Math.min(p1.y, p2.y) - 8).toFixed(1), opts.side || "s", "middle", 12)}
+  ${opts.radius ? txt(108, 76, opts.radius, "middle", 12) : ""}
+  ${opts.height ? txt(mid.x + 9, mid.y + 18, opts.height, "start", 12, "#92400e") : ""}
+  ${opts.angle ? txt(154, 94, opts.angle, "start", 12, "#0b6b58") : ""}
+  ${opts.caption ? txt(140, 220, opts.caption, "middle", 12) : ""}
+`, "0 0 280 240");
+  }
+
+  function applyAutoSketches() {
+    const byLevel = {
+      "Dreiecke": {
+        "2": triangleHeightSvg("g = 12 cm", "h = 7 cm", txt(92, 126, "A gesucht", "middle", 12, "#0b6b58")),
+        "3": rightTriangleSvg("a = 9 cm", "b = 6 cm", "", "A gesucht"),
+        "4": rightTriangleSvg("a = 6 cm", "b gesucht", "", "A = 24 cm2"),
+        "5": rightTriangleSvg("a = 9 cm", "b = 12 cm", "c gesucht"),
+        "6": rightTriangleSvg("b gesucht", "a = 16 cm", "c = 20 cm"),
+        "9": equilateralTriangleSvg(),
+      },
+      "Vierecke": {
+        "2": squareSvg("a gesucht", { diagonal: "d gesucht", area: "A = 49 cm2" }),
+        "3": rectangleSvg("a = 8 cm", "b = 5 cm", { area: "A gesucht" }),
+        "4": rectangleSvg("a = 12 cm", "b = 9 cm", { diagonal: "d gesucht" }),
+        "6": parallelogramSvg("g = 12 cm", "h gesucht", "A = 72 cm2"),
+        "8": kiteSvg(),
+        "10": trapezoidSvg("a = 9 cm", "c = 5 cm", "h gesucht", txt(188, 122, "A = 56 cm2", "middle", 12, "#0b6b58")),
+        "11": squareSvg("a gesucht", { area: "u = 16 m", fill: "rgba(251,146,60,.16)" }),
+        "12": rectangleSvg("30 m", "20 m", { gate: "Tor 3 m frei" }),
+      },
+      "Kreis": {
+        "2": circleSvg({ radius: "r = 7 cm", circumference: "u gesucht" }),
+        "3": circleSvg({ radius: "r = 6 cm", area: "A gesucht" }),
+        "4": circleSvg({ radius: "r gesucht", circumference: "u = 18,84 cm" }),
+        "5": circleSvg({ radius: "r gesucht", area: "A = 50,24 cm2" }),
+        "6": tireSvg(),
+        "7": clockSvg(),
+        "9": goatAreaSvg(),
+      },
+      "Vielecke": {
+        "2": regularPolygonSvg(9, { side: "s", angle: "&beta; gesucht", caption: "Bestimmungsdreieck mit Basiswinkeln &alpha;" }),
+        "3": regularPolygonSvg(6, { side: "s = 5 cm", caption: "u = 6 &middot; s" }),
+        "4": regularPolygonSvg(8, { side: "s = 4 cm", height: "h = 4,8 cm", caption: "8 gleiche Bestimmungsdreiecke" }),
+        "5": regularPolygonSvg(9, { side: "s = 5 cm", radius: "r = 7,4 cm", height: "h gesucht" }),
+        "6": regularPolygonSvg(8, { side: "s gesucht", height: "h gesucht", caption: "A = 19,2 m2" }),
+        "7": regularPolygonSvg(5, { side: "s gesucht", height: "h gesucht", caption: "Springbrunnenflaeche" }),
+        "8": `${regularPolygonSvg(8, { side: "4 cm", caption: "u Achteck" })}<div class="figure-pair-note">Vergleiche danach mit einem Rechteck: 2 &middot; (l + b) = gleicher Umfang.</div>`,
+      },
+    };
+    const level = String(levelLabel || "");
+    const diagrams = Object.keys(byLevel).find((key) => level.includes(key));
+    if (!diagrams) return;
+    tasks.forEach((task) => {
+      if (task.noSketch || task.figureSvg) return;
+      const autoSvg = byLevel[diagrams][task.id];
+      if (autoSvg) task.figureSvg = autoSvg;
+    });
+  }
+
+  applyAutoSketches();
 
   // Zerlegt den Aufgabentext in Einleitung und Teilaufgaben a), b), c) ...
   function getSubtasks(task) {
@@ -312,7 +567,17 @@
   function getPartFormulas(task, step) {
     const ph = step.part && task.partHints ? task.partHints[step.part] : null;
     if (ph && Array.isArray(ph.formulas)) return ph.formulas;
-    return task.plan || [];
+    return baseFormulas[task.id] || task.plan || [];
+  }
+
+  // Schritt-für-Schritt-Umstellen mit bereits eingesetzten Werten (eigener Tipp).
+  function getRearrange(task, step) {
+    const ph = step.part && task.partHints ? task.partHints[step.part] : null;
+    if (ph && Array.isArray(ph.rearrange)) return ph.rearrange;
+    const r = rearrange[task.id];
+    if (!r) return [];
+    if (Array.isArray(r)) return step.part ? [] : r;
+    return r[step.part] || [];
   }
 
   function getHintItems(task, step) {
@@ -325,7 +590,10 @@
     if (sketchOn) items.push({ key: "skizze", label: "Skizze" });
     const formulas = getPartFormulas(task, step);
     if (formulas.length) {
-      items.push({ key: "formel", label: formulas.length === 1 ? "Formel" : "Formeln" });
+      items.push({ key: "formel", label: formulas.length === 1 ? "Grundformel" : "Grundformeln" });
+    }
+    if (getRearrange(task, step).length) {
+      items.push({ key: "umstellen", label: "Umstellen mit Werten" });
     }
     return items;
   }
@@ -353,19 +621,53 @@
         </div>`);
       } else if (item.key === "formel") {
         const formulas = getPartFormulas(task, step);
-        const title = formulas.length === 1
-          ? "Formel (passend zu diesem Teil)"
-          : (step.part ? "Formeln für diesen Teil" : "Grundformel");
+        const title = step.part
+          ? "Grundformel für diesen Teil"
+          : "Grundformel (noch nicht umgestellt)";
         blocks.push(`
         <div class="hint-block">
           <h4><span class="hint-num">${num}</span> ${title}</h4>
           <div class="mini-plan">
             ${formulas.map((line) => `<div>${mathify(escapeHtml(line))}</div>`).join("")}
           </div>
+          <p class="hint-tip">Setze zuerst die gegebenen Werte ein und stelle dann nach der gesuchten Größe um.</p>
+        </div>`);
+      } else if (item.key === "umstellen") {
+        const steps = getRearrange(task, step);
+        blocks.push(`
+        <div class="hint-block">
+          <h4><span class="hint-num">${num}</span> Werte einsetzen &amp; umstellen</h4>
+          <div class="mini-plan rearrange-plan">
+            ${steps.map((line) => `<div>${mathify(escapeHtml(line))}</div>`).join("")}
+          </div>
         </div>`);
       }
     });
     return blocks.join("");
+  }
+
+  // Datenschutzfreundliche Video-Einbettung (lädt erst auf Klick, youtube-nocookie).
+  // Pro Aufgabe ein einzelnes Video-Objekt oder ein Array (mehrere je Aufgabentyp).
+  function videoFacade(task) {
+    const raw = videos[task.id];
+    if (!raw) return "";
+    const list = (Array.isArray(raw) ? raw : [raw]).filter((v) => v && v.id);
+    if (!list.length) return "";
+    const cards = list.map((v) => {
+      const label = escapeHtml(v.label || "Erklärvideo");
+      return `
+        <div class="yt-embed">
+          <button type="button" class="yt-facade" data-yt="${escapeHtml(v.id)}" data-title="${label} (Lehrerschmidt)" aria-label="Video laden: ${label}">
+            <span class="yt-ico" aria-hidden="true">&#9654;</span>
+            <span class="yt-label">Erklärvideo: ${label}<small>Lehrer Schmidt</small></span>
+          </button>
+        </div>`;
+    }).join("");
+    return `
+      <div class="hint-video">
+        ${cards}
+        <p class="yt-hint">Öffnet erst auf Klick (lokal in neuem Tab, online eingebettet).</p>
+      </div>`;
   }
 
   function taskAiText(task, step) {
@@ -519,6 +821,7 @@
           <section class="sketch-card hint-card">
             <h3>Tipps${step.part ? ` für Teil ${escapeHtml(step.part)})` : ""}</h3>
             <p class="hint-intro">Versuche die Aufgabe zuerst selbst. Brauchst du Hilfe, blende dir die passenden Tipps Schritt für Schritt ein.</p>
+            ${videoFacade(task)}
             ${tipsShown < hintItems.length
               ? `<button class="hint-button" type="button" id="show-hint">Tipp ${tipsShown + 1} anzeigen: ${escapeHtml(hintItems[tipsShown].label)}</button>`
               : `<p class="hint-done">Alle Tipps sind eingeblendet.</p>`}

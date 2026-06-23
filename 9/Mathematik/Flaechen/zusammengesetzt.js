@@ -104,7 +104,11 @@ window.GEO_QUALI = {
   <text x="178" y="96">10 cm</text>
 </svg>`,
       partHints: {
-        a: { sketch: true, formulas: ["Überstand x = √(10² − h²)", "c = a − x"] },
+        a: {
+          sketch: true,
+          formulas: ["x² + h² = 10²  (x = Überstand)", "c = a − x"],
+          rearrange: ["x² + h² = 10²", "x² + 8² = 10²", "x² + 64 = 100", "| − 64:  x² = 36", "x = √36,  dann c = a − x = 12 − 6"],
+        },
         b: { sketch: false, formulas: ["A = ((a + c)/2) · h"] },
       },
       plan: ["Überstand x = √(10² − 8²)", "c = a − x", "A = ((a + c)/2) · h"],
@@ -130,4 +134,13 @@ window.GEO_QUALI = {
       result: "A = 33,72 cm²",
     },
   ],
+  // Erklärvideos (Lehrer Schmidt) je Aufgabentyp: Zerlegen + passende Grundfigur + Pythagoras.
+  videos: {
+    "1": [{ id: "LPgGIxFhSKk", label: "Zusammengesetzte Flächen" }, { id: "UZSU-leMOKc", label: "Dreieck: Fläche" }],
+    "2": [{ id: "LPgGIxFhSKk", label: "Zusammengesetzte Flächen" }],
+    "3": [{ id: "LPgGIxFhSKk", label: "Zusammengesetzte Flächen" }],
+    "4": [{ id: "LPgGIxFhSKk", label: "Zusammengesetzte Flächen" }, { id: "FECtVbC-mgk", label: "Satz des Pythagoras" }],
+    "5": [{ id: "StCQAOmTCLw", label: "Trapez: Fläche & Umfang" }, { id: "FECtVbC-mgk", label: "Satz des Pythagoras" }],
+    "6": [{ id: "LPgGIxFhSKk", label: "Zusammengesetzte Flächen" }, { id: "8PqMj4L0BsE", label: "Kreis: Fläche" }],
+  },
 };

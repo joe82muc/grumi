@@ -66,7 +66,11 @@ window.GEO_QUALI = {
       given: ["regelmäßiges Neuneck (n = 9)", "r = 7,4 cm", "s = 5 cm"],
       searched: "Höhe h, Umfang u und Flächeninhalt A",
       partHints: {
-        a: { sketch: true, formulas: ["h = √(r² − (s/2)²)"] },
+        a: {
+          sketch: true,
+          formulas: ["(s/2)² + h² = r²"],
+          rearrange: ["(s/2)² + h² = r²", "2,5² + h² = 7,4²", "6,25 + h² = 54,76", "| − 6,25:  h² = 48,51", "h = √48,51"],
+        },
         b: { sketch: false, formulas: ["u = n · s", "A = n · (s · h)/2"] },
       },
       plan: ["h = √(r² − (s/2)²)", "u = n · s", "A = n · (s · h)/2"],
@@ -81,8 +85,16 @@ window.GEO_QUALI = {
       given: ["regelmäßiges Achteck (n = 8)", "u = 16 m", "A = 19,2 m²"],
       searched: "Seitenlänge s und Höhe h des Bestimmungsdreiecks",
       partHints: {
-        a: { sketch: false, formulas: ["s = u : n"] },
-        b: { sketch: true, formulas: ["A = n · (s · h)/2", "h = 2 · A : (n · s)"] },
+        a: {
+          sketch: false,
+          formulas: ["u = n · s"],
+          rearrange: ["u = n · s", "16 = 8 · s", "| : 8:  s = 16 : 8"],
+        },
+        b: {
+          sketch: true,
+          formulas: ["A = n · (s · h)/2"],
+          rearrange: ["A = n · (s · h)/2", "19,2 = 8 · (2 · h)/2", "19,2 = 8 · h", "| : 8:  h = 19,2 : 8"],
+        },
       },
       plan: ["s = u : n", "A = n · (s · h)/2", "h = 2 · A : (n · s)"],
       solution: "a) s = 16 : 8 = 2 m. b) h = 2 · 19,2 : (8 · 2) = 38,4 : 16 = 2,4 m.",
@@ -96,8 +108,16 @@ window.GEO_QUALI = {
       given: ["regelmäßiges Fünfeck (n = 5)", "u = 20 m", "A = 27,5 m²"],
       searched: "Seitenlänge s und Höhe h des Bestimmungsdreiecks",
       partHints: {
-        a: { sketch: false, formulas: ["s = u : n"] },
-        b: { sketch: true, formulas: ["A = n · (s · h)/2", "h = 2 · A : (n · s)"] },
+        a: {
+          sketch: false,
+          formulas: ["u = n · s"],
+          rearrange: ["u = n · s", "20 = 5 · s", "| : 5:  s = 20 : 5"],
+        },
+        b: {
+          sketch: true,
+          formulas: ["A = n · (s · h)/2"],
+          rearrange: ["A = n · (s · h)/2", "27,5 = 5 · (4 · h)/2", "27,5 = 10 · h", "| : 10:  h = 27,5 : 10"],
+        },
       },
       plan: ["s = u : n", "A = n · (s · h)/2", "h = 2 · A : (n · s)"],
       solution: "a) s = 20 : 5 = 4 m. b) h = 2 · 27,5 : (5 · 4) = 55 : 20 = 2,75 m.",
@@ -112,11 +132,26 @@ window.GEO_QUALI = {
       searched: "Umfang und passendes Rechteck",
       partHints: {
         a: { sketch: false, formulas: ["u = n · s"] },
-        b: { sketch: false, formulas: ["2 · (l + b) = u", "l + b = u : 2"] },
+        b: {
+          sketch: false,
+          formulas: ["2 · (l + b) = u"],
+          rearrange: ["2 · (l + b) = u", "2 · (l + b) = 32", "| : 2:  l + b = 32 : 2", "l + b = 16  →  z. B. l = 10, b = 6"],
+        },
       },
       plan: ["u = n · s", "Rechteck: 2 · (l + b) = u", "also l + b = u : 2"],
       solution: "a) u = 8 · 4 = 32 cm. b) Rechteck mit gleichem Umfang: 2 · (l + b) = 32, also l + b = 16 cm. Eine Möglichkeit: l = 10 cm und b = 6 cm (denn 10 + 6 = 16).",
       result: "u = 32 cm; z. B. Rechteck 10 cm × 6 cm",
     },
   ],
+  // Erklärvideos (Lehrer Schmidt) je Aufgabentyp: Winkel, Vieleck-Grundlagen, Pythagoras.
+  videos: {
+    "1": [{ id: "POY5kY81v0w", label: "Winkel an Vielecken" }],
+    "2": [{ id: "POY5kY81v0w", label: "Winkel an Vielecken" }],
+    "3": [{ id: "GJX05j4iwog", label: "Regelmäßige Vielecke" }],
+    "4": [{ id: "GJX05j4iwog", label: "Regelmäßige Vielecke" }],
+    "5": [{ id: "GJX05j4iwog", label: "Regelmäßige Vielecke" }, { id: "FECtVbC-mgk", label: "Satz des Pythagoras" }],
+    "6": [{ id: "GJX05j4iwog", label: "Regelmäßige Vielecke" }],
+    "7": [{ id: "GJX05j4iwog", label: "Regelmäßige Vielecke" }],
+    "8": [{ id: "GJX05j4iwog", label: "Regelmäßige Vielecke" }, { id: "aWWf6E9-jmQ", label: "Rechteck: Umfang & Fläche" }],
+  },
 };

@@ -158,7 +158,11 @@ window.GEO_QUALI = {
       given: ["Zimmer quadratisch", "Umfang u = 16 m", "Teppich 15,50 €/m²"],
       searched: "Seitenlänge, Bodenfläche und Kosten",
       partHints: {
-        a: { sketch: true, formulas: ["a = u : 4", "A = a²"] },
+        a: {
+          sketch: true,
+          formulas: ["u = 4 · a", "A = a²"],
+          rearrange: ["u = 4 · a", "16 = 4 · a", "| : 4:  a = 16 : 4", "dann: A = a²"],
+        },
         b: { sketch: false, formulas: ["Kosten = A · 15,50 €"] },
       },
       plan: ["a = u : 4", "A = a²", "Kosten = A · 15,50 €"],
@@ -181,4 +185,42 @@ window.GEO_QUALI = {
       result: "u = 100 m; Kosten = 1212,50 €",
     },
   ],
+  // Erklärvideos (Lehrer Schmidt) je Aufgabentyp: Grundlagen + Pythagoras.
+  videos: {
+    "1": [{ id: "wrNIhANQIUE", label: "Quadrat: Umfang & Fläche" }],
+    "2": [{ id: "wrNIhANQIUE", label: "Quadrat: Umfang & Fläche" }],
+    "3": [{ id: "aWWf6E9-jmQ", label: "Rechteck: Umfang & Fläche" }],
+    "4": [{ id: "aWWf6E9-jmQ", label: "Rechteck: Umfang & Fläche" }, { id: "FECtVbC-mgk", label: "Satz des Pythagoras" }],
+    "5": [{ id: "0Y7JYMH5hJo", label: "Parallelogramm: Fläche" }],
+    "6": [{ id: "0Y7JYMH5hJo", label: "Parallelogramm: Fläche" }],
+    "7": [{ id: "tjHQatrUbhY", label: "Raute: Fläche & Umfang" }, { id: "FECtVbC-mgk", label: "Satz des Pythagoras" }],
+    "8": [{ id: "sew8CexD7ic", label: "Drachen: Fläche" }],
+    "9": [{ id: "StCQAOmTCLw", label: "Trapez: Fläche & Umfang" }],
+    "10": [{ id: "StCQAOmTCLw", label: "Trapez: Fläche & Umfang" }],
+    "11": [{ id: "wrNIhANQIUE", label: "Quadrat: Umfang & Fläche" }],
+    "12": [{ id: "aWWf6E9-jmQ", label: "Rechteck: Umfang & Fläche" }],
+  },
+  // Nur die Grundformel als Tipp (nicht schon umgestellt).
+  baseFormulas: {
+    "1": ["A = a²", "u = 4 · a", "d² = a² + a²"],
+    "2": ["A = a²", "u = 4 · a", "d² = a² + a²"],
+    "3": ["u = 2 · (a + b)", "A = a · b"],
+    "4": ["d² = a² + b²"],
+    "5": ["A = g · h"],
+    "6": ["A = g · h"],
+    "7": ["A = (e · f)/2", "a² = (e/2)² + (f/2)²", "u = 4 · a"],
+    "8": ["A = (e · f)/2"],
+    "9": ["A = ((a + c)/2) · h"],
+    "10": ["A = ((a + c)/2) · h"],
+  },
+  // Schritt für Schritt: Werte einsetzen, dann nach der gesuchten Größe umstellen.
+  rearrange: {
+    "1": ["Beispiel: A gegeben, a gesucht", "A = a²", "121 = a²", "a = √121"],
+    "2": ["A = a²", "49 = a²", "a = √49"],
+    "4": ["d² = a² + b²", "d² = 12² + 9²", "d² = 144 + 81", "d² = 225", "d = √225"],
+    "5": ["Beispiel b) A und g gegeben, h gesucht", "A = g · h", "48 = 8 · h", "| : 8:  h = 48 : 8"],
+    "6": ["A = g · h", "72 = 12 · h", "| : 12:  h = 72 : 12"],
+    "7": ["a² = (e/2)² + (f/2)²", "a² = 6² + 8²", "a² = 36 + 64", "a² = 100", "a = √100"],
+    "10": ["A = ((a + c)/2) · h", "56 = ((9 + 5)/2) · h", "56 = 7 · h", "| : 7:  h = 56 : 7"],
+  },
 };
