@@ -185,7 +185,11 @@
       shape: "quaderkegel",
       plan: ["r = a : 2", "hₖ = √(s² − r²)", "V_Quader = a² · hₖ", "V_Kegel = ⅓ · π · r² · hₖ", "Abfall = V_Quader − V_Kegel", "Prozent = Abfall : V_Quader · 100"],
       partHints: {
-        a: { sketch: true, formulas: ["r = a : 2", "hₖ = √(s² − r²)"] },
+        a: {
+          sketch: true,
+          formulas: ["r = a : 2", "r² + hₖ² = s²"],
+          rearrange: ["r² + hₖ² = s²", "18² + hₖ² = 30²", "324 + hₖ² = 900", "| − 324:  hₖ² = 576", "hₖ = √576"],
+        },
         b: { sketch: false, formulas: ["V_Quader = a² · hₖ", "V_Kegel = ⅓ · π · r² · hₖ", "Abfall = V_Quader − V_Kegel", "Prozent = Abfall : V_Quader · 100"] },
       },
       solution: "r = 36 : 2 = 18 cm; hₖ = √(30² − 18²) = √576 = 24 cm. V_Quader = 36² · 24 = 31 104 cm³; V_Kegel = ⅓ · π · 18² · 24 = 2592π ≈ 8143,01 cm³; Abfall = 31 104 − 8143,01 ≈ 22 960,99 cm³; Prozent = 22 960,99 : 31 104 · 100 ≈ 73,82 %.",
@@ -202,7 +206,11 @@
       shape: "spindel",
       plan: ["hₖ = √(s² − r²)", "V_Kegel = ⅓ · π · r² · hₖ", "V_Zylinder = V_gesamt − 2 · V_Kegel", "h_z = V_Zylinder : (π · r²)", "O = 2 · π · r · s + 2 · π · r · h_z"],
       partHints: {
-        a: { sketch: true, formulas: ["hₖ = √(s² − r²)"] },
+        a: {
+          sketch: true,
+          formulas: ["r² + hₖ² = s²"],
+          rearrange: ["r² + hₖ² = s²", "6² + hₖ² = 10²", "36 + hₖ² = 100", "| − 36:  hₖ² = 64", "hₖ = √64"],
+        },
         b: { sketch: false, formulas: ["V_Kegel = ⅓ · π · r² · hₖ"] },
         c: { sketch: false, formulas: ["V_Zylinder = V_gesamt − 2 · V_Kegel"] },
         d: { sketch: false, formulas: ["h_z = V_Zylinder : (π · r²)"] },
@@ -225,6 +233,50 @@
     "9": ["V = ⅓ · π · r² · hₖ"],
     "10": ["r = a : 2", "s² = r² + hₖ²", "V_Quader = a² · hₖ", "V_Kegel = ⅓ · π · r² · hₖ"],
     "11": ["s² = r² + hₖ²", "V_Kegel = ⅓ · π · r² · hₖ", "V_Zylinder = π · r² · h_z", "M_Kegel = π · r · s", "M_Zylinder = 2 · π · r · h_z"],
+  };
+
+  // Umstell-Tipp: Werte einsetzen und nach der gesuchten Größe umstellen.
+  const rearrange = {
+    "1": [
+      "Beispiel: V und G gegeben, hₖ gesucht",
+      "V = ⅓ · G · hₖ",
+      "| · 3:  3 · V = G · hₖ",
+      "| : G:  hₖ = 3 · V : G",
+    ],
+    "2": [
+      "r = u : (2 · π)  →  r ≈ 7,00 m",
+      "G = π · r²  →  G ≈ 153,94 m²",
+      "V = ⅓ · G · hₖ",
+      "| · 3, | : G:  hₖ = 3 · V : G",
+      "hₖ = 3 · 205 : 153,94",
+    ],
+    "3": [
+      "V = ⅓ · π · r² · hₖ",
+      "| · 3:  3 · V = π · r² · hₖ",
+      "| : (π · r²):  hₖ = 3 · V : (π · r²)",
+      "hₖ = 3 · 1000 : (π · 5²)",
+    ],
+    "4": [
+      "zuerst G umrechnen: 1000 cm² = 10 dm²",
+      "V = ⅓ · G · hₖ",
+      "| · 3, | : G:  hₖ = 3 · V : G",
+      "hₖ = 3 · 35 : 10",
+    ],
+  };
+
+  // Erklärvideos (Lehrer Schmidt) je Aufgabentyp: Grundlagen Volumen/Oberfläche + Pythagoras.
+  const videos = {
+    "1": [{ id: "IsPM8oH5Cmw", label: "Kegel: Volumen" }, { id: "FECtVbC-mgk", label: "Satz des Pythagoras" }],
+    "2": [{ id: "IsPM8oH5Cmw", label: "Kegel: Volumen" }],
+    "3": [{ id: "IsPM8oH5Cmw", label: "Kegel: Volumen" }, { id: "FECtVbC-mgk", label: "Satz des Pythagoras" }],
+    "4": [{ id: "IsPM8oH5Cmw", label: "Kegel: Volumen" }],
+    "5": [{ id: "OGbBx5mPju8", label: "Kegel: Oberfläche" }],
+    "6": [{ id: "IsPM8oH5Cmw", label: "Kegel: Volumen" }, { id: "6sf_cvf4xxE", label: "Zylinder: Volumen" }],
+    "7": [{ id: "OGbBx5mPju8", label: "Kegel: Oberfläche" }, { id: "FECtVbC-mgk", label: "Satz des Pythagoras" }],
+    "8": [{ id: "IsPM8oH5Cmw", label: "Kegel: Volumen" }],
+    "9": [{ id: "IsPM8oH5Cmw", label: "Kegel: Volumen" }],
+    "10": [{ id: "IsPM8oH5Cmw", label: "Kegel: Volumen" }, { id: "FECtVbC-mgk", label: "Satz des Pythagoras" }],
+    "11": [{ id: "IsPM8oH5Cmw", label: "Kegel: Volumen" }, { id: "6sf_cvf4xxE", label: "Zylinder: Volumen" }, { id: "OGbBx5mPju8", label: "Kegel: Oberfläche" }, { id: "FECtVbC-mgk", label: "Satz des Pythagoras" }],
   };
 
   let currentTaskIndex = 0;
@@ -635,6 +687,16 @@
     return baseFormulas[task.id] || task.plan || [];
   }
 
+  // Schritt-für-Schritt-Umstellen mit bereits eingesetzten Werten (eigener Tipp).
+  function getRearrange(task, step) {
+    const ph = step.part && task.partHints ? task.partHints[step.part] : null;
+    if (ph && Array.isArray(ph.rearrange)) return ph.rearrange;
+    const r = rearrange[task.id];
+    if (!r) return [];
+    if (Array.isArray(r)) return step.part ? [] : r;
+    return r[step.part] || [];
+  }
+
   // Welche Tipps passen zum aktuellen (Teil-)Schritt? Skizze nur, wenn sie
   // hilft; Formel-Tipp nur, wenn es eine passende Formel gibt.
   function getHintItems(task, step) {
@@ -644,7 +706,10 @@
     if (sketchOn) items.push({ key: "skizze", label: "Skizze" });
     const formulas = getPartFormulas(task, step);
     if (formulas.length) {
-      items.push({ key: "formel", label: formulas.length === 1 ? "Formel" : "Formeln" });
+      items.push({ key: "formel", label: formulas.length === 1 ? "Grundformel" : "Grundformeln" });
+    }
+    if (getRearrange(task, step).length) {
+      items.push({ key: "umstellen", label: "Umstellen mit Werten" });
     }
     return items;
   }
@@ -672,19 +737,53 @@
         </div>`);
       } else if (item.key === "formel") {
         const formulas = getPartFormulas(task, step);
-        const title = formulas.length === 1
-          ? "Formel (passend zu diesem Teil)"
-          : (step.part ? "Formeln für diesen Teil" : "Grundformel (noch nicht umgestellt)");
+        const title = step.part
+          ? "Grundformel für diesen Teil"
+          : "Grundformel (noch nicht umgestellt)";
         blocks.push(`
         <div class="hint-block">
           <h4><span class="hint-num">${num}</span> ${title}</h4>
           <div class="mini-plan">
             ${formulas.map((line) => `<div>${mathify(escapeHtml(line))}</div>`).join("")}
           </div>
+          <p class="hint-tip">Setze zuerst die gegebenen Werte ein und stelle dann nach der gesuchten Größe um.</p>
+        </div>`);
+      } else if (item.key === "umstellen") {
+        const steps = getRearrange(task, step);
+        blocks.push(`
+        <div class="hint-block">
+          <h4><span class="hint-num">${num}</span> Werte einsetzen &amp; umstellen</h4>
+          <div class="mini-plan rearrange-plan">
+            ${steps.map((line) => `<div>${mathify(escapeHtml(line))}</div>`).join("")}
+          </div>
         </div>`);
       }
     });
     return blocks.join("");
+  }
+
+  // Datenschutzfreundliche Video-Einbettung (lädt erst auf Klick, youtube-nocookie).
+  // Pro Aufgabe ein einzelnes Video-Objekt oder ein Array (mehrere je Aufgabentyp).
+  function videoFacade(task) {
+    const raw = videos[task.id];
+    if (!raw) return "";
+    const list = (Array.isArray(raw) ? raw : [raw]).filter((v) => v && v.id);
+    if (!list.length) return "";
+    const cards = list.map((v) => {
+      const label = escapeHtml(v.label || "Erklärvideo");
+      return `
+        <div class="yt-embed">
+          <button type="button" class="yt-facade" data-yt="${escapeHtml(v.id)}" data-title="${label} (Lehrerschmidt)" aria-label="Video laden: ${label}">
+            <span class="yt-ico" aria-hidden="true">&#9654;</span>
+            <span class="yt-label">Erklärvideo: ${label}<small>Lehrer Schmidt</small></span>
+          </button>
+        </div>`;
+    }).join("");
+    return `
+      <div class="hint-video">
+        ${cards}
+        <p class="yt-hint">Öffnet erst auf Klick (lokal in neuem Tab, online eingebettet).</p>
+      </div>`;
   }
 
   function taskAiText(task, step) {
@@ -839,6 +938,7 @@
           <section class="sketch-card hint-card">
             <h3>Tipps${step.part ? ` für Teil ${escapeHtml(step.part)})` : ""}</h3>
             <p class="hint-intro">Versuche die Aufgabe zuerst selbst. Brauchst du Hilfe, blende dir die passenden Tipps Schritt für Schritt ein.</p>
+            ${videoFacade(task)}
             ${tipsShown < hintItems.length
               ? `<button class="hint-button" type="button" id="show-hint">Tipp ${tipsShown + 1} anzeigen: ${escapeHtml(hintItems[tipsShown].label)}</button>`
               : `<p class="hint-done">Alle Tipps sind eingeblendet.</p>`}
