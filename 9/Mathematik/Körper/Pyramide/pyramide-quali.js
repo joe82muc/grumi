@@ -71,7 +71,11 @@
       plan: ["V = ⅓ · a² · hₖ", "hₛ² = hₖ² + (a/2)²", "Seitendreieck = ½ · a · hₛ"],
       partHints: {
         a: { sketch: false, formulas: ["V = ⅓ · a² · hₖ"] },
-        b: { sketch: true, formulas: ["hₛ² = hₖ² + (a/2)²"] },
+        b: {
+          sketch: true,
+          formulas: ["hₛ² = hₖ² + (a/2)²"],
+          rearrange: ["hₛ² = hₖ² + (a/2)²", "hₛ² = 12² + 5²", "hₛ² = 144 + 25", "hₛ² = 169", "hₛ = √169"],
+        },
         c: { sketch: false, formulas: ["Seitendreieck = ½ · a · hₛ"] },
       },
       solution: "V = ⅓ · 10² · 12 = 400 cm³; hₛ = √(12² + 5²) = √169 = 13 cm; Seitendreieck = ½ · 10 · 13 = 65 cm².",
@@ -106,7 +110,11 @@
       plan: ["V = a · b · c (Quader = Goldmenge)", "V = 2 · ⅓ · a² · h (Doppelpyramide)", "h = 3V : (2 · a²)", "Gesamthöhe = 2 · h", "Gewicht = V · 19,3 g (V in cm³)"],
       partHints: {
         a: { sketch: true, formulas: [] },
-        b: { sketch: true, formulas: ["V = a · b · c (Quader = Goldmenge)", "V = 2 · ⅓ · a² · h", "h = 3V : (2 · a²)", "Gesamthöhe = 2 · h"] },
+        b: {
+          sketch: true,
+          formulas: ["V = a · b · c (Quader = Goldmenge)", "V = 2 · ⅓ · a² · h", "Gesamthöhe = 2 · h"],
+          rearrange: ["V = 2 · ⅓ · a² · h", "768 = 2 · ⅓ · 10² · h", "umstellen nach h:", "h = 3 · V : (2 · a²)", "h = 3 · 768 : (2 · 10²)"],
+        },
         c: { sketch: false, formulas: ["Gewicht = V · 19,3 g (V in cm³)"] },
       },
       solution: "V = 16 · 8 · 6 = 768 mm³; aus 768 = 2 · ⅓ · 10² · h folgt h = 768 · 3 : (2 · 100) = 11,52 mm; Gesamthöhe = 2 · 11,52 = 23,04 mm; V = 0,768 cm³; Gewicht = 0,768 · 19,3 ≈ 14,82 g.",
@@ -137,6 +145,27 @@
     "3": ["G = (√3/4) · a²", "hₛ² = k² − (a/2)²", "V = ⅓ · G · hₖ", "O = G + 3 · ½ · a · hₛ"],
     "4": ["V_Quader = a · b · c", "V = 2 · ⅓ · a² · h"],
     "5": ["V = ⅓ · a² · hₖ", "hₛ² = hₖ² + (a/2)²", "M = 2 · a · hₛ"],
+  };
+
+  // Umstell-Tipp: Werte einsetzen und nach der gesuchten Größe umstellen.
+  const rearrange = {
+    "1": [
+      "Beispiel b) hₛ gegeben, hₖ gesucht",
+      "hₖ² + (a/2)² = hₛ²",
+      "hₖ² + 6² = 10²",
+      "hₖ² + 36 = 100",
+      "| − 36:  hₖ² = 64",
+      "hₖ = √64",
+    ],
+  };
+
+  // Erklärvideos (Lehrer Schmidt) je Aufgabentyp: Grundlagen Volumen/Oberfläche + Pythagoras.
+  const videos = {
+    "1": [{ id: "3N2g-d1pDkQ", label: "Pyramide: Volumen" }, { id: "ofr43etQWYs", label: "Pyramide: Oberfläche" }, { id: "FECtVbC-mgk", label: "Satz des Pythagoras" }],
+    "2": [{ id: "3N2g-d1pDkQ", label: "Pyramide: Volumen" }, { id: "ofr43etQWYs", label: "Pyramide: Oberfläche" }, { id: "FECtVbC-mgk", label: "Satz des Pythagoras" }],
+    "3": [{ id: "VRhdEj3LATE", label: "Dreieckspyramide: Volumen" }, { id: "FECtVbC-mgk", label: "Satz des Pythagoras" }],
+    "4": [{ id: "3N2g-d1pDkQ", label: "Pyramide: Volumen" }],
+    "5": [{ id: "3N2g-d1pDkQ", label: "Pyramide: Volumen" }, { id: "ofr43etQWYs", label: "Pyramide: Oberfläche" }, { id: "FECtVbC-mgk", label: "Satz des Pythagoras" }],
   };
 
   let currentTaskIndex = 0;
@@ -535,6 +564,16 @@
     return baseFormulas[task.id] || task.plan || [];
   }
 
+  // Schritt-für-Schritt-Umstellen mit bereits eingesetzten Werten (eigener Tipp).
+  function getRearrange(task, step) {
+    const ph = step.part && task.partHints ? task.partHints[step.part] : null;
+    if (ph && Array.isArray(ph.rearrange)) return ph.rearrange;
+    const r = rearrange[task.id];
+    if (!r) return [];
+    if (Array.isArray(r)) return step.part ? [] : r;
+    return r[step.part] || [];
+  }
+
   // Welche Tipps passen zum aktuellen (Teil-)Schritt? Skizze nur, wenn sie
   // hilft; Formel-Tipp nur, wenn es eine passende Formel gibt.
   function getHintItems(task, step) {
@@ -544,7 +583,10 @@
     if (sketchOn) items.push({ key: "skizze", label: "Skizze" });
     const formulas = getPartFormulas(task, step);
     if (formulas.length) {
-      items.push({ key: "formel", label: formulas.length === 1 ? "Formel" : "Formeln" });
+      items.push({ key: "formel", label: formulas.length === 1 ? "Grundformel" : "Grundformeln" });
+    }
+    if (getRearrange(task, step).length) {
+      items.push({ key: "umstellen", label: "Umstellen mit Werten" });
     }
     return items;
   }
@@ -572,19 +614,53 @@
         </div>`);
       } else if (item.key === "formel") {
         const formulas = getPartFormulas(task, step);
-        const title = formulas.length === 1
-          ? "Formel (passend zu diesem Teil)"
-          : (step.part ? "Formeln für diesen Teil" : "Grundformel (noch nicht umgestellt)");
+        const title = step.part
+          ? "Grundformel für diesen Teil"
+          : "Grundformel (noch nicht umgestellt)";
         blocks.push(`
         <div class="hint-block">
           <h4><span class="hint-num">${num}</span> ${title}</h4>
           <div class="mini-plan">
             ${formulas.map((line) => `<div>${mathify(escapeHtml(line))}</div>`).join("")}
           </div>
+          <p class="hint-tip">Setze zuerst die gegebenen Werte ein und stelle dann nach der gesuchten Größe um.</p>
+        </div>`);
+      } else if (item.key === "umstellen") {
+        const steps = getRearrange(task, step);
+        blocks.push(`
+        <div class="hint-block">
+          <h4><span class="hint-num">${num}</span> Werte einsetzen &amp; umstellen</h4>
+          <div class="mini-plan rearrange-plan">
+            ${steps.map((line) => `<div>${mathify(escapeHtml(line))}</div>`).join("")}
+          </div>
         </div>`);
       }
     });
     return blocks.join("");
+  }
+
+  // Datenschutzfreundliche Video-Einbettung (lädt erst auf Klick, youtube-nocookie).
+  // Pro Aufgabe ein einzelnes Video-Objekt oder ein Array (mehrere je Aufgabentyp).
+  function videoFacade(task) {
+    const raw = videos[task.id];
+    if (!raw) return "";
+    const list = (Array.isArray(raw) ? raw : [raw]).filter((v) => v && v.id);
+    if (!list.length) return "";
+    const cards = list.map((v) => {
+      const label = escapeHtml(v.label || "Erklärvideo");
+      return `
+        <div class="yt-embed">
+          <button type="button" class="yt-facade" data-yt="${escapeHtml(v.id)}" data-title="${label} (Lehrerschmidt)" aria-label="Video laden: ${label}">
+            <span class="yt-ico" aria-hidden="true">&#9654;</span>
+            <span class="yt-label">Erklärvideo: ${label}<small>Lehrer Schmidt</small></span>
+          </button>
+        </div>`;
+    }).join("");
+    return `
+      <div class="hint-video">
+        ${cards}
+        <p class="yt-hint">Öffnet erst auf Klick (lokal in neuem Tab, online eingebettet).</p>
+      </div>`;
   }
 
   function taskAiText(task, step) {
@@ -739,6 +815,7 @@
           <section class="sketch-card hint-card">
             <h3>Tipps${step.part ? ` für Teil ${escapeHtml(step.part)})` : ""}</h3>
             <p class="hint-intro">Versuche die Aufgabe zuerst selbst. Brauchst du Hilfe, blende dir die passenden Tipps Schritt für Schritt ein.</p>
+            ${videoFacade(task)}
             ${tipsShown < hintItems.length
               ? `<button class="hint-button" type="button" id="show-hint">Tipp ${tipsShown + 1} anzeigen: ${escapeHtml(hintItems[tipsShown].label)}</button>`
               : `<p class="hint-done">Alle Tipps sind eingeblendet.</p>`}
