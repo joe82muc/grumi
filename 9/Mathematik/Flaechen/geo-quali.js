@@ -50,11 +50,10 @@
   let currentTaskIndex = 0;
   let currentStepIndex = 0;
   let currentSteps = [];
-  let currentHintItems = [];
   let hintPartKey = null;
   let selectedFile = null;
   let previewUrl = "";
-  let tipsShown = 0;
+  let hintVisible = false;
   const completed = new Set();
 
   function escapeHtml(value) {
@@ -467,7 +466,12 @@
     return `<li class="${cls}"><span class="fb-ico">${icon}</span><span class="fb-text">${content}</span></li>`;
   }
 
-  function setFeedback(kind, title, body, lines = []) {
+  // Letzter Feedback-Aufruf, damit der Tipp-Button das Feedback neu zeichnen kann.
+  let lastFeedback = null;
+
+  // offerHint: { task, step, key } – zeigt bei Fehler einen kleinen Tipp-Button.
+  function setFeedback(kind, title, body, lines = [], offerHint = null) {
+    lastFeedback = { kind, title, body, lines, offerHint };
     const feedback = root.querySelector("#photo-feedback");
     if (!feedback) return;
     const safeKind = kind || "muted";
@@ -480,11 +484,36 @@
     const bodyHtml = body
       ? `<p class="fb-suggestion">${mathify(escapeHtml(body))}</p>`
       : "";
+
+    let hintHtml = "";
+    if (offerHint && offerHint.key) {
+      if (hintVisible) {
+        hintHtml = `
+          <div class="fb-hint">
+            ${renderHintContent(offerHint.task, offerHint.step, offerHint.key)}
+            <button class="hint-toggle fb-hint-hide" type="button">Tipp ausblenden</button>
+          </div>`;
+      } else {
+        hintHtml = `
+          <button class="fb-hint-btn" type="button">💡 Tipp anzeigen: ${escapeHtml(hintLabel(offerHint.key))}</button>`;
+      }
+    }
+
     feedback.innerHTML = `
       <h3><span class="fb-title-ico">${titleIcon}</span>${escapeHtml(title)}</h3>
       ${bodyHtml}
       ${items ? `<ul class="fb-list">${items}</ul>` : ""}
+      ${hintHtml}
     `;
+
+    feedback.querySelector(".fb-hint-btn")?.addEventListener("click", () => {
+      hintVisible = true;
+      setFeedback(kind, title, body, lines, offerHint);
+    });
+    feedback.querySelector(".fb-hint-hide")?.addEventListener("click", () => {
+      hintVisible = false;
+      setFeedback(kind, title, body, lines, offerHint);
+    });
   }
 
   function mustItems(task, step) {
@@ -580,94 +609,77 @@
     return r[step.part] || [];
   }
 
-  function getHintItems(task, step) {
-    const items = [{ key: "geg", label: "gegeben & gesucht" }];
-    const ph = step.part && task.partHints ? task.partHints[step.part] : null;
-    let sketchOn;
-    if (ph) sketchOn = ph.sketch !== false;
-    else sketchOn = task.noSketch ? false : true;
-    if (task.figureSvg) sketchOn = false; // gegebene Skizze ist bereits sichtbar
-    if (sketchOn) items.push({ key: "skizze", label: "Skizze" });
-    const formulas = getPartFormulas(task, step);
-    if (formulas.length) {
-      items.push({ key: "formel", label: formulas.length === 1 ? "Grundformel" : "Grundformeln" });
+  // Genau ein Tipp passend zum aktuellen Foto-Schritt. Wird nur eingeblendet,
+  // wenn die KI im Feedback einen Fehler gemeldet hat.
+  function hintForStep(task, step) {
+    if (step.kind === 0) {
+      const ph = step.part && task.partHints ? task.partHints[step.part] : null;
+      let sketchOn;
+      if (ph) sketchOn = ph.sketch !== false;
+      else sketchOn = task.noSketch ? false : true;
+      if (task.figureSvg) sketchOn = false;
+      return sketchOn ? "skizze" : "geg";
     }
-    if (getRearrange(task, step).length) {
-      items.push({ key: "umstellen", label: "Umstellen mit Werten" });
+    if (step.kind === 1) {
+      return getPartFormulas(task, step).length ? "formel" : "geg";
     }
-    return items;
+    if (step.kind === 2) {
+      return getRearrange(task, step).length ? "umstellen" : "formel";
+    }
+    return null;
   }
 
-  function hintBlocks(task, step, hintItems) {
-    const blocks = [];
-    hintItems.forEach((item, index) => {
-      if (index >= tipsShown) return;
-      const num = index + 1;
-      if (item.key === "geg") {
-        const gesucht = step.part ? `Teil ${step.part}) – ${step.partBody}` : task.searched;
-        blocks.push(`
+  // Inhalt genau eines Tipps (ohne Nummerierung) für die Anzeige unter dem Feedback.
+  function renderHintContent(task, step, key) {
+    if (key === "geg") {
+      const gesucht = step.part ? `Teil ${step.part}) – ${step.partBody}` : task.searched;
+      return `
         <div class="hint-block">
-          <h4><span class="hint-num">${num}</span> Gegeben &amp; gesucht</h4>
+          <h4>Gegeben &amp; gesucht</h4>
           <div class="task-meta">
             ${(task.given || []).map((value) => `<span>${escapeHtml(value)}</span>`).join("")}
             <span>gesucht: ${escapeHtml(gesucht)}</span>
           </div>
-        </div>`);
-      } else if (item.key === "skizze") {
-        blocks.push(`
+        </div>`;
+    }
+    if (key === "skizze") {
+      return `
         <div class="hint-block">
-          <h4><span class="hint-num">${num}</span> Skizze</h4>
+          <h4>Skizze</h4>
           ${sketch(task)}
-        </div>`);
-      } else if (item.key === "formel") {
-        const formulas = getPartFormulas(task, step);
-        const title = step.part
-          ? "Grundformel für diesen Teil"
-          : "Grundformel (noch nicht umgestellt)";
-        blocks.push(`
+        </div>`;
+    }
+    if (key === "formel") {
+      const formulas = getPartFormulas(task, step);
+      const title = step.part ? "Grundformel für diesen Teil" : "Grundformel (noch nicht umgestellt)";
+      return `
         <div class="hint-block">
-          <h4><span class="hint-num">${num}</span> ${title}</h4>
+          <h4>${title}</h4>
           <div class="mini-plan">
             ${formulas.map((line) => `<div>${mathify(escapeHtml(line))}</div>`).join("")}
           </div>
-          <p class="hint-tip">Setze zuerst die gegebenen Werte ein und stelle dann nach der gesuchten Größe um.</p>
-        </div>`);
-      } else if (item.key === "umstellen") {
-        const steps = getRearrange(task, step);
-        blocks.push(`
+        </div>`;
+    }
+    if (key === "umstellen") {
+      const steps = getRearrange(task, step);
+      return `
         <div class="hint-block">
-          <h4><span class="hint-num">${num}</span> Werte einsetzen &amp; umstellen</h4>
+          <h4>Werte einsetzen &amp; umstellen</h4>
           <div class="mini-plan rearrange-plan">
             ${steps.map((line) => `<div>${mathify(escapeHtml(line))}</div>`).join("")}
           </div>
-        </div>`);
-      }
-    });
-    return blocks.join("");
+        </div>`;
+    }
+    return "";
   }
 
-  // Datenschutzfreundliche Video-Einbettung (lädt erst auf Klick, youtube-nocookie).
-  // Pro Aufgabe ein einzelnes Video-Objekt oder ein Array (mehrere je Aufgabentyp).
-  function videoFacade(task) {
-    const raw = videos[task.id];
-    if (!raw) return "";
-    const list = (Array.isArray(raw) ? raw : [raw]).filter((v) => v && v.id);
-    if (!list.length) return "";
-    const cards = list.map((v) => {
-      const label = escapeHtml(v.label || "Erklärvideo");
-      return `
-        <div class="yt-embed">
-          <button type="button" class="yt-facade" data-yt="${escapeHtml(v.id)}" data-title="${label} (Lehrerschmidt)" aria-label="Video laden: ${label}">
-            <span class="yt-ico" aria-hidden="true">&#9654;</span>
-            <span class="yt-label">Erklärvideo: ${label}<small>Lehrer Schmidt</small></span>
-          </button>
-        </div>`;
-    }).join("");
-    return `
-      <div class="hint-video">
-        ${cards}
-        <p class="yt-hint">Öffnet erst auf Klick (lokal in neuem Tab, online eingebettet).</p>
-      </div>`;
+  // Kurzes Label für den Tipp-Button im Feedback.
+  function hintLabel(key) {
+    if (key === "skizze") return "Skizze";
+    if (key === "geg") return "gegeben & gesucht";
+    if (key === "formel") return "passende Formel";
+    if (key === "umstellen") return "Werte einsetzen & umstellen";
+    return "Tipp";
   }
 
   function taskAiText(task, step) {
@@ -690,16 +702,22 @@
     return lines.join("\n");
   }
 
-  function renderFeedbackFromServer(data) {
+  function renderFeedbackFromServer(data, task, step) {
     const lines = String(data.analysis || "")
       .split(/\n+/)
       .map((line) => line.trim())
       .filter(Boolean);
+    let offerHint = null;
+    if (!data.correct) {
+      const key = hintForStep(task, step);
+      if (key) offerHint = { task, step, key };
+    }
     setFeedback(
       data.correct ? "ok" : "no",
       data.summary || (data.correct ? "Der Schritt passt." : "Da stimmt noch etwas nicht."),
       data.suggestion || (data.correct ? "Weiter zum nächsten Foto-Schritt." : "Verbessere den markierten Schritt und lade ein neues Foto hoch."),
       lines,
+      offerHint,
     );
   }
 
@@ -720,6 +738,7 @@
     formData.append("image", selectedFile);
 
     button.disabled = true;
+    hintVisible = false;
     setFeedback("muted", "Prüfe Foto...", "Die KI schaut nur auf den aktuell ausgewählten Foto-Schritt.");
 
     try {
@@ -734,7 +753,7 @@
         return;
       }
 
-      renderFeedbackFromServer(feedback);
+      renderFeedbackFromServer(feedback, task, step);
       if (feedback.correct) {
         completed.add(completedKey());
       }
@@ -761,7 +780,7 @@
     currentTaskIndex = (currentTaskIndex + delta + tasks.length) % tasks.length;
     currentStepIndex = 0;
     selectedFile = null;
-    tipsShown = 0;
+    hintVisible = false;
     render();
   }
 
@@ -773,14 +792,13 @@
     const step = steps[currentStepIndex];
     const must = mustItems(task, step);
 
-    // Tipps gehören zur Teilaufgabe: bei Wechsel wieder einklappen.
-    const partKey = `${currentTaskIndex}:${step.part || "_"}`;
+    // Tipp gehört zum aktuellen (Teil-)Foto-Schritt: bei jedem Wechsel wieder
+    // ausblenden, damit der Schüler erst selbst versucht.
+    const partKey = `${currentTaskIndex}:${step.part || "_"}:${step.kind}`;
     if (partKey !== hintPartKey) {
-      tipsShown = 0;
+      hintVisible = false;
       hintPartKey = partKey;
     }
-    const hintItems = getHintItems(task, step);
-    currentHintItems = hintItems;
 
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
@@ -797,7 +815,6 @@
               <span>${escapeHtml(item.title)}<small>${escapeHtml(item.group)}</small></span>
             </button>`).join("")}
         </div>
-        <p class="menu-note">Jeder Foto-Schritt wird einzeln geprüft. Bei a), b), c) … gehst du Foto 1–4 pro Teilaufgabe durch.</p>
       </aside>
 
       <section class="quali-work">
@@ -818,16 +835,6 @@
         </article>
 
         <div class="quali-grid">
-          <section class="sketch-card hint-card">
-            <h3>Tipps${step.part ? ` für Teil ${escapeHtml(step.part)})` : ""}</h3>
-            <p class="hint-intro">Versuche die Aufgabe zuerst selbst. Brauchst du Hilfe, blende dir die passenden Tipps Schritt für Schritt ein.</p>
-            ${videoFacade(task)}
-            ${tipsShown < hintItems.length
-              ? `<button class="hint-button" type="button" id="show-hint">Tipp ${tipsShown + 1} anzeigen: ${escapeHtml(hintItems[tipsShown].label)}</button>`
-              : `<p class="hint-done">Alle Tipps sind eingeblendet.</p>`}
-            ${hintBlocks(task, step, hintItems)}
-          </section>
-
           <section class="photo-card">
             <article class="step-card">
               <h3>${step.part
@@ -858,11 +865,6 @@
           </section>
         </div>
 
-        <details class="teacher-card">
-          <summary>Erwarteter Lösungsweg</summary>
-          <p>${mathify(escapeHtml(task.solution))}</p>
-          <p><strong>${mathify(escapeHtml(task.result))}</strong></p>
-        </details>
       </section>
     `;
 
@@ -871,7 +873,7 @@
         currentTaskIndex = Number(button.dataset.task);
         currentStepIndex = 0;
         selectedFile = null;
-        tipsShown = 0;
+        hintVisible = false;
         render();
       });
     });
@@ -890,10 +892,6 @@
     root.querySelector("#photo-file")?.addEventListener("change", (event) => chooseFile(event.target.files?.[0]));
     root.querySelector("#photo-camera")?.addEventListener("change", (event) => chooseFile(event.target.files?.[0]));
     root.querySelector("#check-photo")?.addEventListener("click", checkPhoto);
-    root.querySelector("#show-hint")?.addEventListener("click", () => {
-      tipsShown = Math.min(currentHintItems.length, tipsShown + 1);
-      render();
-    });
   }
 
   render();
