@@ -166,7 +166,7 @@ body.subject-overview,
 .hero-section {
   position: relative;
   overflow: hidden;
-  min-height: 310px;
+  min-height: 160px;
   margin-bottom: 22px;
   border-radius: var(--radius);
   background:
@@ -197,10 +197,10 @@ body.subject-overview,
 
 .hero-overlay {
   display: flex;
-  min-height: 310px;
+  min-height: 160px;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 34px;
+  padding: 24px 34px;
 }
 
 .hero-kicker {
@@ -300,7 +300,10 @@ body.subject-overview,
 }
 
 .topic-card {
+  position: relative;
+  isolation: isolate;
   display: flex;
+  overflow: hidden;
   min-height: 210px;
   flex-direction: column;
   justify-content: space-between;
@@ -312,36 +315,84 @@ body.subject-overview,
   padding: 20px;
   box-shadow: 0 10px 28px rgba(16, 24, 40, 0.07);
   text-decoration: none;
-  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease;
+  will-change: transform;
+}
+
+.topic-card::before {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 0;
+  height: 5px;
+  background: linear-gradient(90deg, var(--teal), var(--blue), var(--amber));
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
 }
 
 a.topic-card:hover,
-a.topic-card:focus-visible {
+a.topic-card:focus-visible,
+.topic-card.has-media:hover,
+.topic-card.has-media:focus-within {
   border-color: var(--teal);
-  box-shadow: 0 14px 34px rgba(16, 24, 40, 0.12);
+  background: linear-gradient(180deg, #ffffff 0%, #f9fcfd 100%);
+  box-shadow: 0 24px 52px rgba(16, 24, 40, 0.16);
   outline: none;
-  transform: translateY(-2px);
+  transform: translateY(-5px);
+}
+
+a.topic-card:hover::before,
+a.topic-card:focus-visible::before,
+.topic-card.has-media:hover::before,
+.topic-card.has-media:focus-within::before {
+  opacity: 1;
+}
+
+a.topic-card:active,
+.topic-card.has-media:active {
+  border-color: var(--teal-dark);
+  box-shadow: 0 14px 30px rgba(16, 24, 40, 0.13);
+  transform: translateY(-1px) scale(0.99);
 }
 
 /* Karte mit eingebettetem Erklärvideo: Titel bleibt der Link, Video + Tag darunter */
 .topic-card.has-media {
-  cursor: default;
+  cursor: pointer;
 }
 
 .topic-card-head {
-  display: block;
+  display: grid;
+  gap: 10px;
   color: inherit;
   text-decoration: none;
 }
 
+.topic-card-head::after {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  content: "";
+}
+
 .topic-card-head:hover h3,
-.topic-card-head:focus-visible h3 {
+.topic-card-head:focus-visible h3,
+.topic-card.has-media:hover .topic-card-head h3 {
   color: var(--teal-dark);
   text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
   outline: none;
 }
 
 .topic-videos {
+  position: relative;
+  z-index: 2;
   display: grid;
   gap: 8px;
 }
@@ -375,16 +426,18 @@ a.topic-card:focus-visible {
   width: fit-content;
   min-height: 30px;
   border-radius: 999px;
-  background: rgba(12, 95, 102, 0.1);
-  color: var(--teal-dark);
+  background: #d1fae5;
+  color: #065f46;
   padding: 5px 10px;
   font-size: 0.82rem;
   font-weight: 800;
+  border: 1px solid #6ee7b7;
 }
 
 .tag.soon {
-  background: #e7ecef;
-  color: var(--muted);
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
 }
 
 .quick-actions {
@@ -461,12 +514,12 @@ a.topic-card:focus-visible {
 
 @media (max-width: 920px) {
   .subject-overview .header-inner {
-    align-items: flex-start;
-    flex-direction: column;
-    min-height: 88px;
-    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    min-height: 64px;
+    justify-content: space-between;
     gap: 10px;
-    padding: 12px 0;
+    padding: 10px 0;
   }
 
   .subject-overview .main-nav {
@@ -497,20 +550,27 @@ a.topic-card:focus-visible {
   }
 
   .subject-overview .brand {
-    align-items: flex-start;
+    align-items: center;
     width: 100%;
   }
 
   .subject-overview .brand-logo {
-    width: 96px;
+    width: 56px;
   }
 
   .subject-overview .brand-name {
-    font-size: 0.98rem;
+    font-size: 0.88rem;
   }
 
   .subject-overview .brand-sub {
-    font-size: 0.84rem;
+    font-size: 0.78rem;
+  }
+
+  .subject-overview .header-inner {
+    min-height: 54px;
+    padding: 8px 0;
+    flex-direction: row;
+    gap: 0;
   }
 
   .subject-overview .main-nav a {
@@ -520,38 +580,67 @@ a.topic-card:focus-visible {
   }
 
   .overview-main {
-    padding: 24px 0 52px;
+    padding: 16px 0 40px;
   }
 
   .hero-section,
   .hero-overlay {
-    min-height: 260px;
+    min-height: 100px;
   }
 
   .hero-overlay {
-    padding: 24px;
+    padding: 14px 18px;
+  }
+
+  .hero-kicker {
+    font-size: 0.8rem;
+    margin-bottom: 4px;
   }
 
   .hero-overlay h1,
   .hero-overlay h2 {
-    font-size: 2.1rem;
-    line-height: 1.06;
+    font-size: 1.55rem;
+    line-height: 1.1;
   }
 
   .hero-overlay p {
-    font-size: 1.03rem;
+    display: none;
+  }
+
+  .intro-text {
+    display: none;
+  }
+
+  .overview-note {
+    display: none;
+  }
+
+  .overview-intro {
+    margin-bottom: 16px;
   }
 
   .overview-intro h2 {
-    font-size: 1.72rem;
+    font-size: 1.4rem;
   }
 
   .topic-grid {
     grid-template-columns: 1fr;
+    gap: 10px;
   }
 
   .topic-card {
     min-height: 0;
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .topic-card h3,
+  .topic-card h4 {
+    font-size: 1.08rem;
+  }
+
+  .topic-card p {
+    font-size: 0.92rem;
   }
 
   .quick-actions a {
@@ -561,5 +650,17 @@ a.topic-card:focus-visible {
   .subject-overview .footer-inner {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .crumb-row {
+    gap: 5px;
+    margin-bottom: 12px;
+  }
+
+  .crumb-row a,
+  .crumb-row span {
+    min-height: 30px;
+    padding: 5px 9px;
+    font-size: 0.78rem;
   }
 }
