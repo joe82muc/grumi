@@ -58,7 +58,7 @@
       labels: { d: "", r: "r", h: "hₖ", s: "s" },
       plan: ["s² = r² + hₖ²", "G = π · r²", "V = ⅓ · G · hₖ"],
       solution: "a) s = √(5² + 12²) = 13 cm; G = π · 5² ≈ 78,54 cm²; V = ⅓ · 78,54 · 12 ≈ 314,16 cm³. b) hₖ = √(17² − 8²) = 15 dm; G ≈ 201,06 dm²; V ≈ 1005,31 dm³. c) r = √(10² − 8²) = 6 m; G ≈ 113,10 m²; V ≈ 301,59 m³. d) G = 3 · 600 : 9 ≈ 200 dm²; r = √(200/π) ≈ 7,98 dm; s = √(7,98² + 9²) ≈ 12,03 dm. e) hₖ = 3 · 10 : 2 = 15 m; r = √(2/π) ≈ 0,80 m; s = √(0,80² + 15²) ≈ 15,02 m.",
-      result: "Lösungen siehe Lösungsweg (eigene Werte – kein 1:1-Buchabdruck)",
+      result: "a) s = 13 cm; V ≈ 314,16 cm³. b) hₖ = 15 dm; V ≈ 1005,31 dm³. c) r = 6 m; V ≈ 301,59 m³. d) r ≈ 7,98 dm; s ≈ 12,03 dm. e) hₖ = 15 m; s ≈ 15,02 m.",
     },
     {
       id: "2",
@@ -240,27 +240,39 @@
     "1": [
       "Beispiel: V und G gegeben, hₖ gesucht",
       "V = ⅓ · G · hₖ",
-      "| · 3:  3 · V = G · hₖ",
-      "| : G:  hₖ = 3 · V : G",
+      "600 = ⅓ · 200 · hₖ",
+      "600 = 66,67 · hₖ",
+      "| : 66,67",
+      "hₖ = 600 : 66,67",
+      "hₖ = 9 cm",
     ],
     "2": [
-      "r = u : (2 · π)  →  r ≈ 7,00 m",
-      "G = π · r²  →  G ≈ 153,94 m²",
+      "r = u : (2 · π) = 31,4 : 6,28 ≈ 5,00 m",
+      "G = π · r² = π · 5² ≈ 78,54 m²",
       "V = ⅓ · G · hₖ",
-      "| · 3, | : G:  hₖ = 3 · V : G",
-      "hₖ = 3 · 205 : 153,94",
+      "205 = ⅓ · 78,54 · hₖ",
+      "205 = 26,18 · hₖ",
+      "| : 26,18",
+      "hₖ = 205 : 26,18",
+      "hₖ ≈ 7,83 m",
     ],
     "3": [
       "V = ⅓ · π · r² · hₖ",
-      "| · 3:  3 · V = π · r² · hₖ",
-      "| : (π · r²):  hₖ = 3 · V : (π · r²)",
-      "hₖ = 3 · 1000 : (π · 5²)",
+      "1000 = ⅓ · π · 5² · hₖ",
+      "1000 = ⅓ · 78,54 · hₖ",
+      "1000 = 26,18 · hₖ",
+      "| : 26,18",
+      "hₖ = 1000 : 26,18",
+      "hₖ ≈ 38,20 dm",
     ],
     "4": [
       "zuerst G umrechnen: 1000 cm² = 10 dm²",
       "V = ⅓ · G · hₖ",
-      "| · 3, | : G:  hₖ = 3 · V : G",
-      "hₖ = 3 · 35 : 10",
+      "35 = ⅓ · 10 · hₖ",
+      "35 = 3,33 · hₖ",
+      "| : 3,33",
+      "hₖ = 35 : 3,33",
+      "hₖ ≈ 10,50 dm",
     ],
   };
 
@@ -282,11 +294,10 @@
   let currentTaskIndex = 0;
   let currentStepIndex = 0;
   let currentSteps = [];
-  let currentHintItems = [];
   let hintPartKey = null;
   let selectedFile = null;
   let previewUrl = "";
-  let tipsShown = 0;
+  let hintVisible = false;
   const completed = new Set();
 
   function escapeHtml(value) {
@@ -449,7 +460,12 @@
     return `<li class="${cls}"><span class="fb-ico">${icon}</span><span class="fb-text">${content}</span></li>`;
   }
 
-  function setFeedback(kind, title, body, lines = []) {
+  // Letzter Feedback-Aufruf, damit der Tipp-Button das Feedback neu zeichnen kann.
+  let lastFeedback = null;
+
+  // offerHint: { task, step, key } – zeigt bei Fehler einen kleinen Tipp-Button.
+  function setFeedback(kind, title, body, lines = [], offerHint = null) {
+    lastFeedback = { kind, title, body, lines, offerHint };
     const feedback = root.querySelector("#photo-feedback");
     if (!feedback) return;
     const safeKind = kind || "muted";
@@ -462,11 +478,36 @@
     const bodyHtml = body
       ? `<p class="fb-suggestion">${mathify(escapeHtml(body))}</p>`
       : "";
+
+    let hintHtml = "";
+    if (offerHint && offerHint.key) {
+      if (hintVisible) {
+        hintHtml = `
+          <div class="fb-hint">
+            ${renderHintContent(offerHint.task, offerHint.step, offerHint.key)}
+            <button class="hint-toggle fb-hint-hide" type="button">Tipp ausblenden</button>
+          </div>`;
+      } else {
+        hintHtml = `
+          <button class="fb-hint-btn" type="button">💡 Tipp anzeigen: ${escapeHtml(hintLabel(offerHint.key))}</button>`;
+      }
+    }
+
     feedback.innerHTML = `
       <h3><span class="fb-title-ico">${titleIcon}</span>${escapeHtml(title)}</h3>
       ${bodyHtml}
       ${items ? `<ul class="fb-list">${items}</ul>` : ""}
+      ${hintHtml}
     `;
+
+    feedback.querySelector(".fb-hint-btn")?.addEventListener("click", () => {
+      hintVisible = true;
+      setFeedback(kind, title, body, lines, offerHint);
+    });
+    feedback.querySelector(".fb-hint-hide")?.addEventListener("click", () => {
+      hintVisible = false;
+      setFeedback(kind, title, body, lines, offerHint);
+    });
   }
 
   function mustItems(task, step) {
@@ -539,10 +580,10 @@
     const hLabel = label("h", "hₖ");
     const rLabel = label("r", "r");
     const dLabel = label("d", "d");
-    const coneHeightLabel = task.labels.h ? `hₖ = ${hLabel}` : "hₖ";
-    const slantLabel = task.labels.s ? `s = ${sLabel}` : "s";
-    const radiusLabel = task.labels.r ? `r = ${rLabel}` : "r";
-    const diameterLabel = task.labels.d ? `d = ${dLabel}` : "d";
+    const coneHeightLabel = (task.labels.h && task.labels.h !== "hₖ") ? `hₖ = ${hLabel}` : "hₖ";
+    const slantLabel = (task.labels.s && task.labels.s !== "s") ? `s = ${sLabel}` : "s";
+    const radiusLabel = (task.labels.r && task.labels.r !== "r") ? `r = ${rLabel}` : "r";
+    const diameterLabel = (task.labels.d && task.labels.d !== "d") ? `d = ${dLabel}` : "d";
 
     if (task.shape === "spindel") {
       return `
@@ -569,9 +610,9 @@
         <line x1="300" y1="205" x2="440" y2="205" stroke="#0f766e" stroke-width="5"/>
         <line x1="300" y1="205" x2="300" y2="98" stroke="#be185d" stroke-width="5"/>
         <line x1="300" y1="98" x2="440" y2="205" stroke="#334155" stroke-width="5"/>
-        <text class="svg-label" x="350" y="228" fill="#0f766e">r = ${rLabel}</text>
-        <text class="svg-label" x="250" y="150" fill="#be185d">hₖ = ${hLabel}</text>
-        <text class="svg-label" x="366" y="135" fill="#334155" transform="rotate(37 366 135)">s = ${sLabel}</text>
+        <text class="svg-label" x="350" y="228" fill="#0f766e">${radiusLabel}</text>
+        <text class="svg-label" x="250" y="150" fill="#be185d">${coneHeightLabel}</text>
+        <text class="svg-label" x="366" y="135" fill="#334155" transform="rotate(37 366 135)">${slantLabel}</text>
         <text x="300" y="78" fill="#52627a" font-size="13" font-weight="700">Bestimmungsdreieck</text>
       </svg>`;
     }
@@ -622,9 +663,9 @@
         <polygon points="125,70 60,210 190,210" fill="rgba(251,146,60,.24)" stroke="#9a3412" stroke-width="2.5"/>
         <line x1="125" y1="70" x2="125" y2="210" stroke="#be185d" stroke-width="2" stroke-dasharray="6 5"/>
         <line x1="125" y1="210" x2="190" y2="210" stroke="#9a3412" stroke-width="2"/>
-        <text class="svg-label" x="150" y="206" fill="#9a3412">r = ${rLabel}</text>
-        <text class="svg-label" x="92" y="150" fill="#be185d">hₖ = ${hLabel}</text>
-        <text class="svg-label" x="150" y="120" fill="#334155" transform="rotate(56 150 120)">s = ${sLabel}</text>
+        <text class="svg-label" x="150" y="206" fill="#9a3412">${radiusLabel}</text>
+        <text class="svg-label" x="92" y="150" fill="#be185d">${coneHeightLabel}</text>
+        <text class="svg-label" x="150" y="120" fill="#334155" transform="rotate(56 150 120)">${slantLabel}</text>
         <line x1="60" y1="232" x2="190" y2="232" stroke="#334155" stroke-width="2" marker-start="url(#quali-arrow)" marker-end="url(#quali-arrow)"/>
         <text class="svg-label" x="104" y="252" fill="#0f766e">a = ${aLabel}</text>
         <text x="60" y="28" fill="#52627a" font-size="13" font-weight="700">Kegel im Quader</text>
@@ -633,9 +674,9 @@
         <line x1="320" y1="205" x2="440" y2="205" stroke="#0f766e" stroke-width="5"/>
         <line x1="320" y1="205" x2="320" y2="90" stroke="#be185d" stroke-width="5"/>
         <line x1="320" y1="90" x2="440" y2="205" stroke="#9a3412" stroke-width="5"/>
-        <text class="svg-label" x="368" y="226" fill="#0f766e">r = ${rLabel}</text>
-        <text class="svg-label" x="280" y="150" fill="#be185d">hₖ</text>
-        <text class="svg-label" x="384" y="140" fill="#9a3412" transform="rotate(43 384 140)">s = ${sLabel}</text>
+        <text class="svg-label" x="368" y="226" fill="#0f766e">${radiusLabel}</text>
+        <text class="svg-label" x="280" y="150" fill="#be185d">${coneHeightLabel}</text>
+        <text class="svg-label" x="384" y="140" fill="#9a3412" transform="rotate(43 384 140)">${slantLabel}</text>
         <text x="318" y="78" fill="#52627a" font-size="13" font-weight="700">Bestimmungsdreieck</text>
       </svg>`;
     }
@@ -652,9 +693,9 @@
         <line x1="290" y1="205" x2="440" y2="205" stroke="#0f766e" stroke-width="5"/>
         <line x1="290" y1="205" x2="290" y2="78" stroke="#be185d" stroke-width="5"/>
         <line x1="290" y1="78" x2="440" y2="205" stroke="#334155" stroke-width="5"/>
-        <text class="svg-label" x="340" y="228" fill="#0f766e">r = ${rLabel}</text>
-        <text class="svg-label" x="236" y="145" fill="#be185d">hₖ = ${hLabel}</text>
-        <text class="svg-label" x="356" y="120" fill="#334155" transform="rotate(40 356 120)">s = ${sLabel}</text>
+        <text class="svg-label" x="340" y="228" fill="#0f766e">${radiusLabel}</text>
+        <text class="svg-label" x="236" y="145" fill="#be185d">${coneHeightLabel}</text>
+        <text class="svg-label" x="356" y="120" fill="#334155" transform="rotate(40 356 120)">${slantLabel}</text>
         <text x="306" y="55" fill="#52627a" font-size="13" font-weight="700">Bestimmungsdreieck</text>`;
 
     return `
@@ -697,93 +738,76 @@
     return r[step.part] || [];
   }
 
-  // Welche Tipps passen zum aktuellen (Teil-)Schritt? Skizze nur, wenn sie
-  // hilft; Formel-Tipp nur, wenn es eine passende Formel gibt.
-  function getHintItems(task, step) {
-    const items = [{ key: "geg", label: "gegeben & gesucht" }];
-    const ph = step.part && task.partHints ? task.partHints[step.part] : null;
-    const sketchOn = ph ? ph.sketch !== false : true;
-    if (sketchOn) items.push({ key: "skizze", label: "Skizze" });
-    const formulas = getPartFormulas(task, step);
-    if (formulas.length) {
-      items.push({ key: "formel", label: formulas.length === 1 ? "Grundformel" : "Grundformeln" });
+  // Genau ein Tipp passend zum aktuellen Foto-Schritt. Wird nur eingeblendet,
+  // wenn die KI im Feedback einen Fehler gemeldet hat.
+  // Foto 1 → Skizze bzw. gegeben/gesucht, Foto 2 → Grundformel,
+  // Foto 3 → Umstellen mit Werten, Foto 4 → kein eigener Tipp.
+  function hintForStep(task, step) {
+    if (step.kind === 0) {
+      const ph = step.part && task.partHints ? task.partHints[step.part] : null;
+      const sketchOn = ph ? ph.sketch !== false : true;
+      return sketchOn ? "skizze" : "geg";
     }
-    if (getRearrange(task, step).length) {
-      items.push({ key: "umstellen", label: "Umstellen mit Werten" });
+    if (step.kind === 1) {
+      return getPartFormulas(task, step).length ? "formel" : "geg";
     }
-    return items;
+    if (step.kind === 2) {
+      return getRearrange(task, step).length ? "umstellen" : "formel";
+    }
+    return null;
   }
 
-  function hintBlocks(task, step, hintItems) {
-    const blocks = [];
-    hintItems.forEach((item, index) => {
-      if (index >= tipsShown) return;
-      const num = index + 1;
-      if (item.key === "geg") {
-        const gesucht = step.part ? `Teil ${step.part}) – ${step.partBody}` : task.searched;
-        blocks.push(`
+  // Inhalt genau eines Tipps (ohne Nummerierung) für die Anzeige unter dem Feedback.
+  function renderHintContent(task, step, key) {
+    if (key === "geg") {
+      const gesucht = step.part ? `Teil ${step.part}) – ${step.partBody}` : task.searched;
+      return `
         <div class="hint-block">
-          <h4><span class="hint-num">${num}</span> Gegeben &amp; gesucht</h4>
+          <h4>Gegeben &amp; gesucht</h4>
           <div class="task-meta">
             ${task.given.map((value) => `<span>${escapeHtml(value)}</span>`).join("")}
             <span>gesucht: ${escapeHtml(gesucht)}</span>
           </div>
-        </div>`);
-      } else if (item.key === "skizze") {
-        blocks.push(`
+        </div>`;
+    }
+    if (key === "skizze") {
+      return `
         <div class="hint-block">
-          <h4><span class="hint-num">${num}</span> Skizze</h4>
+          <h4>Skizze</h4>
           <div class="sketch-frame">${sketch(task)}</div>
-        </div>`);
-      } else if (item.key === "formel") {
-        const formulas = getPartFormulas(task, step);
-        const title = step.part
-          ? "Grundformel für diesen Teil"
-          : "Grundformel (noch nicht umgestellt)";
-        blocks.push(`
+        </div>`;
+    }
+    if (key === "formel") {
+      const formulas = getPartFormulas(task, step);
+      const title = step.part ? "Grundformel für diesen Teil" : "Grundformel (noch nicht umgestellt)";
+      return `
         <div class="hint-block">
-          <h4><span class="hint-num">${num}</span> ${title}</h4>
+          <h4>${title}</h4>
           <div class="mini-plan">
             ${formulas.map((line) => `<div>${mathify(escapeHtml(line))}</div>`).join("")}
           </div>
-          <p class="hint-tip">Setze zuerst die gegebenen Werte ein und stelle dann nach der gesuchten Größe um.</p>
-        </div>`);
-      } else if (item.key === "umstellen") {
-        const steps = getRearrange(task, step);
-        blocks.push(`
+        </div>`;
+    }
+    if (key === "umstellen") {
+      const steps = getRearrange(task, step);
+      return `
         <div class="hint-block">
-          <h4><span class="hint-num">${num}</span> Werte einsetzen &amp; umstellen</h4>
+          <h4>Werte einsetzen &amp; umstellen</h4>
           <div class="mini-plan rearrange-plan">
             ${steps.map((line) => `<div>${mathify(escapeHtml(line))}</div>`).join("")}
           </div>
-        </div>`);
-      }
-    });
-    return blocks.join("");
+        </div>`;
+    }
+    return "";
   }
 
-  // Datenschutzfreundliche Video-Einbettung (lädt erst auf Klick, youtube-nocookie).
-  // Pro Aufgabe ein einzelnes Video-Objekt oder ein Array (mehrere je Aufgabentyp).
-  function videoFacade(task) {
-    const raw = videos[task.id];
-    if (!raw) return "";
-    const list = (Array.isArray(raw) ? raw : [raw]).filter((v) => v && v.id);
-    if (!list.length) return "";
-    const cards = list.map((v) => {
-      const label = escapeHtml(v.label || "Erklärvideo");
-      return `
-        <div class="yt-embed">
-          <button type="button" class="yt-facade" data-yt="${escapeHtml(v.id)}" data-title="${label} (Lehrerschmidt)" aria-label="Video laden: ${label}">
-            <span class="yt-ico" aria-hidden="true">&#9654;</span>
-            <span class="yt-label">Erklärvideo: ${label}<small>Lehrer Schmidt</small></span>
-          </button>
-        </div>`;
-    }).join("");
-    return `
-      <div class="hint-video">
-        ${cards}
-        <p class="yt-hint">Öffnet erst auf Klick (lokal in neuem Tab, online eingebettet).</p>
-      </div>`;
+  // Kurzes Label für den Tipp-Button im Feedback.
+  function hintLabel(key) {
+    if (key === "skizze") return "Skizze";
+    if (key === "geg") return "gegeben & gesucht";
+    if (key === "formel") return "passende Formel";
+    if (key === "umstellen") return "Werte einsetzen & umstellen";
+    return "Tipp";
   }
 
   function taskAiText(task, step) {
@@ -806,16 +830,23 @@
     return lines.join("\n");
   }
 
-  function renderFeedbackFromServer(data) {
+  function renderFeedbackFromServer(data, task, step) {
     const lines = String(data.analysis || "")
       .split(/\n+/)
       .map((line) => line.trim())
       .filter(Boolean);
+    // Nur bei Fehler einen passenden Tipp anbieten.
+    let offerHint = null;
+    if (!data.correct) {
+      const key = hintForStep(task, step);
+      if (key) offerHint = { task, step, key };
+    }
     setFeedback(
       data.correct ? "ok" : "no",
       data.summary || (data.correct ? "Der Schritt passt." : "Da stimmt noch etwas nicht."),
       data.suggestion || (data.correct ? "Weiter zum nächsten Foto-Schritt." : "Verbessere den markierten Schritt und lade ein neues Foto hoch."),
       lines,
+      offerHint,
     );
   }
 
@@ -836,6 +867,7 @@
     formData.append("image", selectedFile);
 
     button.disabled = true;
+    hintVisible = false;
     setFeedback("muted", "Prüfe Foto...", "Die KI schaut nur auf den aktuell ausgewählten Foto-Schritt.");
 
     try {
@@ -850,7 +882,7 @@
         return;
       }
 
-      renderFeedbackFromServer(feedback);
+      renderFeedbackFromServer(feedback, task, step);
       if (feedback.correct) {
         completed.add(completedKey());
       }
@@ -877,7 +909,7 @@
     currentTaskIndex = (currentTaskIndex + delta + tasks.length) % tasks.length;
     currentStepIndex = 0;
     selectedFile = null;
-    tipsShown = 0;
+    hintVisible = false;
     render();
   }
 
@@ -889,16 +921,13 @@
     const step = steps[currentStepIndex];
     const must = mustItems(task, step);
 
-    // Tipps gehören zur Teilaufgabe: bei Wechsel der Teilaufgabe wieder
-    // einklappen, damit man erst selbst versucht. Innerhalb derselben
-    // Teilaufgabe (Foto 1–4) bleiben die Tipps sichtbar.
-    const partKey = `${currentTaskIndex}:${step.part || "_"}`;
+    // Tipp gehört zum aktuellen (Teil-)Foto-Schritt: bei jedem Wechsel wieder
+    // ausblenden, damit der Schüler erst selbst versucht.
+    const partKey = `${currentTaskIndex}:${step.part || "_"}:${step.kind}`;
     if (partKey !== hintPartKey) {
-      tipsShown = 0;
+      hintVisible = false;
       hintPartKey = partKey;
     }
-    const hintItems = getHintItems(task, step);
-    currentHintItems = hintItems;
 
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
@@ -935,16 +964,6 @@
         </article>
 
         <div class="quali-grid">
-          <section class="sketch-card hint-card">
-            <h3>Tipps${step.part ? ` für Teil ${escapeHtml(step.part)})` : ""}</h3>
-            <p class="hint-intro">Versuche die Aufgabe zuerst selbst. Brauchst du Hilfe, blende dir die passenden Tipps Schritt für Schritt ein.</p>
-            ${videoFacade(task)}
-            ${tipsShown < hintItems.length
-              ? `<button class="hint-button" type="button" id="show-hint">Tipp ${tipsShown + 1} anzeigen: ${escapeHtml(hintItems[tipsShown].label)}</button>`
-              : `<p class="hint-done">Alle Tipps sind eingeblendet.</p>`}
-            ${hintBlocks(task, step, hintItems)}
-          </section>
-
           <section class="photo-card">
             <article class="step-card">
               <h3>${step.part
@@ -978,11 +997,6 @@
           </section>
         </div>
 
-        <details class="teacher-card">
-          <summary>Erwarteter Lösungsweg</summary>
-          <p>${mathify(escapeHtml(task.solution))}</p>
-          <p><strong>${mathify(escapeHtml(task.result))}</strong></p>
-        </details>
       </section>
     `;
 
@@ -991,7 +1005,7 @@
         currentTaskIndex = Number(button.dataset.task);
         currentStepIndex = 0;
         selectedFile = null;
-        tipsShown = 0;
+        hintVisible = false;
         render();
       });
     });
@@ -1010,10 +1024,6 @@
     root.querySelector("#photo-file")?.addEventListener("change", (event) => chooseFile(event.target.files?.[0]));
     root.querySelector("#photo-camera")?.addEventListener("change", (event) => chooseFile(event.target.files?.[0]));
     root.querySelector("#check-photo")?.addEventListener("click", checkPhoto);
-    root.querySelector("#show-hint")?.addEventListener("click", () => {
-      tipsShown = Math.min(currentHintItems.length, tipsShown + 1);
-      render();
-    });
   }
 
   render();
