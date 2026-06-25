@@ -11,6 +11,26 @@
   const baseFormulas = cfg.baseFormulas || {};
   const rearrange = cfg.rearrange || {};
   const videos = cfg.videos || {};
+  // Passendes Lehrer-Schmidt-Video je Fehler-Stichwort (hintTopic) der KI.
+  // Die Themenseite darf eigene Zuordnungen via cfg.hintTopicVideos ergänzen
+  // oder überschreiben. Wird nur im fehlerbezogenen Tipp bei einem Fehler gezeigt.
+  const hintTopicVideos = Object.assign(
+    {
+      "kreis-umfang": { id: "k9Mpm-PG-Y8", label: "Kreis: Umfang" },
+      "kreis-flaeche": { id: "8PqMj4L0BsE", label: "Kreis: Fläche" },
+      "radius-aus-umfang": { id: "k9Mpm-PG-Y8", label: "Kreis: Umfang" },
+      "durchmesser-radius": { id: "k9Mpm-PG-Y8", label: "Kreis: Umfang" },
+      "pythagoras": { id: "FECtVbC-mgk", label: "Satz des Pythagoras" },
+      "hypotenuse": { id: "FECtVbC-mgk", label: "Satz des Pythagoras" },
+      "dreieck-flaeche": { id: "UZSU-leMOKc", label: "Dreieck: Fläche" },
+      "viereck-flaeche": { id: "aWWf6E9-jmQ", label: "Rechteck: Umfang & Fläche" },
+      "parallelogramm-flaeche": { id: "0Y7JYMH5hJo", label: "Parallelogramm: Fläche" },
+      "trapez-flaeche": { id: "StCQAOmTCLw", label: "Trapez: Fläche & Umfang" },
+      "vieleck-flaeche": { id: "GJX05j4iwog", label: "Regelmäßige Vielecke" },
+      "formel-umstellen": { id: "FECtVbC-mgk", label: "Satz des Pythagoras" },
+    },
+    cfg.hintTopicVideos || {},
+  );
   if (!tasks.length) {
     root.innerHTML = '<p class="menu-note">Für dieses Thema sind noch keine Aufgaben hinterlegt.</p>';
     return;
@@ -486,16 +506,20 @@
       : "";
 
     let hintHtml = "";
-    if (offerHint && offerHint.key) {
+    const hasHint = offerHint && (offerHint.kiHint || offerHint.key);
+    if (hasHint) {
       if (hintVisible) {
         hintHtml = `
           <div class="fb-hint">
-            ${renderHintContent(offerHint.task, offerHint.step, offerHint.key)}
+            ${renderHintContent(offerHint)}
             <button class="hint-toggle fb-hint-hide" type="button">Tipp ausblenden</button>
           </div>`;
       } else {
+        const label = offerHint.kiHint
+          ? "Tipp zu deinem Fehler"
+          : hintLabel(offerHint.key);
         hintHtml = `
-          <button class="fb-hint-btn" type="button">💡 Tipp anzeigen: ${escapeHtml(hintLabel(offerHint.key))}</button>`;
+          <button class="fb-hint-btn" type="button">💡 Tipp anzeigen: ${escapeHtml(label)}</button>`;
       }
     }
 
@@ -629,8 +653,38 @@
     return null;
   }
 
-  // Inhalt genau eines Tipps (ohne Nummerierung) für die Anzeige unter dem Feedback.
-  function renderHintContent(task, step, key) {
+  // Baut eine datenschutzfreundliche Video-Kachel (Lehrer Schmidt) für ein
+  // hintTopic. Erst beim Klick lädt yt-embed.js das eigentliche Video.
+  function hintVideoHtml(hintTopic) {
+    const video = hintTopicVideos[hintTopic];
+    if (!video) return "";
+    const title = `${video.label} (Lehrer Schmidt)`;
+    return `
+      <div class="yt-embed hint-video">
+        <button type="button" class="yt-facade" data-yt="${escapeHtml(video.id)}" data-title="${escapeHtml(title)}" aria-label="Video laden: ${escapeHtml(video.label)}">
+          <span class="yt-ico" aria-hidden="true">&#9654;</span>
+          <span class="yt-label">Video: ${escapeHtml(video.label)}<small>Lehrer Schmidt</small></span>
+        </button>
+      </div>`;
+  }
+
+  // Inhalt des Tipps unter dem Feedback. Bevorzugt den fehlerbezogenen
+  // KI-Tipp (offerHint.kiHint) plus passendes Video; sonst schritt-basiert.
+  function renderHintContent(offerHint) {
+    const { task, step, key, kiHint, hintTopic } = offerHint;
+    if (kiHint) {
+      return `
+        <div class="hint-block">
+          <h4>Tipp zu deinem Fehler</h4>
+          <p class="hint-ki-text">${mathify(escapeHtml(kiHint))}</p>
+          ${hintVideoHtml(hintTopic)}
+        </div>`;
+    }
+    return renderStepHintContent(task, step, key);
+  }
+
+  // Schritt-basierter Tipp (Skizze / gegeben&gesucht / Formel / Umstellen).
+  function renderStepHintContent(task, step, key) {
     if (key === "geg") {
       const gesucht = step.part ? `Teil ${step.part}) – ${step.partBody}` : task.searched;
       return `
@@ -709,8 +763,10 @@
       .filter(Boolean);
     let offerHint = null;
     if (!data.correct) {
+      const kiHint = String(data.hint || "").trim();
+      const hintTopic = String(data.hintTopic || "").trim();
       const key = hintForStep(task, step);
-      if (key) offerHint = { task, step, key };
+      if (kiHint || key) offerHint = { task, step, key, kiHint, hintTopic };
     }
     setFeedback(
       data.correct ? "ok" : "no",
