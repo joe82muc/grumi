@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<title>Der Vorleser — Quiz zu Teil 1</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  @font-face {
+    font-family: "Old Style";
+    src: local("Iowan Old Style"), local("Palatino Linotype"), local("Book Antiqua");
+  }
+
+  :root {
+    --paper: #f5efe2;
+    --paper-raised: #fbf7ee;
+    --ink: #1c2b28;
+    --ink-soft: #3c5c58;
+    --petrol: #1b2f2e;
+    --petrol-deep: #10201f;
+    --ocher: #b9772f;
+    --ocher-soft: #e4b876;
+    --rust: #8a4a3a;
+    --rust-soft: #f0ded7;
+    --line: rgba(28, 43, 40, 0.16);
+    --shadow: rgba(16, 24, 22, 0.18);
+    --good: #3c6b52;
+    --good-soft: #dbe9de;
+
+    --font-display: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Times New Roman", serif;
+    --font-body: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    --font-ui: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141f1d;
+      --paper-raised: #1a2825;
+      --ink: #e9e2d2;
+      --ink-soft: #a9c2bc;
+      --petrol: #dfe9e4;
+      --petrol-deep: #0b1413;
+      --ocher: #e0a252;
+      --ocher-soft: #6b4b26;
+      --rust: #e0a695;
+      --rust-soft: #3a2521;
+      --line: rgba(233, 226, 210, 0.16);
+      --shadow: rgba(0, 0, 0, 0.45);
+      --good: #7fbf9c;
+      --good-soft: #1e3229;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #141f1d;
+    --paper-raised: #1a2825;
+    --ink: #e9e2d2;
+    --ink-soft: #a9c2bc;
+    --petrol: #dfe9e4;
+    --petrol-deep: #0b1413;
+    --ocher: #e0a252;
+    --ocher-soft: #6b4b26;
+    --rust: #e0a695;
+    --rust-soft: #3a2521;
+    --line: rgba(233, 226, 210, 0.16);
+    --shadow: rgba(0, 0, 0, 0.45);
+    --good: #7fbf9c;
+    --good-soft: #1e3229;
+  }
+  :root[data-theme="light"] {
+    --paper: #f5efe2;
+    --paper-raised: #fbf7ee;
+    --ink: #1c2b28;
+    --ink-soft: #3c5c58;
+    --petrol: #1b2f2e;
+    --petrol-deep: #10201f;
+    --ocher: #b9772f;
+    --ocher-soft: #e4b876;
+    --rust: #8a4a3a;
+    --rust-soft: #f0ded7;
+    --line: rgba(28, 43, 40, 0.16);
+    --shadow: rgba(16, 24, 22, 0.18);
+    --good: #3c6b52;
+    --good-soft: #dbe9de;
+  }
+
+  * { box-sizing: border-box; }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    overflow-x: hidden;
+  }
+
+  body {
+    background-image:
+      radial-gradient(ellipse at top left, rgba(28, 43, 40, 0.05), transparent 60%),
+      radial-gradient(ellipse at bottom right, rgba(185, 119, 47, 0.05), transparent 55%);
+  }
+
+  .page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1.25rem, 5vw, 2rem) 5rem;
+  }
+
+  /* ---------- Header ---------- */
+
+  header.masthead {
+    text-align: center;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 2.5rem;
+  }
+
+  .kicker {
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ocher);
+    font-weight: 600;
+  }
+
+  h1.title {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(2.2rem, 6vw, 3.4rem);
+    margin: 0.35em 0 0.15em;
+    color: var(--petrol);
+    text-wrap: balance;
+  }
+
+  .subtitle {
+    font-family: var(--font-ui);
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.01em;
+    max-width: 32rem;
+    margin: 0 auto;
+  }
+
+  .meta-row {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-top: 1.1rem;
+    font-family: var(--font-ui);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+  }
+  .meta-row span { white-space: nowrap; }
+  .meta-row b { color: var(--ink); font-weight: 600; }
+
+  /* ---------- Ribbon progress ---------- */
+
+  .ribbon-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: linear-gradient(var(--paper) 78%, transparent);
+    padding: 0.9rem 0 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ribbon-track {
+    height: 10px;
+    border-radius: 6px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px var(--shadow);
+  }
+  .ribbon-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--ocher-soft), var(--ocher));
+    transition: width 0.4s ease;
+  }
+  .ribbon-label {
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.4rem;
+    letter-spacing: 0.02em;
+  }
+
+  /* ---------- Chapters ---------- */
+
+  .chapter {
+    margin-bottom: 3rem;
+  }
+
+  .chapter-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.9rem;
+    margin-bottom: 1.3rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 2px solid var(--petrol);
+  }
+  .chapter-num {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.9rem;
+    color: var(--ocher);
+    line-height: 1;
+  }
+  .chapter-title {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    color: var(--petrol);
+    line-height: 1.2;
+  }
+  .chapter-range {
+    margin-left: auto;
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  /* ---------- Question card ---------- */
+
+  .card {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1.4rem 1.5rem 1.5rem;
+    margin-bottom: 1.15rem;
+    position: relative;
+    box-shadow: 0 1px 3px var(--shadow);
+    transition: box-shadow 0.2s ease;
+  }
+  .card.correct { box-shadow: 0 0 0 2px var(--good), 0 2px 8px var(--shadow); }
+  .card.wrong { box-shadow: 0 0 0 2px var(--rust), 0 2px 8px var(--shadow); }
+
+  .card-head {
+    display: flex;
+    gap: 0.9rem;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+  .q-num {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.5rem;
+    color: var(--ink-soft);
+    min-width: 1.6em;
+    line-height: 1.15;
+  }
+  .q-text {
+    font-family: var(--font-body);
+    font-size: 1.12rem;
+    line-height: 1.5;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  .q-marginale {
+    font-family: var(--font-ui);
+    font-size: 0.68rem;
+    color: var(--ocher);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    display: block;
+    margin-top: 0.3rem;
+  }
+
+  .options {
+    display: grid;
+    gap: 0.55rem;
+    margin-left: 2.5rem;
+  }
+
+  .opt {
+    font-family: var(--font-ui);
+    text-align: left;
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 0.65rem 0.9rem;
+    font-size: 0.94rem;
+    color: var(--ink);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+  }
+  .opt:hover:not(:disabled) {
+    border-color: var(--ocher);
+    background: color-mix(in srgb, var(--ocher) 8%, transparent);
+  }
+  .opt:focus-visible {
+    outline: 2px solid var(--ocher);
+    outline-offset: 2px;
+  }
+  .opt:active:not(:disabled) { transform: scale(0.995); }
+  .opt:disabled { cursor: default; }
+
+  .opt-letter {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    min-width: 1.2em;
+  }
+
+  .opt.is-correct {
+    border-color: var(--good);
+    background: var(--good-soft);
+  }
+  .opt.is-correct .opt-letter { color: var(--good); }
+  .opt.is-wrong {
+    border-color: var(--rust);
+    background: var(--rust-soft);
+  }
+  .opt.is-wrong .opt-letter { color: var(--rust); }
+  .opt.is-dim { opacity: 0.55; }
+
+  .footnote {
+    margin: 0.9rem 0 0 2.5rem;
+    padding: 0.8rem 1rem;
+    border-left: 3px solid var(--ocher);
+    background: color-mix(in srgb, var(--ocher) 7%, transparent);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    display: none;
+    border-radius: 0 3px 3px 0;
+  }
+  .footnote.show {
+    display: block;
+    animation: reveal 0.25s ease;
+  }
+  @keyframes reveal {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .footnote b { color: var(--ink); }
+
+  /* ---------- Result ---------- */
+
+  .result {
+    margin-top: 2.5rem;
+    padding: 2rem;
+    text-align: center;
+    background: var(--petrol);
+    color: var(--paper);
+    border-radius: 6px;
+    display: none;
+  }
+  .result.show { display: block; animation: reveal 0.35s ease; }
+  .result .score {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 3rem;
+    color: var(--ocher-soft);
+    line-height: 1;
+  }
+  .result .verdict {
+    font-family: var(--font-ui);
+    font-size: 1rem;
+    margin-top: 0.6rem;
+    max-width: 30rem;
+    margin-inline: auto;
+    color: var(--paper);
+    opacity: 0.92;
+  }
+  .result .reset {
+    margin-top: 1.4rem;
+    font-family: var(--font-ui);
+    font-size: 0.82rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--ocher-soft);
+    border: 1px solid var(--ocher-soft);
+    padding: 0.55rem 1.3rem;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .result .reset:hover { background: rgba(255,255,255,0.08); }
+
+  footer.colophon {
+    text-align: center;
+    margin-top: 3rem;
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.03em;
+  }
+
+  @media (max-width: 560px) {
+    .options { margin-left: 0; }
+    .footnote { margin-left: 0; }
+    .q-num { min-width: 1.3em; }
+    .chapter-range { margin-left: 0; width: 100%; }
+    .chapter-head { flex-wrap: wrap; }
+  }
+
+  /* ---------- GRUMI-Navigationsleiste ---------- */
+  .grumi-nav {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0.9rem clamp(1.25rem, 5vw, 2rem) 0;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-ui);
+    font-size: 0.82rem;
+  }
+  .grumi-nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--ink-soft);
+    text-decoration: none;
+    padding: 0.4rem 0.8rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  }
+  .grumi-nav a:hover,
+  .grumi-nav a:focus-visible {
+    border-color: var(--ocher);
+    color: var(--ocher);
+    background: color-mix(in srgb, var(--ocher) 8%, transparent);
+    outline: none;
+  }
+  .grumi-nav .sep { color: var(--ink-soft); opacity: 0.5; }
+  .grumi-nav .here { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+
+  <nav class="grumi-nav" aria-label="Pfad">
+    <a href="../index.html">&larr; Lekt&uuml;ren</a>
+    <span class="sep">&middot;</span>
+    <span class="here">Deutsch 9 &middot; GRUMI Lernplattform</span>
+  </nav>
+
+<div class="page">
+
+  <header class="masthead">
+    <div class="kicker">Lektürequiz · 9a · Mittelschule Unterhaching</div>
+    <h1 class="title">Der Vorleser</h1>
+    <p class="subtitle">Bernhard Schlink — Erster Teil, Seite 1 bis ca. 82</p>
+    <div class="meta-row">
+      <span><b id="totalQ">28</b>&nbsp;Fragen</span>
+      <span>·</span>
+      <span>in <b>3 Abschnitten</b></span>
+      <span>·</span>
+      <span>zum Selbstcheck vor der Stunde</span>
+    </div>
+  </header>
+
+  <div class="ribbon-wrap">
+    <div class="ribbon-track"><div class="ribbon-fill" id="ribbonFill"></div></div>
+    <div class="ribbon-label">
+      <span id="progressText">0 von 28 beantwortet</span>
+      <span id="progressPct">0 %</span>
+    </div>
+  </div>
+
+  <form id="quiz">
+
+    <section class="chapter">
+      <div class="chapter-head">
+        <span class="chapter-num">I.</span>
+        <span class="chapter-title">Die Begegnung in der Bahnhofstraße</span>
+        <span class="chapter-range">Kap. 1–7 · S. 5–29</span>
+      </div>
+
+      <div class="card" data-q="0">
+        <div class="card-head">
+          <span class="q-num">1</span>
+          <div>
+            <p class="q-text">Wie heißt der Ich-Erzähler des Romans?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt" data-correct="false"><span class="opt-letter">a</span> Michael Held</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Michael Berg</button>
+          <button type="button" class="opt" data-correct="false"><span class="opt-letter">c</span> Michael Schmitz</button>
+          <button type="button" class="opt" data-correct="false"><span class="opt-letter">d</span> Michael Brenner</button>
+        </div>
+        <div class="footnote"><b>Michael Berg</b> erzählt die Geschichte im Rückblick als erwachsener Mann. Hanna Schmitz ist die Frau, der die Geschichte gilt — die beiden Namen sollte man nicht verwechseln.</div>
+      </div>
+
+      <div class="card" data-q="1">
+        <div class="card-head">
+          <span class="q-num">2</span>
+          <div>
+            <p class="q-text">Wie alt ist Michael, als die Geschichte beginnt?</p>
+            <span class="q-marginale">S. 5</span>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> 13 Jahre</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> 15 Jahre</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> 17 Jahre</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> 19 Jahre</button>
+        </div>
+        <div class="footnote">Michael ist <b>15</b>, als er auf dem Heimweg zusammenbricht — ein Alter, das seine spätere Beziehung zu der 21 Jahre älteren Hanna von Anfang an in ein Ungleichgewicht setzt.</div>
+      </div>
+
+      <div class="card" data-q="2">
+        <div class="card-head">
+          <span class="q-num">3</span>
+          <div>
+            <p class="q-text">Was passiert mit Michael auf dem Nachhauseweg, wodurch er Hanna kennenlernt?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Er wird von einem Fahrrad angefahren</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Ihm wird plötzlich übel, er muss sich übergeben</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Er verirrt sich im Treppenhaus</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Er wird von älteren Jungen verprügelt</button>
+        </div>
+        <div class="footnote">Michael bricht in der Bahnhofstraße zusammen und <b>übergibt sich</b>. Die fremde Frau reinigt ihn und den Gehsteig und bringt ihn nach Hause. Erst danach stellt sich heraus, dass er an <b>Gelbsucht (Hepatitis)</b> erkrankt ist.</div>
+      </div>
+
+      <div class="card" data-q="3">
+        <div class="card-head">
+          <span class="q-num">4</span>
+          <div>
+            <p class="q-text">Welche Diagnose erhält Michael, nachdem ihn die fremde Frau nach Hause gebracht hat?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Blinddarmentzündung</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Gelbsucht (Hepatitis)</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Scharlach</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Ein gebrochenes Bein</button>
+        </div>
+        <div class="footnote">Michael liegt monatelang krank zu Hause im Bett. Erst nach seiner Genesung besucht er die fremde Frau, um sich mit Blumen zu bedanken — dieser Besuch führt zur eigentlichen Begegnung mit <b>Hanna Schmitz</b>.</div>
+      </div>
+
+      <div class="card" data-q="4">
+        <div class="card-head">
+          <span class="q-num">5</span>
+          <div>
+            <p class="q-text">In welcher Straße wohnt Hanna Schmitz?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">a</span> Bahnhofstraße</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Kirchgasse</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Schillerstraße</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Amselweg</button>
+        </div>
+        <div class="footnote">In der <b>Bahnhofstraße</b> spielt sich der Zusammenbruch ab, und dort liegt auch Hannas Wohnung, die für Michael über die kommenden Monate zum heimlichen Zielort wird.</div>
+      </div>
+
+      <div class="card" data-q="5">
+        <div class="card-head">
+          <span class="q-num">6</span>
+          <div>
+            <p class="q-text">Welchen Beruf übt Hanna zu Beginn der Geschichte aus?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Verkäuferin</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Straßenbahnschaffnerin</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Krankenschwester</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Lehrerin</button>
+        </div>
+        <div class="footnote">Hanna arbeitet als <b>Schaffnerin</b> bei der Straßenbahn. Ihr Beruf und ihre Arbeitskleidung — die Uniform — prägen mehrfach Michaels Blick auf sie.</div>
+      </div>
+
+      <div class="card" data-q="6">
+        <div class="card-head">
+          <span class="q-num">7</span>
+          <div>
+            <p class="q-text">Wie alt ist Hanna zu Beginn der Affäre — ungefähr, im Vergleich zu Michael?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Etwa gleich alt wie Michael</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Etwa 5 Jahre älter</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">c</span> Mehr als 20 Jahre älter</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Sie ist jünger als er</button>
+        </div>
+        <div class="footnote">Hanna ist <b>36</b>, Michael <b>15</b> — ein Altersunterschied von <b>21 Jahren</b>. Dieses Ungleichgewicht ist eines der zentralen Spannungsfelder des ganzen Romans.</div>
+      </div>
+
+      <div class="card" data-q="18">
+        <div class="card-head">
+          <span class="q-num">8</span>
+          <div>
+            <p class="q-text">Wie verhält sich die fremde Frau bei der ersten Begegnung, als es Michael schlecht geht?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Sie ruft einen Krankenwagen und geht weiter</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Sie reinigt ihn und den Gehsteig und bringt ihn nach Hause</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Sie ignoriert ihn zunächst</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Sie schimpft mit ihm</button>
+        </div>
+        <div class="footnote">Hanna wäscht das Erbrochene weg, nimmt Michael resolut in den Arm und begleitet ihn nach Hause. Diese <b>fürsorgliche und zugleich bestimmende</b> Art prägt ihre Beziehung von Anfang an.</div>
+      </div>
+
+      <div class="card" data-q="19">
+        <div class="card-head">
+          <span class="q-num">9</span>
+          <div>
+            <p class="q-text">Womit möchte sich Michael nach seiner Genesung bei der fremden Frau bedanken?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Mit einem Buch</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Mit Geld</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">c</span> Mit einem Blumenstrauß</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Mit Pralinen</button>
+        </div>
+        <div class="footnote">Auf Drängen seiner Mutter bringt Michael Hanna <b>Blumen</b> als Dank. Dieser Besuch führt zur eigentlichen Begegnung — und wird zum Ausgangspunkt ihrer Affäre.</div>
+      </div>
+    </section>
+
+    <section class="chapter">
+      <div class="chapter-head">
+        <span class="chapter-num">II.</span>
+        <span class="chapter-title">Vorlesen, Baden, Lieben</span>
+        <span class="chapter-range">Kap. 8–12 · S. 30–56</span>
+      </div>
+
+      <div class="card" data-q="7">
+        <div class="card-head">
+          <span class="q-num">8</span>
+          <div>
+            <p class="q-text">Was verlangt Hanna zum ersten Mal von Michael, bevor es zwischen ihnen zur Zärtlichkeit kommt — und was wird daraus ein festes Ritual?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Dass er ihr Briefe schreibt</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Dass er ihr aus einem Buch vorliest</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Dass er für sie Klavier spielt</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Dass er ihr Blumen mitbringt</button>
+        </div>
+        <div class="footnote">Das <b>Vorlesen</b> wird zum titelgebenden Ritual der beiden: Michael liest vor, sie duschen zusammen, sie lieben sich, und liegen danach noch ein wenig beieinander.</div>
+      </div>
+
+      <div class="card" data-q="8">
+        <div class="card-head">
+          <span class="q-num">9</span>
+          <div>
+            <p class="q-text">Welches der folgenden Werke liest Michael Hanna im ersten Teil unter anderem vor?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">a</span> Schillers „Kabale und Liebe"</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Goethes „Faust"</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> „Die Verwandlung" von Kafka</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> „Der Prozess" von Kafka</button>
+        </div>
+        <div class="footnote">Im ersten Teil liest Michael ihr u.&nbsp;a. Schillers <b>„Kabale und Liebe"</b>, Lessings „Emilia Galotti" und Tolstois „Krieg und Frieden" vor — meist Stoffe aus dem Schulunterricht. (Homers „Odyssee" wird erst viel später, im dritten Teil, zum zentralen Vorlese-Werk.)</div>
+      </div>
+
+      <div class="card" data-q="9">
+        <div class="card-head">
+          <span class="q-num">10</span>
+          <div>
+            <p class="q-text">Wie lässt sich Hannas Stimmung gegenüber Michael im Verlauf der Affäre am besten beschreiben?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Immer gleichbleibend heiter</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Wechselhaft — mal zärtlich, mal schroff und abweisend</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Durchgehend gleichgültig</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Ausschließlich fürsorglich wie eine Mutter</button>
+        </div>
+        <div class="footnote">Hannas plötzliche Stimmungswechsel verunsichern Michael immer wieder. Sie bleibt zugleich <b>bestimmend</b> und teils schroff — und in Bezug auf ihre eigene Vergangenheit auffallend <b>verschlossen</b>.</div>
+      </div>
+
+      <div class="card" data-q="10">
+        <div class="card-head">
+          <span class="q-num">11</span>
+          <div>
+            <p class="q-text">Was ist der Beruf von Michaels Vater?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Arzt</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Pfarrer</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">c</span> Philosophieprofessor</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Richter</button>
+        </div>
+        <div class="footnote">Michaels Vater ist <b>Philosophieprofessor</b> — ein eher distanziertes, intellektuelles Elternhaus, das im Kontrast zu Hannas direkter, unliterarischer Welt steht.</div>
+      </div>
+
+      <div class="card" data-q="11">
+        <div class="card-head">
+          <span class="q-num">12</span>
+          <div>
+            <p class="q-text">Wie geht Michael zu Beginn mit seiner Beziehung zu Hanna gegenüber seiner Familie und seinen Freunden um?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Er erzählt sofort allen davon</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Er hält sie geheim und schämt sich zugleich dafür</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Er bittet seine Eltern um Erlaubnis</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Er stellt Hanna seiner Klasse vor</button>
+        </div>
+        <div class="footnote">Michael lebt in einem ständigen Doppelleben: Schule und Familie auf der einen, das <b>Geheimnis</b> um Hanna auf der anderen Seite. Scham und Stolz liegen dabei eng beieinander.</div>
+      </div>
+
+      <div class="card" data-q="20">
+        <div class="card-head">
+          <span class="q-num"></span>
+          <div>
+            <p class="q-text">Welchen Kosenamen verwendet Hanna immer wieder für Michael?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> „Spatz"</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> „Jungchen"</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> „Kleiner"</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> „Schatz"</button>
+        </div>
+        <div class="footnote">Hanna nennt Michael wiederholt <b>„Jungchen"</b>. Das Wort betont zugleich Zuneigung und den großen Altersunterschied — für sie bleibt er auch als Liebhaber ein Junge.</div>
+      </div>
+
+      <div class="card" data-q="21">
+        <div class="card-head">
+          <span class="q-num"></span>
+          <div>
+            <p class="q-text">Wer ist Sophie?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Michaels ältere Schwester</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Eine Mitschülerin, die neben ihm sitzt</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Hannas Kollegin bei der Straßenbahn</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Michaels Nachbarin</button>
+        </div>
+        <div class="footnote"><b>Sophie</b> ist Michaels hübsche Banknachbarin. Er fühlt sich zu ihr hingezogen, vergleicht sie aber unwillkürlich mit Hanna — sie steht für die Welt der Gleichaltrigen, aus der Hanna ihn heraushebt.</div>
+      </div>
+
+      <div class="card" data-q="22">
+        <div class="card-head">
+          <span class="q-num"></span>
+          <div>
+            <p class="q-text">Was macht Michael in der Schule, seit er die Affäre mit Hanna hat?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Er schwänzt regelmäßig den Unterricht</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Er strengt sich an und holt den verpassten Stoff auf, um versetzt zu werden</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Er bleibt sitzen</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Er wechselt die Schule</button>
+        </div>
+        <div class="footnote">Trotz der langen Fehlzeiten durch die Krankheit arbeitet Michael hart und schafft die <b>Versetzung</b>. Die Beziehung zu Hanna gibt ihm dabei neues Selbstvertrauen.</div>
+      </div>
+
+      <div class="card" data-q="23">
+        <div class="card-head">
+          <span class="q-num"></span>
+          <div>
+            <p class="q-text">Was verrät Hanna Michael über sich selbst und ihre Vergangenheit?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Sehr viel — sie erzählt offen aus ihrem Leben</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Fast nichts — sie bleibt verschlossen und weicht Fragen aus</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Sie erzählt ihm ihre ganze Familiengeschichte</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Sie zeigt ihm alte Fotos und Briefe</button>
+        </div>
+        <div class="footnote">Hanna bleibt in Bezug auf ihre Herkunft und Vergangenheit auffällig <b>verschlossen</b>. Ihr Geheimnis — auch ihr Analphabetismus — wird in Teil 1 nur angedeutet, nie offen ausgesprochen.</div>
+      </div>
+    </section>
+
+    <section class="chapter">
+      <div class="chapter-head">
+        <span class="chapter-num">III.</span>
+        <span class="chapter-title">Die Fahrradtour und das Verschwinden</span>
+        <span class="chapter-range">Kap. 13–17 · S. 57–82</span>
+      </div>
+
+      <div class="card" data-q="12">
+        <div class="card-head">
+          <span class="q-num">13</span>
+          <div>
+            <p class="q-text">Was unternehmen Hanna und Michael gemeinsam während der Osterferien?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Eine Zugreise ans Meer</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Eine mehrtägige Fahrradtour</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Einen Museumsbesuch in einer fremden Stadt</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Einen Theaterbesuch</button>
+        </div>
+        <div class="footnote">Die gemeinsame <b>Fahrradtour</b> ist der Höhepunkt ihrer Nähe — und zugleich der Ort, an dem ein schwerer Konflikt zwischen ihnen ausbricht.</div>
+      </div>
+
+      <div class="card" data-q="24">
+        <div class="card-head">
+          <span class="q-num"></span>
+          <div>
+            <p class="q-text">Als Hanna und Michael auf der Reise irgendwo übernachten: Als was gibt Hanna sich aus, um kein Aufsehen zu erregen?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Als seine Lehrerin</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Als seine Mutter</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Als seine Tante</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Als seine ältere Schwester</button>
+        </div>
+        <div class="footnote">Wegen des großen Altersunterschieds gibt Hanna sich als Michaels <b>Mutter</b> aus. Michael muss sein Verhältnis zu ihr also auch nach außen hin ständig verbergen.</div>
+      </div>
+
+      <div class="card" data-q="13">
+        <div class="card-head">
+          <span class="q-num">14</span>
+          <div>
+            <p class="q-text">Was löst auf der Fahrradtour den heftigen Konflikt zwischen Hanna und Michael aus?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Michael verliert ihr gesamtes Reisegeld</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Michael holt morgens Frühstück; Hanna findet seinen Zettel nicht und glaubt, er habe sie verlassen</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Hanna verliert sich in einer fremden Stadt</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Michael spricht mit einem anderen Mädchen</button>
+        </div>
+        <div class="footnote">Michael steht früh auf und hinterlässt einen <b>Zettel</b>, dass er Frühstück holt — doch der Zettel ist weg, als Hanna aufwacht. Sie glaubt, er sei einfach gegangen, und reagiert maßlos aufgebracht. Dahinter steht ihre tiefe <b>Angst vor dem Verlassenwerden</b>.</div>
+      </div>
+
+      <div class="card" data-q="14">
+        <div class="card-head">
+          <span class="q-num">15</span>
+          <div>
+            <p class="q-text">Wie reagiert Hanna in dieser Situation auf Michael?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Sie ignoriert ihn tagelang, ohne ein Wort</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Sie schlägt ihn mit dem Gürtel — bis ihm die Lippe blutet</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Sie bricht die Fahrradtour sofort ab und fährt allein heim</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Sie lacht die Situation weg</button>
+        </div>
+        <div class="footnote">Hanna schlägt Michael mit dem <b>Gürtel</b> die Lippe blutig — danach bricht sie weinend zusammen. Der Ausbruch zeigt, wie unkontrolliert sie auf einen empfundenen Vertrauensbruch reagiert; ein Muster, das später im Roman wiederkehrt.</div>
+      </div>
+
+      <div class="card" data-q="25">
+        <div class="card-head">
+          <span class="q-num"></span>
+          <div>
+            <p class="q-text">Was wollte Hanna bei der Straßenbahn beruflich werden — was sie durch ihre Kündigung vermeidet?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Sie sollte in die Verwaltung wechseln</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Sie sollte zur Straßenbahnfahrerin ausgebildet/befördert werden</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Sie sollte Ausbilderin für neue Schaffner werden</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Sie sollte den Fahrkartenschalter übernehmen</button>
+        </div>
+        <div class="footnote">Man wollte Hanna zur <b>Fahrerin</b> befördern. Statt die damit verbundene Schulung anzunehmen, kündigt sie und verschwindet — im Rückblick ein Hinweis auf ihr verborgenes Problem, das <b>Nicht-lesen-und-schreiben-Können</b>.</div>
+      </div>
+
+      <div class="card" data-q="15">
+        <div class="card-head">
+          <span class="q-num">16</span>
+          <div>
+            <p class="q-text">Wird Hannas Vergangenheit als KZ-Aufseherin bereits im ersten Teil des Romans (S. 1–82) offen erzählt?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Ja, gleich zu Beginn wird das ausführlich erklärt</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Nein — im ersten Teil bleibt sie vor allem geheimnisvoll und verschlossen, ohne dass ihre NS-Vergangenheit genannt wird</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Ja, aber nur in einem einzigen Nebensatz</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Nein, das Thema kommt im ganzen Roman nicht vor</button>
+        </div>
+        <div class="footnote">Im ersten Teil wissen wir nur, dass Hanna ein <b>Geheimnis</b> mit sich trägt. Was genau dahintersteckt, erfährt der Leser erst im zweiten Teil, während eines Gerichtsprozesses.</div>
+      </div>
+
+      <div class="card" data-q="16">
+        <div class="card-head">
+          <span class="q-num">17</span>
+          <div>
+            <p class="q-text">Was geschieht am Ende des ersten Teils mit Hanna?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Sie heiratet einen anderen Mann</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Sie stirbt bei einem Unfall</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">c</span> Sie verschwindet plötzlich und spurlos aus der Stadt</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Sie zieht mit Michael zusammen</button>
+        </div>
+        <div class="footnote">Hanna hat bei der Straßenbahn <b>gekündigt</b>, ihre Wohnung geräumt und ist ohne Abschied und ohne Adresse weggezogen. Der erste Teil endet damit offen und abrupt.</div>
+      </div>
+
+      <div class="card" data-q="17">
+        <div class="card-head">
+          <span class="q-num">18</span>
+          <div>
+            <p class="q-text">Wie geht es Michael, nachdem er Hannas Verschwinden entdeckt?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Er ist erleichtert, dass die Affäre vorbei ist</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Er macht sich Vorwürfe und fühlt sich mitschuldig an ihrem Weggang</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Er macht sich sofort auf die Suche nach ihr</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Er erzählt es sofort seinen Eltern</button>
+        </div>
+        <div class="footnote">Michael hatte sich Hanna kurz zuvor gegenüber distanziert verhalten. Ihr plötzliches Verschwinden lässt ihn glauben, <b>selbst mitverantwortlich</b> dafür zu sein — ein Schuldgefühl, das ihn noch lange begleitet.</div>
+      </div>
+
+      <div class="card" data-q="26">
+        <div class="card-head">
+          <span class="q-num"></span>
+          <div>
+            <p class="q-text">Wo sieht Michael Hanna kurz vor ihrem Verschwinden noch einmal — aus der Ferne?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> In der Straßenbahn</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Im Schwimmbad</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Vor der Schule</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Auf dem Marktplatz</button>
+        </div>
+        <div class="footnote">Hanna taucht plötzlich am <b>Schwimmbad</b> auf, wo Michael mit Freunden ist. Er zögert, zu ihr zu gehen — und als er sich entschließt, ist sie schon wieder fort.</div>
+      </div>
+
+      <div class="card" data-q="27">
+        <div class="card-head">
+          <span class="q-num"></span>
+          <div>
+            <p class="q-text">Wie verhält sich Michael bei dieser letzten Begegnung — und warum belastet ihn das später?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Er läuft sofort zu ihr und umarmt sie</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Er zögert, geht nicht sofort zu ihr — kurz darauf ist sie verschwunden</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Er winkt ihr fröhlich zu</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Er stellt sie seinen Freunden vor</button>
+        </div>
+        <div class="footnote">Michael <b>zögert</b> und bleibt zunächst bei seinen Freunden sitzen. Dieses kurze Nicht-Reagieren deutet er später als möglichen Auslöser für Hannas Weggang — daher seine Schuldgefühle.</div>
+      </div>
+    </section>
+
+  </form>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreText">0 / 28</div>
+    <p class="verdict" id="verdictText"></p>
+    <button class="reset" id="resetBtn" type="button">Quiz neu starten</button>
+  </div>
+
+  <footer class="colophon">
+    Der Vorleser · Bernhard Schlink, 1995 · Quiz zu Teil 1 (S. 1–82) · Klasse 9a, Mittelschule Unterhaching
+  </footer>
+
+</div>
+
+<script>
+  (function () {
+    const cards = Array.from(document.querySelectorAll('.card'));
+    const total = cards.length;
+    let answered = 0;
+    let correctCount = 0;
+
+    // Fragen fortlaufend nummerieren, egal in welcher Reihenfolge sie im HTML stehen.
+    cards.forEach((card, i) => {
+      const numEl = card.querySelector('.q-num');
+      if (numEl) numEl.textContent = i + 1;
+    });
+    const totalQEl = document.getElementById('totalQ');
+    if (totalQEl) totalQEl.textContent = total;
+    document.getElementById('progressText').textContent = '0 von ' + total + ' beantwortet';
+    document.getElementById('scoreText').textContent = '0 / ' + total;
+
+    const ribbonFill = document.getElementById('ribbonFill');
+    const progressText = document.getElementById('progressText');
+    const progressPct = document.getElementById('progressPct');
+    const resultBox = document.getElementById('result');
+    const scoreText = document.getElementById('scoreText');
+    const verdictText = document.getElementById('verdictText');
+
+    function updateProgress() {
+      const pct = Math.round((answered / total) * 100);
+      ribbonFill.style.width = pct + '%';
+      progressText.textContent = answered + ' von ' + total + ' beantwortet';
+      progressPct.textContent = pct + ' %';
+
+      if (answered === total) {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      scoreText.textContent = correctCount + ' / ' + total;
+      let verdict;
+      const ratio = correctCount / total;
+      if (ratio === 1) {
+        verdict = 'Vollständig gelesen und alles behalten — so liest man Teil 1 von „Der Vorleser“.';
+      } else if (ratio >= 0.75) {
+        verdict = 'Sehr solide! Die wichtigsten Stationen von Michael und Hanna sitzen bei dir.';
+      } else if (ratio >= 0.5) {
+        verdict = 'Guter Grundstock — ein zweiter Blick in die Seiten 1–82 lohnt sich noch.';
+      } else {
+        verdict = 'Zeit, Teil 1 noch einmal aufzuschlagen — die Anmerkungen bei jeder Frage helfen dir dabei.';
+      }
+      verdictText.textContent = verdict;
+      resultBox.classList.add('show');
+      resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    cards.forEach((card) => {
+      const buttons = Array.from(card.querySelectorAll('.opt'));
+      const footnote = card.querySelector('.footnote');
+      let cardAnswered = false;
+
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          if (cardAnswered) return;
+          cardAnswered = true;
+          answered++;
+
+          const isCorrect = btn.dataset.correct === 'true';
+          if (isCorrect) correctCount++;
+
+          buttons.forEach((b) => {
+            b.disabled = true;
+            if (b.dataset.correct === 'true') {
+              b.classList.add('is-correct');
+            } else if (b === btn) {
+              b.classList.add('is-wrong');
+            } else {
+              b.classList.add('is-dim');
+            }
+          });
+
+          card.classList.add(isCorrect ? 'correct' : 'wrong');
+          footnote.classList.add('show');
+
+          updateProgress();
+        });
+      });
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      window.location.reload();
+    });
+  })();
+</script>
+</body>
+</html>
