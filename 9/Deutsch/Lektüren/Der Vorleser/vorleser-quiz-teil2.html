@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<title>Der Vorleser — Quiz zu Teil 2</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  @font-face {
+    font-family: "Old Style";
+    src: local("Iowan Old Style"), local("Palatino Linotype"), local("Book Antiqua");
+  }
+
+  :root {
+    --paper: #f5efe2;
+    --paper-raised: #fbf7ee;
+    --ink: #1c2b28;
+    --ink-soft: #3c5c58;
+    --petrol: #1b2f2e;
+    --petrol-deep: #10201f;
+    --ocher: #b9772f;
+    --ocher-soft: #e4b876;
+    --rust: #8a4a3a;
+    --rust-soft: #f0ded7;
+    --line: rgba(28, 43, 40, 0.16);
+    --shadow: rgba(16, 24, 22, 0.18);
+    --good: #3c6b52;
+    --good-soft: #dbe9de;
+
+    --font-display: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Times New Roman", serif;
+    --font-body: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    --font-ui: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141f1d;
+      --paper-raised: #1a2825;
+      --ink: #e9e2d2;
+      --ink-soft: #a9c2bc;
+      --petrol: #dfe9e4;
+      --petrol-deep: #0b1413;
+      --ocher: #e0a252;
+      --ocher-soft: #6b4b26;
+      --rust: #e0a695;
+      --rust-soft: #3a2521;
+      --line: rgba(233, 226, 210, 0.16);
+      --shadow: rgba(0, 0, 0, 0.45);
+      --good: #7fbf9c;
+      --good-soft: #1e3229;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #141f1d;
+    --paper-raised: #1a2825;
+    --ink: #e9e2d2;
+    --ink-soft: #a9c2bc;
+    --petrol: #dfe9e4;
+    --petrol-deep: #0b1413;
+    --ocher: #e0a252;
+    --ocher-soft: #6b4b26;
+    --rust: #e0a695;
+    --rust-soft: #3a2521;
+    --line: rgba(233, 226, 210, 0.16);
+    --shadow: rgba(0, 0, 0, 0.45);
+    --good: #7fbf9c;
+    --good-soft: #1e3229;
+  }
+  :root[data-theme="light"] {
+    --paper: #f5efe2;
+    --paper-raised: #fbf7ee;
+    --ink: #1c2b28;
+    --ink-soft: #3c5c58;
+    --petrol: #1b2f2e;
+    --petrol-deep: #10201f;
+    --ocher: #b9772f;
+    --ocher-soft: #e4b876;
+    --rust: #8a4a3a;
+    --rust-soft: #f0ded7;
+    --line: rgba(28, 43, 40, 0.16);
+    --shadow: rgba(16, 24, 22, 0.18);
+    --good: #3c6b52;
+    --good-soft: #dbe9de;
+  }
+
+  * { box-sizing: border-box; }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    overflow-x: hidden;
+  }
+
+  body {
+    background-image:
+      radial-gradient(ellipse at top left, rgba(28, 43, 40, 0.05), transparent 60%),
+      radial-gradient(ellipse at bottom right, rgba(185, 119, 47, 0.05), transparent 55%);
+  }
+
+  .page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1.25rem, 5vw, 2rem) 5rem;
+  }
+
+  /* ---------- Header ---------- */
+
+  header.masthead {
+    text-align: center;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 2.5rem;
+  }
+
+  .kicker {
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ocher);
+    font-weight: 600;
+  }
+
+  h1.title {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(2.2rem, 6vw, 3.4rem);
+    margin: 0.35em 0 0.15em;
+    color: var(--petrol);
+    text-wrap: balance;
+  }
+
+  .subtitle {
+    font-family: var(--font-ui);
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.01em;
+    max-width: 32rem;
+    margin: 0 auto;
+  }
+
+  .meta-row {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-top: 1.1rem;
+    font-family: var(--font-ui);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+  }
+  .meta-row span { white-space: nowrap; }
+  .meta-row b { color: var(--ink); font-weight: 600; }
+
+  /* ---------- Ribbon progress ---------- */
+
+  .ribbon-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: linear-gradient(var(--paper) 78%, transparent);
+    padding: 0.9rem 0 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ribbon-track {
+    height: 10px;
+    border-radius: 6px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px var(--shadow);
+  }
+  .ribbon-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--ocher-soft), var(--ocher));
+    transition: width 0.4s ease;
+  }
+  .ribbon-label {
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.4rem;
+    letter-spacing: 0.02em;
+  }
+
+  /* ---------- Chapters ---------- */
+
+  .chapter {
+    margin-bottom: 3rem;
+  }
+
+  .chapter-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.9rem;
+    margin-bottom: 1.3rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 2px solid var(--petrol);
+  }
+  .chapter-num {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.9rem;
+    color: var(--ocher);
+    line-height: 1;
+  }
+  .chapter-title {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    color: var(--petrol);
+    line-height: 1.2;
+  }
+  .chapter-range {
+    margin-left: auto;
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  /* ---------- Question card ---------- */
+
+  .card {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1.4rem 1.5rem 1.5rem;
+    margin-bottom: 1.15rem;
+    position: relative;
+    box-shadow: 0 1px 3px var(--shadow);
+    transition: box-shadow 0.2s ease;
+  }
+  .card.correct { box-shadow: 0 0 0 2px var(--good), 0 2px 8px var(--shadow); }
+  .card.wrong { box-shadow: 0 0 0 2px var(--rust), 0 2px 8px var(--shadow); }
+
+  .card-head {
+    display: flex;
+    gap: 0.9rem;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+  .q-num {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.5rem;
+    color: var(--ink-soft);
+    min-width: 1.6em;
+    line-height: 1.15;
+  }
+  .q-text {
+    font-family: var(--font-body);
+    font-size: 1.12rem;
+    line-height: 1.5;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  .q-marginale {
+    font-family: var(--font-ui);
+    font-size: 0.68rem;
+    color: var(--ocher);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    display: block;
+    margin-top: 0.3rem;
+  }
+
+  .options {
+    display: grid;
+    gap: 0.55rem;
+    margin-left: 2.5rem;
+  }
+
+  .opt {
+    font-family: var(--font-ui);
+    text-align: left;
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 0.65rem 0.9rem;
+    font-size: 0.94rem;
+    color: var(--ink);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+  }
+  .opt:hover:not(:disabled) {
+    border-color: var(--ocher);
+    background: color-mix(in srgb, var(--ocher) 8%, transparent);
+  }
+  .opt:focus-visible {
+    outline: 2px solid var(--ocher);
+    outline-offset: 2px;
+  }
+  .opt:active:not(:disabled) { transform: scale(0.995); }
+  .opt:disabled { cursor: default; }
+
+  .opt-letter {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    min-width: 1.2em;
+  }
+
+  .opt.is-correct {
+    border-color: var(--good);
+    background: var(--good-soft);
+  }
+  .opt.is-correct .opt-letter { color: var(--good); }
+  .opt.is-wrong {
+    border-color: var(--rust);
+    background: var(--rust-soft);
+  }
+  .opt.is-wrong .opt-letter { color: var(--rust); }
+  .opt.is-dim { opacity: 0.55; }
+
+  .footnote {
+    margin: 0.9rem 0 0 2.5rem;
+    padding: 0.8rem 1rem;
+    border-left: 3px solid var(--ocher);
+    background: color-mix(in srgb, var(--ocher) 7%, transparent);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    display: none;
+    border-radius: 0 3px 3px 0;
+  }
+  .footnote.show {
+    display: block;
+    animation: reveal 0.25s ease;
+  }
+  @keyframes reveal {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .footnote b { color: var(--ink); }
+
+  /* ---------- Result ---------- */
+
+  .result {
+    margin-top: 2.5rem;
+    padding: 2rem;
+    text-align: center;
+    background: var(--petrol);
+    color: var(--paper);
+    border-radius: 6px;
+    display: none;
+  }
+  .result.show { display: block; animation: reveal 0.35s ease; }
+  .result .score {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 3rem;
+    color: var(--ocher-soft);
+    line-height: 1;
+  }
+  .result .verdict {
+    font-family: var(--font-ui);
+    font-size: 1rem;
+    margin-top: 0.6rem;
+    max-width: 30rem;
+    margin-inline: auto;
+    color: var(--paper);
+    opacity: 0.92;
+  }
+  .result .reset {
+    margin-top: 1.4rem;
+    font-family: var(--font-ui);
+    font-size: 0.82rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--ocher-soft);
+    border: 1px solid var(--ocher-soft);
+    padding: 0.55rem 1.3rem;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .result .reset:hover { background: rgba(255,255,255,0.08); }
+
+  footer.colophon {
+    text-align: center;
+    margin-top: 3rem;
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.03em;
+  }
+
+  @media (max-width: 560px) {
+    .options { margin-left: 0; }
+    .footnote { margin-left: 0; }
+    .q-num { min-width: 1.3em; }
+    .chapter-range { margin-left: 0; width: 100%; }
+    .chapter-head { flex-wrap: wrap; }
+  }
+
+  /* ---------- GRUMI-Navigationsleiste ---------- */
+  .grumi-nav {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0.9rem clamp(1.25rem, 5vw, 2rem) 0;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-ui);
+    font-size: 0.82rem;
+  }
+  .grumi-nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--ink-soft);
+    text-decoration: none;
+    padding: 0.4rem 0.8rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  }
+  .grumi-nav a:hover,
+  .grumi-nav a:focus-visible {
+    border-color: var(--ocher);
+    color: var(--ocher);
+    background: color-mix(in srgb, var(--ocher) 8%, transparent);
+    outline: none;
+  }
+  .grumi-nav .sep { color: var(--ink-soft); opacity: 0.5; }
+  .grumi-nav .here { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<nav class="grumi-nav" aria-label="Pfad">
+  <a href="../index.html">&larr; Lekt&uuml;ren</a>
+  <span class="sep">&middot;</span>
+  <span class="here">Deutsch 9 &middot; GRUMI Lernplattform</span>
+</nav>
+
+<div class="page">
+
+  <header class="masthead">
+    <div class="kicker">Lektürequiz · 9a · Mittelschule Unterhaching</div>
+    <h1 class="title">Der Vorleser</h1>
+    <p class="subtitle">Bernhard Schlink — Zweiter Teil, Seite 83 bis ca. 161</p>
+    <div class="meta-row">
+      <span><b id="totalQ">28</b>&nbsp;Fragen</span>
+      <span>·</span>
+      <span>in <b>3 Abschnitten</b></span>
+      <span>·</span>
+      <span>zum Selbstcheck vor der Stunde</span>
+    </div>
+  </header>
+
+  <div class="ribbon-wrap">
+    <div class="ribbon-track"><div class="ribbon-fill" id="ribbonFill"></div></div>
+    <div class="ribbon-label">
+      <span id="progressText">0 von 28 beantwortet</span>
+      <span id="progressPct">0 %</span>
+    </div>
+  </div>
+
+  <form id="quiz">
+
+    <section class="chapter">
+      <div class="chapter-head">
+        <span class="chapter-num">I.</span>
+        <span class="chapter-title">Das Wiedersehen im Gerichtssaal</span>
+        <span class="chapter-range">Kap. 1–6 · ca. S. 83–110</span>
+      </div>
+
+      <div class="card" data-q="0">
+        <div class="card-head">
+          <span class="q-num">1</span>
+          <div>
+            <p class="q-text">Was studiert Michael, als er Hanna Jahre später wiedersieht?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Medizin</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Jura (Rechtswissenschaft)</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Philosophie</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Germanistik</button>
+        </div>
+        <div class="footnote">Michael ist inzwischen <b>Jurastudent</b>. Ausgerechnet sein Studium führt ihn in den Gerichtssaal — und damit zurück zu Hanna, die er seit ihrem Verschwinden nicht mehr gesehen hat.</div>
+      </div>
+
+      <div class="card" data-q="1">
+        <div class="card-head">
+          <span class="q-num">2</span>
+          <div>
+            <p class="q-text">In welchem Rahmen besucht Michael den Prozess?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Als Zuschauer aus privater Neugier</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Mit einem Uni-Seminar, das einen KZ-Prozess beobachtet</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Als Praktikant der Staatsanwaltschaft</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Als Journalist einer Studentenzeitung</button>
+        </div>
+        <div class="footnote">Michael nimmt an einem <b>KZ-Seminar</b> seines Professors teil. Die Studenten verfolgen einen Prozess gegen ehemalige Aufseherinnen — als Teil der jungen Generation, die die Verbrechen der Elterngeneration <b>aufarbeiten</b> will.</div>
+      </div>
+
+      <div class="card" data-q="2">
+        <div class="card-head">
+          <span class="q-num">3</span>
+          <div>
+            <p class="q-text">In welcher Rolle sieht Michael Hanna im Gerichtssaal wieder?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Als Zeugin</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Als Zuschauerin</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">c</span> Als Angeklagte</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Als Protokollführerin</button>
+        </div>
+        <div class="footnote">Hanna sitzt auf der <b>Anklagebank</b>. Für Michael bricht damit sein sorgsam verdrängtes Geheimnis wieder auf — die Frau seiner ersten Liebe ist eine mutmaßliche NS-Verbrecherin.</div>
+      </div>
+
+      <div class="card" data-q="3">
+        <div class="card-head">
+          <span class="q-num">4</span>
+          <div>
+            <p class="q-text">Was war Hanna während des Krieges — worum geht es in der Anklage?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Sie war Krankenschwester in einem Lazarett</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Sie war KZ-Aufseherin bei der SS</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Sie war Sekretärin der Gestapo</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Sie war Köchin in einer Kaserne</button>
+        </div>
+        <div class="footnote">Hanna war <b>Aufseherin</b> in einem Konzentrationslager. Das ist das Geheimnis, das sie im ersten Teil nie preisgegeben hat — und das nun öffentlich verhandelt wird.</div>
+      </div>
+
+      <div class="card" data-q="4">
+        <div class="card-head">
+          <span class="q-num">5</span>
+          <div>
+            <p class="q-text">Wo lag das Lager, in dem Hanna als Aufseherin eingesetzt war?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">a</span> In einem kleinen Lager bei Krakau, einem Außenlager von Auschwitz</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Direkt im Stammlager Auschwitz</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> In Dachau bei München</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> In Bergen-Belsen</button>
+        </div>
+        <div class="footnote">Es geht um ein <b>kleines Außenlager von Auschwitz bei Krakau</b>. Von dort wurden regelmäßig Gefangene zurück nach Auschwitz geschickt — die sogenannten <b>Selektionen</b>, die ein zentraler Anklagepunkt sind.</div>
+      </div>
+
+      <div class="card" data-q="5">
+        <div class="card-head">
+          <span class="q-num">6</span>
+          <div>
+            <p class="q-text">Wie viele Frauen sind in dem Prozess angeklagt?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Hanna allein</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Drei Frauen</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">c</span> Fünf Frauen — Hanna und vier weitere</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Über zwanzig Frauen</button>
+        </div>
+        <div class="footnote">Angeklagt sind <b>fünf ehemalige Aufseherinnen</b>. Die vier Mitangeklagten halten zusammen — und schieben Hanna im Laufe des Prozesses immer mehr die Hauptschuld zu.</div>
+      </div>
+
+      <div class="card" data-q="6">
+        <div class="card-head">
+          <span class="q-num">7</span>
+          <div>
+            <p class="q-text">Wie kam Hanna überhaupt zur SS?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Sie wurde zwangsverpflichtet</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Sie arbeitete bei Siemens, sollte befördert werden — und meldete sich stattdessen als Aufseherin</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Sie war überzeugte Nationalsozialistin und meldete sich aus Ideologie</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Ihre Familie zwang sie dazu</button>
+        </div>
+        <div class="footnote">Hanna arbeitete bei <b>Siemens</b> und stand vor einer Beförderung zur Vorarbeiterin — da meldete sie sich zur SS. Im Rückblick erkennt Michael das Muster: Sie floh vor jeder Aufgabe, die <b>Lesen und Schreiben</b> erfordert hätte. Genau wie später bei der Straßenbahn.</div>
+      </div>
+
+      <div class="card" data-q="7">
+        <div class="card-head">
+          <span class="q-num">8</span>
+          <div>
+            <p class="q-text">Was wird den Angeklagten neben den Selektionen im Lager als zweites, schwerstes Verbrechen vorgeworfen?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Die Misshandlung einzelner Gefangener bei Verhören</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Dass sie in der Bombennacht die in einer brennenden Kirche eingeschlossenen Gefangenen nicht befreiten</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Der Diebstahl von Wertsachen der Gefangenen</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Die Flucht vor der herannahenden Front</button>
+        </div>
+        <div class="footnote">Auf dem Todesmarsch nach Westen übernachteten die Gefangenen in einer <b>Kirche</b>, die bei einem Bombenangriff in Brand geriet. Die Aufseherinnen <b>schlossen die Türen nicht auf</b> — fast alle Frauen verbrannten. Diese „Brandnacht" ist der Kern der Anklage.</div>
+      </div>
+
+      <div class="card" data-q="8">
+        <div class="card-head">
+          <span class="q-num">9</span>
+          <div>
+            <p class="q-text">Wer überlebte die Brandnacht in der Kirche?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Niemand</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Ein kleiner Junge</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">c</span> Eine Mutter und ihre Tochter</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Drei junge Männer</button>
+        </div>
+        <div class="footnote">Nur eine <b>Mutter und ihre Tochter</b> überlebten. Beide treten im Prozess als Hauptzeuginnen auf — und die Tochter hat über das Lager ein <b>Buch</b> geschrieben, das im Prozess eine wichtige Rolle spielt.</div>
+      </div>
+
+      <div class="card" data-q="9">
+        <div class="card-head">
+          <span class="q-num">10</span>
+          <div>
+            <p class="q-text">Wie verhält sich Hanna vor Gericht im Vergleich zu den Mitangeklagten?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Sie leugnet geschickt alles ab</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Sie hat keine Taktik: Sie widerspricht dem Richter, gibt Dinge zu, die andere leugnen — und schadet sich damit selbst</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Sie schweigt den gesamten Prozess über</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Sie zeigt sich reuig und bittet die Zeuginnen um Verzeihung</button>
+        </div>
+        <div class="footnote">Während die anderen Frauen taktieren, ist Hanna <b>ehrlich bis zur Selbstbeschädigung</b>: Sie streitet mit dem Vorsitzenden, gibt zu, was ihr schadet, und versteht die Spielregeln des Gerichts nicht. Für die Richter wirkt das wie Uneinsichtigkeit.</div>
+      </div>
+    </section>
+
+    <section class="chapter">
+      <div class="chapter-head">
+        <span class="chapter-num">II.</span>
+        <span class="chapter-title">Der Prozess und Hannas Geheimnis</span>
+        <span class="chapter-range">Kap. 7–12 · ca. S. 111–137</span>
+      </div>
+
+      <div class="card" data-q="10">
+        <div class="card-head">
+          <span class="q-num">11</span>
+          <div>
+            <p class="q-text">Welche berühmte Gegenfrage stellt Hanna dem Vorsitzenden Richter, als es um die Selektionen geht?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> „Warum fragen Sie mich das?"</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> „Wer sind Sie, mich zu verurteilen?"</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">c</span> „Was hätten Sie denn gemacht?"</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> „Glauben Sie mir denn nicht?"</button>
+        </div>
+        <div class="footnote"><b>„Was hätten Sie denn gemacht?"</b> — Hannas Frage ist keine Ausrede, sondern ernst gemeint: Sie versteht nicht, was sie damals hätte anders tun sollen. Der Richter weicht mit einer Floskel aus. Die Szene gehört zu den Schlüsselstellen des Romans.</div>
+      </div>
+
+      <div class="card" data-q="11">
+        <div class="card-head">
+          <span class="q-num">12</span>
+          <div>
+            <p class="q-text">Was ließ Hanna im Lager von ihren „Schützlingen" — schwachen, zarten Mädchen — tun?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Für sie kochen und putzen</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Sich von ihnen vorlesen lassen</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Ihre Uniform ausbessern</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Briefe für sie schreiben</button>
+        </div>
+        <div class="footnote">Hanna wählte junge, schwache Gefangene aus, verschonte sie von der Arbeit und ließ sich abends von ihnen <b>vorlesen</b> — bevor sie dennoch nach Auschwitz geschickt wurden. Das Vorlese-Ritual aus Teil 1 erscheint hier in einem erschütternden neuen Licht.</div>
+      </div>
+
+      <div class="card" data-q="12">
+        <div class="card-head">
+          <span class="q-num">13</span>
+          <div>
+            <p class="q-text">Welche Rolle spielt der schriftliche Bericht über die Brandnacht im Prozess?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Er entlastet alle Angeklagten</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Die Mitangeklagten behaupten, Hanna habe ihn verfasst — sie sei die Anführerin gewesen</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Er ist im Krieg verloren gegangen</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Der Richter erklärt ihn für gefälscht</button>
+        </div>
+        <div class="footnote">Der <b>SS-Bericht</b> über die Brandnacht wird zum entscheidenden Beweisstück. Die Mitangeklagten schieben Hanna die Verfasserschaft zu und stempeln sie damit zur <b>Hauptverantwortlichen</b> — obwohl sie den Bericht gar nicht geschrieben haben kann.</div>
+      </div>
+
+      <div class="card" data-q="13">
+        <div class="card-head">
+          <span class="q-num">14</span>
+          <div>
+            <p class="q-text">Wie reagiert Hanna, als der Richter ein Schriftgutachten ankündigt, um die Verfasserschaft des Berichts zu klären?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Sie liefert bereitwillig eine Schriftprobe</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Sie gibt plötzlich zu, den Bericht geschrieben zu haben — obwohl es nicht stimmt</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Sie verlangt einen neuen Anwalt</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Sie bricht in Tränen aus und verlässt den Saal</button>
+        </div>
+        <div class="footnote">Um die <b>Schriftprobe zu vermeiden</b>, nimmt Hanna die Verfasserschaft auf sich — und besiegelt damit ihr Urteil. Lieber lässt sie sich als Haupttäterin verurteilen, als vor allen zuzugeben, dass sie nicht schreiben kann.</div>
+      </div>
+
+      <div class="card" data-q="14">
+        <div class="card-head">
+          <span class="q-num">15</span>
+          <div>
+            <p class="q-text">Welches Geheimnis Hannas erkennt Michael während des Prozesses?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Sie hat eine Tochter, von der niemand weiß</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Sie war in Wahrheit gar nicht im Lager</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">c</span> Sie ist Analphabetin — sie kann weder lesen noch schreiben</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Sie lebt unter falschem Namen</button>
+        </div>
+        <div class="footnote">Michael durchschaut als Einziger im Saal: Hanna ist <b>Analphabetin</b>. Ihr ganzes Verhalten — im Prozess wie in der gemeinsamen Zeit — ordnet sich schlagartig neu: Ihr Leben lang hat sie diese Scham vor allen verborgen.</div>
+      </div>
+
+      <div class="card" data-q="15">
+        <div class="card-head">
+          <span class="q-num">16</span>
+          <div>
+            <p class="q-text">Welche Rätsel aus dem ersten Teil erklären sich durch Hannas Analphabetismus?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Ihre Vorliebe für das gemeinsame Baden</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Ihre Kündigung vor der Beförderung zur Fahrerin und ihr Wutausbruch wegen des Zettels auf der Radtour</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Ihre wechselnden Wohnorte als Kind</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Ihr Kosename „Jungchen" für Michael</button>
+        </div>
+        <div class="footnote">Jetzt versteht Michael: Hanna floh vor jeder <b>Schulung und Beförderung</b>, weil dort ihr Geheimnis aufgeflogen wäre — und auf der Radtour konnte sie seinen <b>Zettel</b> schlicht nicht lesen. Ihre Wut war Panik.</div>
+      </div>
+
+      <div class="card" data-q="16">
+        <div class="card-head">
+          <span class="q-num">17</span>
+          <div>
+            <p class="q-text">Warum verschweigt Hanna ihr Geheimnis, obwohl es sie vor Gericht entlasten würde?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Ihr Anwalt hat es ihr verboten</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Sie will die Mitangeklagten schützen</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">c</span> Aus Scham — die Bloßstellung als Analphabetin wiegt für sie schwerer als die Strafe</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Sie hofft auf eine Amnestie</button>
+        </div>
+        <div class="footnote">Hannas <b>Scham</b> ist stärker als ihr Selbsterhaltungstrieb: Lieber lebenslang ins Gefängnis als vor aller Welt als Analphabetin dazustehen. Diese Abwägung ist der tragische Kern ihrer Figur.</div>
+      </div>
+
+      <div class="card" data-q="17">
+        <div class="card-head">
+          <span class="q-num">18</span>
+          <div>
+            <p class="q-text">An wen wendet sich Michael mit der Frage, ob er Hannas Geheimnis dem Gericht offenbaren darf?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> An seinen Seminarprofessor</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> An seinen Vater, den Philosophieprofessor</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> An Hannas Verteidiger</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> An seine Mutter</button>
+        </div>
+        <div class="footnote">Michael sucht Rat bei seinem <b>Vater</b> — eine der seltenen echten Gespräche zwischen den beiden. Er stellt die Frage abstrakt-philosophisch, ohne zu verraten, dass es um Hanna geht.</div>
+      </div>
+
+      <div class="card" data-q="18">
+        <div class="card-head">
+          <span class="q-num">19</span>
+          <div>
+            <p class="q-text">Was rät ihm der Vater sinngemäß?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Er solle sofort zum Richter gehen und alles sagen</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Man dürfe sich nicht über Würde und Willen eines Menschen hinwegsetzen — er müsse mit ihr selbst reden, nicht hinter ihrem Rücken handeln</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Er solle sich aus der Sache heraushalten und den Prozess vergessen</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Er solle einen Anwalt einschalten</button>
+        </div>
+        <div class="footnote">Der Vater argumentiert mit der <b>Würde und Freiheit</b> des Menschen: Über einen Erwachsenen hinweg zu entscheiden, „was gut für ihn ist", sei nicht erlaubt — man müsse mit ihm sprechen. Genau dazu aber fehlt Michael der Mut.</div>
+      </div>
+
+      <div class="card" data-q="19">
+        <div class="card-head">
+          <span class="q-num">20</span>
+          <div>
+            <p class="q-text">Wie geht Michaels Versuch aus, dem Vorsitzenden Richter Hannas Geheimnis mitzuteilen?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Er sagt dem Richter alles, doch der glaubt ihm nicht</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Er geht zwar zum Richter, verschweigt das Geheimnis im Gespräch aber</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Der Richter lehnt jedes Gespräch ab</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Er schreibt dem Richter einen anonymen Brief</button>
+        </div>
+        <div class="footnote">Michael erreicht einen Termin beim <b>Vorsitzenden</b> — doch im entscheidenden Moment redet er über alles Mögliche, nur nicht über Hanna. Sein <b>Schweigen</b> wird zu einer der Schuldfragen, die ihn durch den Rest des Romans begleiten.</div>
+      </div>
+    </section>
+
+    <section class="chapter">
+      <div class="chapter-head">
+        <span class="chapter-num">III.</span>
+        <span class="chapter-title">Betäubung, Struthof und das Urteil</span>
+        <span class="chapter-range">Kap. 13–17 · ca. S. 138–161</span>
+      </div>
+
+      <div class="card" data-q="20">
+        <div class="card-head">
+          <span class="q-num">21</span>
+          <div>
+            <p class="q-text">Mit welchem Begriff beschreibt Michael den Zustand, in den fast alle Prozessbeteiligten mit der Zeit verfallen?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Empörung</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Betäubung</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Gleichgültigkeit</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Verzweiflung</button>
+        </div>
+        <div class="footnote">Michael nennt es <b>Betäubung</b>: Das ständige Sprechen über das Grauen lässt Richter, Zeugen, Zuschauer — und ihn selbst — abstumpfen. Er fragt sich, ob dieselbe Betäubung auch Täter und Opfer damals erfasst hat.</div>
+      </div>
+
+      <div class="card" data-q="21">
+        <div class="card-head">
+          <span class="q-num">22</span>
+          <div>
+            <p class="q-text">Wohin fährt Michael während des Prozesses, um sich das Grauen der Lager anschaulich zu machen?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Nach Auschwitz in Polen</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Zum ehemaligen KZ Struthof im Elsass</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Nach Dachau</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Nach Buchenwald</button>
+        </div>
+        <div class="footnote">Michael trampt ins Elsass zum ehemaligen KZ <b>Natzweiler-Struthof</b>. Doch die erhoffte unmittelbare Erschütterung bleibt aus — die leeren Baracken erzählen ihm nicht, was er verstehen will.</div>
+      </div>
+
+      <div class="card" data-q="22">
+        <div class="card-head">
+          <span class="q-num">23</span>
+          <div>
+            <p class="q-text">Was behauptet der Fahrer, der Michael auf der Fahrt nach Struthof mitnimmt, über die Täter der NS-Zeit?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Sie hätten alle nur Befehle befolgt und seien deshalb unschuldig</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Sie hätten nicht aus Hass gemordet, sondern aus Gleichgültigkeit — wie ein Henker, der seine Arbeit tut</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Die Verbrechen seien maßlos übertrieben dargestellt</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Nur die oberste Führung trage Verantwortung</button>
+        </div>
+        <div class="footnote">Der Fahrer beschreibt das Töten als <b>gleichgültige „Arbeit"</b> — so kenntnisreich und kalt, dass Michael ihn fragt, ob er selbst dabei gewesen sei. Daraufhin muss Michael <b>aussteigen</b>. Die Szene lässt offen, ob er einem Täter begegnet ist.</div>
+      </div>
+
+      <div class="card" data-q="23">
+        <div class="card-head">
+          <span class="q-num">24</span>
+          <div>
+            <p class="q-text">Warum ist Hanna im Prozess gegenüber den Mitangeklagten strukturell im Nachteil?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Sie ist die Jüngste und wird nicht ernst genommen</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Sie kann Anklageschrift und Buch nicht lesen, hat keine Prozessstrategie — und die anderen schieben ihr geschlossen die Hauptschuld zu</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Sie hat als Einzige kein Alibi</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Sie beleidigt wiederholt die Zeuginnen</button>
+        </div>
+        <div class="footnote">Ohne Lesen ist Hanna dem Verfahren <b>ausgeliefert</b>: Sie kennt weder Anklageschrift noch Beweismaterial aus eigener Lektüre, ihr Pflichtverteidiger engagiert sich kaum — und die vier anderen nutzen ihre Schwäche gezielt aus.</div>
+      </div>
+
+      <div class="card" data-q="24">
+        <div class="card-head">
+          <span class="q-num">25</span>
+          <div>
+            <p class="q-text">Wie lautet das Urteil gegen Hanna?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Freispruch aus Mangel an Beweisen</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Zehn Jahre Haft</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">c</span> Lebenslange Freiheitsstrafe</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Eine Bewährungsstrafe</button>
+        </div>
+        <div class="footnote">Hanna wird als vermeintliche Hauptverantwortliche zu <b>lebenslanger Haft</b> verurteilt — eine Strafe, die maßgeblich auf dem Bericht beruht, den sie nie hätte schreiben können.</div>
+      </div>
+
+      <div class="card" data-q="25">
+        <div class="card-head">
+          <span class="q-num">26</span>
+          <div>
+            <p class="q-text">Welche Strafen erhalten die vier Mitangeklagten?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Ebenfalls lebenslange Haft</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Deutlich mildere, zeitlich befristete Freiheitsstrafen</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Sie werden alle freigesprochen</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Nur Geldstrafen</button>
+        </div>
+        <div class="footnote">Die Mitangeklagten kommen mit <b>zeitigen Freiheitsstrafen</b> davon. Ihre Taktik, Hanna zur Anführerin zu machen, ist aufgegangen — die Ungerechtigkeit dieses Ausgangs gehört zu den bitteren Pointen des zweiten Teils.</div>
+      </div>
+
+      <div class="card" data-q="26">
+        <div class="card-head">
+          <span class="q-num">27</span>
+          <div>
+            <p class="q-text">Wie erscheint Hanna zur Urteilsverkündung — und wie wirkt das auf die Anwesenden?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> In Häftlingskleidung, gebrochen und weinend</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> In einem strengen schwarzen Kostüm, das an eine Uniform erinnert — sie hört das Urteil aufrecht und regungslos an</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Sie erscheint gar nicht zur Verkündung</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> In Alltagskleidung, unauffällig wie immer</button>
+        </div>
+        <div class="footnote">Hanna trägt ein <b>schwarzes Kostüm mit weißer Bluse</b>, das fatal an eine <b>Uniform</b> erinnert, und nimmt das Urteil aufrecht und ohne sichtbare Regung entgegen. Für die Zuschauer bestätigt gerade dieses Bild das Urteil über sie.</div>
+      </div>
+
+      <div class="card" data-q="27">
+        <div class="card-head">
+          <span class="q-num">28</span>
+          <div>
+            <p class="q-text">Warum fühlt sich Michael während des Prozesses selbst schuldig?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Weil er als Zeuge falsch ausgesagt hat</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Weil er eine Verbrecherin geliebt hat — und weil er ihr Geheimnis kennt und dennoch schweigt</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Weil er den Prozess durch sein Seminar erst ausgelöst hat</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Weil er Hanna zur Flucht verholfen hat</button>
+        </div>
+        <div class="footnote">Michael empfindet doppelte Schuld: Er hat <b>eine Täterin geliebt</b> — und macht sich damit in seinen Augen mitschuldig — und er <b>schweigt</b> über ihr Geheimnis, statt zu handeln. Diese Verstrickung von Liebe und Schuld ist das Zentrum des Romans — und seine Verbindung zur Frage, wie die zweite Generation mit der Schuld der ersten umgeht.</div>
+      </div>
+    </section>
+
+  </form>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreText">0 / 28</div>
+    <p class="verdict" id="verdictText"></p>
+    <button class="reset" id="resetBtn" type="button">Quiz neu starten</button>
+  </div>
+
+  <footer class="colophon">
+    Der Vorleser · Bernhard Schlink, 1995 · Quiz zu Teil 2 (S. 83–161) · Klasse 9a, Mittelschule Unterhaching
+  </footer>
+
+</div>
+
+<script>
+  (function () {
+    const cards = Array.from(document.querySelectorAll('.card'));
+    const total = cards.length;
+    let answered = 0;
+    let correctCount = 0;
+
+    // Fragen fortlaufend nummerieren, egal in welcher Reihenfolge sie im HTML stehen.
+    cards.forEach((card, i) => {
+      const numEl = card.querySelector('.q-num');
+      if (numEl) numEl.textContent = i + 1;
+    });
+    const totalQEl = document.getElementById('totalQ');
+    if (totalQEl) totalQEl.textContent = total;
+    document.getElementById('progressText').textContent = '0 von ' + total + ' beantwortet';
+    document.getElementById('scoreText').textContent = '0 / ' + total;
+
+    const ribbonFill = document.getElementById('ribbonFill');
+    const progressText = document.getElementById('progressText');
+    const progressPct = document.getElementById('progressPct');
+    const resultBox = document.getElementById('result');
+    const scoreText = document.getElementById('scoreText');
+    const verdictText = document.getElementById('verdictText');
+
+    function updateProgress() {
+      const pct = Math.round((answered / total) * 100);
+      ribbonFill.style.width = pct + '%';
+      progressText.textContent = answered + ' von ' + total + ' beantwortet';
+      progressPct.textContent = pct + ' %';
+
+      if (answered === total) {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      scoreText.textContent = correctCount + ' / ' + total;
+      let verdict;
+      const ratio = correctCount / total;
+      if (ratio === 1) {
+        verdict = 'Alles verstanden — vom Wiedersehen im Gerichtssaal bis zum Urteil. So liest man Teil 2 von „Der Vorleser“.';
+      } else if (ratio >= 0.75) {
+        verdict = 'Sehr solide! Prozess, Geheimnis und Urteil sitzen bei dir.';
+      } else if (ratio >= 0.5) {
+        verdict = 'Guter Grundstock — ein zweiter Blick in die Prozesskapitel lohnt sich noch.';
+      } else {
+        verdict = 'Zeit, Teil 2 noch einmal aufzuschlagen — die Anmerkungen bei jeder Frage helfen dir dabei.';
+      }
+      verdictText.textContent = verdict;
+      resultBox.classList.add('show');
+      resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    cards.forEach((card) => {
+      const buttons = Array.from(card.querySelectorAll('.opt'));
+      const footnote = card.querySelector('.footnote');
+      let cardAnswered = false;
+
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          if (cardAnswered) return;
+          cardAnswered = true;
+          answered++;
+
+          const isCorrect = btn.dataset.correct === 'true';
+          if (isCorrect) correctCount++;
+
+          buttons.forEach((b) => {
+            b.disabled = true;
+            if (b.dataset.correct === 'true') {
+              b.classList.add('is-correct');
+            } else if (b === btn) {
+              b.classList.add('is-wrong');
+            } else {
+              b.classList.add('is-dim');
+            }
+          });
+
+          card.classList.add(isCorrect ? 'correct' : 'wrong');
+          footnote.classList.add('show');
+
+          updateProgress();
+        });
+      });
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      window.location.reload();
+    });
+  })();
+</script>
+</body>
+</html>
