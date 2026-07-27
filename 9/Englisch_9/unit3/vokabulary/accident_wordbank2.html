@@ -335,9 +335,9 @@
     </section>
 
     <section class="tabs">
-      <button class="tab active" onclick="setLevel('a',this)">Level A</button>
-      <button class="tab" onclick="setLevel('b',this)">Level B</button>
-      <button class="tab" onclick="setLevel('c',this)">Level C</button>
+      <button class="tab active" onclick="setLevel('a',this)">Level A<br><small>Wörter erkennen</small></button>
+      <button class="tab" onclick="setLevel('b',this)">Level B<br><small>Lücken füllen</small></button>
+      <button class="tab" onclick="setLevel('c',this)">Level C<br><small>Selbst schreiben</small></button>
     </section>
 
     <section id="level-a" class="lsec show">
@@ -370,7 +370,7 @@
       <div class="topbar"><div class="score"><div class="sn">OK: <span id="cr">0</span></div><div class="sn">X: <span id="cw">0</span></div></div><button class="btn" onclick="resetC()">Reset</button></div>
 
       <div class="card" id="c1"><div class="exnum">Exercise 1</div><div class="q">Write one witness sentence with: <b>I arrived at ...</b></div><input class="wi" id="c1i" type="text" placeholder="I arrived at ..."><div class="fbrow"><button class="btn chk" onclick="chkFree('c1',['i arrived at'],'c')">Check</button><button class="btn" onclick="aiHelp('c1')">KI-Hilfe</button><button class="btn" onclick="shwTr('c1','I arrived at 5:30 pm and saw two damaged cars.','c')">Show</button><span class="fb" id="c1f"></span></div><div class="fbrow"><span class="fb" id="c1ai"></span></div></div>
-      <div class="card" id="c2"><div class="exnum">Exercise 2</div><div class="q">Use sequence words: <b>First ... then ... after that ...</b></div><input class="wi" id="c2i" type="text" placeholder="First ..., then ..., after that ..."><div class="fbrow"><button class="btn chk" onclick="chkFree('c2',['first','then','after'],'c')">Check</button><button class="btn" onclick="aiHelp('c2')">KI-Hilfe</button><button class="btn" onclick="shwTr('c2','First a bike stopped, then a car turned, after that they crashed.','c')">Show</button><span class="fb" id="c2f"></span></div><div class="fbrow"><span class="fb" id="c2ai"></span></div></div>
+      <div class="card" id="c2"><div class="exnum">Exercise 2</div><div class="q">Use sequence words: <b>First ... then ... after that ...</b></div><input class="wi" id="c2i" type="text" placeholder="First ..., then ..., after that ..."><div class="fbrow"><button class="btn chk" onclick="chkFreeAll('c2',['first','then','after'],'c')">Check</button><button class="btn" onclick="aiHelp('c2')">KI-Hilfe</button><button class="btn" onclick="shwTr('c2','First a bike stopped, then a car turned, after that they crashed.','c')">Show</button><span class="fb" id="c2f"></span></div><div class="fbrow"><span class="fb" id="c2ai"></span></div></div>
       <div class="card" id="c3"><div class="exnum">Exercise 3</div><div class="q">Write one police question about details.</div><input class="wi" id="c3i" type="text" placeholder="Can you explain ... ?"><div class="fbrow"><button class="btn chk" onclick="chkFree('c3',['can you explain'],'c')">Check</button><button class="btn" onclick="aiHelp('c3')">KI-Hilfe</button><button class="btn" onclick="shwTr('c3','Can you explain in more detail what happened at the crossing?','c')">Show</button><span class="fb" id="c3f"></span></div><div class="fbrow"><span class="fb" id="c3ai"></span></div></div>
       <div class="card" id="c4"><div class="exnum">Exercise 4</div><div class="q">Use a time reference: <b>before / after / when / at the time</b>.</div><input class="wi" id="c4i" type="text" placeholder="The accident happened ..."><div class="fbrow"><button class="btn chk" onclick="chkFree('c4',['before','after','when','at the time'],'c')">Check</button><button class="btn" onclick="aiHelp('c4')">KI-Hilfe</button><button class="btn" onclick="shwTr('c4','The accident happened before the traffic lights changed.','c')">Show</button><span class="fb" id="c4f"></span></div><div class="fbrow"><span class="fb" id="c4ai"></span></div></div>
       <div class="card" id="c5"><div class="exnum">Exercise 5</div><div class="q">Write 4-5 sentences of a full witness statement.</div><textarea class="wi" id="c5i" rows="5" placeholder="I arrived at ... First ..."></textarea><div class="fbrow"><button class="btn chk" onclick="chkEssay('c5')">Check</button><button class="btn" onclick="aiHelp('c5')">KI-Hilfe</button><button class="btn" onclick="shwTr('c5','I arrived at 5:30 pm near the crossing. First a bike stopped at the red light. Then a car turned too fast. After that the bike fell and two people called an ambulance. The police asked for names and phone numbers.','c')">Show</button><span class="fb" id="c5f"></span></div><div class="fbrow"><span class="fb" id="c5ai"></span></div></div>
@@ -542,12 +542,22 @@
       ans[id]=true; if(ok)sc[lvl].r++; else sc[lvl].w++; updSc(lvl);
     }
 
+    function chkFreeAll(id,required,lvl){
+      if(ans[id])return;
+      const inp=document.getElementById(id+'i');
+      const val=nrm(inp.value);
+      const ok=required.every(r=>val.includes(nrm(r)))&&val.length>10;
+      inp.classList.add(ok?'ok':'err'); inp.disabled=true;
+      const fb=document.getElementById(id+'f'); fb.className='fb '+(ok?'g':'b'); fb.textContent=ok?'Good sentence.':'Use all words from the task: '+required.join(', ')+'.';
+      ans[id]=true; if(ok)sc[lvl].r++; else sc[lvl].w++; updSc(lvl);
+    }
+
     function chkEssay(id){
       if(ans[id])return;
       const inp=document.getElementById(id+'i');
       const val=nrm(inp.value);
-      const hasSeq=(val.includes('first')||val.includes('then')||val.includes('after'));
-      const hasTime=(val.includes('before')||val.includes('after')||val.includes('when')||val.includes('at the time'));
+      const hasSeq=(val.includes('first')||val.includes('then')||val.includes('after that'));
+      const hasTime=(val.includes('before')||val.includes('when')||val.includes('at the time')||val.includes('arrived at'));
       const ok=hasSeq&&hasTime&&val.length>90;
       inp.classList.add(ok?'ok':'err');
       const fb=document.getElementById(id+'f'); fb.className='fb '+(ok?'g':'b'); fb.textContent=ok?'Excellent text.':'Need sequence words + one time reference.';
@@ -610,6 +620,7 @@
 </script>
 </body>
 </html>
+
 
 
 

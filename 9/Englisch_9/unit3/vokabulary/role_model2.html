@@ -322,7 +322,7 @@
   <main class="wrap">
     <section class="hero">
 <h1>Role Model Studio</h1>
-      <p class="sub">More sparkle, same working KI. Train your language with singer role models.</p>
+      <p class="sub">Talk and write about role models - word bank, three levels and KI feedback.</p>
 
             <div class="gallery">
         <figure class="shot">
@@ -380,9 +380,9 @@
     </section>
 
     <section class="tabs">
-      <button class="tab active" onclick="setLevel('a',this)">Level A</button>
-      <button class="tab" onclick="setLevel('b',this)">Level B</button>
-      <button class="tab" onclick="setLevel('c',this)">Level C</button>
+      <button class="tab active" onclick="setLevel('a',this)">Level A<br><small>Wörter erkennen</small></button>
+      <button class="tab" onclick="setLevel('b',this)">Level B<br><small>Lücken füllen</small></button>
+      <button class="tab" onclick="setLevel('c',this)">Level C<br><small>Selbst schreiben</small></button>
     </section>
 
     <section id="level-a" class="lsec show">
@@ -415,7 +415,7 @@
     <section id="level-c" class="lsec">
       <div class="topbar"><div class="score"><div class="sn">OK: <span id="cr">0</span></div><div class="sn">X: <span id="cw">0</span></div></div><button class="btn" onclick="resetC()">Reset</button></div>
 
-      <div class="card" id="c1"><div class="exnum">Exercise 1</div><div class="q">Describe someone honest. Use: honest / tells the truth.</div><input class="wi" id="c1i" type="text" placeholder="... is honest because ..."><div class="fbrow"><button class="btn chk" onclick="chkFree('c1',['honest','truth'],'c')">Check</button><button class="btn" onclick="aiHelp('c1')">KI-Hilfe</button><button class="btn" onclick="shwTr('c1','My role model is honest because she always tells the truth.','c')">Show</button><span class="fb" id="c1f"></span></div><div class="fbrow"><span class="fb" id="c1ai"></span></div></div>
+      <div class="card" id="c1"><div class="exnum">Exercise 1</div><div class="q">Describe someone honest. Use: honest / tells the truth.</div><input class="wi" id="c1i" type="text" placeholder="... is honest because ..."><div class="fbrow"><button class="btn chk" onclick="chkFreeAll('c1',['honest','truth'],'c')">Check</button><button class="btn" onclick="aiHelp('c1')">KI-Hilfe</button><button class="btn" onclick="shwTr('c1','My role model is honest because she always tells the truth.','c')">Show</button><span class="fb" id="c1f"></span></div><div class="fbrow"><span class="fb" id="c1ai"></span></div></div>
       <div class="card" id="c2"><div class="exnum">Exercise 2</div><div class="q">Use: I admire ... because ... plus one quality.</div><input class="wi" id="c2i" type="text" placeholder="I admire ... because ..."><div class="fbrow"><button class="btn chk" onclick="chkPhrase('c2','c')">Check</button><button class="btn" onclick="aiHelp('c2')">KI-Hilfe</button><button class="btn" onclick="shwTr('c2','I admire Adele because she is confident and kind.','c')">Show</button><span class="fb" id="c2f"></span></div><div class="fbrow"><span class="fb" id="c2ai"></span></div></div>
       <div class="card" id="c3"><div class="exnum">Exercise 3</div><div class="q">Write a sentence with: ... is known for ...</div><input class="wi" id="c3i" type="text" placeholder="... is known for ..."><div class="fbrow"><button class="btn chk" onclick="chkFree('c3',['is known for'],'c')">Check</button><button class="btn" onclick="aiHelp('c3')">KI-Hilfe</button><button class="btn" onclick="shwTr('c3','Billie Eilish is known for her unique style and music.','c')">Show</button><span class="fb" id="c3f"></span></div><div class="fbrow"><span class="fb" id="c3ai"></span></div></div>
       <div class="card" id="c4"><div class="exnum">Exercise 4</div><div class="q">Use: I read that ... OR I saw pictures of ...</div><input class="wi" id="c4i" type="text" placeholder="I read that ... / I saw pictures of ..."><div class="fbrow"><button class="btn chk" onclick="chkFree('c4',['i read that','i saw pictures of'],'c')">Check</button><button class="btn" onclick="aiHelp('c4')">KI-Hilfe</button><button class="btn" onclick="shwTr('c4','I read that she raised money for children in need.','c')">Show</button><span class="fb" id="c4f"></span></div><div class="fbrow"><span class="fb" id="c4ai"></span></div></div>
@@ -517,6 +517,16 @@
       ans[id]=true; if(ok)sc[lvl].r++; else sc[lvl].w++; updSc(lvl);
     }
 
+    function chkFreeAll(id,required,lvl){
+      if(ans[id])return;
+      const inp=document.getElementById(id+'i');
+      const val=nrm(inp.value);
+      const ok=required.every(r=>val.includes(nrm(r)))&&val.length>10;
+      inp.classList.add(ok?'ok':'err'); inp.disabled=true;
+      const fb=document.getElementById(id+'f'); fb.className='fb '+(ok?'g':'b'); fb.textContent=ok?'Good sentence.':'Use all words from the task: '+required.join(', ')+'.';
+      ans[id]=true; if(ok)sc[lvl].r++; else sc[lvl].w++; updSc(lvl);
+    }
+
     function chkPhrase(id,lvl){
       if(ans[id])return;
       const inp=document.getElementById(id+'i');
@@ -594,6 +604,7 @@
 </script>
 </body>
 </html>
+
 
 
 

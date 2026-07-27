@@ -93,9 +93,9 @@ body{font-family:"Trebuchet MS","Segoe UI",sans-serif !important;color:var(--ix-
     </section>
 
     <section class="tabs">
-      <button class="tab active" onclick="showLevel('a',this)">Level A</button>
-      <button class="tab" onclick="showLevel('b',this)">Level B</button>
-      <button class="tab" onclick="showLevel('c',this)">Level C</button>
+      <button class="tab active" onclick="showLevel('a',this)">Level A<br><small>Auswählen</small></button>
+      <button class="tab" onclick="showLevel('b',this)">Level B<br><small>Lücken füllen</small></button>
+      <button class="tab" onclick="showLevel('c',this)">Level C<br><small>Selbst schreiben</small></button>
     </section>
 
     <section id="level-a" class="lvl show">
@@ -138,9 +138,9 @@ body{font-family:"Trebuchet MS","Segoe UI",sans-serif !important;color:var(--ix-
     ];
 
     const C = [
-      {q:"Write one statement with going to (plan).", ph:"I am going to ...", need:["going to"], min:22, model:"I am going to apply for a weekend job."},
-      {q:"Write one negative sentence with going to.", ph:"... is not / are not going to ...", need:["going to","not"], min:24, model:"She is not going to work abroad this year."},
-      {q:"Write one question with going to.", ph:"Are/Is ... going to ...?", need:["going to"], min:20, model:"Are you going to visit New Zealand one day?"},
+      {q:"Write one statement with going to (plan).", ph:"I am going to ...", need:["going to"], min:18, model:"I am going to apply for a weekend job."},
+      {q:"Write one negative sentence with going to.", ph:"... is not / are not going to ...", need:["going to","not"], min:22, model:"She is not going to work abroad this year."},
+      {q:"Write one question with going to.", ph:"Are/Is ... going to ...?", need:["going to"], min:16, model:"Are you going to visit New Zealand one day?"},
       {q:"Write 4-5 lines about your plans for next week.", ph:"Next week, I am going to ...", need:["going to"], min:110, model:"Next week, I am going to finish my English project. I am going to practise vocabulary every day. On Friday, I am going to meet my friend and revise grammar. At the weekend, we are going to play football. I am not going to waste time online."}
     ];
 
@@ -211,7 +211,9 @@ body{font-family:"Trebuchet MS","Segoe UI",sans-serif !important;color:var(--ix-
     function checkC(id,t){
       if(ans[id]) return;
       const inp=document.getElementById(id+'i'); const v=nrm(inp.value);
-      const okNeed=t.need.every(n=>v.includes(nrm(n))); const okLen=v.length>=t.min; const ok=okNeed&&okLen;
+      // Einzelne Woerter nur als ganzes Wort werten ("not" darf nicht in "nothing" zaehlen).
+      const hasTerm=(val,term)=>{const x=nrm(term);return x.includes(' ')?val.includes(x):(' '+val+' ').includes(' '+x+' ');};
+      const okNeed=t.need.every(n=>hasTerm(v,n)); const okLen=v.length>=t.min; const ok=okNeed&&okLen;
       inp.classList.add(ok?'ok':'err'); inp.disabled=true; ans[id]=true;
       const fb=document.getElementById(id+'f'); fb.className='fb '+(ok?'g':'b'); fb.textContent=ok?'Great.':'Bitte Struktur und Laenge verbessern.';
       if(ok)sc.c.r++; else sc.c.w++; upd('c');
@@ -255,6 +257,7 @@ body{font-family:"Trebuchet MS","Segoe UI",sans-serif !important;color:var(--ix-
 </script>
 </body>
 </html>
+
 
 
 

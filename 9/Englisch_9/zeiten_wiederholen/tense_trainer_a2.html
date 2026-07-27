@@ -98,9 +98,9 @@ body{font-family:"Trebuchet MS","Segoe UI",sans-serif !important;color:var(--ix-
     </section>
 
     <section class="tabs">
-      <button class="tab active" onclick="setLevel('a',this)">Level A</button>
-      <button class="tab" onclick="setLevel('b',this)">Level B</button>
-      <button class="tab" onclick="setLevel('c',this)">Level C</button>
+      <button class="tab active" onclick="setLevel('a',this)">Level A<br><small>Auswählen</small></button>
+      <button class="tab" onclick="setLevel('b',this)">Level B<br><small>Lücken füllen</small></button>
+      <button class="tab" onclick="setLevel('c',this)">Level C<br><small>Selbst schreiben</small></button>
     </section>
 
     <section id="level-a" class="lsec show">
@@ -136,7 +136,7 @@ body{font-family:"Trebuchet MS","Segoe UI",sans-serif !important;color:var(--ix-
           { q: "She {1} to school by bus every day.", answers: ["goes"] },
           { q: "They {1} not {2} meat on Fridays.", answers: ["do", "eat"] },
           { q: "{1} he {2} English at home?", answers: ["does", "speak"] },
-          { q: "The shop {1} at 8 o clock.", answers: ["opens"] },
+          { q: "The shop {1} at 8 o'clock.", answers: ["opens"] },
           { q: "I {1} my homework every evening.", answers: ["do"] },
           { q: "We {1} football on Tuesdays.", answers: ["play"] }
         ],
@@ -163,7 +163,7 @@ body{font-family:"Trebuchet MS","Segoe UI",sans-serif !important;color:var(--ix-
           { q: "I {1} not {2} right now.", answers: ["am", "listening"] },
           { q: "{1} they {2} for us?", answers: ["are", "waiting"] },
           { q: "She {1} a message now.", answers: ["is writing"] },
-          { q: "We {1} English at the moment.", answers: ["are studying"] },
+          { q: "We {1} English at the moment.", answers: ["are studying|are learning"] },
           { q: "He {1} not {2} football now.", answers: ["is", "playing"] }
         ],
         c: [
@@ -185,11 +185,11 @@ body{font-family:"Trebuchet MS","Segoe UI",sans-serif !important;color:var(--ix-
           { q: "Pick a past signal word.", options: ["last night", "usually", "at the moment"], correct: "last night" }
         ],
         b: [
-          { q: "We {1} a film yesterday.", answers: ["watched"] },
+          { q: "We {1} a film yesterday.", answers: ["watched|saw"] },
           { q: "She {1} not {2} her homework.", answers: ["did", "finish"] },
           { q: "{1} you {2} your friend?", answers: ["did", "call"] },
           { q: "They {1} to school late last Monday.", answers: ["went"] },
-          { q: "I {1} breakfast at 7 yesterday.", answers: ["had"] },
+          { q: "I {1} breakfast at 7 yesterday.", answers: ["had|ate"] },
           { q: "He {1} not {2} to the party.", answers: ["did", "go"] }
         ],
         c: [
@@ -340,6 +340,12 @@ body{font-family:"Trebuchet MS","Segoe UI",sans-serif !important;color:var(--ix-
       }catch(_e){}
     }
     const nrm = (s) => String(s || "").toLowerCase().replace(/[?.!,']/g, "").replace(/\s+/g, " ").trim();
+    // Antworten mit "|" erlauben Alternativen (z.B. "had|ate").
+    const matchAns = (val, ansStr) => String(ansStr).split("|").some((a) => nrm(val) === nrm(a));
+    const firstAns = (ansStr) => String(ansStr).split("|")[0];
+    const showAns = (ansStr) => String(ansStr).split("|").join(" / ");
+    // Einzelne Woerter nur als ganzes Wort werten ("am" darf nicht in "family" zaehlen).
+    const hasTerm = (val, term) => { const t = nrm(term); return t.includes(" ") ? val.includes(t) : (" " + val + " ").includes(" " + t + " "); };
     function updSc(l){ document.getElementById(l+"r").textContent=sc[l].r; document.getElementById(l+"w").textContent=sc[l].w; }
     function setLevel(l,btn){ document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active")); btn.classList.add("active"); document.querySelectorAll(".lsec").forEach(s=>s.classList.remove("show")); document.getElementById("level-"+l).classList.add("show"); }
 
@@ -389,16 +395,16 @@ body{font-family:"Trebuchet MS","Segoe UI",sans-serif !important;color:var(--ix-
     function chkB(id,answers){
       if(ans[id])return;
       const i1=document.getElementById(id+"g"), i2=document.getElementById(id+"g2");
-      const ok1=nrm(i1?i1.value:"")===nrm(answers[0]); const ok2=answers[1]===undefined?true:nrm(i2?i2.value:"")===nrm(answers[1]); const ok=ok1&&ok2;
+      const ok1=matchAns(i1?i1.value:"",answers[0]); const ok2=answers[1]===undefined?true:matchAns(i2?i2.value:"",answers[1]); const ok=ok1&&ok2;
       if(i1){i1.classList.add(ok1?"ok":"err");i1.disabled=true;} if(i2){i2.classList.add(ok2?"ok":"err");i2.disabled=true;}
-      const fb=document.getElementById(id+"f"); fb.className="fb "+(ok?"g":"b"); fb.textContent=ok?"Correct.":"Solution: "+answers.join(" / ");
+      const fb=document.getElementById(id+"f"); fb.className="fb "+(ok?"g":"b"); fb.textContent=ok?"Correct.":"Solution: "+answers.map(showAns).join(" / ");
       ans[id]=true; if(ok)sc.b.r++;else sc.b.w++;updSc("b"); syncTenseProgress();
     }
     function showB(id,answers){
       if(ans[id])return;
       const i1=document.getElementById(id+"g"), i2=document.getElementById(id+"g2");
-      if(i1){i1.value=answers[0];i1.classList.add("ok");i1.disabled=true;} if(i2&&answers[1]!==undefined){i2.value=answers[1];i2.classList.add("ok");i2.disabled=true;}
-      const fb=document.getElementById(id+"f"); fb.className="fb g"; fb.textContent="-> "+answers.join(" / ");
+      if(i1){i1.value=firstAns(answers[0]);i1.classList.add("ok");i1.disabled=true;} if(i2&&answers[1]!==undefined){i2.value=firstAns(answers[1]);i2.classList.add("ok");i2.disabled=true;}
+      const fb=document.getElementById(id+"f"); fb.className="fb g"; fb.textContent="-> "+answers.map(showAns).join(" / ");
       ans[id]=true; sc.b.w++;updSc("b"); syncTenseProgress();
     }
     async function aiHintB(id,q){
@@ -431,11 +437,12 @@ body{font-family:"Trebuchet MS","Segoe UI",sans-serif !important;color:var(--ix-
     function chkC(id,t){
       if(ans[id])return;
       const inp=document.getElementById(id+"i"), val=nrm(inp.value);
-      const okAll=(t.requiredAll||[]).every(r=>val.includes(nrm(r)));
-      const okAny=(t.requiredAny||[]).length?(t.requiredAny||[]).some(r=>val.includes(nrm(r))):true;
+      const okAll=(t.requiredAll||[]).every(r=>hasTerm(val,r));
+      const okAny=(t.requiredAny||[]).length?(t.requiredAny||[]).some(r=>hasTerm(val,r)):true;
       const okLen=val.length>=(t.minChars||20), ok=okAll&&okAny&&okLen;
       inp.classList.add(ok?"ok":"err"); inp.disabled=true;
-      const fb=document.getElementById(id+"f"); fb.className="fb "+(ok?"g":"b"); fb.textContent=ok?"Great.":"Bitte Aufgabe genauer treffen.";
+      const fb=document.getElementById(id+"f"); fb.className="fb "+(ok?"g":"b");
+      fb.textContent=ok?"Great.":(!okLen?"Schreibe noch etwas mehr.":"Nutze die geforderten Woerter/Formen aus der Aufgabe.");
       ans[id]=true; if(ok)sc.c.r++;else sc.c.w++; updSc("c"); syncTenseProgress();
     }
     async function aiHelp(id,t){
@@ -479,6 +486,9 @@ body{font-family:"Trebuchet MS","Segoe UI",sans-serif !important;color:var(--ix-
 </script>
 </body>
 </html>
+
+
+
 
 
 

@@ -95,9 +95,9 @@ body{font-family:"Trebuchet MS","Segoe UI",sans-serif !important;color:var(--ix-
     </section>
 
     <section class="tabs">
-      <button class="tab active" onclick="showLevel('a',this)">Level A</button>
-      <button class="tab" onclick="showLevel('b',this)">Level B</button>
-      <button class="tab" onclick="showLevel('c',this)">Level C</button>
+      <button class="tab active" onclick="showLevel('a',this)">Level A<br><small>Auswählen</small></button>
+      <button class="tab" onclick="showLevel('b',this)">Level B<br><small>Lücken füllen</small></button>
+      <button class="tab" onclick="showLevel('c',this)">Level C<br><small>Selbst schreiben</small></button>
     </section>
 
     <section id="level-a" class="lvl show">
@@ -140,10 +140,10 @@ body{font-family:"Trebuchet MS","Segoe UI",sans-serif !important;color:var(--ix-
     ];
 
     const C = [
-      {q:"Rewrite in passive (present): People sell food here.", ph:"Food ...", need:["is","sold"], min:18, model:"Food is sold here."},
-      {q:"Rewrite in passive (past): They built the bridge in 2018.", ph:"The bridge ...", need:["was","built"], min:22, model:"The bridge was built in 2018."},
-      {q:"Write one passive negative sentence.", ph:"... was not / were not ...", need:["not"], min:22, model:"The report was not finished yesterday."},
-      {q:"Write 4-5 lines with at least 3 passive sentences.", ph:"In our town ...", need:["was","were","is","are"], min:120, model:"In our town, many products are sold in local shops. New roads are built every year. Last month, a new school hall was opened. The old library was not closed. Many trees were planted by volunteers."}
+      {q:"Rewrite in passive (present): People sell food here.", ph:"Food ...", needAll:["is","sold"], min:14, model:"Food is sold here."},
+      {q:"Rewrite in passive (past): They built the bridge in 2018.", ph:"The bridge ...", needAll:["was","built"], min:20, model:"The bridge was built in 2018."},
+      {q:"Write one passive negative sentence.", ph:"... was not / were not ...", needAll:["not"], needAny:["was","were","is","are"], min:20, model:"The report was not finished yesterday."},
+      {q:"Write 4-5 lines with at least 3 passive sentences.", ph:"In our town ...", needAny:["is","are","was","were"], minMatches:3, min:110, model:"In our town, many products are sold in local shops. New roads are built every year. Last month, a new school hall was opened. The old library was not closed. Many trees were planted by volunteers."}
     ];
 
     const ans = {}; const sc = {a:{r:0,w:0}, b:{r:0,w:0}, c:{r:0,w:0}};
@@ -210,12 +210,19 @@ body{font-family:"Trebuchet MS","Segoe UI",sans-serif !important;color:var(--ix-
         btns[2].onclick=()=>showC(id,t.model);
       });
     }
+    // Einzelne Woerter nur als ganzes Wort werten ("is" darf nicht in "this" zaehlen).
+    function hasTerm(v,term){ const t=nrm(term); return t.includes(' ') ? v.includes(t) : (' '+v+' ').includes(' '+t+' '); }
+    function countTerms(v,terms){ const set=terms.map(nrm); return v.split(' ').filter(w=>set.includes(w)).length; }
     function checkC(id,t){
       if(ans[id]) return;
       const inp=document.getElementById(id+'i'); const v=nrm(inp.value);
-      const okNeed=t.need.some(n=>v.includes(nrm(n))); const okLen=v.length>=t.min; const ok=okNeed&&okLen;
+      const okAll=(t.needAll||[]).every(n=>hasTerm(v,n));
+      const okAny=(t.needAny||[]).length?(t.needAny||[]).some(n=>hasTerm(v,n)):true;
+      const okCount=t.minMatches?countTerms(v,t.needAny||[])>=t.minMatches:true;
+      const okLen=v.length>=t.min; const ok=okAll&&okAny&&okCount&&okLen;
       inp.classList.add(ok?'ok':'err'); inp.disabled=true; ans[id]=true;
-      const fb=document.getElementById(id+'f'); fb.className='fb '+(ok?'g':'b'); fb.textContent=ok?'Great.':'Bitte Struktur und Laenge verbessern.';
+      const fb=document.getElementById(id+'f'); fb.className='fb '+(ok?'g':'b');
+      fb.textContent=ok?'Great.':(!okLen?'Schreibe noch etwas mehr.':(!okCount?'Nutze mindestens '+t.minMatches+' Passiv-Formen (is/are/was/were).':'Nutze die geforderten Passiv-Formen aus der Aufgabe.'));
       if(ok)sc.c.r++; else sc.c.w++; upd('c');
     }
     function showC(id,m){ if(ans[id]) return; const inp=document.getElementById(id+'i'); inp.value=m; inp.classList.add('ok'); inp.disabled=true; ans[id]=true; const fb=document.getElementById(id+'f'); fb.className='fb g'; fb.textContent='-> Beispiel angezeigt'; sc.c.w++; upd('c'); }
@@ -257,6 +264,7 @@ body{font-family:"Trebuchet MS","Segoe UI",sans-serif !important;color:var(--ix-
 </script>
 </body>
 </html>
+
 
 
 
