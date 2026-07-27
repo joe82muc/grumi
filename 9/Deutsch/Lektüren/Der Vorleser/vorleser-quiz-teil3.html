@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<title>Der Vorleser — Quiz zu Teil 3</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  @font-face {
+    font-family: "Old Style";
+    src: local("Iowan Old Style"), local("Palatino Linotype"), local("Book Antiqua");
+  }
+
+  :root {
+    --paper: #f5efe2;
+    --paper-raised: #fbf7ee;
+    --ink: #1c2b28;
+    --ink-soft: #3c5c58;
+    --petrol: #1b2f2e;
+    --petrol-deep: #10201f;
+    --ocher: #b9772f;
+    --ocher-soft: #e4b876;
+    --rust: #8a4a3a;
+    --rust-soft: #f0ded7;
+    --line: rgba(28, 43, 40, 0.16);
+    --shadow: rgba(16, 24, 22, 0.18);
+    --good: #3c6b52;
+    --good-soft: #dbe9de;
+
+    --font-display: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Times New Roman", serif;
+    --font-body: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    --font-ui: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141f1d;
+      --paper-raised: #1a2825;
+      --ink: #e9e2d2;
+      --ink-soft: #a9c2bc;
+      --petrol: #dfe9e4;
+      --petrol-deep: #0b1413;
+      --ocher: #e0a252;
+      --ocher-soft: #6b4b26;
+      --rust: #e0a695;
+      --rust-soft: #3a2521;
+      --line: rgba(233, 226, 210, 0.16);
+      --shadow: rgba(0, 0, 0, 0.45);
+      --good: #7fbf9c;
+      --good-soft: #1e3229;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #141f1d;
+    --paper-raised: #1a2825;
+    --ink: #e9e2d2;
+    --ink-soft: #a9c2bc;
+    --petrol: #dfe9e4;
+    --petrol-deep: #0b1413;
+    --ocher: #e0a252;
+    --ocher-soft: #6b4b26;
+    --rust: #e0a695;
+    --rust-soft: #3a2521;
+    --line: rgba(233, 226, 210, 0.16);
+    --shadow: rgba(0, 0, 0, 0.45);
+    --good: #7fbf9c;
+    --good-soft: #1e3229;
+  }
+  :root[data-theme="light"] {
+    --paper: #f5efe2;
+    --paper-raised: #fbf7ee;
+    --ink: #1c2b28;
+    --ink-soft: #3c5c58;
+    --petrol: #1b2f2e;
+    --petrol-deep: #10201f;
+    --ocher: #b9772f;
+    --ocher-soft: #e4b876;
+    --rust: #8a4a3a;
+    --rust-soft: #f0ded7;
+    --line: rgba(28, 43, 40, 0.16);
+    --shadow: rgba(16, 24, 22, 0.18);
+    --good: #3c6b52;
+    --good-soft: #dbe9de;
+  }
+
+  * { box-sizing: border-box; }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    overflow-x: hidden;
+  }
+
+  body {
+    background-image:
+      radial-gradient(ellipse at top left, rgba(28, 43, 40, 0.05), transparent 60%),
+      radial-gradient(ellipse at bottom right, rgba(185, 119, 47, 0.05), transparent 55%);
+  }
+
+  .page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1.25rem, 5vw, 2rem) 5rem;
+  }
+
+  /* ---------- Header ---------- */
+
+  header.masthead {
+    text-align: center;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 2.5rem;
+  }
+
+  .kicker {
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ocher);
+    font-weight: 600;
+  }
+
+  h1.title {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(2.2rem, 6vw, 3.4rem);
+    margin: 0.35em 0 0.15em;
+    color: var(--petrol);
+    text-wrap: balance;
+  }
+
+  .subtitle {
+    font-family: var(--font-ui);
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.01em;
+    max-width: 32rem;
+    margin: 0 auto;
+  }
+
+  .meta-row {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-top: 1.1rem;
+    font-family: var(--font-ui);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+  }
+  .meta-row span { white-space: nowrap; }
+  .meta-row b { color: var(--ink); font-weight: 600; }
+
+  /* ---------- Ribbon progress ---------- */
+
+  .ribbon-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: linear-gradient(var(--paper) 78%, transparent);
+    padding: 0.9rem 0 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ribbon-track {
+    height: 10px;
+    border-radius: 6px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px var(--shadow);
+  }
+  .ribbon-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--ocher-soft), var(--ocher));
+    transition: width 0.4s ease;
+  }
+  .ribbon-label {
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.4rem;
+    letter-spacing: 0.02em;
+  }
+
+  /* ---------- Chapters ---------- */
+
+  .chapter {
+    margin-bottom: 3rem;
+  }
+
+  .chapter-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.9rem;
+    margin-bottom: 1.3rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 2px solid var(--petrol);
+  }
+  .chapter-num {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.9rem;
+    color: var(--ocher);
+    line-height: 1;
+  }
+  .chapter-title {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    color: var(--petrol);
+    line-height: 1.2;
+  }
+  .chapter-range {
+    margin-left: auto;
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  /* ---------- Question card ---------- */
+
+  .card {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1.4rem 1.5rem 1.5rem;
+    margin-bottom: 1.15rem;
+    position: relative;
+    box-shadow: 0 1px 3px var(--shadow);
+    transition: box-shadow 0.2s ease;
+  }
+  .card.correct { box-shadow: 0 0 0 2px var(--good), 0 2px 8px var(--shadow); }
+  .card.wrong { box-shadow: 0 0 0 2px var(--rust), 0 2px 8px var(--shadow); }
+
+  .card-head {
+    display: flex;
+    gap: 0.9rem;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+  .q-num {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.5rem;
+    color: var(--ink-soft);
+    min-width: 1.6em;
+    line-height: 1.15;
+  }
+  .q-text {
+    font-family: var(--font-body);
+    font-size: 1.12rem;
+    line-height: 1.5;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  .q-marginale {
+    font-family: var(--font-ui);
+    font-size: 0.68rem;
+    color: var(--ocher);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    display: block;
+    margin-top: 0.3rem;
+  }
+
+  .options {
+    display: grid;
+    gap: 0.55rem;
+    margin-left: 2.5rem;
+  }
+
+  .opt {
+    font-family: var(--font-ui);
+    text-align: left;
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 0.65rem 0.9rem;
+    font-size: 0.94rem;
+    color: var(--ink);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+  }
+  .opt:hover:not(:disabled) {
+    border-color: var(--ocher);
+    background: color-mix(in srgb, var(--ocher) 8%, transparent);
+  }
+  .opt:focus-visible {
+    outline: 2px solid var(--ocher);
+    outline-offset: 2px;
+  }
+  .opt:active:not(:disabled) { transform: scale(0.995); }
+  .opt:disabled { cursor: default; }
+
+  .opt-letter {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    min-width: 1.2em;
+  }
+
+  .opt.is-correct {
+    border-color: var(--good);
+    background: var(--good-soft);
+  }
+  .opt.is-correct .opt-letter { color: var(--good); }
+  .opt.is-wrong {
+    border-color: var(--rust);
+    background: var(--rust-soft);
+  }
+  .opt.is-wrong .opt-letter { color: var(--rust); }
+  .opt.is-dim { opacity: 0.55; }
+
+  .footnote {
+    margin: 0.9rem 0 0 2.5rem;
+    padding: 0.8rem 1rem;
+    border-left: 3px solid var(--ocher);
+    background: color-mix(in srgb, var(--ocher) 7%, transparent);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    display: none;
+    border-radius: 0 3px 3px 0;
+  }
+  .footnote.show {
+    display: block;
+    animation: reveal 0.25s ease;
+  }
+  @keyframes reveal {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .footnote b { color: var(--ink); }
+
+  /* ---------- Result ---------- */
+
+  .result {
+    margin-top: 2.5rem;
+    padding: 2rem;
+    text-align: center;
+    background: var(--petrol);
+    color: var(--paper);
+    border-radius: 6px;
+    display: none;
+  }
+  .result.show { display: block; animation: reveal 0.35s ease; }
+  .result .score {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 3rem;
+    color: var(--ocher-soft);
+    line-height: 1;
+  }
+  .result .verdict {
+    font-family: var(--font-ui);
+    font-size: 1rem;
+    margin-top: 0.6rem;
+    max-width: 30rem;
+    margin-inline: auto;
+    color: var(--paper);
+    opacity: 0.92;
+  }
+  .result .reset {
+    margin-top: 1.4rem;
+    font-family: var(--font-ui);
+    font-size: 0.82rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--ocher-soft);
+    border: 1px solid var(--ocher-soft);
+    padding: 0.55rem 1.3rem;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .result .reset:hover { background: rgba(255,255,255,0.08); }
+
+  footer.colophon {
+    text-align: center;
+    margin-top: 3rem;
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.03em;
+  }
+
+  @media (max-width: 560px) {
+    .options { margin-left: 0; }
+    .footnote { margin-left: 0; }
+    .q-num { min-width: 1.3em; }
+    .chapter-range { margin-left: 0; width: 100%; }
+    .chapter-head { flex-wrap: wrap; }
+  }
+
+  /* ---------- GRUMI-Navigationsleiste ---------- */
+  .grumi-nav {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0.9rem clamp(1.25rem, 5vw, 2rem) 0;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-ui);
+    font-size: 0.82rem;
+  }
+  .grumi-nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--ink-soft);
+    text-decoration: none;
+    padding: 0.4rem 0.8rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  }
+  .grumi-nav a:hover,
+  .grumi-nav a:focus-visible {
+    border-color: var(--ocher);
+    color: var(--ocher);
+    background: color-mix(in srgb, var(--ocher) 8%, transparent);
+    outline: none;
+  }
+  .grumi-nav .sep { color: var(--ink-soft); opacity: 0.5; }
+  .grumi-nav .here { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<nav class="grumi-nav" aria-label="Pfad">
+  <a href="../index.html">&larr; Lekt&uuml;ren</a>
+  <span class="sep">&middot;</span>
+  <span class="here">Deutsch 9 &middot; GRUMI Lernplattform</span>
+</nav>
+
+<div class="page">
+
+  <header class="masthead">
+    <div class="kicker">Lektürequiz · 9a · Mittelschule Unterhaching</div>
+    <h1 class="title">Der Vorleser</h1>
+    <p class="subtitle">Bernhard Schlink — Dritter Teil, Seite 159 bis 207</p>
+    <div class="meta-row">
+      <span><b id="totalQ">28</b>&nbsp;Fragen</span>
+      <span>·</span>
+      <span>in <b>3 Abschnitten</b></span>
+      <span>·</span>
+      <span>zum Selbstcheck vor der Stunde</span>
+    </div>
+  </header>
+
+  <div class="ribbon-wrap">
+    <div class="ribbon-track"><div class="ribbon-fill" id="ribbonFill"></div></div>
+    <div class="ribbon-label">
+      <span id="progressText">0 von 28 beantwortet</span>
+      <span id="progressPct">0 %</span>
+    </div>
+  </div>
+
+  <form id="quiz">
+
+    <section class="chapter">
+      <div class="chapter-head">
+        <span class="chapter-num">I.</span>
+        <span class="chapter-title">Ehe, Beruf und die Schatten der Vergangenheit</span>
+        <span class="chapter-range">Kap. 1–4 · ca. S. 159–177</span>
+      </div>
+
+      <div class="card" data-q="0">
+        <div class="card-head">
+          <span class="q-num">1</span>
+          <div>
+            <p class="q-text">Wen heiratet Michael nach dem Studium?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Sophie, seine frühere Banknachbarin</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Eine Kollegin aus dem KZ-Seminar</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">c</span> Gertrud, eine Juristin</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Er heiratet nie</button>
+        </div>
+        <div class="footnote">Michael heiratet die Juristin <b>Gertrud</b>, die er aus dem Studium kennt. Die Ehe ist von Anfang an sein Versuch, ein „normales" Leben zu führen — und genau daran scheitert sie.</div>
+      </div>
+
+      <div class="card" data-q="1">
+        <div class="card-head">
+          <span class="q-num">2</span>
+          <div>
+            <p class="q-text">Wie heißt die gemeinsame Tochter von Michael und Gertrud?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">a</span> Julia</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Sophie</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Hanna</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Gertrud</button>
+        </div>
+        <div class="footnote">Die Tochter heißt <b>Julia</b>. Sie ist fünf Jahre alt, als ihre Eltern sich scheiden lassen — und Michael leidet darunter, dass sie den Preis für sein Scheitern zahlt.</div>
+      </div>
+
+      <div class="card" data-q="2">
+        <div class="card-head">
+          <span class="q-num">3</span>
+          <div>
+            <p class="q-text">Woran scheitert Michaels Ehe letztlich?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Gertrud verliebt sich in einen anderen Mann</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> An beruflichen Umzügen und Fernbeziehung</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Am Streit über Julias Erziehung</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">d</span> Michael vergleicht Gertrud — wie jede Frau — unwillkürlich mit Hanna</button>
+        </div>
+        <div class="footnote">Michael gesteht sich ein, dass sich Gertrud neben Hanna immer <b>falsch anfühlt</b>: ihre Berührung, ihr Geruch, ihre Art. Die Prägung durch die erste Beziehung lässt ihn nicht los — keine spätere Frau besteht den Vergleich.</div>
+      </div>
+
+      <div class="card" data-q="3">
+        <div class="card-head">
+          <span class="q-num">4</span>
+          <div>
+            <p class="q-text">Für welche berufliche Laufbahn entscheidet sich Michael?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Er wird Richter</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Er geht in die Forschung und wird Rechtshistoriker</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Er wird Strafverteidiger</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Er gibt die Juristerei ganz auf und wird Schriftsteller</button>
+        </div>
+        <div class="footnote">Michael wird <b>Rechtshistoriker</b> — er beschäftigt sich mit dem Recht der Vergangenheit, statt in der Gegenwart Recht zu sprechen. Eine bezeichnende Wahl für jemanden, der an der Gegenwart der Schuld fast zerbrochen ist.</div>
+      </div>
+
+      <div class="card" data-q="4">
+        <div class="card-head">
+          <span class="q-num">5</span>
+          <div>
+            <p class="q-text">Warum weicht Michael den klassischen Juristenberufen aus?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">a</span> Nach dem Prozess erscheint ihm Richten und Verteidigen unmöglich — die Forschung ist sein Rückzugsort</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Er hat die Staatsexamen nur knapp bestanden</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Die Forschung ist besser bezahlt</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Sein Vater hat ihm die Stelle vermittelt</button>
+        </div>
+        <div class="footnote">Wer im Gerichtssaal erlebt hat, wie Urteilen und Schuld ineinandergreifen, kann für Michael nicht einfach <b>urteilen wie zuvor</b>. Die Rechtsgeschichte erlaubt ihm Distanz — zur Justiz und zur eigenen Geschichte.</div>
+      </div>
+
+      <div class="card" data-q="5">
+        <div class="card-head">
+          <span class="q-num">6</span>
+          <div>
+            <p class="q-text">Wem erzählt Michael von seiner Geschichte mit Hanna?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Nur seiner Frau Gertrud</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Seinem Vater</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Seiner Tochter Julia</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">d</span> Niemandem — auch Gertrud nicht</button>
+        </div>
+        <div class="footnote">Michael <b>schweigt weiter</b> — wie schon als Schüler. Dass er Gertrud nie von Hanna erzählt, belastet die Ehe zusätzlich: Der wichtigste Teil seiner Lebensgeschichte bleibt ausgespart.</div>
+      </div>
+
+      <div class="card" data-q="6">
+        <div class="card-head">
+          <span class="q-num">7</span>
+          <div>
+            <p class="q-text">Wann lassen sich Michael und Gertrud scheiden?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Noch vor Julias Geburt</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Nach über zwanzig Ehejahren</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">c</span> Als Julia fünf Jahre alt ist</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Sie bleiben verheiratet, leben aber getrennt</button>
+        </div>
+        <div class="footnote">Die Ehe wird geschieden, als <b>Julia fünf</b> ist. Der Erzähler berichtet knapp und nüchtern davon — ein Zeichen dafür, wie wenig emotionale Wirklichkeit diese „normale" Ehe für ihn hatte.</div>
+      </div>
+
+      <div class="card" data-q="7">
+        <div class="card-head">
+          <span class="q-num">8</span>
+          <div>
+            <p class="q-text">Was empfindet Michael gegenüber Julia nach der Scheidung?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Erleichterung, dass sie bei Gertrud lebt</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Schuldgefühle — sie muss ausbaden, dass er sich ein gemeinsames Familienleben versagt hat</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Gleichgültigkeit</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Stolz auf ihre Selbstständigkeit</button>
+        </div>
+        <div class="footnote">Michael sieht, wie sehr Julia sich nach beiden Eltern sehnt, und fühlt sich <b>schuldig</b>. Das Muster wiederholt sich: Wie bei Hanna hat sein Verhalten Folgen für Menschen, die er liebt — und wieder kann er es nicht ungeschehen machen.</div>
+      </div>
+    </section>
+
+    <section class="chapter">
+      <div class="chapter-head">
+        <span class="chapter-num">II.</span>
+        <span class="chapter-title">Kassetten für Hanna</span>
+        <span class="chapter-range">Kap. 5–8 · ca. S. 178–188</span>
+      </div>
+
+      <div class="card" data-q="8">
+        <div class="card-head">
+          <span class="q-num">9</span>
+          <div>
+            <p class="q-text">In welchem Jahr von Hannas Haft beginnt Michael, ihr etwas ins Gefängnis zu schicken?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Gleich im ersten Jahr</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Im dritten Jahr</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Im fünfzehnten Jahr</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">d</span> Im achten Jahr</button>
+        </div>
+        <div class="footnote">Erst im <b>achten Haftjahr</b> — nach seiner Scheidung — nimmt Michael den Kontakt auf. Auslöser ist der Wunsch, wieder zu einem eigenen Verhältnis zu seiner Geschichte zu finden.</div>
+      </div>
+
+      <div class="card" data-q="9">
+        <div class="card-head">
+          <span class="q-num">10</span>
+          <div>
+            <p class="q-text">Was schickt Michael Hanna ins Gefängnis?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">a</span> Kassetten, auf denen er Literatur vorliest</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Lange persönliche Briefe</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Geld und Lebensmittelpakete</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Fotos aus der gemeinsamen Zeit</button>
+        </div>
+        <div class="footnote">Michael bespricht <b>Kassetten</b> mit vorgelesener Literatur und schickt sie Hanna. Das Ritual ihrer Beziehung — das <b>Vorlesen</b> — lebt in dieser Form wieder auf, nun über die Gefängnismauern hinweg.</div>
+      </div>
+
+      <div class="card" data-q="10">
+        <div class="card-head">
+          <span class="q-num">11</span>
+          <div>
+            <p class="q-text">Mit welchem Werk beginnt Michael das Vorlesen auf Kassette?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Schillers „Kabale und Liebe"</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Homers „Odyssee"</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Tolstois „Krieg und Frieden"</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Fontanes „Effi Briest"</button>
+        </div>
+        <div class="footnote">Michael beginnt mit der <b>„Odyssee"</b> — der Geschichte einer langen Irrfahrt und Heimkehr. Das Motiv passt zu ihm selbst: Auch er ist ein Suchender, der nicht bei sich ankommt.</div>
+      </div>
+
+      <div class="card" data-q="11">
+        <div class="card-head">
+          <span class="q-num">12</span>
+          <div>
+            <p class="q-text">Was legt Michael den Kassettensendungen bei?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Kurze Grußkarten</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Fragen zu ihrem Leben im Gefängnis</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">c</span> Nichts Persönliches — keine Briefe, keine Nachrichten</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Zeitungsartikel über den Prozess</button>
+        </div>
+        <div class="footnote">Die Sendungen bleiben <b>unpersönlich</b>: nur Literatur, kein Wort von ihm selbst. Michael hält Hanna auf Distanz — Nähe und Verweigerung zugleich, wie so oft in dieser Beziehung.</div>
+      </div>
+
+      <div class="card" data-q="12">
+        <div class="card-head">
+          <span class="q-num">13</span>
+          <div>
+            <p class="q-text">Nach etwa vier Jahren erreicht Michael die erste Nachricht von Hanna. Was steht darin?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">a</span> „Jungchen, die letzte Geschichte war besonders schön. Danke. Hanna."</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> „Bitte besuch mich. Hanna."</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> „Warum schreibst du mir nicht? Hanna."</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> „Es tut mir alles sehr leid. Hanna."</button>
+        </div>
+        <div class="footnote">Der Zettel lautet: <b>„Jungchen, die letzte Geschichte war besonders schön. Danke. Hanna."</b> — ein paar krakelige Zeilen, hinter denen eine ungeheure Leistung steckt.</div>
+      </div>
+
+      <div class="card" data-q="13">
+        <div class="card-head">
+          <span class="q-num">14</span>
+          <div>
+            <p class="q-text">Was bedeutet dieser handschriftliche Gruß?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Hanna hat eine Mitgefangene um Hilfe gebeten</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Hanna konnte schon immer schreiben, hat es nur verborgen</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Die Gefängnisleitung hat für sie geschrieben</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">d</span> Hanna hat im Gefängnis mit Hilfe der Kassetten und Bücher lesen und schreiben gelernt</button>
+        </div>
+        <div class="footnote">Hanna hat sich mit Michaels Kassetten und den passenden Büchern aus der Gefängnisbibliothek <b>selbst das Lesen und Schreiben beigebracht</b> — Wort für Wort, Ton für Ton. Der Analphabetismus, für den sie lebenslang büßt, ist damit überwunden.</div>
+      </div>
+
+      <div class="card" data-q="14">
+        <div class="card-head">
+          <span class="q-num">15</span>
+          <div>
+            <p class="q-text">Wie reagiert Michael auf Hannas Zeilen?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Er schreibt ihr lange Antwortbriefe</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Er antwortet nie — er schickt weiterhin nur Kassetten</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Er besucht sie sofort</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Er bricht den Kontakt ganz ab</button>
+        </div>
+        <div class="footnote">Hanna wartet vergeblich auf ein persönliches Wort: Michael <b>antwortet nie</b>. Er liest weiter für sie — aber er schreibt ihr nicht, besucht sie nicht. Sein Schweigen setzt sich fort, bis es zu spät ist.</div>
+      </div>
+
+      <div class="card" data-q="15">
+        <div class="card-head">
+          <span class="q-num">16</span>
+          <div>
+            <p class="q-text">Wie lange liest Michael insgesamt für Hanna auf Kassette?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Ein knappes Jahr</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Etwa drei Jahre</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">c</span> Rund zehn Jahre — bis zu ihrem achtzehnten Haftjahr</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Nur wenige Monate</button>
+        </div>
+        <div class="footnote">Vom achten bis zum achtzehnten Haftjahr — <b>rund zehn Jahre</b> — bespricht Michael Kassetten für Hanna. Das Vorlesen wird zum längsten und beständigsten Kapitel ihrer Beziehung.</div>
+      </div>
+    </section>
+
+    <section class="chapter">
+      <div class="chapter-head">
+        <span class="chapter-num">III.</span>
+        <span class="chapter-title">Entlassung, Abschied und New York</span>
+        <span class="chapter-range">Kap. 9–12 · ca. S. 189–207</span>
+      </div>
+
+      <div class="card" data-q="16">
+        <div class="card-head">
+          <span class="q-num">17</span>
+          <div>
+            <p class="q-text">Wer bittet Michael brieflich um Hilfe, als Hannas Entlassung bevorsteht?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Hannas Anwalt</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Die Leiterin des Gefängnisses</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Hanna selbst</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Das Sozialamt</button>
+        </div>
+        <div class="footnote">Die <b>Gefängnisleiterin</b> schreibt Michael: Hanna wird nach 18 Jahren begnadigt, und er ist ihr einziger Kontakt zur Außenwelt. Sie bittet ihn, sich um Wohnung und Arbeit zu kümmern — und macht ihm später leise Vorwürfe, dass er nie geschrieben und nie besucht hat.</div>
+      </div>
+
+      <div class="card" data-q="17">
+        <div class="card-head">
+          <span class="q-num">18</span>
+          <div>
+            <p class="q-text">Was organisiert Michael für Hannas Leben nach der Haft?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Einen Platz im Altersheim</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Ein Zimmer in seiner eigenen Wohnung</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">c</span> Eine kleine Wohnung und eine Arbeitsstelle</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Nichts — er ignoriert den Brief</button>
+        </div>
+        <div class="footnote">Michael findet für Hanna eine <b>kleine Wohnung</b> und eine <b>Arbeitsstelle</b> in einer Schneiderei. Er erfüllt seine Pflicht gewissenhaft — aber wieder ohne persönliche Nähe zuzulassen.</div>
+      </div>
+
+      <div class="card" data-q="18">
+        <div class="card-head">
+          <span class="q-num">19</span>
+          <div>
+            <p class="q-text">Wann besucht Michael Hanna zum ersten Mal im Gefängnis?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">a</span> Erst eine Woche vor dem Entlassungstermin</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Gleich nach dem Urteil</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Jedes Jahr an Weihnachten</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Er besucht sie nie</button>
+        </div>
+        <div class="footnote">Achtzehn Jahre lang hat Michael Hanna nie besucht. Erst <b>eine Woche vor der Entlassung</b> überwindet er sich — gedrängt von der Gefängnisleiterin, nicht aus eigenem Antrieb.</div>
+      </div>
+
+      <div class="card" data-q="19">
+        <div class="card-head">
+          <span class="q-num">20</span>
+          <div>
+            <p class="q-text">Wie erlebt Michael Hanna bei diesem Besuch?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Unverändert jung und energisch wie früher</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Verbittert und feindselig</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Verwirrt — sie erkennt ihn nicht mehr</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">d</span> Als gealterte Frau — grau geworden, schwer, mit dem Geruch einer alten Frau</button>
+        </div>
+        <div class="footnote">Auf der Bank im Gefängnishof sitzt eine <b>alte Frau</b>: grau, schwer geworden, mit fremdem Geruch. Michael erschrickt über die Veränderung — und Hanna spürt seine Distanz sofort. Die Begegnung bleibt kühl.</div>
+      </div>
+
+      <div class="card" data-q="20">
+        <div class="card-head">
+          <span class="q-num">21</span>
+          <div>
+            <p class="q-text">Was antwortet Hanna, als Michael sie beim Besuch auf die Vergangenheit anspricht?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Sie behauptet, sich an nichts zu erinnern</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Sie beteuert ihre Unschuld</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Sie bittet Michael um Vergebung</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">d</span> Nur die Toten könnten Rechenschaft von ihr fordern — sie kämen nachts zu ihr</button>
+        </div>
+        <div class="footnote">Hanna sagt, die Lebenden könnten ihr nichts mehr — aber <b>die Toten</b> könnten Rechenschaft fordern, und sie besuchten sie jede Nacht. Im Gefängnis hat sie sich — durch Lesen und Erinnern — ihrer Schuld gestellt, auf ihre eigene Weise.</div>
+      </div>
+
+      <div class="card" data-q="21">
+        <div class="card-head">
+          <span class="q-num">22</span>
+          <div>
+            <p class="q-text">Was geschieht am Morgen des Entlassungstags?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">a</span> Hanna nimmt sich das Leben — sie erhängt sich in ihrer Zelle</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Hanna verlässt das Gefängnis und verschwindet spurlos</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Die Begnadigung wird in letzter Minute widerrufen</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Michael holt sie ab und bringt sie in die neue Wohnung</button>
+        </div>
+        <div class="footnote">Im Morgengrauen des Entlassungstags <b>erhängt sich Hanna</b> in ihrer Zelle. Ob aus Angst vor der Freiheit, wegen Michaels Distanz beim Besuch oder als letzte Konsequenz ihrer Schuld — der Roman lässt es offen.</div>
+      </div>
+
+      <div class="card" data-q="22">
+        <div class="card-head">
+          <span class="q-num">23</span>
+          <div>
+            <p class="q-text">Welche Bücher findet Michael in Hannas Zelle?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Liebesromane und Unterhaltungsliteratur</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Juristische Fachbücher zu ihrem Prozess</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">c</span> Berichte von und über KZ-Überlebende — etwa von Primo Levi, Elie Wiesel und Hannah Arendt</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Die Schulbücher, aus denen Michael ihr früher vorlas</button>
+        </div>
+        <div class="footnote">Hannas Bücherbord ist eine kleine <b>Holocaust-Bibliothek</b>: Primo Levi, Elie Wiesel, Tadeusz Borowski, Jean Améry, dazu Hannah Arendts Prozessbericht. Kaum lesekundig, hat sie sich systematisch mit den Verbrechen auseinandergesetzt, an denen sie beteiligt war.</div>
+      </div>
+
+      <div class="card" data-q="23">
+        <div class="card-head">
+          <span class="q-num">24</span>
+          <div>
+            <p class="q-text">Was hat Hanna außerdem all die Jahre in ihrer Zelle aufbewahrt?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Michaels alte Schulhefte</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Einen Zeitungsausschnitt über Michaels Abitur</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Ihre alte Schaffneruniform</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Getrocknete Blumen aus der Bahnhofstraße</button>
+        </div>
+        <div class="footnote">Unter Hannas Sachen findet sich ein <b>Zeitungsausschnitt über Michaels Abitur</b>. Sie hat ihn all die Jahre begleitet — ein stiller Beweis, wie viel ihr der „Jungchen" bedeutete, dem sie nie geschrieben hat, dass sie ihn vermisst.</div>
+      </div>
+
+      <div class="card" data-q="24">
+        <div class="card-head">
+          <span class="q-num">25</span>
+          <div>
+            <p class="q-text">Was verfügt Hanna in ihrem letzten Willen?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">a</span> Ihr Geld — die Teedose mit Bargeld und das Sparbuch — soll die Tochter erhalten, die den Kirchenbrand überlebte</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Michael soll ihr gesamtes Erbe bekommen</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Ihr Geld soll an die Kirche gehen</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Sie hinterlässt nichts und niemandem etwas</button>
+        </div>
+        <div class="footnote">Hanna bestimmt, dass ihr Erspartes an <b>die Tochter</b> gehen soll, die die Brandnacht überlebte und im Prozess aussagte. Es ist ihr Versuch einer letzten Geste — wohl wissend, dass Geld nichts wiedergutmachen kann.</div>
+      </div>
+
+      <div class="card" data-q="25">
+        <div class="card-head">
+          <span class="q-num">26</span>
+          <div>
+            <p class="q-text">Wie reagiert die Tochter in New York, als Michael ihr Hannas Geld überbringt?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Sie nimmt das Geld dankbar an</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Sie wirft Michael hinaus</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Sie spendet das Geld sofort an eine Kirche</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">d</span> Sie lehnt das Geld ab, weil die Annahme einer Absolution gleichkäme — nur die alte Teedose behält sie</button>
+        </div>
+        <div class="footnote">Die Annahme des Geldes wäre für die Tochter eine <b>Absolution</b> für Hanna — die verweigert sie. Nur die <b>Teedose</b> behält sie: Ihr wurde im Lager einst eine ähnliche gestohlen. Vergebung gibt es in diesem Roman nicht als einfache Geste.</div>
+      </div>
+
+      <div class="card" data-q="26">
+        <div class="card-head">
+          <span class="q-num">27</span>
+          <div>
+            <p class="q-text">Was geschieht schließlich mit Hannas Geld?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Michael behält es</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">b</span> Michael spendet es in Hannas Namen an die „Jewish League Against Illiteracy"</button>
+          <button type="button" class="opt"><span class="opt-letter">c</span> Es geht an die Justizkasse</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Es wird unter den Prozessopfern aufgeteilt</button>
+        </div>
+        <div class="footnote">Auf Anregung der Tochter spendet Michael das Geld an eine jüdische Organisation <b>gegen Analphabetismus</b> — in Hannas Namen. So verbinden sich die beiden großen Themen ihres Lebens: die Schuld und das Nicht-lesen-Können.</div>
+      </div>
+
+      <div class="card" data-q="27">
+        <div class="card-head">
+          <span class="q-num">28</span>
+          <div>
+            <p class="q-text">Was macht Michael mit dem Dankesbrief der Organisation — und wie endet der Roman?</p>
+          </div>
+        </div>
+        <div class="options">
+          <button type="button" class="opt"><span class="opt-letter">a</span> Er heftet ihn zu seinen Akten</button>
+          <button type="button" class="opt"><span class="opt-letter">b</span> Er schickt ihn der Tochter nach New York</button>
+          <button type="button" class="opt" data-correct="true"><span class="opt-letter">c</span> Er bringt ihn zu Hannas Grab — zum ersten und einzigen Mal — und schreibt danach ihre Geschichte auf</button>
+          <button type="button" class="opt"><span class="opt-letter">d</span> Er vernichtet ihn ungelesen</button>
+        </div>
+        <div class="footnote">Mit dem Dankesbrief steht Michael <b>zum ersten und einzigen Mal an Hannas Grab</b>. Zehn Jahre nach ihrem Tod schreibt er die gemeinsame Geschichte auf — der Roman selbst ist dieser Versuch, mit Liebe und Schuld ins Reine zu kommen.</div>
+      </div>
+    </section>
+
+  </form>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreText">0 / 28</div>
+    <p class="verdict" id="verdictText"></p>
+    <button class="reset" id="resetBtn" type="button">Quiz neu starten</button>
+  </div>
+
+  <footer class="colophon">
+    Der Vorleser · Bernhard Schlink, 1995 · Quiz zu Teil 3 (S. 159–207) · Klasse 9a, Mittelschule Unterhaching
+  </footer>
+
+</div>
+
+<script>
+  (function () {
+    const cards = Array.from(document.querySelectorAll('.card'));
+    const total = cards.length;
+    let answered = 0;
+    let correctCount = 0;
+
+    // Fragen fortlaufend nummerieren, egal in welcher Reihenfolge sie im HTML stehen.
+    cards.forEach((card, i) => {
+      const numEl = card.querySelector('.q-num');
+      if (numEl) numEl.textContent = i + 1;
+    });
+    const totalQEl = document.getElementById('totalQ');
+    if (totalQEl) totalQEl.textContent = total;
+    document.getElementById('progressText').textContent = '0 von ' + total + ' beantwortet';
+    document.getElementById('scoreText').textContent = '0 / ' + total;
+
+    const ribbonFill = document.getElementById('ribbonFill');
+    const progressText = document.getElementById('progressText');
+    const progressPct = document.getElementById('progressPct');
+    const resultBox = document.getElementById('result');
+    const scoreText = document.getElementById('scoreText');
+    const verdictText = document.getElementById('verdictText');
+
+    function updateProgress() {
+      const pct = Math.round((answered / total) * 100);
+      ribbonFill.style.width = pct + '%';
+      progressText.textContent = answered + ' von ' + total + ' beantwortet';
+      progressPct.textContent = pct + ' %';
+
+      if (answered === total) {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      scoreText.textContent = correctCount + ' / ' + total;
+      let verdict;
+      const ratio = correctCount / total;
+      if (ratio === 1) {
+        verdict = 'Alles verstanden — von den Kassetten bis zum Ende. So liest man Teil 3 von „Der Vorleser“.';
+      } else if (ratio >= 0.75) {
+        verdict = 'Sehr solide! Kassetten, Entlassung und das Ende sitzen bei dir.';
+      } else if (ratio >= 0.5) {
+        verdict = 'Guter Grundstock — ein zweiter Blick in die Schlusskapitel lohnt sich noch.';
+      } else {
+        verdict = 'Zeit, Teil 3 noch einmal aufzuschlagen — die Anmerkungen bei jeder Frage helfen dir dabei.';
+      }
+      verdictText.textContent = verdict;
+      resultBox.classList.add('show');
+      resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    cards.forEach((card) => {
+      const buttons = Array.from(card.querySelectorAll('.opt'));
+      const footnote = card.querySelector('.footnote');
+      let cardAnswered = false;
+
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          if (cardAnswered) return;
+          cardAnswered = true;
+          answered++;
+
+          const isCorrect = btn.dataset.correct === 'true';
+          if (isCorrect) correctCount++;
+
+          buttons.forEach((b) => {
+            b.disabled = true;
+            if (b.dataset.correct === 'true') {
+              b.classList.add('is-correct');
+            } else if (b === btn) {
+              b.classList.add('is-wrong');
+            } else {
+              b.classList.add('is-dim');
+            }
+          });
+
+          card.classList.add(isCorrect ? 'correct' : 'wrong');
+          footnote.classList.add('show');
+
+          updateProgress();
+        });
+      });
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      window.location.reload();
+    });
+  })();
+</script>
+</body>
+</html>
