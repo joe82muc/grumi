@@ -3,186 +3,237 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Talking about a Picture - AI Assistant</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <style>
+  <title>Picture Based Talk - Step by Step</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
     :root{
-      --bg:#0f172a;
-      --card:#1e293b;
-      --card-2:#0b1220;
-      --text:#e2e8f0;
-      --text-dim:#94a3b8;
-      --border:#334155;
-      --accent:#38bdf8;
-      --accent-2:#0ea5e9;
-      --success:#22c55e;
-      --danger:#ef4444;
-      --shadow:0 10px 28px rgba(2, 132, 199, .16);
+      --bg:#f6f8fc;
+      --card:#ffffff;
+      --muted:#5b6476;
+      --line:#d9e0ec;
+      --accent:#0f766e;
+      --accent-2:#14b8a6;
+      --danger:#b91c1c;
+      --ok:#166534;
+      --ink:#172033;
     }
     *{box-sizing:border-box;margin:0;padding:0}
     body{
       font-family:'Inter',sans-serif;
-      background:radial-gradient(1200px 700px at 10% -10%, rgba(56,189,248,.14), transparent 55%),
-                 radial-gradient(900px 520px at 90% 0%, rgba(14,165,233,.12), transparent 50%),
-                 var(--bg);
-      color:var(--text);
-      min-height:100vh;
-      padding:1rem;
-      line-height:1.65;
+      background:radial-gradient(1000px 520px at 85% -20%, rgba(20,184,166,.10), transparent 58%), var(--bg);
+      color:var(--ink);
+      line-height:1.6;
+      padding:16px;
     }
-    .container{max-width:1040px;margin:0 auto}
-    header{
-      text-align:center;
-      padding:1.4rem 0 1.2rem;
-      border-bottom:1px solid var(--border);
-      margin-bottom:1.4rem;
-    }
-    h1{
-      font-family:'Poppins',sans-serif;
-      font-size:clamp(1.65rem,2.5vw,2.15rem);
-      font-weight:700;
-      letter-spacing:.01em;
-      color:#f8fafc;
-      text-shadow:0 0 16px rgba(56,189,248,.28);
-      margin-bottom:.35rem;
-    }
-    .subtitle{color:var(--text-dim)}
-    .main-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
-    @media (max-width:900px){.main-grid{grid-template-columns:1fr}}
-    .ai-status{margin:.55rem auto 0;display:inline-flex;align-items:center;gap:.45rem;padding:.32rem .65rem;border:1px solid var(--border);border-radius:999px;font-size:.84rem;color:#cbd5e1;background:rgba(11,18,32,.45)}
-    .ai-status .dot{width:9px;height:9px;border-radius:50%;background:#64748b}
-    .ai-status.ok .dot{background:#22c55e;box-shadow:0 0 10px rgba(34,197,94,.5)}
-    .ai-status.warn .dot{background:#f59e0b;box-shadow:0 0 10px rgba(245,158,11,.45)}
-    .ai-status.bad .dot{background:#ef4444;box-shadow:0 0 10px rgba(239,68,68,.45)}
-    .panel{
-      background:linear-gradient(180deg, rgba(30,41,59,.96), rgba(11,18,32,.96));
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:1.1rem;
-      box-shadow:var(--shadow);
-    }
-    .panel-title{
-      font-family:'Poppins',sans-serif;
-      color:#f8fafc;
-      font-size:1.06rem;
-      font-weight:600;
-      margin-bottom:.9rem;
-    }
-    .image-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.7rem;margin-bottom:.95rem}
-    .image-option{aspect-ratio:16/10;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .2s;position:relative;background:#020617}
-    .image-option:hover{border-color:var(--accent-2);transform:translateY(-1px)}
-    .image-option.selected{border-color:var(--accent);box-shadow:0 0 0 1px rgba(56,189,248,.25), 0 0 18px rgba(56,189,248,.22);transform:scale(1.03)}
-    .image-option img{width:100%;height:100%;object-fit:cover;background:#020617}
-    .image-label{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(180deg, transparent, rgba(2,6,23,.85));color:#e0f2fe;font-size:.75rem;padding:.28rem;text-align:center}
-    .selected-preview{width:100%;max-height:420px;object-fit:cover;border-radius:10px;margin-bottom:1rem;display:none;border:1px solid var(--border)}
-    .selected-preview.visible{display:block}
-    .progress-bar{display:flex;gap:.5rem;margin-bottom:1rem}
-    .progress-dot{width:12px;height:12px;border-radius:50%;background:#243146}
-    .progress-dot.completed{background:var(--success)}
-    .progress-dot.current{background:var(--accent);box-shadow:0 0 10px rgba(56,189,248,.55)}
-    .step{background:rgba(56,189,248,.06);border-left:3px solid var(--accent-2);padding:.75rem .95rem;margin-bottom:.72rem;border-radius:0 8px 8px 0;display:none}
+    .container{max-width:1180px;margin:0 auto}
+    header{margin-bottom:14px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+    h1{font-family:'Poppins',sans-serif;font-size:clamp(1.4rem,2.6vw,2rem)}
+    .sub{color:var(--muted);margin-top:4px}
+
+    .layout{display:grid;grid-template-columns:1.2fr 1fr;gap:14px}
+    @media (max-width:980px){.layout{grid-template-columns:1fr}}
+
+    .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+    .panel h2{font-family:'Poppins',sans-serif;font-size:1.02rem;margin-bottom:10px}
+
+    .image-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:10px}
+    .img-opt{border:2px solid transparent;border-radius:10px;overflow:hidden;cursor:pointer;position:relative;aspect-ratio:16/10;background:#edf2fa}
+    .img-opt:hover{border-color:var(--accent-2)}
+    .img-opt.selected{border-color:var(--accent);box-shadow:0 0 0 2px rgba(15,118,110,.15)}
+    .img-opt img{width:100%;height:100%;object-fit:cover;display:block}
+    .img-cap{position:absolute;left:0;right:0;bottom:0;font-size:.76rem;background:linear-gradient(transparent,rgba(0,0,0,.60));color:#fff;padding:4px;text-align:center}
+    .preview{width:100%;border-radius:10px;border:1px solid var(--line);display:none;max-height:360px;object-fit:cover;margin-bottom:10px}
+    .preview.on{display:block}
+
+    .progress{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:10px}
+    .dot{height:8px;border-radius:999px;background:#dbe3f1}
+    .dot.done{background:#34d399}
+    .dot.current{background:var(--accent)}
+
+    .step{display:none;border:1px solid var(--line);border-left:4px solid var(--accent);padding:10px;border-radius:10px;background:#fbfdff}
     .step.active{display:block}
-    .step-number{background:var(--accent);color:#082f49;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;margin-right:.5rem}
-    .step-title{font-family:'Poppins',sans-serif;font-weight:600;color:#e0f2fe;margin-bottom:.45rem}
-    .step-question{font-size:1.02rem;font-weight:500;margin-bottom:.72rem;color:#f1f5f9}
-    .step-hint{font-size:.86rem;color:var(--text-dim);background:rgba(2,6,23,.46);padding:.5rem;border-radius:6px;margin-bottom:.75rem;border:1px solid rgba(148,163,184,.16)}
-    .step-hint code{font-family:'JetBrains Mono',monospace;color:#bae6fd;background:rgba(56,189,248,.12);padding:.1rem .3rem;border-radius:4px}
-    textarea{width:100%;background:var(--card-2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'Inter',sans-serif;font-size:1rem;padding:.75rem;resize:vertical;min-height:64px}
-    textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,.16)}
-    .btn{background:var(--accent);color:#00111f;border:none;padding:.62rem 1.2rem;border-radius:9px;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;margin-top:.5rem;transition:all .2s}
-    .btn:hover{background:var(--accent-2);transform:translateY(-1px)}
-    .btn:disabled{background:#334155;color:#94a3b8;cursor:not-allowed;transform:none}
-    .btn-secondary{background:transparent;border:1px solid var(--accent);color:var(--accent)}
-    .btn-secondary:hover{background:rgba(56,189,248,.09)}
-    .result-text{background:var(--card-2);border:1px solid var(--border);border-radius:10px;padding:1rem;font-size:1.03rem;line-height:1.75;min-height:150px;white-space:pre-wrap}
-    .step-summary{display:grid;gap:.45rem;margin-bottom:.85rem}
-    .step-item{background:rgba(11,18,32,.55);border:1px solid var(--border);border-radius:8px;padding:.48rem .6rem}
-    .step-item b{color:#bae6fd;font-size:.82rem;display:block;margin-bottom:.15rem}
-    .step-item span{font-size:.86rem;color:#cbd5e1}
-    .word-count{text-align:right;font-size:.92rem;margin-top:.5rem;color:var(--text-dim)}
-    .word-count span{color:var(--accent);font-weight:700}
-    .word-count.good span{color:var(--success)}
-    .word-count.low span{color:var(--danger)}
-    .ai-feedback{background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.4);border-radius:10px;padding:1rem;margin-top:1rem;display:none}
-    .ai-feedback.visible{display:block}
-    .ai-feedback-title{font-family:'Poppins',sans-serif;color:#e0f2fe;font-weight:600;margin-bottom:.5rem}
-    .vocab-box{background:rgba(56,189,248,.05);border:1px solid var(--border);border-radius:9px;padding:1rem;margin-top:1rem}
-    .vocab-title{font-family:'Poppins',sans-serif;color:#e0f2fe;font-weight:600;font-size:.92rem;margin-bottom:.5rem}
-    .vocab-list{display:flex;flex-wrap:wrap;gap:.5rem}
-    .vocab-chip{background:var(--card-2);border:1px solid var(--border);padding:.25rem .6rem;border-radius:20px;font-size:.85rem;cursor:pointer;transition:all .2s}
-    .vocab-chip:hover{border-color:var(--accent);color:var(--accent)}
-    .action-buttons{display:flex;gap:.75rem;margin-top:1rem;flex-wrap:wrap}
-    .live-note{margin-top:.7rem;padding:.5rem .7rem;border-radius:8px;border:1px solid var(--border);font-size:.87rem;color:#cbd5e1;background:rgba(11,18,32,.6);display:none}
-    .live-note.visible{display:block}
-    .live-note.warn{border-color:#f59e0b;color:#fde68a}
-    .live-note.bad{border-color:#ef4444;color:#fecaca}
-    .live-note.good{border-color:#10b981;color:#bbf7d0}
+    .st-title{font-weight:700;margin-bottom:6px}
+    .st-q{font-weight:500;margin-bottom:6px}
+    .st-hint{font-size:.9rem;color:var(--muted);background:#f3f6fc;border:1px solid #e5ecf7;padding:8px;border-radius:8px;margin-bottom:8px}
+    textarea{width:100%;min-height:68px;border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;resize:vertical}
+    textarea:focus{outline:none;border-color:var(--accent)}
+    .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    button{border:none;background:var(--accent);color:#fff;font:inherit;font-weight:600;padding:8px 12px;border-radius:8px;cursor:pointer}
+    button.secondary{background:#e8eef8;color:#1d2a3f}
+
+    .counts{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+    .pill{padding:6px 10px;border-radius:999px;font-size:.88rem;background:#eef3fb;border:1px solid #dce5f3}
+    .pill.warn{color:var(--danger);background:#fff0f0;border-color:#f8caca}
+    .pill.ok{color:var(--ok);background:#ecfdf3;border-color:#bbf7d0}
+
+    .out{border:1px solid var(--line);border-radius:10px;padding:10px;min-height:180px;white-space:pre-wrap;background:#fcfdff}
+
+    .extra{margin-top:10px;border:1px solid #f6d08d;background:#fffaf0;border-radius:10px;padding:10px;display:none}
+    .extra.on{display:block}
+    .extra-q{font-weight:600;margin-bottom:8px}
+    .extra-help{font-size:.9rem;color:#8a5a00;margin-bottom:8px}
+
+    .phrase-wrap{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    @media (max-width:980px){.phrase-wrap{grid-template-columns:1fr}}
+    .phrase-card{border:1px solid var(--line);border-radius:10px;padding:10px;background:#fcfdff}
+    .phrase-card h3{font-size:.95rem;margin-bottom:6px;color:#0f3a56}
+    .phrase-card ul{padding-left:18px}
+    .phrase-card li{margin:3px 0}
+
+    .note{margin-top:8px;color:var(--muted);font-size:.9rem}
+    .ai-box{margin-top:10px;padding:8px 10px;border-radius:8px;border:1px solid #cfe0f6;background:#f3f8ff;font-size:.9rem}
+    .ai-box.ok{border-color:#bbf7d0;background:#f0fdf4;color:#166534}
+    .ai-box.warn{border-color:#fde68a;background:#fffbeb;color:#92400e}
+    .ai-box.bad{border-color:#fecaca;background:#fef2f2;color:#991b1b}
   </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../../css/exercise-shell.css">
 </head>
 <body>
+<header class="ex-shell-header" aria-label="Seitennavigation">
+  <div class="ex-inner">
+    <a class="ex-brand" href="../../../../index.html" aria-label="Zur Startseite">
+      <img src="../../../../images_school/logo.png" alt="Logo der Grund- und Mittelschule">
+      <span class="ex-brand-text">
+        <span class="ex-brand-name">Grund- und Mittelschule am Sportpark</span>
+        <span class="ex-brand-sub">GRUMI Lernplattform &middot; Englisch 9</span>
+      </span>
+    </a>
+    <a class="ex-back" href="../QA_muendlich.html">Zur&uuml;ck zur &Uuml;bersicht</a>
+  </div>
+</header>
+
+<nav class="ex-crumbs" aria-label="Pfad">
+      <a href="../../../../index.html">Start</a>
+      <a href="../../index.html">Englisch 9</a>
+      <a href="../QA_muendlich.html">Mündliche Prüfung</a>
+      <span>Picture Description</span>
+</nav>
+
   <div class="container">
     <header>
-      <h1>Talking about a Picture</h1>
-      <p class="subtitle">AI Assistant for Picture Descriptions (100 Words)</p>
-      <div class="ai-status warn" id="aiStatus"><span class="dot"></span><span id="aiStatusText">Checking AI connection...</span></div>
+      <h1>Picture Based Talk</h1>
+      <p class="sub">Step by step to a full text (target: 100 words)</p>
     </header>
 
-    <div class="main-grid">
-      <div class="panel">
-        <div class="panel-title">Choose a picture</div>
+    <div class="layout">
+      <section class="panel">
+        <h2>1) Choose a picture</h2>
         <div class="image-grid" id="imageGrid">
-          <div class="image-option" data-image="1" onclick="selectImage(1)"><img id="thumb1" alt="Picnic"><div class="image-label">Picnic</div></div>
-          <div class="image-option" data-image="2" onclick="selectImage(2)"><img id="thumb2" alt="Airport"><div class="image-label">Airport</div></div>
-          <div class="image-option" data-image="3" onclick="selectImage(3)"><img id="thumb3" alt="Camping"><div class="image-label">Camping</div></div>
-          <div class="image-option" data-image="4" onclick="selectImage(4)"><img id="thumb4" alt="Safari"><div class="image-label">Safari</div></div>
-          <div class="image-option" data-image="5" onclick="selectImage(5)"><img id="thumb5" alt="Football Stadium"><div class="image-label">Football Stadium</div></div>
-          <div class="image-option" data-image="6" onclick="selectImage(6)"><img id="thumb6" alt="Job Interview"><div class="image-label">Job Interview</div></div>
+          <div class="img-opt" data-id="1"><img alt="Picnic" src="90c54927420d848232e9bf3a54fbf975811968d38664739aee3b79d100aabd59.png"><div class="img-cap">Picnic</div></div>
+          <div class="img-opt" data-id="2"><img alt="Airport" src="file_00000000ed5471f497238024eb0a0752.png"><div class="img-cap">Airport</div></div>
+          <div class="img-opt" data-id="3"><img alt="Camping" src="file_00000000218c71f4a3a24ee3ea8e0da7.png"><div class="img-cap">Camping</div></div>
+          <div class="img-opt" data-id="4"><img alt="Safari" src="file_00000000972c7246a0b65fe0129165cf.png"><div class="img-cap">Safari</div></div>
+          <div class="img-opt" data-id="5"><img alt="Football Stadium" src="file_000000006660724681164c65a1adafc0.png"><div class="img-cap">Football Stadium</div></div>
+          <div class="img-opt" data-id="6"><img alt="Job Interview" src="file_000000007c3072468d62f527a688e414.png"><div class="img-cap">Job Interview</div></div>
         </div>
 
-        <img class="selected-preview" id="selectedPreview" alt="Selected picture">
+        <img class="preview" id="preview" alt="Selected picture preview">
 
-        <div class="progress-bar" id="progressBar">
-          <div class="progress-dot" data-step="1"></div><div class="progress-dot" data-step="2"></div><div class="progress-dot" data-step="3"></div><div class="progress-dot" data-step="4"></div><div class="progress-dot" data-step="5"></div>
+        <div class="progress" id="progress"></div>
+
+        <div id="steps"></div>
+
+        <div class="btns">
+          <button id="buildBtn">Create / Update text</button>
+          <button class="secondary" id="resetBtn">Start over</button>
+        </div>
+        <div class="ai-box warn" id="aiBox">AI check: ready. Select a picture, then write your answer.</div>
+
+        <div class="extra" id="extraBox">
+          <div class="extra-q" id="extraQuestion">Extra question</div>
+          <div class="extra-help" id="extraHelp">Answer in full sentences.</div>
+          <textarea id="extraAnswer" placeholder="Write your answer here..."></textarea>
+          <div class="btns">
+            <button id="saveExtraBtn">Save answer + next question</button>
+          </div>
         </div>
 
-        <div class="steps-container" id="stepsContainer">
-          <div class="step" id="step1"><div class="step-title"><span class="step-number">1</span>Introduction</div><div class="step-question">What does the picture show in general?</div><div class="step-hint">Use: <code>This picture shows...</code> or <code>In this picture I can see...</code></div><textarea id="input1" placeholder="e.g. This picture shows four friends..."></textarea><button class="btn" onclick="nextStep(1)">Next -&gt;</button></div>
-          <div class="step" id="step2"><div class="step-title"><span class="step-number">2</span>Describe the place</div><div class="step-question">Where are the people? What can you see in the foreground/background?</div><div class="step-hint">Use: <code>In the foreground...</code>, <code>In the background...</code>, <code>On the left/right...</code></div><textarea id="input2"></textarea><button class="btn" onclick="nextStep(2)">Next -&gt;</button></div>
-          <div class="step" id="step3"><div class="step-title"><span class="step-number">3</span>Describe the people</div><div class="step-question">What do the people look like? What are they wearing?</div><div class="step-hint">Use: <code>There are... people</code>, <code>They are wearing...</code></div><textarea id="input3"></textarea><button class="btn" onclick="nextStep(3)">Next -&gt;</button></div>
-          <div class="step" id="step4"><div class="step-title"><span class="step-number">4</span>Actions (Present Progressive)</div><div class="step-question">What are the people doing right now?</div><div class="step-hint">Important: <code>They are ...ing</code></div><textarea id="input4"></textarea><button class="btn" onclick="nextStep(4)">Next -&gt;</button></div>
-          <div class="step" id="step5"><div class="step-title"><span class="step-number">5</span>Opinion and atmosphere</div><div class="step-question">How does the picture make you feel?</div><div class="step-hint">Use: <code>I think...</code>, <code>The atmosphere is...</code></div><textarea id="input5"></textarea><button class="btn" onclick="generateText()">Create text</button></div>
-        </div>
-        <div class="live-note" id="liveCorrectionNote"></div>
+        <p class="note">Rule: If the text is under 50 words, extra questions for the selected photo will appear automatically until 100 words are reached.</p>
+      </section>
 
-        <div class="vocab-box"><div class="vocab-title">Useful words</div><div class="vocab-list"><span class="vocab-chip" onclick="copyWord(this)">foreground</span><span class="vocab-chip" onclick="copyWord(this)">background</span><span class="vocab-chip" onclick="copyWord(this)">atmosphere</span><span class="vocab-chip" onclick="copyWord(this)">excited</span></div></div>
-      </div>
-
-      <div class="panel result-panel">
-        <div class="panel-title">Your picture description</div>
-        <div class="step-summary" id="stepSummary">
-          <div class="step-item"><b>Step 1</b><span id="sum1">-</span></div>
-          <div class="step-item"><b>Step 2</b><span id="sum2">-</span></div>
-          <div class="step-item"><b>Step 3</b><span id="sum3">-</span></div>
-          <div class="step-item"><b>Step 4</b><span id="sum4">-</span></div>
-          <div class="step-item"><b>Step 5</b><span id="sum5">-</span></div>
+      <section class="panel">
+        <h2>2) Your text + word count</h2>
+        <div class="counts">
+          <div class="pill" id="wCount">Words: 0</div>
+          <div class="pill" id="wHint">Target: 100 words</div>
         </div>
-        <div class="result-text" id="resultText">First choose a picture and answer the questions step by step. Your text will appear here.</div>
-        <div class="word-count" id="wordCount">Words: <span>0</span> / 100</div>
-        <div class="ai-feedback" id="aiFeedback"><div class="ai-feedback-title">AI Feedback</div><div id="feedbackContent"></div></div>
-        <div class="action-buttons"><button class="btn btn-secondary" onclick="resetAll()">Start over</button><button class="btn" onclick="getFeedback()" id="feedbackBtn" disabled>AI Feedback holen</button><button class="btn btn-secondary" onclick="copyResult()">Copy</button></div>
-      </div>
+        <div class="out" id="output">Choose a picture and complete the steps.</div>
+
+        <h2 style="margin-top:14px">3) Redemittel (all from the worksheet)</h2>
+        <div class="phrase-wrap">
+          <div class="phrase-card">
+            <h3>1. Einstieg</h3>
+            <ul>
+              <li>This picture shows ...</li>
+              <li>In this picture I can see ...</li>
+              <li>This photo was taken ...</li>
+              <li>The scene takes place ...</li>
+              <li>It looks like ...</li>
+            </ul>
+          </div>
+          <div class="phrase-card">
+            <h3>2. Personen beschreiben</h3>
+            <ul>
+              <li>There is / There are ...</li>
+              <li>I can see a man / a woman / a group of ...</li>
+              <li>The people are ...</li>
+              <li>They are wearing ...</li>
+              <li>One person is ...ing</li>
+              <li>They seem to be ...</li>
+            </ul>
+          </div>
+          <div class="phrase-card">
+            <h3>3. Ort / Position</h3>
+            <ul>
+              <li>In the foreground, there is ...</li>
+              <li>In the background, I can see ...</li>
+              <li>In the middle, there is ...</li>
+              <li>On the left / On the right, there is ...</li>
+              <li>Next to ... / Behind ... / In front of ...</li>
+            </ul>
+          </div>
+          <div class="phrase-card">
+            <h3>4. Handlung</h3>
+            <ul>
+              <li>They are ...ing</li>
+              <li>Someone is ...</li>
+              <li>The people are doing ...</li>
+              <li>It looks like they are ...</li>
+              <li>Maybe they are ...</li>
+            </ul>
+          </div>
+          <div class="phrase-card">
+            <h3>5. Vermutungen</h3>
+            <ul>
+              <li>I think that ...</li>
+              <li>Maybe ...</li>
+              <li>It could be that ...</li>
+              <li>They might be ...</li>
+              <li>It seems that ...</li>
+            </ul>
+          </div>
+          <div class="phrase-card">
+            <h3>6. Stimmung / 7. Meinung</h3>
+            <ul>
+              <li>The atmosphere is ...</li>
+              <li>The people look happy / excited / tired / sad / nervous.</li>
+              <li>It looks like a nice / stressful / busy situation.</li>
+              <li>The mood is ...</li>
+              <li>I think this is ...</li>
+              <li>In my opinion ...</li>
+              <li>I like / don't like this picture because ...</li>
+              <li>I would like to be there because ...</li>
+            </ul>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 
   <script>
-    const imageData = {
-      1: '90c54927420d848232e9bf3a54fbf975811968d38664739aee3b79d100aabd59.png',
-      2: 'file_00000000ed5471f497238024eb0a0752.png',
-      3: 'file_00000000218c71f4a3a24ee3ea8e0da7.png',
-      4: 'file_00000000972c7246a0b65fe0129165cf.png',
-      5: 'file_000000006660724681164c65a1adafc0.png',
-      6: 'file_000000007c3072468d62f527a688e414.png'
-    };
     const API_BASE_CANDIDATES = window.location.protocol === 'file:'
       ? [
           'https://englisch-9.onrender.com',
@@ -197,250 +248,123 @@
           'https://englisch-9.onrender.com',
           ''
         ];
+
+    const imageData = {
+      1: {src:'90c54927420d848232e9bf3a54fbf975811968d38664739aee3b79d100aabd59.png', label:'Picnic'},
+      2: {src:'file_00000000ed5471f497238024eb0a0752.png', label:'Airport'},
+      3: {src:'file_00000000218c71f4a3a24ee3ea8e0da7.png', label:'Camping'},
+      4: {src:'file_00000000972c7246a0b65fe0129165cf.png', label:'Safari'},
+      5: {src:'file_000000006660724681164c65a1adafc0.png', label:'Football Stadium'},
+      6: {src:'file_000000007c3072468d62f527a688e414.png', label:'Job Interview'}
+    };
     const imageDescriptions = {
-      1: 'Picnic: A group of friends is having a picnic in a park. In the foreground, four people are sitting on a blanket, smiling, talking, and eating fruit, bread, and salad. There are drinks and a basket. In the background, people are playing basketball and jogging. The atmosphere is sunny, relaxed, and friendly.',
-      2: 'Airport: A busy airport scene. In the foreground, a young couple is hugging and smiling. On the left side, two adults are waving and greeting. There are many suitcases. In the background, departure and arrival boards and many travelers are visible. The atmosphere is lively and emotional.',
-      3: 'Camping: A group of friends is camping outdoors. In the foreground, four people are sitting around a campfire, talking and roasting marshmallows. A kettle and food are near the fire. In the background, there are tents, trees, and string lights. The atmosphere is warm and friendly.',
-      4: 'Safari: A safari scene with tourists and a guide. In the foreground, a guide stands in front of a jeep and points to the left. In the jeep, tourists are sitting and holding cameras. On the left, elephants stand near water; in the middle, there is a giraffe. In the background, trees and a mountain are visible. The weather is sunny and warm.',
-      5: 'Football stadium: A group of young football fans is taking a selfie in a crowded stadium. They look happy and excited, with painted faces in black, red, and gold. They wear Deutschland scarves, and one person holds a German flag. In the foreground, there are snacks and drinks. In the background, there is a crowd and the football pitch. The atmosphere is energetic and joyful.',
-      6: 'Job interview: A job interview situation in an office. In the foreground, an applicant is sitting with her back to the camera. In front of her, two interviewers are sitting at a desk, smiling and holding pens. On the table, there are documents, a glass of water, and a laptop. In the background, there is a shelf with folders and a whiteboard with Bewerbungsgespraech points: introduction, motivation, experience, and goals. The atmosphere is professional and friendly.'
+      1: 'Picnic in a park with friends on a blanket, food and drinks, people relaxing and doing sports in the background.',
+      2: 'Busy airport scene with travelers, suitcases, greetings and emotional farewell moments.',
+      3: 'Camping scene with friends around a campfire, tents, trees and warm outdoor atmosphere.',
+      4: 'Safari with guide, jeep tourists, elephants, giraffe, trees and open landscape.',
+      5: 'Football stadium with excited fans, Germany colors, selfie, snacks and crowd.',
+      6: 'Job interview in an office with applicant, two interviewers, documents and professional mood.'
+    };
+
+    const steps = [
+      {title:'Step 1: Einstieg', q:'What does the picture show in general?', hint:"Use: 'This picture shows ...', 'In this picture I can see ...'"},
+      {title:'Step 2: Personen', q:'Who can you see? What do they look like?', hint:"Use: 'There are ...', 'The people are ...', 'They are wearing ...'"},
+      {title:'Step 3: Ort/Position', q:'What is in the foreground/background/left/right?', hint:"Use: 'In the foreground ...', 'In the background ...', 'On the left/right ...'"},
+      {title:'Step 4: Handlung', q:'What are the people doing right now?', hint:"Use Present Progressive: 'They are ...ing'"},
+      {title:'Step 5: Vermutungen', q:'What might be happening? Why?', hint:"Use: 'I think that ...', 'It could be that ...', 'They might be ...'"},
+      {title:'Step 6: Stimmung', q:'What is the atmosphere/mood like?', hint:"Use: 'The atmosphere is ...', 'The mood is ...'"},
+      {title:'Step 7: Meinung', q:'What is your own opinion?', hint:"Use: 'In my opinion ...', 'I like/don\'t like this picture because ...'"}
+    ];
+
+    const extraQuestions = {
+      1: [
+        'What food and drinks can you see on the blanket?',
+        'What are two people doing at this moment?',
+        'How is the weather, and how do you know?',
+        'What can people do in the background?',
+        'Would you like to join this picnic? Why or why not?'
+      ],
+      2: [
+        'Who is saying goodbye and how do they feel?',
+        'What objects can you see (for example suitcases or signs)?',
+        'What is happening in the background?',
+        'Why might this moment be emotional?',
+        'Would you enjoy this situation at an airport? Why?'
+      ],
+      3: [
+        'What can you see around the campfire?',
+        'What are the friends doing together?',
+        'How does the place look in the background?',
+        'What sounds might you hear there?',
+        'Would you like to camp there? Explain your answer.'
+      ],
+      4: [
+        'What animals can you identify in the photo?',
+        'What is the guide doing and why?',
+        'How are the tourists reacting?',
+        'What can you see in the landscape/background?',
+        'Why is this safari special for visitors?'
+      ],
+      5: [
+        'How do the fans show support for their team?',
+        'What are the people doing in the foreground?',
+        'What details can you see in the stadium background?',
+        'How would you describe the atmosphere in 2 adjectives?',
+        'Would you like to watch a match there? Why?'
+      ],
+      6: [
+        'Who is in the room and where are they sitting?',
+        'What objects are on the table?',
+        'What is happening at this moment in the interview?',
+        'How does the atmosphere feel for the applicant?',
+        'What advice would you give the applicant?'
+      ]
     };
 
     let selectedImage = null;
+    let answers = Array(steps.length).fill('');
     let currentStep = 0;
-    let userInputs = {};
-    const rewriteBusy = new Set();
+    let extraIndex = 0;
+    const extraAnswers = [];
     let resolvedApiBase = null;
     let apiResolvePromise = null;
-    let lastApiBase = '';
 
-    function loadThumb(num){
-      const img = document.getElementById(`thumb${num}`);
-      if(!img || img.dataset.loaded === '1') return;
-      img.loading = 'lazy';
-      img.decoding = 'async';
-      img.fetchPriority = 'low';
-      img.src = imageData[num];
-      img.dataset.loaded = '1';
+    const stepsWrap = document.getElementById('steps');
+    const progress = document.getElementById('progress');
+
+    function countWords(text){
+      return String(text || '').trim().split(/\s+/).filter(Boolean).length;
     }
 
-    function warmupThumbs(){
-      // Start mit wenigen Bildern fuer schnellen First Paint, Rest gestaffelt.
-      const ids = Object.keys(imageData).map(Number).sort((a,b)=>a-b);
-      if(!ids.length) return;
-      loadThumb(ids[0]);
-      if(ids[1] !== undefined) setTimeout(()=>loadThumb(ids[1]), 80);
-      const remaining = ids.slice(2);
-      let i = 0;
-      const tick = () => {
-        if(i >= remaining.length) return;
-        loadThumb(remaining[i]);
-        i += 1;
-        setTimeout(tick, 220);
-      };
-      setTimeout(tick, 260);
+    function normalize(txt){
+      const t = String(txt || '').replace(/\s+/g,' ').trim();
+      if(!t) return '';
+      return /[.!?]$/.test(t) ? t : (t + '.');
     }
 
-    function selectImage(num){
-      loadThumb(num);
-      selectedImage = num;
-      document.querySelectorAll('.image-option').forEach(el=>el.classList.remove('selected'));
-      document.querySelector(`[data-image="${num}"]`).classList.add('selected');
-      const preview = document.getElementById('selectedPreview');
-      preview.loading = 'eager';
-      preview.decoding = 'async';
-      preview.fetchPriority = 'high';
-      preview.src = imageData[num];
-      preview.classList.add('visible');
-      if(currentStep===0){ currentStep=1; showStep(1); }
-      showLiveNote('good', 'Picture selected. Your sentences will now be checked automatically.');
-    }
-
-    function showStep(step){
-      document.querySelectorAll('.step').forEach(el=>el.classList.remove('active'));
-      document.getElementById(`step${step}`).classList.add('active');
-      document.querySelectorAll('.progress-dot').forEach(dot=>{
-        const s=parseInt(dot.dataset.step,10);
-        dot.classList.remove('current','completed');
-        if(s<step) dot.classList.add('completed');
-        if(s===step) dot.classList.add('current');
-      });
-      currentStep=step;
-    }
-
-    async function nextStep(fromStep){
-      const result = await rewriteStepInput(fromStep, true);
-      if(!result || !result.accepted){
-        return;
-      }
-      updateResultPreview();
-      if(fromStep<5) showStep(fromStep+1);
-    }
-
-    function splitIntoSentences(text){
-      return String(text || '')
-        .match(/[^.!?]+[.!?]?/g)
-        ?.map(s => s.replace(/\s+/g, ' ').trim())
-        .filter(Boolean) || [];
-    }
-
-    function sanitizeStepText(text){
-      const parts = splitIntoSentences(text);
-      const seen = new Set();
-      const unique = [];
-      for(const p of parts){
-        const key = p.toLowerCase().replace(/\s+/g, ' ').trim();
-        if(!key || seen.has(key)) continue;
-        seen.add(key);
-        unique.push(p);
-      }
-      return unique.join(' ').trim();
-    }
-
-    function buildCombinedText(){
-      const out = [];
-      for(let i=1;i<=5;i++){
-        if(!userInputs[i]) continue;
-        const cleaned = sanitizeStepText(userInputs[i]);
-        if(cleaned) out.push(cleaned);
-      }
-      return out.join(' ').trim();
-    }
-
-    function updateStepSummary(){
-      for(let i=1;i<=5;i++){
-        const el = document.getElementById(`sum${i}`);
-        if(!el) continue;
-        const txt = sanitizeStepText(userInputs[i] || '');
-        el.textContent = txt || '-';
-      }
-    }
-
-    function updateResultPreview(){
-      const text = buildCombinedText();
-      updateStepSummary();
-      const resultEl=document.getElementById('resultText');
-      resultEl.textContent = text.trim() || 'First choose a picture and answer the questions step by step. Your text will appear here.';
-      const words = text.trim().split(/\s+/).filter(Boolean).length;
-      const countEl = document.getElementById('wordCount');
-      countEl.querySelector('span').textContent = words;
-      countEl.classList.remove('good','low');
-      if(words===100) countEl.classList.add('good'); else if(words>0) countEl.classList.add('low');
-      document.getElementById('feedbackBtn').disabled = words < 20;
-    }
-
-    async function generateText(){
-      const result = await rewriteStepInput(5, true);
-      if(!result || !result.accepted){
-        return;
-      }
-      updateResultPreview();
-      document.querySelectorAll('.progress-dot').forEach(dot=>{dot.classList.remove('current');dot.classList.add('completed');});
-    }
-
-    async function getFeedback(){
-      const text = document.getElementById('resultText').textContent;
-      if(!text || text.includes('First choose')) return;
-      const feedbackEl = document.getElementById('aiFeedback');
-      const contentEl = document.getElementById('feedbackContent');
-      feedbackEl.classList.add('visible');
-      contentEl.innerHTML = '<div>Analyzing your text...</div>';
-
-      try{
-        const endpoint = await apiUrl('/api/picture-description/feedback');
-        const response = await fetch(endpoint,{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({ text, selectedImage, imageDescription:imageDescriptions[selectedImage] || 'a photo with people' })
-        });
-        if(!response.ok) throw new Error('API_ERROR_'+response.status);
-        const data = await response.json();
-        const fb = data && data.feedback ? data.feedback : null;
-        if(!fb) throw new Error('INVALID_FEEDBACK_PAYLOAD');
-        contentEl.innerHTML = renderStructuredFeedback(fb);
-      }catch(_e){
-        const words = text.split(/\s+/).filter(Boolean).length;
-        contentEl.innerHTML = `<p><strong>Quick feedback:</strong> Good foundation. Expand or shorten to exactly 100 words and keep a clear structure.</p><p><strong>Words:</strong> ${words}</p>`;
-      }
-    }
-
-    function renderStructuredFeedback(fb){
-      const list = (arr)=> Array.isArray(arr)&&arr.length ? '<ul>'+arr.map(x=>`<li>${escapeHtml(String(x))}</li>`).join('')+'</ul>' : '<p>-</p>';
-      const rubric = fb && fb.rubric ? fb.rubric : null;
-      const rubricBlock = rubric ? `
-        <p><strong>KI-Kriterien (A2+/B1):</strong></p>
-        <ul>
-          <li>Inhalt: ${Number(rubric.content?.score||0)}/${Number(rubric.content?.max||4)} - ${escapeHtml(String(rubric.content?.note||''))}</li>
-          <li>Wortschatz: ${Number(rubric.vocabulary?.score||0)}/${Number(rubric.vocabulary?.max||4)} - ${escapeHtml(String(rubric.vocabulary?.note||''))}</li>
-          <li>Satzbau: ${Number(rubric.sentence_build?.score||0)}/${Number(rubric.sentence_build?.max||4)} - ${escapeHtml(String(rubric.sentence_build?.note||''))}</li>
-          <li>Struktur: ${Number(rubric.structure?.score||0)}/${Number(rubric.structure?.max||4)} - ${escapeHtml(String(rubric.structure?.note||''))}</li>
-        </ul>
-        <p><strong>Gesamt:</strong> ${Number(rubric.total?.score||0)}/${Number(rubric.total?.max||16)} (${escapeHtml(String(rubric.total?.level||''))})</p>
-      ` : '';
-      return `
-        <p><strong>Summary:</strong> ${escapeHtml(String(fb.summary||''))}</p>
-        <p><strong>Word count:</strong> ${Number(fb.wordCount||0)} (Target: ${Number(fb.target?.min||100)}-${Number(fb.target?.max||150)})</p>
-        ${rubricBlock}
-        <p><strong>Strengths:</strong></p>${list(fb.strengths)}
-        <p><strong>What is still missing?</strong></p>${list(fb.missing)}
-        <p><strong>Logic check:</strong> ${escapeHtml(String(fb.logic?.status||''))} (Score: ${escapeHtml(String(fb.logic?.score||'-'))}/5)</p>
-        ${list(fb.logic?.details)}
-        <p><strong>Next steps:</strong></p>${list(fb.next_steps)}
-        <p><strong>Example:</strong><br>${escapeHtml(String(fb.example_upgrade||''))}</p>
-      `;
-    }
-
-    function escapeHtml(value){
-      return String(value||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-    }
-
-    function showLiveNote(type, message){
-      const note = document.getElementById('liveCorrectionNote');
-      note.classList.remove('good','warn','bad','visible');
-      if(!message){
-        note.textContent = '';
-        return;
-      }
-      if(type) note.classList.add(type);
-      note.textContent = message;
-      note.classList.add('visible');
-    }
-
-    function setAiStatus(type, message){
-      const el = document.getElementById('aiStatus');
-      const text = document.getElementById('aiStatusText');
-      if(!el || !text) return;
-      el.classList.remove('ok','warn','bad');
-      el.classList.add(type || 'warn');
-      text.textContent = message || 'AI status unknown';
+    function setAiBox(type, msg){
+      const box = document.getElementById('aiBox');
+      box.className = 'ai-box ' + (type || 'warn');
+      box.textContent = msg;
     }
 
     async function resolveApiBase(){
       if(resolvedApiBase !== null) return resolvedApiBase;
       if(apiResolvePromise) return apiResolvePromise;
 
-      apiResolvePromise = (async ()=>{
-        const queryApi = new URLSearchParams(window.location.search).get('api');
-        const candidates = queryApi
-          ? [queryApi, ...API_BASE_CANDIDATES.filter((x)=>x !== queryApi)]
-          : [...API_BASE_CANDIDATES];
-
-        for(const base of candidates){
+      apiResolvePromise = (async () => {
+        for(const base of API_BASE_CANDIDATES){
           try{
-            const response = await fetch(`${base}/api/health`, { method:'GET' });
-            if(response.ok){
+            const res = await fetch(`${base}/api/health`, { method:'GET' });
+            if(res.ok){
               resolvedApiBase = base;
-              lastApiBase = base;
-              const label = base ? base.replace(/^https?:\/\//,'') : 'same-origin';
-              setAiStatus('ok', `AI connected: ${label}`);
+              setAiBox('ok', `AI check online (${(base || 'same-origin').replace(/^https?:\/\//,'')}).`);
               return resolvedApiBase;
             }
           }catch(_e){}
         }
-
         resolvedApiBase = '';
-        lastApiBase = '';
-        setAiStatus('bad', 'AI disconnected');
+        setAiBox('warn', 'AI endpoint not reachable. Using local grammar/logic fallback.');
         return resolvedApiBase;
       })();
 
@@ -452,47 +376,19 @@
       return `${base}${path}`;
     }
 
-    function normalizeSentence(text){
-      let out = String(text || '').replace(/\s+/g, ' ').trim();
-      if(!out) return '';
-      out = out.replace(/\bi\b/g,'I')
-               .replace(/\bim\b/gi,"I'm")
-               .replace(/\bdont\b/gi,"don't")
-               .replace(/\bdoesnt\b/gi,"doesn't")
-               .replace(/\bfreinds\b/gi,'friends')
-               .replace(/\bfrends\b/gi,'friends')
-               .replace(/\bnthe\b/gi,'in the')
-               .replace(/\bi nthe\b/gi,'in the')
-               .replace(/\bbackgrund\b/gi,'background')
-               .replace(/\bbakground\b/gi,'background')
-               .replace(/\belefant\b/gi,'elephant')
-               .replace(/\bgirafe\b/gi,'giraffe')
-               .replace(/\bthare\b/gi,'there')
-               .replace(/\bthexare\b/gi,'there are');
-      out = out.charAt(0).toUpperCase() + out.slice(1);
-      if(!/[.!?]$/.test(out)) out += '.';
-      return out;
-    }
-
     function localRuleCheck(sentence, step){
       const s = Number(step || 1);
       const txt = String(sentence || '');
-      if(s === 1 && !/\b(this picture shows|in this picture (i can see|you can see)|the picture shows)\b/i.test(txt)){
-        return { status:'unsicher', reason:"Step 1 needs an introduction like 'This picture shows ...'." };
+      if(s === 1 && !/\b(this picture shows|in this picture (i can see|you can see)|the picture shows|it looks like)\b/i.test(txt)){
+        return { status:'unsicher', reason:'Step 1 should start with an introduction phrase.' };
       }
-      if(s === 2 && !/\b(foreground|background|on the left|on the right|in the middle|at the top|at the bottom)\b/i.test(txt)){
-        return { status:'passt_nicht', reason:'Step 2 needs location words (foreground/background/left/right).' };
-      }
-      if(s === 3 && !/\b(there (is|are)|people|person|boy|girl|man|woman|family|friends|wearing|looks like)\b/i.test(txt)){
-        return { status:'unsicher', reason:'Step 3 should describe people or clothes.' };
+      if(s === 3 && !/\b(foreground|background|on the left|on the right|in the middle|next to|behind|in front of)\b/i.test(txt)){
+        return { status:'unsicher', reason:'Use position words for this step.' };
       }
       if(s === 4 && !/\b(am|is|are)\s+\w+ing\b/i.test(txt)){
-        return { status:'passt_nicht', reason:'Step 4 needs Present Progressive (am/is/are + verb-ing).' };
+        return { status:'unsicher', reason:'Use Present Progressive (am/is/are + verb-ing).' };
       }
-      if(s === 5 && !/\b(i think|in my opinion|i like|i don't like|the atmosphere is|it looks)\b/i.test(txt)){
-        return { status:'unsicher', reason:'Step 5 should include opinion or atmosphere.' };
-      }
-      return { status:'passt', reason:'Sentence matches this step.' };
+      return { status:'passt', reason:'Sentence matches the step.' };
     }
 
     function localImageCheck(sentence, imageDescription){
@@ -501,176 +397,294 @@
       const imageTokens = lowerImage.split(/[^a-z]+/).filter(w => w.length >= 4);
       const textTokens = new Set(lowerText.split(/[^a-z]+/).filter(Boolean));
       const overlap = imageTokens.filter(t => textTokens.has(t)).length;
-      if(/\b(snow|classroom|kitchen|bedroom|office|hospital)\b/.test(lowerText) && !/\b(snow|classroom|kitchen|bedroom|office|hospital)\b/.test(lowerImage)){
-        return { status:'passt_nicht', reason:'Content does not fit the selected picture.' };
+      if(/\b(classroom|snow|hospital|kitchen|bedroom)\b/.test(lowerText) && !/\b(classroom|snow|hospital|kitchen|bedroom)\b/.test(lowerImage)){
+        return { status:'passt_nicht', reason:'The content does not match the selected picture.' };
       }
-      if(overlap >= 2) return { status:'passt', reason:'Content fits the selected picture.' };
-      return { status:'unsicher', reason:'Picture match is possible but unclear.' };
+      if(overlap >= 2) return { status:'passt', reason:'Sentence fits the selected photo.' };
+      return { status:'unsicher', reason:'Picture reference is possible, but not clear enough.' };
     }
 
     function mergeStatus(a, b){
       const rank = { passt:0, unsicher:1, passt_nicht:2 };
       const sa = String(a?.status || 'unsicher');
       const sb = String(b?.status || 'unsicher');
-      const worst = (rank[sa] >= rank[sb]) ? sa : sb;
-      const reason = `${String(a?.reason || '').trim()} ${String(b?.reason || '').trim()}`.trim();
-      return { status: worst, reason };
+      const worst = rank[sa] >= rank[sb] ? sa : sb;
+      return { status: worst, reason: `${String(a?.reason || '')} ${String(b?.reason || '')}`.trim() };
     }
 
-    function localRewriteFallback(text, step){
-      const correctedText = normalizeSentence(text);
-      const imageDescription = imageDescriptions[selectedImage] || 'a photo with people';
-      const byImage = localImageCheck(correctedText, imageDescription);
-      const byStep = localRuleCheck(correctedText, step);
-      return {
-        correctedText,
-        imageMatch: mergeStatus(byImage, byStep)
-      };
+    function localFallbackCheck(text, step){
+      const corrected = normalize(String(text || '')
+        .replace(/\bi\b/g,'I')
+        .replace(/\bdont\b/gi,"don't")
+        .replace(/\bdoesnt\b/gi,"doesn't")
+        .replace(/\bfreinds\b/gi,'friends')
+      );
+      const pic = imageDescriptions[selectedImage] || '';
+      const merged = mergeStatus(localRuleCheck(corrected, step), localImageCheck(corrected, pic));
+      return { correctedText: corrected, imageMatch: merged };
     }
 
-    async function requestKiRewrite(payload){
-      const rewriteEndpoint = await apiUrl('/api/picture-description/rewrite-sentence');
-      const rewriteResp = await fetch(rewriteEndpoint,{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify(payload)
-      });
-
-      if(rewriteResp.ok){
-        setAiStatus('ok', `AI connected: ${(lastApiBase || 'same-origin').replace(/^https?:\/\//,'')}`);
-        return await rewriteResp.json();
-      }
-
-      if(rewriteResp.status === 404){
-        const legacyEndpoint = await apiUrl('/api/korrektur');
-        const legacyResp = await fetch(legacyEndpoint,{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({ studentAnswer: payload.text })
-        });
-        if(!legacyResp.ok) throw new Error('LEGACY_API_ERROR_'+legacyResp.status);
-        const legacyData = await legacyResp.json();
-        setAiStatus('ok', `AI connected (legacy): ${(lastApiBase || 'same-origin').replace(/^https?:\/\//,'')}`);
-        const corrected = normalizeSentence(String(legacyData.corrected || legacyData.suggestion || payload.text));
-        const byImage = localImageCheck(corrected, payload.imageDescription);
-        const byStep = localRuleCheck(corrected, payload.step);
-        return {
-          ok:true,
-          correctedText: corrected,
-          imageMatch: mergeStatus(byImage, byStep),
-          source:'legacy-korrektur'
-        };
-      }
-
-      throw new Error('API_ERROR_'+rewriteResp.status);
-    }
-
-    async function rewriteStepInput(step, silent){
-      const ta = document.getElementById(`input${step}`);
-      if(!ta) return { accepted:false, status:'unsicher' };
-      const text = ta.value.trim();
-      if(!text || !selectedImage) return { accepted:false, status:'unsicher' };
-      if(rewriteBusy.has(step)) return { accepted:false, status:'unsicher' };
-
-      rewriteBusy.add(step);
-      if(!silent) showLiveNote('', 'Checking grammar and picture logic...');
+    async function checkInputWithAi(rawText, step){
+      const text = normalize(rawText);
+      if(!text) return { accepted:false, correctedText:'', reason:'Please write a sentence.' };
+      if(!selectedImage) return { accepted:false, correctedText:text, reason:'Please select a picture first.' };
 
       try{
-        const data = await requestKiRewrite({
-          text,
-          step,
-          selectedImage,
-          imageDescription:imageDescriptions[selectedImage] || 'a photo with people'
+        const endpoint = await apiUrl('/api/picture-description/rewrite-sentence');
+        const resp = await fetch(endpoint,{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            text,
+            step,
+            selectedImage,
+            imageDescription:imageDescriptions[selectedImage] || 'a photo with people'
+          })
         });
-        const corrected = data && data.correctedText ? String(data.correctedText).trim() : text;
-        const cleaned = sanitizeStepText(corrected || ta.value.trim());
-        if(cleaned && cleaned !== ta.value.trim()) ta.value = cleaned;
 
-        const fallback = localRewriteFallback(cleaned, step);
-        const match = (data && data.imageMatch) ? data.imageMatch : fallback.imageMatch;
-        if(match){
-          const status = String(match.status || '').toLowerCase();
-          // Schrittweise Arbeiten: "unsicher" darf uebernommen werden, nur klares "passt_nicht" blockiert.
-          if(status !== 'passt_nicht'){
-            userInputs[step] = sanitizeStepText(ta.value.trim());
-            updateResultPreview();
-            if(status === 'unsicher'){
-              showLiveNote('warn', `Satz uebernommen (mit Hinweis): ${String(match.reason || 'Bitte im naechsten Schritt genauer werden.')}`);
-            } else {
-              showLiveNote('good', `Satz uebernommen. ${String(match.reason || 'Good match.')}`);
-            }
-            return { accepted:true, status };
-          }
-          delete userInputs[step];
-          updateResultPreview();
+        if(resp.ok){
+          const data = await resp.json();
+          const corrected = normalize(data?.correctedText || text);
+          const imageMatch = data?.imageMatch || { status:'unsicher', reason:'No explicit AI match status.' };
+          const status = String(imageMatch?.status || 'unsicher');
           if(status === 'passt_nicht'){
-            showLiveNote('bad', `Noch nicht akzeptiert: ${String(match.reason || 'The content does not match the selected picture.')} Bitte korrigieren.`);
-          }else{
-            showLiveNote('warn', `Noch zu ungenau: ${String(match.reason || 'Please make your sentence more specific.')} Bitte korrigieren.`);
+            return { accepted:false, correctedText:corrected, reason:imageMatch.reason || 'This sentence does not fit the picture.' };
           }
-          return { accepted:false, status };
-        }else{
-          // Sollte praktisch nicht mehr vorkommen, da oben immer ein Fallback gesetzt wird.
-          userInputs[step] = sanitizeStepText(ta.value.trim());
-          updateResultPreview();
-          showLiveNote('warn', 'Satz übernommen (Fallback). Bitte kurz prüfen.');
-          return { accepted:true, status:'unsicher' };
+          return { accepted:true, correctedText:corrected, reason:imageMatch.reason || 'Checked by AI.' };
         }
+        throw new Error('AI_API_ERROR');
       }catch(_e){
-        setAiStatus('bad', 'AI disconnected');
-        // Lokaler Fallback: Satz trotzdem übernehmen, solange er nicht klar unpassend ist.
-        const fallback = localRewriteFallback(ta.value.trim(), step);
-        const cleaned = sanitizeStepText(fallback.correctedText || ta.value.trim());
-        if(cleaned && cleaned !== ta.value.trim()) ta.value = cleaned;
-        const status = String(fallback.imageMatch?.status || 'unsicher').toLowerCase();
+        const fb = localFallbackCheck(text, step);
+        const corrected = normalize(fb.correctedText || text);
+        const status = String(fb.imageMatch?.status || 'unsicher');
         if(status === 'passt_nicht'){
-          delete userInputs[step];
-          updateResultPreview();
-          showLiveNote('bad', `Noch nicht akzeptiert: ${String(fallback.imageMatch?.reason || 'The content does not match the selected picture.')}`);
-          return { accepted:false, status };
+          return { accepted:false, correctedText:corrected, reason:fb.imageMatch.reason || 'Sentence does not fit the selected photo.' };
         }
-        userInputs[step] = sanitizeStepText(ta.value.trim());
-        updateResultPreview();
-        showLiveNote('warn', 'KI offline: Satz wurde mit lokaler Prüfung übernommen.');
-        return { accepted:true, status };
-      }finally{
-        rewriteBusy.delete(step);
+        return { accepted:true, correctedText:corrected, reason:`Fallback check: ${fb.imageMatch.reason || 'accepted'}` };
       }
     }
 
-    // Schritt-fuer-Schritt: Uebernahme nur ueber die Next/Create-Buttons,
-    // damit Eingaben nicht unbemerkt ueberschrieben werden.
-    warmupThumbs();
-    resolveApiBase();
+    function buildStepUi(){
+      progress.innerHTML = '';
+      stepsWrap.innerHTML = '';
+      steps.forEach((s, idx) => {
+        const d = document.createElement('div');
+        d.className = 'dot';
+        if(idx === 0) d.classList.add('current');
+        progress.appendChild(d);
 
-    function copyWord(el){ navigator.clipboard.writeText(el.textContent); }
-    function copyResult(){ navigator.clipboard.writeText(document.getElementById('resultText').textContent); }
-    function resetAll(){
-      selectedImage=null; currentStep=0; userInputs={};
-      document.querySelectorAll('.image-option').forEach(el=>el.classList.remove('selected'));
-      document.getElementById('selectedPreview').classList.remove('visible');
-      document.querySelectorAll('.step').forEach(el=>el.classList.remove('active'));
-      document.querySelectorAll('.progress-dot').forEach(dot=>dot.classList.remove('current','completed'));
-      document.querySelectorAll('textarea').forEach(ta=>ta.value='');
-      document.getElementById('resultText').textContent='First choose a picture and answer the questions step by step. Your text will appear here.';
-      document.getElementById('wordCount').querySelector('span').textContent='0';
-      document.getElementById('wordCount').classList.remove('good','low');
-      document.getElementById('aiFeedback').classList.remove('visible');
-      document.getElementById('feedbackBtn').disabled=true;
-      updateStepSummary();
-      showLiveNote('', '');
+        const box = document.createElement('div');
+        box.className = 'step' + (idx === 0 ? ' active' : '');
+        box.id = 'step_' + idx;
+        box.innerHTML = `
+          <div class="st-title">${s.title}</div>
+          <div class="st-q">${s.q}</div>
+          <div class="st-hint">${s.hint}</div>
+          <textarea id="ans_${idx}" placeholder="Write 1-3 sentences..."></textarea>
+          <div class="btns">
+            <button data-next="${idx}">Save + next step</button>
+          </div>
+        `;
+        stepsWrap.appendChild(box);
+      });
+
+      stepsWrap.querySelectorAll('button[data-next]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const idx = Number(btn.dataset.next);
+          const ta = document.getElementById('ans_' + idx);
+          btn.disabled = true;
+          setAiBox('warn', 'Checking grammar, spelling and logic...');
+          const checked = await checkInputWithAi(ta.value, idx + 1);
+          btn.disabled = false;
+          if(!checked.accepted){
+            setAiBox('bad', checked.reason);
+            return;
+          }
+          ta.value = checked.correctedText;
+          answers[idx] = checked.correctedText;
+          setAiBox('ok', checked.reason || 'Accepted and corrected.');
+          if(idx < steps.length - 1){
+            currentStep = idx + 1;
+            showStep(currentStep);
+          }
+          updateOutput();
+        });
+      });
     }
-    updateStepSummary();
+
+    function showStep(step){
+      document.querySelectorAll('.step').forEach((el, i) => {
+        el.classList.toggle('active', i === step);
+      });
+      document.querySelectorAll('.dot').forEach((el, i) => {
+        el.classList.remove('current','done');
+        if(i < step) el.classList.add('done');
+        if(i === step) el.classList.add('current');
+      });
+    }
+
+    function combinedText(){
+      return [...answers.filter(Boolean), ...extraAnswers.filter(Boolean)].join(' ').trim();
+    }
+
+    function updateCountUi(words){
+      const wCount = document.getElementById('wCount');
+      const wHint = document.getElementById('wHint');
+      wCount.textContent = 'Words: ' + words;
+      wCount.className = 'pill';
+      wHint.className = 'pill';
+
+      if(words >= 100){
+        wCount.classList.add('ok');
+        wHint.classList.add('ok');
+        wHint.textContent = 'Great: target reached (100+)';
+      } else if(words < 50){
+        wCount.classList.add('warn');
+        wHint.classList.add('warn');
+        wHint.textContent = 'Under 50: answer extra questions now';
+      } else {
+        wHint.textContent = 'Good start: keep going to 100 words';
+      }
+    }
+
+    function showExtraQuestion(){
+      const box = document.getElementById('extraBox');
+      const qEl = document.getElementById('extraQuestion');
+      const help = document.getElementById('extraHelp');
+      const list = extraQuestions[selectedImage] || [];
+
+      if(!list.length){
+        box.classList.remove('on');
+        return;
+      }
+
+      if(extraIndex >= list.length){
+        extraIndex = 0;
+      }
+
+      qEl.textContent = 'Extra question: ' + list[extraIndex];
+      help.textContent = 'Answer in 1-2 full sentences. Keep adding details until you reach 100 words.';
+      box.classList.add('on');
+    }
+
+    function updateOutput(){
+      const out = document.getElementById('output');
+      const txt = combinedText();
+      out.textContent = txt || 'Choose a picture and complete the steps.';
+
+      const words = countWords(txt);
+      updateCountUi(words);
+
+      const box = document.getElementById('extraBox');
+      if(words < 50 && selectedImage){
+        showExtraQuestion();
+      } else if(words >= 100){
+        box.classList.remove('on');
+      } else if(words >= 50 && words < 100 && selectedImage && extraAnswers.length > 0){
+        showExtraQuestion();
+      }
+    }
+
+    function selectImage(id){
+      selectedImage = id;
+      document.querySelectorAll('.img-opt').forEach(el => {
+        el.classList.toggle('selected', Number(el.dataset.id) === id);
+      });
+      const p = document.getElementById('preview');
+      p.src = imageData[id].src;
+      p.classList.add('on');
+      extraIndex = 0;
+      extraAnswers.length = 0;
+      updateOutput();
+    }
+
+    document.getElementById('imageGrid').addEventListener('click', (e) => {
+      const card = e.target.closest('.img-opt');
+      if(!card) return;
+      selectImage(Number(card.dataset.id));
+    });
+
+    document.getElementById('buildBtn').addEventListener('click', async () => {
+      const buildBtn = document.getElementById('buildBtn');
+      buildBtn.disabled = true;
+      for(let i = 0; i < steps.length; i += 1){
+        const ta = document.getElementById(`ans_${i}`);
+        const raw = normalize(ta.value);
+        if(!raw) continue;
+        setAiBox('warn', `Checking input for ${steps[i].title}...`);
+        const checked = await checkInputWithAi(raw, i + 1);
+        if(checked.accepted){
+          ta.value = checked.correctedText;
+          answers[i] = checked.correctedText;
+        } else {
+          setAiBox('bad', `${steps[i].title}: ${checked.reason}`);
+        }
+      }
+      buildBtn.disabled = false;
+      setAiBox('ok', 'All available inputs checked before transfer to the text field.');
+      updateOutput();
+    });
+
+    document.getElementById('saveExtraBtn').addEventListener('click', async () => {
+      if(!selectedImage) return;
+      const ta = document.getElementById('extraAnswer');
+      const btn = document.getElementById('saveExtraBtn');
+      btn.disabled = true;
+      setAiBox('warn', 'Checking extra answer...');
+      const checked = await checkInputWithAi(ta.value, 8);
+      btn.disabled = false;
+      if(!checked.accepted){
+        setAiBox('bad', checked.reason);
+        return;
+      }
+      const val = checked.correctedText;
+      if(!val) return;
+      extraAnswers.push(val);
+      ta.value = '';
+      setAiBox('ok', checked.reason || 'Extra answer accepted.');
+      extraIndex += 1;
+      updateOutput();
+      const words = countWords(combinedText());
+      if(words < 100){
+        showExtraQuestion();
+      }
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      selectedImage = null;
+      answers = Array(steps.length).fill('');
+      currentStep = 0;
+      extraIndex = 0;
+      extraAnswers.length = 0;
+      document.querySelectorAll('.img-opt').forEach(el => el.classList.remove('selected'));
+      document.getElementById('preview').classList.remove('on');
+      document.getElementById('preview').src = '';
+      document.querySelectorAll('textarea').forEach(ta => ta.value = '');
+      document.getElementById('extraBox').classList.remove('on');
+      setAiBox('warn', 'AI check: ready. Select a picture, then write your answer.');
+      showStep(0);
+      updateOutput();
+    });
+
+    buildStepUi();
+    resolveApiBase();
+    updateOutput();
   </script>
+
+<footer class="ex-shell-footer">
+  <div class="ex-inner">
+    <div>
+      <div class="ex-footer-name">Grund- und Mittelschule Unterhaching am Sportpark</div>
+      <div class="ex-footer-sub">GRUMI Lernplattform &middot; Klasse 9</div>
+    </div>
+    <div class="ex-footer-links">
+      <a href="../../index.html">Englisch 9</a>
+      <a href="../../datenschutz.html">Datenschutz</a>
+      <a href="../../impressum.html">Impressum</a>
+      <a href="../../bildnachweise.html">Bildnachweise</a>
+      <a href="../../haftung.html">Haftung</a>
+    </div>
+  </div>
+</footer>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
