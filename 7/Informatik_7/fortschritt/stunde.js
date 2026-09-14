@@ -108,12 +108,38 @@
     return kopf;
   }
 
-  function infotextBauen(absaetze) {
-    var abschnitt = block("Das musst du wissen");
-    absaetze.forEach(function (text) {
-      abschnitt.appendChild(el("p", null, text));
+  /* Zwei Schreibweisen sind moeglich:
+       "infotext": ["Absatz", "Absatz"]                 -> ein Block
+       "infotext": [{ueberschrift, absaetze: [...]}]    -> je ein Block
+     Die zweite gliedert eine Stunde in benannte Abschnitte. Es wird ein
+     Fragment zurueckgegeben, damit mehrere Bloecke entstehen koennen. */
+  function infotextBauen(eintraege) {
+    var huelle = document.createDocumentFragment();
+    var einfach = [];
+
+    eintraege.forEach(function (eintrag) {
+      if (typeof eintrag === "string") {
+        einfach.push(eintrag);
+        return;
+      }
+
+      var abschnitt = block(eintrag.ueberschrift || "Das musst du wissen");
+      (eintrag.absaetze || []).forEach(function (text) {
+        abschnitt.appendChild(el("p", null, text));
+      });
+      huelle.appendChild(abschnitt);
     });
-    return abschnitt;
+
+    /* Lose Absaetze ohne Ueberschrift kommen in einen gemeinsamen Block. */
+    if (einfach.length) {
+      var rest = block("Das musst du wissen");
+      einfach.forEach(function (text) {
+        rest.appendChild(el("p", null, text));
+      });
+      huelle.insertBefore(rest, huelle.firstChild);
+    }
+
+    return huelle;
   }
 
   function videosBauen(videos) {
@@ -443,8 +469,14 @@
     return abschnitt;
   }
 
+  /* Steht bewusst ganz am Ende: ein Zusatzangebot fuer alle, die mit
+     den Aufgaben schon fertig sind. */
   function linksBauen(links) {
-    var abschnitt = block("Hier kannst du weiterlesen");
+    var abschnitt = block("Für Schnelle");
+    abschnitt.classList.add("inf-schnelle");
+    abschnitt.appendChild(
+      el("p", null, "Du bist schon fertig? Dann übe hier weiter:")
+    );
 
     var liste = el("ul", "inf-links");
     links.forEach(function (eintrag) {
