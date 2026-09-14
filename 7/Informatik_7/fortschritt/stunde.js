@@ -67,7 +67,7 @@
        Stunde 1 braucht das: dort kommt erst die Praxis am Computer
        (Infotext, Wortspeicher, Aufgaben) und danach der Film mit Quiz.
        Ohne Angabe gilt die uebliche Reihenfolge. */
-    var STANDARD = ["infotext", "videos", "filmquiz", "bilder", "wortspeicher", "aufgaben", "links"];
+    var STANDARD = ["infotext", "infotext2", "videos", "filmquiz", "bilder", "wortspeicher", "aufgaben", "links", "schluss"];
     var folge = (stunde.reihenfolge && stunde.reihenfolge.length) ? stunde.reihenfolge : STANDARD;
 
     /* Bloecke, die in der Reihenfolge fehlen, haengen wir hinten an,
@@ -79,6 +79,21 @@
     var bauer = {
       infotext: function () {
         return (stunde.infotext && stunde.infotext.length) ? infotextBauen(stunde.infotext) : null;
+      },
+      /* Zweite Infotext-Gruppe. Stunde 1 nutzt sie fuer die Einleitung
+         zu Teil 2, die direkt vor dem Film stehen muss. */
+      infotext2: function () {
+        return (stunde.infotext2 && stunde.infotext2.length) ? infotextBauen(stunde.infotext2) : null;
+      },
+      /* Kurzer Schlussblock, z. B. abmelden und herunterfahren. */
+      schluss: function () {
+        if (!stunde.schluss || !stunde.schluss.absaetze || !stunde.schluss.absaetze.length) return null;
+        var abschnitt = block(stunde.schluss.ueberschrift || "Zum Schluss");
+        abschnitt.classList.add("inf-schluss");
+        stunde.schluss.absaetze.forEach(function (text) {
+          abschnitt.appendChild(el("p", null, text));
+        });
+        return abschnitt;
       },
       videos: function () {
         return (stunde.videos && stunde.videos.length) ? videosBauen(stunde.videos) : null;
@@ -92,10 +107,11 @@
       },
       wortspeicher: function () {
         return (stunde.wortspeicher && stunde.wortspeicher.length)
-          ? wortspeicherBauen(stunde.wortspeicher) : null;
+          ? wortspeicherBauen(stunde.wortspeicher, stunde.wortspeicherTitel) : null;
       },
       aufgaben: function () {
-        return (stunde.aufgaben && stunde.aufgaben.length) ? aufgabenBauen(stunde) : null;
+        return (stunde.aufgaben && stunde.aufgaben.length)
+          ? aufgabenBauen(stunde, stunde.aufgabenTitel) : null;
       },
       links: function () {
         return (stunde.links && stunde.links.length) ? linksBauen(stunde.links) : null;
@@ -479,8 +495,8 @@
     });
   }
 
-  function wortspeicherBauen(woerter) {
-    var abschnitt = block("Wortspeicher");
+  function wortspeicherBauen(woerter, titel) {
+    var abschnitt = block(titel || "Wortspeicher");
     abschnitt.appendChild(
       el("p", null, "Diese Wörter brauchst du für die Lücken:")
     );
@@ -520,8 +536,8 @@
 
   /* --- Aufgaben --- */
 
-  function aufgabenBauen(stunde) {
-    var abschnitt = block("Aufgaben");
+  function aufgabenBauen(stunde, titel) {
+    var abschnitt = block(titel || "Aufgaben");
     abschnitt.appendChild(
       el("p", null, "Fülle die Lücken aus und entscheide bei den Sätzen, ob sie richtig oder falsch sind.")
     );
