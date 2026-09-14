@@ -3,13 +3,277 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Informatik 7 | GRUMI Lernplattform</title>
+  <title>Informatik 7 | &Uuml;bersicht der Stunden</title>
   <meta name="description" content="Informatik Klasse 7 auf GRUMI: sieben Stunden bis Weihnachten mit Infotexten, Erkl&auml;rvideos, L&uuml;ckentexten und Aufgaben zum selbstst&auml;ndigen Erarbeiten.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../css/subject-overview.css">
-  <link rel="stylesheet" href="fortschritt/stunde.css">
+  <style>
+    /* Aufklappbare Lernbereiche - Aufbau wie in der NT-9-Themenuebersicht */
+    .main-topics {
+      display: grid;
+      gap: 18px;
+    }
+
+    .main-topic {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+      overflow: hidden;
+      box-shadow: 0 4px 14px rgba(16, 24, 40, 0.07);
+    }
+
+    .main-topic:nth-child(1) { border-top: 3px solid var(--teal); }
+    .main-topic:nth-child(2) { border-top: 3px solid var(--blue); }
+    .main-topic:nth-child(3) { border-top: 3px solid var(--amber); }
+
+    .main-topic > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 18px 20px;
+      user-select: none;
+    }
+    .main-topic > summary::-webkit-details-marker { display: none; }
+    .main-topic > summary:hover { background: var(--surface-soft); }
+
+    .summary-wrap {
+      display: grid;
+      grid-template-columns: 62px 1fr auto;
+      gap: 16px;
+      align-items: center;
+    }
+
+    /* Statt Bild ein ruhiges Symbol - so bleibt die Seite ohne Assets vollstaendig */
+    .topic-badge {
+      display: grid;
+      place-items: center;
+      width: 62px;
+      height: 62px;
+      border-radius: 14px;
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      font-size: 1.6rem;
+      line-height: 1;
+    }
+
+    .topic-title {
+      margin: 0;
+      font-family: Fredoka, Nunito, sans-serif;
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: var(--ink);
+      overflow-wrap: anywhere;
+    }
+
+    .topic-sub {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+      overflow-wrap: anywhere;
+    }
+
+    .summary-caret {
+      width: 30px;
+      height: 30px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.85rem;
+      transition: transform .2s ease, color .2s ease, border-color .2s ease, background .2s ease;
+    }
+
+    .main-topic[open] .summary-caret {
+      transform: rotate(180deg);
+      color: var(--teal);
+      border-color: var(--teal);
+      background: var(--surface-soft);
+    }
+
+    .subtopics {
+      padding: 0 18px 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .tile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .tile {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--paper);
+      color: var(--ink);
+      padding: 14px 16px;
+      text-decoration: none;
+      min-height: 84px;
+      box-shadow: 0 1px 4px rgba(16, 24, 40, 0.05);
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+    }
+
+    .tile:hover,
+    .tile:focus-visible {
+      background: var(--surface);
+      box-shadow: 0 6px 18px rgba(16, 24, 40, 0.12);
+      transform: translateY(-2px);
+      text-decoration: none;
+      outline: none;
+    }
+
+    .tile-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .tile .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      height: 26px;
+      padding: 0 9px;
+      border-radius: 6px;
+      font-weight: 800;
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
+
+    .tile .label {
+      font-weight: 700;
+      font-size: 0.96rem;
+      line-height: 1.3;
+      color: var(--ink-soft);
+      overflow-wrap: anywhere;
+    }
+
+    .tile .tile-sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.45;
+    }
+
+    .main-topic:nth-child(1) .tile .num { background: #e0f2f1; color: var(--teal); }
+    .main-topic:nth-child(1) .tile:hover { border-color: var(--teal); }
+
+    .main-topic:nth-child(2) .tile .num { background: #e3eef8; color: var(--blue); }
+    .main-topic:nth-child(2) .tile:hover { border-color: var(--blue); }
+
+    .main-topic:nth-child(3) .tile .num { background: #fef3e2; color: var(--amber); }
+    .main-topic:nth-child(3) .tile:hover { border-color: var(--amber); }
+
+    /* Status je Stunde - wird per JS gefuellt */
+    .tile-status {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      min-height: 26px;
+      border-radius: 999px;
+      border: 1px solid #d8e1e8;
+      background: #f3f6f8;
+      color: var(--muted);
+      padding: 3px 10px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .tile-status.fertig {
+      border-color: #6ee7b7;
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    /* Fortschritt oben */
+    .fortschritt-karte {
+      display: grid;
+      gap: 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+      padding: 18px 20px;
+      margin-bottom: 22px;
+    }
+
+    .fortschritt-kopf {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .fortschritt-titel {
+      margin: 0;
+      font-family: Fredoka, Nunito, sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .fortschritt-titel small {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      font-weight: 600;
+      font-family: Nunito, sans-serif;
+    }
+
+    .fortschritt-balken {
+      width: 100%;
+      height: 12px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e8eef1;
+    }
+
+    .fortschritt-balken span {
+      display: block;
+      height: 100%;
+      width: 0;
+      border-radius: 999px;
+      background: var(--teal);
+      transition: width .35s ease;
+    }
+
+    .knopf-leise {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--paper);
+      color: var(--teal);
+      padding: 8px 14px;
+      font: inherit;
+      font-size: 0.86rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .knopf-leise:hover,
+    .knopf-leise:focus-visible {
+      border-color: var(--teal);
+      background: var(--surface-soft);
+      outline: none;
+    }
+
+    @media (max-width: 640px) {
+      .summary-wrap { grid-template-columns: 50px 1fr auto; }
+      .topic-badge { width: 50px; height: 50px; font-size: 1.3rem; }
+      .tile-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body class="subject-overview">
   <header aria-label="Seitennavigation">
@@ -35,6 +299,7 @@
       <div class="hero-overlay">
         <p class="hero-kicker">Klasse 7</p>
         <h1 id="page-title">Informatik</h1>
+        <p>Sieben Stunden bis Weihnachten: aufklappen und direkt zur passenden Stunde springen.</p>
       </div>
     </section>
 
@@ -43,79 +308,140 @@
         <div class="card-body">
           <div class="overview-intro">
             <div>
-              <h2 id="topics-title">Die sieben Stunden bis Weihnachten</h2>
-              <p>Jede Stunde dauert ungef&auml;hr 30 Minuten. Du liest einen kurzen Infotext, schaust ein Video und l&ouml;st danach die Aufgaben. Du kannst alles allein bearbeiten.</p>
+              <h2 id="topics-title">Stunden&uuml;bersicht</h2>
+              <p class="intro-text">Klappe einen Lernbereich auf, um die Stunden zu sehen. Jede Kachel f&uuml;hrt direkt zur Stunde. Du kannst alles allein bearbeiten.</p>
+            </div>
+            <div class="overview-note">
+              <strong>So l&auml;uft eine Stunde</strong>
+              <span>Infotext lesen, Video schauen, Aufgaben l&ouml;sen &ndash; zusammen ungef&auml;hr 30 Minuten.</span>
             </div>
           </div>
 
-          <div class="inf-fortschritt-box" aria-live="polite">
-            <div class="inf-fortschritt-text">
-              <span id="fortschritt-text">Noch keine Stunde geschafft</span>
-              <small>Dein Fortschritt wird nur auf diesem Computer gespeichert.</small>
+          <div class="fortschritt-karte" aria-live="polite">
+            <div class="fortschritt-kopf">
+              <p class="fortschritt-titel">
+                <span id="fortschritt-text">Noch keine Stunde geschafft</span>
+                <small>Dein Fortschritt wird nur auf diesem Computer gespeichert.</small>
+              </p>
+              <button type="button" class="knopf-leise" id="fortschritt-reset">Fortschritt zur&uuml;cksetzen</button>
             </div>
-            <div class="inf-balken" role="img" aria-label="Fortschrittsbalken">
-              <span id="fortschritt-balken" style="width:0%"></span>
+            <div class="fortschritt-balken" role="img" aria-label="Fortschrittsbalken">
+              <span id="fortschritt-balken"></span>
             </div>
-            <button type="button" class="inf-knopf zweit" id="fortschritt-reset">Fortschritt zur&uuml;cksetzen</button>
           </div>
 
-          <div class="topic-grid" aria-label="Stunden&uuml;bersicht Informatik 7">
-            <a class="topic-card" href="stunden/s01-computerfuehrerschein.html" data-stunde="s01-computerfuehrerschein">
-              <div>
-                <h3>1. Mein Computerf&uuml;hrerschein</h3>
-                <p>Anmelden, Datei im eigenen Ordner speichern und richtig herunterfahren.</p>
-              </div>
-              <span class="inf-status offen">Noch offen</span>
-            </a>
+          <section class="main-topics" aria-label="Lernbereiche Informatik 7">
+            <details class="main-topic" open>
+              <summary>
+                <div class="summary-wrap">
+                  <span class="topic-badge" aria-hidden="true">&#128187;</span>
+                  <div>
+                    <p class="topic-title">1. Informationsaustausch</p>
+                    <p class="topic-sub">Anmelden, Ordner und Dateien, sicheres Passwort</p>
+                  </div>
+                  <span class="summary-caret" aria-hidden="true">&#9662;</span>
+                </div>
+              </summary>
+              <div class="subtopics">
+                <div class="tile-grid">
+                  <a class="tile" href="stunden/s01-computerfuehrerschein.html" data-stunde="s01-computerfuehrerschein">
+                    <div class="tile-top">
+                      <span class="num">Stunde 1</span>
+                      <span class="tile-status">Noch offen</span>
+                    </div>
+                    <span class="label">Mein Computerf&uuml;hrerschein</span>
+                    <p class="tile-sub">Anmelden, im eigenen Ordner speichern, richtig herunterfahren.</p>
+                  </a>
 
-            <a class="topic-card" href="stunden/s02-ordner-und-dateien.html" data-stunde="s02-ordner-und-dateien">
-              <div>
-                <h3>2. Ordner und Dateien</h3>
-                <p>Ordner anlegen, Dateien gut benennen und wiederfinden.</p>
-              </div>
-              <span class="inf-status offen">Noch offen</span>
-            </a>
+                  <a class="tile" href="stunden/s02-ordner-und-dateien.html" data-stunde="s02-ordner-und-dateien">
+                    <div class="tile-top">
+                      <span class="num">Stunde 2</span>
+                      <span class="tile-status">Noch offen</span>
+                    </div>
+                    <span class="label">Ordner und Dateien</span>
+                    <p class="tile-sub">Ordner anlegen, Dateien gut benennen und wiederfinden.</p>
+                  </a>
 
-            <a class="topic-card" href="stunden/s03-sicheres-passwort.html" data-stunde="s03-sicheres-passwort">
-              <div>
-                <h3>3. Mein sicheres Passwort</h3>
-                <p>Woran du ein sicheres Passwort erkennst und warum es geheim bleibt.</p>
+                  <a class="tile" href="stunden/s03-sicheres-passwort.html" data-stunde="s03-sicheres-passwort">
+                    <div class="tile-top">
+                      <span class="num">Stunde 3</span>
+                      <span class="tile-status">Noch offen</span>
+                    </div>
+                    <span class="label">Mein sicheres Passwort</span>
+                    <p class="tile-sub">Sichere Passw&ouml;rter erkennen und geheim halten.</p>
+                  </a>
+                </div>
               </div>
-              <span class="inf-status offen">Noch offen</span>
-            </a>
+            </details>
 
-            <a class="topic-card" href="stunden/s04-text-schreiben.html" data-stunde="s04-text-schreiben">
-              <div>
-                <h3>4. Einen Text schreiben</h3>
-                <p>Cursor, Leerzeichen, Abs&auml;tze und regelm&auml;&szlig;iges Speichern.</p>
-              </div>
-              <span class="inf-status offen">Noch offen</span>
-            </a>
+            <details class="main-topic" open>
+              <summary>
+                <div class="summary-wrap">
+                  <span class="topic-badge" aria-hidden="true">&#128221;</span>
+                  <div>
+                    <p class="topic-title">2. Texte strukturieren</p>
+                    <p class="topic-sub">Schreiben, gestalten, Bild einf&uuml;gen und drucken</p>
+                  </div>
+                  <span class="summary-caret" aria-hidden="true">&#9662;</span>
+                </div>
+              </summary>
+              <div class="subtopics">
+                <div class="tile-grid">
+                  <a class="tile" href="stunden/s04-text-schreiben.html" data-stunde="s04-text-schreiben">
+                    <div class="tile-top">
+                      <span class="num">Stunde 4</span>
+                      <span class="tile-status">Noch offen</span>
+                    </div>
+                    <span class="label">Einen Text schreiben</span>
+                    <p class="tile-sub">Cursor, Leerzeichen, Abs&auml;tze und regelm&auml;&szlig;iges Speichern.</p>
+                  </a>
 
-            <a class="topic-card" href="stunden/s05-text-gestalten.html" data-stunde="s05-text-gestalten">
-              <div>
-                <h3>5. Meinen Text gestalten</h3>
-                <p>Markieren, &Uuml;berschrift, Schriftgr&ouml;&szlig;e und Fettdruck.</p>
-              </div>
-              <span class="inf-status offen">Noch offen</span>
-            </a>
+                  <a class="tile" href="stunden/s05-text-gestalten.html" data-stunde="s05-text-gestalten">
+                    <div class="tile-top">
+                      <span class="num">Stunde 5</span>
+                      <span class="tile-status">Noch offen</span>
+                    </div>
+                    <span class="label">Meinen Text gestalten</span>
+                    <p class="tile-sub">Markieren, &Uuml;berschrift, Schriftgr&ouml;&szlig;e und Fettdruck.</p>
+                  </a>
 
-            <a class="topic-card" href="stunden/s06-bild-und-drucken.html" data-stunde="s06-bild-und-drucken">
-              <div>
-                <h3>6. Bild einf&uuml;gen und drucken</h3>
-                <p>Bild einf&uuml;gen, Quelle angeben und als PDF speichern.</p>
+                  <a class="tile" href="stunden/s06-bild-und-drucken.html" data-stunde="s06-bild-und-drucken">
+                    <div class="tile-top">
+                      <span class="num">Stunde 6</span>
+                      <span class="tile-status">Noch offen</span>
+                    </div>
+                    <span class="label">Bild einf&uuml;gen und drucken</span>
+                    <p class="tile-sub">Bild einf&uuml;gen, Quelle angeben und als PDF speichern.</p>
+                  </a>
+                </div>
               </div>
-              <span class="inf-status offen">Noch offen</span>
-            </a>
+            </details>
 
-            <a class="topic-card" href="stunden/s07-wiederholung.html" data-stunde="s07-wiederholung">
-              <div>
-                <h3>7. Wiederholung vor Weihnachten</h3>
-                <p>Alles aus diesem Halbjahr noch einmal &uuml;ben.</p>
+            <details class="main-topic" open>
+              <summary>
+                <div class="summary-wrap">
+                  <span class="topic-badge" aria-hidden="true">&#127876;</span>
+                  <div>
+                    <p class="topic-title">3. Vor den Ferien</p>
+                    <p class="topic-sub">Alles aus dem Halbjahr noch einmal &uuml;ben</p>
+                  </div>
+                  <span class="summary-caret" aria-hidden="true">&#9662;</span>
+                </div>
+              </summary>
+              <div class="subtopics">
+                <div class="tile-grid">
+                  <a class="tile" href="stunden/s07-wiederholung.html" data-stunde="s07-wiederholung">
+                    <div class="tile-top">
+                      <span class="num">Stunde 7</span>
+                      <span class="tile-status">Noch offen</span>
+                    </div>
+                    <span class="label">Wiederholung vor Weihnachten</span>
+                    <p class="tile-sub">Passwort, Ordner, Text und PDF noch einmal wiederholen.</p>
+                  </a>
+                </div>
               </div>
-              <span class="inf-status offen">Noch offen</span>
-            </a>
-          </div>
+            </details>
+          </section>
 
           <div class="quick-actions">
             <a href="../../index.html">Zur Lernplattform</a>
@@ -141,24 +467,24 @@
 
   <script src="fortschritt/fortschritt.js"></script>
   <script>
-    /* Zeigt auf jeder Stundenkarte an, ob sie schon geschafft ist. */
+    /* Zeigt auf jeder Kachel an, ob die Stunde schon geschafft ist. */
     (function () {
       var karten = document.querySelectorAll("[data-stunde]");
       var geschafft = 0;
 
-      karten.forEach(function (karte) {
+      Array.prototype.forEach.call(karten, function (karte) {
         var id = karte.getAttribute("data-stunde");
-        var status = karte.querySelector(".inf-status");
-        var eintrag = window.GrumiFortschritt.holen(id);
+        var status = karte.querySelector(".tile-status");
         if (!status) return;
+
+        var eintrag = window.GrumiFortschritt.holen(id);
 
         if (window.GrumiFortschritt.istGeschafft(id)) {
           geschafft += 1;
-          status.classList.remove("offen");
+          status.classList.add("fertig");
           status.textContent = "Geschafft";
         } else if (eintrag) {
-          status.classList.remove("offen");
-          status.textContent = eintrag.geloest + " von " + eintrag.gesamt + " richtig";
+          status.textContent = eintrag.geloest + " von " + eintrag.gesamt;
         }
       });
 

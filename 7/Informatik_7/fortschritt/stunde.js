@@ -61,12 +61,16 @@
 
     wurzel.textContent = "";
     wurzel.appendChild(kopfBauen(stunde));
+    wurzel.appendChild(weiterBauen(stunde, true));
 
     if (stunde.infotext && stunde.infotext.length) {
       wurzel.appendChild(infotextBauen(stunde.infotext));
     }
     if (stunde.videos && stunde.videos.length) {
       wurzel.appendChild(videosBauen(stunde.videos));
+    }
+    if (stunde.bilder && stunde.bilder.length) {
+      wurzel.appendChild(bilderBauen(stunde.bilder));
     }
     if (stunde.wortspeicher && stunde.wortspeicher.length) {
       wurzel.appendChild(wortspeicherBauen(stunde.wortspeicher));
@@ -136,6 +140,43 @@
     abschnitt.appendChild(
       el("p", "yt-hint", "Das Video wird erst geladen, wenn du darauf klickst.")
     );
+    return abschnitt;
+  }
+
+  /* Screenshots und Bilder: zeigen Schritt fuer Schritt, wo geklickt wird.
+     Fehlt eine Bilddatei noch, erscheint ein ruhiger Platzhalter statt
+     eines kaputten Bildsymbols. */
+  function bilderBauen(bilder) {
+    var abschnitt = block("Schritt für Schritt");
+
+    var liste = el("div", "inf-bilder");
+
+    bilder.forEach(function (eintrag, i) {
+      var figur = el("figure", "inf-bild");
+
+      var bild = el("img");
+      bild.src = "../bilder/" + eintrag.datei;
+      bild.alt = eintrag.alt || eintrag.titel || "Screenshot";
+      bild.loading = "lazy";
+      bild.addEventListener("error", function () {
+        var platz = el("div", "inf-bild-platzhalter");
+        platz.appendChild(el("strong", null, "Bild folgt"));
+        platz.appendChild(el("span", null, eintrag.titel || eintrag.datei));
+        figur.replaceChild(platz, bild);
+      });
+      figur.appendChild(bild);
+
+      if (eintrag.titel) {
+        var unterschrift = el("figcaption");
+        unterschrift.appendChild(el("span", "inf-bild-nr", "Schritt " + (i + 1)));
+        unterschrift.appendChild(document.createTextNode(" " + eintrag.titel));
+        figur.appendChild(unterschrift);
+      }
+
+      liste.appendChild(figur);
+    });
+
+    abschnitt.appendChild(liste);
     return abschnitt;
   }
 
@@ -339,16 +380,25 @@
     return huelle;
   }
 
-  function weiterBauen(stunde) {
-    var navigation = el("nav", "inf-weiter");
+  /* Navigation zwischen den Stunden. Wird zweimal gebaut: einmal oben
+     direkt unter dem Kopf und einmal unter den Aufgaben, damit der Weg
+     zur naechsten Stunde nicht erst nach langem Scrollen auftaucht. */
+  function weiterBauen(stunde, obenStattUnten) {
+    var navigation = el("nav", "inf-weiter" + (obenStattUnten ? " oben" : ""));
     navigation.setAttribute("aria-label", "Weitere Stunden");
 
-    var zurueck = el("a", null, "Alle Stunden");
+    var zurueck = el("a", "inf-weiter-link", "← Alle Stunden");
     zurueck.href = "../index.html";
     navigation.appendChild(zurueck);
 
+    if (stunde.vorherige) {
+      var vor = el("a", "inf-weiter-link", "← Vorherige Stunde");
+      vor.href = stunde.vorherige;
+      navigation.appendChild(vor);
+    }
+
     if (stunde.naechste) {
-      var weiter = el("a", null, "Nächste Stunde");
+      var weiter = el("a", "inf-weiter-link stark", "Nächste Stunde →");
       weiter.href = stunde.naechste;
       navigation.appendChild(weiter);
     }
