@@ -69,6 +69,9 @@
     if (stunde.videos && stunde.videos.length) {
       wurzel.appendChild(videosBauen(stunde.videos));
     }
+    if (stunde.filmquiz && stunde.filmquiz.aufgaben && stunde.filmquiz.aufgaben.length) {
+      wurzel.appendChild(filmquizBauen(stunde));
+    }
     if (stunde.bilder && stunde.bilder.length) {
       wurzel.appendChild(bilderBauen(stunde.bilder));
     }
@@ -184,6 +187,246 @@
 
     abschnitt.appendChild(liste);
     return abschnitt;
+  }
+
+  /* Quiz zum Film: steht direkt unter dem Video und wird eigenstaendig
+     ausgewertet, damit die Schueler nach dem Schauen sofort sehen, was
+     sie behalten haben - unabhaengig von den Aufgaben weiter unten. */
+  function filmquizBauen(stunde) {
+    var quiz = stunde.filmquiz;
+    var abschnitt = block(quiz.titel || "Quiz zum Film");
+    abschnitt.classList.add("inf-filmquiz");
+
+    if (quiz.hinweis) abschnitt.appendChild(el("p", null, quiz.hinweis));
+
+    var pruefer = [];
+    var nummer = 0;
+
+    quiz.aufgaben.forEach(function (aufgabe) {
+      nummer += 1;
+      if (aufgabe.typ === "auswahl") {
+        abschnitt.appendChild(auswahlBauen(aufgabe, nummer, pruefer));
+      } else if (aufgabe.typ === "zuordnung") {
+        abschnitt.appendChild(zuordnungBauen(aufgabe, nummer, pruefer));
+      } else if (aufgabe.typ === "reihenfolge") {
+        abschnitt.appendChild(reihenfolgeBauen(aufgabe, nummer, pruefer));
+      } else if (aufgabe.typ === "richtig_falsch") {
+        abschnitt.appendChild(richtigFalschBauen(aufgabe, nummer, pruefer));
+      } else if (aufgabe.typ === "lueckentext") {
+        abschnitt.appendChild(lueckentextBauen(aufgabe, nummer, pruefer));
+      }
+    });
+
+    abschnitt.appendChild(
+      auswertungBauen(stunde, pruefer, {
+        speicherId: stunde.id + "-film",
+        knopfText: "Quiz prüfen",
+        lobText: "Klasse! Du hast im Film gut aufgepasst."
+      })
+    );
+
+    return abschnitt;
+  }
+
+  /* Reihenfolge der Elemente zufaellig vertauschen (Fisher-Yates),
+     damit die Loesung nicht schon an der Anordnung ablesbar ist. */
+  function mischen(liste) {
+    var kopie = liste.slice();
+    for (var i = kopie.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var merk = kopie[i];
+      kopie[i] = kopie[j];
+      kopie[j] = merk;
+    }
+    return kopie;
+  }
+
+  /* Multiple Choice: genau eine Antwort ist richtig. */
+  function auswahlBauen(aufgabe, nummer, pruefer) {
+    var zeile = el("div", "inf-aufgabe");
+
+    var frage = el("p", "inf-frage");
+    var nr = el("span", "inf-nr", String(nummer));
+    nr.setAttribute("aria-hidden", "true");
+    frage.appendChild(nr);
+    frage.appendChild(document.createTextNode(aufgabe.text));
+    zeile.appendChild(frage);
+
+    var auswahl = el("div", "inf-auswahl");
+    var gewaehlt = null;
+
+    aufgabe.optionen.forEach(function (text, i) {
+      var knopf = el("button", "inf-option", text);
+      knopf.type = "button";
+      knopf.setAttribute("aria-pressed", "false");
+      knopf.addEventListener("click", function () {
+        gewaehlt = i;
+        Array.prototype.forEach.call(auswahl.children, function (anderer) {
+          anderer.setAttribute("aria-pressed", "false");
+          anderer.classList.remove("richtig", "falsch");
+        });
+        knopf.setAttribute("aria-pressed", "true");
+      });
+      auswahl.appendChild(knopf);
+    });
+
+    zeile.appendChild(auswahl);
+
+    pruefer.push(function () {
+      var passt = gewaehlt === aufgabe.loesung;
+      Array.prototype.forEach.call(auswahl.children, function (knopf, i) {
+        knopf.classList.remove("richtig", "falsch");
+        if (i === gewaehlt) knopf.classList.add(passt ? "richtig" : "falsch");
+        if (!passt && i === aufgabe.loesung) knopf.classList.add("richtig");
+      });
+      return { richtig: passt ? 1 : 0, gesamt: 1 };
+    });
+
+    return zeile;
+  }
+
+  /* Zuordnung: bewusst mit Auswahlfeldern statt Ziehen und Ablegen.
+     Das funktioniert auch auf Tablets und mit der Tastatur zuverlaessig. */
+  function zuordnungBauen(aufgabe, nummer, pruefer) {
+    var zeile = el("div", "inf-aufgabe");
+
+    var frage = el("p", "inf-frage");
+    var nr = el("span", "inf-nr", String(nummer));
+    nr.setAttribute("aria-hidden", "true");
+    frage.appendChild(nr);
+    frage.appendChild(document.createTextNode(aufgabe.text));
+    zeile.appendChild(frage);
+
+    var begriffe = mischen(aufgabe.paare.map(function (p) { return p.begriff; }));
+    var liste = el("div", "inf-zuordnung");
+    var felder = [];
+
+    aufgabe.paare.forEach(function (paar, i) {
+      var reihe = el("div", "inf-zu-reihe");
+
+      var feld = el("select", "inf-zu-wahl");
+      feld.setAttribute("aria-label", "Begriff für: " + paar.erklaerung);
+
+      var leer = el("option", null, "bitte wählen");
+      leer.value = "";
+      feld.appendChild(leer);
+
+      begriffe.forEach(function (begriff) {
+        var option = el("option", null, begriff);
+        option.value = begriff;
+        feld.appendChild(option);
+      });
+
+      feld.addEventListener("change", function () {
+        feld.classList.remove("richtig", "falsch");
+      });
+
+      reihe.appendChild(feld);
+      reihe.appendChild(el("span", "inf-zu-text", paar.erklaerung));
+      liste.appendChild(reihe);
+      felder.push({ feld: feld, loesung: paar.begriff });
+    });
+
+    zeile.appendChild(liste);
+
+    pruefer.push(function () {
+      var richtig = 0;
+      felder.forEach(function (eintrag) {
+        var passt = eintrag.feld.value === eintrag.loesung;
+        eintrag.feld.classList.remove("richtig", "falsch");
+        eintrag.feld.classList.add(passt ? "richtig" : "falsch");
+        if (passt) richtig += 1;
+      });
+      return { richtig: richtig, gesamt: felder.length };
+    });
+
+    return zeile;
+  }
+
+  /* Reihenfolge: die Schritte werden gemischt und mit Pfeilknoepfen
+     sortiert. Kein Ziehen und Ablegen, damit es ueberall funktioniert. */
+  function reihenfolgeBauen(aufgabe, nummer, pruefer) {
+    var zeile = el("div", "inf-aufgabe");
+
+    var frage = el("p", "inf-frage");
+    var nr = el("span", "inf-nr", String(nummer));
+    nr.setAttribute("aria-hidden", "true");
+    frage.appendChild(nr);
+    frage.appendChild(document.createTextNode(aufgabe.text));
+    zeile.appendChild(frage);
+
+    zeile.appendChild(
+      el("p", "inf-hinweis-klein", "Bringe die Schritte mit den Pfeilen in die richtige Reihenfolge. Das Älteste gehört nach oben.")
+    );
+
+    var liste = el("ol", "inf-reihenfolge");
+
+    /* Solange das Mischen zufaellig die richtige Loesung ergibt, neu mischen. */
+    var start = mischen(aufgabe.schritte);
+    var versuche = 0;
+    while (versuche < 10 && start.join("|") === aufgabe.schritte.join("|")) {
+      start = mischen(aufgabe.schritte);
+      versuche += 1;
+    }
+
+    start.forEach(function (text) {
+      liste.appendChild(reihenfolgePunkt(text, liste));
+    });
+
+    zeile.appendChild(liste);
+
+    pruefer.push(function () {
+      var richtig = 0;
+      Array.prototype.forEach.call(liste.children, function (punkt, i) {
+        var passt = punkt.getAttribute("data-text") === aufgabe.schritte[i];
+        punkt.classList.remove("richtig", "falsch");
+        punkt.classList.add(passt ? "richtig" : "falsch");
+        if (passt) richtig += 1;
+      });
+      return { richtig: richtig, gesamt: aufgabe.schritte.length };
+    });
+
+    return zeile;
+  }
+
+  function reihenfolgePunkt(text, liste) {
+    var punkt = el("li", "inf-schritt");
+    punkt.setAttribute("data-text", text);
+
+    punkt.appendChild(el("span", "inf-schritt-text", text));
+
+    var knoepfe = el("div", "inf-schritt-knoepfe");
+
+    var hoch = el("button", "inf-pfeil", "▲");
+    hoch.type = "button";
+    hoch.setAttribute("aria-label", "Nach oben: " + text);
+    hoch.addEventListener("click", function () {
+      var vorher = punkt.previousElementSibling;
+      if (vorher) liste.insertBefore(punkt, vorher);
+      aufraeumen(liste);
+    });
+
+    var runter = el("button", "inf-pfeil", "▼");
+    runter.type = "button";
+    runter.setAttribute("aria-label", "Nach unten: " + text);
+    runter.addEventListener("click", function () {
+      var danach = punkt.nextElementSibling;
+      if (danach) liste.insertBefore(danach, punkt);
+      aufraeumen(liste);
+    });
+
+    knoepfe.appendChild(hoch);
+    knoepfe.appendChild(runter);
+    punkt.appendChild(knoepfe);
+
+    return punkt;
+  }
+
+  /* Nach dem Verschieben die alte Faerbung entfernen. */
+  function aufraeumen(liste) {
+    Array.prototype.forEach.call(liste.children, function (punkt) {
+      punkt.classList.remove("richtig", "falsch");
+    });
   }
 
   function wortspeicherBauen(woerter) {
@@ -330,12 +573,18 @@
     return zeile;
   }
 
-  function auswertungBauen(stunde, pruefer) {
+  /* optionen ist freiwillig. Das Quiz zum Film nutzt es, um unter einem
+     eigenen Schluessel zu speichern - sonst wuerde es den Fortschritt der
+     Stunde ueberschreiben - und um eigene Beschriftungen zu setzen. */
+  function auswertungBauen(stunde, pruefer, optionen) {
+    optionen = optionen || {};
+    var speicherId = optionen.speicherId || stunde.id;
+
     var huelle = el("div");
 
     var aktionen = el("div", "inf-aktionen");
 
-    var pruefen = el("button", "inf-knopf", "Antworten prüfen");
+    var pruefen = el("button", "inf-knopf", optionen.knopfText || "Antworten prüfen");
     pruefen.type = "button";
     aktionen.appendChild(pruefen);
 
@@ -369,6 +618,7 @@
       if (richtig === gesamt) {
         ergebnis.classList.add("gut");
         ergebnis.textContent =
+          optionen.lobText ||
           "Super! Alle " + gesamt + " Antworten sind richtig. Diese Stunde hast du geschafft.";
       } else {
         ergebnis.classList.add("mittel");
@@ -377,7 +627,7 @@
       }
 
       if (window.GrumiFortschritt) {
-        window.GrumiFortschritt.speichern(stunde.id, richtig, gesamt);
+        window.GrumiFortschritt.speichern(speicherId, richtig, gesamt);
       }
 
       ergebnis.scrollIntoView({ behavior: "smooth", block: "nearest" });
