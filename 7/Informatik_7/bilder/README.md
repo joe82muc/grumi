@@ -22,7 +22,23 @@ Zugeordnet werden sie in `../daten/sXX-*.json` über das Feld
 `titelbild`. Willst du für eine Stunde ein anderes Bild, änderst du
 dort einfach den Dateinamen.
 
-## 2. Screenshots (musst du noch aufnehmen)
+## 2. Gezeichnete Anleitungsbilder (fertig)
+
+Für Stunde 2 sind die Klickanleitungen als SVG nachgezeichnet. Sie
+zeigen ein Explorer-Fenster mit geöffnetem Menü und nummerierten
+Schritten — schematisch, aber eindeutig.
+
+| Datei | Stunde | Zeigt |
+|---|---|---|
+| `s02-ordner-neu.svg` | 2 | Rechtsklick-Menü, "Neu" und Untermenü "Ordner" hervorgehoben |
+| `s02-ordner-umbenennen.svg` | 2 | Markierter Ordner, "Umbenennen", Namensfeld mit Informatik7 |
+
+Wenn deine Schulrechner deutlich anders aussehen (andere Windows-
+Version, anderes Design), ersetze sie einfach durch echte Screenshots
+und trage den neuen Dateinamen in `../daten/s02-ordner-und-dateien.json`
+im Abschnitt `bilder` ein.
+
+## 3. Screenshots (musst du noch aufnehmen)
 
 Diese Bilder zeigen den Schülern Schritt für Schritt, wo sie klicken
 müssen. Sie fehlen noch, weil echte Screenshots vom Schulrechner
@@ -30,8 +46,6 @@ kommen müssen — sonst sieht die Klasse eine fremde Oberfläche.
 
 | Datei | Stunde | Was soll zu sehen sein |
 |---|---|---|
-| `s02-ordner-neu.png` | 2 | Rechtsklick im Explorer, Menü "Neu > Ordner" |
-| `s02-ordner-umbenennen.png` | 2 | Ordner markiert, Menüpunkt "Umbenennen" |
 | `s04-cursor.png` | 4 | Leeres Dokument mit blinkendem Cursor |
 | `s04-speichern-unter.png` | 4 | Dialog "Speichern unter" mit Dateiname und Ordner |
 | `s05-markieren.png` | 5 | Ein markierter (blau hinterlegter) Satz |
