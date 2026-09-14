@@ -61,6 +61,23 @@
 
     wurzel.textContent = "";
     wurzel.appendChild(kopfBauen(stunde));
+
+    /* Schmuckbild direkt unter dem Kopf. Rein dekorativ, deshalb ohne
+       Bildunterschrift und mit leerem alt - die Anleitungsbilder stehen
+       weiter unten im Block "Schritt für Schritt". */
+    if (stunde.titelbild) {
+      var schmuck = el("div", "inf-titelbild");
+      var sbild = el("img");
+      sbild.src = "../bilder/" + stunde.titelbild;
+      sbild.alt = "";
+      sbild.setAttribute("aria-hidden", "true");
+      sbild.addEventListener("error", function () {
+        schmuck.remove();
+      });
+      schmuck.appendChild(sbild);
+      wurzel.appendChild(schmuck);
+    }
+
     wurzel.appendChild(weiterBauen(stunde, true));
 
     /* Eine Stunde kann die Reihenfolge ihrer Bloecke selbst festlegen.
