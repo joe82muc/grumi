@@ -119,11 +119,17 @@
     videos.forEach(function (video) {
       var huelle = el("div", "yt-embed");
 
-      var knopf = el("button", "yt-facade");
-      knopf.type = "button";
+      /* Bewusst ein <a> und kein <button>: Sollte yt-embed.js einmal nicht
+         geladen sein oder das Einbetten im Schulnetz blockiert werden,
+         bleibt der Link trotzdem anklickbar und oeffnet das Video im
+         neuen Tab. yt-embed.js faengt den Klick sonst ab und bettet ein. */
+      var knopf = el("a", "yt-facade");
+      knopf.href = "https://www.youtube.com/watch?v=" + encodeURIComponent(video.id);
+      knopf.target = "_blank";
+      knopf.rel = "noopener noreferrer";
       knopf.setAttribute("data-yt", video.id);
       knopf.setAttribute("data-title", video.titel);
-      knopf.setAttribute("aria-label", "Video laden: " + video.titel);
+      knopf.setAttribute("aria-label", "Video ansehen: " + video.titel);
 
       var symbol = el("span", "yt-ico", "▶");
       symbol.setAttribute("aria-hidden", "true");
@@ -138,7 +144,7 @@
     });
 
     abschnitt.appendChild(
-      el("p", "yt-hint", "Das Video wird erst geladen, wenn du darauf klickst.")
+      el("p", "yt-hint", "Klicke auf das Video, um es anzuschauen.")
     );
     return abschnitt;
   }
