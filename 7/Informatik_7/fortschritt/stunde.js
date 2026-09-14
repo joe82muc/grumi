@@ -63,27 +63,51 @@
     wurzel.appendChild(kopfBauen(stunde));
     wurzel.appendChild(weiterBauen(stunde, true));
 
-    if (stunde.infotext && stunde.infotext.length) {
-      wurzel.appendChild(infotextBauen(stunde.infotext));
-    }
-    if (stunde.videos && stunde.videos.length) {
-      wurzel.appendChild(videosBauen(stunde.videos));
-    }
-    if (stunde.filmquiz && stunde.filmquiz.aufgaben && stunde.filmquiz.aufgaben.length) {
-      wurzel.appendChild(filmquizBauen(stunde));
-    }
-    if (stunde.bilder && stunde.bilder.length) {
-      wurzel.appendChild(bilderBauen(stunde.bilder));
-    }
-    if (stunde.wortspeicher && stunde.wortspeicher.length) {
-      wurzel.appendChild(wortspeicherBauen(stunde.wortspeicher));
-    }
-    if (stunde.aufgaben && stunde.aufgaben.length) {
-      wurzel.appendChild(aufgabenBauen(stunde));
-    }
-    if (stunde.links && stunde.links.length) {
-      wurzel.appendChild(linksBauen(stunde.links));
-    }
+    /* Eine Stunde kann die Reihenfolge ihrer Bloecke selbst festlegen.
+       Stunde 1 braucht das: dort kommt erst die Praxis am Computer
+       (Infotext, Wortspeicher, Aufgaben) und danach der Film mit Quiz.
+       Ohne Angabe gilt die uebliche Reihenfolge. */
+    var STANDARD = ["infotext", "videos", "filmquiz", "bilder", "wortspeicher", "aufgaben", "links"];
+    var folge = (stunde.reihenfolge && stunde.reihenfolge.length) ? stunde.reihenfolge : STANDARD;
+
+    /* Bloecke, die in der Reihenfolge fehlen, haengen wir hinten an,
+       damit nie ein Teil der Stunde unsichtbar wird. */
+    STANDARD.forEach(function (name) {
+      if (folge.indexOf(name) === -1) folge = folge.concat([name]);
+    });
+
+    var bauer = {
+      infotext: function () {
+        return (stunde.infotext && stunde.infotext.length) ? infotextBauen(stunde.infotext) : null;
+      },
+      videos: function () {
+        return (stunde.videos && stunde.videos.length) ? videosBauen(stunde.videos) : null;
+      },
+      filmquiz: function () {
+        var q = stunde.filmquiz;
+        return (q && q.aufgaben && q.aufgaben.length) ? filmquizBauen(stunde) : null;
+      },
+      bilder: function () {
+        return (stunde.bilder && stunde.bilder.length) ? bilderBauen(stunde.bilder) : null;
+      },
+      wortspeicher: function () {
+        return (stunde.wortspeicher && stunde.wortspeicher.length)
+          ? wortspeicherBauen(stunde.wortspeicher) : null;
+      },
+      aufgaben: function () {
+        return (stunde.aufgaben && stunde.aufgaben.length) ? aufgabenBauen(stunde) : null;
+      },
+      links: function () {
+        return (stunde.links && stunde.links.length) ? linksBauen(stunde.links) : null;
+      }
+    };
+
+    folge.forEach(function (name) {
+      var mache = bauer[name];
+      if (!mache) return;
+      var teil = mache();
+      if (teil) wurzel.appendChild(teil);
+    });
 
     wurzel.appendChild(weiterBauen(stunde));
   }
