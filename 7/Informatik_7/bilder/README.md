@@ -68,7 +68,7 @@ Dort kannst du Titel und Alternativtext jederzeit ändern.
 
 ## 4. Eigene Bilder zur Einheit "Digitale Bilder"
 
-Für die Stunden 8 und 9 liegen selbst gezeichnete SVG-Materialbilder
+Für die Stunden 8 bis 12 liegen selbst gezeichnete SVG-Materialbilder
 bereit. Sie greifen die Inhalte aus dem Buchthema auf, kopieren aber
 keine Buchseite.
 
@@ -76,8 +76,12 @@ keine Buchseite.
 |---|---|---|
 | `s08-pixel-aufloesung.svg` | 8 | niedrige und hohe Auflösung, Pixelraster |
 | `s08-bildformate-und-transfer.svg` | 8 | Smartphone, Cloud, Computer und Bildformate |
-| `s09-zuschneiden-proportionen.svg` | 9 | Zuschneiden, proportional verkleinern, Verzerrung |
-| `s09-helligkeit-kontrast-filter.svg` | 9 | Helligkeit, Kontrast und Filterwirkung |
+| `s09-zuschneiden-proportionen.svg` | 11 | Zuschneiden, proportional verkleinern, Verzerrung |
+| `s09-helligkeit-kontrast-filter.svg` | Zusatz | Helligkeit, Kontrast und Filterwirkung |
+| `s09-gimp-oberflaeche.svg` | 9 | GIMP-Oberfläche mit Menü, Werkzeugkasten, Bildfenster und Dialogen |
+| `s10-ebenen-fotomontage.svg` | 10 | Fotomontage mit Hintergrund, Objekt und Ebenenstapel |
+| `s11-freistellen-exportieren.svg` | 11 | Freistellen, Skalieren und Exportieren |
+| `s12-vektorgrafik-layout.svg` | 12 | Rastergrafik, Vektorgrafik und Bildlayout |
 
 ## Bildrechte
 

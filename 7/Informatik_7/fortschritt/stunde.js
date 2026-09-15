@@ -84,7 +84,7 @@
        Stunde 1 braucht das: dort kommt erst die Praxis am Computer
        (Infotext, Wortspeicher, Aufgaben) und danach der Film mit Quiz.
        Ohne Angabe gilt die uebliche Reihenfolge. */
-    var STANDARD = ["infotext", "infotext2", "videos", "filmquiz", "bilder", "wortspeicher", "aufgaben", "links", "schluss"];
+    var STANDARD = ["infotext", "infotext2", "bilder", "praxis", "videos", "filmquiz", "wortspeicher", "aufgaben", "links", "schluss"];
     var folge = (stunde.reihenfolge && stunde.reihenfolge.length) ? stunde.reihenfolge : STANDARD;
 
     /* Bloecke, die in der Reihenfolge fehlen, haengen wir hinten an,
@@ -121,6 +121,9 @@
       },
       bilder: function () {
         return (stunde.bilder && stunde.bilder.length) ? bilderBauen(stunde.bilder) : null;
+      },
+      praxis: function () {
+        return (stunde.praxis && stunde.praxis.length) ? praxisBauen(stunde.praxis) : null;
       },
       wortspeicher: function () {
         return (stunde.wortspeicher && stunde.wortspeicher.length)
@@ -269,6 +272,31 @@
     });
 
     abschnitt.appendChild(liste);
+    return abschnitt;
+  }
+
+  function praxisBauen(praxis) {
+    var abschnitt = block("Selber nachmachen");
+    abschnitt.classList.add("inf-praxis");
+
+    praxis.forEach(function (auftrag) {
+      var karte = el("div", "inf-praxis-karte");
+      karte.appendChild(el("h3", null, auftrag.titel || "Arbeitsauftrag"));
+      if (auftrag.hinweis) karte.appendChild(el("p", "inf-hinweis-klein", auftrag.hinweis));
+
+      var liste = el("ol", "inf-praxis-liste");
+      (auftrag.schritte || []).forEach(function (text) {
+        liste.appendChild(el("li", null, text));
+      });
+      karte.appendChild(liste);
+
+      if (auftrag.ergebnis) {
+        karte.appendChild(el("p", "inf-praxis-ergebnis", "Am Ende: " + auftrag.ergebnis));
+      }
+
+      abschnitt.appendChild(karte);
+    });
+
     return abschnitt;
   }
 
