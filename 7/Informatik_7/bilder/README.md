@@ -13,6 +13,7 @@ stehen. Sie sind reine Dekoration und machen die Seite freundlicher.
 | `titel-ordner.svg` | Geöffneter Ordner mit Dateien | Stunde 2 |
 | `titel-passwort.svg` | Schloss und Passwortfeld | Stunde 3 |
 | `titel-text.svg` | Dokument mit Überschrift und Bild | Stunde 4, 5, 6 |
+| `titel-bilder.svg` | Kamera, Pixel und Bildformate | Stunde 8, 9 |
 
 SVG statt Foto, weil das auf jedem Beamer gestochen scharf bleibt,
 die Dateien winzig sind und keine Lizenzfragen entstehen. Die Farben
@@ -64,6 +65,19 @@ Platzhalter "Bild folgt". Die Seite bleibt also nutzbar.
 
 Die Zuordnung steht in `../daten/sXX-*.json` im Abschnitt `bilder`.
 Dort kannst du Titel und Alternativtext jederzeit ändern.
+
+## 4. Eigene Bilder zur Einheit "Digitale Bilder"
+
+Für die Stunden 8 und 9 liegen selbst gezeichnete SVG-Materialbilder
+bereit. Sie greifen die Inhalte aus dem Buchthema auf, kopieren aber
+keine Buchseite.
+
+| Datei | Stunde | Zeigt |
+|---|---|---|
+| `s08-pixel-aufloesung.svg` | 8 | niedrige und hohe Auflösung, Pixelraster |
+| `s08-bildformate-und-transfer.svg` | 8 | Smartphone, Cloud, Computer und Bildformate |
+| `s09-zuschneiden-proportionen.svg` | 9 | Zuschneiden, proportional verkleinern, Verzerrung |
+| `s09-helligkeit-kontrast-filter.svg` | 9 | Helligkeit, Kontrast und Filterwirkung |
 
 ## Bildrechte
 
