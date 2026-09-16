@@ -16,7 +16,7 @@
     { id: "gpg", name: "Geschichte/Politik/Geographie", short: "GPG", kind: "coreDouble", note: "schriftliche Pruefung" }
   ];
 
-  var externalGroupA = groupA.concat([
+  var extendedGroupA = groupA.concat([
     { id: "projekt", name: "Projektpruefung", short: "PP", kind: "projectExternal", note: "kann ein Fach ersetzen" }
   ]);
 
@@ -42,7 +42,7 @@
     mode: "internal",
     language: "deutsch",
     groupAInternal: "englisch",
-    groupAExternal: ["englisch", "nt"],
+    groupAExtended: ["englisch", "nt"],
     other: "religion",
     bow: "technik",
     grades: {}
@@ -73,7 +73,7 @@
       mode: state.mode,
       language: "deutsch",
       groupAInternal: "englisch",
-      groupAExternal: ["englisch", "nt"],
+      groupAExtended: ["englisch", "nt"],
       other: "religion",
       bow: "technik",
       grades: {}
@@ -100,7 +100,7 @@
   }
 
   function subjectById(id) {
-    return fixedCore.concat([math], externalGroupA, otherSubjects).filter(function (subject) {
+    return fixedCore.concat([math], extendedGroupA, otherSubjects).filter(function (subject) {
       return subject.id === id;
     })[0];
   }
@@ -144,7 +144,7 @@
     var grid = document.createElement("div");
     grid.className = "subject-card-grid";
     bowSubjects.forEach(function (subject) {
-      grid.appendChild(card(subject, "bow", state.bow === subject.id, "JFN / ZZ einfach"));
+      grid.appendChild(card(subject, "bow", state.bow === subject.id, schoolGradeLabel() + " einfach"));
     });
     section.appendChild(grid);
     return section;
@@ -158,8 +158,14 @@
       els.subjectGroups.appendChild(renderSubjectGroup("Wahlfach aus Englisch, NT oder GPG", "Eines dieser Faecher wird in der normalen Quali-Berechnung mit Jahresfortgangsnote gewaehlt.", groupA, "groupAInternal", [state.groupAInternal]));
       els.subjectGroups.appendChild(renderBowGroup());
       els.subjectGroups.appendChild(renderSubjectGroup("Weiteres Pruefungsfach", "Waehle das zusaetzliche Fach, das als benotetes Fach besucht wurde.", otherSubjects, "other", [state.other]));
+    } else if (state.mode === "mclass") {
+      els.subjectGroups.appendChild(renderSubjectGroup("Zwei Faecher aus Englisch, NT, GPG oder Projekt", "9M waehlt zwei Bereiche. Eine Projektpruefung kann Englisch, NT oder GPG ersetzen.", extendedGroupA, "groupAExtended", state.groupAExtended, "ausgewaehlt"));
+      if (state.groupAExtended.indexOf("projekt") !== -1) {
+        els.subjectGroups.appendChild(renderBowGroup());
+      }
+      els.subjectGroups.appendChild(renderSubjectGroup("Weiteres Pruefungsfach", "Waehle das zusaetzliche Fach, das als benotetes Fach besucht wurde.", otherSubjects, "other", [state.other]));
     } else {
-      els.subjectGroups.appendChild(renderSubjectGroup("Zwei Faecher aus Englisch, NT, GPG oder Projekt", "Ohne Jahresfortgangsnoten muessen hier zwei Faecher gewaehlt werden; eine Projektpruefung kann eines ersetzen.", externalGroupA, "groupAExternal", state.groupAExternal, "ausgewaehlt"));
+      els.subjectGroups.appendChild(renderSubjectGroup("Zwei Faecher aus Englisch, NT, GPG oder Projekt", "Ohne Jahresfortgangsnoten muessen hier zwei Faecher gewaehlt werden; eine Projektpruefung kann eines ersetzen.", extendedGroupA, "groupAExtended", state.groupAExtended, "ausgewaehlt"));
       els.subjectGroups.appendChild(renderSubjectGroup("Weiteres Pruefungsfach", "Waehle ein weiteres Fach der besonderen Leistungsfeststellung.", otherSubjects, "other", [state.other]));
     }
 
@@ -177,8 +183,8 @@
     if (group === "groupAInternal") {
       state.groupAInternal = id;
     }
-    if (group === "groupAExternal") {
-      var current = state.groupAExternal.slice();
+    if (group === "groupAExtended") {
+      var current = state.groupAExtended.slice();
       var exists = current.indexOf(id) !== -1;
       if (exists) {
         current = current.length > 2 ? current.filter(function (item) { return item !== id; }) : current;
@@ -194,7 +200,7 @@
       if (id === "englisch" && current.indexOf("muttersprache") !== -1) {
         current = current.filter(function (item) { return item !== "muttersprache"; });
       }
-      state.groupAExternal = current;
+      state.groupAExtended = current;
       normalizeState();
     }
     if (group === "other") {
@@ -209,28 +215,30 @@
 
   function renderHelp() {
     if (state.mode === "internal") {
-      els.modeHelp.innerHTML = "<strong>Mit JFN / ZZ:</strong> Deutsch, Mathematik, das gewaehlte Fach aus Englisch/NT/GPG, Projektpruefung und ein weiteres Fach ergeben zusammen den Teiler 18. In 9M trage die Zwischenzeugnisnoten ein.";
+      els.modeHelp.innerHTML = "<strong>Regelklasse:</strong> Deutsch, Mathematik, ein Fach aus Englisch/NT/GPG, Projektpruefung und ein weiteres Fach ergeben zusammen den Teiler 18.";
+    } else if (state.mode === "mclass") {
+      els.modeHelp.innerHTML = "<strong>9M mit Zwischenzeugnisnoten:</strong> Deutsch, Mathematik, zwei Bereiche aus Englisch/NT/GPG/Projekt und ein weiteres Fach ergeben zusammen den Teiler 18. Trage statt Jahresfortgangsnoten die ZZ-Noten ein.";
     } else {
       els.modeHelp.innerHTML = "<strong>Ohne Jahresfortgangsnoten:</strong> Fuer andere Bewerberinnen und Bewerber werden keine Jahresfortgangsnoten eingerechnet; die Notensumme wird durch den Teiler 9 geteilt.";
     }
   }
 
   function normalizeState() {
-    if (!Array.isArray(state.groupAExternal)) {
-      state.groupAExternal = ["englisch", "nt"];
+    if (!Array.isArray(state.groupAExtended)) {
+      state.groupAExtended = Array.isArray(state.groupAExternal) ? state.groupAExternal : ["englisch", "nt"];
     }
-    state.groupAExternal = state.groupAExternal.filter(function (id, index, list) {
+    state.groupAExtended = state.groupAExtended.filter(function (id, index, list) {
       return subjectById(id) && list.indexOf(id) === index;
     });
-    if (state.groupAExternal.indexOf("englisch") !== -1 && state.groupAExternal.indexOf("muttersprache") !== -1) {
-      state.groupAExternal = state.groupAExternal.filter(function (id) { return id !== "muttersprache"; });
+    if (state.groupAExtended.indexOf("englisch") !== -1 && state.groupAExtended.indexOf("muttersprache") !== -1) {
+      state.groupAExtended = state.groupAExtended.filter(function (id) { return id !== "muttersprache"; });
     }
     ["englisch", "nt", "gpg", "projekt"].forEach(function (fallback) {
-      if (state.groupAExternal.length < 2 && state.groupAExternal.indexOf(fallback) === -1) {
-        state.groupAExternal.push(fallback);
+      if (state.groupAExtended.length < 2 && state.groupAExtended.indexOf(fallback) === -1) {
+        state.groupAExtended.push(fallback);
       }
     });
-    state.groupAExternal = state.groupAExternal.slice(0, 2);
+    state.groupAExtended = state.groupAExtended.slice(0, 2);
   }
 
   function activeSubjects() {
@@ -239,7 +247,10 @@
     if (state.mode === "internal") {
       return [language, math, subjectById(state.groupAInternal), { id: "projectInternal", name: "Projektpruefung", short: "PP", kind: "projectInternal", note: "WiB, Wahlpflichtfach und Projekt" }, selectedOther];
     }
-    return [language, math].concat(state.groupAExternal.map(subjectById), [selectedOther]);
+    if (state.mode === "mclass") {
+      return [language, math].concat(state.groupAExtended.map(subjectById), [selectedOther]);
+    }
+    return [language, math].concat(state.groupAExtended.map(subjectById), [selectedOther]);
   }
 
   function fieldId(subjectId, suffix) {
@@ -250,30 +261,41 @@
     return { id: fieldId(subject.id, suffix), subject: subject.name, label: label, weight: weight, hint: hint || ("Faktor " + weight) };
   }
 
+  function schoolGradeLabel() {
+    return state.mode === "mclass" ? "ZZ-Note" : "Jahresfortgangsnote";
+  }
+
   function fieldsForSubject(subject) {
-    if (state.mode === "internal") {
+    if (state.mode === "internal" || state.mode === "mclass") {
       if (subject.kind === "languageOral") {
         return [
-          fieldDef(subject, "jfn", "JFN / ZZ", 2, "zaehlt doppelt"),
+          fieldDef(subject, "jfn", schoolGradeLabel(), 2, "zaehlt doppelt"),
           fieldDef(subject, "schriftlich", "Schriftliche Pruefung", 1, "zaehlt einfach"),
           fieldDef(subject, "muendlich", "Muendliche Pruefung", 1, "zaehlt einfach")
         ];
       }
       if (subject.kind === "projectInternal") {
         return [
-          fieldDef(subject, "wib", "JFN / ZZ WiB", 1, "zaehlt einfach"),
-          fieldDef(subject, "bow", "JFN / ZZ " + bowName(), 1, "zaehlt einfach"),
+          fieldDef(subject, "wib", schoolGradeLabel() + " WiB", 1, "zaehlt einfach"),
+          fieldDef(subject, "bow", schoolGradeLabel() + " " + bowName(), 1, "zaehlt einfach"),
+          fieldDef(subject, "projekt", "Gesamtnote Projektpruefung", 2, "zaehlt doppelt")
+        ];
+      }
+      if (subject.kind === "projectExternal") {
+        return [
+          fieldDef(subject, "wib", schoolGradeLabel() + " WiB", 1, "zaehlt einfach"),
+          fieldDef(subject, "bow", schoolGradeLabel() + " " + bowName(), 1, "zaehlt einfach"),
           fieldDef(subject, "projekt", "Gesamtnote Projektpruefung", 2, "zaehlt doppelt")
         ];
       }
       if (subject.kind === "simple") {
         return [
-          fieldDef(subject, "jfn", "JFN / ZZ", 1, "zaehlt einfach"),
+          fieldDef(subject, "jfn", schoolGradeLabel(), 1, "zaehlt einfach"),
           fieldDef(subject, "pruefung", "Pruefungsnote", 1, "zaehlt einfach")
         ];
       }
       return [
-        fieldDef(subject, "jfn", subject.id === "muttersprache" ? "Leistungstest / JFN / ZZ" : "JFN / ZZ", 2, "zaehlt doppelt"),
+        fieldDef(subject, "jfn", subject.id === "muttersprache" ? "Leistungstest / " + schoolGradeLabel() : schoolGradeLabel(), 2, "zaehlt doppelt"),
         fieldDef(subject, "pruefung", "Pruefungsnote", 2, "zaehlt doppelt")
       ];
     }
@@ -357,7 +379,7 @@
 
   function renderResult() {
     var rows = getContributions();
-    var divider = state.mode === "internal" ? 18 : 9;
+    var divider = state.mode === "external" ? 9 : 18;
     var complete = rows.every(function (row) { return row.product !== null; });
     var sum = rows.reduce(function (total, row) { return total + (row.product || 0); }, 0);
     var average = complete ? sum / divider : null;
@@ -371,7 +393,7 @@
       "<div class=\"status-card" + statusClass + "\"><h3>" + statusTitle + "</h3><p>" + statusText + "</p></div>" +
       "<div class=\"metric-grid\"><div class=\"metric\"><span>Notensumme</span><strong>" + (complete ? formatNumber(sum, 1) : "-") + "</strong></div><div class=\"metric\"><span>Teiler</span><strong>" + divider + "</strong></div><div class=\"metric\"><span>Durchschnitt</span><strong>" + formatNumber(average, 2) + "</strong></div><div class=\"metric\"><span>Amtlich gewertet</span><strong>" + formatNumber(official, 1) + "</strong></div></div>";
 
-    var formula = state.mode === "internal" ? "Summe aller gewichteten JFN-/ZZ- und Pruefungsnoten / 18" : "Summe aller gewichteten Pruefungsnoten / 9";
+    var formula = state.mode === "external" ? "Summe aller gewichteten Pruefungsnoten / 9" : "Summe aller gewichteten Schul- und Pruefungsnoten / 18";
     els.formulaBox.innerHTML = "<h3>Formel</h3><p>Die zweite Stelle nach dem Komma wird nicht gerundet, sondern abgeschnitten.</p><div class=\"formula-line\">" + formula + "</div>";
     renderContributionTable(rows, sum, divider, complete);
   }
