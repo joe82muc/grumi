@@ -37,6 +37,16 @@ const PICTURE_BASED_TALK_ROOT = resolveFirstExistingDir([
 
 ensureDataFiles();
 
+// --- Vokabeltest-Modul (Freischaltung, Abgabe, Auswertung) ---
+const { registerVokabeltestRoutes } = require("./vokabeltest");
+const { TESTS: VOKABELTESTS } = require("./vokabeltest-daten");
+registerVokabeltestRoutes(app, {
+  dataDir: DATA_DIR,
+  teacherPassword: TEACHER_PASSWORD,
+  tests: VOKABELTESTS,
+  hashSecret: process.env.VOKABELTEST_SECRET || TEACHER_PASSWORD + "|grumi"
+});
+
 app.use(express.static(STATIC_ROOT));
 
 if (PICTURE_BASED_TALK_ROOT) {
