@@ -40,3 +40,25 @@ HTTP 200 = vorhanden, HTTP 404 = alter Stand.
 `backend/data/` enthält Namen, Klassen und Noten und ist über die
 `.gitignore` aus dem Repository ausgeschlossen. Das muss so bleiben —
 die Repos sind öffentlich.
+
+## Wo die Testergebnisse liegen
+
+    /opt/render/project/src/backend/data/vokabeltest_abgaben.json   (Abgaben + Noten)
+    /opt/render/project/src/backend/data/vokabeltests.json          (Freischaltungen)
+
+Nicht im Repository — die `.gitignore` schliesst `backend/data/` aus.
+
+### Achtung: Daten sind fluechtig
+
+Render (Free-Plan) hat kein dauerhaftes Dateisystem. Bei jedem Deploy und
+bei jedem Neustart nach dem Ruhezustand wird der Container neu aufgebaut,
+und `data/` ist wieder leer. Nachweislich: Nach dem Deploy am 16.09.2026
+waren auch die Klasse-9-Fortschrittsdaten auf 0.
+
+**Konsequenz fuer Leistungsnachweise:** Ergebnisse direkt nach der Stunde
+ueber die Lehrerseite als CSV exportieren. Die CSV auf dem eigenen Rechner
+ist die einzige dauerhafte Kopie.
+
+Dauerhaft speichern liesse sich das nur mit
+- einem Render Persistent Disk (kostenpflichtig), oder
+- einer externen Datenbank (z. B. Postgres, auch als Free-Tier verfuegbar).

@@ -127,6 +127,13 @@
     <h2>Ergebnisse</h2>
     <p class="sub">Auswertung nach Notenschl&uuml;ssel M-Zug (50&nbsp;% = Note 4).</p>
 
+    <div class="note bad" style="margin-top:0;margin-bottom:.9rem">
+      <strong>Ergebnisse gleich nach der Stunde als CSV sichern.</strong><br>
+      Der Server speichert nur vor&uuml;bergehend: Bei einem Neustart oder einer
+      Aktualisierung gehen die Abgaben verloren. Die CSV-Datei auf deinem Rechner
+      ist die dauerhafte Kopie.
+    </div>
+
     <div style="display:flex;gap:.6rem;align-items:flex-end;flex-wrap:wrap">
       <div style="flex:1;min-width:200px">
         <label for="res-test">Test</label>
@@ -271,6 +278,9 @@ async function loadResults(){
     if(!data.ok){ box.innerHTML = '<div class="note bad">Fehler beim Laden.</div>'; return; }
     renderStats(data);
     renderTable(data.submissions);
+    if(data.count > 0 && !sessionStorage.getItem('csv-hint-' + (testId || 'all'))){
+      try{ sessionStorage.setItem('csv-hint-' + (testId || 'all'), '1'); }catch(_e){}
+    }
   }catch(e){
     box.innerHTML = '<div class="note bad">Keine Verbindung zum Server.</div>';
   }
@@ -382,6 +392,8 @@ $('btn-csv').addEventListener('click', async () => {
     a.download = 'vokabeltest_' + (testId || 'alle') + '.csv';
     a.click();
     URL.revokeObjectURL(url);
+    try{ localStorage.setItem('vt-export-' + (testId || 'alle'), new Date().toISOString()); }catch(_e){}
+    msg('admin-msg','CSV wurde heruntergeladen. Bitte pr&uuml;fe kurz, ob die Datei vollst&auml;ndig ist.','ok');
   }catch(e){ alert('Keine Verbindung zum Server.'); }
 });
 </script>
