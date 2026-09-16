@@ -174,6 +174,13 @@ async function doLogin(){
       $('btn-login').disabled = false;
       return;
     }
+    if(res.status === 404){
+      msg('login-msg','Der Server laeuft, kennt den Vokabeltest aber noch nicht. '
+        + 'Das Update wurde noch nicht ausgeliefert: In Render beim Dienst '
+        + '<strong>englisch-9</strong> auf "Manual Deploy" &rarr; "Deploy latest commit" klicken.','bad');
+      $('btn-login').disabled = false;
+      return;
+    }
     if(!res.ok) throw new Error('HTTP ' + res.status);
     PW = pw;
     $('view-login').classList.add('hidden');
@@ -182,7 +189,8 @@ async function doLogin(){
     await loadTests();
     await loadResults();
   }catch(e){
-    msg('login-msg','Keine Verbindung zum Server.','bad');
+    msg('login-msg','Keine Verbindung zum Server. Beim kostenlosen Render-Plan schlaeft der '
+      + 'Dienst nach Pausen ein &ndash; bitte in etwa 30 Sekunden noch einmal versuchen.','bad');
     $('btn-login').disabled = false;
   }
 }

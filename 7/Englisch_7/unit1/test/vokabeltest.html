@@ -228,6 +228,13 @@ async function loadTests(){
   const sel = $('f-test');
   try{
     const res = await fetch(API_BASE + '/api/vokabeltest/list');
+    if(res.status === 404){
+      sel.innerHTML = '<option value="">Noch nicht bereit</option>';
+      $('btn-start').disabled = true;
+      msg('login-msg','Der Vokabeltest ist auf dem Server noch nicht eingerichtet. '
+        + 'Bitte sag deiner Lehrkraft Bescheid.','bad');
+      return;
+    }
     const data = await res.json();
     const open = (data.tests || []).filter(t => t.unlocked);
     sel.innerHTML = '';
@@ -247,7 +254,8 @@ async function loadTests(){
   }catch(e){
     sel.innerHTML = '<option value="">Keine Verbindung</option>';
     $('btn-start').disabled = true;
-    msg('login-msg', 'Keine Verbindung zum Server. Bitte melde dich bei deiner Lehrkraft.', 'bad');
+    msg('login-msg', 'Keine Verbindung zum Server. Bitte warte kurz und lade die Seite neu &ndash; '
+      + 'wenn es dann immer noch nicht geht, sag deiner Lehrkraft Bescheid.', 'bad');
   }
 }
 
