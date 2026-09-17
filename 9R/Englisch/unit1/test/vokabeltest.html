@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Vokabeltest &ndash; Englisch 9R, Unit 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#101a2e; --muted:#5d6b84; --line:#dce4f0;
+    --blue:#012169; --blue-2:#15357f; --accent:#1d6fe0; --accent-soft:#e8f0fd;
+    --ok:#15803d; --ok-bg:#e9f8ee; --ok-line:#8fd6a8;
+    --bad:#c2340f; --bad-bg:#fdeeeb; --bad-line:#f3b5a6;
+    --warn:#8a5a00; --warn-bg:#fff6e3; --warn-line:#f0d295;
+    --shadow-m:0 10px 28px rgba(16,26,46,.10);
+    --r:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Source Sans 3",system-ui,"Segoe UI",sans-serif;color:var(--ink);
+    background:linear-gradient(180deg,#f3f6fc,#eef3fb);min-height:100vh;padding:1rem;
+  }
+  .wrap{max-width:780px;margin:0 auto}
+
+  .head{
+    background:linear-gradient(125deg,var(--blue),var(--blue-2));color:#fff;
+    border-radius:18px;padding:1.2rem 1.3rem;box-shadow:var(--shadow-m);
+  }
+  .head h1{font-size:clamp(1.3rem,4.4vw,1.85rem);font-weight:800;line-height:1.15}
+  .head p{opacity:.92;margin-top:.35rem;font-size:.94rem}
+
+  .panel{
+    background:#fff;border:1px solid var(--line);border-radius:18px;
+    padding:1.1rem;box-shadow:var(--shadow-m);margin-top:1rem;
+  }
+  h2{font-size:1.05rem;font-weight:800;margin-bottom:.2rem}
+  .sub{color:var(--muted);font-size:.88rem;margin-bottom:.9rem}
+
+  label{display:block;font-size:.78rem;font-weight:800;letter-spacing:.04em;
+        text-transform:uppercase;color:var(--muted);margin-bottom:.25rem}
+  input[type=text],input[type=date],select{
+    width:100%;padding:.7rem .8rem;border:1.5px solid var(--line);border-radius:10px;
+    font-size:1rem;font-family:inherit;font-weight:600;color:var(--ink);background:#fff;
+  }
+  input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+  .field{margin-bottom:.7rem}
+
+  .btn{
+    padding:.75rem 1.4rem;border:none;border-radius:999px;background:var(--blue);color:#fff;
+    font-weight:700;font-size:.95rem;cursor:pointer;font-family:inherit;
+    box-shadow:0 5px 14px rgba(1,33,105,.28);transition:all .15s;
+  }
+  .btn:hover:not(:disabled){background:var(--blue-2)}
+  .btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+  .btn-ghost{
+    background:#fff;color:var(--blue);border:1.5px solid var(--line);box-shadow:none;
+  }
+  .btn-ghost:hover:not(:disabled){background:var(--accent-soft);border-color:var(--accent)}
+  .btn-danger{background:var(--bad);box-shadow:0 5px 14px rgba(194,52,15,.28)}
+  .btn-danger:hover:not(:disabled){background:#a32b0c}
+  .btn-row{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem}
+
+  .note{
+    border-left:4px solid var(--warn-line);background:var(--warn-bg);color:var(--warn);
+    padding:.7rem .9rem;border-radius:8px;font-size:.9rem;margin-top:.9rem;font-weight:600;
+  }
+  .note.bad{border-color:var(--bad-line);background:var(--bad-bg);color:var(--bad)}
+  .note.ok{border-color:var(--ok-line);background:var(--ok-bg);color:var(--ok)}
+  .note ul{margin:.4rem 0 0 1.1rem;font-weight:500}
+  .note li{margin:.15rem 0}
+
+  /* ---- Testlauf ---- */
+  .bar{
+    position:sticky;top:0;z-index:10;background:#fff;border:1px solid var(--line);
+    border-radius:12px;padding:.6rem .85rem;margin-bottom:.8rem;
+    display:flex;justify-content:space-between;align-items:center;gap:.7rem;flex-wrap:wrap;
+    box-shadow:0 3px 12px rgba(16,26,46,.07);
+  }
+  .bar b{font-size:1.05rem}
+  .pbar-wrap{flex:1;min-width:120px;height:8px;background:#e4eaf4;border-radius:99px;overflow:hidden}
+  .pbar{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--accent));transition:width .3s}
+
+  .q{
+    border:1.5px solid var(--line);border-radius:12px;padding:.8rem .9rem;margin-bottom:.65rem;
+    background:#fff;transition:border-color .15s;
+  }
+  .q.filled{border-color:var(--ok-line);background:#fbfefc}
+  .q-top{display:flex;align-items:baseline;gap:.6rem;margin-bottom:.45rem;flex-wrap:wrap}
+  .q-nr{
+    background:var(--accent-soft);color:var(--blue);font-weight:800;font-size:.78rem;
+    border-radius:99px;padding:.15rem .6rem;flex:0 0 auto;
+  }
+  .q-word{font-size:1.1rem;font-weight:800;color:var(--blue)}
+  .q-dir{font-size:.76rem;color:var(--muted);font-weight:700}
+  .q-hint{font-size:.78rem;color:var(--muted);font-style:italic}
+  .q input{font-weight:700}
+  .edits-left{font-size:.74rem;color:var(--muted);margin-top:.3rem;font-weight:600}
+  .edits-left.none{color:var(--bad)}
+
+  /* ---- Ergebnis ---- */
+  .grade-big{
+    font-size:3.6rem;font-weight:900;line-height:1;color:var(--blue);text-align:center;margin:.3rem 0;
+  }
+  .res-meta{text-align:center;color:var(--muted);font-weight:700;margin-bottom:1rem}
+  .res-row{
+    display:grid;grid-template-columns:auto 1fr auto;gap:.6rem;align-items:center;
+    padding:.5rem .3rem;border-bottom:1px solid #eef2f8;font-size:.92rem;
+  }
+  .res-row:last-child{border-bottom:none}
+  .res-row .mark{font-weight:800}
+  .res-row.ok .mark{color:var(--ok)} .res-row.no .mark{color:var(--bad)}
+  .res-given{font-weight:700}
+  .res-exp{color:var(--muted);font-size:.85rem}
+  .tag-typo{background:var(--warn-bg);color:var(--warn);border-radius:99px;padding:.1rem .5rem;font-size:.72rem;font-weight:800}
+
+  .hidden{display:none}
+  @media(max-width:600px){ .grid2{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <h1>Vokabeltest &middot; Englisch 9R</h1>
+    <p id="head-sub">Unit 1 &ndash; Around Australia</p>
+  </div>
+
+  <!-- ============ 1. Anmeldung ============ -->
+  <section class="panel" id="view-login">
+    <h2>Anmeldung</h2>
+    <p class="sub">Trage deinen Namen, deine Klasse und das Datum ein.</p>
+
+    <div class="field">
+      <label for="f-test">Test</label>
+      <select id="f-test"><option value="">Tests werden geladen &hellip;</option></select>
+    </div>
+
+    <div class="grid2">
+      <div class="field">
+        <label for="f-first">Vorname</label>
+        <input type="text" id="f-first" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="field">
+        <label for="f-last">Nachname</label>
+        <input type="text" id="f-last" autocomplete="off" spellcheck="false">
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label for="f-class">Klasse</label>
+        <input type="text" id="f-class" placeholder="z.&nbsp;B. 9aR" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="f-date">Datum</label>
+        <input type="date" id="f-date">
+      </div>
+    </div>
+
+    <div class="note">
+      <strong>Wichtig &ndash; bitte lesen:</strong>
+      <ul>
+        <li>Du kannst den Test <strong>nur einmal</strong> abgeben.</li>
+        <li>Jedes Feld darfst du <strong>2&times; korrigieren</strong>, danach ist es fest.</li>
+        <li>Lade die Seite <strong>nicht neu</strong> und schlie&szlig;e den Tab nicht.</li>
+      </ul>
+    </div>
+
+    <div id="login-msg"></div>
+
+    <div class="btn-row">
+      <button class="btn" id="btn-start">Test starten</button>
+    </div>
+  </section>
+
+  <!-- ============ 2. Test ============ -->
+  <section class="panel hidden" id="view-test">
+    <div class="bar">
+      <span><b id="bar-done">0</b> / <span id="bar-total">0</span> beantwortet</span>
+      <div class="pbar-wrap"><div class="pbar" id="pbar"></div></div>
+      <span id="bar-name" style="font-size:.82rem;color:var(--muted);font-weight:700"></span>
+    </div>
+
+    <div id="questions"></div>
+
+    <div class="note" id="submit-note">
+      Pr&uuml;fe deine Antworten. Nach dem Abgeben kannst du nichts mehr &auml;ndern.
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-danger" id="btn-submit">Test abgeben</button>
+    </div>
+  </section>
+
+  <!-- ============ 3. Ergebnis ============ -->
+  <section class="panel hidden" id="view-result">
+    <h2>Dein Ergebnis</h2>
+    <p class="sub" id="res-who"></p>
+    <div class="grade-big" id="res-grade">&ndash;</div>
+    <div class="res-meta" id="res-meta"></div>
+    <div id="res-list"></div>
+    <div class="note ok" style="margin-top:1rem">
+      Das Ergebnis wurde gespeichert. Du kannst das Fenster jetzt schlie&szlig;en.
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ============================================================
+   Vokabeltest - Schueleransicht
+   Die Loesungen liegen ausschliesslich auf dem Server. Diese Seite
+   kennt sie nicht; sie schickt die Antworten hin und zeigt das
+   Ergebnis an, das der Server berechnet.
+   ============================================================ */
+const API_BASE = (location.hostname.includes('github.io') || location.protocol === 'file:')
+  ? 'https://englisch-9.onrender.com' : '';
+const MAX_EDITS = 2;
+
+const $ = id => document.getElementById(id);
+let items = [], answers = [], editCount = [], locked = [], testMeta = null;
+let student = null, submitted = false, testRunning = false;
+
+/* ---------- Tests laden ---------- */
+async function loadTests(){
+  const sel = $('f-test');
+  try{
+    const res = await fetch(API_BASE + '/api/vokabeltest/list');
+    if(res.status === 404){
+      sel.innerHTML = '<option value="">Noch nicht bereit</option>';
+      $('btn-start').disabled = true;
+      msg('login-msg','Der Vokabeltest ist auf dem Server noch nicht eingerichtet. '
+        + 'Bitte sag deiner Lehrkraft Bescheid.','bad');
+      return;
+    }
+    const data = await res.json();
+    const open = (data.tests || []).filter(t => t.unlocked && String(t.id).startsWith('e9r-'));
+    sel.innerHTML = '';
+    if(!open.length){
+      sel.innerHTML = '<option value="">Zurzeit ist kein Test freigeschaltet</option>';
+      $('btn-start').disabled = true;
+      msg('login-msg', 'Es ist gerade kein Test freigeschaltet. Bitte warte, bis deine Lehrkraft den Test &ouml;ffnet.', 'warn');
+      return;
+    }
+    open.forEach(t => {
+      const o = document.createElement('option');
+      o.value = t.id;
+      o.textContent = t.title + ' (' + t.itemCount + ' Wörter)';
+      sel.appendChild(o);
+    });
+    $('btn-start').disabled = false;
+  }catch(e){
+    sel.innerHTML = '<option value="">Keine Verbindung</option>';
+    $('btn-start').disabled = true;
+    msg('login-msg', 'Keine Verbindung zum Server. Bitte warte kurz und lade die Seite neu &ndash; '
+      + 'wenn es dann immer noch nicht geht, sag deiner Lehrkraft Bescheid.', 'bad');
+  }
+}
+
+function msg(where, text, kind){
+  const el = $(where);
+  if(!text){ el.innerHTML = ''; return; }
+  el.innerHTML = '<div class="note ' + (kind === 'bad' ? 'bad' : kind === 'ok' ? 'ok' : '') + '">' + text + '</div>';
+}
+
+/* ---------- Test starten ---------- */
+$('btn-start').addEventListener('click', async () => {
+  const testId = $('f-test').value;
+  const firstName = $('f-first').value.trim();
+  const lastName = $('f-last').value.trim();
+  const className = $('f-class').value.trim();
+  const testDate = $('f-date').value;
+
+  if(!testId){ msg('login-msg','Bitte w&auml;hle einen Test aus.','bad'); return; }
+  if(!firstName || !lastName || !className){
+    msg('login-msg','Bitte f&uuml;lle Vorname, Nachname und Klasse aus.','bad'); return;
+  }
+  if(!testDate){ msg('login-msg','Bitte trage das Datum ein.','bad'); return; }
+
+  $('btn-start').disabled = true;
+  $('btn-start').textContent = 'Wird geladen …';
+  msg('login-msg','');
+
+  try{
+    const res = await fetch(API_BASE + '/api/vokabeltest/start', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ testId, firstName, lastName, className })
+    });
+    const data = await res.json();
+
+    if(!data.ok){
+      if(data.error === 'already_submitted'){
+        msg('login-msg','Unter diesem Namen wurde der Test bereits abgegeben. Wende dich bitte an deine Lehrkraft.','bad');
+      } else if(data.error === 'locked'){
+        msg('login-msg','Dieser Test ist nicht (mehr) freigeschaltet.','bad');
+      } else {
+        msg('login-msg', data.message || 'Der Test konnte nicht gestartet werden.','bad');
+      }
+      $('btn-start').disabled = false;
+      $('btn-start').textContent = 'Test starten';
+      return;
+    }
+
+    student = { testId, firstName, lastName, className, testDate };
+    testMeta = data.test;
+    items = data.items;
+    answers   = items.map(() => '');
+    editCount = items.map(() => 0);
+    locked    = items.map(() => false);
+    renderTest();
+  }catch(e){
+    msg('login-msg','Keine Verbindung zum Server. Bitte melde dich bei deiner Lehrkraft.','bad');
+    $('btn-start').disabled = false;
+    $('btn-start').textContent = 'Test starten';
+  }
+});
+
+/* ---------- Test anzeigen ---------- */
+function renderTest(){
+  testRunning = true;
+  $('view-login').classList.add('hidden');
+  $('view-test').classList.remove('hidden');
+  $('head-sub').textContent = testMeta.title;
+  $('bar-total').textContent = items.length;
+  $('bar-name').textContent = student.firstName + ' ' + student.lastName + ' · ' + student.className;
+
+  const box = $('questions');
+  box.innerHTML = '';
+  items.forEach((it, i) => {
+    const q = document.createElement('div');
+    q.className = 'q'; q.id = 'q' + i;
+
+    const top = document.createElement('div');
+    top.className = 'q-top';
+    top.innerHTML =
+      '<span class="q-nr">' + it.nr + '</span>' +
+      '<span class="q-word"></span>' +
+      '<span class="q-dir">' + (it.direction === 'en-de' ? 'auf Deutsch' : 'auf Englisch') + '</span>' +
+      (it.hint ? '<span class="q-hint">(' + it.hint + ')</span>' : '');
+    top.querySelector('.q-word').textContent = it.prompt;
+
+    const inp = document.createElement('input');
+    inp.type = 'text'; inp.id = 'a' + i;
+    inp.autocomplete = 'off'; inp.spellcheck = false; inp.autocapitalize = 'off';
+    inp.placeholder = 'Deine Antwort …';
+
+    const info = document.createElement('div');
+    info.className = 'edits-left'; info.id = 'e' + i;
+    info.textContent = 'Noch ' + MAX_EDITS + '× korrigierbar';
+
+    // Beim Verlassen des Feldes zaehlt eine Aenderung als Korrektur.
+    inp.addEventListener('focus', () => { inp.dataset.before = inp.value; });
+    inp.addEventListener('blur', () => {
+      if(locked[i]) return;
+      const before = inp.dataset.before || '';
+      const now = inp.value.trim();
+      if(now === before.trim()) return;
+
+      answers[i] = now;
+      if(before.trim() !== ''){
+        editCount[i]++;
+        if(editCount[i] >= MAX_EDITS){
+          locked[i] = true;
+          inp.readOnly = true;
+          info.textContent = 'Festgelegt – keine Korrektur mehr möglich';
+          info.classList.add('none');
+        } else {
+          info.textContent = 'Noch ' + (MAX_EDITS - editCount[i]) + '× korrigierbar';
+        }
+      }
+      updateBar();
+    });
+    inp.addEventListener('input', () => { answers[i] = inp.value.trim(); updateBar(); });
+
+    q.append(top, inp, info);
+    box.appendChild(q);
+  });
+  updateBar();
+  window.scrollTo(0, 0);
+}
+
+function updateBar(){
+  let done = 0;
+  answers.forEach((a, i) => {
+    if(a && a.trim()){ done++; $('q' + i).classList.add('filled'); }
+    else { $('q' + i).classList.remove('filled'); }
+  });
+  $('bar-done').textContent = done;
+  $('pbar').style.width = (items.length ? done / items.length * 100 : 0) + '%';
+}
+
+/* ---------- Abgeben ---------- */
+$('btn-submit').addEventListener('click', async () => {
+  const offen = answers.filter(a => !a || !a.trim()).length;
+  const frage = offen
+    ? 'Es sind noch ' + offen + ' Felder leer. Trotzdem abgeben?\n\nNach dem Abgeben kannst du nichts mehr ändern.'
+    : 'Test wirklich abgeben?\n\nNach dem Abgeben kannst du nichts mehr ändern.';
+  if(!confirm(frage)) return;
+
+  $('btn-submit').disabled = true;
+  $('btn-submit').textContent = 'Wird abgegeben …';
+
+  try{
+    const res = await fetch(API_BASE + '/api/vokabeltest/submit', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ ...student, answers })
+    });
+    const data = await res.json();
+
+    if(!data.ok){
+      if(data.error === 'already_submitted'){
+        submitted = true;
+        showLockedScreen('Dieser Test wurde bereits abgegeben.');
+        return;
+      }
+      $('btn-submit').disabled = false;
+      $('btn-submit').textContent = 'Test abgeben';
+      msg('submit-note', data.message || 'Die Abgabe hat nicht geklappt. Bitte noch einmal versuchen.', 'bad');
+      return;
+    }
+
+    submitted = true; testRunning = false;
+    showResult(data.result);
+  }catch(e){
+    $('btn-submit').disabled = false;
+    $('btn-submit').textContent = 'Test abgeben';
+    alert('Keine Verbindung zum Server. Bitte sofort bei der Lehrkraft melden – gib den Tab NICHT zu.');
+  }
+});
+
+/* ---------- Ergebnis ---------- */
+function showResult(r){
+  $('view-test').classList.add('hidden');
+  $('view-result').classList.remove('hidden');
+  $('res-who').textContent = student.firstName + ' ' + student.lastName + ' · ' + student.className + ' · ' + student.testDate;
+  $('res-grade').textContent = 'Note ' + r.grade;
+  $('res-meta').textContent = r.score + ' von ' + r.total + ' richtig (' + r.percent + ' %)'
+    + (r.typos ? ' · ' + r.typos + ' davon mit kleinem Tippfehler' : '');
+
+  const list = $('res-list');
+  list.innerHTML = '';
+  r.details.forEach(d => {
+    const row = document.createElement('div');
+    row.className = 'res-row ' + (d.correct ? 'ok' : 'no');
+
+    const mark = document.createElement('span');
+    mark.className = 'mark';
+    mark.textContent = d.correct ? '✓' : '✗';
+
+    const mid = document.createElement('div');
+    const w = document.createElement('div');
+    w.innerHTML = '<span style="color:var(--muted)">' + d.nr + '. </span>';
+    const strong = document.createElement('strong');
+    strong.textContent = d.prompt;
+    w.appendChild(strong);
+    const g = document.createElement('div');
+    g.className = 'res-given';
+    g.textContent = d.given ? d.given : '(leer)';
+    mid.append(w, g);
+    if(!d.correct){
+      const exp = document.createElement('div');
+      exp.className = 'res-exp';
+      exp.textContent = 'richtig: ' + d.expected;
+      mid.appendChild(exp);
+    }
+
+    const right = document.createElement('span');
+    if(d.correct && d.typo){
+      right.className = 'tag-typo';
+      right.textContent = 'Tippfehler';
+    }
+
+    row.append(mark, mid, right);
+    list.appendChild(row);
+  });
+  window.scrollTo(0, 0);
+}
+
+function showLockedScreen(text){
+  $('view-test').classList.add('hidden');
+  $('view-login').classList.remove('hidden');
+  $('view-result').classList.add('hidden');
+  msg('login-msg', text + ' Bitte wende dich an deine Lehrkraft.', 'bad');
+  $('btn-start').disabled = true;
+}
+
+/* ---------- Schutz vor versehentlichem Verlassen ----------
+   Hinweis: Ein Neuladen laesst sich technisch nicht verhindern.
+   Die eigentliche Sicherung liegt auf dem Server - er nimmt pro
+   Schueler nur eine Abgabe an. Das hier ist nur eine Warnung. */
+window.addEventListener('beforeunload', (e) => {
+  if(testRunning && !submitted){
+    e.preventDefault();
+    e.returnValue = '';
+    return '';
+  }
+});
+
+/* Kontextmenue und Textauswahl im Test unterbinden (erschwert Copy/Paste) */
+document.addEventListener('contextmenu', e => { if(testRunning) e.preventDefault(); });
+document.addEventListener('copy', e => { if(testRunning) e.preventDefault(); });
+document.addEventListener('paste', e => { if(testRunning) e.preventDefault(); });
+
+/* Datum vorbelegen */
+$('f-date').value = new Date().toISOString().slice(0, 10);
+loadTests();
+</script>
+</body>
+</html>
