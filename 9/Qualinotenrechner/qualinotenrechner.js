@@ -2,51 +2,45 @@
   var STORAGE_KEY = "grumi-quali-rechner-v1";
   var PASS_LIMIT = 3.0;
 
+  /* Die ids bleiben bewusst ohne Umlaute: sie sind Speicherschluessel
+     und stecken in bereits gespeicherten Staenden im localStorage. */
   var fixedCore = [
     { id: "deutsch", name: "Deutsch", short: "D", kind: "coreDouble", note: "Pflichtfach" },
-    { id: "daz", name: "Deutsch als Zweitsprache", short: "DaZ", kind: "languageOral", note: "statt Deutsch, wenn zutreffend" }
+    { id: "daz", name: "Deutsch als Zweitsprache", short: "DaZ", kind: "languageOral", note: "statt Deutsch" }
   ];
 
   var math = { id: "mathe", name: "Mathematik", short: "M", kind: "coreDouble", note: "Pflichtfach" };
 
   var groupA = [
-    { id: "englisch", name: "Englisch", short: "E", kind: "languageOral", note: "schriftlich und muendlich" },
-    { id: "muttersprache", name: "Muttersprache", short: "MS", kind: "coreDouble", note: "statt Englisch, wenn genehmigt" },
-    { id: "nt", name: "Natur und Technik", short: "NT", kind: "coreDouble", note: "schriftliche Pruefung" },
-    { id: "gpg", name: "Geschichte/Politik/Geographie", short: "GPG", kind: "coreDouble", note: "schriftliche Pruefung" }
+    { id: "englisch", name: "Englisch", short: "E", kind: "languageOral" },
+    { id: "muttersprache", name: "Muttersprache", short: "MS", kind: "coreDouble", note: "statt Englisch" },
+    { id: "nt", name: "Natur und Technik", short: "NT", kind: "coreDouble" },
+    { id: "gpg", name: "Geschichte/Politik/Geographie", short: "GPG", kind: "coreDouble" }
   ];
 
   var extendedGroupA = groupA.concat([
-    { id: "projekt", name: "Projektpruefung", short: "PP", kind: "projectExternal", note: "kann ein Fach ersetzen" }
+    { id: "projekt", name: "Projektprüfung", short: "PP", kind: "projectExternal", note: "ersetzt ein Fach" }
   ]);
 
   var otherSubjects = [
-    { id: "religion", name: "Religionslehre", short: "R", kind: "simple", note: "einfach gewichtet" },
-    { id: "ethik", name: "Ethik", short: "Eth", kind: "simple", note: "einfach gewichtet" },
-    { id: "islam", name: "Islamischer Unterricht", short: "IU", kind: "simple", note: "einfach gewichtet" },
-    { id: "sport", name: "Sport", short: "Sp", kind: "simple", note: "Pruefungs-Gesamtnote" },
-    { id: "musik", name: "Musik", short: "Mu", kind: "simple", note: "Pruefungs-Gesamtnote" },
-    { id: "kunst", name: "Kunst", short: "Ku", kind: "simple", note: "Pruefungs-Gesamtnote" },
-    { id: "informatik", name: "Informatik", short: "Inf", kind: "simple", note: "Pruefungs-Gesamtnote" },
-    { id: "idg", name: "Informatik und digitales Gestalten", short: "IdG", kind: "simple", note: "Pruefungs-Gesamtnote" },
-    { id: "buchfuehrung", name: "Buchfuehrung", short: "Bf", kind: "simple", note: "schriftliche Pruefung" }
+    { id: "religion", name: "Religionslehre", short: "R", kind: "simple" },
+    { id: "ethik", name: "Ethik", short: "Eth", kind: "simple" },
+    { id: "islam", name: "Islamischer Unterricht", short: "IU", kind: "simple" },
+    { id: "sport", name: "Sport", short: "Sp", kind: "simple" },
+    { id: "musik", name: "Musik", short: "Mu", kind: "simple" },
+    { id: "kunst", name: "Kunst", short: "Ku", kind: "simple" },
+    { id: "informatik", name: "Informatik", short: "Inf", kind: "simple" },
+    { id: "idg", name: "Informatik und digitales Gestalten", short: "IdG", kind: "simple" },
+    { id: "buchfuehrung", name: "Buchführung", short: "Bf", kind: "simple" }
   ];
 
   var bowSubjects = [
     { id: "technik", name: "Technik" },
     { id: "wirtschaft", name: "Wirtschaft und Kommunikation" },
-    { id: "soziales", name: "Ernaehrung und Soziales" }
+    { id: "soziales", name: "Ernährung und Soziales" }
   ];
 
-  var state = loadState() || {
-    mode: "internal",
-    language: "deutsch",
-    groupAInternal: "englisch",
-    groupAExtended: ["englisch", "nt"],
-    other: "religion",
-    bow: "technik",
-    grades: {}
-  };
+  var state = loadState() || defaultState("internal");
   normalizeState();
 
   var els = {
@@ -69,8 +63,14 @@
   });
 
   els.resetBtn.addEventListener("click", function () {
-    state = {
-      mode: state.mode,
+    state = defaultState(state.mode);
+    render();
+    saveState();
+  });
+
+  function defaultState(mode) {
+    return {
+      mode: mode,
       language: "deutsch",
       groupAInternal: "englisch",
       groupAExtended: ["englisch", "nt"],
@@ -78,9 +78,7 @@
       bow: "technik",
       grades: {}
     };
-    render();
-    saveState();
-  });
+  }
 
   function loadState() {
     try {
@@ -119,14 +117,18 @@
     button.className = "subject-card" + (selected ? " is-selected" : "");
     button.dataset.group = group;
     button.dataset.id = subject.id;
-    button.innerHTML = "<strong>" + escapeHtml(subject.name) + "</strong><span>" + escapeHtml(extra || subject.note || "") + "</span>";
+    button.setAttribute("aria-pressed", selected ? "true" : "false");
+    var note = extra || subject.note || "";
+    button.innerHTML = "<strong>" + escapeHtml(subject.name) + "</strong>" +
+      (note ? "<span>" + escapeHtml(note) + "</span>" : "");
     return button;
   }
 
   function renderSubjectGroup(title, help, subjects, group, selectedIds, limitText) {
     var section = document.createElement("section");
     section.className = "subject-group";
-    section.innerHTML = "<div><h3>" + title + "</h3><p>" + help + "</p></div>";
+    section.innerHTML = "<div><h3>" + escapeHtml(title) + "</h3>" +
+      (help ? "<p>" + escapeHtml(help) + "</p>" : "") + "</div>";
     var grid = document.createElement("div");
     grid.className = "subject-card-grid";
     subjects.forEach(function (subject) {
@@ -140,11 +142,12 @@
   function renderBowGroup() {
     var section = document.createElement("section");
     section.className = "subject-group";
-    section.innerHTML = "<div><h3>Berufsorientierendes Wahlpflichtfach</h3><p>Fuer die Projektpruefung zaehlen die JFN in WiB und im besuchten Wahlpflichtfach einfach; in 9M werden hier die ZZ-Noten eingetragen.</p></div>";
+    section.innerHTML = "<div><h3>Berufsorientierendes Wahlpflichtfach</h3>" +
+      "<p>" + escapeHtml(schoolGradeLabel()) + " in WiB und im Wahlpflichtfach zählen einfach.</p></div>";
     var grid = document.createElement("div");
     grid.className = "subject-card-grid";
     bowSubjects.forEach(function (subject) {
-      grid.appendChild(card(subject, "bow", state.bow === subject.id, schoolGradeLabel() + " einfach"));
+      grid.appendChild(card(subject, "bow", state.bow === subject.id, ""));
     });
     section.appendChild(grid);
     return section;
@@ -152,21 +155,45 @@
 
   function renderSubjects() {
     els.subjectGroups.innerHTML = "";
-    els.subjectGroups.appendChild(renderSubjectGroup("Deutsch-Fach", "Deutsch ist Pflicht; Deutsch als Zweitsprache gilt nur, wenn die Voraussetzungen erfuellt sind.", fixedCore, "language", [state.language]));
+    els.subjectGroups.appendChild(renderSubjectGroup(
+      "Deutsch-Fach",
+      "Deutsch als Zweitsprache nur, wenn die Voraussetzungen erfüllt sind.",
+      fixedCore, "language", [state.language]
+    ));
 
     if (state.mode === "internal") {
-      els.subjectGroups.appendChild(renderSubjectGroup("Wahlfach aus Englisch, NT oder GPG", "Eines dieser Faecher wird in der normalen Quali-Berechnung mit Jahresfortgangsnote gewaehlt.", groupA, "groupAInternal", [state.groupAInternal]));
+      els.subjectGroups.appendChild(renderSubjectGroup(
+        "Ein Fach aus Englisch, NT oder GPG", "",
+        groupA, "groupAInternal", [state.groupAInternal]
+      ));
       els.subjectGroups.appendChild(renderBowGroup());
-      els.subjectGroups.appendChild(renderSubjectGroup("Weiteres Pruefungsfach", "Waehle das zusaetzliche Fach, das als benotetes Fach besucht wurde.", otherSubjects, "other", [state.other]));
+      els.subjectGroups.appendChild(renderSubjectGroup(
+        "Weiteres Prüfungsfach", "",
+        otherSubjects, "other", [state.other]
+      ));
     } else if (state.mode === "mclass") {
-      els.subjectGroups.appendChild(renderSubjectGroup("Zwei Faecher aus Englisch, NT, GPG oder Projekt", "9M waehlt zwei Bereiche. Eine Projektpruefung kann Englisch, NT oder GPG ersetzen.", extendedGroupA, "groupAExtended", state.groupAExtended, "ausgewaehlt"));
+      els.subjectGroups.appendChild(renderSubjectGroup(
+        "Zwei Fächer aus Englisch, NT, GPG oder Projekt",
+        "Eine Projektprüfung kann Englisch, NT oder GPG ersetzen.",
+        extendedGroupA, "groupAExtended", state.groupAExtended, "gewählt"
+      ));
       if (state.groupAExtended.indexOf("projekt") !== -1) {
         els.subjectGroups.appendChild(renderBowGroup());
       }
-      els.subjectGroups.appendChild(renderSubjectGroup("Weiteres Pruefungsfach", "Waehle das zusaetzliche Fach, das als benotetes Fach besucht wurde.", otherSubjects, "other", [state.other]));
+      els.subjectGroups.appendChild(renderSubjectGroup(
+        "Weiteres Prüfungsfach", "",
+        otherSubjects, "other", [state.other]
+      ));
     } else {
-      els.subjectGroups.appendChild(renderSubjectGroup("Zwei Faecher aus Englisch, NT, GPG oder Projekt", "Ohne Jahresfortgangsnoten muessen hier zwei Faecher gewaehlt werden; eine Projektpruefung kann eines ersetzen.", extendedGroupA, "groupAExtended", state.groupAExtended, "ausgewaehlt"));
-      els.subjectGroups.appendChild(renderSubjectGroup("Weiteres Pruefungsfach", "Waehle ein weiteres Fach der besonderen Leistungsfeststellung.", otherSubjects, "other", [state.other]));
+      els.subjectGroups.appendChild(renderSubjectGroup(
+        "Zwei Fächer aus Englisch, NT, GPG oder Projekt",
+        "Eine Projektprüfung kann eines der Fächer ersetzen.",
+        extendedGroupA, "groupAExtended", state.groupAExtended, "gewählt"
+      ));
+      els.subjectGroups.appendChild(renderSubjectGroup(
+        "Weiteres Prüfungsfach", "",
+        otherSubjects, "other", [state.other]
+      ));
     }
 
     els.subjectGroups.querySelectorAll(".subject-card").forEach(function (button) {
@@ -215,11 +242,14 @@
 
   function renderHelp() {
     if (state.mode === "internal") {
-      els.modeHelp.innerHTML = "<strong>Regelklasse:</strong> Deutsch, Mathematik, ein Fach aus Englisch/NT/GPG, Projektpruefung und ein weiteres Fach ergeben zusammen den Teiler 18.";
+      els.modeHelp.innerHTML = "<strong>Regelklasse:</strong> Deutsch, Mathematik, ein Fach aus Englisch/NT/GPG, " +
+        "Projektprüfung und ein weiteres Fach &ndash; Teiler 18.";
     } else if (state.mode === "mclass") {
-      els.modeHelp.innerHTML = "<strong>9M mit Zwischenzeugnisnoten:</strong> Deutsch, Mathematik, zwei Bereiche aus Englisch/NT/GPG/Projekt und ein weiteres Fach ergeben zusammen den Teiler 18. Trage statt Jahresfortgangsnoten die ZZ-Noten ein.";
+      els.modeHelp.innerHTML = "<strong>9M mit Zwischenzeugnisnoten:</strong> Deutsch, Mathematik, zwei Bereiche aus " +
+        "Englisch/NT/GPG/Projekt und ein weiteres Fach &ndash; Teiler 18. Statt Jahresfortgangsnoten die ZZ-Noten eintragen.";
     } else {
-      els.modeHelp.innerHTML = "<strong>Ohne Jahresfortgangsnoten:</strong> Fuer andere Bewerberinnen und Bewerber werden keine Jahresfortgangsnoten eingerechnet; die Notensumme wird durch den Teiler 9 geteilt.";
+      els.modeHelp.innerHTML = "<strong>Ohne Jahresfortgangsnoten:</strong> Es zählen nur die Prüfungsnoten " +
+        "&ndash; Teiler 9.";
     }
   }
 
@@ -245,10 +275,13 @@
     var language = subjectById(state.language);
     var selectedOther = subjectById(state.other);
     if (state.mode === "internal") {
-      return [language, math, subjectById(state.groupAInternal), { id: "projectInternal", name: "Projektpruefung", short: "PP", kind: "projectInternal", note: "WiB, Wahlpflichtfach und Projekt" }, selectedOther];
-    }
-    if (state.mode === "mclass") {
-      return [language, math].concat(state.groupAExtended.map(subjectById), [selectedOther]);
+      return [
+        language,
+        math,
+        subjectById(state.groupAInternal),
+        { id: "projectInternal", name: "Projektprüfung", short: "PP", kind: "projectInternal" },
+        selectedOther
+      ];
     }
     return [language, math].concat(state.groupAExtended.map(subjectById), [selectedOther]);
   }
@@ -257,8 +290,8 @@
     return subjectId + "__" + suffix;
   }
 
-  function fieldDef(subject, suffix, label, weight, hint) {
-    return { id: fieldId(subject.id, suffix), subject: subject.name, label: label, weight: weight, hint: hint || ("Faktor " + weight) };
+  function fieldDef(subject, suffix, label, weight) {
+    return { id: fieldId(subject.id, suffix), subject: subject.name, label: label, weight: weight };
   }
 
   function schoolGradeLabel() {
@@ -269,47 +302,40 @@
     if (state.mode === "internal" || state.mode === "mclass") {
       if (subject.kind === "languageOral") {
         return [
-          fieldDef(subject, "jfn", schoolGradeLabel(), 2, "zaehlt doppelt"),
-          fieldDef(subject, "schriftlich", "Schriftliche Pruefung", 1, "zaehlt einfach"),
-          fieldDef(subject, "muendlich", "Muendliche Pruefung", 1, "zaehlt einfach")
+          fieldDef(subject, "jfn", schoolGradeLabel(), 2),
+          fieldDef(subject, "schriftlich", "Schriftliche Prüfung", 1),
+          fieldDef(subject, "muendlich", "Mündliche Prüfung", 1)
         ];
       }
-      if (subject.kind === "projectInternal") {
+      if (subject.kind === "projectInternal" || subject.kind === "projectExternal") {
         return [
-          fieldDef(subject, "wib", schoolGradeLabel() + " WiB", 1, "zaehlt einfach"),
-          fieldDef(subject, "bow", schoolGradeLabel() + " " + bowName(), 1, "zaehlt einfach"),
-          fieldDef(subject, "projekt", "Gesamtnote Projektpruefung", 2, "zaehlt doppelt")
-        ];
-      }
-      if (subject.kind === "projectExternal") {
-        return [
-          fieldDef(subject, "wib", schoolGradeLabel() + " WiB", 1, "zaehlt einfach"),
-          fieldDef(subject, "bow", schoolGradeLabel() + " " + bowName(), 1, "zaehlt einfach"),
-          fieldDef(subject, "projekt", "Gesamtnote Projektpruefung", 2, "zaehlt doppelt")
+          fieldDef(subject, "wib", schoolGradeLabel() + " WiB", 1),
+          fieldDef(subject, "bow", schoolGradeLabel() + " " + bowName(), 1),
+          fieldDef(subject, "projekt", "Gesamtnote Projektprüfung", 2)
         ];
       }
       if (subject.kind === "simple") {
         return [
-          fieldDef(subject, "jfn", schoolGradeLabel(), 1, "zaehlt einfach"),
-          fieldDef(subject, "pruefung", "Pruefungsnote", 1, "zaehlt einfach")
+          fieldDef(subject, "jfn", schoolGradeLabel(), 1),
+          fieldDef(subject, "pruefung", "Prüfungsnote", 1)
         ];
       }
       return [
-        fieldDef(subject, "jfn", subject.id === "muttersprache" ? "Leistungstest / " + schoolGradeLabel() : schoolGradeLabel(), 2, "zaehlt doppelt"),
-        fieldDef(subject, "pruefung", "Pruefungsnote", 2, "zaehlt doppelt")
+        fieldDef(subject, "jfn", subject.id === "muttersprache" ? "Leistungstest / " + schoolGradeLabel() : schoolGradeLabel(), 2),
+        fieldDef(subject, "pruefung", "Prüfungsnote", 2)
       ];
     }
 
     if (subject.kind === "languageOral") {
       return [
-        fieldDef(subject, "schriftlich", "Schriftliche Pruefung", 1, "zaehlt einfach"),
-        fieldDef(subject, "muendlich", "Muendliche Pruefung", 1, "zaehlt einfach")
+        fieldDef(subject, "schriftlich", "Schriftliche Prüfung", 1),
+        fieldDef(subject, "muendlich", "Mündliche Prüfung", 1)
       ];
     }
     if (subject.kind === "simple") {
-      return [fieldDef(subject, "pruefung", "Pruefungsnote", 1, "zaehlt einfach")];
+      return [fieldDef(subject, "pruefung", "Prüfungsnote", 1)];
     }
-    return [fieldDef(subject, "pruefung", "Pruefungsnote", 2, "zaehlt doppelt")];
+    return [fieldDef(subject, "pruefung", "Prüfungsnote", 2)];
   }
 
   function bowName() {
@@ -322,13 +348,20 @@
     activeSubjects().forEach(function (subject) {
       var section = document.createElement("section");
       section.className = "input-section";
-      section.innerHTML = "<div><h3>" + escapeHtml(subject.name) + "</h3><p>" + escapeHtml(subject.note || "") + "</p></div>";
+      section.innerHTML = "<h3>" + escapeHtml(subject.name) + "</h3>";
       var grid = document.createElement("div");
       grid.className = "field-grid";
       fieldsForSubject(subject).forEach(function (field) {
         var wrapper = document.createElement("div");
         wrapper.className = "grade-field";
-        wrapper.innerHTML = "<label for=\"" + field.id + "\">" + escapeHtml(field.label) + "</label><input id=\"" + field.id + "\" inputmode=\"decimal\" type=\"number\" min=\"1\" max=\"6\" step=\"0.1\" placeholder=\"1 bis 6\" value=\"" + escapeHtml(state.grades[field.id] || "") + "\"><small>" + escapeHtml(field.hint) + "</small>";
+        /* Der Faktor steht als kleine Marke am Label statt als eigene
+           Zeile unter dem Feld - das spart eine Zeile pro Note. */
+        wrapper.innerHTML =
+          "<label for=\"" + field.id + "\">" + escapeHtml(field.label) +
+          (field.weight === 2 ? "<span class=\"weight\" title=\"zählt doppelt\">&times;2</span>" : "") +
+          "</label>" +
+          "<input id=\"" + field.id + "\" inputmode=\"decimal\" type=\"number\" min=\"1\" max=\"6\" step=\"0.1\" " +
+          "placeholder=\"1&ndash;6\" value=\"" + escapeHtml(state.grades[field.id] || "") + "\">";
         grid.appendChild(wrapper);
       });
       section.appendChild(grid);
@@ -338,10 +371,16 @@
     els.gradeInputs.querySelectorAll("input").forEach(function (input) {
       input.addEventListener("input", function () {
         state.grades[input.id] = input.value;
+        markField(input);
         renderResult();
         saveState();
       });
+      markField(input);
     });
+  }
+
+  function markField(input) {
+    input.classList.toggle("is-filled", parseGrade(input.value) !== null);
   }
 
   function getContributions() {
@@ -349,7 +388,13 @@
     activeSubjects().forEach(function (subject) {
       fieldsForSubject(subject).forEach(function (field) {
         var parsed = parseGrade(state.grades[field.id]);
-        rows.push({ subject: subject.name, label: field.label, weight: field.weight, value: parsed, product: parsed === null ? null : parsed * field.weight });
+        rows.push({
+          subject: subject.name,
+          label: field.label,
+          weight: field.weight,
+          value: parsed,
+          product: parsed === null ? null : parsed * field.weight
+        });
       });
     });
     return rows;
@@ -372,7 +417,7 @@
 
   function formatNumber(value, digits) {
     if (value === null || value === undefined || !isFinite(value)) {
-      return "-";
+      return "&ndash;";
     }
     return value.toFixed(digits).replace(".", ",");
   }
@@ -380,34 +425,72 @@
   function renderResult() {
     var rows = getContributions();
     var divider = state.mode === "external" ? 9 : 18;
-    var complete = rows.every(function (row) { return row.product !== null; });
+    var filled = rows.filter(function (row) { return row.product !== null; }).length;
+    var complete = filled === rows.length;
     var sum = rows.reduce(function (total, row) { return total + (row.product || 0); }, 0);
     var average = complete ? sum / divider : null;
     var official = complete ? truncateOneDecimal(average) : null;
     var passed = complete && official <= PASS_LIMIT;
+    var open = rows.length - filled;
+
     var statusClass = !complete ? "" : passed ? " ok" : " fail";
-    var statusTitle = !complete ? "Noch nicht vollstaendig" : passed ? "Quali rechnerisch bestanden" : "Quali rechnerisch nicht bestanden";
-    var statusText = !complete ? "Trage alle sichtbaren Noten ein. Danach erscheint die gewertete Gesamtnote." : passed ? "Die gewertete Note liegt bei 3,0 oder besser." : "Die gewertete Note liegt schlechter als 3,0.";
+    var statusTitle = !complete
+      ? (open === 1 ? "Noch eine Note offen" : "Noch " + open + " Noten offen")
+      : passed ? "Quali rechnerisch bestanden" : "Quali rechnerisch nicht bestanden";
+    var statusText = !complete
+      ? "Sobald alle Noten eingetragen sind, erscheint die gewertete Gesamtnote."
+      : passed ? "Die gewertete Note liegt bei 3,0 oder besser." : "Die gewertete Note liegt schlechter als 3,0.";
 
     els.resultBox.innerHTML =
       "<div class=\"status-card" + statusClass + "\"><h3>" + statusTitle + "</h3><p>" + statusText + "</p></div>" +
-      "<div class=\"metric-grid\"><div class=\"metric\"><span>Notensumme</span><strong>" + (complete ? formatNumber(sum, 1) : "-") + "</strong></div><div class=\"metric\"><span>Teiler</span><strong>" + divider + "</strong></div><div class=\"metric\"><span>Durchschnitt</span><strong>" + formatNumber(average, 2) + "</strong></div><div class=\"metric\"><span>Amtlich gewertet</span><strong>" + formatNumber(official, 1) + "</strong></div></div>";
+      "<div class=\"metric-grid\">" +
+        "<div class=\"metric\"><span>Notensumme</span><strong>" + (complete ? formatNumber(sum, 1) : "&ndash;") + "</strong></div>" +
+        "<div class=\"metric\"><span>Teiler</span><strong>" + divider + "</strong></div>" +
+        "<div class=\"metric\"><span>Durchschnitt</span><strong>" + formatNumber(average, 2) + "</strong></div>" +
+        "<div class=\"metric is-official\"><span>Amtlich gewertet</span><strong>" + formatNumber(official, 1) + "</strong></div>" +
+      "</div>";
 
-    var formula = state.mode === "external" ? "Summe aller gewichteten Pruefungsnoten / 9" : "Summe aller gewichteten Schul- und Pruefungsnoten / 18";
-    els.formulaBox.innerHTML = "<h3>Formel</h3><p>Die zweite Stelle nach dem Komma wird nicht gerundet, sondern abgeschnitten.</p><div class=\"formula-line\">" + formula + "</div>";
-    renderContributionTable(rows, sum, divider, complete);
+    var formula = state.mode === "external"
+      ? "Summe der gewichteten Prüfungsnoten &divide; 9"
+      : "Summe der gewichteten Schul- und Prüfungsnoten &divide; 18";
+    els.formulaBox.innerHTML =
+      "<div class=\"formula-line\">" + formula + "</div>" +
+      "<p class=\"formula-note\">Die zweite Stelle nach dem Komma wird abgeschnitten, nicht gerundet.</p>";
+
+    renderContributionTable(rows, sum, divider, complete, filled);
   }
 
-  function renderContributionTable(rows, sum, divider, complete) {
+  /* Der Rechenweg bleibt zugeklappt, solange nichts eingetragen ist -
+     eine Tabelle voller Striche hilft niemandem. */
+  function renderContributionTable(rows, sum, divider, complete, filled) {
     var body = rows.map(function (row) {
-      return "<tr><td><strong>" + escapeHtml(row.subject) + "</strong><br>" + escapeHtml(row.label) + "</td><td>" + formatNumber(row.value, 1) + "</td><td>" + row.weight + "</td><td>" + formatNumber(row.product, 1) + "</td></tr>";
+      return "<tr" + (row.product === null ? " class=\"is-open\"" : "") + ">" +
+        "<td><strong>" + escapeHtml(row.subject) + "</strong><br>" + escapeHtml(row.label) + "</td>" +
+        "<td>" + formatNumber(row.value, 1) + "</td>" +
+        "<td>" + row.weight + "</td>" +
+        "<td>" + formatNumber(row.product, 1) + "</td></tr>";
     }).join("");
-    var total = complete ? "<tr><td><strong>Gesamt</strong></td><td></td><td>/" + divider + "</td><td><strong>" + formatNumber(sum, 1) + "</strong></td></tr>" : "";
-    els.contributionBox.innerHTML = "<h3>Rechenweg</h3><table class=\"contribution-table\"><thead><tr><th>Note</th><th>Wert</th><th>Faktor</th><th>Beitrag</th></tr></thead><tbody>" + body + total + "</tbody></table>";
+    var total = complete
+      ? "<tr class=\"is-total\"><td><strong>Gesamt</strong></td><td></td><td>&divide;" + divider + "</td>" +
+        "<td><strong>" + formatNumber(sum, 1) + "</strong></td></tr>"
+      : "";
+
+    els.contributionBox.innerHTML =
+      "<details class=\"calc-details\"" + (filled > 0 ? " open" : "") + ">" +
+        "<summary>Rechenweg<span>" + filled + "/" + rows.length + "</span></summary>" +
+        "<table class=\"contribution-table\">" +
+          "<thead><tr><th>Note</th><th>Wert</th><th>Faktor</th><th>Beitrag</th></tr></thead>" +
+          "<tbody>" + body + total + "</tbody>" +
+        "</table>" +
+      "</details>";
   }
 
   function escapeHtml(value) {
-    return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
   }
 
   function render() {
