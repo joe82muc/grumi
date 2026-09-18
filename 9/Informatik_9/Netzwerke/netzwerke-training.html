@@ -1,0 +1,878 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Netzwerke &ndash; Training f&uuml;r die Probe | Informatik 9</title>
+<meta name="description" content="&Uuml;bungstool zur Pr&auml;sentation &bdquo;Netzwerke verstehen&ldquo;: L&uuml;ckentext, Bildzuordnung zu den Topologien, Rechenaufgaben zu IP-Adressen in Bin&auml;r und ein Probencheck f&uuml;r Informatik in der 9. Klasse.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../css/exercise-shell.css">
+<style>
+  :root{
+    --net-1:#0f4c81; --net-2:#123f6b;
+    --teal:#0aa697; --teal-dark:#0c5f66; --teal-soft:#e6f6f4;
+    --blue:#2f80ed; --blue-soft:#e8f0fd;
+    --red:#ef5350; --gold:#f2b705;
+    --ink:#101828; --muted:#5d6b84; --line:#dce4f0;
+    --card:#ffffff; --bg-1:#f4f7fb; --bg-2:#eef3f8;
+    --ok:#15803d; --ok-bg:#e9f8ee; --ok-line:#8fd6a8;
+    --bad:#c2340f; --bad-bg:#fdeeeb; --bad-line:#f3b5a6;
+    --shadow-s:0 2px 8px rgba(16,26,46,.06);
+    --shadow-m:0 10px 28px rgba(16,26,46,.10);
+    --r-s:10px; --r-m:14px; --r-l:20px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Source Sans 3",system-ui,"Segoe UI",sans-serif;
+    min-height:100vh;color:var(--ink);line-height:1.55;
+    background:linear-gradient(180deg,var(--bg-1) 0%,var(--bg-2) 100%);
+  }
+  .wrap{width:calc(100% - 40px);max-width:1180px;margin:0 auto;padding:22px 0 10px}
+
+  /* Kopfbereich */
+  .hero{
+    position:relative;overflow:hidden;
+    border-radius:var(--r-l);
+    background:linear-gradient(135deg,var(--net-1) 0%,var(--net-2) 100%);
+    color:#fff;padding:26px 26px 24px;box-shadow:var(--shadow-m);
+  }
+  .hero .code{
+    display:inline-block;border-radius:999px;background:var(--gold);
+    color:#3a2c00;padding:5px 13px;font-size:.82rem;font-weight:800;
+    letter-spacing:.04em;text-transform:uppercase;
+  }
+  .hero h1{margin:11px 0 5px;font-size:clamp(1.5rem,4vw,2.1rem);font-weight:900;line-height:1.15}
+  .hero .sub{color:#bcd6ee;font-size:1.02rem;font-weight:600}
+  .hero .lead{margin-top:11px;max-width:62ch;color:#e4eef8;font-size:.98rem}
+  .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+  .ppt-link{
+    display:inline-flex;align-items:center;gap:8px;
+    border-radius:var(--r-s);background:#fff;color:var(--net-1);
+    padding:10px 15px;font-size:.94rem;font-weight:800;text-decoration:none;
+  }
+  .ppt-link:hover,.ppt-link:focus-visible{background:#f0f6ff;outline:none}
+  .ppt-link.ghost{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.45)}
+  .ppt-link.ghost:hover,.ppt-link.ghost:focus-visible{background:rgba(255,255,255,.22)}
+
+  /* Fortschritt */
+  .score-bar{
+    display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;
+    margin-top:16px;border:1px solid var(--line);border-radius:var(--r-m);
+    background:var(--card);padding:13px 17px;box-shadow:var(--shadow-s);
+  }
+  .score-text{font-size:.95rem;font-weight:700;color:var(--muted)}
+  .score-text b{color:var(--ink)}
+  .score-track{flex:1 1 220px;height:11px;border-radius:999px;background:#e5ecf3;overflow:hidden;min-width:160px}
+  .score-track span{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--teal),var(--blue));transition:width .35s ease}
+
+  /* Reiter */
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  .tabs button{
+    border:1px solid var(--line);border-radius:999px;background:var(--card);
+    color:var(--muted);padding:9px 15px;font-family:inherit;font-size:.92rem;
+    font-weight:800;cursor:pointer;transition:.15s;
+  }
+  .tabs button:hover{border-color:var(--teal);color:var(--teal-dark)}
+  .tabs button[aria-selected="true"]{background:var(--net-1);border-color:var(--net-1);color:#fff}
+  .tabs button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+
+  .panel{
+    margin-top:16px;border:1px solid var(--line);border-radius:var(--r-l);
+    background:var(--card);padding:22px;box-shadow:var(--shadow-s);
+  }
+  .panel[hidden]{display:none}
+  .sec-label{
+    display:inline-block;border-radius:999px;background:var(--teal-soft);
+    color:var(--teal-dark);padding:5px 12px;font-size:.78rem;font-weight:800;
+    letter-spacing:.05em;text-transform:uppercase;
+  }
+  .panel h2{margin:12px 0 4px;font-size:1.3rem;font-weight:900}
+  .panel .hint{color:var(--muted);font-size:.95rem;margin-bottom:18px}
+
+  /* Merkkasten */
+  .memo{
+    border:1px solid var(--blue-soft);border-left:4px solid var(--blue);
+    border-radius:var(--r-s);background:#f7faff;padding:13px 16px;margin-bottom:18px;
+  }
+  .memo h3{font-size:.95rem;font-weight:800;color:var(--net-1);margin-bottom:5px}
+  .memo p, .memo li{font-size:.93rem;color:#33415c}
+  .memo ul{margin:5px 0 0 18px}
+
+  /* Aufgaben */
+  .task{border:1px solid var(--line);border-radius:var(--r-m);padding:15px 17px;margin-bottom:13px;background:#fcfdff}
+  .task.ok{border-color:var(--ok-line);background:var(--ok-bg)}
+  .task.bad{border-color:var(--bad-line);background:var(--bad-bg)}
+  .task-q{font-size:1rem;font-weight:600;line-height:1.75}
+  .task-no{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:25px;height:25px;margin-right:9px;border-radius:50%;
+    background:var(--net-1);color:#fff;font-size:.8rem;font-weight:800;flex:0 0 auto;
+  }
+  .task input[type="text"]{
+    border:2px solid var(--line);border-radius:8px;background:#fff;
+    padding:5px 9px;min-width:130px;font-family:inherit;font-size:.97rem;
+    font-weight:700;color:var(--net-1);
+  }
+  .task input[type="text"]:focus{border-color:var(--blue);outline:none}
+  .task input.ok{border-color:var(--ok);background:var(--ok-bg);color:var(--ok)}
+  .task input.bad{border-color:var(--bad);background:#fff;color:var(--bad)}
+  .feedback{margin-top:9px;font-size:.92rem;font-weight:700;display:none}
+  .feedback.show{display:block}
+  .feedback.ok{color:var(--ok)}
+  .feedback.bad{color:var(--bad)}
+  .solution{display:block;margin-top:3px;color:var(--muted);font-weight:600}
+
+  /* Auswahlknöpfe */
+  .choices{display:flex;flex-wrap:wrap;gap:8px;margin-top:11px}
+  .choices button{
+    border:2px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);
+    padding:8px 14px;font-family:inherit;font-size:.93rem;font-weight:700;cursor:pointer;transition:.15s;
+  }
+  .choices button:hover:not(:disabled){border-color:var(--blue);background:var(--blue-soft)}
+  .choices button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+  .choices button.picked-ok{border-color:var(--ok);background:var(--ok-bg);color:var(--ok)}
+  .choices button.picked-bad{border-color:var(--bad);background:var(--bad-bg);color:var(--bad)}
+  .choices button.reveal{border-color:var(--ok);background:var(--ok-bg);color:var(--ok)}
+  .choices button:disabled{cursor:default;opacity:.85}
+
+  /* Bildzuordnung */
+  .pic-task{
+    border:1px solid var(--line);border-radius:var(--r-m);
+    padding:15px 17px;margin-bottom:16px;background:#fcfdff;
+  }
+  .pic-task.ok{border-color:var(--ok-line);background:var(--ok-bg)}
+  .pic-task.bad{border-color:var(--bad-line);background:var(--bad-bg)}
+  .pic-frame{
+    border:1px solid var(--line);border-radius:var(--r-s);
+    background:#fff;padding:8px;margin:11px 0;
+  }
+  .pic-frame img{display:block;width:100%;height:auto;border-radius:6px}
+  .pic-cap{margin-top:6px;color:var(--muted);font-size:.83rem;font-weight:600;text-align:center}
+
+  /* Bit-Tabelle */
+  .bits{display:flex;flex-wrap:wrap;gap:5px;margin:11px 0 3px}
+  .bit{
+    display:grid;grid-template-rows:auto auto;min-width:54px;flex:1 1 54px;
+    border:1px solid var(--line);border-radius:8px;overflow:hidden;text-align:center;background:#fff;
+  }
+  .bit .w{background:var(--blue-soft);color:var(--net-1);font-size:.78rem;font-weight:800;padding:4px 2px}
+  .bit input{
+    border:none;width:100%;padding:8px 2px;text-align:center;
+    font-family:inherit;font-size:1.02rem;font-weight:800;color:var(--net-1);background:#fff;
+  }
+  .bit input:focus{outline:2px solid var(--blue);outline-offset:-2px}
+  .bit input.ok{background:var(--teal);color:#fff}
+  .bit input.bad{background:var(--bad-bg);color:var(--bad)}
+  .calc-line{margin-top:7px;font-size:.92rem;font-weight:700;color:var(--muted)}
+
+  /* Buttons */
+  .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+  .btn{
+    border:none;border-radius:var(--r-s);padding:11px 19px;
+    font-family:inherit;font-size:.96rem;font-weight:800;cursor:pointer;transition:.15s;
+  }
+  .btn-main{background:var(--teal-dark);color:#fff}
+  .btn-main:hover{background:#0a4b51}
+  .btn-ghost{background:#fff;border:1px solid var(--line);color:var(--muted)}
+  .btn-ghost:hover{border-color:var(--teal-dark);color:var(--teal-dark)}
+  .btn:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+
+  .result{
+    margin-top:15px;border-radius:var(--r-m);padding:14px 17px;
+    font-size:1rem;font-weight:800;display:none;
+  }
+  .result.show{display:block}
+  .result.good{background:var(--ok-bg);border:1px solid var(--ok-line);color:var(--ok)}
+  .result.mid{background:#fff8e6;border:1px solid #f0d089;color:#8a6100}
+  .result.low{background:var(--bad-bg);border:1px solid var(--bad-line);color:var(--bad)}
+
+  @media (max-width:640px){
+    .wrap{width:calc(100% - 24px)}
+    .hero{padding:20px 18px}
+    .panel{padding:17px 15px}
+    .task input[type="text"]{min-width:104px}
+    .bit{min-width:40px;flex:1 1 40px}
+    .bit .w{font-size:.68rem}
+    .bit input{font-size:.92rem;padding:7px 1px}
+  }
+</style>
+</head>
+<body>
+
+<header class="ex-shell-header" aria-label="Seitennavigation">
+  <div class="ex-inner">
+    <a class="ex-brand" href="../../../index.html" aria-label="Zur Startseite">
+      <img src="../../../images_school/logo.png" alt="Logo der Grund- und Mittelschule">
+      <span class="ex-brand-text">
+        <span class="ex-brand-name">Grund- und Mittelschule am Sportpark</span>
+        <span class="ex-brand-sub">GRUMI Lernplattform &middot; Informatik 9</span>
+      </span>
+    </a>
+    <a class="ex-back" href="../../../index.html">Zur Startseite</a>
+  </div>
+</header>
+
+<nav class="ex-crumbs" aria-label="Pfad">
+  <a href="../../../index.html">Start</a>
+  <span>Informatik 9</span>
+  <span>Netzwerke</span>
+</nav>
+
+<div class="wrap">
+  <section class="hero">
+    <span class="code">Informatik 9 &middot; Probentraining</span>
+    <h1>Netzwerke verstehen</h1>
+    <p class="sub">Wie Computer miteinander sprechen</p>
+    <p class="lead">
+      Alle Aufgaben beziehen sich auf die Pr&auml;sentation aus dem Unterricht:
+      Netzwerkarten, Datenpakete, Topologien, Netzwerkger&auml;te und IP-Adressen.
+      Du bekommst nach jeder Antwort sofort eine R&uuml;ckmeldung.
+    </p>
+    <div class="hero-actions">
+      <a class="ppt-link" href="netzwerke-praesentation.pdf" target="_blank" rel="noopener">
+        Pr&auml;sentation &ouml;ffnen (PDF)
+      </a>
+      <a class="ppt-link ghost" href="netzwerke-praesentation.pdf" download>
+        Herunterladen
+      </a>
+    </div>
+  </section>
+
+  <div class="score-bar">
+    <span class="score-text">Gel&ouml;st: <b id="score-done">0</b> von <b id="score-total">0</b> Aufgaben</span>
+    <span class="score-track"><span id="score-fill"></span></span>
+    <span class="score-text">Richtig: <b id="score-right">0</b></span>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="&Uuml;bungsbereiche">
+    <button role="tab" id="tab-l" aria-controls="p-l" aria-selected="true">1 &middot; L&uuml;ckentext</button>
+    <button role="tab" id="tab-b" aria-controls="p-b" aria-selected="false">2 &middot; Bilder zuordnen</button>
+    <button role="tab" id="tab-r" aria-controls="p-r" aria-selected="false">3 &middot; Rechnen mit Bin&auml;r</button>
+    <button role="tab" id="tab-p" aria-controls="p-p" aria-selected="false">4 &middot; Probencheck</button>
+  </div>
+
+  <!-- 1 LÜCKENTEXT -->
+  <section class="panel" id="p-l" role="tabpanel" aria-labelledby="tab-l">
+    <span class="sec-label">Aufgabe 1</span>
+    <h2>L&uuml;ckentext zur Pr&auml;sentation</h2>
+    <p class="hint">Schreibe das passende Wort in jede L&uuml;cke. Gro&szlig;- und Kleinschreibung ist egal.</p>
+
+    <div class="memo">
+      <h3>Das brauchst du</h3>
+      <ul>
+        <li><b>Netzwerkgr&ouml;&szlig;en:</b> LAN (lokal) &middot; MAN (Stadt) &middot; WAN (weit) &middot; GAN (global)</li>
+        <li><b>Ger&auml;te:</b> Repeater verst&auml;rkt &middot; Hub verteilt blind &middot; Bridge filtert &middot; Switch verteilt gezielt</li>
+        <li><b>IP:</b> vier Bl&ouml;cke mit je 8 Bit, Netzmaske 255.255.255.0 = /24</li>
+      </ul>
+    </div>
+
+    <div id="list-l"></div>
+
+    <div class="actions">
+      <button class="btn btn-main" data-check="l">Antworten pr&uuml;fen</button>
+      <button class="btn btn-ghost" data-reset="l">Neu beginnen</button>
+    </div>
+    <div class="result" id="res-l" role="status"></div>
+  </section>
+
+  <!-- 2 BILDER -->
+  <section class="panel" id="p-b" role="tabpanel" aria-labelledby="tab-b" hidden>
+    <span class="sec-label">Aufgabe 2</span>
+    <h2>Bilder aus der Pr&auml;sentation zuordnen</h2>
+    <p class="hint">Schau dir das Bild genau an und w&auml;hle die richtige Antwort. Jedes Bild kennst du aus dem Unterricht.</p>
+
+    <div class="memo">
+      <h3>Erinnerung</h3>
+      <p>
+        Achte auf die <b>Form der Verbindungen</b>: Kreis &rarr; Ring, ein gemeinsames Kabel &rarr; Bus,
+        alles l&auml;uft &uuml;ber ein zentrales Ger&auml;t &rarr; Stern, jeder mit jedem &rarr; vermascht.
+      </p>
+    </div>
+
+    <div id="list-b"></div>
+
+    <div class="actions">
+      <button class="btn btn-ghost" data-reset="b">Neu beginnen</button>
+    </div>
+    <div class="result" id="res-b" role="status"></div>
+  </section>
+
+  <!-- 3 RECHNEN -->
+  <section class="panel" id="p-r" role="tabpanel" aria-labelledby="tab-r" hidden>
+    <span class="sec-label">Aufgabe 3</span>
+    <h2>IP-Adressen in Bin&auml;r</h2>
+    <p class="hint">Trage in jedes Feld eine <b>0</b> oder eine <b>1</b> ein. Die Zahl oben ist der Stellenwert.</p>
+
+    <div class="memo">
+      <h3>So gehst du vor</h3>
+      <ul>
+        <li>Die acht Stellenwerte sind immer: <b>128 &middot; 64 &middot; 32 &middot; 16 &middot; 8 &middot; 4 &middot; 2 &middot; 1</b></li>
+        <li>Eine <b>1</b> bedeutet: Diese Zahl z&auml;hlt mit. Eine <b>0</b> bedeutet: Sie z&auml;hlt nicht mit.</li>
+        <li>Beispiel: 192 = 128 + 64 &rarr; <b>11000000</b></li>
+        <li>Jeder IP-Block hat immer genau <b>8 Stellen</b>.</li>
+      </ul>
+    </div>
+
+    <h3 style="margin:6px 0 10px;font-size:1.05rem">a) Dezimal &rarr; Bin&auml;r</h3>
+    <div id="list-r1"></div>
+
+    <h3 style="margin:22px 0 10px;font-size:1.05rem">b) Bin&auml;r &rarr; Dezimal</h3>
+    <p class="hint">Addiere die Stellenwerte, bei denen eine 1 steht, und schreibe das Ergebnis auf.</p>
+    <div id="list-r2"></div>
+
+    <div class="actions">
+      <button class="btn btn-main" data-check="r">Antworten pr&uuml;fen</button>
+      <button class="btn btn-ghost" data-reset="r">Neu beginnen</button>
+    </div>
+    <div class="result" id="res-r" role="status"></div>
+  </section>
+
+  <!-- 4 PROBENCHECK -->
+  <section class="panel" id="p-p" role="tabpanel" aria-labelledby="tab-p" hidden>
+    <span class="sec-label">Aufgabe 4</span>
+    <h2>Probencheck</h2>
+    <p class="hint">Gemischte Fragen aus allen sechs Stunden &ndash; so wie in der Probe. W&auml;hle jeweils eine Antwort.</p>
+
+    <div id="list-p"></div>
+
+    <div class="actions">
+      <button class="btn btn-ghost" data-reset="p">Neu beginnen</button>
+    </div>
+    <div class="result" id="res-p" role="status"></div>
+  </section>
+</div>
+
+<footer class="ex-shell-footer">
+  <div class="ex-inner">
+    <div>
+      <div class="ex-footer-name">Grund- und Mittelschule Unterhaching am Sportpark</div>
+      <div class="ex-footer-sub">GRUMI Lernplattform &middot; Informatik Klasse 9</div>
+    </div>
+    <div class="ex-footer-links">
+      <a href="netzwerke-praesentation.pdf" target="_blank" rel="noopener">Pr&auml;sentation</a>
+      <a href="../../../datenschutz.html">Datenschutz</a>
+      <a href="../../../impressum.html">Impressum</a>
+      <a href="../../../rechtliches.html">Rechtliches</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   Netzwerke - Probentraining, Informatik 9
+   Inhalte stammen aus der Praesentation "Netzwerke verstehen".
+   Bei Luecken erlaubt "|" mehrere richtige Schreibweisen.
+   ============================================================ */
+
+const LUECKEN = [
+  { q: 'Ein Computernetzwerk verbindet mindestens {1} Ger&auml;te, damit sie Daten austauschen k&ouml;nnen.',
+    a: ['zwei|2'] },
+  { q: 'Ein Netzwerk im Klassenraum, in der Schule oder zu Hause hei&szlig;t {1}.',
+    a: ['LAN'] },
+  { q: 'Verbindet eine Firma ihre B&uuml;ros in M&uuml;nchen und Hamburg, ist das ein {1}.',
+    a: ['WAN'] },
+  { q: 'Das Internet als Netz vieler Netze wird als {1} bezeichnet.',
+    a: ['GAN'] },
+  { q: 'Bevor eine Datei verschickt wird, zerlegt der Computer sie in einzelne {1}.',
+    a: ['Pakete|Datenpakete|Paket'] },
+  { q: 'Jedes Paket bekommt eine Adresse und eine {1}, damit es am Ziel richtig einsortiert werden kann.',
+    a: ['Nummer'] },
+  { q: 'Ein {1} verst&auml;rkt ein Signal und verl&auml;ngert dadurch die Reichweite.',
+    a: ['Repeater'] },
+  { q: 'Ein {1} sendet ein Signal an alle angeschlossenen Ger&auml;te weiter &ndash; er verteilt blind.',
+    a: ['Hub'] },
+  { q: 'Ein {1} leitet Daten gezielt an den richtigen Port weiter.',
+    a: ['Switch'] },
+  { q: 'Eine {1} identifiziert ein Ger&auml;t im Netzwerk, damit Pakete den Weg finden.',
+    a: ['IP-Adresse|IP Adresse|IPAdresse|IP'] },
+  { q: 'Eine IPv4-Adresse besteht aus vier Bl&ouml;cken mit je {1} Bit.',
+    a: ['8|acht'] },
+  { q: 'Bei der Netzmaske 255.255.255.0 geh&ouml;ren die ersten {1} Bl&ouml;cke zum Netzteil.',
+    a: ['drei|3'] }
+];
+
+const BILDER = [
+  { img: 'bilder/topologie-ring.png',
+    alt: 'Vier PCs sind im Kreis mit einem Kabel verbunden, an einer Stelle ist ein Kabelbruch markiert.',
+    cap: 'Aus der Pr&auml;sentation &middot; Topologie mit Problemstelle',
+    q: 'Welche Topologie zeigt dieses Bild?',
+    opts: ['Ring', 'Bus', 'Stern', 'Vermascht'], ok: 0,
+    why: 'Die Daten laufen im Kreis von Ger&auml;t zu Ger&auml;t. Durch den Kabelbruch ist der Ring unterbrochen.' },
+
+  { img: 'bilder/topologie-bus.png',
+    alt: 'Drei PCs und ein Drucker h&auml;ngen an einem gemeinsamen Kabel mit Abschlusswiderst&auml;nden.',
+    cap: 'Aus der Pr&auml;sentation &middot; Topologie mit Problemstelle',
+    q: 'Welche Topologie zeigt dieses Bild?',
+    opts: ['Ring', 'Bus', 'Stern', 'Vermascht'], ok: 1,
+    why: 'Alle Ger&auml;te h&auml;ngen an einem gemeinsamen Kabel. Das Hauptkabel ist die kritische Stelle.' },
+
+  { img: 'bilder/topologie-stern.png',
+    alt: 'Drei PCs und ein Drucker sind jeweils mit einem eigenen Kabel an einen zentralen Switch angeschlossen.',
+    cap: 'Aus der Pr&auml;sentation &middot; Topologie mit Problemstelle',
+    q: 'Welche Topologie zeigt dieses Bild?',
+    opts: ['Ring', 'Bus', 'Stern', 'Vermascht'], ok: 2,
+    why: 'Jedes Ger&auml;t hat eine eigene Verbindung zum zentralen Ger&auml;t, hier zu einem Switch.' },
+
+  { img: 'bilder/topologie-vermascht.png',
+    alt: 'Vier PCs sind alle direkt untereinander verbunden, eine Verbindung ist unterbrochen.',
+    cap: 'Aus der Pr&auml;sentation &middot; Topologie mit Problemstelle',
+    q: 'Welche Topologie zeigt dieses Bild?',
+    opts: ['Ring', 'Bus', 'Stern', 'Vermascht'], ok: 3,
+    why: 'Jedes Ger&auml;t ist direkt mit jedem anderen verbunden. Deshalb ist diese Form sehr ausfallsicher.' },
+
+  { img: 'bilder/topologie-stern.png',
+    alt: 'Stern-Topologie mit Kabelbruch an der Leitung von PC 3 zum Switch.',
+    cap: 'Aus der Pr&auml;sentation &middot; Auswirkung der St&ouml;rung',
+    q: 'Das Kabel von PC 3 ist gebrochen. Was passiert im Netzwerk?',
+    opts: [
+      'Das ganze Netzwerk f&auml;llt aus.',
+      'Nur PC 3 hat keine Verbindung mehr.',
+      'Alle Ger&auml;te hinter der Bruchstelle fallen aus.',
+      'Die Daten nehmen automatisch den Weg r&uuml;ckw&auml;rts.'
+    ], ok: 1,
+    why: 'Nur PC 3 ist betroffen. PC 1, PC 2 und der Drucker haben eigene Kabel zum Switch und arbeiten weiter.' },
+
+  { img: 'bilder/topologie-ring.png',
+    alt: 'Ring-Topologie mit einem Kabelbruch zwischen PC 3 und PC 4.',
+    cap: 'Aus der Pr&auml;sentation &middot; Auswirkung der St&ouml;rung',
+    q: 'Warum ist ein Kabelbruch im Ring besonders kritisch?',
+    opts: [
+      'Weil der Ring unterbrochen ist und die Kommunikation nicht mehr funktioniert.',
+      'Weil der Switch dadurch &uuml;berlastet wird.',
+      'Weil die IP-Adressen verloren gehen.',
+      'Weil die Pakete doppelt ankommen.'
+    ], ok: 0,
+    why: 'Im Ring gibt es nur einen Weg. Ist er unterbrochen, kommen die Daten nicht mehr durch.' },
+
+  { img: 'bilder/schulnetz.png',
+    alt: 'Schulnetz mit Laptop, Handy, Drucker und Server am Switch sowie einem Router zum Internet.',
+    cap: 'Aus der Pr&auml;sentation &middot; Mein Schulnetz (Beispiel)',
+    q: 'Welche Netzwerkgr&ouml;&szlig;e zeigt diese Skizze?',
+    opts: ['LAN', 'MAN', 'WAN', 'GAN'], ok: 0,
+    why: 'Alle Ger&auml;te befinden sich im selben Geb&auml;ude. Das ist ein LAN (Local Area Network).' },
+
+  { img: 'bilder/schulnetz.png',
+    alt: 'Schulnetz: Die Nachricht geht vom Laptop zum Switch, dann zum Router und ins Internet.',
+    cap: 'Aus der Pr&auml;sentation &middot; Weg der Nachricht',
+    q: 'Welches Ger&auml;t stellt in dieser Skizze die Verbindung ins Internet her?',
+    opts: ['Der Switch', 'Der Server', 'Der Router', 'Der Drucker'], ok: 2,
+    why: 'Der Switch verteilt im lokalen Netz. Der Router (192.168.1.1) f&uuml;hrt nach au&szlig;en ins Internet.' },
+
+  { img: 'bilder/computerraum-stern.png',
+    alt: '16 PCs und ein Netzwerkdrucker sind an einem 24-Port-Switch angeschlossen, der Router f&uuml;hrt ins Internet.',
+    cap: 'Aus der Pr&auml;sentation &middot; Netzwerk f&uuml;r den Computerraum',
+    q: 'Was ist bei dieser L&ouml;sung die Schwachstelle?',
+    opts: [
+      'Die Kabel sind zu lang.',
+      'Der zentrale Switch ist ein Single Point of Failure.',
+      'Es gibt zu viele IP-Adressen.',
+      'Der Drucker blockiert das Netzwerk.'
+    ], ok: 1,
+    why: 'F&auml;llt der Switch aus, sind alle 16 PCs und der Drucker nicht mehr erreichbar. Gegenma&szlig;nahme: einen Ersatz-Switch bereithalten.' }
+];
+
+const BINAER_A = [
+  { dez: 30,  bin: '00011110' },
+  { dez: 129, bin: '10000001' },
+  { dez: 148, bin: '10010100' },
+  { dez: 213, bin: '11010101' }
+];
+
+const BINAER_B = [
+  { bin: '01010001', dez: 81 },
+  { bin: '00010100', dez: 20 },
+  { bin: '01011101', dez: 93 },
+  { bin: '01110010', dez: 114 }
+];
+
+const PROBE = [
+  { q: 'Was macht ein Switch besser als ein Hub?',
+    opts: [
+      'Er sendet die Nachricht an alle Ger&auml;te gleichzeitig.',
+      'Er leitet die Daten gezielt an den richtigen Port weiter.',
+      'Er verst&auml;rkt das Signal auf langen Strecken.',
+      'Er vergibt die IP-Adressen im Netzwerk.'
+    ], ok: 1,
+    why: 'Merke aus der Pr&auml;sentation: Hub verteilt blind, Switch verteilt gezielt.' },
+
+  { q: 'Warum werden Dateien in Pakete zerlegt?',
+    opts: [
+      'Damit die Datei kleiner wird.',
+      'Damit die Pakete verschiedene Wege nehmen k&ouml;nnen und die Verbindung stabil bleibt.',
+      'Damit man keine IP-Adresse mehr braucht.',
+      'Damit der Drucker sie schneller ausdruckt.'
+    ], ok: 1,
+    why: 'Ist ein Weg gest&ouml;rt, nutzt das Netzwerk einen anderen Weg. Die Nummer hilft beim Zusammensetzen.' },
+
+  { q: 'Welcher Dezimalzahl entspricht 10101000?',
+    opts: ['148', '168', '172', '188'], ok: 1,
+    why: '128 + 32 + 8 = 168' },
+
+  { q: 'Die Stadtwerke verbinden mehrere Standorte in einer Gro&szlig;stadt. Welche Netzwerkart ist das?',
+    opts: ['LAN', 'MAN', 'WAN', 'GAN'], ok: 1,
+    why: 'MAN steht f&uuml;r mehrere Geb&auml;ude in einer Stadt.' },
+
+  { q: 'Welche Aufgabe hat eine Bridge?',
+    opts: [
+      'Sie verbindet zwei Netzbereiche und filtert Datenpakete.',
+      'Sie verst&auml;rkt nur das Signal.',
+      'Sie speichert alle Dateien im Netzwerk.',
+      'Sie vergibt Portnummern.'
+    ], ok: 0,
+    why: 'Die Bridge verbindet zwei Netzbereiche und filtert dabei die Pakete.' },
+
+  { q: 'Welche Topologie ist am ausfallsichersten, aber auch am teuersten?',
+    opts: ['Ring', 'Bus', 'Stern', 'Vermascht'], ok: 3,
+    why: 'Vermascht: sehr ausfallsicher, aber teuer und un&uuml;bersichtlich.' },
+
+  { q: 'Welche Topologie w&auml;hlst du f&uuml;r einen Computerraum mit 16 PCs und einem Drucker?',
+    opts: ['Ring', 'Bus', 'Stern', 'Vermascht'], ok: 2,
+    why: 'Stern: zuverl&auml;ssig, leicht erweiterbar, einfache Fehlersuche &ndash; Standard in Schulen und B&uuml;ros.' },
+
+  { q: 'Wozu dient die Netzmaske 255.255.255.0?',
+    opts: [
+      'Sie legt fest, dass die ersten drei Bl&ouml;cke zum Netz geh&ouml;ren.',
+      'Sie verschl&uuml;sselt die Daten im Netzwerk.',
+      'Sie gibt die Geschwindigkeit des Netzwerks an.',
+      'Sie z&auml;hlt die angeschlossenen Ger&auml;te.'
+    ], ok: 0,
+    why: 'Bei /24 bilden die ersten drei Bl&ouml;cke das Netzteil, der letzte Block benennt das Ger&auml;t.' },
+
+  { q: 'In Filius klappt der Ping zwischen zwei Rechnern nicht. Was pr&uuml;fst du zuerst?',
+    opts: [
+      'Ob der Bildschirm eingeschaltet ist.',
+      'Kabel und Switch-Verbindung.',
+      'Die Farbe der Ger&auml;te.',
+      'Die Gr&ouml;&szlig;e der Datei.'
+    ], ok: 1,
+    why: 'Erst Kabel und Verbindung pr&uuml;fen, dann die IP-Adressen vergleichen, danach die Netzmaske.' },
+
+  { q: 'Wie viele Stellen hat jeder Block einer IPv4-Adresse in Bin&auml;rschreibweise?',
+    opts: ['4', '6', '8', '16'], ok: 2,
+    why: 'Jeder IP-Block hat immer genau 8 Stellen (8 Bit).' }
+];
+
+/* ---------- Hilfsfunktionen ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const norm = s => s.toLowerCase().replace(/\s+/g, ' ').replace(/[.,;!?]+$/, '').trim();
+
+const state = { done: new Set(), right: new Set() };
+let TOTAL = 0;
+
+function mark(id, correct) {
+  state.done.add(id);
+  if (correct) state.right.add(id); else state.right.delete(id);
+  updateScore();
+}
+
+function updateScore() {
+  $('#score-done').textContent = state.done.size;
+  $('#score-right').textContent = state.right.size;
+  $('#score-total').textContent = TOTAL;
+  $('#score-fill').style.width = TOTAL ? (state.done.size / TOTAL * 100) + '%' : '0%';
+}
+
+function showResult(el, right, total) {
+  const q = total ? right / total : 0;
+  el.className = 'result show ' + (q >= 0.8 ? 'good' : q >= 0.5 ? 'mid' : 'low');
+  const text = q >= 0.8 ? 'Sehr gut! Das sitzt.'
+             : q >= 0.5 ? 'Schon ordentlich. Schau dir die roten Stellen noch einmal an.'
+             : 'Das &uuml;bst du am besten noch einmal mit der Pr&auml;sentation.';
+  el.innerHTML = right + ' von ' + total + ' richtig. ' + text;
+}
+
+/* ---------- 1 Lueckentext ---------- */
+function buildLuecken() {
+  const box = $('#list-l');
+  LUECKEN.forEach((item, i) => {
+    const d = document.createElement('div');
+    d.className = 'task';
+    d.dataset.id = 'l' + i;
+    const q = item.q.replace('{1}',
+      '<input type="text" aria-label="L&uuml;cke in Satz ' + (i + 1) + '" autocomplete="off" spellcheck="false">');
+    d.innerHTML = '<div class="task-q"><span class="task-no">' + (i + 1) + '</span>' + q + '</div>' +
+                  '<div class="feedback"></div>';
+    box.appendChild(d);
+  });
+}
+
+function checkLuecken() {
+  let right = 0, bearbeitet = 0;
+  $('#list-l').querySelectorAll('.task').forEach((d, i) => {
+    const inp = d.querySelector('input');
+    const fb = d.querySelector('.feedback');
+    const alts = LUECKEN[i].a[0].split('|').map(norm);
+    const val = norm(inp.value);
+    if (val === '') return;  // leer: keine Rueckmeldung
+    bearbeitet++;
+    const ok = alts.includes(val);
+    inp.classList.toggle('ok', ok);
+    inp.classList.toggle('bad', !ok);
+    d.classList.toggle('ok', ok);
+    d.classList.toggle('bad', !ok);
+    fb.className = 'feedback show ' + (ok ? 'ok' : 'bad');
+    fb.innerHTML = ok
+      ? 'Richtig!'
+      : 'Noch nicht richtig. <span class="solution">L&ouml;sung: ' + LUECKEN[i].a[0].split('|')[0] + '</span>';
+    mark('l' + i, ok);
+    if (ok) right++;
+  });
+  if (!bearbeitet) {
+    const res = $('#res-l');
+    res.className = 'result show mid';
+    res.innerHTML = 'F&uuml;lle zuerst mindestens eine L&uuml;cke aus.';
+    return;
+  }
+  showResult($('#res-l'), right, bearbeitet);
+}
+
+/* ---------- 2 Bilder ---------- */
+function buildBilder() {
+  const box = $('#list-b');
+  BILDER.forEach((item, i) => {
+    const d = document.createElement('div');
+    d.className = 'pic-task';
+    d.dataset.id = 'b' + i;
+    d.innerHTML =
+      '<div class="task-q"><span class="task-no">' + (i + 1) + '</span>' + item.q + '</div>' +
+      '<figure class="pic-frame">' +
+        '<img src="' + item.img + '" alt="' + item.alt + '" loading="lazy">' +
+        '<figcaption class="pic-cap">' + item.cap + '</figcaption>' +
+      '</figure>' +
+      '<div class="choices">' +
+        item.opts.map((o, k) => '<button type="button" data-k="' + k + '">' + o + '</button>').join('') +
+      '</div>' +
+      '<div class="feedback"></div>';
+    box.appendChild(d);
+  });
+  box.addEventListener('click', e => {
+    const btn = e.target.closest('button[data-k]');
+    if (!btn) return;
+    const card = btn.closest('.pic-task');
+    const i = [...box.children].indexOf(card);
+    answerChoice(card, btn, BILDER[i], 'b' + i);
+  });
+}
+
+/* ---------- gemeinsame Auswahl-Logik ---------- */
+function answerChoice(card, btn, item, id) {
+  if (card.dataset.answered === '1') return;
+  card.dataset.answered = '1';
+  const k = +btn.dataset.k;
+  const ok = k === item.ok;
+  card.querySelectorAll('button[data-k]').forEach(b => {
+    b.disabled = true;
+    if (+b.dataset.k === item.ok) b.classList.add(ok ? 'picked-ok' : 'reveal');
+  });
+  if (!ok) btn.classList.add('picked-bad');
+  card.classList.add(ok ? 'ok' : 'bad');
+  const fb = card.querySelector('.feedback');
+  fb.className = 'feedback show ' + (ok ? 'ok' : 'bad');
+  fb.innerHTML = (ok ? 'Richtig! ' : 'Leider falsch. ') +
+                 '<span class="solution">' + item.why + '</span>';
+  mark(id, ok);
+}
+
+/* ---------- 3 Rechnen ---------- */
+const WEIGHTS = [128, 64, 32, 16, 8, 4, 2, 1];
+
+function buildRechnen() {
+  const b1 = $('#list-r1');
+  BINAER_A.forEach((item, i) => {
+    const d = document.createElement('div');
+    d.className = 'task';
+    d.dataset.id = 'r1-' + i;
+    d.innerHTML =
+      '<div class="task-q"><span class="task-no">' + (i + 1) + '</span>Wandle <b>' + item.dez + '</b> in acht Bit um.</div>' +
+      '<div class="bits">' +
+        WEIGHTS.map((w, k) =>
+          '<span class="bit"><span class="w">' + w + '</span>' +
+          '<input type="text" inputmode="numeric" maxlength="1" ' +
+          'aria-label="Stellenwert ' + w + ' bei Zahl ' + item.dez + '" autocomplete="off" data-k="' + k + '"></span>'
+        ).join('') +
+      '</div>' +
+      '<div class="feedback"></div>';
+    b1.appendChild(d);
+  });
+
+  const b2 = $('#list-r2');
+  BINAER_B.forEach((item, i) => {
+    const d = document.createElement('div');
+    d.className = 'task';
+    d.dataset.id = 'r2-' + i;
+    d.innerHTML =
+      '<div class="task-q"><span class="task-no">' + (i + 1) + '</span>Welche Dezimalzahl ist <b>' + item.bin + '</b>? ' +
+      '<input type="text" inputmode="numeric" aria-label="Dezimalwert von ' + item.bin + '" autocomplete="off" style="min-width:90px"></div>' +
+      '<div class="calc-line">' +
+        WEIGHTS.map((w, k) => item.bin[k] === '1' ? '<b>' + w + '</b>' : '<span style="opacity:.35">' + w + '</span>').join(' &middot; ') +
+      '</div>' +
+      '<div class="feedback"></div>';
+    b2.appendChild(d);
+  });
+
+  // nur 0 und 1 zulassen, automatisch weiterspringen
+  b1.addEventListener('input', e => {
+    const inp = e.target;
+    if (!inp.matches('.bit input')) return;
+    inp.value = inp.value.replace(/[^01]/g, '').slice(0, 1);
+    if (inp.value) {
+      const all = [...b1.querySelectorAll('.bit input')];
+      const next = all[all.indexOf(inp) + 1];
+      if (next && next.closest('.task') === inp.closest('.task')) next.focus();
+    }
+  });
+}
+
+function checkRechnen() {
+  let right = 0, total = 0, bearbeitet = 0;
+
+  $('#list-r1').querySelectorAll('.task').forEach((d, i) => {
+    const item = BINAER_A[i];
+    const inputs = [...d.querySelectorAll('.bit input')];
+    if (inputs.every(inp => inp.value === '')) { total++; return; }  // leer: keine Rueckmeldung
+    bearbeitet++;
+    let allOk = true;
+    inputs.forEach((inp, k) => {
+      const ok = inp.value === item.bin[k];
+      inp.classList.toggle('ok', ok);
+      inp.classList.toggle('bad', !ok);
+      if (!ok) allOk = false;
+    });
+    const fb = d.querySelector('.feedback');
+    fb.className = 'feedback show ' + (allOk ? 'ok' : 'bad');
+    const summe = WEIGHTS.filter((w, k) => item.bin[k] === '1').join(' + ');
+    fb.innerHTML = allOk
+      ? 'Richtig! ' + summe + ' = ' + item.dez
+      : 'Noch nicht richtig. <span class="solution">L&ouml;sung: ' + item.bin + ' &nbsp;(' + summe + ' = ' + item.dez + ')</span>';
+    d.classList.toggle('ok', allOk);
+    d.classList.toggle('bad', !allOk);
+    mark('r1-' + i, allOk);
+    total++; if (allOk) right++;
+  });
+
+  $('#list-r2').querySelectorAll('.task').forEach((d, i) => {
+    const item = BINAER_B[i];
+    const inp = d.querySelector('input');
+    if (inp.value.trim() === '') { total++; return; }  // leer: keine Rueckmeldung
+    bearbeitet++;
+    const ok = inp.value.trim() === String(item.dez);
+    inp.classList.toggle('ok', ok);
+    inp.classList.toggle('bad', !ok);
+    const fb = d.querySelector('.feedback');
+    fb.className = 'feedback show ' + (ok ? 'ok' : 'bad');
+    const summe = WEIGHTS.filter((w, k) => item.bin[k] === '1').join(' + ');
+    fb.innerHTML = ok
+      ? 'Richtig! ' + summe + ' = ' + item.dez
+      : 'Noch nicht richtig. <span class="solution">L&ouml;sung: ' + summe + ' = ' + item.dez + '</span>';
+    d.classList.toggle('ok', ok);
+    d.classList.toggle('bad', !ok);
+    mark('r2-' + i, ok);
+    total++; if (ok) right++;
+  });
+
+  if (!bearbeitet) {
+    const res = $('#res-r');
+    res.className = 'result show mid';
+    res.innerHTML = 'Rechne zuerst mindestens eine Aufgabe.';
+    return;
+  }
+  showResult($('#res-r'), right, bearbeitet);
+}
+
+/* ---------- 4 Probencheck ---------- */
+function buildProbe() {
+  const box = $('#list-p');
+  PROBE.forEach((item, i) => {
+    const d = document.createElement('div');
+    d.className = 'task';
+    d.dataset.id = 'p' + i;
+    d.innerHTML =
+      '<div class="task-q"><span class="task-no">' + (i + 1) + '</span>' + item.q + '</div>' +
+      '<div class="choices">' +
+        item.opts.map((o, k) => '<button type="button" data-k="' + k + '">' + o + '</button>').join('') +
+      '</div>' +
+      '<div class="feedback"></div>';
+    box.appendChild(d);
+  });
+  box.addEventListener('click', e => {
+    const btn = e.target.closest('button[data-k]');
+    if (!btn) return;
+    const card = btn.closest('.task');
+    const i = [...box.children].indexOf(card);
+    answerChoice(card, btn, PROBE[i], 'p' + i);
+    const answered = box.querySelectorAll('.task[data-answered="1"]').length;
+    if (answered === PROBE.length) {
+      const r = PROBE.filter((_, k) => state.right.has('p' + k)).length;
+      showResult($('#res-p'), r, PROBE.length);
+    }
+  });
+}
+
+/* ---------- Zuruecksetzen ---------- */
+function resetPanel(key) {
+  const map = { l: ['#list-l'], b: ['#list-b'], r: ['#list-r1', '#list-r2'], p: ['#list-p'] };
+  map[key].forEach(sel => {
+    $(sel).querySelectorAll('.task, .pic-task').forEach(card => {
+      card.classList.remove('ok', 'bad');
+      delete card.dataset.answered;
+      card.querySelectorAll('input').forEach(i => { i.value = ''; i.classList.remove('ok', 'bad'); });
+      card.querySelectorAll('button[data-k]').forEach(b => {
+        b.disabled = false;
+        b.classList.remove('picked-ok', 'picked-bad', 'reveal');
+      });
+      const fb = card.querySelector('.feedback');
+      if (fb) { fb.className = 'feedback'; fb.innerHTML = ''; }
+      state.done.delete(card.dataset.id);
+      state.right.delete(card.dataset.id);
+    });
+  });
+  const res = $('#res-' + key);
+  res.className = 'result';
+  res.innerHTML = '';
+  updateScore();
+  window.scrollTo({ top: $('#p-' + key).offsetTop - 80, behavior: 'smooth' });
+}
+
+/* ---------- Reiter ---------- */
+function initTabs() {
+  const tabs = [...document.querySelectorAll('[role="tab"]')];
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => {
+        const sel = t === tab;
+        t.setAttribute('aria-selected', sel ? 'true' : 'false');
+        $('#' + t.getAttribute('aria-controls')).hidden = !sel;
+      });
+    });
+  });
+}
+
+/* ---------- Start ---------- */
+buildLuecken();
+buildBilder();
+buildRechnen();
+buildProbe();
+initTabs();
+
+TOTAL = LUECKEN.length + BILDER.length + BINAER_A.length + BINAER_B.length + PROBE.length;
+updateScore();
+
+document.querySelectorAll('[data-check]').forEach(b => {
+  b.addEventListener('click', () => {
+    if (b.dataset.check === 'l') checkLuecken();
+    if (b.dataset.check === 'r') checkRechnen();
+  });
+});
+document.querySelectorAll('[data-reset]').forEach(b => {
+  b.addEventListener('click', () => resetPanel(b.dataset.reset));
+});
+
+// Enter im Lueckentext prueft ab
+$('#list-l').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); checkLuecken(); }
+});
+</script>
+</body>
+</html>
