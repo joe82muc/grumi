@@ -48,7 +48,30 @@
   /* Vergleich der Schuelerantwort: Gross-/Kleinschreibung und
      Leerzeichen am Rand sollen nicht ueber richtig/falsch entscheiden. */
   function normalisieren(wert) {
-    return String(wert || "").trim().toLowerCase().replace(/\s+/g, " ");
+    return String(wert || "")
+      .trim()
+      .toLowerCase()
+      .replace(/ß/g, "ss")   // Schriftgroesse gilt wie Schriftgröße
+      .replace(/\s+/g, " ");
+  }
+
+
+  /* Zeigt die richtige Lösung unter der Aufgabe. Wird erst beim zweiten
+     Pruefen aufgerufen (siehe auswertungBauen): beim ersten Mal sollen die
+     Schueler selbst nachdenken, danach sollen sie nicht im Dunkeln sitzen. */
+  function loesungZeigen(zeile, text) {
+    var alt = zeile.querySelector(".inf-loesung");
+    if (alt) alt.parentNode.removeChild(alt);
+
+    var hinweis = el("div", "inf-loesung");
+    hinweis.appendChild(el("strong", null, "Lösung: "));
+    hinweis.appendChild(document.createTextNode(text));
+    zeile.appendChild(hinweis);
+  }
+
+  function loesungVerstecken(zeile) {
+    var alt = zeile.querySelector(".inf-loesung");
+    if (alt) alt.parentNode.removeChild(alt);
   }
 
   /* --- Seitenaufbau --- */
@@ -383,12 +406,15 @@
 
     zeile.appendChild(auswahl);
 
-    pruefer.push(function () {
+    pruefer.push(function (mitLoesung) {
       var passt = gewaehlt === aufgabe.loesung;
       Array.prototype.forEach.call(auswahl.children, function (knopf, i) {
         knopf.classList.remove("richtig", "falsch");
         if (i === gewaehlt) knopf.classList.add(passt ? "richtig" : "falsch");
-        if (!passt && i === aufgabe.loesung) knopf.classList.add("richtig");
+        /* Die richtige Antwort erst mitverraten, wenn die Loesungen dran sind. */
+        if (!passt && mitLoesung && i === aufgabe.loesung) {
+          knopf.classList.add("richtig");
+        }
       });
       return { richtig: passt ? 1 : 0, gesamt: 1 };
     });
@@ -440,14 +466,23 @@
 
     zeile.appendChild(liste);
 
-    pruefer.push(function () {
+    pruefer.push(function (mitLoesung) {
       var richtig = 0;
+      var offen = [];
       felder.forEach(function (eintrag) {
         var passt = eintrag.feld.value === eintrag.loesung;
         eintrag.feld.classList.remove("richtig", "falsch");
         eintrag.feld.classList.add(passt ? "richtig" : "falsch");
         if (passt) richtig += 1;
+        else offen.push(eintrag.loesung);
       });
+
+      if (offen.length && mitLoesung) {
+        loesungZeigen(zeile, offen.join(" \u00b7 "));
+      } else if (!offen.length) {
+        loesungVerstecken(zeile);
+      }
+
       return { richtig: richtig, gesamt: felder.length };
     });
 
@@ -486,7 +521,7 @@
 
     zeile.appendChild(liste);
 
-    pruefer.push(function () {
+    pruefer.push(function (mitLoesung) {
       var richtig = 0;
       Array.prototype.forEach.call(liste.children, function (punkt, i) {
         var passt = punkt.getAttribute("data-text") === aufgabe.schritte[i];
@@ -494,6 +529,15 @@
         punkt.classList.add(passt ? "richtig" : "falsch");
         if (passt) richtig += 1;
       });
+
+      if (richtig < aufgabe.schritte.length && mitLoesung) {
+        loesungZeigen(zeile, aufgabe.schritte.map(function (text, i) {
+          return (i + 1) + ". " + text;
+        }).join("  "));
+      } else if (richtig === aufgabe.schritte.length) {
+        loesungVerstecken(zeile);
+      }
+
       return { richtig: richtig, gesamt: aufgabe.schritte.length };
     });
 
@@ -540,17 +584,49 @@
     });
   }
 
+  /* Der Wortspeicher kennt zwei Schreibweisen:
+     - "Pixel"                                  (nur das Wort)
+     - { begriff: "Pixel", erklaerung: "..." }  (Wort mit Erklaerung)
+     Mit Erklaerung wird daraus eine Lernliste fuer die Probe, ohne
+     Erklaerung bleibt es die knappe Wortliste fuer die Luecken. */
   function wortspeicherBauen(woerter, titel) {
     var abschnitt = block(titel || "Wortspeicher");
-    abschnitt.appendChild(
-      el("p", null, "Diese Wörter brauchst du für die Lücken:")
-    );
 
-    var liste = el("ul", "inf-woerter");
-    woerter.forEach(function (wort) {
-      liste.appendChild(el("li", null, wort));
+    var mitErklaerung = woerter.some(function (wort) {
+      return wort && typeof wort === "object" && wort.erklaerung;
     });
-    abschnitt.appendChild(liste);
+
+    abschnitt.appendChild(el("p", null, mitErklaerung
+      ? "Diese Wörter brauchst du für die Lücken – und für die Probe:"
+      : "Diese Wörter brauchst du für die Lücken:"));
+
+    if (!mitErklaerung) {
+      var liste = el("ul", "inf-woerter");
+      woerter.forEach(function (wort) {
+        liste.appendChild(el("li", null, typeof wort === "string" ? wort : wort.begriff));
+      });
+      abschnitt.appendChild(liste);
+      return abschnitt;
+    }
+
+    /* Beschreibungsliste: Begriff und Erklaerung gehoeren zusammen. */
+    var dl = el("dl", "inf-begriffe");
+    woerter.forEach(function (wort) {
+      var begriff = typeof wort === "string" ? wort : wort.begriff;
+      var text = typeof wort === "string" ? "" : (wort.erklaerung || "");
+      dl.appendChild(el("dt", null, begriff));
+      dl.appendChild(el("dd", null, text));
+    });
+    abschnitt.appendChild(dl);
+
+    /* Kurze Wortleiste zusaetzlich: beim Ausfuellen der Luecken will man
+       die Woerter auf einen Blick sehen, ohne die Erklaerungen zu lesen. */
+    var leiste = el("ul", "inf-woerter");
+    woerter.forEach(function (wort) {
+      leiste.appendChild(el("li", null, typeof wort === "string" ? wort : wort.begriff));
+    });
+    abschnitt.appendChild(leiste);
+
     return abschnitt;
   }
 
@@ -631,15 +707,33 @@
 
     zeile.appendChild(frage);
 
-    pruefer.push(function () {
+    pruefer.push(function (mitLoesung) {
       var richtig = 0;
+      var offen = [];
       felder.forEach(function (feld, i) {
-        var erwartet = normalisieren(aufgabe.loesungen[i]);
-        var passt = normalisieren(feld.value) === erwartet;
+        /* Eine Luecke kann mehrere richtige Schreibweisen haben. Dann steht
+           in "loesungen" an dieser Stelle ein Array; die erste Angabe ist
+           die, die als Loesung angezeigt wird (meist die Form aus dem Satz). */
+        var erlaubt = aufgabe.loesungen[i];
+        if (!Array.isArray(erlaubt)) erlaubt = [erlaubt];
+
+        var gegeben = normalisieren(feld.value);
+        var passt = erlaubt.some(function (wert) {
+          return normalisieren(wert) === gegeben;
+        });
+
         feld.classList.remove("richtig", "falsch");
         feld.classList.add(passt ? "richtig" : "falsch");
         if (passt) richtig += 1;
+        else offen.push(erlaubt[0]);
       });
+
+      if (offen.length && mitLoesung) {
+        loesungZeigen(zeile, offen.join(" \u00b7 "));
+      } else if (!offen.length) {
+        loesungVerstecken(zeile);
+      }
+
       return { richtig: richtig, gesamt: felder.length };
     });
 
@@ -676,7 +770,7 @@
 
     zeile.appendChild(auswahl);
 
-    pruefer.push(function () {
+    pruefer.push(function (mitLoesung) {
       var passt = gewaehlt === aufgabe.loesung;
       Array.prototype.forEach.call(auswahl.children, function (knopf) {
         knopf.classList.remove("richtig", "falsch");
@@ -684,6 +778,13 @@
           knopf.classList.add(passt ? "richtig" : "falsch");
         }
       });
+
+      if (!passt && mitLoesung) {
+        loesungZeigen(zeile, aufgabe.loesung ? "Richtig" : "Falsch");
+      } else if (passt) {
+        loesungVerstecken(zeile);
+      }
+
       return { richtig: passt ? 1 : 0, gesamt: 1 };
     });
 
@@ -705,6 +806,12 @@
     pruefen.type = "button";
     aktionen.appendChild(pruefen);
 
+    /* Erscheint erst, wenn nach dem Pruefen noch etwas offen ist. */
+    var zeigen = el("button", "inf-knopf zweit", "Lösungen zeigen");
+    zeigen.type = "button";
+    zeigen.hidden = true;
+    aktionen.appendChild(zeigen);
+
     var neu = el("button", "inf-knopf zweit", "Noch einmal");
     neu.type = "button";
     neu.addEventListener("click", function () {
@@ -719,12 +826,17 @@
     ergebnis.setAttribute("role", "status");
     huelle.appendChild(ergebnis);
 
-    pruefen.addEventListener("click", function () {
+    /* Zaehlt die Pruefdurchgaenge: beim ersten Mal bleiben die Loesungen
+       verdeckt, damit die Schueler selbst nachdenken. Danach werden sie
+       eingeblendet - wer eine Luecke nicht weiss, soll nicht raten muessen. */
+    var durchgang = 0;
+
+    function auswerten(mitLoesung) {
       var richtig = 0;
       var gesamt = 0;
 
       pruefer.forEach(function (pruefe) {
-        var teil = pruefe();
+        var teil = pruefe(mitLoesung);
         richtig += teil.richtig;
         gesamt += teil.gesamt;
       });
@@ -737,10 +849,13 @@
         ergebnis.textContent =
           optionen.lobText ||
           "Super! Alle " + gesamt + " Antworten sind richtig. Diese Stunde hast du geschafft.";
+        zeigen.hidden = true;
       } else {
         ergebnis.classList.add("mittel");
-        ergebnis.textContent =
-          richtig + " von " + gesamt + " richtig. Schau dir die rot markierten Stellen noch einmal an.";
+        ergebnis.textContent = mitLoesung
+          ? richtig + " von " + gesamt + " richtig. Unter den Aufgaben stehen jetzt die Lösungen."
+          : richtig + " von " + gesamt + " richtig. Schau dir die rot markierten Stellen noch einmal an.";
+        zeigen.hidden = mitLoesung;
       }
 
       if (window.GrumiFortschritt) {
@@ -748,6 +863,17 @@
       }
 
       ergebnis.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      return richtig === gesamt;
+    }
+
+    pruefen.addEventListener("click", function () {
+      durchgang += 1;
+      /* Ab dem zweiten Pruefen stehen die Loesungen dabei. */
+      auswerten(durchgang >= 2);
+    });
+
+    zeigen.addEventListener("click", function () {
+      auswerten(true);
     });
 
     return huelle;
