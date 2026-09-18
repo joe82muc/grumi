@@ -192,7 +192,10 @@ app.post("/api/nt7/teacher/export", (req,res) => {
   if (!teacher(req,res)) return;
   const id = clean(req.body.testId);
   const rows = readData().submissions.filter(row => !id || row.testId === id);
-  const quote = v => '"' + String(v ?? "").replace(/"/g,'""') + '"';
+  const quote = v => {
+    const text = String(v ?? "");
+    return '"' + (/^[=+\-@\t\r]/.test(text) ? "'" : "") + text.replace(/"/g,'""') + '"';
+  };
   const csv = ["Probe;Klasse;Nachname;Vorname;Punkte;Gesamt;Prozent;Note;Nachpruefen;Abgabe", ...rows.map(r => [r.testTitle,r.className,r.lastName,r.firstName,r.score,r.total,r.percent,r.grade,r.needsReview ? "ja":"nein",r.submittedAt].map(quote).join(";"))].join("\r\n");
   res.type("text/csv; charset=utf-8").attachment("nt7-proben.csv").send("\ufeff"+csv);
 });

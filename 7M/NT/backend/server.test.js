@@ -78,7 +78,7 @@ test("probe 2 grades matching individually and uses AI for free text", async () 
   };
   try {
     await api("teacher/unlock",{password:process.env.TEACHER_PASSWORD,testId:"nt7-luft-2",open:true});
-    const student = {testId:"nt7-luft-2",firstName:"Mara",lastName:"Probe",className:"7M"};
+    const student = {testId:"nt7-luft-2",firstName:"=Mara",lastName:"Probe",className:"7M"};
     const started = await api("start",student);
     assert.equal(started.data.items[0].nr,1);
     assert.equal(started.data.items.filter(i=>i.image).length,3);
@@ -91,6 +91,8 @@ test("probe 2 grades matching individually and uses AI for free text", async () 
     assert.equal(submitted.data.result.details[7].source,"ki");
     assert.equal(submitted.data.result.details[7].points,2);
     assert.equal(submitted.data.result.needsReview,false);
+    const csv = await httpFetch(base+"/api/nt7/teacher/export",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({password:process.env.TEACHER_PASSWORD,testId:"nt7-luft-2"})}).then(r=>r.text());
+    assert.match(csv,/"'=Mara"/);
   } finally {
     global.fetch = httpFetch;
     delete process.env.ANTHROPIC_API_KEY;
