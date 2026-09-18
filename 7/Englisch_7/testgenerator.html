@@ -1,0 +1,1469 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vokabeltest selbst zusammenstellen &ndash; Englisch 7</title>
+<meta name="description" content="Eigenen Vokabeltest aus den Units 1 bis 4 zusammenstellen: Kategorien w&auml;hlen, Anzahl der Bedeutungen festlegen und &uuml;ben.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#101a2e; --muted:#5d6b84; --line:#dce4f0;
+    --dark:#1f2937; --dark-2:#111827; --accent:#1d6fe0; --accent-soft:#e8f0fd;
+    --ok:#15803d; --ok-bg:#e9f8ee; --ok-line:#8fd6a8;
+    --bad:#c2340f; --bad-bg:#fdeeeb; --bad-line:#f3b5a6;
+    --warn:#8a5a00; --warn-bg:#fff6e3; --warn-line:#e0a300;
+    --shadow:0 10px 28px rgba(16,26,46,.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Source Sans 3",system-ui,"Segoe UI",sans-serif;color:var(--ink);
+    background:linear-gradient(180deg,#f5f7fa,#eceff5);min-height:100vh;padding:1rem;
+  }
+  .wrap{max-width:900px;margin:0 auto}
+  .head{
+    background:linear-gradient(125deg,var(--dark),var(--dark-2));color:#fff;
+    border-radius:18px;padding:1.2rem 1.3rem;box-shadow:var(--shadow);
+  }
+  .head h1{font-size:clamp(1.3rem,4.4vw,1.8rem);font-weight:800}
+  .head p{opacity:.85;margin-top:.3rem;font-size:.93rem}
+  .crumb{margin-bottom:.7rem;font-size:.88rem;font-weight:600}
+  .crumb a{color:var(--accent);text-decoration:none}
+  .crumb a:hover{text-decoration:underline}
+
+  .panel{
+    background:#fff;border:1px solid var(--line);border-radius:18px;
+    padding:1.1rem;box-shadow:var(--shadow);margin-top:1rem;
+  }
+  h2{font-size:1.05rem;font-weight:800;margin-bottom:.15rem}
+  .sub{color:var(--muted);font-size:.88rem;margin-bottom:.9rem}
+  .sec-label{font-size:.76rem;font-weight:800;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--muted);margin:1rem 0 .5rem}
+  .sec-label:first-child{margin-top:0}
+
+  /* Auswahl-Kacheln */
+  .pick-grid{display:grid;gap:.5rem;grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+  .pick{
+    display:flex;align-items:center;gap:.6rem;border:1.5px solid var(--line);
+    border-radius:12px;padding:.6rem .75rem;cursor:pointer;background:#fff;
+    font-weight:600;font-size:.92rem;transition:all .12s;text-align:left;
+  }
+  .pick:hover{border-color:var(--accent);background:var(--accent-soft)}
+  .pick input{width:18px;height:18px;accent-color:var(--accent);cursor:pointer;flex:none}
+  .pick .cnt{margin-left:auto;font-size:.78rem;color:var(--muted);font-weight:700;
+    background:#f1f4f9;border-radius:99px;padding:.1rem .5rem;flex:none}
+  .pick.on{border-color:var(--accent);background:var(--accent-soft)}
+
+  .pill-group{display:flex;gap:.35rem;flex-wrap:wrap}
+  .pill{
+    border:1.5px solid var(--line);background:#fff;border-radius:999px;
+    padding:.45rem .9rem;font-size:.88rem;font-weight:700;cursor:pointer;
+    font-family:inherit;color:var(--ink);transition:all .12s;
+  }
+  .pill:hover{border-color:var(--accent)}
+  .pill.active{background:var(--dark);color:#fff;border-color:var(--dark)}
+
+  .row{display:flex;gap:1.2rem;flex-wrap:wrap;align-items:flex-start}
+  .col{flex:1;min-width:210px}
+
+  .btn{
+    padding:.75rem 1.4rem;border:none;border-radius:999px;background:var(--dark);color:#fff;
+    font-weight:700;font-size:.95rem;cursor:pointer;font-family:inherit;transition:all .15s;
+  }
+  .btn:hover:not(:disabled){background:var(--dark-2)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn-ghost{background:#fff;color:var(--dark);border:1.5px solid var(--line)}
+  .btn-ghost:hover:not(:disabled){background:#f3f5f9}
+  .btn-row{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem;align-items:center}
+
+  .note{border-left:4px solid var(--line);background:#f7f9fc;padding:.7rem .9rem;
+    border-radius:8px;font-size:.9rem;margin-top:.8rem;font-weight:600}
+  .note.bad{border-color:var(--bad-line);background:var(--bad-bg);color:var(--bad)}
+  .note.warn{border-color:var(--warn-line);background:var(--warn-bg);color:var(--warn)}
+  .note.ok{border-color:var(--ok-line);background:var(--ok-bg);color:var(--ok)}
+
+  .hidden{display:none}
+
+  /* Test */
+  .qhead{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+  .qcount{font-size:.82rem;font-weight:800;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+  .progress-wrap{height:7px;background:#e8ecf4;border-radius:99px;overflow:hidden;margin:.7rem 0 1rem}
+  .progress-bar{height:100%;background:var(--accent);width:0;transition:width .25s}
+  .prompt{
+    font-size:clamp(1.3rem,5vw,1.9rem);font-weight:800;text-align:center;
+    padding:1.3rem .8rem;background:#f7f9fc;border:1.5px solid var(--line);border-radius:14px;
+  }
+  .dir-tag{display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--accent);background:var(--accent-soft);
+    border-radius:99px;padding:.2rem .65rem;margin-bottom:.5rem}
+  .need-tag{display:inline-block;font-size:.72rem;font-weight:800;color:var(--warn);
+    background:var(--warn-bg);border-radius:99px;padding:.2rem .65rem;margin-bottom:.5rem}
+  input[type=text]{
+    width:100%;padding:.8rem .9rem;border:1.5px solid var(--line);border-radius:10px;
+    font-size:1.05rem;font-family:inherit;font-weight:600;color:var(--ink);margin-top:.9rem;
+  }
+  input[type=text]:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+  input.correct{border-color:var(--ok-line);background:var(--ok-bg)}
+  input.wrong{border-color:var(--bad-line);background:var(--bad-bg)}
+  input.warn{border-color:var(--warn-line);background:var(--warn-bg)}
+  .feedback{text-align:center;min-height:1.5rem;margin-top:.8rem;font-weight:700;font-size:.95rem}
+  .feedback.good{color:var(--ok)} .feedback.bad{color:var(--bad)} .feedback.warn{color:var(--warn)}
+
+  .scorebar{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.2rem}
+  .score-box{flex:1;min-width:76px;background:#f7f9fc;border:1px solid var(--line);
+    border-radius:10px;padding:.5rem;text-align:center}
+  .score-box b{display:block;font-size:1.25rem;font-weight:800}
+  .score-box span{font-size:.72rem;color:var(--muted);font-weight:700}
+  .score-box.ok b{color:var(--ok)} .score-box.bad b{color:var(--bad)}
+
+  /* Ergebnis */
+  .result-head{text-align:center;padding:.5rem 0 1rem}
+  .big-grade{font-size:3rem;font-weight:900;line-height:1}
+  .g1,.g2{color:var(--ok)} .g3,.g4{color:var(--warn)} .g5,.g6{color:var(--bad)}
+  .res-list{margin-top:.6rem}
+  .res-item{border-bottom:1px solid #eef2f8;padding:.55rem .2rem;font-size:.92rem;
+    display:flex;gap:.6rem;align-items:flex-start}
+  .res-item .mark{font-weight:800;flex:none;width:1.4rem}
+  .res-item .txt b{font-weight:800}
+  .res-item .given{color:var(--muted);font-size:.85rem}
+  .res-item.ok .mark{color:var(--ok)} .res-item.no .mark{color:var(--bad)}
+
+  @media(max-width:600px){ .pick-grid{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="crumb"><a href="index.html">&larr; Englisch 7</a></p>
+
+  <div class="head">
+    <h1>Vokabeltest selbst zusammenstellen</h1>
+    <p>W&auml;hle Units und Kategorien, lege fest wie viele Bedeutungen z&auml;hlen &ndash; und los geht es.</p>
+  </div>
+
+  <!-- ============ Auswahl ============ -->
+  <section class="panel" id="view-setup">
+
+    <div class="sec-label">1. Units w&auml;hlen</div>
+    <div class="pick-grid" id="unit-picks"></div>
+
+    <div class="sec-label">2. Kategorien w&auml;hlen</div>
+    <p class="sub" id="cat-hint">W&auml;hle zuerst mindestens eine Unit.</p>
+    <div class="pick-grid" id="cat-picks"></div>
+
+    <div class="sec-label">3. Wie viele Bedeutungen m&uuml;ssen stimmen?</div>
+    <div class="pill-group" id="need-group">
+      <button class="pill active" data-need="1" type="button">1 reicht</button>
+      <button class="pill" data-need="2" type="button">2 n&ouml;tig</button>
+      <button class="pill" data-need="3" type="button">3 n&ouml;tig</button>
+      <button class="pill" data-need="99" type="button">alle</button>
+    </div>
+    <p class="sub" style="margin-top:.5rem" id="need-expl">
+      Bei W&ouml;rtern mit mehreren Bedeutungen reicht eine richtige Antwort.
+    </p>
+
+    <div class="row" style="margin-top:1rem">
+      <div class="col">
+        <div class="sec-label" style="margin-top:0">4. Richtung</div>
+        <div class="pill-group" id="dir-group">
+          <button class="pill active" data-dir="random" type="button">Zuf&auml;llig</button>
+          <button class="pill" data-dir="en-de" type="button">EN &rarr; DE</button>
+          <button class="pill" data-dir="de-en" type="button">DE &rarr; EN</button>
+        </div>
+      </div>
+      <div class="col">
+        <div class="sec-label" style="margin-top:0">5. Anzahl der Fragen</div>
+        <div class="pill-group" id="len-group">
+          <button class="pill" data-len="10" type="button">10</button>
+          <button class="pill active" data-len="20" type="button">20</button>
+          <button class="pill" data-len="30" type="button">30</button>
+          <button class="pill" data-len="0" type="button">alle</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="setup-msg"></div>
+    <div class="btn-row">
+      <button class="btn" id="btn-start" type="button">Test starten</button>
+      <span class="sub" id="pool-info" style="margin:0"></span>
+    </div>
+  </section>
+
+  <!-- ============ Test ============ -->
+  <section class="panel hidden" id="view-test">
+    <div class="qhead">
+      <span class="qcount" id="qcount">Frage 1 von 20</span>
+      <button class="btn btn-ghost" id="btn-abort" type="button" style="padding:.4rem .9rem;font-size:.85rem">Abbrechen</button>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar" id="pbar"></div></div>
+
+    <div class="scorebar">
+      <div class="score-box ok"><b id="sc-right">0</b><span>Richtig</span></div>
+      <div class="score-box bad"><b id="sc-wrong">0</b><span>Falsch</span></div>
+      <div class="score-box"><b id="sc-left">0</b><span>&Uuml;brig</span></div>
+    </div>
+
+    <div style="text-align:center">
+      <span class="dir-tag" id="dir-tag">EN &rarr; DE</span>
+      <span class="need-tag hidden" id="need-tag">2 Bedeutungen</span>
+    </div>
+    <div class="prompt" id="prompt">&nbsp;</div>
+    <input type="text" id="answer" placeholder="Antwort eingeben &hellip;" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <div class="feedback" id="feedback">&nbsp;</div>
+    <div class="btn-row">
+      <button class="btn" id="btn-check" type="button">Pr&uuml;fen</button>
+      <button class="btn btn-ghost hidden" id="btn-next" type="button">Weiter</button>
+      <button class="btn btn-ghost" id="btn-skip" type="button">Wei&szlig; ich nicht</button>
+    </div>
+  </section>
+
+  <!-- ============ Ergebnis ============ -->
+  <section class="panel hidden" id="view-result">
+    <div class="result-head">
+      <div class="big-grade" id="grade">&ndash;</div>
+      <p class="sub" id="result-line" style="margin-top:.4rem">&nbsp;</p>
+    </div>
+    <div id="result-note"></div>
+    <div class="sec-label">Alle Fragen im &Uuml;berblick</div>
+    <div class="res-list" id="res-list"></div>
+    <div class="btn-row">
+      <button class="btn" id="btn-again" type="button">Neuen Test zusammenstellen</button>
+      <button class="btn btn-ghost" id="btn-repeat-wrong" type="button">Nur die Fehler &uuml;ben</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+
+const UNITS = {
+  unit1: { name: "Unit 1", topics: {
+  all:"Alle",
+  zoom:"Zoom in · British Isles",
+  intro:"Intro",
+  topic1:"Topic 1 · Manchester",
+  places:"Talking about places",
+  numbers:"Numbers > 1,000",
+  topic2:"Topic 2 · Free time",
+  text:"Text · Globe Theatre",
+  jobs:"Jobs & theatre",
+  film:"Film · Surfing",
+  more:"More about",
+  reading:"Reading skills"
+}, words: [
+  // ---------- Zoom in – The British Isles (S. 8/9) ----------
+  {en:"The British Isles",de:"die Britischen Inseln",pron:"ðə ˌbrɪtɪʃ ˈaɪlz",topic:"zoom",ex:"The British Isles are in the northwest of Europe."},
+  {en:"Northern Ireland",de:"Nordirland",pron:"ˌnɔːðn ˈaɪələnd",topic:"zoom",ex:"Belfast is the capital of Northern Ireland."},
+  {en:"The Republic of Ireland",de:"Irland (die Republik)",alt:["Irland","die Republik Irland"],pron:"ðə rɪˌpʌblɪk əv ˈaɪələnd",topic:"zoom",ex:"Dublin is in the Republic of Ireland."},
+  {en:"Wales",de:"Wales",pron:"weɪlz",topic:"zoom",ex:"Wales is west of England."},
+  {en:"Ireland",de:"Irland (die Insel)",alt:["Irland"],pron:"ˈaɪələnd",topic:"zoom",ex:"Ireland is a green island."},
+  {en:"France",de:"Frankreich",pron:"frɑːns",topic:"zoom",ex:"France is not far from England."},
+  {en:"age",de:"Alter; Zeitalter",pron:"eɪdʒ",topic:"zoom",ex:"Emily's age? – She's fourteen."},
+  {en:"plan",de:"Plan",pron:"plæn",topic:"zoom",ex:"What are your plans for today?"},
+
+  // ---------- Unit 1 / Intro (S. 10/11) ----------
+  {en:"out and about",de:"unterwegs",pron:"ˌaʊt ən əˈbaʊt",topic:"intro",ex:"We are out and about in England today."},
+  {en:"to go surfing",de:"surfen gehen",pron:"ˌgəʊ ˈsɜːfɪŋ",topic:"intro",ex:"We went surfing a lot in Newquay."},
+  {en:"theatre",de:"Theater",pron:"ˈθɪətə",topic:"intro",ex:"We saw a play at the theatre."},
+  {en:"play",de:"Theaterst&uuml;ck",pron:"pleɪ",topic:"intro",ex:"Romeo and Juliet is a Shakespeare play."},
+  {en:"visit",de:"Besuch; Besichtigung",pron:"ˈvɪzɪt",topic:"intro",ex:"Our visit to the museum was great."},
+  {en:"science",de:"Wissenschaft; Naturwissenschaft",pron:"ˈsaɪəns",topic:"intro",ex:"I like science at school."},
+  {en:"exhibition",de:"Ausstellung",pron:"ˌeksɪˈbɪʃn",topic:"intro",ex:"Come and look at the exhibition."},
+  {en:"robot",de:"Roboter; Automat",pron:"ˈrəʊbɒt",topic:"intro",ex:"The robot can move its arms."},
+  {en:"rocket",de:"Rakete",pron:"ˈrɒkɪt",topic:"intro",ex:"There is a big rocket in the museum."},
+  {en:"to drive, drove",de:"fahren; treiben",pron:"draɪv, drəʊv",topic:"intro",ex:"Last weekend we drove to Newquay."},
+  {en:"south",de:"S&uuml;d-; S&uuml;den",pron:"saʊθ",topic:"intro",ex:"Bavaria is in south Germany."},
+  {en:"coast",de:"K&uuml;ste",pron:"kəʊst",topic:"intro",ex:"We walked along the coast."},
+
+  // ---------- Topic 1 (S. 12–15) ----------
+  {en:"in the northwest of",de:"im Nordwesten von",pron:"ɪn ðə ˈnɔːθwest əv",topic:"topic1",ex:"Manchester is in the northwest of England."},
+  {en:"half a million",de:"eine halbe Million",pron:"ˌhɑːf ə ˈmɪljən",topic:"topic1",ex:"More than half a million people live there."},
+  {en:"traffic",de:"Verkehr",pron:"ˈtræfɪk",topic:"topic1",ex:"There's lots of traffic in the city."},
+  {en:"noisy",de:"laut",pron:"ˈnɔɪzi",topic:"topic1",ex:"Cities are usually noisy."},
+  {en:"past",de:"Vergangenheit",pron:"pɑːst",topic:"topic1",ex:"In the past there was more traffic."},
+  {en:"factory",de:"Fabrik; Werk",pron:"ˈfæktri",topic:"topic1",ex:"My uncle works in a factory."},
+  {en:"coal",de:"Kohle",pron:"kəʊl",topic:"topic1",ex:"We need coal for the barbecue."},
+  {en:"mine",de:"Bergwerk",alt:["Mine"],pron:"maɪn",topic:"topic1",ex:"You get coal from a coal mine."},
+  {en:"west",de:"Westen; West-",pron:"west",topic:"topic1",ex:"My family lives in the west of Manchester."},
+  {en:"centre",de:"Zentrum; Mitte; Center",pron:"ˈsentə",topic:"topic1",ex:"My mum works in the centre of town."},
+  {en:"about",de:"hier: an",pron:"əˈbaʊt",topic:"topic1",ex:"What's the best thing about Bavaria?"},
+  {en:"north",de:"Norden; Nord-",pron:"nɔːθ",topic:"topic1",ex:"north ↔ south"},
+  {en:"before",de:"vorher; zuvor; schon einmal",pron:"bɪˈfɔː",topic:"topic1",ex:"Before, we lived in the city."},
+  {en:"east",de:"Ost-; Osten",pron:"iːst",topic:"topic1",ex:"Sunderland is on the east coast."},
+  {en:"goat",de:"Ziege",pron:"gəʊt",topic:"topic1",ex:"The goat is eating grass."},
+  {en:"cow",de:"Kuh",pron:"kaʊ",topic:"topic1",ex:"The cow gives us milk."},
+  {en:"milk",de:"Milch",pron:"mɪlk",topic:"topic1",ex:"I drink milk every morning."},
+  {en:"air",de:"Luft",pron:"eə",topic:"topic1",ex:"I love the air in the country."},
+  {en:"clean",de:"sauber",pron:"kliːn",topic:"topic1",ex:"The air here is very clean."},
+
+  // ---------- Das kenne ich schon: talking about places (S. 141) ----------
+  {en:"quiet",de:"leise; ruhig; still",pron:"ˈkwaɪət",topic:"places",ex:"Our village is very quiet."},
+  {en:"near",de:"in der N&auml;he von; nah",pron:"nɪə",topic:"places",ex:"We live near the park."},
+  {en:"to be a long way away",de:"weit weg sein",pron:"bi ə ˌlɒŋ ˌweɪ əˈweɪ",topic:"places",ex:"London is a long way away."},
+  {en:"far",de:"weit",pron:"fɑː",topic:"places",ex:"Is the station far from here?"},
+  {en:"large",de:"gro&szlig;",pron:"lɑːdʒ",topic:"places",ex:"Manchester is a large city."},
+  {en:"small",de:"klein",pron:"smɔːl",topic:"places",ex:"My village is quite small."},
+  {en:"capital (city)",de:"Hauptstadt",pron:"ˈkæpɪtl ˌsɪti",topic:"places",ex:"London is the capital city of England."},
+  {en:"city centre",de:"Stadtzentrum; Stadtmitte",pron:"ˌsɪti ˈsentə",topic:"places",ex:"We went shopping in the city centre."},
+  {en:"environment",de:"Umgebung",pron:"ɪnˈvaɪrnmənt",topic:"places",ex:"I like the environment around our town."},
+
+  // ---------- Das kenne ich schon: numbers higher than 1,000 (S. 141) ----------
+  {en:"one thousand two hundred (1,200)",de:"eintausendzweihundert",pron:"wʌn ˌθaʊznd tuː ˈhʌndrəd",topic:"numbers",ex:"The school has one thousand two hundred students."},
+  {en:"two thousand five hundred (2,500)",de:"zweitausendf&uuml;nfhundert",pron:"tuː ˌθaʊznd faɪv ˈhʌndrəd",topic:"numbers",ex:"Two thousand five hundred people live here."},
+  {en:"three thousand seven hundred and sixty-three (3,763)",de:"dreitausendsiebenhundertdreiundsechzig",pron:"θriː ˌθaʊznd sevn hʌndrəd ən ˈsɪkstiθriː",topic:"numbers",ex:"The village has three thousand seven hundred and sixty-three people."},
+  {en:"fifty thousand (50,000)",de:"f&uuml;nfzigtausend",pron:"ˌfɪfti ˈθaʊznd",topic:"numbers",ex:"Fifty thousand fans were at the match."},
+  {en:"one hundred thousand (100,000)",de:"einhunderttausend",pron:"wʌn ˌhʌndrəd ˈθaʊznd",topic:"numbers",ex:"One hundred thousand people visit the museum."},
+  {en:"five hundred thousand / half a million (500,000)",de:"f&uuml;nfhunderttausend; eine halbe Million",pron:"faɪv ˌhʌndrəd ˈθaʊznd",topic:"numbers",ex:"Half a million people live in the city."},
+  {en:"seven hundred thousand (700,000)",de:"siebenhunderttausend",pron:"sevn ˌhʌndrəd ˈθaʊznd",topic:"numbers",ex:"Seven hundred thousand cars drive here."},
+  {en:"a/one million (1,000,000)",de:"eine Million",pron:"ə ˌwʌn ˈmɪljən",topic:"numbers",ex:"More than a million people live in Birmingham."},
+
+  // ---------- Topic 2 (S. 16–19) ----------
+  {en:"yours",de:"deine; eure; Ihre",pron:"jɔːz",topic:"topic2",ex:"There's a hat on the desk. Is it yours?"},
+  {en:"hers",de:"ihre (von ihr)",alt:["ihre","ihrs","ihres"],pron:"hɜːz",topic:"topic2",ex:"Is that Holly's coat? – No, it isn't hers."},
+  {en:"mine",de:"meine",pron:"maɪn",topic:"topic2",ex:"Is that your bag? – Yes, it's mine."},
+  {en:"to take",de:"bringen; hier: dauern; brauchen",pron:"teɪk",topic:"topic2",ex:"It takes two hours by train."},
+  {en:"here",de:"hierher; hierhin",pron:"hɪə",topic:"topic2",ex:"Come here, please!"},
+  {en:"long",de:"lang",pron:"lɒŋ",topic:"topic2",ex:"long ↔ short"},
+  {en:"a.m.",de:"vormittags (Uhrzeit)",pron:"ˌeɪˈem",topic:"topic2",ex:"10:00 a.m. = 10:00 Uhr"},
+  {en:"to catch (bus/train)",de:"nehmen (Bus/Zug); bekommen",pron:"kætʃ",topic:"topic2",ex:"I catch the number 44 bus to school."},
+  {en:"oh",de:"Null (bei Uhrzeiten und Telefonnummern)",pron:"əʊ",topic:"topic2",ex:"8:05 = It's eight oh five."},
+  {en:"drama",de:"Theater-; Drama; Schauspielerei",pron:"ˈdrɑːmə",topic:"topic2",ex:"I go to the drama club on Mondays."},
+  {en:"to act",de:"mitspielen; spielen",pron:"ækt",topic:"topic2",ex:"You don't have to act."},
+  {en:"scenery",de:"Kulissen; B&uuml;hnenbild",pron:"ˈsiːnri",topic:"topic2",ex:"You can also help make the scenery."},
+  {en:"to design",de:"entwerfen; gestalten",pron:"dɪˈzaɪn",topic:"topic2",ex:"We are designing the scenery with Mr Day."},
+  {en:"p.m.",de:"nachmittags (Uhrzeit)",pron:"ˌpiːˈem",topic:"topic2",ex:"10:00 p.m. = 22:00 Uhr"},
+  {en:"I'm afraid",de:"leider",pron:"aɪm əˈfreɪd",topic:"topic2",ex:"I'm afraid I don't have time."},
+  {en:"occasionally",de:"gelegentlich",pron:"əˈkeɪʒnli",topic:"topic2",ex:"I occasionally eat in the cafeteria."},
+  {en:"to order",de:"bestellen",pron:"ˈɔːdə",topic:"topic2",ex:"Let's order three orange juices."},
+  {en:"to sound",de:"klingen",pron:"saʊnd",topic:"topic2",ex:"That sounds good. Thank you."},
+  {en:"healthy",de:"gesund",pron:"ˈhelθi",topic:"topic2",ex:"The food doesn't sound very healthy."},
+  {en:"his",de:"seine",pron:"hɪz",topic:"topic2",ex:"It's not my DVD, it's his."},
+  {en:"theirs",de:"ihre (von ihnen)",alt:["ihre","ihrs","ihres"],pron:"ðeəz",topic:"topic2",ex:"This is Dave's and Anna's flat. It's theirs."},
+  {en:"ours",de:"unsere",pron:"aʊəz",topic:"topic2",ex:"Can you see the black cat? It's ours."},
+
+  // ---------- Text: The Globe Theatre (S. 20/21) ----------
+  {en:"actor",de:"Schauspieler; Schauspielerin; Darsteller; Darstellerin",pron:"ˈæktə",topic:"text",ex:"The actor plays Romeo."},
+  {en:"boss",de:"Boss; Chef; Chefin",pron:"bɒs",topic:"text",ex:"The boss of the theatre is very friendly."},
+  {en:"to own",de:"besitzen",pron:"əʊn",topic:"text",ex:"He owns the Globe Theatre."},
+  {en:"landlord",de:"Grundst&uuml;ckseigent&uuml;mer; Vermieter",pron:"ˈlændlɔːd",topic:"text",ex:"The landlord wants more money."},
+  {en:"rent",de:"Miete",pron:"rent",topic:"text",ex:"The rent for the room is £200."},
+  {en:"land",de:"Land",pron:"lænd",topic:"text",ex:"Some landlords own a lot of land."},
+  {en:"builder",de:"Bauarbeiter; Bauarbeiterin",pron:"ˈbɪldə",topic:"text",ex:"Builders build houses."},
+  {en:"to carry",de:"tragen; bef&ouml;rdern",pron:"ˈkæri",topic:"text",ex:"The builders carry the theatre."},
+  {en:"by",de:"von; an; neben",pron:"baɪ",topic:"text",ex:"There's a play by Shakespeare at the Globe."},
+  {en:"cannon",de:"Kanone",pron:"ˈkænən",topic:"text",ex:"The cannon is very loud."},
+  {en:"ball",de:"Kugel",pron:"bɔːl",topic:"text",ex:"The cannon ball falls on the theatre."},
+  {en:"fire",de:"Feuer",pron:"ˈfaɪə",topic:"text",ex:"There was a big fire at the theatre."},
+  {en:"hurt",de:"verletzt",pron:"hɜːt",topic:"text",ex:"Nobody gets hurt in the accident."},
+
+  // ---------- Das kenne ich schon: jobs (S. 143) ----------
+  {en:"doctor",de:"Arzt; &Auml;rztin",pron:"ˈdɒktə",topic:"jobs",ex:"The doctor helps sick people."},
+  {en:"singer",de:"S&auml;nger; S&auml;ngerin",pron:"ˈsɪŋə",topic:"jobs",ex:"She is a famous singer."},
+  {en:"engineer",de:"Ingenieur; Ingenieurin; Techniker; Technikerin",pron:"ˌendʒɪˈnɪə",topic:"jobs",ex:"My dad is an engineer."},
+  {en:"teacher",de:"Lehrer; Lehrerin",pron:"ˈtiːtʃə",topic:"jobs",ex:"Our teacher is very nice."},
+  {en:"assistant",de:"Verk&auml;ufer; Verk&auml;uferin",pron:"əˈsɪstnt",topic:"jobs",ex:"The shop assistant helps the customers."},
+  {en:"caretaker",de:"Hausmeister; Hausmeisterin",pron:"ˈkeəˌteɪkə",topic:"jobs",ex:"The caretaker opens the school."},
+  {en:"chef",de:"Koch; K&uuml;chenchef",pron:"ʃef",topic:"jobs",ex:"The chef cooks great food."},
+  {en:"detective",de:"Detektiv; Detektivin",pron:"dɪˈtektɪv",topic:"jobs",ex:"The detective finds the thief."},
+  {en:"police officer",de:"Polizeibeamter; Polizeibeamtin",pron:"pəˈliːs ˌɒfɪsə",topic:"jobs",ex:"The police officer helps us."},
+  {en:"farmer",de:"Bauer; B&auml;uerin; Landwirt; Landwirtin",pron:"ˈfɑːmə",topic:"jobs",ex:"The farmer has twenty cows."},
+  {en:"magician",de:"Zauberk&uuml;nstler; Zauberk&uuml;nstlerin",pron:"məˈdʒɪʃn",topic:"jobs",ex:"The magician does a great trick."},
+  {en:"stage",de:"B&uuml;hne",pron:"steɪdʒ",topic:"jobs",ex:"The actors are on the stage."},
+  {en:"to play",de:"spielen",pron:"pleɪ",topic:"jobs",ex:"They play a Shakespeare play."},
+
+  // ---------- Film / Surfing (S. 143) ----------
+  {en:"surfing",de:"Surfen; Wellenreiten; Surf-",pron:"ˈsɜːfɪŋ",topic:"film",ex:"Surfing is fun in Newquay."},
+  {en:"to be right",de:"recht haben",pron:"bi ˈraɪt",topic:"film",ex:"You are right!"},
+  {en:"how to &hellip;",de:"wie man &hellip;",pron:"ˈhaʊ tə",topic:"film",ex:"He shows me how to surf."},
+  {en:"to surf",de:"surfen",pron:"sɜːf",topic:"film",ex:"Can you surf?"},
+  {en:"rugby",de:"Rugby",pron:"ˈrʌgbi",topic:"film",ex:"Rugby is popular in England."},
+  {en:"wave",de:"Welle",pron:"weɪv",topic:"film",ex:"That was a big wave!"},
+  {en:"what a &hellip;",de:"was f&uuml;r ein &hellip;",pron:"ˈwɒt ə",topic:"film",ex:"What a great day!"},
+  {en:"brilliant",de:"gro&szlig;artig; hervorragend",pron:"ˈbrɪliənt",topic:"film",ex:"That's brilliant!"},
+  {en:"surfer",de:"Surfer; Surferin; Wellenreiter; Wellenreiterin",pron:"ˈsɜːfə",topic:"film",ex:"The surfer rides the wave."},
+  {en:"Bye for now.",de:"Bis bald.",pron:"ˌbaɪ fə ˈnaʊ",topic:"film",ex:"Bye for now. See you tomorrow!"},
+
+  // ---------- More about (S. 26–29) ----------
+  {en:"culture",de:"Kultur",pron:"ˈkʌltʃə",topic:"more",ex:"I'm interested in British culture."},
+  {en:"gallery",de:"Halle; S&auml;ulenhalle; Galerie",pron:"ˈgæləri",topic:"more",ex:"We went in the gallery at the museum."},
+  {en:"dinosaur",de:"Dinosaurier",pron:"ˈdaɪnəsɔː",topic:"more",ex:"The dinosaur is very big."},
+  {en:"fashion",de:"Mode",pron:"ˈfæʃn",topic:"more",ex:"I love clothes and the newest fashion."},
+  {en:"musical",de:"Musical; Musiktheaterst&uuml;ck",pron:"ˈmjuːzɪkl",topic:"more",ex:"There are so many musicals in London."},
+  {en:"if",de:"wenn; falls",pron:"ɪf",topic:"more",ex:"Come with me if you like."},
+  {en:"acting",de:"Schauspielerei; Schauspielen",pron:"ˈæktɪŋ",topic:"more",ex:"Acting is her hobby."},
+  {en:"animation",de:"Animation; Trickfilm",pron:"ˌænɪˈmeɪʃn",topic:"more",ex:"The animation looks great."},
+  {en:"on TV",de:"im Fernsehen",pron:"ɒn ˌtiːˈviː",topic:"more",ex:"I watched that film on TV on Friday."},
+  {en:"to start",de:"gr&uuml;nden",pron:"stɑːt",topic:"more",ex:"In 1877 he started a company."},
+  {en:"animated",de:"animiert",pron:"ˈænɪmeɪtɪd",topic:"more",ex:"I love animated films."},
+  {en:"adult",de:"Erwachsener; Erwachsene",pron:"ˈædʌlt",topic:"more",ex:"adult ↔ kid"},
+  {en:"live",de:"Live-",pron:"laɪv",topic:"more",ex:"I went to a live show at the theatre."},
+  {en:"important",de:"wichtig",pron:"ɪmˈpɔːtnt",topic:"more",ex:"Don't forget. It's very important!"},
+  {en:"British",de:"britisch",pron:"ˈbrɪtɪʃ",topic:"more",ex:"He is a British actor."},
+  {en:"radio",de:"Radio",pron:"ˈreɪdiəʊ",topic:"more",ex:"I listen to the radio in the morning."},
+  {en:"hit song",de:"Hit",pron:"ˈhɪt ˌsɒŋ",topic:"more",ex:"The Beatles had lots of hit songs."},
+  {en:"popular",de:"Pop-; beliebt",pron:"ˈpɒpjələ",topic:"more",ex:"There are many different popular cultures."},
+
+  // ---------- Reading skills (S. 28/29) ----------
+  {en:"ad(vert) (= advertisement)",de:"Werbung; Anzeige",pron:"ˈæd(vɜːt)",topic:"reading",ex:"I saw the advert for the new car on TV."},
+  {en:"tour",de:"Tour; Reise",pron:"tʊə",topic:"reading",ex:"We went on a tour of Manchester."},
+  {en:"to rent",de:"mieten",pron:"rent",topic:"reading",ex:"We rented bikes at Piccadilly Gardens."},
+  {en:"technology",de:"Technik; Technologie",pron:"tekˈnɒlədʒi",topic:"reading",ex:"There were exhibitions about technology."},
+  {en:"collection",de:"Sammlung",pron:"kəˈlekʃn",topic:"reading",ex:"There's a nice collection in the museum."},
+  {en:"artist",de:"K&uuml;nstler; K&uuml;nstlerin",pron:"ˈɑːtɪst",topic:"reading",ex:"L. S. Lowry is a famous Manchester artist."},
+  {en:"programme",de:"Sendung; Programm",pron:"ˈprəʊgræm",topic:"reading",ex:"What's your favourite programme?"},
+  {en:"brochure",de:"Brosch&uuml;re; Prospekt",pron:"ˈbrəʊʃə",topic:"reading",ex:"Take a brochure from the tourist office."},
+  {en:"studio",de:"Studio",pron:"ˈstjuːdiəʊ",topic:"reading",ex:"They film the show in a big studio."}
+] },
+  unit2: { name: "Unit 2", topics: {
+  all:"Alle",
+  intro:"Intro · Wales & Scotland",
+  topic1:"Topic 1 · Adventure centre",
+  adjectives:"Adjectives",
+  verbs:"Irregular verbs",
+  topic2:"Topic 2 · Highland Games",
+  adverbs:"Adverbs of time",
+  text:"Text · Robert the Bruce",
+  film:"Film",
+  more:"More about · Heavy events",
+  presentation:"Presentation skills"
+}, words: [
+  // ---------- Intro (S. 32/33) ----------
+  {en:"Welsh",de:"Walisisch; walisisch; aus Wales",pron:"welʃ",topic:"intro",ex:"Teens in Wales learn Welsh at school."},
+  {en:"down",de:"hinunter; herunter; entlang; nach unten",pron:"daʊn",topic:"intro",ex:"Let's ride down this mountain."},
+  {en:"zip line",de:"Seilrutsche",pron:"ˈzɪp ˌlaɪn",topic:"intro",ex:"One of the longest zip lines is in Wales."},
+  {en:"mile",de:"Meile",pron:"maɪl",topic:"intro",ex:"1 mile = 1,609 metres"},
+  {en:"until",de:"bis",pron:"ʌnˈtɪl",topic:"intro",ex:"It's open from 9:00 a.m. until 4:00 p.m."},
+  {en:"skiing",de:"Skifahren; Ski-",pron:"ˈskiːɪŋ",topic:"intro",ex:"Skiing is fun in the mountains."},
+  {en:"castle",de:"Burg; Schloss",pron:"ˈkaːsl",topic:"intro",ex:"There is an old castle in Wales."},
+  {en:"against",de:"gegen",pron:"əˈgenst",topic:"intro",ex:"I fell against the tree."},
+  {en:"the English",de:"die Engländer",pron:"ði ˈɪŋglɪʃ",topic:"intro",ex:"Robert the Bruce fought the English."},
+  {en:"competition",de:"Wettkampf; Wettbewerb",pron:"ˌkɒmpəˈtɪʃn",topic:"intro",ex:"I like the competitions on sports day."},
+  {en:"hammer throwing",de:"Hammerwerfen",pron:"ˈhæmə ˌθrəʊɪŋ",topic:"intro",ex:"I liked the hammer throwing."},
+  {en:"hammer",de:"Hammer",pron:"ˈhæmə",topic:"intro",ex:"The hammer is very heavy."},
+  {en:"Scottish",de:"schottisch; aus Schottland",pron:"ˈskɒtɪʃ",topic:"intro",ex:"Scottish → Scotland"},
+  {en:"tradition",de:"Tradition; Brauch",pron:"trəˈdɪʃn",topic:"intro",ex:"Playing the bagpipes is a Scottish tradition."},
+  {en:"bagpipes",de:"Dudelsack",pron:"ˈbægpaɪps",topic:"intro",ex:"In Scotland people play the bagpipes."},
+  {en:"kilt",de:"Kilt; Schottenrock",pron:"kɪlt",topic:"intro",ex:"A kilt is usually for men."},
+  {en:"skirt",de:"Rock",pron:"skɜːt",topic:"intro",ex:"She is wearing a blue skirt."},
+  {en:"history",de:"Geschichte",pron:"ˈhɪstri",topic:"intro",ex:"I like history at school."},
+  {en:"Scot",de:"Schotte; Schottin",pron:"skɒt",topic:"intro",ex:"Scot → Scotland"},
+
+  // ---------- Topic 1 (S. 34-37) ----------
+  {en:"adventure",de:"Abenteuer; Erlebnis",pron:"ədˈventʃə",topic:"topic1",ex:"Do you like the new adventure centre?"},
+  {en:"already",de:"schon; bereits",pron:"ɔːlˈredi",topic:"topic1",ex:"Is Jay on the way? – No, he's already here!"},
+  {en:"to pack",de:"packen; einpacken",pron:"pæk",topic:"topic1",ex:"I have to pack my things."},
+  {en:"website",de:"Website; Internetseite",pron:"ˈwebsaɪt",topic:"topic1",ex:"We've looked at the centre's website."},
+  {en:"rugby",de:"Rugby",pron:"ˈrʌgbi",topic:"topic1",ex:"Rugby is for strong people."},
+  {en:"done",de:"past participle von to do (machen, tun)",alt:["gemacht","getan"],pron:"dʌn",topic:"topic1",ex:"I have done = ich machte/ich habe gemacht"},
+  {en:"seen",de:"past participle von to see (sehen)",alt:["gesehen"],pron:"siːn",topic:"topic1",ex:"I have seen = ich sah/ich habe gesehen"},
+  {en:"to need to",de:"müssen",pron:"ˈniːd ˌtə",topic:"topic1",ex:"We need to buy some more eggs."},
+  {en:"strong",de:"stark",pron:"strɒŋ",topic:"topic1",ex:"Rugby is for strong people."},
+  {en:"myself",de:"mich; selbst",pron:"maɪˈself",topic:"topic1",ex:"I hurt myself last year."},
+  {en:"fit",de:"fit",pron:"fɪt",topic:"topic1",ex:"I'm small but I'm fit and strong."},
+  {en:"to be going to do sth",de:"etw. tun werden",pron:"biː ˌgəʊɪŋ tə ˈduː",topic:"topic1",ex:"I'm going to go rock climbing."},
+  {en:"not ... yet",de:"noch nicht",pron:"nɒt ... ˈjet",topic:"topic1",ex:"I have not helped Dad yet."},
+  {en:"yet",de:"schon",pron:"jet",topic:"topic1",ex:"Is Beth here yet? – No, she's late."},
+  {en:"to book",de:"buchen; reservieren",pron:"bʊk",topic:"topic1",ex:"We booked the same trip again."},
+  {en:"difficult",de:"schwierig; schwer; kompliziert",pron:"ˈdɪfɪklt",topic:"topic1",ex:"difficult ↔ easy"},
+  {en:"dangerous",de:"gefährlich",pron:"ˈdeɪndʒrəs",topic:"topic1",ex:"Rock climbing is dangerous."},
+  {en:"been",de:"past participle von to be (sein)",alt:["gewesen"],pron:"biːn",topic:"topic1",ex:"I have been = ich war/ich bin gewesen"},
+  {en:"always",de:"schon immer",pron:"ˈɔːlweɪz",topic:"topic1",ex:"I've always wanted to climb a mountain."},
+  {en:"safe",de:"ungefährlich; sicher",pron:"seɪf",topic:"topic1",ex:"safe ↔ dangerous"},
+  {en:"careful",de:"vorsichtig; sorgfältig",pron:"ˈkeəfl",topic:"topic1",ex:"Please be careful!"},
+  {en:"to decide",de:"(sich) entscheiden; beschließen",pron:"dɪˈsaɪd",topic:"topic1",ex:"We have to decide where to go."},
+  {en:"to think about",de:"nachdenken über; sich überlegen; denken an",pron:"ˌθɪŋk əˈbaʊt",topic:"topic1",ex:"I want to think about things first."},
+  {en:"thought",de:"past participle von to think (denken, glauben)",alt:["gedacht"],pron:"θɔːt",topic:"topic1",ex:"I have thought = ich dachte/ich habe gedacht"},
+  {en:"had",de:"past participle von to have (haben, essen)",alt:["gehabt"],pron:"hæd",topic:"topic1",ex:"I have had = ich hatte/ich habe gehabt"},
+  {en:"made",de:"past participle von to make (machen, tun)",alt:["gemacht"],pron:"meɪd",topic:"topic1",ex:"I have made = ich machte/ich habe gemacht"},
+  {en:"taken",de:"past participle von to take (nehmen)",alt:["genommen"],pron:"ˈteɪkn",topic:"topic1",ex:"I have taken = ich nahm/ich habe genommen"},
+  {en:"to ski",de:"Ski fahren",pron:"skiː",topic:"topic1",ex:"I love to ski!"},
+  {en:"gone",de:"past participle von to go (gehen)",alt:["gegangen"],pron:"gɒn",topic:"topic1",ex:"I have gone = ich ging/ich bin gegangen"},
+
+  // ---------- Das kenne ich schon: adjectives for free-time activities (S. 146) ----------
+  {en:"tired",de:"müde",pron:"ˈtaɪəd",topic:"adjectives",ex:"I was very tired after the trip."},
+  {en:"easy",de:"einfach; leicht",pron:"ˈiːzi",topic:"adjectives",ex:"The test was really easy."},
+  {en:"exciting",de:"spannend; aufregend",pron:"ɪkˈsaɪtɪŋ",topic:"adjectives",ex:"The film was very exciting."},
+  {en:"interesting",de:"interessant",pron:"ˈɪntrəstɪŋ",topic:"adjectives",ex:"That's an interesting book."},
+  {en:"boring",de:"langweilig",pron:"ˈbɔːrɪŋ",topic:"adjectives",ex:"The programme was boring."},
+  {en:"fast",de:"schnell",pron:"faːst",topic:"adjectives",ex:"The car is very fast."},
+  {en:"great",de:"großartig; toll",pron:"greɪt",topic:"adjectives",ex:"That was a great day!"},
+  {en:"big",de:"groß",pron:"bɪg",topic:"adjectives",ex:"Scotland has big mountains."},
+  {en:"small",de:"klein",pron:"smɔːl",topic:"adjectives",ex:"My village is very small."},
+
+  // ---------- Das kenne ich schon: irregular verbs in Topic 1 (S. 146) ----------
+  {en:"to be, was/were, been",de:"sein",pron:"biː, wɒz/wɜː, biːn",topic:"verbs",ex:"I have been to Scotland."},
+  {en:"to do, did, done",de:"machen; tun",pron:"duː, dɪd, dʌn",topic:"verbs",ex:"I have done my homework."},
+  {en:"to see, saw, seen",de:"sehen",pron:"siː, sɔː, siːn",topic:"verbs",ex:"I have seen the castle."},
+  {en:"to think, thought, thought",de:"denken; glauben",pron:"θɪŋk, θɔːt, θɔːt",topic:"verbs",ex:"I thought about it."},
+  {en:"to have, had, had",de:"haben; essen",pron:"hæv, hæd, hæd",topic:"verbs",ex:"We have had lunch."},
+  {en:"to take, took, taken",de:"nehmen; dauern",pron:"teɪk, tʊk, ˈteɪkn",topic:"verbs",ex:"He has taken the bus."},
+  {en:"to make, made, made",de:"machen; tun",pron:"meɪk, meɪd, meɪd",topic:"verbs",ex:"She has made a cake."},
+  {en:"to go, went, gone",de:"gehen; fahren",pron:"gəʊ, went, gɒn",topic:"verbs",ex:"They have gone home."},
+
+  // ---------- Topic 2 (S. 38-40) ----------
+  {en:"ever",de:"schon einmal; jemals; überhaupt",pron:"ˈevə",topic:"topic2",ex:"Have you ever played rugby?"},
+  {en:"fun",de:"lustig; spaßig; amüsant",pron:"fʌn",topic:"topic2",ex:"The Highland Games sound fun."},
+  {en:"to be on",de:"auf dem Programm stehen; anstehen; laufen",pron:"biː ˈɒn",topic:"topic2",ex:"The Highland dancing is on later."},
+  {en:"bought",de:"past participle von to buy (kaufen)",alt:["gekauft"],pron:"bɔːt",topic:"topic2",ex:"I have bought = ich kaufte/ich habe gekauft"},
+  {en:"left",de:"übrig",pron:"left",topic:"topic2",ex:"We've got one ticket left."},
+  {en:"just",de:"gerade (eben); einfach; soeben; nur",pron:"dʒʌst",topic:"topic2",ex:"I've just bought two more tickets."},
+  {en:"over",de:"herüber; über; drüben",pron:"ˈəʊvə",topic:"topic2",ex:"I'll come over at 5:00."},
+  {en:"See you later.",de:"Bis später.; Bis dann.",pron:"ˌsiː jə ˈleɪtə",topic:"topic2",ex:"Let's meet at 6:00. – OK. See you later."},
+  {en:"to find out",de:"herausfinden",pron:"ˌfaɪndˈaʊt",topic:"topic2",ex:"Find out when the film starts, please."},
+  {en:"line",de:"Zeile; Linie",pron:"laɪn",topic:"topic2",ex:"That's in line 7."},
+  {en:"another",de:"ein anderer; andere; noch ein",pron:"əˈnʌðə",topic:"topic2",ex:"She moved to another place."},
+
+  // ---------- Das kenne ich schon: adverbs of time (S. 147) ----------
+  {en:"never",de:"nie; niemals",pron:"ˈnevə",topic:"adverbs",ex:"I have never been to Scotland."},
+  {en:"still",de:"noch; immer noch",pron:"stɪl",topic:"adverbs",ex:"He is still at school."},
+  {en:"occasionally",de:"gelegentlich",pron:"əˈkeɪʒnli",topic:"adverbs",ex:"We occasionally go to the cinema."},
+
+  // ---------- Text (S. 42/43) ----------
+  {en:"century",de:"Jahrhundert",pron:"ˈsentʃri",topic:"text",ex:"a century = 100 years"},
+  {en:"battle",de:"Schlacht; Kampf",pron:"ˈbætl",topic:"text",ex:"Years ago, there were many battles."},
+  {en:"between",de:"zwischen",pron:"bɪˈtwiːn",topic:"text",ex:"Ben is between the tree and the ball."},
+  {en:"free",de:"frei; kostenlos",pron:"friː",topic:"text",ex:"The Scots wanted to be free."},
+  {en:"to keep out",de:"draußen halten",pron:"ˌkiːpˈaʊt",topic:"text",ex:"I will keep the English out."},
+  {en:"army",de:"Armee; Heer",pron:"ˈaːmi",topic:"text",ex:"England has a strong army."},
+  {en:"lost",de:"past participle von to lose (verlieren)",alt:["verloren"],pron:"lɒst",topic:"text",ex:"I have lost = ich verlor/ich habe verloren"},
+  {en:"spider",de:"Spinne",pron:"ˈspaɪdə",topic:"text",ex:"The spider never gives up."},
+  {en:"web",de:"Netz",pron:"web",topic:"text",ex:"The spider makes a web."},
+  {en:"to give up",de:"aufgeben",pron:"ˌgɪvˈʌp",topic:"text",ex:"The spider never gives up."},
+  {en:"must never/not",de:"nie/nicht dürfen",pron:"ˌmʌst ˈnevə/ˈnɒt",topic:"text",ex:"I must never give up."},
+  {en:"won",de:"past participle von to win (gewinnen)",alt:["gewonnen"],pron:"wʌn",topic:"text",ex:"I have won = ich gewann/ich habe gewonnen"},
+  {en:"to make peace",de:"Frieden schaffen",pron:"ˌmeɪk ˈpiːs",topic:"text",ex:"Robert the Bruce made peace in Scotland."},
+  {en:"brave",de:"tapfer; mutig",pron:"breɪv",topic:"text",ex:"Robert the Bruce was a brave man."},
+
+  // ---------- Film (S. 148) ----------
+  {en:"briefcase",de:"Aktenkoffer; Aktentasche",pron:"ˈbriːfkeɪs",topic:"film",ex:"The man has a black briefcase."},
+  {en:"time of year",de:"Jahreszeit",pron:"ˌtaɪm əv ˈjɪə",topic:"film",ex:"What time of year is it?"},
+  {en:"prop",de:"Requisit",pron:"prɒp",topic:"film",ex:"The props are for the film."},
+  {en:"reason",de:"Grund",pron:"ˈriːzn",topic:"film",ex:"What is the reason for that?"},
+  {en:"to think",de:"finden",pron:"θɪŋk",topic:"film",ex:"What do you think about the film?"},
+
+  // ---------- More about (S. 48/49) ----------
+  {en:"to lift",de:"heben; hochheben; anheben",pron:"lɪft",topic:"more",ex:"The men had to lift different things."},
+  {en:"heavy events",de:"Heavy Events (Aktivitäten bei den Highland Games mit schweren Gewichten)",pron:"ˌhevi ɪˈvents",topic:"more",ex:"The heavy events are for strong people."},
+  {en:"heavy",de:"schwer; stark; schwierig",pron:"ˈhevi",topic:"more",ex:"The box was very heavy."},
+  {en:"dancing",de:"Tanz; Tanzen",pron:"ˈdaːnsɪŋ",topic:"more",ex:"dancing → to dance"},
+  {en:"caber toss",de:"Baumstammwerfen",pron:"ˈkeɪbə ˌtɒs",topic:"more",ex:"The caber toss is a famous event."},
+  {en:"rarely",de:"selten",pron:"ˈreəli",topic:"more",ex:"rarely ↔ often"},
+  {en:"chain",de:"Kette",pron:"tʃeɪn",topic:"more",ex:"The chain is very long."},
+  {en:"to swing, swung, swung",de:"schwingen; schwenken",pron:"swɪŋ, swʌŋ, swʌŋ",topic:"more",ex:"You swing the ball above your head."},
+  {en:"as ... as",de:"so ... wie",pron:"əz ... əz",topic:"more",ex:"Anna is as old as Sarah. They're 15."},
+  {en:"stone put",de:"Steinstoßen",pron:"ˈstəʊn ˌpʊt",topic:"more",ex:"The stone put is also a heavy event."},
+  {en:"stone",de:"Stein",pron:"stəʊn",topic:"more",ex:"People use a stone from the river."},
+  {en:"to use",de:"nehmen; verwenden; benutzen; nutzen",pron:"juːz",topic:"more",ex:"People use a stone from the river."},
+  {en:"for example",de:"zum Beispiel",pron:"fər ɪgˈzaːmpl",topic:"more",ex:"I like salad, for example tomato salad."},
+  {en:"way",de:"Art und Weise",pron:"weɪ",topic:"more",ex:"It's a good way to spend our holidays."},
+  {en:"possible",de:"möglich",pron:"ˈpɒsəbl",topic:"more",ex:"How is that possible?"},
+
+  // ---------- Presentation skills (S. 50/51) ----------
+  {en:"presentation",de:"Präsentation; Referat; Vortrag",pron:"ˌpreznˈteɪʃn",topic:"presentation",ex:"We have to do a presentation in English."},
+  {en:"university",de:"Universität",pron:"juːnɪˈvɜːsəti",topic:"presentation",ex:"Glasgow has a big university."},
+  {en:"twin town",de:"Partnerstadt",pron:"ˌtwɪn ˈtaʊn",topic:"presentation",ex:"Nuremberg is the twin town of Glasgow."},
+  {en:"most",de:"die meisten; die Mehrheit; am meisten",pron:"məʊst",topic:"presentation",ex:"Most people like chocolate."}
+] },
+  unit3: { name: "Unit 3", topics: {
+  all:"Alle",
+  intro:"Intro · Welcome to Ireland",
+  topic1:"Topic 1 · Public transport",
+  travel:"Travel",
+  topic2:"Topic 2 · Feelings",
+  feelings:"Adjectives for feelings",
+  text:"Text · St Patrick's Day",
+  prepositions:"Prepositions of time & Film",
+  more:"More about · The Troubles",
+  speaking:"Speaking skills"
+}, words: [
+  // ---------- Intro (S. 52/53) ----------
+  {en:"euro",de:"Euro (Währung)",pron:"ˈjʊərəʊ",topic:"intro",ex:"In Ireland people pay with the euro."},
+  {en:"Irish",de:"irisch; Irisch; aus Irland",pron:"ˈaɪrɪʃ",topic:"intro",ex:"There are many famous Irish bands."},
+  {en:"orchestra",de:"Orchester",pron:"ˈɔːkɪstrə",topic:"intro",ex:"She plays in the school orchestra."},
+  {en:"half (sg), halves (pl)",de:"(die) Hälfte",pron:"haːf, haːvz",topic:"intro",ex:"Half of the class eats in the cafeteria."},
+  {en:"the Irish",de:"die Iren",pron:"ði ˈaɪrɪʃ",topic:"intro",ex:"the Irish → Irish"},
+  {en:"to celebrate",de:"feiern",pron:"ˈseləbreɪt",topic:"intro",ex:"I celebrate with my family and friends."},
+  {en:"shamrock",de:"Kleeblatt",pron:"ˈʃæmrɒk",topic:"intro",ex:"The shamrock is a symbol of Ireland."},
+  {en:"hurling",de:"Hurling (ähnliche Sportart wie Hockey)",pron:"ˈhɜːlɪŋ",topic:"intro",ex:"Hurling is an Irish sport."},
+  {en:"Gaelic football",de:"Gaelic Football",pron:"ˌgeɪlɪk ˈfʊtbɔːl",topic:"intro",ex:"Gaelic football is also an Irish sport."},
+  {en:"Gaelic",de:"gälisch",pron:"ˈgeɪlɪk",topic:"intro",ex:"Irish people love Gaelic sports."},
+
+  // ---------- Topic 1 (S. 54-56) ----------
+  {en:"workshop",de:"Workshop; Seminar",pron:"ˈwɜːkʃɒp",topic:"topic1",ex:"Achtung Schreibweise! workshop"},
+  {en:"public transport",de:"öffentliche Verkehrsmittel",pron:"ˌpʌblɪk ˈtrænspɔːt",topic:"topic1",ex:"public transport: buses, trams, trains"},
+  {en:"timetable",de:"Fahrplan",pron:"ˈtaɪmˌteɪbl",topic:"topic1",ex:"Look at the bus times on the timetable."},
+  {en:"to change",de:"umsteigen",pron:"tʃeɪndʒ",topic:"topic1",ex:"We have to change at Goldenbridge."},
+  {en:"journey",de:"Fahrt; Reise",pron:"ˈdʒɜːni",topic:"topic1",ex:"The journey takes 40 minutes."},
+  {en:"all-day",de:"Ganztages-",pron:"ˈɔːldeɪ",topic:"topic1",ex:"We need an all-day ticket."},
+  {en:"each",de:"pro Stück; jeweils; jede",pron:"iːtʃ",topic:"topic1",ex:"The DVDs are €10 each. = One DVD is €10."},
+  {en:"single ticket",de:"einfache Fahrkarte",pron:"ˌsɪŋgl ˈtɪkɪt",topic:"topic1",ex:"A single ticket is for one journey."},
+  {en:"to cost, cost, cost",de:"kosten",pron:"kɒst",topic:"topic1",ex:"The tickets cost €1 each."},
+  {en:"return ticket",de:"Hin- und Rückfahrkarte",pron:"rɪˈtɜːn ˌtɪkɪt",topic:"topic1",ex:"Let's buy a return ticket. That's cheaper."},
+  {en:"key",de:"Schlüssel",pron:"kiː",topic:"topic1",ex:"Where is the key to the door?"},
+  {en:"to leave",de:"hinterlassen; vergessen",pron:"liːv",topic:"topic1",ex:"I left him a message."},
+  {en:"notice",de:"Aushang; Plakat",pron:"ˈnəʊtɪs",topic:"topic1",ex:"I saw your notice."},
+  {en:"to call",de:"anrufen; rufen; nennen",pron:"kɔːl",topic:"topic1",ex:"My grandma called on my birthday."},
+
+  // ---------- Das kenne ich schon: travel (S. 150) ----------
+  {en:"to travel",de:"fahren; reisen",pron:"ˈtrævl",topic:"travel",ex:"We travel to Ireland by plane."},
+  {en:"past",de:"vorbei (an)",pron:"paːst",topic:"travel",ex:"We walked past the church."},
+  {en:"to arrive",de:"ankommen",pron:"əˈraɪv",topic:"travel",ex:"The train arrives at 10:00."},
+  {en:"to leave (bus/train)",de:"abfahren; weggehen",pron:"liːv",topic:"travel",ex:"The bus leaves in five minutes."},
+  {en:"ticket",de:"Fahrschein; Ticket",pron:"ˈtɪkɪt",topic:"travel",ex:"I need a ticket for the bus."},
+  {en:"all-day ticket",de:"Ganztagesticket",pron:"ˈɔːldeɪ ˌtɪkɪt",topic:"travel",ex:"An all-day ticket is cheaper."},
+  {en:"bus",de:"Bus",pron:"bʌs",topic:"travel",ex:"We take the bus to school."},
+  {en:"train",de:"Zug",pron:"treɪn",topic:"travel",ex:"The train is very fast."},
+  {en:"tram",de:"Straßenbahn",pron:"træm",topic:"travel",ex:"The tram goes to the city centre."},
+  {en:"across",de:"über",pron:"əˈkrɒs",topic:"travel",ex:"We walked across the bridge."},
+  {en:"on the left",de:"links; auf der linken Seite",pron:"ɒn ðə ˈleft",topic:"travel",ex:"The shop is on the left."},
+  {en:"on the right",de:"rechts; auf der rechten Seite",pron:"ɒn ðə ˈraɪt",topic:"travel",ex:"The station is on the right."},
+  {en:"to take",de:"dauern; brauchen; nehmen",pron:"teɪk",topic:"travel",ex:"It takes 20 minutes."},
+  {en:"stop",de:"Haltestelle; Halt",pron:"stɒp",topic:"travel",ex:"Get off at the next stop."},
+  {en:"near",de:"in der Nähe von; nah",pron:"nɪə",topic:"travel",ex:"The hotel is near the station."},
+  {en:"to get off",de:"aussteigen",pron:"ˌgetˈɒf",topic:"travel",ex:"We get off at Goldenbridge."},
+  {en:"map",de:"Karte; Plan",pron:"mæp",topic:"travel",ex:"Look at the map, please."},
+
+  // ---------- Topic 2 (S. 58-61) ----------
+  {en:"to be fed up (with)",de:"die Nase voll haben (von)",pron:"biː ˌfedˈʌp wɪð",topic:"topic2",ex:"I'm fed up with school and homework."},
+  {en:"advice",de:"Rat; Ratschlag",pron:"ədˈvaɪs",topic:"topic2",ex:"Emily gave me some good advice."},
+  {en:"not ... any",de:"kein; keine",pron:"ˌnɒt ... eni",topic:"topic2",ex:"She hasn't got any money."},
+  {en:"not ... any more",de:"nicht mehr",pron:"ˌnɒt ... eni ˈmɔː",topic:"topic2",ex:"They aren't friends any more."},
+  {en:"bed & breakfast (B&B)",de:"Frühstückspension",pron:"ˌbed ən ˈbrekfəst",topic:"topic2",ex:"We stayed in a bed & breakfast in Wales."},
+  {en:"to tell sb to do sth",de:"jmdm. etw. auftragen; jmdm. etw. befehlen",pron:"ˈtel tə ˌduː",topic:"topic2",ex:"Mum always tells me to tidy my room."},
+  {en:"should",de:"sollte",pron:"ʃʊd",topic:"topic2",ex:"Linda should talk to her parents."},
+  {en:"can't stand + -ing",de:"etw. nicht ausstehen können; etw. nicht ertragen",pron:"ˌkaːnt ˈstænd ...ɪŋ",topic:"topic2",ex:"I can't stand living in the B&B."},
+  {en:"someone",de:"jemand",pron:"ˈsʌmwʌn",topic:"topic2",ex:"someone = somebody"},
+  {en:"accent",de:"Akzent",pron:"ˈæksnt",topic:"topic2",ex:"The man had a strong German accent."},
+  {en:"not ... anything",de:"nichts",pron:"ˌnɒt ... ˈeniθɪŋ",topic:"topic2",ex:"I didn't understand anything."},
+  {en:"who",de:"der; die; das",pron:"huː",topic:"topic2",ex:"There's the man who was in the film."},
+  {en:"to try",de:"versuchen; probieren; ausprobieren",pron:"traɪ",topic:"topic2",ex:"He's really angry. – I'll try to talk to him."},
+  {en:"positive",de:"positiv",pron:"ˈpɒzətɪv",topic:"topic2",ex:"Try and be positive, Linda."},
+  {en:"guest",de:"Gast",pron:"gest",topic:"topic2",ex:"We have guests for the weekend."},
+  {en:"anybody",de:"irgendjemand; jemand; jeder",pron:"ˈeniˌbɒdi",topic:"topic2",ex:"Can anybody help me, please?"},
+  {en:"that",de:"der; die; das",pron:"ðæt",topic:"topic2",ex:"There's the man that helped me yesterday."},
+  {en:"list",de:"Liste",pron:"lɪst",topic:"topic2",ex:"Here is the list of things you need."},
+  {en:"chance",de:"Möglichkeit; Chance; Gelegenheit",pron:"tʃaːns",topic:"topic2",ex:"We didn't have the chance to visit Big Ben."},
+  {en:"to think of",de:"sich einfallen lassen; denken an/über; sich ausdenken",pron:"ˈθɪŋk əv",topic:"topic2",ex:"We can think of something good to do."},
+  {en:"to walk",de:"gehen; laufen",pron:"wɔːk",topic:"topic2",ex:"We walk to school every day."},
+
+  // ---------- Das kenne ich schon: adjectives for feelings (S. 151) ----------
+  {en:"bad",de:"schlecht",pron:"bæd",topic:"feelings",ex:"The weather was bad."},
+  {en:"unhappy",de:"unglücklich; traurig",pron:"ʌnˈhæpi",topic:"feelings",ex:"She was unhappy about the news."},
+  {en:"happy",de:"glücklich",pron:"ˈhæpi",topic:"feelings",ex:"I'm happy to see you."},
+  {en:"fantastic",de:"fantastisch; großartig",pron:"fænˈtæstɪk",topic:"feelings",ex:"The concert was fantastic."},
+  {en:"nice",de:"schön; nett",pron:"naɪs",topic:"feelings",ex:"That's a nice idea."},
+  {en:"angry",de:"wütend; zornig; verärgert; böse",pron:"ˈæŋgri",topic:"feelings",ex:"Dad was angry with me."},
+  {en:"sad",de:"traurig",pron:"sæd",topic:"feelings",ex:"The film was very sad."},
+  {en:"cool",de:"cool; super",pron:"kuːl",topic:"feelings",ex:"Your new bike is cool!"},
+  {en:"special",de:"besonders; speziell",pron:"ˈspeʃl",topic:"feelings",ex:"Today is a special day."},
+  {en:"silly",de:"albern",pron:"ˈsɪli",topic:"feelings",ex:"Don't be silly!"},
+  {en:"awful",de:"schrecklich; furchtbar",pron:"ˈɔːfl",topic:"feelings",ex:"The food was awful."},
+  {en:"excited",de:"aufgeregt; begeistert",pron:"ɪkˈsaɪtɪd",topic:"feelings",ex:"I'm excited about the trip."},
+  {en:"worried",de:"beunruhigt; besorgt",pron:"ˈwʌrid",topic:"feelings",ex:"Mum was worried about me."},
+  {en:"amazing",de:"unglaublich; erstaunlich; toll",pron:"əˈmeɪzɪŋ",topic:"feelings",ex:"The view was amazing."},
+  {en:"pretty",de:"hübsch",pron:"ˈprɪti",topic:"feelings",ex:"That's a pretty dress."},
+
+  // ---------- Text (S. 62/63) ----------
+  {en:"different",de:"andere",pron:"ˈdɪfrnt",topic:"text",ex:"This is a different kind of story."},
+  {en:"gold",de:"Gold",pron:"gəʊld",topic:"text",ex:"Guess what? They found gold!"},
+  {en:"back home",de:"zu Hause; daheim",pron:"bæk ˈhəʊm",topic:"text",ex:"I wanted to be back home."},
+  {en:"to introduce sb to sb",de:"jmdn. jmdm. vorstellen",pron:"ˌɪntrəˈdjuːs",topic:"text",ex:"I should introduce myself to you."},
+  {en:"to say",de:"aussprechen",pron:"seɪ",topic:"text",ex:"How do you say Niamh?"},
+  {en:"finally",de:"schließlich; zum Schluss",pron:"ˈfaɪnli",topic:"text",ex:"He finally found a job in Northampton."},
+  {en:"to mean, meant, meant",de:"bedeuten; meinen",pron:"miːn, ment, ment",topic:"text",ex:"It meant we had to move to England."},
+  {en:"whole",de:"ganz",pron:"həʊl",topic:"text",ex:"The whole city is green."},
+  {en:"card",de:"Karte",pron:"kaːd",topic:"text",ex:"My grandma sent a gold card."},
+  {en:"rainbow",de:"Regenbogen",pron:"ˈreɪnbəʊ",topic:"text",ex:"The pot is at the end of the rainbow."},
+  {en:"each other",de:"einander; sich; gegenseitig",pron:"iːtʃˈʌðə",topic:"text",ex:"We send cards and give each other sweets."},
+  {en:"gold (adj)",de:"golden; Gold-",pron:"gəʊld",topic:"text",ex:"My grandma sent a gold card."},
+  {en:"paper",de:"Papier",pron:"ˈpeɪpə",topic:"text",ex:"Use this paper for your list."},
+  {en:"pot",de:"Topf",pron:"pɒt",topic:"text",ex:"The pot is at the end of the rainbow."},
+  {en:"to feel",de:"sich anfühlen; empfinden; glauben",pron:"fiːl",topic:"text",ex:"It nearly felt like Ireland."},
+  {en:"even",de:"noch; sogar",pron:"ˈiːvn",topic:"text",ex:"Berlin is big but London is even bigger."},
+  {en:"poem",de:"Gedicht",pron:"ˈpəʊɪm",topic:"text",ex:"I read a nice poem about summer."},
+  {en:"one(s)",de:"Platzhalter für ein Nomen",pron:"wʌn(z)",topic:"text",ex:"This scarf is nice, but that one is nicer."},
+  {en:"clear",de:"klar; deutlich",pron:"klɪə",topic:"text",ex:"The mountains are clear to see."},
+  {en:"enough",de:"genug; genügend",pron:"ɪˈnʌf",topic:"text",ex:"I have enough money for my ticket."},
+  {en:"could",de:"konnte",pron:"kʊd",topic:"text",ex:"I couldn't talk."},
+  {en:"surprise",de:"Überraschung",pron:"səˈpraɪz",topic:"text",ex:"Her costume for the party is a surprise."},
+  {en:"headline",de:"Überschrift; Schlagzeile",pron:"ˈhedlaɪn",topic:"text",ex:"We need a good headline for the story."},
+
+  // ---------- Das kenne ich schon: prepositions of time + Film (S. 152) ----------
+  {en:"after",de:"nach",pron:"ˈaːftə",topic:"prepositions",ex:"We meet after school."},
+  {en:"before",de:"vor; bevor",pron:"bɪˈfɔː",topic:"prepositions",ex:"Call me before dinner."},
+  {en:"on",de:"an; am",pron:"ɒn",topic:"prepositions",ex:"on Monday"},
+  {en:"at",de:"an; um",pron:"æt",topic:"prepositions",ex:"at 6 o'clock"},
+  {en:"in",de:"im; in; am",pron:"ɪn",topic:"prepositions",ex:"in summer"},
+  {en:"during",de:"während",pron:"ˈdjʊərɪŋ",topic:"prepositions",ex:"I ate my lunch during the break."},
+  {en:"sorry",de:"bekümmert; traurig",pron:"ˈsɒri",topic:"prepositions",ex:"I felt sorry for him."},
+
+  // ---------- More about (S. 68/69) ----------
+  {en:"trouble",de:"Problem; Schwierigkeiten; Ärger",pron:"ˈtrʌbl",topic:"more",ex:"There were lots of troubles in Ireland."},
+  {en:"island",de:"Insel",pron:"ˈaɪlənd",topic:"more",ex:"Ireland is a green island."},
+  {en:"Protestant",de:"protestantisch; Protestant; Protestantin",pron:"ˈprɒtɪstnt",topic:"more",ex:"Achtung Aussprache!"},
+  {en:"Catholic",de:"Katholik; Katholikin; katholisch",pron:"ˈkæθlɪk",topic:"more",ex:"Achtung Schreibweise! Catholic"},
+  {en:"religion",de:"Religion",pron:"rɪˈlɪdʒn",topic:"more",ex:"There are two religions in Ireland."},
+  {en:"terrorism",de:"Terrorismus",pron:"ˈterɪzm",topic:"more",ex:"There was a lot of terrorism in Ireland."},
+  {en:"to die",de:"sterben",pron:"daɪ",topic:"more",ex:"He died when he was 90 years old."},
+  {en:"then",de:"damals",pron:"ðen",topic:"more",ex:"We lived in Wales then."},
+  {en:"since",de:"seit; seitdem",pron:"sɪns",topic:"more",ex:"I have lived here since March."},
+  {en:"type",de:"Typ; Sorte; Art",pron:"taɪp",topic:"more",ex:"There are two types of schools in Ireland."},
+  {en:"sign",de:"Zeichen; Anzeichen; Schild",pron:"saɪn",topic:"more",ex:"Achtung Schreibweise! sign"},
+
+  // ---------- Speaking skills (S. 70/71) ----------
+  {en:"campsite",de:"Campingplatz; Zeltplatz",pron:"ˈkæmpsaɪt",topic:"speaking",ex:"We stayed at a campsite."},
+  {en:"background",de:"Hintergrund",pron:"ˈbækgraʊnd",topic:"speaking",ex:"The tree is in the background."},
+  {en:"middle",de:"Mitte",pron:"ˈmɪdl",topic:"speaking",ex:"The car is in the middle of the road."},
+  {en:"foreground",de:"Vordergrund",pron:"ˈfɔːgraʊnd",topic:"speaking",ex:"The dog is in the foreground."},
+  {en:"to go camping",de:"campen gehen; zelten gehen",pron:"ˌgəʊ ˈkæmpɪŋ",topic:"speaking",ex:"We went camping with my cousins."}
+] },
+  unit4: { name: "Unit 4", topics: {
+  all:"Alle",
+  intro:"Intro · USA",
+  topic1:"Topic 1 · Native Americans & media",
+  comparing:"Comparing things",
+  topic2:"Topic 2 · Rafting",
+  numbers:"Ordinal numbers",
+  muchmany:"much or many?",
+  text:"Text · US sports",
+  film:"Film",
+  more:"More about · Civil rights",
+  celebrations:"Celebrations",
+  writing:"Writing skills",
+  beae:"British / American English"
+}, words: [
+  // ---------- Intro (S. 74/75) ----------
+  {en:"around",de:"hier: durch; um",pron:"əˈraʊnd",topic:"intro",ex:"Wayne won a trip around the USA."},
+  {en:"valley",de:"Tal",pron:"ˈvæli",topic:"intro",ex:"The valley is very green."},
+  {en:"state",de:"Bundesstaat; Staat",pron:"steɪt",topic:"intro",ex:"There are 50 states in the USA."},
+  {en:"huge",de:"riesig; riesengroß",pron:"hjuːdʒ",topic:"intro",ex:"huge ↔ small"},
+  {en:"national park",de:"Nationalpark",pron:"ˌnæʃnl ˈpaːk",topic:"intro",ex:"The USA has lots of national parks."},
+  {en:"America",de:"Amerika",pron:"əˈmerɪkə",topic:"intro",ex:"They speak English in America."},
+  {en:"plant",de:"Pflanze",pron:"plaːnt",topic:"intro",ex:"There are many plants in the desert."},
+  {en:"rafting",de:"Rafting",pron:"ˈraːftɪŋ",topic:"intro",ex:"You can do rafting in the sea or on a river."},
+  {en:"trip",de:"Tour; Trip",pron:"trɪp",topic:"intro",ex:"We went on a trip to the mountains."},
+  {en:"US",de:"US-amerikanisch",pron:"juːˈes",topic:"intro",ex:"It is a US school, not a British school."},
+  {en:"space",de:"Raumfahrt; Weltraum",pron:"speɪs",topic:"intro",ex:"There are things from space at the center."},
+  {en:"center (AE)",de:"Zentrum; Mitte; Center",pron:"ˈsentə",topic:"intro",ex:"AE: center BE: centre"},
+  {en:"earth",de:"Welt; Erde",pron:"ɜːθ",topic:"intro",ex:"The earth is our planet."},
+  {en:"Native American",de:"Ureinwohner Amerikas; Ureinwohnerin Amerikas",pron:"ˌneɪtɪv əˈmerɪkən",topic:"intro",ex:"Native Americans live in the USA."},
+  {en:"native",de:"eingeboren; einheimisch",pron:"ˈneɪtɪv",topic:"intro",ex:"The native people were there first."},
+  {en:"European",de:"Europäer; Europäerin; europäisch; aus Europa",pron:"ˌjʊərəˈpiːən",topic:"intro",ex:"Later many Europeans settled in America."},
+  {en:"to settle",de:"siedeln; besiedeln; sich niederlassen",pron:"ˈsetl",topic:"intro",ex:"Later many Europeans settled in America."},
+  {en:"favorite (AE)",de:"Lieblings-",pron:"ˈfeɪvrɪt",topic:"intro",ex:"AE: favorite BE: favourite"},
+  {en:"football (AE)",de:"American Football; Football",pron:"ˈfʊtbɔːl",topic:"intro",ex:"Football is very popular in the USA."},
+  {en:"to go rafting",de:"raften gehen",pron:"ˌgəʊ ˈraːftɪŋ",topic:"intro",ex:"I went rafting yesterday."},
+
+  // ---------- Topic 1 (S. 76-78) ----------
+  {en:"vacation (AE)",de:"Urlaub; Ferien",pron:"vəˈkeɪʃn",topic:"topic1",ex:"AE: vacation BE: holiday"},
+  {en:"people",de:"Volk",pron:"ˈpiːpl",topic:"topic1",ex:"I met the Navajo people on Tuesday."},
+  {en:"beautiful",de:"schön; hübsch; wunderschön",pron:"ˈbjuːtɪfl",topic:"topic1",ex:"There are beautiful beaches in Australia."},
+  {en:"tribe",de:"Stamm; Volksstamm",pron:"traɪb",topic:"topic1",ex:"It is one of the largest tribes in the USA."},
+  {en:"reservation",de:"Reservat; Reservierung",pron:"ˌrezəˈveɪʃn",topic:"topic1",ex:"A lot of them live on reservations."},
+  {en:"to be interested in",de:"interessiert sein an; sich interessieren für",pron:"biː ˈɪntrəstɪd ˌɪn",topic:"topic1",ex:"They are interested in news from their people."},
+  {en:"social media",de:"soziale Medien",pron:"ˌsəʊʃl ˈmiːdiə",topic:"topic1",ex:"Many young people use social media."},
+  {en:"to share",de:"teilen",pron:"ʃeə",topic:"topic1",ex:"I'll share my room with you."},
+  {en:"video",de:"Video",pron:"ˈvɪdiəʊ",topic:"topic1",ex:"There are many cat videos on the internet."},
+  {en:"to post",de:"posten; online stellen",pron:"pəʊst",topic:"topic1",ex:"I post my pictures online."},
+  {en:"themselves",de:"sich; selbst; sie selbst",pron:"ðəmˈselvz",topic:"topic1",ex:"They took photos of themselves."},
+  {en:"tablet",de:"Tablet",pron:"ˈtæblət",topic:"topic1",ex:"I read the news on my tablet."},
+  {en:"to remember",de:"sich erinnern (an); sich merken",pron:"rɪˈmembə",topic:"topic1",ex:"Do you remember our trip to London?"},
+  {en:"the most important",de:"die wichtigste",pron:"ðə ˈməʊst ɪmˌpɔːtnt",topic:"topic1",ex:"New York is the most important city."},
+  {en:"latest",de:"neueste; aktuell",pron:"ˈleɪtɪst",topic:"topic1",ex:"I always buy the latest fashion."},
+  {en:"the least difficult",de:"die einfachste",pron:"ðə ˈliːst ˌdɪfɪklt",topic:"topic1",ex:"This website is the least difficult to use."},
+  {en:"newspaper",de:"Zeitung",pron:"ˈnjuːsˌpeɪpə",topic:"topic1",ex:"My dad reads the newspaper."},
+  {en:"less",de:"weniger",pron:"les",topic:"topic1",ex:"less ↔ more"},
+  {en:"movie (AE)",de:"Film",pron:"ˈmuːvi",topic:"topic1",ex:"AE: movie BE: film"},
+  {en:"camp",de:"Camp; Lager",pron:"kæmp",topic:"topic1",ex:"I'm going to go to a football camp."},
+  {en:"useful",de:"nützlich; hilfreich; brauchbar",pron:"ˈjuːsfl",topic:"topic1",ex:"Thanks for your advice. It's very useful."},
+
+  // ---------- Das kenne ich schon: comparing things (S. 155) ----------
+  {en:"cheap, cheaper, the cheapest",de:"günstig; billig",pron:"tʃiːp",topic:"comparing",ex:"This ticket is cheaper."},
+  {en:"big, bigger, the biggest",de:"groß",pron:"bɪg",topic:"comparing",ex:"New York is bigger than Boston."},
+  {en:"good, better, the best",de:"gut",pron:"gʊd",topic:"comparing",ex:"This is the best day ever."},
+  {en:"bad, worse, the worst",de:"schlecht; schlimm",pron:"bæd",topic:"comparing",ex:"The weather was worse yesterday."},
+  {en:"exciting, more exciting, the most exciting",de:"spannend; aufregend",pron:"ɪkˈsaɪtɪŋ",topic:"comparing",ex:"Rafting is more exciting than walking."},
+  {en:"beautiful, more beautiful, the most beautiful",de:"schön; hübsch; wunderschön",pron:"ˈbjuːtɪfl",topic:"comparing",ex:"This is the most beautiful park."},
+  {en:"boring, more boring, the most boring",de:"langweilig",pron:"ˈbɔːrɪŋ",topic:"comparing",ex:"That film was more boring."},
+  {en:"expensive, more expensive, the most expensive",de:"teuer",pron:"ɪkˈspensɪv",topic:"comparing",ex:"The hotel is more expensive."},
+
+  // ---------- Topic 2 (S. 80-83) ----------
+  {en:"for the 200th time",de:"zum 200. Mal",pron:"fəðə ˈtuː hʌndrədθ ˌtaɪm",topic:"topic2",ex:"I have asked for the 200th time."},
+  {en:"which",de:"das; der; die",pron:"wɪtʃ",topic:"topic2",ex:"My house is the house which is on the left."},
+  {en:"leader",de:"Leiter; Leiterin",pron:"ˈliːdə",topic:"topic2",ex:"The camp leader was Stella Price."},
+  {en:"raft",de:"Raft; Floß",pron:"raːft",topic:"topic2",ex:"raft → rafting"},
+  {en:"to paddle",de:"paddeln",pron:"ˈpædl",topic:"topic2",ex:"We paddled down the river in a raft."},
+  {en:"helicopter",de:"Helikopter; Hubschrauber",pron:"ˈhelɪkɒptə",topic:"topic2",ex:"The helicopter came to help us."},
+  {en:"megaphone",de:"Megafon",pron:"ˈmegəfəʊn",topic:"topic2",ex:"She shouted into the megaphone."},
+  {en:"wave",de:"Welle",pron:"weɪv",topic:"topic2",ex:"That was a big wave!"},
+  {en:"rapid",de:"Stromschnelle",pron:"ˈræpɪd",topic:"topic2",ex:"The raft went into the dangerous rapids."},
+  {en:"heart",de:"Herz",pron:"haːt",topic:"topic2",ex:"Wayne's heart went crazy."},
+  {en:"to go crazy",de:"durchdrehen; verrückt werden",pron:"ˌgəʊ ˈkreɪzi",topic:"topic2",ex:"Wayne's heart went crazy."},
+  {en:"rock",de:"Fels; Stein",pron:"rɒk",topic:"topic2",ex:"There is a big rock in the river."},
+  {en:"deep",de:"tief",pron:"diːp",topic:"topic2",ex:"The river fell into a deep hole."},
+  {en:"current",de:"Strömung",pron:"ˈkʌrnt",topic:"topic2",ex:"We tried to fight against the current."},
+  {en:"to turn over",de:"umkippen; (sich) umdrehen",pron:"ˌtɜːn ˈəʊvə",topic:"topic2",ex:"The raft turned over in the river."},
+  {en:"to wake up, woke up, woken up",de:"aufwachen; erwachen",pron:"ˌweɪkˈʌp, ˌwəʊkˈʌp, ˌwəʊknˈʌp",topic:"topic2",ex:"I woke up at 7 o'clock."},
+  {en:"president",de:"Präsident; Präsidentin",pron:"ˈprezɪdnt",topic:"topic2",ex:"The president lives in Washington."},
+  {en:"dollar ($)",de:"Dollar (amer. Währungseinheit)",pron:"ˈdɒlə",topic:"topic2",ex:"The ticket costs ten dollars."},
+
+  // ---------- Das kenne ich schon: ordinal numbers (S. 156) ----------
+  {en:"thirty-second (32nd)",de:"zweiunddreißigste",pron:"ˌθɜːtiˈseknd",topic:"numbers",ex:"This is the thirty-second page."},
+  {en:"thirty-third (33rd)",de:"dreiunddreißigste",pron:"ˌθɜːtiˈθɜːd",topic:"numbers",ex:"It's his thirty-third birthday."},
+  {en:"fortieth (40th)",de:"vierzigste",pron:"ˈfɔːtiəθ",topic:"numbers",ex:"That's the fortieth time."},
+  {en:"forty-fifth (45th)",de:"fünfundvierzigste",pron:"ˌfɔːtiˈfɪfθ",topic:"numbers",ex:"He was the forty-fifth president."},
+  {en:"fiftieth (50th)",de:"fünfzigste",pron:"ˈfɪftiəθ",topic:"numbers",ex:"It's their fiftieth year."},
+  {en:"fifty-first (51st)",de:"einundfünfzigste",pron:"ˌfɪftiˈfɜːst",topic:"numbers",ex:"The fifty-first state?"},
+  {en:"sixtieth (60th)",de:"sechzigste",pron:"ˈsɪkstiəθ",topic:"numbers",ex:"Grandma's sixtieth birthday."},
+  {en:"sixty-eighth (68th)",de:"achtundsechzigste",pron:"ˌsɪkstiˈeɪtθ",topic:"numbers",ex:"That's the sixty-eighth room."},
+  {en:"seventieth (70th)",de:"siebzigste",pron:"ˈsevntiəθ",topic:"numbers",ex:"It was his seventieth trip."},
+  {en:"seventy-fourth (74th)",de:"vierundsiebzigste",pron:"ˌsevntiˈfɔːθ",topic:"numbers",ex:"The seventy-fourth day."},
+  {en:"eightieth (80th)",de:"achtzigste",pron:"ˈeɪtiəθ",topic:"numbers",ex:"Her eightieth birthday party."},
+  {en:"eighty-ninth (89th)",de:"neunundachtzigste",pron:"ˌeɪtiˈnaɪnθ",topic:"numbers",ex:"The eighty-ninth question."},
+  {en:"ninetieth (90th)",de:"neunzigste",pron:"ˈnaɪntiəθ",topic:"numbers",ex:"He died on his ninetieth birthday."},
+  {en:"ninety-seventh (97th)",de:"siebenundneunzigste",pron:"ˌnaɪntiˈsevnθ",topic:"numbers",ex:"The ninety-seventh page."},
+  {en:"hundredth (100th)",de:"hundertste",pron:"ˈhʌndrədθ",topic:"numbers",ex:"That's the hundredth time!"},
+  {en:"hundred and sixth (106th)",de:"hundertsechste",pron:"ˌhʌndrədənˈsɪksθ",topic:"numbers",ex:"The hundred and sixth floor."},
+
+  // ---------- Das kenne ich schon: 'much' or 'many'? (S. 156) ----------
+  {en:"much time",de:"viel Zeit",pron:"ˌmʌtʃ ˈtaɪm",topic:"muchmany",ex:"We don't have much time."},
+  {en:"much money",de:"viel Geld",pron:"ˌmʌtʃ ˈmʌni",topic:"muchmany",ex:"He hasn't got much money."},
+  {en:"much fun",de:"viel Spaß",pron:"ˌmʌtʃ ˈfʌn",topic:"muchmany",ex:"We had much fun."},
+  {en:"much water",de:"viel Wasser",pron:"ˌmʌtʃ ˈwɔːtə",topic:"muchmany",ex:"Drink much water!"},
+  {en:"many friends",de:"viele Freunde",pron:"ˌmeni ˈfrendz",topic:"muchmany",ex:"She has many friends."},
+  {en:"many activities",de:"viele Aktivitäten",pron:"ˌmeni ækˈtɪvətiz",topic:"muchmany",ex:"There are many activities at the camp."},
+  {en:"many buildings",de:"viele Gebäude",pron:"ˌmeni ˈbɪldɪŋz",topic:"muchmany",ex:"New York has many buildings."},
+  {en:"many people",de:"viele Leute; viele Menschen",pron:"ˌmeni ˈpiːpl",topic:"muchmany",ex:"Many people visit the park."},
+
+  // ---------- Text (S. 84/85) ----------
+  {en:"oval",de:"oval; eiförmig",pron:"ˈəʊvl",topic:"text",ex:"An American football is oval."},
+  {en:"playing field",de:"Spielfeld",pron:"ˈpleɪɪŋ ˌfiːld",topic:"text",ex:"There are two teams on the playing field."},
+  {en:"baseball",de:"Baseball",pron:"ˈbeɪsbɔːl",topic:"text",ex:"Baseball is popular in the USA."},
+  {en:"to hit, hit, hit",de:"treffen; schlagen",pron:"hɪt",topic:"text",ex:"The other team tries to hit the ball."},
+  {en:"bat",de:"Schläger",pron:"bæt",topic:"text",ex:"You use a bat to hit the ball."},
+  {en:"basket",de:"hier: Basketballkorb; Korb",pron:"ˈbaːskɪt",topic:"text",ex:"Throw the ball in the basket."},
+  {en:"point",de:"Punkt",pron:"pɔɪnt",topic:"text",ex:"Make points against the other team."},
+  {en:"to bounce",de:"prellen; hüpfen",pron:"baʊns",topic:"text",ex:"You can bounce the ball in basketball."},
+  {en:"cheerleading",de:"Cheerleading",pron:"ˈtʃɪəˌliːdɪŋ",topic:"text",ex:"Cheerleading started in the USA."},
+  {en:"cheerleader",de:"Cheerleader; Cheerleaderin",pron:"ˈtʃɪəˌliːdə",topic:"text",ex:"95 percent of cheerleaders are girls."},
+  {en:"to jump",de:"springen",pron:"dʒʌmp",topic:"text",ex:"The cheerleaders jump very high."},
+  {en:"percent (%)",de:"Prozent",pron:"pəˈsent",topic:"text",ex:"95 percent of cheerleaders are girls."},
+  {en:"to motivate",de:"anspornen; motivieren",pron:"ˈməʊtɪveɪt",topic:"text",ex:"Cheerleaders motivate the fans."},
+
+  // ---------- Film (S. 157) ----------
+  {en:"Go!",de:"Los!",pron:"gəʊ",topic:"film",ex:"Ready? Go!"},
+  {en:"hotel",de:"Hotel",pron:"həʊˈtel",topic:"film",ex:"We stayed in a nice hotel."},
+  {en:"coach",de:"Trainer; Trainerin",pron:"kəʊtʃ",topic:"film",ex:"The coach helps the team."},
+  {en:"to surprise",de:"überraschen",pron:"səˈpraɪz",topic:"film",ex:"I want to surprise my friend."},
+  {en:"pal",de:"Freund (ugs.)",pron:"pæl",topic:"film",ex:"Hi pal, how are you?"},
+  {en:"to join",de:"mitmachen bei",pron:"dʒɔɪn",topic:"film",ex:"Do you want to join us?"},
+  {en:"never",de:"noch nie",pron:"ˈnevə",topic:"film",ex:"I have never played baseball."},
+
+  // ---------- More about (S. 90/91) ----------
+  {en:"civil rights",de:"Bürgerrechte; Grundrechte",pron:"ˌsɪvl ˈraɪts",topic:"more",ex:"King fought for civil rights in the 1950s."},
+  {en:"right",de:"Recht",pron:"raɪt",topic:"more",ex:"Everyone should have the same rights."},
+  {en:"activist",de:"Aktivist; Aktivistin",pron:"ˈæktɪvɪst",topic:"more",ex:"Martin Luther King was an activist."},
+  {en:"African American",de:"Afroamerikaner; Afroamerikanerin",pron:"ˌæfrɪkən əˈmerɪkən",topic:"more",ex:"He tried to help the African Americans."},
+  {en:"peaceful",de:"friedlich",pron:"ˈpiːsfl",topic:"more",ex:"peaceful → peace"},
+  {en:"to protest",de:"protestieren",pron:"prəˈtest",topic:"more",ex:"He used peaceful ways to protest."},
+  {en:"independence",de:"Unabhängigkeit",pron:"ˌɪndɪˈpendəns",topic:"more",ex:"They celebrated 100 years of independence."},
+  {en:"flag",de:"Flagge; Fahne",pron:"flæg",topic:"more",ex:"The American flag has 50 stars."},
+  {en:"fireworks",de:"Feuerwerk",pron:"ˈfaɪəwɜːks",topic:"more",ex:"There are fireworks on the 4th of July."},
+  {en:"holiday",de:"Feiertag",pron:"ˈhɒlədeɪ",topic:"more",ex:"St Patrick's Day is a holiday for the Irish."},
+  {en:"to discover",de:"entdecken",pron:"dɪˈskʌvə",topic:"more",ex:"Columbus didn't really discover America."},
+  {en:"Thanksgiving",de:"Erntedankfest",pron:"ˌθæŋksˈgɪvɪŋ",topic:"more",ex:"Thanksgiving is the 4th Thursday in November."},
+  {en:"to begin, began, begun",de:"beginnen; anfangen",pron:"bɪˈgɪn, bɪˈgæn, bɪˈgʌn",topic:"more",ex:"I began this book yesterday."},
+
+  // ---------- Das kenne ich schon: celebrations (S. 157) ----------
+  {en:"to celebrate",de:"feiern",pron:"ˈseləbreɪt",topic:"celebrations",ex:"We celebrate my birthday."},
+  {en:"birthday",de:"Geburtstag",pron:"ˈbɜːθdeɪ",topic:"celebrations",ex:"Happy birthday!"},
+  {en:"dinner",de:"Abendessen",pron:"ˈdɪnə",topic:"celebrations",ex:"Dinner is at 7 o'clock."},
+  {en:"barbecue",de:"Grillfest",pron:"ˈbaːbɪkjuː",topic:"celebrations",ex:"We had a barbecue in the garden."},
+  {en:"to invite",de:"einladen",pron:"ɪnˈvaɪt",topic:"celebrations",ex:"I invite all my friends."},
+  {en:"party",de:"Party; Feier",pron:"ˈpaːti",topic:"celebrations",ex:"The party starts at 6."},
+  {en:"procession",de:"Umzug; Festzug",pron:"prəˈseʃn",topic:"celebrations",ex:"There is a procession in the city."},
+  {en:"costume",de:"Kostüm",pron:"ˈkɒstjuːm",topic:"celebrations",ex:"Her costume is a surprise."},
+  {en:"carnival",de:"Karneval; Fasching",pron:"ˈkaːnɪvl",topic:"celebrations",ex:"We love carnival."},
+  {en:"to dance",de:"tanzen",pron:"daːns",topic:"celebrations",ex:"They dance all night."},
+  {en:"present",de:"Geschenk",pron:"ˈpreznt",topic:"celebrations",ex:"I got a nice present."},
+
+  // ---------- Writing skills (S. 92/93) ----------
+  {en:"subject",de:"Betreff",pron:"ˈsʌbdʒɪkt",topic:"writing",ex:"The subject is what the e-mail is about."},
+  {en:"profile",de:"Profil; Steckbrief",pron:"ˈprəʊfaɪl",topic:"writing",ex:"I saw your profile on the internet."},
+  {en:"yourself",de:"dich; selbst",pron:"jɔːˈself",topic:"writing",ex:"Tell me something about yourself."},
+  {en:"festival",de:"Festival; Fest",pron:"ˈfestɪvl",topic:"writing",ex:"There is a huge festival in June."},
+  {en:"café",de:"Café",pron:"ˈkæfeɪ",topic:"writing",ex:"Let's have tea in a café on Saturday."},
+
+  // ---------- Das kenne ich schon: British English / American English (S. 158) ----------
+  {en:"centre (BE) / center (AE)",de:"Zentrum; Mitte; Center",pron:"ˈsentə",topic:"beae",ex:"BE: centre, AE: center"},
+  {en:"favourite (BE) / favorite (AE)",de:"Lieblings-",pron:"ˈfeɪvrɪt",topic:"beae",ex:"BE: favourite, AE: favorite"},
+  {en:"holiday (BE) / vacation (AE)",de:"Urlaub; Ferien",pron:"ˈhɒlədeɪ / vəˈkeɪʃn",topic:"beae",ex:"BE: holiday, AE: vacation"},
+  {en:"film (BE) / movie (AE)",de:"Film",pron:"fɪlm / ˈmuːvi",topic:"beae",ex:"BE: film, AE: movie"}
+] }
+};
+
+/* Wie viele Bedeutungen verlangt werden (wird unten per Schalter gesetzt) */
+let needSetting = 1;
+
+/* ---------- Antwortpruefung (Regeln R1-R8) ---------- */
+/* R1 Form egal, R6 "hier:" ist Kontext, nicht Bedeutung */
+function normalize(s){
+  return String(s || '').trim().toLowerCase()
+    .replace(/^hier:\s*/,'')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/\u00df/g,'ss')
+    .replace(/\(.*?\)/g,' ')
+    .replace(/^(to|the|a|an|der|die|das|ein|eine)\s+/,'')
+    .replace(/[.,;:!?"'`\u00b4-]/g,'')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+
+/* R2: Klammern optional -> auch die Fassung MIT Klammerinhalt zulassen */
+function withBrackets(s){
+  return String(s || '').trim().toLowerCase()
+    .replace(/^hier:\s*/,'')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/\u00df/g,'ss')
+    .replace(/[()]/g,' ')
+    .replace(/^(to|the|a|an|der|die|das|ein|eine)\s+/,'')
+    .replace(/[.,;:!?"'`\u00b4-]/g,'')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+
+/* R7: Verbketten "to go, went, gone" -> auch "go" allein gilt */
+function verbForms(s){
+  const out = [];
+  const raw = String(s || '').trim();
+  if(/,/.test(raw) && /^(to\s+)?[a-z]/i.test(raw)){
+    raw.split(',').forEach(p => { if(p.trim()) out.push(p.trim()); });
+  }
+  return out;
+}
+
+/* R8: deutsche Umschreibung (Kueste = Küste) als eigene Variante */
+function umlautExpand(s){
+  return String(s || '')
+    .replace(/\u00e4/g,'ae').replace(/\u00f6/g,'oe').replace(/\u00fc/g,'ue')
+    .replace(/\u00c4/g,'Ae').replace(/\u00d6/g,'Oe').replace(/\u00dc/g,'Ue');
+}
+
+/* "&" und "and" gelten als gleich (bed & breakfast) */
+function ampVariants(s){
+  const t = String(s || '');
+  const out = [t];
+  if(/&/.test(t))      out.push(t.replace(/\s*&\s*/g, ' and '));
+  if(/\band\b/.test(t)) out.push(t.replace(/\band\b/g, '&'));
+  return out;
+}
+
+/* Slash-Alternativen aufloesen, auch innerhalb von Klammern und
+   an Teilwoertern:  "to catch (bus/train)" -> catch bus / catch train
+                     "must never/not"       -> must never / must not   */
+function slashVariants(part){
+  const out = [];
+  const raw = String(part || '');
+
+  /* (a) Slash in Klammern: Klammerinhalt einzeln anhaengen */
+  const mBr = raw.match(/^([^()]*)\(([^()]*)\)(.*)$/);
+  if(mBr && mBr[2].indexOf('/') >= 0){
+    const head = mBr[1], tail = mBr[3];
+    mBr[2].split('/').forEach(opt => out.push((head + opt + tail).trim()));
+    out.push((head + tail).trim());
+  }
+
+  /* (b) Slash ausserhalb von Klammern */
+  const noBr = raw.replace(/\([^()]*\)/g, '').trim();
+  if(noBr.indexOf('/') >= 0){
+    const words = noBr.split(/\s+/);
+    const idx = words.findIndex(w => w.indexOf('/') >= 0);
+    if(idx >= 0){
+      const before = words.slice(0, idx).join(' ');
+      const after  = words.slice(idx + 1).join(' ');
+      words[idx].split('/').forEach(opt => {
+        out.push([before, opt, after].filter(Boolean).join(' ').trim());
+      });
+    }
+    /* ganze Alternativen nur bei " / " mit Leerzeichen (centre (BE) / center (AE)) */
+    if(/\s\/\s/.test(raw.replace(/\([^()]*\)/g,''))){
+      noBr.split('/').forEach(p => out.push(p.trim()));
+    }
+  }
+  return out.filter(Boolean);
+}
+
+/* Alle zugelassenen Schreibweisen einer einzelnen Bedeutung */
+function variantsOf(part){
+  const set = new Set();
+  const add = v => {
+    if(!v) return;
+    ampVariants(v).forEach(x => {
+      const a = normalize(x);       if(a) set.add(a);
+      const b = withBrackets(x);    if(b) set.add(b);
+      const c = normalize(umlautExpand(x));    if(c) set.add(c);
+      const d = withBrackets(umlautExpand(x)); if(d) set.add(d);
+    });
+  };
+  add(part);
+  slashVariants(part).forEach(add);
+  verbForms(part).forEach(f => { add(f); slashVariants(f).forEach(add); });
+  /* Abkuerzung in Klammern gilt auch allein: bed & breakfast (B&B) -> B&B */
+  const abbr = String(part).match(/\(([^()]{1,12})\)\s*$/);
+  if(abbr && !/^[a-z\s]+$/.test(abbr[1])) add(abbr[1]);
+  return [...set].filter(Boolean);
+}
+
+/* Eine Bedeutung = ein ";"-Abschnitt. Rueckgabe: Array von Varianten-Arrays. */
+function meaningsOf(correct, alt){
+  const list = String(correct).split(';').map(s => s.trim()).filter(Boolean)
+    .map(part => ({ raw: part.replace(/^hier:\s*/,'').trim(), variants: variantsOf(part) }));
+  if(Array.isArray(alt)) alt.forEach(a => {
+    if(list.length) list[0].variants = list[0].variants.concat(variantsOf(a));
+  });
+  return list;
+}
+
+/* R4/R8: ein Tippfehler ab 5 Zeichen zaehlt noch als richtig */
+function editDistance(a, b, max){
+  if(a === b) return 0;
+  if(Math.abs(a.length - b.length) > max) return max + 1;
+  let prev = Array.from({length: b.length + 1}, (_, i) => i);
+  for(let i = 1; i <= a.length; i++){
+    const cur = [i]; let rowMin = i;
+    for(let j = 1; j <= b.length; j++){
+      const cost = a[i-1] === b[j-1] ? 0 : 1;
+      cur[j] = Math.min(prev[j] + 1, cur[j-1] + 1, prev[j-1] + cost);
+      if(cur[j] < rowMin) rowMin = cur[j];
+    }
+    if(rowMin > max) return max + 1;
+    prev = cur;
+  }
+  return prev[b.length];
+}
+
+/* Prueft EINE Eingabe gegen EINE Bedeutung -> 'exact' | 'typo' | null */
+function matchMeaning(input, meaning){
+  const g = normalize(input);
+  if(!g) return null;
+  for(const v of meaning.variants){ if(g === v) return 'exact'; }
+  for(const v of meaning.variants){
+    if(v.length >= 5 && editDistance(g, v, 1) <= 1) return 'typo';
+  }
+  return null;
+}
+
+/* Wie viele Bedeutungen verlangt sind: Vokabel-Feld "need" schlaegt
+   die globale Einstellung; nie mehr als es Bedeutungen gibt. (R5) */
+function requiredCount(item, meanings){
+  let want = Number(item && item.need) || needSetting || 1;
+  if(want === 99) want = meanings.length;
+  return Math.max(1, Math.min(want, meanings.length));
+}
+
+/* Gesamtpruefung: mehrere Eingaben (Komma/Semikolon getrennt) gegen
+   alle Bedeutungen. Jede Bedeutung zaehlt nur einmal. */
+function checkAnswerFull(input, item, correct){
+  const meanings = meaningsOf(correct, item && item.alt);
+  const need = requiredCount(item, meanings);
+  const parts = String(input).split(/[;,]/).map(s => s.trim()).filter(Boolean);
+  const hitIdx = new Set();
+  let typo = false;
+  parts.forEach(p => {
+    for(let i = 0; i < meanings.length; i++){
+      if(hitIdx.has(i)) continue;
+      const m = matchMeaning(p, meanings[i]);
+      if(m){ hitIdx.add(i); if(m === 'typo') typo = true; return; }
+    }
+  });
+  const hits = hitIdx.size;
+  return {
+    ok: hits >= need,
+    partial: hits > 0 && hits < need,
+    hits, need, typo,
+    total: meanings.length,
+    missing: meanings.filter((_, i) => !hitIdx.has(i)).map(m => m.raw)
+  };
+}
+
+
+/* ================= Hilfsfunktionen ================= */
+const $ = id => document.getElementById(id);
+const shuffle = a => {
+  const c = [...a];
+  for(let i=c.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [c[i],c[j]]=[c[j],c[i]]; }
+  return c;
+};
+
+/* Entities (&uuml; usw.) in echte Zeichen wandeln */
+const decoder = document.createElement('textarea');
+function decode(s){ decoder.innerHTML = s; return decoder.value; }
+for(const key in UNITS){
+  UNITS[key].words.forEach(v => {
+    v.en = decode(v.en); v.de = decode(v.de);
+    if(v.ex) v.ex = decode(v.ex);
+    if(Array.isArray(v.alt)) v.alt = v.alt.map(decode);
+    v.unit = key;
+  });
+  const t = UNITS[key].topics;
+  for(const k in t) t[k] = decode(t[k]);
+}
+
+/* ================= Zustand ================= */
+let pickedUnits = new Set();
+let pickedCats  = new Set();   // Eintraege als "unit::topic"
+let dirSetting  = 'random';
+let lenSetting  = 20;
+
+let queue = [], results = [], current = null;
+let idx = 0, total = 0, right = 0, wrong = 0;
+let answered = false, retryGiven = false;
+
+/* ================= Auswahl aufbauen ================= */
+function buildUnitPicks(){
+  const box = $('unit-picks');
+  box.innerHTML = '';
+  Object.keys(UNITS).forEach(key => {
+    const u = UNITS[key];
+    const lab = document.createElement('label');
+    lab.className = 'pick';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox'; cb.value = key;
+    const span = document.createElement('span');
+    span.textContent = u.name;
+    const cnt = document.createElement('span');
+    cnt.className = 'cnt'; cnt.textContent = u.words.length;
+    lab.append(cb, span, cnt);
+    cb.addEventListener('change', () => {
+      if(cb.checked) pickedUnits.add(key); else pickedUnits.delete(key);
+      lab.classList.toggle('on', cb.checked);
+      buildCatPicks();
+      updatePool();
+    });
+    box.appendChild(lab);
+  });
+}
+
+function buildCatPicks(){
+  const box = $('cat-picks');
+  box.innerHTML = '';
+  if(pickedUnits.size === 0){
+    $('cat-hint').textContent = 'Wähle zuerst mindestens eine Unit.';
+    pickedCats.clear();
+    return;
+  }
+  $('cat-hint').textContent =
+    'Ohne Auswahl zählen alle Kategorien der gewählten Units.';
+
+  Object.keys(UNITS).forEach(key => {
+    if(!pickedUnits.has(key)) return;
+    const u = UNITS[key];
+    /* Kategorien dieser Unit mit Wortzahl */
+    const counts = {};
+    u.words.forEach(w => { counts[w.topic] = (counts[w.topic] || 0) + 1; });
+    Object.keys(u.topics).forEach(t => {
+      if(t === 'all' || !counts[t]) return;
+      const id = key + '::' + t;
+      const lab = document.createElement('label');
+      lab.className = 'pick';
+      const cb = document.createElement('input');
+      cb.type = 'checkbox'; cb.value = id;
+      cb.checked = pickedCats.has(id);
+      lab.classList.toggle('on', cb.checked);
+      const span = document.createElement('span');
+      span.textContent = (pickedUnits.size > 1 ? u.name + ' · ' : '') + u.topics[t];
+      const cnt = document.createElement('span');
+      cnt.className = 'cnt'; cnt.textContent = counts[t];
+      lab.append(cb, span, cnt);
+      cb.addEventListener('change', () => {
+        if(cb.checked) pickedCats.add(id); else pickedCats.delete(id);
+        lab.classList.toggle('on', cb.checked);
+        updatePool();
+      });
+      box.appendChild(lab);
+    });
+  });
+  /* Kategorien abgewaehlter Units vergessen */
+  [...pickedCats].forEach(id => {
+    if(!pickedUnits.has(id.split('::')[0])) pickedCats.delete(id);
+  });
+}
+
+/* Alle Woerter, die zur aktuellen Auswahl passen */
+function poolWords(){
+  const out = [];
+  pickedUnits.forEach(key => {
+    const u = UNITS[key];
+    const cats = [...pickedCats].filter(c => c.startsWith(key + '::'))
+                                .map(c => c.split('::')[1]);
+    u.words.forEach(w => {
+      if(cats.length === 0 || cats.indexOf(w.topic) >= 0) out.push(w);
+    });
+  });
+  return out;
+}
+
+function updatePool(){
+  const n = poolWords().length;
+  const info = $('pool-info');
+  if(n === 0){
+    info.textContent = pickedUnits.size ? 'Keine Wörter in dieser Auswahl.' : '';
+  } else {
+    const ask = lenSetting === 0 ? n : Math.min(lenSetting, n);
+    info.textContent = ask + ' von ' + n + ' Wörtern werden abgefragt.';
+  }
+  $('btn-start').disabled = n === 0;
+}
+
+/* ================= Schalter ================= */
+$('need-group').addEventListener('click', e => {
+  const b = e.target.closest('.pill'); if(!b) return;
+  needSetting = Number(b.dataset.need);
+  document.querySelectorAll('#need-group .pill').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  $('need-expl').textContent =
+    needSetting === 1  ? 'Bei Wörtern mit mehreren Bedeutungen reicht eine richtige Antwort.' :
+    needSetting === 99 ? 'Es müssen alle Bedeutungen genannt werden, mit Komma getrennt.' :
+    'Es müssen ' + needSetting + ' Bedeutungen genannt werden, mit Komma getrennt. '
+      + 'Wörter mit weniger Bedeutungen verlangen entsprechend weniger.';
+});
+
+$('dir-group').addEventListener('click', e => {
+  const b = e.target.closest('.pill'); if(!b) return;
+  dirSetting = b.dataset.dir;
+  document.querySelectorAll('#dir-group .pill').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+});
+
+$('len-group').addEventListener('click', e => {
+  const b = e.target.closest('.pill'); if(!b) return;
+  lenSetting = Number(b.dataset.len);
+  document.querySelectorAll('#len-group .pill').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  updatePool();
+});
+
+/* ================= Test starten ================= */
+$('btn-start').addEventListener('click', () => startTest(poolWords()));
+
+function startTest(words){
+  if(!words.length) return;
+  const picked = shuffle(words);
+  queue = (lenSetting === 0 ? picked : picked.slice(0, lenSetting)).map(w => ({
+    word: w,
+    direction: dirSetting === 'random' ? (Math.random() > 0.5 ? 'en-de' : 'de-en') : dirSetting
+  }));
+  total = queue.length; idx = 0; right = 0; wrong = 0; results = [];
+  $('view-setup').classList.add('hidden');
+  $('view-result').classList.add('hidden');
+  $('view-test').classList.remove('hidden');
+  nextQuestion();
+}
+
+function nextQuestion(){
+  if(idx >= total){ showResult(); return; }
+  current = queue[idx];
+  answered = false; retryGiven = false;
+
+  const w = current.word;
+  const isEnDe = current.direction === 'en-de';
+  $('prompt').textContent = isEnDe ? w.en : w.de;
+  $('dir-tag').textContent = isEnDe ? 'EN → DE' : 'DE → EN';
+
+  /* Wie viele Bedeutungen hat dieses Wort wirklich? */
+  const correct = isEnDe ? w.de : w.en;
+  const ms = meaningsOf(correct, w.alt);
+  const need = requiredCount(w, ms);
+  const tag = $('need-tag');
+  if(need > 1){
+    tag.classList.remove('hidden');
+    tag.textContent = need + ' Bedeutungen';
+  } else {
+    tag.classList.add('hidden');
+  }
+
+  const inp = $('answer');
+  inp.value = ''; inp.className = ''; inp.disabled = false;
+  inp.placeholder = need > 1
+    ? need + ' Bedeutungen, mit Komma getrennt …'
+    : 'Antwort eingeben …';
+  $('feedback').className = 'feedback';
+  $('feedback').innerHTML = '&nbsp;';
+  $('btn-check').classList.remove('hidden');
+  $('btn-next').classList.add('hidden');
+  $('btn-skip').classList.remove('hidden');
+  $('qcount').textContent = 'Frage ' + (idx + 1) + ' von ' + total;
+  updateScore();
+  inp.focus();
+}
+
+function updateScore(){
+  $('sc-right').textContent = right;
+  $('sc-wrong').textContent = wrong;
+  $('sc-left').textContent  = Math.max(0, total - idx);
+  $('pbar').style.width = total ? (idx / total * 100) + '%' : '0';
+}
+
+/* ================= Antwort pruefen ================= */
+$('btn-check').addEventListener('click', checkNow);
+$('answer').addEventListener('keydown', e => {
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    if(answered) nextQuestion0(); else checkNow();
+  }
+});
+$('btn-next').addEventListener('click', () => nextQuestion0());
+$('btn-skip').addEventListener('click', () => {
+  if(answered) return;
+  const w = current.word;
+  const correct = current.direction === 'en-de' ? w.de : w.en;
+  finish(false, correct, '', null);
+});
+$('btn-abort').addEventListener('click', () => {
+  if(!confirm('Test wirklich abbrechen?')) return;
+  backToSetup();
+});
+
+function nextQuestion0(){ idx++; nextQuestion(); }
+
+function checkNow(){
+  if(answered) return;
+  const inp = $('answer');
+  const val = inp.value.trim();
+  if(!val) return;
+  const w = current.word;
+  const correct = current.direction === 'en-de' ? w.de : w.en;
+  const res = checkAnswerFull(val, w, correct);
+
+  if(res.partial && !retryGiven){
+    retryGiven = true;
+    const fb = $('feedback');
+    fb.className = 'feedback warn';
+    fb.textContent = '⚠️ Fast! ' + res.hits + ' von ' + res.need
+      + ' Bedeutungen – ergänze noch ' + (res.need - res.hits) + '.';
+    inp.classList.add('warn');
+    inp.focus();
+    return;
+  }
+  finish(res.ok, correct, val, res);
+}
+
+function finish(ok, correct, given, res){
+  answered = true;
+  const inp = $('answer');
+  inp.disabled = true;
+  inp.classList.remove('warn');
+  inp.classList.add(ok ? 'correct' : 'wrong');
+
+  const fb = $('feedback');
+  fb.className = 'feedback ' + (ok ? 'good' : 'bad');
+  if(ok){
+    fb.textContent = (res && res.typo)
+      ? '✅ Richtig – achte auf die Schreibweise: ' + correct
+      : '✅ Richtig!';
+    right++;
+  } else {
+    fb.textContent = '❌ Richtig wäre: ' + correct;
+    wrong++;
+  }
+
+  results.push({
+    word: current.word,
+    direction: current.direction,
+    prompt: $('prompt').textContent,
+    correct: correct,
+    given: given,
+    ok: ok,
+    typo: !!(res && res.typo),
+    hits: res ? res.hits : 0,
+    need: res ? res.need : 1
+  });
+
+  $('btn-check').classList.add('hidden');
+  $('btn-skip').classList.add('hidden');
+  $('btn-next').classList.remove('hidden');
+  $('btn-next').textContent = (idx + 1 >= total) ? 'Ergebnis anzeigen' : 'Weiter';
+  $('btn-next').focus();
+}
+
+/* ================= Ergebnis ================= */
+function gradeOf(percent){
+  if(percent >= 92) return 1;
+  if(percent >= 81) return 2;
+  if(percent >= 67) return 3;
+  if(percent >= 50) return 4;
+  if(percent >= 30) return 5;
+  return 6;
+}
+
+function showResult(){
+  $('view-test').classList.add('hidden');
+  $('view-result').classList.remove('hidden');
+
+  const percent = total ? Math.round(right / total * 100) : 0;
+  const g = gradeOf(percent);
+  const el = $('grade');
+  el.textContent = g;
+  el.className = 'big-grade g' + g;
+  $('result-line').textContent =
+    right + ' von ' + total + ' richtig · ' + percent + ' % · Note ' + g;
+
+  const typos = results.filter(r => r.ok && r.typo).length;
+  $('result-note').innerHTML = typos
+    ? '<div class="note warn">' + typos + ' Antwort(en) hatten einen kleinen '
+      + 'Schreibfehler und wurden trotzdem als richtig gewertet. Schau sie dir unten an.</div>'
+    : '';
+
+  const list = $('res-list');
+  list.innerHTML = '';
+  results.forEach(r => {
+    const d = document.createElement('div');
+    d.className = 'res-item ' + (r.ok ? 'ok' : 'no');
+    const mark = document.createElement('span');
+    mark.className = 'mark';
+    mark.textContent = r.ok ? '✓' : '✗';
+    const txt = document.createElement('div');
+    txt.className = 'txt';
+    const b = document.createElement('b');
+    b.textContent = r.prompt;
+    txt.appendChild(b);
+    txt.appendChild(document.createTextNode(' – ' + r.correct));
+    if(!r.ok || r.typo){
+      const g2 = document.createElement('div');
+      g2.className = 'given';
+      g2.textContent = r.given ? 'Deine Antwort: ' + r.given : 'Keine Antwort';
+      txt.appendChild(g2);
+    }
+    d.append(mark, txt);
+    list.appendChild(d);
+  });
+
+  $('btn-repeat-wrong').style.display = results.some(r => !r.ok) ? '' : 'none';
+}
+
+$('btn-again').addEventListener('click', backToSetup);
+$('btn-repeat-wrong').addEventListener('click', () => {
+  const words = results.filter(r => !r.ok).map(r => r.word);
+  if(!words.length) return;
+  const keepLen = lenSetting;
+  lenSetting = 0;
+  startTest(words);
+  lenSetting = keepLen;
+});
+
+function backToSetup(){
+  $('view-test').classList.add('hidden');
+  $('view-result').classList.add('hidden');
+  $('view-setup').classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ================= Start ================= */
+buildUnitPicks();
+buildCatPicks();
+updatePool();
+</script>
+</body>
+</html>

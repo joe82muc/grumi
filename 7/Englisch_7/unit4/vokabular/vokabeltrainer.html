@@ -204,6 +204,9 @@
 
   .feedback{text-align:center;min-height:1.5rem;margin-top:.9rem;font-weight:700;font-size:.95rem}
   .feedback.good{color:var(--ok)} .feedback.bad{color:var(--bad)}
+  .feedback.warn{color:#8a5a00}
+  #type-input.warn{border-color:#e0a300;background:#fff8e6}
+  .pill-group.dim{opacity:.45}
   .btn-row{display:flex;justify-content:center;gap:.55rem;margin-top:.85rem;flex-wrap:wrap}
 
   /* ---------- Result ---------- */
@@ -305,6 +308,15 @@
           <button class="pill active" data-mode="mc">Multiple Choice</button>
           <button class="pill" data-mode="type">Tippen</button>
           <button class="pill" data-mode="flash">Karteikarten</button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-cap">Bedeutungen</span>
+        <div class="pill-group" id="need-group">
+          <button class="pill active" data-need="1">1 reicht</button>
+          <button class="pill" data-need="2">2 n&ouml;tig</button>
+          <button class="pill" data-need="3">3 n&ouml;tig</button>
+          <button class="pill" data-need="99">alle</button>
         </div>
       </div>
       <div class="ctl">
@@ -618,6 +630,8 @@ const TOPIC_KEYS = ["intro","topic1","comparing","topic2","numbers","muchmany","
 
 /* ---------- Zustand ---------- */
 let mode = 'mc', dirSetting = 'random', filterTopic = 'all';
+let needSetting = 1;      // wie viele Bedeutungen verlangt werden (R5)
+let retryGiven = false;   // zweiter Versuch bei zu wenigen Bedeutungen
 let queue = [], current = null, right = 0, wrong = 0, direction = 'en-de', answered = false;
 let mistakes = [];
 let ttsUnlocked = false, fallbackAudio = null;
@@ -680,8 +694,51 @@ $('mode-group').addEventListener('click', e => {
   mode = btn.dataset.mode;
   document.querySelectorAll('#mode-group .pill').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  /* Bedeutungs-Zahl gilt nur beim Tippen */
+  syncNeedUI();
   restart();
 });
+
+/* Zeigt die Bedeutungs-Auswahl nur im Tipp-Modus als aktiv an */
+function syncNeedUI(){
+  const grp = $('need-group');
+  if(!grp) return;
+  const off = mode !== 'type';
+  grp.classList.toggle('dim', off);
+  grp.title = off ? 'Gilt nur beim Tippen' : '';
+  if(off && needSetting !== 1){
+    needSetting = 1;
+    document.querySelectorAll('#need-group .pill').forEach(b => {
+      b.classList.toggle('active', b.dataset.need === '1');
+    });
+  }
+}
+$('need-group').addEventListener('click', e => {
+  const btn = e.target.closest('.pill'); if(!btn) return;
+  needSetting = Number(btn.dataset.need);
+  document.querySelectorAll('#need-group .pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  /* Mehrere Bedeutungen kann man nur beim Tippen abfragen */
+  if(needSetting !== 1 && mode !== 'type'){
+    mode = 'type';
+    document.querySelectorAll('#mode-group .pill').forEach(b => {
+      b.classList.toggle('active', b.dataset.mode === 'type');
+    });
+    restart();
+    return;
+  }
+  updateNeedHint();
+});
+
+function updateNeedHint(){
+  const inp = $('type-input');
+  if(!inp) return;
+  inp.placeholder = needSetting === 1
+    ? 'Antwort eingeben …'
+    : (needSetting === 99 ? 'Alle Bedeutungen, mit Komma getrennt …'
+                          : needSetting + ' Bedeutungen, mit Komma getrennt …');
+}
+
 $('dir-group').addEventListener('click', e => {
   const btn = e.target.closest('.pill'); if(!btn) return;
   dirSetting = btn.dataset.dir;
@@ -716,6 +773,7 @@ function nextCard(){
   if(queue.length === 0){ showResult(); return; }
   current = queue.pop();
   answered = false;
+  retryGiven = false;
 
   const card = $('quiz-card');
   card.style.animation = 'none'; void card.offsetWidth; card.style.animation = '';
@@ -751,6 +809,7 @@ function nextCard(){
   else {
     const inp = $('type-input');
     inp.value = ''; inp.className = ''; inp.disabled = false;
+    updateNeedHint();
     $('hint-btn').disabled = false;
     setTimeout(() => inp.focus(), 80);
   }
@@ -794,13 +853,185 @@ $('type-input').addEventListener('keydown', e => { if(e.key === 'Enter') checkTy
 $('check-btn').addEventListener('click', checkType);
 $('hint-btn').addEventListener('click', showHint);
 
+/* ---------- Antwortpruefung (Regeln R1-R8) ---------- */
+/* R1 Form egal, R6 "hier:" ist Kontext, nicht Bedeutung */
 function normalize(s){
-  return s.trim().toLowerCase()
-    .replace(/^(to|the|a|an)\s+/,'')
-    .replace(/\(.*?\)/g,'')
-    .replace(/[.!?,;]/g,'')
+  return String(s || '').trim().toLowerCase()
+    .replace(/^hier:\s*/,'')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/\u00df/g,'ss')
+    .replace(/\(.*?\)/g,' ')
+    .replace(/^(to|the|a|an|der|die|das|ein|eine)\s+/,'')
+    .replace(/[.,;:!?"'`\u00b4-]/g,'')
     .replace(/\s+/g,' ')
     .trim();
+}
+
+/* R2: Klammern optional -> auch die Fassung MIT Klammerinhalt zulassen */
+function withBrackets(s){
+  return String(s || '').trim().toLowerCase()
+    .replace(/^hier:\s*/,'')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/\u00df/g,'ss')
+    .replace(/[()]/g,' ')
+    .replace(/^(to|the|a|an|der|die|das|ein|eine)\s+/,'')
+    .replace(/[.,;:!?"'`\u00b4-]/g,'')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+
+/* R7: Verbketten "to go, went, gone" -> auch "go" allein gilt */
+function verbForms(s){
+  const out = [];
+  const raw = String(s || '').trim();
+  if(/,/.test(raw) && /^(to\s+)?[a-z]/i.test(raw)){
+    raw.split(',').forEach(p => { if(p.trim()) out.push(p.trim()); });
+  }
+  return out;
+}
+
+/* R8: deutsche Umschreibung (Kueste = Küste) als eigene Variante */
+function umlautExpand(s){
+  return String(s || '')
+    .replace(/\u00e4/g,'ae').replace(/\u00f6/g,'oe').replace(/\u00fc/g,'ue')
+    .replace(/\u00c4/g,'Ae').replace(/\u00d6/g,'Oe').replace(/\u00dc/g,'Ue');
+}
+
+/* "&" und "and" gelten als gleich (bed & breakfast) */
+function ampVariants(s){
+  const t = String(s || '');
+  const out = [t];
+  if(/&/.test(t))      out.push(t.replace(/\s*&\s*/g, ' and '));
+  if(/\band\b/.test(t)) out.push(t.replace(/\band\b/g, '&'));
+  return out;
+}
+
+/* Slash-Alternativen aufloesen, auch innerhalb von Klammern und
+   an Teilwoertern:  "to catch (bus/train)" -> catch bus / catch train
+                     "must never/not"       -> must never / must not   */
+function slashVariants(part){
+  const out = [];
+  const raw = String(part || '');
+
+  /* (a) Slash in Klammern: Klammerinhalt einzeln anhaengen */
+  const mBr = raw.match(/^([^()]*)\(([^()]*)\)(.*)$/);
+  if(mBr && mBr[2].indexOf('/') >= 0){
+    const head = mBr[1], tail = mBr[3];
+    mBr[2].split('/').forEach(opt => out.push((head + opt + tail).trim()));
+    out.push((head + tail).trim());
+  }
+
+  /* (b) Slash ausserhalb von Klammern */
+  const noBr = raw.replace(/\([^()]*\)/g, '').trim();
+  if(noBr.indexOf('/') >= 0){
+    const words = noBr.split(/\s+/);
+    const idx = words.findIndex(w => w.indexOf('/') >= 0);
+    if(idx >= 0){
+      const before = words.slice(0, idx).join(' ');
+      const after  = words.slice(idx + 1).join(' ');
+      words[idx].split('/').forEach(opt => {
+        out.push([before, opt, after].filter(Boolean).join(' ').trim());
+      });
+    }
+    /* ganze Alternativen nur bei " / " mit Leerzeichen (centre (BE) / center (AE)) */
+    if(/\s\/\s/.test(raw.replace(/\([^()]*\)/g,''))){
+      noBr.split('/').forEach(p => out.push(p.trim()));
+    }
+  }
+  return out.filter(Boolean);
+}
+
+/* Alle zugelassenen Schreibweisen einer einzelnen Bedeutung */
+function variantsOf(part){
+  const set = new Set();
+  const add = v => {
+    if(!v) return;
+    ampVariants(v).forEach(x => {
+      const a = normalize(x);       if(a) set.add(a);
+      const b = withBrackets(x);    if(b) set.add(b);
+      const c = normalize(umlautExpand(x));    if(c) set.add(c);
+      const d = withBrackets(umlautExpand(x)); if(d) set.add(d);
+    });
+  };
+  add(part);
+  slashVariants(part).forEach(add);
+  verbForms(part).forEach(f => { add(f); slashVariants(f).forEach(add); });
+  /* Abkuerzung in Klammern gilt auch allein: bed & breakfast (B&B) -> B&B */
+  const abbr = String(part).match(/\(([^()]{1,12})\)\s*$/);
+  if(abbr && !/^[a-z\s]+$/.test(abbr[1])) add(abbr[1]);
+  return [...set].filter(Boolean);
+}
+
+/* Eine Bedeutung = ein ";"-Abschnitt. Rueckgabe: Array von Varianten-Arrays. */
+function meaningsOf(correct, alt){
+  const list = String(correct).split(';').map(s => s.trim()).filter(Boolean)
+    .map(part => ({ raw: part.replace(/^hier:\s*/,'').trim(), variants: variantsOf(part) }));
+  if(Array.isArray(alt)) alt.forEach(a => {
+    if(list.length) list[0].variants = list[0].variants.concat(variantsOf(a));
+  });
+  return list;
+}
+
+/* R4/R8: ein Tippfehler ab 5 Zeichen zaehlt noch als richtig */
+function editDistance(a, b, max){
+  if(a === b) return 0;
+  if(Math.abs(a.length - b.length) > max) return max + 1;
+  let prev = Array.from({length: b.length + 1}, (_, i) => i);
+  for(let i = 1; i <= a.length; i++){
+    const cur = [i]; let rowMin = i;
+    for(let j = 1; j <= b.length; j++){
+      const cost = a[i-1] === b[j-1] ? 0 : 1;
+      cur[j] = Math.min(prev[j] + 1, cur[j-1] + 1, prev[j-1] + cost);
+      if(cur[j] < rowMin) rowMin = cur[j];
+    }
+    if(rowMin > max) return max + 1;
+    prev = cur;
+  }
+  return prev[b.length];
+}
+
+/* Prueft EINE Eingabe gegen EINE Bedeutung -> 'exact' | 'typo' | null */
+function matchMeaning(input, meaning){
+  const g = normalize(input);
+  if(!g) return null;
+  for(const v of meaning.variants){ if(g === v) return 'exact'; }
+  for(const v of meaning.variants){
+    if(v.length >= 5 && editDistance(g, v, 1) <= 1) return 'typo';
+  }
+  return null;
+}
+
+/* Wie viele Bedeutungen verlangt sind: Vokabel-Feld "need" schlaegt
+   die globale Einstellung; nie mehr als es Bedeutungen gibt. (R5) */
+function requiredCount(item, meanings){
+  let want = Number(item && item.need) || needSetting || 1;
+  if(want === 99) want = meanings.length;
+  return Math.max(1, Math.min(want, meanings.length));
+}
+
+/* Gesamtpruefung: mehrere Eingaben (Komma/Semikolon getrennt) gegen
+   alle Bedeutungen. Jede Bedeutung zaehlt nur einmal. */
+function checkAnswerFull(input, item, correct){
+  const meanings = meaningsOf(correct, item && item.alt);
+  const need = requiredCount(item, meanings);
+  const parts = String(input).split(/[;,]/).map(s => s.trim()).filter(Boolean);
+  const hitIdx = new Set();
+  let typo = false;
+  parts.forEach(p => {
+    for(let i = 0; i < meanings.length; i++){
+      if(hitIdx.has(i)) continue;
+      const m = matchMeaning(p, meanings[i]);
+      if(m){ hitIdx.add(i); if(m === 'typo') typo = true; return; }
+    }
+  });
+  const hits = hitIdx.size;
+  return {
+    ok: hits >= need,
+    partial: hits > 0 && hits < need,
+    hits, need, typo,
+    total: meanings.length,
+    missing: meanings.filter((_, i) => !hitIdx.has(i)).map(m => m.raw)
+  };
 }
 
 function checkType(){
@@ -809,14 +1040,28 @@ function checkType(){
   const val = inp.value.trim();
   if(!val) return;
   const correct = direction === 'en-de' ? current.de : current.en;
-  // Akzeptiert: alle mit ";" getrennten Bedeutungen + zusätzliche Schreibweisen aus "alt"
-  const variants = correct.split(/[;]/).map(normalize).filter(Boolean);
-  if(Array.isArray(current.alt)) current.alt.forEach(a => variants.push(normalize(a)));
-  const ok = variants.some(v => normalize(val) === v);
+  const res = checkAnswerFull(val, current, correct);
+  if(res.partial && !retryGiven){
+    // R5: zu wenige Bedeutungen -> ein zweiter Versuch statt sofort falsch
+    retryGiven = true;
+    const fb = $('feedback');
+    fb.className = 'feedback warn';
+    fb.textContent = '⚠️ Fast! ' + res.hits + ' von ' + res.need
+      + ' Bedeutungen. Ergänze noch ' + (res.need - res.hits) + '.';
+    inp.classList.add('warn');
+    inp.focus();
+    inp.setSelectionRange(inp.value.length, inp.value.length);
+    return;
+  }
   answered = true;
   inp.disabled = true; $('hint-btn').disabled = true;
-  if(ok){ inp.classList.add('correct'); registerRight(); }
-  else { inp.classList.add('wrong'); registerWrong(correct); }
+  if(res.ok){
+    inp.classList.add('correct');
+    registerRight(res.typo ? correct : null);
+  } else {
+    inp.classList.add('wrong');
+    registerWrong(correct);
+  }
 }
 
 function showHint(){
@@ -831,9 +1076,9 @@ function showHint(){
 }
 
 /* ---------- Auswertung einer Karte ---------- */
-function registerRight(){
+function registerRight(typoOf){
   right++;
-  showFeedback(true);
+  showFeedback(true, null, typoOf);
   showExample();
   speak();
   finishCard();
@@ -851,10 +1096,16 @@ function finishCard(){
   $('next-btn').style.display = '';
   $('next-btn').focus();
 }
-function showFeedback(ok, correct){
+function showFeedback(ok, correct, typoOf){
   const el = $('feedback');
   el.className = 'feedback ' + (ok ? 'good' : 'bad');
-  el.textContent = ok ? '✅ Richtig!' : '❌ Richtig wäre: ' + correct;
+  if(ok){
+    el.textContent = typoOf
+      ? '✅ Richtig – achte auf die Schreibweise: ' + typoOf
+      : '✅ Richtig!';
+  } else {
+    el.textContent = '❌ Richtig wäre: ' + correct;
+  }
 }
 function showExample(){
   const box = $('example-box');
@@ -1091,6 +1342,7 @@ window.addEventListener('pointerdown', unlockTTS, { once:true });
 if('speechSynthesis' in window){ window.speechSynthesis.onvoiceschanged = () => {}; }
 
 buildFilterButtons();
+syncNeedUI();
 restart();
 </script>
 </body>
