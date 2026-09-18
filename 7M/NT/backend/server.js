@@ -146,7 +146,7 @@ app.post("/api/nt7/submit", async (req,res) => {
       }
     }
     const score = details.reduce((sum,d) => sum+d.points,0), total = maxPoints(test), percent = Math.round(score/total*100);
-    const record = {id:crypto.randomUUID(),testId:test.id,testTitle:test.title,...student,studentKey:student.key,score,total,percent,grade:grade(percent),needsReview:details.some(d => d.needsReview),details,submittedAt:new Date().toISOString()};
+    const record = {id:crypto.randomUUID(),testId:test.id,testTitle:test.title,...student,studentKey:student.key,score,total,percent,grade:grade(score/total*100),needsReview:details.some(d => d.needsReview),details,submittedAt:new Date().toISOString()};
     data = readData();
     if (!data.unlocked[test.id]) return res.status(403).json({ok:false,error:"locked"});
     if (data.submissions.some(row => row.testId === test.id && row.studentKey === student.key)) return res.status(409).json({ok:false,error:"already_submitted"});
@@ -178,7 +178,7 @@ app.post("/api/nt7/teacher/override", (req,res) => {
   if (!row || !item) return res.status(404).json({ok:false,error:"not_found"});
   if (item.type !== "text" || !Number.isInteger(points) || points < 0 || points > item.maxPoints) return res.status(400).json({ok:false,error:"invalid_override"});
   item.points = points; item.source = "lehrkraft"; item.needsReview = false; item.comment = clean(req.body.comment,220) || item.comment;
-  row.score = row.details.reduce((sum,d) => sum+d.points,0); row.percent = Math.round(row.score/row.total*100); row.grade = grade(row.percent); row.needsReview = row.details.some(d => d.needsReview);
+  row.score = row.details.reduce((sum,d) => sum+d.points,0); row.percent = Math.round(row.score/row.total*100); row.grade = grade(row.score/row.total*100); row.needsReview = row.details.some(d => d.needsReview);
   writeData(data); res.json({ok:true,score:row.score,percent:row.percent,grade:row.grade});
 });
 app.post("/api/nt7/teacher/delete", (req,res) => {

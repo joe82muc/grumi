@@ -66,6 +66,19 @@ test("backend files are not served publicly", async () => {
   assert.equal(response.status,404);
 });
 
+test("exactly 50 percent gives grade 4", async () => {
+  await api("teacher/unlock",{password:process.env.TEACHER_PASSWORD,testId:"nt7-luft-1",open:true});
+  const student = {testId:"nt7-luft-1",firstName:"Fifty",lastName:"Percent",className:"7M"};
+  const answers = [0,1,2,1,["78 %","21 %","1 %"],["Stickstoff","Sauerstoff","Kohlenstoffdioxid"],
+    ["Luft nimmt Raum ein","",""],"","",""];
+  const submitted = await api("submit",{...student,answers});
+  assert.equal(submitted.status,200);
+  assert.equal(submitted.data.result.score,11);
+  assert.equal(submitted.data.result.total,22);
+  assert.equal(submitted.data.result.percent,50);
+  assert.equal(submitted.data.result.grade,4);
+});
+
 test("probe 2 grades matching individually and uses AI for free text", async () => {
   process.env.ANTHROPIC_API_KEY = "test-key";
   global.fetch = async (url, options) => {
