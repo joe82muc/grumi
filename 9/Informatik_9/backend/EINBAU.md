@@ -1,15 +1,17 @@
-# Netzwerke-Probe: Backend einbauen
+# Netzwerke-Probe: Backend
 
-Die Schueler- und die Lehrerseite liegen fertig im `grumi`-Repo. Damit die
-**Freischaltung** und die **KI-Pruefung der freien Texte** funktionieren, muss
-der Server sie kennen. Der Server wird aus dem **anderen Repo** deployt
-(`englisch_9` -> Render-Dienst `englisch-9`), deshalb diese drei Schritte.
+> **Status: erledigt und live.** Die Schritte 1-3 unten wurden am 18.09.2026
+> bereits ausgefuehrt. Der Server laeuft mit dem Netzwerktest-Modul
+> (`/api/health` meldet `2026-09-18-netzwerktest-inf9`), Render hat automatisch
+> deployt. Die Anleitung bleibt als Nachschlagewerk stehen - du brauchst sie
+> nur wieder, wenn du Aufgaben aenderst (siehe ganz unten).
 
-Aufwand: etwa 5 Minuten.
+Die Schueler- und die Lehrerseite liegen im `grumi`-Repo. Das Backend liegt im
+Repo **`englisch_9`** (Render-Dienst `englisch-9`), weil Render von dort deployt.
 
 ---
 
-## Schritt 1: Zwei Dateien kopieren
+## Schritt 1 (erledigt): Zwei Dateien kopieren
 
 Aus diesem Ordner in das `englisch_9`-Repo kopieren:
 
@@ -23,7 +25,7 @@ Aus diesem Ordner in das `englisch_9`-Repo kopieren:
 
 ---
 
-## Schritt 2: Vier Zeilen in `server.js` ergaenzen
+## Schritt 2 (erledigt): Vier Zeilen in `server.js` ergaenzen
 
 In der `server.js` steht bereits dieser Block:
 
@@ -61,7 +63,7 @@ Stichworten und markiert sie fuer dich mit "pruefen".
 
 ---
 
-## Schritt 3: Deployen
+## Schritt 3 (erledigt): Deployen
 
 1. Aenderungen im `englisch_9`-Repo committen und pushen.
 2. In Render beim Dienst **englisch-9**: *Manual Deploy* -> *Deploy latest commit*.
@@ -137,4 +139,6 @@ Alle Aufgaben stehen in `netzwerktest-daten.js`:
 Die Bilder sind bewusst so zugeschnitten, dass **weder Titel noch Erklaerkasten**
 zu sehen sind - sie verraten die Loesung also nicht.
 
-Nach einer Aenderung: Datei wieder ins `englisch_9`-Repo kopieren und neu deployen.
+Nach einer Aenderung: Datei wieder ins `englisch_9`-Repo kopieren
+(`backend/api/netzwerktest-daten.js`), committen und pushen. Render deployt
+automatisch, ein Klick ist nicht noetig.
