@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Filius-Pr&uuml;fung verwalten &ndash; Lehrkraft</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#101a2e; --muted:#5d6b84; --line:#dce4f0;
+    --dark:#1f2937; --dark-2:#111827; --accent:#1d6fe0; --accent-soft:#e8f0fd;
+    --ok:#15803d; --ok-bg:#e9f8ee; --ok-line:#8fd6a8;
+    --bad:#c2340f; --bad-bg:#fdeeeb; --bad-line:#f3b5a6;
+    --warn:#8a6100; --warn-bg:#fff8e6; --warn-line:#f0d089;
+    --shadow:0 10px 28px rgba(16,26,46,.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Source Sans 3",system-ui,"Segoe UI",sans-serif;color:var(--ink);
+    background:linear-gradient(180deg,#f5f7fa,#eceff5);min-height:100vh;padding:1rem}
+  .wrap{max-width:1100px;margin:0 auto}
+  .head{background:linear-gradient(125deg,var(--dark),var(--dark-2));color:#fff;
+    border-radius:18px;padding:1.2rem 1.3rem;box-shadow:var(--shadow)}
+  .head h1{font-size:clamp(1.3rem,4.4vw,1.8rem);font-weight:800}
+  .head p{opacity:.85;margin-top:.3rem;font-size:.93rem}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:18px;
+    padding:1.1rem;box-shadow:var(--shadow);margin-top:1rem}
+  .hidden{display:none}
+  h2{font-size:1.05rem;font-weight:800;margin-bottom:.15rem}
+  .sub{color:var(--muted);font-size:.88rem;margin-bottom:.9rem}
+  label{display:block;font-size:.76rem;font-weight:800;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:.25rem}
+  input[type=password],select{width:100%;padding:.7rem .8rem;border:1.5px solid var(--line);
+    border-radius:10px;font-size:1rem;font-family:inherit;font-weight:600;color:var(--ink);background:#fff}
+  input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+  .btn{padding:.7rem 1.3rem;border:none;border-radius:999px;background:var(--dark);color:#fff;
+    font-weight:700;font-size:.92rem;cursor:pointer;font-family:inherit;transition:all .15s}
+  .btn:hover:not(:disabled){background:var(--dark-2)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn-sm{padding:.4rem .85rem;font-size:.82rem}
+  .btn-ghost{background:#fff;color:var(--dark);border:1.5px solid var(--line)}
+  .btn-ghost:hover:not(:disabled){background:#f3f5f9}
+  .btn-ok{background:var(--ok)} .btn-bad{background:var(--bad)}
+  .btn-row{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.9rem}
+  .note{border-left:4px solid var(--line);background:#f7f9fc;padding:.7rem .9rem;
+    border-radius:8px;font-size:.9rem;margin-top:.7rem}
+  .note.bad{border-left-color:var(--bad);background:var(--bad-bg);color:#7c2410}
+  .note.ok{border-left-color:var(--ok);background:var(--ok-bg);color:#14532d}
+  .test-card{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;
+    border:1px solid var(--line);border-radius:12px;padding:.85rem 1rem;margin-bottom:.6rem}
+  .test-card h3{font-size:.98rem;font-weight:800}
+  .test-card .meta{color:var(--muted);font-size:.83rem;margin-top:.15rem}
+  .state{border-radius:999px;padding:.25rem .7rem;font-size:.78rem;font-weight:800}
+  .state.on{background:var(--ok-bg);color:var(--ok)} .state.off{background:#eef1f5;color:var(--muted)}
+  .stats{display:flex;gap:.6rem;flex-wrap:wrap;margin:.9rem 0}
+  .stat{border:1px solid var(--line);border-radius:12px;padding:.6rem .9rem;min-width:92px}
+  .stat b{display:block;font-size:1.3rem;font-weight:900}
+  .stat span{color:var(--muted);font-size:.78rem;font-weight:700}
+  table{width:100%;border-collapse:collapse;font-size:.9rem}
+  th,td{padding:.55rem .5rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{font-size:.76rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+  .grade{display:inline-block;border-radius:6px;padding:.1rem .5rem;font-weight:800}
+  .g1,.g2{background:var(--ok-bg);color:var(--ok)}
+  .g3,.g4{background:var(--warn-bg);color:var(--warn)}
+  .g5,.g6{background:var(--bad-bg);color:var(--bad)}
+  .table-scroll{overflow-x:auto}
+  details{margin-top:.4rem}
+  summary{cursor:pointer;font-size:.84rem;font-weight:700;color:var(--accent)}
+  .dl{margin-top:.5rem;display:grid;gap:.35rem}
+  .di{border:1px solid var(--line);border-radius:8px;padding:.45rem .6rem;background:#fbfcfe;font-size:.85rem}
+  .di.ok{border-left:3px solid var(--ok)} .di.no{border-left:3px solid var(--bad)}
+  .di small{color:var(--muted)}
+  .badge{border-radius:999px;padding:.1rem .5rem;font-size:.72rem;font-weight:800}
+  .badge.a{background:var(--accent-soft);color:var(--accent)}
+  .badge.b{background:var(--ok-bg);color:var(--ok)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <h1>Filius-Pr&uuml;fung verwalten</h1>
+    <p>Informatik 9 &middot; freischalten, Ergebnisse ansehen, CSV sichern</p>
+  </div>
+
+  <section class="panel" id="v-login">
+    <h2>Anmeldung Lehrkraft</h2>
+    <p class="sub">Dasselbe Passwort wie bei den anderen Proben.</p>
+    <label for="pw">Passwort</label>
+    <input type="password" id="pw" autocomplete="current-password">
+    <div id="m-login"></div>
+    <div class="btn-row"><button class="btn" id="b-login">Anmelden</button></div>
+  </section>
+
+  <section class="panel hidden" id="v-admin">
+    <h2>Pr&uuml;fung freischalten</h2>
+    <p class="sub">Die Klasse sieht die Pr&uuml;fung nur, solange sie freigeschaltet ist.</p>
+    <div id="liste"></div>
+    <div id="m-admin"></div>
+  </section>
+
+  <section class="panel hidden" id="v-res">
+    <h2>Ergebnisse</h2>
+    <p class="sub">Teil A sind die Ankreuzfragen, Teil B ist die hochgeladene Filius-Datei.
+      Die Datei wird vom Server ausgelesen und exakt gepr&uuml;ft.</p>
+    <div class="note bad" style="margin-top:0;margin-bottom:.9rem">
+      <strong>Ergebnisse gleich nach der Stunde als CSV sichern.</strong><br>
+      Der Server speichert nur vor&uuml;bergehend: Bei einem Neustart oder einer
+      Aktualisierung gehen die Abgaben verloren.
+    </div>
+    <div style="display:flex;gap:.6rem;align-items:flex-end;flex-wrap:wrap">
+      <div style="flex:1;min-width:200px">
+        <label for="sel">Pr&uuml;fung</label>
+        <select id="sel"><option value="">Alle</option></select>
+      </div>
+      <button class="btn btn-ghost" id="b-refresh">Aktualisieren</button>
+      <button class="btn btn-ghost" id="b-csv">Als CSV laden</button>
+    </div>
+    <div class="stats" id="stats"></div>
+    <div class="table-scroll"><div id="box"></div></div>
+  </section>
+</div>
+
+<script>
+const API = (location.hostname.includes('github.io') || location.protocol === 'file:')
+  ? 'https://englisch-9.onrender.com' : '';
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? '' : s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+let PW = '';
+
+function msg(id, t, k){ const e=$(id); e.innerHTML = t ? '<div class="note '+(k||'')+'">'+t+'</div>' : ''; }
+
+$('b-login').addEventListener('click', login);
+$('pw').addEventListener('keydown', e => { if(e.key==='Enter') login(); });
+
+async function login(){
+  const pw = $('pw').value;
+  if(!pw){ msg('m-login','Bitte Passwort eingeben.','bad'); return; }
+  $('b-login').disabled = true;
+  try{
+    const r = await fetch(API+'/api/filiuspruefung/results', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({password:pw})});
+    if(r.status===401){ msg('m-login','Passwort ist falsch.','bad'); $('b-login').disabled=false; return; }
+    if(r.status===404){ msg('m-login','Der Server kennt die Filius-Pr&uuml;fung noch nicht. '
+      +'In Render beim Dienst <strong>englisch-9</strong> neu deployen.','bad'); $('b-login').disabled=false; return; }
+    if(!r.ok) throw new Error(r.status);
+    PW = pw;
+    $('v-login').classList.add('hidden');
+    $('v-admin').classList.remove('hidden');
+    $('v-res').classList.remove('hidden');
+    await laden(); await ergebnisse();
+  }catch(e){
+    msg('m-login','Keine Verbindung zum Server. Beim kostenlosen Render-Plan schl&auml;ft der Dienst '
+      +'nach Pausen ein &ndash; bitte in etwa 30 Sekunden noch einmal versuchen.','bad');
+    $('b-login').disabled = false;
+  }
+}
+
+async function laden(){
+  const d = await (await fetch(API+'/api/filiuspruefung/list')).json();
+  const box = $('liste'); box.innerHTML = '';
+  (d.tests||[]).forEach(t => {
+    const c = document.createElement('div'); c.className='test-card';
+    const l = document.createElement('div');
+    l.innerHTML = '<h3>'+esc(t.title)+'</h3><div class="meta">'+esc(t.unit)+' &middot; '
+      + t.itemCount+' Fragen + Dateiabgabe &middot; '+t.maxPoints+' Punkte</div>';
+    const r = document.createElement('div');
+    r.style.cssText='display:flex;gap:.6rem;align-items:center';
+    const s = document.createElement('span');
+    s.className='state '+(t.unlocked?'on':'off'); s.textContent = t.unlocked?'freigeschaltet':'gesperrt';
+    const b = document.createElement('button');
+    b.className='btn btn-sm '+(t.unlocked?'btn-bad':'btn-ok');
+    b.textContent = t.unlocked?'Sperren':'Freischalten';
+    b.addEventListener('click', () => schalten(t.id, !t.unlocked, b));
+    r.append(s,b); c.append(l,r); box.appendChild(c);
+  });
+  const sel = $('sel'); sel.innerHTML = '<option value="">Alle</option>';
+  (d.tests||[]).forEach(t => { const o=document.createElement('option'); o.value=t.id; o.textContent=t.title; sel.appendChild(o); });
+}
+
+async function schalten(testId, open, btn){
+  btn.disabled = true;
+  try{
+    const r = await fetch(API+'/api/filiuspruefung/unlock', {method:'POST',
+      headers:{'Content-Type':'application/json'}, body: JSON.stringify({password:PW,testId,open})});
+    if(!r.ok) throw new Error();
+    msg('m-admin', open ? 'Die Pr&uuml;fung ist jetzt freigeschaltet.' : 'Die Pr&uuml;fung ist wieder gesperrt.', 'ok');
+    await laden();
+  }catch(e){ msg('m-admin','Das hat nicht geklappt.','bad'); btn.disabled=false; }
+}
+
+$('b-refresh').addEventListener('click', ergebnisse);
+$('sel').addEventListener('change', ergebnisse);
+
+async function ergebnisse(){
+  const box = $('box'); box.innerHTML = '<p class="sub">Wird geladen ...</p>';
+  try{
+    const r = await fetch(API+'/api/filiuspruefung/results', {method:'POST',
+      headers:{'Content-Type':'application/json'}, body: JSON.stringify({password:PW, testId:$('sel').value})});
+    const d = await r.json();
+    if(!r.ok) throw new Error();
+    const s = $('stats'); s.innerHTML='';
+    const add=(v,l)=>{const x=document.createElement('div');x.className='stat';x.innerHTML='<b>'+v+'</b><span>'+l+'</span>';s.appendChild(x);};
+    add(d.count,'Abgaben'); add(d.averageGrade==null?'-':d.averageGrade,'Schnitt');
+    (d.distribution||[]).forEach(g=>{ if(g.count) add(g.count,'Note '+g.grade); });
+    tabelle(d.submissions||[]);
+  }catch(e){ box.innerHTML = '<div class="note bad">Konnte nicht laden.</div>'; }
+}
+
+function tabelle(rows){
+  const box = $('box');
+  if(!rows.length){ box.innerHTML='<div class="note">Noch keine Abgaben.</div>'; return; }
+  box.innerHTML='';
+  const t = document.createElement('table');
+  t.innerHTML = '<thead><tr>'+['Klasse','Name','Datum','Teil A','Teil B','Gesamt','Note','']
+    .map(h=>'<th>'+h+'</th>').join('')+'</tr></thead>';
+  const tb = document.createElement('tbody');
+
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    const aP = (r.teilA||[]).reduce((s,d)=>s+d.points,0);
+    const aM = (r.teilA||[]).reduce((s,d)=>s+d.maxPoints,0);
+    const b = r.teilB || {punkte:0,maxPunkte:0,details:[]};
+
+    const tdK=document.createElement('td'); tdK.textContent=r.className;
+    const tdN=document.createElement('td');
+    tdN.innerHTML='<b>'+esc(r.lastName)+'</b>, '+esc(r.firstName)
+      + (r.dateiName ? '<br><small style="color:#5d6b84">'+esc(r.dateiName)+'</small>' : '');
+
+    const det=document.createElement('details');
+    det.innerHTML='<summary>Details ansehen</summary>';
+    const dl=document.createElement('div'); dl.className='dl';
+
+    const kopf=document.createElement('div'); kopf.className='di';
+    kopf.innerHTML='<b>Teil B &ndash; Netz in Filius</b> <span class="badge b">'+b.punkte+'/'+b.maxPunkte+'</span>'
+      + (b.rueckmeldung ? '<br><small>'+esc(b.rueckmeldung)+'</small>' : '')
+      + (!b.lesbar && b.hinweis ? '<br><small>'+esc(b.hinweis)+'</small>' : '');
+    dl.appendChild(kopf);
+
+    (b.details||[]).forEach(d=>{
+      const x=document.createElement('div'); x.className='di '+(d.erfuellt?'ok':'no');
+      x.innerHTML=(d.erfuellt?'&#10003; ':'&#10007; ')+esc(d.text)+' <b>'+d.punkte+'/'+d.maxPunkte+'</b>'
+        +'<br><small>'+esc(d.ist)+'</small>';
+      dl.appendChild(x);
+    });
+
+    const kopfA=document.createElement('div'); kopfA.className='di';
+    kopfA.innerHTML='<b>Teil A &ndash; Fragen</b> <span class="badge a">'+aP+'/'+aM+'</span>';
+    dl.appendChild(kopfA);
+    (r.teilA||[]).forEach(d=>{
+      const x=document.createElement('div'); x.className='di '+(d.correct?'ok':'no');
+      x.innerHTML=(d.correct?'&#10003; ':'&#10007; ')+d.nr+'. '+esc(d.prompt)
+        +'<br><small>Antwort: '+(d.given?esc(d.given):'keine')+(d.correct?'':' &middot; richtig: '+esc(d.expected))+'</small>';
+      dl.appendChild(x);
+    });
+    det.appendChild(dl); tdN.appendChild(det);
+
+    const tdD=document.createElement('td'); tdD.textContent=r.testDate;
+    const tdA=document.createElement('td'); tdA.textContent=aP+'/'+aM;
+    const tdB=document.createElement('td'); tdB.textContent=b.punkte+'/'+b.maxPunkte;
+    const tdG=document.createElement('td'); tdG.textContent=r.score+'/'+r.total+' ('+r.percent+'%)';
+    const tdNo=document.createElement('td'); tdNo.innerHTML='<span class="grade g'+r.grade+'">'+r.grade+'</span>';
+
+    const tdX=document.createElement('td');
+    const del=document.createElement('button');
+    del.className='btn btn-sm btn-ghost'; del.textContent='Löschen';
+    del.title='Abgabe loeschen, damit nachgeschrieben werden kann';
+    del.addEventListener('click', async () => {
+      if(!confirm('Abgabe von '+r.firstName+' '+r.lastName+' wirklich löschen?')) return;
+      del.disabled=true;
+      try{
+        const x=await fetch(API+'/api/filiuspruefung/delete-submission',{method:'POST',
+          headers:{'Content-Type':'application/json'},body:JSON.stringify({password:PW,submissionId:r.id})});
+        if(!x.ok) throw new Error(); ergebnisse();
+      }catch(e){ del.disabled=false; alert('Konnte nicht geloescht werden.'); }
+    });
+    tdX.appendChild(del);
+
+    tr.append(tdK,tdN,tdD,tdA,tdB,tdG,tdNo,tdX);
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb); box.appendChild(t);
+}
+
+$('b-csv').addEventListener('click', async () => {
+  try{
+    const r = await fetch(API+'/api/filiuspruefung/export', {method:'POST',
+      headers:{'Content-Type':'application/json'}, body: JSON.stringify({password:PW,testId:$('sel').value})});
+    if(!r.ok) throw new Error();
+    const blob = await r.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'filiuspruefung.csv'; a.click();
+    URL.revokeObjectURL(a.href);
+  }catch(e){ alert('Export hat nicht geklappt.'); }
+});
+</script>
+</body>
+</html>

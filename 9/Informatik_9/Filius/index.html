@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filius-Workshop | Informatik 9</title>
+<meta name="description" content="Netzwerke selbst bauen mit Filius: f&uuml;nf Stationen von zwei Rechnern bis zur eigenen Webseite, mit Videos, Aufgaben und Kontrollfragen.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../css/exercise-shell.css">
+<link rel="stylesheet" href="fortschritt/station.css">
+<style>
+  .karten{display:grid;gap:13px;margin-top:6px}
+  .karte{
+    display:flex;align-items:flex-start;gap:15px;
+    border:1px solid var(--line);border-radius:var(--r-m);
+    background:#fcfdff;padding:16px 18px;text-decoration:none;color:var(--ink);transition:.14s;
+  }
+  .karte:hover{border-color:var(--teal);background:#f7fdfc;transform:translateY(-1px)}
+  .karte.fertig{border-color:var(--ok-line);background:var(--ok-bg)}
+  .karte-nr{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:38px;height:38px;border-radius:50%;flex:0 0 auto;
+    background:var(--net-1);color:#fff;font-size:1rem;font-weight:900;
+  }
+  .karte.fertig .karte-nr{background:var(--ok)}
+  .karte-txt{flex:1;min-width:0}
+  .karte-txt h3{font-size:1.05rem;font-weight:800;margin-bottom:3px}
+  .karte-txt p{color:var(--muted);font-size:.93rem}
+  .karte-meta{margin-top:7px;display:flex;flex-wrap:wrap;gap:7px}
+  .chip{
+    border-radius:999px;background:var(--blue-soft);color:var(--net-1);
+    padding:3px 10px;font-size:.78rem;font-weight:800;
+  }
+  .chip.ok{background:var(--ok-bg);color:var(--ok)}
+  .dl{
+    display:inline-flex;align-items:center;gap:8px;
+    border-radius:var(--r-s);background:#fff;color:var(--net-1);
+    padding:10px 16px;font-size:.94rem;font-weight:800;text-decoration:none;
+    border:1px solid rgba(255,255,255,.5);
+  }
+  .hero .dl{background:#fff;border-color:#fff}
+  .hero .dl:hover{background:#eef4ff}
+  .gesamt{
+    display:flex;flex-wrap:wrap;align-items:center;gap:12px;
+    border:1px solid var(--line);border-radius:var(--r-m);
+    background:var(--card);padding:13px 17px;margin-top:16px;box-shadow:var(--shadow-s);
+  }
+</style>
+</head>
+<body>
+
+<header class="ex-shell-header" aria-label="Seitennavigation">
+  <div class="ex-inner">
+    <a class="ex-brand" href="../../../index.html" aria-label="Zur Startseite">
+      <img src="../../../images_school/logo.png" alt="Logo der Grund- und Mittelschule">
+      <span class="ex-brand-text">
+        <span class="ex-brand-name">Grund- und Mittelschule am Sportpark</span>
+        <span class="ex-brand-sub">GRUMI Lernplattform &middot; Informatik 9</span>
+      </span>
+    </a>
+    <a class="ex-back" href="../index.html">Zur&uuml;ck</a>
+  </div>
+</header>
+
+<nav class="ex-crumbs" aria-label="Pfad">
+  <a href="../../../index.html">Start</a>
+  <a href="../index.html">Informatik 9</a>
+  <span>Filius-Workshop</span>
+</nav>
+
+<div class="wrap">
+  <section class="hero">
+    <span class="code">Werkstatt &middot; 4 bis 5 Stunden</span>
+    <h1>Netzwerke selbst bauen</h1>
+    <p class="sub">Der Filius-Workshop in f&uuml;nf Stationen</p>
+    <p class="lead">
+      Hier baust du Netzwerke nicht nur auf dem Papier, sondern am Rechner.
+      Du beginnst mit zwei Computern an einem Kabel und endest mit deiner eigenen
+      Webseite, die unter einem echten Namen erreichbar ist.
+      Zu jeder Station gibt es ein Video, klare Arbeitsschritte und Kontrollfragen.
+    </p>
+    <p style="margin-top:14px">
+      <a class="dl" href="https://www.lernsoftware-filius.de/Herunterladen" target="_blank" rel="noopener">
+        Filius kostenlos herunterladen
+      </a>
+    </p>
+  </section>
+
+  <div class="gesamt">
+    <span class="txt">Geschafft: <b id="g-zahl">0</b> von <b>5</b> Stationen</span>
+    <span class="balken"><span id="g-balken"></span></span>
+    <button class="btn btn-ghost" id="reset" style="padding:7px 13px;font-size:.86rem">Fortschritt l&ouml;schen</button>
+  </div>
+
+  <section class="panel">
+    <span class="sec-label">So arbeitest du</span>
+    <h2>Dein Weg durch den Workshop</h2>
+    <p class="hint">Arbeite die Stationen der Reihe nach durch. Jede baut auf der vorherigen auf.</p>
+
+    <div class="memo">
+      <h4>Drei Dinge, die du immer machst</h4>
+      <ul>
+        <li><b>Video anschauen</b> &ndash; es zeigt dir jeden Klick.</li>
+        <li><b>Selbst bauen</b> &ndash; und jeden Schritt abhaken.</li>
+        <li><b>Speichern</b> nach dem Schema <b>JJMMTT-Aufg-Name</b>,
+            zum Beispiel <b>260918-01-Anna</b>.</li>
+      </ul>
+    </div>
+
+    <div class="karten" id="karten"></div>
+  </section>
+
+  <section class="panel">
+    <span class="sec-label">Zum Abschluss</span>
+    <h2>Praktische Pr&uuml;fung</h2>
+    <p class="hint">
+      Wenn du alle f&uuml;nf Stationen geschafft hast, kannst du die praktische
+      Pr&uuml;fung schreiben. Sie besteht aus Fragen zum Ankreuzen und du l&auml;dst
+      am Ende deine Filius-Datei hoch.
+    </p>
+    <div class="karten">
+      <a class="karte" href="pruefung.html">
+        <span class="karte-nr">&#10003;</span>
+        <span class="karte-txt">
+          <h3>Praktische Pr&uuml;fung Filius</h3>
+          <p>Ankreuzfragen zum Workshop und Abgabe deiner fertigen Filius-Datei.
+             Wird von der Lehrkraft freigeschaltet.</p>
+          <span class="karte-meta"><span class="chip">Nur mit Freischaltung</span></span>
+        </span>
+      </a>
+    </div>
+  </section>
+</div>
+
+<footer class="ex-shell-footer">
+  <div class="ex-inner">
+    <div>
+      <div class="ex-footer-name">Grund- und Mittelschule Unterhaching am Sportpark</div>
+      <div class="ex-footer-sub">GRUMI Lernplattform &middot; Informatik Klasse 9</div>
+    </div>
+    <div class="ex-footer-links">
+      <a href="../index.html">Informatik 9</a>
+      <a href="../../../datenschutz.html">Datenschutz</a>
+      <a href="../../../impressum.html">Impressum</a>
+    </div>
+  </div>
+</footer>
+
+<script src="fortschritt/fortschritt.js"></script>
+<script>
+var STATIONEN = [
+  { id:"s1-direkt", datei:"s1-direkt.html", nr:1, schritte:5,
+    titel:"Zwei Rechner direkt verbinden",
+    text:"Peer-to-Peer, IP-Adressen vergeben und mit ping testen, ob die Verbindung steht.",
+    chips:["2 Videos","5 Schritte","4 Fragen"] },
+  { id:"s2-switch", datei:"s2-switch.html", nr:2, schritte:5,
+    titel:"Mehr Rechner mit einem Switch",
+    text:"Stern-Topologie aufbauen, Server erg&auml;nzen und das Client-Server-Prinzip am Echo-Server erleben.",
+    chips:["2 Videos","5 Schritte","5 Fragen"] },
+  { id:"s3-router", datei:"s3-router.html", nr:3, schritte:6,
+    titel:"Zwei Netze verbinden",
+    text:"Router einsetzen, Gateway eintragen und &uuml;ber die Netzgrenze hinweg pingen.",
+    chips:["2 Videos","6 Schritte","5 Fragen"] },
+  { id:"s4-dhcp", datei:"s4-dhcp.html", nr:4, schritte:5,
+    titel:"IP-Adressen automatisch vergeben",
+    text:"DHCP-Server einrichten &ndash; so wie sich dein Handy im Schul-WLAN eine Adresse holt.",
+    chips:["5 Schritte","5 Fragen"] },
+  { id:"s5-web", datei:"s5-web.html", nr:5, schritte:6,
+    titel:"Eigene Webseite und E-Mail",
+    text:"Webserver mit eigener HTML-Seite, DNS als Telefonbuch und eine E-Mail von Rechner zu Rechner.",
+    chips:["4 Videos","6 Schritte","6 Fragen"] }
+];
+
+var F = window.GrumiFilius;
+var box = document.getElementById("karten");
+var fertig = 0;
+
+STATIONEN.forEach(function (st) {
+  var geschafft = F && F.istGeschafft(st.id, st.schritte);
+  if (geschafft) fertig++;
+
+  var a = document.createElement("a");
+  a.className = "karte" + (geschafft ? " fertig" : "");
+  a.href = st.datei;
+
+  var chips = st.chips.map(function (c) {
+    return '<span class="chip">' + c + "</span>";
+  }).join("");
+  if (geschafft) chips += '<span class="chip ok">geschafft &#10003;</span>';
+
+  a.innerHTML =
+    '<span class="karte-nr">' + (geschafft ? "&#10003;" : st.nr) + "</span>" +
+    '<span class="karte-txt"><h3>' + st.titel + "</h3>" +
+    "<p>" + st.text + "</p>" +
+    '<span class="karte-meta">' + chips + "</span></span>";
+  box.appendChild(a);
+});
+
+document.getElementById("g-zahl").textContent = fertig;
+document.getElementById("g-balken").style.width = (fertig / STATIONEN.length * 100) + "%";
+
+document.getElementById("reset").addEventListener("click", function () {
+  if (!confirm("Wirklich den ganzen Fortschritt löschen?\n\nAlle Häkchen und Ergebnisse verschwinden.")) return;
+  if (F) F.zuruecksetzen();
+  location.reload();
+});
+</script>
+</body>
+</html>
