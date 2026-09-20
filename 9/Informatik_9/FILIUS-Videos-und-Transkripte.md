@@ -1,31 +1,30 @@
 # FILIUS: Videos und Transkripte
 
 Quelle: YouTube-Kanal **Herr Sauer**. Im Skript `05_FILIUS.pdf` sind die Videos
-ueber Kurzlinks `ogy.de/filius-XX` und QR-Codes verlinkt. Hier stehen die
-direkten Links und die Transkripte.
+ueber Kurzlinks `ogy.de/filius-XX` und QR-Codes verlinkt.
 
-Die Transkripte wurden aus YouTube kopiert (automatisch erzeugte Untertitel,
-daher vereinzelt Hoerfehler). Sie sind die Grundlage fuer die Arbeitsschritte
-und Kontrollfragen im Workshop unter `Filius/`.
+Die Transkripte wurden von der Lehrkraft aus YouTube kopiert (automatisch
+erzeugte Untertitel, daher vereinzelt Hoerfehler). Sie sind die Grundlage
+fuer die Arbeitsschritte und Kontrollfragen der Stationsseiten.
 
 ## Uebersicht
 
-| Nr | Titel | Kurzlink | YouTube | Transkript | Station |
-|---|---|---|---|---|---|
-| 01 | 01 Peer to peer | [ogy.de/filius-01](https://ogy.de/filius-01) | [youtu.be/nlFXxrVOMGQ](https://youtu.be/nlFXxrVOMGQ) | ja | Station 1 |
-| 02 | 02 Ping | [ogy.de/filius-02](https://ogy.de/filius-02) | [youtu.be/iZ8l-DkckZE](https://youtu.be/iZ8l-DkckZE) | ja | Station 1 |
-| 04 | 04 Mit Switch | [ogy.de/filius-04](https://ogy.de/filius-04) | [youtu.be/_LSYWZRcfM4](https://youtu.be/_LSYWZRcfM4) | ja | Station 2 |
-| 05 | 05 Client-Server-Modell | [ogy.de/filius-05](https://ogy.de/filius-05) | [youtu.be/8THLsQDjHxE](https://youtu.be/8THLsQDjHxE) | ja | Station 2 |
-| 06 | 06 Vermittlungsrechner (Router) | [ogy.de/filius-06](https://ogy.de/filius-06) | [youtu.be/pWO_fSIt6Ag](https://youtu.be/pWO_fSIt6Ag) | ja | Station 3 |
-| 07 | 07 Gateway-IP | [ogy.de/filius-07](https://ogy.de/filius-07) | [youtu.be/iI-u1ovOUQo](https://youtu.be/iI-u1ovOUQo) | ja | Station 3 |
-| 08 | 08 Mein eigenes Web | [ogy.de/filius-08](https://ogy.de/filius-08) | [youtu.be/rmGOfuXW_nI](https://youtu.be/rmGOfuXW_nI) | ja | Station 5 |
-| 09 | 09 Im eigenen Web surfen | [ogy.de/filius-09](https://ogy.de/filius-09) | [youtu.be/XS0TcLHu1K4](https://youtu.be/XS0TcLHu1K4) | ja | Station 5 |
-| 10 | 10 DNS-Server einrichten | [ogy.de/filius-10](https://ogy.de/filius-10) | [youtu.be/-pqEJJbJcBA](https://youtu.be/-pqEJJbJcBA) | ja | Station 5 |
-| 11 | 11 DNS einrichten | [ogy.de/filius-11](https://ogy.de/filius-11) | [youtu.be/zoXKPYcF2Dk](https://youtu.be/zoXKPYcF2Dk) | fehlt | Station 5 |
-| 12 | 12 DNS-Server aktivieren | [ogy.de/filius-12](https://ogy.de/filius-12) | [youtu.be/FtsSm5zSL-c](https://youtu.be/FtsSm5zSL-c) | fehlt | Station 5 |
+| Nr | Titel | Kurzlink | YouTube | Station |
+|---|---|---|---|---|
+| 01 | 01 Peer to peer | [ogy.de/filius-01](https://ogy.de/filius-01) | [youtu.be/nlFXxrVOMGQ](https://youtu.be/nlFXxrVOMGQ) | Station 1 |
+| 02 | 02 Ping | [ogy.de/filius-02](https://ogy.de/filius-02) | [youtu.be/iZ8l-DkckZE](https://youtu.be/iZ8l-DkckZE) | Station 1 |
+| 04 | 04 Mit Switch | [ogy.de/filius-04](https://ogy.de/filius-04) | [youtu.be/_LSYWZRcfM4](https://youtu.be/_LSYWZRcfM4) | Station 2 |
+| 05 | 05 Client-Server-Modell | [ogy.de/filius-05](https://ogy.de/filius-05) | [youtu.be/8THLsQDjHxE](https://youtu.be/8THLsQDjHxE) | Station 2 |
+| 06 | 06 Vermittlungsrechner (Router) | [ogy.de/filius-06](https://ogy.de/filius-06) | [youtu.be/pWO_fSIt6Ag](https://youtu.be/pWO_fSIt6Ag) | Station 3 |
+| 07 | 07 Gateway-IP | [ogy.de/filius-07](https://ogy.de/filius-07) | [youtu.be/iI-u1ovOUQo](https://youtu.be/iI-u1ovOUQo) | Station 3 |
+| 08 | 08 Mein eigenes Web | [ogy.de/filius-08](https://ogy.de/filius-08) | [youtu.be/rmGOfuXW_nI](https://youtu.be/rmGOfuXW_nI) | Station 4 |
+| 09 | 09 Im eigenen Web surfen | [ogy.de/filius-09](https://ogy.de/filius-09) | [youtu.be/XS0TcLHu1K4](https://youtu.be/XS0TcLHu1K4) | Station 4 |
+| 10 | 10 DNS-Server einrichten | [ogy.de/filius-10](https://ogy.de/filius-10) | [youtu.be/-pqEJJbJcBA](https://youtu.be/-pqEJJbJcBA) | Station 5 |
+| 11 | 11 DNS bei den Rechnern eintragen | [ogy.de/filius-11](https://ogy.de/filius-11) | [youtu.be/zoXKPYcF2Dk](https://youtu.be/zoXKPYcF2Dk) | Station 5 |
+| 12 | 12 DNS-Server aktivieren | [ogy.de/filius-12](https://ogy.de/filius-12) | [youtu.be/FtsSm5zSL-c](https://youtu.be/FtsSm5zSL-c) | Station 5 |
 
-> Video **00** (Startbildschirm) ist auf YouTube nicht mehr verfuegbar und
-> deshalb im Workshop nicht verlinkt.
+> Video **00** (Startbildschirm) ist auf YouTube nicht mehr verfuegbar
+> und deshalb im Workshop nicht verlinkt.
 
 ---
 
@@ -85,7 +84,7 @@ stell dir vor du moechtest deine freundin franziska besuchen. du faengst an und 
 
 ## 08 Mein eigenes Web
 
-**Video:** https://youtu.be/rmGOfuXW_nI &nbsp;·&nbsp; **Kurzlink:** https://ogy.de/filius-08 &nbsp;·&nbsp; **genutzt in:** Station 5
+**Video:** https://youtu.be/rmGOfuXW_nI &nbsp;·&nbsp; **Kurzlink:** https://ogy.de/filius-08 &nbsp;·&nbsp; **genutzt in:** Station 4
 
 ### Transkript
 
@@ -94,7 +93,7 @@ jetzt wollen wir unseren eigenen webserver unser eigenes web oder intranet erzeu
 
 ## 09 Im eigenen Web surfen
 
-**Video:** https://youtu.be/XS0TcLHu1K4 &nbsp;·&nbsp; **Kurzlink:** https://ogy.de/filius-09 &nbsp;·&nbsp; **genutzt in:** Station 5
+**Video:** https://youtu.be/XS0TcLHu1K4 &nbsp;·&nbsp; **Kurzlink:** https://ogy.de/filius-09 &nbsp;·&nbsp; **genutzt in:** Station 4
 
 ### Transkript
 
@@ -108,4 +107,22 @@ wir haben unseren webserver am laufen jetzt wird es zeit dass wir in unserem web
 ### Transkript
 
 hier unser internet es funktioniert aber eine sache ist noch anders als in dem internet das du kennst. was mussten wir machen um auf diesen server zuzugreifen wir mussten da oben diese komische zahlenkombination eingeben 192.168.0.12. wenn du jetzt im internet irgendwo auf eine webseite gehst dann gehst du auf wikipedia.de oder test.de. vergleichbar dazu ist die situation wenn du jemanden anrufen willst dann tippst du doch nicht die nummer ein sondern du benutzt sowas wie ein telefonbuch in deinem handy. frueher sah das mal so aus da gab es ein buch ein richtiges mit den nummern dahinter weil sich die nummern von allen kann sich keiner merken. aber wenn ich den hans meyer oder den max mustermann anrufen will dann tippe ich einfach drauf und warum weil man sich namen einfach viel besser merken kann als diese zahlen. und was brauche ich dafuer da brauche ich ein sogenanntes domain name system und einen entsprechenden domain name system server man sagt auch dns server dazu. das praktische ist so koennte man auch mehrere server benutzen die verschiedene ips haben und je nachdem wo meine webseite gerade gespeichert ist kann ich dann einfach sagen hier zeigt die seite wikipedia.de einfach auf eine andere ip. das heißt wir wollen uns auch einen dns server an den start bringen damit wir uns nicht die ganzen ips merken muessen sondern einfach zum beispiel auf www.willkommen.de gehen koennen und so die seite oeffnen. dazu muessen wir in den entwurfs oder bearbeitungsmodus wechseln. dort wollen wir den dns server hinzufuegen. das macht keinen sinn den in irgendein netzwerk null oder eins zuzuordnen weil er soll ja global gelten egal ob ich von netzwerk 1 oder 0 darauf zugreife. er steht einfach irgendwo im internet also machen wir nochmal ein eigenes netzwerk. das heißt er muss direkt an den vermittlungsrechner an den router angeschlossen werden. daher machen wir einen doppelklick darauf der hat bisher nur zwei von diesen anschluessen und die sind beide belegt mit den beiden switches. das heißt wir brauchen eine weitere verbindung das kann man hier unten unter allgemein verbindungen verwalten und dann kann ich mit plus noch eine schnittstelle hinzufuegen und dann druecke ich auf schliessen. und diese neue schnittstelle wo noch nichts angesteckt ist braucht natuerlich auch wieder eine ip adresse das soll die 192.168.2.1 sein. du merkst wie wir hier so langsam die zahlen durchgehen 0.1 1.1 jetzt sind wir bei 2.1 angelangt. wir haben gesagt wir benutzen diesen rechner als server das heißt ich ziehe hier einen neuen rechner hin den nenne ich nach seiner funktion das soll ja unser dns server werden deswegen nenne ich ihn auch so. und der bekommt natuerlich auch eine eigene ip adresse der soll ja im zweier netz sein also 192.168.2.10 und der bekommt natuerlich auch das gateway 192.168.2.1 das ist ja die ip adresse des vermittlungsrechners. dann muessen wir das ganze noch miteinander verbinden. jawohl 2.1 ist hier verbunden der hat die adresse 2.1 und er hat die ip 2.10 und gateway 2.1 eben dieser vermittlungsrechner. jetzt muessen wir den namen nochmal ergaenzen damit wir auch ganz genau wissen wo der eigentlich liegt dns server 2.10. jetzt ist alles vorbereitet und wir speichern einmal ab damit wir mit der naechsten aufgabe weitermachen koennen.
+
+
+## 11 DNS bei den Rechnern eintragen
+
+**Video:** https://youtu.be/zoXKPYcF2Dk &nbsp;·&nbsp; **Kurzlink:** https://ogy.de/filius-11 &nbsp;·&nbsp; **genutzt in:** Station 5
+
+### Transkript
+
+das ist perfekt jetzt haben wir unseren dns server startklar jetzt muessen wir nur den ganzen anderen rechnern noch mal sagen dass es jetzt auf einmal einen dns server gibt. das machen wir wieder geraet fuer geraet wir fangen oben links an und das ist hier unten domain name server kann man hier eintragen die ip ist 192.168.2.10 die kopiere ich mir jetzt einmal und dann kann ich sie bei allen anderen rechnern einfach einfuegen. der unten noch perfekt jetzt haben alle rechner den dns domain name server gespeichert und wir koennen wieder abspeichern diesmal mit der elf. speichern.
+
+
+## 12 DNS-Server aktivieren
+
+**Video:** https://youtu.be/FtsSm5zSL-c &nbsp;·&nbsp; **Kurzlink:** https://ogy.de/filius-12 &nbsp;·&nbsp; **genutzt in:** Station 5
+
+### Transkript
+
+jetzt kommt der letzte schritt in diesem workshop und zwar wollen wir unseren dns server aktivieren benutzen und gucken dass er funktioniert. wir wechseln in den aktionsmodus und hier gehen wir auf unseren rechner dns server und hier installieren wir die software und zwar die dns server software uebernehmen. das ganze hier ist das ding da koennen wir jetzt erstmal eintragen und zwar brauchen wir jetzt einen schoenen domaennamen nehmen wir mal www.willkommen.de. so und welche ip adresse soll dem zugeordnet sein kurz nachdenken hier auf dem server liegt unser webserver das heißt diese ip adresse sollten wir uebernehmen das ist die 192.168.0.12 und dann sagen wir hinzufuegen. jetzt lass dich nicht irritieren hier ist so ein punkt der spaeter dahinter steht das ist ok so. wie im telefonbuch hier ist der name und hier ist die telefonnummer und hier ist der domainname hier ist die ip adresse. wunderbar jetzt haben wir hier unseren ersten eintrag wir koennen auch noch mehr machen wir koennen hier noch test.de eintragen und geben irgendeine andere ip ein und dann kannst du deine liste noch erweitern aber das muss man eben machen. so jetzt starten wir unseren dns server der laeuft wir koennen das ganze zumachen denn der laeuft naemlich weiter im hintergrund. nun wollen wir mal gucken ob das funktioniert wir gehen auf unseren rechner 0.10 da gibt es den webbrowser und hier kann ich eine webadresse eingeben www.willkommen.de. schauen wir mal er macht hier diverse abfragen er fragt beim dns server nach und dann wird in der verbindung geschaut was passiert und du siehst ich bin auf der seite die kontaktseite kann ich auch aufrufen. ich drehe jetzt nochmal die geschwindigkeit runter und dann koennen wir mal beobachten wie der rechner erst mal den dns server sucht und sich erstmal die ip adresse holt und dann die verbindung zwischen rechner und server ablaeuft. hier wird beim dns server nachgefragt der sagt das ist die ip und dann laeuft das hin und her und er ruft die webseite auf. nun koennen wir in der befehlszeile nochmal einen befehl ausprobieren und zwar funktioniert der auch im windows kommandozeile oder mac. da schreiben wir host www.willkommen.de das heißt ich moechte herausfinden wer denn der host also der gastgeber von dieser www.willkommen.de seite ist das rufe ich auf und bekomme dann zurueckgemeldet www.willkommen.de hat die ip adresse 192.168.0.12. hier siehst du jetzt so ein terminal fenster das mit dem richtigen internet verbunden ist und da wollen wir mal ausprobieren wenn ich hier host www.google.de eingebe dann bekomme ich angezeigt dass er diese ip adressen hat. daran siehst du dass da tatsaechlich eine idee dahinter steckt das kannst du gerne selber mal ausprobieren. das war es mit unserem filius workshop du hast einige dinge ueber das netzwerk und das netzwerken internet ip dns und so weiter gelernt. das letzte was uns jetzt noch uebrig bleibt ist einmal wieder in den entwurfsmodus wechseln und speichern aufgabe 12.
 
