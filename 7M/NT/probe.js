@@ -1,7 +1,7 @@
 (function () {
   "use strict";
   const params = new URLSearchParams(location.search);
-  const API = (params.get("api") || (location.hostname.endsWith("github.io") ? "https://grumi-nt7-proben.onrender.com" : location.origin)).replace(/\/$/, "");
+  const API = (params.get("api") || (location.hostname.endsWith("github.io") ? "https://englisch-9.onrender.com" : location.origin)).replace(/\/$/, "");
   const $ = id => document.getElementById(id);
   const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[c]);
   let selected, student, exam;

@@ -19,6 +19,6 @@ Für einen dauerhaften Produktivbetrieb auf Render benötigt das Backend einen p
 Das Lehrerpasswort und der Anthropic-Schlüssel werden als geheime Render-Umgebungsvariablen gesetzt, nicht in Dateien eingecheckt. Ohne `ANTHROPIC_API_KEY` ist die Stichwortbewertung ausdrücklich vorläufig und jede freie Antwort zur Lehrkraft-Nachprüfung markiert. Die eigentlichen KI-Rückmeldungen funktionieren erst mit konfiguriertem Schlüssel.
 
 - GitHub: Die Lernseite unter `https://joe82muc.github.io/grumi/7M/NT/` ist erreichbar.
-- Render: Der Dienst `grumi-nt7-proben` ist noch nicht angelegt (Health-URL liefert 404). Der getrennte Blueprint liegt unter `7M/NT/render.yaml`. Bei der Einrichtung in Render ist `TEACHER_PASSWORD` auf den von der Lehrkraft vorgegebenen Wert zu setzen und ein gültiger Anthropic-Schlüssel für KI-Korrekturen zu hinterlegen.
+- Render: Die NT-Proben laufen gemeinsam mit den Informatik-Tests über `https://englisch-9.onrender.com`. `TEACHER_PASSWORD` und der Anthropic-Schlüssel werden nur dort gepflegt.
 
 Quellen: Die Abbildungen wurden aus den beiden Unterrichtspräsentationen im Ordner `7/NT/01_Luft` entnommen. Beim Max-Planck-Video wurden die automatisch erzeugten deutschen Untertitel für die didaktische Zusammenfassung gelesen und fachlich geprüft. Die historische 2050-Simulation wird nicht als heutige Messung dargestellt.
