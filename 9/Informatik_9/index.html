@@ -272,7 +272,7 @@
               </span>
             </a>
 
-            <a class="kachel" href="Filius/FILIUS_Zwei_Netze_Webserver.fls" download>
+            <a class="kachel" id="k-beispiel" href="#" hidden>
               <span class="ico" aria-hidden="true">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M12 3.5v11"/><path d="M8 11l4 3.5 4-3.5"/><path d="M4.5 18.5h15"/>
@@ -281,11 +281,11 @@
               <span class="txt">
                 <h3>Beispieldatei zum &Ouml;ffnen</h3>
                 <p>Ein fertiges Netz mit zwei Netzen, Router, Echo-Server und eigener Webseite. Zum Anschauen in Filius, wenn du nicht weiterkommst.</p>
-                <span class="meta"><span class="pill grau">.fls-Datei</span></span>
+                <span class="meta"><span class="pill gelb">Von der Lehrkraft freigegeben</span></span>
               </span>
             </a>
 
-            <a class="kachel" href="FILIUS-Videos-und-Transkripte.md">
+            <a class="kachel" href="Filius/videos.html">
               <span class="ico" aria-hidden="true">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
                   <rect x="2.5" y="5.5" width="19" height="13" rx="2"/><path d="M10 9.5l5 2.5-5 2.5z"/>
@@ -293,8 +293,8 @@
               </span>
               <span class="txt">
                 <h3>Alle Videos im &Uuml;berblick</h3>
-                <p>Liste aller elf Filius-Videos mit Links &ndash; falls du ein Video noch einmal suchst.</p>
-                <span class="meta"><span class="pill grau">Linkliste</span></span>
+                <p>Alle elf Videos des Workshops auf einer Seite, sortiert nach Stationen. Zum Anklicken und direkt dort ansehen.</p>
+                <span class="meta"><span class="pill">11 Videos</span></span>
               </span>
             </a>
           </div>
@@ -331,5 +331,25 @@
       </div>
     </div>
   </footer>
+
+  <script>
+  /* Die Beispieldatei zeigt eine fertige Loesung. Sie erscheint nur, wenn die
+     Lehrkraft sie freigegeben hat - gefragt wird beim Server. */
+  (function () {
+    var API = (location.hostname.indexOf("github.io") >= 0 || location.protocol === "file:")
+      ? "https://englisch-9.onrender.com" : "";
+    var kachel = document.getElementById("k-beispiel");
+    if (!kachel) return;
+    fetch(API + "/api/filiuspruefung/beispiel/status")
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d && d.frei) {
+          kachel.href = API + "/api/filiuspruefung/beispiel/datei";
+          kachel.hidden = false;
+        }
+      })
+      .catch(function () { /* Server nicht erreichbar: Kachel bleibt verborgen. */ });
+  })();
+  </script>
 </body>
 </html>

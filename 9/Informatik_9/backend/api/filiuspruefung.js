@@ -14,6 +14,10 @@
  *
  * Das Entpacken passiert ohne Fremdbibliothek mit zlib (inflateRaw), damit
  * im Backend keine neue Abhaengigkeit noetig ist.
+ *
+ * Ausserdem liegt hier die Beispiel-Filius-Datei. Sie zeigt eine fertige
+ * Loesung und wird deshalb nur ausgeliefert, wenn die Lehrkraft sie
+ * freigegeben hat (opts.beispielDatei = Pfad zur .fls).
  */
 
 const fs = require("fs");
@@ -377,7 +381,11 @@ function createStore(dataDir) {
     if (!fs.existsSync(SUB_FILE)) fs.writeFileSync(SUB_FILE, JSON.stringify({ submissions: [] }, null, 2), "utf8");
   }
   function loadUnlocks() {
-    try { return JSON.parse(fs.readFileSync(UNLOCK_FILE, "utf8")); } catch (_e) { return { unlocked: {} }; }
+    try {
+      const d = JSON.parse(fs.readFileSync(UNLOCK_FILE, "utf8"));
+      if (!d.dateien) d.dateien = {};
+      return d;
+    } catch (_e) { return { unlocked: {}, dateien: {} }; }
   }
   function saveUnlocks(d) { fs.writeFileSync(UNLOCK_FILE, JSON.stringify(d, null, 2), "utf8"); }
   function loadSubmissions() {
@@ -537,6 +545,44 @@ function registerFiliusPruefungRoutes(app, opts) {
         submittedAt: record.submittedAt
       }
     });
+  });
+
+  /* ---------- Beispieldatei: Status, Freigabe, Download ----------
+     Die Datei zeigt eine fertige Loesung und darf deshalb nicht dauerhaft
+     offen liegen. Sie wird nur ausgeliefert, wenn die Lehrkraft sie
+     freigegeben hat - dieselbe Logik wie bei den Pruefungen. */
+
+  app.get("/api/filiuspruefung/beispiel/status", (_req, res) => {
+    const u = store.loadUnlocks();
+    const frei = Boolean(u.dateien?.beispiel?.open);
+    res.json({ ok: true, frei, dateiname: "beispiel-netz.fls" });
+  });
+
+  app.post("/api/filiuspruefung/beispiel/freigeben", (req, res) => {
+    if (!isTeacher(req)) return res.status(401).json({ ok: false, error: "bad_password" });
+    const open = Boolean(req.body?.open);
+    const u = store.loadUnlocks();
+    if (!u.dateien) u.dateien = {};
+    u.dateien.beispiel = { open, changedAt: new Date().toISOString() };
+    store.saveUnlocks(u);
+    res.json({ ok: true, frei: open });
+  });
+
+  app.get("/api/filiuspruefung/beispiel/datei", (_req, res) => {
+    const u = store.loadUnlocks();
+    if (!u.dateien?.beispiel?.open) {
+      return res.status(403).json({
+        ok: false, error: "locked",
+        message: "Die Beispieldatei ist noch nicht freigegeben."
+      });
+    }
+    const datei = opts.beispielDatei;
+    if (!datei || !fs.existsSync(datei)) {
+      return res.status(404).json({ ok: false, error: "not_found" });
+    }
+    res.setHeader("Content-Type", "application/octet-stream");
+    res.setHeader("Content-Disposition", 'attachment; filename="beispiel-netz.fls"');
+    res.send(fs.readFileSync(datei));
   });
 
   app.post("/api/filiuspruefung/unlock", (req, res) => {

@@ -98,6 +98,21 @@
     <p class="sub">Die Klasse sieht die Pr&uuml;fung nur, solange sie freigeschaltet ist.</p>
     <div id="liste"></div>
     <div id="m-admin"></div>
+
+    <h2 style="margin-top:1.3rem">Beispieldatei freigeben</h2>
+    <p class="sub">Die fertige Filius-Datei zeigt eine vollstaendige L&ouml;sung.
+      W&auml;hrend der Pr&uuml;fung sollte sie gesperrt sein.</p>
+    <div class="test-card">
+      <div>
+        <h3>Beispiel-Netz (beispiel-netz.fls)</h3>
+        <div class="meta">Zwei Netze, Router, Echo-Server und eigene Webseite</div>
+      </div>
+      <div style="display:flex;gap:.6rem;align-items:center">
+        <span class="state off" id="bsp-state">wird geladen</span>
+        <button class="btn btn-sm btn-ok" id="bsp-btn" disabled>...</button>
+      </div>
+    </div>
+    <div id="m-bsp"></div>
   </section>
 
   <section class="panel hidden" id="v-res">
@@ -150,11 +165,38 @@ async function login(){
     $('v-login').classList.add('hidden');
     $('v-admin').classList.remove('hidden');
     $('v-res').classList.remove('hidden');
-    await laden(); await ergebnisse();
+    await laden(); await bspLaden(); await ergebnisse();
   }catch(e){
     msg('m-login','Keine Verbindung zum Server. Beim kostenlosen Render-Plan schl&auml;ft der Dienst '
       +'nach Pausen ein &ndash; bitte in etwa 30 Sekunden noch einmal versuchen.','bad');
     $('b-login').disabled = false;
+  }
+}
+
+async function bspLaden(){
+  try{
+    const d = await (await fetch(API+"/api/filiuspruefung/beispiel/status")).json();
+    const st=$("bsp-state"), b=$("bsp-btn");
+    st.className = "state " + (d.frei ? "on" : "off");
+    st.textContent = d.frei ? "freigegeben" : "gesperrt";
+    b.className = "btn btn-sm " + (d.frei ? "btn-bad" : "btn-ok");
+    b.textContent = d.frei ? "Sperren" : "Freigeben";
+    b.disabled = false;
+    b.onclick = async () => {
+      b.disabled = true;
+      try{
+        const r = await fetch(API+"/api/filiuspruefung/beispiel/freigeben", {
+          method:"POST", headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({ password: PW, open: !d.frei })});
+        if(!r.ok) throw new Error();
+        msg("m-bsp", !d.frei
+          ? "Die Beispieldatei ist jetzt fuer die Klasse sichtbar."
+          : "Die Beispieldatei ist wieder gesperrt.", "ok");
+        bspLaden();
+      }catch(e){ msg("m-bsp","Das hat nicht geklappt.","bad"); b.disabled=false; }
+    };
+  }catch(e){
+    $("bsp-state").textContent = "nicht erreichbar";
   }
 }
 
