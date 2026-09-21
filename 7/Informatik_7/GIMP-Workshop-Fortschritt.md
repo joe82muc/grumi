@@ -21,6 +21,8 @@ Zauberstab zu klicken.
 | `bilder/s13-maske.svg` | Schritt 3: Auswahl und Ebenenmaske |
 | `bilder/uebung/s13-ballon.jpg` | Übungsbild leicht |
 | `bilder/uebung/s13-baum.jpg` | Übungsbild schwer |
+| `bilder/uebung/s13-fussballer.jpg` | Übungsbild Zusatz (eigenes Foto) |
+| `bilder/hero-informatik7.jpg` | Kopfbild der Übersichtsseite |
 | `bilder/uebung/HERKUNFT.md` | Lizenznachweise der zwei Bilder |
 
 **Aufbau der Stunde** (Reihenfolge bewusst gesetzt):
@@ -39,7 +41,23 @@ Zauberstab zu klicken.
 Der Film steht bewusst **vor** der Praxis. Die Methode versteht man
 deutlich leichter, wenn man sie einmal in Bewegung gesehen hat.
 
-### Zwei Übungsbilder
+### Kopfbild der Übersichtsseite
+
+`index.html` hat jetzt ein Foto im Kopfbereich (Astronautin auf
+rotem Gestein). Das Bild liegt als `bilder/hero-informatik7.jpg`,
+von 2,3 MB auf 228 KB verkleinert.
+
+Die gemeinsame Regel in `css/subject-overview.css` legt einen sehr
+dunklen Verlauf über den Hero (96 % auf 74 %). Das ist für die
+Farbverläufe der anderen Fächer gedacht – ein Foto wäre darunter
+kaum zu erkennen. In `index.html` steht deshalb ein eigener,
+hellerer Verlauf: links kräftig genug für die weiße Schrift, rechts
+fast durchsichtig, damit die Astronautin sichtbar bleibt.
+
+Auf dem Handy rückt das Motiv weiter nach rechts (92 % statt 70 %),
+sonst verschwindet es hinter der Überschrift.
+
+### Drei Übungsbilder
 
 Beide sind frei verwendbar, ohne Namensnennung und ohne Weitergabe-
 Bedingung. Details in `bilder/uebung/HERKUNFT.md`.
@@ -67,6 +85,23 @@ die Oberflächengrafik, der Wortspeicher und die Aufgaben bleiben.
   Nummern laufen dort eins versetzt zu den Dateinamen
   (`s12-...` steht als "Stunde 11"). Die neue Kachel heißt deshalb
   "Stunde 12".
+
+### Der Fußballer als Zusatzaufgabe
+
+Eigenes Foto, Einverständnis der abgebildeten Personen liegt vor.
+Didaktisch bringt es etwas, das die anderen beiden nicht können:
+Der Hintergrund ist kein glatter Himmel, sondern ein Trainingsplatz.
+Die Schüler sollen alle drei Kanäle durchprobieren und merken, dass
+**Blau nicht immer der beste Kanal ist**.
+
+Sollte sich an der Einverständnislage etwas ändern: Bild löschen und
+den dritten Praxisblock aus der JSON entfernen.
+
+### Originalfotos
+
+Die unverkleinerten Fotos liegen in `_originale/` und sind über die
+`.gitignore` vom Repository ausgeschlossen – sie sind mehrere MB
+groß und werden im Web nicht gebraucht.
 
 ## Was noch offen ist
 

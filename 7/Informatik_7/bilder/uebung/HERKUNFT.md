@@ -29,3 +29,20 @@ Schwierigere Aufgabe, entspricht dem Video: Der Waldstreifen am Horizont
 liegt im Blaukanal nah am Baum. Genau dort müssen die Schüler beim
 Belichtungsregler aufpassen - zu weit aufgedreht, und der Wald wird
 mit freigestellt.
+
+## s13-fussballer.jpg
+
+- **Motiv:** Fußballer beim Training
+- **Herkunft:** eigenes Foto
+- **Einverständnis:** liegt vor (Stand September 2026)
+- **Bearbeitung:** auf 900 px Höhe verkleinert
+
+Zusatzaufgabe für Schnelle. Hier ist der Hintergrund kein glatter
+Himmel, sondern ein Trainingsplatz mit weiteren Spielern. Dadurch
+lernen die Schüler etwas Neues: **Blau ist nicht immer der beste
+Kanal.** Sie sollen alle drei durchprobieren und selbst entscheiden.
+
+Wichtig: Auf dem Bild sind erkennbare Personen zu sehen. Sollte sich
+an der Einverständnislage etwas ändern, muss dieses Bild aus dem
+Repository entfernt werden - dann auch den dritten Praxisblock in
+`../../daten/s13-freistellen-farbkanaele.json` löschen.
