@@ -14,7 +14,8 @@ Zauberstab zu klicken.
 |---|---|
 | `stunden/s13-freistellen-farbkanaele.html` | Seitengerüst (lädt die JSON) |
 | `daten/s13-freistellen-farbkanaele.json` | Kompletter Inhalt der Stunde |
-| `bilder/s13-wo-sind-die-kanaele.svg` | Orientierung: wo der Reiter Kanäle sitzt |
+| `bilder/s13-reiter-kanaele.png` | Echter Screenshot: die drei Reitersymbole, Kanäle markiert |
+| `bilder/s13-gimp-oberflaeche-echt.png` | Echter Screenshot der ganzen Oberfläche |
 | `bilder/s13-farbkanaele.svg` | Schritt 1: Kanäle-Dialog, Farbbild gegen Blaukanal |
 | `bilder/s13-schwarz-weiss.svg` | Schritt 2: Invertieren, Belichtung, Kurven |
 | `bilder/s13-maske.svg` | Schritt 3: Auswahl und Ebenenmaske |
@@ -69,14 +70,20 @@ die Oberflächengrafik, der Wortspeicher und die Aufgaben bleiben.
 
 ## Was noch offen ist
 
-- **Screenshots vom Schulrechner.** Die vier SVG-Grafiken sind
-  gezeichnet, nicht fotografiert. `s13-wo-sind-die-kanaele.svg` ist
-  nach einem echten Screenshot der Schulinstallation nachgezeichnet
-  (dunkles Design, deutsche Beschriftung) und sollte passen. Wenn
-  eine Grafik doch abweicht, kannst du sie durch einen echten
-  Screenshot ersetzen: Datei in `bilder/` ablegen und den Namen in
-  der JSON unter `bilder` eintragen. Aus dem Video dürfen keine
-  Bilder genommen werden – die sind urheberrechtlich geschützt.
+- **Screenshots sind jetzt echt.** Die ersten beiden Bilder der
+  Stunde stammen aus einem Screenshot der Schulinstallation
+  (`gimp_menue.png` im Ordner darüber). Die Taskleiste ist
+  abgeschnitten, damit keine privaten Programme zu sehen sind.
+  Die drei Schaubilder zu den Arbeitsschritten bleiben gezeichnete
+  SVGs – sie erklären Abläufe, keine Oberfläche.
+
+  Wichtige Erkenntnis aus dem Screenshot: GIMP zeigt Ebenen,
+  Kanäle und Pfade unten rechts **nur als Symbole ohne Text**.
+  Das ist die größte Hürde am Anfang, darum die eigene Grafik
+  mit Markierung.
+
+  Aus dem Video dürfen keine Bilder genommen werden – die sind
+  urheberrechtlich geschützt.
 - **Zeitbedarf prüfen.** Angesetzt sind 45 Minuten. Der Ballon
   dauert erfahrungsgemäß 10 bis 15 Minuten, der Baum länger.
   Wenn es knapp wird: Der Baum eignet sich gut als Hausaufgabe,
