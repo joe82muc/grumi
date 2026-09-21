@@ -14,6 +14,7 @@ Zauberstab zu klicken.
 |---|---|
 | `stunden/s13-freistellen-farbkanaele.html` | Seitengerüst (lädt die JSON) |
 | `daten/s13-freistellen-farbkanaele.json` | Kompletter Inhalt der Stunde |
+| `bilder/s13-wo-sind-die-kanaele.svg` | Orientierung: wo der Reiter Kanäle sitzt |
 | `bilder/s13-farbkanaele.svg` | Schritt 1: Kanäle-Dialog, Farbbild gegen Blaukanal |
 | `bilder/s13-schwarz-weiss.svg` | Schritt 2: Invertieren, Belichtung, Kurven |
 | `bilder/s13-maske.svg` | Schritt 3: Auswahl und Ebenenmaske |
@@ -68,12 +69,14 @@ die Oberflächengrafik, der Wortspeicher und die Aufgaben bleiben.
 
 ## Was noch offen ist
 
-- **Screenshots vom Schulrechner.** Die drei SVG-Grafiken sind
-  schematisch gezeichnet. Wenn deine GIMP-Version anders aussieht,
-  kannst du sie durch echte Screenshots ersetzen: Datei in
-  `bilder/` ablegen und den Namen in der JSON unter `bilder`
-  eintragen. Aus dem Video dürfen keine Bilder genommen werden –
-  die sind urheberrechtlich geschützt.
+- **Screenshots vom Schulrechner.** Die vier SVG-Grafiken sind
+  gezeichnet, nicht fotografiert. `s13-wo-sind-die-kanaele.svg` ist
+  nach einem echten Screenshot der Schulinstallation nachgezeichnet
+  (dunkles Design, deutsche Beschriftung) und sollte passen. Wenn
+  eine Grafik doch abweicht, kannst du sie durch einen echten
+  Screenshot ersetzen: Datei in `bilder/` ablegen und den Namen in
+  der JSON unter `bilder` eintragen. Aus dem Video dürfen keine
+  Bilder genommen werden – die sind urheberrechtlich geschützt.
 - **Zeitbedarf prüfen.** Angesetzt sind 45 Minuten. Der Ballon
   dauert erfahrungsgemäß 10 bis 15 Minuten, der Baum länger.
   Wenn es knapp wird: Der Baum eignet sich gut als Hausaufgabe,
