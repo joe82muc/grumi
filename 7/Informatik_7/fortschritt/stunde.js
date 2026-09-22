@@ -660,7 +660,8 @@
   function aufgabenBauen(stunde, titel) {
     var abschnitt = block(titel || "Aufgaben");
     abschnitt.appendChild(
-      el("p", null, "Fülle die Lücken aus und entscheide bei den Sätzen, ob sie richtig oder falsch sind.")
+      el("p", null, stunde.aufgabenHinweis ||
+        "Bearbeite die Aufgaben der Reihe nach und prüfe sie danach.")
     );
 
     /* pruefer sammelt pro Aufgabe eine Funktion, die die Anzahl der
@@ -668,17 +669,163 @@
     var pruefer = [];
     var nummer = 0;
 
+    /* Freie Textaufgaben werden erst fertig bewertet, wenn die KI antwortet.
+       Sie merken sich hier die Auswertung, um sie danach nachrechnen zu lassen. */
+    var freieTexte = [];
+
     stunde.aufgaben.forEach(function (aufgabe) {
       nummer += 1;
       if (aufgabe.typ === "lueckentext") {
         abschnitt.appendChild(lueckentextBauen(aufgabe, nummer, pruefer));
       } else if (aufgabe.typ === "richtig_falsch") {
         abschnitt.appendChild(richtigFalschBauen(aufgabe, nummer, pruefer));
+      } else if (aufgabe.typ === "auswahl") {
+        abschnitt.appendChild(auswahlBauen(aufgabe, nummer, pruefer));
+      } else if (aufgabe.typ === "zuordnung") {
+        abschnitt.appendChild(zuordnungBauen(aufgabe, nummer, pruefer));
+      } else if (aufgabe.typ === "reihenfolge") {
+        abschnitt.appendChild(reihenfolgeBauen(aufgabe, nummer, pruefer));
+      } else if (aufgabe.typ === "freitext") {
+        var zeile = freitextBauen(aufgabe, nummer, pruefer, stunde);
+        freieTexte.push(zeile);
+        abschnitt.appendChild(zeile);
       }
     });
 
-    abschnitt.appendChild(auswertungBauen(stunde, pruefer));
+    var auswertung = auswertungBauen(stunde, pruefer);
+    abschnitt.appendChild(auswertung);
+
+    /* Jede freie Textaufgabe bekommt den Draht zur Auswertung. */
+    freieTexte.forEach(function (zeile) {
+      zeile.nachrechnen = auswertung.nachrechnen;
+    });
+
     return abschnitt;
+  }
+
+  /* Freier Text mit KI-Rückmeldung.
+     Die Schülerin oder der Schüler schreibt eine eigene Antwort und bekommt
+     sie sofort von der KI geprüft - wohlwollend und nur auf den Inhalt.
+     Rechtschreibung zählt ausdrücklich nicht.
+
+     Damit eine Stunde nie an einer Störung der Schnittstelle scheitert,
+     zählt eine ernsthaft geschriebene Antwort auch dann als gelöst, wenn
+     der Server nicht antwortet. Die Musterlösung erscheint in jedem Fall. */
+  function freitextBauen(aufgabe, nummer, pruefer, stunde) {
+    var zeile = el("div", "inf-aufgabe inf-freitext");
+
+    var frage = el("p", "inf-frage");
+    var nr = el("span", "inf-nr", String(nummer));
+    nr.setAttribute("aria-hidden", "true");
+    frage.appendChild(nr);
+    frage.appendChild(document.createTextNode(aufgabe.text));
+    zeile.appendChild(frage);
+
+    var feld = el("textarea", "inf-textfeld");
+    feld.rows = aufgabe.zeilen || 3;
+    feld.placeholder = "Schreibe deine Antwort in eigenen Worten ...";
+    feld.setAttribute("aria-label", "Antwort zu Aufgabe " + nummer);
+    zeile.appendChild(feld);
+
+    zeile.appendChild(el("p", "inf-hinweis-klein",
+      "Auf die Rechtschreibung kommt es hier nicht an - nur darauf, was du sagst."));
+
+    var rueckmeldung = el("div", "inf-ki-antwort");
+    rueckmeldung.hidden = true;
+    zeile.appendChild(rueckmeldung);
+
+    /* Ergebnis der letzten Prüfung, damit ein zweites Prüfen nicht
+       erneut beim Server nachfragt. */
+    var letzte = null;
+
+    /* Text, für den gerade eine Anfrage unterwegs ist. Ohne das würde das
+       Nachrechnen einer zweiten Textaufgabe die noch laufende Prüfung der
+       ersten ein zweites Mal losschicken. */
+    var laeuft = null;
+
+    pruefer.push(function (mitLoesung) {
+      var text = String(feld.value || "").trim();
+
+      if (text.length < 3) {
+        feld.classList.remove("richtig");
+        feld.classList.add("falsch");
+        rueckmeldung.hidden = false;
+        rueckmeldung.className = "inf-ki-antwort falsch";
+        rueckmeldung.textContent = "Hier fehlt noch eine Antwort.";
+        if (mitLoesung && aufgabe.loesung) loesungZeigen(zeile, aufgabe.loesung);
+        return { richtig: 0, gesamt: 1 };
+      }
+
+      /* Schon geprüft und richtig: nicht noch einmal nachfragen. */
+      if (letzte && letzte.text === text) {
+        if (mitLoesung && !letzte.richtig && aufgabe.loesung) {
+          loesungZeigen(zeile, aufgabe.loesung);
+        }
+        return { richtig: letzte.richtig ? 1 : 0, gesamt: 1 };
+      }
+
+      /* Die KI braucht einen Moment. Solange gilt die Antwort vorläufig als
+         richtig, damit niemand auf ein Ergebnis warten muss. Sobald die
+         Antwort da ist, wird das Gesamtergebnis noch einmal berechnet
+         (nachrechnen) - dann stimmen Punktzahl und Farbe überein. */
+      if (laeuft !== text) {
+        laeuft = text;
+        rueckmeldung.hidden = false;
+        rueckmeldung.className = "inf-ki-antwort";
+        rueckmeldung.textContent = "Deine Antwort wird geprüft ...";
+
+        kiPruefen(aufgabe, text, stunde).then(function (ergebnis) {
+          laeuft = null;
+          letzte = { text: text, richtig: ergebnis.richtig };
+          feld.classList.remove("richtig", "falsch");
+          feld.classList.add(ergebnis.richtig ? "richtig" : "falsch");
+          rueckmeldung.className = "inf-ki-antwort " + (ergebnis.richtig ? "richtig" : "falsch");
+          rueckmeldung.textContent = ergebnis.text;
+          if (!ergebnis.richtig && aufgabe.loesung) loesungZeigen(zeile, aufgabe.loesung);
+
+          /* Ergebnis der Stunde neu berechnen, jetzt mit dem Urteil der KI. */
+          if (typeof zeile.nachrechnen === "function") zeile.nachrechnen();
+        });
+      }
+
+      feld.classList.remove("falsch");
+      feld.classList.add("richtig");
+      if (mitLoesung && aufgabe.loesung) loesungZeigen(zeile, aufgabe.loesung);
+      return { richtig: 1, gesamt: 1, vorlaeufig: true };
+    });
+
+    return zeile;
+  }
+
+  /* Fragt die KI auf dem GRUMI-Server. Antwortet der Server nicht,
+     gilt eine ernsthaft geschriebene Antwort als in Ordnung. */
+  function kiPruefen(aufgabe, text, stunde) {
+    var basis = (location.hostname.indexOf("github.io") !== -1 || location.protocol === "file:")
+      ? "https://englisch-9.onrender.com" : "";
+
+    return fetch(basis + "/api/infoaustausch/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        frage: aufgabe.text,
+        erwartet: aufgabe.loesung || "",
+        antwort: text,
+        thema: stunde.titel || ""
+      })
+    }).then(function (antwort) {
+      if (!antwort.ok) throw new Error("Status " + antwort.status);
+      return antwort.json();
+    }).then(function (daten) {
+      return {
+        richtig: Boolean(daten.richtig),
+        text: daten.rueckmeldung || "Bewertet."
+      };
+    }).catch(function () {
+      return {
+        richtig: true,
+        text: "Der Server ist gerade nicht erreichbar. Vergleiche deine Antwort selbst mit der Lösung."
+      };
+    });
   }
 
   function lueckentextBauen(aufgabe, nummer, pruefer) {
@@ -831,7 +978,14 @@
        eingeblendet - wer eine Luecke nicht weiss, soll nicht raten muessen. */
     var durchgang = 0;
 
+    /* Merkt sich, womit zuletzt ausgewertet wurde. Eine freie Textaufgabe
+       kann damit das Ergebnis nachrechnen lassen, sobald die KI geantwortet
+       hat - ohne dass die Schueler noch einmal klicken muessen. */
+    var letzterDurchgang = null;
+
     function auswerten(mitLoesung) {
+      letzterDurchgang = mitLoesung;
+
       var richtig = 0;
       var gesamt = 0;
 
@@ -875,6 +1029,14 @@
     zeigen.addEventListener("click", function () {
       auswerten(true);
     });
+
+    /* Freie Textaufgaben rufen das auf, sobald die KI geantwortet hat.
+       Das Ergebnis wird still neu berechnet - die Schueler sehen nur,
+       wie sich die Punktzahl auf den richtigen Wert korrigiert. */
+    huelle.nachrechnen = function () {
+      if (letzterDurchgang === null) return;
+      auswerten(letzterDurchgang);
+    };
 
     return huelle;
   }
