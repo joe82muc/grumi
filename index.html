@@ -1365,9 +1365,34 @@
       a.textContent = addr;
     })();
 
+    /* Farbe des Spendenbalkens: 0 % rot, dazwischen orange, 100 % dunkelgruen.
+       Zwischen den Stuetzpunkten wird linear gemischt, damit der Balken mit
+       jedem Euro ein Stueck weiter Richtung Gruen wandert. */
+    function spendenFarbe(pct) {
+      var stops = [
+        { p: 0,   c: [200, 42, 32] },   // rot
+        { p: 25,  c: [232, 108, 26] },  // orangerot
+        { p: 50,  c: [240, 168, 38] },  // orange
+        { p: 75,  c: [150, 178, 48] },  // gelbgruen
+        { p: 100, c: [21, 110, 58] }    // dunkelgruen
+      ];
+      var v = Math.max(0, Math.min(100, pct));
+      for (var i = 1; i < stops.length; i++) {
+        if (v <= stops[i].p) {
+          var a = stops[i - 1], b = stops[i];
+          var t = (v - a.p) / (b.p - a.p);
+          var rgb = a.c.map(function (channel, k) {
+            return Math.round(channel + (b.c[k] - channel) * t);
+          });
+          return "rgb(" + rgb.join(", ") + ")";
+        }
+      }
+      return "rgb(21, 110, 58)";
+    }
+
     (function () {
       var SPENDEN = {
-        aktuell: 0,
+        aktuell: 18,
         ziel: 40
       };
       var KOSTEN_PRO_MONAT = 10 / 3;
@@ -1375,6 +1400,7 @@
       if (!fill) return;
       var pct = SPENDEN.ziel > 0 ? Math.max(0, Math.min(100, Math.round(SPENDEN.aktuell / SPENDEN.ziel * 100))) : 0;
       fill.style.width = pct + "%";
+      fill.style.background = spendenFarbe(pct);
       var bar = document.getElementById("donate-bar");
       if (bar) bar.setAttribute("aria-valuenow", String(pct));
       document.getElementById("donate-current").textContent = SPENDEN.aktuell + " \u20ac";
