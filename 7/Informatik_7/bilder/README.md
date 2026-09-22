@@ -83,6 +83,30 @@ keine Buchseite.
 | `s11-freistellen-exportieren.svg` | 11 | Freistellen, Skalieren und Exportieren |
 | `s12-vektorgrafik-layout.svg` | 12 | Rastergrafik, Vektorgrafik und Bildlayout |
 
+## 5. Bilder zu Lernbereich 1 "Digitaler Informationsaustausch"
+
+Im Unterordner `lb1/` liegen die Bilder der Module 1 bis 8. Jedes Bild
+wird **genau einmal** verwendet: entweder als `titelbild` (Schmuckbild
+oben, ohne Bildunterschrift) oder im Abschnitt `bilder` (mit Titel und
+Alternativtext). Dasselbe Bild doppelt in einem Modul zu verwenden,
+sieht auf der Seite wie ein Fehler aus.
+
+| Modul | titelbild | im Abschnitt `bilder` |
+|---|---|---|
+| M1 Computerraum | `lb1-computerraum.jpg` | `lb1-sitzhaltung.jpg` |
+| M2 E-Mail | `lb1-email-schreiben.jpg` | `lb1-email-anbieter.jpg` |
+| M3 Soziale Netzwerke | `lb1-jugendliche-plattformen.jpg` | `lb1-grafik-plattformen.jpg`, `lb1-grafik-apps.jpg`, `lb1-social-media.jpg` |
+| M4 Rechte | `lb1-videokonferenz.jpg` | `lb1-persoenlichkeitsrechte.jpg` |
+| M5 Netiquette | `lb1-netiquette-vergleich.jpg` | `lb1-netiquette-plakat.jpg`, `lb1-cybermobbing.jpg` |
+| M6 Chancen | `lb1-grafik-infosuche.jpg` | `lb1-apps-tablet.jpg`, `lb1-spielechat.jpg` |
+| M7 Gefahren | `lb1-chatroom.jpg` | `lb1-ransomware.jpg`, `lb1-datenspuren.jpg` |
+| M8 Fake News | `lb1-fakenews.jpg` | `lb1-smarthome.jpg` |
+
+Willst du ein Bild austauschen, änderst du den Dateinamen in
+`../daten/lb1-mXX-*.json` und passt `titel` und `alt` an das neue Bild
+an. Der Alternativtext beschreibt, was zu sehen ist - er wird
+vorgelesen, wenn das Bild nicht angezeigt werden kann.
+
 ## Bildrechte
 
 Die Titelbilder sind für diese Lernplattform gezeichnet, da gibt es
