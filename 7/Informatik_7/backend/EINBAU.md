@@ -1,33 +1,36 @@
-# Lernbereich 1 (Informatik 7): Backend einbauen
+# Lernbereich 1 (Informatik 7): Backend
 
-> **Status: noch nicht auf dem Server.** Die acht Lernmodule funktionieren
-> sofort, auch ohne Backend. Für die **Probe** und für die **KI-Rückmeldung
-> bei freien Texten in den Modulen** müssen die beiden Dateien unten einmal
-> ins `englisch_9`-Repo kopiert werden.
+> **Status: erledigt und live.** Am 22.09.2026 deployt. Der Server meldet
+> unter `/api/health` die Kennung `2026-09-22-infoaustausch-inf7`.
+> Die Schritte unten sind bereits ausgeführt - du brauchst sie nur wieder,
+> wenn du Aufgaben der Probe änderst (siehe ganz unten).
 
 Die Schüler- und die Lehrerseite liegen im `grumi`-Repo. Das Backend liegt im
 Repo **`englisch_9`** (Render-Dienst `englisch-9`), weil Render von dort deployt.
 
+Das lokale Arbeitsverzeichnis dieses zweiten Repos liegt unter
+`.codex-build/englisch_9-deploy/`.
+
 ---
 
-## Schritt 1: Zwei Dateien kopieren
+## Schritt 1 (erledigt): Zwei Dateien kopieren
 
 Aus diesem Ordner in das `englisch_9`-Repo kopieren:
 
 | von hier (grumi) | nach dort (englisch_9) |
 |---|---|
-| `7/Informatik_7/backend/api/infoaustausch.js` | `api/infoaustausch.js` |
-| `7/Informatik_7/backend/api/infoaustausch-daten.js` | `api/infoaustausch-daten.js` |
+| `7/Informatik_7/backend/api/infoaustausch.js` | `backend/api/infoaustausch.js` |
+| `7/Informatik_7/backend/api/infoaustausch-daten.js` | `backend/api/infoaustausch-daten.js` |
 
-> Der genaue Zielordner ist der, in dem auch `vokabeltest.js` und
-> `netzwerktest.js` liegen.
+> Der Zielordner heißt dort **`backend/api/`** - das ist der Ordner, in dem
+> auch `vokabeltest.js` und `netzwerktest.js` liegen.
 
 ---
 
-## Schritt 2: Sechs Zeilen in `server.js` ergänzen
+## Schritt 2 (erledigt): Zehn Zeilen in `server.js` ergänzen
 
-In der `server.js` steht bereits der Block für das Netzwerktest-Modul.
-**Direkt darunter** einfügen:
+In `backend/api/server.js` steht der Block für den Argumentationstrainer.
+**Direkt darunter** wurde eingefügt:
 
 ```js
 // --- Infoaustausch-Modul (Informatik 7 Lernbereich 1: Probe + KI-Rueckmeldung) ---
@@ -43,16 +46,27 @@ registerInfoaustauschRoutes(app, {
 ```
 
 Wichtig ist die letzte Zeile: `askAnthropic` ist die Funktion, die in
-`server.js` weiter unten schon existiert. Sie wird hier weitergereicht.
+`server.js` weiter oben schon existiert. Sie wird hier weitergereicht.
 
 ---
 
-## Schritt 3: Deployen
+## Schritt 3 (erledigt): Deployen
 
 1. Änderungen im `englisch_9`-Repo committen und pushen.
-2. In Render beim Dienst **englisch-9**: *Manual Deploy* → *Deploy latest commit*.
+2. Render deployt **automatisch** beim Push auf `main`. Ein Klick auf
+   *Manual Deploy* ist nur nötig, wenn der Bau einmal hängen bleibt.
 3. Test: <https://englisch-9.onrender.com/api/infoaustausch/list>
    muss die Probe zeigen (nicht mehr 404).
+
+### Am 22.09.2026 live geprüft
+
+- `vokabeltest`, `netzwerktest` und `filiuspruefung` antworten unverändert weiter.
+- Die Probe liefert 32 Aufgaben und 40 Punkte, **ohne** die Lösungen mitzuschicken.
+- Eine Testabgabe mit absichtlich vielen Rechtschreibfehlern ergab 39 von 40
+  Punkten (Note 1); die KI brauchte dafür rund 10 Sekunden.
+- Lehrerbereich, Punktekorrektur, Löschen und CSV-Export funktionieren.
+- Falsches Passwort wird mit 401 abgewiesen.
+- Danach wurde die Testabgabe gelöscht und die Probe wieder gesperrt.
 
 ---
 
