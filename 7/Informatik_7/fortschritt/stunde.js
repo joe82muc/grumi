@@ -45,14 +45,21 @@
     return abschnitt;
   }
 
-  /* Vergleich der Schuelerantwort: Gross-/Kleinschreibung und
-     Leerzeichen am Rand sollen nicht ueber richtig/falsch entscheiden. */
+  /* Vergleich der Schuelerantwort. Entscheiden soll der Inhalt, nicht die
+     Tastatur: Gross- und Kleinschreibung, Leerzeichen am Rand und die
+     Schreibweise der Umlaute duerfen nicht ueber richtig/falsch entscheiden.
+     "Haende", "Hände" und "HAENDE" gelten deshalb alle als dasselbe Wort.
+     Ein Punkt am Ende wird ebenfalls verziehen. */
   function normalisieren(wert) {
     return String(wert || "")
       .trim()
       .toLowerCase()
       .replace(/ß/g, "ss")   // Schriftgroesse gilt wie Schriftgröße
-      .replace(/\s+/g, " ");
+      .replace(/ä/g, "ae")
+      .replace(/ö/g, "oe")
+      .replace(/ü/g, "ue")
+      .replace(/\s+/g, " ")
+      .replace(/[.!?]+$/, "");
   }
 
 
@@ -175,8 +182,15 @@
     var kopf = el("header", "inf-kopf");
 
     var meta = el("div", "inf-meta");
-    meta.appendChild(el("span", "inf-chip", "Stunde " + stunde.stunde));
-    if (stunde.woche) meta.appendChild(el("span", "inf-chip", stunde.woche));
+
+    /* Die Einheiten heissen durchgehend "Modul". Das Feld "woche" darf
+       daneben stehen, wenn es etwas anderes sagt als die Modulnummer -
+       sonst stuende dort zweimal dasselbe. */
+    var modulName = "Modul " + stunde.stunde;
+    meta.appendChild(el("span", "inf-chip", modulName));
+    if (stunde.woche && stunde.woche !== modulName) {
+      meta.appendChild(el("span", "inf-chip", stunde.woche));
+    }
     if (stunde.lernbereichTitel) {
       meta.appendChild(el("span", "inf-chip", stunde.lernbereichTitel));
     }
@@ -1002,7 +1016,7 @@
         ergebnis.classList.add("gut");
         ergebnis.textContent =
           optionen.lobText ||
-          "Super! Alle " + gesamt + " Antworten sind richtig. Diese Stunde hast du geschafft.";
+          "Super! Alle " + gesamt + " Antworten sind richtig. Dieses Modul hast du geschafft.";
         zeigen.hidden = true;
       } else {
         ergebnis.classList.add("mittel");
@@ -1046,20 +1060,20 @@
      zur naechsten Stunde nicht erst nach langem Scrollen auftaucht. */
   function weiterBauen(stunde, obenStattUnten) {
     var navigation = el("nav", "inf-weiter" + (obenStattUnten ? " oben" : ""));
-    navigation.setAttribute("aria-label", "Weitere Stunden");
+    navigation.setAttribute("aria-label", "Weitere Module");
 
-    var zurueck = el("a", "inf-weiter-link", "← Alle Stunden");
+    var zurueck = el("a", "inf-weiter-link", "← Alle Module");
     zurueck.href = "../index.html";
     navigation.appendChild(zurueck);
 
     if (stunde.vorherige) {
-      var vor = el("a", "inf-weiter-link", "← Vorherige Stunde");
+      var vor = el("a", "inf-weiter-link", "← Vorheriges Modul");
       vor.href = stunde.vorherige;
       navigation.appendChild(vor);
     }
 
     if (stunde.naechste) {
-      var weiter = el("a", "inf-weiter-link stark", "Nächste Stunde →");
+      var weiter = el("a", "inf-weiter-link stark", "Nächstes Modul →");
       weiter.href = stunde.naechste;
       navigation.appendChild(weiter);
     }
