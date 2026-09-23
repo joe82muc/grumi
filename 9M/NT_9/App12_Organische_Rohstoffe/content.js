@@ -17,7 +17,7 @@ window.KohlenstoffKurs = {
       nr: 1,
       title: "Kohlenstoff, Holz und Raps",
       duration: "45 min",
-      goal: "Du erklärst, was organische und regenerative Rohstoffe sind, und beschreibst die Nutzung von Holz und Raps.",
+      goal: "Du erklärst, was organische und regenerative Rohstoffe sind, beschreibst die Nutzung von Holz und Raps und nennst Merkmale regenerativer Rohstoffe.",
       sections: [
         {
           title: "Kohlenstoff als Lebensgrundlage",
@@ -29,8 +29,21 @@ window.KohlenstoffKurs = {
         {
           title: "Holz und Raps als Rohstoffe",
           text: [
-            "Holz dient als Baustoff und Brennstoff. Aus seinen Bestandteilen Zellstoff und Lignin entstehen außerdem Papier, Pappe, Textilien, Klebstoffe und weitere chemische Produkte.",
-            "Rapssamen enthalten Öl. Rapsöl wird als Speiseöl, als Ausgangsstoff für Biodiesel sowie für Farben und Kunststoffe genutzt. Damit kann derselbe Rohstoff stofflich oder energetisch verwendet werden."
+            "Holz dient als Baumaterial für Gebäude und als Brennstoff, zum Beispiel in Form von Holzpellets. Es besteht etwa zur Hälfte aus Zellstoff (Cellulose) und zur Hälfte aus Holzstoff (Lignin).",
+            "Für die Papierherstellung muss der Zellstoff vom Holzstoff abgetrennt werden. Aus Zellstoff entstehen Papiersorten vom Taschentuch bis zum festen Karton, außerdem Folien und Klebstoffe. Lignin ist Grundstoff für Textilien, Isoliermaterialien und Klebstoffe.",
+            "Raps ist eine Feldfrucht mit einem hohen Anteil an Öl. Das Rapsöl wird aus den Samen gewonnen und vor allem als Speiseöl oder Biokraftstoff verwendet. In der chemischen Industrie dient es als Grundstoff für Farben und Kunststoffe. Damit kann derselbe Rohstoff stofflich oder energetisch genutzt werden."
+          ]
+        },
+        {
+          title: "Merkmale regenerativer Rohstoffe",
+          text: [
+            "Regenerative Rohstoffe sind im Prinzip unbegrenzt vorhanden und weltweit einsetzbar, weil sie in der Natur immer wieder nachwachsen."
+          ],
+          bullets: [
+            "CO₂-neutral: Beim Wachsen binden die Pflanzen durch die Fotosynthese so viel Kohlenstoffdioxid, wie bei der späteren Nutzung wieder frei wird.",
+            "Unbegrenzt vorhanden und weltweit einsetzbar.",
+            "Oft werden sie in der Nähe des Herstellungsortes verwendet – das spart lange Transportwege.",
+            "Anbau und Verarbeitung schaffen Arbeitsplätze vor Ort."
           ]
         }
       ],
@@ -42,6 +55,8 @@ window.KohlenstoffKurs = {
       tasks: [
         { type: "choice", prompt: "Welche Aussage beschreibt einen regenerativen Rohstoff?", options: ["Er bildet sich nur unter hohem Druck.", "Er kann bei nachhaltiger Nutzung nachwachsen.", "Er wird ausschließlich als Brennstoff genutzt."], answer: 1 },
         { type: "match", prompt: "Ordne Rohstoff und Nutzung zu.", pairs: [["Zellstoff", "Papier und Pappe"], ["Lignin", "chemische Produkte"], ["Rapsöl", "Speiseöl oder Biodiesel"]] },
+        { type: "choice", prompt: "Warum bezeichnet man regenerative Rohstoffe als CO₂-neutral?", options: ["Bei ihrer Nutzung entsteht überhaupt kein Kohlenstoffdioxid.", "Die Pflanzen binden beim Wachsen so viel Kohlenstoffdioxid, wie später wieder frei wird.", "Das Kohlenstoffdioxid bleibt für immer im Holz gespeichert."], answer: 1 },
+        { type: "choice", prompt: "Welche Aussage über regenerative Rohstoffe trifft NICHT zu?", options: ["Sie sind weltweit einsetzbar.", "Ihr Anbau kann Arbeitsplätze schaffen.", "Die Fotosynthese setzt dabei Kohlenstoffdioxid frei."], answer: 2 },
         { type: "text", prompt: "Erkläre, warum Holz und Raps organische und zugleich regenerative Rohstoffe sind.", expected: "Holz und Raps stammen von Lebewesen und enthalten Kohlenstoffverbindungen. Sie können nachwachsen, wenn Anbau und Nutzung nachhaltig erfolgen.", keywords: ["Lebewesen", "Kohlenstoff", "nachwachsen", "nachhaltig"] }
       ]
     },
