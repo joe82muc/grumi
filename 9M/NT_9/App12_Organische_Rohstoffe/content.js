@@ -51,8 +51,6 @@ window.KohlenstoffKurs = {
       nr: 2,
       title: "Biodiesel und Stärke",
       duration: "45 min",
-      image: "assets/raps-biodiesel.png",
-      imageAlt: "Herstellung von Biodiesel aus Raps",
       goal: "Du beschreibst die Herstellung von Biodiesel und erklärst die vielseitige Nutzung von Stärke.",
       sections: [
         {
@@ -87,8 +85,6 @@ window.KohlenstoffKurs = {
       nr: 3,
       title: "Nachhaltigkeit und Kaskadennutzung",
       duration: "45 min",
-      image: "assets/materialien/NT9-organische-Rohstoffe-image14.jpeg",
-      imageAlt: "Symbole für Nachhaltigkeit, Recycling und erneuerbare Rohstoffe",
       goal: "Du beurteilst die Nachhaltigkeit regenerativer Rohstoffe und erklärst Kaskaden- und Kreislaufwirtschaft.",
       sections: [
         {
@@ -123,8 +119,6 @@ window.KohlenstoffKurs = {
       nr: 4,
       title: "Entstehung fossiler Rohstoffe",
       duration: "45 min",
-      image: "assets/entstehung-erdoel-erdgas.png",
-      imageAlt: "Entstehung von Erdöl und Erdgas aus Meereslebewesen",
       goal: "Du vergleichst die Entstehung von Kohle mit der Entstehung von Erdöl und Erdgas.",
       sections: [
         {
@@ -159,8 +153,6 @@ window.KohlenstoffKurs = {
       nr: 5,
       title: "Erdölaufbereitung und Fraktionen",
       duration: "45 min",
-      image: "assets/raffinerie.jpeg",
-      imageAlt: "Destillationsturm einer Raffinerie",
       goal: "Du erklärst die fraktionierte Destillation und leitest Eigenschaften der Erdölfraktionen aus ihrer Molekülgröße ab.",
       sections: [
         {
@@ -195,8 +187,6 @@ window.KohlenstoffKurs = {
       nr: 6,
       title: "Kohlenstoffkreislauf und Erdöl im Alltag",
       duration: "45 min",
-      image: "assets/materialien/NT9-organische-Rohstoffe-image46.jpeg",
-      imageAlt: "Grafik zum natürlichen Treibhauseffekt",
       goal: "Du erklärst den Kohlenstoffkreislauf, den verstärkten Treibhauseffekt und die Bedeutung von Erdöl im Alltag.",
       sections: [
         {
