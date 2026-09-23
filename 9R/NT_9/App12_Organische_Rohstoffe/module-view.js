@@ -117,23 +117,99 @@
     return { wrap: wrap, input: input };
   }
 
+  /* Fraktionen des Destillationsturms, von oben nach unten.
+     min/max sind die Siedebereiche in Grad Celsius; sie entsprechen
+     den Angaben auf dem Arbeitsblatt (Gase unter 30, Benzine um 100,
+     Kerosin um 200, Diesel um 300, Rueckstand darueber). */
+  var FRAKTIONEN = [
+    { name: "Gase", min: -10, max: 30, farbe: "#dbe7ef",
+      info: "Methan, Propan und Butan bleiben gasförmig und verlassen den Turm oben.",
+      nutzung: "Heizgas, Feuerzeuggas" },
+    { name: "Benzine", min: 30, max: 150, farbe: "#f6e3a6",
+      info: "Leichte, dünnflüssige Kohlenwasserstoffe mit kleinen Molekülen.",
+      nutzung: "Kraftstoff für Ottomotoren" },
+    { name: "Petroleum / Kerosin", min: 150, max: 250, farbe: "#f3c98b",
+      info: "Mittelschwere Fraktion, kondensiert im mittleren Turmbereich.",
+      nutzung: "Flugzeugtreibstoff" },
+    { name: "Diesel / leichtes Heizöl", min: 250, max: 350, farbe: "#dda05f",
+      info: "Größere Moleküle, zähflüssiger und schwerer entzündlich.",
+      nutzung: "Dieselmotoren, Heizung" },
+    { name: "Rückstand", min: 350, max: 500, farbe: "#8d5b34",
+      info: "Verdampft bei 350 °C nicht mehr. Wird unter vermindertem Druck weiter destilliert, sonst würde er sich zersetzen.",
+      nutzung: "Schmieröle, Bitumen" }
+  ];
+
   function distillation(box) {
-    var r = range(30, 360, 78, "Temperatur im Destillationsturm");
-    var tower = el("div", "tower");
+    box.appendChild(el("p", null,
+      "Im Turm ist es unten heiß und oben kühl. Stelle eine Temperatur ein und "
+      + "sieh, auf welchem Zwischenboden diese Fraktion flüssig wird."));
+
+    var r = range(0, 420, 200, "Siedetemperatur");
+    var tower = el("div", "tower2");
+
+    /* Ein Streifen je Fraktion. FRAKTIONEN ist bereits von oben (Gase,
+       kalt) nach unten (Rueckstand, heiss) sortiert - genau wie im
+       Turm auf dem Arbeitsblatt. */
+    var reihen = FRAKTIONEN.map(function (f) {
+      var row = el("div", "tower-row");
+      row.style.background = f.farbe;
+
+      var name = el("span", "tower-name", f.name);
+      var temp = el("span", "tower-temp",
+        f.min <= -10 ? "unter 30 °C"
+          : f.max >= 500 ? "über 350 °C"
+            : f.min + "–" + f.max + " °C");
+      row.appendChild(name);
+      row.appendChild(temp);
+      tower.appendChild(row);
+      return { row: row, frak: f };
+    });
+
+    var zeiger = el("div", "tower-marker");
+    zeiger.appendChild(el("span", "tower-marker-dot"));
+    var zeigerText = el("span", "tower-marker-label");
+    zeiger.appendChild(zeigerText);
+    tower.appendChild(zeiger);
+
     var info = el("p", "sim-output");
-    box.appendChild(r.wrap); box.appendChild(tower); box.appendChild(info);
-    var fractions = [
-      [40, "Gase sammeln sich ganz oben."],
-      [80, "Benzin und leichte Bestandteile kondensieren weit oben."],
-      [180, "Kerosin und Diesel werden in mittleren Bereichen abgeleitet."],
-      [300, "Schwere Öle und Rückstände bleiben weiter unten."]
-    ];
+
+    var presets = el("div", "chain-presets");
+    [["Gase", 10], ["Benzine", 90], ["Kerosin", 200], ["Diesel", 300], ["Rückstand", 400]]
+      .forEach(function (p) {
+        var b = el("button", "chain-btn", p[0]);
+        b.type = "button";
+        b.addEventListener("click", function () { r.input.value = p[1]; draw(); });
+        presets.appendChild(b);
+      });
+
+    box.appendChild(r.wrap);
+    box.appendChild(tower);
+    box.appendChild(presets);
+    box.appendChild(info);
+
     function draw() {
       var v = Number(r.input.value);
-      tower.style.setProperty("--level", Math.max(0, Math.min(100, (v - 30) / 330 * 100)) + "%");
-      var text = fractions.reduce(function (acc, f) { return v >= f[0] ? f[1] : acc; }, "Noch verdampft nur wenig.");
-      info.textContent = Math.round(v) + " Grad Celsius: " + text;
+      var treffer = null;
+      reihen.forEach(function (x) {
+        var aktiv = v >= x.frak.min && v < x.frak.max;
+        x.row.classList.toggle("on", aktiv);
+        if (aktiv) treffer = x;
+      });
+
+      /* Der Zeiger sitzt mittig auf dem Streifen der getroffenen
+         Fraktion. So zeigt er immer genau auf den Zwischenboden, auf
+         dem diese Temperatur kondensiert - unabhaengig davon, dass die
+         Streifen gleich hoch sind, die Siedebereiche aber nicht. */
+      var idx = treffer ? reihen.indexOf(treffer) : reihen.length - 1;
+      var pos = (idx + 0.5) / reihen.length * 100;
+      zeiger.style.top = "calc(" + pos + "% - 9px)";
+      zeigerText.textContent = Math.round(v) + " °C";
+
+      info.textContent = treffer
+        ? treffer.frak.name + ": " + treffer.frak.info + " – Verwendung: " + treffer.frak.nutzung + "."
+        : "Über 500 °C zersetzen sich die Kohlenwasserstoffe.";
     }
+
     r.input.addEventListener("input", draw); draw();
     return box;
   }
