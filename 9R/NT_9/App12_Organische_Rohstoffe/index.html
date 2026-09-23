@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NT 9 | Organische Rohstoffe</title>
+  <meta name="description" content="Sechs interaktive Lernmodule zu organischen Rohstoffen für NT 9M und 9R.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../%C3%BCbersicht_themen.html">
+        <strong>Natur und Technik 9</strong>
+        <span>Organische Rohstoffe</span>
+      </a>
+      <nav class="top-links" aria-label="Navigation">
+        <a href="../%C3%BCbersicht_themen.html">Themenübersicht</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-text">
+        <p class="kicker">Klasse 9M und 9R</p>
+        <h1>Organische Rohstoffe</h1>
+        <p>Sechs Module auf Grundlage der Buchseiten 14 bis 30 und der PowerPoint. Jedes Modul dauert höchstens 45 Minuten und verbindet Informationstexte, Originalbilder, bewegliche Diagramme, Quiz und offene KI-Fragen.</p>
+      </div>
+      <figure class="hero-media">
+        <img src="assets/holz-nutzung.png" alt="Produkte aus Holz und Zellstoff">
+      </figure>
+    </section>
+
+    <section class="wrap">
+      <div class="overview-intro">
+        <div>
+          <h2>Module und Fortschritt</h2>
+          <p class="intro-text">Die Module bauen aufeinander auf. Du kannst sie nacheinander bearbeiten oder gezielt ein Thema wiederholen.</p>
+        </div>
+        <div class="overview-note">
+          <strong>Offene Fragen</strong>
+          <span>Die KI prüft den fachlichen Inhalt. Rechtschreibung und Formulierungen werden nicht bewertet.</span>
+        </div>
+      </div>
+
+      <div class="progress-card" aria-live="polite">
+        <div class="progress-head">
+          <p class="progress-title"><span id="progress-text">Noch kein Modul geschafft</span><small>Der Modulfortschritt bleibt auf diesem Gerät.</small></p>
+          <button type="button" class="btn" id="progress-reset">Fortschritt zurücksetzen</button>
+        </div>
+        <div class="progress-bar" role="img" aria-label="Fortschrittsbalken"><span id="progress-bar"></span></div>
+      </div>
+
+      <section class="main-topics" id="topic-list" aria-label="Lernbereiche"></section>
+    </section>
+  </main>
+
+  <script src="content.js"></script>
+  <script src="fortschritt/fortschritt.js"></script>
+  <script>
+    (function () {
+      var data = window.KohlenstoffKurs;
+      var host = document.getElementById("topic-list");
+      function esc(s) {
+        return String(s).replace(/[&<>"']/g, function (c) {
+          return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];
+        });
+      }
+      data.groups.forEach(function (group, groupIndex) {
+        var modules = data.modules.filter(function (m) { return m.group === group.id; });
+        var details = document.createElement("details");
+        details.className = "main-topic";
+        if (groupIndex === 0) details.open = true;
+        details.innerHTML =
+          '<summary><div class="summary-wrap">' +
+          '<span class="topic-badge">' + esc(group.label) + '</span>' +
+          '<div><p class="topic-title">' + esc(group.title) + '</p><p class="topic-sub">' + esc(group.subtitle) + '</p></div>' +
+          '<span class="summary-caret" aria-hidden="true">v</span></div></summary>' +
+          '<div class="subtopics"><div class="tile-grid"></div></div>';
+        var grid = details.querySelector(".tile-grid");
+        modules.forEach(function (m) {
+          var a = document.createElement("a");
+          a.className = "tile";
+          a.href = "module.html?id=" + encodeURIComponent(m.id);
+          a.setAttribute("data-module", m.id);
+          a.innerHTML =
+            '<div class="tile-top"><span class="num">Modul ' + m.nr + '</span><span class="tile-status">Noch offen</span></div>' +
+            '<span class="label">' + esc(m.title) + '</span>' +
+            '<p class="tile-sub">' + esc(m.goal) + '</p>';
+          grid.appendChild(a);
+        });
+        host.appendChild(details);
+      });
+
+      var done = 0;
+      document.querySelectorAll("[data-module]").forEach(function (tile) {
+        var id = tile.getAttribute("data-module");
+        var status = tile.querySelector(".tile-status");
+        var entry = window.KohlenstoffFortschritt.holen(id);
+        if (window.KohlenstoffFortschritt.geschafft(id)) {
+          done += 1;
+          status.classList.add("done");
+          status.textContent = "Geschafft";
+        } else if (entry) {
+          status.textContent = entry.score + " von " + entry.total;
+        }
+      });
+      var total = data.modules.length;
+      document.getElementById("progress-bar").style.width = Math.round(done / total * 100) + "%";
+      document.getElementById("progress-text").textContent = done ? done + " von " + total + " Modulen geschafft" : "Noch kein Modul geschafft";
+      document.getElementById("progress-reset").addEventListener("click", function () {
+        if (confirm("Soll dein gespeicherter Fortschritt wirklich gelöscht werden?")) {
+          window.KohlenstoffFortschritt.zuruecksetzen();
+          location.reload();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
