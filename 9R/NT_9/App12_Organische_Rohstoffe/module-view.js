@@ -47,12 +47,18 @@
     txt.appendChild(el("h1", null, module.title));
     txt.appendChild(el("p", null, module.goal));
     s.appendChild(txt);
-    var fig = el("figure", "hero-media");
-    var img = el("img");
-    img.src = module.image;
-    img.alt = module.imageAlt || "";
-    fig.appendChild(img);
-    s.appendChild(fig);
+    // Ohne Titelbild soll der Text die volle Breite bekommen, sonst
+    // bliebe die zweite Spalte des Rasters leer.
+    if (module.image) {
+      var fig = el("figure", "hero-media");
+      var img = el("img");
+      img.src = module.image;
+      img.alt = module.imageAlt || "";
+      fig.appendChild(img);
+      s.appendChild(fig);
+    } else {
+      s.classList.add("hero-no-media");
+    }
     return s;
   }
 
@@ -195,20 +201,72 @@
     return box;
   }
 
+  /* Kohlenstoffketten (Alkane). Kohlenstoff kann sich zu Ketten
+     verbinden - das ist der Grund, warum es so viele organische
+     Stoffe gibt. Jedes C-Atom bindet viermal: an die Nachbarn in
+     der Kette, die freien Stellen besetzt Wasserstoff. Daraus
+     folgt die Summenformel CnH2n+2. */
+  var ALKANE = [
+    { name: "Methan",  nutzung: "Hauptbestandteil von Erdgas – zum Heizen und Kochen." },
+    { name: "Ethan",   nutzung: "Aus Erdgas; Ausgangsstoff für Kunststoffe." },
+    { name: "Propan",  nutzung: "Campinggas in roten Flaschen." },
+    { name: "Butan",   nutzung: "Feuerzeuggas und Gaskartuschen." },
+    { name: "Pentan",  nutzung: "Leichtbenzin, verdunstet sehr schnell." },
+    { name: "Hexan",   nutzung: "Lösemittel, z. B. beim Gewinnen von Rapsöl." },
+    { name: "Heptan",  nutzung: "Bestandteil von Benzin." },
+    { name: "Oktan",   nutzung: "Namensgeber der Oktanzahl an der Zapfsäule." },
+    { name: "Nonan",   nutzung: "Im Dieselbereich der Erdölfraktionen." },
+    { name: "Dekan",   nutzung: "Schwerer Kraftstoffanteil, z. B. in Kerosin." }
+  ];
+
   function carbonAtoms(box) {
-    box.appendChild(el("p", null, "Baue ein vereinfachtes Kohlenstoffgerüst auf."));
-    var r = range(1, 6, 3, "Anzahl der Kohlenstoffatome");
-    var atoms = el("div", "atom-sim");
+    box.appendChild(el("p", null,
+      "Kohlenstoffatome können sich zu Ketten verbinden. Deshalb gibt es so viele "
+      + "organische Stoffe. Stelle die Kettenlänge ein und sieh, welcher Stoff entsteht."));
+
+    var r = range(1, 10, 4, "Anzahl der Kohlenstoffatome");
+    var chain = el("pre", "chain-sim");
+    var formelZeile = el("p", "chain-name");
     var info = el("p", "sim-output");
-    box.appendChild(r.wrap); box.appendChild(atoms); box.appendChild(info);
-    function draw() {
-      var count = Number(r.input.value);
-      atoms.textContent = "";
-      for (var i = 0; i < count; i += 1) atoms.appendChild(el("span", null, "C"));
-      info.textContent = count === 1
-        ? "Ein Kohlenstoffatom kann Teil eines kleinen organischen Moleküls sein."
-        : count + " Kohlenstoffatome bilden ein vereinfachtes Gerüst für größere organische Moleküle.";
+
+    var presets = el("div", "chain-presets");
+    [1, 4, 8, 10].forEach(function (n) {
+      var b = el("button", "chain-btn", ALKANE[n - 1].name);
+      b.type = "button";
+      b.addEventListener("click", function () { r.input.value = n; draw(); });
+      presets.appendChild(b);
+    });
+
+    box.appendChild(r.wrap);
+    box.appendChild(chain);
+    box.appendChild(formelZeile);
+    box.appendChild(presets);
+    box.appendChild(info);
+
+    /* Strukturformel als Textbild: obere H-Reihe, die C-Kette mit
+       Bindestrichen, untere H-Reihe. Die beiden Kettenenden tragen
+       je ein zusaetzliches H. */
+    function strukturformel(n) {
+      var oben = "", mitte = "", unten = "";
+      for (var i = 0; i < n; i += 1) {
+        oben  += (i === 0 ? "   " : "   ") + "H";
+        mitte += (i === 0 ? "H--C" : "---C");
+        unten += (i === 0 ? "   " : "   ") + "H";
+      }
+      mitte += "--H";
+      var striche = "";
+      for (var k = 0; k < n; k += 1) striche += "   |";
+      return oben + "\n" + striche + "\n" + mitte + "\n" + striche + "\n" + unten;
     }
+
+    function draw() {
+      var n = Number(r.input.value);
+      var stoff = ALKANE[n - 1];
+      chain.textContent = strukturformel(n);
+      formelZeile.textContent = stoff.name + "  ·  C" + (n > 1 ? n : "") + "H" + (2 * n + 2);
+      info.textContent = n + (n === 1 ? " Kohlenstoffatom: " : " Kohlenstoffatome: ") + stoff.nutzung;
+    }
+
     r.input.addEventListener("input", draw); draw();
     return box;
   }

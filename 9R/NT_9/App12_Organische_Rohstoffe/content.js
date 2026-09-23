@@ -17,8 +17,6 @@ window.KohlenstoffKurs = {
       nr: 1,
       title: "Kohlenstoff, Holz und Raps",
       duration: "45 min",
-      image: "assets/materialien/NT9-organische-Rohstoffe-image9.png",
-      imageAlt: "Verarbeitung von Holz zu Zellstoff, Papier und Produkten der chemischen Industrie",
       goal: "Du erklärst, was organische und regenerative Rohstoffe sind, und beschreibst die Nutzung von Holz und Raps.",
       sections: [
         {
