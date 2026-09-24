@@ -30,3 +30,18 @@ Quellen: Die Abbildungen wurden aus den beiden Unterrichtspräsentationen im Ord
 - Offene Fragen gehen an `POST /api/nt7/uebung/feedback` auf `englisch-9.onrender.com`. Die Route liegt als `backend/api/nt7-uebung.js` im Repository `englisch_9` (lokal in `.codex-build/englisch_9`), ist aber noch nicht committet oder deployt. Bis dahin prüft die Seite offline nach Fachbegriffen und sagt das der Schülerin oder dem Schüler auch.
 - Die alte Lernoberfläche (`app.js`, `content.js`, alte `index.html`) wurde gelöscht. Neue Übersichten für 7M (`index.html`) und 7R (`7R/NT/index.html`) verlinken auf Modul 1. Module 2–6 und die Zusatzthemen sind als „in Vorbereitung“ angelegt.
 - Proben und Lehrerverwaltung (`probe.html`, `lehrer.html`, `style.css`) bleiben unverändert.
+
+## Stand 24.09.2026: Module 2 und 3 (Windkraft)
+
+- **Modul 2 „Windkraft: Bewegte Luft erzeugt Strom“** (`windkraft-strom.html`), Grundlage Buch S. 22–23 und das Arbeitsblatt „Bewegte Luft erzeugt Strom“ (Probenstoff):
+  - 6 Stationen: Windmühle früher und Windkraftanlage heute, Aufbau (10 Bauteile zum Antippen), vom Wind zum Strom, Größenvergleich 1990–2020, Training, Profi-Check.
+  - Animationen: Windmühle und Windrad im Vergleich, Seewind (Zusatzwissen), Schnitt durch die Gondel mit Energiekette und Bremse, Fahrrad-Dynamo, Größenvergleich mit Frauenkirche und Olympiaturm, Gondelnachführung von oben.
+  - Arbeitsblatt als Übung: Bild beschriften (Pfeile Bewegungsenergie und elektrische Energie, Generator, Getriebe, Bremse, Rotorblatt) und Lückentext mit den 8 Begriffen. Dazu Reihenfolge, Zuordnen, Kreuzworträtsel (Lösungswort STROM), Richtig/Falsch, Ankreuzen, 5 offene Fragen mit KI-Rückmeldung und ein Abschlussquiz.
+- **Modul 3 „Windkraft – pro und contra“** (`windkraft-pro-contra.html`), Grundlage Buch S. 24–25 und das Arbeitsblatt „Windkraft: Pro und Contra“ (Probenstoff):
+  - 8 Stationen: Protestfoto und Abstimmung, Pro, Contra, Argumente sortieren, Kompromiss, Duell gegen die KI, Training, Profi-Check mit zweiter Abstimmung.
+  - Animationen: Kohlekraftwerk und Windrad im Vergleich (CO₂), Wind-Woche, Schattenwurf am Abend, Windkarte Bayern, 10-H-Abstand, Standort-Planer (Anwohner, Naturschutz, Energieversorger).
+  - Arbeitsblatt als Übung: die 12 Aussagen nach Pro und Contra sortieren (Aufgabe 1), eigene Tabelle mit ⭐-Markierung und eigenen Argumenten (Aufgabe 2), Kompromiss als offene Frage (Aufgabe 3).
+  - **Duell gegen die KI**: Die Schülerin oder der Schüler wählt eine Seite, die KI vertritt die andere. In 4 Runden kontert man ein KI-Argument, danach hat man das letzte Wort. Ein Tipp-Knopf zeigt Satzanfänge und Ideen. Die Bewertung läuft über `POST /api/nt7/uebung/feedback`. Ohne Server wird offline nach Stichworten bewertet.
+- Die 10-H-Regel wird wie im Buch dargestellt. Ein Hinweis nennt die Ausnahmen seit 2022 (1000 m, z. B. im Wald oder an Autobahnen).
+- Die Datei „Wie entsteht Luftdruck“ im Ordner Modul2 gehört zum Zusatzthema „Der Luftdruck“ und ist noch nicht umgesetzt.
+- Getestet in Chrome (headless): keine Skriptfehler, alle Übungen lösbar, Duell offline durchgespielt. Die KI-Route antwortet live.
