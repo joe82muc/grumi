@@ -14,7 +14,7 @@ window.NT_CONTENT = {
         "Ein aufgeblasener Ballon zeigt: Luft füllt einen Raum aus. Drückst du eine verschlossene Spritze vorsichtig zusammen, wird die eingeschlossene Luft zusammengedrückt. Luft hat zudem Masse: Ein Liter Luft wiegt ungefähr 1,2 bis 1,3 Gramm. Der genaue Wert hängt unter anderem von Temperatur und Luftdruck ab.",
         "Wird Luft erwärmt, dehnt sie sich aus. Warme Luft steigt oft auf, weil sie bei gleichem Druck weniger dicht als kühlere Luft ist. Bewegte Luft nennen wir Wind."
       ],
-      image: "luft-im-alltag.png", imageAlt: "Bildcollage mit Alltagssituationen, in denen Luft eine Rolle spielt", imageCaption: "Aus der Unterrichtspräsentation: Luft begegnet uns überall.",
+      image: "luft-im-alltag.png", imageAlt: "Bildcollage: Heißluftballon, Pusteblume, Windrad, Fallschirmspringer, Segelboot, Kerzenrauch, Flugzeug, Tornado, blasender Wal und Kind mit Windrad", imageCaption: "Luft begegnet uns überall – sie trägt, bewegt und wird sichtbar.",
       video: { title: "Fünf Fakten über Luft", url: "https://schule.zdf.de/video/fuenf-fakten-ueber-luft-100", note: "ZDF goes Schule, etwa 10 Minuten. Öffnet in einem neuen Tab; die Aufgaben hier sind auch ohne Video lösbar." },
       words: [["Volumen", "Raum, den ein Stoff einnimmt."], ["Masse", "Wie viel Materie ein Körper enthält; messbar mit einer Waage."], ["komprimierbar", "Zusammendrückbar. Zwischen den Luftteilchen ist Platz."], ["Dichte", "Masse in einem bestimmten Volumen."]],
       checks: [
@@ -31,8 +31,8 @@ window.NT_CONTENT = {
         "Chemische Symbole helfen, Stoffe kurz zu schreiben: N₂ steht für Stickstoff, O₂ für Sauerstoff und CO₂ für Kohlenstoffdioxid. Die kleine tiefgestellte Zahl nennt die Zahl der Atome in einem Molekül. Ein O₂-Molekül hat zwei Sauerstoffatome. Ein CO₂-Molekül hat ein Kohlenstoffatom und zwei Sauerstoffatome.",
         "Achtung: Kohlenstoffmonoxid heißt CO, Kohlenstoffdioxid heißt CO₂. Das ist nicht dasselbe."
       ],
-      image: "luftzusammensetzung.png", imageAlt: "Balkendiagramm: 78 Prozent Stickstoff, 21 Prozent Sauerstoff, 1 Prozent andere Gase", imageCaption: "Zusammensetzung von trockener Luft, aus der Unterrichtspräsentation.",
-      extraImage: "molekuele.png", extraImageAlt: "Molekülmodelle für Stickstoff, Sauerstoff und Kohlenstoffdioxid", extraImageCaption: "Modelle und Formeln aus der Unterrichtspräsentation.",
+      image: "luftzusammensetzung.png", imageAlt: "Balkendiagramm: In 100 Litern trockener Luft stecken 78 Liter Stickstoff, 21 Liter Sauerstoff und 1 Liter sonstige Gase", imageCaption: "Zusammensetzung trockener Luft: 78 % Stickstoff, 21 % Sauerstoff, 1 % sonstige Gase.",
+      extraImage: "molekuele.png", extraImageAlt: "Kugelmodelle: Stickstoff N2, Sauerstoff O2, Kohlenstoffdioxid CO2, Argon Ar und Neon Ne", extraImageCaption: "Modelle und Formeln der wichtigsten Gase in der Luft.",
       words: [["Gasgemisch", "Mehrere Gase zusammen, ohne dass daraus ein neuer Stoff wird."], ["Molekül", "Teilchen aus mindestens zwei verbundenen Atomen."], ["Atom", "Kleinster Baustein eines chemischen Elements."], ["chemische Formel", "Kurzschrift für die Atome in einem Teilchen."]],
       checks: [
         { type: "match", prompt: "Ordne Anteil und Gas zu.", pairs: [["78 %", "Stickstoff"], ["21 %", "Sauerstoff"], ["etwa 1 %", "andere Gase"]] },
@@ -48,7 +48,7 @@ window.NT_CONTENT = {
         "Ein Saugnapf hält, wenn man ihn gegen eine glatte Fläche drückt: Unter ihm ist dann weniger Luft. Die Außenluft drückt den Saugnapf an die Fläche. Mit zunehmender Höhe wird der Luftdruck meist geringer, weil weniger Luft über uns liegt.",
         "Ein Barometer misst den Luftdruck. Wetterberichte geben ihn oft in Hektopascal (hPa) an. Für die Probe ist vor allem die Erklärung wichtig, nicht ein bestimmter Zahlenwert."
       ],
-      image: "luft-im-alltag.png", imageAlt: "Alltagssituationen mit Luft", imageCaption: "Luft wirkt auch dort, wo wir sie nicht sehen.",
+      image: "luft-im-alltag.png", imageAlt: "Bildcollage mit Situationen, in denen Luft trägt und drückt", imageCaption: "Luft wirkt auch dort, wo wir sie nicht sehen.",
       words: [["Druck", "Kraft, die auf eine Fläche wirkt."], ["Luftdruck", "Druck, den Luft auf ihre Umgebung ausübt."], ["Barometer", "Gerät zum Messen des Luftdrucks."], ["hPa", "Hektopascal; eine Einheit für Druck."]],
       checks: [
         { type: "choice", prompt: "Warum hält ein Saugnapf an einer glatten Scheibe?", options: ["Die Außenluft drückt ihn an die Scheibe.", "Er wird durch Sauerstoff magnetisch.", "Luft hat keinen Einfluss."], answer: 0, explain: "Außen ist der Luftdruck größer als unter dem Saugnapf." },
