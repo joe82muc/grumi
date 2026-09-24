@@ -17,11 +17,34 @@
   var datei = wurzel.getAttribute("data-datei");
   if (!datei) return;
 
-  fetch("../daten/" + datei)
-    .then(function (antwort) {
-      if (!antwort.ok) throw new Error("Status " + antwort.status);
-      return antwort.json();
-    })
+  /* Beim Öffnen per Doppelklick (file://) blockiert der Browser fetch.
+     Dann wird dieselbe Stunde aus der erzeugten Kopie daten/<name>.js geladen
+     (siehe daten/js-erzeugen.mjs). */
+  function ausSkript() {
+    return new Promise(function (ok, fehler) {
+      var vorhanden = window.INF_DATEN && window.INF_DATEN[datei];
+      if (vorhanden) return ok(vorhanden);
+      var skript = document.createElement("script");
+      skript.src = "../daten/" + datei.replace(/\.json$/, ".js");
+      skript.onload = function () {
+        var daten = window.INF_DATEN && window.INF_DATEN[datei];
+        daten ? ok(daten) : fehler(new Error("keine Daten"));
+      };
+      skript.onerror = fehler;
+      document.head.appendChild(skript);
+    });
+  }
+
+  var laden = location.protocol === "file:"
+    ? ausSkript()
+    : fetch("../daten/" + datei)
+        .then(function (antwort) {
+          if (!antwort.ok) throw new Error("Status " + antwort.status);
+          return antwort.json();
+        })
+        .catch(ausSkript);
+
+  laden
     .then(aufbauen)
     .catch(function () {
       wurzel.innerHTML =
