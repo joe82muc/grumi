@@ -1,4 +1,4 @@
-/* Gemeinsame Bausteine der Lernmodule 2 und 3 (Windkraft).
+/* Gemeinsame Bausteine der Lernmodule 2 bis 5 (Windkraft, Verbrennung, Explosionen).
  * Übernommen aus luft-modul.html und verallgemeinert: Sterne-Fortschritt, Fachbegriffe,
  * Ankreuzen, Lückentext, Zuordnen, Richtig/Falsch, Reihenfolge, Bild beschriften,
  * Kreuzworträtsel, offene Fragen mit KI-Rückmeldung, Abschlussquiz und Konfetti.
@@ -83,9 +83,26 @@ function init(cfg){
   addEventListener("scroll", () => { if (!queued) { queued = true; requestAnimationFrame(onScroll); } }, {passive: true});
   Modul._onScroll = onScroll;
 
-  // Hero: vorbeiziehende Windlinien
+  // Hero: aufsteigende Funken (cfg.hero === "funken") oder vorbeiziehende Windlinien
   const c = $("#heroCanvas");
-  if (c) {
+  if (c && cfg.hero === "funken") {
+    const ctx = c.getContext("2d"); let W, H, run = true;
+    const P = Array.from({length: 46}, () => ({x: Math.random(), y: Math.random(), r: .8 + Math.random() * 2.2, v: .0012 + Math.random() * .003, a: Math.random() * 6, h: 20 + Math.random() * 30}));
+    const size = () => { W = c.width = c.offsetWidth * devicePixelRatio; H = c.height = c.offsetHeight * devicePixelRatio; };
+    size(); addEventListener("resize", size);
+    onVisible(c, v => { run = v; if (v) requestAnimationFrame(tick); });
+    function tick(){
+      if (!run) return;
+      ctx.clearRect(0, 0, W, H);
+      P.forEach(p => {
+        if (!reduced) { p.y -= p.v; p.a += .04; if (p.y < -.05) { p.y = 1.05; p.x = Math.random(); } }
+        const x = (p.x + Math.sin(p.a) * .01) * W, y = p.y * H, al = Math.min(1, p.y * 1.3) * .75;
+        ctx.fillStyle = `hsla(${p.h},100%,65%,${al.toFixed(2)})`;
+        ctx.beginPath(); ctx.arc(x, y, p.r * devicePixelRatio, 0, 7); ctx.fill();
+      });
+      requestAnimationFrame(tick);
+    }
+  } else if (c) {
     const ctx = c.getContext("2d"); let W, H, run = true;
     const L = Array.from({length: 26}, () => ({x: Math.random(), y: Math.random(), l: .04 + Math.random() * .1, v: .0015 + Math.random() * .003, a: Math.random() * 6}));
     const size = () => { W = c.width = c.offsetWidth * devicePixelRatio; H = c.height = c.offsetHeight * devicePixelRatio; };
@@ -305,17 +322,18 @@ function makeHotspots(box, info, countEl, list, id){
 }
 
 /* ---------- Kreuzworträtsel ---------- */
-// cfg: {words:[{w,r,c,d:"a"|"d",q}], sol:[[r,c],...], solWord, pre:["r,c"]}
+// cfg: {words:[{w,r,c,d:"a"|"d",q,num}], sol:[[r,c],...], solWord, pre:["r,c"], umlaut}
+// num: feste Nummer wie auf dem Arbeitsblatt; umlaut: Ä, Ö, Ü stehen in einem eigenen Kästchen
 function makeCrossword(box, cfg, id){
   register(id);
   const W = cfg.words.slice().sort((a, b) => a.r - b.r || a.c - b.c);
   let n = 0; const starts = {};
-  W.forEach(w => { const k = w.r + "," + w.c; if (!starts[k]) starts[k] = ++n; w.n = starts[k]; });
+  W.forEach(w => { const k = w.r + "," + w.c; if (!starts[k]) starts[k] = w.num || ++n; w.n = starts[k]; });
   const ROWS = Math.max(...W.map(w => w.r + (w.d === "d" ? w.w.length : 1))), COLS = Math.max(...W.map(w => w.c + (w.d === "a" ? w.w.length : 1)));
   const grid = {};
   W.forEach(w => [...w.w].forEach((ch, i) => { const k = (w.r + (w.d === "d" ? i : 0)) + "," + (w.c + (w.d === "a" ? i : 0)); (grid[k] = grid[k] || {ch, words: []}).words.push(w); }));
   const pre = new Set(cfg.pre || []);
-  const byDir = d => W.filter(w => w.d === d).map(w => `<li value="${w.n}" data-id="${W.indexOf(w)}">${esc(w.q)} <span class="hint">(${w.w.length})</span></li>`).join("");
+  const byDir = d => W.filter(w => w.d === d).sort((a, b) => a.n - b.n).map(w => `<li value="${w.n}" data-id="${W.indexOf(w)}">${esc(w.q)} <span class="hint">(${w.w.length})</span></li>`).join("");
   box.innerHTML = `<div class="cw-wrap"><div><div class="cw" style="--cols:${COLS}"></div></div><div class="clues">
     <strong>Waagrecht →</strong><ol>${byDir("a")}</ol><strong style="display:block;margin-top:10px">Senkrecht ↓</strong><ol>${byDir("d")}</ol>
     ${cfg.sol ? `<p style="margin:14px 0 0"><strong>Lösungswort</strong> (graue Kästchen der Reihe nach):</p><div class="solword">${cfg.sol.map(() => "<span></span>").join("")}</div>` : ""}
@@ -357,7 +375,8 @@ function makeCrossword(box, cfg, id){
       if (curWord) dir = curWord.d;
     });
     cell.inp.addEventListener("input", () => {
-      let v = cell.inp.value.toUpperCase().replace(/Ä/g, "AE").replace(/Ö/g, "OE").replace(/Ü/g, "UE").replace(/ß/g, "SS").replace(/[^A-Z]/g, "");
+      let v = cell.inp.value.toUpperCase();
+      v = cfg.umlaut ? v.replace(/ß/g, "SS").replace(/[^A-ZÄÖÜ]/g, "") : v.replace(/Ä/g, "AE").replace(/Ö/g, "OE").replace(/Ü/g, "UE").replace(/ß/g, "SS").replace(/[^A-Z]/g, "");
       v = v.slice(-1); cell.inp.value = v; cell.div.classList.remove("wrong", "right");
       update(); if (v) focusNext(cell);
     });

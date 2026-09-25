@@ -1,0 +1,1056 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0d77c2">
+<title>Luft und Verbrennung | NT 7M</title>
+<link rel="stylesheet" href="modul-basis.css">
+<style>
+.hero{background:linear-gradient(160deg,#6d1d0c,#c7421a 55%,#f3a33a)}
+.flame,.smoke{transform-box:fill-box}
+.tf-row>span,.q-title,.opt span{min-width:0;hyphens:auto;overflow-wrap:break-word}
+.pick{display:flex;flex-wrap:wrap;gap:6px}
+.pick button{border:2px solid var(--line);background:#fff;border-radius:10px;padding:6px 11px;font-weight:700;font-size:.92rem}
+.pick button.sel{background:var(--sky);border-color:var(--sky);color:#fff}
+.pick button.done{border-color:var(--ok)}
+.pick button.done::after{content:" ✓";color:var(--ok)}
+.pick button.sel.done::after{color:#fff}
+.res{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;margin-top:10px}
+.res div{border:1px solid var(--line);border-radius:10px;padding:5px 9px;font-size:.88rem;background:#fff;color:var(--muted)}
+.res div.yes{border-color:#f0b07a;background:#fff4ea;color:#8a3b00}
+.res div.no{border-color:#b9cbd8;background:#f4f8fb;color:#33414d}
+.tri-side{cursor:pointer}
+.tri-side:focus{outline:none}
+.tri-side:focus-visible rect,.tri-side:hover rect{stroke:#15212b;stroke-width:3}
+.tri-side.off{opacity:.18}
+.tubes-pred{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:10px 14px;background:#fbfdff;border-top:1px solid var(--line)}
+.tubes-pred div{text-align:center;font-size:.8rem}
+.tubes-pred b{display:block;font-size:1.05rem}
+.tubes-pred button{display:block;width:100%;margin:3px 0;border:2px solid var(--line);background:#fff;border-radius:9px;padding:4px 2px;font-size:.78rem;font-weight:700;line-height:1.15}
+.tubes-pred button.sel{background:var(--sky);border-color:var(--sky);color:#fff}
+.tubes-pred button.right{background:var(--ok);border-color:var(--ok);color:#fff}
+.tubes-pred button.wrong{background:var(--bad);border-color:var(--bad);color:#fff}
+.tri-task{display:grid;grid-template-columns:minmax(0,340px) 1fr;gap:20px;align-items:start}
+@media (max-width:820px){.tri-task{grid-template-columns:1fr}}
+.tri-task svg{width:100%;max-width:340px;height:auto;display:block;margin:0 auto}
+.tslot{cursor:pointer}
+.tslot rect{fill:#e7f3fc;stroke:#0d77c2;stroke-width:2;stroke-dasharray:6 4}
+.tslot.filled rect{fill:#fff;stroke-dasharray:none}
+.tslot.target rect{fill:#fff;stroke-width:3}
+.tslot.right rect{fill:#e3f6ea;stroke:#1b8a4b;stroke-dasharray:none}
+.tslot.wrong rect{fill:#fdecec;stroke:#c93b3b;stroke-dasharray:none}
+.tslot text{font-weight:800;font-size:15px;fill:#095a93}
+.bars{display:flex;align-items:flex-end;gap:4px;height:70px;padding:6px 14px 0;background:#fbfdff}
+.bars div{flex:1;background:linear-gradient(#f3a33a,#c7421a);border-radius:4px 4px 0 0;min-height:2px;transition:height .4s}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="gFlame" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#e2461b"/><stop offset=".55" stop-color="#f7931e"/><stop offset="1" stop-color="#ffd23f"/></linearGradient>
+    <symbol id="flame" viewBox="-20 -52 40 52"><path d="M0 -50 C8 -36 18 -26 16 -12 C14 -3 7 0 0 0 C-7 0 -14 -3 -16 -12 C-18 -26 -6 -32 0 -50Z" fill="url(#gFlame)"/><path d="M0 -30 C5 -22 9 -16 8 -9 C7 -3 3 0 0 0 C-3 0 -7 -3 -8 -9 C-9 -16 -4 -20 0 -30Z" fill="#fff3a6"/></symbol>
+  </defs>
+</svg>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>NT 7M</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Was brennt?</a>
+      <a href="#s2"><b>2</b>Feuerdreieck</a>
+      <a href="#s3"><b>3</b>Zündtemperatur</a>
+      <a href="#s4"><b>4</b>Sauerstoff</a>
+      <a href="#s5"><b>5</b>Fein zerteilt</a>
+      <a href="#s6"><b>6</b>Training</a>
+      <a href="#s7"><b>7</b>Profi-Check</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse 7M / 7R · Lernmodul 4</div>
+    <h1>Luft und Verbrennung</h1>
+    <p>Ein Lagerfeuer, eine Kerze, der Gasherd: Überall brennt etwas. Doch nicht alles brennt, und manches brennt nur unter bestimmten Bedingungen. In sieben Stationen findest du heraus, was ein Feuer braucht und welche Rolle die Luft dabei spielt.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s6">Direkt zum Probentraining</a>
+    </div>
+    <div class="goals">
+      <div>🔥 Ich nenne feste, flüssige und gasförmige brennbare Stoffe.</div>
+      <div>🔺 Ich kenne die drei Bedingungen für ein Feuer (Feuerdreieck).</div>
+      <div>🌡️ Ich erkläre den Begriff Zündtemperatur.</div>
+      <div>🌲 Ich begründe, warum fein zerteilte Stoffe besser brennen.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Buch S. 26 · Versuch 1</div><h2>Was brennt – und was nicht?</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <span class="task-tag">Versuch 1 · Brennbare Stoffe</span>
+      <p class="lead">Nicht jeder Stoff kann brennen.</p>
+      <p><strong>Material:</strong> feuerfeste Unterlage, Zange, <button class="term" data-t="gasbrenner">Gasbrenner</button>, Streichhölzer, verschiedene Gegenstände.</p>
+      <p><strong>Durchführung:</strong> Prüfe, ob sich die Gegenstände mit dem Gasbrenner entzünden lassen: Glasstab, Papierstückchen, Eisennagel, Watte, Holzspan, Kieselsteinchen und ein Stückchen Kerzenwachs.</p>
+      <p class="hint">Wähle einen Gegenstand aus. Die Zange hält ihn in die Flamme. Teste alle sieben.</p>
+      <div class="pick" id="burnPick"></div>
+      <div class="res" id="burnRes"></div>
+    </div>
+    <div class="sim reveal">
+      <svg viewBox="0 0 480 300" id="burnSvg" role="img" aria-label="Gasbrenner mit Flamme. Eine Zange hält einen Gegenstand in die Flamme.">
+        <rect width="480" height="300" fill="#f7fbfe"/>
+        <rect y="262" width="480" height="38" fill="#9aa5ad"/>
+        <rect y="262" width="480" height="6" fill="#7d868d"/>
+        <!-- Gasbrenner -->
+        <rect x="200" y="246" width="80" height="16" rx="4" fill="#4a5a68"/>
+        <rect x="229" y="150" width="22" height="98" fill="#8a949c"/>
+        <rect x="226" y="208" width="28" height="12" rx="3" fill="#5b6770"/>
+        <path d="M280 254 Q330 256 360 262" stroke="#e0453a" stroke-width="5" fill="none"/>
+        <g id="burnerFlame" transform="translate(240 150)">
+          <use href="#flame" x="-22" y="-80" width="44" height="80" class="flame" opacity=".55"/>
+          <path d="M0 -44 C6 -30 9 -16 7 -6 C5 -1 2 0 0 0 C-2 0 -5 -1 -7 -6 C-9 -16 -6 -30 0 -44Z" fill="#3d7bff" opacity=".8"/>
+        </g>
+        <!-- Zange mit Gegenstand -->
+        <g id="tong" transform="translate(470 110)">
+          <path d="M0 0 L90 -6 M0 0 L90 6" stroke="#6b7a86" stroke-width="5" stroke-linecap="round"/>
+          <g id="obj"></g>
+          <g id="objFlame" opacity="0"><use href="#flame" x="-16" y="-58" width="32" height="46" class="flame"/></g>
+        </g>
+        <g id="burnSmoke" fill="#8a949c"></g>
+        <text x="240" y="290" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">Gasbrenner</text>
+      </svg>
+      <div class="readout" style="padding-top:12px"><span class="chip" id="burnChip">Wähle einen Gegenstand</span><span class="chip" id="burnCount">0 / 7 getestet</span></div>
+      <p class="obs" id="burnObs">Tipp: Glühen ist noch kein Brennen. Ein Stoff brennt, wenn er selbst mit einer Flamme weiterbrennt.</p>
+    </div>
+  </div>
+
+  <div class="card reveal">
+    <p class="lead"><strong>Brennbare Stoffe</strong> gibt es in allen drei <button class="term" data-t="aggregat">Aggregatzuständen</button>:</p>
+    <div class="grid2">
+      <div>
+        <p>🌲 <strong>fest:</strong> Papier, Pappe, Holz und Kohle</p>
+        <p>🧴 <strong>flüssig:</strong> <button class="term" data-t="spiritus">Spiritus</button>, Benzin, Diesel oder Heizöl</p>
+        <p>💨 <strong>gasförmig:</strong> <button class="term" data-t="erdgas">Erdgas</button> oder die Brennergase <button class="term" data-t="butan">Propan und Butan</button>. Gase sind besonders leicht brennbar.</p>
+      </div>
+      <div>
+        <p>🚫 <strong>Nicht brennbar</strong> sind unter anderem Glas, Keramik, Sand, Wasser und die <button class="term" data-t="edelgase">Edelgase</button>.</p>
+        <p>Einen Stoff, der brennt und dabei Wärme liefert, nennt man <button class="term" data-t="brennstoff">Brennstoff</button>.</p>
+      </div>
+    </div>
+  </div>
+  <div class="card reveal" id="mc-s1"></div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Buch S. 27 · Arbeitsblatt · Probenstoff</div><h2>Das Feuerdreieck: Was ein Feuer braucht</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead"><strong>Brandbedingungen.</strong> Für ein Feuer braucht man:</p>
+      <ul>
+        <li>einen <button class="term" data-t="brennbar">brennbaren Stoff</button> (Brennstoff),</li>
+        <li>eine ausreichend hohe Temperatur (<button class="term" data-t="zuendtemperatur">Zündtemperatur</button>),</li>
+        <li>sowie <button class="term" data-t="sauerstoff">Sauerstoff</button>.</li>
+      </ul>
+      <p>Man zeichnet die drei Bedingungen als <button class="term" data-t="feuerdreieck">Feuerdreieck</button>. Nur wenn alle drei Seiten da sind, brennt das Feuer.</p>
+      <figure><img class="zoomable" src="assets/verbrennung/feuerdreieck.jpg" width="1000" height="882" decoding="async" alt="Feuerdreieck: links Zündtemperatur, rechts Sauerstoff, unten Brennstoff, in der Mitte Flammen" style="max-width:min(320px,100%);margin:0 auto"><figcaption style="text-align:center">Bedingungen für ein Feuer (Tippen zum Vergrößern)</figcaption></figure>
+    </div>
+    <div class="sim reveal">
+      <svg viewBox="0 0 360 300" id="triSvg" role="img" aria-label="Feuerdreieck zum Antippen. Nimmt man eine Seite weg, geht das Feuer aus.">
+        <rect width="360" height="300" fill="#fff8f0"/>
+        <g id="triFire" transform="translate(180 222)">
+          <use href="#flame" x="-62" y="-150" width="124" height="150" class="flame"/>
+        </g>
+        <g id="triSmoke" fill="#9aa5ad"></g>
+        <g class="tri-side" data-s="0" tabindex="0" role="button" aria-label="Seite Zündtemperatur wegnehmen oder zurückholen" transform="translate(120 152) rotate(-60)">
+          <rect x="-120" y="-17" width="240" height="34" rx="6" fill="#ef5b5b" stroke="#15212b" stroke-width="1.5"/>
+          <text y="6" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">Zündtemperatur</text>
+        </g>
+        <g class="tri-side" data-s="1" tabindex="0" role="button" aria-label="Seite Sauerstoff wegnehmen oder zurückholen" transform="translate(240 152) rotate(60)">
+          <rect x="-120" y="-17" width="240" height="34" rx="6" fill="#5aa9f0" stroke="#15212b" stroke-width="1.5"/>
+          <text y="6" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">Sauerstoff</text>
+        </g>
+        <g class="tri-side" data-s="2" tabindex="0" role="button" aria-label="Seite Brennstoff wegnehmen oder zurückholen" transform="translate(180 256)">
+          <rect x="-120" y="-17" width="240" height="34" rx="6" fill="#d9b27c" stroke="#15212b" stroke-width="1.5"/>
+          <text y="6" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">Brennstoff</text>
+        </g>
+      </svg>
+      <div class="readout" style="padding-top:12px"><span class="chip ok" id="triChip">🔥 Das Feuer brennt</span><span class="chip" id="triCount">0 / 3 Seiten ausprobiert</span></div>
+      <p class="obs" id="triObs">Tippe auf eine Seite des Dreiecks, um sie wegzunehmen. Tippe noch einmal, um sie zurückzuholen.</p>
+    </div>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Für ein Feuer braucht man einen brennbaren Stoff, eine ausreichend hohe Temperatur (Zündtemperatur) sowie genügend Sauerstoff.</li><li>Fehlt eine dieser drei Bedingungen, geht das Feuer aus.</li></ul></div>
+  <div class="card reveal" id="mc-s2"></div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Buch S. 26 f. · Versuch 2 · Probenstoff</div><h2>Die Zündtemperatur</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Brennbare Stoffe entzünden sich nur dann, wenn sie eine bestimmte Temperatur erreicht haben: die <strong>Zündtemperatur</strong>.</p>
+      <p>Jeder Stoff hat eine andere Zündtemperatur. Ein Streichholzkopf entzündet sich schon bei etwa <strong>60–80 °C</strong>. Da genügt schon die <button class="term" data-t="reibungswaerme">Reibungswärme</button>, wenn man mit dem Streichholzkopf über die Reibfläche der Schachtel streicht.</p>
+      <p class="hint">Wähle einen Stoff und heize ihn mit dem Regler auf. Finde heraus, ab welcher Temperatur er sich entzündet. Entdecke mindestens vier Stoffe.</p>
+      <div class="pick" id="ztPick"></div>
+    </div>
+    <div class="sim reveal">
+      <svg viewBox="0 0 480 290" id="ztSvg" role="img" aria-label="Ein Stoff liegt auf einer Heizplatte. Ein Thermometer zeigt die Temperatur.">
+        <rect width="480" height="290" fill="#f7fbfe"/>
+        <!-- Thermometer -->
+        <rect x="40" y="26" width="26" height="210" rx="13" fill="#fff" stroke="#9aa5ad" stroke-width="2"/>
+        <circle cx="53" cy="248" r="22" fill="#e0453a" stroke="#9aa5ad" stroke-width="2"/>
+        <rect id="ztMerc" x="47" y="230" width="12" height="10" fill="#e0453a"/>
+        <g id="ztScale" font-size="10" fill="#566674"></g>
+        <line id="ztMark" x1="30" x2="80" y1="0" y2="0" stroke="#1b8a4b" stroke-width="3" opacity="0"/>
+        <!-- Heizplatte -->
+        <rect x="200" y="226" width="220" height="30" rx="6" fill="#4a5a68"/>
+        <rect id="ztPlate" x="214" y="218" width="192" height="10" rx="4" fill="#8a949c"/>
+        <rect x="200" y="256" width="220" height="10" fill="#33414d"/>
+        <g id="ztHeat" stroke="#e0453a" stroke-width="2" fill="none" opacity="0">
+          <path d="M250 206 q6 -8 0 -16 q-6 -8 0 -16"/><path d="M370 206 q6 -8 0 -16 q-6 -8 0 -16"/>
+        </g>
+        <text id="ztIcon" x="310" y="206" text-anchor="middle" font-size="58">📄</text>
+        <g id="ztFire" transform="translate(310 196)" opacity="0"><use href="#flame" x="-40" y="-110" width="80" height="110" class="flame"/></g>
+        <text id="ztName" x="310" y="40" text-anchor="middle" font-size="18" font-weight="800" fill="#15212b">Papier</text>
+        <text id="ztTemp" x="310" y="68" text-anchor="middle" font-size="26" font-weight="800" fill="#c62828">20 °C</text>
+      </svg>
+      <div class="sim-ctrl"><label for="ztRange">Heizen</label><input type="range" id="ztRange" min="20" max="700" value="20" step="5"><span class="chip" id="ztChip">noch nicht entzündet</span></div>
+      <p class="obs" id="ztObs">Schiebe den Regler langsam nach rechts.</p>
+    </div>
+  </div>
+
+  <figure class="card reveal"><img class="zoomable" src="assets/verbrennung/zuendtemperatur.jpg" width="1500" height="1000" loading="lazy" decoding="async" alt="Zündtemperaturen: Streichholzkopf 60 bis 80 Grad, Papier etwa 250 Grad, Holzkohle 150 bis 250 Grad, Benzin 220 bis 300 Grad, Kerzenwachs etwa 250 Grad, trockenes Holz 250 bis 300 Grad, Butan etwa 400 Grad, Spiritus etwa 425 Grad, Erdgas etwa 600 Grad, Steinkohle 350 bis 600 Grad"><figcaption>Zündtemperaturen verschiedener Stoffe (Tippen zum Vergrößern)</figcaption></figure>
+
+  <div class="grid2">
+    <div class="card reveal">
+      <span class="task-tag">Ausprobieren</span>
+      <h3 style="margin-top:4px">Reibungswärme: Streichholz anreiben</h3>
+      <p>Streiche mehrmals schnell hintereinander über die Reibfläche. Jede Bewegung erzeugt Wärme. Erreicht der Kopf seine Zündtemperatur, flammt er auf.</p>
+      <div class="sim">
+        <svg viewBox="0 0 360 150" role="img" aria-label="Streichholz und Reibfläche einer Streichholzschachtel">
+          <rect width="360" height="150" fill="#f7fbfe"/>
+          <rect x="30" y="92" width="300" height="40" rx="6" fill="#c9a36b"/>
+          <rect x="30" y="92" width="300" height="12" fill="#6b4a2b"/>
+          <g id="match" transform="translate(120 80)">
+            <rect x="0" y="-3" width="130" height="7" rx="2" fill="#e8c88f" transform="rotate(-18)"/>
+            <ellipse id="matchHead" cx="-2" cy="1" rx="9" ry="7" fill="#b3261e"/>
+            <g id="matchFire" opacity="0"><use href="#flame" x="-18" y="-46" width="30" height="44" class="flame"/></g>
+          </g>
+          <g id="sparks" fill="#ffb300"></g>
+        </svg>
+        <div class="sim-ctrl"><button class="btn" id="rubBtn">↔️ Anreiben</button><span class="chip" id="rubChip">Kopf: 20 °C</span></div>
+      </div>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag">Versuch 2 · Wir untersuchen eine Kerzenflamme</span>
+      <h3 style="margin-top:4px">Was brennt bei der Kerze eigentlich?</h3>
+      <p>Lass die Kerze brennen und puste sie dann aus. Halte sofort ein brennendes Streichholz in die weißen Dämpfe.</p>
+      <div class="sim">
+        <svg viewBox="0 0 360 200" id="candleSvg" role="img" aria-label="Kerze. Nach dem Auspusten steigen weiße Dämpfe auf.">
+          <rect width="360" height="200" fill="#1f2d3a"/>
+          <rect x="160" y="120" width="40" height="80" rx="4" fill="#e56a3c"/>
+          <line x1="180" y1="120" x2="180" y2="108" stroke="#222" stroke-width="3"/>
+          <g id="cFlame" transform="translate(180 110)"><use href="#flame" x="-14" y="-50" width="28" height="50" class="flame"/></g>
+          <g id="cVapor" opacity="0"><path d="M180 106 C170 90 192 76 180 60 C168 44 190 30 180 12" stroke="#e8edf1" stroke-width="9" fill="none" stroke-linecap="round" opacity=".75"/></g>
+          <g id="cMatch" transform="translate(300 40)" opacity="0">
+            <rect x="0" y="-2" width="90" height="5" rx="2" fill="#e8c88f" transform="rotate(20)"/>
+            <use href="#flame" x="-10" y="-30" width="20" height="30" class="flame"/>
+          </g>
+          <circle id="cJump" r="7" fill="#ffd23f" opacity="0"/>
+        </svg>
+        <div class="sim-ctrl"><button class="btn small" id="blowBtn">💨 Auspusten</button><button class="btn small ghost" id="lightBtn" disabled>🔥 Streichholz in den Dampf</button></div>
+        <p class="obs" id="candleObs">Die Kerze brennt.</p>
+      </div>
+    </div>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Brennbare Stoffe entzünden sich erst, wenn sie ihre Zündtemperatur erreicht haben.</li><li>Jeder Stoff hat eine andere Zündtemperatur.</li></ul></div>
+  <div class="card reveal" id="mc-s3"></div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Buch S. 26 f. · Versuch 3 · Probenstoff</div><h2>Ohne Sauerstoff kein Feuer</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Ein Feuer braucht <strong>Sauerstoff</strong> zum Brennen.</p>
+      <p>Da der Sauerstoff in der Luft enthalten ist, spricht man im Alltag auch von der <strong>Luft</strong> als dritter Bedingung für ein Feuer.</p>
+      <p><strong>Je mehr Luft an den Brennstoff gelangt, desto besser brennt er.</strong> Bläst man Luft auf ein Feuer, lodern die Flammen hell auf, weil dadurch die Verbrennung gefördert wird.</p>
+      <figure><img class="zoomable" src="assets/verbrennung/kerzen-versuch.jpg" width="1400" height="933" loading="lazy" decoding="async" alt="Versuch 3 mit vier Kerzen in Glasrohren: a Rohr offen auf dem Tisch, b Rohr mit Glasscheibe verschlossen, c offenes Rohr auf zwei Bleistiften, d verschlossenes Rohr auf zwei Bleistiften"><figcaption>Versuch 3: Luft und Verbrennung (Tippen zum Vergrößern)</figcaption></figure>
+    </div>
+    <div class="sim reveal">
+      <svg viewBox="0 0 520 300" id="tubeSvg" role="img" aria-label="Vier Kerzen in Glasrohren, a bis d">
+        <rect width="520" height="300" fill="#f7fbfe"/>
+        <rect x="10" y="262" width="500" height="16" rx="3" fill="#6b7680"/>
+        <g id="tubes"></g>
+      </svg>
+      <div class="tubes-pred" id="tubePred"></div>
+      <div class="sim-ctrl"><button class="btn" id="tubeGo">▶ Versuch starten</button><button class="btn small ghost" id="tubeReset">↺ Neu</button><span class="chip" id="tubeTime">0 s</span></div>
+      <p class="obs" id="tubeObs">Überlege zuerst: Was passiert mit den Kerzen a–d? Tippe unter jedem Rohr deine Vermutung an und starte dann den Versuch.</p>
+    </div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag">Ausprobieren</span>
+    <h3 style="margin-top:4px">Ein Feuer wieder anfachen</h3>
+    <div class="grid2">
+      <div>
+        <p>Das Lagerfeuer glimmt nur noch. Mit einem <button class="term" data-t="blasebalg">Blasebalg</button> kannst du Luft hineinblasen. Tippe mehrmals schnell auf den Knopf und beobachte die Flammen.</p>
+        <p>Mit der Luft gelangt mehr Sauerstoff an den Brennstoff. Die Verbrennung wird <strong>gefördert</strong>, die Flammen lodern hell auf.</p>
+        <div class="fb" id="campFb"></div>
+      </div>
+      <div class="sim">
+        <svg viewBox="0 0 360 220" role="img" aria-label="Lagerfeuer mit Blasebalg">
+          <rect width="360" height="220" fill="#1f2d3a"/>
+          <ellipse cx="180" cy="196" rx="120" ry="16" fill="#2b3a47"/>
+          <g id="campFire" transform="translate(180 184)"><use href="#flame" x="-60" y="-140" width="120" height="140" class="flame"/></g>
+          <g transform="translate(180 190)">
+            <rect x="-80" y="-10" width="160" height="18" rx="8" fill="#7a4e2a" transform="rotate(12)"/>
+            <rect x="-80" y="-10" width="160" height="18" rx="8" fill="#8d5a31" transform="rotate(-12)"/>
+          </g>
+          <g id="glow" fill="#ff7a1a"><circle cx="160" cy="186" r="5"/><circle cx="190" cy="190" r="4"/><circle cx="205" cy="184" r="3"/><circle cx="172" cy="193" r="3"/></g>
+          <g id="bellows" transform="translate(40 150)">
+            <path d="M0 -18 L50 -6 L50 6 L0 18 Z" fill="#a0522d" stroke="#5a2d12" stroke-width="2"/>
+            <rect x="50" y="-4" width="26" height="8" fill="#6b7a86"/>
+          </g>
+          <g id="airPuffs" stroke="#9fd3ff" stroke-width="3" fill="none" stroke-linecap="round"></g>
+        </svg>
+        <div class="sim-ctrl"><button class="btn" id="blowCamp">💨 Luft hineinblasen</button><span class="chip" id="campChip">Feuer: glimmt</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Ein Feuer braucht Sauerstoff. Er ist in der Luft enthalten.</li><li>Je mehr Luft an den Brennstoff gelangt, desto besser brennt er.</li></ul></div>
+  <div class="card reveal" id="mc-s4"></div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Buch S. 26 f. · Versuch 4 · Probenstoff</div><h2>Warum Brennstoffe zerkleinert werden</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <span class="task-tag">Versuch 4</span>
+      <p><strong>Material:</strong> feuerfeste Unterlage, Tiegelzange, Spatel, Kerze, Streichhölzer, Holzklötzchen, Holzspäne, Holzmehl (Sägemehl), Holzkohle.</p>
+      <p><strong>Durchführung:</strong> Versuche, ein Holzklötzchen oder ein größeres Stück Holzkohle anzuzünden. Versuche es dann mit Holzspänen und Holzmehl. Halte auch ein ganz kleines Stück Holzkohle in die Flamme. Vergleiche.</p>
+      <p class="hint">Teste alle fünf Proben in der Kerzenflamme.</p>
+      <div class="pick" id="woodPick"></div>
+      <div class="res" id="woodRes"></div>
+    </div>
+    <div class="sim reveal">
+      <svg viewBox="0 0 480 300" id="woodSvg" role="img" aria-label="Kerzenflamme, in die verschiedene Holzproben gehalten werden">
+        <rect width="480" height="300" fill="#1f2d3a"/>
+        <rect x="170" y="200" width="44" height="100" rx="4" fill="#f4ecd8"/>
+        <line x1="192" y1="200" x2="192" y2="188" stroke="#222" stroke-width="3"/>
+        <g transform="translate(192 190)"><use href="#flame" x="-18" y="-64" width="36" height="64" class="flame"/></g>
+        <g id="woodObj"></g>
+        <g id="woodFire" opacity="0"><use href="#flame" class="flame"/></g>
+        <g id="woodSparks"></g>
+      </svg>
+      <div class="readout" style="padding-top:12px"><span class="chip" id="woodChip">Wähle eine Probe</span></div>
+      <p class="obs" id="woodObs">Welche Probe lässt sich am leichtesten entzünden?</p>
+    </div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag">Entdecke</span>
+    <h3 style="margin-top:4px">Zerkleinern vergrößert die Oberfläche</h3>
+    <div class="grid2">
+      <div>
+        <p><strong>Zerteilungsgrad.</strong> Eine Verbrennung ist umso heftiger, je <strong>feiner</strong> der Brennstoff vorliegt. Holzspäne brennen besser als ein Holzstück. Der noch feinere Holzstaub kann sogar <strong>explosionsartig</strong> verbrennen.</p>
+        <p>Der Grund: Der Sauerstoff kann nur an der <button class="term" data-t="oberflaeche">Oberfläche</button> mit dem Brennstoff reagieren. Zerschneidet man einen Holzwürfel, bleibt die Holzmenge gleich – aber die Oberfläche wird viel größer.</p>
+        <p class="hint">Schiebe den Regler und zerschneide den Würfel (Kantenlänge 4 cm).</p>
+      </div>
+      <div class="sim">
+        <svg viewBox="0 0 360 260" id="cubeSvg" role="img" aria-label="Ein Holzwürfel wird in immer kleinere Würfel zerschnitten"><rect width="360" height="260" fill="#f7fbfe"/><g id="cubes"></g></svg>
+        <div class="sim-ctrl"><label for="cubeRange">Schnitte</label><input type="range" id="cubeRange" min="1" max="4" value="1" step="1"><span class="chip" id="cubeN">1 Würfel</span></div>
+        <div class="readout"><span class="chip warn" id="cubeA">Oberfläche: 96 cm²</span><span class="chip ok" id="cubeF"></span></div>
+      </div>
+    </div>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Je feiner der Brennstoff vorliegt, desto heftiger verläuft die Verbrennung.</li><li>Fein zerteilte Stoffe haben eine große Oberfläche. Dort kann viel Sauerstoff gleichzeitig angreifen.</li></ul></div>
+  <div class="card reveal" id="mc-s5"></div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="s6">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Arbeitsblatt · so kommt es in der Probe</div><h2>Training für die Probe</h2></div></div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Arbeitsblatt · Aufgabe 1</span>
+    <h3 style="margin-top:4px">Löse das Kreuzworträtsel</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. <strong>Ü</strong> bekommt hier ein eigenes Kästchen, wie auf dem Arbeitsblatt. Schwarze Buchstaben sind vorgegeben.</p>
+    <div id="cw"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Arbeitsblatt · Aufgabe 2</span>
+    <h3 style="margin-top:4px">Welches sind die drei Voraussetzungen für ein Feuer?</h3>
+    <div class="tri-task" id="triTask">
+      <svg viewBox="0 0 340 300" role="img" aria-label="Leeres Feuerdreieck mit drei Feldern zum Beschriften">
+        <path d="M170 18 L326 282 L14 282 Z" fill="#e4e0dc" stroke="#33414d" stroke-width="2"/>
+        <path d="M170 92 L266 250 L74 250 Z" fill="#fff" stroke="#33414d" stroke-width="2"/>
+        <g id="triTaskFire" transform="translate(170 246)" opacity="0"><use href="#flame" x="-44" y="-130" width="88" height="130" class="flame"/></g>
+        <g class="tslot" data-i="0" transform="translate(104 158) rotate(-59.4)"><rect x="-80" y="-17" width="160" height="34" rx="8"/><text y="5" text-anchor="middle">?</text></g>
+        <g class="tslot" data-i="1" transform="translate(236 158) rotate(59.4)"><rect x="-80" y="-17" width="160" height="34" rx="8"/><text y="5" text-anchor="middle">?</text></g>
+        <g class="tslot" data-i="2" transform="translate(170 266)"><rect x="-80" y="-17" width="160" height="34" rx="8"/><text y="5" text-anchor="middle">?</text></g>
+      </svg>
+      <div>
+        <p class="hint">Tippe zuerst auf einen Begriff und dann auf ein Feld am Dreieck. Die Reihenfolge ist egal. Achtung: Drei Begriffe passen nicht.</p>
+        <div class="label-pool" id="triPool"></div>
+        <div class="row-btns"><button class="btn small" id="triCheck">Prüfen</button><button class="btn small ghost" id="triReset">Zurücksetzen</button></div>
+        <div class="fb" id="triFb"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Arbeitsblatt · Aufgabe 3</span>
+    <h3 style="margin-top:4px">Ergänze den Lückentext</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort.</p>
+    <div class="gaptext" id="gapAB"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag">Zuordnen</span>
+    <h3 style="margin-top:4px">Brennbar oder nicht? Fest, flüssig oder gasförmig?</h3>
+    <div id="sortStoffe"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag">Reihenfolge</span>
+    <h3 style="margin-top:4px">Ordne nach der Zündtemperatur – von niedrig nach hoch</h3>
+    <div id="orderZt"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag">Reihenfolge</span>
+    <h3 style="margin-top:4px">So zündest du ein Lagerfeuer an</h3>
+    <div id="orderCamp"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag">Richtig oder falsch?</span>
+    <div id="tf"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag">Ankreuzen</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Offene Fragen</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung. Danach kannst du die Musterlösung ansehen.</p>
+    <div id="open"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 7 ============ -->
+<section class="station" id="s7">
+  <div class="st-head reveal"><div class="st-num">7</div><div><div class="eyebrow">Abschluss</div><h2>Feuer-Profi-Check</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Im nächsten Modul geht es um <strong>Explosionen</strong>: Warum kann sogar Mehl explodieren – und wie schützt man sich?</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="windkraft-pro-contra.html">⬅️ Modul 3: Windkraft – pro und contra</a>
+      <a href="achtung-explosiv.html">➡️ Modul 5: Achtung, explosiv!</a>
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik 7M · Lernmodul „Luft und Verbrennung“ · Grundlage: Natur Plus 7/7M (Bayern), S. 26–27, und das Arbeitsblatt „Luft und Verbrennung“. Dein Fortschritt wird nur auf diesem Gerät gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="modul-basis.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, esc, shuffle, clamp, setText, reduced, onVisible, register, solve} = Modul;
+const NS = "http://www.w3.org/2000/svg";
+const svgEl = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+function flameUse(parent, w, h){ return svgEl("use", {href: "#flame", x: -w / 2, y: -h, width: w, height: h, class: "flame"}, parent); }
+// kleine Rauchwolke an einer Stelle aufsteigen lassen
+function puff(g, x, y, n){
+  for (let i = 0; i < (n || 3); i++) {
+    const c = svgEl("circle", {cx: x + (Math.random() - .5) * 14, cy: y, r: 6 + Math.random() * 5, class: "smoke"}, g);
+    setTimeout(() => c.classList.add("on"), i * 180);
+    setTimeout(() => c.remove(), 3200 + i * 180);
+  }
+}
+
+Modul.init({
+  key: "grumi-nt7-luft-verbrennung-v1",
+  thema: "Luft und Verbrennung: brennbare Stoffe, Feuerdreieck, Zündtemperatur, Sauerstoff und Zerteilungsgrad",
+  hero: "funken",
+  glossary: {
+    verbrennung: ["Verbrennung", "Ein Stoff reagiert mit Sauerstoff. Dabei werden Wärme und Licht frei."],
+    brennbar: ["brennbarer Stoff", "Stoff, der sich entzünden lässt und dann selbst weiterbrennt, z. B. Holz, Papier, Benzin oder Erdgas."],
+    brennstoff: ["Brennstoff", "Brennbarer Stoff, den man verbrennt, um Wärme zu erhalten, z. B. Holz, Kohle, Heizöl oder Erdgas."],
+    zuendtemperatur: ["Zündtemperatur", "Die Temperatur, die ein brennbarer Stoff mindestens erreichen muss, damit er sich entzündet. Jeder Stoff hat eine andere Zündtemperatur."],
+    sauerstoff: ["Sauerstoff", "Gas in der Luft (etwa 21 %). Ohne Sauerstoff kann nichts brennen."],
+    feuerdreieck: ["Feuerdreieck", "Bild für die drei Bedingungen eines Feuers: Brennstoff, Zündtemperatur und Sauerstoff. Fehlt eine Seite, geht das Feuer aus."],
+    reibungswaerme: ["Reibungswärme", "Wärme, die entsteht, wenn zwei Flächen aneinander reiben. Sie reicht aus, um einen Streichholzkopf zu entzünden."],
+    gasbrenner: ["Gasbrenner", "Gerät, in dem Gas mit Luft gemischt wird und in einer heißen Flamme verbrennt."],
+    aggregat: ["Aggregatzustand", "Die Form, in der ein Stoff vorliegt: fest, flüssig oder gasförmig."],
+    spiritus: ["Spiritus", "Leicht brennbare Flüssigkeit. Ihr Hauptbestandteil ist Alkohol."],
+    erdgas: ["Erdgas", "Brennbares Gas aus der Erde. Damit heizt und kocht man in vielen Gebäuden."],
+    butan: ["Propan und Butan", "Brennbare Gase. Sie stecken in Feuerzeugen und in Gaskartuschen fürs Camping."],
+    petroleum: ["Petroleum", "Flüssiger Brennstoff, der früher in Lampen verbrannt wurde."],
+    edelgase: ["Edelgase", "Gase wie Argon, Helium oder Neon. Sie reagieren kaum mit anderen Stoffen und sind nicht brennbar."],
+    blasebalg: ["Blasebalg", "Gerät, mit dem man einen kräftigen Luftstrom in ein Feuer blasen kann."],
+    anfachen: ["anfachen", "Ein Feuer stärker brennen lassen, z. B. indem man Luft hineinbläst."],
+    oberflaeche: ["Oberfläche", "Die ganze Außenfläche eines Körpers. Nur dort kann der Sauerstoff mit dem Brennstoff reagieren."],
+    zerteilungsgrad: ["Zerteilungsgrad", "Gibt an, wie fein ein Stoff zerkleinert ist: Holzklotz – Holzspäne – Holzmehl – Holzstaub."],
+    wachsdampf: ["Wachsdampf", "Die Flamme schmilzt das Wachs und lässt es verdampfen. Nicht der Docht, sondern der Wachsdampf brennt."]
+  }
+});
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Welcher Gegenstand brennt im Versuch 1?", o: ["der Holzspan", "der Glasstab", "der Eisennagel", "das Kieselsteinchen"], a: 0, e: "Holz ist ein brennbarer Stoff. Glas, Eisen und Stein brennen nicht."},
+    {q: "Welcher Stoff ist ein gasförmiger Brennstoff?", o: ["Erdgas", "Heizöl", "Kohle", "Sand"], a: 0, e: "Erdgas, Propan und Butan sind brennbare Gase."},
+    {q: "Welcher Stoff ist NICHT brennbar?", o: ["Wasser", "Spiritus", "Pappe", "Butan"], a: 0, e: "Glas, Keramik, Sand, Wasser und die Edelgase sind nicht brennbar."}
+  ],
+  s2: [
+    {q: "Welche drei Bedingungen braucht ein Feuer?", o: ["Brennstoff, Zündtemperatur, Sauerstoff", "Wasser, Wärme, Licht", "Holz, Wind, Sonne", "Stickstoff, Brennstoff, Kälte"], a: 0, e: "Das sind die drei Seiten des Feuerdreiecks."},
+    {q: "Was passiert, wenn eine Seite des Feuerdreiecks fehlt?", o: ["Das Feuer geht aus.", "Das Feuer brennt heller.", "Das Feuer wird kälter, brennt aber weiter.", "Nichts."], a: 0, e: "Nur wenn alle drei Bedingungen erfüllt sind, brennt es."},
+    {q: "Warum nennt man im Alltag oft die Luft als dritte Bedingung?", o: ["Weil die Luft den Sauerstoff enthält.", "Weil Luft selbst brennt.", "Weil Luft die Zündtemperatur senkt.", "Weil Luft ein Brennstoff ist."], a: 0, e: "Das Feuer braucht eigentlich den Sauerstoff – und der steckt in der Luft."}
+  ],
+  s3: [
+    {q: "Was ist die Zündtemperatur?", o: ["Die Temperatur, ab der sich ein brennbarer Stoff entzündet.", "Die Temperatur einer Flamme.", "Die höchste Temperatur beim Brennen.", "Die Temperatur, bei der ein Feuer ausgeht."], a: 0, e: "Erst ab der Zündtemperatur fängt ein Stoff an zu brennen."},
+    {q: "Bei wie viel Grad entzündet sich ein Streichholzkopf etwa?", o: ["60–80 °C", "250 °C", "600 °C", "1000 °C"], a: 0, e: "Darum reicht schon die Reibungswärme an der Schachtel."},
+    {q: "Welcher Stoff hat die höchste Zündtemperatur?", o: ["Erdgas (etwa 600 °C)", "Papier (etwa 250 °C)", "Streichholzkopf (60–80 °C)", "Benzin (220–300 °C)"], a: 0, e: "Erdgas braucht etwa 600 °C, um sich zu entzünden."},
+    {q: "Was brennt bei einer Kerze eigentlich?", o: ["der Wachsdampf", "nur der Docht", "die Luft", "das feste Wachs"], a: 0, e: "Die Flamme verdampft das Wachs. Der Wachsdampf brennt – das zeigt der Versuch mit den weißen Dämpfen."}
+  ],
+  s4: [
+    {q: "In welchem Rohr brennt die Kerze am besten weiter?", o: ["c: offenes Rohr auf zwei Bleistiften", "b: verschlossenes Rohr", "d: verschlossenes Rohr auf Bleistiften", "a: offenes Rohr auf dem Tisch"], a: 0, e: "Unten strömt frische Luft nach, oben ziehen die heißen Gase ab."},
+    {q: "Warum geht die Kerze im verschlossenen Rohr aus?", o: ["Der Sauerstoff wird verbraucht und es kommt keine frische Luft nach.", "Es wird zu warm.", "Die Glasscheibe ist zu schwer.", "Der Docht wird nass."], a: 0, e: "Ohne Sauerstoff keine Verbrennung."},
+    {q: "Wie kann man ein schlecht brennendes Feuer wieder anfachen?", o: ["Man bläst Luft hinein.", "Man legt eine Decke darüber.", "Man gießt Wasser darauf.", "Man nimmt das Holz weg."], a: 0, e: "Mit der Luft gelangt mehr Sauerstoff an den Brennstoff."}
+  ],
+  s5: [
+    {q: "Was brennt am heftigsten?", o: ["Holzmehl", "Holzspäne", "ein Holzklötzchen", "ein großes Stück Holzkohle"], a: 0, e: "Je feiner der Brennstoff, desto heftiger die Verbrennung."},
+    {q: "Warum brennen Holzspäne besser als ein Holzklotz?", o: ["Sie haben eine größere Oberfläche, an die Sauerstoff gelangt.", "Sie bestehen aus anderem Holz.", "Sie sind schwerer.", "Sie enthalten mehr Wasser."], a: 0, e: "Zerkleinern vergrößert die Oberfläche."},
+    {q: "Ein Würfel wird in 8 kleine Würfel zerschnitten. Was passiert mit der Oberfläche?", o: ["Sie verdoppelt sich.", "Sie bleibt gleich.", "Sie wird kleiner.", "Sie verschwindet."], a: 0, e: "Aus 96 cm² werden 192 cm² – die Holzmenge bleibt gleich."}
+  ],
+  train: [
+    {q: "Welche Stoffe sind brennbare Flüssigkeiten?", o: ["Benzin", "Spiritus", "Heizöl", "Wasser", "Sand"], a: [0, 1, 2], e: "Wasser und Sand sind nicht brennbar – Sand ist außerdem fest."},
+    {q: "Warum genügt beim Streichholz schon das Anreiben?", o: ["Die Reibungswärme erreicht die niedrige Zündtemperatur des Kopfes.", "Die Schachtel enthält Feuer.", "Das Streichholz braucht keinen Sauerstoff.", "Holz entzündet sich bei 20 °C."], a: 0, e: "Der Streichholzkopf entzündet sich schon bei etwa 60–80 °C."},
+    {q: "Welche Bedingungen gehören zum Feuerdreieck?", o: ["Sauerstoff", "Brennstoff", "Zündtemperatur", "Stickstoff", "Wasser"], a: [0, 1, 2], e: "Stickstoff und Wasser sind nicht brennbar."},
+    {q: "Warum kann Holzstaub gefährlich sein?", o: ["Er kann explosionsartig verbrennen.", "Er ist nicht brennbar.", "Er hat eine sehr kleine Oberfläche.", "Er braucht keinen Sauerstoff."], a: 0, e: "Sehr fein verteilt ist die Oberfläche riesig – mehr dazu in Modul 5."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Kurz-Check"});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s5"), MC.s5, "mc5", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Station 1: Brenntest ---------- */
+(function(){
+  const ITEMS = [
+    {n: "Glasstab", burn: false, glow: "#ffb74d", svg: '<rect x="-4" y="-5" width="70" height="10" rx="5" fill="#cfe8f5" stroke="#8fb3c9"/>', t: "Der Glasstab wird heiß und glüht an der Spitze orange. Er wird weich, aber er <b>brennt nicht</b>."},
+    {n: "Papierstückchen", burn: true, at: .25, svg: '<rect x="-24" y="-14" width="28" height="28" fill="#fff" stroke="#b9c6d1"/>', t: "Das Papier fängt sofort Feuer und <b>brennt</b> mit heller Flamme. Zurück bleibt Asche."},
+    {n: "Eisennagel", burn: false, glow: "#ff6d3a", svg: '<rect x="-2" y="-3" width="62" height="6" fill="#7d868d"/><rect x="58" y="-8" width="5" height="16" fill="#5b6770"/>', t: "Der Nagel glüht rot. Nimmt man ihn heraus, hört das Glühen auf. Eisen <b>brennt nicht</b>."},
+    {n: "Watte", burn: true, at: .15, svg: '<circle cx="-8" cy="0" r="14" fill="#fff" stroke="#dfe6eb"/><circle cx="4" cy="-4" r="10" fill="#fff" stroke="#dfe6eb"/>', t: "Die Watte <b>brennt</b> blitzschnell ab. Zwischen den feinen Fasern ist viel Luft."},
+    {n: "Holzspan", burn: true, at: .45, svg: '<rect x="-30" y="-4" width="92" height="8" rx="2" fill="#d9a766" stroke="#a87437"/>', t: "Der Holzspan braucht einen Moment, dann <b>brennt</b> er mit gelber Flamme weiter."},
+    {n: "Kieselsteinchen", burn: false, glow: null, svg: '<ellipse cx="-4" cy="0" rx="13" ry="10" fill="#9aa1a8" stroke="#6b7680"/>', t: "Der Kieselstein wird heiß, sonst passiert nichts. Stein <b>brennt nicht</b>."},
+    {n: "Kerzenwachs", burn: true, at: .6, svg: '<rect x="-20" y="-10" width="24" height="18" rx="3" fill="#f6f0dd" stroke="#d8cfb4"/>', t: "Das Wachs schmilzt und tropft. Dann entzündet sich der Wachsdampf: Das Wachs <b>brennt</b>."}
+  ];
+  const pick = $("#burnPick"), res = $("#burnRes"), tong = $("#tong"), obj = $("#obj"), fire = $("#objFlame"), obs = $("#burnObs"), chip = $("#burnChip"), cnt = $("#burnCount"), smoke = $("#burnSmoke");
+  const tested = new Set(); let cur = null, t0 = 0, run = false, vis = true;
+  register("brenntest");
+  pick.innerHTML = ITEMS.map((it, i) => `<button data-i="${i}">${it.n}</button>`).join("");
+  res.innerHTML = ITEMS.map(it => `<div>${it.n}: ?</div>`).join("");
+  $$("button", pick).forEach(b => b.addEventListener("click", () => {
+    $$("button", pick).forEach(x => x.classList.toggle("sel", x === b));
+    cur = ITEMS[+b.dataset.i]; cur.i = +b.dataset.i;
+    obj.innerHTML = cur.svg; fire.setAttribute("opacity", 0);
+    chip.textContent = cur.n + " wird getestet …"; chip.className = "chip";
+    obs.textContent = "Die Zange hält den Gegenstand in die Flamme …";
+    t0 = performance.now(); if (!run) { run = true; requestAnimationFrame(tick); }
+  }));
+  onVisible($("#burnSvg"), v => { vis = v; if (v && run) requestAnimationFrame(tick); });
+  function tick(now){
+    if (!cur || !vis) return;
+    const t = (now - t0) / 1000, p = clamp(t / .8, 0, 1);
+    const x = 470 - (470 - 262) * (reduced ? 1 : (1 - Math.pow(1 - p, 3)));
+    tong.setAttribute("transform", `translate(${x.toFixed(1)} 110)`);
+    const shape = obj.firstElementChild;
+    if (t > .8) {
+      const q = clamp((t - .8) / 1.6, 0, 1);
+      if (cur.burn && q >= cur.at) {
+        const f = clamp((q - cur.at) * 4, 0, 1);
+        fire.setAttribute("opacity", f.toFixed(2));
+        fire.setAttribute("transform", `scale(${(.6 + f * .6).toFixed(2)})`);
+        $$("*", obj).forEach(e => e.setAttribute("opacity", (1 - f * .5).toFixed(2)));
+      } else if (!cur.burn && cur.glow && shape) {
+        shape.setAttribute("fill", q > .5 ? cur.glow : shape.getAttribute("fill"));
+      }
+    }
+    if (t > 2.6) {
+      finish(); run = false; return;
+    }
+    requestAnimationFrame(tick);
+  }
+  function finish(){
+    obs.innerHTML = cur.t;
+    chip.textContent = cur.burn ? `🔥 ${cur.n}: brennt` : `🚫 ${cur.n}: brennt nicht`;
+    chip.className = "chip " + (cur.burn ? "warn" : "");
+    if (cur.burn) puff(smoke, 262, 60, 3);
+    tested.add(cur.i);
+    const d = res.children[cur.i]; d.className = cur.burn ? "yes" : "no"; d.textContent = `${cur.n}: ${cur.burn ? "brennt 🔥" : "brennt nicht"}`;
+    $$("button", pick)[cur.i].classList.add("done");
+    cnt.textContent = `${tested.size} / ${ITEMS.length} getestet`;
+    if (tested.size === ITEMS.length) { cnt.className = "chip ok"; solve("brenntest"); }
+  }
+})();
+
+/* ---------- Station 2: Feuerdreieck ---------- */
+(function(){
+  const sides = $$(".tri-side"), fire = $("#triFire"), chip = $("#triChip"), obs = $("#triObs"), cnt = $("#triCount"), smoke = $("#triSmoke");
+  const off = [false, false, false], tried = new Set();
+  const TXT = [
+    "Die <b>Zündtemperatur</b> fehlt: Der Brennstoff ist zu kalt. So löscht zum Beispiel Wasser – es kühlt das Feuer unter die Zündtemperatur.",
+    "Der <b>Sauerstoff</b> fehlt: Man legt zum Beispiel eine Löschdecke über das Feuer oder stülpt ein Glas über die Kerze. Das Feuer erstickt.",
+    "Der <b>Brennstoff</b> fehlt: Das Holz ist verbrannt oder man hat es weggenommen. Ohne brennbaren Stoff geht das Feuer aus."
+  ];
+  let level = 1, vis = true;
+  register("dreieck");
+  sides.forEach(s => {
+    const act = () => {
+      const i = +s.dataset.s; off[i] = !off[i]; s.classList.toggle("off", off[i]);
+      if (off[i]) { tried.add(i); obs.innerHTML = TXT[i]; puff(smoke, 180, 110, 4); }
+      else obs.innerHTML = off.some(Boolean) ? "Es fehlt immer noch eine Bedingung – das Feuer bleibt aus." : "Alle drei Bedingungen sind wieder erfüllt. Mit einem Streichholz entzündet, brennt das Feuer wieder.";
+      const burning = !off.some(Boolean);
+      chip.textContent = burning ? "🔥 Das Feuer brennt" : "💨 Das Feuer ist aus"; chip.className = "chip " + (burning ? "ok" : "bad");
+      cnt.textContent = `${tried.size} / 3 Seiten ausprobiert`;
+      if (tried.size === 3) { cnt.className = "chip ok"; solve("dreieck"); }
+    };
+    s.addEventListener("click", act);
+    s.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(); } });
+  });
+  onVisible($("#triSvg"), v => { vis = v; if (v) requestAnimationFrame(tick); });
+  function tick(){
+    if (!vis) return;
+    const target = off.some(Boolean) ? 0 : 1;
+    level += (target - level) * .06;
+    fire.setAttribute("transform", `translate(180 222) scale(${Math.max(.001, level).toFixed(3)})`);
+    fire.setAttribute("opacity", clamp(level * 1.4, 0, 1).toFixed(2));
+    requestAnimationFrame(tick);
+  }
+})();
+
+/* ---------- Station 3: Zündtemperatur ---------- */
+(function(){
+  const STOFFE = [
+    {n: "Streichholzkopf", i: "🔴", z: 60, s: "60–80 °C"}, {n: "Papier", i: "📄", z: 250, s: "etwa 250 °C"}, {n: "Holzkohle", i: "⚫", z: 150, s: "150–250 °C"},
+    {n: "Benzin", i: "⛽", z: 220, s: "220–300 °C"}, {n: "Kerzenwachs", i: "🕯️", z: 250, s: "etwa 250 °C"}, {n: "trockenes Holz", i: "🌲", z: 250, s: "250–300 °C"},
+    {n: "Butan (Feuerzeug)", i: "💨", z: 400, s: "etwa 400 °C"}, {n: "Spiritus", i: "🧴", z: 425, s: "etwa 425 °C"}, {n: "Erdgas", i: "🔵", z: 600, s: "etwa 600 °C"}, {n: "Steinkohle", i: "⬛", z: 350, s: "350–600 °C"}
+  ];
+  const pick = $("#ztPick"), range = $("#ztRange"), merc = $("#ztMerc"), mark = $("#ztMark"), fire = $("#ztFire"), chip = $("#ztChip"), obs = $("#ztObs"), plate = $("#ztPlate"), heat = $("#ztHeat");
+  const Y = T => 230 - (T - 0) / 700 * 196;   // Thermometerskala 0–700 °C
+  const sc = $("#ztScale"); for (let T = 0; T <= 700; T += 100) { svgEl("line", {x1: 66, x2: 74, y1: Y(T), y2: Y(T), stroke: "#9aa5ad"}, sc); svgEl("text", {x: 78, y: Y(T) + 4}, sc).textContent = T + " °C"; }
+  const found = new Set(); let cur = STOFFE[1], lit = false;
+  register("zuendtemp");
+  pick.innerHTML = STOFFE.map((s, i) => `<button data-i="${i}" class="${i === 1 ? "sel" : ""}">${s.i} ${s.n}</button>`).join("");
+  $$("button", pick).forEach(b => b.addEventListener("click", () => {
+    $$("button", pick).forEach(x => x.classList.toggle("sel", x === b));
+    cur = STOFFE[+b.dataset.i]; range.value = 20; lit = false; update();
+    obs.textContent = "Schiebe den Regler langsam nach rechts.";
+  }));
+  function update(){
+    const T = +range.value;
+    merc.setAttribute("y", Y(T)); merc.setAttribute("height", 240 - Y(T));
+    setText($("#ztTemp"), T + " °C"); setText($("#ztName"), cur.n); setText($("#ztIcon"), cur.i);
+    plate.setAttribute("fill", T > 300 ? "#e0453a" : T > 150 ? "#b86a52" : "#8a949c");
+    heat.setAttribute("opacity", clamp((T - 60) / 200, 0, 1).toFixed(2));
+    if (T >= cur.z && !lit) {
+      lit = true; found.add(cur.n);
+      $$("button", pick)[STOFFE.indexOf(cur)].classList.add("done");
+      obs.innerHTML = `<b>${cur.n}</b> entzündet sich! Die Zündtemperatur liegt bei <b>${cur.s}</b>. ${found.size < 4 ? `Noch ${4 - found.size} Stoff(e) entdecken.` : "Vergleiche mit der Tabelle unten."}`;
+      if (found.size >= 4) solve("zuendtemp");
+    }
+    if (T < cur.z) lit = false;
+    fire.setAttribute("opacity", lit ? 1 : 0);
+    mark.setAttribute("opacity", found.has(cur.n) ? 1 : 0); mark.setAttribute("y1", Y(cur.z)); mark.setAttribute("y2", Y(cur.z));
+    chip.textContent = lit ? `🔥 brennt (ab ${cur.s})` : found.has(cur.n) ? `Zündtemperatur: ${cur.s}` : "noch nicht entzündet";
+    chip.className = "chip " + (lit ? "warn" : "");
+  }
+  range.addEventListener("input", update); update();
+})();
+
+/* ---------- Station 3: Streichholz anreiben ---------- */
+(function(){
+  const btn = $("#rubBtn"), chip = $("#rubChip"), head = $("#matchHead"), fire = $("#matchFire"), match = $("#match"), sparks = $("#sparks");
+  let T = 20, lit = false, last = performance.now(), dir = 1;
+  register("streichholz");
+  btn.addEventListener("click", () => {
+    if (lit) { lit = false; T = 20; fire.setAttribute("opacity", 0); head.setAttribute("fill", "#b3261e"); btn.textContent = "↔️ Anreiben"; draw(); return; }
+    T += 13; dir = -dir;
+    match.setAttribute("transform", `translate(${120 + dir * 40} 80)`);
+    for (let i = 0; i < 3; i++) { const s = svgEl("circle", {cx: 120 + dir * 40, cy: 92, r: 2}, sparks); s.animate && s.animate([{transform: "translate(0,0)", opacity: 1}, {transform: `translate(${(Math.random() - .5) * 40}px,${-10 - Math.random() * 20}px)`, opacity: 0}], {duration: 500}); setTimeout(() => s.remove(), 500); }
+    if (T >= 65) { lit = true; fire.setAttribute("opacity", 1); head.setAttribute("fill", "#3a2a22"); btn.textContent = "↺ Neues Streichholz"; solve("streichholz"); }
+    draw();
+  });
+  function draw(){ chip.textContent = lit ? "🔥 Entzündet! (Zündtemperatur 60–80 °C erreicht)" : `Kopf: ${Math.round(T)} °C`; chip.className = "chip " + (lit ? "warn" : ""); }
+  // der Kopf kühlt langsam wieder ab
+  setInterval(() => { const now = performance.now(); if (!lit && T > 20) { T = Math.max(20, T - (now - last) / 1000 * 9); draw(); } last = now; }, 250);
+})();
+
+/* ---------- Station 3: Kerzenflamme (Versuch 2a) ---------- */
+(function(){
+  const blow = $("#blowBtn"), light = $("#lightBtn"), fl = $("#cFlame"), vap = $("#cVapor"), m = $("#cMatch"), jump = $("#cJump"), obs = $("#candleObs");
+  register("kerzendampf");
+  blow.addEventListener("click", () => {
+    fl.setAttribute("opacity", 0); vap.setAttribute("opacity", 1); light.disabled = false; blow.disabled = true;
+    obs.textContent = "Die Kerze ist aus. Aus dem Docht steigen weiße Dämpfe auf – schnell, halte das Streichholz hinein!";
+  });
+  light.addEventListener("click", () => {
+    light.disabled = true; m.setAttribute("opacity", 1);
+    m.animate && m.animate([{transform: "translate(300px,40px)"}, {transform: "translate(186px,20px)"}], {duration: reduced ? 1 : 500, fill: "forwards"});
+    setTimeout(() => {
+      jump.setAttribute("opacity", 1);
+      const a = jump.animate ? jump.animate([{transform: "translate(180px,14px)"}, {transform: "translate(186px,50px)"}, {transform: "translate(176px,80px)"}, {transform: "translate(180px,106px)"}], {duration: reduced ? 1 : 700, fill: "forwards"}) : null;
+      const done = () => { jump.setAttribute("opacity", 0); vap.setAttribute("opacity", 0); fl.setAttribute("opacity", 1); m.setAttribute("opacity", 0); blow.disabled = false;
+        obs.innerHTML = "Die Flamme springt am Dampf entlang bis zum Docht – die Kerze brennt wieder! Die weißen Dämpfe sind <b>Wachsdampf</b>. Nicht der Docht brennt, sondern das gasförmige Wachs.";
+        solve("kerzendampf"); };
+      if (a) a.onfinish = done; else done();
+    }, reduced ? 10 : 550);
+  });
+})();
+
+/* ---------- Station 4: Versuch mit vier Kerzen ---------- */
+(function(){
+  const TUBES = [
+    {k: "a", x: 70, raised: false, lid: false, out: 9, res: "geht nach einiger Zeit aus", txt: "<b>a)</b> Die Kerze flackert und wird kleiner. Frische Luft kann nur schwer von oben nachströmen, weil dort die heißen Abgase aufsteigen. Nach einiger Zeit geht sie aus."},
+    {k: "b", x: 195, raised: false, lid: true, out: 3.5, res: "geht aus", txt: "<b>b)</b> Das Rohr ist verschlossen. Der Sauerstoff wird verbraucht, es kommt keine Luft nach: Die Kerze geht schnell aus."},
+    {k: "c", x: 320, raised: true, lid: false, out: 0, res: "brennt weiter", txt: "<b>c)</b> Unten strömt frische Luft durch den Spalt nach, oben ziehen die heißen Gase ab – wie bei einem Kamin. Die Kerze brennt gut weiter."},
+    {k: "d", x: 445, raised: true, lid: true, out: 4.5, res: "geht aus", txt: "<b>d)</b> Oben ist das Rohr verschlossen. Die heißen Gase können nicht abziehen, deshalb strömt auch unten kaum Luft nach. Die Kerze geht aus."}
+  ];
+  const g = $("#tubes"), pred = $("#tubePred"), obs = $("#tubeObs"), time = $("#tubeTime"), go = $("#tubeGo");
+  const guess = [null, null, null, null];
+  register("kerzenrohre");
+  TUBES.forEach((tb, i) => {
+    const G = svgEl("g", {}, g), bottom = tb.raised ? 246 : 262, top = 70;
+    // Kerze
+    svgEl("rect", {x: tb.x - 11, y: 212, width: 22, height: 50, rx: 3, fill: "#e8845a"}, G);
+    svgEl("line", {x1: tb.x, y1: 212, x2: tb.x, y2: 204, stroke: "#222", "stroke-width": 2.5}, G);
+    tb.fl = svgEl("g", {transform: `translate(${tb.x} 206)`}, G); flameUse(tb.fl, 22, 40);
+    tb.smoke = svgEl("g", {fill: "#9aa5ad"}, G);
+    // Rohr
+    svgEl("rect", {x: tb.x - 34, y: top, width: 68, height: bottom - top, rx: 4, fill: "#cfe8f5", "fill-opacity": .35, stroke: "#8fb3c9", "stroke-width": 2}, G);
+    if (tb.lid) svgEl("rect", {x: tb.x - 42, y: top - 8, width: 84, height: 8, rx: 2, fill: "#b9dcef", stroke: "#8fb3c9"}, G);
+    if (tb.raised) { svgEl("circle", {cx: tb.x - 32, cy: 254, r: 7, fill: "#e0b35a", stroke: "#8a6a2a"}, G); svgEl("circle", {cx: tb.x + 32, cy: 254, r: 7, fill: "#e0b35a", stroke: "#8a6a2a"}, G); }
+    svgEl("text", {x: tb.x - 50, y: 250, "font-size": 18, "font-weight": 800, fill: "#15212b"}, G).textContent = tb.k;
+    tb.air = svgEl("g", {stroke: "#0d77c2", "stroke-width": 2.5, fill: "none", "stroke-linecap": "round", opacity: 0}, G);
+    if (tb.k === "c") {
+      svgEl("path", {d: `M${tb.x - 64} 250 L${tb.x - 20} 250 M${tb.x - 26} 245 L${tb.x - 20} 250 L${tb.x - 26} 255`}, tb.air);
+      svgEl("path", {d: `M${tb.x + 64} 250 L${tb.x + 20} 250 M${tb.x + 26} 245 L${tb.x + 20} 250 L${tb.x + 26} 255`}, tb.air);
+      svgEl("path", {d: `M${tb.x} 64 L${tb.x} 34 M${tb.x - 6} 40 L${tb.x} 34 L${tb.x + 6} 40`, stroke: "#e0453a"}, tb.air);
+    }
+    pred.insertAdjacentHTML("beforeend", `<div><b>${tb.k}</b><button data-t="${i}" data-v="brennt weiter">brennt weiter</button><button data-t="${i}" data-v="geht aus">geht aus</button></div>`);
+  });
+  $$("button", pred).forEach(b => b.addEventListener("click", () => {
+    if (running) return;
+    const i = +b.dataset.t; guess[i] = b.dataset.v;
+    $$(`button[data-t="${i}"]`, pred).forEach(x => x.className = x === b ? "sel" : "");
+  }));
+  let running = false, t0 = 0, vis = true;
+  go.addEventListener("click", () => {
+    if (guess.includes(null)) { obs.textContent = "Tippe zuerst für jede Kerze a–d deine Vermutung an."; return; }
+    reset(true); running = true; go.disabled = true; t0 = performance.now(); obs.textContent = "Der Versuch läuft … beobachte die Flammen.";
+    requestAnimationFrame(tick);
+  });
+  $("#tubeReset").addEventListener("click", () => reset(false));
+  function reset(keep){
+    running = false; go.disabled = false; time.textContent = "0 s";
+    TUBES.forEach(tb => { tb.dead = false; tb.fl.setAttribute("opacity", 1); tb.fl.setAttribute("transform", `translate(${tb.x} 206)`); tb.air.setAttribute("opacity", 0); });
+    if (!keep) { guess.fill(null); $$("button", pred).forEach(x => x.className = ""); obs.textContent = "Überlege zuerst: Was passiert mit den Kerzen a–d? Tippe unter jedem Rohr deine Vermutung an und starte dann den Versuch."; }
+  }
+  onVisible($("#tubeSvg"), v => { vis = v; if (v && running) requestAnimationFrame(tick); });
+  function tick(now){
+    if (!running || !vis) return;
+    const t = (now - t0) / 1000 * (reduced ? 4 : 1);
+    time.textContent = Math.min(12, Math.floor(t)) + " s";
+    TUBES.forEach(tb => {
+      if (tb.dead) return;
+      let s = 1;
+      if (tb.out) {
+        s = clamp(1 - t / tb.out, 0, 1);
+        if (tb.k === "a") s = clamp(1 - Math.pow(t / tb.out, 2), 0, 1) * (.85 + Math.sin(t * 17) * .15);
+        if (s <= .02) { tb.dead = true; tb.fl.setAttribute("opacity", 0); puff(tb.smoke, tb.x, 196, 3); return; }
+      } else { tb.air.setAttribute("opacity", .5 + .5 * Math.sin(t * 4)); s = 1.15; }
+      tb.fl.setAttribute("transform", `translate(${tb.x} 206) scale(${(.3 + s * .7).toFixed(2)})`);
+    });
+    if (t < 12) { requestAnimationFrame(tick); return; }
+    running = false; go.disabled = false;
+    let ok = 0;
+    TUBES.forEach((tb, i) => {
+      const right = (tb.res === "brennt weiter") === (guess[i] === "brennt weiter");
+      if (right) ok++;
+      $$(`button[data-t="${i}"]`, pred).forEach(x => { if (x.classList.contains("sel")) x.className = right ? "right" : "wrong"; });
+    });
+    obs.innerHTML = TUBES.map(tb => tb.txt).join("<br>") + `<br><b>${ok} von 4 Vermutungen richtig.</b>${ok === 4 ? " 🎉" : " Tippe auf „Neu“ und versuche es noch einmal."}`;
+    if (ok === 4) solve("kerzenrohre");
+  }
+})();
+
+/* ---------- Station 4: Lagerfeuer anfachen ---------- */
+(function(){
+  const btn = $("#blowCamp"), fire = $("#campFire"), glow = $("#glow"), chip = $("#campChip"), puffs = $("#airPuffs"), fb = $("#campFb");
+  let air = 0, lvl = .25, vis = true, max = 0;
+  register("anfachen");
+  btn.addEventListener("click", () => {
+    air = Math.min(1, air + .22);
+    const p = svgEl("path", {d: "M120 150 q10 -6 20 0 q10 6 20 0"}, puffs);
+    p.animate && p.animate([{transform: "translate(0,0)", opacity: 1}, {transform: "translate(50px,20px)", opacity: 0}], {duration: 600});
+    setTimeout(() => p.remove(), 600);
+  });
+  onVisible(fire.ownerSVGElement, v => { vis = v; if (v) requestAnimationFrame(tick); });
+  function tick(){
+    if (!vis) return;
+    air = Math.max(0, air - .004);
+    lvl += ((.25 + air * .95) - lvl) * .05;
+    fire.setAttribute("transform", `translate(180 184) scale(${lvl.toFixed(3)})`);
+    glow.setAttribute("fill", lvl > .7 ? "#ffd23f" : lvl > .45 ? "#ffa31a" : "#ff7a1a");
+    const txt = lvl > .85 ? "Feuer: lodert hell auf! 🔥" : lvl > .5 ? "Feuer: brennt besser" : "Feuer: glimmt";
+    setText(chip, txt); chip.className = "chip " + (lvl > .85 ? "ok" : lvl > .5 ? "warn" : "");
+    if (lvl > .85 && max < 1) { max = 1; fb.className = "fb show ok"; fb.textContent = "✅ Genau! Mit der Luft kommt mehr Sauerstoff an das Holz. Die Verbrennung wird gefördert."; solve("anfachen"); }
+    requestAnimationFrame(tick);
+  }
+})();
+
+/* ---------- Station 5: Versuch 4 (Holzproben) ---------- */
+(function(){
+  const PROBEN = [
+    {n: "Holzklötzchen", r: "no", svg: '<rect x="-30" y="-22" width="60" height="44" rx="3" fill="#c98d4b" stroke="#8a5a26" stroke-width="2"/>', t: "Das Holzklötzchen wird an einer Stelle schwarz (verkohlt). Es <b>entzündet sich nicht</b>: Das dicke Holz leitet die Wärme weg und nur wenig Oberfläche ist an der Luft."},
+    {n: "großes Stück Holzkohle", r: "no", svg: '<path d="M-30 -18 L22 -24 L32 10 L-4 24 L-32 12Z" fill="#2b2b2b" stroke="#111"/>', t: "Das große Stück Holzkohle glüht höchstens an einer kleinen Stelle. Es lässt sich mit der Kerze <b>nicht anzünden</b>."},
+    {n: "kleines Stück Holzkohle", r: "glow", svg: '<path d="M-10 -7 L8 -9 L12 4 L-2 9 L-12 5Z" fill="#2b2b2b" stroke="#111"/>', t: "Das kleine Stück Holzkohle beginnt zu <b>glühen</b> und glimmt weiter, auch wenn man es aus der Flamme nimmt."},
+    {n: "Holzspäne", r: "yes", svg: '<g fill="none" stroke="#d9a766" stroke-width="4" stroke-linecap="round"><path d="M-28 -6 q14 -10 28 0 q14 10 28 0"/><path d="M-24 6 q12 -8 24 0 q12 8 24 0"/></g>', t: "Die Holzspäne <b>brennen</b> schnell mit heller Flamme."},
+    {n: "Holzmehl (Sägemehl)", r: "flash", svg: '<rect x="-4" y="-2" width="80" height="4" fill="#9aa5ad"/><ellipse cx="-2" cy="-4" rx="14" ry="5" fill="#e6c48f"/>', t: "Das Holzmehl wird in die Flamme gestreut. Es <b>verbrennt blitzartig</b> mit einer hellen, fauchenden Stichflamme. Je feiner der Brennstoff, desto heftiger die Verbrennung!"}
+  ];
+  const pick = $("#woodPick"), res = $("#woodRes"), obj = $("#woodObj"), fire = $("#woodFire"), sparks = $("#woodSparks"), chip = $("#woodChip"), obs = $("#woodObs");
+  const done = new Set(); let timer = null;
+  register("holzproben");
+  pick.innerHTML = PROBEN.map((p, i) => `<button data-i="${i}">${p.n}</button>`).join("");
+  res.innerHTML = PROBEN.map(p => `<div>${p.n}: ?</div>`).join("");
+  $$("button", pick).forEach(b => b.addEventListener("click", () => {
+    clearTimeout(timer);
+    $$("button", pick).forEach(x => x.classList.toggle("sel", x === b));
+    const i = +b.dataset.i, p = PROBEN[i];
+    obj.innerHTML = `<g transform="translate(192 118)">${p.svg}</g>`; fire.setAttribute("opacity", 0); sparks.innerHTML = "";
+    obs.textContent = "Die Probe wird in die Flamme gehalten …"; chip.textContent = p.n; chip.className = "chip";
+    timer = setTimeout(() => {
+      const shape = obj.querySelector("g").firstElementChild;
+      if (p.r === "no") { const s = svgEl("ellipse", {cx: 192, cy: 136, rx: 12, ry: 6, fill: "#1a1a1a", opacity: .8}, obj); if (i === 1) s.setAttribute("fill", "#ff5a1a"); }
+      if (p.r === "glow") shape.setAttribute("fill", "#ff5a1a");
+      if (p.r === "yes") { fire.setAttribute("opacity", 1); fire.setAttribute("transform", "translate(192 112)"); const u = fire.firstElementChild; u.setAttribute("x", -30); u.setAttribute("y", -80); u.setAttribute("width", 60); u.setAttribute("height", 80); }
+      if (p.r === "flash") {
+        for (let k = 0; k < 40; k++) {
+          const c = svgEl("circle", {cx: 192, cy: 118, r: 2 + Math.random() * 3, fill: ["#ffd23f", "#ff9f1a", "#fff3a6"][k % 3]}, sparks);
+          const dx = (Math.random() - .5) * 220, dy = -40 - Math.random() * 120;
+          c.animate && c.animate([{transform: "translate(0,0)", opacity: 1}, {transform: `translate(${dx}px,${dy}px)`, opacity: 0}], {duration: reduced ? 1 : 700 + Math.random() * 500, fill: "forwards"});
+        }
+        const big = svgEl("circle", {cx: 192, cy: 100, r: 70, fill: "#ffcf4d", opacity: .7}, sparks);
+        big.style.transformBox = "fill-box"; big.style.transformOrigin = "50% 50%";
+        big.animate && big.animate([{opacity: .85, transform: "scale(.4)"}, {opacity: 0, transform: "scale(1.3)"}], {duration: reduced ? 1 : 700, fill: "forwards"});
+        obj.innerHTML = "";
+      }
+      obs.innerHTML = p.t;
+      const lab = {no: "entzündet sich nicht", glow: "glüht / glimmt", yes: "brennt 🔥", flash: "blitzartig! ⚡🔥"}[p.r];
+      chip.textContent = `${p.n}: ${lab}`; chip.className = "chip " + (p.r === "no" ? "" : "warn");
+      done.add(i); b.classList.add("done");
+      const d = res.children[i]; d.className = p.r === "no" ? "no" : "yes"; d.textContent = `${p.n}: ${lab}`;
+      if (done.size === PROBEN.length) solve("holzproben");
+    }, reduced ? 50 : 1400);
+  }));
+})();
+
+/* ---------- Station 5: Würfel zerschneiden ---------- */
+(function(){
+  const range = $("#cubeRange"), g = $("#cubes");
+  register("wuerfel");
+  function draw(){
+    const n = +range.value, S = 110, a = S / n, gap = n > 1 ? 8 : 0, cx = 180, cy = 34;
+    g.innerHTML = "";
+    const cos = Math.cos(Math.PI / 6), sin = .5;
+    const iso = (x, y, z) => [cx + (x - y) * cos * .78, cy + (x + y) * sin * .78 + z];
+    const cubes = [];
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) for (let k = 0; k < n; k++) cubes.push([i, j, k]);
+    // von hinten nach vorne und von unten nach oben zeichnen
+    cubes.sort((p, q) => (p[0] + p[1]) - (q[0] + q[1]) || p[2] - q[2]);
+    cubes.forEach(([i, j, k]) => {
+      const x = i * (a + gap), y = j * (a + gap), z = (n - 1 - k) * (a + gap) * .78 + 20;
+      const P = (dx, dy, dz) => iso(x + dx, y + dy, 0).map((v, m) => m ? v + z - dz * .78 : v);
+      const t = [P(0, 0, a), P(a, 0, a), P(a, a, a), P(0, a, a)], l = [P(0, a, a), P(a, a, a), P(a, a, 0), P(0, a, 0)], r = [P(a, 0, a), P(a, a, a), P(a, a, 0), P(a, 0, 0)];
+      const pg = (pts, fill) => svgEl("polygon", {points: pts.map(p => p.map(v => v.toFixed(1)).join(",")).join(" "), fill, stroke: "#8a5a26", "stroke-width": 1}, g);
+      pg(t, "#f0c68e"); pg(l, "#d9a766"); pg(r, "#c28a4a");
+    });
+    const N = n * n * n, A = 96 * n;
+    $("#cubeN").textContent = N === 1 ? "1 Würfel" : `${N} Würfel`;
+    $("#cubeA").textContent = `Oberfläche: ${A} cm²`;
+    $("#cubeF").textContent = n > 1 ? `${n}-mal so viel Oberfläche – gleich viel Holz` : "Kantenlänge 4 cm";
+    if (n === 4) solve("wuerfel");
+  }
+  range.addEventListener("input", draw); draw();
+})();
+
+/* ---------- Training: Arbeitsblatt Aufgabe 1 (Kreuzworträtsel wie auf dem AB) ---------- */
+Modul.makeCrossword($("#cw"), {
+  umlaut: true,
+  words: [
+    {num: 1, w: "SAUERSTOFF", r: 0, c: 12, d: "d", q: "Eine Voraussetzung für Verbrennung."},
+    {num: 2, w: "BRENNSTOFF", r: 1, c: 9, d: "d", q: "Ohne den brennt nichts."},
+    {num: 3, w: "ZÜNDTEMPERATUR", r: 2, c: 0, d: "a", q: "Erst ab dieser Temperatur brennt etwas."},
+    {num: 4, w: "BENZIN", r: 0, c: 2, d: "d", q: "Dieser flüssige Brennstoff treibt Autos an."},
+    {num: 5, w: "ERDGAS", r: 4, c: 11, d: "a", q: "Dieses Gas heizt viele Gebäude."},
+    {num: 6, w: "HOLZ", r: 7, c: 4, d: "d", q: "Fester Brennstoff etwa für Kachelöfen."},
+    {num: 7, w: "KOHLE", r: 8, c: 3, d: "a", q: "Dieser feste Brennstoff ist ganz schwarz."},
+    {num: 8, w: "PETROLEUM", r: 2, c: 7, d: "d", q: "Dieser flüssige Brennstoff ist in alten Lampen zu finden."},
+    {num: 9, w: "BUTAN", r: 4, c: 5, d: "a", q: "Gaskartuschen für Camping enthalten …"},
+    {num: 10, w: "ALKOHOL", r: 4, c: 15, d: "d", q: "Brennbare Flüssigkeit, Hauptbestandteil in Brennspiritus."}
+  ],
+  pre: ["2,13", "5,2", "6,7", "8,9", "6,15", "10,7"]
+}, "kreuz");
+
+/* ---------- Training: Arbeitsblatt Aufgabe 2 (Feuerdreieck beschriften) ---------- */
+(function(){
+  const box = $("#triTask"), pool = $("#triPool"), slots = $$(".tslot", box), fb = $("#triFb"), fire = $("#triTaskFire");
+  const RIGHT = ["Sauerstoff", "Brennstoff", "Zündtemperatur"];
+  let picked = null;
+  register("dreieckAB");
+  const toks = shuffle(RIGHT.concat(["Wasser", "Kohlenstoffdioxid", "Stickstoff"])).map(w => { const t = document.createElement("button"); t.className = "tok"; t.textContent = w; pool.appendChild(t); return t; });
+  const mark = on => slots.forEach(s => s.classList.toggle("target", on && !s.dataset.v));
+  function empty(s){ const t = toks.find(t => t.dataset.slot === s.dataset.i); if (t) { t.hidden = false; delete t.dataset.slot; } delete s.dataset.v; $("text", s).textContent = "?"; s.classList.remove("filled", "right", "wrong"); fire.setAttribute("opacity", 0); }
+  toks.forEach(t => t.addEventListener("click", () => {
+    if (picked === t) { t.classList.remove("picked"); picked = null; mark(false); return; }
+    if (picked) picked.classList.remove("picked");
+    picked = t; t.classList.add("picked"); mark(true);
+  }));
+  slots.forEach(s => s.addEventListener("click", () => {
+    if (!picked) { if (s.dataset.v) empty(s); return; }
+    if (s.dataset.v) empty(s);
+    s.dataset.v = picked.textContent; $("text", s).textContent = picked.textContent; s.classList.add("filled");
+    picked.hidden = true; picked.dataset.slot = s.dataset.i; picked.classList.remove("picked"); picked = null; mark(false); fb.className = "fb";
+  }));
+  $("#triCheck").addEventListener("click", () => {
+    let ok = 0; const seen = new Set();
+    slots.forEach(s => { const r = RIGHT.includes(s.dataset.v) && !seen.has(s.dataset.v); if (r) seen.add(s.dataset.v); s.classList.toggle("right", r); s.classList.toggle("wrong", !!s.dataset.v && !r); if (r) ok++; });
+    fb.className = "fb show " + (ok === 3 ? "ok" : "bad");
+    fb.textContent = ok === 3 ? "✅ Richtig! Sauerstoff, Brennstoff und Zündtemperatur – das Feuer brennt." : `${ok} von 3 richtig. Tippe auf ein rotes Feld, um es zu leeren.`;
+    if (ok === 3) { fire.setAttribute("opacity", 1); solve("dreieckAB"); Modul.confetti(); }
+  });
+  $("#triReset").addEventListener("click", () => { slots.forEach(empty); fb.className = "fb"; });
+})();
+
+/* ---------- Training: Arbeitsblatt Aufgabe 3 (Lückentext) ---------- */
+Modul.makeGap($("#gapAB"), [
+  [{g: "Brennbare"}, " Stoffe entzünden sich nur dann, wenn sie eine bestimmte Temperatur erreicht haben, die ", {g: "Zündtemperatur"}, ". Je mehr ", {g: "Luft"}, " an den brennbaren ", {g: "Stoff"}, " gelangt, desto ", {g: "besser"}, " brennt dieser. Eine Verbrennung ist umso heftiger, je ", {g: "feiner"}, " der Brennstoff vorliegt."]
+], "gapAB");
+
+/* ---------- Training: Zuordnen ---------- */
+Modul.makeSort($("#sortStoffe"), {
+  buckets: ["🌲 brennbar – fest", "🧴 brennbar – flüssig", "💨 brennbar – gasförmig", "🚫 nicht brennbar"],
+  items: [
+    {t: "Papier", b: 0}, {t: "Pappe", b: 0}, {t: "Holz", b: 0}, {t: "Kohle", b: 0},
+    {t: "Spiritus", b: 1}, {t: "Benzin", b: 1}, {t: "Diesel", b: 1}, {t: "Heizöl", b: 1},
+    {t: "Erdgas", b: 2}, {t: "Propan", b: 2}, {t: "Butan", b: 2},
+    {t: "Glas", b: 3}, {t: "Keramik", b: 3}, {t: "Sand", b: 3}, {t: "Wasser", b: 3}, {t: "Edelgase", b: 3}
+  ]
+}, "sortStoffe");
+
+/* ---------- Training: Reihenfolgen ---------- */
+Modul.makeOrder($("#orderZt"), [
+  "Streichholzkopf (60–80 °C)",
+  "Papier (etwa 250 °C)",
+  "Butan im Feuerzeug (etwa 400 °C)",
+  "Spiritus (etwa 425 °C)",
+  "Erdgas (etwa 600 °C)"
+], "orderZt");
+Modul.makeOrder($("#orderCamp"), [
+  "Zerknülltes Papier in die Mitte legen.",
+  "Dünne Holzspäne und kleine Zweige darüber schichten.",
+  "Das Papier mit einem Streichholz anzünden.",
+  "Wenn die Späne brennen, dünne Äste nachlegen.",
+  "Erst zum Schluss dicke Holzstücke auflegen."
+], "orderCamp");
+
+/* ---------- Training: Richtig / Falsch ---------- */
+Modul.makeTF($("#tf"), [
+  ["Für ein Feuer braucht man einen Brennstoff, die Zündtemperatur und Sauerstoff.", true],
+  ["Glas und Sand sind brennbare Stoffe.", false],
+  ["Jeder Stoff hat dieselbe Zündtemperatur.", false],
+  ["Ein Streichholzkopf entzündet sich schon bei etwa 60–80 °C.", true],
+  ["Bläst man Luft auf ein Feuer, geht es immer aus.", false],
+  ["Je mehr Luft an den Brennstoff gelangt, desto besser brennt er.", true],
+  ["Ein Holzklotz brennt heftiger als Holzspäne.", false],
+  ["Holzstaub kann explosionsartig verbrennen.", true],
+  ["Gase sind besonders leicht brennbar.", true],
+  ["Unter einem verschlossenen Glasrohr brennt eine Kerze beliebig lange.", false]
+], "tf");
+
+/* ---------- Training: Offene Fragen ---------- */
+Modul.makeOpen($("#open"), [
+  {q: "Nenne je zwei gasförmige, flüssige und feste brennbare Stoffe.",
+   m: "Gasförmig: Erdgas und Butan (oder Propan). Flüssig: Benzin und Spiritus (oder Diesel, Heizöl, Petroleum). Fest: Holz und Kohle (oder Papier, Pappe).",
+   k: ["erdgas|butan|propan", "benzin|spiritus|diesel|heizöl|petroleum|alkohol", "holz|kohle|papier|pappe|wachs"]},
+  {q: "Erkläre den Begriff Zündtemperatur.",
+   m: "Die Zündtemperatur ist die Temperatur, die ein brennbarer Stoff mindestens erreichen muss, damit er sich entzündet. Jeder Stoff hat eine andere Zündtemperatur, z. B. ein Streichholzkopf 60–80 °C, Papier etwa 250 °C.",
+   k: ["temperatur|grad|°c|heiß|erhitz", "entzünd|brenn|feuer"]},
+  {q: "Wie kann ein schlecht brennendes Feuer wieder angefacht werden? Begründe.",
+   m: "Man bläst Luft hinein, z. B. durch Pusten, Fächeln oder mit einem Blasebalg. So gelangt mehr Sauerstoff an den Brennstoff und die Verbrennung wird gefördert.",
+   k: ["blas|pust|fächel|wedel|blasebalg|luft", "sauerstoff|besser|mehr"]},
+  {q: "Dicke Holzstücke lassen sich nicht so einfach anzünden. Wie gehst du vor, wenn du ein Lagerfeuer anzünden willst?",
+   m: "Zuerst zündet man leicht brennbares, fein zerteiltes Material an, z. B. Papier und dünne Holzspäne. Dann legt man dünne Äste dazu und erst zum Schluss die dicken Holzstücke. Feines Material hat eine große Oberfläche und erreicht schnell seine Zündtemperatur.",
+   k: ["papier|späne|span|dünn|klein|fein|zweig|ast|äste", "dick|groß|später|dann|schluss|danach"]},
+  {q: "Papier ist ein guter Brennstoff. Ein Stapel Zeitungen brennt als Ganzes aber relativ schlecht. Versuche das zu erklären.",
+   m: "Im Stapel liegen die Blätter dicht aufeinander. Luft und damit Sauerstoff kommt nur an die Außenseite des Stapels. Die Oberfläche, an der der Sauerstoff angreifen kann, ist klein. Einzelne, zerknüllte Blätter haben viel Luft dazwischen und brennen deshalb gut.",
+   k: ["luft|sauerstoff", "dicht|aufeinander|zusammen|gepresst|oberfläche|außen|kompakt"]},
+  {q: "Warum geht eine Kerze unter einem verschlossenen Glasrohr aus?",
+   m: "Unter dem verschlossenen Rohr kann keine frische Luft nachströmen. Der Sauerstoff wird bei der Verbrennung verbraucht. Ohne Sauerstoff geht die Kerze aus.",
+   k: ["sauerstoff|luft", "verbraucht|kein|nicht nach|fehlt|weg"]}
+], "open", "Lies die Stationen 2 bis 5 noch einmal.");
+
+/* ---------- Abschlussquiz ---------- */
+Modul.makeQuiz($("#quiz"), [].concat(MC.s1, MC.s2, MC.s3, MC.s4, MC.s5, MC.train, [
+  {q: "Welcher flüssige Brennstoff wurde früher in Lampen verbrannt?", o: ["Petroleum", "Erdgas", "Kohle", "Wasser"], a: 0, e: "Petroleumlampen gab es, bevor es elektrisches Licht gab."},
+  {q: "Was enthalten Gaskartuschen für Camping?", o: ["Butan", "Sauerstoff", "Stickstoff", "Wasserdampf"], a: 0, e: "Butan (oder Propan) ist ein brennbares Gas."},
+  {q: "Was ist der Hauptbestandteil von Brennspiritus?", o: ["Alkohol", "Benzin", "Wasser", "Erdgas"], a: 0, e: "Brennspiritus besteht vor allem aus Alkohol."},
+  {q: "Welche Zündtemperatur hat Papier etwa?", o: ["etwa 250 °C", "etwa 60 °C", "etwa 600 °C", "etwa 1000 °C"], a: 0, e: "Papier entzündet sich bei etwa 250 °C."},
+  {q: "Warum brennt Watte so schnell ab?", o: ["Zwischen den feinen Fasern ist viel Luft.", "Watte enthält Benzin.", "Watte hat keine Oberfläche.", "Watte braucht keinen Sauerstoff."], a: 0, e: "Feine Fasern + viel Luft = schnelle Verbrennung."},
+  {q: "Warum lodern Flammen auf, wenn man Luft hineinbläst?", o: ["Es kommt mehr Sauerstoff an den Brennstoff.", "Die Luft kühlt das Feuer.", "Die Luft ist selbst ein Brennstoff.", "Die Zündtemperatur sinkt auf null."], a: 0, e: "Mehr Sauerstoff fördert die Verbrennung."}
+]), "quiz", "Feuer-Profi");
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>
