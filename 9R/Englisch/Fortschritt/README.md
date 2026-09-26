@@ -73,7 +73,8 @@ Wichtig: Der kostenlose Render-Dienst speichert Abgaben nur vorübergehend. Dire
 
 ## Veröffentlicht (26.09.2026)
 
-- Backend: Commit `51e2bdb` im Repository `englisch_9`, auf Render deployt.
+- Backend: Commit `51e2bdb` im Repository `englisch_9`, auf Render deployt und live geprüft (`/api/health` = `2026-09-26-englisch9r-grammatik`, alle 5 Grammatiktests und beide Vokabeltests werden gelistet).
+- Freischalten zentral über `proben-verwalten.html` (Englisch · Klasse 9R) oder auf der Lehrerseite der Unit.
 - Seiten: im Repository `grumi` auf GitHub Pages.
 
 ## Offen
