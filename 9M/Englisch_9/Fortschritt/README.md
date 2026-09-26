@@ -6,7 +6,7 @@
 
 - Gleicher Aufbau und gleiche Farben wie Englisch 9R (Blue Line: Cyan-Blau, Orange, Rot über `body.blueline` in `css/englisch-extras.css`).
 - Vier Units nebeneinander mit denselben Icons wie 9R (`images/unit1.png` bis `unit4.png`): Unit 1 Around Australia, Unit 2 Exploring India, Unit 3 South Africa, Unit 4 New Zealand.
-- Unter jeder Unit in dieser Reihenfolge: 1 Wortschatz → 2 Grammatik → 3 Üben → 4 Grammatikprobe → 5 Proben (Vokabeltests).
+- Unter jeder Unit in dieser Reihenfolge: Wortschatz → Grammatik → Grammatikprobe → Proben (Vokabeltests). Unit 3 und 4 haben zusätzlich „Üben“ mit den vorhandenen Übungen, bei Unit 1 und 2 entfällt dieser Schritt.
 - Darunter „Quali-Vorbereitung und Wiederholung“: Zeiten wiederholen, Mediation, mündliche Prüfung, Picture-based talk, schriftliche Prüfung und sonstige Grammatik. Die letzten beiden sind noch „In Vorbereitung“.
 
 **Die vorhandenen Seiten sind unverändert.** Sie sind nur neu eingeordnet:
