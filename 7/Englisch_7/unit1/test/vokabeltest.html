@@ -97,6 +97,7 @@
   .q-word{font-size:1.1rem;font-weight:800;color:var(--blue)}
   .q-dir{font-size:.76rem;color:var(--muted);font-weight:700}
   .q-hint{font-size:.78rem;color:var(--muted);font-style:italic}
+  .q-two{font-size:.72rem;font-weight:800;color:#7a5600;background:#fff4d6;border:1px solid #f0d089;border-radius:99px;padding:.05rem .5rem}
   .q input{font-weight:700}
   .edits-left{font-size:.74rem;color:var(--muted);margin-top:.3rem;font-weight:600}
   .edits-left.none{color:var(--bad)}
@@ -163,6 +164,8 @@
     <div class="note">
       <strong>Wichtig &ndash; bitte lesen:</strong>
       <ul>
+        <li>W&auml;hle den Test f&uuml;r <strong>deine Klasse</strong> (7M oder 7R). Dort ist immer das deutsche Wort vorgegeben, du schreibst das <strong>englische</strong> Wort.</li>
+        <li>Steht ein Wort mit <strong>zwei Bedeutungen</strong> da (z.&nbsp;B. <i>Alter; Zeitalter</i>), suchst du trotzdem nur <strong>ein</strong> englisches Wort.</li>
         <li>Du kannst den Test <strong>nur einmal</strong> abgeben.</li>
         <li>Jedes Feld darfst du <strong>2&times; korrigieren</strong>, danach ist es fest.</li>
         <li>Lade die Seite <strong>nicht neu</strong> und schlie&szlig;e den Tab nicht.</li>
@@ -220,7 +223,8 @@ const API_BASE = (location.hostname.includes('github.io') || location.protocol =
 const MAX_EDITS = 2;
 /* Nur die Tests dieser Unit anzeigen - sonst tauchen hier auch
    freigeschaltete Tests anderer Klassen/Units auf. */
-const TEST_PREFIX = 'e7-u1-';
+/* e7-: fruehere gemischte Tests, e7m-/e7r-: Tests fuer 7M und 7R (nur Deutsch -> Englisch) */
+const TEST_PREFIXES = ['e7-u1-', 'e7m-u1-', 'e7r-u1-'];
 
 const $ = id => document.getElementById(id);
 let items = [], answers = [], editCount = [], locked = [], testMeta = null;
@@ -239,7 +243,7 @@ async function loadTests(){
       return;
     }
     const data = await res.json();
-    const open = (data.tests || []).filter(t => t.unlocked && t.id.startsWith(TEST_PREFIX));
+    const open = (data.tests || []).filter(t => t.unlocked && TEST_PREFIXES.some(p => t.id.startsWith(p)));
     sel.innerHTML = '';
     if(!open.length){
       sel.innerHTML = '<option value="">Zurzeit ist kein Test freigeschaltet</option>';
@@ -341,8 +345,10 @@ function renderTest(){
       '<span class="q-nr">' + it.nr + '</span>' +
       '<span class="q-word"></span>' +
       '<span class="q-dir">' + (it.direction === 'en-de' ? 'auf Deutsch' : 'auf Englisch') + '</span>' +
+      (it.direction === 'de-en' && String(it.prompt).includes(';') ? '<span class="q-two">2 Bedeutungen &middot; 1 Wort</span>' : '') +
       (it.hint ? '<span class="q-hint">(' + it.hint + ')</span>' : '');
-    top.querySelector('.q-word').textContent = it.prompt;
+    top.querySelector('.q-word').textContent = it.direction === 'de-en'
+      ? String(it.prompt).replace(/\s*;\s*/g, ' / ') : it.prompt;
 
     const inp = document.createElement('input');
     inp.type = 'text'; inp.id = 'a' + i;
@@ -440,7 +446,8 @@ function showResult(r){
   $('res-who').textContent = student.firstName + ' ' + student.lastName + ' · ' + student.className + ' · ' + student.testDate;
   $('res-grade').textContent = 'Note ' + r.grade;
   $('res-meta').textContent = r.score + ' von ' + r.total + ' richtig (' + r.percent + ' %)'
-    + (r.typos ? ' · ' + r.typos + ' davon mit kleinem Tippfehler' : '');
+    + (r.typos ? ' · ' + r.typos + ' davon mit kleinem Tippfehler' : '')
+    + (r.aiAccepted ? ' · ' + r.aiAccepted + ' von der KI anerkannt' : '');
 
   const list = $('res-list');
   list.innerHTML = '';
@@ -470,7 +477,10 @@ function showResult(r){
     }
 
     const right = document.createElement('span');
-    if(d.correct && d.typo){
+    if(d.correct && d.ai){
+      right.className = 'tag-typo';
+      right.textContent = 'von der KI anerkannt';
+    } else if(d.correct && d.typo){
       right.className = 'tag-typo';
       right.textContent = 'Tippfehler';
     }
