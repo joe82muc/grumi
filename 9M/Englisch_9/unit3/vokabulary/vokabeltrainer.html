@@ -1,0 +1,873 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 3 Vokabeltrainer - Discover South Africa</title>
+<style>
+  :root{
+    --green:#007a4d; --green-dark:#00563b; --gold:#ffb612; --gold-soft:#ffe9b8;
+    --red:#de3831; --blue:#002395; --ink:#14231c; --muted:#5d7268;
+    --bg-1:#f2f9f4; --bg-2:#fff8e8; --card:#ffffff; --line:#d7e8dd;
+    --ok:#1d9d63; --bad:#cf3b2d;
+    --shadow:0 14px 34px rgba(0,86,59,.16);
+    --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Trebuchet MS","Segoe UI",sans-serif;min-height:100vh;color:var(--ink);padding:1rem;
+    background:
+      radial-gradient(circle at 8% 6%, #d8f0e2 0%, transparent 40%),
+      radial-gradient(circle at 94% 88%, #ffeccb 0%, transparent 36%),
+      linear-gradient(135deg,var(--bg-1),var(--bg-2));
+  }
+  .wrap{max-width:960px;margin:0 auto}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative;overflow:hidden;color:#fff;border-radius:22px;
+    padding:1.25rem 1.3rem 1.35rem;box-shadow:var(--shadow);
+    background:linear-gradient(120deg,var(--green-dark) 0%,var(--green) 55%,#0e8f5f 100%);
+  }
+  .hero::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:
+      linear-gradient(115deg, transparent 62%, rgba(255,182,18,.28) 62%, rgba(255,182,18,.28) 72%, transparent 72%),
+      linear-gradient(115deg, transparent 74%, rgba(222,56,49,.25) 74%, rgba(222,56,49,.25) 80%, transparent 80%);
+  }
+  .hero-flag{display:inline-flex;gap:5px;margin-bottom:.45rem}
+  .hero-flag span{width:26px;height:8px;border-radius:99px;display:inline-block}
+  .hero-flag .f1{background:var(--gold)} .hero-flag .f2{background:#fff} .hero-flag .f3{background:var(--red)}
+  h1{font-size:clamp(1.45rem,4.6vw,2.15rem);line-height:1.12;letter-spacing:.01em}
+  .sub{opacity:.94;margin-top:.4rem;font-size:.95rem}
+  .hero-stats{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.8rem}
+  .hero-chip{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:.28rem .75rem;font-size:.78rem;font-weight:700}
+
+  /* ---------- Panel ---------- */
+  .panel{margin-top:.9rem;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:.95rem;box-shadow:var(--shadow)}
+  .panel-label{font-size:.72rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:.15rem 0 .4rem}
+  .filter-row{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.65rem}
+  .filter-btn{
+    padding:.34rem .78rem;border:1.5px solid #bfdccb;border-radius:999px;background:#fff;
+    color:#1f5c42;font-size:.79rem;font-weight:700;cursor:pointer;transition:all .15s;
+  }
+  .filter-btn:hover{border-color:var(--green)}
+  .filter-btn.active{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 4px 12px rgba(0,122,77,.3)}
+  .filter-btn .cnt{opacity:.65;font-weight:600;margin-left:.25rem;font-size:.72rem}
+
+  .controls{display:flex;flex-wrap:wrap;gap:.55rem;justify-content:center;margin:.55rem 0 .7rem}
+  .pill-group{display:flex;background:#e8f4ec;border-radius:999px;padding:3px}
+  .pill{padding:.4rem .85rem;border:none;border-radius:999px;background:transparent;color:#33604c;font-weight:700;cursor:pointer;font-size:.8rem;transition:all .15s}
+  .pill.active{background:var(--green);color:#fff;box-shadow:0 3px 10px rgba(0,122,77,.35)}
+
+  .scorebar{display:flex;justify-content:center;gap:1.6rem;margin:.35rem 0 .7rem;color:var(--muted);font-size:.78rem}
+  .scorebar strong{display:block;text-align:center;font-size:1.3rem;color:var(--ink)}
+  .progress-wrap{max-width:580px;margin:0 auto 1rem;height:8px;background:#dcebe2;border-radius:5px;overflow:hidden}
+  .progress-bar{height:100%;background:linear-gradient(90deg,var(--green),var(--gold));width:0%;transition:width .35s}
+
+  /* ---------- Card ---------- */
+  .card{
+    max-width:660px;margin:0 auto;background:#fff;border:1px solid var(--line);
+    border-radius:var(--radius);padding:1.05rem 1.05rem 1.15rem;box-shadow:var(--shadow);
+    animation:cardIn .3s ease;
+  }
+  @keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .card-top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .unit-tag{display:inline-block;background:var(--gold-soft);color:#7a5200;font-size:.72rem;padding:.22rem .6rem;border-radius:999px;font-weight:800;letter-spacing:.02em}
+  .direction-label{color:var(--muted);font-size:.75rem;font-weight:700;letter-spacing:.04em}
+  .question-word{text-align:center;color:var(--green-dark);font-size:clamp(1.45rem,5vw,2.25rem);font-weight:800;line-height:1.2;margin-top:.8rem}
+  .phonetic{text-align:center;color:var(--muted);font-size:.88rem;margin-top:.2rem;font-style:italic;min-height:1.2rem}
+  .speak-btn{display:block;margin:.7rem auto .55rem;padding:.38rem 1rem;border:1.5px solid #bfdccb;background:#fff;border-radius:999px;color:#1f5c42;font-weight:700;cursor:pointer;transition:all .15s}
+  .speak-btn:hover{background:#eef8f1}
+  .audio-row{display:flex;flex-wrap:wrap;justify-content:center;gap:.45rem;margin:.25rem 0 .75rem}
+  .example-box{
+    max-width:580px;margin:.2rem auto .8rem;padding:.6rem .75rem;border:1.5px dashed #cfe4d6;
+    border-radius:12px;background:#f4faf6;color:#28513e;font-size:.92rem;min-height:2.3rem;
+  }
+  .choices{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+  .choice{
+    padding:.8rem .55rem;background:#f4faf6;border:1.5px solid #d3e7da;border-radius:12px;
+    text-align:center;cursor:pointer;font-weight:700;color:#1e4a37;transition:all .15s;
+  }
+  .choice:hover:not(:disabled){border-color:var(--green);transform:translateY(-1px)}
+  .choice.correct{background:#e7f7ef;border-color:#8fdcb6;color:var(--ok)}
+  .choice.wrong{background:#fdeeee;border-color:#f3b5ae;color:var(--bad)}
+  .type-area{display:flex;flex-direction:column;gap:.55rem}
+  .type-area input{padding:.85rem 1rem;border:1.5px solid #c6ded0;border-radius:12px;font-size:1rem;font-weight:700;color:var(--ink)}
+  .type-area input:focus{outline:2px solid var(--green);outline-offset:1px}
+  .type-area input.correct{background:#e7f7ef;border-color:#8fdcb6}
+  .type-area input.wrong{background:#fdeeee;border-color:#f3b5ae}
+  .btn-row{display:flex;justify-content:center;gap:.55rem;margin-top:.9rem}
+  .btn-primary{padding:.65rem 1.35rem;border:none;border-radius:999px;background:var(--green);color:#fff;font-weight:700;cursor:pointer;box-shadow:0 5px 14px rgba(0,122,77,.32);transition:all .15s}
+  .btn-primary:hover{background:var(--green-dark)}
+  .btn-secondary{padding:.6rem 1rem;border:1.5px solid #c6ded0;border-radius:999px;background:#fff;color:#1f5c42;font-weight:700;cursor:pointer;transition:all .15s}
+  .btn-secondary:hover{background:#eef8f1}
+  .feedback{text-align:center;min-height:1.4rem;margin-top:.85rem;font-weight:700}
+  .feedback.good{color:var(--ok)} .feedback.bad{color:var(--bad)}
+
+  /* ---------- Result ---------- */
+  #result{display:none;text-align:center;padding:1.2rem 1rem}
+  #result h2{font-size:1.9rem;color:var(--green-dark)}
+  .pct-ring{
+    width:150px;height:150px;border-radius:50%;margin:1rem auto;display:flex;align-items:center;justify-content:center;
+    background:conic-gradient(var(--gold) calc(var(--pct)*1%), #e8f0ea 0);
+  }
+  .pct-inner{width:118px;height:118px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:1.9rem;font-weight:900;color:var(--green)}
+  .result-msg{color:var(--muted);margin-bottom:1rem}
+  @media(max-width:640px){.choices{grid-template-columns:1fr}}
+</style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../../css/exercise-shell.css">
+</head>
+<body>
+<header class="ex-shell-header" aria-label="Seitennavigation">
+  <div class="ex-inner">
+    <a class="ex-brand" href="../../../../index.html" aria-label="Zur Startseite">
+      <img src="../../../../images_school/logo.png" alt="Logo der Grund- und Mittelschule">
+      <span class="ex-brand-text">
+        <span class="ex-brand-name">Grund- und Mittelschule am Sportpark</span>
+        <span class="ex-brand-sub">GRUMI Lernplattform &middot; Englisch 9</span>
+      </span>
+    </a>
+    <a class="ex-back" href="../unit3.html">Zur&uuml;ck zur &Uuml;bersicht</a>
+  </div>
+</header>
+
+<nav class="ex-crumbs" aria-label="Pfad">
+      <a href="../../../../index.html">Start</a>
+      <a href="../../index.html">Englisch 9</a>
+      <a href="../unit3.html">Unit 3</a>
+      <span>Vokabeltrainer Unit 3</span>
+</nav>
+
+</div>
+<div class="wrap">
+  <section class="hero">
+    <div class="hero-flag"><span class="f1"></span><span class="f2"></span><span class="f3"></span></div>
+    <h1>Vokabeltrainer Unit 3</h1>
+    <p class="sub">Discover South Africa · Englisch 9. Klasse</p>
+    <div class="hero-stats">
+      <span class="hero-chip" id="stat-words">0 Vokabeln</span>
+      <span class="hero-chip">🔊 Aussprache</span>
+      <span class="hero-chip">🧠 KI-Beispielsätze</span>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-label">Kategorie wählen</div>
+    <div class="filter-row" id="filter-row"></div>
+
+    <div class="controls">
+      <div class="pill-group" id="mode-group">
+        <button class="pill active" onclick="setMode('mc',this)">Multiple Choice</button>
+        <button class="pill" onclick="setMode('type',this)">Tippen</button>
+      </div>
+      <div class="pill-group" id="dir-group">
+        <button class="pill active" onclick="setDir('random',this)">Zufällig</button>
+        <button class="pill" onclick="setDir('en-de',this)">EN → DE</button>
+        <button class="pill" onclick="setDir('de-en',this)">DE → EN</button>
+      </div>
+    </div>
+
+    <div class="scorebar">
+      <span><strong id="sc-right">0</strong>✅ Richtig</span>
+      <span><strong id="sc-wrong">0</strong>❌ Falsch</span>
+      <span><strong id="sc-total">0</strong>Gesamt</span>
+    </div>
+
+    <div class="progress-wrap"><div class="progress-bar" id="pbar"></div></div>
+
+    <div class="card" id="quiz-card">
+      <div class="card-top">
+        <div class="unit-tag" id="unit-tag">Unit 3</div>
+        <div class="direction-label" id="dir-label">Englisch → Deutsch</div>
+      </div>
+      <div class="question-word" id="qword">-</div>
+      <div class="phonetic" id="phonetic"></div>
+      <button class="speak-btn" id="speak-btn" onclick="speak()">🔊 anhören</button>
+      <div class="audio-row">
+        <select id="example-level" class="btn-secondary" style="padding:.45rem .7rem">
+          <option value="A2">Level A2</option>
+          <option value="A2+" selected>Level A2+</option>
+          <option value="B1">Level B1</option>
+        </select>
+        <select id="example-mode" class="btn-secondary" style="padding:.45rem .7rem">
+          <option value="mixed" selected>Gemischt</option>
+          <option value="daily">Alltag</option>
+          <option value="definition">Worterklärung</option>
+          <option value="paraphrase">Umschreibung</option>
+        </select>
+        <button class="btn-secondary" id="example-btn" onclick="generateExampleSentence()">🧠 Beispielsatz</button>
+        <button class="btn-secondary" id="example-speak-btn" onclick="speakExampleSentence()" disabled>🔊 Satz anhören</button>
+      </div>
+      <div class="example-box" id="example-box">Klicke auf „Beispielsatz“, um einen KI-Satz zum Wort zu bekommen.</div>
+
+      <div id="mc-area"><div class="choices" id="choices"></div></div>
+      <div id="type-area" style="display:none">
+        <div class="type-area">
+          <input type="text" id="type-input" placeholder="Deine Antwort ..." autocomplete="off" onkeydown="if(event.key==='Enter')checkType()">
+          <div style="display:flex;gap:.5rem">
+            <button class="btn-secondary" id="hint-btn" onclick="showHint()">💡 Tipp</button>
+            <button class="btn-primary" onclick="checkType()">Prüfen</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="feedback" id="feedback"></div>
+      <div class="btn-row">
+        <button class="btn-secondary" id="skip-btn" onclick="skip()">Überspringen</button>
+        <button class="btn-primary" id="next-btn" onclick="nextCard()" style="display:none">Weiter</button>
+      </div>
+    </div>
+
+    <div id="result">
+      <h2>Runde beendet 🇿🇦</h2>
+      <div class="pct-ring" id="pct-ring" style="--pct:0"><div class="pct-inner" id="pct-display">0%</div></div>
+      <p class="result-msg" id="result-msg"></p>
+      <button class="btn-primary" onclick="restart()">Nochmal üben</button>
+    </div>
+  </section>
+</div>
+
+<script>
+const vocab = [
+  // ---------- Intro (S. 66/67) ----------
+  {en:"parliament",de:"Parlament",pron:"ˈpɑːləmənt",topic:"intro"},
+  {en:"African",de:"afrikanisch; aus Afrika; Afrikaner; Afrikanerin",pron:"ˈæfrɪkən",topic:"intro"},
+  {en:"apartheid",de:"Apartheid",pron:"əˈpɑːtaɪt",topic:"intro"},
+  {en:"system",de:"System",pron:"ˈsɪstəm",topic:"intro"},
+  {en:"to separate",de:"trennen",pron:"ˈsepəreɪt",topic:"intro"},
+  {en:"South African",de:"Südafrikaner; Südafrikanerin; südafrikanisch; aus Südafrika",pron:"ˌsaʊθ ˈæfrɪkən",topic:"intro"},
+  {en:"township",de:"Township; Armutsviertel",pron:"ˈtaʊnʃɪp",topic:"intro"},
+  {en:"to end",de:"enden; beenden; aufhören",pron:"end",topic:"intro"},
+  {en:"because of",de:"wegen",pron:"bɪˈkɒz əv",topic:"intro"},
+  {en:"gap",de:"Kluft; Spalt; Lücke",pron:"gæp",topic:"intro"},
+  {en:"wide",de:"breit; weit; größer",pron:"waɪd",topic:"intro"},
+  {en:"electricity",de:"Strom; Elektrizität",pron:"ˌelɪkˈtrɪsəti",topic:"intro"},
+  {en:"to aim",de:"zum Ziel haben; beabsichtigen; zielen",pron:"eɪm",topic:"intro"},
+  {en:"safari",de:"Safari",pron:"səˈfɑːri",topic:"intro"},
+  {en:"elephant",de:"Elefant",pron:"ˈelɪfənt",topic:"intro"},
+  {en:"buffalo (sg), buffaloes (pl)",de:"Büffel",pron:"ˈbʌfləʊ, ˈbʌfləʊz",topic:"intro"},
+
+  // ---------- Topic 1 (S. 68) ----------
+  {en:"to hit, hit, hit",de:"anfahren; rammen",pron:"hɪt",topic:"topic1"},
+  {en:"injured",de:"verletzt",pron:"ˈɪndʒəd",topic:"topic1"},
+  {en:"sergeant",de:"Polizeimeister; Polizeimeisterin",pron:"ˈsɑːdʒənt",topic:"topic1"},
+  {en:"driving licence",de:"Führerschein",pron:"ˈdraɪvɪŋ ˌlaɪsns",topic:"topic1"},
+  {en:"to brake",de:"bremsen",pron:"breɪk",topic:"topic1"},
+  {en:"to skid",de:"schleudern; schlittern",pron:"skɪd",topic:"topic1"},
+  {en:"control",de:"Kontrolle; Steuerung",pron:"kənˈtrəʊl",topic:"topic1"},
+  {en:"to crash",de:"krachen",pron:"kræʃ",topic:"topic1"},
+  {en:"relevant",de:"relevant; von Bedeutung",pron:"ˈreləvənt",topic:"topic1"},
+  {en:"wallet",de:"Brieftasche; Geldbörse; Geldbeutel",pron:"ˈwɒlɪt",topic:"topic1"},
+  {en:"skidding",de:"schleudernd",pron:"ˈskɪdɪŋ",topic:"topic1"},
+  {en:"bang",de:"peng; Knall",pron:"bæŋ",topic:"topic1"},
+  {en:"glass",de:"Glas",pron:"glɑːs",topic:"topic1"},
+  {en:"at the front (of)",de:"vorne (in)",pron:"ət ðə ˈfrʌnt əv",topic:"topic1"},
+  {en:"police station",de:"Polizeirevier; Polizeiwache",pron:"pəˈliːs ˌsteɪʃn",topic:"topic1"},
+  {en:"detail",de:"Detail; Einzelheit",pron:"ˈdiːteɪl",topic:"topic1"},
+
+  // ---------- Topic 2 (S. 72) ----------
+  {en:"role model",de:"Vorbild",pron:"ˈrəʊl ˌmɒdl",topic:"topic2"},
+  {en:"podcast",de:"Podcast",pron:"ˈpɒdkɑːst",topic:"topic2"},
+  {en:"inspiring",de:"inspirierend; anregend",pron:"ɪnˈspaɪərɪŋ",topic:"topic2"},
+  {en:"songwriter",de:"Songschreiber; Songschreiberin; Liedermacher; Liedermacherin",pron:"ˈsɒŋˌraɪtə",topic:"topic2"},
+  {en:"isolated",de:"isoliert",pron:"ˈaɪsəleɪtɪd",topic:"topic2"},
+  {en:"to be critical of sth",de:"etw. kritisieren",pron:"biː ˈkrɪtɪkl əv",topic:"topic2"},
+  {en:"opposition",de:"Widerstand; Gegenseite; Opposition",pron:"ˌɒpəˈzɪʃn",topic:"topic2"},
+  {en:"to stop sb from + -ing",de:"jmdn. daran hindern, ... zu tun",pron:"ˌstɒp frəm",topic:"topic2"},
+  {en:"to overcome",de:"überwinden",pron:"ˌəʊvəˈkʌm",topic:"topic2"},
+  {en:"inspiration",de:"Inspiration; Eingebung",pron:"ˌɪnspɪˈreɪʃn",topic:"topic2"},
+  {en:"to admire",de:"bewundern",pron:"ədˈmaɪə",topic:"topic2"},
+  {en:"to direct",de:"Regie führen; leiten; anweisen",pron:"dɪˈrekt",topic:"topic2"},
+  {en:"politically active",de:"politisch engagiert",pron:"pəˌlɪtɪkli ˈæktɪv",topic:"topic2"},
+  {en:"active",de:"aktiv",pron:"ˈæktɪv",topic:"topic2"},
+  {en:"gay",de:"homosexuell; schwul; Schwuler",pron:"geɪ",topic:"topic2"},
+  {en:"lesbian",de:"homosexuell; lesbisch; Lesbe",pron:"ˈlezbiən",topic:"topic2"},
+  {en:"HIV",de:"HIV; HI-Virus",pron:"ˌeɪtʃaɪˈviː",topic:"topic2"},
+  {en:"AIDS",de:"Aids (erworbene Immunabwehrschwäche)",pron:"eɪdz",topic:"topic2"},
+  {en:"anti-",de:"Anti-; Nicht-",pron:"ˈænti",topic:"topic2"},
+  {en:"medication",de:"Medikament; Arznei; Arzneimittel",pron:"ˌmedɪˈkeɪʃn",topic:"topic2"},
+
+  // ---------- Text (S. 76/77) ----------
+  {en:"Zulu",de:"Zulu (Sprache in Südafrika)",pron:"ˈzuːluː",topic:"text"},
+  {en:"unemployed",de:"arbeitslos",pron:"ˌʌnɪmˈplɔɪd",topic:"text"},
+  {en:"organization",de:"Organisation",pron:"ˌɔːgnaɪˈzeɪʃn",topic:"text"},
+  {en:"to control",de:"kontrollieren",pron:"kənˈtrəʊl",topic:"text"},
+  {en:"original",de:"ursprünglich; original",pron:"əˈrɪdʒnl",topic:"text"},
+  {en:"furniture",de:"Möbel",pron:"ˈfɜːnɪtʃə",topic:"text"},
+  {en:"to be in charge (of)",de:"leiten; zuständig sein (für); die Verantwortung tragen (für)",pron:"biː ɪn ˈtʃɑːdʒ əv",topic:"text"},
+  {en:"guitar",de:"Gitarre",pron:"gɪˈtɑː",topic:"text"},
+  {en:"to move in together",de:"zusammenziehen",pron:"ˌmuːv ɪn təˈgeðə",topic:"text"},
+  {en:"Afrikaans",de:"Afrikaans (Sprache in Südafrika)",pron:"ˌæfrɪˈkɑːns",topic:"text"},
+  {en:"degree",de:"Hochschulabschluss; akademischer Grad",pron:"dɪˈgriː",topic:"text"},
+  {en:"nursing",de:"Pflege; Krankenpflege",pron:"ˈnɜːsɪŋ",topic:"text"},
+  {en:"fortunately",de:"zum Glück",pron:"ˈfɔːtʃnətli",topic:"text"},
+  {en:"to support",de:"unterstützen",pron:"səˈpɔːt",topic:"text"},
+  {en:"accident and emergency department",de:"Notaufnahme",pron:"ˌæksɪdənt ən ɪˈmɜːdʒənsi dɪˌpɑːtmənt",topic:"text"},
+  {en:"midwife",de:"Hebamme",pron:"ˈmɪdwaɪf",topic:"text"},
+  {en:"Sotho",de:"Sotho (Sprache in Südafrika)",pron:"ˈsɒθəʊ",topic:"text"},
+  {en:"kindergarten",de:"Kindergarten",pron:"ˈkɪndəˌgɑːtn",topic:"text"},
+  {en:"preschool",de:"Vorschul-; Vorschule",pron:"ˈpriːskuːl",topic:"text"},
+  {en:"community",de:"Gemeinde; Gemeinschaft",pron:"kəˈmjuːnəti",topic:"text"},
+  {en:"to do handicrafts",de:"basteln",pron:"ˌduː ˈhændikrɑːfts",topic:"text"},
+  {en:"Xhosa",de:"Xhosa (Sprache in Südafrika)",pron:"ˈkɔːsə",topic:"text"},
+  {en:"without + -ing",de:"ohne ... zu tun",pron:"wɪˈðaʊt",topic:"text"},
+  {en:"study",de:"Studium; Lernen; Untersuchung; Studie",pron:"ˈstʌdi",topic:"text"},
+  {en:"quarter",de:"Viertel",pron:"ˈkwɔːtə",topic:"text"},
+  {en:"baboon",de:"Pavian",pron:"bəˈbuːn",topic:"text"},
+
+  // ---------- More about (S. 82/83) ----------
+  {en:"state",de:"Landes-; staatlich",pron:"steɪt",topic:"more_about"},
+  {en:"function",de:"Funktion",pron:"ˈfʌŋkʃn",topic:"more_about"},
+  {en:"southwesterly",de:"südwestlich; Südwest-",pron:"ˌsaʊθˈwestəli",topic:"more_about"},
+  {en:"to sink, sank, sunk",de:"untergehen; sinken",pron:"sɪŋk, sæŋk, sʌŋk",topic:"more_about"},
+  {en:"lighthouse",de:"Leuchtturm",pron:"ˈlaɪthaʊs",topic:"more_about"},
+  {en:"arch",de:"Bogen",pron:"ɑːtʃ",topic:"more_about"},
+  {en:"viewing platform",de:"Aussichtsplattform",pron:"ˈvjuːɪŋ ˌplætfɔːm",topic:"more_about"},
+  {en:"to get to",de:"hinkommen zu; gelangen zu; erreichen",pron:"ˈget tə",topic:"more_about"},
+  {en:"speech",de:"Rede; Vortrag; Sprache",pron:"spiːtʃ",topic:"more_about"},
+  {en:"region",de:"Region; Gegend",pron:"ˈriːdʒn",topic:"more_about"},
+  {en:"game reserve",de:"Wildreservat; Wildschutzgebiet",pron:"ˈgeɪm rɪˌzɜːv",topic:"more_about"},
+  {en:"lion",de:"Löwe",pron:"ˈlaɪən",topic:"more_about"},
+  {en:"leopard",de:"Leopard; Leopardin",pron:"ˈlepəd",topic:"more_about"},
+  {en:"rhino",de:"Rhinozeros; Nashorn",pron:"ˈraɪnəʊ",topic:"more_about"},
+  {en:"extinction",de:"Aussterben",pron:"ɪkˈstɪŋkʃn",topic:"more_about"},
+  {en:"bushman",de:"Buschmann",pron:"ˈbʊʃmən",topic:"more_about"},
+  {en:"redbush",de:"Roibusch",pron:"ˈredbʊʃ",topic:"more_about"},
+
+  // ---------- Mediation Skills (S. 84/85) ----------
+  {en:"distance",de:"Entfernung; Distanz",pron:"ˈdɪstns",topic:"mediation"},
+  {en:"gate",de:"Tor",pron:"geɪt",topic:"mediation"},
+  {en:"emergency",de:"Notfall",pron:"ɪˈmɜːdʒənsi",topic:"mediation"},
+  {en:"to disturb",de:"stören; belästigen",pron:"dɪˈstɜːb",topic:"mediation"},
+  {en:"to follow",de:"folgen",pron:"ˈfɒləʊ",topic:"mediation"},
+  {en:"to make sure",de:"dafür sorgen; sich versichern",pron:"meɪk ˈʃɔː",topic:"mediation"},
+  {en:"monkey",de:"Affe",pron:"ˈmʌŋki",topic:"mediation"},
+  {en:"I didn't catch that.",de:"Das habe ich nicht verstanden.; Das habe ich nicht gehört.",pron:"aɪ ˌdɪdnt ˈkætʃ ðæt",topic:"mediation"},
+  {en:"to repeat",de:"wiederholen",pron:"rɪˈpiːt",topic:"mediation"}
+];
+
+const topicLabels = {
+  all:"Alle",
+  intro:"Intro",
+  topic1:"Topic 1 · Road accident",
+  topic2:"Topic 2 · Role models",
+  text:"Text · Languages & jobs",
+  more_about:"More about",
+  mediation:"Mediation Skills"
+};
+const topicShort = {intro:"Intro",topic1:"Topic 1",topic2:"Topic 2",text:"Text",more_about:"More about",mediation:"Mediation Skills"};
+
+let mode='mc', dirSetting='random', filterTopic='all';
+let queue=[], current=null, right=0, wrong=0, direction='en-de', answered=false;
+let ttsUnlocked = false;
+let fallbackAudio = null;
+let currentExampleSentence = "";
+let currentExampleSource = "";
+const exampleHistory = {};
+const API_BASE = (location.hostname.includes('github.io') || location.protocol === 'file:') ? 'https://englisch-9.onrender.com' : '';
+
+const E9_TOKEN = localStorage.getItem('e9_token') || '';
+
+async function sendVocabProgress(percent,total){
+  if(!E9_TOKEN) return;
+  try{
+    await fetch(API_BASE + '/api/progress/record',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+E9_TOKEN},
+      body:JSON.stringify({
+        exerciseId:'unit3-vokabeltrainer',
+        exerciseName:'Unit 3 Vokabeltrainer',
+        unit:'unit3',
+        category:'vocabulary',
+        percent:percent,
+        score:right,
+        total:total,
+        completed:true,
+        meta:{mode:mode,direction:dirSetting,topic:filterTopic}
+      })
+    });
+  }catch(_e){}
+}
+
+const shuffle = a => [...a].sort(()=>Math.random()-0.5);
+const filteredVocab = () => filterTopic==='all' ? vocab : vocab.filter(v=>v.topic===filterTopic);
+
+function buildFilterButtons(){
+  const row = document.getElementById('filter-row');
+  row.innerHTML = '';
+  const keys = ['all','intro','topic1','topic2','text','more_about','mediation'];
+  keys.forEach(key=>{
+    const count = key==='all' ? vocab.length : vocab.filter(v=>v.topic===key).length;
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn' + (key===filterTopic ? ' active' : '');
+    btn.innerHTML = topicLabels[key] + '<span class="cnt">' + count + '</span>';
+    btn.onclick = ()=>setFilter(key,btn);
+    row.appendChild(btn);
+  });
+  document.getElementById('stat-words').textContent = vocab.length + ' Vokabeln';
+}
+
+function setMode(m, btn){
+  mode=m;
+  document.querySelectorAll('#mode-group .pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('mc-area').style.display   = m==='mc'?'block':'none';
+  document.getElementById('type-area').style.display = m==='type'?'block':'none';
+  restart();
+}
+function setDir(d, btn){
+  dirSetting=d;
+  document.querySelectorAll('#dir-group .pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  restart();
+}
+function setFilter(f, btn){
+  filterTopic=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  restart();
+}
+
+function restart(){
+  right=0; wrong=0; updateScore();
+  queue=shuffle(filteredVocab());
+  document.getElementById('result').style.display='none';
+  document.getElementById('quiz-card').style.display='block';
+  document.querySelector('.progress-wrap').style.display='block';
+  nextCard();
+}
+
+function nextCard(){
+  if(queue.length===0){ showResult(); return; }
+  current = queue.pop();
+  answered=false;
+
+  const card = document.getElementById('quiz-card');
+  card.style.animation='none'; void card.offsetWidth; card.style.animation='';
+
+  direction = dirSetting==='random' ? (Math.random()>0.5?'en-de':'de-en') : dirSetting;
+  const isEnDe = direction==='en-de';
+  const qWord = isEnDe ? current.en : current.de;
+  const aWord = isEnDe ? current.de : current.en;
+
+  document.getElementById('dir-label').textContent = isEnDe ? 'Englisch → Deutsch' : 'Deutsch → Englisch';
+  document.getElementById('qword').textContent = qWord;
+  document.getElementById('phonetic').textContent = (isEnDe && current.pron) ? '[' + current.pron + ']' : '';
+  document.getElementById('feedback').textContent='';
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('skip-btn').style.display='';
+  document.getElementById('next-btn').style.display='none';
+
+  document.getElementById('unit-tag').textContent = topicShort[current.topic] || 'Unit 3';
+
+  const sBtn=document.getElementById('speak-btn');
+  sBtn.textContent='🔊 anhören';
+  const exBtn = document.getElementById('example-speak-btn');
+  const exBox = document.getElementById('example-box');
+  currentExampleSentence = "";
+  currentExampleSource = "";
+  if(exBtn) exBtn.disabled = true;
+  if(exBox) exBox.textContent = 'Klicke auf „Beispielsatz“, um einen KI-Satz zum Wort zu bekommen.';
+
+  updateProgress();
+  if(mode==='mc') buildChoices(aWord,isEnDe);
+  else {
+    const inp=document.getElementById('type-input');
+    inp.value=''; inp.className=''; inp.disabled=false;
+    document.getElementById('hint-btn').disabled=false;
+    setTimeout(()=>inp.focus(),80);
+  }
+}
+
+function buildChoices(correct,isEnDe){
+  const pool=shuffle(filteredVocab().filter(v=>v!==current)).slice(0,3);
+  const opts=shuffle([correct,...pool.map(v=>isEnDe?v.de:v.en)]);
+  const cont=document.getElementById('choices'); cont.innerHTML='';
+  opts.forEach(opt=>{
+    const btn=document.createElement('button');
+    btn.className='choice'; btn.textContent=opt;
+    btn.onclick=()=>checkChoice(btn,opt,correct);
+    cont.appendChild(btn);
+  });
+}
+
+async function generateExampleSentence(){
+  if(!current) return;
+  const word = current.en;
+  const meaning = current.de || "";
+  const topic = current.topic || "topic1";
+  const level = String((document.getElementById('example-level') || {}).value || 'A2+');
+  const sentenceMode = String((document.getElementById('example-mode') || {}).value || 'mixed');
+  const historyKey = (word + '|' + level).toLowerCase();
+  const previous = Array.isArray(exampleHistory[historyKey]) ? exampleHistory[historyKey] : [];
+  const exBtn = document.getElementById('example-btn');
+  const exSpeakBtn = document.getElementById('example-speak-btn');
+  const exBox = document.getElementById('example-box');
+  if(exBtn) exBtn.disabled = true;
+  if(exBox) exBox.textContent = 'KI erstellt Beispielsatz...';
+
+  try{
+    const response = await fetch(API_BASE + '/api/vocab/example', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(E9_TOKEN ? { 'Authorization': 'Bearer ' + E9_TOKEN } : {})
+      },
+      body: JSON.stringify({
+        word,
+        meaning,
+        topic,
+        level: level,
+        sentenceMode,
+        provider: 'anthropic',
+        classLevel: 'grade9',
+        variationSeed: Date.now(),
+        previousSentences: previous.slice(-5)
+      })
+    });
+
+    if(!response.ok){
+      throw new Error('HTTP ' + response.status);
+    }
+    const data = await response.json();
+    let sentence = String(data?.sentence || '').trim();
+    currentExampleSource = String(data?.source || '');
+    if(!sentence) throw new Error('Kein Satz erhalten');
+    if(previous.includes(sentence)){
+      const response2 = await fetch(API_BASE + '/api/vocab/example', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(E9_TOKEN ? { 'Authorization': 'Bearer ' + E9_TOKEN } : {})
+        },
+        body: JSON.stringify({
+          word,
+          meaning,
+          topic,
+          level: level,
+          sentenceMode,
+          provider: 'anthropic',
+          classLevel: 'grade9',
+          variationSeed: Date.now() + 1,
+          previousSentences: previous.concat([sentence]).slice(-6)
+        })
+      });
+      if(response2.ok){
+        const data2 = await response2.json();
+        const s2 = String(data2?.sentence || '').trim();
+        if(s2 && !previous.includes(s2)) sentence = s2;
+      }
+    }
+    currentExampleSentence = sentence;
+    exampleHistory[historyKey] = previous.concat([sentence]).slice(-8);
+    if(exBox) exBox.textContent = sentence + (currentExampleSource ? (' [' + currentExampleSource + ']') : '');
+    if(exSpeakBtn) exSpeakBtn.disabled = false;
+  }catch(error){
+    const fallback = buildLocalExampleSentence(word, topic, level, sentenceMode, previous);
+    currentExampleSource = 'local-fallback';
+    currentExampleSentence = fallback;
+    exampleHistory[historyKey] = previous.concat([fallback]).slice(-8);
+    if(exBox) exBox.textContent = fallback + ' [local-fallback]';
+    if(exSpeakBtn) exSpeakBtn.disabled = false;
+  }finally{
+    if(exBtn) exBtn.disabled = false;
+  }
+}
+
+function buildLocalExampleSentence(word, topic, level, mode, previous){
+  const w = String(word || 'word').trim();
+  const p = Array.isArray(previous) ? previous : [];
+  const modeKey = String(mode || 'mixed').toLowerCase();
+  const packs = {
+    daily: [
+      `I used "${w}" when talking to my friend after school.`,
+      `Today I heard "${w}" in a normal daily situation.`,
+      `In class, we used "${w}" in a short dialogue.`
+    ],
+    definition: [
+      `"${w}" is a useful word we learn in Unit 3.`,
+      `A simple definition of "${w}" helps me remember it.`,
+      `"${w}" is an important term in this topic.`
+    ],
+    paraphrase: [
+      `Another way to explain "${w}" is with easy words.`,
+      `I can paraphrase "${w}" in a short sentence.`,
+      `We described "${w}" in different words today.`
+    ],
+    mixed: [
+      `We used "${w}" in a short speaking exercise today.`,
+      `My partner explained "${w}" with an everyday example.`,
+      `I wrote one clear sentence with "${w}" in class.`
+    ]
+  };
+  let pool = packs[modeKey] || packs.mixed;
+  if(String(level).toUpperCase() === 'B1'){
+    pool = pool.concat([
+      `I used "${w}" confidently while explaining my opinion.`,
+      `During discussion, "${w}" helped me express my idea clearly.`
+    ]);
+  }
+  const filtered = pool.filter(s => !p.includes(s));
+  const use = filtered.length ? filtered : pool;
+  const idx = Math.floor(Math.random() * use.length);
+  return use[idx];
+}
+
+async function speakTextViaAzure(text){
+  const res = await fetch(API_BASE + '/api/speech/speak', {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      ...(E9_TOKEN ? { 'Authorization': 'Bearer ' + E9_TOKEN } : {})
+    },
+    body: JSON.stringify({ text, voice: 'en-US-JennyNeural' })
+  });
+  if(!res.ok) throw new Error('HTTP ' + res.status);
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  await new Promise((resolve,reject)=>{
+    const audio = new Audio(url);
+    audio.onended = () => { URL.revokeObjectURL(url); resolve(true); };
+    audio.onerror = () => { URL.revokeObjectURL(url); reject(new Error('audio-error')); };
+    const p = audio.play();
+    if(p && typeof p.then === 'function'){
+      p.catch(reject);
+    }
+  });
+}
+
+async function speakExampleSentence(){
+  if(!current) return;
+  if(!currentExampleSentence){
+    await generateExampleSentence();
+  }
+  if(!currentExampleSentence) return;
+  const fb = document.getElementById("feedback");
+  try{
+    await speakTextViaAzure(currentExampleSentence);
+  }catch(_e){
+    try{
+      const u = new SpeechSynthesisUtterance(currentExampleSentence);
+      u.lang = "en-US";
+      u.rate = 0.92;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(u);
+    }catch(_e2){
+      if(fb){
+        fb.className = "feedback bad";
+        fb.textContent = "Satz-Audio nicht verfuegbar.";
+      }
+    }
+  }
+}
+
+function checkChoice(btn,chosen,correct){
+  if(answered) return;
+  answered=true;
+  document.querySelectorAll('.choice').forEach(b=>{b.disabled=true;if(b.textContent===correct)b.classList.add('correct');});
+  if(chosen===correct){ btn.classList.add('correct'); showFeedback(true); right++; speak(); }
+  else { btn.classList.add('wrong'); showFeedback(false,correct); wrong++; }
+  updateScore(); showNextBtn();
+}
+
+function showHint(){
+  if(answered) return;
+  const correct = direction==='en-de' ? current.de : current.en;
+  const first = correct.split(';')[0].trim();
+  const inp = document.getElementById('type-input');
+  const nextLen = inp.value.length + 1;
+  inp.value = first.substring(0,nextLen);
+  if(nextLen>=first.length) document.getElementById('hint-btn').disabled=true;
+  inp.focus();
+}
+
+function checkType(){
+  if(answered) return;
+  const inp=document.getElementById('type-input');
+  const val=inp.value.trim();
+  const correct = direction==='en-de' ? current.de : current.en;
+  const norm=s=>s.trim().toLowerCase().replace(/^to\s+/,'');
+  const vars=correct.split(/[;,]/).map(norm).filter(Boolean);
+  const ok=vars.some(v=>norm(val)===v);
+  answered=true; inp.disabled=true; document.getElementById('hint-btn').disabled=true;
+  if(ok){ inp.classList.add('correct'); showFeedback(true); right++; speak(); }
+  else { inp.classList.add('wrong'); showFeedback(false,correct); wrong++; }
+  updateScore(); showNextBtn();
+}
+
+function showNextBtn(){ document.getElementById('skip-btn').style.display='none'; document.getElementById('next-btn').style.display=''; }
+function skip(){ if(answered) return; answered=true; const c=direction==='en-de'?current.de:current.en; showFeedback(false,c); wrong++; updateScore(); showNextBtn(); }
+function showFeedback(ok,correct){ const el=document.getElementById('feedback'); el.className='feedback '+(ok?'good':'bad'); el.textContent=ok?'✅ Richtig!':'❌ Richtig: '+correct; }
+function unlockTTS(){
+  if (ttsUnlocked || !("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined") return;
+  try{
+    const warmup = new SpeechSynthesisUtterance(" ");
+    warmup.volume = 0;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(warmup);
+    ttsUnlocked = true;
+  }catch(e){}
+}
+
+function getEnglishVoice(){
+  if (!("speechSynthesis" in window)) return null;
+  const voices = window.speechSynthesis.getVoices() || [];
+  if (!voices.length) return null;
+  return (
+    voices.find(v => /en-GB/i.test(v.lang)) ||
+    voices.find(v => /en-US/i.test(v.lang)) ||
+    voices.find(v => /^en/i.test(v.lang)) ||
+    null
+  );
+}
+
+function playAudioFallback(text){
+  return new Promise((resolve, reject) => {
+    try{
+      if(!fallbackAudio){
+        fallbackAudio = new Audio();
+      }
+      const q = encodeURIComponent(text);
+      fallbackAudio.src = "https://translate.google.com/translate_tts?ie=UTF-8&tl=en&client=tw-ob&q=" + q;
+      fallbackAudio.onended = () => resolve(true);
+      fallbackAudio.onerror = () => reject(new Error("audio-fallback-error"));
+      const p = fallbackAudio.play();
+      if (p && typeof p.then === "function") {
+        p.then(() => resolve(true)).catch(reject);
+      }
+    }catch(e){
+      reject(e);
+    }
+  });
+}
+
+function speak(){
+  if(!current) return;
+  const fb = document.getElementById("feedback");
+  const btn = document.getElementById("speak-btn");
+  const word = current.en;
+
+  btn.textContent = "🔊 laedt ...";
+  speakTextViaAzure(word)
+    .then(() => {
+      btn.textContent = "🔊 anhören";
+    })
+    .catch(async () => {
+      btn.textContent = "🔊 anhören";
+
+      if(!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined"){
+        fb.className = "feedback bad";
+        fb.textContent = "Audio wird von diesem Browser nicht unterstützt.";
+        return;
+      }
+
+      unlockTTS();
+
+      const u = new SpeechSynthesisUtterance(current.en);
+      const voice = getEnglishVoice();
+      u.lang = voice ? voice.lang : "en-US";
+      if (voice) u.voice = voice;
+      u.rate = 0.9;
+      u.pitch = 1;
+      let started = false;
+      let fallbackTimer = null;
+
+      u.onstart = () => {
+        started = true;
+        if (fallbackTimer) clearTimeout(fallbackTimer);
+        btn.textContent = "🔊 läuft ...";
+      };
+      u.onend = () => {
+        if (fallbackTimer) clearTimeout(fallbackTimer);
+        btn.textContent = "🔊 anhören";
+      };
+      u.onerror = async () => {
+        if (fallbackTimer) clearTimeout(fallbackTimer);
+        btn.textContent = "🔊 anhören";
+        try{
+          await playAudioFallback(current.en);
+          fb.className = "feedback good";
+          fb.textContent = "Audio über Fallback abgespielt.";
+        }catch(e){
+          fb.className = "feedback bad";
+          fb.textContent = "Audio blockiert. Bitte Lautlosmodus aus und Lautstärke prüfen.";
+        }
+      };
+
+      try{
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(u);
+        fallbackTimer = setTimeout(async () => {
+          if (started) return;
+          try{
+            await playAudioFallback(current.en);
+            fb.className = "feedback good";
+            fb.textContent = "Audio über Fallback abgespielt.";
+          }catch(e){
+            fb.className = "feedback bad";
+            fb.textContent = "Kein Audio. Bitte Safari/Chrome nutzen und Lautlosmodus aus.";
+          }finally{
+            btn.textContent = "🔊 anhören";
+          }
+        }, 1000);
+      }catch(e){
+        playAudioFallback(current.en)
+          .then(() => {
+            fb.className = "feedback good";
+            fb.textContent = "Audio über Fallback abgespielt.";
+          })
+          .catch(() => {
+            fb.className = "feedback bad";
+            fb.textContent = "Audio konnte nicht gestartet werden.";
+          })
+          .finally(() => {
+            btn.textContent = "🔊 anhören";
+          });
+      }
+    });
+}
+function updateScore(){ document.getElementById('sc-right').textContent=right; document.getElementById('sc-wrong').textContent=wrong; document.getElementById('sc-total').textContent=right+wrong; }
+function updateProgress(){ const total=filteredVocab().length||1; document.getElementById('pbar').style.width=((total-queue.length)/total*100)+'%'; }
+function showResult(){
+  document.getElementById('quiz-card').style.display='none';
+  document.querySelector('.progress-wrap').style.display='none';
+  const total=(right+wrong)||1;
+  const pct=Math.round(right/total*100);
+  document.getElementById('pct-display').textContent=pct+'%';
+  document.getElementById('pct-ring').style.setProperty('--pct',pct);
+  const msg = pct>=90 ? 'Uitstekend! Fast alles richtig!' : pct>=70 ? 'Well done! Das war schon sehr gut.' : pct>=50 ? 'Gut geübt – wiederhole die schweren Wörter noch einmal.' : 'Bleib dran – Übung macht den Meister!';
+  document.getElementById('result-msg').textContent = msg + ' (' + right + ' von ' + total + ' richtig)';
+  document.getElementById('result').style.display='block';
+  sendVocabProgress(pct,total);
+}
+
+window.addEventListener("pointerdown", unlockTTS, { once: true });
+if ("speechSynthesis" in window) {
+  window.speechSynthesis.onvoiceschanged = () => {};
+}
+
+buildFilterButtons();
+restart();
+</script>
+
+<footer class="ex-shell-footer">
+  <div class="ex-inner">
+    <div>
+      <div class="ex-footer-name">Grund- und Mittelschule Unterhaching am Sportpark</div>
+      <div class="ex-footer-sub">GRUMI Lernplattform &middot; Klasse 9</div>
+    </div>
+    <div class="ex-footer-links">
+      <a href="../../index.html">Englisch 9</a>
+      <a href="../../datenschutz.html">Datenschutz</a>
+      <a href="../../impressum.html">Impressum</a>
+      <a href="../../bildnachweise.html">Bildnachweise</a>
+      <a href="../../haftung.html">Haftung</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

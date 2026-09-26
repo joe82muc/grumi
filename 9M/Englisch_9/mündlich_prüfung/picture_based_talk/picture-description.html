@@ -1,0 +1,690 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Picture Based Talk - Step by Step</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f6f8fc;
+      --card:#ffffff;
+      --muted:#5b6476;
+      --line:#d9e0ec;
+      --accent:#0f766e;
+      --accent-2:#14b8a6;
+      --danger:#b91c1c;
+      --ok:#166534;
+      --ink:#172033;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:'Inter',sans-serif;
+      background:radial-gradient(1000px 520px at 85% -20%, rgba(20,184,166,.10), transparent 58%), var(--bg);
+      color:var(--ink);
+      line-height:1.6;
+      padding:16px;
+    }
+    .container{max-width:1180px;margin:0 auto}
+    header{margin-bottom:14px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+    h1{font-family:'Poppins',sans-serif;font-size:clamp(1.4rem,2.6vw,2rem)}
+    .sub{color:var(--muted);margin-top:4px}
+
+    .layout{display:grid;grid-template-columns:1.2fr 1fr;gap:14px}
+    @media (max-width:980px){.layout{grid-template-columns:1fr}}
+
+    .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+    .panel h2{font-family:'Poppins',sans-serif;font-size:1.02rem;margin-bottom:10px}
+
+    .image-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:10px}
+    .img-opt{border:2px solid transparent;border-radius:10px;overflow:hidden;cursor:pointer;position:relative;aspect-ratio:16/10;background:#edf2fa}
+    .img-opt:hover{border-color:var(--accent-2)}
+    .img-opt.selected{border-color:var(--accent);box-shadow:0 0 0 2px rgba(15,118,110,.15)}
+    .img-opt img{width:100%;height:100%;object-fit:cover;display:block}
+    .img-cap{position:absolute;left:0;right:0;bottom:0;font-size:.76rem;background:linear-gradient(transparent,rgba(0,0,0,.60));color:#fff;padding:4px;text-align:center}
+    .preview{width:100%;border-radius:10px;border:1px solid var(--line);display:none;max-height:360px;object-fit:cover;margin-bottom:10px}
+    .preview.on{display:block}
+
+    .progress{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:10px}
+    .dot{height:8px;border-radius:999px;background:#dbe3f1}
+    .dot.done{background:#34d399}
+    .dot.current{background:var(--accent)}
+
+    .step{display:none;border:1px solid var(--line);border-left:4px solid var(--accent);padding:10px;border-radius:10px;background:#fbfdff}
+    .step.active{display:block}
+    .st-title{font-weight:700;margin-bottom:6px}
+    .st-q{font-weight:500;margin-bottom:6px}
+    .st-hint{font-size:.9rem;color:var(--muted);background:#f3f6fc;border:1px solid #e5ecf7;padding:8px;border-radius:8px;margin-bottom:8px}
+    textarea{width:100%;min-height:68px;border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;resize:vertical}
+    textarea:focus{outline:none;border-color:var(--accent)}
+    .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    button{border:none;background:var(--accent);color:#fff;font:inherit;font-weight:600;padding:8px 12px;border-radius:8px;cursor:pointer}
+    button.secondary{background:#e8eef8;color:#1d2a3f}
+
+    .counts{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+    .pill{padding:6px 10px;border-radius:999px;font-size:.88rem;background:#eef3fb;border:1px solid #dce5f3}
+    .pill.warn{color:var(--danger);background:#fff0f0;border-color:#f8caca}
+    .pill.ok{color:var(--ok);background:#ecfdf3;border-color:#bbf7d0}
+
+    .out{border:1px solid var(--line);border-radius:10px;padding:10px;min-height:180px;white-space:pre-wrap;background:#fcfdff}
+
+    .extra{margin-top:10px;border:1px solid #f6d08d;background:#fffaf0;border-radius:10px;padding:10px;display:none}
+    .extra.on{display:block}
+    .extra-q{font-weight:600;margin-bottom:8px}
+    .extra-help{font-size:.9rem;color:#8a5a00;margin-bottom:8px}
+
+    .phrase-wrap{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    @media (max-width:980px){.phrase-wrap{grid-template-columns:1fr}}
+    .phrase-card{border:1px solid var(--line);border-radius:10px;padding:10px;background:#fcfdff}
+    .phrase-card h3{font-size:.95rem;margin-bottom:6px;color:#0f3a56}
+    .phrase-card ul{padding-left:18px}
+    .phrase-card li{margin:3px 0}
+
+    .note{margin-top:8px;color:var(--muted);font-size:.9rem}
+    .ai-box{margin-top:10px;padding:8px 10px;border-radius:8px;border:1px solid #cfe0f6;background:#f3f8ff;font-size:.9rem}
+    .ai-box.ok{border-color:#bbf7d0;background:#f0fdf4;color:#166534}
+    .ai-box.warn{border-color:#fde68a;background:#fffbeb;color:#92400e}
+    .ai-box.bad{border-color:#fecaca;background:#fef2f2;color:#991b1b}
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../../css/exercise-shell.css">
+</head>
+<body>
+<header class="ex-shell-header" aria-label="Seitennavigation">
+  <div class="ex-inner">
+    <a class="ex-brand" href="../../../../index.html" aria-label="Zur Startseite">
+      <img src="../../../../images_school/logo.png" alt="Logo der Grund- und Mittelschule">
+      <span class="ex-brand-text">
+        <span class="ex-brand-name">Grund- und Mittelschule am Sportpark</span>
+        <span class="ex-brand-sub">GRUMI Lernplattform &middot; Englisch 9</span>
+      </span>
+    </a>
+    <a class="ex-back" href="../QA_muendlich.html">Zur&uuml;ck zur &Uuml;bersicht</a>
+  </div>
+</header>
+
+<nav class="ex-crumbs" aria-label="Pfad">
+      <a href="../../../../index.html">Start</a>
+      <a href="../../index.html">Englisch 9</a>
+      <a href="../QA_muendlich.html">Mündliche Prüfung</a>
+      <span>Picture Description</span>
+</nav>
+
+  <div class="container">
+    <header>
+      <h1>Picture Based Talk</h1>
+      <p class="sub">Step by step to a full text (target: 100 words)</p>
+    </header>
+
+    <div class="layout">
+      <section class="panel">
+        <h2>1) Choose a picture</h2>
+        <div class="image-grid" id="imageGrid">
+          <div class="img-opt" data-id="1"><img alt="Picnic" src="90c54927420d848232e9bf3a54fbf975811968d38664739aee3b79d100aabd59.png"><div class="img-cap">Picnic</div></div>
+          <div class="img-opt" data-id="2"><img alt="Airport" src="file_00000000ed5471f497238024eb0a0752.png"><div class="img-cap">Airport</div></div>
+          <div class="img-opt" data-id="3"><img alt="Camping" src="file_00000000218c71f4a3a24ee3ea8e0da7.png"><div class="img-cap">Camping</div></div>
+          <div class="img-opt" data-id="4"><img alt="Safari" src="file_00000000972c7246a0b65fe0129165cf.png"><div class="img-cap">Safari</div></div>
+          <div class="img-opt" data-id="5"><img alt="Football Stadium" src="file_000000006660724681164c65a1adafc0.png"><div class="img-cap">Football Stadium</div></div>
+          <div class="img-opt" data-id="6"><img alt="Job Interview" src="file_000000007c3072468d62f527a688e414.png"><div class="img-cap">Job Interview</div></div>
+        </div>
+
+        <img class="preview" id="preview" alt="Selected picture preview">
+
+        <div class="progress" id="progress"></div>
+
+        <div id="steps"></div>
+
+        <div class="btns">
+          <button id="buildBtn">Create / Update text</button>
+          <button class="secondary" id="resetBtn">Start over</button>
+        </div>
+        <div class="ai-box warn" id="aiBox">AI check: ready. Select a picture, then write your answer.</div>
+
+        <div class="extra" id="extraBox">
+          <div class="extra-q" id="extraQuestion">Extra question</div>
+          <div class="extra-help" id="extraHelp">Answer in full sentences.</div>
+          <textarea id="extraAnswer" placeholder="Write your answer here..."></textarea>
+          <div class="btns">
+            <button id="saveExtraBtn">Save answer + next question</button>
+          </div>
+        </div>
+
+        <p class="note">Rule: If the text is under 50 words, extra questions for the selected photo will appear automatically until 100 words are reached.</p>
+      </section>
+
+      <section class="panel">
+        <h2>2) Your text + word count</h2>
+        <div class="counts">
+          <div class="pill" id="wCount">Words: 0</div>
+          <div class="pill" id="wHint">Target: 100 words</div>
+        </div>
+        <div class="out" id="output">Choose a picture and complete the steps.</div>
+
+        <h2 style="margin-top:14px">3) Redemittel (all from the worksheet)</h2>
+        <div class="phrase-wrap">
+          <div class="phrase-card">
+            <h3>1. Einstieg</h3>
+            <ul>
+              <li>This picture shows ...</li>
+              <li>In this picture I can see ...</li>
+              <li>This photo was taken ...</li>
+              <li>The scene takes place ...</li>
+              <li>It looks like ...</li>
+            </ul>
+          </div>
+          <div class="phrase-card">
+            <h3>2. Personen beschreiben</h3>
+            <ul>
+              <li>There is / There are ...</li>
+              <li>I can see a man / a woman / a group of ...</li>
+              <li>The people are ...</li>
+              <li>They are wearing ...</li>
+              <li>One person is ...ing</li>
+              <li>They seem to be ...</li>
+            </ul>
+          </div>
+          <div class="phrase-card">
+            <h3>3. Ort / Position</h3>
+            <ul>
+              <li>In the foreground, there is ...</li>
+              <li>In the background, I can see ...</li>
+              <li>In the middle, there is ...</li>
+              <li>On the left / On the right, there is ...</li>
+              <li>Next to ... / Behind ... / In front of ...</li>
+            </ul>
+          </div>
+          <div class="phrase-card">
+            <h3>4. Handlung</h3>
+            <ul>
+              <li>They are ...ing</li>
+              <li>Someone is ...</li>
+              <li>The people are doing ...</li>
+              <li>It looks like they are ...</li>
+              <li>Maybe they are ...</li>
+            </ul>
+          </div>
+          <div class="phrase-card">
+            <h3>5. Vermutungen</h3>
+            <ul>
+              <li>I think that ...</li>
+              <li>Maybe ...</li>
+              <li>It could be that ...</li>
+              <li>They might be ...</li>
+              <li>It seems that ...</li>
+            </ul>
+          </div>
+          <div class="phrase-card">
+            <h3>6. Stimmung / 7. Meinung</h3>
+            <ul>
+              <li>The atmosphere is ...</li>
+              <li>The people look happy / excited / tired / sad / nervous.</li>
+              <li>It looks like a nice / stressful / busy situation.</li>
+              <li>The mood is ...</li>
+              <li>I think this is ...</li>
+              <li>In my opinion ...</li>
+              <li>I like / don't like this picture because ...</li>
+              <li>I would like to be there because ...</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE_CANDIDATES = window.location.protocol === 'file:'
+      ? [
+          'https://englisch-9.onrender.com',
+          'http://127.0.0.1:3000',
+          'http://localhost:3000',
+          'http://127.0.0.1:3210',
+          'http://localhost:3210',
+          'http://127.0.0.1:8080',
+          'http://localhost:8080'
+        ]
+      : [
+          'https://englisch-9.onrender.com',
+          ''
+        ];
+
+    const imageData = {
+      1: {src:'90c54927420d848232e9bf3a54fbf975811968d38664739aee3b79d100aabd59.png', label:'Picnic'},
+      2: {src:'file_00000000ed5471f497238024eb0a0752.png', label:'Airport'},
+      3: {src:'file_00000000218c71f4a3a24ee3ea8e0da7.png', label:'Camping'},
+      4: {src:'file_00000000972c7246a0b65fe0129165cf.png', label:'Safari'},
+      5: {src:'file_000000006660724681164c65a1adafc0.png', label:'Football Stadium'},
+      6: {src:'file_000000007c3072468d62f527a688e414.png', label:'Job Interview'}
+    };
+    const imageDescriptions = {
+      1: 'Picnic in a park with friends on a blanket, food and drinks, people relaxing and doing sports in the background.',
+      2: 'Busy airport scene with travelers, suitcases, greetings and emotional farewell moments.',
+      3: 'Camping scene with friends around a campfire, tents, trees and warm outdoor atmosphere.',
+      4: 'Safari with guide, jeep tourists, elephants, giraffe, trees and open landscape.',
+      5: 'Football stadium with excited fans, Germany colors, selfie, snacks and crowd.',
+      6: 'Job interview in an office with applicant, two interviewers, documents and professional mood.'
+    };
+
+    const steps = [
+      {title:'Step 1: Einstieg', q:'What does the picture show in general?', hint:"Use: 'This picture shows ...', 'In this picture I can see ...'"},
+      {title:'Step 2: Personen', q:'Who can you see? What do they look like?', hint:"Use: 'There are ...', 'The people are ...', 'They are wearing ...'"},
+      {title:'Step 3: Ort/Position', q:'What is in the foreground/background/left/right?', hint:"Use: 'In the foreground ...', 'In the background ...', 'On the left/right ...'"},
+      {title:'Step 4: Handlung', q:'What are the people doing right now?', hint:"Use Present Progressive: 'They are ...ing'"},
+      {title:'Step 5: Vermutungen', q:'What might be happening? Why?', hint:"Use: 'I think that ...', 'It could be that ...', 'They might be ...'"},
+      {title:'Step 6: Stimmung', q:'What is the atmosphere/mood like?', hint:"Use: 'The atmosphere is ...', 'The mood is ...'"},
+      {title:'Step 7: Meinung', q:'What is your own opinion?', hint:"Use: 'In my opinion ...', 'I like/don\'t like this picture because ...'"}
+    ];
+
+    const extraQuestions = {
+      1: [
+        'What food and drinks can you see on the blanket?',
+        'What are two people doing at this moment?',
+        'How is the weather, and how do you know?',
+        'What can people do in the background?',
+        'Would you like to join this picnic? Why or why not?'
+      ],
+      2: [
+        'Who is saying goodbye and how do they feel?',
+        'What objects can you see (for example suitcases or signs)?',
+        'What is happening in the background?',
+        'Why might this moment be emotional?',
+        'Would you enjoy this situation at an airport? Why?'
+      ],
+      3: [
+        'What can you see around the campfire?',
+        'What are the friends doing together?',
+        'How does the place look in the background?',
+        'What sounds might you hear there?',
+        'Would you like to camp there? Explain your answer.'
+      ],
+      4: [
+        'What animals can you identify in the photo?',
+        'What is the guide doing and why?',
+        'How are the tourists reacting?',
+        'What can you see in the landscape/background?',
+        'Why is this safari special for visitors?'
+      ],
+      5: [
+        'How do the fans show support for their team?',
+        'What are the people doing in the foreground?',
+        'What details can you see in the stadium background?',
+        'How would you describe the atmosphere in 2 adjectives?',
+        'Would you like to watch a match there? Why?'
+      ],
+      6: [
+        'Who is in the room and where are they sitting?',
+        'What objects are on the table?',
+        'What is happening at this moment in the interview?',
+        'How does the atmosphere feel for the applicant?',
+        'What advice would you give the applicant?'
+      ]
+    };
+
+    let selectedImage = null;
+    let answers = Array(steps.length).fill('');
+    let currentStep = 0;
+    let extraIndex = 0;
+    const extraAnswers = [];
+    let resolvedApiBase = null;
+    let apiResolvePromise = null;
+
+    const stepsWrap = document.getElementById('steps');
+    const progress = document.getElementById('progress');
+
+    function countWords(text){
+      return String(text || '').trim().split(/\s+/).filter(Boolean).length;
+    }
+
+    function normalize(txt){
+      const t = String(txt || '').replace(/\s+/g,' ').trim();
+      if(!t) return '';
+      return /[.!?]$/.test(t) ? t : (t + '.');
+    }
+
+    function setAiBox(type, msg){
+      const box = document.getElementById('aiBox');
+      box.className = 'ai-box ' + (type || 'warn');
+      box.textContent = msg;
+    }
+
+    async function resolveApiBase(){
+      if(resolvedApiBase !== null) return resolvedApiBase;
+      if(apiResolvePromise) return apiResolvePromise;
+
+      apiResolvePromise = (async () => {
+        for(const base of API_BASE_CANDIDATES){
+          try{
+            const res = await fetch(`${base}/api/health`, { method:'GET' });
+            if(res.ok){
+              resolvedApiBase = base;
+              setAiBox('ok', `AI check online (${(base || 'same-origin').replace(/^https?:\/\//,'')}).`);
+              return resolvedApiBase;
+            }
+          }catch(_e){}
+        }
+        resolvedApiBase = '';
+        setAiBox('warn', 'AI endpoint not reachable. Using local grammar/logic fallback.');
+        return resolvedApiBase;
+      })();
+
+      return apiResolvePromise;
+    }
+
+    async function apiUrl(path){
+      const base = await resolveApiBase();
+      return `${base}${path}`;
+    }
+
+    function localRuleCheck(sentence, step){
+      const s = Number(step || 1);
+      const txt = String(sentence || '');
+      if(s === 1 && !/\b(this picture shows|in this picture (i can see|you can see)|the picture shows|it looks like)\b/i.test(txt)){
+        return { status:'unsicher', reason:'Step 1 should start with an introduction phrase.' };
+      }
+      if(s === 3 && !/\b(foreground|background|on the left|on the right|in the middle|next to|behind|in front of)\b/i.test(txt)){
+        return { status:'unsicher', reason:'Use position words for this step.' };
+      }
+      if(s === 4 && !/\b(am|is|are)\s+\w+ing\b/i.test(txt)){
+        return { status:'unsicher', reason:'Use Present Progressive (am/is/are + verb-ing).' };
+      }
+      return { status:'passt', reason:'Sentence matches the step.' };
+    }
+
+    function localImageCheck(sentence, imageDescription){
+      const lowerText = String(sentence || '').toLowerCase();
+      const lowerImage = String(imageDescription || '').toLowerCase();
+      const imageTokens = lowerImage.split(/[^a-z]+/).filter(w => w.length >= 4);
+      const textTokens = new Set(lowerText.split(/[^a-z]+/).filter(Boolean));
+      const overlap = imageTokens.filter(t => textTokens.has(t)).length;
+      if(/\b(classroom|snow|hospital|kitchen|bedroom)\b/.test(lowerText) && !/\b(classroom|snow|hospital|kitchen|bedroom)\b/.test(lowerImage)){
+        return { status:'passt_nicht', reason:'The content does not match the selected picture.' };
+      }
+      if(overlap >= 2) return { status:'passt', reason:'Sentence fits the selected photo.' };
+      return { status:'unsicher', reason:'Picture reference is possible, but not clear enough.' };
+    }
+
+    function mergeStatus(a, b){
+      const rank = { passt:0, unsicher:1, passt_nicht:2 };
+      const sa = String(a?.status || 'unsicher');
+      const sb = String(b?.status || 'unsicher');
+      const worst = rank[sa] >= rank[sb] ? sa : sb;
+      return { status: worst, reason: `${String(a?.reason || '')} ${String(b?.reason || '')}`.trim() };
+    }
+
+    function localFallbackCheck(text, step){
+      const corrected = normalize(String(text || '')
+        .replace(/\bi\b/g,'I')
+        .replace(/\bdont\b/gi,"don't")
+        .replace(/\bdoesnt\b/gi,"doesn't")
+        .replace(/\bfreinds\b/gi,'friends')
+      );
+      const pic = imageDescriptions[selectedImage] || '';
+      const merged = mergeStatus(localRuleCheck(corrected, step), localImageCheck(corrected, pic));
+      return { correctedText: corrected, imageMatch: merged };
+    }
+
+    async function checkInputWithAi(rawText, step){
+      const text = normalize(rawText);
+      if(!text) return { accepted:false, correctedText:'', reason:'Please write a sentence.' };
+      if(!selectedImage) return { accepted:false, correctedText:text, reason:'Please select a picture first.' };
+
+      try{
+        const endpoint = await apiUrl('/api/picture-description/rewrite-sentence');
+        const resp = await fetch(endpoint,{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            text,
+            step,
+            selectedImage,
+            imageDescription:imageDescriptions[selectedImage] || 'a photo with people'
+          })
+        });
+
+        if(resp.ok){
+          const data = await resp.json();
+          const corrected = normalize(data?.correctedText || text);
+          const imageMatch = data?.imageMatch || { status:'unsicher', reason:'No explicit AI match status.' };
+          const status = String(imageMatch?.status || 'unsicher');
+          if(status === 'passt_nicht'){
+            return { accepted:false, correctedText:corrected, reason:imageMatch.reason || 'This sentence does not fit the picture.' };
+          }
+          return { accepted:true, correctedText:corrected, reason:imageMatch.reason || 'Checked by AI.' };
+        }
+        throw new Error('AI_API_ERROR');
+      }catch(_e){
+        const fb = localFallbackCheck(text, step);
+        const corrected = normalize(fb.correctedText || text);
+        const status = String(fb.imageMatch?.status || 'unsicher');
+        if(status === 'passt_nicht'){
+          return { accepted:false, correctedText:corrected, reason:fb.imageMatch.reason || 'Sentence does not fit the selected photo.' };
+        }
+        return { accepted:true, correctedText:corrected, reason:`Fallback check: ${fb.imageMatch.reason || 'accepted'}` };
+      }
+    }
+
+    function buildStepUi(){
+      progress.innerHTML = '';
+      stepsWrap.innerHTML = '';
+      steps.forEach((s, idx) => {
+        const d = document.createElement('div');
+        d.className = 'dot';
+        if(idx === 0) d.classList.add('current');
+        progress.appendChild(d);
+
+        const box = document.createElement('div');
+        box.className = 'step' + (idx === 0 ? ' active' : '');
+        box.id = 'step_' + idx;
+        box.innerHTML = `
+          <div class="st-title">${s.title}</div>
+          <div class="st-q">${s.q}</div>
+          <div class="st-hint">${s.hint}</div>
+          <textarea id="ans_${idx}" placeholder="Write 1-3 sentences..."></textarea>
+          <div class="btns">
+            <button data-next="${idx}">Save + next step</button>
+          </div>
+        `;
+        stepsWrap.appendChild(box);
+      });
+
+      stepsWrap.querySelectorAll('button[data-next]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const idx = Number(btn.dataset.next);
+          const ta = document.getElementById('ans_' + idx);
+          btn.disabled = true;
+          setAiBox('warn', 'Checking grammar, spelling and logic...');
+          const checked = await checkInputWithAi(ta.value, idx + 1);
+          btn.disabled = false;
+          if(!checked.accepted){
+            setAiBox('bad', checked.reason);
+            return;
+          }
+          ta.value = checked.correctedText;
+          answers[idx] = checked.correctedText;
+          setAiBox('ok', checked.reason || 'Accepted and corrected.');
+          if(idx < steps.length - 1){
+            currentStep = idx + 1;
+            showStep(currentStep);
+          }
+          updateOutput();
+        });
+      });
+    }
+
+    function showStep(step){
+      document.querySelectorAll('.step').forEach((el, i) => {
+        el.classList.toggle('active', i === step);
+      });
+      document.querySelectorAll('.dot').forEach((el, i) => {
+        el.classList.remove('current','done');
+        if(i < step) el.classList.add('done');
+        if(i === step) el.classList.add('current');
+      });
+    }
+
+    function combinedText(){
+      return [...answers.filter(Boolean), ...extraAnswers.filter(Boolean)].join(' ').trim();
+    }
+
+    function updateCountUi(words){
+      const wCount = document.getElementById('wCount');
+      const wHint = document.getElementById('wHint');
+      wCount.textContent = 'Words: ' + words;
+      wCount.className = 'pill';
+      wHint.className = 'pill';
+
+      if(words >= 100){
+        wCount.classList.add('ok');
+        wHint.classList.add('ok');
+        wHint.textContent = 'Great: target reached (100+)';
+      } else if(words < 50){
+        wCount.classList.add('warn');
+        wHint.classList.add('warn');
+        wHint.textContent = 'Under 50: answer extra questions now';
+      } else {
+        wHint.textContent = 'Good start: keep going to 100 words';
+      }
+    }
+
+    function showExtraQuestion(){
+      const box = document.getElementById('extraBox');
+      const qEl = document.getElementById('extraQuestion');
+      const help = document.getElementById('extraHelp');
+      const list = extraQuestions[selectedImage] || [];
+
+      if(!list.length){
+        box.classList.remove('on');
+        return;
+      }
+
+      if(extraIndex >= list.length){
+        extraIndex = 0;
+      }
+
+      qEl.textContent = 'Extra question: ' + list[extraIndex];
+      help.textContent = 'Answer in 1-2 full sentences. Keep adding details until you reach 100 words.';
+      box.classList.add('on');
+    }
+
+    function updateOutput(){
+      const out = document.getElementById('output');
+      const txt = combinedText();
+      out.textContent = txt || 'Choose a picture and complete the steps.';
+
+      const words = countWords(txt);
+      updateCountUi(words);
+
+      const box = document.getElementById('extraBox');
+      if(words < 50 && selectedImage){
+        showExtraQuestion();
+      } else if(words >= 100){
+        box.classList.remove('on');
+      } else if(words >= 50 && words < 100 && selectedImage && extraAnswers.length > 0){
+        showExtraQuestion();
+      }
+    }
+
+    function selectImage(id){
+      selectedImage = id;
+      document.querySelectorAll('.img-opt').forEach(el => {
+        el.classList.toggle('selected', Number(el.dataset.id) === id);
+      });
+      const p = document.getElementById('preview');
+      p.src = imageData[id].src;
+      p.classList.add('on');
+      extraIndex = 0;
+      extraAnswers.length = 0;
+      updateOutput();
+    }
+
+    document.getElementById('imageGrid').addEventListener('click', (e) => {
+      const card = e.target.closest('.img-opt');
+      if(!card) return;
+      selectImage(Number(card.dataset.id));
+    });
+
+    document.getElementById('buildBtn').addEventListener('click', async () => {
+      const buildBtn = document.getElementById('buildBtn');
+      buildBtn.disabled = true;
+      for(let i = 0; i < steps.length; i += 1){
+        const ta = document.getElementById(`ans_${i}`);
+        const raw = normalize(ta.value);
+        if(!raw) continue;
+        setAiBox('warn', `Checking input for ${steps[i].title}...`);
+        const checked = await checkInputWithAi(raw, i + 1);
+        if(checked.accepted){
+          ta.value = checked.correctedText;
+          answers[i] = checked.correctedText;
+        } else {
+          setAiBox('bad', `${steps[i].title}: ${checked.reason}`);
+        }
+      }
+      buildBtn.disabled = false;
+      setAiBox('ok', 'All available inputs checked before transfer to the text field.');
+      updateOutput();
+    });
+
+    document.getElementById('saveExtraBtn').addEventListener('click', async () => {
+      if(!selectedImage) return;
+      const ta = document.getElementById('extraAnswer');
+      const btn = document.getElementById('saveExtraBtn');
+      btn.disabled = true;
+      setAiBox('warn', 'Checking extra answer...');
+      const checked = await checkInputWithAi(ta.value, 8);
+      btn.disabled = false;
+      if(!checked.accepted){
+        setAiBox('bad', checked.reason);
+        return;
+      }
+      const val = checked.correctedText;
+      if(!val) return;
+      extraAnswers.push(val);
+      ta.value = '';
+      setAiBox('ok', checked.reason || 'Extra answer accepted.');
+      extraIndex += 1;
+      updateOutput();
+      const words = countWords(combinedText());
+      if(words < 100){
+        showExtraQuestion();
+      }
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      selectedImage = null;
+      answers = Array(steps.length).fill('');
+      currentStep = 0;
+      extraIndex = 0;
+      extraAnswers.length = 0;
+      document.querySelectorAll('.img-opt').forEach(el => el.classList.remove('selected'));
+      document.getElementById('preview').classList.remove('on');
+      document.getElementById('preview').src = '';
+      document.querySelectorAll('textarea').forEach(ta => ta.value = '');
+      document.getElementById('extraBox').classList.remove('on');
+      setAiBox('warn', 'AI check: ready. Select a picture, then write your answer.');
+      showStep(0);
+      updateOutput();
+    });
+
+    buildStepUi();
+    resolveApiBase();
+    updateOutput();
+  </script>
+
+<footer class="ex-shell-footer">
+  <div class="ex-inner">
+    <div>
+      <div class="ex-footer-name">Grund- und Mittelschule Unterhaching am Sportpark</div>
+      <div class="ex-footer-sub">GRUMI Lernplattform &middot; Klasse 9</div>
+    </div>
+    <div class="ex-footer-links">
+      <a href="../../index.html">Englisch 9</a>
+      <a href="../../datenschutz.html">Datenschutz</a>
+      <a href="../../impressum.html">Impressum</a>
+      <a href="../../bildnachweise.html">Bildnachweise</a>
+      <a href="../../haftung.html">Haftung</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
