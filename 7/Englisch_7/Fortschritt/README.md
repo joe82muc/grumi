@@ -2,6 +2,10 @@
 
 7M und 7R nutzen dieselben Seiten unter `7/Englisch_7`. Die Tests sind aber getrennt: jede Klasse hat eigene Test-IDs (`e7m-…` bzw. `e7r-…`), „7M“ oder „7R“ im Titel und ihren eigenen Notenschlüssel.
 
+## Übersicht (`index.html`)
+
+Aufbau wie Englisch 9R: Die vier Units stehen nebeneinander, darunter je Unit 1 Vokabeltrainer → 2 Grammatik → 3 Grammatiktests → 4 Vokabeltests. Bei Unit 2 bis 4 gibt es bisher nur den Vokabeltrainer. Die übrigen Schritte stehen dort auf „In Vorbereitung“, auch die Vokabeltests: Die Seiten `unit2-4/test/vokabeltest.html` gibt es zwar, auf dem Server liegen aber noch keine Tests dafür. Darunter steht „Weitere Übungen“ mit dem Testgenerator.
+
 ## Stand 26.09.2026: Vokabeltests und Grammatiktests zu Unit 1
 
 ### Vokabeltests (`unit1/test/vokabeltest.html`)
