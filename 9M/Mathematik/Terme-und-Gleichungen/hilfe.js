@@ -4,6 +4,19 @@
   const task = params.get("task") || "1";
   const equation = params.get("equation") || "3x + 15 = 36";
   const step = params.get("step") || "";
+  /* Klasse 7 oder 8: Rueckweg und Pfad auf die passende Fassung lenken */
+  const klasse = ["7", "8"].includes(params.get("klasse")) ? params.get("klasse") : "";
+  const uebungHref = klasse ? `index.html?klasse=${klasse}` : "index.html";
+  if (klasse) {
+    document.querySelectorAll('.crumbs a[href="index.html"]').forEach((a) => { a.href = uebungHref; });
+    const fach = document.querySelector('.crumbs a[href="../index.html"]');
+    if (fach) {
+      fach.href = `../../../${klasse}/Mathematik_${klasse}/index.html`;
+      fach.textContent = `Mathematik ${klasse}`;
+    }
+    const sub = document.querySelector(".topbar small");
+    if (sub) sub.textContent = `Mathematik | Jahrgangsstufe ${klasse}`;
+  }
 
   const helpLevel = document.querySelector("#help-level");
   const helpTitle = document.querySelector("#help-title");
@@ -460,7 +473,7 @@
       .join("");
     helpContent.innerHTML = sections
       .map((item) => `<section class="help-section" id="${item.id}"><h3>${escapeHtml(item.title)}</h3>${item.body}</section>`)
-      .join("") + `<a class="back-button" href="index.html">Zurück zur Übung</a>`;
+      .join("") + `<a class="back-button" href="${uebungHref}">Zurück zur Übung</a>`;
   }
 
   render();

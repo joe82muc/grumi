@@ -63,7 +63,7 @@
       hint: "Foto 4 muss Einsetzen und alle gesuchten Werte zeigen. Antwortsatz optional.",
     },
   ];
-  const levels = [
+  const allLevels = [
     {
       name: "Stufe 1",
       description: "Einfache Gleichungen ohne Klammern und ohne negative Zahlen.",
@@ -321,6 +321,20 @@
       ],
     },
   ];
+
+  /* Stufenauswahl je Jahrgangsstufe (LehrplanPLUS Mittelschule Bayern).
+     Aufruf mit ?klasse=7 oder ?klasse=8; ohne Angabe alle Stufen (Klasse 9).
+     Die Stufennamen bleiben gleich, weil Sachaufgaben (Stufe 14-16) und die
+     Erklaerseite am Namen haengen. */
+  const klasse = new URLSearchParams(location.search).get("klasse") || "";
+  const stufenJeKlasse = {
+    "7": ["Stufe 1", "Stufe 2", "Stufe 14"],
+    "8": ["Stufe 1", "Stufe 2", "Stufe 3", "Stufe 4", "Stufe 5", "Stufe 6",
+          "Stufe 7", "Stufe 14", "Stufe 15", "Stufe 16"],
+  };
+  const levels = stufenJeKlasse[klasse]
+    ? allLevels.filter((level) => stufenJeKlasse[klasse].includes(level.name))
+    : allLevels;
   const solved = levels.map(() => new Set());
   const photoStepProgress = levels.map((level) => level.equations.map(() => 0));
   let currentImage = null;
@@ -385,6 +399,7 @@
     if (isStepwiseWordProblemLevel()) {
       params.set("step", String(currentTaskStepIndex + 1));
     }
+    if (klasse) params.set("klasse", klasse);
 
     helpLink.href = `hilfe.html?${params.toString()}`;
     helpLink.setAttribute(

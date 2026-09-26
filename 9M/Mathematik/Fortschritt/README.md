@@ -37,6 +37,23 @@ Alle Mathe-Fotoprüfungen (Gleichungen, ebene Figuren, Kegel, Pyramide) laufen �
 
 **Datenschutz-Hinweis:** Die Route speichert jedes hochgeladene Foto auf dem Render-Server im Ordner `student-uploads`. Auf dem kostenlosen Plan geht es beim Neustart verloren. Die Übersicht bittet die Schüler deshalb, nur die Rechnung zu fotografieren – ohne Namen und ohne Gesicht.
 
+## Stand 26.09.2026 (2): Terme und Gleichungen für Klasse 7 und 8
+
+Dieselbe Übung wird mit `?klasse=7` bzw. `?klasse=8` aufgerufen und zeigt dann nur die Stufen dieser Jahrgangsstufe. Die Auswahl steht in `stufenJeKlasse` in `gleichungen.js`, die Stufennamen bleiben gleich. Kopf, Pfad und Legende passt ein kleines Skript in `index.html` an. Die Hilfeseite gibt die Klasse beim Zurückgehen wieder mit.
+
+Die Auswahl richtet sich nach dem LehrplanPLUS Mittelschule Bayern (ISB), Lernbereich „Gleichungen“:
+
+| Klasse | Lehrplan | Stufen |
+|---|---|---|
+| 7M, 7R | ax + b = c mit ganzen Zahlen, Terme vereinfachen, Äquivalenzumformungen, Probe; M7 zusätzlich Sachsituationen | 1, 2, 14 |
+| 8R | Gleichungen mit Klammern und mehrmals auftretender Variable, rationale Zahlen in Dezimalschreibweise, Textgleichungen und Alltagssituationen | 1–6, 14, 15 |
+| 8M | wie 8R, zusätzlich Wechsel zwischen Bruch- und Dezimaldarstellung, Mischungsaufgaben | zusätzlich 7 und 16 |
+| 9 | Bruchgleichungen mit Hauptnenner (Quali), M-Stoff 10–13 | alle 16 |
+
+Die Seite für Klasse 8 zeigt alle Stufen 1–7 und 14–16. Die Legende weist darauf hin, dass Stufe 7 und 16 vor allem für 8M gedacht sind.
+
+Neue Übersichten: `7/Mathematik_7/index.html` (für 7M und 7R) und `8/Mathematik_8/index.html` (für 8M und 8R). Die Startseite verlinkt „Mathematik“ jetzt in allen Klassenkarten von 7 bis 9.
+
 ## Offen
 
 - Potenzen sowie Prozent- und Zinsrechnung.
