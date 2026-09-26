@@ -11,7 +11,7 @@
 <style>
   :root{
     --ink:#101a2e; --muted:#5d6b84; --line:#dce4f0;
-    --blue:#012169; --blue-2:#15357f; --accent:#1d6fe0; --accent-soft:#e8f0fd;
+    --blue:#00649b; --blue-2:#0082c3; --accent:#0098da; --accent-soft:#e1f3fb;
     --ok:#15803d; --ok-bg:#e9f8ee; --ok-line:#8fd6a8;
     --bad:#c2340f; --bad-bg:#fdeeeb; --bad-line:#f3b5a6;
     --warn:#8a5a00; --warn-bg:#fff6e3; --warn-line:#f0d295;
@@ -81,7 +81,7 @@
     box-shadow:0 3px 12px rgba(16,26,46,.07);
   }
   .bar b{font-size:1.05rem}
-  .pbar-wrap{flex:1;min-width:120px;height:8px;background:#e4eaf4;border-radius:99px;overflow:hidden}
+  .pbar-wrap{flex:1;min-width:120px;height:8px;background:#dcebf3;border-radius:99px;overflow:hidden}
   .pbar{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--accent));transition:width .3s}
 
   .q{
@@ -97,6 +97,7 @@
   .q-word{font-size:1.1rem;font-weight:800;color:var(--blue)}
   .q-dir{font-size:.76rem;color:var(--muted);font-weight:700}
   .q-hint{font-size:.78rem;color:var(--muted);font-style:italic}
+  .q-two{font-size:.72rem;font-weight:800;color:#7a5600;background:#fff4d6;border:1px solid #f0d089;border-radius:99px;padding:.05rem .5rem}
   .q input{font-weight:700}
   .edits-left{font-size:.74rem;color:var(--muted);margin-top:.3rem;font-weight:600}
   .edits-left.none{color:var(--bad)}
@@ -163,6 +164,8 @@
     <div class="note">
       <strong>Wichtig &ndash; bitte lesen:</strong>
       <ul>
+        <li>Es wird nur <strong>Deutsch &rarr; Englisch</strong> abgefragt.</li>
+        <li>Steht ein Wort mit <strong>zwei Bedeutungen</strong> da (z.&nbsp;B. <i>Aufgabe; Auftrag</i>), suchst du trotzdem nur <strong>ein</strong> englisches Wort. Ein Hinweis in Klammern hilft, wenn ein Wort mehrdeutig ist.</li>
         <li>Du kannst den Test <strong>nur einmal</strong> abgeben.</li>
         <li>Jedes Feld darfst du <strong>2&times; korrigieren</strong>, danach ist es fest.</li>
         <li>Lade die Seite <strong>nicht neu</strong> und schlie&szlig;e den Tab nicht.</li>
@@ -338,8 +341,9 @@ function renderTest(){
       '<span class="q-nr">' + it.nr + '</span>' +
       '<span class="q-word"></span>' +
       '<span class="q-dir">' + (it.direction === 'en-de' ? 'auf Deutsch' : 'auf Englisch') + '</span>' +
+      (String(it.prompt).includes(';') ? '<span class="q-two">2 Bedeutungen &middot; 1 Wort</span>' : '') +
       (it.hint ? '<span class="q-hint">(' + it.hint + ')</span>' : '');
-    top.querySelector('.q-word').textContent = it.prompt;
+    top.querySelector('.q-word').textContent = String(it.prompt).replace(/\s*;\s*/g, ' / ');
 
     const inp = document.createElement('input');
     inp.type = 'text'; inp.id = 'a' + i;
@@ -437,7 +441,8 @@ function showResult(r){
   $('res-who').textContent = student.firstName + ' ' + student.lastName + ' · ' + student.className + ' · ' + student.testDate;
   $('res-grade').textContent = 'Note ' + r.grade;
   $('res-meta').textContent = r.score + ' von ' + r.total + ' richtig (' + r.percent + ' %)'
-    + (r.typos ? ' · ' + r.typos + ' davon mit kleinem Tippfehler' : '');
+    + (r.typos ? ' · ' + r.typos + ' davon mit kleinem Tippfehler' : '')
+    + (r.aiAccepted ? ' · ' + r.aiAccepted + ' von der KI anerkannt' : '');
 
   const list = $('res-list');
   list.innerHTML = '';
@@ -467,7 +472,10 @@ function showResult(r){
     }
 
     const right = document.createElement('span');
-    if(d.correct && d.typo){
+    if(d.correct && d.ai){
+      right.className = 'tag-typo';
+      right.textContent = 'von der KI anerkannt';
+    } else if(d.correct && d.typo){
       right.className = 'tag-typo';
       right.textContent = 'Tippfehler';
     }
