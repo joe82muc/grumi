@@ -107,7 +107,7 @@ window.M7_GLEICHUNGEN = {
     {
       id: "zusammenfassen",
       gruppe: "loesen",
-      titel: "Erst zusammen­fassen",
+      titel: "Erst zusammen\u00ADfassen",
       kurz: "2x + 3x + 4 = 29",
       typ: "gleichung",
       ziel: "Fasse Gleiches zusammen: x zu x, Zahlen zu Zahlen. Dann löst du wie gewohnt.",

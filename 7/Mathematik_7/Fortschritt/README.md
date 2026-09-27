@@ -63,8 +63,19 @@ Die Seite schickt `klasse=7` mit. Nur dann gilt der neue Ablauf, 8. und 9. Klass
   - „2x + 3 = 11“ mit Probe ergab „richtig, fertig, Probe richtig“. Dauer 6 Sekunden.
 - Fix nach dem Live-Test: Die KI lobte „auf beiden Seiten −10 gerechnet“, obwohl genau dort der Fehler lag. Bei einem Fehler kommen Lob und Überschrift jetzt nur noch aus der Nachrechnung, z. B. „Deine erste Zeile ist richtig. Die Idee im Kommandostrich ist richtig: − 10.“
 
+## Stand 27.09.2026 (2): Rechenweg mit dem Stift schreiben (iPad)
+
+Wunsch: statt Foto auch mit dem iPad-Stift schreiben, als Option.
+
+- Im Kasten „Rechenweg prüfen lassen“ gibt es jetzt die Wahl „Foto vom Heft“ (Standard) oder „Mit Stift schreiben“. Die Seite merkt sich die Wahl im Browser (`abgabe` im Fortschritt).
+- Schreibfeld auf Karopapier (`createInkPad` in `gleichungen7.js`): Apple Pencil mit Druckstärke, Finger oder Maus. Sobald ein Stift erkannt ist, zeichnet die aufliegende Hand nicht mit. Werkzeuge: Stift, Radierer (löscht ganze Striche), Zurück (auch nach Radieren und „Alles löschen“), Alles löschen, „Mehr Platz“.
+- Beim Prüfen wird die Schrift auf den beschriebenen Bereich zugeschnitten und als PNG (weiß, zartes Karo) an dieselbe KI-Prüfung geschickt. Zusätzliches Formularfeld `quelle` = `foto` oder `stift`. Am Server hat sich nichts geändert.
+- Beim Wechsel der Aufgabe wird das Feld geleert.
+- Getestet mit simuliertem Stift (Druck, Handballen, Radierer, Zurück, Abgabe) und live mit dem echten Modell: Der geschriebene Rechenweg „2x + 3 = 11 | −3, 2x = 14 | :2, x = 7“ wurde vollständig gelesen, Fehler in Zeile 2 als „gegenteil“ erkannt (8 Sekunden).
+
 ## Offen
 
 - Test mit echten Schülerfotos aus dem Unterricht (Handschrift, schlechtes Licht, schräge Fotos).
+- Test des Schreibfelds auf einem echten iPad mit Apple Pencil (Safari).
 - Weitere Lernbereiche der 7. Klasse (Prozentrechnung, rationale Zahlen, Proportionalität …).
 - Datenschutz: Die Route speichert weiterhin jedes Foto in `student-uploads` auf dem Render-Server.

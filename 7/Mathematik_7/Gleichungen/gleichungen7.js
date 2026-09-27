@@ -47,6 +47,14 @@
     previewEmpty: $("#preview-empty"),
     checkButton: $("#check-button"),
     feedback: $("#feedback"),
+    modeButtons: [...document.querySelectorAll("[data-mode]")],
+    modeFoto: $("#mode-foto"),
+    modeStift: $("#mode-stift"),
+    checkSteps: $("#check-steps"),
+    inkCanvas: $("#ink-canvas"),
+    inkEmpty: $("#ink-empty"),
+    inkNote: $("#ink-note"),
+    inkTools: [...document.querySelectorAll("[data-tool]")],
   };
 
   function escapeHtml(value) {
@@ -600,6 +608,7 @@
     renderHints();
     renderChips();
     clearPhoto();
+    ink.clear(true);
     el.feedback.innerHTML = "";
     progress.last = { stufe: level.id, aufgabe: taskIndex };
     saveProgress();
@@ -762,6 +771,347 @@
     img.src = URL.createObjectURL(file);
   }
 
+  /* ---------- Schreibfeld fuer Stift und Finger (z. B. iPad) ---------- */
+
+  const INK_COLOR = "#1d2b6b";
+  const GRID = 28;
+
+  function createInkPad(canvas, { onChange, onPen }) {
+    const ctx = canvas.getContext("2d");
+    let strokes = [];
+    const history = [];
+    let current = null;
+    let erasing = null;
+    let tool = "stift";
+    let penSeen = false;
+    let width = 0;
+    let height = 0;
+
+    // Stift: Strichbreite nach Druck, Finger und Maus: gleich breit
+    const lineWidth = (stroke, point) => (stroke.pen ? 1.4 + point.p * 2.8 : 3);
+
+    function pointOf(event) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top,
+        p: event.pressure > 0 ? event.pressure : 0.5,
+      };
+    }
+
+    function prepare(target) {
+      target.strokeStyle = INK_COLOR;
+      target.lineCap = "round";
+      target.lineJoin = "round";
+    }
+
+    function drawStroke(target, stroke, dx, dy) {
+      const pts = stroke.points;
+      prepare(target);
+      if (pts.length < 3) {
+        const first = pts[0];
+        const last = pts[pts.length - 1];
+        target.lineWidth = lineWidth(stroke, last);
+        target.beginPath();
+        target.moveTo(first.x - dx, first.y - dy);
+        target.lineTo(last.x - dx + 0.01, last.y - dy);
+        target.stroke();
+        return;
+      }
+      let start = pts[0];
+      for (let i = 1; i < pts.length - 1; i += 1) {
+        const mid = { x: (pts[i].x + pts[i + 1].x) / 2, y: (pts[i].y + pts[i + 1].y) / 2 };
+        target.lineWidth = lineWidth(stroke, pts[i]);
+        target.beginPath();
+        target.moveTo(start.x - dx, start.y - dy);
+        target.quadraticCurveTo(pts[i].x - dx, pts[i].y - dy, mid.x - dx, mid.y - dy);
+        target.stroke();
+        start = mid;
+      }
+      const last = pts[pts.length - 1];
+      target.beginPath();
+      target.moveTo(start.x - dx, start.y - dy);
+      target.lineTo(last.x - dx, last.y - dy);
+      target.stroke();
+    }
+
+    function redraw() {
+      ctx.clearRect(0, 0, width, height);
+      strokes.forEach((stroke) => drawStroke(ctx, stroke, 0, 0));
+      onChange(strokes.length === 0);
+    }
+
+    // Beim Schreiben nur das neue Stueck zeichnen, damit es fluessig bleibt
+    function extend(stroke) {
+      const pts = stroke.points;
+      prepare(ctx);
+      while (stroke.drawn < pts.length - 1) {
+        const i = stroke.drawn;
+        if (i === 0) {
+          stroke.mid = pts[0];
+          stroke.drawn = 1;
+          continue;
+        }
+        const mid = { x: (pts[i].x + pts[i + 1].x) / 2, y: (pts[i].y + pts[i + 1].y) / 2 };
+        ctx.lineWidth = lineWidth(stroke, pts[i]);
+        ctx.beginPath();
+        ctx.moveTo(stroke.mid.x, stroke.mid.y);
+        ctx.quadraticCurveTo(pts[i].x, pts[i].y, mid.x, mid.y);
+        ctx.stroke();
+        stroke.mid = mid;
+        stroke.drawn = i + 1;
+      }
+    }
+
+    function distanceToSegment(p, a, b) {
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const lengthSq = dx * dx + dy * dy;
+      const t = lengthSq ? Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / lengthSq)) : 0;
+      return Math.hypot(p.x - (a.x + t * dx), p.y - (a.y + t * dy));
+    }
+
+    function touches(stroke, point) {
+      const pts = stroke.points;
+      if (pts.length === 1) return Math.hypot(pts[0].x - point.x, pts[0].y - point.y) <= 16;
+      for (let i = 1; i < pts.length; i += 1) {
+        if (distanceToSegment(point, pts[i - 1], pts[i]) <= 12 + lineWidth(stroke, pts[i])) return true;
+      }
+      return false;
+    }
+
+    // Radierer loescht ganze Striche, die er beruehrt; der Weg wird lueckenlos abgefahren
+    function eraseAlong(to) {
+      const from = erasing.last || to;
+      const steps = Math.max(1, Math.ceil(Math.hypot(to.x - from.x, to.y - from.y) / 6));
+      let changed = false;
+      for (let s = 1; s <= steps; s += 1) {
+        const point = { x: from.x + ((to.x - from.x) * s) / steps, y: from.y + ((to.y - from.y) * s) / steps };
+        for (let i = strokes.length - 1; i >= 0; i -= 1) {
+          if (touches(strokes[i], point)) {
+            erasing.items.push({ index: i, stroke: strokes[i] });
+            strokes.splice(i, 1);
+            changed = true;
+          }
+        }
+      }
+      erasing.last = to;
+      if (changed) redraw();
+    }
+
+    canvas.addEventListener("pointerdown", (event) => {
+      if (event.pointerType === "pen" && !penSeen) {
+        penSeen = true;
+        onPen();
+      }
+      // Mit Stift: aufliegende Hand (touch) schreibt nicht mit
+      if (penSeen && event.pointerType === "touch") return;
+      if (event.pointerType === "mouse" && event.button !== 0) return;
+      if (current || erasing) return;
+      event.preventDefault();
+      try {
+        canvas.setPointerCapture(event.pointerId);
+      } catch {
+        // ohne Capture schreibt es trotzdem, nur nicht ueber den Rand hinaus
+      }
+      const point = pointOf(event);
+      // Werkzeug Radierer oder Radierer-Taste am Stift
+      if (tool === "radierer" || (event.buttons & 32) === 32) {
+        erasing = { pointerId: event.pointerId, items: [], last: null };
+        eraseAlong(point);
+        return;
+      }
+      current = { pen: event.pointerType === "pen", points: [point], drawn: 0, pointerId: event.pointerId };
+      strokes.push(current);
+      onChange(false);
+    });
+
+    canvas.addEventListener("pointermove", (event) => {
+      const active = current || erasing;
+      if (!active || event.pointerId !== active.pointerId) return;
+      event.preventDefault();
+      const coalesced = typeof event.getCoalescedEvents === "function" ? event.getCoalescedEvents() : [];
+      const events = coalesced.length ? coalesced : [event];
+      if (erasing) {
+        events.forEach((item) => eraseAlong(pointOf(item)));
+        return;
+      }
+      events.forEach((item) => current.points.push(pointOf(item)));
+      extend(current);
+    });
+
+    function finish(event) {
+      if (erasing && event.pointerId === erasing.pointerId) {
+        if (erasing.items.length) history.push({ type: "erase", items: erasing.items });
+        erasing = null;
+        return;
+      }
+      if (!current || event.pointerId !== current.pointerId) return;
+      history.push({ type: "add", stroke: current });
+      current = null;
+      redraw();
+    }
+
+    canvas.addEventListener("pointerup", finish);
+    canvas.addEventListener("pointercancel", finish);
+
+    function resize() {
+      const rect = canvas.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      width = rect.width;
+      height = rect.height;
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = Math.round(width * ratio);
+      canvas.height = Math.round(height * ratio);
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      redraw();
+    }
+
+    /** Beschriebenen Bereich zuschneiden und als PNG liefern (weiss, zartes Karo). */
+    function toFile() {
+      if (!strokes.length) return Promise.resolve(null);
+      let minX = Infinity;
+      let minY = Infinity;
+      let maxX = -Infinity;
+      let maxY = -Infinity;
+      strokes.forEach((stroke) =>
+        stroke.points.forEach((q) => {
+          minX = Math.min(minX, q.x);
+          minY = Math.min(minY, q.y);
+          maxX = Math.max(maxX, q.x);
+          maxY = Math.max(maxY, q.y);
+        }),
+      );
+      const margin = 30;
+      minX = Math.max(0, minX - margin);
+      minY = Math.max(0, minY - margin);
+      maxX = Math.min(width, maxX + margin);
+      maxY = Math.min(height, maxY + margin);
+      const w = Math.max(40, maxX - minX);
+      const h = Math.max(40, maxY - minY);
+      const scale = Math.min(2, 1800 / Math.max(w, h));
+      const out = document.createElement("canvas");
+      out.width = Math.round(w * scale);
+      out.height = Math.round(h * scale);
+      const target = out.getContext("2d");
+      target.fillStyle = "#ffffff";
+      target.fillRect(0, 0, out.width, out.height);
+      target.setTransform(scale, 0, 0, scale, 0, 0);
+      target.strokeStyle = "#e6edf3";
+      target.lineWidth = 1;
+      target.beginPath();
+      for (let gx = Math.ceil(minX / GRID) * GRID; gx <= maxX; gx += GRID) {
+        target.moveTo(gx - minX, 0);
+        target.lineTo(gx - minX, h);
+      }
+      for (let gy = Math.ceil(minY / GRID) * GRID; gy <= maxY; gy += GRID) {
+        target.moveTo(0, gy - minY);
+        target.lineTo(w, gy - minY);
+      }
+      target.stroke();
+      strokes.forEach((stroke) => drawStroke(target, stroke, minX, minY));
+      return new Promise((resolve) =>
+        out.toBlob(
+          (blob) =>
+            resolve(blob ? new File([blob], "rechenweg-stift.png", { type: "image/png", lastModified: Date.now() }) : null),
+          "image/png",
+        ),
+      );
+    }
+
+    return {
+      resize,
+      toFile,
+      isEmpty: () => strokes.length === 0,
+      setTool(next) {
+        tool = next;
+      },
+      undo() {
+        const action = history.pop();
+        if (!action) return;
+        if (action.type === "add") strokes = strokes.filter((stroke) => stroke !== action.stroke);
+        if (action.type === "erase") {
+          action.items.slice().reverse().forEach(({ index, stroke }) => strokes.splice(index, 0, stroke));
+        }
+        if (action.type === "clear") strokes = action.strokes.slice();
+        redraw();
+      },
+      /** reset: neue Aufgabe, ohne Rueckgaengig-Schritt */
+      clear(reset) {
+        if (reset) {
+          strokes = [];
+          history.length = 0;
+          current = null;
+          erasing = null;
+          redraw();
+          return;
+        }
+        if (!strokes.length) return;
+        history.push({ type: "clear", strokes: strokes.slice() });
+        strokes = [];
+        redraw();
+      },
+      grow() {
+        canvas.style.height = `${Math.min(1400, canvas.getBoundingClientRect().height + 220)}px`;
+        resize();
+      },
+    };
+  }
+
+  const ink = createInkPad(el.inkCanvas, {
+    onChange: (empty) => {
+      el.inkEmpty.hidden = !empty;
+    },
+    onPen: () => {
+      el.inkNote.textContent = "Stift erkannt: Deine Hand darf auf dem Bildschirm liegen.";
+    },
+  });
+
+  const CHECK_STEPS = {
+    foto: [
+      ["Im Heft rechnen", "jeden Schritt in eine neue Zeile, mit Kommandostrich"],
+      ["Foto machen", "hell, gerade, nur diese Aufgabe"],
+      ["Prüfen lassen", "die KI liest, der Computer rechnet nach"],
+    ],
+    stift: [
+      ["Ins Feld schreiben", "mit Stift oder Finger, eine Zeile pro Schritt"],
+      ["Kurz kontrollieren", "gut lesbar? Mit dem Radierer verbessern"],
+      ["Prüfen lassen", "die KI liest, der Computer rechnet nach"],
+    ],
+  };
+
+  let mode = "foto";
+
+  function setMode(next) {
+    mode = next === "stift" ? "stift" : "foto";
+    el.modeButtons.forEach((button) => {
+      const active = button.dataset.mode === mode;
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+    el.modeFoto.hidden = mode !== "foto";
+    el.preview.hidden = mode !== "foto";
+    el.modeStift.hidden = mode !== "stift";
+    el.checkSteps.innerHTML = CHECK_STEPS[mode]
+      .map(([title, text]) => `<li><b>${escapeHtml(title)}</b><span>${escapeHtml(text)}</span></li>`)
+      .join("");
+    if (mode === "stift") ink.resize();
+    if (progress.abgabe !== mode) {
+      progress.abgabe = mode;
+      saveProgress();
+    }
+  }
+
+  function setTool(next) {
+    ink.setTool(next);
+    el.inkTools.forEach((button) => {
+      const active = button.dataset.tool === next;
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+    el.modeStift.classList.toggle("is-eraser", next === "radierer");
+  }
+
   /* ---------- Rueckmeldung ---------- */
 
   function renderInfo(title, text) {
@@ -914,7 +1264,16 @@
   async function submitPhoto(event) {
     event.preventDefault();
     if (checking) return;
-    const file = (await photo.ready) || photo.upload || photo.file;
+    let file = null;
+    if (mode === "stift") {
+      if (ink.isEmpty()) {
+        renderInfo("Noch nichts geschrieben", "Schreib zuerst deinen Rechenweg in das Feld: eine Zeile pro Schritt.");
+        return;
+      }
+      file = await ink.toFile();
+    } else {
+      file = (await photo.ready) || photo.upload || photo.file;
+    }
     if (!file) {
       renderInfo("Foto fehlt", "Wähle zuerst ein Foto von deinem Rechenweg aus oder nimm eins mit der Kamera auf.");
       return;
@@ -924,7 +1283,7 @@
     const form = new FormData();
     form.append("klasse", "7");
     form.append("aufgabenTyp", task.typ);
-    form.append("taskLevel", `Stufe ${level.nr} · ${level.titel.replace(/­/g, "")}`);
+    form.append("taskLevel", `Stufe ${level.nr} · ${level.titel.replace(/\u00AD/g, "")}`);
     form.append("equation", task.text);
     if (task.typ === "term") {
       form.append("term", task.term);
@@ -936,6 +1295,7 @@
       form.append("variable", task.variable || "");
     }
     if (task.werte && task.werte.length) form.append("werte", JSON.stringify(task.werte));
+    form.append("quelle", mode);
     form.append("image", file);
 
     setChecking(true);
@@ -998,6 +1358,22 @@
   el.cameraInput.addEventListener("change", () => loadPhoto(el.cameraInput.files[0]));
   el.cameraButton.addEventListener("click", () => el.cameraInput.click());
   el.photoForm.addEventListener("submit", submitPhoto);
+  el.modeButtons.forEach((button) => button.addEventListener("click", () => setMode(button.dataset.mode)));
+  el.inkTools.forEach((button) => button.addEventListener("click", () => setTool(button.dataset.tool)));
+  el.modeStift.addEventListener("click", (event) => {
+    const action = event.target.closest("[data-ink]");
+    if (!action) return;
+    if (action.dataset.ink === "undo") ink.undo();
+    if (action.dataset.ink === "clear") ink.clear(false);
+    if (action.dataset.ink === "grow") ink.grow();
+  });
+  let resizeFrame = 0;
+  window.addEventListener("resize", () => {
+    cancelAnimationFrame(resizeFrame);
+    resizeFrame = requestAnimationFrame(() => {
+      if (mode === "stift") ink.resize();
+    });
+  });
   el.feedback.addEventListener("click", (event) => {
     if (event.target.closest("[data-next-task]")) stepTask(1);
     const levelButton = event.target.closest("[data-go-level]");
@@ -1011,4 +1387,5 @@
   renderPath();
   renderLevel();
   renderTask();
+  setMode(progress.abgabe);
 })();
