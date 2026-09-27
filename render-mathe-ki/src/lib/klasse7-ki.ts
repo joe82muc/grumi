@@ -566,12 +566,22 @@ export function mergeKlasse7(task: Klasse7Task, answer: KiAnswer): Klasse7Feedba
       const fixNumbers = numbersIn(fix);
       const okBefore = zeilen.slice(0, errorIndex).filter((line) => line.status === "ok").length;
       const specific = diagnosis && diagnosis.kind !== "anderes";
+      // Lob bei einem Fehler nur aus dem, was die Nachrechnung sicher weiss.
+      // (Live-Test 27.09.2026: Die KI lobte "auf beiden Seiten -10 gerechnet",
+      // obwohl genau dort der Fehler lag.)
       const templateLob =
         okBefore === 0
           ? "Gut, dass du deinen Rechenweg aufschreibst."
           : okBefore === 1
             ? "Deine erste Zeile ist richtig."
             : `Die ersten ${okBefore} Zeilen sind richtig.`;
+      const previousOp = errorIndex >= 1 ? answer.zeilen[errorIndex - 1]?.umformung ?? "" : "";
+      const rightIdea =
+        Boolean(previousOp && diagnosis?.fixOp) &&
+        normalizeMath(previousOp) === normalizeMath(diagnosis?.fixOp ?? "");
+      const lob = rightIdea
+        ? `${templateLob} Die Idee im Kommandostrich ist richtig: ${diagnosis?.fixOp}.`
+        : templateLob;
       result = {
         ...empty,
         correct: false,
@@ -579,8 +589,8 @@ export function mergeKlasse7(task: Klasse7Task, answer: KiAnswer): Klasse7Feedba
         zeilen,
         fehlerZeile: errorIndex + 1,
         fehlerArt: specific ? diagnosis.kind : kiAgrees ? answer.fehlerArt : diagnosis?.kind ?? "anderes",
-        summary: (kiAgrees && safe(answer.summary, fixNumbers)) || `Fast! In Zeile ${errorIndex + 1} hat sich ein Fehler eingeschlichen.`,
-        lob: (kiAgrees && safe(answer.lob, fixNumbers)) || templateLob,
+        summary: `Fast! In Zeile ${errorIndex + 1} hat sich ein Fehler eingeschlichen.`,
+        lob,
         denkanstoss: specific
           ? diagnosis.hint
           : (kiAgrees && safe(answer.denkanstoss, fixNumbers)) || diagnosis?.hint || "Vergleiche diese Zeile genau mit der Zeile davor.",

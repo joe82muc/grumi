@@ -57,10 +57,14 @@ Die Seite schickt `klasse=7` mit. Nur dann gilt der neue Ablauf, 8. und 9. Klass
 - `src/lib/klasse7-ki.ts`: eigener, kurzer Prompt für Klasse 7 (einfache Sprache, erst loben, nur den ersten Fehler, Denkanstoß statt Lösung) und feste JSON-Form über `output_config.format`. Lehnt das Modell die feste Form ab, gibt es einen zweiten Versuch ohne.
 - `src/lib/klasse7.ts`: Rechen-Prüfer. Rechnet die abgeschriebenen Zeilen exakt nach, findet die erste falsche Zeile und erkennt Fehlerarten: Rechenfehler, nur auf einer Seite gerechnet, Gegenteil falsch (z. B. + statt −, − statt :), nur einen Teil geteilt, Vorzeichen, Zusammenfassen, Punkt vor Strich, Einsetzen, Abschreibfehler, Gleichung passt nicht zum Text. Er formuliert passende Denkanstöße, z. B. „Rechne auf der rechten Seite noch einmal nach: 36 − 15 = ?“.
 - Widersprechen sich KI und Rechnung, gilt die Rechnung. Nennt ein KI-Text die Lösungszahl, ersetzt der Server ihn durch den Denkanstoß des Rechen-Prüfers.
-- Getestet am 27.09.2026 mit `next build` und einer nachgebildeten Anthropic-API: 30 Rechenwege im Rechen-Prüfer, 10 Fälle über die Route, 22 Klick-Prüfungen im Browser. Ein Test mit dem echten Modell steht noch aus. Er ist erst nach dem Deploy möglich.
+- Getestet am 27.09.2026 mit `next build` und einer nachgebildeten Anthropic-API: 30 Rechenwege im Rechen-Prüfer, 10 Fälle über die Route, 22 Klick-Prüfungen im Browser.
+- Live geprüft am 27.09.2026 nach dem Deploy (Render baute `grumi-mathe-ki` etwa 2 Minuten nach dem Push neu). Getestet wurde mit zwei erzeugten Fotos in Handschrift-Schrift:
+  - „5x + 10 = 45 | −10, 5x = 55, x = 11“ ergab Fehler in Zeile 2, Art „gegenteil“, den Denkanstoß „Auf der linken Seite hast du − 10 gerechnet, auf der rechten Seite aber + 10 …“ und „richtig weitergerechnet“ für Zeile 3. Dauer 9 Sekunden.
+  - „2x + 3 = 11“ mit Probe ergab „richtig, fertig, Probe richtig“. Dauer 6 Sekunden.
+- Fix nach dem Live-Test: Die KI lobte „auf beiden Seiten −10 gerechnet“, obwohl genau dort der Fehler lag. Bei einem Fehler kommen Lob und Überschrift jetzt nur noch aus der Nachrechnung, z. B. „Deine erste Zeile ist richtig. Die Idee im Kommandostrich ist richtig: − 10.“
 
 ## Offen
 
-- Live-Test mit echten Heftfotos nach dem Deploy (Render baut `grumi-mathe-ki` nach einem Push auf `main` neu).
+- Test mit echten Schülerfotos aus dem Unterricht (Handschrift, schlechtes Licht, schräge Fotos).
 - Weitere Lernbereiche der 7. Klasse (Prozentrechnung, rationale Zahlen, Proportionalität …).
 - Datenschutz: Die Route speichert weiterhin jedes Foto in `student-uploads` auf dem Render-Server.
