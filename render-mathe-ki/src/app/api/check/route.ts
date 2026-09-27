@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { create, all } from "mathjs";
+import { checkKlasse7, readKlasse7Task } from "@/lib/klasse7-ki";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -946,6 +947,27 @@ export async function POST(req: Request) {
     const anthropic = new Anthropic({ apiKey });
     const model = process.env.ANTHROPIC_MODEL || defaultAnthropicModel;
     const base64 = Buffer.from(bytes).toString("base64");
+
+    // Klasse 7 (7/Mathematik_7/Gleichungen): eigener Prompt, feste JSON-Form,
+    // jede Zeile wird nachgerechnet. Die anderen Seiten schicken kein "klasse".
+    if (String(formData.get("klasse") ?? "") === "7") {
+      const klasse7Feedback = await checkKlasse7(
+        anthropic,
+        model,
+        { base64, mediaType },
+        readKlasse7Task(formData),
+      );
+      if (klasse7Feedback) return feedbackResponse(klasse7Feedback);
+      return feedbackResponse(
+        {
+          summary: "Ich konnte die KI-Antwort nicht sauber lesen.",
+          correct: false,
+          analysis: "",
+          suggestion: "Bitte lade das Foto noch einmal hoch.",
+        },
+        502,
+      );
+    }
 
     const equation = String(formData.get("equation") ?? "2x + 4 = 10");
     const taskLevel = String(formData.get("taskLevel") ?? "").trim();

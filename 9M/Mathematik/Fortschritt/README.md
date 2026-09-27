@@ -54,6 +54,11 @@ Die Seite für Klasse 8 zeigt alle Stufen 1–7 und 14–16. Die Legende weist d
 
 Neue Übersichten: `7/Mathematik_7/index.html` (für 7M und 7R) und `8/Mathematik_8/index.html` (für 8M und 8R). Die Startseite verlinkt „Mathematik“ jetzt in allen Klassenkarten von 7 bis 9.
 
+## Stand 27.09.2026: Klasse 7 hat eine eigene Übung
+
+- `?klasse=7` leitet jetzt auf `7/Mathematik_7/Gleichungen/index.html` um: 9 Stufen, darunter neue, leichtere Einstiegsstufen. Details stehen in `7/Mathematik_7/Fortschritt/README.md`. `stufenJeKlasse["7"]` in `gleichungen.js` wird nicht mehr genutzt.
+- KI-Dienst: Anfragen mit `klasse=7` laufen über `render-mathe-ki/src/lib/klasse7-ki.ts` (eigener Prompt, feste JSON-Form) und den Rechen-Prüfer `klasse7.ts`. Anfragen ohne `klasse` (8., 9. Klasse, Geometrie) laufen unverändert über den bisherigen Prompt.
+
 ## Offen
 
 - Potenzen sowie Prozent- und Zinsrechnung.
