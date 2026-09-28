@@ -152,7 +152,6 @@ function init(cfg){
   $$(".zoomable").forEach(img => img.addEventListener("click", () => { $("#lb img").src = img.src; $("#lb img").alt = img.alt; $("#lb").classList.add("show"); }));
   $("#lb").addEventListener("click", () => $("#lb").classList.remove("show"));
   document.addEventListener("keydown", e => { if (e.key === "Escape") $("#lb").classList.remove("show"); });
-  document.addEventListener("click", e => { const b = e.target.closest("[data-say]"); if (b) speak(b.dataset.say || b.closest("[data-text]")?.dataset.text || ""); });
 
   if ("IntersectionObserver" in window) {
     const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), {threshold: .06});
@@ -182,15 +181,6 @@ function init(cfg){
   if (MODUL && !session.token) openLogin();
 }
 function ready(){ if (Modul._onScroll) Modul._onScroll(); updateStars(); }
-
-/* ---------- Vorlesen ---------- */
-function speak(text){
-  if (!("speechSynthesis" in window) || !text) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text); u.lang = "de-DE"; u.rate = .95;
-  const v = speechSynthesis.getVoices().find(v => /^de/i.test(v.lang)); if (v) u.voice = v;
-  speechSynthesis.speak(u);
-}
 
 /* ---------- Ankreuzen ---------- */
 function makeMC(container, list, idPrefix, tag){
@@ -625,6 +615,6 @@ function confetti(){
   })();
 }
 
-const Modul = window.Modul = {$, $$, esc, shuffle, norm, words, load, save, init, ready, register, solve, speak, session, openLogin, renderWho, api, API_BASE,
+const Modul = window.Modul = {$, $$, esc, shuffle, norm, words, load, save, init, ready, register, solve, session, openLogin, renderWho, api, API_BASE,
   isSolved: id => !!solved[id], makeMC, makeGap, makeSort, makeTF, makeOrder, makeMark, makeOpen, makeDuel, makeObs, makeVote, makeDiary, makeQuiz, confetti};
 })();
