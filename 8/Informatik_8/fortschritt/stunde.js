@@ -166,6 +166,7 @@
     if (stunde.merkkasten && stunde.merkkasten.length) wurzel.appendChild(merkkastenBauen(stunde.merkkasten));
     if (stunde.wortspeicher && stunde.wortspeicher.length) wurzel.appendChild(wortspeicherBauen(stunde.wortspeicher));
     if (stunde.abschluss && stunde.abschluss.aufgaben && stunde.abschluss.aufgaben.length) {
+      if (stunde.abschluss.bild) wurzel.appendChild(bildBauen(stunde.abschluss.bild));
       wurzel.appendChild(uebungBauen(stunde, stunde.abschluss, "abschluss",
         "Zum Schluss · Anwenden", stunde.abschluss.titel || "Anwenden und erklären"));
     }
@@ -223,11 +224,18 @@
 
   function bildBauen(eintrag) {
     var figur = el("figure", "inf-bild");
+    var gross = el("a", "inf-bild-gross");
+    gross.href = "../bilder/" + eintrag.datei;
+    gross.target = "_blank";
+    gross.rel = "noopener";
+    gross.title = "Bild groß öffnen";
     var bild = el("img");
     bild.src = "../bilder/" + eintrag.datei;
     bild.alt = eintrag.alt || eintrag.titel || "";
     bild.loading = "lazy";
-    figur.appendChild(bild);
+    gross.appendChild(bild);
+    gross.appendChild(el("span", "inf-bild-lupe", "Groß ansehen"));
+    figur.appendChild(gross);
     if (eintrag.titel) figur.appendChild(el("figcaption", null, eintrag.titel));
     var huelle = block(null, "inf-bildblock");
     huelle.appendChild(figur);
