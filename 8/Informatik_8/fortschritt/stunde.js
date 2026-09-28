@@ -29,7 +29,7 @@
     .then(aufbauen)
     .catch(function () {
       wurzel.innerHTML =
-        '<section class="inf-block"><h2>Die Stunde konnte nicht geladen werden</h2>' +
+        '<section class="inf-block"><h2>Das Modul konnte nicht geladen werden</h2>' +
         "<p>Bitte öffne diese Seite über die GRUMI Lernplattform. Falls das Problem bleibt, sag deiner Lehrkraft Bescheid.</p></section>";
     });
 
@@ -130,7 +130,7 @@
     stundeId = stunde.id;
 
     var titelFeld = document.querySelector("[data-stunden-titel]");
-    if (titelFeld) titelFeld.textContent = "Stunde " + stunde.stunde;
+    if (titelFeld) titelFeld.textContent = "Modul " + stunde.stunde;
 
     var alleAufgaben = [];
     (stunde.phasen || []).forEach(function (p) { alleAufgaben = alleAufgaben.concat(p.aufgaben || []); });
@@ -179,7 +179,7 @@
   function kopfBauen(stunde, aufgaben) {
     var kopf = el("header", "inf-kopf");
     var meta = el("div", "inf-meta");
-    meta.appendChild(el("span", "inf-chip", "Stunde " + stunde.stunde));
+    meta.appendChild(el("span", "inf-chip", "Modul " + stunde.stunde));
     if (stunde.lernbereichTitel) meta.appendChild(el("span", "inf-chip", stunde.lernbereichTitel));
     meta.appendChild(el("span", "inf-chip", aufgaben.length + " Aufgaben"));
     kopf.appendChild(meta);
@@ -203,7 +203,7 @@
   }
 
   function ablaufBauen(ablauf) {
-    var abschnitt = block("So läuft die Stunde ab", "inf-ablauf");
+    var abschnitt = block("So läuft das Modul ab", "inf-ablauf");
     var liste = el("ol", "inf-ablauf-liste");
     ablauf.forEach(function (schritt) {
       liste.appendChild(el("li", null, schritt.text));
@@ -284,17 +284,17 @@
 
   function weiterBauen(stunde, oben) {
     var navigation = el("nav", "inf-weiter" + (oben ? " oben" : ""));
-    navigation.setAttribute("aria-label", "Weitere Stunden");
-    var alle = el("a", null, "← Alle Stunden");
+    navigation.setAttribute("aria-label", "Weitere Module");
+    var alle = el("a", null, "← Alle Module");
     alle.href = "../index.html";
     navigation.appendChild(alle);
     if (stunde.vorherige) {
-      var vor = el("a", null, "← Vorherige Stunde");
+      var vor = el("a", null, "← Voriges Modul");
       vor.href = stunde.vorherige;
       navigation.appendChild(vor);
     }
     if (stunde.naechste) {
-      var weiter = el("a", "stark", stunde.naechsteText || "Nächste Stunde →");
+      var weiter = el("a", "stark", stunde.naechsteText || "Nächstes Modul →");
       weiter.href = stunde.naechste;
       navigation.appendChild(weiter);
     }
