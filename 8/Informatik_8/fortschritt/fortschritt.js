@@ -35,7 +35,9 @@
       if (!stundeId) return false;
       var daten = lesen();
       var alt = daten[stundeId];
-      if (alt && alt.geloest > geloest) return true;
+      // Ein besseres Ergebnis bleibt stehen - aber nur, solange die Stunde
+      // gleich viele Punkte hat. Nach einer Überarbeitung zählt neu.
+      if (alt && alt.gesamt === gesamt && alt.geloest > geloest) return true;
       daten[stundeId] = { geloest: geloest, gesamt: gesamt, datum: heute() };
       return schreiben(daten);
     },
