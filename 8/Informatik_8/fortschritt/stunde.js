@@ -180,7 +180,6 @@
     var meta = el("div", "inf-meta");
     meta.appendChild(el("span", "inf-chip", "Stunde " + stunde.stunde));
     if (stunde.lernbereichTitel) meta.appendChild(el("span", "inf-chip", stunde.lernbereichTitel));
-    if (stunde.dauer) meta.appendChild(el("span", "inf-chip", stunde.dauer));
     meta.appendChild(el("span", "inf-chip", aufgaben.length + " Aufgaben"));
     kopf.appendChild(meta);
     kopf.appendChild(el("h1", null, stunde.titel));
@@ -206,10 +205,7 @@
     var abschnitt = block("So läuft die Stunde ab", "inf-ablauf");
     var liste = el("ol", "inf-ablauf-liste");
     ablauf.forEach(function (schritt) {
-      var punkt = el("li");
-      punkt.appendChild(el("span", "inf-zeit", schritt.zeit));
-      punkt.appendChild(document.createTextNode(schritt.text));
-      liste.appendChild(punkt);
+      liste.appendChild(el("li", null, schritt.text));
     });
     abschnitt.appendChild(liste);
     return abschnitt;
