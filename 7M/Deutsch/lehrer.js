@@ -10,6 +10,7 @@ const state = {
   password: sessionStorage.getItem(PASSWORD_KEY) || "",
   attempts: [],
   overview: [],
+  moduleEntries: [],
   selectedKey: "",
   query: "",
   stage: ""
@@ -62,6 +63,14 @@ async function loadResults() {
     const data = await postJson("/api/de7-argument/teacher/results", { password: state.password });
     state.attempts = data.attempts || [];
     state.overview = data.overview || [];
+    // Lernmodule S. 22–25 (Freitexte, Duelle, Lerntagebuch) kommen aus einer eigenen Route
+    try {
+      const modules = await postJson("/api/de7-argument/teacher/module-results", { password: state.password });
+      state.moduleEntries = modules.entries || [];
+    } catch (_error) {
+      state.moduleEntries = [];
+    }
+    mergeModuleStudents();
     if (!state.selectedKey && state.overview.length) state.selectedKey = state.overview[0].studentKey;
     if (state.selectedKey && !state.overview.some((item) => item.studentKey === state.selectedKey)) {
       state.selectedKey = state.overview[0]?.studentKey || "";
@@ -76,6 +85,19 @@ async function loadResults() {
   } finally {
     setBusy(dom.refreshButton, false, "Aktualisieren");
   }
+}
+
+function mergeModuleStudents() {
+  for (const entry of state.moduleEntries) {
+    let student = state.overview.find((item) => item.studentKey === entry.studentKey);
+    if (!student) {
+      student = { studentKey: entry.studentKey, firstName: entry.firstName, lastName: entry.lastName, className: entry.className, attempts: 0, stages: { 1: 0, 2: 0, 3: 0, 4: 0 }, lastActive: entry.createdAt };
+      state.overview.push(student);
+    }
+    student.moduleCount = (student.moduleCount || 0) + 1;
+    if (entry.createdAt > student.lastActive) student.lastActive = entry.createdAt;
+  }
+  state.overview.sort((a, b) => a.className.localeCompare(b.className, "de") || a.lastName.localeCompare(b.lastName, "de"));
 }
 
 function render() {
@@ -119,7 +141,7 @@ function renderStudents() {
     const best = Math.max(0, ...Object.values(student.stages || {}).map(Number));
     button.innerHTML = `
       <span class="student-avatar">${escapeHtml(initials(student))}</span>
-      <span class="student-name"><strong>${escapeHtml(`${student.firstName} ${student.lastName}`)}</strong><span>${escapeHtml(student.className)} · ${student.attempts} Fassungen</span></span>
+      <span class="student-name"><strong>${escapeHtml(`${student.firstName} ${student.lastName}`)}</strong><span>${escapeHtml(student.className)} · ${student.attempts} Fassungen${student.moduleCount ? ` · ${student.moduleCount} Modul-Einträge` : ""}</span></span>
       <span class="student-score">${"★".repeat(best)}${"☆".repeat(3 - best)}</span>`;
     button.addEventListener("click", () => {
       state.selectedKey = student.studentKey;
@@ -148,12 +170,73 @@ function renderDetail() {
       ${[1, 2, 3, 4].map((stage) => `<div class="stage-summary-item ${(student.stages[stage] || 0) >= 2 ? "passed" : ""}"><span>Stufe ${stage}</span><strong>${stars(student.stages[stage] || 0)}</strong></div>`).join("")}
     </div>
     <div class="attempts-heading"><h3>Arbeitsverlauf</h3><span>${groups.length} Aufgaben</span></div>
-    <div class="attempt-groups">${groups.length ? groups.map(groupTemplate).join("") : '<p class="empty-list">Für diesen Filter gibt es keine Fassungen.</p>'}</div>`;
+    <div class="attempt-groups">${groups.length ? groups.map(groupTemplate).join("") : '<p class="empty-list">Für diesen Filter gibt es keine Fassungen.</p>'}</div>
+    ${moduleTemplate(student)}`;
 
-  dom.studentDetail.querySelectorAll(".delete-attempt").forEach((button) => {
+  dom.studentDetail.querySelectorAll(".delete-entry").forEach((button) => {
+    button.addEventListener("click", () => deleteEntry(button.dataset.entryId));
+  });
+
+  dom.studentDetail.querySelectorAll(".delete-attempt:not(.delete-entry)").forEach((button) => {
     button.addEventListener("click", () => deleteAttempt(button.dataset.attemptId));
   });
   refreshIcons();
+}
+
+function moduleTemplate(student) {
+  const entries = state.moduleEntries.filter((entry) => entry.studentKey === student.studentKey);
+  if (!entries.length) return "";
+  const byModule = new Map();
+  for (const entry of entries.slice().sort((a, b) => a.createdAt.localeCompare(b.createdAt))) {
+    if (!byModule.has(entry.modulTitel)) byModule.set(entry.modulTitel, []);
+    byModule.get(entry.modulTitel).push(entry);
+  }
+  return `
+    <div class="attempts-heading" style="margin-top:26px"><h3>Lernmodule (Buch S. 22–25)</h3><span>${entries.length} Einträge</span></div>
+    <div class="attempt-groups">${Array.from(byModule.entries()).map(([title, list]) => `
+      <details class="attempt-group">
+        <summary>
+          <div><strong>${escapeHtml(title)}</strong><span>${list.filter((e) => e.art === "text").length} Texte · ${list.filter((e) => e.art === "duell").length} Duell-Antworten · ${list.filter((e) => e.art === "tagebuch").length} Lerntagebuch</span></div>
+          <span class="revision-count">${list.filter(entryOk).length} gelungen</span>
+          <span>${formatDate(list.at(-1).createdAt)}</span>
+        </summary>
+        <div class="revision-list">${list.map(entryTemplate).join("")}</div>
+      </details>`).join("")}</div>`;
+}
+
+function entryOk(entry) {
+  return entry.ergebnis?.richtig === true || entry.ergebnis?.bewertung === "good";
+}
+
+function entryTemplate(entry) {
+  const result = entry.ergebnis || {};
+  const art = { text: "Freitext", duell: "Duell", tagebuch: "Lerntagebuch" }[entry.art] || entry.art;
+  const verdict = entry.art === "tagebuch" ? "" : entryOk(entry) ? "✅ gelungen" : (result.teilweise || result.bewertung === "mid") ? "🟡 teilweise" : "❌ noch nicht";
+  const criteria = (result.kriterien || []).map((item) => `${item.ok ? "✓" : "✗"} ${escapeHtml(item.text)}`).join("<br>");
+  return `
+    <article class="revision">
+      <div class="revision-head">
+        <div class="revision-title"><span class="revision-badge">${escapeHtml(art)}</span><strong>${escapeHtml(entry.titel || entry.aufgabe)}</strong><span>${verdict}</span></div>
+        <time>${formatDate(entry.createdAt)}</time>
+      </div>
+      <div class="answer-block">
+        ${entry.art === "duell" ? `<div class="answer-part"><strong>Aussage der KI</strong><p>${escapeHtml(entry.frage)}</p></div>` : ""}
+        <div class="answer-part"><strong>${entry.art === "tagebuch" ? "Eintrag" : "Antwort"}</strong><p style="white-space:pre-wrap">${escapeHtml(entry.antwort)}</p></div>
+        ${criteria ? `<div class="answer-part"><strong>Checkliste</strong><p>${criteria}</p></div>` : ""}
+      </div>
+      ${result.rueckmeldung ? `<div class="teacher-feedback"><i data-lucide="message-square-text"></i><p><strong>Rückmeldung${entry.quelle === "ki" ? " der KI" : ""}:</strong> ${escapeHtml(result.rueckmeldung)}${result.tipp ? ` <em>Tipp: ${escapeHtml(result.tipp)}</em>` : ""}</p></div>` : ""}
+      <button class="delete-attempt delete-entry" type="button" data-entry-id="${escapeHtml(entry.id)}">Eintrag löschen</button>
+    </article>`;
+}
+
+async function deleteEntry(entryId) {
+  if (!confirm("Diesen Eintrag wirklich löschen?")) return;
+  try {
+    await postJson("/api/de7-argument/teacher/module-delete", { password: state.password, entryId });
+    await loadResults();
+  } catch (error) {
+    alert(friendlyError(error));
+  }
 }
 
 function groupAttempts(attempts) {
@@ -239,6 +322,7 @@ function lockView() {
   state.password = "";
   state.attempts = [];
   state.overview = [];
+  state.moduleEntries = [];
   state.selectedKey = "";
   sessionStorage.removeItem(PASSWORD_KEY);
   render();
