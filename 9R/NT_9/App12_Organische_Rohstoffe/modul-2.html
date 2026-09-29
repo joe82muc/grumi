@@ -1,0 +1,1642 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2e7d4f">
+<title>Biodiesel, Stärke und Nachhaltigkeit | NT 9</title>
+<link rel="stylesheet" href="modul-basis.css">
+<style>
+:root{--sky:#2e7d4f;--sky-d:#1d5a36;--sky-l:#e5f3ea}
+[hidden]{display:none!important}
+.hero{background:linear-gradient(160deg,#173d24,#2e7d4f 55%,#c9a91a)}
+.st-num{box-shadow:0 4px 12px rgba(46,125,79,.3)}
+.tf-row>span,.q-title,.opt span,.bucket h5{min-width:0;hyphens:auto;overflow-wrap:break-word}
+.sim .chain{padding:12px 14px 0;margin:0}
+.chain .step{cursor:default}
+.chain .step.done{border-color:#8fd0a8;background:#f0faf3}
+@media (max-width:600px){.sim .chain{gap:4px}.sim .chain .step{flex-basis:88px;padding:4px 6px;font-size:.8rem}.sim .chain .step .ic{font-size:1.15rem}}
+#labelBio .slot{background:#eef7f1;min-width:100px}
+#labelBio .slot.filled{background:#fff}
+
+/* Szenen in den Animationen */
+.stage{opacity:0;transition:opacity .5s}
+.stage.on{opacity:1}
+.stage .anim,.mach .anim{animation-play-state:paused}
+.stage.on .anim,.mach.on .anim{animation-play-state:running}
+.mach{opacity:.38;transition:opacity .4s}
+.mach.on{opacity:1}
+.sc{transform-box:fill-box;transform-origin:50% 100%;transition:transform 1.2s ease}
+.spin,.spinr{transform-box:fill-box;transform-origin:center;animation:spin 2.2s linear infinite}
+.spinr{animation-name:spinr}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes spinr{to{transform:rotate(-360deg)}}
+.fall{animation:fall 1.4s linear infinite}
+@keyframes fall{from{transform:translateY(-6px);opacity:0}20%{opacity:1}to{transform:translateY(40px);opacity:0}}
+.rise{animation:rise 2.4s ease-out infinite}
+@keyframes rise{from{transform:translateY(0);opacity:.85}to{transform:translateY(-40px);opacity:0}}
+.sway{transform-box:fill-box;transform-origin:50% 100%;animation:sway 2.4s ease-in-out infinite alternate}
+@keyframes sway{from{transform:rotate(-3deg)}to{transform:rotate(3deg)}}
+.flow{stroke-dasharray:8 8;animation:flow .8s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-32}}
+.toss{animation:toss 1.25s ease-in infinite}
+@keyframes toss{from{transform:translate(0,0);opacity:1}to{transform:translate(60px,45px);opacity:0}}
+.drip{animation:drip 1s linear infinite}
+@keyframes drip{from{transform:translateY(0);opacity:1}to{transform:translateY(22px);opacity:0}}
+.dripl{animation:dripl 1.3s linear infinite}
+@keyframes dripl{from{transform:translateY(0);opacity:1}to{transform:translateY(44px);opacity:0}}
+.slide{animation:slide 2.2s linear infinite}
+@keyframes slide{from{transform:translateX(0);opacity:1}80%{opacity:1}to{transform:translateX(44px);opacity:0}}
+.drop{opacity:0;transition:opacity .8s}
+.drop.vis{opacity:1;animation:wiggle 1.8s ease-in-out infinite}
+@keyframes wiggle{0%,100%{transform:translate(0,0)}50%{transform:translate(2px,-4px)}}
+#skTok{transition:transform 1s ease}
+
+/* Versuch: Ölausbeute */
+.yield{display:grid;gap:6px;padding:10px 14px;background:#fbfdff;border-top:1px solid var(--line)}
+.yield div{display:grid;grid-template-columns:92px 1fr;gap:8px;align-items:center;font-size:.9rem;font-weight:700}
+.yield i{display:block;height:14px;border-radius:7px;background:linear-gradient(90deg,#f2c200,#e0a800);width:0;transition:width 1.2s}
+.btn.pick-on{background:var(--sky);color:#fff}
+
+/* Deutschland in 100 Kästchen */
+.land{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;padding:14px;max-width:400px;margin:0 auto}
+.land div{aspect-ratio:1;border-radius:4px;transition:background .5s,transform .5s}
+.acker{background:#c9a15a}.wiese{background:#a6d27a}.wald{background:#2f6b3a}.stadt{background:#9aa5ad}.wasser{background:#5aa9e6}
+.land .raps{background:#f5d000;transform:scale(.9)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;padding:0 14px 12px;font-size:.84rem}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.legend .raps{background:#f5d000}
+
+/* Film mit Stopps */
+.film{position:relative;aspect-ratio:16/9;background:#0f2417;border-radius:14px;overflow:hidden}
+.film iframe,#ytPlayer{position:absolute;inset:0;width:100%;height:100%;border:0}
+.film-poster{position:absolute;inset:0;width:100%;border:0;display:grid;place-content:center;justify-items:center;gap:6px;padding:16px;color:#fff;text-align:center;background:radial-gradient(circle at 50% 40%,#3a8f5c,#0f2417 75%)}
+.film-poster .play{width:66px;height:66px;border-radius:50%;background:#fff;color:var(--sky-d);display:grid;place-items:center;font-size:1.6rem;padding-left:5px}
+.film-poster b{font-size:1.15rem}
+.film-poster small{max-width:440px;opacity:.9;font-size:.86rem}
+.film-stop{position:absolute;inset:0;z-index:2;display:none;place-content:center;padding:16px;text-align:center;background:rgba(10,30,18,.84);color:#fff;font-weight:800;font-size:1.05rem}
+.film-stop.show{display:grid}
+.film-chips{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0}
+.film-chips button{border:2px solid var(--line);background:#fff;border-radius:99px;padding:4px 11px;font-weight:700;font-size:.88rem}
+.film-chips button.done{border-color:var(--ok);background:var(--ok-l);color:var(--ok)}
+.film-q{border:2px solid var(--gold);border-radius:14px;padding:6px 14px 14px;margin-top:12px;background:#fffdf5}
+
+/* Wald und Borkenkäfer */
+.crown{transform-box:fill-box;transform-origin:50% 100%;transition:transform .5s}
+.tree.cut .crown{transform:scale(0)}
+.yearbars{display:flex;align-items:flex-end;gap:4px;height:64px;padding:6px 14px 0;background:#fbfdff;border-top:1px solid var(--line)}
+.yearbars div{flex:1;background:linear-gradient(#4aa86a,#2e7d4f);border-radius:4px 4px 0 0;min-height:2px;transition:height .4s}
+.yearbars div.bad{background:linear-gradient(#e0776b,#c93b3b)}
+
+/* Kaskadennutzung */
+.kas{display:grid;gap:14px;padding:14px;background:#fbfdff}
+.kas-row>b{display:block;font-size:.95rem;margin-bottom:4px}
+.kas-track{display:flex;height:34px;border-radius:10px;overflow:hidden;background:repeating-linear-gradient(90deg,#eef3f6 0 calc(25% - 1px),#d8e2ea calc(25% - 1px) 25%)}
+.kas-seg{width:0;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;transition:width 1.4s ease}
+.kas-seg.regal{background:#9b6a45}
+.kas-seg.platte{background:#d2b48c;color:#4a3520}
+.kas-end{display:block;margin-top:4px;font-size:.9rem;font-weight:700;min-height:1.4em}
+.kas-scale{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);margin-top:-8px}
+
+/* Vorher-nachher-Schieber */
+.cmp{position:relative;overflow:hidden;border-radius:14px 14px 0 0}
+.cmp-top{position:absolute;inset:0}
+.cmp-top img{width:100%;height:100%;object-fit:cover}
+.cmp-line{position:absolute;top:0;bottom:0;width:4px;margin-left:-2px;background:#fff;box-shadow:0 0 8px rgba(0,0,0,.45);left:100%;pointer-events:none}
+.cmp-lab{position:absolute;top:10px;background:rgba(0,0,0,.6);color:#fff;font-weight:700;font-size:.85rem;padding:3px 10px;border-radius:99px}
+.cmp-lab.l{left:10px}
+.cmp-lab.r{right:10px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>NT 9 · Modul 2</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Öl aus Pflanzen</a>
+      <a href="#s2"><b>2</b>Biodiesel</a>
+      <a href="#s3"><b>3</b>Stärke</a>
+      <a href="#s4"><b>4</b>Stärkefolie</a>
+      <a href="#s5"><b>5</b>Nachhaltigkeit</a>
+      <a href="#s6"><b>6</b>Nachhaltig nutzen</a>
+      <a href="#s7"><b>7</b>Training</a>
+      <a href="#s8"><b>8</b>Profi-Check</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">📘 Übersicht Organische Rohstoffe</a>
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse 9M / 9R · Organische Rohstoffe · Modul 2</div>
+    <h1>Biodiesel, Stärke und Nachhaltigkeit</h1>
+    <p>Aus Raps wird Kraftstoff, aus Kartoffeln eine Folie. Nachwachsende Rohstoffe können Erdöl ersetzen – aber nur, wenn wir sie nachhaltig nutzen. In acht Stationen findest du heraus, wie das geht und wo die Probleme liegen.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s7">Direkt zum Probentraining</a>
+    </div>
+    <div class="goals">
+      <div>🌼 Ich beschreibe, wie aus Raps Biodiesel entsteht.</div>
+      <div>⚖️ Ich nenne Vor- und Nachteile von Biodiesel.</div>
+      <div>🥔 Ich erkläre, wie Stärke gewonnen und genutzt wird.</div>
+      <div>🌲 Ich erkläre Nachhaltigkeit, Kaskadennutzung und Kreislaufwirtschaft.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Buch S. 16 · Versuch</div><h2>Öl aus Pflanzen</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">In Deutschland wird <button class="term" data-t="biodiesel">Biodiesel</button> hauptsächlich aus den Samen der <button class="term" data-t="raps">Rapspflanze</button> gewonnen. Die Samen enthalten etwa <strong>40 % Öl</strong>.</p>
+      <p>Auch andere Pflanzen speichern Öl in ihren Samen. Sonnenblumenkerne enthalten sogar 40–50 % Öl. Wie man das Öl herausholt, kannst du im Versuch ausprobieren.</p>
+      <figure><img class="zoomable" src="assets/modul2/sonnenblumen.webp" width="800" height="1000" loading="lazy" decoding="async" alt="Sonnenblumenfeld unter blauem Himmel" style="max-height:330px;width:auto;margin:0 auto"><figcaption style="text-align:center">Der Ölgehalt von Sonnenblumenkernen beträgt etwa 40–50 %.</figcaption></figure>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag">Versuch · Öl aus Sonnenblumenkernen</span>
+      <p><strong>Material:</strong> alte Kaffeemühle (oder Zerkleinerer aus der Küche), Porzellan- oder Glasschale, 2 Bechergläser (100 ml), Filter und Filterpapier, Glasstab zum Umrühren, Waage, Wasserbad (oder Topf mit heißem Wasser), Thermometer, etwa 80 ml <button class="term" data-t="spiritus">Spiritus</button>, etwa 30 g geschälte Sonnenblumenkerne.</p>
+      <p><strong>Durchführung:</strong> Mahle die geschälten Kerne. Lass die gemahlenen Kerne offen über Nacht auf einer Heizung stehen. Gib 20 g des Mehls in ein Becherglas und füge etwa 40 ml Spiritus dazu.</p>
+      <p><strong>Variante A:</strong> etwa 15 Minuten im Wasserbad bei etwa 60 °C, ab und zu umrühren. <strong>Variante B:</strong> etwa 15 Minuten bei Zimmertemperatur stehen lassen.</p>
+      <p>Filtriere das Gemisch in das zweite Becherglas. Lässt du das Filtrat stehen, dampft der Spiritus in einigen Tagen vom Öl ab. Am Schluss bleibt das Öl zurück.</p>
+      <p class="hint">⚠️ Spiritus ist leicht entzündbar. Es dürfen keine offenen Flammen im Raum sein.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <div class="chain" id="oelChain">
+      <div class="step"><span class="ic">⚙️</span>Mahlen</div><span class="to">→</span>
+      <div class="step"><span class="ic">🌡️</span>Trocknen</div><span class="to">→</span>
+      <div class="step"><span class="ic">🧪</span>Spiritus</div><span class="to">→</span>
+      <div class="step"><span class="ic">⏱️</span>15 Minuten</div><span class="to">→</span>
+      <div class="step"><span class="ic">🔽</span>Filtrieren</div><span class="to">→</span>
+      <div class="step"><span class="ic">💨</span>Verdunsten</div>
+    </div>
+    <svg viewBox="0 70 480 230" id="oelSvg" role="img" aria-label="Animation zum Versuch: Öl aus Sonnenblumenkernen gewinnen">
+      <rect y="70" width="480" height="230" fill="#f7fbfe"/>
+      <rect y="262" width="480" height="38" fill="#d9c3a0"/>
+      <g id="oHeat" class="stage">
+        <rect x="140" y="262" width="140" height="38" fill="#eef2f5" stroke="#b9c6d0"/>
+        <g stroke="#c9d3db" stroke-width="4"><line x1="156" y1="266" x2="156" y2="298"/><line x1="174" y1="266" x2="174" y2="298"/><line x1="192" y1="266" x2="192" y2="298"/><line x1="210" y1="266" x2="210" y2="298"/><line x1="228" y1="266" x2="228" y2="298"/><line x1="246" y1="266" x2="246" y2="298"/><line x1="264" y1="266" x2="264" y2="298"/></g>
+        <g stroke="#e0453a" stroke-width="2.5" fill="none" stroke-linecap="round">
+          <g class="anim rise"><path d="M152 252 q6 -8 0 -16 q-6 -8 0 -16"/></g>
+          <g class="anim rise" style="animation-delay:.9s"><path d="M268 252 q6 -8 0 -16 q-6 -8 0 -16"/></g>
+        </g>
+        <g fill="#c9d6df"><circle class="anim rise" cx="198" cy="168" r="7"/><circle class="anim rise" cx="222" cy="166" r="6" style="animation-delay:1.1s"/></g>
+        <text x="332" y="200" font-size="13" font-weight="700" fill="#566674">Heizung</text>
+        <text x="332" y="216" font-size="12" fill="#566674">über Nacht</text>
+      </g>
+      <g id="oMill" class="stage">
+        <polygon points="36,112 110,112 96,142 50,142" fill="#b07a52"/>
+        <g fill="#5b3a22"><ellipse cx="58" cy="108" rx="5" ry="3"/><ellipse cx="72" cy="106" rx="5" ry="3"/><ellipse cx="86" cy="108" rx="5" ry="3"/><ellipse cx="65" cy="101" rx="5" ry="3"/><ellipse cx="80" cy="100" rx="5" ry="3"/></g>
+        <rect x="44" y="142" width="58" height="72" rx="6" fill="#8d5a3b"/>
+        <g transform="translate(73 176)"><g class="anim spin"><circle r="30" fill="none"/><line x1="0" y1="0" x2="26" y2="0" stroke="#3d2a1a" stroke-width="4" stroke-linecap="round"/><circle cx="26" r="5" fill="#222"/><circle r="5" fill="#3d2a1a"/></g></g>
+        <rect x="102" y="196" width="22" height="8" fill="#6b4226"/>
+        <g fill="#c89b62">
+          <circle class="anim toss" cx="124" cy="200" r="3"/><circle class="anim toss" cx="124" cy="200" r="3" style="animation-delay:.25s"/><circle class="anim toss" cx="124" cy="200" r="3" style="animation-delay:.5s"/><circle class="anim toss" cx="124" cy="200" r="3" style="animation-delay:.75s"/><circle class="anim toss" cx="124" cy="200" r="3" style="animation-delay:1s"/>
+        </g>
+        <text x="73" y="232" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">Kaffeemühle</text>
+      </g>
+      <g id="oBath" class="stage">
+        <rect x="146" y="206" width="128" height="56" fill="#7cc3ec" opacity=".6"/>
+        <path d="M146 206 V262 H274 V206" fill="none" stroke="#5b8fb0" stroke-width="3"/>
+        <g fill="#fff"><circle class="anim rise" cx="156" cy="256" r="3"/><circle class="anim rise" cx="264" cy="252" r="3" style="animation-delay:.7s"/><circle class="anim rise" cx="158" cy="246" r="2.5" style="animation-delay:1.4s"/></g>
+        <rect x="296" y="150" width="10" height="90" rx="5" fill="#fff" stroke="#9aa5ad"/><rect x="298" y="186" width="6" height="52" fill="#e0453a"/><circle cx="301" cy="246" r="8" fill="#e0453a"/>
+        <text x="314" y="190" font-size="17" font-weight="800" fill="#c62828">60 °C</text>
+        <text x="314" y="208" font-size="12" fill="#566674">Wasserbad</text>
+      </g>
+      <g id="oBeaker1">
+        <rect id="oLiq" class="sc" x="172" y="196" width="76" height="63" fill="#cfe6f4"/>
+        <rect id="oMeal" class="sc" x="172" y="241" width="76" height="18" fill="#c89b62"/>
+        <g id="oDrops" fill="#f2c200"></g>
+        <path d="M170 172 V256 Q170 262 176 262 H244 Q250 262 250 256 V172 M164 172 H170 M250 172 H256" fill="none" stroke="#7d9bb0" stroke-width="3"/>
+      </g>
+      <g id="oBottle" class="stage">
+        <g transform="translate(292 118) rotate(-125)">
+          <rect x="-15" y="-50" width="30" height="52" rx="6" fill="#e3f2fb" stroke="#7d9bb0" stroke-width="2"/>
+          <rect x="-6" y="-66" width="12" height="17" fill="#e3f2fb" stroke="#7d9bb0" stroke-width="2"/>
+          <rect x="-15" y="-34" width="30" height="16" fill="#fff" stroke="#7d9bb0"/>
+        </g>
+        <path class="anim flow" d="M238 158 Q232 180 226 204" stroke="#9fd0ef" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <g transform="translate(372 98)"><rect x="-16" y="-16" width="32" height="32" transform="rotate(45)" fill="#fff" stroke="#e0453a" stroke-width="3"/><text y="7" text-anchor="middle" font-size="18">🔥</text></g>
+        <text x="372" y="142" text-anchor="middle" font-size="12" font-weight="700" fill="#c93b3b">Spiritus: leicht entzündbar</text>
+        <text x="372" y="158" text-anchor="middle" font-size="11" fill="#566674">keine offenen Flammen!</text>
+      </g>
+      <g id="oRoom" class="stage">
+        <rect x="296" y="150" width="10" height="90" rx="5" fill="#fff" stroke="#9aa5ad"/><rect x="298" y="222" width="6" height="16" fill="#e0453a"/><circle cx="301" cy="246" r="8" fill="#e0453a"/>
+        <text x="314" y="226" font-size="17" font-weight="800" fill="#2f6fdb">20 °C</text>
+        <text x="314" y="244" font-size="12" fill="#566674">Zimmertemperatur</text>
+      </g>
+      <g id="oFilter" class="stage">
+        <path class="anim flow" d="M252 174 C282 136 312 136 334 150" stroke="#d9c98a" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <polygon points="318,148 402,148 366,190 354,190" fill="#eef3f6" stroke="#7d9bb0" stroke-width="2"/>
+        <polygon points="324,151 396,151 360,186" fill="#fff"/>
+        <polygon points="341,168 379,168 360,186" fill="#c89b62"/>
+        <rect x="356" y="190" width="8" height="18" fill="#eef3f6" stroke="#7d9bb0" stroke-width="2"/>
+        <circle class="anim drip" cx="360" cy="210" r="3" fill="#e9d98a"/>
+        <text x="360" y="138" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">Filter: Das Mehl bleibt hängen</text>
+      </g>
+      <g id="oB2" class="stage">
+        <rect id="oB2Liq" class="sc" x="322" y="218" width="76" height="41" fill="#efe3a4" opacity=".85"/>
+        <rect id="oB2Oil" class="sc" x="322" y="247" width="76" height="12" fill="#e5b400"/>
+        <path d="M320 212 V256 Q320 262 326 262 H394 Q400 262 400 256 V212" fill="none" stroke="#7d9bb0" stroke-width="3"/>
+        <text x="360" y="286" text-anchor="middle" font-size="12" font-weight="700" fill="#566674" id="oB2Lab">Filtrat</text>
+      </g>
+      <g id="oVapor" class="stage">
+        <g fill="#dfe8ee"><circle class="anim rise" cx="345" cy="206" r="7"/><circle class="anim rise" cx="372" cy="204" r="6" style="animation-delay:1.1s"/></g>
+        <text x="444" y="224" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">einige</text>
+        <text x="444" y="239" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">Tage</text>
+      </g>
+    </svg>
+    <div class="sim-ctrl"><button class="btn small ghost" id="oelPrev">◀ Zurück</button><button class="btn small" id="oelNext">Weiter ▶</button><span style="flex:1"></span><button class="btn small ghost" id="oelA" disabled>Variante A: 60 °C</button><button class="btn small ghost" id="oelB" disabled>Variante B: 20 °C</button></div>
+    <p class="obs" id="oelObs"></p>
+    <div class="yield"><div><span>Öl bei A</span><i id="yA"></i></div><div><span>Öl bei B</span><i id="yB"></i></div></div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag">Auswertung · Buch S. 16</span>
+    <h3 style="margin-top:4px">Werte den Versuch aus <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung. Danach kannst du die Musterlösung ansehen.</p>
+    <div id="open1"></div>
+  </div>
+  <div class="card reveal" id="mc-s1"></div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Buch S. 17 · Arbeitsblatt · Probenstoff</div><h2>Vom Raps zum Biodiesel</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead"><strong>Rapsöl.</strong> Zunächst werden die Rapssamen in einer <button class="term" data-t="oelmuehle">Ölmühle</button> gepresst. Das Öl wird später weiterverarbeitet.</p>
+      <p>Aus dem <button class="term" data-t="presskuchen">Presskuchen</button> wird meistens noch mit einem <button class="term" data-t="loesungsmittel">Lösungsmittel</button> weiteres Öl <button class="term" data-t="extrahieren">extrahiert</button>. Der übrig gebliebene <button class="term" data-t="rapsschrot">Rapsschrot</button> wird wegen seines hohen Eiweißgehalts gern als Futtermittel eingesetzt.</p>
+      <p class="lead"><strong>Biodiesel.</strong> Das Rapsöl wird in einer Biodieselanlage mehrere Stunden lang mit dem Alkohol <button class="term" data-t="methanol">Methanol</button> umgesetzt. Durch diese chemische Reaktion entstehen daraus <button class="term" data-t="glycerin">Glycerin</button> und Biodiesel. Nach einigen Reinigungsschritten kann er als Kraftstoff in Automotoren eingesetzt werden.</p>
+      <p>Das „Bio“ in Biodiesel steht hier <strong>nicht</strong> für eine ökologische Herstellungsweise, sondern für die Herstellung auf der Grundlage von Pflanzen.</p>
+    </div>
+    <figure class="card reveal"><img class="zoomable" src="assets/modul2/biodiesel-herstellung.webp" width="1122" height="1402" loading="lazy" decoding="async" alt="Schaubild: Düngung, Pflanzenschutz und Feldbearbeitung führen zur Rapspflanze. Nach der Ernte gibt es Rapskörner und Rapsstroh (Brennstoff, Dünger). In der Ölmühle entstehen Rapsöl und Rapsschrot (Futtermittel). In der Biodieselanlage entstehen mit Methanol Biodiesel (Tankstelle) und Glycerin (Kosmetikindustrie)." style="max-height:520px;width:auto;margin:0 auto"><figcaption style="text-align:center">Herstellung von Biodiesel aus Rapsöl (Tippen zum Vergrößern)</figcaption></figure>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <div class="chain" id="bdChain">
+      <div class="step"><span class="ic">🌼</span>Rapsfeld</div><span class="to">→</span>
+      <div class="step"><span class="ic">✂️</span>Ernte</div><span class="to">→</span>
+      <div class="step"><span class="ic">🏭</span>Ölmühle</div><span class="to">→</span>
+      <div class="step"><span class="ic">⚗️</span>Biodieselanlage</div><span class="to">→</span>
+      <div class="step"><span class="ic">⛽</span>Tankstelle</div>
+    </div>
+    <svg viewBox="0 0 480 250" id="bdSvg" role="img" aria-label="Animation: vom Rapsfeld über Ölmühle und Biodieselanlage zur Tankstelle">
+      <defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#33414d"/></marker></defs>
+      <rect width="480" height="250" fill="#f7fbfe"/>
+      <g id="bd0" class="stage">
+        <rect y="206" width="480" height="44" fill="#8a6a45"/>
+        <g id="bdPlants"></g>
+        <g font-size="13" font-weight="700" fill="#15212b" text-anchor="middle">
+          <rect x="30" y="12" width="118" height="30" rx="8" fill="#e5f3ea" stroke="#2e7d4f"/><text x="89" y="32">🌱 Düngung</text>
+          <rect x="172" y="12" width="136" height="30" rx="8" fill="#e5f3ea" stroke="#2e7d4f"/><text x="240" y="32">🛡️ Pflanzenschutz</text>
+          <rect x="332" y="12" width="136" height="30" rx="8" fill="#e5f3ea" stroke="#2e7d4f"/><text x="400" y="32">🚜 Feldbearbeitung</text>
+        </g>
+        <g stroke="#33414d" stroke-width="2.5" marker-end="url(#arr)"><line class="anim flow" x1="89" y1="46" x2="130" y2="92"/><line class="anim flow" x1="240" y1="46" x2="240" y2="92"/><line class="anim flow" x1="400" y1="46" x2="350" y2="92"/></g>
+      </g>
+      <g id="bd1" class="stage">
+        <rect y="206" width="480" height="44" fill="#b99b6b"/>
+        <text x="240" y="36" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">✂️ Ernte</text>
+        <g stroke="#33414d" stroke-width="2.5" marker-end="url(#arr)"><line class="anim flow" x1="222" y1="48" x2="165" y2="140"/><line class="anim flow" x1="258" y1="48" x2="345" y2="108"/></g>
+        <g id="bdSeeds" fill="#2b2b2b"></g>
+        <text x="150" y="232" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">Rapskörner</text>
+        <text x="150" y="160" text-anchor="middle" font-size="12" fill="#566674">Samen mit etwa 40 % Öl</text>
+        <g transform="translate(330 140)"><rect width="100" height="56" rx="8" fill="#e8c65a" stroke="#b8942e" stroke-width="2"/><g stroke="#b8942e" stroke-width="1.5"><line x1="8" y1="14" x2="92" y2="14"/><line x1="8" y1="28" x2="92" y2="28"/><line x1="8" y1="42" x2="92" y2="42"/></g></g>
+        <text x="380" y="232" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">Rapsstroh</text>
+        <text x="380" y="132" text-anchor="middle" font-size="12" fill="#566674">→ Brennstoff, Dünger</text>
+      </g>
+      <g id="bd2" class="stage">
+        <text x="96" y="52" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">🏭 Ölmühle</text>
+        <text x="96" y="72" text-anchor="middle" font-size="12" fill="#566674">Die Samen</text>
+        <text x="96" y="88" text-anchor="middle" font-size="12" fill="#566674">werden gepresst.</text>
+        <polygon points="202,18 282,18 264,64 220,64" fill="#9aa5ad"/>
+        <g fill="#2b2b2b"><circle class="anim fall" cx="234" cy="62" r="3"/><circle class="anim fall" cx="250" cy="62" r="3" style="animation-delay:.45s"/><circle class="anim fall" cx="242" cy="62" r="3" style="animation-delay:.9s"/></g>
+        <g transform="translate(222 104)"><g class="anim spin"><circle r="20" fill="#6b7a86"/><g stroke="#3d4a55" stroke-width="3"><line x1="-20" y1="0" x2="20" y2="0"/><line x1="0" y1="-20" x2="0" y2="20"/></g></g></g>
+        <g transform="translate(262 104)"><g class="anim spinr"><circle r="20" fill="#6b7a86"/><g stroke="#3d4a55" stroke-width="3"><line x1="-20" y1="0" x2="20" y2="0"/><line x1="0" y1="-20" x2="0" y2="20"/></g></g></g>
+        <circle class="anim dripl" cx="242" cy="128" r="3.5" fill="#f2c200"/>
+        <path d="M232 152 V168 L214 198 Q212 204 218 204 H266 Q272 204 270 198 L252 168 V152" fill="#fff" stroke="#7d9bb0" stroke-width="2"/>
+        <path d="M219 190 H265 L270 198 Q272 204 266 204 H218 Q212 204 214 198Z" fill="#f2c200"/>
+        <text x="242" y="226" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">Rapsöl</text>
+        <g class="anim slide"><rect x="286" y="112" width="30" height="10" rx="3" fill="#8a6a45"/></g>
+        <text x="282" y="100" font-size="11" fill="#566674">Presskuchen</text>
+        <rect x="350" y="84" width="118" height="48" rx="10" fill="#e3f3f0" stroke="#176b62"/>
+        <text x="409" y="104" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">Lösungsmittel</text>
+        <text x="409" y="121" text-anchor="middle" font-size="11" fill="#15212b">holt weiteres Öl heraus</text>
+        <line class="anim flow" x1="395" y1="136" x2="395" y2="164" stroke="#33414d" stroke-width="2.5" marker-end="url(#arr)"/>
+        <path d="M370 172 Q367 210 372 214 H418 Q423 210 420 172 Q395 164 370 172Z" fill="#d9c3a0" stroke="#a58a5f" stroke-width="2"/>
+        <text x="395" y="197" text-anchor="middle" font-size="11" font-weight="800" fill="#4a3520">Rapsschrot</text>
+        <text x="395" y="234" text-anchor="middle" font-size="12" fill="#566674">→ Futtermittel</text>
+      </g>
+      <g id="bd3" class="stage">
+        <path d="M30 120 H180" stroke="#f2c200" stroke-width="10"/><path class="anim flow" d="M30 120 H180" stroke="#fff6c4" stroke-width="3" fill="none"/>
+        <text x="100" y="108" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Rapsöl</text>
+        <path d="M60 64 H150 V84 H182" stroke="#b9c6d0" stroke-width="10" fill="none"/><path class="anim flow" d="M60 64 H150 V84 H182" stroke="#fff" stroke-width="3" fill="none"/>
+        <text x="100" y="50" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Methanol</text>
+        <rect x="180" y="46" width="120" height="156" rx="18" fill="#dfe7ec" stroke="#7d9bb0" stroke-width="3"/>
+        <rect x="186" y="100" width="108" height="96" rx="12" fill="#f2d24a" opacity=".9"/>
+        <line x1="240" y1="30" x2="240" y2="152" stroke="#6b7a86" stroke-width="4"/>
+        <g transform="translate(240 152)"><g class="anim spin"><circle r="36" fill="none"/><rect x="-32" y="-4" width="64" height="8" rx="3" fill="#6b7a86"/></g></g>
+        <path d="M300 86 H360" stroke="#b5c93b" stroke-width="10"/><path class="anim flow" d="M300 86 H360" stroke="#f3f8d2" stroke-width="3" fill="none"/>
+        <rect x="360" y="56" width="100" height="60" rx="10" fill="#e6efb4" stroke="#8a9a2a" stroke-width="2"/>
+        <text x="410" y="91" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Biodiesel</text>
+        <path d="M300 170 H360" stroke="#d8dde2" stroke-width="10"/><path class="anim flow" d="M300 170 H360" stroke="#fff" stroke-width="3" fill="none"/>
+        <rect x="360" y="145" width="100" height="50" rx="10" fill="#f4f6f8" stroke="#9aa5ad" stroke-width="2"/>
+        <text x="410" y="175" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Glycerin</text>
+        <text x="410" y="214" text-anchor="middle" font-size="12" fill="#566674">→ Kosmetikindustrie</text>
+        <text x="240" y="232" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">⚗️ Biodieselanlage · ⏱️ mehrere Stunden</text>
+      </g>
+      <g id="bd4" class="stage">
+        <rect y="208" width="480" height="42" fill="#9aa5ad"/>
+        <text x="240" y="34" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">⛽ Tankstelle</text>
+        <text x="240" y="54" text-anchor="middle" font-size="12" fill="#566674">Nach einigen Reinigungsschritten: Kraftstoff für Automotoren</text>
+        <rect x="110" y="72" width="70" height="136" rx="10" fill="#2e7d4f"/>
+        <rect x="122" y="86" width="46" height="28" rx="4" fill="#e5f3ea"/>
+        <text x="145" y="105" text-anchor="middle" font-size="11" font-weight="800" fill="#1d5a36">Diesel</text>
+        <text x="145" y="146" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">Biodiesel</text>
+        <path d="M180 120 C230 120 240 170 292 168" stroke="#222" stroke-width="6" fill="none"/>
+        <path class="anim flow" d="M180 120 C230 120 240 170 292 168" stroke="#e6efb4" stroke-width="2.5" fill="none"/>
+        <g transform="translate(290 152)"><path d="M0 40 V22 Q0 14 10 12 L40 0 H100 L130 14 Q150 16 150 26 V40 Z" fill="#2f6fdb"/><rect x="48" y="4" width="46" height="14" rx="3" fill="#cfe6f4"/><circle cx="30" cy="42" r="13" fill="#222"/><circle cx="120" cy="42" r="13" fill="#222"/></g>
+      </g>
+    </svg>
+    <div class="sim-ctrl"><button class="btn small ghost" id="bdPrev">◀ Zurück</button><button class="btn small" id="bdNext">Weiter ▶</button></div>
+    <div class="readout" id="bdSide"><span class="chip" data-s="1" hidden>🌾 Rapsstroh → Brennstoff, Dünger</span><span class="chip" data-s="2" hidden>🟤 Rapsschrot → Futtermittel</span><span class="chip" data-s="3" hidden>🧴 Glycerin → Kosmetikindustrie</span></div>
+    <p class="obs" id="bdObs"></p>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag">Vor- und Nachteile · Buch S. 17</span>
+      <p><strong>Vorteile:</strong> Biodiesel ist umweltfreundlich, weil er <button class="term" data-t="abbaubar">biologisch abbaubar</button> ist. Er ist auch <button class="term" data-t="co2neutral">CO₂-neutral</button>, denn die Pflanzen haben das CO₂, das bei der Verbrennung frei wird, beim Wachsen aus der Luft entnommen.</p>
+      <p><strong>Nachteile:</strong> Der großflächige Anbau von Ölpflanzen schafft aber auch Probleme. Es sind <button class="term" data-t="monokultur">Monokulturen</button>, die viel Dünger und Pflanzenschutzmittel brauchen. Die Ackerflächen für Biodiesel stehen nicht mehr für Nahrungsmittel zur Verfügung.</p>
+      <p>Biodiesel kann fossile Kraftstoffe nur zu einem kleinen Teil ersetzen. Wollte man den gesamten Dieselkraftstoff durch Biodiesel ersetzen, müsste man auf <strong>70 % der Fläche Deutschlands</strong> Raps anbauen.</p>
+    </div>
+    <div class="sim reveal">
+      <div class="land" id="land" role="img" aria-label="Deutschland als 100 Kästchen: Äcker, Wiesen, Wald, Siedlungen und Wasser. Gelbe Kästchen sind Rapsfelder für Biodiesel."></div>
+      <div class="legend"><span><i class="acker"></i>Acker</span><span><i class="wiese"></i>Wiesen, Weiden</span><span><i class="wald"></i>Wald</span><span><i class="stadt"></i>Städte, Straßen</span><span><i class="wasser"></i>Wasser, Sonstiges</span><span><i class="raps"></i>Raps für Biodiesel</span></div>
+      <div class="sim-ctrl"><label for="landRange">Diesel aus Raps</label><input type="range" id="landRange" min="0" max="100" step="10" value="0"><span class="chip" id="landChip">0 %</span></div>
+      <p class="obs" id="landObs"></p>
+    </div>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Aus Ölpflanzen wie Raps lässt sich Öl gewinnen und daraus Biodiesel erzeugen.</li><li>Biodiesel kann als Kraftstoff für Autos verwendet werden.</li><li>Biodiesel ist umweltfreundlich.</li><li>Der großflächige Anbau von Ölpflanzen für Treibstoffe schafft aber auch Probleme.</li></ul></div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Arbeitsblatt Biodiesel · Aufgabe 1a</span>
+    <h3 style="margin-top:4px">Verbinde die passenden Satzteile</h3>
+    <p class="hint">Tippe ein Satzende an und dann den passenden Satzanfang. Du kannst die Karten auch ziehen.</p>
+    <div id="abBio1"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Arbeitsblatt Biodiesel · Aufgabe 1b</span>
+    <h3 style="margin-top:4px">Ergänze den letzten Schritt der Herstellung <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="abBio1b"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Arbeitsblatt Biodiesel · Aufgabe 2</span>
+    <h3 style="margin-top:4px">Neben dem Rapsöl fallen noch weitere Produkte an. Wofür verwendet man sie?</h3>
+    <div id="abBio2"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Arbeitsblatt Biodiesel · Aufgabe 3</span>
+    <h3 style="margin-top:4px">Biodiesel hat Vor- und Nachteile</h3>
+    <div id="abBio3"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Reihenfolge</span>
+    <h3 style="margin-top:4px">Vom Rapsfeld zur Tankstelle</h3>
+    <div id="orderBio"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Fragen zum Text · Buch S. 17</span>
+    <h3 style="margin-top:4px">Biodiesel, ökologisch betrachtet <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="open2"></div>
+  </div>
+  <div class="card reveal" id="mc-s2"></div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Buch S. 18 · Arbeitsblatt · Probenstoff</div><h2>Stärke als nachwachsender Rohstoff</h2></div></div>
+  <div class="grid2">
+    <figure class="card reveal"><img class="zoomable" src="assets/modul2/kartoffelpflanzen.webp" width="1000" height="750" loading="lazy" decoding="async" alt="Kartoffelfeld mit blühenden Kartoffelpflanzen in langen Reihen"><figcaption>Kartoffelpflanzen – nicht nur für Lebensmittel</figcaption></figure>
+    <div class="card reveal">
+      <p class="lead"><strong>Stärkepflanzen.</strong> Kartoffeln, Mais und Weizen besitzen besonders viel <button class="term" data-t="staerke">Stärke</button>. Stärke gehört zu den <button class="term" data-t="kohlenhydrat">Kohlenhydraten</button>. Stärkepulver gibt es in jedem Supermarkt. Man nutzt es für Kuchen, Pudding und zum Andicken von Soßen.</p>
+      <p>Kartoffeln werden inzwischen nicht nur als Nahrungsmittel angebaut, sondern auch als <button class="term" data-t="industriepflanze">Industriepflanze</button>. Für industrielle Zwecke wurden Sorten gezüchtet, die eine bestimmte Stärkezusammensetzung haben.</p>
+      <div id="mc-industrie"></div>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <div class="chain" id="skChain">
+      <div class="step"><span class="ic">🚿</span>reinigen</div><span class="to">→</span>
+      <div class="step"><span class="ic">⚙️</span>zerkleinern</div><span class="to">→</span>
+      <div class="step"><span class="ic">💧</span>auswaschen</div><span class="to">→</span>
+      <div class="step"><span class="ic">♨️</span>trocknen</div><span class="to">→</span>
+      <div class="step"><span class="ic">🥣</span>weißes Pulver</div>
+    </div>
+    <svg viewBox="0 0 480 230" id="skSvg" role="img" aria-label="Animation: So wird Kartoffelstärke in der Fabrik gewonnen">
+      <rect width="480" height="230" fill="#f7fbfe"/>
+      <g id="sk0" class="mach">
+        <line x1="70" y1="18" x2="70" y2="40" stroke="#6b7a86" stroke-width="5"/>
+        <rect x="40" y="40" width="60" height="12" rx="4" fill="#6b7a86"/>
+        <g fill="#5aa9e6"><circle class="anim fall" cx="50" cy="62" r="2.5"/><circle class="anim fall" cx="62" cy="62" r="2.5" style="animation-delay:.3s"/><circle class="anim fall" cx="74" cy="62" r="2.5" style="animation-delay:.6s"/><circle class="anim fall" cx="86" cy="62" r="2.5" style="animation-delay:.9s"/><circle class="anim fall" cx="56" cy="80" r="2.5" style="animation-delay:.45s"/><circle class="anim fall" cx="80" cy="80" r="2.5" style="animation-delay:1.1s"/></g>
+        <text x="70" y="214" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">reinigen</text>
+      </g>
+      <g id="sk1" class="mach">
+        <rect x="130" y="56" width="64" height="84" rx="8" fill="#9aa5ad"/>
+        <g transform="translate(150 98)"><g class="anim spin"><circle r="12" fill="#5b6770"/><path d="M-3 -17h6v6h-6zM-3 11h6v6h-6zM-17 -3h6v6h-6zM11 -3h6v6h-6z" fill="#5b6770"/></g></g>
+        <g transform="translate(174 98)"><g class="anim spinr"><circle r="12" fill="#5b6770"/><path d="M-3 -17h6v6h-6zM-3 11h6v6h-6zM-17 -3h6v6h-6zM11 -3h6v6h-6z" fill="#5b6770"/></g></g>
+        <text x="162" y="214" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">zerkleinern</text>
+      </g>
+      <g id="sk2" class="mach">
+        <rect x="220" y="64" width="80" height="100" rx="8" fill="#d6ecfa" stroke="#7d9bb0" stroke-width="2"/>
+        <rect x="222" y="88" width="76" height="74" fill="#a9d6f2" opacity=".85"/>
+        <g fill="#fff"><circle class="anim rise" cx="236" cy="150" r="3"/><circle class="anim rise" cx="252" cy="154" r="3" style="animation-delay:.5s"/><circle class="anim rise" cx="268" cy="148" r="3" style="animation-delay:1s"/><circle class="anim rise" cx="284" cy="152" r="3" style="animation-delay:1.5s"/><circle class="anim rise" cx="244" cy="136" r="2.5" style="animation-delay:.8s"/><circle class="anim rise" cx="276" cy="134" r="2.5" style="animation-delay:1.9s"/></g>
+        <text x="260" y="214" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">auswaschen</text>
+      </g>
+      <g id="sk3" class="mach">
+        <rect x="322" y="56" width="68" height="84" rx="8" fill="#f3a33a"/>
+        <g stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round">
+          <g class="anim rise"><path d="M340 132 q5 -7 0 -14 q-5 -7 0 -14"/></g>
+          <g class="anim rise" style="animation-delay:.8s"><path d="M356 132 q5 -7 0 -14 q-5 -7 0 -14"/></g>
+          <g class="anim rise" style="animation-delay:1.6s"><path d="M372 132 q5 -7 0 -14 q-5 -7 0 -14"/></g>
+        </g>
+        <text x="356" y="214" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">trocknen</text>
+      </g>
+      <g id="sk4" class="mach">
+        <path d="M410 88 Q406 168 412 174 H458 Q464 168 460 88 Q435 80 410 88Z" fill="#f4efe4" stroke="#bcae8f" stroke-width="2"/>
+        <text x="435" y="134" text-anchor="middle" font-size="12" font-weight="800" fill="#4a3520">Stärke</text>
+        <text x="435" y="214" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">Pulver</text>
+      </g>
+      <rect x="10" y="178" width="460" height="12" rx="6" fill="#4a5a68"/>
+      <line class="flow" x1="16" y1="184" x2="464" y2="184" stroke="#9aa5ad" stroke-width="3"/>
+      <g id="skTok"></g>
+    </svg>
+    <div class="sim-ctrl"><button class="btn small ghost" id="skPrev">◀ Zurück</button><button class="btn small" id="skNext">Weiter ▶</button></div>
+    <p class="obs" id="skObs"></p>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <p class="lead"><strong>Verwendung von Kartoffelstärke.</strong> Stärke wird für viele Produkte des täglichen Lebens verarbeitet. So wird Stärke bei der Herstellung von Papier und Pappe verwendet, um dessen Festigkeit zu erhöhen und das Papier bedruckbar zu machen.</p>
+    <p>In der Industrie nutzt man Stärke als <button class="term" data-t="bindemittel">Bindemittel</button> in Gipskartonplatten, für Tapetenkleister, Leim und für Farbstoffe. Stärke wird auch als Bindemittel in Tabletten sowie in Zahnpasten, Cremes und Puder eingesetzt. Für die Landwirtschaft stellt man auch Folien aus Stärke her, die biologisch abbaubar sind.</p>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Für die Industrie werden Kartoffeln mit einem besonders hohen Stärkegehalt angebaut.</li><li>Stärke ist ein wichtiger Rohstoff, der auf vielen Gebieten zum Einsatz kommt.</li></ul></div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Arbeitsblatt Stärke · Aufgabe 1</span>
+    <h3 style="margin-top:4px">Stärke wird aus Stärkepflanzen gewonnen. Fülle die Lücken.</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort.</p>
+    <div class="gaptext" id="gapStaerke"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Arbeitsblatt Stärke · Aufgabe 2</span>
+    <h3 style="margin-top:4px">In welchen Produkten dient Stärke als Bindemittel?</h3>
+    <p class="hint">Sortiere: Welche Produkte gehören in die Mindmap „Stärke als Bindemittel“ und welche haben mit Stärke nichts zu tun?</p>
+    <div id="sortStaerke"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Fragen zum Text · Buch S. 18</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="open3"></div>
+  </div>
+  <div class="card reveal" id="mc-s3"></div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Buch S. 19 · Versuch mit Film</div><h2>Stärkefolie, selbst gemacht</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <span class="task-tag">Versuch · Stärkefolie</span>
+      <p><strong>Materialien:</strong> Topf für ein Wasserbad, Becherglas, Glasstab, Kunststoffplatte, Teelöffel, Löffelspatel, 1 Teelöffel Kartoffelstärke, 1 Spatelspitze Kartoffelmehl, 50 ml Wasser, 1 Teelöffel <button class="term" data-t="glycerin">Glycerin</button> (100%ig), nach Belieben Lebensmittelfarbe.</p>
+      <p><strong>Durchführung:</strong> Vermische im Becherglas einen Teelöffel Kartoffelstärke mit einer Spatelspitze Kartoffelmehl, einem Teelöffel Glycerin und 50 ml Wasser. Erhitze die Mischung im Wasserbad unter ständigem Rühren auf 100 °C und halte diese Temperatur etwa 15 Minuten lang.</p>
+      <p>Gieße anschließend vorsichtig die noch heiße Masse auf eine glatte Kunststoffplatte (oder auf einen alten Deckel aus PE). Lass sie 24 Stunden trocknen. Die fertige Folie kann anschließend vorsichtig abgezogen werden.</p>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag">Film · Das Stärkefolien-Experiment</span>
+      <p class="hint" style="margin-top:0">Im Film macht die Junior Uni Wuppertal den Versuch mit Dingen aus der Küche vor. Der Film hält an einigen Stellen an. Beantworte dann die Frage unter dem Film – erst danach geht es weiter.</p>
+      <div class="film" id="film">
+        <div id="ytPlayer"></div>
+        <button class="film-poster" id="filmStart" type="button"><span class="play">▶</span><b>Film starten</b><small>Junior Uni Wuppertal: „Das Stärkefolien-Experiment“ (knapp 6 Minuten). Erst mit diesem Klick wird der Film von YouTube geladen.</small></button>
+        <div class="film-stop" id="filmStop">⏸ Film-Stopp!<br>Beantworte die Frage unter dem Film.</div>
+      </div>
+      <div class="film-chips" id="filmChips" aria-label="Film-Stopps"></div>
+      <p class="hint" id="filmHint" style="margin:8px 0 0">Die Knöpfe mit ❓ springen direkt zu einem Film-Stopp.</p>
+      <div id="filmQs"></div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <p class="lead"><strong>Einsatz von Stärkefolie.</strong> Stärkehaltige Folie findet vor allem in der Landwirtschaft, bei Verpackungen und im Gartenbau Verwendung.</p>
+      <p><strong>Vorteile.</strong> Stärke ist ein nachwachsender Rohstoff, also CO₂-neutral und biologisch abbaubar. Das Abfallprodukt kann im Idealfall wieder in die Natur zurückgeführt werden, indem die Folie <button class="term" data-t="kompost">kompostiert</button> wird.</p>
+      <p><strong>Nachteile.</strong> Im Gegensatz zu Folie aus Kunststoff ist Stärkefolie nicht wasserfest. Um die Eigenschaften der Stärkefolie zu verbessern, werden oftmals weitere chemische Stoffe hinzugefügt. Dadurch wird das Recycling der Folie schon wieder erschwert. Sie darf dann auch nicht in die Biotonne oder auf den Kompost.</p>
+    </div>
+    <div class="sim reveal">
+      <svg viewBox="0 0 480 238" id="chipSvg" role="img" aria-label="Zwei Bechergläser mit warmem Wasser. Links kommen Verpackungs-Chips aus Stärke hinein, rechts Chips aus Polystyrol.">
+        <rect width="480" height="238" fill="#f7fbfe"/>
+        <text x="240" y="22" text-anchor="middle" font-size="12" fill="#566674">In beiden Gläsern: warmes Wasser</text>
+        <rect id="wL" x="62" y="110" width="136" height="96" fill="#bfe3f7" style="transition:fill 3s"/>
+        <rect x="282" y="110" width="136" height="96" fill="#bfe3f7"/>
+        <g fill="#dfe8ee"><circle class="rise" cx="110" cy="104" r="5"/><circle class="rise" cx="150" cy="104" r="4" style="animation-delay:1.2s"/><circle class="rise" cx="330" cy="104" r="5" style="animation-delay:.6s"/><circle class="rise" cx="370" cy="104" r="4" style="animation-delay:1.8s"/></g>
+        <path d="M60 64 V200 Q60 208 68 208 H192 Q200 208 200 200 V64 M280 64 V200 Q280 208 288 208 H412 Q420 208 420 200 V64" fill="none" stroke="#7d9bb0" stroke-width="3"/>
+        <g id="chL"></g><g id="chR"></g>
+        <text x="130" y="226" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">Chips aus Stärke</text>
+        <text x="350" y="226" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">Chips aus Polystyrol</text>
+      </svg>
+      <div class="sim-ctrl"><button class="btn small" id="chipBtnL">Stärke-Chips hineingeben</button><button class="btn small" id="chipBtnR">Polystyrol-Chips hineingeben</button><button class="btn small ghost" id="chipReset">Zurücksetzen</button></div>
+      <p class="obs" id="chipObs">Buch S. 19: Es gibt „Verpackungs-Chips“ aus <button class="term" data-t="polystyrol">Polystyrol</button> und solche aus biologisch abbaubarer Stärke. Probiere aus, was im warmen Wasser passiert.</p>
+    </div>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Folien können auch aus pflanzlicher Stärke hergestellt werden.</li><li>Stärkefolie findet ihren Einsatz bereits in der Verpackungsindustrie, der Landwirtschaft und im Gartenbau.</li></ul></div>
+
+  <div class="card reveal">
+    <span class="task-tag">Zuordnen</span>
+    <h3 style="margin-top:4px">Stärkefolie: Vorteil oder Nachteil?</h3>
+    <div id="sortFolie"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Reihenfolge</span>
+    <h3 style="margin-top:4px">So stellst du eine Stärkefolie her</h3>
+    <div id="orderFolie"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Fragen zum Text · Buch S. 19</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="open4"></div>
+  </div>
+  <div class="card reveal" id="mc-s4"></div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Buch S. 20 · Arbeitsblatt · Probenstoff</div><h2>Nachhaltigkeit – wo liegen die Probleme?</h2></div></div>
+  <div class="grid2">
+    <figure class="card reveal"><img class="zoomable" src="assets/modul2/karikatur-nahrung.webp" width="1200" height="800" loading="lazy" decoding="async" alt="Karikatur: Ein riesiger Trichter voller Lebensmittel mündet in eine Zapfsäule, an der ein Auto tankt. Links hebt ein Mann abwehrend die Hand, rechts isst ein Jugendlicher auf einer Bank ein Brot."><figcaption>Nahrung als Energiequelle (Tippen zum Vergrößern)</figcaption></figure>
+    <div class="card reveal">
+      <span class="task-tag">Buch S. 20 · Aufgabe 1 · Karikatur</span>
+      <h3 style="margin-top:4px">Welche Probleme zeigt die Karikatur? <span class="ki-badge">✨ KI prüft</span></h3>
+      <div id="openKari"></div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <p class="lead"><strong>Nachhaltigkeit.</strong> Der Begriff kommt ursprünglich aus dem Bereich der <button class="term" data-t="forstwirtschaft">Forstwirtschaft</button>. In einem Wald werden nach diesem Konzept nur so viele Bäume abgeholzt, wie gleichzeitig wieder nachwachsen können. Es soll also ein Gleichgewicht zwischen Verbrauch und Wachstum geben.</p>
+      <p><button class="term" data-t="nachhaltigkeit">Nachhaltiges</button> Handeln sichert die Lebensgrundlagen für die zukünftigen Generationen.</p>
+      <p><strong>Nachhaltigkeit regenerativer Rohstoffe.</strong> <button class="term" data-t="regenerativ">Regenerative Rohstoffe</button> können helfen, fossile Energieträger einzusparen. Dennoch muss man auch mit regenerativen Rohstoffen sorgsam umgehen: Übersteigt die Nachfrage das vorhandene Angebot, gerät die nachhaltige Nutzung schnell in ein Ungleichgewicht.</p>
+    </div>
+    <div class="sim reveal">
+      <svg viewBox="0 0 480 210" id="waldSvg" role="img" aria-label="Ein Wald aus 40 Bäumen. Jedes Jahr werden Bäume gefällt, und 6 Bäume wachsen nach."><rect width="480" height="210" fill="#eef7ee"/><g id="waldTrees"></g></svg>
+      <div class="yearbars" id="waldBars" aria-hidden="true"></div>
+      <div class="sim-ctrl"><label for="waldCut">Fällen pro Jahr</label><input type="range" id="waldCut" min="0" max="12" value="4"><span class="chip" id="waldCutChip">4 Bäume</span><button class="btn small" id="waldRun">▶ 10 Jahre abspielen</button></div>
+      <div class="readout"><span class="chip ok">🌱 Jedes Jahr wachsen 6 Bäume nach</span><span class="chip" id="waldChip">Jahr 0 · 40 Bäume</span></div>
+      <p class="obs" id="waldObs">Stell ein, wie viele Bäume pro Jahr gefällt werden, und spiel 10 Jahre ab. Probiere einen Wert aus, bei dem der Wald erhalten bleibt, und einen, bei dem er schrumpft.</p>
+    </div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Arbeitsblatt Nachhaltigkeit · Aufgabe 1</span>
+    <h3 style="margin-top:4px">Nachhaltigkeit ist ein Begriff aus der Forstwirtschaft. Ergänze die Erklärung.</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Achtung: Drei Karten passen nicht.</p>
+    <div class="gaptext" id="gapNachh"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card reveal">
+      <p><strong>Intensivierung der Landwirtschaft.</strong> Werden mehr nachwachsende Rohstoffe benötigt, führt das zu einer Intensivierung der Landwirtschaft. Dann werden auch mehr <button class="term" data-t="duenger">Dünger</button> und <button class="term" data-t="pestizide">Pestizide</button> eingesetzt, der Boden wird ausgelaugt.</p>
+      <p><strong>Konkurrenz zur Lebensmittelproduktion.</strong> Durch die massive Nutzung von Mais oder Raps zur Energiegewinnung gehen Flächen für die Ernährung verloren. Dadurch entsteht eine Konkurrenzsituation zur Lebensmittelproduktion.</p>
+      <p><strong>Monokultur.</strong> Monokulturen in der Forst- und Landwirtschaft gefährden die <button class="term" data-t="artenvielfalt">Artenvielfalt</button> unter den Tieren und Pflanzen. Der Lebensraum und das Nahrungsangebot vieler Lebewesen werden durch den einseitigen Anbau von Feldfrüchten eingeschränkt.</p>
+      <p>Wenn viele Pflanzen der gleichen Sorte auf einer großen Fläche angebaut werden, steigt außerdem das Risiko eines Schädlingsbefalls. Dabei kann die Ernte häufig nur durch massives Spritzen von Pestiziden gerettet werden. Ein bekanntes Beispiel in der Forstwirtschaft ist der <button class="term" data-t="borkenkaefer">Borkenkäfer</button>, dessen Befall Fichtenbäume absterben lässt.</p>
+    </div>
+    <div class="stack" style="display:grid;gap:18px">
+      <figure class="card reveal" style="margin:0"><img class="zoomable" src="assets/modul2/monokultur.webp" width="900" height="900" loading="lazy" decoding="async" alt="Riesiges Maisfeld, so weit das Auge reicht: nur eine einzige Pflanzenart" style="max-height:300px;width:auto;margin:0 auto"><figcaption>Monokulturen schränken die Artenvielfalt ein.</figcaption></figure>
+      <figure class="card reveal" style="margin:0"><img class="zoomable" src="assets/modul2/borkenkaefer.webp" width="1000" height="667" loading="lazy" decoding="async" alt="Fichtenstamm, dessen Rinde vom Borkenkäfer zerfressen ist; im Hintergrund ein Fichtenwald"><figcaption>Schäden durch Borkenkäfer</figcaption></figure>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <svg viewBox="0 0 476 238" id="kfSvg" role="img" aria-label="Ein Wald als Raster aus Bäumen. Ein Borkenkäfer-Befall breitet sich von Fichte zu Fichte aus."><rect width="476" height="238" fill="#eef7ee"/><g id="kfTrees"></g></svg>
+    <div class="sim-ctrl"><button class="btn small" id="kfMono">🌲 Fichten-Monokultur</button><button class="btn small ghost" id="kfMisch">🌳 Mischwald</button><span style="flex:1"></span><button class="btn small teal" id="kfGo">🐞 Borkenkäfer aussetzen</button></div>
+    <div class="readout"><span class="chip" id="kfMode">Fichten-Monokultur</span><span class="chip" id="kfChip">0 Bäume abgestorben</span></div>
+    <p class="obs" id="kfObs">Der Borkenkäfer befällt nur Fichten. Von einem befallenen Baum fliegen die Käfer zu den Fichten direkt daneben. Setze den Käfer in beiden Wäldern aus und vergleiche.</p>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Arbeitsblatt Nachhaltigkeit · Aufgabe 2</span>
+    <h3 style="margin-top:4px">Wenn regenerative Rohstoffe sehr intensiv genutzt werden, kann das auch Probleme mit sich bringen</h3>
+    <p class="hint">Probleme: Intensivierung der Landwirtschaft, Monokultur, Konkurrenz zur Lebensmittelproduktion. Kreuze an, welche Folgen für die Umwelt das haben kann.</p>
+    <div id="abNach2"></div>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Nachhaltigkeit beschreibt ein Gleichgewicht zwischen Verbrauch und Wachstum eines Rohstoffes.</li><li>Regenerative Rohstoffe gelten nur dann als nachhaltig, wenn Angebot und Nachfrage ausgeglichen sind.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Fragen zum Text · Buch S. 21</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="open5"></div>
+  </div>
+  <div class="card reveal" id="mc-s5"></div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="s6">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Buch S. 20–21 · Arbeitsblatt · Probenstoff</div><h2>Nachhaltig nutzen: mehrfach, im Kreislauf, mit Vielfalt</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead"><strong>Mehrfachnutzung (<button class="term" data-t="kaskade">Kaskadennutzung</button>).</strong> Die vorhandene Biomasse sollte möglichst mehrfach und effizient verwendet werden.</p>
+      <p>Beispiel: Holz sollte nicht gleich verbrannt werden, sondern zunächst nur als Werkstoff zum Beispiel für Regale oder Möbel genutzt werden. Solche Gegenstände können lange genutzt werden. Aus den Holzregalen lassen sich später Holzfaserplatten herstellen. Erst wenn diese nicht mehr verwendet werden können, werden sie verbrannt und so energetisch genutzt.</p>
+      <p>Die wiederholte Nutzung des Rohstoffes in unterschiedlichen Bereichen erhöht dessen <button class="term" data-t="wertschoepfung">Wertschöpfung</button>.</p>
+    </div>
+    <figure class="card reveal"><img class="zoomable" src="assets/modul2/kaskadennutzung.webp" width="1448" height="1086" loading="lazy" decoding="async" alt="Schaubild Kaskadennutzung: Holz als nachwachsender Rohstoff, dann Möbel und Regal, dann Holzfaserplatten, zuletzt Energie aus der Verbrennung (Wärme und Strom)"><figcaption>Mehrfachnutzung (Kaskadennutzung) von Holz</figcaption></figure>
+  </div>
+  <div class="sim reveal" style="margin-top:18px">
+    <div class="kas">
+      <div class="kas-row"><b>Weg 1: Das Holz wird sofort verbrannt</b><div class="kas-track" id="kasA"></div><span class="kas-end" id="kasAEnd"></span></div>
+      <div class="kas-row"><b>Weg 2: Kaskadennutzung</b><div class="kas-track" id="kasB"></div><span class="kas-end" id="kasBEnd"></span></div>
+      <div class="kas-scale"><span>0</span><span>10</span><span>20</span><span>30</span><span>40 Jahre</span></div>
+    </div>
+    <div class="sim-ctrl"><button class="btn small" id="kasBtnA">🔥 Weg 1 starten</button><button class="btn small" id="kasBtnB">♻️ Weg 2 starten</button></div>
+    <p class="obs" id="kasObs">Ein Baumstamm, zwei Wege. Starte beide und vergleiche, wie lange das Holz genutzt wird. (Die Jahreszahlen sind Beispiele.)</p>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Arbeitsblatt Nachhaltigkeit · Aufgabe 3</span>
+    <h3 style="margin-top:4px">Beschreibe die Kaskadennutzung am Beispiel eines Regals aus Holz</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort.</p>
+    <div class="gaptext" id="gapKaskade"></div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <p class="lead"><strong>Die <button class="term" data-t="kreislauf">Kreislaufwirtschaft</button></strong> beschreibt das Gegenteil einer Wegwerfwirtschaft.</p>
+      <p>Durch eine effektive Nutzung und das Recycling der Rohstoffe soll möglichst wenig Müll entstehen und weniger Rohstoffe verbraucht werden. Regenerative Rohstoffe sollten so genutzt werden, dass die natürlichen Kreisläufe und <button class="term" data-t="oekosystem">Ökosysteme</button> erhalten bleiben.</p>
+    </div>
+    <div class="sim reveal">
+      <svg viewBox="0 0 480 240" id="krSvg" role="img" aria-label="Animation: Wegwerfwirtschaft und Kreislaufwirtschaft im Vergleich">
+        <rect width="480" height="240" fill="#f7fbfe"/>
+        <g id="krLin" class="stage on">
+          <path id="pLin" d="M40 150 H420" stroke="#d8e2ea" stroke-width="10" stroke-linecap="round" fill="none"/>
+          <g font-size="13" font-weight="800" fill="#15212b" text-anchor="middle">
+            <rect x="8" y="80" width="80" height="40" rx="10" fill="#e5f3ea" stroke="#2e7d4f"/><text x="48" y="105">🌳 Rohstoff</text>
+            <rect x="128" y="80" width="80" height="40" rx="10" fill="#fff" stroke="#9aa5ad"/><text x="168" y="105">🪑 Produkt</text>
+            <rect x="248" y="80" width="80" height="40" rx="10" fill="#fff" stroke="#9aa5ad"/><text x="288" y="105">🏠 Nutzung</text>
+            <rect x="368" y="80" width="80" height="40" rx="10" fill="#fdecec" stroke="#c93b3b"/><text x="408" y="105">🗑️ Müll</text>
+          </g>
+          <path id="krHeap" class="sc" d="M370 212 Q410 170 450 212Z" fill="#8a7a66"/>
+          <text x="240" y="40" text-anchor="middle" font-size="15" font-weight="800" fill="#c93b3b">Wegwerfwirtschaft</text>
+        </g>
+        <g id="krKreis" class="stage">
+          <path id="pKreis" d="M190 130 A80 80 0 1 1 350 130 A80 80 0 1 1 190 130" stroke="#d8e2ea" stroke-width="10" fill="none"/>
+          <path d="M40 130 H182" stroke="#33414d" stroke-width="2.5" marker-end="url(#arr2)"/>
+          <g font-size="13" font-weight="800" fill="#15212b" text-anchor="middle">
+            <rect x="0" y="110" width="84" height="40" rx="10" fill="#e5f3ea" stroke="#2e7d4f"/><text x="42" y="135">🌳 Rohstoff</text>
+            <rect x="230" y="32" width="80" height="36" rx="10" fill="#fff" stroke="#9aa5ad"/><text x="270" y="55">🪑 Produkt</text>
+            <rect x="330" y="150" width="84" height="36" rx="10" fill="#fff" stroke="#9aa5ad"/><text x="372" y="173">🏠 Nutzung</text>
+            <rect x="150" y="176" width="96" height="36" rx="10" fill="#e3f3f0" stroke="#176b62"/><text x="198" y="199">♻️ Recycling</text>
+          </g>
+          <g transform="translate(440 214)"><path id="krBin" class="sc" d="M-22 0 Q0 -30 22 0Z" fill="#8a7a66"/></g>
+          <text x="440" y="232" text-anchor="middle" font-size="11" fill="#566674">wenig Müll</text>
+          <text x="270" y="20" text-anchor="middle" font-size="15" font-weight="800" fill="#1d5a36">Kreislaufwirtschaft</text>
+        </g>
+        <defs><marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#33414d"/></marker></defs>
+        <g id="krDots" fill="#2e7d4f"></g>
+      </svg>
+      <div class="sim-ctrl"><button class="btn small" id="krBtnLin">🗑️ Wegwerfwirtschaft</button><button class="btn small ghost" id="krBtnKreis">♻️ Kreislaufwirtschaft</button></div>
+      <div class="readout"><span class="chip" id="krChipLin">Wegwerf: 0 Rohstoff · 0 Müll</span><span class="chip" id="krChipKreis">Kreislauf: 0 Rohstoff · 0 Müll</span></div>
+      <p class="obs" id="krObs">Beobachte beide Wirtschaftsformen eine Weile. Wo werden mehr Rohstoffe verbraucht, wo entsteht mehr Müll?</p>
+    </div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Arbeitsblatt Nachhaltigkeit · Aufgabe 4</span>
+    <h3 style="margin-top:4px">Die Kreislaufwirtschaft</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort.</p>
+    <div class="gaptext" id="gapKreis"></div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="sim reveal">
+      <div class="cmp" id="cmp">
+        <img src="assets/modul2/bluehstreifen.webp" width="900" height="900" loading="lazy" decoding="async" alt="Maisfeld mit einem bunten Blühstreifen aus Wildblumen am Rand">
+        <div class="cmp-top" id="cmpTop"><img src="assets/modul2/monokultur.webp" width="900" height="900" loading="lazy" decoding="async" alt="Dasselbe Maisfeld als Monokultur ohne Blühstreifen"></div>
+        <div class="cmp-line" id="cmpLine"></div>
+        <span class="cmp-lab l">Monokultur</span><span class="cmp-lab r">mit Blühstreifen</span>
+      </div>
+      <div class="sim-ctrl"><label for="cmpRange">Schieben</label><input type="range" id="cmpRange" min="0" max="100" value="100" aria-label="Vorher und nachher vergleichen"></div>
+      <p class="obs" id="cmpObs">Schiebe den Regler nach links: Am Feldrand entsteht ein <button class="term" data-t="bluehstreifen">Blühstreifen</button>.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Projekte zur Erhaltung der biologischen Vielfalt.</strong> Immer mehr Landkreise in Bayern sorgen sich um den Erhalt der biologischen Vielfalt. Es entstehen Projekte, die natürlichen Lebensraum zurückgewinnen wollen.</p>
+      <p>So werden Wildblumenstreifen an Feldrändern finanziell gefördert. Im Landkreis Regensburg entsteht beispielsweise ein <button class="term" data-t="wildtierkorridor">Wildtierkorridor</button>. Darunter versteht man zusammenhängende, naturbelassene Grünflächen, die als Lebensraum für Rehe, Wildschweine oder Rebhühner dienen.</p>
+      <p><strong>Forstwirtschaft im Zeichen des Klimawandels.</strong> Monokulturen wie Fichtenwälder sind sehr anfällig gegenüber Schädlingsbefall und Naturkatastrophen. Deshalb setzt man immer häufiger auf die Pflanzung von <button class="term" data-t="mischwald">Mischwäldern</button>. Dadurch kann das Ökosystem Wald intakt gehalten und zugleich gesundes Holz erwirtschaftet werden.</p>
+    </div>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Nachhaltigkeit beschreibt ein Gleichgewicht zwischen Verbrauch und Wachstum eines Rohstoffes.</li><li>Regenerative Rohstoffe gelten nur dann als nachhaltig, wenn Angebot und Nachfrage ausgeglichen sind.</li><li>Durch Kreislaufwirtschaft und Mehrfachnutzung kann die Nachhaltigkeit gesteigert werden.</li></ul></div>
+
+  <div class="card reveal">
+    <span class="task-tag">Reihenfolge</span>
+    <h3 style="margin-top:4px">Die Holz-Kaskade</h3>
+    <div id="orderKaskade"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Fragen zum Text · Buch S. 21</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="open6"></div>
+  </div>
+  <div class="card reveal" id="mc-s6"></div>
+</section>
+
+<!-- ============ STATION 7 ============ -->
+<section class="station" id="s7">
+  <div class="st-head reveal"><div class="st-num">7</div><div><div class="eyebrow">Wiederholung · so kommt es in der Probe</div><h2>Training für die Probe</h2></div></div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Kreuzworträtsel</span>
+    <h3 style="margin-top:4px">Löse das Kreuzworträtsel</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. <strong>Ä, Ö und Ü</strong> bekommen ein eigenes Kästchen.</p>
+    <div id="cw"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Schaubild beschriften</span>
+    <h3 style="margin-top:4px">Vom Raps zum Biodiesel</h3>
+    <div id="labelBio"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Zuordnen</span>
+    <h3 style="margin-top:4px">Nachhaltig oder nicht nachhaltig?</h3>
+    <div id="sortNachh"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Richtig oder falsch?</span>
+    <div id="tf"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Ankreuzen</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Offene Fragen</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung. Danach kannst du die Musterlösung ansehen.</p>
+    <div id="openT"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 8 ============ -->
+<section class="station" id="s8">
+  <div class="st-head reveal"><div class="st-num">8</div><div><div class="eyebrow">Abschluss</div><h2>Rohstoff-Profi-Check</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>In den nächsten Modulen geht es um die fossilen Rohstoffe: Wie sind Kohle, Erdöl und Erdgas entstanden – und warum sind sie nicht regenerativ?</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="module.html?id=m01">⬅️ Modul 1</a>
+      <a href="module.html?id=m03">➡️ Modul 3</a>
+      <a href="index.html">📘 Übersicht Organische Rohstoffe</a>
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik 9M / 9R · Organische Rohstoffe · Modul 2 · Grundlage: Schulbuch S. 16–21 und die Arbeitsblätter „Biodiesel aus Raps“, „Stärke als nachwachsender Rohstoff“ und „Nachhaltigkeit regenerativer Rohstoffe“. Film: Junior Uni Wuppertal auf YouTube. Dein Fortschritt wird nur auf diesem Gerät gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="content.js"></script>
+<script src="fortschritt/fortschritt.js"></script>
+<script src="modul-basis.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, shuffle, clamp, reduced, onVisible, register, solve} = Modul;
+const NS = "http://www.w3.org/2000/svg";
+const svgEl = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const wait = ms => new Promise(r => setTimeout(r, reduced ? Math.min(ms, 60) : ms));
+const FS = window.KohlenstoffFortschritt;
+let bereit = false;
+
+// Schritt-für-Schritt-Animation: Kette oben, Zurück/Weiter, show(i) zeichnet die Szene
+function stepper(chain, prev, next, n, show, block){
+  let i = 0;
+  const steps = $$(".step", chain);
+  function go(k){
+    i = clamp(k, 0, n - 1);
+    steps.forEach((s, j) => { s.classList.toggle("on", j === i); s.classList.toggle("done", j < i); });
+    prev.disabled = i === 0;
+    next.disabled = i === n - 1 || !!(block && block(i));
+    show(i);
+  }
+  prev.addEventListener("click", () => go(i - 1));
+  next.addEventListener("click", () => go(i + 1));
+  go(0);
+  return {go, cur: () => i};
+}
+
+Modul.init({
+  key: "grumi-nt9-" + (/\/9R\//i.test(location.pathname) ? "r9" : "m9") + "-modul2-v1",
+  thema: "Organische Rohstoffe: Biodiesel aus Raps, Stärke und Stärkefolie, Nachhaltigkeit, Kaskadennutzung und Kreislaufwirtschaft",
+  api: "/api/nt9/uebung/feedback",
+  // Sterne auch in der Kursübersicht zeigen (Kachel Modul 2)
+  onProgress: (n, total) => { if (bereit && FS) FS.speichern("m02", n, total); },
+  glossary: {
+    rohstoff: ["Rohstoff", "Stoff aus der Natur, aus dem man Produkte herstellt oder Energie gewinnt."],
+    regenerativ: ["regenerativer (nachwachsender) Rohstoff", "Rohstoff aus Pflanzen oder Tieren, der immer wieder nachwachsen kann, z. B. Holz, Raps oder Kartoffeln."],
+    raps: ["Raps", "Gelb blühende Feldpflanze. Ihre Samen enthalten etwa 40 % Öl."],
+    spiritus: ["Spiritus", "Leicht entzündbare Flüssigkeit, die vor allem aus Alkohol besteht. Im Versuch löst er das Öl aus dem Mehl."],
+    oelmuehle: ["Ölmühle", "Anlage, in der ölhaltige Samen gepresst werden."],
+    presskuchen: ["Presskuchen", "Fester Rest der Samen nach dem Pressen. Er enthält noch etwas Öl."],
+    loesungsmittel: ["Lösungsmittel", "Flüssigkeit, in der sich ein anderer Stoff löst. Damit holt man weiteres Öl aus dem Presskuchen."],
+    extrahieren: ["extrahieren", "Einen Stoff mit einem Lösungsmittel aus einem Gemisch herauslösen."],
+    rapsschrot: ["Rapsschrot", "Rest nach der Ölgewinnung. Er enthält viel Eiweiß und ist ein gutes Futtermittel."],
+    methanol: ["Methanol", "Ein Alkohol. In der Biodieselanlage wird Rapsöl mehrere Stunden lang mit Methanol umgesetzt."],
+    glycerin: ["Glycerin", "Nebenprodukt der Biodieselherstellung. Man verwendet es z. B. in der Kosmetikindustrie."],
+    biodiesel: ["Biodiesel", "Kraftstoff aus Pflanzenöl, in Deutschland meist aus Rapsöl. „Bio“ heißt hier nur: aus Pflanzen hergestellt."],
+    abbaubar: ["biologisch abbaubar", "Kleinstlebewesen können den Stoff in der Natur zersetzen."],
+    co2neutral: ["CO₂-neutral", "Bei der Nutzung wird nur so viel Kohlenstoffdioxid frei, wie die Pflanze beim Wachsen aus der Luft aufgenommen hat."],
+    monokultur: ["Monokultur", "Auf einer großen Fläche wächst immer nur eine einzige Pflanzenart."],
+    staerke: ["Stärke", "Kohlenhydrat, das Pflanzen als Vorrat speichern, z. B. in Kartoffeln, Mais und Weizen."],
+    kohlenhydrat: ["Kohlenhydrate", "Gruppe von Nährstoffen, zu der Zucker und Stärke gehören."],
+    industriepflanze: ["Industriepflanze", "Pflanze, die nicht als Lebensmittel, sondern als Rohstoff für die Industrie angebaut wird."],
+    bindemittel: ["Bindemittel", "Stoff, der andere Stoffe zusammenhält, z. B. Stärke in Tapetenkleister oder in Tabletten."],
+    polystyrol: ["Polystyrol", "Kunststoff aus Erdöl, z. B. Styropor. Er ist nicht biologisch abbaubar."],
+    kompost: ["kompostieren", "Kleinstlebewesen zersetzen Abfälle zu Erde."],
+    nachhaltigkeit: ["Nachhaltigkeit", "Gleichgewicht zwischen Verbrauch und Wachstum: Man verbraucht nur so viel, wie wieder nachwächst."],
+    forstwirtschaft: ["Forstwirtschaft", "Pflege und Nutzung des Waldes."],
+    duenger: ["Dünger", "Stoffe, die Pflanzen zusätzliche Nährstoffe liefern."],
+    pestizide: ["Pestizide", "Pflanzenschutzmittel gegen Schädlinge, Pilze oder Unkraut."],
+    artenvielfalt: ["Artenvielfalt", "Die Vielzahl verschiedener Tier- und Pflanzenarten in einem Lebensraum."],
+    borkenkaefer: ["Borkenkäfer", "Kleiner Käfer, der unter der Rinde von Fichten lebt. Ein starker Befall lässt die Bäume absterben."],
+    kaskade: ["Kaskadennutzung", "Mehrfachnutzung: Ein Rohstoff wird erst mehrmals als Werkstoff genutzt und erst zum Schluss zur Energiegewinnung verbrannt."],
+    wertschoepfung: ["Wertschöpfung", "Der Nutzen oder Wert, der aus einem Rohstoff entsteht."],
+    kreislauf: ["Kreislaufwirtschaft", "Gegenteil der Wegwerfwirtschaft: Rohstoffe werden effektiv genutzt und recycelt. So entsteht weniger Müll."],
+    oekosystem: ["Ökosystem", "Ein Lebensraum mit allen Lebewesen darin, die voneinander abhängen, z. B. der Wald."],
+    bluehstreifen: ["Blühstreifen", "Streifen mit Wildblumen am Feldrand. Er bietet Insekten und anderen Tieren Nahrung und Lebensraum."],
+    wildtierkorridor: ["Wildtierkorridor", "Zusammenhängende, naturbelassene Grünflächen, in denen Tiere wie Rehe, Wildschweine oder Rebhühner leben und wandern können."],
+    mischwald: ["Mischwald", "Wald aus verschiedenen Baumarten, z. B. Fichten, Buchen und Eichen. Er ist weniger anfällig für Schädlinge."]
+  }
+});
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Wie viel Öl enthalten Rapssamen etwa?", o: ["etwa 40 %", "etwa 4 %", "etwa 90 %", "gar keins"], a: 0, e: "Die Samen der Rapspflanze enthalten etwa 40 % Öl."},
+    {q: "Aus welchem Teil der Rapspflanze gewinnt man das Öl?", o: ["aus den Samen", "aus den Blättern", "aus den Wurzeln", "aus den Blüten"], a: 0, e: "Das Öl steckt in den Samen (Rapskörnern)."},
+    {q: "Warum dürfen beim Versuch keine offenen Flammen im Raum sein?", o: ["Spiritus ist leicht entzündbar.", "Das Öl würde sonst gefrieren.", "Die Kerne würden keimen.", "Das Wasserbad würde kochen."], a: 0, e: "Spiritusdämpfe können sich an einer Flamme entzünden."}
+  ],
+  s2: [
+    {q: "Wo werden die Rapssamen gepresst?", o: ["in der Ölmühle", "in der Biodieselanlage", "an der Tankstelle", "in der Kläranlage"], a: 0, e: "In der Ölmühle entsteht aus den Samen Rapsöl."},
+    {q: "Womit wird Rapsöl in der Biodieselanlage umgesetzt?", o: ["mit dem Alkohol Methanol", "mit Wasser", "mit Glycerin", "mit Erdöl"], a: 0, e: "Rapsöl reagiert mehrere Stunden lang mit Methanol."},
+    {q: "Welche beiden Stoffe entstehen in der Biodieselanlage?", o: ["Biodiesel und Glycerin", "Rapsöl und Rapsschrot", "Benzin und Wasser", "Stärke und Zucker"], a: 0, e: "Durch die chemische Reaktion entstehen Glycerin und Biodiesel."},
+    {q: "Wofür steht das „Bio“ in Biodiesel?", o: ["Er wird aus Pflanzen hergestellt.", "Er wird besonders ökologisch hergestellt.", "Er ist gesund.", "Er stammt aus dem Bioladen."], a: 0, e: "„Bio“ steht für die Herstellung auf der Grundlage von Pflanzen."},
+    {q: "Wie viel der Fläche Deutschlands bräuchte man, um den gesamten Diesel durch Biodiesel zu ersetzen?", o: ["etwa 70 %", "etwa 7 %", "etwa 17 %", "etwa 1 %"], a: 0, e: "Man müsste auf 70 % der Fläche Deutschlands Raps anbauen – unmöglich."}
+  ],
+  s3: [
+    {q: "Welche Pflanzen enthalten besonders viel Stärke?", o: ["Kartoffeln, Mais und Weizen", "Raps, Sonnenblumen und Oliven", "Salat, Gurken und Tomaten", "Äpfel, Birnen und Kirschen"], a: 0, e: "Kartoffeln, Mais und Weizen sind Stärkepflanzen."},
+    {q: "Zu welcher Stoffgruppe gehört Stärke?", o: ["zu den Kohlenhydraten", "zu den Fetten", "zu den Eiweißen", "zu den Mineralstoffen"], a: 0, e: "Stärke ist ein Kohlenhydrat."},
+    {q: "Wozu setzt man Stärke bei Papier und Pappe ein?", o: ["um die Festigkeit zu erhöhen und das Papier bedruckbar zu machen", "um das Papier wasserdicht zu machen", "um das Papier zu färben", "um das Papier schwerer zu machen"], a: 0, e: "Stärke macht Papier fester und bedruckbar."},
+    {q: "Wie sieht getrocknete Stärke aus?", o: ["weißes Pulver", "gelbes Öl", "braune Flüssigkeit", "durchsichtige Kristalle"], a: 0, e: "Getrocknete Stärke ist ein weißes Pulver."}
+  ],
+  s4: [
+    {q: "Warum gilt Stärkefolie als CO₂-neutral?", o: ["Stärke ist ein nachwachsender Rohstoff – die Pflanze hat das CO₂ vorher aus der Luft aufgenommen.", "Sie enthält keinen Kohlenstoff.", "Sie wird aus Erdöl hergestellt.", "Sie kann nicht verbrennen."], a: 0, e: "Beim Abbau wird nur das CO₂ frei, das die Pflanze beim Wachsen gebunden hat."},
+    {q: "Was ist ein Nachteil von Stärkefolie?", o: ["Sie ist nicht wasserfest.", "Sie wird aus Erdöl hergestellt.", "Sie ist nicht biologisch abbaubar.", "Sie ist giftig."], a: 0, e: "Im Gegensatz zu Kunststofffolie ist Stärkefolie nicht wasserfest."},
+    {q: "Wo wird Stärkefolie schon eingesetzt?", o: ["bei Verpackungen, in der Landwirtschaft und im Gartenbau", "in Autoreifen", "in Fensterglas", "in Stromkabeln"], a: 0, e: "So steht es im Merke-Kasten auf S. 19."},
+    {q: "Was passiert mit Verpackungs-Chips aus Stärke in warmem Wasser?", o: ["Sie lösen sich auf.", "Sie schwimmen unverändert.", "Sie werden hart.", "Sie färben sich blau."], a: 0, e: "Stärke-Chips lösen sich auf, Chips aus Polystyrol nicht."}
+  ],
+  s5: [
+    {q: "Aus welchem Bereich kommt der Begriff Nachhaltigkeit?", o: ["aus der Forstwirtschaft", "aus der Autoindustrie", "aus der Medizin", "aus dem Sport"], a: 0, e: "Förster fällen nur so viele Bäume, wie nachwachsen können."},
+    {q: "Wann ist die Nutzung eines Waldes nachhaltig?", o: ["Wenn nur so viele Bäume gefällt werden, wie gleichzeitig nachwachsen.", "Wenn alle Bäume auf einmal gefällt werden.", "Wenn gar keine Bäume mehr nachwachsen.", "Wenn man nur Fichten pflanzt."], a: 0, e: "Verbrauch und Wachstum sind dann im Gleichgewicht."},
+    {q: "Was passiert, wenn die Nachfrage nach regenerativen Rohstoffen das Angebot übersteigt?", o: ["Die nachhaltige Nutzung gerät in ein Ungleichgewicht.", "Es wächst automatisch mehr nach.", "Der Rohstoff wird fossil.", "Nichts."], a: 0, e: "Dann wird mehr verbraucht, als nachwächst."},
+    {q: "Warum ist ein Fichtenwald als Monokultur beim Borkenkäfer gefährlich?", o: ["Der Käfer findet überall Fichten und breitet sich schnell aus.", "Borkenkäfer mögen keine Fichten.", "In Monokulturen gibt es keine Rinde.", "Fichten wachsen zu schnell."], a: 0, e: "Viele gleiche Pflanzen auf großer Fläche erhöhen das Risiko eines Schädlingsbefalls."}
+  ],
+  s6: [
+    {q: "Was bedeutet Kaskadennutzung?", o: ["Ein Rohstoff wird mehrfach genutzt und erst am Ende verbrannt.", "Holz wird sofort verbrannt.", "Man nutzt nur Wasserkraft.", "Rohstoffe werden weggeworfen."], a: 0, e: "Zum Beispiel: Regal → Holzfaserplatte → Energiegewinnung."},
+    {q: "Was ist das Gegenteil der Kreislaufwirtschaft?", o: ["die Wegwerfwirtschaft", "die Forstwirtschaft", "die Landwirtschaft", "die Kaskadennutzung"], a: 0, e: "In der Wegwerfwirtschaft landen Produkte nach der Nutzung im Müll."},
+    {q: "Was fördern viele Landkreise in Bayern, um die biologische Vielfalt zu erhalten?", o: ["Wildblumenstreifen an Feldrändern", "noch größere Maisfelder", "mehr Pestizide", "Fichten-Monokulturen"], a: 0, e: "Blühstreifen und Wildtierkorridore schaffen Lebensraum."},
+    {q: "Warum pflanzt man heute häufiger Mischwälder?", o: ["Sie sind weniger anfällig für Schädlinge und Naturkatastrophen.", "Sie wachsen nur im Winter.", "Sie brauchen mehr Dünger.", "Sie bestehen nur aus Fichten."], a: 0, e: "So bleibt das Ökosystem Wald intakt und liefert trotzdem gesundes Holz."}
+  ],
+  train: [
+    {q: "Welche Produkte entstehen bei der Herstellung von Biodiesel aus Raps?", o: ["Biodiesel", "Glycerin", "Rapsschrot", "Rapsstroh", "Stärke", "Benzin"], a: [0, 1, 2, 3], e: "Stärke kommt aus Kartoffeln, Mais und Weizen, Benzin aus Erdöl."},
+    {q: "In welchen Produkten dient Stärke als Bindemittel?", o: ["Tapetenkleister", "Tabletten", "Zahnpasta", "Fensterglas", "Alufolie"], a: [0, 1, 2], e: "Glas und Alufolie enthalten keine Stärke."},
+    {q: "Welche Maßnahmen steigern die Nachhaltigkeit?", o: ["Kaskadennutzung", "Recycling", "Mischwälder pflanzen", "Monokulturen ausweiten", "mehr Pestizide spritzen"], a: [0, 1, 2], e: "Monokulturen und mehr Pestizide schaden der Umwelt."},
+    {q: "Biodiesel aus altem Speiseöl ist umweltfreundlicher als Biodiesel aus frischem Raps, weil …", o: ["… dafür keine zusätzlichen Äcker gebraucht werden.", "… er besser riecht.", "… er aus Erdöl stammt.", "… man dafür mehr Dünger braucht."], a: 0, e: "Man nutzt einen Abfall – ohne neue Felder, Dünger und Pflanzenschutzmittel."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Kurz-Check"});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s5"), MC.s5, "mc5", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s6"), MC.s6, "mc6", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+Modul.makeMC($("#mc-industrie"), [
+  {q: "Weizen, Kartoffeln und Mais enthalten besonders viel von einem bestimmten Kohlenhydrat. Wie heißt es?", o: ["Stärke", "Zucker", "Eiweiß", "Fett"], a: 0, e: "Stärke – deshalb heißen sie Stärkepflanzen."}
+], "mcInd", {t: "Buch S. 18 · Aufgabe 1 · Industriepflanzen"});
+
+/* ---------- Station 1: Versuch Öl aus Sonnenblumenkernen ---------- */
+(function(){
+  const svg = $("#oelSvg"), obs = $("#oelObs"), S = id => $("#" + id, svg);
+  const btnA = $("#oelA"), btnB = $("#oelB");
+  const drops = Array.from({length: 12}, () => {
+    const c = svgEl("circle", {cx: (180 + Math.random() * 60).toFixed(1), cy: (201 + Math.random() * 34).toFixed(1), r: 3.2, class: "drop"}, S("oDrops"));
+    c.style.animationDelay = (Math.random() * 1.6).toFixed(2) + "s";
+    return c;
+  });
+  let variant = null;
+  const done = {A: false, B: false};
+  register("oelVersuch");
+  const scale = (el, f) => { el.style.transform = `scaleY(${f})`; };
+  const TXT = [
+    "Die geschälten Sonnenblumenkerne werden in der Kaffeemühle gemahlen. Dabei werden die Zellen aufgebrochen und die Oberfläche wird viel größer.",
+    "Das Mehl steht offen über Nacht auf der Heizung. Dabei verdunstet das Wasser aus dem Mehl – es wird trocken.",
+    "20 g Mehl kommen ins Becherglas, dazu etwa 40 ml Spiritus. Achtung: Spiritus ist leicht entzündbar – keine offenen Flammen!",
+    "", "", ""
+  ];
+  function show(i){
+    const on = [];
+    let meal = 0, liq = 0, nd = 0;
+    if (i === 0) { on.push("oMill"); meal = 1; }
+    if (i === 1) { on.push("oHeat"); meal = 1; }
+    if (i === 2) { on.push("oBottle"); meal = 1; liq = 1; }
+    if (i === 3) { meal = 1; liq = 1; if (variant) { on.push(variant === "A" ? "oBath" : "oRoom"); nd = variant === "A" ? 12 : 5; } }
+    if (i === 4) on.push("oFilter", "oB2");
+    if (i === 5) on.push("oB2", "oVapor");
+    ["oMill", "oHeat", "oBottle", "oBath", "oRoom", "oFilter", "oB2", "oVapor"].forEach(id => S(id).classList.toggle("on", on.includes(id)));
+    scale(S("oMeal"), meal); scale(S("oLiq"), liq);
+    drops.forEach((c, k) => c.classList.toggle("vis", k < nd));
+    scale(S("oB2Liq"), i === 4 ? 1 : 0);
+    scale(S("oB2Oil"), i === 5 ? (variant === "A" ? 1 : .45) : 0);
+    S("oB2Lab").textContent = i === 5 ? "Sonnenblumenöl" : "Filtrat: Spiritus mit Öl";
+    btnA.disabled = btnB.disabled = i < 3;
+    btnA.classList.toggle("pick-on", variant === "A"); btnB.classList.toggle("pick-on", variant === "B");
+    let t = TXT[i];
+    if (i === 3) t = !variant ? "Jetzt kommt es auf die Temperatur an. Wähle unten Variante A (Wasserbad, 60 °C) oder Variante B (Zimmertemperatur)."
+      : variant === "A" ? "Variante A: 15 Minuten im Wasserbad bei etwa 60 °C, ab und zu umrühren. Im warmen Spiritus löst sich viel Öl aus dem Mehl (gelbe Tröpfchen)."
+      : "Variante B: 15 Minuten bei Zimmertemperatur stehen lassen. Im kalten Spiritus löst sich weniger Öl aus dem Mehl.";
+    if (i === 4) t = "Das Gemisch wird filtriert. Das Mehl bleibt im Filterpapier hängen. Die Lösung aus Spiritus und Öl (das Filtrat) läuft ins zweite Becherglas.";
+    if (i === 5) {
+      done[variant] = true;
+      $("#yA").style.width = done.A ? "100%" : "0"; $("#yB").style.width = done.B ? "45%" : "0";
+      t = "Das Filtrat bleibt einige Tage stehen. Der Spiritus verdunstet langsam, am Schluss bleibt das Sonnenblumenöl zurück. ";
+      if (done.A && done.B) { t += "Vergleich: Bei Variante A bleibt mehr Öl zurück, denn im warmen Spiritus löst sich mehr Öl."; solve("oelVersuch"); }
+      else t += `Probiere jetzt auch Variante ${variant === "A" ? "B" : "A"} aus (Knopf unten) und vergleiche die Ölmenge.`;
+    }
+    obs.textContent = t;
+  }
+  const st = stepper($("#oelChain"), $("#oelPrev"), $("#oelNext"), 6, show, i => i === 3 && !variant);
+  [["A", btnA], ["B", btnB]].forEach(([v, b]) => b.addEventListener("click", () => { variant = v; st.go(3); }));
+})();
+
+/* ---------- Station 2: Vom Rapsfeld zur Tankstelle ---------- */
+(function(){
+  const svg = $("#bdSvg"), obs = $("#bdObs");
+  const plants = $("#bdPlants", svg);
+  [40, 88, 136, 184, 232, 280, 328, 376, 424].forEach((x, k) => {
+    const g = svgEl("g", {transform: `translate(${x} 206)`}, plants);
+    const s = svgEl("g", {class: "anim sway"}, g); s.style.animationDelay = (k * .23).toFixed(2) + "s";
+    svgEl("path", {d: "M0 0 C-4 -30 4 -60 0 -88", stroke: "#4f8a3a", "stroke-width": 3, fill: "none"}, s);
+    svgEl("path", {d: "M0 -30 Q-14 -40 -16 -26 Q-8 -24 0 -30Z", fill: "#5f9e45"}, s);
+    svgEl("path", {d: "M0 -50 Q14 -60 16 -46 Q8 -44 0 -50Z", fill: "#5f9e45"}, s);
+    [[0, -94], [-7, -88], [7, -88], [-4, -101], [4, -101], [0, -84]].forEach(([cx, cy]) => svgEl("circle", {cx, cy, r: 5, fill: "#f5d000"}, s));
+  });
+  const seeds = $("#bdSeeds", svg);
+  for (let k = 0; k < 70; k++) {
+    const x = (Math.random() - .5) * 120, h = 40 * (1 - Math.pow(x / 60, 2));
+    svgEl("circle", {cx: (150 + x).toFixed(1), cy: (206 - Math.random() * h).toFixed(1), r: 3.3}, seeds);
+  }
+  const TXT = [
+    "Die Rapspflanze wächst auf dem Feld. Düngung, Pflanzenschutz und Feldbearbeitung sorgen für einen guten Ertrag – das kostet aber Energie und belastet die Umwelt.",
+    "Bei der Ernte werden die Rapskörner (Samen) vom Rapsstroh getrennt. Die Samen enthalten etwa 40 % Öl. Das Rapsstroh dient als Brennstoff oder Dünger.",
+    "In der Ölmühle werden die Rapssamen gepresst. Aus dem Presskuchen wird mit einem Lösungsmittel noch weiteres Öl extrahiert. Der übrig gebliebene Rapsschrot ist wegen seines hohen Eiweißgehalts ein gutes Futtermittel.",
+    "In der Biodieselanlage wird das Rapsöl mehrere Stunden lang mit dem Alkohol Methanol umgesetzt. Durch diese chemische Reaktion entstehen Biodiesel und Glycerin.",
+    "Nach einigen Reinigungsschritten kann der Biodiesel als Kraftstoff in Automotoren eingesetzt werden."
+  ];
+  register("biodieselWeg");
+  stepper($("#bdChain"), $("#bdPrev"), $("#bdNext"), 5, i => {
+    for (let k = 0; k < 5; k++) $("#bd" + k, svg).classList.toggle("on", k === i);
+    $$("#bdSide .chip").forEach(c => c.hidden = i < +c.dataset.s);
+    obs.textContent = TXT[i];
+    if (i === 4) solve("biodieselWeg");
+  });
+})();
+
+/* ---------- Station 2: 70 % der Fläche Deutschlands ---------- */
+(function(){
+  const land = $("#land"), range = $("#landRange"), chip = $("#landChip"), obs = $("#landObs");
+  // gerundete Flächenanteile Deutschlands in Prozent
+  const TYPES = [["acker", 33], ["wiese", 17], ["wald", 30], ["stadt", 15], ["wasser", 5]];
+  let seed = 11;
+  const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647;
+  const cells = [];
+  TYPES.forEach(([t, n]) => { for (let k = 0; k < n; k++) cells.push(t); });
+  for (let i = cells.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [cells[i], cells[j]] = [cells[j], cells[i]]; }
+  const divs = cells.map(t => { const d = document.createElement("div"); d.className = t; land.appendChild(d); return d; });
+  // Raps verdrängt zuerst Äcker, dann Wiesen, dann Wald
+  const order = ["acker", "wiese", "wald"].flatMap(t => divs.filter(d => d.classList.contains(t)));
+  register("flaeche");
+  function draw(){
+    const p = +range.value, n = Math.round(p * .7);
+    order.forEach((d, i) => d.classList.toggle("raps", i < n));
+    chip.textContent = `${p} % → ${n} % der Fläche`;
+    obs.textContent = p === 0 ? "Jedes Kästchen steht für etwa 1 % der Fläche Deutschlands. Schiebe den Regler: Wie viel des Diesels soll aus Raps kommen?"
+      : n <= 33 ? `Für ${p} % des Diesels bräuchte man ${n} % der Fläche Deutschlands. Das sind schon ${Math.round(n / 33 * 100)} % aller Äcker – dort wachsen dann keine Lebensmittel mehr.`
+      : n <= 50 ? "Alle Äcker Deutschlands reichen nicht mehr aus. Auch Wiesen und Weiden müssten zu Rapsfeldern werden."
+      : p < 100 ? "Jetzt müssten sogar Wälder verschwinden."
+      : "Für den gesamten Diesel bräuchte man 70 % der Fläche Deutschlands. Dafür müssten alle Äcker, Wiesen und ein großer Teil der Wälder weichen – unmöglich! Biodiesel kann Diesel nur zu einem kleinen Teil ersetzen.";
+    if (p === 100) solve("flaeche");
+  }
+  range.addEventListener("input", draw); draw();
+})();
+
+/* ---------- Station 2: Arbeitsblatt Biodiesel ---------- */
+Modul.makeSort($("#abBio1"), {pairs: true, cols: 260, buckets: ["Die Rapssamen werden …", "Aus dem Presskuchen wird …", "Aus Öl und Methanol entstehen in der Biodieselanlage …"],
+  items: [{t: "… in einer Ölmühle gepresst.", b: 0}, {t: "… mit einem Lösungsmittel noch weiteres Öl extrahiert.", b: 1}, {t: "… die Stoffe Glycerin und Biodiesel.", b: 2}]}, "abBio1");
+Modul.makeOpen($("#abBio1b"), [
+  {q: "Was passiert mit dem Biodiesel, nachdem er in der Biodieselanlage entstanden ist?",
+   m: "Der Biodiesel wird in einigen Schritten gereinigt. Danach kann er als Kraftstoff in Automotoren eingesetzt werden – er kommt an die Tankstelle.",
+   k: ["reinig|sauber|gesäubert|filter", "kraftstoff|tank|motor|auto|fahrzeug|treibstoff|lkw|traktor"], min: 1}
+], "abBio1b", "Schau dir den letzten Schritt der Animation an.");
+Modul.makeSort($("#abBio2"), {pairs: true, cols: 260, buckets: ["🌾 Rapsstroh", "🟤 Rapsschrot", "🧴 Glycerin"],
+  items: [{t: "Brennstoff, Dünger", b: 0}, {t: "Futtermittel", b: 1}, {t: "Kosmetikindustrie", b: 2}]}, "abBio2");
+Modul.makeMC($("#abBio3"), [
+  {q: "Kreuze an, welche Aussagen zutreffen.", o: ["Die Herstellung von Biodiesel ist sehr umweltbelastend.", "Biodiesel ist biologisch abbaubar.", "Biodiesel wird aus Pflanzen hergestellt.", "Raps für Biodiesel braucht viel Dünger und Pflanzenschutzmittel.", "Biodiesel kann den gesamten Bedarf an Diesel-Kraftstoff decken.", "Biodiesel kann nur einen kleinen Anteil des benötigten Diesel-Kraftstoffs decken.", "Die Ackerflächen für Raps stehen nicht für Nahrungsmittel zur Verfügung.", "Biodiesel ist sehr gesund, deshalb hat er auch die Vorsilbe „Bio“."],
+   a: [1, 2, 3, 5, 6], e: "Richtig sind: biologisch abbaubar, aus Pflanzen, viel Dünger und Pflanzenschutzmittel, nur ein kleiner Anteil des Diesels, Äcker fehlen für Nahrungsmittel. „Bio“ heißt nur: aus Pflanzen hergestellt."}
+], "abBio3");
+Modul.makeOrder($("#orderBio"), [
+  "Raps wächst – mit Düngung, Pflanzenschutz und Feldbearbeitung.",
+  "Die Rapskörner werden geerntet.",
+  "In der Ölmühle werden die Samen gepresst – es entsteht Rapsöl.",
+  "In der Biodieselanlage wird das Rapsöl mit Methanol umgesetzt.",
+  "Der Biodiesel wird gereinigt.",
+  "Der Biodiesel wird an der Tankstelle getankt."
+], "orderBio");
+Modul.makeOpen($("#open2"), [
+  {q: "Wie lässt sich Öl aus Pflanzen gewinnen?",
+   m: "Man presst die ölhaltigen Samen (z. B. Rapssamen) in einer Ölmühle aus. Aus dem Presskuchen kann man mit einem Lösungsmittel noch weiteres Öl herauslösen (extrahieren).",
+   k: ["press|mühle|quetsch", "samen|körner|kerne|lösungsmittel|extrah"]},
+  {q: "Nenne zwei Vorteile und zwei Nachteile von Biodiesel.",
+   m: "Vorteile: biologisch abbaubar, CO₂-neutral, aus nachwachsenden Pflanzen. Nachteile: Monokulturen mit viel Dünger und Pflanzenschutzmitteln, Äcker fehlen für Nahrungsmittel, er kann Diesel nur zu einem kleinen Teil ersetzen.",
+   k: ["abbaubar|co2|co₂|neutral|nachwachs|pflanzen", "monokultur|dünger|pflanzenschutz|pestizid|nahrung|lebensmittel|fläche|kleinen teil"]},
+  {q: "Wo lässt sich Biodiesel sehr sinnvoll einsetzen? Begründe.",
+   m: "Überall dort, wo auslaufender Kraftstoff der Natur besonders schaden würde, z. B. bei Booten auf Seen, in Wasserschutzgebieten oder bei Land- und Forstmaschinen. Biodiesel ist biologisch abbaubar und belastet Boden und Wasser weniger.",
+   k: ["see|wasser|boot|schiff|natur|wald|landwirtschaft|forst|traktor|schutzgebiet|boden", "abbaubar|umwelt|schad|belast"]},
+  {q: "Biodiesel kann auch aus altem Speiseöl und anderen Abfallfetten hergestellt werden. Beurteile, welcher Weg zu Biodiesel umweltfreundlicher ist.",
+   m: "Biodiesel aus altem Speiseöl ist umweltfreundlicher. Man nutzt einen Abfall, der sonst entsorgt werden müsste. Man braucht keine zusätzlichen Äcker, keinen Dünger und keine Pflanzenschutzmittel, und es gibt keine Konkurrenz zu Lebensmitteln.",
+   k: ["alt|abfall|speiseöl|fett|frittier", "fläche|acker|äcker|dünger|pflanzenschutz|lebensmittel|nahrung|monokultur|müll|entsorg|wiederverwert"]}
+], "open2", "Lies Station 2 noch einmal.");
+
+/* ---------- Station 1: offene Fragen zum Versuch ---------- */
+Modul.makeOpen($("#open1"), [
+  {q: "Begründe, weshalb man die Sonnenblumenkerne zunächst zerkleinert.",
+   m: "Beim Zerkleinern werden die Zellen aufgebrochen und die Oberfläche wird viel größer. So kommt der Spiritus besser an das Öl heran und kann mehr Öl herauslösen.",
+   k: ["oberfläche|zellen|aufgebrochen|aufbrechen|kleiner|feiner", "öl|spiritus|lös|heraus"]},
+  {q: "Was geschieht mit dem Mehl beim Stehenlassen auf der Heizung?",
+   m: "Das Mehl trocknet. Das Wasser, das noch in den Kernen steckt, verdunstet.",
+   k: ["trock|verdunst|verdampf|wasser"]},
+  {q: "Erläutere die Aufgabe des Spiritus. Könnte man die Kerne nicht auch einfach auspressen?",
+   m: "Spiritus ist ein Lösungsmittel: Das Öl löst sich darin und wird aus dem Mehl herausgelöst (extrahiert). Auspressen geht auch – so arbeitet die Ölmühle. Dafür braucht man aber eine starke Presse, und im Presskuchen bleibt noch Öl zurück. Mit dem Lösungsmittel bekommt man mehr Öl heraus.",
+   k: ["lös|extrah", "press|mühle|mehr öl|rest|zurück"]},
+  {q: "Begründe, bei welcher Variante (A oder B) etwas mehr Öl zu erwarten ist.",
+   m: "Bei Variante A. Im warmen Wasserbad (etwa 60 °C) löst sich das Öl besser im Spiritus als bei Zimmertemperatur.",
+   k: ["variante a|warm|wärm|60|wasserbad|heiß", "lös|besser|mehr|schneller"]}
+], "open1", "Schau dir die Animation zum Versuch noch einmal an.");
+
+/* ---------- Station 3: Stärkefabrik ---------- */
+(function(){
+  const svg = $("#skSvg"), tok = $("#skTok", svg), obs = $("#skObs");
+  const X = [70, 162, 260, 356, 435];
+  const LOOK = [
+    '<ellipse cx="0" cy="164" rx="18" ry="13" fill="#b98a4e"/><circle cx="-7" cy="160" r="2" fill="#6b4a2b"/><circle cx="6" cy="167" r="2" fill="#6b4a2b"/><circle cx="9" cy="158" r="1.6" fill="#6b4a2b"/>',
+    '<g fill="#e8c98f" stroke="#b98a4e"><rect x="-18" y="162" width="11" height="11" rx="2"/><rect x="-4" y="157" width="10" height="16" rx="2"/><rect x="9" y="163" width="10" height="10" rx="2"/></g>',
+    '<ellipse cx="0" cy="168" rx="21" ry="8" fill="#f4f1e6" stroke="#d9d2bd"/>',
+    '<rect x="-17" y="160" width="34" height="14" rx="5" fill="#fbfaf5" stroke="#d9d2bd"/>',
+    '<path d="M-22 177 Q0 146 22 177Z" fill="#fff" stroke="#d9d2bd"/>'
+  ];
+  const TXT = [
+    "Die Kartoffeln werden in der Fabrik gereinigt …",
+    "… und zerkleinert.",
+    "Anschließend weicht man die Kartoffelstücke in Wasser ein. Dadurch wird die Stärke aus dem Zellgewebe ausgewaschen.",
+    "Die gelöste Stärke wird getrocknet.",
+    "Getrocknete Stärke ist ein weißes Pulver – fertig ist die Kartoffelstärke."
+  ];
+  register("staerkeWeg");
+  stepper($("#skChain"), $("#skPrev"), $("#skNext"), 5, i => {
+    for (let k = 0; k < 5; k++) $("#sk" + k, svg).classList.toggle("on", k === i);
+    tok.style.transform = `translate(${X[i]}px,0)`;
+    tok.innerHTML = LOOK[i];
+    obs.textContent = TXT[i];
+    if (i === 4) solve("staerkeWeg");
+  });
+})();
+
+/* ---------- Station 3: Arbeitsblatt Stärke ---------- */
+Modul.makeGap($("#gapStaerke"), [
+  [{g: "Kartoffeln"}, ", Mais und Weizen sind sogenannte Stärkepflanzen. Kartoffeln werden in der Fabrik ", {g: "gereinigt"}, " und ", {g: "zerkleinert"}, ". Weicht man die Kartoffelstücke ein, wird die ", {g: "Stärke"}, " aus dem Zellgewebe ", {g: "ausgewaschen"}, ". Die ", {g: "gelöste"}, " Stärke wird ", {g: "getrocknet"}, ". Ein ", {g: "weißes"}, " Pulver bleibt zurück."]
+], "gapStaerke");
+Modul.makeSort($("#sortStaerke"), {
+  buckets: ["🥔 Stärke als Bindemittel", "🚫 hat nichts mit Stärke zu tun"],
+  items: [
+    {t: "Tapetenkleister", b: 0}, {t: "Leim", b: 0}, {t: "Papier und Pappe", b: 0}, {t: "Tabletten", b: 0}, {t: "Cremes", b: 0}, {t: "Farbstoffe", b: 0}, {t: "Gipskartonplatten", b: 0}, {t: "Zahnpasta", b: 0}, {t: "Puder", b: 0},
+    {t: "Fensterglas", b: 1}, {t: "Kupferkabel", b: 1}, {t: "Alufolie", b: 1}, {t: "Benzin", b: 1}
+  ]
+}, "sortStaerke");
+Modul.makeOpen($("#open3"), [
+  {q: "Beschreibe, wie Kartoffelstärke industriell gewonnen werden kann.",
+   m: "Die Kartoffeln werden gereinigt und zerkleinert. Dann weicht man die Stücke in Wasser ein. Dadurch wird die Stärke aus dem Zellgewebe ausgewaschen. Die gelöste Stärke wird getrocknet. Übrig bleibt ein weißes Pulver.",
+   k: ["reinig|wasch|zerklein|reib|mahl", "wasser|einweich|auswasch", "trock"], min: 2},
+  {q: "Nenne mehrere Beispiele für die Verwendung von Stärke.",
+   m: "Papier und Pappe, Bindemittel in Tapetenkleister, Leim, Gipskartonplatten und Farbstoffen, in Tabletten, Zahnpasta, Cremes und Puder, zum Andicken von Soßen und Pudding und für biologisch abbaubare Folien.",
+   k: ["papier|pappe", "kleister|leim|gips|farb", "tablette|zahnpasta|creme|puder", "folie|pudding|soße|sosse|kuchen|andick"], min: 2}
+], "open3", "Lies den Text zur Verwendung von Kartoffelstärke noch einmal.");
+
+/* ---------- Station 4: Film mit Stopps ---------- */
+(function(){
+  const STOPS = [
+    {t: 110, q: {q: "Welche Zutaten braucht man für die Stärkefolie?", o: ["Kartoffel- oder Maisstärke", "Wasser", "Glycerin-Lösung", "Speiseöl", "Zucker", "Essig"], a: [0, 1, 2], e: "Stärke, Wasser und Glycerin. Lebensmittelfarbe braucht man nur für eine bunte Folie."}},
+    {t: 194, q: {q: "Warum wird das Glas kräftig geschüttelt?", o: ["Damit sich alles mischt und keine Klümpchen bleiben.", "Damit das Wasser warm wird.", "Damit die Farbe wieder verschwindet.", "Damit die Stärke verdunstet."], a: 0, e: "Erst wenn keine Klümpchen mehr da sind, kommt das Glas ins Wasserbad."}},
+    {t: 211, q: {q: "Wie lange muss das Glas im kochenden Wasser stehen?", o: ["etwa 15 Minuten", "etwa 1 Minute", "etwa 2 Stunden", "einen ganzen Tag"], a: 0, e: "15 Minuten im kochenden Wasser, ab und zu umrühren – wie im Versuch im Buch."}},
+    {t: 265, q: {q: "Was schätzt du: Wie lange muss die Folie trocknen?", o: ["etwa 24 Stunden – eine dicke Folie auch länger", "etwa 5 Minuten", "etwa 1 Stunde", "etwa 3 Wochen"], a: 0, e: "Die Folie trocknet etwa einen Tag. Ist sie dicker, kann es auch zwei Tage dauern."}},
+    {t: 347, q: {q: "Welche Eigenschaften hat die fertige Stärkefolie im Film?", o: ["Sie ist elastisch.", "Man kann sie zusammenknüllen und wieder auseinanderfalten.", "Sie ist hart wie Glas.", "Sie zerfällt sofort zu Pulver."], a: [0, 1], e: "Die Folie ist biegsam wie Küchenfolie. Aber Achtung: Wasserfest ist Stärkefolie nicht (Buch S. 19)."}}
+  ];
+  const box = $("#filmQs"), chipsBox = $("#filmChips"), stopEl = $("#filmStop"), startBtn = $("#filmStart"), hint = $("#filmHint");
+  const mmss = t => Math.floor(t / 60) + ":" + String(t % 60).padStart(2, "0");
+  let player = null, ready = false, timer = null, last = 0, cur = -1, failed = false;
+  STOPS.forEach((s, i) => {
+    const id = "film" + i + "-0";
+    s.wrap = document.createElement("div"); s.wrap.className = "film-q"; s.wrap.hidden = true;
+    const q = document.createElement("div"); s.wrap.appendChild(q);
+    Modul.makeMC(q, [s.q], "film" + i, {t: `Film-Stopp ${i + 1} · bei ${mmss(s.t)}`});
+    s.go = document.createElement("button"); s.go.className = "btn small"; s.go.type = "button"; s.go.textContent = "▶ Weiter im Film"; s.go.hidden = true;
+    s.go.addEventListener("click", () => resume(i));
+    s.wrap.appendChild(s.go); box.appendChild(s.wrap);
+    s.chip = document.createElement("button"); s.chip.type = "button"; s.chip.textContent = `❓ ${mmss(s.t)}`;
+    s.chip.addEventListener("click", () => jump(i)); chipsBox.appendChild(s.chip);
+    const check = () => { if (Modul.isSolved(id)) { s.done = true; s.chip.classList.add("done"); s.chip.textContent = `✓ ${mmss(s.t)}`; if (!failed) s.go.hidden = false; } };
+    s.wrap.addEventListener("click", () => setTimeout(check, 0));
+    check();
+  });
+  function stopAt(i){
+    cur = i;
+    STOPS.forEach((s, k) => { s.wrap.hidden = k !== i; });
+    if (ready) { player.pauseVideo(); stopEl.classList.add("show"); }
+    STOPS[i].wrap.scrollIntoView({block: "nearest", behavior: reduced ? "auto" : "smooth"});
+  }
+  function resume(i){
+    cur = -1; stopEl.classList.remove("show"); STOPS[i].wrap.hidden = true;
+    if (ready) player.playVideo();
+  }
+  function jump(i){
+    if (ready) { player.seekTo(STOPS[i].t, true); last = STOPS[i].t; }
+    stopAt(i);
+  }
+  function poll(){
+    if (!ready) return;
+    const t = player.getCurrentTime();
+    if (cur < 0) for (let i = 0; i < STOPS.length; i++) {
+      const s = STOPS[i];
+      if (!s.done && last < s.t && t >= s.t && t - last < 3) { stopAt(i); break; }
+    }
+    last = t;
+  }
+  // Film lädt nicht oder darf nicht abgespielt werden: Link zu YouTube, alle Fragen offen zeigen
+  function fail(){
+    if (failed) return;
+    failed = true; cur = -1; stopEl.classList.remove("show");
+    if (!ready) {
+      startBtn.disabled = false; startBtn.querySelector("b").textContent = "Film auf YouTube öffnen";
+      startBtn.onclick = () => window.open("https://www.youtube.com/watch?v=wGjdHAnlQNI", "_blank", "noopener");
+    }
+    hint.innerHTML = 'Der Film lässt sich hier nicht abspielen. <a href="https://www.youtube.com/watch?v=wGjdHAnlQNI" target="_blank" rel="noopener">Öffne ihn auf YouTube</a> und beantworte danach die Fragen hier.';
+    STOPS.forEach(s => { s.wrap.hidden = false; s.go.hidden = true; });
+  }
+  function make(){
+    player = new YT.Player("ytPlayer", {
+      host: "https://www.youtube-nocookie.com", videoId: "wGjdHAnlQNI",
+      playerVars: {rel: 0, playsinline: 1, modestbranding: 1},
+      events: {
+        onReady: e => { ready = true; startBtn.remove(); timer = setInterval(poll, 250); e.target.playVideo(); },
+        onStateChange: e => {
+          if (e.data === 1 && cur >= 0) player.pauseVideo();
+          if (e.data === 0) { const i = STOPS.length - 1; if (!STOPS[i].done) stopAt(i); }
+        },
+        onError: fail
+      }
+    });
+  }
+  startBtn.addEventListener("click", () => {
+    if (failed) return;
+    startBtn.disabled = true; startBtn.querySelector("b").textContent = "Film wird geladen …";
+    if (window.YT && YT.Player) make();
+    else {
+      window.onYouTubeIframeAPIReady = make;
+      const s = document.createElement("script"); s.src = "https://www.youtube.com/iframe_api"; s.onerror = fail; document.head.appendChild(s);
+    }
+    setTimeout(() => { if (!ready) fail(); }, 20000);
+  });
+})();
+
+/* ---------- Station 4: Verpackungs-Chips im warmen Wasser ---------- */
+(function(){
+  const svg = $("#chipSvg"), obs = $("#chipObs");
+  const told = {L: false, R: false};
+  register("chips");
+  function makeChips(host, x0){
+    return Array.from({length: 5}, (_, k) => {
+      const outer = svgEl("g", {class: "chipc"}, host), inner = svgEl("g", {class: "chipr"}, outer);
+      const g = svgEl("g", {transform: `translate(${x0 + 14 + k * 26} 42) rotate(${Math.round(Math.random() * 60 - 30)})`}, inner);
+      svgEl("path", {d: "M-12 -5 Q-6 -9 0 -5 Q6 -1 12 -5 Q14 0 12 5 Q6 1 0 5 Q-6 9 -12 5 Q-14 0 -12 -5Z", fill: "#fffdf5", stroke: "#cfc6ad", "stroke-width": 1.5}, g);
+      outer.style.transition = `transform .9s cubic-bezier(.5,0,.8,1) ${k * .12}s`;
+      inner.style.transformBox = "fill-box"; inner.style.transformOrigin = "center";
+      return {outer, inner, y: 66 + Math.random() * 8};
+    });
+  }
+  const L = makeChips($("#chL", svg), 70), R = makeChips($("#chR", svg), 290);
+  const water = $("#wL", svg);
+  function drop(list, starch){
+    list.forEach(c => { c.outer.style.transform = `translateY(${c.y.toFixed(1)}px)`; });
+    setTimeout(() => list.forEach((c, k) => {
+      if (starch) { c.inner.style.transition = `transform 3.5s ease ${k * .2}s, opacity 3.5s ease ${k * .2}s`; c.inner.style.transform = "scale(.1)"; c.inner.style.opacity = "0"; }
+      else { c.inner.style.animation = `wiggle 2.2s ease-in-out ${k * .3}s infinite`; }
+    }), 1300);
+    if (starch) setTimeout(() => water.setAttribute("fill", "#d7e7ee"), 2200);
+  }
+  function msg(){
+    obs.textContent = told.L && told.R ? "Vergleich: Die Stärke-Chips lösen sich im warmen Wasser auf, die Chips aus Polystyrol bleiben unverändert. Stärke ist biologisch abbaubar, Polystyrol (ein Kunststoff aus Erdöl) nicht."
+      : told.L ? "Die Stärke-Chips lösen sich im warmen Wasser auf – Stärke ist wasserlöslich und biologisch abbaubar. Und die Chips aus Polystyrol?"
+      : "Die Chips aus Polystyrol schwimmen unverändert oben. Polystyrol ist ein Kunststoff aus Erdöl. Und die Stärke-Chips?";
+    if (told.L && told.R) solve("chips");
+  }
+  $("#chipBtnL").addEventListener("click", e => { e.currentTarget.disabled = true; drop(L, true); told.L = true; setTimeout(msg, 1500); });
+  $("#chipBtnR").addEventListener("click", e => { e.currentTarget.disabled = true; drop(R, false); told.R = true; setTimeout(msg, 1500); });
+  $("#chipReset").addEventListener("click", () => {
+    L.concat(R).forEach(c => { c.outer.style.transform = ""; c.inner.style.transition = "none"; c.inner.style.transform = ""; c.inner.style.opacity = ""; c.inner.style.animation = ""; });
+    water.setAttribute("fill", "#bfe3f7"); $("#chipBtnL").disabled = $("#chipBtnR").disabled = false;
+  });
+})();
+
+/* ---------- Station 4: Übungen ---------- */
+Modul.makeSort($("#sortFolie"), {
+  buckets: ["👍 Vorteil", "👎 Nachteil"],
+  items: [{t: "nachwachsender Rohstoff", b: 0}, {t: "CO₂-neutral", b: 0}, {t: "biologisch abbaubar", b: 0}, {t: "kann kompostiert werden", b: 0},
+    {t: "nicht wasserfest", b: 1}, {t: "Zusatzstoffe erschweren das Recycling", b: 1}, {t: "mit Zusatzstoffen nicht in die Biotonne", b: 1}]
+}, "sortFolie");
+Modul.makeOrder($("#orderFolie"), [
+  "Stärke, Kartoffelmehl, Glycerin und Wasser im Becherglas vermischen.",
+  "Die Mischung im Wasserbad unter Rühren auf 100 °C erhitzen.",
+  "Die Temperatur etwa 15 Minuten lang halten.",
+  "Die heiße Masse vorsichtig auf eine glatte Kunststoffplatte gießen.",
+  "Die Masse 24 Stunden trocknen lassen.",
+  "Die fertige Folie vorsichtig abziehen."
+], "orderFolie");
+Modul.makeOpen($("#open4"), [
+  {q: "Nenne Bereiche des alltäglichen Lebens, in denen Stärkefolie bereits zum Einsatz kommt.",
+   m: "Stärkefolie wird in der Verpackungsindustrie (z. B. kompostierbare Tüten), in der Landwirtschaft und im Gartenbau eingesetzt.",
+   k: ["verpack|tüte|tuete|beutel|müllbeutel", "landwirtschaft|garten|acker|feld"], min: 1},
+  {q: "Beschreibe einen Nachteil von Stärkefolie.",
+   m: "Stärkefolie ist nicht wasserfest. Damit sie besser hält, fügt man oft weitere chemische Stoffe hinzu. Dann ist das Recycling schwieriger und sie darf nicht in die Biotonne oder auf den Kompost.",
+   k: ["wasser|feucht|nass|zusatz|chemisch|recycl|biotonne|kompost"]}
+], "open4", "Lies die Vor- und Nachteile auf S. 19 noch einmal.");
+
+/* ---------- Station 5: Wald im Gleichgewicht ---------- */
+(function(){
+  const N = 40, GROW = 6, host = $("#waldTrees"), bars = $("#waldBars"), cutR = $("#waldCut"), cutChip = $("#waldCutChip"), chip = $("#waldChip"), obs = $("#waldObs"), run = $("#waldRun");
+  const alive = Array(N).fill(true);
+  const trees = Array.from({length: N}, (_, i) => {
+    const c = i % 10, r = Math.floor(i / 10);
+    const g = svgEl("g", {class: "tree", transform: `translate(${26 + c * 47 + (r % 2) * 10} ${60 + r * 44})`}, host);
+    svgEl("rect", {x: -3, y: -8, width: 6, height: 10, fill: "#6b4a2b"}, g);
+    const cr = svgEl("g", {class: "crown"}, g);
+    svgEl("polygon", {points: "0,-44 15,-8 -15,-8", fill: "#2e7d4f"}, cr);
+    svgEl("polygon", {points: "0,-54 11,-28 -11,-28", fill: "#3f9b5f"}, cr);
+    return g;
+  });
+  const tried = {gut: false, schlecht: false};
+  register("wald");
+  cutR.addEventListener("input", () => { cutChip.textContent = cutR.value + " Bäume"; });
+  run.addEventListener("click", async () => {
+    run.disabled = cutR.disabled = true;
+    alive.fill(true); trees.forEach(t => t.classList.remove("cut")); bars.innerHTML = "";
+    const cut = +cutR.value;
+    let count = N;
+    chip.textContent = "Jahr 0 · 40 Bäume";
+    await wait(300);
+    for (let y = 1; y <= 10; y++) {
+      shuffle(alive.map((a, i) => a ? i : -1).filter(i => i >= 0)).slice(0, cut).forEach(i => { alive[i] = false; trees[i].classList.add("cut"); });
+      await wait(450);
+      shuffle(alive.map((a, i) => a ? -1 : i).filter(i => i >= 0)).slice(0, GROW).forEach(i => { alive[i] = true; trees[i].classList.remove("cut"); });
+      count = alive.filter(Boolean).length;
+      const b = document.createElement("div"); b.style.height = Math.max(3, count / N * 100) + "%"; if (count < N) b.className = "bad"; bars.appendChild(b);
+      chip.textContent = `Jahr ${y} · ${count} Bäume`;
+      await wait(450);
+    }
+    if (cut <= GROW) { tried.gut = true; obs.textContent = `Es werden ${cut} Bäume pro Jahr gefällt und 6 wachsen nach. Der Wald bleibt erhalten: Verbrauch und Wachstum sind im Gleichgewicht – das ist nachhaltig.`; }
+    else { tried.schlecht = true; obs.textContent = `Es werden ${cut} Bäume pro Jahr gefällt, aber nur 6 wachsen nach. Nach 10 Jahren stehen nur noch ${count} Bäume – ein Ungleichgewicht, nicht nachhaltig.`; }
+    if (tried.gut && tried.schlecht) { obs.textContent += " Du hast beides ausprobiert. 👍"; solve("wald"); }
+    else obs.textContent += tried.gut ? " Probiere jetzt einen Wert über 6." : " Probiere jetzt einen Wert bis 6.";
+    run.disabled = cutR.disabled = false;
+  });
+})();
+
+/* ---------- Station 5: Arbeitsblatt Nachhaltigkeit 1 und 2 ---------- */
+Modul.makeGap($("#gapNachh"), [
+  ["In einem Wald werden nur so viele Bäume gefällt, ", {g: "wie gleichzeitig wieder nachwachsen können"}, ". Dadurch entsteht ein Gleichgewicht zwischen ", {g: "Verbrauch und Wachstum"}, "."]
+], "gapNachh", ["wie der Förster Holz verkaufen will", "Angebot und Preis", "Holz und Papier"]);
+Modul.makeMC($("#abNach2"), [
+  {q: "Welche Folgen für die Umwelt kann eine sehr intensive Nutzung regenerativer Rohstoffe haben?", o: ["Der Boden wird ausgelaugt.", "Das Risiko eines Schädlingsbefalls steigt.", "Es entsteht mehr CO₂.", "Es gibt weniger Anbaufläche für Lebensmittel.", "Man braucht mehr Pestizide.", "Man braucht mehr Dünger.", "Das Nahrungsangebot für Tiere wird eingeschränkt.", "Die Artenvielfalt geht zurück."],
+   a: [0, 1, 3, 4, 5, 6, 7], e: "Nur „mehr CO₂“ passt nicht: Regenerative Rohstoffe gelten als CO₂-neutral. Alle anderen Folgen stehen im Buch auf S. 20."}
+], "abNach2");
+
+/* ---------- Station 5: Borkenkäfer ---------- */
+(function(){
+  const COLS = 14, ROWS = 7, host = $("#kfTrees"), chip = $("#kfChip"), modeChip = $("#kfMode"), obs = $("#kfObs");
+  const bMono = $("#kfMono"), bMisch = $("#kfMisch"), go = $("#kfGo");
+  let mode = "mono", types = [], state = [], running = false;
+  const tried = {mono: false, misch: false};
+  register("kaefer");
+  const cells = Array.from({length: COLS * ROWS}, (_, i) => svgEl("g", {transform: `translate(${17 + (i % COLS) * 34} ${19 + Math.floor(i / COLS) * 34})`}, host));
+  function draw(i){
+    if (types[i] === "l") { cells[i].innerHTML = '<rect x="-2" y="6" width="4" height="8" fill="#6b4a2b"/><circle cy="-2" r="11" fill="#7cbf5f"/>'; return; }
+    const fill = ["#1f6b3a", "#d08a2c", "#9b8f7e"][state[i]];
+    cells[i].innerHTML = `<rect x="-2" y="8" width="4" height="6" fill="#6b4a2b"/><polygon points="0,-14 11,9 -11,9" fill="${fill}"${state[i] === 2 ? ' opacity=".55"' : ""}/>`;
+  }
+  function build(m){
+    mode = m;
+    types = cells.map(() => m === "mono" || Math.random() < .35 ? "f" : "l");
+    state = cells.map(() => 0);
+    cells.forEach((_, i) => draw(i));
+    bMono.classList.toggle("ghost", m !== "mono"); bMisch.classList.toggle("ghost", m === "mono");
+    modeChip.textContent = m === "mono" ? "Fichten-Monokultur" : "Mischwald";
+    chip.textContent = "0 Bäume abgestorben";
+  }
+  const nb = i => { const r = Math.floor(i / COLS), c = i % COLS, out = []; if (r) out.push(i - COLS); if (r < ROWS - 1) out.push(i + COLS); if (c) out.push(i - 1); if (c < COLS - 1) out.push(i + 1); return out; };
+  async function start(){
+    running = true; go.disabled = bMono.disabled = bMisch.disabled = true;
+    state = cells.map(() => 0); cells.forEach((_, i) => draw(i));
+    const mid = 3 * COLS + 6, spr = types.map((t, i) => t === "f" ? i : -1).filter(i => i >= 0);
+    const dist = i => Math.abs(Math.floor(i / COLS) - 3) + Math.abs(i % COLS - 6);
+    const s0 = types[mid] === "f" ? mid : spr.sort((a, b) => dist(a) - dist(b))[0];
+    state[s0] = 1; draw(s0);
+    let active = [s0];
+    while (active.length) {
+      await wait(320);
+      const next = [];
+      active.forEach(i => nb(i).forEach(j => { if (types[j] === "f" && state[j] === 0 && !next.includes(j)) next.push(j); }));
+      active.forEach(i => { state[i] = 2; draw(i); });
+      next.forEach(j => { state[j] = 1; draw(j); });
+      active = next;
+      chip.textContent = `${state.filter(s => s === 2).length} Bäume abgestorben`;
+    }
+    const dead = state.filter(s => s === 2).length, fichten = types.filter(t => t === "f").length;
+    tried[mode] = true;
+    obs.textContent = mode === "mono"
+      ? `Alle ${dead} Fichten sind abgestorben. In der Monokultur findet der Borkenkäfer überall Nahrung und breitet sich ungebremst aus.`
+      : `Nur ${dead} von ${fichten} Fichten sind abgestorben. Die Laubbäume dazwischen bremsen den Käfer – der Mischwald bleibt größtenteils gesund.`;
+    if (tried.mono && tried.misch) { obs.textContent += " Genau deshalb pflanzt man heute immer häufiger Mischwälder."; solve("kaefer"); }
+    else obs.textContent += mode === "mono" ? " Wechsle jetzt zum Mischwald." : " Wechsle jetzt zur Fichten-Monokultur.";
+    running = false; go.disabled = bMono.disabled = bMisch.disabled = false;
+  }
+  bMono.addEventListener("click", () => { if (!running) build("mono"); });
+  bMisch.addEventListener("click", () => { if (!running) build("misch"); });
+  go.addEventListener("click", () => { if (!running) start(); });
+  build("mono");
+})();
+
+Modul.makeOpen($("#openKari"), [
+  {q: "Welche Probleme werden in der Karikatur dargestellt? Wie ist deine Meinung dazu?",
+   m: "Lebensmittel wie Getreide, Mais oder Gemüse werden zu Treibstoff für Autos verarbeitet, statt Menschen satt zu machen. Die Felder fehlen dann für die Ernährung – eine Konkurrenz zwischen „Tank und Teller“. Meinung zum Beispiel: Nahrung sollte Vorrang haben, Treibstoff lieber aus Abfällen herstellen.",
+   k: ["lebensmittel|nahrung|essen|teller|hunger|brot|obst|gemüse|getreide", "treibstoff|kraftstoff|auto|tank|energie|diesel|benzin|strom|sprit"]}
+], "openKari", "Schau genau hin: Was fließt durch den Trichter, und wer bekommt es?");
+Modul.makeOpen($("#open5"), [
+  {q: "Erkläre den Begriff „Nachhaltigkeit“.",
+   m: "Nachhaltigkeit kommt aus der Forstwirtschaft: Man fällt nur so viele Bäume, wie gleichzeitig wieder nachwachsen. Es gibt also ein Gleichgewicht zwischen Verbrauch und Wachstum. So sichert man die Lebensgrundlagen für zukünftige Generationen.",
+   k: ["gleichgewicht|so viel|so viele|nicht mehr", "nachwachs|wachstum|wächst|verbrauch"]},
+  {q: "Nenne Probleme, die die hohe Nachfrage nach regenerativen Rohstoffen mit sich bringt.",
+   m: "Die Landwirtschaft wird intensiviert: mehr Dünger und Pestizide, der Boden wird ausgelaugt. Energiepflanzen konkurrieren mit Lebensmitteln um die Äcker. Monokulturen verringern die Artenvielfalt und erhöhen das Risiko für Schädlinge wie den Borkenkäfer.",
+   k: ["dünger|pestizid|pflanzenschutz|boden|ausgelaugt", "lebensmittel|nahrung|konkurrenz|fläche", "monokultur|artenvielfalt|schädling|borkenkäfer"], min: 2}
+], "open5", "Lies Station 5 noch einmal.");
+
+/* ---------- Station 6: Kaskadennutzung ---------- */
+(function(){
+  const obs = $("#kasObs"), done = {A: false, B: false};
+  register("kaskade");
+  const seg = (track, cls, txt) => { const d = document.createElement("div"); d.className = "kas-seg " + cls; d.textContent = txt; track.appendChild(d); return d; };
+  function fin(){
+    if (done.A && done.B) { obs.textContent = "Beide Wege liefern am Ende Wärme. Bei der Kaskadennutzung nützt dasselbe Holz aber vorher noch viele Jahre als Werkstoff. Das erhöht die Wertschöpfung und spart neues Holz – so wird die Nutzung nachhaltiger."; solve("kaskade"); }
+  }
+  $("#kasBtnA").addEventListener("click", async e => {
+    e.currentTarget.disabled = true; $("#kasA").innerHTML = "";
+    $("#kasAEnd").textContent = "🔥 Sofort verbrannt: Wärme – aber 0 Jahre Nutzung als Werkstoff.";
+    done.A = true; await wait(600); fin();
+  });
+  $("#kasBtnB").addEventListener("click", async e => {
+    e.currentTarget.disabled = true;
+    const t = $("#kasB"); t.innerHTML = ""; $("#kasBEnd").textContent = "";
+    const a = seg(t, "regal", "🪑 Regal, z. B. 25 Jahre"), b = seg(t, "platte", "🟫 Holzfaserplatte, 15 Jahre");
+    await wait(50); a.style.width = "62.5%";
+    await wait(1500); b.style.width = "37.5%";
+    await wait(1500); $("#kasBEnd").textContent = "🔥 Erst nach etwa 40 Jahren verbrannt: Wärme und Strom.";
+    done.B = true; fin();
+  });
+})();
+
+Modul.makeGap($("#gapKaskade"), [
+  ["Ein Holzregal kann ", {g: "mehrfach"}, " verwendet werden. Erst dient es als ", {g: "Regal"}, ". Wird es nach vielen Jahren entsorgt, kann man daraus ", {g: "Holzfaserplatten"}, " herstellen. Diese können nach ihrer stofflichen ", {g: "Nutzung"}, " zur ", {g: "Energiegewinnung"}, " verbrannt werden."]
+], "gapKaskade");
+
+/* ---------- Station 6: Wegwerf- und Kreislaufwirtschaft ---------- */
+(function(){
+  const svg = $("#krSvg"), dotsG = $("#krDots", svg), obs = $("#krObs");
+  const pLin = $("#pLin", svg), pKreis = $("#pKreis", svg), heap = $("#krHeap", svg), bin = $("#krBin", svg);
+  const bLin = $("#krBtnLin"), bKreis = $("#krBtnKreis");
+  const LL = pLin.getTotalLength(), LK = pKreis.getTotalLength();
+  const cnt = {lin: {r: 0, m: 0, t: 0}, kreis: {r: 0, m: 0, t: 0, loops: 0}};
+  let mode = "lin", visible = false, looping = false, lastT = 0;
+  register("kreislauf");
+  const dots = Array.from({length: 6}, (_, k) => ({el: svgEl("circle", {r: 7}, dotsG), p: k / 6}));
+  function place(){
+    dots.forEach(d => {
+      const pt = (mode === "lin" ? pLin : pKreis).getPointAtLength(d.p * (mode === "lin" ? LL : LK));
+      d.el.setAttribute("cx", pt.x.toFixed(1)); d.el.setAttribute("cy", pt.y.toFixed(1));
+      d.el.setAttribute("fill", mode === "lin" && d.p > .8 ? "#8a7a66" : "#2e7d4f");
+    });
+  }
+  function setMode(m){
+    mode = m;
+    $("#krLin", svg).classList.toggle("on", m === "lin"); $("#krKreis", svg).classList.toggle("on", m === "kreis");
+    bLin.classList.toggle("ghost", m !== "lin"); bKreis.classList.toggle("ghost", m === "lin");
+    dots.forEach((d, k) => { d.p = k / 6; });
+    // Punkte direkt über die Bahn legen, damit die Kästchen lesbar bleiben
+    const track = m === "lin" ? pLin : pKreis;
+    track.parentNode.insertBefore(dotsG, track.nextSibling);
+    place();
+  }
+  function label(){
+    $("#krChipLin").textContent = `Wegwerf: ${cnt.lin.r} Rohstoff · ${cnt.lin.m} Müll`;
+    $("#krChipKreis").textContent = `Kreislauf: ${cnt.kreis.r} Rohstoff · ${cnt.kreis.m} Müll`;
+    heap.style.transform = `scaleY(${Math.min(1, .15 + cnt.lin.m / 30)})`;
+    bin.style.transform = `scaleY(${Math.min(1, .15 + cnt.kreis.m / 30)})`;
+  }
+  function frame(now){
+    if (!visible) { looping = false; return; }
+    const dt = Math.min(.1, (now - (lastT || now)) / 1000); lastT = now;
+    const c = cnt[mode]; c.t += dt;
+    dots.forEach(d => {
+      d.p += dt * (mode === "lin" ? .16 : .1);
+      if (d.p >= 1) {
+        d.p -= 1;
+        if (mode === "lin") { c.r++; c.m++; }
+        else if (++c.loops % 5 === 0) { c.r++; c.m++; }
+      }
+    });
+    place(); label();
+    if (cnt.lin.t > 4 && cnt.kreis.t > 4 && !Modul.isSolved("kreislauf")) {
+      obs.textContent = "In der Wegwerfwirtschaft wird jedes Produkt nach der Nutzung zu Müll – ständig braucht man neue Rohstoffe. In der Kreislaufwirtschaft wird recycelt: Man braucht viel weniger Rohstoffe und es entsteht viel weniger Müll.";
+      solve("kreislauf");
+    }
+    requestAnimationFrame(frame);
+  }
+  bLin.addEventListener("click", () => setMode("lin"));
+  bKreis.addEventListener("click", () => setMode("kreis"));
+  onVisible(svg, v => { visible = v; lastT = 0; if (v && !looping) { looping = true; requestAnimationFrame(frame); } });
+  setMode("lin"); label();
+})();
+
+Modul.makeGap($("#gapKreis"), [
+  ["Die Kreislaufwirtschaft ist das ", {g: "Gegenteil"}, " einer Wegwerfwirtschaft. Rohstoffe werden ", {g: "effektiv"}, " genutzt und später wiederverwertet. So braucht man ", {g: "weniger"}, " Rohstoffe und es entsteht weniger ", {g: "Müll"}, ". Regenerative ", {g: "Rohstoffe"}, " sollen nur so genutzt werden, dass die natürlichen Kreisläufe und Ökosysteme ", {g: "erhalten"}, " bleiben."]
+], "gapKreis");
+
+/* ---------- Station 6: Vorher-nachher mit Blühstreifen ---------- */
+(function(){
+  const range = $("#cmpRange"), top = $("#cmpTop"), line = $("#cmpLine"), obs = $("#cmpObs");
+  register("vergleich");
+  function draw(){
+    const v = +range.value;
+    top.style.clipPath = `inset(0 ${100 - v}% 0 0)`; line.style.left = v + "%";
+    if (v <= 45) {
+      obs.textContent = "Der Blühstreifen am Feldrand bietet Bienen, Schmetterlingen, Käfern und Vögeln Nahrung und Lebensraum. So hilft er, die Artenvielfalt zu erhalten.";
+      solve("vergleich");
+    }
+  }
+  range.addEventListener("input", draw); draw();
+})();
+
+Modul.makeOrder($("#orderKaskade"), [
+  "Der Baum wächst im Wald.",
+  "Das Holz wird zu einem Regal verarbeitet.",
+  "Aus dem alten Regal werden Holzfaserplatten.",
+  "Die Holzfaserplatten werden zur Energiegewinnung verbrannt."
+], "orderKaskade");
+Modul.makeOpen($("#open6"), [
+  {q: "Beschreibe, mit welchen Methoden man die Nachhaltigkeit regenerativer Rohstoffe steigern kann.",
+   m: "Durch Kaskadennutzung (z. B. Holz erst als Regal, dann als Holzfaserplatte und erst zum Schluss zur Energiegewinnung nutzen) und durch Kreislaufwirtschaft mit Recycling. Außerdem helfen Mischwälder statt Monokulturen und Projekte wie Blühstreifen oder Wildtierkorridore.",
+   k: ["kaskade|mehrfach|mehrmals", "kreislauf|recycl|wiederverwert", "mischwald|blüh|wildblumen|korridor|vielfalt"], min: 2},
+  {q: "Warum setzt die Forstwirtschaft im Klimawandel immer häufiger auf Mischwälder?",
+   m: "Monokulturen wie Fichtenwälder sind sehr anfällig für Schädlinge wie den Borkenkäfer und für Naturkatastrophen wie Stürme. Ein Mischwald ist widerstandsfähiger. So bleibt das Ökosystem Wald intakt, und man kann trotzdem gesundes Holz ernten.",
+   k: ["schädling|borkenkäfer|käfer|sturm|katastroph|anfällig", "gesund|stabil|widerstand|intakt|verschieden|ökosystem"], min: 1}
+], "open6", "Lies Station 6 noch einmal.");
+
+/* ---------- Training: Kreuzworträtsel ---------- */
+Modul.makeCrossword($("#cw"), {
+  umlaut: true,
+  words: [
+    {w: "NACHHALTIGKEIT", r: 0, c: 3, d: "d", q: "Gleichgewicht zwischen Verbrauch und Wachstum eines Rohstoffes."},
+    {w: "METHANOL", r: 1, c: 1, d: "d", q: "Alkohol, mit dem das Rapsöl in der Biodieselanlage umgesetzt wird."},
+    {w: "ÖLMÜHLE", r: 2, c: 6, d: "d", q: "Hier werden die Rapssamen gepresst."},
+    {w: "KASKADE", r: 1, c: 8, d: "d", q: "Mehrfachnutzung eines Rohstoffes heißt auch …nutzung."},
+    {w: "KOMPOST", r: 1, c: 8, d: "a", q: "Hier kann Stärkefolie ohne Zusatzstoffe im Idealfall landen."},
+    {w: "MONOKULTUR", r: 1, c: 10, d: "d", q: "Auf einer großen Fläche wächst immer nur eine Pflanzenart."},
+    {w: "GLYCERIN", r: 4, c: 14, d: "d", q: "Nebenprodukt der Biodieselherstellung, das in der Kosmetikindustrie verwendet wird."},
+    {w: "KARTOFFEL", r: 6, c: 12, d: "d", q: "Stärkepflanze, die auch als Industriepflanze angebaut wird."},
+    {w: "KLEISTER", r: 8, c: 0, d: "a", q: "Tapeten… enthält Stärke als Bindemittel."},
+    {w: "STÄRKE", r: 8, c: 9, d: "a", q: "Kohlenhydrat, von dem Kartoffeln, Mais und Weizen besonders viel enthalten."},
+    {w: "BORKENKÄFER", r: 10, c: 0, d: "a", q: "Schädling, dessen Befall Fichten absterben lässt."},
+    {w: "BIODIESEL", r: 12, c: 2, d: "a", q: "Kraftstoff, der aus Rapsöl hergestellt wird."},
+    {w: "MISCHWALD", r: 14, c: 5, d: "a", q: "Wald aus verschiedenen Baumarten – weniger anfällig für Schädlinge."}
+  ],
+  sol: [[10, 2], [7, 1], [6, 6], [1, 13], [13, 3], [12, 4], [10, 8], [12, 12]],
+  solWord: "ROHSTOFF"
+}, "kreuz");
+
+/* ---------- Training: Schaubild beschriften ---------- */
+Modul.makeLabel($("#labelBio"), {
+  img: "assets/modul2/biodiesel-herstellung.webp", w: 1122, h: 1402,
+  alt: "Schaubild zur Herstellung von Biodiesel aus Rapsöl, einige Felder sind verdeckt",
+  hint: "Tippe zuerst auf einen Begriff und dann auf das passende Kästchen im Schaubild. Zwei Begriffe passen nicht.",
+  slots: [
+    {x: 52, y: 35.1, px: 52, py: 35.1, a: "Rapskörner"},
+    {x: 85, y: 35.1, px: 85, py: 35.1, a: "Rapsstroh"},
+    {x: 52, y: 51, px: 52, py: 51, a: "Rapsöl"},
+    {x: 86, y: 50.9, px: 86, py: 50.9, a: "Rapsschrot"},
+    {x: 20, y: 65.9, px: 20, py: 65.9, a: "Methanol"},
+    {x: 53, y: 67, px: 53, py: 67, a: "Biodiesel"},
+    {x: 86, y: 67.5, px: 86, py: 67.5, a: "Glycerin"}
+  ],
+  extra: ["Erdöl", "Stärke"]
+}, "labelBio");
+
+/* ---------- Training: Zuordnen, Richtig/Falsch, offene Fragen ---------- */
+Modul.makeSort($("#sortNachh"), {
+  buckets: ["🌱 nachhaltig", "⚠️ nicht nachhaltig"],
+  items: [
+    {t: "nur so viele Bäume fällen, wie nachwachsen", b: 0}, {t: "Holz erst als Regal, dann als Holzfaserplatte nutzen", b: 0}, {t: "Mischwald statt Fichten-Monokultur pflanzen", b: 0},
+    {t: "Wildblumenstreifen am Feldrand anlegen", b: 0}, {t: "Biodiesel aus altem Speiseöl herstellen", b: 0}, {t: "Rohstoffe recyceln", b: 0},
+    {t: "mehr Bäume fällen, als nachwachsen", b: 1}, {t: "Holz sofort verbrennen", b: 1}, {t: "auf immer mehr Äckern Energiepflanzen statt Lebensmittel anbauen", b: 1},
+    {t: "immer mehr Dünger und Pestizide einsetzen", b: 1}, {t: "Produkte nach kurzer Nutzung wegwerfen", b: 1}
+  ]
+}, "sortNachh");
+Modul.makeTF($("#tf"), [
+  ["Biodiesel ist biologisch abbaubar.", true],
+  ["Biodiesel kann den gesamten Bedarf an Dieselkraftstoff in Deutschland decken.", false],
+  ["Das „Bio“ in Biodiesel bedeutet, dass er besonders gesund ist.", false],
+  ["Rapsschrot wird wegen seines hohen Eiweißgehalts als Futtermittel genutzt.", true],
+  ["Stärke gehört zu den Kohlenhydraten.", true],
+  ["Stärkefolie ist wasserfest wie eine Plastiktüte.", false],
+  ["Stärkefolie mit chemischen Zusatzstoffen darf nicht in die Biotonne.", true],
+  ["Monokulturen fördern die Artenvielfalt.", false],
+  ["Bei der Kaskadennutzung wird Holz zuerst verbrannt.", false],
+  ["Nachhaltiges Handeln sichert die Lebensgrundlagen für zukünftige Generationen.", true]
+], "tf");
+Modul.makeOpen($("#openT"), [
+  {q: "Erkläre, warum Biodiesel als CO₂-neutral gilt.",
+   m: "Die Rapspflanze nimmt beim Wachsen Kohlenstoffdioxid aus der Luft auf. Beim Verbrennen des Biodiesels wird genauso viel CO₂ wieder frei. Insgesamt kommt also kein zusätzliches CO₂ in die Luft.",
+   k: ["co2|co₂|kohlenstoffdioxid|kohlendioxid", "wachs|pflanze|aufgenommen|aufnehm|fotosynthese|photosynthese"]},
+  {q: "Warum steht das „Bio“ in Biodiesel nicht für eine ökologische Herstellung?",
+   m: "„Bio“ bedeutet hier nur, dass der Kraftstoff aus Pflanzen hergestellt wird. Der Anbau des Rapses braucht trotzdem viel Dünger und Pflanzenschutzmittel, meist in großen Monokulturen.",
+   k: ["pflanze|raps", "dünger|pflanzenschutz|pestizid|monokultur|nicht öko|nicht umwelt|belast"], min: 1},
+  {q: "Erkläre den Unterschied zwischen Kreislaufwirtschaft und Wegwerfwirtschaft.",
+   m: "In der Wegwerfwirtschaft wird ein Produkt hergestellt, benutzt und dann als Müll weggeworfen. In der Kreislaufwirtschaft werden Rohstoffe effektiv genutzt und recycelt. So braucht man weniger Rohstoffe, und es entsteht weniger Müll.",
+   k: ["müll|wegwerf|weggeworfen|abfall", "recycl|wiederverwert|kreislauf|wieder"]},
+  {q: "Ein Freund sagt: „Stärkefolie ist perfekt, die kann man immer in die Biotonne werfen.“ Stimmt das? Begründe.",
+   m: "Nicht immer. Reine Stärkefolie ist biologisch abbaubar und kann kompostiert werden. Oft werden aber chemische Stoffe zugesetzt, damit sie besser hält. Dann darf sie nicht in die Biotonne oder auf den Kompost.",
+   k: ["nicht immer|nein|stimmt nicht|falsch|kommt darauf an|nur wenn", "zusatz|chemisch|stoffe|beimisch|hinzugefügt"], min: 1}
+], "openT", "Schau in die Merke-Kästen der Stationen.");
+
+/* ---------- Abschlussquiz ---------- */
+Modul.makeQuiz($("#quiz"), [].concat(MC.s1, MC.s2, MC.s3, MC.s4, MC.s5, MC.s6, MC.train, [
+  {q: "Wofür wird Rapsstroh verwendet?", o: ["als Brennstoff und Dünger", "als Kraftstoff für Autos", "als Speiseöl", "als Bindemittel in Tabletten"], a: 0, e: "So steht es im Schaubild zur Herstellung von Biodiesel."},
+  {q: "Wo wird Glycerin aus der Biodieselanlage verwendet?", o: ["in der Kosmetikindustrie", "an der Tankstelle", "als Futtermittel", "im Straßenbau"], a: 0, e: "Glycerin steckt zum Beispiel in Cremes."},
+  {q: "Was bleibt im Versuch mit Sonnenblumenkernen im Filter hängen?", o: ["das Mehl der Kerne", "das Öl", "der Spiritus", "das Wasser"], a: 0, e: "Das Filtrat aus Spiritus und Öl läuft durch."},
+  {q: "Was entsteht im Landkreis Regensburg, um Tieren Lebensraum zu geben?", o: ["ein Wildtierkorridor", "eine Autobahn", "eine Ölmühle", "ein Fichtenwald"], a: 0, e: "Zusammenhängende, naturbelassene Grünflächen für Rehe, Wildschweine oder Rebhühner."},
+  {q: "Welcher Stoff wird bei der Stärkefolie zugegeben, damit sie biegsam wird?", o: ["Glycerin", "Benzin", "Salz", "Sand"], a: 0, e: "Glycerin macht die Folie weich und biegsam. Ohne Glycerin würde sie spröde und brüchig."}
+]), "quiz", "Rohstoff-Profi");
+
+bereit = true;
+Modul.ready();
+})();
+</script>
+</body>
+</html>

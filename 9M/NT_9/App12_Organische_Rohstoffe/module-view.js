@@ -6,6 +6,8 @@
   var params = new URLSearchParams(location.search);
   var id = params.get("id") || "m01";
   var module = data.modules.find(function (m) { return m.id === id; }) || data.modules[0];
+  // Module mit eigener Lernseite (z. B. Modul 2) direkt dorthin weiterleiten
+  if (module.page) { location.replace(module.page); return; }
   var taskChecks = [];
 
   function el(tag, cls, text) {
@@ -24,7 +26,7 @@
   }
 
   function moduleHref(mod) {
-    return "module.html?id=" + encodeURIComponent(mod.id);
+    return mod.page || "module.html?id=" + encodeURIComponent(mod.id);
   }
 
   function groupOf(mod) {

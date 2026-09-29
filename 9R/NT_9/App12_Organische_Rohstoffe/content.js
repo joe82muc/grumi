@@ -64,9 +64,11 @@ window.KohlenstoffKurs = {
       id: "m02",
       group: "organische-rohstoffe",
       nr: 2,
-      title: "Biodiesel und Stärke",
+      // eigene Lernseite im Stil von NT 7 (Stationen, Film, Animationen, KI-Fragen)
+      page: "modul-2.html",
+      title: "Biodiesel, Stärke und Nachhaltigkeit",
       duration: "45 min",
-      goal: "Du beschreibst die Herstellung von Biodiesel und erklärst die vielseitige Nutzung von Stärke.",
+      goal: "Du beschreibst die Herstellung von Biodiesel und Stärke, testest die Stärkefolie im Film und beurteilst, wann regenerative Rohstoffe nachhaltig sind.",
       sections: [
         {
           title: "Vom Rapskorn zum Biodiesel",
