@@ -1,7 +1,4 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { randomUUID } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
-import { join } from "node:path";
 import { create, all } from "mathjs";
 import { checkKlasse7, readKlasse7Task } from "@/lib/klasse7-ki";
 
@@ -54,7 +51,6 @@ type FeedbackData = {
 };
 
 const defaultAnthropicModel = "claude-opus-4-8";
-const studentUploadRoot = "student-uploads";
 const supportedMediaTypes = [
   "image/jpeg",
   "image/png",
@@ -63,13 +59,6 @@ const supportedMediaTypes = [
 ] as const;
 
 type SupportedMediaType = (typeof supportedMediaTypes)[number];
-
-const uploadFileExtensions: Record<SupportedMediaType, string> = {
-  "image/jpeg": ".jpg",
-  "image/png": ".png",
-  "image/gif": ".gif",
-  "image/webp": ".webp",
-};
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -92,81 +81,6 @@ export function OPTIONS() {
     status: 204,
     headers: corsHeaders,
   });
-}
-
-function getSafeUploadBaseName(fileName: string): string {
-  const lastPathPart = fileName.split(/[/\\]/).pop() || "foto";
-  const withoutExtension = lastPathPart.replace(/\.[^.]*$/, "");
-  const safeName = withoutExtension
-    .normalize("NFKD")
-    .replace(/[^a-zA-Z0-9_-]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 60);
-
-  return safeName || "foto";
-}
-
-function padDatePart(value: number, length = 2): string {
-  return String(value).padStart(length, "0");
-}
-
-function formatUploadDay(date: Date): string {
-  return [
-    date.getFullYear(),
-    padDatePart(date.getMonth() + 1),
-    padDatePart(date.getDate()),
-  ].join("-");
-}
-
-function formatUploadTimestamp(date: Date): string {
-  return [
-    formatUploadDay(date),
-    [
-      padDatePart(date.getHours()),
-      padDatePart(date.getMinutes()),
-      padDatePart(date.getSeconds()),
-    ].join("-"),
-    padDatePart(date.getMilliseconds(), 3),
-  ].join("_");
-}
-
-async function saveStudentUpload(
-  image: File,
-  mediaType: SupportedMediaType,
-  bytes: ArrayBuffer,
-) {
-  const uploadedAt = new Date();
-  const dayFolder = formatUploadDay(uploadedAt);
-  const timestamp = formatUploadTimestamp(uploadedAt);
-  const uploadDirectory = join(process.cwd(), studentUploadRoot, dayFolder);
-  const fileName = [
-    timestamp,
-    randomUUID(),
-    getSafeUploadBaseName(image.name),
-  ].join("-");
-  const filePath = join(
-    uploadDirectory,
-    `${fileName}${uploadFileExtensions[mediaType]}`,
-  );
-
-  await mkdir(uploadDirectory, { recursive: true });
-  await writeFile(filePath, Buffer.from(bytes));
-
-  return filePath;
-}
-
-async function trySaveStudentUpload(
-  image: File,
-  mediaType: SupportedMediaType,
-  bytes: ArrayBuffer,
-) {
-  try {
-    const filePath = await saveStudentUpload(image, mediaType, bytes);
-    console.info("Student upload saved:", filePath);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.warn("Student upload could not be saved:", message);
-  }
 }
 
 function sanitizeCorrectionLabel(label: unknown): string {
@@ -928,7 +842,6 @@ export async function POST(req: Request) {
     }
 
     const bytes = await image.arrayBuffer();
-    await trySaveStudentUpload(image, mediaType, bytes);
 
     if (!apiKey) {
       return feedbackResponse(
@@ -946,6 +859,7 @@ export async function POST(req: Request) {
 
     const anthropic = new Anthropic({ apiKey });
     const model = process.env.ANTHROPIC_MODEL || defaultAnthropicModel;
+    // Das Bild wird nur fuer diese Anfrage im Arbeitsspeicher verarbeitet.
     const base64 = Buffer.from(bytes).toString("base64");
 
     // Klasse 7 (7/Mathematik_7/Gleichungen): eigener Prompt, feste JSON-Form,
