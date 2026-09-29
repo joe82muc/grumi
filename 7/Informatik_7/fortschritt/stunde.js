@@ -176,7 +176,7 @@
         return (stunde.bilder && stunde.bilder.length) ? bilderBauen(stunde.bilder) : null;
       },
       praxis: function () {
-        return (stunde.praxis && stunde.praxis.length) ? praxisBauen(stunde.praxis) : null;
+        return (stunde.praxis && stunde.praxis.length) ? praxisBauen(stunde.praxis, stunde) : null;
       },
       wortspeicher: function () {
         return (stunde.wortspeicher && stunde.wortspeicher.length)
@@ -335,12 +335,19 @@
     return abschnitt;
   }
 
-  function praxisBauen(praxis) {
+  function praxisBauen(praxis, stunde) {
     var abschnitt = block("Selber nachmachen");
     abschnitt.classList.add("inf-praxis");
 
     praxis.forEach(function (auftrag) {
       var karte = el("div", "inf-praxis-karte");
+
+      /* E-Mail direkt auf der Seite schreiben (email-programm.js, Modul 2) */
+      if (auftrag.typ === "email" && window.InfEmailProgramm) {
+        karte.appendChild(window.InfEmailProgramm.bauen(auftrag, stunde));
+        abschnitt.appendChild(karte);
+        return;
+      }
       karte.appendChild(el("h3", null, auftrag.titel || "Arbeitsauftrag"));
       if (auftrag.hinweis) karte.appendChild(el("p", "inf-hinweis-klein", auftrag.hinweis));
 
