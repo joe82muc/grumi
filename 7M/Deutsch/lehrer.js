@@ -11,6 +11,8 @@ const state = {
   attempts: [],
   overview: [],
   moduleEntries: [],
+  tables: [],
+  tableClass: "",
   selectedKey: "",
   query: "",
   stage: ""
@@ -24,8 +26,12 @@ function init() {
   [
     "syncState", "logoutButton", "refreshButton", "exportButton", "studentCount", "attemptCount",
     "passedCount", "averageStars", "filteredCount", "searchInput", "stageFilter", "studentList",
-    "studentDetail", "teacherLogin", "teacherLoginForm", "teacherPassword", "loginError", "loginButton"
+    "studentDetail", "teacherLogin", "teacherLoginForm", "teacherPassword", "loginError", "loginButton",
+    "tableCount", "tableClass", "tablesGrid"
   ].forEach((id) => { dom[id] = document.getElementById(id); });
+  dom.tableClass.addEventListener("change", () => { state.tableClass = dom.tableClass.value; renderTables(); });
+  // Tisch-Duelle live: alle 5 Sekunden nachladen, solange die Seite offen und entsperrt ist
+  setInterval(() => { if (state.password && !document.hidden && !dom.teacherLogin.open) loadTables(); }, 5000);
 
   dom.teacherLoginForm.addEventListener("submit", login);
   dom.teacherLogin.addEventListener("cancel", (event) => event.preventDefault());
@@ -71,6 +77,7 @@ async function loadResults() {
       state.moduleEntries = [];
     }
     mergeModuleStudents();
+    await loadTables();
     if (!state.selectedKey && state.overview.length) state.selectedKey = state.overview[0].studentKey;
     if (state.selectedKey && !state.overview.some((item) => item.studentKey === state.selectedKey)) {
       state.selectedKey = state.overview[0]?.studentKey || "";
@@ -85,6 +92,50 @@ async function loadResults() {
   } finally {
     setBusy(dom.refreshButton, false, "Aktualisieren");
   }
+}
+
+/* ---------- Tisch-Duelle live (Modul 6) ---------- */
+async function loadTables() {
+  try {
+    const data = await postJson("/api/de7-argument/teacher/tische", { password: state.password });
+    state.tables = data.tische || [];
+  } catch (_error) {
+    state.tables = [];
+  }
+  renderTables();
+}
+
+function renderTables() {
+  const tables = state.tables.filter((t) => !state.tableClass || t.klasse === state.tableClass);
+  dom.tableCount.textContent = String(tables.length);
+  // Offene Verläufe beim Neuzeichnen offen lassen
+  const open = new Set(Array.from(dom.tablesGrid.querySelectorAll("details[open]")).map((d) => d.dataset.id));
+  if (!tables.length) {
+    dom.tablesGrid.innerHTML = '<p class="empty-list">Noch keine Tische besetzt. Die Schüler öffnen Modul 6 „Tisch-Duell zu zweit“ und geben ihre Tischnummer ein.</p>';
+    return;
+  }
+  const statusText = { warten: "wartet auf Partner", thema: "wählt Thema", laeuft: "Duell läuft", fertig: "fertig" };
+  dom.tablesGrid.innerHTML = tables.map((t) => `
+    <article class="table-card ${escapeHtml(t.status)}">
+      <div class="table-top"><strong>Tisch ${t.tisch} · ${escapeHtml(t.klasse)}</strong><span class="table-status">${escapeHtml(statusText[t.status] || t.status)}${t.status === "laeuft" ? ` · Runde ${t.runde}/${t.runden}` : ""}</span></div>
+      <p class="table-topic">${t.thema ? `🗣️ ${escapeHtml(t.streitfrage)}` : "Noch kein Thema"}${t.amZug ? ` · am Zug: <b>${escapeHtml(t.amZug)}</b>` : ""}</p>
+      ${t.spieler.map((s) => s ? `<div class="table-player"><span><span class="${s.online ? "on" : "off"}" title="${s.online ? "verbunden" : "nicht verbunden"}"></span>${escapeHtml(s.name)} <small>${escapeHtml(s.seite || "")}</small></span><b>${t.thema ? `${s.punkte} ⭐` : ""}</b></div>` : '<div class="table-player"><small>– Platz frei –</small></div>').join("")}
+      ${t.log.length ? `<details data-id="${escapeHtml(t.id)}" ${open.has(t.id) ? "open" : ""}><summary>Verlauf (${t.log.filter((l) => l.angenommen).length} gesendet, ${t.log.filter((l) => !l.angenommen).length} zurückgeschickt)</summary>
+        <ul class="table-log">${t.log.map((l) => `<li class="${l.angenommen ? "ja" : "nein"}"><strong>${escapeHtml(l.name)}</strong> ${l.angenommen ? `${"⭐".repeat(l.sterne)}` : "↩️"} <span class="t">${escapeHtml(l.text)}</span>
+          <small>${l.quelle === "ki" ? "✨ " : "ohne KI · "}${escapeHtml(l.rueckmeldung || "")}${l.tipp ? ` Tipp: ${escapeHtml(l.tipp)}` : ""}</small></li>`).join("")}</ul></details>` : ""}
+      <div class="table-actions"><button type="button" data-reset="${escapeHtml(t.id)}">Tisch freigeben</button></div>
+    </article>`).join("");
+  dom.tablesGrid.querySelectorAll("[data-reset]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      if (!confirm("Diesen Tisch freigeben? Das laufende Duell wird beendet, die Schüler können sich neu hinsetzen.")) return;
+      try {
+        await postJson("/api/de7-argument/teacher/tisch-reset", { password: state.password, roomId: button.dataset.reset });
+        await loadTables();
+      } catch (error) {
+        alert(friendlyError(error));
+      }
+    });
+  });
 }
 
 function mergeModuleStudents() {
@@ -192,11 +243,11 @@ function moduleTemplate(student) {
     byModule.get(entry.modulTitel).push(entry);
   }
   return `
-    <div class="attempts-heading" style="margin-top:26px"><h3>Lernmodule (Buch S. 22–25)</h3><span>${entries.length} Einträge</span></div>
+    <div class="attempts-heading" style="margin-top:26px"><h3>Lernmodule 2–6</h3><span>${entries.length} Einträge</span></div>
     <div class="attempt-groups">${Array.from(byModule.entries()).map(([title, list]) => `
       <details class="attempt-group">
         <summary>
-          <div><strong>${escapeHtml(title)}</strong><span>${list.filter((e) => e.art === "text").length} Texte · ${list.filter((e) => e.art === "duell").length} Duell-Antworten · ${list.filter((e) => e.art === "tagebuch").length} Lerntagebuch</span></div>
+          <div><strong>${escapeHtml(title)}</strong><span>${list.filter((e) => e.art === "text").length} Texte · ${list.filter((e) => e.art === "duell").length} Duell-Antworten${list.some((e) => e.art === "tischduell") ? ` · ${list.filter((e) => e.art === "tischduell").length} Tisch-Duell-Beiträge` : ""} · ${list.filter((e) => e.art === "tagebuch").length} Lerntagebuch</span></div>
           <span class="revision-count">${list.filter(entryOk).length} gelungen</span>
           <span>${formatDate(list.at(-1).createdAt)}</span>
         </summary>
@@ -210,8 +261,10 @@ function entryOk(entry) {
 
 function entryTemplate(entry) {
   const result = entry.ergebnis || {};
-  const art = { text: "Freitext", duell: "Duell", tagebuch: "Lerntagebuch" }[entry.art] || entry.art;
-  const verdict = entry.art === "tagebuch" ? "" : entryOk(entry) ? "✅ gelungen" : (result.teilweise || result.bewertung === "mid") ? "🟡 teilweise" : "❌ noch nicht";
+  const art = { text: "Freitext", duell: "Duell", tischduell: "Tisch-Duell", tagebuch: "Lerntagebuch" }[entry.art] || entry.art;
+  const verdict = entry.art === "tagebuch" ? ""
+    : entry.art === "tischduell" ? (entryOk(entry) ? `✅ gesendet ${"⭐".repeat(result.sterne || 0)}` : "↩️ von der KI zurückgeschickt")
+    : entryOk(entry) ? "✅ gelungen" : (result.teilweise || result.bewertung === "mid") ? "🟡 teilweise" : "❌ noch nicht";
   const criteria = (result.kriterien || []).map((item) => `${item.ok ? "✓" : "✗"} ${escapeHtml(item.text)}`).join("<br>");
   return `
     <article class="revision">
@@ -221,6 +274,7 @@ function entryTemplate(entry) {
       </div>
       <div class="answer-block">
         ${entry.art === "duell" ? `<div class="answer-part"><strong>Aussage der KI</strong><p>${escapeHtml(entry.frage)}</p></div>` : ""}
+        ${entry.art === "tischduell" ? `<div class="answer-part"><strong>Worauf geantwortet wurde</strong><p>${escapeHtml(entry.frage)}</p></div>` : ""}
         <div class="answer-part"><strong>${entry.art === "tagebuch" ? "Eintrag" : "Antwort"}</strong><p style="white-space:pre-wrap">${escapeHtml(entry.antwort)}</p></div>
         ${criteria ? `<div class="answer-part"><strong>Checkliste</strong><p>${criteria}</p></div>` : ""}
       </div>
@@ -323,6 +377,7 @@ function lockView() {
   state.attempts = [];
   state.overview = [];
   state.moduleEntries = [];
+  state.tables = [];
   state.selectedKey = "";
   sessionStorage.removeItem(PASSWORD_KEY);
   render();
