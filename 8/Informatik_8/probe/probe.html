@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/exercise-shell.css">
+<link rel="stylesheet" href="../../../css/exercise-shell.css">
 <style>
   :root{
     --net-1:#0f4c81; --net-2:#123f6b;
@@ -167,6 +167,45 @@
   .res-q .rq-cmt{margin-top:6px;font-size:.9rem;font-weight:700;color:var(--teal-dark)}
   .res-q .rq-exp{margin-top:5px;font-size:.9rem;color:var(--muted)}
 
+  /* Teile: Modul 1-6 und Transfer */
+  .teil-kopf{
+    display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;
+    margin:26px 0 12px;padding-bottom:7px;border-bottom:2px solid var(--net-1);
+  }
+  .teil-kopf:first-child{margin-top:0}
+  .teil-name{font-size:1.08rem;font-weight:900;color:var(--net-1)}
+  .teil-titel{font-size:1rem;font-weight:700;color:var(--ink)}
+  .teil-pts{margin-left:auto;font-size:.82rem;font-weight:800;color:var(--muted)}
+  .teil-hint{margin:-4px 0 12px;color:var(--muted);font-size:.92rem}
+  .q.miss{border-color:var(--gold);box-shadow:0 0 0 3px rgba(242,183,5,.28)}
+
+  .teile{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:18px}
+  .teile[hidden]{display:none}
+  .teil-chip{border:1px solid var(--line);border-radius:var(--r-s);padding:8px 12px;background:#fff}
+  .teil-chip b{display:block;font-size:.8rem;font-weight:800;color:var(--muted)}
+  .teil-chip span{font-size:1.15rem;font-weight:900}
+  .teil-chip.ok{border-color:var(--ok-line);background:var(--ok-bg)}
+  .teil-chip.part{border-color:#f0d089;background:#fff8e6}
+  .teil-chip.bad{border-color:var(--bad-line);background:var(--bad-bg)}
+  .res-teil{margin:18px 0 8px;font-size:1rem;font-weight:900;color:var(--net-1)}
+
+  /* Nachfrage vor dem Abgeben */
+  .modal{
+    position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
+    padding:16px;background:rgba(16,24,40,.55);
+  }
+  .modal[hidden]{display:none}
+  .modal-box{
+    width:100%;max-width:500px;max-height:calc(100vh - 32px);overflow:auto;
+    background:#fff;border-radius:var(--r-l);padding:24px;box-shadow:0 24px 60px rgba(16,26,46,.3);
+  }
+  .modal-box h2{font-size:1.35rem;margin-bottom:8px}
+  .modal-box p{font-size:1rem;margin-top:10px}
+  .modal-box .btn-row{justify-content:flex-end;margin-top:20px}
+  @media (max-width:640px){
+    .modal-box .btn-row .btn{flex:1 1 100%}
+  }
+
   .spinner{
     display:inline-block;width:15px;height:15px;vertical-align:-2px;margin-right:7px;
     border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;
@@ -186,8 +225,8 @@
 
 <header class="ex-shell-header" aria-label="Seitennavigation">
   <div class="ex-inner">
-    <a class="ex-brand" href="../../index.html" aria-label="Zur Startseite">
-      <img src="../../images_school/logo.png" alt="Logo der Grund- und Mittelschule">
+    <a class="ex-brand" href="../../../index.html" aria-label="Zur Startseite">
+      <img src="../../../images_school/logo.png" alt="Logo der Grund- und Mittelschule">
       <span class="ex-brand-text">
         <span class="ex-brand-name">Grund- und Mittelschule am Sportpark</span>
         <span class="ex-brand-sub">GRUMI Lernplattform &middot; Informatik 8</span>
@@ -198,7 +237,7 @@
 </header>
 
 <nav class="ex-crumbs" aria-label="Pfad">
-  <a href="../../index.html">Start</a>
+  <a href="../../../index.html">Start</a>
   <a href="../index.html">Informatik 8</a>
   <span>Probe</span>
 </nav>
@@ -211,7 +250,8 @@
       <span class="code">Schriftliche Probe</span>
       <h1>Digitaler Informationsaustausch</h1>
       <p>
-        Trage deinen Namen ein und w&auml;hle die Probe aus. Du kannst die Probe
+        Trage deinen Namen ein und w&auml;hle die Probe aus. Die Probe hat einen Teil
+        zu jedem Modul 1&ndash;6 und zwei Transferfragen zum Schluss. Du kannst sie
         <strong>nur einmal</strong> abgeben. Nimm dir Zeit und lies jede Aufgabe genau.
       </p>
     </div>
@@ -288,6 +328,7 @@
     </div>
     <div class="panel">
       <div class="result-head" id="r-head"></div>
+      <div class="teile" id="r-teile"></div>
       <div id="r-list"></div>
       <div class="note">
         Bei frei geschriebenen Antworten pr&uuml;ft eine KI, ob deine Antwort
@@ -298,6 +339,20 @@
 
 </div>
 
+<!-- ===== Nachfrage: wirklich abgeben? ===== -->
+<div class="modal" id="confirm" hidden role="dialog" aria-modal="true" aria-labelledby="c-title">
+  <div class="modal-box">
+    <h2 id="c-title">Willst du die Probe wirklich abgeben?</h2>
+    <div id="c-open"></div>
+    <p>Nach dem Abgeben kannst du <strong>nichts mehr &auml;ndern</strong>.
+      Deine Antworten werden sofort ausgewertet.</p>
+    <div class="btn-row">
+      <button type="button" class="btn btn-ghost" id="c-back">Nein, zur&uuml;ck zur Probe</button>
+      <button type="button" class="btn btn-main" id="c-send">Ja, endg&uuml;ltig abgeben</button>
+    </div>
+  </div>
+</div>
+
 <footer class="ex-shell-footer">
   <div class="ex-inner">
     <div>
@@ -306,8 +361,8 @@
     </div>
     <div class="ex-footer-links">
       <a href="../index.html">Informatik 8</a>
-      <a href="../../datenschutz.html">Datenschutz</a>
-      <a href="../../impressum.html">Impressum</a>
+      <a href="../../../datenschutz.html">Datenschutz</a>
+      <a href="../../../impressum.html">Impressum</a>
     </div>
   </div>
 </footer>
@@ -422,7 +477,29 @@ function buildQuestions(){
   const box = $('q-list');
   box.innerHTML = '';
 
+  // Punkte je Teil fuer die Ueberschriften
+  const teilPunkte = {};
+  ITEMS.forEach(it => { if(it.teil) teilPunkte[it.teil] = (teilPunkte[it.teil] || 0) + it.points; });
+  let letzterTeil = '';
+
   ITEMS.forEach((it, i) => {
+    if(it.teil && it.teil !== letzterTeil){
+      letzterTeil = it.teil;
+      const [name, titel] = it.teil.split('·').map(s => s.trim());
+      const kopf = document.createElement('div');
+      kopf.className = 'teil-kopf';
+      kopf.innerHTML = '<span class="teil-name">' + esc(name) + '</span>' +
+        (titel ? '<span class="teil-titel">' + esc(titel) + '</span>' : '') +
+        '<span class="teil-pts">' + teilPunkte[it.teil] + ' Punkte</span>';
+      box.appendChild(kopf);
+      if(/^Transfer/i.test(name)){
+        const hint = document.createElement('p');
+        hint.className = 'teil-hint';
+        hint.textContent = 'Hier geht es um neue Situationen. Nutze, was du in den Modulen gelernt hast, und begründe deine Antwort.';
+        box.appendChild(hint);
+      }
+    }
+
     const d = document.createElement('div');
     d.className = 'q';
     d.dataset.i = i;
@@ -512,23 +589,52 @@ function updateProgress(){
   const done = ITEMS.filter((_, i) => isAnswered(i)).length;
   $('p-done').textContent = done;
   $('p-fill').style.width = ITEMS.length ? (done / ITEMS.length * 100) + '%' : '0%';
+  document.querySelectorAll('.q.miss').forEach(card => {
+    if(isAnswered(+card.dataset.i)) card.classList.remove('miss');
+  });
 }
 
-/* ---------- Abgeben ---------- */
-$('btn-submit').addEventListener('click', async () => {
-  if(sending) return;
+/* ---------- Abgeben: erst nachfragen ---------- */
+function offeneNummern(){
+  return ITEMS.filter((_, i) => !isAnswered(i)).map(it => it.nr);
+}
 
-  const offen = ITEMS.filter((_, i) => !isAnswered(i)).length;
+function nachfrageOeffnen(){
+  const offen = offeneNummern();
+  $('c-open').innerHTML = offen.length
+    ? '<div class="note warn" style="margin-top:4px"><strong>Du hast ' + offen.length +
+      (offen.length === 1 ? ' Aufgabe' : ' Aufgaben') + ' noch nicht bearbeitet:</strong> Nr. ' +
+      offen.join(', ') + '.<br>Diese Aufgaben z&auml;hlen 0 Punkte.</div>'
+    : '<div class="note ok" style="margin-top:4px">Du hast alle ' + ITEMS.length +
+      ' Aufgaben bearbeitet. Hast du alles noch einmal durchgelesen?</div>';
+  $('confirm').hidden = false;
+  $('c-back').focus();
+}
 
-  if(offen > 0){
-    const ok = confirm('Es sind noch ' + offen + ' Aufgaben offen.\n\n'
-      + 'Wirklich jetzt abgeben? Danach kannst du nichts mehr ändern.');
-    if(!ok) return;
+function nachfrageSchliessen(){
+  $('confirm').hidden = true;
+  const offen = offeneNummern();
+  document.querySelectorAll('.q').forEach(card => {
+    card.classList.toggle('miss', !isAnswered(+card.dataset.i));
+  });
+  if(offen.length){
+    const erste = document.querySelector('.q.miss');
+    if(erste) erste.scrollIntoView({ behavior:'smooth', block:'center' });
   }else{
-    const ok = confirm('Probe jetzt abgeben?\n\nDanach kannst du nichts mehr ändern.');
-    if(!ok) return;
+    $('btn-submit').focus();
   }
+}
 
+$('btn-submit').addEventListener('click', () => { if(!sending) nachfrageOeffnen(); });
+$('c-back').addEventListener('click', nachfrageSchliessen);
+$('confirm').addEventListener('click', e => { if(e.target === $('confirm')) nachfrageSchliessen(); });
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape' && !$('confirm').hidden) nachfrageSchliessen();
+});
+$('c-send').addEventListener('click', () => { $('confirm').hidden = true; abgeben(); });
+
+async function abgeben(){
+  if(sending) return;
   sending = true;
   const btn = $('btn-submit');
   btn.disabled = true;
@@ -554,6 +660,14 @@ $('btn-submit').addEventListener('click', async () => {
       btn.textContent = 'Bereits abgegeben';
       return;
     }
+    if(res.status === 403){
+      sending = false;
+      btn.disabled = false;
+      btn.textContent = 'Probe abgeben';
+      msg('submit-msg','Die Probe ist gerade gesperrt. Melde dich bei deiner Lehrkraft &ndash; '
+        + 'deine Antworten sind noch da. Lass diese Seite offen.','bad');
+      return;
+    }
     if(!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
 
     showResult(data.result);
@@ -564,12 +678,20 @@ $('btn-submit').addEventListener('click', async () => {
     msg('submit-msg','Die Abgabe hat nicht geklappt. Bitte noch einmal auf '
       + '&bdquo;Probe abgeben&ldquo; tippen. Deine Antworten sind noch da.','bad');
   }
-});
+}
 
 /* ---------- Ergebnis ---------- */
 function showResult(r){
   $('view-test').hidden   = true;
   $('view-result').hidden = false;
+
+  // Punkte je Modul auf einen Blick
+  $('r-teile').innerHTML = (r.teile || []).map(t => {
+    const cls = t.points >= t.maxPoints ? 'ok' : (t.points > 0 ? 'part' : 'bad');
+    return '<div class="teil-chip ' + cls + '"><b>' + esc(t.teil.split('·')[0].trim()) + '</b>' +
+      '<span>' + t.points + ' / ' + t.maxPoints + '</span></div>';
+  }).join('');
+  $('r-teile').hidden = !(r.teile || []).length;
 
   const q = r.total ? r.score / r.total : 0;
   const kind = q >= 0.8 ? 'good' : q >= 0.5 ? 'mid' : 'low';
@@ -580,9 +702,15 @@ function showResult(r){
     '<div><div style="font-size:1.25rem;font-weight:900">' + r.score + ' von ' + r.total + ' Punkten</div>' +
     '<div style="font-size:.95rem;font-weight:700;color:#5d6b84">' + r.percent + ' Prozent</div></div>';
 
+  let letzterTeil = '';
   $('r-list').innerHTML = (r.details || []).map(d => {
     const cls = d.points >= d.maxPoints ? 'ok' : (d.points > 0 ? 'part' : 'bad');
-    let h = '<div class="res-q ' + cls + '">' +
+    let h = '';
+    if(d.teil && d.teil !== letzterTeil){
+      letzterTeil = d.teil;
+      h += '<div class="res-teil">' + esc(d.teil) + '</div>';
+    }
+    h += '<div class="res-q ' + cls + '">' +
       '<div class="rq-top"><div><b>' + d.nr + '.</b> ' + esc(d.prompt) + '</div>' +
       '<div class="rq-p">' + d.points + '/' + d.maxPoints + '</div></div>' +
       '<div class="rq-given"><span>Deine Antwort:</span> ' +

@@ -105,6 +105,12 @@
   .badge.ki{background:var(--accent-soft);color:var(--accent)}
   .badge.hand{background:var(--ok-bg);color:var(--ok)}
   .badge.key{background:var(--warn-bg);color:var(--warn)}
+  .mods{display:flex;flex-wrap:wrap;gap:.25rem;min-width:190px}
+  .mod{border-radius:6px;padding:.1rem .4rem;font-size:.76rem;font-weight:800;white-space:nowrap}
+  .mod.full{background:var(--ok-bg);color:var(--ok)}
+  .mod.part{background:var(--warn-bg);color:var(--warn)}
+  .mod.none{background:var(--bad-bg);color:var(--bad)}
+  .d-teil{margin:.6rem 0 .1rem;font-size:.8rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
 </style>
 </head>
 <body>
@@ -136,14 +142,17 @@
   <!-- Ergebnisse -->
   <section class="panel hidden" id="view-results">
     <h2>Ergebnisse</h2>
-    <p class="sub">Notenschl&uuml;ssel dieser Probe: 50&nbsp;% = Note 3 (1 ab 87&nbsp;%, 2 ab 73&nbsp;%, 3 ab 50&nbsp;%, 4 ab 37&nbsp;%, 5 ab 20&nbsp;%).
-      Freie Antworten bewertet die KI wohlwollend auf Inhalt &ndash; du kannst jede Punktzahl &auml;ndern.</p>
+    <p class="sub">Aufbau: je Modul 1&ndash;6 ein Teil mit 6 Punkten, dazu 2 Transferfragen mit 4 Punkten (40 Punkte).
+      Notenschl&uuml;ssel: 50&nbsp;% = Note 3 &ndash; Note 1 ab 35 P, 2 ab 29 P, 3 ab 20 P, 4 ab 15 P, 5 ab 8 P.
+      Wer ein ganzes Modul nicht kann, kommt h&ouml;chstens auf 34 Punkte und damit nicht auf die Note 1.
+      Freie Antworten bewertet die KI wohlwollend nur auf Inhalt &ndash; du kannst jede Punktzahl &auml;ndern.</p>
 
     <div class="note bad" style="margin-top:0;margin-bottom:.9rem">
-      <strong>Ergebnisse gleich nach der Stunde als CSV sichern.</strong><br>
+      <strong>Ergebnisse gleich nach der Stunde als Excel-Datei sichern.</strong><br>
       Der Server speichert nur vor&uuml;bergehend: Bei einem Neustart oder einer
-      Aktualisierung gehen die Abgaben verloren. Die CSV-Datei auf deinem Rechner
-      ist die dauerhafte Kopie.
+      Aktualisierung gehen die Abgaben verloren. Die Excel-Datei auf deinem Rechner
+      ist die dauerhafte Kopie. Sie enth&auml;lt drei Bl&auml;tter: Ergebnisse (mit Punkten je Modul),
+      alle Antworten mit KI-R&uuml;ckmeldung und den Notenschl&uuml;ssel.
     </div>
 
     <div style="display:flex;gap:.6rem;align-items:flex-end;flex-wrap:wrap">
@@ -152,8 +161,10 @@
         <select id="res-test"><option value="">Alle Proben</option></select>
       </div>
       <button class="btn btn-ghost" id="btn-refresh">Aktualisieren</button>
-      <button class="btn btn-ghost" id="btn-csv">Als CSV laden</button>
+      <button class="btn btn-ok" id="btn-xlsx">Excel-Datei laden</button>
+      <button class="btn btn-ghost" id="btn-csv" title="Nur falls die Excel-Datei nicht geht">CSV</button>
     </div>
+    <div id="export-msg"></div>
 
     <div class="stats" id="stats"></div>
     <div class="table-scroll"><div id="results-box"></div></div>
@@ -317,7 +328,7 @@ function renderTable(rows){
   box.innerHTML = '';
   const table = document.createElement('table');
   table.innerHTML = '<thead><tr>' +
-    ['Klasse','Name','Datum','Punkte','Prozent','Note',''].map(h => '<th>' + h + '</th>').join('') +
+    ['Klasse','Name','Datum','Punkte','Prozent','Note','Punkte je Modul',''].map(h => '<th>' + h + '</th>').join('') +
     '</tr></thead>';
   const tb = document.createElement('tbody');
 
@@ -334,7 +345,15 @@ function renderTable(rows){
     const sum = document.createElement('summary'); sum.textContent = 'Antworten ansehen';
     const dl = document.createElement('div'); dl.className = 'detail-list';
 
+    let letzterTeil = '';
     (r.details || []).forEach(d => {
+      if(d.teil && d.teil !== letzterTeil){
+        letzterTeil = d.teil;
+        const t = document.createElement('div');
+        t.className = 'd-teil';
+        t.textContent = d.teil;
+        dl.appendChild(t);
+      }
       const item = document.createElement('div');
       item.className = 'd-item' + (d.type === 'text' ? ' ai' : '');
       let badge = '';
@@ -391,6 +410,20 @@ function renderTable(rows){
     const tdG = document.createElement('td');
     tdG.innerHTML = '<span class="grade g' + r.grade + '">' + r.grade + '</span>';
 
+    // Punkte je Modul: M1 6/6 ... T 4/4
+    const tdM = document.createElement('td');
+    const mods = document.createElement('div');
+    mods.className = 'mods';
+    teilSummen(r.details).forEach(t => {
+      const s = document.createElement('span');
+      const kurz = t.teil.split('·')[0].trim().replace(/^Modul\s*/i, 'M').replace(/^Transfer/i, 'T');
+      s.className = 'mod ' + (t.points >= t.maxPoints ? 'full' : t.points > 0 ? 'part' : 'none');
+      s.textContent = kurz + ' ' + t.points + '/' + t.maxPoints;
+      s.title = t.teil;
+      mods.appendChild(s);
+    });
+    tdM.appendChild(mods);
+
     const tdX = document.createElement('td');
     const del = document.createElement('button');
     del.className = 'btn btn-sm btn-ghost';
@@ -411,7 +444,7 @@ function renderTable(rows){
     });
     tdX.appendChild(del);
 
-    tr.append(tdC, tdN, tdD, tdP, tdPc, tdG, tdX);
+    tr.append(tdC, tdN, tdD, tdP, tdPc, tdG, tdM, tdX);
     tb.appendChild(tr);
   });
 
@@ -419,22 +452,48 @@ function renderTable(rows){
   box.appendChild(table);
 }
 
-/* ---------- CSV ---------- */
-$('btn-csv').addEventListener('click', async () => {
+/* Punkte je Teil (Modul 1-6, Transfer) aus den gespeicherten Antworten */
+function teilSummen(details){
+  const liste = [];
+  (details || []).forEach(d => {
+    if(!d.teil) return;
+    let t = liste.find(x => x.teil === d.teil);
+    if(!t){ t = { teil: d.teil, points: 0, maxPoints: 0 }; liste.push(t); }
+    t.points += Number(d.points) || 0;
+    t.maxPoints += Number(d.maxPoints) || 0;
+  });
+  return liste;
+}
+
+/* ---------- Export: Excel-Datei (xlsx) oder CSV ---------- */
+async function exportLaden(format, btn){
+  btn.disabled = true;
+  msg('export-msg', 'Datei wird erstellt ...');
   try{
     const res = await fetch(API_BASE + '/api/informatik8/export', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ password: PW, testId: $('res-test').value })
+      body: JSON.stringify({ password: PW, testId: $('res-test').value, format })
     });
-    if(!res.ok) throw new Error('Fehler');
+    if(!res.ok) throw new Error('HTTP ' + res.status);
     const blob = await res.blob();
+    const heute = new Date().toISOString().slice(0, 10);
+    const name = 'Probe_Informatik8_' + ($('res-test').value || 'alle') + '_' + heute + '.' + format;
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'probe_informatik8.csv';
+    a.download = name;
+    document.body.appendChild(a);   // Firefox braucht den Link im Dokument
     a.click();
-    URL.revokeObjectURL(a.href);
-  }catch(e){ alert('Export hat nicht geklappt.'); }
-});
+    a.remove();
+    // erst spaeter freigeben, sonst bricht Safari den Download ab
+    setTimeout(() => URL.revokeObjectURL(a.href), 30000);
+    msg('export-msg', 'Gespeichert als <strong>' + esc(name) + '</strong> (Ordner Downloads).', 'ok');
+  }catch(e){
+    msg('export-msg', 'Export hat nicht geklappt (' + esc(e.message) + '). Bitte noch einmal versuchen.', 'bad');
+  }
+  btn.disabled = false;
+}
+$('btn-xlsx').addEventListener('click', () => exportLaden('xlsx', $('btn-xlsx')));
+$('btn-csv').addEventListener('click', () => exportLaden('csv', $('btn-csv')));
 </script>
 </body>
 </html>
