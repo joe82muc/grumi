@@ -15,9 +15,11 @@ window.KohlenstoffKurs = {
       id: "m01",
       group: "organische-rohstoffe",
       nr: 1,
+      // eigene Lernseite im Stil von NT 7 (Stationen, Film, Animationen, KI-Fragen)
+      page: "modul-1.html",
       title: "Kohlenstoff, Holz und Raps",
       duration: "45 min",
-      goal: "Du erklärst, was organische und regenerative Rohstoffe sind, beschreibst die Nutzung von Holz und Raps und nennst Merkmale regenerativer Rohstoffe.",
+      goal: "Du weist Kohlenstoff in organischen Stoffen nach, verfolgst den Weg vom Holz zum Zellstoff, nennst Produkte aus Raps und erklärst, warum regenerative Rohstoffe CO₂-neutral sind.",
       sections: [
         {
           title: "Kohlenstoff als Lebensgrundlage",

@@ -1,0 +1,1236 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2e7d4f">
+<title>Kohlenstoff, Holz und Raps | NT 9</title>
+<link rel="stylesheet" href="modul-basis.css">
+<style>
+:root{--sky:#2e7d4f;--sky-d:#1d5a36;--sky-l:#e5f3ea}
+[hidden]{display:none!important}
+.hero{background:linear-gradient(160deg,#2a1c0f,#2e7d4f 55%,#c9a91a)}
+.st-num{box-shadow:0 4px 12px rgba(46,125,79,.3)}
+.tf-row>span,.q-title,.opt span,.bucket h5{min-width:0;hyphens:auto;overflow-wrap:break-word}
+.sim .chain{padding:12px 14px 0;margin:0}
+.chain .step{cursor:default}
+.chain .step.done{border-color:#8fd0a8;background:#f0faf3}
+@media (max-width:600px){.sim .chain{gap:4px}.sim .chain .step{flex-basis:88px;padding:4px 6px;font-size:.8rem}.sim .chain .step .ic{font-size:1.15rem}}
+.btn.pick-on{background:var(--sky);color:#fff}
+
+/* Szenen in den Animationen */
+.stage{opacity:0;transition:opacity .5s}
+.stage.on{opacity:1}
+.stage .anim,.mach .anim{animation-play-state:paused}
+.stage.on .anim,.mach.on .anim{animation-play-state:running}
+.mach{opacity:.38;transition:opacity .4s}
+.mach.on{opacity:1}
+.sc{transform-box:fill-box;transform-origin:50% 100%;transition:transform 2s ease}
+.spin{transform-box:fill-box;transform-origin:center;animation:spin 1.6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.rise{animation:rise 2.4s ease-out infinite}
+@keyframes rise{from{transform:translateY(0);opacity:.85}to{transform:translateY(-40px);opacity:0}}
+.flick{transform-box:fill-box;transform-origin:50% 100%;animation:flick .3s ease-in-out infinite alternate}
+@keyframes flick{from{transform:scale(1.05,.92)}to{transform:scale(.95,1.08)}}
+.sway{transform-box:fill-box;transform-origin:50% 100%;animation:sway 2.4s ease-in-out infinite alternate}
+@keyframes sway{from{transform:rotate(-3deg)}to{transform:rotate(3deg)}}
+.flow{stroke-dasharray:8 8;animation:flow .8s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-32}}
+.toss{animation:toss 1.2s ease-in infinite}
+@keyframes toss{from{transform:translate(0,0);opacity:1}to{transform:translate(46px,40px);opacity:0}}
+.drip{animation:drip 1s linear infinite}
+@keyframes drip{from{transform:translateY(0);opacity:1}to{transform:translateY(20px);opacity:0}}
+
+/* Versuch Verkohlung */
+#vkSample{transition:fill 1.4s}
+#vkHeat{transform-box:fill-box;transform-origin:0 50%;transition:transform 3s linear}
+.pickrow{display:flex;flex-wrap:wrap;gap:8px}
+
+/* Holz unter der Lupe, Zellstoffwerk, CO2 */
+.fib{transform-box:fill-box;transform-origin:center;transition:transform 1.6s ease}
+#hlLig{transition:opacity 2.2s}
+#zfTok{transition:transform 1s ease}
+.mol{transition:transform 1s ease,opacity .6s}
+#coTree{transition:transform 2.2s ease}
+#coStump{transition:opacity .6s}
+
+/* Merkmale durchstreichen (Arbeitsblatt Aufgabe 3a) */
+.strike{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
+@media (max-width:520px){.strike{grid-template-columns:1fr}}
+.strike button{border:2px solid var(--line);background:#fff;border-radius:12px;padding:10px 14px;font-weight:600;text-align:left;color:var(--ink)}
+.strike button.x{color:var(--muted);background:#f6f7f8;text-decoration:line-through;text-decoration-color:#c62828;text-decoration-thickness:3px}
+.strike button.right{border-color:var(--ok);background:var(--ok-l)}
+.strike button.wrong{border-color:var(--bad);background:var(--bad-l)}
+
+/* Schaubild beschriften: Hochformat, etwas größer */
+@media (min-width:821px){#labelHolz .label-wrap{grid-template-columns:minmax(0,460px) 1fr}}
+#labelHolz .label-img{max-width:460px}
+
+/* Film mit Stopps */
+.film{position:relative;aspect-ratio:16/9;background:#0f2417;border-radius:14px;overflow:hidden}
+.film iframe,#ytPlayer{position:absolute;inset:0;width:100%;height:100%;border:0}
+.film-poster{position:absolute;inset:0;width:100%;border:0;display:grid;place-content:center;justify-items:center;gap:6px;padding:16px;color:#fff;text-align:center;background:radial-gradient(circle at 50% 40%,#3a8f5c,#0f2417 75%)}
+.film-poster .play{width:66px;height:66px;border-radius:50%;background:#fff;color:var(--sky-d);display:grid;place-items:center;font-size:1.6rem;padding-left:5px}
+.film-poster b{font-size:1.15rem}
+.film-poster small{max-width:440px;opacity:.9;font-size:.86rem}
+.film-stop{position:absolute;inset:0;z-index:2;display:none;place-content:center;padding:16px;text-align:center;background:rgba(10,30,18,.84);color:#fff;font-weight:800;font-size:1.05rem}
+.film-stop.show{display:grid}
+.film-chips{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0}
+.film-chips button{border:2px solid var(--line);background:#fff;border-radius:99px;padding:4px 11px;font-weight:700;font-size:.88rem}
+.film-chips button.done{border-color:var(--ok);background:var(--ok-l);color:var(--ok)}
+.film-q{border:2px solid var(--gold);border-radius:14px;padding:6px 14px 14px;margin-top:12px;background:#fffdf5}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>NT 9 · Modul 1</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Kohlenstoff</a>
+      <a href="#s2"><b>2</b>Holz</a>
+      <a href="#s3"><b>3</b>Zellstoff</a>
+      <a href="#s4"><b>4</b>Raps</a>
+      <a href="#s5"><b>5</b>Regenerativ</a>
+      <a href="#s6"><b>6</b>Training</a>
+      <a href="#s7"><b>7</b>Profi-Check</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse 9M / 9R · Organische Rohstoffe · Modul 1</div>
+    <h1>Kohlenstoff, Holz und Raps</h1>
+    <p>Aus Holz wird Papier, aus Raps wird Öl – und beide wachsen immer wieder nach. In sieben Stationen weist du Kohlenstoff nach, schaust ins Holz hinein, besuchst im Film ein Zellstoffwerk und findest heraus, warum regenerative Rohstoffe CO₂-neutral sind.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s6">Direkt zum Probentraining</a>
+    </div>
+    <div class="goals">
+      <div>🧪 Ich weise nach, dass organische Stoffe Kohlenstoff enthalten.</div>
+      <div>🪵 Ich beschreibe, was aus Holz entsteht und wie man Zellstoff gewinnt.</div>
+      <div>🌼 Ich nenne Produkte, die aus Raps hergestellt werden.</div>
+      <div>♻️ Ich nenne Merkmale regenerativer Rohstoffe und erkläre „CO₂-neutral“.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg · Versuch</div><h2>Kohlenstoff – der Baustein des Lebens</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Pflanzen, Tiere und Menschen bestehen zu einem großen Teil aus <button class="term" data-t="kohlenstoff">Kohlenstoffverbindungen</button>. Stoffe, die von Lebewesen stammen, heißen deshalb <button class="term" data-t="organisch">organische Stoffe</button>. Nutzt man sie als Ausgangsmaterial, spricht man von organischen <button class="term" data-t="rohstoff">Rohstoffen</button>.</p>
+      <p>Es gibt zwei Gruppen: <button class="term" data-t="regenerativ">Regenerative Rohstoffe</button> wie Holz und Raps wachsen immer wieder nach. <button class="term" data-t="fossil">Fossile Rohstoffe</button> wie Kohle, Erdöl und Erdgas sind vor Millionen Jahren aus abgestorbenen Lebewesen entstanden – sie wachsen nicht nach. Um sie geht es in den späteren Modulen.</p>
+      <p>Wie zeigt man, dass ein Stoff Kohlenstoff enthält? Man erhitzt ihn stark im Reagenzglas. Bleibt ein schwarzer Rest übrig, ist das Kohlenstoff. Man nennt das <button class="term" data-t="verkohlung">Verkohlung</button>.</p>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag">Versuch · Kohlenstoff nachweisen</span>
+      <p><strong>Material:</strong> Reagenzgläser, Stativ mit Klemme, Brenner, Schutzbrille, kleine Proben von Holzspänen, Zucker, Brot, Kochsalz und Sand.</p>
+      <p><strong>Durchführung:</strong> Gib eine kleine Probe in ein trockenes Reagenzglas. Erhitze sie in der Brennerflamme stark, bis sich nichts mehr verändert. Beobachte die Farbe der Probe und den Rand des Glases.</p>
+      <p class="hint">⚠️ Den Versuch führt die Lehrkraft vor: Schutzbrille, gut lüften oder unter dem Abzug, Dämpfe nicht einatmen.</p>
+      <p style="margin:0">Probiere es in der Animation mit allen fünf Proben aus.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <svg viewBox="0 0 480 250" id="vkSvg" role="img" aria-label="Versuch: Eine Probe wird im Reagenzglas über dem Brenner stark erhitzt">
+      <defs><clipPath id="vkClip"><path d="M-168 -11 H-13 A11 11 0 0 1 -13 11 H-168Z"/></clipPath></defs>
+      <rect width="480" height="250" fill="#f7fbfe"/>
+      <rect y="236" width="480" height="14" fill="#d9c3a0"/>
+      <rect x="18" y="226" width="80" height="10" rx="3" fill="#6b7a86"/>
+      <rect x="40" y="30" width="7" height="198" fill="#8a97a2"/>
+      <rect x="47" y="70" width="76" height="6" fill="#8a97a2"/>
+      <rect x="206" y="222" width="60" height="14" rx="4" fill="#4a5a68"/>
+      <rect x="226" y="160" width="20" height="64" fill="#6b7a86"/>
+      <rect x="222" y="196" width="28" height="8" rx="2" fill="#4a5a68"/>
+      <g id="vkFlame" class="stage">
+        <g class="anim flick">
+          <path d="M236 160 C222 146 226 130 236 112 C246 130 250 146 236 160Z" fill="#6aa9ff" opacity=".85"/>
+          <path d="M236 158 C229 149 231 138 236 128 C241 138 243 149 236 158Z" fill="#cfe6ff"/>
+        </g>
+      </g>
+      <g transform="translate(236 126) rotate(25)">
+        <rect id="vkSample" x="-52" y="-3" width="52" height="16" clip-path="url(#vkClip)" fill="#d9b27c"/>
+        <path d="M-170 -13 H-13 A13 13 0 0 1 -13 13 H-170" fill="#eaf6fd" fill-opacity=".45" stroke="#7d9bb0" stroke-width="2.5"/>
+        <g id="vkDrops" class="stage" fill="#8fc6ea"><circle cx="-122" cy="-6" r="2.6"/><circle cx="-138" cy="5" r="2.2"/><circle cx="-130" cy="7" r="2"/><circle cx="-148" cy="-4" r="2.2"/></g>
+      </g>
+      <rect x="116" y="63" width="14" height="22" rx="3" fill="#6b7a86"/>
+      <g id="vkSmoke" class="stage" fill="#b9c3cb">
+        <circle class="anim rise" cx="80" cy="50" r="7"/>
+        <circle class="anim rise" cx="90" cy="46" r="6" style="animation-delay:.8s"/>
+        <circle class="anim rise" cx="74" cy="44" r="5" style="animation-delay:1.6s"/>
+      </g>
+      <text id="vkName" x="385" y="70" text-anchor="middle" font-size="20" font-weight="800" fill="#15212b">Holzspan</text>
+      <text id="vkState" x="385" y="96" text-anchor="middle" font-size="13" fill="#566674">vor dem Erhitzen</text>
+      <rect x="315" y="116" width="140" height="12" rx="6" fill="#e8eef3"/>
+      <rect id="vkHeat" x="315" y="116" width="140" height="12" rx="6" fill="#f3a33a" style="transform:scaleX(0)"/>
+      <text x="385" y="146" text-anchor="middle" font-size="11" fill="#566674">Erhitzen</text>
+    </svg>
+    <div class="sim-ctrl">
+      <div class="pickrow" id="vkPick">
+        <button class="btn small ghost" data-k="holz">🪵 Holzspan</button>
+        <button class="btn small ghost" data-k="zucker">🍬 Zucker</button>
+        <button class="btn small ghost" data-k="brot">🍞 Brot</button>
+        <button class="btn small ghost" data-k="salz">🧂 Kochsalz</button>
+        <button class="btn small ghost" data-k="sand">🏖️ Sand</button>
+      </div>
+      <span style="flex:1"></span>
+      <button class="btn small teal" id="vkGo">🔥 Erhitzen</button>
+    </div>
+    <div class="readout" id="vkChips">
+      <span class="chip ok" data-k="holz" hidden>🪵 Holzspan: schwarz</span>
+      <span class="chip ok" data-k="zucker" hidden>🍬 Zucker: schwarz</span>
+      <span class="chip ok" data-k="brot" hidden>🍞 Brot: schwarz</span>
+      <span class="chip" data-k="salz" hidden>🧂 Kochsalz: unverändert</span>
+      <span class="chip" data-k="sand" hidden>🏖️ Sand: unverändert</span>
+    </div>
+    <p class="obs" id="vkObs">Wähle eine Probe und tippe auf „Erhitzen“.</p>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Alle Lebewesen enthalten Kohlenstoffverbindungen.</li><li>Stoffe von Lebewesen heißen organische Stoffe. Beim starken Erhitzen werden sie schwarz: Kohlenstoff bleibt übrig.</li><li>Organische Rohstoffe sind entweder regenerativ (nachwachsend) oder fossil.</li></ul></div>
+
+  <div class="card reveal">
+    <span class="task-tag">Zuordnen</span>
+    <h3 style="margin-top:4px">Organisch oder nicht? Nachwachsend oder fossil?</h3>
+    <p class="hint">Tippe eine Karte an und dann das passende Feld. Du kannst die Karten auch ziehen.</p>
+    <div id="sortOrg"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Auswertung</span>
+    <h3 style="margin-top:4px">Werte den Versuch aus <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung. Danach kannst du die Musterlösung ansehen.</p>
+    <div id="open1"></div>
+  </div>
+  <div class="card reveal" id="mc-s1"></div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Buch S. 14 · Probenstoff</div><h2>Holz – ein vielseitiger Rohstoff</h2></div></div>
+  <figure class="card reveal"><img class="zoomable" src="assets/modul1/holz-pellets.webp" width="1600" height="533" loading="lazy" decoding="async" alt="Links: gestapelte Baumstämme an einem Waldweg (Ausgangsstoff Holz). Rechts: zwei Hände voller Holzpellets (Holzpellets als Brennstoff)."><figcaption>Holz als Ausgangsstoff und als Brennstoff (Tippen zum Vergrößern)</figcaption></figure>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead"><strong>Holz</strong> ist ein vielseitiger Rohstoff, der als Baumaterial für Gebäude oder als Brennstoff (z. B. <button class="term" data-t="pellets">Holzpellets</button>) dienen kann. Außerdem nutzt die chemische Industrie die Holzfasern zur Gewinnung von <button class="term" data-t="zellstoff">Zellstoff</button> (Cellulose). Dieser Grundstoff ist das Ausgangsmaterial für Folien, Klebstoffe, Papier und Pappe.</p>
+      <p><strong>Zellstoff (Cellulose).</strong> Holz besteht etwa zur Hälfte aus Zellstoff (Cellulose) und zur Hälfte aus Holzstoff (<button class="term" data-t="lignin">Lignin</button>). Zellstoff ist sehr begehrt, denn er wird zur Herstellung verschiedenster Papiersorten eingesetzt – vom Taschentuch bis zur festen Pappe für Kartons. Er ist außerdem der Grundstoff für Textilien, Isoliermaterialien oder Klebstoffe.</p>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag">Buch S. 14 · Aufgabe 1a</span>
+      <h3 style="margin-top:4px">Was kann man aus Holz alles herstellen? <span class="ki-badge">✨ KI prüft</span></h3>
+      <p class="hint">Überlegt zuerst gemeinsam. Schreibt dann möglichst viele Dinge auf – auch solche, die man nicht sofort mit Holz verbindet.</p>
+      <div id="open2"></div>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <div class="chain" id="hlChain">
+      <div class="step"><span class="ic">🪵</span>Holz</div><span class="to">→</span>
+      <div class="step"><span class="ic">🔍</span>unter der Lupe</div><span class="to">→</span>
+      <div class="step"><span class="ic">🧪</span>in Lauge gekocht</div>
+    </div>
+    <svg viewBox="0 0 480 240" id="hlSvg" role="img" aria-label="Animation: Holz unter der Lupe. Lange Zellstofffasern werden vom Lignin zusammengehalten. In Lauge löst sich das Lignin.">
+      <defs><clipPath id="hlWin"><rect x="30" y="32" width="420" height="176" rx="18"/></clipPath></defs>
+      <rect width="480" height="240" fill="#f7fbfe"/>
+      <g id="hl0" class="stage">
+        <circle cx="130" cy="122" r="86" fill="#6b4226"/>
+        <circle cx="130" cy="122" r="77" fill="#e2b98a"/>
+        <g fill="none" stroke="#c28d57" stroke-width="2.5"><circle cx="130" cy="122" r="64"/><circle cx="130" cy="122" r="50"/><circle cx="130" cy="122" r="36"/><circle cx="130" cy="122" r="22"/></g>
+        <circle cx="130" cy="122" r="6" fill="#a8763f"/>
+        <circle cx="172" cy="96" r="26" fill="#fff" fill-opacity=".35" stroke="#33414d" stroke-width="5"/>
+        <line x1="191" y1="115" x2="216" y2="140" stroke="#33414d" stroke-width="9" stroke-linecap="round"/>
+        <text x="345" y="104" text-anchor="middle" font-size="19" font-weight="800" fill="#15212b">Was steckt im Holz?</text>
+        <text x="345" y="130" text-anchor="middle" font-size="13" fill="#566674">Schau mit der Lupe hinein:</text>
+        <text x="345" y="148" text-anchor="middle" font-size="13" fill="#566674">Tippe auf „Weiter“.</text>
+      </g>
+      <g id="hlZoom" class="stage">
+        <g clip-path="url(#hlWin)">
+          <rect x="30" y="32" width="420" height="176" fill="#cfe8f3"/>
+          <rect id="hlLig" x="30" y="32" width="420" height="176" fill="#9c6a3c"/>
+          <g id="hlFib"></g>
+        </g>
+        <rect x="30" y="32" width="420" height="176" rx="18" fill="none" stroke="#33414d" stroke-width="3"/>
+        <g font-size="12" font-weight="700">
+          <rect x="30" y="216" width="210" height="18" rx="4" fill="#f6efdc" stroke="#cdb88f"/><text x="135" y="229" text-anchor="middle" fill="#6b5a2e">≈ ½ Zellstoff (Cellulose)</text>
+          <rect x="240" y="216" width="210" height="18" rx="4" fill="#9c6a3c"/><text x="345" y="229" text-anchor="middle" fill="#fff">≈ ½ Holzstoff (Lignin)</text>
+        </g>
+      </g>
+      <g id="hlLab1" class="stage">
+        <line x1="120" y1="22" x2="120" y2="50" stroke="#15212b" stroke-width="2"/>
+        <text x="120" y="17" text-anchor="middle" font-size="12.5" font-weight="800" fill="#15212b">Zellstofffaser (Cellulose)</text>
+        <line x1="350" y1="22" x2="350" y2="67" stroke="#15212b" stroke-width="2"/>
+        <text x="350" y="17" text-anchor="middle" font-size="12.5" font-weight="800" fill="#15212b">Lignin verklebt die Fasern</text>
+      </g>
+      <g id="hlLab2" class="stage">
+        <text x="240" y="21" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">In der Lauge löst sich das Lignin – die Fasern werden frei</text>
+        <g fill="#9c6a3c" opacity=".6"><circle class="anim rise" cx="90" cy="198" r="5"/><circle class="anim rise" cx="210" cy="200" r="4" style="animation-delay:.7s"/><circle class="anim rise" cx="330" cy="198" r="5" style="animation-delay:1.3s"/><circle class="anim rise" cx="410" cy="200" r="4" style="animation-delay:1.9s"/></g>
+      </g>
+    </svg>
+    <div class="sim-ctrl"><button class="btn small ghost" id="hlPrev">◀ Zurück</button><button class="btn small" id="hlNext">Weiter ▶</button></div>
+    <p class="obs" id="hlObs"></p>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag">Holz-Detektiv</span>
+    <div id="mc-detektiv"></div>
+  </div>
+  <div class="card reveal" id="mc-s2"></div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Buch S. 14 · Film · Probenstoff</div><h2>Vom Holz zum Zellstoff</h2></div></div>
+  <div class="card reveal">
+    <p class="lead" style="margin:0">Der Zellstoff muss vom Holzstoff (Lignin) abgetrennt werden, bevor er verwendet werden kann. Dazu wird das Holz zuerst zerkleinert und dann in <button class="term" data-t="lauge">Lauge</button> gekocht. Wie das in einem Zellstoffwerk abläuft, zeigen dir die Animation und der Film.</p>
+  </div>
+
+  <div class="sim reveal">
+    <div class="chain" id="zfChain">
+      <div class="step"><span class="ic">🪵</span>Holz</div><span class="to">→</span>
+      <div class="step"><span class="ic">⚙️</span>Zerkleinerung</div><span class="to">→</span>
+      <div class="step"><span class="ic">♨️</span>Kochen in Lauge</div><span class="to">→</span>
+      <div class="step"><span class="ic">🔀</span>Trennung</div><span class="to">→</span>
+      <div class="step"><span class="ic">📄</span>Weiterverarbeitung</div>
+    </div>
+    <svg viewBox="0 0 480 230" id="zfSvg" role="img" aria-label="Animation: So wird im Zellstoffwerk aus Holz Zellstoff gewonnen">
+      <rect width="480" height="230" fill="#f7fbfe"/>
+      <g id="zf0" class="mach">
+        <g fill="#c9955c" stroke="#7a4e2d" stroke-width="4"><circle cx="38" cy="150" r="15"/><circle cx="68" cy="150" r="15"/><circle cx="53" cy="124" r="15"/></g>
+        <g fill="none" stroke="#a8763f" stroke-width="2"><circle cx="38" cy="150" r="7"/><circle cx="68" cy="150" r="7"/><circle cx="53" cy="124" r="7"/></g>
+        <text x="53" y="214" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">Holz</text>
+      </g>
+      <g id="zf1" class="mach">
+        <polygon points="120,56 170,56 160,78 130,78" fill="#7d8a95"/>
+        <rect x="112" y="78" width="66" height="70" rx="8" fill="#9aa5ad"/>
+        <g transform="translate(145 113)"><g class="anim spin"><circle r="20" fill="#5b6770"/><g stroke="#cfd8de" stroke-width="3"><line x1="-18" y1="0" x2="18" y2="0"/><line x1="-9" y1="-15" x2="9" y2="15"/><line x1="-9" y1="15" x2="9" y2="-15"/></g></g></g>
+        <g fill="#e2b98a" stroke="#a8763f">
+          <rect class="anim toss" x="176" y="126" width="7" height="5"/><rect class="anim toss" x="176" y="126" width="7" height="5" style="animation-delay:.3s"/><rect class="anim toss" x="176" y="126" width="7" height="5" style="animation-delay:.6s"/><rect class="anim toss" x="176" y="126" width="7" height="5" style="animation-delay:.9s"/>
+        </g>
+        <text x="145" y="214" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">Zerkleinerung</text>
+      </g>
+      <g id="zf2" class="mach">
+        <text x="246" y="26" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">Druck · Hitze · Natronlauge</text>
+        <rect x="218" y="42" width="56" height="116" rx="24" fill="#cfd8de" stroke="#7d9bb0" stroke-width="3"/>
+        <rect x="222" y="92" width="48" height="62" rx="12" fill="#8b6b3e" opacity=".9"/>
+        <g fill="#fff"><circle class="anim rise" cx="232" cy="148" r="3"/><circle class="anim rise" cx="246" cy="150" r="3" style="animation-delay:.6s"/><circle class="anim rise" cx="260" cy="146" r="3" style="animation-delay:1.2s"/></g>
+        <circle cx="246" cy="66" r="10" fill="#fff" stroke="#6b7a86" stroke-width="2"/><line x1="246" y1="66" x2="252" y2="60" stroke="#c62828" stroke-width="2"/>
+        <text x="246" y="214" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">Kochen in Lauge</text>
+      </g>
+      <g id="zf3" class="mach">
+        <polygon points="318,70 378,70 368,96 328,96" fill="#b9c6d0" stroke="#7d8a95" stroke-width="2"/>
+        <g stroke="#7d8a95" stroke-width="1"><line x1="330" y1="74" x2="336" y2="94"/><line x1="342" y1="74" x2="344" y2="94"/><line x1="354" y1="74" x2="352" y2="94"/><line x1="366" y1="74" x2="360" y2="94"/></g>
+        <path d="M316 142 Q331 114 346 142Z" fill="#fbfaf5" stroke="#cfc6ad" stroke-width="2"/>
+        <circle class="anim drip" cx="369" cy="100" r="3" fill="#3b2a1a"/>
+        <path d="M356 118 V140 Q356 144 360 144 H380 Q384 144 384 140 V118" fill="#fff" stroke="#7d9bb0" stroke-width="2"/>
+        <rect x="358" y="128" width="24" height="14" rx="2" fill="#3b2a1a"/>
+        <text x="331" y="155" text-anchor="middle" font-size="10" font-weight="700" fill="#566674">Zellstoff</text>
+        <text x="370" y="155" text-anchor="middle" font-size="10" font-weight="700" fill="#566674">Lignin</text>
+        <text x="348" y="214" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">Trennung</text>
+      </g>
+      <g id="zf4" class="mach">
+        <rect x="410" y="92" width="46" height="40" fill="#fff" stroke="#cbd5dc" stroke-width="2"/>
+        <ellipse cx="410" cy="112" rx="8" ry="20" fill="#eef2f5" stroke="#cbd5dc" stroke-width="2"/>
+        <ellipse cx="410" cy="112" rx="3" ry="7" fill="#cbd5dc"/>
+        <text x="432" y="154" text-anchor="middle" font-size="13">👕 🧴</text>
+        <text x="432" y="214" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">Papier &amp; Co.</text>
+      </g>
+      <rect x="10" y="178" width="460" height="12" rx="6" fill="#4a5a68"/>
+      <line class="flow" x1="16" y1="184" x2="464" y2="184" stroke="#9aa5ad" stroke-width="3"/>
+      <g id="zfTok"></g>
+    </svg>
+    <div class="sim-ctrl"><button class="btn small ghost" id="zfPrev">◀ Zurück</button><button class="btn small" id="zfNext">Weiter ▶</button></div>
+    <p class="obs" id="zfObs"></p>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag">Film · Zellstoffherstellung</span>
+      <p class="hint" style="margin-top:0">Im Film zeigt die Fachagentur Nachwachsende Rohstoffe (FNR), wie in einem Zellstoffwerk aus Holz Papierprodukte werden. Der Film hält an einigen Stellen an. Beantworte dann die Frage unter dem Film – erst danach geht es weiter.</p>
+      <div class="film" id="film">
+        <div id="ytPlayer"></div>
+        <button class="film-poster" id="filmStart" type="button"><span class="play">▶</span><b>Film starten</b><small>FNR: „Kaskade 4: Zellstoffherstellung“ (etwa 5 Minuten). Erst mit diesem Klick wird der Film von YouTube geladen.</small></button>
+        <div class="film-stop" id="filmStop">⏸ Film-Stopp!<br>Beantworte die Frage unter dem Film.</div>
+      </div>
+      <div class="film-chips" id="filmChips" aria-label="Film-Stopps"></div>
+      <p class="hint" id="filmHint" style="margin:8px 0 0">Die Knöpfe mit ❓ springen direkt zu einem Film-Stopp.</p>
+      <div id="filmQs"></div>
+    </div>
+    <figure class="card reveal"><img class="zoomable" src="assets/modul1/holzverarbeitung.webp" width="1448" height="1086" loading="lazy" decoding="async" alt="Schaubild Vom Holz zu vielen Produkten: Holz wird zerkleinert, die Hackschnitzel werden mit Wasser und Chemikalien gekocht, dann werden Zellstoff und Lignin getrennt. Aus Zellstoff entstehen Papierprodukte wie Toilettenpapier, Haushaltspapier, Zeitungen, Verpackungen, Papier und Pappe. Die chemische Industrie stellt Klebstoffe, Textilien, Isolierstoffe, Brillenrahmen, Kämme und Sportartikel her."><figcaption>Vom Holz zu vielen Produkten (Tippen zum Vergrößern)</figcaption></figure>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Holz und dessen Bestandteile können vielseitig verwendet werden.</li><li>Holz besteht etwa zur Hälfte aus Zellstoff (Cellulose) und zur Hälfte aus Holzstoff (Lignin).</li><li>Um Zellstoff zu gewinnen, wird Holz zerkleinert und in Lauge gekocht. Der Zellstoff wird so vom Lignin getrennt.</li><li>Zellstoff ist Grundstoff für Papier und Pappe, für Textilien, Isoliermaterialien und Klebstoffe.</li></ul></div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Buch S. 14 · Abb. 2</span>
+    <h3 style="margin-top:4px">Papierindustrie oder chemische Industrie?</h3>
+    <p class="hint">Aus Zellstoff stellen zwei Industrien ganz verschiedene Dinge her. Ordne zu.</p>
+    <div id="sortInd"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Reihenfolge</span>
+    <h3 style="margin-top:4px">Vom Baum zum Toilettenpapier</h3>
+    <div id="orderZell"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Fragen zum Text · Buch S. 14</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="open3"></div>
+  </div>
+  <div class="card reveal" id="mc-s3"></div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Buch S. 15 · Arbeitsblatt · Probenstoff</div><h2>Raps – Öl aus den Samen</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead"><strong>Raps</strong> ist eine <button class="term" data-t="feldfrucht">Feldfrucht</button> mit einem hohen Anteil an Öl. Das Rapsöl wird aus den Samen gewonnen und vor allem als Speiseöl oder <button class="term" data-t="biokraftstoff">Biokraftstoff</button> verwendet. In der chemischen Industrie setzt man es als <button class="term" data-t="grundstoff">Grundstoff</button> für Farben und Kunststoffe ein.</p>
+      <p style="margin:0">Wie aus den Samen in der Ölmühle Rapsöl und daraus Biodiesel wird, lernst du genauer in Modul 2.</p>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag">Buch S. 14 · Aufgabe 1b</span>
+      <h3 style="margin-top:4px">Aus welchem Grund baut man Raps an? <span class="ki-badge">✨ KI prüft</span></h3>
+      <div id="open4"></div>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <svg viewBox="0 0 480 260" id="rwSvg" role="img" aria-label="Animation: Rapsöl fließt von der Flasche zu vier Verwendungen: Biokraftstoff, Speiseöl, Farben und Kunststoffe">
+      <defs><marker id="rwArr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#33414d"/></marker></defs>
+      <rect width="480" height="260" fill="#f7fbfe"/>
+      <rect y="222" width="138" height="38" fill="#8a6a45"/>
+      <g id="rwPlants"></g>
+      <text x="68" y="246" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">Rapspflanzen</text>
+      <path d="M114 150 H150" stroke="#33414d" stroke-width="2.5" marker-end="url(#rwArr)"/>
+      <text x="132" y="140" text-anchor="middle" font-size="10.5" font-weight="700" fill="#566674">Samen</text>
+      <g id="rwPipes"></g>
+      <g id="rwFlows"></g>
+      <rect x="168" y="90" width="24" height="9" rx="3" fill="#2e7d4f"/>
+      <rect x="170" y="98" width="20" height="16" fill="#fff" stroke="#7d9bb0" stroke-width="2"/>
+      <rect x="158" y="112" width="44" height="76" rx="9" fill="#fff" stroke="#7d9bb0" stroke-width="2"/>
+      <rect x="161" y="128" width="38" height="57" rx="6" fill="#f2c200"/>
+      <text x="180" y="206" text-anchor="middle" font-size="12" font-weight="800" fill="#15212b">Rapsöl</text>
+      <g id="rwBoxes"></g>
+    </svg>
+    <div class="sim-ctrl" id="rwBtns">
+      <button class="btn small ghost" data-i="0">⛽ Kraftstoff</button>
+      <button class="btn small ghost" data-i="1">🍳 Speiseöl</button>
+      <button class="btn small ghost" data-i="2">🎨 Farben</button>
+      <button class="btn small ghost" data-i="3">🧴 Kunststoffe</button>
+    </div>
+    <div class="readout" id="rwChips">
+      <span class="chip warn" data-i="0" hidden>⛽ Biokraftstoff: energetisch</span>
+      <span class="chip" data-i="1" hidden>🍳 Speiseöl: Nahrungsmittel</span>
+      <span class="chip ok" data-i="2" hidden>🎨 Farben: stofflich</span>
+      <span class="chip ok" data-i="3" hidden>🧴 Kunststoffe: stofflich</span>
+    </div>
+    <p class="obs" id="rwObs">Wohin fließt das Rapsöl? Tippe unten auf die vier Verwendungen.</p>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag probe">Arbeitsblatt Holz und Raps · Aufgabe 1</span>
+    <h3 style="margin-top:4px">Welche Produkte werden aus Holz, welche aus Raps hergestellt?</h3>
+    <p class="hint">Auf dem Arbeitsblatt verbindest du mit Linien. Hier tippst du eine Karte an und dann das passende Feld.</p>
+    <div id="abHR"></div>
+  </div>
+  <div class="card reveal" id="mc-s4"></div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Buch S. 15 · Arbeitsblatt · Probenstoff</div><h2>Regenerative Rohstoffe und ihre Merkmale</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead"><strong>Regenerative Rohstoffe.</strong> Holz und Raps sind zwei typische Beispiele für nachwachsende (regenerative) Rohstoffe. Sie können in der Natur immer wieder nachwachsen.</p>
+      <p>Zu den nachwachsenden Rohstoffen zählen <button class="term" data-t="landwirtschaft">land-</button> und <button class="term" data-t="forstwirtschaft">forstwirtschaftlich</button> erzeugte Produkte, die nicht als Nahrungs- oder Futtermittel, sondern <button class="term" data-t="stofflich">stofflich</button> oder zur Erzeugung von Wärme, Strom oder Kraftstoffen (<button class="term" data-t="energetisch">energetisch</button>) verwendet werden.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Merkmale.</strong> Regenerative Rohstoffe sind im Prinzip unendlich vorhanden und weltweit einsetzbar. Ihre Produktion und Verwendung hat keine negativen Auswirkungen auf den Kohlenstoffkreislauf. Das Gegenteil ist der Fall: Beim Wachsen wird sogar CO₂ gebunden, bei der <button class="term" data-t="fotosynthese">Fotosynthese</button>.</p>
+      <p>Zudem wird das Produkt oft in der Nähe des Herstellungsortes verwendet und schafft dort durch Anbau und Verarbeitung sogar Arbeitsplätze. Deshalb gibt es immer mehr Bereiche, in denen man versucht, regenerative Rohstoffe einzusetzen.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <div class="chain" id="coChain">
+      <div class="step"><span class="ic">🌳</span>Baum wächst</div><span class="to">→</span>
+      <div class="step"><span class="ic">🔥</span>Holz verbrennt</div><span class="to">→</span>
+      <div class="step"><span class="ic">🌱</span>Baum wächst nach</div><span class="to">→</span>
+      <div class="step"><span class="ic">🛢️</span>Vergleich: Erdöl</div>
+    </div>
+    <svg viewBox="0 0 480 260" id="coSvg" role="img" aria-label="Animation: CO₂-Teilchen wandern aus der Luft in einen wachsenden Baum und beim Verbrennen wieder zurück. Beim Verbrennen von Erdöl kommen zusätzliche CO₂-Teilchen in die Luft.">
+      <rect width="480" height="200" fill="#eaf5fd"/>
+      <rect y="200" width="480" height="60" fill="#8a6a45"/>
+      <rect y="228" width="480" height="32" fill="#6b4f33"/>
+      <g id="coOil" class="stage">
+        <ellipse cx="320" cy="245" rx="44" ry="11" fill="#1f1f1f"/>
+        <text x="160" y="248" text-anchor="middle" font-size="10.5" font-weight="800" fill="#fff">Erdöl – seit Millionen Jahren im Boden ➜</text>
+        <path d="M320 236 V200" stroke="#1f1f1f" stroke-width="3" stroke-dasharray="4 3"/>
+        <path d="M306 200 L320 156 L334 200 M311 184 H329 M315 170 H325" stroke="#33414d" stroke-width="3" fill="none"/>
+      </g>
+      <rect id="coStump" x="103" y="190" width="14" height="10" fill="#7a4e2d" style="opacity:0"/>
+      <g id="coTree" class="sc" style="transform:scale(.2)">
+        <rect x="104" y="160" width="12" height="40" fill="#7a4e2d"/>
+        <circle cx="110" cy="130" r="34" fill="#3f9b5f"/>
+        <circle cx="88" cy="148" r="22" fill="#3f9b5f"/>
+        <circle cx="132" cy="148" r="22" fill="#3f9b5f"/>
+      </g>
+      <g id="coOven" class="stage">
+        <rect x="276" y="104" width="12" height="44" fill="#4a5a68"/>
+        <rect x="236" y="146" width="60" height="54" rx="6" fill="#6b7a86"/>
+        <rect x="248" y="160" width="36" height="26" rx="4" fill="#2b2b2b"/>
+        <g class="anim flick"><path d="M266 184 C258 176 260 168 266 160 C272 168 274 176 266 184Z" fill="#f3a33a"/></g>
+        <text x="266" y="216" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">Pelletofen</text>
+      </g>
+      <g id="coCar" class="stage">
+        <g transform="translate(354 168)"><path d="M0 30 V17 Q0 11 8 10 L30 0 H78 L100 12 Q116 13 116 21 V30 Z" fill="#c93b3b"/><rect x="36" y="4" width="36" height="11" rx="3" fill="#cfe6f4"/><circle cx="24" cy="32" r="10" fill="#222"/><circle cx="94" cy="32" r="10" fill="#222"/><rect x="-6" y="24" width="8" height="4" fill="#4a5a68"/></g>
+        <text x="420" y="250" text-anchor="middle" font-size="10.5" font-weight="800" fill="#fff">Diesel aus Erdöl</text>
+      </g>
+      <g id="coMols"></g>
+    </svg>
+    <div class="sim-ctrl"><button class="btn small ghost" id="coPrev">◀ Zurück</button><button class="btn small" id="coNext">Weiter ▶</button><span style="flex:1"></span><button class="btn small ghost" id="coAgain">↻ Nochmal abspielen</button></div>
+    <div class="readout"><span class="chip" id="coAir">CO₂ in der Luft: 10 Teilchen</span><span class="chip" id="coBil">…</span></div>
+    <p class="obs" id="coObs"></p>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Holz und dessen Bestandteile können vielseitig verwendet werden.</li><li>Aus Rapssamen kann Öl für die Herstellung von Biokraftstoffen und Grundstoffen für die chemische Industrie gewonnen werden.</li><li>Regenerative Rohstoffe umfassen Produkte aus Land- und Forstwirtschaft. Sie sind unbegrenzt vorhanden, weil sie in der Natur immer wieder nachwachsen können.</li><li>Regenerative Rohstoffe sind CO₂-neutral.</li></ul></div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Arbeitsblatt Holz und Raps · Aufgabe 2</span>
+    <h3 style="margin-top:4px">Holz und Raps gehören zu den regenerativen Rohstoffen. Fülle die Lücken.</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort.</p>
+    <div class="gaptext" id="gapReg"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Arbeitsblatt Holz und Raps · Aufgabe 3a</span>
+    <h3 style="margin-top:4px">Streiche die Merkmale durch, die nicht zu regenerativen Rohstoffen passen</h3>
+    <p class="hint">Tippe ein Merkmal an, um es durchzustreichen. Tippst du noch einmal, ist der Strich wieder weg.</p>
+    <div id="abMerk"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Arbeitsblatt Holz und Raps · Aufgabe 3b</span>
+    <h3 style="margin-top:4px">Ergänze ein weiteres Merkmal <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="open5a"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Buch S. 15 · Aufgabe 2 · Nutzungsmöglichkeiten</span>
+    <h3 style="margin-top:4px">Stofflich, energetisch – oder gar kein Rohstoff?</h3>
+    <p class="hint">Regenerative Rohstoffe kann man stofflich oder energetisch nutzen. Als Nahrungs- oder Futtermittel zählen Pflanzen nicht zu den nachwachsenden Rohstoffen.</p>
+    <div id="sortNutz"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Fragen zum Text · Buch S. 15</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="open5"></div>
+  </div>
+  <div class="card reveal" id="mc-s5"></div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="s6">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Wiederholung · so kommt es in der Probe</div><h2>Training für die Probe</h2></div></div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Kreuzworträtsel</span>
+    <h3 style="margin-top:4px">Löse das Kreuzworträtsel</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. <strong>Ä und Ö</strong> bekommen ein eigenes Kästchen.</p>
+    <div id="cw"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Schaubild beschriften · Buch S. 14</span>
+    <h3 style="margin-top:4px">Vom Holz zu vielen Produkten</h3>
+    <div id="labelHolz"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Richtig oder falsch?</span>
+    <div id="tf"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Ankreuzen</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Offene Fragen · Buch S. 15</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung. Danach kannst du die Musterlösung ansehen.</p>
+    <div id="openT"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 7 ============ -->
+<section class="station" id="s7">
+  <div class="st-head reveal"><div class="st-num">7</div><div><div class="eyebrow">Abschluss</div><h2>Rohstoff-Profi-Check</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>In Modul 2 geht es mit dem Raps weiter: Wie wird aus Rapsöl Biodiesel? Außerdem lernst du Stärke als Rohstoff kennen und prüfst, wann regenerative Rohstoffe wirklich nachhaltig sind.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="modul-2.html">➡️ Modul 2</a>
+      <a href="index.html">📘 Übersicht Organische Rohstoffe</a>
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik 9M / 9R · Organische Rohstoffe · Modul 1 · Grundlage: Schulbuch S. 14–15 und das Arbeitsblatt „Regenerative Rohstoffe: Holz und Raps“. Film: Fachagentur Nachwachsende Rohstoffe (FNR), „Kaskade 4: Zellstoffherstellung“ auf YouTube. Dein Fortschritt wird nur auf diesem Gerät gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="content.js"></script>
+<script src="fortschritt/fortschritt.js"></script>
+<script src="modul-basis.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, clamp, reduced, onVisible, register, solve} = Modul;
+const NS = "http://www.w3.org/2000/svg";
+const svgEl = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const wait = ms => new Promise(r => setTimeout(r, reduced ? Math.min(ms, 60) : ms));
+const FS = window.KohlenstoffFortschritt;
+let bereit = false;
+
+// Schritt-für-Schritt-Animation: Kette oben, Zurück/Weiter, show(i) zeichnet die Szene
+function stepper(chain, prev, next, n, show){
+  let i = 0;
+  const steps = $$(".step", chain);
+  function go(k){
+    i = clamp(k, 0, n - 1);
+    steps.forEach((s, j) => { s.classList.toggle("on", j === i); s.classList.toggle("done", j < i); });
+    prev.disabled = i === 0;
+    next.disabled = i === n - 1;
+    show(i);
+  }
+  prev.addEventListener("click", () => go(i - 1));
+  next.addEventListener("click", () => go(i + 1));
+  go(0);
+  return {go, cur: () => i};
+}
+
+Modul.init({
+  key: "grumi-nt9-" + (/\/9R\//i.test(location.pathname) ? "r9" : "m9") + "-modul1-v1",
+  thema: "Organische Rohstoffe: Kohlenstoff, Holz (Zellstoff, Lignin, Papier), Raps, Merkmale regenerativer Rohstoffe, CO₂-neutral",
+  api: "/api/nt9/uebung/feedback",
+  // Sterne auch in der Kursübersicht zeigen (Kachel Modul 1)
+  onProgress: (n, total) => { if (bereit && FS) FS.speichern("m01", n, total); },
+  glossary: {
+    kohlenstoff: ["Kohlenstoff", "Chemisches Element (Zeichen C). Er steckt in allen Lebewesen. Beim starken Erhitzen organischer Stoffe bleibt er als schwarzer Rest übrig."],
+    organisch: ["organische Stoffe", "Stoffe aus Kohlenstoffverbindungen, die von Lebewesen stammen, z. B. Holz, Zucker, Öl oder Wolle."],
+    anorganisch: ["anorganische Stoffe", "Stoffe aus der unbelebten Natur ohne Kohlenstoffverbindungen von Lebewesen, z. B. Sand, Kochsalz oder Metalle."],
+    rohstoff: ["Rohstoff", "Stoff aus der Natur, aus dem man Produkte herstellt oder Energie gewinnt."],
+    regenerativ: ["regenerativer (nachwachsender) Rohstoff", "Rohstoff aus der Land- oder Forstwirtschaft, der immer wieder nachwachsen kann, z. B. Holz oder Raps."],
+    fossil: ["fossiler Rohstoff", "Rohstoff, der vor Millionen Jahren aus abgestorbenen Lebewesen entstanden ist, z. B. Kohle, Erdöl und Erdgas. Er wächst nicht nach."],
+    verkohlung: ["Verkohlung", "Beim starken Erhitzen werden organische Stoffe schwarz, weil Kohlenstoff übrig bleibt."],
+    pellets: ["Holzpellets", "Kleine Stäbchen aus gepresstem Holz, z. B. aus Sägespänen. Sie werden verbrannt, um Wärme zu gewinnen."],
+    zellstoff: ["Zellstoff (Cellulose)", "Faserstoff, der etwa die Hälfte des Holzes ausmacht. Grundstoff für Papier, Pappe, Textilien, Isoliermaterialien und Klebstoffe."],
+    lignin: ["Holzstoff (Lignin)", "Zweiter Hauptbestandteil des Holzes. Er verklebt die Zellstofffasern und macht das Holz fest."],
+    lauge: ["Lauge", "Ätzende Flüssigkeit, z. B. Natronlauge. Kocht man Holzstücke darin, löst sich das Lignin und der Zellstoff bleibt übrig."],
+    hackschnitzel: ["Hackschnitzel", "Kleine Holzstücke, die beim Zerkleinern von Holz entstehen."],
+    papierindustrie: ["Papierindustrie", "Betriebe, die aus Zellstoff und Altpapier Papier, Pappe und Karton herstellen."],
+    chemie: ["chemische Industrie", "Betriebe, die aus Rohstoffen neue Stoffe herstellen, z. B. Klebstoffe, Farben oder Kunststoffe."],
+    altpapier: ["Altpapier", "Gebrauchtes Papier aus der Papiertonne. Daraus werden neue Papierprodukte (Recycling)."],
+    kaskade: ["Kaskadennutzung", "Mehrfachnutzung: Holz wird erst mehrmals als Werkstoff genutzt und erst zum Schluss zur Energiegewinnung verbrannt."],
+    raps: ["Raps", "Gelb blühende Feldpflanze. Ihre Samen enthalten viel Öl."],
+    feldfrucht: ["Feldfrucht", "Pflanze, die auf dem Acker angebaut und geerntet wird, z. B. Raps, Weizen oder Kartoffeln."],
+    biokraftstoff: ["Biokraftstoff", "Kraftstoff aus Pflanzen, z. B. Biodiesel aus Rapsöl."],
+    grundstoff: ["Grundstoff", "Ausgangsstoff, aus dem die Industrie andere Produkte herstellt."],
+    stofflich: ["stoffliche Nutzung", "Der Rohstoff wird als Material genutzt, z. B. Holz für Möbel und Papier oder Rapsöl für Farben und Kunststoffe."],
+    energetisch: ["energetische Nutzung", "Der Rohstoff wird verbrannt, um Wärme, Strom oder Antrieb zu gewinnen, z. B. Holzpellets oder Biodiesel."],
+    landwirtschaft: ["Landwirtschaft", "Anbau von Pflanzen und Haltung von Tieren auf Äckern und Weiden."],
+    forstwirtschaft: ["Forstwirtschaft", "Pflege und Nutzung des Waldes."],
+    fotosynthese: ["Fotosynthese", "Pflanzen bauen mit Sonnenlicht aus Kohlenstoffdioxid und Wasser Traubenzucker auf. Dabei nehmen sie CO₂ aus der Luft auf und geben Sauerstoff ab."],
+    co2neutral: ["CO₂-neutral", "Bei der Nutzung wird nur so viel Kohlenstoffdioxid frei, wie die Pflanze beim Wachsen aus der Luft aufgenommen hat."]
+  }
+});
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Was bleibt beim starken Erhitzen von Holz, Zucker oder Brot als schwarzer Rest übrig?", o: ["Kohlenstoff", "Kochsalz", "Sand", "Wasser"], a: 0, e: "Der schwarze Rest ist Kohlenstoff. Er zeigt: Der Stoff ist organisch."},
+    {q: "Welcher Stoff wird beim starken Erhitzen NICHT schwarz?", o: ["Kochsalz", "Holz", "Zucker", "Brot"], a: 0, e: "Kochsalz enthält keinen Kohlenstoff. Es ist ein anorganischer Stoff."},
+    {q: "Was haben alle organischen Stoffe gemeinsam?", o: ["Sie enthalten Kohlenstoffverbindungen.", "Sie sind immer flüssig.", "Sie kommen nur im Meer vor.", "Sie enthalten kein Wasser."], a: 0, e: "Organische Stoffe stammen von Lebewesen und enthalten Kohlenstoffverbindungen."},
+    {q: "Warum zählen Erdöl und Kohle zu den organischen, aber nicht zu den regenerativen Rohstoffen?", o: ["Sie sind aus abgestorbenen Lebewesen entstanden, wachsen aber nicht nach.", "Sie enthalten keinen Kohlenstoff.", "Sie wachsen jedes Jahr nach.", "Sie werden im Wald angebaut."], a: 0, e: "Fossile Rohstoffe sind vor Millionen Jahren entstanden. Was verbraucht ist, ist weg."}
+  ],
+  s2: [
+    {q: "Wofür wird Holz verwendet?", o: ["als Baumaterial für Gebäude", "als Brennstoff, z. B. Holzpellets", "zur Gewinnung von Zellstoff", "zur Herstellung von Glas", "zur Gewinnung von Erdgas"], a: [0, 1, 2], e: "So steht es im Buch auf S. 14. Glas wird aus Sand hergestellt, Erdgas ist ein fossiler Rohstoff."},
+    {q: "Woraus besteht Holz etwa je zur Hälfte?", o: ["aus Zellstoff (Cellulose) und Holzstoff (Lignin)", "aus Wasser und Sand", "aus Öl und Stärke", "aus Rinde und Harz"], a: 0, e: "Holz besteht etwa zur Hälfte aus Zellstoff und zur Hälfte aus Lignin."},
+    {q: "Welche Aufgabe hat das Lignin im Holz?", o: ["Es verklebt die Zellstofffasern und macht das Holz fest.", "Es färbt die Blätter grün.", "Es ist das Öl im Holz.", "Es löst sich im Regen sofort auf."], a: 0, e: "Lignin hält die Fasern zusammen wie ein Klebstoff."},
+    {q: "Wozu werden Holzpellets verwendet?", o: ["Sie werden verbrannt, um Wärme zu gewinnen.", "Man baut damit Häuser.", "Man stellt daraus Speiseöl her.", "Man düngt damit Felder."], a: 0, e: "Holzpellets sind ein Brennstoff für die Heizung."}
+  ],
+  s3: [
+    {q: "In welcher Reihenfolge wird Zellstoff gewonnen?", o: ["Holz → Zerkleinerung → Kochen in Lauge → Zellstoff", "Holz → Kochen in Öl → Pressen → Zellstoff", "Holz → Verbrennen → Asche → Zellstoff", "Holz → Trocknen → Schmelzen → Zellstoff"], a: 0, e: "So zeigt es Abb. 2 im Buch auf S. 14."},
+    {q: "Was muss geschehen, bevor man Zellstoff verwenden kann?", o: ["Er muss vom Holzstoff (Lignin) abgetrennt werden.", "Er muss verbrannt werden.", "Er muss mit Rapsöl gemischt werden.", "Er muss eingefroren werden."], a: 0, e: "Erst wenn das Lignin abgetrennt ist, kann der Zellstoff weiterverarbeitet werden."},
+    {q: "Welche Produkte stellt die Papierindustrie aus Zellstoff her?", o: ["Haushaltspapiere", "Toilettenpapier", "Zeitungen und Bücher", "Verpackungen", "Brillengestelle", "Speiseöl"], a: [0, 1, 2, 3], e: "Brillengestelle kommen aus der chemischen Industrie, Speiseöl aus Raps."},
+    {q: "Welche Produkte stellt die chemische Industrie aus Zellstoff her?", o: ["Textilien", "Klebstoffe", "Kämme", "Tischtennisbälle", "Zeitungen", "Biodiesel"], a: [0, 1, 2, 3], e: "Zeitungen macht die Papierindustrie, Biodiesel wird aus Rapsöl hergestellt."}
+  ],
+  s4: [
+    {q: "Woraus wird das Rapsöl gewonnen?", o: ["aus den Samen", "aus den Blüten", "aus den Wurzeln", "aus den Blättern"], a: 0, e: "Das Öl steckt in den Samen der Rapspflanze."},
+    {q: "Wofür wird Rapsöl vor allem verwendet?", o: ["als Speiseöl und als Biokraftstoff", "als Baumaterial", "zur Papierherstellung", "als Streusalz"], a: 0, e: "So steht es im Buch auf S. 15."},
+    {q: "Wofür setzt die chemische Industrie Rapsöl ein?", o: ["als Grundstoff für Farben und Kunststoffe", "als Grundstoff für Glas", "zur Herstellung von Zellstoff", "zum Härten von Stahl"], a: 0, e: "Rapsöl ist ein Grundstoff für Farben und Kunststoffe."},
+    {q: "Was ist Raps?", o: ["eine Feldfrucht mit einem hohen Anteil an Öl", "ein Laubbaum", "ein fossiler Rohstoff", "ein Metall"], a: 0, e: "Raps wird auf dem Acker angebaut und geerntet."}
+  ],
+  s5: [
+    {q: "Was bedeutet regenerativ?", o: ["nachwachsend", "verbraucht", "fossil", "künstlich hergestellt"], a: 0, e: "Regenerativ ist ein anderes Wort für nachwachsend."},
+    {q: "Warum sind regenerative Rohstoffe CO₂-neutral?", o: ["Die Pflanzen binden beim Wachsen so viel CO₂, wie bei der Nutzung wieder frei wird.", "Bei ihrer Verbrennung entsteht überhaupt kein CO₂.", "Sie enthalten keinen Kohlenstoff.", "Das CO₂ bleibt für immer im Boden."], a: 0, e: "Bei der Fotosynthese wird CO₂ gebunden – genauso viel, wie später wieder frei wird."},
+    {q: "Welche Nutzung zählt NICHT zu den nachwachsenden Rohstoffen?", o: ["Rapsöl als Salatöl", "Holz als Baumaterial", "Holzpellets zum Heizen", "Rapsöl als Grundstoff für Kunststoffe"], a: 0, e: "Als Nahrungs- oder Futtermittel zählen Pflanzen nicht zu den nachwachsenden Rohstoffen (Buch S. 15)."},
+    {q: "Welche Vorteile haben regenerative Rohstoffe für die Region?", o: ["Sie werden oft in der Nähe des Herstellungsortes verwendet.", "Anbau und Verarbeitung schaffen Arbeitsplätze.", "Sie müssen immer um die halbe Welt transportiert werden.", "Sie zerstören Arbeitsplätze."], a: [0, 1], e: "Kurze Wege und Arbeitsplätze vor Ort – so steht es im Buch auf S. 15."}
+  ],
+  train: [
+    {q: "Welche Rohstoffe sind regenerativ?", o: ["Holz", "Raps", "Kartoffeln", "Baumwolle", "Erdöl", "Braunkohle", "Erdgas"], a: [0, 1, 2, 3], e: "Erdöl, Braunkohle und Erdgas sind fossil – sie wachsen nicht nach."},
+    {q: "Welche Produkte stammen aus Holz?", o: ["Toilettenpapier", "Klebstoffe", "Textilien", "Holzpellets", "Speiseöl", "Benzin"], a: [0, 1, 2, 3], e: "Speiseöl stammt aus Raps, Benzin aus Erdöl."},
+    {q: "Welche Aussage über Zellstoff ist richtig?", o: ["Er ist Grundstoff für Papier, Textilien, Isoliermaterialien und Klebstoffe.", "Er wird aus Rapssamen gepresst.", "Er entsteht aus Erdöl.", "Er ist ein Metall."], a: 0, e: "Zellstoff (Cellulose) ist der Faserstoff aus dem Holz."},
+    {q: "Eine Heizung mit Holzpellets ist CO₂-neutral, wenn …", o: ["… so viel Holz nachwächst, wie verbrannt wird.", "… man die Fenster offen lässt.", "… die Pellets aus Erdöl bestehen.", "… man sie nur nachts benutzt."], a: 0, e: "Nur dann bindet der Wald wieder so viel CO₂, wie beim Heizen frei wird."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Kurz-Check"});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s5"), MC.s5, "mc5", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+Modul.makeMC($("#mc-detektiv"), [
+  {q: "Welche dieser Dinge können aus Holz oder aus Holzbestandteilen hergestellt werden?", o: ["🪑 Stuhl", "📰 Zeitung", "🧻 Toilettenpapier", "📦 Karton", "👕 T-Shirt aus Viskose", "🔥 Holzpellets", "🥄 Metalllöffel", "🍶 Glasflasche", "🧂 Kochsalz"],
+   a: [0, 1, 2, 3, 4, 5], e: "Viskose ist eine Textilfaser aus Zellstoff. Metall, Glas und Salz stammen nicht aus Holz."}
+], "mcDet");
+
+/* ---------- Station 1: Versuch Verkohlung ---------- */
+(function(){
+  const svg = $("#vkSvg"), obs = $("#vkObs"), sample = $("#vkSample", svg), heat = $("#vkHeat", svg), go = $("#vkGo");
+  const P = {
+    holz: {n: "Holzspan", c: "#d9b27c", end: "#1f1b17", t: "Der Holzspan wird schwarz. Aus dem Glas steigt Rauch, am kühlen Glasrand bilden sich Wassertröpfchen. Der schwarze Rest ist Kohlenstoff (Holzkohle): Holz ist ein organischer Stoff."},
+    zucker: {n: "Zucker", c: "#ffffff", mid: "#c68a2e", end: "#1f1b17", t: "Der Zucker schmilzt, wird braun wie Karamell und zum Schluss schwarz. Übrig bleibt Kohlenstoff. Zucker stammt aus Pflanzen (Zuckerrübe, Zuckerrohr) – ein organischer Stoff."},
+    brot: {n: "Brot", c: "#e8c98f", end: "#1f1b17", t: "Das Brot wird schwarz wie ein verbrannter Toast. Auch Brot aus Getreide enthält Kohlenstoffverbindungen – ein organischer Stoff."},
+    salz: {n: "Kochsalz", c: "#f4f6f8", t: "Das Kochsalz bleibt weiß, es knistert höchstens ein wenig. Es wird nicht schwarz, denn Kochsalz enthält keinen Kohlenstoff. Es ist ein anorganischer Stoff."},
+    sand: {n: "Sand", c: "#d8c7a0", t: "Der Sand bleibt, wie er ist. Sand stammt aus Gestein und enthält keinen Kohlenstoff – ein anorganischer Stoff."}
+  };
+  const btns = $$("#vkPick button"), tested = new Set();
+  let cur = "holz", busy = false;
+  register("verkohlung");
+  const state = t => { $("#vkState", svg).textContent = t; };
+  function pick(k){
+    cur = k;
+    sample.style.transition = "none"; sample.setAttribute("fill", P[k].c); sample.getBoundingClientRect(); sample.style.transition = "";
+    heat.style.transition = "none"; heat.style.transform = "scaleX(0)"; heat.getBoundingClientRect(); heat.style.transition = "";
+    $("#vkDrops", svg).classList.remove("on");
+    $("#vkName", svg).textContent = P[k].n; state("vor dem Erhitzen");
+    btns.forEach(b => b.classList.toggle("pick-on", b.dataset.k === k));
+  }
+  btns.forEach(b => b.addEventListener("click", () => { if (!busy) pick(b.dataset.k); }));
+  go.addEventListener("click", async () => {
+    if (busy) return;
+    busy = true; go.disabled = true; btns.forEach(b => b.disabled = true);
+    const k = cur, p = P[k];
+    pick(k); await wait(60);
+    $("#vkFlame", svg).classList.add("on"); heat.style.transform = "scaleX(1)"; state("wird stark erhitzt …");
+    obs.textContent = "Beobachte die Probe …";
+    await wait(1100);
+    if (p.mid) { sample.setAttribute("fill", p.mid); state("schmilzt und wird braun …"); await wait(1500); }
+    if (p.end) { sample.setAttribute("fill", p.end); $("#vkSmoke", svg).classList.add("on"); $("#vkDrops", svg).classList.add("on"); state("wird schwarz …"); }
+    await wait(1900);
+    $("#vkFlame", svg).classList.remove("on");
+    state(p.end ? "schwarz: Kohlenstoff!" : "unverändert: kein Kohlenstoff");
+    $(`#vkChips [data-k="${k}"]`).hidden = false;
+    tested.add(k);
+    obs.textContent = p.t + (tested.size === 5 ? " Du hast alle fünf Proben getestet: Stoffe von Lebewesen werden schwarz – sie enthalten Kohlenstoff." : ` (${tested.size} von 5 Proben getestet)`);
+    if (tested.size === 5) solve("verkohlung");
+    await wait(1200);
+    $("#vkSmoke", svg).classList.remove("on");
+    busy = false; go.disabled = false; btns.forEach(b => b.disabled = false);
+  });
+  pick("holz");
+})();
+
+Modul.makeSort($("#sortOrg"), {
+  buckets: ["🌱 organisch und nachwachsend", "🛢️ organisch, aber fossil", "🪨 nicht organisch"],
+  items: [
+    {t: "Holz", b: 0}, {t: "Raps", b: 0}, {t: "Kartoffeln", b: 0}, {t: "Baumwolle", b: 0}, {t: "Schafwolle", b: 0},
+    {t: "Erdöl", b: 1}, {t: "Erdgas", b: 1}, {t: "Braunkohle", b: 1},
+    {t: "Sand", b: 2}, {t: "Kochsalz", b: 2}, {t: "Eisenerz", b: 2}, {t: "Kupfer", b: 2}
+  ]
+}, "sortOrg");
+Modul.makeOpen($("#open1"), [
+  {q: "Woran erkennst du im Versuch, dass Zucker ein organischer Stoff ist?",
+   m: "Beim starken Erhitzen wird der Zucker erst braun und dann schwarz. Der schwarze Rest ist Kohlenstoff. Stoffe von Lebewesen, die Kohlenstoff enthalten, sind organische Stoffe.",
+   k: ["schwarz|verkohl|dunkel", "kohlenstoff"]},
+  {q: "Kochsalz wird beim Erhitzen nicht schwarz. Was schließt du daraus?",
+   m: "Kochsalz enthält keinen Kohlenstoff. Es ist kein organischer, sondern ein anorganischer Stoff.",
+   k: ["kein kohlenstoff|keinen kohlenstoff|ohne kohlenstoff|nicht organisch|anorganisch"]}
+], "open1", "Schau dir die Animation zum Versuch noch einmal an.");
+
+/* ---------- Station 2: Holz unter der Lupe ---------- */
+Modul.makeOpen($("#open2"), [
+  {q: "Was kann man aus Holz alles herstellen? Nenne möglichst viele Produkte.",
+   m: "Möbel, Häuser und Dachbalken (Baumaterial), Brennholz und Holzpellets, Papier, Pappe und Kartons, Taschentücher und Toilettenpapier, Zeitungen und Bücher, Verpackungen, Textilien, Folien, Klebstoffe, Isoliermaterial, Brillengestelle, Kämme und Tischtennisbälle.",
+   k: ["möbel|haus|häuser|bau|tisch|stuhl|schrank|regal|dach|brett|balken|spielzeug|bleistift|boot|zaun", "papier|pappe|karton|zeitung|buch|bücher|heft|taschentuch|klopapier|verpackung", "brenn|pellet|feuer|heiz|holzkohle|kamin|ofen", "textil|kleb|folie|isolier|kamm|brille|tischtennis|kleidung|viskose"], min: 3}
+], "open2", "Schau dir den Text zu Holz und die Bilder noch einmal an.");
+(function(){
+  const svg = $("#hlSvg"), obs = $("#hlObs"), host = $("#hlFib", svg);
+  // So weit treiben die Fasern auseinander, wenn das Lignin gelöst ist: [x, y, Drehung]
+  const OFF = [[-10, -5, -1.4], [14, 2, 1.1], [-16, 1, -.8], [10, -3, 1.3], [-8, 4, -1.1], [16, 5, .9]];
+  const fibs = OFF.map((_, k) => {
+    const y = 44 + k * 28, g = svgEl("g", {class: "fib"}, host);
+    svgEl("rect", {x: 44, y, width: 392, height: 18, rx: 9, fill: "#f6efdc", stroke: "#cdb88f", "stroke-width": 2}, g);
+    svgEl("rect", {x: 62, y: y + 7, width: 356, height: 4, rx: 2, fill: "#e6d9b8"}, g);
+    return g;
+  });
+  const TXT = [
+    "Holz dient als Baumaterial, als Brennstoff und als Ausgangsstoff für Papier. Was steckt eigentlich drin? Schau mit der Lupe hinein.",
+    "Stark vergrößert sieht man lange Fasern aus Zellstoff (Cellulose). Dazwischen sitzt der Holzstoff (Lignin). Er verklebt die Fasern und macht das Holz fest. Holz besteht etwa zur Hälfte aus Zellstoff und zur Hälfte aus Lignin.",
+    "Kocht man zerkleinertes Holz in Lauge, löst sich das Lignin. Die Zellstofffasern werden frei – daraus kann man Papier machen. Der Zellstoff muss also vom Holzstoff abgetrennt werden, bevor er verwendet werden kann."
+  ];
+  register("holzLupe");
+  stepper($("#hlChain"), $("#hlPrev"), $("#hlNext"), 3, i => {
+    $("#hl0", svg).classList.toggle("on", i === 0);
+    $("#hlZoom", svg).classList.toggle("on", i > 0);
+    $("#hlLab1", svg).classList.toggle("on", i === 1);
+    $("#hlLab2", svg).classList.toggle("on", i === 2);
+    $("#hlLig", svg).style.opacity = i === 2 ? 0 : 1;
+    fibs.forEach((g, k) => { g.style.transform = i === 2 ? `translate(${OFF[k][0]}px,${OFF[k][1]}px) rotate(${OFF[k][2]}deg)` : ""; });
+    obs.textContent = TXT[i];
+    if (i === 2) solve("holzLupe");
+  });
+})();
+
+/* ---------- Station 3: Zellstoffwerk ---------- */
+(function(){
+  const svg = $("#zfSvg"), tok = $("#zfTok", svg), obs = $("#zfObs");
+  const X = [53, 145, 246, 348, 432];
+  const LOOK = [
+    '<rect x="-20" y="160" width="40" height="16" rx="8" fill="#b98a4e" stroke="#7a4e2d" stroke-width="2"/><ellipse cx="18" cy="168" rx="4" ry="8" fill="#e2b98a" stroke="#7a4e2d"/>',
+    '<g fill="#e2b98a" stroke="#a8763f"><rect x="-18" y="166" width="10" height="8" rx="1" transform="rotate(-12 -13 170)"/><rect x="-5" y="161" width="11" height="9" rx="1"/><rect x="8" y="166" width="10" height="8" rx="1" transform="rotate(15 13 170)"/><rect x="-10" y="170" width="9" height="6" rx="1"/></g>',
+    '<ellipse cx="0" cy="170" rx="22" ry="8" fill="#8b6b3e"/>',
+    '<ellipse cx="0" cy="169" rx="20" ry="8" fill="#fbfaf5" stroke="#d9d2bd"/>',
+    '<g fill="#fff" stroke="#cbd5dc"><rect x="-19" y="171" width="36" height="5" rx="1"/><rect x="-17" y="166" width="36" height="5" rx="1"/><rect x="-18" y="161" width="36" height="5" rx="1"/></g>'
+  ];
+  const TXT = [
+    "Das Holz kommt aus dem Wald oder als Rest aus dem Sägewerk. Es besteht etwa zur Hälfte aus Zellstoff und zur Hälfte aus Lignin.",
+    "Das Holz wird zerkleinert. Es entstehen kleine Holzstücke, die Hackschnitzel. So kann die Lauge später überall angreifen.",
+    "Die Hackschnitzel werden unter Druck und bei hoher Temperatur in Lauge gekocht, meist in Natronlauge. Dabei löst sich das Lignin aus dem Holz.",
+    "Jetzt wird getrennt: Der Zellstoff (Cellulose) bleibt als Faserbrei zurück. Das Lignin ist in der dunklen Kochlauge gelöst.",
+    "Der Zellstoff geht in die Papierindustrie (Haushaltspapiere, Toilettenpapier, Zeitungen, Verpackungen) und in die chemische Industrie (z. B. Textilien, Klebstoffe, Brillengestelle). Das Lignin liefert meist Energie für das Werk."
+  ];
+  register("zellstoffWeg");
+  stepper($("#zfChain"), $("#zfPrev"), $("#zfNext"), 5, i => {
+    for (let k = 0; k < 5; k++) $("#zf" + k, svg).classList.toggle("on", k === i);
+    tok.style.transform = `translate(${X[i]}px,0)`;
+    tok.innerHTML = LOOK[i];
+    obs.textContent = TXT[i];
+    if (i === 4) solve("zellstoffWeg");
+  });
+})();
+
+/* ---------- Station 3: Film mit Stopps ---------- */
+(function(){
+  const VID = "zGIpNLuZgno";
+  const STOPS = [
+    {t: 32, q: {q: "Aus welchen Quellen bezieht die Papierindustrie ihre Rohstoffe?", o: ["recyceltes Altpapier", "Hackschnitzel aus dem Sägewerk", "Holz aus dem Wald", "Erdöl", "Rapssamen"], a: [0, 1, 2], e: "Vor allem Altpapier, dazu Hackschnitzel, die im Sägewerk anfallen, und Holz aus dem Wald."}},
+    {t: 58, q: {q: "In welche zwei Hauptbestandteile wird das Holz beim Kochen aufgeteilt?", o: ["Zellstoff (Cellulose) und Lignin", "Rapsöl und Glycerin", "Stärke und Zucker", "Erdöl und Erdgas"], a: 0, e: "Mit Druck, Temperatur und Natronlauge wird das Holz in Zellstofffasern und Lignin getrennt – im Buch heißt das „Kochen in Lauge“."}},
+    {t: 141, q: {q: "Woraus werden Sekundärfasern gewonnen?", o: ["aus recyceltem Altpapier", "aus frischem Holz", "aus Rapsstroh", "aus Kunststoff"], a: 0, e: "Primärfasern stammen aus frischem Holz, Sekundärfasern aus Altpapier. In Deutschland werden 79 % der Papierprodukte wieder recycelt."}},
+    {t: 159, q: {q: "Wofür nutzt man das Lignin aus der Kochlauge?", o: ["für Klebstoffe", "für Biokunststoffe", "als Energie für das Zellstoffwerk", "als Speiseöl", "als Futtermittel"], a: [0, 1, 2], e: "Ein Teil wird stofflich genutzt (Klebstoffe, Biokunststoffe). Der größte Teil liefert Energie direkt im Werk."}},
+    {t: 248, q: {q: "Wann sollte Holz laut Film verbrannt, also energetisch genutzt werden?", o: ["möglichst am Ende, wenn keine sinnvolle stoffliche Nutzung mehr möglich ist", "sofort nach dem Fällen", "nie – Holz darf man nicht verbrennen", "nur im Sommer"], a: 0, e: "Erst stofflich nutzen, zum Schluss energetisch – das ist die Kaskadennutzung."}},
+    {t: 283.5, q: {q: "Wofür können Stoffe aus Holz künftig Erdöl ersetzen?", o: ["für Bio-Kunststoffe", "für Bio-Treibstoffe", "für Glas", "für Metalle"], a: [0, 1], e: "Holz kann fossile Rohstoffe wie Erdöl ersetzen, zum Beispiel bei Kunststoffen und Treibstoffen."}}
+  ];
+  const box = $("#filmQs"), chipsBox = $("#filmChips"), stopEl = $("#filmStop"), startBtn = $("#filmStart"), hint = $("#filmHint");
+  const mmss = t => Math.floor(t / 60) + ":" + String(Math.floor(t % 60)).padStart(2, "0");
+  let player = null, ready = false, last = 0, cur = -1, failed = false;
+  STOPS.forEach((s, i) => {
+    const id = "film" + i + "-0";
+    s.wrap = document.createElement("div"); s.wrap.className = "film-q"; s.wrap.hidden = true;
+    const q = document.createElement("div"); s.wrap.appendChild(q);
+    Modul.makeMC(q, [s.q], "film" + i, {t: `Film-Stopp ${i + 1} · bei ${mmss(s.t)}`});
+    s.go = document.createElement("button"); s.go.className = "btn small"; s.go.type = "button"; s.go.textContent = "▶ Weiter im Film"; s.go.hidden = true;
+    s.go.addEventListener("click", () => resume(i));
+    s.wrap.appendChild(s.go); box.appendChild(s.wrap);
+    s.chip = document.createElement("button"); s.chip.type = "button"; s.chip.textContent = `❓ ${mmss(s.t)}`;
+    s.chip.addEventListener("click", () => jump(i)); chipsBox.appendChild(s.chip);
+    const check = () => { if (Modul.isSolved(id)) { s.done = true; s.chip.classList.add("done"); s.chip.textContent = `✓ ${mmss(s.t)}`; if (!failed) s.go.hidden = false; } };
+    s.wrap.addEventListener("click", () => setTimeout(check, 0));
+    check();
+  });
+  function stopAt(i){
+    cur = i;
+    STOPS.forEach((s, k) => { s.wrap.hidden = k !== i; });
+    if (ready) { player.pauseVideo(); stopEl.classList.add("show"); }
+    STOPS[i].wrap.scrollIntoView({block: "nearest", behavior: reduced ? "auto" : "smooth"});
+  }
+  function resume(i){
+    cur = -1; stopEl.classList.remove("show"); STOPS[i].wrap.hidden = true;
+    if (ready) player.playVideo();
+  }
+  function jump(i){
+    if (ready) { player.seekTo(STOPS[i].t, true); last = STOPS[i].t; }
+    stopAt(i);
+  }
+  function poll(){
+    if (!ready) return;
+    const t = player.getCurrentTime();
+    if (cur < 0) for (let i = 0; i < STOPS.length; i++) {
+      const s = STOPS[i];
+      if (!s.done && last < s.t && t >= s.t && t - last < 3) { stopAt(i); break; }
+    }
+    last = t;
+  }
+  // Film lädt nicht oder darf nicht abgespielt werden: Link zu YouTube, alle Fragen offen zeigen
+  function fail(){
+    if (failed) return;
+    failed = true; cur = -1; stopEl.classList.remove("show");
+    if (!ready) {
+      startBtn.disabled = false; startBtn.querySelector("b").textContent = "Film auf YouTube öffnen";
+      startBtn.onclick = () => window.open("https://www.youtube.com/watch?v=" + VID, "_blank", "noopener");
+    }
+    hint.innerHTML = `Der Film lässt sich hier nicht abspielen. <a href="https://www.youtube.com/watch?v=${VID}" target="_blank" rel="noopener">Öffne ihn auf YouTube</a> und beantworte danach die Fragen hier.`;
+    STOPS.forEach(s => { s.wrap.hidden = false; s.go.hidden = true; });
+  }
+  function make(){
+    player = new YT.Player("ytPlayer", {
+      host: "https://www.youtube-nocookie.com", videoId: VID,
+      playerVars: {rel: 0, playsinline: 1, modestbranding: 1},
+      events: {
+        onReady: e => { ready = true; startBtn.remove(); setInterval(poll, 250); e.target.playVideo(); },
+        onStateChange: e => {
+          if (e.data === 1 && cur >= 0) player.pauseVideo();
+          if (e.data === 0) { const i = STOPS.length - 1; if (!STOPS[i].done) stopAt(i); }
+        },
+        onError: fail
+      }
+    });
+  }
+  startBtn.addEventListener("click", () => {
+    if (failed) return;
+    startBtn.disabled = true; startBtn.querySelector("b").textContent = "Film wird geladen …";
+    if (window.YT && YT.Player) make();
+    else {
+      window.onYouTubeIframeAPIReady = make;
+      const s = document.createElement("script"); s.src = "https://www.youtube.com/iframe_api"; s.onerror = fail; document.head.appendChild(s);
+    }
+    setTimeout(() => { if (!ready) fail(); }, 20000);
+  });
+})();
+
+/* ---------- Station 3: Übungen ---------- */
+Modul.makeSort($("#sortInd"), {
+  buckets: ["📄 Papierindustrie", "⚗️ Chemische Industrie"],
+  items: [
+    {t: "Haushaltspapiere", b: 0}, {t: "Toiletten- und Hygienepapiere", b: 0}, {t: "Zeitungen und Bücher", b: 0}, {t: "Verpackungen", b: 0},
+    {t: "Brillengestelle", b: 1}, {t: "Kämme", b: 1}, {t: "Textilien", b: 1}, {t: "Tischtennisbälle", b: 1}, {t: "Klebstoffe", b: 1}
+  ]
+}, "sortInd");
+Modul.makeOrder($("#orderZell"), [
+  "Bäume werden gefällt, das Holz kommt ins Zellstoffwerk.",
+  "Das Holz wird zu Hackschnitzeln zerkleinert.",
+  "Die Hackschnitzel werden in Lauge gekocht.",
+  "Der Zellstoff wird vom Lignin getrennt.",
+  "In der Papierfabrik wird aus dem Zellstoff Papier.",
+  "Das Toilettenpapier kommt in den Laden."
+], "orderZell");
+Modul.makeOpen($("#open3"), [
+  {q: "Beschreibe, wie aus Holz Zellstoff gewonnen wird.",
+   m: "Das Holz wird zerkleinert (Hackschnitzel). Dann wird es unter Druck und bei hoher Temperatur in Lauge gekocht. Dabei löst sich das Lignin. So wird der Zellstoff vom Holzstoff (Lignin) getrennt und kann weiterverarbeitet werden.",
+   k: ["zerklein|hack|schnitzel|zerhack|klein", "koch|lauge|natron", "trenn|lignin|holzstoff|lös"]},
+  {q: "Warum ist Zellstoff so begehrt?",
+   m: "Aus Zellstoff stellt man viele verschiedene Papiersorten her – vom Taschentuch bis zur festen Pappe für Kartons. Außerdem ist er Grundstoff für Textilien, Isoliermaterialien und Klebstoffe.",
+   k: ["papier|pappe|taschentuch|karton", "textil|isolier|kleb|folie"], min: 1}
+], "open3", "Lies den Text zum Zellstoff auf S. 14 noch einmal.");
+
+/* ---------- Station 4: Wohin mit dem Rapsöl? ---------- */
+Modul.makeOpen($("#open4"), [
+  {q: "Aus welchem Grund baut man Raps an?",
+   m: "Raps hat einen hohen Anteil an Öl. Aus den Samen gewinnt man Rapsöl. Es wird als Speiseöl, als Biokraftstoff und in der chemischen Industrie als Grundstoff für Farben und Kunststoffe verwendet.",
+   k: ["öl", "speise|kraftstoff|biodiesel|farbe|kunststoff|essen|treibstoff|kochen|salat"]}
+], "open4", "Lies den Text zum Raps auf S. 15 noch einmal.");
+(function(){
+  const svg = $("#rwSvg"), obs = $("#rwObs");
+  [38, 86].forEach((x, k) => {
+    const g = svgEl("g", {transform: `translate(${x} 222)`}, $("#rwPlants", svg));
+    const s = svgEl("g", {class: "sway"}, g); s.style.animationDelay = (k * .6) + "s";
+    svgEl("path", {d: "M0 0 C-5 -50 5 -100 0 -150", stroke: "#4f8a3a", "stroke-width": 4, fill: "none"}, s);
+    svgEl("path", {d: "M0 -40 Q-22 -52 -24 -32 Q-12 -30 0 -40Z", fill: "#5f9e45"}, s);
+    svgEl("path", {d: "M0 -70 Q22 -82 24 -62 Q12 -60 0 -70Z", fill: "#5f9e45"}, s);
+    // Schoten mit den Samen
+    [[-1, -96, -16, -112], [1, -108, 16, -122], [-1, -118, -14, -132]].forEach(([x1, y1, x2, y2]) => svgEl("line", {x1, y1, x2, y2, stroke: "#7fae4a", "stroke-width": 3.5, "stroke-linecap": "round"}, s));
+    [[0, -156], [-8, -150], [8, -150], [-4, -163], [4, -163], [0, -146], [-10, -140], [10, -141]].forEach(([cx, cy]) => svgEl("circle", {cx, cy, r: 5.5, fill: "#f5d000"}, s));
+  });
+  const D = [
+    {y: 40, t: "⛽ Biokraftstoff", s: "energetische Nutzung", txt: "Aus Rapsöl wird Biokraftstoff (Biodiesel) für Motoren. Er wird verbrannt – das ist eine energetische Nutzung. Wie Biodiesel hergestellt wird, lernst du in Modul 2."},
+    {y: 100, t: "🍳 Speiseöl", s: "Nahrungsmittel", txt: "Rapsöl ist ein beliebtes Speiseöl. Als Lebensmittel zählt es aber nicht als nachwachsender Rohstoff: Dafür muss eine Pflanze stofflich oder energetisch genutzt werden (Buch S. 15)."},
+    {y: 160, t: "🎨 Farben", s: "Grundstoff · stofflich", txt: "In der chemischen Industrie ist Rapsöl ein Grundstoff für Farben. Aus dem Öl wird ein neues Material – eine stoffliche Nutzung."},
+    {y: 220, t: "🧴 Kunststoffe", s: "Grundstoff · stofflich", txt: "Auch Kunststoffe lassen sich aus Rapsöl herstellen. So spart man Erdöl – ebenfalls eine stoffliche Nutzung."}
+  ];
+  D.forEach(d => {
+    svgEl("path", {d: `M202 150 H236 V${d.y} H300`, stroke: "#d8e2ea", "stroke-width": 8, fill: "none", "stroke-linejoin": "round"}, $("#rwPipes", svg));
+    d.flow = svgEl("path", {d: `M202 150 H236 V${d.y} H300`, stroke: "#f2c200", "stroke-width": 4, fill: "none", "stroke-linejoin": "round", class: "flow", opacity: 0}, $("#rwFlows", svg));
+    const g = svgEl("g", {}, $("#rwBoxes", svg));
+    d.box = svgEl("rect", {x: 300, y: d.y - 24, width: 172, height: 48, rx: 10, fill: "#fff", stroke: "#9aa5ad", "stroke-width": 2}, g);
+    svgEl("text", {x: 386, y: d.y - 2, "text-anchor": "middle", "font-size": 14, "font-weight": 800, fill: "#15212b"}, g).textContent = d.t;
+    d.sub = svgEl("text", {x: 386, y: d.y + 15, "text-anchor": "middle", "font-size": 11, "font-weight": 700, fill: "#566674", opacity: 0}, g);
+    d.sub.textContent = d.s;
+  });
+  const done = new Set();
+  register("rapsWeiche");
+  $$("#rwBtns button").forEach(b => b.addEventListener("click", async () => {
+    const i = +b.dataset.i, d = D[i];
+    D.forEach(x => x.flow.setAttribute("opacity", 0));
+    d.flow.setAttribute("opacity", 1);
+    b.classList.add("pick-on");
+    obs.textContent = d.txt;
+    await wait(900);
+    d.box.setAttribute("fill", "#fff6c4"); d.box.setAttribute("stroke", "#e0a800"); d.sub.setAttribute("opacity", 1);
+    $(`#rwChips [data-i="${i}"]`).hidden = false;
+    done.add(i);
+    if (done.size === 4 && !Modul.isSolved("rapsWeiche")) { obs.textContent += " Du hast alle vier Wege gefunden: Rapsöl ist vielseitig."; solve("rapsWeiche"); }
+  }));
+})();
+
+/* ---------- Station 4: Arbeitsblatt Aufgabe 1 ---------- */
+Modul.makeSort($("#abHR"), {
+  buckets: ["🪵 aus Holz", "🌼 aus Raps"],
+  items: [
+    {t: "Zeitungen, Bücher", b: 0}, {t: "Toilettenpapier", b: 0}, {t: "Klebstoffe", b: 0}, {t: "Verpackungen", b: 0},
+    {t: "Biodiesel", b: 1}, {t: "Grundstoff für Farben", b: 1}, {t: "Speiseöl", b: 1}, {t: "Kunststoffe", b: 1}
+  ]
+}, "abHR");
+
+/* ---------- Station 5: CO2 – Baum, Ofen und Erdöl ---------- */
+(function(){
+  const svg = $("#coSvg"), obs = $("#coObs"), tree = $("#coTree", svg), stump = $("#coStump", svg);
+  const airChip = $("#coAir"), bilChip = $("#coBil");
+  const AIR = [[40, 24], [95, 24], [150, 24], [205, 24], [260, 24], [315, 24], [370, 24], [425, 24], [68, 56], [123, 56], [178, 56], [233, 56], [288, 56], [343, 56], [398, 56], [453, 56]];
+  const TREE = [[96, 128], [120, 120], [134, 144], [100, 152], [122, 158], [84, 142]];
+  const UNDER = [[292, 243], [308, 238], [324, 247], [340, 240], [300, 252], [334, 253]];
+  const OVEN = [282, 96], EXH = [344, 194];
+  const A = [0, 1, 2, 3, 4, 5], B = [6, 7, 8, 9], C = [10, 11, 12, 13, 14, 15];
+  const mols = AIR.map(() => {
+    const g = svgEl("g", {class: "mol"}, $("#coMols", svg));
+    svgEl("circle", {r: 11, fill: "#5f6770"}, g);
+    svgEl("text", {y: 3.5, "text-anchor": "middle", "font-size": 8.5, "font-weight": 800, fill: "#fff"}, g).textContent = "CO₂";
+    return g;
+  });
+  function put(k, p, op = 1, instant = false){
+    const g = mols[k];
+    if (instant) g.style.transition = "none";
+    g.style.transform = `translate(${p[0]}px,${p[1]}px)`; g.style.opacity = op;
+    if (instant) { g.getBoundingClientRect(); g.style.transition = ""; }
+  }
+  function grow(s, instant){
+    if (instant) tree.style.transition = "none";
+    tree.style.transform = `scale(${s})`;
+    if (instant) { tree.getBoundingClientRect(); tree.style.transition = ""; }
+  }
+  let air = 10;
+  const setAir = n => { air = n; airChip.textContent = `CO₂ in der Luft: ${n} Teilchen`; airChip.className = "chip" + (n > 10 ? " bad" : n < 10 ? " ok" : ""); };
+  const bil = (t, cls) => { bilChip.textContent = t; bilChip.className = "chip" + (cls ? " " + cls : ""); };
+  const TXT = [
+    "Der Baum wächst. Bei der Fotosynthese nimmt er Kohlenstoffdioxid (CO₂) aus der Luft auf und baut daraus Holz. Der Kohlenstoff steckt jetzt im Holz.",
+    "Das Holz wird als Pellets im Ofen verbrannt. Dabei wird genau das CO₂ wieder frei, das der Baum vorher aufgenommen hat. Unterm Strich kommt kein zusätzliches CO₂ in die Luft: Holz ist CO₂-neutral.",
+    "Ein neuer Baum wächst nach und bindet das CO₂ wieder. So entsteht ein Kreislauf – solange nicht mehr Holz verbraucht wird, als nachwächst.",
+    "Zum Vergleich: Erdöl ist vor Millionen Jahren entstanden. Sein Kohlenstoff war tief im Boden eingeschlossen. Verbrennt man Erdöl, kommt zusätzliches CO₂ in die Luft. Fossile Rohstoffe sind nicht CO₂-neutral."
+  ];
+  let seq = 0, seen = false;
+  register("co2");
+  async function show(i){
+    const my = ++seq, still = () => my === seq;
+    $("#coOven", svg).classList.toggle("on", i === 1);
+    $("#coOil", svg).classList.toggle("on", i === 3);
+    $("#coCar", svg).classList.toggle("on", i === 3);
+    obs.textContent = TXT[i];
+    B.forEach(k => put(k, AIR[k], 1, true));
+    // Start jeder Szene ohne Animation setzen, danach abspielen
+    if (i === 0 || i === 2) {
+      stump.style.opacity = 0; grow(.2, true);
+      A.forEach(k => put(k, AIR[k], 1, true)); C.forEach(k => put(k, UNDER[k - 10], 0, true));
+      setAir(10); bil(i === 0 ? "Der Baum wächst …" : "Ein neuer Baum wächst nach …");
+      if (!seen) return;
+      await wait(300); if (!still()) return;
+      grow(1);
+      for (const k of A) { await wait(320); if (!still()) return; put(k, TREE[k]); setAir(air - 1); }
+      await wait(900); if (!still()) return;
+      bil("Der Baum hat 6 CO₂-Teilchen gebunden", "ok");
+    } else if (i === 1) {
+      stump.style.opacity = 0; grow(1, true);
+      A.forEach(k => put(k, TREE[k], 1, true)); C.forEach(k => put(k, UNDER[k - 10], 0, true));
+      setAir(4); bil("Das Holz wird verbrannt …");
+      if (!seen) return;
+      await wait(600); if (!still()) return;
+      grow(0); stump.style.opacity = 1;
+      for (const k of A) { await wait(260); if (!still()) return; put(k, OVEN); }
+      await wait(900); if (!still()) return;
+      for (const k of A) { await wait(220); if (!still()) return; put(k, AIR[k]); setAir(air + 1); }
+      await wait(900); if (!still()) return;
+      bil("Bilanz ± 0: wieder 10 wie am Anfang – CO₂-neutral", "ok");
+    } else {
+      stump.style.opacity = 0; grow(0, true);
+      A.forEach(k => put(k, AIR[k], 1, true)); C.forEach(k => put(k, UNDER[k - 10], 1, true));
+      setAir(10); bil("Erdöl wird gefördert und verbrannt …");
+      if (!seen) return;
+      await wait(700); if (!still()) return;
+      for (const k of C) { await wait(260); if (!still()) return; put(k, EXH); }
+      await wait(900); if (!still()) return;
+      for (const k of C) { await wait(220); if (!still()) return; put(k, AIR[k]); setAir(air + 1); }
+      await wait(900); if (!still()) return;
+      bil("Bilanz: 6 CO₂-Teilchen zusätzlich – nicht CO₂-neutral", "bad");
+      solve("co2");
+    }
+  }
+  const st = stepper($("#coChain"), $("#coPrev"), $("#coNext"), 4, show);
+  $("#coAgain").addEventListener("click", () => { seen = true; show(st.cur()); });
+  onVisible(svg, v => { if (v && !seen) { seen = true; show(st.cur()); } });
+})();
+
+/* ---------- Station 5: Arbeitsblatt Aufgaben 2 und 3 ---------- */
+Modul.makeGap($("#gapReg"), [
+  ["Regenerativ ist ein anderes Wort für ", {g: "nachwachsend"}, ". Rohstoffe wie ", {g: "Holz"}, " oder ", {g: "Raps"}, " können in der Natur immer wieder nachwachsen. Zu regenerativen Rohstoffen zählen ", {g: "landwirtschaftlich"}, " und ", {g: "forstwirtschaftlich"}, " erzeugte Produkte, die ", {g: "stofflich"}, " oder zur ", {g: "Energiegewinnung"}, " genutzt werden."],
+  ["Regenerative Rohstoffe sind ", {g: "CO₂-neutral"}, "."]
+], "gapReg");
+// Holz/Raps und land-/forstwirtschaftlich dürfen in beliebiger Reihenfolge stehen:
+// vor dem Prüfen vertauschte Paare zurücktauschen (läuft in der Capture-Phase vor der Prüfung)
+(function(box, pairs){
+  const setGap = (g, v, k, h) => { if (v === undefined) { delete g.dataset.v; delete g.dataset.k; } else { g.dataset.v = v; g.dataset.k = k; } g.innerHTML = h; };
+  box.addEventListener("click", e => {
+    if (!e.target.closest(".check")) return;
+    const gaps = $$(".gap", box);
+    pairs.forEach(([i, j, wi, wj]) => {
+      const a = gaps[i], b = gaps[j];
+      if ((a.dataset.v === wj && b.dataset.v !== wj) || (b.dataset.v === wi && a.dataset.v !== wi)) {
+        const t = [a.dataset.v, a.dataset.k, a.innerHTML];
+        setGap(a, b.dataset.v, b.dataset.k, b.innerHTML); setGap(b, ...t);
+      }
+    });
+  }, true);
+})($("#gapReg"), [[1, 2, "Holz", "Raps"], [3, 4, "landwirtschaftlich", "forstwirtschaftlich"]]);
+
+(function(){
+  const box = $("#abMerk");
+  const M = [["unendlich vorhanden", false], ["weltweit einsetzbar", false], ["Die Fotosynthese setzt CO₂ frei", true], ["Verwendung in der Nähe des Herstellungsortes", false], ["zerstört Arbeitsplätze", true], ["CO₂-neutral", false]];
+  register("abMerk");
+  box.innerHTML = `<div class="strike">${M.map((m, i) => `<button type="button" data-i="${i}" aria-pressed="false">${m[0]}</button>`).join("")}</div>
+    <div class="row-btns"><button class="btn small check">Prüfen</button><button class="btn small ghost reset">Zurücksetzen</button></div><div class="fb"></div>`;
+  const bs = $$(".strike button", box), fb = $(".fb", box);
+  bs.forEach(b => b.addEventListener("click", () => {
+    b.classList.toggle("x"); b.setAttribute("aria-pressed", b.classList.contains("x"));
+    bs.forEach(x => x.classList.remove("right", "wrong")); fb.className = "fb";
+  }));
+  $(".check", box).addEventListener("click", () => {
+    let ok = 0;
+    bs.forEach(b => { const r = b.classList.contains("x") === M[b.dataset.i][1]; b.classList.add(r ? "right" : "wrong"); if (r) ok++; });
+    fb.className = "fb show " + (ok === M.length ? "ok" : "bad");
+    fb.textContent = ok === M.length ? "✅ Richtig! Bei der Fotosynthese wird CO₂ gebunden, nicht freigesetzt. Und Anbau und Verarbeitung schaffen Arbeitsplätze, statt sie zu zerstören."
+      : `${ok} von ${M.length} Merkmalen richtig entschieden. Bei den roten stimmt es noch nicht.`;
+    if (ok === M.length) solve("abMerk");
+  });
+  $(".reset", box).addEventListener("click", () => { bs.forEach(b => { b.classList.remove("x", "right", "wrong"); b.setAttribute("aria-pressed", "false"); }); fb.className = "fb"; });
+})();
+Modul.makeOpen($("#open5a"), [
+  {q: "Nenne ein weiteres Merkmal regenerativer Rohstoffe, das oben noch nicht steht.",
+   m: "Zum Beispiel: Sie wachsen immer wieder nach. Anbau und Verarbeitung schaffen Arbeitsplätze. Beim Wachsen wird bei der Fotosynthese CO₂ gebunden. Ihre Nutzung schadet dem Kohlenstoffkreislauf nicht. Man kann sie stofflich oder energetisch nutzen.",
+   k: ["arbeitspl|job|arbeit|bindet|binden|gebunden|aufnehm|nimmt|nachwachs|wächst|wachsen|kreislauf|stofflich|energetisch|abbaubar|transport|kurze wege"]}
+], "open5a", "Lies den Abschnitt „Merkmale“ auf S. 15 noch einmal.");
+Modul.makeSort($("#sortNutz"), {
+  buckets: ["🧱 stofflich (Werkstoff oder Grundstoff)", "🔥 energetisch (Wärme, Strom, Kraftstoff)", "🍽️ Nahrungs- oder Futtermittel"],
+  items: [
+    {t: "Dachbalken aus Holz", b: 0}, {t: "Papier aus Zellstoff", b: 0}, {t: "Klebstoff aus Zellstoff", b: 0}, {t: "Farbe aus Rapsöl", b: 0}, {t: "Kunststoff aus Rapsöl", b: 0},
+    {t: "Holzpellets im Ofen", b: 1}, {t: "Brennholz im Kamin", b: 1}, {t: "Biodiesel im Traktor", b: 1}, {t: "Strom aus einem Holzkraftwerk", b: 1},
+    {t: "Rapsöl im Salat", b: 2}, {t: "Rapsschrot als Tierfutter", b: 2}
+  ]
+}, "sortNutz");
+Modul.makeOpen($("#open5"), [
+  {q: "Erkläre, warum man regenerative Rohstoffe als CO₂-neutral bezeichnet.",
+   m: "Beim Wachsen nehmen die Pflanzen bei der Fotosynthese CO₂ aus der Luft auf. Bei der Nutzung, z. B. beim Verbrennen, wird genauso viel CO₂ wieder frei. Es kommt also kein zusätzliches CO₂ in die Luft.",
+   k: ["fotosynthese|photosynthese|wachs|aufgenommen|aufnehm|nimmt|binden|bindet|gebunden", "gleich|genauso|so viel|nicht mehr|kein zusätzlich|keine zusätzlich|ausgeglichen|wieder frei"]},
+  {q: "In welchen Bereichen werden regenerative Rohstoffe eingesetzt?",
+   m: "Sie werden stofflich genutzt, also als Werkstoff oder Grundstoff (z. B. Bauholz, Papier, Farben, Kunststoffe), und energetisch zur Erzeugung von Wärme, Strom oder Kraftstoffen (z. B. Holzpellets, Biodiesel).",
+   k: ["stofflich|werkstoff|grundstoff|bau|papier|möbel|farbe|kunststoff|chemi", "energ|wärme|strom|kraftstoff|heiz|brenn|pellet|biodiesel"]}
+], "open5", "Lies den Text und den Merke-Kasten auf S. 15 noch einmal.");
+
+/* ---------- Training: Kreuzworträtsel ---------- */
+Modul.makeCrossword($("#cw"), {
+  umlaut: true,
+  words: [
+    {w: "SPEISEÖL", r: 0, c: 0, d: "d", q: "Wofür Rapsöl neben Biokraftstoff vor allem verwendet wird."},
+    {w: "ZELLSTOFF", r: 0, c: 7, d: "d", q: "Cellulose – etwa die Hälfte des Holzes. Daraus wird Papier."},
+    {w: "HOLZPELLETS", r: 1, c: 2, d: "a", q: "Kleine Presslinge aus Holz, die zur Wärmegewinnung verbrannt werden."},
+    {w: "HACKSCHNITZEL", r: 2, c: 13, d: "d", q: "Kleine Holzstücke, die beim Zerkleinern des Holzes entstehen."},
+    {w: "ARBEITSPLÄTZE", r: 3, c: 4, d: "d", q: "Anbau und Verarbeitung regenerativer Rohstoffe schaffen vor Ort …"},
+    {w: "RAPS", r: 4, c: 4, d: "a", q: "Gelb blühende Feldfrucht mit einem hohen Anteil an Öl."},
+    {w: "LAUGE", r: 4, c: 2, d: "d", q: "Darin werden die Holzstücke gekocht, um den Zellstoff zu gewinnen."},
+    {w: "KLEBSTOFFE", r: 4, c: 11, d: "d", q: "Sie halten Dinge zusammen und werden auch aus Zellstoff hergestellt."},
+    {w: "PAPIER", r: 5, c: 9, d: "d", q: "Vom Taschentuch bis zur festen Pappe: das bekannteste Produkt aus Zellstoff."},
+    {w: "LIGNIN", r: 7, c: 0, d: "a", q: "Holzstoff: Er verklebt die Zellstofffasern im Holz."},
+    {w: "ALTPAPIER", r: 10, c: 1, d: "a", q: "Laut Film der wichtigste Rohstoff der Papierindustrie."},
+    {w: "FOTOSYNTHESE", r: 13, c: 2, d: "a", q: "Bei diesem Vorgang binden Pflanzen CO₂ aus der Luft."},
+    {w: "REGENERATIV", r: 15, c: 1, d: "a", q: "Anderes Wort für nachwachsend."}
+  ],
+  sol: [[7, 11], [5, 2], [6, 2], [8, 13], [13, 5], [11, 4], [12, 13]],
+  solWord: "BAUHOLZ"
+}, "kreuz");
+
+/* ---------- Training: Schaubild beschriften ---------- */
+Modul.makeLabel($("#labelHolz"), {
+  img: "assets/modul1/holz-schema.svg", w: 600, h: 700,
+  alt: "Schaubild: Vom Holz über zwei Arbeitsschritte zu zwei Bestandteilen. Aus einem davon stellen zwei Industrien Produkte her. Einige Felder sind leer.",
+  hint: "Tippe zuerst auf einen Begriff und dann auf das passende Kästchen im Schaubild. Zwei Begriffe passen nicht.",
+  slots: [
+    {x: 50, y: 17.7, px: 50, py: 17.7, a: "Zerkleinerung"},
+    {x: 50, y: 28.9, px: 50, py: 28.9, a: "Kochen in Lauge"},
+    {x: 31.7, y: 42, px: 31.7, py: 42, a: "Zellstoff"},
+    {x: 73.3, y: 42, px: 73.3, py: 42, a: "Lignin"},
+    {x: 23.3, y: 56, px: 23.3, py: 56, a: "Papierindustrie"},
+    {x: 71.7, y: 56, px: 71.7, py: 56, a: "Chemische Industrie"}
+  ],
+  extra: ["Rapsöl", "Methanol"]
+}, "labelHolz");
+
+/* ---------- Training: Richtig/Falsch, offene Fragen ---------- */
+Modul.makeTF($("#tf"), [
+  ["Alle Lebewesen enthalten Kohlenstoffverbindungen.", true],
+  ["Kochsalz wird beim starken Erhitzen schwarz.", false],
+  ["Holz besteht etwa zur Hälfte aus Zellstoff und zur Hälfte aus Lignin.", true],
+  ["Zellstoff kann man direkt verwenden, ohne ihn vom Lignin zu trennen.", false],
+  ["Aus Zellstoff werden Papier, Textilien und Klebstoffe hergestellt.", true],
+  ["Rapsöl wird aus den Blättern der Rapspflanze gewonnen.", false],
+  ["Rapsöl ist ein Grundstoff für Farben und Kunststoffe.", true],
+  ["Bei der Fotosynthese setzen Pflanzen CO₂ frei.", false],
+  ["Regenerative Rohstoffe stammen aus der Land- und Forstwirtschaft.", true],
+  ["Regenerative Rohstoffe zerstören Arbeitsplätze.", false]
+], "tf");
+Modul.makeOpen($("#openT"), [
+  {q: "Zu welchen Produkten werden Rapspflanzen verarbeitet?",
+   m: "Aus den Samen wird Rapsöl gewonnen. Es wird als Speiseöl und als Biokraftstoff (Biodiesel) verwendet. In der chemischen Industrie ist Rapsöl ein Grundstoff für Farben und Kunststoffe.",
+   k: ["speiseöl|speise|essen|salat|kochen|lebensmittel", "biokraftstoff|biodiesel|kraftstoff|treibstoff|diesel", "farbe|kunststoff|plastik"], min: 2},
+  {q: "Nenne zwei Merkmale regenerativer Rohstoffe.",
+   m: "Sie wachsen immer wieder nach und sind im Prinzip unbegrenzt vorhanden. Sie sind weltweit einsetzbar und CO₂-neutral. Oft werden sie in der Nähe des Herstellungsortes verwendet und schaffen dort Arbeitsplätze.",
+   k: ["nachwachs|unbegrenzt|unendlich", "weltweit", "co2|co₂|neutral", "nähe|region|vor ort|transport", "arbeitspl"], min: 2},
+  {q: "Regenerative Rohstoffe kann man energetisch oder stofflich nutzen. Nenne Beispiele für Holz und für Raps.",
+   m: "Holz: stofflich als Baumaterial, für Möbel, Papier und Klebstoffe; energetisch als Brennholz oder Holzpellets. Raps: stofflich als Grundstoff für Farben und Kunststoffe; energetisch als Biokraftstoff (Biodiesel).",
+   k: ["pellet|brennholz|papier|möbel|bau|zellstoff|kleb|kamin|heiz", "biodiesel|kraftstoff|farbe|kunststoff|treibstoff"]},
+  {q: "Finde zwei weitere regenerative Rohstoffe und nenne ihre Einsatzmöglichkeiten.",
+   m: "Zum Beispiel: Kartoffeln, Mais und Weizen liefern Stärke für Papier, Kleister und Folien. Sonnenblumen liefern Öl. Baumwolle und Flachs liefern Fasern für Kleidung. Hanf liefert Fasern für Seile und Dämmstoffe. Mais kann in der Biogasanlage Strom erzeugen.",
+   k: ["kartoffel|mais|weizen|getreide|sonnenblum|baumwoll|flachs|leinen|hanf|zuckerrüb|zuckerrohr|wolle|stroh|bambus|kork|soja|palm", "stärke|öl|faser|kleidung|textil|papier|biogas|strom|kraftstoff|ethanol|dämm|seil|folie|kleister|energie|wärme|kleb"]}
+], "openT", "Schau in die Merke-Kästen der Stationen.");
+
+/* ---------- Abschlussquiz ---------- */
+Modul.makeQuiz($("#quiz"), [].concat(MC.s1, MC.s2, MC.s3, MC.s4, MC.s5, MC.train, [
+  {q: "Womit werden die Hackschnitzel im Zellstoffwerk gekocht?", o: ["mit Lauge, meist Natronlauge", "mit Rapsöl", "mit Benzin", "mit Zuckerwasser"], a: 0, e: "Druck, Temperatur und Natronlauge lösen das Lignin aus dem Holz."},
+  {q: "Woraus werden Sekundärfasern für Papier gewonnen?", o: ["aus Altpapier", "aus frischem Holz", "aus Rapsstroh", "aus Erdöl"], a: 0, e: "Primärfasern stammen aus frischem Holz, Sekundärfasern aus Altpapier."},
+  {q: "Welche Nutzung ist energetisch?", o: ["Holzpellets im Ofen verbrennen", "ein Regal aus Holz bauen", "Papier aus Zellstoff herstellen", "Farben aus Rapsöl herstellen"], a: 0, e: "Energetisch heißt: verbrennen, um Wärme, Strom oder Antrieb zu gewinnen."},
+  {q: "Welche Nutzung ist stofflich?", o: ["Kunststoff aus Rapsöl herstellen", "Biodiesel tanken", "Brennholz verheizen", "Holzpellets verbrennen"], a: 0, e: "Stofflich heißt: Der Rohstoff wird zu einem Material oder Grundstoff."},
+  {q: "Was passiert mit dem CO₂ in der Luft, wenn Erdöl verbrannt wird?", o: ["Es wird mehr, weil zusätzlicher Kohlenstoff aus dem Boden frei wird.", "Es bleibt genau gleich.", "Es wird weniger.", "Es verwandelt sich in Holz."], a: 0, e: "Fossile Rohstoffe sind nicht CO₂-neutral."}
+]), "quiz", "Rohstoff-Profi");
+
+bereit = true;
+Modul.ready();
+})();
+</script>
+</body>
+</html>
