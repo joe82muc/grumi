@@ -69,7 +69,7 @@ async function loadResults() {
     const data = await postJson("/api/de7-argument/teacher/results", { password: state.password });
     state.attempts = data.attempts || [];
     state.overview = data.overview || [];
-    // Lernmodule S. 22–25 (Freitexte, Duelle, Lerntagebuch) kommen aus einer eigenen Route
+    // Lernmodule 2–6 (Freitexte, Duelle, Lerntagebuch) kommen aus einer eigenen Route
     try {
       const modules = await postJson("/api/de7-argument/teacher/module-results", { password: state.password });
       state.moduleEntries = modules.entries || [];

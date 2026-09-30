@@ -1,4 +1,4 @@
-/* Gemeinsame Bausteine der Deutsch-7-Lernmodule „Argumentieren und diskutieren“ (Buch S. 22–25).
+/* Gemeinsame Bausteine der Deutsch-7-Lernmodule „Argumentieren und diskutieren“.
  * Aufgebaut wie modul-basis.js der NT-7M-Module: Sterne-Fortschritt, Fachbegriffe, Ankreuzen,
  * Zuordnen, Lückentext, Richtig/Falsch, Reihenfolge, Abschlussquiz und Konfetti.
  * Neu für Deutsch: Anmeldung „Dein Training starten“ (gemeinsam mit dem Argumentationstrainer),
@@ -577,7 +577,7 @@ function makeQuiz(box, pool, id, profi){
   let qs, i, score;
   function start(){
     qs = shuffle(pool).slice(0, N); i = 0; score = 0;
-    box.innerHTML = `<p class="lead" style="margin:0 0 8px">${N} zufällige Fragen aus allen Stationen. Schaffst du ${N - 2} oder mehr?</p><div class="quiz-top"><div class="qbar"><div style="width:0"></div></div><span class="chip qc">1 / ${N}</span></div><div class="qbox"></div>`;
+    box.innerHTML = `<p class="lead" style="margin:0 0 8px">${N} zufällige Fragen aus dem ganzen Modul. Schaffst du ${N - 2} oder mehr?</p><div class="quiz-top"><div class="qbar"><div style="width:0"></div></div><span class="chip qc">1 / ${N}</span></div><div class="qbox"></div>`;
     show();
   }
   function show(){
@@ -593,7 +593,7 @@ function makeQuiz(box, pool, id, profi){
     }));
   }
   function end(){
-    const msg = score >= N - 1 ? `${profi}! 🏆` : score >= N - 3 ? "Sehr gut! Schau dir die Fehler noch einmal an." : score >= N / 2 ? "Ordentlich – wiederhole die Stationen, bei denen du unsicher warst." : "Geh die Stationen noch einmal durch und versuch es erneut.";
+    const msg = score >= N - 1 ? `${profi}! 🏆` : score >= N - 3 ? "Sehr gut! Schau dir die Fehler noch einmal an." : score >= N / 2 ? "Ordentlich – wiederhole die Teile, bei denen du unsicher warst." : "Geh das Modul noch einmal durch und versuch es erneut.";
     box.innerHTML = `<div class="result-big">${score} / ${N}</div><p class="lead" style="text-align:center">${esc(msg)}</p><div class="row-btns" style="justify-content:center"><button class="btn again">Neue Runde</button></div>`;
     $(".again", box).addEventListener("click", start);
     if (score >= N - 2) { solve(id); confetti(); }
