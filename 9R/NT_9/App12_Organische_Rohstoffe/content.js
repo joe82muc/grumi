@@ -7,7 +7,7 @@ window.KohlenstoffKurs = {
       id: "organische-rohstoffe",
       label: "Lernbereich 1.1",
       title: "Organische Rohstoffe",
-      subtitle: "Sechs Module zu nachwachsenden und fossilen Rohstoffen"
+      subtitle: "Fünf Module zu nachwachsenden und fossilen Rohstoffen"
     }
   ],
   modules: [
@@ -99,46 +99,16 @@ window.KohlenstoffKurs = {
       ]
     },
     {
-      id: "m03",
-      group: "organische-rohstoffe",
-      nr: 3,
-      title: "Nachhaltigkeit und Kaskadennutzung",
-      duration: "45 min",
-      goal: "Du beurteilst die Nachhaltigkeit regenerativer Rohstoffe und erklärst Kaskaden- und Kreislaufwirtschaft.",
-      sections: [
-        {
-          title: "Wann ist ein Rohstoff nachhaltig?",
-          text: [
-            "Nachhaltigkeit bedeutet ein Gleichgewicht zwischen Verbrauch und Wachstum. Eine Nutzung ist dann nachhaltig, wenn sie die Lebensgrundlagen zukünftiger Generationen erhält.",
-            "Eine hohe Nachfrage nach Mais, Raps oder Holz kann dieses Gleichgewicht stören. Monokulturen verringern die Artenvielfalt, erhöhen das Schädlingsrisiko und führen oft zu mehr Dünger und Pflanzenschutz. Zusätzlich konkurrieren Energiepflanzen mit dem Anbau von Lebensmitteln."
-          ]
-        },
-        {
-          title: "Mehrfach nutzen statt sofort verbrennen",
-          text: [
-            "Bei der Kaskadennutzung wird Biomasse zuerst stofflich und möglichst mehrfach genutzt. Ein Holzbrett kann lange Teil eines Regals sein, danach zu einer Spanplatte verarbeitet und erst am Ende energetisch genutzt werden.",
-            "Kreislaufwirtschaft versucht, Rohstoffe durch Wiederverwendung und Recycling lange im Umlauf zu halten. In einer Linearwirtschaft endet der Weg dagegen nach Herstellung und Nutzung als Abfall."
-          ]
-        }
-      ],
-      figures: [
-        { src: "assets/materialien/NT9-organische-Rohstoffe-image19.jpeg", caption: "Kaskadennutzung: zuerst Produkte herstellen, später recyceln und erst zuletzt Energie gewinnen." },
-        { src: "assets/kaskadennutzung-holz.png", caption: "Die Kreislaufgrafik aus der PowerPoint zeigt mehrere Nutzungsstufen von Holz." }
-      ],
-      interactive: { type: "cascade" },
-      tasks: [
-        { type: "choice", prompt: "Welche Maßnahme verbessert die Nachhaltigkeit am stärksten?", options: ["Holz sofort verbrennen", "Große Flächen nur mit einer Pflanzenart anbauen", "Holz mehrfach stofflich nutzen und erst am Ende verbrennen"], answer: 2 },
-        { type: "order", prompt: "Ordne die Holz-Kaskade.", steps: ["Baum wächst", "Holz wird zum Regal", "Altholz wird zur Spanplatte", "Reststoffe liefern Energie"] },
-        { type: "text", prompt: "Erkläre zwei Probleme, die durch eine starke Ausweitung des Rapsanbaus entstehen können.", expected: "Große Rapsflächen können Lebensmittelanbau verdrängen. Monokulturen verringern die Artenvielfalt und benötigen häufig mehr Dünger und Pflanzenschutzmittel.", keywords: ["Lebensmittel", "Fläche", "Monokultur", "Artenvielfalt", "Dünger", "Pflanzenschutz"] }
-      ]
-    },
-    {
       id: "m04",
       group: "organische-rohstoffe",
-      nr: 4,
+      // Das frühere Modul 3 (m03, Nachhaltigkeit und Kaskadennutzung) wurde am 30.09.2026 gestrichen.
+      // Die Kennungen m04 bis m06 bleiben, damit gespeicherter Fortschritt passt; angezeigt wird nr.
+      nr: 3,
+      // eigene Lernseite im Stil von NT 7 (Stationen, Film, Animationen, KI-Fragen)
+      page: "modul-3.html",
       title: "Entstehung fossiler Rohstoffe",
       duration: "45 min",
-      goal: "Du vergleichst die Entstehung von Kohle mit der Entstehung von Erdöl und Erdgas.",
+      goal: "Du erklärst, was Fossilien sind, beschreibst die Entstehung von Erdöl, Erdgas und Kohle, vergleichst beide Wege und begründest, warum fossile Rohstoffe nicht nachhaltig sind.",
       sections: [
         {
           title: "Erdöl und Erdgas",
@@ -169,7 +139,7 @@ window.KohlenstoffKurs = {
     {
       id: "m05",
       group: "organische-rohstoffe",
-      nr: 5,
+      nr: 4,
       title: "Erdölaufbereitung und Fraktionen",
       duration: "45 min",
       goal: "Du erklärst die fraktionierte Destillation und leitest Eigenschaften der Erdölfraktionen aus ihrer Molekülgröße ab.",
@@ -203,7 +173,7 @@ window.KohlenstoffKurs = {
     {
       id: "m06",
       group: "organische-rohstoffe",
-      nr: 6,
+      nr: 5,
       title: "Kohlenstoffkreislauf und Erdöl im Alltag",
       duration: "45 min",
       goal: "Du erklärst den Kohlenstoffkreislauf, den verstärkten Treibhauseffekt und die Bedeutung von Erdöl im Alltag.",

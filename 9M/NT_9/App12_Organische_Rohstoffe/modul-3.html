@@ -1,0 +1,1328 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#8a5a1c">
+<title>Entstehung fossiler Rohstoffe | NT 9</title>
+<link rel="stylesheet" href="modul-basis.css">
+<style>
+:root{--sky:#8a5a1c;--sky-d:#5e3c10;--sky-l:#f7eedf}
+[hidden]{display:none!important}
+.hero{background:linear-gradient(160deg,#1a130c,#5a3d1e 55%,#c98a1a)}
+.st-num{box-shadow:0 4px 12px rgba(138,90,28,.3)}
+.tf-row>span,.q-title,.opt span,.bucket h5{min-width:0;hyphens:auto;overflow-wrap:break-word}
+.sim .chain{padding:12px 14px 0;margin:0}
+.chain .step{cursor:default}
+.chain .step.done{border-color:#8fd0a8;background:#f0faf3}
+@media (max-width:600px){.sim .chain{gap:4px}.sim .chain .step{flex-basis:88px;padding:4px 6px;font-size:.8rem}.sim .chain .step .ic{font-size:1.15rem}}
+.btn.pick-on{background:var(--sky);color:#fff}
+
+/* Szenen in den Animationen */
+.stage{opacity:0;transition:opacity .6s}
+.stage.on{opacity:1}
+.lay{opacity:0;transform:translateY(-16px);transition:opacity .8s,transform .8s}
+.lay.on{opacity:1;transform:none}
+.fade{transition:opacity 1s}
+.flick{transform-box:fill-box;transform-origin:50% 100%;animation:flick .3s ease-in-out infinite alternate}
+@keyframes flick{from{transform:scale(1.05,.92)}to{transform:scale(.95,1.08)}}
+.flow{stroke-dasharray:8 8;animation:flow .8s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-32}}
+.rise{animation:rise 2.4s ease-out infinite}
+@keyframes rise{from{transform:translateY(0);opacity:.85}to{transform:translateY(-40px);opacity:0}}
+.bob{animation:bob 2.6s ease-in-out infinite alternate}
+@keyframes bob{from{transform:translateY(-3px)}to{transform:translateY(3px)}}
+.swim{animation:swim 3s ease-in-out infinite alternate}
+@keyframes swim{from{transform:translateX(-14px)}to{transform:translateX(14px)}}
+.fall{animation:fall 1.8s linear infinite}
+@keyframes fall{from{transform:translateY(0);opacity:.9}to{transform:translateY(64px);opacity:0}}
+.wig{transform-box:fill-box;transform-origin:center;animation:wig .6s ease-in-out infinite alternate}
+@keyframes wig{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
+.pulse{transform-box:fill-box;transform-origin:center;animation:pls 1.1s ease-in-out infinite alternate}
+@keyframes pls{from{transform:scale(.8)}to{transform:scale(1.15)}}
+.pl{transition:transform 2.6s cubic-bezier(.45,0,.7,1),opacity 1s}
+.drop{transition:transform 2.2s cubic-bezier(.4,0,.3,1),opacity .6s}
+#fsFish{transition:transform 2.4s cubic-bezier(.4,0,.6,1)}
+.sink{transition:transform 1.6s ease-in 1.2s}
+.tree{transform-box:fill-box;transform-origin:50% 100%;transition:transform 1.4s cubic-bezier(.5,0,.8,1)}
+#khSeam,#khBase,#khMark{transition:transform 1.6s ease}
+#khSample{transition:fill 1.4s}
+#khBar{transform-box:fill-box;transform-origin:0 50%;transition:transform 1.4s ease}
+#clFill{transform-box:fill-box;transform-origin:50% 100%}
+
+/* Vergleichstabelle zum Aufdecken */
+.cmp{display:grid;grid-template-columns:minmax(96px,.7fr) 1fr 1fr;gap:6px}
+.cmp .h{font-weight:800;padding:6px 8px;text-align:center;border-radius:10px;background:var(--sky-l);color:var(--sky-d)}
+.cmp .rh{font-weight:700;padding:8px 4px;font-size:.92rem;align-self:center}
+.cmp button{border:2px dashed var(--line);background:#fff;border-radius:10px;padding:8px 10px;font-size:.92rem;text-align:left;min-height:48px;color:var(--muted)}
+.cmp button.open{border-style:solid;border-color:#e0c79a;background:#fffaf0;color:var(--ink);font-weight:600}
+.cmp button.same{border-color:#8fd0a8;background:#f0faf3}
+@media (max-width:560px){.cmp{grid-template-columns:1fr 1fr}.cmp .rh{grid-column:1/-1;padding:6px 2px 0}.cmp .corner{display:none}}
+
+/* Bild und Text zuordnen */
+.mini{display:block;width:100%;max-width:150px;height:auto;border-radius:8px;border:1px solid var(--line)}
+#abBild .bucket h5{display:block}
+#abBild .bucket h5 span{display:block;font-size:.85rem;color:var(--muted);margin-top:4px}
+
+/* Schaubild Lagerstätte: Querformat */
+#labelLager .label-wrap{grid-template-columns:1fr}
+#labelLager .label-img{max-width:640px}
+#labelLager .slot{min-width:96px}
+
+/* Film mit Stopps */
+.film{position:relative;aspect-ratio:16/9;background:#1a130c;border-radius:14px;overflow:hidden}
+.film iframe,#ytPlayer{position:absolute;inset:0;width:100%;height:100%;border:0}
+.film-poster{position:absolute;inset:0;width:100%;border:0;display:grid;place-content:center;justify-items:center;gap:6px;padding:16px;color:#fff;text-align:center;background:radial-gradient(circle at 50% 40%,#9a6a26,#1a130c 75%)}
+.film-poster .play{width:66px;height:66px;border-radius:50%;background:#fff;color:var(--sky-d);display:grid;place-items:center;font-size:1.6rem;padding-left:5px}
+.film-poster b{font-size:1.15rem}
+.film-poster small{max-width:440px;opacity:.9;font-size:.86rem}
+.film-stop{position:absolute;inset:0;z-index:2;display:none;place-content:center;padding:16px;text-align:center;background:rgba(26,19,12,.86);color:#fff;font-weight:800;font-size:1.05rem}
+.film-stop.show{display:grid}
+.film-chips{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0}
+.film-chips button{border:2px solid var(--line);background:#fff;border-radius:99px;padding:4px 11px;font-weight:700;font-size:.88rem}
+.film-chips button.done{border-color:var(--ok);background:var(--ok-l);color:var(--ok)}
+.film-q{border:2px solid var(--gold);border-radius:14px;padding:6px 14px 14px;margin-top:12px;background:#fffdf5}
+.ki-note{font-size:.82rem;color:var(--muted);margin-top:4px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>NT 9 · Modul 3</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Fossilien</a>
+      <a href="#s2"><b>2</b>Nutzung</a>
+      <a href="#s3"><b>3</b>Erdöl &amp; Erdgas</a>
+      <a href="#s4"><b>4</b>Kohle</a>
+      <a href="#s5"><b>5</b>Vergleich</a>
+      <a href="#s6"><b>6</b>Endlich</a>
+      <a href="#s7"><b>7</b>Training</a>
+      <a href="#s8"><b>8</b>Profi-Check</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse 9M / 9R · Organische Rohstoffe · Modul 3</div>
+    <h1>Entstehung fossiler Rohstoffe</h1>
+    <p>Ein Fisch im Stein, schwarzes Öl aus der Tiefe und Kohle aus uralten Wäldern: In acht Stationen reist du viele Millionen Jahre zurück. Du findest heraus, wie Erdöl, Erdgas und Kohle entstanden sind, siehst im Film, wofür wir sie nutzen, und begründest, warum sie nicht nachwachsen.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s7">Direkt zum Probentraining</a>
+    </div>
+    <div class="goals">
+      <div>🐟 Ich erkläre, was Fossilien sind und wie sie entstehen.</div>
+      <div>🛢️ Ich beschreibe, wie Erdöl und Erdgas entstanden sind.</div>
+      <div>⛏️ Ich beschreibe den Weg von Pflanzen über Torf und Braunkohle zur Steinkohle.</div>
+      <div>⚖️ Ich vergleiche beide Wege und begründe, warum fossile Rohstoffe nicht nachhaltig sind.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg</div><h2>Fossilien – Spuren aus der Urzeit</h2></div></div>
+  <figure class="card reveal"><img class="zoomable" src="assets/modul3/fischfossil-erdoel.webp" width="1672" height="941" loading="lazy" decoding="async" alt="Links: versteinerter Fisch in einer hellen Gesteinsplatte, Gräten, Kopf und Flossen sind deutlich zu sehen. Rechts: Aus einer Metallkanne fließt schwarzes, zähflüssiges Erdöl in ein Becherglas."><figcaption>Ein Fischfossil und eine Probe Erdöl – was haben die beiden miteinander zu tun? (Tippen zum Vergrößern)</figcaption></figure>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">In Steinbrüchen findet man manchmal Gesteinsplatten mit dem Abdruck eines Fisches, einer Muschel oder eines Farnblatts. Solche versteinerten Überreste oder Spuren von Lebewesen heißen <button class="term" data-t="fossil">Fossilien</button>. Die Tiere und Pflanzen lebten vor vielen Millionen Jahren.</p>
+      <p>Zu einem Fossil wird ein toter Körper nur, wenn ihn schnell Schlamm oder Sand bedeckt. Dann kommt keine Luft mehr heran (<button class="term" data-t="luftabschluss">Luftabschluss</button>) und der Körper verwest nicht vollständig. Neue Schichten pressen den Schlamm im Lauf der Zeit zu festem Gestein zusammen. Mineralien aus dem Wasser füllen die Knochen aus – so wird der Fisch zu Stein.</p>
+      <p style="margin:0">Das Wort <em>fossil</em> kommt aus dem Lateinischen und bedeutet „ausgegraben“. Auch Kohle, Erdöl und Erdgas nennt man <button class="term" data-t="fossilrohstoff">fossile Rohstoffe</button>: Sie stammen ebenfalls von Lebewesen der Urzeit und werden heute aus der Erde geholt.</p>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag">Vermutung</span>
+      <h3 style="margin-top:4px">Fossil und Erdöl <span class="ki-badge">✨ KI prüft</span></h3>
+      <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung. Danach kannst du die Musterlösung ansehen.</p>
+      <div id="open1"></div>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <div class="chain" id="fsChain">
+      <div class="step"><span class="ic">🐟</span>Fisch lebt</div><span class="to">→</span>
+      <div class="step"><span class="ic">⬇️</span>sinkt ab</div><span class="to">→</span>
+      <div class="step"><span class="ic">🟫</span>wird zugedeckt</div><span class="to">→</span>
+      <div class="step"><span class="ic">🗿</span>wird zu Stein</div><span class="to">→</span>
+      <div class="step"><span class="ic">🔨</span>wird gefunden</div>
+    </div>
+    <svg viewBox="0 0 480 250" id="fsSvg" role="img" aria-label="Animation: Ein Fisch stirbt, sinkt auf den Meeresgrund, wird von Schlamm bedeckt, versteinert und wird Millionen Jahre später gefunden">
+      <defs><linearGradient id="fsSea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7cc3ee"/><stop offset="1" stop-color="#1d5f8e"/></linearGradient></defs>
+      <rect width="480" height="250" fill="#e3f2fb"/>
+      <circle cx="420" cy="38" r="18" fill="#f6c945"/>
+      <rect id="fsWater" class="fade" width="480" height="172" fill="url(#fsSea)"/>
+      <rect y="172" width="480" height="78" fill="#c9ae7c"/>
+      <g stroke="#b39463" stroke-width="1.5" opacity=".6"><line x1="0" y1="200" x2="480" y2="200"/><line x1="0" y1="226" x2="480" y2="226"/></g>
+      <g id="fsL1" class="lay"><rect y="150" width="480" height="22" fill="#8f6e4a"/></g>
+      <g id="fsL2" class="lay"><rect y="128" width="480" height="22" fill="#d2b887"/></g>
+      <g id="fsL3" class="lay"><rect y="104" width="480" height="24" fill="#a98b62"/></g>
+      <g id="fsL4" class="lay"><rect y="80" width="480" height="24" fill="#cdb283"/></g>
+      <g id="fsL5" class="lay"><rect y="56" width="480" height="24" fill="#9b7d58"/></g>
+      <g id="fsGrass" class="stage"><rect y="124" width="480" height="6" fill="#6aa84f"/></g>
+      <g id="fsSed" class="stage" fill="#8f6e4a">
+        <circle class="fall" cx="120" cy="60" r="2.5"/><circle class="fall" cx="200" cy="40" r="2" style="animation-delay:.5s"/><circle class="fall" cx="290" cy="70" r="2.5" style="animation-delay:.9s"/>
+        <circle class="fall" cx="360" cy="46" r="2" style="animation-delay:1.3s"/><circle class="fall" cx="60" cy="50" r="2" style="animation-delay:.3s"/><circle class="fall" cx="420" cy="66" r="2.5" style="animation-delay:1.1s"/>
+      </g>
+      <g id="fsPress" class="stage" fill="#fff" stroke="#c0392b" stroke-width="2" stroke-linejoin="round">
+        <path d="M112 8 H128 V30 H138 L120 48 L102 30 H112Z"/><path d="M232 8 H248 V30 H258 L240 48 L222 30 H232Z"/><path d="M352 8 H368 V30 H378 L360 48 L342 30 H352Z"/>
+      </g>
+      <g id="fsFish" style="transform:translate(170px,80px)">
+        <g id="fsAlive" class="fade">
+          <g class="swim">
+            <path d="M18 0 L36 -13 L32 0 L36 13Z" fill="#e88b1f"/>
+            <path d="M-32 0 C-22 -15 10 -15 20 -2 L20 2 C10 15 -22 15 -32 0Z" fill="#f0a33a" stroke="#b86d17" stroke-width="1.5"/>
+            <path d="M-8 -11 L4 -19 L8 -10Z" fill="#e88b1f"/>
+            <path d="M-12 -9 Q-8 0 -12 9" stroke="#fff" stroke-width="2" fill="none" opacity=".6"/>
+            <circle cx="-22" cy="-3" r="2.8" fill="#15212b"/>
+          </g>
+        </g>
+        <g id="fsDead" class="fade" style="opacity:0">
+          <path d="M18 0 L36 -13 L32 0 L36 13Z" fill="#8e918c"/>
+          <path d="M-32 0 C-22 -15 10 -15 20 -2 L20 2 C10 15 -22 15 -32 0Z" fill="#a7a9a4" stroke="#7d807c" stroke-width="1.5"/>
+          <path d="M-25 -6 L-19 0 M-19 -6 L-25 0" stroke="#33414d" stroke-width="1.6"/>
+        </g>
+        <g id="fsBone" class="fade" style="opacity:0" fill="none" stroke="#f6ead0" stroke-width="2.2" stroke-linecap="round">
+          <line x1="-18" y1="0" x2="22" y2="0"/>
+          <path d="M-12 -9 Q-9 -4 -10 0 Q-9 4 -12 9 M-5 -10 Q-2 -4 -3 0 Q-2 4 -5 10 M2 -10 Q5 -4 4 0 Q5 4 2 10 M9 -8 Q12 -3 11 0 Q12 3 9 8 M15 -6 Q17 -2 17 0 Q17 2 15 6"/>
+          <path d="M-32 0 C-27 -10 -19 -10 -17 0 C-19 10 -27 10 -32 0Z"/>
+          <circle cx="-25" cy="-2" r="2"/>
+          <path d="M22 0 L36 -12 M22 0 L36 12 M22 0 L37 0 M24 0 L35 -6 M24 0 L35 6"/>
+        </g>
+      </g>
+      <g id="fsHammer" class="stage">
+        <g transform="translate(318 92) rotate(-35)"><rect x="-3" y="-4" width="6" height="40" rx="2" fill="#8a5a2b"/><rect x="-14" y="-12" width="28" height="11" rx="2" fill="#6b7a86"/></g>
+        <g fill="#f2c200" font-size="16" font-weight="800"><text x="206" y="146">✦</text><text x="292" y="150">✦</text><text x="250" y="140">✦</text></g>
+      </g>
+    </svg>
+    <div class="sim-ctrl"><button class="btn small ghost" id="fsPrev">◀ Zurück</button><button class="btn small" id="fsNext">Weiter ▶</button></div>
+    <div class="readout"><span class="chip" id="fsTime">🕰️ Urzeit</span></div>
+    <p class="obs" id="fsObs"></p>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Fossilien sind versteinerte Überreste oder Abdrücke von Lebewesen aus der Urzeit.</li><li>Sie entstehen, wenn ein toter Körper schnell unter Luftabschluss von Schlamm oder Sand bedeckt wird.</li><li>Kohle, Erdöl und Erdgas heißen fossile Rohstoffe, weil sie ebenfalls aus Lebewesen der Urzeit entstanden sind.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Warum nicht jeder Fisch zum Fossil wird <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="open1b"></div>
+  </div>
+  <div class="card reveal" id="mc-s1"></div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Fossile Rohstoffe – Energie aus der Urzeit</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead"><strong>Aus Biomasse entstanden.</strong> Erdöl, Erdgas und Kohle sind aus <button class="term" data-t="biomasse">Biomasse</button> entstanden, also aus den Resten abgestorbener Pflanzen und Tiere. Unter Luftabschluss konnten diese Reste nicht verrotten. Stattdessen wurden sie über Millionen Jahre tief in der Erde umgewandelt.</p>
+      <p style="margin:0">Weil sie von Lebewesen stammen, enthalten sie viel <button class="term" data-t="kohlenstoff">Kohlenstoff</button>. Wie Holz und Raps gehören sie deshalb zu den organischen Rohstoffen – nur wachsen sie nicht nach.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Wofür wir sie nutzen.</strong> Der größte Teil wird verbrannt. Dabei wird viel Wärme frei, mit der man heizt, Motoren antreibt oder Strom erzeugt. Kohle, Erdöl und Erdgas sind also <button class="term" data-t="energietraeger">Energieträger</button>.</p>
+      <ul style="margin:0 0 .6em;padding-left:20px">
+        <li><strong>Kohle</strong> wird vor allem in Kraftwerken zur Stromerzeugung verbrannt.</li>
+        <li><strong>Erdöl</strong> wird in der <button class="term" data-t="raffinerie">Raffinerie</button> zu Benzin, Diesel, Heizöl und <button class="term" data-t="kerosin">Kerosin</button> verarbeitet.</li>
+        <li><strong>Erdgas</strong> heizt viele Wohnungen und Häuser.</li>
+      </ul>
+      <p style="margin:0">Ein kleinerer Teil, vor allem vom Erdöl, ist Ausgangsstoff für die <button class="term" data-t="chemie">chemische Industrie</button>: für Kunststoffe, Farben oder Medikamente.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <svg viewBox="0 0 480 280" id="egSvg" role="img" aria-label="Animation: Von Kohle, Erdöl und Erdgas führen Leitungen zu ihren Verwendungen: Strom, Benzin und Diesel, Kerosin, Kunststoffe und Heizen">
+      <rect width="480" height="280" fill="#fbf8f2"/>
+      <g id="egPipes"></g>
+      <g id="egFlows"></g>
+      <g>
+        <path d="M40 66 L50 48 L66 46 L74 60 L66 72 L48 74Z" fill="#1d1d1f"/>
+        <path d="M62 72 L72 58 L86 62 L88 76 L74 82Z" fill="#2c2c2e"/>
+        <path d="M30 80 L38 66 L50 70 L50 82 L38 86Z" fill="#26262a"/>
+        <path d="M54 52 L62 50 M70 64 L80 64" stroke="#7d8a95" stroke-width="1.5"/>
+        <text x="60" y="104" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">Kohle</text>
+      </g>
+      <g>
+        <rect x="42" y="116" width="38" height="48" rx="5" fill="#2f3a45"/>
+        <path d="M42 128 H80 M42 152 H80" stroke="#56626e" stroke-width="3"/>
+        <path d="M61 130 C56 138 55 143 61 147 C67 143 66 138 61 130Z" fill="#fff"/>
+        <text x="60" y="182" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">Erdöl</text>
+      </g>
+      <g>
+        <rect x="44" y="238" width="34" height="8" rx="2" fill="#6b7a86"/>
+        <g class="flick"><path d="M61 238 C49 226 53 212 61 200 C69 212 73 226 61 238Z" fill="#4f8ff0"/><path d="M61 236 C56 229 57 221 61 214 C65 221 66 229 61 236Z" fill="#bfe0ff"/></g>
+        <text x="60" y="266" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">Erdgas</text>
+      </g>
+      <g id="egBoxes"></g>
+    </svg>
+    <div class="sim-ctrl" id="egBtns">
+      <button class="btn small ghost" data-i="0">⛏️ Kohle</button>
+      <button class="btn small ghost" data-i="1">🛢️ Erdöl</button>
+      <button class="btn small ghost" data-i="2">🔥 Erdgas</button>
+    </div>
+    <div class="readout" id="egChips">
+      <span class="chip" data-i="0" hidden>⛏️ Kohle: vor allem Strom</span>
+      <span class="chip warn" data-i="1" hidden>🛢️ Erdöl: Kraftstoffe, Heizöl, Kunststoffe</span>
+      <span class="chip ok" data-i="2" hidden>🔥 Erdgas: vor allem Heizen</span>
+    </div>
+    <p class="obs" id="egObs">Wohin fließt die Energie aus der Urzeit? Tippe unten nacheinander auf Kohle, Erdöl und Erdgas.</p>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Fossile Rohstoffe sind aus Biomasse entstanden und enthalten viel Kohlenstoff.</li><li>Sie werden vor allem als Energieträger verbrannt: Kohle für Strom, Erdöl für Kraftstoffe und Heizöl, Erdgas zum Heizen.</li><li>Ein Teil des Erdöls ist Ausgangsstoff für die chemische Industrie, zum Beispiel für Kunststoffe.</li></ul></div>
+
+  <div class="card reveal">
+    <span class="task-tag">Zuordnen</span>
+    <h3 style="margin-top:4px">Kohle, Erdöl oder Erdgas?</h3>
+    <p class="hint">Tippe eine Karte an und dann das passende Feld. Du kannst die Karten auch ziehen.</p>
+    <div id="sortNutz"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Erklären · Probenstoff</span>
+    <h3 style="margin-top:4px">Fossile Energieträger <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="open2"></div>
+  </div>
+  <div class="card reveal" id="mc-s2"></div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>Wie Erdöl und Erdgas entstanden sind</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead"><strong>Leben im Urmeer.</strong> Vor vielen Millionen Jahren waren große Teile der Erde von Meeren bedeckt. Darin trieben unvorstellbar viele winzige Lebewesen, das <button class="term" data-t="plankton">Plankton</button>: Algen, Kleinstlebewesen und kleine Krebse. Starben sie, rieselten sie wie Schnee auf den Meeresboden.</p>
+      <p style="margin:0"><strong>Faulschlamm.</strong> Am Meeresgrund gab es kaum Sauerstoff, die Reste konnten nicht verwesen. <button class="term" data-t="bakterien">Bakterien</button> zersetzten sie nur teilweise – es bildete sich <button class="term" data-t="faulschlamm">Faulschlamm</button>. Flüsse spülten Sand, Geröll und Schlamm ins Meer. Diese lagerten sich darüber ab, die Schichten wurden immer dicker.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Druck und Wärme.</strong> Je tiefer der Faulschlamm geriet, desto größer wurden <button class="term" data-t="druck">Druck</button> und Temperatur. Über Millionen Jahre wandelten sich die Reste der Lebewesen in flüssiges Erdöl und gasförmiges Erdgas um. Beide sind Gemische aus <button class="term" data-t="kohlenwasserstoffe">Kohlenwasserstoffen</button>.</p>
+      <p style="margin:0"><strong>Auf Wanderschaft.</strong> Erdöl und Erdgas sind leichter als Wasser. Sie drangen durch Risse und <button class="term" data-t="poroes">durchlässiges Gestein</button> nach oben, bis eine <button class="term" data-t="deckgestein">undurchlässige Gesteinsschicht</button> sie stoppte. Darunter sammelten sie sich: das Erdgas oben, das Erdöl darunter. So entstand eine <button class="term" data-t="lagerstaette">Lagerstätte</button>.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <div class="chain" id="oeChain">
+      <div class="step"><span class="ic">🦠</span>Leben im Meer</div><span class="to">→</span>
+      <div class="step"><span class="ic">⬇️</span>Absinken</div><span class="to">→</span>
+      <div class="step"><span class="ic">🟤</span>Faulschlamm</div><span class="to">→</span>
+      <div class="step"><span class="ic">⏬</span>Schichten, Druck</div><span class="to">→</span>
+      <div class="step"><span class="ic">🛢️</span>Öl und Gas</div><span class="to">→</span>
+      <div class="step"><span class="ic">⬆️</span>Lagerstätte</div>
+    </div>
+    <svg viewBox="0 0 480 280" id="oeSvg" role="img" aria-label="Animation: Plankton sinkt auf den Meeresgrund und wird zu Faulschlamm. Schichten decken ihn zu, unter Druck und Wärme entstehen Erdöl und Erdgas. Sie steigen nach oben und sammeln sich unter einer undurchlässigen Gesteinsschicht.">
+      <defs>
+        <linearGradient id="oeSeaG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7cc3ee"/><stop offset="1" stop-color="#1d5f8e"/></linearGradient>
+        <linearGradient id="oeHeatG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a3b1f"/><stop offset="1" stop-color="#d0622a"/></linearGradient>
+        <pattern id="oeDots" width="14" height="14" patternUnits="userSpaceOnUse"><rect width="14" height="14" fill="#dcc393"/><circle cx="3" cy="4" r="1.6" fill="#b99f6c"/><circle cx="10" cy="10" r="1.3" fill="#c3a975"/></pattern>
+        <clipPath id="oeTrap"><path d="M0 208 Q240 68 480 208 V280 H0Z"/></clipPath>
+        <path id="oeCapMid" d="M0 197 Q240 57 480 197" fill="none"/>
+      </defs>
+      <rect width="480" height="280" fill="#f7fbfe"/>
+      <!-- Szene A: das Urmeer -->
+      <g id="oeSea" class="stage">
+        <rect width="480" height="190" fill="url(#oeSeaG)"/>
+        <rect y="190" width="480" height="90" fill="#d7bf8e"/>
+        <g id="oePl"></g>
+        <g id="oeMud" class="stage">
+          <rect y="178" width="480" height="18" fill="#3f3226"/>
+          <g fill="#a57bd6"><rect class="wig" x="40" y="181" width="12" height="5" rx="2.5"/><rect class="wig" x="120" y="185" width="12" height="5" rx="2.5"/><rect class="wig" x="200" y="182" width="12" height="5" rx="2.5"/><rect class="wig" x="286" y="186" width="12" height="5" rx="2.5"/><rect class="wig" x="360" y="181" width="12" height="5" rx="2.5"/><rect class="wig" x="430" y="185" width="12" height="5" rx="2.5"/></g>
+        </g>
+        <g id="oeO2" class="stage">
+          <rect x="150" y="128" width="180" height="30" rx="15" fill="#fff" opacity=".92"/>
+          <text x="240" y="148" text-anchor="middle" font-size="13" font-weight="800" fill="#c0392b">kaum Sauerstoff am Grund</text>
+        </g>
+      </g>
+      <!-- Szene B: Schnitt durch die Erde -->
+      <g id="oeDeep" class="stage">
+        <rect y="224" width="480" height="26" fill="#3b2d22"/>
+        <rect y="250" width="480" height="30" fill="url(#oeHeatG)"/>
+        <text x="8" y="241" font-size="10.5" font-weight="700" fill="#fff">Faulschlamm</text>
+        <text x="8" y="270" font-size="10.5" font-weight="700" fill="#fff">Wärme aus der Tiefe</text>
+        <g id="oeLd" class="lay"><path d="M0 208 Q240 68 480 208 V224 H0Z" fill="url(#oeDots)"/><text x="240" y="216" text-anchor="middle" font-size="10" font-weight="700" fill="#6b5a2e">durchlässiges Gestein</text></g>
+        <g id="oeGas" class="stage" clip-path="url(#oeTrap)"><rect y="136" width="480" height="20" fill="#f4d35e"/></g>
+        <g id="oeOil" class="stage" clip-path="url(#oeTrap)"><rect y="156" width="480" height="20" fill="#1f1a15"/></g>
+        <g id="oeWat" class="stage" clip-path="url(#oeTrap)"><rect y="176" width="480" height="16" fill="#8cc0e0"/></g>
+        <g id="oeLc" class="lay"><path d="M0 186 Q240 46 480 186 L480 208 Q240 68 0 208Z" fill="#6b7380"/><text font-size="10" font-weight="700" fill="#fff" dy="3.5"><textPath href="#oeCapMid" startOffset="27%" text-anchor="middle">undurchlässige Gesteinsschicht</textPath></text></g>
+        <g id="oeLb" class="lay"><path d="M0 74 H480 V186 Q240 46 0 186Z" fill="#b8a78a"/><text x="472" y="96" text-anchor="end" font-size="10" font-weight="700" fill="#5e513c">Ton und Schlamm</text></g>
+        <g id="oeLa" class="lay"><rect y="44" width="480" height="30" fill="#e6d2a2"/><text x="472" y="63" text-anchor="end" font-size="10" font-weight="700" fill="#6b5a2e">Sand und Geröll</text></g>
+        <g id="oeLs" class="lay"><rect width="480" height="24" fill="#e8f4fb"/><rect y="24" width="480" height="20" fill="#5aa3d6"/><text x="8" y="38" font-size="10" font-weight="700" fill="#fff">Meer</text></g>
+        <g id="oePaths" class="stage" fill="none" stroke="#f4d35e" stroke-width="2.5" stroke-linecap="round">
+          <path class="flow" d="M110 228 C130 200 170 180 200 160"/><path class="flow" d="M370 228 C350 200 310 180 280 160"/><path class="flow" d="M240 228 C236 210 244 196 240 176"/>
+        </g>
+        <g id="oeDr"></g>
+        <g id="oeTrapL" class="stage" font-size="10.5" font-weight="800" text-anchor="middle">
+          <text x="190" y="151" fill="#6b5200">Erdgas</text><text x="190" y="170" fill="#fff">Erdöl</text><text x="190" y="188" fill="#1d5f8e">Wasser</text>
+        </g>
+        <g id="oePress" class="stage" fill="#fff" stroke="#c0392b" stroke-width="2" stroke-linejoin="round">
+          <path d="M144 46 H156 V62 H164 L150 76 L136 62 H144Z"/><path d="M324 46 H336 V62 H344 L330 76 L316 62 H324Z"/>
+        </g>
+        <g id="oeRig" class="stage">
+          <path d="M226 20 V44 M254 20 V44" stroke="#33414d" stroke-width="3"/>
+          <rect x="216" y="16" width="48" height="6" rx="2" fill="#33414d"/>
+          <path d="M231 16 L240 3 L249 16" stroke="#33414d" stroke-width="2.5" fill="none"/>
+          <line x1="240" y1="22" x2="240" y2="150" stroke="#33414d" stroke-width="3" stroke-dasharray="6 4"/>
+        </g>
+      </g>
+    </svg>
+    <div class="sim-ctrl"><button class="btn small ghost" id="oePrev">◀ Zurück</button><button class="btn small" id="oeNext">Weiter ▶</button></div>
+    <div class="readout"><span class="chip" id="oeC1"></span><span class="chip" id="oeC2"></span></div>
+    <p class="obs" id="oeObs"></p>
+  </div>
+
+  <figure class="card reveal" style="margin-top:18px"><img class="zoomable" src="assets/modul3/erdoel-erdgas-entstehung.webp" width="1448" height="1086" loading="lazy" decoding="async" alt="Infografik Entstehung von Erdöl und Erdgas in acht Schritten: 1 Vor Millionen Jahren lebten viele kleine Lebewesen im Meer. 2 Sie sterben und sinken auf den Grund. 3 Bakterien zersetzen sie, es entsteht Faulschlamm. 4 Sand, Schlamm und Geröll decken alles zu. 5 Mit größerer Tiefe steigen Druck und Temperatur. 6 Aus den organischen Resten entstehen Erdöl und Erdgas. 7 Sie steigen durch feine Risse im Gestein nach oben. 8 Unter einer undurchlässigen Gesteinsschicht sammeln sich Erdgas oben und Erdöl darunter. Unten ein Querschnitt mit Meer, abgestorbenen Lebewesen, Faulschlamm, Sand und Schlamm, undurchlässiger Gesteinsschicht, Erdgas, Erdöl, Rissen im Gestein sowie Druck und Wärme."><figcaption>Die Entstehung von Erdöl und Erdgas auf einen Blick (Tippen zum Vergrößern)<br><span class="ki-note">KI-Grafik: Fachinhalt anhand einer vorhandenen Unterrichtsquelle geprüft, Grafik anschließend vollständig neu und eigenständig mittels KI erstellt.</span></figcaption></figure>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Erdöl und Erdgas entstanden aus winzigen Meereslebewesen (Plankton).</li><li>Am sauerstoffarmen Meeresgrund zersetzten Bakterien die Reste zu Faulschlamm.</li><li>Unter hohem Druck und hoher Temperatur wandelte sich der Faulschlamm über Millionen Jahre in Erdöl und Erdgas um.</li><li>Beide stiegen nach oben und sammelten sich unter einer undurchlässigen Gesteinsschicht: Erdgas oben, Erdöl darunter.</li></ul></div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Lückentext · Probenstoff</span>
+    <h3 style="margin-top:4px">Wie sind Erdöl und Erdgas entstanden? Fülle die Lücken.</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Drei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapOel"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Bild und Text · Probenstoff</span>
+    <h3 style="margin-top:4px">Welcher Satz passt zu welchem Bild?</h3>
+    <p class="hint">Die Bilder stehen durcheinander. Tippe einen Satz an und dann das passende Bild.</p>
+    <div id="abBild"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Weiterdenken</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="open3"></div>
+  </div>
+  <div class="card reveal" id="mc-s3"></div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Probenstoff</div><h2>Wie Kohle entstanden ist</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead"><strong>Wälder im Sumpf.</strong> Vor rund 300 Millionen Jahren wuchsen auf großen Teilen der Kontinente riesige <button class="term" data-t="sumpfwald">Sumpfwälder</button>. Das Klima war warm und feucht, Farne und Schachtelhalme wurden so hoch wie Bäume.</p>
+      <p style="margin:0"><strong>Versunken im Schlamm.</strong> Umgestürzte Bäume und abgestorbene Pflanzen fielen in den nassen Boden und versanken im Schlamm. Unter Luftabschluss konnten sie nicht verrotten. Flüsse brachten Sand und Geröll, die sich darüber ablagerten. Oft wuchs darauf ein neuer Wald – und alles wiederholte sich viele Male.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Von Torf zu Steinkohle.</strong> Das Gewicht der Schichten presste die Pflanzenreste zusammen. Zuerst entstand <button class="term" data-t="torf">Torf</button>. Gerieten die Schichten tiefer, stiegen Druck und Temperatur. Wasser wurde herausgepresst, der Anteil an Kohlenstoff nahm zu. Aus Torf wurde <button class="term" data-t="braunkohle">Braunkohle</button> und nach noch längerer Zeit die harte <button class="term" data-t="steinkohle">Steinkohle</button>. Diesen Vorgang nennt man <button class="term" data-t="inkohlung">Inkohlung</button>.</p>
+      <p style="margin:0">In Deutschland wird Braunkohle im <button class="term" data-t="tagebau">Tagebau</button> abgebaut, etwa im Rheinland und in der Lausitz. Steinkohle lag viel tiefer und wurde <button class="term" data-t="untertage">unter Tage</button> gefördert, zum Beispiel im Ruhrgebiet. 2018 schlossen dort die letzten deutschen Steinkohlenzechen.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <div class="chain" id="khChain">
+      <div class="step"><span class="ic">🌴</span>Sumpfwald</div><span class="to">→</span>
+      <div class="step"><span class="ic">🍂</span>Versinken</div><span class="to">→</span>
+      <div class="step"><span class="ic">⏬</span>Zudecken</div><span class="to">→</span>
+      <div class="step"><span class="ic">🟤</span>Torf</div><span class="to">→</span>
+      <div class="step"><span class="ic">🟫</span>Braunkohle</div><span class="to">→</span>
+      <div class="step"><span class="ic">⬛</span>Steinkohle</div>
+    </div>
+    <svg viewBox="0 0 480 280" id="khSvg" role="img" aria-label="Animation: Bäume eines Sumpfwaldes versinken im Schlamm und werden zugedeckt. Mit wachsender Tiefe werden die Pflanzenreste zu Torf, Braunkohle und Steinkohle. Der Kohlenstoffanteil steigt, die Schicht wird dünner.">
+      <rect width="480" height="280" fill="#f7fbfe"/>
+      <!-- Szene A: Sumpfwald -->
+      <g id="khSwamp" class="stage">
+        <rect width="312" height="160" fill="#e3f1f8"/>
+        <rect y="176" width="312" height="104" fill="#7a5c3e"/>
+        <g id="khPlant" class="stage"><rect y="168" width="312" height="22" fill="#4f5a2c"/><g stroke="#8a6a3a" stroke-width="3" stroke-linecap="round"><line x1="20" y1="178" x2="80" y2="174"/><line x1="96" y1="182" x2="170" y2="176"/><line x1="190" y1="176" x2="262" y2="182"/><line x1="240" y1="172" x2="300" y2="176"/></g></g>
+        <rect y="156" width="312" height="22" fill="#5d7f5a" opacity=".85"/>
+        <g id="khTrees"></g>
+      </g>
+      <!-- Szene B: Schnitt durch die Erde -->
+      <g id="khDeep" class="stage">
+        <rect width="312" height="12" fill="#e3f1f8"/>
+        <rect y="12" width="312" height="10" fill="#6aa84f"/>
+        <g fill="#3f8a4a"><path d="M40 12 L48 -2 L56 12Z"/><path d="M130 12 L140 -4 L150 12Z"/><path d="M230 12 L238 0 L246 12Z"/></g>
+        <g id="khOver"></g>
+        <g id="khBase"><rect width="312" height="300" fill="#6f6353"/></g>
+        <g id="khSeam">
+          <rect width="312" height="30" fill="#6b5a30" id="khSeamR" style="transition:fill 1.4s"/>
+          <g id="khTw" class="fade" stroke="#a0824f" stroke-width="2.5" stroke-linecap="round"><line x1="20" y1="10" x2="80" y2="8"/><line x1="100" y1="20" x2="170" y2="16"/><line x1="190" y1="9" x2="262" y2="14"/><line x1="40" y1="22" x2="90" y2="24"/><line x1="220" y1="23" x2="290" y2="21"/></g>
+          <g id="khGl" class="fade" stroke="#9aa5ad" stroke-width="2" stroke-linecap="round" style="opacity:0"><line x1="30" y1="8" x2="60" y2="8"/><line x1="130" y1="18" x2="170" y2="18"/><line x1="230" y1="10" x2="270" y2="10"/></g>
+        </g>
+        <g id="khPress" class="fade" fill="#fff" stroke="#c0392b" stroke-width="2" stroke-linejoin="round">
+          <path d="M70 24 H82 V40 H90 L76 54 L62 40 H70Z"/><path d="M150 24 H162 V40 H170 L156 54 L142 40 H150Z"/><path d="M230 24 H242 V40 H250 L236 54 L222 40 H230Z"/>
+        </g>
+        <g id="khMark"><path d="M300 0 L312 -6 V6Z" fill="#c0392b"/></g>
+      </g>
+      <!-- Info rechts -->
+      <rect x="318" y="6" width="156" height="268" rx="12" fill="#fff" stroke="#d8e2ea"/>
+      <text id="khName" x="396" y="34" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Sumpfwald</text>
+      <path id="khSample" d="M360 70 L392 54 L428 62 L440 90 L420 118 L380 122 L356 100Z" fill="#5f8f3a" stroke="#33414d" stroke-width="2"/>
+      <g id="khSampleTw" class="fade" stroke="#a0824f" stroke-width="2" stroke-linecap="round"><line x1="370" y1="80" x2="410" y2="74"/><line x1="380" y1="100" x2="426" y2="94"/></g>
+      <g id="khSampleGl" class="fade" style="opacity:0" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="380" y1="70" x2="404" y2="64"/><line x1="410" y1="96" x2="426" y2="90"/></g>
+      <text x="330" y="152" font-size="11" font-weight="700" fill="#566674">Kohlenstoffanteil</text>
+      <rect x="330" y="160" width="132" height="14" rx="7" fill="#e8eef3"/>
+      <rect id="khBar" x="330" y="160" width="132" height="14" rx="7" fill="#33414d" style="transform:scaleX(.5)"/>
+      <text id="khPct" x="396" y="194" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">etwa 50 %</text>
+      <text id="khP1" x="396" y="222" text-anchor="middle" font-size="11" fill="#566674"></text>
+      <text id="khP2" x="396" y="240" text-anchor="middle" font-size="11" fill="#566674"></text>
+    </svg>
+    <div class="sim-ctrl"><button class="btn small ghost" id="khPrev">◀ Zurück</button><button class="btn small" id="khNext">Weiter ▶</button></div>
+    <div class="readout"><span class="chip" id="khC1"></span><span class="chip" id="khC2"></span></div>
+    <p class="obs" id="khObs"></p>
+  </div>
+
+  <figure class="card reveal" style="margin-top:18px"><img class="zoomable" src="assets/modul3/kohle-entstehung.webp" width="1448" height="1086" loading="lazy" decoding="async" alt="Infografik Entstehung von Kohle in sieben Schritten: 1 Vor rund 300 Millionen Jahren bedeckten riesige Sumpfwälder das Land. 2 Abgestorbene Bäume und Pflanzenreste sanken in das sumpfige Gebiet. 3 Flüsse brachten Sand und Geröll, neue Schichten bedeckten die Pflanzenreste. 4 Der Druck wurde größer und die Wärme stieg. 5 Die zusammengepressten Pflanzenreste wurden zu Torf. 6 Mit weiterem Druck und über längere Zeit entstand Braunkohle. 7 Nach noch mehr Druck und sehr langer Zeit entstand Steinkohle. Unten ein Querschnitt vom Sumpfwald über Pflanzenreste, Schlamm und Sand, Torf und Braunkohle bis zur Steinkohle; nach unten nehmen Druck und Wärme zu."><figcaption>Vom Sumpfwald zur Steinkohle (Tippen zum Vergrößern)<br><span class="ki-note">KI-Grafik: Fachinhalt anhand einer vorhandenen Unterrichtsquelle geprüft, Grafik anschließend vollständig neu und eigenständig mittels KI erstellt.</span></figcaption></figure>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Kohle entstand aus Pflanzen der Sumpfwälder, die im Schlamm unter Luftabschluss versanken.</li><li>Unter dem Druck neuer Schichten wurden die Pflanzenreste zu Torf, dann zu Braunkohle und schließlich zu Steinkohle (Inkohlung).</li><li>Je tiefer und länger die Kohle lag, desto höher ist ihr Kohlenstoffanteil.</li></ul></div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Reihenfolge · Probenstoff</span>
+    <h3 style="margin-top:4px">Wie ist Kohle entstanden? Bringe die Sätze in die richtige Reihenfolge.</h3>
+    <div id="orderKohle"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Zuordnen</span>
+    <h3 style="margin-top:4px">Torf, Braunkohle oder Steinkohle?</h3>
+    <p class="hint">Tippe eine Karte an und dann das passende Feld.</p>
+    <div id="sortKohle"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Beschreiben · Probenstoff</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="open4"></div>
+  </div>
+  <div class="card reveal" id="mc-s4"></div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Vergleichen · Probenstoff</div><h2>Erdöl und Kohle im Vergleich</h2></div></div>
+  <div class="card reveal">
+    <p class="lead" style="margin:0">Kohle und Erdöl sind auf ähnliche Weise entstanden – aber aus unterschiedlichen Lebewesen und an unterschiedlichen Orten. Tippe auf die Felder der Tabelle und decke den Vergleich Stück für Stück auf. Grün umrandete Felder zeigen eine Gemeinsamkeit.</p>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Vergleichstabelle</span>
+    <div class="cmp" id="cmpTab"></div>
+    <p class="hint" id="cmpHint" style="margin:10px 0 0">0 von 12 Feldern aufgedeckt</p>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Zuordnen</span>
+    <h3 style="margin-top:4px">Nur Erdöl, nur Kohle – oder bei beiden?</h3>
+    <p class="hint">Tippe eine Karte an und dann das passende Feld.</p>
+    <div id="sortVgl"></div>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Gemeinsam: Luftabschluss, hoher Druck, hohe Temperatur und Millionen Jahre.</li><li>Unterschied: Erdöl und Erdgas entstanden aus Meereslebewesen über Faulschlamm, Kohle aus Landpflanzen über Torf.</li><li>Erdöl und Erdgas wandern durch das Gestein, Kohle bleibt als feste Schicht liegen.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Vergleichen · Probenstoff</span>
+    <h3 style="margin-top:4px">Gemeinsamkeiten und Unterschiede <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="open5"></div>
+  </div>
+  <div class="card reveal" id="mc-s5"></div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="s6">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Film · Nachhaltigkeit · Probenstoff</div><h2>Endlich – und schlecht fürs Klima</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead"><strong>Nicht nachwachsend.</strong> Fossile Rohstoffe bilden sich zwar auch heute noch – aber so langsam, dass es Millionen Jahre dauert. Die Menschheit verbraucht die Vorräte dagegen in wenigen hundert Jahren. Was einmal verbrannt ist, ist weg. Fossile Rohstoffe sind deshalb <button class="term" data-t="endlich">endlich</button> und nicht <button class="term" data-t="nachhaltig">nachhaltig</button>.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Zusätzliches CO₂.</strong> Beim Verbrennen reagiert der Kohlenstoff mit Sauerstoff zu <button class="term" data-t="co2">Kohlenstoffdioxid</button>. Dieser Kohlenstoff lag Millionen Jahre in der Erde. Jetzt gelangt er zusätzlich in die Luft und verstärkt den <button class="term" data-t="treibhaus">Treibhauseffekt</button>. Mehr dazu lernst du in Modul 5.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <div class="chain" id="clChain">
+      <div class="step"><span class="ic">🕰️</span>Die Natur füllt das Lager</div><span class="to">→</span>
+      <div class="step"><span class="ic">🔥</span>Der Mensch leert es</div><span class="to">→</span>
+      <div class="step"><span class="ic">❓</span>Wächst es nach?</div>
+    </div>
+    <svg viewBox="0 0 480 250" id="clSvg" role="img" aria-label="Animation: Eine 24-Stunden-Uhr steht für die Entstehung der Vorräte, ein Tank füllt sich. In der letzten Sekunde leert der Mensch den Tank, CO₂ steigt auf.">
+      <rect width="480" height="250" fill="#fbf8f2"/>
+      <circle cx="120" cy="118" r="88" fill="#fff" stroke="#33414d" stroke-width="4"/>
+      <path id="clArc" d="" fill="#f3d9a8"/>
+      <g id="clTicks"></g>
+      <g font-size="13" font-weight="800" fill="#33414d" text-anchor="middle"><text x="120" y="64">0</text><text x="178" y="123">6</text><text x="120" y="182">12</text><text x="62" y="123">18</text></g>
+      <line id="clHand" x1="120" y1="118" x2="120" y2="42" stroke="#c0392b" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="120" cy="118" r="6" fill="#33414d"/>
+      <text id="clTime" x="120" y="232" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">00:00 Uhr</text>
+      <text x="340" y="24" text-anchor="middle" font-size="12" font-weight="800" fill="#566674">Vorrat in der Erde</text>
+      <clipPath id="clTank"><rect x="292" y="36" width="96" height="164" rx="12"/></clipPath>
+      <g clip-path="url(#clTank)"><rect x="292" y="36" width="96" height="164" fill="#f1ece3"/><rect id="clFill" x="292" y="36" width="96" height="164" fill="#231d17" style="transform:scaleY(0)"/></g>
+      <rect x="292" y="36" width="96" height="164" rx="12" fill="none" stroke="#33414d" stroke-width="3"/>
+      <text id="clPct" x="340" y="222" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">0 %</text>
+      <g id="clFab" class="stage">
+        <rect x="420" y="160" width="46" height="40" fill="#6b7a86"/><rect x="448" y="120" width="12" height="42" fill="#4a5a68"/>
+        <path d="M388 180 H420" stroke="#33414d" stroke-width="4"/>
+        <g font-size="11" font-weight="800" fill="#5f6770">
+          <text class="rise" x="444" y="112">CO₂</text><text class="rise" x="456" y="100" style="animation-delay:.8s">CO₂</text><text class="rise" x="440" y="94" style="animation-delay:1.6s">CO₂</text>
+        </g>
+      </g>
+    </svg>
+    <div class="sim-ctrl"><button class="btn small ghost" id="clPrev">◀ Zurück</button><button class="btn small" id="clNext">Weiter ▶</button><span style="flex:1"></span><button class="btn small ghost" id="clAgain">↻ Nochmal abspielen</button></div>
+    <div class="readout"><span class="chip" id="clC1">Annahme: Entstehung ≈ 100 Mio. Jahre = 24 Stunden</span><span class="chip" id="clC2" hidden>Verbrauch ≈ 200 Jahre = 0,2 Sekunden</span></div>
+    <p class="obs" id="clObs"></p>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag">Film · Fossile Energieträger</span>
+    <p class="hint" style="margin-top:0">Der Film fasst zusammen, woraus Kohle, Erdöl und Erdgas bestehen, wie sie entstanden sind und warum ihre Verbrennung das Klima beeinflusst. Er hält an einigen Stellen an. Beantworte dann die Frage unter dem Film – erst danach geht es weiter.</p>
+    <div class="film" id="film">
+      <div id="ytPlayer"></div>
+      <button class="film-poster" id="filmStart" type="button"><span class="play">▶</span><b>Film starten</b><small>Duden Learnattack: „Fossile Energieträger: Kohle, Erdöl, Erdgas“ (etwa 4 Minuten). Erst mit diesem Klick wird der Film von YouTube geladen.</small></button>
+      <div class="film-stop" id="filmStop">⏸ Film-Stopp!<br>Beantworte die Frage unter dem Film.</div>
+    </div>
+    <div class="film-chips" id="filmChips" aria-label="Film-Stopps"></div>
+    <p class="hint" id="filmHint" style="margin:8px 0 0">Die Knöpfe mit ❓ springen direkt zu einem Film-Stopp.</p>
+    <div id="filmQs"></div>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Fossile Rohstoffe entstehen in Millionen Jahren, werden aber in wenigen hundert Jahren verbraucht. Sie sind endlich und nicht nachhaltig.</li><li>Beim Verbrennen entsteht Kohlenstoffdioxid. Es gelangt zusätzlich in die Luft und verstärkt den Treibhauseffekt.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Begründen · Probenstoff</span>
+    <h3 style="margin-top:4px">Nachhaltig oder nicht? <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="open6"></div>
+  </div>
+  <div class="card reveal" id="mc-s6"></div>
+</section>
+
+<!-- ============ STATION 7 ============ -->
+<section class="station" id="s7">
+  <div class="st-head reveal"><div class="st-num">7</div><div><div class="eyebrow">Wiederholung · so kommt es in der Probe</div><h2>Training für die Probe</h2></div></div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Kreuzworträtsel</span>
+    <h3 style="margin-top:4px">Löse das Kreuzworträtsel</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. <strong>Ö</strong> bekommt ein eigenes Kästchen.</p>
+    <div id="cw"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Schaubild beschriften</span>
+    <h3 style="margin-top:4px">Schnitt durch eine Erdöl-Lagerstätte</h3>
+    <div id="labelLager"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Richtig oder falsch?</span>
+    <div id="tf"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Ankreuzen</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Offene Fragen</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung. Danach kannst du die Musterlösung ansehen.</p>
+    <div id="openT"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 8 ============ -->
+<section class="station" id="s8">
+  <div class="st-head reveal"><div class="st-num">8</div><div><div class="eyebrow">Abschluss</div><h2>Rohstoff-Profi-Check</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Rohes Erdöl kann man so nicht in den Tank füllen. In Modul 4 erfährst du, wie es in der Raffinerie in Benzin, Diesel, Kerosin und viele andere Stoffe aufgetrennt wird.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="modul-2.html">⬅️ Modul 2</a>
+      <a href="module.html?id=m05">➡️ Modul 4</a>
+      <a href="index.html">📘 Übersicht Organische Rohstoffe</a>
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik 9M / 9R · Organische Rohstoffe · Modul 3 · Film: Duden Learnattack, „Fossile Energieträger: Kohle, Erdöl, Erdgas“ auf YouTube. Die beiden Infografiken wurden mit KI neu erstellt, ihr Fachinhalt wurde anhand einer vorhandenen Unterrichtsquelle geprüft. Dein Fortschritt wird nur auf diesem Gerät gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="content.js"></script>
+<script src="fortschritt/fortschritt.js"></script>
+<script src="modul-basis.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, clamp, reduced, onVisible, register, solve} = Modul;
+const NS = "http://www.w3.org/2000/svg";
+const svgEl = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const wait = ms => new Promise(r => setTimeout(r, reduced ? Math.min(ms, 60) : ms));
+// Stil ohne Übergang setzen (z. B. beim Zurückspringen in einer Animation)
+const instant = (el, fn) => { el.style.transition = "none"; fn(); el.getBoundingClientRect(); el.style.transition = ""; };
+const FS = window.KohlenstoffFortschritt;
+let bereit = false;
+
+// Schritt-für-Schritt-Animation: Kette oben, Zurück/Weiter, show(i) zeichnet die Szene
+function stepper(chain, prev, next, n, show){
+  let i = 0;
+  const steps = $$(".step", chain);
+  function go(k){
+    i = clamp(k, 0, n - 1);
+    steps.forEach((s, j) => { s.classList.toggle("on", j === i); s.classList.toggle("done", j < i); });
+    prev.disabled = i === 0;
+    next.disabled = i === n - 1;
+    show(i);
+  }
+  prev.addEventListener("click", () => go(i - 1));
+  next.addEventListener("click", () => go(i + 1));
+  go(0);
+  return {go, cur: () => i};
+}
+
+Modul.init({
+  key: "grumi-nt9-" + (/\/9R\//i.test(location.pathname) ? "r9" : "m9") + "-modul3-v1",
+  thema: "Organische Rohstoffe: Fossilien, Entstehung von Erdöl und Erdgas (Plankton, Faulschlamm) und Kohle (Torf, Braunkohle, Steinkohle), Nutzung, nicht nachhaltig",
+  api: "/api/nt9/uebung/feedback",
+  hero: "funken",
+  // Sterne auch in der Kursübersicht zeigen (Kachel Modul 3, interne Kennung m04)
+  onProgress: (n, total) => { if (bereit && FS) FS.speichern("m04", n, total); },
+  glossary: {
+    fossil: ["Fossil", "Versteinerter Überrest oder Abdruck eines Lebewesens aus der Urzeit, z. B. ein Fisch, eine Muschel oder ein Farnblatt. Lateinisch fossilis heißt „ausgegraben“."],
+    fossilrohstoff: ["fossiler Rohstoff", "Rohstoff, der vor Millionen Jahren aus Resten abgestorbener Lebewesen entstanden ist: Kohle, Erdöl und Erdgas. Er wächst nicht nach."],
+    luftabschluss: ["Luftabschluss", "Es kommt keine Luft und damit kein Sauerstoff heran. Tote Lebewesen können dann nicht verwesen oder verrotten."],
+    biomasse: ["Biomasse", "Alle Stoffe, die von Lebewesen stammen, z. B. abgestorbene Pflanzen und Tiere."],
+    kohlenstoff: ["Kohlenstoff", "Chemisches Element (Zeichen C). Er steckt in allen Lebewesen und deshalb auch in Kohle, Erdöl und Erdgas."],
+    energietraeger: ["Energieträger", "Stoff, in dem Energie gespeichert ist. Beim Verbrennen wird sie als Wärme frei, z. B. bei Kohle, Erdöl und Erdgas."],
+    raffinerie: ["Raffinerie", "Fabrik, in der Rohöl in Benzin, Diesel, Heizöl, Kerosin und Grundstoffe für die Chemie aufgetrennt wird."],
+    kerosin: ["Kerosin", "Treibstoff für Flugzeuge, der aus Erdöl gewonnen wird."],
+    chemie: ["chemische Industrie", "Betriebe, die aus Rohstoffen neue Stoffe herstellen, z. B. Kunststoffe, Farben oder Medikamente."],
+    plankton: ["Plankton", "Winzige Lebewesen, die im Wasser treiben, z. B. Algen, Kleinstlebewesen und kleine Krebse."],
+    bakterien: ["Bakterien", "Winzige Lebewesen aus nur einer Zelle. Einige zersetzen abgestorbene Reste auch dort, wo es kaum Sauerstoff gibt."],
+    faulschlamm: ["Faulschlamm", "Dunkler Schlamm am Grund von Meeren oder Seen. Er entsteht, wenn Bakterien abgestorbene Lebewesen fast ohne Sauerstoff zersetzen. Aus ihm wurden Erdöl und Erdgas."],
+    druck: ["Druck", "Je mehr Schichten über einer Stelle liegen, desto stärker drücken sie nach unten. Tief in der Erde ist der Druck deshalb sehr hoch."],
+    kohlenwasserstoffe: ["Kohlenwasserstoffe", "Stoffe, die nur aus Kohlenstoff und Wasserstoff bestehen. Erdöl und Erdgas sind Gemische aus vielen Kohlenwasserstoffen."],
+    poroes: ["durchlässiges Gestein", "Gestein mit vielen kleinen Hohlräumen und Rissen, z. B. Sandstein. Erdöl, Erdgas und Wasser können hindurchwandern."],
+    deckgestein: ["undurchlässige Gesteinsschicht", "Dichte Gesteinsschicht, z. B. aus Ton oder Salz. Erdöl und Erdgas können nicht hindurch und sammeln sich darunter."],
+    lagerstaette: ["Lagerstätte", "Stelle in der Erde, an der sich ein Rohstoff in großer Menge gesammelt hat. Dort kann man ihn fördern."],
+    bohrinsel: ["Bohrinsel", "Plattform im Meer, von der aus man Erdöl oder Erdgas unter dem Meeresboden fördert, z. B. in der Nordsee."],
+    sumpfwald: ["Sumpfwald", "Wald auf nassem, sumpfigem Boden. Vor rund 300 Millionen Jahren wuchsen dort baumhohe Farne und Schachtelhalme."],
+    torf: ["Torf", "Erste Stufe der Kohleentstehung: zusammengepresste, nicht verrottete Pflanzenreste. Torf ist weich, enthält viel Wasser und bildet sich noch heute in Mooren."],
+    braunkohle: ["Braunkohle", "Braune, bröckelige Kohle mit etwa 70 % Kohlenstoff. Sie entstand aus Torf unter Druck und Wärme und wird in Deutschland im Tagebau abgebaut."],
+    steinkohle: ["Steinkohle", "Harte, schwarz glänzende Kohle mit dem höchsten Kohlenstoffanteil. Sie lag tief in der Erde und wurde unter Tage abgebaut."],
+    inkohlung: ["Inkohlung", "Langsame Umwandlung von Pflanzenresten über Torf und Braunkohle zu Steinkohle. Dabei steigt der Kohlenstoffanteil."],
+    tagebau: ["Tagebau", "Abbau von der Erdoberfläche aus in einer riesigen offenen Grube, z. B. bei Braunkohle."],
+    untertage: ["unter Tage", "Abbau in Stollen und Schächten tief unter der Erde, z. B. früher bei der Steinkohle im Ruhrgebiet."],
+    floez: ["Flöz", "Eine Schicht Kohle im Gestein."],
+    endlich: ["endlich", "Nur begrenzt vorhanden. Was verbraucht ist, kommt in absehbarer Zeit nicht wieder."],
+    nachhaltig: ["nachhaltig", "So nutzen, dass nicht mehr verbraucht wird, als nachwächst – damit auch spätere Generationen genug haben."],
+    co2: ["Kohlenstoffdioxid (CO₂)", "Gas, das beim Verbrennen kohlenstoffhaltiger Stoffe entsteht. Es hält Wärme in der Lufthülle der Erde zurück (Treibhausgas)."],
+    treibhaus: ["Treibhauseffekt", "Gase wie CO₂ halten Wärme in der Lufthülle der Erde zurück. Mehr CO₂ verstärkt diesen Effekt, die Erde erwärmt sich."]
+  }
+});
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Was ist ein Fossil?", o: ["ein versteinerter Überrest oder Abdruck eines Lebewesens aus der Urzeit", "ein besonders alter Stein, der nie gelebt hat", "ein Tier, das heute noch im Meer lebt", "ein Modell aus Gips für das Museum"], a: 0, e: "Fossilien sind Spuren von Lebewesen, die vor Millionen Jahren gelebt haben."},
+    {q: "Warum verwest ein Fisch nicht vollständig, wenn ihn schnell Schlamm bedeckt?", o: ["Es kommt keine Luft und damit kein Sauerstoff mehr an ihn heran.", "Der Schlamm ist besonders warm.", "Im Schlamm gibt es viel Licht.", "Fische können gar nicht verwesen."], a: 0, e: "Unter Luftabschluss können Bakterien und Tiere den Körper nicht vollständig zersetzen."},
+    {q: "Was bedeutet das lateinische Wort fossilis?", o: ["ausgegraben", "verbrannt", "nachwachsend", "flüssig"], a: 0, e: "Fossilien und fossile Rohstoffe holt man aus der Erde."},
+    {q: "Welche Rohstoffe nennt man fossil?", o: ["Erdöl", "Erdgas", "Braunkohle", "Steinkohle", "Holz", "Raps"], a: [0, 1, 2, 3], e: "Holz und Raps wachsen nach – sie sind regenerative Rohstoffe."}
+  ],
+  s2: [
+    {q: "Woraus sind fossile Rohstoffe entstanden?", o: ["aus Resten abgestorbener Pflanzen und Tiere (Biomasse)", "aus Vulkanasche", "aus Meersalz", "aus Sand und Steinen"], a: 0, e: "Fossile Rohstoffe stammen von Lebewesen – deshalb enthalten sie viel Kohlenstoff."},
+    {q: "Wofür wird Kohle vor allem genutzt?", o: ["zur Stromerzeugung in Kraftwerken", "als Kraftstoff für Flugzeuge", "zum Kochen von Nudeln", "als Dünger"], a: 0, e: "Im Kraftwerk macht die Wärme aus Wasser Dampf, der Dampf treibt Turbinen und Generatoren an."},
+    {q: "Welche Produkte stellt man aus Erdöl her?", o: ["Benzin", "Diesel", "Kerosin", "Kunststoffe", "Papier", "Speiseöl"], a: [0, 1, 2, 3], e: "Papier stammt aus Holz, Speiseöl zum Beispiel aus Raps."},
+    {q: "Wofür wird Erdgas häufig genutzt?", o: ["zum Heizen von Wohnungen und Häusern", "als Baustoff", "als Trinkwasser", "zur Papierherstellung"], a: 0, e: "Viele Heizungen und Gasherde laufen mit Erdgas. In Gaskraftwerken entsteht daraus auch Strom."}
+  ],
+  s3: [
+    {q: "Woraus sind Erdöl und Erdgas entstanden?", o: ["aus winzigen Meereslebewesen (Plankton)", "aus Bäumen in Sumpfwäldern", "aus Vulkanasche", "aus Meersalz"], a: 0, e: "Kohle stammt aus Sumpfwäldern – Erdöl und Erdgas aus dem Plankton der Urmeere."},
+    {q: "Warum verwesten die Reste am Meeresgrund nicht?", o: ["Dort gab es kaum Sauerstoff.", "Das Wasser war zu salzig.", "Es war dort zu hell.", "Die Reste waren aus Stein."], a: 0, e: "Ohne Sauerstoff zersetzen Bakterien die Reste nur teilweise – es entsteht Faulschlamm."},
+    {q: "Was war nötig, damit aus Faulschlamm Erdöl und Erdgas wurden?", o: ["hoher Druck", "hohe Temperatur", "sehr viel Zeit", "helles Sonnenlicht", "viel frischer Sauerstoff"], a: [0, 1, 2], e: "Tief in der Erde wirken Druck und Wärme über Millionen Jahre."},
+    {q: "Warum sammeln sich Erdöl und Erdgas unter einer undurchlässigen Gesteinsschicht?", o: ["Sie steigen nach oben und kommen durch diese Schicht nicht hindurch.", "Sie sind schwerer als Gestein und sinken nach unten.", "Die Schicht saugt sie an wie ein Magnet.", "Sie entstehen direkt in dieser Schicht."], a: 0, e: "Erdöl und Erdgas sind leichter als Wasser. Die dichte Schicht wirkt wie ein Deckel."},
+    {q: "Wie liegen Erdgas und Erdöl in einer Lagerstätte?", o: ["Erdgas oben, Erdöl darunter", "Erdöl oben, Erdgas darunter", "beide nebeneinander an der Erdoberfläche", "Erdgas ganz unten im Faulschlamm"], a: 0, e: "Das leichte Gas steigt am weitesten nach oben."}
+  ],
+  s4: [
+    {q: "Woraus ist Kohle entstanden?", o: ["aus Pflanzen früherer Sumpfwälder", "aus Plankton im Meer", "aus Vulkanasche", "aus Fischknochen"], a: 0, e: "Umgestürzte Bäume, Farne und Schachtelhalme versanken im Schlamm."},
+    {q: "In welcher Reihenfolge entsteht Kohle?", o: ["Pflanzenreste → Torf → Braunkohle → Steinkohle", "Pflanzenreste → Steinkohle → Braunkohle → Torf", "Torf → Pflanzenreste → Steinkohle → Braunkohle", "Braunkohle → Torf → Pflanzenreste → Steinkohle"], a: 0, e: "Mit Tiefe, Druck, Wärme und Zeit wird die Kohle immer kohlenstoffreicher."},
+    {q: "Was passiert bei der Inkohlung mit dem Kohlenstoffanteil?", o: ["Er steigt.", "Er sinkt.", "Er bleibt gleich.", "Er verschwindet ganz."], a: 0, e: "Torf etwa 60 %, Braunkohle etwa 70 %, Steinkohle über 80 %."},
+    {q: "Warum verrotteten die Pflanzen im Sumpf nicht?", o: ["Im Schlamm waren sie von der Luft abgeschlossen.", "Es war dort zu kalt.", "Die Pflanzen waren aus Kunststoff.", "Es gab keine Bakterien auf der Erde."], a: 0, e: "Unter Luftabschluss fehlt der Sauerstoff zum Verrotten."}
+  ],
+  s5: [
+    {q: "Was haben die Entstehung von Kohle und Erdöl gemeinsam?", o: ["Luftabschluss", "hoher Druck", "hohe Temperatur", "Millionen Jahre", "Zwischenstufe Torf", "Plankton im Meer"], a: [0, 1, 2, 3], e: "Torf gibt es nur bei der Kohle, Plankton nur beim Erdöl."},
+    {q: "Was ist ein wichtiger Unterschied?", o: ["Kohle entstand aus Landpflanzen, Erdöl aus Meereslebewesen.", "Kohle entstand in wenigen Jahren, Erdöl in Millionen Jahren.", "Erdöl entstand an der Luft, Kohle unter Luftabschluss.", "Kohle enthält keinen Kohlenstoff."], a: 0, e: "Beide brauchten Millionen Jahre und Luftabschluss – die Ausgangsstoffe unterscheiden sich."},
+    {q: "Warum findet man Erdöl in Lagerstätten, Kohle aber in Schichten (Flözen)?", o: ["Erdöl ist flüssig und wandert nach oben, Kohle ist fest und bleibt liegen.", "Kohle ist leichter als Erdöl.", "Erdöl wird von Menschen dorthin gepumpt.", "Kohle wandert schneller als Erdöl."], a: 0, e: "Flüssiges Erdöl und Erdgas sammeln sich unter einer dichten Schicht, die feste Kohle bleibt dort, wo die Pflanzen versanken."}
+  ],
+  s6: [
+    {q: "Warum sind fossile Rohstoffe endlich?", o: ["Sie entstehen in Millionen Jahren, werden aber in wenigen hundert Jahren verbraucht.", "Sie verdunsten mit der Zeit von selbst.", "Man darf sie nur an Sonntagen fördern.", "Sie wachsen jedes Jahr nach."], a: 0, e: "Was verbrannt ist, ist für sehr lange Zeit weg."},
+    {q: "Welches Gas entsteht beim Verbrennen fossiler Rohstoffe vor allem?", o: ["Kohlenstoffdioxid (CO₂)", "Sauerstoff", "Wasserstoff", "Stickstoff"], a: 0, e: "Der Kohlenstoff reagiert mit dem Sauerstoff der Luft zu CO₂."},
+    {q: "Warum verstärkt CO₂ aus fossilen Rohstoffen den Treibhauseffekt?", o: ["Der Kohlenstoff war Millionen Jahre in der Erde gespeichert und kommt zusätzlich in die Luft.", "Es ist dasselbe CO₂, das Pflanzen gerade erst aufgenommen haben.", "CO₂ kühlt die Erde ab.", "Es entsteht gar kein CO₂."], a: 0, e: "Anders als bei Holz war dieser Kohlenstoff lange aus dem Kreislauf verschwunden."}
+  ],
+  train: [
+    {q: "Welche Reihenfolge stimmt für die Entstehung von Erdöl?", o: ["Plankton stirbt → Faulschlamm → Schichten, Druck und Wärme → Erdöl und Erdgas → Lagerstätte", "Faulschlamm → Plankton stirbt → Lagerstätte → Erdöl", "Erdöl → Plankton → Faulschlamm → Druck", "Sumpfwald → Torf → Braunkohle → Erdöl"], a: 0, e: "Erst sinkt das Plankton ab, dann entsteht Faulschlamm, dann wirken Druck und Wärme."},
+    {q: "Wo sammelt sich das Erdgas in einer Lagerstätte?", o: ["ganz oben, direkt unter der undurchlässigen Gesteinsschicht", "unter dem Wasser", "im Faulschlamm ganz unten", "an der Erdoberfläche"], a: 0, e: "Gas ist am leichtesten, dann folgen Erdöl und Wasser."},
+    {q: "Welche Kohle hat den höchsten Kohlenstoffanteil?", o: ["Steinkohle", "Braunkohle", "Torf", "Holz"], a: 0, e: "Steinkohle lag am tiefsten und längsten in der Erde."},
+    {q: "Welche Aussagen über fossile Rohstoffe stimmen?", o: ["Sie sind aus Resten von Lebewesen entstanden.", "Ihre Vorräte sind endlich.", "Beim Verbrennen entsteht CO₂.", "Sie wachsen in wenigen Jahren nach.", "Sie enthalten keinen Kohlenstoff."], a: [0, 1, 2], e: "Fossile Rohstoffe sind organisch, kohlenstoffreich und nicht nachwachsend."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Kurz-Check"});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s5"), MC.s5, "mc5", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s6"), MC.s6, "mc6", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Station 1: Fossil ---------- */
+Modul.makeOpen($("#open1"), [
+  {q: "Was haben das Fischfossil und das Erdöl gemeinsam? Stelle eine Vermutung auf.",
+   m: "Beide stammen von Lebewesen, die vor Millionen Jahren gelebt haben. Ihre Reste wurden von Schlamm und Gestein bedeckt und unter Luftabschluss über sehr lange Zeit verändert. Beim Fossil wurde der Fisch zu Stein, beim Erdöl wurden die Reste winziger Meereslebewesen zu einem flüssigen Rohstoff.",
+   k: ["lebewes|tier|fisch|plankton|organism|überrest|reste|lebte|gelebt", "million|lange zeit|urzeit|früher|vor langer|uralt|sehr alt"]}
+], "open1", "Lies den Text neben dem Foto noch einmal.");
+Modul.makeOpen($("#open1b"), [
+  {q: "Ein toter Fisch liegt am Strand. Erkläre, warum aus ihm sehr wahrscheinlich kein Fossil wird.",
+   m: "Am Strand kommt Luft und damit Sauerstoff an den Fisch. Tiere fressen ihn, Bakterien zersetzen ihn, er verwest vollständig. Ein Fossil entsteht nur, wenn der Körper schnell von Schlamm oder Sand bedeckt wird und unter Luftabschluss liegt.",
+   k: ["luft|sauerstoff|zugedeckt|bedeckt|schlamm|sand|offen", "verwes|zersetz|gefressen|fressen|verrott|bakterien|vergammel|fault|zerfällt"]}
+], "open1b", "Schau dir die Animation noch einmal an: Was passiert in Schritt 3?");
+(function(){
+  const svg = $("#fsSvg"), obs = $("#fsObs"), fish = $("#fsFish", svg), chip = $("#fsTime");
+  const TXT = [
+    "Ein Fisch schwimmt im Meer der Urzeit. Hier ist er noch quicklebendig.",
+    "Der Fisch stirbt und sinkt auf den Meeresgrund. Jetzt kommt es darauf an, was passiert: Bleibt er offen liegen, fressen ihn andere Tiere oder er verwest.",
+    "Glück für die Forschung: Schlamm und Sand bedecken den Fisch schnell. Jetzt ist er von der Luft abgeschlossen und verwest nicht vollständig.",
+    "Immer neue Schichten lagern sich ab. Ihr Gewicht presst den Schlamm zu festem Gestein zusammen. Mineralien aus dem Wasser dringen in die Knochen ein – der Fisch wird zu Stein.",
+    "Millionen Jahre später ist das Meer verschwunden. Wind, Regen oder ein Steinbruch tragen die oberen Schichten ab. Der versteinerte Fisch kommt ans Licht: ein Fossil!"
+  ];
+  const TIME = ["🕰️ Urzeit", "🕰️ kurz danach", "🕰️ wenige Jahre später", "🕰️ Millionen Jahre", "🕰️ heute"];
+  register("fossilWeg");
+  stepper($("#fsChain"), $("#fsPrev"), $("#fsNext"), 5, i => {
+    fish.style.transform = i === 0 ? "translate(170px,80px)" : "translate(250px,161px) rotate(6deg)";
+    $("#fsAlive", svg).style.opacity = i === 0 ? 1 : 0;
+    $("#fsDead", svg).style.opacity = i === 1 || i === 2 ? 1 : 0;
+    $("#fsBone", svg).style.opacity = i >= 3 ? 1 : 0;
+    $("#fsL1", svg).classList.toggle("on", i >= 2);
+    $("#fsL2", svg).classList.toggle("on", i >= 2);
+    ["#fsL3", "#fsL4", "#fsL5"].forEach(s => $(s, svg).classList.toggle("on", i === 3));
+    $("#fsSed", svg).classList.toggle("on", i === 2);
+    $("#fsPress", svg).classList.toggle("on", i === 3);
+    $("#fsWater", svg).style.opacity = i === 4 ? 0 : 1;
+    $("#fsGrass", svg).classList.toggle("on", i === 4);
+    $("#fsHammer", svg).classList.toggle("on", i === 4);
+    obs.textContent = TXT[i];
+    chip.textContent = TIME[i];
+    if (i === 4) solve("fossilWeg");
+  });
+})();
+
+/* ---------- Station 2: Wohin geht die Energie? ---------- */
+(function(){
+  const svg = $("#egSvg"), obs = $("#egObs");
+  const TG = [{y: 30, t: "⚡ Strom", s: "Kraftwerk"}, {y: 84, t: "⛽ Benzin und Diesel", s: "Autos und Lkw"}, {y: 138, t: "✈️ Kerosin", s: "Flugzeuge"}, {y: 192, t: "🧴 Kunststoffe", s: "chemische Industrie"}, {y: 246, t: "🔥 Heizen", s: "Wohnungen und Häuser"}];
+  const SRC = [
+    {y: 64, xv: 150, c: "#2b2b2b", to: [0, 4], txt: "Kohle wird vor allem in Kraftwerken verbrannt. Die Wärme macht aus Wasser Dampf, der Dampf treibt Turbinen und Generatoren an: Es entsteht Strom. Früher heizte man auch viele Wohnungen mit Kohle-Briketts."},
+    {y: 140, xv: 190, c: "#8a5a1c", to: [1, 2, 3, 4], txt: "Erdöl ist der vielseitigste fossile Rohstoff. In der Raffinerie entstehen daraus Benzin und Diesel für Autos und Lkw, Kerosin für Flugzeuge und Heizöl. Ein Teil geht als Grundstoff in die chemische Industrie, zum Beispiel für Kunststoffe."},
+    {y: 222, xv: 230, c: "#3d8bf0", to: [4, 0], txt: "Erdgas heizt viele Wohnungen und Häuser und liefert warmes Wasser. In Gaskraftwerken wird es auch zur Stromerzeugung verbrannt."}
+  ];
+  SRC.forEach(s => {
+    s.flows = s.to.map(t => {
+      const d = `M92 ${s.y} H${s.xv} V${TG[t].y} H300`;
+      svgEl("path", {d, stroke: "#e8dcc6", "stroke-width": 8, fill: "none", "stroke-linejoin": "round"}, $("#egPipes", svg));
+      return svgEl("path", {d, stroke: s.c, "stroke-width": 4, fill: "none", "stroke-linejoin": "round", class: "flow", opacity: 0}, $("#egFlows", svg));
+    });
+  });
+  TG.forEach(t => {
+    const g = svgEl("g", {}, $("#egBoxes", svg));
+    t.box = svgEl("rect", {x: 300, y: t.y - 21, width: 172, height: 42, rx: 10, fill: "#fff", stroke: "#b9c3cb", "stroke-width": 2}, g);
+    svgEl("text", {x: 386, y: t.y - 1, "text-anchor": "middle", "font-size": 13.5, "font-weight": 800, fill: "#15212b"}, g).textContent = t.t;
+    t.sub = svgEl("text", {x: 386, y: t.y + 14, "text-anchor": "middle", "font-size": 10.5, "font-weight": 700, fill: "#566674", opacity: 0}, g);
+    t.sub.textContent = t.s;
+  });
+  const done = new Set();
+  register("energieWeg");
+  $$("#egBtns button").forEach(b => b.addEventListener("click", async () => {
+    const i = +b.dataset.i, s = SRC[i];
+    SRC.forEach(x => x.flows.forEach(f => f.setAttribute("opacity", 0)));
+    TG.forEach(t => { t.box.setAttribute("fill", "#fff"); t.box.setAttribute("stroke", "#b9c3cb"); t.sub.setAttribute("opacity", 0); });
+    s.flows.forEach(f => f.setAttribute("opacity", 1));
+    $$("#egBtns button").forEach(x => x.classList.toggle("pick-on", x === b));
+    obs.textContent = s.txt;
+    await wait(700);
+    s.to.forEach(t => { TG[t].box.setAttribute("fill", "#fff6e0"); TG[t].box.setAttribute("stroke", "#c98a1a"); TG[t].sub.setAttribute("opacity", 1); });
+    $(`#egChips [data-i="${i}"]`).hidden = false;
+    done.add(i);
+    if (done.size === 3 && !Modul.isSolved("energieWeg")) { obs.textContent += " Du hast alle drei Rohstoffe verfolgt!"; solve("energieWeg"); }
+  }));
+})();
+Modul.makeSort($("#sortNutz"), {
+  buckets: ["⛏️ Kohle", "🛢️ Erdöl", "🔥 Erdgas"],
+  items: [
+    {t: "Brikett im Kachelofen", b: 0}, {t: "Strom aus dem Kohlekraftwerk", b: 0},
+    {t: "Benzin für das Moped", b: 1}, {t: "Kerosin für das Flugzeug", b: 1}, {t: "Heizöl im Tank im Keller", b: 1}, {t: "Grundstoff für Plastikflaschen", b: 1},
+    {t: "Gasherd in der Küche", b: 2}, {t: "Gastherme für warmes Duschwasser", b: 2}
+  ]
+}, "sortNutz");
+Modul.makeOpen($("#open2"), [
+  {q: "Erkläre, warum man Kohle, Erdöl und Erdgas als fossile Energieträger bezeichnet.",
+   m: "Sie sind vor Millionen Jahren aus Resten abgestorbener Pflanzen und Tiere entstanden, also aus Lebewesen der Urzeit – deshalb „fossil“. In ihnen ist viel Energie gespeichert, die beim Verbrennen als Wärme frei wird. Deshalb nutzt man sie als Energieträger, zum Beispiel für Strom, Heizung und Kraftstoffe.",
+   k: ["million|urzeit|lange zeit|vor langer|früher", "pflanz|tier|lebewes|biomasse|überrest|reste", "energie|verbrenn|wärme|strom|heiz|kraftstoff|brennstoff|brennt"]}
+], "open2", "Lies die beiden Texte oben und den Merke-Kasten noch einmal.");
+
+/* ---------- Station 3: Erdöl und Erdgas ---------- */
+(function(){
+  const svg = $("#oeSvg"), obs = $("#oeObs"), c1 = $("#oeC1"), c2 = $("#oeC2");
+  const PL = [[30, 40], [75, 78], [120, 28], [160, 100], [205, 58], [250, 128], [292, 42], [335, 90], [378, 52], [425, 108], [52, 132], [98, 150], [142, 62], [188, 146], [235, 22], [278, 98], [318, 150], [362, 136], [404, 30], [448, 70], [18, 96], [462, 142]];
+  const pls = PL.map(([x, y], k) => {
+    const g = svgEl("g", {class: "pl"}, $("#oePl", svg));
+    g.style.transform = `translate(${x}px,${y}px)`;
+    g.style.transitionDelay = (k % 6) * .18 + "s";
+    const b = svgEl("g", {class: "bob"}, g);
+    b.style.animationDelay = (k % 5) * .4 + "s";
+    if (k % 3 === 0) { svgEl("circle", {r: 4.5, fill: "#9be07a", stroke: "#3f8a2c", "stroke-width": 1.2}, b); svgEl("line", {x1: -3, y1: 0, x2: 3, y2: 0, stroke: "#3f8a2c", "stroke-width": 1}, b); }
+    else if (k % 3 === 1) { svgEl("circle", {r: 3.5, fill: "#fff", stroke: "#9fb7c9", "stroke-width": 1}, b); for (let a = 0; a < 6; a++) { const r = a * Math.PI / 3; svgEl("line", {x1: (4 * Math.cos(r)).toFixed(1), y1: (4 * Math.sin(r)).toFixed(1), x2: (8 * Math.cos(r)).toFixed(1), y2: (8 * Math.sin(r)).toFixed(1), stroke: "#fff", "stroke-width": 1.2}, b); } }
+    else svgEl("path", {d: "M-6 0 Q-2 -5 5 -2 L7 -4 M5 -2 Q2 3 -6 0Z", fill: "#f0a07a", stroke: "#c46a45", "stroke-width": 1}, b);
+    return {g, x, y, sx: x + (k % 2 ? 4 : -4), sy: 183 + (k % 3) * 2};
+  });
+  const drops = Array.from({length: 14}, (_, k) => {
+    const gas = k % 2 === 1, x = 120 + k * 23, y = 232 + (k % 3) * 5;
+    const g = svgEl("g", {class: "drop"}, $("#oeDr", svg));
+    g.style.transform = `translate(${x}px,${y}px)`; g.style.opacity = 0;
+    svgEl("circle", {r: gas ? 3.2 : 3.8, fill: gas ? "#f4d35e" : "#15110d", stroke: gas ? "#a8872a" : "#000", "stroke-width": 1, class: "pulse"}, g);
+    return {g, x, y, tx: gas ? 196 + (k * 7) % 84 : 150 + (k * 13) % 180, ty: gas ? 143 + (k % 3) * 3 : 162 + (k % 4) * 3};
+  });
+  const LAY = ["#oeLd", "#oeLc", "#oeLb", "#oeLa", "#oeLs"].map(s => $(s, svg));
+  const TXT = [
+    "Vor vielen Millionen Jahren: Im warmen Meer treiben unvorstellbar viele winzige Lebewesen – Algen, Kleinstlebewesen und kleine Krebse. Man nennt sie Plankton.",
+    "Die Lebewesen sterben ab und rieseln Jahr für Jahr auf den Meeresgrund. Dort sammelt sich eine Schicht aus ihren Resten.",
+    "Am Grund des Meeres gibt es kaum Sauerstoff. Die Reste können nicht verwesen. Bakterien zersetzen sie nur teilweise – es entsteht dunkler Faulschlamm.",
+    "Flüsse spülen Sand, Geröll und Schlamm ins Meer. Schicht um Schicht lagert sich über dem Faulschlamm ab. Er gerät immer tiefer: Der Druck steigt, und in einigen Kilometern Tiefe ist es rund 100 °C heiß.",
+    "Druck und Wärme wirken über Millionen Jahre. Aus den Resten der Lebewesen entstehen flüssiges Erdöl (schwarze Tropfen) und gasförmiges Erdgas (gelbe Bläschen).",
+    "Erdöl und Erdgas sind leichter als Wasser. Sie wandern durch Risse und durchlässiges Gestein nach oben, bis eine undurchlässige Gesteinsschicht sie aufhält. Darunter sammeln sie sich: Erdgas oben, Erdöl darunter, darunter Wasser. Heute bohrt man solche Lagerstätten an, zum Beispiel von einer Bohrinsel aus."
+  ];
+  const CH = [["🕰️ vor vielen Millionen Jahren", "🌊 im Meer"], ["🕰️ Jahr für Jahr", "⬇️ Meeresgrund"], ["🕰️ Jahrtausende", "🚫 kaum Sauerstoff"], ["⬇️ Tiefe: einige Kilometer", "🌡️ rund 100 °C"], ["🕰️ Millionen Jahre", "🔥 Druck und Wärme"], ["⬆️ Wanderung nach oben", "🛢️ Lagerstätte"]];
+  let seq = 0;
+  register("oelWeg");
+  stepper($("#oeChain"), $("#oePrev"), $("#oeNext"), 6, async i => {
+    const my = ++seq, still = () => my === seq, A = i < 3;
+    obs.textContent = TXT[i]; c1.textContent = CH[i][0]; c2.textContent = CH[i][1];
+    $("#oeSea", svg).classList.toggle("on", A);
+    $("#oeDeep", svg).classList.toggle("on", !A);
+    // Szene A: Plankton schwebt, sinkt ab und wird zu Faulschlamm
+    pls.forEach(p => {
+      p.g.style.transform = i >= 1 ? `translate(${p.sx}px,${p.sy}px)` : `translate(${p.x}px,${p.y}px)`;
+      p.g.style.opacity = i === 2 ? 0 : 1;
+    });
+    $("#oeMud", svg).classList.toggle("on", i === 2);
+    $("#oeO2", svg).classList.toggle("on", i === 2);
+    // Szene B: Schichten lagern sich von unten nach oben ab
+    LAY.forEach((el, k) => {
+      if (A) { el.classList.remove("on"); return; }
+      el.style.transitionDelay = el.classList.contains("on") ? "0s" : (k * .45) + "s";
+      el.classList.add("on");
+    });
+    $("#oePress", svg).classList.toggle("on", i === 3 || i === 4);
+    ["#oeGas", "#oeOil", "#oeWat", "#oeTrapL", "#oeRig", "#oePaths"].forEach(s => $(s, svg).classList.remove("on"));
+    drops.forEach(d => instant(d.g, () => { d.g.style.transitionDelay = "0s"; d.g.style.transform = `translate(${d.x}px,${d.y}px)`; d.g.style.opacity = i === 4 ? 1 : 0; }));
+    if (i !== 5) return;
+    drops.forEach(d => { d.g.style.opacity = 1; });
+    $("#oePaths", svg).classList.add("on");
+    await wait(500); if (!still()) return;
+    drops.forEach((d, k) => { d.g.style.transitionDelay = (k * .08) + "s"; d.g.style.transform = `translate(${d.tx}px,${d.ty}px)`; });
+    await wait(3000); if (!still()) return;
+    ["#oeGas", "#oeOil", "#oeWat", "#oeTrapL"].forEach(s => $(s, svg).classList.add("on"));
+    drops.forEach(d => { d.g.style.transitionDelay = "0s"; d.g.style.opacity = 0; });
+    $("#oePaths", svg).classList.remove("on");
+    await wait(700); if (!still()) return;
+    $("#oeRig", svg).classList.add("on");
+    solve("oelWeg");
+  });
+})();
+Modul.makeGap($("#gapOel"), [
+  ["Vor Millionen Jahren trieben in den Meeren riesige Mengen winziger ", {g: "Lebewesen"}, ". Wenn sie starben, sanken sie auf den ", {g: "Meeresboden"}, "."],
+  ["Dort gab es kaum ", {g: "Sauerstoff"}, ". ", {g: "Bakterien"}, " zersetzten die Reste zu ", {g: "Faulschlamm"}, "."],
+  ["Darüber lagerten sich Sand und ", {g: "Geröll"}, " ab. Je dicker die Schichten wurden, desto höher stiegen ", {g: "Druck"}, " und Temperatur."],
+  ["Über Millionen Jahre wandelten sich die Reste in flüssiges ", {g: "Erdöl"}, " und gasförmiges ", {g: "Erdgas"}, " um."]
+], "gapOel", ["Torf", "Sumpfwäldern", "Sonnenlicht"]);
+(function(){
+  // Vier eigene Mini-Bilder, bewusst durcheinander angeordnet
+  const MINI = {
+    A: '<svg class="mini" viewBox="0 0 140 84" role="img" aria-label="Bild: Winzige Lebewesen sinken im Meer nach unten"><rect width="140" height="64" fill="#5aa3d6"/><rect y="64" width="140" height="20" fill="#d7bf8e"/><g fill="#9be07a" stroke="#3f8a2c"><circle cx="30" cy="16" r="4"/><circle cx="72" cy="28" r="4"/><circle cx="110" cy="12" r="4"/><circle cx="50" cy="44" r="4"/><circle cx="96" cy="48" r="4"/></g><g stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"><path d="M30 24 V34 M26 30 L30 34 L34 30"/><path d="M72 36 V46 M68 42 L72 46 L76 42"/><path d="M110 20 V30 M106 26 L110 30 L114 26"/></g><g fill="#6b8f4a"><circle cx="40" cy="62" r="2.5"/><circle cx="64" cy="63" r="2.5"/><circle cx="88" cy="62" r="2.5"/><circle cx="116" cy="63" r="2.5"/></g></svg>',
+    B: '<svg class="mini" viewBox="0 0 140 84" role="img" aria-label="Bild: Am Meeresgrund liegt eine dunkle Schicht mit Bakterien"><rect width="140" height="52" fill="#3f7fb0"/><rect y="52" width="140" height="14" fill="#3f3226"/><rect y="66" width="140" height="18" fill="#d7bf8e"/><g fill="#b58be0"><rect x="14" y="55" width="11" height="4.5" rx="2.2"/><rect x="44" y="59" width="11" height="4.5" rx="2.2" transform="rotate(-20 49 61)"/><rect x="76" y="55" width="11" height="4.5" rx="2.2"/><rect x="108" y="58" width="11" height="4.5" rx="2.2" transform="rotate(15 113 60)"/></g><text x="70" y="30" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">O₂ ✗</text></svg>',
+    C: '<svg class="mini" viewBox="0 0 140 84" role="img" aria-label="Bild: Viele Schichten liegen übereinander, Pfeile drücken nach unten"><rect width="140" height="20" fill="#ead7a8"/><rect y="20" width="140" height="18" fill="#b8a78a"/><rect y="38" width="140" height="16" fill="#d2b887"/><rect y="54" width="140" height="14" fill="#a98b62"/><rect y="68" width="140" height="16" fill="#3f3226"/><g fill="#fff" stroke="#c0392b" stroke-width="1.5" stroke-linejoin="round"><path d="M34 4 H44 V40 H50 L39 54 L28 40 H34Z"/><path d="M96 4 H106 V40 H112 L101 54 L90 40 H96Z"/></g></svg>',
+    D: '<svg class="mini" viewBox="0 0 140 84" role="img" aria-label="Bild: Unter einer gewölbten Gesteinsschicht liegen Erdgas und Erdöl, darüber ein Bohrturm"><defs><clipPath id="miniTrap"><path d="M0 72 Q70 12 140 72 V84 H0Z"/></clipPath></defs><rect width="140" height="12" fill="#dff0fb"/><rect y="12" width="140" height="72" fill="#b8a78a"/><path d="M0 72 Q70 12 140 72 V84 H0Z" fill="#dcc393"/><g clip-path="url(#miniTrap)"><rect y="40" width="140" height="9" fill="#f4d35e"/><rect y="49" width="140" height="11" fill="#15110d"/></g><path d="M0 60 Q70 0 140 60 L140 72 Q70 12 0 72Z" fill="#6b7380"/><path d="M63 12 L70 1 L77 12" stroke="#33414d" stroke-width="2" fill="none"/><line x1="70" y1="12" x2="70" y2="48" stroke="#33414d" stroke-width="2"/></svg>'
+  };
+  // Anordnung der Bilder: B, D, A, C
+  Modul.makeSort($("#abBild"), {pairs: true, cols: 280,
+    buckets: [MINI.B + "<span>Bild 1</span>", MINI.D + "<span>Bild 2</span>", MINI.A + "<span>Bild 3</span>", MINI.C + "<span>Bild 4</span>"],
+    items: [
+      {t: "Winzige Meereslebewesen sterben und sinken auf den Meeresgrund.", b: 2},
+      {t: "Bakterien zersetzen die Reste ohne Sauerstoff zu Faulschlamm.", b: 0},
+      {t: "Sand und Geröll lagern sich darüber ab – Druck und Temperatur steigen.", b: 3},
+      {t: "Erdöl und Erdgas sammeln sich unter einer dichten Gesteinsschicht.", b: 1}
+    ],
+    done: "✅ Alles richtig! In der richtigen Reihenfolge wären die Bilder: 3, 1, 4, 2."
+  }, "abBild");
+})();
+Modul.makeOpen($("#open3"), [
+  {q: "Erdöl findet man heute oft weit weg vom Meer, zum Beispiel mitten in einer Wüste. Wie ist das möglich?",
+   m: "Dort, wo heute Land oder Wüste ist, war vor Millionen Jahren ein Meer. Im Lauf der Erdgeschichte haben sich Meere und Kontinente verändert und verschoben. Das Erdöl ist aus dem Plankton dieses früheren Meeres entstanden.",
+   k: ["meer|ozean|wasser", "früher|million|damals|erdgeschichte|verändert|verschoben|urzeit|vor langer"]},
+  {q: "Warum steigen Erdöl und Erdgas im Gestein nach oben?",
+   m: "Erdöl und Erdgas sind leichter als Wasser. Das Wasser im Gestein drückt sie deshalb nach oben. Sie wandern durch Risse und kleine Poren im durchlässigen Gestein, bis eine undurchlässige Schicht sie aufhält.",
+   k: ["leicht|dichte|geringer|weniger schwer", "wasser|gestein|poren|risse|durchlässig|hohlr"], min: 1}
+], "open3", "Schau dir die Animation zur Entstehung von Erdöl noch einmal an.");
+
+/* ---------- Station 4: Kohle ---------- */
+(function(){
+  const svg = $("#khSvg"), obs = $("#khObs"), c1 = $("#khC1"), c2 = $("#khC2");
+  // Bäume des Sumpfwaldes: Baumfarne und Schachtelhalme
+  const TREES = [[48, 108, "farn"], [104, 70, "halm"], [150, 118, "farn"], [206, 80, "halm"], [262, 100, "farn"]];
+  const trees = TREES.map(([x, h, typ]) => {
+    const s = svgEl("g", {class: "sink"}, $("#khTrees", svg));
+    const g = svgEl("g", {class: "tree"}, s);
+    if (typ === "farn") {
+      svgEl("rect", {x: x - 4, y: 160 - h, width: 8, height: h, fill: "#6b4a2b"}, g);
+      [-60, -30, 0, 30, 60].forEach(a => svgEl("path", {d: `M${x} ${160 - h} q${(a / 60 * 26).toFixed(0)} ${-18 + Math.abs(a) / 60 * 14} ${(a / 60 * 44).toFixed(0)} ${Math.abs(a) / 60 * 18}`, stroke: "#3f8a2c", "stroke-width": 6, fill: "none", "stroke-linecap": "round"}, g));
+    } else {
+      svgEl("rect", {x: x - 3, y: 160 - h, width: 6, height: h, fill: "#6f9a3a"}, g);
+      for (let yy = 160 - h + 10; yy < 150; yy += 14) svgEl("path", {d: `M${x - 12} ${yy + 6} L${x} ${yy} L${x + 12} ${yy + 6}`, stroke: "#4f7a2a", "stroke-width": 2.5, fill: "none"}, g);
+    }
+    // Bäume fallen zur Bildmitte hin
+    return {s, g, dir: x < 156 ? 1 : -1};
+  });
+  // Deckschichten über der Kohle (Streifen aus Sand, Ton und Geröll)
+  const COL = ["#d9c08c", "#b8ad9a", "#cbb58a", "#a99d88", "#dcc79c", "#b3a58c"];
+  for (let y = 22, k = 0; y < 280; y += 16, k++) svgEl("rect", {y, width: 312, height: 16, fill: COL[k % COL.length]}, $("#khOver", svg));
+  const seam = $("#khSeam", svg), base = $("#khBase", svg), mark = $("#khMark", svg);
+  const D = [
+    {n: "Farn im Sumpfwald", f: "#5f8f3a", c: 50, p: ["lebende Pflanze", "wächst im warmen Sumpf"], ch: ["🕰️ vor rund 300 Mio. Jahren", "🌴 an der Oberfläche"]},
+    {n: "Pflanzenreste", f: "#6b6a35", c: 50, p: ["im Schlamm versunken", "Luftabschluss: kein Verrotten"], ch: ["🕰️ Jahr für Jahr", "🍂 im Sumpfboden"]},
+    {n: "zugedeckte Reste", f: "#6b5a30", c: 50, p: ["unter Sand und Geröll", "der Druck beginnt"], ch: ["🕰️ Jahrhunderte", "⬇️ Tiefe: wenige Meter"], y: 64, s: 1},
+    {n: "Torf", f: "#7a5230", c: 60, p: ["weich, faserig, sehr nass", "Pflanzenteile noch sichtbar"], ch: ["🕰️ Jahrtausende", "⬇️ Tiefe: einige Meter"], y: 100, s: .8},
+    {n: "Braunkohle", f: "#4a3322", c: 70, p: ["braun und bröckelig", "Abbau im Tagebau"], ch: ["🕰️ Millionen Jahre", "⬇️ Tiefe: einige hundert Meter"], y: 150, s: .6},
+    {n: "Steinkohle", f: "#1c1c1f", c: 85, p: ["hart, schwarz, glänzend", "sehr energiereich"], ch: ["🕰️ viele Millionen Jahre", "⬇️ Tiefe: einige Kilometer"], y: 206, s: .45}
+  ];
+  const TXT = [
+    "Vor rund 300 Millionen Jahren: Das Klima ist warm und feucht. In riesigen Sumpfwäldern wachsen Farne und Schachtelhalme so hoch wie Bäume.",
+    "Bäume stürzen um, Pflanzen sterben ab. Sie fallen in den nassen Boden und versinken im Schlamm. Dort sind sie von der Luft abgeschlossen und verrotten nicht.",
+    "Flüsse bringen Sand und Geröll, die sich über den Pflanzenresten ablagern. Oft wächst darauf ein neuer Wald – und alles beginnt von vorn.",
+    "Das Gewicht der Schichten presst die Pflanzenreste zusammen. Es entsteht Torf: weich, faserig und sehr nass. Man erkennt noch Pflanzenteile. Torf bildet sich auch heute noch in Mooren.",
+    "Die Schicht gerät tiefer. Druck und Temperatur steigen, Wasser wird herausgepresst. Über Millionen Jahre wird aus Torf Braunkohle mit einem höheren Kohlenstoffanteil.",
+    "Noch tiefer und noch länger: Aus Braunkohle wird die harte, schwarz glänzende Steinkohle. Sie hat den höchsten Kohlenstoffanteil und liefert beim Verbrennen besonders viel Wärme. Sieh genau hin: Die Kohleschicht ist immer dünner geworden – so stark wurde sie zusammengepresst."
+  ];
+  register("kohleWeg");
+  stepper($("#khChain"), $("#khPrev"), $("#khNext"), 6, i => {
+    const d = D[i], A = i < 2;
+    $("#khSwamp", svg).classList.toggle("on", A);
+    $("#khDeep", svg).classList.toggle("on", !A);
+    trees.forEach(t => {
+      t.g.style.transform = i === 1 ? `rotate(${t.dir * 90}deg) scaleX(.45)` : "";
+      t.s.style.transform = i === 1 ? "translateY(24px)" : "";
+    });
+    $("#khPlant", svg).classList.toggle("on", i === 1);
+    if (!A) {
+      seam.style.transform = `translate(0px,${d.y}px) scale(1,${d.s})`;
+      base.style.transform = `translate(0px,${d.y + 30 * d.s}px)`;
+      mark.style.transform = `translate(0px,${d.y + 15 * d.s}px)`;
+      $("#khSeamR", svg).style.fill = d.f;
+      $("#khTw", svg).style.opacity = i <= 3 ? 1 : i === 4 ? .35 : 0;
+      $("#khGl", svg).style.opacity = i === 5 ? 1 : 0;
+      $("#khPress", svg).style.opacity = .35 + (i - 2) * .22;
+    }
+    $("#khName", svg).textContent = d.n;
+    $("#khSample", svg).style.fill = d.f;
+    $("#khSampleTw", svg).style.opacity = i <= 3 ? 1 : i === 4 ? .35 : 0;
+    $("#khSampleGl", svg).style.opacity = i === 5 ? 1 : 0;
+    $("#khBar", svg).style.transform = `scaleX(${d.c / 100})`;
+    $("#khPct", svg).textContent = `etwa ${d.c} %`;
+    $("#khP1", svg).textContent = d.p[0];
+    $("#khP2", svg).textContent = d.p[1];
+    obs.textContent = TXT[i]; c1.textContent = d.ch[0]; c2.textContent = d.ch[1];
+    if (i === 5) solve("kohleWeg");
+  });
+})();
+Modul.makeOrder($("#orderKohle"), [
+  "In den Sumpfwäldern stürzten Bäume und Farne um und versanken im Schlamm.",
+  "Sand und Geröll lagerten sich über den abgestorbenen Pflanzen ab.",
+  "Der Druck presste die Pflanzenreste zusammen – es entstand Torf.",
+  "Tiefer in der Erde wurde aus dem Torf Braunkohle.",
+  "Nach noch mehr Zeit, Druck und Wärme entstand Steinkohle."
+], "orderKohle");
+Modul.makeSort($("#sortKohle"), {
+  buckets: ["🟤 Torf", "🟫 Braunkohle", "⬛ Steinkohle"],
+  items: [
+    {t: "weich und faserig", b: 0}, {t: "enthält sehr viel Wasser", b: 0}, {t: "bildet sich noch heute in Mooren", b: 0}, {t: "etwa 60 % Kohlenstoff", b: 0},
+    {t: "braun und bröckelig", b: 1}, {t: "wird im Tagebau abgebaut", b: 1}, {t: "etwa 70 % Kohlenstoff", b: 1},
+    {t: "hart, schwarz und glänzend", b: 2}, {t: "wurde tief unter Tage abgebaut", b: 2}, {t: "über 80 % Kohlenstoff", b: 2}
+  ]
+}, "sortKohle");
+Modul.makeOpen($("#open4"), [
+  {q: "Beschreibe, wie aus den Bäumen eines Sumpfwaldes Kohle wurde.",
+   m: "Vor rund 300 Millionen Jahren stürzten Bäume und Pflanzen in Sumpfwäldern um und versanken im Schlamm. Unter Luftabschluss verrotteten sie nicht. Sand und Geröll lagerten sich darüber ab. Durch den Druck wurden die Pflanzenreste zu Torf. Tiefer in der Erde, bei höherem Druck und höherer Temperatur, entstand über Millionen Jahre Braunkohle und schließlich Steinkohle.",
+   k: ["sumpf|schlamm|versank|versunken|luftabschluss", "sand|geröll|schicht|druck", "torf", "braunkohle|steinkohle"], min: 3}
+], "open4", "Schau dir die Animation zur Kohle noch einmal an.");
+
+/* ---------- Station 5: Vergleich ---------- */
+(function(){
+  const box = $("#cmpTab"), hint = $("#cmpHint");
+  const ROWS = [
+    ["Wo?", "im Meer, am Meeresgrund", "an Land, in Sumpfwäldern"],
+    ["Ausgangsstoff", "winzige Lebewesen (Plankton)", "Bäume, Farne und andere Pflanzen"],
+    ["erste Stufe", "Faulschlamm (durch Bakterien)", "Torf"],
+    ["Bedingungen", "Luftabschluss, hoher Druck, hohe Temperatur, Millionen Jahre", "Luftabschluss, hoher Druck, hohe Temperatur, Millionen Jahre"],
+    ["Ergebnis", "flüssiges Erdöl und gasförmiges Erdgas", "feste Braunkohle, später Steinkohle"],
+    ["Heute", "wandert nach oben, sammelt sich unter einer dichten Gesteinsschicht", "bleibt als Schicht im Gestein liegen (Flöz)"]
+  ];
+  box.innerHTML = '<div class="corner"></div><div class="h">🛢️ Erdöl und Erdgas</div><div class="h">⛏️ Kohle</div>' +
+    ROWS.map((r, i) => `<div class="rh">${r[0]}</div><button type="button" data-r="${i}" data-c="1">? antippen</button><button type="button" data-r="${i}" data-c="2">? antippen</button>`).join("");
+  register("vergleich");
+  const btns = $$("button", box);
+  btns.forEach(b => b.addEventListener("click", () => {
+    const r = ROWS[b.dataset.r];
+    b.textContent = r[b.dataset.c]; b.classList.add("open");
+    if (r[1] === r[2]) b.classList.add("same");
+    const n = btns.filter(x => x.classList.contains("open")).length;
+    hint.textContent = n === btns.length ? "✅ Alle Felder aufgedeckt. Nur die Bedingungen sind gleich – alles andere unterscheidet sich." : `${n} von ${btns.length} Feldern aufgedeckt`;
+    if (n === btns.length) solve("vergleich");
+  }));
+})();
+Modul.makeSort($("#sortVgl"), {
+  buckets: ["🛢️ nur Erdöl und Erdgas", "⛏️ nur Kohle", "🤝 bei beiden"],
+  items: [
+    {t: "entstand aus Plankton im Meer", b: 0}, {t: "Zwischenstufe Faulschlamm", b: 0}, {t: "wandert durch Gestein nach oben", b: 0}, {t: "sammelt sich unter einer dichten Gesteinsschicht", b: 0},
+    {t: "entstand aus Pflanzen der Sumpfwälder", b: 1}, {t: "Zwischenstufe Torf", b: 1}, {t: "bleibt als feste Schicht liegen", b: 1},
+    {t: "Luftabschluss", b: 2}, {t: "hoher Druck und hohe Temperatur", b: 2}, {t: "dauerte Millionen Jahre", b: 2}, {t: "enthält viel Kohlenstoff", b: 2}, {t: "wächst nicht nach", b: 2}
+  ]
+}, "sortVgl");
+Modul.makeOpen($("#open5"), [
+  {q: "Vergleiche die Entstehung von Erdöl mit der Entstehung von Braunkohle. Nenne eine Gemeinsamkeit und zwei Unterschiede.",
+   m: "Gemeinsam: Beide entstanden aus abgestorbenen Lebewesen unter Luftabschluss, durch hohen Druck und hohe Temperatur über Millionen Jahre. Unterschiede: Erdöl entstand aus winzigen Meereslebewesen (Plankton) über Faulschlamm am Meeresgrund, Braunkohle aus Pflanzen der Sumpfwälder über Torf. Erdöl ist flüssig und wandert durch das Gestein nach oben, Braunkohle bleibt als feste Schicht liegen.",
+   k: ["meer|plankton|kleinstlebewes|faulschlamm|meereslebewes", "pflanz|sumpf|wald|bäum|baum|torf", "druck|temperatur|wärme|luftabschluss|million"], min: 2}
+], "open5", "Schau dir die Vergleichstabelle noch einmal an.");
+
+/* ---------- Station 6: Die Uhr der Erde ---------- */
+(function(){
+  const svg = $("#clSvg"), obs = $("#clObs"), hand = $("#clHand", svg), arc = $("#clArc", svg), fill = $("#clFill", svg);
+  const tm = $("#clTime", svg), pct = $("#clPct", svg), c2 = $("#clC2");
+  const CX = 120, CY = 118, R = 84;
+  for (let h = 0; h < 24; h++) {
+    const a = h / 24 * 2 * Math.PI, r1 = h % 6 ? 78 : 72;
+    svgEl("line", {x1: (CX + r1 * Math.sin(a)).toFixed(1), y1: (CY - r1 * Math.cos(a)).toFixed(1), x2: (CX + 86 * Math.sin(a)).toFixed(1), y2: (CY - 86 * Math.cos(a)).toFixed(1), stroke: "#33414d", "stroke-width": h % 6 ? 1.5 : 3}, $("#clTicks", svg));
+  }
+  function arcPath(p){
+    if (p <= 0) return "";
+    if (p >= .9999) return `M${CX} ${CY - R} A${R} ${R} 0 1 1 ${CX - .01} ${CY - R}Z`;
+    const a = p * 2 * Math.PI, x = CX + R * Math.sin(a), y = CY - R * Math.cos(a);
+    return `M${CX} ${CY} L${CX} ${CY - R} A${R} ${R} 0 ${p > .5 ? 1 : 0} 1 ${x.toFixed(1)} ${y.toFixed(1)}Z`;
+  }
+  const clock = p => { hand.setAttribute("transform", `rotate(${p * 360} ${CX} ${CY})`); arc.setAttribute("d", arcPath(p)); };
+  const tank = v => { fill.style.transform = `scaleY(${v})`; pct.textContent = Math.round(v * 100) + " %"; };
+  const hhmm = min => String(Math.floor(min / 60)).padStart(2, "0") + ":" + String(Math.floor(min % 60)).padStart(2, "0") + " Uhr";
+  let seq = 0, seen = false;
+  function anim(ms, fn){
+    const my = seq;
+    return new Promise(res => {
+      if (reduced) { fn(1); res(); return; }
+      const t0 = performance.now();
+      (function f(t){ if (my !== seq) return res(); const p = Math.min(1, (t - t0) / ms); fn(p); if (p < 1) requestAnimationFrame(f); else res(); })(t0);
+    });
+  }
+  const TXT = [
+    "Stell dir vor, die Entstehung der Erdölvorräte hätte genau einen Tag gedauert. Einen ganzen Tag lang füllt die Natur das Lager in der Erde – Tropfen für Tropfen.",
+    "Erst ganz am Ende des Tages kommt der Mensch: Seit etwa 200 Jahren fördern und verbrennen wir Erdöl, Kohle und Erdgas in großen Mengen. Auf der Uhr sind das weniger als eine Sekunde – und dabei entsteht jede Menge CO₂.",
+    "Wächst der Vorrat nach? Ja, aber nur im Tempo der Natur: Bis wieder so viel entstanden ist, müsste die Uhr noch einmal einen ganzen Tag laufen – also viele Millionen Jahre. Für uns Menschen sind fossile Rohstoffe deshalb endlich."
+  ];
+  register("uhr");
+  async function show(i){
+    const my = ++seq, still = () => my === seq;
+    obs.textContent = TXT[i];
+    $("#clFab", svg).classList.toggle("on", i === 1);
+    c2.hidden = i === 0;
+    if (i === 0) {
+      clock(0); tank(0); tm.textContent = "00:00 Uhr";
+      if (!seen) return;
+      await anim(5200, p => { clock(p); tank(p); tm.textContent = hhmm(p * 1440); });
+    } else if (i === 1) {
+      clock(1); tank(1); tm.textContent = "23:59:59 Uhr";
+      if (!seen) return;
+      await wait(700); if (!still()) return;
+      await anim(1500, p => { tank(1 - p * .97); tm.textContent = "23:59:59," + (8 + Math.min(1, Math.floor(p * 2))) + " Uhr"; });
+      if (!still()) return;
+      tm.textContent = "24:00:00 Uhr";
+    } else {
+      clock(0); tank(.03); tm.textContent = "00:00 Uhr";
+      if (!seen) return;
+      await anim(6000, p => { clock(p * .06); tank(.03 + p * .002); tm.textContent = hhmm(p * .06 * 1440); });
+      if (!still()) return;
+      solve("uhr");
+    }
+  }
+  const st = stepper($("#clChain"), $("#clPrev"), $("#clNext"), 3, show);
+  $("#clAgain").addEventListener("click", () => { seen = true; show(st.cur()); });
+  onVisible(svg, v => { if (v && !seen) { seen = true; show(st.cur()); } });
+})();
+
+/* ---------- Station 6: Film mit Stopps ---------- */
+(function(){
+  const VID = "5WMcvAo8Q8o";
+  const STOPS = [
+    {t: 33, q: {q: "Welche Stoffe zählen laut Film zu den fossilen Brennstoffen?", o: ["Erdöl", "Erdgas", "Braunkohle", "Steinkohle", "Torf", "Holz", "Rapsöl"], a: [0, 1, 2, 3, 4], e: "Holz und Rapsöl wachsen nach – sie sind regenerative Rohstoffe. Torf ist die Vorstufe der Kohle und als Brennstoff kaum noch wichtig."}},
+    {t: 62, q: {q: "Wofür werden fossile Brennstoffe laut Film genutzt?", o: ["Benzin aus Erdöl als Kraftstoff für Autos", "Strom aus Kohle- und Erdgaskraftwerken", "als Dünger für die Felder", "als Trinkwasser"], a: [0, 1], e: "Benzin ist noch immer der häufigste Kraftstoff. Und auch der Strom für Elektroautos kommt zu einem großen Teil aus Kohle- und Erdgaskraftwerken."}},
+    {t: 122.5, q: {q: "Was braucht es laut Film, damit aus der Biomasse Erdöl wird?", o: ["eine sauerstoffarme Schicht", "hohen Druck und Wärme", "Bakterien", "sehr viel Zeit", "helles Sonnenlicht", "viel frischen Sauerstoff"], a: [0, 1, 2, 3], e: "Unter Luftabschluss, mit Druck, Wärme und Bakterien – und über Millionen Jahre – wird die Biomasse umgewandelt."}},
+    {t: 137, q: {q: "Woraus bestehen Kohlenwasserstoffe?", o: ["aus Kohlenstoff und Wasserstoff", "aus Kohle und Wasser", "aus Sauerstoff und Stickstoff", "aus Sand und Schlamm"], a: 0, e: "Der Name verrät es: Kohlen-wasser-stoffe bestehen aus den Elementen Kohlenstoff und Wasserstoff."}},
+    {t: 161.5, q: {q: "Wie gelangt man an das Erdöl unter der Nordsee?", o: ["Es wird von Bohrinseln aus gefördert.", "Es tritt von selbst am Strand aus.", "Man schöpft es von der Wasseroberfläche.", "Man gräbt es im Tagebau ab."], a: 0, e: "Die Lagerstätten liegen tief unter dem Meeresboden. Man muss durch die Schichten darüber hindurchbohren."}},
+    {t: 195.5, q: {q: "Warum sind fossile Brennstoffe für uns so wertvoll?", o: ["Sie brennen sehr gut und setzen dabei viel Wärme frei.", "Sie sind unbegrenzt vorhanden.", "Beim Verbrennen entstehen keine Abgase.", "Sie wachsen jedes Jahr nach."], a: 0, e: "Mit der Wärme heizt man Wohnungen, treibt Motoren an oder erzeugt im Kraftwerk Dampf für die Turbinen."}},
+    {t: 218.5, q: {q: "Welcher Stoff entsteht beim Verbrennen vor allem – und warum ist er ein Problem?", o: ["Kohlenstoffdioxid (CO₂): Er hält als Treibhausgas Wärme in der Atmosphäre zurück.", "Sauerstoff: Er macht die Luft zu dünn.", "Wasserstoff: Er ist giftig.", "Erdgas: Es riecht unangenehm."], a: 0, e: "Der Kohlenstoff reagiert mit Sauerstoff zu CO₂. Mehr CO₂ in der Luft verstärkt die Erderwärmung."}}
+  ];
+  const box = $("#filmQs"), chipsBox = $("#filmChips"), stopEl = $("#filmStop"), startBtn = $("#filmStart"), hint = $("#filmHint");
+  const mmss = t => Math.floor(t / 60) + ":" + String(Math.floor(t % 60)).padStart(2, "0");
+  let player = null, ready = false, last = 0, cur = -1, failed = false;
+  STOPS.forEach((s, i) => {
+    const id = "film" + i + "-0";
+    s.wrap = document.createElement("div"); s.wrap.className = "film-q"; s.wrap.hidden = true;
+    const q = document.createElement("div"); s.wrap.appendChild(q);
+    Modul.makeMC(q, [s.q], "film" + i, {t: `Film-Stopp ${i + 1} · bei ${mmss(s.t)}`});
+    s.go = document.createElement("button"); s.go.className = "btn small"; s.go.type = "button"; s.go.textContent = "▶ Weiter im Film"; s.go.hidden = true;
+    s.go.addEventListener("click", () => resume(i));
+    s.wrap.appendChild(s.go); box.appendChild(s.wrap);
+    s.chip = document.createElement("button"); s.chip.type = "button"; s.chip.textContent = `❓ ${mmss(s.t)}`;
+    s.chip.addEventListener("click", () => jump(i)); chipsBox.appendChild(s.chip);
+    const check = () => { if (Modul.isSolved(id)) { s.done = true; s.chip.classList.add("done"); s.chip.textContent = `✓ ${mmss(s.t)}`; if (!failed) s.go.hidden = false; } };
+    s.wrap.addEventListener("click", () => setTimeout(check, 0));
+    check();
+  });
+  function stopAt(i){
+    cur = i;
+    STOPS.forEach((s, k) => { s.wrap.hidden = k !== i; });
+    if (ready) { player.pauseVideo(); stopEl.classList.add("show"); }
+    STOPS[i].wrap.scrollIntoView({block: "nearest", behavior: reduced ? "auto" : "smooth"});
+  }
+  function resume(i){
+    cur = -1; stopEl.classList.remove("show"); STOPS[i].wrap.hidden = true;
+    if (ready) player.playVideo();
+  }
+  function jump(i){
+    if (ready) { player.seekTo(STOPS[i].t, true); last = STOPS[i].t; }
+    stopAt(i);
+  }
+  function poll(){
+    if (!ready) return;
+    const t = player.getCurrentTime();
+    if (cur < 0) for (let i = 0; i < STOPS.length; i++) {
+      const s = STOPS[i];
+      if (!s.done && last < s.t && t >= s.t && t - last < 3) { stopAt(i); break; }
+    }
+    last = t;
+  }
+  // Film lädt nicht oder darf nicht abgespielt werden: Link zu YouTube, alle Fragen offen zeigen
+  function fail(){
+    if (failed) return;
+    failed = true; cur = -1; stopEl.classList.remove("show");
+    if (!ready) {
+      startBtn.disabled = false; startBtn.querySelector("b").textContent = "Film auf YouTube öffnen";
+      startBtn.onclick = () => window.open("https://www.youtube.com/watch?v=" + VID, "_blank", "noopener");
+    }
+    hint.innerHTML = `Der Film lässt sich hier nicht abspielen. <a href="https://www.youtube.com/watch?v=${VID}" target="_blank" rel="noopener">Öffne ihn auf YouTube</a> und beantworte danach die Fragen hier.`;
+    STOPS.forEach(s => { s.wrap.hidden = false; s.go.hidden = true; });
+  }
+  function make(){
+    player = new YT.Player("ytPlayer", {
+      host: "https://www.youtube-nocookie.com", videoId: VID,
+      playerVars: {rel: 0, playsinline: 1, modestbranding: 1},
+      events: {
+        onReady: e => { ready = true; startBtn.remove(); setInterval(poll, 250); e.target.playVideo(); },
+        onStateChange: e => {
+          if (e.data === 1 && cur >= 0) player.pauseVideo();
+          if (e.data === 0) { const i = STOPS.length - 1; if (!STOPS[i].done) stopAt(i); }
+        },
+        onError: fail
+      }
+    });
+  }
+  startBtn.addEventListener("click", () => {
+    if (failed) return;
+    startBtn.disabled = true; startBtn.querySelector("b").textContent = "Film wird geladen …";
+    if (window.YT && YT.Player) make();
+    else {
+      window.onYouTubeIframeAPIReady = make;
+      const s = document.createElement("script"); s.src = "https://www.youtube.com/iframe_api"; s.onerror = fail; document.head.appendChild(s);
+    }
+    setTimeout(() => { if (!ready) fail(); }, 20000);
+  });
+})();
+Modul.makeOpen($("#open6"), [
+  {q: "Begründe, warum Erdöl, Erdgas und Kohle keine nachhaltigen Rohstoffe sind.",
+   m: "Fossile Rohstoffe entstehen über Millionen Jahre, werden aber in wenigen hundert Jahren verbraucht. Sie wachsen also nicht so schnell nach, wie wir sie nutzen – die Vorräte sind endlich. Außerdem setzt ihre Verbrennung Kohlenstoffdioxid frei, das lange in der Erde gespeichert war. Das verstärkt den Treibhauseffekt und schadet dem Klima.",
+   k: ["million|lange zeit|langsam|sehr lange", "verbrauch|endlich|aufgebraucht|nicht nach|wachsen nicht|weg|vorrat|begrenzt|schneller", "co2|co₂|kohlenstoffdioxid|klima|treibhaus|erderwärmung"], min: 2}
+], "open6", "Lies den Merke-Kasten dieser Station noch einmal.");
+
+/* ---------- Training: Kreuzworträtsel ---------- */
+Modul.makeCrossword($("#cw"), {
+  umlaut: true,
+  words: [
+    {w: "FOSSIL", r: 0, c: 1, d: "d", q: "Versteinerter Überrest oder Abdruck eines Lebewesens aus der Urzeit."},
+    {w: "ERDGAS", r: 1, c: 5, d: "d", q: "Sammelt sich in der Lagerstätte ganz oben, direkt unter der dichten Gesteinsschicht."},
+    {w: "ENDLICH", r: 1, c: 5, d: "a", q: "Fossile Rohstoffe wachsen nicht nach. Ihre Vorräte sind …"},
+    {w: "INKOHLUNG", r: 1, c: 9, d: "d", q: "Fachwort für die langsame Umwandlung von Pflanzenresten in Kohle."},
+    {w: "TORF", r: 2, c: 3, d: "d", q: "Erste Stufe auf dem Weg von den Pflanzenresten zur Kohle."},
+    {w: "DRUCK", r: 3, c: 5, d: "a", q: "Er steigt, je mehr Schichten sich darüber ablagern."},
+    {w: "FAULSCHLAMM", r: 3, c: 11, d: "d", q: "Dunkle Schicht am Meeresgrund, in der Bakterien die Reste der Kleinstlebewesen zersetzen."},
+    {w: "LUFTABSCHLUSS", r: 5, c: 1, d: "a", q: "Ohne Sauerstoff: Darum konnten die Reste der Lebewesen nicht verwesen."},
+    {w: "STEINKOHLE", r: 5, c: 7, d: "d", q: "Harte, schwarze Kohle mit dem höchsten Kohlenstoffanteil."},
+    {w: "SUMPFWALD", r: 5, c: 13, d: "d", q: "Aus seinen Bäumen und Farnen entstand vor rund 300 Millionen Jahren Kohle."},
+    {w: "BAKTERIEN", r: 8, c: 1, d: "a", q: "Winzige Lebewesen, die die Reste am Meeresgrund zersetzen."},
+    {w: "BRAUNKOHLE", r: 8, c: 1, d: "d", q: "Sie wird in Deutschland im Tagebau abgebaut, zum Beispiel in der Lausitz."},
+    {w: "ERDÖL", r: 8, c: 5, d: "d", q: "Aus diesem flüssigen Rohstoff werden Benzin und Diesel hergestellt."},
+    {w: "BOHRINSEL", r: 14, c: 0, d: "a", q: "Plattform im Meer, von der aus man Erdöl unter der Nordsee fördert."},
+    {w: "PLANKTON", r: 16, c: 0, d: "a", q: "Winzige Lebewesen, die im Meer treiben – aus ihnen entstand Erdöl."}
+  ],
+  sol: [[7, 7], [2, 9], [17, 1], [9, 5], [4, 5], [4, 1], [14, 7]],
+  solWord: "ENERGIE"
+}, "kreuz");
+
+/* ---------- Training: Lagerstätte beschriften ---------- */
+Modul.makeLabel($("#labelLager"), {
+  img: "assets/modul3/lagerstaette.svg", w: 600, h: 440,
+  alt: "Schnitt durch die Erde: Oben ein Bohrturm, darunter Schichten aus Sand und Ton, eine gewölbte graue Gesteinsschicht, darunter eine gelbe, eine schwarze und eine hellblaue Schicht in durchlässigem Gestein. Ganz unten eine dunkle Schicht und rote Wärme. Einige Felder sind leer.",
+  hint: "Tippe zuerst auf einen Begriff und dann auf das passende Kästchen im Schaubild. Zwei Begriffe passen nicht.",
+  slots: [
+    {x: 16, y: 7, px: 50, py: 5, a: "Bohrturm"},
+    {x: 84, y: 17, px: 78.3, py: 47, a: "undurchlässige Gesteinsschicht"},
+    {x: 84, y: 37, px: 56.7, py: 46.1, a: "Erdgas"},
+    {x: 16, y: 35, px: 40, py: 52.7, a: "Erdöl"},
+    {x: 84, y: 73, px: 73.3, py: 58.6, a: "Wasser"},
+    {x: 16, y: 76, px: 28.3, py: 77.3, a: "durchlässiges Gestein"}
+  ],
+  extra: ["Torf", "Braunkohle"]
+}, "labelLager");
+
+/* ---------- Training: Richtig/Falsch, offene Fragen ---------- */
+Modul.makeTF($("#tf"), [
+  ["Fossilien sind versteinerte Überreste oder Abdrücke von Lebewesen.", true],
+  ["Erdöl ist aus Pflanzen früherer Sumpfwälder entstanden.", false],
+  ["Faulschlamm entsteht, wenn Bakterien abgestorbene Lebewesen fast ohne Sauerstoff zersetzen.", true],
+  ["Erdöl und Erdgas sammeln sich über einer undurchlässigen Gesteinsschicht.", false],
+  ["In einer Lagerstätte liegt das Erdgas über dem Erdöl.", true],
+  ["Aus Torf wird unter Druck und Wärme Braunkohle.", true],
+  ["Braunkohle hat einen höheren Kohlenstoffanteil als Steinkohle.", false],
+  ["Kohle, Erdöl und Erdgas bilden sich in wenigen hundert Jahren neu.", false],
+  ["Beim Verbrennen fossiler Rohstoffe entsteht Kohlenstoffdioxid.", true],
+  ["Fossile Rohstoffe enthalten viel Kohlenstoff.", true]
+], "tf");
+Modul.makeOpen($("#openT"), [
+  {q: "Beschreibe, wie Erdöl und Erdgas entstanden sind.",
+   m: "Vor Millionen Jahren sanken abgestorbene Kleinstlebewesen (Plankton) auf den Meeresboden. Weil dort kaum Sauerstoff war, zersetzten Bakterien sie zu Faulschlamm. Sand, Geröll und Schlamm lagerten sich darüber ab. In der Tiefe stiegen Druck und Temperatur, und über Millionen Jahre wurden die Reste zu Erdöl und Erdgas. Diese stiegen durch durchlässiges Gestein nach oben und sammelten sich unter einer undurchlässigen Gesteinsschicht.",
+   k: ["meer|plankton|kleinstlebewes|lebewes", "faulschlamm|bakterien|sauerstoff|luftabschluss", "druck|temperatur|wärme|hitze", "million|lange zeit"], min: 3},
+  {q: "Erkläre, warum Steinkohle tiefer liegt und härter ist als Braunkohle.",
+   m: "Steinkohle lag länger und tiefer in der Erde als Braunkohle. Dort waren Druck und Temperatur höher. Dadurch wurde mehr Wasser herausgepresst, der Kohlenstoffanteil stieg und die Kohle wurde hart und fest.",
+   k: ["tief|länger|lange|druck|temperatur|wärme", "kohlenstoff|wasser|gepresst|zusammengedrückt|zusammengepresst|fest|hart"]},
+  {q: "Ein Mitschüler sagt: „Erdöl entsteht doch ständig neu – dann kann es uns gar nicht ausgehen.“ Nimm Stellung.",
+   m: "Es stimmt, dass auch heute noch Erdöl entsteht. Das dauert aber Millionen Jahre. Wir verbrauchen die Vorräte dagegen in wenigen hundert Jahren, also viel schneller, als neues Erdöl entsteht. Deshalb ist Erdöl für uns Menschen endlich.",
+   k: ["million|langsam|lange", "verbrauch|schneller|endlich|ausgehen|aufgebraucht|begrenzt|hundert"]},
+  {q: "Warum findet man Erdöl nicht überall, sondern nur an bestimmten Stellen?",
+   m: "Erdöl entstand nur dort, wo früher ein Meer mit viel Plankton war und sich Faulschlamm bilden konnte. Außerdem sammelt es sich nur dort, wo eine undurchlässige Gesteinsschicht es auf seinem Weg nach oben aufhält. Ohne diese „Falle“ wäre es bis an die Oberfläche gewandert.",
+   k: ["meer|plankton|faulschlamm", "undurchlässig|dicht|gesteinsschicht|falle|sammel|deckel"]}
+], "openT", "Schau in die Merke-Kästen der Stationen.");
+
+/* ---------- Abschlussquiz ---------- */
+Modul.makeQuiz($("#quiz"), [].concat(MC.s1, MC.s2, MC.s3, MC.s4, MC.s5, MC.s6, MC.train, [
+  {q: "Was ist Faulschlamm?", o: ["dunkler Schlamm aus zersetzten Resten von Lebewesen am Meeresgrund", "Schlamm aus einem Sumpfwald", "verbrannte Kohle", "Sand aus der Wüste"], a: 0, e: "Aus Faulschlamm wurden über Millionen Jahre Erdöl und Erdgas."},
+  {q: "Wie nennt man die Umwandlung von Pflanzenresten zu Kohle?", o: ["Inkohlung", "Verkohlung im Ofen", "Fotosynthese", "Destillation"], a: 0, e: "Bei der Inkohlung steigt der Kohlenstoffanteil: Torf, Braunkohle, Steinkohle."},
+  {q: "Woraus bestehen Kohlenwasserstoffe?", o: ["aus Kohlenstoff und Wasserstoff", "aus Kohle und Wasser", "aus Sauerstoff und Wasserstoff", "aus Stickstoff und Kohlenstoff"], a: 0, e: "Erdöl und Erdgas sind Gemische aus vielen Kohlenwasserstoffen."},
+  {q: "Wie wird Braunkohle in Deutschland abgebaut?", o: ["im Tagebau", "mit Bohrinseln", "mit Pumpen aus Lagerstätten", "gar nicht mehr"], a: 0, e: "Braunkohle liegt nah an der Oberfläche, zum Beispiel im Rheinland und in der Lausitz."},
+  {q: "Seit wann nutzt die Menschheit fossile Rohstoffe in großen Mengen?", o: ["seit etwa 200 Jahren", "seit 300 Millionen Jahren", "seit dem Jahr 2000", "seit der Steinzeit"], a: 0, e: "Im Vergleich zur Entstehung ist das nur ein winziger Augenblick."}
+]), "quiz", "Rohstoff-Profi");
+
+bereit = true;
+Modul.ready();
+})();
+</script>
+</body>
+</html>
