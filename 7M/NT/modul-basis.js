@@ -275,7 +275,7 @@ function makeOrder(box, steps, id){
   });
 }
 
-/* ---------- Bild beschriften (Arbeitsblatt) ---------- */
+/* ---------- Bild beschriften ---------- */
 // cfg: {img, alt, w, h, slots:[{x,y,px,py,a,arrow}], extra:[Ablenker], hint}
 // x/y = Mitte des Kästchens, px/py = Bauteil, auf das die Linie zeigt (alles in Prozent)
 function makeLabel(box, cfg, id){
@@ -330,7 +330,7 @@ function makeHotspots(box, info, countEl, list, id){
 
 /* ---------- Kreuzworträtsel ---------- */
 // cfg: {words:[{w,r,c,d:"a"|"d",q,num}], sol:[[r,c],...], solWord, pre:["r,c"], umlaut}
-// num: feste Nummer wie auf dem Arbeitsblatt; umlaut: Ä, Ö, Ü stehen in einem eigenen Kästchen
+// num: feste Nummer (statt automatisch); umlaut: Ä, Ö, Ü stehen in einem eigenen Kästchen
 function makeCrossword(box, cfg, id){
   register(id);
   const W = cfg.words.slice().sort((a, b) => a.r - b.r || a.c - b.c);

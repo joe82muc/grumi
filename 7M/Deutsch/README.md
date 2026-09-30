@@ -9,7 +9,7 @@
 5. `sachlich-diskutieren.html` – Standpunkt + 3 Argumente, Beobachtungsbogen, Diskussionsleitung, Beobachten üben, KI-Diskussion, Auswertung, Lerntagebuch.
 6. `tisch-duell.html` – Tisch-Duell zu zweit: zwei iPads, Pro gegen Kontra, die KI prüft jeden Beitrag.
 
-Die Module sind eigenständig formuliert: keine Seitenangaben oder Aufgabennummern aus einem Schulbuch, keine wörtlich übernommenen Buchtexte, keine Gruppenarbeit (Ausnahme: Modul 6 ist bewusst Partnerarbeit).
+Die Module 1–5 sind Selbstlernmodule ohne Gruppenarbeit; Modul 6 ist bewusst Partnerarbeit.
 
 Gemeinsame Bausteine der Module 2–6: `de-modul.css` und `de-modul.js` (Anmeldung „Dein Training starten“, Klick-Übungen, Markieren, Freitexte mit KI-Checkliste, Duell, Beobachtungsbogen, Lerntagebuch, Vorlesen). Bilder in `bilder/` (WebP, 1200 px); die Originale liegen außerhalb des Repos in OneDrive `7/Deutsch/Bilder`.
 

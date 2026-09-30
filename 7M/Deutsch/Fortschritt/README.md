@@ -11,10 +11,10 @@ Die Lehrkraft öffnet die Auswertung über `../lehrer.html`. Dort können Erstfa
 - Freitexte, Duell-Antworten und Lerntagebuch-Einträge werden mit Namen gespeichert (`data/deutsch7-module.json` auf Render) und erscheinen in `lehrer.html` unter „Lernmodule 2–6“. Sterne und Themenwahl bleiben nur im Browser.
 - Backend-Version `2026-09-28-deutsch7-module` (in `/api/health` prüfen).
 
-## 30.09.2026 – Module ohne Schulbuchbezug
+## 30.09.2026 – Überarbeitung der Module 2–5
 
-- Alle Seitenangaben, Aufgabennummern und Rubriknamen des Schulbuchs entfernt (Module, Übersicht, Startseite).
-- Module 2–5 neu formuliert: eigene Beiträge, verletzende Sätze, Streitgespräch (Nele/Jannik/Emre statt Linus/Max/Serpil), Checkliste, Beobachtungsbogen und Arbeitsaufträge. Das Bild `killerphrasen.webp` mit den Buchsätzen ist entfernt.
+- Module 2–5 neu formuliert: eigene Beiträge, verletzende Sätze, Streitgespräch (Nele/Jannik/Emre), Checkliste, Beobachtungsbogen und Arbeitsaufträge. Das Bild `killerphrasen.webp` ist entfernt.
+- Keine Seiten- oder Aufgabennummern mehr (Module, Übersicht, Startseite).
 - Keine Gruppen- oder Partnerarbeit mehr in den Modulen 2–5 (Modul 5 ohne Gruppe 1/Gruppe 2), keine Verweise auf „Stationen“ im Text.
 - Duelle gegen die KI und das Tisch-Duell sind unverändert.
-- Offen: Die Modultitel in der Lehreransicht kommen vom Backend (`englisch_9`, `backend/api/deutsch7-module.js`) und tragen dort noch „(S. 22)“ usw.
+- Offen: Die Modultitel in der Lehreransicht kommen vom Backend (`englisch_9`, `backend/api/deutsch7-module.js`) und tragen dort noch Seitenzahlen.

@@ -12,19 +12,19 @@
       module: [
         {titel: "Luft – unsichtbar, aber lebenswichtig", href: "luft-modul.html", key: "grumi-nt7-luft-modul-v1",
          text: "Luft zum Leben, bewegte Luft, Luft und Feuer, Zusammensetzung, Eigenschaften der Luft, chemische Symbole und Formeln.",
-         tags: ["Buch S. 12 ff.", "Arbeitsblätter 1–3", "KI-Rückmeldung"]},
-        {titel: "Windkraft: Bewegte Luft erzeugt Strom", href: "windkraft-strom.html", key: "grumi-nt7-windkraft-strom-v1",
+         tags: ["Versuche", "Probenstoff", "KI-Rückmeldung"]},
+        {titel: "Windkraft: Strom aus bewegter Luft", href: "windkraft-strom.html", key: "grumi-nt7-windkraft-strom-v1",
          text: "Windmühle und Windkraftanlage, Aufbau mit Rotorblatt, Getriebe, Generator und Bremse, vom Wind zum Strom, warum Windräder immer größer werden.",
-         tags: ["Buch S. 22 f.", "Arbeitsblatt", "KI-Rückmeldung"]},
+         tags: ["Animationen", "Probenstoff", "KI-Rückmeldung"]},
         {titel: "Windkraft – pro und contra", href: "windkraft-pro-contra.html", key: "grumi-nt7-windkraft-procontra-v1",
          text: "Argumente für und gegen Windräder sortieren, Standort-Planer für einen Kompromiss und ein Wortgefecht gegen die KI.",
-         tags: ["Buch S. 24 f.", "Arbeitsblatt", "Duell gegen die KI"]},
+         tags: ["Standort-Planer", "Probenstoff", "Duell gegen die KI"]},
         {titel: "Luft und Verbrennung", href: "luft-verbrennung.html", key: "grumi-nt7-luft-verbrennung-v1",
          text: "Brennbare Stoffe, das Feuerdreieck, die Zündtemperatur, warum Feuer Sauerstoff braucht und warum fein zerteilte Stoffe besser brennen.",
-         tags: ["Buch S. 26 f.", "Arbeitsblatt", "KI-Rückmeldung"]},
+         tags: ["Versuche", "Probenstoff", "KI-Rückmeldung"]},
         {titel: "Achtung, explosiv!", href: "achtung-explosiv.html", key: "grumi-nt7-achtung-explosiv-v1",
          text: "Mehlstaub-Explosion, explosive Gasgemische, Druckwelle, kontrollierte Explosionen im Automotor und Vorsicht beim Grillen.",
-         tags: ["Buch S. 28 f.", "Arbeitsblatt", "KI-Rückmeldung"]},
+         tags: ["Lehrerversuche", "Probenstoff", "KI-Rückmeldung"]},
         {titel: "Brände verhindern und löschen",
          text: "Brandschutz, richtiges Verhalten im Notfall und Löschmethoden."}
       ],
@@ -92,5 +92,5 @@
       <div class="weitere">${THEMEN.slice(1).map(t => `<div class="weiter"><span class="thema-icon small">${t.icon}</span><div><div class="eyebrow dark">Themenbereich ${t.nr}</div><h3>${esc(t.titel)}</h3><p>${esc(t.text)}</p><div class="mod-status">in Vorbereitung</div></div></div>`).join("")}</div>
     </section>
   </main>
-  <footer class="wrap">GRUMI · Natur und Technik ${klasse} · Grundlage: Natur Plus 7/7M (Bayern)</footer>`;
+  <footer class="wrap">GRUMI · Natur und Technik ${klasse}</footer>`;
 })();
