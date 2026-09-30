@@ -140,9 +140,11 @@ window.KohlenstoffKurs = {
       id: "m05",
       group: "organische-rohstoffe",
       nr: 4,
+      // eigene Lernseite im Stil von NT 7 (Stationen, Film, Animationen, KI-Fragen)
+      page: "modul-4.html",
       title: "Erdölaufbereitung und Fraktionen",
       duration: "45 min",
-      goal: "Du erklärst die fraktionierte Destillation und leitest Eigenschaften der Erdölfraktionen aus ihrer Molekülgröße ab.",
+      goal: "Du erklärst die fraktionierte Destillation im Destillationsturm, begründest die Destillation bei vermindertem Druck, verbindest Molekülgröße, Siedetemperatur und Zähflüssigkeit und nennst Produkte aus Erdöl.",
       sections: [
         {
           title: "Trennen nach Siedetemperatur",

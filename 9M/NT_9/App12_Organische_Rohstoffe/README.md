@@ -37,3 +37,12 @@
 - Film: „Fossile Energieträger: Kohle, Erdöl, Erdgas“ von Duden Learnattack (YouTube `5WMcvAo8Q8o`, einbettbar). Die Stopps stehen in `STOPS` und sind nach den automatischen Untertiteln gesetzt.
 - KI-Fragen gehen an dieselbe Route `/api/nt9/uebung/feedback`. Die Seite schickt ihr Thema selbst mit; das Backend musste nicht geändert werden.
 - Die Sterne landen als `m04` im Kursfortschritt.
+
+## Modul 4 „Erdölaufbereitung und Fraktionen“ (30.09.2026)
+
+- Eigene Lernseite `modul-4.html`, in `content.js` bei `m05` mit `page: "modul-4.html"` und `nr: 4`.
+- Grundlage: fachliche Fakten aus dem Unterrichtsmaterial zur Aufbereitung von Erdöl (lokal in `9/NT_9/Bilder`), eigenständig formuliert. Aus dem Lückentext wurde ein eigener Lückentext mit denselben zehn Lösungswörtern, aus den Fragen zum Rückstand drei KI-Fragen.
+- Bilder: `assets/modul4/destillation-erdoel.webp` und `produkte-aus-erdoel.webp` (KI-Grafiken, Hinweis ist im Bild und in der Bildunterschrift), `turm.svg` ist ein eigenes Schaubild zum Beschriften.
+- Film: „Erdöl, Teil 1“ der Bibliothek der Sachgeschichten (YouTube `5iah96MyomM`), Stopps in `STOPS`.
+- Die Station „Produkte“ nimmt den Alltagsbezug vorweg, Modul 5 kann sich auf den Kohlenstoffkreislauf konzentrieren.
+- Die Sterne landen als `m05` im Kursfortschritt.

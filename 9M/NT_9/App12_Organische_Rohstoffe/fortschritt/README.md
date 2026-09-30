@@ -10,7 +10,7 @@ an die Übersicht (`index.html`) und an die Themenübersicht (`../übersicht_the
 | 1 Kohlenstoff, Holz und Raps | `m01` | `modul-1.html` | fertig (29.09.2026) |
 | 2 Biodiesel, Stärke und Nachhaltigkeit | `m02` | `modul-2.html` | fertig (29.09.2026) |
 | 3 Entstehung fossiler Rohstoffe | `m04` | `modul-3.html` | fertig (30.09.2026) |
-| 4 Erdölaufbereitung und Fraktionen | `m05` | `module.html?id=m05` | alte Kurzansicht |
+| 4 Erdölaufbereitung und Fraktionen | `m05` | `modul-4.html` | fertig (30.09.2026) |
 | 5 Kohlenstoffkreislauf und Erdöl im Alltag | `m06` | `module.html?id=m06` | alte Kurzansicht |
 
 ## Stand 29.09.2026
@@ -42,6 +42,24 @@ an die Übersicht (`index.html`) und an die Themenübersicht (`../übersicht_the
 - Beim Holz-Pellets-Bild die buchtypischen Bildunterschriften abgeschnitten, im Holz-Schaubild den Buchhinweis entfernt.
 - Emojis ab Unicode 12/13 (🪵 🪨 🪑) ersetzt, weil Windows 10 sie nur als leeres Kästchen zeigt.
 
+## Stand 30.09.2026, abends: Modul 4
+
+- Neues Modul 4 „Erdölaufbereitung und Fraktionen“ (`modul-4.html`, Bilder in `assets/modul4/`):
+  - 8 Stationen: Stoffgemisch (mit Film), Modellversuch, Destillationsturm, Rückstand, Eigenschaften,
+    Produkte, Training, Profi-Check.
+  - Animationen: Destillation von gefärbtem Wasser im Labor (5 Schritte), Modellversuch mit vier Fraktionen
+    (Lehrerversuch, Temperatur in 50-°C-Stufen), Destillationsturm mit aufsteigenden Dampfteilchen, die je nach
+    Fraktion in ihrer Höhe kondensieren, Druckregler (Siedetemperatur von Rückstand und Wasser sinkt, Zugspitze,
+    Mount Everest), Entzündbarkeit von Benzin, Kerosin, Dieselöl und Motoröl mit Heizplatte, Kugelfall in vier
+    Fraktionen (Zähflüssigkeit), vereinfachte Molekülketten, Erdöl-Detektiv (Dinge aus Erdöl verschwinden).
+  - Übungen: Lückentext zur fraktionierten Destillation, zwei Reihenfolgen, zwei Zuordnungen, Kreuzworträtsel
+    (Lösungswort DIESEL), Destillationsturm beschriften, Richtig/Falsch, Ankreuzen, 13 offene Fragen mit
+    KI-Rückmeldung (darunter die drei Fragen zum Rückstand), Abschlussquiz.
+  - Film: „Erdöl, Teil 1“ aus der Bibliothek der Sachgeschichten (YouTube `5iah96MyomM`) mit 5 Stopps.
+  - Grundlage: fachliche Fakten aus dem Unterrichtsmaterial zur Aufbereitung von Erdöl, alle Texte eigenständig
+    formuliert. KI-Grafiken aus dem Apps-Ordner („So wird Erdöl in Bestandteile getrennt“, „Was wird aus Erdöl
+    hergestellt“) mit dem vorgegebenen KI-Hinweis.
+
 ## Offen
 
-- Modul 4 und 5 laufen noch über die alte Kurzansicht (`module.html`).
+- Modul 5 läuft noch über die alte Kurzansicht (`module.html?id=m06`).
