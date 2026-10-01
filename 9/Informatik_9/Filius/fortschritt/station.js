@@ -10,6 +10,36 @@
   var F = window.GrumiFilius;
   var S = window.STATION;
   if (!S) return;
+  var LS_SKRIPT = document.currentScript && document.currentScript.src;
+
+  /* Lernstand mit Code (js/lernstand.js): abgehakte Arbeitsschritte und Kontrollfragen,
+     die beim ersten Versuch richtig waren, gehen an die Lehrkraft. */
+  function lernstand(anker) {
+    var aufgaben = [];
+    S.schritte.forEach(function (sch, i) {
+      aufgaben.push({ id: "sch-li-" + sch.id, teil: "Arbeitsschritte", kurz: String(i + 1),
+        text: String(sch.text || "").replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim().slice(0, 100) });
+    });
+    (S.fragen || []).forEach(function (fr, i) {
+      aufgaben.push({ id: "frage-" + (i + 1), teil: "Kontrollfragen", kurz: String(i + 1), text: String(fr.frage || "").slice(0, 100) });
+    });
+    var nr = parseInt(String(S.id).replace(/^\D+/, ""), 10) || 0;
+    function los() {
+      window.Lernstand.seite({
+        kurs: "i9", modul: "i9-filius-" + S.id, bereich: "Filius-Workshop", bnr: 2, nr: nr, kurz: "S" + nr,
+        titel: String(S.titel || S.id).replace(/<[^>]*>/g, ""), aufgaben: aufgaben, anker: anker,
+        abzeichenIn: ".txt,.frage-q", hinweis: "Arbeitsschritte zählen, wenn du sie abhakst. Kontrollfragen zählen, wenn deine erste Antwort stimmt."
+      });
+      // Schritte, die auf diesem Gerät schon abgehakt sind, mitmelden
+      S.schritte.forEach(function (sch) { if (F && F.istGehakt(S.id, sch.id)) window.Lernstand.geloest("sch-li-" + sch.id); });
+    }
+    if (window.Lernstand) { los(); return; }
+    if (!LS_SKRIPT) return;
+    var s = document.createElement("script");
+    s.src = new URL("../../../../js/lernstand.js", LS_SKRIPT).href;
+    s.onload = function () { if (window.Lernstand) los(); };
+    document.head.appendChild(s);
+  }
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -69,6 +99,7 @@
     var liste = el("ul", "schritte");
     S.schritte.forEach(function (sch) {
       var li = el("li", "schritt");
+      li.id = "sch-li-" + sch.id;
       var box = document.createElement("input");
       box.type = "checkbox";
       box.id = "sch-" + S.id + "-" + sch.id;
@@ -88,6 +119,7 @@
       box.addEventListener("change", function () {
         li.classList.toggle("done", box.checked);
         if (F) F.haken(S.id, sch.id, box.checked);
+        if (box.checked && window.Lernstand) window.Lernstand.geloest(li.id);
         balkenAktualisieren();
       });
 
@@ -106,6 +138,7 @@
     S.fragen.forEach(function (fr, i) {
       var d = el("div", "frage");
       d.dataset.i = i;
+      d.id = "frage-" + (i + 1);
 
       var q = el("div", "frage-q");
       var nr = el("span", "frage-nr", String(i + 1));
@@ -153,6 +186,7 @@
 
       quizBeantwortet++;
       if (ok) quizRichtig++;
+      if (ok && window.Lernstand) window.Lernstand.geloest(karte.id);
       if (quizBeantwortet === S.fragen.length) {
         if (F) F.quiz(S.id, quizRichtig, S.fragen.length);
         var res = document.getElementById("quiz-ergebnis");
@@ -275,4 +309,5 @@
   }
 
   balkenAktualisieren();
+  lernstand(p2);
 })();

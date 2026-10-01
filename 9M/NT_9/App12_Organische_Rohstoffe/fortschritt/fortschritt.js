@@ -16,7 +16,9 @@
   var KL = /\/9R\//i.test(global.location.pathname) ? "r9" : "m9";
   var KLASSE = KL === "r9" ? "9R" : "9M";
   var BASIS = cfg.storageKey || "grumi-nt9-kohlenstoff-fortschritt";
-  var SITZUNG = "grumi-nt9-" + KL + "-anmeldung";
+  // Anmeldung mit Code: gemeinsam für alle Fächer (js/lernstand.js); früher je Zug in "grumi-nt9-m9-anmeldung"
+  var SITZUNG = "grumi-code-anmeldung";
+  var ALTE_SITZUNG = "grumi-nt9-" + KL + "-anmeldung";
   var UEBERNOMMEN = "grumi-nt9-" + KL + "-anmeldung-alt-uebernommen";
   var BEGRUESSEN = "grumi-nt9-anmeldung-gruss";
   var API = (global.location.hostname.slice(-12) === "onrender.com" ? "" : "https://englisch-9.onrender.com") + "/api/nt9/fortschritt";
@@ -42,12 +44,18 @@
     });
   }
 
-  // Sitzung: { name, kennung, klasse, code }. Ältere Anmeldungen mit Vorname (ohne Code) gelten
-  // nicht mehr – ihr Stand kann beim Anmelden mit Code übernommen werden.
+  // Sitzung: { name, kennung, klasse, zug, code }. Gilt hier nur, wenn der Zug zur Seite passt (9M/9R).
+  // Ältere Anmeldungen mit Vorname (ohne Code) gelten nicht mehr – ihr Stand kann beim Anmelden mit Code
+  // übernommen werden.
+  function zugVon(klasse) { var m = /^(\d+)/.exec(String(klasse || "")); return m ? m[1] + (/M$/.test(klasse) ? "M" : "R") : ""; }
   var schueler = liesJson(SITZUNG);
   var alteSitzung = null;
-  if (!schueler || !schueler.kennung) schueler = null;
-  else if (!schueler.code) { alteSitzung = schueler; schueler = null; }
+  if (!schueler || !schueler.code || !schueler.kennung || (schueler.zug || zugVon(schueler.klasse)) !== KLASSE) schueler = null;
+  if (!schueler) {
+    var alt = liesJson(ALTE_SITZUNG);
+    if (alt && alt.kennung && alt.code) { schueler = alt; schueler.zug = KLASSE; schreib(SITZUNG, JSON.stringify(schueler)); }
+    else if (alt && alt.kennung) alteSitzung = alt;
+  }
 
   // Ohne Anmeldung "~-~": Eine Kennung kann nie "-" sein
   var seite = null; // Modulseite, die gerade ihren Speicherschlüssel geholt hat: { modul, key }
@@ -183,6 +191,7 @@
   function codeUngueltig() {
     if (!schueler) return;
     loesch(SITZUNG);
+    loesch(ALTE_SITZUNG);
     alteSitzung = null;
     schueler = null;
     if (pflicht) anmeldeDialog("Dein Code gilt nicht mehr. Frag deine Lehrkraft nach deinem Code und melde dich neu an.");
@@ -310,7 +319,7 @@
     });
     var vorher = lies(BASIS + "~" + kennung + "~") !== null || Object.keys(data.fortschritt || {}).length > 0;
     serverStandUebernehmen(kennung, data.fortschritt);
-    schueler = { name: "Code " + data.code, kennung: kennung, klasse: KLASSE, code: data.code };
+    schueler = { name: "Code " + data.code, kennung: kennung, klasse: data.klasse || KLASSE, zug: data.zug || KLASSE, code: data.code, seit: Date.now() };
     // Den ganzen Stand dieses Geräts einmal hochladen (z. B. übernommener Stand), die Seite schickt ihn nach dem Neuladen
     var q = {};
     Object.keys(SEITE).forEach(function (id) {
@@ -323,6 +332,7 @@
       return;
     }
     warteschlangeSichern(q);
+    loesch(ALTE_SITZUNG);
     if (alteSitzung) alteSitzung = null;
     try { global.sessionStorage.setItem(BEGRUESSEN, vorher ? "zurueck" : "neu"); } catch (_e) {}
     global.location.reload();
@@ -353,6 +363,7 @@
   function abmelden() {
     senden();
     loesch(SITZUNG);
+    loesch(ALTE_SITZUNG);
     schueler = null;
     // kurz warten, damit die letzte Meldung noch rausgeht
     setTimeout(function () { global.location.reload(); }, 300);

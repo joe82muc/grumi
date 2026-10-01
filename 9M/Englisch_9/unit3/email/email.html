@@ -429,6 +429,8 @@
         const row = document.createElement("div");
         const ok = rule.test(text);
         row.className = "checkitem" + (ok ? " done" : "");
+        row.id = "regel-" + rule.key;
+        if (ok && text.trim() && window.Lernstand) Lernstand.geloest(row.id);
         row.innerHTML = `<span class="dot"></span><span>${rule.label}</span>`;
         checklist.appendChild(row);
       });
@@ -579,6 +581,15 @@
     </div>
   </div>
 </footer>
+  <script src="../../../../js/lernstand.js"></script>
+  <script>
+    /* Lernstand mit Code: ein Punkt der Checkliste zählt, sobald die E-Mail ihn erfüllt (js/lernstand.js) */
+    if (window.Lernstand) Lernstand.seite({
+      kurs: "e9", bereich: "Unit 3", bnr: 3, modul: "e9-u3-email", nr: 5, kurz: "E-Mail", titel: "E-Mail schreiben",
+      aufgaben: checklistRules.map(function (r, i) { return { id: "regel-" + r.key, teil: "Checkliste", kurz: String(i + 1), text: r.label }; }),
+      anker: document.getElementById("checklist")
+    });
+  </script>
 </body>
 </html>
 

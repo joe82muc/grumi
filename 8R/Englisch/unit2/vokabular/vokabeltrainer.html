@@ -796,9 +796,9 @@ function showHint(){
 
 /* ---------- Auswertung einer Karte ---------- */
 function registerRight(){
-  right++;
+  right++; lsWort(current);
   showFeedback(true);
-  showBookExample();
+  showExampleSentence();
   speak();
   finishCard();
 }
@@ -806,7 +806,7 @@ function registerWrong(correct){
   wrong++;
   if(!mistakes.includes(current)) mistakes.push(current);
   showFeedback(false, correct);
-  showBookExample();
+  showExampleSentence();
   finishCard();
 }
 function finishCard(){
@@ -831,7 +831,7 @@ function resetExampleBox(){
 }
 
 /* Beispielsatz aus dem Buch, sobald die Karte beantwortet ist */
-function showBookExample(){
+function showExampleSentence(){
   if(currentExampleSentence) return;      // KI-Satz nicht überschreiben
   const box = $('example-box');
   if(current && current.ex){
@@ -1137,6 +1137,23 @@ if('speechSynthesis' in window){ window.speechSynthesis.onvoiceschanged = () => 
 
 buildFilterButtons();
 restart();
+</script>
+<script src="../../../../js/lernstand.js"></script>
+<script>
+/* Lernstand mit Code: Anmeldung, Meldung richtig gelöster Aufgaben, „Das fehlt dir noch“ (js/lernstand.js) */
+function lsWort(w) { if (window.Lernstand && w) Lernstand.geloest("w" + vocab.indexOf(w)); }
+(function () {
+  var dek = document.createElement("textarea");
+  function text(t) { dek.innerHTML = String(t || ""); return dek.value; }
+  var themen = typeof topicLabels !== "undefined" ? topicLabels : {};
+  if (window.Lernstand) Lernstand.seite({
+    kurs: "e8", bereich: "Vokabeln", bnr: 2, modul: "e8-u2-vokabeln", nr: 2, kurz: "Unit 2",
+    titel: "Vokabeltrainer Unit 2", einheit: "Wörtern",
+    hinweis: "Ein Wort zählt, wenn du es beim Ankreuzen oder Schreiben richtig beantwortest.",
+    aufgaben: vocab.map(function (w, i) { return { id: "w" + i, teil: themen[w.topic] || "Wörter", kurz: text(w.en).slice(0, 24), text: text(w.en) + " – " + text(w.de) }; }),
+    anker: document.getElementById("filter-row")
+  });
+})();
 </script>
 </body>
 </html>

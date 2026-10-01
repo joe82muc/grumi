@@ -207,7 +207,7 @@
   </section>
 
   <section class="panel">
-    <div class="sec-label">Test yourself &middot; Aufgaben aus dem Buch</div>
+    <div class="sec-label">Übungen zur Regel</div>
     <div class="scorebar">
       <span class="sn good">Richtig: <span id="ar">0</span></span>
       <span class="sn miss">Noch &uuml;ben: <span id="aw">0</span></span>
@@ -272,6 +272,7 @@
   </div>
 </footer>
 
+<script src="../../../../js/lernstand.js"></script>
 <script>
 /* ============================================================
    G4 Possessivpronomen - Englisch 7, Unit 1
@@ -572,7 +573,7 @@ function chkGap(level, id, t){
   fb.innerHTML = ok
     ? "\u2705 Richtig \u2013 super gemacht!"
     : "\u2139\ufe0f Noch nicht ganz. Richtig ist: <span class=\"sol\">" + esc(t.a.map(showAns).join(" \u00b7 ")) + "</span>";
-  ans[id] = true; markCard(id, ok); lockGap(id);
+  ans[id] = true; markCard(id, ok); lockGap(id); if(ok && window.Lernstand) Lernstand.geloest(id);
   if(ok) sc[level].r++; else sc[level].w++;
   updSc(level);
 }
@@ -622,7 +623,7 @@ function chkMC(id, btn, t){
   fb.innerHTML = (ok ? "\u2705 Richtig \u2013 gut erkannt!"
                      : "\u2139\ufe0f Fast. Richtig ist: <span class=\"sol\">" + esc(t.correct) + "</span>") +
                  (t.why ? '<span class="why">' + t.why + '</span>' : "");
-  markCard(id, ok);
+  markCard(id, ok); if(ok && window.Lernstand) Lernstand.geloest(id);
   if(ok) sc.c.r++; else sc.c.w++;
   updSc("c");
 }
@@ -637,6 +638,7 @@ function resetLevel(level){
   $(level+"done").style.display = "none";
   if(level === "c") renderMC(CFG.c, $("cList"));
   else renderGaps(level, CFG[level], $(level+"List"));
+  if(window.Lernstand) Lernstand.markieren();
   updSc(level);
 }
 
@@ -677,6 +679,18 @@ $("b-all").addEventListener("click", () => checkAll("b", CFG.b));
 $("a-reset").addEventListener("click", () => resetLevel("a"));
 $("b-reset").addEventListener("click", () => resetLevel("b"));
 $("c-reset").addEventListener("click", () => resetLevel("c"));
+/* ---------- Lernstand: Anmeldung mit Code, Rückmeldung „Das fehlt dir noch“ (js/lernstand.js) ---------- */
+if(window.Lernstand){
+  const kurz = (q) => String(q).replace(/\{\d\}/g, "…").replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
+  Lernstand.seite({
+    kurs: "e7", bereich: "Unit 1 · Grammatik", bnr: 1, modul: "e7-u1-g4", nr: 4, kurz: "G4", titel: "G4 · Possessivpronomen",
+    aufgaben: [].concat(
+      CFG.a.map((t, i) => ({ id: "a" + (i+1), teil: "Übungen zur Regel", text: kurz(t.q) })),
+      CFG.b.map((t, i) => ({ id: "b" + (i+1), teil: "Mehr üben", text: kurz(t.q) })),
+      CFG.c.map((t, i) => ({ id: "c" + (i+1), teil: "Was ist richtig?", text: kurz(t.q) }))),
+    anker: $("aList").closest(".panel")
+  });
+}
 </script>
 </body>
 </html>

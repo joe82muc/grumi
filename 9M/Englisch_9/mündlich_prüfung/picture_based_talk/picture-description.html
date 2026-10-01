@@ -487,6 +487,7 @@
         `;
         stepsWrap.appendChild(box);
       });
+      if(window.Lernstand) setTimeout(function(){ Lernstand.markieren(); }, 0);
 
       stepsWrap.querySelectorAll('button[data-next]').forEach(btn => {
         btn.addEventListener('click', async () => {
@@ -502,6 +503,7 @@
           }
           ta.value = checked.correctedText;
           answers[idx] = checked.correctedText;
+          if(window.Lernstand) Lernstand.geloest('step_' + idx);
           setAiBox('ok', checked.reason || 'Accepted and corrected.');
           if(idx < steps.length - 1){
             currentStep = idx + 1;
@@ -686,5 +688,15 @@
     </div>
   </div>
 </footer>
+  <script src="../../../../js/lernstand.js"></script>
+  <script>
+    /* Lernstand mit Code: ein Schritt zählt, wenn die KI ihn annimmt (js/lernstand.js) */
+    if (window.Lernstand) Lernstand.seite({
+      kurs: "e9", bereich: "Mündliche Prüfung", bnr: 7, modul: "e9-pbt", nr: 1, kurz: "Bild", titel: "Picture-based talk",
+      aufgaben: steps.map(function (s, i) { return { id: "step_" + i, teil: "Schritte", kurz: String(i + 1), text: s.title + ": " + s.q }; }),
+      anker: document.getElementById("steps"), abzeichenIn: ".st-title",
+      hinweis: "Ein Schritt zählt, wenn die KI ihn annimmt – egal zu welchem Bild."
+    });
+  </script>
 </body>
 </html>

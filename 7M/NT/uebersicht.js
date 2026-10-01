@@ -45,8 +45,11 @@
 
   function fortschritt(key) {
     try {
-      const solved = Object.keys(JSON.parse(localStorage.getItem(key) || "{}") || {}).length;
-      const total = +localStorage.getItem(key + "-total") || 0;
+      // Mit Code angemeldet: eigener Stand je Kind (siehe modul-basis.js)
+      let kennung = "";
+      try { const a = JSON.parse(localStorage.getItem("grumi-code-anmeldung") || "null"); if (a && a.code && a.kennung) kennung = "~" + a.kennung + "~"; } catch (_) {}
+      const solved = Object.keys(JSON.parse(localStorage.getItem(key + kennung) || "{}") || {}).length;
+      const total = +localStorage.getItem(key + kennung + "-total") || +localStorage.getItem(key + "-total") || 0;
       return total ? {solved: Math.min(solved, total), total} : null;
     } catch (_) { return null; }
   }

@@ -108,7 +108,39 @@
 
   /* --- Fortschritt über alle Übungsphasen --- */
 
+  /* --- Lernstand mit Code (js/lernstand.js) ---
+     Richtig gelöste Aufgaben gehen an die Lehrkraft, oben steht „Das fehlt dir noch“.
+     Eine Aufgabe zählt nur, wenn vor dem Prüfen keine Lösung dabeistand (Lösung zeigen zählt nicht)
+     und das Urteil endgültig ist (freie Texte erst nach der KI). */
+  var LS_SKRIPT = document.currentScript && document.currentScript.src;
+  var lsVerraten = {};
+  function lernstandLaden(fertig) {
+    if (window.Lernstand) { fertig(); return; }
+    if (!LS_SKRIPT) return;
+    var s = document.createElement("script");
+    s.src = new URL("../../../js/lernstand.js", LS_SKRIPT).href;
+    s.onload = function () { if (window.Lernstand) fertig(); };
+    document.head.appendChild(s);
+  }
+  function lernstandVorher(id) {
+    var zeile = id && document.getElementById(id);
+    if (zeile && zeile.querySelector(".inf-loesung")) lsVerraten[id] = true;
+  }
+  function lernstandMelden(id, teil, mitLoesung) {
+    if (!id || !teil || teil.vorlaeufig || teil.wartet || lsVerraten[id]) return;
+    var ganz = teil.gesamt > 0 && teil.richtig === teil.gesamt;
+    if (ganz && window.Lernstand) window.Lernstand.geloest(id);
+    // Falsch beim Prüfen mit Lösungen: Die Lösung steht jetzt da, später zählt die Aufgabe nicht mehr
+    if (!ganz && mitLoesung) lsVerraten[id] = true;
+  }
+  function lernstandKurz(stunde) {
+    var m = /^(?:lb\d+-)?([ms])0*(\d+)/.exec(stunde.id || "");
+    return m ? m[1].toUpperCase() + m[2] : "M" + (stunde.stunde || "");
+  }
+  var LS_KURS = "i8";
+
   var phasenStand = {};
+  var lsAufgaben = [], lsAnker = null;
   var gesamtPunkte = 0;
   var stundeId = "";
 
@@ -174,6 +206,15 @@
     wurzel.appendChild(weiterBauen(stunde));
 
     fortschrittSpeichern();
+
+    // Stand mit Code vor der ersten Übungsphase
+    if (lsAufgaben.length) lernstandLaden(function () {
+      window.Lernstand.seite({
+        kurs: LS_KURS, modul: LS_KURS + "-" + stunde.id, bereich: stunde.lernbereichTitel || "Module",
+        bnr: Number(stunde.lernbereich) || 1, nr: Number(stunde.stunde) || 0, kurz: "M" + (stunde.stunde || ""),
+        titel: stunde.titel, aufgaben: lsAufgaben, anker: lsAnker, abzeichenIn: ".inf-frage"
+      });
+    });
   }
 
   function kopfBauen(stunde, aufgaben) {
@@ -322,21 +363,27 @@
       freitext: freitextBauen
     };
 
+    var lsIds = [];
     (phase.aufgaben || []).forEach(function (aufgabe, i) {
       var mache = bauer[aufgabe.typ];
       if (!mache) return;
       var zeile = mache(aufgabe, i + 1, pruefer, stunde);
       if (aufgabe.typ === "freitext") freieTexte.push(zeile);
+      zeile.id = schluessel + "-a" + (i + 1);
+      lsIds.push(zeile.id);
+      lsAufgaben.push({ id: zeile.id, teil: marke.replace(/ · .*$/, ""), kurz: String(i + 1),
+        text: String(aufgabe.text || aufgabe.frage || "").replace(/_{2,}/g, "…").replace(/\s+/g, " ").trim().slice(0, 100) });
       abschnitt.appendChild(zeile);
     });
+    if (!lsAnker) lsAnker = abschnitt;
 
-    var auswertung = auswertungBauen(pruefer, schluessel);
+    var auswertung = auswertungBauen(pruefer, schluessel, lsIds);
     abschnitt.appendChild(auswertung);
     freieTexte.forEach(function (zeile) { zeile.nachrechnen = auswertung.nachrechnen; });
     return abschnitt;
   }
 
-  function auswertungBauen(pruefer, schluessel) {
+  function auswertungBauen(pruefer, schluessel, lsIds) {
     var huelle = el("div");
     var aktionen = el("div", "inf-aktionen");
     var pruefen = el("button", "inf-knopf", "Antworten prüfen");
@@ -361,11 +408,14 @@
       var richtig = 0;
       var gesamt = 0;
       var wartet = 0;
-      pruefer.forEach(function (pruefe) {
+      pruefer.forEach(function (pruefe, i) {
+        var lsId = lsIds && lsIds[i];
+        lernstandVorher(lsId);
         var teil = pruefe(mitLoesung);
         richtig += teil.richtig;
         gesamt += teil.gesamt;
         if (teil.wartet) wartet += 1;
+        lernstandMelden(lsId, teil, mitLoesung);
       });
 
       phasenStand[schluessel] = richtig;

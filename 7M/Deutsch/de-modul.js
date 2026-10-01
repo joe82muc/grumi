@@ -8,6 +8,7 @@
  */
 (function(){
 "use strict";
+const LS_SKRIPT = document.currentScript && document.currentScript.src;
 
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
@@ -27,8 +28,67 @@ let solved = {};
 const tasks = new Set();
 function load(k, d){ try { const v = localStorage.getItem(KEY + k); return v === null ? d : v; } catch (_) { return d; } }
 function save(k, v){ try { localStorage.setItem(KEY + k, v); } catch (_) {} }
-function register(id){ tasks.add(id); updateStars(); }
-function solve(id){ if (!solved[id]) { solved[id] = 1; save("", JSON.stringify(solved)); } updateStars(); }
+// el: Element der Übung (für Station und Überschrift), text: Bezeichnung für die Lehreransicht, typ: Art der Übung
+const meta = {};
+function register(id, el, text, typ){ tasks.add(id); if (el || text || typ) meta[id] = {el, text, typ}; updateStars(); }
+function solve(id){ if (!solved[id]) { solved[id] = 1; save("", JSON.stringify(solved)); } updateStars(); if (window.Lernstand) window.Lernstand.geloest(id); }
+// Aufgabenkatalog für die Lehreransicht: { id: [Bezeichnung, Station] }
+function katalog(){
+  const out = {};
+  tasks.forEach(id => {
+    const m = meta[id] || {};
+    const el = m.el;
+    const sec = el && el.closest ? el.closest("section.station") : null;
+    const num = sec ? $(".st-num", sec) : null;
+    let h = "";
+    if (el && el.closest) {
+      const card = el.closest(".card, .sim");
+      const hd = card && ($("h3", card) || $(".task-tag", card));
+      if (hd) h = hd.textContent.replace(/✨\s*KI prüft/g, "").replace(/\s+/g, " ").trim();
+    }
+    const label = m.text || (m.typ ? m.typ + (h ? ": " + h : "") : h) || id;
+    out[id] = [label.slice(0, 140), num ? num.textContent.trim() : ""];
+  });
+  return out;
+}
+// Gelöste Aufgaben von einem anderen Gerät übernehmen (Anmeldung mit Code)
+function mehrGeloest(ids){
+  let neu = 0;
+  (ids || []).forEach(id => { if (tasks.has(id) && !solved[id]) { solved[id] = 1; neu++; } });
+  if (neu) { save("", JSON.stringify(solved)); updateStars(); }
+  return neu;
+}
+
+/* ---------- Lernstand mit Code (js/lernstand.js) ----------
+   Mit Code angemeldet: eigener Speicherstand je Kind (Schlüssel + "~code-123~"), gelöste Aufgaben gehen an die
+   Lehrkraft, oben steht „Das fehlt dir noch“. Unabhängig davon bleibt „Dein Training starten“ (Name) für die
+   KI-geprüften Texte des Argumentationstrainings. */
+const LS_MODULE = {
+  "argumente-formulieren": [1, "Argumente formulieren"], "angemessen-ausdruecken": [2, "Sich angemessen ausdrücken"],
+  "ueberzeugend-argumentieren": [3, "Überzeugend argumentieren"], "sachlich-diskutieren": [4, "Sachlich diskutieren"],
+  "tisch-duell": [5, "Tisch-Duell zu zweit"]
+};
+function lsKennung(){
+  try { const s = JSON.parse(localStorage.getItem("grumi-code-anmeldung") || "null"); return s && s.code && s.kennung ? s.kennung : ""; } catch (_) { return ""; }
+}
+function lernstand(){
+  const name = MODUL || String(BASIS).replace(/^grumi-de7-/, "").replace(/-v\d+$/, "");
+  const info = LS_MODULE[name] || [0, document.title.split("|")[0].trim()];
+  if (!tasks.size) return;
+  const kat = katalog(), zaehler = {};
+  const aufgaben = [...tasks].map(id => {
+    const teil = kat[id][1] ? "Station " + kat[id][1] : "Aufgaben";
+    zaehler[teil] = (zaehler[teil] || 0) + 1;
+    return {id, teil, kurz: String(zaehler[teil]), text: kat[id][0], label: kat[id][0], el: (meta[id] || {}).el || null};
+  });
+  const los = () => window.Lernstand.seite({kurs: "d7", modul: "d7-" + name, bereich: "Argumentieren und diskutieren", bnr: 1,
+    nr: info[0], kurz: "Modul " + info[0], titel: info[1], aufgaben, anker: $("section.station"), mehrGeloest: ids => mehrGeloest(ids)});
+  if (window.Lernstand) { los(); return; }
+  const s = document.createElement("script");
+  s.src = new URL("../../js/lernstand.js", LS_SKRIPT || location.href).href;
+  s.onload = () => { if (window.Lernstand) los(); };
+  document.head.appendChild(s);
+}
 function updateStars(){ const n = [...tasks].filter(t => solved[t]).length; const s = $("#stars"); if (s) s.textContent = `⭐ ${n} / ${tasks.size}`; if (MODUL) save("-total", tasks.size); }
 
 /* ---------- Anmeldung „Dein Training starten“ ---------- */
@@ -123,8 +183,10 @@ async function askServer(route, body, onSlow){
 const WAKE = '<span class="dots">Der KI-Server wacht gerade auf – das kann bis zu einer Minute dauern</span>';
 
 /* ---------- Grundgerüst ---------- */
+let BASIS = "";
 function init(cfg){
-  KEY = cfg.key; MODUL = cfg.modul || ""; GLOSSARY = cfg.glossary || {};
+  BASIS = cfg.key;
+  KEY = cfg.key + (lsKennung() ? "~" + lsKennung() + "~" : ""); MODUL = cfg.modul || ""; GLOSSARY = cfg.glossary || {};
   try { solved = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (_) { solved = {}; }
 
   const pop = $("#pop");
@@ -180,13 +242,13 @@ function init(cfg){
   buildLogin(); renderWho();
   if (MODUL && !session.token) openLogin();
 }
-function ready(){ if (Modul._onScroll) Modul._onScroll(); updateStars(); }
+function ready(){ if (Modul._onScroll) Modul._onScroll(); updateStars(); lernstand(); }
 
 /* ---------- Ankreuzen ---------- */
 function makeMC(container, list, idPrefix, tag){
   container.innerHTML = tag ? `<span class="task-tag ${tag.buch ? "buch" : ""}">${esc(tag.t)}</span>` : "";
   list.forEach((q, qi) => {
-    const id = idPrefix + "-" + qi; register(id);
+    const id = idPrefix + "-" + qi; register(id, container, "Ankreuzen: " + q.q);
     const multi = Array.isArray(q.a);
     const el = document.createElement("div"); el.className = "q";
     const order = shuffle(q.o.map((t, i) => ({t, i})));
@@ -216,7 +278,7 @@ function makeMC(container, list, idPrefix, tag){
 
 /* ---------- Lückentext: erst Lücke, dann Wort antippen ---------- */
 function makeGap(box, paras, id, extra){
-  register(id);
+  register(id, box, null, "Lückentext");
   const answers = [];
   const html = paras.map(p => "<p>" + p.map(part => typeof part === "string" ? esc(part) : `<button class="gap" data-i="${answers.push(part.g) - 1}">&nbsp;</button>`).join("") + "</p>").join("");
   const bank = answers.map((w, i) => ({w, i})).concat((extra || []).map((w, i) => ({w, i: "x" + i})));
@@ -247,7 +309,7 @@ function makeGap(box, paras, id, extra){
 
 /* ---------- Zuordnen (Tippen oder Ziehen) ---------- */
 function makeSort(container, cfg, id){
-  register(id);
+  register(id, container, null, "Zuordnen");
   container.innerHTML = `<div class="pool"></div><div class="buckets ${cfg.pairs ? "pairs" : ""}" ${cfg.cols ? `style="grid-template-columns:repeat(auto-fit,minmax(${cfg.cols}px,1fr))"` : ""}>${cfg.buckets.map((b, i) => `<div class="bucket" data-b="${i}"><h5>${b}</h5><div class="in"></div></div>`).join("")}</div>
     <div class="row-btns"><button class="btn small check">Prüfen</button><button class="btn small ghost reset">Zurücksetzen</button></div><div class="fb"></div>`;
   const pool = $(".pool", container), buckets = $$(".bucket", container), fb = $(".fb", container);
@@ -291,7 +353,7 @@ function makeSort(container, cfg, id){
 
 /* ---------- Richtig / Falsch ---------- */
 function makeTF(box, list, id, labels){
-  register(id);
+  register(id, box, null, "Richtig oder falsch");
   const [yes, no] = labels || ["richtig", "falsch"];
   box.innerHTML = `<div class="tf">${list.map((t, i) => `<div class="tf-row" data-i="${i}"><span>${esc(t[0])}</span><div class="tf-btns"><button data-v="1">${esc(yes)}</button><button data-v="0">${esc(no)}</button></div></div>`).join("")}</div>
     <div class="row-btns"><button class="btn small check">Prüfen</button></div><div class="fb"></div>`;
@@ -307,7 +369,7 @@ function makeTF(box, list, id, labels){
 
 /* ---------- Reihenfolge ordnen ---------- */
 function makeOrder(box, steps, id){
-  register(id);
+  register(id, box, null, "Reihenfolge");
   let order = shuffle(steps.map((t, i) => i));
   while (steps.length > 1 && order.every((v, i) => v === i)) order = shuffle(order);
   box.innerHTML = `<div class="order-list"></div><div class="row-btns"><button class="btn small check">Prüfen</button></div><div class="fb"></div>`;
@@ -331,7 +393,7 @@ function makeOrder(box, steps, id){
 // cfg: {pens:[{k:"b",label:"Behauptung"}], rows:[{who, av, segs:[[text, lösung]]}]}
 // Lösung: Stift-Kürzel, "" = soll unmarkiert bleiben, null = frei (wird nicht bewertet)
 function makeMark(box, cfg, id){
-  register(id);
+  register(id, box, null, "Markieren");
   let pen = cfg.pens[0].k;
   box.innerHTML = `<div class="pens" role="radiogroup" aria-label="Farbstift wählen">${cfg.pens.map(p => `<button class="pen ${p.k}" data-k="${p.k}" role="radio"><i></i>${esc(p.label)}</button>`).join("")}<button class="pen e" data-k="" role="radio"><i></i>Radiergummi</button></div>
     <div class="mark-text">${cfg.rows.map((r, ri) => `<div class="mark-row">${r.av ? `<span class="av" aria-hidden="true">${r.av}</span>` : ""}${r.who ? `<span class="who-l">${esc(r.who)}:</span>` : ""}<div class="txt">${r.segs.map((s, si) => `<button class="seg" data-r="${ri}" data-s="${si}">${esc(s[0])}</button>`).join(" ")}</div></div>`).join("")}</div>
@@ -382,7 +444,7 @@ function localCheck(text, o){
 }
 function makeOpen(box, list, prefix){
   list.forEach((o, i) => {
-    const id = o.id || prefix + i; register(id);
+    const id = o.id || prefix + i; register(id, box, "Schreiben: " + String(o.q || o.frage || o.aufgabe || "eigener Text").replace(/<[^>]*>/g, ""));
     const el = document.createElement("div"); el.className = "q ki";
     const fields = o.fields || [{label: "", ph: o.ph || "Deine Antwort …"}];
     el.innerHTML = `<div class="q-title">${o.nr === false ? "" : (o.nr || i + 1) + ". "}${esc(o.q)}</div>${o.ctx ? `<div class="q-ctx">${esc(o.ctx)}</div>` : ""}
@@ -428,7 +490,7 @@ function makeOpen(box, list, prefix){
 // cfg: {id, titel, thema, auftrag, kriterien[], intro, seiten:{key:{label, emoji, hint, rolle, runden[], schluss}}} oder ohne seiten: {rolle, runden[], schluss}
 // Runde: {wer, av, arg, m (Beispiel-Antwort), k[] (Stichworte für den Notfall), tips[], yes, no}
 function makeDuel(box, cfg){
-  const id = cfg.id || "duell"; register(id);
+  const id = cfg.id || "duell"; register(id, box, null, "Duell gegen die KI");
   let S, side, r, me, ki, tipN, verlauf;
   function pick(){
     if (!cfg.seiten) return start(null);
@@ -520,7 +582,7 @@ function makeDuel(box, cfg){
 /* ---------- Beobachtungsbogen ---------- */
 // cfg: {persons:["Ben", …], rows:[{t, sol:[true,false,…]}]}
 function makeObs(box, cfg, id){
-  register(id);
+  register(id, box, null, "Beobachtungsbogen");
   box.innerHTML = `<div class="table-scroll"><table class="obs-table"><thead><tr><th>Beobachtungsbogen</th>${cfg.persons.map(p => `<th>${esc(p)}</th>`).join("")}</tr></thead><tbody>
     ${cfg.rows.map((row, ri) => `<tr><td>– ${esc(row.t)}</td>${cfg.persons.map((_, pi) => `<td><span class="yn" data-r="${ri}" data-p="${pi}"><button data-v="1">Ja</button><button data-v="0">Nein</button></span></td>`).join("")}</tr>`).join("")}
     </tbody></table></div><div class="row-btns"><button class="btn small check">Prüfen</button></div><div class="fb"></div>`;
@@ -545,7 +607,7 @@ function makeVote(box, key, onVote){
 
 /* ---------- Lerntagebuch ---------- */
 function makeDiary(box, id){
-  register(id);
+  register(id, box, null, "Lerntagebuch");
   box.innerHTML = `<div class="diary"><textarea aria-label="Lerntagebuch" placeholder="Das nehme ich mir vor: …"></textarea></div>
     <div class="row-btns"><button class="btn small ghost take">📋 Tipps aus den KI-Rückmeldungen übernehmen</button><button class="btn small teal go">💾 Im Lerntagebuch speichern</button></div><div class="fb"></div>`;
   const ta = $("textarea", box), fb = $(".fb", box);
@@ -571,7 +633,7 @@ function makeDiary(box, id){
 
 /* ---------- Abschlussquiz ---------- */
 function makeQuiz(box, pool, id, profi){
-  register(id);
+  register(id, box, "Abschlussquiz");
   pool = pool.filter(q => !Array.isArray(q.a));
   const N = Math.min(10, pool.length);
   let qs, i, score;

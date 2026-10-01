@@ -870,12 +870,71 @@ function onVisible(el, cb){ // ruft cb(true/false) beim Ein-/Ausblenden auf
 }
 
 /* ---------- Fortschritt (Sterne) ---------- */
-const KEY = "grumi-nt7-luft-modul-v1";
+const LS_SKRIPT = "";
+const BASIS = "grumi-nt7-luft-modul-v1";
+const KEY = BASIS + (lsKennung() ? "~" + lsKennung() + "~" : "");
 let solved = {};
 try { solved = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (_) { solved = {}; }
 const tasks = new Set();
-function register(id){ tasks.add(id); updateStars(); }
-function solve(id){ if (!solved[id]) { solved[id] = 1; try { localStorage.setItem(KEY, JSON.stringify(solved)); } catch (_) {} } updateStars(); }
+// el: Element oder CSS-Selektor der Übung, text: Bezeichnung für die Lehreransicht, typ: Art der Übung
+const meta = {};
+function register(id, el, text, typ){ tasks.add(id); if (el || text || typ) meta[id] = {el, text, typ}; updateStars(); }
+function solve(id){ if (!solved[id]) { solved[id] = 1; try { localStorage.setItem(KEY, JSON.stringify(solved)); } catch (_) {} } updateStars(); if (window.Lernstand) window.Lernstand.geloest(id); }
+// Aufgabenkatalog für die Lehreransicht: { id: [Bezeichnung, Station] }
+function katalog(){
+  const out = {};
+  tasks.forEach(id => {
+    const m = meta[id] || {};
+    const el = typeof m.el === "string" ? $(m.el) : m.el;
+    const sec = el && el.closest ? el.closest("section.station") : null;
+    const num = sec ? $(".st-num", sec) : null;
+    let h = "";
+    if (el && el.closest) {
+      const card = el.closest(".card, .sim");
+      const hd = card && ($("h3", card) || $(".task-tag", card));
+      if (hd) h = hd.textContent.replace(/✨\s*KI prüft/g, "").replace(/\s+/g, " ").trim();
+    }
+    const label = m.text || (m.typ ? m.typ + (h ? ": " + h : "") : h) || id;
+    out[id] = [label.slice(0, 140), num ? num.textContent.trim() : ""];
+  });
+  return out;
+}
+// Gelöste Aufgaben von einem anderen Gerät übernehmen (Anmeldung mit Code)
+function mehrGeloest(ids){
+  let neu = 0;
+  (ids || []).forEach(id => { if (tasks.has(id) && !solved[id]) { solved[id] = 1; neu++; } });
+  if (neu) { try { localStorage.setItem(KEY, JSON.stringify(solved)); } catch (_) {} updateStars(); }
+  return neu;
+}
+/* ---------- Lernstand mit Code (js/lernstand.js) ----------
+   Mit Code angemeldet: eigener Speicherstand je Kind (Schlüssel + "~code-123~", wie in NT 9), gelöste Aufgaben
+   gehen an die Lehrkraft, oben steht „Das fehlt dir noch“. Kennung „nt7-<Seite>“ aus dem Speicherschlüssel. */
+const LS_MODULE = {
+  "luft-modul": [1, "Luft – unsichtbar, aber lebenswichtig"], "windkraft-strom": [2, "Windkraft: Strom aus bewegter Luft"],
+  "windkraft-procontra": [3, "Windkraft – pro und contra"], "luft-verbrennung": [4, "Luft und Verbrennung"],
+  "achtung-explosiv": [5, "Achtung, explosiv!"]
+};
+function lsKennung(){
+  try { const s = JSON.parse(localStorage.getItem("grumi-code-anmeldung") || "null"); return s && s.code && s.kennung ? s.kennung : ""; } catch (_) { return ""; }
+}
+function lernstand(basis){
+  const name = String(basis).replace(/^grumi-nt7-/, "").replace(/-v\d+$/, "");
+  const info = LS_MODULE[name] || [0, document.title.split("|")[0].trim()];
+  const kat = katalog(), zaehler = {};
+  const aufgaben = [...tasks].map(id => {
+    const teil = kat[id][1] ? "Station " + kat[id][1] : "Aufgaben";
+    zaehler[teil] = (zaehler[teil] || 0) + 1;
+    const m = meta[id] || {}, el = typeof m.el === "string" ? $(m.el) : m.el;
+    return {id, teil, kurz: String(zaehler[teil]), text: kat[id][0], label: kat[id][0], el: el || null};
+  });
+  const los = () => window.Lernstand.seite({kurs: "nt7", modul: "nt7-" + name, bereich: "Luft", bnr: 1, nr: info[0], kurz: "Modul " + info[0],
+    titel: info[1], aufgaben, anker: $("section.station"), mehrGeloest: ids => mehrGeloest(ids)});
+  if (window.Lernstand) { los(); return; }
+  const s = document.createElement("script");
+  s.src = new URL("../../js/lernstand.js", LS_SKRIPT || location.href).href;
+  s.onload = () => { if (window.Lernstand) los(); };
+  document.head.appendChild(s);
+}
 function updateStars(){ const n = [...tasks].filter(t => solved[t]).length; $("#stars").textContent = `⭐ ${n} / ${tasks.size}`; try { localStorage.setItem(KEY + "-total", tasks.size); } catch (_) {} }
 
 /* ---------- Wortspeicher ---------- */
@@ -992,7 +1051,7 @@ addEventListener("scroll", () => { if (!scrollQueued) { scrollQueued = true; req
 function makeMC(container, list, idPrefix){
   container.innerHTML = "";
   list.forEach((q, qi) => {
-    const id = idPrefix + "-" + qi; register(id);
+    const id = idPrefix + "-" + qi; register(id, container, "Ankreuzen: " + q.q);
     const multi = Array.isArray(q.a);
     const el = document.createElement("div"); el.className = "q";
     const order = shuffle(q.o.map((t, i) => ({t, i})));
@@ -1101,7 +1160,7 @@ const HOTS = [
   {x: 70, y: 78, i: "🧒", t: "Windrad-Spielzeug", s: "Mit deinem Atem kannst du Luft bewegen: Das Kind pustet und das Windrad dreht sich."}
 ];
 (function(){
-  const box = $("#hotimg"), info = $("#hsInfo"); register("hot");
+  const box = $("#hotimg"), info = $("#hsInfo"); register("hot", box, null, "Bild erkunden");
   const seen = new Set();
   HOTS.forEach((h, i) => {
     const b = document.createElement("button"); b.className = "hs"; b.style.left = h.x + "%"; b.style.top = h.y + "%";
@@ -1135,7 +1194,7 @@ const HOTS = [
   const btn = $("#breathBtn"), out = $("#breathTime"), fb = $("#breathFb");
   let t0 = 0, iv = null, best = 0;
   try { best = +localStorage.getItem(KEY + "-atem") || 0; } catch (_) {}
-  register("atem");
+  register("atem", "#breathBtn", "Versuch: Wie lange kannst du die Luft anhalten?");
   btn.addEventListener("click", () => {
     if (!iv) {
       t0 = performance.now(); fb.className = "fb"; btn.textContent = "Stopp – ich muss atmen!";
@@ -1173,7 +1232,7 @@ const HOTS = [
     $("#skyTop").setAttribute("stop-color", v >= 100 ? "#7b8b99" : v >= 70 ? "#9dbad0" : "#8fd0f5");
   }
   range.addEventListener("input", update); update();
-  register("wind");
+  register("wind", "#windRange", "Simulation: Windstärken");
   range.addEventListener("change", () => { if (+range.value >= 100) solve("wind"); });
   onVisible($("#windSvg"), v => { run = v; if (v) requestAnimationFrame(tick); });
   function tick(){
@@ -1210,7 +1269,7 @@ const HOTS = [
     $("#glassPath").setAttribute("d", size === "big" ? "M110 250 L110 40 Q110 30 120 30 L280 30 Q290 30 290 40 L290 250" : "M140 250 L140 70 Q140 60 150 60 L250 60 Q260 60 260 70 L260 250");
   }
   mark();
-  register("kerze");
+  register("kerze", "#glass", "Versuch: Kerze unter dem Glas");
   function reset(){
     cancelAnimationFrame(raf); covered = false; O2 = 21;
     glass.setAttribute("transform", "translate(0 -230)"); glass.style.transform = "translateY(-230px)";
@@ -1309,7 +1368,7 @@ const HOTS = [
   const range = $("#glassRange"), beaker = $("#beaker"), tilt = $("#beakerTilt"), waterOut = $("#waterOut"), waterIn = $("#waterIn"), airIn = $("#airIn"), chip = $("#tissueChip"), bubbles = $("#bubbles"), lbl = $("#airLbl");
   const NS = "http://www.w3.org/2000/svg";
   let leaked = 0, tilting = false; // leaked: 0..1 Anteil der entwichenen Luft
-  register("glas");
+  register("glas", "#glassRange", "Versuch: Glas im Wasser");
   function draw(){
     const d = +range.value;
     const dy = d * 1.35;                        // Glas nach unten
@@ -1355,7 +1414,7 @@ const HOTS = [
 (function(){
   const txt = $("#scaleTxt"), ballScale = $("#ballScale"), handle = $("#pumpHandle"), puff = $("#puff"), fb = $("#ballFb");
   let liters = 0; const BASE = 410, STEP = .5, MAX = 4;
-  register("ball");
+  register("ball", "#scaleTxt", "Versuch: Luft hat ein Gewicht");
   function draw(){
     const g = BASE + liters * 1.3;
     txt.textContent = fmt(g) + " g";
@@ -1384,7 +1443,7 @@ const HOTS = [
   const P = [];
   function add(x){ const c = document.createElementNS(NS, "circle"); c.setAttribute("r", 6); c.setAttribute("fill", "#2f8be0"); group.appendChild(c); P.push({el: c, x, y: T + 6 + Math.random() * (B - T - 12), vx: (Math.random() - .5) * 3, vy: (Math.random() - .5) * 3, out: 0}); }
   for (let i = 0; i < N0; i++) add(L + 30 + Math.random() * (R - L - 40));
-  register("pumpe");
+  register("pumpe", "#pistonRange", "Versuch: Luft lässt sich zusammendrücken");
   const px = () => L + (+range.value / 100) * 200;   // Kolbenposition
   function info(){
     const inside = P.filter(p => !p.out).length;
@@ -1447,7 +1506,7 @@ const HOTS = [
   const D = []; for (let i = 0; i < 30; i++) { const c = document.createElementNS(NS, "circle"); c.setAttribute("r", 3.2); c.setAttribute("fill", "#b3431d"); c.setAttribute("opacity", .7); dotsG.appendChild(c); D.push({el: c, x: (Math.random() - .5) * 90, y: -90 + Math.random() * 120, vx: Math.random() - .5, vy: Math.random() - .5}); }
   let on = false, T = 20, h = 0, run = true, maxH = 0;
   const tempTxt = $("#tempTxt"), heightTxt = $("#heightTxt");
-  register("ballon");
+  register("ballon", "#burnerBtn", "Versuch: Warme Luft steigt");
   btn.addEventListener("click", () => { on = !on; btn.textContent = on ? "🔥 Brenner aus" : "🔥 Brenner an"; flame.setAttribute("opacity", on ? 1 : 0); });
   onVisible(bal.ownerSVGElement, v => { run = v; if (v) requestAnimationFrame(tick); });
   function tick(){
@@ -1496,7 +1555,7 @@ const HOTS = [
     const r = W.r + (W.d === "d" ? i : 0), c = W.c + (W.d === "a" ? i : 0), k = r + "," + c;
     (grid[k] = grid[k] || {ch, words: []}).words.push(W);
   }));
-  const cw = $("#cw"); register("kreuz");
+  const cw = $("#cw"); register("kreuz", cw, null, "Kreuzworträtsel");
   const cells = {};
   for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
     const k = r + "," + c, g = grid[k], div = document.createElement("div");
@@ -1571,7 +1630,7 @@ const HOTS = [
 /* ---------- Lückentexte (Tippen: Lücke, dann Wort) ---------- */
 // paras: Absätze aus Text-Stücken; Lücken als {g: "Lösungswort"}. Texte dürfen <sub> enthalten.
 function makeGap(box, paras, id){
-  register(id);
+  register(id, box, null, "Lückentext");
   const answers = [];
   const html = paras.map(p => "<p>" + p.map(part => typeof part === "string" ? part : `<button class="gap" data-i="${answers.push(part.g) - 1}">&nbsp;</button>`).join("") + "</p>").join("");
   box.innerHTML = `<div class="bank">${shuffle(answers.map((w, i) => ({w, i}))).map(o => `<button class="tok" data-w="${esc(o.w)}" data-k="${o.i}">${o.w}</button>`).join("")}</div>${html}
@@ -1615,7 +1674,7 @@ makeGap($("#gaptext3"), [
 /* ---------- Chemische Symbole ---------- */
 (function(){
   const EL = [["H", "Wasserstoff"], ["O", "Sauerstoff"], ["C", "Kohlenstoff"], ["N", "Stickstoff"]];
-  const box = $("#symbols"); register("symbole");
+  const box = $("#symbols"); register("symbole", box, null, "Zuordnen");
   box.innerHTML = `<div class="sym-grid">${EL.map(([s], i) => `<label class="sym"><span class="sym-l">${s}</span><input data-i="${i}" autocomplete="off" spellcheck="false" placeholder="Element …"></label>`).join("")}</div>
     <div class="row-btns"><button class="btn small check">Prüfen</button></div><div class="fb"></div>`;
   $(".check", box).addEventListener("click", () => {
@@ -1629,7 +1688,7 @@ makeGap($("#gaptext3"), [
 
 /* ---------- Zuordnen (Tippen oder Ziehen) ---------- */
 function makeSort(container, cfg, id){
-  register(id);
+  register(id, container, null, "Zuordnen");
   container.innerHTML = `<div class="pool"></div><div class="buckets ${cfg.pairs ? "pairs" : ""}">${cfg.buckets.map((b, i) => `<div class="bucket" data-b="${i}"><h5>${b}</h5><div class="in"></div></div>`).join("")}</div>
     <div class="row-btns"><button class="btn small check">Prüfen</button><button class="btn small ghost reset">Zurücksetzen</button></div><div class="fb"></div>`;
   const pool = $(".pool", container), buckets = $$(".bucket", container), fb = $(".fb", container);
@@ -1706,7 +1765,7 @@ makeSort($("#sortFormel"), {
     ["Luft besteht zum größten Teil aus Sauerstoff.", false], ["Auch Kleinlebewesen im Boden brauchen Luft.", true],
     ["Luft lässt sich zusammendrücken.", true], ["Bewegte Luft kann Dächer abdecken.", true]
   ];
-  const box = $("#tf1"); register("tf");
+  const box = $("#tf1"); register("tf", box, null, "Richtig oder falsch");
   box.innerHTML = `<div class="tf">${TF.map((t, i) => `<div class="tf-row" data-i="${i}"><span>${esc(t[0])}</span><div class="tf-btns"><button data-v="1">richtig</button><button data-v="0">falsch</button></div></div>`).join("")}</div>
     <div class="row-btns"><button class="btn small" id="tfCheck">Prüfen</button></div><div class="fb" id="tfFb"></div>`;
   $$(".tf-row", box).forEach(row => $$("button", row).forEach(b => b.addEventListener("click", () => { $$("button", row).forEach(x => x.classList.toggle("sel", x === b)); row.classList.remove("right", "wrong"); })));
@@ -1750,7 +1809,7 @@ const OPEN = [
 (function(){
   const box = $("#open");
   OPEN.forEach((o, i) => {
-    const id = "open" + i; register(id);
+    const id = "open" + i; register(id, box, "Offene Frage: " + o.q);
     const el = document.createElement("div"); el.className = "q ki";
     el.innerHTML = `<div class="q-title">${i + 1}. ${esc(o.q)}</div><textarea placeholder="Deine Antwort …" aria-label="Antwort zu Frage ${i + 1}"></textarea>
       <div class="row-btns"><button class="btn small teal go">✨ Antwort prüfen</button><button class="btn small ghost show-model" hidden>Musterlösung</button></div>
@@ -1807,7 +1866,7 @@ const OPEN = [
     {q: "Wie viele Atome stecken in einem Kohlenstoffdioxid-Molekül CO₂?", o: ["3", "2", "1", "4"], a: 0, e: "1 Kohlenstoff-Atom + 2 Sauerstoff-Atome = 3 Atome."},
     {q: "Wie schnell können Wirbelstürme werden?", o: ["bis zu 300 km/h", "höchstens 30 km/h", "bis zu 3000 km/h", "genau 100 km/h"], a: 0, e: "Wirbelstürme erreichen bis zu 300 km/h."}
   ]);
-  const box = $("#quiz"); register("quiz");
+  const box = $("#quiz"); register("quiz", box, "Profi-Check (Abschlussquiz)");
   let qs, i, score;
   function start(){
     qs = shuffle(POOL).slice(0, 10); i = 0; score = 0;
@@ -1850,7 +1909,7 @@ function confetti(){
   })();
 }
 
-onScroll(); updateStars();
+onScroll(); updateStars(); lernstand(BASIS);
 })();
 </script>
 </body>

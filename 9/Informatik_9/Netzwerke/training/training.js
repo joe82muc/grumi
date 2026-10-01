@@ -24,6 +24,7 @@
    ============================================================ */
 (function () {
   'use strict';
+  const LS_SKRIPT = document.currentScript && document.currentScript.src;
 
   const PDF = '../netzwerke-praesentation.pdf';
   const SPEICHER = 'inf9-netz-training';
@@ -91,6 +92,40 @@
   function mark(id, right) {
     S.items.set(id, { done: true, right: !!right });
     stand();
+    if (right) lernstandPruefen(id);
+  }
+
+  /* Lernstand mit Code (js/lernstand.js): Eine Aufgabenkarte zählt als richtig gelöst,
+     wenn alle ihre Teile richtig sind (gezeigte Lösungen zählen nicht). */
+  const karteVon = id => id.split('-').slice(0, 2).join('-');
+  function lernstandPruefen(id) {
+    if (!window.Lernstand) return;
+    const k = karteVon(id);
+    let n = 0, alle = true;
+    S.items.forEach((v, iid) => { if (iid === k || iid.startsWith(k + '-')) { n++; if (!v.right) alle = false; } });
+    if (n && alle) window.Lernstand.geloest(k);
+  }
+  function lernstand(M) {
+    const aufgaben = [];
+    M.teile.forEach((t, ti) => {
+      let nr = 0;
+      t.aufgaben.forEach((a, ai) => {
+        if (a.typ === 'figur' || !TYPEN[a.typ]) return;
+        nr++;
+        aufgaben.push({ id: 't' + ti + '-' + ai, teil: 'Teil ' + BUCHST[ti], kurz: String(nr),
+          text: strip(a.q || '').replace(/\s+/g, ' ').trim().slice(0, 100) });
+      });
+    });
+    const los = () => window.Lernstand.seite({
+      kurs: 'i9', modul: 'i9-netz-m' + M.nr, bereich: 'Netzwerke-Training', bnr: 1, nr: M.nr, kurz: 'M' + M.nr,
+      titel: strip(M.titel), aufgaben, anker: S.teile[0], abzeichenIn: '.task-q'
+    });
+    if (window.Lernstand) { los(); return; }
+    if (!LS_SKRIPT) return;
+    const s = document.createElement('script');
+    s.src = new URL('../../../../js/lernstand.js', LS_SKRIPT).href;
+    s.onload = () => { if (window.Lernstand) los(); };
+    document.head.appendChild(s);
   }
 
   function speichern(done, right, total) {
@@ -826,6 +861,7 @@
       const R = TYPEN[a.typ];
       if (!R) { console.warn('Unbekannter Aufgabentyp:', a.typ); return; }
       const node = R(a, pre + ai, a.typ === 'figur' ? 0 : ++nr);
+      if (a.typ !== 'figur' && !node.id) node.id = pre + ai;
       sec.append(node);
       if (typeof a.init === 'function') a.init(node);
     });
@@ -834,6 +870,7 @@
     reset.addEventListener('click', () => {
       renderTeil(ti);
       stand();
+      if (window.Lernstand) window.Lernstand.markieren();
       sec.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
     });
     fuss.append(reset);
@@ -899,6 +936,7 @@
     });
     app.append(abschluss(M), modnav(M));
     stand();
+    lernstand(M);
   }
 
   /* ============================================================

@@ -17,6 +17,37 @@
   var datei = wurzel.getAttribute("data-datei");
   if (!datei) return;
 
+  /* --- Lernstand mit Code (js/lernstand.js) ---
+     Richtig gelöste Aufgaben gehen an die Lehrkraft, oben steht „Das fehlt dir noch“.
+     Eine Aufgabe zählt nur, wenn vor dem Prüfen keine Lösung dabeistand (Lösung zeigen zählt nicht)
+     und das Urteil endgültig ist (freie Texte erst nach der KI). */
+  var LS_SKRIPT = document.currentScript && document.currentScript.src;
+  var lsVerraten = {};
+  function lernstandLaden(fertig) {
+    if (window.Lernstand) { fertig(); return; }
+    if (!LS_SKRIPT) return;
+    var s = document.createElement("script");
+    s.src = new URL("../../../js/lernstand.js", LS_SKRIPT).href;
+    s.onload = function () { if (window.Lernstand) fertig(); };
+    document.head.appendChild(s);
+  }
+  function lernstandVorher(id) {
+    var zeile = id && document.getElementById(id);
+    if (zeile && zeile.querySelector(".inf-loesung")) lsVerraten[id] = true;
+  }
+  function lernstandMelden(id, teil, mitLoesung) {
+    if (!id || !teil || teil.vorlaeufig || teil.wartet || lsVerraten[id]) return;
+    var ganz = teil.gesamt > 0 && teil.richtig === teil.gesamt;
+    if (ganz && window.Lernstand) window.Lernstand.geloest(id);
+    // Falsch beim Prüfen mit Lösungen: Die Lösung steht jetzt da, später zählt die Aufgabe nicht mehr
+    if (!ganz && mitLoesung) lsVerraten[id] = true;
+  }
+  function lernstandKurz(stunde) {
+    var m = /^(?:lb\d+-)?([ms])0*(\d+)/.exec(stunde.id || "");
+    return m ? m[1].toUpperCase() + m[2] : "M" + (stunde.stunde || "");
+  }
+  var LS_KURS = "i7";
+
   /* Beim Öffnen per Doppelklick (file://) blockiert der Browser fetch.
      Dann wird dieselbe Stunde aus der erzeugten Kopie daten/<name>.js geladen
      (siehe daten/js-erzeugen.mjs). */
@@ -716,28 +747,45 @@
     /* Freie Textaufgaben werden erst fertig bewertet, wenn die KI antwortet.
        Sie merken sich hier die Auswertung, um sie danach nachrechnen zu lassen. */
     var freieTexte = [];
+    var lsAufgaben = [];
 
     stunde.aufgaben.forEach(function (aufgabe) {
       nummer += 1;
+      var zeile = null;
       if (aufgabe.typ === "lueckentext") {
-        abschnitt.appendChild(lueckentextBauen(aufgabe, nummer, pruefer));
+        zeile = lueckentextBauen(aufgabe, nummer, pruefer);
       } else if (aufgabe.typ === "richtig_falsch") {
-        abschnitt.appendChild(richtigFalschBauen(aufgabe, nummer, pruefer));
+        zeile = richtigFalschBauen(aufgabe, nummer, pruefer);
       } else if (aufgabe.typ === "auswahl") {
-        abschnitt.appendChild(auswahlBauen(aufgabe, nummer, pruefer));
+        zeile = auswahlBauen(aufgabe, nummer, pruefer);
       } else if (aufgabe.typ === "zuordnung") {
-        abschnitt.appendChild(zuordnungBauen(aufgabe, nummer, pruefer));
+        zeile = zuordnungBauen(aufgabe, nummer, pruefer);
       } else if (aufgabe.typ === "reihenfolge") {
-        abschnitt.appendChild(reihenfolgeBauen(aufgabe, nummer, pruefer));
+        zeile = reihenfolgeBauen(aufgabe, nummer, pruefer);
       } else if (aufgabe.typ === "freitext") {
-        var zeile = freitextBauen(aufgabe, nummer, pruefer, stunde);
+        zeile = freitextBauen(aufgabe, nummer, pruefer, stunde);
         freieTexte.push(zeile);
-        abschnitt.appendChild(zeile);
       }
+      if (!zeile) return;
+      zeile.id = "a" + nummer;
+      lsAufgaben.push({ id: zeile.id, teil: "Aufgaben", kurz: String(nummer),
+        text: String(aufgabe.text || "").replace(/_{2,}/g, "…").replace(/\s+/g, " ").trim().slice(0, 100) });
+      abschnitt.appendChild(zeile);
     });
 
-    var auswertung = auswertungBauen(stunde, pruefer);
+    var auswertung = auswertungBauen(stunde, pruefer, { lernstand: lsAufgaben.map(function (a) { return a.id; }) });
     abschnitt.appendChild(auswertung);
+
+    // Stand mit Code über den Aufgaben (erst, wenn der Abschnitt auf der Seite steht)
+    setTimeout(function () {
+      lernstandLaden(function () {
+        window.Lernstand.seite({
+          kurs: LS_KURS, modul: LS_KURS + "-" + stunde.id, bereich: stunde.lernbereichTitel || "Module",
+          bnr: Number(stunde.lernbereich) || 1, nr: Number(stunde.stunde) || 0, kurz: lernstandKurz(stunde),
+          titel: stunde.titel, aufgaben: lsAufgaben, anker: abschnitt, abzeichenIn: ".inf-frage"
+        });
+      });
+    }, 0);
 
     /* Jede freie Textaufgabe bekommt den Draht zur Auswertung. */
     freieTexte.forEach(function (zeile) {
@@ -1033,10 +1081,13 @@
       var richtig = 0;
       var gesamt = 0;
 
-      pruefer.forEach(function (pruefe) {
+      pruefer.forEach(function (pruefe, i) {
+        var lsId = optionen.lernstand && optionen.lernstand[i];
+        lernstandVorher(lsId);
         var teil = pruefe(mitLoesung);
         richtig += teil.richtig;
         gesamt += teil.gesamt;
+        lernstandMelden(lsId, teil, mitLoesung);
       });
 
       ergebnis.hidden = false;

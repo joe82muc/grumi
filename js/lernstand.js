@@ -1,13 +1,18 @@
-/* Lernstand mit Code für Klasse 9M/9R (Deutsch und Englisch; NT 9 hat ein eigenes Skript mit derselben Anmeldung).
- * - Anmeldung mit dem 3-stelligen Code von der Lehrkraft. Ein Code gilt in allen Fächern, die Anmeldung auf dem
- *   Gerät ist dieselbe wie in NT 9 (Sitzung "grumi-nt9-m9-anmeldung" bzw. "-r9-"). Die Klasse kommt vom Code,
- *   nicht vom Ordner – so funktionieren auch gemeinsam genutzte Seiten (9/Deutsch, Vokabeltrainer).
+/* Lernstand mit Code für die Klassen 7 bis 9 (NT, Deutsch, Englisch, Informatik; NT 9 hat ein eigenes
+ * Skript mit derselben Anmeldung).
+ * - Anmeldung mit dem 3-stelligen Code von der Lehrkraft. Ein Code gilt in allen Fächern. Die Anmeldung auf dem
+ *   Gerät steht in "grumi-code-anmeldung" (früher je Zug "grumi-nt9-m9-anmeldung" bzw. "-r9-"). Klasse und Zug
+ *   kommen vom Code, nicht vom Ordner – so funktionieren auch gemeinsam genutzte Seiten (9/Deutsch, 7/Englisch_7).
  * - Richtig gelöste Aufgaben gehen an den Server (englisch-9.onrender.com, /api/nt9/fortschritt). Die Lehrkraft sieht
  *   sie in proben-verwalten.html. Namen und Antworten werden nicht gespeichert.
  * - Das Kind sieht oben auf der Seite, was es schon gelöst hat und was noch fehlt (auch geräteübergreifend).
+ * - Klasse 9: Anmeldung ist Pflicht. Klasse 7 und 8: „Ohne Code üben“ geht auch (cfg.pflicht stellt das um).
+ * - Sparsam mit dem Server: Beim Öffnen einer Seite geht nur dann eine Meldung raus, wenn der Server etwas
+ *   noch nicht kennt (gelöste Aufgaben, Aufgabenzahl, Aufgabenliste).
  *
  * Übungsseite:  Lernstand.seite({ kurs, bereich, bnr, modul, nr, titel, kurz, anker,
- *                                 aufgaben: [{ id, teil, text, kurz }]   oder   auswahl: "CSS-Selektor", text: "Selektor", teil: "…" })
+ *                                 aufgaben: [{ id, teil, text, kurz, label?, el? }]   oder   auswahl: "CSS-Selektor", text: "Selektor", teil: "…",
+ *                                 mehrGeloest: function (ids) {…}   (Stand von einem anderen Gerät übernehmen) })
  *               Lernstand.geloest(id)   nach einer richtig gelösten Aufgabe
  *               Lernstand.markieren()   nach einem Neuaufbau der Aufgaben
  * Übersicht:    Lernstand.uebersicht({ kurs, module: [{ id, titel, href }], anker })
@@ -15,38 +20,56 @@
 (function (global) {
   "use strict";
   var doc = global.document;
-  var PFAD_KL = /\/9R\//i.test(global.location.pathname) ? "r9" : /\/9M\//i.test(global.location.pathname) ? "m9" : "";
+  var SITZUNG = "grumi-code-anmeldung";
+  var ALTE_SITZUNGEN = ["grumi-nt9-m9-anmeldung", "grumi-nt9-r9-anmeldung"];
   var BEGRUESSEN = "grumi-ls-anmeldung-gruss";
+  var OHNE_CODE = "grumi-ls-ohne-code";
   var WARTESCHLANGE = "grumi-ls-senden";
+  var KATALOG_HASH = "grumi-ls-kh";
+  var FAECHER = { nt: "Natur und Technik", d: "Deutsch", e: "Englisch", i: "Informatik" };
+  var DYN = /^(nt|d|e|i)(\d+)-/;
   var API = (global.location.hostname.slice(-12) === "onrender.com" ? "" : "https://englisch-9.onrender.com") + "/api/nt9/fortschritt";
 
   function lies(k) { try { return global.localStorage.getItem(k); } catch (_e) { return null; } }
   function schreib(k, v) { try { global.localStorage.setItem(k, v); return true; } catch (_e) { return false; } }
   function loesch(k) { try { global.localStorage.removeItem(k); } catch (_e) {} }
   function liesJson(k) { try { return JSON.parse(lies(k) || "null"); } catch (_e) { return null; } }
+  function sitzungLies(k) { try { return global.sessionStorage.getItem(k); } catch (_e) { return null; } }
+  function sitzungSchreib(k, v) { try { global.sessionStorage.setItem(k, v); } catch (_e) {} }
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
       return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];
     });
   }
-  function sitzungsKey(kl) { return "grumi-nt9-" + kl + "-anmeldung"; }
-  function klKurz(klasse) { return klasse === "9R" ? "r9" : "m9"; }
+  // Zug einer Klasse: „7aM“ -> „7M“, „7b“ -> „7R“, „9R“ -> „9R“
+  function zugVon(klasse) {
+    var m = /^(\d+)/.exec(String(klasse || ""));
+    return m ? m[1] + (/M$/.test(klasse) ? "M" : "R") : "";
+  }
+  // Kurzform für Speicherschlüssel: „9M“ -> „m9“, „7R“ -> „r7“ (wie in der ersten Fassung für Klasse 9)
+  function zugKurz(zug) { return zug ? zug.slice(-1).toLowerCase() + zug.slice(0, -1) : "m9"; }
+  function hash(text) {
+    var h = 2166136261;
+    for (var i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return (h >>> 0).toString(36);
+  }
 
-  // Angemeldet? Zuerst die Klasse des Ordners, dann die andere (gemeinsame Seiten, 9M nutzt Seiten aus 9R)
-  var schueler = null;
-  (PFAD_KL ? [PFAD_KL, PFAD_KL === "m9" ? "r9" : "m9"] : ["m9", "r9"]).some(function (kl) {
-    var s = liesJson(sitzungsKey(kl));
-    if (s && s.code && s.kennung) {
-      if (!schueler || (!PFAD_KL && (s.seit || 0) > (schueler.seit || 0))) schueler = s;
-      return Boolean(PFAD_KL);
-    }
-    return false;
-  });
-  function key(modul) { return "grumi-ls-" + klKurz(schueler.klasse) + "-" + modul + "~" + schueler.kennung + "~"; }
+  // Angemeldet? Erst die gemeinsame Anmeldung, sonst eine ältere aus Klasse 9 übernehmen
+  var schueler = liesJson(SITZUNG);
+  if (!schueler || !schueler.code || !schueler.kennung) {
+    schueler = null;
+    ALTE_SITZUNGEN.forEach(function (k) {
+      var s = liesJson(k);
+      if (s && s.code && s.kennung && (!schueler || (s.seit || 0) > (schueler.seit || 0))) schueler = s;
+    });
+    if (schueler) { schueler.zug = schueler.zug || zugVon(schueler.klasse); schreib(SITZUNG, JSON.stringify(schueler)); }
+  }
+  if (schueler && !schueler.zug) schueler.zug = zugVon(schueler.klasse);
+  function key(modul) { return "grumi-ls-" + zugKurz(schueler.zug) + "-" + modul + "~" + schueler.kennung + "~"; }
   function lokalerStand(modul) {
     var g = liesJson(key(modul)) || {};
     // Stand aus der ersten Fassung (nur Englisch-Grammatik) übernehmen
-    var alt = liesJson("grumi-e9-" + klKurz(schueler.klasse) + "-" + modul + "~" + schueler.kennung + "~");
+    var alt = liesJson("grumi-e9-" + zugKurz(schueler.zug) + "-" + modul + "~" + schueler.kennung + "~");
     if (alt) Object.keys(alt).forEach(function (id) { g[id] = 1; });
     return g;
   }
@@ -106,6 +129,8 @@
     ".ls-err.info{color:#24434a;font-weight:600}" +
     ".ls-los{padding:12px 18px;border:0;border-radius:12px;background:#0b6fa3;color:#fff;font:inherit;font-weight:800;font-size:1.05rem;cursor:pointer}" +
     ".ls-los:disabled{opacity:.6;cursor:wait}" +
+    ".ls-ohne{padding:9px 14px;border:2px solid #cfdbe3;border-radius:12px;background:#fff;color:#24434a;font:inherit;font-weight:700;font-size:.95rem;cursor:pointer}" +
+    ".ls-ohne:hover{border-color:#0b6fa3}" +
     ".ls-ds{padding:12px 14px;border-radius:12px;background:#e1f3fb;font-size:.9rem;color:#1f3b4d}" +
     ".ls-ds b{display:block;margin-bottom:4px}" +
     ".ls-ds ul{margin:0;padding-left:18px}" +
@@ -121,7 +146,13 @@
   }
 
   /* ---------- Anmeldung ---------- */
-  var FACH = "";
+  var FACH = "", STUFE = "", PFLICHT = true;
+  function kursEinstellen(cfg) {
+    var m = DYN.exec((cfg.kurs || "") + "-");
+    FACH = cfg.fach || (m ? FAECHER[m[1]] : "");
+    STUFE = cfg.stufe || (m ? m[2] : "");
+    PFLICHT = cfg.pflicht !== undefined ? Boolean(cfg.pflicht) : STUFE === "9";
+  }
   function datenschutz() {
     return '<div class="ls-ds"><b>🔒 Datenschutz</b><ul>' +
       '<li>Gespeichert werden dein Code und welche Aufgaben du richtig gelöst hast. So sieht deine Lehrkraft, wie weit du bist. Dein Name wird nicht gespeichert.</li>' +
@@ -138,16 +169,19 @@
       doc.body.insertAdjacentHTML("beforeend",
         '<dialog class="ls-dlg" id="ls-login" aria-labelledby="ls-titel"><form method="dialog" novalidate>' +
         '<div style="font-size:2.2rem;line-height:1" aria-hidden="true">🔑</div>' +
-        '<p class="ls-eye">' + esc((FACH || "Lernen") + " · Klasse 9") + '</p>' +
+        '<p class="ls-eye">' + esc((FACH || "Lernen") + (STUFE ? " · Klasse " + STUFE : "")) + '</p>' +
         '<h2 id="ls-titel">Dein Lernen starten</h2>' +
         '<p>Gib den <strong>3-stelligen Code</strong> ein, den du von deiner Lehrkraft bekommen hast. Er gilt in allen Fächern.</p>' +
         '<label>Dein Code<input id="ls-code" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" spellcheck="false" placeholder="···" aria-describedby="ls-err"></label>' +
         '<p class="ls-err" id="ls-err" role="alert"></p>' +
         '<button class="ls-los" type="submit" id="ls-los">➜ Los geht&#39;s</button>' +
+        (PFLICHT ? "" : '<button class="ls-ohne" type="button" id="ls-ohne">Ich habe noch keinen Code – ohne Code üben</button>') +
         datenschutz() +
         "</form></dialog>");
       dlg = doc.getElementById("ls-login");
-      dlg.addEventListener("cancel", function (e) { if (!schueler) e.preventDefault(); });
+      dlg.addEventListener("cancel", function (e) { if (!schueler && PFLICHT) e.preventDefault(); else ohneCode(); });
+      var ohne = doc.getElementById("ls-ohne");
+      if (ohne) ohne.addEventListener("click", function () { ohneCode(); dlg.close(); });
       var feld = doc.getElementById("ls-code");
       feld.addEventListener("input", function () { var v = feld.value.replace(/\D/g, "").slice(0, 3); if (v !== feld.value) feld.value = v; });
       dlg.querySelector("form").addEventListener("submit", function (e) {
@@ -166,9 +200,10 @@
             los.disabled = false; los.textContent = "➜ Los geht's";
             return;
           }
-          schueler = { name: "Code " + data.code, kennung: "code-" + data.code, klasse: data.klasse, code: data.code, seit: Date.now() };
-          if (!schreib(sitzungsKey(klKurz(data.klasse)), JSON.stringify(schueler))) { dlg.close(); return; }
-          try { global.sessionStorage.setItem(BEGRUESSEN, "1"); } catch (_e) {}
+          schueler = { name: "Code " + data.code, kennung: "code-" + data.code, klasse: data.klasse, zug: data.zug || zugVon(data.klasse), code: data.code, seit: Date.now() };
+          if (!schreib(SITZUNG, JSON.stringify(schueler))) { dlg.close(); return; }
+          ALTE_SITZUNGEN.forEach(loesch);
+          sitzungSchreib(BEGRUESSEN, "1");
           global.location.reload();
         }).catch(function () {
           err.className = "ls-err";
@@ -181,23 +216,28 @@
     if (!dlg.open) { if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", ""); }
     setTimeout(function () { doc.getElementById("ls-code").focus(); }, 60);
   }
+  function ohneCode() { sitzungSchreib(OHNE_CODE, "1"); }
+  // Anmeldefenster von selbst zeigen? Pflicht immer; sonst nicht, wenn das Kind „ohne Code“ gewählt hat
+  function vonSelbstAnmelden() { return PFLICHT || !sitzungLies(OHNE_CODE); }
 
   function abmelden() {
     senden();
-    if (schueler) loesch(sitzungsKey(klKurz(schueler.klasse)));
+    loesch(SITZUNG);
+    ALTE_SITZUNGEN.forEach(loesch);
     schueler = null;
     setTimeout(function () { global.location.reload(); }, 300);
   }
 
   function codeUngueltig() {
-    if (schueler) loesch(sitzungsKey(klKurz(schueler.klasse)));
+    loesch(SITZUNG);
+    ALTE_SITZUNGEN.forEach(loesch);
     schueler = null;
     anmeldeDialog("Dein Code gilt nicht mehr. Frag deine Lehrkraft nach deinem Code und melde dich neu an.");
   }
 
   function begruessen() {
-    var art = null;
-    try { art = global.sessionStorage.getItem(BEGRUESSEN); global.sessionStorage.removeItem(BEGRUESSEN); } catch (_e) {}
+    var art = sitzungLies(BEGRUESSEN);
+    try { global.sessionStorage.removeItem(BEGRUESSEN); } catch (_e) {}
     if (!art || !schueler) return;
     stil();
     var t = doc.createElement("div");
@@ -220,16 +260,25 @@
   }
 
   /* ---------- Meldungen an den Server ---------- */
-  var timer = null, sendetGerade = false, katalogFn = {}, metaVon = {}, gesendet = {};
+  var timer = null, sendetGerade = false, katalogFn = {}, metaVon = {}, katalogNoetig = {};
   function warteschlange() { return schueler ? (liesJson(WARTESCHLANGE + "~" + schueler.kennung + "~") || {}) : {}; }
   function warteschlangeSichern(q) { if (schueler) schreib(WARTESCHLANGE + "~" + schueler.kennung + "~", JSON.stringify(q)); }
+  // Aufgabenliste schon von diesem Gerät gesendet? (Prüfsumme je Modul, gilt für alle Kinder am Gerät)
+  function katalogHashes() { return liesJson(KATALOG_HASH) || {}; }
+  function katalogFuerSenden(modul) {
+    if (!katalogFn[modul]) return null;
+    var k = katalogFn[modul](), h = hash(JSON.stringify(k));
+    if (!katalogNoetig[modul] && katalogHashes()[modul] === h) return null;
+    return { k: k, h: h };
+  }
   function vormerken(modul, geloest, gesamt) {
     var q = warteschlange();
     var e = { geloest: geloest, gesamt: gesamt };
     // Angaben zum Modul mitspeichern: Geht die Meldung erst später von einer anderen Seite raus,
     // kennt der Server das Modul trotzdem (sonst würde er sie als unbekannt ablehnen)
     if (metaVon[modul]) e.meta = metaVon[modul];
-    if (katalogFn[modul] && !gesendet[modul]) e.katalog = katalogFn[modul]();
+    var kat = katalogFuerSenden(modul);
+    if (kat) { e.katalog = kat.k; e.kh = kat.h; }
     q[modul] = e;
     warteschlangeSichern(q);
     clearTimeout(timer);
@@ -250,7 +299,7 @@
         if (data.ok || data.status === 400 || data.status === 404 || data.status === 409) {
           var jetzt = warteschlange();
           if (jetzt[modul] && JSON.stringify(jetzt[modul]) === JSON.stringify(eintrag)) { delete jetzt[modul]; warteschlangeSichern(jetzt); }
-          if (data.ok) gesendet[modul] = true;
+          if (data.ok && eintrag.kh) { var kh = katalogHashes(); kh[modul] = eintrag.kh; schreib(KATALOG_HASH, JSON.stringify(kh)); katalogNoetig[modul] = false; }
           if (data.status === 404) { sendetGerade = false; codeUngueltig(); return; }
         }
         naechstes(i + 1);
@@ -279,7 +328,7 @@
 
   function seite(cfg) {
     stil();
-    FACH = cfg.fach || (cfg.kurs === "d9" ? "Deutsch" : cfg.kurs === "e9" ? "Englisch" : "");
+    kursEinstellen(cfg);
     S = cfg;
     S.aufgaben = cfg.aufgaben || aufgabenAusSeite(cfg);
     S.geloest = schueler ? lokalerStand(cfg.modul) : {};
@@ -296,26 +345,41 @@
       });
       return k;
     };
-    if (/^(d9|e9)-/.test(cfg.modul)) metaVon[cfg.modul] = { bereich: cfg.bereich, bnr: cfg.bnr, titel: cfg.titel, kurz: cfg.kurz, nr: cfg.nr };
+    if (DYN.test(cfg.modul)) metaVon[cfg.modul] = { bereich: cfg.bereich, bnr: cfg.bnr, titel: cfg.titel, kurz: cfg.kurz, nr: cfg.nr };
     zeichnenSeite();
     markieren();
     // Sprung aus einer Übersicht (…#a3): die Aufgaben entstehen oft erst per Skript
     var ziel = global.location.hash && doc.getElementById(decodeURIComponent(global.location.hash.slice(1)));
     if (ziel && ids().indexOf(ziel.id) >= 0) setTimeout(function () { ziel.scrollIntoView({ block: "center" }); ziel.classList.add("ls-blink"); }, 250);
-    if (!schueler) { anmeldeDialog(); return; }
+    if (!schueler) { if (vonSelbstAnmelden()) anmeldeDialog(); return; }
     begruessen();
-    anfrage("/anmelden", { code: schueler.code }).then(function (data) {
+    anfrage("/anmelden", { code: schueler.code, modul: cfg.modul }).then(function (data) {
       if (data.status === 404) { codeUngueltig(); return; }
       if (!data.ok) return;
-      var f = data.fortschritt && data.fortschritt[cfg.modul];
-      if (f && f.g) f.g.forEach(function (id) { if (!S.geloest[id] && ids().indexOf(id) >= 0) S.geloest[id] = 1; });
-      schreib(key(cfg.modul), JSON.stringify(S.geloest));
-      zeichnenSeite(); markieren();
-    }).catch(function () {}).then(function () {
+      var f = (data.fortschritt && data.fortschritt[cfg.modul]) || { g: [], t: 0 }, neu = [];
+      f.g.forEach(function (id) { if (!S.geloest[id] && ids().indexOf(id) >= 0) { S.geloest[id] = 1; neu.push(id); } });
+      if (neu.length) {
+        schreib(key(cfg.modul), JSON.stringify(S.geloest));
+        zeichnenSeite(); markieren();
+        if (typeof cfg.mehrGeloest === "function") { try { cfg.mehrGeloest(neu); } catch (_e) {} }
+      }
+      // Melden nur, wenn der Server etwas noch nicht kennt
+      if (data.modulOk === false) katalogNoetig[cfg.modul] = true;
+      var fehlt = Object.keys(S.geloest).some(function (id) { return f.g.indexOf(id) < 0; });
+      if (fehlt || f.t !== S.aufgaben.length || data.modulOk === false || katalogFuerSenden(cfg.modul)) vormerken(cfg.modul, Object.keys(S.geloest), S.aufgaben.length);
+      else senden();
+    }).catch(function () {
       vormerken(cfg.modul, Object.keys(S.geloest), S.aufgaben.length);
     });
   }
   function ids() { return S.aufgaben.map(function (a) { return a.id; }); }
+  // Sprungziel einer Aufgabe: Element mit der Kennung oder das mitgegebene Element (a.el)
+  function zielVon(id) {
+    var el = doc.getElementById(id);
+    if (el || !S) return el;
+    var a = S.aufgaben.filter(function (x) { return x.id === id; })[0];
+    return a && a.el && a.el.isConnected ? a.el : null;
+  }
 
   function zeichnenSeite() {
     var n = ids().filter(function (id) { return S.geloest[id]; }).length, gesamt = S.aufgaben.length;
@@ -333,7 +397,7 @@
     knoepfe(S.box);
     Array.prototype.forEach.call(S.box.querySelectorAll("a.ls-chip"), function (a) {
       a.addEventListener("click", function (e) {
-        var ziel = doc.getElementById(a.getAttribute("data-id"));
+        var ziel = zielVon(a.getAttribute("data-id"));
         if (!ziel) return;
         e.preventDefault();
         ziel.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -357,7 +421,7 @@
     var inhalt = teile.map(function (t) {
       return '<span class="ls-teil"><b>' + esc(t) + ":</b> " + nachTeil[t].map(function (a) {
         var text = esc(chipText(a)), titel = esc(a.text || "");
-        var springbar = aufDieserSeite ? Boolean(doc.getElementById(a.id)) : Boolean(seiteHref);
+        var springbar = aufDieserSeite ? Boolean(zielVon(a.id)) : Boolean(seiteHref);
         return springbar
           ? '<a class="ls-chip" href="' + esc(seiteHref) + "#" + esc(a.id) + '" data-id="' + esc(a.id) + '" title="' + titel + '">' + text + "</a>"
           : '<span class="ls-chip" title="' + titel + '">' + text + "</span>";
@@ -396,7 +460,7 @@
   /* ---------- Übersichtsseite ---------- */
   function uebersicht(cfg) {
     stil();
-    FACH = cfg.fach || (cfg.kurs === "d9" ? "Deutsch" : cfg.kurs === "e9" ? "Englisch" : "");
+    kursEinstellen(cfg);
     var box = doc.createElement("section");
     box.className = "ls-panel";
     if (cfg.anker && cfg.anker.parentNode) cfg.anker.parentNode.insertBefore(box, cfg.anker);
@@ -429,7 +493,7 @@
       knoepfe(box);
     }
     zeichnen({}, {}, Boolean(schueler));
-    if (!schueler) { if (cfg.anmelden !== false) anmeldeDialog(); return; }
+    if (!schueler) { if (cfg.anmelden !== false && vonSelbstAnmelden()) anmeldeDialog(); return; }
     begruessen();
     anfrage("/anmelden", { code: schueler.code, kurs: cfg.kurs, katalog: true }).then(function (data) {
       if (data.status === 404) { codeUngueltig(); return; }

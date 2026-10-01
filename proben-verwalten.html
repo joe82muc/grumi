@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
-<title>Proben und Lernfortschritt &ndash; alle Klassen</title>
+<title>Proben und Lernfortschritt &ndash; Verwaltung</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -22,7 +22,7 @@
     font-family:"Source Sans 3",system-ui,"Segoe UI",sans-serif;color:var(--ink);
     background:linear-gradient(180deg,#f5f7fa,#eceff5);min-height:100vh;padding:1rem;
   }
-  .wrap{max-width:1040px;margin:0 auto}
+  .wrap{max-width:1080px;margin:0 auto}
   .head{
     background:linear-gradient(125deg,var(--dark),var(--dark-2));color:#fff;
     border-radius:18px;padding:1.2rem 1.3rem;box-shadow:var(--shadow);
@@ -64,9 +64,9 @@
   .note.ok{border-color:var(--ok-line);background:var(--ok-bg);color:var(--ok)}
   .note.warn{border-color:var(--warn-line);background:var(--warn-bg);color:var(--warn)}
 
-  /* Fachgruppen */
+  /* Proben: Fachgruppen und Karten */
   .group{margin-top:1.3rem}
-  .group:first-of-type{margin-top:.2rem}
+  .group:first-child{margin-top:.2rem}
   .group-head{
     display:flex;align-items:baseline;gap:.6rem;flex-wrap:wrap;
     border-bottom:2px solid var(--line);padding-bottom:.35rem;margin-bottom:.7rem;
@@ -76,9 +76,10 @@
 
   .test-card{
     border:1.5px solid var(--line);border-radius:12px;padding:.85rem 1rem;margin-bottom:.7rem;
-    display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;
+    display:flex;justify-content:space-between;align-items:center;gap:.6rem 1rem;flex-wrap:wrap;
   }
   .test-card.open{border-color:var(--ok-line);background:var(--ok-bg)}
+  .test-card .left{flex:1 1 320px;min-width:0}
   .test-card .who{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap}
   .klasse{
     background:var(--dark);color:#fff;border-radius:7px;padding:.15rem .5rem;
@@ -90,21 +91,17 @@
   .state{font-size:.78rem;font-weight:800;border-radius:99px;padding:.22rem .7rem}
   .state.on{background:var(--ok);color:#fff}
   .state.off{background:#e4e8ef;color:var(--muted)}
-  .src{font-size:.72rem;color:var(--muted);font-weight:700}
+  .src{font-size:.78rem;color:var(--muted);font-weight:700;margin-top:.3rem;display:flex;flex-wrap:wrap;gap:.3rem .9rem}
   .src a{color:var(--accent)}
+  .schuelerlink{flex:1 1 100%;display:flex;flex-wrap:wrap;align-items:center;gap:.4rem .6rem;
+    background:#fff;border:1.5px dashed var(--ok-line);border-radius:10px;padding:.55rem .7rem;font-size:.88rem;font-weight:700}
+  .schuelerlink a{color:var(--ok);overflow-wrap:anywhere;min-width:0}
+  .schuelerlink .lbl{color:var(--ok);white-space:nowrap}
 
   .toolbar{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-bottom:.9rem}
   .spacer{flex:1}
   .hidden{display:none}
   .skel{color:var(--muted);font-weight:600;font-size:.9rem;padding:.6rem 0}
-
-  /* Reiter: Proben / Lernfortschritt */
-  .tabs{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem}
-  .tabs button{padding:.6rem 1.1rem;border:1.5px solid var(--line);border-radius:999px;background:#fff;
-    font:inherit;font-weight:800;font-size:.92rem;cursor:pointer;color:var(--dark)}
-  .tabs button:hover{background:#f3f5f9}
-  .tabs button.on{background:var(--dark);color:#fff;border-color:var(--dark)}
-  .tabs.hidden{display:none}
 </style>
 </head>
 <body>
@@ -112,7 +109,7 @@
 
   <div class="head">
     <h1>Proben und Lernfortschritt</h1>
-    <p>Tests und Proben aller Klassenstufen freischalten und sperren, Lernfortschritt der 9. Klassen (NT, Englisch und Deutsch) ansehen.</p>
+    <p>Klasse wählen, dann Proben freischalten, den Lernfortschritt je Fach ansehen oder Codes verwalten.</p>
   </div>
 
   <!-- ============ Anmeldung ============ -->
@@ -127,121 +124,95 @@
     <div id="login-msg"></div>
   </section>
 
-  <!-- ============ Reiter ============ -->
-  <nav class="tabs hidden" id="view-tabs" aria-label="Bereiche">
-    <button type="button" data-view="admin" class="on">🔓 Proben freischalten</button>
-    <button type="button" data-view="lf">📈 Lernfortschritt Klasse 9</button>
-  </nav>
-
-  <!-- ============ Lernfortschritt Klasse 9: NT und Englisch (lernfortschritt-nt9.js) ============ -->
-  <section class="panel hidden" id="view-lf"></section>
-
-  <!-- ============ Übersicht ============ -->
-  <section class="panel hidden" id="view-admin">
-    <div class="toolbar">
-      <div>
-        <h2>Freischaltung</h2>
-        <p class="sub" style="margin:0">Gr&uuml;n hinterlegt = die Probe ist f&uuml;r die Klasse offen.</p>
-      </div>
-      <div class="spacer"></div>
-      <button class="btn btn-ghost btn-sm" id="btn-reload" type="button">Neu laden</button>
-      <button class="btn btn-bad btn-sm" id="btn-lock-all" type="button">Alle sperren</button>
-    </div>
-
-    <div id="admin-msg"></div>
-    <div id="groups"><div class="skel">Proben werden geladen &hellip;</div></div>
-
-    <div class="note">
-      Ergebnisse ansehen, nachkorrigieren und als CSV exportieren geht weiterhin auf der
-      jeweiligen Fachseite &ndash; der Link steht bei jeder Probe.
-    </div>
-  </section>
+  <!-- ============ Verwaltung: Klassen, Fächer, Proben, Codes (lernfortschritt.js) ============ -->
+  <section class="panel hidden" id="view-main"></section>
 
 </div>
 
-<script src="lernfortschritt-nt9.js"></script>
+<script src="lernfortschritt.js"></script>
 <script>
 /* ============================================================
    Proben verwalten - alle Module an einer Stelle
 
    Jede Probenart hat auf dem Server ein eigenes Modul mit eigenen
-   Endpunkten. Diese Seite fragt alle Module nacheinander ab und
-   zeigt das Ergebnis nach Fach und Klasse gruppiert. Zum Sperren
-   und Freischalten spricht sie denselben unlock-Endpunkt an wie
-   die jeweilige Fachseite - es gibt also keine Sonderlogik auf
-   dem Server, die man zusaetzlich pflegen muesste.
+   Endpunkten. Proben.zeigen() fragt alle Module ab und zeigt das
+   Ergebnis nach Fach gruppiert, auf Wunsch nur für eine Klasse
+   (Stufe und Zug). Zum Sperren und Freischalten spricht die Seite
+   denselben unlock-Endpunkt an wie die jeweilige Fachseite - es gibt
+   also keine Sonderlogik auf dem Server. Bei offenen Proben steht der
+   Link, unter dem die Kinder die Probe schreiben.
    ============================================================ */
 const API_BASE = (location.hostname.includes('github.io') || location.protocol === 'file:')
   ? 'https://englisch-9.onrender.com' : '';
 
-/* Die Module. "unlockPath" weicht bei nt7 ab (dort liegt die
-   Freischaltung unter /teacher/unlock). */
+/* Die Module. "unlockPath" weicht bei nt7 ab (dort liegt die Freischaltung
+   unter /teacher/unlock). link = Lehrerseite (Ergebnisse), schueler = Seite
+   für die Kinder. klasse: "7" = alle 7. Klassen, "7M"/"7R" = nur dieser Zug. */
 const MODULES = [
   {
     key:'vokabeltest', subject:'Englisch',
     listPath:'/api/vokabeltest/list', unlockPath:'/api/vokabeltest/unlock',
-    page:'Fachseite', klasse: idKlasse, link: vokabeltestLink
+    klasse: idKlasse, link: t => englischSeite(t, 'test/lehrer.html'),
+    schueler: t => englischSeite(t, 'test/vokabeltest.html') + '?test=' + encodeURIComponent(t.id)
   },
   {
     /* Englisch 9R, 9M, 7M und 7R: Grammatikprobe und Grammatiktests G1-G4 (Unit 1) */
     key:'grammatik9r', subject:'Englisch',
     listPath:'/api/grammatik9r/list', unlockPath:'/api/grammatik9r/unlock',
-    klasse: idKlasse,
-    link: t => ({ '9M': '9M/Englisch_9/unit1/probe/lehrer.html',
-                  '7M': '7/Englisch_7/unit1/probe/lehrer.html',
-                  '7R': '7/Englisch_7/unit1/probe/lehrer.html' })[idKlasse(t)]
-               || '9R/Englisch/unit1/probe/lehrer.html'
+    klasse: idKlasse, link: t => englischSeite(t, 'probe/lehrer.html'),
+    schueler: t => englischSeite(t, 'probe/grammatikprobe.html') + '?test=' + encodeURIComponent(t.id)
   },
   {
     key:'nt7', subject:'Natur und Technik',
     listPath:'/api/nt7/list', unlockPath:'/api/nt7/teacher/unlock',
-    klasse: () => '7M', link: () => '7M/NT/lehrer.html'
+    /* Die NT-Übersicht zeigt die Proben nur in 7M */
+    klasse: () => '7M', link: () => '7M/NT/lehrer.html',
+    schueler: t => '7M/NT/probe.html?probe=' + (/-2$/.test(t.id) ? '2' : '1')
   },
   {
     /* Der Argumentationstrainer kennt keine Freischaltung - er ist
-       immer offen. Er steht hier nur als Hinweis mit Link, damit die
-       Uebersicht vollstaendig ist. */
+       immer offen. Er steht hier nur als Hinweis mit Link. */
     key:'de7-argument', subject:'Deutsch', noUnlock:true,
     title:'Argumentation üben (immer offen)',
     listPath:null, unlockPath:null,
-    klasse: () => '7M', link: () => '7M/Deutsch/lehrer.html'
+    klasse: () => '7', link: () => '7M/Deutsch/lehrer.html', schueler: () => '7M/Deutsch/argumentationstrainer.html'
   },
   {
     key:'infoaustausch', subject:'Informatik',
     listPath:'/api/infoaustausch/list', unlockPath:'/api/infoaustausch/unlock',
-    klasse: () => '7', link: () => '7/Informatik_7/probe/lehrer.html'
+    klasse: () => '7', link: () => '7/Informatik_7/probe/lehrer.html', schueler: () => '7/Informatik_7/probe/probe.html'
   },
   {
     key:'informatik8', subject:'Informatik',
     listPath:'/api/informatik8/list', unlockPath:'/api/informatik8/unlock',
-    klasse: () => '8', link: () => '8/Informatik_8/probe/lehrer.html'
+    klasse: () => '8', link: () => '8/Informatik_8/probe/lehrer.html', schueler: () => '8/Informatik_8/probe/probe.html'
   },
   {
     key:'netzwerktest', subject:'Informatik',
     listPath:'/api/netzwerktest/list', unlockPath:'/api/netzwerktest/unlock',
-    klasse: () => '9', link: () => '9/Informatik_9/Netzwerke/lehrer.html'
+    klasse: () => '9', link: () => '9/Informatik_9/Netzwerke/lehrer.html', schueler: () => '9/Informatik_9/Netzwerke/probe.html'
   },
   {
     key:'filiuspruefung', subject:'Informatik',
     listPath:'/api/filiuspruefung/list', unlockPath:'/api/filiuspruefung/unlock',
-    klasse: () => '9', link: () => '9/Informatik_9/Filius/lehrer.html'
+    klasse: () => '9', link: () => '9/Informatik_9/Filius/lehrer.html', schueler: () => '9/Informatik_9/Filius/pruefung.html'
   }
 ];
 
-/* Die Vokabeltests aller Jahrgaenge liegen in einem Modul. Die
-   Klassenstufe steckt in der Test-ID: e7-..., e8r-..., e9r-... */
+/* Englisch-Tests: Stufe, Zug und Unit stecken in der Test-ID
+   (e7-u1-…, e7m-u1-…, e8r-u2-…, e9r-u1-…, e9m-u1-…) */
 function idKlasse(t){
-  const m = String(t.id || '').match(/^e(\d+[a-z]*)-/i);
-  if(m) return m[1].toUpperCase();
+  const m = String(t.id || '').match(/^e(\d+)([mr]?)-/i);
+  if(m) return m[1] + m[2].toUpperCase();
   return String(t.classLevel || '?');
 }
-function vokabeltestLink(t){
-  const k = idKlasse(t).toLowerCase();
-  if(k === '7')  return '7/Englisch_7/unit1/test/lehrer.html';
-  if(k === '7m' || k === '7r') return '7/Englisch_7/unit1/test/lehrer.html';
-  if(k === '8r') return '8R/Englisch/unit1/test/lehrer.html';
-  if(k === '9r') return '9R/Englisch/unit1/test/lehrer.html';
-  if(k === '9m') return '9M/Englisch_9/unit1/test/lehrer.html';
+function englischSeite(t, datei){
+  const m = String(t.id || '').match(/^e(\d+)([mr]?)-u(\d+)-/i);
+  if(!m) return '';
+  const st = m[1], zug = m[2].toLowerCase(), unit = 'unit' + m[3] + '/';
+  if(st === '7') return '7/Englisch_7/' + unit + datei;
+  if(st === '8') return '8R/Englisch/' + unit + datei;
+  if(st === '9') return (zug === 'm' ? '9M/Englisch_9/' : '9R/Englisch/') + unit + datei;
   return '';
 }
 
@@ -249,18 +220,11 @@ function vokabeltestLink(t){
 const SUBJECT_ORDER = ['Englisch','Deutsch','Mathematik','Natur und Technik','Informatik'];
 
 let PW = '';
-let ROWS = [];
-
 const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 
-function msg(where, text, kind){
-  const el = $(where);
-  if(!text){ el.innerHTML = ''; return; }
-  const div = document.createElement('div');
-  div.className = 'note ' + (kind || '');
-  div.textContent = text;
-  el.innerHTML = '';
-  el.appendChild(div);
+function note(el, text, kind){
+  el.innerHTML = text ? '<div class="note ' + (kind || '') + '">' + esc(text) + '</div>' : '';
 }
 
 /* ---------- Anmelden ---------- */
@@ -269,11 +233,11 @@ $('pw').addEventListener('keydown', e => { if(e.key === 'Enter') login(); });
 
 async function login(){
   const pw = $('pw').value.trim();
-  if(!pw){ msg('login-msg','Bitte das Passwort eingeben.','bad'); return; }
+  if(!pw){ note($('login-msg'),'Bitte das Passwort eingeben.','bad'); return; }
 
   $('btn-login').disabled = true;
   $('btn-login').textContent = 'Wird geprüft …';
-  msg('login-msg','');
+  note($('login-msg'),'');
 
   // Gegen ein Modul mit unlock-Endpunkt pruefen: ein bewusst
   // unbekannter Test liefert bei richtigem Passwort 404, bei
@@ -284,233 +248,180 @@ async function login(){
       body: JSON.stringify({ password: pw, testId:'__pruefung__', open:false })
     });
     if(res.status === 401){
-      msg('login-msg','Das Passwort stimmt nicht.','bad');
+      note($('login-msg'),'Das Passwort stimmt nicht.','bad');
       $('btn-login').disabled = false;
       $('btn-login').textContent = 'Anmelden';
       return;
     }
     PW = pw;
     $('view-login').classList.add('hidden');
-    $('view-tabs').classList.remove('hidden');
-    let start = 'admin';
-    try { start = localStorage.getItem('pv-ansicht') || 'admin'; } catch(e){}
-    ansicht(start);
-    loadAll();
+    $('view-main').classList.remove('hidden');
+    window.Verwaltung.zeigen($('view-main'), PW, API_BASE, Proben);
   }catch(e){
-    msg('login-msg','Keine Verbindung zum Server. Bitte später noch einmal versuchen.','bad');
+    note($('login-msg'),'Keine Verbindung zum Server. Bitte später noch einmal versuchen.','bad');
     $('btn-login').disabled = false;
     $('btn-login').textContent = 'Anmelden';
   }
 }
 
-/* ---------- Reiter ---------- */
-document.querySelectorAll('#view-tabs [data-view]').forEach(b =>
-  b.addEventListener('click', () => ansicht(b.dataset.view)));
+/* ============ Proben ============ */
+const Proben = (() => {
+  let ROWS = [], FEHLEND = [], laden = null, ziel = null, filter = null;
 
-function ansicht(v){
-  if(v !== 'lf') v = 'admin';
-  document.querySelectorAll('#view-tabs [data-view]').forEach(b =>
-    b.classList.toggle('on', b.dataset.view === v));
-  $('view-admin').classList.toggle('hidden', v !== 'admin');
-  $('view-lf').classList.toggle('hidden', v !== 'lf');
-  try { localStorage.setItem('pv-ansicht', v); } catch(e){}
-  if(v === 'lf' && window.LernfortschrittNT9) window.LernfortschrittNT9.zeigen($('view-lf'), PW, API_BASE);
-}
+  async function alleLaden(){
+    const rows = [], fehlend = [];
+    await Promise.all(MODULES.map(async (mod) => {
+      if(mod.noUnlock){
+        // Kein Freischalten moeglich - nur als Hinweiszeile anzeigen.
+        rows.push({ mod, subject: mod.subject, id: mod.key, title: mod.title, klasse: mod.klasse(),
+                    unlocked: false, noUnlock: true, link: mod.link(), schueler: mod.schueler() });
+        return;
+      }
+      try{
+        const res = await fetch(API_BASE + mod.listPath);
+        if(!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        (data.tests || []).forEach(t => rows.push({
+          mod, subject: mod.subject, id: t.id, title: t.title || t.id, klasse: mod.klasse(t),
+          unlocked: Boolean(t.unlocked), itemCount: t.itemCount, maxPoints: t.maxPoints,
+          link: mod.link(t), schueler: mod.schueler(t)
+        }));
+      }catch(e){ fehlend.push(mod.key); }
+    }));
+    ROWS = rows; FEHLEND = fehlend;
+  }
 
-/* ---------- Alle Module laden ---------- */
-$('btn-reload').addEventListener('click', loadAll);
+  // f: { stufe, zug } oder null (alle). Probe „7“ gilt für alle 7. Klassen, „7M“ nur für den M-Zug.
+  function passt(r){
+    if(!filter) return true;
+    return r.klasse === String(filter.stufe) || r.klasse === filter.stufe + filter.zug;
+  }
 
-async function loadAll(){
-  $('groups').innerHTML = '<div class="skel">Proben werden geladen …</div>';
-  ROWS = [];
-  const fehlend = [];
+  async function zeigen(container, f){
+    ziel = container; filter = f;
+    container.innerHTML =
+      '<div class="toolbar" style="margin-bottom:.4rem"><div class="spacer"></div>' +
+      '<button class="btn btn-ghost btn-sm" id="pr-reload" type="button">Neu laden</button>' +
+      '<button class="btn btn-bad btn-sm" id="pr-lock-all" type="button">' + (f ? 'Alle offenen hier sperren' : 'Alle sperren') + '</button></div>' +
+      '<div id="pr-msg"></div><div id="pr-groups"><div class="skel">Proben werden geladen …</div></div>' +
+      '<div class="note">Ergebnisse ansehen, nachkorrigieren und als CSV exportieren geht auf der jeweiligen Fachseite – der Link „Ergebnisse“ steht bei jeder Probe.</div>';
+    $('pr-reload').addEventListener('click', () => neuLaden());
+    $('pr-lock-all').addEventListener('click', allesSperren);
+    await neuLaden();
+  }
 
-  const jobs = MODULES.map(async (mod) => {
-    if(mod.noUnlock){
-      // Kein Freischalten moeglich - nur als Hinweiszeile anzeigen.
-      ROWS.push({
-        mod, subject: mod.subject, id: mod.key, title: mod.title,
-        klasse: mod.klasse(), unlocked: false, noUnlock: true, link: mod.link()
-      });
-      return;
+  async function neuLaden(){
+    laden = alleLaden();
+    await laden;
+    render();
+  }
+
+  function render(){
+    if(!ziel || !document.body.contains(ziel)) return;
+    const box = $('pr-groups');
+    box.innerHTML = '';
+    const sichtbar = ROWS.filter(passt);
+    if(!sichtbar.length){
+      box.innerHTML = '<div class="skel">' + (ROWS.length ? 'Für diese Klasse gibt es (noch) keine Proben.' : 'Es konnten keine Proben geladen werden.') + '</div>';
     }
-    if(!mod.listPath) return;
-    try{
-      const res = await fetch(API_BASE + mod.listPath);
-      if(!res.ok) throw new Error('HTTP ' + res.status);
-      const data = await res.json();
-      (data.tests || []).forEach(t => {
-        ROWS.push({
-          mod,
-          subject: mod.subject,
-          id: t.id,
-          title: t.title || t.id,
-          klasse: mod.klasse(t),
-          unlocked: Boolean(t.unlocked),
-          itemCount: t.itemCount,
-          maxPoints: t.maxPoints,
-          link: mod.link(t)
-        });
-      });
-    }catch(e){
-      fehlend.push(mod.key);
-    }
-  });
-
-  await Promise.all(jobs);
-  render(fehlend);
-}
-
-/* ---------- Anzeige ---------- */
-function render(fehlend){
-  const box = $('groups');
-  box.innerHTML = '';
-
-  if(!ROWS.length){
-    box.innerHTML = '<div class="skel">Es konnten keine Proben geladen werden.</div>';
-  }
-
-  const subjects = [...new Set(ROWS.map(r => r.subject || r.mod.subject))];
-  subjects.sort((a,b) => {
-    const ia = SUBJECT_ORDER.indexOf(a), ib = SUBJECT_ORDER.indexOf(b);
-    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
-  });
-
-  subjects.forEach(sub => {
-    const rows = ROWS.filter(r => (r.subject || r.mod.subject) === sub);
-    rows.sort((a,b) => a.klasse.localeCompare(b.klasse, 'de', {numeric:true})
-                    || a.title.localeCompare(b.title, 'de'));
-
-    const g = document.createElement('div');
-    g.className = 'group';
-
-    const gh = document.createElement('div');
-    gh.className = 'group-head';
-    const h3 = document.createElement('h3');
-    h3.textContent = sub;
-    const cnt = document.createElement('span');
-    cnt.className = 'cnt';
-    const offen = rows.filter(r => r.unlocked && !r.noUnlock).length;
-    cnt.textContent = rows.length + (rows.length === 1 ? ' Probe' : ' Proben')
-                    + (offen ? ' · ' + offen + ' offen' : '');
-    gh.append(h3, cnt);
-    g.appendChild(gh);
-
-    rows.forEach(r => g.appendChild(card(r)));
-    box.appendChild(g);
-  });
-
-  if(fehlend.length){
-    msg('admin-msg', 'Diese Bereiche antworten gerade nicht: ' + fehlend.join(', ')
-      + '. Die übrigen Proben lassen sich normal verwalten.', 'warn');
-  } else {
-    msg('admin-msg','');
-  }
-}
-
-function card(r){
-  const el = document.createElement('div');
-  el.className = 'test-card' + (r.unlocked ? ' open' : '');
-
-  const left = document.createElement('div');
-  const who = document.createElement('div');
-  who.className = 'who';
-  const k = document.createElement('span');
-  k.className = 'klasse';
-  k.textContent = 'Klasse ' + r.klasse;
-  const h4 = document.createElement('h4');
-  h4.textContent = r.title;
-  who.append(k, h4);
-
-  const meta = document.createElement('div');
-  meta.className = 'meta';
-  const teile = [];
-  if(r.itemCount) teile.push(r.itemCount + ' Aufgaben');
-  if(r.maxPoints) teile.push(r.maxPoints + ' Punkte');
-  meta.textContent = teile.join(' · ');
-  left.append(who, meta);
-
-  if(r.link){
-    const src = document.createElement('div');
-    src.className = 'src';
-    const a = document.createElement('a');
-    a.href = r.link;
-    a.textContent = 'Ergebnisse und Export →';
-    src.appendChild(a);
-    left.appendChild(src);
-  }
-
-  const right = document.createElement('div');
-  right.className = 'right';
-
-  if(r.noUnlock){
-    // Uebung ohne Freischaltung: nur Hinweis, kein Schalter.
-    const st = document.createElement('span');
-    st.className = 'state off';
-    st.textContent = 'Ohne Freischaltung';
-    right.appendChild(st);
-  } else {
-    const st = document.createElement('span');
-    st.className = 'state ' + (r.unlocked ? 'on' : 'off');
-    st.textContent = r.unlocked ? 'Offen' : 'Gesperrt';
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'btn btn-sm ' + (r.unlocked ? 'btn-bad' : 'btn-ok');
-    btn.textContent = r.unlocked ? 'Sperren' : 'Freischalten';
-    btn.addEventListener('click', () => toggle(r, !r.unlocked, btn));
-    right.append(st, btn);
-  }
-
-  el.append(left, right);
-  return el;
-}
-
-/* ---------- Freischalten / Sperren ---------- */
-async function toggle(r, open, btn){
-  btn.disabled = true;
-  const ok = await setUnlock(r, open);
-  if(ok){
-    msg('admin-msg', '„' + r.title + '“ ist jetzt '
-      + (open ? 'freigeschaltet.' : 'gesperrt.'), 'ok');
-    await loadAll();
-  } else {
-    msg('admin-msg','Das hat nicht geklappt. Bitte noch einmal versuchen.','bad');
-    btn.disabled = false;
-  }
-}
-
-async function setUnlock(r, open){
-  try{
-    const res = await fetch(API_BASE + r.mod.unlockPath, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ password: PW, testId: r.id, open })
+    const subjects = [...new Set(sichtbar.map(r => r.subject))];
+    subjects.sort((a,b) => {
+      const ia = SUBJECT_ORDER.indexOf(a), ib = SUBJECT_ORDER.indexOf(b);
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
     });
-    const data = await res.json();
-    return Boolean(data && data.ok);
-  }catch(e){
-    return false;
+    subjects.forEach(sub => {
+      const rows = sichtbar.filter(r => r.subject === sub);
+      rows.sort((a,b) => a.klasse.localeCompare(b.klasse, 'de', {numeric:true}) || a.title.localeCompare(b.title, 'de'));
+      const g = document.createElement('div');
+      g.className = 'group';
+      const offen = rows.filter(r => r.unlocked && !r.noUnlock).length;
+      g.innerHTML = '<div class="group-head"><h3>' + esc(sub) + '</h3><span class="cnt">' + rows.length +
+        (rows.length === 1 ? ' Probe' : ' Proben') + (offen ? ' · ' + offen + ' offen' : '') + '</span></div>';
+      rows.forEach(r => g.appendChild(card(r)));
+      box.appendChild(g);
+    });
+    note($('pr-msg'), FEHLEND.length ? 'Diese Bereiche antworten gerade nicht: ' + FEHLEND.join(', ')
+      + '. Die übrigen Proben lassen sich normal verwalten.' : '', 'warn');
   }
-}
 
-/* ---------- Alles sperren ---------- */
-$('btn-lock-all').addEventListener('click', async () => {
-  const offen = ROWS.filter(r => r.unlocked && !r.noUnlock);
-  if(!offen.length){ msg('admin-msg','Es ist gerade nichts freigeschaltet.','ok'); return; }
-  if(!confirm('Wirklich alle ' + offen.length + ' offenen Proben sperren?\n\n'
-    + 'Laufende Abgaben werden dadurch nicht gelöscht.')) return;
+  function voll(pfad){ try { return new URL(pfad, location.href).href; } catch(e){ return pfad; } }
 
-  $('btn-lock-all').disabled = true;
-  let fehler = 0;
-  for(const r of offen){
-    const ok = await setUnlock(r, false);
-    if(!ok) fehler++;
+  function card(r){
+    const el = document.createElement('div');
+    el.className = 'test-card' + (r.unlocked ? ' open' : '');
+    const teile = [];
+    if(r.itemCount) teile.push(r.itemCount + ' Aufgaben');
+    if(r.maxPoints) teile.push(r.maxPoints + ' Punkte');
+    const offenLink = r.schueler && (r.unlocked || r.noUnlock);
+    el.innerHTML =
+      '<div class="left"><div class="who"><span class="klasse">Klasse ' + esc(r.klasse) + '</span><h4>' + esc(r.title) + '</h4></div>' +
+      '<div class="meta">' + esc(teile.join(' · ')) + '</div>' +
+      '<div class="src">' + (r.link ? '<a href="' + esc(r.link) + '">Ergebnisse und Export →</a>' : '') +
+      (r.schueler && !offenLink ? '<a href="' + esc(r.schueler) + '" target="_blank" rel="noopener">Schülerseite ansehen ↗</a>' : '') + '</div></div>' +
+      '<div class="right"></div>' +
+      (offenLink ? '<div class="schuelerlink"><span class="lbl">🔗 Link für die Kinder:</span><a href="' + esc(r.schueler) + '" target="_blank" rel="noopener">' + esc(voll(r.schueler)) + '</a>' +
+        '<button class="btn btn-ghost btn-sm" type="button" data-kopieren>Link kopieren</button></div>' : '');
+    const right = el.querySelector('.right');
+    if(r.noUnlock){
+      right.innerHTML = '<span class="state off">Ohne Freischaltung</span>';
+    } else {
+      right.innerHTML = '<span class="state ' + (r.unlocked ? 'on' : 'off') + '">' + (r.unlocked ? 'Offen' : 'Gesperrt') + '</span>';
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn btn-sm ' + (r.unlocked ? 'btn-bad' : 'btn-ok');
+      btn.textContent = r.unlocked ? 'Sperren' : 'Freischalten';
+      btn.addEventListener('click', () => toggle(r, !r.unlocked, btn));
+      right.appendChild(btn);
+    }
+    const kop = el.querySelector('[data-kopieren]');
+    if(kop) kop.addEventListener('click', () => kopieren(voll(r.schueler), kop));
+    return el;
   }
-  $('btn-lock-all').disabled = false;
-  msg('admin-msg', fehler
-    ? (offen.length - fehler) + ' Proben gesperrt, ' + fehler + ' haben nicht geklappt.'
-    : 'Alle ' + offen.length + ' Proben sind jetzt gesperrt.', fehler ? 'bad' : 'ok');
-  await loadAll();
-});
+
+  function kopieren(text, btn){
+    const ok = () => { btn.textContent = '✓ Kopiert'; setTimeout(() => { btn.textContent = 'Link kopieren'; }, 1800); };
+    if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, () => window.prompt('Link kopieren:', text));
+    else window.prompt('Link kopieren:', text);
+  }
+
+  async function toggle(r, open, btn){
+    btn.disabled = true;
+    const ok = await setUnlock(r, open);
+    if(ok){
+      await neuLaden();
+      note($('pr-msg'), '„' + r.title + '“ ist jetzt ' + (open ? 'freigeschaltet. Den Link für die Kinder findest du direkt bei der Probe.' : 'gesperrt.'), 'ok');
+    } else {
+      note($('pr-msg'), 'Das hat nicht geklappt. Bitte noch einmal versuchen.', 'bad');
+      btn.disabled = false;
+    }
+  }
+
+  async function setUnlock(r, open){
+    try{
+      const res = await fetch(API_BASE + r.mod.unlockPath, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ password: PW, testId: r.id, open })
+      });
+      const data = await res.json();
+      return Boolean(data && data.ok);
+    }catch(e){ return false; }
+  }
+
+  async function allesSperren(){
+    const offen = ROWS.filter(r => passt(r) && r.unlocked && !r.noUnlock);
+    if(!offen.length){ note($('pr-msg'),'Es ist gerade nichts freigeschaltet.','ok'); return; }
+    if(!confirm('Wirklich ' + offen.length + ' offene Proben sperren?\n\nLaufende Abgaben werden dadurch nicht gelöscht.')) return;
+    $('pr-lock-all').disabled = true;
+    let fehler = 0;
+    for(const r of offen){ if(!(await setUnlock(r, false))) fehler++; }
+    await neuLaden();
+    note($('pr-msg'), fehler
+      ? (offen.length - fehler) + ' Proben gesperrt, ' + fehler + ' haben nicht geklappt.'
+      : 'Alle ' + offen.length + ' Proben sind jetzt gesperrt.', fehler ? 'bad' : 'ok');
+  }
+
+  return { zeigen };
+})();
 </script>
 </body>
 </html>
