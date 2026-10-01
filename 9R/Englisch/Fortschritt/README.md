@@ -10,7 +10,7 @@
 - Unit 2 bis 4 sind als „In Vorbereitung“ angelegt.
 - Icons: `images/unit1.png` bis `unit4.png`, 192 × 192 px, je etwa 20 KB. Die Originale (1254 px, je 2–3 MB) liegen außerhalb des Repos in OneDrive unter `9R/Ikons`.
 - Die alten Seiten `grammatik.html` und `vokabeln.html` sind von der Übersicht nicht mehr verlinkt.
-- Farben wie das Schulbuch **Blue Line 5, Bayern R-Zug (Klett)**: Cyan-Blau als Hauptfarbe (`#00649b`, `#0082c3`, `#0098da`), Orange `#f29100` und Rot `#e30613` als Akzente. Die Übersichtsseiten holen die Farben über `body.blueline` aus `css/englisch-extras.css`, Englisch 7 und 8R bleiben unverändert. Alle anderen 9R-Seiten haben die Farben in ihren eigenen `:root`-Variablen.
+- Farben: Cyan-Blau als Hauptfarbe (`#00649b`, `#0082c3`, `#0098da`), Orange `#f29100` und Rot `#e30613` als Akzente. Die Übersichtsseiten holen die Farben über `body.e9farben` aus `css/englisch-extras.css`, Englisch 7 und 8R bleiben unverändert. Alle anderen 9R-Seiten haben die Farben in ihren eigenen `:root`-Variablen.
 
 ### Unit 1
 
@@ -26,7 +26,7 @@
 | Grammatikprobe und Kurztests (Lehrkraft) | `unit1/probe/lehrer.html` | neu |
 | Vokabeltests (Schüler und Lehrkraft) | `unit1/test/` | umgebaut |
 
-**Grammatikseiten G1–G4:** Grundlage sind die Buchseiten 127–130 (Fotos in OneDrive `9R/Grammatik 9R`). Aufbau und Design wie bei Englisch 7: Merkkasten, „Test yourself“ aus dem Buch, „Mehr üben“ (10 Sätze zum Thema Australien), „Was ist richtig?“ (5 Auswahlfragen) und am Ende ein Link zum passenden Kurztest. Kurz- und Langformen gelten beim Einsetzen beide (`didn't` = `did not`, `I'll` = `I will`).
+**Grammatikseiten G1–G4:** Grundlage ist der Grammatikstoff von Unit 1, alle Merksätze und Beispiele sind eigene Formulierungen. Aufbau und Design wie bei Englisch 7: Merkkasten, „Test yourself“, „Mehr üben“ (10 Sätze zum Thema Australien), „Was ist richtig?“ (5 Auswahlfragen) und am Ende ein Link zum passenden Kurztest. Kurz- und Langformen gelten beim Einsetzen beide (`didn't` = `did not`, `I'll` = `I will`).
 
 **Grammatikprobe Unit 1:** 33 Aufgaben, 44 Punkte, Abschnitte A–H (simple past, Kurzantworten, will-future, will oder want to, if-clauses, present progressive, welche Zeitform, 4 Sätze übersetzen).
 

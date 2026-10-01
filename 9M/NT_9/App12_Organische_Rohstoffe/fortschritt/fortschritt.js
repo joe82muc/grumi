@@ -167,6 +167,7 @@
   }
   global.addEventListener("online", senden);
   doc.addEventListener("visibilitychange", function () { if (doc.visibilityState === "hidden" && timer) { clearTimeout(timer); timer = null; senden(); } });
+  global.addEventListener("pagehide", function () { if (timer) { clearTimeout(timer); timer = null; senden(); } });
 
   // Beim Öffnen: Stand vom Server holen (anderes Gerät) und den Namen aktualisieren
   function abgleichen() {

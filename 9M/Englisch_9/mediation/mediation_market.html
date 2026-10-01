@@ -346,7 +346,7 @@ async function handleSend() {
     // Success!
     addMsg('ok', '? Gut gemacht!', result.feedback);
     
-    currentStep++;
+    if (window.Lernstand) Lernstand.geloest('schritt' + (currentStep + 1)); currentStep++;
     updateProgress();
     
     if (step.direction === 'en-de' || !step.ranger) {
@@ -556,6 +556,16 @@ startStep();
     </div>
   </div>
 </footer>
+<script src="../../../js/lernstand.js"></script>
+<script>
+/* Lernstand mit Code: Anmeldung, Meldung richtig gelöster Aufgaben, „Das fehlt dir noch“ (js/lernstand.js) */
+if (window.Lernstand) Lernstand.seite({
+  kurs: "e9", bereich: "Mediation", bnr: 6, modul: "e9-med-market", kurz: "At the Craft Marke",
+  titel: "Mediation: At the Craft Market", einheit: "Schritten",
+  aufgaben: STEPS.map(function (st, i) { return { id: "schritt" + (i + 1), teil: "Gespräch", kurz: String(i + 1), text: (st.direction === "en-de" ? "Englisch → Deutsch: " : "Deutsch → Englisch: ") + String(st.uncle || st.rangerSays || st.instruction || "").slice(0, 80) }; }),
+  anker: document.getElementById("chat")
+});
+</script>
 </body>
 </html>
 

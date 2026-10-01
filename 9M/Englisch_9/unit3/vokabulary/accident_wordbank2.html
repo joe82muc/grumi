@@ -421,7 +421,7 @@
       const fb=document.getElementById(id+'f');
       fb.className='fb '+(ok?'g':'b');
       fb.textContent=ok?'Correct.':'Answer: '+correct;
-      if(ok)sc.a.r++;else sc.a.w++;updSc('a');
+      if(ok&&window.Lernstand)Lernstand.geloest(id);if(ok)sc.a.r++;else sc.a.w++;updSc('a');
     }
 
     function resetA(){
@@ -440,7 +440,7 @@
       const fb=document.getElementById(id+'f');
       fb.className='fb '+(ok?'g':'b');
       fb.textContent=ok?'Correct.':'Solution: '+correct;
-      ans[id]=true; if(ok)sc[lvl].r++; else sc[lvl].w++; updSc(lvl);
+      ans[id]=true; if(ok&&window.Lernstand)Lernstand.geloest(id);if(ok)sc[lvl].r++; else sc[lvl].w++; updSc(lvl);
     }
 
     function shwGap(id,correct,lvl){
@@ -457,7 +457,7 @@
       i1.classList.add(ok1?'ok':'err'); i1.disabled=true;
       i2.classList.add(ok2?'ok':'err'); i2.disabled=true;
       const fb=document.getElementById(id+'f'); fb.className='fb '+(ok?'g':'b'); fb.textContent=ok?'Correct.':'Solution: '+c1+' / '+c2;
-      ans[id]=true; if(ok)sc[lvl].r++; else sc[lvl].w++; updSc(lvl);
+      ans[id]=true; if(ok&&window.Lernstand)Lernstand.geloest(id);if(ok)sc[lvl].r++; else sc[lvl].w++; updSc(lvl);
     }
 
     function shwDouble(id,words){
@@ -552,7 +552,7 @@
       const ok=required.some(r=>val.includes(nrm(r)))&&val.length>10;
       inp.classList.add(ok?'ok':'err'); inp.disabled=true;
       const fb=document.getElementById(id+'f'); fb.className='fb '+(ok?'g':'b'); fb.textContent=ok?'Good sentence.':'Please include the phrase from task.';
-      ans[id]=true; if(ok)sc[lvl].r++; else sc[lvl].w++; updSc(lvl);
+      ans[id]=true; if(ok&&window.Lernstand)Lernstand.geloest(id);if(ok)sc[lvl].r++; else sc[lvl].w++; updSc(lvl);
     }
 
     function chkFreeAll(id,required,lvl){
@@ -562,7 +562,7 @@
       const ok=required.every(r=>val.includes(nrm(r)))&&val.length>10;
       inp.classList.add(ok?'ok':'err'); inp.disabled=true;
       const fb=document.getElementById(id+'f'); fb.className='fb '+(ok?'g':'b'); fb.textContent=ok?'Good sentence.':'Use all words from the task: '+required.join(', ')+'.';
-      ans[id]=true; if(ok)sc[lvl].r++; else sc[lvl].w++; updSc(lvl);
+      ans[id]=true; if(ok&&window.Lernstand)Lernstand.geloest(id);if(ok)sc[lvl].r++; else sc[lvl].w++; updSc(lvl);
     }
 
     function chkEssay(id){
@@ -574,7 +574,7 @@
       const ok=hasSeq&&hasTime&&val.length>90;
       inp.classList.add(ok?'ok':'err');
       const fb=document.getElementById(id+'f'); fb.className='fb '+(ok?'g':'b'); fb.textContent=ok?'Excellent text.':'Need sequence words + one time reference.';
-      ans[id]=true; if(ok)sc.c.r++; else sc.c.w++; updSc('c');
+      ans[id]=true; if(ok&&window.Lernstand)Lernstand.geloest(id);if(ok)sc.c.r++; else sc.c.w++; updSc('c');
     }
 
     async function aiHelp(id){
@@ -632,6 +632,17 @@
     </div>
   </div>
 </footer>
+<script src="../../../../js/lernstand.js"></script>
+<script>
+/* Lernstand mit Code: Anmeldung, Meldung richtig gelöster Aufgaben, „Das fehlt dir noch“ (js/lernstand.js) */
+if (window.Lernstand) Lernstand.seite({
+  kurs: "e9", bereich: "Unit 3", bnr: 3, modul: "e9-u3-accident", nr: 2, kurz: "Accident",
+  titel: "Accident Talk Studio - Word Bank",
+  auswahl: ".card[id]", text: ".q",
+  teil: function (el) { return { a: "Teil A · Auswahl", b: "Teil B · Lücken", c: "Teil C · Schreiben" }[el.id.charAt(0)] || "Aufgaben"; },
+  anker: (document.querySelector(".card[id]") || {}).parentNode && document.querySelector(".card[id]").parentNode.closest("section,div") || document.querySelector(".card[id]")
+});
+</script>
 </body>
 </html>
 

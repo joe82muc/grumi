@@ -158,7 +158,7 @@
       A.forEach((t,i)=>{
         const id='a'+(i+1);
         const opts=[...t.options].sort(()=>Math.random()-.5);
-        const card=document.createElement('div'); card.className='card';
+        const card=document.createElement('div'); card.className='card'; card.id=id;
         card.innerHTML='<div class="ex">Exercise '+(i+1)+' / 20</div><div class="q">'+t.q+'</div><div class="mcwrap">'+opts.map(o=>'<button class="mc" data-val="'+esc(o)+'">'+o+'</button>').join('')+'</div><div class="fbrow"><button class="btn chk">Check</button><button class="btn">KI-Hilfe</button><span class="fb" id="'+id+'f"></span></div><div class="fbrow"><span class="fb" id="'+id+'ai"></span></div>';
         box.appendChild(card);
         card.querySelectorAll('.mc').forEach(b=>b.onclick=()=>{ card.querySelectorAll('.mc').forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); });
@@ -176,14 +176,14 @@
       card.querySelectorAll('.mc').forEach(b=>{ b.disabled=true; if(nrm(b.dataset.val)===nrm(correct)) b.classList.add('ok'); });
       const ok=nrm(selected)===nrm(correct); if(!ok){ const sb=card.querySelector('.mc.sel'); if(sb) sb.classList.add('err'); }
       const fb=document.getElementById(id+'f'); fb.className='fb '+(ok?'g':'b'); fb.textContent=ok?'Correct.':'Answer: '+correct;
-      if(ok) sc.a.r++; else sc.a.w++; upd('a');
+      if(ok&&window.Lernstand)Lernstand.geloest(id);if(ok) sc.a.r++; else sc.a.w++; upd('a');
     }
 
     function renderB(){
       const box=document.getElementById('bList'); box.innerHTML='';
       B.forEach((t,i)=>{
         const id='b'+(i+1);
-        const card=document.createElement('div'); card.className='card';
+        const card=document.createElement('div'); card.className='card'; card.id=id;
         card.innerHTML='<div class="ex">Exercise '+(8+i+1)+' / 20</div><div class="q">'+t.q+'</div><input class="wi" id="'+id+'i" placeholder="your answer ..."><div class="fbrow"><button class="btn chk">Check</button><button class="btn">Show</button><button class="btn">KI-Hilfe</button><span class="fb" id="'+id+'f"></span></div><div class="fbrow"><span class="fb" id="'+id+'ai"></span></div>';
         box.appendChild(card);
         const btns=card.querySelectorAll('.btn');
@@ -192,7 +192,7 @@
         btns[2].onclick=()=>aiHelp(id,'Passive Voice gap-fill | '+t.q, document.getElementById(id+'i').value);
       });
     }
-    function checkB(id,a){ if(ans[id]) return; const inp=document.getElementById(id+'i'); const ok=nrm(inp.value)===nrm(a); inp.classList.add(ok?'ok':'err'); inp.disabled=true; ans[id]=true; const fb=document.getElementById(id+'f'); fb.className='fb '+(ok?'g':'b'); fb.textContent=ok?'Correct.':'Answer: '+a; if(ok)sc.b.r++; else sc.b.w++; upd('b'); }
+    function checkB(id,a){ if(ans[id]) return; const inp=document.getElementById(id+'i'); const ok=nrm(inp.value)===nrm(a); inp.classList.add(ok?'ok':'err'); inp.disabled=true; ans[id]=true; const fb=document.getElementById(id+'f'); fb.className='fb '+(ok?'g':'b'); fb.textContent=ok?'Correct.':'Answer: '+a; if(ok&&window.Lernstand)Lernstand.geloest(id);if(ok)sc.b.r++; else sc.b.w++; upd('b'); }
     function showB(id,a){ if(ans[id]) return; const inp=document.getElementById(id+'i'); inp.value=a; inp.classList.add('ok'); inp.disabled=true; ans[id]=true; const fb=document.getElementById(id+'f'); fb.className='fb g'; fb.textContent='-> '+a; sc.b.w++; upd('b'); }
 
     function renderC(){
@@ -201,7 +201,7 @@
         const id='c'+(i+1);
         const rows=t.min>80?5:1;
         const field=rows>1?'<textarea class="wi" id="'+id+'i" rows="'+rows+'" placeholder="'+t.ph+'"></textarea>':'<input class="wi" id="'+id+'i" placeholder="'+t.ph+'">';
-        const card=document.createElement('div'); card.className='card';
+        const card=document.createElement('div'); card.className='card'; card.id=id;
         card.innerHTML='<div class="ex">Exercise '+(16+i+1)+' / 20</div><div class="q">'+t.q+'</div>'+field+'<div class="fbrow"><button class="btn chk">Check</button><button class="btn">KI-Hilfe</button><button class="btn">Show</button><span class="fb" id="'+id+'f"></span></div><div class="fbrow"><span class="fb" id="'+id+'ai"></span></div>';
         box.appendChild(card);
         const btns=card.querySelectorAll('.btn');
@@ -223,7 +223,7 @@
       inp.classList.add(ok?'ok':'err'); inp.disabled=true; ans[id]=true;
       const fb=document.getElementById(id+'f'); fb.className='fb '+(ok?'g':'b');
       fb.textContent=ok?'Great.':(!okLen?'Schreibe noch etwas mehr.':(!okCount?'Nutze mindestens '+t.minMatches+' Passiv-Formen (is/are/was/were).':'Nutze die geforderten Passiv-Formen aus der Aufgabe.'));
-      if(ok)sc.c.r++; else sc.c.w++; upd('c');
+      if(ok&&window.Lernstand)Lernstand.geloest(id);if(ok)sc.c.r++; else sc.c.w++; upd('c');
     }
     function showC(id,m){ if(ans[id]) return; const inp=document.getElementById(id+'i'); inp.value=m; inp.classList.add('ok'); inp.disabled=true; ans[id]=true; const fb=document.getElementById(id+'f'); fb.className='fb g'; fb.textContent='-> Beispiel angezeigt'; sc.c.w++; upd('c'); }
 
@@ -241,9 +241,9 @@
       }catch(e){ out.className='fb b'; out.textContent='KI nicht erreichbar. Bitte spaeter erneut probieren.'; }
     }
 
-    function resetA(){ sc.a={r:0,w:0}; upd('a'); Object.keys(ans).filter(k=>k.startsWith('a')).forEach(k=>delete ans[k]); renderA(); }
-    function resetB(){ sc.b={r:0,w:0}; upd('b'); Object.keys(ans).filter(k=>k.startsWith('b')).forEach(k=>delete ans[k]); renderB(); }
-    function resetC(){ sc.c={r:0,w:0}; upd('c'); Object.keys(ans).filter(k=>k.startsWith('c')).forEach(k=>delete ans[k]); renderC(); }
+    function resetA(){ sc.a={r:0,w:0}; upd('a'); Object.keys(ans).filter(k=>k.startsWith('a')).forEach(k=>delete ans[k]); renderA(); if(window.Lernstand)Lernstand.markieren(); }
+    function resetB(){ sc.b={r:0,w:0}; upd('b'); Object.keys(ans).filter(k=>k.startsWith('b')).forEach(k=>delete ans[k]); renderB(); if(window.Lernstand)Lernstand.markieren(); }
+    function resetC(){ sc.c={r:0,w:0}; upd('c'); Object.keys(ans).filter(k=>k.startsWith('c')).forEach(k=>delete ans[k]); renderC(); if(window.Lernstand)Lernstand.markieren(); }
 
     renderA(); renderB(); renderC();
   </script>
@@ -263,6 +263,17 @@
     </div>
   </div>
 </footer>
+<script src="../../../../js/lernstand.js"></script>
+<script>
+/* Lernstand mit Code: Anmeldung, Meldung richtig gelöster Aufgaben, „Das fehlt dir noch“ (js/lernstand.js) */
+if (window.Lernstand) Lernstand.seite({
+  kurs: "e9", bereich: "Unit 4", bnr: 4, modul: "e9-u4-passive", nr: 3, kurz: "Passive",
+  titel: "Passive Voice - Unit 4",
+  auswahl: "#aList > [id], #bList > [id], #cList > [id]", text: ".q",
+  teil: function (el) { return "Teil " + el.id.charAt(0).toUpperCase(); },
+  anker: document.getElementById("aList")
+});
+</script>
 </body>
 </html>
 

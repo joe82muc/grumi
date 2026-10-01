@@ -67,7 +67,7 @@ Die Themenübersicht bindet `fortschritt.js` mit `data-anmeldung="nein"` ein (ze
 - Modul 1 und 2 bereinigt: keine Buchseiten-, Aufgaben- und Arbeitsblattverweise mehr (Überschriften,
   Aufgabenetiketten, Erklärungen, Tipps, Footer). Infotexte, Merke-Kästen, Versuchsanleitungen und Lückentexte
   sind eigenständig neu formuliert; Fakten und Lösungswörter sind gleich geblieben.
-- Beim Holz-Pellets-Bild die buchtypischen Bildunterschriften abgeschnitten, im Holz-Schaubild den Buchhinweis entfernt.
+- Beim Holz-Pellets-Bild die Bildunterschriften abgeschnitten, im Holz-Schaubild den Quellenhinweis entfernt.
 - Emojis ab Unicode 12/13 (🪵 🪨 🪑) ersetzt, weil Windows 10 sie nur als leeres Kästchen zeigt.
 
 ## Stand 30.09.2026, abends: Modul 4
@@ -114,8 +114,8 @@ Die Themenübersicht bindet `fortschritt.js` mit `data-anmeldung="nein"` ein (ze
     keine Geosperre, kein Ablaufdatum eingetragen). Lädt sie nicht, verlinkt die Seite auf schule.zdf.de.
     Der Clip hat keine Untertitel, das Transkript wurde per Spracherkennung (faster-whisper) erstellt und die
     Zahlen an Standbildern geprüft (21,4 °C Start, 36,4 °C Luft, 37,5 °C mit CO₂, 0,028 % → 0,042 %).
-  - Fakten aus der Buchdoppelseite zu Kohlenstoffkreislauf und Treibhauseffekt, alle Texte eigenständig formuliert,
-    keine Buchabbildungen nachgebaut. CO₂-Werte pro Person und km: Bus 44 g, Bahn 50 g, Auto 161 g, Flugzeug 215 g.
+  - Fakten aus dem Unterrichtsmaterial zu Kohlenstoffkreislauf und Treibhauseffekt, alle Texte eigenständig
+    formuliert, keine Abbildungen nachgebaut. CO₂-Werte pro Person und km: Bus 44 g, Bahn 50 g, Auto 161 g, Flugzeug 215 g.
   - KI-Grafiken „Kohlenstoffkreislauf“ und „Treibhauseffekt“ des Nutzers mit KI-Hinweis.
 
 ## Stand 01.10.2026, abends: Klima-Duell in Modul 5
@@ -167,6 +167,42 @@ Die Themenübersicht bindet `fortschritt.js` mit `data-anmeldung="nein"` ein (ze
 - Server: Kursverzeichnis `KURSE` in `nt9-fortschritt.js` (nt9, e9), `anmelden` liefert mit `katalog: true` die
   Aufgabenliste eines Kurses, Station darf ein Teil-Name sein („Mehr üben“).
 - Lehreransicht: Kurswahl „NT 9 · Organische Rohstoffe“ / „Englisch 9 · Grammatik Unit 1“, Codes gemeinsam.
+
+## Stand 01.10.2026, nachts: Deutsch 9 und Englisch 9 mit Code
+
+- Neues Schülerskript `js/lernstand.js` (Wurzel des Repos) für alle Übungsseiten außerhalb von NT;
+  `js/lernstand-e9.js` lädt es nur noch nach (für zwischengespeicherte Seiten). Gleicher Code, gleiche
+  Anmeldung auf dem Gerät (`grumi-nt9-m9-anmeldung` / `grumi-nt9-r9-anmeldung`). Die Klasse kommt aus der
+  Anmeldung bzw. dem Code, nicht aus dem Ordner, deshalb funktioniert es auch in `9/Deutsch` (gemeinsam für 9M und 9R).
+- Jede Seite zeigt „Dein Stand – Das fehlt dir noch“ (offene Aufgaben nach Teil, Links springen zur Aufgabe).
+  Übersichtsseiten zeigen je Übung einen Balken, ohne selbst nach dem Code zu fragen.
+- Server: Übungsseiten mit Kennung `d9-…` oder `e9-…` melden sich beim ersten Melden selbst an (Bereich,
+  Titel, Klasse; höchstens 400). Die Warteschlange auf dem Gerät speichert diese Angaben mit, damit auch
+  später gesendete Meldungen ankommen.
+- Lehreransicht: Kurse „NT 9“, „Englisch 9“, „Deutsch 9“, darin ein Bereich (gemerkt je Kurs). Es erscheinen
+  nur Übungen, die in der gewählten Klasse vorkommen.
+
+| Kurs | Bereich | Seiten | Kennungen |
+|---|---|---|---|
+| Deutsch 9 | Rechtschreibung: Strategien | `9/Deutsch/Rechtschreibstrategien/rs_01`–`rs_13`, Gesamtseite | `d9-rs-01`…`d9-rs-13`, `d9-rs-alle` |
+| Deutsch 9 | Rechtschreibung: Training | `m_training/m_*.html` | `d9-rt-…` |
+| Deutsch 9 | Sprachbetrachtung | `sb_01`–`sb_10` | `d9-sb-01`…`d9-sb-10` |
+| Deutsch 9 | Satzglieder | `Satzglieder bestimmen/satzglieder-uebung.html` | `d9-satzglieder` |
+| Deutsch 9 | Lektüre: Der Vorleser | Quiz Teil 1–3 | `d9-vorleser-1`…`3` |
+| Englisch 9 | Unit 1 · Grammatik | G1–G4 (9M und 9R) | `e9u1g1`–`e9u1g4` |
+| Englisch 9 | Unit 1 · Vokabeln | 9R-Vokabeltrainer (gilt auch für 9M) | `e9-u1-vokabeln` |
+| Englisch 9 | Unit 3 / Unit 4 | Vokabeltrainer, Word bank, Role model, unregelmäßige Verben, going to, Passiv | `e9-u3-…`, `e9-u4-…` |
+| Englisch 9 | Zeiten wiederholen | Tense-Trainer (beide Kopien) | `e9-zeiten-<zeit>` |
+| Englisch 9 | Mediation | 6 Chat-Mediationen (Schritte) | `e9-med-…` |
+
+- Nicht erfasst: Mediation Hospital, Picture-based talk, E-Mail, mündliche Prüfung, Proben/Vokabeltests
+  (laufen über die Freischaltung). Bei Karteikarten zählt „Weiß ich“ nicht, nur Ankreuzen und Schreiben.
+- Buchverweise entfernt: Vokabeltrainer 9R Unit 1 (80 eigene Beispielsätze, neutrale Themennamen),
+  9M Unit 3 (Kommentare, Themennamen), Grammatikprobe Unit 1 (eigene Beispielsätze), CSS-Klasse `blueline`
+  heißt jetzt `e9farben`, READMEs ohne Buchtitel. Die Seitenzahlen im Vorleser-Quiz beziehen sich auf den Roman.
+- `9M/Deutsch` (nicht im Repo) ist eine alte lokale Kopie von `9/Deutsch`; veröffentlicht wird nur `9/Deutsch`.
+- Getestet mit Playwright gegen den lokalen Testserver: je Seitenart eine richtige Antwort → Stand steigt,
+  Zurücksetzen markiert erneut, Lehreransicht zeigt Bereiche und Prozent, Klassenfilter 9M/9R, Handybreite ohne Überlauf.
 
 ## Offen
 

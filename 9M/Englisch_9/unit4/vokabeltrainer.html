@@ -575,7 +575,7 @@ function checkChoice(btn,chosen,correct){
   if(answered) return;
   answered=true;
   document.querySelectorAll('.choice').forEach(b=>{b.disabled=true;if(b.textContent===correct)b.classList.add('correct');});
-  if(chosen===correct){ btn.classList.add('correct'); showFeedback(true); right++; speak(); }
+  if(chosen===correct){ btn.classList.add('correct'); showFeedback(true); right++; lsWort(current); speak(); }
   else { btn.classList.add('wrong'); showFeedback(false,correct); wrong++; }
   updateScore(); showNextBtn();
 }
@@ -600,7 +600,7 @@ function checkType(){
   const vars=correct.split(/[;,]/).map(norm).filter(Boolean);
   const ok=vars.some(v=>norm(val)===v);
   answered=true; inp.disabled=true; document.getElementById('hint-btn').disabled=true;
-  if(ok){ inp.classList.add('correct'); showFeedback(true); right++; speak(); }
+  if(ok){ inp.classList.add('correct'); showFeedback(true); right++; lsWort(current); speak(); }
   else { inp.classList.add('wrong'); showFeedback(false,correct); wrong++; }
   updateScore(); showNextBtn();
 }
@@ -763,6 +763,23 @@ restart();
     </div>
   </div>
 </footer>
+<script src="../../../js/lernstand.js"></script>
+<script>
+/* Lernstand mit Code: Anmeldung, Meldung richtig gelöster Aufgaben, „Das fehlt dir noch“ (js/lernstand.js) */
+function lsWort(w) { if (window.Lernstand && w) Lernstand.geloest("w" + vocab.indexOf(w)); }
+(function () {
+  var dek = document.createElement("textarea");
+  function text(t) { dek.innerHTML = String(t || ""); return dek.value; }
+  var themen = typeof topicLabels !== "undefined" ? topicLabels : {};
+  if (window.Lernstand) Lernstand.seite({
+    kurs: "e9", bereich: "Unit 4", bnr: 4, modul: "e9-u4-vokabeln", nr: 1, kurz: "Vokabeln",
+    titel: "Vokabeltrainer", einheit: "Wörtern",
+    hinweis: "Ein Wort zählt, wenn du es beim Ankreuzen oder Schreiben richtig beantwortest.",
+    aufgaben: vocab.map(function (w, i) { return { id: "w" + i, teil: themen[w.topic] || "Wörter", kurz: text(w.en).slice(0, 24), text: text(w.en) + " – " + text(w.de) }; }),
+    anker: document.getElementById("filter-row")
+  });
+})();
+</script>
 </body>
 </html>
 

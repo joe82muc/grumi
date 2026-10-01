@@ -379,7 +379,7 @@ function checkSentence(phaseId,di,indices){
   pt.textContent=cc+'/'+sent.length+' Pkt.'; pt.classList.add('earned');
   btn.disabled=true; btn.textContent='✓ Geprüft';
 
-  if(wrongs.length===0){
+  if(wrongs.length===0){if(window.Lernstand)Lernstand.geloest('s'+si);
     card.classList.add('correct-card');
     fb.className='feedback fb-correct'; fb.style.display='block';
     fb.innerHTML='<div class="fb-title">✓ Alles richtig! +'+cc+' Punkte</div>';
@@ -558,6 +558,17 @@ function toggleInfo(){
 
 init();
 document.addEventListener('click',()=>{document.querySelectorAll('.word.hint-visible').forEach(w=>w.classList.remove('hint-visible'));});
+</script>
+<script src="../../../js/lernstand.js"></script>
+<script>
+/* Lernstand mit Code: Anmeldung, Meldung richtig gelöster Aufgaben, „Das fehlt dir noch“ (js/lernstand.js) */
+if (window.Lernstand) Lernstand.seite({
+  kurs: "d9", bereich: "Satzglieder", bnr: 4, modul: "d9-satzglieder", nr: 1, kurz: "Satzglieder",
+  titel: "Satzglieder bestimmen", einheit: "Sätzen",
+  hinweis: "Ein Satz zählt, wenn du alle Satzglieder darin richtig bestimmt hast.",
+  aufgaben: sentences.map(function (satz, i) { return { id: "s" + i, teil: "Sätze", kurz: String(i + 1), text: satz.map(function (w) { return w[0]; }).join(" ") }; }),
+  anker: document.getElementById("scoreboard")
+});
 </script>
 </body>
 </html>

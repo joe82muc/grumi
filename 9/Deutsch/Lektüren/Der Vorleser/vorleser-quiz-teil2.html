@@ -1026,7 +1026,7 @@
           answered++;
 
           const isCorrect = btn.dataset.correct === 'true';
-          if (isCorrect) correctCount++;
+          if (isCorrect) { correctCount++; if (window.Lernstand) Lernstand.geloest('q' + card.dataset.q); }
 
           buttons.forEach((b) => {
             b.disabled = true;
@@ -1051,6 +1051,20 @@
       window.location.reload();
     });
   })();
+</script>
+<script src="../../../../js/lernstand.js"></script>
+<script>
+/* Lernstand mit Code: Anmeldung, Meldung richtig gelöster Aufgaben, „Das fehlt dir noch“ (js/lernstand.js) */
+(function () {
+  var karten = Array.prototype.slice.call(document.querySelectorAll(".card[data-q]"));
+  karten.forEach(function (c) { c.id = "q" + c.dataset.q; });
+  if (window.Lernstand) Lernstand.seite({
+    kurs: "d9", bereich: "Lektüre: Der Vorleser", bnr: 5, modul: "d9-vorleser-2", nr: 2, kurz: "Teil 2",
+    titel: "Der Vorleser – Teil 2", einheit: "Fragen",
+    aufgaben: karten.map(function (c, i) { var t = c.querySelector(".q-text"); return { id: c.id, teil: "Fragen", kurz: String(i + 1), text: t ? t.textContent.trim() : "" }; }),
+    anker: document.querySelector(".chapter")
+  });
+})();
 </script>
 </body>
 </html>

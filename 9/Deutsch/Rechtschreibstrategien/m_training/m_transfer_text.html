@@ -63,10 +63,20 @@ input{background:#202838;color:var(--text);border:1px solid #33405a;border-radiu
 </div>
 </main>
 <script>
-const S={pts:0,done:new Set()};const MAX=16;function upd(){document.getElementById('score').textContent=S.pts;}function fin(id,p){if(S.done.has(id))return;S.done.add(id);S.pts+=p;upd();}
+const S={pts:0,done:new Set()};const MAX=16;function upd(){document.getElementById('score').textContent=S.pts;}function fin(id,p){if(S.done.has(id))return;S.done.add(id);if(p>0&&window.Lernstand)Lernstand.geloest(id);S.pts+=p;upd();}
 function mc(btn,id,opt,ok){const ex=document.getElementById(id);if(ex.dataset.done)return;const retry=ex.dataset.retry==="1";const fb=ex.querySelector('.fb');if(ok){btn.classList.add('ok');ex.dataset.done="1";[...ex.querySelectorAll('button')].forEach(b=>b.disabled=true);const p=retry?1:2;fb.textContent="Richtig! +"+p;fin(id,p);}else{btn.classList.add('bad');btn.disabled=true;if(!retry){ex.dataset.retry="1";fb.textContent="Noch einmal versuchen.";}else{ex.dataset.done="1";[...ex.querySelectorAll('button')].forEach(b=>b.disabled=true);fb.textContent="Leider nicht richtig.";fin(id,0);}}}
 function gap(id,inputId,answers,fbId){const ex=document.getElementById(id);if(ex.dataset.done)return;const inp=document.getElementById(inputId);const fb=document.getElementById(fbId);const retry=ex.dataset.retry==="1";const ok=answers.some(a=>a.toLowerCase()===inp.value.trim().toLowerCase());if(ok){inp.classList.add('ok');inp.disabled=true;ex.dataset.done="1";ex.querySelector('.btn').disabled=true;const p=retry?1:2;fb.textContent="Richtig! +"+p;fin(id,p);}else{inp.classList.add('bad');if(!retry){ex.dataset.retry="1";fb.textContent="Noch einmal versuchen.";inp.addEventListener('input',()=>inp.classList.remove('bad'),{once:true});}else{inp.disabled=true;ex.querySelector('.btn').disabled=true;ex.dataset.done="1";fb.textContent="Lösung: "+answers[0];fin(id,0);}}}
 upd();
+</script>
+<script src="../../../../js/lernstand.js"></script>
+<script>
+/* Lernstand mit Code: Anmeldung, Meldung richtig gelöster Aufgaben, „Das fehlt dir noch“ (js/lernstand.js) */
+if (window.Lernstand) Lernstand.seite({
+  kurs: "d9", bereich: "Rechtschreibung: Training", bnr: 2, modul: "d9-rt-transfer-text", nr: 4, kurz: "T4",
+  titel: "M-Training 4: Transfer im Text",
+  auswahl: ".ex", text: ".q", teil: "Aufgaben",
+  anker: document.querySelector(".ex")
+});
 </script>
 </body>
 </html>

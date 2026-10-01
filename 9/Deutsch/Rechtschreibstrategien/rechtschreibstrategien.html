@@ -992,7 +992,7 @@ function toggleBlock(header) {
 // ─── Score system ─────────────────────────────────────
 function awardPoints(exId, pts, strategyId) {
   if (state.answered.has(exId)) return 0;
-  state.answered.add(exId);
+  state.answered.add(exId); if (pts > 0 && window.Lernstand) Lernstand.geloest(exId);
   state.points += pts;
   const sid = 's' + strategyId;
   if (!state.strategyPoints[sid]) state.strategyPoints[sid] = 0;
@@ -1229,6 +1229,17 @@ function resetAll() {
 // ─── Init ─────────────────────────────────────────────
 countMax();
 updateScoreUI();
+</script>
+<script src="../../../js/lernstand.js"></script>
+<script>
+/* Lernstand mit Code: Anmeldung, Meldung richtig gelöster Aufgaben, „Das fehlt dir noch“ (js/lernstand.js) */
+if (window.Lernstand) Lernstand.seite({
+  kurs: "d9", bereich: "Rechtschreibung: Strategien", bnr: 1, modul: "d9-rs-alle", nr: 14, kurz: "Alle",
+  titel: "Alle Strategien auf einer Seite",
+  auswahl: ".exercise", text: ".ex-prompt",
+  teil: function (el) { var m = /^ex-s(\d+)/.exec(el.id); return m ? "Strategie " + m[1] : "Aufgaben"; },
+  anker: document.querySelector(".exercise")
+});
 </script>
 </body>
 </html>

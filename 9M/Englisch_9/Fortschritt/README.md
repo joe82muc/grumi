@@ -4,7 +4,7 @@
 
 ### Übersicht (`index.html`)
 
-- Gleicher Aufbau und gleiche Farben wie Englisch 9R (Blue Line: Cyan-Blau, Orange, Rot über `body.blueline` in `css/englisch-extras.css`).
+- Gleicher Aufbau und gleiche Farben wie Englisch 9R (Cyan-Blau, Orange, Rot über `body.e9farben` in `css/englisch-extras.css`).
 - Vier Units nebeneinander mit denselben Icons wie 9R (`images/unit1.png` bis `unit4.png`): Unit 1 Around Australia, Unit 2 Exploring India, Unit 3 South Africa, Unit 4 New Zealand.
 - Unter jeder Unit in dieser Reihenfolge: Wortschatz → Grammatik → Grammatikprobe → Proben (Vokabeltests). Unit 3 und 4 haben zusätzlich „Üben“ mit den vorhandenen Übungen, bei Unit 1 und 2 entfällt dieser Schritt.
 - Darunter „Quali-Vorbereitung und Wiederholung“: Zeiten wiederholen, Mediation, mündliche Prüfung, Picture-based talk, schriftliche Prüfung und sonstige Grammatik. Die letzten beiden sind noch „In Vorbereitung“.
@@ -30,7 +30,7 @@ Die Unit-Seiten `unit3/unit3.html` und `unit4/unit4.html` mit ihren Galerien ble
   - Test-IDs: `e9m-u1-probe` und `e9m-u1-kt-g1` bis `e9m-u1-kt-g4`.
   - Notenschlüssel M-Zug (50 % = Note 4).
   - Freischalten auch zentral über `proben-verwalten.html`.
-- **Vokabeltrainer:** Es gilt der von Englisch 9R (`9R/Englisch/unit1/vokabular/vokabeltrainer.html`, gleiche Unit im Buch). Für Unit 2 wird ebenfalls der 9R-Trainer verlinkt, sobald er fertig ist.
+- **Vokabeltrainer:** Es gilt der von Englisch 9R (`9R/Englisch/unit1/vokabular/vokabeltrainer.html`, gleiche Unit). Für Unit 2 wird ebenfalls der 9R-Trainer verlinkt, sobald er fertig ist.
 - **Vokabeltests:** `unit1/test/vokabeltest.html` (Schüler) und `unit1/test/lehrer.html` (Lehrkraft). Freischalten geht auch zentral über `proben-verwalten.html` (Englisch · Klasse 9M).
   - Es sind dieselben 34 + 34 Wörter wie bei 9R, nur Deutsch → Englisch.
   - Test-IDs `e9m-u1-test1` und `e9m-u1-test2`.

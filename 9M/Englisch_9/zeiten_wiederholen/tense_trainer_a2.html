@@ -673,7 +673,7 @@
       fb.innerHTML = ok
         ? "✅ Richtig – gut erkannt!"
         : "ℹ️ Fast. Richtig ist: <span class=\"sol\">" + esc(correct) + "</span>";
-      markCard(id, ok);
+      markCard(id, ok); if(ok&&window.Lernstand)Lernstand.geloest(id);
       if(ok)sc.a.r++;else sc.a.w++;updSc("a"); syncTenseProgress();
     }
 
@@ -715,7 +715,7 @@
       fb.innerHTML = ok
         ? "✅ Richtig – super gemacht!"
         : "ℹ️ Noch nicht ganz. Richtig ist: <span class=\"sol\">" + esc(answers.map(showAns).join(" / ")) + "</span>";
-      ans[id]=true; markCard(id, ok); lockB(id); if(ok)sc.b.r++;else sc.b.w++;updSc("b"); syncTenseProgress();
+      ans[id]=true; markCard(id, ok); if(ok&&window.Lernstand)Lernstand.geloest(id); lockB(id); if(ok)sc.b.r++;else sc.b.w++;updSc("b"); syncTenseProgress();
     }
     function showB(id,answers){
       if(ans[id])return;
@@ -787,7 +787,7 @@
           + (need.length ? " Baue eines dieser Wörter ein: <span class=\"sol\">" + esc(need.join(", ")) + "</span>" : "")
           + " Der Button „KI-Hilfe“ erklärt dir, was du ändern musst.";
       }
-      ans[id]=true; markCard(id, ok); lockC(id); if(ok)sc.c.r++;else sc.c.w++; updSc("c"); syncTenseProgress();
+      ans[id]=true; markCard(id, ok); if(ok&&window.Lernstand)Lernstand.geloest(id); lockC(id); if(ok)sc.c.r++;else sc.c.w++; updSc("c"); syncTenseProgress();
     }
     async function aiHelp(id,t){
       const inp=document.getElementById(id+"i"), out=document.getElementById(id+"ai");
@@ -806,9 +806,9 @@
       ans[id]=true; markCard(id, true); lockC(id); sc.c.w++; updSc("c"); syncTenseProgress();
     }
 
-    function resetA(){sc.a={r:0,w:0};updSc("a"); syncTenseProgress();Object.keys(ans).filter(k=>k.startsWith("a")).forEach(k=>delete ans[k]);renderA();}
-    function resetB(){sc.b={r:0,w:0};updSc("b"); syncTenseProgress();Object.keys(ans).filter(k=>k.startsWith("b")).forEach(k=>delete ans[k]);renderB();}
-    function resetC(){sc.c={r:0,w:0};updSc("c"); syncTenseProgress();Object.keys(ans).filter(k=>k.startsWith("c")).forEach(k=>delete ans[k]);renderC();}
+    function resetA(){sc.a={r:0,w:0};updSc("a"); syncTenseProgress();Object.keys(ans).filter(k=>k.startsWith("a")).forEach(k=>delete ans[k]);renderA();if(window.Lernstand)Lernstand.markieren();}
+    function resetB(){sc.b={r:0,w:0};updSc("b"); syncTenseProgress();Object.keys(ans).filter(k=>k.startsWith("b")).forEach(k=>delete ans[k]);renderB();if(window.Lernstand)Lernstand.markieren();}
+    function resetC(){sc.c={r:0,w:0};updSc("c"); syncTenseProgress();Object.keys(ans).filter(k=>k.startsWith("c")).forEach(k=>delete ans[k]);renderC();if(window.Lernstand)Lernstand.markieren();}
 
     renderOverview(); renderA(); renderB(); renderC(); updSc("a"); updSc("b"); updSc("c");
   </script>
@@ -828,5 +828,17 @@
     </div>
   </div>
 </footer>
+<script src="../../../js/lernstand.js"></script>
+<script>
+/* Lernstand mit Code: Anmeldung, Meldung richtig gelöster Aufgaben, „Das fehlt dir noch“ (js/lernstand.js) */
+if (window.Lernstand) Lernstand.seite({
+  kurs: "e9", bereich: "Zeiten wiederholen", bnr: 5,
+  modul: "e9-zeiten-" + String(key).replace(/[^a-z0-9]+/gi, "-").toLowerCase(), nr: Object.keys(DB).indexOf(key) + 1,
+  titel: CFG.title, kurz: String(CFG.title).slice(0, 18),
+  auswahl: "#aList > [id], #bList > [id], #cList > [id]", text: ".q",
+  teil: function (el) { return "Teil " + el.id.charAt(0).toUpperCase(); },
+  anker: document.getElementById("level-a")
+});
+</script>
 </body>
 </html>
