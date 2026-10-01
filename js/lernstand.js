@@ -13,7 +13,9 @@
  * Übungsseite:  Lernstand.seite({ kurs, bereich, bnr, modul, nr, titel, kurz, anker,
  *                                 aufgaben: [{ id, teil, text, kurz, label?, el? }]   oder   auswahl: "CSS-Selektor", text: "Selektor", teil: "…",
  *                                 mehrGeloest: function (ids) {…}   (Stand von einem anderen Gerät übernehmen),
- *                                 dialog: false   (Seite meldet selbst an, z. B. Deutsch 7) })
+ *                                 dialog: false   (Seite meldet selbst an, z. B. Deutsch 7),
+ *                                 fehlerGeladen: function (f) {…}   (Fehlerwörter vom Server, Vokabeltrainer) })
+ *               Lernstand.fehlerMelden({ wort: [falsch, richtig] })   Fehlerwörter mitschicken
  *               Lernstand.geloest(id)   nach einer richtig gelösten Aufgabe
  *               Lernstand.markieren()   nach einem Neuaufbau der Aufgaben
  * Übersicht:    Lernstand.uebersicht({ kurs, module: [{ id, titel, href }], anker })
@@ -278,6 +280,8 @@
     // Angaben zum Modul mitspeichern: Geht die Meldung erst später von einer anderen Seite raus,
     // kennt der Server das Modul trotzdem (sonst würde er sie als unbekannt ablehnen)
     if (metaVon[modul]) e.meta = metaVon[modul];
+    // Fehlerwörter der Vokabeltrainer: immer die ganze Liste des Moduls
+    if (S && S.modul === modul && S.fehler) e.fehler = S.fehler;
     var kat = katalogFuerSenden(modul);
     if (kat) { e.katalog = kat.k; e.kh = kat.h; }
     q[modul] = e;
@@ -296,6 +300,7 @@
       var body = { code: schueler.code, klasse: schueler.klasse, modul: modul, geloest: eintrag.geloest, gesamt: eintrag.gesamt };
       if (eintrag.meta) body.meta = eintrag.meta;
       if (eintrag.katalog) body.katalog = eintrag.katalog;
+      if (eintrag.fehler) body.fehler = eintrag.fehler;
       anfrage("/melden", body).then(function (data) {
         if (data.ok || data.status === 400 || data.status === 404 || data.status === 409) {
           var jetzt = warteschlange();
@@ -358,6 +363,7 @@
       if (data.status === 404) { codeUngueltig(); return; }
       if (!data.ok) return;
       var f = (data.fortschritt && data.fortschritt[cfg.modul]) || { g: [], t: 0 }, neu = [];
+      if (typeof cfg.fehlerGeladen === "function") { try { cfg.fehlerGeladen(f.f || {}); } catch (_e) {} }
       f.g.forEach(function (id) { if (!S.geloest[id] && ids().indexOf(id) >= 0) { S.geloest[id] = 1; neu.push(id); } });
       if (neu.length) {
         schreib(key(cfg.modul), JSON.stringify(S.geloest));
@@ -502,8 +508,16 @@
     }).catch(function () { zeichnen({}, {}, false); }).then(senden);
   }
 
+  // Fehlerwörter (Vokabeltrainer, js/vokabel-extras.js): ganze Liste { wort: [falsch, richtig hintereinander] }
+  function fehlerMelden(liste) {
+    if (!S || !schueler) return;
+    S.fehler = liste || {};
+    vormerken(S.modul, Object.keys(S.geloest), S.aufgaben.length);
+  }
+
   global.Lernstand = {
     get schueler() { return schueler; },
-    seite: seite, geloest: geloest, markieren: markieren, uebersicht: uebersicht, anmelden: anmeldeDialog, abmelden: abmelden
+    seite: seite, geloest: geloest, markieren: markieren, uebersicht: uebersicht, anmelden: anmeldeDialog, abmelden: abmelden,
+    fehlerMelden: fehlerMelden
   };
 })(window);

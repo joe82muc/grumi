@@ -108,9 +108,9 @@
         <button class="pill" onclick="setMode('type',this)">Tippen</button>
       </div>
       <div class="pill-group">
-        <button class="pill active" onclick="setDir('random',this)">Zufällig</button>
+        <button class="pill" onclick="setDir('random',this)">Zufällig</button>
         <button class="pill" onclick="setDir('en-de',this)">EN → DE</button>
-        <button class="pill" onclick="setDir('de-en',this)">DE → EN</button>
+        <button class="pill active" onclick="setDir('de-en',this)">DE → EN</button>
       </div>
     </div>
 
@@ -284,7 +284,7 @@ const vocab = [
   {en:"enclosed",de:"beigefügt; anbei",pron:"ɪnˈkləʊzd",topic:"writing"}
 ];
 
-let mode='mc', dirSetting='random', filterTopic='all';
+let mode='mc', dirSetting='de-en', filterTopic='all';
 let queue=[], current=null, right=0, wrong=0, direction='en-de', answered=false;
 let ttsUnlocked = false;
 let fallbackAudio = null;
@@ -340,9 +340,9 @@ function setFilter(f, btn){
   restart();
 }
 
-function restart(){
+function restart(nurDiese){
   right=0; wrong=0; updateScore();
-  queue=shuffle(filteredVocab());
+  queue=shuffle(nurDiese && nurDiese.length ? nurDiese : filteredVocab());
   document.getElementById('result').style.display='none';
   document.getElementById('quiz-card').style.display='block';
   document.querySelector('.progress-wrap').style.display='block';
@@ -575,8 +575,8 @@ function checkChoice(btn,chosen,correct){
   if(answered) return;
   answered=true;
   document.querySelectorAll('.choice').forEach(b=>{b.disabled=true;if(b.textContent===correct)b.classList.add('correct');});
-  if(chosen===correct){ btn.classList.add('correct'); showFeedback(true); right++; lsWort(current); speak(); }
-  else { btn.classList.add('wrong'); showFeedback(false,correct); wrong++; }
+  if(chosen===correct){ btn.classList.add('correct'); showFeedback(true); right++; lsWort(current); vxRichtig(current); speak(); }
+  else { btn.classList.add('wrong'); showFeedback(false,correct); wrong++; vxFalsch(current); }
   updateScore(); showNextBtn();
 }
 
@@ -600,13 +600,13 @@ function checkType(){
   const vars=correct.split(/[;,]/).map(norm).filter(Boolean);
   const ok=vars.some(v=>norm(val)===v);
   answered=true; inp.disabled=true; document.getElementById('hint-btn').disabled=true;
-  if(ok){ inp.classList.add('correct'); showFeedback(true); right++; lsWort(current); speak(); }
-  else { inp.classList.add('wrong'); showFeedback(false,correct); wrong++; }
+  if(ok){ inp.classList.add('correct'); showFeedback(true); right++; lsWort(current); vxRichtig(current); speak(); }
+  else { inp.classList.add('wrong'); showFeedback(false,correct); wrong++; vxFalsch(current); }
   updateScore(); showNextBtn();
 }
 
 function showNextBtn(){ document.getElementById('skip-btn').style.display='none'; document.getElementById('next-btn').style.display=''; }
-function skip(){ if(answered) return; answered=true; const c=direction==='en-de'?current.de:current.en; showFeedback(false,c); wrong++; updateScore(); showNextBtn(); }
+function skip(){ if(answered) return; answered=true; const c=direction==='en-de'?current.de:current.en; showFeedback(false,c); wrong++; vxFalsch(current); updateScore(); showNextBtn(); }
 function showFeedback(ok,correct){ const el=document.getElementById('feedback'); el.className='feedback '+(ok?'good':'bad'); el.textContent=ok?'✅ Richtig!':'❌ Richtig: '+correct; }
 function unlockTTS(){
   if (ttsUnlocked || !("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined") return;
@@ -631,25 +631,8 @@ function getEnglishVoice(){
   );
 }
 
-function playAudioFallback(text){
-  return new Promise((resolve, reject) => {
-    try{
-      if(!fallbackAudio){
-        fallbackAudio = new Audio();
-      }
-      const q = encodeURIComponent(text);
-      fallbackAudio.src = "https://translate.google.com/translate_tts?ie=UTF-8&tl=en&client=tw-ob&q=" + q;
-      fallbackAudio.onended = () => resolve(true);
-      fallbackAudio.onerror = () => reject(new Error("audio-fallback-error"));
-      const p = fallbackAudio.play();
-      if (p && typeof p.then === "function") {
-        p.then(() => resolve(true)).catch(reject);
-      }
-    }catch(e){
-      reject(e);
-    }
-  });
-}
+// Kein Ersatz über Google mehr (Datenschutz): Server-Stimme oder Gerätestimme, sonst Hinweis
+function playAudioFallback(text){ return Promise.reject(new Error("kein-ersatz")); }
 
 function speak(){
   if(!current) return;
@@ -763,10 +746,20 @@ restart();
     </div>
   </div>
 </footer>
+<script src="../../../js/vokabel-extras.js"></script>
 <script src="../../../js/lernstand.js"></script>
 <script>
 /* Lernstand mit Code: Anmeldung, Meldung richtig gelöster Aufgaben, „Das fehlt dir noch“ (js/lernstand.js) */
 function lsWort(w) { if (window.Lernstand && w) Lernstand.geloest("w" + vocab.indexOf(w)); }
+/* Fehlerwörter, Stimmenwahl und Sprachausgabe (js/vokabel-extras.js) */
+function vxFalsch(w) { if (window.VokabelExtras && w) VokabelExtras.falsch(w); }
+function vxRichtig(w) { if (window.VokabelExtras && w) VokabelExtras.richtig(w); }
+if (window.VokabelExtras) VokabelExtras.init({
+  modul: "e9-u4-vokabeln", vocab: vocab, stimme: "en-US-JennyNeural",
+  ueben: function (liste) { restart(liste); },
+  vorAntwort: function () { return direction === "de-en" && !answered; },
+  anker: document.getElementById("filter-row")
+});
 (function () {
   var dek = document.createElement("textarea");
   function text(t) { dek.innerHTML = String(t || ""); return dek.value; }
@@ -776,9 +769,11 @@ function lsWort(w) { if (window.Lernstand && w) Lernstand.geloest("w" + vocab.in
     titel: "Vokabeltrainer", einheit: "Wörtern",
     hinweis: "Ein Wort zählt, wenn du es beim Ankreuzen oder Schreiben richtig beantwortest.",
     aufgaben: vocab.map(function (w, i) { return { id: "w" + i, teil: themen[w.topic] || "Wörter", kurz: text(w.en).slice(0, 24), text: text(w.en) + " – " + text(w.de) }; }),
-    anker: document.getElementById("filter-row")
+    anker: document.getElementById("filter-row"),
+    fehlerGeladen: function (f) { if (window.VokabelExtras) VokabelExtras.vomServer(f); }
   });
 })();
+if (window.VokabelExtras) speakTextViaAzure = function (t) { return VokabelExtras.sprechen(t); };
 </script>
 </body>
 </html>

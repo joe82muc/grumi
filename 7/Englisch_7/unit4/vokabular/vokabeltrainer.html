@@ -322,9 +322,9 @@
       <div class="ctl">
         <span class="ctl-cap">Richtung</span>
         <div class="pill-group" id="dir-group">
-          <button class="pill active" data-dir="random">Zuf&auml;llig</button>
+          <button class="pill" data-dir="random">Zuf&auml;llig</button>
           <button class="pill" data-dir="en-de">EN &rarr; DE</button>
-          <button class="pill" data-dir="de-en">DE &rarr; EN</button>
+          <button class="pill active" data-dir="de-en">DE &rarr; EN</button>
         </div>
       </div>
     </div>
@@ -629,7 +629,7 @@ const topicShort = {
 const TOPIC_KEYS = ["intro","topic1","comparing","topic2","numbers","muchmany","text","film","more","celebrations","writing","beae"];
 
 /* ---------- Zustand ---------- */
-let mode = 'mc', dirSetting = 'random', filterTopic = 'all';
+let mode = 'mc', dirSetting = 'de-en', filterTopic = 'all';
 let needSetting = 1;      // wie viele Bedeutungen verlangt werden (R5)
 let retryGiven = false;   // zweiter Versuch bei zu wenigen Bedeutungen
 let queue = [], current = null, right = 0, wrong = 0, direction = 'en-de', answered = false;
@@ -1077,14 +1077,14 @@ function showHint(){
 
 /* ---------- Auswertung einer Karte ---------- */
 function registerRight(typoOf){
-  right++; lsWort(current);
+  right++; lsWort(current); vxRichtig(current);
   showFeedback(true, null, typoOf);
   showExample();
   speak();
   finishCard();
 }
 function registerWrong(correct){
-  wrong++;
+  wrong++; vxFalsch(current);
   if(!mistakes.includes(current)) mistakes.push(current);
   showFeedback(false, correct);
   showExample();
@@ -1129,7 +1129,7 @@ $('retry-hard-btn').addEventListener('click', () => {
 $('flash-inner').addEventListener('click', () => $('flash').classList.toggle('flipped'));
 $('flash-known').addEventListener('click', () => { right++; updateScore(); nextCard(); });
 $('flash-again').addEventListener('click', () => {
-  wrong++;
+  wrong++; vxFalsch(current);
   if(!mistakes.includes(current)) mistakes.push(current);
   // Wort kommt später in der Runde nochmal
   queue.splice(Math.max(0, queue.length - 3), 0, current);
@@ -1270,18 +1270,6 @@ async function speakViaAzure(text){
   });
 }
 
-function playAudioFallback(text){
-  return new Promise((resolve, reject) => {
-    try{
-      if(!fallbackAudio) fallbackAudio = new Audio();
-      fallbackAudio.src = 'https://translate.google.com/translate_tts?ie=UTF-8&tl=en&client=tw-ob&q=' + encodeURIComponent(text);
-      fallbackAudio.onended = () => resolve(true);
-      fallbackAudio.onerror = () => reject(new Error('audio-fallback-error'));
-      const p = fallbackAudio.play();
-      if(p && typeof p.then === 'function') p.then(() => resolve(true)).catch(reject);
-    }catch(e){ reject(e); }
-  });
-}
 
 function speakBrowser(text){
   return new Promise((resolve, reject) => {
@@ -1313,9 +1301,10 @@ function speakableText(word){
 
 async function speakText(text){
   const clean = speakableText(text);
-  try{ await speakViaAzure(clean); return; }catch(e){}
-  try{ await speakBrowser(clean); return; }catch(e){}
-  try{ await playAudioFallback(clean); }catch(e){
+  try{
+    if(window.VokabelExtras){ await VokabelExtras.sprechen(clean); return; }
+    await speakBrowser(clean);
+  }catch(e){
     const fb = $('feedback');
     if(fb && mode !== 'flash'){ fb.className = 'feedback bad'; fb.textContent = 'Audio ist hier leider nicht verfügbar.'; }
   }
@@ -1345,10 +1334,21 @@ buildFilterButtons();
 syncNeedUI();
 restart();
 </script>
+<script src="../../../../js/vokabel-extras.js"></script>
 <script src="../../../../js/lernstand.js"></script>
 <script>
 /* Lernstand mit Code: Anmeldung, Meldung richtig gelöster Aufgaben, „Das fehlt dir noch“ (js/lernstand.js) */
 function lsWort(w) { if (window.Lernstand && w) Lernstand.geloest("w" + vocab.indexOf(w)); }
+/* Fehlerwörter, Stimmenwahl und Sprachausgabe (js/vokabel-extras.js) */
+function vxFalsch(w) { if (window.VokabelExtras && w) VokabelExtras.falsch(w); }
+function vxRichtig(w) { if (window.VokabelExtras && w) VokabelExtras.richtig(w); }
+if (window.VokabelExtras) VokabelExtras.init({
+  modul: "e7-u4-vokabeln", vocab: vocab, stimme: "en-GB-SoniaNeural",
+  ueben: function (liste) { restart(liste); },
+  vorAntwort: function () { return direction === "de-en" && !answered; },
+  anker: document.getElementById("filter-row"),
+  beispiel: { box: "#example-box", frage: "#qword", klasse: "grade7", wort: function () { return current; } }
+});
 (function () {
   var dek = document.createElement("textarea");
   function text(t) { dek.innerHTML = String(t || ""); return dek.value; }
@@ -1358,9 +1358,14 @@ function lsWort(w) { if (window.Lernstand && w) Lernstand.geloest("w" + vocab.in
     titel: "Vokabeltrainer Unit 4", einheit: "Wörtern",
     hinweis: "Ein Wort zählt, wenn du es beim Ankreuzen oder Schreiben richtig beantwortest.",
     aufgaben: vocab.map(function (w, i) { return { id: "w" + i, teil: themen[w.topic] || "Wörter", kurz: text(w.en).slice(0, 24), text: text(w.en) + " – " + text(w.de) }; }),
-    anker: document.getElementById("filter-row")
+    anker: document.getElementById("filter-row"),
+    fehlerGeladen: function (f) { if (window.VokabelExtras) VokabelExtras.vomServer(f); }
   });
 })();
+if (window.VokabelExtras && typeof showExample === "function") {
+  var vxBuchBeispiel = showExample;
+  showExample = function () { if (!VokabelExtras.kiSatzAktiv()) vxBuchBeispiel(); };
+}
 </script>
 </body>
 </html>

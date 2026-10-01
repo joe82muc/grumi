@@ -24,7 +24,7 @@
   var doc = global.document;
   var API = "", PW = "", box = null, PROBEN = null;
   var KLASSEN = [], KURSE = [], CODES = [], SPEICHER = "", KLASSE = "", ANSICHT = "";
-  var DATEN = null, BEREICH = "", SICHT = [], OFFEN = {}, AUSWERTUNG_MODUL = "", ALLE_AUFGABEN = false;
+  var DATEN = null, BEREICH = "", SICHT = [], OFFEN = {}, AUSWERTUNG_MODUL = "", ALLE_AUFGABEN = false, FEHLER_MODUL = "";
   var KURZ = 12; // so viele Aufgaben zeigt die Klassenauswertung zuerst
   var FACH_ICON = { nt: "🔬", d: "📖", e: "💬", i: "💻" };
   // Startseite des Fachs für die Kinder (je Zug, wenn es getrennte Seiten gibt)
@@ -404,6 +404,15 @@
         '<div class="lf-werkzeug"><label for="lf-modul" style="margin:0">Übung</label><select id="lf-modul">' +
         M.map(function (m) { return '<option value="' + esc(m.id) + '"' + (m.id === AUSWERTUNG_MODUL ? " selected" : "") + ">" + esc(kurzName(m)) + ": " + esc(m.titel) + "</option>"; }).join("") +
         "</select></div>" + auswertung(liste, AUSWERTUNG_MODUL);
+      // Vokabeltrainer: Fehlerwörter der Klasse
+      var mitFehlern = M.filter(function (m) { return liste.some(function (k) { var p = k.module[m.id]; return p && p.f && Object.keys(p.f).length; }); });
+      if (mitFehlern.length) {
+        if (!mitFehlern.some(function (m) { return m.id === FEHLER_MODUL; })) FEHLER_MODUL = mitFehlern[0].id;
+        h += '<h3 class="lf-h3">Fehlerwörter: Was sitzt noch nicht?</h3>' +
+          (mitFehlern.length > 1 ? '<div class="lf-werkzeug"><label for="lf-fmodul" style="margin:0">Trainer</label><select id="lf-fmodul">' +
+            mitFehlern.map(function (m) { return '<option value="' + esc(m.id) + '"' + (m.id === FEHLER_MODUL ? " selected" : "") + ">" + esc(kurzName(m)) + ": " + esc(m.titel) + "</option>"; }).join("") + "</select></div>" : "") +
+          fehlerAuswertung(liste, FEHLER_MODUL);
+      }
     }
     teil.innerHTML = h;
 
@@ -420,6 +429,8 @@
     });
     var mehr = $("lf-mehr");
     if (mehr) mehr.addEventListener("click", function () { ALLE_AUFGABEN = !ALLE_AUFGABEN; fachZeichnen(teil); });
+    var fWahl = $("lf-fmodul");
+    if (fWahl) fWahl.addEventListener("change", function (e) { FEHLER_MODUL = e.target.value; fachZeichnen(teil); });
     $("lf-reload").addEventListener("click", function () { fachLaden(teil); });
     $("lf-csv").addEventListener("click", csv);
   }
@@ -473,6 +484,27 @@
       }).join("") + "</div>" +
       (zeilen.length > KURZ ? '<button class="btn btn-ghost btn-sm lf-mehr" id="lf-mehr" type="button">' +
         (ALLE_AUFGABEN ? "Nur die " + KURZ + " schwächsten Aufgaben zeigen" : "Alle " + zeilen.length + " Aufgaben zeigen") + "</button>" : "");
+  }
+
+  // Fehlerwörter eines Vokabeltrainers: wie viele Kinder ein Wort falsch hatten, wie oft, wie viele es noch üben
+  function fehlerAuswertung(liste, m) {
+    var k = DATEN.katalog[m] || {}, woerter = {};
+    liste.forEach(function (kind) {
+      var f = (kind.module[m] || {}).f || {};
+      Object.keys(f).forEach(function (id) {
+        var w = woerter[id] = woerter[id] || { id: id, kinder: 0, mal: 0, offen: 0 };
+        w.kinder++; w.mal += f[id][0]; if (f[id][1] < 2) w.offen++;
+      });
+    });
+    var reihe = Object.keys(woerter).map(function (id) { return woerter[id]; })
+      .sort(function (a, b) { return b.offen - a.offen || b.kinder - a.kinder || b.mal - a.mal; }).slice(0, 15);
+    var wort = function (id) { var l = k[id] ? k[id][0] : id; var i = l.indexOf(": "); return i >= 0 ? l.slice(i + 2) : l; };
+    return '<p class="sub" style="margin-top:.7rem">Ein Wort kommt in die Fehlerliste eines Kindes, wenn es falsch angeklickt, falsch geschrieben oder übersprungen wurde, und verschwindet nach zweimal richtig hintereinander. Oben stehen die Wörter, die die meisten Kinder noch üben.</p>' +
+      '<div class="lf-rang">' + reihe.map(function (w) {
+        var pct = liste.length ? Math.round(w.offen / liste.length * 100) : 0;
+        return '<div class="lf-rang-z"><span>' + esc(wort(w.id)) + ' <span class="lf-leer">· ' + w.kinder + (w.kinder === 1 ? " Kind" : " Kinder") + ", " + w.mal + "× falsch</span></span>" +
+          '<div class="lf-bar lf-g0"><i style="width:' + pct + '%"></i></div><b title="noch in der Fehlerliste">' + w.offen + " offen</b></div>";
+      }).join("") + "</div>";
   }
 
   function csv() {

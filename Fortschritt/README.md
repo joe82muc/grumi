@@ -78,9 +78,38 @@ Nicht dabei: Mathe und WiB (so gewünscht), Proben (eigene Freischaltung), Argum
 - Englisch 7: „Aufgaben aus dem Buch“ und Seitenzahlen in Kommentaren entfernt.
 - NT-7-Proben erscheinen nur bei 7M (wie auf der NT-Übersicht).
 
+## Stand 02.10.2026, mittags: Deutsch 7 nur mit Code
+
+- Deutsch 7 (Module, Übersicht, Argumentations-Führerschein) meldet nur noch mit dem 3-stelligen Code an. Wer schon
+  mit Code angemeldet ist (z. B. aus Englisch), startet ohne Fenster. Der Server (`/api/de7-argument/start`) nimmt den
+  Code, das Kind heißt dort „Code 123“. Die Lehrerseite `7M/Deutsch/lehrer.html` zeigt den Namen aus der Namensliste
+  der Lehrkraft (gleicher Browser wie die Verwaltung).
+
+## Stand 02.10.2026, nachmittags: Vokabeltrainer und Vokabeltests
+
+- **Alle 11 Vokabeltrainer** (7 Unit 1–4, 8R Unit 1–4, 9R Unit 1, 9M Unit 3 und 4), gemeinsamer Baustein
+  `js/vokabel-extras.js`:
+  - Richtung **Deutsch → Englisch voreingestellt** (umschaltbar). „🔊 anhören“ ist vor der Antwort gesperrt, weil es
+    die Lösung verraten würde.
+  - **📕 Meine Fehlerwörter**: falsch angeklickt, falsch geschrieben, übersprungen oder „Nochmal“ → in die Liste;
+    nach 2× richtig hintereinander wieder raus. Liste ansehen (mit 🔊) und „Nur diese Wörter üben“. Mit Code auf dem
+    Server (`fehler` beim Melden), auf jedem Gerät da; ohne Code nur auf dem Gerät.
+  - **Stimme wählen**: Azure-Stimmen vom Server (Sonia/Ryan britisch, Jenny/Guy amerikanisch) oder englische Stimmen
+    des Geräts. Antwortet der Server nicht in 2,5 s, spricht das Gerät. Google-Sprachausgabe entfernt.
+  - **KI-Beispielsatz** jetzt auch in Klasse 7 (Niveau A1/A2, Art wählbar).
+- **Server**: Azure-Audio wird je Wort zwischengespeichert (`GET /api/speech/speak`, Browser darf 30 Tage cachen),
+  nur erlaubte Stimmen, höchstens 400 neue Wörter je IP und Stunde.
+- **Lehrkraft**: unter Englisch „Fehlerwörter: Was sitzt noch nicht?“ je Vokabeltrainer (wie viele Kinder, wie oft
+  falsch, wie viele noch offen).
+- **Vokabeltests (Proben)**: nur noch Deutsch → Englisch. Die alten gemischten Tests Englisch 7 (`e7-u1-test1/2`,
+  ersetzt durch 7M/7R) und 8R (`e8r-uN-test1`) sind gelöscht; neu sind `e8r-u1-test2` bis `e8r-u4-test2` mit
+  denselben Wörtern, mehrdeutige deutsche Wörter mit Hinweis („umziehen – in eine andere Wohnung“).
+  Frühere 8R-Fehler „sich selbst“ (herself/itself) sind über Hinweise getrennt.
+
 ## Offen
 
 - **Deutsch 9 Grammatik** (Sprachbetrachtung 1–10) gründlich überarbeiten: Lernseiten mit Merkkästen,
   Basis- und Plus-Aufgaben (M-Zug), Layout wie Deutsch 9. Gemeinsamer Baustein `grammatik.js` geplant.
 - Englisch 7 G1–G4 „Übungen zur Regel“ und Beispielsätze der Vokabeltrainer 7/8R auf Buchnähe prüfen.
+- Vokabeltrainer: Ton auf echten iPads kurz prüfen (der Test-Safari unter Windows hat keine Tonausgabe).
 - Schulleitung/Datenschutzbeauftragte über Upstash informieren (Auftragsverarbeitung).
