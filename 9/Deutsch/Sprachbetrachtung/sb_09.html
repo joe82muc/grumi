@@ -1,132 +1,124 @@
-﻿<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sprachbetrachtung 9: Satzbau und Stil</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#0a0f1e;--surface:#121a2f;--surface2:#1a2542;--line:#314166;--text:#e6eeff;--muted:#9fb1d9;--accent:#5fd3ff;--ok:#4caf50;--bad:#ef5350}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Outfit',sans-serif;background:radial-gradient(900px 450px at 10% -20%,rgba(95,211,255,.18),transparent 55%),var(--bg);color:var(--text);min-height:100vh}
-header{padding:24px 16px 18px;text-align:center;border-bottom:1px solid var(--line);background:rgba(10,15,30,.82)}
-header h1{font-size:clamp(1.35rem,3.6vw,2rem);color:var(--accent)}
-header p{color:var(--muted);margin-top:4px}
-#scorebar{position:sticky;top:0;z-index:10;display:flex;gap:12px;align-items:center;padding:10px 14px;background:#0d1427;border-bottom:1px solid var(--line)}
-#progressWrap{flex:1;height:8px;background:#243255;border-radius:999px;overflow:hidden}
-#progressBar{height:100%;width:0;background:linear-gradient(90deg,#4fc3f7,var(--accent));transition:width .25s}
-main{max-width:900px;margin:0 auto;padding:18px 12px 26px}
-.hint{background:var(--surface);border-left:3px solid var(--accent);border:1px solid var(--line);padding:10px 12px;border-radius:0 8px 8px 0;color:var(--muted);margin-bottom:12px}
-.ex{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:10px}
-.q{margin-bottom:8px;line-height:1.45}
-.opts{display:grid;gap:8px}
-button.opt{background:var(--surface2);color:var(--text);border:1px solid #3a4d79;border-radius:8px;padding:9px 10px;text-align:left;cursor:pointer}
-button.opt:hover{border-color:var(--accent)}
-button.opt.ok{border-color:var(--ok);color:#9ae6a0}
-button.opt.bad{border-color:var(--bad);color:#ffb4b4}
-button.opt:disabled{cursor:default;opacity:.9}
-.fb{font-size:.86rem;color:var(--muted);margin-top:6px;min-height:1.1em}
-#summary{display:none;text-align:center;margin-top:16px;padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
-.nav{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:16px}
-.nav a{color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent)}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Satzbau und Stil | Deutsch 9 Grammatik</title>
+  <meta name="description" content="Deutsch 9 Grammatik, Thema 9: grammatisch korrekte Sätze (als/wie, Kasus, Kongruenz), abwechslungsreiche Satzanfänge, Verbal- und Nominalstil, Oberbegriffe und Fremdwörter. Mit Basis- und Plus-Aufgaben.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="grammatik.css">
 </head>
 <body>
-<header>
-  <h1>Sprachbetrachtung 9: Satzbau und Stil</h1>
-  <p>Nominalstil / Verbalstil · 6 Aufgaben</p>
-</header>
-<div id="scorebar">
-  <div><b id="pts">0</b> / 12 Punkte</div>
-  <div id="progressWrap"><div id="progressBar"></div></div>
-  <div id="grade">Note ?</div>
-</div>
-<main>
-  <div class="hint">Verbalstil wirkt oft lebendiger, Nominalstil oft sachlicher.</div>
-  <div id="quiz"></div>
-  <div id="summary"></div>
-  <div class="nav">
-    <a href="sb_08.html">&larr; Zurück</a>
-    <a href="index.html">Übersicht</a>
-    <a href="sb_10.html">Weiter &rarr;</a>
-  </div>
-</main>
-<script>
-const QUESTIONS = [{"q":"Welche Variante ist eher Verbalstil?","correct":1,"options":["Die Durchführung der Messung erfolgte gestern.","Wir führten die Messung gestern durch.","Gestern: Durchführung der Messung."]},{"q":"Nominalstil nutzt häufig ...","correct":1,"options":["mehr Verben","mehr Nomen","nur Adjektive"]},{"q":"Welche Aussage stimmt?","correct":0,"options":["Verbalstil ist oft leichter verständlich.","Nominalstil hat nie Nomen.","Verbalstil vermeidet Prädikate."]},{"q":"Welche Variante ist eher Nominalstil?","correct":1,"options":["Sie traf schnell eine Entscheidung.","Die schnelle Entscheidung der Schülerin überraschte alle.","Sie entschied schnell."]},{"q":"Für einen Bericht in der Schule ist oft sinnvoll ...","correct":0,"options":["klarer Satzbau mit passenden Verben","nur Stichwörter","nur Nominalgruppen"]},{"q":"Welche Formulierung klingt lebendiger?","correct":1,"options":["Die Beobachtung fand statt.","Wir beobachteten das Experiment.","Die Beobachtung wurde durchgeführt."]}];
-const state={pts:0,done:new Set()};
-function grade(p){const pct=Math.round((p/12)*100);if(pct>=92)return 1;if(pct>=81)return 2;if(pct>=67)return 3;if(pct>=50)return 4;if(pct>=30)return 5;return 6;}
-function render(){
-  const root=document.getElementById('quiz');
-  root.innerHTML='';
-  QUESTIONS.forEach(function(q,i){
-    const box=document.createElement('div');box.className='ex';box.id='ex'+i;
-    const qEl=document.createElement('div');qEl.className='q';qEl.textContent=(i+1)+') '+q.q;box.appendChild(qEl);
-    const opts=document.createElement('div');opts.className='opts';
-    q.options.forEach(function(opt,idx){
-      const b=document.createElement('button');b.className='opt';b.textContent=opt;
-      b.onclick=function(){choose(i,idx,b)};opts.appendChild(b);
-    });
-    box.appendChild(opts);
-    const fb=document.createElement('div');fb.className='fb';fb.id='fb'+i;box.appendChild(fb);
-    root.appendChild(box);
+  <div id="app"><noscript><p style="padding:20px">Diese Übungsseite braucht JavaScript.</p></noscript></div>
+  <script src="../../../js/lernstand.js"></script>
+  <script src="grammatik.js"></script>
+  <script>
+  Grammatik.seite({
+    nr: 9,
+    titel: "Satzbau und Stil",
+    lead: "Ein guter Text ist grammatisch richtig und abwechslungsreich. Hier übst du typische Fehlerstellen, bessere Satzanfänge und einen klaren Stil.",
+    ziele: ["Du erkennst grammatisch falsche Sätze und verbesserst sie.", "Du wechselst Satzanfänge ab und vermeidest Wiederholungen.", "Du unterscheidest Verbal- und Nominalstil."],
+    merk: [
+      { t: "Grammatisch korrekt", html: `
+        <ul><li><b>Vergleich:</b> gleich → <i>so … wie</i> (so groß wie ich) · ungleich → <i>…er als</i> (größer als ich)</li>
+        <li><b>Subjekt und Prädikat passen zusammen:</b> <i>Lärm und Hitze <b>stören</b>.</i> · <i>Die Gruppe <b>wartet</b>.</i></li>
+        <li><b>Fall nach Präpositionen:</b>
+          <table><tr><th>Genitiv</th><th>Dativ</th><th>Akkusativ</th></tr>
+          <tr><td>wegen, trotz, während, statt</td><td>mit, bei, nach, seit, von, zu, aus</td><td>für, ohne, gegen, durch, um</td></tr></table></li></ul>
+        <div class="bsp">wegen <b>des</b> Regens · mit <b>dem</b> Bus · für <b>den</b> Bruder</div>`, breit: true },
+      { t: "Satzanfänge abwechseln", html: `
+        <p>Nicht jeder Satz beginnt mit „Dann“ oder dem Subjekt. Stell um oder nutze Verknüpfungswörter:</p>
+        <p><i>zuerst, anschließend, danach, später, schließlich, trotzdem, deshalb, außerdem</i></p>
+        <div class="bsp">Ben packte den Rucksack. <b>Danach</b> fuhr <b>er</b> zum Bahnhof. <b>Dort</b> wartete schon seine Klasse.</div>
+        <p>Wiederholte Namen ersetzt du durch Pronomen (er, sie) oder andere Wörter.</p>` },
+      { t: "Verbalstil und Nominalstil", html: `
+        <p><b>Nominalstil:</b> viele Nomen auf -ung, -heit, -keit – knapp, aber schwer zu lesen.</p>
+        <div class="bsp">Nach Beendigung des Spiels erfolgte die Siegerehrung.</div>
+        <p><b>Verbalstil:</b> mit Verben – lebendig und gut verständlich.</p>
+        <div class="bsp">Als das Spiel zu Ende war, wurden die Sieger geehrt.</div>
+        <p class="merksatz">Für deine Texte meist besser: Verbalstil. Nominalstil passt in Überschriften und Notizen.</p>` },
+      { t: "Wortschatz", html: `
+        <ul><li><b>Oberbegriff:</b> fasst zusammen – Hammer, Zange, Säge → Werkzeug</li>
+        <li><b>Synonym:</b> Wort mit ähnlicher Bedeutung – beginnen / anfangen</li>
+        <li><b>Fremdwort ersetzen:</b> Kontext → Zusammenhang, effektiv → wirksam, positiv → gut, erfreulich</li></ul>` }
+    ],
+    fallen: [
+      "„größer **wie**“ ist falsch – nach der Steigerung kommt **als**: größer als.",
+      "„wegen **dem** Regen“ ist Alltagssprache – geschrieben heißt es „wegen **des** Regens“.",
+      "Zwei Subjekte mit „und“ → Prädikat im Plural: „Ben und Mia **spielen**.“",
+      "„Jeder“, „die Gruppe“, „die Hälfte“ sind Singular: „Jeder der Spieler **bekam** …“"
+    ],
+    basis: [
+      { typ: "wahl", t: "Welcher Satz ist grammatisch korrekt?", quali: true, mischen: true, tipp: "Prüfe Vergleich (als/wie), Fall nach der Präposition und ob Subjekt und Prädikat zusammenpassen.",
+        items: [
+          { o: ["Mein Bruder ist größer als ich.", "Mein Bruder ist größer wie ich.", "Mein Bruder ist so groß als ich."], a: 0 },
+          { o: ["Wegen des Gewitters fiel das Konzert aus.", "Wegen dem Gewitters fiel das Konzert aus.", "Wegen das Gewitter fiel das Konzert aus."], a: 0 },
+          { o: ["Lärm und Hitze stören die Konzentration.", "Lärm und Hitze stört die Konzentration.", "Lärm und Hitze störte die Konzentration."], a: 0 },
+          { o: ["Die Gruppe der Schüler wartet vor dem Eingang.", "Die Gruppe der Schüler warten vor dem Eingang.", "Die Gruppe der Schüler warteten vor dem Eingang."], a: 0 }
+        ] },
+      { typ: "luecke", t: "„als“ oder „wie“?", tipp: "Gleich (so … wie, genauso … wie) → wie. Ungleich (…er) → als.",
+        items: ["Lena ist genauso schnell {{wie|als}} Tom.",
+                "Das Spiel war spannender {{als|wie}} gedacht.",
+                "Er ist nicht so alt {{wie|als}} sein Bruder.",
+                "Heute ist es kälter {{als|wie}} gestern.",
+                "Sie liest lieber {{als|wie}} ich."] },
+      { typ: "zuordnen", t: "Welchen Fall verlangt die Präposition?", tipp: "Probier es mit einem Nomen: wegen des …, mit dem …, für den …",
+        gruppen: ["Genitiv", "Dativ", "Akkusativ"],
+        karten: [["wegen", 0], ["trotz", 0], ["während", 0], ["mit", 1], ["bei", 1], ["nach", 1], ["seit", 1], ["von", 1],
+                 ["für", 2], ["ohne", 2], ["gegen", 2], ["durch", 2]] },
+      { typ: "wahl", t: "Wortschatz: Oberbegriffe und Fremdwörter", quali: true, mischen: true,
+        items: [
+          { f: "Finde den Oberbegriff.", s: "Hammer – Zange – Säge – Schraubenzieher", o: ["Werkzeuge", "Möbel", "Fahrzeuge"], a: 0 },
+          { f: "Finde den Oberbegriff.", s: "Wut – Freude – Angst – Stolz", o: ["Gefühle", "Farben", "Berufe"], a: 0 },
+          { f: "Finde den Oberbegriff.", s: "Geige – Trompete – Schlagzeug", o: ["Musikinstrumente", "Sportgeräte", "Werkzeuge"], a: 0 },
+          { f: "Welches Wort ersetzt das Fremdwort?", s: "In diesem **Kontext** ist die Aussage wichtig.", o: ["Zusammenhang", "Buch", "Raum"], a: 0 },
+          { f: "Welches Wort ersetzt das Fremdwort?", s: "Die neue Methode ist sehr **effektiv**.", o: ["wirksam", "teuer", "langsam"], a: 0 },
+          { f: "Welches Wort ersetzt das Fremdwort?", s: "Die Idee klingt ziemlich **absurd**.", o: ["unsinnig", "spannend", "traurig"], a: 0 }
+        ] },
+      { typ: "bauen", t: "Abwechslung: Stelle so um, dass der Satz mit dem angegebenen Wort beginnt.", tipp: "Das gebeugte Verb bleibt an zweiter Stelle.",
+        items: [
+          { f: "Beginne mit „Am Morgen“.", teile: ["Am Morgen", "packte", "Ben", "seinen Rucksack"] },
+          { f: "Beginne mit „Danach“.", teile: ["Danach", "fuhr", "er", "mit dem Rad", "zum Bahnhof"], l: ["Danach fuhr er zum Bahnhof mit dem Rad"] },
+          { f: "Beginne mit „Dort“.", teile: ["Dort", "wartete", "schon", "seine Klasse"], l: ["Dort wartete seine Klasse schon"] }
+        ] },
+      { typ: "wahl", t: "Verbalstil oder Nominalstil?", tipp: "Viele Nomen auf -ung, -heit, -keit und Wörter wie „erfolgt“ → Nominalstil.",
+        items: [
+          { s: "Die Durchführung der Reparatur erfolgt morgen.", o: ["Verbalstil", "Nominalstil"], a: 1 },
+          { s: "Wir reparieren das Rad morgen.", o: ["Verbalstil", "Nominalstil"], a: 0 },
+          { s: "Zur Vermeidung von Unfällen ist das Tragen eines Helms Pflicht.", o: ["Verbalstil", "Nominalstil"], a: 1 },
+          { s: "Trag einen Helm, damit du dich nicht verletzt.", o: ["Verbalstil", "Nominalstil"], a: 0 }
+        ] }
+    ],
+    plus: [
+      { typ: "umformen", t: "Schreibe die Sätze im Verbalstil.", tipp: "Mach aus den Nomen Verben: Beendigung → beenden, Überqueren → überqueren. Ein Nebensatz mit wenn, als oder nachdem hilft.",
+        items: [
+          { s: "Nach Beendigung des Spiels erfolgte die Siegerehrung.", l: ["Nachdem das Spiel beendet war, wurden die Sieger geehrt.", "Nachdem das Spiel zu Ende war, wurden die Sieger geehrt.", "Als das Spiel vorbei war, wurden die Sieger geehrt.", "Als das Spiel zu Ende war, wurden die Sieger geehrt."] },
+          { s: "Beim Überqueren der Straße ist Vorsicht geboten.", l: ["Wenn man die Straße überquert, muss man vorsichtig sein.", "Wenn du die Straße überquerst, musst du vorsichtig sein."] }
+        ] },
+      { typ: "frei", t: "Überarbeite den kurzen Text: Vermeide die Wiederholungen.",
+        items: [
+          { s: "„Lisa stand auf. Dann frühstückte Lisa. Dann fuhr Lisa zur Schule.“", f: "Schreibe den Text neu: andere Satzanfänge und „sie“ statt „Lisa“.", zeilen: 3,
+            kriterien: ["verschiedene Satzanfänge statt zweimal „Dann“", "„Lisa“ wird teilweise durch „sie“ ersetzt", "Inhalt bleibt gleich"],
+            muster: "^(?!.*\\bdann\\b.*\\bdann\\b)(?!.*\\blisa\\b.*\\blisa\\b.*\\blisa\\b)(?=.*\\bsie\\b).+$",
+            bsp: "Lisa stand auf. Danach frühstückte sie und fuhr anschließend zur Schule." }
+        ] },
+      { typ: "luecke", t: "Wähle die richtige Form nach der Präposition.", tipp: "trotz, während, statt → Genitiv · mit → Dativ · für → Akkusativ",
+        items: ["Trotz {{des schlechten Wetters|dem schlechten Wetter|das schlechte Wetter}} fand das Turnier statt.",
+                "Während {{der Ferien|den Ferien|die Ferien}} jobbt Aylin im Café.",
+                "Wir fahren mit {{dem neuen Bus|den neuen Bus|des neuen Busses}}.",
+                "Das Geschenk ist für {{meinen Bruder|meinem Bruder|meines Bruders}}.",
+                "Statt {{eines Briefes|einem Brief|einen Brief}} schrieb er eine Mail."] },
+      { typ: "wahl", t: "Welcher Satz ist grammatisch korrekt?", quali: true, mischen: true, tipp: "Lies jeden Satz langsam. Achte auf als/wie, dass/das, den Fall und Singular/Plural.",
+        items: [
+          { o: ["Die Ärztin konnte mir besser helfen als das Internet.", "Die Ärztin konnte mir besser helfen wie das Internet.", "Die Ärztin konnte mir besser helfen, wie das Internet."], a: 0 },
+          { o: ["Die Ergebnisse der Umfrage zeigen, dass viele zufrieden sind.", "Die Ergebnisse der Umfrage zeigt, dass viele zufrieden sind.", "Die Ergebnisse der Umfrage zeigen, das viele zufrieden sind."], a: 0 },
+          { o: ["Er erinnerte sich an den Namen seines Lehrers.", "Er erinnerte sich an dem Namen seines Lehrers.", "Er erinnerte sich an den Namen seinem Lehrers."], a: 0 },
+          { o: ["Jeder der Spieler bekam eine Medaille.", "Jeder der Spieler bekamen eine Medaille.", "Jede der Spieler bekamen eine Medaille."], a: 0 }
+        ] }
+    ]
   });
-}
-function updateBar(){
-  document.getElementById('pts').textContent=state.pts;
-  const pct=Math.round((state.pts/12)*100);
-  document.getElementById('progressBar').style.width=pct+'%';
-  document.getElementById('grade').textContent='Note '+grade(state.pts);
-}
-function wrongExplanation(q){
-  if(q && q.explain) return String(q.explain);
-  const correctText = q && q.options && q.options[q.correct] ? q.options[q.correct] : '';
-  return correctText ? ('Richtig wäre: "'+correctText+'".') : 'Achte auf die Regel und den Satzkontext.';
-}
-function choose(i,idx,btn){
-  const id='ex'+i;if(state.done.has(id))return;
-  const ex=document.getElementById(id);const buttons=[].slice.call(ex.querySelectorAll('button.opt'));const fb=document.getElementById('fb'+i);
-  const retry=ex.dataset.retry==='1';
-  const q = QUESTIONS[i];
-  const ok = idx===q.correct;
-  if(ok){
-    btn.classList.add('ok');buttons.forEach(function(b){b.disabled=true});state.done.add(id);if(window.Lernstand)Lernstand.geloest(id);state.pts += retry?1:2;
-    fb.textContent='Richtig! +'+(retry?1:2)+' Punkte';
-    updateBar();checkEnd();
-  }else{
-    btn.classList.add('bad');btn.disabled=true;
-    const expl = wrongExplanation(q);
-    if(!retry){
-      ex.dataset.retry='1';
-      fb.textContent='Nicht ganz. '+expl+' Versuche es noch einmal (noch 1 Punkt möglich).';
-    }
-    else{
-      buttons.forEach(function(b){b.disabled=true});
-      const correctText = q.options[q.correct];
-      if(buttons[q.correct]) buttons[q.correct].classList.add('ok');
-      state.done.add(id);
-      fb.textContent='Leider nicht richtig. '+expl+' Richtige Antwort: "'+correctText+'".';
-      updateBar();checkEnd();
-    }
-  }
-}
-function checkEnd(){
-  if(state.done.size!==QUESTIONS.length)return;
-  const s=document.getElementById('summary');
-  s.style.display='block';
-  s.innerHTML='<h2 style="color:var(--accent);margin-bottom:6px">Fertig!</h2><p>'+state.pts+' / 12 Punkte · Note '+grade(state.pts)+'</p>';
-}
-render();updateBar();
-</script>
-<script src="../../../js/lernstand.js"></script>
-<script>
-/* Lernstand mit Code: Anmeldung, Meldung richtig gelöster Aufgaben, „Das fehlt dir noch“ (js/lernstand.js) */
-if (window.Lernstand) Lernstand.seite({
-  kurs: "d9", bereich: "Sprachbetrachtung", bnr: 3, modul: "d9-sb-09", nr: 9, kurz: "SB9",
-  titel: "Satzbau und Stil",
-  auswahl: ".ex", text: ".q", teil: "Fragen", abNull: true,
-  anker: document.getElementById("quiz")
-});
-</script>
+  </script>
 </body>
 </html>
-

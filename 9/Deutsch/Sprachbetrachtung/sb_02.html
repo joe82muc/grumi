@@ -1,132 +1,134 @@
-﻿<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sprachbetrachtung 2: Satzglieder</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#0a0f1e;--surface:#121a2f;--surface2:#1a2542;--line:#314166;--text:#e6eeff;--muted:#9fb1d9;--accent:#5fd3ff;--ok:#4caf50;--bad:#ef5350}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Outfit',sans-serif;background:radial-gradient(900px 450px at 10% -20%,rgba(95,211,255,.18),transparent 55%),var(--bg);color:var(--text);min-height:100vh}
-header{padding:24px 16px 18px;text-align:center;border-bottom:1px solid var(--line);background:rgba(10,15,30,.82)}
-header h1{font-size:clamp(1.35rem,3.6vw,2rem);color:var(--accent)}
-header p{color:var(--muted);margin-top:4px}
-#scorebar{position:sticky;top:0;z-index:10;display:flex;gap:12px;align-items:center;padding:10px 14px;background:#0d1427;border-bottom:1px solid var(--line)}
-#progressWrap{flex:1;height:8px;background:#243255;border-radius:999px;overflow:hidden}
-#progressBar{height:100%;width:0;background:linear-gradient(90deg,#4fc3f7,var(--accent));transition:width .25s}
-main{max-width:900px;margin:0 auto;padding:18px 12px 26px}
-.hint{background:var(--surface);border-left:3px solid var(--accent);border:1px solid var(--line);padding:10px 12px;border-radius:0 8px 8px 0;color:var(--muted);margin-bottom:12px}
-.ex{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:10px}
-.q{margin-bottom:8px;line-height:1.45}
-.opts{display:grid;gap:8px}
-button.opt{background:var(--surface2);color:var(--text);border:1px solid #3a4d79;border-radius:8px;padding:9px 10px;text-align:left;cursor:pointer}
-button.opt:hover{border-color:var(--accent)}
-button.opt.ok{border-color:var(--ok);color:#9ae6a0}
-button.opt.bad{border-color:var(--bad);color:#ffb4b4}
-button.opt:disabled{cursor:default;opacity:.9}
-.fb{font-size:.86rem;color:var(--muted);margin-top:6px;min-height:1.1em}
-#summary{display:none;text-align:center;margin-top:16px;padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
-.nav{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:16px}
-.nav a{color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent)}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Satzglieder | Deutsch 9 Grammatik</title>
+  <meta name="description" content="Deutsch 9 Grammatik, Thema 2: Satzglieder mit der Umstellprobe finden – Subjekt, Prädikat, Objekte und adverbiale Bestimmungen. Mit Basis- und Plus-Aufgaben.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="grammatik.css">
 </head>
 <body>
-<header>
-  <h1>Sprachbetrachtung 2: Satzglieder</h1>
-  <p>Subjekt, Prädikat, Objekt · 6 Aufgaben</p>
-</header>
-<div id="scorebar">
-  <div><b id="pts">0</b> / 12 Punkte</div>
-  <div id="progressWrap"><div id="progressBar"></div></div>
-  <div id="grade">Note ?</div>
-</div>
-<main>
-  <div class="hint">Frageprobe nutzen: Wer? Was tut? Wen/Was?</div>
-  <div id="quiz"></div>
-  <div id="summary"></div>
-  <div class="nav">
-    <a href="sb_01.html">&larr; Zurück</a>
-    <a href="index.html">Übersicht</a>
-    <a href="sb_03.html">Weiter &rarr;</a>
-  </div>
-</main>
-<script>
-const QUESTIONS = [{"q":"Subjekt in: \"Die Klasse schreibt einen Test.\"","correct":0,"options":["Die Klasse","schreibt","einen Test"]},{"q":"Prädikat in: \"Mia liest ein Buch.\"","correct":1,"options":["Mia","liest","ein Buch"]},{"q":"Akkusativobjekt in: \"Der Lehrer lobt den Schüler.\"","correct":2,"options":["Der Lehrer","lobt","den Schüler"]},{"q":"Dativobjekt in: \"Ich helfe meinem Freund.\"","correct":2,"options":["Ich","helfe","meinem Freund"]},{"q":"Subjekt in: \"Morgen beginnt der Unterricht später.\"","correct":2,"options":["Morgen","beginnt","der Unterricht"]},{"q":"Prädikat in: \"Wir haben gestern lange geübt.\"","correct":0,"options":["haben geübt","Wir","lange"]}];
-const state={pts:0,done:new Set()};
-function grade(p){const pct=Math.round((p/12)*100);if(pct>=92)return 1;if(pct>=81)return 2;if(pct>=67)return 3;if(pct>=50)return 4;if(pct>=30)return 5;return 6;}
-function render(){
-  const root=document.getElementById('quiz');
-  root.innerHTML='';
-  QUESTIONS.forEach(function(q,i){
-    const box=document.createElement('div');box.className='ex';box.id='ex'+i;
-    const qEl=document.createElement('div');qEl.className='q';qEl.textContent=(i+1)+') '+q.q;box.appendChild(qEl);
-    const opts=document.createElement('div');opts.className='opts';
-    q.options.forEach(function(opt,idx){
-      const b=document.createElement('button');b.className='opt';b.textContent=opt;
-      b.onclick=function(){choose(i,idx,b)};opts.appendChild(b);
-    });
-    box.appendChild(opts);
-    const fb=document.createElement('div');fb.className='fb';fb.id='fb'+i;box.appendChild(fb);
-    root.appendChild(box);
+  <div id="app"><noscript><p style="padding:20px">Diese Übungsseite braucht JavaScript.</p></noscript></div>
+  <script src="../../../js/lernstand.js"></script>
+  <script src="grammatik.js"></script>
+  <script>
+  Grammatik.seite({
+    nr: 2,
+    titel: "Satzglieder",
+    lead: "Ein Satz besteht aus Bausteinen, den Satzgliedern. Mit der Umstellprobe findest du sie – und mit der richtigen Frage bestimmst du sie.",
+    ziele: ["Du findest Satzglieder mit der Umstellprobe.", "Du bestimmst Subjekt, Prädikat und Objekte.", "Du erkennst adverbiale Bestimmungen."],
+    merk: [
+      { t: "Die Umstellprobe", html: `
+        <p>Was beim Umstellen zusammenbleibt, ist <b>ein</b> Satzglied. Das gebeugte Verb bleibt im Aussagesatz immer an zweiter Stelle.</p>
+        <div class="bsp">Lea | schenkt | ihrem Bruder | am Freitag | ein Buch.</div>
+        <div class="bsp">Am Freitag | schenkt | Lea | ihrem Bruder | ein Buch.</div>
+        <div class="bsp">Ein Buch | schenkt | Lea | am Freitag | ihrem Bruder.</div>
+        <p class="merksatz">Fünf Bausteine bleiben zusammen → fünf Satzglieder.</p>` },
+      { t: "Subjekt und Prädikat", html: `
+        <p>Das <b>Prädikat</b> ist das Verb – manchmal zweiteilig, dann bildet es eine Klammer:</p>
+        <div class="bsp">Ben <span class="hl-r">hat</span> den Zug <span class="hl-r">verpasst</span>. · Mila <span class="hl-r">ruft</span> ihre Oma <span class="hl-r">an</span>.</div>
+        <p>Das <b>Subjekt</b> findest du mit <b>Wer oder was?</b> + Prädikat. Es steht im Nominativ und passt zum Verb:</p>
+        <div class="bsp"><span class="hl-b">Die Kinder</span> spielen. → <i>Wer spielt?</i> Die Kinder.</div>` },
+      { t: "Objekte", html: `
+        <table><tr><th>Satzglied</th><th>Frage</th><th>Beispiel</th></tr>
+        <tr><td><b>Akkusativobjekt</b></td><td>Wen oder was?</td><td>Tarek kauft <span class="hl-g">ein Ticket</span>.</td></tr>
+        <tr><td><b>Dativobjekt</b></td><td>Wem?</td><td>Sie hilft <span class="hl-v">ihrem Opa</span>.</td></tr>
+        <tr><td><b>Präpositionalobjekt</b></td><td>Worauf? Über wen? Woran? …</td><td>Wir warten <span class="hl-o">auf den Bus</span>.</td></tr>
+        <tr><td><b>Genitivobjekt</b> (selten)</td><td>Wessen?</td><td>Sie gedachten <span class="hl">der Opfer</span>.</td></tr></table>
+        <p class="merksatz">Stell die Frage immer mit dem Prädikat: Wem hilft sie? – Ihrem Opa.</p>` },
+      { t: "Adverbiale Bestimmungen", html: `
+        <ul><li><span class="hl-o"><b>Zeit</b></span> – Wann? Wie lange? Seit wann? → <i>am Morgen, seit Montag</i></li>
+        <li><span class="hl-g"><b>Ort</b></span> – Wo? Wohin? Woher? → <i>im Park, nach Hause</i></li>
+        <li><span class="hl-v"><b>Art und Weise</b></span> – Wie? Womit? → <i>leise, mit dem Rad</i></li>
+        <li><span class="hl-b"><b>Grund</b></span> – Warum? Weshalb? → <i>wegen des Regens</i></li></ul>
+        <div class="bsp"><span class="hl-o">Nach der Schule</span> fährt Aylin <span class="hl-v">mit dem Rad</span> <span class="hl-g">zum Training</span>.</div>` }
+    ],
+    fallen: [
+      "Ein Satzglied kann aus mehreren Wörtern bestehen: **der neue Hausmeister der Schule** ist ein Satzglied.",
+      "Zweiteilige Prädikate: Markiere beide Teile – **hat** … **gekauft**, **ruft** … **an**.",
+      "Akkusativ oder Dativ? Frag mit dem Prädikat: Wen sieht sie? – Wem hilft sie?",
+      "Präpositionalobjekt oder Adverbiale? Sie wartet **auf dem Parkplatz** (Wo? → Adverbiale) – sie wartet **auf ihre Freundin** (Auf wen? → Objekt)."
+    ],
+    basis: [
+      { typ: "markieren", t: "Markiere das Subjekt blau und das Prädikat rot.", stifte: [["b", "Subjekt"], ["r", "Prädikat"]],
+        tipp: "Erst das Verb suchen (bei zwei Teilen beide markieren), dann fragen: Wer oder was …?",
+        items: ["[b:Der neue Hausmeister] [r:repariert] heute die Tür.",
+                "Am Wochenende [r:hat] [b:meine Schwester] ihren Führerschein [r:bestanden].",
+                "[b:Die Schülerinnen und Schüler der 9b] [r:planen] ein Sommerfest.",
+                "Morgen [r:ruft] [b:Emre] beim Ausbildungsbetrieb [r:an]."] },
+      { typ: "wahl", t: "Welches Satzglied ist unterstrichen?", quali: true, tipp: "Frag mit dem Prädikat: Wer? Wen? Wem? Wann? Wo? Wie? Warum?",
+        items: [
+          { s: "Der Trainer gibt __den Spielern__ letzte Tipps.", o: ["Subjekt", "Akkusativobjekt", "Dativobjekt", "Adverbiale"], a: 2, e: "Wem gibt er Tipps? – Den Spielern: Dativobjekt." },
+          { s: "Der Trainer gibt den Spielern __letzte Tipps__.", o: ["Subjekt", "Akkusativobjekt", "Dativobjekt", "Adverbiale"], a: 1, e: "Wen oder was gibt er? – Letzte Tipps: Akkusativobjekt." },
+          { s: "__Nach dem Spiel__ feiern alle zusammen.", o: ["Subjekt", "Prädikat", "Akkusativobjekt", "Adverbiale"], a: 3, e: "Wann feiern alle? – Adverbiale der Zeit." },
+          { s: "__Die Zuschauer__ jubeln laut.", o: ["Subjekt", "Prädikat", "Dativobjekt", "Adverbiale"], a: 0 },
+          { s: "Ich __habe__ den Bus __verpasst__.", o: ["Subjekt", "Prädikat", "Akkusativobjekt", "Adverbiale"], a: 1, e: "„habe … verpasst“ ist ein zweiteiliges Prädikat." }
+        ] },
+      { typ: "bauen", t: "Umstellprobe: Stelle die Satzglieder neu zusammen.", tipp: "Das gebeugte Verb steht an zweiter Stelle – egal, womit du beginnst.",
+        items: [
+          { f: "Beginne mit dem Subjekt.", teile: ["Die Klasse 9a", "verkauft", "beim Schulfest", "Waffeln"], l: ["Die Klasse 9a verkauft Waffeln beim Schulfest"] },
+          { f: "Beginne mit der Zeitangabe.", teile: ["Seit drei Wochen", "trainiert", "Tarek", "für den Stadtlauf"] },
+          { f: "Beginne mit dem Akkusativobjekt.", teile: ["Den Schlüssel", "hat", "der Hausmeister", "gestern", "gefunden"], l: ["Den Schlüssel hat gestern der Hausmeister gefunden"] }
+        ] },
+      { typ: "wahl", t: "Wie viele Satzglieder hat der Satz? Mach die Umstellprobe im Kopf.", quali: true, tipp: "Zähle die Bausteine, die beim Umstellen zusammenbleiben. Das Prädikat zählt als ein Satzglied.",
+        items: [
+          { s: "Meine Oma backt jeden Sonntag einen Kuchen.", o: ["3", "4", "5", "6"], a: 1, e: "Meine Oma | backt | jeden Sonntag | einen Kuchen" },
+          { s: "Der Busfahrer wartete wegen des Regens geduldig auf die Kinder.", o: ["3", "4", "5", "6"], a: 2, e: "Der Busfahrer | wartete | wegen des Regens | geduldig | auf die Kinder" },
+          { s: "Die Schülersprecherin überreicht dem Direktor die Liste.", o: ["3", "4", "5", "6"], a: 1, e: "Die Schülersprecherin | überreicht | dem Direktor | die Liste" },
+          { s: "Im Sommer fahren wir mit dem Zug an die Ostsee.", o: ["3", "4", "5", "6"], a: 2, e: "Im Sommer | fahren | wir | mit dem Zug | an die Ostsee" }
+        ] },
+      { typ: "wahl", t: "Mit welcher Frage findest du das unterstrichene Satzglied?", tipp: "Setz die Frage zusammen mit dem Prädikat: „Wem hilft Sophia?“",
+        items: [
+          { s: "Sophia hilft __ihrem Opa__ im Garten.", o: ["Wer oder was?", "Wen oder was?", "Wem?", "Wo?"], a: 2 },
+          { s: "Sophia hilft ihrem Opa __im Garten__.", o: ["Wem?", "Wo?", "Wann?", "Wie?"], a: 1 },
+          { s: "__Wegen der Hitze__ fällt der Sport aus.", o: ["Wann?", "Wie?", "Warum?", "Wo?"], a: 2 },
+          { s: "Die Band spielt __sehr laut__.", o: ["Wie?", "Wen oder was?", "Wo?", "Warum?"], a: 0 },
+          { s: "__Der Schulbus__ hat Verspätung.", o: ["Wer oder was?", "Wen oder was?", "Wem?", "Wessen?"], a: 0 }
+        ] },
+      { typ: "markieren", t: "Markiere die adverbialen Bestimmungen in der passenden Farbe.",
+        stifte: [["o", "Zeit"], ["g", "Ort"], ["v", "Art und Weise"], ["b", "Grund"]],
+        tipp: "Frag: Wann? Wo/Wohin? Wie? Warum? – und markiere das ganze Satzglied.",
+        items: ["[o:Am Montag] fährt die Klasse [g:nach München].",
+                "[b:Wegen des Streiks] fiel der Unterricht [o:am Dienstag] aus.",
+                "Die Kinder warteten [v:ungeduldig] [g:vor der Turnhalle].",
+                "[o:Seit Stunden] sitzt Ben [v:konzentriert] [g:am Schreibtisch]."] }
+    ],
+    plus: [
+      { typ: "markieren", t: "Bestimme alle Satzglieder: Markiere jedes in seiner Farbe.", quali: true,
+        stifte: [["b", "Subjekt"], ["r", "Prädikat"], ["g", "Akkusativobjekt"], ["v", "Dativobjekt"], ["o", "Adverbiale"]],
+        tipp: "Jedes Wort gehört zu einem Satzglied. Beginne mit dem Prädikat, dann das Subjekt, dann die Objekte.",
+        items: ["[b:Die Lehrerin] [r:erklärt] [v:den Schülern] [g:die Aufgabe].",
+                "[o:Gestern] [r:hat] [b:der Nachbar] [v:uns] [g:seine Leiter] [r:geliehen].",
+                "[o:Wegen des Regens] [r:bringt] [b:Papa] [v:mir] [g:einen Schirm]."] },
+      { typ: "wahl", t: "Präpositionalobjekt oder adverbiale Bestimmung?", tipp: "Fragt man mit „Wo? Wann? Wie?“, ist es eine Adverbiale. Fragt man „Auf wen? Worüber? Woran?“, ist es ein Präpositionalobjekt.",
+        items: [
+          { s: "Sie wartet __auf ihre Freundin__.", o: ["Präpositionalobjekt", "Adverbiale"], a: 0, e: "Auf wen wartet sie? → Präpositionalobjekt." },
+          { s: "Sie wartet __auf dem Parkplatz__.", o: ["Präpositionalobjekt", "Adverbiale"], a: 1, e: "Wo wartet sie? → Adverbiale des Ortes." },
+          { s: "Wir sprechen __über die Klassenfahrt__.", o: ["Präpositionalobjekt", "Adverbiale"], a: 0 },
+          { s: "Er fährt __mit dem Fahrrad__ zur Schule.", o: ["Präpositionalobjekt", "Adverbiale"], a: 1, e: "Wie fährt er? → Adverbiale der Art und Weise." },
+          { s: "Ich freue mich __auf die Ferien__.", o: ["Präpositionalobjekt", "Adverbiale"], a: 0 }
+        ] },
+      { typ: "frei", t: "Ergänze den Satz um das verlangte Satzglied und schreibe ihn ganz auf.", quali: true,
+        items: [
+          { f: "„Die Klasse besucht das Museum.“ → Ergänze eine adverbiale Bestimmung der Zeit.",
+            kriterien: ["Der Satz enthält eine Zeitangabe (Wann? Wie lange?).", "Der Ausgangssatz bleibt erhalten."],
+            muster: "(morgen|heute|gestern|übermorgen|\\bam\\b|\\bim\\b|\\bum\\b|nächst|letzt|\\bnach\\b|\\bvor\\b|seit|während|uhr|tag|woche|monat|jahr|sommer|winter|frühling|herbst)",
+            bsp: "Am Donnerstag besucht die Klasse das Museum." },
+          { f: "„Der Hausmeister zeigt den neuen Raum.“ → Ergänze ein Dativobjekt (Wem?).",
+            kriterien: ["Der Satz enthält ein Dativobjekt (Wem zeigt er den Raum?).", "Der Ausgangssatz bleibt erhalten."],
+            muster: "zeigt\\s+(heute\\s+|morgen\\s+|gleich\\s+)?(dem|der|den|ihm|ihr|ihnen|uns|euch|mir|dir|meinem|meiner|meinen|seinem|seiner|seinen|ihrem|ihrer|ihren|unserem|unserer|unseren|einem|einer|allen)\\b(?! neuen raum)",
+            bsp: "Der Hausmeister zeigt den Eltern den neuen Raum." }
+        ] },
+      { typ: "bauen", t: "Umstellprobe mit zweiteiligem Prädikat", tipp: "„hat“ bleibt an zweiter Stelle, „geschenkt“ steht am Ende.",
+        items: [
+          { f: "Beginne mit dem Dativobjekt.", teile: ["Ihrem Bruder", "hat", "Mila", "zum Geburtstag", "ein Skateboard", "geschenkt"], l: ["Ihrem Bruder hat Mila ein Skateboard zum Geburtstag geschenkt"] },
+          { f: "Beginne mit dem Akkusativobjekt.", teile: ["Ein Skateboard", "hat", "Mila", "ihrem Bruder", "zum Geburtstag", "geschenkt"], l: ["Ein Skateboard hat Mila zum Geburtstag ihrem Bruder geschenkt"] }
+        ] }
+    ]
   });
-}
-function updateBar(){
-  document.getElementById('pts').textContent=state.pts;
-  const pct=Math.round((state.pts/12)*100);
-  document.getElementById('progressBar').style.width=pct+'%';
-  document.getElementById('grade').textContent='Note '+grade(state.pts);
-}
-function wrongExplanation(q){
-  if(q && q.explain) return String(q.explain);
-  const correctText = q && q.options && q.options[q.correct] ? q.options[q.correct] : '';
-  return correctText ? ('Richtig wäre: "'+correctText+'".') : 'Achte auf die Regel und den Satzkontext.';
-}
-function choose(i,idx,btn){
-  const id='ex'+i;if(state.done.has(id))return;
-  const ex=document.getElementById(id);const buttons=[].slice.call(ex.querySelectorAll('button.opt'));const fb=document.getElementById('fb'+i);
-  const retry=ex.dataset.retry==='1';
-  const q = QUESTIONS[i];
-  const ok = idx===q.correct;
-  if(ok){
-    btn.classList.add('ok');buttons.forEach(function(b){b.disabled=true});state.done.add(id);if(window.Lernstand)Lernstand.geloest(id);state.pts += retry?1:2;
-    fb.textContent='Richtig! +'+(retry?1:2)+' Punkte';
-    updateBar();checkEnd();
-  }else{
-    btn.classList.add('bad');btn.disabled=true;
-    const expl = wrongExplanation(q);
-    if(!retry){
-      ex.dataset.retry='1';
-      fb.textContent='Nicht ganz. '+expl+' Versuche es noch einmal (noch 1 Punkt möglich).';
-    }
-    else{
-      buttons.forEach(function(b){b.disabled=true});
-      const correctText = q.options[q.correct];
-      if(buttons[q.correct]) buttons[q.correct].classList.add('ok');
-      state.done.add(id);
-      fb.textContent='Leider nicht richtig. '+expl+' Richtige Antwort: "'+correctText+'".';
-      updateBar();checkEnd();
-    }
-  }
-}
-function checkEnd(){
-  if(state.done.size!==QUESTIONS.length)return;
-  const s=document.getElementById('summary');
-  s.style.display='block';
-  s.innerHTML='<h2 style="color:var(--accent);margin-bottom:6px">Fertig!</h2><p>'+state.pts+' / 12 Punkte · Note '+grade(state.pts)+'</p>';
-}
-render();updateBar();
-</script>
-<script src="../../../js/lernstand.js"></script>
-<script>
-/* Lernstand mit Code: Anmeldung, Meldung richtig gelöster Aufgaben, „Das fehlt dir noch“ (js/lernstand.js) */
-if (window.Lernstand) Lernstand.seite({
-  kurs: "d9", bereich: "Sprachbetrachtung", bnr: 3, modul: "d9-sb-02", nr: 2, kurz: "SB2",
-  titel: "Satzglieder",
-  auswahl: ".ex", text: ".q", teil: "Fragen", abNull: true,
-  anker: document.getElementById("quiz")
-});
-</script>
+  </script>
 </body>
 </html>
-

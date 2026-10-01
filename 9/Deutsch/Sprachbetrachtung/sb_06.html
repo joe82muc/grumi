@@ -1,132 +1,118 @@
-﻿<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sprachbetrachtung 6: Direkte und indirekte Rede</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#0a0f1e;--surface:#121a2f;--surface2:#1a2542;--line:#314166;--text:#e6eeff;--muted:#9fb1d9;--accent:#5fd3ff;--ok:#4caf50;--bad:#ef5350}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Outfit',sans-serif;background:radial-gradient(900px 450px at 10% -20%,rgba(95,211,255,.18),transparent 55%),var(--bg);color:var(--text);min-height:100vh}
-header{padding:24px 16px 18px;text-align:center;border-bottom:1px solid var(--line);background:rgba(10,15,30,.82)}
-header h1{font-size:clamp(1.35rem,3.6vw,2rem);color:var(--accent)}
-header p{color:var(--muted);margin-top:4px}
-#scorebar{position:sticky;top:0;z-index:10;display:flex;gap:12px;align-items:center;padding:10px 14px;background:#0d1427;border-bottom:1px solid var(--line)}
-#progressWrap{flex:1;height:8px;background:#243255;border-radius:999px;overflow:hidden}
-#progressBar{height:100%;width:0;background:linear-gradient(90deg,#4fc3f7,var(--accent));transition:width .25s}
-main{max-width:900px;margin:0 auto;padding:18px 12px 26px}
-.hint{background:var(--surface);border-left:3px solid var(--accent);border:1px solid var(--line);padding:10px 12px;border-radius:0 8px 8px 0;color:var(--muted);margin-bottom:12px}
-.ex{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:10px}
-.q{margin-bottom:8px;line-height:1.45}
-.opts{display:grid;gap:8px}
-button.opt{background:var(--surface2);color:var(--text);border:1px solid #3a4d79;border-radius:8px;padding:9px 10px;text-align:left;cursor:pointer}
-button.opt:hover{border-color:var(--accent)}
-button.opt.ok{border-color:var(--ok);color:#9ae6a0}
-button.opt.bad{border-color:var(--bad);color:#ffb4b4}
-button.opt:disabled{cursor:default;opacity:.9}
-.fb{font-size:.86rem;color:var(--muted);margin-top:6px;min-height:1.1em}
-#summary{display:none;text-align:center;margin-top:16px;padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
-.nav{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:16px}
-.nav a{color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent)}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Direkte und indirekte Rede | Deutsch 9 Grammatik</title>
+  <meta name="description" content="Deutsch 9 Grammatik, Thema 6: wörtliche Rede richtig setzen und Aussagen in die indirekte Rede mit Konjunktiv I umformen. Mit Basis- und Plus-Aufgaben.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="grammatik.css">
 </head>
 <body>
-<header>
-  <h1>Sprachbetrachtung 6: Direkte und indirekte Rede</h1>
-  <p>Redewiedergabe · 6 Aufgaben</p>
-</header>
-<div id="scorebar">
-  <div><b id="pts">0</b> / 12 Punkte</div>
-  <div id="progressWrap"><div id="progressBar"></div></div>
-  <div id="grade">Note ?</div>
-</div>
-<main>
-  <div class="hint">Direkte Rede: wörtlich. Indirekte Rede: meist mit Konjunktiv I.</div>
-  <div id="quiz"></div>
-  <div id="summary"></div>
-  <div class="nav">
-    <a href="sb_05.html">&larr; Zurück</a>
-    <a href="index.html">Übersicht</a>
-    <a href="sb_07.html">Weiter &rarr;</a>
-  </div>
-</main>
-<script>
-const QUESTIONS = [{"q":"Was ist direkte Rede?","correct":1,"options":["Er sagte, er komme später.","Er sagte: \"Ich komme später.\"","Er sagte später zu kommen."]},{"q":"Welche Form ist indirekte Rede?","correct":1,"options":["\"Ich bin krank\", sagte er.","Er sagt, er sei krank.","Er sagt krank."]},{"q":"Welche Zeichensetzung passt bei direkter Rede?","correct":1,"options":["Keine Anführungszeichen","Anführungszeichen und Komma/ Doppelpunkt","Nur Doppelpunkt"]},{"q":"Konjunktiv I in indirekter Rede von \"ich habe\" ist ...","correct":1,"options":["ich hätte","er habe","er hat"]},{"q":"Welche Aussage stimmt?","correct":1,"options":["Indirekte Rede ist immer wörtlich.","Direkte Rede gibt wörtlich wieder.","Indirekte Rede braucht nie ein Einleitungsverb."]},{"q":"\"Sie sagt, sie komme morgen.\" ist ...","correct":1,"options":["direkte Rede","indirekte Rede","Passiv"]}];
-const state={pts:0,done:new Set()};
-function grade(p){const pct=Math.round((p/12)*100);if(pct>=92)return 1;if(pct>=81)return 2;if(pct>=67)return 3;if(pct>=50)return 4;if(pct>=30)return 5;return 6;}
-function render(){
-  const root=document.getElementById('quiz');
-  root.innerHTML='';
-  QUESTIONS.forEach(function(q,i){
-    const box=document.createElement('div');box.className='ex';box.id='ex'+i;
-    const qEl=document.createElement('div');qEl.className='q';qEl.textContent=(i+1)+') '+q.q;box.appendChild(qEl);
-    const opts=document.createElement('div');opts.className='opts';
-    q.options.forEach(function(opt,idx){
-      const b=document.createElement('button');b.className='opt';b.textContent=opt;
-      b.onclick=function(){choose(i,idx,b)};opts.appendChild(b);
-    });
-    box.appendChild(opts);
-    const fb=document.createElement('div');fb.className='fb';fb.id='fb'+i;box.appendChild(fb);
-    root.appendChild(box);
+  <div id="app"><noscript><p style="padding:20px">Diese Übungsseite braucht JavaScript.</p></noscript></div>
+  <script src="../../../js/lernstand.js"></script>
+  <script src="grammatik.js"></script>
+  <script>
+  Grammatik.seite({
+    nr: 6,
+    titel: "Direkte und indirekte Rede",
+    lead: "Die direkte Rede gibt wörtlich wieder, was jemand sagt. In der indirekten Rede berichtest du darüber – mit dem Konjunktiv I und ohne Anführungszeichen.",
+    ziele: ["Du setzt die Zeichen der wörtlichen Rede richtig.", "Du bildest den Konjunktiv I.", "Du formst direkte in indirekte Rede um."],
+    merk: [
+      { t: "Wörtliche Rede: drei Stellungen", html: `
+        <div class="bsp"><b>Begleitsatz vorn:</b> Lea sagt<b>: „</b>Ich komme mit.<b>“</b></div>
+        <div class="bsp"><b>Begleitsatz hinten:</b> <b>„</b>Ich komme mit<b>“,</b> sagt Lea. · <b>„</b>Kommst du mit?<b>“,</b> fragt Lea.</div>
+        <div class="bsp"><b>Begleitsatz eingeschoben:</b> <b>„</b>Ich komme<b>“,</b> sagt Lea, <b>„</b>aber erst später.<b>“</b></div>
+        <p class="merksatz">Nur das Gesagte steht in Anführungszeichen. Steht der Begleitsatz hinten, fällt der Punkt der Rede weg – Frage- und Ausrufezeichen bleiben.</p>` },
+      { t: "Indirekte Rede", html: `
+        <p>Du gibst wieder, was jemand gesagt hat: <b>ohne Anführungszeichen</b>, Pronomen angepasst, Verb im <b>Konjunktiv I</b>.</p>
+        <div class="bsp">Lea sagt: „Ich habe keine Zeit.“ → Lea sagt, sie <span class="hl-v">habe</span> keine Zeit.</div>
+        <div class="bsp">… oder mit „dass“: Lea sagt, dass sie keine Zeit <span class="hl-v">habe</span>.</div>` },
+      { t: "Konjunktiv I bilden", html: `
+        <table><tr><th>Infinitiv</th><th>er/sie/es (Indikativ)</th><th>er/sie/es (Konjunktiv I)</th></tr>
+        <tr><td>sein</td><td>ist</td><td><b>sei</b></td></tr>
+        <tr><td>haben</td><td>hat</td><td><b>habe</b></td></tr>
+        <tr><td>kommen</td><td>kommt</td><td><b>komme</b></td></tr>
+        <tr><td>können</td><td>kann</td><td><b>könne</b></td></tr>
+        <tr><td>müssen</td><td>muss</td><td><b>müsse</b></td></tr>
+        <tr><td>werden</td><td>wird</td><td><b>werde</b></td></tr></table>
+        <p>Klingt der Konjunktiv I wie der Indikativ (<i>sie haben</i>), nimmst du den <b>Konjunktiv II</b> (<i>sie hätten</i>).</p>` },
+      { t: "Was sich noch ändert", html: `
+        <ul><li><b>Pronomen:</b> ich → er/sie, mein → sein/ihr, du → ich/er/sie (je nachdem, wer gemeint ist)</li>
+        <li><b>Fragen:</b> mit ob oder Fragewort – „Kommst du?“ → Sie fragt, ob er komme.</li>
+        <li><b>Aufforderungen:</b> mit sollen – „Räum auf!“ → Sie sagt, er solle aufräumen.</li>
+        <li><b>Zeit und Ort</b> in Berichten: heute → an diesem Tag, morgen → am nächsten Tag, hier → dort</li></ul>` }
+    ],
+    fallen: [
+      "In der indirekten Rede gibt es keinen Doppelpunkt und keine Anführungszeichen.",
+      "„Er sagt, er **ist** krank.“ ist Alltagssprache. In Berichten heißt es: „Er sagt, er **sei** krank.“",
+      "Steht der Begleitsatz hinten, kommt das Komma **nach** dem Schlusszeichen: „Ich komme mit“**,** sagt Lea."
+    ],
+    basis: [
+      { typ: "wahl", t: "Welcher Satz ist richtig gesetzt?", quali: true, mischen: true, tipp: "Doppelpunkt nach vorangestelltem Begleitsatz. Komma nach dem Schlusszeichen, wenn der Begleitsatz folgt.",
+        items: [
+          { o: ["Mila ruft: „Wartet auf mich!“", "Mila ruft „Wartet auf mich!“", "„Mila ruft: Wartet auf mich!“"], a: 0 },
+          { o: ["„Ich habe keine Zeit“, sagt Jonas.", "„Ich habe keine Zeit.“ sagt Jonas.", "„Ich habe keine Zeit“ sagt Jonas."], a: 0 },
+          { o: ["„Kommst du mit?“, fragt Aylin.", "„Kommst du mit“?, fragt Aylin.", "„Kommst du mit?“ fragt Aylin."], a: 0 },
+          { o: ["„Ich komme“, sagt Ben, „aber erst später.“", "„Ich komme, sagt Ben, aber erst später.“", "„Ich komme“ sagt Ben „aber erst später.“"], a: 0 }
+        ] },
+      { typ: "wahl", t: "Direkte oder indirekte Rede?",
+        items: [
+          { s: "Tim sagt, er habe Hunger.", o: ["direkte Rede", "indirekte Rede"], a: 1 },
+          { s: "Tim sagt: „Ich habe Hunger.“", o: ["direkte Rede", "indirekte Rede"], a: 0 },
+          { s: "Die Ärztin meint, dass er sich ausruhen solle.", o: ["direkte Rede", "indirekte Rede"], a: 1 },
+          { s: "„Ruh dich aus“, meint die Ärztin.", o: ["direkte Rede", "indirekte Rede"], a: 0 }
+        ] },
+      { typ: "luecke", t: "Setze das Verb im Konjunktiv I ein.", tipp: "Er/sie/es: Stamm + e. Ausnahme: sein → sei.",
+        items: ["Lea sagt, sie [[habe]] keine Zeit. (haben)",
+                "Der Trainer erklärt, das Spiel [[sei]] abgesagt. (sein)",
+                "Mats behauptet, er [[könne]] gut kochen. (können)",
+                "Die Lehrerin sagt, man [[müsse]] früher aufstehen. (müssen)",
+                "Oma erzählt, sie [[komme]] am Samstag. (kommen)",
+                "Er meint, es [[werde]] bald regnen. (werden)"] },
+      { typ: "zuordnen", t: "Indikativ oder Konjunktiv I?", tipp: "Konjunktiv I endet bei er/sie/es fast immer auf -e (Ausnahme: sei).",
+        gruppen: ["Indikativ (Wirklichkeitsform)", "Konjunktiv I (indirekte Rede)"],
+        karten: [["er hat", 0], ["er habe", 1], ["sie ist", 0], ["sie sei", 1], ["er kommt", 0], ["er komme", 1],
+                 ["sie kann", 0], ["sie könne", 1], ["es gibt", 0], ["es gebe", 1]] },
+      { typ: "umformen", t: "Schreibe in der indirekten Rede.", quali: true, tipp: "Komma statt Doppelpunkt, keine Anführungszeichen, Pronomen anpassen, Konjunktiv I.",
+        items: [
+          { s: "Emre sagt: „Ich bin müde.“", l: ["Emre sagt, er sei müde.", "Emre sagt, dass er müde sei."] },
+          { s: "Sofia sagt: „Ich habe mein Handy vergessen.“", l: ["Sofia sagt, sie habe ihr Handy vergessen.", "Sofia sagt, dass sie ihr Handy vergessen habe."] },
+          { s: "Der Busfahrer sagt: „Der Bus fährt gleich los.“", l: ["Der Busfahrer sagt, der Bus fahre gleich los.", "Der Busfahrer sagt, dass der Bus gleich losfahre."] }
+        ] },
+      { typ: "luecke", t: "Passe die Pronomen an.", tipp: "Wer spricht – und über wen? Aus „ich“ wird er oder sie, aus „dir“ wird ihr oder ihm.",
+        items: ["Ben sagt zu Lea: „Ich leihe dir mein Rad.“ → Ben sagt zu Lea, {{er|ich|sie}} leihe {{ihr|dir|ihm}} {{sein|mein|ihr}} Rad.",
+                "Die Mädchen sagen: „Wir haben unseren Bus verpasst.“ → Die Mädchen sagen, {{sie|wir|ihr}} hätten {{ihren|unseren|seinen}} Bus verpasst.",
+                "Herr Kaya sagt zu uns: „Ihr könnt eure Hefte abgeben.“ → Herr Kaya sagt zu uns, {{wir|ihr|sie}} könnten {{unsere|eure|ihre}} Hefte abgeben."] }
+    ],
+    plus: [
+      { typ: "umformen", t: "Fragen und Aufforderungen in der indirekten Rede", tipp: "Ja/Nein-Frage → ob · W-Frage → das Fragewort bleibt · Aufforderung → sollen",
+        items: [
+          { s: "Mama fragt Tim: „Hast du deine Hausaufgaben gemacht?“", l: ["Mama fragt Tim, ob er seine Hausaufgaben gemacht habe."] },
+          { s: "Die Trainerin fragt: „Wer hat den Ball?“", l: ["Die Trainerin fragt, wer den Ball habe."] },
+          { s: "Der Lehrer sagt zu Aylin: „Mach bitte das Fenster zu!“", l: ["Der Lehrer sagt zu Aylin, sie solle bitte das Fenster zumachen.", "Der Lehrer sagt zu Aylin, sie solle das Fenster zumachen.", "Der Lehrer sagt zu Aylin, sie möge bitte das Fenster zumachen."] }
+        ] },
+      { typ: "luecke", t: "Ersatzform: Hier brauchst du den Konjunktiv II.", tipp: "„sie haben“ klingt im Konjunktiv I wie der Indikativ – deshalb „sie hätten“.",
+        items: ["Die Schüler sagen, sie [[hätten]] keine Lust. (haben)",
+                "Meine Eltern meinen, sie [[kämen]] später. (kommen)",
+                "Die Kinder sagen, sie [[wüssten]] die Antwort. (wissen)",
+                "Die Spieler sagen, sie [[müssten]] noch trainieren. (müssen)"] },
+      { typ: "umformen", t: "Gib die Durchsage in der indirekten Rede wieder.", quali: true, tipp: "Auch im Nebensatz steht der Konjunktiv I. In einem Bericht wird aus „morgen“ oft „am nächsten Tag“.",
+        items: [
+          { s: "Die Schulleiterin sagt: „Morgen fällt der Unterricht aus, weil die Heizung kaputt ist.“", zeilen: 3,
+            l: ["Die Schulleiterin sagt, am nächsten Tag falle der Unterricht aus, weil die Heizung kaputt sei.", "Die Schulleiterin sagt, morgen falle der Unterricht aus, weil die Heizung kaputt sei.", "Die Schulleiterin sagt, dass am nächsten Tag der Unterricht ausfalle, weil die Heizung kaputt sei."] }
+        ] },
+      { typ: "frei", t: "Begründe, warum die Zeichen hier richtig gesetzt sind.", quali: true,
+        items: [
+          { f: "Jonas meinte: „Morgen schreiben wir die Probe.“", zeilen: 3,
+            kriterien: ["nennt den Doppelpunkt nach dem vorangestellten Begleitsatz", "nennt die Anführungszeichen um das Gesagte (Anfang unten, Ende oben)", "Punkt der Rede steht vor dem Schlusszeichen"],
+            muster: "(doppelpunkt|anführungszeichen|anfuehrungszeichen|begleitsatz)",
+            bsp: "Der Begleitsatz steht vorn, deshalb folgt ein Doppelpunkt. Nur das Gesagte steht in Anführungszeichen, und der Punkt gehört zur Rede, er steht vor dem Schlusszeichen." }
+        ] }
+    ]
   });
-}
-function updateBar(){
-  document.getElementById('pts').textContent=state.pts;
-  const pct=Math.round((state.pts/12)*100);
-  document.getElementById('progressBar').style.width=pct+'%';
-  document.getElementById('grade').textContent='Note '+grade(state.pts);
-}
-function wrongExplanation(q){
-  if(q && q.explain) return String(q.explain);
-  const correctText = q && q.options && q.options[q.correct] ? q.options[q.correct] : '';
-  return correctText ? ('Richtig wäre: "'+correctText+'".') : 'Achte auf die Regel und den Satzkontext.';
-}
-function choose(i,idx,btn){
-  const id='ex'+i;if(state.done.has(id))return;
-  const ex=document.getElementById(id);const buttons=[].slice.call(ex.querySelectorAll('button.opt'));const fb=document.getElementById('fb'+i);
-  const retry=ex.dataset.retry==='1';
-  const q = QUESTIONS[i];
-  const ok = idx===q.correct;
-  if(ok){
-    btn.classList.add('ok');buttons.forEach(function(b){b.disabled=true});state.done.add(id);if(window.Lernstand)Lernstand.geloest(id);state.pts += retry?1:2;
-    fb.textContent='Richtig! +'+(retry?1:2)+' Punkte';
-    updateBar();checkEnd();
-  }else{
-    btn.classList.add('bad');btn.disabled=true;
-    const expl = wrongExplanation(q);
-    if(!retry){
-      ex.dataset.retry='1';
-      fb.textContent='Nicht ganz. '+expl+' Versuche es noch einmal (noch 1 Punkt möglich).';
-    }
-    else{
-      buttons.forEach(function(b){b.disabled=true});
-      const correctText = q.options[q.correct];
-      if(buttons[q.correct]) buttons[q.correct].classList.add('ok');
-      state.done.add(id);
-      fb.textContent='Leider nicht richtig. '+expl+' Richtige Antwort: "'+correctText+'".';
-      updateBar();checkEnd();
-    }
-  }
-}
-function checkEnd(){
-  if(state.done.size!==QUESTIONS.length)return;
-  const s=document.getElementById('summary');
-  s.style.display='block';
-  s.innerHTML='<h2 style="color:var(--accent);margin-bottom:6px">Fertig!</h2><p>'+state.pts+' / 12 Punkte · Note '+grade(state.pts)+'</p>';
-}
-render();updateBar();
-</script>
-<script src="../../../js/lernstand.js"></script>
-<script>
-/* Lernstand mit Code: Anmeldung, Meldung richtig gelöster Aufgaben, „Das fehlt dir noch“ (js/lernstand.js) */
-if (window.Lernstand) Lernstand.seite({
-  kurs: "d9", bereich: "Sprachbetrachtung", bnr: 3, modul: "d9-sb-06", nr: 6, kurz: "SB6",
-  titel: "Direkte und indirekte Rede",
-  auswahl: ".ex", text: ".q", teil: "Fragen", abNull: true,
-  anker: document.getElementById("quiz")
-});
-</script>
+  </script>
 </body>
 </html>
-

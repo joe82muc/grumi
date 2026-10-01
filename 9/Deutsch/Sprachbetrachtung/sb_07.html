@@ -1,132 +1,123 @@
-﻿<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sprachbetrachtung 7: Zeitformen</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#0a0f1e;--surface:#121a2f;--surface2:#1a2542;--line:#314166;--text:#e6eeff;--muted:#9fb1d9;--accent:#5fd3ff;--ok:#4caf50;--bad:#ef5350}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Outfit',sans-serif;background:radial-gradient(900px 450px at 10% -20%,rgba(95,211,255,.18),transparent 55%),var(--bg);color:var(--text);min-height:100vh}
-header{padding:24px 16px 18px;text-align:center;border-bottom:1px solid var(--line);background:rgba(10,15,30,.82)}
-header h1{font-size:clamp(1.35rem,3.6vw,2rem);color:var(--accent)}
-header p{color:var(--muted);margin-top:4px}
-#scorebar{position:sticky;top:0;z-index:10;display:flex;gap:12px;align-items:center;padding:10px 14px;background:#0d1427;border-bottom:1px solid var(--line)}
-#progressWrap{flex:1;height:8px;background:#243255;border-radius:999px;overflow:hidden}
-#progressBar{height:100%;width:0;background:linear-gradient(90deg,#4fc3f7,var(--accent));transition:width .25s}
-main{max-width:900px;margin:0 auto;padding:18px 12px 26px}
-.hint{background:var(--surface);border-left:3px solid var(--accent);border:1px solid var(--line);padding:10px 12px;border-radius:0 8px 8px 0;color:var(--muted);margin-bottom:12px}
-.ex{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:10px}
-.q{margin-bottom:8px;line-height:1.45}
-.opts{display:grid;gap:8px}
-button.opt{background:var(--surface2);color:var(--text);border:1px solid #3a4d79;border-radius:8px;padding:9px 10px;text-align:left;cursor:pointer}
-button.opt:hover{border-color:var(--accent)}
-button.opt.ok{border-color:var(--ok);color:#9ae6a0}
-button.opt.bad{border-color:var(--bad);color:#ffb4b4}
-button.opt:disabled{cursor:default;opacity:.9}
-.fb{font-size:.86rem;color:var(--muted);margin-top:6px;min-height:1.1em}
-#summary{display:none;text-align:center;margin-top:16px;padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
-.nav{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:16px}
-.nav a{color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent)}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zeitformen | Deutsch 9 Grammatik</title>
+  <meta name="description" content="Deutsch 9 Grammatik, Thema 7: die sechs Zeitformen bestimmen und bilden, Perfekt mit haben oder sein, Vorzeitigkeit mit nachdem. Mit Basis- und Plus-Aufgaben.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="grammatik.css">
 </head>
 <body>
-<header>
-  <h1>Sprachbetrachtung 7: Zeitformen</h1>
-  <p>Präsens, Präteritum, Perfekt, Plusquamperfekt, Futur · 6 Aufgaben</p>
-</header>
-<div id="scorebar">
-  <div><b id="pts">0</b> / 12 Punkte</div>
-  <div id="progressWrap"><div id="progressBar"></div></div>
-  <div id="grade">Note ?</div>
-</div>
-<main>
-  <div class="hint">Erkenne die Zeitform am Verb.</div>
-  <div id="quiz"></div>
-  <div id="summary"></div>
-  <div class="nav">
-    <a href="sb_06.html">&larr; Zurück</a>
-    <a href="index.html">Übersicht</a>
-    <a href="sb_08.html">Weiter &rarr;</a>
-  </div>
-</main>
-<script>
-const QUESTIONS = [{"q":"\"Ich gehe nach Hause.\" steht im ...","correct":0,"options":["Präsens","Perfekt","Futur I"]},{"q":"\"Ich ging nach Hause.\" steht im ...","correct":0,"options":["Präteritum","Perfekt","Plusquamperfekt"]},{"q":"\"Ich bin nach Hause gegangen.\" steht im ...","correct":1,"options":["Präteritum","Perfekt","Futur I"]},{"q":"\"Ich war nach Hause gegangen.\" steht im ...","correct":0,"options":["Plusquamperfekt","Perfekt","Präsens"]},{"q":"\"Ich werde nach Hause gehen.\" steht im ...","correct":1,"options":["Präsens","Futur I","Perfekt"]},{"q":"Welche Zeitform nutzt man oft in Erzählungen?","correct":0,"options":["Präteritum","Futur I","Imperativ"]}];
-const state={pts:0,done:new Set()};
-function grade(p){const pct=Math.round((p/12)*100);if(pct>=92)return 1;if(pct>=81)return 2;if(pct>=67)return 3;if(pct>=50)return 4;if(pct>=30)return 5;return 6;}
-function render(){
-  const root=document.getElementById('quiz');
-  root.innerHTML='';
-  QUESTIONS.forEach(function(q,i){
-    const box=document.createElement('div');box.className='ex';box.id='ex'+i;
-    const qEl=document.createElement('div');qEl.className='q';qEl.textContent=(i+1)+') '+q.q;box.appendChild(qEl);
-    const opts=document.createElement('div');opts.className='opts';
-    q.options.forEach(function(opt,idx){
-      const b=document.createElement('button');b.className='opt';b.textContent=opt;
-      b.onclick=function(){choose(i,idx,b)};opts.appendChild(b);
-    });
-    box.appendChild(opts);
-    const fb=document.createElement('div');fb.className='fb';fb.id='fb'+i;box.appendChild(fb);
-    root.appendChild(box);
+  <div id="app"><noscript><p style="padding:20px">Diese Übungsseite braucht JavaScript.</p></noscript></div>
+  <script src="../../../js/lernstand.js"></script>
+  <script src="grammatik.js"></script>
+  <script>
+  Grammatik.seite({
+    nr: 7,
+    titel: "Zeitformen",
+    lead: "Mit der Zeitform zeigst du, wann etwas passiert. Im Quali sollst du Zeitformen bestimmen und Sätze in andere Zeitformen setzen.",
+    ziele: ["Du bestimmst die sechs Zeitformen sicher.", "Du bildest Präteritum und Perfekt auch bei unregelmäßigen Verben.", "Du nutzt das Plusquamperfekt für Vorzeitiges."],
+    merk: [
+      { t: "Die sechs Zeitformen", html: `
+        <table><tr><th>Zeitform</th><th>regelmäßig (spielen)</th><th>unregelmäßig (gehen)</th></tr>
+        <tr><td><b>Präsens</b></td><td>ich spiele</td><td>ich gehe</td></tr>
+        <tr><td><b>Präteritum</b></td><td>ich spielte</td><td>ich ging</td></tr>
+        <tr><td><b>Perfekt</b></td><td>ich habe gespielt</td><td>ich bin gegangen</td></tr>
+        <tr><td><b>Plusquamperfekt</b></td><td>ich hatte gespielt</td><td>ich war gegangen</td></tr>
+        <tr><td><b>Futur I</b></td><td>ich werde spielen</td><td>ich werde gehen</td></tr>
+        <tr><td><b>Futur II</b></td><td>ich werde gespielt haben</td><td>ich werde gegangen sein</td></tr></table>` },
+      { t: "Wann welche Zeitform?", html: `
+        <ul><li><b>Präsens:</b> jetzt, immer wieder, Inhaltsangabe</li>
+        <li><b>Präteritum:</b> schriftlich erzählen, Bericht, Zeitung</li>
+        <li><b>Perfekt:</b> mündlich von Vergangenem erzählen</li>
+        <li><b>Plusquamperfekt:</b> was <i>vor</i> etwas anderem Vergangenem geschah</li>
+        <li><b>Futur I:</b> Zukunft oder Vermutung (<i>Er wird krank sein.</i>)</li>
+        <li><b>Futur II:</b> in der Zukunft abgeschlossen</li></ul>` },
+      { t: "Perfekt: haben oder sein?", html: `
+        <p><b>sein</b> bei Bewegung von A nach B und bei Veränderung: <i>gehen, fahren, laufen, aufstehen, einschlafen, wachsen</i> – außerdem bei <i>sein</i> und <i>bleiben</i>.</p>
+        <p><b>haben</b> bei fast allen anderen Verben: <i>lesen, kaufen, schlafen, essen</i>.</p>
+        <div class="bsp">Ich <b>bin</b> nach Hause gelaufen. · Ich <b>habe</b> lange geschlafen.</div>` },
+      { t: "Vorher – nachher", html: `
+        <p>Nach <b>nachdem</b> steht die Handlung, die zuerst passiert ist:</p>
+        <div class="bsp"><span class="hl-v">Nachdem wir gegessen <b>hatten</b></span> (Plusquamperfekt), <b>spielten</b> wir Karten (Präteritum).</div>
+        <div class="bsp"><span class="hl-v">Nachdem wir gegessen <b>haben</b></span> (Perfekt), <b>spielen</b> wir Karten (Präsens).</div>` }
+    ],
+    fallen: [
+      "„Mir **wurde** übel.“ ist Präteritum von „werden“ – kein Passiv, denn es fehlt das Partizip II.",
+      "Futur I (werden + **Infinitiv**: wird spielen) nicht mit dem Passiv (werden + **Partizip II**: wird gespielt) verwechseln.",
+      "Bleib in einem Text bei einer Zeitform: Bericht im Präteritum, Inhaltsangabe im Präsens."
+    ],
+    basis: [
+      { typ: "wahl", t: "Bestimme die Zeitform.", quali: true, tipp: "Achte auf die Hilfsverben: haben/sein (Perfekt), hatte/war (Plusquamperfekt), werden + Infinitiv (Futur).",
+        items: [
+          { s: "Wir fuhren mit dem Rad zum See.", o: ["Präsens", "Präteritum", "Perfekt", "Plusquamperfekt", "Futur I", "Futur II"], a: 1 },
+          { s: "Lena hat ihr Zimmer aufgeräumt.", o: ["Präsens", "Präteritum", "Perfekt", "Plusquamperfekt", "Futur I", "Futur II"], a: 2 },
+          { s: "Ich werde dich morgen anrufen.", o: ["Präsens", "Präteritum", "Perfekt", "Plusquamperfekt", "Futur I", "Futur II"], a: 4 },
+          { s: "Nachdem es __geregnet hatte__, war die Luft frisch.", o: ["Präsens", "Präteritum", "Perfekt", "Plusquamperfekt", "Futur I", "Futur II"], a: 3 },
+          { s: "Mir wird schwindlig.", o: ["Präsens", "Präteritum", "Perfekt", "Plusquamperfekt", "Futur I", "Futur II"], a: 0, e: "„wird“ ist hier Vollverb im Präsens (schwindlig werden)." },
+          { s: "Bis Freitag wird er das Buch gelesen haben.", o: ["Präsens", "Präteritum", "Perfekt", "Plusquamperfekt", "Futur I", "Futur II"], a: 5 }
+        ] },
+      { typ: "luecke", t: "Setze das Verb ins Präteritum.", tipp: "Viele wichtige Verben sind unregelmäßig: gehen – ging, schreiben – schrieb.",
+        items: ["Gestern [[ging]] Ben früh ins Bett. (gehen)",
+                "Die Klasse [[schrieb]] eine Probe. (schreiben)",
+                "Der Hund [[lief]] über die Straße. (laufen)",
+                "Wir [[brachten]] Kuchen mit. (bringen)",
+                "Sie [[saß]] in der ersten Reihe. (sitzen)",
+                "Plötzlich [[fiel]] der Strom aus. (ausfallen)"] },
+      { typ: "zuordnen", t: "Perfekt mit „haben“ oder mit „sein“?", tipp: "Bewegung von A nach B oder Veränderung → sein. Sonst meistens haben.",
+        gruppen: ["Perfekt mit „sein“", "Perfekt mit „haben“"],
+        karten: [["gehen", 0], ["fahren", 0], ["aufstehen", 0], ["einschlafen", 0], ["wachsen", 0], ["bleiben", 0],
+                 ["lesen", 1], ["essen", 1], ["kaufen", 1], ["spielen", 1], ["schlafen", 1], ["lernen", 1]] },
+      { typ: "luecke", t: "Setze das Verb ins Perfekt.", tipp: "Hilfsverb (haben/sein) + Partizip II am Satzende.",
+        items: ["Mila [[ist]] nach Hause [[gelaufen]]. (laufen)",
+                "Wir [[haben]] den Film schon [[gesehen]]. (sehen)",
+                "Der Zug [[ist]] pünktlich [[angekommen]]. (ankommen)",
+                "Ich [[habe]] dir eine Nachricht [[geschrieben]]. (schreiben)"] },
+      { typ: "umformen", t: "Setze den Satz in die angegebene Zeitform.", quali: true, tipp: "Perfekt: haben/sein + Partizip II · Plusquamperfekt: hatte/war + Partizip II · Futur I: werden + Infinitiv",
+        items: [
+          { f: "ins Präteritum", s: "Ich spiele Fußball.", l: ["Ich spielte Fußball."] },
+          { f: "ins Perfekt", s: "Wir fahren nach Italien.", l: ["Wir sind nach Italien gefahren."] },
+          { f: "ins Futur I", s: "Die Sonne scheint.", l: ["Die Sonne wird scheinen."] },
+          { f: "ins Plusquamperfekt", s: "Er kauft ein Ticket.", l: ["Er hatte ein Ticket gekauft."] }
+        ] },
+      { typ: "wahl", t: "Welche Zeitform passt?",
+        items: [
+          { f: "Einen Zeitungsbericht schreibt man meist im …", o: ["Präsens", "Präteritum", "Futur I"], a: 1 },
+          { f: "Wenn du mündlich vom Wochenende erzählst, sagst du meist …", o: ["Perfekt", "Plusquamperfekt", "Futur II"], a: 0 },
+          { f: "Eine Inhaltsangabe schreibst du im …", o: ["Präteritum", "Präsens", "Perfekt"], a: 1 },
+          { f: "Was vor einem anderen vergangenen Ereignis geschah, steht im …", o: ["Perfekt", "Präteritum", "Plusquamperfekt"], a: 2 }
+        ] }
+    ],
+    plus: [
+      { typ: "wahl", t: "Vorsicht, Falle: Bestimme die Zeitform.", tipp: "Frag dich: Welche Form hat das gebeugte Verb? Ist „werden“ Vollverb, Passiv-Hilfsverb oder Futur-Hilfsverb?",
+        items: [
+          { s: "Mir wurde ganz schlecht vor Aufregung.", o: ["Präsens", "Präteritum", "Perfekt", "Plusquamperfekt", "Futur I"], a: 1, e: "„wurde“ ist Präteritum von „werden“." },
+          { s: "Das Haus wird gerade gestrichen.", o: ["Präsens", "Präteritum", "Perfekt", "Plusquamperfekt", "Futur I"], a: 0, e: "Passiv im Präsens: wird + Partizip II." },
+          { s: "Er wird wohl krank sein.", o: ["Präsens", "Präteritum", "Perfekt", "Plusquamperfekt", "Futur I"], a: 4, e: "werden + Infinitiv: Futur I, hier als Vermutung." },
+          { s: "Sie war schon gegangen, als ich kam.", o: ["Präsens", "Präteritum", "Perfekt", "Plusquamperfekt", "Futur I"], a: 3, e: "„war … gegangen“ = Plusquamperfekt." }
+        ] },
+      { typ: "umformen", t: "Setze den Satz in drei weitere Zeitformen.", quali: true, tipp: "abpfeifen – pfiff ab – hat abgepfiffen",
+        items: [
+          { f: "Präsens", s: "Der Schiedsrichter pfiff das Spiel ab.", l: ["Der Schiedsrichter pfeift das Spiel ab."] },
+          { f: "Perfekt", s: "Der Schiedsrichter pfiff das Spiel ab.", l: ["Der Schiedsrichter hat das Spiel abgepfiffen."] },
+          { f: "Futur I", s: "Der Schiedsrichter pfiff das Spiel ab.", l: ["Der Schiedsrichter wird das Spiel abpfeifen."] }
+        ] },
+      { typ: "luecke", t: "Vorher – nachher: Wähle die passenden Verbformen.", tipp: "Im nachdem-Satz steht Plusquamperfekt, wenn der Hauptsatz im Präteritum steht.",
+        items: ["Nachdem wir den Tisch {{gedeckt hatten|deckten|haben gedeckt}}, {{kamen|waren gekommen|kommen}} die Gäste.",
+                "Nachdem Ben die Probe {{geschrieben hatte|schrieb|schreibt}}, {{fühlte|hatte gefühlt|fühlt}} er sich erleichtert.",
+                "Nachdem sie {{angekommen waren|ankamen|angekommen sind}}, {{riefen|hatten gerufen|rufen}} sie zu Hause an."] },
+      { typ: "frei", t: "Schreibe selbst einen Satz mit „nachdem“.",
+        items: [
+          { f: "Erzähle von einem Ausflug: Nebensatz im Plusquamperfekt, Hauptsatz im Präteritum.",
+            kriterien: ["Nebensatz mit „nachdem“ im Plusquamperfekt (hatte/war + Partizip II)", "Hauptsatz im Präteritum"],
+            muster: "nachdem.+\\b(hatte|hatten|hattest|hattet|war|waren|warst|wart)\\b\\s*,",
+            bsp: "Nachdem wir den Berg bestiegen hatten, machten wir eine lange Pause." }
+        ] }
+    ]
   });
-}
-function updateBar(){
-  document.getElementById('pts').textContent=state.pts;
-  const pct=Math.round((state.pts/12)*100);
-  document.getElementById('progressBar').style.width=pct+'%';
-  document.getElementById('grade').textContent='Note '+grade(state.pts);
-}
-function wrongExplanation(q){
-  if(q && q.explain) return String(q.explain);
-  const correctText = q && q.options && q.options[q.correct] ? q.options[q.correct] : '';
-  return correctText ? ('Richtig wäre: "'+correctText+'".') : 'Achte auf die Regel und den Satzkontext.';
-}
-function choose(i,idx,btn){
-  const id='ex'+i;if(state.done.has(id))return;
-  const ex=document.getElementById(id);const buttons=[].slice.call(ex.querySelectorAll('button.opt'));const fb=document.getElementById('fb'+i);
-  const retry=ex.dataset.retry==='1';
-  const q = QUESTIONS[i];
-  const ok = idx===q.correct;
-  if(ok){
-    btn.classList.add('ok');buttons.forEach(function(b){b.disabled=true});state.done.add(id);if(window.Lernstand)Lernstand.geloest(id);state.pts += retry?1:2;
-    fb.textContent='Richtig! +'+(retry?1:2)+' Punkte';
-    updateBar();checkEnd();
-  }else{
-    btn.classList.add('bad');btn.disabled=true;
-    const expl = wrongExplanation(q);
-    if(!retry){
-      ex.dataset.retry='1';
-      fb.textContent='Nicht ganz. '+expl+' Versuche es noch einmal (noch 1 Punkt möglich).';
-    }
-    else{
-      buttons.forEach(function(b){b.disabled=true});
-      const correctText = q.options[q.correct];
-      if(buttons[q.correct]) buttons[q.correct].classList.add('ok');
-      state.done.add(id);
-      fb.textContent='Leider nicht richtig. '+expl+' Richtige Antwort: "'+correctText+'".';
-      updateBar();checkEnd();
-    }
-  }
-}
-function checkEnd(){
-  if(state.done.size!==QUESTIONS.length)return;
-  const s=document.getElementById('summary');
-  s.style.display='block';
-  s.innerHTML='<h2 style="color:var(--accent);margin-bottom:6px">Fertig!</h2><p>'+state.pts+' / 12 Punkte · Note '+grade(state.pts)+'</p>';
-}
-render();updateBar();
-</script>
-<script src="../../../js/lernstand.js"></script>
-<script>
-/* Lernstand mit Code: Anmeldung, Meldung richtig gelöster Aufgaben, „Das fehlt dir noch“ (js/lernstand.js) */
-if (window.Lernstand) Lernstand.seite({
-  kurs: "d9", bereich: "Sprachbetrachtung", bnr: 3, modul: "d9-sb-07", nr: 7, kurz: "SB7",
-  titel: "Zeitformen",
-  auswahl: ".ex", text: ".q", teil: "Fragen", abNull: true,
-  anker: document.getElementById("quiz")
-});
-</script>
+  </script>
 </body>
 </html>
-

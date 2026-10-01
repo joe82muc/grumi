@@ -1,132 +1,124 @@
-﻿<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sprachbetrachtung 4: Satzverbindungen</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#0a0f1e;--surface:#121a2f;--surface2:#1a2542;--line:#314166;--text:#e6eeff;--muted:#9fb1d9;--accent:#5fd3ff;--ok:#4caf50;--bad:#ef5350}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Outfit',sans-serif;background:radial-gradient(900px 450px at 10% -20%,rgba(95,211,255,.18),transparent 55%),var(--bg);color:var(--text);min-height:100vh}
-header{padding:24px 16px 18px;text-align:center;border-bottom:1px solid var(--line);background:rgba(10,15,30,.82)}
-header h1{font-size:clamp(1.35rem,3.6vw,2rem);color:var(--accent)}
-header p{color:var(--muted);margin-top:4px}
-#scorebar{position:sticky;top:0;z-index:10;display:flex;gap:12px;align-items:center;padding:10px 14px;background:#0d1427;border-bottom:1px solid var(--line)}
-#progressWrap{flex:1;height:8px;background:#243255;border-radius:999px;overflow:hidden}
-#progressBar{height:100%;width:0;background:linear-gradient(90deg,#4fc3f7,var(--accent));transition:width .25s}
-main{max-width:900px;margin:0 auto;padding:18px 12px 26px}
-.hint{background:var(--surface);border-left:3px solid var(--accent);border:1px solid var(--line);padding:10px 12px;border-radius:0 8px 8px 0;color:var(--muted);margin-bottom:12px}
-.ex{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:10px}
-.q{margin-bottom:8px;line-height:1.45}
-.opts{display:grid;gap:8px}
-button.opt{background:var(--surface2);color:var(--text);border:1px solid #3a4d79;border-radius:8px;padding:9px 10px;text-align:left;cursor:pointer}
-button.opt:hover{border-color:var(--accent)}
-button.opt.ok{border-color:var(--ok);color:#9ae6a0}
-button.opt.bad{border-color:var(--bad);color:#ffb4b4}
-button.opt:disabled{cursor:default;opacity:.9}
-.fb{font-size:.86rem;color:var(--muted);margin-top:6px;min-height:1.1em}
-#summary{display:none;text-align:center;margin-top:16px;padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
-.nav{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:16px}
-.nav a{color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent)}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Satzreihe und Satzgefüge | Deutsch 9 Grammatik</title>
+  <meta name="description" content="Deutsch 9 Grammatik, Thema 4: Satzreihe und Satzgefüge unterscheiden, Sätze sinnvoll verbinden und die Satzart begründen. Mit Basis- und Plus-Aufgaben.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="grammatik.css">
 </head>
 <body>
-<header>
-  <h1>Sprachbetrachtung 4: Satzverbindungen</h1>
-  <p>Satzreihe und Satzgefüge · 6 Aufgaben</p>
-</header>
-<div id="scorebar">
-  <div><b id="pts">0</b> / 12 Punkte</div>
-  <div id="progressWrap"><div id="progressBar"></div></div>
-  <div id="grade">Note ?</div>
-</div>
-<main>
-  <div class="hint">Achte auf Konjunktionen und Kommasetzung.</div>
-  <div id="quiz"></div>
-  <div id="summary"></div>
-  <div class="nav">
-    <a href="sb_03.html">&larr; Zurück</a>
-    <a href="index.html">Übersicht</a>
-    <a href="sb_05.html">Weiter &rarr;</a>
-  </div>
-</main>
-<script>
-const QUESTIONS = [{"q":"\"Ich lerne, und meine Schwester kocht.\" ist ...","correct":0,"options":["Satzreihe","Satzgefüge","Wortgruppe"]},{"q":"\"Ich lerne, weil morgen eine Prüfung ist.\" ist ...","correct":1,"options":["Satzreihe","Satzgefüge","Einfacher Satz"]},{"q":"Welche Konjunktion verbindet gleichrangige Hauptsätze?","correct":2,"options":["weil","obwohl","und"]},{"q":"Welche Konjunktion leitet meist einen Nebensatz ein?","correct":1,"options":["denn","weil","oder"]},{"q":"Wo steht bei Nebensatz + Hauptsatz meist ein Komma?","correct":1,"options":["Kein Komma","Zwischen beiden Teilsätzen","Nur am Satzende"]},{"q":"\"Er kommt später, denn der Zug hat Verspätung.\" ist ...","correct":0,"options":["Satzreihe","Satzgefüge","Nebensatzkette"]}];
-const state={pts:0,done:new Set()};
-function grade(p){const pct=Math.round((p/12)*100);if(pct>=92)return 1;if(pct>=81)return 2;if(pct>=67)return 3;if(pct>=50)return 4;if(pct>=30)return 5;return 6;}
-function render(){
-  const root=document.getElementById('quiz');
-  root.innerHTML='';
-  QUESTIONS.forEach(function(q,i){
-    const box=document.createElement('div');box.className='ex';box.id='ex'+i;
-    const qEl=document.createElement('div');qEl.className='q';qEl.textContent=(i+1)+') '+q.q;box.appendChild(qEl);
-    const opts=document.createElement('div');opts.className='opts';
-    q.options.forEach(function(opt,idx){
-      const b=document.createElement('button');b.className='opt';b.textContent=opt;
-      b.onclick=function(){choose(i,idx,b)};opts.appendChild(b);
-    });
-    box.appendChild(opts);
-    const fb=document.createElement('div');fb.className='fb';fb.id='fb'+i;box.appendChild(fb);
-    root.appendChild(box);
+  <div id="app"><noscript><p style="padding:20px">Diese Übungsseite braucht JavaScript.</p></noscript></div>
+  <script src="../../../js/lernstand.js"></script>
+  <script src="grammatik.js"></script>
+  <script>
+  Grammatik.seite({
+    nr: 4,
+    titel: "Satzreihe und Satzgefüge",
+    lead: "Kurze Sätze hintereinander klingen abgehackt. Verbindest du sie geschickt, wird dein Text flüssig – und du kannst im Quali begründen, welche Satzart vorliegt.",
+    ziele: ["Du unterscheidest einfachen Satz, Satzreihe und Satzgefüge.", "Du verbindest Sätze mit passenden Wörtern.", "Du begründest die Satzart."],
+    merk: [
+      { t: "Drei Satzarten", html: `
+        <table><tr><th>Satzart</th><th>Aufbau</th><th>Beispiel</th></tr>
+        <tr><td><b>einfacher Satz</b></td><td>ein Hauptsatz</td><td>Am Abend grillen wir im Garten.</td></tr>
+        <tr><td><b>Satzreihe</b></td><td>Hauptsatz + Hauptsatz</td><td><span class="hl-b">Ich rief an</span>, aber <span class="hl-b">niemand ging ran</span>.</td></tr>
+        <tr><td><b>Satzgefüge</b></td><td>Hauptsatz + Nebensatz</td><td><span class="hl-b">Ich rief an</span>, <span class="hl-v">weil ich Hilfe brauchte</span>.</td></tr></table>` },
+      { t: "Hauptsätze verbinden (Satzreihe)", html: `
+        <p>Mit <b>und, oder, aber, denn, sondern, doch</b> – oder nur mit einem Komma.</p>
+        <p>Auch Adverbien wie <b>deshalb, trotzdem, danach, sonst</b> verbinden Hauptsätze. Nach ihnen folgt direkt das Verb:</p>
+        <div class="bsp">Es regnete, <b>deshalb</b> <span class="hl-r">blieben</span> wir drinnen.</div>
+        <p class="merksatz">Vor aber, denn, sondern, doch steht ein Komma.</p>` },
+      { t: "Nebensätze anschließen (Satzgefüge)", html: `
+        <ul><li><b>Grund:</b> weil, da</li><li><b>Gegengrund:</b> obwohl</li><li><b>Zeit:</b> als, nachdem, bevor, während</li>
+        <li><b>Bedingung:</b> wenn, falls</li><li><b>Zweck:</b> damit</li><li><b>Folge:</b> sodass</li></ul>
+        <div class="bsp"><span class="hl-v">Nachdem der Film zu Ende war</span>, gingen wir nach Hause.</div>` },
+      { t: "So begründest du die Satzart", html: `
+        <p><b>Satzgefüge:</b> „Der Satz besteht aus Haupt- und Nebensatz. Der Nebensatz beginnt mit <i>weil</i>, das Verb steht am Ende und er kann nicht allein stehen.“</p>
+        <p><b>Satzreihe:</b> „Beide Teile sind Hauptsätze. Sie können allein stehen, das Verb steht jeweils an zweiter Stelle.“</p>` }
+    ],
+    fallen: [
+      "**deshalb, trotzdem, danach** leiten keinen Nebensatz ein. „Es regnet, deshalb bleiben wir drinnen.“ ist eine Satzreihe.",
+      "**denn** = Satzreihe (Verb an 2. Stelle), **weil** = Satzgefüge (Verb am Ende).",
+      "Steht der Nebensatz vorn, folgt nach dem Komma sofort das Verb: „Weil es regnet, **bleiben** wir drinnen.“"
+    ],
+    basis: [
+      { typ: "wahl", t: "Bestimme die Satzart.", quali: true, tipp: "Suche Einleitewörter wie weil, dass, als, wann. Wo steht das gebeugte Verb in jedem Teil?",
+        items: [
+          { s: "Die Klasse fährt nach Berlin, und alle freuen sich darauf.", o: ["einfacher Satz", "Satzreihe", "Satzgefüge"], a: 1 },
+          { s: "Weil der Bus ausfiel, kamen wir zu spät.", o: ["einfacher Satz", "Satzreihe", "Satzgefüge"], a: 2 },
+          { s: "Am Abend grillen wir mit den Nachbarn im Garten.", o: ["einfacher Satz", "Satzreihe", "Satzgefüge"], a: 0 },
+          { s: "Ich wollte anrufen, aber mein Akku war leer.", o: ["einfacher Satz", "Satzreihe", "Satzgefüge"], a: 1 },
+          { s: "Wir wissen noch nicht, wann das Fest beginnt.", o: ["einfacher Satz", "Satzreihe", "Satzgefüge"], a: 2, e: "„wann das Fest beginnt“ ist ein Nebensatz: Verb am Ende." },
+          { s: "Mats spielt Gitarre, seine Schwester singt dazu.", o: ["einfacher Satz", "Satzreihe", "Satzgefüge"], a: 1, e: "Zwei Hauptsätze, nur mit Komma verbunden." }
+        ] },
+      { typ: "luecke", t: "Wähle das Wort, das passt.", tipp: "Achte auf die Bedeutung und darauf, wo das Verb steht.",
+        items: ["Ich wollte kommen, {{aber|weil|dass}} ich hatte keine Zeit.",
+                "Sie trainiert jeden Tag, {{deshalb|obwohl|weil}} gewinnt sie oft.",
+                "{{Nachdem|Denn|Und}} der Film zu Ende war, gingen wir nach Hause.",
+                "Er ist müde, {{denn|weil|obwohl}} er hat schlecht geschlafen.",
+                "Ich nehme nicht den Bus, {{sondern|oder|denn}} ich fahre mit dem Rad."] },
+      { typ: "umformen", t: "Verbinde die beiden Sätze mit dem Wort in Klammern.", tipp: "Bei weil und obwohl rutscht das Verb ans Ende. Bei deshalb und aber bleibt es an zweiter Stelle.",
+        items: [
+          { s: "Ich bin müde. Ich gehe ins Bett. (deshalb)", l: ["Ich bin müde, deshalb gehe ich ins Bett."] },
+          { s: "Ich gehe ins Bett. Ich bin müde. (weil)", l: ["Ich gehe ins Bett, weil ich müde bin.", "Weil ich müde bin, gehe ich ins Bett."] },
+          { s: "Es ist kalt. Lena trägt kurze Hosen. (obwohl)", l: ["Obwohl es kalt ist, trägt Lena kurze Hosen.", "Lena trägt kurze Hosen, obwohl es kalt ist."] },
+          { s: "Ich habe geklingelt. Niemand hat aufgemacht. (aber)", l: ["Ich habe geklingelt, aber niemand hat aufgemacht."] }
+        ] },
+      { typ: "markieren", t: "Markiere die Verbindungswörter: blau, wenn sie Hauptsätze verbinden – lila, wenn sie einen Nebensatz einleiten.",
+        stifte: [["b", "verbindet Hauptsätze"], ["v", "leitet Nebensatz ein"]], tipp: "Schau, wo das Verb danach steht: an zweiter Stelle oder am Ende?",
+        items: ["Ich wollte früh los, [b:aber] der Wecker klingelte nicht.",
+                "[v:Als] ich aufwachte, war es schon acht Uhr.",
+                "Ich rannte zum Bus, [b:denn] ich wollte pünktlich sein.",
+                "Der Bus war weg, [b:deshalb] lief ich zu Fuß.",
+                "Die Lehrerin lächelte, [v:obwohl] ich zu spät kam."] },
+      { typ: "wahl", t: "Weißt du es noch?", mischen: true,
+        items: [
+          { f: "Eine Satzreihe besteht aus …", o: ["zwei oder mehr Hauptsätzen", "Hauptsatz und Nebensatz", "nur einem Hauptsatz"], a: 0 },
+          { f: "Ein Satzgefüge besteht aus …", o: ["Hauptsatz und mindestens einem Nebensatz", "zwei Hauptsätzen", "zwei Nebensätzen ohne Hauptsatz"], a: 0 },
+          { f: "Mit welchem Wort entsteht eine Satzreihe?", o: ["aber", "weil", "obwohl", "dass"], a: 0 },
+          { f: "Im Nebensatz steht das gebeugte Verb …", o: ["am Ende", "an zweiter Stelle", "ganz vorn"], a: 0 }
+        ] },
+      { typ: "bauen", t: "Der Nebensatz steht vorn: Baue den Hauptsatz richtig an.", tipp: "Nach dem Komma folgt direkt das Verb.",
+        items: [
+          { teile: ["Weil es regnet,", "bleiben", "wir", "heute", "drinnen"] },
+          { teile: ["Nachdem wir gegessen hatten,", "räumten", "wir", "die Küche", "auf"] }
+        ] }
+    ],
+    plus: [
+      { typ: "frei", t: "Bestimme die Satzart und begründe deine Entscheidung.", quali: true,
+        tipp: "Nenne die Satzart und ein Erkennungszeichen: Einleitewort, Stellung des Verbs, kann (nicht) allein stehen.",
+        items: [
+          { f: "„Als der Schiedsrichter abpfiff, jubelten die Fans.“", zeilen: 3,
+            kriterien: ["nennt die Satzart Satzgefüge", "begründet mit dem Nebensatz (Einleitewort „als“, Verb am Ende oder kann nicht allein stehen)"],
+            muster: "satzgef(ü|ue)ge.*(als|nebensatz|ende|allein)|(als|nebensatz|ende|allein).*satzgef(ü|ue)ge",
+            bsp: "Satzgefüge: „Als der Schiedsrichter abpfiff“ ist ein Nebensatz. Er beginnt mit „als“, das Verb steht am Ende und er kann nicht allein stehen." },
+          { f: "„Die Fans jubelten, denn ihre Mannschaft hatte gewonnen.“", zeilen: 3,
+            kriterien: ["nennt die Satzart Satzreihe", "begründet: zwei Hauptsätze (z. B. „denn“ verbindet Hauptsätze, Verb an zweiter Stelle)"],
+            muster: "satzreihe.*(hauptsätze|hauptsaetze|hauptsatz|denn|zweiter|2\\.)|(hauptsätze|hauptsaetze|hauptsatz|denn|zweiter|2\\.).*satzreihe",
+            bsp: "Satzreihe: Beide Teile sind Hauptsätze, „denn“ verbindet sie. Das Verb steht jeweils an zweiter Stelle." }
+        ] },
+      { typ: "umformen", t: "Schreibe die Satzreihe als Satzgefüge.", tipp: "denn/deshalb → weil · trotzdem → obwohl. Vergiss nicht: Das Verb wandert ans Ende des Nebensatzes.",
+        items: [
+          { s: "Wir fahren mit dem Zug, denn das Auto ist kaputt.", f: "Nimm „weil“.", l: ["Wir fahren mit dem Zug, weil das Auto kaputt ist.", "Weil das Auto kaputt ist, fahren wir mit dem Zug."] },
+          { s: "Es war spät, deshalb nahmen wir ein Taxi.", f: "Nimm „weil“.", l: ["Weil es spät war, nahmen wir ein Taxi.", "Wir nahmen ein Taxi, weil es spät war."] },
+          { s: "Ben war krank, trotzdem ging er zum Training.", f: "Nimm „obwohl“.", l: ["Obwohl Ben krank war, ging er zum Training.", "Ben ging zum Training, obwohl er krank war."] }
+        ] },
+      { typ: "markieren", t: "Markiere die Hauptsätze blau und die Nebensätze lila.", stifte: [["b", "Hauptsatz"], ["v", "Nebensatz"]],
+        tipp: "Ein Hauptsatz kann durch einen eingeschobenen Nebensatz in zwei Teile getrennt sein. Markiere beide Teile.",
+        items: ["[v:Als wir ankamen], [b:merkten wir], [v:dass das Museum geschlossen war].",
+                "[b:Der Mann], [v:der uns geholfen hatte], [b:war sehr freundlich].",
+                "[b:Ich frage mich], [v:ob du recht hast]."] },
+      { typ: "frei", t: "Schreibe selbst: ein Satzgefüge, bei dem der Nebensatz vorn steht.",
+        items: [
+          { f: "Thema: dein Schulweg.", kriterien: ["beginnt mit einem Nebensatz (z. B. weil, wenn, als, obwohl, nachdem)", "danach folgt der Hauptsatz, sein Verb steht direkt nach dem Komma"],
+            muster: "^\\s*(weil|wenn|als|obwohl|nachdem|bevor|da|damit|sobald|während|seit|seitdem|falls)\\b[^,]+,\\s*\\S+",
+            bsp: "Wenn ich verschlafe, nehme ich den Bus." }
+        ] }
+    ]
   });
-}
-function updateBar(){
-  document.getElementById('pts').textContent=state.pts;
-  const pct=Math.round((state.pts/12)*100);
-  document.getElementById('progressBar').style.width=pct+'%';
-  document.getElementById('grade').textContent='Note '+grade(state.pts);
-}
-function wrongExplanation(q){
-  if(q && q.explain) return String(q.explain);
-  const correctText = q && q.options && q.options[q.correct] ? q.options[q.correct] : '';
-  return correctText ? ('Richtig wäre: "'+correctText+'".') : 'Achte auf die Regel und den Satzkontext.';
-}
-function choose(i,idx,btn){
-  const id='ex'+i;if(state.done.has(id))return;
-  const ex=document.getElementById(id);const buttons=[].slice.call(ex.querySelectorAll('button.opt'));const fb=document.getElementById('fb'+i);
-  const retry=ex.dataset.retry==='1';
-  const q = QUESTIONS[i];
-  const ok = idx===q.correct;
-  if(ok){
-    btn.classList.add('ok');buttons.forEach(function(b){b.disabled=true});state.done.add(id);if(window.Lernstand)Lernstand.geloest(id);state.pts += retry?1:2;
-    fb.textContent='Richtig! +'+(retry?1:2)+' Punkte';
-    updateBar();checkEnd();
-  }else{
-    btn.classList.add('bad');btn.disabled=true;
-    const expl = wrongExplanation(q);
-    if(!retry){
-      ex.dataset.retry='1';
-      fb.textContent='Nicht ganz. '+expl+' Versuche es noch einmal (noch 1 Punkt möglich).';
-    }
-    else{
-      buttons.forEach(function(b){b.disabled=true});
-      const correctText = q.options[q.correct];
-      if(buttons[q.correct]) buttons[q.correct].classList.add('ok');
-      state.done.add(id);
-      fb.textContent='Leider nicht richtig. '+expl+' Richtige Antwort: "'+correctText+'".';
-      updateBar();checkEnd();
-    }
-  }
-}
-function checkEnd(){
-  if(state.done.size!==QUESTIONS.length)return;
-  const s=document.getElementById('summary');
-  s.style.display='block';
-  s.innerHTML='<h2 style="color:var(--accent);margin-bottom:6px">Fertig!</h2><p>'+state.pts+' / 12 Punkte · Note '+grade(state.pts)+'</p>';
-}
-render();updateBar();
-</script>
-<script src="../../../js/lernstand.js"></script>
-<script>
-/* Lernstand mit Code: Anmeldung, Meldung richtig gelöster Aufgaben, „Das fehlt dir noch“ (js/lernstand.js) */
-if (window.Lernstand) Lernstand.seite({
-  kurs: "d9", bereich: "Sprachbetrachtung", bnr: 3, modul: "d9-sb-04", nr: 4, kurz: "SB4",
-  titel: "Satzverbindungen",
-  auswahl: ".ex", text: ".q", teil: "Fragen", abNull: true,
-  anker: document.getElementById("quiz")
-});
-</script>
+  </script>
 </body>
 </html>
-

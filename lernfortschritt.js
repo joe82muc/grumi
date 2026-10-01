@@ -293,7 +293,13 @@
     });
   }
 
-  function modulAufgaben(m) { var k = DATEN.katalog[m]; return k ? Object.keys(k) : null; }
+  // Plus-Aufgaben (Deutsch 9 Grammatik) sind für R-Klassen freiwillig und zählen dort nicht zur Prozentzahl
+  function modulAufgaben(m) {
+    var k = DATEN.katalog[m];
+    if (!k) return null;
+    var r = zugBuchstabe(KLASSE) === "R";
+    return Object.keys(k).filter(function (id) { return !(r && k[id][1] === "Plus"); });
+  }
   // { geloest, gesamt, pct, profi } eines Kindes in einem Modul, oder null
   function stand(kind, m) {
     var p = kind.module[m];
@@ -452,7 +458,7 @@
         var stationen = {}, reihe = [];
         Object.keys(k).forEach(function (id) { var s = k[id][1] || "–"; reihe.push(s); (stationen[s] = stationen[s] || []).push(id); });
         Object.keys(stationen).sort(stationOrdnung(reihe)).forEach(function (s) {
-          h += '<div class="lf-st">' + esc(stationText(s)) + '</div><div class="lf-aufg">' + stationen[s].map(function (id) {
+          h += '<div class="lf-st">' + esc(stationText(s)) + (s === "Plus" && zugBuchstabe(KLASSE) === "R" ? " (freiwillig)" : "") + '</div><div class="lf-aufg">' + stationen[s].map(function (id) {
             var ok = p && p.g && p.g[id];
             return '<span class="lf-a ' + (ok ? "ok" : "no") + '"' + (ok ? ' title="gelöst ' + esc(zeitText(p.g[id])) + '"' : "") + ">" + (ok ? "✓ " : "○ ") + esc(k[id][0]) + "</span>";
           }).join("") + "</div>";

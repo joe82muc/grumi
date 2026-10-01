@@ -1,132 +1,131 @@
-﻿<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sprachbetrachtung 1: Wortarten</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#0a0f1e;--surface:#121a2f;--surface2:#1a2542;--line:#314166;--text:#e6eeff;--muted:#9fb1d9;--accent:#5fd3ff;--ok:#4caf50;--bad:#ef5350}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Outfit',sans-serif;background:radial-gradient(900px 450px at 10% -20%,rgba(95,211,255,.18),transparent 55%),var(--bg);color:var(--text);min-height:100vh}
-header{padding:24px 16px 18px;text-align:center;border-bottom:1px solid var(--line);background:rgba(10,15,30,.82)}
-header h1{font-size:clamp(1.35rem,3.6vw,2rem);color:var(--accent)}
-header p{color:var(--muted);margin-top:4px}
-#scorebar{position:sticky;top:0;z-index:10;display:flex;gap:12px;align-items:center;padding:10px 14px;background:#0d1427;border-bottom:1px solid var(--line)}
-#progressWrap{flex:1;height:8px;background:#243255;border-radius:999px;overflow:hidden}
-#progressBar{height:100%;width:0;background:linear-gradient(90deg,#4fc3f7,var(--accent));transition:width .25s}
-main{max-width:900px;margin:0 auto;padding:18px 12px 26px}
-.hint{background:var(--surface);border-left:3px solid var(--accent);border:1px solid var(--line);padding:10px 12px;border-radius:0 8px 8px 0;color:var(--muted);margin-bottom:12px}
-.ex{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:10px}
-.q{margin-bottom:8px;line-height:1.45}
-.opts{display:grid;gap:8px}
-button.opt{background:var(--surface2);color:var(--text);border:1px solid #3a4d79;border-radius:8px;padding:9px 10px;text-align:left;cursor:pointer}
-button.opt:hover{border-color:var(--accent)}
-button.opt.ok{border-color:var(--ok);color:#9ae6a0}
-button.opt.bad{border-color:var(--bad);color:#ffb4b4}
-button.opt:disabled{cursor:default;opacity:.9}
-.fb{font-size:.86rem;color:var(--muted);margin-top:6px;min-height:1.1em}
-#summary{display:none;text-align:center;margin-top:16px;padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
-.nav{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:16px}
-.nav a{color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent)}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wortarten | Deutsch 9 Grammatik</title>
+  <meta name="description" content="Deutsch 9 Grammatik, Thema 1: Wortarten sicher bestimmen – Nomen, Verb, Adjektiv, Pronomen, Adverb, Präposition, Konjunktion, Artikel. Mit Basis- und Plus-Aufgaben.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="grammatik.css">
 </head>
 <body>
-<header>
-  <h1>Sprachbetrachtung 1: Wortarten</h1>
-  <p>Nomen, Verb, Adjektiv, Pronomen · 6 Aufgaben</p>
-</header>
-<div id="scorebar">
-  <div><b id="pts">0</b> / 12 Punkte</div>
-  <div id="progressWrap"><div id="progressBar"></div></div>
-  <div id="grade">Note ?</div>
-</div>
-<main>
-  <div class="hint">Bestimme die Wortart im Satzkontext.</div>
-  <div id="quiz"></div>
-  <div id="summary"></div>
-  <div class="nav">
-    <a href="index.html">&larr; Zurück</a>
-    <a href="index.html">Übersicht</a>
-    <a href="sb_02.html">Weiter &rarr;</a>
-  </div>
-</main>
-<script>
-const QUESTIONS = [{"q":"Welche Wortart hat \"schnell\" in: \"Der schnelle Zug fährt ab\"?","correct":1,"options":["Nomen","Adjektiv","Verb"]},{"q":"Welche Wortart hat \"wir\"?","correct":0,"options":["Pronomen","Adverb","Artikel"]},{"q":"Welche Wortart hat \"laufen\"?","correct":0,"options":["Verb","Nomen","Präposition"]},{"q":"Welche Wortart hat \"unter\" in \"unter dem Tisch\"?","correct":1,"options":["Konjunktion","Präposition","Adjektiv"]},{"q":"Welche Wortart hat \"der\" in \"der Hund\"?","correct":0,"options":["Artikel","Pronomen","Adverb"]},{"q":"Welche Wortart hat \"heute\"?","correct":0,"options":["Adverb","Verb","Nomen"]}];
-const state={pts:0,done:new Set()};
-function grade(p){const pct=Math.round((p/12)*100);if(pct>=92)return 1;if(pct>=81)return 2;if(pct>=67)return 3;if(pct>=50)return 4;if(pct>=30)return 5;return 6;}
-function render(){
-  const root=document.getElementById('quiz');
-  root.innerHTML='';
-  QUESTIONS.forEach(function(q,i){
-    const box=document.createElement('div');box.className='ex';box.id='ex'+i;
-    const qEl=document.createElement('div');qEl.className='q';qEl.textContent=(i+1)+') '+q.q;box.appendChild(qEl);
-    const opts=document.createElement('div');opts.className='opts';
-    q.options.forEach(function(opt,idx){
-      const b=document.createElement('button');b.className='opt';b.textContent=opt;
-      b.onclick=function(){choose(i,idx,b)};opts.appendChild(b);
-    });
-    box.appendChild(opts);
-    const fb=document.createElement('div');fb.className='fb';fb.id='fb'+i;box.appendChild(fb);
-    root.appendChild(box);
+  <div id="app"><noscript><p style="padding:20px">Diese Übungsseite braucht JavaScript.</p></noscript></div>
+  <script src="../../../js/lernstand.js"></script>
+  <script src="grammatik.js"></script>
+  <script>
+  Grammatik.seite({
+    nr: 1,
+    titel: "Wortarten",
+    lead: "Jedes Wort gehört zu einer Wortart. Wer sie sicher bestimmen kann, versteht Sätze besser – und holt im Quali leichte Punkte.",
+    ziele: ["Du unterscheidest veränderbare und unveränderbare Wortarten.", "Du bestimmst Wortarten im Satz mit Proben.", "Du erkennst die Arten von Pronomen."],
+    merk: [
+      { t: "Veränderbare Wortarten", html: `
+        <table><tr><th>Wortart</th><th>Erkennungszeichen</th><th>Beispiele</th></tr>
+        <tr><td><b>Nomen</b></td><td>großgeschrieben, Artikel davor möglich</td><td>die Werkstatt, das Glück</td></tr>
+        <tr><td><b>Verb</b></td><td>lässt sich konjugieren (ich, du, er …)</td><td>arbeiten, er arbeitet</td></tr>
+        <tr><td><b>Adjektiv</b></td><td>lässt sich steigern, beschreibt Eigenschaften</td><td>leise – leiser – am leisesten</td></tr>
+        <tr><td><b>Artikel</b></td><td>Begleiter des Nomens</td><td>der, die, das, ein, eine</td></tr>
+        <tr><td><b>Pronomen</b></td><td>steht für ein Nomen oder begleitet es</td><td>sie, unser, dieser, der</td></tr></table>` },
+      { t: "Unveränderbare Wortarten", html: `
+        <p>Diese Wörter ändern ihre Form nie:</p>
+        <ul><li><b>Adverb</b> – sagt, wann, wo, wie oder warum: <i>gestern, dort, gern, deshalb</i></li>
+        <li><b>Präposition</b> – steht vor einem Nomen und bestimmt den Fall: <i>mit, für, wegen, unter</i></li>
+        <li><b>Konjunktion</b> – verbindet Wörter oder Sätze: <i>und, aber, weil, dass, obwohl</i></li></ul>
+        <div class="bsp"><span class="hl-o">Gestern</span> fuhr Aylin <span class="hl-v">mit</span> dem Rad, <span class="hl-g">weil</span> der Bus ausfiel.</div>
+        <p class="merksatz">„ins“ = in + das, „am“ = an + dem: Präposition und Artikel sind verschmolzen.</p>` },
+      { t: "Pronomen genauer", html: `
+        <ul><li><b>Personalpronomen:</b> ich, du, er, sie, es, wir, ihr, sie (auch mir, dich, ihm …)</li>
+        <li><b>Possessivpronomen:</b> mein, dein, sein, ihr, unser, euer – zeigt, wem etwas gehört</li>
+        <li><b>Demonstrativpronomen:</b> dieser, jener, derselbe – zeigt auf etwas</li>
+        <li><b>Relativpronomen:</b> der, die, das, welcher – leitet einen Relativsatz ein</li>
+        <li><b>Reflexivpronomen:</b> mich, dich, sich – bezieht sich auf das Subjekt</li>
+        <li><b>Indefinitpronomen:</b> jemand, niemand, man, alle, etwas</li></ul>` },
+      { t: "Proben, die dir helfen", html: `
+        <ul><li><b>Artikelprobe:</b> Passt ein Artikel davor? Dann ist es ein Nomen – auch bei <i>das Warten, beim Lesen</i>.</li>
+        <li><b>Konjugationsprobe:</b> ich gehe, du gehst … → Verb</li>
+        <li><b>Steigerungsprobe:</b> laut – lauter → Adjektiv</li>
+        <li><b>Stellprobe für Adjektive:</b> passt das Wort zwischen Artikel und Nomen? <i>das <span class="hl">spannende</span> Spiel</i> → Adjektiv. <i>das gestern Spiel</i> geht nicht → <i>gestern</i> ist ein Adverb.</li></ul>` }
+    ],
+    fallen: [
+      "„das“ (Artikel oder Pronomen) und „dass“ (Konjunktion) verwechseln. Lässt sich „dieses“ oder „welches“ einsetzen, schreibst du „das“.",
+      "Nominalisierte Verben und Adjektive übersehen: **beim Laufen**, **das Beste** sind Nomen.",
+      "„sein“, „ihr“, „unser“ vor einem Nomen sind keine Artikel, sondern Possessivpronomen.",
+      "Ein Wort kann je nach Satz eine andere Wortart sein: **seit** Montag (Präposition) – **seit** er da ist (Konjunktion)."
+    ],
+    basis: [
+      { typ: "zuordnen", t: "Sortiere die Wörter nach ihrer Wortart.", tipp: "Mach die Proben: Artikel davor? Konjugierbar? Steigerbar?",
+        gruppen: ["Nomen", "Verb", "Adjektiv", "Pronomen", "Präposition", "Konjunktion"],
+        karten: [["Turnier", 0], ["Schiedsrichterin", 0], ["pfeifen", 1], ["gewinnt", 1], ["müde", 2], ["spannend", 2],
+                 ["wir", 3], ["euer", 3], ["unter", 4], ["wegen", 4], ["obwohl", 5], ["oder", 5]] },
+      { typ: "markieren", t: "Markiere alle Nomen – auch die nominalisierten.", tipp: "Artikelprobe: Vor „Warten“ kannst du „das“ setzen. „beim“ = bei + dem.",
+        items: ["Beim [Warten] auf den [Bus] erzählte [Aylin] von ihrem [Praktikum] in der [Werkstatt].",
+                "Die [Chefin] lobte ihre [Geduld] und ihre saubere [Arbeit].",
+                "Am [Ende] der [Woche] bekam sie ein kleines [Zeugnis]."] },
+      { typ: "wahl", t: "Bestimme die Wortart des unterstrichenen Wortes.", quali: true, tipp: "Frag dich: Lässt sich das Wort verändern? Wenn nicht: Sagt es wann/wo/wie (Adverb), steht es vor einem Nomen (Präposition) oder verbindet es (Konjunktion)?",
+        items: [
+          { s: "Der Hausmeister öffnet __morgen__ die Turnhalle.", o: ["Adverb", "Adjektiv", "Präposition", "Nomen"], a: 0, e: "„morgen“ sagt, wann – und es lässt sich nicht verändern: Adverb." },
+          { s: "Lena wartet, __weil__ der Zug Verspätung hat.", o: ["Präposition", "Konjunktion", "Adverb", "Pronomen"], a: 1, e: "„weil“ verbindet zwei Sätze: Konjunktion." },
+          { s: "Wir treffen uns __nach__ der Schule.", o: ["Konjunktion", "Adverb", "Präposition", "Artikel"], a: 2, e: "„nach“ steht vor „der Schule“ und verlangt den Dativ: Präposition." },
+          { s: "Das ist __ihr__ neues Fahrrad.", o: ["Artikel", "Pronomen", "Adjektiv", "Adverb"], a: 1, e: "„ihr“ zeigt, wem das Rad gehört: Possessivpronomen." },
+          { s: "Die Aufgabe war ziemlich __schwierig__.", o: ["Adverb", "Verb", "Adjektiv", "Nomen"], a: 2, e: "schwierig – schwieriger: steigerbar, also Adjektiv." },
+          { s: "__Das__ Training beginnt um vier.", o: ["Artikel", "Konjunktion", "Pronomen", "Präposition"], a: 0, e: "„Das“ begleitet hier das Nomen „Training“: Artikel." }
+        ] },
+      { typ: "luecke", t: "Wähle das passende Pronomen.", tipp: "Lies den ganzen Satz. Wer ist gemeint – und welcher Fall wird gebraucht?",
+        items: ["Mila hat ihr Ladekabel vergessen. Kannst du {{ihr|ihm|sie}} deins leihen?",
+                "Die Jungs haben {{ihre|seine|unsere}} Trikots in der Halle liegen lassen.",
+                "Das ist der Trainer, {{der|den|dem}} uns immer anfeuert.",
+                "Hat {{jemand|etwas|nichts}} meinen Schlüssel gesehen?",
+                "Ich habe {{mich|mir|sich}} über die Nachricht gefreut."] },
+      { typ: "markieren", t: "Markiere die Verben rot und die Adjektive grün.", stifte: [["r", "Verb"], ["g", "Adjektiv"]],
+        tipp: "Verben kannst du konjugieren (ich lohne, es lohnt …). Adjektive stehen hier zwischen Artikel und Nomen oder nach „sein“.",
+        items: ["Die [g:neue] Trainerin [r:erklärt] eine [g:schwierige] Übung.",
+                "Nach dem Spiel [r:haben] wir [g:kalte] Füße und [r:frieren].",
+                "Der [g:lange] Weg zum See [r:lohnt] sich, denn das Wasser [r:ist] [g:klar]."] },
+      { typ: "wahl", t: "Proben und Erkennungszeichen", mischen: true, tipp: "Schau in den Merkkasten „Proben, die dir helfen“.",
+        items: [
+          { f: "Mit welcher Probe erkennst du ein Nomen sicher?", o: ["Artikelprobe", "Steigerungsprobe", "Konjugationsprobe"], a: 0 },
+          { f: "Woraus besteht „ins“?", o: ["Präposition + Artikel", "Konjunktion + Pronomen", "Adverb + Artikel"], a: 0 },
+          { f: "Welche Wortart lässt sich steigern?", o: ["Adjektiv", "Präposition", "Konjunktion"], a: 0 },
+          { f: "Welches Wort ist eine Konjunktion?", o: ["obwohl", "trotz", "dort"], a: 0, e: "„trotz“ ist eine Präposition (trotz des Regens), „dort“ ein Adverb." }
+        ] }
+    ],
+    plus: [
+      { typ: "luecke", t: "Finde im Text je ein passendes Beispiel und schreibe es in die Lücke.", quali: true,
+        info: "„Gestern ist unsere Klasse mit dem Zug nach Nürnberg gefahren. Dort haben wir ein Museum besucht. Es war spannend, aber ziemlich anstrengend.“",
+        tipp: "Es gibt mehrere richtige Lösungen. Schreib das Wort genau so, wie es im Text steht.",
+        items: ["Nomen: [[Klasse|Zug|Nürnberg|Museum]]",
+                "Verb: [[ist|gefahren|haben|besucht|war]]",
+                "Adjektiv: [[spannend|anstrengend]]",
+                "Personalpronomen: [[wir|es]]",
+                "Adverb: [[gestern|dort|ziemlich]]",
+                "Präposition: [[mit|nach]]",
+                "Konjunktion: [[aber]]"] },
+      { typ: "wahl", t: "Welche Art von Pronomen ist unterstrichen?", tipp: "Steht es für ein Nomen, zeigt es Besitz, leitet es einen Nebensatz ein oder bezieht es sich auf das Subjekt?",
+        items: [
+          { s: "Ich habe __mich__ über das Geschenk gefreut.", o: ["Personalpronomen", "Reflexivpronomen", "Relativpronomen"], a: 1 },
+          { s: "Der Film, __den__ wir gesehen haben, war zu lang.", o: ["Artikel", "Demonstrativpronomen", "Relativpronomen"], a: 2, e: "„den“ leitet den Relativsatz ein und bezieht sich auf „der Film“." },
+          { s: "__Dieses__ Buch kenne ich schon.", o: ["Demonstrativpronomen", "Possessivpronomen", "Indefinitpronomen"], a: 0 },
+          { s: "Habt ihr __eure__ Jacken dabei?", o: ["Personalpronomen", "Possessivpronomen", "Reflexivpronomen"], a: 1 },
+          { s: "__Jemand__ hat die Tür offen gelassen.", o: ["Indefinitpronomen", "Personalpronomen", "Demonstrativpronomen"], a: 0 },
+          { s: "Kommt __ihr__ heute mit ins Kino?", o: ["Possessivpronomen", "Personalpronomen", "Reflexivpronomen"], a: 1, e: "Hier steht „ihr“ für Personen (die angesprochene Gruppe): Personalpronomen." }
+        ] },
+      { typ: "markieren", t: "Markiere alle Wörter, die hier als Nomen gebraucht werden.", tipp: "Auch Namen sind Nomen. Achte auf Verben und Adjektive mit Begleiter: „zum Lernen“, „das Beste“.",
+        items: ["Beim [Joggen] hört [Mats] gern [Musik].",
+                "Das [Beste] am [Ausflug] war das gemeinsame [Grillen].",
+                "Zum [Lernen] braucht man vor allem [Ruhe] und etwas [Geduld]."] },
+      { typ: "wahl", t: "Bestimme die Wortart – hier wird es kniffliger.", quali: true, tipp: "Denk an die Proben – und daran, dass nominalisierte Verben Nomen sind.",
+        items: [
+          { s: "Er kam __trotz__ des Regens pünktlich.", o: ["Präposition", "Konjunktion", "Adverb", "Adjektiv"], a: 0 },
+          { s: "Sie lachte, __obwohl__ ihr gar nicht danach war.", o: ["Präposition", "Konjunktion", "Adverb", "Pronomen"], a: 1 },
+          { s: "Das __Laufen__ fällt mir heute schwer.", o: ["Verb", "Nomen", "Adjektiv", "Adverb"], a: 1, e: "Mit Artikel „das“ ist „Laufen“ nominalisiert: Nomen." },
+          { s: "Wir haben __deshalb__ das Treffen abgesagt.", o: ["Konjunktion", "Adverb", "Präposition", "Pronomen"], a: 1, e: "„deshalb“ gibt einen Grund an und ist unveränderbar – ein Adverb." },
+          { s: "__Seine__ Idee hat alle überzeugt.", o: ["Artikel", "Pronomen", "Adjektiv", "Nomen"], a: 1 },
+          { s: "Sie wohnt __seit__ zwei Jahren in Unterhaching.", o: ["Konjunktion", "Präposition", "Adverb", "Verb"], a: 1, e: "„seit zwei Jahren“: Hier steht „seit“ vor einer Zeitangabe mit Nomen – Präposition." }
+        ] }
+    ]
   });
-}
-function updateBar(){
-  document.getElementById('pts').textContent=state.pts;
-  const pct=Math.round((state.pts/12)*100);
-  document.getElementById('progressBar').style.width=pct+'%';
-  document.getElementById('grade').textContent='Note '+grade(state.pts);
-}
-function wrongExplanation(q){
-  if(q && q.explain) return String(q.explain);
-  const correctText = q && q.options && q.options[q.correct] ? q.options[q.correct] : '';
-  return correctText ? ('Richtig wäre: "'+correctText+'".') : 'Achte auf die Regel und den Satzkontext.';
-}
-function choose(i,idx,btn){
-  const id='ex'+i;if(state.done.has(id))return;
-  const ex=document.getElementById(id);const buttons=[].slice.call(ex.querySelectorAll('button.opt'));const fb=document.getElementById('fb'+i);
-  const retry=ex.dataset.retry==='1';
-  const q = QUESTIONS[i];
-  const ok = idx===q.correct;
-  if(ok){
-    btn.classList.add('ok');buttons.forEach(function(b){b.disabled=true});state.done.add(id);if(window.Lernstand)Lernstand.geloest(id);state.pts += retry?1:2;
-    fb.textContent='Richtig! +'+(retry?1:2)+' Punkte';
-    updateBar();checkEnd();
-  }else{
-    btn.classList.add('bad');btn.disabled=true;
-    const expl = wrongExplanation(q);
-    if(!retry){
-      ex.dataset.retry='1';
-      fb.textContent='Nicht ganz. '+expl+' Versuche es noch einmal (noch 1 Punkt möglich).';
-    }
-    else{
-      buttons.forEach(function(b){b.disabled=true});
-      const correctText = q.options[q.correct];
-      if(buttons[q.correct]) buttons[q.correct].classList.add('ok');
-      state.done.add(id);
-      fb.textContent='Leider nicht richtig. '+expl+' Richtige Antwort: "'+correctText+'".';
-      updateBar();checkEnd();
-    }
-  }
-}
-function checkEnd(){
-  if(state.done.size!==QUESTIONS.length)return;
-  const s=document.getElementById('summary');
-  s.style.display='block';
-  s.innerHTML='<h2 style="color:var(--accent);margin-bottom:6px">Fertig!</h2><p>'+state.pts+' / 12 Punkte · Note '+grade(state.pts)+'</p>';
-}
-render();updateBar();
-</script>
-<script src="../../../js/lernstand.js"></script>
-<script>
-/* Lernstand mit Code: Anmeldung, Meldung richtig gelöster Aufgaben, „Das fehlt dir noch“ (js/lernstand.js) */
-if (window.Lernstand) Lernstand.seite({
-  kurs: "d9", bereich: "Sprachbetrachtung", bnr: 3, modul: "d9-sb-01", nr: 1, kurz: "SB1",
-  titel: "Wortarten",
-  auswahl: ".ex", text: ".q", teil: "Fragen", abNull: true,
-  anker: document.getElementById("quiz")
-});
-</script>
+  </script>
 </body>
 </html>
-

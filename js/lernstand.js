@@ -14,11 +14,12 @@
  *                                 aufgaben: [{ id, teil, text, kurz, label?, el? }]   oder   auswahl: "CSS-Selektor", text: "Selektor", teil: "…",
  *                                 mehrGeloest: function (ids) {…}   (Stand von einem anderen Gerät übernehmen),
  *                                 dialog: false   (Seite meldet selbst an, z. B. Deutsch 7),
- *                                 fehlerGeladen: function (f) {…}   (Fehlerwörter vom Server, Vokabeltrainer) })
+ *                                 fehlerGeladen: function (f) {…}   (Fehlerwörter vom Server, Vokabeltrainer),
+ *                                 freiwillig: function (a) {…}   (true = zählt nicht zum Balken, z. B. Plus-Aufgaben für R-Klassen) })
  *               Lernstand.fehlerMelden({ wort: [falsch, richtig] })   Fehlerwörter mitschicken
  *               Lernstand.geloest(id)   nach einer richtig gelösten Aufgabe
  *               Lernstand.markieren()   nach einem Neuaufbau der Aufgaben
- * Übersicht:    Lernstand.uebersicht({ kurs, module: [{ id, titel, href }], anker, kompakt? })
+ * Übersicht:    Lernstand.uebersicht({ kurs, module: [{ id, titel, href }], anker, kompakt?, freiwillig? })
  */
 (function (global) {
   "use strict";
@@ -388,8 +389,21 @@
     return a && a.el && a.el.isConnected ? a.el : null;
   }
 
+  // Freiwillige Aufgaben (cfg.freiwillig) zählen nicht zum Balken und stehen extra
+  function freiTeilen(aufgaben, frei) {
+    var pflicht = [], extra = [];
+    aufgaben.forEach(function (a) { (typeof frei === "function" && frei(a) ? extra : pflicht).push(a); });
+    return { pflicht: pflicht, extra: extra };
+  }
+  function freiZeile(extra, geloest) {
+    if (!extra.length) return "";
+    var n = extra.filter(function (a) { return geloest[a.id]; }).length;
+    return '<p class="ls-hinweis">Freiwillig (' + esc(extra[0].teil) + "): " + n + " von " + extra.length + " richtig gelöst</p>";
+  }
+
   function zeichnenSeite() {
-    var n = ids().filter(function (id) { return S.geloest[id]; }).length, gesamt = S.aufgaben.length;
+    var teil = freiTeilen(S.aufgaben, S.freiwillig);
+    var n = teil.pflicht.filter(function (a) { return S.geloest[a.id]; }).length, gesamt = teil.pflicht.length;
     var pct = gesamt ? Math.round(n / gesamt * 100) : 0;
     var h = '<div class="ls-kopf"><h2>Dein Stand · ' + esc(S.titel) + "</h2>" + werZeile() + "</div>";
     if (!schueler) {
@@ -397,7 +411,7 @@
     } else {
       h += '<p class="ls-zahl">✓ ' + n + " von " + gesamt + " " + esc(S.einheit || "Aufgaben") + " richtig gelöst</p>" +
         '<div class="ls-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '"><i style="width:' + pct + '%"></i></div>';
-      h += offenListe(S.aufgaben, S.geloest, "", true);
+      h += offenListe(teil.pflicht, S.geloest, "", true) + freiZeile(teil.extra, S.geloest);
       if (S.hinweis) h += '<p class="ls-hinweis">' + esc(S.hinweis) + "</p>";
     }
     S.box.innerHTML = h;
@@ -488,15 +502,18 @@
             jeTeil[teil] = (jeTeil[teil] || 0) + 1;
             return { id: id, teil: teil, text: k[id][0], kurz: String(jeTeil[teil]) };
           }) : null;
+          var teil = auf ? freiTeilen(auf, cfg.freiwillig) : null;
+          if (teil) auf = teil.pflicht;
           var n = auf ? auf.filter(function (a) { return g[a.id]; }).length : Object.keys(g).length;
+          var nAlle = teil ? n + teil.extra.filter(function (a) { return g[a.id]; }).length : n;
           // kompakt: noch nicht begonnene Module nur in einer Zeile
-          if (cfg.kompakt && !n && !laedt) { ohne.push(m); return; }
+          if (cfg.kompakt && !nAlle && !laedt) { ohne.push(m); return; }
           h += '<div class="ls-modul"><div class="ls-zeile"><a href="' + esc(m.href) + '">' + esc(m.titel) + "</a>";
           if (auf) {
             var pct = auf.length ? Math.round(n / auf.length * 100) : 0;
             h += '<span class="ls-zahl">' + n + " von " + auf.length + " richtig</span></div>" +
               '<div class="ls-bar"><i style="width:' + pct + '%"></i></div>' +
-              (n ? offenListe(auf, g, m.sprung === false ? "" : m.href, false) : '<p class="ls-hinweis">Noch nicht begonnen.</p>');
+              (nAlle ? offenListe(auf, g, m.sprung === false ? "" : m.href, false) + freiZeile(teil.extra, g) : '<p class="ls-hinweis">Noch nicht begonnen.</p>');
           } else {
             h += '<span class="ls-zahl">' + (n ? n + " richtig gelöst" : laedt ? "…" : "noch nicht begonnen") + "</span></div>";
           }

@@ -28,7 +28,7 @@ passenden Proben.
 | NT 7 (`nt7`, 7M und 7R) | Luft-Modul, Windkraft ×2, Verbrennung, Explosiv | `nt7-<seite>` |
 | NT 9 (`nt9`) | Organische Rohstoffe, Module 1–5 | `m01`–`m06` |
 | Deutsch 7 (`d7`) | Argumentieren: 5 Module (`de-modul.js`) | `d7-<modul>` |
-| Deutsch 9 (`d9`) | Rechtschreibung, Sprachbetrachtung, Satzglieder, Vorleser | `d9-…` |
+| Deutsch 9 (`d9`) | Rechtschreibung, Grammatik 1–10 (Basis + Plus), Satzglieder, Vorleser | `d9-sb-01-b1` …, `d9-…` |
 | Englisch 7 (`e7`) | Grammatik G1–G4, Vokabeltrainer Unit 1–4 | `e7-u1-g1` …, `e7-uN-vokabeln` |
 | Englisch 8 (`e8`, nur R) | Vokabeltrainer Unit 1–4 | `e8-uN-vokabeln` |
 | Englisch 9 (`e9`) | Grammatik, Vokabeln, Unit 3/4, Zeiten, Mediation (7 inkl. Hospital), Picture-based talk, E-Mail | `e9…` |
@@ -121,10 +121,29 @@ Nicht dabei: Mathe und WiB (so gewünscht), Proben (eigene Freischaltung), Argum
   Probe; Filius-Workshop: Station 1–5, Videos, Prüfung, Beispieldatei). Die Beispieldatei-Kachel erscheint wieder nur
   nach Freigabe (war vorher immer sichtbar).
 
+## Stand 03.10.2026: Deutsch 9 Grammatik neu
+
+- **Zehn Themenseiten** `9/Deutsch/Sprachbetrachtung/sb_01` … `sb_10` (Wortarten, Satzglieder, Haupt- und Nebensatz,
+  Satzreihe und Satzgefüge, Aktiv und Passiv, direkte und indirekte Rede, Zeitformen, Konjunktiv I und II,
+  Satzbau und Stil, Kommasetzung), jede mit drei Teilen: **Verstehen** (Merkkästen, typische Fehler),
+  **Basis** (6 Aufgaben für alle), **Plus** (4 Aufgaben, Quali-Niveau). Alle Beispiele selbst formuliert,
+  Aufgabenformen wie im Quali Teil B (markiert mit „wie im Quali“).
+- Gemeinsamer Baukasten `grammatik.js` + `grammatik.css` (helles Layout wie die Fachseite Deutsch 9). Aufgabentypen:
+  Ankreuzen, Lückentext (tippen oder auswählen), Markieren (antippen oder mit dem Finger ziehen, mehrere Farben),
+  Zuordnen, Kommas setzen, Umformen, Selbst schreiben, Satzbau. „Lösung zeigen“ erst nach einem Fehlversuch – und
+  dann zählt die Aufgabe nicht.
+- **Plus und Zug**: Für den M-Zug gehören die Plus-Aufgaben dazu. Für R-Klassen sind sie freiwillig: Sie zählen weder
+  im Balken der Kinder noch in der Prozentzahl der Lehreransicht (`Lernstand.seite/uebersicht({ freiwillig })`,
+  `lernfortschritt.js` blendet Teil „Plus“ für R-Klassen aus der Zählung aus).
+- **KI-Zweitmeinung** (nur mit Code): Weicht eine Umformung oder ein eigener Satz von den hinterlegten Lösungen ab,
+  prüft Haiku mild, ob die verlangte Form stimmt (`POST /api/d9-grammatik/pruefen`, englisch_9
+  `backend/api/deutsch9-grammatik.js`, höchstens 150 Anfragen je Code und Stunde, nichts wird gespeichert). Ohne Server
+  prüfen eigene Sätze nach einem Muster, Umformungen nur gegen die Lösungen.
+- Neue Kennungen `d9-sb-NN-b1` … `-p4`; die alten (`ex0` …) zählen nicht mehr. Übersicht `Sprachbetrachtung/index.html`
+  mit „Dein Stand“; die Fachseite Deutsch 9 nennt den Bereich jetzt „Grammatik“.
+
 ## Offen
 
-- **Deutsch 9 Grammatik** (Sprachbetrachtung 1–10) gründlich überarbeiten: Lernseiten mit Merkkästen,
-  Basis- und Plus-Aufgaben (M-Zug), Layout wie Deutsch 9. Gemeinsamer Baustein `grammatik.js` geplant.
 - Englisch 7 G1–G4 „Übungen zur Regel“ und Beispielsätze der Vokabeltrainer 7/8R auf Buchnähe prüfen.
 - Vokabeltrainer: Ton auf echten iPads kurz prüfen (der Test-Safari unter Windows hat keine Tonausgabe).
 - Schulleitung/Datenschutzbeauftragte über Upstash informieren (Auftragsverarbeitung).
