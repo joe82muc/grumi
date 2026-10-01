@@ -142,37 +142,20 @@ function buildLogin(){
       <p class="eyebrow">Deutsch 7 · Argumentieren</p>
       <h2 id="lgTitle">Dein Training starten</h2>
       <p id="lgText">Gib den <strong>3-stelligen Code</strong> ein, den du von deiner Lehrkraft bekommen hast. Er gilt in allen Fächern.</p>
-      <label id="lgCodeFeld">Dein Code<input id="lgCode" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" spellcheck="false" placeholder="···" style="font-size:1.8rem;font-weight:900;letter-spacing:.4em;text-align:center"></label>
-      <div id="lgNamen" hidden>
-        <label>Vorname<input id="lgFirst" autocomplete="given-name" maxlength="60"></label>
-        <label>Nachname<input id="lgLast" autocomplete="family-name" maxlength="60"></label>
-        <label>Klasse<select id="lgClass"><option>7M</option><option>7R</option></select></label>
-      </div>
+      <label id="lgCodeFeld">Dein Code<input id="lgCode" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" spellcheck="false" placeholder="···" style="width:100%;min-width:0;box-sizing:border-box;font-size:1.8rem;font-weight:900;letter-spacing:.4em;text-align:center;padding-left:calc(12px + .4em)"></label>
       <p class="err" id="lgErr" role="alert"></p>
       <button class="btn" id="lgGo" type="submit">➜ Training öffnen</button>
-      <button class="btn ghost small" id="lgWechsel" type="button">Ich habe noch keinen Code – mit Namen anmelden</button>
       <p class="privacy" id="lgPrivacy">Mit Code werden dein Code und deine Texte gespeichert, dein Name nicht. Welcher Code zu dir gehört, weiß nur deine Lehrkraft.</p>
     </form>
   </dialog>`);
   const dlg = $("#loginDialog"), go = $("#lgGo"), err = $("#lgErr");
-  const st = session.student; if (st && st.className && [...$("#lgClass").options].some(o => o.value === st.className)) $("#lgClass").value = st.className;
   dlg.addEventListener("cancel", e => { if (!session.token) e.preventDefault(); });
   const codeFeld = $("#lgCode");
   codeFeld.addEventListener("input", () => { const v = codeFeld.value.replace(/\D/g, "").slice(0, 3); if (v !== codeFeld.value) codeFeld.value = v; });
-  $("#lgWechsel").addEventListener("click", () => {
-    const mitNamen = $("#lgNamen").hidden;
-    $("#lgNamen").hidden = !mitNamen; $("#lgCodeFeld").hidden = mitNamen; err.textContent = "";
-    $("#lgWechsel").textContent = mitNamen ? "Ich habe einen Code" : "Ich habe noch keinen Code – mit Namen anmelden";
-    $("#lgText").innerHTML = mitNamen ? "Trage deinen Namen ein, damit deine Texte und Verbesserungen zusammenbleiben." : "Gib den <strong>3-stelligen Code</strong> ein, den du von deiner Lehrkraft bekommen hast. Er gilt in allen Fächern.";
-    $("#lgPrivacy").textContent = mitNamen ? "Deine Antworten werden mit deinem Namen gespeichert, nur für dich und deine Lehrkraft." : "Mit Code werden dein Code und deine Texte gespeichert, dein Name nicht. Welcher Code zu dir gehört, weiß nur deine Lehrkraft.";
-    setTimeout(() => (mitNamen ? $("#lgFirst") : codeFeld).focus(), 30);
-  });
   $("#loginForm").addEventListener("submit", async e => {
     e.preventDefault();
-    const mitCode = $("#lgNamen").hidden;
-    const body = mitCode ? {code: codeFeld.value.replace(/\D/g, "")} : {firstName: $("#lgFirst").value.trim(), lastName: $("#lgLast").value.trim(), className: $("#lgClass").value};
-    if (mitCode && !/^\d{3}$/.test(body.code)) { err.textContent = "Dein Code hat genau 3 Ziffern."; return; }
-    if (!mitCode && (!body.firstName || !body.lastName)) { err.textContent = "Bitte Vor- und Nachnamen eintragen."; return; }
+    const body = {code: codeFeld.value.replace(/\D/g, "")};
+    if (!/^\d{3}$/.test(body.code)) { err.textContent = "Dein Code hat genau 3 Ziffern."; return; }
     err.textContent = ""; go.disabled = true; go.textContent = "Wird geöffnet …";
     const slow = setTimeout(() => { err.style.color = "var(--muted)"; err.textContent = "Der Server wacht gerade auf – das kann bis zu einer Minute dauern."; }, 6000);
     try {
@@ -191,7 +174,7 @@ function openLogin(){
   buildLogin();
   const dlg = $("#loginDialog");
   if (!dlg.open) dlg.showModal();
-  setTimeout(() => ($("#lgNamen").hidden ? $("#lgCode") : $("#lgFirst")).focus(), 60);
+  setTimeout(() => $("#lgCode").focus(), 60);
   return new Promise(res => loginWaiters.push(res));
 }
 function renderWho(){

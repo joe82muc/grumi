@@ -112,9 +112,8 @@ function bindDom() {
     "sideOptions", "trainerForm", "stageFields", "wordChips", "formMessage", "checkButton",
     "feedbackSection", "feedbackTitle", "feedbackStars", "feedbackSummary", "componentList",
     "markedArea", "markedText", "nextStep", "improveButton", "nextStageButton", "licenceMeter",
-    "progressCopy", "licenceList", "licenceResult", "loginDialog", "loginForm", "firstName",
-    "lastName", "className", "loginError", "loginButton"
-    , "studentCode", "nameFields", "loginSwitch", "loginText", "codeLabel"
+    "progressCopy", "licenceList", "licenceResult", "loginDialog", "loginForm",
+    "loginError", "loginButton", "studentCode", "loginText", "codeLabel"
   ].forEach((id) => { dom[id] = document.getElementById(id); });
 }
 
@@ -124,13 +123,6 @@ function bindStaticEvents() {
     if (!state.token) event.preventDefault();
   });
   dom.studentCode.addEventListener("input", () => { const v = dom.studentCode.value.replace(/\D/g, "").slice(0, 3); if (v !== dom.studentCode.value) dom.studentCode.value = v; });
-  dom.loginSwitch.addEventListener("click", () => {
-    const withNames = dom.nameFields.hidden;
-    dom.nameFields.hidden = !withNames; dom.codeLabel.hidden = withNames; dom.loginError.textContent = "";
-    dom.loginSwitch.textContent = withNames ? "Ich habe einen Code" : "Ich habe noch keinen Code – mit Namen anmelden";
-    dom.loginText.innerHTML = withNames ? "Trage deine Daten ein, damit deine Verbesserungen zusammenbleiben." : "Gib den <strong>3-stelligen Code</strong> ein, den du von deiner Lehrkraft bekommen hast. Er gilt in allen Fächern.";
-    setTimeout(() => (withNames ? dom.firstName : dom.studentCode).focus(), 30);
-  });
   dom.logoutButton.addEventListener("click", () => {
     clearCodeSession();
     clearSession();
@@ -155,19 +147,10 @@ async function login(event) {
   event.preventDefault();
   dom.loginError.textContent = "";
   setButtonBusy(dom.loginButton, true, "Wird geöffnet ...");
-  const withCode = dom.nameFields.hidden;
   const code = dom.studentCode.value.replace(/\D/g, "");
-  if (withCode && !/^\d{3}$/.test(code)) { dom.loginError.textContent = "Dein Code hat genau 3 Ziffern."; setButtonBusy(dom.loginButton, false, "Training öffnen"); return; }
-  if (!withCode && (!dom.firstName.value.trim() || !dom.lastName.value.trim())) { dom.loginError.textContent = "Bitte Vor- und Nachnamen eintragen."; setButtonBusy(dom.loginButton, false, "Training öffnen"); return; }
+  if (!/^\d{3}$/.test(code)) { dom.loginError.textContent = "Dein Code hat genau 3 Ziffern."; setButtonBusy(dom.loginButton, false, "Training öffnen"); return; }
   try {
-    const result = await api("/api/de7-argument/start", {
-      method: "POST",
-      body: withCode ? { code } : {
-        firstName: dom.firstName.value,
-        lastName: dom.lastName.value,
-        className: dom.className.value
-      }
-    }, false);
+    const result = await api("/api/de7-argument/start", { method: "POST", body: { code } }, false);
     clearSession();
     if (result.student && result.student.code) writeCodeSession(result.student);
     state.token = result.token;
@@ -579,7 +562,7 @@ function clearSession() {
 
 function openLogin() {
   if (!dom.loginDialog.open) dom.loginDialog.showModal();
-  setTimeout(() => (dom.nameFields.hidden ? dom.studentCode : dom.firstName).focus(), 50);
+  setTimeout(() => dom.studentCode.focus(), 50);
 }
 
 async function api(route, options = {}, authenticate = true) {
