@@ -156,6 +156,18 @@ Die Themenübersicht bindet `fortschritt.js` mit `data-anmeldung="nein"` ein (ze
   zweiten Lehrergerät laden, Handybreite. Alle 343 Aufgaben der fünf Module haben eine Bezeichnung und Station.
 - Backend-Tests: `node --test api/nt9-fortschritt.test.js` (mit Upstash-Attrappe).
 
+## Stand 01.10.2026, spät: Englisch 9 Grammatik dabei
+
+- Derselbe Code und dieselbe Anmeldung auf dem Gerät gelten jetzt auch für Englisch 9M/9R, Grammatik Unit 1
+  (G1–G4). Schülerskript `js/lernstand-e9.js` (Wurzel des Repos): Anmeldung, Meldung richtig gelöster Aufgaben
+  (Modul-Kennungen `e9u1g1`–`e9u1g4`, Aufgaben `a1…`, `b1…`, `c1…`), Stand-Feld „Dein Stand – Das fehlt dir noch“
+  auf jeder Grammatikseite (Links springen zur Aufgabe, schon gelöste Aufgaben tragen „✓ schon richtig gelöst“) und
+  auf der Grammatik-Übersicht (je Einheit Balken und offene Aufgaben, Aufgabenliste kommt vom Server).
+- „Lösung zeigen“ zählt nicht als gelöst. Kurztests und Grammatikprobe laufen weiter getrennt (Freischaltung).
+- Server: Kursverzeichnis `KURSE` in `nt9-fortschritt.js` (nt9, e9), `anmelden` liefert mit `katalog: true` die
+  Aufgabenliste eines Kurses, Station darf ein Teil-Name sein („Mehr üben“).
+- Lehreransicht: Kurswahl „NT 9 · Organische Rohstoffe“ / „Englisch 9 · Grammatik Unit 1“, Codes gemeinsam.
+
 ## Offen
 
 - Schulleitung und Datenschutzbeauftragten über Upstash als neuen Dienstleister informieren

@@ -1,6 +1,7 @@
 /* ============================================================
-   Lernfortschritt NT 9M/9R „Organische Rohstoffe“ für die Lehrkraft
-   (Reiter in proben-verwalten.html, gleiches Lehrerpasswort)
+   Lernfortschritt Klasse 9M/9R für die Lehrkraft: NT 9 „Organische Rohstoffe“
+   und Englisch 9 Grammatik Unit 1 (Reiter in proben-verwalten.html, gleiches
+   Lehrerpasswort). Ein Code je Kind gilt für alle Kurse.
 
    - Codes anlegen: Namen eintragen oder die Klassenliste (CSV-Export aus dem
      Schulmanager) laden, der Server vergibt je Kind einen 3-stelligen Code.
@@ -21,9 +22,9 @@
   "use strict";
   var doc = global.document;
   var API = "", PW = "", box = null;
-  var DATEN = null, KLASSE = "9M", OFFEN = {}, AUSWERTUNG_MODUL = "m06", ALLE_AUFGABEN = false;
+  var DATEN = null, KLASSE = "9M", KURS = "nt9", OFFEN = {}, AUSWERTUNG_MODUL = "m06", ALLE_AUFGABEN = false;
   var KURZ = 12; // so viele Aufgaben zeigt die Klassenauswertung zuerst
-  try { KLASSE = global.localStorage.getItem("lf-nt9-klasse") || "9M"; } catch (_e) {}
+  try { KLASSE = global.localStorage.getItem("lf-nt9-klasse") || "9M"; KURS = global.localStorage.getItem("lf-kurs") || "nt9"; } catch (_e) {}
   // Getrennte Namensliste der Lehrkraft: { code: name }, nur in diesem Browser
   var NAMEN_KEY = "lf-nt9-namen", NAMEN = {};
   try { NAMEN = JSON.parse(global.localStorage.getItem(NAMEN_KEY) || "{}") || {}; } catch (_e) { NAMEN = {}; }
@@ -136,7 +137,7 @@
   }
   function zuletzt(kind) {
     var z = 0;
-    Object.keys(kind.module).forEach(function (m) { z = Math.max(z, kind.module[m].z || 0); });
+    kursModule().forEach(function (m) { if (kind.module[m.id]) z = Math.max(z, kind.module[m.id].z || 0); });
     return z;
   }
   function zeitText(ms) {
@@ -148,6 +149,25 @@
     return String(d.getDate()).padStart(2, "0") + "." + String(d.getMonth() + 1).padStart(2, "0") + "." + String(d.getFullYear()).slice(2) + " " + uhr;
   }
   function stufe(pct) { return pct >= 80 ? 2 : pct >= 40 ? 1 : 0; }
+  // Module des gewählten Kurses (ältere Server ohne Kurse: alle)
+  function kursModule() {
+    var M = DATEN.module.filter(function (m) { return !m.kurs || m.kurs === KURS; });
+    return M.length ? M : DATEN.module;
+  }
+  function kurzName(m) { return m.kurz || "Modul " + m.nr; }
+  // Station: Zahl = Station der NT-Seiten, sonst Name des Teils (Englisch: „Mehr üben“ …)
+  function stationText(s) { return /^\d+$/.test(s) ? "Station " + s : s; }
+  function stationKurz(s) { return !s ? "" : /^\d+$/.test(s) ? "S" + s : s; }
+  function stationOrdnung(liste) {
+    var reihe = [];
+    liste.forEach(function (s) { if (reihe.indexOf(s) < 0) reihe.push(s); });
+    return function (a, b) {
+      var na = /^\d+$/.test(a), nb = /^\d+$/.test(b);
+      if (na && nb) return +a - +b;
+      if (na !== nb) return na ? -1 : 1;
+      return reihe.indexOf(a) - reihe.indexOf(b);
+    };
+  }
   function kinder() {
     return DATEN.schueler.filter(function (s) { return s.klasse === KLASSE; })
       .map(function (s) { s.name = nameVon(s.code); return s; })
@@ -157,9 +177,10 @@
   /* ---------- Anzeige ---------- */
   function rahmen() {
     box.innerHTML =
-      '<div class="toolbar"><div><h2>Lernfortschritt NT 9 · Organische Rohstoffe</h2>' +
+      '<div class="toolbar"><div><h2>Lernfortschritt · Klasse 9</h2>' +
       '<p class="sub" style="margin:0">Anteil der gelösten Aufgaben je Modul. Ein Klick auf ein Kind zeigt jede Aufgabe einzeln.</p></div>' +
       '<div class="spacer"></div><div class="lf-tabs" id="lf-klassen"></div>' +
+      '<div class="lf-tabs" id="lf-kurse" style="width:100%"></div>' +
       '<button class="btn btn-ghost btn-sm" id="lf-reload" type="button">Neu laden</button>' +
       '<button class="btn btn-ghost btn-sm" id="lf-csv" type="button">CSV-Export</button></div>' +
       '<div id="lf-msg"></div><div id="lf-inhalt"><div class="skel">Lernstand wird geladen … Wenn der Server schläft, dauert das bis zu einer Minute.</div></div>';
@@ -182,9 +203,35 @@
     });
   }
 
+  function kursKnoepfe() {
+    var el = doc.getElementById("lf-kurse");
+    el.innerHTML = "";
+    (DATEN.kurse || []).forEach(function (k) {
+      var b = doc.createElement("button");
+      b.type = "button"; b.textContent = k.titel; b.className = k.id === KURS ? "on" : "";
+      b.addEventListener("click", function () {
+        KURS = k.id; OFFEN = {}; ALLE_AUFGABEN = false;
+        try { global.localStorage.setItem("lf-kurs", k.id); } catch (_e) {}
+        zeichnen();
+      });
+      el.appendChild(b);
+    });
+  }
+
   function zeichnen() {
+    if (DATEN.kurse && !DATEN.kurse.some(function (k) { return k.id === KURS; })) KURS = DATEN.kurse[0].id;
     klassenKnoepfe();
-    var liste = kinder(), M = DATEN.module, h = "";
+    kursKnoepfe();
+    var liste = kinder(), M = kursModule(), h = "";
+    // Klassenauswertung: nach einem Kurswechsel das Modul, das die meisten Kinder begonnen haben
+    if (!M.some(function (m) { return m.id === AUSWERTUNG_MODUL; })) {
+      var best = M[0], bestN = -1;
+      M.forEach(function (m) {
+        var n = liste.filter(function (kind) { return stand(kind, m.id); }).length;
+        if (n > bestN) { best = m; bestN = n; }
+      });
+      AUSWERTUNG_MODUL = best.id;
+    }
     var fehlend = liste.filter(function (k) { return !k.name; }).length;
     if (DATEN.speicher !== "upstash") {
       hinweis("Die Datenbank ist noch nicht verbunden: Codes und Lernstand gehen beim nächsten Neustart des Servers verloren. Bitte UPSTASH_REDIS_REST_URL und UPSTASH_REDIS_REST_TOKEN bei Render eintragen.", "warn");
@@ -195,7 +242,7 @@
       h += '<div class="note">Für Klasse ' + esc(KLASSE) + ' gibt es noch keine Codes. Lege sie unten unter „Codes verwalten“ an.</div>';
     } else {
       h += '<div class="lf-scroll"><table class="lf-tab"><thead><tr><th>Name</th><th>Code</th>';
-      M.forEach(function (m) { h += '<th>Modul ' + m.nr + "<small>" + esc(m.titel) + "</small></th>"; });
+      M.forEach(function (m) { h += "<th>" + esc(kurzName(m)) + "<small>" + esc(m.titel) + "</small></th>"; });
       h += "<th>Zuletzt aktiv</th></tr></thead><tbody>";
       liste.forEach(function (kind) {
         var auf = OFFEN[kind.code];
@@ -207,18 +254,18 @@
         if (auf) h += '<tr class="lf-detail"><td colspan="' + (M.length + 3) + '">' + detail(kind) + "</td></tr>";
       });
       h += "</tbody></table></div>" +
-        '<p class="sub" style="margin:.5rem 0 0">Farben: rot unter 40 %, gelb ab 40 %, grün ab 80 %. 🏆 = Profi-Check (Abschlussquiz) bestanden.</p>';
+        '<p class="sub" style="margin:.5rem 0 0">Farben: rot unter 40 %, gelb ab 40 %, grün ab 80 %.' + (KURS === "nt9" ? " 🏆 = Profi-Check (Abschlussquiz) bestanden." : " Gezählt werden Aufgaben, die das Kind richtig gelöst hat (nicht „Lösung zeigen“).") + "</p>";
     }
 
     // Klassenauswertung
     h += '<h3 class="lf-h3">Klassenauswertung: Was sollte ich wiederholen?</h3>' +
       '<div class="lf-werkzeug"><label for="lf-modul" style="margin:0">Modul</label><select id="lf-modul">' +
-      M.map(function (m) { return '<option value="' + m.id + '"' + (m.id === AUSWERTUNG_MODUL ? " selected" : "") + ">Modul " + m.nr + ": " + esc(m.titel) + "</option>"; }).join("") +
+      M.map(function (m) { return '<option value="' + m.id + '"' + (m.id === AUSWERTUNG_MODUL ? " selected" : "") + ">" + esc(kurzName(m)) + ": " + esc(m.titel) + "</option>"; }).join("") +
       "</select></div>" + auswertung(liste, AUSWERTUNG_MODUL);
 
     // Codes verwalten
     h += '<h3 class="lf-h3">Codes verwalten · Klasse ' + esc(KLASSE) + "</h3>" +
-      '<p class="sub"><b>Klassenliste laden</b> (CSV-Export aus dem Schulmanager) oder die Vornamen von Hand eintragen, einen pro Zeile. Dann „Codes erzeugen“. Jedes Kind bekommt einen eigenen 3-stelligen Code. Die Namen bleiben nur in diesem Browser, der Server bekommt sie nicht.</p>' +
+      '<p class="sub"><b>Klassenliste laden</b> (CSV-Export aus dem Schulmanager) oder die Vornamen von Hand eintragen, einen pro Zeile. Dann „Codes erzeugen“. Jedes Kind bekommt einen eigenen 3-stelligen Code. <b>Der Code gilt für NT und Englisch.</b> Die Namen bleiben nur in diesem Browser, der Server bekommt sie nicht.</p>' +
       (fehlend ? '<div class="note warn">Für ' + fehlend + (fehlend === 1 ? " Code fehlt" : " Codes fehlen") + ' in diesem Browser der Name. Lade die Namensliste, die du auf deinem anderen Gerät gespeichert hast.</div>' : "") +
       '<div class="btn-row" style="margin:0 0 .6rem"><button class="btn btn-ghost btn-sm" id="lf-liste" type="button">📄 Klassenliste laden (Schulmanager-CSV)</button>' +
       '<input type="file" id="lf-liste-datei" accept=".csv,.txt,text/csv,text/plain" hidden></div>' +
@@ -269,14 +316,14 @@
   // Alle Aufgaben eines Kindes, nach Modul und Station
   function detail(kind) {
     var h = "";
-    DATEN.module.forEach(function (m) {
+    kursModule().forEach(function (m) {
       var p = kind.module[m.id], k = DATEN.katalog[m.id], st = stand(kind, m.id);
-      h += '<div class="lf-mod"><h4>Modul ' + m.nr + ": " + esc(m.titel) + (st ? " · " + st.geloest + " von " + st.gesamt + " gelöst" : " · noch nicht begonnen") + "</h4>";
+      h += '<div class="lf-mod"><h4>' + esc(kurzName(m)) + ": " + esc(m.titel) + (st ? " · " + st.geloest + " von " + st.gesamt + " gelöst" : " · noch nicht begonnen") + "</h4>";
       if (st && k) {
-        var stationen = {};
-        Object.keys(k).forEach(function (id) { var s = k[id][1] || "–"; (stationen[s] = stationen[s] || []).push(id); });
-        Object.keys(stationen).sort(function (a, b) { return (+a || 99) - (+b || 99); }).forEach(function (s) {
-          h += '<div class="lf-st">Station ' + esc(s) + '</div><div class="lf-aufg">' + stationen[s].map(function (id) {
+        var stationen = {}, reihe = [];
+        Object.keys(k).forEach(function (id) { var s = k[id][1] || "–"; reihe.push(s); (stationen[s] = stationen[s] || []).push(id); });
+        Object.keys(stationen).sort(stationOrdnung(reihe)).forEach(function (s) {
+          h += '<div class="lf-st">' + esc(stationText(s)) + '</div><div class="lf-aufg">' + stationen[s].map(function (id) {
             var ok = p && p.g && p.g[id];
             return '<span class="lf-a ' + (ok ? "ok" : "no") + '"' + (ok ? ' title="gelöst ' + esc(zeitText(p.g[id])) + '"' : "") + ">" + (ok ? "✓ " : "○ ") + esc(k[id][0]) + "</span>";
           }).join("") + "</div>";
@@ -295,14 +342,15 @@
     var begonnen = liste.filter(function (kind) { return stand(kind, m); });
     if (!begonnen.length) return '<p class="sub" style="margin-top:.7rem">In Klasse ' + esc(KLASSE) + " hat noch niemand dieses Modul begonnen.</p>";
     if (!k) return '<p class="sub" style="margin-top:.7rem">Die Aufgabenliste erscheint, sobald jemand das Modul nach dem Update geöffnet hat.</p>';
+    var ordnung = stationOrdnung(Object.keys(k).map(function (id) { return k[id][1] || ""; }));
     var zeilen = Object.keys(k).map(function (id) {
       var n = begonnen.filter(function (kind) { return kind.module[m].g[id]; }).length;
       return { id: id, label: k[id][0], st: k[id][1], n: n, pct: Math.round(n / begonnen.length * 100) };
-    }).sort(function (a, b) { return a.pct - b.pct || (+a.st || 99) - (+b.st || 99); });
+    }).sort(function (a, b) { return a.pct - b.pct || ordnung(a.st || "", b.st || ""); });
     var sichtbar = ALLE_AUFGABEN ? zeilen : zeilen.slice(0, KURZ);
     return '<p class="sub" style="margin-top:.7rem">' + begonnen.length + " von " + liste.length + " Kindern haben dieses Modul begonnen. Oben stehen die Aufgaben, die am wenigsten gelöst wurden – sie waren schwer oder wurden noch nicht bearbeitet.</p>" +
       '<div class="lf-rang">' + sichtbar.map(function (z) {
-        return '<div class="lf-rang-z"><span><span class="lf-stn">' + esc(z.st ? "S" + z.st : "") + "</span> " + esc(z.label) + "</span>" +
+        return '<div class="lf-rang-z"><span>' + (/^\d+$/.test(z.st || "") ? '<span class="lf-stn">' + esc(stationKurz(z.st)) + "</span> " : "") + esc(z.label) + "</span>" +
           '<div class="lf-bar lf-g' + stufe(z.pct) + '"><i style="width:' + z.pct + '%"></i></div><b>' + z.n + "/" + begonnen.length + "</b></div>";
       }).join("") + "</div>" +
       (zeilen.length > KURZ ? '<button class="btn btn-ghost btn-sm lf-mehr" id="lf-mehr" type="button">' +
@@ -376,9 +424,9 @@
     var liste = kinder(), d = doc.getElementById("lf-druck");
     if (!d) { d = doc.createElement("div"); d.id = "lf-druck"; doc.body.appendChild(d); }
     d.innerHTML = liste.map(function (k) {
-      return '<div class="lf-zettel"><small>NT ' + esc(KLASSE) + " · Organische Rohstoffe</small><b>" + esc(k.name || "") + "</b>" +
-        '<div class="lf-z-code">' + esc(k.code) + "</div><small>Dein Code für die Lernmodule. In GRUMI: Klasse " + esc(KLASSE) +
-        " → Natur und Technik → Organische Rohstoffe. Gib ihn nicht weiter.</small></div>";
+      return '<div class="lf-zettel"><small>Klasse ' + esc(KLASSE) + " · GRUMI-Lernmodule</small><b>" + esc(k.name || "") + "</b>" +
+        '<div class="lf-z-code">' + esc(k.code) + "</div><small>Dein Code für NT (Organische Rohstoffe) und Englisch (Grammatik). " +
+        "Gib ihn nicht weiter.</small></div>";
     }).join("");
     doc.body.classList.add("lf-drucken");
     var weg = function () { doc.body.classList.remove("lf-drucken"); global.removeEventListener("afterprint", weg); };
@@ -389,14 +437,14 @@
 
   function csv() {
     if (!DATEN) return;
-    var M = DATEN.module, zeilen = [["Klasse", "Code", "Name"].concat(M.map(function (m) { return "Modul " + m.nr + " (%)"; }), M.map(function (m) { return "Modul " + m.nr + " gelöst"; }), ["Profi-Checks bestanden", "Zuletzt aktiv"])];
+    var M = kursModule(), zeilen = [["Klasse", "Code", "Name"].concat(M.map(function (m) { return kurzName(m) + " (%)"; }), M.map(function (m) { return kurzName(m) + " gelöst"; }), KURS === "nt9" ? ["Profi-Checks bestanden"] : [], ["Zuletzt aktiv"])];
     DATEN.schueler.slice().sort(function (a, b) { return a.klasse.localeCompare(b.klasse) || nameVon(a.code).localeCompare(nameVon(b.code), "de"); }).forEach(function (k) {
       var st = M.map(function (m) { return stand(k, m.id); });
       zeilen.push([k.klasse, k.code, nameVon(k.code)]
         .concat(st.map(function (s) { return s ? s.pct : ""; }), st.map(function (s) { return s ? s.geloest + "/" + s.gesamt : ""; }))
-        .concat([st.filter(function (s) { return s && s.profi; }).length, zeitText(zuletzt(k))]));
+        .concat(KURS === "nt9" ? [st.filter(function (s) { return s && s.profi; }).length] : [], [zeitText(zuletzt(k))]));
     });
-    datei(zeilen, "lernfortschritt-nt9-" + new Date().toISOString().slice(0, 10) + ".csv");
+    datei(zeilen, "lernfortschritt-" + KURS + "-" + new Date().toISOString().slice(0, 10) + ".csv");
   }
 
   function datei(zeilen, dateiname) {
