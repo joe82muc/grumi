@@ -2,7 +2,17 @@
 
 Der Lernfortschritt der Schülerinnen und Schüler liegt nur im `localStorage` des jeweiligen Geräts
 (`fortschritt.js`, Schlüssel `grumi-nt9-m9-…` bzw. `grumi-nt9-r9-…`). Er wird nicht übertragen und
-nicht an einen Server geschickt. Jede Lernseite meldet ihre Sterne über `FS.speichern(id, gelöst, gesamt)`
+nicht an einen Server geschickt.
+
+**Anmeldung (seit 01.10.2026):** Beim ersten Öffnen eines Moduls (1–5 und Kursübersicht) fragt
+`fortschritt.js` nach Vorname oder Nummer, mit Datenschutz-Hinweis. Der Name bleibt ebenfalls nur auf
+dem Gerät (`grumi-nt9-m9-anmeldung`). Jede Anmeldung hat einen eigenen Speicherbereich: an den Schlüssel
+wird `~kennung~` gehängt (Kennung = Name klein geschrieben), z. B. `grumi-nt9-m9-modul1-v1~lena~`.
+Modulseiten holen ihren Schlüssel über `FS.schluessel(...)`. Bei der ersten Anmeldung auf einem Gerät wird
+der Stand von vorher (ohne Namen) übernommen. Abmelden über das Namensschild 👤 in der Kopfzeile oder in
+der Kursübersicht; „Fortschritt zurücksetzen“ löscht nur den Stand des angemeldeten Kindes.
+Die Themenübersicht bindet das Skript mit `data-anmeldung="nein"` ein (zeigt den Stand, fragt aber nicht).
+An die KI gehen nur Frage und Antwort, kein Name. Jede Lernseite meldet ihre Sterne über `FS.speichern(id, gelöst, gesamt)`
 an die Übersicht (`index.html`) und an die Themenübersicht (`../übersicht_themen.html`).
 
 | Modul | Kennung | Seite | Stand |
@@ -59,6 +69,14 @@ an die Übersicht (`index.html`) und an die Themenübersicht (`../übersicht_the
   - Grundlage: fachliche Fakten aus dem Unterrichtsmaterial zur Aufbereitung von Erdöl, alle Texte eigenständig
     formuliert. KI-Grafiken aus dem Apps-Ordner („So wird Erdöl in Bestandteile getrennt“, „Was wird aus Erdöl
     hergestellt“) mit dem vorgegebenen KI-Hinweis.
+
+## Stand 01.10.2026: Anmeldung
+
+- Anmeldung mit Vorname oder Nummer für alle fünf Module und die Kursübersicht (wie „Dein Training starten“
+  in Deutsch 7, aber ohne Server). Begrüßung „Hallo …“ in der Kursübersicht, Name auch in der Themenübersicht.
+- Mehrere Kinder an einem geteilten Gerät sehen jeweils nur ihren eigenen Stand.
+- Getestet mit Playwright (Chromium und WebKit/iPad): Übernahme des alten Stands, Abmelden, zweites Kind,
+  erneute Anmeldung, Zurücksetzen, Handybreite.
 
 ## Offen
 
