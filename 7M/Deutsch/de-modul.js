@@ -82,7 +82,7 @@ function lernstand(){
     return {id, teil, kurz: String(zaehler[teil]), text: kat[id][0], label: kat[id][0], el: (meta[id] || {}).el || null};
   });
   const los = () => window.Lernstand.seite({kurs: "d7", modul: "d7-" + name, bereich: "Argumentieren und diskutieren", bnr: 1,
-    nr: info[0], kurz: "Modul " + info[0], titel: info[1], aufgaben, anker: $("section.station"), mehrGeloest: ids => mehrGeloest(ids)});
+    nr: info[0], kurz: "Modul " + info[0], titel: info[1], aufgaben, anker: $("section.station"), mehrGeloest: ids => mehrGeloest(ids), dialog: false});
   if (window.Lernstand) { los(); return; }
   const s = document.createElement("script");
   s.src = new URL("../../js/lernstand.js", LS_SKRIPT || location.href).href;
@@ -103,6 +103,36 @@ const session = {
   clear(){ try { localStorage.removeItem(SESSION_KEY); } catch (_) {} }
 };
 let loginWaiters = [];
+// Anmeldung mit dem 3-stelligen Code (gemeinsam mit allen Fächern, js/lernstand.js). Ohne Code geht es wie
+// bisher mit Vor- und Nachname. Mit Code speichert der Server keinen Namen („Code 123“).
+const CODE_KEY = "grumi-code-anmeldung", ALTE_CODE_KEYS = ["grumi-nt9-m9-anmeldung", "grumi-nt9-r9-anmeldung"];
+function codeSitzung(){ try { const s = JSON.parse(localStorage.getItem(CODE_KEY) || "null"); return s && s.code && s.kennung ? s : null; } catch (_) { return null; } }
+function codeSitzungSchreiben(st){
+  const zug = (parseInt(st.className, 10) || 7) + (/M$/.test(st.className) ? "M" : "R");
+  try { localStorage.setItem(CODE_KEY, JSON.stringify({name: "Code " + st.code, kennung: "code-" + st.code, klasse: st.className, zug, code: st.code, seit: Date.now()})); } catch (_) {}
+}
+function codeAbmelden(){ try { localStorage.removeItem(CODE_KEY); ALTE_CODE_KEYS.forEach(k => localStorage.removeItem(k)); } catch (_) {} }
+// Mit Code (z. B. aus Englisch) schon angemeldet? Dann Deutsch 7 ohne Fenster mit diesem Code starten.
+async function mitCodeStarten(){
+  const g = codeSitzung(), st = session.student;
+  if (!g) {
+    // Code-Anmeldung beendet: eine Deutsch-Anmeldung mit Code gilt dann auch nicht mehr
+    if (st && st.code) { session.clear(); renderWho(); }
+    return false;
+  }
+  if (session.token && st && st.code === g.code) return true;
+  try {
+    const res = await api("/api/de7-argument/start", {code: g.code}, false);
+    session.clear(); session.write(res.token, res.student);
+    renderWho();
+    loginWaiters.splice(0).forEach(f => f());
+    return true;
+  } catch (e) {
+    if (e.status === 404) codeAbmelden();
+    return false;
+  }
+}
+function abmelden(){ session.clear(); codeAbmelden(); location.reload(); }
 function buildLogin(){
   if ($("#loginDialog")) return;
   document.body.insertAdjacentHTML("beforeend", `
@@ -111,27 +141,45 @@ function buildLogin(){
       <div class="d-icon" aria-hidden="true">✍️</div>
       <p class="eyebrow">Deutsch 7 · Argumentieren</p>
       <h2 id="lgTitle">Dein Training starten</h2>
-      <p>Trage deine Daten ein, damit deine Texte und Verbesserungen zusammenbleiben.</p>
-      <label>Vorname<input id="lgFirst" autocomplete="given-name" maxlength="60" required></label>
-      <label>Nachname<input id="lgLast" autocomplete="family-name" maxlength="60" required></label>
-      <label>Klasse<select id="lgClass"><option>7M</option><option>7R</option></select></label>
+      <p id="lgText">Gib den <strong>3-stelligen Code</strong> ein, den du von deiner Lehrkraft bekommen hast. Er gilt in allen Fächern.</p>
+      <label id="lgCodeFeld">Dein Code<input id="lgCode" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" spellcheck="false" placeholder="···" style="font-size:1.8rem;font-weight:900;letter-spacing:.4em;text-align:center"></label>
+      <div id="lgNamen" hidden>
+        <label>Vorname<input id="lgFirst" autocomplete="given-name" maxlength="60"></label>
+        <label>Nachname<input id="lgLast" autocomplete="family-name" maxlength="60"></label>
+        <label>Klasse<select id="lgClass"><option>7M</option><option>7R</option></select></label>
+      </div>
       <p class="err" id="lgErr" role="alert"></p>
       <button class="btn" id="lgGo" type="submit">➜ Training öffnen</button>
-      <p class="privacy">Deine Antworten werden mit deinem Namen gespeichert, nur für dich und deine Lehrkraft.</p>
+      <button class="btn ghost small" id="lgWechsel" type="button">Ich habe noch keinen Code – mit Namen anmelden</button>
+      <p class="privacy" id="lgPrivacy">Mit Code werden dein Code und deine Texte gespeichert, dein Name nicht. Welcher Code zu dir gehört, weiß nur deine Lehrkraft.</p>
     </form>
   </dialog>`);
   const dlg = $("#loginDialog"), go = $("#lgGo"), err = $("#lgErr");
   const st = session.student; if (st && st.className && [...$("#lgClass").options].some(o => o.value === st.className)) $("#lgClass").value = st.className;
   dlg.addEventListener("cancel", e => { if (!session.token) e.preventDefault(); });
+  const codeFeld = $("#lgCode");
+  codeFeld.addEventListener("input", () => { const v = codeFeld.value.replace(/\D/g, "").slice(0, 3); if (v !== codeFeld.value) codeFeld.value = v; });
+  $("#lgWechsel").addEventListener("click", () => {
+    const mitNamen = $("#lgNamen").hidden;
+    $("#lgNamen").hidden = !mitNamen; $("#lgCodeFeld").hidden = mitNamen; err.textContent = "";
+    $("#lgWechsel").textContent = mitNamen ? "Ich habe einen Code" : "Ich habe noch keinen Code – mit Namen anmelden";
+    $("#lgText").innerHTML = mitNamen ? "Trage deinen Namen ein, damit deine Texte und Verbesserungen zusammenbleiben." : "Gib den <strong>3-stelligen Code</strong> ein, den du von deiner Lehrkraft bekommen hast. Er gilt in allen Fächern.";
+    $("#lgPrivacy").textContent = mitNamen ? "Deine Antworten werden mit deinem Namen gespeichert, nur für dich und deine Lehrkraft." : "Mit Code werden dein Code und deine Texte gespeichert, dein Name nicht. Welcher Code zu dir gehört, weiß nur deine Lehrkraft.";
+    setTimeout(() => (mitNamen ? $("#lgFirst") : codeFeld).focus(), 30);
+  });
   $("#loginForm").addEventListener("submit", async e => {
     e.preventDefault();
-    const body = {firstName: $("#lgFirst").value.trim(), lastName: $("#lgLast").value.trim(), className: $("#lgClass").value};
-    if (!body.firstName || !body.lastName) { err.textContent = "Bitte Vor- und Nachnamen eintragen."; return; }
+    const mitCode = $("#lgNamen").hidden;
+    const body = mitCode ? {code: codeFeld.value.replace(/\D/g, "")} : {firstName: $("#lgFirst").value.trim(), lastName: $("#lgLast").value.trim(), className: $("#lgClass").value};
+    if (mitCode && !/^\d{3}$/.test(body.code)) { err.textContent = "Dein Code hat genau 3 Ziffern."; return; }
+    if (!mitCode && (!body.firstName || !body.lastName)) { err.textContent = "Bitte Vor- und Nachnamen eintragen."; return; }
     err.textContent = ""; go.disabled = true; go.textContent = "Wird geöffnet …";
     const slow = setTimeout(() => { err.style.color = "var(--muted)"; err.textContent = "Der Server wacht gerade auf – das kann bis zu einer Minute dauern."; }, 6000);
     try {
       const res = await api("/api/de7-argument/start", body, false);
-      session.write(res.token, res.student);
+      session.clear(); session.write(res.token, res.student);
+      // Mit Code: gemeinsame Anmeldung für alle Fächer setzen und neu laden (eigener Stand, Lernfortschritt)
+      if (res.student && res.student.code) { codeSitzungSchreiben(res.student); location.reload(); return; }
       dlg.close(); renderWho();
       loginWaiters.splice(0).forEach(f => f());
     } catch (x) {
@@ -143,7 +191,7 @@ function openLogin(){
   buildLogin();
   const dlg = $("#loginDialog");
   if (!dlg.open) dlg.showModal();
-  setTimeout(() => $("#lgFirst").focus(), 60);
+  setTimeout(() => ($("#lgNamen").hidden ? $("#lgCode") : $("#lgFirst")).focus(), 60);
   return new Promise(res => loginWaiters.push(res));
 }
 function renderWho(){
@@ -153,7 +201,7 @@ function renderWho(){
     el.hidden = false;
     el.innerHTML = st ? `<span>👤 ${esc(st.firstName)} · ${esc(st.className)}</span><button type="button" id="whoOut">Abmelden</button>` : `<button type="button" id="whoIn">Training starten</button>`;
     const out = $("#whoOut"), inn = $("#whoIn");
-    if (out) out.addEventListener("click", () => { session.clear(); renderWho(); if (MODUL) openLogin(); });
+    if (out) out.addEventListener("click", abmelden);
     if (inn) inn.addEventListener("click", () => openLogin());
   }
   document.dispatchEvent(new CustomEvent("de7-login"));
@@ -240,7 +288,8 @@ function init(cfg){
   Modul._onScroll = onScroll;
 
   buildLogin(); renderWho();
-  if (MODUL && !session.token) openLogin();
+  // Mit Code schon angemeldet: ohne Fenster starten; sonst Anmeldung (Code oder Name)
+  mitCodeStarten().then(ok => { if (!ok && MODUL && !session.token) openLogin(); });
 }
 function ready(){ if (Modul._onScroll) Modul._onScroll(); updateStars(); lernstand(); }
 
@@ -677,6 +726,6 @@ function confetti(){
   })();
 }
 
-const Modul = window.Modul = {$, $$, esc, shuffle, norm, words, load, save, init, ready, register, solve, session, openLogin, renderWho, api, API_BASE,
+const Modul = window.Modul = {$, $$, esc, shuffle, norm, words, load, save, init, ready, register, solve, session, openLogin, renderWho, api, API_BASE, mitCodeStarten, abmelden,
   isSolved: id => !!solved[id], makeMC, makeGap, makeSort, makeTF, makeOrder, makeMark, makeOpen, makeDuel, makeObs, makeVote, makeDiary, makeQuiz, confetti};
 })();

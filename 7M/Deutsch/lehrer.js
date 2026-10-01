@@ -5,6 +5,16 @@ const API_BASE = new URLSearchParams(location.search).get("api") ||
     ? `${location.protocol}//${location.hostname}:3000`
     : "https://englisch-9.onrender.com");
 const PASSWORD_KEY = "grumi-de7-teacher-password";
+// Kinder mit Code heißen auf dem Server „Code 123“. Den Namen kennt nur die Lehrkraft: Namensliste aus
+// proben-verwalten.html (gleicher Browser, Schlüssel "lf-nt9-namen").
+function namensliste() { try { return JSON.parse(localStorage.getItem("lf-nt9-namen") || "{}") || {}; } catch (_e) { return {}; } }
+function anzeigeName(text) {
+  const m = /^Code (\d{3})\s*$/.exec(String(text || "").trim());
+  if (!m) return String(text || "").trim();
+  const name = namensliste()[m[1]];
+  return name ? `${name} (Code ${m[1]})` : `Code ${m[1]}`;
+}
+function schuelerName(student) { return anzeigeName(`${student.firstName} ${student.lastName}`); }
 
 const state = {
   password: sessionStorage.getItem(PASSWORD_KEY) || "",
@@ -119,9 +129,9 @@ function renderTables() {
     <article class="table-card ${escapeHtml(t.status)}">
       <div class="table-top"><strong>Tisch ${t.tisch} · ${escapeHtml(t.klasse)}</strong><span class="table-status">${escapeHtml(statusText[t.status] || t.status)}${t.status === "laeuft" ? ` · Runde ${t.runde}/${t.runden}` : ""}</span></div>
       <p class="table-topic">${t.thema ? `🗣️ ${escapeHtml(t.streitfrage)}` : "Noch kein Thema"}${t.amZug ? ` · am Zug: <b>${escapeHtml(t.amZug)}</b>` : ""}</p>
-      ${t.spieler.map((s) => s ? `<div class="table-player"><span><span class="${s.online ? "on" : "off"}" title="${s.online ? "verbunden" : "nicht verbunden"}"></span>${escapeHtml(s.name)} <small>${escapeHtml(s.seite || "")}</small></span><b>${t.thema ? `${s.punkte} ⭐` : ""}</b></div>` : '<div class="table-player"><small>– Platz frei –</small></div>').join("")}
+      ${t.spieler.map((s) => s ? `<div class="table-player"><span><span class="${s.online ? "on" : "off"}" title="${s.online ? "verbunden" : "nicht verbunden"}"></span>${escapeHtml(anzeigeName(s.name))} <small>${escapeHtml(s.seite || "")}</small></span><b>${t.thema ? `${s.punkte} ⭐` : ""}</b></div>` : '<div class="table-player"><small>– Platz frei –</small></div>').join("")}
       ${t.log.length ? `<details data-id="${escapeHtml(t.id)}" ${open.has(t.id) ? "open" : ""}><summary>Verlauf (${t.log.filter((l) => l.angenommen).length} gesendet, ${t.log.filter((l) => !l.angenommen).length} zurückgeschickt)</summary>
-        <ul class="table-log">${t.log.map((l) => `<li class="${l.angenommen ? "ja" : "nein"}"><strong>${escapeHtml(l.name)}</strong> ${l.angenommen ? `${"⭐".repeat(l.sterne)}` : "↩️"} <span class="t">${escapeHtml(l.text)}</span>
+        <ul class="table-log">${t.log.map((l) => `<li class="${l.angenommen ? "ja" : "nein"}"><strong>${escapeHtml(anzeigeName(l.name))}</strong> ${l.angenommen ? `${"⭐".repeat(l.sterne)}` : "↩️"} <span class="t">${escapeHtml(l.text)}</span>
           <small>${l.quelle === "ki" ? "✨ " : "ohne KI · "}${escapeHtml(l.rueckmeldung || "")}${l.tipp ? ` Tipp: ${escapeHtml(l.tipp)}` : ""}</small></li>`).join("")}</ul></details>` : ""}
       <div class="table-actions"><button type="button" data-reset="${escapeHtml(t.id)}">Tisch freigeben</button></div>
     </article>`).join("");
@@ -171,7 +181,7 @@ function renderMetrics() {
 
 function filteredStudents() {
   return state.overview.filter((student) => {
-    const haystack = `${student.firstName} ${student.lastName} ${student.className}`.toLocaleLowerCase("de");
+    const haystack = `${schuelerName(student)} ${student.className}`.toLocaleLowerCase("de");
     const matchesText = !state.query || haystack.includes(state.query);
     const matchesStage = !state.stage || state.attempts.some((attempt) => attempt.studentKey === student.studentKey && String(attempt.stage) === state.stage);
     return matchesText && matchesStage;
@@ -192,7 +202,7 @@ function renderStudents() {
     const best = Math.max(0, ...Object.values(student.stages || {}).map(Number));
     button.innerHTML = `
       <span class="student-avatar">${escapeHtml(initials(student))}</span>
-      <span class="student-name"><strong>${escapeHtml(`${student.firstName} ${student.lastName}`)}</strong><span>${escapeHtml(student.className)} · ${student.attempts} Fassungen${student.moduleCount ? ` · ${student.moduleCount} Modul-Einträge` : ""}</span></span>
+      <span class="student-name"><strong>${escapeHtml(schuelerName(student))}</strong><span>${escapeHtml(student.className)} · ${student.attempts} Fassungen${student.moduleCount ? ` · ${student.moduleCount} Modul-Einträge` : ""}</span></span>
       <span class="student-score">${"★".repeat(best)}${"☆".repeat(3 - best)}</span>`;
     button.addEventListener("click", () => {
       state.selectedKey = student.studentKey;
@@ -214,7 +224,7 @@ function renderDetail() {
   const groups = groupAttempts(attempts);
   dom.studentDetail.innerHTML = `
     <div class="detail-head">
-      <div><h2>${escapeHtml(`${student.firstName} ${student.lastName}`)}</h2><p>${escapeHtml(student.className)} · ${student.attempts} gespeicherte Fassungen</p></div>
+      <div><h2>${escapeHtml(schuelerName(student))}</h2><p>${escapeHtml(student.className)} · ${student.attempts} gespeicherte Fassungen</p></div>
       <time>Zuletzt aktiv: ${formatDate(student.lastActive)}</time>
     </div>
     <div class="stage-summary">
@@ -434,7 +444,9 @@ function stars(value) {
 }
 
 function initials(student) {
-  return `${student.firstName?.[0] || ""}${student.lastName?.[0] || ""}`.toLocaleUpperCase("de");
+  const n = schuelerName(student);
+  if (/^Code \d{3}$/.test(n)) return "#";
+  return n.split(/\s+/).slice(0, 2).map((w) => w[0] || "").join("").toLocaleUpperCase("de");
 }
 
 function formatDate(value) {

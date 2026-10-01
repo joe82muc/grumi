@@ -12,7 +12,8 @@
  *
  * Übungsseite:  Lernstand.seite({ kurs, bereich, bnr, modul, nr, titel, kurz, anker,
  *                                 aufgaben: [{ id, teil, text, kurz, label?, el? }]   oder   auswahl: "CSS-Selektor", text: "Selektor", teil: "…",
- *                                 mehrGeloest: function (ids) {…}   (Stand von einem anderen Gerät übernehmen) })
+ *                                 mehrGeloest: function (ids) {…}   (Stand von einem anderen Gerät übernehmen),
+ *                                 dialog: false   (Seite meldet selbst an, z. B. Deutsch 7) })
  *               Lernstand.geloest(id)   nach einer richtig gelösten Aufgabe
  *               Lernstand.markieren()   nach einem Neuaufbau der Aufgaben
  * Übersicht:    Lernstand.uebersicht({ kurs, module: [{ id, titel, href }], anker })
@@ -351,7 +352,7 @@
     // Sprung aus einer Übersicht (…#a3): die Aufgaben entstehen oft erst per Skript
     var ziel = global.location.hash && doc.getElementById(decodeURIComponent(global.location.hash.slice(1)));
     if (ziel && ids().indexOf(ziel.id) >= 0) setTimeout(function () { ziel.scrollIntoView({ block: "center" }); ziel.classList.add("ls-blink"); }, 250);
-    if (!schueler) { if (vonSelbstAnmelden()) anmeldeDialog(); return; }
+    if (!schueler) { if (vonSelbstAnmelden() && cfg.dialog !== false) anmeldeDialog(); return; }
     begruessen();
     anfrage("/anmelden", { code: schueler.code, modul: cfg.modul }).then(function (data) {
       if (data.status === 404) { codeUngueltig(); return; }

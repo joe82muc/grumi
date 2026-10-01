@@ -6,6 +6,14 @@ const API_BASE = new URLSearchParams(location.search).get("api") ||
     : "https://englisch-9.onrender.com");
 
 const SESSION_KEY = "grumi-de7-argument-session-v1";
+// Anmeldung mit dem 3-stelligen Code (gemeinsam mit allen Fächern, js/lernstand.js); ohne Code mit Namen
+const CODE_KEY = "grumi-code-anmeldung", OLD_CODE_KEYS = ["grumi-nt9-m9-anmeldung", "grumi-nt9-r9-anmeldung"];
+function codeSession() { try { const s = JSON.parse(localStorage.getItem(CODE_KEY) || "null"); return s && s.code && s.kennung ? s : null; } catch (_e) { return null; } }
+function writeCodeSession(st) {
+  const zug = (parseInt(st.className, 10) || 7) + (/M$/.test(st.className) ? "M" : "R");
+  try { localStorage.setItem(CODE_KEY, JSON.stringify({ name: "Code " + st.code, kennung: "code-" + st.code, klasse: st.className, zug, code: st.code, seit: Date.now() })); } catch (_e) {}
+}
+function clearCodeSession() { try { localStorage.removeItem(CODE_KEY); OLD_CODE_KEYS.forEach((k) => localStorage.removeItem(k)); } catch (_e) {} }
 const DRAFT_KEY = "grumi-de7-argument-drafts-v1";
 const WORDS = {
   1: ["weil", "denn", "deshalb", "zum Beispiel", "vergleichbar ist"],
@@ -68,6 +76,21 @@ async function init() {
   syncTopicState();
   renderAll();
 
+  // Mit Code schon angemeldet (z. B. aus Englisch): Training ohne Fenster mit diesem Code öffnen
+  const code = codeSession();
+  if (!code && state.student && state.student.code) clearSession();
+  if (code && !(state.token && state.student && state.student.code === code.code)) {
+    try {
+      const result = await api("/api/de7-argument/start", { method: "POST", body: { code: code.code } }, false);
+      clearSession();
+      state.token = result.token; state.student = result.student; state.progress = result.progress;
+      persistSession();
+      setConnection(true, "Gespeichert");
+      renderAll();
+      return;
+    } catch (_error) { /* weiter wie ohne Code */ }
+  }
+
   if (state.token) {
     try {
       const result = await api("/api/de7-argument/progress", { method: "GET" });
@@ -91,6 +114,7 @@ function bindDom() {
     "markedArea", "markedText", "nextStep", "improveButton", "nextStageButton", "licenceMeter",
     "progressCopy", "licenceList", "licenceResult", "loginDialog", "loginForm", "firstName",
     "lastName", "className", "loginError", "loginButton"
+    , "studentCode", "nameFields", "loginSwitch", "loginText", "codeLabel"
   ].forEach((id) => { dom[id] = document.getElementById(id); });
 }
 
@@ -99,7 +123,16 @@ function bindStaticEvents() {
   dom.loginDialog.addEventListener("cancel", (event) => {
     if (!state.token) event.preventDefault();
   });
+  dom.studentCode.addEventListener("input", () => { const v = dom.studentCode.value.replace(/\D/g, "").slice(0, 3); if (v !== dom.studentCode.value) dom.studentCode.value = v; });
+  dom.loginSwitch.addEventListener("click", () => {
+    const withNames = dom.nameFields.hidden;
+    dom.nameFields.hidden = !withNames; dom.codeLabel.hidden = withNames; dom.loginError.textContent = "";
+    dom.loginSwitch.textContent = withNames ? "Ich habe einen Code" : "Ich habe noch keinen Code – mit Namen anmelden";
+    dom.loginText.innerHTML = withNames ? "Trage deine Daten ein, damit deine Verbesserungen zusammenbleiben." : "Gib den <strong>3-stelligen Code</strong> ein, den du von deiner Lehrkraft bekommen hast. Er gilt in allen Fächern.";
+    setTimeout(() => (withNames ? dom.firstName : dom.studentCode).focus(), 30);
+  });
   dom.logoutButton.addEventListener("click", () => {
+    clearCodeSession();
     clearSession();
     state.progress = emptyProgress();
     renderAll();
@@ -122,15 +155,21 @@ async function login(event) {
   event.preventDefault();
   dom.loginError.textContent = "";
   setButtonBusy(dom.loginButton, true, "Wird geöffnet ...");
+  const withCode = dom.nameFields.hidden;
+  const code = dom.studentCode.value.replace(/\D/g, "");
+  if (withCode && !/^\d{3}$/.test(code)) { dom.loginError.textContent = "Dein Code hat genau 3 Ziffern."; setButtonBusy(dom.loginButton, false, "Training öffnen"); return; }
+  if (!withCode && (!dom.firstName.value.trim() || !dom.lastName.value.trim())) { dom.loginError.textContent = "Bitte Vor- und Nachnamen eintragen."; setButtonBusy(dom.loginButton, false, "Training öffnen"); return; }
   try {
     const result = await api("/api/de7-argument/start", {
       method: "POST",
-      body: {
+      body: withCode ? { code } : {
         firstName: dom.firstName.value,
         lastName: dom.lastName.value,
         className: dom.className.value
       }
     }, false);
+    clearSession();
+    if (result.student && result.student.code) writeCodeSession(result.student);
     state.token = result.token;
     state.student = result.student;
     state.progress = result.progress;
@@ -540,7 +579,7 @@ function clearSession() {
 
 function openLogin() {
   if (!dom.loginDialog.open) dom.loginDialog.showModal();
-  setTimeout(() => dom.firstName.focus(), 50);
+  setTimeout(() => (dom.nameFields.hidden ? dom.studentCode : dom.firstName).focus(), 50);
 }
 
 async function api(route, options = {}, authenticate = true) {
