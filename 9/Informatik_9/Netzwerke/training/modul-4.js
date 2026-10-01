@@ -122,7 +122,13 @@
       { t: 'Hub oder Switch? · Folie 26',
         html: '<p><b>Hub:</b> Eine Person ruft eine Nachricht laut in den Raum. Alle hören sie, auch wenn nur eine Person gemeint ist.</p>' +
               '<p><b>Switch:</b> Die Nachricht geht direkt an den richtigen Platz. Die anderen können weiterarbeiten.</p>' },
-      { t: 'Eine Störung eingrenzen',
+      { t: 'Hub oder Switch? Spielt es nach · Folie 27',
+      html: '<p>So spielt ihr den Unterschied in der Klasse nach:</p>' +
+            '<ol><li>Rollen verteilen: vier PCs, ein Hub oder Switch und eine Person, die beobachtet.</li>' +
+            '<li>Dieselbe Nachricht zuerst mit dem <b>Hub</b> schicken, dann mit dem <b>Switch</b>.</li>' +
+            '<li>Notieren, wer die Nachricht jeweils bekommt und wer warten muss.</li></ol>' +
+            '<p class="merksatz">Ergebnis in einem Satz: Der Hub schickt an alle, der Switch nur an den richtigen Empfänger.</p>' },
+    { t: 'Eine Störung eingrenzen',
         html: '<p>Frage dich zuerst: <b>Ist nur ein Gerät betroffen oder sind es alle?</b></p>' +
               '<ul><li>Nur ein Gerät: meistens dessen Kabel oder Anschluss.</li>' +
               '<li>Alle Geräte: meistens das zentrale Gerät, z. B. der Switch.</li>' +

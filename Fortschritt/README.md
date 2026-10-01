@@ -106,6 +106,21 @@ Nicht dabei: Mathe und WiB (so gewünscht), Proben (eigene Freischaltung), Argum
   denselben Wörtern, mehrdeutige deutsche Wörter mit Hinweis („umziehen – in eine andere Wohnung“).
   Frühere 8R-Fehler „sich selbst“ (herself/itself) sind über Hinweise getrennt.
 
+## Stand 02.10.2026, abends: Informatik 7, 8 und 9
+
+- „Dein Stand“ mit Code steht jetzt **oben** auf jeder Stunde (Informatik 7 und 8), jedem Netzwerke-Modul und jeder
+  Filius-Station (vorher erst über den Aufgaben, weit unten).
+- Die **Übersichten** Informatik 7, 8 und 9 zeigen „Dein Stand“ für alle Stunden/Module (kompakt: noch nicht
+  begonnene stehen in einer Zeile). `Lernstand.uebersicht({ kompakt: true })`.
+- **Informatik 9 ohne Präsentation**: Die Module verlinken das PDF nicht mehr. Der Inhalt der Folien steht in den
+  Merkkästen „Zuerst lesen“ jedes Moduls (dazu neu: Rollenspiel Hub oder Switch, Folie 27). Die Knöpfe bei den
+  Aufgabenteilen springen zum passenden Merkkasten („Nachlesen: Netzwerktopologien“), der Tipp am Modulende ebenso.
+  Die Trainingsseite zeigt den „roten Faden“ der sechs Stunden statt der PDF-Knöpfe. Die PDF-Datei liegt weiter im
+  Ordner (für die Lehrkraft), ist aber nirgends mehr verlinkt.
+- **Übersicht Informatik 9 neu**: zwei Bereiche mit allen Modulen als Karten (Netzwerke verstehen: Modul 1–6,
+  Probe; Filius-Workshop: Station 1–5, Videos, Prüfung, Beispieldatei). Die Beispieldatei-Kachel erscheint wieder nur
+  nach Freigabe (war vorher immer sichtbar).
+
 ## Offen
 
 - **Deutsch 9 Grammatik** (Sprachbetrachtung 1–10) gründlich überarbeiten: Lernseiten mit Merkkästen,

@@ -212,7 +212,9 @@
       window.Lernstand.seite({
         kurs: LS_KURS, modul: LS_KURS + "-" + stunde.id, bereich: stunde.lernbereichTitel || "Module",
         bnr: Number(stunde.lernbereich) || 1, nr: Number(stunde.stunde) || 0, kurz: "M" + (stunde.stunde || ""),
-        titel: stunde.titel, aufgaben: lsAufgaben, anker: lsAnker, abzeichenIn: ".inf-frage"
+        titel: stunde.titel, aufgaben: lsAufgaben, abzeichenIn: ".inf-frage",
+        // oben direkt unter dem Kopf der Stunde
+        anker: (document.querySelector(".inf-kopf") || lsAnker).nextElementSibling || lsAnker
       });
     });
   }

@@ -18,7 +18,7 @@
  *               Lernstand.fehlerMelden({ wort: [falsch, richtig] })   Fehlerwörter mitschicken
  *               Lernstand.geloest(id)   nach einer richtig gelösten Aufgabe
  *               Lernstand.markieren()   nach einem Neuaufbau der Aufgaben
- * Übersicht:    Lernstand.uebersicht({ kurs, module: [{ id, titel, href }], anker })
+ * Übersicht:    Lernstand.uebersicht({ kurs, module: [{ id, titel, href }], anker, kompakt? })
  */
 (function (global) {
   "use strict";
@@ -477,12 +477,20 @@
       if (!schueler) {
         h += '<p class="ls-hinweis">Melde dich mit deinem Code an. Dann siehst du hier, was du schon geschafft hast und was dir noch fehlt.</p>';
       } else {
+        var ohne = [];
         cfg.module.forEach(function (m) {
           var g = {};
           Object.keys(lokalerStand(m.id)).forEach(function (id) { g[id] = 1; });
           ((fortschritt[m.id] || {}).g || []).forEach(function (id) { g[id] = 1; });
-          var k = katalog[m.id], auf = k ? Object.keys(k).map(function (id) { return { id: id, teil: k[id][1] || "Aufgaben", text: k[id][0] }; }) : null;
+          var k = katalog[m.id], jeTeil = {};
+          var auf = k ? Object.keys(k).map(function (id) {
+            var teil = k[id][1] || "Aufgaben";
+            jeTeil[teil] = (jeTeil[teil] || 0) + 1;
+            return { id: id, teil: teil, text: k[id][0], kurz: String(jeTeil[teil]) };
+          }) : null;
           var n = auf ? auf.filter(function (a) { return g[a.id]; }).length : Object.keys(g).length;
+          // kompakt: noch nicht begonnene Module nur in einer Zeile
+          if (cfg.kompakt && !n && !laedt) { ohne.push(m); return; }
           h += '<div class="ls-modul"><div class="ls-zeile"><a href="' + esc(m.href) + '">' + esc(m.titel) + "</a>";
           if (auf) {
             var pct = auf.length ? Math.round(n / auf.length * 100) : 0;
@@ -494,6 +502,8 @@
           }
           h += "</div>";
         });
+        if (ohne.length) h += '<p class="ls-hinweis" style="margin-top:10px">' + (ohne.length === cfg.module.length ? "Du hast hier noch nichts begonnen. " : "Noch nicht begonnen: ") +
+          ohne.map(function (m) { return '<a href="' + esc(m.href) + '">' + esc(m.titel) + "</a>"; }).join(" · ") + "</p>";
         if (laedt) h += '<p class="ls-hinweis">Dein Stand wird geladen …</p>';
       }
       box.innerHTML = h;

@@ -26,7 +26,8 @@
   'use strict';
   const LS_SKRIPT = document.currentScript && document.currentScript.src;
 
-  const PDF = '../netzwerke-praesentation.pdf';
+  // Die Inhalte der Präsentation stehen in den Merkkästen jedes Moduls („Zuerst lesen“).
+  // Folienangaben in den Moduldaten verbinden einen Aufgabenteil mit dem passenden Merkkasten.
   const SPEICHER = 'inf9-netz-training';
   const BUCHST = 'ABCDEFGHIJKL';
   const KLEIN = 'abcdefghijklmnopqrstuvwxyz';
@@ -118,7 +119,7 @@
     });
     const los = () => window.Lernstand.seite({
       kurs: 'i9', modul: 'i9-netz-m' + M.nr, bereich: 'Netzwerke-Training', bnr: 1, nr: M.nr, kurz: 'M' + M.nr,
-      titel: strip(M.titel), aufgaben, anker: S.teile[0], abzeichenIn: '.task-q'
+      titel: strip(M.titel), aufgaben, anker: (document.querySelector('#app > .hero') || S.teile[0]).nextElementSibling || S.teile[0], abzeichenIn: '.task-q'
     });
     if (window.Lernstand) { los(); return; }
     if (!LS_SKRIPT) return;
@@ -809,16 +810,35 @@
   const gesamtMin = M => (M.merkMin || 0) + M.teile.reduce((s, t) => s + (t.min || 0), 0);
 
   function hero(M) {
-    const [a, b] = M.folien;
     return h('section', { class: 'hero' },
       '<span class="code">Informatik 9 · Modul ' + M.nr + ' von ' + MODULE + '</span>' +
       '<h1>' + M.titel + '</h1>' +
-      '<p class="sub">Stunde ' + M.nr + ' · Folien ' + a + '–' + b + ' · ca. ' + gesamtMin(M) + ' Minuten</p>' +
+      '<p class="sub">Stunde ' + M.nr + ' · ca. ' + gesamtMin(M) + ' Minuten</p>' +
       '<p class="lead">' + M.intro + '</p>' +
       '<div class="hero-actions">' +
-        '<a class="ppt-link" href="' + PDF + '#page=' + a + '" target="_blank" rel="noopener">Folien ' + a + '–' + b + ' öffnen</a>' +
+        '<a class="ppt-link" href="#merk">📖 Zuerst lesen</a>' +
         '<a class="ppt-link ghost" href="../netzwerke-training.html">Alle Module</a>' +
       '</div>');
+  }
+  /* Folienangabe aus der Überschrift eines Merkkastens („… · Folien 14–19“, „· Folie 4“, „· Folien 29, 32 und 33“) */
+  function merkFolien(t) {
+    const m = String(t).match(/·\s*Folien?\s+([\d,–\-\s und]+)$/);
+    if (!m) return [];
+    const zahlen = m[1].match(/\d+/g).map(Number);
+    if (/[–-]/.test(m[1]) && zahlen.length === 2) { const r = []; for (let i = zahlen[0]; i <= zahlen[1]; i++) r.push(i); return r; }
+    return zahlen;
+  }
+  const merkTitel = t => String(t).replace(/\s*·\s*Folien?\s+[\d,–\-\s und]+$/, '');
+  // Merkkasten, der zu den Folien eines Aufgabenteils passt (größte Überschneidung)
+  function merkFuer(folien) {
+    if (!Array.isArray(folien) || !S.M.merk) return -1;
+    const [a, b] = folien.length > 1 ? folien : [folien[0], folien[0]];
+    let best = -1, bestN = 0;
+    S.M.merk.forEach((m, i) => {
+      const n = merkFolien(m.t).filter(f => f >= a && f <= b).length;
+      if (n > bestN) { best = i; bestN = n; }
+    });
+    return best;
   }
 
   function scoreBar() {
@@ -843,7 +863,7 @@
     let html = '<span class="sec-label">Zuerst lesen · ca. ' + M.merkMin + ' Min.</span>' +
       '<h2 id="merk-h">Heute kannst du …</h2><ul class="ziele">' +
       M.ziele.map((z, i) => '<li><span class="nr">' + (i + 1) + '</span><span>' + z + '</span></li>').join('') + '</ul>' +
-      '<div class="merk-grid">' + M.merk.map(m => '<div class="memo"><h3>' + m.t + '</h3>' + m.html + '</div>').join('') + '</div>';
+      '<div class="merk-grid">' + M.merk.map((m, i) => '<div class="memo" id="merk-' + i + '"><h3>' + merkTitel(m.t) + '</h3>' + m.html + '</div>').join('') + '</div>';
     return h('section', { class: 'panel', id: 'merk', 'aria-labelledby': 'merk-h' }, html);
   }
 
@@ -854,7 +874,9 @@
       '<span class="sec-label">Teil ' + BUCHST[ti] + '</span>' +
       '<h2 id="h-teil-' + ti + '">' + t.titel + '</h2>' +
       '<div class="teil-meta"><span class="pill">' + UHR + 'ca. ' + t.min + ' Min.</span>' +
-      (t.folien ? '<a class="pill blau" href="' + PDF + '#page=' + folienStart(t.folien) + '" target="_blank" rel="noopener">' + FOLIE + folienText(t.folien) + '</a>' : '') + '</div>' +
+      (t.folien ? (merkFuer(t.folien) >= 0
+        ? '<a class="pill blau" href="#merk-' + merkFuer(t.folien) + '">' + FOLIE + 'Nachlesen: ' + merkTitel(S.M.merk[merkFuer(t.folien)].t) + '</a>'
+        : '<a class="pill blau" href="#merk">' + FOLIE + 'Nachlesen</a>') : '') + '</div>' +
       (t.hinweis ? '<p class="hint">' + t.hinweis + '</p>' : '');
     let nr = 0;
     t.aufgaben.forEach((a, ai) => {
@@ -893,9 +915,8 @@
         if (!b) return;
         $$('button', ch).forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
         const nein = $$('.s-nein[aria-pressed="true"]', sec).length;
-        const [a1, b1] = M.folien;
         tipp.innerHTML = nein
-          ? 'Tipp: Lies die <a href="' + PDF + '#page=' + a1 + '" target="_blank" rel="noopener">Folien ' + a1 + '–' + b1 + '</a> noch einmal und wiederhole die Teile mit roten Aufgaben.'
+          ? 'Tipp: Lies <a href="#merk">„Zuerst lesen“</a> oben noch einmal und wiederhole die Teile mit roten Aufgaben.'
           : '';
       });
       row.append(ch);

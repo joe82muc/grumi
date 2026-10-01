@@ -309,5 +309,5 @@
   }
 
   balkenAktualisieren();
-  lernstand(p2);
+  lernstand(p1);
 })();
