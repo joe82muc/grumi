@@ -625,7 +625,7 @@ Modul.init({
   thema: "Organische Rohstoffe: Kohlenstoff, Holz (Zellstoff, Lignin, Papier), Raps, Merkmale regenerativer Rohstoffe, CO₂-neutral",
   api: "/api/nt9/uebung/feedback",
   // Sterne auch in der Kursübersicht zeigen (Kachel Modul 1)
-  onProgress: (n, total) => { if (bereit && FS) FS.speichern("m01", n, total); },
+  onProgress: (n, total, d) => { if (bereit && FS) FS.speichern("m01", n, total, d); },
   glossary: {
     kohlenstoff: ["Kohlenstoff", "Chemisches Element (Zeichen C). Er steckt in allen Lebewesen. Beim starken Erhitzen organischer Stoffe bleibt er als schwarzer Rest übrig."],
     organisch: ["organische Stoffe", "Stoffe aus Kohlenstoffverbindungen, die von Lebewesen stammen, z. B. Holz, Zucker, Öl oder Wolle."],
@@ -718,7 +718,7 @@ Modul.makeMC($("#mc-detektiv"), [
   };
   const btns = $$("#vkPick button"), tested = new Set();
   let cur = "holz", busy = false;
-  register("verkohlung");
+  register("verkohlung", "#vkSvg", "Versuch: Verkohlung (Animation)");
   const state = t => { $("#vkState", svg).textContent = t; };
   function pick(k){
     cur = k;
@@ -791,7 +791,7 @@ Modul.makeOpen($("#open2"), [
     "Stark vergrößert sieht man lange Fasern aus Zellstoff (Cellulose). Dazwischen sitzt der Holzstoff (Lignin). Er verklebt die Fasern und macht das Holz fest. Holz besteht etwa zur Hälfte aus Zellstoff und zur Hälfte aus Lignin.",
     "Kocht man zerkleinertes Holz in Lauge, löst sich das Lignin. Die Zellstofffasern werden frei – daraus kann man Papier machen. Der Zellstoff muss also vom Holzstoff abgetrennt werden, bevor er verwendet werden kann."
   ];
-  register("holzLupe");
+  register("holzLupe", "#hlSvg", "Holz unter der Lupe (Animation)");
   stepper($("#hlChain"), $("#hlPrev"), $("#hlNext"), 3, i => {
     $("#hl0", svg).classList.toggle("on", i === 0);
     $("#hlZoom", svg).classList.toggle("on", i > 0);
@@ -822,7 +822,7 @@ Modul.makeOpen($("#open2"), [
     "Jetzt wird getrennt: Der Zellstoff (Cellulose) bleibt als Faserbrei zurück. Das Lignin ist in der dunklen Kochlauge gelöst.",
     "Der Zellstoff geht in die Papierindustrie (Haushaltspapiere, Toilettenpapier, Zeitungen, Verpackungen) und in die chemische Industrie (z. B. Textilien, Klebstoffe, Brillengestelle). Das Lignin liefert meist Energie für das Werk."
   ];
-  register("zellstoffWeg");
+  register("zellstoffWeg", "#zfSvg", "Im Zellstoffwerk (Animation)");
   stepper($("#zfChain"), $("#zfPrev"), $("#zfNext"), 5, i => {
     for (let k = 0; k < 5; k++) $("#zf" + k, svg).classList.toggle("on", k === i);
     tok.style.transform = `translate(${X[i]}px,0)`;
@@ -979,7 +979,7 @@ Modul.makeOpen($("#open4"), [
     d.sub.textContent = d.s;
   });
   const done = new Set();
-  register("rapsWeiche");
+  register("rapsWeiche", "#rwSvg", "Wohin mit dem Rapsöl? (Animation)");
   $$("#rwBtns button").forEach(b => b.addEventListener("click", async () => {
     const i = +b.dataset.i, d = D[i];
     D.forEach(x => x.flow.setAttribute("opacity", 0));
@@ -1039,7 +1039,7 @@ Modul.makeSort($("#abHR"), {
     "Zum Vergleich: Erdöl ist vor Millionen Jahren entstanden. Sein Kohlenstoff war tief im Boden eingeschlossen. Verbrennt man Erdöl, kommt zusätzliches CO₂ in die Luft. Fossile Rohstoffe sind nicht CO₂-neutral."
   ];
   let seq = 0, seen = false;
-  register("co2");
+  register("co2", "#coAir", "CO₂: Baum, Ofen und Erdöl (Animation)");
   async function show(i){
     const my = ++seq, still = () => my === seq;
     $("#coOven", svg).classList.toggle("on", i === 1);
@@ -1114,7 +1114,7 @@ Modul.makeGap($("#gapReg"), [
 (function(){
   const box = $("#abMerk");
   const M = [["im Prinzip unbegrenzt vorhanden", false], ["fast überall auf der Welt nutzbar", false], ["Bei der Fotosynthese wird CO₂ freigesetzt", true], ["wird oft nahe am Ort des Anbaus verarbeitet", false], ["vernichtet Arbeitsplätze in der Region", true], ["CO₂-neutral", false]];
-  register("abMerk");
+  register("abMerk", "#abMerk");
   box.innerHTML = `<div class="strike">${M.map((m, i) => `<button type="button" data-i="${i}" aria-pressed="false">${m[0]}</button>`).join("")}</div>
     <div class="row-btns"><button class="btn small check">Prüfen</button><button class="btn small ghost reset">Zurücksetzen</button></div><div class="fb"></div>`;
   const bs = $$(".strike button", box), fb = $(".fb", box);

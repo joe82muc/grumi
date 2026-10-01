@@ -556,7 +556,7 @@ Modul.init({
   api: "/api/nt9/uebung/feedback",
   hero: "funken",
   // Sterne auch in der Kursübersicht zeigen (Kachel Modul 4, interne Kennung m05)
-  onProgress: (n, total) => { if (bereit && FS) FS.speichern("m05", n, total); },
+  onProgress: (n, total, d) => { if (bereit && FS) FS.speichern("m05", n, total, d); },
   glossary: {
     rohoel: ["Rohöl", "Erdöl, so wie es aus der Erde gefördert wird – noch nicht aufgetrennt."],
     stoffgemisch: ["Stoffgemisch", "Mischung aus mehreren Stoffen, z. B. Erdöl, Luft oder Salzwasser. Man kann sie wieder voneinander trennen."],
@@ -742,7 +742,7 @@ Modul.makeMC($("#mc-train"), MC.train, "mct");
     "Das Gemisch ist getrennt: Im Becherglas ist klares Wasser, im Kolben bleibt die Farbe zurück. Erdöl trennt man genauso – nur hat es viele Bestandteile mit verschiedenen Siedetemperaturen."
   ];
   let step = 0, visible = false, looping = false, last = 0;
-  register("laborDest");
+  register("laborDest", "#dsSvg", "Destillation im Labor (Animation)");
   function place(){
     const maxP = step === 1 ? .41 : step === 2 ? .86 : 1;
     dots.forEach(d => {
@@ -809,7 +809,7 @@ Modul.makeOpen($("#open1"), [
     return f;
   });
   let k = 0, T = 20, busy = false;
-  register("modellVersuch");
+  register("modellVersuch", "#mvSvg", "Modellversuch zur Erdöldestillation (Animation)");
   const hoseTo = i => hose.setAttribute("d", `M246 124 Q${X[i]} 112 ${X[i]} 128`);
   function reset(){
     k = 0; T = 20; busy = false;
@@ -887,7 +887,7 @@ Modul.makeOpen($("#open2"), [
     g.addEventListener("click", pick);
     g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
   });
-  register("turm");
+  register("turm", "#dtSvg", "Der Destillationsturm (Animation)");
   // Dampfteilchen: steigen auf und werden in ihrer Höhe flüssig
   const W = [2, 3, 3, 3, 2], SUM = W.reduce((a, b) => a + b, 0);
   const parts = [];
@@ -950,7 +950,7 @@ Modul.makeOpen($("#open3"), [
   const fillA = $("#vdFillA", svg), fillB = $("#vdFillB", svg), state = $("#vdState", svg);
   const yA = T => 196 - (Math.min(450, Math.max(200, T)) - 200) * 166 / 250;
   const yB = T => 196 - Math.min(100, Math.max(0, T)) * 1.66;
-  register("druck");
+  register("druck", "#vdRange", "Destillation bei vermindertem Druck (Regler)");
   function draw(){
     const v = +rng.value, p = 1013 * Math.pow(50 / 1013, v / 100);
     const tRes = 250 + 150 * Math.log(p / 50) / Math.log(1013 / 50);
@@ -1018,7 +1018,7 @@ Modul.makeOpen($("#open4"), [
     return inner;
   });
   let heated = false, lit = [false, false, false, false], busy = false;
-  register("entzuenden");
+  register("entzuenden", "#ezSvg", "Versuch: Entzündbarkeit der Fraktionen");
   const light = (i, on) => { lit[i] = on; flames[i].style.opacity = on ? 1 : 0; flames[i].style.transform = on ? "scale(1)" : "scale(.2)"; };
   $("#ezFire").addEventListener("click", async () => {
     if (busy) return; busy = true;
@@ -1063,7 +1063,7 @@ Modul.makeOpen($("#open4"), [
     t.textContent = "0,0 s"; timers.push(t);
   });
   let run = 0;
-  register("kugelfall");
+  register("kugelfall", "#kgSvg", "Versuch: Kugelfall und Zähflüssigkeit");
   function reset(){
     run++;
     balls.forEach(b => { b.style.transitionDuration = "0s"; b.style.transform = ""; });
@@ -1115,7 +1115,7 @@ Modul.makeOpen($("#open5"), [
     ["💊", "Tabletten", true], ["🧱", "Ziegelstein", false], ["🖍️", "Wachsmalstifte", true], ["🛍️", "Plastiktüte", true]
   ];
   const box = $("#det"), fb = $("#detFb"), go = $("#detGo");
-  register("detektiv");
+  register("detektiv", "#det", "Erdöl-Detektiv");
   const btns = ITEMS.map(([e, n]) => {
     const b = document.createElement("button"); b.type = "button";
     b.innerHTML = `<span class="e">${e}</span>${n}`;

@@ -852,7 +852,7 @@ Modul.init({
   thema: "Organische Rohstoffe: Biodiesel aus Raps, Stärke und Stärkefolie, Nachhaltigkeit, Kaskadennutzung und Kreislaufwirtschaft",
   api: "/api/nt9/uebung/feedback",
   // Sterne auch in der Kursübersicht zeigen (Kachel Modul 2)
-  onProgress: (n, total) => { if (bereit && FS) FS.speichern("m02", n, total); },
+  onProgress: (n, total, d) => { if (bereit && FS) FS.speichern("m02", n, total, d); },
   glossary: {
     rohstoff: ["Rohstoff", "Stoff aus der Natur, aus dem man Produkte herstellt oder Energie gewinnt."],
     regenerativ: ["regenerativer (nachwachsender) Rohstoff", "Rohstoff aus Pflanzen oder Tieren, der immer wieder nachwachsen kann, z. B. Holz, Raps oder Kartoffeln."],
@@ -958,7 +958,7 @@ Modul.makeMC($("#mc-industrie"), [
   });
   let variant = null;
   const done = {A: false, B: false};
-  register("oelVersuch");
+  register("oelVersuch", "#oelA", "Versuch: Öl aus Sonnenblumenkernen");
   const scale = (el, f) => { el.style.transform = `scaleY(${f})`; };
   const TXT = [
     "Die geschälten Sonnenblumenkerne werden in der Kaffeemühle gemahlen. Dabei werden die Zellen aufgebrochen und die Oberfläche wird viel größer.",
@@ -1025,7 +1025,7 @@ Modul.makeMC($("#mc-industrie"), [
     "In der Biodieselanlage reagiert das Rapsöl einige Stunden lang mit Methanol. Heraus kommen Biodiesel und Glycerin.",
     "Der Biodiesel wird noch gereinigt. Dann geht er an die Tankstelle und treibt Automotoren an."
   ];
-  register("biodieselWeg");
+  register("biodieselWeg", "#bdSvg", "Vom Rapsfeld zur Tankstelle (Animation)");
   stepper($("#bdChain"), $("#bdPrev"), $("#bdNext"), 5, i => {
     for (let k = 0; k < 5; k++) $("#bd" + k, svg).classList.toggle("on", k === i);
     $$("#bdSide .chip").forEach(c => c.hidden = i < +c.dataset.s);
@@ -1047,7 +1047,7 @@ Modul.makeMC($("#mc-industrie"), [
   const divs = cells.map(t => { const d = document.createElement("div"); d.className = t; land.appendChild(d); return d; });
   // Raps verdrängt zuerst Äcker, dann Wiesen, dann Wald
   const order = ["acker", "wiese", "wald"].flatMap(t => divs.filter(d => d.classList.contains(t)));
-  register("flaeche");
+  register("flaeche", "#land", "Flächen in Deutschland (Animation)");
   function draw(){
     const p = +range.value, n = Math.round(p * .7);
     order.forEach((d, i) => d.classList.toggle("raps", i < n));
@@ -1133,7 +1133,7 @@ Modul.makeOpen($("#open1"), [
     "Die gelöste Stärke wird getrocknet.",
     "Getrocknete Stärke ist ein weißes Pulver – fertig ist die Kartoffelstärke."
   ];
-  register("staerkeWeg");
+  register("staerkeWeg", "#skSvg", "In der Stärkefabrik (Animation)");
   stepper($("#skChain"), $("#skPrev"), $("#skNext"), 5, i => {
     for (let k = 0; k < 5; k++) $("#sk" + k, svg).classList.toggle("on", k === i);
     tok.style.transform = `translate(${X[i]}px,0)`;
@@ -1253,7 +1253,7 @@ Modul.makeOpen($("#open3"), [
 (function(){
   const svg = $("#chipSvg"), obs = $("#chipObs");
   const told = {L: false, R: false};
-  register("chips");
+  register("chips", "#chipSvg", "Versuch: Verpackungs-Chips im warmen Wasser");
   function makeChips(host, x0){
     return Array.from({length: 5}, (_, k) => {
       const outer = svgEl("g", {class: "chipc"}, host), inner = svgEl("g", {class: "chipr"}, outer);
@@ -1325,7 +1325,7 @@ Modul.makeOpen($("#open4"), [
     return g;
   });
   const tried = {gut: false, schlecht: false};
-  register("wald");
+  register("wald", "#waldTrees", "Wald im Gleichgewicht (Animation)");
   cutR.addEventListener("input", () => { cutChip.textContent = cutR.value + " Bäume"; });
   run.addEventListener("click", async () => {
     run.disabled = cutR.disabled = true;
@@ -1366,7 +1366,7 @@ Modul.makeMC($("#abNach2"), [
   const bMono = $("#kfMono"), bMisch = $("#kfMisch"), go = $("#kfGo");
   let mode = "mono", types = [], state = [], running = false;
   const tried = {mono: false, misch: false};
-  register("kaefer");
+  register("kaefer", "#kfMono", "Borkenkäfer: Monokultur und Mischwald (Simulation)");
   const cells = Array.from({length: COLS * ROWS}, (_, i) => svgEl("g", {transform: `translate(${17 + (i % COLS) * 34} ${19 + Math.floor(i / COLS) * 34})`}, host));
   function draw(i){
     if (types[i] === "l") { cells[i].innerHTML = '<rect x="-2" y="6" width="4" height="8" fill="#6b4a2b"/><circle cy="-2" r="11" fill="#7cbf5f"/>'; return; }
@@ -1432,7 +1432,7 @@ Modul.makeOpen($("#open5"), [
 /* ---------- Station 6: Kaskadennutzung ---------- */
 (function(){
   const obs = $("#kasObs"), done = {A: false, B: false};
-  register("kaskade");
+  register("kaskade", "#kasObs", "Kaskadennutzung (Animation)");
   const seg = (track, cls, txt) => { const d = document.createElement("div"); d.className = "kas-seg " + cls; d.textContent = txt; track.appendChild(d); return d; };
   function fin(){
     if (done.A && done.B) { obs.textContent = "Beide Wege liefern am Ende Wärme. Bei der Kaskadennutzung nützt dasselbe Holz aber vorher noch viele Jahre als Werkstoff. Das erhöht die Wertschöpfung und spart neues Holz – so wird die Nutzung nachhaltiger."; solve("kaskade"); }
@@ -1465,7 +1465,7 @@ Modul.makeGap($("#gapKaskade"), [
   const LL = pLin.getTotalLength(), LK = pKreis.getTotalLength();
   const cnt = {lin: {r: 0, m: 0, t: 0}, kreis: {r: 0, m: 0, t: 0, loops: 0}};
   let mode = "lin", visible = false, looping = false, lastT = 0;
-  register("kreislauf");
+  register("kreislauf", "#krBtnLin", "Wegwerf- und Kreislaufwirtschaft (Animation)");
   const dots = Array.from({length: 6}, (_, k) => ({el: svgEl("circle", {r: 7}, dotsG), p: k / 6}));
   function place(){
     dots.forEach(d => {
@@ -1522,7 +1522,7 @@ Modul.makeGap($("#gapKreis"), [
 /* ---------- Station 6: Vorher-nachher mit Blühstreifen ---------- */
 (function(){
   const range = $("#cmpRange"), top = $("#cmpTop"), line = $("#cmpLine"), obs = $("#cmpObs");
-  register("vergleich");
+  register("vergleich", "#cmpRange", "Vorher und nachher: Blühstreifen (Bildvergleich)");
   function draw(){
     const v = +range.value;
     top.style.clipPath = `inset(0 ${100 - v}% 0 0)`; line.style.left = v + "%";

@@ -681,7 +681,7 @@ Modul.init({
   thema: "Organische Rohstoffe: Kohlenstoffkreislauf (Fotosynthese, Atmung, Zersetzung, Speicher), Einfluss des Menschen, natürlicher und verstärkter Treibhauseffekt, Treibhausgase, CO2-Experiment, Klimawandel und Folgen, Klimaschutz, CO2-Ausstoß im Verkehr",
   api: "/api/nt9/uebung/feedback",
   // Sterne auch in der Kursübersicht zeigen (Kachel Modul 5, interne Kennung m06)
-  onProgress: (n, total) => { if (bereit && FS) FS.speichern("m06", n, total); },
+  onProgress: (n, total, d) => { if (bereit && FS) FS.speichern("m06", n, total, d); },
   glossary: {
     kohlenstoff: ["Kohlenstoff", "Chemisches Element (Zeichen C). Es steckt in allen Lebewesen, in Kohle, Erdöl und Erdgas und als CO₂ in der Luft."],
     kohlenstoffverbindung: ["Kohlenstoffverbindungen", "Stoffe, in denen Kohlenstoff mit anderen Elementen verbunden ist, z. B. Zucker, Stärke, Holz, Eiweiß oder Fett."],
@@ -815,7 +815,7 @@ Modul.makeMC($("#mc-train"), MC.train, "mct");
   });
   const found = new Set();
   let here = "luft", busy = false;
-  register("kreislaufReise");
+  register("kreislaufReise", "#krSvg", "Kohlenstoff-Reise (Animation)");
   const restAt = n => { atom.setAttribute("transform", `translate(${n.x + 20} ${n.y - 18})`); };
   function buttons(){
     Object.entries(N).forEach(([k, n]) => n.g.classList.toggle("here", k === here));
@@ -888,7 +888,7 @@ Modul.makeOpen($("#open1"), [
   const MENSCH = {kohle: ["Kohle verbrannt", "#3d3d3d"], oel: ["Erdöl verbrannt", "#5a4632"], gas: ["Erdgas verbrannt", "#6c7a86"]};
   const on = {kohle: false, oel: false, gas: false, wald: false};
   let ang = 0, target = 0, anim = null;
-  register("waage");
+  register("waage", "#wgSvg", "CO₂-Waage (Animation)");
   function pan(g, x, y, title, blocks){
     g.innerHTML = "";
     svgEl("line", {x1: x - 54, y1: y, x2: x, y2: y - ROPE, stroke: "#7d8b96", "stroke-width": 1.5}, g);
@@ -970,7 +970,7 @@ Modul.makeOpen($("#open2"), [
   });
   let mode = -1, temp = -18, visible = false, looping = false, last = 0, spawn = 0;
   const parts = [], seen = new Set(), recent = [];
-  register("treibhausSim");
+  register("treibhausSim", "#thSvg", "Strahlen-Simulator zum Treibhauseffekt");
   function setMode(m){
     mode = m;
     $$("[data-th]", $("#thBtns")).forEach(b => b.classList.toggle("sel", +b.dataset.th === m));
@@ -1174,7 +1174,7 @@ Modul.makeOpen($("#open3"), [
   const curveT = (end, p) => 21.4 + (end - 21.4) * (1 - Math.exp(-3.2 * p)) / (1 - Math.exp(-3.2));
   const fmtT = T => fmt(T) + " °C";
   let run = 0;
-  register("versuchNachspielen");
+  register("versuchNachspielen", "#exSvg", "CO₂-Versuch nachspielen (Animation)");
   function plot(p){
     const pts1 = [], pts2 = [];
     for (let k = 0; k <= 40 * p; k++) { const q = k / 40, x = (X0 + q * (X1 - X0)).toFixed(1); pts1.push(`${x},${Y(curveT(36.4, q)).toFixed(1)}`); pts2.push(`${x},${Y(curveT(37.5, q)).toFixed(1)}`); }
@@ -1238,7 +1238,7 @@ Modul.makeOpen($("#open4"), [
     {t: "🌡️ +3 °C: wenn der Ausstoß nicht sinkt", h: 10, f: "#b58a4a", s: 208, p: "#8a6a3a", txt: "So könnte es bei 3 °C Erwärmung werden: Das Eis ist fast weg, Ernten fallen aus, Stürme werden heftiger und das Meer erreicht Häuser an der Küste. Je mehr Treibhausgase wir ausstoßen, desto stärker werden die Folgen."}
   ];
   const plants = [190, 206, 222, 238, 254, 270, 286, 302].map(x => svgEl("path", {d: `M${x} 186 q-4 -10 0 -16 q4 6 0 16 M${x} 182 q6 -6 9 -5`, stroke: "#3f8f3a", "stroke-width": 2, fill: "none"}, plantsG));
-  register("klimaRegler");
+  register("klimaRegler", "#kwSvg", "Klima-Regler (Animation)");
   function show(k){
     // Eiskappe bleibt innerhalb der Bergflanken (links 92/138, rechts 104/138 pro Höhe)
     const s = L[k], h = s.h, w1 = h * .64, w2 = h * .72;
@@ -1298,7 +1298,7 @@ const kg = (km, g) => fmt(km * g / 1000, 1).replace(",0", "") + " kg";
   bars.innerHTML = VM.map(v => `<div class="bar-row"><span>${v.n}</span><div class="bar-track"><div class="bar-fill" style="background:${v.c};width:0"></div></div><span class="bar-val"></span></div>`).join("");
   const fills = $$(".bar-fill", bars), vals = $$(".bar-val", bars);
   const used = new Set();
-  register("co2Rechner");
+  register("co2Rechner", "#bars", "CO₂-Rechner für Reisen");
   function show(km){
     range.value = km; chip.textContent = km + " km";
     VM.forEach((v, i) => { fills[i].style.width = (km * v.g / (1000 * 215) * 100).toFixed(1) + "%"; vals[i].textContent = kg(km, v.g); });
@@ -1315,7 +1315,7 @@ const kg = (km, g) => fmt(km * g / 1000, 1).replace(",0", "") + " kg";
   const KM = 600, box = $("#calc"), fb = $("#calcFb");
   box.innerHTML = VM.map((v, i) => `<label class="calc-row"><span>${v.n}</span><input inputmode="decimal" autocomplete="off" data-i="${i}" placeholder="z. B. 12,5"><span>kg</span></label>`).join("");
   const inputs = $$("input", box);
-  register("rechenBerlin");
+  register("rechenBerlin", "#calc", "Rechenaufgabe: Klassenfahrt nach Berlin");
   inputs.forEach(inp => { inp.value = Modul.load("-calc" + inp.dataset.i, ""); inp.addEventListener("input", () => { Modul.save("-calc" + inp.dataset.i, inp.value); inp.classList.remove("right", "wrong"); }); });
   const num = s => { s = String(s).replace(/kg|g/gi, "").replace(/\s/g, ""); if (/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) s = s.replace(/\./g, ""); return parseFloat(s.replace(",", ".")); };
   $("#calcGo").addEventListener("click", () => {
@@ -1430,7 +1430,7 @@ Modul.makeSort($("#sortMythos"), {
     replyBad: "Das ist mir zu wenig begründet. Mit ein paar Fakten mehr hättest du mich vielleicht überzeugt!"
   };
   const esc = Modul.esc, box = $("#duel");
-  register("duell");
+  register("duell", "#duel", "Duell gegen den Klimaleugner");
   const gespielt = new Set();
   let runden, r, me, ki, tipN;
   // vier Behauptungen, bisher nicht gespielte zuerst

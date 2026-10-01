@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
-<title>Proben verwalten &ndash; alle Klassen</title>
+<title>Proben und Lernfortschritt &ndash; alle Klassen</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -97,14 +97,22 @@
   .spacer{flex:1}
   .hidden{display:none}
   .skel{color:var(--muted);font-weight:600;font-size:.9rem;padding:.6rem 0}
+
+  /* Reiter: Proben / Lernfortschritt */
+  .tabs{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem}
+  .tabs button{padding:.6rem 1.1rem;border:1.5px solid var(--line);border-radius:999px;background:#fff;
+    font:inherit;font-weight:800;font-size:.92rem;cursor:pointer;color:var(--dark)}
+  .tabs button:hover{background:#f3f5f9}
+  .tabs button.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+  .tabs.hidden{display:none}
 </style>
 </head>
 <body>
 <div class="wrap">
 
   <div class="head">
-    <h1>Proben verwalten</h1>
-    <p>Alle Tests und Proben aller Klassenstufen an einer Stelle freischalten und sperren.</p>
+    <h1>Proben und Lernfortschritt</h1>
+    <p>Tests und Proben aller Klassenstufen freischalten und sperren, Lernfortschritt in NT 9 ansehen.</p>
   </div>
 
   <!-- ============ Anmeldung ============ -->
@@ -118,6 +126,15 @@
     </div>
     <div id="login-msg"></div>
   </section>
+
+  <!-- ============ Reiter ============ -->
+  <nav class="tabs hidden" id="view-tabs" aria-label="Bereiche">
+    <button type="button" data-view="admin" class="on">🔓 Proben freischalten</button>
+    <button type="button" data-view="lf">📈 Lernfortschritt NT 9</button>
+  </nav>
+
+  <!-- ============ Lernfortschritt NT 9 (lernfortschritt-nt9.js) ============ -->
+  <section class="panel hidden" id="view-lf"></section>
 
   <!-- ============ Übersicht ============ -->
   <section class="panel hidden" id="view-admin">
@@ -142,6 +159,7 @@
 
 </div>
 
+<script src="lernfortschritt-nt9.js"></script>
 <script>
 /* ============================================================
    Proben verwalten - alle Module an einer Stelle
@@ -273,13 +291,30 @@ async function login(){
     }
     PW = pw;
     $('view-login').classList.add('hidden');
-    $('view-admin').classList.remove('hidden');
+    $('view-tabs').classList.remove('hidden');
+    let start = 'admin';
+    try { start = localStorage.getItem('pv-ansicht') || 'admin'; } catch(e){}
+    ansicht(start);
     loadAll();
   }catch(e){
     msg('login-msg','Keine Verbindung zum Server. Bitte später noch einmal versuchen.','bad');
     $('btn-login').disabled = false;
     $('btn-login').textContent = 'Anmelden';
   }
+}
+
+/* ---------- Reiter ---------- */
+document.querySelectorAll('#view-tabs [data-view]').forEach(b =>
+  b.addEventListener('click', () => ansicht(b.dataset.view)));
+
+function ansicht(v){
+  if(v !== 'lf') v = 'admin';
+  document.querySelectorAll('#view-tabs [data-view]').forEach(b =>
+    b.classList.toggle('on', b.dataset.view === v));
+  $('view-admin').classList.toggle('hidden', v !== 'admin');
+  $('view-lf').classList.toggle('hidden', v !== 'lf');
+  try { localStorage.setItem('pv-ansicht', v); } catch(e){}
+  if(v === 'lf' && window.LernfortschrittNT9) window.LernfortschrittNT9.zeigen($('view-lf'), PW, API_BASE);
 }
 
 /* ---------- Alle Module laden ---------- */

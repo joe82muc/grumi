@@ -3,7 +3,8 @@
  * Ankreuzen, Lückentext, Zuordnen, Richtig/Falsch, Reihenfolge, Bild beschriften,
  * Kreuzworträtsel, offene Fragen mit KI-Rückmeldung, Abschlussquiz und Konfetti.
  * Die Seite ruft Modul.init({...}) auf, baut ihre Übungen und zum Schluss Modul.ready().
- * Kopien liegen unverändert in 9M/ und 9R/NT_9/App12_Organische_Rohstoffe (NT 9, Modul 2).
+ * Kopien liegen in 9M/ und 9R/NT_9/App12_Organische_Rohstoffe (NT 9). Dort zusätzlich: Bezeichnungen der
+ * Übungen (register mit Element und Text), Aufgabenkatalog und gelöste Aufgaben für die Lehreransicht.
  */
 (function(){
 "use strict";
@@ -27,11 +28,41 @@ let solved = {};
 const tasks = new Set();
 function load(k, d){ try { const v = localStorage.getItem(KEY + k); return v === null ? d : v; } catch (_) { return d; } }
 function save(k, v){ try { localStorage.setItem(KEY + k, v); } catch (_) {} }
-function register(id){ tasks.add(id); updateStars(); }
+// el: Element oder CSS-Selektor der Übung, text: Bezeichnung für die Lehreransicht,
+// typ: Art der Übung (ergibt mit der Überschrift der Karte die Bezeichnung, wenn text fehlt)
+const meta = {};
+function register(id, el, text, typ){ tasks.add(id); if (el || text || typ) meta[id] = {el, text, typ}; updateStars(); }
 function solve(id){ if (!solved[id]) { solved[id] = 1; save("", JSON.stringify(solved)); } updateStars(); }
 function updateStars(){
   const n = [...tasks].filter(t => solved[t]).length; const s = $("#stars"); if (s) s.textContent = `⭐ ${n} / ${tasks.size}`; save("-total", tasks.size);
-  if (onProgress) onProgress(n, tasks.size);
+  // dritter Wert: gelöste Aufgaben und der Aufgabenkatalog (als Funktion, wird nur bei Bedarf berechnet)
+  if (onProgress) onProgress(n, tasks.size, {geloest: [...tasks].filter(t => solved[t]), katalog});
+}
+// Aufgabenkatalog für die Lehreransicht: { id: [Bezeichnung, Station] }
+function katalog(){
+  const out = {};
+  tasks.forEach(id => {
+    const m = meta[id] || {};
+    const el = typeof m.el === "string" ? $(m.el) : m.el;
+    const sec = el && el.closest ? el.closest("section.station") : null;
+    const num = sec ? $(".st-num", sec) : null;
+    let h = "";
+    if (el && el.closest) {
+      const card = el.closest(".card, .sim");
+      const hd = card && ($("h3", card) || $(".task-tag", card));
+      if (hd) h = hd.textContent.replace(/✨\s*KI prüft/g, "").replace(/\s+/g, " ").trim();
+    }
+    const label = m.text || (m.typ ? m.typ + (h ? ": " + h : "") : h) || id;
+    out[id] = [label.slice(0, 140), num ? num.textContent.trim() : ""];
+  });
+  return out;
+}
+// Gelöste Aufgaben von einem anderen Gerät übernehmen (Anmeldung mit Code)
+function mehrGeloest(ids){
+  let neu = 0;
+  (ids || []).forEach(id => { if (tasks.has(id) && !solved[id]) { solved[id] = 1; neu++; } });
+  if (neu) { save("", JSON.stringify(solved)); updateStars(); }
+  return neu;
 }
 
 /* ---------- Grundgerüst ---------- */
@@ -136,7 +167,7 @@ function ready(){ if (Modul._onScroll) Modul._onScroll(); updateStars(); }
 function makeMC(container, list, idPrefix, tag){
   container.innerHTML = tag ? `<span class="task-tag ${tag.probe ? "probe" : ""}">${esc(tag.t)}</span>` : "";
   list.forEach((q, qi) => {
-    const id = idPrefix + "-" + qi; register(id);
+    const id = idPrefix + "-" + qi; register(id, container, "Ankreuzen: " + q.q);
     const multi = Array.isArray(q.a);
     const el = document.createElement("div"); el.className = "q";
     const order = shuffle(q.o.map((t, i) => ({t, i})));
@@ -166,7 +197,7 @@ function makeMC(container, list, idPrefix, tag){
 
 /* ---------- Lückentext: erst Lücke, dann Wort antippen ---------- */
 function makeGap(box, paras, id, extra){
-  register(id);
+  register(id, box, null, "Lückentext");
   const answers = [];
   const html = paras.map(p => "<p>" + p.map(part => typeof part === "string" ? part : `<button class="gap" data-i="${answers.push(part.g) - 1}">&nbsp;</button>`).join("") + "</p>").join("");
   const bank = answers.map((w, i) => ({w, i})).concat((extra || []).map((w, i) => ({w, i: "x" + i})));
@@ -196,7 +227,7 @@ function makeGap(box, paras, id, extra){
 
 /* ---------- Zuordnen (Tippen oder Ziehen) ---------- */
 function makeSort(container, cfg, id){
-  register(id);
+  register(id, container, null, "Zuordnen");
   container.innerHTML = `<div class="pool"></div><div class="buckets ${cfg.pairs ? "pairs" : ""}" ${cfg.cols ? `style="grid-template-columns:repeat(auto-fit,minmax(${cfg.cols}px,1fr))"` : ""}>${cfg.buckets.map((b, i) => `<div class="bucket" data-b="${i}"><h5>${b}</h5><div class="in"></div></div>`).join("")}</div>
     <div class="row-btns"><button class="btn small check">Prüfen</button><button class="btn small ghost reset">Zurücksetzen</button></div><div class="fb"></div>`;
   const pool = $(".pool", container), buckets = $$(".bucket", container), fb = $(".fb", container);
@@ -240,7 +271,7 @@ function makeSort(container, cfg, id){
 
 /* ---------- Richtig / Falsch ---------- */
 function makeTF(box, list, id){
-  register(id);
+  register(id, box, null, "Richtig oder falsch");
   box.innerHTML = `<div class="tf">${list.map((t, i) => `<div class="tf-row" data-i="${i}"><span>${esc(t[0])}</span><div class="tf-btns"><button data-v="1">richtig</button><button data-v="0">falsch</button></div></div>`).join("")}</div>
     <div class="row-btns"><button class="btn small check">Prüfen</button></div><div class="fb"></div>`;
   $$(".tf-row", box).forEach(row => $$("button", row).forEach(b => b.addEventListener("click", () => { $$("button", row).forEach(x => x.classList.toggle("sel", x === b)); row.classList.remove("right", "wrong"); })));
@@ -255,7 +286,7 @@ function makeTF(box, list, id){
 
 /* ---------- Reihenfolge ordnen ---------- */
 function makeOrder(box, steps, id){
-  register(id);
+  register(id, box, null, "Reihenfolge");
   let order = shuffle(steps.map((t, i) => i));
   while (steps.length > 1 && order.every((v, i) => v === i)) order = shuffle(order);
   box.innerHTML = `<div class="order-list"></div><div class="row-btns"><button class="btn small check">Prüfen</button></div><div class="fb"></div>`;
@@ -279,7 +310,7 @@ function makeOrder(box, steps, id){
 // cfg: {img, alt, w, h, slots:[{x,y,px,py,a,arrow}], extra:[Ablenker], hint}
 // x/y = Mitte des Kästchens, px/py = Bauteil, auf das die Linie zeigt (alles in Prozent)
 function makeLabel(box, cfg, id){
-  register(id);
+  register(id, box, null, "Beschriften");
   const lines = cfg.slots.map(s => `<line x1="${s.x}" y1="${s.y}" x2="${s.px}" y2="${s.py}" stroke="${s.arrow ? "#e0453a" : "#0d77c2"}" stroke-width="${s.arrow ? 4 : 2.5}" vector-effect="non-scaling-stroke" ${s.arrow ? 'stroke-dasharray="7 5"' : ""}/>`).join("");
   box.innerHTML = `<div class="label-wrap"><div class="label-img"><img src="${cfg.img}" width="${cfg.w}" height="${cfg.h}" alt="${esc(cfg.alt)}"><svg class="leads" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${lines}</svg>${cfg.slots.map(s => `<span class="dot" style="left:${s.px}%;top:${s.py}%"></span>`).join("")}${cfg.slots.map((s, i) => `<button class="slot${s.arrow ? " arrow-slot" : ""}" data-i="${i}" style="left:${s.x}%;top:${s.y}%">?</button>`).join("")}</div>
     <div><p class="hint">${cfg.hint || "Tippe zuerst auf einen Begriff und dann auf das passende Kästchen im Bild. Die Pfeile (➜) zeigen, wo Energie hinein- oder hinausgeht."}</p><div class="label-pool"></div>
@@ -312,7 +343,7 @@ function makeLabel(box, cfg, id){
 
 /* ---------- Bild mit Hotspots ---------- */
 function makeHotspots(box, info, countEl, list, id){
-  register(id);
+  register(id, box, null, "Bild erkunden");
   const seen = new Set();
   list.forEach((h, i) => {
     const b = document.createElement("button"); b.className = "hs"; b.style.left = h.x + "%"; b.style.top = h.y + "%";
@@ -332,7 +363,7 @@ function makeHotspots(box, info, countEl, list, id){
 // cfg: {words:[{w,r,c,d:"a"|"d",q,num}], sol:[[r,c],...], solWord, pre:["r,c"], umlaut}
 // num: feste Nummer wie auf dem Arbeitsblatt; umlaut: Ä, Ö, Ü stehen in einem eigenen Kästchen
 function makeCrossword(box, cfg, id){
-  register(id);
+  register(id, box, null, "Kreuzworträtsel");
   const W = cfg.words.slice().sort((a, b) => a.r - b.r || a.c - b.c);
   let n = 0; const starts = {};
   W.forEach(w => { const k = w.r + "," + w.c; if (!starts[k]) starts[k] = w.num || ++n; w.n = starts[k]; });
@@ -427,7 +458,7 @@ async function askKI(body, onSlow){
 }
 function makeOpen(box, list, prefix, fallbackTip){
   list.forEach((o, i) => {
-    const id = prefix + i; register(id);
+    const id = prefix + i; register(id, box, "Offene Frage: " + o.q);
     const el = document.createElement("div"); el.className = "q ki";
     el.innerHTML = `<div class="q-title">${i + 1}. ${esc(o.q)}</div><textarea placeholder="Deine Antwort …" aria-label="Antwort zu Frage ${i + 1}"></textarea>
       <div class="row-btns"><button class="btn small teal go">✨ Antwort prüfen</button><button class="btn small ghost show-model" hidden>Musterlösung</button></div>
@@ -462,7 +493,7 @@ function makeOpen(box, list, prefix, fallbackTip){
 
 /* ---------- Abschlussquiz ---------- */
 function makeQuiz(box, pool, id, profi){
-  register(id);
+  register(id, box, "Profi-Check (Abschlussquiz)");
   pool = pool.filter(q => !Array.isArray(q.a));
   const N = Math.min(10, pool.length);
   let qs, i, score;
@@ -508,5 +539,5 @@ function confetti(){
 }
 
 const Modul = window.Modul = {$, $$, esc, shuffle, clamp, fmt, norm, setText, reduced, onVisible, load, save, init, ready, register, solve,
-  isSolved: id => !!solved[id], askKI, makeMC, makeGap, makeSort, makeTF, makeOrder, makeLabel, makeHotspots, makeCrossword, makeOpen, makeQuiz, confetti};
+  isSolved: id => !!solved[id], katalog, mehrGeloest, askKI, makeMC, makeGap, makeSort, makeTF, makeOrder, makeLabel, makeHotspots, makeCrossword, makeOpen, makeQuiz, confetti};
 })();

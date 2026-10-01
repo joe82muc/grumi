@@ -1,19 +1,34 @@
 # Fortschritt: NT 9M / 9R · Organische Rohstoffe
 
-Der Lernfortschritt der Schülerinnen und Schüler liegt nur im `localStorage` des jeweiligen Geräts
-(`fortschritt.js`, Schlüssel `grumi-nt9-m9-…` bzw. `grumi-nt9-r9-…`). Er wird nicht übertragen und
-nicht an einen Server geschickt.
+**Anmeldung mit Code (seit 01.10.2026 abends):** Jedes Kind bekommt von der Lehrkraft einen 3-stelligen
+Code und meldet sich damit in den Modulen (1–5 und Kursübersicht) an. `fortschritt.js` prüft den Code beim
+Server (`POST https://englisch-9.onrender.com/api/nt9/fortschritt/anmelden`, Backend `nt9-fortschritt.js` im
+Repo `englisch_9`). Die Modulseiten melden über `FS.speichern(id, gelöst, gesamt, d)` die gelösten Aufgaben
+(`d.geloest`) und einmal je Seitenaufruf den Aufgabenkatalog (`d.katalog()`: Bezeichnung und Station je
+Aufgabe, kommt aus `modul-basis.js`). Meldungen gehen gesammelt nach 2,5 s raus; was nicht ankommt, bleibt in
+`grumi-nt9-m9-senden~kennung~` und geht beim nächsten Öffnen raus.
 
-**Anmeldung (seit 01.10.2026):** Beim ersten Öffnen eines Moduls (1–5 und Kursübersicht) fragt
-`fortschritt.js` nach Vorname oder Nummer, mit Datenschutz-Hinweis. Der Name bleibt ebenfalls nur auf
-dem Gerät (`grumi-nt9-m9-anmeldung`). Jede Anmeldung hat einen eigenen Speicherbereich: an den Schlüssel
-wird `~kennung~` gehängt (Kennung = Name klein geschrieben), z. B. `grumi-nt9-m9-modul1-v1~lena~`.
-Modulseiten holen ihren Schlüssel über `FS.schluessel(...)`. Bei der ersten Anmeldung auf einem Gerät wird
-der Stand von vorher (ohne Namen) übernommen. Abmelden über das Namensschild 👤 in der Kopfzeile oder in
-der Kursübersicht; „Fortschritt zurücksetzen“ löscht nur den Stand des angemeldeten Kindes.
-Die Themenübersicht bindet das Skript mit `data-anmeldung="nein"` ein (zeigt den Stand, fragt aber nicht).
-An die KI gehen nur Frage und Antwort, kein Name. Jede Lernseite meldet ihre Sterne über `FS.speichern(id, gelöst, gesamt)`
-an die Übersicht (`index.html`) und an die Themenübersicht (`../übersicht_themen.html`).
+- Gespeichert wird dauerhaft in Upstash Redis (Frankfurt, Umgebungsvariablen `UPSTASH_REDIS_REST_URL` und
+  `UPSTASH_REDIS_REST_TOKEN` beim Render-Dienst). Ohne sie speichert der Server flüchtig in eine Datei.
+  Prüfen: `GET /api/nt9/fortschritt/status` → `speicher: "upstash", verbunden: true`.
+- **Keine Namen auf dem Server**: Der Server kennt nur Code, Klasse, gelöste Aufgaben und Zeitstempel. Die
+  Zuordnung Code → Name hält die Lehrerseite nur im Browser der Lehrkraft (`lf-nt9-namen`), als Datei zu
+  sichern und auf einem anderen Gerät zu laden (getrennte Liste laut `datenschutz.html`, Abschnitt 4).
+- Auf dem Gerät heißt das Kind „Code 123“. Speicherbereich je Anmeldung: Schlüssel + `~code-123~`.
+- Mit dem Code lässt sich auf jedem Gerät weiterlernen: Beim Anmelden und beim Öffnen einer Modulseite holt
+  `fortschritt.js` den Stand vom Server und ergänzt den Stand auf dem Gerät (`Modul.mehrGeloest`).
+- Ältere Anmeldungen mit Vorname: Beim ersten Anmelden mit Code bietet das Fenster an, den Stand zu übernehmen.
+- Der Knopf „Fortschritt zurücksetzen“ in der Kursübersicht ist entfallen (der Server würde den Stand wieder
+  herstellen). Zurücksetzen = Code in der Lehreransicht löschen und neu anlegen.
+- Antworten auf offene Fragen und im Duell werden nicht gespeichert.
+
+**Lehreransicht:** `proben-verwalten.html` (Wurzel des Repos), Lehrerpasswort, Reiter „📈 Lernfortschritt NT 9“
+(`lernfortschritt-nt9.js`): Codes erzeugen (Namen zeilenweise eintragen), Codeliste zum Ausschneiden drucken,
+Tabelle Kind × Modul (Anteil gelöster Aufgaben, 🏆 = Profi-Check), Klick auf ein Kind zeigt jede Aufgabe nach
+Station, Klassenauswertung (die 12 am wenigsten gelösten Aufgaben eines Moduls), CSV-Export, Namensliste
+speichern/laden, Code löschen.
+
+Die Themenübersicht bindet `fortschritt.js` mit `data-anmeldung="nein"` ein (zeigt den Stand, fragt nicht).
 
 | Modul | Kennung | Seite | Stand |
 |---|---|---|---|
@@ -129,6 +144,16 @@ an die Übersicht (`index.html`) und an die Themenübersicht (`../übersicht_the
 - Legende unter dem Bild: Sonnenlicht (gelb), Wärmestrahlung der Erde (rot), zurückgeschickte Wärme (orange).
 - Zähler zeigt nach dem Umschalten „wird gezählt …“ statt des alten Werts, bei reduzierter Bewegung feste Richtwerte.
 
+## Stand 01.10.2026, abends: Anmeldung mit Code und Lehreransicht
+
+- Siehe oben. Getestet mit Playwright gegen einen lokalen Testserver (Speicher im Arbeitsspeicher): Codes
+  anlegen, falscher Code, Code der anderen Klasse, Anmeldung, Aufgaben lösen, Lehreransicht mit Prozent,
+  Einzelaufgaben und Klassenauswertung, zweites Gerät (Stand kommt vom Server, auch ohne neue Anmeldung),
+  Übernahme einer alten Vornamen-Anmeldung, CSV, Druckzettel, Löschen, Namensliste speichern und auf einem
+  zweiten Lehrergerät laden, Handybreite. Alle 343 Aufgaben der fünf Module haben eine Bezeichnung und Station.
+- Backend-Tests: `node --test api/nt9-fortschritt.test.js` (mit Upstash-Attrappe).
+
 ## Offen
 
-- Nichts. Alle fünf Module haben eigene Lernseiten.
+- Schulleitung und Datenschutzbeauftragten über Upstash als neuen Dienstleister informieren
+  (Auftragsverarbeitungsvertrag: https://upstash.com/static/trust/dpa.pdf).
