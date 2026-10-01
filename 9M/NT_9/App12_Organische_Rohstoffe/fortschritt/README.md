@@ -23,7 +23,10 @@ Aufgabe, kommt aus `modul-basis.js`). Meldungen gehen gesammelt nach 2,5 s raus;
 - Antworten auf offene Fragen und im Duell werden nicht gespeichert.
 
 **Lehreransicht:** `proben-verwalten.html` (Wurzel des Repos), Lehrerpasswort, Reiter „📈 Lernfortschritt NT 9“
-(`lernfortschritt-nt9.js`): Codes erzeugen (Namen zeilenweise eintragen), Codeliste zum Ausschneiden drucken,
+(`lernfortschritt-nt9.js`): Codes erzeugen (Namen zeilenweise eintragen oder die Klassenliste als CSV-Export aus
+dem Schulmanager laden: Der Browser liest nur die Spalte „Vorname“, bei gleichen Vornamen den Anfangsbuchstaben
+des Nachnamens, und erkennt die Klasse an „Ausbildungsrichtung“ (M-Zug = 9M); Adressen, Kontakte usw. werden
+verworfen; Namen mit Code werden nicht doppelt angelegt), Codeliste zum Ausschneiden drucken,
 Tabelle Kind × Modul (Anteil gelöster Aufgaben, 🏆 = Profi-Check), Klick auf ein Kind zeigt jede Aufgabe nach
 Station, Klassenauswertung (die 12 am wenigsten gelösten Aufgaben eines Moduls), CSV-Export, Namensliste
 speichern/laden, Code löschen.

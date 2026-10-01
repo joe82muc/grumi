@@ -2,8 +2,11 @@
    Lernfortschritt NT 9M/9R „Organische Rohstoffe“ für die Lehrkraft
    (Reiter in proben-verwalten.html, gleiches Lehrerpasswort)
 
-   - Codes anlegen: Namen eintragen, der Server vergibt je Kind einen
-     3-stelligen Code. Codeliste zum Ausschneiden drucken.
+   - Codes anlegen: Namen eintragen oder die Klassenliste (CSV-Export aus dem
+     Schulmanager) laden, der Server vergibt je Kind einen 3-stelligen Code.
+     Aus der Klassenliste liest der Browser nur die Vornamen, alle anderen
+     Angaben (Adressen, Kontakte, Geburtstage …) werden verworfen.
+     Codeliste zum Ausschneiden drucken.
    - Namen kennt der Server nicht: Die Zuordnung Code -> Name liegt nur im
      Browser der Lehrkraft (getrennte Liste laut Datenschutzhinweisen) und
      lässt sich als Datei speichern und an einem anderen Gerät laden.
@@ -215,13 +218,15 @@
 
     // Codes verwalten
     h += '<h3 class="lf-h3">Codes verwalten · Klasse ' + esc(KLASSE) + "</h3>" +
-      '<p class="sub">Einen Namen pro Zeile eintragen, dann „Codes erzeugen“. Jedes Kind bekommt einen eigenen 3-stelligen Code. Die Namen bleiben nur in diesem Browser, der Server bekommt sie nicht.</p>' +
+      '<p class="sub"><b>Klassenliste laden</b> (CSV-Export aus dem Schulmanager) oder die Vornamen von Hand eintragen, einen pro Zeile. Dann „Codes erzeugen“. Jedes Kind bekommt einen eigenen 3-stelligen Code. Die Namen bleiben nur in diesem Browser, der Server bekommt sie nicht.</p>' +
       (fehlend ? '<div class="note warn">Für ' + fehlend + (fehlend === 1 ? " Code fehlt" : " Codes fehlen") + ' in diesem Browser der Name. Lade die Namensliste, die du auf deinem anderen Gerät gespeichert hast.</div>' : "") +
-      '<textarea class="lf-namen" id="lf-namen" placeholder="Lena&#10;Ben&#10;Mia"></textarea>' +
+      '<div class="btn-row" style="margin:0 0 .6rem"><button class="btn btn-ghost btn-sm" id="lf-liste" type="button">📄 Klassenliste laden (Schulmanager-CSV)</button>' +
+      '<input type="file" id="lf-liste-datei" accept=".csv,.txt,text/csv,text/plain" hidden></div>' +
+      '<textarea class="lf-namen" id="lf-namen" aria-label="Vornamen, einer pro Zeile" placeholder="Hier stehen die Vornamen, einer pro Zeile – von Hand eingetragen oder aus der Klassenliste geladen."></textarea>' +
       '<div class="btn-row"><button class="btn btn-sm" id="lf-anlegen" type="button">Codes erzeugen</button>' +
       '<button class="btn btn-ghost btn-sm" id="lf-drucken" type="button"' + (liste.length ? "" : " disabled") + ">Codeliste drucken</button>" +
       '<button class="btn btn-ghost btn-sm" id="lf-namen-export" type="button"' + (Object.keys(NAMEN).length ? "" : " disabled") + ">Namensliste speichern</button>" +
-      '<button class="btn btn-ghost btn-sm" id="lf-namen-import" type="button">Namensliste laden</button>' +
+      '<button class="btn btn-ghost btn-sm" id="lf-namen-import" type="button">Gespeicherte Namensliste laden</button>' +
       '<input type="file" id="lf-namen-datei" accept=".csv,.txt,text/csv,text/plain" hidden></div>' +
       '<div class="lf-codes">' + liste.map(function (k) {
         return '<div class="lf-ck"><span class="lf-code">' + esc(k.code) + '</span><span class="lf-name">' + (k.name ? esc(k.name) : '<span class="lf-leer">ohne Namen</span>') + "</span>" +
@@ -229,7 +234,7 @@
           '<button type="button" data-loeschen="' + esc(k.code) + '" title="Code und Lernstand löschen" aria-label="Löschen">🗑️</button></div>';
       }).join("") + "</div>" +
       '<div class="note">Auf dem Server (Datenbank von Upstash in Frankfurt) liegen nur Code, Klasse und welche Aufgaben gelöst sind – keine Namen und keine Antworttexte. ' +
-      'Die Namensliste steht nur in diesem Browser. Für ein anderes Gerät: „Namensliste speichern“ und dort „Namensliste laden“. Am Schuljahresende die Codes löschen.</div>';
+      'Die Namensliste steht nur in diesem Browser. Für ein anderes Gerät: „Namensliste speichern“ und dort „Gespeicherte Namensliste laden“. Die Klassenliste aus dem Schulmanager enthält viele persönliche Daten: Nach dem Laden die Datei aus dem Download-Ordner löschen. Am Schuljahresende die Codes löschen.</div>';
 
     doc.getElementById("lf-inhalt").innerHTML = h;
 
@@ -248,6 +253,8 @@
     doc.getElementById("lf-namen-export").addEventListener("click", namenExport);
     doc.getElementById("lf-namen-import").addEventListener("click", function () { doc.getElementById("lf-namen-datei").click(); });
     doc.getElementById("lf-namen-datei").addEventListener("change", namenImport);
+    doc.getElementById("lf-liste").addEventListener("click", function () { doc.getElementById("lf-liste-datei").click(); });
+    doc.getElementById("lf-liste-datei").addEventListener("change", klassenlisteImport);
     Array.prototype.forEach.call(box.querySelectorAll("[data-umbenennen]"), function (b) { b.addEventListener("click", function () { umbenennen(b.getAttribute("data-umbenennen")); }); });
     Array.prototype.forEach.call(box.querySelectorAll("[data-loeschen]"), function (b) { b.addEventListener("click", function () { loeschen(b.getAttribute("data-loeschen")); }); });
   }
@@ -316,11 +323,22 @@
 
   function anlegen() {
     var feld = doc.getElementById("lf-namen");
-    var namen = feld.value.split(/\r?\n/).map(function (n) { return n.trim(); }).filter(Boolean);
-    if (!namen.length) { hinweis("Bitte zuerst Namen eintragen, einen pro Zeile.", "bad"); return; }
+    var namen = feld.value.split(/\r?\n/).map(function (n) { return n.replace(/\s+/g, " ").trim().slice(0, 40); }).filter(Boolean);
+    if (!namen.length) { hinweis("Bitte zuerst Namen eintragen (einen pro Zeile) oder die Klassenliste laden.", "bad"); return; }
+    if (namen.length > 60) { hinweis("Bitte höchstens 60 Namen auf einmal eintragen.", "bad"); return; }
+    // Wer in dieser Klasse schon einen Code hat, bekommt keinen zweiten
+    var schon = {};
+    kinder().forEach(function (k) { if (k.name) schon[k.name.toLowerCase()] = k.code; });
+    var doppelt = namen.filter(function (n) { return schon[n.toLowerCase()]; });
+    if (doppelt.length) {
+      var rest = namen.filter(function (n) { return !schon[n.toLowerCase()]; });
+      if (!rest.length) { hinweis("Alle eingetragenen Namen haben in Klasse " + KLASSE + " schon einen Code.", "ok"); return; }
+      if (!global.confirm(doppelt.length + (doppelt.length === 1 ? " Name hat" : " Namen haben") + " in Klasse " + KLASSE + " schon einen Code: " + doppelt.join(", ") +
+        ".\n\nOK = nur für die übrigen " + rest.length + " Namen Codes erzeugen\nAbbrechen = nichts erzeugen")) return;
+      namen = rest;
+    }
     var btn = doc.getElementById("lf-anlegen");
     btn.disabled = true; btn.textContent = "Codes werden erzeugt …";
-    if (namen.length > 60) { hinweis("Bitte höchstens 60 Namen auf einmal eintragen.", "bad"); return; }
     post("anlegen", { klasse: KLASSE, anzahl: namen.length }).then(function (d) {
       d.neu.forEach(function (n, i) { NAMEN[n.code] = namen[i].slice(0, 40); });
       namenSichern();
@@ -403,24 +421,113 @@
     hinweis("Namensliste gespeichert. Bewahre die Datei sicher auf: Sie verbindet Codes und Namen.", "ok");
   }
 
+  // Text einer Datei lesen: zuerst UTF-8, bei kaputten Umlauten noch einmal als Windows-1252 (ältere Excel-Exporte)
+  function alsText(f, weiter) {
+    var r = new FileReader();
+    r.onload = function () {
+      var t = String(r.result);
+      if (t.indexOf("\ufffd") < 0) { weiter(t); return; }
+      var r2 = new FileReader();
+      r2.onload = function () { weiter(String(r2.result)); };
+      r2.readAsText(f, "windows-1252");
+    };
+    r.readAsText(f, "utf-8");
+  }
+
+  // CSV mit Anführungszeichen und Zeilenumbrüchen in Feldern (so exportiert der Schulmanager Adressen)
+  function csvZeilen(text, trenner) {
+    var zeilen = [], zeile = [], feld = "", inQ = false;
+    for (var i = 0; i < text.length; i++) {
+      var c = text[i];
+      if (inQ) {
+        if (c === '"') { if (text[i + 1] === '"') { feld += '"'; i++; } else inQ = false; }
+        else feld += c;
+      } else if (c === '"') inQ = true;
+      else if (c === trenner) { zeile.push(feld); feld = ""; }
+      else if (c === "\n" || c === "\r") {
+        if (c === "\r" && text[i + 1] === "\n") i++;
+        zeile.push(feld); zeilen.push(zeile); zeile = []; feld = "";
+      } else feld += c;
+    }
+    if (feld || zeile.length) { zeile.push(feld); zeilen.push(zeile); }
+    return zeilen.filter(function (z) { return z.some(function (x) { return x.trim(); }); });
+  }
+
+  // Klassenliste -> { namen: [Vornamen], klasse: "9M"|"9R"|"" }. Gelesen werden nur Vorname, Nachname
+  // (für den Anfangsbuchstaben bei gleichen Vornamen) und Ausbildungsrichtung (für die Klasse).
+  function klassenliste(text, dateiname) {
+    text = text.replace(/^\ufeff/, "");
+    var erste = text.split(/\r?\n/)[0] || "";
+    var trenner = [";", "\t", ","].sort(function (a, b) { return erste.split(b).length - erste.split(a).length; })[0];
+    var zeilen = csvZeilen(text, trenner);
+    if (!zeilen.length) return { namen: [], klasse: "" };
+    var kopf = zeilen[0].map(function (x) { return x.trim().toLowerCase(); });
+    var iVor = kopf.indexOf("vorname");
+    if (iVor < 0) iVor = kopf.indexOf("rufname");
+    var iNach = kopf.indexOf("nachname"), iRicht = kopf.indexOf("ausbildungsrichtung");
+    var leute = [];
+    if (iVor >= 0) {
+      zeilen.slice(1).forEach(function (z) {
+        var v = String(z[iVor] || "").replace(/\s+/g, " ").trim();
+        if (v) leute.push({ vor: v, nach: iNach >= 0 ? String(z[iNach] || "").trim() : "", richtung: iRicht >= 0 ? String(z[iRicht] || "") : "" });
+      });
+    } else {
+      // einfache Liste: ein Name pro Zeile (erste Spalte)
+      zeilen.forEach(function (z) { var v = String(z[0] || "").replace(/\s+/g, " ").trim(); if (v && !/^\d+$/.test(v) && !/^(name|vorname)$/i.test(v)) leute.push({ vor: v, nach: "", richtung: "" }); });
+    }
+    var anzahl = {};
+    leute.forEach(function (p) { var k = p.vor.toLowerCase(); anzahl[k] = (anzahl[k] || 0) + 1; });
+    var namen = leute.map(function (p) { return (anzahl[p.vor.toLowerCase()] > 1 && p.nach ? p.vor + " " + p.nach.charAt(0) + "." : p.vor).slice(0, 40); });
+    var richtungen = leute.map(function (p) { return p.richtung; }).join(" "), klasse = "";
+    if (/m-?zug/i.test(richtungen)) klasse = "9M";
+    else if (/regel/i.test(richtungen)) klasse = "9R";
+    else { var m = /9\s*[a-z]?\s*([mr])(?![a-zäöü])/i.exec(dateiname || ""); if (m) klasse = "9" + m[1].toUpperCase(); }
+    return { namen: namen, klasse: klasse };
+  }
+
+  function klassenlisteImport(e) {
+    var f = e.target.files && e.target.files[0];
+    if (!f) return;
+    alsText(f, function (text) {
+      e.target.value = "";
+      if (/^\ufeff?"?code"?[;,\t]/i.test(text)) { namenAusText(text); return; } // gespeicherte Namensliste erwischt
+      var erg = klassenliste(text, f.name);
+      if (!erg.namen.length) { hinweis("In der Datei wurden keine Vornamen gefunden. Erwartet wird eine Spalte „Vorname“ (Schulmanager-Export) oder ein Name pro Zeile.", "bad"); return; }
+      var gewechselt = erg.klasse && erg.klasse !== KLASSE;
+      if (gewechselt) {
+        KLASSE = erg.klasse; OFFEN = {};
+        try { global.localStorage.setItem("lf-nt9-klasse", KLASSE); } catch (_e) {}
+      }
+      zeichnen();
+      var feld = doc.getElementById("lf-namen");
+      feld.value = erg.namen.join("\n");
+      hinweis(erg.namen.length + " Vornamen übernommen" + (erg.klasse ? " (Klasse " + erg.klasse + (gewechselt ? ", dorthin umgeschaltet" : "") + ")" : "") +
+        ". Prüfe die Liste und klicke dann auf „Codes erzeugen“. Alle anderen Angaben der Datei (Adressen, Kontakte, Geburtstage …) wurden nicht übernommen. Lösche die Datei danach aus dem Download-Ordner.", "ok");
+      if (feld.scrollIntoView) feld.scrollIntoView({ block: "center" });
+    });
+  }
+
   function namenImport(e) {
     var f = e.target.files && e.target.files[0];
     if (!f) return;
-    var r = new FileReader();
-    r.onload = function () {
-      var n = 0;
-      String(r.result).replace(/^\ufeff/, "").split(/\r?\n/).forEach(function (zeile) {
-        var t = zeile.split(/[;,\t]/).map(function (x) { return x.trim().replace(/^"|"$/g, ""); });
-        if (!/^\d{3}$/.test(t[0])) return;
-        var name = (t.length >= 3 ? t[2] : t[1] || "").slice(0, 40);
-        if (name) { NAMEN[t[0]] = name; n++; }
-      });
-      namenSichern();
+    alsText(f, function (text) {
       e.target.value = "";
-      if (DATEN) zeichnen();
-      hinweis(n ? n + " Namen geladen." : "In der Datei wurden keine Zeilen der Form „Code;Klasse;Name“ gefunden.", n ? "ok" : "bad");
-    };
-    r.readAsText(f, "utf-8");
+      if (/(^|[;,\t"])vorname([;,\t"]|$)/i.test(text.split(/\r?\n/)[0] || "")) { klassenlisteImport({ target: { files: [f], value: "" } }); return; } // Klassenliste erwischt
+      namenAusText(text);
+    });
+  }
+
+  function namenAusText(text) {
+    var n = 0;
+    text.replace(/^\ufeff/, "").split(/\r?\n/).forEach(function (zeile) {
+      var t = zeile.split(/[;,\t]/).map(function (x) { return x.trim().replace(/^"|"$/g, ""); });
+      if (!/^\d{3}$/.test(t[0])) return;
+      var name = (t.length >= 3 ? t[2] : t[1] || "").slice(0, 40);
+      if (name) { NAMEN[t[0]] = name; n++; }
+    });
+    namenSichern();
+    if (DATEN) zeichnen();
+    hinweis(n ? n + " Namen geladen." : "In der Datei wurden keine Zeilen der Form „Code;Klasse;Name“ gefunden.", n ? "ok" : "bad");
   }
 
   global.LernfortschrittNT9 = {
