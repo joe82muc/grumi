@@ -36,6 +36,9 @@
 /* Strahlen-Simulator */
 #thSvg .mol{transition:opacity .5s}
 #thSvg .mol.hit circle:first-child{fill:#ffb703}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;padding:0 14px 4px;font-size:.85rem;font-weight:700;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:50%;flex:none}
 .mode-btns .btn.sel{background:var(--sky);color:#fff;border-color:var(--sky)}
 
 /* Film mit Stopps */
@@ -297,7 +300,9 @@
       <rect x="446" y="96" width="16" height="160" rx="8" fill="#fff" stroke="#9aa5ad" stroke-width="2"/>
       <rect id="thFill" x="449" y="200" width="10" height="56" fill="#e0453a"/>
       <circle cx="454" cy="266" r="12" fill="#e0453a"/>
-      <text id="thTemp" x="440" y="110" text-anchor="end" font-size="13" font-weight="900" fill="#c0392b">−18 °C</text>
+      <!-- Anzeige links neben der Kugel, im Boden: dort fliegen keine Moleküle und Teilchen -->
+      <rect id="thTempBg" x="370" y="257" width="64" height="20" rx="6" fill="#fff" stroke="#e0453a" stroke-width="1.5"/>
+      <text id="thTemp" x="428" y="272" text-anchor="end" font-size="13" font-weight="900" fill="#c0392b">−18 °C</text>
     </svg>
     <div class="sim-ctrl mode-btns" id="thBtns">
       <button class="btn small ghost" data-th="0">❄️ ohne Treibhausgase</button>
@@ -305,6 +310,7 @@
       <button class="btn small ghost" data-th="2">🏭 zusätzliche Treibhausgase</button>
     </div>
     <div class="readout"><span class="chip" id="thChipT">🌡️ Durchschnitt: −18 °C</span><span class="chip" id="thChipR">↩️ kommen zurück: 0 von 10 Wärmeteilchen</span></div>
+    <div class="legend" aria-hidden="true"><span><i style="background:#ffd166;box-shadow:0 0 0 1.5px #e8a400"></i>Sonnenlicht</span><span><i style="background:#e63946"></i>Wärmestrahlung der Erde</span><span><i style="background:#ff8c42"></i>Wärme, die zur Erde zurückgeschickt wird</span></div>
     <p class="obs" id="thObs">Probiere alle drei Knöpfe aus und beobachte die roten Wärmeteilchen.</p>
   </div>
 
@@ -947,12 +953,12 @@ Modul.makeOpen($("#open2"), [
 
 /* ---------- Station 3: Strahlen-Simulator ---------- */
 (function(){
-  const svg = $("#thSvg"), obs = $("#thObs"), partG = $("#thParts", svg), molG = $("#thMols", svg), fill = $("#thFill", svg), tempT = $("#thTemp", svg);
+  const svg = $("#thSvg"), obs = $("#thObs"), partG = $("#thParts", svg), molG = $("#thMols", svg), fill = $("#thFill", svg), tempT = $("#thTemp", svg), tempBg = $("#thTempBg", svg);
   const chipT = $("#thChipT"), chipR = $("#thChipR"), grass = $("#thGrass", svg), fab = $("#thFab", svg);
   const MODES = [
-    {p: 0, n: 0, temp: -18, txt: "❄️ Ohne Treibhausgase: Das Sonnenlicht erwärmt den Boden, aber die ganze Wärmestrahlung entweicht ungehindert ins Weltall. Die Erde wäre im Durchschnitt etwa −18 °C kalt – ein Eisball.", label: "−18 °C"},
-    {p: .42, n: 7, temp: 15, txt: "🌍 Natürlicher Treibhauseffekt: Wasserdampf und CO₂ nehmen einen Teil der Wärmestrahlung auf und schicken ihn in alle Richtungen weiter – auch zurück zur Erde. Durchschnittlich etwa +15 °C: Leben ist möglich.", label: "+15 °C"},
-    {p: .66, n: 16, temp: 21, txt: "🏭 Zusätzliche Treibhausgase durch den Menschen: Noch mehr Wärme wird zurückgestrahlt, weniger entweicht ins Weltall. Die Temperatur steigt über +15 °C hinaus – der Treibhauseffekt wird verstärkt.", label: "über +15 °C ↑"}
+    {p: 0, n: 0, back: 0, temp: -18, txt: "❄️ Ohne Treibhausgase: Das Sonnenlicht erwärmt den Boden, aber die ganze Wärmestrahlung entweicht ungehindert ins Weltall. Die Erde wäre im Durchschnitt etwa −18 °C kalt – ein Eisball.", label: "−18 °C"},
+    {p: .75, n: 7, back: 5, temp: 15, txt: "🌍 Natürlicher Treibhauseffekt: Wasserdampf und CO₂ nehmen einen Teil der Wärmestrahlung auf und schicken ihn in alle Richtungen weiter – auch zurück zur Erde. Durchschnittlich etwa +15 °C: Leben ist möglich.", label: "+15 °C"},
+    {p: .95, n: 16, back: 7, temp: 21, txt: "🏭 Zusätzliche Treibhausgase durch den Menschen: Was ein Molekül nach oben weiterschickt, fängt ein anderes weiter oben oft noch einmal ein. So wird noch mehr Wärme zurückgestrahlt und weniger entweicht ins Weltall. Die Temperatur steigt über +15 °C hinaus – der Treibhauseffekt wird verstärkt.", label: "über +15 °C ↑"}
   ];
   // Moleküle in der Atmosphäre: die ersten 7 natürlich, die weiteren zusätzlich (grau umrandet)
   const POS = [[70,108],[150,140],[232,100],[300,132],[372,104],[118,90],[410,146],[60,150],[186,116],[262,152],[340,92],[200,86],[96,124],[390,124],[154,96],[312,108]];
@@ -973,6 +979,8 @@ Modul.makeOpen($("#open2"), [
     grass.setAttribute("fill", m === 0 ? "#dfe9f3" : m === 1 ? "#6aa84f" : "#a8b84a");
     obs.textContent = MODES[m].txt;
     recent.length = 0;
+    // gezählt wird erst nach ein paar Teilchen; ohne Animation (reduzierte Bewegung) gilt der Richtwert
+    chipR.textContent = m === 0 || reduced ? `↩️ kommen zurück: ${m ? "etwa " : ""}${MODES[m].back} von 10 Wärmeteilchen` : "↩️ kommen zurück: wird gezählt …";
     seen.add(m);
     if (seen.size === 3) solve("treibhausSim");
     if (reduced) { temp = MODES[m].temp; drawTemp(); }
@@ -982,11 +990,15 @@ Modul.makeOpen($("#open2"), [
     fill.setAttribute("y", (256 - h).toFixed(1)); fill.setAttribute("height", h.toFixed(1));
     // Im verstärkten Modus keine erfundene Zahl zeigen, nur „über +15 °C“
     const lab = Math.abs(temp - MODES[mode].temp) < .5 || (mode === 2 && temp > 15.5) ? MODES[mode].label : (temp < 0 ? "−" : "+") + Math.abs(Math.round(temp)) + " °C";
-    tempT.textContent = lab; chipT.textContent = "🌡️ Durchschnitt: " + lab;
+    if (tempT.textContent !== lab) {
+      tempT.textContent = lab;
+      try { const b = tempT.getBBox(); tempBg.setAttribute("x", (b.x - 6).toFixed(1)); tempBg.setAttribute("width", (b.width + 12).toFixed(1)); } catch (_) {}
+    }
+    chipT.textContent = "🌡️ Durchschnitt: " + lab;
   }
   function add(kind, x, y, vx, vy){
     const el = svgEl("circle", {r: kind === "l" ? 3.2 : 3, fill: kind === "l" ? "#ffd166" : "#e63946", stroke: kind === "l" ? "#e8a400" : "none", "stroke-width": 1}, partG);
-    parts.push({kind, x, y, vx, vy, el, tested: false});
+    parts.push({kind, x, y, vx, vy, el, next: 160});
   }
   function heatUp(x){ const a = (Math.random() - .5) * 1.1; add("h", x, 242, Math.sin(a) * 90, -Math.cos(a) * 90); }
   function frame(t){
@@ -1012,24 +1024,28 @@ Modul.makeOpen($("#open2"), [
           if (p.vy < 0) recent.push(0);
           p.el.remove(); parts.splice(i, 1); continue;
         }
-        if (!p.tested && p.vy < 0 && p.y < 160) {
-          p.tested = true;
-          if (Math.random() < MODES[mode].p) {
-            const vis = mols.filter((o, k) => k < MODES[mode].n);
-            const o = vis.reduce((a, b) => Math.hypot(b.x - p.x, b.y - p.y) < Math.hypot(a.x - p.x, a.y - p.y) ? b : a);
+        // Auf dem Weg nach oben kann ein Treibhausgas-Molekül das Teilchen einfangen und in eine zufällige
+        // Richtung weiterschicken. Geht es wieder nach oben, kann ein höher liegendes Molekül es erneut
+        // einfangen – je mehr Gas, desto öfter (natürlich etwa 5, verstärkt etwa 7 von 10 kommen zurück).
+        if (p.vy < 0 && p.y < p.next) {
+          p.next = -Infinity;
+          const near = mols.filter((o, k) => k < MODES[mode].n && o.y < p.y + 4 && Math.abs(o.x - p.x) < 120);
+          if (near.length && Math.random() < MODES[mode].p) {
+            const o = near.reduce((a, b) => Math.hypot(b.x - p.x, b.y - p.y) < Math.hypot(a.x - p.x, a.y - p.y) ? b : a);
             o.g.classList.add("hit"); setTimeout(() => o.g.classList.remove("hit"), 260);
             p.x = o.x; p.y = o.y;
             const down = Math.random() < .5, a = (Math.random() - .5) * 1.2;
             p.vx = Math.sin(a) * 90; p.vy = (down ? 1 : -1) * Math.cos(a) * 90;
             if (down) { recent.push(1); p.el.setAttribute("fill", "#ff8c42"); }
+            else p.next = o.y - 24;
           }
         }
       }
       p.el.setAttribute("cx", p.x.toFixed(1)); p.el.setAttribute("cy", p.y.toFixed(1));
     }
     if (recent.length > 40) recent.splice(0, recent.length - 40);
-    if (recent.length >= 8) chipR.textContent = `↩️ kommen zurück: etwa ${Math.round(recent.filter(Boolean).length / recent.length * 10)} von 10 Wärmeteilchen`;
-    else if (mode === 0) chipR.textContent = "↩️ kommen zurück: 0 von 10 Wärmeteilchen";
+    if (mode === 0) chipR.textContent = "↩️ kommen zurück: 0 von 10 Wärmeteilchen";
+    else if (recent.length >= 8) chipR.textContent = `↩️ kommen zurück: etwa ${Math.round(recent.filter(Boolean).length / recent.length * 10)} von 10 Wärmeteilchen`;
     requestAnimationFrame(frame);
   }
   $$("[data-th]", $("#thBtns")).forEach(b => b.addEventListener("click", () => setMode(+b.dataset.th)));

@@ -119,6 +119,16 @@ an die Übersicht (`index.html`) und an die Themenübersicht (`../übersicht_the
 - Getestet mit Playwright (Chrome, 9M und 9R): Zuordnung lösbar, Duell mit KI-Attrappe und offline
   durchgespielt, Punkte und Sterne stimmen, zweites Spiel ohne Wiederholung, Handybreite ohne Überlauf, keine Skriptfehler.
 
+## Stand 01.10.2026, abends: Strahlen-Simulator überarbeitet
+
+- Im Strahlen-Simulator (Modul 5, Station 3) kamen zu wenige Wärmeteilchen zur Erde zurück (natürlich etwa 2,
+  verstärkt etwa 3–4 von 10), weil jedes Teilchen nur einmal eingefangen werden konnte. Jetzt kann ein nach oben
+  weitergeschicktes Teilchen von einem höher liegenden Molekül erneut eingefangen werden. Ergebnis: ohne
+  Treibhausgase 0, natürlich etwa 5, verstärkt etwa 7 von 10. Der Text zum verstärkten Effekt erklärt das.
+- Temperaturanzeige steht jetzt als Schild neben der Thermometerkugel (wurde vorher von Molekülen überdeckt).
+- Legende unter dem Bild: Sonnenlicht (gelb), Wärmestrahlung der Erde (rot), zurückgeschickte Wärme (orange).
+- Zähler zeigt nach dem Umschalten „wird gezählt …“ statt des alten Werts, bei reduzierter Bewegung feste Richtwerte.
+
 ## Offen
 
 - Nichts. Alle fünf Module haben eigene Lernseiten.
