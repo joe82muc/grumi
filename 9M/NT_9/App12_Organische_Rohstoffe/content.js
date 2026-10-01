@@ -176,9 +176,11 @@ window.KohlenstoffKurs = {
       id: "m06",
       group: "organische-rohstoffe",
       nr: 5,
-      title: "Kohlenstoffkreislauf und Erdöl im Alltag",
+      // eigene Lernseite im Stil von NT 7 (Stationen, Film, Animationen, KI-Fragen)
+      page: "modul-5.html",
+      title: "Kohlenstoffkreislauf und Treibhauseffekt",
       duration: "45 min",
-      goal: "Du erklärst den Kohlenstoffkreislauf, den verstärkten Treibhauseffekt und die Bedeutung von Erdöl im Alltag.",
+      goal: "Du verfolgst den Weg des Kohlenstoffs, erklärst den natürlichen und den verstärkten Treibhauseffekt, wertest das CO₂-Experiment aus, berechnest, wie viel CO₂ eine Reise verursacht, und widerlegst Klima-Mythen im Duell.",
       sections: [
         {
           title: "Kohlenstoff im Umlauf",

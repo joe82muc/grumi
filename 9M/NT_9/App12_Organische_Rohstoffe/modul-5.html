@@ -1,0 +1,1600 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1f7a5a">
+<title>Kohlenstoffkreislauf und Treibhauseffekt | NT 9</title>
+<link rel="stylesheet" href="modul-basis.css">
+<style>
+:root{--sky:#1f7a5a;--sky-d:#155a42;--sky-l:#e3f4ec}
+[hidden]{display:none!important}
+.hero{background:linear-gradient(160deg,#0d2238,#1f7a5a 55%,#e2803a)}
+.st-num{box-shadow:0 4px 12px rgba(31,122,90,.3)}
+.tf-row>span,.q-title,.opt span,.bucket h5{min-width:0;hyphens:auto;overflow-wrap:break-word}
+.sim .chain{padding:12px 14px 0;margin:0}
+.chain .step{cursor:default}
+.chain .step.done{border-color:#8fd0a8;background:#f0faf3}
+@media (max-width:600px){.sim .chain{gap:4px}.sim .chain .step{flex-basis:88px;padding:4px 6px;font-size:.8rem}.sim .chain .step .ic{font-size:1.15rem}}
+.btn.on{background:#c0392b;color:#fff;border-color:#c0392b}
+.stage{opacity:0;transition:opacity .6s}
+.stage.on{opacity:1}
+.ki-note{font-size:.82rem;color:var(--muted)}
+
+/* Kohlenstoff-Reise */
+.reise-btns{display:flex;flex-wrap:wrap;gap:8px;padding:12px 14px;border-top:1px solid var(--line);background:#fbfdff}
+.reise-btns .lbl{width:100%;font-weight:700;font-size:.95rem}
+.reise-btns .btn.mensch{background:#c0392b;border-color:#c0392b;color:#fff}
+#krSvg .edge{fill:none;stroke:#b8c6d1;stroke-width:2.5;stroke-dasharray:5 6}
+#krSvg .edge.found{stroke:#1f7a5a;stroke-dasharray:none;stroke-width:3}
+#krSvg .edge.found.mensch{stroke:#c0392b}
+#krSvg .elab{opacity:0;transition:opacity .5s}
+#krSvg .elab.found{opacity:1}
+#krSvg .node circle{fill:#fff;stroke:#7d9bb0;stroke-width:2.5;transition:stroke .3s,fill .3s}
+#krSvg .node.here circle{stroke:#f2b632;stroke-width:4;fill:#fff8e1}
+
+/* Strahlen-Simulator */
+#thSvg .mol{transition:opacity .5s}
+#thSvg .mol.hit circle:first-child{fill:#ffb703}
+.mode-btns .btn.sel{background:var(--sky);color:#fff;border-color:var(--sky)}
+
+/* Film mit Stopps */
+.film{position:relative;aspect-ratio:16/9;background:#0d2238;border-radius:14px;overflow:hidden}
+.film video{position:absolute;inset:0;width:100%;height:100%;background:#000}
+.film-poster{position:absolute;inset:0;width:100%;border:0;display:grid;place-content:center;justify-items:center;gap:6px;padding:16px;color:#fff;text-align:center;background:radial-gradient(circle at 50% 40%,#2c8f6b,#0d2238 75%)}
+.film-poster .play{width:66px;height:66px;border-radius:50%;background:#fff;color:var(--sky-d);display:grid;place-items:center;font-size:1.6rem;padding-left:5px}
+.film-poster b{font-size:1.15rem}
+.film-poster small{max-width:460px;opacity:.9;font-size:.86rem}
+.film-stop{position:absolute;inset:0;z-index:2;display:none;place-content:center;padding:16px;text-align:center;background:rgba(13,34,56,.86);color:#fff;font-weight:800;font-size:1.05rem}
+.film-stop.show{display:grid}
+.film-chips{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0}
+.film-chips button{border:2px solid var(--line);background:#fff;border-radius:99px;padding:4px 11px;font-weight:700;font-size:.88rem}
+.film-chips button.done{border-color:var(--ok);background:var(--ok-l);color:var(--ok)}
+.film-q{border:2px solid var(--gold);border-radius:14px;padding:6px 14px 14px;margin-top:12px;background:#fffdf5}
+.film-credit{font-size:.82rem;color:var(--muted);margin:8px 0 0}
+
+/* Eunice Foote */
+.foote{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start}
+.foote .ic{font-size:2.4rem;line-height:1}
+.foote p{margin:0 0 .6em}
+
+/* CO2-Rechner */
+.ziele{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 12px}
+.ziele button{border:2px solid var(--line);background:#fff;border-radius:99px;padding:5px 12px;font-weight:700;font-size:.92rem}
+.ziele button.sel{border-color:var(--sky);background:var(--sky-l);color:var(--sky-d)}
+.bars{display:grid;gap:9px;margin-top:8px}
+.bar-row{display:grid;grid-template-columns:118px 1fr 104px;gap:10px;align-items:center;font-weight:700}
+.bar-track{height:24px;background:#eef3f6;border-radius:99px;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px;transition:width .6s ease}
+.bar-val{text-align:right;font-variant-numeric:tabular-nums}
+.km-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:12px}
+.km-row input[type=range]{flex:1;min-width:180px;accent-color:var(--sky)}
+@media (max-width:600px){.bar-row{grid-template-columns:86px 1fr 84px;gap:6px;font-size:.88rem}}
+.calc{display:grid;gap:8px;max-width:560px;margin-top:8px}
+.calc-row{display:grid;grid-template-columns:130px 1fr 40px;gap:10px;align-items:center;font-weight:700}
+.calc-row input{width:100%;padding:8px 10px;border:2px solid var(--line);border-radius:10px;font:inherit;font-weight:700}
+.calc-row input.right{border-color:var(--ok);background:var(--ok-l)}
+.calc-row input.wrong{border-color:var(--bad);background:var(--bad-l)}
+.formel{background:#f4f7f9;border-radius:10px;padding:8px 12px;font-size:.95rem;margin:8px 0}
+
+/* Schaubild beschriften: Querformat */
+@media (min-width:821px){#labelTh .label-wrap{grid-template-columns:minmax(0,560px) 1fr}}
+#labelTh .label-img{max-width:560px}
+
+/* Duell gegen den Klimaleugner */
+.duel{display:flex;flex-direction:column;gap:10px}
+.duel-start{display:grid;justify-items:center;gap:8px;text-align:center;padding:18px 8px}
+.duel-start .big{font-size:3.2rem;line-height:1}
+.duel-start h3{margin:0}
+.score{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#f4f8fb;border-radius:12px;padding:8px 12px;font-weight:800}
+.score .pts{font-size:1.5rem;color:var(--sky-d);font-variant-numeric:tabular-nums}
+.score .pts.ki{color:#9a4a1a}
+.chat{display:flex;flex-direction:column;gap:10px;max-height:460px;overflow-y:auto;padding:4px 2px}
+.msg{display:flex;gap:8px;align-items:flex-end;animation:popin .25s}
+.msg .av{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:1.2rem;background:#fbe9dc}
+.msg .b{border-radius:16px 16px 16px 4px;padding:9px 13px;background:#fdf1e7;border:1px solid #f1cfb2;font-size:.96rem;min-width:0;overflow-wrap:break-word}
+.msg.me{flex-direction:row-reverse}
+.msg.me .av{background:var(--sky-l)}
+.msg.me .b{border-radius:16px 16px 4px 16px;background:var(--sky-l);border-color:#a9dcc4}
+.msg .b small{display:block;font-weight:700;color:var(--muted);margin-bottom:2px}
+.msg.good .b{background:var(--ok-l);border-color:#9fd8b4}
+.msg.mid .b{background:var(--warn-l);border-color:#f1d9a0}
+.msg.bad .b{background:var(--bad-l);border-color:#f0b0b0}
+.tips{display:none;background:#fffbea;border:1px dashed #e7c86a;border-radius:12px;padding:8px 12px;font-size:.93rem}
+.tips.show{display:block;animation:popin .2s}
+.tips li{margin:3px 0}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>NT 9 · Modul 5</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Kreislauf</a>
+      <a href="#s2"><b>2</b>Mensch</a>
+      <a href="#s3"><b>3</b>Treibhauseffekt</a>
+      <a href="#s4"><b>4</b>Experiment</a>
+      <a href="#s5"><b>5</b>Klimawandel</a>
+      <a href="#s6"><b>6</b>Klimaschutz</a>
+      <a href="#s7"><b>7</b>Duell</a>
+      <a href="#s8"><b>8</b>Training</a>
+      <a href="#s9"><b>9</b>Profi-Check</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse 9M / 9R · Organische Rohstoffe · Modul 5</div>
+    <h1>Kohlenstoffkreislauf und Treibhauseffekt</h1>
+    <p>Das Kohlenstoff-Atom in deinem Pausenbrot war vielleicht letzten Sommer noch in der Luft. In neun Stationen begleitest du Kohlenstoff auf seiner Reise, findest heraus, warum die Erde kein Eisball ist, schaust dir im Film ein Experiment mit zwei Flaschen an und rechnest nach, wie viel CO₂ eine Klassenfahrt verursacht. Zum Schluss trittst du im Duell gegen einen Klimaleugner an.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s7">⚔️ Direkt zum Klima-Duell</a>
+      <a class="btn ghost" href="#s8">Direkt zum Probentraining</a>
+    </div>
+    <div class="goals">
+      <div>🔄 Ich beschreibe den natürlichen Kreislauf des Kohlenstoffs.</div>
+      <div>🏭 Ich erkläre, wie der Mensch den Kreislauf aus dem Gleichgewicht bringt.</div>
+      <div>🌡️ Ich erkläre den natürlichen und den verstärkten Treibhauseffekt.</div>
+      <div>🌍 Ich nenne Folgen des Klimawandels und Wege, CO₂ zu sparen.</div>
+      <div>⚔️ Ich widerlege Klima-Mythen mit Fakten.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg · Probenstoff</div><h2>Kohlenstoff auf Wanderschaft</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead"><strong>Ein Element, das nie stillhält.</strong> Pflanzen, Tiere und auch du bestehen zu einem großen Teil aus <button class="term" data-t="kohlenstoffverbindung">Kohlenstoffverbindungen</button>. Der <button class="term" data-t="kohlenstoff">Kohlenstoff</button> darin bleibt aber nicht für immer an einem Ort: Er wandert zwischen Luft, Lebewesen, Boden und Meer hin und her.</p>
+      <p style="margin:0"><strong>Aus der Luft in die Pflanze.</strong> In der Luft kommt Kohlenstoff vor allem als <button class="term" data-t="co2">Kohlenstoffdioxid (CO₂)</button> vor. Grüne Pflanzen nehmen es über ihre Blätter auf. Mithilfe von Sonnenlicht bauen sie daraus bei der <button class="term" data-t="fotosynthese">Fotosynthese</button> Zucker, Stärke und Holz auf.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Und wieder zurück.</strong> Menschen, Tiere und Pflanzen geben bei der <button class="term" data-t="atmung">Atmung</button> CO₂ ab. Stirbt ein Lebewesen, bauen Pilze und Bakterien die Reste ab. Bei dieser <button class="term" data-t="zersetzung">Zersetzung</button> wird ebenfalls CO₂ frei. Auch das Meer nimmt CO₂ auf und gibt es wieder ab.</p>
+      <p style="margin:0"><strong>Speicher.</strong> Manchmal bleibt Kohlenstoff sehr lange an einem Ort: im <button class="term" data-t="humus">Humus</button> des Bodens, in Ablagerungen am Meeresgrund und tief in der Erde in Kohle, Erdöl und Erdgas. In der Natur halten sich Aufnahme und Abgabe ungefähr die Waage. Man spricht von einem <button class="term" data-t="gleichgewicht">Gleichgewicht</button>.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <svg viewBox="0 0 480 300" id="krSvg" role="img" aria-label="Animation: Ein Kohlenstoff-Atom reist zwischen Luft, Pflanze, Tier, Meer, Boden und den Lagerstätten von Kohle, Erdöl und Erdgas. Mit den Knöpfen unter dem Bild wählst du den nächsten Weg.">
+      <defs><linearGradient id="krSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d8eefb"/><stop offset="1" stop-color="#f4fbff"/></linearGradient></defs>
+      <rect width="480" height="300" fill="url(#krSky)"/>
+      <path d="M0 196 H330 Q350 196 352 208 V300 H0Z" fill="#c9b08a"/>
+      <rect y="190" width="340" height="8" fill="#7cb85a"/>
+      <path d="M340 104 H480 V300 H352 V208 Q350 196 340 196Z" fill="#7cc3e8" opacity=".55"/>
+      <text x="470" y="292" text-anchor="end" font-size="10" font-weight="700" fill="#1d5f8e">Meer</text>
+      <g id="krEdges"></g>
+      <g id="krNodes"></g>
+      <g id="krLabs"></g>
+      <g id="krAtom"><circle r="11" fill="#15212b" stroke="#f2b632" stroke-width="3"/><text y="4.5" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">C</text></g>
+    </svg>
+    <div class="reise-btns" id="krBtns"></div>
+    <div class="readout" style="padding-top:12px"><span class="chip" id="krCount">🗺️ 0 von 12 Wegen entdeckt</span><span class="chip" id="krTime">⏱️ Dauer: –</span></div>
+    <p class="obs" id="krObs">Das C-Atom schwebt als Teil eines CO₂-Moleküls in der Luft. Wähle unten, wohin es als Nächstes reist. Findest du alle 12 Wege?</p>
+  </div>
+
+  <figure class="card reveal" style="margin-top:18px"><img class="zoomable" src="assets/modul5/kohlenstoffkreislauf.webp" width="1448" height="1086" loading="lazy" decoding="async" alt="Infografik Der Kohlenstoffkreislauf und der Einfluss des Menschen. Teil 1, natürlicher Kohlenstoffkreislauf: Kohlenstoff zirkuliert zwischen Atmosphäre, Lebewesen, Böden und Ozeanen. Fotosynthese: Pflanzen nehmen CO₂ auf und bauen Biomasse auf. Atmung: Pflanzen, Tiere und Menschen geben CO₂ ab. Zersetzung: Zersetzer setzen Kohlenstoff wieder frei. Speicher an Land: Boden, Humus und Pflanzenreste. Ozeane nehmen CO₂ auf, Speicher im Meer sind Kalkablagerungen und Sedimente. Teil 2, Eingriffe des Menschen: Fossile Rohstoffe speichern Kohlenstoff, bei der Verbrennung wird viel CO₂ frei, der CO₂-Gehalt der Atmosphäre steigt. Teil 3, Folgen: stärkerer Treibhauseffekt, die Erde erwärmt sich, Gletscher und Polareis schmelzen, der Meeresspiegel steigt, Extremwetter nimmt zu. Unten: Weniger CO₂-Ausstoß schützt das Klima."><figcaption>Der Kohlenstoffkreislauf und der Einfluss des Menschen (Tippen zum Vergrößern)<br><span class="ki-note">KI-Grafik: Fachinhalt anhand einer vorhandenen Unterrichtsquelle geprüft, Grafik anschließend vollständig neu und eigenständig mittels KI erstellt.</span></figcaption></figure>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Kohlenstoff wandert in einem Kreislauf zwischen Luft, Lebewesen, Boden und Meer.</li><li>Bei der Fotosynthese nehmen Pflanzen CO₂ auf. Bei Atmung und Zersetzung wird CO₂ wieder frei.</li><li>Speicher für Kohlenstoff sind Humus, Ablagerungen im Meer sowie Kohle, Erdöl und Erdgas.</li><li>In der Natur sind Aufnahme und Abgabe von CO₂ ungefähr im Gleichgewicht.</li></ul></div>
+
+  <div class="card reveal">
+    <span class="task-tag">Zuordnen</span>
+    <h3 style="margin-top:4px">Nimmt CO₂ auf, gibt CO₂ ab oder speichert Kohlenstoff?</h3>
+    <p class="hint">Tippe eine Karte an und dann das passende Feld.</p>
+    <div id="sortKreis"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Lückentext · Probenstoff</span>
+    <h3 style="margin-top:4px">Der natürliche Kohlenstoffkreislauf</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapKreis"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Erklären · Probenstoff</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung. Danach kannst du die Musterlösung ansehen.</p>
+    <div id="open1"></div>
+  </div>
+  <div class="card reveal" id="mc-s1"></div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Der Mensch bringt den Kreislauf aus dem Gleichgewicht</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead"><strong>Ein neuer Weg für den Kohlenstoff.</strong> Mit der <button class="term" data-t="industrialisierung">Industrialisierung</button> vor etwa 200 Jahren begannen Fabriken, Dampfmaschinen und später Kraftwerke, Autos und Flugzeuge, riesige Mengen Kohle, Erdöl und Erdgas zu verbrennen. Dabei verbindet sich der Kohlenstoff mit Sauerstoff zu CO₂, das in die Luft gelangt.</p>
+      <p style="margin:0">Dazu kommt: Wo Wälder abgeholzt oder abgebrannt werden, fehlen Bäume, die CO₂ aufnehmen könnten.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Viel zu schnell.</strong> Die Natur hat Millionen Jahre gebraucht, um den Kohlenstoff in Kohle, Erdöl und Erdgas einzulagern. Der Mensch setzt ihn in wenigen Jahrzehnten wieder frei. So viel CO₂ können Pflanzen und Meere gar nicht aufnehmen.</p>
+      <p style="margin:0">Der Ausstoß ist heute um ein Vielfaches größer als die Aufnahme. Darum steigt der CO₂-Anteil der Luft: Vor der Industrialisierung lag er bei etwa 0,028 %, heute liegt er bei über 0,042 % – das ist das Anderthalbfache.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <svg viewBox="0 0 480 310" id="wgSvg" role="img" aria-label="Animation: Eine Waage. Links liegt alles, was CO₂ in die Luft bringt, rechts alles, was CO₂ aus der Luft aufnimmt. Mit den Knöpfen kommen die Eingriffe des Menschen dazu und die Waage kippt.">
+      <rect width="480" height="310" fill="#f7fbfe"/>
+      <text x="240" y="18" text-anchor="middle" font-size="12" font-weight="800" fill="#15212b">Der CO₂-Haushalt der Luft</text>
+      <path d="M200 304 L280 304 L262 288 L218 288Z" fill="#4a5a68"/>
+      <rect x="236" y="74" width="8" height="216" fill="#6b7a86"/>
+      <g id="wgBeam"></g>
+      <circle cx="240" cy="74" r="7" fill="#33414d"/>
+      <g id="wgPanL"></g>
+      <g id="wgPanR"></g>
+    </svg>
+    <div class="sim-ctrl" id="wgBtns">
+      <button class="btn small ghost" data-w="kohle">⛏️ Kohle verbrennen</button>
+      <button class="btn small ghost" data-w="oel">🛢️ Erdöl verbrennen</button>
+      <button class="btn small ghost" data-w="gas">🔥 Erdgas verbrennen</button>
+      <button class="btn small ghost" data-w="wald">🌲 Wald roden</button>
+      <button class="btn small ghost" id="wgReset">↻ Nur Natur</button>
+    </div>
+    <div class="readout"><span class="chip" id="wgCo2">💨 CO₂-Anteil der Luft: 0,028 %</span><span class="chip ok" id="wgState">⚖️ im Gleichgewicht</span></div>
+    <p class="obs" id="wgObs">So sieht es ohne den Menschen aus: Links liegt, was CO₂ in die Luft bringt, rechts, was CO₂ aufnimmt. Die Waage ist im Gleichgewicht. Tippe auf die Knöpfe.</p>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Seit der Industrialisierung verbrennt der Mensch große Mengen Kohle, Erdöl und Erdgas.</li><li>Kohlenstoff, der in Millionen Jahren eingelagert wurde, wird in wenigen Jahrzehnten als CO₂ frei.</li><li>Es gelangt viel mehr CO₂ in die Luft, als aufgenommen wird. Der Kohlenstoffkreislauf gerät aus dem Gleichgewicht.</li></ul></div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Reihenfolge · Probenstoff</span>
+    <h3 style="margin-top:4px">Vom Sumpfwald bis in die Luft von heute</h3>
+    <p class="hint">Bringe die Schritte mit ▲ und ▼ in die richtige Reihenfolge.</p>
+    <div id="orderMensch"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Erklären · Probenstoff</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="open2"></div>
+  </div>
+  <div class="card reveal" id="mc-s2"></div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>Der Treibhauseffekt: Warum die Erde kein Eisball ist</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead"><strong>Licht rein …</strong> Die Sonne schickt Licht zur Erde. Fast alles davon gelangt ungehindert durch die Lufthülle, die <button class="term" data-t="atmosphaere">Atmosphäre</button>. Boden, Wasser und Pflanzen schlucken das Licht und werden dabei warm.</p>
+      <p style="margin:0"><strong>… Wärme raus.</strong> Die warme Erde gibt die Energie wieder ab, aber nicht als Licht, sondern als unsichtbare <button class="term" data-t="waermestrahlung">Wärmestrahlung</button>. Sie ist nach oben in Richtung Weltall unterwegs.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Ein Teil wird zurückgehalten.</strong> Einige Gase in der Luft, die <button class="term" data-t="treibhausgas">Treibhausgase</button>, nehmen einen Teil der Wärmestrahlung auf und geben sie in alle Richtungen wieder ab, auch zurück zur Erde. Die wichtigsten natürlichen Treibhausgase sind Wasserdampf und CO₂.</p>
+      <p style="margin:0">Ohne sie läge die Durchschnittstemperatur der Erde bei etwa −18 °C, mit ihnen sind es etwa +15 °C. Das ist der natürliche <button class="term" data-t="treibhauseffekt">Treibhauseffekt</button>. Der Name kommt vom Gewächshaus: Auch durch dessen Glasscheiben kommt Licht herein, die Wärme bleibt drinnen. Ähnlich heizt sich ein Auto auf, das im Sommer in der Sonne steht.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <svg viewBox="0 0 480 300" id="thSvg" role="img" aria-label="Animation: Gelbe Lichtteilchen kommen von der Sonne zur Erde. Die Erde gibt rote Wärmeteilchen ab. Je mehr Treibhausgase in der Atmosphäre sind, desto mehr Wärmeteilchen werden zur Erde zurückgeschickt und desto wärmer wird es.">
+      <defs><linearGradient id="thAtm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fd3ec"/><stop offset="1" stop-color="#d7eef8"/></linearGradient></defs>
+      <rect width="480" height="72" fill="#0d1b33"/>
+      <g fill="#fff"><circle cx="140" cy="18" r="1.4"/><circle cx="220" cy="50" r="1.1"/><circle cx="330" cy="14" r="1.3"/><circle cx="400" cy="44" r="1.2"/><circle cx="270" cy="28" r="1"/></g>
+      <text x="470" y="20" text-anchor="end" font-size="10.5" font-weight="700" fill="#cfe3f3">Weltall</text>
+      <circle cx="40" cy="36" r="22" fill="#ffd166"/>
+      <rect y="72" width="480" height="94" fill="url(#thAtm)"/>
+      <text x="8" y="86" font-size="10.5" font-weight="700" fill="#1d4f6e">Atmosphäre</text>
+      <rect y="166" width="480" height="80" fill="#eef8fc"/>
+      <rect id="thGrass" y="244" width="480" height="8" fill="#6aa84f"/>
+      <rect y="252" width="480" height="48" fill="#8d6a4a"/>
+      <g id="thFab" class="stage">
+        <rect x="372" y="214" width="40" height="32" fill="#6b7a86"/><rect x="398" y="188" width="9" height="28" fill="#4a5a68"/>
+        <g fill="#9aa5ad" opacity=".8"><circle cx="404" cy="180" r="7"/><circle cx="412" cy="168" r="9"/><circle cx="422" cy="154" r="11"/></g>
+        <rect x="318" y="232" width="34" height="12" rx="4" fill="#c0392b"/><circle cx="326" cy="245" r="4" fill="#33414d"/><circle cx="344" cy="245" r="4" fill="#33414d"/>
+      </g>
+      <g id="thMols"></g>
+      <g id="thParts"></g>
+      <!-- Thermometer -->
+      <rect x="446" y="96" width="16" height="160" rx="8" fill="#fff" stroke="#9aa5ad" stroke-width="2"/>
+      <rect id="thFill" x="449" y="200" width="10" height="56" fill="#e0453a"/>
+      <circle cx="454" cy="266" r="12" fill="#e0453a"/>
+      <text id="thTemp" x="440" y="110" text-anchor="end" font-size="13" font-weight="900" fill="#c0392b">−18 °C</text>
+    </svg>
+    <div class="sim-ctrl mode-btns" id="thBtns">
+      <button class="btn small ghost" data-th="0">❄️ ohne Treibhausgase</button>
+      <button class="btn small ghost" data-th="1">🌍 natürlicher Treibhauseffekt</button>
+      <button class="btn small ghost" data-th="2">🏭 zusätzliche Treibhausgase</button>
+    </div>
+    <div class="readout"><span class="chip" id="thChipT">🌡️ Durchschnitt: −18 °C</span><span class="chip" id="thChipR">↩️ kommen zurück: 0 von 10 Wärmeteilchen</span></div>
+    <p class="obs" id="thObs">Probiere alle drei Knöpfe aus und beobachte die roten Wärmeteilchen.</p>
+  </div>
+
+  <figure class="card reveal" style="margin-top:18px"><img class="zoomable" src="assets/modul5/treibhauseffekt.webp" width="1448" height="1086" loading="lazy" decoding="async" alt="Infografik Treibhauseffekt, natürlich und vom Menschen verstärkt. Teil 1, natürlicher Treibhauseffekt: Sonnenlicht gelangt durch die Atmosphäre zur Erde, die erwärmte Erde strahlt Wärme ab. Ein Teil der Wärme entweicht ins All, ein anderer Teil wird von natürlichen Treibhausgasen zurückgehalten und zur Erde zurückgestrahlt. Teil 2, was der Mensch verändert: Seit der Industrialisierung gelangen zusätzliche Treibhausgase in die Atmosphäre, durch Verbrennung von Kohle, Öl und Gas, durch Verkehr, Landwirtschaft und weitere Quellen wie Kältemittel. Es steigen vor allem CO₂, Methan, Lachgas und FCKW. Teil 3, verstärkter Treibhauseffekt: Mehr Treibhausgase halten mehr Wärme zurück, weniger Wärme entweicht ins All, die Durchschnittstemperatur der Erde steigt."><figcaption>Der Treibhauseffekt – natürlich und vom Menschen verstärkt (Tippen zum Vergrößern)<br><span class="ki-note">KI-Grafik: Fachinhalt anhand einer vorhandenen Unterrichtsquelle geprüft, Grafik anschließend vollständig neu und eigenständig mittels KI erstellt.</span></figcaption></figure>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Sonnenlicht gelangt durch die Atmosphäre und erwärmt die Erde. Die Erde gibt Wärmestrahlung ab.</li><li>Treibhausgase wie Wasserdampf und CO₂ halten einen Teil dieser Wärme zurück und strahlen sie zur Erde zurück.</li><li>Ohne diesen natürlichen Treibhauseffekt wäre die Erde im Durchschnitt etwa −18 °C kalt, mit ihm sind es etwa +15 °C.</li></ul></div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Lückentext · Probenstoff</span>
+    <h3 style="margin-top:4px">So funktioniert der natürliche Treibhauseffekt</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapTh"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Erklären · Probenstoff</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="open3"></div>
+  </div>
+  <div class="card reveal" id="mc-s3"></div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Film · Experiment</div><h2>Das CO₂-Experiment: zwei Flaschen, eine Lampe</h2></div></div>
+  <div class="card reveal">
+    <p class="lead" style="margin-top:0">Kann man den Treibhauseffekt im Klassenzimmer zeigen? Schon 1856 hat sich jemand einen ganz einfachen Versuch dafür ausgedacht. In der Wissenschaftsshow „MAITHINK X“ wird er nachgebaut. Der Film hält an einigen Stellen an. Beantworte dann die Frage unter dem Film – erst danach geht es weiter.</p>
+    <div class="film" id="film">
+      <video id="zdfVideo" playsinline controls preload="none" hidden></video>
+      <button class="film-poster" id="filmStart" type="button"><span class="play">▶</span><b>Film starten</b><small>ZDF, MAITHINK X: „Wie funktioniert der Treibhauseffekt? Das Experiment.“ (gut 5 Minuten). Erst mit diesem Klick wird der Film vom ZDF geladen.</small></button>
+      <div class="film-stop" id="filmStop">⏸ Film-Stopp!<br>Beantworte die Frage unter dem Film.</div>
+    </div>
+    <div class="film-chips" id="filmChips" aria-label="Film-Stopps"></div>
+    <p class="hint" id="filmHint" style="margin:8px 0 0">Die Knöpfe mit ❓ springen direkt zu einem Film-Stopp.</p>
+    <div id="filmQs"></div>
+    <p class="film-credit">Film: „Wie funktioniert der Treibhauseffekt? Das Experiment.“ aus „MAITHINK X – Die Show“, ZDF 2025, bereitgestellt über <a href="https://schule.zdf.de/video/co2-experiment-100" target="_blank" rel="noopener">ZDF goes Schule</a>.</p>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <div class="chain" id="exChain">
+      <div class="step"><span class="ic">🍾</span>Füllen</div><span class="to">→</span>
+      <div class="step"><span class="ic">⏳</span>Gleich warm</div><span class="to">→</span>
+      <div class="step"><span class="ic">💡</span>Bestrahlen</div><span class="to">→</span>
+      <div class="step"><span class="ic">🌡️</span>Ablesen</div>
+    </div>
+    <svg viewBox="0 0 480 230" id="exSvg" role="img" aria-label="Animation zum Versuch: Zwei verschlossene Flaschen stehen unter einer Rotlichtlampe. Flasche 1 enthält Luft, Flasche 2 Luft mit zusätzlichem CO₂. Digitale Thermometer zeigen die Temperatur in den Flaschen.">
+      <defs><radialGradient id="exGlow" cx="50%" cy="0%" r="90%"><stop offset="0" stop-color="#ff4d4d" stop-opacity=".45"/><stop offset="1" stop-color="#ff4d4d" stop-opacity="0"/></radialGradient></defs>
+      <rect width="480" height="230" fill="#f7fbfe"/>
+      <path id="exCone" class="stage" d="M206 36 L274 36 L430 206 L50 206Z" fill="url(#exGlow)"/>
+      <rect x="0" y="204" width="480" height="26" fill="#c9a77a"/>
+      <!-- Lampe -->
+      <rect x="236" y="0" width="8" height="14" fill="#4a5a68"/>
+      <path d="M210 14 H270 L258 36 H222Z" fill="#33414d"/>
+      <ellipse id="exBulb" cx="240" cy="36" rx="18" ry="6" fill="#7a2a2a"/>
+      <!-- Flaschen -->
+      <g id="exB1"></g>
+      <g id="exB2"></g>
+      <g id="exCo2" class="stage" fill="#7d8b96"></g>
+      <text id="exSnow" class="stage" x="356" y="120" font-size="22" text-anchor="middle">❄️</text>
+      <!-- Thermometer-Anzeigen -->
+      <g font-family="Consolas,monospace" font-weight="700">
+        <rect x="32" y="128" width="78" height="34" rx="6" fill="#15212b"/><text id="exT1" x="71" y="151" text-anchor="middle" font-size="17" fill="#7cd3ff">21,4 °C</text>
+        <rect x="370" y="128" width="78" height="34" rx="6" fill="#15212b"/><text id="exT2" x="409" y="151" text-anchor="middle" font-size="17" fill="#ff7b7b">21,4 °C</text>
+      </g>
+      <path d="M110 145 H128 M352 145 H370" stroke="#33414d" stroke-width="2"/>
+    </svg>
+    <svg viewBox="0 0 480 150" id="exChart" role="img" aria-label="Diagramm: Temperaturverlauf in beiden Flaschen während der Bestrahlung.">
+      <rect width="480" height="150" fill="#fff"/>
+      <g id="exGrid" font-size="10" fill="#566674"></g>
+      <polyline id="exL1" fill="none" stroke="#2f6fdb" stroke-width="3" points=""/>
+      <polyline id="exL2" fill="none" stroke="#e0453a" stroke-width="3" points=""/>
+      <g font-size="10.5" font-weight="700"><rect x="300" y="122" width="12" height="4" fill="#2f6fdb"/><text x="316" y="127" fill="#2f6fdb">Flasche 1: Luft</text><rect x="300" y="136" width="12" height="4" fill="#e0453a"/><text x="316" y="141" fill="#e0453a">Flasche 2: Luft + CO₂</text></g>
+    </svg>
+    <div class="sim-ctrl"><button class="btn small ghost" id="exPrev">◀ Zurück</button><button class="btn small" id="exNext">Weiter ▶</button></div>
+    <p class="obs" id="exObs"></p>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag">Ein fairer Versuch</span>
+      <p style="margin-top:4px">Damit man wirklich nur die Wirkung des CO₂ sieht, ist bei beiden Flaschen alles gleich: dieselbe Flaschengröße, dieselbe Starttemperatur, derselbe Abstand zur Lampe und dieselbe Zeit. Nur <strong>eine</strong> Sache unterscheidet sich: der CO₂-Gehalt.</p>
+      <p style="margin:0">Die Rotlichtlampe ersetzt die Sonne. Sie gibt viel Wärmestrahlung ab, also genau die Strahlung, die Treibhausgase zurückhalten.</p>
+    </div>
+    <div class="card reveal foote">
+      <span class="ic" aria-hidden="true">🔬</span>
+      <div>
+        <span class="task-tag">Wusstest du?</span>
+        <p style="margin-top:4px"><strong>Eunice Newton Foote</strong> war eine amerikanische Forscherin und setzte sich für die Rechte von Frauen ein. 1856 stellte sie Glasgefäße mit verschiedenen Gasen in die Sonne. Das Gefäß mit CO₂ wurde am wärmsten.</p>
+        <p style="margin:0">Sie schloss daraus als Erste: Mehr CO₂ in der Luft würde die Erde erwärmen. Kaum jemand beachtete ihre Arbeit. Über 150 Jahre lang galt der Ire John Tyndall als Entdecker, obwohl er erst drei Jahre später forschte. Ein Foto von Foote ist bis heute nicht bekannt.</p>
+      </div>
+    </div>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Im Versuch wird eine Flasche mit Luft und eine mit Luft und zusätzlichem CO₂ gleich lang bestrahlt.</li><li>Die Flasche mit CO₂ wird wärmer: CO₂ hält Wärmestrahlung zurück.</li><li>In einem fairen Versuch wird nur eine Sache verändert, alles andere bleibt gleich.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Versuch auswerten</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="open4"></div>
+  </div>
+  <div class="card reveal" id="mc-s4"></div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Probenstoff</div><h2>Verstärkter Treibhauseffekt und Klimawandel</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead"><strong>Zusätzliche Treibhausgase.</strong> Der Mensch bringt zusätzliche Treibhausgase in die Luft:</p>
+      <ul style="margin:0 0 .8em;padding-left:20px">
+        <li><strong>CO₂</strong> beim Verbrennen von Kohle, Erdöl und Erdgas und wenn Wälder gerodet werden,</li>
+        <li><button class="term" data-t="methan">Methan</button> (CH₄) vor allem aus der Rinderhaltung, aus nassen Reisfeldern und Mülldeponien,</li>
+        <li><button class="term" data-t="lachgas">Lachgas</button> (N₂O) aus Dünger auf den Feldern,</li>
+        <li><button class="term" data-t="fckw">FCKW</button>, die früher in Kühlschränken und Spraydosen steckten.</li>
+      </ul>
+      <p style="margin:0">Sie verstärken den natürlichen Treibhauseffekt. Mehr Wärme bleibt in der Atmosphäre, die Erde heizt sich immer weiter auf.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Das Klima ändert sich.</strong> Als Folge steigt die Durchschnittstemperatur der Erde. Heute ist es weltweit schon gut 1 °C wärmer als vor der Industrialisierung. Diese Veränderung auf der ganzen Welt nennt man <button class="term" data-t="klimawandel">Klimawandel</button>.</p>
+      <p style="margin:0">Die Folgen: <button class="term" data-t="gletscher">Gletscher</button> in den Alpen und das Eis an den Polen schmelzen, der <button class="term" data-t="meeresspiegel">Meeresspiegel</button> steigt. Hitzewellen, <button class="term" data-t="duerre">Dürren</button>, Stürme und Überschwemmungen werden häufiger. Weil alle <button class="term" data-t="oekosystem">Ökosysteme</button> vom Klima abhängen, geraten viele Tiere und Pflanzen in Not.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <svg viewBox="0 0 480 250" id="kwSvg" role="img" aria-label="Animation: Eine Landschaft mit Gletscher, Feld und Küste. Je weiter der Regler nach rechts geschoben wird, desto kleiner wird der Gletscher, das Feld trocknet aus, Unwetter nehmen zu und das Meer steigt bis zum Haus.">
+      <defs><linearGradient id="kwSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe3f7"/><stop offset="1" stop-color="#eef8fc"/></linearGradient></defs>
+      <rect id="kwSkyR" width="480" height="250" fill="url(#kwSky)"/>
+      <circle id="kwSun" cx="44" cy="38" r="20" fill="#ffd166"/>
+      <g id="kwStorm" class="stage">
+        <ellipse cx="250" cy="44" rx="56" ry="18" fill="#6c7a86"/><ellipse cx="222" cy="36" rx="30" ry="16" fill="#7d8b96"/><ellipse cx="280" cy="34" rx="28" ry="15" fill="#7d8b96"/>
+        <g stroke="#5b8fd1" stroke-width="2" stroke-linecap="round"><path d="M214 66 l-6 14 M236 68 l-6 14 M258 66 l-6 14 M280 68 l-6 14"/></g>
+        <path id="kwBolt" class="stage" d="M262 52 L250 76 H262 L250 100" fill="none" stroke="#f2b632" stroke-width="4" stroke-linejoin="round"/>
+      </g>
+      <!-- Berg mit Gletscher -->
+      <path d="M0 200 L92 62 L196 200Z" fill="#8a8f98"/>
+      <path id="kwIce" d="" fill="#fff" stroke="#d6ecf8" stroke-width="2"/>
+      <path id="kwMelt" class="stage" d="M110 150 Q118 172 130 186 Q140 196 150 200" fill="none" stroke="#7cc3ee" stroke-width="4"/>
+      <!-- Feld -->
+      <rect x="176" y="186" width="146" height="16" id="kwField" fill="#7cb85a"/>
+      <g id="kwPlants"></g>
+      <g id="kwCracks" class="stage" stroke="#6b4a2b" stroke-width="1.6" fill="none"><path d="M192 194 l8 4 l6 -3 M226 192 l6 6 l8 -2 M262 195 l7 3 l5 -4 M296 192 l6 5 l8 -1"/></g>
+      <rect x="0" y="200" width="330" height="50" fill="#8d6a4a"/>
+      <!-- Küste: Strand fällt zum Meer hin ab, das Wasser steht über dem Strand -->
+      <path d="M330 200 L480 250 L330 250Z" fill="#e0c48f"/>
+      <path d="M330 200 L480 250" stroke="#c9a46a" stroke-width="2"/>
+      <g id="kwHouse"><rect x="380" y="200" width="34" height="22" fill="#f4e3c8" stroke="#8a6d4a" stroke-width="2"/><path d="M375 202 L397 186 L419 202Z" fill="#c0503a"/><rect x="392" y="210" width="8" height="12" fill="#8a6d4a"/></g>
+      <path id="kwSea" d="" fill="#3d8fd1" opacity=".85"/>
+    </svg>
+    <div class="sim-ctrl"><label for="kwRange">Erwärmung</label><input type="range" id="kwRange" min="0" max="3" step="1" value="0"></div>
+    <div class="readout"><span class="chip" id="kwChip">🌡️ um 1850: vor der Industrialisierung</span></div>
+    <p class="obs" id="kwObs">Schiebe den Regler nach rechts und beobachte die Landschaft.</p>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Zusätzliche Treibhausgase wie CO₂, Methan, Lachgas und FCKW verstärken den natürlichen Treibhauseffekt.</li><li>Dadurch steigt die Durchschnittstemperatur der Erde und das Klima wandelt sich weltweit (Klimawandel).</li><li>Folgen sind zum Beispiel schmelzende Gletscher, ein steigender Meeresspiegel und mehr Dürren, Stürme und Überschwemmungen.</li></ul></div>
+
+  <div class="card reveal">
+    <span class="task-tag">Zuordnen</span>
+    <h3 style="margin-top:4px">Welches Treibhausgas entsteht hier?</h3>
+    <p class="hint">Tippe eine Karte an und dann das passende Gas.</p>
+    <div id="sortGase"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Reihenfolge · Probenstoff</span>
+    <h3 style="margin-top:4px">Eine Kette von Ursache und Wirkung</h3>
+    <div id="orderKette"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Erklären · Probenstoff</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="open5"></div>
+  </div>
+  <div class="card reveal" id="mc-s5"></div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="s6">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Probenstoff · Rechnen</div><h2>Was kann man tun? CO₂ sparen im Alltag</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead"><strong>Weniger Treibhausgase.</strong> Damit die Temperatur nicht immer weiter steigt, muss der Ausstoß von Treibhausgasen so stark wie möglich sinken. Etwa ein Viertel des CO₂ stammt aus privaten Haushalten. Jede und jeder kann also mithelfen:</p>
+      <ul style="margin:0;padding-left:20px">
+        <li>mit dem Rad, zu Fuß, mit Bus oder Bahn unterwegs sein,</li>
+        <li>Obst und Gemüse aus der Region und passend zur Jahreszeit kaufen,</li>
+        <li>seltener Fleisch essen,</li>
+        <li>Strom und Heizenergie sparen,</li>
+        <li>Dinge lange nutzen, reparieren oder weitergeben,</li>
+        <li>auf Flugreisen möglichst verzichten.</li>
+      </ul>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Die Großen sind gefragt.</strong> Noch mehr bewirken andere:</p>
+      <p><strong>⚡ Energieversorger</strong> können Strom aus <button class="term" data-t="erneuerbar">erneuerbaren Energien</button> wie Wind, Sonne und Wasser erzeugen statt aus Kohle und Erdgas.</p>
+      <p><strong>🏭 Firmen</strong> können umweltfreundlicher herstellen, zum Beispiel mit weniger Energie und langlebigeren Produkten.</p>
+      <p style="margin:0"><strong>🏛️ Der Staat</strong> kann Gesetze ändern, Bus und Bahn fördern und klimafreundliches Verhalten belohnen.</p>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag probe">CO₂-Rechner · Probenstoff</span>
+    <h3 style="margin-top:4px">Wie viel CO₂ verursacht eine Reise?</h3>
+    <p class="hint" style="margin-top:0">Durchschnittlicher CO₂-Ausstoß <strong>pro Person und Kilometer</strong>: 🚌 Bus 44 g · 🚆 Bahn 50 g · 🚗 Auto 161 g · ✈️ Flugzeug 215 g. Wähle ein Ziel oder schiebe den Regler.</p>
+    <div class="ziele" id="ziele">
+      <button type="button" data-km="170">Nürnberg (170 km)</button>
+      <button type="button" data-km="600">Berlin (600 km)</button>
+      <button type="button" data-km="900">Rom (900 km)</button>
+    </div>
+    <div class="km-row"><label for="kmRange"><strong>Strecke:</strong></label><input type="range" id="kmRange" min="10" max="1000" step="10" value="170"><span class="chip" id="kmChip">170 km</span></div>
+    <div class="bars" id="bars"></div>
+    <p class="hint" id="barNote" style="margin:10px 0 0"></p>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Rechnen · Probenstoff</span>
+    <h3 style="margin-top:4px">Klassenfahrt nach Berlin</h3>
+    <p style="margin-top:0">Die Klasse 9 fährt auf Klassenfahrt nach Berlin, etwa 600 km weit. Berechne für jedes Verkehrsmittel den CO₂-Ausstoß <strong>pro Person</strong> für die Hinfahrt. Gib das Ergebnis in Kilogramm an.</p>
+    <div class="formel">So geht's: Strecke · Ausstoß pro Kilometer, z. B. 100 km · 44 g = 4400 g = 4,4 kg (1 kg = 1000 g)</div>
+    <div class="calc" id="calc"></div>
+    <div class="row-btns"><button class="btn small check" id="calcGo">Prüfen</button><button class="btn small ghost" id="calcHelp">Tipp</button></div>
+    <div class="fb" id="calcFb"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Zuordnen</span>
+    <h3 style="margin-top:4px">Wer kann was tun?</h3>
+    <p class="hint">Tippe eine Karte an und dann das passende Feld.</p>
+    <div id="sortWer"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Klima-Detektiv</span>
+    <h3 style="margin-top:4px">Spart CO₂ oder verursacht viel CO₂?</h3>
+    <div id="sortDetektiv"></div>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Um den Klimawandel zu bremsen, muss der Ausstoß von Treibhausgasen sinken.</li><li>Jede und jeder kann CO₂ sparen, zum Beispiel beim Unterwegssein, beim Essen und beim Energieverbrauch.</li><li>Energieversorger, Firmen und der Staat können noch mehr bewirken: erneuerbare Energien, umweltfreundliche Herstellung, klimafreundliche Gesetze.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Klimaschutz <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="open6"></div>
+  </div>
+  <div class="card reveal" id="mc-s6"></div>
+</section>
+
+<!-- ============ STATION 7 ============ -->
+<section class="station" id="s7">
+  <div class="st-head reveal"><div class="st-num">7</div><div><div class="eyebrow">Argumentieren mit Fakten</div><h2>⚔️ Duell gegen den Klimaleugner</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead"><strong>Behauptungen prüfen.</strong> In Kommentaren im Internet oder beim Familienessen hört man manchmal Sätze wie „Das Klima hat sich doch schon immer verändert“. Menschen, die bestreiten, dass der Mensch das Klima aufheizt, nennt man <button class="term" data-t="klimaleugner">Klimaleugner</button>.</p>
+      <p style="margin:0">Ihre Behauptungen klingen oft einleuchtend, lassen aber etwas Wichtiges weg. Solche falschen Behauptungen nennt man auch <button class="term" data-t="mythos">Klima-Mythen</button>. Mit dem Wissen aus diesem Modul kannst du sie widerlegen: mit Messwerten, mit dem Versuch und mit dem Kohlenstoffkreislauf.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>So entlarvst du einen Klima-Mythos:</strong></p>
+      <ol style="margin:0;padding-left:20px">
+        <li><strong>Was stimmt?</strong> Oft steckt ein wahrer Kern drin. Den darfst du ruhig zugeben: „Das stimmt, aber …“</li>
+        <li><strong>Was fehlt?</strong> Nenne den Fakt, den die Behauptung weglässt.</li>
+        <li><strong>Beleg nennen:</strong> eine Zahl, einen Versuch oder ein Beispiel aus diesem Modul.</li>
+        <li><strong>Sachlich bleiben:</strong> Du willst überzeugen, nicht beleidigen.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag">Aufwärmen · Zuordnen</span>
+    <h3 style="margin-top:4px">Fakt oder Mythos?</h3>
+    <p class="hint">Tippe eine Aussage an und dann das passende Feld.</p>
+    <div id="sortMythos"></div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <p class="lead" style="margin-top:0">Jetzt wird diskutiert! Die KI spielt einen Klimaleugner. Du hältst mit Fakten dagegen.</p>
+      <ol>
+        <li>Der Klimaleugner stellt eine Behauptung auf.</li>
+        <li>Du widerlegst sie mit einem <strong>Fakt</strong> aus diesem Modul. Schreibe mindestens einen ganzen Satz.</li>
+        <li>Die KI prüft als Schiedsrichter, ob dein Fakt die Behauptung wirklich widerlegt.</li>
+      </ol>
+      <p>Nach vier Behauptungen hast du das letzte Wort. Du weißt nicht weiter? Tippe auf <strong>💡 Tipp</strong>. Dann siehst du Satzanfänge und Ideen. Schreibe sie in <strong>eigenen Worten</strong> auf.</p>
+      <p class="hint">Punkte: Fakt widerlegt die Behauptung = 2 Punkte für dich. Halb überzeugend = je 1 Punkt. Kein passender Fakt = 2 Punkte für den Klimaleugner. Bei „Nochmal“ kommen andere Behauptungen.</p>
+    </div>
+    <div class="card reveal duel" id="duel"></div>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Wetter ist das, was heute draußen passiert. Klima ist das durchschnittliche Wetter über viele Jahre.</li><li>Das Klima hat sich auch früher verändert, aber über Tausende von Jahren. Die heutige schnelle Erwärmung verursacht der Mensch.</li><li>Gegen Klima-Mythen helfen Fakten: Messwerte, Versuche und das Wissen über den Kohlenstoffkreislauf.</li></ul></div>
+</section>
+
+<!-- ============ STATION 8 ============ -->
+<section class="station" id="s8">
+  <div class="st-head reveal"><div class="st-num">8</div><div><div class="eyebrow">Wiederholung · so kommt es in der Probe</div><h2>Training für die Probe</h2></div></div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Kreuzworträtsel</span>
+    <h3 style="margin-top:4px">Löse das Kreuzworträtsel</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. <strong>Ä und Ü</strong> bekommen ein eigenes Kästchen.</p>
+    <div id="cw"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Schaubild beschriften</span>
+    <h3 style="margin-top:4px">Der Treibhauseffekt</h3>
+    <div id="labelTh"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Richtig oder falsch?</span>
+    <div id="tf"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Ankreuzen</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Offene Fragen</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung. Danach kannst du die Musterlösung ansehen.</p>
+    <div id="openT"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 9 ============ -->
+<section class="station" id="s9">
+  <div class="st-head reveal"><div class="st-num">9</div><div><div class="eyebrow">Abschluss</div><h2>Klima-Profi-Check</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Geschafft!</h3>
+    <p>Damit hast du alle fünf Module zu den organischen Rohstoffen durchgearbeitet: von Holz und Raps über Erdöl bis zum Klima. Im Probentraining der einzelnen Module kannst du alles noch einmal wiederholen.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="modul-4.html">⬅️ Modul 4</a>
+      <a href="index.html">📘 Übersicht Organische Rohstoffe</a>
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik 9M / 9R · Organische Rohstoffe · Modul 5 · Film: „Wie funktioniert der Treibhauseffekt? Das Experiment.“ aus „MAITHINK X – Die Show“ (ZDF), über ZDF goes Schule. Die beiden Infografiken wurden mit KI neu erstellt, ihr Fachinhalt wurde anhand einer vorhandenen Unterrichtsquelle geprüft. Die Behauptungen im Klima-Duell sind ausgedachte Beispiele für verbreitete Klima-Mythen. Dein Fortschritt wird nur auf diesem Gerät gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="content.js"></script>
+<script src="fortschritt/fortschritt.js"></script>
+<script src="modul-basis.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, clamp, reduced, onVisible, register, solve, fmt} = Modul;
+const NS = "http://www.w3.org/2000/svg";
+const svgEl = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const wait = ms => new Promise(r => setTimeout(r, reduced ? Math.min(ms, 60) : ms));
+const FS = window.KohlenstoffFortschritt;
+let bereit = false;
+
+// Schritt-für-Schritt-Animation: Kette oben, Zurück/Weiter, show(i) zeichnet die Szene
+function stepper(chain, prev, next, n, show){
+  let i = 0;
+  const steps = $$(".step", chain);
+  function go(k){
+    i = clamp(k, 0, n - 1);
+    steps.forEach((s, j) => { s.classList.toggle("on", j === i); s.classList.toggle("done", j < i); });
+    prev.disabled = i === 0;
+    next.disabled = i === n - 1;
+    show(i);
+  }
+  prev.addEventListener("click", () => go(i - 1));
+  next.addEventListener("click", () => go(i + 1));
+  go(0);
+  return {go, cur: () => i};
+}
+
+Modul.init({
+  // eigener Speicherbereich je angemeldetem Kind (Anmeldung in fortschritt.js)
+  key: FS.schluessel("grumi-nt9-" + (/\/9R\//i.test(location.pathname) ? "r9" : "m9") + "-modul5-v1"),
+  thema: "Organische Rohstoffe: Kohlenstoffkreislauf (Fotosynthese, Atmung, Zersetzung, Speicher), Einfluss des Menschen, natürlicher und verstärkter Treibhauseffekt, Treibhausgase, CO2-Experiment, Klimawandel und Folgen, Klimaschutz, CO2-Ausstoß im Verkehr",
+  api: "/api/nt9/uebung/feedback",
+  // Sterne auch in der Kursübersicht zeigen (Kachel Modul 5, interne Kennung m06)
+  onProgress: (n, total) => { if (bereit && FS) FS.speichern("m06", n, total); },
+  glossary: {
+    kohlenstoff: ["Kohlenstoff", "Chemisches Element (Zeichen C). Es steckt in allen Lebewesen, in Kohle, Erdöl und Erdgas und als CO₂ in der Luft."],
+    kohlenstoffverbindung: ["Kohlenstoffverbindungen", "Stoffe, in denen Kohlenstoff mit anderen Elementen verbunden ist, z. B. Zucker, Stärke, Holz, Eiweiß oder Fett."],
+    co2: ["Kohlenstoffdioxid (CO₂)", "Farbloses Gas aus Kohlenstoff und Sauerstoff. Es entsteht bei Atmung, Zersetzung und Verbrennung und ist ein Treibhausgas."],
+    fotosynthese: ["Fotosynthese", "Grüne Pflanzen bauen mithilfe von Sonnenlicht aus CO₂ und Wasser Zucker auf. Dabei entsteht Sauerstoff."],
+    atmung: ["Atmung", "Lebewesen gewinnen Energie aus Nährstoffen. Dabei geben sie CO₂ ab."],
+    zersetzung: ["Zersetzung", "Pilze und Bakterien bauen tote Pflanzen und Tiere ab. Dabei wird CO₂ frei."],
+    humus: ["Humus", "Dunkle, fruchtbare Bodenschicht aus zersetzten Pflanzenresten. Sie speichert viel Kohlenstoff."],
+    gleichgewicht: ["Gleichgewicht", "Es wird ungefähr so viel CO₂ aufgenommen, wie abgegeben wird. Die Menge in der Luft bleibt dann etwa gleich."],
+    kreislauf: ["Kohlenstoffkreislauf", "Der Weg des Kohlenstoffs zwischen Luft, Lebewesen, Boden und Meer, der immer wieder von vorn beginnt."],
+    industrialisierung: ["Industrialisierung", "Zeit ab etwa 1800, in der Maschinen und Fabriken die Arbeit veränderten. Seitdem werden Kohle, Erdöl und Erdgas in großen Mengen verbrannt."],
+    atmosphaere: ["Atmosphäre", "Die Lufthülle der Erde."],
+    waermestrahlung: ["Wärmestrahlung", "Unsichtbare Strahlung, die jeder warme Körper abgibt, auch die Erde. Man kann sie z. B. an einem warmen Heizkörper spüren."],
+    treibhausgas: ["Treibhausgase", "Gase in der Luft, die einen Teil der Wärmestrahlung zurückhalten, z. B. Wasserdampf, CO₂, Methan und Lachgas."],
+    treibhauseffekt: ["Treibhauseffekt", "Treibhausgase halten einen Teil der Wärmestrahlung der Erde zurück. Der natürliche Treibhauseffekt macht die Erde bewohnbar, zusätzliche Treibhausgase verstärken ihn."],
+    methan: ["Methan (CH₄)", "Treibhausgas, das z. B. bei der Verdauung von Rindern, in nassen Reisfeldern und in Mülldeponien entsteht."],
+    lachgas: ["Lachgas (N₂O)", "Treibhausgas, das vor allem durch Dünger in der Landwirtschaft entsteht."],
+    fckw: ["FCKW", "Fluorchlorkohlenwasserstoffe: künstliche Gase, die früher in Kühlschränken und Spraydosen steckten. Sie sind starke Treibhausgase und heute verboten."],
+    klima: ["Klima", "Das durchschnittliche Wetter an einem Ort über viele Jahre (mindestens 30 Jahre)."],
+    klimawandel: ["Klimawandel", "Veränderung des Klimas auf der ganzen Welt. Heute vor allem die Erwärmung durch zusätzliche Treibhausgase."],
+    gletscher: ["Gletscher", "Große Eismasse im Gebirge, die sich langsam talwärts bewegt, z. B. in den Alpen."],
+    meeresspiegel: ["Meeresspiegel", "Die Höhe der Meeresoberfläche. Er steigt, wenn Eis schmilzt und sich das Meerwasser erwärmt."],
+    duerre: ["Dürre", "Lange Zeit mit viel zu wenig Regen. Pflanzen vertrocknen, Ernten fallen aus."],
+    oekosystem: ["Ökosystem", "Lebensraum mit allen Pflanzen und Tieren, die darin zusammenleben, z. B. ein Wald, ein See oder ein Korallenriff."],
+    erneuerbar: ["erneuerbare Energien", "Energie aus Quellen, die nicht ausgehen, z. B. Wind, Sonne und Wasser. Dabei entsteht kaum CO₂."],
+    klimaleugner: ["Klimaleugner", "Menschen, die bestreiten, dass sich die Erde durch den Menschen erwärmt – obwohl Messungen und Versuche das klar zeigen."],
+    mythos: ["Klima-Mythos", "Eine weit verbreitete Behauptung über das Klima, die falsch ist oder etwas Wichtiges weglässt."]
+  }
+});
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Welcher Vorgang holt CO₂ aus der Luft?", o: ["Fotosynthese", "Atmung", "Zersetzung", "Verbrennung"], a: 0, e: "Grüne Pflanzen bauen aus CO₂ mithilfe von Sonnenlicht Zucker auf."},
+    {q: "Was passiert bei der Zersetzung?", o: ["Pilze und Bakterien bauen tote Lebewesen ab, dabei wird CO₂ frei.", "Pflanzen bauen Zucker auf.", "Gestein schmilzt.", "Wasser verdunstet."], a: 0, e: "So gelangt der Kohlenstoff aus abgestorbenen Pflanzen und Tieren wieder in die Luft."},
+    {q: "Wo ist Kohlenstoff lange gespeichert?", o: ["im Humus des Bodens", "in Kohle, Erdöl und Erdgas", "in Ablagerungen am Meeresgrund", "im Sonnenlicht", "im Mondgestein"], a: [0, 1, 2], e: "Das sind die großen Kohlenstoffspeicher der Erde."},
+    {q: "Was bedeutet „Gleichgewicht“ im natürlichen Kohlenstoffkreislauf?", o: ["Aufnahme und Abgabe von CO₂ halten sich ungefähr die Waage.", "Überall gibt es gleich viel Kohlenstoff.", "Pflanzen wiegen so viel wie Tiere.", "Es wird gar kein CO₂ mehr abgegeben."], a: 0, e: "Die Menge an CO₂ in der Luft bleibt dann etwa gleich."}
+  ],
+  s2: [
+    {q: "Seit wann beeinflusst der Mensch den Kohlenstoffkreislauf besonders stark?", o: ["seit der Industrialisierung", "seit der Steinzeit", "erst seit dem Jahr 2020", "seit der Zeit der Dinosaurier"], a: 0, e: "Seitdem werden Kohle, Erdöl und Erdgas in großen Mengen verbrannt."},
+    {q: "Wie hat sich der CO₂-Anteil der Luft seit der Industrialisierung verändert?", o: ["von etwa 0,028 % auf über 0,042 %", "von 28 % auf 42 %", "Er ist gleich geblieben.", "Er ist gesunken."], a: 0, e: "Ein kleiner Anteil – aber er ist auf das Anderthalbfache gestiegen."},
+    {q: "Was trägt zum Anstieg des CO₂ in der Luft bei?", o: ["Kohle verbrennen", "mit Benzin Auto fahren", "Wälder abholzen", "Fotosynthese", "Bäume pflanzen"], a: [0, 1, 2], e: "Fotosynthese und neue Bäume nehmen CO₂ dagegen auf."},
+    {q: "Warum gerät der Kreislauf aus dem Gleichgewicht?", o: ["Es wird viel mehr CO₂ ausgestoßen, als Pflanzen und Meere aufnehmen können.", "Pflanzen nehmen zu viel CO₂ auf.", "Die Sonne scheint stärker.", "Die Ozeane werden größer."], a: 0, e: "Der Ausstoß ist um ein Vielfaches größer als die Aufnahme."}
+  ],
+  s3: [
+    {q: "Was gelangt fast ungehindert durch die Atmosphäre zur Erde?", o: ["das Sonnenlicht", "die Wärmestrahlung der Erde", "der Regen vom Weltall", "kalte Luft"], a: 0, e: "Erst die Wärmestrahlung der Erde wird von den Treibhausgasen teilweise zurückgehalten."},
+    {q: "Wie warm wäre die Erde im Durchschnitt ohne Treibhausgase?", o: ["etwa −18 °C", "etwa +15 °C", "etwa 0 °C", "etwa +30 °C"], a: 0, e: "Mit dem natürlichen Treibhauseffekt sind es etwa +15 °C."},
+    {q: "Welche Gase sind natürliche Treibhausgase?", o: ["Wasserdampf", "Kohlenstoffdioxid", "Sauerstoff", "Helium"], a: [0, 1], e: "Sauerstoff und Helium halten keine Wärmestrahlung zurück."},
+    {q: "Woher hat der Treibhauseffekt seinen Namen?", o: ["Die Atmosphäre wirkt ähnlich wie die Glasscheiben eines Gewächshauses.", "Er wurde in einem Gewächshaus entdeckt.", "Pflanzen erzeugen ihn.", "Er treibt die Wolken an."], a: 0, e: "Licht kommt herein, die Wärme bleibt zum Teil drinnen."}
+  ],
+  s4: [
+    {q: "Womit wurde im Film die Sonne ersetzt?", o: ["mit einer Rotlichtlampe", "mit einem Lagerfeuer", "mit einer Taschenlampe", "mit einem Föhn"], a: 0, e: "Sie gibt viel Wärmestrahlung ab."},
+    {q: "Was war der einzige Unterschied zwischen den beiden Flaschen?", o: ["der CO₂-Gehalt", "die Größe", "der Abstand zur Lampe", "die Starttemperatur"], a: 0, e: "Alles andere war gleich – nur so ist der Vergleich fair."},
+    {q: "Welche Flasche war am Ende wärmer?", o: ["die Flasche mit Luft und zusätzlichem CO₂", "die Flasche mit normaler Luft", "Beide waren gleich warm.", "Keine – beide kühlten ab."], a: 0, e: "37,5 °C mit CO₂, 36,4 °C mit Luft."},
+    {q: "Wer beschrieb den Versuch 1856 als Erste?", o: ["Eunice Newton Foote", "John Tyndall", "Isaac Newton", "Marie Curie"], a: 0, e: "Lange wurde die Entdeckung John Tyndall zugeschrieben."}
+  ],
+  s5: [
+    {q: "Welche Gase verstärken den Treibhauseffekt zusätzlich?", o: ["Kohlenstoffdioxid (CO₂)", "Methan (CH₄)", "Lachgas (N₂O)", "FCKW", "Sauerstoff (O₂)"], a: [0, 1, 2, 3], e: "Sauerstoff ist kein Treibhausgas."},
+    {q: "Woher kommt besonders viel Methan?", o: ["aus der Rinderhaltung", "aus Solaranlagen", "aus Windrädern", "aus Fahrrädern"], a: 0, e: "Methan entsteht bei der Verdauung der Rinder, außerdem in nassen Reisfeldern und Mülldeponien."},
+    {q: "Was sind Folgen des Klimawandels?", o: ["Gletscher schmelzen.", "Der Meeresspiegel steigt.", "Dürren und Stürme nehmen zu.", "Die Erde wird kälter.", "Es gibt keine Jahreszeiten mehr."], a: [0, 1, 2], e: "Die Erde wird wärmer, nicht kälter."},
+    {q: "Warum betrifft der Klimawandel alle Lebewesen?", o: ["Alle Ökosysteme hängen vom Klima ab.", "Alle Lebewesen atmen CO₂ ein.", "Es gibt dann keinen Sauerstoff mehr.", "Er betrifft nur Eisbären."], a: 0, e: "Ändert sich das Klima, ändern sich auch die Lebensräume."}
+  ],
+  s6: [
+    {q: "Welcher Anteil des CO₂ stammt etwa aus privaten Haushalten?", o: ["etwa ein Viertel", "fast alles", "gar nichts", "genau die Hälfte"], a: 0, e: "Etwa 25 % – den Rest verursachen vor allem Energieerzeugung, Industrie und Verkehr."},
+    {q: "Wie viel CO₂ verursacht eine Person pro Kilometer im Flugzeug im Vergleich zum Bus?", o: ["etwa fünfmal so viel", "genauso viel", "weniger", "zehnmal weniger"], a: 0, e: "215 g gegenüber 44 g pro Kilometer."},
+    {q: "Was können Energieversorger tun?", o: ["auf erneuerbare Energien wie Wind und Sonne umsteigen", "mehr Kohle verbrennen", "Strom verschenken", "Kraftwerke heller beleuchten"], a: 0, e: "Strom aus Wind, Sonne und Wasser verursacht kaum CO₂."},
+    {q: "Welches Verhalten spart CO₂?", o: ["Lebensmittel aus der Region kaufen", "Energie sparen", "Dinge lange nutzen und reparieren", "jedes Jahr ein neues Handy kaufen", "sich jeden Tag mit dem Auto zur Schule bringen lassen"], a: [0, 1, 2], e: "Neue Geräte und kurze Autofahrten verursachen zusätzliches CO₂."}
+  ],
+  train: [
+    {q: "Welche Reihenfolge stimmt beim natürlichen Treibhauseffekt?", o: ["Sonnenlicht erwärmt den Boden → der Boden gibt Wärmestrahlung ab → Treibhausgase strahlen einen Teil zurück", "Treibhausgase erwärmen die Sonne → die Sonne strahlt zur Erde", "Der Boden gibt Licht ab → die Sonne wird warm → Wolken regnen", "Die Wärmestrahlung kommt von den Sternen → die Erde kühlt ab"], a: 0, e: "Licht rein, Wärme raus – ein Teil der Wärme wird zurückgehalten."},
+    {q: "Welche Aussage über den Kohlenstoffkreislauf heute stimmt?", o: ["Durch den Menschen gelangt mehr CO₂ in die Luft, als aufgenommen wird.", "Der Mensch entzieht der Luft mehr CO₂, als die Natur abgibt.", "In der Natur gibt es kein Gleichgewicht.", "Die Ozeane nehmen gar kein CO₂ auf."], a: 0, e: "Darum steigt der CO₂-Anteil der Luft."},
+    {q: "Welche Aussagen stimmen?", o: ["Pflanzen nehmen bei der Fotosynthese CO₂ auf.", "Methan entsteht unter anderem bei der Rinderhaltung.", "Der Meeresspiegel steigt, weil Eis schmilzt.", "Treibhausgase halten das Sonnenlicht vollständig ab.", "Ohne Treibhauseffekt wäre die Erde wärmer."], a: [0, 1, 2], e: "Das Sonnenlicht kommt durch – und ohne Treibhauseffekt wäre es eiskalt."},
+    {q: "Wie viel CO₂ verursacht eine Bahnfahrt über 100 km pro Person (50 g pro Kilometer)?", o: ["5 kg", "50 kg", "500 g", "5 g"], a: 0, e: "100 · 50 g = 5000 g = 5 kg."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check"});
+Modul.makeMC($("#mc-s5"), MC.s5, "mc5", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s6"), MC.s6, "mc6", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Station 1: Kohlenstoff-Reise ---------- */
+(function(){
+  const svg = $("#krSvg"), obs = $("#krObs"), btnBox = $("#krBtns"), count = $("#krCount"), timeChip = $("#krTime"), atom = $("#krAtom", svg);
+  const N = {
+    luft:    {x: 212, y: 42,  e: "☁️", t: "Luft (CO₂)", wo: "als CO₂ in der Luft", ly: -30},
+    pflanze: {x: 91, y: 135, e: "🌳", t: "Pflanze", wo: "in Zucker, Stärke und Holz einer Pflanze", ly: -30},
+    tier:    {x: 256, y: 159, e: "🐄", t: "Tier / Mensch", wo: "im Körper eines Tieres", ly: 38},
+    meer:    {x: 426, y: 135, e: "🌊", t: "Meer", wo: "im Meerwasser und im Plankton", ly: 38},
+    boden:   {x: 55, y: 248, e: "🍂", t: "Boden (Humus)", wo: "in Pflanzenresten und Humus im Boden", ly: 38},
+    lager:   {x: 361, y: 252, e: "🛢️", t: "Kohle, Erdöl, Erdgas", wo: "tief in der Erde in Kohle, Erdöl oder Erdgas", ly: 38}
+  };
+  const E = [
+    {a: "luft", b: "pflanze", n: "Fotosynthese", k: "Fotosynthese", o: -21, lt: 0.34, i: "🌿", d: "Stunden", t: "Ein Blatt nimmt das CO₂ auf. Mit der Energie des Sonnenlichts baut die Pflanze daraus Zucker. Das C-Atom ist jetzt ein Teil der Pflanze."},
+    {a: "pflanze", b: "luft", n: "Atmung der Pflanze", k: "Atmung", o: 56, lt: 0.57, i: "💨", d: "Stunden", t: "Auch Pflanzen atmen. Einen Teil des Zuckers bauen sie wieder ab und geben CO₂ an die Luft zurück."},
+    {a: "pflanze", b: "tier", n: "gefressen", k: "gefressen", o: -32, lt: 0.59, i: "🍽️", d: "Tage", t: "Eine Kuh frisst das Gras. Der Kohlenstoff aus der Pflanze wird ein Teil ihres Körpers."},
+    {a: "tier", b: "luft", n: "Atmung", k: "Atmung", o: 52, lt: 0.25, i: "💨", d: "Stunden", t: "Beim Atmen gewinnt das Tier Energie aus der Nahrung. Dabei atmet es das C-Atom als CO₂ wieder aus."},
+    {a: "pflanze", b: "boden", n: "abgestorben", k: "abgestorben", o: -15, lt: 0.52, i: "🍁", d: "Monate", t: "Im Herbst fallen die Blätter, irgendwann stirbt die ganze Pflanze. Ihre Reste landen auf dem Boden."},
+    {a: "tier", b: "boden", n: "Ausscheidungen, Tod", k: "Reste", o: -47, lt: 0.38, i: "🐾", d: "Jahre", t: "Kot und tote Tiere landen ebenfalls im Boden."},
+    {a: "boden", b: "luft", n: "Zersetzung", k: "Zersetzung", o: 54, lt: 0.49, i: "🍄", d: "Monate bis Jahre", t: "Pilze und Bakterien zersetzen die Reste. Dabei wird CO₂ frei. Ein Teil bleibt lange als Humus im Boden gespeichert."},
+    {a: "luft", b: "meer", n: "löst sich im Wasser", k: "löst sich", o: -40, lt: 0.28, i: "🌊", d: "Jahre", t: "Das Meer nimmt CO₂ aus der Luft auf. Algen und Plankton nutzen es für ihre Fotosynthese."},
+    {a: "meer", b: "luft", n: "Meer gibt ab", k: "gibt ab", o: -73, lt: 0.67, i: "💨", d: "Jahre", t: "Das Meer gibt auch wieder CO₂ an die Luft ab – ein ständiges Hin und Her."},
+    {a: "meer", b: "lager", n: "Plankton sinkt ab", k: "Plankton sinkt ab", o: -17, lt: 0.47, i: "⏳", d: "Millionen Jahre", t: "Abgestorbenes Plankton sinkt auf den Meeresgrund. Unter Schlamm und Gestein entstehen daraus in Millionen Jahren Erdöl und Erdgas."},
+    {a: "boden", b: "lager", n: "Sumpfwald versinkt", k: "Sumpfwald versinkt", o: 39, lt: 0.51, i: "⏳", d: "Millionen Jahre", t: "Vor Millionen Jahren versanken riesige Sumpfwälder. Ohne Luft und unter hohem Druck wurde daraus Kohle."},
+    {a: "lager", b: "luft", n: "Verbrennung durch den Menschen", k: "Verbrennung", o: 68, lt: 0.75, i: "🔥", d: "Sekunden", m: true, t: "Der Mensch fördert Kohle, Erdöl und Erdgas und verbrennt sie in Kraftwerken, Heizungen und Motoren. In Sekunden wird frei, was Millionen Jahre gespeichert war!"}
+  ];
+  // Gebogene Wege: Hin- und Rückweg liegen auf verschiedenen Seiten
+  const ctl = (p, q, off) => { const mx = (p.x + q.x) / 2, my = (p.y + q.y) / 2, dx = q.x - p.x, dy = q.y - p.y, l = Math.hypot(dx, dy) || 1; return {x: mx - dy / l * off, y: my + dx / l * off}; };
+  const curve = (p, q, off) => { const c = ctl(p, q, off); return `M${p.x} ${p.y} Q${c.x.toFixed(1)} ${c.y.toFixed(1)} ${q.x} ${q.y}`; };
+  // Punkt auf dem Bogen beim Parameter t (Lage der Beschriftung, überlappungsfrei vorausberechnet)
+  const onCurve = (p, q, off, t) => { const c = ctl(p, q, off), u = 1 - t; return {x: u * u * p.x + 2 * t * u * c.x + t * t * q.x, y: u * u * p.y + 2 * t * u * c.y + t * t * q.y}; };
+  const edgeG = $("#krEdges", svg), nodeG = $("#krNodes", svg);
+  E.forEach((e, k) => {
+    e.path = svgEl("path", {d: curve(N[e.a], N[e.b], e.o), class: "edge" + (e.m ? " mensch" : "")}, edgeG);
+    const mid = onCurve(N[e.a], N[e.b], e.o, e.lt);
+    e.lab = svgEl("g", {class: "elab"}, $("#krLabs", svg));
+    const w = e.k.length * 5.6 + 12;
+    svgEl("rect", {x: (mid.x - w / 2).toFixed(1), y: (mid.y - 9).toFixed(1), width: w.toFixed(1), height: 16, rx: 5, fill: "#fff", stroke: e.m ? "#c0392b" : "#1f7a5a", "stroke-width": 1.2}, e.lab);
+    svgEl("text", {x: mid.x.toFixed(1), y: (mid.y + 3.5).toFixed(1), "text-anchor": "middle", "font-size": 9.5, "font-weight": 700, fill: e.m ? "#c0392b" : "#155a42"}, e.lab).textContent = e.k;
+  });
+  Object.entries(N).forEach(([k, n]) => {
+    n.g = svgEl("g", {class: "node"}, nodeG);
+    svgEl("circle", {cx: n.x, cy: n.y, r: 24}, n.g);
+    svgEl("text", {x: n.x, y: n.y + 7, "text-anchor": "middle", "font-size": 20}, n.g).textContent = n.e;
+    const ty = n.y + n.ly, tx = n.x + (n.lx || 0);
+    const w = n.t.length * 6 + 10;
+    svgEl("rect", {x: tx - w / 2, y: ty - 11, width: w, height: 15, rx: 4, fill: "rgba(255,255,255,.85)"}, n.g);
+    svgEl("text", {x: tx, y: ty, "text-anchor": "middle", "font-size": 10.5, "font-weight": 800, fill: "#15212b"}, n.g).textContent = n.t;
+  });
+  const found = new Set();
+  let here = "luft", busy = false;
+  register("kreislaufReise");
+  const restAt = n => { atom.setAttribute("transform", `translate(${n.x + 20} ${n.y - 18})`); };
+  function buttons(){
+    Object.entries(N).forEach(([k, n]) => n.g.classList.toggle("here", k === here));
+    btnBox.innerHTML = `<span class="lbl">Das C-Atom ist ${N[here].wo}. Wohin geht die Reise?</span>`;
+    E.filter(e => e.a === here).forEach(e => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "btn small " + (e.m ? "mensch" : found.has(e) ? "ghost" : "");
+      b.textContent = `${e.i} ${e.n} → ${N[e.b].t}`;
+      b.addEventListener("click", () => travel(e));
+      btnBox.appendChild(b);
+    });
+  }
+  async function travel(e){
+    if (busy) return;
+    busy = true; $$("button", btnBox).forEach(b => b.disabled = true);
+    found.add(e); e.path.classList.add("found"); e.lab.classList.add("found");
+    timeChip.textContent = `⏱️ Dauer: ${e.d}`;
+    timeChip.className = "chip" + (e.m ? " bad" : "");
+    obs.textContent = e.t;
+    const L = e.path.getTotalLength(), a = N[e.a], b = N[e.b];
+    const dur = reduced ? 1 : 1400, t0 = performance.now();
+    await new Promise(res => (function tick(now){
+      const p = Math.min(1, (now - t0) / dur), s = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+      const pt = e.path.getPointAtLength(s * L);
+      // vom Rastplatz am Kreis los, am Rastplatz des Ziels an
+      const ox = 20 * (1 - Math.sin(Math.PI * s)), oy = -18 * (1 - Math.sin(Math.PI * s));
+      atom.setAttribute("transform", `translate(${(pt.x + ox).toFixed(1)} ${(pt.y + oy).toFixed(1)})`);
+      if (p < 1) requestAnimationFrame(tick); else res();
+    })(t0));
+    restAt(b);
+    here = e.b;
+    count.textContent = `🗺️ ${found.size} von ${E.length} Wegen entdeckt`;
+    if (found.size === E.length) {
+      count.className = "chip ok";
+      obs.textContent += " 🎉 Du hast alle Wege entdeckt! Der natürliche Kreislauf dauert Stunden bis Jahre, die Lagerstätten entstehen in Millionen Jahren – aber der Mensch leert sie in Sekunden.";
+      solve("kreislaufReise"); Modul.confetti();
+    }
+    busy = false; buttons();
+  }
+  restAt(N.luft); buttons();
+})();
+Modul.makeSort($("#sortKreis"), {
+  buckets: ["⬇️ nimmt CO₂ aus der Luft auf", "⬆️ gibt CO₂ an die Luft ab", "🏦 speichert Kohlenstoff lange"],
+  items: [
+    {t: "Fotosynthese", b: 0}, {t: "Meerwasser löst CO₂", b: 0},
+    {t: "Atmung", b: 1}, {t: "Zersetzung durch Pilze und Bakterien", b: 1}, {t: "Waldbrand", b: 1}, {t: "Heizen mit Erdgas", b: 1},
+    {t: "Humus im Boden", b: 2}, {t: "Kohle, Erdöl und Erdgas", b: 2}, {t: "Kalkablagerungen am Meeresgrund", b: 2}
+  ]
+}, "sortKreis");
+Modul.makeGap($("#gapKreis"), [
+  ["Grüne Pflanzen nehmen ", {g: "Kohlenstoffdioxid"}, " aus der Luft auf. Bei der ", {g: "Fotosynthese"}, " bauen sie daraus mithilfe von ", {g: "Sonnenlicht"}, " Zucker und Stärke auf. Tiere ", {g: "fressen"}, " die Pflanzen und geben bei der Atmung CO₂ wieder ab."],
+  ["Sterben Lebewesen, ", {g: "zersetzen"}, " Pilze und Bakterien ihre Reste. Dabei wird ebenfalls CO₂ ", {g: "frei"}, ". In der Natur halten sich Aufnahme und Abgabe ungefähr die ", {g: "Waage"}, "."]
+], "gapKreis", ["Sauerstoff", "Mondlicht"]);
+Modul.makeOpen($("#open1"), [
+  {q: "Beschreibe den natürlichen Kreislauf des Kohlenstoffs. Nenne dabei mindestens drei Vorgänge.",
+   m: "Pflanzen nehmen bei der Fotosynthese CO₂ aus der Luft auf und bauen daraus Zucker, Stärke und Holz. Tiere fressen die Pflanzen. Menschen, Tiere und Pflanzen geben bei der Atmung CO₂ wieder ab. Sterben Lebewesen, zersetzen Pilze und Bakterien die Reste, dabei wird ebenfalls CO₂ frei. Auch das Meer nimmt CO₂ auf und gibt es wieder ab. Aufnahme und Abgabe sind ungefähr im Gleichgewicht.",
+   k: ["fotosynthese|nehmen co2 auf|aufnehm", "atmung|atmen|ausatm", "zersetz|verwes|pilze|bakterien", "meer|ozean|boden|humus|gleichgewicht|waage"], min: 3},
+  {q: "Warum spricht man beim Weg des Kohlenstoffs von einem Kreislauf?",
+   m: "Der Kohlenstoff geht nicht verloren. Er wandert aus der Luft in Pflanzen, Tiere, Boden oder Meer und gelangt von dort als CO₂ wieder in die Luft zurück. Dann beginnt der Weg von vorn.",
+   k: ["zurück|wieder|von vorn|immer|kreis|verloren", "luft|pflanze|tier|boden|meer"]}
+], "open1", "Probiere die Kohlenstoff-Reise noch einmal aus.");
+
+/* ---------- Station 2: CO2-Waage ---------- */
+(function(){
+  const svg = $("#wgSvg"), obs = $("#wgObs"), co2Chip = $("#wgCo2"), stChip = $("#wgState");
+  const beam = $("#wgBeam", svg), panL = $("#wgPanL", svg), panR = $("#wgPanR", svg);
+  const P = {x: 240, y: 74}, HALF = 150, ROPE = 120;
+  svgEl("rect", {x: P.x - HALF - 6, y: P.y - 5, width: HALF * 2 + 12, height: 10, rx: 5, fill: "#33414d"}, beam);
+  const NATUR_L = [["Atmung", "#f4a261"], ["Zersetzung", "#f4a261"], ["Meer gibt CO₂ ab", "#f4a261"]];
+  const MENSCH = {kohle: ["Kohle verbrannt", "#3d3d3d"], oel: ["Erdöl verbrannt", "#5a4632"], gas: ["Erdgas verbrannt", "#6c7a86"]};
+  const on = {kohle: false, oel: false, gas: false, wald: false};
+  let ang = 0, target = 0, anim = null;
+  register("waage");
+  function pan(g, x, y, title, blocks){
+    g.innerHTML = "";
+    svgEl("line", {x1: x - 54, y1: y, x2: x, y2: y - ROPE, stroke: "#7d8b96", "stroke-width": 1.5}, g);
+    svgEl("line", {x1: x + 54, y1: y, x2: x, y2: y - ROPE, stroke: "#7d8b96", "stroke-width": 1.5}, g);
+    blocks.forEach((b, i) => {
+      const by = y - 4 - (i + 1) * 19;
+      svgEl("rect", {x: x - 52, y: by, width: 104, height: 17, rx: 4, fill: b[1], opacity: b[2] ? .25 : 1, stroke: b[2] ? "#2a9d8f" : "none", "stroke-dasharray": b[2] ? "4 3" : ""}, g);
+      svgEl("text", {x, y: by + 12, "text-anchor": "middle", "font-size": 9.5, "font-weight": 700, fill: b[2] ? "#2a9d8f" : "#fff"}, g).textContent = b[0];
+    });
+    svgEl("path", {d: `M${x - 60} ${y} Q${x} ${y + 22} ${x + 60} ${y}Z`, fill: "#9aa5ad"}, g);
+    svgEl("text", {x, y: y + 34, "text-anchor": "middle", "font-size": 10, "font-weight": 800, fill: "#15212b"}, g).textContent = title;
+  }
+  function draw(){
+    const r = ang * Math.PI / 180, dx = Math.cos(r) * HALF, dy = Math.sin(r) * HALF;
+    beam.setAttribute("transform", `rotate(${ang.toFixed(2)} ${P.x} ${P.y})`);
+    const L = NATUR_L.concat(Object.keys(MENSCH).filter(k => on[k]).map(k => MENSCH[k]));
+    const R = [[on.wald ? "Wald gerodet" : "Fotosynthese Wald", "#2a9d8f", on.wald], ["Fotosynthese Meer", "#2a9d8f"], ["Meer löst CO₂", "#2a9d8f"]];
+    pan(panL, P.x - dx, P.y - dy + ROPE, "⬆️ CO₂ in die Luft", L);
+    pan(panR, P.x + dx, P.y + dy + ROPE, "⬇️ CO₂ aus der Luft", R);
+  }
+  function update(){
+    const human = ["kohle", "oel", "gas"].filter(k => on[k]).length, all = human + (on.wald ? 1 : 0);
+    const diff = human + (on.wald ? 1 : 0);
+    target = -Math.min(18, diff * 4.5);
+    const co2 = .028 + .0035 * all;
+    co2Chip.textContent = `💨 CO₂-Anteil der Luft: ${co2.toFixed(4).replace(/0+$/, "").replace(".", ",")} %${all === 4 ? " (so viel wie heute)" : ""}`;
+    stChip.className = "chip " + (diff ? "bad" : "ok");
+    stChip.textContent = diff ? "⚖️ aus dem Gleichgewicht" : "⚖️ im Gleichgewicht";
+    obs.textContent = !all ? "So sieht es ohne den Menschen aus: Links liegt, was CO₂ in die Luft bringt, rechts, was CO₂ aufnimmt. Die Waage ist im Gleichgewicht. Tippe auf die Knöpfe."
+      : all < 4 ? `Der Mensch bringt zusätzliches CO₂ in die Luft${on.wald ? " und rodet Wälder, die CO₂ aufnehmen würden" : ""}. Die Waage kippt nach links: Es gelangt mehr CO₂ in die Luft, als aufgenommen wird. Probiere auch die anderen Knöpfe.`
+      : "Kohle, Erdöl und Erdgas werden verbrannt und Wälder gerodet. Die Waage ist weit aus dem Gleichgewicht. Das zusätzliche CO₂ sammelt sich in der Luft – ihr CO₂-Anteil ist auf das Anderthalbfache gestiegen.";
+    if (all === 4) solve("waage");
+    if (anim) cancelAnimationFrame(anim);
+    const from = ang, t0 = performance.now(), dur = reduced ? 1 : 700;
+    (function tick(now){
+      const p = Math.min(1, (now - t0) / dur);
+      ang = from + (target - from) * (1 - Math.pow(1 - p, 3));
+      draw();
+      if (p < 1) anim = requestAnimationFrame(tick); else anim = null;
+    })(t0);
+  }
+  $$("[data-w]", $("#wgBtns")).forEach(b => b.addEventListener("click", () => { on[b.dataset.w] = !on[b.dataset.w]; b.classList.toggle("on", on[b.dataset.w]); b.classList.toggle("ghost", !on[b.dataset.w]); update(); }));
+  $("#wgReset").addEventListener("click", () => { Object.keys(on).forEach(k => on[k] = false); $$("[data-w]", $("#wgBtns")).forEach(b => { b.classList.remove("on"); b.classList.add("ghost"); }); update(); });
+  draw(); update();
+})();
+Modul.makeOrder($("#orderMensch"), [
+  "Vor Millionen Jahren nehmen Pflanzen und Plankton CO₂ auf.",
+  "Ihre Reste werden über Millionen Jahre zu Kohle, Erdöl und Erdgas.",
+  "Seit der Industrialisierung fördert der Mensch diese Rohstoffe in großen Mengen.",
+  "Beim Verbrennen wird der gespeicherte Kohlenstoff als CO₂ frei.",
+  "Pflanzen und Meere können so viel CO₂ nicht aufnehmen.",
+  "Der CO₂-Anteil der Luft steigt."
+], "orderMensch");
+Modul.makeOpen($("#open2"), [
+  {q: "Wie beeinflusst der Mensch den natürlichen Kohlenstoffkreislauf?",
+   m: "Seit der Industrialisierung verbrennt der Mensch große Mengen Kohle, Erdöl und Erdgas. Dabei wird Kohlenstoff als CO₂ frei, der über Millionen Jahre in der Erde gespeichert war. Außerdem werden Wälder gerodet, die CO₂ aufnehmen würden. Es gelangt viel mehr CO₂ in die Luft, als Pflanzen und Meere aufnehmen können. Der Kreislauf gerät aus dem Gleichgewicht und der CO₂-Anteil der Luft steigt.",
+   k: ["verbrenn|kohle|erdöl|erdgas|fossil", "co2|kohlenstoffdioxid|kohlendioxid|kohlenstoff", "gleichgewicht|mehr als|nicht aufnehm|steigt|zunimmt|wald|rod"]},
+  {q: "Warum ist es ein Problem, dass der Kohlenstoff aus Kohle, Erdöl und Erdgas so schnell freigesetzt wird?",
+   m: "Die Natur hat Millionen Jahre gebraucht, um diesen Kohlenstoff einzulagern. Der Mensch setzt ihn in wenigen Jahrzehnten frei. So schnell können Pflanzen und Meere das zusätzliche CO₂ nicht wieder aufnehmen. Deshalb sammelt es sich in der Atmosphäre.",
+   k: ["million", "jahrzehnt|schnell|kurz|wenig", "nicht aufnehm|nicht schnell|sammelt|atmosphäre|luft|gleichgewicht"], min: 2}
+], "open2", "Schau dir die CO₂-Waage noch einmal an.");
+
+/* ---------- Station 3: Strahlen-Simulator ---------- */
+(function(){
+  const svg = $("#thSvg"), obs = $("#thObs"), partG = $("#thParts", svg), molG = $("#thMols", svg), fill = $("#thFill", svg), tempT = $("#thTemp", svg);
+  const chipT = $("#thChipT"), chipR = $("#thChipR"), grass = $("#thGrass", svg), fab = $("#thFab", svg);
+  const MODES = [
+    {p: 0, n: 0, temp: -18, txt: "❄️ Ohne Treibhausgase: Das Sonnenlicht erwärmt den Boden, aber die ganze Wärmestrahlung entweicht ungehindert ins Weltall. Die Erde wäre im Durchschnitt etwa −18 °C kalt – ein Eisball.", label: "−18 °C"},
+    {p: .42, n: 7, temp: 15, txt: "🌍 Natürlicher Treibhauseffekt: Wasserdampf und CO₂ nehmen einen Teil der Wärmestrahlung auf und schicken ihn in alle Richtungen weiter – auch zurück zur Erde. Durchschnittlich etwa +15 °C: Leben ist möglich.", label: "+15 °C"},
+    {p: .66, n: 16, temp: 21, txt: "🏭 Zusätzliche Treibhausgase durch den Menschen: Noch mehr Wärme wird zurückgestrahlt, weniger entweicht ins Weltall. Die Temperatur steigt über +15 °C hinaus – der Treibhauseffekt wird verstärkt.", label: "über +15 °C ↑"}
+  ];
+  // Moleküle in der Atmosphäre: die ersten 7 natürlich, die weiteren zusätzlich (grau umrandet)
+  const POS = [[70,108],[150,140],[232,100],[300,132],[372,104],[118,90],[410,146],[60,150],[186,116],[262,152],[340,92],[200,86],[96,124],[390,124],[154,96],[312,108]];
+  const mols = POS.map(([x, y], i) => {
+    const g = svgEl("g", {class: "mol", transform: `translate(${x} ${y})`, opacity: 0}, molG);
+    svgEl("circle", {r: 5, fill: i < 7 ? "#e63946" : "#6c757d"}, g);
+    svgEl("circle", {cx: -9, r: 4, fill: "#457b9d"}, g); svgEl("circle", {cx: 9, r: 4, fill: "#457b9d"}, g);
+    return {g, x, y};
+  });
+  let mode = -1, temp = -18, visible = false, looping = false, last = 0, spawn = 0;
+  const parts = [], seen = new Set(), recent = [];
+  register("treibhausSim");
+  function setMode(m){
+    mode = m;
+    $$("[data-th]", $("#thBtns")).forEach(b => b.classList.toggle("sel", +b.dataset.th === m));
+    mols.forEach((o, i) => o.g.setAttribute("opacity", i < MODES[m].n ? 1 : 0));
+    fab.classList.toggle("on", m === 2);
+    grass.setAttribute("fill", m === 0 ? "#dfe9f3" : m === 1 ? "#6aa84f" : "#a8b84a");
+    obs.textContent = MODES[m].txt;
+    recent.length = 0;
+    seen.add(m);
+    if (seen.size === 3) solve("treibhausSim");
+    if (reduced) { temp = MODES[m].temp; drawTemp(); }
+  }
+  function drawTemp(){
+    const h = clamp((temp + 25) / 50, 0, 1) * 150;
+    fill.setAttribute("y", (256 - h).toFixed(1)); fill.setAttribute("height", h.toFixed(1));
+    // Im verstärkten Modus keine erfundene Zahl zeigen, nur „über +15 °C“
+    const lab = Math.abs(temp - MODES[mode].temp) < .5 || (mode === 2 && temp > 15.5) ? MODES[mode].label : (temp < 0 ? "−" : "+") + Math.abs(Math.round(temp)) + " °C";
+    tempT.textContent = lab; chipT.textContent = "🌡️ Durchschnitt: " + lab;
+  }
+  function add(kind, x, y, vx, vy){
+    const el = svgEl("circle", {r: kind === "l" ? 3.2 : 3, fill: kind === "l" ? "#ffd166" : "#e63946", stroke: kind === "l" ? "#e8a400" : "none", "stroke-width": 1}, partG);
+    parts.push({kind, x, y, vx, vy, el, tested: false});
+  }
+  function heatUp(x){ const a = (Math.random() - .5) * 1.1; add("h", x, 242, Math.sin(a) * 90, -Math.cos(a) * 90); }
+  function frame(t){
+    if (!visible) { looping = false; return; }
+    const dt = Math.min(.05, (t - (last || t)) / 1000); last = t;
+    if (mode >= 0) {
+      temp += (MODES[mode].temp - temp) * Math.min(1, dt * 1.2);
+      drawTemp();
+      spawn -= dt;
+      if (spawn <= 0 && parts.length < 60) {
+        spawn = .32;
+        const tx = 110 + Math.random() * 300, sx = 46 + Math.random() * 10, sy = 46, l = Math.hypot(tx - sx, 244 - sy);
+        add("l", sx, sy, (tx - sx) / l * 150, (244 - sy) / l * 150);
+      }
+    }
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const p = parts[i];
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      if (p.kind === "l" && p.y >= 244) { p.el.remove(); parts.splice(i, 1); heatUp(p.x); continue; }
+      if (p.kind === "h") {
+        if (p.y >= 244 && p.vy > 0) { p.el.remove(); parts.splice(i, 1); heatUp(p.x); continue; }
+        if (p.y < -6 || p.x < -6 || p.x > 436) {
+          if (p.vy < 0) recent.push(0);
+          p.el.remove(); parts.splice(i, 1); continue;
+        }
+        if (!p.tested && p.vy < 0 && p.y < 160) {
+          p.tested = true;
+          if (Math.random() < MODES[mode].p) {
+            const vis = mols.filter((o, k) => k < MODES[mode].n);
+            const o = vis.reduce((a, b) => Math.hypot(b.x - p.x, b.y - p.y) < Math.hypot(a.x - p.x, a.y - p.y) ? b : a);
+            o.g.classList.add("hit"); setTimeout(() => o.g.classList.remove("hit"), 260);
+            p.x = o.x; p.y = o.y;
+            const down = Math.random() < .5, a = (Math.random() - .5) * 1.2;
+            p.vx = Math.sin(a) * 90; p.vy = (down ? 1 : -1) * Math.cos(a) * 90;
+            if (down) { recent.push(1); p.el.setAttribute("fill", "#ff8c42"); }
+          }
+        }
+      }
+      p.el.setAttribute("cx", p.x.toFixed(1)); p.el.setAttribute("cy", p.y.toFixed(1));
+    }
+    if (recent.length > 40) recent.splice(0, recent.length - 40);
+    if (recent.length >= 8) chipR.textContent = `↩️ kommen zurück: etwa ${Math.round(recent.filter(Boolean).length / recent.length * 10)} von 10 Wärmeteilchen`;
+    else if (mode === 0) chipR.textContent = "↩️ kommen zurück: 0 von 10 Wärmeteilchen";
+    requestAnimationFrame(frame);
+  }
+  $$("[data-th]", $("#thBtns")).forEach(b => b.addEventListener("click", () => setMode(+b.dataset.th)));
+  setMode(0); temp = -18; drawTemp();
+  if (!reduced) onVisible(svg, v => { visible = v; last = 0; if (v && !looping) { looping = true; requestAnimationFrame(frame); } });
+})();
+Modul.makeGap($("#gapTh"), [
+  ["Das ", {g: "Sonnenlicht"}, " gelangt fast ungehindert durch die ", {g: "Atmosphäre"}, " und erwärmt den Erdboden. Die warme Erde gibt unsichtbare ", {g: "Wärmestrahlung"}, " ab."],
+  ["Treibhausgase wie ", {g: "Kohlenstoffdioxid"}, " und Wasserdampf nehmen einen Teil davon auf und strahlen ihn in alle Richtungen ab, auch zurück zur ", {g: "Erde"}, ". Ohne diesen natürlichen Treibhauseffekt wäre es auf der Erde im Durchschnitt etwa ", {g: "−18 °C"}, " kalt."]
+], "gapTh", ["+40 °C", "Sauerstoff"]);
+Modul.makeOpen($("#open3"), [
+  {q: "Erkläre den natürlichen Treibhauseffekt.",
+   m: "Das Sonnenlicht gelangt fast ungehindert durch die Atmosphäre und erwärmt die Erdoberfläche. Die warme Erde gibt Wärmestrahlung ab. Treibhausgase wie Wasserdampf und CO₂ nehmen einen Teil dieser Wärmestrahlung auf und strahlen ihn in alle Richtungen ab, auch zurück zur Erde. So entweicht nicht die ganze Wärme ins Weltall. Die Erde ist im Durchschnitt etwa +15 °C warm statt −18 °C.",
+   k: ["sonne|licht", "wärme|wärmestrahlung", "treibhausgas|co2|kohlenstoffdioxid|wasserdampf", "zurück|halten|weltall|entweich|all"], min: 3},
+  {q: "Warum ist der natürliche Treibhauseffekt für das Leben auf der Erde wichtig?",
+   m: "Ohne Treibhausgase würde die ganze Wärme ins Weltall entweichen. Auf der Erde wäre es im Durchschnitt etwa −18 °C kalt, Leben wie heute wäre nicht möglich. Durch den natürlichen Treibhauseffekt sind es etwa +15 °C.",
+   k: ["18|kalt|eis|gefror|frier", "leben|möglich|warm|15"]}
+], "open3", "Probiere den Strahlen-Simulator noch einmal aus.");
+
+/* ---------- Station 4: Film mit Stopps (ZDF) ---------- */
+(function(){
+  // Das ZDF erlaubt das Einbetten dieses Clips (embeddingPossible); die MP4-Datei liegt auf dem ZDF-Server
+  const SRC = "https://nrodlzdf-a.akamaihd.net/none/zdf/25/05/250522_co2_experiment_mai/1/250522_co2_experiment_mai_808k_p11v17.mp4";
+  const PAGE = "https://schule.zdf.de/video/co2-experiment-100";
+  const STOPS = [
+    {t: 35, q: {q: "Zwei Behälter, einer mit Raumluft und einer mit Raumluft und zusätzlichem CO₂, stehen in der Sonne. Was vermutest du?", o: ["Der Behälter mit zusätzlichem CO₂ wird wärmer.", "Der Behälter mit Raumluft wird wärmer.", "Beide werden genau gleich warm."], a: 0, e: "Gute Vermutung! Ob sie stimmt, zeigt der Film gleich."}},
+    {t: 111, q: {q: "Warum wartet man, bis in beiden Flaschen 21,4 °C herrschen?", o: ["Beide sollen mit derselben Temperatur starten, damit der Vergleich fair ist.", "Weil CO₂ sonst explodiert.", "Damit die Lampe abkühlt.", "Weil das Thermometer erst trocknen muss."], a: 0, e: "Das CO₂ aus dem Wassersprudler ist kalt. Würde Flasche 2 kälter starten, wäre das Ergebnis verfälscht."}},
+    {t: 171, q: {q: "Wie warm wäre es auf der Erde im Durchschnitt, wenn es keine Treibhausgase gäbe?", o: ["etwa −18 °C", "etwa 0 °C", "etwa +15 °C", "etwa +40 °C"], a: 0, e: "Die ganze Wärmestrahlung würde im Weltall verschwinden – Leben wie heute wäre nicht möglich."}},
+    {t: 209, q: {q: "Was machen die Treibhausgase mit der Strahlung?", o: ["Sie lassen das kurzwellige Sonnenlicht fast ungehindert durch.", "Sie nehmen die langwellige Wärmestrahlung der Erde auf.", "Sie geben die Wärme in alle Richtungen wieder ab, auch zurück zur Erde.", "Sie halten das Sonnenlicht vollständig ab.", "Sie kühlen die Erde ab."], a: [0, 1, 2], e: "Darum geht nur ein Teil der Wärme ins All verloren und die Erde ist im Mittel etwa 15 °C warm."}},
+    {t: 241, q: {q: "Wie hat sich der CO₂-Anteil der Luft seit der Industrialisierung verändert?", o: ["von etwa 0,028 % auf über 0,042 % – das Anderthalbfache", "von 28 % auf 42 %", "Er ist gleich geblieben.", "Er hat sich halbiert."], a: 0, e: "Ein winziger Anteil der Luft – und trotzdem verstärkt er den Treibhauseffekt."}},
+    {t: 257, q: {q: "Was zeigen die Thermometer am Ende des Versuchs?", o: ["Luft: 36,4 °C, Luft mit CO₂: 37,5 °C – die Flasche mit CO₂ ist wärmer.", "Beide Flaschen sind genau gleich warm.", "Die Flasche mit Luft ist wärmer.", "Beide Flaschen sind abgekühlt."], a: 0, e: "Mehr CO₂ hält mehr Wärmestrahlung zurück – der Treibhauseffekt im Kleinen."}},
+    {t: 322, q: {q: "Wer hat den Versuch im Jahr 1856 als Erste gemacht?", o: ["Eunice Newton Foote", "John Tyndall", "Albert Einstein", "Marie Curie"], a: 0, e: "Über 150 Jahre lang galt John Tyndall als Entdecker. Foote schloss als Erste, dass mehr CO₂ die Erde erwärmen würde."}}
+  ];
+  const v = $("#zdfVideo"), box = $("#filmQs"), chipsBox = $("#filmChips"), stopEl = $("#filmStop"), startBtn = $("#filmStart"), hint = $("#filmHint");
+  const mmss = t => Math.floor(t / 60) + ":" + String(Math.floor(t % 60)).padStart(2, "0");
+  let started = false, last = 0, cur = -1, failed = false;
+  STOPS.forEach((s, i) => {
+    const id = "film" + i + "-0";
+    s.wrap = document.createElement("div"); s.wrap.className = "film-q"; s.wrap.hidden = true;
+    const q = document.createElement("div"); s.wrap.appendChild(q);
+    Modul.makeMC(q, [s.q], "film" + i, {t: `Film-Stopp ${i + 1} · bei ${mmss(s.t)}`});
+    s.go = document.createElement("button"); s.go.className = "btn small"; s.go.type = "button"; s.go.textContent = "▶ Weiter im Film"; s.go.hidden = true;
+    s.go.addEventListener("click", () => resume(i));
+    s.wrap.appendChild(s.go); box.appendChild(s.wrap);
+    s.chip = document.createElement("button"); s.chip.type = "button"; s.chip.textContent = `❓ ${mmss(s.t)}`;
+    s.chip.addEventListener("click", () => jump(i)); chipsBox.appendChild(s.chip);
+    const check = () => { if (Modul.isSolved(id)) { s.done = true; s.chip.classList.add("done"); s.chip.textContent = `✓ ${mmss(s.t)}`; if (!failed) s.go.hidden = false; } };
+    s.wrap.addEventListener("click", () => setTimeout(check, 0));
+    check();
+  });
+  // Auf dem iPad läuft der Film evtl. im Vollbild – zum Stopp das Vollbild verlassen
+  function exitFull(){
+    try { if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen(); } catch (_) {}
+    try { if (v.webkitDisplayingFullscreen && v.webkitExitFullscreen) v.webkitExitFullscreen(); } catch (_) {}
+  }
+  function stopAt(i){
+    cur = i;
+    STOPS.forEach((s, k) => { s.wrap.hidden = k !== i; });
+    if (started) { v.pause(); exitFull(); stopEl.classList.add("show"); }
+    STOPS[i].wrap.scrollIntoView({block: "nearest", behavior: reduced ? "auto" : "smooth"});
+  }
+  function resume(i){
+    cur = -1; stopEl.classList.remove("show"); STOPS[i].wrap.hidden = true;
+    if (started && !v.ended) v.play().catch(() => {});
+  }
+  function jump(i){
+    if (started) { try { v.currentTime = STOPS[i].t; } catch (_) {} last = STOPS[i].t; }
+    stopAt(i);
+  }
+  v.addEventListener("timeupdate", () => {
+    const t = v.currentTime;
+    if (cur < 0) for (let i = 0; i < STOPS.length; i++) {
+      const s = STOPS[i];
+      if (!s.done && last < s.t && t >= s.t && t - last < 3) { stopAt(i); break; }
+    }
+    last = t;
+  });
+  v.addEventListener("play", () => { if (cur >= 0) v.pause(); });
+  v.addEventListener("ended", () => { const i = STOPS.length - 1; if (!STOPS[i].done) stopAt(i); });
+  // Film lädt nicht: Link zum ZDF, alle Fragen offen zeigen
+  function fail(){
+    if (failed) return;
+    failed = true; cur = -1; stopEl.classList.remove("show");
+    if (!started || v.readyState < 2) {
+      v.hidden = true;
+      if (!startBtn.isConnected) $("#film").appendChild(startBtn);
+      startBtn.disabled = false; startBtn.querySelector("b").textContent = "Film beim ZDF öffnen";
+      startBtn.onclick = () => window.open(PAGE, "_blank", "noopener");
+    }
+    hint.innerHTML = `Der Film lässt sich hier nicht abspielen. <a href="${PAGE}" target="_blank" rel="noopener">Öffne ihn beim ZDF</a> und beantworte danach die Fragen hier.`;
+    STOPS.forEach(s => { s.wrap.hidden = false; s.go.hidden = true; });
+  }
+  v.addEventListener("error", fail);
+  startBtn.addEventListener("click", () => {
+    if (failed) return;
+    started = true;
+    v.src = SRC; v.hidden = false; startBtn.remove();
+    v.play().catch(() => {});
+    setTimeout(() => { if (v.readyState < 2 && !v.currentTime) fail(); }, 25000);
+  });
+})();
+
+/* ---------- Station 4: Versuch nachspielen ---------- */
+(function(){
+  const svg = $("#exSvg"), obs = $("#exObs"), t1 = $("#exT1", svg), t2 = $("#exT2", svg), l1 = $("#exL1"), l2 = $("#exL2");
+  const bottle = (g, x, label) => {
+    svgEl("path", {d: `M${x - 12} 62 V84 Q${x - 44} 96 ${x - 44} 126 V196 Q${x - 44} 204 ${x - 36} 204 H${x + 36} Q${x + 44} 204 ${x + 44} 196 V126 Q${x + 44} 96 ${x + 12} 84 V62Z`, fill: "#eaf6fd", stroke: "#7d9bb0", "stroke-width": 2.5}, g);
+    svgEl("rect", {x: x - 14, y: 54, width: 28, height: 12, rx: 3, fill: "#8a5a2b"}, g);
+    svgEl("rect", {x: x - 34, y: 150, width: 68, height: 22, rx: 4, fill: "#fff", stroke: "#c9d6df"}, g);
+    svgEl("text", {x, y: 165, "text-anchor": "middle", "font-size": 10, "font-weight": 800, fill: "#15212b"}, g).textContent = label;
+    svgEl("line", {x1: x, y1: 60, x2: x, y2: 120, stroke: "#33414d", "stroke-width": 1.5}, g);
+  };
+  bottle($("#exB1", svg), 150, "1: Luft");
+  bottle($("#exB2", svg), 330, "2: Luft + CO₂");
+  const co2 = $("#exCo2", svg);
+  [[310,110],[338,100],[352,128],[318,138],[344,186],[306,178],[330,192],[356,170],[322,120],[300,150],[360,148],[336,140]].forEach(([x, y]) => svgEl("circle", {cx: x, cy: y, r: 3}, co2));
+  // Diagramm
+  const X0 = 46, X1 = 280, Y = T => 120 - (T - 20) * 5.4;
+  const grid = $("#exGrid");
+  [20, 25, 30, 35, 40].forEach(T => { svgEl("line", {x1: X0, y1: Y(T), x2: X1, y2: Y(T), stroke: "#e3e9ee"}, grid); svgEl("text", {x: X0 - 6, y: Y(T) + 3.5, "text-anchor": "end"}, grid).textContent = T + " °C"; });
+  svgEl("line", {x1: X0, y1: 12, x2: X0, y2: 122, stroke: "#9aa5ad"}, grid);
+  svgEl("line", {x1: X0, y1: 122, x2: X1, y2: 122, stroke: "#9aa5ad"}, grid);
+  svgEl("text", {x: X1, y: 136, "text-anchor": "end"}, grid).textContent = "Zeit der Bestrahlung →";
+  svgEl("text", {x: 300, y: 90, "font-weight": 800, fill: "#15212b", "font-size": 11}, grid).textContent = "Temperaturverlauf";
+  const endLab1 = svgEl("text", {x: 286, y: 0, "font-size": 11, "font-weight": 800, fill: "#2f6fdb", opacity: 0}, grid), endLab2 = svgEl("text", {x: 286, y: 0, "font-size": 11, "font-weight": 800, fill: "#e0453a", opacity: 0}, grid);
+  const curveT = (end, p) => 21.4 + (end - 21.4) * (1 - Math.exp(-3.2 * p)) / (1 - Math.exp(-3.2));
+  const fmtT = T => fmt(T) + " °C";
+  let run = 0;
+  register("versuchNachspielen");
+  function plot(p){
+    const pts1 = [], pts2 = [];
+    for (let k = 0; k <= 40 * p; k++) { const q = k / 40, x = (X0 + q * (X1 - X0)).toFixed(1); pts1.push(`${x},${Y(curveT(36.4, q)).toFixed(1)}`); pts2.push(`${x},${Y(curveT(37.5, q)).toFixed(1)}`); }
+    l1.setAttribute("points", pts1.join(" ")); l2.setAttribute("points", pts2.join(" "));
+  }
+  const TXT = [
+    "Flasche 1 enthält normale Raumluft. In Flasche 2 kommt zusätzlich CO₂, im Film aus einem Wassersprudler. Beide Flaschen werden dicht verschlossen, ein Thermometer misst die Temperatur innen.",
+    "Das CO₂ aus dem Sprudler ist kalt. Darum wartet man, bis beide Flaschen genau gleich warm sind: 21,4 °C. Nur dann kann man sie fair vergleichen.",
+    "Die Rotlichtlampe ersetzt die Sonne. Sie bestrahlt beide Flaschen gleich lang und aus dem gleichen Abstand. Beobachte die Thermometer und das Diagramm.",
+    "Ergebnis: Flasche 1 (Luft) hat 36,4 °C, Flasche 2 (Luft + CO₂) hat 37,5 °C. Die Flasche mit mehr CO₂ hat mehr Wärme zurückgehalten – das ist der Treibhauseffekt im Kleinen."
+  ];
+  stepper($("#exChain"), $("#exPrev"), $("#exNext"), 4, async i => {
+    const my = ++run;
+    obs.textContent = TXT[i];
+    $("#exCo2", svg).classList.toggle("on", i >= 0);
+    $("#exSnow", svg).classList.toggle("on", i === 1);
+    const lampOn = i >= 2;
+    $("#exCone", svg).classList.toggle("on", lampOn);
+    $("#exBulb", svg).setAttribute("fill", lampOn ? "#ff3b3b" : "#7a2a2a");
+    endLab1.setAttribute("opacity", 0); endLab2.setAttribute("opacity", 0);
+    if (i <= 1) {
+      plot(0);
+      t1.textContent = "21,4 °C";
+      if (i === 0) t2.textContent = "kalt";
+      else { t2.textContent = "kalt"; await wait(1100); if (my === run) t2.textContent = "21,4 °C"; }
+      return;
+    }
+    if (i === 2) {
+      const t0 = performance.now(), dur = reduced ? 1 : 6000;
+      await new Promise(res => (function tick(now){
+        if (my !== run) return res();
+        const p = Math.min(1, (now - t0) / dur);
+        plot(p); t1.textContent = fmtT(curveT(36.4, p)); t2.textContent = fmtT(curveT(37.5, p));
+        if (p < 1) requestAnimationFrame(tick); else res();
+      })(t0));
+      return;
+    }
+    plot(1); t1.textContent = "36,4 °C"; t2.textContent = "37,5 °C";
+    endLab1.textContent = "36,4 °C"; endLab1.setAttribute("y", Y(36.4) + 12); endLab1.setAttribute("opacity", 1);
+    endLab2.textContent = "37,5 °C"; endLab2.setAttribute("y", Y(37.5) - 4); endLab2.setAttribute("opacity", 1);
+    solve("versuchNachspielen");
+  });
+})();
+Modul.makeOpen($("#open4"), [
+  {q: "Beschreibe den Versuch mit den beiden Flaschen und sein Ergebnis.",
+   m: "Zwei gleiche Flaschen werden gefüllt: eine mit normaler Luft, eine mit Luft und zusätzlichem CO₂. Beide starten mit derselben Temperatur und werden gleich lang mit einer Rotlichtlampe bestrahlt. Am Ende ist die Flasche mit CO₂ wärmer (37,5 °C statt 36,4 °C). CO₂ hält also mehr Wärme zurück.",
+   k: ["zwei|beide|flasche|gefäß|behälter", "co2|kohlenstoffdioxid", "lampe|bestrahl|sonne|licht", "wärmer|höher|mehr wärme|37"], min: 3},
+  {q: "Warum müssen beide Flaschen am Anfang genau gleich warm sein?",
+   m: "Nur so ist der Vergleich fair. Würde eine Flasche schon wärmer starten, wüsste man nicht, ob der Unterschied am Ende vom CO₂ kommt oder von der Starttemperatur. Es darf sich nur eine Sache unterscheiden: der CO₂-Gehalt.",
+   k: ["fair|vergleich|gleich", "co2|nur eine|einzige|unterschied|start|verfälsch"]}
+], "open4", "Schau dir den Versuch in der Animation noch einmal an.");
+
+/* ---------- Station 5: Klima-Regler ---------- */
+(function(){
+  const svg = $("#kwSvg"), obs = $("#kwObs"), chip = $("#kwChip"), range = $("#kwRange");
+  const ice = $("#kwIce", svg), field = $("#kwField", svg), sea = $("#kwSea", svg), plantsG = $("#kwPlants", svg);
+  const L = [
+    {t: "🌡️ um 1850: vor der Industrialisierung", h: 72, f: "#7cb85a", s: 232, p: "#3f8f3a", txt: "Um 1850: Der Gletscher reicht weit den Berg hinunter, das Feld ist grün, das Meer liegt weit vom Haus entfernt."},
+    {t: "🌡️ heute: gut 1 °C wärmer", h: 50, f: "#9cbf52", s: 226, p: "#5b9a3a", txt: "Heute: Die Erde ist gut 1 °C wärmer als um 1850. Gletscher in den Alpen sind schon deutlich geschrumpft, Hitzesommer und Trockenheit kommen häufiger vor, der Meeresspiegel ist gestiegen."},
+    {t: "🌡️ +2 °C: mögliche Zukunft", h: 28, f: "#c9b24a", s: 216, p: "#8a8a3a", txt: "So könnte es bei 2 °C Erwärmung werden: Viele Gletscher verschwinden fast ganz, Dürren lassen Felder vertrocknen, Unwetter mit Starkregen nehmen zu, das Meer rückt näher an die Küsten."},
+    {t: "🌡️ +3 °C: wenn der Ausstoß nicht sinkt", h: 10, f: "#b58a4a", s: 208, p: "#8a6a3a", txt: "So könnte es bei 3 °C Erwärmung werden: Das Eis ist fast weg, Ernten fallen aus, Stürme werden heftiger und das Meer erreicht Häuser an der Küste. Je mehr Treibhausgase wir ausstoßen, desto stärker werden die Folgen."}
+  ];
+  const plants = [190, 206, 222, 238, 254, 270, 286, 302].map(x => svgEl("path", {d: `M${x} 186 q-4 -10 0 -16 q4 6 0 16 M${x} 182 q6 -6 9 -5`, stroke: "#3f8f3a", "stroke-width": 2, fill: "none"}, plantsG));
+  register("klimaRegler");
+  function show(k){
+    // Eiskappe bleibt innerhalb der Bergflanken (links 92/138, rechts 104/138 pro Höhe)
+    const s = L[k], h = s.h, w1 = h * .64, w2 = h * .72;
+    ice.setAttribute("d", `M92 62 L${(92 - w1).toFixed(1)} ${(62 + h).toFixed(1)} Q92 ${(62 + h * .82).toFixed(1)} ${(92 + w2).toFixed(1)} ${(62 + h * 1.04).toFixed(1)}Z`);
+    field.setAttribute("fill", s.f);
+    plants.forEach((p, i) => { p.setAttribute("stroke", s.p); p.setAttribute("opacity", k === 3 && i % 2 ? .25 : 1); });
+    const xs = 330 + (s.s - 200) * 3;
+    sea.setAttribute("d", `M${xs} ${s.s} H480 V250Z`);
+    $("#kwMelt", svg).classList.toggle("on", k >= 1);
+    $("#kwCracks", svg).classList.toggle("on", k >= 2);
+    $("#kwStorm", svg).classList.toggle("on", k >= 2);
+    $("#kwBolt", svg).classList.toggle("on", k >= 3);
+    $("#kwSun", svg).setAttribute("fill", ["#ffd166", "#ffc145", "#ffad33", "#ff9420"][k]);
+    chip.textContent = s.t; chip.className = "chip" + (k >= 2 ? " bad" : k === 1 ? " warn" : "");
+    obs.textContent = s.txt;
+    if (k === 3) solve("klimaRegler");
+  }
+  range.addEventListener("input", () => show(+range.value));
+  show(0);
+})();
+Modul.makeSort($("#sortGase"), {
+  buckets: ["CO₂ (Kohlenstoffdioxid)", "CH₄ (Methan)", "N₂O (Lachgas)", "FCKW"],
+  cols: 150,
+  items: [
+    {t: "Auto fährt mit Benzin", b: 0}, {t: "Kohlekraftwerk", b: 0},
+    {t: "Rinder verdauen Gras", b: 1}, {t: "nasses Reisfeld", b: 1}, {t: "Mülldeponie", b: 1},
+    {t: "Dünger auf dem Feld", b: 2},
+    {t: "alter Kühlschrank", b: 3}, {t: "alte Spraydose", b: 3}
+  ]
+}, "sortGase");
+Modul.makeOrder($("#orderKette"), [
+  "Der Mensch bringt zusätzliche Treibhausgase in die Atmosphäre.",
+  "Mehr Wärmestrahlung wird zur Erde zurückgestrahlt.",
+  "Die Durchschnittstemperatur der Erde steigt.",
+  "Gletscher und Polareis schmelzen.",
+  "Der Meeresspiegel steigt und Küsten werden überflutet."
+], "orderKette");
+Modul.makeOpen($("#open5"), [
+  {q: "Erkläre den Zusammenhang zwischen Treibhauseffekt und Klimawandel.",
+   m: "Durch den Menschen gelangen zusätzliche Treibhausgase wie CO₂, Methan und Lachgas in die Atmosphäre. Sie verstärken den natürlichen Treibhauseffekt: Es wird mehr Wärme zurückgehalten. Dadurch steigt die Durchschnittstemperatur der Erde und das Klima verändert sich weltweit. Das nennt man Klimawandel.",
+   k: ["zusätzlich|mehr|verstärk|mensch", "treibhausgas|co2|methan|kohlenstoffdioxid", "temperatur|wärmer|erwärm|heizt", "klima"], min: 3},
+  {q: "Nenne vier mögliche Folgen der Klimaerwärmung.",
+   m: "Gletscher und das Eis an den Polen schmelzen. Der Meeresspiegel steigt. Stürme, Dürren und Überschwemmungen werden häufiger. Ökosysteme geraten aus dem Gleichgewicht, Tiere und Pflanzen verlieren ihren Lebensraum.",
+   k: ["gletscher|eis|pol|schmelz", "meeresspiegel|meer steigt|überflut|küste", "sturm|stürm|unwetter|extrem|überschwemm|hochwasser|starkregen", "dürre|trocken|hitze|ernte|wasserknapp", "tier|pflanze|ökosystem|lebensraum|art"], min: 4}
+], "open5", "Schiebe den Klima-Regler noch einmal durch.");
+
+/* ---------- Station 6: CO2-Rechner ---------- */
+const VM = [
+  {n: "🚌 Bus", g: 44, c: "#2a9d8f"},
+  {n: "🚆 Bahn", g: 50, c: "#457b9d"},
+  {n: "🚗 Auto", g: 161, c: "#e76f51"},
+  {n: "✈️ Flugzeug", g: 215, c: "#c0392b"}
+];
+const kg = (km, g) => fmt(km * g / 1000, 1).replace(",0", "") + " kg";
+(function(){
+  const bars = $("#bars"), range = $("#kmRange"), chip = $("#kmChip"), note = $("#barNote");
+  bars.innerHTML = VM.map(v => `<div class="bar-row"><span>${v.n}</span><div class="bar-track"><div class="bar-fill" style="background:${v.c};width:0"></div></div><span class="bar-val"></span></div>`).join("");
+  const fills = $$(".bar-fill", bars), vals = $$(".bar-val", bars);
+  const used = new Set();
+  register("co2Rechner");
+  function show(km){
+    range.value = km; chip.textContent = km + " km";
+    VM.forEach((v, i) => { fills[i].style.width = (km * v.g / (1000 * 215) * 100).toFixed(1) + "%"; vals[i].textContent = kg(km, v.g); });
+    const f = (161 / 44).toFixed(1).replace(".", ",");
+    note.textContent = `Mit dem Auto entsteht pro Person etwa ${f}-mal so viel CO₂ wie mit dem Bus, mit dem Flugzeug fast fünfmal so viel.`;
+    $$("button", $("#ziele")).forEach(b => b.classList.toggle("sel", +b.dataset.km === km));
+    used.add(km); if (used.size >= 3) solve("co2Rechner");
+  }
+  $$("button", $("#ziele")).forEach(b => b.addEventListener("click", () => show(+b.dataset.km)));
+  range.addEventListener("input", () => show(+range.value));
+  show(170);
+})();
+(function(){
+  const KM = 600, box = $("#calc"), fb = $("#calcFb");
+  box.innerHTML = VM.map((v, i) => `<label class="calc-row"><span>${v.n}</span><input inputmode="decimal" autocomplete="off" data-i="${i}" placeholder="z. B. 12,5"><span>kg</span></label>`).join("");
+  const inputs = $$("input", box);
+  register("rechenBerlin");
+  inputs.forEach(inp => { inp.value = Modul.load("-calc" + inp.dataset.i, ""); inp.addEventListener("input", () => { Modul.save("-calc" + inp.dataset.i, inp.value); inp.classList.remove("right", "wrong"); }); });
+  const num = s => { s = String(s).replace(/kg|g/gi, "").replace(/\s/g, ""); if (/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) s = s.replace(/\./g, ""); return parseFloat(s.replace(",", ".")); };
+  $("#calcGo").addEventListener("click", () => {
+    let ok = 0, grams = false;
+    inputs.forEach((inp, i) => {
+      let x = num(inp.value); const soll = KM * VM[i].g / 1000;
+      if (x > 1000 && Math.abs(x / 1000 - soll) < .06) { grams = true; x = x / 1000; }
+      const r = Math.abs(x - soll) < .06;
+      inp.classList.toggle("right", r); inp.classList.toggle("wrong", !r && inp.value.trim() !== "");
+      if (r) ok++;
+    });
+    fb.className = "fb show " + (ok === 4 ? "ok" : ok ? "mid" : "bad");
+    fb.innerHTML = ok === 4 ? `✅ Alles richtig! Bus 26,4 kg, Bahn 30 kg, Auto 96,6 kg, Flugzeug 129 kg. Mit dem Flugzeug entsteht fast fünfmal so viel CO₂ wie mit dem Bus.${grams ? " (Achte darauf, in Kilogramm umzurechnen.)" : ""}`
+      : `${ok} von 4 richtig. Rechne Strecke · Ausstoß pro Kilometer und teile dann durch 1000, um von Gramm in Kilogramm umzurechnen.`;
+    if (ok === 4) { solve("rechenBerlin"); Modul.confetti(); }
+  });
+  $("#calcHelp").addEventListener("click", () => { fb.className = "fb show mid"; fb.textContent = "Bus: 600 km · 44 g = 26 400 g. Wie viele Kilogramm sind das? Rechne bei den anderen Verkehrsmitteln genauso."; });
+})();
+Modul.makeSort($("#sortWer"), {
+  buckets: ["🏠 ich und meine Familie", "⚡ Energieversorger", "🏭 Firmen", "🏛️ Staat"],
+  cols: 150,
+  items: [
+    {t: "mit dem Rad zur Schule fahren", b: 0}, {t: "Äpfel aus der Region kaufen", b: 0},
+    {t: "Strom aus Wind und Sonne erzeugen", b: 1}, {t: "Kohlekraftwerke abschalten", b: 1},
+    {t: "Produkte langlebig und reparierbar bauen", b: 2}, {t: "Abwärme der Fabrik nutzen", b: 2},
+    {t: "Bus und Bahn fördern", b: 3}, {t: "Gesetze für klimafreundliche Heizungen", b: 3}
+  ]
+}, "sortWer");
+Modul.makeSort($("#sortDetektiv"), {
+  buckets: ["🌱 spart CO₂", "💨 verursacht viel CO₂"],
+  items: [
+    {t: "Äpfel vom Hof nebenan im Herbst", b: 0}, {t: "zu Fuß zum Bäcker", b: 0}, {t: "Licht aus beim Verlassen des Zimmers", b: 0}, {t: "Pulli tauschen statt neu kaufen", b: 0},
+    {t: "Erdbeeren im Winter, eingeflogen", b: 1}, {t: "200 Meter mit dem Auto zum Bäcker", b: 1}, {t: "Fenster stundenlang gekippt bei laufender Heizung", b: 1}, {t: "Flugreise für ein Wochenende", b: 1}
+  ]
+}, "sortDetektiv");
+Modul.makeOpen($("#open6"), [
+  {q: "Was kannst du selbst tun, um CO₂ zu sparen? Nenne vier Beispiele.",
+   m: "Mit dem Rad, zu Fuß oder mit Bus und Bahn fahren, Lebensmittel aus der Region und passend zur Jahreszeit kaufen, weniger Fleisch essen, Strom und Heizenergie sparen, Dinge lange nutzen und reparieren, auf Flugreisen verzichten.",
+   k: ["rad|fahrrad|fuß|bus|bahn|öffentlich|zug", "region|saison|jahreszeit|lebensmittel|fleisch", "strom|energie|licht|heiz|lüft", "lange|reparier|langlebig|tausch|gebraucht|flug|fliegen"], min: 3},
+  {q: "Warum reicht es nicht, wenn nur einzelne Menschen CO₂ sparen? Wer muss noch handeln?",
+   m: "Private Haushalte verursachen nur etwa ein Viertel des CO₂-Ausstoßes. Noch mehr bewirken Energieversorger, wenn sie auf erneuerbare Energien wie Wind und Sonne umsteigen, Firmen, wenn sie umweltfreundlicher herstellen, und der Staat, der Gesetze ändern und klimafreundliches Verhalten belohnen kann.",
+   k: ["viertel|25|haushalt|einzeln|wenig|nur ein teil", "energieversorg|kraftwerk|erneuerbar|wind|sonne|strom", "firm|industrie|fabrik|unternehm|herstell|produz", "staat|gesetz|politik|regierung|förder|belohn"], min: 3}
+], "open6", "Lies die Texte zu Station 6 noch einmal.");
+
+/* ---------- Station 7: Fakt oder Mythos? ---------- */
+Modul.makeSort($("#sortMythos"), {
+  buckets: ["🔬 Fakt", "🤥 Mythos"],
+  items: [
+    {t: "Seit der Industrialisierung ist der CO₂-Anteil der Luft um die Hälfte gestiegen.", b: 0},
+    {t: "Eine Flasche mit zusätzlichem CO₂ wird unter einer Rotlichtlampe wärmer als eine Flasche mit Luft.", b: 0},
+    {t: "Ohne Treibhausgase wäre die Erde im Durchschnitt etwa −18 °C kalt.", b: 0},
+    {t: "Klima ist das durchschnittliche Wetter über viele Jahre.", b: 0},
+    {t: "Ein eiskalter Winter beweist, dass es keine Erderwärmung gibt.", b: 1},
+    {t: "CO₂ ist ein so kleiner Teil der Luft, dass es keine Wirkung hat.", b: 1},
+    {t: "Weil sich das Klima früher auch geändert hat, kann der Mensch nicht schuld sein.", b: 1},
+    {t: "Mehr CO₂ ist nur gut, weil Pflanzen dann besser wachsen.", b: 1}
+  ]
+}, "sortMythos");
+
+/* ---------- Station 7: Duell gegen den Klimaleugner ---------- */
+(function(){
+  // arg: Behauptung, m: Beispiel-Konter, k: Begriffsgruppen für die Offline-Prüfung (eine passende Gruppe genügt),
+  // tips: Ideen für den Tipp-Knopf, yes/no: Antwort des Klimaleugners, wenn der Fakt überzeugt bzw. nicht überzeugt
+  const MYTHEN = [
+    {arg: "Das Klima hat sich doch schon immer verändert. Eiszeiten gab es auch ohne Autos und Fabriken!",
+     m: "Das stimmt, aber früher hat sich das Klima über Tausende von Jahren langsam verändert. Heute geht es in wenigen Jahrzehnten. Ursache ist diesmal der Mensch: Seit der Industrialisierung verbrennt er Kohle, Erdöl und Erdgas, der CO₂-Anteil der Luft ist von etwa 0,028 % auf über 0,042 % gestiegen.",
+     k: ["schnell|langsam|tausend|jahrzehnt|tempo|kurze zeit", "mensch|industrial|verbrenn|kohle|erdöl|erdgas|fossil|fabrik", "co2|0,042|0,028|treibhausgas|gestiegen"],
+     tips: ["Satzanfang: „Das stimmt, aber heute …“", "Idee: Wie schnell ändert sich das Klima heute – und wie schnell war es früher?", "Idee: Was hat sich seit der Industrialisierung in der Luft verändert? Denk an die CO₂-Waage in Station 2."],
+     yes: "Hmpf. Dass es heute so viel schneller geht als nach der Eiszeit, hatte ich nicht bedacht.", no: "Pah! Das Klima ändert sich eben. Da kann der Mensch nichts dafür!"},
+    {arg: "CO₂ ist doch nur 0,04 Prozent der Luft. So ein winziger Anteil kann gar nichts bewirken!",
+     m: "Auch eine kleine Menge CO₂ hält Wärmestrahlung zurück. Das zeigt der Versuch mit den zwei Flaschen: Die Flasche mit zusätzlichem CO₂ wurde wärmer. Ohne Treibhausgase wäre die Erde etwa −18 °C kalt. Außerdem ist der CO₂-Anteil seit der Industrialisierung um die Hälfte gestiegen.",
+     k: ["versuch|experiment|flasche|lampe|foote", "wärme|zurückhalt|hält|treibhaus", "hälfte|anderthalb|gestiegen|0,028|mehr geworden|zugenommen", "18|eisball|ohne treibhaus"],
+     tips: ["Satzanfang: „Klein heißt nicht wirkungslos, denn …“", "Idee: Denk an den Versuch mit den zwei Flaschen und der Rotlichtlampe in Station 4.", "Idee: Wie kalt wäre die Erde ganz ohne Treibhausgase?"],
+     yes: "Na gut … wenn schon ein bisschen mehr CO₂ eine Flasche messbar wärmer macht, ist „winzig“ wohl kein Argument.", no: "Das überzeugt mich nicht. 0,04 Prozent bleiben 0,04 Prozent!"},
+    {arg: "CO₂ ist Pflanzenfutter! Je mehr davon in der Luft ist, desto besser wachsen die Pflanzen. Mehr CO₂ ist also gut!",
+     m: "Pflanzen nehmen zwar CO₂ auf, aber sie schaffen nicht annähernd die Menge, die der Mensch zusätzlich ausstößt. Deshalb steigt der CO₂-Anteil trotzdem, zumal Wälder gerodet werden. Mehr CO₂ verstärkt den Treibhauseffekt. Hitze und Dürren schaden Pflanzen und Ernten mehr, als das zusätzliche CO₂ nützt.",
+     k: ["nicht aufnehm|nicht so viel|zu viel|schaffen|kommen nicht|gleichgewicht", "dürre|hitze|trocken|vertrock|ernte", "rod|abholz|wald|wälder", "treibhaus|erwärm|wärmer|klimawandel"],
+     tips: ["Satzanfang: „Pflanzen brauchen CO₂, aber …“", "Idee: Können Pflanzen und Meere das ganze zusätzliche CO₂ aufnehmen? Denk an die Waage in Station 2.", "Idee: Was passiert mit Pflanzen bei Hitze und Dürre? Schau dir den Klima-Regler in Station 5 an."],
+     yes: "Hm. Was nützt das Pflanzenfutter, wenn die Felder vertrocknen? Da hast du einen Punkt.", no: "Ach was, Pflanzen lieben CO₂. Mehr ist mehr!"},
+    {arg: "Letzten Winter hatten wir minus 15 Grad und meterhohen Schnee. Von wegen Erderwärmung!",
+     m: "Ein kalter Winter ist Wetter, kein Klima. Klima ist das durchschnittliche Wetter über viele Jahre, und es geht um die ganze Welt. Kalte Tage gibt es weiterhin, aber im Durchschnitt wird es wärmer: Weltweit ist es schon gut 1 °C wärmer als vor der Industrialisierung.",
+     k: ["wetter", "durchschnitt|30 jahre|viele jahre|lange zeit|jahrzehnt", "welt|ganze erde|überall|global"],
+     tips: ["Satzanfang: „Du verwechselst Wetter und Klima: …“", "Idee: Was ist der Unterschied zwischen Wetter und Klima? Lies den Merke-Kasten dieser Station.", "Idee: Gilt ein kalter Tag bei uns für die ganze Welt und für viele Jahre?"],
+     yes: "Wetter und Klima … okay, ein einzelner kalter Winter beweist wohl wirklich nicht viel.", no: "Erzähl das mal meinen kalten Füßen! Kalt ist kalt!"},
+    {arg: "Diesen Treibhauseffekt hat sich doch nur jemand ausgedacht. Bewiesen hat ihn noch keiner!",
+     m: "Den Treibhauseffekt kann man mit einem einfachen Versuch messen. Schon 1856 stellte Eunice Foote fest, dass sich Luft mit CO₂ in der Sonne stärker erwärmt. Im Film wurde die Flasche mit zusätzlichem CO₂ unter der Rotlichtlampe wärmer (37,5 °C) als die Flasche mit Luft (36,4 °C). Ohne natürlichen Treibhauseffekt wäre die Erde etwa −18 °C kalt.",
+     k: ["versuch|experiment|flasche|lampe|gemessen|messung", "foote|1856|tyndall", "wärmer|37|36|temperatur|erwärmt", "18|15 grad|15 °c"],
+     tips: ["Satzanfang: „Doch, das kann man sogar messen: …“", "Idee: Was passierte im Film mit den beiden Flaschen?", "Idee: Wer hat schon 1856 Glasgefäße mit CO₂ in die Sonne gestellt?"],
+     yes: "Ein Versuch mit Thermometer … und das schon seit 1856? Na schön, das ist schwer abzustreiten.", no: "Ein bisschen Gerede ist noch lange kein Beweis!"},
+    {arg: "Die Natur pustet viel mehr CO₂ in die Luft als der Mensch – beim Atmen, beim Verrotten, aus dem Meer. Unser bisschen fällt doch gar nicht ins Gewicht!",
+     m: "Die Natur gibt zwar viel CO₂ ab, nimmt aber ungefähr genauso viel wieder auf, zum Beispiel durch die Fotosynthese und die Meere. Der natürliche Kreislauf ist im Gleichgewicht. Der Mensch holt dagegen Kohlenstoff aus Kohle, Erdöl und Erdgas, der Millionen Jahre gespeichert war, und bringt ihn zusätzlich in die Luft. Deshalb steigt der CO₂-Anteil.",
+     k: ["gleichgewicht|ausgeglichen|waage|genauso viel|wieder auf|fotosynthese", "zusätzlich|obendrauf|extra", "kohle|erdöl|erdgas|fossil|lagerstätte|millionen jahre|gespeichert", "steigt|gestiegen|0,042|anstieg"],
+     tips: ["Satzanfang: „Die Natur gibt viel ab, aber sie nimmt auch …“", "Idee: Was bedeutet „Gleichgewicht“ im natürlichen Kohlenstoffkreislauf?", "Idee: Woher stammt das CO₂, das der Mensch zusätzlich in die Luft bringt? Denk an die Kohlenstoff-Reise in Station 1."],
+     yes: "Hm, die Natur nimmt ihr CO₂ also auch wieder auf – und unseres kommt obendrauf. Das hatte ich übersehen.", no: "Die Natur ist viel größer als wir. Unser bisschen CO₂ ist egal!"},
+    {arg: "Was soll ich allein schon ausrichten? Ob ich mit dem Auto fahre oder nicht, ist dem Klima doch völlig egal.",
+     m: "Etwa ein Viertel des CO₂ stammt aus privaten Haushalten, also von uns allen zusammen. Jeder kann etwas beitragen: Mit der Bahn entstehen pro Person und Kilometer nur etwa 50 g CO₂, mit dem Auto 161 g. Wenn viele mitmachen, macht das sehr viel aus. Außerdem müssen auch Energieversorger, Firmen und der Staat handeln.",
+     k: ["viertel|25|haushalt", "bahn|bus|fahrrad|zu fuß|50 g|161|flug", "viele menschen|viele leute|wenn alle|alle zusammen|zusammen|millionen|summe|jeder", "staat|firm|energieversorg|gesetz|vorbild|fleisch|strom|regional"],
+     tips: ["Satzanfang: „Allein vielleicht wenig, aber …“", "Idee: Wie viel CO₂ stammt etwa aus privaten Haushalten?", "Idee: Vergleiche Auto und Bahn mit dem CO₂-Rechner in Station 6."],
+     yes: "Ein Viertel kommt aus den Haushalten … und die Bahn macht nur ein Drittel vom Auto. Okay, das läppert sich.", no: "Ach, ich bin nur einer von Milliarden. Das bringt doch nichts!"},
+    {arg: "Ein bisschen wärmer? Super! Dann haben wir bei uns endlich öfter Badewetter.",
+     m: "Der Klimawandel bringt nicht nur Badewetter. Gletscher und Polareis schmelzen, der Meeresspiegel steigt und Küsten werden überschwemmt. Hitzewellen, Dürren, Stürme und Überschwemmungen nehmen zu, Ernten fallen aus. Weil alle Ökosysteme vom Klima abhängen, geraten viele Tiere und Pflanzen in Not.",
+     k: ["gletscher|eis|schmelz", "meeresspiegel|überschwemm|hochwasser|küste", "dürre|hitze|sturm|unwetter|ernte|trocken", "tiere|pflanzen|ökosystem|lebensraum|aussterb"],
+     tips: ["Satzanfang: „Badewetter klingt gut, aber …“", "Idee: Schieb den Klima-Regler in Station 5 ganz nach rechts. Was passiert mit Gletscher, Feld und Haus?", "Idee: Was passiert mit Tieren und Pflanzen, wenn sich ihr Lebensraum verändert?"],
+     yes: "Dürre, Unwetter, Hochwasser … na gut, das ist dann doch kein Urlaubswetter mehr.", no: "Ich bleibe dabei: Wärmer ist gemütlicher!"}
+  ];
+  const RUNDEN = 4;
+  const LAST = {
+    ask: "Jetzt drehst du den Spieß um: Warum sollten wir CO₂ sparen? Nenne dein stärkstes Argument und begründe es.",
+    k: ["klimawandel|erwärm|temperatur|wärmer", "gletscher|meeresspiegel|dürre|sturm|überschwemm|hitze", "co2|treibhaus", "zukunft|kinder|tiere|pflanzen|ökosystem|menschen"],
+    tips: ["Satzanfang: „Wir sollten CO₂ sparen, weil …“", "Idee: Denk an die Kette von Ursache und Wirkung in Station 5: mehr CO₂ → … → Folgen."],
+    reply: "Na gut … Ich gebe zu: Deine Fakten sind schwer zu widerlegen. Vielleicht nehme ich ab morgen öfter das Fahrrad. 🚲",
+    replyBad: "Das ist mir zu wenig begründet. Mit ein paar Fakten mehr hättest du mich vielleicht überzeugt!"
+  };
+  const esc = Modul.esc, box = $("#duel");
+  register("duell");
+  const gespielt = new Set();
+  let runden, r, me, ki, tipN;
+  // vier Behauptungen, bisher nicht gespielte zuerst
+  function waehle(){
+    let frei = MYTHEN.filter(m => !gespielt.has(m));
+    if (frei.length < RUNDEN) { gespielt.clear(); frei = MYTHEN.slice(); }
+    const auswahl = Modul.shuffle(frei).slice(0, RUNDEN);
+    auswahl.forEach(m => gespielt.add(m));
+    return auswahl;
+  }
+  function intro(){
+    box.innerHTML = `<div class="duel-start"><span class="big" aria-hidden="true">🤨</span><h3>Der Klimaleugner wartet schon</h3>
+      <p class="hint" style="margin:0">4 Behauptungen, die man oft hört – und dann hast du das letzte Wort.</p>
+      <button class="btn teal go" type="button">⚔️ Duell starten</button></div>`;
+    $(".go", box).addEventListener("click", start);
+  }
+  function start(){
+    runden = waehle(); r = 0; me = 0; ki = 0;
+    box.innerHTML = `<div class="score"><span>🧑 Du <span class="pts me">0</span></span><span class="chip rnd"></span><span><span class="pts ki">0</span> Klimaleugner 🤨</span></div>
+      <div class="chat" aria-live="polite"></div><div class="input"></div>`;
+    say("ki", "Klimawandel? Alles übertrieben, wenn du mich fragst. Na los, überzeug mich doch mit deinen Fakten! 😏");
+    round();
+  }
+  function say(who, html, cls){
+    const chat = $(".chat", box), m = document.createElement("div");
+    m.className = "msg " + (who === "me" ? "me " : "") + (cls || "");
+    m.innerHTML = `<div class="av">${who === "me" ? "🧑" : "🤨"}</div><div class="b">${html}</div>`;
+    chat.appendChild(m); chat.scrollTop = chat.scrollHeight;
+  }
+  function scores(){ $(".pts.me", box).textContent = me; $(".pts.ki", box).textContent = ki; }
+  function round(){
+    const last = r >= runden.length, R = runden[r];
+    $(".rnd", box).textContent = last ? "Letztes Wort" : `Runde ${r + 1} / ${runden.length}`;
+    if (!last) say("ki", `<small>Behauptung ${r + 1}</small>„${esc(R.arg)}“`);
+    else say("ki", `<small>Letzte Runde</small>${esc(LAST.ask)}`);
+    tipN = 0;
+    const tips = last ? LAST.tips : R.tips;
+    $(".input", box).innerHTML = `<div class="ki"><textarea placeholder="${last ? "Dein stärkstes Argument …" : "Dein Fakt dagegen …"}" aria-label="Deine Antwort"></textarea></div>
+      <div class="tips"><strong>💡 Das kannst du sagen:</strong><ul></ul></div>
+      <div class="row-btns"><button class="btn small teal go">⚔️ ${last ? "Überzeugen" : "Widerlegen"}</button><button class="btn small ghost tip">💡 Tipp</button></div><div class="ki"><div class="status"></div></div>`;
+    const ta = $("textarea", box), go = $(".go", box), tipBtn = $(".tip", box), st = $(".status", box);
+    tipBtn.addEventListener("click", () => {
+      if (tipN >= tips.length) return;
+      $(".tips", box).classList.add("show"); $(".tips ul", box).insertAdjacentHTML("beforeend", `<li>${esc(tips[tipN++])}</li>`);
+      if (tipN >= tips.length) { tipBtn.disabled = true; tipBtn.textContent = "💡 Keine weiteren Tipps"; }
+    });
+    go.addEventListener("click", async () => {
+      const a = ta.value.trim();
+      if (a.length < 12) { st.textContent = "Schreib mindestens einen ganzen Satz."; return; }
+      go.disabled = true; tipBtn.disabled = true; ta.disabled = true;
+      say("me", esc(a));
+      st.innerHTML = '<span class="dots">Der Schiedsrichter prüft</span>';
+      const k = last ? LAST.k : R.k;
+      const frage = last ? "Wortgefecht über den Klimawandel. Zum Schluss soll die Schülerin oder der Schüler einem Klimaleugner erklären, warum es sich lohnt, CO₂ zu sparen, und das stärkste Argument kurz begründen."
+        : `Wortgefecht über den Klimawandel. Ein Klimaleugner behauptet: „${R.arg}“ Die Schülerin oder der Schüler soll diese Behauptung mit einem sachlichen Fakt widerlegen. Bewerte, ob die Antwort wirklich auf die Behauptung eingeht. Ein einziger treffender Fakt mit kurzer Begründung genügt.`;
+      const erwartet = last ? "Ein sachliches Argument mit Begründung, z. B.: Mehr CO₂ verstärkt den Treibhauseffekt, die Erde erwärmt sich, Gletscher schmelzen, der Meeresspiegel steigt, Dürren und Unwetter nehmen zu, Menschen, Tiere und Pflanzen sind betroffen."
+        : `Mögliche Gegenargumente: ${R.m}`;
+      const res = await Modul.askKI({frage, erwartet, antwort: a, keywords: k.map(x => x.split("|")[0])},
+        () => st.innerHTML = '<span class="dots">Der KI-Server wacht gerade auf – das kann bis zu einer Minute dauern</span>');
+      let grade;
+      if (res) grade = res.richtig ? "good" : res.teilweise ? "mid" : "bad";
+      else { // Offline: passendes Stichwort + ganzer Satz = überzeugend
+        const t = Modul.norm(a), hit = k.some(g => g.split("|").some(w => t.includes(Modul.norm(w))));
+        grade = hit ? (a.length >= 25 ? "good" : "mid") : a.length >= 45 ? "mid" : "bad";
+      }
+      // die Eingabezeile verschwindet gleich, darum steht der Hinweis in der Chat-Nachricht
+      const note = !res ? '<small style="margin-top:6px">Offline-Bewertung nach Stichworten (die KI war nicht erreichbar).</small>'
+        : res.rueckmeldung ? `<small style="margin-top:6px">Schiedsrichter: ${esc(res.rueckmeldung)}</small>` : "";
+      if (grade === "good") me += 2;
+      else if (grade === "mid") { me += 1; ki += 1; }
+      else ki += 2;
+      scores();
+      if (last) say("ki", esc(grade === "bad" ? LAST.replyBad : LAST.reply) + note, grade);
+      else {
+        const txt = grade === "good" ? `✅ +2 für dich. ${esc(R.yes)}` : grade === "mid" ? "🟡 Je 1 Punkt. Da ist etwas dran – aber das widerlegt meine Behauptung noch nicht ganz." : `❌ +2 für mich. ${esc(R.no)}`;
+        say("ki", txt + (grade !== "good" ? `<small style="margin-top:6px">So hättest du kontern können: ${esc(R.m)}</small>` : "") + note, grade);
+      }
+      $(".input", box).innerHTML = `<div class="row-btns"><button class="btn small next">${last ? "Ergebnis ansehen" : "Nächste Behauptung →"}</button></div>`;
+      $(".next", box).addEventListener("click", () => { r++; last ? end() : round(); });
+    });
+  }
+  function end(){
+    $(".rnd", box).textContent = "Ende";
+    const msg = me > ki ? "🏆 Du hast das Duell gewonnen! Mit Fakten hast du den Klimaleugner zum Nachdenken gebracht."
+      : me === ki ? "🤝 Unentschieden! Einige Behauptungen hast du widerlegt. Lies bei den anderen die Beispiel-Konter und versuch es noch einmal."
+      : "🤨 Diesmal hatte der Klimaleugner die Nase vorn. Lies die Tipps und Beispiel-Konter und versuch es noch einmal – dann kommen andere Behauptungen.";
+    say("ki", `<b>Endstand: Du ${me} – Klimaleugner ${ki}</b><br>${msg}`, me >= ki ? "good" : "mid");
+    $(".input", box).innerHTML = `<div class="row-btns"><button class="btn small again">🔁 Nochmal mit neuen Behauptungen</button></div>`;
+    $(".again", box).addEventListener("click", start);
+    solve("duell");
+    if (me > ki) Modul.confetti();
+  }
+  intro();
+})();
+
+/* ---------- Training: Kreuzworträtsel ---------- */
+Modul.makeCrossword($("#cw"), {
+  umlaut: true,
+  words: [
+    {w: "ERNEUERBARE", r: 0, c: 0, d: "a", q: "Energieversorger sollen auf … Energien wie Wind, Sonne und Wasser umsteigen."},
+    {w: "ROTLICHTLAMPE", r: 0, c: 6, d: "d", q: "Sie ersetzt im Film-Versuch die Sonne."},
+    {w: "FOOTE", r: 0, c: 13, d: "d", q: "Eunice Newton … zeigte 1856 als Erste, dass CO₂ Wärme zurückhält."},
+    {w: "ZERSETZUNG", r: 2, c: 1, d: "a", q: "Pilze und Bakterien bauen tote Lebewesen ab – dabei wird CO₂ frei."},
+    {w: "KLIMAWANDEL", r: 4, c: 4, d: "a", q: "Weltweite Veränderung des Klimas als Folge des verstärkten Treibhauseffekts."},
+    {w: "METHAN", r: 6, c: 8, d: "d", q: "Treibhausgas, das bei der Rinderhaltung entsteht (CH₄)."},
+    {w: "MEERESSPIEGEL", r: 7, c: 12, d: "d", q: "Er steigt, weil Gletscher und Polareis schmelzen."},
+    {w: "GLETSCHER", r: 8, c: 5, d: "a", q: "Eismassen in den Alpen, die immer weiter schrumpfen."},
+    {w: "DÜRRE", r: 10, c: 10, d: "a", q: "Lange Zeit ohne Regen – eine Folge des Klimawandels."},
+    {w: "KOHLENSTOFF", r: 11, c: 0, d: "d", q: "Element, das zwischen Luft, Lebewesen, Boden und Meer im Kreis wandert."},
+    {w: "OZEANE", r: 11, c: 4, d: "d", q: "Sie nehmen viel CO₂ aus der Luft auf und speichern Kohlenstoff in Ablagerungen."},
+    {w: "LACHGAS", r: 14, c: 3, d: "a", q: "Treibhausgas aus Dünger auf den Feldern (N₂O)."},
+    {w: "ATMOSPHÄRE", r: 14, c: 8, d: "d", q: "Die Lufthülle der Erde."},
+    {w: "HUMUS", r: 16, c: 6, d: "a", q: "Dunkle Bodenschicht aus Pflanzenresten, die Kohlenstoff speichert."},
+    {w: "ATMUNG", r: 17, c: 14, d: "d", q: "Dabei geben Menschen, Tiere und Pflanzen CO₂ ab."},
+    {w: "TREIBHAUSEFFEKT", r: 18, c: 0, d: "a", q: "Treibhausgase halten Wärme in der Atmosphäre zurück. Diesen Vorgang nennt man …"},
+    {w: "FOTOSYNTHESE", r: 20, c: 0, d: "a", q: "Damit bauen grüne Pflanzen aus CO₂ und Wasser Zucker auf."},
+    {w: "WÄRMESTRAHLUNG", r: 22, c: 1, d: "a", q: "Unsichtbare Strahlung, die die warme Erde abgibt."}
+  ],
+  sol: [[18, 13], [3, 6], [15, 12], [22, 4], [10, 8], [20, 4], [8, 10], [13, 0], [0, 4], [15, 8], [12, 4]],
+  solWord: "KLIMASCHUTZ"
+}, "kreuz");
+
+/* ---------- Training: Treibhauseffekt beschriften ---------- */
+Modul.makeLabel($("#labelTh"), {
+  img: "assets/modul5/treibhaus.svg", w: 600, h: 420,
+  alt: "Schaubild: Oben das dunkle Weltall mit der Sonne, darunter eine hellblaue Schicht mit kleinen Molekülen, unten der Erdboden mit Haus und Baum. Eine gelbe Welle führt von der Sonne zum Boden. Ein roter Pfeil führt vom Boden bis ins Weltall, ein zweiter roter Pfeil wird an einem Molekül zurück zum Boden gelenkt. Die Felder sind leer.",
+  hint: "Tippe zuerst auf einen Begriff und dann auf das passende Kästchen im Schaubild. Die roten Pfeile zeigen den Weg der Wärme. Zwei Begriffe passen nicht.",
+  slots: [
+    {x: 16, y: 60, px: 26.3, py: 44.3, a: "Sonnenlicht"},
+    {x: 78, y: 8, px: 93.3, py: 17.1, a: "Weltall"},
+    {x: 84, y: 47, px: 90.8, py: 35.7, a: "Treibhausgase"},
+    {x: 50, y: 89, px: 48, py: 57.1, a: "Wärme entweicht ins All", arrow: true},
+    {x: 85, y: 73, px: 70.8, py: 61.9, a: "Wärme wird zurückgestrahlt", arrow: true},
+    {x: 17, y: 90, px: 10, py: 82, a: "Erdoberfläche"}
+  ],
+  extra: ["Ozonschicht", "Mondlicht"]
+}, "labelTh");
+
+/* ---------- Training: Richtig/Falsch, offene Fragen ---------- */
+Modul.makeTF($("#tf"), [
+  ["Pflanzen nehmen bei der Fotosynthese CO₂ aus der Luft auf.", true],
+  ["Bei der Atmung nehmen Tiere CO₂ aus der Luft auf.", false],
+  ["Pilze und Bakterien setzen bei der Zersetzung CO₂ frei.", true],
+  ["Kohle, Erdöl und Erdgas sind Kohlenstoffspeicher.", true],
+  ["Ohne natürlichen Treibhauseffekt wäre es auf der Erde angenehm warm.", false],
+  ["Treibhausgase lassen Sonnenlicht durch, halten aber einen Teil der Wärmestrahlung zurück.", true],
+  ["Der CO₂-Anteil der Luft ist seit der Industrialisierung gesunken.", false],
+  ["Methan und Lachgas verstärken den Treibhauseffekt.", true],
+  ["Durch den Klimawandel steigt der Meeresspiegel.", true],
+  ["Private Haushalte verursachen fast den gesamten CO₂-Ausstoß.", false]
+], "tf");
+Modul.makeOpen($("#openT"), [
+  {q: "Erkläre den Unterschied zwischen dem natürlichen und dem verstärkten Treibhauseffekt.",
+   m: "Beim natürlichen Treibhauseffekt halten Wasserdampf und CO₂, die schon immer in der Luft sind, einen Teil der Wärme zurück. Die Erde ist dadurch im Durchschnitt etwa 15 °C warm. Beim verstärkten Treibhauseffekt kommen durch den Menschen zusätzliche Treibhausgase hinzu, zum Beispiel aus der Verbrennung von Kohle, Erdöl und Erdgas. Dadurch wird noch mehr Wärme zurückgehalten und die Erde erwärmt sich weiter.",
+   k: ["natürlich|schon immer|wasserdampf|15", "zusätzlich|mensch|verstärkt|mehr", "wärme|erwärm|temperatur"]},
+  {q: "Erkläre, was die Verbrennung von Erdöl mit dem Anstieg des Meeresspiegels zu tun hat.",
+   m: "Beim Verbrennen von Erdöl entsteht CO₂. Mehr CO₂ in der Atmosphäre verstärkt den Treibhauseffekt, mehr Wärme bleibt auf der Erde. Die Temperatur steigt, Gletscher und Polareis schmelzen und das Meerwasser dehnt sich aus. Dadurch steigt der Meeresspiegel.",
+   k: ["co2|kohlenstoffdioxid", "treibhaus|wärme", "temperatur|erwärm|wärmer", "schmelz|eis|gletscher"], min: 3},
+  {q: "Ein Mitschüler sagt: „CO₂ ist doch nur ein winziger Teil der Luft – das kann gar nichts ausmachen.“ Was antwortest du?",
+   m: "Der Anteil ist zwar klein, heute etwa 0,042 %. Aber CO₂ hält Wärmestrahlung sehr wirksam zurück. Seit der Industrialisierung ist der Anteil um die Hälfte gestiegen, von etwa 0,028 % auf über 0,042 %. Der Versuch mit den beiden Flaschen zeigt: Mehr CO₂ führt zu einer höheren Temperatur.",
+   k: ["klein|winzig|0,04|anteil", "wärme|zurück|hält|treibhaus", "gestiegen|hälfte|anderthalb|mehr|versuch|flasche"], min: 2},
+  {q: "Berechne den CO₂-Ausstoß pro Person für 250 km mit dem Auto (161 g/km) und mit der Bahn (50 g/km). Was fällt dir auf?",
+   m: "Auto: 250 km · 161 g = 40 250 g ≈ 40 kg CO₂. Bahn: 250 km · 50 g = 12 500 g = 12,5 kg CO₂. Mit dem Auto entsteht pro Person mehr als dreimal so viel CO₂ wie mit der Bahn.",
+   k: ["40|40,25|40 250|40250|40.250", "12,5|12 500|12500|12.500", "dreimal|3-mal|3 mal|mehr|weniger|dreifach"], min: 2}
+], "openT", "Schau in die Merke-Kästen der Stationen.");
+
+/* ---------- Abschlussquiz ---------- */
+Modul.makeQuiz($("#quiz"), [].concat(MC.s1, MC.s2, MC.s3, MC.s4, MC.s5, MC.s6, MC.train, [
+  {q: "Wie viel Prozent der Luft ist heute etwa CO₂?", o: ["etwa 0,042 %", "etwa 4,2 %", "etwa 42 %", "0 %"], a: 0, e: "Ein winziger Anteil mit großer Wirkung."},
+  {q: "Wie heißt die Lufthülle der Erde?", o: ["Atmosphäre", "Ozean", "Humus", "Gletscher"], a: 0, e: "In ihr befinden sich auch die Treibhausgase."},
+  {q: "Wie warm ist die Erde heute im Durchschnitt etwa?", o: ["etwa +15 °C", "etwa −18 °C", "etwa +40 °C", "etwa 0 °C"], a: 0, e: "Dank des natürlichen Treibhauseffekts – Tendenz steigend."},
+  {q: "Was gibt eine Rotlichtlampe vor allem ab?", o: ["Wärmestrahlung", "kalte Luft", "CO₂", "Wasserdampf"], a: 0, e: "Darum eignet sie sich für den Versuch."},
+  {q: "Woraus entsteht Lachgas vor allem?", o: ["aus Dünger in der Landwirtschaft", "aus Fahrradreifen", "aus Meerwasser", "aus Solarzellen"], a: 0, e: "Lachgas (N₂O) ist ein starkes Treibhausgas."},
+  {q: "Jemand sagt: „Letzte Woche war es eiskalt, also gibt es keine Erderwärmung.“ Was ist der Denkfehler?", o: ["Er verwechselt Wetter und Klima.", "Kälte entsteht durch CO₂.", "Im Winter gibt es kein CO₂.", "Es gibt keinen Denkfehler."], a: 0, e: "Klima ist das durchschnittliche Wetter über viele Jahre und auf der ganzen Welt."},
+  {q: "Die Natur gibt viel CO₂ ab. Warum steigt der CO₂-Anteil trotzdem erst durch den Menschen?", o: ["Die Natur nimmt etwa genauso viel CO₂ wieder auf, der Mensch bringt zusätzliches CO₂ aus Kohle, Erdöl und Erdgas.", "Die Natur gibt in Wirklichkeit gar kein CO₂ ab.", "Der Mensch atmet mehr als alle Tiere zusammen.", "Pflanzen geben nur nachts CO₂ ab."], a: 0, e: "Der natürliche Kreislauf ist im Gleichgewicht – das CO₂ aus den Lagerstätten kommt obendrauf."}
+]), "quiz", "Klima-Profi");
+
+bereit = true;
+Modul.ready();
+})();
+</script>
+</body>
+</html>

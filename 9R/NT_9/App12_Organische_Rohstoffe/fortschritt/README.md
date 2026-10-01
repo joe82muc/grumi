@@ -21,7 +21,7 @@ an die Übersicht (`index.html`) und an die Themenübersicht (`../übersicht_the
 | 2 Biodiesel, Stärke und Nachhaltigkeit | `m02` | `modul-2.html` | fertig (29.09.2026) |
 | 3 Entstehung fossiler Rohstoffe | `m04` | `modul-3.html` | fertig (30.09.2026) |
 | 4 Erdölaufbereitung und Fraktionen | `m05` | `modul-4.html` | fertig (30.09.2026) |
-| 5 Kohlenstoffkreislauf und Erdöl im Alltag | `m06` | `module.html?id=m06` | alte Kurzansicht |
+| 5 Kohlenstoffkreislauf und Treibhauseffekt | `m06` | `modul-5.html` | fertig (01.10.2026) |
 
 ## Stand 29.09.2026
 
@@ -78,6 +78,47 @@ an die Übersicht (`index.html`) und an die Themenübersicht (`../übersicht_the
 - Getestet mit Playwright (Chromium und WebKit/iPad): Übernahme des alten Stands, Abmelden, zweites Kind,
   erneute Anmeldung, Zurücksetzen, Handybreite.
 
+## Stand 01.10.2026: Modul 5
+
+- Neues Modul 5 „Kohlenstoffkreislauf und Treibhauseffekt“ (`modul-5.html`, Bilder in `assets/modul5/`),
+  ersetzt die alte Kurzansicht `module.html?id=m06`. Kennung bleibt `m06`, Speicherschlüssel `…-modul5-v1`.
+  - 9 Stationen: Kreislauf, Mensch, Treibhauseffekt, Experiment (Film), Klimawandel, Klimaschutz, Duell (seit dem Abend), Training, Profi-Check.
+  - Animationen: Kohlenstoff-Reise (C-Atom wandert über 12 Wege zwischen Luft, Pflanze, Tier, Meer, Boden und
+    Lagerstätten, Lage der Wege per Skript überlappungsfrei berechnet), CO₂-Waage (Gleichgewicht kippt durch
+    Kohle, Erdöl, Erdgas und Rodung, CO₂-Anteil 0,028 % → 0,042 %), Strahlen-Simulator (ohne / natürlich /
+    zusätzliche Treibhausgase, −18 °C / +15 °C / über +15 °C), Versuch nachspielen mit Temperaturdiagramm,
+    Klima-Regler (Gletscher, Feld, Unwetter, Meeresspiegel), CO₂-Rechner für Reisen.
+  - Übungen: zwei Lückentexte, zwei Reihenfolgen, vier Zuordnungen, Rechenaufgabe Klassenfahrt Berlin (600 km),
+    Kreuzworträtsel (Lösungswort KLIMASCHUTZ), Treibhauseffekt beschriften (`assets/modul5/treibhaus.svg`),
+    Richtig/Falsch, Ankreuzen, 16 offene Fragen mit KI-Rückmeldung, Abschlussquiz.
+  - Film: ZDF „MAITHINK X – Die Show“, „Wie funktioniert der Treibhauseffekt? Das Experiment.“ (5:26) mit 7 Stopps.
+    Das ZDF erlaubt das Einbetten (`embeddingPossible`), die MP4 kommt direkt vom ZDF-Server (808k-Fassung,
+    keine Geosperre, kein Ablaufdatum eingetragen). Lädt sie nicht, verlinkt die Seite auf schule.zdf.de.
+    Der Clip hat keine Untertitel, das Transkript wurde per Spracherkennung (faster-whisper) erstellt und die
+    Zahlen an Standbildern geprüft (21,4 °C Start, 36,4 °C Luft, 37,5 °C mit CO₂, 0,028 % → 0,042 %).
+  - Fakten aus der Buchdoppelseite zu Kohlenstoffkreislauf und Treibhauseffekt, alle Texte eigenständig formuliert,
+    keine Buchabbildungen nachgebaut. CO₂-Werte pro Person und km: Bus 44 g, Bahn 50 g, Auto 161 g, Flugzeug 215 g.
+  - KI-Grafiken „Kohlenstoffkreislauf“ und „Treibhauseffekt“ des Nutzers mit KI-Hinweis.
+
+## Stand 01.10.2026, abends: Klima-Duell in Modul 5
+
+- Neue Station 7 „Duell gegen den Klimaleugner“ in `modul-5.html` (Training ist jetzt Station 8, Profi-Check
+  Station 9; Kennung `m06` und Speicherschlüssel bleiben, alter Fortschritt passt weiter).
+  - Infotexte: Was sind Klimaleugner und Klima-Mythen, vier Schritte, um einen Mythos zu entlarven, Merke-Kasten
+    (Wetter und Klima, früherer und heutiger Klimawandel).
+  - Aufwärmen: Zuordnung „Fakt oder Mythos?“ mit 8 Aussagen.
+  - Duell nach dem Muster des Windkraft-Duells aus NT 7M: Die KI spielt einen Klimaleugner, pro Spiel 4 von
+    8 Behauptungen (Klima hat sich schon immer geändert, nur 0,04 % CO₂, CO₂ als Pflanzenfutter, kalter Winter,
+    Treibhauseffekt nie bewiesen, Natur stößt mehr aus, Einzelne können nichts tun, Wärme = Badewetter), danach
+    das letzte Wort („Warum CO₂ sparen?“). „Nochmal“ bringt zuerst die noch nicht gespielten Behauptungen.
+    Tipp-Knopf mit Satzanfängen und Verweisen auf die Stationen 1–6, Beispiel-Konter nach jeder Runde.
+  - Bewertung über `POST /api/nt9/uebung/feedback` (live geprüft, kein Backend-Deploy nötig); ohne Server offline
+    nach Stichworten, der Hinweis darauf steht jetzt in der Chat-Nachricht.
+  - Zwei neue Fragen im Abschlussquiz (Wetter/Klima, natürliches CO₂ im Gleichgewicht), Lernziel, Kachel in der
+    Themenübersicht und Ziel in `content.js` ergänzt.
+- Getestet mit Playwright (Chrome, 9M und 9R): Zuordnung lösbar, Duell mit KI-Attrappe und offline
+  durchgespielt, Punkte und Sterne stimmen, zweites Spiel ohne Wiederholung, Handybreite ohne Überlauf, keine Skriptfehler.
+
 ## Offen
 
-- Modul 5 läuft noch über die alte Kurzansicht (`module.html?id=m06`).
+- Nichts. Alle fünf Module haben eigene Lernseiten.
