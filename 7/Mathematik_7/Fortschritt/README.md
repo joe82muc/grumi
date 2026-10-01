@@ -73,9 +73,19 @@ Wunsch: statt Foto auch mit dem iPad-Stift schreiben, als Option.
 - Beim Wechsel der Aufgabe wird das Feld geleert.
 - Getestet mit simuliertem Stift (Druck, Handballen, Radierer, Zurück, Abgabe) und live mit dem echten Modell: Der geschriebene Rechenweg „2x + 3 = 11 | −3, 2x = 14 | :2, x = 7“ wurde vollständig gelesen, Fehler in Zeile 2 als „gegenteil“ erkannt (8 Sekunden).
 
+## Stand 01.10.2026: Stift auf dem iPad, erster echter Test
+
+Rückmeldung vom iPad: „Prüfen“ zeigte nur „Prüfe …“ und dann scheinbar nichts mehr, und die aufliegende Hand löste im Schreibfeld immer „Markieren“ aus.
+
+- Ursache „passiert nichts“: Der Gratis-Server `grumi-mathe-ki` auf Render schläft nach 15 Minuten ohne Anfrage. Die erste Prüfung danach wartet bis er aufgewacht ist, und die Seite zeigte so lange nur einen festen Text. Die Anfrage selbst funktioniert: Mit simuliertem Stift in Chromium und WebKit kam die Antwort vom Live-Server nach etwa 6 Sekunden.
+- Neu: Die Seite weckt den Server schon beim Öffnen, beim ersten Strich und beim Foto-Auswählen (höchstens alle 5 Minuten). Während der Prüfung zählen die Sekunden sichtbar mit. Nach 20 Sekunden kommt der Hinweis, dass der Server gerade aufwacht. Nach 150 Sekunden bricht die Seite ab und bittet, noch einmal zu tippen. Wartekasten und Ergebnis werden ins Bild gescrollt, weil sie am iPad unter dem Schreibfeld außerhalb des Bildschirms lagen.
+- „Markieren“: Berührungen auf dem Schreibfeld unterdrücken jetzt die Standardaktion (`touchstart` mit `preventDefault`, kein Kontextmenü). Der ganze Schreibblock samt Werkzeugleiste und Hinweis darunter ist nicht markierbar. Legt die Hand auf, bevor der Stift zum ersten Mal schreibt, wird ihr Strich verworfen, sobald der Stift aufsetzt.
+- Nebenbei gefunden: In WebKit blieb die Zeichenfläche auf 300 × 150 Pixeln stehen, wenn das CSS erst nach dem Skript griff, die Schrift erschien dann verzerrt. Ein `ResizeObserver` hält die Fläche jetzt immer so groß wie das Feld (auch beim Drehen des iPads und bei „Mehr Platz“).
+- Getestet mit einem nachgebildeten Server in Chromium und WebKit: Wecken, Flächengröße, Touch abgefangen, Handballen-Strich verworfen, Sekundenzähler, Aufwach-Hinweis, Zeitlimit (mit vorgespulter Uhr), Scrollen, PNG-Abgabe, dazu Mehr Platz, Moduswechsel, Radierer und Zurück.
+
 ## Offen
 
 - Test mit echten Schülerfotos aus dem Unterricht (Handschrift, schlechtes Licht, schräge Fotos).
-- Test des Schreibfelds auf einem echten iPad mit Apple Pencil (Safari).
+- Test des Schreibfelds auf einem echten iPad mit Apple Pencil (Safari): Ist „Markieren“ weg? Kommt die Prüfung nach dem Aufwachen an?
 - Weitere Lernbereiche der 7. Klasse (Prozentrechnung, rationale Zahlen, Proportionalität …).
 - Datenschutz: Die Route speichert weiterhin jedes Foto in `student-uploads` auf dem Render-Server.

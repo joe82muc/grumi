@@ -12,6 +12,20 @@
       ? "http://127.0.0.1:3000/api/check"
       : "https://grumi-mathe-ki.onrender.com/api/check");
   const STORAGE_KEY = "grumi-mathe7-gleichungen-v1";
+  const CHECK_TIMEOUT_MS = 150000;
+
+  // Der Gratis-Server schlaeft nach 15 Minuten ohne Anfrage und braucht dann bis zu
+  // einer Minute zum Aufwachen. Deshalb schon wecken, waehrend das Kind noch rechnet.
+  let lastWake = 0;
+  function wakeServer() {
+    if (Date.now() - lastWake < 5 * 60 * 1000) return;
+    lastWake = Date.now();
+    try {
+      fetch(new URL("/", API_URL).href, { mode: "no-cors", cache: "no-store" }).catch(() => {});
+    } catch {
+      // ohne Wecken dauert nur die erste Pruefung laenger
+    }
+  }
 
   const $ = (selector) => document.querySelector(selector);
   const el = {
@@ -750,6 +764,7 @@
 
   function loadPhoto(file) {
     if (!file) return;
+    wakeServer();
     el.feedback.innerHTML = "";
     photo.file = file;
     photo.upload = file;
@@ -899,10 +914,27 @@
       if (changed) redraw();
     }
 
+    // iPad: Ohne das loest die aufliegende Hand Markieren, Lupe und Kontextmenue aus.
+    // Pointer-Events kommen trotzdem an, Stift und Finger schreiben weiter.
+    canvas.addEventListener(
+      "touchstart",
+      (event) => {
+        if (event.cancelable) event.preventDefault();
+      },
+      { passive: false },
+    );
+    canvas.addEventListener("contextmenu", (event) => event.preventDefault());
+
     canvas.addEventListener("pointerdown", (event) => {
       if (event.pointerType === "pen" && !penSeen) {
         penSeen = true;
         onPen();
+      }
+      // Lag die Hand schon auf, bevor der Stift kam, war ihr Strich kein Schreiben
+      if (event.pointerType === "pen" && current && !current.pen) {
+        strokes = strokes.filter((stroke) => stroke !== current);
+        current = null;
+        redraw();
       }
       // Mit Stift: aufliegende Hand (touch) schreibt nicht mit
       if (penSeen && event.pointerType === "touch") return;
@@ -966,6 +998,10 @@
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
       redraw();
     }
+
+    // Die Zeichenflaeche folgt der Groesse des Felds, auch wenn das CSS erst nach dem
+    // Skript greift (sonst bleibt sie 300 x 150 und alles erscheint verzerrt) oder das iPad gedreht wird
+    if (typeof ResizeObserver === "function") new ResizeObserver(() => resize()).observe(canvas);
 
     /** Beschriebenen Bereich zuschneiden und als PNG liefern (weiss, zartes Karo). */
     function toFile() {
@@ -1303,12 +1339,30 @@
       <div class="g7-fb is-info">
         <div class="g7-fb-head">
           <span class="g7-fb-icon" aria-hidden="true">…</span>
-          <div><h3>Ich prüfe deinen Rechenweg …</h3><p>Das dauert meist 10 bis 20 Sekunden. Beim ersten Mal am Tag kann es länger dauern, weil der Server erst startet.</p></div>
+          <div>
+            <h3>Ich prüfe deinen Rechenweg … <span class="g7-wait-time"></span></h3>
+            <p class="g7-wait-text">Das dauert meist 10 bis 20 Sekunden.</p>
+          </div>
         </div>
       </div>
     `;
+    revealFeedback();
+    // Sichtbar weiterzaehlen, damit niemand denkt, es passiere nichts
+    const waitTime = el.feedback.querySelector(".g7-wait-time");
+    const waitText = el.feedback.querySelector(".g7-wait-text");
+    const started = Date.now();
+    const ticker = setInterval(() => {
+      const seconds = Math.round((Date.now() - started) / 1000);
+      waitTime.textContent = `${seconds} s`;
+      if (seconds === 20) {
+        waitText.textContent =
+          "Der Prüf-Server wacht gerade erst auf. Beim ersten Prüfen nach einer Pause kann das bis zu einer Minute dauern. Du musst nichts tun, einfach warten.";
+      }
+    }, 1000);
+    const controller = typeof AbortController === "function" ? new AbortController() : null;
+    const timeout = setTimeout(() => controller && controller.abort(), CHECK_TIMEOUT_MS);
     try {
-      const response = await fetch(API_URL, { method: "POST", body: form });
+      const response = await fetch(API_URL, { method: "POST", body: form, signal: controller ? controller.signal : undefined });
       const payload = await response.json().catch(() => ({}));
       let data = payload.feedbackData;
       if (!data && typeof payload.feedback === "string") {
@@ -1322,15 +1376,39 @@
       if (task !== currentTask()) return;
       if (data.modus === "klasse7") renderFeedback(data, task);
       else renderLegacy(data);
+      revealFeedback();
     } catch (error) {
+      if (task !== currentTask()) return;
       renderInfo(
         "Prüfung gerade nicht möglich",
-        error instanceof TypeError
-          ? "Der Prüf-Server antwortet gerade nicht. Warte eine Minute und versuche es noch einmal."
-          : error.message,
+        error && error.name === "AbortError"
+          ? "Der Prüf-Server hat zu lange nicht geantwortet. Tippe noch einmal auf „Rechenweg prüfen“. Dein Rechenweg bleibt stehen."
+          : error instanceof TypeError
+            ? "Der Prüf-Server antwortet gerade nicht. Warte eine Minute und versuche es noch einmal."
+            : error.message,
       );
+      revealFeedback();
     } finally {
+      clearInterval(ticker);
+      clearTimeout(timeout);
       setChecking(false);
+    }
+  }
+
+  /** Rueckmeldung ins Bild holen: Auf dem iPad liegt sie sonst unter dem Schreibfeld, ausserhalb des Bildschirms.
+      Nur so weit scrollen, bis der Kasten ganz zu sehen ist; seine Ueberschrift bleibt unter der Kopfleiste sichtbar. */
+  function revealFeedback() {
+    const rect = el.feedback.getBoundingClientRect();
+    const header = document.querySelector("header");
+    const topLimit = (header ? header.getBoundingClientRect().bottom : 0) + 12;
+    let delta = 0;
+    if (rect.top < topLimit) delta = rect.top - topLimit;
+    else if (rect.bottom > window.innerHeight - 12) delta = Math.min(rect.bottom - window.innerHeight + 12, rect.top - topLimit);
+    if (Math.abs(delta) < 4) return;
+    try {
+      window.scrollBy({ top: delta, behavior: "smooth" });
+    } catch {
+      window.scrollBy(0, delta);
     }
   }
 
@@ -1367,13 +1445,16 @@
     if (action.dataset.ink === "clear") ink.clear(false);
     if (action.dataset.ink === "grow") ink.grow();
   });
-  let resizeFrame = 0;
-  window.addEventListener("resize", () => {
-    cancelAnimationFrame(resizeFrame);
-    resizeFrame = requestAnimationFrame(() => {
-      if (mode === "stift") ink.resize();
+  if (typeof ResizeObserver !== "function") {
+    let resizeFrame = 0;
+    window.addEventListener("resize", () => {
+      cancelAnimationFrame(resizeFrame);
+      resizeFrame = requestAnimationFrame(() => {
+        if (mode === "stift") ink.resize();
+      });
     });
-  });
+  }
+  el.inkCanvas.addEventListener("pointerdown", wakeServer);
   el.feedback.addEventListener("click", (event) => {
     if (event.target.closest("[data-next-task]")) stepTask(1);
     const levelButton = event.target.closest("[data-go-level]");
@@ -1388,4 +1469,5 @@
   renderLevel();
   renderTask();
   setMode(progress.abgabe);
+  wakeServer();
 })();
