@@ -238,8 +238,12 @@ Die Buchseite „leben ohne erdöl.png“ diente nur für die Fakten; Rollen, Na
 
 **Probe** (`probe.html` und `lehrer.html` in diesem Ordner, Backend `nt9-probe-daten.js` über `infoaustausch.js`
 unter `/api/nt9probe`, gespeichert in grumiproben): je eine Fassung 9M (`nt9m-probe1`) und 9R (`nt9r-probe1`),
-je 19 Aufgaben und 40 Punkte, etwa 45 Minuten, Teile zu Modul 1–7 plus Stellungnahme. Animierte Abbildungen in
-`assets/probe/` (Destillationsturm, Lagerstätte, Treibhauseffekt, Verwendungs-Diagramm). Notenschlüssel nach dem Zug
+seit dem 02.10.2026 ausführlich: je 37 Aufgaben (9M 72 Punkte mit 13 Erklär-Aufgaben, 9R 69 Punkte mit 5),
+etwa 60 Minuten, je Modul 1–7 ein Teil mit 4 bis 6 Aufgaben plus zwei Transferaufgaben (Holz gegen Kohle,
+Erdöl-Ausstieg). Die richtige Antwort steht im Datensatz immer zuerst und wird beim Laden fest gemischt (A–D gleich
+oft richtig, nach jedem Neustart gleich). Animierte Abbildungen in `assets/probe/` (Destillationsturm, Lagerstätte,
+Inkohlung, Kohlenstoffkreislauf, Treibhauseffekt, Verwendungs-Diagramm, Kreislaufwirtschaft). In
+`../übersicht_themen.html` erscheint nach Modul 7 eine rote Probe-Kachel, solange die Probe des Zugs freigeschaltet ist. Notenschlüssel nach dem Zug
 des Kindes (M 50 % = 4, R 50 % = 3). LRS: Rechtschreibung zählt nie, 🔊 liest jede Aufgabe vor. Schutz: Code-Pflicht,
 Einmal-Abgabe, Auto-Sperre nach 3 Stunden, Einfügen/Kopieren/Markieren gesperrt, Zwischenspeichern, Verlassen-Zähler.
 Freischalten in `proben-verwalten.html`, Noten im Reiter „📝 Noten“. Die alten Probe-Seiten (Backend „kohlenstoff“,

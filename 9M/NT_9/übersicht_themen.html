@@ -219,6 +219,13 @@
     .main-topic:nth-child(3) .tile:hover { border-color: var(--amber); }
 
     .tile.solo { grid-column: 1 / -1; min-height: auto; }
+    .tile[hidden] { display: none; }
+
+    /* Probe-Kachel: nur sichtbar, solange die Lehrkraft die Probe freigeschaltet hat */
+    .tile.probe-kachel { border: 2px solid #c0392b; background: #fff6f4; }
+    .main-topic:nth-child(1) .tile.probe-kachel .num { background: #c0392b; color: #fff; }
+    .main-topic:nth-child(1) .tile.probe-kachel:hover { border-color: #a12a22; }
+    .tile.probe-kachel .tile-status { border-color: #c0392b; background: #c0392b; color: #fff; }
 
     @media (max-width: 640px) {
       .summary-wrap { grid-template-columns: 68px 1fr auto; }
@@ -299,6 +306,7 @@
                     <a class="tile" data-organic-module="m06" href="App12_Organische_Rohstoffe/modul-5.html"><span class="tile-top"><span class="num">Modul 5</span><span class="tile-status">Offen</span></span><span class="label">Kohlenstoffkreislauf und Treibhauseffekt</span><p class="tile-sub">Klimawandel, CO₂-Experiment und Klima-Duell</p></a>
                     <a class="tile" data-organic-module="m07" href="App12_Organische_Rohstoffe/modul-6.html"><span class="tile-top"><span class="num">Modul 6</span><span class="tile-status">Offen</span></span><span class="label">Erdöl – Rohstoff mit Zukunft?</span><p class="tile-sub">Verwendung, Nachhaltigkeit und wahrer Preis</p></a>
                     <a class="tile" data-organic-module="m08" href="App12_Organische_Rohstoffe/modul-7.html"><span class="tile-top"><span class="num">Modul 7</span><span class="tile-status">Offen</span></span><span class="label">Ohne Erdöl – geht das?</span><p class="tile-sub">Ersatzstoffe, fünf Stimmen und Diskussionsrunde</p></a>
+                    <a class="tile probe-kachel" id="nt9-probe-kachel" href="App12_Organische_Rohstoffe/probe.html" hidden><span class="tile-top"><span class="num">📝 Probe</span><span class="tile-status">freigeschaltet</span></span><span class="label">Probe Organische Rohstoffe</span><p class="tile-sub">Module 1 bis 7 · Anmeldung mit deinem Code</p></a>
                   </div>
                 </div>
                 <div class="subsection">
@@ -418,6 +426,24 @@
         : done
         ? "Organische Rohstoffe · " + st.name + ": " + done + " von " + total + " Modulen abgeschlossen"
         : "Organische Rohstoffe · " + st.name + ": noch kein Modul abgeschlossen";
+    })();
+  </script>
+  <script>
+    // Probe-Kachel nach Modul 7: nur sichtbar, solange die Probe dieses Zugs (9M oder 9R) freigeschaltet ist
+    (function () {
+      var kachel = document.getElementById("nt9-probe-kachel");
+      if (!kachel || !window.fetch) return;
+      var zug = /\/9R\//i.test(decodeURIComponent(location.pathname)) ? "nt9r-" : "nt9m-";
+      var api = (location.hostname.slice(-12) === "onrender.com" ? "" : "https://englisch-9.onrender.com") + "/api/nt9probe/list";
+      function pruefen() {
+        if (document.hidden) return;
+        fetch(api, { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
+          kachel.hidden = !(d.tests || []).some(function (t) { return t.unlocked && String(t.id).indexOf(zug) === 0; });
+        }).catch(function () { /* Server schläft noch: beim nächsten Versuch */ });
+      }
+      pruefen();
+      setInterval(pruefen, 60000);
+      document.addEventListener("visibilitychange", pruefen);
     })();
   </script>
 </body>
