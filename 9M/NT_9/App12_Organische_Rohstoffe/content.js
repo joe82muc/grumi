@@ -7,7 +7,7 @@ window.KohlenstoffKurs = {
       id: "organische-rohstoffe",
       label: "Lernbereich 1.1",
       title: "Organische Rohstoffe",
-      subtitle: "Fünf Module zu nachwachsenden und fossilen Rohstoffen"
+      subtitle: "Sechs Module zu nachwachsenden und fossilen Rohstoffen"
     }
   ],
   modules: [
@@ -207,6 +207,26 @@ window.KohlenstoffKurs = {
         { type: "match", prompt: "Ordne Prozess und Wirkung zu.", pairs: [["Fotosynthese", "bindet Kohlenstoff"], ["Atmung und Zersetzung", "setzen CO2 frei"], ["Verbrennung fossiler Rohstoffe", "führt zusätzlichen Kohlenstoff zu"]] },
         { type: "text", prompt: "Begründe, warum ein Leben mit deutlich weniger Erdöl schwierig, aber für den Klimaschutz wichtig ist.", expected: "Erdöl liefert Energie und ist Ausgangsstoff für viele Alltagsprodukte, daher braucht ein Ersatz neue Energieträger, Rohstoffe und Recycling. Weniger Verbrennung setzt weniger zusätzliches CO2 frei und bremst den verstärkten Treibhauseffekt.", keywords: ["Alltagsprodukte", "Energie", "Ersatz", "CO2", "Treibhauseffekt", "Klima"] }
       ]
+    },
+    {
+      id: "m07",
+      group: "organische-rohstoffe",
+      nr: 6,
+      // eigene Lernseite im Stil von NT 7 (Stationen, Animationen, KI-Diskussion allein und am Tisch)
+      page: "modul-6.html",
+      title: "Erdöl – Rohstoff mit Zukunft?",
+      duration: "90 min",
+      goal: "Du findest heraus, wo Erdöl im Alltag steckt und wofür es verwendet wird, beurteilst es aus Sicht von Nachhaltigkeit, Ökologie und Ökonomie, lernst Ersatzmöglichkeiten kennen und vertrittst in einer Diskussionsrunde eine Rolle – allein gegen die KI oder zu viert am Tisch.",
+      sections: [
+        {
+          title: "Verwendung und Bewertung",
+          text: [
+            "Der größte Teil des Erdöls wird verbrannt: etwa 35 % für Heizung, 29 % im Verkehr und 22 % zur Energiegewinnung. Nur etwa 7 % nutzt die chemische Industrie als Rohstoff für Kunststoffe, Kunstfasern, Farben und Medikamente.",
+            "Erdöl ist endlich und damit nicht nachhaltig. Beim Verbrennen entsteht CO₂, Kunststoffmüll belastet die Meere. Erdölprodukte sind nur preiswert, weil die Umweltkosten nicht im Preis stecken. Deutschland muss fast alles Erdöl einführen."
+          ]
+        }
+      ],
+      tasks: []
     }
   ]
 };

@@ -6,6 +6,8 @@
  *   oder spätestens nach 6 Stunden wird gelöscht. (Die beforeunload-Warnung zeigt Safari auf dem iPad nicht.)
  * - Verlassen zählen: Wechselt das Kind während der Probe in einen anderen Tab oder eine andere App, zählt
  *   ProbeSchutz.verlassen() mit; die Zahl geht mit der Abgabe an die Lehrkraft.
+ * - Nicht einfügen, nicht kopieren: Während der Probe lässt sich in die Antwortfelder nichts einfügen oder
+ *   hineinziehen, und Aufgabentexte lassen sich nicht markieren oder kopieren (z. B. in einen Übersetzer).
  *
  * Die Seite ruft nach dem Aufbau der Aufgaben auf:
  *   ProbeSchutz.start({ testId, code, box, extra?: { holen(), setzen(x) } })  -> true, wenn ein Stand zurückkam
@@ -118,12 +120,37 @@
   });
   global.addEventListener("pagehide", sichern);
 
+  /* ---------- Nicht einfügen, nicht kopieren ---------- */
+  var STIL = "body.probe-laeuft *:not(input):not(textarea):not(select){-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}";
+  function istFeld(el) { return el && el.matches && el.matches(FELD); }
+  var gemeldet = 0;
+  function gesperrt(e, text) {
+    e.preventDefault();
+    if (Date.now() - gemeldet > 4000) { gemeldet = Date.now(); hinweis(text); }
+  }
+  ["paste", "drop"].forEach(function (art) {
+    doc.addEventListener(art, function (e) { if (aktiv && istFeld(e.target)) gesperrt(e, "Einfügen ist in der Probe gesperrt. Schreib deine Antwort selbst."); }, true);
+  });
+  doc.addEventListener("beforeinput", function (e) {
+    if (aktiv && istFeld(e.target) && /^insertFrom(Paste|Drop|Yank)/.test(e.inputType || "")) gesperrt(e, "Einfügen ist in der Probe gesperrt. Schreib deine Antwort selbst.");
+  }, true);
+  ["copy", "cut"].forEach(function (art) {
+    doc.addEventListener(art, function (e) { if (aktiv) gesperrt(e, "Kopieren ist in der Probe gesperrt."); }, true);
+  });
+  doc.addEventListener("dragstart", function (e) { if (aktiv && !(e.target && e.target.closest && e.target.closest("input[type=file]"))) e.preventDefault(); }, true);
+  doc.addEventListener("contextmenu", function (e) { if (aktiv && !istFeld(e.target)) e.preventDefault(); }, true);
+  function stilEinmal() {
+    if (doc.getElementById("probe-schutz-stil")) return;
+    var s = doc.createElement("style"); s.id = "probe-schutz-stil"; s.textContent = STIL; doc.head.appendChild(s);
+  }
+
   /* ---------- Schnittstelle ---------- */
   global.ProbeSchutz = {
     start: function (cfg) {
       aktiv = { testId: String(cfg.testId), code: String(cfg.code), box: cfg.box, extra: cfg.extra || null };
       zahl = 0; draussen = false;
       alleFelder(aktiv.box);
+      stilEinmal(); doc.body.classList.add("probe-laeuft");
       var s = lies(schluessel()), zurueck = false;
       if (s && Date.now() - (s.zeit || 0) < MAX_ALTER) { wiederherstellen(s); zurueck = true; }
       ["input", "change", "click", "focusout"].forEach(function (art) { aktiv.box.addEventListener(art, bald); });
@@ -132,7 +159,7 @@
       return zurueck;
     },
     verlassen: function () { return zahl; },
-    ende: function () { if (aktiv) loesch(schluessel()); aktiv = null; clearTimeout(timer); }
+    ende: function () { if (aktiv) loesch(schluessel()); aktiv = null; clearTimeout(timer); doc.body.classList.remove("probe-laeuft"); }
   };
 
   aufraeumen();

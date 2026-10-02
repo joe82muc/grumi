@@ -23,7 +23,7 @@
   var BEGRUESSEN = "grumi-nt9-anmeldung-gruss";
   var API = (global.location.hostname.slice(-12) === "onrender.com" ? "" : "https://englisch-9.onrender.com") + "/api/nt9/fortschritt";
   // Kursmodul (Kennung in content.js) -> Nummer der Lernseite modul-N.html
-  var SEITE = { m01: 1, m02: 2, m04: 3, m05: 4, m06: 5 };
+  var SEITE = { m01: 1, m02: 2, m04: 3, m05: 4, m06: 5, m07: 6 };
   // Speicherstände von vor der Anmeldung: Kursfortschritt und Modulseiten (Sterne, Antworten)
   var ALT = new RegExp("^(grumi-nt9-" + KL + "-(?:modul\\d+-v\\d+|organische-rohstoffe-fortschritt))(?!~)(.*)$");
   var skript = doc.currentScript;
