@@ -7,7 +7,7 @@ window.KohlenstoffKurs = {
       id: "organische-rohstoffe",
       label: "Lernbereich 1.1",
       title: "Organische Rohstoffe",
-      subtitle: "Sechs Module zu nachwachsenden und fossilen Rohstoffen"
+      subtitle: "Sieben Module zu nachwachsenden und fossilen Rohstoffen"
     }
   ],
   modules: [
@@ -212,17 +212,37 @@ window.KohlenstoffKurs = {
       id: "m07",
       group: "organische-rohstoffe",
       nr: 6,
-      // eigene Lernseite im Stil von NT 7 (Stationen, Animationen, KI-Diskussion allein und am Tisch)
+      // eigene Lernseite im Stil von NT 7 (Stationen, Animationen, KI-Grafiken)
       page: "modul-6.html",
       title: "Erdöl – Rohstoff mit Zukunft?",
-      duration: "90 min",
-      goal: "Du findest heraus, wo Erdöl im Alltag steckt und wofür es verwendet wird, beurteilst es aus Sicht von Nachhaltigkeit, Ökologie und Ökonomie, lernst Ersatzmöglichkeiten kennen und vertrittst in einer Diskussionsrunde eine Rolle – allein gegen die KI oder zu viert am Tisch.",
+      duration: "45 min",
+      goal: "Du findest heraus, wo Erdöl im Alltag steckt und wofür es verwendet wird, und beurteilst es aus Sicht von Nachhaltigkeit, Ökologie und Ökonomie: Warum ist Erdöl so billig, und warum sind wir vom Import abhängig?",
       sections: [
         {
           title: "Verwendung und Bewertung",
           text: [
             "Der größte Teil des Erdöls wird verbrannt: etwa 35 % für Heizung, 29 % im Verkehr und 22 % zur Energiegewinnung. Nur etwa 7 % nutzt die chemische Industrie als Rohstoff für Kunststoffe, Kunstfasern, Farben und Medikamente.",
             "Erdöl ist endlich und damit nicht nachhaltig. Beim Verbrennen entsteht CO₂, Kunststoffmüll belastet die Meere. Erdölprodukte sind nur preiswert, weil die Umweltkosten nicht im Preis stecken. Deutschland muss fast alles Erdöl einführen."
+          ]
+        }
+      ],
+      tasks: []
+    },
+    {
+      id: "m08",
+      group: "organische-rohstoffe",
+      nr: 7,
+      // eigene Lernseite: Ersatz für Erdöl, fünf Rollen, KI-Diskussion allein und am Tisch
+      page: "modul-7.html",
+      title: "Ohne Erdöl – geht das?",
+      duration: "90 min",
+      goal: "Du lernst, was Erdöl als Energieträger und als Rohstoff ersetzen kann und welche Nachteile Ersatzstoffe haben. Dann vertrittst du in einer Diskussionsrunde eine von fünf Rollen – allein gegen die KI oder zu viert am Tisch – und bekommst ein Protokoll mit Faktenprüfung.",
+      sections: [
+        {
+          title: "Ersatz und Diskussion",
+          text: [
+            "Als Energieträger lässt sich Erdöl durch erneuerbare Energien ersetzen, z. B. mit Wärmepumpen, Elektroautos, Bus und Bahn. Als Rohstoff helfen nachwachsende Rohstoffe wie Stärke für Bioplastik oder Raps für Biodiesel, dazu Sparen und Recycling.",
+            "Ersatzstoffe sind oft noch teurer, brauchen Forschung und Ackerfläche. Darum wird gestritten, wie schnell der Umstieg gehen soll. In einer guten Diskussion begründet man seine Meinung mit Belegen, geht auf andere ein und sucht einen Kompromiss."
           ]
         }
       ],

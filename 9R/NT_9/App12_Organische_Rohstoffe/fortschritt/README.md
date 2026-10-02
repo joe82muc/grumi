@@ -41,6 +41,7 @@ Die Themenübersicht bindet `fortschritt.js` mit `data-anmeldung="nein"` ein (ze
 | 4 Erdölaufbereitung und Fraktionen | `m05` | `modul-4.html` | fertig (30.09.2026) |
 | 5 Kohlenstoffkreislauf und Treibhauseffekt | `m06` | `modul-5.html` | fertig (01.10.2026) |
 | 6 Erdöl – Rohstoff mit Zukunft? | `m07` | `modul-6.html` | fertig (02.10.2026) |
+| 7 Ohne Erdöl – geht das? | `m08` | `modul-7.html` | fertig (02.10.2026, aus Modul 6 Station 5–8) |
 
 ## Stand 29.09.2026
 
@@ -205,15 +206,21 @@ Die Themenübersicht bindet `fortschritt.js` mit `data-anmeldung="nein"` ein (ze
 - Getestet mit Playwright gegen den lokalen Testserver: je Seitenart eine richtige Antwort → Stand steigt,
   Zurücksetzen markiert erneut, Lehreransicht zeigt Bereiche und Prozent, Klassenfilter 9M/9R, Handybreite ohne Überlauf.
 
-## Stand 02.10.2026: Modul 6 „Erdöl – Rohstoff mit Zukunft?“ und Probe Module 1–6
+## Stand 02.10.2026: Modul 6 „Erdöl – Rohstoff mit Zukunft?“, Modul 7 „Ohne Erdöl – geht das?“ und Probe Module 1–7
 
 **Modul 6** (`modul-6.html`, Kennung `m07`, Kachel in `../übersicht_themen.html`, Weiter-Link aus Modul 5).
-Zehn Stationen: Erdöl im Alltag (Ratespiel „Wo steckt Erdöl drin?“ mit „Welt ohne Erdöl“), Verwendung
+Sechs Stationen: Erdöl im Alltag (Ratespiel „Wo steckt Erdöl drin?“ mit „Welt ohne Erdöl“), Verwendung
 (Animation 100 Fässer, KI-Grafik „Verwendung von Erdöl“, Lückentext), Nachhaltigkeit und Ökologie (Tank-Animation
 Entstehung gegen Verbrauch, 24-Stunden-Vergleich), wahrer Preis und Import (versteckte Umweltkosten, Import-Balken,
-Weg des Erdöls), Ersatz (Wegwerf- gegen Kreislaufwirtschaft, Ersatz-Finder), fünf Rollen (Karten, „Wer sagt das?“,
-Meinungsbarometer, eigener Meinungsregler), KI-Diskussion allein, Tisch-Diskussion, Training (Kreuzworträtsel
-Lösungswort ZUKUNFT), Profi-Check. Bilder in `assets/modul6/` (KI-Grafiken des Nutzers mit Quellenhinweis).
+Weg des Erdöls), Training (Kreuzworträtsel Lösungswort ROHSTOFF), Profi-Check. Bilder in `assets/modul6/`
+(KI-Grafiken des Nutzers mit Quellenhinweis). Weiter-Link zu Modul 7.
+
+**Modul 7** (`modul-7.html`, Kennung `m08`, eigene Kachel, Speicher `grumi-nt9-…-modul7-v1`): am 02.10.2026 aus
+Modul 6 herausgelöst (dort Station 5–8). Sechs Stationen: Ersatz (Wegwerf- gegen Kreislaufwirtschaft, Ersatz-Finder,
+offene Fragen), fünf Stimmen (Rollenkarten, Faktenkiste mit den Zahlen aus Modul 6, „Wer sagt das?“,
+Meinungsbarometer, Kurz-Check, eigener Meinungsregler), KI-Diskussion allein, Tisch-Diskussion, Training
+(Kreuzworträtsel Lösungswort UMSTIEG), Zukunfts-Profi-Check. Was ein Kind in Modul 6 an Station 5–8 schon gelöst
+hatte, zählt nicht automatisch für Modul 7 (Modul 6 war erst seit dem 02.10.2026 online).
 Die Buchseite „leben ohne erdöl.png“ diente nur für die Fakten; Rollen, Namen und Aussagen sind frei formuliert.
 
 **Diskussion** (Backend `nt9-diskussion.js` im Repo englisch_9, Routen `/api/nt9/diskussion/…`, Anmeldung mit Code):
@@ -229,7 +236,7 @@ Die Buchseite „leben ohne erdöl.png“ diente nur für die Fakten; Rollen, Na
 
 **Probe** (`probe.html` und `lehrer.html` in diesem Ordner, Backend `nt9-probe-daten.js` über `infoaustausch.js`
 unter `/api/nt9probe`, gespeichert in grumiproben): je eine Fassung 9M (`nt9m-probe1`) und 9R (`nt9r-probe1`),
-je 19 Aufgaben und 40 Punkte, etwa 45 Minuten, Teile zu Modul 1–6 plus Stellungnahme. Animierte Abbildungen in
+je 19 Aufgaben und 40 Punkte, etwa 45 Minuten, Teile zu Modul 1–7 plus Stellungnahme. Animierte Abbildungen in
 `assets/probe/` (Destillationsturm, Lagerstätte, Treibhauseffekt, Verwendungs-Diagramm). Notenschlüssel nach dem Zug
 des Kindes (M 50 % = 4, R 50 % = 3). LRS: Rechtschreibung zählt nie, 🔊 liest jede Aufgabe vor. Schutz: Code-Pflicht,
 Einmal-Abgabe, Auto-Sperre nach 3 Stunden, Einfügen/Kopieren/Markieren gesperrt, Zwischenspeichern, Verlassen-Zähler.
