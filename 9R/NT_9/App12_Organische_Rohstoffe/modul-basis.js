@@ -491,6 +491,59 @@ function makeOpen(box, list, prefix, fallbackTip){
   }
 }
 
+/* ---------- Quali-Training: Bewertungspunkte wie im Quali, die KI hakt jeden Punkt einzeln ab ---------- */
+// cfg: {q, punkte: [{t: "Erdöl wird erhitzt.", k: ["erhitz|erwärm|heiß"]}, …], m: Beispielantwort, ziel: so viele Punkte = gelöst}
+function makeQuali(box, cfg, id){
+  register(id, box, "Quali-Aufgabe: " + cfg.q);
+  const max = cfg.punkte.length, ziel = cfg.ziel || max - 1;
+  const el = document.createElement("div"); el.className = "q ki quali";
+  el.innerHTML = `<div class="quali-kopf"><span class="quali-tag">🎓 Quali-Training</span><span class="quali-max">${max} Punkte</span></div>
+    <div class="q-title">${esc(cfg.q)}</div>
+    <textarea placeholder="Schreibe Schritt für Schritt – ganze Sätze oder Stichpunkte …" aria-label="Antwort zur Quali-Aufgabe"></textarea>
+    <div class="row-btns"><button class="btn small teal go">✨ Punkte prüfen</button><button class="btn small ghost show-model" hidden>Bewertungsschema ansehen</button></div>
+    <div class="status"></div><div class="quali-ergebnis"></div><div class="fb"></div>
+    <div class="model"><strong>Bewertungsschema (je 1 Punkt):</strong><ul>${cfg.punkte.map(p => `<li>${esc(p.t)}</li>`).join("")}</ul>${cfg.m ? `<strong>Beispiel:</strong> ${esc(cfg.m)}` : ""}</div>`;
+  const ta = $("textarea", el), go = $(".go", el), st = $(".status", el), erg = $(".quali-ergebnis", el), fb = $(".fb", el), sm = $(".show-model", el), model = $(".model", el);
+  ta.value = load("-" + id, "");
+  ta.addEventListener("input", () => save("-" + id, ta.value));
+  sm.addEventListener("click", () => model.classList.toggle("show"));
+  // Erreichte Punkte stehen im Klartext da, fehlende nur als „noch offen“ – sonst wäre die Lösung verraten
+  function zeigen(punkte){
+    const summe = punkte.reduce((a, b) => a + b, 0);
+    erg.innerHTML = `<div class="quali-punkte">${summe} von ${max} Punkten</div><ol class="quali-liste">${cfg.punkte.map((p, i) => punkte[i]
+      ? `<li class="ja"><span class="pk">✓</span><span>${esc(p.t)}</span></li>`
+      : `<li><span class="pk">○</span><span class="offen">Punkt ${i + 1}: noch nicht genannt</span></li>`).join("")}</ol>`;
+    sm.hidden = false;
+    return summe;
+  }
+  const alt = load("-" + id + "-p", "");
+  if (/^[01]+$/.test(alt) && alt.length === max) zeigen([...alt].map(Number));
+  go.addEventListener("click", async () => {
+    const antwort = ta.value.trim();
+    if (antwort.length < 3) { fb.className = "fb show mid"; fb.textContent = "Schreib zuerst eine Antwort."; return; }
+    go.disabled = true; fb.className = "fb"; st.innerHTML = '<span class="dots">Die KI vergibt die Punkte</span>';
+    const res = await askKI({frage: cfg.q, erwartet: cfg.m || cfg.punkte.map(p => p.t).join(" "), antwort,
+      keywords: cfg.punkte.map(p => p.k[0].split("|")[0]), kriterien: cfg.punkte.map(p => p.t)},
+      () => st.innerHTML = '<span class="dots">Der KI-Server wacht gerade auf – das kann bis zu einer Minute dauern</span>');
+    go.disabled = false;
+    let punkte;
+    if (res && Array.isArray(res.punkte) && res.punkte.length === max) { punkte = res.punkte.map(x => (x ? 1 : 0)); st.textContent = "✨ Punkte von der KI"; }
+    else {
+      const t = norm(antwort);
+      punkte = cfg.punkte.map(p => (p.k.some(g => g.split("|").some(w => t.includes(norm(w)))) ? 1 : 0));
+      st.textContent = "Offline-Prüfung nach Fachbegriffen (die KI war nicht erreichbar)";
+    }
+    save("-" + id + "-p", punkte.join(""));
+    const summe = zeigen(punkte);
+    const gut = summe >= ziel;
+    fb.className = "fb show " + (gut ? "ok" : summe ? "mid" : "bad");
+    fb.innerHTML = (gut ? "✅ " : summe ? "🟡 " : "❌ ") + esc(res && res.rueckmeldung ? res.rueckmeldung : gut ? "Stark – so bekommst du im Quali fast alle Punkte." : "Ergänze die fehlenden Schritte und prüfe noch einmal.") +
+      (res && res.tipp && !gut ? `<br><strong>Tipp:</strong> ${esc(res.tipp)}` : "");
+    if (gut) solve(id);
+  });
+  box.appendChild(el);
+}
+
 /* ---------- Abschlussquiz ---------- */
 function makeQuiz(box, pool, id, profi){
   register(id, box, "Profi-Check (Abschlussquiz)");
@@ -539,5 +592,5 @@ function confetti(){
 }
 
 const Modul = window.Modul = {$, $$, esc, shuffle, clamp, fmt, norm, setText, reduced, onVisible, load, save, init, ready, register, solve,
-  isSolved: id => !!solved[id], katalog, mehrGeloest, askKI, makeMC, makeGap, makeSort, makeTF, makeOrder, makeLabel, makeHotspots, makeCrossword, makeOpen, makeQuiz, confetti};
+  isSolved: id => !!solved[id], katalog, mehrGeloest, askKI, makeMC, makeGap, makeSort, makeTF, makeOrder, makeLabel, makeHotspots, makeCrossword, makeOpen, makeQuali, makeQuiz, confetti};
 })();

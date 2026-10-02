@@ -249,6 +249,17 @@ Einmal-Abgabe, Auto-Sperre nach 3 Stunden, Einfügen/Kopieren/Markieren gesperrt
 Freischalten in `proben-verwalten.html`, Noten im Reiter „📝 Noten“. Die alten Probe-Seiten (Backend „kohlenstoff“,
 nie online) liegen nur lokal als `*-alt-kohlenstoff.html`.
 
+## Stand 02.10.2026: Quali-Training in Modul 3 und 4
+
+- Modul 3, Station 3: Lesetext „So sind Erdöl und Erdgas entstanden“ (Text der Lehrkraft, nur Tippfehler korrigiert, „in“ → „unter“
+  einer undurchlässigen Gesteinsschicht) und Quali-Aufgabe „Beschreibe die Entstehung von Erdöl und Erdgas“ (7 Punkte).
+- Modul 4, Station 3: Quali-Aufgabe „Beschreibe die fraktionierte Destillation“ mit dem 7-Punkte-Schema der Lehrkraft
+  (erhitzt, Dämpfe steigen, kühlen ab, werden flüssig, Siedetemperaturen, verschiedene Höhen, gesammelt/abgefüllt).
+- Baustein `makeQuali` in `modul-basis.js`: Die KI hakt jeden Bewertungspunkt einzeln ab (Route `/api/nt9/uebung/feedback`
+  mit `kriterien[]`, Antwort `punkte[]`), ohne KI Stichwörter je Punkt. Erreichte Punkte stehen im Klartext da, fehlende
+  nur als „noch nicht genannt“, das Bewertungsschema erst nach dem Prüfen. Gelöst ab 6 von 7 Punkten.
+- Die bestehenden Trainingsfragen „Beschreibe …“ beider Module prüfen jetzt dieselben 7 Schritte (mindestens 5).
+
 ## Offen
 
 - Schulleitung und Datenschutzbeauftragten über Upstash als neuen Dienstleister informieren (zwei Datenbanken:
