@@ -68,8 +68,23 @@ const LS_MODULE = {
   "ueberzeugend-argumentieren": [3, "Überzeugend argumentieren"], "sachlich-diskutieren": [4, "Sachlich diskutieren"],
   "tisch-duell": [5, "Tisch-Duell zu zweit"]
 };
+// Code-Anmeldung gilt nur für den Seitenaufruf, in dem der Code eingetippt wurde (Schul-iPads, siehe js/lernstand.js)
+function anmeldungLadung() {
+  var p = window.performance, t = p && (p.timeOrigin || (p.timing && p.timing.navigationStart));
+  return t ? String(t) : (window.__grumiLadung = window.__grumiLadung || String(Math.random()));
+}
+function anmeldungGueltig(s) {
+  if (!s || !s.code || !s.kennung) return null;
+  if (s.ladung && s.ladung === anmeldungLadung()) return s;
+  if (s.frisch && s.frisch === location.pathname && Date.now() - (s.seit || 0) < 120000) {
+    delete s.frisch; s.ladung = anmeldungLadung();
+    try { localStorage.setItem("grumi-code-anmeldung", JSON.stringify(s)); } catch (_e) {}
+    return s;
+  }
+  return null;
+}
 function lsKennung(){
-  try { const s = JSON.parse(localStorage.getItem("grumi-code-anmeldung") || "null"); return s && s.code && s.kennung ? s.kennung : ""; } catch (_) { return ""; }
+  try { const s = anmeldungGueltig(JSON.parse(localStorage.getItem("grumi-code-anmeldung") || "null")); return s && s.code && s.kennung ? s.kennung : ""; } catch (_) { return ""; }
 }
 function lernstand(){
   const name = MODUL || String(BASIS).replace(/^grumi-de7-/, "").replace(/-v\d+$/, "");
@@ -106,10 +121,10 @@ let loginWaiters = [];
 // Anmeldung mit dem 3-stelligen Code (gemeinsam mit allen Fächern, js/lernstand.js). Ohne Code geht es wie
 // bisher mit Vor- und Nachname. Mit Code speichert der Server keinen Namen („Code 123“).
 const CODE_KEY = "grumi-code-anmeldung", ALTE_CODE_KEYS = ["grumi-nt9-m9-anmeldung", "grumi-nt9-r9-anmeldung"];
-function codeSitzung(){ try { const s = JSON.parse(localStorage.getItem(CODE_KEY) || "null"); return s && s.code && s.kennung ? s : null; } catch (_) { return null; } }
+function codeSitzung(){ try { const s = anmeldungGueltig(JSON.parse(localStorage.getItem(CODE_KEY) || "null")); return s && s.code && s.kennung ? s : null; } catch (_) { return null; } }
 function codeSitzungSchreiben(st){
   const zug = (parseInt(st.className, 10) || 7) + (/M$/.test(st.className) ? "M" : "R");
-  try { localStorage.setItem(CODE_KEY, JSON.stringify({name: "Code " + st.code, kennung: "code-" + st.code, klasse: st.className, zug, code: st.code, seit: Date.now()})); } catch (_) {}
+  try { localStorage.setItem(CODE_KEY, JSON.stringify({name: "Code " + st.code, kennung: "code-" + st.code, klasse: st.className, zug, code: st.code, seit: Date.now(), frisch: location.pathname})); } catch (_) {}
 }
 function codeAbmelden(){ try { localStorage.removeItem(CODE_KEY); ALTE_CODE_KEYS.forEach(k => localStorage.removeItem(k)); } catch (_) {} }
 // Mit Code (z. B. aus Englisch) schon angemeldet? Dann Deutsch 7 ohne Fenster mit diesem Code starten.

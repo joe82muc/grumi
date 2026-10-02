@@ -176,6 +176,7 @@
   </div>
 </footer>
 
+<script src="../../../js/probe-schutz.js"></script>
 <script>
 const API = (location.hostname.includes('github.io') || location.protocol === 'file:')
   ? 'https://englisch-9.onrender.com' : '';
@@ -247,6 +248,7 @@ $('b-start').addEventListener('click', async () => {
     $('p-pts').textContent = 'Teil A ' + TEST.maxA + ' + Teil B ' + TEST.maxB + ' Punkte';
 
     bauen();
+    ProbeSchutz.start({ testId, code, box: $('fragen') });
     $('v-start').hidden = true; $('v-test').hidden = false;
     window.scrollTo({ top:0 });
   }catch(e){ msg('m-start', OFFLINE, 'bad'); $('b-start').disabled = false; }
@@ -321,12 +323,13 @@ $('b-submit').addEventListener('click', async () => {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
         testId: ICH.testId, code: ICH.code, testDate: new Date().toISOString().slice(0,10),
-        answers: ANS, datei: DATEI ? DATEI.b64 : '', dateiName: DATEI ? DATEI.name : ''
+        answers: ANS, verlassen: ProbeSchutz.verlassen(), datei: DATEI ? DATEI.b64 : '', dateiName: DATEI ? DATEI.name : ''
       })
     });
     const d = await r.json();
     if(r.status === 409){ msg('m-submit','Diese Pr&uuml;fung wurde bereits abgegeben.','bad'); b.textContent='Bereits abgegeben'; return; }
     if(!r.ok) throw new Error(d.error || r.status);
+    ProbeSchutz.ende();
     zeigen(d.result);
   }catch(e){
     sending = false; b.disabled = false; b.textContent = 'Pr&uuml;fung abgeben';

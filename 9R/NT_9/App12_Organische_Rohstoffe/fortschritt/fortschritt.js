@@ -48,13 +48,27 @@
   // Ältere Anmeldungen mit Vorname (ohne Code) gelten nicht mehr – ihr Stand kann beim Anmelden mit Code
   // übernommen werden.
   function zugVon(klasse) { var m = /^(\d+)/.exec(String(klasse || "")); return m ? m[1] + (/M$/.test(klasse) ? "M" : "R") : ""; }
-  var schueler = liesJson(SITZUNG);
+  // Schul-iPads: Die Anmeldung gilt nur für den Seitenaufruf, in dem der Code eingetippt wurde (wie js/lernstand.js).
+  // Jedes Modul fragt beim Öffnen wieder nach dem Code, nach mehr als 10 Minuten im Hintergrund auch.
+  function ladung() {
+    var p = global.performance, t = p && (p.timeOrigin || (p.timing && p.timing.navigationStart));
+    return t ? String(t) : (global.__grumiLadung = global.__grumiLadung || String(Math.random()));
+  }
+  function anmeldungGueltig(a) {
+    if (!a || !a.code || !a.kennung) return null;
+    if (a.ladung && a.ladung === ladung()) return a;
+    if (a.frisch && a.frisch === global.location.pathname && Date.now() - (a.seit || 0) < 120000) {
+      delete a.frisch; a.ladung = ladung(); schreib(SITZUNG, JSON.stringify(a));
+      return a;
+    }
+    return null;
+  }
+  var schueler = anmeldungGueltig(liesJson(SITZUNG));
   var alteSitzung = null;
-  if (!schueler || !schueler.code || !schueler.kennung || (schueler.zug || zugVon(schueler.klasse)) !== KLASSE) schueler = null;
+  if (schueler && (schueler.zug || zugVon(schueler.klasse)) !== KLASSE) schueler = null;
   if (!schueler) {
     var alt = liesJson(ALTE_SITZUNG);
-    if (alt && alt.kennung && alt.code) { schueler = alt; schueler.zug = KLASSE; schreib(SITZUNG, JSON.stringify(schueler)); }
-    else if (alt && alt.kennung) alteSitzung = alt;
+    if (alt && alt.kennung && !alt.code) alteSitzung = alt;
   }
 
   // Ohne Anmeldung "~-~": Eine Kennung kann nie "-" sein
@@ -175,6 +189,18 @@
   }
   global.addEventListener("online", senden);
   doc.addEventListener("visibilitychange", function () { if (doc.visibilityState === "hidden" && timer) { clearTimeout(timer); timer = null; senden(); } });
+  // Lag die Seite mehr als 10 Minuten im Hintergrund (iPad gesperrt, anderer Tab), Code neu abfragen
+  var versteckt = 0;
+  function zurueckNachPause() {
+    if (schueler && versteckt && Date.now() - versteckt > 10 * 60 * 1000) {
+      versteckt = 0; senden(); loesch(SITZUNG); schueler = null;
+      setTimeout(function () { global.location.reload(); }, 300);
+      return;
+    }
+    versteckt = 0;
+  }
+  doc.addEventListener("visibilitychange", function () { if (doc.visibilityState === "hidden") versteckt = Date.now(); else zurueckNachPause(); });
+  global.addEventListener("pageshow", function (e) { if (e.persisted) zurueckNachPause(); });
   global.addEventListener("pagehide", function () { if (timer) { clearTimeout(timer); timer = null; senden(); } });
 
   // Beim Öffnen: Stand vom Server holen (anderes Gerät) und den Namen aktualisieren
@@ -319,7 +345,7 @@
     });
     var vorher = lies(BASIS + "~" + kennung + "~") !== null || Object.keys(data.fortschritt || {}).length > 0;
     serverStandUebernehmen(kennung, data.fortschritt);
-    schueler = { name: "Code " + data.code, kennung: kennung, klasse: data.klasse || KLASSE, zug: data.zug || KLASSE, code: data.code, seit: Date.now() };
+    schueler = { name: "Code " + data.code, kennung: kennung, klasse: data.klasse || KLASSE, zug: data.zug || KLASSE, code: data.code, seit: Date.now(), frisch: global.location.pathname };
     // Den ganzen Stand dieses Geräts einmal hochladen (z. B. übernommener Stand), die Seite schickt ihn nach dem Neuladen
     var q = {};
     Object.keys(SEITE).forEach(function (id) {

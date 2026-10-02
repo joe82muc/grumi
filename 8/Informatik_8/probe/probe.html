@@ -353,6 +353,7 @@
   </div>
 </footer>
 
+<script src="../../../js/probe-schutz.js"></script>
 <script>
 /* ============================================================
    Probe Digitaler Informationsaustausch - Informatik 8
@@ -451,6 +452,7 @@ $('btn-start').addEventListener('click', async () => {
       + ' · ' + TEST.maxPoints + ' Punkte';
 
     buildQuestions();
+    ProbeSchutz.start({ testId, code, box: $('q-list') });
     $('view-start').hidden = true;
     $('view-test').hidden  = false;
     window.scrollTo({ top:0 });
@@ -636,7 +638,8 @@ async function abgeben(){
         testId: STUDENT.testId,
         code: STUDENT.code,
         testDate: new Date().toISOString().slice(0,10),
-        answers: ANSWERS
+        answers: ANSWERS,
+        verlassen: ProbeSchutz.verlassen()
       })
     });
     const data = await res.json();
@@ -656,6 +659,7 @@ async function abgeben(){
     }
     if(!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
 
+    ProbeSchutz.ende();
     showResult(data.result);
   }catch(e){
     sending = false;

@@ -56,8 +56,23 @@
   }
   function lies(k) { try { return global.localStorage.getItem(k); } catch (_e) { return null; } }
   function schreib(k, v) { try { global.localStorage.setItem(k, v); } catch (_e) {} }
+  // Code-Anmeldung gilt nur für den Seitenaufruf, in dem der Code eingetippt wurde (Schul-iPads, siehe js/lernstand.js)
+  function anmeldungLadung() {
+    var p = window.performance, t = p && (p.timeOrigin || (p.timing && p.timing.navigationStart));
+    return t ? String(t) : (window.__grumiLadung = window.__grumiLadung || String(Math.random()));
+  }
+  function anmeldungGueltig(s) {
+    if (!s || !s.code || !s.kennung) return null;
+    if (s.ladung && s.ladung === anmeldungLadung()) return s;
+    if (s.frisch && s.frisch === location.pathname && Date.now() - (s.seit || 0) < 120000) {
+      delete s.frisch; s.ladung = anmeldungLadung();
+      try { localStorage.setItem("grumi-code-anmeldung", JSON.stringify(s)); } catch (_e) {}
+      return s;
+    }
+    return null;
+  }
   function kennung() {
-    try { var s = JSON.parse(lies("grumi-code-anmeldung") || "null"); return s && s.code && s.kennung ? s : null; } catch (_e) { return null; }
+    try { var s = anmeldungGueltig(JSON.parse(lies("grumi-code-anmeldung") || "null")); return s && s.code && s.kennung ? s : null; } catch (_e) { return null; }
   }
   var reduziert = global.matchMedia && global.matchMedia("(prefers-reduced-motion: reduce)").matches;
 

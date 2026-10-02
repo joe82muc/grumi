@@ -298,6 +298,7 @@
   </div>
 </footer>
 
+<script src="../../../../js/probe-schutz.js"></script>
 <script>
 /* ============================================================
    Grammatiktests und Grammatikprobe - Englisch 7M und 7R, Unit 1
@@ -402,6 +403,7 @@ $('btn-start').addEventListener('click', async () => {
     $('t-person').textContent = 'Code ' + code + ' · ' + TEST.maxPoints + ' Punkte';
 
     buildQuestions();
+    ProbeSchutz.start({ testId, code, box: $('q-list') });
     $('view-start').hidden = true;
     $('view-test').hidden  = false;
     window.scrollTo({ top:0 });
@@ -537,7 +539,8 @@ $('btn-submit').addEventListener('click', async () => {
         testId: STUDENT.testId,
         code: STUDENT.code,
         testDate: new Date().toISOString().slice(0,10),
-        answers: ANSWERS
+        answers: ANSWERS,
+        verlassen: ProbeSchutz.verlassen()
       })
     });
     const data = await res.json();
@@ -548,6 +551,7 @@ $('btn-submit').addEventListener('click', async () => {
       return;
     }
     if(!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+    ProbeSchutz.ende();
     showResult(data.result);
   }catch(e){
     sending = false;

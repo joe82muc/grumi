@@ -43,11 +43,26 @@
   const andere = klasse === "7M" ? "7R" : "7M";
   const esc = s => String(s).replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"})[c]);
 
+  // Code-Anmeldung gilt nur für den Seitenaufruf, in dem der Code eingetippt wurde (Schul-iPads, siehe js/lernstand.js)
+  function anmeldungLadung() {
+    var p = window.performance, t = p && (p.timeOrigin || (p.timing && p.timing.navigationStart));
+    return t ? String(t) : (window.__grumiLadung = window.__grumiLadung || String(Math.random()));
+  }
+  function anmeldungGueltig(s) {
+    if (!s || !s.code || !s.kennung) return null;
+    if (s.ladung && s.ladung === anmeldungLadung()) return s;
+    if (s.frisch && s.frisch === location.pathname && Date.now() - (s.seit || 0) < 120000) {
+      delete s.frisch; s.ladung = anmeldungLadung();
+      try { localStorage.setItem("grumi-code-anmeldung", JSON.stringify(s)); } catch (_e) {}
+      return s;
+    }
+    return null;
+  }
   function fortschritt(key) {
     try {
       // Mit Code angemeldet: eigener Stand je Kind (siehe modul-basis.js)
       let kennung = "";
-      try { const a = JSON.parse(localStorage.getItem("grumi-code-anmeldung") || "null"); if (a && a.code && a.kennung) kennung = "~" + a.kennung + "~"; } catch (_) {}
+      try { const a = anmeldungGueltig(JSON.parse(localStorage.getItem("grumi-code-anmeldung") || "null")); if (a && a.code && a.kennung) kennung = "~" + a.kennung + "~"; } catch (_) {}
       const solved = Object.keys(JSON.parse(localStorage.getItem(key + kennung) || "{}") || {}).length;
       const total = +localStorage.getItem(key + kennung + "-total") || +localStorage.getItem(key + "-total") || 0;
       return total ? {solved: Math.min(solved, total), total} : null;

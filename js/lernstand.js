@@ -7,6 +7,9 @@
  *   sie in proben-verwalten.html. Namen und Antworten werden nicht gespeichert.
  * - Das Kind sieht oben auf der Seite, was es schon gelöst hat und was noch fehlt (auch geräteübergreifend).
  * - Klasse 9: Anmeldung ist Pflicht. Klasse 7 und 8: „Ohne Code üben“ geht auch (cfg.pflicht stellt das um).
+ * - Schul-iPads: Der Code gilt nur für den Seitenaufruf, in dem er eingetippt wurde (anmeldungGueltig). Jedes Modul
+ *   fragt beim Öffnen wieder nach dem Code, und nach mehr als 10 Minuten im Hintergrund (iPad gesperrt) auch.
+ *   So arbeitet niemand aus Versehen unter dem Code eines anderen Kindes. Die Übersicht fragt nicht von selbst.
  * - Sparsam mit dem Server: Beim Öffnen einer Seite geht nur dann eine Meldung raus, wenn der Server etwas
  *   noch nicht kennt (gelöste Aufgaben, Aufgabenzahl, Aufgabenliste).
  *
@@ -58,16 +61,25 @@
     return (h >>> 0).toString(36);
   }
 
-  // Angemeldet? Erst die gemeinsame Anmeldung, sonst eine ältere aus Klasse 9 übernehmen
-  var schueler = liesJson(SITZUNG);
-  if (!schueler || !schueler.code || !schueler.kennung) {
-    schueler = null;
-    ALTE_SITZUNGEN.forEach(function (k) {
-      var s = liesJson(k);
-      if (s && s.code && s.kennung && (!schueler || (s.seit || 0) > (schueler.seit || 0))) schueler = s;
-    });
-    if (schueler) { schueler.zug = schueler.zug || zugVon(schueler.klasse); schreib(SITZUNG, JSON.stringify(schueler)); }
+  /* Angemeldet? Die Anmeldung gilt nur für den Seitenaufruf, in dem der Code eingetippt wurde: Nach dem Eintippen
+     steht sie mit „frisch“ (Pfad der Seite) im Speicher, das erste Skript nach dem Neuladen bindet sie an diesen
+     Aufruf („ladung“). Jedes spätere Öffnen einer Seite fragt wieder nach dem Code. Dieselbe Prüfung steht in den
+     Skripten, die die Anmeldung selbst lesen (NT 7/9, Deutsch 7, Grammatik, Vokabeltrainer, Übersichten). */
+  function ladung() {
+    var p = global.performance, t = p && (p.timeOrigin || (p.timing && p.timing.navigationStart));
+    return t ? String(t) : (global.__grumiLadung = global.__grumiLadung || String(Math.random()));
   }
+  function anmeldungGueltig(s) {
+    if (!s || !s.code || !s.kennung) return null;
+    if (s.ladung && s.ladung === ladung()) return s;
+    if (s.frisch && s.frisch === global.location.pathname && Date.now() - (s.seit || 0) < 120000) {
+      delete s.frisch; s.ladung = ladung(); schreib(SITZUNG, JSON.stringify(s));
+      return s;
+    }
+    return null;
+  }
+  ALTE_SITZUNGEN.forEach(loesch);
+  var schueler = anmeldungGueltig(liesJson(SITZUNG));
   if (schueler && !schueler.zug) schueler.zug = zugVon(schueler.klasse);
   function key(modul) { return "grumi-ls-" + zugKurz(schueler.zug) + "-" + modul + "~" + schueler.kennung + "~"; }
   function lokalerStand(modul) {
@@ -162,7 +174,7 @@
       '<li>Gespeichert werden dein Code und welche Aufgaben du richtig gelöst hast. So sieht deine Lehrkraft, wie weit du bist. Dein Name wird nicht gespeichert.</li>' +
       '<li>Deine Antworten selbst werden nicht gespeichert.</li>' +
       '<li>Mit deinem Code kannst du auf jedem Gerät weiterlernen. Gib ihn nicht weiter.</li>' +
-      '<li>Teilst du das Gerät mit anderen? Dann melde dich am Ende ab.</li>' +
+      '<li>Jede Übung fragt beim Öffnen wieder nach deinem Code. So arbeitet auf einem geteilten iPad niemand unter deinem Code.</li>' +
       '</ul></div>';
   }
 
@@ -204,7 +216,7 @@
             los.disabled = false; los.textContent = "➜ Los geht's";
             return;
           }
-          schueler = { name: "Code " + data.code, kennung: "code-" + data.code, klasse: data.klasse, zug: data.zug || zugVon(data.klasse), code: data.code, seit: Date.now() };
+          schueler = { name: "Code " + data.code, kennung: "code-" + data.code, klasse: data.klasse, zug: data.zug || zugVon(data.klasse), code: data.code, seit: Date.now(), frisch: global.location.pathname };
           if (!schreib(SITZUNG, JSON.stringify(schueler))) { dlg.close(); return; }
           ALTE_SITZUNGEN.forEach(loesch);
           sitzungSchreib(BEGRUESSEN, "1");
@@ -314,6 +326,18 @@
     })(0);
   }
   global.addEventListener("online", senden);
+  // Lag die Seite mehr als 10 Minuten im Hintergrund (iPad gesperrt, anderer Tab), Code neu abfragen
+  var versteckt = 0;
+  function zurueckNachPause() {
+    if (schueler && versteckt && Date.now() - versteckt > 10 * 60 * 1000) {
+      versteckt = 0; senden(); loesch(SITZUNG); schueler = null;
+      setTimeout(function () { global.location.reload(); }, 300);
+      return;
+    }
+    versteckt = 0;
+  }
+  doc.addEventListener("visibilitychange", function () { if (doc.visibilityState === "hidden") versteckt = Date.now(); else zurueckNachPause(); });
+  global.addEventListener("pageshow", function (e) { if (e.persisted) zurueckNachPause(); });
   doc.addEventListener("visibilitychange", function () { if (doc.visibilityState === "hidden" && timer) { clearTimeout(timer); timer = null; senden(); } });
   global.addEventListener("pagehide", function () { if (timer) { clearTimeout(timer); timer = null; senden(); } });
 
@@ -527,7 +551,7 @@
       knoepfe(box);
     }
     zeichnen({}, {}, Boolean(schueler));
-    if (!schueler) { if (cfg.anmelden !== false && vonSelbstAnmelden()) anmeldeDialog(); return; }
+    if (!schueler) return;
     begruessen();
     anfrage("/anmelden", { code: schueler.code, kurs: cfg.kurs, katalog: true }).then(function (data) {
       if (data.status === 404) { codeUngueltig(); return; }

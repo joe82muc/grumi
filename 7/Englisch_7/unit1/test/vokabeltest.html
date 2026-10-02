@@ -201,6 +201,7 @@
 
 </div>
 
+<script src="../../../../js/probe-schutz.js"></script>
 <script>
 /* ============================================================
    Vokabeltest - Schueleransicht
@@ -308,6 +309,17 @@ $('btn-start').addEventListener('click', async () => {
     editCount = items.map(() => 0);
     locked    = items.map(() => false);
     renderTest();
+    ProbeSchutz.start({ testId, code, box: $('questions'), extra: {
+      // „2× korrigierbar“ mitsichern, sonst ließe es sich durch Neuladen zurücksetzen
+      holen: () => ({ e: editCount, l: locked }),
+      setzen: (x) => (x.e || []).forEach((n, i) => {
+        if (i >= editCount.length) return;
+        editCount[i] = n; locked[i] = Boolean(x.l && x.l[i]);
+        const info = $('e' + i), inp = $('a' + i);
+        if (locked[i]) { inp.readOnly = true; info.textContent = 'Festgelegt – keine Korrektur mehr möglich'; info.classList.add('none'); }
+        else info.textContent = 'Noch ' + (MAX_EDITS - n) + '× korrigierbar';
+      })
+    }});
   }catch(e){
     msg('login-msg','Keine Verbindung zum Server. Bitte melde dich bei deiner Lehrkraft.','bad');
     $('btn-start').disabled = false;
@@ -406,7 +418,7 @@ $('btn-submit').addEventListener('click', async () => {
   try{
     const res = await fetch(API_BASE + '/api/vokabeltest/submit', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ ...student, answers })
+      body: JSON.stringify({ ...student, answers, verlassen: ProbeSchutz.verlassen() })
     });
     const data = await res.json();
 
@@ -423,6 +435,7 @@ $('btn-submit').addEventListener('click', async () => {
     }
 
     submitted = true; testRunning = false;
+    ProbeSchutz.ende();
     showResult(data.result);
   }catch(e){
     $('btn-submit').disabled = false;

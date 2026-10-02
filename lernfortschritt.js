@@ -120,6 +120,10 @@
     ".lf-schnitt{font-weight:900;font-variant-numeric:tabular-nums}" +
     ".lf-noten tfoot td{border-top:2px solid var(--line);background:#f8fafd;font-weight:800}" +
     ".lf-noten th a{color:var(--accent);text-decoration:none}.lf-noten th a:hover{text-decoration:underline}" +
+    ".lf-ck .lf-lrs{font-size:.72rem;font-weight:900;border:1.5px solid var(--line);border-radius:999px;padding:.1rem .45rem;color:var(--muted);background:#fff}" +
+    ".lf-ck .lf-lrs.an{background:#6d28d9;border-color:#6d28d9;color:#fff}" +
+    ".lf-lrs-b{display:inline-block;margin-left:.35rem;padding:0 .4rem;border-radius:99px;background:#ede9fe;color:#5b21b6;font-size:.7rem;font-weight:900;vertical-align:middle}" +
+    ".lf-weg{color:#b45309;font-weight:800}" +
     ".lf-namen{width:100%;min-height:120px;padding:.6rem .7rem;border:1.5px solid var(--line);border-radius:10px;font:inherit;font-size:.95rem;resize:vertical}" +
     "#lf-druck{display:none}" +
     "@media print{body.lf-drucken>*:not(#lf-druck){display:none!important}body.lf-drucken{background:#fff;padding:0}" +
@@ -185,7 +189,7 @@
   }
   function codesDerKlasse(k) {
     return CODES.filter(function (s) { return s.klasse === k; })
-      .map(function (s) { return { code: s.code, klasse: s.klasse, name: nameVon(s.code) }; })
+      .map(function (s) { return { code: s.code, klasse: s.klasse, name: nameVon(s.code), lrs: Boolean(s.lrs) }; })
       .sort(function (a, b) { return (a.name || "~").localeCompare(b.name || "~", "de") || a.code.localeCompare(b.code); });
   }
 
@@ -279,7 +283,7 @@
     });
     var teil = $("vw-teil");
     if (ANSICHT === "proben") {
-      teil.innerHTML = '<p class="sub">Proben für Klasse ' + esc(KLASSE) + '. Freischalten gilt für die Probe selbst – also für alle Klassen, die sie schreiben (z. B. alle ' + stufeVon(KLASSE) + zugBuchstabe(KLASSE) + '-Klassen). Ist eine Probe offen, steht der Link für die Kinder direkt dabei.</p><div id="vw-proben"></div>';
+      teil.innerHTML = '<p class="sub">Proben für Klasse ' + esc(KLASSE) + '. Freischalten gilt für die Probe selbst – also für alle Klassen, die sie schreiben (z. B. alle ' + stufeVon(KLASSE) + zugBuchstabe(KLASSE) + '-Klassen). Ist eine Probe offen, steht der Link für die Kinder direkt dabei. Offene Proben schließen sich 3 Stunden nach dem Freischalten von selbst (Abgeben geht noch 1 Stunde länger).</p><div id="vw-proben"></div>';
       if (PROBEN) PROBEN.zeigen($("vw-proben"), { stufe: stufeVon(KLASSE), zug: zugBuchstabe(KLASSE) });
     } else if (ANSICHT === "noten") {
       notenLaden(teil);
@@ -359,15 +363,18 @@
       liste.forEach(function (kind) {
         var noten = [];
         h += '<tr><td class="lf-name">' + (kind.name ? esc(kind.name) : '<span class="lf-leer">ohne Namen</span>') +
+          (kind.lrs ? ' <span class="lf-lrs-b" title="Notenschutz LRS">LRS</span>' : "") +
           (kind.weg ? ' <span class="lf-leer">(Code gelöscht)</span>' : "") + "</td>" +
           '<td class="lf-code">' + esc(kind.code) + "</td>";
         P.forEach(function (p) {
           var n = p.noten[kind.code];
           if (!n) { h += '<td><span class="lf-leer">–</span></td>'; return; }
           noten.push(n.note);
-          h += '<td title="' + esc(n.punkte + " von " + n.max + " Punkten (" + n.prozent + " %)" + (n.nachpruefen ? " · KI-Bewertung noch prüfen" : "")) + '">' +
+          h += '<td title="' + esc(n.punkte + " von " + n.max + " Punkten (" + n.prozent + " %)" + (n.lrs ? " · mit Notenschutz LRS gewertet" : "") +
+              (n.verlassen ? " · " + n.verlassen + "× die Probe verlassen (anderer Tab oder andere App)" : "") + (n.nachpruefen ? " · KI-Bewertung noch prüfen" : "")) + '">' +
             '<span class="lf-note ' + notenFarbe(n.note) + '">' + esc(n.note) + "</span>" + (n.nachpruefen ? ' <span title="KI-Bewertung noch prüfen">⚠️</span>' : "") +
-            '<span class="lf-np">' + esc(n.punkte + "/" + n.max + " · " + datumText(n.datum)) + "</span></td>";
+            (n.lrs ? '<span class="lf-lrs-b">LRS</span>' : "") +
+            '<span class="lf-np">' + esc(n.punkte + "/" + n.max + " · " + datumText(n.datum)) + (n.verlassen ? ' · <span class="lf-weg">' + n.verlassen + "× verlassen</span>" : "") + "</span></td>";
         });
         h += '<td class="lf-schnitt">' + (schnitt(noten) || '<span class="lf-leer">–</span>') + "</td></tr>";
       });
@@ -378,7 +385,8 @@
           '<span class="lf-np">' + codes.length + " von " + liste.length + " abgegeben</span></td>";
       });
       h += "<td></td></tr></tfoot></table></div>" +
-        '<p class="sub" style="margin:.5rem 0 0">⚠️ = Die KI war bei einer freien Antwort unsicher oder nicht erreichbar. Bitte in der Lehrerseite der Probe nachsehen.</p>';
+        '<p class="sub" style="margin:.5rem 0 0">⚠️ = Die KI war bei einer freien Antwort unsicher oder nicht erreichbar. Bitte in der Lehrerseite der Probe nachsehen. ' +
+        "<b>LRS</b> = mit Notenschutz gewertet (Rechtschreibung zählt nicht). <b>× verlassen</b> = So oft hat das Kind während der Probe in einen anderen Tab oder eine andere App gewechselt.</p>";
     }
     teil.innerHTML = h;
     $("lf-nreload").addEventListener("click", function () { notenLaden(teil); });
@@ -386,16 +394,16 @@
   }
   function notenCsv() {
     if (!NOTEN) return;
-    var P = notenProben(), kopf = ["Klasse", "Code", "Name"];
-    P.forEach(function (p) { kopf.push(p.titel + " Note", p.titel + " Punkte", p.titel + " Datum"); });
+    var P = notenProben(), kopf = ["Klasse", "Code", "Name", "Notenschutz LRS"];
+    P.forEach(function (p) { kopf.push(p.titel + " Note", p.titel + " Punkte", p.titel + " Datum", p.titel + " verlassen"); });
     var zeilen = [kopf.concat(["Schnitt"])];
     notenKinder(P).forEach(function (kind) {
-      var z = [KLASSE, kind.code, nameVon(kind.code)], noten = [];
+      var z = [KLASSE, kind.code, nameVon(kind.code), kind.lrs ? "ja" : ""], noten = [];
       P.forEach(function (p) {
         var n = p.noten[kind.code];
         if (n) noten.push(n.note);
         // „von“ statt „/“, sonst macht Excel aus 5/10 ein Datum
-        z.push(n ? n.note : "", n ? n.punkte + " von " + n.max : "", n ? datumText(n.datum, true) : "");
+        z.push(n ? n.note : "", n ? n.punkte + " von " + n.max : "", n ? datumText(n.datum, true) : "", n && n.verlassen ? n.verlassen + "x" : "");
       });
       zeilen.push(z.concat([schnitt(noten)]));
     });
@@ -670,9 +678,11 @@
       '<input type="file" id="lf-namen-datei" accept=".csv,.txt,text/csv,text/plain" hidden></div>' +
       '<div class="lf-codes">' + liste.map(function (k) {
         return '<div class="lf-ck"><span class="lf-code">' + esc(k.code) + '</span><span class="lf-name">' + (k.name ? esc(k.name) : '<span class="lf-leer">ohne Namen</span>') + "</span>" +
+          '<button type="button" class="lf-lrs' + (k.lrs ? " an" : "") + '" data-lrs="' + esc(k.code) + '" aria-pressed="' + k.lrs + '" title="Notenschutz LRS: In Proben zählt die Rechtschreibung nicht">LRS</button>' +
           '<button type="button" data-umbenennen="' + esc(k.code) + '" title="Namen ändern" aria-label="Namen ändern">✏️</button>' +
           '<button type="button" data-loeschen="' + esc(k.code) + '" title="Code und Lernstand löschen" aria-label="Löschen">🗑️</button></div>';
       }).join("") + "</div>" +
+      '<p class="sub" style="margin:.5rem 0 0"><b>LRS</b> = Notenschutz wegen Lese-Rechtschreib-Störung: In Proben zählt die Rechtschreibung nicht (Englisch: Ein Wort zählt, wenn es erkennbar gemeint ist). Gilt für Abgaben ab dem Einschalten. Auf dem Server steht dazu nur der Code, kein Name.</p>' +
       '<h3 class="lf-h3">Weitere Kinder hinzufügen</h3>' +
       '<p class="sub">Vornamen eintragen (einen pro Zeile) oder die Klassenliste laden. Wer schon einen Code hat, bekommt keinen zweiten.</p>' +
       namensFeld("lf") +
@@ -694,6 +704,19 @@
     $("lf-kl-loeschen").addEventListener("click", klasseLoeschen);
     Array.prototype.forEach.call(teil.querySelectorAll("[data-umbenennen]"), function (b) { b.addEventListener("click", function () { umbenennen(b.getAttribute("data-umbenennen")); }); });
     Array.prototype.forEach.call(teil.querySelectorAll("[data-loeschen]"), function (b) { b.addEventListener("click", function () { loeschen(b.getAttribute("data-loeschen")); }); });
+    Array.prototype.forEach.call(teil.querySelectorAll("[data-lrs]"), function (b) { b.addEventListener("click", function () { lrsUmschalten(b, teil); }); });
+  }
+
+  // Notenschutz LRS je Code an/aus (Server: nur Code + Merkmal)
+  function lrsUmschalten(knopf, teil) {
+    var code = knopf.getAttribute("data-lrs"), kind = CODES.filter(function (s) { return s.code === code; })[0];
+    if (!kind) return;
+    knopf.disabled = true;
+    post("lrs", { code: code, lrs: !kind.lrs }).then(function (d) {
+      kind.lrs = d.lrs;
+      hinweis((nameVon(code) || "Code " + code) + (d.lrs ? ": Notenschutz LRS ist an. Rechtschreibung zählt in Proben ab jetzt nicht." : ": Notenschutz LRS ist aus."), "ok");
+      codesZeichnen(teil);
+    }).catch(function (e) { knopf.disabled = false; hinweis("Das hat nicht geklappt: " + e.message, "bad"); });
   }
 
   // Knopf „Klassenliste laden“ + Dateiauswahl; danach(erg) bekommt { namen, klasse }

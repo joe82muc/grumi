@@ -8,10 +8,25 @@ const API_BASE = new URLSearchParams(location.search).get("api") ||
 const SESSION_KEY = "grumi-de7-argument-session-v1";
 // Anmeldung mit dem 3-stelligen Code (gemeinsam mit allen Fächern, js/lernstand.js); ohne Code mit Namen
 const CODE_KEY = "grumi-code-anmeldung", OLD_CODE_KEYS = ["grumi-nt9-m9-anmeldung", "grumi-nt9-r9-anmeldung"];
-function codeSession() { try { const s = JSON.parse(localStorage.getItem(CODE_KEY) || "null"); return s && s.code && s.kennung ? s : null; } catch (_e) { return null; } }
+// Code-Anmeldung gilt nur für den Seitenaufruf, in dem der Code eingetippt wurde (Schul-iPads, siehe js/lernstand.js)
+function anmeldungLadung() {
+  var p = window.performance, t = p && (p.timeOrigin || (p.timing && p.timing.navigationStart));
+  return t ? String(t) : (window.__grumiLadung = window.__grumiLadung || String(Math.random()));
+}
+function anmeldungGueltig(s) {
+  if (!s || !s.code || !s.kennung) return null;
+  if (s.ladung && s.ladung === anmeldungLadung()) return s;
+  if (s.frisch && s.frisch === location.pathname && Date.now() - (s.seit || 0) < 120000) {
+    delete s.frisch; s.ladung = anmeldungLadung();
+    try { localStorage.setItem("grumi-code-anmeldung", JSON.stringify(s)); } catch (_e) {}
+    return s;
+  }
+  return null;
+}
+function codeSession() { try { const s = anmeldungGueltig(JSON.parse(localStorage.getItem(CODE_KEY) || "null")); return s && s.code && s.kennung ? s : null; } catch (_e) { return null; } }
 function writeCodeSession(st) {
   const zug = (parseInt(st.className, 10) || 7) + (/M$/.test(st.className) ? "M" : "R");
-  try { localStorage.setItem(CODE_KEY, JSON.stringify({ name: "Code " + st.code, kennung: "code-" + st.code, klasse: st.className, zug, code: st.code, seit: Date.now() })); } catch (_e) {}
+  try { localStorage.setItem(CODE_KEY, JSON.stringify({ name: "Code " + st.code, kennung: "code-" + st.code, klasse: st.className, zug, code: st.code, seit: Date.now(), ladung: anmeldungLadung() })); } catch (_e) {}
 }
 function clearCodeSession() { try { localStorage.removeItem(CODE_KEY); OLD_CODE_KEYS.forEach((k) => localStorage.removeItem(k)); } catch (_e) {} }
 const DRAFT_KEY = "grumi-de7-argument-drafts-v1";
