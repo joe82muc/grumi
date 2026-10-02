@@ -236,7 +236,7 @@ window.KohlenstoffKurs = {
       page: "modul-7.html",
       title: "Ohne Erdöl – geht das?",
       duration: "90 min",
-      goal: "Du lernst, was Erdöl als Energieträger und als Rohstoff ersetzen kann und welche Nachteile Ersatzstoffe haben. Dann vertrittst du in einer Diskussionsrunde eine von fünf Rollen – allein gegen die KI oder zu viert am Tisch – und bekommst ein Protokoll mit Faktenprüfung.",
+      goal: "Du lernst, was Erdöl als Energieträger und als Rohstoff ersetzen kann und welche Nachteile Ersatzstoffe haben. Dann vertrittst du in einer Diskussionsrunde eine von fünf Rollen – allein gegen die KI oder am Tisch, schon ab zwei Kindern – und bekommst ein Protokoll mit Faktenprüfung.",
       sections: [
         {
           title: "Ersatz und Diskussion",

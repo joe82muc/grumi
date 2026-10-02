@@ -130,7 +130,7 @@
     </nav>
     <div class="eyebrow">Natur und Technik · Klasse 9M / 9R · Organische Rohstoffe · Modul 7</div>
     <h1>Ohne Erdöl – geht das?</h1>
-    <p>In Modul 6 hast du gesehen, wofür wir Erdöl brauchen und was es wirklich kostet. Jetzt geht es um die Zukunft: Was kann Erdöl ersetzen – als Energie und als Rohstoff? Danach wird diskutiert: Fünf Menschen mit ganz unterschiedlichen Ansichten streiten über die Frage, ob wir möglichst schnell ohne Erdöl auskommen sollen. Du übernimmst eine Rolle, allein gegen die KI oder zu viert am Tisch.</p>
+    <p>In Modul 6 hast du gesehen, wofür wir Erdöl brauchen und was es wirklich kostet. Jetzt geht es um die Zukunft: Was kann Erdöl ersetzen – als Energie und als Rohstoff? Danach wird diskutiert: Fünf Menschen mit ganz unterschiedlichen Ansichten streiten über die Frage, ob wir möglichst schnell ohne Erdöl auskommen sollen. Du übernimmst eine Rolle – allein gegen die KI oder am Tisch mit Mitschülern: Schon zu zweit geht es los, die übrigen Rollen spricht die KI.</p>
     <div class="hero-cta">
       <a class="btn light" href="#s1">Los geht's ↓</a>
       <a class="btn ghost" href="#s3">🎙️ Direkt zur Diskussionsrunde</a>
@@ -299,13 +299,13 @@
 
 <!-- ============ STATION 4 ============ -->
 <section class="station" id="s4">
-  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Zu viert am Tisch</div><h2>👥 Tisch-Diskussion</h2></div></div>
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Zu zweit, zu dritt oder zu viert am Tisch</div><h2>👥 Tisch-Diskussion</h2></div></div>
   <div class="grid2">
     <div class="card reveal">
       <p class="lead" style="margin-top:0">Jetzt diskutiert ihr miteinander – jede und jeder am eigenen iPad.</p>
       <ol>
         <li>Alle am Tisch geben <strong>dieselbe Tischnummer</strong> ein und wählen <strong>verschiedene Rollen</strong>.</li>
-        <li>Ab zwei Kindern kann jemand auf <strong>Start</strong> tippen. Freie Rollen spricht die KI.</li>
+        <li><strong>Schon zu zweit</strong> könnt ihr loslegen: Eine Person tippt auf <strong>Start</strong>. Jede Rolle ohne Kind spricht die KI – zu zweit also drei Rollen, zu dritt zwei.</li>
         <li>Es gibt drei Runden: <strong>Position</strong>, <strong>auf einen Vorredner eingehen</strong>, <strong>Schlusswort mit Vorschlag</strong>. Die Reihenfolge ist fest – du siehst, wer dran ist.</li>
         <li>Die KI prüft jeden Beitrag, bevor er bei den anderen ankommt.</li>
         <li>Am Ende bekommen alle dasselbe Protokoll mit Faktenprüfung.</li>
@@ -658,7 +658,8 @@ function meinungDanach(){
 (function(){
   const box = $("#tisch");
   register("tisch", box, "Tisch-Diskussion mit Protokoll");
-  let s = null, timer = null, letzteVersion = -1, eingabeFuer = "", rolleWahl = null;
+  let s = null, timer = null, letzteVersion = -1, eingabeFuer = "", rolleWahl = null, wartenSig = "", zuletzt = 0;
+  const namen = ids => { const n = ids.map(id => rolleVon(id).name); return n.length > 1 ? n.slice(0, -1).join(", ") + " und " + n[n.length - 1] : n.join(""); };
 
   function einstieg(fehler){
     stopp();
@@ -683,7 +684,10 @@ function meinungDanach(){
   function start(){ stopp(); timer = setInterval(abfragen, 2000); }
   function stopp(){ if (timer) clearInterval(timer); timer = null; }
   async function abfragen(){
-    if (document.hidden) return;
+    // Im Hintergrund (anderer Tab, anderes Fenster) seltener nachfragen, aber nicht ganz aufhören:
+    // Sonst gilt das Kind nach 20 Sekunden als „weg“ und der Start zu zweit wäre gesperrt.
+    if (document.hidden && Date.now() - zuletzt < 10000) return;
+    zuletzt = Date.now();
     try {
       const d = await post("/tisch/state", {});
       if (d.status === "kein-tisch") { s = null; einstieg("Du sitzt an keinem Tisch mehr."); return; }
@@ -697,13 +701,27 @@ function meinungDanach(){
     const kopf = `<div class="score"><span>Tisch ${s.tisch} · ${esc(s.klasse)}</span><span class="chip">${s.status === "warten" ? "wartet auf Start" : s.status === "laeuft" ? `Runde ${s.runde} / ${s.runden}` : s.status === "protokoll" ? "Protokoll" : "fertig"}</span></div>
       <div class="platz-liste">${platz}</div>`;
     if (s.status === "warten") {
+      // Schon zu zweit kann es losgehen, alle Rollen ohne Kind spricht die KI
       const kinder = s.plaetze.filter(p => p.besetzt && p.online).length;
-      box.innerHTML = `${kopf}<p class="lead" style="margin:6px 0">Du bist <strong>${ich.av} ${esc(ich.name)}</strong>. Warte, bis alle am Tisch sitzen, dann tippt eine Person auf Start. Freie Rollen übernimmt die KI.</p>
-        <div class="row-btns"><button class="btn teal st" type="button" ${kinder < 2 ? "disabled" : ""}>▶️ Diskussion starten (${kinder} Kinder)</button><button class="btn small ghost weg" type="button">Tisch verlassen</button></div><div class="status"></div>`;
-      $(".st", box).addEventListener("click", async () => { try { s = await post("/tisch/start", {}); zeichnen(true); } catch (e) { $(".status", box).textContent = e.message; } });
+      const kiRollen = s.plaetze.filter(p => !p.besetzt).map(p => p.rolle);
+      // Nur neu zeichnen, wenn sich am Tisch etwas ändert – sonst ginge ein Tippen auf „Start“ verloren
+      const sig = s.tisch + "|" + s.plaetze.map(p => p.rolle + (p.besetzt ? (p.online ? "K" : "W") : "-")).join(",");
+      if (!neu && sig === wartenSig) return;
+      wartenSig = sig; eingabeFuer = "";
+      const genug = kinder >= 2;
+      box.innerHTML = `${kopf}<p class="lead" style="margin:6px 0">Du bist <strong>${ich.av} ${esc(ich.name)}</strong>.</p>
+        ${genug
+          ? `<div class="ki-ok">✅ <strong>Ihr seid ${kinder} Kinder – ihr könnt starten!</strong> ${kiRollen.length ? `Die KI übernimmt ${kiRollen.length === 1 ? "die Rolle" : "die Rollen"} ${esc(namen(kiRollen))}.` : "Alle Rollen sind mit Kindern besetzt."} Wer noch mitmachen will, setzt sich vor dem Start dazu.</div>`
+          : `<div class="frage-box">⏳ <strong>Warte auf ein zweites Kind.</strong> Es gibt am eigenen iPad die Tischnummer ${s.tisch} ein und wählt eine andere Rolle. Schon zu zweit könnt ihr starten – die übrigen Rollen spricht dann die KI.</div>`}
+        <div class="row-btns"><button class="btn teal st" type="button" ${genug ? "" : "disabled"}>▶️ Diskussion starten</button><button class="btn small ghost weg" type="button">Tisch verlassen</button></div><div class="status"></div>`;
+      $(".st", box).addEventListener("click", async e => {
+        const knopf = e.currentTarget; knopf.disabled = true; $(".status", box).innerHTML = '<span class="dots">Die Runde startet</span>';
+        try { s = await post("/tisch/start", {}); zeichnen(true); } catch (err) { $(".status", box).textContent = err.message; knopf.disabled = false; }
+      });
       $(".weg", box).addEventListener("click", verlassen);
-      eingabeFuer = ""; return;
+      return;
     }
+    wartenSig = "";
     if (s.status === "fertig" && s.protokoll) {
       if (letzteVersion === s.version && !neu) return;
       letzteVersion = s.version;

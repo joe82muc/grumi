@@ -228,7 +228,9 @@ Die Buchseite „leben ohne erdöl.png“ diente nur für die Fakten; Rollen, Na
   (Klimaschutz), Ole Hansen (Ölförderung), Sabine Koch (Politik), Murat Aydın (Firma).
 - Allein: Kind wählt eine Rolle, die KI spricht die anderen vier und moderiert, 4 Runden (Position, Gegenargument,
   Rückfrage, Lösung). Am Tisch: 2 bis 4 Kinder (gleiche Tischnummer 1–40, verschiedene Rollen), KI übernimmt freie
-  Rollen und springt nach 1 Minute Abwesenheit ein, 3 Runden in fester Reihenfolge, Abfrage alle 2 s.
+  Rollen und springt nach 1 Minute Abwesenheit ein, 3 Runden in fester Reihenfolge, Abfrage alle 2 s (im
+  Hintergrund-Tab alle 10 s). Start schon zu zweit; die Warteansicht nennt die Rollen, die die KI übernimmt, und
+  wird nur bei Änderungen am Tisch neu gezeichnet (sonst ging ein Tippen auf „Start“ verloren).
 - Jeder Schülerbeitrag wird vor dem Einblenden von der KI geprüft (Thema, sachlich), Rechtschreibung zählt nicht,
   Einfügen von Text ist gesperrt. Am Ende Protokoll: Schülerbeiträge im Wortlaut (die KI kann sie nicht ändern),
   Faktencheck je Schülerbeitrag, Ergebnis, Stärken, Tipp; drucken bzw. als PDF speichern.
