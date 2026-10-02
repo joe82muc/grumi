@@ -4,79 +4,32 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Strategie 5 – Betonungsprobe machen</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#0a0a0a;--surface:#141414;--surface2:#1e1e1e;--gold:#ffd000;--gold2:#f0a030;--text:#f0f0f0;--muted:#888;--correct:#4caf50;--wrong:#e53935;--radius:10px}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:60px}
-header{background:var(--surface);border-bottom:3px solid var(--gold);padding:24px 20px 20px;text-align:center}
-header h1{font-size:clamp(1.4rem,4vw,2.2rem);font-weight:900;color:var(--gold);letter-spacing:-.5px}
-header p{color:var(--muted);font-size:.95rem;margin-top:4px}
-#scorebar{position:sticky;top:0;z-index:100;background:#0d0d0d;border-bottom:2px solid #2a2a2a;display:flex;align-items:center;gap:16px;padding:10px 20px;flex-wrap:wrap}
-#score-display{font-size:1.1rem;font-weight:700;color:var(--gold)}
-#score-display span{color:var(--text);font-weight:400;font-size:.85rem;margin-left:6px}
-#progress-wrap{flex:1;min-width:120px;background:#2a2a2a;border-radius:20px;height:8px;overflow:hidden}
-#progress-bar{height:100%;background:linear-gradient(90deg,var(--gold2),var(--gold));width:0%;transition:width .4s ease;border-radius:20px}
-#badge{font-size:.8rem;background:var(--surface2);border:1px solid var(--gold);color:var(--gold);border-radius:20px;padding:3px 12px;font-weight:600;transition:all .3s}
-main{max-width:860px;margin:0 auto;padding:30px 16px 0}
-.rule-hint{background:#111;border-left:3px solid var(--gold2);padding:12px 18px;font-size:.88rem;color:#ccc;font-family:'Crimson Pro',serif;font-style:italic;line-height:1.6;margin-bottom:20px;border-radius:0 var(--radius) var(--radius) 0}
-.rule-hint strong{color:var(--gold)}
-.exercises{display:flex;flex-direction:column;gap:16px}
-.exercise{background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:14px 16px}
-.ex-prompt{font-size:.92rem;color:var(--text);margin-bottom:10px;line-height:1.6}
-.ex-prompt em{color:var(--gold2)}
-.ex-prompt strong{color:var(--gold)}
-.mc-options{display:flex;flex-direction:column;gap:8px}
-.mc-btn{background:var(--surface2);border:1.5px solid #333;border-radius:8px;color:var(--text);padding:10px 14px;font-size:.88rem;font-family:inherit;cursor:pointer;text-align:left;transition:all .2s}
-.mc-btn:hover:not(:disabled){border-color:var(--gold);background:#222}
-.mc-btn.correct{background:rgba(76,175,80,.12);border-color:var(--correct);color:#a5d6a7}
-.mc-btn.wrong{background:rgba(229,57,53,.1);border-color:var(--wrong);color:#ef9a9a}
-.mc-btn:disabled{cursor:default;opacity:.7}
-.gap-input{background:var(--surface2);border:2px solid #333;border-radius:6px;color:#fff;font-family:'Outfit',sans-serif;font-size:.9rem;padding:6px 10px;width:180px;text-align:center;outline:none;transition:border-color .3s,background .3s}
-.gap-input:focus{border-color:var(--gold)}
-.gap-input.correct{border-color:var(--correct);color:#a5d6a7}
-.gap-input.wrong{border-color:var(--wrong);color:#ef9a9a}
-.check-btn{background:var(--gold);color:#000;border:none;border-radius:6px;padding:8px 20px;font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer;margin-top:6px;transition:all .2s}
-.check-btn:hover{background:var(--gold2)}
-.check-btn:disabled{opacity:.4;cursor:default}
-.sort-words{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
-.sort-word{background:var(--surface2);border:1.5px solid #333;border-radius:8px;padding:8px 14px;font-size:.85rem;cursor:pointer;transition:all .2s;user-select:none}
-.sort-word:hover{border-color:var(--gold)}
-.sort-word.selected{border-color:var(--gold);background:rgba(255,208,0,.1);color:var(--gold)}
-.sort-word.correct{background:rgba(76,175,80,.15);border-color:var(--correct);color:#a5d6a7}
-.sort-word.wrong{background:rgba(229,57,53,.1);border-color:var(--wrong);color:#ef9a9a}
-.feedback{font-size:.82rem;margin-top:6px;min-height:1.2em;line-height:1.4}
-.feedback.show.ok{color:var(--correct)}.feedback.show.fail{color:var(--wrong)}
-.pts-pop{position:fixed;font-size:1.2rem;font-weight:900;color:var(--gold);pointer-events:none;animation:popUp 1.2s ease forwards;z-index:999}
-@keyframes popUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-60px)}}
-#summary{display:none;text-align:center;padding:2.5rem 1rem;margin-top:2rem;background:var(--surface);border:2px solid var(--gold);border-radius:var(--radius)}
-#summary h2{color:var(--gold);font-size:1.6rem;margin-bottom:.8rem}
-.big-score{font-size:2rem;font-weight:900;color:var(--gold);margin:.5rem 0}
-.grade{font-size:1.1rem;color:var(--text)}
-.reset-btn{margin-top:1rem;background:var(--gold);color:#000;border:none;border-radius:8px;padding:10px 28px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit}
-.nav{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:2rem;padding-bottom:2rem}
-.nav a{color:var(--gold);text-decoration:none;font-weight:600;font-size:.88rem;border-bottom:1px dashed var(--gold);transition:color .3s}
-.nav a:hover{color:var(--gold2)}
-@media(max-width:600px){header h1{font-size:1.4rem}.gap-input{width:140px}.exercise{padding:10px 12px}}
-</style>
+<meta name="theme-color" content="#b23a48">
+<link rel="stylesheet" href="../../../css/deutsch.css">
 </head>
-<body>
+<body class="d-rs">
 
-<header>
-  <h1>🎵 Strategie 5: Betonungsprobe machen</h1>
-  <p>Getrennt- und Zusammenschreibung · 10 Aufgaben · je 2 Punkte · M-Niveau</p>
-</header>
-
-<div id="scorebar">
-  <div id="score-display">&#11088; <span id="pts">0</span> / <span id="maxpts">20</span> Punkte <span id="pct"></span></div>
+<header class="top"><div class="wrap top-in">
+  <a class="brand" href="rs_index.html">← Rechtschreibung <small>Deutsch 9</small></a>
+  <div class="punkte"><div id="score-display">&#11088; <span id="pts">0</span> / <span id="maxpts">20</span> Punkte <span id="pct"></span></div>
   <div id="progress-wrap"><div id="progress-bar"></div></div>
-  <div id="badge">Note ?</div>
-</div>
+  <div id="badge">Note ?</div></div>
+</div></header>
 
-<main>
+<div class="hero"><div class="wrap">
+  <nav class="navlinks" aria-label="Navigation"><a href="rs_index.html">📝 Alle Strategien</a><a href="../index.html">📚 Deutsch 9</a></nav>
+  <div class="eyebrow">Rechtschreibstrategie 5 von 13 · Getrennt- und Zusammenschreibung</div>
+  <h1>Betonungsprobe machen</h1>
+  <p>10 Aufgaben · je 2 Punkte · M-Niveau</p>
+</div></div>
+
+
+
+<main class="wrap"><section class="station">
 
 <div class="rule-hint">Gibt es nur <strong>eine Hauptbetonung</strong>? → Zusammenschreiben! Gibt es <strong>zwei gleichstarke Betonungen</strong>? → Getrennt schreiben! Beispiel: <em>teil</em>nehmen (eine Betonung → zusammen) vs. <em>Klavier</em> <em>spielen</em> (zwei Betonungen → getrennt).</div>
 
+<div class="st-head"><div class="st-num teal">✎</div><div><div class="eyebrow">10 Aufgaben · sofort richtig = 2 Punkte</div><h2>Üben</h2></div></div>
 <div class="exercises">
 <div class="exercise" id="ex-s5-1">
   <div class="ex-prompt">"teilnehmen" – Wie schreibt man dieses Verb?</div>
@@ -182,7 +135,7 @@ main{max-width:860px;margin:0 auto;padding:30px 16px 0}
   <a href="m_training/index.html">M-Training</a>
   <a href="rs_06.html">Strategie 6 &rarr;</a>
 </div>
-</main>
+</section></main>
 
 <script>
 const TOTAL=20;
@@ -195,9 +148,11 @@ function updateUI(){
   document.getElementById('progress-bar').style.width=pct+'%';
   const g=pct>=92?1:pct>=81?2:pct>=67?3:pct>=50?4:pct>=30?5:6;
   const b=document.getElementById('badge');
-  b.textContent='Note '+g;
-  const c=g<=2?'#4caf50':g===3?'#8bc34a':g===4?'#ffd000':g===5?'#ff9800':'#e53935';
-  b.style.borderColor=c;b.style.color=c;
+  // Note erst, wenn alle Aufgaben bearbeitet sind (vorher wirkt sie nur entmutigend)
+  const fertig=state.answered.size>=document.querySelectorAll('.exercise').length;
+  b.textContent=fertig?'Note '+g:'Note –';
+  const c=g<=2?'#1b8a4b':g===3?'#5c8a1b':g===4?'#b77a06':g===5?'#d9822b':'#c93b3b';
+  b.style.borderColor=fertig?c:'';b.style.color=fertig?c:'';
 }
 
 function award(eid,pts){if(window.Lernstand)Lernstand.geloest(eid);
@@ -294,7 +249,7 @@ if (window.Lernstand) Lernstand.seite({
   kurs: "d9", bereich: "Rechtschreibung: Strategien", bnr: 1, modul: "d9-rs-05", nr: 5, kurz: "S5",
   titel: "Strategie 5: Betonungsprobe machen",
   auswahl: ".exercise", text: ".ex-prompt", teil: "Aufgaben",
-  anker: document.querySelector(".exercise")
+  anker: document.querySelector(".rule-hint") || document.querySelector(".exercise")
 });
 </script>
 </body>
