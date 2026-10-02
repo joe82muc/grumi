@@ -26,6 +26,7 @@
   var doc = global.document;
   var API = "", PW = "", box = null, PROBEN = null;
   var KLASSEN = [], KURSE = [], CODES = [], SPEICHER = "", KLASSE = "", ANSICHT = "";
+  var ZUG_LEER = ""; // Zug ohne Klasse mit Codes (z. B. "9R"), Ansicht "zug"
   var DATEN = null, NOTEN = null, BEREICH = "", SICHT = [], OFFEN = {}, AUSWERTUNG_MODUL = "", ALLE_AUFGABEN = false, FEHLER_MODUL = "";
   var KURZ = 12; // so viele Aufgaben zeigt die Klassenauswertung zuerst
   var FACH_ICON = { nt: "🔬", d: "📖", e: "💬", i: "💻" };
@@ -57,6 +58,7 @@
     ".vw-chip:hover{background:#f3f5f9}" +
     ".vw-chip.on{background:var(--dark);color:#fff;border-color:var(--dark)}.vw-chip.on small{color:#cbd5e1}" +
     ".vw-chip.neu{border-style:dashed;color:var(--accent)}" +
+    ".vw-chip.leer{border-style:dashed;color:var(--muted)}.vw-chip.leer.on{color:#fff}" +
     ".vw-sonder{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.7rem;padding-top:.7rem;border-top:1px solid var(--line)}" +
     ".vw-kl-kopf{display:flex;flex-wrap:wrap;align-items:baseline;gap:.4rem .8rem;margin-bottom:.8rem}" +
     ".vw-kl-kopf h2{font-size:1.35rem;margin:0}" +
@@ -226,10 +228,20 @@
     var stufen = {}, h = "";
     KLASSEN.forEach(function (k) { (stufen[k.stufe] = stufen[k.stufe] || []).push(k); });
     Object.keys(stufen).sort(function (a, b) { return a - b; }).forEach(function (st) {
+      // Züge dieser Stufe mit Inhalten, für die es noch keine Klasse mit Codes gibt (z. B. 9R): eigener Reiter für die Proben
+      var zuege = {};
+      KURSE.forEach(function (x) { if (String(x.stufe) === String(st)) x.zuege.forEach(function (z) { zuege[z] = 1; }); });
+      var fehlend = Object.keys(zuege).sort().filter(function (z) {
+        return !stufen[st].some(function (k) { return zugBuchstabe(k.klasse) === z; });
+      });
       h += '<div class="vw-gruppe"><span class="vw-stufe">Klasse ' + esc(st) + "</span>" + stufen[st].map(function (k) {
-        var an = k.klasse === KLASSE && ANSICHT !== "neu" && ANSICHT !== "alle";
+        var an = k.klasse === KLASSE && ANSICHT !== "neu" && ANSICHT !== "alle" && ANSICHT !== "zug";
         return '<button type="button" class="vw-chip' + (an ? " on" : "") + '" data-klasse="' + esc(k.klasse) + '">' + esc(k.klasse) +
           ' <small>' + k.anzahl + "</small></button>";
+      }).join("") + fehlend.map(function (z) {
+        var zk = st + z;
+        return '<button type="button" class="vw-chip leer' + (ANSICHT === "zug" && ZUG_LEER === zk ? " on" : "") + '" data-zug="' + esc(zk) +
+          '" title="Für ' + esc(zk) + ' gibt es noch keine Klasse mit Codes">' + esc(zk) + " <small>noch ohne Codes</small></button>";
       }).join("") + "</div>";
     });
     if (!KLASSEN.length) h += '<p class="sub" style="margin:.2rem 0">Noch keine Klasse angelegt.</p>';
@@ -239,7 +251,14 @@
     Array.prototype.forEach.call($("vw-klassen").querySelectorAll("[data-klasse]"), function (b) {
       b.addEventListener("click", function () {
         KLASSE = b.getAttribute("data-klasse"); merken("lf-klasse", KLASSE);
-        if (ANSICHT === "neu" || ANSICHT === "alle") ANSICHT = "proben";
+        if (ANSICHT === "neu" || ANSICHT === "alle" || ANSICHT === "zug") ANSICHT = "proben";
+        OFFEN = {}; ALLE_AUFGABEN = false; DATEN = null;
+        zeichnen();
+      });
+    });
+    Array.prototype.forEach.call($("vw-klassen").querySelectorAll("[data-zug]"), function (b) {
+      b.addEventListener("click", function () {
+        ZUG_LEER = b.getAttribute("data-zug"); ANSICHT = "zug"; // nicht merken: nach dem Neuladen wieder die Klasse
         OFFEN = {}; ALLE_AUFGABEN = false; DATEN = null;
         zeichnen();
       });
@@ -264,6 +283,16 @@
       if (PROBEN) PROBEN.zeigen($("vw-proben"), null);
       return;
     }
+    if (ANSICHT === "zug" && ZUG_LEER) {
+      var zst = stufeVon(ZUG_LEER), zz = zugBuchstabe(ZUG_LEER), beispiel = zz === "M" ? zst + "bM" : zst + "b";
+      el.innerHTML = '<div class="vw-kl-kopf"><h2>' + esc(ZUG_LEER) + '</h2><span class="vw-badge">Jahrgangsstufe ' + zst + " · " + (zz === "M" ? "M-Zug" : "R-Klasse") + " · noch keine Codes</span></div>" +
+        '<div class="note warn" style="margin:0 0 .9rem">Für ' + esc(ZUG_LEER) + " gibt es noch keine Klasse mit Codes. Ohne Code können sich die Kinder weder bei den Modulen noch bei der Probe anmelden. " +
+        "Lege die Klasse unter „＋ Neue Klasse (Klassenliste hochladen)“ an, z. B. als " + esc(beispiel) + (zz === "M" ? " (mit M am Ende = M-Zug)." : " (ohne M am Ende = R-Klasse).") +
+        " Freischalten kannst du die Proben schon jetzt.</div><div id=\"vw-proben\"></div>";
+      if (PROBEN) PROBEN.zeigen($("vw-proben"), { stufe: zst, zug: zz });
+      return;
+    }
+    if (ANSICHT === "zug") ANSICHT = "proben";
     if (!KLASSE) { el.innerHTML = ""; return; }
     var kurse = klassenKurse(KLASSE);
     var gueltig = ["proben", "noten", "codes"].concat(kurse.map(function (k) { return k.id; }));
