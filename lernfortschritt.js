@@ -75,6 +75,19 @@
     ".vw-link{font-size:.85rem;font-weight:700}.vw-link a{color:var(--accent)}" +
     ".lf-h3{font-size:.8rem;font-weight:900;letter-spacing:.07em;text-transform:uppercase;border-bottom:2px solid var(--line);padding-bottom:.35rem;margin:1.4rem 0 .7rem}" +
     ".lf-scroll{overflow-x:auto;border:1.5px solid var(--line);border-radius:12px}" +
+    ".lf-klick{cursor:pointer}.lf-klick:hover{background:#eef4ff;box-shadow:inset 0 0 0 2px #c9dafc}" +
+    ".lf-dlg{border:0;border-radius:16px;padding:0;margin:auto;width:min(880px,94vw);max-height:90vh;box-shadow:0 20px 60px rgba(15,23,42,.3)}" +
+    ".lf-mitl{display:inline-flex;gap:.35rem;align-items:center;font-size:.85rem;font-weight:700;color:var(--muted);margin-left:auto}" +
+    ".lf-dlg::backdrop{background:rgba(15,23,42,.45)}" +
+    ".lf-dlg-kopf{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;padding:16px 18px 8px}" +
+    ".lf-dlg-kopf h3{margin:0 0 4px}" +
+    ".lf-dlg-stand{padding:0 18px 10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}" +
+    ".lf-dlg-inhalt{padding:0 18px}.lf-dlg-inhalt .lf-tab{min-width:0}" +
+    ".lf-dlg-fuss{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 18px;border-top:1px solid var(--line);position:sticky;bottom:0;background:#fff}" +
+    ".lf-dlg-msg{padding:0 18px 14px}" +
+    ".lf-aufg{font-weight:700}.lf-antw{margin-top:3px;color:#334155;white-space:pre-wrap}.lf-kom{margin-top:3px;font-size:.84rem;color:var(--muted)}" +
+    ".lf-pkt{white-space:nowrap;width:1%}.lf-pkt input{width:4.2em;padding:.3rem .4rem;border:1.5px solid var(--line);border-radius:8px;font:inherit;font-weight:800}" +
+    ".lf-pkt input.geaendert{border-color:#d08a00;background:#fff6dc}" +
     ".lf-tab{width:100%;border-collapse:collapse;font-size:.9rem;min-width:760px}" +
     ".lf-tab th{background:#f4f6fa;text-align:left;font-size:.74rem;font-weight:900;letter-spacing:.03em;color:var(--muted);padding:.55rem .6rem;white-space:nowrap}" +
     ".lf-tab th small{display:block;font-weight:700;letter-spacing:0;text-transform:none;max-width:120px;white-space:normal;line-height:1.2}" +
@@ -172,8 +185,9 @@
   function klasseNorm(v) {
     var s = String(v || "").replace(/\s+/g, ""), m = /^(5|6|7|8|9|10)([MR])$/i.exec(s);
     if (m) return m[1] + m[2].toUpperCase();
-    m = /^(5|6|7|8|9|10)([a-z])(m?)$/i.exec(s);
-    return m ? m[1] + m[2].toLowerCase() + (m[3] ? "M" : "") : "";
+    // „9dR“ ist dieselbe Klasse wie „9d“: R-Klassen stehen ohne Endung, M-Klassen mit „M“
+    m = /^(5|6|7|8|9|10)([a-z])([mr]?)$/i.exec(s);
+    return m ? m[1] + m[2].toLowerCase() + (/m/i.test(m[3]) ? "M" : "") : "";
   }
   function stufeVon(k) { return parseInt(k, 10) || 0; }
   function zugBuchstabe(k) { return /M$/.test(k) ? "M" : "R"; }
@@ -224,16 +238,21 @@
     });
   }
 
+  // Züge einer Stufe, für die es Inhalte gibt, aber noch keine Klasse mit Codes (z. B. ["R"] für Stufe 9)
+  function fehlendeZuege(st) {
+    var zuege = {};
+    KURSE.forEach(function (x) { if (String(x.stufe) === String(st)) x.zuege.forEach(function (z) { zuege[z] = 1; }); });
+    return Object.keys(zuege).sort().filter(function (z) {
+      return !KLASSEN.some(function (k) { return String(stufeVon(k.klasse)) === String(st) && zugBuchstabe(k.klasse) === z; });
+    });
+  }
+
   function klassenLeiste() {
     var stufen = {}, h = "";
     KLASSEN.forEach(function (k) { (stufen[k.stufe] = stufen[k.stufe] || []).push(k); });
     Object.keys(stufen).sort(function (a, b) { return a - b; }).forEach(function (st) {
       // Züge dieser Stufe mit Inhalten, für die es noch keine Klasse mit Codes gibt (z. B. 9R): eigener Reiter für die Proben
-      var zuege = {};
-      KURSE.forEach(function (x) { if (String(x.stufe) === String(st)) x.zuege.forEach(function (z) { zuege[z] = 1; }); });
-      var fehlend = Object.keys(zuege).sort().filter(function (z) {
-        return !stufen[st].some(function (k) { return zugBuchstabe(k.klasse) === z; });
-      });
+      var fehlend = fehlendeZuege(st);
       h += '<div class="vw-gruppe"><span class="vw-stufe">Klasse ' + esc(st) + "</span>" + stufen[st].map(function (k) {
         var an = k.klasse === KLASSE && ANSICHT !== "neu" && ANSICHT !== "alle" && ANSICHT !== "zug";
         return '<button type="button" class="vw-chip' + (an ? " on" : "") + '" data-klasse="' + esc(k.klasse) + '">' + esc(k.klasse) +
@@ -313,7 +332,14 @@
     var teil = $("vw-teil");
     if (ANSICHT === "proben") {
       teil.innerHTML = '<p class="sub">Proben für Klasse ' + esc(KLASSE) + '. Freischalten gilt für die Probe selbst – also für alle Klassen, die sie schreiben (z. B. alle ' + stufeVon(KLASSE) + zugBuchstabe(KLASSE) + '-Klassen). Ist eine Probe offen, steht der Link für die Kinder direkt dabei. Offene Proben schließen sich 3 Stunden nach dem Freischalten von selbst (Abgeben geht noch 1 Stunde länger).</p><div id="vw-proben"></div>';
-      if (PROBEN) PROBEN.zeigen($("vw-proben"), { stufe: stufeVon(KLASSE), zug: zugBuchstabe(KLASSE) });
+      // Gibt es für den anderen Zug dieser Stufe noch keine Klasse (z. B. 9R), stehen dessen Proben hier mit dabei
+      var ohneKlasse = fehlendeZuege(stufeVon(KLASSE));
+      if (ohneKlasse.length) {
+        var namenOhne = ohneKlasse.map(function (z) { return stufeVon(KLASSE) + z; }).join(" und ");
+        teil.insertAdjacentHTML("afterbegin", '<div class="note warn" style="margin:0 0 .8rem">Für ' + esc(namenOhne) + " gibt es noch keine Klasse mit Codes. " +
+          "Deshalb stehen die " + esc(namenOhne) + "-Proben hier mit dabei (Kennzeichen „Klasse " + esc(namenOhne) + "“). Damit sich die Kinder anmelden können, lege die Klasse unter „＋ Neue Klasse (Klassenliste hochladen)“ an.</div>");
+      }
+      if (PROBEN) PROBEN.zeigen($("vw-proben"), { stufe: stufeVon(KLASSE), zug: zugBuchstabe(KLASSE), zuege: ohneKlasse });
     } else if (ANSICHT === "noten") {
       notenLaden(teil);
     } else if (ANSICHT === "codes") {
@@ -376,7 +402,8 @@
     var P = notenProben(), liste = notenKinder(P), h = "";
     h += '<div class="toolbar" style="margin-bottom:.6rem"><div><h2>Noten · Klasse ' + esc(KLASSE) + "</h2>" +
       '<p class="sub" style="margin:0">Alle Proben, die Kinder dieser Klasse mit ihrem Code abgegeben haben. Unter jeder Note stehen Punkte und Datum. ' +
-      "Antworten ansehen, Punkte korrigieren oder eine Abgabe zum Nachschreiben löschen: Klick auf den Titel der Probe.</p></div>" +
+      "<b>Klick auf eine Note:</b> Antworten ansehen, Punkte je Aufgabe ändern (die Note rechnet sich neu), die Abgabe löschen, damit das Kind nachschreiben kann, " +
+      "oder die Antworten für die Eltern drucken (einzeln oder für die ganze Klasse). Klick auf den Titel: Lehrerseite der Probe.</p></div>" +
       '<div class="spacer"></div><button class="btn btn-ghost btn-sm" id="lf-nreload" type="button">Neu laden</button>' +
       '<button class="btn btn-ghost btn-sm" id="lf-ncsv" type="button"' + (P.length ? "" : " disabled") + ">CSV-Export</button></div>";
     if (!P.length) {
@@ -399,8 +426,8 @@
           var n = p.noten[kind.code];
           if (!n) { h += '<td><span class="lf-leer">–</span></td>'; return; }
           noten.push(n.note);
-          h += '<td title="' + esc(n.punkte + " von " + n.max + " Punkten (" + n.prozent + " %)" + (n.lrs ? " · mit Notenschutz LRS gewertet" : "") +
-              (n.verlassen ? " · " + n.verlassen + "× die Probe verlassen (anderer Tab oder andere App)" : "") + (n.nachpruefen ? " · KI-Bewertung noch prüfen" : "")) + '">' +
+          h += '<td class="lf-klick" data-abgabe="' + esc(n.modul + "|" + n.id) + '" title="' + esc(n.punkte + " von " + n.max + " Punkten (" + n.prozent + " %)" + (n.lrs ? " · mit Notenschutz LRS gewertet" : "") +
+              (n.verlassen ? " · " + n.verlassen + "× die Probe verlassen (anderer Tab oder andere App)" : "") + (n.nachpruefen ? " · KI-Bewertung noch prüfen" : "") + " · Klicken zum Bearbeiten oder Löschen") + '">' +
             '<span class="lf-note ' + notenFarbe(n.note) + '">' + esc(n.note) + "</span>" + (n.nachpruefen ? ' <span title="KI-Bewertung noch prüfen">⚠️</span>' : "") +
             (n.lrs ? '<span class="lf-lrs-b">LRS</span>' : "") +
             '<span class="lf-np">' + esc(n.punkte + "/" + n.max + " · " + datumText(n.datum)) + (n.verlassen ? ' · <span class="lf-weg">' + n.verlassen + "× verlassen</span>" : "") + "</span></td>";
@@ -420,6 +447,199 @@
     teil.innerHTML = h;
     $("lf-nreload").addEventListener("click", function () { notenLaden(teil); });
     $("lf-ncsv").addEventListener("click", notenCsv);
+    Array.prototype.forEach.call(teil.querySelectorAll("[data-abgabe]"), function (td) {
+      td.addEventListener("click", function () {
+        var k = td.getAttribute("data-abgabe").split("|");
+        var n = NOTEN.noten.filter(function (x) { return x.modul === k[0] && x.id === k.slice(1).join("|"); })[0];
+        if (n) abgabeDialog(n, teil);
+      });
+    });
+  }
+
+  /* ---------- Rückmeldung für die Eltern: je Kind eine A4-Seite mit allen Antworten, zum Unterschreiben ---------- */
+  var DRUCK_CSS = "@page{size:A4;margin:13mm}" +
+    "body{font-family:Arial,Helvetica,sans-serif;color:#111;font-size:10.5pt;margin:0;line-height:1.35}" +
+    ".seite{break-after:page;page-break-after:always}.seite:last-child{break-after:auto;page-break-after:auto}" +
+    ".kopf{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #111;padding-bottom:5px;margin-bottom:8px;font-size:9.5pt}" +
+    "h1{font-size:15pt;margin:6px 0 2px}" +
+    ".info{display:grid;grid-template-columns:auto 1fr auto 1fr;gap:2px 12px;margin:6px 0 10px}.info span{color:#555}" +
+    ".ergebnis{border:2px solid #111;border-radius:8px;padding:7px 12px;display:flex;gap:16px;align-items:center;margin-bottom:10px;flex-wrap:wrap}" +
+    ".ergebnis .note{font-size:20pt;font-weight:900}" +
+    "table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid #bbb;padding:5px 6px;vertical-align:top;text-align:left}" +
+    "th{font-size:8.5pt;text-transform:uppercase;color:#444}td.nr{width:1%;color:#555}td.p{white-space:nowrap;text-align:right;font-weight:700;width:1%}" +
+    ".antw{margin-top:2px;white-space:pre-wrap}.antw i{color:#777}.kom,.loes{margin-top:2px;font-size:9pt;color:#444}" +
+    "tr.ok td.p{color:#13693a}tr.nein td.p{color:#a12a22}tr{break-inside:avoid;page-break-inside:avoid}" +
+    ".unterschrift{margin-top:26px;display:grid;grid-template-columns:1fr 2fr;gap:24px}.linie{border-top:1px solid #111;padding-top:3px;font-size:8.5pt}" +
+    ".fuss{margin-top:10px;font-size:8pt;color:#555}" +
+    "@media screen{body{background:#e9edf2}.seite{background:#fff;max-width:184mm;margin:12px auto;padding:13mm;box-shadow:0 2px 10px rgba(0,0,0,.18)}}";
+  function elternSeite(s, info, mitLoesung) {
+    var name = nameVon(s.code), det = Array.isArray(s.details) ? s.details : [];
+    var datum = datumText(s.testDate || String(s.submittedAt || "").slice(0, 10), true);
+    var zeilen = det.map(function (d) {
+      var max = typeof d.maxPoints === "number" ? d.maxPoints : 1, pkt = typeof d.points === "number" ? d.points : (d.correct ? 1 : 0);
+      var art = pkt >= max ? "ok" : pkt > 0 ? "teil" : "nein";
+      var loesung = "";
+      if (mitLoesung && pkt < max && d.expected) loesung = '<div class="loes">' + (d.type === "text" ? "Beispiel für eine richtige Antwort: " : "Richtig wäre: ") + esc(d.expected) + "</div>";
+      return '<tr class="' + art + '"><td class="nr">' + esc(d.nr) + "</td><td><b>" + esc(d.prompt || "") + "</b>" +
+        '<div class="antw">' + (d.given ? esc(d.given) : "<i>keine Antwort</i>") + "</div>" +
+        (d.comment ? '<div class="kom">Rückmeldung: ' + esc(d.comment) + "</div>" : "") + loesung +
+        '</td><td class="p">' + esc(pkt) + " / " + esc(max) + "</td></tr>";
+    }).join("");
+    return '<section class="seite"><div class="kopf"><b>Grund- und Mittelschule am Sportpark</b><span>Rückmeldung zur Probe</span></div>' +
+      "<h1>" + esc(info.titel) + "</h1>" +
+      '<div class="info"><span>Name</span><b>' + (name ? esc(name) : "Code " + esc(s.code)) + "</b><span>Klasse</span><b>" + esc(info.klasse) + "</b>" +
+      "<span>Fach</span><b>" + esc(info.fach || "") + "</b><span>geschrieben am</span><b>" + esc(datum) + "</b></div>" +
+      '<div class="ergebnis"><span>Note</span><span class="note">' + esc(s.grade) + "</span><span><b>" + esc(s.score) + " von " + esc(s.total) + " Punkten</b> (" + esc(s.percent) + " %)</span>" +
+      (s.lrs ? "<span>Mit Notenschutz (LRS) bewertet: Rechtschreibung zählt nicht.</span>" : "") + "</div>" +
+      (zeilen ? "<table><thead><tr><th>Nr.</th><th>Aufgabe und Antwort Ihres Kindes</th><th>Punkte</th></tr></thead><tbody>" + zeilen + "</tbody></table>"
+        : "<p>Für diese Probe gibt es keine Einzelauflistung der Antworten.</p>") +
+      '<div class="unterschrift"><div class="linie">Datum</div><div class="linie">Unterschrift einer/eines Erziehungsberechtigten</div></div>' +
+      '<p class="fuss">Die Probe wurde am Tablet geschrieben. Freie Antworten wurden mit KI-Unterstützung bewertet, maßgeblich ist die Bewertung der Lehrkraft.</p></section>';
+  }
+  function elternDruck(w, subs, info, mitLoesung) {
+    var titel = info.titel + " – Rückmeldung für die Eltern";
+    w.document.open();
+    w.document.write('<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>' + esc(titel) + "</title><style>" + DRUCK_CSS + "</style></head><body>" +
+      (subs.length ? subs.map(function (s) { return elternSeite(s, info, mitLoesung); }).join("") : '<p style="padding:20px">Keine Abgaben gefunden.</p>') +
+      "<script>setTimeout(function(){window.print();},500);<\/script></body></html>");
+    w.document.close();
+  }
+
+  /* ---------- Eine Abgabe bearbeiten (Punkte je Aufgabe) oder löschen ----------
+     Über die Routen des jeweiligen Proben-Moduls: Die Änderung gilt dann überall (Noten, Lehrerseite, Export). */
+  var ABGABE_API = (function () {
+    function std(p) { return { results: p + "/results", del: p + "/delete-submission", override: p + "/override" }; }
+    return {
+      vokabeltest: { results: "/api/vokabeltest/results", del: "/api/vokabeltest/delete-submission" },
+      grammatik9r: std("/api/grammatik9r"),
+      nt7: { results: "/api/nt7/teacher/results", del: "/api/nt7/teacher/delete", override: "/api/nt7/teacher/override", nurText: true },
+      infoaustausch: std("/api/infoaustausch"),
+      informatik8: std("/api/informatik8"),
+      nt9probe: std("/api/nt9probe"),
+      netzwerktest: std("/api/netzwerktest"),
+      filiuspruefung: { results: "/api/filiuspruefung/results", del: "/api/filiuspruefung/delete-submission" }
+    };
+  })();
+  function apiPost(pfad, body) {
+    return fetch(API + pfad, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ password: PW }, body))
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (d) {
+        if (!r.ok || d.ok === false) throw new Error(d.message || d.error || "HTTP " + r.status);
+        return d;
+      });
+    });
+  }
+  function abgabeDialog(n, teil) {
+    var api = ABGABE_API[n.modul];
+    if (!api) { hinweis("Diese Probe lässt sich hier nicht bearbeiten. Bitte die Lehrerseite der Probe öffnen.", "warn"); return; }
+    var dlg = $("lf-abgabe");
+    if (!dlg) { dlg = doc.createElement("dialog"); dlg.id = "lf-abgabe"; dlg.className = "lf-dlg"; doc.body.appendChild(dlg); }
+    var geaendert = false, name = nameVon(n.code), link = PROBEN && PROBEN.link ? PROBEN.link(n.modul, n.testId) : "";
+    function stand(note, punkte, max, prozent) {
+      return '<span class="lf-note ' + notenFarbe(note) + '">' + esc(note) + "</span> <b>" + esc(punkte + " von " + max + " Punkten") + "</b> (" + esc(prozent) + " %)" +
+        (n.lrs ? ' <span class="lf-lrs-b" title="Notenschutz LRS">LRS</span>' : "") + (n.verlassen ? ' · <span class="lf-weg">' + n.verlassen + "× verlassen</span>" : "");
+    }
+    dlg.innerHTML = '<div class="lf-dlg-kopf"><div><h3>' + esc(n.titel) + '</h3><p class="sub" style="margin:0">' + (name ? esc(name) + " · " : "") + "Code " + esc(n.code) +
+      " · abgegeben am " + esc(datumText(n.datum, true)) + '</p></div><button type="button" class="btn btn-ghost btn-sm" data-zu>Schließen</button></div>' +
+      '<div class="lf-dlg-stand">' + stand(n.note, n.punkte, n.max, n.prozent) + '</div><div class="lf-dlg-inhalt"><div class="skel">Abgabe wird geladen …</div></div>' +
+      '<div class="lf-dlg-fuss"></div><div class="lf-dlg-msg"></div>';
+    var inhalt = dlg.querySelector(".lf-dlg-inhalt"), fuss = dlg.querySelector(".lf-dlg-fuss"), msg = dlg.querySelector(".lf-dlg-msg");
+    function meldung(text, art) { msg.innerHTML = '<div class="note ' + (art || "") + '" style="margin:0">' + esc(text) + "</div>"; }
+    dlg.querySelector("[data-zu]").addEventListener("click", function () { dlg.close(); });
+    dlg.onclose = function () { if (geaendert) notenLaden(teil); };
+    if (!dlg.open) dlg.showModal();
+
+    function loeschen() {
+      if (!global.confirm("Die Abgabe von " + (name || "Code " + n.code) + " für „" + n.titel + "“ wirklich löschen?\n\nDie Note verschwindet und das Kind kann die Probe neu schreiben, sobald sie freigeschaltet ist.")) return;
+      apiPost(api.del, { submissionId: n.id }).then(function () {
+        geaendert = true; dlg.close();
+        hinweis("Die Abgabe von " + (name || "Code " + n.code) + " für „" + n.titel + "“ ist gelöscht.", "ok");
+      }).catch(function (e) { meldung("Löschen hat nicht geklappt: " + e.message, "bad"); });
+    }
+
+    apiPost(api.results, { testId: n.testId }).then(function (d) {
+      var sub = (d.submissions || []).filter(function (s) { return s.id === n.id; })[0];
+      var details = sub && Array.isArray(sub.details) ? sub.details : null;
+      if (!sub) { inhalt.innerHTML = '<div class="note warn">Diese Abgabe gibt es nicht mehr. Bitte die Noten neu laden.</div>'; geaendert = true; return; }
+      if (!details || !details.length) {
+        inhalt.innerHTML = '<div class="note">Bei dieser Probe lassen sich die Punkte hier nicht einzeln ändern. Antworten und Bewertung stehen auf der Lehrerseite der Probe.</div>';
+      } else {
+        var h = '<table class="lf-tab"><thead><tr><th>Nr.</th><th>Aufgabe und Antwort</th><th>Punkte</th></tr></thead><tbody>';
+        details.forEach(function (x) {
+          var max = typeof x.maxPoints === "number" ? x.maxPoints : 1;
+          var pkt = typeof x.points === "number" ? x.points : (x.correct ? 1 : 0);
+          var aenderbar = Boolean(api.override) && (!api.nurText || x.type === "text");
+          h += '<tr><td class="lf-code">' + esc(x.nr) + '</td><td><div class="lf-aufg">' + esc(x.prompt || "") + "</div>" +
+            (x.given ? '<div class="lf-antw">„' + esc(x.given) + "“</div>" : '<div class="lf-antw lf-leer">keine Antwort</div>') +
+            (x.comment ? '<div class="lf-kom">Rückmeldung: ' + esc(x.comment) + "</div>" : "") + '</td><td class="lf-pkt">' +
+            (aenderbar ? '<input type="number" inputmode="numeric" min="0" max="' + max + '" step="1" value="' + pkt + '" data-nr="' + esc(x.nr) + '" data-alt="' + pkt +
+              '" data-max="' + max + '" aria-label="Punkte für Aufgabe ' + esc(x.nr) + '"> / ' + max : esc(pkt) + " / " + max) + "</td></tr>";
+        });
+        inhalt.innerHTML = h + "</tbody></table>" + (api.override ? "" : '<p class="sub">Bei dieser Probe lassen sich die Punkte nicht ändern, nur die Abgabe löschen.</p>') +
+          (api.nurText ? '<p class="sub">Ankreuzen und Zuordnen wertet der Schlüssel, ändern lassen sich hier die Punkte der freien Antworten.</p>' : "");
+      }
+      var felder = Array.prototype.slice.call(inhalt.querySelectorAll("input[data-nr]"));
+      // Abgaben dieser Probe aus der angezeigten Klasse (für den Klassensatz)
+      var klassenIds = {};
+      NOTEN.noten.forEach(function (x) { if (x.modul === n.modul && x.testId === n.testId) klassenIds[x.id] = true; });
+      var anzahlKlasse = (d.submissions || []).filter(function (s) { return klassenIds[s.id]; }).length;
+      fuss.innerHTML = (felder.length ? '<button type="button" class="btn btn-ok btn-sm" data-speichern disabled>Punkte speichern</button>' : "") +
+        '<button type="button" class="btn btn-bad btn-sm" data-loeschen>Abgabe löschen (Nachschreiben)</button>' +
+        (link ? '<a class="btn btn-ghost btn-sm" href="' + esc(link) + '" target="_blank" rel="noopener">Lehrerseite der Probe ↗</a>' : "") +
+        '<label class="lf-mitl"><input type="checkbox" data-mitloesung checked> mit Lösungen</label>' +
+        '<button type="button" class="btn btn-ghost btn-sm" data-druck>🖨️ Für die Eltern drucken</button>' +
+        (anzahlKlasse > 1 ? '<button type="button" class="btn btn-ghost btn-sm" data-druck-alle>🖨️ Ganze Klasse drucken (' + anzahlKlasse + ")</button>" : "");
+      var speichern = fuss.querySelector("[data-speichern]");
+      fuss.querySelector("[data-loeschen]").addEventListener("click", loeschen);
+      function drucken(nurDieses) {
+        // Fenster sofort öffnen (sonst blockiert der Browser), dann den aktuellen Stand frisch laden
+        var w = global.open("", "_blank");
+        if (!w) { meldung("Das Druckfenster wurde blockiert. Bitte Pop-ups für diese Seite erlauben.", "bad"); return; }
+        w.document.write('<p style="font-family:Arial;padding:20px">Die Rückmeldung wird vorbereitet …</p>');
+        var mitLoesung = fuss.querySelector("[data-mitloesung]").checked;
+        apiPost(api.results, { testId: n.testId }).then(function (frisch) {
+          var subs = (frisch.submissions || []).filter(function (s) { return nurDieses ? s.id === n.id : klassenIds[s.id]; });
+          subs.sort(function (a, b) { return (nameVon(a.code) || "~" + a.code).localeCompare(nameVon(b.code) || "~" + b.code, "de"); });
+          elternDruck(w, subs, { titel: n.titel, fach: n.fach, klasse: KLASSE }, mitLoesung);
+        }).catch(function (e) { w.document.body.innerHTML = '<p style="font-family:Arial;padding:20px">Die Abgaben konnten nicht geladen werden: ' + esc(e.message) + "</p>"; });
+      }
+      fuss.querySelector("[data-druck]").addEventListener("click", function () { drucken(true); });
+      if (anzahlKlasse > 1) fuss.querySelector("[data-druck-alle]").addEventListener("click", function () { drucken(false); });
+      felder.forEach(function (f) {
+        f.addEventListener("input", function () {
+          f.classList.toggle("geaendert", f.value !== f.getAttribute("data-alt"));
+          speichern.disabled = !felder.some(function (g) { return g.value !== g.getAttribute("data-alt"); });
+        });
+      });
+      if (speichern) speichern.addEventListener("click", function () {
+        var neu = felder.filter(function (g) { return g.value !== g.getAttribute("data-alt"); });
+        var falsch = neu.filter(function (g) { var v = Number(g.value); return !/^\d+$/.test(g.value) || v < 0 || v > Number(g.getAttribute("data-max")); });
+        if (falsch.length) { meldung("Bitte ganze Punkte zwischen 0 und der Höchstpunktzahl eintragen (Aufgabe " + falsch.map(function (g) { return g.getAttribute("data-nr"); }).join(", ") + ").", "bad"); return; }
+        speichern.disabled = true; meldung("Wird gespeichert …");
+        var letzte = null;
+        neu.reduce(function (kette, g) {
+          return kette.then(function () {
+            return apiPost(api.override, { submissionId: n.id, nr: Number(g.getAttribute("data-nr")), points: Number(g.value) }).then(function (r) {
+              letzte = r; g.setAttribute("data-alt", g.value); g.classList.remove("geaendert");
+            });
+          });
+        }, Promise.resolve()).then(function () {
+          geaendert = true;
+          if (letzte) {
+            dlg.querySelector(".lf-dlg-stand").innerHTML = stand(letzte.grade, letzte.score, n.max, letzte.percent);
+            meldung("Gespeichert. Neue Note: " + letzte.grade + " (" + letzte.score + " von " + n.max + " Punkten).", "ok");
+          }
+        }).catch(function (e) {
+          geaendert = true; speichern.disabled = false;
+          meldung("Speichern hat nicht geklappt: " + e.message, "bad");
+        });
+      });
+    }).catch(function (e) {
+      inhalt.innerHTML = '<div class="note bad">Die Abgabe konnte nicht geladen werden: ' + esc(e.message) + "</div>";
+      fuss.innerHTML = '<button type="button" class="btn btn-bad btn-sm" data-loeschen>Abgabe löschen (Nachschreiben)</button>';
+      fuss.querySelector("[data-loeschen]").addEventListener("click", loeschen);
+    });
   }
   function notenCsv() {
     if (!NOTEN) return;
@@ -985,7 +1205,7 @@
     // Klasse: Spalte „Klasse“ (häufigster Wert), sonst aus dem Dateinamen („Schüler in der 7aM.csv“)
     var klasse = Object.keys(klassen).sort(function (a, b) { return klassen[b] - klassen[a]; })[0] || "";
     if (!klasse) {
-      var m = /(?:^|[^0-9])(5|6|7|8|9|10)\s*([a-z])\s*(m)?(?![a-zäöüß])/i.exec(String(dateiname || "").replace(/\.[a-z]+$/i, ""));
+      var m = /(?:^|[^0-9])(5|6|7|8|9|10)\s*([a-z])\s*([mr])?(?![a-zäöüß])/i.exec(String(dateiname || "").replace(/\.[a-z]+$/i, ""));
       if (m) klasse = klasseNorm(m[1] + m[2] + (m[3] || ""));
     }
     // Ausbildungsrichtung „M-Zug“: Klasse ohne „M“ ergänzen

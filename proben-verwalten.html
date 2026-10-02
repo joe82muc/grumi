@@ -300,9 +300,11 @@ const Proben = (() => {
   }
 
   // f: { stufe, zug } oder null (alle). Probe „7“ gilt für alle 7. Klassen, „7M“ nur für den M-Zug.
+  // f.zuege: weitere Züge derselben Stufe, die mit angezeigt werden (z. B. 9R, solange es keine 9R-Klasse gibt)
   function passt(r){
     if(!filter) return true;
-    return r.klasse === String(filter.stufe) || r.klasse === filter.stufe + filter.zug;
+    return r.klasse === String(filter.stufe) || r.klasse === filter.stufe + filter.zug ||
+      (filter.zuege || []).some(z => r.klasse === filter.stufe + z);
   }
 
   async function zeigen(container, f){
