@@ -31,7 +31,7 @@
   var FACHSEITE = {
     nt7: { M: "7M/NT/index.html", R: "7R/NT/index.html" },
     nt9: { M: "9M/NT_9/übersicht_themen.html", R: "9R/NT_9/übersicht_themen.html" },
-    d7: "7M/Deutsch/index.html", d9: "9/Deutsch/index.html",
+    d7: "7M/Deutsch/index.html", d8: "8/Deutsch/index.html", d9: "9/Deutsch/index.html",
     e7: "7/Englisch_7/index.html", e8: "8R/Englisch/index.html",
     e9: { M: "9M/Englisch_9/index.html", R: "9R/Englisch/index.html" },
     i7: "7/Informatik_7/index.html", i8: "8/Informatik_8/index.html", i9: "9/Informatik_9/index.html"

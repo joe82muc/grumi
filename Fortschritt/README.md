@@ -27,8 +27,9 @@ passenden Proben.
 |---|---|---|
 | NT 7 (`nt7`, 7M und 7R) | Luft-Modul, Windkraft ×2, Verbrennung, Explosiv | `nt7-<seite>` |
 | NT 9 (`nt9`) | Organische Rohstoffe, Module 1–5 | `m01`–`m06` |
-| Deutsch 7 (`d7`) | Argumentieren: 5 Module (`de-modul.js`) | `d7-<modul>` |
-| Deutsch 9 (`d9`) | Rechtschreibung, Grammatik 1–10 (Basis + Plus), Satzglieder, Vorleser | `d9-sb-01-b1` …, `d9-…` |
+| Deutsch 7 (`d7`) | Argumentieren: 5 Module (`de-modul.js`), Grammatik 1–7, Rechtschreibung 1–7 | `d7-<modul>`, `d7-gr-01-b1` …, `d7-rs-01-b1` … |
+| Deutsch 8 (`d8`, neu) | Grammatik 1–6, Rechtschreibung 1–6 | `d8-gr-01-b1` …, `d8-rs-01-b1` … |
+| Deutsch 9 (`d9`) | Rechtschreibung, Grammatik 1–10 (Basis + Plus), Extra Satzglieder, Vorleser | `d9-sb-01-b1` …, `d9-satzglieder-b1` …, `d9-…` |
 | Englisch 7 (`e7`) | Grammatik G1–G4, Vokabeltrainer Unit 1–4 | `e7-u1-g1` …, `e7-uN-vokabeln` |
 | Englisch 8 (`e8`, nur R) | Vokabeltrainer Unit 1–4 | `e8-uN-vokabeln` |
 | Englisch 9 (`e9`) | Grammatik, Vokabeln, Unit 3/4, Zeiten, Mediation (7 inkl. Hospital), Picture-based talk, E-Mail | `e9…` |
@@ -142,8 +143,35 @@ Nicht dabei: Mathe und WiB (so gewünscht), Proben (eigene Freischaltung), Argum
 - Neue Kennungen `d9-sb-NN-b1` … `-p4`; die alten (`ex0` …) zählen nicht mehr. Übersicht `Sprachbetrachtung/index.html`
   mit „Dein Stand“; die Fachseite Deutsch 9 nennt den Bereich jetzt „Grammatik“.
 
+## Stand 03.10.2026, später: Deutsch 7, 8 und 9 im NT-7-Layout
+
+- **Gemeinsames Aussehen** `css/deutsch.css` (Aufbau der NT-7-Module in den Deutsch-Farben von Deutsch 7) für alle
+  Deutsch-Seiten; Aufgaben-Bausteine in `css/grammatik.css`. Der Baukasten liegt jetzt zentral in `js/grammatik.js`
+  und gilt für jede Stufe: `themen.js` je Ordner setzt mit `Grammatik.vorgaben({...})` Kurs, Bereich, Präfix und Themenliste.
+  Neue Typen: `trennen` (Umstellprobe mit Trennstrichen), `analyse` (Satz-Detektiv: abtrennen, dann benennen,
+  Ziel n Sätze), Option `genau` (Rechtschreibung: Groß/klein zählt, keine KI). Auswahl-Lücken vergleichen exakt.
+- **Deutsch 9**: Fachseite, Grammatik-Übersicht, Rechtschreibstrategien (13 Seiten + Sammelseite), M-Training,
+  Lektüren umgestellt (Inhalte, Punkte und Lernstand-Kennungen unverändert). Rechtschreib-Übersicht mit Karten und
+  Kurzbeispielen. Note erst, wenn alle Aufgaben bearbeitet sind. Strategie 11: Silbentrennung „st“ korrigiert
+  (Fens-ter, s und t werden getrennt).
+- **Satzglieder bestimmen** neu als Extraübung der Grammatik (`d9-satzglieder`): Prädikat finden, Umstellprobe,
+  benennen, Satz-Detektiv (Basis und Profi mit Genitiv-/Präpositionalobjekt). Die alte Fassung hatte fragwürdige
+  Lösungen (z. B. „zu mehr Bewegung“ als Akkusativobjekt).
+- **Deutsch 7** (`7M/Deutsch/Grammatik`, `…/Rechtschreibung`, für 7M und 7R): 7 Grammatik- und 7 Rechtschreibthemen nach
+  LehrplanPLUS D7 (Relativ-/Demonstrativpronomen, Futur II, Aktiv/Passiv, Konjunktiv, Kausaladverbiale, Satzreihe/
+  Satzgefüge, Subjekt-/Objektsatz; Strategien, Groß/klein, getrennt/zusammen, s-Laute und das/dass, Fremd- und
+  Merkwörter, Kommas, Worttrennung). Die Übersicht `7M/Deutsch/index.html` zeigt Argumentieren, Grammatik und
+  Rechtschreibung mit „Dein Stand“.
+- **Deutsch 8** (`8/Deutsch`, neu, für 8M und 8R): 6 Grammatik- und 6 Rechtschreibthemen nach LehrplanPLUS D8
+  (Modalverben/Modalformen, Konjunktiv I und II, indirekte Rede, Satzgefüge und Schachtelsatz, Finaladverbiale,
+  Attribute; Nominalisierungen, getrennt/zusammen, gleich klingende Wörter, Fremdwörter, Kommas, weitere Satzzeichen).
+  Startseite verlinkt Deutsch 8 bei 8M und 8R. Backend: Kurs `d8` (englisch_9 `nt9-fortschritt.js`), KI-Zweitmeinung
+  für `d7/d8/d9-(sb|gr|rs)-NN`.
+- Informatik 9: „So arbeitest du mit einem Modul“, „roter Faden“ und die Kachel „So arbeitest du mit den Modulen“ entfernt.
+
 ## Offen
 
+- Deutsch 7/8: Inhalte im Unterricht gegenlesen lassen (Niveau, Fachbegriffe der eingeführten Lehrwerke).
 - Englisch 7 G1–G4 „Übungen zur Regel“ und Beispielsätze der Vokabeltrainer 7/8R auf Buchnähe prüfen.
 - Vokabeltrainer: Ton auf echten iPads kurz prüfen (der Test-Safari unter Windows hat keine Tonausgabe).
 - Schulleitung/Datenschutzbeauftragte über Upstash informieren (Auftragsverarbeitung).

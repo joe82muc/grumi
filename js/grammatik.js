@@ -15,6 +15,7 @@
  *   analyse   saetze: [[["Am Montag", "Z"], ["fährt", "P"], …]], rollen?: ["S", "P", …], ziel?: 5   Satz-Detektiv
  *   umformen  items: [{ s?, f?, l: [Lösungen] }]        weicht die Antwort ab, prüft die KI (nur mit Code)
  *   frei      items: [{ f, kriterien: [..], muster?: "RegExp", bsp }]   KI prüft, ohne Server das Muster
+ *   genau: true (bei luecke/umformen): Groß-/Kleinschreibung und Buchstaben zählen, keine KI (Rechtschreibung)
  *   bauen     items: [{ f?, teile: [in richtiger Reihenfolge], l?: [weitere richtige Sätze] }]
  * Jede Aufgabe ist eine Karte (Lernstand-Kennung <modul>-b1 … bzw. -p1 …). Plus-Aufgaben gehören für den
  * M-Zug dazu, für R-Klassen sind sie freiwillig. „Lösung zeigen“ zählt nie.
@@ -48,6 +49,10 @@
   function gleich(s) {
     return String(s || "").toLowerCase().replace(/ß/g, "ss").replace(/[„“”"»«‚‘’'`]/g, "")
       .replace(/[.,!?;:()–—-]/g, " ").replace(/\s+/g, " ").trim();
+  }
+  // Rechtschreibung (Aufgabe mit genau: true): Groß/klein und Buchstaben zählen, nur Leerzeichen, Anführungszeichen und Schlusspunkt nicht
+  function exakt(s) {
+    return String(s || "").replace(/[„“”»«]/g, '"').replace(/[‚‘’`]/g, "'").replace(/\s+/g, " ").trim().replace(/[.!?]$/, "").trim();
   }
   function lies(k) { try { return global.localStorage.getItem(k); } catch (_e) { return null; } }
   function schreib(k, v) { try { global.localStorage.setItem(k, v); } catch (_e) {} }
@@ -148,7 +153,9 @@
             von++;
             var v = f.value.trim();
             if (!v) { leer++; alle = false; f.classList.remove("r", "f"); return; }
-            var r = loesungen[+f.dataset.g].some(function (a) { return gleich(a) === gleich(v); });
+            // Auswahl: genau die richtige Option (unterscheidet auch „heute Abend“/„heute abend“); getippt: je nach genau
+            var vgl = K.a.genau ? exakt : gleich;
+            var r = f.tagName === "SELECT" ? v === loesungen[+f.dataset.g][0].trim() : loesungen[+f.dataset.g].some(function (a) { return vgl(a) === vgl(v); });
             f.classList.toggle("r", r); f.classList.toggle("f", !r);
             if (r) ok++; else alle = false;
           });
@@ -346,7 +353,8 @@
   var ROLLEN = { S: ["Subjekt", "Wer oder was …?"], P: ["Prädikat", "Was tut jemand? Was geschieht?"], AO: ["Akkusativobjekt", "Wen oder was …?"],
     DO: ["Dativobjekt", "Wem …?"], GO: ["Genitivobjekt", "Wessen …?"], PO: ["Präpositionalobjekt", "Auf wen? Worüber? Woran? Wofür? …"],
     Z: ["Adverbiale der Zeit", "Wann? Wie lange? Wie oft?"], O: ["Adverbiale des Ortes", "Wo? Wohin? Woher?"],
-    A: ["Adverbiale der Art und Weise", "Wie? Auf welche Weise? Womit?"], G: ["Adverbiale des Grundes", "Warum? Weshalb?"] };
+    A: ["Adverbiale der Art und Weise", "Wie? Auf welche Weise? Womit?"], G: ["Adverbiale des Grundes", "Warum? Weshalb?"],
+    F: ["Adverbiale des Zwecks", "Wozu? Mit welchem Ziel?"] };
   function analyse(K, box) {
     var a = K.a, ziel = a.ziel || 5, rollen = a.rollen || ["S", "P", "AO", "DO", "Z", "O", "A", "G"];
     var stapel = [], satz = null, w = [], schritt = 1, hilfe = false, geschafft = 0, meldung = null;
@@ -487,7 +495,10 @@
           var it = items[i], v = $(".uf-feld", el).value.trim(), ki = $(".ki", el);
           ki.textContent = "";
           if (!v) { offen++; itemStatus(el, null); return; }
-          if (it.l && it.l.some(function (x) { return gleich(x) === gleich(v); })) { ok++; itemStatus(el, true); return; }
+          var vgl = K.a.genau ? exakt : gleich;
+          if (it.l && it.l.some(function (x) { return vgl(x) === vgl(v); })) { ok++; itemStatus(el, true); return; }
+          // Rechtschreibung: kein Urteil der KI, es zählt die genaue Schreibweise
+          if (K.a.genau) { itemStatus(el, false); ki.textContent = "Vergleiche Buchstabe für Buchstabe – auch Groß- und Kleinschreibung zählen."; return; }
           ki.innerHTML = '<span class="punkte">✨ Die KI liest deinen Satz</span>';
           warten.push(kiFragen(K, it, i, v).then(function (d) {
             if (d) {
