@@ -133,7 +133,7 @@
   <!-- ============ 1. Anmeldung ============ -->
   <section class="panel" id="view-login">
     <h2>Anmeldung</h2>
-    <p class="sub">Trage deinen Namen, deine Klasse und das Datum ein.</p>
+    <p class="sub">Trage deinen Code von deiner Lehrkraft und das Datum ein.</p>
 
     <div class="field">
       <label for="f-test">Test</label>
@@ -142,18 +142,8 @@
 
     <div class="grid2">
       <div class="field">
-        <label for="f-first">Vorname</label>
-        <input type="text" id="f-first" autocomplete="off" autocorrect="off" spellcheck="false">
-      </div>
-      <div class="field">
-        <label for="f-last">Nachname</label>
-        <input type="text" id="f-last" autocomplete="off" autocorrect="off" spellcheck="false">
-      </div>
-    </div>
-    <div class="grid2">
-      <div class="field">
-        <label for="f-class">Klasse</label>
-        <input type="text" id="f-class" placeholder="z.&nbsp;B. 9M" autocomplete="off" autocorrect="off" spellcheck="false">
+        <label for="f-code">Dein Code</label>
+        <input type="text" id="f-code" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="3 Ziffern" autocomplete="off" autocorrect="off" spellcheck="false">
       </div>
       <div class="field">
         <label for="f-date">Datum</label>
@@ -274,14 +264,12 @@ function msg(where, text, kind){
 /* ---------- Test starten ---------- */
 $('btn-start').addEventListener('click', async () => {
   const testId = $('f-test').value;
-  const firstName = $('f-first').value.trim();
-  const lastName = $('f-last').value.trim();
-  const className = $('f-class').value.trim();
+  const code = $('f-code').value.trim();
   const testDate = $('f-date').value;
 
   if(!testId){ msg('login-msg','Bitte w&auml;hle einen Test aus.','bad'); return; }
-  if(!firstName || !lastName || !className){
-    msg('login-msg','Bitte f&uuml;lle Vorname, Nachname und Klasse aus.','bad'); return;
+  if(!/^\d{3}$/.test(code)){
+    msg('login-msg','Bitte gib deinen Code ein (3 Ziffern).','bad'); return;
   }
   if(!testDate){ msg('login-msg','Bitte trage das Datum ein.','bad'); return; }
 
@@ -292,13 +280,13 @@ $('btn-start').addEventListener('click', async () => {
   try{
     const res = await fetch(API_BASE + '/api/vokabeltest/start', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ testId, firstName, lastName, className })
+      body: JSON.stringify({ testId, code })
     });
     const data = await res.json();
 
     if(!data.ok){
       if(data.error === 'already_submitted'){
-        msg('login-msg','Unter diesem Namen wurde der Test bereits abgegeben. Wende dich bitte an deine Lehrkraft.','bad');
+        msg('login-msg','Mit diesem Code wurde der Test bereits abgegeben. Wende dich bitte an deine Lehrkraft.','bad');
       } else if(data.error === 'locked'){
         msg('login-msg','Dieser Test ist nicht (mehr) freigeschaltet.','bad');
       } else {
@@ -309,7 +297,7 @@ $('btn-start').addEventListener('click', async () => {
       return;
     }
 
-    student = { testId, firstName, lastName, className, testDate };
+    student = { testId, code, testDate };
     testMeta = data.test;
     items = data.items;
     answers   = items.map(() => '');
@@ -330,7 +318,7 @@ function renderTest(){
   $('view-test').classList.remove('hidden');
   $('head-sub').textContent = testMeta.title;
   $('bar-total').textContent = items.length;
-  $('bar-name').textContent = student.firstName + ' ' + student.lastName + ' · ' + student.className;
+  $('bar-name').textContent = 'Code ' + student.code;
 
   const box = $('questions');
   box.innerHTML = '';
@@ -442,7 +430,7 @@ $('btn-submit').addEventListener('click', async () => {
 function showResult(r){
   $('view-test').classList.add('hidden');
   $('view-result').classList.remove('hidden');
-  $('res-who').textContent = student.firstName + ' ' + student.lastName + ' · ' + student.className + ' · ' + student.testDate;
+  $('res-who').textContent = 'Code ' + student.code + ' · ' + student.testDate;
   $('res-grade').textContent = 'Note ' + r.grade;
   $('res-meta').textContent = r.score + ' von ' + r.total + ' richtig (' + r.percent + ' %)'
     + (r.typos ? ' · ' + r.typos + ' davon mit kleinem Tippfehler' : '')

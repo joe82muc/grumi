@@ -16,6 +16,8 @@
      lässt sich als Datei speichern und an einem anderen Gerät laden.
    - Fach: je Kind und Übung der Anteil richtig gelöster Aufgaben, Klick auf
      ein Kind zeigt jede Aufgabe, Klassenauswertung, CSV-Export.
+   - Noten: alle Proben, die Kinder der Klasse mit ihrem Code abgegeben haben
+     (/api/proben/noten, Datenbank grumiproben), mit Schnitt und CSV-Export.
    Daten: /api/nt9/fortschritt/lehrer/* auf englisch-9.onrender.com
    (Upstash Redis, Frankfurt). Proben: window.Proben aus proben-verwalten.html.
    ============================================================ */
@@ -24,7 +26,7 @@
   var doc = global.document;
   var API = "", PW = "", box = null, PROBEN = null;
   var KLASSEN = [], KURSE = [], CODES = [], SPEICHER = "", KLASSE = "", ANSICHT = "";
-  var DATEN = null, BEREICH = "", SICHT = [], OFFEN = {}, AUSWERTUNG_MODUL = "", ALLE_AUFGABEN = false, FEHLER_MODUL = "";
+  var DATEN = null, NOTEN = null, BEREICH = "", SICHT = [], OFFEN = {}, AUSWERTUNG_MODUL = "", ALLE_AUFGABEN = false, FEHLER_MODUL = "";
   var KURZ = 12; // so viele Aufgaben zeigt die Klassenauswertung zuerst
   var FACH_ICON = { nt: "🔬", d: "📖", e: "💬", i: "💻" };
   // Startseite des Fachs für die Kinder (je Zug, wenn es getrennte Seiten gibt)
@@ -112,6 +114,12 @@
     ".lf-ck .lf-name{flex:1;min-width:0;overflow-wrap:anywhere}" +
     ".lf-ck button{border:0;background:none;cursor:pointer;font-size:1rem;padding:.15rem .3rem;border-radius:6px}" +
     ".lf-ck button:hover{background:#f0f3f8}" +
+    ".lf-note{display:inline-block;min-width:1.8rem;text-align:center;font-weight:900;font-size:1.02rem;border-radius:8px;padding:.08rem .35rem}" +
+    ".lf-note.g{background:var(--ok-bg);color:#0f5b2c}.lf-note.m{background:#fff4d6;color:#7a5600}.lf-note.s{background:#fdecea;color:#9b1c1c}" +
+    ".lf-np{display:block;font-size:.72rem;color:var(--muted);font-weight:700;white-space:nowrap;margin-top:2px}" +
+    ".lf-schnitt{font-weight:900;font-variant-numeric:tabular-nums}" +
+    ".lf-noten tfoot td{border-top:2px solid var(--line);background:#f8fafd;font-weight:800}" +
+    ".lf-noten th a{color:var(--accent);text-decoration:none}.lf-noten th a:hover{text-decoration:underline}" +
     ".lf-namen{width:100%;min-height:120px;padding:.6rem .7rem;border:1.5px solid var(--line);border-radius:10px;font:inherit;font-size:.95rem;resize:vertical}" +
     "#lf-druck{display:none}" +
     "@media print{body.lf-drucken>*:not(#lf-druck){display:none!important}body.lf-drucken{background:#fff;padding:0}" +
@@ -254,13 +262,14 @@
     }
     if (!KLASSE) { el.innerHTML = ""; return; }
     var kurse = klassenKurse(KLASSE);
-    var gueltig = ["proben", "codes"].concat(kurse.map(function (k) { return k.id; }));
+    var gueltig = ["proben", "noten", "codes"].concat(kurse.map(function (k) { return k.id; }));
     if (gueltig.indexOf(ANSICHT) < 0) ANSICHT = "proben";
     var info = KLASSEN.filter(function (k) { return k.klasse === KLASSE; })[0] || { anzahl: 0 };
     var h = '<div class="vw-kl-kopf"><h2>Klasse ' + esc(KLASSE) + '</h2><span class="vw-badge">Jahrgangsstufe ' + stufeVon(KLASSE) + " · " + zugText(KLASSE) +
       " · " + info.anzahl + (info.anzahl === 1 ? " Code" : " Codes") + "</span></div>";
     if (nurZug(KLASSE)) h += '<div class="note warn" style="margin:0 0 .9rem">Diese Codes stammen aus der ersten Fassung und kennen nur den Zug. Unter „Codes &amp; Namen“ kannst du die Klasse umbenennen, z. B. in ' + (zugBuchstabe(KLASSE) === "M" ? stufeVon(KLASSE) + "aM" : stufeVon(KLASSE) + "d") + ". Codes und Lernstand bleiben erhalten.</div>";
     h += '<nav class="vw-tabs" aria-label="Bereiche der Klasse"><button type="button" data-ansicht="proben">🔓 Proben</button>' +
+      '<button type="button" data-ansicht="noten">📝 Noten</button>' +
       kurse.map(function (k) { return '<button type="button" data-ansicht="' + esc(k.id) + '">' + (FACH_ICON[k.fach] || "📈") + " " + esc(k.fachName) + "</button>"; }).join("") +
       '<button type="button" data-ansicht="codes">👥 Codes &amp; Namen</button></nav><div id="vw-teil"></div>';
     el.innerHTML = h;
@@ -272,11 +281,125 @@
     if (ANSICHT === "proben") {
       teil.innerHTML = '<p class="sub">Proben für Klasse ' + esc(KLASSE) + '. Freischalten gilt für die Probe selbst – also für alle Klassen, die sie schreiben (z. B. alle ' + stufeVon(KLASSE) + zugBuchstabe(KLASSE) + '-Klassen). Ist eine Probe offen, steht der Link für die Kinder direkt dabei.</p><div id="vw-proben"></div>';
       if (PROBEN) PROBEN.zeigen($("vw-proben"), { stufe: stufeVon(KLASSE), zug: zugBuchstabe(KLASSE) });
+    } else if (ANSICHT === "noten") {
+      notenLaden(teil);
     } else if (ANSICHT === "codes") {
       codesZeichnen(teil);
     } else {
       fachLaden(teil);
     }
+  }
+
+  /* ---------- Noten: alle Proben der Klasse (Abgaben mit Code, Datenbank grumiproben) ---------- */
+  function notenLaden(teil) {
+    var klasse = KLASSE;
+    teil.innerHTML = '<div class="skel">Noten werden geladen …</div>';
+    fetch(API + "/api/proben/noten", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: PW, klasse: klasse })
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (d) {
+        if (!r.ok || !d.ok) throw new Error(d.error || "HTTP " + r.status);
+        return d;
+      });
+    }).then(function (d) {
+      if (ANSICHT !== "noten" || KLASSE !== klasse) return;
+      NOTEN = d;
+      notenZeichnen(teil);
+    }).catch(function (e) {
+      teil.innerHTML = "";
+      hinweis("Die Noten konnten nicht geladen werden: " + e.message, "bad");
+    });
+  }
+  // Je Probe eine Spalte, nach dem ersten Abgabedatum
+  function notenProben() {
+    var reihe = [], je = {};
+    NOTEN.noten.forEach(function (n) {
+      var k = n.modul + "|" + n.testId;
+      if (!je[k]) { je[k] = { modul: n.modul, testId: n.testId, titel: n.titel, fach: n.fach, datum: n.datum, noten: {} }; reihe.push(je[k]); }
+      if (String(n.datum) < String(je[k].datum)) je[k].datum = n.datum;
+      je[k].noten[n.code] = n;
+    });
+    return reihe.sort(function (a, b) { return String(a.datum).localeCompare(String(b.datum)) || a.titel.localeCompare(b.titel, "de"); });
+  }
+  // Alle Kinder der Klasse, dazu Abgaben von inzwischen gelöschten Codes
+  function notenKinder(P) {
+    var liste = codesDerKlasse(KLASSE), da = {};
+    liste.forEach(function (k) { da[k.code] = true; });
+    P.forEach(function (p) {
+      Object.keys(p.noten).forEach(function (c) { if (!da[c]) { da[c] = true; liste.push({ code: c, klasse: KLASSE, name: nameVon(c), weg: true }); } });
+    });
+    return liste;
+  }
+  function datumText(iso, mitJahr) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || "");
+    return m ? m[3] + "." + m[2] + "." + (mitJahr ? m[1] : "") : "";
+  }
+  function notenFarbe(n) { return n <= 2 ? "g" : n <= 4 ? "m" : "s"; }
+  function schnitt(noten) {
+    var z = noten.filter(function (x) { return typeof x === "number"; });
+    return z.length ? (z.reduce(function (a, b) { return a + b; }, 0) / z.length).toFixed(2).replace(".", ",") : "";
+  }
+  function notenZeichnen(teil) {
+    var P = notenProben(), liste = notenKinder(P), h = "";
+    h += '<div class="toolbar" style="margin-bottom:.6rem"><div><h2>Noten · Klasse ' + esc(KLASSE) + "</h2>" +
+      '<p class="sub" style="margin:0">Alle Proben, die Kinder dieser Klasse mit ihrem Code abgegeben haben. Unter jeder Note stehen Punkte und Datum. ' +
+      "Antworten ansehen, Punkte korrigieren oder eine Abgabe zum Nachschreiben löschen: Klick auf den Titel der Probe.</p></div>" +
+      '<div class="spacer"></div><button class="btn btn-ghost btn-sm" id="lf-nreload" type="button">Neu laden</button>' +
+      '<button class="btn btn-ghost btn-sm" id="lf-ncsv" type="button"' + (P.length ? "" : " disabled") + ">CSV-Export</button></div>";
+    if (!P.length) {
+      h += '<div class="note">Für Klasse ' + esc(KLASSE) + " gibt es noch keine Abgaben. Sobald ein Kind eine Probe mit seinem Code abgibt, steht die Note hier.</div>";
+    } else {
+      h += '<div class="lf-scroll"><table class="lf-tab lf-noten"><thead><tr><th>Name</th><th>Code</th>';
+      P.forEach(function (p) {
+        var link = PROBEN && PROBEN.link ? PROBEN.link(p.modul, p.testId) : "";
+        h += "<th>" + (link ? '<a href="' + esc(link) + '" title="Antworten und Korrektur">' + esc(p.titel) + "</a>" : esc(p.titel)) +
+          "<small>" + esc(p.fach) + " · " + esc(datumText(p.datum)) + "</small></th>";
+      });
+      h += "<th>Ø</th></tr></thead><tbody>";
+      liste.forEach(function (kind) {
+        var noten = [];
+        h += '<tr><td class="lf-name">' + (kind.name ? esc(kind.name) : '<span class="lf-leer">ohne Namen</span>') +
+          (kind.weg ? ' <span class="lf-leer">(Code gelöscht)</span>' : "") + "</td>" +
+          '<td class="lf-code">' + esc(kind.code) + "</td>";
+        P.forEach(function (p) {
+          var n = p.noten[kind.code];
+          if (!n) { h += '<td><span class="lf-leer">–</span></td>'; return; }
+          noten.push(n.note);
+          h += '<td title="' + esc(n.punkte + " von " + n.max + " Punkten (" + n.prozent + " %)" + (n.nachpruefen ? " · KI-Bewertung noch prüfen" : "")) + '">' +
+            '<span class="lf-note ' + notenFarbe(n.note) + '">' + esc(n.note) + "</span>" + (n.nachpruefen ? ' <span title="KI-Bewertung noch prüfen">⚠️</span>' : "") +
+            '<span class="lf-np">' + esc(n.punkte + "/" + n.max + " · " + datumText(n.datum)) + "</span></td>";
+        });
+        h += '<td class="lf-schnitt">' + (schnitt(noten) || '<span class="lf-leer">–</span>') + "</td></tr>";
+      });
+      h += '</tbody><tfoot><tr><td colspan="2">Schnitt</td>';
+      P.forEach(function (p) {
+        var codes = Object.keys(p.noten);
+        h += '<td class="lf-schnitt">' + schnitt(codes.map(function (c) { return p.noten[c].note; })) +
+          '<span class="lf-np">' + codes.length + " von " + liste.length + " abgegeben</span></td>";
+      });
+      h += "<td></td></tr></tfoot></table></div>" +
+        '<p class="sub" style="margin:.5rem 0 0">⚠️ = Die KI war bei einer freien Antwort unsicher oder nicht erreichbar. Bitte in der Lehrerseite der Probe nachsehen.</p>';
+    }
+    teil.innerHTML = h;
+    $("lf-nreload").addEventListener("click", function () { notenLaden(teil); });
+    $("lf-ncsv").addEventListener("click", notenCsv);
+  }
+  function notenCsv() {
+    if (!NOTEN) return;
+    var P = notenProben(), kopf = ["Klasse", "Code", "Name"];
+    P.forEach(function (p) { kopf.push(p.titel + " Note", p.titel + " Punkte", p.titel + " Datum"); });
+    var zeilen = [kopf.concat(["Schnitt"])];
+    notenKinder(P).forEach(function (kind) {
+      var z = [KLASSE, kind.code, nameVon(kind.code)], noten = [];
+      P.forEach(function (p) {
+        var n = p.noten[kind.code];
+        if (n) noten.push(n.note);
+        // „von“ statt „/“, sonst macht Excel aus 5/10 ein Datum
+        z.push(n ? n.note : "", n ? n.punkte + " von " + n.max : "", n ? datumText(n.datum, true) : "");
+      });
+      zeilen.push(z.concat([schnitt(noten)]));
+    });
+    datei(zeilen, "noten-" + KLASSE + "-" + new Date().toISOString().slice(0, 10) + ".csv");
   }
 
   /* ---------- Fach: Lernfortschritt ---------- */
@@ -532,7 +655,7 @@
       '<textarea class="lf-namen" id="' + id + '-namen" aria-label="Vornamen, einer pro Zeile" placeholder="Hier stehen die Vornamen, einer pro Zeile – von Hand eingetragen oder aus der Klassenliste geladen."></textarea>';
   }
   function datenschutzHinweis() {
-    return '<div class="note">Auf dem Server (Datenbank von Upstash in Frankfurt) liegen nur Code, Klasse und welche Aufgaben gelöst sind – keine Namen und keine Antworttexte. ' +
+    return '<div class="note">Auf dem Server (Datenbanken von Upstash in Frankfurt) liegen nur Code, Klasse und welche Aufgaben gelöst sind, bei Proben dazu Antworten und Note – keine Namen. ' +
       'Die Namensliste steht nur in diesem Browser. Für ein anderes Gerät: „Namensliste speichern“ und dort „Gespeicherte Namensliste laden“. Die Klassenliste aus dem Schulmanager enthält viele persönliche Daten: Nach dem Laden die Datei aus dem Download-Ordner löschen. Am Schuljahresende die Klasse löschen.</div>';
   }
 

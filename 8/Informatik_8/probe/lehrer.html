@@ -143,7 +143,9 @@
   <section class="panel hidden" id="view-results">
     <h2>Ergebnisse</h2>
     <p class="sub">Aufbau: je Modul 1&ndash;6 ein Teil mit 6 Punkten, dazu 2 Transferfragen mit 4 Punkten (40 Punkte).
-      Notenschl&uuml;ssel: 50&nbsp;% = Note 3 &ndash; Note 1 ab 35 P, 2 ab 29 P, 3 ab 20 P, 4 ab 15 P, 5 ab 8 P.
+      Notenschl&uuml;ssel nach Zug (kommt aus dem Code des Kindes):
+      R-Klassen 50&nbsp;% = Note 3 &ndash; Note 1 ab 35 P, 2 ab 29 P, 3 ab 20 P, 4 ab 15 P, 5 ab 8 P;
+      M-Klassen 50&nbsp;% = Note 4 &ndash; Note 1 ab 37 P, 2 ab 33 P, 3 ab 27 P, 4 ab 20 P, 5 ab 12 P.
       Wer ein ganzes Modul nicht kann, kommt h&ouml;chstens auf 34 Punkte und damit nicht auf die Note 1.
       Freie Antworten bewertet die KI wohlwollend nur auf Inhalt &ndash; du kannst jede Punktzahl &auml;ndern.</p>
 
@@ -172,6 +174,9 @@
 </div>
 
 <script>
+/* Abgaben mit Code: Name aus der Namensliste der Lehrkraft (nur in diesem Browser, siehe proben-verwalten.html) */
+const NAMEN = (() => { try { return JSON.parse(localStorage.getItem('lf-nt9-namen') || '{}') || {}; } catch(_e){ return {}; } })();
+const wer = (r) => r.code ? (NAMEN[r.code] ? NAMEN[r.code] + ' (Code ' + r.code + ')' : 'Code ' + r.code) : r.lastName + ', ' + r.firstName;
 const API_BASE = (location.hostname.includes('github.io') || location.protocol === 'file:')
   ? 'https://englisch-9.onrender.com' : '';
 const $ = id => document.getElementById(id);
@@ -338,7 +343,7 @@ function renderTable(rows){
     const tdC = document.createElement('td'); tdC.textContent = r.className;
 
     const tdN = document.createElement('td');
-    tdN.innerHTML = '<b>' + esc(r.lastName) + '</b>, ' + esc(r.firstName) +
+    tdN.innerHTML = '<b>' + esc(wer(r)) + '</b>' +
       (r.needsReview ? ' <span class="badge key">pr&uuml;fen</span>' : '');
 
     const det = document.createElement('details');
@@ -430,7 +435,7 @@ function renderTable(rows){
     del.textContent = 'Löschen';
     del.title = 'Abgabe loeschen, damit nachgeschrieben werden kann';
     del.addEventListener('click', async () => {
-      if(!confirm('Abgabe von ' + r.firstName + ' ' + r.lastName + ' wirklich loeschen?\n\n'
+      if(!confirm('Abgabe von ' + wer(r) + ' wirklich loeschen?\n\n'
         + 'Danach kann die Probe unter diesem Namen neu geschrieben werden.')) return;
       del.disabled = true;
       try{

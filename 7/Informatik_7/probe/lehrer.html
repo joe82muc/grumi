@@ -136,7 +136,9 @@
   <!-- Ergebnisse -->
   <section class="panel hidden" id="view-results">
     <h2>Ergebnisse</h2>
-    <p class="sub">Notenschl&uuml;ssel dieser Probe: 50&nbsp;% = Note 3 (1 ab 87&nbsp;%, 2 ab 70&nbsp;%, 3 ab 50&nbsp;%, 4 ab 33&nbsp;%, 5 ab 17&nbsp;%).
+    <p class="sub">Notenschl&uuml;ssel nach Zug (kommt aus dem Code des Kindes):
+      R-Klassen 50&nbsp;% = Note 3 (1 ab 87&nbsp;%, 2 ab 70&nbsp;%, 3 ab 50&nbsp;%, 4 ab 33&nbsp;%, 5 ab 17&nbsp;%),
+      M-Klassen 50&nbsp;% = Note 4 (1 ab 92&nbsp;%, 2 ab 81&nbsp;%, 3 ab 67&nbsp;%, 4 ab 50&nbsp;%, 5 ab 30&nbsp;%).
       Freie Antworten bewertet die KI wohlwollend auf Inhalt &ndash; du kannst jede Punktzahl &auml;ndern.</p>
 
     <div class="note bad" style="margin-top:0;margin-bottom:.9rem">
@@ -161,6 +163,9 @@
 </div>
 
 <script>
+/* Abgaben mit Code: Name aus der Namensliste der Lehrkraft (nur in diesem Browser, siehe proben-verwalten.html) */
+const NAMEN = (() => { try { return JSON.parse(localStorage.getItem('lf-nt9-namen') || '{}') || {}; } catch(_e){ return {}; } })();
+const wer = (r) => r.code ? (NAMEN[r.code] ? NAMEN[r.code] + ' (Code ' + r.code + ')' : 'Code ' + r.code) : r.lastName + ', ' + r.firstName;
 const API_BASE = (location.hostname.includes('github.io') || location.protocol === 'file:')
   ? 'https://englisch-9.onrender.com' : '';
 const $ = id => document.getElementById(id);
@@ -327,7 +332,7 @@ function renderTable(rows){
     const tdC = document.createElement('td'); tdC.textContent = r.className;
 
     const tdN = document.createElement('td');
-    tdN.innerHTML = '<b>' + esc(r.lastName) + '</b>, ' + esc(r.firstName) +
+    tdN.innerHTML = '<b>' + esc(wer(r)) + '</b>' +
       (r.needsReview ? ' <span class="badge key">pr&uuml;fen</span>' : '');
 
     const det = document.createElement('details');
@@ -397,7 +402,7 @@ function renderTable(rows){
     del.textContent = 'Löschen';
     del.title = 'Abgabe loeschen, damit nachgeschrieben werden kann';
     del.addEventListener('click', async () => {
-      if(!confirm('Abgabe von ' + r.firstName + ' ' + r.lastName + ' wirklich loeschen?\n\n'
+      if(!confirm('Abgabe von ' + wer(r) + ' wirklich loeschen?\n\n'
         + 'Danach kann die Probe unter diesem Namen neu geschrieben werden.')) return;
       del.disabled = true;
       try{

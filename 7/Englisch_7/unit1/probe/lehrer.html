@@ -161,6 +161,10 @@
 </div>
 
 <script>
+/* Abgaben mit Code: Name aus der Namensliste der Lehrkraft (nur in diesem Browser, siehe proben-verwalten.html) */
+const NAMEN = (() => { try { return JSON.parse(localStorage.getItem('lf-nt9-namen') || '{}') || {}; } catch(_e){ return {}; } })();
+const wer = (r) => r.code ? (NAMEN[r.code] ? NAMEN[r.code] + ' (Code ' + r.code + ')' : 'Code ' + r.code) : r.lastName + ', ' + r.firstName;
+
 const API_BASE = (location.hostname.includes('github.io') || location.protocol === 'file:')
   ? 'https://englisch-9.onrender.com' : '';
 const $ = id => document.getElementById(id);
@@ -327,7 +331,7 @@ function renderTable(rows){
     const tdC = document.createElement('td'); tdC.textContent = r.className;
 
     const tdN = document.createElement('td');
-    tdN.innerHTML = '<b>' + esc(r.lastName) + '</b>, ' + esc(r.firstName) +
+    tdN.innerHTML = '<b>' + esc(wer(r)) + '</b>' +
       (r.needsReview ? ' <span class="badge key">pr&uuml;fen</span>' : '');
 
     const det = document.createElement('details');
@@ -398,7 +402,7 @@ function renderTable(rows){
     del.textContent = 'Löschen';
     del.title = 'Abgabe loeschen, damit nachgeschrieben werden kann';
     del.addEventListener('click', async () => {
-      if(!confirm('Abgabe von ' + r.firstName + ' ' + r.lastName + ' wirklich loeschen?\n\n'
+      if(!confirm('Abgabe von ' + wer(r) + ' wirklich loeschen?\n\n'
         + 'Danach kann der Test unter diesem Namen neu geschrieben werden.')) return;
       del.disabled = true;
       try{

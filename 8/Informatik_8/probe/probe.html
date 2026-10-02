@@ -250,7 +250,7 @@
       <span class="code">Schriftliche Probe</span>
       <h1>Digitaler Informationsaustausch</h1>
       <p>
-        Trage deinen Namen ein und w&auml;hle die Probe aus. Die Probe hat einen Teil
+        Trage deinen Code ein und w&auml;hle die Probe aus. Die Probe hat einen Teil
         zu jedem Modul 1&ndash;6 und zwei Transferfragen zum Schluss. Du kannst sie
         <strong>nur einmal</strong> abgeben. Nimm dir Zeit und lies jede Aufgabe genau.
       </p>
@@ -258,26 +258,12 @@
 
     <div class="panel">
       <h2>Anmeldung</h2>
-      <p class="sub">Alle Felder ausf&uuml;llen, damit deine Lehrkraft die Abgabe zuordnen kann.</p>
+      <p class="sub">Gib deinen Code von deiner Lehrkraft ein. Deinen Namen brauchst du hier nicht.</p>
 
       <div class="row2">
         <div class="field">
-          <label for="f-first">Vorname</label>
-          <input type="text" id="f-first" autocomplete="given-name" spellcheck="false">
-        </div>
-        <div class="field">
-          <label for="f-last">Nachname</label>
-          <input type="text" id="f-last" autocomplete="family-name" spellcheck="false">
-        </div>
-      </div>
-      <div class="row2">
-        <div class="field">
-          <label for="f-class">Klasse</label>
-          <select id="f-class">
-            <option value="">bitte w&auml;hlen</option>
-            <option value="8M">8M</option>
-            <option value="8R">8R</option>
-          </select>
+          <label for="f-code">Dein Code</label>
+          <input type="text" id="f-code" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="3 Ziffern" autocomplete="off" autocorrect="off" spellcheck="false">
         </div>
         <div class="field">
           <label for="f-test">Probe</label>
@@ -421,13 +407,11 @@ async function loadTests(){
 
 /* ---------- Starten ---------- */
 $('btn-start').addEventListener('click', async () => {
-  const firstName = $('f-first').value.trim();
-  const lastName  = $('f-last').value.trim();
-  const className = $('f-class').value;
+  const code      = $('f-code').value.trim();
   const testId    = $('f-test').value;
 
-  if(!firstName || !lastName || !className){
-    msg('start-msg','Bitte Vorname, Nachname und Klasse ausf&uuml;llen.','bad'); return;
+  if(!/^\d{3}$/.test(code)){
+    msg('start-msg','Bitte gib deinen Code ein (3 Ziffern).','bad'); return;
   }
   if(!testId){ msg('start-msg','Bitte eine Probe ausw&auml;hlen.','bad'); return; }
 
@@ -437,12 +421,12 @@ $('btn-start').addEventListener('click', async () => {
   try{
     const res = await fetch(API_BASE + '/api/informatik8/start', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ testId, firstName, lastName, className })
+      body: JSON.stringify({ testId, code })
     });
     const data = await res.json();
 
     if(res.status === 409){
-      msg('start-msg','Unter diesem Namen wurde die Probe bereits abgegeben. '
+      msg('start-msg','Mit diesem Code wurde die Probe bereits abgegeben. '
         + 'Wenn das ein Fehler ist, melde dich bei deiner Lehrkraft.','bad');
       $('btn-start').disabled = false; return;
     }
@@ -450,16 +434,20 @@ $('btn-start').addEventListener('click', async () => {
       msg('start-msg','Diese Probe ist nicht (mehr) freigeschaltet.','bad');
       $('btn-start').disabled = false; return;
     }
+    if(!res.ok && data.message){
+      msg('start-msg', data.message, 'bad');
+      $('btn-start').disabled = false; return;
+    }
     if(!res.ok){ throw new Error(data.error || ('HTTP ' + res.status)); }
 
     TEST    = data.test;
     ITEMS   = data.items || [];
     ANSWERS = ITEMS.map(it => it.type === 'choice' ? null : it.type === 'match' ? it.rows.map(() => null) : '');
-    STUDENT = { firstName, lastName, className, testId };
+    STUDENT = { code, testId };
 
     $('t-title').textContent  = TEST.title;
     $('t-code').textContent   = TEST.unit;
-    $('t-person').textContent = firstName + ' ' + lastName + ' · Klasse ' + className
+    $('t-person').textContent = 'Code ' + code
       + ' · ' + TEST.maxPoints + ' Punkte';
 
     buildQuestions();
@@ -646,9 +634,7 @@ async function abgeben(){
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
         testId: STUDENT.testId,
-        firstName: STUDENT.firstName,
-        lastName: STUDENT.lastName,
-        className: STUDENT.className,
+        code: STUDENT.code,
         testDate: new Date().toISOString().slice(0,10),
         answers: ANSWERS
       })

@@ -212,25 +212,15 @@
 
     <div class="panel">
       <h2>Anmeldung</h2>
-      <p class="sub">Alle Felder ausf&uuml;llen, damit deine Lehrkraft die Abgabe zuordnen kann.</p>
+      <p class="sub">Gib deinen Code von deiner Lehrkraft ein. Deinen Namen brauchst du hier nicht.</p>
 
       <div class="field">
         <label for="f-test">Test</label>
         <select id="f-test"><option value="">wird geladen ...</option></select>
       </div>
-      <div class="row2">
-        <div class="field">
-          <label for="f-first">Vorname</label>
-          <input type="text" id="f-first" autocomplete="given-name" spellcheck="false">
-        </div>
-        <div class="field">
-          <label for="f-last">Nachname</label>
-          <input type="text" id="f-last" autocomplete="family-name" spellcheck="false">
-        </div>
-      </div>
       <div class="field">
-        <label for="f-class">Klasse</label>
-        <input type="text" id="f-class" placeholder="z.&nbsp;B. 7aM" autocomplete="off" spellcheck="false">
+        <label for="f-code">Dein Code</label>
+        <input type="text" id="f-code" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="3 Ziffern" autocomplete="off" autocorrect="off" spellcheck="false">
       </div>
 
       <div class="note">
@@ -370,13 +360,11 @@ async function loadTests(){
 
 /* ---------- Starten ---------- */
 $('btn-start').addEventListener('click', async () => {
-  const firstName = $('f-first').value.trim();
-  const lastName  = $('f-last').value.trim();
-  const className = $('f-class').value.trim();
+  const code      = $('f-code').value.trim();
   const testId    = $('f-test').value;
 
-  if(!firstName || !lastName || !className){
-    msg('start-msg','Bitte Vorname, Nachname und Klasse ausf&uuml;llen.','bad'); return;
+  if(!/^\d{3}$/.test(code)){
+    msg('start-msg','Bitte gib deinen Code ein (3 Ziffern).','bad'); return;
   }
   if(!testId){ msg('start-msg','Bitte einen Test ausw&auml;hlen.','bad'); return; }
 
@@ -386,16 +374,20 @@ $('btn-start').addEventListener('click', async () => {
   try{
     const res = await fetch(API_BASE + '/api/grammatik9r/start', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ testId, firstName, lastName, className })
+      body: JSON.stringify({ testId, code })
     });
     const data = await res.json();
 
     if(res.status === 409){
-      msg('start-msg','Unter diesem Namen wurde der Test bereits abgegeben. Wenn das ein Fehler ist, melde dich bei deiner Lehrkraft.','bad');
+      msg('start-msg','Mit diesem Code wurde der Test bereits abgegeben. Wenn das ein Fehler ist, melde dich bei deiner Lehrkraft.','bad');
       $('btn-start').disabled = false; return;
     }
     if(res.status === 403){
       msg('start-msg','Dieser Test ist nicht (mehr) freigeschaltet.','bad');
+      $('btn-start').disabled = false; return;
+    }
+    if(!res.ok && data.message){
+      msg('start-msg', data.message, 'bad');
       $('btn-start').disabled = false; return;
     }
     if(!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
@@ -403,11 +395,11 @@ $('btn-start').addEventListener('click', async () => {
     TEST    = data.test;
     ITEMS   = data.items || [];
     ANSWERS = ITEMS.map(it => it.type === 'choice' ? null : it.type === 'gap' ? Array(it.gaps).fill('') : '');
-    STUDENT = { firstName, lastName, className, testId };
+    STUDENT = { code, testId };
 
     $('t-title').textContent  = TEST.title;
     $('t-code').textContent   = TEST.kind === 'kurztest' ? 'Grammatiktest · Unit 1' : 'Grammatikprobe · Unit 1';
-    $('t-person').textContent = firstName + ' ' + lastName + ' · Klasse ' + className + ' · ' + TEST.maxPoints + ' Punkte';
+    $('t-person').textContent = 'Code ' + code + ' · ' + TEST.maxPoints + ' Punkte';
 
     buildQuestions();
     $('view-start').hidden = true;
@@ -543,9 +535,7 @@ $('btn-submit').addEventListener('click', async () => {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
         testId: STUDENT.testId,
-        firstName: STUDENT.firstName,
-        lastName: STUDENT.lastName,
-        className: STUDENT.className,
+        code: STUDENT.code,
         testDate: new Date().toISOString().slice(0,10),
         answers: ANSWERS
       })

@@ -89,17 +89,10 @@
     <div class="panel">
       <span class="sec-label">Anmeldung</span>
       <h2>Wer bist du?</h2>
-      <p class="hint">Trage deinen Namen genau so ein, wie deine Lehrkraft dich kennt.</p>
+      <p class="hint">Gib deinen Code von deiner Lehrkraft ein. Deinen Namen brauchst du hier nicht.</p>
       <div class="row2">
-        <div class="feld"><label class="lbl" for="f-first">Vorname</label>
-          <input type="text" id="f-first" autocomplete="given-name" spellcheck="false"></div>
-        <div class="feld"><label class="lbl" for="f-last">Nachname</label>
-          <input type="text" id="f-last" autocomplete="family-name" spellcheck="false"></div>
-      </div>
-      <div class="row2">
-        <div class="feld"><label class="lbl" for="f-class">Klasse</label>
-          <select id="f-class"><option value="">bitte w&auml;hlen</option>
-            <option value="9M">9M</option><option value="9R">9R</option></select></div>
+        <div class="feld"><label class="lbl" for="f-code">Dein Code</label>
+          <input type="text" id="f-code" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="3 Ziffern" autocomplete="off" autocorrect="off" spellcheck="false"></div>
         <div class="feld"><label class="lbl" for="f-test">Pr&uuml;fung</label>
           <select id="f-test"><option value="">wird geladen ...</option></select></div>
       </div>
@@ -227,28 +220,28 @@ const OFFLINE = 'Keine Verbindung zum Server. Beim kostenlosen Render-Plan schl&
 
 /* ---------- Start ---------- */
 $('b-start').addEventListener('click', async () => {
-  const firstName = $('f-first').value.trim(), lastName = $('f-last').value.trim();
-  const className = $('f-class').value, testId = $('f-test').value;
-  if(!firstName || !lastName || !className){ msg('m-start','Bitte Vorname, Nachname und Klasse ausf&uuml;llen.','bad'); return; }
+  const code = $('f-code').value.trim(), testId = $('f-test').value;
+  if(!/^\d{3}$/.test(code)){ msg('m-start','Bitte gib deinen Code ein (3 Ziffern).','bad'); return; }
   if(!testId){ msg('m-start','Bitte eine Pr&uuml;fung ausw&auml;hlen.','bad'); return; }
 
   $('b-start').disabled = true;
   try{
     const r = await fetch(API + '/api/filiuspruefung/start', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ testId, firstName, lastName, className })
+      body: JSON.stringify({ testId, code })
     });
     const d = await r.json();
-    if(r.status === 409){ msg('m-start','Unter diesem Namen wurde die Pr&uuml;fung bereits abgegeben.','bad'); $('b-start').disabled=false; return; }
+    if(r.status === 409){ msg('m-start','Mit diesem Code wurde die Pr&uuml;fung bereits abgegeben.','bad'); $('b-start').disabled=false; return; }
     if(r.status === 403){ msg('m-start','Diese Pr&uuml;fung ist nicht (mehr) freigeschaltet.','bad'); $('b-start').disabled=false; return; }
+    if(!r.ok && d.message){ msg('m-start', d.message, 'bad'); $('b-start').disabled=false; return; }
     if(!r.ok) throw new Error(d.error || r.status);
 
     TEST = d.test; ITEMS = d.items || []; ANS = ITEMS.map(() => null);
-    ICH = { firstName, lastName, className, testId };
+    ICH = { code, testId };
 
     $('t-title').textContent = TEST.title;
     $('t-code').textContent = TEST.unit;
-    $('t-person').textContent = firstName + ' ' + lastName + ' · ' + className + ' · ' + TEST.maxPoints + ' Punkte';
+    $('t-person').textContent = 'Code ' + code + ' · ' + TEST.maxPoints + ' Punkte';
     $('u-aufgabe').textContent = d.upload.aufgabe;
     $('p-total').textContent = ITEMS.length;
     $('p-pts').textContent = 'Teil A ' + TEST.maxA + ' + Teil B ' + TEST.maxB + ' Punkte';
@@ -327,8 +320,7 @@ $('b-submit').addEventListener('click', async () => {
     const r = await fetch(API + '/api/filiuspruefung/submit', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        testId: ICH.testId, firstName: ICH.firstName, lastName: ICH.lastName,
-        className: ICH.className, testDate: new Date().toISOString().slice(0,10),
+        testId: ICH.testId, code: ICH.code, testDate: new Date().toISOString().slice(0,10),
         answers: ANS, datei: DATEI ? DATEI.b64 : '', dateiName: DATEI ? DATEI.name : ''
       })
     });

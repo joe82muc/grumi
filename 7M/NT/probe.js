@@ -8,7 +8,7 @@
   async function request(route, body) {
     const res = await fetch(API + "/api/nt7/" + route, body ? {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)} : {});
     const data = await res.json();
-    if (!res.ok) throw new Error(({locked:"Diese Probe ist noch gesperrt.",already_submitted:"Diese Probe wurde unter diesem Namen bereits abgegeben.",submission_in_progress:"Eine Abgabe läuft bereits."})[data.error] || data.error || "Serverfehler");
+    if (!res.ok) throw new Error(({locked:"Diese Probe ist noch gesperrt.",already_submitted:"Diese Probe wurde mit diesem Code bereits abgegeben.",submission_in_progress:"Eine Abgabe läuft bereits."})[data.error] || data.message || data.error || "Serverfehler");
     return data;
   }
   function status(message, bad = false) { $("status").textContent = message; $("status").classList.toggle("bad",bad); $("status").hidden = false; }

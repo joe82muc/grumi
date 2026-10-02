@@ -138,6 +138,9 @@
 </div>
 
 <script>
+/* Abgaben mit Code: Name aus der Namensliste der Lehrkraft (nur in diesem Browser, siehe proben-verwalten.html) */
+const NAMEN = (() => { try { return JSON.parse(localStorage.getItem('lf-nt9-namen') || '{}') || {}; } catch(_e){ return {}; } })();
+const wer = (r) => r.code ? (NAMEN[r.code] ? NAMEN[r.code] + ' (Code ' + r.code + ')' : 'Code ' + r.code) : r.lastName + ', ' + r.firstName;
 const API = (location.hostname.includes('github.io') || location.protocol === 'file:')
   ? 'https://englisch-9.onrender.com' : '';
 const $ = (id) => document.getElementById(id);
@@ -268,7 +271,7 @@ function tabelle(rows){
 
     const tdK=document.createElement('td'); tdK.textContent=r.className;
     const tdN=document.createElement('td');
-    tdN.innerHTML='<b>'+esc(r.lastName)+'</b>, '+esc(r.firstName)
+    tdN.innerHTML='<b>'+esc(wer(r))+'</b>'
       + (r.dateiName ? '<br><small style="color:#5d6b84">'+esc(r.dateiName)+'</small>' : '');
 
     const det=document.createElement('details');
@@ -318,7 +321,7 @@ function tabelle(rows){
     del.className='btn btn-sm btn-ghost'; del.textContent='Löschen';
     del.title='Abgabe loeschen, damit nachgeschrieben werden kann';
     del.addEventListener('click', async () => {
-      if(!confirm('Abgabe von '+r.firstName+' '+r.lastName+' wirklich löschen?')) return;
+      if(!confirm('Abgabe von '+wer(r)+' wirklich löschen?')) return;
       del.disabled=true;
       try{
         const x=await fetch(API+'/api/filiuspruefung/delete-submission',{method:'POST',
