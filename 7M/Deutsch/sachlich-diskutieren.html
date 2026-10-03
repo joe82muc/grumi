@@ -268,13 +268,15 @@ const STAND = {
   lehrer: {txt: "Die Lehrerinnen und Lehrer sollen die Bücher auswählen.", gegen: "schueler"}
 };
 const stand = Modul.load("-stand", "");
-// Der Standpunkt lässt sich in Station 2 wählen – und direkt bei der KI-Diskussion, solange noch keiner gewählt ist
+// Der Standpunkt lässt sich in Station 2 wählen – und direkt bei der KI-Diskussion, solange noch keiner gewählt ist.
+// Neu laden über Modul.neuLaden: Sonst wäre ein mit Code angemeldetes Kind nach der Wahl abgemeldet.
+const neuLaden = Modul.neuLaden || (h => { location.hash = h; location.reload(); });
 $$("#standPick button, #standPick6 button").forEach(b => {
   b.classList.toggle("sel", b.dataset.s === stand);
   b.addEventListener("click", () => {
     if (b.dataset.s === stand) return;
     Modul.save("-stand", b.dataset.s);
-    location.hash = b.closest("#standPick6") ? "#s6" : "#s2"; location.reload();
+    neuLaden(b.closest("#standPick6") ? "#s6" : "#s2");
   });
 });
 

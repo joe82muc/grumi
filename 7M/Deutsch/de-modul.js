@@ -148,6 +148,17 @@ async function mitCodeStarten(){
   }
 }
 function abmelden(){ session.clear(); codeAbmelden(); location.reload(); }
+// Seite neu laden, ohne dass ein mit Code angemeldetes Kind den Code noch einmal eintippen muss (z. B. nach der
+// Wahl eines Standpunkts). Die Code-Anmeldung gilt sonst nur für den Seitenaufruf, in dem der Code eingetippt wurde.
+// Deshalb wird sie wie direkt nach dem Anmelden als „frisch“ vermerkt; das Neuladen bindet sie an den neuen Aufruf.
+function neuLaden(hash){
+  try {
+    const s = anmeldungGueltig(JSON.parse(localStorage.getItem(CODE_KEY) || "null"));
+    if (s) { delete s.ladung; s.frisch = location.pathname; s.seit = Date.now(); localStorage.setItem(CODE_KEY, JSON.stringify(s)); }
+  } catch (_) {}
+  if (hash) location.hash = hash;
+  location.reload();
+}
 function buildLogin(){
   if ($("#loginDialog")) return;
   document.body.insertAdjacentHTML("beforeend", `
@@ -724,6 +735,6 @@ function confetti(){
   })();
 }
 
-const Modul = window.Modul = {$, $$, esc, shuffle, norm, words, load, save, init, ready, register, solve, session, openLogin, renderWho, api, API_BASE, mitCodeStarten, abmelden,
+const Modul = window.Modul = {$, $$, esc, shuffle, norm, words, load, save, init, ready, register, solve, session, openLogin, renderWho, api, API_BASE, mitCodeStarten, abmelden, neuLaden,
   isSolved: id => !!solved[id], makeMC, makeGap, makeSort, makeTF, makeOrder, makeMark, makeOpen, makeDuel, makeObs, makeVote, makeDiary, makeQuiz, confetti};
 })();
