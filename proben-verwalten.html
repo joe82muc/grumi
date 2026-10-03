@@ -137,6 +137,8 @@
 
 </div>
 
+<script src="js/proben-module.js"></script>
+<script src="klasse-verwaltung.js"></script>
 <script src="lernfortschritt.js"></script>
 <script>
 /* ============================================================
@@ -153,84 +155,9 @@
 const API_BASE = (location.hostname.includes('github.io') || location.protocol === 'file:')
   ? 'https://englisch-9.onrender.com' : '';
 
-/* Die Module. "unlockPath" weicht bei nt7 ab (dort liegt die Freischaltung
-   unter /teacher/unlock). link = Lehrerseite (Ergebnisse), schueler = Seite
-   für die Kinder. klasse: "7" = alle 7. Klassen, "7M"/"7R" = nur dieser Zug. */
-const MODULES = [
-  {
-    key:'vokabeltest', subject:'Englisch',
-    listPath:'/api/vokabeltest/list', unlockPath:'/api/vokabeltest/unlock',
-    klasse: idKlasse, link: t => englischSeite(t, 'test/lehrer.html'),
-    schueler: t => englischSeite(t, 'test/vokabeltest.html') + '?test=' + encodeURIComponent(t.id)
-  },
-  {
-    /* Englisch 9R, 9M, 7M und 7R: Grammatikprobe und Grammatiktests G1-G4 (Unit 1) */
-    key:'grammatik9r', subject:'Englisch',
-    listPath:'/api/grammatik9r/list', unlockPath:'/api/grammatik9r/unlock',
-    klasse: idKlasse, link: t => englischSeite(t, 'probe/lehrer.html'),
-    schueler: t => englischSeite(t, 'probe/grammatikprobe.html') + '?test=' + encodeURIComponent(t.id)
-  },
-  {
-    key:'nt7', subject:'Natur und Technik',
-    listPath:'/api/nt7/list', unlockPath:'/api/nt7/teacher/unlock',
-    /* Die NT-Übersicht zeigt die Proben nur in 7M */
-    klasse: () => '7M', link: () => '7M/NT/lehrer.html',
-    schueler: t => '7M/NT/probe.html?probe=' + (/-2$/.test(t.id) ? '2' : '1')
-  },
-  {
-    /* Der Argumentationstrainer kennt keine Freischaltung - er ist
-       immer offen. Er steht hier nur als Hinweis mit Link. */
-    key:'de7-argument', subject:'Deutsch', noUnlock:true,
-    title:'Argumentation üben (immer offen)',
-    listPath:null, unlockPath:null,
-    klasse: () => '7', link: () => '7M/Deutsch/lehrer.html', schueler: () => '7M/Deutsch/argumentationstrainer.html'
-  },
-  {
-    key:'infoaustausch', subject:'Informatik',
-    listPath:'/api/infoaustausch/list', unlockPath:'/api/infoaustausch/unlock',
-    klasse: () => '7', link: () => '7/Informatik_7/probe/lehrer.html', schueler: () => '7/Informatik_7/probe/probe.html'
-  },
-  {
-    key:'informatik8', subject:'Informatik',
-    listPath:'/api/informatik8/list', unlockPath:'/api/informatik8/unlock',
-    klasse: () => '8', link: () => '8/Informatik_8/probe/lehrer.html', schueler: () => '8/Informatik_8/probe/probe.html'
-  },
-  {
-    /* NT 9M/9R: Probe Organische Rohstoffe (Module 1-7), je eine Fassung pro Zug */
-    key:'nt9probe', subject:'Natur und Technik',
-    listPath:'/api/nt9probe/list', unlockPath:'/api/nt9probe/unlock',
-    klasse: t => /^nt9r-/.test(t.id) ? '9R' : '9M',
-    link: t => (/^nt9r-/.test(t.id) ? '9R' : '9M') + '/NT_9/App12_Organische_Rohstoffe/lehrer.html',
-    schueler: t => (/^nt9r-/.test(t.id) ? '9R' : '9M') + '/NT_9/App12_Organische_Rohstoffe/probe.html'
-  },
-  {
-    key:'netzwerktest', subject:'Informatik',
-    listPath:'/api/netzwerktest/list', unlockPath:'/api/netzwerktest/unlock',
-    klasse: () => '9', link: () => '9/Informatik_9/Netzwerke/lehrer.html', schueler: () => '9/Informatik_9/Netzwerke/probe.html'
-  },
-  {
-    key:'filiuspruefung', subject:'Informatik',
-    listPath:'/api/filiuspruefung/list', unlockPath:'/api/filiuspruefung/unlock',
-    klasse: () => '9', link: () => '9/Informatik_9/Filius/lehrer.html', schueler: () => '9/Informatik_9/Filius/pruefung.html'
-  }
-];
-
-/* Englisch-Tests: Stufe, Zug und Unit stecken in der Test-ID
-   (e7-u1-…, e7m-u1-…, e8r-u2-…, e9r-u1-…, e9m-u1-…) */
-function idKlasse(t){
-  const m = String(t.id || '').match(/^e(\d+)([mr]?)-/i);
-  if(m) return m[1] + m[2].toUpperCase();
-  return String(t.classLevel || '?');
-}
-function englischSeite(t, datei){
-  const m = String(t.id || '').match(/^e(\d+)([mr]?)-u(\d+)-/i);
-  if(!m) return '';
-  const st = m[1], zug = m[2].toLowerCase(), unit = 'unit' + m[3] + '/';
-  if(st === '7') return '7/Englisch_7/' + unit + datei;
-  if(st === '8') return '8R/Englisch/' + unit + datei;
-  if(st === '9') return (zug === 'm' ? '9M/Englisch_9/' : '9R/Englisch/') + unit + datei;
-  return '';
-}
+/* Die Module (Endpunkte, Klassen, Lehrer- und Schülerseiten) stehen in js/proben-module.js,
+   weil auch die Startseite der Kinder sie für die Proben-Kachel braucht. */
+const { MODULES } = window.GrumiProbenModule;
 
 /* Reihenfolge der Faecher in der Anzeige */
 const SUBJECT_ORDER = ['Englisch','Deutsch','Mathematik','Natur und Technik','Informatik'];

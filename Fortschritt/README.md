@@ -169,9 +169,33 @@ Nicht dabei: Mathe und WiB (so gewünscht), Proben (eigene Freischaltung), Argum
   für `d7/d8/d9-(sb|gr|rs)-NN`.
 - Informatik 9: „So arbeitest du mit einem Modul“, „roter Faden“ und die Kachel „So arbeitest du mit den Modulen“ entfernt.
 
+## Stand 04.10.2026: „Mein GRUMI“ – Anmeldung auf der Startseite, Hausaufgabenheft, Klassenrat
+
+- **Startseite** (`index.html`, `js/klasse.js`, `css/klasse.css`): Das Code-Feld steht im Kopfbild. Nach der Anmeldung
+  sieht das Kind nur seinen Bereich: offene Proben seiner Klasse (mit Namen), Hausaufgabenheft, Klassenrat und die
+  Fächer seines Zugs (aus der Karte der Klasse, nur fertige Fächer). „Alle Klassen und Fächer anzeigen“ holt die
+  ganze Startseite zurück. Ohne Code bleibt die Startseite wie bisher.
+- **Einmal anmelden**: Die Anmeldung gilt im selben Browser-Tab weiter (`grumiTab`, `sessionStorage`
+  „grumi-code-tab“) – bis zum Abmelden, bis der Tab geschlossen wird oder nach 10 Minuten ohne Tippen/Klicken. Ein
+  neuer Tab fragt wieder nach dem Code. Der Block steht in allen 13 Skripten, die die Anmeldung lesen
+  (`js/lernstand.js`, `js/klasse.js`, `js/grammatik.js`, `js/vokabel-extras.js`, `js/deutsch-uebersicht.js`, NT 7,
+  NT 9 `fortschritt.js`, Deutsch 7). Wer die Regel ändert, ändert sie überall.
+- **Hausaufgabenheft** (`hausaufgaben.html`): Heute / Diese Woche / Proben & Termine, „Erledigt“ nur im Browser.
+- **Klassenrat-Briefkasten** (`klassenrat.html`): anonym; Code und Uhrzeit nur, wenn das Kind es ankreuzt. Eine KI
+  (Haiku, ohne den Zusatz „milde bewerten“) lässt nur sachliche Nachrichten ohne Namen durch, abgelehnte werden
+  nicht gespeichert. Ohne KI prüft eine Wortliste („ohne KI geprüft“ in der Verwaltung).
+- **Verwaltung** (`klasse-verwaltung.js`, Reiter je Klasse in `proben-verwalten.html`): 📚 Hausaufgaben eintragen,
+  📮 Klassenrat lesen, Status setzen, eigene Themen, „Tagesordnung zeigen“ für den Beamer (ohne Absender).
+- **Proben-Module** stehen jetzt in `js/proben-module.js` (Verwaltung und Startseite nutzen dieselbe Liste).
+- **Server** (englisch_9 `backend/api/klasse.js`, Routen `/api/klasse/…`): Dateien `klasse-heft.json` und
+  `klasse-rat.json`, gespiegelt nach Upstash „grumiproben“. Löschfristen: Heft 60 Tage nach dem Termin, Klassenrat
+  ab 1. September alles aus dem alten Schuljahr. An die KI gehen nur Jahrgangsstufe, Thema und Text.
+
 ## Offen
 
 - Deutsch 7/8: Inhalte im Unterricht gegenlesen lassen (Niveau, Fachbegriffe der eingeführten Lehrwerke).
 - Englisch 7 G1–G4 „Übungen zur Regel“ und Beispielsätze der Vokabeltrainer 7/8R auf Buchnähe prüfen.
 - Vokabeltrainer: Ton auf echten iPads kurz prüfen (der Test-Safari unter Windows hat keine Tonausgabe).
 - Schulleitung/Datenschutzbeauftragte über Upstash informieren (Auftragsverarbeitung).
+- Datenschutzbeauftragten über den Klassenrat-Briefkasten informieren (Freitext der Kinder, KI-Prüfung); die
+  Datenschutzhinweise sind ergänzt (Stand 4.10.2026).

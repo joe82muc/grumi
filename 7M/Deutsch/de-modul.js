@@ -68,18 +68,33 @@ const LS_MODULE = {
   "ueberzeugend-argumentieren": [3, "Überzeugend argumentieren"], "sachlich-diskutieren": [4, "Sachlich diskutieren"],
   "tisch-duell": [5, "Tisch-Duell zu zweit"]
 };
-// Code-Anmeldung gilt nur für den Seitenaufruf, in dem der Code eingetippt wurde (Schul-iPads, siehe js/lernstand.js)
+// Einmal anmelden: Im selben Browser-Tab gilt die Code-Anmeldung weiter, bis das Kind sich abmeldet, den Tab
+// schließt oder länger als 10 Minuten nichts tippt oder anklickt. Ein neuer Tab fragt wieder nach dem Code.
+// Derselbe Block steht in allen Skripten, die die Anmeldung lesen (js/lernstand.js, js/klasse.js, NT, Deutsch …).
+function grumiTab() {
+  if (window.GrumiTab) return window.GrumiTab;
+  var K = "grumi-code-tab", PAUSE = 600000, letzte = 0;
+  function lies() { try { return JSON.parse(sessionStorage.getItem(K) || "null"); } catch (_e) { return null; } }
+  function merken(code) { try { sessionStorage.setItem(K, JSON.stringify({ code: String(code), zeit: Date.now() })); } catch (_e) {} }
+  function taetig() { var t = lies(); if (t && Date.now() - letzte > 20000 && Date.now() - t.zeit < PAUSE) { letzte = Date.now(); merken(t.code); } }
+  ["pointerdown", "keydown"].forEach(function (n) { document.addEventListener(n, taetig, true); });
+  return (window.GrumiTab = {
+    merken: merken,
+    gilt: function (code) { var t = lies(); return !!(t && t.code === String(code) && Date.now() - t.zeit < PAUSE); },
+    ende: function () { try { sessionStorage.removeItem(K); } catch (_e) {} }
+  });
+}
 function anmeldungLadung() {
   var p = window.performance, t = p && (p.timeOrigin || (p.timing && p.timing.navigationStart));
   return t ? String(t) : (window.__grumiLadung = window.__grumiLadung || String(Math.random()));
 }
 function anmeldungGueltig(s) {
   if (!s || !s.code || !s.kennung) return null;
-  if (s.ladung && s.ladung === anmeldungLadung()) return s;
-  if (s.frisch && s.frisch === location.pathname && Date.now() - (s.seit || 0) < 120000) {
+  if (s.ladung && s.ladung === anmeldungLadung()) { grumiTab().merken(s.code); return s; }
+  if ((s.frisch && s.frisch === location.pathname && Date.now() - (s.seit || 0) < 120000) || grumiTab().gilt(s.code)) {
     delete s.frisch; s.ladung = anmeldungLadung();
     try { localStorage.setItem("grumi-code-anmeldung", JSON.stringify(s)); } catch (_e) {}
-    return s;
+    grumiTab().merken(s.code); return s;
   }
   return null;
 }
@@ -149,8 +164,8 @@ async function mitCodeStarten(){
 }
 function abmelden(){ session.clear(); codeAbmelden(); location.reload(); }
 // Seite neu laden, ohne dass ein mit Code angemeldetes Kind den Code noch einmal eintippen muss (z. B. nach der
-// Wahl eines Standpunkts). Die Code-Anmeldung gilt sonst nur für den Seitenaufruf, in dem der Code eingetippt wurde.
-// Deshalb wird sie wie direkt nach dem Anmelden als „frisch“ vermerkt; das Neuladen bindet sie an den neuen Aufruf.
+// Wahl eines Standpunkts). Im selben Tab gilt die Anmeldung zwar weiter (grumiTab); zur Sicherheit wird sie hier
+// zusätzlich wie direkt nach dem Anmelden als „frisch“ vermerkt (hilft, wenn der Tab-Speicher gesperrt ist).
 function neuLaden(hash){
   try {
     const s = anmeldungGueltig(JSON.parse(localStorage.getItem(CODE_KEY) || "null"));

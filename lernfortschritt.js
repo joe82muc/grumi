@@ -314,7 +314,7 @@
     if (ANSICHT === "zug") ANSICHT = "proben";
     if (!KLASSE) { el.innerHTML = ""; return; }
     var kurse = klassenKurse(KLASSE);
-    var gueltig = ["proben", "noten", "codes"].concat(kurse.map(function (k) { return k.id; }));
+    var gueltig = ["proben", "noten", "heft", "rat", "codes"].concat(kurse.map(function (k) { return k.id; }));
     if (gueltig.indexOf(ANSICHT) < 0) ANSICHT = "proben";
     var info = KLASSEN.filter(function (k) { return k.klasse === KLASSE; })[0] || { anzahl: 0 };
     var h = '<div class="vw-kl-kopf"><h2>Klasse ' + esc(KLASSE) + '</h2><span class="vw-badge">Jahrgangsstufe ' + stufeVon(KLASSE) + " · " + zugText(KLASSE) +
@@ -322,6 +322,7 @@
     if (nurZug(KLASSE)) h += '<div class="note warn" style="margin:0 0 .9rem">Diese Codes stammen aus der ersten Fassung und kennen nur den Zug. Unter „Codes &amp; Namen“ kannst du die Klasse umbenennen, z. B. in ' + (zugBuchstabe(KLASSE) === "M" ? stufeVon(KLASSE) + "aM" : stufeVon(KLASSE) + "d") + ". Codes und Lernstand bleiben erhalten.</div>";
     h += '<nav class="vw-tabs" aria-label="Bereiche der Klasse"><button type="button" data-ansicht="proben">🔓 Proben</button>' +
       '<button type="button" data-ansicht="noten">📝 Noten</button>' +
+      '<button type="button" data-ansicht="heft">📚 Hausaufgaben</button><button type="button" data-ansicht="rat">📮 Klassenrat</button>' +
       kurse.map(function (k) { return '<button type="button" data-ansicht="' + esc(k.id) + '">' + (FACH_ICON[k.fach] || "📈") + " " + esc(k.fachName) + "</button>"; }).join("") +
       '<button type="button" data-ansicht="codes">👥 Codes &amp; Namen</button></nav><div id="vw-teil"></div>';
     el.innerHTML = h;
@@ -342,6 +343,10 @@
       if (PROBEN) PROBEN.zeigen($("vw-proben"), { stufe: stufeVon(KLASSE), zug: zugBuchstabe(KLASSE), zuege: ohneKlasse });
     } else if (ANSICHT === "noten") {
       notenLaden(teil);
+    } else if (ANSICHT === "heft" || ANSICHT === "rat") {
+      // Hausaufgabenheft und Klassenrat-Briefkasten der Klasse (klasse-verwaltung.js)
+      if (global.KlasseVerwaltung) global.KlasseVerwaltung[ANSICHT](teil, { api: API, pw: PW, klasse: KLASSE, nameVon: nameVon });
+      else teil.innerHTML = '<div class="note warn">Dieser Bereich konnte nicht geladen werden. Bitte die Seite neu laden.</div>';
     } else if (ANSICHT === "codes") {
       codesZeichnen(teil);
     } else {

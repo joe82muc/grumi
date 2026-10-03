@@ -48,18 +48,32 @@
   // Ältere Anmeldungen mit Vorname (ohne Code) gelten nicht mehr – ihr Stand kann beim Anmelden mit Code
   // übernommen werden.
   function zugVon(klasse) { var m = /^(\d+)/.exec(String(klasse || "")); return m ? m[1] + (/M$/.test(klasse) ? "M" : "R") : ""; }
-  // Schul-iPads: Die Anmeldung gilt nur für den Seitenaufruf, in dem der Code eingetippt wurde (wie js/lernstand.js).
-  // Jedes Modul fragt beim Öffnen wieder nach dem Code, nach mehr als 10 Minuten im Hintergrund auch.
+  // Einmal anmelden: Im selben Browser-Tab gilt die Code-Anmeldung weiter, bis das Kind sich abmeldet, den Tab
+  // schließt oder länger als 10 Minuten nichts tippt oder anklickt. Ein neuer Tab fragt wieder nach dem Code.
+  // Derselbe Block steht in allen Skripten, die die Anmeldung lesen (js/lernstand.js, js/klasse.js, NT, Deutsch …).
+  function grumiTab() {
+    if (window.GrumiTab) return window.GrumiTab;
+    var K = "grumi-code-tab", PAUSE = 600000, letzte = 0;
+    function lies() { try { return JSON.parse(sessionStorage.getItem(K) || "null"); } catch (_e) { return null; } }
+    function merken(code) { try { sessionStorage.setItem(K, JSON.stringify({ code: String(code), zeit: Date.now() })); } catch (_e) {} }
+    function taetig() { var t = lies(); if (t && Date.now() - letzte > 20000 && Date.now() - t.zeit < PAUSE) { letzte = Date.now(); merken(t.code); } }
+    ["pointerdown", "keydown"].forEach(function (n) { document.addEventListener(n, taetig, true); });
+    return (window.GrumiTab = {
+      merken: merken,
+      gilt: function (code) { var t = lies(); return !!(t && t.code === String(code) && Date.now() - t.zeit < PAUSE); },
+      ende: function () { try { sessionStorage.removeItem(K); } catch (_e) {} }
+    });
+  }
   function ladung() {
     var p = global.performance, t = p && (p.timeOrigin || (p.timing && p.timing.navigationStart));
     return t ? String(t) : (global.__grumiLadung = global.__grumiLadung || String(Math.random()));
   }
   function anmeldungGueltig(a) {
     if (!a || !a.code || !a.kennung) return null;
-    if (a.ladung && a.ladung === ladung()) return a;
-    if (a.frisch && a.frisch === global.location.pathname && Date.now() - (a.seit || 0) < 120000) {
+    if (a.ladung && a.ladung === ladung()) { grumiTab().merken(a.code); return a; }
+    if ((a.frisch && a.frisch === global.location.pathname && Date.now() - (a.seit || 0) < 120000) || grumiTab().gilt(a.code)) {
       delete a.frisch; a.ladung = ladung(); schreib(SITZUNG, JSON.stringify(a));
-      return a;
+      grumiTab().merken(a.code); return a;
     }
     return null;
   }

@@ -7,9 +7,10 @@
  *   sie in proben-verwalten.html. Namen und Antworten werden nicht gespeichert.
  * - Das Kind sieht oben auf der Seite, was es schon gelöst hat und was noch fehlt (auch geräteübergreifend).
  * - Klasse 9: Anmeldung ist Pflicht. Klasse 7 und 8: „Ohne Code üben“ geht auch (cfg.pflicht stellt das um).
- * - Schul-iPads: Der Code gilt nur für den Seitenaufruf, in dem er eingetippt wurde (anmeldungGueltig). Jedes Modul
- *   fragt beim Öffnen wieder nach dem Code, und nach mehr als 10 Minuten im Hintergrund (iPad gesperrt) auch.
- *   So arbeitet niemand aus Versehen unter dem Code eines anderen Kindes. Die Übersicht fragt nicht von selbst.
+ * - Einmal anmelden: Der Code wird einmal eingetippt (auf der Startseite oder in einem Modul) und gilt dann im
+ *   selben Browser-Tab weiter (anmeldungGueltig, grumiTab) – bis zum Abmelden, bis der Tab geschlossen wird oder
+ *   nach mehr als 10 Minuten Pause (iPad gesperrt). Ein neuer Tab fragt wieder nach dem Code. So arbeitet auf
+ *   Schul-iPads niemand aus Versehen unter dem Code eines anderen Kindes. Die Übersicht fragt nicht von selbst.
  * - Sparsam mit dem Server: Beim Öffnen einer Seite geht nur dann eine Meldung raus, wenn der Server etwas
  *   noch nicht kennt (gelöste Aufgaben, Aufgabenzahl, Aufgabenliste).
  *
@@ -61,20 +62,36 @@
     return (h >>> 0).toString(36);
   }
 
-  /* Angemeldet? Die Anmeldung gilt nur für den Seitenaufruf, in dem der Code eingetippt wurde: Nach dem Eintippen
-     steht sie mit „frisch“ (Pfad der Seite) im Speicher, das erste Skript nach dem Neuladen bindet sie an diesen
-     Aufruf („ladung“). Jedes spätere Öffnen einer Seite fragt wieder nach dem Code. Dieselbe Prüfung steht in den
-     Skripten, die die Anmeldung selbst lesen (NT 7/9, Deutsch 7, Grammatik, Vokabeltrainer, Übersichten). */
+  /* Angemeldet? Gültig ist die Anmeldung, wenn sie zu diesem Seitenaufruf gehört („ladung“), wenn sie gerade erst
+     für genau diese Seite vorgemerkt wurde („frisch“, 2 Minuten: direkt nach dem Eintippen oder nach dem Klick auf
+     einen Link) oder wenn sie in diesem Browser-Tab noch gilt (grumiTab). Dieselbe Prüfung steht in den Skripten,
+     die die Anmeldung selbst lesen (NT 7/9, Deutsch 7, Grammatik, Vokabeltrainer, Übersichten, js/klasse.js). */
+  // Einmal anmelden: Im selben Browser-Tab gilt die Code-Anmeldung weiter, bis das Kind sich abmeldet, den Tab
+  // schließt oder länger als 10 Minuten nichts tippt oder anklickt. Ein neuer Tab fragt wieder nach dem Code.
+  // Derselbe Block steht in allen Skripten, die die Anmeldung lesen (js/lernstand.js, js/klasse.js, NT, Deutsch …).
+  function grumiTab() {
+    if (window.GrumiTab) return window.GrumiTab;
+    var K = "grumi-code-tab", PAUSE = 600000, letzte = 0;
+    function lies() { try { return JSON.parse(sessionStorage.getItem(K) || "null"); } catch (_e) { return null; } }
+    function merken(code) { try { sessionStorage.setItem(K, JSON.stringify({ code: String(code), zeit: Date.now() })); } catch (_e) {} }
+    function taetig() { var t = lies(); if (t && Date.now() - letzte > 20000 && Date.now() - t.zeit < PAUSE) { letzte = Date.now(); merken(t.code); } }
+    ["pointerdown", "keydown"].forEach(function (n) { document.addEventListener(n, taetig, true); });
+    return (window.GrumiTab = {
+      merken: merken,
+      gilt: function (code) { var t = lies(); return !!(t && t.code === String(code) && Date.now() - t.zeit < PAUSE); },
+      ende: function () { try { sessionStorage.removeItem(K); } catch (_e) {} }
+    });
+  }
   function ladung() {
     var p = global.performance, t = p && (p.timeOrigin || (p.timing && p.timing.navigationStart));
     return t ? String(t) : (global.__grumiLadung = global.__grumiLadung || String(Math.random()));
   }
   function anmeldungGueltig(s) {
     if (!s || !s.code || !s.kennung) return null;
-    if (s.ladung && s.ladung === ladung()) return s;
-    if (s.frisch && s.frisch === global.location.pathname && Date.now() - (s.seit || 0) < 120000) {
+    if (s.ladung && s.ladung === ladung()) { grumiTab().merken(s.code); return s; }
+    if ((s.frisch && s.frisch === global.location.pathname && Date.now() - (s.seit || 0) < 120000) || grumiTab().gilt(s.code)) {
       delete s.frisch; s.ladung = ladung(); schreib(SITZUNG, JSON.stringify(s));
-      return s;
+      grumiTab().merken(s.code); return s;
     }
     return null;
   }
@@ -564,6 +581,26 @@
     if (!S || !schueler) return;
     S.fehler = liste || {};
     vormerken(S.modul, Object.keys(S.geloest), S.aufgaben.length);
+  }
+
+  /* Weitergabe der Anmeldung: Klickt ein angemeldetes Kind auf einen Link innerhalb von GRUMI, wird die Anmeldung
+     für genau diese Zielseite vorgemerkt („frisch“, 2 Minuten gültig). So tippt das Kind den Code nur einmal ein
+     (Startseite -> Fach -> Übung). Wer eine Seite direkt öffnet, wird wie bisher gefragt. Derselbe Block steht
+     in js/klasse.js; die Marke verhindert, dass er doppelt läuft. */
+  if (!global.__grumiWeitergabe) {
+    global.__grumiWeitergabe = 1;
+    doc.addEventListener("click", function (e) {
+      if (e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+      if (!a || a.hasAttribute("download")) return;
+      var ziel;
+      try { ziel = new URL(a.href, global.location.href); } catch (_e) { return; }
+      if (ziel.origin !== global.location.origin || ziel.pathname === global.location.pathname) return;
+      var s = anmeldungGueltig(liesJson(SITZUNG));
+      if (!s) return;
+      s.frisch = ziel.pathname; s.seit = Date.now();
+      schreib(SITZUNG, JSON.stringify(s));
+    }, true);
   }
 
   global.Lernstand = {
