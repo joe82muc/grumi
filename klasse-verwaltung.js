@@ -32,7 +32,8 @@
     ".kv-marke{font-size:.74rem;font-weight:900;border-radius:99px;padding:.18rem .6rem;background:#e4e8ef;color:var(--muted);white-space:nowrap}" +
     ".kv-marke.aufgabe{background:#fff6e3;color:#8a5a00}.kv-marke.probe{background:#fdeeeb;color:#c2340f}.kv-marke.termin{background:#e8f0fd;color:#1d4ed8}" +
     ".kv-marke.neu{background:#e8f0fd;color:#1d4ed8}.kv-marke.agenda{background:#fff6e3;color:#8a5a00}.kv-marke.done{background:#e9f8ee;color:#15803d}" +
-    ".kv-marke.wichtig{background:#c2340f;color:#fff}.kv-marke.ohne{background:#f3e8ff;color:#6b21a8}" +
+    ".kv-marke.wichtig{background:#c2340f;color:#fff}.kv-marke.ohne{background:#f3e8ff;color:#6b21a8}.kv-marke.privat{background:#1f2937;color:#fff}" +
+    ".kv-zeile.kv-privat{border-color:#c2340f;background:#fff8f6}" +
     ".kv-datum{background:var(--dark);color:#fff;border-radius:7px;padding:.15rem .5rem;font-size:.78rem;font-weight:900;white-space:nowrap}" +
     ".kv-filter{display:flex;gap:.4rem;flex-wrap:wrap;margin:.2rem 0 .8rem}" +
     ".kv-filter button{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:.35rem .8rem;font:800 .84rem inherit;font-family:inherit;color:var(--ink);cursor:pointer}" +
@@ -191,6 +192,7 @@
     var LISTE = [], FILTER = "alle";
     teil.innerHTML =
       '<p class="sub">Briefkasten der Klasse ' + esc(ctx.klasse) + ". Die Kinder schreiben anonym. Eine KI lässt nur sachliche Nachrichten ohne Namen durch; abgelehnte Nachrichten werden nicht gespeichert. " +
+      "Ausnahme: Ernste Anliegen (z. B. Gewalt, Mobbing, große Angst) kommen immer an, auch mit Namen – dann mit 🔒 nur für dich und nie auf der Tagesordnung. " +
       "Ein Code (und die Uhrzeit) steht nur dabei, wenn das Kind das selbst angekreuzt hat. Diese Liste sieht nur die Lehrkraft. " +
       "Zum neuen Schuljahr wird der Briefkasten automatisch geleert.</p>" +
       '<details style="margin-bottom:.4rem"><summary style="cursor:pointer;font-weight:800">＋ Eigenes Thema hinzufügen</summary>' +
@@ -199,7 +201,7 @@
       '<div><label for="kv-rat-status">Status</label><select id="kv-rat-status">' + ["agenda", "neu", "done"].map(function (s) { return '<option value="' + s + '">' + esc(STATUS[s]) + "</option>"; }).join("") + "</select></div><div></div>" +
       '<div class="kv-voll"><label for="kv-rat-text">Thema</label><textarea id="kv-rat-text" maxlength="600" placeholder="z. B. Regeln für Gruppenarbeiten gemeinsam besprechen"></textarea></div>' +
       '<div class="kv-voll btn-row" style="margin-top:0"><button class="btn" type="submit">Thema hinzufügen</button></div></form></details>' +
-      '<div id="kv-rat-msg"></div>' +
+      '<div id="kv-rat-msg"></div><div id="kv-rat-ernst"></div>' +
       '<div class="kv-titel">Eingänge und Themen <small id="kv-rat-zahl"></small></div>' +
       '<div class="toolbar" style="margin-bottom:.3rem"><div class="kv-filter" id="kv-rat-filter"></div><div class="spacer"></div>' +
       '<button class="btn btn-ghost btn-sm" type="button" id="kv-rat-neu">Neu laden</button>' +
@@ -226,14 +228,17 @@
       var name = ctx.nameVon ? ctx.nameVon(e.code) : "";
       return "Kind · Code " + e.code + (name ? " (" + name + ")" : "");
     }
+    // privat: ernstes Anliegen mit Namen – nur für die Lehrkraft, nie für die Tagesordnung (der Server lehnt das ab)
+    function statusText(e, s) { return e.privat && s === "done" ? "Erledigt" : STATUS[s] || s; }
     function karte(e) {
-      return '<div class="kv-zeile"><div class="kv-links"><div class="kv-kopf"><span>' + esc(e.kategorie) + '</span><span class="kv-marke ' + esc(e.status) + '">' + esc(STATUS[e.status] || e.status) + "</span>" +
+      return '<div class="kv-zeile' + (e.privat ? " kv-privat" : "") + '"><div class="kv-links"><div class="kv-kopf"><span>' + esc(e.kategorie) + '</span><span class="kv-marke ' + esc(e.status) + '">' + esc(statusText(e, e.status)) + "</span>" +
         (e.wichtig ? '<span class="kv-marke wichtig" title="Die KI hält das für ein ernstes Anliegen">⚠ ernstes Anliegen</span>' : "") +
+        (e.privat ? '<span class="kv-marke privat" title="Die Nachricht nennt Namen. Sie ist nur für dich sichtbar und kommt nicht auf die Tagesordnung.">🔒 nur für dich</span>' : "") +
         (e.pruefung === "regeln" ? '<span class="kv-marke ohne" title="Die KI war nicht erreichbar; geprüft wurde nur gegen eine Wortliste">ohne KI geprüft</span>' : "") + "</div>" +
         '<div class="kv-text">' + esc(e.text) + "</div>" +
         '<div class="kv-meta">' + esc(quelle(e)) + " · " + esc(zeitText(e.am)) + "</div></div>" +
-        '<div class="kv-knoepfe">' + ["agenda", "done", "neu"].filter(function (s) { return s !== e.status; }).map(function (s) {
-          return '<button class="btn btn-sm ' + (s === "done" ? "btn-ok" : "btn-ghost") + '" type="button" data-status="' + s + '" data-id="' + esc(e.id) + '">' + esc(STATUS[s]) + "</button>";
+        '<div class="kv-knoepfe">' + ["agenda", "done", "neu"].filter(function (s) { return s !== e.status && !(e.privat && s === "agenda"); }).map(function (s) {
+          return '<button class="btn btn-sm ' + (s === "done" ? "btn-ok" : "btn-ghost") + '" type="button" data-status="' + s + '" data-id="' + esc(e.id) + '">' + esc(statusText(e, s)) + "</button>";
         }).join("") + '<button class="btn btn-bad btn-sm" type="button" data-loeschen="' + esc(e.id) + '">Löschen</button></div></div>';
     }
     function zeichnen() {
@@ -248,6 +253,9 @@
         b.addEventListener("click", function () { FILTER = b.getAttribute("data-filter"); zeichnen(); });
       });
       $("kv-rat-zahl").textContent = zahl.neu ? zahl.neu + (zahl.neu === 1 ? " neue Nachricht" : " neue Nachrichten") : "";
+      var ernst = LISTE.filter(function (e) { return e.wichtig && e.status === "neu"; }).length;
+      $("kv-rat-ernst").innerHTML = ernst ? '<div class="note bad">⚠ ' + (ernst === 1 ? "Ein ernstes Anliegen wartet" : ernst + " ernste Anliegen warten") +
+        " auf dich. Bitte bald lesen und mit dem Kind sprechen – bei anonymen Nachrichten die Klasse behutsam ansprechen oder die Beratungslehrkraft einbeziehen.</div>" : "";
       var sicht = LISTE.filter(function (e) { return FILTER === "alle" || e.status === FILTER; });
       box.innerHTML = sicht.length ? sicht.map(karte).join("") : '<div class="skel">' + (LISTE.length ? "In dieser Ansicht gibt es nichts." : "Für diese Klasse gibt es noch keine Nachrichten oder Themen.") + "</div>";
       Array.prototype.forEach.call(box.querySelectorAll("[data-status]"), function (b) {
@@ -266,7 +274,7 @@
     }
     // Tagesordnung zum Zeigen am Beamer: nur die Themen „Für Klassenrat“, ohne Absender
     function tafel() {
-      var themen = LISTE.filter(function (e) { return e.status === "agenda"; }).reverse();
+      var themen = LISTE.filter(function (e) { return e.status === "agenda" && !e.privat; }).reverse();
       var el = doc.createElement("div");
       el.className = "kv-tafel";
       el.innerHTML = '<div class="toolbar"><h2 style="margin:0">Klassenrat ' + esc(ctx.klasse) + ' – Tagesordnung</h2><div class="spacer"></div><button class="btn" type="button">Schließen</button></div>' +

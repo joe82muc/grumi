@@ -464,16 +464,23 @@
         var nachricht = feld.value.trim();
         if (nachricht.length < 8) { antwort.innerHTML = '<div class="kb-meldung kb-nein"><b>Das ist noch etwas kurz.</b>Beschreibe dein Anliegen in einem ganzen Satz.</div>'; feld.focus(); return; }
         var themaJetzt = (el.querySelector("input[name=kb-thema]:checked") || {}).value || "Sonstiges";
+        var zeigen = el.querySelector("#kb-rat-zeigen").checked;
         knopf.disabled = true; var alt = knopf.innerHTML; knopf.textContent = "Deine Nachricht wird gelesen …";
         antwort.innerHTML = "";
-        post("/api/klasse/rat/senden", { code: S.code, kategorie: themaJetzt, text: nachricht, zeigen: el.querySelector("#kb-rat-zeigen").checked }, function () {
+        post("/api/klasse/rat/senden", { code: S.code, kategorie: themaJetzt, text: nachricht, zeigen: zeigen }, function () {
           antwort.innerHTML = '<div class="kb-meldung kb-nein">Der Server wacht gerade auf – das kann bis zu einer Minute dauern.</div>';
         }).then(function (d) {
           if (abgemeldet(el, d)) return;
           knopf.disabled = false; knopf.innerHTML = alt;
           var hilfe = d.hilfe ? '<div class="kb-hilfe">🛟 ' + esc(d.hilfe) + "</div>" : "";
           if (d.ok && d.angenommen) {
-            el.innerHTML = '<div class="kb-meldung kb-ja"><span class="kb-emoji" aria-hidden="true">📮</span><b>Deine Nachricht liegt im Briefkasten!</b>Deine Lehrkraft liest sie vor dem nächsten Klassenrat.' + hilfe +
+            // privat: ernstes Anliegen mit Namen – nur die Lehrkraft liest es, im Klassenrat wird es nicht gezeigt
+            var text = d.privat
+              ? "<b>Deine Nachricht ist bei deiner Lehrkraft angekommen.</b>Es geht um etwas Ernstes und es steht ein Name darin. Deshalb liest sie nur deine Lehrkraft – im Klassenrat wird sie nicht gezeigt." +
+                '<div class="kb-hilfe">' + (zeigen ? "✅ Deine Lehrkraft sieht, dass die Nachricht von dir ist, und kann auf dich zukommen."
+                  : "ℹ️ Deine Lehrkraft weiß nicht, von wem die Nachricht ist. Wenn sie dir helfen soll, sprich sie bitte an.") + "</div>"
+              : "<b>Deine Nachricht liegt im Briefkasten!</b>Deine Lehrkraft liest sie vor dem nächsten Klassenrat.";
+            el.innerHTML = '<div class="kb-meldung kb-ja"><span class="kb-emoji" aria-hidden="true">' + (d.privat ? "🔒" : "📮") + "</span>" + text + hilfe +
               '<p style="margin:14px 0 0"><button class="kb-knopf kb-klein" type="button">Noch eine Nachricht schreiben</button></p></div>';
             el.querySelector("button").addEventListener("click", function () { formular("", themaJetzt); });
             return;
