@@ -171,7 +171,14 @@
       <p>Der Schiedsrichter füllt nach jedem Beitrag den Beobachtungsbogen für dich aus.</p>
       <p class="hint">Punkte: sachlich eingegangen und begründet = 2 Punkte für dich. Teilweise = je 1 Punkt. Nicht eingegangen oder unsachlich = 2 Punkte für die KI.</p>
     </div>
-    <div class="card reveal duel" id="duel"><p class="hint">Entscheide dich zuerst oben für einen Standpunkt.</p></div>
+    <div class="card reveal duel" id="duel">
+      <h3 style="margin:0">Auf welcher Seite stehst du?</h3>
+      <div class="sidepick" id="standPick6">
+        <button data-s="schueler"><span>🙋</span>Die Schülerinnen und Schüler sollen selbst auswählen.</button>
+        <button data-s="lehrer"><span>👩‍🏫</span>Die Lehrerinnen und Lehrer sollen entscheiden.</button>
+      </div>
+      <p class="hint" style="margin:0">Wähle zuerst deine Seite, dann beginnt hier die Diskussion. Argumente dafür kannst du in Station 2 sammeln.</p>
+    </div>
   </div>
 </section>
 
@@ -261,12 +268,13 @@ const STAND = {
   lehrer: {txt: "Die Lehrerinnen und Lehrer sollen die Bücher auswählen.", gegen: "schueler"}
 };
 const stand = Modul.load("-stand", "");
-$$("#standPick button").forEach(b => {
+// Der Standpunkt lässt sich in Station 2 wählen – und direkt bei der KI-Diskussion, solange noch keiner gewählt ist
+$$("#standPick button, #standPick6 button").forEach(b => {
   b.classList.toggle("sel", b.dataset.s === stand);
   b.addEventListener("click", () => {
     if (b.dataset.s === stand) return;
     Modul.save("-stand", b.dataset.s);
-    location.hash = "#s2"; location.reload();
+    location.hash = b.closest("#standPick6") ? "#s6" : "#s2"; location.reload();
   });
 });
 
