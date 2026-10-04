@@ -1,0 +1,1238 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2a5db0">
+<title>Der Luftdruck | NT 7</title>
+<link rel="stylesheet" href="modul-basis.css">
+<style>
+.hero{background:linear-gradient(160deg,#14296a,#2f6fdb 55%,#9fd3f5)}
+.fade{transition:opacity .5s}
+.mv{transition:transform .8s ease,opacity .5s}
+.sim .kopf{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px 14px 6px}
+.sim .kopf .task-tag{margin:0}
+.sim .kopf strong{font-size:1rem}
+.sim .wahl{margin:0;padding:12px 14px;border-top:1px solid var(--line);background:#fbfdff}
+.info-karte svg{display:block;width:100%;height:auto;border-radius:10px;margin-bottom:8px}
+.wahl button.war:not(.sel){border-color:var(--ok);background:var(--ok-l)}
+.diagramm svg{display:block;width:100%;height:auto;background:#fff;border:1px solid var(--line);border-radius:12px}
+.baro-bild{max-width:300px;margin:8px 0}
+.baro-bild svg{display:block;width:100%;height:auto;background:#f7fbfe;border:1px solid var(--line);border-radius:12px}
+.liste-kurz{margin:0 0 .9em;padding-left:20px}
+.liste-kurz li{margin:3px 0}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>NT 7</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Rätsel</a>
+      <a href="#s2"><b>2</b>Luftsäule</a>
+      <a href="#s3"><b>3</b>Höhe</a>
+      <a href="#s4"><b>4</b>Versuche</a>
+      <a href="#s5"><b>5</b>Wetter</a>
+      <a href="#s6"><b>6</b>Training</a>
+      <a href="#s7"><b>7</b>Profi-Check</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse 7M / 7R · Themenbereich Luft · Lernmodul 8</div>
+    <h1>Der Luftdruck</h1>
+    <p>Ein Saugnapf hält an der Fliese, bei der Fahrt auf einen Berg knacken die Ohren, und eine leere Flasche vom Gipfel ist im Tal eingedrückt. Dahinter steckt etwas, das du nicht sehen kannst: der Luftdruck. In sieben Stationen findest du heraus, woher er kommt und was er alles kann.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s6">Direkt zum Probentraining</a>
+    </div>
+    <div class="goals">
+      <div>🌍 Ich erkläre mit dem Teilchenmodell, wie der Luftdruck entsteht.</div>
+      <div>⛰️ Ich beschreibe, wie der Luftdruck mit der Höhe sinkt, und begründe es.</div>
+      <div>🔬 Ich erkläre Versuche mit Saugnapf, Strohhalm und Halbkugeln.</div>
+      <div>🌦️ Ich lese ein Barometer ab und weiß, was Hoch und Tief fürs Wetter heißen.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- Gemeinsame Zeichen: Pfeilspitzen und Flaschen (eigene, vereinfachte Zeichnungen) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="mR" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.2" markerHeight="4.2" orient="auto"><path d="M0 0L10 5L0 10z" fill="#e0453a"/></marker>
+    <marker id="mB" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.2" markerHeight="4.2" orient="auto"><path d="M0 0L10 5L0 10z" fill="#2f6fdb"/></marker>
+    <marker id="mK" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.2" markerHeight="4.2" orient="auto"><path d="M0 0L10 5L0 10z" fill="#15212b"/></marker>
+    <symbol id="zFlasche" viewBox="0 0 40 80">
+      <path d="M15 8H25V18C25 24 36 26 36 36V72Q36 78 30 78H10Q4 78 4 72V36C4 26 15 24 15 18Z" fill="#e3f2fb" stroke="#4a90c8" stroke-width="2" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="zFlascheD" viewBox="0 0 40 80">
+      <path d="M15 8H25V18C25 24 33 26 32 36Q24 46 32 56Q24 66 31 72Q31 78 28 78H12Q9 78 9 72Q16 66 8 56Q16 46 8 36C7 26 15 24 15 18Z" fill="#e3f2fb" stroke="#4a90c8" stroke-width="2" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg</div><h2>Etwas drückt – und niemand sieht es</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Drei Rätsel aus dem Alltag. Auf den ersten Blick haben sie nichts miteinander zu tun.</p>
+    <div class="info-karten">
+      <div class="info-karte">
+        <svg viewBox="0 0 160 110" role="img" aria-label="Ein Saugnapf mit Haken sitzt auf einer glatten Fliese">
+          <rect width="160" height="110" fill="#eaf4fb"/>
+          <rect x="10" y="84" width="140" height="18" fill="#d5e0e8" stroke="#8a97a3" stroke-width="2"/>
+          <path d="M58 84v18M106 84v18" stroke="#a6b6c3" stroke-width="2"/>
+          <path d="M46 84C46 52 62 36 80 36S114 52 114 84Z" fill="#e0453a" fill-opacity=".25" stroke="#c0392b" stroke-width="4" stroke-linejoin="round"/>
+          <rect x="73" y="24" width="14" height="16" rx="3" fill="#b9261c"/>
+          <path d="M80 24v-9M72 15h16" stroke="#566674" stroke-width="3" stroke-linecap="round" fill="none"/>
+        </svg>
+        <h4>Der Saugnapf</h4><p>Er hält an der glatten Fliese – ganz ohne Kleber.</p>
+      </div>
+      <div class="info-karte">
+        <svg viewBox="0 0 160 110" role="img" aria-label="Berg mit Straße, daneben ein Ohr und das Wort knack">
+          <rect width="160" height="110" fill="#eaf4fb"/>
+          <polygon points="6,102 60,30 114,102" fill="#8b9aa8"/>
+          <polygon points="60,30 48,46 55,42 60,50 66,42 72,46" fill="#fff"/>
+          <path d="M20 98L50 80L36 70L62 56" stroke="#4b5560" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="112" y="44" font-size="26">👂</text>
+          <text x="104" y="68" font-size="14" font-weight="800" fill="#c0392b">knack!</text>
+        </svg>
+        <h4>Knacken im Ohr</h4><p>Bei der Fahrt auf einen hohen Berg knackt es in den Ohren.</p>
+      </div>
+      <div class="info-karte">
+        <svg viewBox="0 0 160 110" role="img" aria-label="Links eine Flasche auf einem Berg, rechts im Tal die gleiche Flasche eingedrückt">
+          <rect width="160" height="110" fill="#eaf4fb"/>
+          <polygon points="4,94 36,36 68,94" fill="#8b9aa8"/>
+          <svg x="22" y="10" width="28" height="56" viewBox="0 0 40 80"><use href="#zFlasche" width="40" height="80"/></svg>
+          <path d="M76 52h22" stroke="#566674" stroke-width="4" stroke-linecap="round"/><path d="M92 44l8 8-8 8" stroke="#566674" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="104" y="86" width="52" height="8" fill="#9fc27e"/>
+          <svg x="116" y="30" width="28" height="56" viewBox="0 0 40 80"><use href="#zFlascheD" width="40" height="80"/></svg>
+          <text x="36" y="106" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b">Berg</text>
+          <text x="130" y="106" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b">Tal</text>
+        </svg>
+        <h4>Die zerdrückte Flasche</h4><p>Oben war sie leer und zugeschraubt. Im Tal ist sie eingedrückt.</p>
+      </div>
+    </div>
+    <p>Alle drei haben dieselbe Ursache: den <button class="term" data-t="luftdruck">Luftdruck</button>. Luft ist unsichtbar – aber sie drückt auf alles, was es gibt. Wie das geht, klärst du Schritt für Schritt.</p>
+  </div>
+  <div class="card reveal"><div id="mc-s1"></div></div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Luft hat Gewicht – deshalb drückt sie</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Aus dem ersten Modul weißt du: Luft hat ein <button class="term" data-t="eigengewicht">Eigengewicht</button>. <strong>1 Liter Luft wiegt etwa 1,3 g.</strong> Das ist wenig – aber Luft gibt es in riesigen Mengen.</p>
+      <div id="mc-schaetz"></div>
+    </div>
+    <div class="card reveal">
+      <h3 style="margin-top:0">Die Luft über dir</h3>
+      <p>Die Erde ist von einer Lufthülle umgeben: der <button class="term" data-t="atmosphaere">Atmosphäre</button>. Sie ist viele Kilometer dick und wird nach oben immer dünner.</p>
+      <p>Über jeder Stelle am Boden steht eine <button class="term" data-t="luftsaeule">Luftsäule</button>. Sie wiegt sehr viel – und ihr Gewicht drückt auf alles darunter.</p>
+      <p class="hint">Gehe die Animation Schritt für Schritt durch. Achte darauf, wo die Teilchen dicht liegen.</p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="sim reveal" id="lsSim">
+      <div class="kopf"><span class="task-tag">Animation</span><strong>Von der Luftsäule zum Luftdruck</strong></div>
+      <svg viewBox="0 0 480 330" role="img" aria-label="Eine Säule aus Luft steht über einem Menschen am Boden. Unten sind viele Luftteilchen dicht gepackt, nach oben werden es immer weniger.">
+        <defs><linearGradient id="lsDichte" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f6fdb" stop-opacity="0"/><stop offset="1" stop-color="#2f6fdb" stop-opacity=".32"/></linearGradient></defs>
+        <rect width="480" height="330" fill="#eef6fc"/>
+        <rect x="0" y="296" width="480" height="34" fill="#9fc27e"/>
+        <text x="14" y="318" font-size="13" font-weight="700" fill="#2f5d1f">Erdboden</text>
+        <path d="M150 296V8M330 296V8" stroke="#7d8fa0" stroke-width="2" stroke-dasharray="7 5" fill="none"/>
+        <rect id="lsGrad" x="150" y="12" width="180" height="284" fill="url(#lsDichte)" class="fade" opacity="0"/>
+        <g id="ls2" class="fade" opacity="0">
+          <path d="M150 260.5H330M150 225H330M150 189.5H330M150 154H330M150 118.5H330M150 83H330M150 47.5H330" stroke="#7d8fa0" stroke-width="1.5" stroke-dasharray="6 4" fill="none"/>
+          <polygon points="336,18 336,292 372,292" fill="#e0453a" fill-opacity=".35"/>
+          <text x="344" y="36" font-size="13" font-weight="700" fill="#8f2525">wenig Luft</text>
+          <text x="344" y="52" font-size="13" font-weight="700" fill="#8f2525">darüber</text>
+          <text x="380" y="262" font-size="13" font-weight="700" fill="#8f2525">viel Luft</text>
+          <text x="380" y="278" font-size="13" font-weight="700" fill="#8f2525">darüber</text>
+        </g>
+        <g id="lsDots"></g>
+        <g stroke="#15212b" stroke-width="4" stroke-linecap="round" fill="none"><circle cx="240" cy="262" r="8" fill="#f2c9a0" stroke-width="2.5"/><path d="M240 270v14M240 274l-9 6M240 274l9 6M240 284l-6 12M240 284l6 12"/></g>
+        <text x="14" y="26" font-size="13" font-weight="700" fill="#566674">Weit oben: immer</text>
+        <text x="14" y="42" font-size="13" font-weight="700" fill="#566674">weniger Luft</text>
+        <g id="ls1" class="fade" opacity="0">
+          <g stroke="#15212b" stroke-width="4" fill="none"><line x1="34" y1="66" x2="34" y2="150" marker-end="url(#mK)"/><line x1="72" y1="66" x2="72" y2="150" marker-end="url(#mK)"/><line x1="110" y1="66" x2="110" y2="150" marker-end="url(#mK)"/></g>
+          <text x="14" y="176" font-size="13" font-weight="700" fill="#15212b">Die Erde zieht</text>
+          <text x="14" y="192" font-size="13" font-weight="700" fill="#15212b">alles nach unten</text>
+        </g>
+        <g id="ls3" class="fade" opacity="0">
+          <path d="M142 40V150M142 200V292" stroke="#2f6fdb" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <text x="134" y="92" text-anchor="end" font-size="13" font-weight="700" fill="#1d4f9f">oben: wenig</text>
+          <text x="134" y="108" text-anchor="end" font-size="13" font-weight="700" fill="#1d4f9f">Teilchen, dünn</text>
+          <text x="134" y="244" text-anchor="end" font-size="13" font-weight="700" fill="#1d4f9f">unten: viele</text>
+          <text x="134" y="260" text-anchor="end" font-size="13" font-weight="700" fill="#1d4f9f">Teilchen, dicht</text>
+        </g>
+        <g id="ls4" class="fade" opacity="0">
+          <g stroke="#e0453a" stroke-width="3.5" fill="none"><line x1="190" y1="262" x2="224" y2="262" marker-end="url(#mR)"/><line x1="290" y1="262" x2="256" y2="262" marker-end="url(#mR)"/><line x1="240" y1="222" x2="240" y2="246" marker-end="url(#mR)"/><line x1="182" y1="270" x2="182" y2="292" marker-end="url(#mR)"/><line x1="298" y1="270" x2="298" y2="292" marker-end="url(#mR)"/></g>
+          <text x="14" y="236" font-size="13" font-weight="700" fill="#8f2525">Stöße gegen dich</text>
+          <text x="14" y="252" font-size="13" font-weight="700" fill="#8f2525">und den Boden</text>
+        </g>
+        <g id="ls5" class="fade" opacity="0">
+          <rect x="10" y="96" width="132" height="62" rx="10" fill="#fff" stroke="#2f6fdb" stroke-width="2.5"/>
+          <text x="76" y="119" text-anchor="middle" font-size="13" fill="#15212b">Luftdruck am Meer:</text>
+          <text x="76" y="144" text-anchor="middle" font-size="16" font-weight="800" fill="#1d4f9f">etwa 1013 hPa</text>
+        </g>
+      </svg>
+    </div>
+    <div class="card reveal">
+      <h3 style="margin-top:0">Wie entsteht der Druck?</h3>
+      <p>Im <button class="term" data-t="teilchenmodell">Teilchenmodell</button> besteht Luft aus unzähligen winzigen Teilchen. Sie fliegen ständig durcheinander und stoßen gegen alles, was ihnen im Weg ist: gegen die Wand, den Boden, deine Haut.</p>
+      <p>Ein einzelner Stoß ist winzig. Aber es sind unvorstellbar viele. Alle Stöße zusammen ergeben den <strong>Luftdruck</strong>. Weil die Teilchen in alle Richtungen fliegen, drückt die Luft auch in alle Richtungen.</p>
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li>Luft hat ein Eigengewicht. Die Luftschichten über uns drücken mit ihrem Gewicht auf die Luft darunter.</li>
+        <li>Teilchenmodell: Die Luftteilchen stoßen ständig gegen alles, was sie berühren. Alle Stöße zusammen sind der <strong>Luftdruck</strong>.</li>
+        <li>Der Luftdruck wirkt von allen Seiten. Am Meer beträgt er im Durchschnitt etwa <button class="term" data-t="hpa">1013 hPa</button>.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag">Versuch am Modell</span>
+      <h3 style="margin-top:4px">Mehr Teilchen – mehr Stöße</h3>
+      <p>Das Modell zeigt eine Kiste mit Luftteilchen. Die dicke rote Wand ist eine Messwand: Ein Zähler sagt, wie oft Teilchen dagegenstoßen.</p>
+      <p class="hint">Verändere die Zahl der Teilchen mit dem Regler. Stelle sie auch einmal ganz niedrig und ganz hoch ein.</p>
+      <p>Merke dir: <strong>Je mehr Teilchen im gleichen Raum sind, desto mehr Stöße gibt es – und desto größer ist der Druck.</strong> Das brauchst du gleich für die Höhe.</p>
+    </div>
+    <div class="sim reveal" id="kisteSim">
+      <canvas id="kisteCv" width="720" height="390" role="img" aria-label="Kiste mit Luftteilchen, die gegen die rote Wand rechts stoßen. Daneben zeigt ein Balken, wie viele Stöße pro Sekunde zählen."></canvas>
+      <div class="sim-ctrl"><label for="kisteRange">Teilchen in der Kiste</label><input type="range" id="kisteRange" min="10" max="90" step="5" value="30"><span class="chip" id="kisteChip">30 Teilchen</span></div>
+      <div class="readout"><span class="chip warn" id="kisteStoss">Stöße auf die rote Wand: …</span></div>
+      <p class="obs" id="kisteObs"></p>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px"><div id="mc-s2"></div></div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>Je höher, desto weniger Druck</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Je höher du kommst, desto <strong>weniger Luft liegt über dir</strong>. Ihr Gewicht wird kleiner – und damit sinkt der Luftdruck.</p>
+      <p>Am Meer misst man im Durchschnitt <strong>etwa 1013 <button class="term" data-t="hpa">hPa</button></strong>. Auf der Zugspitze, Deutschlands höchstem Berg (2962 m), sind es nur noch etwa 700 hPa. Auf dem Mount Everest (8849 m) bleibt etwa ein Drittel übrig: etwa 330 hPa.</p>
+      <p class="hint">Schiebe den Regler nach oben. Beobachte die Kiste mit den Luftteilchen, den Luftdruck und die Chipstüte. Alle Zahlen sind gerundet.</p>
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li>Je höher du bist, desto weniger Luft liegt über dir – und desto kleiner ist der Luftdruck.</li>
+        <li>Teilchenmodell: Weniger Teilchen in jedem Liter Luft bedeuten weniger Stöße.</li>
+        <li>Merkzahlen: Meer etwa 1013 hPa · Zugspitze etwa 700 hPa · Mount Everest etwa 330 hPa.</li>
+      </ul></div>
+    </div>
+    <div class="sim reveal" id="hoeheSim">
+      <svg viewBox="0 0 480 440" role="img" aria-label="Ein Berg mit Höhenskala. Ein Bergsteiger steigt auf. Darunter: eine Kiste mit Luftteilchen, der Luftdruck als Balken und Zahl und eine Chipstüte, die sich aufbläht.">
+        <rect width="480" height="440" fill="#fff"/>
+        <rect width="480" height="250" fill="#eaf4fb"/>
+        <rect y="222" width="480" height="28" fill="#6fb5e8"/>
+        <text x="14" y="241" font-size="13" font-weight="700" fill="#0b4f84">Meer (0 m)</text>
+        <polygon points="14,222 150,22 286,222" fill="#8b9aa8"/>
+        <polygon points="150,22 130,52 142,46 150,56 158,46 170,52" fill="#fff"/>
+        <path d="M300 222V22" stroke="#7d8fa0" stroke-width="2" fill="none"/>
+        <g stroke="#7d8fa0" stroke-width="2"><path d="M294 222h12M294 176.8h12M294 131.6h12M294 86.4h12M294 41.2h12"/></g>
+        <g font-size="13" fill="#566674"><text x="312" y="226">0 km</text><text x="312" y="181">2 km</text><text x="312" y="136">4 km</text><text x="312" y="91">6 km</text><text x="312" y="50">8 km</text></g>
+        <circle cx="300" cy="155.1" r="5" fill="#15212b"/><text x="312" y="160" font-size="13" font-weight="800" fill="#15212b">Zugspitze 2962 m</text>
+        <circle cx="300" cy="22" r="5" fill="#15212b"/><text x="312" y="27" font-size="13" font-weight="800" fill="#15212b">Mount Everest 8849 m</text>
+        <line id="hLin" x1="14" y1="222" x2="300" y2="222" stroke="#e0453a" stroke-width="2" stroke-dasharray="5 4"/>
+        <circle id="hMark" cx="300" cy="222" r="6" fill="#e0453a" stroke="#fff" stroke-width="2"/>
+        <g id="hKl" transform="translate(14 222)"><circle r="8" fill="#e0453a" stroke="#fff" stroke-width="3"/></g>
+        <line x1="0" y1="250" x2="480" y2="250" stroke="#d8e2ea"/>
+        <text x="16" y="276" font-size="13" font-weight="700" fill="#15212b">Luftteilchen</text>
+        <text x="16" y="292" font-size="13" font-weight="700" fill="#15212b">in einer Kiste</text>
+        <rect x="16" y="302" width="150" height="116" fill="#fff" stroke="#566674" stroke-width="3"/>
+        <g id="hDots"></g>
+        <text x="196" y="276" font-size="13" font-weight="700" fill="#15212b">Luftdruck</text>
+        <rect x="196" y="302" width="34" height="116" fill="#eef3f7" stroke="#566674" stroke-width="3"/>
+        <rect id="hBalken" x="199" y="305" width="28" height="110" fill="#2f6fdb"/>
+        <text x="244" y="330" font-size="13" fill="#566674">etwa</text>
+        <text id="hPzahl" x="244" y="364" font-size="30" font-weight="800" fill="#15212b">1013</text>
+        <text x="244" y="386" font-size="14" font-weight="700" fill="#15212b">hPa</text>
+        <text x="352" y="276" font-size="13" font-weight="700" fill="#15212b">Chipstüte,</text>
+        <text x="352" y="292" font-size="13" font-weight="700" fill="#15212b">im Tal zugemacht</text>
+        <g id="hTuete" transform="translate(412 366)">
+          <path d="M-34 -42C-44 -14 -44 14 -34 42H34C44 14 44 -14 34 -42Z" fill="#f2b632" stroke="#8a5a00" stroke-width="3"/>
+          <rect x="-34" y="-47" width="68" height="8" fill="#e09b12"/><rect x="-34" y="39" width="68" height="8" fill="#e09b12"/>
+          <text y="5" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">Chips</text>
+        </g>
+      </svg>
+      <div class="sim-ctrl"><label for="hoeheRange">Höhe</label><input type="range" id="hoeheRange" min="0" max="8849" step="1" value="0"><span class="chip" id="hoeheChip">0 m</span></div>
+      <p class="obs" id="hoeheObs"></p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="sim reveal" id="flaSim">
+      <div class="kopf"><span class="task-tag">Animation</span><strong>Die Flasche vom Berg ins Tal</strong></div>
+      <svg viewBox="0 0 480 300" role="img" aria-label="Links eine zugeschraubte Flasche auf dem Gipfel mit wenigen Luftteilchen. Rechts im Tal eine vom Luftdruck eingedrückte Flasche, um die viele Luftteilchen schwirren.">
+        <rect width="480" height="300" fill="#eef6fc"/>
+        <rect x="0" y="250" width="480" height="50" fill="#d9c9a8"/>
+        <path d="M240 0V250" stroke="#c4d2dd" stroke-width="2" stroke-dasharray="6 5"/>
+        <text x="118" y="30" text-anchor="middle" font-size="16" font-weight="800" fill="#15212b">Auf dem Gipfel</text>
+        <g id="flAusL"></g>
+        <g transform="translate(82 106) scale(1.8)"><use href="#zFlasche" width="40" height="80"/></g>
+        <g id="flInL"></g>
+        <rect id="flKL" class="mv" x="106" y="108" width="24" height="13" rx="3" fill="#2f6fdb"/>
+        <g id="flaRechts" class="fade" opacity="0">
+          <text x="362" y="30" text-anchor="middle" font-size="16" font-weight="800" fill="#15212b">Im Tal</text>
+          <g id="flAusR"></g>
+          <g id="flNorm" class="fade"><g transform="translate(326 106) scale(1.8)"><use href="#zFlasche" width="40" height="80"/></g></g>
+          <g id="flDent" class="fade" opacity="0"><g transform="translate(326 106) scale(1.8)"><use href="#zFlascheD" width="40" height="80"/></g></g>
+          <g id="flInR"></g>
+          <rect id="flKR" class="mv" x="350" y="108" width="24" height="13" rx="3" fill="#2f6fdb"/>
+          <g id="flPf" class="fade" opacity="0"><g stroke="#e0453a" stroke-width="4.5" fill="none"><line x1="268" y1="190" x2="318" y2="190" marker-end="url(#mR)"/><line x1="456" y1="190" x2="406" y2="190" marker-end="url(#mR)"/><line x1="362" y1="54" x2="362" y2="98" marker-end="url(#mR)"/></g></g>
+        </g>
+        <text id="flaTxt" x="240" y="281" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b"></text>
+      </svg>
+    </div>
+    <div class="card reveal">
+      <h3 style="margin-top:0">Und die Ohren?</h3>
+      <p>Auch das Knacken im Ohr hat mit dem Luftdruck zu tun. Hinter deinem Trommelfell liegt das Mittelohr, ein kleiner Raum voller Luft. Fährst du bergauf, sinkt der Luftdruck draußen. Im Mittelohr ist noch der höhere Druck, das Trommelfell wölbt sich nach außen.</p>
+      <p>Beim Schlucken oder Gähnen öffnet sich kurz ein dünner Gang. Luft strömt heraus, und der Druck wird <button class="term" data-t="ausgleich">ausgeglichen</button>. Das knackt.</p>
+      <p class="hint">Bergab ist es umgekehrt: Dann drückt die Luft draußen stärker, und es muss Luft ins Mittelohr hinein.</p>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px"><div id="mc-s3"></div></div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Das Diagramm: Luftdruck und Höhe</h3>
+    <p class="m7-hinweis">Aufgaben mit dem lila Zeichen gehören zum M-Niveau. In M-Klassen zählen sie mit, in R-Klassen sind sie eine Zusatzaufgabe für Profis.</p>
+    <p>Das Diagramm zeigt, wie der Luftdruck mit der Höhe sinkt. Lies die Werte ab und beantworte die Fragen.</p>
+    <div class="diagramm"><svg id="diaSvg" viewBox="0 0 480 300" role="img" aria-label="Diagramm: Der Luftdruck in hPa nimmt mit der Höhe in Kilometern ab. Die Kurve fällt zuerst steil und dann flacher."></svg></div>
+    <div id="mc-dia" style="margin-top:12px"></div>
+    <h3 style="margin-top:18px">Je … desto … – mit dem Teilchenmodell begründet</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapJe"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Probenstoff</div><h2>Was der Luftdruck alles kann – vier Versuche</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Luftdruck kannst du nicht sehen. Aber du kannst sehen, was er bewirkt. Hier sind vier berühmte Versuche. Gehe jeden Schritt für Schritt durch und achte auf die Teilchen.</p>
+    <p>Dabei hilft dir ein Satz: <strong>Die Luft drückt – sie saugt nie.</strong> Wenn etwas „angesaugt“ wird, ist draußen mehr Druck als innen, und die Luft von außen schiebt.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="sim reveal" id="glasSim">
+      <div class="kopf"><span class="task-tag">Versuch 1</span><strong>Das Glas mit der Karte</strong></div>
+      <svg viewBox="0 0 480 300" role="img" aria-label="Ein randvolles Wasserglas mit einer Karte wird umgedreht. Die Karte bleibt am Glas, weil die Luft von unten dagegen drückt.">
+        <rect width="480" height="300" fill="#f7fbfe"/>
+        <rect x="0" y="266" width="480" height="34" fill="#d9c9a8"/>
+        <g id="gaA" class="fade">
+          <rect x="190" y="124" width="100" height="142" rx="6" fill="#bfe1f7" stroke="#566674" stroke-width="3"/>
+          <rect x="184" y="116" width="112" height="8" fill="#d8c7a4" stroke="#8a6f3d" stroke-width="2"/>
+          <rect x="198" y="82" width="84" height="28" rx="13" fill="#f2c9a0" stroke="#c99a6a" stroke-width="2"/>
+          <text x="240" y="101" text-anchor="middle" font-size="13" font-weight="700" fill="#6b4a2a">Hand</text>
+          <text x="306" y="120" font-size="13" font-weight="700" fill="#15212b">Karte</text>
+          <text x="306" y="196" font-size="13" font-weight="700" fill="#15212b">Glas randvoll</text>
+          <text x="306" y="212" font-size="13" font-weight="700" fill="#15212b">mit Wasser</text>
+        </g>
+        <g id="gaB" class="fade" opacity="0">
+          <rect x="190" y="30" width="100" height="142" rx="6" fill="#bfe1f7" stroke="#566674" stroke-width="3"/>
+          <rect x="184" y="172" width="112" height="8" fill="#d8c7a4" stroke="#8a6f3d" stroke-width="2"/>
+          <text x="240" y="108" text-anchor="middle" font-size="15" font-weight="800" fill="#1d5f8f">Wasser</text>
+          <rect x="160" y="58" width="38" height="72" rx="16" fill="#f2c9a0" stroke="#c99a6a" stroke-width="2"/>
+          <text x="152" y="92" text-anchor="end" font-size="13" font-weight="700" fill="#6b4a2a">andere Hand</text>
+          <text x="152" y="108" text-anchor="end" font-size="13" font-weight="700" fill="#6b4a2a">hält das Glas</text>
+          <text x="306" y="180" font-size="13" font-weight="700" fill="#15212b">Karte</text>
+          <g id="gaHand" class="fade"><rect x="198" y="186" width="84" height="28" rx="13" fill="#f2c9a0" stroke="#c99a6a" stroke-width="2"/><text x="240" y="205" text-anchor="middle" font-size="13" font-weight="700" fill="#6b4a2a">Hand</text></g>
+          <g id="gaLuft" class="fade" opacity="0">
+            <g stroke="#2f6fdb" stroke-width="5" fill="none"><line x1="206" y1="254" x2="206" y2="192" marker-end="url(#mB)"/><line x1="240" y1="254" x2="240" y2="192" marker-end="url(#mB)"/><line x1="274" y1="254" x2="274" y2="192" marker-end="url(#mB)"/></g>
+            <text x="296" y="226" font-size="14" font-weight="800" fill="#1d4f9f">Luftdruck</text>
+            <text x="296" y="244" font-size="13" font-weight="700" fill="#1d4f9f">drückt nach oben</text>
+          </g>
+          <g id="gaGew" class="fade" opacity="0">
+            <line x1="240" y1="126" x2="240" y2="158" stroke="#e0453a" stroke-width="3" marker-end="url(#mR)"/>
+            <text x="304" y="128" font-size="13" font-weight="700" fill="#8f2525">Gewicht des Wassers</text>
+            <text x="304" y="144" font-size="13" font-weight="700" fill="#8f2525">drückt nach unten</text>
+            <path d="M300 136H250" stroke="#8f2525" stroke-width="1.5" stroke-dasharray="3 3"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <div class="sim reveal" id="napfSim">
+      <div class="kopf"><span class="task-tag">Versuch 2</span><strong>Der Saugnapf</strong></div>
+      <svg viewBox="0 0 480 300" role="img" aria-label="Ein Saugnapf wird auf eine glatte Fliese gedrückt. Innen bleiben wenige Luftteilchen, außen drücken viele.">
+        <rect width="480" height="300" fill="#f7fbfe"/>
+        <rect x="30" y="236" width="420" height="44" fill="#d5e0e8" stroke="#8a97a3" stroke-width="2"/>
+        <path d="M135 236v44M240 236v44M345 236v44" stroke="#a6b6c3" stroke-width="2"/>
+        <text x="42" y="264" font-size="13" font-weight="700" fill="#566674">glatte Fliese</text>
+        <g id="naAus"></g>
+        <g id="naNapf" class="mv" style="transform-origin:240px 236px">
+          <path d="M150 236Q168 230 172 214C178 178 208 154 240 154C272 154 302 178 308 214Q312 230 330 236Z" fill="#e0453a" fill-opacity=".2" stroke="#c0392b" stroke-width="6" stroke-linejoin="round"/>
+          <rect x="234" y="136" width="12" height="22" rx="4" fill="#b9261c"/>
+          <circle cx="240" cy="124" r="9" fill="none" stroke="#566674" stroke-width="4"/>
+        </g>
+        <g id="naIn"></g>
+        <g id="naRaus" class="fade" opacity="0"><g stroke="#2f6fdb" stroke-width="4" fill="none"><line x1="150" y1="226" x2="108" y2="226" marker-end="url(#mB)"/><line x1="330" y1="226" x2="372" y2="226" marker-end="url(#mB)"/></g></g>
+        <g id="naDruck" class="fade" opacity="0"><g stroke="#e0453a" stroke-width="4.5" fill="none"><line x1="172" y1="108" x2="198" y2="156" marker-end="url(#mR)"/><line x1="308" y1="108" x2="282" y2="156" marker-end="url(#mR)"/><line x1="112" y1="194" x2="158" y2="208" marker-end="url(#mR)"/><line x1="368" y1="194" x2="322" y2="208" marker-end="url(#mR)"/></g></g>
+        <text id="naTxt" x="240" y="26" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b"></text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="sim reveal" id="stSim">
+      <div class="kopf"><span class="task-tag">Versuch 3</span><strong>Trinken mit dem Strohhalm</strong></div>
+      <svg viewBox="0 0 480 300" role="img" aria-label="Ein Strohhalm steht in einem Glas mit Getränk. Wenn man saugt, drückt die Luft von außen das Getränk im Halm nach oben.">
+        <rect width="480" height="300" fill="#f7fbfe"/>
+        <rect x="0" y="272" width="480" height="28" fill="#d9c9a8"/>
+        <rect x="150" y="136" width="120" height="136" rx="6" fill="#fff" fill-opacity=".7" stroke="#566674" stroke-width="3"/>
+        <rect x="153" y="172" width="114" height="97" fill="#f4a63a" fill-opacity=".85"/>
+        <rect x="209" y="44" width="16" height="222" rx="3" fill="#fff" fill-opacity=".85" stroke="#566674" stroke-width="2.5"/>
+        <rect id="stFl" class="mv" x="212" y="46" width="10" height="218" fill="#f4a63a" style="transform-origin:217px 264px;transform:scaleY(.43)"/>
+        <ellipse cx="217" cy="32" rx="20" ry="11" fill="#e88b9a" stroke="#b9546a" stroke-width="2"/>
+        <text x="244" y="36" font-size="13" font-weight="700" fill="#b9546a">Mund</text>
+        <g id="stAus"></g>
+        <path d="M226 98L334 82M274 156L334 188" stroke="#9db0bf" stroke-width="2" stroke-dasharray="5 4" fill="none"/>
+        <circle cx="372" cy="76" r="38" fill="#fff" stroke="#566674" stroke-width="3"/><g id="stLd1"></g>
+        <text x="372" y="134" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b">Luft im Halm</text>
+        <circle cx="372" cy="200" r="38" fill="#fff" stroke="#566674" stroke-width="3"/><g id="stLd2"></g>
+        <text x="372" y="258" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b">Luft draußen</text>
+        <g id="stPf" class="fade" opacity="0">
+          <g stroke="#e0453a" stroke-width="4.5" fill="none"><line x1="168" y1="108" x2="168" y2="164" marker-end="url(#mR)"/><line x1="190" y1="108" x2="190" y2="164" marker-end="url(#mR)"/><line x1="240" y1="108" x2="240" y2="164" marker-end="url(#mR)"/><line x1="262" y1="108" x2="262" y2="164" marker-end="url(#mR)"/></g>
+          <line x1="217" y1="100" x2="217" y2="122" stroke="#9db0bf" stroke-width="2.5" marker-end="url(#mK)"/>
+        </g>
+        <text id="stTxt" x="240" y="292" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b"></text>
+      </svg>
+    </div>
+
+    <div class="sim reveal" id="kuSim">
+      <div class="kopf"><span class="task-tag">Versuch 4</span><strong>Die Magdeburger Halbkugeln</strong></div>
+      <svg viewBox="0 0 480 300" role="img" aria-label="Zwei Metall-Halbkugeln, aus denen die Luft herausgepumpt wird. Die Luft von außen presst sie zusammen, auf beiden Seiten ziehen Pferde.">
+        <rect width="480" height="300" fill="#f7fbfe"/>
+        <rect x="0" y="278" width="480" height="22" fill="#d9c9a8"/>
+        <g id="kuAus"></g>
+        <g id="kuL" class="mv"><path d="M240 60A78 78 0 0 0 240 216Z" fill="#c3cdd6" stroke="#566674" stroke-width="3.5" stroke-linejoin="round"/><circle cx="152" cy="138" r="8" fill="none" stroke="#566674" stroke-width="3.5"/></g>
+        <g id="kuR" class="mv"><path d="M240 60A78 78 0 0 1 240 216Z" fill="#c3cdd6" stroke="#566674" stroke-width="3.5" stroke-linejoin="round"/><circle cx="328" cy="138" r="8" fill="none" stroke="#566674" stroke-width="3.5"/></g>
+        <g id="kuIn"></g>
+        <rect x="232" y="214" width="16" height="14" fill="#7d8791"/>
+        <path d="M240 228V252" stroke="#566674" stroke-width="6" fill="none"/>
+        <rect x="212" y="252" width="56" height="22" rx="5" fill="#8a97a3" stroke="#566674" stroke-width="2"/>
+        <text x="276" y="268" font-size="13" font-weight="700" fill="#566674">Pumpe</text>
+        <g id="kuPf" class="fade" opacity="0"><g stroke="#e0453a" stroke-width="4.5" fill="none"><line x1="161" y1="59" x2="181" y2="79" marker-end="url(#mR)"/><line x1="240" y1="26" x2="240" y2="52" marker-end="url(#mR)"/><line x1="319" y1="59" x2="299" y2="79" marker-end="url(#mR)"/><line x1="161" y1="217" x2="181" y2="197" marker-end="url(#mR)"/><line x1="319" y1="217" x2="299" y2="197" marker-end="url(#mR)"/></g></g>
+        <g id="kuPferde" class="fade" opacity="0">
+          <path d="M144 138H62M336 138H418" stroke="#7a5a3a" stroke-width="3.5" fill="none"/>
+          <text x="22" y="152" font-size="34">🐴</text><text x="12" y="188" font-size="14" font-weight="800" fill="#15212b">8 Pferde</text>
+          <text x="420" y="152" font-size="34">🐴</text><text x="470" y="188" text-anchor="end" font-size="14" font-weight="800" fill="#15212b">8 Pferde</text>
+        </g>
+        <g id="kuLuft" class="fade" opacity="0"><g stroke="#2f6fdb" stroke-width="4.5" fill="none"><line x1="186" y1="248" x2="226" y2="224" marker-end="url(#mB)"/><line x1="294" y1="248" x2="254" y2="224" marker-end="url(#mB)"/></g></g>
+        <text id="kuTxt" x="240" y="294" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b"></text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag">Modellversuch</span>
+      <h3 style="margin-top:4px">Warum zerdrückt uns der Luftdruck nicht?</h3>
+      <p>Die Luft drückt auf jeden von uns mit großer Kraft. Trotzdem merkst du nichts. Der Grund: In deinem Körper herrscht ein <button class="term" data-t="gegendruck">Gegendruck</button>, der genauso groß ist wie der Druck von außen. Innen und außen halten sich die Waage.</p>
+      <p class="hint">Probiere alle drei Knöpfe aus. Ein dünner Blechkanister zeigt, was ohne Gegendruck passiert.</p>
+      <div class="wahl" id="gegenWahl"></div>
+      <p class="obs" id="gegenObs" style="border:0;padding:6px 0;min-height:5.4em">Wähle einen Knopf.</p>
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li>Die Luft drückt, sie saugt nie. Ist innen weniger Druck als außen, schiebt die Luft von außen.</li>
+        <li>Saugnapf, Strohhalm, Halbkugeln: Innen ist weniger Luft als außen, und außen drückt der Luftdruck.</li>
+        <li>Gleicher Druck innen und außen heißt: Es passiert nichts. So zerdrückt uns der Luftdruck nicht.</li>
+      </ul></div>
+    </div>
+    <div class="sim reveal" id="gegenSim">
+      <svg viewBox="0 0 480 300" role="img" aria-label="Blechkanister und Mensch, umgeben von Pfeilen für den Druck von außen und den Gegendruck von innen">
+        <rect width="480" height="300" fill="#f7fbfe"/>
+        <rect x="0" y="262" width="480" height="38" fill="#d9c9a8"/>
+        <g id="gnA" class="fade">
+          <rect x="190" y="84" width="100" height="178" rx="12" fill="#e3ebf1" stroke="#566674" stroke-width="3"/>
+          <rect x="224" y="64" width="32" height="20" rx="4" fill="#8a97a3"/>
+          <g id="gnAdots"></g>
+          <g stroke="#e0453a" stroke-width="4" fill="none"><line x1="132" y1="120" x2="184" y2="120" marker-end="url(#mR)"/><line x1="348" y1="120" x2="296" y2="120" marker-end="url(#mR)"/><line x1="240" y1="22" x2="240" y2="58" marker-end="url(#mR)"/></g>
+          <g stroke="#2f6fdb" stroke-width="4" fill="none"><line x1="222" y1="200" x2="196" y2="200" marker-end="url(#mB)"/><line x1="258" y1="200" x2="284" y2="200" marker-end="url(#mB)"/></g>
+          <text x="10" y="104" font-size="13" font-weight="700" fill="#8f2525">Druck von</text><text x="10" y="120" font-size="13" font-weight="700" fill="#8f2525">außen</text>
+          <text x="300" y="204" font-size="13" font-weight="700" fill="#1d4f9f">Gegendruck</text><text x="300" y="220" font-size="13" font-weight="700" fill="#1d4f9f">von innen</text>
+        </g>
+        <g id="gnB" class="fade" opacity="0">
+          <path d="M196 84H284Q262 118 266 170Q262 222 284 262H196Q218 222 214 170Q218 118 196 84Z" fill="#e3ebf1" stroke="#566674" stroke-width="3" stroke-linejoin="round"/>
+          <rect x="224" y="64" width="32" height="20" rx="4" fill="#8a97a3"/>
+          <path d="M214 130q10 6 22 0M244 156q10 6 22 0M214 200q10 6 22 0" stroke="#8a97a3" stroke-width="2" fill="none"/>
+          <g id="gnBdots"></g>
+          <path d="M224 74H156" stroke="#566674" stroke-width="6" fill="none"/>
+          <rect x="100" y="56" width="58" height="36" rx="6" fill="#8a97a3" stroke="#566674" stroke-width="2"/>
+          <text x="129" y="79" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">Pumpe</text>
+          <g stroke="#e0453a" stroke-width="5" fill="none"><line x1="132" y1="170" x2="206" y2="170" marker-end="url(#mR)"/><line x1="348" y1="170" x2="274" y2="170" marker-end="url(#mR)"/></g>
+          <text x="10" y="150" font-size="13" font-weight="700" fill="#8f2525">Druck von</text><text x="10" y="166" font-size="13" font-weight="700" fill="#8f2525">außen</text>
+          <text x="294" y="214" font-size="13" font-weight="700" fill="#1d4f9f">kaum Gegendruck</text><text x="294" y="230" font-size="13" font-weight="700" fill="#1d4f9f">von innen</text>
+        </g>
+        <g id="gnC" class="fade" opacity="0">
+          <circle cx="240" cy="70" r="22" fill="#f2c9a0" stroke="#15212b" stroke-width="3"/>
+          <path d="M212 104H268Q276 104 276 116V190H204V116Q204 104 212 104Z" fill="#dbe9f6" stroke="#15212b" stroke-width="3"/>
+          <path d="M220 190V258M260 190V258" stroke="#15212b" stroke-width="12" stroke-linecap="round"/>
+          <g stroke="#e0453a" stroke-width="4" fill="none"><line x1="132" y1="146" x2="196" y2="146" marker-end="url(#mR)"/><line x1="348" y1="146" x2="284" y2="146" marker-end="url(#mR)"/></g>
+          <g stroke="#2f6fdb" stroke-width="4" fill="none"><line x1="236" y1="146" x2="214" y2="146" marker-end="url(#mB)"/><line x1="244" y1="146" x2="266" y2="146" marker-end="url(#mB)"/></g>
+          <text x="10" y="130" font-size="13" font-weight="700" fill="#8f2525">Druck von</text><text x="10" y="146" font-size="13" font-weight="700" fill="#8f2525">außen</text>
+          <text x="294" y="200" font-size="13" font-weight="700" fill="#1d4f9f">Gegendruck von</text><text x="294" y="216" font-size="13" font-weight="700" fill="#1d4f9f">innen: genauso groß</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px"><div id="mc-s4"></div></div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Probenstoff</div><h2>Messen und Wetter: das Barometer</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Den Luftdruck misst man mit dem <button class="term" data-t="barometer">Barometer</button>. Es zeigt ihn in hPa an.</p>
+      <p>Viele Barometer sind <button class="term" data-t="dosenbarometer">Dosenbarometer</button>. Innen sitzt eine flache Metalldose, aus der fast alle Luft herausgepumpt wurde. Eine Feder hält sie auseinander.</p>
+      <ul class="liste-kurz">
+        <li>Steigt der Luftdruck, drückt die Luft die Dose stärker zusammen.</li>
+        <li>Sinkt er, dehnt die Feder die Dose wieder aus.</li>
+        <li>Ein Hebel überträgt die kleine Bewegung auf den Zeiger.</li>
+      </ul>
+      <p class="hint">Stelle den Luftdruck mit dem Regler ein und beobachte Dose und Zeiger. Nimmst du ein Barometer mit auf einen Berg, sinkt der Zeiger. Darum kann man mit ihm auch die Höhe messen.</p>
+    </div>
+    <div class="sim reveal" id="baSim">
+      <svg viewBox="0 0 480 300" role="img" aria-label="Ein Dosenbarometer mit Zeiger und Skala von 960 bis 1060 hPa. Rechts eine fast luftleere Metalldose mit Feder, die der Luftdruck von oben zusammendrückt.">
+        <rect width="480" height="300" fill="#f7fbfe"/>
+        <g id="baDial"></g>
+        <g id="baZeiger"><polygon points="145,152 155,152 150,52" fill="#c0392b"/><circle cx="150" cy="150" r="9" fill="#15212b"/></g>
+        <text x="388" y="62" text-anchor="middle" font-size="14" font-weight="800" fill="#8f2525">Luftdruck</text>
+        <g id="baPf" stroke="#e0453a" stroke-width="5" fill="none"><line id="baP1" x1="352" y1="84" x2="352" y2="116" marker-end="url(#mR)"/><line id="baP2" x1="388" y1="84" x2="388" y2="116" marker-end="url(#mR)"/><line id="baP3" x1="424" y1="84" x2="424" y2="116" marker-end="url(#mR)"/></g>
+        <rect id="baPlatte" x="338" y="123" width="100" height="8" rx="3" fill="#7d8791"/>
+        <path id="baWL" d="M342 131V196" stroke="#566674" stroke-width="3" fill="none"/>
+        <path id="baWR" d="M434 131V196" stroke="#566674" stroke-width="3" fill="none"/>
+        <polyline id="baFeder" points="" fill="none" stroke="#c0392b" stroke-width="3"/>
+        <rect x="338" y="196" width="100" height="8" rx="3" fill="#7d8791"/>
+        <text x="388" y="228" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b">Metalldose,</text>
+        <text x="388" y="245" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b">fast luftleer</text>
+      </svg>
+      <div class="sim-ctrl"><label for="baRange">Luftdruck</label><input type="range" id="baRange" min="960" max="1060" step="1" value="1013"><span class="chip" id="baChip">1013 hPa</span></div>
+      <p class="obs" id="baObs"></p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="sim reveal" id="htSim">
+      <div class="kopf"><span class="task-tag">Modell</span><strong>Hoch und Tief im Vergleich</strong></div>
+      <svg viewBox="0 0 480 260" role="img" aria-label="Wetterbild. Bei einem Hoch scheint die Sonne und die Luft sinkt ab. Bei einem Tief gibt es Wolken und Regen, und die Luft steigt auf.">
+        <rect id="htHimmel" width="480" height="260" fill="#dbe8f2" style="transition:fill .6s"/>
+        <g id="htSonne" class="fade" opacity="0"><circle cx="410" cy="62" r="30" fill="#ffd34d"/><path d="M410 14v14M410 96v14M362 62h14M444 62h14M376 28l10 10M434 86l10 10M444 28l-10 10M386 86l-10 10" stroke="#ffd34d" stroke-width="5" stroke-linecap="round" fill="none"/></g>
+        <g id="htWolke" class="fade" opacity="0">
+          <g fill="#7f8c97"><ellipse cx="150" cy="70" rx="64" ry="26"/><ellipse cx="206" cy="52" rx="48" ry="30"/><ellipse cx="266" cy="72" rx="58" ry="24"/><ellipse cx="334" cy="58" rx="46" ry="26"/></g>
+          <path d="M130 108l-8 20M164 110l-8 20M198 106l-8 20M232 110l-8 20M268 108l-8 20M304 110l-8 20M338 106l-8 20" stroke="#2f8fdb" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+        </g>
+        <path d="M0 214Q110 176 230 204T480 192V260H0Z" fill="#7fb06a"/>
+        <g id="htAb" class="fade" opacity="0"><g stroke="#15212b" stroke-width="5" fill="none"><line x1="190" y1="92" x2="190" y2="148" marker-end="url(#mK)"/><line x1="240" y1="92" x2="240" y2="148" marker-end="url(#mK)"/><line x1="290" y1="92" x2="290" y2="148" marker-end="url(#mK)"/></g><text x="240" y="174" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">Luft sinkt ab</text></g>
+        <g id="htAuf" class="fade" opacity="0"><g stroke="#1d4f9f" stroke-width="5" fill="none"><line x1="190" y1="196" x2="190" y2="146" marker-end="url(#mB)"/><line x1="240" y1="196" x2="240" y2="146" marker-end="url(#mB)"/><line x1="290" y1="196" x2="290" y2="146" marker-end="url(#mB)"/></g><text x="240" y="226" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">Luft steigt auf</text></g>
+        <g id="htH" class="fade" opacity="0"><circle cx="56" cy="56" r="30" fill="#fff" stroke="#15212b" stroke-width="4"/><text x="56" y="68" text-anchor="middle" font-size="34" font-weight="800" fill="#15212b">H</text></g>
+        <g id="htT" class="fade" opacity="0"><circle cx="56" cy="56" r="30" fill="#fff" stroke="#15212b" stroke-width="4"/><text x="56" y="68" text-anchor="middle" font-size="34" font-weight="800" fill="#15212b">T</text></g>
+        <text id="htText" x="240" y="250" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Wähle ein Druckgebiet.</text>
+      </svg>
+      <div class="wahl" id="htWahl"></div>
+      <p class="obs" id="htObs">Tippe auf „Hoch“ und auf „Tief“ und vergleiche.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Das Wetter hängt mit dem Luftdruck zusammen. Auf Wetterkarten steht ein <button class="term" data-t="hoch">Hoch</button> (H) für hohen und ein <button class="term" data-t="tief">Tief</button> (T) für tiefen Luftdruck.</p>
+      <div class="info-karten">
+        <div class="info-karte"><div class="big">☀️</div><h4>Hoch</h4><p>Die Luft sinkt ab und wird dabei wärmer. Wolken lösen sich auf. Oft: sonnig und trocken.</p></div>
+        <div class="info-karte"><div class="big">🌧️</div><h4>Tief</h4><p>Die Luft steigt auf und kühlt dabei ab. Es bilden sich Wolken. Oft: bewölkt, windig, Regen.</p></div>
+      </div>
+      <p class="hint">„Oft“ heißt: meistens, aber nicht immer. Sinkt der Luftdruck schnell, wird das Wetter meist schlechter. Zwischen Hoch und Tief weht Wind: Die Luft strömt vom hohen zum tiefen Druck.</p>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px"><div id="mc-s5"></div></div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="s6">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Probenstoff · so wird in der Probe gefragt</div><h2>Training für die Probe</h2></div></div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Lückentext · leicht</span>
+    <h3 style="margin-top:4px">Setze die fehlenden Wörter ein</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapLuft"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Paare finden · leicht</span>
+    <h3 style="margin-top:4px">Welcher Versuch gehört zu welcher Erklärung?</h3>
+    <p class="hint">Tippe links auf einen Versuch und dann rechts auf seine Erklärung.</p>
+    <div id="paareVersuch"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Zuordnen · mittel</span>
+    <h3 style="margin-top:4px">Welcher Luftdruck gehört zu welchem Ort?</h3>
+    <p class="hint">Tippe eine Karte an und dann das passende Fach.</p>
+    <div id="sortOrte"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Richtig oder falsch? · mittel</span>
+    <div id="tf"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Kreuzworträtsel · mittel</span>
+    <h3 style="margin-top:4px">Rund um den Luftdruck</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Schreibe ä als AE, ö als OE, ü als UE. Das Lösungswort nennt die Eigenschaft der Luft, die den Luftdruck verursacht.</p>
+    <div id="cw"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Ankreuzen · mittel</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag schwer">Offene Fragen · schwer</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung. Danach kannst du die Musterlösung ansehen.</p>
+    <div id="open"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Übertrage und begründe <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="openM"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 7 ============ -->
+<section class="station" id="s7">
+  <div class="st-head reveal"><div class="st-num">7</div><div><div class="eyebrow">Abschluss</div><h2>Luftdruck-Profi-Check</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Du hast Werte aus einem Diagramm gelesen und Versuche erklärt. Im nächsten Modul lernst du, wie Forscherinnen und Forscher so etwas planen: von der Frage über die Vermutung zum Versuch.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik 7 · Lernmodul „Der Luftdruck“ · Dein Fortschritt wird auf diesem Gerät gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="modul-basis.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, esc, shuffle, clamp, setText, reduced, register, solve, onVisible} = Modul;
+const NS = "http://www.w3.org/2000/svg";
+
+Modul.init({
+  key: "grumi-nt7-luftdruck-v1",
+  thema: "Der Luftdruck: Luft hat ein Eigengewicht, Luftsäule, Teilchenmodell (Stöße der Luftteilchen), Luftdruck und Höhe, Saugnapf, Strohhalm, Magdeburger Halbkugeln, Gegendruck, Barometer, Hoch und Tief",
+  glossary: {
+    luftdruck: ["Luftdruck", "Der Druck, den die Luft auf alles ausübt, was sie berührt. Er entsteht, weil Luft ein Gewicht hat und die Luftteilchen ständig gegen Körper und Wände stoßen."],
+    eigengewicht: ["Eigengewicht der Luft", "Auch Luft wiegt etwas: 1 Liter Luft etwa 1,3 g. Dieses Gewicht ist der Grund für den Luftdruck."],
+    atmosphaere: ["Atmosphäre", "Die Lufthülle um die Erde. Sie ist viele Kilometer dick und wird nach oben immer dünner."],
+    luftsaeule: ["Luftsäule", "Die gedachte Säule aus Luft, die von einer Stelle am Boden bis weit hinauf in die Lufthülle reicht. Ihr Gewicht drückt nach unten."],
+    teilchenmodell: ["Teilchenmodell", "Man stellt sich einen Stoff als sehr viele kleine Teilchen vor. Bei Luft fliegen sie ständig durcheinander und stoßen gegen Wände und Körper."],
+    hpa: ["Hektopascal (hPa)", "Maßeinheit für den Luftdruck. Das Barometer zeigt sie an. Am Meer sind es im Durchschnitt etwa 1013 hPa."],
+    barometer: ["Barometer", "Gerät zum Messen des Luftdrucks. Der Zeiger zeigt den Wert in hPa an."],
+    dosenbarometer: ["Dosenbarometer", "Barometer mit einer fast luftleeren Metalldose. Bei hohem Luftdruck wird sie etwas zusammengedrückt, bei tiefem dehnt eine Feder sie wieder aus. Ein Zeiger zeigt es an."],
+    hoch: ["Hochdruckgebiet (Hoch)", "Gebiet mit hohem Luftdruck. Die Luft sinkt ab, Wolken lösen sich auf: oft sonnig und trocken."],
+    tief: ["Tiefdruckgebiet (Tief)", "Gebiet mit tiefem Luftdruck. Die Luft steigt auf, Wolken bilden sich: oft bewölkt, windig und Regen."],
+    luftleer: ["luftleer", "Ein Raum, aus dem fast alle Luftteilchen herausgepumpt wurden. Dort gibt es kaum Druck von innen."],
+    halbkugeln: ["Magdeburger Halbkugeln", "Zwei Metall-Halbkugeln, aus denen die Luft herausgepumpt wurde. Der Luftdruck presst sie so fest zusammen, dass 16 Pferde sie nicht trennen konnten."],
+    guericke: ["Otto von Guericke", "Forscher und Bürgermeister von Magdeburg (1602–1686). Er baute eine Luftpumpe und führte 1654 den Versuch mit den Halbkugeln vor."],
+    gegendruck: ["Gegendruck", "Druck von innen, der dem Druck von außen die Waage hält. Deshalb zerdrückt uns der Luftdruck nicht."],
+    ausgleich: ["Druckausgleich", "Innen und außen herrscht danach der gleiche Druck. Im Ohr geschieht das beim Schlucken oder Gähnen: Es knackt."],
+    saugnapf: ["Saugnapf", "Gummiglocke, die an glatten Flächen hält. Sie saugt nicht: Die Luft von außen drückt sie an."]
+  }
+});
+
+/* ---------- Hilfen ---------- */
+const druck = h => 1013 * Math.exp(-h / 7950);      // Modell: Luftdruck in hPa in h Metern Höhe
+let sd = 7;
+const zuf = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+function el(tag, attrs, parent){ const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+// n Punkte mit Mindestabstand in einem Rechteck [x1, y1, x2, y2]; ok(x, y) darf Stellen ausschließen
+function streu(n, box, ok, mind){
+  const out = []; let t = 0, m = mind;
+  while (out.length < n && t < 40000) {
+    t++; if (t % 3000 === 0) m *= .92;      // wird es zu eng, rücken die Punkte etwas zusammen
+    const x = box[0] + zuf() * (box[2] - box[0]), y = box[1] + zuf() * (box[3] - box[1]);
+    if (ok && !ok(x, y)) continue;
+    if (out.some(p => Math.hypot(p[0] - x, p[1] - y) < m)) continue;
+    out.push([x, y]);
+  }
+  return out;
+}
+function punkte(g, liste, r){ return liste.map(p => el("circle", {cx: p[0].toFixed(1), cy: p[1].toFixed(1), r: r, fill: "#2f6fdb", stroke: "#fff", "stroke-width": 1, class: "fade"}, g)); }
+const zeigeN = (kreise, n) => kreise.forEach((c, i) => { c.style.opacity = i < n ? 1 : 0; });
+const aufzu = (g, an) => { g.style.opacity = an ? 1 : 0; };
+
+/* Zifferblatt des Barometers (für die Übung und für die Ableseaufgabe) */
+const WINK = v => -120 + (v - 960) * 2.4;
+const pol = (r, w) => [150 + r * Math.sin(w * Math.PI / 180), 150 - r * Math.cos(w * Math.PI / 180)];
+function zifferblatt(){
+  const f = n => n.toFixed(1);
+  let s = '<circle cx="150" cy="150" r="130" fill="#fff" stroke="#15212b" stroke-width="5"/>';
+  const band = (a, b, c) => { const p = pol(114, WINK(a)), q = pol(114, WINK(b)); return `<path d="M${f(p[0])} ${f(p[1])}A114 114 0 0 1 ${f(q[0])} ${f(q[1])}" fill="none" stroke="${c}" stroke-width="10"/>`; };
+  s += band(960, 1000, "#9ac3e6") + band(1000, 1020, "#e6dca8") + band(1020, 1060, "#f5c27a");
+  for (let v = 960; v <= 1060; v += 5) {
+    const w = WINK(v), l = v % 20 === 0 ? 17 : v % 10 === 0 ? 12 : 7, a = pol(106, w), b = pol(106 - l, w);
+    s += `<line x1="${f(a[0])}" y1="${f(a[1])}" x2="${f(b[0])}" y2="${f(b[1])}" stroke="#15212b" stroke-width="${v % 10 === 0 ? 2.5 : 1.5}" stroke-linecap="round"/>`;
+    if (v % 20 === 0) { const t = pol(78, w); s += `<text x="${f(t[0])}" y="${f(t[1] + 5)}" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">${v}</text>`; }
+  }
+  const t1 = pol(38, -76), t2 = pol(38, 76);
+  s += `<text x="${f(t1[0])}" y="${f(t1[1])}" text-anchor="middle" font-size="14" font-weight="800" fill="#1d4f9f">TIEF</text><text x="${f(t2[0])}" y="${f(t2[1])}" text-anchor="middle" font-size="14" font-weight="800" fill="#9a560f">HOCH</text><text x="150" y="214" text-anchor="middle" font-size="14" font-weight="700" fill="#566674">hPa</text>`;
+  return s;
+}
+const nadel = w => `<g transform="rotate(${w.toFixed(1)} 150 150)"><polygon points="145,152 155,152 150,52" fill="#c0392b"/><circle cx="150" cy="150" r="9" fill="#15212b"/></g>`;
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Du schraubst eine leere Plastikflasche auf einem hohen Berg zu und nimmst sie mit ins Tal. Was passiert?",
+     o: ["Die Flasche wird von außen eingedrückt.", "Die Flasche bläht sich auf.", "Die Flasche bleibt, wie sie ist.", "Der Deckel fliegt mit einem Knall ab."], a: 0,
+     e: "Im Tal drückt die Luft draußen stärker als die dünne Bergluft in der Flasche. Warum das so ist, findest du in diesem Modul heraus."},
+    {q: "Ein Saugnapf klebt an einer glatten Fliese. Was hält ihn dort fest?",
+     o: ["Die Luft von außen drückt ihn gegen die Fliese.", "Er zieht die Fliese an sich heran.", "Auf dem Gummi ist ein unsichtbarer Kleber.", "Die Schwerkraft zieht ihn zur Fliese."], a: 0,
+     e: "Der Saugnapf saugt nicht – die Luft drückt ihn an. In Station 4 siehst du genau, wie das geht."}
+  ],
+  schaetz: [
+    {q: "Schätze: Wie schwer ist die Luft in einem Klassenzimmer, das 170 000 Liter Luft fasst? (1 Liter wiegt etwa 1,3 g.)",
+     o: ["etwa 2 kg", "etwa 20 kg", "etwa 200 kg", "etwa 2000 kg"], a: 2,
+     e: "170 000 × 1,3 g sind etwa 220 000 g. Das sind rund 220 kg – so viel wie drei Erwachsene. Luft ist also gar nicht leicht."}
+  ],
+  s2: [
+    {q: "Warum drückt die Luft auf uns?",
+     o: ["Luft hat ein Gewicht, und ihre Teilchen stoßen ständig gegen uns.", "Luft ist kälter als unser Körper.", "Die Luftteilchen stehen still und kleben an uns.", "Nur wenn Wind weht, drückt die Luft."], a: 0,
+     e: "Luft hat ein Eigengewicht. Außerdem fliegen die Luftteilchen durcheinander und stoßen gegen alles, was sie berühren. Diese Stöße sind der Luftdruck."},
+    {q: "Aus welchen Richtungen drückt die Luft gegen deine Hand?",
+     o: ["aus allen Richtungen", "nur von oben", "nur von unten", "nur aus der Richtung, aus der der Wind kommt"], a: 0,
+     e: "Die Luftteilchen fliegen in alle Richtungen. Darum stoßen sie von allen Seiten gegen die Hand – auch von unten und von der Seite."}
+  ],
+  s3: [
+    {q: "Auf der Zugspitze ist der Luftdruck kleiner als im Tal. Warum?",
+     o: ["Über dem Gipfel liegt weniger Luft als über dem Tal.", "Auf dem Gipfel ist es kälter, deshalb drückt die Luft weniger.", "Die Luft auf dem Berg ist schwerer.", "Auf dem Berg wirkt keine Schwerkraft."], a: 0,
+     e: "Je höher du bist, desto weniger Luft liegt über dir. Ihr Gewicht ist kleiner, die Teilchen sind weniger dicht gepackt, und es gibt weniger Stöße."},
+    {q: "Eine Chipstüte wird im Tal verschlossen. Auf dem Berg ist sie prall aufgebläht. Warum?",
+     o: ["Außen ist der Luftdruck kleiner, die Luft in der Tüte drückt stärker nach außen.", "Auf dem Berg ist es immer wärmer als im Tal.", "Auf dem Berg saugt die Tüte Luft von außen an.", "Auf dem Berg ist die Luft schwerer."], a: 0,
+     e: "In der Tüte ist noch der höhere Druck vom Tal eingesperrt. Draußen ist er kleiner, also drückt die Luft von außen weniger dagegen. Die Tüte bläht sich auf."},
+    {q: "Bei der Fahrt auf einen hohen Berg knacken die Ohren. Was geschieht dabei?",
+     o: ["Der Luftdruck draußen sinkt, und im Ohr gleicht sich der Druck mit einem Knacken aus.", "Die Luft im Ohr wird kälter und zieht sich zusammen.", "Das Trommelfell wird vom Wind gedrückt.", "Die Luftteilchen im Ohr werden schwerer."], a: 0,
+     e: "Beim Hochfahren sinkt der Luftdruck draußen. Im Mittelohr ist noch der höhere Druck. Beim Schlucken strömt Luft heraus, der Druck gleicht sich aus. Das knackt."}
+  ],
+  s4: [
+    {q: "Ein Strohhalm hat oben ein Loch. Warum kannst du damit kaum trinken?",
+     o: ["Durch das Loch strömt Luft nach. Im Halm sinkt der Druck nicht unter den Druck draußen.", "Das Loch macht den Halm zu kurz.", "Das Getränk läuft durch das Loch heraus.", "Luft ist schwerer als das Getränk."], a: 0,
+     e: "Zum Trinken muss der Druck im Halm kleiner sein als draußen. Mit Loch strömt immer neue Luft nach. Innen und außen ist der Druck gleich, und das Getränk steigt nicht."},
+    {q: "Warum konnten 16 Pferde die Magdeburger Halbkugeln nicht auseinanderziehen?",
+     o: ["Aus der Kugel war die Luft herausgepumpt. Die Luft von außen presste die Halbkugeln zusammen.", "Die Halbkugeln waren zusammengeschweißt.", "Ein starker Magnet hielt die Halbkugeln zusammen.", "Innen drückte die Luft die Halbkugeln zusammen."], a: 0,
+     e: "Innen waren kaum noch Teilchen, es gab fast keinen Gegendruck. Außen stießen viele Teilchen von allen Seiten gegen die Kugel und pressten sie zusammen."}
+  ],
+  s5: [
+    {q: "Ein Hochdruckgebiet bringt oft …",
+     o: ["sonniges und trockenes Wetter.", "viele Wolken und Regen.", "Gewitter, immer und überall.", "dichten Nebel, immer und überall."], a: 0,
+     e: "Im Hoch sinkt die Luft ab, Wolken lösen sich auf. Oft ist es dann sonnig und trocken. Wolken und Regen gehören eher zum Tief."},
+    {q: "Das Barometer im Flur fällt in einer Nacht von 1020 auf 995 hPa. Was erwartest du?",
+     o: ["Das Wetter wird wahrscheinlich schlechter: mehr Wolken, vielleicht Regen.", "Das Wetter wird wahrscheinlich besser.", "Es gewittert auf jeden Fall.", "Nichts – ein Barometer sagt nichts über das Wetter."], a: 0,
+     e: "Fällt der Luftdruck schnell, nähert sich oft ein Tief. Die Luft steigt auf, Wolken bilden sich. Ganz sicher ist die Vorhersage aber nicht."}
+  ],
+  train: [
+    {q: "Was zeigt die Wirkung des Luftdrucks?",
+     o: ["Eine Chipstüte bläht sich auf dem Berg auf.", "Ein Saugnapf hält an der Fliese.", "Ein Stein fällt zu Boden.", "Ein Magnet zieht eine Büroklammer an.", "Das Getränk steigt im Strohhalm nach oben."], a: [0, 1, 4],
+     e: "Der fallende Stein zeigt die Schwerkraft, der Magnet die Magnetkraft. Die anderen drei Beispiele haben mit dem Luftdruck zu tun."},
+    {q: "Welchen Wert zeigt dieses Barometer an?",
+     h: '<div class="baro-bild"><svg viewBox="0 0 300 300" role="img" aria-label="Barometer mit Zeiger zwischen 1000 und 1010">' + zifferblatt() + nadel(WINK(1005)) + '</svg></div>',
+     o: ["1005 hPa", "1015 hPa", "995 hPa", "1050 hPa"], a: 0,
+     e: "Der Zeiger steht genau in der Mitte zwischen 1000 und 1010. Das sind 1005 hPa – etwas weniger als der Durchschnitt am Meer (1013 hPa)."},
+    {q: "Warum zerdrückt uns der Luftdruck nicht?",
+     o: ["In unserem Körper herrscht ein Gegendruck, der so groß ist wie der Druck von außen.", "Der Luftdruck wirkt nur von oben und wird von den Schultern getragen.", "Unsere Knochen sind so hart, dass sie den Luftdruck abhalten.", "Auf der Erde ist der Luftdruck zu klein, um etwas zu bewirken."], a: 0,
+     e: "Innen und außen halten sich die Waage. Wird innen der Druck weggenommen (wie beim Blechkanister), drückt die Luft von außen alles zusammen."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Was meinst du?"});
+Modul.makeMC($("#mc-schaetz"), MC.schaetz, "mcs", {t: "Schätzfrage"});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s5"), MC.s5, "mc5", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Station 2: Luftsäule in Schritten ---------- */
+(function(){
+  const g = $("#lsDots"), N = [14, 11, 9, 7, 5, 4, 3, 2];   // Teilchen je Schicht, von unten nach oben
+  let s = 11; const z = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  N.forEach((n, b) => {
+    for (let j = 0; j < n; j++) {
+      let x, y, t = 0;
+      do { x = 158 + (j + .15 + z() * .7) * (164 / n); y = 296 - (b + .14 + z() * .72) * 35.5; t++; } while (t < 25 && x > 222 && x < 258 && y > 246);
+      el("circle", {cx: x.toFixed(1), cy: y.toFixed(1), r: 4.4, fill: "#2f6fdb", stroke: "#fff", "stroke-width": 1}, g);
+    }
+  });
+  const G = {1: $("#ls1"), 2: $("#ls2"), 3: $("#ls3"), 4: $("#ls4"), 5: $("#ls5")}, grad = $("#lsGrad");
+  Modul.makeSchritte($("#lsSim"), {
+    steps: [
+      "Über dir liegt die Lufthülle der Erde, die Atmosphäre. Sie ist viele Kilometer dick. Über jeder Stelle am Boden steht eine Säule aus Luft.",
+      "Die Erde zieht alles an – auch die Luftteilchen. Darum fliegen sie nicht ins Weltall davon. Luft hat ein <b>Eigengewicht</b>.",
+      "Denke dir die Luftsäule in Schichten. Jede Schicht wiegt etwas und drückt auf alle Schichten unter ihr. Je weiter unten, desto mehr Luft liegt darüber.",
+      "Darum wird die Luft unten zusammengedrückt: Viele Teilchen sitzen eng beieinander. Oben ist die Luft dünn, dort sind nur wenige Teilchen.",
+      "Unten stoßen besonders viele Teilchen gegen den Boden und gegen dich – von allen Seiten. Alle Stöße zusammen sind der <b>Luftdruck</b>.",
+      "Am Meer beträgt der Luftdruck im Durchschnitt etwa <b>1013 hPa</b>. Die Maßeinheit für den Luftdruck heißt Hektopascal, kurz hPa."
+    ],
+    ms: 4800,
+    zeige(i){
+      const k = Math.max(0, i);
+      aufzu(G[1], k === 1); aufzu(G[2], k === 2); aufzu(G[3], k === 3); aufzu(G[4], k >= 4); aufzu(G[5], k === 5);
+      grad.style.opacity = k >= 3 ? (k === 3 ? 1 : .45) : 0;
+    }
+  }, "luftsaeule");
+  register("luftsaeule", "#lsSim", "Animation: Von der Luftsäule zum Luftdruck");
+})();
+
+/* ---------- Station 2: Teilchenkiste (Zählen der Stöße) ---------- */
+(function(){
+  const cv = $("#kisteCv"), cx = cv.getContext("2d"), rg = $("#kisteRange"), chip = $("#kisteChip"), stoss = $("#kisteStoss"), obs = $("#kisteObs");
+  const id = "kiste"; register(id, "#kisteSim", "Teilchenkiste: mehr Teilchen, mehr Stöße");
+  const BX = 12, BY = 12, BW = 340, BH = 236, R = 5, MAXN = 90, MAXR = 24;
+  const P = Array.from({length: MAXN}, () => { const a = zuf() * 6.2832, v = 2.6 + zuf() * 1.6; return {x: BX + R + zuf() * (BW - 2 * R), y: BY + R + zuf() * (BH - 2 * R), vx: Math.cos(a) * v, vy: Math.sin(a) * v}; });
+  let hits = [], blitz = {l: -1e9, r: -1e9, t: -1e9, b: -1e9}, run = false, last = 0, t0 = 0, rate = 0, lastRate = 0, lo = false, hi = false;
+  cx.setTransform(1.5, 0, 0, 1.5, 0, 0);
+  const lin = (x1, y1, x2, y2, c, w) => { cx.strokeStyle = c; cx.lineWidth = w; cx.beginPath(); cx.moveTo(x1, y1); cx.lineTo(x2, y2); cx.stroke(); };
+  function draw(now){
+    const n = +rg.value, heiss = t => now - t < 150;
+    cx.fillStyle = "#f7fbfe"; cx.fillRect(0, 0, 480, 260);
+    cx.fillStyle = "#fff"; cx.fillRect(BX, BY, BW, BH);
+    lin(BX, BY, BX + BW, BY, heiss(blitz.t) ? "#f2992e" : "#9db0bf", 4);
+    lin(BX, BY + BH, BX + BW, BY + BH, heiss(blitz.b) ? "#f2992e" : "#9db0bf", 4);
+    lin(BX, BY, BX, BY + BH, heiss(blitz.l) ? "#f2992e" : "#9db0bf", 4);
+    lin(BX + BW, BY - 2, BX + BW, BY + BH + 2, heiss(blitz.r) ? "#ff7a6b" : "#c0392b", 9);
+    cx.fillStyle = "#2f6fdb";
+    for (let i = 0; i < n; i++) { cx.beginPath(); cx.arc(P[i].x, P[i].y, R, 0, 6.2832); cx.fill(); }
+    cx.fillStyle = "#15212b"; cx.font = "700 13px system-ui,sans-serif"; cx.textAlign = "left";
+    cx.fillText("Stöße pro", 374, 32); cx.fillText("Sekunde", 374, 48);
+    cx.fillStyle = "#e3edf4"; cx.fillRect(374, 62, 34, 184);
+    const hgt = clamp(rate / MAXR, 0, 1) * 184; cx.fillStyle = "#c0392b"; cx.fillRect(374, 246 - hgt, 34, hgt);
+    cx.fillStyle = "#15212b"; cx.font = "800 26px system-ui,sans-serif"; cx.fillText(String(Math.round(rate)), 418, 160);
+  }
+  function frame(now){
+    if (!run) return;
+    const dt = Math.min(48, last ? now - last : 16.7), k = dt / 16.7, n = +rg.value; last = now;
+    for (let i = 0; i < n; i++) {
+      const p = P[i]; p.x += p.vx * k; p.y += p.vy * k;
+      if (p.x > BX + BW - R) { p.x = BX + BW - R; p.vx = -Math.abs(p.vx); hits.push(now); blitz.r = now; }
+      else if (p.x < BX + R) { p.x = BX + R; p.vx = Math.abs(p.vx); blitz.l = now; }
+      if (p.y < BY + R) { p.y = BY + R; p.vy = Math.abs(p.vy); blitz.t = now; }
+      else if (p.y > BY + BH - R) { p.y = BY + BH - R; p.vy = -Math.abs(p.vy); blitz.b = now; }
+    }
+    if (now - lastRate > 400) {
+      lastRate = now; hits = hits.filter(t => now - t < 2000 && t >= t0);
+      rate = hits.length / clamp((now - t0) / 1000, .6, 2);
+      setText(stoss, `Stöße auf die rote Wand: etwa ${Math.round(rate)} pro Sekunde`);
+    }
+    draw(now); requestAnimationFrame(frame);
+  }
+  function neu(){
+    const n = +rg.value; t0 = performance.now(); hits = [];
+    setText(chip, n + " Teilchen");
+    setText(obs, n <= 25 ? "Wenig Teilchen: Nur selten trifft eines die rote Wand. Der Druck ist klein." :
+      n >= 70 ? "Viele Teilchen: Ständig prasseln Stöße auf die Wand. Der Druck ist groß. Die anderen Wände werden auch getroffen – die Luft drückt von allen Seiten." :
+      "Doppelt so viele Teilchen im gleichen Raum bedeuten etwa doppelt so viele Stöße – und etwa doppelt so viel Druck.");
+    if (n <= 20) lo = true;
+    if (n >= 80) hi = true;
+    if (lo && hi) solve(id);
+    if (reduced) { rate = n * .2; setText(stoss, `Stöße auf die rote Wand: etwa ${Math.round(rate)} pro Sekunde (Modellwert)`); }
+    if (!run) draw(performance.now());
+  }
+  rg.addEventListener("input", neu); neu();
+  if (!reduced) setText(stoss, "Stöße auf die rote Wand: Zähler läuft …");
+  onVisible(cv, v => { run = v && !reduced; if (run) { last = 0; requestAnimationFrame(frame); } });
+})();
+
+/* ---------- Station 3: Höhenregler ---------- */
+(function(){
+  const r = $("#hoeheRange"), chip = $("#hoeheChip"), obs = $("#hoeheObs"), kl = $("#hKl"), lin = $("#hLin"), mk = $("#hMark"), bal = $("#hBalken"), zahl = $("#hPzahl"), tuete = $("#hTuete");
+  const id = "hoehe"; register(id, "#hoeheSim", "Höhenregler: Luftdruck vom Meer bis zum Mount Everest");
+  const K = 200 / 8849, Y0 = 222;
+  // 40 Plätze in der Kiste (feste Zufallsanordnung; weniger Teilchen = die ersten n werden gezeigt)
+  const dots = punkte($("#hDots"), streu(40, [24, 310, 158, 410], null, 14), 4.6);
+  function zeig(){
+    const h = +r.value, p = druck(h), y = Y0 - h * K, x = 14 + (Y0 - y) * .68;
+    kl.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+    lin.setAttribute("x1", x.toFixed(1)); lin.setAttribute("y1", y.toFixed(1)); lin.setAttribute("y2", y.toFixed(1));
+    mk.setAttribute("cy", y.toFixed(1));
+    zeigeN(dots, Math.round(40 * p / 1013));
+    const bh = 110 * p / 1013; bal.setAttribute("y", (418 - bh).toFixed(1)); bal.setAttribute("height", bh.toFixed(1));
+    const hp = h === 0 ? "1013" : String(Math.round(p / 10) * 10); setText(zahl, hp);
+    const s = clamp(1 + .5 * (1013 - p) / 680, 1, 1.5);
+    tuete.setAttribute("transform", `translate(412 366) scale(${s.toFixed(3)} ${(1 + (s - 1) * .6).toFixed(3)})`);
+    const hh = h >= 8840 ? 8849 : Math.round(h / 10) * 10;
+    setText(chip, `${hh} m · ${h === 0 ? "" : "etwa "}${hp} hPa`);
+    setText(obs, h < 150 ? "Am Meer liegt die ganze Lufthülle über dir. Die Teilchen sind dicht gepackt: etwa 1013 hPa. Die Chipstüte ist so prall, wie sie im Tal zugemacht wurde." :
+      h >= 8800 ? "Auf dem Mount Everest (8849 m) ist der Luftdruck nur noch etwa ein Drittel so groß: etwa 330 hPa. Auch die Kiste enthält nur noch etwa ein Drittel der Teilchen. Die Tüte ist ganz prall." :
+      Math.abs(h - 2962) <= 150 ? "Auf der Zugspitze (2962 m) sind es nur noch etwa 700 hPa. Über dir liegt weniger Luft, die Teilchen sind weniger dicht, und die Tüte bläht sich auf." :
+      `In ${hh} m Höhe liegt weniger Luft über dir. Der Luftdruck sinkt auf etwa ${hp} hPa. In der Kiste sind weniger Teilchen, es gibt weniger Stöße. Die Tüte dehnt sich aus.`);
+    if (h >= 8800) solve(id);
+  }
+  r.addEventListener("input", zeig); r.addEventListener("change", zeig); zeig();
+})();
+
+/* ---------- Station 3: Flasche vom Berg ins Tal ---------- */
+(function(){
+  const imRaum = cx => (x, y) => !(x > cx - 46 && x < cx + 46 && y > 96) && y > 54;
+  const auL = punkte($("#flAusL"), streu(14, [18, 54, 218, 246], imRaum(118), 22), 4.4);
+  const inL = punkte($("#flInL"), streu(2, [96, 176, 140, 238], null, 22), 4.2);
+  const auR = punkte($("#flAusR"), streu(28, [262, 54, 462, 246], imRaum(362), 17), 4.4);
+  const inR = punkte($("#flInR"), streu(4, [340, 176, 384, 238], null, 20), 4.2);
+  const rechts = $("#flaRechts"), norm = $("#flNorm"), dent = $("#flDent"), pf = $("#flPf"), kL = $("#flKL"), kR = $("#flKR"), txt = $("#flaTxt");
+  const T = ["Offen: innen und außen gleich viele Teilchen", "Zugeschraubt: dünne Bergluft ist eingesperrt", "Im Tal: draußen mehr Teilchen als innen", "Draußen mehr Stöße als innen: Die Flasche wird eingedrückt", "Offen: Luft strömt hinein, der Druck ist wieder gleich"];
+  Modul.makeSchritte($("#flaSim"), {
+    steps: [
+      "Auf dem Gipfel: Die leere Flasche ist voll Bergluft. Innen und außen ist der Luftdruck gleich, in einem Raum sind gleich viele Teilchen.",
+      "Du schraubst den Deckel fest zu. Die dünne Bergluft ist jetzt in der Flasche eingesperrt.",
+      "Du gehst ins Tal. Dort liegt mehr Luft über dir: Der Luftdruck draußen ist größer, die Luft ist dichter.",
+      "Draußen stoßen jetzt mehr Teilchen gegen die Flasche als innen. Der Luftdruck drückt sie ein.",
+      "Du schraubst den Deckel auf. Luft strömt hinein, innen und außen ist der Druck wieder gleich. Die Flasche springt zurück – oft mit einem Knacken."
+    ],
+    ms: 4800,
+    zeige(i){
+      const k = Math.max(0, i);
+      zeigeN(auL, 14); zeigeN(inL, 2); zeigeN(auR, 28); zeigeN(inR, k >= 4 ? 4 : 2);
+      kL.style.transform = k === 0 ? "translate(52px,129px)" : "none";
+      aufzu(rechts, k >= 2);
+      aufzu(norm, k !== 3); aufzu(dent, k === 3); aufzu(pf, k === 3);
+      kR.style.transform = k >= 4 ? "translate(52px,129px)" : "none";
+      setText(txt, T[k]);
+    }
+  }, "flasche");
+  register("flasche", "#flaSim", "Animation: Flasche vom Berg ins Tal");
+})();
+
+/* ---------- Station 3 (M7): Diagramm Luftdruck und Höhe ---------- */
+(function(){
+  const s = $("#diaSvg"), L = 64, Rr = 456, T = 18, B = 252;
+  const X = km => L + km * (Rr - L) / 9, Y = p => B - p * (B - T) / 1100;
+  let h = '<rect width="480" height="300" fill="#fff"/>';
+  for (let p = 0; p <= 1100; p += 100) h += `<line x1="${L}" y1="${Y(p).toFixed(1)}" x2="${Rr}" y2="${Y(p).toFixed(1)}" stroke="${p % 200 === 0 ? "#c9d6df" : "#e8eef3"}" stroke-width="1"/>`;
+  for (let k = 0; k <= 9; k++) h += `<line x1="${X(k).toFixed(1)}" y1="${T}" x2="${X(k).toFixed(1)}" y2="${B}" stroke="#e8eef3" stroke-width="1"/><text x="${X(k).toFixed(1)}" y="${B + 18}" text-anchor="middle" font-size="14" fill="#15212b">${k}</text>`;
+  for (let p = 0; p <= 1000; p += 200) h += `<text x="${L - 8}" y="${(Y(p) + 5).toFixed(1)}" text-anchor="end" font-size="14" fill="#15212b">${p}</text>`;
+  h += `<path d="M${L} ${T}V${B}H${Rr}" stroke="#15212b" stroke-width="2" fill="none"/>`;
+  h += `<text x="${(L + Rr) / 2}" y="${B + 42}" text-anchor="middle" font-size="14" font-weight="700" fill="#15212b">Höhe über dem Meer in km</text>`;
+  h += `<text transform="translate(16 ${(T + B) / 2}) rotate(-90)" text-anchor="middle" font-size="14" font-weight="700" fill="#15212b">Luftdruck in hPa</text>`;
+  const pts = []; for (let k = 0; k <= 9.001; k += .25) pts.push(`${X(k).toFixed(1)},${Y(druck(k * 1000)).toFixed(1)}`);
+  h += `<polyline points="${pts.join(" ")}" fill="none" stroke="#2f6fdb" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>`;
+  const halo = 'style="paint-order:stroke;stroke:#fff;stroke-width:4px"';
+  const marke = (km, p, text, dx, dy, anker) => `<circle cx="${X(km).toFixed(1)}" cy="${Y(p).toFixed(1)}" r="5" fill="#e0453a" stroke="#fff" stroke-width="2"/><text x="${(X(km) + dx).toFixed(1)}" y="${(Y(p) + dy).toFixed(1)}" text-anchor="${anker}" font-size="13" font-weight="800" fill="#8f2525" ${halo}>${text}</text>`;
+  h += marke(0, 1013, "Meer: 1013", 10, -8, "start") + marke(2.962, 700, "Zugspitze: etwa 700", 10, -10, "start") + marke(8.849, 330, "Mount Everest: etwa 330", 6, 26, "end");
+  s.innerHTML = h;
+})();
+Modul.plus(() => {
+  Modul.makeMC($("#mc-dia"), [
+    {q: "Bei welcher Höhe ist der Luftdruck nur noch halb so groß wie am Meer, also etwa 500 hPa?",
+     o: ["bei etwa 5,5 km", "bei etwa 2,5 km", "bei etwa 8,5 km", "bei etwa 1 km"], a: 0,
+     e: "Am Meer sind es 1013 hPa, die Hälfte ist etwa 500 hPa. Auf der Kurve liegt dieser Wert bei etwa 5,5 km Höhe."},
+    {q: "Wo sinkt der Luftdruck mit jedem Kilometer Höhe stärker?",
+     o: ["zwischen 0 und 1 km, dort ist die Kurve am steilsten", "zwischen 7 und 8 km, dort ist die Kurve am steilsten", "überall gleich stark", "Das kann man aus dem Diagramm nicht ablesen."], a: 0,
+     e: "Die Kurve ist unten steiler. Zwischen 0 und 1 km liegt viel dichte Luft, die viel wiegt. Zwischen 7 und 8 km ist die Luft schon dünn und wiegt wenig. Darum ändert sich der Druck dort weniger."}
+  ], "mdia");
+  Modul.makeGap($("#gapJe"), [
+    ["Je ", {g: "höher"}, " du steigst, desto ", {g: "weniger"}, " Luft liegt über dir."],
+    ["Je weniger Luft über dir liegt, desto ", {g: "kleiner"}, " ist ihr Gewicht und desto ", {g: "kleiner"}, " ist der Luftdruck."],
+    ["Je ", {g: "weniger"}, " Teilchen in einem Liter Luft sind, desto ", {g: "weniger"}, " Stöße gibt es."]
+  ], "gapJe", ["mehr", "größer"]);
+  register("gapJe", "#gapJe", "Lückentext: Je … desto … mit dem Teilchenmodell begründen");
+});
+
+/* ---------- Station 4: Glas mit Karte ---------- */
+(function(){
+  const A = $("#gaA"), B = $("#gaB"), hand = $("#gaHand"), luft = $("#gaLuft"), gew = $("#gaGew");
+  Modul.makeSchritte($("#glasSim"), {
+    steps: [
+      "Fülle ein Glas randvoll mit Wasser. Lege eine Postkarte oder ein Stück Pappe obenauf. Es darf keine Luft im Glas bleiben.",
+      "Halte die Karte mit einer Hand fest und drehe das Glas mit der anderen Hand um.",
+      "Nimm die untere Hand weg. Die Karte bleibt am Glas hängen, und das Wasser läuft nicht aus!",
+      "Von unten drückt die Luft gegen die Karte. Dieser Druck ist viel größer als das Gewicht des Wassers, das nach unten drückt. Der Luftdruck wirkt also auch <b>nach oben</b>."
+    ],
+    ms: 4800,
+    zeige(i){
+      const k = Math.max(0, i);
+      aufzu(A, k === 0); aufzu(B, k >= 1); aufzu(hand, k === 1); aufzu(luft, k >= 3); aufzu(gew, k >= 3);
+    }
+  }, "glas");
+  register("glas", "#glasSim", "Animation: Versuch Glas, Wasser und Karte");
+})();
+
+/* ---------- Station 4: Saugnapf ---------- */
+(function(){
+  const napf = $("#naNapf"), raus = $("#naRaus"), druckPf = $("#naDruck"), txt = $("#naTxt");
+  // gleiche Dichte innen und außen am Anfang: außen etwa 30 Teilchen, unter dem Napf 5
+  const aus = punkte($("#naAus"), streu(30, [20, 50, 460, 228], (x, y) => !(x > 138 && x < 342 && y > 100), 22), 4.4);
+  const inn = punkte($("#naIn"), streu(5, [186, 196, 294, 228], null, 22), 4.2);
+  const T = ["Locker aufgesetzt: innen und außen gleich viel Luft", "Angedrückt: Die Luft unter dem Napf wird hinausgedrückt", "Losgelassen: innen kaum Luft, außen viel", "Die Luft von außen drückt den Napf an die Fliese"];
+  Modul.makeSchritte($("#napfSim"), {
+    steps: [
+      "Der <button class=\"term\" data-t=\"saugnapf\">Saugnapf</button> liegt locker auf der Fliese. Unter ihm ist Luft – genauso viel wie draußen.",
+      "Du drückst ihn an. Die Luft unter dem Napf wird hinausgeschoben, nur wenige Teilchen bleiben darunter.",
+      "Du lässt los. Unter dem Napf stoßen nur wenige Teilchen gegen die Fliese. Draußen stoßen viele Teilchen von allen Seiten gegen den Napf.",
+      "Die Luft von außen drückt den Napf an die Fliese. Der Napf <b>saugt</b> also nicht – die Luft <b>drückt</b> ihn fest."
+    ],
+    ms: 4800,
+    zeige(i){
+      const k = Math.max(0, i);
+      napf.style.transform = k === 0 ? "translateY(-16px)" : k === 1 ? "scaleY(.7)" : "scaleY(.93)";
+      zeigeN(inn, [5, 2, 1, 1][k]);
+      aufzu(raus, k === 1); aufzu(druckPf, k >= 2);
+      setText(txt, T[k]);
+    }
+  }, "saugnapf");
+  register("saugnapf", "#napfSim", "Animation: Versuch Saugnapf");
+})();
+
+/* ---------- Station 4: Strohhalm ---------- */
+(function(){
+  const fl = $("#stFl"), pf = $("#stPf"), txt = $("#stTxt");
+  const aus = punkte($("#stAus"), streu(22, [20, 60, 136, 262], null, 20), 4.4);
+  // zwei gleich große Ausschnitte (Kreise): Luft im Halm und Luft draußen
+  const off = [[-16, -14], [14, -20], [-10, 14], [18, 10]];
+  const l1 = punkte($("#stLd1"), off.map(o => [372 + o[0], 76 + o[1]]), 4.4), l2 = punkte($("#stLd2"), off.map(o => [372 + o[0], 200 + o[1]]), 4.4);
+  const T = ["Der Halm steht im Getränk", "Du saugst: weniger Teilchen im Halm", "Außen mehr Druck als im Halm", "Die Luft drückt das Getränk hoch"];
+  Modul.makeSchritte($("#stSim"), {
+    steps: [
+      "Der Strohhalm steht im Glas. Im Halm ist Luft – genauso viel wie draußen. Die beiden Kreise zeigen gleich große Ausschnitte: oben die Luft im Halm, unten die Luft draußen. Das Getränk steht im Halm gleich hoch wie im Glas.",
+      "Du saugst an. Dabei machst du in deinem Mund Platz. Ein Teil der Luft aus dem Halm strömt hinein. Im Ausschnitt „Luft im Halm“ sind jetzt weniger Teilchen.",
+      "Auf das Getränk im Glas stoßen weiter viele Teilchen. Im Halm stoßen nur wenige. Der Druck ist draußen größer als im Halm.",
+      "Der größere Luftdruck von außen presst das Getränk im Halm nach oben, bis in deinen Mund. Du saugst es nicht hoch – die Luft <b>drückt</b> es hoch."
+    ],
+    ms: 5000,
+    zeige(i){
+      const k = Math.max(0, i);
+      fl.style.transform = `scaleY(${k >= 3 ? .98 : .43})`;
+      zeigeN(l1, k === 0 ? 4 : 1); zeigeN(l2, 4);
+      aufzu(pf, k === 2);
+      setText(txt, T[k]);
+    }
+  }, "strohhalm");
+  register("strohhalm", "#stSim", "Animation: Versuch Strohhalm");
+})();
+
+/* ---------- Station 4: Magdeburger Halbkugeln ---------- */
+(function(){
+  const L = $("#kuL"), R = $("#kuR"), pf = $("#kuPf"), pferde = $("#kuPferde"), luft = $("#kuLuft"), txt = $("#kuTxt");
+  // gleiche Dichte innen und außen am Anfang: innen 5 Teilchen, außen etwa 24
+  const inn = punkte($("#kuIn"), streu(5, [182, 86, 298, 192], (x, y) => Math.hypot(x - 240, y - 138) < 60, 24), 4.2);
+  const aus = punkte($("#kuAus"), streu(24, [14, 14, 466, 268], (x, y) => Math.hypot(x - 240, y - 138) > 100 && !(y > 100 && y < 198 && (x < 132 || x > 348)) && !(x > 196 && x < 338 && y > 226) && !(y < 60 && x > 215 && x < 265), 22), 4.4);
+  const T = ["Innen und außen gleich viel Luft", "Die Luft wird herausgepumpt: innen kaum noch Teilchen", "Außen viele Stöße, innen kaum welche", "1654: 16 Pferde schaffen es nicht", "Ventil auf: Luft strömt hinein, die Kugel fällt auseinander"];
+  Modul.makeSchritte($("#kuSim"), {
+    steps: [
+      "Zwei Halbkugeln aus Metall liegen aufeinander – die <button class=\"term\" data-t=\"halbkugeln\">Magdeburger Halbkugeln</button>. Innen ist Luft, genauso viel wie draußen. Man kann sie ganz leicht auseinandernehmen.",
+      "Eine Luftpumpe pumpt die Luft aus der Kugel heraus. Es bleiben nur noch wenige Teilchen. Die Kugel ist fast <button class=\"term\" data-t=\"luftleer\">luftleer</button>.",
+      "Von außen stoßen viele Luftteilchen gegen die Kugel, von innen kaum welche. Die Luft von außen presst die Halbkugeln fest zusammen.",
+      "<button class=\"term\" data-t=\"guericke\">Otto von Guericke</button> führte den Versuch 1654 vor Zuschauern vor. Selbst 16 Pferde, acht auf jeder Seite, konnten die Halbkugeln nicht auseinanderziehen.",
+      "Dreht man das Ventil auf, strömt Luft in die Kugel. Innen und außen ist der Druck wieder gleich – die Halbkugeln fallen von allein auseinander."
+    ],
+    ms: 5000,
+    zeige(i){
+      const k = Math.max(0, i);
+      zeigeN(inn, k === 0 || k === 4 ? 5 : 1);
+      aufzu(pf, k === 2 || k === 3); aufzu(pferde, k === 3); aufzu(luft, k === 4);
+      L.style.transform = k === 4 ? "translateX(-50px)" : "none"; R.style.transform = k === 4 ? "translateX(50px)" : "none";
+      setText(txt, T[k]);
+    }
+  }, "kugeln");
+  register("kugeln", "#kuSim", "Animation: Magdeburger Halbkugeln");
+})();
+
+/* ---------- Station 4: Gegendruck ---------- */
+(function(){
+  const id = "gegen"; register(id, "#gegenSim", "Gegendruck: Kanister mit Luft, luftleerer Kanister und dein Körper");
+  const box = $("#gegenWahl"), obs = $("#gegenObs");
+  punkte($("#gnAdots"), streu(12, [198, 100, 282, 252], null, 19), 4.4);
+  punkte($("#gnBdots"), streu(2, [226, 110, 256, 240], null, 40), 4.4);
+  const S = {
+    luft: {g: $("#gnA"), t: "Kanister mit Luft: Innen drücken die Teilchen nach außen, außen drücken sie nach innen – gleich stark. Der Kanister bleibt, wie er ist."},
+    pumpe: {g: $("#gnB"), t: "Luft herausgepumpt: Innen fehlt der Gegendruck. Nur noch die Luft von außen drückt – und der Kanister wird zusammengedrückt."},
+    koerper: {g: $("#gnC"), t: "Auch in deinem Körper herrscht Druck, so groß wie der Luftdruck draußen. Darum wirst du nicht zerdrückt."}
+  };
+  const gesehen = new Set();
+  box.innerHTML = '<button type="button" data-z="luft">Kanister mit Luft</button><button type="button" data-z="pumpe">Luft herauspumpen</button><button type="button" data-z="koerper">Und dein Körper?</button>';
+  $$("button", box).forEach(b => b.addEventListener("click", () => {
+    const z = b.dataset.z;
+    Object.keys(S).forEach(k => aufzu(S[k].g, k === z));
+    $$("button", box).forEach(x => x.classList.toggle("sel", x === b)); b.classList.add("war");
+    setText(obs, S[z].t); gesehen.add(z);
+    if (gesehen.size === 3) solve(id);
+  }));
+  aufzu(S.luft.g, true);
+})();
+
+/* ---------- Station 5: Barometer ---------- */
+(function(){
+  const rg = $("#baRange"), chip = $("#baChip"), obs = $("#baObs"), zeiger = $("#baZeiger"), platte = $("#baPlatte"), wl = $("#baWL"), wr = $("#baWR"), feder = $("#baFeder"), pfeile = [$("#baP1"), $("#baP2"), $("#baP3")];
+  $("#baDial").innerHTML = zifferblatt();
+  const id = "baro"; register(id, "#baSim", "Barometer: Luftdruck einstellen, Dose und Zeiger beobachten");
+  let lo = false, hi = false;
+  function zeig(){
+    const v = +rg.value, yt = 112 + (v - 960) * .22;
+    zeiger.setAttribute("transform", `rotate(${WINK(v).toFixed(1)} 150 150)`);
+    platte.setAttribute("y", yt.toFixed(1));
+    wl.setAttribute("d", `M342 ${(yt + 8).toFixed(1)}V196`); wr.setAttribute("d", `M434 ${(yt + 8).toFixed(1)}V196`);
+    const y0 = yt + 8, n = 6, p = [];
+    for (let i = 0; i <= n; i++) p.push(`${i === 0 || i === n ? 388 : 388 + (i % 2 ? 14 : -14)},${(y0 + (196 - y0) * i / n).toFixed(1)}`);
+    feder.setAttribute("points", p.join(" "));
+    const len = 18 + (v - 960) * .2;
+    pfeile.forEach(a => { a.setAttribute("y1", (yt - len - 4).toFixed(1)); a.setAttribute("y2", (yt - 3).toFixed(1)); });
+    setText(chip, v + " hPa");
+    setText(obs, v < 1000 ? "Tiefer Luftdruck: Die Dose wird nur wenig zusammengedrückt, der Zeiger steht links. Oft bedeutet das Wolken und Regen." :
+      v <= 1020 ? "Mittlerer Luftdruck: Das Wetter kann sich ändern. Der Durchschnitt am Meer liegt bei 1013 hPa." :
+      "Hoher Luftdruck: Die Luft drückt die Dose stark zusammen, der Zeiger steht rechts. Oft ist es sonnig und trocken.");
+    if (v <= 975) lo = true;
+    if (v >= 1045) hi = true;
+    if (lo && hi) solve(id);
+  }
+  rg.addEventListener("input", zeig); rg.addEventListener("change", zeig); zeig();
+})();
+
+/* ---------- Station 5: Hoch und Tief ---------- */
+(function(){
+  const id = "hochtief"; register(id, "#htSim", "Hoch und Tief: Luftbewegung und Wetter vergleichen");
+  const box = $("#htWahl"), obs = $("#htObs"), himmel = $("#htHimmel"), text = $("#htText");
+  const G = {sonne: $("#htSonne"), wolke: $("#htWolke"), ab: $("#htAb"), auf: $("#htAuf"), h: $("#htH"), t: $("#htT")};
+  const Z = {
+    hoch: {himmel: "#8ec9f2", sonne: 1, wolke: 0, ab: 1, auf: 0, h: 1, t: 0, text: "Hoch: Die Luft sinkt ab, die Wolken lösen sich auf",
+      obs: "Hoher Luftdruck: Die Luft sinkt ab und wird dabei wärmer. Wolken lösen sich auf. Oft ist es sonnig und trocken."},
+    tief: {himmel: "#a7b3bf", sonne: 0, wolke: 1, ab: 0, auf: 1, h: 0, t: 1, text: "Tief: Die Luft steigt auf, Wolken bilden sich",
+      obs: "Tiefer Luftdruck: Die Luft steigt auf und kühlt dabei ab. Es bilden sich Wolken, oft gibt es Wind und Regen."}
+  };
+  const gesehen = new Set();
+  box.innerHTML = '<button type="button" data-z="hoch">Hoch (hoher Luftdruck)</button><button type="button" data-z="tief">Tief (tiefer Luftdruck)</button>';
+  $$("button", box).forEach(b => b.addEventListener("click", () => {
+    const z = Z[b.dataset.z];
+    himmel.setAttribute("fill", z.himmel);
+    Object.keys(G).forEach(k => aufzu(G[k], !!z[k]));
+    $$("button", box).forEach(x => x.classList.toggle("sel", x === b)); b.classList.add("war");
+    setText(text, z.text); setText(obs, z.obs); gesehen.add(b.dataset.z);
+    if (gesehen.size === 2) solve(id);
+  }));
+})();
+
+/* ---------- Station 6: Training ---------- */
+Modul.makeGap($("#gapLuft"), [
+  ["Luft hat ein ", {g: "Gewicht"}, ". Die Lufthülle um die Erde heißt ", {g: "Atmosphäre"}, "."],
+  ["Die Luftteilchen ", {g: "stoßen"}, " ständig gegen alles, was sie berühren. Diese Stöße sind der ", {g: "Luftdruck"}, "."],
+  ["Am Meer beträgt der Luftdruck etwa ", {g: "1013"}, " hPa. Auf einem hohen Berg ist er ", {g: "kleiner"}, ", weil weniger ", {g: "Luft"}, " darüber liegt."],
+  ["Den Luftdruck misst man mit dem ", {g: "Barometer"}, "."]
+], "gapLuft", ["Thermometer", "größer"]);
+
+Modul.makePaare($("#paareVersuch"), [
+  ["Saugnapf", "Luft von außen drückt ihn an"],
+  ["Strohhalm", "Luftdruck drückt das Getränk hoch"],
+  ["Halbkugeln", "innen luftleer, außen Druck"],
+  ["Glas mit Karte", "Luftdruck wirkt auch nach oben"],
+  ["Chipstüte auf dem Berg", "außen weniger Druck als innen"],
+  ["Barometer", "misst den Luftdruck"]
+], "paareVersuch");
+
+Modul.makeSort($("#sortOrte"), {
+  buckets: ["etwa 1013 hPa", "etwa 700 hPa", "etwa 330 hPa"],
+  items: [
+    {t: "am Meer", b: 0}, {t: "Strand an der Nordsee", b: 0},
+    {t: "Zugspitze", b: 1}, {t: "Gipfel in fast 3000 m Höhe", b: 1},
+    {t: "Mount Everest", b: 2}, {t: "höchster Berg der Erde", b: 2}
+  ], cols: 150
+}, "sortOrte");
+
+Modul.makeTF($("#tf"), [
+  ["Im Teilchenmodell entsteht der Luftdruck durch die Stöße der Luftteilchen.", true],
+  ["Der Luftdruck drückt nur von oben auf uns.", false],
+  ["Auf einem hohen Berg ist der Luftdruck kleiner als im Tal.", true],
+  ["Ein Saugnapf saugt sich fest. Die Luft hat damit nichts zu tun.", false],
+  ["Beim Trinken mit dem Strohhalm drückt der Luftdruck das Getränk nach oben.", true],
+  ["Bei hohem Luftdruck gibt es oft schönes Wetter.", true],
+  ["Das Barometer misst die Temperatur der Luft.", false]
+], "tf");
+
+Modul.makeCrossword($("#cw"), {
+  words: [
+    {w: "ATMOSPHAERE", r: 2, c: 0, d: "d", q: "Die Lufthülle der Erde (ä schreibst du als AE)."},
+    {w: "HALBKUGELN", r: 8, c: 0, d: "a", q: "Magdeburger …: 16 Pferde konnten sie nicht auseinanderziehen."},
+    {w: "ZUGSPITZE", r: 6, c: 6, d: "d", q: "Deutschlands höchster Berg. Dort sind es nur noch etwa 700 hPa."},
+    {w: "GUERICKE", r: 11, c: 2, d: "a", q: "Nachname des Forschers mit den Halbkugeln (Otto von …)."},
+    {w: "STROHHALM", r: 1, c: 2, d: "d", q: "Damit trinkst du: Der Luftdruck schiebt das Getränk nach oben."},
+    {w: "SAUGNAPF", r: 1, c: 2, d: "a", q: "Er hält an der Fliese, aber nicht, weil er saugt."},
+    {w: "BAROMETER", r: 14, c: 1, d: "a", q: "Gerät, das den Luftdruck misst."},
+    {w: "LUFTDRUCK", r: 0, c: 4, d: "d", q: "Der Druck, den die Luft auf alles ausübt."},
+    {w: "TEILCHEN", r: 3, c: 4, d: "a", q: "Luft besteht aus vielen kleinen …, die gegen Wände stoßen."},
+    {w: "WETTER", r: 2, c: 10, d: "d", q: "Hoher Luftdruck bringt oft schönes, tiefer oft schlechtes …"}
+  ],
+  sol: [[8, 6], [14, 8], [2, 10], [3, 6], [7, 4], [5, 2], [3, 4]], solWord: "GEWICHT"
+}, "cw");
+
+Modul.makeOpen($("#open"), [
+  {q: "Erkläre mit dem Teilchenmodell, wie der Luftdruck entsteht.",
+   m: "Luft hat ein Gewicht. Die Luftschichten über uns drücken die Luft darunter zusammen, deshalb sind unten viele Teilchen auf engem Raum. Die Luftteilchen fliegen durcheinander und stoßen von allen Seiten gegen alles, was sie berühren. Die vielen Stöße zusammen sind der Luftdruck.",
+   k: ["gewicht|schwer|masse", "stoß|stoss|prall|treffen", "teilchen", "alle seiten|allen seiten|alle richtungen|allen richtungen|überall"], min: 3},
+  {q: "Erkläre, warum der Luftdruck auf einem hohen Berg kleiner ist als im Tal.",
+   m: "Über einem Berggipfel liegt weniger Luft als über dem Tal. Das Gewicht der Luft darüber ist kleiner. Die Luft ist dünner: In jedem Liter sind weniger Teilchen, und es gibt weniger Stöße. Darum ist der Luftdruck kleiner.",
+   k: ["weniger luft|weniger teilchen|dünner|dünn|weniger schicht", "gewicht|schwer", "stoß|stoss|teilchen|darüber"], min: 2},
+  {q: "Erkläre, warum man mit einem Strohhalm trinken kann – und warum es mit einem Loch im Halm kaum geht.",
+   m: "Beim Saugen wird der Druck im Strohhalm kleiner. Die Luft von außen drückt auf das Getränk im Glas und schiebt es im Halm nach oben. Ist ein Loch im Halm, strömt Luft hinein. Dann ist der Druck innen und außen gleich, und das Getränk steigt nicht.",
+   k: ["druck|luftdruck", "außen|schiebt|presst|drückt", "loch|luft strömt|luft kommt|gleich"], min: 2}
+], "open", "Lies noch einmal die Merke-Kästen in Station 2, 3 und 4.");
+
+Modul.plus(() => {
+  Modul.makeOpen($("#openM"), [
+    {q: "Ein Flugzeug fliegt in etwa 10 km Höhe. Dort ist der Luftdruck draußen nur noch etwa ein Viertel so groß wie am Boden. Erkläre, warum die Kabine trotzdem unter Druck gesetzt wird.",
+     m: "In 10 km Höhe sind in jedem Liter Luft nur etwa ein Viertel so viele Teilchen wie am Boden, also auch nur ein Viertel des Sauerstoffs. Man könnte kaum atmen. Deshalb wird Luft in die Kabine gepumpt. Dort herrscht ein höherer Druck, ungefähr wie auf einem Berg von etwa 2000 m Höhe.",
+     k: ["weniger|dünn|viertel|wenig", "sauerstoff|atmen|luft", "pump|druck|kabine"], min: 2},
+    {q: "Ein Saugnapf hält an einer glatten Fliese, aber nicht an einer rauen Wand. Erkläre den Unterschied mit dem Luftdruck.",
+     m: "An der glatten Fliese schließt der Napf dicht ab. Unter ihm sind kaum Luftteilchen, und die Luft von außen drückt ihn an. An der rauen Wand kommt Luft unter den Rand. Dann ist der Druck innen und außen gleich, und nichts drückt den Napf an.",
+     k: ["dicht|schließt|abschließen|glatt", "luft|teilchen", "gleich|ausgleich|unterschied|kommt luft|strömt"], min: 2}
+  ], "openM", "Überlege: Wo stoßen mehr Teilchen – innen oder außen?");
+});
+
+/* ---------- Station 7: Profi-Check ---------- */
+Modul.makeQuiz($("#quiz"), [].concat(MC.s1, MC.schaetz, MC.s2, MC.s3, MC.s4, MC.s5, [MC.train[2]], [
+  {q: "Wie hoch ist der Luftdruck am Meer im Durchschnitt?", o: ["etwa 1013 hPa", "etwa 700 hPa", "etwa 330 hPa", "etwa 100 hPa"], a: 0, e: "Am Meer sind es im Durchschnitt etwa 1013 hPa. Auf der Zugspitze etwa 700 hPa, auf dem Mount Everest etwa 330 hPa."},
+  {q: "Was ist die Atmosphäre?", o: ["die Lufthülle der Erde", "das Innere der Erde", "die Wasserschicht der Erde", "ein Gerät zum Messen des Luftdrucks"], a: 0, e: "Die Atmosphäre ist die Lufthülle um die Erde. Sie ist viele Kilometer dick und wird nach oben immer dünner."},
+  {q: "Wer führte 1654 den Versuch mit den Halbkugeln vor?", o: ["Otto von Guericke", "Isaac Newton", "Marie Curie", "Albert Einstein"], a: 0, e: "Otto von Guericke, Bürgermeister von Magdeburg, pumpte die Luft aus zwei Halbkugeln. Der Luftdruck presste sie zusammen."},
+  {q: "Wie schwer sind etwa 1000 Liter Luft?", o: ["etwa 1,3 kg", "etwa 1,3 g", "etwa 13 kg", "etwa 130 kg"], a: 0, e: "1 Liter Luft wiegt etwa 1,3 g. 1000 Liter wiegen also etwa 1300 g, das sind 1,3 kg."},
+  {q: "Das Glas ist randvoll, die Karte liegt darauf, das Glas steht auf dem Kopf. Aus welcher Richtung drückt die Luft, die die Karte hält?", o: ["von unten nach oben", "von oben nach unten", "von links nach rechts", "Die Luft drückt hier gar nicht."], a: 0, e: "Der Luftdruck wirkt in alle Richtungen. Hier drückt er von unten gegen die Karte, und zwar viel stärker, als das Wasser nach unten drückt."}
+]), "quiz", "Luftdruck-Profi");
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

@@ -16,15 +16,15 @@ Zeichen: ✅ fertig und geprüft · 🔧 in Arbeit · ⬜ fehlt noch
 | 5 | Achtung, explosiv! | `achtung-explosiv.html` | Explosion als Form der Verbrennung | ✅ (vorhanden) |
 | 6 | Brände verhindern und löschen | `brand-schutz.html` | Brandschutzmaßnahmen, Methoden der Brandbekämpfung | ✅ |
 | 7 | Oxidation: Rost, Glut und braune Äpfel | `oxidation.html` | Oxidation, Oxid, Wortgleichungen, stille Oxidation, Schutz; M zusätzlich: Formelgleichungen, SO₂, CO | ✅ |
-| 8 | Der Luftdruck | `luftdruck.html` | Luftdruck als Folge des Eigengewichts der Luft, Teilchenmodell | 🔧 |
-| 9 | Forschen wie die Profis | `forschen.html` | Lernbereich 1: Erkenntnisweg, Hypothese, Protokoll, Diagramm, Sicherheit, Modelle | 🔧 |
+| 8 | Der Luftdruck | `luftdruck.html` | Luftdruck als Folge des Eigengewichts der Luft, Teilchenmodell | ✅ |
+| 9 | Forschen wie die Profis | `forschen.html` | Lernbereich 1: Erkenntnisweg, Hypothese, Protokoll, Diagramm, Sicherheit, Modelle | ✅ |
 
 ## Themenbereich 2: Atome und Materie (Lehrplan 2.2)
 
 | Nr | Modul | Datei | Lehrplan | Stand |
 |---|---|---|---|---|
 | 1 | Atommodelle: von Demokrit bis Rutherford | `atommodelle.html` | Demokrit, Dalton, Rutherford (Kern-Hülle-Modell), Grenzen von Modellen; M zusätzlich: Energiestufenmodell | ✅ |
-| 2 | Atombau und Periodensystem | `atombau-pse.html` | Proton, Neutron, Elektron, Ordnungszahl, Massenzahl, Isotope, Perioden, Hauptgruppen; Metalle, Nichtmetalle, Edelgase; M zusätzlich: Außenelektronen, Oktettregel | 🔧 |
+| 2 | Atombau und Periodensystem | `atombau-pse.html` | Proton, Neutron, Elektron, Ordnungszahl, Massenzahl, Isotope, Perioden, Hauptgruppen; Metalle, Nichtmetalle, Edelgase; M zusätzlich: Außenelektronen, Oktettregel | ✅ |
 
 ## Themenbereich 3: Tiere an Land und in der Luft (Lehrplan 2.3)
 
@@ -48,10 +48,10 @@ Zeichen: ✅ fertig und geprüft · 🔧 in Arbeit · ⬜ fehlt noch
 | Nr | Modul | Datei | Lehrplan | Stand |
 |---|---|---|---|---|
 | 1 | Der Stromkreis und sein Schaltplan | `stromkreis.html` | Stromkreis, Schaltsymbole, Schaltpläne, Fehler finden | ✅ |
-| 2 | Was Strom alles kann: Wirkungen | `strom-wirkungen.html` | Wirkungen des Stroms als Energieumwandlung | ⬜ |
+| 2 | Was Strom alles kann: Wirkungen | `strom-wirkungen.html` | Wirkungen des Stroms als Energieumwandlung | 🔧 |
 | 3 | Spannung und Stromstärke | `spannung-stromstaerke.html` | Modellvorstellung, Volt, Ampere, Messen in der Reihenschaltung; M zusätzlich: Parallelschaltung, Knoten- und Maschenregel | ✅ |
-| 4 | Der elektrische Widerstand | `widerstand.html` | Widerstand, Ohm'sches Gesetz, Rechnen, Länge/Querschnitt/Material/Temperatur | ⬜ |
-| 5 | Sicher mit Strom umgehen | `strom-sicher.html` | Gefahren und Sicherheitsregeln | ⬜ |
+| 4 | Der elektrische Widerstand | `widerstand.html` | Widerstand, Ohm'sches Gesetz, Rechnen, Länge/Querschnitt/Material/Temperatur | 🔧 |
+| 5 | Sicher mit Strom umgehen | `strom-sicher.html` | Gefahren und Sicherheitsregeln | 🔧 |
 
 ## Proben (Server `englisch_9`, `backend/api/nt7-fragen.js`)
 

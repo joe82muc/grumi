@@ -41,10 +41,10 @@
         { id: "oxidation", titel: "Oxidation: Rost, Glut und braune Äpfel", href: "oxidation.html", key: "grumi-nt7-oxidation-v1",
           text: "Wenn Stoffe mit Sauerstoff reagieren: Eisenwolle auf der Waage, Wortgleichungen, Oxide, Rost und wie man davor schützt.",
           tags: ["Versuche", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "luftdruck", titel: "Der Luftdruck", key: "grumi-nt7-luftdruck-v1",
+        { id: "luftdruck", titel: "Der Luftdruck", href: "luftdruck.html", key: "grumi-nt7-luftdruck-v1",
           text: "Luft hat Gewicht und drückt von allen Seiten: Luftsäule, Luftdruck in Tal und Gebirge, Saugnapf und die berühmten Halbkugeln.",
           tags: ["Animationen", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "forschen", titel: "Forschen wie die Profis", key: "grumi-nt7-forschen-v1",
+        { id: "forschen", titel: "Forschen wie die Profis", href: "forschen.html", key: "grumi-nt7-forschen-v1",
           text: "Von der Frage über die Vermutung zum Versuch: planen, beobachten, messen, Diagramme lesen und sicher experimentieren.",
           tags: ["Versuchsprotokoll", "Diagramme", "KI-Rückmeldung"] }
       ]
@@ -57,7 +57,7 @@
         { id: "atommodelle", titel: "Atommodelle: von Demokrit bis Rutherford", href: "atommodelle.html", key: "grumi-nt7-atommodelle-v1",
           text: "Unteilbare Teilchen, Kugelmodell und der Versuch mit der Goldfolie: wie Forscher herausfanden, dass ein Atom fast leer ist.",
           tags: ["Animationen", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "atombau-pse", titel: "Atombau und Periodensystem", key: "grumi-nt7-atombau-pse-v1",
+        { id: "atombau-pse", titel: "Atombau und Periodensystem", href: "atombau-pse.html", key: "grumi-nt7-atombau-pse-v1",
           text: "Protonen, Neutronen und Elektronen zählen, das Periodensystem lesen und Metalle, Nichtmetalle und Edelgase unterscheiden.",
           tags: ["Atom-Baukasten", "Probenstoff", "KI-Rückmeldung"] }
       ]

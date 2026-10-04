@@ -1,0 +1,1146 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#12707a">
+<title>Forschen wie die Profis | NT 7</title>
+<link rel="stylesheet" href="modul-basis.css">
+<style>
+.hero{background:linear-gradient(160deg,#0a3a45,#12808a 58%,#c08a1c)}
+.bild{margin:12px 0}
+.bild svg{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--line);background:#fff}
+.bild figcaption{text-align:center}
+.hotimg{position:relative}
+.hotimg svg{display:block;width:100%;height:auto}
+.fl{transform-box:fill-box;transform-origin:50% 100%;animation:flackern .18s infinite alternate;animation-play-state:paused}
+.laeuft .fl{animation-play-state:running}
+@keyframes flackern{from{transform:scale(1,1) skewX(-2deg)}to{transform:scale(.95,1.06) skewX(2deg)}}
+/* Forscherweg */
+.knoten rect{fill:#fff;stroke:#d8e2ea;stroke-width:2;transition:fill .3s,stroke .3s}
+.knoten circle{fill:#e7f3fc;transition:fill .3s}
+.knoten .nr{fill:#095a93;font-size:13px;font-weight:800;text-anchor:middle}
+.knoten .nm{fill:#566674;font-size:13px;font-weight:700}
+.knoten.war rect{fill:#e7f3fc;stroke:#9ccbee}
+.knoten.an rect{fill:#0d77c2;stroke:#095a93}
+.knoten.an circle{fill:#fff}
+.knoten.an .nm{fill:#fff}
+.szene{opacity:0;transition:opacity .4s}
+/* Versuch mit Stoppuhr, Tabelle, Diagramm */
+.uhr{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:10px 14px;border-top:1px solid var(--line);background:#fbfdff}
+.uhr-zahl{font-variant-numeric:tabular-nums;font-size:1.9rem;font-weight:800;color:var(--sky-d);min-width:3.4em;text-align:center}
+.uhr-zahl.fertig{color:var(--ok)}
+.uhr-text{flex:1 1 170px;font-size:.93rem;color:var(--muted);font-weight:600}
+.sim-ctrl .btn{min-height:44px}
+.sim-ctrl input[type=range]{height:44px}
+.tabdia{display:grid;grid-template-columns:minmax(0,210px) minmax(0,1fr);gap:16px;align-items:center}
+@media (max-width:640px){.tabdia{grid-template-columns:minmax(0,1fr)}}
+.mtab{width:100%;border-collapse:collapse;font-size:.95rem}
+.mtab th,.mtab td{border:1.5px solid var(--line);padding:7px 10px;text-align:center}
+.mtab th{background:var(--sky-l);color:var(--sky-d)}
+.mtab td.neu{font-weight:800;animation:aufblitz 1.4s}
+@keyframes aufblitz{from{background:#ffe9a6}to{background:transparent}}
+.protokoll{background:#fffdf5;border:2px solid #efe3b8;border-radius:12px;padding:10px 16px;margin-top:8px}
+.protokoll p{margin:0}
+.schild-buehne{display:grid;grid-template-columns:150px 1fr;gap:16px;align-items:center}
+.schild-buehne svg{width:150px;height:150px;background:#f4f7fa;border-radius:16px;border:1px solid var(--line)}
+@media (max-width:520px){.schild-buehne{grid-template-columns:1fr;justify-items:center}}
+.grid-bild{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:18px;align-items:start}
+.grid-bild > .card{margin-bottom:0}
+@media (max-width:820px){.grid-bild{grid-template-columns:minmax(0,1fr)}}
+.info-drei{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
+/* Handy: etwas weniger Rand */
+@media (max-width:520px){.card{padding:14px}.q{padding:12px}section.station{padding:36px 0 16px}}
+#vGlas{transition:transform .7s}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>NT 7</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Wer hat recht?</a>
+      <a href="#s2"><b>2</b>Fairer Versuch</a>
+      <a href="#s3"><b>3</b>Beobachten</a>
+      <a href="#s4"><b>4</b>Sicher arbeiten</a>
+      <a href="#s5"><b>5</b>Modelle</a>
+      <a href="#s6"><b>6</b>Training</a>
+      <a href="#s7"><b>7</b>Profi-Check</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse 7M / 7R · Themenbereich Luft · Lernmodul 9</div>
+    <h1>Forschen wie die Profis</h1>
+    <p>Brennt eine Kerze unter einem großen Glas länger als unter einem kleinen? Streiten bringt nichts – Forscherinnen und Forscher überprüfen es. In sieben Stationen lernst du, wie man vermutet, einen fairen Versuch plant, genau beobachtet, Ergebnisse festhält und sicher im Labor arbeitet.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s6">Direkt zum Probentraining</a>
+    </div>
+    <div class="goals">
+      <div>🔍 Ich beschreibe den Weg der Forscher: von der Frage über die Vermutung und den Versuch bis zur Auswertung.</div>
+      <div>📊 Ich plane einen fairen Versuch und lese Werte aus Tabellen und Diagrammen ab.</div>
+      <div>⚠️ Ich nenne Laborregeln, erkenne Gefahrenzeichen und erkläre, wie man einen Gasbrenner sicher bedient.</div>
+      <div>🌍 Ich sage, was ein Modell zeigt – und was es nicht zeigt.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- Zeichen für das Zeichen-Quiz (eigene, vereinfachte Zeichnungen) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <path id="zFlammeF" d="M0-17C7-8 11-2 11 5A11 11 0 0 1-11 5C-11 0-7-3-5-9C-3-5-1-5 0-17Z"/>
+    <symbol id="zEntz" viewBox="0 0 120 120">
+      <path d="M60 6L114 60 60 114 6 60Z" fill="#fff" stroke="#d9291c" stroke-width="9" stroke-linejoin="round"/>
+      <use href="#zFlammeF" transform="translate(60 62) scale(1.9)" fill="#15212b"/>
+    </symbol>
+    <symbol id="zBrand" viewBox="0 0 120 120">
+      <path d="M60 6L114 60 60 114 6 60Z" fill="#fff" stroke="#d9291c" stroke-width="9" stroke-linejoin="round"/>
+      <circle cx="60" cy="80" r="12" fill="none" stroke="#15212b" stroke-width="6"/>
+      <use href="#zFlammeF" transform="translate(60 49) scale(1.3)" fill="#15212b"/>
+    </symbol>
+    <symbol id="zGift" viewBox="0 0 120 120">
+      <path d="M60 6L114 60 60 114 6 60Z" fill="#fff" stroke="#d9291c" stroke-width="9" stroke-linejoin="round"/>
+      <g fill="#15212b"><circle cx="60" cy="46" r="15"/><rect x="51" y="56" width="18" height="11" rx="3"/></g>
+      <g fill="#fff"><circle cx="54" cy="46" r="4.2"/><circle cx="66" cy="46" r="4.2"/><path d="M60 50l-3 6h6z"/></g>
+      <g stroke="#15212b" stroke-width="6" stroke-linecap="round"><path d="M44 71l32 14"/><path d="M44 85l32-14"/></g>
+    </symbol>
+    <symbol id="zAetz" viewBox="0 0 120 120">
+      <path d="M60 6L114 60 60 114 6 60Z" fill="#fff" stroke="#d9291c" stroke-width="9" stroke-linejoin="round"/>
+      <g fill="#15212b">
+        <rect x="42.5" y="29" width="7" height="18" rx="3.5" transform="rotate(40 46 38)"/>
+        <rect x="70.5" y="29" width="7" height="18" rx="3.5" transform="rotate(-40 74 38)"/>
+        <path d="M40 49q-3 4.5 0 7.5q3-3 0-7.5z"/><path d="M80 49q-3 4.5 0 7.5q3-3 0-7.5z"/>
+        <rect x="30" y="66" width="24" height="8" rx="1.5"/>
+        <rect x="68" y="71" width="14.4" height="9" rx="3"/>
+        <rect x="68" y="62" width="3.2" height="10" rx="1.6"/><rect x="71.6" y="60" width="3.2" height="12" rx="1.6"/><rect x="75.2" y="61" width="3.2" height="11" rx="1.6"/><rect x="78.8" y="63" width="3.2" height="9" rx="1.6"/>
+        <rect x="62.5" y="73" width="7.5" height="3.4" rx="1.7" transform="rotate(-30 66 74.7)"/>
+      </g>
+      <path d="M37 66l4.5 5.5 4.5-5.5z" fill="#fff"/>
+    </symbol>
+    <symbol id="zReiz" viewBox="0 0 120 120">
+      <path d="M60 6L114 60 60 114 6 60Z" fill="#fff" stroke="#d9291c" stroke-width="9" stroke-linejoin="round"/>
+      <path d="M53.5 29h13l-3 34h-7z" fill="#15212b"/><circle cx="60" cy="75" r="6.5" fill="#15212b"/>
+    </symbol>
+    <symbol id="zUmwelt" viewBox="0 0 120 120">
+      <path d="M60 6L114 60 60 114 6 60Z" fill="#fff" stroke="#d9291c" stroke-width="9" stroke-linejoin="round"/>
+      <g stroke="#15212b" stroke-width="4.5" stroke-linecap="round" fill="none"><path d="M42 86V50"/><path d="M42 72l-9-9"/><path d="M42 62l10-10"/><path d="M42 54l-6-6"/></g>
+      <ellipse cx="72" cy="76" rx="11" ry="6" fill="#15212b"/><path d="M82 76l9-6v12z" fill="#15212b"/><path d="M66 74l3 3m0-3l-3 3" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg</div><h2>Wer hat recht?</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Auf dem Tisch stehen zwei brennende Kerzen. Über die eine kommt ein kleines Glas, über die andere ein großes. Zwei Kinder aus deiner Klasse streiten sich:</p>
+      <div class="person"><div class="av" style="background:#fde2e2">👧</div><div class="speech">„Unter dem großen Glas brennt die Kerze länger!“</div></div>
+      <div class="person"><div class="av" style="background:#e3f6ea">👦</div><div class="speech">„Quatsch! Die Größe ist egal. Beide Kerzen gehen gleichzeitig aus.“</div></div>
+      <p style="margin-top:24px">Wer hat recht? Du könntest abstimmen lassen. Aber eine Behauptung wird nicht richtiger, nur weil viele sie glauben. Forscherinnen und Forscher <strong>überprüfen</strong> sie – mit einem Versuch.</p>
+    </div>
+    <div class="sim reveal" id="startSim">
+      <svg viewBox="0 0 400 250" id="startBild" role="img" aria-label="Zwei brennende Kerzen auf dem Tisch. Über die linke ist ein kleines Glas gestülpt, über die rechte ein großes. In der Mitte steht ein Fragezeichen."></svg>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:18px"><div id="mc-s1"></div></div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <h3 style="margin-top:0">Der Weg der Forscher</h3>
+      <p>Ein Versuch ist nur ein Teil der Arbeit. Forscherinnen und Forscher gehen in festen Schritten vor. Am Anfang steht keine Messung, sondern eine <button class="term" data-t="hypothese">Hypothese</button>: eine Vermutung, die man überprüfen kann. Am Ende steht die <button class="term" data-t="auswertung">Auswertung</button>.</p>
+      <p class="hint">Starte die Animation oder gehe Schritt für Schritt. Das Beispiel ist der Kerzenversuch.</p>
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li>Der Weg: beobachten, fragen, vermuten, planen, durchführen, festhalten, auswerten.</li>
+        <li>Eine Hypothese muss man mit einem <button class="term" data-t="experiment">Experiment</button> überprüfen können.</li>
+        <li>Stimmt die Vermutung nicht, ist das kein Fehler: Man stellt eine neue auf und prüft sie.</li>
+      </ul></div>
+    </div>
+    <div class="sim reveal" id="wegSim">
+      <svg viewBox="0 0 480 330" id="wegSvg" role="img" aria-label="Sieben Schritte des Forscherwegs untereinander, rechts daneben ein Bild zum aktuellen Schritt des Kerzenversuchs."></svg>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag leicht">Reihenfolge · leicht</span>
+      <h3 style="margin-top:4px">Bring den Forscherweg in die richtige Reihenfolge</h3>
+      <p class="hint">Verschiebe die Schritte mit ▲ und ▼. Dann tippe auf „Prüfen“.</p>
+      <div id="orderWeg"></div>
+    </div>
+    <div class="card reveal"><div id="mc-s1b"></div></div>
+  </div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Ein fairer Versuch</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Deine Vermutung lautet: <strong>Je größer das Glas, desto länger brennt die Kerze.</strong> Jetzt brauchst du einen Versuch – und er muss <button class="term" data-t="fair">fair</button> sein.</p>
+      <p>Fair heißt: Du änderst genau <strong>eine</strong> Sache. Alles andere bleibt gleich. Nur dann weißt du am Ende, woran das Ergebnis liegt.</p>
+      <div class="info-karten info-drei">
+        <div class="info-karte"><div class="big">🔧</div><h4>Das verändere ich</h4><p>die Größe des Glases</p></div>
+        <div class="info-karte"><div class="big">📏</div><h4>Das messe ich</h4><p>die Zeit, bis die Flamme erlischt</p></div>
+        <div class="info-karte"><div class="big">🔒</div><h4>Das lasse ich gleich</h4><p>Kerze, Ort im Raum, Start der Uhr</p></div>
+      </div>
+      <p class="hint">Teste nacheinander alle drei Gläser. Die Uhr läuft im Zeitraffer, damit du nicht so lange warten musst.</p>
+    </div>
+    <div class="sim reveal" id="versuchSim">
+      <svg viewBox="0 0 480 330" role="img" aria-label="Ein Teelicht brennt auf dem Tisch. Darüber wird ein Glas gestülpt. Es gibt drei Gläser: 250, 500 und 1000 Milliliter.">
+        <rect width="480" height="330" fill="#f7fbfe"/>
+        <rect x="0" y="286" width="480" height="44" fill="#d9c9a8"/>
+        <rect x="0" y="283" width="480" height="5" fill="#b79f74"/>
+        <text x="240" y="314" text-anchor="middle" font-size="12" font-weight="700" fill="#6b5a3c">Teelicht</text>
+        <path d="M214 286l4-16h44l4 16z" fill="#c9d1d8" stroke="#8a97a3" stroke-width="2"/>
+        <rect x="219" y="266" width="42" height="5" rx="2" fill="#f6efd8"/>
+        <line x1="240" y1="266" x2="240" y2="258" stroke="#3a2f26" stroke-width="2.5" stroke-linecap="round"/>
+        <g transform="translate(240 239)"><g id="vFlammeS" style="transform-box:fill-box;transform-origin:50% 100%;transition:transform .15s linear,opacity .35s"><g class="fl"><use href="#zFlammeF" transform="scale(1.3)" fill="#f2992e"/><use href="#zFlammeF" transform="translate(0 4) scale(.7)" fill="#ffd34d"/></g></g></g>
+        <g id="vRauch" opacity="0" style="transition:opacity .5s" fill="none" stroke="#9aa5ad" stroke-width="4" stroke-linecap="round"><path d="M236 252q-9-10 0-20t0-20"/><path d="M247 250q9-10 0-20t0-18"/></g>
+        <g id="vGlas" style="transform:translate(240px,176px);opacity:.3"></g>
+      </svg>
+      <div class="uhr"><span class="uhr-zahl" id="uhrZahl">0,0 s</span><span class="uhr-text" id="uhrText">Tippe unten auf ein Glas. Die Uhr läuft im Zeitraffer (6-mal so schnell).</span></div>
+      <div class="sim-ctrl" id="glasCtrl">
+        <button class="btn small" type="button" data-g="0">▶ Glas 250 ml</button>
+        <button class="btn small" type="button" data-g="1">▶ Glas 500 ml</button>
+        <button class="btn small" type="button" data-g="2">▶ Glas 1000 ml</button>
+      </div>
+      <p class="obs" id="versuchObs">Wähle ein Glas. Es wird über die brennende Kerze gestülpt, und die Stoppuhr zeigt, wie lange die Flamme noch brennt.</p>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <h3 style="margin-top:0">Messwerte und Diagramm</h3>
+    <p class="hint">Jede Messung landet in der Tabelle, und das <button class="term" data-t="diagramm">Diagramm</button> wächst mit. Das sind Beispielwerte: Echte Werte hängen von Kerze, Glas und Raum ab.</p>
+    <div class="tabdia">
+      <table class="mtab">
+        <thead><tr><th>Glas</th><th>Brenndauer</th></tr></thead>
+        <tbody>
+          <tr><td>250 ml</td><td id="mw0">–</td></tr>
+          <tr><td>500 ml</td><td id="mw1">–</td></tr>
+          <tr><td>1000 ml</td><td id="mw2">–</td></tr>
+        </tbody>
+      </table>
+      <div class="bild" style="margin:0"><svg viewBox="0 0 440 250" id="versuchChart" role="img" aria-label="Säulendiagramm: Brenndauer der Kerze für die drei Glasgrößen"></svg></div>
+    </div>
+    <div class="fb" id="versuchFb"></div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal"><div id="mc-s2"></div></div>
+    <div class="card reveal">
+      <span class="task-tag mittel">Zuordnen · mittel</span>
+      <h3 style="margin-top:4px">Ist dieser Versuch fair?</h3>
+      <p>Die Frage bleibt: Hängt die Brenndauer von der Größe des Glases ab? Ordne die Vorschläge zu.</p>
+      <p class="hint">Tippe zuerst auf eine Karte, dann auf das passende Fach.</p>
+      <div id="sortFair"></div>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <p class="m7-hinweis">Aufgaben mit dem lila Zeichen gehören zum M-Niveau. In M-Klassen zählen sie mit, in R-Klassen sind sie eine Zusatzaufgabe für Profis.</p>
+    <h3 style="margin-top:4px">Plane einen neuen Versuch</h3>
+    <p>Neue Frage: <strong>Gehen zwei Kerzen unter demselben Glas schneller aus als eine einzelne?</strong> Sortiere die Karten: Was verändert man, was misst man, was bleibt gleich?</p>
+    <p class="hint">Tippe zuerst auf eine Karte, dann auf das passende Fach.</p>
+    <div id="sortPlan"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Mehrmals messen</h3>
+    <p>Eine einzelne Messung kann zufällig ein wenig danebenliegen: Mal drückst du die Stoppuhr früher, mal später. Deshalb misst man mehrmals und rechnet mit dem <button class="term" data-t="mittelwert">Mittelwert</button>.</p>
+    <div id="mc-m1"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>Genau hinsehen und aufschreiben</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Beim Versuch passiert viel auf einmal. Profis schreiben auf, was sie <strong>sehen</strong> – und trennen es von dem, was sie <strong>denken</strong>.</p>
+    <div class="info-karten">
+      <div class="info-karte"><div class="big">👀</div><h4><button class="term" data-t="beobachtung">Beobachtung</button></h4><p>Was siehst, hörst oder misst du? <em>Die Flamme wird kleiner.</em></p></div>
+      <div class="info-karte"><div class="big">💡</div><h4><button class="term" data-t="deutung">Deutung</button></h4><p>Wie erklärst du dir das? <em>Der Sauerstoff wird knapp.</em></p></div>
+      <div class="info-karte"><div class="big">👍</div><h4><button class="term" data-t="bewertung">Bewertung</button></h4><p>Was hältst du davon? <em>Der Versuch war toll.</em></p></div>
+    </div>
+    <p>Auch ein <button class="term" data-t="messwert">Messwert</button> ist eine Beobachtung. Er besteht immer aus einer Zahl und einer Einheit, zum Beispiel 15 s.</p>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag mittel">Zuordnen · mittel</span>
+    <h3 style="margin-top:4px">Beobachtung, Deutung oder Bewertung?</h3>
+    <p class="hint">Tippe zuerst auf eine Karte, dann auf das passende Fach.</p>
+    <div id="sortBeob"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Lückentext · leicht</span>
+    <h3 style="margin-top:4px">Das Versuchsprotokoll</h3>
+    <p>Ein <button class="term" data-t="protokoll">Protokoll</button> hält fest, was du getan und gesehen hast – so genau, dass jemand anderes den Versuch wiederholen kann. Es hat feste Teile. Ergänze das Protokoll zum Kerzenversuch.</p>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Drei Wörter bleiben übrig.</p>
+    <div class="gaptext protokoll" id="gapProto"></div>
+    <div class="merke"><h4>MERKE</h4><ul>
+      <li>Beobachtung: was du siehst, hörst oder misst. Deutung: wie du es dir erklärst. Beides trennst du.</li>
+      <li>Ein Protokoll hat feste Teile: Frage, Vermutung, Material, Durchführung, Beobachtung, Auswertung.</li>
+      <li>Zu jedem Messwert gehört eine Einheit.</li>
+    </ul></div>
+  </div>
+
+  <div class="card reveal">
+    <h3 style="margin-top:0">Tabelle und Diagramm lesen</h3>
+    <p>Eine andere Klasse hat den Versuch mit fünf Gläsern gemacht. Dieselben Werte lassen sich in einer Tabelle und in einem Diagramm zeigen. Beantworte die Fragen.</p>
+    <div id="mc-s3"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Welches Diagramm passt?</h3>
+    <p>Zwei Formen begegnen dir oft. Das <button class="term" data-t="diagramm">Säulendiagramm</button> vergleicht einzelne Werte miteinander. Das Liniendiagramm zeigt, wie sich ein Wert im Lauf der Zeit verändert.</p>
+    <div class="grid2" id="beispielDia"></div>
+    <p class="hint" style="margin-top:12px">Welches Diagramm passt zu welchen Messwerten? Tippe zuerst auf eine Karte, dann auf das passende Fach.</p>
+    <div id="sortDarst"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Ein Wert fällt aus der Reihe</h3>
+    <p>Ein <button class="term" data-t="ausreisser">Ausreißer</button> ist ein Messwert, der viel stärker von den anderen abweicht. Hier siehst du fünf Messungen mit demselben Glas.</p>
+    <div id="mc-m2"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Probenstoff</div><h2>Sicher experimentieren</h2></div></div>
+  <div class="grid-bild">
+    <div class="sim reveal">
+      <div class="hotimg" id="laborBild">
+        <svg viewBox="0 0 480 300" role="img" aria-label="Zwei Schüler am Labortisch. Sechs nummerierte Stellen zeigen Fehler gegen die Laborregeln.">
+          <rect width="480" height="300" fill="#eef4f8"/>
+          <rect x="0" y="262" width="480" height="38" fill="#d9c9a8"/>
+          <!-- Schüler links: lange Haare offen, keine Schutzbrille -->
+          <rect x="62" y="136" width="68" height="58" rx="16" fill="#e0453a"/>
+          <circle cx="96" cy="96" r="27" fill="#5a3a22"/>
+          <rect x="66" y="94" width="14" height="60" rx="7" fill="#5a3a22"/>
+          <rect x="112" y="94" width="14" height="60" rx="7" fill="#5a3a22"/>
+          <circle cx="96" cy="100" r="21" fill="#f2c9a0"/>
+          <path d="M75 94c4-17 38-17 42 0c-10-7-32-7-42 0z" fill="#5a3a22"/>
+          <circle cx="89" cy="103" r="2.8" fill="#15212b"/><circle cx="103" cy="103" r="2.8" fill="#15212b"/>
+          <path d="M90 112q6 5 12 0" fill="none" stroke="#15212b" stroke-width="2" stroke-linecap="round"/>
+          <!-- Schüler rechts: Haare zusammengebunden, Schutzbrille -->
+          <rect x="380" y="136" width="68" height="58" rx="16" fill="#2f6fdb"/>
+          <circle cx="414" cy="100" r="21" fill="#f2c9a0"/>
+          <path d="M393 96c2-18 40-18 42 0c-10-8-32-8-42 0z" fill="#3a2a1a"/>
+          <circle cx="414" cy="76" r="9" fill="#3a2a1a"/>
+          <rect x="393" y="95" width="42" height="14" rx="6" fill="#bfe1f7" fill-opacity=".75" stroke="#15212b" stroke-width="2.5"/>
+          <path d="M414 112q5 4 10 0" fill="none" stroke="#15212b" stroke-width="2" stroke-linecap="round"/>
+          <!-- Labortisch -->
+          <rect x="16" y="186" width="448" height="14" rx="3" fill="#6b7f8f"/>
+          <rect x="34" y="200" width="14" height="62" fill="#566674"/><rect x="432" y="200" width="14" height="62" fill="#566674"/>
+          <rect x="48" y="228" width="384" height="8" fill="#566674" opacity=".45"/>
+          <!-- Brenner mit Flamme -->
+          <rect x="140" y="178" width="26" height="8" rx="3" fill="#4a5560"/><rect x="149" y="156" width="8" height="24" fill="#8a97a3"/>
+          <path d="M153 156c-6-7-5-16 0-25c5 9 6 18 0 25z" fill="#5aa9ff"/><path d="M153 156c-3-4-2-9 0-13c2 4 3 9 0 13z" fill="#2f6fdb"/>
+          <!-- Jacke neben der Flamme -->
+          <path d="M178 186c-2-18 8-28 22-28s26 10 24 28z" fill="#8a5a2b"/><path d="M200 160v26" stroke="#c79a5c" stroke-width="2.5" stroke-linecap="round"/><path d="M193 160l7 8 7-8" fill="none" stroke="#c79a5c" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M180 186c-8-2-15-9-17-18" stroke="#8a5a2b" stroke-width="9" stroke-linecap="round" fill="none"/>
+          <!-- Flasche ohne Etikett -->
+          <rect x="256" y="152" width="24" height="34" rx="5" fill="#cfe9f7" stroke="#6aa6c8" stroke-width="2"/><rect x="263" y="141" width="10" height="13" fill="#cfe9f7" stroke="#6aa6c8" stroke-width="2"/><rect x="261" y="137" width="14" height="6" rx="2" fill="#566674"/><rect x="258" y="166" width="20" height="18" fill="#7fc6e8"/>
+          <!-- Flasche mit Etikett -->
+          <rect x="294" y="152" width="24" height="34" rx="5" fill="#cfe9f7" stroke="#6aa6c8" stroke-width="2"/><rect x="301" y="141" width="10" height="13" fill="#cfe9f7" stroke="#6aa6c8" stroke-width="2"/><rect x="299" y="137" width="14" height="6" rx="2" fill="#566674"/><rect x="296" y="166" width="20" height="18" fill="#7fc6e8"/>
+          <rect x="296" y="160" width="20" height="20" fill="#fff" stroke="#8a97a3" stroke-width="1.5"/><path d="M306 162l6 8-6 8-6-8z" fill="none" stroke="#d9291c" stroke-width="2"/>
+          <!-- Becher mit Strohhalm -->
+          <path d="M338 186l4-34h22l4 34z" fill="#fff" stroke="#8a97a3" stroke-width="2"/><rect x="340" y="166" width="24" height="8" fill="#e0453a"/><path d="M356 152l10-20" stroke="#e0453a" stroke-width="4" stroke-linecap="round"/>
+          <!-- Rucksack im Gang -->
+          <rect x="226" y="230" width="58" height="40" rx="14" fill="#2f8f6d"/><rect x="238" y="250" width="34" height="14" rx="5" fill="#25785b"/><path d="M243 230c0-12 24-12 24 0" fill="none" stroke="#25785b" stroke-width="5"/>
+        </svg>
+      </div>
+      <div class="sim-ctrl"><span class="hs-count chip" id="laborZahl">0 von 6 entdeckt</span><span class="hint" style="margin:0">Tippe auf die Zahlen im Bild.</span></div>
+    </div>
+    <div class="card reveal hs-info" id="laborInfo">
+      <div class="big">⚠️</div><h3 style="margin:.3em 0 .2em">Fehler im Labor</h3>
+      <p class="lead" style="margin:0">Im Labor gibt es Flammen, heiße Geräte und Stoffe, die gefährlich sein können. Mit ein paar Regeln arbeitest du sicher. Hier haben sich sechs Fehler eingeschlichen. Findest du alle?</p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag leicht">Zeichen-Quiz · leicht</span>
+      <h3 style="margin-top:4px">Gefahrenzeichen erkennen</h3>
+      <p>Auf <button class="term" data-t="gefahrstoff">Gefahrstoffen</button> klebt ein Zeichen: eine <strong>rote Raute</strong> mit einem schwarzen Bild. Das Bild sagt, wovor der Stoff warnt.</p>
+      <div class="schild-buehne">
+        <svg viewBox="0 0 120 120" role="img" aria-label="Gefahrenzeichen" id="zeichenBild"><use id="zeichenUse" href="#zEntz"/></svg>
+        <div><p class="hint" id="zeichenFrage" style="margin:0 0 6px">Was bedeutet dieses Zeichen?</p><div class="wahl" id="zeichenWahl"></div></div>
+      </div>
+      <div class="fb" id="zeichenFb"></div>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag mittel">Reihenfolge · mittel</span>
+      <h3 style="margin-top:4px">Den Gasbrenner sicher anzünden</h3>
+      <p>Der <button class="term" data-t="gasbrenner">Gasbrenner</button> liefert eine heiße Flamme zum Erhitzen. Bringe die Schritte in die richtige Reihenfolge. Die Sicherheit kommt immer zuerst.</p>
+      <p class="hint">Verschiebe die Schritte mit ▲ und ▼. Dann tippe auf „Prüfen“.</p>
+      <div id="orderBrenner"></div>
+      <p class="hint" style="margin-top:10px">Bei anderen Brennern kann die Reihenfolge leicht abweichen. Es gilt immer die Anweisung deiner Lehrkraft. Nach dem Ausschalten bleibt der Brenner noch lange heiß: nicht anfassen!</p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="sim reveal" id="brennerSim">
+      <svg viewBox="0 0 360 320" role="img" aria-label="Gasbrenner mit Brennerrohr, Luftzufuhr und Gasschlauch. Über dem Rohr brennt eine gelbe oder eine blaue Flamme, je nachdem, wie weit die Luftzufuhr geöffnet ist.">
+        <defs>
+          <linearGradient id="gGelb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe680"/><stop offset="1" stop-color="#f2992e"/></linearGradient>
+        </defs>
+        <rect width="360" height="320" fill="#f7fbfe"/>
+        <rect x="0" y="298" width="360" height="22" fill="#d9c9a8"/>
+        <g transform="translate(0 20)">
+          <g id="brGelb" style="transform-box:fill-box;transform-origin:50% 100%">
+            <g class="fl"><path d="M150 114C122 98 126 52 150 8C174 52 178 98 150 114Z" fill="url(#gGelb)"/><path d="M150 112C138 102 140 80 150 54C160 80 162 102 150 112Z" fill="#fff3b0" opacity=".7"/></g>
+            <g id="brRuss" fill="#5b6168" opacity=".5"><circle cx="146" cy="2" r="3.6"/><circle cx="156" cy="-5" r="2.8"/><circle cx="150" cy="-11" r="2.2"/></g>
+          </g>
+          <g style="transform-box:fill-box;transform-origin:50% 100%">
+            <g class="fl"><path id="brBlauA" opacity="0" d="M150 114C136 102 138 78 150 44C162 78 164 102 150 114Z" fill="#7fbdff"/><path id="brBlauK" opacity="0" d="M150 114C144 106 146 92 150 78C154 92 156 106 150 114Z" fill="#2f6fdb"/></g>
+          </g>
+          <g id="brRauschen" opacity="0" stroke="#2f6fdb" fill="none" stroke-width="2.5" stroke-linecap="round"><path d="M118 84q-8 14 0 28"/><path d="M108 76q-12 20 0 40"/><path d="M182 84q8 14 0 28"/><path d="M192 76q12 20 0 40"/></g>
+          <!-- Brenner -->
+          <path d="M96 278h108l-12-22H108z" fill="#4a5560"/>
+          <rect x="134" y="118" width="32" height="140" rx="3" fill="#aab4bd" stroke="#6b7782" stroke-width="2"/>
+          <rect x="130" y="112" width="40" height="10" rx="3" fill="#8a97a3" stroke="#6b7782" stroke-width="2"/>
+          <rect x="128" y="226" width="44" height="26" rx="4" fill="#566674"/>
+          <ellipse id="brLoch1" cx="141" cy="239" rx="1.5" ry="7" fill="#15212b"/><ellipse id="brLoch2" cx="159" cy="239" rx="1.5" ry="7" fill="#15212b"/>
+          <path d="M204 268H262Q300 268 300 232V190" fill="none" stroke="#3d8f6c" stroke-width="9" stroke-linecap="round"/>
+          <path d="M236 262l-9 6 9 6" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <!-- Beschriftungen -->
+        <g font-size="12" font-weight="700" fill="#15212b">
+          <text x="206" y="174">Brennerrohr</text><line x1="168" y1="170" x2="202" y2="170" stroke="#566674" stroke-width="1.5"/>
+          <text x="10" y="253">Luftzufuhr</text><text x="10" y="267">(Regler)</text><line x1="74" y1="259" x2="126" y2="259" stroke="#566674" stroke-width="1.5"/>
+          <text x="228" y="276" fill="#2c6e53">Gas</text>
+        </g>
+      </svg>
+      <div class="sim-ctrl"><label for="luft">Luftzufuhr</label><input type="range" id="luft" min="0" max="100" value="0" aria-label="Luftzufuhr am Brenner"><span class="chip" id="luftChip">zu: leuchtende Flamme</span></div>
+      <p class="obs" id="luftObs">Schiebe den Regler und beobachte die Flamme.</p>
+    </div>
+    <div class="card reveal">
+      <h3 style="margin-top:0">Zwei Flammen, zwei Aufgaben</h3>
+      <p>Die Flamme ändert sich, wenn du die Luftzufuhr öffnest. Es gibt zwei Arten:</p>
+      <ul>
+        <li>Die <button class="term" data-t="leuchtend">leuchtende Flamme</button>: gelb, gut zu sehen, rußt, weniger heiß. Luftzufuhr <strong>zu</strong>.</li>
+        <li>Die <button class="term" data-t="rauschend">rauschende Flamme</button>: blau, heißer, rauscht, kaum zu sehen. Luftzufuhr <strong>offen</strong>.</li>
+      </ul>
+      <p>Wenn du den Brenner gerade nicht brauchst, stellst du ihn auf die leuchtende Flamme. So sieht jeder, dass er noch brennt.</p>
+      <p class="hint">Beim Erhitzen im Reagenzglas: höchstens zu einem Drittel füllen, mit dem Halter festhalten und die Öffnung von allen wegdrehen.</p>
+      <div id="mc-s4"></div>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <div class="merke" style="margin:0"><h4>MERKE</h4><ul>
+      <li>Im Labor: Schutzbrille tragen, lange Haare zusammenbinden, nicht essen und trinken, Tisch und Gang frei halten, erst lesen, dann handeln.</li>
+      <li>Rote Raute mit Bild = Warnung vor einem Gefahrstoff: Flamme (entzündbar), Flamme über Kreis (brandfördernd), Totenkopf (giftig), Ätzwirkung (ätzend), Ausrufezeichen (reizend), Umwelt (umweltgefährlich).</li>
+      <li>Gasbrenner: leuchtende Flamme = gelb, kühler, gut sichtbar. Rauschende Flamme = blau, heißer, schlecht sichtbar.</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Probenstoff</div><h2>Modelle: Was zeigen sie – und was nicht?</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Manches kann man nicht direkt ansehen: Luftteilchen sind viel zu klein, die Erde ist viel zu groß. Dann hilft ein <button class="term" data-t="modell">Modell</button>.</p>
+    <div class="info-karten">
+      <div class="info-karte"><div class="big">🌍</div><h4>Globus</h4><p>Verkleinertes Modell der Erde. Er zeigt die Form und die Lage der Kontinente.</p></div>
+      <div class="info-karte"><div class="big">🔵</div><h4>Teilchenmodell</h4><p>Luft als viele kleine Kugeln, die durcheinanderfliegen.</p></div>
+      <div class="info-karte"><div class="big">🎈</div><h4>Atmungsmodell</h4><p>Glasglocke, zwei Luftballons und eine Gummihaut: Zieht man die Haut nach unten, strömt Luft in die Ballons.</p></div>
+    </div>
+    <p>Ein Modell ist <strong>nie</strong> die ganze Wirklichkeit. Es lässt Unwichtiges weg, damit man das Wesentliche besser versteht.</p>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="sim reveal" id="teilchenSim">
+      <svg viewBox="0 0 460 246" role="img" aria-label="Spritze mit eingeschlossener Luft im Teilchenmodell: kleine blaue und rote Kugeln fliegen durcheinander. Der Kolben lässt sich hineindrücken.">
+        <rect width="460" height="246" fill="#f7fbfe"/>
+        <rect x="6" y="92" width="8" height="24" rx="2" fill="#566674"/><rect x="12" y="96" width="20" height="16" fill="#8a97a3"/>
+        <rect x="32" y="39" width="218" height="130" fill="#f2f8fd"/>
+        <rect id="tLuft" x="36" y="42" width="208" height="124" fill="#dcecf8"/>
+        <g id="tTeilchen"></g>
+        <path d="M250 36H36a6 6 0 0 0-6 6V166a6 6 0 0 0 6 6H250" fill="none" stroke="#566674" stroke-width="3"/>
+        <rect x="248" y="28" width="7" height="152" rx="2" fill="#8a97a3"/>
+        <g id="tKolben" transform="translate(244 0)"><rect x="-10" y="42" width="10" height="124" rx="2" fill="#566674"/><rect x="0" y="98" width="126" height="12" fill="#8a97a3"/><rect x="126" y="66" width="12" height="76" rx="4" fill="#566674"/></g>
+        <g stroke="#176b62" stroke-width="3" stroke-linecap="round"><line id="tMass" x1="36" y1="194" x2="244" y2="194"/><line id="tMassL" x1="36" y1="188" x2="36" y2="200"/><line id="tMassR" x1="244" y1="188" x2="244" y2="200"/></g>
+        <text id="tMassT" x="140" y="217" text-anchor="middle" font-size="13" font-weight="800" fill="#176b62">Luftraum</text>
+        <circle cx="42" cy="236" r="5.5" fill="#2f6fdb"/><text x="53" y="240" font-size="12" font-weight="700" fill="#15212b">Stickstoff-Teilchen</text>
+        <circle cx="206" cy="236" r="5.5" fill="#e0453a"/><text x="217" y="240" font-size="12" font-weight="700" fill="#15212b">Sauerstoff-Teilchen</text>
+      </svg>
+      <div class="sim-ctrl"><label for="kolben">Kolben</label><input type="range" id="kolben" min="0" max="100" value="0" aria-label="Kolben der Spritze hineindrücken"><span class="chip" id="kolbenChip">Luftraum: 100 %</span></div>
+      <p class="obs" id="kolbenObs">Schiebe den Regler und drücke den Kolben hinein. Beobachte die Teilchen.</p>
+    </div>
+    <div class="card reveal">
+      <h3 style="margin-top:0">Luft in der Spritze</h3>
+      <p><strong>Beobachtung:</strong> Hält man die Spritze zu, lässt sich die Luft zusammendrücken. Das <button class="term" data-t="teilchenmodell">Teilchenmodell</button> erklärt das: Zwischen den Teilchen ist viel leerer Raum. Beim Drücken rücken sie näher zusammen. Es sind nicht weniger geworden, und sie sind auch nicht kleiner.</p>
+      <div class="grid2" style="gap:10px;margin:12px 0">
+        <div class="info-karte"><h4 style="margin-top:0">✅ Das zeigt das Modell</h4><p>Luft besteht aus Teilchen, die sich bewegen. Dazwischen ist viel Platz.</p></div>
+        <div class="info-karte"><h4 style="margin-top:0">⚠️ Das zeigt es nicht</h4><p>Es sind nur 19 Teilchen. In Wirklichkeit sind es unvorstellbar viele, und sie haben keine Farbe.</p></div>
+      </div>
+      <div id="mc-s5"></div>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag mittel">Zuordnen · mittel</span>
+    <h3 style="margin-top:4px">Stimmt das mit der Wirklichkeit überein?</h3>
+    <p>Wenn du ein Modell benutzt, fragst du immer: Was stimmt, und was ist anders? Ordne zu.</p>
+    <p class="hint">Tippe zuerst auf eine Karte, dann auf das passende Fach.</p>
+    <div id="sortModell"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="s6">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Probenstoff · so wird in der Probe gefragt</div><h2>Training für die Probe</h2></div></div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Lückentext · leicht</span>
+    <h3 style="margin-top:4px">Setze die fehlenden Wörter ein</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapTrain"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Paare finden · leicht</span>
+    <h3 style="margin-top:4px">Welches Gerät hat welche Aufgabe?</h3>
+    <p class="hint">Tippe links auf ein Gerät und dann rechts auf seine Aufgabe.</p>
+    <div id="paareGeraete"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Richtig oder falsch? · mittel</span>
+    <h3 style="margin-top:4px">Aussagen zum Forschen und Experimentieren</h3>
+    <div id="tf"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Kreuzworträtsel · mittel</span>
+    <h3 style="margin-top:4px">Rund ums Forschen</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Schreibe ä als AE, ö als OE, ü als UE.</p>
+    <div id="cw"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Ankreuzen · mittel</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Offene Fragen · schwer</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung. Danach kannst du die Musterlösung ansehen.</p>
+    <div id="open"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Rechne und begründe <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="openM"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 7 ============ -->
+<section class="station" id="s7">
+  <div class="st-head reveal"><div class="st-num">7</div><div><div class="eyebrow">Abschluss</div><h2>Forscher-Profi-Check</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Du kannst jetzt Vermutungen aufstellen, faire Versuche planen, Ergebnisse festhalten und sicher arbeiten. Das brauchst du in jedem Themenbereich. Im nächsten Themenbereich „Atome und Materie“ arbeitest du mit Modellen: den Atommodellen. Frage dich dort immer: Was zeigt das Modell – und was nicht?</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik 7 · Lernmodul „Forschen wie die Profis“ · Dein Fortschritt wird auf diesem Gerät gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="modul-basis.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, esc, shuffle, clamp, setText, fmt, reduced, register, solve, onVisible} = Modul;
+
+Modul.init({
+  key: "grumi-nt7-forschen-v1",
+  hero: "funken",
+  thema: "Naturwissenschaftliches Arbeiten: Erkenntnisweg (Beobachtung, Frage, Hypothese, Versuch, Auswertung), fairer Versuch am Beispiel Kerze unter Gläsern verschiedener Größe, Beobachtung und Deutung, Versuchsprotokoll, Tabellen und Diagramme, Mittelwert, Laborregeln, Gefahrenzeichen, Gasbrenner, Möglichkeiten und Grenzen von Modellen",
+  glossary: {
+    hypothese: ["Hypothese (Vermutung)", "Eine begründete Vermutung, die man mit einem Versuch oder mit Beobachtungen überprüfen kann. Sie darf sich auch als falsch herausstellen."],
+    experiment: ["Experiment (Versuch)", "Ein geplanter Test, mit dem man eine Vermutung überprüft. Man ändert etwas, beobachtet und misst."],
+    beobachtung: ["Beobachtung", "Das, was du mit den Sinnen oder mit einem Messgerät feststellst – ohne Erklärung. Zum Beispiel: Die Flamme wird kleiner."],
+    deutung: ["Deutung (Erklärung)", "Das, was du dir aus einer Beobachtung erklärst. Zum Beispiel: Der Sauerstoff wird knapp. Eine Deutung kann man nicht sehen, man denkt sie."],
+    bewertung: ["Bewertung", "Eine Aussage mit einem Urteil oder einer Meinung, zum Beispiel „Der Versuch war toll“. Sie sagt nichts darüber, was passiert ist."],
+    fair: ["fairer Versuch", "Ein Versuch, bei dem man nur eine Sache verändert und alles andere gleich lässt. Nur dann weiß man, woran ein Ergebnis liegt."],
+    messwert: ["Messwert", "Eine Zahl mit Einheit, die man mit einem Messgerät abliest, zum Beispiel 15 s oder 250 ml."],
+    protokoll: ["Versuchsprotokoll", "Schriftlicher Bericht über einen Versuch: Frage, Vermutung, Material, Durchführung, Beobachtung, Auswertung."],
+    auswertung: ["Auswertung", "Der Teil, in dem man die Ergebnisse vergleicht und entscheidet, ob die Vermutung stimmt. Hier steht auch die Deutung."],
+    mittelwert: ["Mittelwert", "Alle Messwerte zusammenzählen und durch ihre Anzahl teilen. Beispiel: (14 s + 16 s + 15 s) : 3 = 15 s."],
+    ausreisser: ["Ausreißer", "Ein Messwert, der viel stärker von den anderen abweicht. Oft steckt ein Fehler beim Messen dahinter."],
+    diagramm: ["Diagramm", "Zeichnung, die Zahlen übersichtlich zeigt. Ein Säulendiagramm vergleicht einzelne Werte, ein Liniendiagramm zeigt eine Entwicklung über die Zeit."],
+    modell: ["Modell", "Eine vereinfachte Darstellung der Wirklichkeit. Sie lässt Unwichtiges weg, damit man etwas besser verstehen kann."],
+    teilchenmodell: ["Teilchenmodell", "Modell, in dem ein Stoff aus winzigen Teilchen besteht, die man sich als Kugeln vorstellt. Bei Luft fliegen sie durcheinander und haben viel Platz."],
+    gefahrstoff: ["Gefahrstoff", "Ein Stoff, der Menschen oder die Umwelt gefährden kann, zum Beispiel weil er brennt, giftig oder ätzend ist. Er trägt ein Gefahrenzeichen."],
+    gasbrenner: ["Gasbrenner", "Laborgerät, das Gas verbrennt und eine Flamme zum Erhitzen liefert, zum Beispiel der Bunsenbrenner."],
+    leuchtend: ["leuchtende Flamme", "Gelbe, gut sichtbare Flamme des Gasbrenners bei geschlossener Luftzufuhr. Sie rußt und ist weniger heiß."],
+    rauschend: ["rauschende Flamme", "Blaue, heißere Flamme des Gasbrenners bei geöffneter Luftzufuhr. Sie rauscht und ist schlecht zu sehen."]
+  }
+});
+
+/* ---------- Zeichenhilfen: Glas und Kerze als eigene SVG-Zeichnungen ---------- */
+const glasD = (w, h) => `M${-w / 2} 0V${14 - h}Q${-w / 2} ${-h} ${14 - w / 2} ${-h}H${w / 2 - 14}Q${w / 2} ${-h} ${w / 2} ${14 - h}V0Z`;
+const glasG = (x, y, w, h, text) => `<g transform="translate(${x} ${y})"><path d="${glasD(w, h)}" fill="rgba(150,205,240,.32)" stroke="#5b9cc2" stroke-width="3" stroke-linejoin="round"/><path d="M${-w / 2 + 9} ${24 - h}V${-h / 2}" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".85"/>${text ? `<text y="${22 - h}" text-anchor="middle" font-size="13" font-weight="800" fill="#2b6d96">${text}</text>` : ""}</g>`;
+const kerzeG = (x, y, flamme, s) => `<g transform="translate(${x} ${y}) scale(${s || 1})"><path d="M-22 0l4-16h36l4 16z" fill="#c9d1d8" stroke="#8a97a3" stroke-width="2"/><rect x="-18" y="-20" width="36" height="5" rx="2" fill="#f6efd8"/><line x1="0" y1="-20" x2="0" y2="-27" stroke="#3a2f26" stroke-width="2.5" stroke-linecap="round"/>${flamme ? '<g transform="translate(0 -46)"><g class="fl"><use href="#zFlammeF" transform="scale(1.15)" fill="#f2992e"/><use href="#zFlammeF" transform="translate(0 4) scale(.62)" fill="#ffd34d"/></g></g>' : ""}</g>`;
+const laufen = el => onVisible(el, v => el.classList.toggle("laeuft", v));
+
+/* ---------- Diagramme: Säulen und Linien als eigene SVG-Zeichnungen ---------- */
+function achsen(o){
+  const W = 440, H = 250, L = 54, R = 14, T = 24, B = 48, pw = W - L - R, ph = H - T - B;
+  let s = "";
+  for (let v = 0; v <= o.max; v += o.step) {
+    const y = T + ph - v / o.max * ph;
+    s += `<line x1="${L}" y1="${y.toFixed(1)}" x2="${W - R}" y2="${y.toFixed(1)}" stroke="${v ? "#e0e8ee" : "#566674"}" stroke-width="${v ? 1 : 2}"/><text x="${L - 8}" y="${(y + 5).toFixed(1)}" text-anchor="end" font-size="14" fill="#566674">${v}</text>`;
+  }
+  s += `<line x1="${L}" y1="${T}" x2="${L}" y2="${T + ph}" stroke="#566674" stroke-width="2"/><text transform="translate(14 ${T + ph / 2}) rotate(-90)" text-anchor="middle" font-size="13" font-weight="700" fill="#566674">${o.yl}</text>`;
+  if (o.xl) s += `<text x="${L + pw / 2}" y="${H - 6}" text-anchor="middle" font-size="13" font-weight="700" fill="#566674">${o.xl}</text>`;
+  return {s, L, T, pw, ph};
+}
+function saeulen(o){
+  const a = achsen(o), gap = a.pw / o.x.length, bw = Math.min(64, gap * .62);
+  let s = a.s;
+  o.x.forEach((lab, i) => {
+    const cx = a.L + gap * (i + .5), v = o.y[i];
+    if (v == null) {
+      s += `<rect x="${(cx - bw / 2).toFixed(1)}" y="${a.T + a.ph - 26}" width="${bw.toFixed(1)}" height="26" rx="4" fill="none" stroke="#9fb2c1" stroke-width="2" stroke-dasharray="5 4"/><text x="${cx.toFixed(1)}" y="${a.T + a.ph - 8}" text-anchor="middle" font-size="14" font-weight="800" fill="#9fb2c1">?</text>`;
+    } else {
+      const h = v / o.max * a.ph;
+      s += `<rect x="${(cx - bw / 2).toFixed(1)}" y="${(a.T + a.ph - h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="3" fill="${(o.farben && o.farben[i]) || "#0d77c2"}"/>`;
+      if (!o.ohneWerte) s += `<text x="${cx.toFixed(1)}" y="${(a.T + a.ph - h - 6).toFixed(1)}" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">${String(v).replace(".", ",")}</text>`;
+    }
+    s += `<text x="${cx.toFixed(1)}" y="${a.T + a.ph + 19}" text-anchor="middle" font-size="14" font-weight="700" fill="#15212b">${o.x[i]}</text>`;
+  });
+  return s;
+}
+function linie(o){
+  const a = achsen(o), gap = a.pw / o.x.length, pts = [];
+  let s = a.s;
+  o.x.forEach((lab, i) => {
+    const cx = a.L + gap * (i + .5), cy = a.T + a.ph - o.y[i] / o.max * a.ph;
+    pts.push([cx.toFixed(1), cy.toFixed(1)]);
+    s += `<text x="${cx.toFixed(1)}" y="${a.T + a.ph + 19}" text-anchor="middle" font-size="14" font-weight="700" fill="#15212b">${lab}</text>`;
+  });
+  s += `<polyline points="${pts.map(p => p.join(",")).join(" ")}" fill="none" stroke="#e0453a" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  pts.forEach(p => { s += `<circle cx="${p[0]}" cy="${p[1]}" r="5" fill="#fff" stroke="#e0453a" stroke-width="3"/>`; });
+  return s;
+}
+const svgDia = (inner, text) => `<svg viewBox="0 0 440 250" role="img" aria-label="${esc(text)}">${inner}</svg>`;
+
+/* ---------- Daten für die Aufgaben ---------- */
+const DATEN5 = {x: ["100 ml", "250 ml", "500 ml", "750 ml", "1000 ml"], y: [5, 10, 20, 25, 35]};
+const diaLesen = `<div class="bild">${svgDia(saeulen({x: DATEN5.x, y: DATEN5.y, max: 40, step: 5, yl: "Brenndauer in s", xl: "Größe des Glases", ohneWerte: true}), "Säulendiagramm: Brenndauer einer Kerze unter fünf verschieden großen Gläsern. Die Säulen werden von links nach rechts höher.")}</div>`;
+const tabLesen = `<table class="mtab" style="margin:8px 0;max-width:340px"><thead><tr><th>Glas</th><th>Brenndauer</th></tr></thead><tbody>${DATEN5.x.map((x, i) => `<tr><td>${x}</td><td>${DATEN5.y[i]} s</td></tr>`).join("")}</tbody></table>`;
+const diaAusreisser = `<div class="bild">${svgDia(saeulen({x: ["1", "2", "3", "4", "5"], y: [15, 14, 16, 15, 29], max: 35, step: 5, yl: "Brenndauer in s", xl: "Messung Nr.", farben: ["#0d77c2", "#0d77c2", "#0d77c2", "#0d77c2", "#e0453a"]}), "Säulendiagramm: fünf Messungen mit demselben Glas. Vier Werte liegen bei etwa 15 Sekunden, der fünfte bei 29 Sekunden.")}</div>`;
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Wie findest du heraus, wer recht hat?", o: ["Wir probieren es mit einem Versuch aus und messen.", "Wir stimmen in der Klasse ab.", "Wir glauben dem, der am lautesten spricht.", "Wir nehmen die Antwort, die uns besser gefällt."], a: 0, e: "Eine Behauptung wird nicht wahr, nur weil viele sie glauben. In den Naturwissenschaften entscheidet der Versuch."}
+  ],
+  s1b: [
+    {q: "Was ist eine Hypothese?", o: ["Eine begründete Vermutung, die man überprüfen kann.", "Ein Ergebnis, das schon sicher feststeht.", "Ein Gerät, das man im Labor benutzt.", "Eine Meinung, die man nicht überprüfen kann."], a: 0, e: "Eine Hypothese sagt voraus, was bei einem Versuch passiert. Sie darf sich auch als falsch herausstellen – dann stellst du eine neue auf."}
+  ],
+  s2: [
+    {q: "Warum nimmst du bei allen drei Gläsern dieselbe Kerze?", o: ["Damit nur die Glasgröße anders ist und nicht noch eine zweite Sache.", "Damit die Kerze länger hält.", "Weil man nur eine Kerze hat.", "Damit das Glas schwerer wird."], a: 0, e: "Würdest du auch die Kerze wechseln, wüsstest du am Ende nicht, ob Kerze oder Glas das Ergebnis verursacht hat."},
+    {q: "Welche Aussage passt zu deinen Messwerten (8 s, 15 s und 31 s)?", o: ["Je größer das Glas, desto länger brennt die Kerze.", "Je größer das Glas, desto kürzer brennt die Kerze.", "Die Größe des Glases ist egal.", "Die Kerze brennt immer gleich lang."], a: 0, e: "Mit dem Glas wächst die Brenndauer. Deine Vermutung ist bestätigt. Die Deutung: Im größeren Glas ist mehr Luft und damit mehr Sauerstoff."}
+  ],
+  s3: [
+    {q: "Wie lange brannte die Kerze unter dem 750-ml-Glas?", h: diaLesen, o: ["25 s", "20 s", "35 s", "750 s"], a: 0, e: "Die Säule über „750 ml“ reicht bis zur Linie bei 25 s. Die Zahl unter der Säule (750 ml) ist die Größe des Glases, nicht die Zeit."},
+    {q: "Die Tabelle zeigt dieselben Werte wie das Diagramm. Um wie viele Sekunden brannte die Kerze unter dem 1000-ml-Glas länger als unter dem 250-ml-Glas?", h: tabLesen, o: ["25 s", "10 s", "35 s", "45 s"], a: 0, e: "35 s − 10 s = 25 s. Du rechnest mit den Zeiten, nicht mit den Glasgrößen."}
+  ],
+  s4: [
+    {q: "Welche Flamme des Gasbrenners ist heißer?", o: ["die blaue, rauschende Flamme", "die gelbe, leuchtende Flamme", "beide gleich heiß", "keine, ein Brenner wird nicht heiß"], a: 0, e: "Bei geöffneter Luftzufuhr verbrennt das Gas besser. Die Flamme ist blau, rauscht und ist heißer. Die gelbe Flamme rußt und ist kühler."},
+    {q: "Wann stellst du den Gasbrenner auf die leuchtende Flamme?", o: ["Wenn ich ihn gerade nicht brauche – so sieht man ihn gut.", "Wenn das Wasser möglichst schnell kochen soll.", "Nie, sie ist verboten.", "Wenn ich nichts sehen will."], a: 0, e: "Die gelbe Flamme ist kühler, aber gut zu sehen. Die blaue Flamme erkennt man im hellen Raum kaum. Deshalb wartet der Brenner auf die gelbe „Sicherheitsflamme“."}
+  ],
+  s5: [
+    {q: "Warum sind im Teilchenmodell nur 19 Kugeln gezeichnet?", o: ["Weil es in Wirklichkeit viel zu viele Teilchen wären, um sie alle zu zeichnen.", "Weil Luft wirklich nur aus 19 Teilchen besteht.", "Weil Kugeln leichter zu zeichnen sind als Quadrate.", "Weil Luft leer ist."], a: 0, e: "In einem Fingerhut voll Luft stecken unvorstellbar viele Teilchen. Ein Modell vereinfacht, damit man das Wichtige erkennt."}
+  ],
+  train: [
+    {q: "Du prüfst, ob sich Zucker in warmem Wasser schneller löst als in kaltem. Was änderst du in den beiden Gläsern?", o: ["nur die Temperatur des Wassers", "die Temperatur und die Zuckermenge", "nur die Zuckermenge", "Nichts, man schaut nur zu."], a: 0, e: "Fair ist der Versuch, wenn nur eine Sache anders ist: die Temperatur. Wassermenge, Zuckermenge und Rühren bleiben gleich."},
+    {q: "Welche Aussage ist eine Beobachtung?", o: ["Das Glas beschlägt von innen.", "Der Wasserdampf kühlt am Glas ab.", "Das ist ein spannender Versuch.", "Die Kerze braucht Sauerstoff."], a: 0, e: "Eine Beobachtung beschreibt, was man sieht. „Der Wasserdampf kühlt ab“ und „braucht Sauerstoff“ sind Erklärungen, „spannend“ ist eine Bewertung."},
+    {q: "Du liest die Wassermenge in einem Messzylinder ab. Wie gehst du richtig vor?", o: ["Messzylinder auf den Tisch stellen, mit den Augen auf Höhe des Wasserspiegels ablesen, am unteren Rand der Wölbung.", "Messzylinder hochheben und von oben ablesen.", "Schräg von oben auf den oberen Rand der Wölbung schauen.", "Den Wert schätzen."], a: 0, e: "Von oben oder unten gesehen verschiebt sich der Wert. Bei Wasser liest du auf Augenhöhe den tiefsten Punkt der gewölbten Oberfläche ab."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Was würdest du tun?"});
+Modul.makeMC($("#mc-s1b"), MC.s1b, "mc1b", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Werte ablesen", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s5"), MC.s5, "mc5", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Station 1: Bild zum Einstieg ---------- */
+$("#startBild").innerHTML = `<rect width="400" height="250" fill="#f7fbfe"/><rect x="0" y="216" width="400" height="34" fill="#d9c9a8"/><rect x="0" y="213" width="400" height="5" fill="#b79f74"/>
+  ${kerzeG(88, 216, true)}${glasG(88, 216, 90, 100)}${kerzeG(296, 216, true)}${glasG(296, 216, 143, 159)}
+  <text x="190" y="128" text-anchor="middle" font-size="70" font-weight="800" fill="#0d77c2">?</text>
+  <text x="88" y="240" text-anchor="middle" font-size="13" font-weight="700" fill="#6b5a3c">kleines Glas</text><text x="296" y="240" text-anchor="middle" font-size="13" font-weight="700" fill="#6b5a3c">großes Glas</text>`;
+laufen($("#startSim"));
+
+/* ---------- Station 1: Der Weg der Forscher (Animation in Schritten) ---------- */
+(function(){
+  const NAMEN = ["Beobachten", "Frage stellen", "Vermutung (Hypothese)", "Versuch planen", "Durchführen, beobachten", "Ergebnis festhalten", "Auswerten"];
+  let s = '<rect width="480" height="330" fill="#f7fbfe"/>';
+  s += '<g id="wegSchleife" style="opacity:.55;transition:opacity .4s"><path d="M34 291H16V115H30" fill="none" stroke="#e0453a" stroke-width="3" stroke-dasharray="6 5" stroke-linecap="round"/><path d="M28 109l9 6-9 6" fill="none" stroke="#e0453a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>';
+  s += '<text transform="translate(11 203) rotate(-90)" text-anchor="middle" font-size="11" font-weight="700" fill="#c0392b">Falsch? Neue Vermutung!</text></g>';
+  NAMEN.forEach((n, i) => {
+    const y = 10 + i * 44;
+    s += `<g class="knoten" data-i="${i}"><rect x="34" y="${y}" width="214" height="34" rx="10"/><circle cx="53" cy="${y + 17}" r="13"/><text class="nr" x="53" y="${y + 22}">${i + 1}</text><text class="nm" x="74" y="${y + 22}">${n}</text></g>`;
+    if (i < 6) s += `<path d="M135 ${y + 36}l6 6 6-6" stroke="#9fb2c1" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+  });
+  s += '<rect x="262" y="10" width="210" height="298" rx="14" fill="#fff" stroke="#d8e2ea" stroke-width="2"/>';
+  const tisch = '<line x1="278" y1="250" x2="456" y2="250" stroke="#b79f74" stroke-width="5" stroke-linecap="round"/>';
+  const txt = (y, t, f) => `<text x="367" y="${y}" text-anchor="middle" font-size="${f || 14}" font-weight="700" fill="#15212b">${t}</text>`;
+  s += '<g id="wegStart"><text x="367" y="150" text-anchor="middle" font-size="15" font-weight="700" fill="#566674">Tippe auf „Start“,</text><text x="367" y="172" text-anchor="middle" font-size="15" font-weight="700" fill="#566674">um den Weg zu sehen.</text></g>';
+  s += `<g class="szene">${tisch}${glasG(367, 250, 90, 100)}${kerzeG(367, 250, false)}<path d="M360 224q-8-10 0-20t0-18" fill="none" stroke="#9aa5ad" stroke-width="4" stroke-linecap="round"/><text x="367" y="104" text-anchor="middle" font-size="38">👀</text>${txt(284, "Die Flamme geht aus.")}</g>`;
+  s += `<g class="szene"><text x="367" y="190" text-anchor="middle" font-size="150" font-weight="800" fill="#0d77c2">?</text>${txt(240, "Hängt die Brenndauer")}${txt(260, "von der Glasgröße ab?")}</g>`;
+  s += `<g class="szene">${tisch}${glasG(322, 250, 62, 70)}${kerzeG(322, 250, true, .8)}${glasG(414, 250, 98, 110)}${kerzeG(414, 250, true, .8)}<text x="367" y="76" text-anchor="middle" font-size="36">💡</text>${txt(284, "Je größer, desto länger?")}</g>`;
+  s += `<g class="szene">${tisch}${glasG(293, 250, 46, 52)}${kerzeG(293, 250, true, .6)}${glasG(353, 250, 58, 64)}${kerzeG(353, 250, true, .6)}${glasG(426, 250, 72, 80)}${kerzeG(426, 250, true, .6)}${txt(120, "Nur das Glas ändert sich.", 14)}${txt(140, "Der Rest bleibt gleich.", 14)}${txt(284, "klein · mittel · groß")}</g>`;
+  s += `<g class="szene">${tisch}${glasG(334, 250, 86, 96)}${kerzeG(334, 250, true, .7)}<circle cx="426" cy="150" r="32" fill="#fff" stroke="#566674" stroke-width="4"/><rect x="419" y="108" width="14" height="9" rx="2" fill="#566674"/><path d="M426 150V130M426 150l14 8" stroke="#e0453a" stroke-width="3.5" stroke-linecap="round"/><circle cx="426" cy="150" r="3" fill="#566674"/>${txt(284, "Zeit stoppen")}</g>`;
+  s += `<g class="szene"><rect x="290" y="58" width="154" height="140" rx="8" fill="#fff" stroke="#566674" stroke-width="2.5"/><path d="M290 92H444M290 128H444M290 163H444M352 58V198" stroke="#566674" stroke-width="2"/><g font-size="14" font-weight="700" fill="#15212b" text-anchor="middle"><text x="321" y="81">Glas</text><text x="398" y="81">Zeit</text><text x="321" y="116">klein</text><text x="398" y="116">8 s</text><text x="321" y="151">mittel</text><text x="398" y="151">15 s</text><text x="321" y="186">groß</text><text x="398" y="186">31 s</text></g>${txt(238, "Beispielwerte", 12)}${txt(284, "Messwerte aufschreiben")}</g>`;
+  s += `<g class="szene"><line x1="288" y1="226" x2="446" y2="226" stroke="#566674" stroke-width="3"/><rect x="302" y="202" width="34" height="24" fill="#0d77c2"/><rect x="352" y="178" width="34" height="48" fill="#0d77c2"/><rect x="402" y="126" width="34" height="100" fill="#0d77c2"/><g font-size="12" font-weight="700" fill="#15212b" text-anchor="middle"><text x="319" y="242">klein</text><text x="369" y="242">mittel</text><text x="419" y="242">groß</text></g><text x="367" y="94" text-anchor="middle" font-size="46" font-weight="800" fill="#1b8a4b">✓</text>${txt(268, "Je größer, desto länger:", 13)}${txt(286, "Die Vermutung stimmt.", 13)}</g>`;
+  $("#wegSvg").innerHTML = s;
+  const K = $$("#wegSvg .knoten"), S = $$("#wegSvg .szene"), start = $("#wegStart"), schleife = $("#wegSchleife");
+  Modul.makeSchritte($("#wegSim"), {
+    steps: [
+      "<b>Beobachten:</b> Du stülpst ein Glas über eine brennende Kerze. Nach einigen Sekunden geht die Flamme aus.",
+      "<b>Frage stellen:</b> Hängt es von der Größe des Glases ab, wie lange die Kerze brennt?",
+      "<b>Vermutung (Hypothese):</b> Je größer das Glas, desto länger brennt die Kerze – denn im großen Glas ist mehr Luft.",
+      "<b>Versuch planen:</b> Drei Gläser: klein, mittel, groß. Nur die Größe ändert sich. Kerze, Ort und Uhr bleiben gleich.",
+      "<b>Durchführen und beobachten:</b> Glas über die Kerze stülpen und die Zeit stoppen, bis die Flamme erlischt.",
+      "<b>Ergebnis festhalten:</b> Die Zeiten kommen in eine Tabelle: klein 8 s, mittel 15 s, groß 31 s (Beispielwerte).",
+      "<b>Auswerten:</b> Je größer das Glas, desto länger brannte die Kerze. Die Vermutung stimmt. Stimmt sie nicht, stellst du eine neue auf und planst einen neuen Versuch."
+    ],
+    ms: 3600,
+    zeige(i){
+      K.forEach((k, j) => k.setAttribute("class", "knoten" + (j === i ? " an" : j < i ? " war" : "")));
+      S.forEach((g, j) => { g.style.opacity = j === i ? 1 : 0; });
+      start.style.opacity = i < 0 ? 1 : 0;
+      schleife.style.opacity = i === 6 ? 1 : .55;
+    }
+  }, "weg");
+  register("weg", "#wegSim", "Animation: Der Weg der Forscher am Beispiel Kerzenversuch");
+  laufen($("#wegSim"));
+})();
+
+Modul.makeOrder($("#orderWeg"), [
+  "Beobachten: Etwas fällt dir auf.",
+  "Eine Frage stellen",
+  "Eine Vermutung (Hypothese) aufstellen",
+  "Den Versuch planen",
+  "Den Versuch durchführen und beobachten",
+  "Die Ergebnisse festhalten",
+  "Auswerten: Stimmt die Vermutung?"
+], "orderWeg");
+
+/* ---------- Station 2: virtueller Versuch ---------- */
+(function(){
+  const id = "fair"; register(id, "#versuchSim", "Virtueller Versuch: Kerze unter drei verschieden großen Gläsern (fairer Test)");
+  const G = [{ml: 250, w: 90, h: 100, t: 8}, {ml: 500, w: 113, h: 126, t: 15}, {ml: 1000, w: 143, h: 159, t: 31}];
+  const TEXT = [
+    "Unter dem kleinen Glas ging die Flamme nach 8 s aus. Dort ist am wenigsten Luft.",
+    "Unter dem mittleren Glas dauerte es 15 s. Doppelt so viel Luft wie im kleinen Glas – fast doppelt so lange.",
+    "Unter dem großen Glas brannte die Kerze 31 s. Viermal so viel Luft wie im kleinen Glas – fast viermal so lange."
+  ];
+  const box = $("#versuchSim"), btns = $$("#glasCtrl button"), zahl = $("#uhrZahl"), utext = $("#uhrText"), obs = $("#versuchObs"), fb = $("#versuchFb");
+  const glas = $("#vGlas"), flamme = $("#vFlammeS"), rauch = $("#vRauch"), chartEl = $("#versuchChart");
+  const messt = [null, null, null], TAKT = 50, RAFFER = 6;
+  let laeuft = false, timer = null;
+  glas.innerHTML = G.map((g, k) => `<g class="glas"${k !== 1 ? ' style="display:none"' : ""}>${glasG(0, 0, g.w, g.h, g.ml + " ml")}</g>`).join("");
+  const gl = $$(".glas", glas);
+  const chart = () => { chartEl.innerHTML = saeulen({x: G.map(g => g.ml + " ml"), y: messt, max: 40, step: 10, yl: "Brenndauer in s", xl: "Größe des Glases"}); };
+  chart(); laufen(box);
+  function fertig(gi, b){
+    const g = G[gi];
+    zahl.textContent = fmt(g.t) + " s"; zahl.classList.add("fertig");
+    flamme.style.opacity = "0"; rauch.style.opacity = ".8";
+    messt[gi] = g.t;
+    const z = $("#mw" + gi); z.textContent = g.t + " s"; z.classList.remove("neu"); void z.offsetWidth; z.classList.add("neu");
+    chart();
+    setText(utext, `Gestoppt: ${g.t} s. Die Zeit steht jetzt in der Tabelle.`);
+    setText(obs, TEXT[gi] + (messt.every(v => v != null) ? " Du hast alle drei Gläser getestet." : " Teste jetzt ein anderes Glas."));
+    if (messt.every(v => v != null)) {
+      fb.className = "fb show ok";
+      fb.innerHTML = "✅ <strong>Auswertung:</strong> Je größer das Glas, desto länger brennt die Kerze. Deine Vermutung ist bestätigt. <strong>Deutung:</strong> Im großen Glas ist mehr Luft und damit mehr Sauerstoff. Es dauert länger, bis er knapp wird.";
+      solve(id);
+    }
+    laeuft = false; btns.forEach(x => { x.disabled = false; }); b.dataset.fertig = "1";
+  }
+  function lauf(gi, b){
+    const g = G[gi]; let t = 0;
+    setText(utext, "Die Uhr läuft … Wann geht die Flamme aus?");
+    if (reduced) { fertig(gi, b); return; }
+    timer = setInterval(() => {
+      t = Math.min(g.t, t + TAKT / 1000 * RAFFER);
+      zahl.textContent = fmt(t) + " s";
+      flamme.style.transform = `scale(${(1 - .62 * (t / g.t) * (t / g.t)).toFixed(2)})`;
+      if (t >= g.t) { clearInterval(timer); timer = null; fertig(gi, b); }
+    }, TAKT);
+  }
+  btns.forEach((b, gi) => b.addEventListener("click", () => {
+    if (laeuft) return;
+    laeuft = true; b.dataset.fertig = "0"; btns.forEach(x => { x.disabled = true; });
+    gl.forEach((el, k) => { el.style.display = k === gi ? "" : "none"; });
+    glas.style.transition = "none"; glas.style.transform = "translate(240px,176px)"; glas.style.opacity = "1";
+    flamme.style.transition = "none"; flamme.style.transform = "scale(1)"; flamme.style.opacity = "1"; rauch.style.opacity = "0";
+    void glas.getBoundingClientRect();
+    flamme.style.transition = "";
+    zahl.textContent = "0,0 s"; zahl.classList.remove("fertig");
+    setText(utext, `Das ${G[gi].ml}-ml-Glas wird über die brennende Kerze gestülpt …`);
+    setText(obs, "Die Flamme brennt noch. Gleich läuft die Uhr.");
+    glas.style.transition = reduced ? "none" : "transform .7s ease-in"; glas.style.transform = "translate(240px,286px)";
+    setTimeout(() => lauf(gi, b), reduced ? 30 : 820);
+  }));
+})();
+
+/* ---------- Station 2: fair oder unfair, Planen, Mittelwert ---------- */
+Modul.makeSort($("#sortFair"), {
+  buckets: ["fair: nur die Glasgröße ist anders", "unfair: noch etwas ist anders"],
+  items: [
+    {t: "Dieselbe Kerze, drei verschieden große Gläser", b: 0},
+    {t: "Das Glas wird immer sofort nach dem Anzünden aufgesetzt", b: 0},
+    {t: "Die Uhr startet immer, wenn das Glas auf dem Tisch steht", b: 0},
+    {t: "Dicke Kerze unter dem großen Glas, dünne Kerze unter dem kleinen", b: 1},
+    {t: "Ein Glas steht am offenen Fenster, die anderen im geschlossenen Raum", b: 1},
+    {t: "Das große Glas wird erst nach 10 Sekunden aufgesetzt", b: 1}
+  ], cols: 220,
+  done: "✅ Richtig! Fair ist ein Versuch nur, wenn sich genau eine Sache ändert. Sonst weißt du nicht, woran das Ergebnis liegt."
+}, "sortFair");
+
+Modul.plus(() => {
+  Modul.makeSort($("#sortPlan"), {
+    buckets: ["Das verändere ich", "Das messe ich", "Das lasse ich gleich"],
+    items: [
+      {t: "Anzahl der Kerzen (eine oder zwei)", b: 0},
+      {t: "Zeit, bis die Flammen erloschen sind", b: 1},
+      {t: "Größe und Art des Glases", b: 2},
+      {t: "Art und Größe der Kerzen", b: 2},
+      {t: "Ort im Raum", b: 2},
+      {t: "Zeitpunkt, an dem die Uhr startet", b: 2}
+    ], cols: 170,
+    done: "✅ Gut geplant! Verändert wird nur die Zahl der Kerzen, gemessen wird die Zeit, alles andere bleibt gleich. Eine passende Vermutung dazu: Zwei Flammen verbrauchen den Sauerstoff schneller, also gehen sie früher aus."
+  }, "sortPlan");
+  Modul.makeMC($("#mc-m1"), [
+    {q: "Beim 500-ml-Glas misst du dreimal: 14 s, 16 s und 15 s. Wie groß ist der Mittelwert?", o: ["15 s", "45 s", "16 s", "14 s"], a: 0, e: "Mittelwert = Summe : Anzahl der Messungen. (14 + 16 + 15) : 3 = 45 : 3 = 15 s."}
+  ], "mcm1", {t: "Rechne"});
+});
+
+/* ---------- Station 3: Beobachtung, Deutung, Bewertung; Protokoll ---------- */
+Modul.makeSort($("#sortBeob"), {
+  buckets: ["Beobachtung", "Deutung", "Bewertung"],
+  items: [
+    {t: "Die Flamme wird kleiner und geht aus.", b: 0},
+    {t: "Das Glas beschlägt von innen.", b: 0},
+    {t: "Unter dem großen Glas brennt die Kerze 31 s.", b: 0},
+    {t: "Der Sauerstoff wird knapp.", b: 1},
+    {t: "Im großen Glas ist mehr Sauerstoff.", b: 1},
+    {t: "Die Flamme braucht Sauerstoff zum Brennen.", b: 1},
+    {t: "Der Versuch war toll.", b: 2},
+    {t: "Kerzen im Zimmer sind gemütlich.", b: 2},
+    {t: "Das große Glas sieht schöner aus.", b: 2}
+  ], cols: 160,
+  done: "✅ Richtig! Was du siehst oder misst, ist die Beobachtung. Was du dir dazu erklärst, ist die Deutung. Ein Urteil wie „toll“ ist eine Bewertung."
+}, "sortBeob");
+
+Modul.makeGap($("#gapProto"), [
+  ["<b>Frage:</b> Hängt die Brenndauer einer Kerze von der ", {g: "Größe"}, " des Glases ab?"],
+  ["<b>Vermutung:</b> Je ", {g: "größer"}, " das Glas ist, desto ", {g: "länger"}, " brennt die Kerze."],
+  ["<b>Material:</b> Teelicht, drei Gläser (250 ml, 500 ml, 1000 ml), Streichhölzer, ", {g: "Stoppuhr"}, "."],
+  ["<b>Durchführung:</b> Ich zünde das Teelicht an und stülpe ein Glas darüber. Ich stoppe die Zeit, bis die Flamme ", {g: "erlischt"}, ". Das wiederhole ich mit den anderen Gläsern."],
+  ["<b>Beobachtung:</b> Unter dem kleinen Glas ging die Flamme nach 8 s aus, unter dem großen nach 31 s."],
+  ["<b>Auswertung:</b> Die Vermutung ist ", {g: "bestätigt"}, ". Im großen Glas ist mehr ", {g: "Luft"}, ", deshalb brennt die Kerze länger."]
+], "gapProto", ["Farbe", "kürzer", "widerlegt"]);
+
+/* ---------- Station 3 (M7): Diagrammform, Ausreißer ---------- */
+$("#beispielDia").innerHTML =
+  `<figure class="bild" style="margin:0">${svgDia(saeulen({x: ["Jan", "Feb", "Mär", "Apr"], y: [45, 30, 50, 60], max: 80, step: 20, yl: "Niederschlag in mm"}), "Säulendiagramm als Beispiel: Niederschlag in vier Monaten")}<figcaption>Säulen: einzelne Werte vergleichen</figcaption></figure>` +
+  `<figure class="bild" style="margin:0">${svgDia(linie({x: ["6 Uhr", "9 Uhr", "12 Uhr", "15 Uhr", "18 Uhr"], y: [8, 13, 19, 21, 16], max: 25, step: 5, yl: "Temperatur in °C"}), "Liniendiagramm als Beispiel: Temperatur im Lauf eines Tages")}<figcaption>Linie: Entwicklung über die Zeit</figcaption></figure>`;
+Modul.plus(() => {
+  Modul.makeSort($("#sortDarst"), {
+    buckets: ["Säulendiagramm", "Liniendiagramm"],
+    items: [
+      {t: "Brenndauer unter drei verschieden großen Gläsern", b: 0},
+      {t: "Wie viele Kinder in jeder Klasse sind", b: 0},
+      {t: "Niederschlag in den zwölf Monaten des Jahres", b: 0},
+      {t: "Lufttemperatur im Lauf eines Tages (stündlich gemessen)", b: 1},
+      {t: "Abkühlung einer Tasse Tee in 20 Minuten", b: 1},
+      {t: "Wasserstand eines Flusses über eine Woche (täglich gemessen)", b: 1}
+    ], cols: 220,
+    done: "✅ Gut gewählt! Säulen vergleichen einzelne Werte. Eine Linie passt, wenn ein Wert sich im Lauf der Zeit verändert und die Messpunkte zusammengehören."
+  }, "sortDarst");
+  Modul.makeMC($("#mc-m2"), [
+    {q: "Die fünfte Messung weicht stark ab: 29 s statt etwa 15 s. Was ist der beste Umgang damit?", h: diaAusreisser, o: ["Nach einer Ursache suchen (zum Beispiel zu spät gestoppt), sie notieren und noch einmal messen.", "Den Wert still weglassen, damit das Diagramm schöner aussieht.", "Den Wert auf 15 s ändern, damit er passt.", "Den ganzen Versuch für wertlos erklären."], a: 0, e: "Ein Ausreißer weist oft auf einen Messfehler hin. Man sucht die Ursache und misst nach. Messwerte darf man nie heimlich ändern oder streichen – Forscher bleiben ehrlich."}
+  ], "mcm2", {t: "Beurteile"});
+});
+
+/* ---------- Station 4: Fehler im Labor finden ---------- */
+Modul.makeHotspots($("#laborBild"), $("#laborInfo"), $("#laborZahl"), [
+  {x: 15.2, y: 47.5, i: "💇", t: "Lange Haare offen", s: "Lange Haare gehören zu einem Zopf. Offene Haare können Feuer fangen oder in Geräte geraten."},
+  {x: 23.4, y: 28, i: "👓", t: "Keine Schutzbrille", s: "Wer mit Flamme oder Chemikalien arbeitet, trägt immer eine Schutzbrille. Sie schützt die Augen vor Spritzern und Funken."},
+  {x: 41.7, y: 53.3, i: "🔥", t: "Jacke neben der Flamme", s: "Stoff brennt leicht. Jacken, Taschen und Papier gehören nicht auf den Arbeitsplatz, sondern an die Garderobe."},
+  {x: 55.8, y: 42.7, i: "🔖", t: "Flasche ohne Etikett", s: "Jede Flasche mit einer Flüssigkeit braucht ein Etikett mit Namen und Gefahrenzeichen. Sonst weiß niemand, was drin ist."},
+  {x: 73.3, y: 44.7, i: "☕", t: "Essen und Trinken am Labortisch", s: "Im Labor wird nicht gegessen und getrunken. Sonst könnten Stoffe in den Mund gelangen."},
+  {x: 53.1, y: 80, i: "🎒", t: "Rucksack im Gang", s: "Taschen stehen nicht im Gang. Man kann darüber stolpern, besonders mit etwas Heißem in der Hand. Wege und Tische bleiben frei."}
+], "labor");
+register("labor", "#laborBild", "Bild erkunden: sechs Fehler im Labor finden");
+
+/* ---------- Station 4: Gefahrenzeichen-Quiz ---------- */
+(function(){
+  const Z = [
+    {s: "zEntz", a: "entzündbar: Der Stoff brennt leicht", n: "Beispiel: Spiritus.", m: "eine Flamme"},
+    {s: "zBrand", a: "brandfördernd: Er hilft anderen Stoffen beim Brennen", n: "Beispiel: reiner Sauerstoff in Flaschen.", m: "eine Flamme über einem Kreis"},
+    {s: "zGift", a: "giftig: Schon kleine Mengen können tödlich sein", n: "Beispiel: Rattengift.", m: "einen Totenkopf mit gekreuzten Knochen"},
+    {s: "zAetz", a: "ätzend: Er schädigt Haut, Augen und Metalle", n: "Beispiel: Rohrreiniger.", m: "Tropfen, die auf eine Metallplatte und eine Hand fallen"},
+    {s: "zReiz", a: "reizend oder gesundheitsschädlich: Vorsicht!", n: "Beispiel: manche Reinigungsmittel.", m: "ein Ausrufezeichen"},
+    {s: "zUmwelt", a: "umweltgefährlich: Er schadet Tieren und Pflanzen, vor allem im Wasser", n: "Er darf nicht in den Abfluss.", m: "einen toten Baum und einen toten Fisch"}
+  ];
+  const use = $("#zeichenUse"), wahl = $("#zeichenWahl"), fb = $("#zeichenFb"), frage = $("#zeichenFrage");
+  const id = "zeichen"; register(id, "#zeichenWahl", "Zeichen-Quiz: Gefahrenzeichen erkennen");
+  let reihe = shuffle(Z), i = 0;
+  function zeig(){
+    if (i >= reihe.length) {
+      wahl.innerHTML = '<button type="button" class="sel">Noch einmal üben</button>'; frage.textContent = "Geschafft!";
+      fb.className = "fb show ok"; fb.textContent = "✅ Du kennst alle sechs Gefahrenzeichen.";
+      $("button", wahl).addEventListener("click", () => { reihe = shuffle(Z); i = 0; fb.className = "fb"; zeig(); });
+      solve(id); return;
+    }
+    const z = reihe[i]; use.setAttribute("href", "#" + z.s);
+    frage.textContent = `Zeichen ${i + 1} von ${reihe.length}: Was bedeutet es?`;
+    const falsch = shuffle(Z.filter(x => x !== z)).slice(0, 2).map(x => x.a);
+    wahl.innerHTML = shuffle([z.a].concat(falsch)).map(t => `<button type="button">${esc(t)}</button>`).join("");
+    $$("button", wahl).forEach(b => b.addEventListener("click", () => {
+      if (b.textContent === z.a) { fb.className = "fb show ok"; fb.textContent = "✅ Richtig: " + z.a + ". " + z.n; i++; zeig(); }
+      else { b.disabled = true; fb.className = "fb show bad"; fb.textContent = `❌ Nicht ganz. In der roten Raute siehst du ${z.m}. Überlege, wovor dieses Bild warnt.`; }
+    }));
+  }
+  zeig();
+})();
+
+/* ---------- Station 4: gefahrloses Anzünden und Flammenarten ---------- */
+Modul.makeOrder($("#orderBrenner"), [
+  "Schutzbrille aufsetzen, lange Haare zusammenbinden, Tisch frei räumen",
+  "Brenner und Gasschlauch prüfen, Luftzufuhr schließen",
+  "Streichholz anzünden und seitlich ans Brennerrohr halten",
+  "Gashahn langsam öffnen",
+  "Mit der Luftzufuhr die Flamme einstellen",
+  "Nach dem Versuch den Gashahn schließen"
+], "orderBrenner");
+
+(function(){
+  const id = "flamme"; register(id, "#brennerSim", "Gasbrenner: Luftzufuhr einstellen und beide Flammen vergleichen");
+  const r = $("#luft"), chip = $("#luftChip"), obs = $("#luftObs"), gelb = $("#brGelb"), blauA = $("#brBlauA"), blauK = $("#brBlauK"), rausch = $("#brRauschen"), russ = $("#brRuss"), l1 = $("#brLoch1"), l2 = $("#brLoch2");
+  function zeig(echt){
+    const a = +r.value;
+    // erst entsteht ein blauer Kern in der gelben Flamme, dann wird die ganze Flamme blau
+    gelb.style.opacity = clamp(1 - (a - 25) / 35, 0, 1).toFixed(2);
+    russ.style.opacity = (clamp(1 - a / 25, 0, 1) * .5).toFixed(2);
+    blauK.style.opacity = clamp((a - 5) / 25, 0, 1).toFixed(2);
+    blauA.style.opacity = clamp((a - 35) / 30, 0, 1).toFixed(2);
+    rausch.style.opacity = clamp((a - 55) / 35, 0, 1).toFixed(2);
+    [l1, l2].forEach(o => o.setAttribute("rx", (1.5 + a * .065).toFixed(1)));
+    if (a <= 15) {
+      setText(chip, "zu: leuchtende Flamme");
+      setText(obs, "Luftzufuhr zu: Die Flamme ist gelb und leuchtet. Sie rußt ein wenig und ist weniger heiß. Dafür sieht man sie gut – so stellt man den Brenner auf Pause.");
+    } else if (a < 70) {
+      setText(chip, "halb offen: Mischung");
+      setText(obs, "Je mehr Luft dazukommt, desto blauer und kleiner wird die Flamme. Das Gas verbrennt besser, die Flamme wird heißer.");
+    } else {
+      setText(chip, "offen: rauschende Flamme");
+      setText(obs, "Luftzufuhr offen: Die Flamme ist blau, rauscht und ist heißer. Sie rußt nicht. Aber Vorsicht: Im hellen Raum sieht man sie kaum!");
+    }
+    if (echt && a >= 90) solve(id);
+  }
+  r.addEventListener("input", () => zeig(true));
+  zeig(false); laufen($("#brennerSim"));
+})();
+
+/* ---------- Station 5: Teilchenmodell in der Spritze ---------- */
+(function(){
+  const id = "teilchen"; register(id, "#teilchenSim", "Teilchenmodell: Luft in der Spritze zusammendrücken");
+  const box = $("#teilchenSim"), r = $("#kolben"), chip = $("#kolbenChip"), obs = $("#kolbenObs"), kolben = $("#tKolben"), grp = $("#tTeilchen");
+  const mass = $("#tMass"), mR = $("#tMassR"), mT = $("#tMassT"), luft = $("#tLuft");
+  const X0 = 36, X1 = 244, Y0 = 42, Y1 = 166, R = 6, N = 19;
+  const P = Array.from({length: N}, (_, i) => ({f: Math.random(), g: Math.random(), x: 0, y: 0,
+    vx: (Math.random() < .5 ? -1 : 1) * (.6 + Math.random() * .9), vy: (Math.random() < .5 ? -1 : 1) * (.6 + Math.random() * .9)}));
+  grp.innerHTML = P.map((p, i) => `<circle r="${R}" fill="${i % 5 === 0 ? "#e0453a" : "#2f6fdb"}" stroke="#fff" stroke-width="1.5"/>`).join("");
+  $$("circle", grp).forEach((c, i) => { P[i].el = c; });
+  let xr = X1, sicht = false, laeuft = false;
+  P.forEach(p => { p.x = X0 + R + p.f * (X1 - X0 - 2 * R); p.y = Y0 + R + p.g * (Y1 - Y0 - 2 * R); });
+  const draw = p => { p.el.setAttribute("cx", p.x.toFixed(1)); p.el.setAttribute("cy", p.y.toFixed(1)); };
+  function schritt(){
+    P.forEach(p => { p.x += p.vx; p.y += p.vy; });
+    // Teilchen stoßen sich gegenseitig ab (gleiche Masse: sie tauschen die Geschwindigkeit entlang der Stoßrichtung)
+    for (let i = 0; i < N; i++) for (let j = i + 1; j < N; j++) {
+      const a = P[i], b = P[j], dx = b.x - a.x, dy = b.y - a.y, d2 = dx * dx + dy * dy, m = 2 * R;
+      if (d2 > 0 && d2 < m * m) {
+        const d = Math.sqrt(d2), nx = dx / d, ny = dy / d, u = (m - d) / 2;
+        a.x -= nx * u; a.y -= ny * u; b.x += nx * u; b.y += ny * u;
+        const va = a.vx * nx + a.vy * ny, vb = b.vx * nx + b.vy * ny;
+        if (va > vb) { a.vx += (vb - va) * nx; a.vy += (vb - va) * ny; b.vx += (va - vb) * nx; b.vy += (va - vb) * ny; }
+      }
+    }
+    P.forEach(p => {
+      if (p.x < X0 + R) { p.x = X0 + R; p.vx = Math.abs(p.vx); }
+      if (p.x > xr - R) { p.x = xr - R; p.vx = -Math.abs(p.vx); }
+      if (p.y < Y0 + R) { p.y = Y0 + R; p.vy = Math.abs(p.vy); }
+      if (p.y > Y1 - R) { p.y = Y1 - R; p.vy = -Math.abs(p.vy); }
+      draw(p);
+    });
+  }
+  function loop(){ if (!sicht || reduced) { laeuft = false; return; } schritt(); requestAnimationFrame(loop); }
+  onVisible(box, v => { sicht = v; if (v && !laeuft && !reduced) { laeuft = true; requestAnimationFrame(loop); } });
+  function zeig(echt){
+    const a = +r.value; xr = X1 - (X1 - X0) * .55 * a / 100;
+    kolben.setAttribute("transform", `translate(${xr.toFixed(1)} 0)`);
+    mass.setAttribute("x2", xr.toFixed(1)); mR.setAttribute("x1", xr.toFixed(1)); mR.setAttribute("x2", xr.toFixed(1));
+    mT.setAttribute("x", ((X0 + xr) / 2).toFixed(1)); luft.setAttribute("width", (xr - X0).toFixed(1));
+    const vol = Math.round((xr - X0) / (X1 - X0) * 100);
+    setText(chip, "Luftraum: " + vol + " %");
+    if (reduced) P.forEach(p => { p.x = X0 + R + p.f * (xr - X0 - 2 * R); p.y = Y0 + R + p.g * (Y1 - Y0 - 2 * R); draw(p); }); else schritt();
+    setText(obs, a < 15 ? "Der Kolben ist ganz draußen. Die Luft hat viel Platz, die Teilchen sind weit voneinander entfernt." :
+      a < 90 ? "Du drückst den Kolben hinein. Die Teilchen rücken enger zusammen und stoßen öfter an die Wände. Es sind noch genauso viele wie vorher." :
+      "Der Kolben ist weit eingedrückt. Die Luft ist zusammengedrückt: Im Modell sind nur die Abstände kleiner geworden. Die Teilchen selbst sind nicht kleiner.");
+    if (echt && a >= 90) solve(id);
+  }
+  r.addEventListener("input", () => zeig(true));
+  zeig(false);
+})();
+
+Modul.makeSort($("#sortModell"), {
+  buckets: ["Das stimmt mit der Wirklichkeit überein", "Das ist anders als in Wirklichkeit"],
+  items: [
+    {t: "Globus: Die Kontinente liegen an der richtigen Stelle.", b: 0},
+    {t: "Teilchenmodell: Luft besteht aus vielen kleinen Teilchen, die sich bewegen.", b: 0},
+    {t: "Teilchenmodell: Zwischen den Teilchen ist viel leerer Raum.", b: 0},
+    {t: "Atmungsmodell: Wird der Raum in der Glocke größer, strömt Luft in die Ballons.", b: 0},
+    {t: "Globus: Linien für Längen- und Breitengrade sind aufgemalt.", b: 1},
+    {t: "Teilchenmodell: Die Teilchen sind bunte Kugeln.", b: 1},
+    {t: "Teilchenmodell: Es sind nur etwa 20 Teilchen gezeichnet.", b: 1},
+    {t: "Atmungsmodell: Die Lunge ist ein einfacher Luftballon.", b: 1}
+  ], cols: 240,
+  done: "✅ Richtig! Modelle zeigen das Wichtige, aber nicht alles. Darum fragst du immer: Was stimmt, und was ist anders?"
+}, "sortModell");
+
+/* ---------- Station 6: Training ---------- */
+Modul.makeGap($("#gapTrain"), [
+  ["Eine ", {g: "Hypothese"}, " ist eine Vermutung, die man mit einem Versuch ", {g: "überprüfen"}, " kann."],
+  ["Bei einem fairen Versuch ändert man nur ", {g: "eine"}, " Sache und lässt alles andere ", {g: "gleich"}, "."],
+  ["Was man sieht oder misst, ist die ", {g: "Beobachtung"}, ". Wie man es sich erklärt, ist die ", {g: "Deutung"}, "."],
+  ["Die ", {g: "rauschende"}, " Flamme des Gasbrenners ist blau und heißer. Die ", {g: "leuchtende"}, " Flamme ist gelb und gut sichtbar."]
+], "gapTrain", ["Meinung", "Messwert"]);
+
+Modul.makePaare($("#paareGeraete"), [
+  ["Stoppuhr", "misst die Zeit"],
+  ["Messzylinder", "misst das Volumen einer Flüssigkeit"],
+  ["Thermometer", "misst die Temperatur"],
+  ["Waage", "misst die Masse"],
+  ["Schutzbrille", "schützt die Augen"],
+  ["Reagenzglashalter", "hält ein heißes Reagenzglas"]
+], "paareGeraete");
+
+Modul.makeTF($("#tf"), [
+  ["Eine Hypothese ist eine Vermutung, die man überprüfen kann.", true],
+  ["Bei einem fairen Versuch ändert man mehrere Dinge gleichzeitig.", false],
+  ["„Die Flamme wird kleiner“ ist eine Beobachtung.", true],
+  ["„Der Sauerstoff wird knapp“ ist eine Beobachtung.", false],
+  ["Passt ein Messwert nicht zur Vermutung, ändert man ihn.", false],
+  ["Im Labor darf man trinken, wenn man vorsichtig ist.", false],
+  ["Die rauschende Flamme des Gasbrenners ist heißer als die leuchtende.", true],
+  ["Ein Modell stimmt in allen Punkten mit der Wirklichkeit überein.", false]
+], "tf");
+
+Modul.makeCrossword($("#cw"), {
+  words: [
+    {w: "SCHUTZBRILLE", r: 3, c: 0, d: "a", q: "Sie schützt im Labor deine Augen."},
+    {w: "BEOBACHTUNG", r: 2, c: 11, d: "d", q: "Das, was du siehst, hörst oder misst – ohne Erklärung."},
+    {w: "GASBRENNER", r: 1, c: 0, d: "d", q: "Laborgerät, mit dem man erhitzt."},
+    {w: "DIAGRAMM", r: 2, c: 8, d: "d", q: "Zeichnung mit Säulen oder Linien, die Zahlen übersichtlich zeigt."},
+    {w: "PROTOKOLL", r: 0, c: 4, d: "d", q: "Schriftlicher Bericht über einen Versuch."},
+    {w: "HYPOTHESE", r: 3, c: 2, d: "d", q: "Begründete Vermutung, die man überprüfen kann."},
+    {w: "EXPERIMENT", r: 0, c: 2, d: "a", q: "Geplanter Versuch, mit dem man eine Vermutung überprüft."},
+    {w: "MESSWERT", r: 11, c: 1, d: "a", q: "Zahl mit Einheit, die man mit einem Messgerät abliest."},
+    {w: "MODELL", r: 8, c: 6, d: "d", q: "Vereinfachte Darstellung der Wirklichkeit, zum Beispiel ein Globus."},
+    {w: "FLAMME", r: 13, c: 5, d: "a", q: "Am Gasbrenner gibt es eine leuchtende und eine rauschende …"}
+  ],
+  sol: [[13, 5], [6, 2], [0, 6], [10, 2], [7, 11], [3, 2], [11, 2], [0, 10]], solWord: "FORSCHEN"
+}, "cw");
+
+Modul.makeOpen($("#open"), [
+  {q: "Was ist eine Hypothese? Erkläre mit einem Beispiel aus dem Kerzenversuch.",
+   m: "Eine Hypothese ist eine begründete Vermutung, die man mit einem Versuch überprüfen kann. Beispiel: Je größer das Glas ist, desto länger brennt die Kerze, weil mehr Luft im Glas ist.",
+   k: ["vermutung|annahme", "überprüf|prüf|versuch|experiment|testen", "je größer|länger|kerze|glas"], min: 2},
+  {q: "Du willst herausfinden, ob die Größe des Glases die Brenndauer einer Kerze beeinflusst. Beschreibe, wie du den Versuch fair planst.",
+   m: "Ich verändere nur eine Sache: die Größe des Glases. Alles andere lasse ich gleich, zum Beispiel dieselbe Kerze und denselben Ort. Ich messe jedes Mal mit der Stoppuhr die Zeit, bis die Flamme erlischt.",
+   k: ["nur eine|eine sache|eine größe|nur die größe|nur das glas", "gleich", "stoppuhr|zeit|brenndauer|messe|misst|messen"], min: 2},
+  {q: "Nenne drei Laborregeln und begründe eine davon.",
+   m: "Im Labor trage ich eine Schutzbrille, binde lange Haare zusammen und esse und trinke nicht. Die Schutzbrille schützt meine Augen vor Spritzern und Funken.",
+   k: ["schutzbrille|brille", "haare|zopf", "essen|trinken|naschen|rennen|erst lesen|anleitung|arbeitsplatz|tisch frei|aufgeräumt|ordnung|jacke|tasche", "schützt|damit|spritzer|funken|gefahr|feuer fangen|verletz|weil"], min: 3}
+], "open", "Lies noch einmal die Merke-Kästen in den Stationen 1, 3 und 4.");
+
+Modul.plus(() => {
+  Modul.makeOpen($("#openM"), [
+    {q: "Beim 1000-ml-Glas hast du dreimal gemessen: 29 s, 31 s und 33 s. Berechne den Mittelwert und begründe, warum man einen Versuch mehrmals durchführt.",
+     m: "Mittelwert: (29 + 31 + 33) : 3 = 31 s. Man misst mehrmals, weil einzelne Messungen zufällig abweichen können, zum Beispiel beim Stoppen. Der Mittelwert gleicht solche Fehler aus, das Ergebnis wird zuverlässiger.",
+     k: ["31", "abweich|fehler|zufall|ungenau|schwank|unterschied", "zuverlässig|sicherer|genauer|ausgleich|gleicht|verlässlich"], min: 2}
+  ], "openM", "Zähle die Werte zusammen, teile durch drei und überlege, warum eine einzelne Messung ungenau sein kann.");
+});
+
+/* ---------- Station 7: Profi-Check ---------- */
+const EXTRA = [
+  {q: "Was bedeutet eine rote Raute mit einer Flamme?", o: ["Der Stoff ist entzündbar.", "Der Stoff löscht Feuer.", "Hier ist ein Notausgang.", "Der Stoff ist giftig."], a: 0, e: "Die Flamme in der roten Raute warnt vor Stoffen, die leicht brennen, zum Beispiel Spiritus."},
+  {q: "Was bedeutet das Gefahrenzeichen mit dem Totenkopf?", o: ["giftig", "entzündbar", "umweltgefährlich", "ätzend"], a: 0, e: "Der Totenkopf warnt vor giftigen Stoffen. Sie können schon in kleinen Mengen gefährlich sein."},
+  {q: "In welchem Teil des Versuchsprotokolls steht, was du gesehen oder gemessen hast?", o: ["in der Beobachtung", "in der Vermutung", "im Material", "in der Frage"], a: 0, e: "In die Beobachtung kommt, was du siehst, hörst oder misst – ohne Erklärung. Die Erklärung gehört in die Auswertung."},
+  {q: "Wie sieht die rauschende Flamme des Gasbrenners aus?", o: ["blau und heiß, sie rauscht", "gelb und rußend", "rot und kühl", "weiß und knisternd"], a: 0, e: "Bei offener Luftzufuhr brennt das Gas blau, laut und heiß. Die gelbe Flamme ist die leuchtende."},
+  {q: "Was machst du, bevor du mit einem Versuch beginnst?", o: ["Ich lese die Anleitung ganz durch.", "Ich fange sofort an.", "Ich probiere alle Stoffe aus.", "Ich setze die Schutzbrille erst auf, wenn etwas passiert."], a: 0, e: "Erst lesen, dann handeln. So vermeidest du Fehler und Unfälle."},
+  {q: "Welche Regel gilt im Labor?", o: ["Es wird nicht gegessen und nicht getrunken.", "Wasser darf man am Platz trinken.", "In der Pause isst man am Labortisch.", "Essen ist erlaubt, wenn man vorsichtig ist."], a: 0, e: "Stoffe können an Händen und Geräten haften. Beim Essen oder Trinken könnten sie in den Mund gelangen."},
+  {q: "Was ist an einem Globus anders als an der Erde?", o: ["Er ist stark verkleinert und trägt aufgemalte Linien, die es in Wirklichkeit nicht gibt.", "Er zeigt die Kontinente an der falschen Stelle.", "Er besteht aus echter Erde.", "Er ist größer als die Erde."], a: 0, e: "Ein Modell ist verkleinert und vereinfacht. Das Gradnetz ist eine Hilfe auf dem Globus, auf der Erde gibt es diese Linien nicht."},
+  {q: "Was ist ein Modell?", o: ["eine vereinfachte Darstellung der Wirklichkeit", "eine genaue Kopie der Wirklichkeit", "eine Vermutung ohne Versuch", "ein Messgerät"], a: 0, e: "Ein Modell lässt Unwichtiges weg und zeigt, worauf es ankommt. Deshalb stimmt nie alles mit der Wirklichkeit überein."}
+];
+Modul.makeQuiz($("#quiz"), [].concat(MC.s1, MC.s1b, MC.s2, MC.s4, MC.s5, MC.train, EXTRA), "quiz", "Forscher-Profi");
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

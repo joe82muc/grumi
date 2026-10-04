@@ -1,0 +1,1135 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0a2a47">
+<title>Atombau und Periodensystem | NT 7</title>
+<link rel="stylesheet" href="modul-basis.css">
+<style>
+.hero{background:linear-gradient(160deg,#0a2a47,#145a8a 55%,#4fb4d0)}
+.atom-fig{display:block;width:100%;height:auto;background:#f7fbfe}
+.card .atom-fig{border-radius:12px;max-width:320px;margin:6px auto}
+.sim .atom-fig{max-width:none}
+.fig{display:block;width:100%;height:auto;max-width:560px;margin:8px auto 6px}
+.dot{display:inline-block;width:14px;height:14px;border-radius:50%;margin-right:6px;vertical-align:-2px}
+.dot.p{background:#e0453a}.dot.n{background:#8a97a3}.dot.e{background:#2f6fdb}
+.kug{display:inline-grid;place-items:center;width:38px;height:38px;border-radius:50%;color:#fff;font-weight:800;font-size:1.3rem;line-height:1}
+.kug.p{background:#e0453a}.kug.n{background:#8a97a3}.kug.e{background:#2f6fdb}
+.legende{display:flex;flex-wrap:wrap;gap:6px 16px;padding:10px 14px;border-top:1px solid var(--line);background:#fbfdff;font-size:.92rem;font-weight:600}
+.sw{display:inline-block;width:16px;height:16px;border-radius:4px;border:2px solid;margin-right:6px;vertical-align:-3px}
+.k-me{background:#bfe0f7;border-color:#5aa9dc}
+.k-nm{background:#ffe7a3;border-color:#d9a928}
+.k-eg{background:#e4d4f7;border-color:#9a6fd0}
+.k-hm{background:repeating-linear-gradient(135deg,#e6ecef 0 5px,#cfd9df 5px 10px);border-color:#8a97a3}
+.chip.k-me{color:#0b4a78}.chip.k-nm{color:#6b4a00}.chip.k-eg{color:#4b2d73}.chip.k-hm{color:#33414d}
+.nuk{display:inline-flex;align-items:center;font-weight:800;line-height:1;white-space:nowrap}
+.nuk .nz{display:inline-flex;flex-direction:column;justify-content:space-between;font-size:.58em;line-height:1;margin-right:.1em;text-align:right;min-height:1.7em}
+.nuk .nz i{font-style:normal}
+.nuk .nz i:first-child{color:#a35200}
+.nuk .nz i:last-child{color:#c0392b}
+.nuk.gross{font-size:2.2rem}
+.nuk.riesig{font-size:4.2rem}
+.sim-titel{margin:0;padding:12px 14px 8px;font-size:1.05rem}
+.bedien{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 14px;border-top:1px solid var(--line);background:#fbfdff}
+.bedien .btn{min-height:44px}
+.btn[hidden]{display:none}
+.sim > .wahl{margin:0;padding:12px 14px;border-top:1px solid var(--line);background:#fbfdff}
+.sim .readout{padding-top:12px;border-top:1px solid var(--line)}
+ul.punkte{margin:0 0 .9em;padding-left:20px}
+ul.punkte li{margin:4px 0}
+/* Atom-Baukasten */
+.bau-name{display:flex;gap:14px;align-items:center;padding:10px 14px;border-top:1px solid var(--line);background:#fff;min-height:76px}
+.bau-name b{font-size:1.15rem;display:block}
+.bau-name .t{display:block;font-size:.9rem;color:var(--muted)}
+.bau-name .chip{margin-top:4px}
+.bau-zeile{display:grid;grid-template-columns:auto 1fr auto 3ch auto;gap:10px;align-items:center;padding:6px 14px;border-top:1px solid var(--line);background:#fbfdff}
+.bau-zeile .bw{font-weight:700}
+.bau-zeile output{text-align:center;font-weight:800;font-size:1.35rem}
+.bau-b{width:52px;height:44px;border:2px solid var(--line);background:#fff;border-radius:12px;font-size:1.5rem;font-weight:800;color:var(--sky-d);line-height:1;touch-action:manipulation}
+.bau-b[disabled]{opacity:.35;cursor:default}
+.bau-auf{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;padding:10px 14px;border-top:1px solid var(--line);background:#fff}
+#bauSchalen[aria-pressed="true"]{background:#6b3fa0;color:#fff;border-color:#6b3fa0}
+/* Symbol lesen */
+#syP,#syN,#syE,#syAbg,#syZbg{transition:opacity .5s}
+/* Zähl-Trainer */
+.zk{display:grid;grid-template-columns:160px 1fr;gap:16px;align-items:center}
+@media (max-width:520px){.zk{grid-template-columns:1fr;justify-items:center;text-align:center}}
+.zk-karte{border:2px solid var(--line);border-radius:16px;padding:14px 10px;text-align:center;background:#fbfdff;min-width:150px}
+.zk-karte .nm{display:block;font-weight:700;margin-top:8px;color:var(--muted)}
+.zk-frage{font-weight:700;margin:0 0 4px}
+.zk .wahl{justify-content:inherit}
+.zk .wahl button{min-width:68px;font-size:1.1rem}
+/* Periodensystem */
+.pse-wrap{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:820px){.pse-wrap{grid-template-columns:1fr}}
+.pse{display:grid;grid-template-columns:30px repeat(8,minmax(0,1fr));gap:4px;margin:6px 0 10px}
+.pse-feld{position:relative;min-height:52px;border-radius:8px;border:2px solid;padding:0;color:var(--ink);font-weight:800;line-height:1;display:grid;place-items:center;touch-action:manipulation}
+.pse-feld .z{position:absolute;top:2px;left:4px;font-size:.62rem;font-weight:700;color:#33414d}
+.pse-feld .s{font-size:1.15rem}
+.pse-feld.an{outline:3px solid var(--gold);outline-offset:1px}
+.pse-feld.dim{opacity:.32}
+.pse-feld.sel{outline:3px solid var(--sky-d);outline-offset:1px;box-shadow:0 0 0 4px rgba(13,119,194,.22)}
+.pse-kopf{display:grid;place-items:center;border:0;background:transparent;color:var(--sky-d);font-weight:800;font-size:.95rem;min-height:44px;border-radius:8px;padding:0}
+button.pse-kopf{border:1.5px dashed #b9cbd8;background:#fff;touch-action:manipulation}
+button.pse-kopf.an{background:#fff3c4;border-color:var(--gold)}
+.pse-note{font-size:.82rem;color:var(--muted);display:grid;align-items:center;padding:0 6px;font-style:italic}
+.pse-info{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;background:#fbfdff;min-height:300px}
+.pse-info h3{margin:0}
+.pi-kopf{display:flex;gap:12px;align-items:center;margin-bottom:6px}
+.pi-zahlen{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.pi-leer{display:grid;place-items:center;text-align:center;min-height:260px;color:var(--muted)}
+.pi-leer .big{font-size:2.4rem}
+#pseObs{min-height:5em;border:1px dashed var(--line);border-radius:10px;margin-top:10px}
+/* Schalen-Rätsel und Oktett (M7) */
+.schalen-box{display:grid;grid-template-columns:minmax(0,320px) 1fr;gap:18px;align-items:start;margin-top:10px}
+@media (max-width:700px){.schalen-box{grid-template-columns:1fr}}
+.schalen-box .wahl button{text-align:left}
+.schalen-box .atom-fig{margin:0 auto}
+/* Steckbriefe */
+.steck-kopf{display:flex;gap:12px;align-items:center;margin-bottom:6px}
+.steck-ic{font-size:2.2rem;line-height:1}
+.steck-inhalt{padding:12px 14px;min-height:240px;background:#fff;border-top:1px dashed var(--line)}
+.steck-inhalt h3{margin:0}
+.steck-inhalt p{margin:.4em 0}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>NT 7</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Einstieg</a>
+      <a href="#s2"><b>2</b>Bausteine</a>
+      <a href="#s3"><b>3</b>Zahlen</a>
+      <a href="#s4"><b>4</b>Periodensystem</a>
+      <a href="#s5"><b>5</b>Metalle &amp; Co.</a>
+      <a href="#s6"><b>6</b>Training</a>
+      <a href="#s7"><b>7</b>Profi-Check</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse 7M / 7R · Themenbereich Atome und Materie · Lernmodul 2</div>
+    <h1>Atombau und Periodensystem</h1>
+    <p>Warum ist Gold ganz anders als Sauerstoff, obwohl beide aus Atomen bestehen? In sieben Stationen baust du Atome aus Protonen, Neutronen und Elektronen, zählst Teilchen, liest das Periodensystem und lernst Metalle, Nichtmetalle und Edelgase kennen.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s6">Direkt zum Probentraining</a>
+    </div>
+    <div class="goals">
+      <div>⚛️ Ich nenne Proton, Neutron und Elektron und sage, wo sie sitzen und wie sie geladen sind.</div>
+      <div>🔢 Ich bestimme mit Ordnungszahl und Massenzahl, wie viele Protonen, Neutronen und Elektronen ein Atom hat.</div>
+      <div>🗺️ Ich lese im Periodensystem Periode und Hauptgruppe eines Elements ab.</div>
+      <div>⚗️ Ich unterscheide Metalle, Nichtmetalle und Edelgase und nenne Beispiele für ihre Verwendung.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg</div><h2>Gold und Sauerstoff: Was ist anders?</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Ein Goldring glänzt, ist schwer und fest. Der Sauerstoff, den du gerade einatmest, ist ein unsichtbares Gas. Und doch bestehen beide aus Atomen.</p>
+      <p>Im Modul davor hast du gelernt: Jedes Atom hat einen winzigen <button class="term" data-t="atomkern">Atomkern</button> und eine <button class="term" data-t="atomhuelle">Atomhülle</button>. Aber was genau ist in einem Gold-Atom anders als in einem Sauerstoff-Atom?</p>
+      <p class="hint">Überlege zuerst und kreuze an. Dann sieh dir im Bild beide Atome an: Tippe nacheinander auf „Sauerstoff-Atom“ und „Gold-Atom“. Das Bild ist ein Modell: In Wirklichkeit ist der Kern viel kleiner, und die Elektronen haben keine festen Plätze.</p>
+      <div id="mc-s1"></div>
+    </div>
+    <div class="sim reveal" id="vglSim">
+      <div id="vglBild"></div>
+      <div class="wahl" id="vglWahl">
+        <button type="button" data-k="O">Sauerstoff-Atom</button>
+        <button type="button" data-k="Au">Gold-Atom</button>
+      </div>
+      <div class="readout" id="vglZahl"></div>
+      <div class="legende">
+        <span><i class="dot p"></i><button class="term" data-t="proton">Proton</button> (+)</span>
+        <span><i class="dot n"></i><button class="term" data-t="neutron">Neutron</button> (0)</span>
+        <span><i class="dot e"></i><button class="term" data-t="elektron">Elektron</button> (−)</span>
+      </div>
+      <p class="obs" id="vglObs"></p>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:18px"><div id="mc-s1b"></div></div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Drei Bausteine: Proton, Neutron, Elektron</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Alle Atome sind aus nur <strong>drei Sorten</strong> von Teilchen gebaut. Man nennt sie <button class="term" data-t="elementarteilchen">Elementarteilchen</button>.</p>
+    <div class="info-karten">
+      <div class="info-karte"><div class="big"><span class="kug p">+</span></div><h4><button class="term" data-t="proton">Proton</button></h4><p>Sitzt im Atomkern. <strong>Positiv</strong> geladen (+). Seine Zahl entscheidet, welches Element es ist.</p></div>
+      <div class="info-karte"><div class="big"><span class="kug n">0</span></div><h4><button class="term" data-t="neutron">Neutron</button></h4><p>Sitzt im Atomkern. <strong>Ungeladen.</strong> Etwa so schwer wie ein Proton.</p></div>
+      <div class="info-karte"><div class="big"><span class="kug e">−</span></div><h4><button class="term" data-t="elektron">Elektron</button></h4><p>Sitzt in der Atomhülle. <strong>Negativ</strong> geladen (−). Fast ohne Masse: knapp 2000-mal leichter als ein Proton.</p></div>
+    </div>
+    <p>Ein Atom ist nach außen <button class="term" data-t="neutral">neutral</button>: Es hat <strong>gleich viele Protonen (+) und Elektronen (−)</strong>. Die Ladungen gleichen sich aus. Neutronen haben keine Ladung und stören dabei nicht.</p>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag">Atom-Baukasten</span>
+      <h3 style="margin-top:4px">Baue Atome selbst</h3>
+      <p>Mit <strong>+</strong> und <strong>−</strong> fügst du Teilchen hinzu oder nimmst sie weg. Das Bild zeigt sofort, welches Atom entsteht. Unter dem Bild steht sein Name.</p>
+      <p><strong>Deine Aufträge:</strong> Baue je ein <strong>neutrales</strong> Atom von Helium, Kohlenstoff, Sauerstoff und Natrium. Wie viele Protonen brauchst du jeweils? Probiere es aus.</p>
+      <p class="hint">Achtung, Modell: Der Atomkern ist hier viel zu groß gezeichnet, und die Elektronen sind in Wirklichkeit nicht auf festen Plätzen. Nicht jede Neutronenzahl gibt es in der Natur.</p>
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li>Protonen (+) und Neutronen (0) liegen im Atomkern, Elektronen (−) in der Hülle.</li>
+        <li>Ein Atom ist neutral: Es hat gleich viele Protonen und Elektronen.</li>
+        <li>Die Zahl der <strong>Protonen</strong> bestimmt, um welches Element es sich handelt.</li>
+      </ul></div>
+    </div>
+    <div class="sim reveal" id="bauSim">
+      <div id="bauBild"></div>
+      <div class="bau-name" id="bauName"></div>
+      <div class="bau-zeile"><span class="kug p">+</span><span class="bw">Protonen</span><button type="button" class="bau-b" data-k="p" data-d="-1" aria-label="Ein Proton wegnehmen">−</button><output id="bauP">1</output><button type="button" class="bau-b" data-k="p" data-d="1" data-probier aria-label="Ein Proton hinzufügen">+</button></div>
+      <div class="bau-zeile"><span class="kug n">0</span><span class="bw">Neutronen</span><button type="button" class="bau-b" data-k="n" data-d="-1" aria-label="Ein Neutron wegnehmen">−</button><output id="bauN">0</output><button type="button" class="bau-b" data-k="n" data-d="1" data-probier aria-label="Ein Neutron hinzufügen">+</button></div>
+      <div class="bau-zeile"><span class="kug e">−</span><span class="bw">Elektronen</span><button type="button" class="bau-b" data-k="e" data-d="-1" aria-label="Ein Elektron wegnehmen">−</button><output id="bauE">1</output><button type="button" class="bau-b" data-k="e" data-d="1" data-probier aria-label="Ein Elektron hinzufügen">+</button></div>
+      <div class="bedien">
+        <button type="button" class="btn small ghost" id="bauLeer">↺ Neu beginnen</button>
+        <button type="button" class="btn small ghost" id="bauSchalen" aria-pressed="false">Elektronen auf Schalen (M7)</button>
+      </div>
+      <div class="bau-auf" id="bauAuf"></div>
+      <p class="obs" id="bauObs"></p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag leicht">Zuordnen · leicht</span>
+      <h3 style="margin-top:4px">Wer ist wer?</h3>
+      <p class="hint">Tippe eine Karte an und dann das passende Fach.</p>
+      <div id="sortBausteine"></div>
+    </div>
+    <div class="card reveal"><div id="mc-s2"></div></div>
+  </div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>Ordnungszahl, Massenzahl und Isotope</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Zwei Zahlen verraten dir fast alles über den Bau eines Atoms.</p>
+      <ol class="schritt-liste">
+        <li>Die <button class="term" data-t="ordnungszahl">Ordnungszahl</button> sagt, wie viele <strong>Protonen</strong> im Kern sind. Ein neutrales Atom hat genauso viele <strong>Elektronen</strong>.</li>
+        <li>Die <button class="term" data-t="massenzahl">Massenzahl</button> zählt alle Teilchen im Kern: <strong>Protonen und Neutronen</strong>.</li>
+        <li>Die <strong>Neutronen</strong> rechnest du aus: Massenzahl − Ordnungszahl.</li>
+      </ol>
+      <p>So schreibt man es auf: Vor das Elementsymbol kommt <strong>oben links die Massenzahl</strong> und <strong>unten links die Ordnungszahl</strong>. Kohlenstoff mit 6 Protonen und 6 Neutronen schreibt man so: <span class="nuk gross"><span class="nz"><i>12</i><i>6</i></span><span class="ns">C</span></span></p>
+      <p class="hint">In manchen Periodensystemen steht unter dem Symbol eine Kommazahl für die Masse, bei Chlor zum Beispiel etwa 35,5. Das ist ein Durchschnittswert über alle Atomsorten eines Elements. Hier rechnest du immer mit ganzen Massenzahlen.</p>
+    </div>
+    <div class="sim reveal" id="symbolSim">
+      <h3 class="sim-titel">So liest du ein Atom-Symbol</h3>
+      <svg viewBox="0 0 480 300" role="img" aria-label="Das Atom-Symbol von Kohlenstoff mit Massenzahl 12 und Ordnungszahl 6. Daneben das Atom mit 6 Protonen, 6 Neutronen und 6 Elektronen.">
+        <rect width="480" height="300" fill="#f7fbfe"/>
+        <rect id="syAbg" x="6" y="28" width="106" height="84" rx="10" fill="#ffe0a3" opacity="0"/>
+        <rect id="syZbg" x="6" y="126" width="106" height="84" rx="10" fill="#ffc9c3" opacity="0"/>
+        <text x="59" y="76" text-anchor="middle" font-size="46" font-weight="800" fill="#a35200">12</text>
+        <text x="59" y="102" text-anchor="middle" font-size="14" font-weight="800" fill="#a35200">Massenzahl</text>
+        <text x="59" y="174" text-anchor="middle" font-size="46" font-weight="800" fill="#c0392b">6</text>
+        <text x="59" y="200" text-anchor="middle" font-size="14" font-weight="800" fill="#c0392b">Ordnungszahl</text>
+        <text x="172" y="166" text-anchor="middle" font-size="112" font-weight="800" fill="#15212b">C</text>
+        <circle cx="352" cy="116" r="108" fill="#eaf3fb" stroke="#9db7cc" stroke-width="2" stroke-dasharray="5 6"/>
+        <g id="syE"></g><g id="syN"></g><g id="syP"></g>
+        <text id="syText" x="240" y="255" text-anchor="middle" font-size="17" font-weight="800" fill="#15212b"></text>
+        <text id="syRech" x="240" y="286" text-anchor="middle" font-size="22" font-weight="800" fill="#c0392b"></text>
+      </svg>
+    </div>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul>
+    <li><strong>Ordnungszahl</strong> = Zahl der Protonen. Beim neutralen Atom ist sie auch die Zahl der Elektronen.</li>
+    <li><strong>Massenzahl</strong> = Protonen + Neutronen.</li>
+    <li><strong>Neutronen</strong> = Massenzahl − Ordnungszahl.</li>
+    <li><strong>Isotope</strong> sind Atome desselben Elements: gleiche Ordnungszahl, aber verschiedene Massenzahl.</li>
+  </ul></div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal" id="zaehlKarte">
+      <span class="task-tag mittel">Zähl-Trainer · mittel</span>
+      <h3 style="margin-top:4px">Zähle die Teilchen</h3>
+      <p class="hint">Lies das Symbol. Rechne, wenn nötig: Neutronen = Massenzahl − Ordnungszahl.</p>
+      <div class="zk">
+        <div id="zaehlBild" aria-live="polite"></div>
+        <div><p class="zk-frage" id="zaehlFrage"></p><div class="wahl" id="zaehlWahl"></div></div>
+      </div>
+      <div class="fb" id="zaehlFb"></div>
+      <span class="chip" id="zaehlChip" style="margin-top:10px">0 von 8 gelöst</span>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag">Isotope entdecken</span>
+      <h3 style="margin-top:4px">Gleiches Element, verschieden schwer</h3>
+      <p>Nicht alle Atome eines Elements sind gleich gebaut. Die Zahl der Protonen ist immer gleich – sonst wäre es ein anderes Element. Die Zahl der Neutronen kann aber verschieden sein. Solche Atomsorten heißen <button class="term" data-t="isotope">Isotope</button>.</p>
+      <div class="sim" id="isoSim">
+        <div id="isoBild"></div>
+        <div class="wahl" id="isoWahl">
+          <button type="button" data-i="0">Wasserstoff-1</button>
+          <button type="button" data-i="1">Wasserstoff-2</button>
+          <button type="button" data-i="2">Wasserstoff-3</button>
+          <button type="button" data-i="3">Kohlenstoff-12</button>
+          <button type="button" data-i="4">Kohlenstoff-14</button>
+        </div>
+        <div class="readout" id="isoZahl"></div>
+        <p class="obs" id="isoObs">Tippe alle fünf Atomsorten an. Achte darauf, was gleich bleibt und was sich ändert.</p>
+      </div>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:18px"><div id="mc-s3"></div></div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Probenstoff</div><h2>Das Periodensystem lesen</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Es gibt über 100 Elemente. Damit man den Überblick behält, hat man sie in einer Tabelle geordnet: dem <button class="term" data-t="periodensystem">Periodensystem</button>. Es ist die Landkarte der Elemente.</p>
+    <ol class="schritt-liste">
+      <li>Die Elemente stehen <strong>nach steigender Ordnungszahl</strong>: von links nach rechts, Zeile für Zeile. Die Ordnungszahl steht als kleine Zahl im Feld.</li>
+      <li>Jede <strong>waagerechte Zeile</strong> heißt <button class="term" data-t="periode">Periode</button>. Das vollständige Periodensystem hat sieben Perioden.</li>
+      <li>Jede <strong>senkrechte Spalte</strong> heißt <button class="term" data-t="hauptgruppe">Hauptgruppe</button>. Sie haben römische Nummern von I bis VIII (das sind die Zahlen 1 bis 8). Elemente einer Hauptgruppe haben ähnliche Eigenschaften.</li>
+      <li><strong>Wasserstoff</strong> steht in der Hauptgruppe I, ist aber ein Nichtmetall. Er ist eine Ausnahme.</li>
+    </ol>
+  </div>
+
+  <div class="card reveal" id="pseKarte" style="margin-top:18px">
+    <span class="task-tag">Erkunden</span>
+    <h3 style="margin-top:4px">Das Periodensystem: die ersten 20 Elemente</h3>
+    <p class="hint">Tippe auf Elemente: Dann erscheint ihr Atombau. Die kleine Zahl im Feld ist die Ordnungszahl. Tippst du auf eine Nummer am Rand, leuchtet die ganze Zeile oder Spalte. Sieh dir mindestens sechs Elemente an und probiere eine Periode und eine Hauptgruppe aus.</p>
+    <div class="pse-wrap">
+      <div>
+        <div class="pse" id="pse"></div>
+        <div class="legende" style="border-top:0;padding:4px 0;background:transparent">
+          <span><i class="sw k-me"></i><button class="term" data-t="metall">Metall</button></span>
+          <span><i class="sw k-nm"></i><button class="term" data-t="nichtmetall">Nichtmetall</button></span>
+          <span><i class="sw k-eg"></i><button class="term" data-t="edelgas">Edelgas</button></span>
+          <span><i class="sw k-hm"></i>Halbmetall</span>
+        </div>
+        <p class="hint" style="margin-top:6px">Bor und Silicium (grau gestreift) sind Halbmetalle: Sie haben Eigenschaften von Metallen und von Nichtmetallen. Das ist Zusatzwissen.</p>
+      </div>
+      <div class="pse-info" id="pseInfo" aria-live="polite"></div>
+    </div>
+    <p class="obs" id="pseObs">Tippe ein Element oder eine Nummer am Rand an.</p>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal" id="findeKarte">
+      <span class="task-tag mittel">Finde das Element · mittel</span>
+      <h3 style="margin-top:4px">Suche nach Zeile und Spalte</h3>
+      <p class="hint">Die Periode ist die Zeile, die Hauptgruppe die Spalte. Tippe auf das gesuchte Feld.</p>
+      <p class="zk-frage" id="findeFrage"></p>
+      <div class="pse" id="finde"></div>
+      <div class="fb" id="findeFb"></div>
+      <div class="row-btns"><span class="chip" id="findeChip">0 von 5 gefunden</span><button type="button" class="btn small ghost" id="findeNeu" hidden>Noch einmal</button></div>
+    </div>
+    <div class="card reveal"><div id="mc-s4"></div></div>
+  </div>
+
+  <div class="card reveal" id="schalenKarte" style="margin-top:18px">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Warum steht ein Element genau dort? Schalen und Außenelektronen</h3>
+    <p class="m7-hinweis">Aufgaben mit dem lila Zeichen gehören zum M-Niveau. In M-Klassen zählen sie mit, in R-Klassen sind sie eine Zusatzaufgabe für Profis.</p>
+    <p>Die Elektronen der Hülle sitzen auf <button class="term" data-t="schale">Schalen</button> (Energiestufen). Sie werden von innen nach außen gefüllt: auf die 1. Schale höchstens 2 Elektronen, auf die 2. höchstens 8. Bei den ersten 20 Elementen kommen auf die 3. Schale bis zu 8 Elektronen, dann beginnt die 4.</p>
+    <p>Das Periodensystem verrät dir den Atombau, ohne dass du zählen musst:</p>
+    <ul class="punkte">
+      <li>Die <strong>Nummer der Periode</strong> ist die Zahl der <strong>Schalen</strong>.</li>
+      <li>Die <strong>Nummer der Hauptgruppe</strong> ist die Zahl der <button class="term" data-t="aussenelektron">Außenelektronen</button>. Das sind die Elektronen auf der äußersten Schale.</li>
+      <li>Von links nach rechts wächst die Protonenzahl um 1 – und damit auch die Zahl der Elektronen.</li>
+    </ul>
+    <p class="hint">Eine Ausnahme: Helium steht in Hauptgruppe VIII, hat aber nur 2 Außenelektronen. Mehr passen auf die 1. Schale nicht. Im Atom-Baukasten (Station 2) kannst du die Schalen-Ansicht einschalten. Achtung, Modell: Die Kreise sind keine Flugbahnen wie bei Planeten. Sie zeigen nur, zu welcher Schale ein Elektron gehört.</p>
+    <div class="schalen-box" id="schalenRaetsel">
+      <div id="schalenBild"></div>
+      <div>
+        <p class="zk-frage" id="schalenFrage"></p>
+        <div class="wahl" id="schalenWahl"></div>
+        <div class="fb" id="schalenFb"></div>
+        <span class="chip" id="schalenChip" style="margin-top:10px">0 von 4 gelöst</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Probenstoff</div><h2>Metalle, Nichtmetalle und Edelgase</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Die Elemente lassen sich in drei große Familien einteilen. Im Periodensystem erkennst du sie an ihrer Lage und an der Farbe.</p>
+    <div class="info-karten">
+      <div class="info-karte"><div class="big">🔩</div><h4><button class="term" data-t="metall">Metalle</button></h4><p>Sie glänzen, leiten Strom und Wärme gut und lassen sich verformen. Fast alle sind bei Zimmertemperatur fest. Im Periodensystem liegen sie auf der linken Seite und in der Mitte. Beispiele: Natrium, Aluminium, Calcium.</p></div>
+      <div class="info-karte"><div class="big">💨</div><h4><button class="term" data-t="nichtmetall">Nichtmetalle</button></h4><p>Sie leiten Strom meist schlecht und glänzen nicht. Feste Nichtmetalle sind spröde. Viele sind Gase. Im Periodensystem stehen sie rechts oben. Beispiele: Sauerstoff, Chlor, Fluor, Kohlenstoff.</p></div>
+      <div class="info-karte"><div class="big">💡</div><h4><button class="term" data-t="edelgas">Edelgase</button></h4><p>Farblose, geruchlose Gase. Sie reagieren fast nie mit anderen Stoffen: Sie sind <button class="term" data-t="reaktionstraege">reaktionsträge</button>. Im Periodensystem stehen sie ganz rechts in der Hauptgruppe VIII. Beispiele: Helium, Neon, Argon.</p></div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="sim reveal" id="steckSim">
+      <h3 class="sim-titel">Element-Steckbriefe</h3>
+      <div class="wahl" id="steckWahl"></div>
+      <div class="steck-inhalt" id="steckInhalt"><p class="hint">Tippe ein Element an. Dann siehst du, wie es sich verhält und wofür man es braucht.</p></div>
+      <p class="obs" id="steckObs">Sieh dir alle sechs Elemente an.</p>
+    </div>
+    <div class="card reveal">
+      <div class="merke" style="margin-top:0"><h4>MERKE</h4><ul>
+        <li><strong>Metalle</strong> glänzen und leiten Strom und Wärme gut.</li>
+        <li><strong>Nichtmetalle</strong> leiten Strom meist schlecht, viele sind Gase.</li>
+        <li><strong>Edelgase</strong> stehen in der Hauptgruppe VIII und reagieren fast nie.</li>
+      </ul></div>
+      <div id="mc-s5"></div>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Warum reagieren Edelgase fast nie? Die volle Außenschale</h3>
+    <p class="m7-hinweis">Aufgaben mit dem lila Zeichen gehören zum M-Niveau. In M-Klassen zählen sie mit, in R-Klassen sind sie eine Zusatzaufgabe für Profis.</p>
+    <p>Alle Edelgase haben etwas gemeinsam: Ihre <strong>äußerste Schale ist voll besetzt</strong>. Neon und Argon haben 8 Außenelektronen. Helium hat 2, denn auf die 1. Schale passen nicht mehr. Das ist ein besonders stabiler Zustand. Darum reagieren Edelgase fast nie.</p>
+    <div id="oktBild"></div>
+    <p>Daraus ergibt sich die <button class="term" data-t="oktett">Oktettregel</button>: Atome sind besonders stabil, wenn sie 8 Außenelektronen haben (Helium: 2). Viele Atome verändern sich bei chemischen Reaktionen so, dass sie danach diesen Zustand erreichen. Deshalb reagieren sie überhaupt.</p>
+    <p class="hint">Ausblick: Natrium (1 Außenelektron) und Chlor (7 Außenelektronen) reagieren darum besonders gern miteinander. Es entsteht Kochsalz. Wie das genau geht, lernst du später.</p>
+    <span class="task-tag m7">Zuordnen · M7</span>
+    <h3 style="margin-top:4px">Ist die Außenschale voll?</h3>
+    <p class="hint">Die Zahlen zeigen die Elektronen auf jeder Schale, von innen nach außen. Sortiere die Atome.</p>
+    <div id="sortOktett"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="s6">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Probenstoff · so wird in der Probe gefragt</div><h2>Training für die Probe</h2></div></div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Lückentext · leicht</span>
+    <h3 style="margin-top:4px">Setze die fehlenden Wörter ein</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapAtom"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Paare finden · leicht</span>
+    <h3 style="margin-top:4px">Welches Element wofür?</h3>
+    <p class="hint">Tippe links auf ein Element und dann rechts auf passende Eigenschaft oder Verwendung.</p>
+    <div id="paareVerw"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Richtig oder falsch? · mittel</span>
+    <div id="tf"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Zuordnen · mittel</span>
+    <h3 style="margin-top:4px">Metall, Nichtmetall oder Edelgas?</h3>
+    <p class="hint">Tippe eine Karte an und dann das passende Fach.</p>
+    <div id="sortArt"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Kreuzworträtsel · mittel</span>
+    <h3 style="margin-top:4px">Rund um den Atombau</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Schreibe ä als AE, ö als OE, ü als UE.</p>
+    <div id="cw"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Ankreuzen · mittel</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag schwer">Offene Fragen · schwer</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung. Danach kannst du die Musterlösung ansehen.</p>
+    <div id="open"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Begründe und übertrage <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="openM"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 7 ============ -->
+<section class="station" id="s7">
+  <div class="st-head reveal"><div class="st-num">7</div><div><div class="eyebrow">Abschluss</div><h2>Atombau-Profi-Check</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Damit hast du den Themenbereich „Atome und Materie“ geschafft. Du weißt jetzt, wie Atome gebaut sind und wie das Periodensystem die Elemente ordnet. Die Probe zu diesem Themenbereich steht beim Themenbereich „Tiere“ (Probe 2: Atome und Tiere). Wiederhole bis dahin das Probentraining und den Profi-Check.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik 7 · Lernmodul „Atombau und Periodensystem“ · Dein Fortschritt wird auf diesem Gerät gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="modul-basis.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, esc, shuffle, clamp, setText, register, solve} = Modul;
+
+Modul.init({
+  key: "grumi-nt7-atombau-pse-v1",
+  hero: "funken",
+  thema: "Atombau und Periodensystem: Elementarteilchen Proton, Neutron und Elektron, Ordnungszahl, Massenzahl, Isotope, Aufbau des Periodensystems mit Perioden und Hauptgruppen, Metalle, Nichtmetalle und Edelgase mit Verwendung; M7: Schalen, Außenelektronen, Oktettregel",
+  glossary: {
+    atomkern: ["Atomkern", "Winziges Zentrum des Atoms. Dort liegen die Protonen und die Neutronen. Er ist positiv geladen und enthält fast die ganze Masse."],
+    atomhuelle: ["Atomhülle", "Bereich um den Atomkern, in dem sich die Elektronen aufhalten. Sie ist fast leer und bestimmt die Größe des Atoms."],
+    elementarteilchen: ["Elementarteilchen", "Baustein des Atoms. Du kennst drei Sorten: Proton, Neutron und Elektron."],
+    proton: ["Proton", "Positiv geladenes Teilchen im Atomkern. Die Zahl der Protonen legt fest, um welches Element es sich handelt."],
+    neutron: ["Neutron", "Ungeladenes Teilchen im Atomkern. Es ist etwa so schwer wie ein Proton."],
+    elektron: ["Elektron", "Negativ geladenes Teilchen in der Atomhülle. Es hat fast keine Masse: Es ist knapp 2000-mal leichter als ein Proton."],
+    neutral: ["neutral", "Elektrisch ungeladen: Positive und negative Ladung gleichen sich genau aus. Ein Atom hat gleich viele Protonen und Elektronen."],
+    ordnungszahl: ["Ordnungszahl", "Zahl der Protonen im Kern. Sie steht im Periodensystem. Beim neutralen Atom ist sie auch die Zahl der Elektronen."],
+    massenzahl: ["Massenzahl", "Zahl aller Teilchen im Kern: Protonen plus Neutronen. Neutronen = Massenzahl − Ordnungszahl."],
+    isotope: ["Isotope", "Atome desselben Elements mit verschieden vielen Neutronen. Sie haben die gleiche Ordnungszahl, aber verschiedene Massenzahlen."],
+    periodensystem: ["Periodensystem", "Tabelle aller Elemente, geordnet nach steigender Ordnungszahl. Elemente mit ähnlichen Eigenschaften stehen untereinander."],
+    periode: ["Periode", "Waagerechte Zeile im Periodensystem. Es gibt sieben Perioden."],
+    hauptgruppe: ["Hauptgruppe", "Senkrechte Spalte im Periodensystem, mit I bis VIII nummeriert. Die Elemente einer Hauptgruppe ähneln sich."],
+    metall: ["Metall", "Element, das glänzt und Strom und Wärme gut leitet. Fast alle Metalle sind bei Zimmertemperatur fest und lassen sich verformen. Beispiele: Natrium, Aluminium."],
+    nichtmetall: ["Nichtmetall", "Element ohne die typischen Metall-Eigenschaften: Es leitet Strom meist schlecht. Viele sind Gase. Beispiele: Sauerstoff, Chlor, Fluor."],
+    edelgas: ["Edelgas", "Gas aus der Hauptgruppe VIII, das fast nie reagiert: Helium, Neon, Argon."],
+    reaktionstraege: ["reaktionsträge", "Geht kaum Reaktionen mit anderen Stoffen ein. Edelgase sind reaktionsträge, Natrium und Fluor dagegen sehr reaktionsfreudig."],
+    schale: ["Schale (M7)", "Stufe in der Atomhülle, auf der Elektronen sitzen (auch Energiestufe genannt). Auf die 1. Schale passen höchstens 2 Elektronen, auf die 2. höchstens 8."],
+    aussenelektron: ["Außenelektron (M7)", "Elektron auf der äußersten Schale. Seine Anzahl ist die Nummer der Hauptgruppe (bei Helium: 2)."],
+    oktett: ["Oktettregel (M7)", "Atome sind besonders stabil, wenn ihre Außenschale mit 8 Elektronen besetzt ist (bei Helium mit 2). Viele Atome verändern sich bei Reaktionen so, dass sie danach diesen Zustand haben."]
+  }
+});
+
+/* ---------- Daten: die ersten 20 Elemente (a = Massenzahl der häufigsten Atomsorte) ---------- */
+const ROEM = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
+const ART = {me: "Metall", nm: "Nichtmetall", eg: "Edelgas", hm: "Halbmetall"};
+const EL = [
+  {z: 1, s: "H", n: "Wasserstoff", a: 1, g: 1, p: 1, k: "nm", t: "Das leichteste Element, ein brennbares Gas. Es steht in der Hauptgruppe I, ist aber ein Nichtmetall."},
+  {z: 2, s: "He", n: "Helium", a: 4, g: 8, p: 1, k: "eg", t: "Edelgas, viel leichter als Luft und nicht brennbar. Es füllt Ballons und Luftschiffe."},
+  {z: 3, s: "Li", n: "Lithium", a: 7, g: 1, p: 2, k: "me", t: "Sehr leichtes, weiches Metall. Es steckt in den Akkus von Handys und Laptops."},
+  {z: 4, s: "Be", n: "Beryllium", a: 9, g: 2, p: 2, k: "me", t: "Leichtes, hartes Metall. Im Alltag kommt es kaum vor."},
+  {z: 5, s: "B", n: "Bor", a: 11, g: 3, p: 2, k: "hm", t: "Halbmetall mit Eigenschaften von Metallen und Nichtmetallen. Es steckt in hitzebeständigem Glas."},
+  {z: 6, s: "C", n: "Kohlenstoff", a: 12, g: 4, p: 2, k: "nm", t: "Nichtmetall. Als Graphit steckt es in Bleistiftminen, als Diamant im Schmuck. Alle Lebewesen enthalten Kohlenstoff."},
+  {z: 7, s: "N", n: "Stickstoff", a: 14, g: 5, p: 2, k: "nm", t: "Nichtmetall, farbloses Gas. Etwa vier Fünftel der Luft bestehen aus Stickstoff."},
+  {z: 8, s: "O", n: "Sauerstoff", a: 16, g: 6, p: 2, k: "nm", t: "Nichtmetall, farbloses Gas. Etwa ein Fünftel der Luft. Wir brauchen es zum Atmen, und jedes Feuer braucht es."},
+  {z: 9, s: "F", n: "Fluor", a: 19, g: 7, p: 2, k: "nm", t: "Giftiges, sehr reaktionsfreudiges Gas. Als Fluorid steckt es in Zahnpasta und schützt die Zähne."},
+  {z: 10, s: "Ne", n: "Neon", a: 20, g: 8, p: 2, k: "eg", t: "Edelgas. In Leuchtröhren leuchtet es rot-orange."},
+  {z: 11, s: "Na", n: "Natrium", a: 23, g: 1, p: 3, k: "me", t: "Weiches, sehr reaktionsfreudiges Metall. Es steckt im Kochsalz."},
+  {z: 12, s: "Mg", n: "Magnesium", a: 24, g: 2, p: 3, k: "me", t: "Leichtes Metall. Es verbrennt mit grellweißem Licht."},
+  {z: 13, s: "Al", n: "Aluminium", a: 27, g: 3, p: 3, k: "me", t: "Leichtes Metall, das Strom leitet. Fahrradrahmen, Getränkedosen und Alufolie bestehen daraus."},
+  {z: 14, s: "Si", n: "Silicium", a: 28, g: 4, p: 3, k: "hm", t: "Halbmetall. Rohstoff für Computerchips und Solarzellen. Sand besteht vor allem aus einer Silicium-Verbindung."},
+  {z: 15, s: "P", n: "Phosphor", a: 31, g: 5, p: 3, k: "nm", t: "Nichtmetall. Verbindungen mit Phosphor düngen Pflanzen."},
+  {z: 16, s: "S", n: "Schwefel", a: 32, g: 6, p: 3, k: "nm", t: "Gelber Feststoff, ein Nichtmetall. Man findet ihn zum Beispiel bei Vulkanen."},
+  {z: 17, s: "Cl", n: "Chlor", a: 35, g: 7, p: 3, k: "nm", t: "Giftiges, gelbgrünes Gas. Stoffe mit Chlor desinfizieren Schwimmbadwasser."},
+  {z: 18, s: "Ar", n: "Argon", a: 40, g: 8, p: 3, k: "eg", t: "Edelgas. Knapp 1 % der Luft ist Argon. Es dient als Schutzgas beim Schweißen."},
+  {z: 19, s: "K", n: "Kalium", a: 39, g: 1, p: 4, k: "me", t: "Weiches, sehr reaktionsfreudiges Metall. Verbindungen mit Kalium düngen Pflanzen."},
+  {z: 20, s: "Ca", n: "Calcium", a: 40, g: 2, p: 4, k: "me", t: "Metall. Calcium-Verbindungen stecken in Knochen, Zähnen, Eierschalen und Kalkstein."}
+];
+const AU = {z: 79, s: "Au", n: "Gold", a: 197};
+const GRTEXT = {
+  1: "Lithium, Natrium und Kalium sind weiche, sehr reaktionsfreudige Metalle. Wasserstoff passt nicht dazu: Er ist ein Nichtmetall. Elemente einer Hauptgruppe ähneln sich.",
+  2: "Alle Elemente dieser Hauptgruppe sind Metalle.",
+  3: "Aluminium ist ein Metall, Bor ein Halbmetall.",
+  4: "Kohlenstoff ist ein Nichtmetall, Silicium ein Halbmetall.",
+  5: "Stickstoff und Phosphor sind Nichtmetalle.",
+  6: "Sauerstoff und Schwefel sind Nichtmetalle.",
+  7: "Fluor und Chlor sind giftige, sehr reaktionsfreudige Gase. Elemente einer Hauptgruppe ähneln sich.",
+  8: "Das sind die Edelgase. Sie reagieren fast nie."
+};
+const nuk = (a, z, s) => `<span class="nuk"><span class="nz"><i>${a}</i><i>${z}</i></span><span class="ns">${esc(s)}</span></span>`;
+const pl = (n, a, b) => n + " " + (n === 1 ? a : b);
+
+/* ---------- Zeichnen: Atome als SVG ---------- */
+const FARBE = {p: "#e0453a", n: "#8a97a3", e: "#2f6fdb", aussen: "#f2b632"};
+// Reihenfolge der Kernteilchen: p Protonen und n Neutronen gleichmäßig gemischt
+const mischung = (p, n) => { const N = p + n, t = []; for (let i = 0; i < N; i++) t.push(Math.floor((i + 1) * p / N) > Math.floor(i * p / N) ? "p" : "n"); return t; };
+// Elektronen je Schale (erste 20 Elemente): 2, 8, 8, dann die vierte
+const schalenVerteilung = e => { const out = []; let rest = e; for (const kap of [2, 8, 8, 8]) { if (rest <= 0) break; const k = Math.min(kap, rest); out.push(k); rest -= k; } return out; };
+// Elektronenwolke: unregelmäßig wirkende, aber feste Verteilung in einem Ring, ohne Bahnen.
+// Jedes neue Elektron liegt möglichst weit von den schon vorhandenen entfernt, die alten bleiben an ihrem Platz.
+const wolkenSpeicher = {};
+function wolke(r0, r1){
+  const key = r0 + "-" + r1;
+  if (!wolkenSpeicher[key]) {
+    let seed = 12345; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const pts = [];
+    for (let i = 0; i < 90; i++) {
+      let best = null, bd = -1;
+      for (let k = 0; k < 30; k++) {
+        const w = rnd() * 6.283185, r = Math.sqrt(r0 * r0 + (r1 * r1 - r0 * r0) * rnd()), x = r * Math.cos(w), y = r * Math.sin(w);
+        let d = 1e9; for (const p of pts) d = Math.min(d, Math.hypot(p[0] - x, p[1] - y));
+        if (d > bd) { bd = d; best = [x, y]; }
+      }
+      pts.push(best);
+    }
+    wolkenSpeicher[key] = pts;
+  }
+  return wolkenSpeicher[key];
+}
+const wolkenPos = (i, r0, r1) => wolke(r0, r1)[i];
+function kernKreise(kern, cx, cy, grenze){
+  const N = kern.length, rn = Math.min(10, grenze / (1.35 * Math.sqrt(Math.max(N, 1)) + 1)), c = 1.35 * rn, out = [];
+  for (let i = 0; i < N; i++) { const r = c * Math.sqrt(i + 0.5), a = i * 2.399963; out.push({x: cx + r * Math.cos(a), y: cy + r * Math.sin(a), t: kern[i], r: rn}); }
+  return out;
+}
+function nukleon(k){
+  let s = `<circle cx="${k.x.toFixed(1)}" cy="${k.y.toFixed(1)}" r="${k.r.toFixed(1)}" fill="${FARBE[k.t]}" stroke="#fff" stroke-width=".8"/>`;
+  if (k.t === "p" && k.r >= 6.5) { const g = k.r * .4; s += `<path d="M${(k.x - g).toFixed(1)} ${k.y.toFixed(1)}h${(2 * g).toFixed(1)}M${k.x.toFixed(1)} ${(k.y - g).toFixed(1)}v${(2 * g).toFixed(1)}" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>`; }
+  return s;
+}
+function elektron(x, y, r, aussen){
+  let s = `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="${FARBE.e}" stroke="${aussen ? FARBE.aussen : "#fff"}" stroke-width="${aussen ? 3 : 1}"/>`;
+  if (r >= 6) s += `<path d="M${(x - r * .45).toFixed(1)} ${y.toFixed(1)}h${(r * .9).toFixed(1)}" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>`;
+  return s;
+}
+// o: {kern: ["p","n",…], e, schalen, kennz, titel, alt, kernGrenze}
+function atomSvg(o){
+  const kern = o.kern, e = o.e, CX = 180, CY = 160, N = kern.length, p = kern.filter(t => t === "p").length, n = N - p;
+  let s = `<svg class="atom-fig" viewBox="0 0 360 332" role="img" aria-label="${esc(o.alt || `Atom mit ${pl(p, "Proton", "Protonen")}, ${pl(n, "Neutron", "Neutronen")} und ${pl(e, "Elektron", "Elektronen")}`)}">`;
+  if (o.schalen) {
+    const sv = schalenVerteilung(e), R = [52, 86, 120, 150];
+    for (let i = 0; i < Math.max(1, sv.length); i++) s += `<circle cx="${CX}" cy="${CY}" r="${R[i]}" fill="none" stroke="#8e55c7" stroke-width="2" stroke-dasharray="6 6"/>`;
+    sv.forEach((k, si) => { for (let j = 0; j < k; j++) { const w = -Math.PI / 2 + 2 * Math.PI * j / k + si * .5; s += elektron(CX + R[si] * Math.cos(w), CY + R[si] * Math.sin(w), 7, si === sv.length - 1); } });
+  } else {
+    s += `<circle cx="${CX}" cy="${CY}" r="148" fill="#eaf3fb" stroke="#9db7cc" stroke-width="2" stroke-dasharray="5 6"/>`;
+    const re = e > 24 ? 3.2 : 7, r0 = N > 100 ? 78 : 72;
+    for (let i = 0; i < e; i++) { const [x, y] = wolkenPos(i, r0, 138); s += elektron(CX + x, CY + y, re, false); }
+  }
+  if (N) kernKreise(kern, CX, CY, o.kernGrenze || (o.schalen ? 40 : 46)).forEach(k => { s += nukleon(k); });
+  else s += `<circle cx="${CX}" cy="${CY}" r="14" fill="none" stroke="#9db7cc" stroke-width="2" stroke-dasharray="3 4"/>`;
+  if (o.kennz) s += `<g stroke="#15212b" stroke-width="1.5" fill="none"><path d="M64 30L${CX - 12} ${CY - 14}"/><path d="M296 30L${CX + 112} ${CY - 100}"/></g><g font-size="13" font-weight="800" fill="#15212b"><text x="6" y="26">Atomkern</text><text x="354" y="26" text-anchor="end">Atomhülle</text></g>`;
+  if (o.titel) s += `<text x="180" y="326" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">${esc(o.titel)}</text>`;
+  return s + "</svg>";
+}
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Was glaubst du: Wodurch unterscheidet sich ein Gold-Atom von einem Sauerstoff-Atom?", o: ["Beide sind aus denselben drei Sorten Bausteinen gebaut, nur die Anzahl ist verschieden.", "Gold-Atome bestehen aus ganz anderen Bausteinen als Sauerstoff-Atome.", "Gold-Atome sind einfach größere Kugeln. Innen sind alle Atome gleich.", "Sauerstoff-Atome haben keinen Atomkern."], a: 0, e: "Alle Atome bestehen aus Protonen, Neutronen und Elektronen. Gold-Atome haben nur viel mehr davon. Im Bild siehst du es."},
+    {q: "Ein Sauerstoff-Atom hat 8 Protonen. Wie viele Protonen hat ein Gold-Atom?", o: ["79", "8", "118", "197"], a: 0, e: "Ein Gold-Atom hat 79 Protonen (und 118 Neutronen). Die Zahl der Protonen entscheidet, um welches Element es sich handelt."}
+  ],
+  s2: [
+    {q: "Ein Atom hat 5 Protonen und 5 Elektronen. Wie ist es geladen?", o: ["Es ist neutral.", "Es ist positiv geladen.", "Es ist negativ geladen.", "Das kann man nicht sagen, man müsste die Neutronen kennen."], a: 0, e: "5 Plus und 5 Minus gleichen sich aus. Neutronen haben keine Ladung und ändern daran nichts."},
+    {q: "Was bestimmt, um welches Element es sich handelt?", o: ["die Zahl der Protonen", "die Zahl der Neutronen", "die Größe des Atoms", "die Farbe des Stoffes"], a: 0, e: "Ändert sich die Protonenzahl, entsteht ein anderes Element. Mehr oder weniger Neutronen ändern nur die Masse."}
+  ],
+  s3: [
+    {q: "Beim Atom-Symbol steht die Massenzahl …", o: ["oben links vor dem Elementsymbol.", "unten links vor dem Elementsymbol.", "oben rechts hinter dem Elementsymbol.", "in der Mitte des Symbols."], a: 0, e: "Oben links steht die Massenzahl, unten links die Ordnungszahl."},
+    {q: "Ein Atom hat 6 Protonen und 8 Neutronen. Wie groß ist seine Massenzahl?", o: ["14", "6", "8", "2"], a: 0, e: "Massenzahl = Protonen + Neutronen = 6 + 8 = 14. Es ist ein Kohlenstoff-14-Atom."},
+    {q: "Was haben alle Isotope eines Elements gemeinsam?", o: ["die Zahl der Protonen", "die Zahl der Neutronen", "die Massenzahl", "Gar nichts, es sind verschiedene Elemente."], a: 0, e: "Isotope sind Atome desselben Elements. Sie haben gleich viele Protonen, aber verschieden viele Neutronen und damit verschiedene Massenzahlen."}
+  ],
+  s4: [
+    {q: "Wie heißen die waagerechten Zeilen im Periodensystem?", o: ["Perioden", "Hauptgruppen", "Ordnungszahlen", "Isotope"], a: 0, e: "Zeilen heißen Perioden, Spalten heißen Hauptgruppen."},
+    {q: "Natrium und Kalium stehen im Periodensystem untereinander in einer Spalte. Was bedeutet das?", o: ["Sie stehen in derselben Hauptgruppe und ähneln sich.", "Sie stehen in derselben Periode.", "Sie haben gleich viele Protonen.", "Sie sind beide Gase."], a: 0, e: "Elemente in einer Spalte gehören zur selben Hauptgruppe. Natrium und Kalium sind beide weiche, sehr reaktionsfreudige Metalle."}
+  ],
+  s5: [
+    {q: "Welche Eigenschaft passt zu Metallen?", o: ["Sie leiten Strom und Wärme gut.", "Sie sind meist Gase.", "Sie reagieren fast nie mit anderen Stoffen.", "Sie sind spröde und matt."], a: 0, e: "Metalle glänzen und leiten Strom und Wärme gut. Gase und spröde Stoffe findest du eher bei den Nichtmetallen. Fast nie reagieren die Edelgase."},
+    {q: "Warum füllt man Luftballons mit Helium?", o: ["Helium ist viel leichter als Luft.", "Helium ist ein Metall und trägt den Ballon.", "Helium leuchtet im Dunkeln.", "Helium ist schwerer als Luft."], a: 0, e: "Helium ist viel leichter als Luft, darum steigt der Ballon. Außerdem brennt Helium nicht."},
+    {q: "Natrium bewahrt man unter Öl auf. Warum?", o: ["Es reagiert heftig mit Luft und Wasser.", "Es ist ein Edelgas und würde sonst entweichen.", "Es wäre sonst zu schwer.", "Es würde sonst im Dunkeln leuchten."], a: 0, e: "Natrium ist sehr reaktionsfreudig. An der Luft und im Wasser reagiert es sofort. Unter Öl ist es davor geschützt."}
+  ],
+  train: [
+    {q: "Welche Teilchen findest du im Atomkern?", o: ["Protonen", "Neutronen", "Elektronen", "Moleküle"], a: [0, 1], e: "Im Kern sitzen Protonen und Neutronen. Die Elektronen befinden sich in der Hülle."},
+    {q: "Ein Atom hat 9 Protonen. Wie viele Elektronen hat das neutrale Atom?", o: ["9", "18", "10", "0"], a: 0, e: "Ein neutrales Atom hat so viele Elektronen wie Protonen: 9."},
+    {q: "Welche Aussage über Isotope stimmt?", o: ["Sie haben gleich viele Protonen, aber verschieden viele Neutronen.", "Sie haben gleich viele Neutronen, aber verschieden viele Protonen.", "Sie haben verschieden viele Protonen und Elektronen.", "Sie sind Atome verschiedener Elemente."], a: 0, e: "Isotope sind Atome desselben Elements. Nur die Neutronenzahl ist verschieden."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), [MC.s1[0]], "mc1", {t: "Was glaubst du?"});
+Modul.makeMC($("#mc-s1b"), [MC.s1[1]], "mc1b", {t: "Kurz-Check"});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s5"), MC.s5, "mc5", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Station 1: Gold- und Sauerstoff-Atom ---------- */
+(function(){
+  const bild = $("#vglBild"), obs = $("#vglObs"), zahl = $("#vglZahl"), btns = $$("#vglWahl button");
+  const id = "vergleich"; register(id, "#vglSim", "Atom-Vergleich: Sauerstoff-Atom und Gold-Atom ansehen");
+  const D = {
+    O: {p: 8, n: 8, e: 8, name: "Sauerstoff-Atom", grenze: 46, text: "Sauerstoff-Atom: Im Kern sitzen 8 Protonen und 8 Neutronen. In der Hülle sind 8 Elektronen."},
+    Au: {p: 79, n: 118, e: 79, name: "Gold-Atom", grenze: 56, text: "Gold-Atom: Im Kern sitzen 79 Protonen und 118 Neutronen. In der Hülle sind 79 Elektronen. Es sind dieselben Bausteine wie beim Sauerstoff – nur viel mehr davon."}
+  };
+  const gesehen = new Set();
+  function zeig(k, zaehlen){
+    const d = D[k];
+    bild.innerHTML = atomSvg({kern: mischung(d.p, d.n), e: d.e, kennz: true, titel: d.name, kernGrenze: d.grenze, alt: `${d.name}: ${d.p} Protonen, ${d.n} Neutronen, ${d.e} Elektronen`});
+    zahl.innerHTML = `<span class="chip">Protonen: ${d.p}</span><span class="chip">Neutronen: ${d.n}</span><span class="chip">Elektronen: ${d.e}</span>`;
+    btns.forEach(b => b.classList.toggle("sel", b.dataset.k === k));
+    if (zaehlen) gesehen.add(k);
+    setText(obs, d.text + (gesehen.size === 2 ? " ✅ Gold und Sauerstoff bestehen aus denselben drei Sorten Bausteinen. Der Unterschied ist die Anzahl – vor allem die der Protonen." : ""));
+    if (gesehen.size === 2) solve(id);
+  }
+  btns.forEach(b => b.addEventListener("click", () => zeig(b.dataset.k, true)));
+  zeig("O", false);
+})();
+
+/* ---------- Station 2: Wer ist wer? ---------- */
+Modul.makeSort($("#sortBausteine"), {
+  buckets: ["Proton", "Neutron", "Elektron"],
+  items: [
+    {t: "positiv geladen", b: 0}, {t: "Seine Zahl bestimmt das Element", b: 0},
+    {t: "keine Ladung", b: 1}, {t: "sitzt im Kern, ist aber ungeladen", b: 1},
+    {t: "negativ geladen", b: 2}, {t: "fast ohne Masse", b: 2}, {t: "sitzt in der Atomhülle", b: 2}
+  ], cols: 150
+}, "sortBausteine");
+
+/* ---------- Station 2: Atom-Baukasten ---------- */
+(function(){
+  const sim = $("#bauSim"), bild = $("#bauBild"), name = $("#bauName"), obs = $("#bauObs"), auf = $("#bauAuf"), bSch = $("#bauSchalen"), bLeer = $("#bauLeer");
+  const out = {p: $("#bauP"), n: $("#bauN"), e: $("#bauE")};
+  const id = "baukasten"; register(id, "#bauSim", "Atom-Baukasten: Teilchen hinzufügen und vier Elemente bauen");
+  const MAX = {p: 20, n: 22, e: 20}, AUFTR = [2, 6, 8, 11];
+  let kern = ["p"], e = 1, schalen = false; const fertig = new Set();
+  const zahl = t => kern.filter(x => x === t).length;
+  function bauText(p, n, e, was){
+    if (p === 0) return "Ohne Proton gibt es kein Element. Die Zahl der Protonen entscheidet, welches Element ein Atom ist. Füge ein Proton hinzu.";
+    const el = EL[p - 1], l = p - e, el0 = e === 0 ? "keine Elektronen" : pl(e, "Elektron", "Elektronen");
+    let t;
+    if (l === 0) t = `Neutrales ${el.n}-Atom: ${pl(p, "Proton", "Protonen")} (+) und ${pl(e, "Elektron", "Elektronen")} (−) gleichen sich aus.`;
+    else if (l > 0) t = `Das ist kein neutrales Atom: ${pl(p, "Proton", "Protonen")} (+), aber nur ${el0} (−). Es ist positiv geladen. Ein Atom hat gleich viele Protonen wie Elektronen.`;
+    else t = `Das ist kein neutrales Atom: ${pl(p, "Proton", "Protonen")} (+), aber ${pl(e, "Elektron", "Elektronen")} (−). Es ist negativ geladen. Ein Atom hat gleich viele Protonen wie Elektronen.`;
+    if (was === "p") t += " Du hast die Protonenzahl verändert – dadurch ändert sich das Element.";
+    else if (was === "n") t += " Die Neutronen ändern die Masse, aber nicht das Element.";
+    if (schalen && e > 0) t += " Gelb umrandet: die Elektronen auf der äußersten Schale. Die Kreise sind keine Flugbahnen wie bei Planeten, sie zeigen nur die Schale.";
+    return t;
+  }
+  function zeige(was){
+    const p = zahl("p"), n = zahl("n"), l = p - e;
+    bild.innerHTML = atomSvg({kern, e, schalen});
+    setText(out.p, String(p)); setText(out.n, String(n)); setText(out.e, String(e));
+    $$(".bau-b", sim).forEach(b => { const k = b.dataset.k, d = +b.dataset.d, v = k === "e" ? e : zahl(k); b.disabled = d > 0 ? v >= MAX[k] : v <= 0; });
+    const ladung = l === 0 ? '<span class="chip ok">neutral</span>' : `<span class="chip warn">${l > 0 ? "+" + l : "−" + (-l)} geladen</span>`;
+    name.innerHTML = p >= 1
+      ? `<span class="nuk gross"><span class="nz"><i>${p + n}</i><i>${p}</i></span><span class="ns">${EL[p - 1].s}</span></span><div><b>${EL[p - 1].n}</b><span class="t">Ordnungszahl ${p} · Massenzahl ${p + n}</span>${ladung}</div>`
+      : `<div><b>Kein Element</b><span class="t">Es fehlen die Protonen.</span>${ladung}</div>`;
+    let neu = "";
+    if (p >= 1 && l === 0 && AUFTR.includes(p) && !fertig.has(p)) { fertig.add(p); neu = ` ✅ Auftrag erfüllt: ein neutrales ${EL[p - 1].n}-Atom!`; }
+    auf.innerHTML = '<span class="hint" style="margin:0">Aufträge:</span> ' + AUFTR.map(z => `<span class="chip ${fertig.has(z) ? "ok" : ""}">${fertig.has(z) ? "✅" : "○"} ${EL[z - 1].n}</span>`).join(" ");
+    setText(obs, bauText(p, n, e, was) + neu + (fertig.size === AUFTR.length ? " 🎉 Alle vier Aufträge sind geschafft." : ""));
+    if (fertig.size === AUFTR.length) solve(id);
+  }
+  $$(".bau-b", sim).forEach(b => b.addEventListener("click", () => {
+    const k = b.dataset.k, d = +b.dataset.d;
+    if (k === "e") e = clamp(e + d, 0, MAX.e);
+    else if (d > 0) { if (zahl(k) < MAX[k]) kern.push(k); }
+    else { const j = kern.lastIndexOf(k); if (j >= 0) kern.splice(j, 1); }
+    zeige(k);
+  }));
+  bLeer.addEventListener("click", () => { kern = ["p"]; e = 1; zeige(null); });
+  bSch.addEventListener("click", () => {
+    schalen = !schalen; bSch.setAttribute("aria-pressed", String(schalen));
+    bSch.textContent = schalen ? "Elektronen als Wolke" : "Elektronen auf Schalen (M7)";
+    zeige(null);
+  });
+  zeige(null);
+})();
+
+/* ---------- Station 3: Atom-Symbol lesen (Animation in Schritten) ---------- */
+(function(){
+  const gP = $("#syP"), gN = $("#syN"), gE = $("#syE"), bgA = $("#syAbg"), bgZ = $("#syZbg"), text = $("#syText"), rech = $("#syRech");
+  let sp = "", sn = "", se = "";
+  kernKreise(mischung(6, 6), 352, 116, 52).forEach(k => { if (k.t === "p") sp += nukleon(k); else sn += nukleon(k); });
+  for (let i = 0; i < 6; i++) { const [x, y] = wolkenPos(i, 66, 98); se += elektron(352 + x, 116 + y, 7, false); }
+  gP.innerHTML = sp; gN.innerHTML = sn; gE.innerHTML = se;
+  Modul.makeSchritte($("#symbolSim"), {
+    steps: [
+      "Das ist das Symbol von Kohlenstoff: <b>C</b>. Davor stehen zwei Zahlen: oben links die Massenzahl, unten links die Ordnungszahl.",
+      "Die untere Zahl ist die <b>Ordnungszahl: 6</b>. So viele <b>Protonen</b> (rot) sitzen im Kern.",
+      "Die obere Zahl ist die <b>Massenzahl: 12</b>. Sie zählt alle Teilchen im Kern: Protonen <b>und</b> Neutronen.",
+      "Wie viele <b>Neutronen</b> (grau) sind es? Massenzahl minus Ordnungszahl: <b>12&nbsp;−&nbsp;6&nbsp;=&nbsp;6</b>.",
+      "Das Atom ist neutral. Es hat so viele <b>Elektronen</b> (blau) wie Protonen: <b>6</b>."
+    ],
+    ms: 3400,
+    zeige(i){
+      const k = Math.max(0, i);
+      const dim = .2;
+      gP.style.opacity = [1, 1, 1, dim, 1][k];
+      gN.style.opacity = [1, dim, 1, 1, dim][k];
+      gE.style.opacity = [1, dim, dim, dim, 1][k];
+      bgZ.style.opacity = [0, 1, 0, 1, 1][k];
+      bgA.style.opacity = [0, 0, 1, 1, 0][k];
+      setText(text, ["Atom-Symbol von Kohlenstoff", "Ordnungszahl = Zahl der Protonen", "Massenzahl = alle Kernteilchen", "Neutronen berechnen", "Elektronen = Protonen"][k]);
+      setText(rech, ["", "6 Protonen", "6 + 6 = 12", "12 − 6 = 6 Neutronen", "6 Elektronen"][k]);
+    }
+  }, "symbol");
+})();
+
+/* ---------- Station 3: Zähl-Trainer ---------- */
+(function(){
+  const bild = $("#zaehlBild"), frage = $("#zaehlFrage"), wahl = $("#zaehlWahl"), fb = $("#zaehlFb"), chip = $("#zaehlChip");
+  const id = "zaehl"; register(id, "#zaehlKarte", "Zähl-Trainer: Teilchenzahlen aus dem Atom-Symbol bestimmen");
+  const AUFG = [["C", "n"], ["O", "p"], ["Na", "n"], ["F", "e"], ["Al", "n"], ["Li", "n"], ["Cl", "n"], ["Au", "n"]];
+  const WAS = {p: "Protonen", n: "Neutronen", e: "Elektronen"};
+  const finde = s => s === "Au" ? AU : EL.find(x => x.s === s);
+  let reihe = shuffle(AUFG), i = 0;
+  function optionen(el, was){
+    const wert = was === "n" ? el.a - el.z : el.z;
+    const kand = was === "n" ? [el.z, el.a, el.a + el.z, wert + 1, wert - 1, wert + 2] : [el.a, el.a - el.z, el.z + 1, el.z - 1, el.a + el.z];
+    const liste = [wert];
+    kand.forEach(k => { if (k > 0 && !liste.includes(k) && liste.length < 4) liste.push(k); });
+    for (let k = wert + 3; liste.length < 4; k++) if (!liste.includes(k)) liste.push(k);
+    return {wert, liste: liste.sort((a, b) => a - b)};
+  }
+  function erklaerung(el, was){
+    return was === "n" ? `Neutronen = Massenzahl − Ordnungszahl = ${el.a} − ${el.z} = ${el.a - el.z}.`
+      : was === "p" ? `Die Ordnungszahl ${el.z} ist die Zahl der Protonen.`
+      : `Ein neutrales Atom hat so viele Elektronen wie Protonen: ${el.z}.`;
+  }
+  function tipp(el, was, v){
+    if (was === "n") return v === el.z ? "Das sind die Protonen (Ordnungszahl). Gesucht sind die Neutronen: Massenzahl minus Ordnungszahl."
+      : v === el.a ? "Das ist die Massenzahl: Protonen und Neutronen zusammen. Ziehe die Protonen ab."
+      : `Rechne Massenzahl minus Ordnungszahl: ${el.a} − ${el.z}.`;
+    return v === el.a ? "Das ist die Massenzahl (oben links). Gesucht ist die Ordnungszahl (unten links)."
+      : was === "p" ? "Die Zahl der Protonen steht unten links: Das ist die Ordnungszahl."
+      : "Elektronen und Protonen sind beim neutralen Atom gleich viele. Die Zahl steht unten links.";
+  }
+  function zeig(){
+    if (i >= reihe.length) {
+      bild.innerHTML = '<div style="font-size:3rem;line-height:1">🏆</div>';
+      setText(frage, "Geschafft! Du hast alle Atome richtig bestimmt.");
+      wahl.innerHTML = '<button type="button" class="sel">Noch einmal üben</button>';
+      $("button", wahl).addEventListener("click", () => { reihe = shuffle(AUFG); i = 0; fb.className = "fb"; zeig(); });
+      setText(chip, `${reihe.length} von ${reihe.length} gelöst`); solve(id); return;
+    }
+    const [s, was] = reihe[i], el = finde(s), o = optionen(el, was);
+    bild.innerHTML = `<div class="zk-karte"><span class="nuk riesig">${nuk(el.a, el.z, el.s)}</span><span class="nm">${esc(el.n)}</span></div>`;
+    frage.innerHTML = `Aufgabe ${i + 1} von ${reihe.length}: Wie viele <strong>${WAS[was]}</strong> hat dieses neutrale Atom?`;
+    wahl.innerHTML = o.liste.map(v => `<button type="button" data-v="${v}">${v}</button>`).join("");
+    $$("button", wahl).forEach(b => b.addEventListener("click", () => {
+      const v = +b.dataset.v;
+      if (v === o.wert) { fb.className = "fb show ok"; fb.textContent = "✅ Richtig: " + erklaerung(el, was); i++; zeig(); }
+      else { b.disabled = true; fb.className = "fb show bad"; fb.textContent = "❌ " + tipp(el, was, v); }
+    }));
+    setText(chip, `${i} von ${reihe.length} gelöst`);
+  }
+  zeig();
+})();
+
+/* ---------- Station 3: Isotope ---------- */
+(function(){
+  const bild = $("#isoBild"), zahl = $("#isoZahl"), obs = $("#isoObs"), btns = $$("#isoWahl button");
+  const id = "iso"; register(id, "#isoSim", "Isotope entdecken: Wasserstoff und Kohlenstoff mit verschiedenen Neutronenzahlen");
+  const ISO = [
+    {z: 1, n: 0, name: "Wasserstoff-1", t: "Wasserstoff-1 hat 1 Proton und kein Neutron. Das ist die häufigste Sorte: Fast alle Wasserstoff-Atome sind so gebaut."},
+    {z: 1, n: 1, name: "Wasserstoff-2", t: "Wasserstoff-2 (Deuterium) hat 1 Proton und 1 Neutron. Es ist ein Wasserstoff-Atom, aber doppelt so schwer. Es kommt nur selten vor."},
+    {z: 1, n: 2, name: "Wasserstoff-3", t: "Wasserstoff-3 (Tritium) hat 1 Proton und 2 Neutronen. Es ist radioaktiv und kommt in der Natur nur in Spuren vor."},
+    {z: 6, n: 6, name: "Kohlenstoff-12", t: "Kohlenstoff-12 hat 6 Protonen und 6 Neutronen. Das ist die häufigste Sorte: Fast 99 von 100 Kohlenstoff-Atomen sind so gebaut."},
+    {z: 6, n: 8, name: "Kohlenstoff-14", t: "Kohlenstoff-14 hat 6 Protonen und 8 Neutronen. Es ist radioaktiv und selten. Forscher bestimmen damit das Alter von Holz und Knochen."}
+  ];
+  const gesehen = new Set();
+  function zeig(i){
+    const d = ISO[i], el = EL[d.z - 1];
+    bild.innerHTML = atomSvg({kern: mischung(d.z, d.n), e: d.z, titel: d.name, alt: `${d.name}: ${d.z} Protonen, ${d.n} Neutronen, ${d.z} Elektronen`});
+    zahl.innerHTML = `<span class="chip">${nuk(d.z + d.n, d.z, el.s)}</span><span class="chip">Protonen: ${d.z}</span><span class="chip">Neutronen: ${d.n}</span><span class="chip">Massenzahl: ${d.z + d.n}</span>`;
+    btns.forEach((b, j) => b.classList.toggle("sel", j === i));
+    gesehen.add(i);
+    setText(obs, d.t + (gesehen.size === ISO.length ? " ✅ Die Protonenzahl bleibt gleich, nur die Neutronenzahl ändert sich. Das sind Isotope." : ""));
+    if (gesehen.size === ISO.length) solve(id);
+  }
+  btns.forEach((b, i) => b.addEventListener("click", () => zeig(i)));
+  bild.innerHTML = atomSvg({kern: mischung(1, 0), e: 1, titel: "Tippe eine Atomsorte an", alt: "Noch keine Atomsorte gewählt"});
+})();
+
+/* ---------- Station 4: Periodensystem ---------- */
+function pseBauen(box, kopf){
+  let h = "";
+  for (let g = 1; g <= 8; g++) h += kopf
+    ? `<button type="button" class="pse-kopf pse-sp" data-g="${g}" data-probier style="grid-column:${g + 1};grid-row:1" aria-label="Hauptgruppe ${ROEM[g]} markieren">${ROEM[g]}</button>`
+    : `<div class="pse-kopf" style="grid-column:${g + 1};grid-row:1">${ROEM[g]}</div>`;
+  for (let p = 1; p <= 4; p++) h += kopf
+    ? `<button type="button" class="pse-kopf pse-ze" data-p="${p}" data-probier style="grid-column:1;grid-row:${p + 1}" aria-label="Periode ${p} markieren">${p}</button>`
+    : `<div class="pse-kopf" style="grid-column:1;grid-row:${p + 1}">${p}</div>`;
+  EL.forEach(el => { h += `<button type="button" class="pse-feld k-${el.k}" data-z="${el.z}" data-probier style="grid-column:${el.g + 1};grid-row:${el.p + 1}" aria-label="${esc(el.n)}, Ordnungszahl ${el.z}"><span class="z">${el.z}</span><span class="s">${el.s}</span></button>`; });
+  h += '<div class="pse-note" style="grid-column:4 / 10;grid-row:5">Weiter geht es mit den Nebengruppen (hier nicht gezeigt).</div>';
+  box.innerHTML = h;
+}
+
+(function(){
+  const box = $("#pse"), info = $("#pseInfo"), obs = $("#pseObs");
+  const id = "pse"; register(id, "#pseKarte", "Periodensystem erkunden: Elemente, Perioden und Hauptgruppen antippen");
+  pseBauen(box, true);
+  const felder = $$(".pse-feld", box), zeilen = $$(".pse-ze", box), spalten = $$(".pse-sp", box);
+  const gesehen = new Set(); let zeileGenutzt = false, spalteGenutzt = false, aktiv = "";
+  info.innerHTML = '<div class="pi-leer"><div><div class="big">👆</div><p>Tippe auf ein Element. Hier siehst du dann seinen Atombau.</p></div></div>';
+  function pruefe(){ if (gesehen.size >= 6 && zeileGenutzt && spalteGenutzt) solve(id); }
+  function marke(){
+    const art = aktiv.charAt(0), nr = aktiv ? +aktiv.slice(1) : 0;
+    felder.forEach(b => { const el = EL[+b.dataset.z - 1], an = !!aktiv && (art === "p" ? el.p === nr : el.g === nr); b.classList.toggle("an", an); b.classList.toggle("dim", !!aktiv && !an); });
+    zeilen.forEach(b => b.classList.toggle("an", aktiv === "p" + b.dataset.p));
+    spalten.forEach(b => b.classList.toggle("an", aktiv === "g" + b.dataset.g));
+  }
+  function infoHtml(el){
+    const nn = el.a - el.z;
+    return `<div class="pi-kopf"><span class="nuk gross">${nuk(el.a, el.z, el.s)}</span><div><h3>${esc(el.n)}</h3><span class="chip k-${el.k}">${ART[el.k]}</span></div></div>
+      ${atomSvg({kern: mischung(el.z, nn), e: el.z})}
+      <div class="pi-zahlen"><span class="chip">Protonen: ${el.z}</span><span class="chip">Neutronen: ${nn}</span><span class="chip">Elektronen: ${el.z}</span></div>
+      <p style="margin:.2em 0"><strong>Periode ${el.p} · Hauptgruppe ${ROEM[el.g]}</strong></p>
+      <p style="margin:.2em 0">${esc(el.t)}</p>
+      <p class="hint" style="margin:.4em 0 0">Teilchenzahlen für die häufigste Atomsorte.</p>`;
+  }
+  felder.forEach(b => b.addEventListener("click", () => {
+    const el = EL[+b.dataset.z - 1];
+    aktiv = ""; marke(); felder.forEach(x => x.classList.toggle("sel", x === b));
+    info.innerHTML = infoHtml(el); gesehen.add(el.z);
+    setText(obs, `${el.n} (${el.s}): Ordnungszahl ${el.z}, Periode ${el.p}, Hauptgruppe ${ROEM[el.g]}. ${gesehen.size < 6 ? "Sieh dir noch mehr Elemente an." : ""}`);
+    pruefe();
+  }));
+  zeilen.forEach(b => b.addEventListener("click", () => {
+    const p = +b.dataset.p, key = "p" + p; aktiv = aktiv === key ? "" : key; marke(); felder.forEach(x => x.classList.remove("sel"));
+    if (aktiv) {
+      const namen = EL.filter(e => e.p === p).map(e => e.n);
+      setText(obs, `Periode ${p} ist die ${p}. Zeile: ${namen.join(", ")}. Die Ordnungszahlen steigen von links nach rechts.` + (p === 4 ? " Die Periode geht weiter, hier siehst du nur die ersten zwei Elemente." : p === 1 ? " Die erste Periode hat nur zwei Elemente." : ""));
+      zeileGenutzt = true;
+    } else setText(obs, "Tippe ein Element oder eine Nummer am Rand an.");
+    pruefe();
+  }));
+  spalten.forEach(b => b.addEventListener("click", () => {
+    const g = +b.dataset.g, key = "g" + g; aktiv = aktiv === key ? "" : key; marke(); felder.forEach(x => x.classList.remove("sel"));
+    if (aktiv) {
+      const namen = EL.filter(e => e.g === g).map(e => e.n);
+      setText(obs, `Hauptgruppe ${ROEM[g]} ist die ${g}. Spalte: ${namen.join(", ")}. ${GRTEXT[g]}`);
+      spalteGenutzt = true;
+    } else setText(obs, "Tippe ein Element oder eine Nummer am Rand an.");
+    pruefe();
+  }));
+})();
+
+/* ---------- Station 4: Finde das Element ---------- */
+(function(){
+  const box = $("#finde"), frage = $("#findeFrage"), fb = $("#findeFb"), chip = $("#findeChip"), neu = $("#findeNeu");
+  const id = "finde"; register(id, "#findeKarte", "Periodensystem: Elemente nach Periode und Hauptgruppe finden");
+  pseBauen(box, false);
+  const POOL = [9, 11, 10, 13, 20, 16, 12, 17, 6, 15];
+  let reihe = [], i = 0;
+  function start(){ reihe = shuffle(POOL).slice(0, 5); i = 0; fb.className = "fb"; neu.hidden = true; zeig(); }
+  function zeig(){
+    if (i >= reihe.length) {
+      setText(frage, "Geschafft! Du findest jedes Element mit Periode und Hauptgruppe.");
+      setText(chip, `${reihe.length} von ${reihe.length} gefunden`); neu.hidden = false; solve(id); return;
+    }
+    const el = EL[reihe[i] - 1];
+    frage.innerHTML = `Aufgabe ${i + 1} von ${reihe.length}: Tippe auf das Element in <strong>Periode ${el.p}</strong> und <strong>Hauptgruppe ${ROEM[el.g]}</strong>.`;
+    setText(chip, `${i} von ${reihe.length} gefunden`);
+  }
+  $$(".pse-feld", box).forEach(b => b.addEventListener("click", () => {
+    if (i >= reihe.length) return;
+    const ziel = EL[reihe[i] - 1], wahl = EL[+b.dataset.z - 1];
+    if (wahl === ziel) { fb.className = "fb show ok"; fb.textContent = `✅ Richtig: ${ziel.n} (${ziel.s}) steht in Periode ${ziel.p} und Hauptgruppe ${ROEM[ziel.g]}.`; i++; zeig(); }
+    else { fb.className = "fb show bad"; fb.textContent = `❌ Das ist ${wahl.n} (${wahl.s}): Periode ${wahl.p}, Hauptgruppe ${ROEM[wahl.g]}. Gesucht ist Periode ${ziel.p}, Hauptgruppe ${ROEM[ziel.g]}. Die Periode ist die Zeile, die Hauptgruppe die Spalte.`; }
+  }));
+  neu.addEventListener("click", start);
+  start();
+})();
+
+/* ---------- Station 4 (M7): Schalen-Rätsel ---------- */
+Modul.plus(() => {
+  const bild = $("#schalenBild"), frage = $("#schalenFrage"), wahl = $("#schalenWahl"), fb = $("#schalenFb"), chip = $("#schalenChip");
+  const id = "schalen"; register(id, "#schalenKarte", "Schalen-Rätsel (M7): Periode und Hauptgruppe aus dem Schalenbild bestimmen");
+  // z = Ordnungszahl des gesuchten Elements, f = falsche Antworten [Periode, Hauptgruppe, Hinweis]
+  const R = [
+    {z: 3, f: [[1, 2, "Vertauscht? Die Schalen geben die Periode, die Außenelektronen die Hauptgruppe."], [2, 3, "Die Hauptgruppe zählt nur die Elektronen auf der äußersten Schale (gelb), nicht alle."], [3, 1, "Zähle die Kreise noch einmal: Es sind nur zwei Schalen."]]},
+    {z: 8, f: [[6, 2, "Vertauscht? Die Schalen geben die Periode, die Außenelektronen die Hauptgruppe."], [2, 8, "Die Hauptgruppe zählt nur die Elektronen auf der äußersten Schale (gelb), nicht alle."], [3, 6, "Zähle die Kreise noch einmal: Es sind nur zwei Schalen."]]},
+    {z: 12, f: [[2, 3, "Vertauscht? Die Schalen geben die Periode, die Außenelektronen die Hauptgruppe."], [2, 2, "Zähle die Kreise noch einmal: Es sind drei Schalen."], [4, 2, "Zähle die Kreise noch einmal: Es sind nur drei Schalen."]]},
+    {z: 17, f: [[7, 3, "Vertauscht? Die Schalen geben die Periode, die Außenelektronen die Hauptgruppe."], [3, 8, "Auf der äußersten Schale (gelb) sitzen nicht 8 Elektronen. Zähle genau."], [2, 7, "Zähle die Kreise noch einmal: Es sind drei Schalen."]]}
+  ];
+  const nur = (P, G) => `Periode ${P} · Hauptgruppe ${ROEM[G]}`;
+  let i = 0;
+  function zeichne(z){
+    const sv = schalenVerteilung(z), R0 = [52, 86, 120];
+    let s = '<svg class="atom-fig" viewBox="44 30 272 260" role="img" aria-label="Atom mit unbekannter Protonenzahl. Die Elektronen sitzen auf Schalen. Die Elektronen der äußersten Schale sind gelb umrandet.">';
+    sv.forEach((k, si) => { s += `<circle cx="180" cy="160" r="${R0[si]}" fill="none" stroke="#8e55c7" stroke-width="2" stroke-dasharray="6 6"/>`; for (let j = 0; j < k; j++) { const w = -Math.PI / 2 + 2 * Math.PI * j / k + si * .5; s += elektron(180 + R0[si] * Math.cos(w), 160 + R0[si] * Math.sin(w), 7, si === sv.length - 1); } });
+    s += '<circle cx="180" cy="160" r="26" fill="#e0453a" stroke="#fff" stroke-width="1.5"/><text x="180" y="170" text-anchor="middle" font-size="28" font-weight="800" fill="#fff">?</text></svg>';
+    bild.innerHTML = s + '<p class="hint" style="text-align:center;margin:6px 0 0">Gelb umrandet: Elektronen auf der äußersten Schale</p>';
+  }
+  function zeig(){
+    if (i >= R.length) {
+      bild.innerHTML = '<div style="font-size:3rem;line-height:1;text-align:center;padding:30px 0">🏆</div>';
+      setText(frage, "Geschafft! Aus dem Schalenbild kannst du Periode und Hauptgruppe ablesen.");
+      wahl.innerHTML = '<button type="button" class="sel">Noch einmal üben</button>';
+      $("button", wahl).addEventListener("click", () => { i = 0; fb.className = "fb"; zeig(); });
+      setText(chip, `${R.length} von ${R.length} gelöst`); solve(id); return;
+    }
+    const r = R[i], el = EL[r.z - 1];
+    zeichne(r.z);
+    frage.innerHTML = `Aufgabe ${i + 1} von ${R.length}: In welcher Periode und Hauptgruppe steht dieses Element? Zähle die Schalen und die gelben Außenelektronen.`;
+    const optionen = shuffle([[el.p, el.g, ""]].concat(r.f));
+    wahl.innerHTML = optionen.map(o => `<button type="button" data-h="${esc(o[2])}">${nur(o[0], o[1])}</button>`).join("");
+    $$("button", wahl).forEach(b => b.addEventListener("click", () => {
+      if (!b.dataset.h) {
+        const sv = schalenVerteilung(el.z);
+        fb.className = "fb show ok";
+        fb.textContent = `✅ Richtig: ${sv.length} Schalen → Periode ${el.p}. ${sv[sv.length - 1]} Außenelektronen → Hauptgruppe ${ROEM[el.g]}. Das ist ${el.n} (${el.s}) mit ${sv.join(" + ")} = ${el.z} Elektronen, also ${el.z} Protonen.`;
+        i++; zeig();
+      } else { b.disabled = true; fb.className = "fb show bad"; fb.textContent = "❌ " + b.dataset.h; }
+    }));
+    setText(chip, `${i} von ${R.length} gelöst`);
+  }
+  zeig();
+});
+
+/* ---------- Station 5: Element-Steckbriefe ---------- */
+(function(){
+  const wahl = $("#steckWahl"), inhalt = $("#steckInhalt"), obs = $("#steckObs");
+  const id = "steck"; register(id, "#steckSim", "Element-Steckbriefe: Aluminium, Natrium, Chlor, Fluor, Helium und Neon ansehen");
+  const S = [
+    {s: "Al", ic: "🚲", eig: "Silbrig glänzend und sehr leicht. Es leitet Strom und Wärme. Es rostet nicht, weil sich an der Luft eine dünne Schutzschicht bildet.", verw: "Fahrradrahmen, Getränkedosen, Alufolie, Flugzeuge und Stromleitungen."},
+    {s: "Na", ic: "⚠️", eig: "Silbrig, aber so weich, dass man es mit dem Messer schneiden kann. Sehr reaktionsfreudig: Mit Wasser und Luft reagiert es heftig. Darum lagert man es unter Öl.", verw: "Reines Natrium siehst du im Alltag nie. Gebunden steckt es im Kochsalz."},
+    {s: "Cl", ic: "🏊", eig: "Gelbgrünes, giftiges Gas mit stechendem Geruch. Sehr reaktionsfreudig.", verw: "Stoffe mit Chlor desinfizieren das Wasser im Schwimmbad. Gebunden steckt Chlor im Kochsalz."},
+    {s: "F", ic: "✨", eig: "Blassgelbes, giftiges Gas. Es ist eines der reaktionsfreudigsten Elemente.", verw: "Als Fluorid steckt es in Zahnpasta und macht die Zähne widerstandsfähiger gegen Karies."},
+    {s: "He", ic: "🎈", eig: "Farbloses Gas, viel leichter als Luft. Es brennt nicht und reagiert fast nie.", verw: "Füllgas für Ballons und Luftschiffe."},
+    {s: "Ne", ic: "💡", eig: "Farbloses Gas, das fast nie reagiert. Fließt Strom durch eine Röhre mit Neon, leuchtet es rot-orange.", verw: "Leuchtröhren und Leuchtreklame."}
+  ].map(x => Object.assign({el: EL.find(e => e.s === x.s)}, x));
+  wahl.innerHTML = S.map((x, i) => `<button type="button" data-i="${i}">${x.el.n} (${x.el.s})</button>`).join("");
+  const gesehen = new Set(), btns = $$("button", wahl);
+  btns.forEach((b, i) => b.addEventListener("click", () => {
+    const x = S[i];
+    btns.forEach((c, j) => c.classList.toggle("sel", j === i));
+    inhalt.innerHTML = `<div class="steck-kopf"><span class="steck-ic">${x.ic}</span><div><h3>${esc(x.el.n)} (${x.el.s})</h3><span class="chip k-${x.el.k}">${ART[x.el.k]}</span></div></div>
+      <p><strong>Eigenschaften:</strong> ${esc(x.eig)}</p><p><strong>Verwendung:</strong> ${esc(x.verw)}</p>
+      <p class="hint">Periode ${x.el.p} · Hauptgruppe ${ROEM[x.el.g]} · Ordnungszahl ${x.el.z}</p>`;
+    gesehen.add(i);
+    setText(obs, gesehen.size === S.length ? "✅ Alle sechs gesehen. Natrium, Chlor und Fluor reagieren sehr leicht, Helium und Neon fast nie." : `${gesehen.size} von ${S.length} Steckbriefen gelesen.`);
+    if (gesehen.size === S.length) solve(id);
+  }));
+})();
+
+/* ---------- Station 5 (M7): Oktettregel ---------- */
+(function(){
+  const L = [{z: 2, n: "Helium"}, {z: 10, n: "Neon"}, {z: 18, n: "Argon"}, {z: 11, n: "Natrium"}, {z: 17, n: "Chlor"}];
+  let s = '<svg class="fig" viewBox="0 0 480 206" role="img" aria-label="Fünf Atome mit Schalen: Helium, Neon und Argon mit voller Außenschale, zum Vergleich Natrium und Chlor. Die Elektronen der äußersten Schale sind gelb umrandet."><rect width="480" height="206" rx="14" fill="#f7f3fc"/>';
+  L.forEach((a, i) => {
+    const cx = 48 + i * 96, cy = 90, sv = schalenVerteilung(a.z), R = [13, 25, 37];
+    sv.forEach((k, si) => {
+      s += `<circle cx="${cx}" cy="${cy}" r="${R[si]}" fill="none" stroke="#8e55c7" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+      for (let j = 0; j < k; j++) { const w = -Math.PI / 2 + 2 * Math.PI * j / k + si * .5, x = cx + R[si] * Math.cos(w), y = cy + R[si] * Math.sin(w), au = si === sv.length - 1; s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.8" fill="#2f6fdb" stroke="${au ? "#f2b632" : "#fff"}" stroke-width="${au ? 2.2 : 1}"/>`; }
+    });
+    s += `<circle cx="${cx}" cy="${cy}" r="6" fill="#e0453a"/><text x="${cx}" y="152" text-anchor="middle" font-size="15" font-weight="800" fill="#4b2d73">${a.n}</text><text x="${cx}" y="172" text-anchor="middle" font-size="14" font-weight="700" fill="#4b2d73">${sv.join(" · ")}</text>`;
+  });
+  s += '<path d="M10 32H278" stroke="#8e55c7" stroke-width="2"/><path d="M302 32H470" stroke="#b9a3d6" stroke-width="2"/><text x="144" y="23" text-anchor="middle" font-size="14" font-weight="800" fill="#4b2d73">Edelgase: Außenschale voll</text><text x="386" y="23" text-anchor="middle" font-size="14" font-weight="800" fill="#4b2d73">zum Vergleich</text>';
+  s += '<text x="240" y="196" text-anchor="middle" font-size="13" fill="#4b2d73">Zahlen: Elektronen auf jeder Schale, von innen nach außen</text></svg>';
+  $("#oktBild").innerHTML = s;
+})();
+Modul.plus(() => {
+  Modul.makeSort($("#sortOktett"), {
+    buckets: ["Außenschale voll", "Außenschale nicht voll"],
+    items: [
+      {t: "Helium: 2", b: 0}, {t: "Neon: 2 · 8", b: 0}, {t: "Argon: 2 · 8 · 8", b: 0},
+      {t: "Natrium: 2 · 8 · 1", b: 1}, {t: "Chlor: 2 · 8 · 7", b: 1}, {t: "Sauerstoff: 2 · 6", b: 1}, {t: "Magnesium: 2 · 8 · 2", b: 1}, {t: "Kohlenstoff: 2 · 4", b: 1}
+    ], cols: 170
+  }, "sortOktett");
+});
+
+/* ---------- Station 6: Training ---------- */
+Modul.makeGap($("#gapAtom"), [
+  ["Im Atomkern liegen die positiv geladenen ", {g: "Protonen"}, " und die ungeladenen ", {g: "Neutronen"}, ". In der Hülle befinden sich die negativ geladenen ", {g: "Elektronen"}, "."],
+  ["Die ", {g: "Ordnungszahl"}, " gibt an, wie viele Protonen ein Atom hat. Die ", {g: "Massenzahl"}, " ist die Summe aus Protonen und Neutronen."],
+  ["Atome mit gleicher Protonenzahl, aber verschiedener Neutronenzahl heißen ", {g: "Isotope"}, ". Ein neutrales Atom hat gleich viele Protonen und ", {g: "Elektronen"}, "."],
+  ["Im Periodensystem heißen die waagerechten Zeilen ", {g: "Perioden"}, " und die senkrechten Spalten ", {g: "Hauptgruppen"}, "."]
+], "gapAtom", ["Moleküle", "Metalle"]);
+
+Modul.makePaare($("#paareVerw"), [
+  ["Aluminium", "leichtes Metall für Fahrradrahmen und Dosen"],
+  ["Natrium", "weiches Metall, reagiert heftig mit Wasser"],
+  ["Chlor", "giftiges Gas, desinfiziert Schwimmbadwasser"],
+  ["Fluor (als Fluorid)", "steckt in Zahnpasta"],
+  ["Helium", "füllt Ballons, brennt nicht"],
+  ["Neon", "leuchtet rot-orange in Leuchtröhren"]
+], "paareVerw");
+
+Modul.makeTF($("#tf"), [
+  ["Ein Atom ist nach außen elektrisch neutral.", true],
+  ["Im Atomkern liegen die Protonen und die Elektronen.", false],
+  ["Die Zahl der Neutronen berechnet man mit Massenzahl minus Ordnungszahl.", true],
+  ["Isotope eines Elements haben verschieden viele Protonen.", false],
+  ["Wasserstoff steht in Hauptgruppe I und ist ein Metall.", false],
+  ["Elemente einer Hauptgruppe stehen im Periodensystem untereinander.", true],
+  ["Edelgase reagieren sehr heftig mit anderen Stoffen.", false]
+], "tf");
+
+Modul.makeSort($("#sortArt"), {
+  buckets: ["Metall", "Nichtmetall", "Edelgas"],
+  items: [
+    {t: "Natrium", b: 0}, {t: "Aluminium", b: 0}, {t: "Calcium", b: 0},
+    {t: "Chlor", b: 1}, {t: "Sauerstoff", b: 1}, {t: "Kohlenstoff", b: 1}, {t: "Fluor", b: 1},
+    {t: "Helium", b: 2}, {t: "Neon", b: 2}, {t: "Argon", b: 2}
+  ], cols: 150
+}, "sortArt");
+
+Modul.makeCrossword($("#cw"), {
+  words: [
+    {w: "MASSENZAHL", r: 0, c: 3, d: "d", q: "Zahl aller Teilchen im Kern: Protonen plus Neutronen."},
+    {w: "ISOTOPE", r: 2, c: 2, d: "a", q: "Atome desselben Elements mit verschieden vielen Neutronen."},
+    {w: "ELEKTRON", r: 2, c: 8, d: "d", q: "Negativ geladenes Teilchen in der Hülle."},
+    {w: "METALL", r: 0, c: 3, d: "a", q: "Glänzt und leitet Strom gut, zum Beispiel Aluminium."},
+    {w: "PERIODE", r: 4, c: 2, d: "a", q: "Waagerechte Zeile im Periodensystem."},
+    {w: "PROTON", r: 6, c: 5, d: "a", q: "Positiv geladenes Teilchen im Atomkern."},
+    {w: "EDELGAS", r: 9, c: 0, d: "a", q: "Es reagiert fast nie, zum Beispiel Neon oder Helium."},
+    {w: "NEUTRON", r: 0, c: 10, d: "d", q: "Ungeladenes Teilchen im Atomkern."},
+    {w: "HUELLE", r: 4, c: 0, d: "d", q: "Hier halten sich die Elektronen auf: die Atom…"}
+  ],
+  sol: [[9, 0], [9, 3], [0, 4], [0, 3], [4, 8], [0, 10], [3, 10]], solWord: "ELEMENT"
+}, "cw");
+
+Modul.makeOpen($("#open"), [
+  {q: "Ein Atom hat 11 Protonen und 12 Neutronen. Gib die Ordnungszahl, die Massenzahl und die Zahl der Elektronen an. Wie heißt das Element?",
+   m: "Die Ordnungszahl ist 11, denn sie ist gleich der Zahl der Protonen. Die Massenzahl ist 11 + 12 = 23. Das neutrale Atom hat 11 Elektronen. Das Element ist Natrium.",
+   k: ["23", "natrium", "11"], min: 3},
+  {q: "Erkläre, was Isotope sind, und nenne ein Beispiel.",
+   m: "Isotope sind Atome desselben Elements. Sie haben gleich viele Protonen, aber verschieden viele Neutronen. Beispiel: Kohlenstoff-12 hat 6 Neutronen, Kohlenstoff-14 hat 8 Neutronen.",
+   k: ["gleich viele proton|gleiche proton|gleiche anzahl an proton|gleiche anzahl proton|dieselbe protonenzahl|selbe protonenzahl|gleiche protonenzahl|gleiche ordnungszahl|selbe ordnungszahl|dieselbe ordnungszahl", "verschieden viele neutron|verschiedene neutron|andere neutron|unterschiedlich viele neutron|unterschiedliche neutron|andere anzahl an neutron|andere anzahl neutron|neutronenzahl", "kohlenstoff|wasserstoff|c-14|c-12|deuterium|tritium"], min: 2},
+  {q: "Nenne zwei Merkmale der Edelgase und eine Verwendung.",
+   m: "Edelgase sind farblose Gase und reagieren fast nie mit anderen Stoffen. Sie stehen ganz rechts im Periodensystem in der Hauptgruppe VIII. Helium füllt Ballons, Neon leuchtet in Leuchtröhren.",
+   k: ["reagier|reaktionsträg", "gas|farblos|hauptgruppe viii|ganz rechts", "ballon|leuchtröhre|leuchtreklame|schutzgas|luftschiff|neon|helium|argon"], min: 2}
+], "open", "Lies noch einmal die Merke-Kästen in Station 3 und 5.");
+
+Modul.plus(() => {
+  Modul.makeOpen($("#openM"), [
+    {q: "Neon reagiert fast nie, Natrium dagegen sehr heftig. Erkläre den Unterschied mit der Außenschale.",
+     m: "Neon hat acht Außenelektronen: Seine Außenschale ist voll besetzt. Das ist ein besonders stabiler Zustand, deshalb reagiert Neon kaum. Natrium hat nur ein Außenelektron, seine Außenschale ist nicht voll. Darum reagiert es leicht.",
+     k: ["acht|8", "voll besetzt|voll|vollständig|besetzt", "stabil|reaktionsträg|reagiert kaum|reagiert nicht|reagiert fast nie", "ein außenelektron|1 außenelektron|nicht voll|ein elektron|1 elektron"], min: 3},
+    {q: "Ein Element steht in der 3. Periode und in der Hauptgruppe VI. Gib die Zahl der Schalen und der Außenelektronen an und bestimme die Zahl der Protonen. Wie heißt das Element?",
+     m: "Die 3. Periode bedeutet drei Schalen. Die Hauptgruppe VI bedeutet sechs Außenelektronen. Die Elektronen verteilen sich 2 + 8 + 6 = 16. Ein neutrales Atom hat 16 Protonen. Das Element ist Schwefel.",
+     k: ["drei schalen|3 schalen", "sechs|6", "16", "schwefel"], min: 3}
+  ], "openM", "Periode = Zahl der Schalen, Hauptgruppe = Zahl der Außenelektronen.");
+});
+
+/* ---------- Station 7: Profi-Check ---------- */
+Modul.makeQuiz($("#quiz"), [].concat(MC.s1, MC.s2, MC.s3, MC.s4, MC.s5, MC.train, [
+  {q: "Welche Ladung hat ein Proton?", o: ["positiv", "negativ", "keine Ladung", "mal positiv, mal negativ"], a: 0, e: "Das Proton ist positiv geladen (+). Das Elektron ist negativ (−), das Neutron hat keine Ladung."},
+  {q: "Welches Teilchen hat fast keine Masse?", o: ["das Elektron", "das Proton", "das Neutron", "der Atomkern"], a: 0, e: "Ein Elektron ist knapp 2000-mal leichter als ein Proton. Fast die ganze Masse eines Atoms steckt im Kern."},
+  {q: "Wie viele Neutronen hat ein Kohlenstoff-14-Atom (Ordnungszahl 6)?", o: ["8", "6", "14", "20"], a: 0, e: "Neutronen = Massenzahl − Ordnungszahl = 14 − 6 = 8."},
+  {q: "Wie viele Elektronen hat ein neutrales Aluminium-Atom (Ordnungszahl 13, Massenzahl 27)?", o: ["13", "14", "27", "40"], a: 0, e: "Elektronen = Protonen = Ordnungszahl = 13. Die 14 sind die Neutronen: 27 − 13."},
+  {q: "In welcher Hauptgruppe stehen die Edelgase?", o: ["VIII", "I", "IV", "VII"], a: 0, e: "Helium, Neon und Argon stehen ganz rechts in der Hauptgruppe VIII."},
+  {q: "Was ist die Ordnungszahl eines Atoms?", o: ["die Zahl der Protonen im Kern", "die Zahl aller Atome eines Stoffes", "die Zahl der Neutronen", "die Nummer der Periode"], a: 0, e: "Die Ordnungszahl gibt die Protonenzahl an. Sie steht im Periodensystem."},
+  {q: "Wie nennt man Atome mit gleicher Protonenzahl, aber verschiedener Neutronenzahl?", o: ["Isotope", "Edelgase", "Metalle", "Elementarteilchen"], a: 0, e: "Isotope gehören zum selben Element, haben aber verschiedene Massenzahlen."},
+  {q: "Welches dieser Elemente ist ein Edelgas?", o: ["Neon", "Natrium", "Chlor", "Aluminium"], a: 0, e: "Neon reagiert fast nie. Natrium und Aluminium sind Metalle, Chlor ist ein reaktionsfreudiges Nichtmetall."}
+]), "quiz", "Atombau-Profi");
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>
