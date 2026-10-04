@@ -31,16 +31,16 @@ Zeichen: ✅ fertig und geprüft · 🔧 in Arbeit · ⬜ fehlt noch
 | Nr | Modul | Datei | Lehrplan | Stand |
 |---|---|---|---|---|
 | 1 | Wirbeltiere: fünf Klassen | `wirbeltiere.html` | Fische, Amphibien, Reptilien, Vögel, Säugetiere; Wirbelsäule, Körpergliederung; M zusätzlich: Zentralnervensystem | ✅ |
-| 2 | Schwimmen, laufen, fliegen | `fortbewegung.html` | Angepasstheit: Fortbewegung im Wasser, an Land, in der Luft | 🔧 |
+| 2 | Schwimmen, laufen, fliegen | `fortbewegung.html` | Angepasstheit: Fortbewegung im Wasser, an Land, in der Luft | ✅ |
 
 ## Themenbereich 4: Mensch und Gesundheit (Lehrplan 3.1 und 3.2)
 
 | Nr | Modul | Datei | Lehrplan | Stand |
 |---|---|---|---|---|
 | 1 | Der Weg der Luft: Atmungsorgane | `atmungsorgane.html` | Nasenhöhle bis Lungenbläschen, Kapillaren | ✅ |
-| 2 | Atmen und Gasaustausch | `atmen-gasaustausch.html` | Zwerchfell- und Rippenatmung, Gasaustausch; M zusätzlich: Zellatmung mit Wortgleichung | 🔧 |
+| 2 | Atmen und Gasaustausch | `atmen-gasaustausch.html` | Zwerchfell- und Rippenatmung, Gasaustausch; M zusätzlich: Zellatmung mit Wortgleichung | ✅ |
 | 3 | Blut: Was fließt da eigentlich? | `blut.html` | Blutbestandteile und Aufgaben, Blutspende | ✅ |
-| 4 | Herz und Blutkreislauf | `herz-kreislauf.html` | Herz, ein Kreislauf mit zwei Schleifen, Arterien, Venen, Kapillaren | 🔧 |
+| 4 | Herz und Blutkreislauf | `herz-kreislauf.html` | Herz, ein Kreislauf mit zwei Schleifen, Arterien, Venen, Kapillaren | ✅ |
 | 5 | Herz und Kreislauf gesund halten | `herz-gesund.html` | Risikofaktoren, Vorbeugung; M zusätzlich: Atem- und Pulsfrequenz bei Belastung, Je-desto | ✅ |
 
 ## Themenbereich 5: Elektrizität (Lehrplan 4.1 und 4.2)
@@ -48,10 +48,10 @@ Zeichen: ✅ fertig und geprüft · 🔧 in Arbeit · ⬜ fehlt noch
 | Nr | Modul | Datei | Lehrplan | Stand |
 |---|---|---|---|---|
 | 1 | Der Stromkreis und sein Schaltplan | `stromkreis.html` | Stromkreis, Schaltsymbole, Schaltpläne, Fehler finden | ✅ |
-| 2 | Was Strom alles kann: Wirkungen | `strom-wirkungen.html` | Wirkungen des Stroms als Energieumwandlung | 🔧 |
+| 2 | Was Strom alles kann: Wirkungen | `strom-wirkungen.html` | Wirkungen des Stroms als Energieumwandlung | ✅ |
 | 3 | Spannung und Stromstärke | `spannung-stromstaerke.html` | Modellvorstellung, Volt, Ampere, Messen in der Reihenschaltung; M zusätzlich: Parallelschaltung, Knoten- und Maschenregel | ✅ |
-| 4 | Der elektrische Widerstand | `widerstand.html` | Widerstand, Ohm'sches Gesetz, Rechnen, Länge/Querschnitt/Material/Temperatur | 🔧 |
-| 5 | Sicher mit Strom umgehen | `strom-sicher.html` | Gefahren und Sicherheitsregeln | 🔧 |
+| 4 | Der elektrische Widerstand | `widerstand.html` | Widerstand, Ohm'sches Gesetz, Rechnen, Länge/Querschnitt/Material/Temperatur | ✅ |
+| 5 | Sicher mit Strom umgehen | `strom-sicher.html` | Gefahren und Sicherheitsregeln | ✅ |
 
 ## Proben (Server `englisch_9`, `backend/api/nt7-fragen.js`)
 

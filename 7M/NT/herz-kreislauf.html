@@ -1,0 +1,967 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#9c2040">
+<title>Herz und Blutkreislauf | NT 7</title>
+<link rel="stylesheet" href="modul-basis.css">
+<style>
+.hero{background:linear-gradient(160deg,#4d0f2a,#a02244 55%,#e8795f)}
+.hotimg{position:relative}
+.hotimg svg{display:block;width:100%;height:auto}
+.sim .wahl{margin:0;padding:12px 14px;border-top:1px solid var(--line);background:#fbfdff}
+.sim .fb{margin:0 14px 12px}
+.bild{margin:10px 0;max-width:600px}
+.bild svg{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--line);background:#f7fbfe}
+.mini{max-width:340px;margin:8px 0 12px}
+.mini svg{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--line);background:#f7fbfe}
+.legende{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.92rem;color:var(--muted);font-weight:600;margin:8px 0 10px}
+.legende i{display:inline-block;width:14px;height:14px;border-radius:50%;margin-right:6px;vertical-align:-2px}
+.farbe-rot{color:#c52f2f;font-weight:700}
+.farbe-blau{color:#2c5aa8;font-weight:700}
+/* Herz: Räume, Klappen, Pfeile */
+.cav{stroke:transparent;stroke-width:5;transition:transform .8s ease,stroke .4s}
+.cav.hl,.cav.aktiv{stroke:#ffd23f}
+.kl line{stroke:#ffd23f;stroke-width:5;stroke-linecap:round;transition:transform .6s ease}
+.kl-av.offen .b1{transform:rotate(62deg)}
+.kl-av.offen .b2{transform:rotate(-62deg)}
+.kl-out.offen .b1{transform:rotate(-80deg)}
+.kl-out.offen .b2{transform:rotate(80deg)}
+.pf{opacity:0;transition:opacity .5s}
+.pf.an{opacity:1}
+.pf path{fill:#fff;stroke:#15212b;stroke-width:1.6;stroke-linejoin:round}
+.banner{transition:opacity .3s}
+/* Herz im Oberkörper schlägt, solange das Bild sichtbar ist */
+.sichtbar .herzschlag{animation:hschlag .86s ease-in-out infinite}
+@keyframes hschlag{0%,100%{transform:scale(1)}14%{transform:scale(1.1)}28%{transform:scale(1)}42%{transform:scale(1.06)}56%{transform:scale(1)}}
+/* Kreislauf-Schema */
+.gl{opacity:0;transition:opacity .4s}
+.gl.hl{opacity:.9}
+.kam{transition:stroke .3s}
+.kam.hl{stroke:#ffd23f;stroke-width:5}
+.tag rect{fill:#eef3fa;stroke:#c3d2ea;transition:fill .3s}
+.tag.aktiv rect{fill:#ffd23f;stroke:#b77a06}
+.tag.aktiv text{fill:#15212b}
+/* Gefäße vergleichen */
+.gf{transition:opacity .4s}
+.gf.aus{opacity:0;pointer-events:none}
+/* Muskelpumpe */
+.kv line{stroke:#ffd23f;stroke-width:5;stroke-linecap:round;transition:transform .5s ease}
+.kv.offen .b1{transform:rotate(-45deg)}
+.kv.offen .b2{transform:rotate(45deg)}
+#mpMuskel,#mpSeg{transition:transform .6s ease}
+/* Handy: Info-Karten zweispaltig, damit die Seite nicht zu lang wird */
+@media (max-width:520px){
+  .info-karten{grid-template-columns:1fr 1fr;gap:8px}
+  .info-karte{padding:10px;overflow-wrap:anywhere}
+  .info-karte:last-child:nth-child(odd){grid-column:1/-1}
+  .info-karte .big{font-size:1.5rem}.info-karte h4{font-size:.95rem}.info-karte p{font-size:.86rem}
+  .card{padding:14px}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>NT 7</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Herzschlag</a>
+      <a href="#s2"><b>2</b>Bau</a>
+      <a href="#s3"><b>3</b>Pumpe</a>
+      <a href="#s4"><b>4</b>Kreislauf</a>
+      <a href="#s5"><b>5</b>Gefäße</a>
+      <a href="#s6"><b>6</b>Training</a>
+      <a href="#s7"><b>7</b>Profi-Check</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse 7M / 7R · Themenbereich Mensch und Gesundheit · Lernmodul 4</div>
+    <h1>Herz und Blutkreislauf</h1>
+    <p>Es schlägt Tag und Nacht, schon vor deiner Geburt, und es macht nie Pause. In sieben Stationen schaust du in dein Herz hinein, siehst ihm beim Pumpen zu und folgst dem Blut auf seinem Weg durch Lunge und Körper.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s6">Direkt zum Probentraining</a>
+    </div>
+    <div class="goals">
+      <div>💓 Ich beschreibe den Bau des Herzens und sage, was Vorhöfe, Kammern und Klappen tun.</div>
+      <div>🔄 Ich erkläre, wie das Herz das Blut pumpt.</div>
+      <div>🔁 Ich verfolge den Weg des Blutes durch Lungenschleife und Körperschleife.</div>
+      <div>🔬 Ich unterscheide Arterien, Venen und Kapillaren und erkläre, wie ihr Bau zu ihrer Aufgabe passt.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg</div><h2>Dein Herz schlägt</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Lege zwei Finger an dein Handgelenk, auf die Seite des Daumens. Drücke ganz leicht. Spürst du ein leises Klopfen?</p>
+      <p>Das ist dein <button class="term" data-t="puls">Puls</button>. Bei jedem Schlag drückt dein <button class="term" data-t="herz">Herz</button> Blut in die <button class="term" data-t="arterie">Arterien</button>. Ihre Wand wird kurz gedehnt – und genau das fühlst du. Auch am Hals kannst du den Puls spüren.</p>
+      <p>Dein Körper braucht ständig Sauerstoff und Nährstoffe. Das Blut bringt sie hin, und das Herz sorgt dafür, dass es im Kreis fließt: im <button class="term" data-t="kreislauf">Blutkreislauf</button>.</p>
+      <p class="hint">Wie du den Puls misst und was er verrät, erfährst du im nächsten Modul.</p>
+      <div id="mc-s1"></div>
+    </div>
+    <div class="sim reveal" id="torsoSim">
+      <svg viewBox="0 0 480 300" role="img" aria-label="Oberkörper eines Menschen von vorn. Zwischen den beiden Lungenflügeln liegt das Herz, etwas links von der Mitte. Links im Bild eine Faust, die etwa so groß ist wie das Herz.">
+        <rect width="480" height="300" fill="#f7fbfe"/>
+        <rect x="222" y="14" width="36" height="46" rx="8" fill="#fbe9dc" stroke="#d3a98a" stroke-width="2.5"/>
+        <path d="M146 300V132Q146 70 196 58L226 50H254L284 58Q334 70 334 132V300Z" fill="#fbe9dc" stroke="#d3a98a" stroke-width="2.5"/>
+        <path d="M178 94Q176 78 198 76Q228 74 233 100V190Q233 214 206 218Q176 220 172 188Z" fill="#cfe6f7" stroke="#8fb9d6" stroke-width="2.5"/>
+        <path d="M247 100Q252 76 282 76Q304 78 302 96L308 188Q304 220 276 218Q250 214 247 190Z" fill="#cfe6f7" stroke="#8fb9d6" stroke-width="2.5"/>
+        <line x1="240" y1="60" x2="240" y2="286" stroke="#8a97a3" stroke-width="1.5" stroke-dasharray="5 5"/>
+        <text x="240" y="297" text-anchor="middle" font-size="13" fill="#566674">Mitte</text>
+        <g class="herzschlag" style="transform-origin:259px 176px"><path d="M0-12C-4-30-34-30-34-6C-34 14-12 28 0 42C12 28 34 14 34-6C34-30 4-30 0-12Z" transform="translate(259 168) rotate(-28)" fill="#d93b3b" stroke="#8d2430" stroke-width="2.5" stroke-linejoin="round"/></g>
+        <g stroke="#566674" stroke-width="1.5"><line x1="142" y1="128" x2="176" y2="128"/><line x1="332" y1="110" x2="300" y2="110"/><line x1="340" y1="204" x2="284" y2="192"/></g>
+        <g font-size="14.5" font-weight="700" fill="#15212b"><text x="138" y="132" text-anchor="end">rechte Lunge</text><text x="338" y="114">linke Lunge</text><text x="344" y="210">Herz</text></g>
+        <g font-size="14" font-style="italic" fill="#566674"><text x="16" y="24">rechte Seite des Menschen</text><text x="464" y="24" text-anchor="end">linke Seite des Menschen</text></g>
+        <text x="72" y="212" font-size="58" text-anchor="middle">✊</text>
+        <g font-size="14" font-weight="600" fill="#566674" text-anchor="middle"><text x="72" y="238">Faust: etwa so</text><text x="72" y="255">groß wie dein Herz</text></g>
+      </svg>
+      <p class="obs" style="min-height:0">Das Herz liegt zwischen den beiden Lungenflügeln, etwas links von der Mitte. Seine Spitze zeigt nach links unten. „Links“ meint die linke Seite des Menschen – im Bild ist das rechts.</p>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <h3 style="margin-top:0">Ein Muskel ohne Pause</h3>
+    <div class="info-karten">
+      <div class="info-karte"><div class="big">✊</div><h4>Faustgroß</h4><p>Das Herz ist ein Hohlmuskel. Es liegt geschützt hinter dem Brustbein und den Rippen.</p></div>
+      <div class="info-karte"><div class="big">💓</div><h4>70 bis 90 Schläge pro Minute</h4><p>So oft schlägt dein Herz, wenn du ruhig sitzt.</p></div>
+      <div class="info-karte"><div class="big">🌙</div><h4>Tag und Nacht</h4><p>Auch im Schlaf schlägt es weiter – ohne Pause.</p></div>
+    </div>
+    <span class="task-tag">Schätzen</span>
+    <h3 style="margin-top:4px">Wie oft schlägt dein Herz an einem ganzen Tag?</h3>
+    <p class="hint">Rechne nicht, sondern schätze zuerst. Tippe auf deine Vermutung.</p>
+    <div class="wahl" id="schaetzWahl"></div>
+    <div class="fb" id="schaetzFb"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Der Bau des Herzens</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Das Herz ist ein Hohlmuskel mit <strong>vier Räumen</strong>. Eine Muskelwand in der Mitte, die <button class="term" data-t="scheidewand">Herzscheidewand</button>, teilt es in eine rechte und eine linke Hälfte.</p>
+    <p>Jede Hälfte hat oben einen <button class="term" data-t="vorhof">Vorhof</button> und unten eine <button class="term" data-t="kammer">Herzkammer</button>. Die Vorhöfe nehmen das Blut auf, die Kammern pumpen es weg. Zwischen Vorhof und Kammer und am Ausgang der Kammern sitzen <button class="term" data-t="klappe">Herzklappen</button>. Sie wirken wie Ventile und lassen das Blut nur in eine Richtung strömen.</p>
+    <p><strong>Achtung, Falle:</strong> „Rechts“ und „links“ gelten immer vom Menschen aus. Auf dem Bild liegt die <em>rechte</em> Herzhälfte deshalb auf der <em>linken</em> Bildseite.</p>
+    <div class="legende"><span><i style="background:#d93b3b"></i>sauerstoffreiches Blut</span><span><i style="background:#3b6fd4"></i>sauerstoffarmes Blut</span><span><i style="background:#ffd23f"></i>Herzklappen</span></div>
+    <p class="hint">Echtes Blut ist nie blau: <button class="term" data-t="sauerstoff">Sauerstoffreiches Blut</button> ist hellrot, sauerstoffarmes dunkelrot. In Zeichnungen steht Blau für sauerstoffarm, damit man es gut unterscheiden kann.</p>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="sim reveal">
+      <div class="hotimg" id="herzBild"></div>
+      <div class="sim-ctrl"><span class="hs-count chip" id="herzZahl">0 von 7 entdeckt</span><span class="hint" style="margin:0">Tippe auf die Zahlen im Bild.</span></div>
+    </div>
+    <div class="card reveal hs-info" id="herzInfo">
+      <div class="big">💓</div><h3 style="margin:.3em 0 .2em">Das Herz erkunden</h3>
+      <p class="lead" style="margin:0">Im Bild stecken sieben Stellen, an denen sich ein Blick lohnt. Findest du alle?</p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li>Das Herz hat vier Räume: zwei Vorhöfe (nehmen Blut auf) und zwei Kammern (pumpen Blut weg).</li>
+        <li>Die Herzscheidewand trennt die rechte von der linken Herzhälfte.</li>
+        <li>Herzklappen sind Ventile: Das Blut fließt nur in eine Richtung.</li>
+        <li>Die linke Kammer hat die dickste Wand.</li>
+      </ul></div>
+    </div>
+    <div class="card reveal"><div id="mc-s2"></div></div>
+  </div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>So pumpt das Herz</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Dein Herz arbeitet wie eine Pumpe: Es <strong>zieht sich zusammen</strong> und <strong>erschlafft</strong> wieder – immer im Wechsel.</p>
+      <p>Beim Zusammenziehen drückt der Herzmuskel das Blut aus den Räumen hinaus. Beim Erschlaffen füllen sie sich neu. Beide Herzhälften arbeiten dabei <strong>gleichzeitig</strong>: Zuerst ziehen sich die beiden Vorhöfe zusammen, dann die beiden Kammern. Diese Pumpwirkung bringt Sauerstoff und Nährstoffe zu allen Organen.</p>
+      <p>Die Herzklappen steuern den Weg des Blutes. Sie öffnen und schließen sich im richtigen Moment, damit das Blut immer in dieselbe Richtung fließt.</p>
+      <p class="hint">Starte die Animation oder gehe Schritt für Schritt. Achte auf die gelben Klappen. Gelb umrandete Räume ziehen sich gerade zusammen.</p>
+    </div>
+    <div class="sim reveal" id="herzSim"></div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag probe">Reihenfolge · leicht</span>
+      <h3 style="margin-top:4px">Ein Herzschlag in fünf Schritten</h3>
+      <p class="hint">Bringe die Schritte in die richtige Reihenfolge.</p>
+      <div id="orderPump"></div>
+    </div>
+    <div class="card reveal"><div id="mc-s3"></div></div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Rechne nach: Wie viel Blut pumpt das Herz?</h3>
+    <p class="m7-hinweis">Aufgaben mit dem lila Zeichen gehören zum M-Niveau. In M-Klassen zählen sie mit, in R-Klassen sind sie eine Zusatzaufgabe für Profis.</p>
+    <div id="mc-r"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Probenstoff</div><h2>Ein Kreislauf, zwei Schleifen</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Das Blut fließt im Kreis: Man spricht vom <button class="term" data-t="kreislauf">Blutkreislauf</button>. Er besteht aus <strong>zwei Schleifen</strong>, die sich im Herzen treffen.</p>
+      <div class="info-karten">
+        <div class="info-karte"><div class="big">💨</div><h4><button class="term" data-t="lungenschleife">Lungenschleife</button></h4><p>rechte Kammer → Lunge → linker Vorhof. Das Blut nimmt Sauerstoff auf und gibt Kohlenstoffdioxid ab.</p></div>
+        <div class="info-karte"><div class="big">🏃</div><h4><button class="term" data-t="koerperschleife">Körperschleife</button></h4><p>linke Kammer → Organe → rechter Vorhof. Das Blut gibt Sauerstoff und Nährstoffe ab.</p></div>
+      </div>
+      <p>Andere Namen: <strong>Lungenkreislauf</strong> und <strong>Körperkreislauf</strong>. Gemeint ist dasselbe.</p>
+      <p>Die Schleifen hängen hintereinander: Jedes Blutteilchen fließt abwechselnd durch die Lunge und durch den Körper. Das Herz liegt dazwischen und pumpt es jedes Mal ein Stück weiter.</p>
+      <p class="hint">Folge einem roten Blutkörperchen: Starte die Animation oder gehe Schritt für Schritt. Achte auf die Farbe: Sie zeigt, wie viel Sauerstoff es gerade trägt.</p>
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li>Lungenschleife: rechte Kammer → Lunge → linker Vorhof. Das Blut nimmt Sauerstoff auf.</li>
+        <li>Körperschleife: linke Kammer → Organe → rechter Vorhof. Das Blut gibt Sauerstoff ab.</li>
+        <li>Rot = sauerstoffreiches, Blau = sauerstoffarmes Blut. Arterien führen vom Herzen weg, Venen zum Herzen hin.</li>
+      </ul></div>
+    </div>
+    <div class="sim reveal" id="kreisSim">
+      <svg viewBox="0 0 480 446" role="img" aria-label="Schema des Blutkreislaufs: oben die Lunge, in der Mitte das Herz mit zwei Vorhöfen und zwei Kammern, unten der Körper. Blaue Gefäße führen sauerstoffarmes Blut, rote Gefäße sauerstoffreiches Blut. Ein rotes Blutkörperchen wandert den Weg entlang.">
+        <defs>
+          <linearGradient id="gLg" gradientUnits="userSpaceOnUse" x1="238" y1="0" x2="378" y2="0"><stop offset="0" stop-color="#3b6fd4"/><stop offset="1" stop-color="#d93b3b"/></linearGradient>
+          <linearGradient id="gKg" gradientUnits="userSpaceOnUse" x1="372" y1="0" x2="148" y2="0"><stop offset="0" stop-color="#d93b3b"/><stop offset="1" stop-color="#3b6fd4"/></linearGradient>
+        </defs>
+        <rect width="480" height="446" fill="#f7fbfe"/>
+        <!-- Leuchtrand für Lunge und Körper, wenn sie dran sind -->
+        <g fill="none" stroke="#ffd23f">
+          <rect class="gl" id="glLunge" x="140" y="14" width="252" height="96" rx="22" stroke-width="10"/>
+          <rect class="gl" id="glKoerper" x="100" y="344" width="300" height="90" rx="22" stroke-width="10"/>
+        </g>
+        <!-- Lunge -->
+        <rect x="140" y="14" width="252" height="96" rx="22" fill="#eaf4fb" stroke="#9ec3dc" stroke-width="2"/>
+        <text x="158" y="42" font-size="16" font-weight="800" fill="#15212b">Lunge</text>
+        <text x="308" y="103" text-anchor="middle" font-size="14" fill="#566674">Gasaustausch</text>
+        <g fill="none" stroke="url(#gLg)" stroke-width="5" stroke-linecap="round">
+          <path d="M238 44q17.5-22 35 0t35 0t35 0t35 0"/><path d="M238 60q17.5-22 35 0t35 0t35 0t35 0"/><path d="M238 76q17.5-22 35 0t35 0t35 0t35 0"/>
+        </g>
+        <path d="M238 44V76" stroke="#3b6fd4" stroke-width="5" stroke-linecap="round"/><path d="M378 44V76" stroke="#d93b3b" stroke-width="5" stroke-linecap="round"/>
+        <!-- Körper -->
+        <rect x="100" y="344" width="300" height="90" rx="22" fill="#fdf0e8" stroke="#e1b79f" stroke-width="2"/>
+        <text x="140" y="366" font-size="16" font-weight="800" fill="#15212b">Körper (alle Organe)</text>
+        <g fill="none" stroke="url(#gKg)" stroke-width="5" stroke-linecap="round">
+          <path d="M148 390q28-22 56 0t56 0t56 0t56 0"/><path d="M148 403q28-22 56 0t56 0t56 0t56 0"/><path d="M148 416q28-22 56 0t56 0t56 0t56 0"/>
+        </g>
+        <path d="M148 390V416" stroke="#3b6fd4" stroke-width="5" stroke-linecap="round"/><path d="M372 390V416" stroke="#d93b3b" stroke-width="5" stroke-linecap="round"/>
+        <!-- Herzmuskel -->
+        <rect x="138" y="166" width="204" height="150" rx="28" fill="#e9b4b9" stroke="#c4616a" stroke-width="3"/>
+        <!-- Leuchtrand für das Gefäß, das gerade dran ist -->
+        <g fill="none" stroke="#ffd23f" stroke-linecap="round" stroke-linejoin="round" stroke-width="22">
+          <path class="gl" id="glAP" d="M222 262V72Q222 60 238 60"/>
+          <path class="gl" id="glLV" d="M378 60H420V208H330"/>
+          <path class="gl" id="glAorta" d="M330 288H372V403"/>
+          <path class="gl" id="glKV" d="M148 403H126V208H150"/>
+        </g>
+        <!-- Gefäße -->
+        <g fill="none" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M148 403H126V208H150" stroke="#3b6fd4"/>
+          <path d="M222 262V72Q222 60 238 60" stroke="#3b6fd4"/>
+          <path d="M378 60H420V208H330" stroke="#d93b3b"/>
+          <path d="M330 288H372V403" stroke="#d93b3b"/>
+        </g>
+        <g fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M-5 4L0-4L5 4" transform="translate(126 290)"/><path d="M-5 4L0-4L5 4" transform="translate(222 205)"/>
+          <path d="M-5 4L0-4L5 4" transform="translate(420 150) rotate(180)"/><path d="M-5 4L0-4L5 4" transform="translate(372 372) rotate(180)"/>
+        </g>
+        <!-- Herz -->
+        <g stroke="#fff" stroke-width="2">
+          <rect class="kam" id="kRA" x="150" y="176" width="56" height="60" rx="12" fill="#3b6fd4"/>
+          <rect class="kam" id="kLA" x="274" y="176" width="56" height="60" rx="12" fill="#d93b3b"/>
+          <rect class="kam" id="kRV" x="150" y="244" width="82" height="62" rx="14" fill="#3b6fd4"/>
+          <rect class="kam" id="kLV" x="248" y="244" width="82" height="62" rx="14" fill="#d93b3b"/>
+        </g>
+        <path d="M158 240h40M282 240h40" stroke="#ffd23f" stroke-width="4" stroke-linecap="round"/>
+        <g font-size="14" font-weight="700" fill="#fff" text-anchor="middle"><text x="178" y="196">Vorhof</text><text x="302" y="196">Vorhof</text><text x="191" y="266">Kammer</text><text x="289" y="266">Kammer</text></g>
+        <g font-size="13.5" fill="#566674" text-anchor="middle"><text x="190" y="334">rechte Herzhälfte</text><text x="304" y="334">linke Herzhälfte</text></g>
+        <!-- Namen der Schleifen -->
+        <g class="tag" id="tagLS"><rect x="158" y="136" width="128" height="28" rx="14"/><text x="222" y="155" text-anchor="middle" font-size="14" font-weight="800" fill="#2c5aa8">Lungenschleife</text></g>
+        <g class="tag" id="tagKS"><rect x="334" y="294" width="116" height="28" rx="14"/><text x="392" y="313" text-anchor="middle" font-size="14" font-weight="800" fill="#b23a2e">Körperschleife</text></g>
+        <g font-size="13.5" font-weight="700" fill="#15212b"><circle cx="20" cy="30" r="6" fill="#d93b3b"/><text x="32" y="35">sauerstoffreich</text><circle cx="20" cy="54" r="6" fill="#3b6fd4"/><text x="32" y="59">sauerstoffarm</text></g>
+        <!-- Wege des Blutkörperchens (unsichtbar) -->
+        <g fill="none" stroke="none">
+          <path id="sg2" d="M178 218L191 288"/>
+          <path id="sg3" d="M191 288H222V72Q222 60 238 60"/>
+          <path id="sg4" d="M238 60q17.5-22 35 0t35 0t35 0t35 0"/>
+          <path id="sg5" d="M378 60H420V208H330L302 218"/>
+          <path id="sg6" d="M302 218L289 288"/>
+          <path id="sg7" d="M289 288H372V403"/>
+          <path id="sg8" d="M372 403q-28-22-56 0t-56 0t-56 0t-56 0"/>
+          <path id="sg9" d="M148 403H126V208H150L178 218"/>
+        </g>
+        <g id="kMarker" opacity="0"><ellipse rx="11" ry="8" fill="#3b6fd4" stroke="#fff" stroke-width="2.5"/><ellipse rx="4.5" ry="3" fill="#fff" opacity=".4"/></g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag probe">Zuordnen · mittel</span>
+      <h3 style="margin-top:4px">Sauerstoffreich oder sauerstoffarm?</h3>
+      <p class="hint">Welches Blut fließt dort? Tippe auf eine Karte und dann auf das passende Fach.</p>
+      <div id="sortO2"></div>
+    </div>
+    <div class="card reveal"><div id="mc-s4"></div></div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Diagramm lesen: Wo ändert sich der Sauerstoffgehalt?</h3>
+    <div id="mc-d"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Probenstoff</div><h2>Arterien, Venen, Kapillaren</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Das Blut fließt in drei Arten von Blutgefäßen. Der Bau jeder Art passt genau zu ihrer Aufgabe.</p>
+      <div class="info-karten">
+        <div class="info-karte"><div class="big">💪</div><h4><button class="term" data-t="arterie">Arterie</button></h4><p>Führt Blut <strong>vom Herzen weg</strong>. Dicke, elastische Wand. Hier spürst du den Puls.</p></div>
+        <div class="info-karte"><div class="big">🚦</div><h4><button class="term" data-t="vene">Vene</button></h4><p>Führt Blut <strong>zum Herzen hin</strong>. Dünnere Wand, weiter Innenraum, <button class="term" data-t="venenklappe">Venenklappen</button>.</p></div>
+        <div class="info-karte"><div class="big">🔬</div><h4><button class="term" data-t="kapillaren">Kapillare</button></h4><p>Haarfein, die Wand ist hauchdünn. Hier tauscht das Blut Stoffe mit den Organen aus.</p></div>
+      </div>
+      <p class="hint">Tippe nacheinander auf Arterie, Vene und Kapillare und vergleiche die Zeichnungen.</p>
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li>Arterien führen Blut vom Herzen weg (dicke, elastische Wand, Puls). Venen führen Blut zum Herzen hin (dünnere Wand, Klappen).</li>
+        <li>In den Kapillaren (haarfein, hauchdünne Wand) tauscht das Blut Stoffe mit den Organen aus.</li>
+        <li>Arterie heißt nicht „sauerstoffreich“: Die Lungenarterie führt sauerstoffarmes Blut, die Lungenvene sauerstoffreiches.</li>
+      </ul></div>
+    </div>
+    <div class="sim reveal" id="gefSim">
+      <svg viewBox="0 0 480 262" role="img" aria-label="Längsschnitt und Querschnitt durch ein Blutgefäß. Mit den Knöpfen wählst du Arterie, Vene oder Kapillare.">
+        <rect width="480" height="262" fill="#f7fbfe"/>
+        <text id="gfTitel" x="16" y="26" font-size="17" font-weight="800" fill="#15212b">Arterie (Schlagader)</text>
+        <!-- Arterie -->
+        <g id="gfA" class="gf">
+          <path d="M28 120C26 110 10 110 10 122C10 132 22 140 28 148C34 140 46 132 46 122C46 110 30 110 28 120Z" fill="#d93b3b" stroke="#8d2430" stroke-width="2"/>
+          <text x="28" y="168" text-anchor="middle" font-size="14" font-weight="700" fill="#566674">Herz</text>
+          <rect x="52" y="64" width="254" height="120" fill="#f4d3d7"/><rect x="52" y="72" width="254" height="104" fill="#c4616a"/><rect x="52" y="94" width="254" height="60" fill="#8d2430"/><rect x="52" y="97" width="254" height="54" fill="#d93b3b"/>
+          <g fill="none" stroke="#f1b0b6" stroke-width="2"><path d="M52 83q15-6 30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0"/><path d="M52 165q15-6 30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0"/></g>
+          <g fill="#f4a3a3"><ellipse cx="90" cy="118" rx="12" ry="7.5"/><ellipse cx="150" cy="132" rx="12" ry="7.5"/><ellipse cx="210" cy="116" rx="12" ry="7.5"/><ellipse cx="268" cy="130" rx="12" ry="7.5"/></g>
+          <text x="64" y="44" font-size="14" font-weight="700" fill="#566674">Blut fließt vom Herzen weg</text>
+          <path d="M64 54H284" stroke="#566674" stroke-width="3" stroke-linecap="round"/><path d="M282 47L296 54L282 61Z" fill="#566674"/>
+          <g stroke="#15212b" stroke-width="1.5"><line x1="110" y1="200" x2="110" y2="166"/><line x1="255" y1="200" x2="255" y2="140"/></g>
+          <g fill="#fff" stroke="#15212b" stroke-width="1.5"><circle cx="110" cy="166" r="3.5"/><circle cx="255" cy="140" r="3.5"/></g>
+          <g font-size="14" font-weight="700" fill="#15212b"><text x="52" y="218">dicke, elastische Wand</text><text x="236" y="218">Innenraum mit Blut</text></g>
+          <circle cx="398" cy="124" r="56" fill="#f4d3d7"/><circle cx="398" cy="124" r="49" fill="#c4616a"/><circle cx="398" cy="124" r="30" fill="#8d2430"/><circle cx="398" cy="124" r="27" fill="#d93b3b"/>
+          <g fill="#f4a3a3"><ellipse cx="390" cy="118" rx="9" ry="5.5"/><ellipse cx="406" cy="130" rx="9" ry="5.5"/></g>
+          <text x="398" y="204" text-anchor="middle" font-size="14" font-weight="700" fill="#566674">Querschnitt</text>
+        </g>
+        <!-- Vene -->
+        <g id="gfV" class="gf aus">
+          <path d="M322 120C320 110 304 110 304 122C304 132 316 140 322 148C328 140 340 132 340 122C340 110 324 110 322 120Z" fill="#d93b3b" stroke="#8d2430" stroke-width="2"/>
+          <text x="322" y="168" text-anchor="middle" font-size="14" font-weight="700" fill="#566674">Herz</text>
+          <rect x="36" y="60" width="260" height="132" fill="#f4d3d7"/><rect x="36" y="63" width="260" height="126" fill="#c4616a"/><rect x="36" y="70" width="260" height="112" fill="#274f9c"/><rect x="36" y="72" width="260" height="108" fill="#3b6fd4"/>
+          <g fill="#9db8ee"><ellipse cx="70" cy="104" rx="12" ry="7.5"/><ellipse cx="116" cy="140" rx="12" ry="7.5"/><ellipse cx="214" cy="100" rx="12" ry="7.5"/><ellipse cx="256" cy="142" rx="12" ry="7.5"/></g>
+          <g stroke="#f2b632" stroke-width="7" stroke-linecap="round"><line x1="130" y1="75" x2="178" y2="105"/><line x1="130" y1="177" x2="178" y2="147"/></g>
+          <text x="36" y="42" font-size="14" font-weight="700" fill="#566674">Blut fließt zum Herzen hin</text>
+          <path d="M36 52H262" stroke="#566674" stroke-width="3" stroke-linecap="round"/><path d="M260 45L274 52L260 59Z" fill="#566674"/>
+          <g stroke="#15212b" stroke-width="1.5"><line x1="66" y1="206" x2="66" y2="186"/><line x1="152" y1="206" x2="152" y2="163"/><line x1="250" y1="206" x2="250" y2="170"/></g>
+          <g fill="#fff" stroke="#15212b" stroke-width="1.5"><circle cx="66" cy="186" r="3.5"/><circle cx="152" cy="163" r="3.5"/><circle cx="250" cy="170" r="3.5"/></g>
+          <g font-size="14" font-weight="700" fill="#15212b"><text x="14" y="226">dünnere Wand</text><text x="118" y="226">Venenklappe</text><text x="210" y="226">weiter Innenraum</text></g>
+          <circle cx="404" cy="124" r="52" fill="#f4d3d7"/><circle cx="404" cy="124" r="49" fill="#c4616a"/><circle cx="404" cy="124" r="42" fill="#274f9c"/><circle cx="404" cy="124" r="40" fill="#3b6fd4"/>
+          <g fill="#9db8ee"><ellipse cx="392" cy="112" rx="9" ry="5.5"/><ellipse cx="414" cy="132" rx="9" ry="5.5"/><ellipse cx="396" cy="140" rx="9" ry="5.5"/></g>
+          <text x="404" y="204" text-anchor="middle" font-size="14" font-weight="700" fill="#566674">Querschnitt</text>
+        </g>
+        <!-- Kapillare -->
+        <g id="gfK" class="gf aus">
+          <g fill="#fbe3cf" stroke="#e1b894" stroke-width="2"><ellipse cx="70" cy="66" rx="48" ry="26"/><ellipse cx="180" cy="62" rx="52" ry="26"/><ellipse cx="282" cy="68" rx="40" ry="24"/><ellipse cx="86" cy="196" rx="52" ry="26"/><ellipse cx="196" cy="200" rx="48" ry="26"/><ellipse cx="290" cy="194" rx="36" ry="24"/></g>
+          <g fill="#e8c3a6"><circle cx="70" cy="66" r="8"/><circle cx="180" cy="62" r="9"/><circle cx="282" cy="68" r="7"/></g>
+          <text x="86" y="201" text-anchor="middle" font-size="14" font-weight="600" fill="#7a5a3a">Organzelle</text>
+          <rect x="16" y="117" width="290" height="28" fill="#e8b2b8"/><rect x="16" y="120" width="290" height="22" fill="#f6c9c9"/>
+          <g fill="#d93b3b"><ellipse cx="52" cy="131" rx="13" ry="8.5"/><ellipse cx="112" cy="131" rx="13" ry="8.5"/><ellipse cx="172" cy="131" rx="13" ry="8.5"/><ellipse cx="232" cy="131" rx="13" ry="8.5"/><ellipse cx="292" cy="131" rx="13" ry="8.5"/></g>
+          <path d="M44 114V98" stroke="#d93b3b" stroke-width="3" stroke-linecap="round"/><path d="M38 102L44 92L50 102Z" fill="#d93b3b"/>
+          <text x="56" y="109" font-size="13.5" font-weight="700" fill="#b23a2e">O₂ + Nährstoffe</text>
+          <path d="M184 94V112" stroke="#566674" stroke-width="3" stroke-linecap="round"/><path d="M178 108L184 118L190 108Z" fill="#566674"/>
+          <text x="196" y="109" font-size="13.5" font-weight="700" fill="#566674">CO₂ + Abfall</text>
+          <circle cx="404" cy="124" r="38" fill="#e8b2b8"/><circle cx="404" cy="124" r="33" fill="#f6c9c9"/><ellipse cx="404" cy="124" rx="24" ry="14" fill="#d93b3b"/>
+          <text x="404" y="184" text-anchor="middle" font-size="14" font-weight="700" fill="#566674">Querschnitt</text><text x="404" y="202" text-anchor="middle" font-size="13" fill="#566674">(stark vergrößert)</text>
+        </g>
+      </svg>
+      <div class="wahl" id="gefWahl"></div>
+      <p class="obs" id="gefObs">Tippe nacheinander auf die drei Gefäßarten.</p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <h3 style="margin-top:0">Warum haben Venen Klappen?</h3>
+      <p>In den Beinen muss das Blut gegen die Schwerkraft nach oben zum Herzen. Dabei helfen deine Muskeln: Spannen sie sich an, drücken sie die Venen zusammen. Die <button class="term" data-t="venenklappe">Venenklappen</button> lassen das Blut dann nur Richtung Herz weiter. Zurücksacken kann es nicht.</p>
+      <p class="hint">Probiere es im Modell aus: Spanne den Muskel an und entspanne ihn wieder. Beobachte beide Klappen.</p>
+      <div id="mc-s5"></div>
+    </div>
+    <div class="sim reveal" id="mpSim">
+      <svg viewBox="0 0 480 276" role="img" aria-label="Eine Vene im Bein mit zwei Venenklappen. Links daneben ein Muskel, der sich anspannt und die Vene zusammendrückt.">
+        <rect width="480" height="276" fill="#f7fbfe"/>
+        <rect x="244" y="30" width="52" height="226" rx="10" fill="#274f9c"/>
+        <rect x="250" y="30" width="40" height="80" fill="#3b6fd4"/><rect x="250" y="180" width="40" height="72" fill="#3b6fd4"/>
+        <rect id="mpSeg" x="250" y="110" width="40" height="70" fill="#3b6fd4" style="transform-origin:270px 145px"/>
+        <g id="mpMuskel" style="transform-origin:104px 140px"><path d="M162 44C198 58 222 96 222 140C222 184 198 222 162 236C126 222 102 184 102 140C102 96 126 58 162 44Z" fill="#e08a86" stroke="#a65450" stroke-width="3"/><path d="M134 96C128 128 128 152 134 184M162 76V204M190 96C196 128 196 152 190 184" stroke="#c46c68" stroke-width="3" fill="none" stroke-linecap="round"/></g>
+        <text x="162" y="258" text-anchor="middle" font-size="14.5" font-weight="700" fill="#15212b">Muskel</text>
+        <g class="kv" id="mpKU"><line class="b1" x1="250" y1="110" x2="270" y2="90" style="transform-origin:250px 110px"/><line class="b2" x1="290" y1="110" x2="270" y2="90" style="transform-origin:290px 110px"/></g>
+        <g class="kv offen" id="mpKL"><line class="b1" x1="250" y1="200" x2="270" y2="180" style="transform-origin:250px 200px"/><line class="b2" x1="290" y1="200" x2="270" y2="180" style="transform-origin:290px 200px"/></g>
+        <g class="pf" id="mpTop" transform="translate(270 62) rotate(-90) scale(.8)"><path d="M-12-7H2V-13L16 0L2 13V7H-12Z"/></g>
+        <g class="pf an" id="mpBot" transform="translate(270 222) rotate(-90) scale(.8)"><path d="M-12-7H2V-13L16 0L2 13V7H-12Z"/></g>
+        <text x="270" y="20" text-anchor="middle" font-size="14.5" font-weight="700" fill="#566674">zum Herzen</text>
+        <text x="270" y="272" text-anchor="middle" font-size="14" font-weight="700" fill="#566674">von den Füßen</text>
+        <g font-size="14.5" font-weight="700" fill="#15212b"><text id="mpU" x="304" y="106">obere Klappe: zu</text><text id="mpL" x="304" y="196">untere Klappe: offen</text></g>
+      </svg>
+      <div class="wahl" id="mpWahl"></div>
+      <p class="obs" id="mpObs">Tippe auf einen Knopf und beobachte die beiden gelben Klappen.</p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag probe">Zuordnen · mittel</span>
+      <h3 style="margin-top:4px">Welches Gefäß ist gemeint?</h3>
+      <p class="hint">Tippe auf eine Karte und dann auf das passende Fach.</p>
+      <div id="sortGef"></div>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag m7">M7 · für 7R freiwillig</span>
+      <h3 style="margin-top:4px">Bau und Aufgabe</h3>
+      <p class="hint">Tippe links auf eine Besonderheit im Bau und dann rechts auf den passenden Nutzen.</p>
+      <div id="paareBau"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="s6">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Probenstoff · so wird in der Probe gefragt</div><h2>Training für die Probe</h2></div></div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Lückentext · leicht</span>
+    <h3 style="margin-top:4px">Setze die fehlenden Wörter ein</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapHerz"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Paare finden · leicht</span>
+    <h3 style="margin-top:4px">Welcher Teil hat welche Aufgabe?</h3>
+    <p class="hint">Tippe links auf einen Teil und dann rechts auf seine Aufgabe.</p>
+    <div id="paareHerz"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Richtig oder falsch? · mittel</span>
+    <div id="tf"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Kreuzworträtsel · mittel</span>
+    <h3 style="margin-top:4px">Rund um Herz und Kreislauf</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Schreibe ä als AE, ö als OE, ü als UE.</p>
+    <div id="cw"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Ankreuzen · mittel</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Reihenfolge · schwer</span>
+    <h3 style="margin-top:4px">Der Weg eines roten Blutkörperchens</h3>
+    <p class="hint">Das Blutkörperchen kommt aus dem Körper zurück und beginnt im rechten Vorhof. Bringe seinen Weg in die richtige Reihenfolge, bis es wieder im rechten Vorhof ankommt.</p>
+    <div id="orderWeg"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Offene Fragen · schwer</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung. Danach kannst du die Musterlösung ansehen.</p>
+    <div id="open"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Begründe und übertrage <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="openM"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 7 ============ -->
+<section class="station" id="s7">
+  <div class="st-head reveal"><div class="st-num">7</div><div><div class="eyebrow">Abschluss</div><h2>Kreislauf-Profi-Check</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Jetzt weißt du, wie das Herz das Blut durch Lunge und Körper pumpt. Aber was tut deinem Herzen gut, und was schadet ihm? Im nächsten Modul misst du deinen Puls, vergleichst Ruhe und Belastung und lernst, wie du dein Herz gesund hältst.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik 7 · Lernmodul „Herz und Blutkreislauf“ · Dein Fortschritt wird auf diesem Gerät gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="modul-basis.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, esc, shuffle, clamp, setText, reduced, register, solve, onVisible} = Modul;
+
+Modul.init({
+  key: "grumi-nt7-herz-kreislauf-v1",
+  thema: "Herz und Blutkreislauf des Menschen: Bau des Herzens (Vorhöfe, Herzkammern, Herzscheidewand, Herzklappen), Pumpwirkung des Herzmuskels, ein Blutkreislauf mit zwei Schleifen (Körperschleife und Lungenschleife), Arterien, Venen und Kapillaren, sauerstoffreiches und sauerstoffarmes Blut, Versorgung des Körpers mit Stoffen",
+  glossary: {
+    herz: ["Herz", "Hohlmuskel in deinem Brustkorb, etwa so groß wie deine Faust. Er pumpt das Blut durch den ganzen Körper."],
+    puls: ["Puls", "Druckwelle des Blutes, die du an einer Arterie fühlst. Die Zahl der Schläge pro Minute zeigt, wie schnell dein Herz schlägt."],
+    kreislauf: ["Blutkreislauf", "Das Blut fließt im Kreis: vom Herzen durch die Gefäße zu den Organen und zurück zum Herzen. Der Kreislauf hat zwei Schleifen: Lungenschleife und Körperschleife."],
+    lungenschleife: ["Lungenschleife", "Weg des Blutes von der rechten Herzkammer durch die Lunge zum linken Vorhof. Dort nimmt es Sauerstoff auf. Anderer Name: Lungenkreislauf."],
+    koerperschleife: ["Körperschleife", "Weg des Blutes von der linken Herzkammer durch den Körper zum rechten Vorhof. In den Organen gibt es Sauerstoff ab. Anderer Name: Körperkreislauf."],
+    vorhof: ["Vorhof", "Raum im Herzen, der Blut aus den Venen aufnimmt und an die Kammer weitergibt. Das Herz hat zwei Vorhöfe."],
+    kammer: ["Herzkammer", "Kräftiger Raum im Herzen, der das Blut in die Arterien pumpt. Das Herz hat zwei Kammern."],
+    scheidewand: ["Herzscheidewand", "Muskelwand, die das Herz in eine rechte und eine linke Hälfte teilt. Sie verhindert, dass sich sauerstoffarmes und sauerstoffreiches Blut mischen."],
+    klappe: ["Herzklappen", "Ventile im Herzen. Sie lassen das Blut nur in eine Richtung strömen. Sie sitzen zwischen Vorhof und Kammer und am Ausgang der Kammern."],
+    hohlvene: ["Hohlvene", "Die größten Venen des Körpers. Sie bringen sauerstoffarmes Blut aus dem Körper in den rechten Vorhof."],
+    lungenarterie: ["Lungenarterie", "Arterie, die Blut aus der rechten Herzkammer zur Lunge führt. Ihr Blut ist sauerstoffarm."],
+    lungenvene: ["Lungenvene", "Vene, die Blut aus der Lunge zum linken Vorhof führt. Ihr Blut ist sauerstoffreich."],
+    aorta: ["Aorta (Hauptschlagader)", "Größte Arterie des Körpers. Sie führt das sauerstoffreiche Blut aus der linken Herzkammer in den Körper."],
+    arterie: ["Arterie (Schlagader)", "Blutgefäß, das Blut vom Herzen wegführt. Die Wand ist dick und elastisch. Ob das Blut sauerstoffreich ist, hängt vom Ort ab."],
+    vene: ["Vene (Blutader)", "Blutgefäß, das Blut zum Herzen hinführt. Die Wand ist dünner. Venenklappen verhindern, dass das Blut zurückfließt."],
+    kapillaren: ["Kapillaren (Haargefäße)", "Haarfeine Blutgefäße mit hauchdünner Wand zwischen Arterien und Venen. Hier tauscht das Blut Stoffe mit den Organen aus."],
+    venenklappe: ["Venenklappe", "Taschenförmige Klappe in der Venenwand. Sie lässt das Blut nur zum Herzen hin fließen."],
+    sauerstoff: ["sauerstoffreich und sauerstoffarm", "Sauerstoffreiches Blut kommt aus der Lunge und ist hellrot. Sauerstoffarmes Blut hat Sauerstoff abgegeben und ist dunkelrot. In Zeichnungen: Rot = sauerstoffreich, Blau = sauerstoffarm."]
+  }
+});
+
+/* ---------- Zeichnungen ---------- */
+const FARBE = {rot: "#d93b3b", rotD: "#8d2430", blau: "#3b6fd4", blauD: "#274f9c", mus: "#c4616a", musD: "#7a2f38"};
+// Herz von vorn: die rechte Herzhälfte liegt links im Bild
+const HZ = {
+  ra: "M124 136Q124 112 148 112H166Q190 112 190 136V184H124Z",
+  la: "M290 136Q290 112 314 112H332Q356 112 356 136V184H290Z",
+  rv: "M120 196H228V288Q196 306 156 288Q120 262 120 196Z",
+  lv: "M252 196H346V236Q346 270 298 292Q268 306 252 292Z",
+  hohl: "M44 148H140", lungv: "M436 148H340",
+  lungart: "M214 206V104Q214 66 176 66H84", aorta: "M266 206V104Q266 66 304 66H396"
+};
+function herzSvg(o){
+  o = o || {};
+  const F = FARBE, H = o.anim ? 392 : 372;
+  const rohr = (d, hell, dunkel) => `<path d="${d}" stroke="${dunkel}" stroke-width="34"/><path d="${d}" stroke="${hell}" stroke-width="26"/>`;
+  const chev = (x, y, w) => `<path d="M-7 5L0-5L7 5" transform="translate(${x} ${y}) rotate(${w})"/>`;
+  const pfeil = (k, x, y, w, sc) => `<g class="pf pf-${k}" transform="translate(${x} ${y}) rotate(${w}) scale(${sc})"><path d="M-12-7H2V-13L16 0L2 13V7H-12Z"/></g>`;
+  const kam = (k, farbe, cx, cy) => `<path class="cav c-${k}${o.hl === k ? " hl" : ""}" d="${HZ[k]}" fill="${farbe}" style="transform-origin:${cx}px ${cy}px"/>`;
+  const kl = (name, art, xa, xb, y, offen) => `<g class="kl kl-${art} kl-${name}${offen ? " offen" : ""}"><line class="b1" x1="${xa}" y1="${y}" x2="${(xa + xb) / 2}" y2="${y}" style="transform-origin:${xa}px ${y}px"/><line class="b2" x1="${xb}" y1="${y}" x2="${(xa + xb) / 2}" y2="${y}" style="transform-origin:${xb}px ${y}px"/></g>`;
+  let s = `<svg viewBox="0 0 480 ${H}" role="img" aria-label="${esc(o.alt || "Schnitt durch das Herz von vorn: oben die beiden Vorhöfe, unten die beiden Herzkammern, dazwischen die Herzscheidewand. Die rechte Herzhälfte liegt links im Bild, die linke rechts. Blau ist sauerstoffarmes, rot sauerstoffreiches Blut.")}">`;
+  s += `<rect width="480" height="${H}" fill="#f7fbfe"/>`;
+  s += `<g fill="${F.musD}" stroke="${F.musD}" stroke-linejoin="round"><path d="${HZ.ra}" stroke-width="26"/><path d="${HZ.la}" stroke-width="26"/><path d="${HZ.rv}" stroke-width="30"/><path d="${HZ.lv}" stroke-width="70"/></g>`;
+  s += `<g fill="${F.mus}" stroke="${F.mus}" stroke-linejoin="round"><path d="${HZ.ra}" stroke-width="20"/><path d="${HZ.la}" stroke-width="20"/><path d="${HZ.rv}" stroke-width="24"/><path d="${HZ.lv}" stroke-width="64"/></g>`;
+  s += `<g fill="none" stroke-linejoin="round">${rohr(HZ.hohl, F.blau, F.blauD)}${rohr(HZ.lungv, F.rot, F.rotD)}${rohr(HZ.lungart, F.blau, F.blauD)}${rohr(HZ.aorta, F.rot, F.rotD)}</g>`;
+  s += `<path d="M84 49V83L60 66Z" fill="${F.blauD}"/><path d="M396 49V83L420 66Z" fill="${F.rotD}"/>`;
+  s += kam("ra", F.blau, 157, 148) + kam("la", F.rot, 323, 148) + kam("rv", F.blau, 174, 246) + kam("lv", F.rot, 301, 246);
+  s += kl("avr", "av", 126, 188, 190, true) + kl("avl", "av", 292, 354, 190, true) + kl("lu", "out", 201, 227, 204, false) + kl("ao", "out", 253, 279, 204, false);
+  s += `<g fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">`;
+  if (o.anim) s += chev(130, 66, -90) + chev(350, 66, 90);
+  else s += chev(92, 148, 90) + chev(388, 148, -90) + chev(214, 140, 0) + chev(266, 140, 0) + chev(130, 66, -90) + chev(350, 66, 90);
+  s += `</g>`;
+  if (o.anim) s += pfeil("ho", 92, 148, 0, .9) + pfeil("lvn", 388, 148, 180, .9) + pfeil("pa", 214, 150, -90, .72) + pfeil("ao", 266, 150, -90, .72) + pfeil("ar", 157, 226, 90, .8) + pfeil("al", 323, 226, 90, .8);
+  if (!o.mini) {
+    s += `<g font-size="16" font-weight="800" fill="#15212b"><text x="8" y="120">Hohlvene</text><text x="474" y="120" text-anchor="end">Lungenvene</text><text x="84" y="42">Lungenarterie</text><text x="330" y="42">Aorta</text></g>`;
+    s += `<g font-size="14.5" fill="#566674"><text x="8" y="188">vom Körper</text><text x="474" y="188" text-anchor="end">von der Lunge</text><text x="8" y="102">zur Lunge</text><text x="474" y="102" text-anchor="end">in den Körper</text></g>`;
+  }
+  const yb = o.anim ? 360 : 364;
+  s += `<g font-size="${o.mini ? 17 : 14.5}" font-style="italic" fill="#566674"><text x="16" y="${yb}">rechte Seite des Menschen</text><text x="464" y="${yb}" text-anchor="end">linke Seite des Menschen</text></g>`;
+  if (o.anim) s += `<text class="banner" x="240" y="386" text-anchor="middle" font-size="16" font-weight="800" fill="#15212b"></text>`;
+  return s + `</svg>`;
+}
+// Diagramm für die M7-Aufgabe: Sauerstoffgehalt auf einem Umlauf
+function o2Chart(){
+  const xs = [84, 136, 188, 240, 292, 344], lab = [["Körper-", "venen"], ["Lungen-", "arterie"], ["Lunge", ""], ["Lungen-", "vene"], ["Aorta", ""], ["Organe", ""]];
+  let s = `<svg viewBox="0 0 380 176" role="img" aria-label="Diagramm: Sauerstoffgehalt des Blutes auf einem Umlauf. In den Körpervenen und in der Lungenarterie ist er niedrig, in der Lunge steigt er an, in der Lungenvene und in der Aorta ist er hoch, in den Organen sinkt er wieder.">`;
+  s += `<defs><linearGradient id="gO2a" gradientUnits="userSpaceOnUse" x1="162" y1="118" x2="214" y2="46"><stop offset="0" stop-color="#3b6fd4"/><stop offset="1" stop-color="#d93b3b"/></linearGradient><linearGradient id="gO2b" gradientUnits="userSpaceOnUse" x1="318" y1="46" x2="370" y2="118"><stop offset="0" stop-color="#d93b3b"/><stop offset="1" stop-color="#3b6fd4"/></linearGradient></defs>`;
+  s += `<rect width="380" height="176" fill="#f7fbfe"/>`;
+  s += `<text x="12" y="17" font-size="13.5" font-weight="800" fill="#15212b">Sauerstoffgehalt des Blutes auf einem Umlauf</text>`;
+  s += `<g stroke="#c9d6df" stroke-width="1.5" stroke-dasharray="4 4"><line x1="110" y1="30" x2="110" y2="130"/><line x1="162" y1="30" x2="162" y2="130"/><line x1="214" y1="30" x2="214" y2="130"/><line x1="266" y1="30" x2="266" y2="130"/><line x1="318" y1="30" x2="318" y2="130"/></g>`;
+  s += `<g stroke="#566674" stroke-width="2"><line x1="58" y1="28" x2="58" y2="130"/><line x1="58" y1="130" x2="376" y2="130"/></g>`;
+  s += `<g font-size="13" font-weight="700" fill="#566674"><text x="52" y="50" text-anchor="end">hoch</text><text x="52" y="122" text-anchor="end">niedrig</text></g>`;
+  s += `<g fill="none" stroke-width="6" stroke-linecap="round"><path d="M60 118H162" stroke="#3b6fd4"/><path d="M162 118L214 46" stroke="url(#gO2a)"/><path d="M214 46H318" stroke="#d93b3b"/><path d="M318 46L370 118" stroke="url(#gO2b)"/></g>`;
+  s += `<g font-size="13" font-weight="700" fill="#15212b" text-anchor="middle">` + xs.map((x, k) => `<text x="${x}" y="148">${lab[k][0]}</text>` + (lab[k][1] ? `<text x="${x}" y="164">${lab[k][1]}</text>` : "")).join("") + `</g>`;
+  return s + `</svg>`;
+}
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Was spürst du, wenn du den Puls am Handgelenk fühlst?", o: ["die Druckwelle, die jeder Herzschlag in der Arterie auslöst", "das Herz, das direkt unter der Haut des Handgelenks schlägt", "das Blut, das gerade durch deine Hand strömt", "deine Muskeln, die sich zusammenziehen"], a: 0, e: "Dein Herz sitzt im Brustkorb. Bei jedem Schlag drückt es Blut in die Arterien, und ihre Wand wird kurz gedehnt. Diese Druckwelle läuft bis zum Handgelenk."},
+    {q: "Wo liegt dein Herz?", o: ["im Brustkorb zwischen den Lungenflügeln, etwas links von der Mitte", "genau in der Mitte des Brustkorbs", "ganz rechts unter den Rippen", "im Bauch neben dem Magen"], a: 0, e: "Das Herz liegt zwischen den beiden Lungenflügeln. Der größere Teil ist links von der Mitte, die Spitze zeigt nach links unten."}
+  ],
+  s2: [
+    {q: "Welcher Teil des Herzens ist im Bild gelb umrandet?", h: `<div class="mini">${herzSvg({hl: "lv", mini: true, alt: "Herz von vorn, die Kammer rechts im Bild mit der dicken Wand ist gelb umrandet."})}</div>`, o: ["linke Herzkammer", "rechte Herzkammer", "linker Vorhof", "rechter Vorhof"], a: 0, e: "Das Herz ist von vorn gezeichnet. Die umrandete Kammer liegt rechts im Bild, also auf der linken Seite des Menschen. Es ist die linke Herzkammer, erkennbar an der dicken Wand."},
+    {q: "Was ist die Aufgabe der Herzklappen?", o: ["Sie lassen das Blut nur in eine Richtung strömen.", "Sie pumpen das Blut durch den Körper.", "Sie trennen die rechte von der linken Herzhälfte.", "Sie nehmen Sauerstoff aus dem Blut auf."], a: 0, e: "Herzklappen sind Ventile. Sie öffnen sich in Fließrichtung und schließen sich, wenn das Blut zurückströmen wollte."},
+    {q: "Warum ist die Herzscheidewand wichtig?", o: ["Sie verhindert, dass sich sauerstoffarmes und sauerstoffreiches Blut mischen.", "Sie pumpt das Blut in die Lunge.", "Sie schützt das Herz vor Stößen.", "Sie öffnet und schließt die Herzklappen."], a: 0, e: "Rechts fließt sauerstoffarmes Blut, links sauerstoffreiches. Die Muskelwand hält beides getrennt."}
+  ],
+  s3: [
+    {q: "Warum schließen sich die Klappen zwischen Vorhof und Kammer, wenn sich die Kammern zusammenziehen?", o: ["Das Blut soll nicht zurück in die Vorhöfe gedrückt werden.", "Die Vorhöfe sind dann leer und brauchen Ruhe.", "Die Kammern sollen sich mit Luft füllen.", "Sonst würde das Herz zu schnell schlagen."], a: 0, e: "Beim Zusammenziehen steigt der Druck in den Kammern. Die geschlossenen Klappen zwingen das Blut, in die Arterien zu fließen."},
+    {q: "Wohin pumpt die linke Herzkammer das Blut?", o: ["in die Aorta und damit in den Körper", "durch die Lungenarterie zur Lunge", "in den rechten Vorhof", "in die Hohlvene"], a: 0, e: "Die linke Kammer pumpt das sauerstoffreiche Blut in die Aorta. Von dort verteilt es sich im ganzen Körper."}
+  ],
+  s4: [
+    {q: "Welches Blut fließt in der Lungenarterie?", o: ["sauerstoffarmes Blut", "sauerstoffreiches Blut", "ein Gemisch aus beidem", "kein Blut, nur Luft"], a: 0, e: "Die Lungenarterie führt vom Herzen weg zur Lunge. Das Blut hat noch keinen frischen Sauerstoff aufgenommen. Arterie heißt nur: weg vom Herzen."},
+    {q: "Wo nimmt das Blut Sauerstoff auf?", o: ["in den Kapillaren der Lunge", "in der linken Herzkammer", "in der Aorta", "in den Hohlvenen"], a: 0, e: "In den Lungenbläschen geht der Sauerstoff durch die dünnen Wände ins Blut der Kapillaren über. Im Herzen und in den großen Gefäßen ändert sich der Sauerstoffgehalt nicht."}
+  ],
+  s5: [
+    {q: "Welche Gefäße führen das Blut zum Herzen hin?", o: ["die Venen", "die Arterien", "nur die Kapillaren", "alle Gefäße"], a: 0, e: "Venen führen zum Herzen hin, Arterien vom Herzen weg. Die Kapillaren liegen dazwischen."},
+    {q: "Wozu haben Venen Klappen?", o: ["Sie verhindern, dass das Blut zurückfließt.", "Sie pumpen das Blut zum Herzen.", "Sie halten den hohen Druck des Herzens aus.", "Sie lassen Sauerstoff durch die Wand."], a: 0, e: "Gerade in den Beinen muss das Blut nach oben fließen. Die Klappen lassen es nur zum Herzen hin durch."},
+    {q: "Wo findet der Stoffaustausch zwischen Blut und Organen statt?", o: ["in den Kapillaren", "in den Arterien", "in den Venen", "in den Herzklappen"], a: 0, e: "Nur die Wand der Kapillaren ist so dünn, dass Sauerstoff und Nährstoffe hindurchtreten können. Die Wand ist nur eine Zelle dick."}
+  ],
+  train: [
+    {q: "Wie oft schlägt das Herz eines Jugendlichen in Ruhe ungefähr pro Minute?", o: ["70- bis 90-mal", "10- bis 20-mal", "150- bis 200-mal", "etwa 300-mal"], a: 0, e: "In Ruhe sind es etwa 70 bis 90 Schläge pro Minute. Bei Anstrengung schlägt das Herz schneller."},
+    {q: "Welche Aussagen über Arterien sind richtig?", o: ["Sie führen Blut vom Herzen weg.", "Sie haben eine dicke, elastische Wand.", "An ihnen kannst du den Puls fühlen.", "Sie enthalten Klappen, die das Blut aufhalten.", "Ihr Blut ist immer sauerstoffreich."], a: [0, 1, 2], e: "Klappen haben die Venen. Und die Lungenarterie führt sauerstoffarmes Blut – deshalb ist die letzte Aussage falsch."},
+    {q: "Welche Reihenfolge stimmt für den Weg des Blutes in der Körperschleife?", o: ["linke Kammer – Aorta – Organe – Hohlvene – rechter Vorhof", "rechte Kammer – Aorta – Organe – Lungenvene – linker Vorhof", "linke Kammer – Lungenarterie – Organe – Hohlvene – rechter Vorhof", "rechter Vorhof – Aorta – Organe – Hohlvene – linke Kammer"], a: 0, e: "Die Körperschleife beginnt in der linken Herzkammer und endet im rechten Vorhof. Dazwischen liegen Aorta, Körperarterien, Kapillaren der Organe und Hohlvenen."},
+    {q: "Was pumpt die rechte Herzhälfte?", o: ["sauerstoffarmes Blut zur Lunge", "sauerstoffreiches Blut in den Körper", "Luft in die Lunge", "Nährstoffe in den Darm"], a: 0, e: "Die rechte Hälfte ist die Pumpe der Lungenschleife, die linke Hälfte die Pumpe der Körperschleife."}
+  ],
+  r: [
+    {q: "Das Herz schlägt in Ruhe etwa 70-mal pro Minute und pumpt bei jedem Schlag etwa 70 ml Blut in die Aorta. Wie viel Blut pumpt es in einer Minute?", o: ["etwa 5 Liter – ungefähr so viel, wie ein Erwachsener insgesamt an Blut hat", "etwa 140 Milliliter", "etwa 50 Liter", "etwa 500 Milliliter"], a: 0, e: "70 · 70 ml = 4 900 ml, also etwa 5 Liter. Das ist ungefähr die ganze Blutmenge eines Erwachsenen (5 bis 6 Liter): Etwa einmal pro Minute fließt alles Blut durch das Herz."}
+  ],
+  d: [
+    {q: "Das Diagramm zeigt den Sauerstoffgehalt des Blutes auf einem ganzen Umlauf. Wo ändert er sich, und warum?", h: `<div class="bild">${o2Chart()}</div>`, o: ["In der Lunge steigt er, weil das Blut dort Sauerstoff aufnimmt. In den Organen sinkt er, weil das Blut dort Sauerstoff abgibt.", "In der Lunge sinkt er, weil das Blut dort Sauerstoff verbraucht. In den Organen steigt er wieder.", "Im Herzen steigt er, weil der Herzmuskel Sauerstoff ins Blut abgibt. In den Arterien sinkt er.", "Er ändert sich nirgends. Das Blut hat überall gleich viel Sauerstoff."], a: 0, e: "Nur in den Kapillaren ändert sich der Sauerstoffgehalt: In der Lunge geht Sauerstoff ins Blut über, in den Organen geht er aus dem Blut in die Zellen. In Herz, Arterien und Venen bleibt er gleich."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Kurz-Check"});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s5"), MC.s5, "mc5", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+Modul.plus(() => { Modul.makeMC($("#mc-r"), MC.r, "mcR"); Modul.makeMC($("#mc-d"), MC.d, "mcD"); });
+
+/* ---------- Station 1: Herz im Oberkörper und Schätzfrage ---------- */
+onVisible($("#torsoSim"), v => $("#torsoSim").classList.toggle("sichtbar", v));
+(function(){
+  const wahl = $("#schaetzWahl"), fb = $("#schaetzFb");
+  const id = "schaetz"; register(id, "#schaetzWahl", "Schätzen: Wie oft schlägt das Herz an einem Tag?");
+  const O = [
+    {t: "etwa 1 000-mal", e: "Das ist viel zu wenig. Schon in einer Minute schlägt dein Herz etwa 70-mal – in einer Stunde sind das über 4 000 Schläge."},
+    {t: "etwa 10 000-mal", e: "Immer noch zu wenig. Rechne: 70 Schläge × 60 Minuten sind 4 200 Schläge in einer Stunde. Und ein Tag hat 24 Stunden."},
+    {t: "mehr als 100 000-mal", ok: true, e: "Richtig! 70 Schläge × 60 Minuten × 24 Stunden = 100 800. Dein Herz schlägt jeden Tag mehr als 100 000-mal."},
+    {t: "etwa 1 000 000-mal", e: "Das wäre zu viel. Dafür müsste dein Herz etwa 700-mal pro Minute schlagen. Am Handgelenk spürst du aber nur 70 bis 90 Schläge."}
+  ];
+  wahl.innerHTML = shuffle(O).map(o => `<button type="button" data-i="${O.indexOf(o)}">${o.t}</button>`).join("");
+  $$("button", wahl).forEach(b => b.addEventListener("click", () => {
+    const o = O[+b.dataset.i];
+    $$("button", wahl).forEach(x => x.classList.toggle("sel", x === b));
+    fb.className = "fb show " + (o.ok ? "ok" : "bad"); fb.textContent = (o.ok ? "✅ " : "❌ ") + o.e;
+    if (o.ok) solve(id);
+  }));
+})();
+
+/* ---------- Station 2: Herz erkunden ---------- */
+$("#herzBild").innerHTML = herzSvg({});
+Modul.makeHotspots($("#herzBild"), $("#herzInfo"), $("#herzZahl"), [
+  {x: 32.7, y: 37.6, i: "🔵", t: "Rechter Vorhof", s: "Hier kommt das sauerstoffarme Blut aus dem Körper an. Die <button class='term' data-t='hohlvene'>Hohlvene</button> bringt es her. Vom Vorhof fließt es weiter in die rechte Kammer."},
+  {x: 36.3, y: 69.4, i: "🔵", t: "Rechte Herzkammer", s: "Sie pumpt das sauerstoffarme Blut durch die <button class='term' data-t='lungenarterie'>Lungenarterie</button> zur Lunge. Der Weg ist kurz, deshalb reicht eine eher dünne Muskelwand."},
+  {x: 67.3, y: 36.6, i: "🔴", t: "Linker Vorhof", s: "Hier kommt das sauerstoffreiche Blut aus der Lunge an. Die <button class='term' data-t='lungenvene'>Lungenvene</button> bringt es her. Vom Vorhof fließt es weiter in die linke Kammer."},
+  {x: 62.1, y: 70.4, i: "🔴", t: "Linke Herzkammer", s: "Sie pumpt das sauerstoffreiche Blut in die <button class='term' data-t='aorta'>Aorta</button> und damit durch den ganzen Körper. Dafür braucht sie viel Kraft."},
+  {x: 50, y: 70.4, i: "↔️", t: "Herzscheidewand", s: "Die Muskelwand trennt die rechte von der linken Herzhälfte. So mischen sich das sauerstoffarme Blut (rechts) und das sauerstoffreiche Blut (links) nicht."},
+  {x: 67.3, y: 51.1, i: "🚪", t: "Herzklappen", s: "Eine Klappe sitzt zwischen Vorhof und Kammer, eine zweite am Ausgang jeder Kammer. Sie öffnen sich nur in Fließrichtung. So kann das Blut nie rückwärts strömen. Im Bild sind sie gelb."},
+  {x: 75.4, y: 67.2, i: "💪", t: "Dicke Wand der linken Kammer", s: "Die Muskelwand der linken Kammer ist die dickste im ganzen Herzen. Sie muss das Blut durch den ganzen Körper drücken, die rechte Kammer nur durch die Lunge."}
+], "herz");
+
+/* ---------- Station 3: So pumpt das Herz ---------- */
+(function(){
+  const sim = $("#herzSim");
+  sim.innerHTML = herzSvg({anim: true, alt: "Schnitt durch das Herz mit vier Räumen, vier Klappen (gelb) und den großen Gefäßen. Die Räume ziehen sich zusammen und erschlaffen im Wechsel, weiße Pfeile zeigen die Richtung des Blutes."});
+  const q = s => $(s, sim);
+  const cav = {ra: q(".c-ra"), la: q(".c-la"), rv: q(".c-rv"), lv: q(".c-lv")};
+  const kl = {avr: q(".kl-avr"), avl: q(".kl-avl"), lu: q(".kl-lu"), ao: q(".kl-ao")}, banner = q(".banner");
+  // va/ka: Größe von Vorhöfen und Kammern, av/out: Klappen offen, akt: Räume, die sich gerade zusammenziehen
+  const Z = [
+    {va: 1, ka: .84, av: true, out: false, akt: "", pf: ["ho", "lvn", "ar", "al"], t: "Füllen: Blut strömt in die Vorhöfe"},
+    {va: .72, ka: 1, av: true, out: false, akt: "v", pf: ["ar", "al"], t: "Die Vorhöfe ziehen sich zusammen"},
+    {va: .96, ka: .96, av: false, out: false, akt: "k", pf: [], t: "Die Kammern spannen sich an – Klappen zu"},
+    {va: 1, ka: .7, av: false, out: true, akt: "k", pf: ["pa", "ao"], t: "Das Blut wird in die Arterien gedrückt"},
+    {va: 1, ka: .84, av: true, out: false, akt: "", pf: ["ho", "lvn", "ar", "al"], t: "Das Herz erschlafft und füllt sich neu"}
+  ];
+  function zeig(z, leer){
+    cav.ra.style.transform = cav.la.style.transform = `scale(${z.va})`;
+    cav.rv.style.transform = cav.lv.style.transform = `scale(${z.ka})`;
+    cav.ra.classList.toggle("aktiv", z.akt === "v"); cav.la.classList.toggle("aktiv", z.akt === "v");
+    cav.rv.classList.toggle("aktiv", z.akt === "k"); cav.lv.classList.toggle("aktiv", z.akt === "k");
+    kl.avr.classList.toggle("offen", z.av); kl.avl.classList.toggle("offen", z.av);
+    kl.lu.classList.toggle("offen", z.out); kl.ao.classList.toggle("offen", z.out);
+    $$(".pf", sim).forEach(p => p.classList.toggle("an", z.pf.some(k => p.classList.contains("pf-" + k))));
+    setText(banner, leer ? "Das Herz ist entspannt" : z.t);
+  }
+  Modul.makeSchritte(sim, {
+    start: "Das Herz ist entspannt. Tippe auf „Start“ oder gehe Schritt für Schritt.",
+    steps: [
+      "<b>Füllen:</b> Das Herz ist entspannt. Blut strömt aus den Venen in die beiden Vorhöfe und durch die offenen Klappen schon in die Kammern.",
+      "<b>Die Vorhöfe ziehen sich zusammen.</b> Sie drücken das restliche Blut in die Kammern. Die Klappen zwischen Vorhof und Kammer sind offen.",
+      "<b>Die Kammern ziehen sich zusammen.</b> Der Druck steigt, die Klappen zwischen Vorhof und Kammer schließen sich. Das Blut kann nicht zurück in die Vorhöfe.",
+      "<b>Das Blut wird in die Arterien gedrückt.</b> Die Klappen am Ausgang öffnen sich. Die rechte Kammer pumpt in die Lungenarterie, die linke in die Aorta. Diesen Stoß spürst du als Puls.",
+      "<b>Das Herz erschlafft.</b> Die Klappen am Ausgang schließen sich, kein Blut fließt zurück. Die Vorhöfe füllen sich neu – der nächste Schlag beginnt."
+    ],
+    ms: 3400,
+    zeige(i){ if (i < 0) zeig(Z[0], true), $$(".pf", sim).forEach(p => p.classList.remove("an")); else zeig(Z[i]); }
+  }, "pumpen");
+})();
+
+Modul.makeOrder($("#orderPump"), [
+  "Die Vorhöfe füllen sich mit Blut aus den Venen.",
+  "Die Vorhöfe ziehen sich zusammen und drücken Blut in die Kammern.",
+  "Die Kammern ziehen sich zusammen, die Klappen zu den Vorhöfen schließen sich.",
+  "Das Blut wird in die Arterien gedrückt.",
+  "Das Herz erschlafft und füllt sich neu."
+], "orderPump");
+
+/* ---------- Station 4: Weg des Blutes durch beide Schleifen ---------- */
+(function(){
+  const sim = $("#kreisSim"), marker = $("#kMarker"), blut = $("ellipse", marker);
+  const P = [null, null, "#sg2", "#sg3", "#sg4", "#sg5", "#sg6", "#sg7", "#sg8", "#sg9"].map(s => s ? $(s, sim) : null);
+  const HL = [["#kRA"], ["#kRV"], ["#glAP"], ["#glLunge"], ["#glLV", "#kLA"], ["#kLV"], ["#glAorta"], ["#glKoerper"], ["#glKV", "#kRA"]];
+  const tagLS = $("#tagLS"), tagKS = $("#tagKS");
+  const hex = h => [1, 3, 5].map(k => parseInt(h.slice(k, k + 2), 16)), BL = hex("#3b6fd4"), RT = hex("#d93b3b");
+  const mix = (a, b, t) => `rgb(${a.map((v, k) => Math.round(v + (b[k] - v) * t)).join(",")})`;
+  const farbe = (i, t) => i === 3 ? mix(BL, RT, t) : i === 7 ? mix(RT, BL, t) : (i >= 4 && i <= 6) ? mix(RT, RT, 0) : mix(BL, BL, 0);
+  function setze(i, t){
+    const p = P[Math.max(i, 1) + 1]; if (!p) return;
+    const pt = p.getPointAtLength(p.getTotalLength() * (i < 1 ? 0 : t));
+    marker.setAttribute("transform", `translate(${pt.x.toFixed(1)} ${pt.y.toFixed(1)})`);
+    blut.setAttribute("fill", farbe(i, t));
+  }
+  let jetzt = -1, raf = 0;
+  function gleite(i){
+    cancelAnimationFrame(raf);
+    const t0 = performance.now(), dauer = 1100;
+    const f = now => { const t = clamp((now - t0) / dauer, 0, 1); setze(i, t * t * (3 - 2 * t)); if (t < 1) raf = requestAnimationFrame(f); };
+    raf = requestAnimationFrame(f);
+  }
+  Modul.makeSchritte(sim, {
+    start: "Ein rotes Blutkörperchen wartet im rechten Vorhof. Tippe auf „Start“ oder gehe Schritt für Schritt.",
+    steps: [
+      "<b>Start im rechten Vorhof.</b> Das Blutkörperchen kommt aus dem Körper zurück. Es hat Sauerstoff abgegeben und ist <span class='farbe-blau'>sauerstoffarm</span> (blau gezeichnet).",
+      "Durch die Herzklappe fließt es in die <b>rechte Herzkammer</b>. Sie ist der Pumpraum der rechten Herzhälfte.",
+      "Die rechte Kammer pumpt es in die <b>Lungenarterie</b>. Hier beginnt die <b>Lungenschleife</b>. Achtung: Das ist eine Arterie, denn sie führt vom Herzen weg. Ihr Blut ist trotzdem <span class='farbe-blau'>sauerstoffarm</span>.",
+      "In den <b>Kapillaren der Lunge</b> nimmt das Blutkörperchen Sauerstoff auf und gibt Kohlenstoffdioxid ab. Es wird <span class='farbe-rot'>sauerstoffreich</span>.",
+      "Die <b>Lungenvene</b> bringt es zum Herzen zurück. Das ist eine Vene, denn sie führt zum Herzen hin. Ihr Blut ist <span class='farbe-rot'>sauerstoffreich</span>. Im <b>linken Vorhof</b> ist die Lungenschleife geschafft.",
+      "Durch die Herzklappe fließt es in die <b>linke Herzkammer</b>. Sie hat die dickste Wand.",
+      "Die linke Kammer pumpt es in die <b>Aorta</b>. Hier beginnt die <b>Körperschleife</b>. Die Körperarterien verteilen das <span class='farbe-rot'>sauerstoffreiche</span> Blut im ganzen Körper.",
+      "In den <b>Kapillaren der Organe</b> gibt das Blutkörperchen Sauerstoff und Nährstoffe ab. Es nimmt Kohlenstoffdioxid und Abfallstoffe auf und wird wieder <span class='farbe-blau'>sauerstoffarm</span>.",
+      "Die <b>Körpervenen</b> (Hohlvenen) führen es zum Herzen zurück, in den rechten Vorhof. Der Kreis ist geschlossen. Ein Umlauf dauert in Ruhe etwa eine Minute."
+    ],
+    ms: 4200,
+    zeige(i){
+      cancelAnimationFrame(raf);
+      $$(".gl, .kam", sim).forEach(e => e.classList.remove("hl"));
+      tagLS.classList.toggle("aktiv", i >= 2 && i <= 4); tagKS.classList.toggle("aktiv", i >= 6);
+      if (i < 0) { marker.setAttribute("opacity", 0); jetzt = -1; return; }
+      marker.setAttribute("opacity", 1);
+      HL[i].forEach(s => $(s, sim).classList.add("hl"));
+      if (i === jetzt + 1 && i >= 1 && !reduced) gleite(i); else setze(i, 1);
+      jetzt = i;
+    }
+  }, "weg");
+})();
+
+Modul.makeSort($("#sortO2"), {
+  buckets: ["sauerstoffreich (rot)", "sauerstoffarm (blau)"],
+  items: [
+    {t: "Lungenvene", b: 0}, {t: "Aorta", b: 0}, {t: "linker Vorhof", b: 0}, {t: "linke Herzkammer", b: 0},
+    {t: "Hohlvene", b: 1}, {t: "Lungenarterie", b: 1}, {t: "rechter Vorhof", b: 1}, {t: "rechte Herzkammer", b: 1}
+  ], cols: 150
+}, "sortO2");
+
+/* ---------- Station 5: Gefäße vergleichen ---------- */
+(function(){
+  const wahl = $("#gefWahl"), obs = $("#gefObs"), titel = $("#gfTitel");
+  const id = "gefaesse"; register(id, "#gefSim", "Gefäße vergleichen: Arterie, Vene und Kapillare");
+  const T = {
+    A: ["Arterie (Schlagader)", "<b>Arterie:</b> führt Blut vom Herzen weg. Die Wand ist dick, elastisch und muskulös. So hält sie die Stöße des Herzens aus und gibt sie weiter – daran fühlst du den Puls."],
+    V: ["Vene (Blutader)", "<b>Vene:</b> führt Blut zum Herzen hin. Die Wand ist dünner, der Innenraum weiter. Venenklappen lassen das Blut nur Richtung Herz fließen."],
+    K: ["Kapillare (Haargefäß)", "<b>Kapillare:</b> haarfein, die Wand ist nur eine Zelle dick. Die roten Blutkörperchen gleiten einzeln hindurch. Hier gehen Sauerstoff und Nährstoffe ins Gewebe, Kohlenstoffdioxid und Abfallstoffe ins Blut."]
+  };
+  const G = {A: $("#gfA"), V: $("#gfV"), K: $("#gfK")}, war = new Set();
+  wahl.innerHTML = '<button type="button" data-k="A">Arterie</button><button type="button" data-k="V">Vene</button><button type="button" data-k="K">Kapillare</button>';
+  $$("button", wahl).forEach(b => b.addEventListener("click", () => {
+    const k = b.dataset.k;
+    $$("button", wahl).forEach(x => x.classList.toggle("sel", x === b));
+    Object.keys(G).forEach(g => G[g].classList.toggle("aus", g !== k));
+    setText(titel, T[k][0]); war.add(k);
+    obs.innerHTML = T[k][1] + (war.size === 3 ? " ✅ Du hast alle drei Gefäßarten verglichen." : "");
+    if (war.size === 3) solve(id);
+  }));
+})();
+
+/* ---------- Station 5: Muskelpumpe und Venenklappen ---------- */
+(function(){
+  const id = "muskelpumpe"; register(id, "#mpSim", "Versuch: Muskelpumpe und Venenklappen");
+  const mus = $("#mpMuskel"), seg = $("#mpSeg"), kU = $("#mpKU"), kL = $("#mpKL"), pTop = $("#mpTop"), pBot = $("#mpBot"), tU = $("#mpU"), tL = $("#mpL"), obs = $("#mpObs"), wahl = $("#mpWahl");
+  const T = {
+    locker: "Der Muskel ist locker. Die untere Klappe ist offen: Blut strömt von unten in den Abschnitt. Die obere Klappe ist zu, deshalb kann nichts nach unten zurücksacken.",
+    fest: "Der Muskel spannt sich an und drückt die Vene zusammen. Die untere Klappe schließt, die obere öffnet sich: Das Blut wird Richtung Herz gepresst."
+  };
+  function bild(fest){
+    mus.style.transform = fest ? "scale(1.3,1)" : "scale(1,1)";
+    seg.style.transform = fest ? "scaleX(.45)" : "scaleX(1)";
+    kU.classList.toggle("offen", fest); kL.classList.toggle("offen", !fest);
+    pTop.classList.toggle("an", fest); pBot.classList.toggle("an", !fest);
+    setText(tU, "obere Klappe: " + (fest ? "offen" : "zu")); setText(tL, "untere Klappe: " + (fest ? "zu" : "offen"));
+  }
+  const war = new Set();
+  wahl.innerHTML = '<button type="button" data-f="1">💪 Muskel anspannen</button><button type="button" data-f="0">😌 Muskel entspannen</button>';
+  $$("button", wahl).forEach(b => b.addEventListener("click", () => {
+    const fest = b.dataset.f === "1";
+    $$("button", wahl).forEach(x => x.classList.toggle("sel", x === b));
+    bild(fest); war.add(fest ? "fest" : "locker");
+    obs.textContent = T[fest ? "fest" : "locker"] + (war.size === 2 ? " ✅ Du hast beide Zustände gesehen. Die Klappen lassen das Blut nur zum Herzen hin fließen." : "");
+    if (war.size === 2) solve(id);
+  }));
+  bild(false);
+})();
+
+Modul.makeSort($("#sortGef"), {
+  buckets: ["Arterie", "Vene", "Kapillare"],
+  items: [
+    {t: "führt Blut vom Herzen weg", b: 0}, {t: "dicke, elastische Wand", b: 0}, {t: "hier fühlst du den Puls", b: 0},
+    {t: "führt Blut zum Herzen hin", b: 1}, {t: "enthält Klappen", b: 1}, {t: "dünnere Wand, weiter Innenraum", b: 1},
+    {t: "haarfein", b: 2}, {t: "Wand nur eine Zelle dick", b: 2}, {t: "Stoffaustausch mit den Organen", b: 2}
+  ], cols: 150
+}, "sortGef");
+
+Modul.plus(() => {
+  Modul.makePaare($("#paareBau"), [
+    ["dicke, elastische Wand der Arterie", "hält die Stöße des Herzens aus und federt sie ab"],
+    ["Klappen in den Venen", "das Blut kann nur zum Herzen hin fließen"],
+    ["hauchdünne Wand der Kapillaren", "Sauerstoff und Nährstoffe können hindurchtreten"],
+    ["so eng, dass die Blutkörperchen einzeln hindurchmüssen", "jedes Blutkörperchen ist nah an der Wand: kurzer Weg für den Sauerstoff"],
+    ["dicke Muskelwand der linken Kammer", "pumpt das Blut durch den ganzen Körper"]
+  ], "paareBau");
+});
+
+/* ---------- Station 6: Training ---------- */
+Modul.makeGap($("#gapHerz"), [
+  ["Das Herz ist ein ", {g: "Hohlmuskel"}, ". Die ", {g: "Herzscheidewand"}, " teilt es in eine rechte und eine linke Hälfte."],
+  ["Jede Hälfte hat oben einen ", {g: "Vorhof"}, " und unten eine ", {g: "Kammer"}, ". Die ", {g: "Herzklappen"}, " lassen das Blut nur in eine Richtung strömen."],
+  ["Der Blutkreislauf hat zwei Schleifen: die ", {g: "Lungenschleife"}, " und die ", {g: "Körperschleife"}, "."],
+  [{g: "Arterien"}, " führen Blut vom Herzen weg, ", {g: "Venen"}, " führen es zum Herzen hin. Der Stoffaustausch findet in den ", {g: "Kapillaren"}, " statt."]
+], "gapHerz", ["Zwerchfell", "Luftröhre"]);
+
+Modul.makePaare($("#paareHerz"), [
+  ["Vorhof", "nimmt Blut auf"],
+  ["Herzkammer", "pumpt Blut in die Arterien"],
+  ["Herzklappe", "Ventil: Blut fließt nur in eine Richtung"],
+  ["Herzscheidewand", "trennt rechte und linke Herzhälfte"],
+  ["Aorta", "bringt sauerstoffreiches Blut in den Körper"],
+  ["Lungenvene", "bringt sauerstoffreiches Blut zum Herzen"]
+], "paareHerz");
+
+Modul.makeTF($("#tf"), [
+  ["Das Herz liegt genau in der Mitte des Brustkorbs.", false],
+  ["Die rechte Herzhälfte pumpt sauerstoffarmes Blut zur Lunge.", true],
+  ["Alle Arterien führen sauerstoffreiches Blut.", false],
+  ["Venen führen das Blut zum Herzen hin.", true],
+  ["Die Herzklappen sorgen dafür, dass das Blut nur in eine Richtung fließt.", true],
+  ["Der Stoffaustausch zwischen Blut und Organen findet in den Arterien statt.", false],
+  ["Die rechte Herzkammer hat die dickste Wand.", false],
+  ["Der Blutkreislauf besteht aus zwei Schleifen.", true]
+], "tf");
+
+Modul.makeCrossword($("#cw"), {
+  words: [
+    {w: "HERZKLAPPE", r: 0, c: 8, d: "d", q: "Ventil im Herzen: Es lässt das Blut nur in eine Richtung strömen."},
+    {w: "KAPILLAREN", r: 1, c: 0, d: "a", q: "Haarfeine Blutgefäße, in denen der Stoffaustausch stattfindet."},
+    {w: "KREISLAUF", r: 1, c: 0, d: "d", q: "Das Blut fließt im Kreis. Man spricht vom Blut…"},
+    {w: "HOHLVENE", r: 9, c: 3, d: "a", q: "Große Vene: Sie bringt Blut aus dem Körper zum rechten Vorhof."},
+    {w: "SCHLEIFE", r: 2, c: 10, d: "d", q: "Der Blutkreislauf hat zwei davon: Lungen… und Körper…"},
+    {w: "ARTERIE", r: 7, c: 0, d: "a", q: "Blutgefäß, das Blut vom Herzen wegführt (Schlagader)."},
+    {w: "KAMMER", r: 0, c: 6, d: "d", q: "Dieser kräftige Raum im Herzen pumpt das Blut in die Arterien."},
+    {w: "VORHOF", r: 5, c: 4, d: "d", q: "Dieser Raum im Herzen nimmt Blut aus den Venen auf."},
+    {w: "AORTA", r: 4, c: 2, d: "d", q: "Größte Arterie: Sie führt Blut aus der linken Kammer in den Körper."}
+  ],
+  sol: [[7, 8], [8, 0], [2, 6], [1, 2], [6, 10]], solWord: "PUMPE"
+}, "cw");
+
+Modul.makeOrder($("#orderWeg"), [
+  "rechter Vorhof",
+  "rechte Herzkammer",
+  "Lungenarterie",
+  "Kapillaren der Lunge",
+  "Lungenvene",
+  "linker Vorhof",
+  "linke Herzkammer",
+  "Aorta",
+  "Kapillaren in den Organen",
+  "Hohlvene (zurück zum rechten Vorhof)"
+], "orderWeg");
+
+Modul.makeOpen($("#open"), [
+  {q: "Beschreibe den Bau des Herzens. Nenne die vier Räume und sage, was die Herzklappen tun.",
+   m: "Das Herz hat zwei Vorhöfe und zwei Herzkammern. Die Herzscheidewand trennt die rechte und die linke Hälfte. Die Vorhöfe nehmen das Blut auf, die Kammern pumpen es weg. Die Herzklappen sind Ventile: Sie lassen das Blut nur in eine Richtung fließen.",
+   k: ["vorhof|vorhöfe|vorkammer", "kammer", "scheidewand|rechte und linke|rechte und die linke", "klappe|ventil", "richtung|rückfluss|zurück"], min: 4},
+  {q: "Beschreibe den Weg des Blutes in der Lungenschleife und sage, was dort mit dem Blut passiert.",
+   m: "Die rechte Herzkammer pumpt das sauerstoffarme Blut durch die Lungenarterie zur Lunge. In den Kapillaren der Lunge nimmt das Blut Sauerstoff auf und gibt Kohlenstoffdioxid ab. Über die Lungenvene fließt es in den linken Vorhof.",
+   k: ["rechte", "lungenarterie|lungenschlagader", "kapillar|lunge", "sauerstoff", "lungenvene", "linke|linken"], min: 4},
+  {q: "Erkläre, warum nicht jede Arterie sauerstoffreiches Blut führt.",
+   m: "Arterien führen Blut vom Herzen weg. Die Lungenarterie führt das Blut von der rechten Herzkammer zur Lunge. Dieses Blut hat noch keinen Sauerstoff aufgenommen, es ist sauerstoffarm. Deshalb sind nicht alle Arterien sauerstoffreich.",
+   k: ["vom herzen|herzen weg|wegführ|wegfuehr", "lungenarterie|lunge", "sauerstoffarm|wenig sauerstoff|kaum sauerstoff|noch keinen sauerstoff|nicht aufgenommen"], min: 2}
+], "open", "Lies noch einmal die Merke-Kästen in Station 2, 4 und 5.");
+
+Modul.plus(() => {
+  Modul.makeOpen($("#openM"), [
+    {q: "Bei manchen Menschen schließt eine Herzklappe nicht richtig dicht. Was passiert dann mit dem Blut, und warum muss das Herz mehr arbeiten?",
+     m: "Eine undichte Klappe lässt einen Teil des Blutes zurückfließen. Das Herz muss dieses Blut noch einmal pumpen und fördert trotzdem weniger nach vorn. Es muss deshalb mehr arbeiten, damit der Körper genug Sauerstoff bekommt.",
+     k: ["zurück|rückfluss|rückwärts|zurueck", "klappe", "mehr|stärker|öfter|häufiger|anstreng|kraft|arbeit"], min: 2},
+    {q: "Die Wand der linken Herzkammer ist viel dicker als die der rechten. Begründe das.",
+     m: "Die linke Kammer pumpt das Blut durch den ganzen Körper, einen langen Weg mit vielen Gefäßen. Die rechte Kammer pumpt es nur durch die kurze Lungenschleife. Für den langen Weg braucht die linke Kammer mehr Kraft, deshalb hat sie mehr Muskeln und eine dickere Wand.",
+     k: ["körper|koerper", "lunge|lungenschleife|kurz", "kraft|muskel|dick|druck"], min: 2}
+  ], "openM", "Vergleiche den Weg durch den Körper mit dem Weg durch die Lunge.");
+});
+
+/* ---------- Station 7: Profi-Check ---------- */
+Modul.makeQuiz($("#quiz"), [].concat(MC.s1, MC.s2.filter(q => !q.h), MC.s3, MC.s4, MC.s5, MC.train, [
+  {q: "Wie viele Räume hat das Herz?", o: ["vier: zwei Vorhöfe und zwei Kammern", "zwei: eine linke und eine rechte Kammer", "drei: zwei Kammern und ein Vorhof", "sechs: drei Vorhöfe und drei Kammern"], a: 0, e: "Zwei Vorhöfe nehmen das Blut auf, zwei Kammern pumpen es weg."},
+  {q: "Welches Blut fließt in der Lungenvene?", o: ["sauerstoffreiches Blut", "sauerstoffarmes Blut", "Blut ohne Blutzellen", "gar kein Blut"], a: 0, e: "Die Lungenvene bringt das Blut aus der Lunge zum linken Vorhof. Es hat in der Lunge Sauerstoff aufgenommen."},
+  {q: "Wie heißt das große Blutgefäß, das Blut aus der linken Herzkammer in den Körper führt?", o: ["Aorta", "Hohlvene", "Lungenarterie", "Lungenvene"], a: 0, e: "Die Aorta ist die größte Arterie des Körpers."},
+  {q: "Was passiert in den Kapillaren der Organe?", o: ["Das Blut gibt Sauerstoff ab und nimmt Kohlenstoffdioxid auf.", "Das Blut nimmt Sauerstoff auf und gibt Kohlenstoffdioxid ab.", "Das Blut wird in die Arterien gepumpt.", "Das Blut wird gefiltert und gereinigt."], a: 0, e: "In den Organen braucht der Körper den Sauerstoff. Zugleich nimmt das Blut Kohlenstoffdioxid und Abfallstoffe mit."},
+  {q: "Was verhindert, dass das Blut in den Beinvenen zurücksackt?", o: ["die Venenklappen", "die Herzklappen", "die Herzscheidewand", "die dicke Venenwand"], a: 0, e: "Venenklappen lassen das Blut nur Richtung Herz fließen. Auch die Beinmuskeln helfen: Sie drücken die Venen zusammen."},
+  {q: "Welche Schleife bringt sauerstoffreiches Blut zu den Organen?", o: ["die Körperschleife", "die Lungenschleife", "beide Schleifen gleich", "keine von beiden"], a: 0, e: "Die Körperschleife beginnt in der linken Herzkammer. Sie verteilt das sauerstoffreiche Blut im ganzen Körper."},
+  {q: "Welches Gefäß bringt sauerstoffarmes Blut aus dem Körper zum Herzen?", o: ["die Hohlvene", "die Aorta", "die Lungenvene", "die Lungenarterie"], a: 0, e: "Die Hohlvenen münden in den rechten Vorhof. Sie sind die größten Venen des Körpers."},
+  {q: "Warum hat die linke Herzkammer die dickste Muskelwand?", o: ["Sie pumpt das Blut durch den ganzen Körper.", "Sie pumpt das Blut nur durch die Lunge.", "Sie liegt ganz außen im Herzen.", "Sie nimmt das Blut aus dem Körper auf."], a: 0, e: "Der Weg durch den Körper ist lang. Dafür braucht die linke Kammer viel Kraft."}
+]), "quiz", "Kreislauf-Profi");
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

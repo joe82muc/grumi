@@ -1,0 +1,1350 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#146e94">
+<title>Schwimmen, laufen, fliegen | NT 7</title>
+<link rel="stylesheet" href="modul-basis.css">
+<style>
+.hero{background:linear-gradient(160deg,#0a3a5c,#146e94 55%,#3f9fc4)}
+.hotimg{position:relative}
+.hotimg svg{display:block;width:100%;height:auto}
+.sim-ctrl input[type=range]{height:44px}
+.sim .wahl{padding:10px 14px;margin:0;border-top:1px solid var(--line);background:#fbfdff}
+.wahl button.war{border-color:var(--ok);background:var(--ok-l)}
+.wahl button.war.sel{border-color:var(--sky);background:var(--sky);color:#fff}
+.fl{stroke-dasharray:9 13}
+.lauf .fl{animation:fliess 1s linear infinite}
+@keyframes fliess{to{stroke-dashoffset:-22}}
+.wirb{stroke-dasharray:14 10}
+.lauf .wirb{animation:wirbeln 1.6s linear infinite}
+@keyframes wirbeln{to{stroke-dashoffset:-24}}
+#sBalken{transition:width .5s,fill .5s}
+.fuss-p{transition:opacity .3s}
+.fuss-p.aus{opacity:.25}
+.legende{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:.9rem;color:var(--muted);padding:10px 14px;border-top:1px solid var(--line);background:#fbfdff}
+.legende i{display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:6px;vertical-align:-2px}
+/* Tippflächen für Finger und Stift: mindestens 44 px */
+.hs{width:44px;height:44px;margin:-22px 0 0 -22px}
+.btn.small,.tf-btns button,.tok,.gap{min-height:44px}
+.schritt-punkte button,.order-item .mv button{width:44px;height:44px}
+@media (max-width:520px){.tf-row{grid-template-columns:1fr}.tf-btns button{flex:1}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>NT 7</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Einstieg</a>
+      <a href="#s2"><b>2</b>Im Wasser</a>
+      <a href="#s3"><b>3</b>Wasser und Land</a>
+      <a href="#s4"><b>4</b>In der Luft</a>
+      <a href="#s5"><b>5</b>An Land</a>
+      <a href="#s6"><b>6</b>Training</a>
+      <a href="#s7"><b>7</b>Profi-Check</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse 7M / 7R · Themenbereich Tiere an Land und in der Luft · Lernmodul 2</div>
+    <h1>Schwimmen, laufen, fliegen</h1>
+    <p>Eine Forelle hat Flossen, ein Mäusebussard Flügel, ein Reh lange Beine mit Hufen. Warum sieht jedes Tier so aus? In sieben Stationen findest du heraus, wie der Körper von Wirbeltieren zu ihrer Fortbewegung passt – im Wasser, an Land und in der Luft.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s6">Direkt zum Probentraining</a>
+    </div>
+    <div class="goals">
+      <div>🐟 Ich erkläre, warum Fische stromlinienförmig sind und wofür sie ihre Flossen brauchen.</div>
+      <div>🐸 Ich vergleiche, wie sich Frosch, Molch, Eidechse und Schlange fortbewegen.</div>
+      <div>🦅 Ich nenne, was Vögel zum Fliegen brauchen, und unterscheide vier Flugarten.</div>
+      <div>🦌 Ich ordne Säugetiere nach ihrem Gang und erkläre Spezialisten wie Maulwurf, Fledermaus und Delfin.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- Zeichnungen der Tiere (eigene, vereinfachte Formen); weitere entstehen im Skript -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="gForelle" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#55662b"/><stop offset=".38" stop-color="#8b9a40"/><stop offset=".62" stop-color="#d4cc7e"/><stop offset="1" stop-color="#f6f0d6"/></linearGradient>
+    <linearGradient id="gReh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a8683a"/><stop offset=".7" stop-color="#c0814b"/><stop offset="1" stop-color="#e6cba2"/></linearGradient>
+    <linearGradient id="gHimmel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a9d8f2"/><stop offset="1" stop-color="#e8f5fb"/></linearGradient>
+    <linearGradient id="gTeich" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6ec1ea"/><stop offset="1" stop-color="#2f86bd"/></linearGradient>
+    <linearGradient id="gNacht" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a3160"/><stop offset="1" stop-color="#5d6aa8"/></linearGradient>
+    <linearGradient id="gMeer" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fd0ee"/><stop offset="1" stop-color="#2f86bd"/></linearGradient>
+    <!-- Forelle von der Seite, Kopf rechts (0 0 240 90) -->
+    <g id="tForelle">
+      <path d="M60,41 L4,10 Q26,45 4,80 L60,49 Z" fill="#c9a24c" stroke="#7a5a1c" stroke-width="2" stroke-linejoin="round"/>
+      <g stroke="#7a5a1c" stroke-width="1.2" opacity=".6" fill="none"><path d="M58,43 L11,22"/><path d="M58,45 L19,45"/><path d="M58,47 L11,68"/></g>
+      <path d="M114,26 Q122,4 134,2 L152,4 Q158,14 160,24 Z" fill="#b8903f" stroke="#7a5a1c" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M92,58 L84,82 Q104,84 122,64 Z" fill="#b8903f" stroke="#7a5a1c" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M60,41 C78,35 100,26 130,23 C154,20 182,21 206,29 C222,34 233,40 237,45 C233,50 223,55 207,61 C187,68 160,71 132,67 C106,63 82,53 60,49 Z" fill="url(#gForelle)" stroke="#4a5a22" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M204,28 C170,20 130,22 96,32" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".35"/>
+      <g fill="#2f3a18"><circle cx="150" cy="32" r="2.4"/><circle cx="128" cy="35" r="2.2"/><circle cx="172" cy="31" r="2.2"/><circle cx="106" cy="37" r="2"/><circle cx="188" cy="34" r="2"/><circle cx="86" cy="40" r="1.8"/></g>
+      <g fill="#d6402e" stroke="#fff4e0" stroke-width="1.2"><circle cx="160" cy="45" r="2.6"/><circle cx="137" cy="48" r="2.4"/><circle cx="116" cy="45" r="2.2"/><circle cx="180" cy="47" r="2.4"/></g>
+      <path d="M203,30 C195,41 195,53 204,62" fill="none" stroke="#4a5a22" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="218" cy="40" r="5.2" fill="#fff" stroke="#3a3a2a" stroke-width="1.4"/><circle cx="219.3" cy="40" r="2.8" fill="#15212b"/>
+      <path d="M237,45 L225,48.5" stroke="#4a3a1a" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M196,57 Q180,66 163,76 Q184,81 203,63 Z" fill="#d1ac55" stroke="#7a5a1c" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M156,67 Q142,78 130,87 Q152,89 167,70 Z" fill="#d1ac55" stroke="#7a5a1c" stroke-width="2" stroke-linejoin="round"/>
+    </g>
+    <!-- Reh von der Seite, Kopf rechts (0 0 220 180) -->
+    <g id="tReh">
+      <ellipse cx="112" cy="172" rx="66" ry="4.5" fill="#000" opacity=".12"/>
+      <g stroke="#7a4a26" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" fill="none">
+        <path d="M150,92 L153,128 L151,154" stroke="#8d5630" stroke-width="7"/>
+        <path d="M80,88 L94,114 L76,138 L78,158" stroke="#8d5630" stroke-width="7"/>
+        <path d="M148,158 l-8,0 l2,10 l9,0 z M80,158 l-8,0 l2,10 l9,0 z" fill="#3a2a22" stroke="#3a2a22" stroke-width="1"/>
+      </g>
+      <path d="M52,74 C50,52 76,46 108,46 C128,46 140,48 148,52 C154,44 160,30 166,18 L168,12 C176,8 188,12 194,22 C200,28 202,34 196,38 C188,40 180,38 174,36 C170,48 168,60 166,70 C164,88 148,102 118,102 C88,104 54,98 52,74 Z" fill="url(#gReh)" stroke="#6a4120" stroke-width="2.2" stroke-linejoin="round"/>
+      <ellipse cx="58" cy="76" rx="8.5" ry="12" fill="#f3ead8" stroke="#6a4120" stroke-width="1.4"/>
+      <path d="M168,12 C160,2 156,-2 164,0 C172,2 178,8 176,15 Z" fill="#b9763f" stroke="#6a4120" stroke-width="1.8" stroke-linejoin="round"/>
+      <path d="M172,36 C180,38 190,38 196,36 L196,40 C186,44 178,44 172,42 Z" fill="#f3ead8"/>
+      <ellipse cx="199" cy="29" rx="3.6" ry="3.2" fill="#2a1d18"/><circle cx="181" cy="21" r="2.6" fill="#15110f"/>
+      <g stroke="#8d5630" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" fill="none">
+        <path d="M134,92 L137,128 L135,154" stroke="#a8683a" stroke-width="8"/>
+        <path d="M66,86 L82,114 L64,138 L66,158" stroke="#a8683a" stroke-width="8"/>
+      </g>
+      <path d="M134,156 l-8,0 l2,12 l10,0 z M66,156 l-8,0 l2,12 l10,0 z" fill="#2a1d18"/>
+    </g>
+  </defs>
+</svg>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg</div><h2>Wer bewegt sich wie?</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Ein Morgen am Bach: Eine Forelle schießt durchs Wasser, ein Frosch springt ans Ufer, eine Eidechse wärmt sich auf dem Stein. Über dem Feld kreist ein Mäusebussard, und am Waldrand rennt ein Reh davon.</p>
+    <p>Alle fünf haben eine Wirbelsäule – das kennst du aus dem letzten Modul. Trotzdem bewegt sich jedes ganz anders. Und jedes sieht anders aus: mit Flossen, Beinen, Flügeln oder Hufen.</p>
+    <p>Das ist kein Zufall. <strong>Der Körper passt zur Fortbewegung.</strong> Dafür gibt es einen Fachbegriff: <button class="term" data-t="angepasst">Angepasstheit</button>. In diesem Modul findest du heraus, wie die Körper im Wasser, an Land und in der Luft gebaut sind – und warum.</p>
+  </div>
+  <div class="grid2">
+    <div class="sim reveal">
+      <div class="hotimg" id="szeneBild">
+        <svg viewBox="0 0 480 300" role="img" aria-label="Eine Landschaft: Im Teich schwimmt eine Forelle, am Ufer sitzt ein Frosch, auf einem Stein sonnt sich eine Eidechse, ein Mäusebussard kreist am Himmel und ein Reh steht auf der Wiese. Fünf Stellen sind nummeriert.">
+          <rect width="480" height="300" fill="url(#gHimmel)"/>
+          <circle cx="440" cy="40" r="20" fill="#ffe27a"/>
+          <g fill="#fff" opacity=".9"><ellipse cx="86" cy="46" rx="32" ry="10"/><ellipse cx="108" cy="38" rx="20" ry="9"/><ellipse cx="196" cy="26" rx="26" ry="8"/></g>
+          <path d="M0,176 C60,146 130,152 190,168 C250,184 310,146 390,156 C430,160 460,166 480,164 L480,300 L0,300 Z" fill="#b5d7a0"/>
+          <path d="M0,206 C110,197 210,203 310,200 C390,198 440,202 480,200 L480,300 L0,300 Z" fill="#8cc473"/>
+          <path d="M0,206 L206,206 L206,300 L0,300 Z" fill="url(#gTeich)"/>
+          <path d="M0,206 Q26,200 52,206 T104,206 T156,206 T206,206" fill="none" stroke="#fff" stroke-width="2.5" opacity=".75"/>
+          <path d="M0,286 L206,286 L206,300 L0,300Z" fill="#c9b27c"/>
+          <g stroke="#2f7a46" stroke-width="3" stroke-linecap="round" fill="none"><path d="M20,286 Q16,268 22,252"/><path d="M28,286 Q34,270 28,258"/><path d="M186,286 Q180,270 188,256"/></g>
+          <use href="#tForelle" transform="translate(64 234) scale(.52)"/>
+          <g fill="#fff" opacity=".7"><circle cx="196" cy="240" r="3"/><circle cx="200" cy="228" r="2"/><circle cx="192" cy="218" r="2.4"/></g>
+          <g id="szFrosch" transform="translate(262 211) scale(-.5 .5)"></g>
+          <ellipse cx="330" cy="228" rx="44" ry="13" fill="#8f989d"/><ellipse cx="330" cy="223" rx="44" ry="12" fill="#b9c1c5"/>
+          <g id="szEidechse"></g>
+          <g id="szBussard" transform="translate(318 84) rotate(-16) scale(.5)"></g>
+          <use href="#tReh" transform="translate(344 164) scale(.62)"/>
+          <g stroke="#5ba14a" stroke-width="2.5" stroke-linecap="round" fill="none"><path d="M236,266 l-3,-10 M239,266 l0,-11 M242,266 l3,-10"/><path d="M300,282 l-3,-10 M303,282 l0,-11 M306,282 l3,-10"/><path d="M450,280 l-3,-10 M453,280 l0,-11 M456,280 l3,-10"/></g>
+          <g><circle cx="270" cy="252" r="3.2" fill="#fff"/><circle cx="270" cy="252" r="1.4" fill="#f2c230"/><circle cx="420" cy="288" r="3.2" fill="#fff"/><circle cx="420" cy="288" r="1.4" fill="#f2c230"/></g>
+        </svg>
+      </div>
+      <div class="sim-ctrl"><span class="hs-count chip" id="szeneZahl">0 von 5 entdeckt</span><span class="hint" style="margin:0">Tippe auf die Zahlen im Bild.</span></div>
+    </div>
+    <div class="card reveal hs-info" id="szeneInfo">
+      <div class="big">🐾</div><h3 style="margin:.3em 0 .2em">Fünf Tiere, fünf Bewegungen</h3>
+      <p class="lead" style="margin:0">Tippe auf die Zahlen im Bild. Achte darauf, wie der Körper jedes Tieres gebaut ist und wie es sich bewegt.</p>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:18px"><div id="mc-s1"></div></div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Im Wasser: der Fisch</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Im Wasser ist Schwimmen Schwerarbeit: Wasser bremst viel stärker als Luft. Wer schnell vorankommen will, muss dem Wasser möglichst wenig Widerstand bieten.</p>
+    <p>Fische sind genau dafür gebaut. Ihr Körper ist <button class="term" data-t="stromlinie">stromlinienförmig</button>: vorn rund, in der Mitte am dicksten und hinten spitz. Dazu kommt eine glatte Haut. Auf den Schuppen liegt eine dünne <strong>Schleimschicht</strong>. Sie macht den Fisch glitschig, sodass das Wasser leichter vorbeigleitet, und schützt die Haut vor Keimen.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="card reveal">
+      <span class="task-tag">Versuch am Computer</span>
+      <h3 style="margin-top:4px">Im Strömungskanal</h3>
+      <p>Drei Körper stehen nacheinander im Wasserstrom. Alle sind gleich hoch. Die Linien zeigen, wie das Wasser an ihnen vorbeifließt.</p>
+      <p class="hint">Tippe nacheinander auf alle drei Körper. Beobachte, was hinter dem Körper passiert und wie stark der Widerstand ist.</p>
+    </div>
+    <div class="sim reveal" id="stromSim">
+      <svg id="stromSvg" viewBox="0 0 480 300" role="img" aria-label="Strömungskanal: Wasser fließt von links nach rechts an einem Körper vorbei. Zur Wahl stehen ein eckiger Klotz, eine Kugel und eine Fischform. Unten zeigt ein Balken den Widerstand.">
+        <rect width="480" height="300" fill="#f7fbfe"/>
+        <rect x="0" y="14" width="480" height="248" fill="#d6ecf9"/>
+        <g id="stromLinien"></g>
+        <g id="stromWirbel"></g>
+        <g id="stromKoerper"></g>
+        <rect x="8" y="18" width="94" height="22" rx="7" fill="#fff" opacity=".92"/><text x="15" y="34" font-size="13" font-weight="700" fill="#095a93">Strömung →</text>
+        <text x="24" y="280" font-size="13" font-weight="700" fill="#15212b">Widerstand:</text>
+        <rect x="112" y="268" width="250" height="16" rx="8" fill="#e3ebf1"/>
+        <rect id="sBalken" x="112" y="268" width="0" height="16" rx="8" fill="#1b8a4b"/>
+        <text id="sWert" x="372" y="281" font-size="13" font-weight="800" fill="#15212b"></text>
+      </svg>
+      <div class="wahl" id="stromWahl">
+        <button type="button" data-k="klotz">▭ Eckiger Klotz</button>
+        <button type="button" data-k="kugel">● Kugel</button>
+        <button type="button" data-k="fisch">🐟 Fischform</button>
+      </div>
+      <p class="obs" id="stromObs">Wähle einen Körper. Ohne Körper fließt das Wasser geradeaus.</p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="sim reveal">
+      <div class="hotimg" id="fischBild">
+        <svg viewBox="0 0 480 200" role="img" aria-label="Eine Forelle von der Seite, vergrößert. Sieben Stellen sind nummeriert: Schwanzflosse, Rückenflosse, Afterflosse, Brustflosse, Bauchflosse, Schwimmblase und die Haut mit Schleim.">
+          <rect width="480" height="200" fill="#dff1fb"/>
+          <path d="M0,12 Q30,4 60,12 T120,12 T180,12 T240,12 T300,12 T360,12 T420,12 T480,12" fill="none" stroke="#fff" stroke-width="3" opacity=".8"/>
+          <g transform="translate(0 10) scale(2)">
+            <use href="#tForelle"/>
+            <ellipse cx="132" cy="38" rx="34" ry="8.5" fill="#e8f6fd" stroke="#2f86bd" stroke-width="1.3" stroke-dasharray="4 3" opacity=".92"/>
+          </g>
+        </svg>
+      </div>
+      <div class="sim-ctrl"><span class="hs-count chip" id="fischZahl">0 von 7 entdeckt</span><span class="hint" style="margin:0">Tippe auf die Zahlen im Bild.</span></div>
+    </div>
+    <div class="card reveal hs-info" id="fischInfo">
+      <div class="big">🐟</div><h3 style="margin:.3em 0 .2em">Flossen und mehr</h3>
+      <p class="lead" style="margin:0">Jede <button class="term" data-t="flossen">Flosse</button> hat eine eigene Aufgabe. Dazu kommen die <button class="term" data-t="schwimmblase">Schwimmblase</button> im Körper und die Haut. Findest du alle sieben Stellen?</p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag">Animation</span>
+      <h3 style="margin-top:4px">Wie kommt der Fisch voran?</h3>
+      <p>Ein Fisch hat keine Beine und keine Ruder. Trotzdem schwimmt er schnell. Seine Seitenmuskeln ziehen sich abwechselnd zusammen: erst links, dann rechts. Der Körper biegt sich in Wellen hin und her. Das nennt man <button class="term" data-t="schlaengeln">Schlängeln</button>.</p>
+      <p class="hint">Starte die Animation oder gehe Schritt für Schritt. Du siehst den Fisch von oben.</p>
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li>Fische sind stromlinienförmig und haben eine glatte Schleimschicht: Das Wasser bremst sie wenig.</li>
+        <li>Die Schwanzflosse treibt an. Rücken- und Afterflosse halten den Fisch aufrecht, Brust- und Bauchflossen steuern und bremsen.</li>
+        <li>Mit der Schwimmblase kann ein Fisch im Wasser schweben.</li>
+      </ul></div>
+    </div>
+    <div class="sim reveal" id="wellenSim">
+      <svg viewBox="0 0 480 230" role="img" aria-label="Eine Forelle von oben. Ihr Körper biegt sich in Wellen hin und her. Die Schwanzflosse drückt das Wasser nach hinten, der Fisch schwimmt nach vorn.">
+        <rect width="480" height="230" fill="#d6ecf9"/>
+        <g id="wBg"></g>
+        <g id="wFisch"></g>
+        <g id="wPfeile" opacity="0">
+          <g stroke="#2f86bd" stroke-width="4" stroke-linecap="round" fill="none"><path d="M70,84 L18,84 M30,74 L18,84 L30,94"/><path d="M70,146 L18,146 M30,136 L18,146 L30,156"/></g>
+          <text x="14" y="120" font-size="13" font-weight="800" fill="#095a93">Wasser</text>
+          <g stroke="#1b8a4b" stroke-width="5" stroke-linecap="round" fill="none"><path d="M160,34 L330,34 M316,22 L330,34 L316,46"/></g>
+          <text x="244" y="26" text-anchor="middle" font-size="13" font-weight="800" fill="#135c33">Vortrieb</text>
+        </g>
+        <text x="468" y="220" text-anchor="end" font-size="12" font-weight="700" fill="#566674">Ansicht von oben</text>
+        <text id="wText" x="12" y="220" font-size="13" font-weight="800" fill="#15212b"></text>
+      </svg>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:18px"><div id="mc-s2"></div></div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>Zwischen Wasser und Land</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Amphibien leben im Wasser und an Land, Reptilien vor allem an Land. Beide haben einen Körper mit Wirbelsäule, der sich in Wellen biegen kann – und meist vier Beine. Wie sie damit vorankommen, ist sehr verschieden.</p>
+    <div class="info-karten">
+      <div class="info-karte"><div class="big">🐸</div><h4>Frosch</h4><p>Lange Hinterbeine zum Springen und Schwimmen, <button class="term" data-t="schwimmhaut">Schwimmhäute</button> an den Füßen.</p></div>
+      <div class="info-karte"><div class="big">💧</div><h4>Molch</h4><p>Schwimmt mit breitem <button class="term" data-t="ruderschwanz">Ruderschwanz</button>. An Land kriecht er auf kurzen Beinen.</p></div>
+      <div class="info-karte"><div class="big">🦎</div><h4>Eidechse</h4><p>Die Beine stehen seitlich ab. Beim Laufen schlängelt sich der Körper.</p></div>
+      <div class="info-karte"><div class="big">🐍</div><h4>Schlange</h4><p>Keine Beine. Sie schlängelt sich vorwärts und hakt sich mit den Bauchschuppen fest.</p></div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag">Frosch</span>
+      <h3 style="margin-top:4px">Springen und schwimmen</h3>
+      <p>Der Frosch sitzt zusammengefaltet wie eine gespannte Feder. Dann streckt er die langen, kräftigen Hinterbeine ruckartig – der Körper schnellt nach vorn. Die kurzen Vorderbeine fangen die Landung ab.</p>
+      <p>Im Wasser macht er dieselbe Bewegung: Er streckt die Beine nach hinten und drückt dabei Wasser weg. Die Schwimmhaut zwischen den Zehen vergrößert die Fläche, die das Wasser schiebt.</p>
+      <p class="hint">Ziehe den Regler langsam nach rechts. Beobachte Knie, Fuß und Zehen.</p>
+    </div>
+    <div class="sim reveal" id="froschSim">
+      <svg viewBox="0 0 480 270" role="img" aria-label="Ein Frosch in der Seitenansicht. Mit dem Regler streckt er seine Hinterbeine vom Sitzen bis zum Absprung.">
+        <rect width="480" height="270" fill="#eaf6fb"/>
+        <rect x="0" y="236" width="480" height="34" fill="#a5d386"/><rect x="0" y="234" width="480" height="4" fill="#6fae52"/>
+        <path id="froBahn" d="M196,232 Q300,40 420,232" fill="none" stroke="#2f86bd" stroke-width="3" stroke-dasharray="3 9" stroke-linecap="round" opacity="0"/>
+        <g id="froTier"></g>
+      </svg>
+      <div class="sim-ctrl"><label for="froRegler">Beine strecken</label><input type="range" id="froRegler" min="0" max="100" value="0"><span class="chip" id="froChip">angewinkelt</span></div>
+      <p class="obs" id="froObs">Schiebe den Regler und sieh, wie sich die Hinterbeine strecken.</p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="sim reveal" id="laborSim">
+      <svg viewBox="0 0 480 230" role="img" aria-label="Ein Tier von oben, das sich in Wellen vorwärts bewegt. Zur Wahl stehen Fisch, Molch, Eidechse und Schlange.">
+        <rect id="labBg" width="480" height="230" fill="#d6ecf9"/>
+        <g id="labPunkte"></g>
+        <g id="labTier"></g>
+        <text x="468" y="220" text-anchor="end" font-size="12" font-weight="700" fill="#566674">Ansicht von oben</text>
+        <text id="labName" x="12" y="22" font-size="14" font-weight="800" fill="#15212b"></text>
+      </svg>
+      <div class="wahl" id="labWahl">
+        <button type="button" data-k="fisch">🐟 Fisch</button>
+        <button type="button" data-k="molch">💧 Molch im Wasser</button>
+        <button type="button" data-k="eidechse">🦎 Eidechse</button>
+        <button type="button" data-k="schlange">🐍 Schlange</button>
+      </div>
+      <p class="obs" id="labObs">Wähle ein Tier und beobachte, was sich bewegt.</p>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag">Vergleich</span>
+      <h3 style="margin-top:4px">Schlängeln im Wasser und am Boden</h3>
+      <p>Das Schlängeln kennst du schon vom Fisch. Auch Molch, Eidechse und Schlange biegen den Körper in Wellen. Aber sie bewegen sich dabei auf ganz verschiedene Weise voran.</p>
+      <p>Tippe nacheinander auf alle vier Tiere und beantworte dabei zwei Fragen:</p>
+      <ol class="schritt-liste">
+        <li>Was hat das Tier an den Seiten: Flossen, Beine oder nichts?</li>
+        <li>Woran stößt es sich ab: am Wasser oder am Boden?</li>
+      </ol>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:18px"><div id="mc-s3"></div></div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Probenstoff</div><h2>In der Luft: der Vogel</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Fliegen kostet viel Kraft: Der Körper muss ständig gegen die Schwerkraft in der Luft gehalten werden. Vögel schaffen das, weil fast alles an ihnen auf Leichtbau, Kraft und eine stromlinienförmige Körperform gebaut ist.</p>
+    <div class="info-karten">
+      <div class="info-karte"><div class="big">🐦</div><h4>Flügel</h4><p>Der Flügel ist eine umgebildete Vordergliedmaße, also ein umgebauter „Arm“. Er trägt lange Federn, die eine große Fläche bilden.</p></div>
+      <div class="info-karte"><div class="big">🐤</div><h4>Federn</h4><p><button class="term" data-t="schwungfedern">Schwungfedern</button> tragen und treiben an, <button class="term" data-t="deckfedern">Deckfedern</button> machen den Körper glatt, <button class="term" data-t="daunen">Daunen</button> wärmen.</p></div>
+      <div class="info-karte"><div class="big">🎈</div><h4>Leichtbau</h4><p>Die Knochen sind hohl und innen durch dünne Streben verstärkt. Ein leichter Schnabel ersetzt schwere Zähne.</p></div>
+      <div class="info-karte"><div class="big">💪</div><h4>Kraft</h4><p>Die Flugmuskeln an der Brust sind sehr kräftig. Sie setzen am <button class="term" data-t="brustbeinkamm">Brustbeinkamm</button> an.</p></div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="sim reveal">
+      <div class="hotimg" id="vogelBild">
+        <svg viewBox="0 0 480 300" role="img" aria-label="Ein Mäusebussard im Flug, von unten gesehen. Sieben Stellen sind nummeriert: Schwungfedern, Flügel, Deckfedern, Daunen, Brustbeinkamm, hohle Knochen und Schwanz.">
+          <rect width="480" height="300" fill="url(#gHimmel)"/>
+          <g fill="#fff" opacity=".85"><ellipse cx="70" cy="40" rx="34" ry="10"/><ellipse cx="92" cy="32" rx="20" ry="9"/><ellipse cx="420" cy="272" rx="40" ry="11"/></g>
+          <g id="vogelGross" transform="translate(240 150) scale(1.3)"></g>
+        </svg>
+      </div>
+      <div class="sim-ctrl"><span class="hs-count chip" id="vogelZahl">0 von 7 entdeckt</span><span class="hint" style="margin:0">Tippe auf die Zahlen im Bild.</span></div>
+    </div>
+    <div class="card reveal hs-info" id="vogelInfo">
+      <div class="big">🦅</div><h3 style="margin:.3em 0 .2em">Ein Mäusebussard im Segelflug</h3>
+      <p class="lead" style="margin:0">Sieben Stellen zeigen, wie dieser Vogel zum Fliegen gebaut ist – außen und innen. Findest du alle?</p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag">Animation</span>
+      <h3 style="margin-top:4px">Der Flügelschlag</h3>
+      <p>Schlägt ein Vogel mit den Flügeln, fliegt er im <button class="term" data-t="ruderflug">Ruderflug</button>. Ein Flügelschlag hat zwei Teile: den kräftigen <strong>Abschlag</strong> nach unten und den <strong>Aufschlag</strong> nach oben.</p>
+      <p>Beim Abschlag drücken die Flügel Luft nach unten und hinten. Das hebt und schiebt den Vogel. Beim Aufschlag soll möglichst wenig bremsen.</p>
+      <p class="hint">Starte die Animation oder gehe Schritt für Schritt. Achte auf die Federn und auf die Pfeile. Du siehst den Vogel von vorn.</p>
+    </div>
+    <div class="sim reveal" id="schlagSim">
+      <svg viewBox="0 0 480 260" role="img" aria-label="Ein Vogel von vorn. Seine Flügel gehen nach oben und nach unten. Beim Abschlag liegen die Federn dicht, beim Aufschlag spreizen sie sich. Blaue Pfeile zeigen die Luft.">
+        <rect width="480" height="260" fill="url(#gHimmel)"/>
+        <g id="sVogel"></g>
+        <g id="sLuft" opacity="0"><g stroke="#2f86bd" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M96,196 v30 m-8,-10 l8,10 l8,-10"/><path d="M168,206 v32 m-8,-10 l8,10 l8,-10"/><path d="M312,206 v32 m-8,-10 l8,10 l8,-10"/><path d="M384,196 v30 m-8,-10 l8,10 l8,-10"/></g>
+          <text x="240" y="252" text-anchor="middle" font-size="13" font-weight="800" fill="#095a93">Luft wird nach unten gedrückt</text></g>
+        <g id="sLuft2" opacity="0"><g stroke="#2f86bd" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M64,120 v28 m-6,-8 l6,8 l6,-8"/><path d="M104,112 v28 m-6,-8 l6,8 l6,-8"/><path d="M376,112 v28 m-6,-8 l6,8 l6,-8"/><path d="M416,120 v28 m-6,-8 l6,8 l6,-8"/></g>
+          <text x="240" y="252" text-anchor="middle" font-size="13" font-weight="800" fill="#095a93">Luft strömt durch die Lücken</text></g>
+        <text id="sText" x="12" y="24" font-size="14" font-weight="800" fill="#15212b"></text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag">Vier Flugarten</span>
+      <h3 style="margin-top:4px">Nicht jeder Flug ist gleich</h3>
+      <p>Ein Vogel muss nicht ständig mit den Flügeln schlagen. Je nach Wind und Wetter fliegt er auf unterschiedliche Weise.</p>
+      <p class="hint">Tippe nacheinander auf alle vier Flugarten. Der Vogel zeigt dir, wie sie aussehen.</p>
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li>Flügel, Federn, hohle Knochen und kräftige Flugmuskeln am Brustbeinkamm machen das Fliegen möglich.</li>
+        <li>Schwungfedern tragen und treiben an, Deckfedern glätten den Körper, Daunen wärmen.</li>
+        <li><button class="term" data-t="ruderflug">Ruderflug</button> schlägt mit den Flügeln, <button class="term" data-t="gleitflug">Gleitflug</button> sinkt ohne Schlag, <button class="term" data-t="segelflug">Segelflug</button> kreist im Aufwind, <button class="term" data-t="ruettelflug">Rüttelflug</button> steht flatternd in der Luft.</li>
+      </ul></div>
+    </div>
+    <div class="sim reveal" id="artenSim">
+      <svg id="faSvg" viewBox="0 0 480 250" role="img" aria-label="Der Flugweg eines Vogels: Ruderflug, Gleitflug, Segelflug oder Rüttelflug.">
+        <rect width="480" height="250" fill="url(#gHimmel)"/>
+        <circle cx="436" cy="36" r="16" fill="#ffe27a"/>
+        <rect x="0" y="222" width="480" height="28" fill="#8cc473"/><rect x="0" y="220" width="480" height="4" fill="#6fae52"/>
+        <g id="faRuder"><path id="faPfadR" d="M30,176 C110,160 190,146 260,124 S400,92 452,76" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="3 9" stroke-linecap="round"/></g>
+        <g id="faGleit"><path id="faPfadG" d="M36,56 L440,196" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="3 9" stroke-linecap="round"/></g>
+        <g id="faSegel">
+          <path id="faPfadS" d="" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="3 9" stroke-linecap="round"/>
+          <g stroke="#e0453a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity=".85"><path d="M236,214 q-8,-14 0,-28 q8,-14 0,-28"/><path d="M262,214 q-8,-14 0,-28 q8,-14 0,-28"/><path d="M210,214 q-8,-14 0,-28 q8,-14 0,-28"/><path d="M236,156 l-6,10 m6,-10 l6,10"/><path d="M262,156 l-6,10 m6,-10 l6,10"/><path d="M210,156 l-6,10 m6,-10 l6,10"/></g>
+          <text x="14" y="206" font-size="13" font-weight="800" fill="#b9261c">warme Luft steigt</text>
+        </g>
+        <g id="faRuettel">
+          <g stroke="#2f86bd" stroke-width="3.5" stroke-linecap="round" fill="none"><path d="M40,70 H120 M108,62 L120,70 L108,78"/><path d="M40,104 H110 M98,96 L110,104 L98,112"/><path d="M40,138 H120 M108,130 L120,138 L108,146"/></g>
+          <text x="40" y="54" font-size="13" font-weight="800" fill="#095a93">Wind</text>
+          <path d="M240,130 V204" stroke="#566674" stroke-width="2" stroke-dasharray="4 5"/>
+          <g transform="translate(240 212)"><ellipse cx="0" cy="0" rx="10" ry="6" fill="#9a8a78" stroke="#4a3f33" stroke-width="1.5"/><circle cx="9" cy="-2" r="4" fill="#9a8a78" stroke="#4a3f33" stroke-width="1.5"/><circle cx="8" cy="-6" r="2.4" fill="#e0b6b6" stroke="#4a3f33" stroke-width="1"/><path d="M-10,0 q-10,2 -14,-6" fill="none" stroke="#4a3f33" stroke-width="1.6" stroke-linecap="round"/></g>
+        </g>
+        <g id="faVogel"></g>
+      </svg>
+      <div class="wahl" id="artenWahl">
+        <button type="button" data-k="ruder">Ruderflug</button>
+        <button type="button" data-k="gleit">Gleitflug</button>
+        <button type="button" data-k="segel">Segelflug</button>
+        <button type="button" data-k="ruettel">Rüttelflug</button>
+      </div>
+      <p class="obs" id="artenObs">Wähle eine Flugart.</p>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:18px"><div id="mc-s4"></div></div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Probenstoff</div><h2>An Land: Säugetiere</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">An Land muss ein Tier sein ganzes Gewicht selbst tragen. Wie ein Säugetier den Fuß aufsetzt, bestimmt, wie schnell, wie leise und wie sicher es sich bewegt. Man unterscheidet drei Gangarten.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="sim reveal" id="gangSim">
+      <svg viewBox="0 0 480 250" role="img" aria-label="Drei Hinterbeine von der Seite: Sohlengänger, Zehengänger und Zehenspitzengänger. Der rote Punkt ist die Ferse. Sie steigt von Bild zu Bild höher.">
+        <g class="fuss-p" id="fp1">
+          <rect x="4" y="4" width="152" height="242" rx="12" fill="#f7fbfe" stroke="#d8e2ea"/>
+          <rect x="4" y="206" width="152" height="40" fill="#c9a77a"/><rect x="4" y="204" width="152" height="4" fill="#9c7a4c"/>
+          <g stroke-linecap="round" stroke-linejoin="round" fill="none">
+            <path d="M70,30 L62,180" stroke="#2f6fdb" stroke-width="14"/>
+            <path d="M62,180 L104,199" stroke="#1b8a4b" stroke-width="12"/>
+            <path d="M104,199 L130,203 M104,199 L128,198 M104,199 L128,208" stroke="#e08a1e" stroke-width="7"/>
+          </g>
+          <circle cx="70" cy="30" r="9" fill="#9fb2c1"/><circle cx="55" cy="195" r="8" fill="#e0453a" stroke="#fff" stroke-width="2"/>
+          <text x="80" y="232" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">Sohlengänger</text>
+        </g>
+        <g class="fuss-p" id="fp2" transform="translate(160 0)">
+          <rect x="4" y="4" width="152" height="242" rx="12" fill="#f7fbfe" stroke="#d8e2ea"/>
+          <rect x="4" y="206" width="152" height="40" fill="#c9a77a"/><rect x="4" y="204" width="152" height="4" fill="#9c7a4c"/>
+          <g stroke-linecap="round" stroke-linejoin="round" fill="none">
+            <path d="M80,28 L60,142" stroke="#2f6fdb" stroke-width="12"/>
+            <path d="M60,142 L98,194" stroke="#1b8a4b" stroke-width="10"/>
+            <path d="M98,194 L128,201 M98,194 L126,196 M98,194 L124,206" stroke="#e08a1e" stroke-width="7"/>
+          </g>
+          <circle cx="80" cy="28" r="9" fill="#9fb2c1"/><circle cx="56" cy="148" r="8" fill="#e0453a" stroke="#fff" stroke-width="2"/>
+          <text x="80" y="232" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">Zehengänger</text>
+        </g>
+        <g class="fuss-p" id="fp3" transform="translate(320 0)">
+          <rect x="4" y="4" width="152" height="242" rx="12" fill="#f7fbfe" stroke="#d8e2ea"/>
+          <rect x="4" y="206" width="152" height="40" fill="#c9a77a"/><rect x="4" y="204" width="152" height="4" fill="#9c7a4c"/>
+          <g stroke-linecap="round" stroke-linejoin="round" fill="none">
+            <path d="M88,26 L64,98" stroke="#2f6fdb" stroke-width="11"/>
+            <path d="M64,98 L90,186" stroke="#1b8a4b" stroke-width="8"/>
+            <path d="M90,186 L96,196" stroke="#e08a1e" stroke-width="7"/>
+          </g>
+          <path d="M86,190 L102,190 L108,206 L86,206 Z" fill="#3a2a22"/>
+          <circle cx="88" cy="26" r="9" fill="#9fb2c1"/><circle cx="60" cy="102" r="8" fill="#e0453a" stroke="#fff" stroke-width="2"/>
+          <text x="80" y="232" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">Zehenspitzengänger</text>
+        </g>
+      </svg>
+      <div class="legende"><span><i style="background:#2f6fdb"></i>Unterschenkel</span><span><i style="background:#1b8a4b"></i>Fußknochen</span><span><i style="background:#e08a1e"></i>Zehen</span><span><i style="background:#e0453a;border-radius:50%"></i>Ferse</span></div>
+      <div class="wahl" id="gangWahl">
+        <button type="button" data-k="1">Sohlengänger</button>
+        <button type="button" data-k="2">Zehengänger</button>
+        <button type="button" data-k="3">Zehenspitzengänger</button>
+      </div>
+      <p class="obs" id="gangObs">Wähle eine Gangart. Beobachte, wo die Ferse (roter Punkt) ist.</p>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag">Drei Gangarten</span>
+      <h3 style="margin-top:4px">Wie setzt das Tier den Fuß auf?</h3>
+      <p>Das Bild zeigt ein Hinterbein von der Seite. Von links nach rechts steigt die Ferse immer höher – und das Bein wird dadurch länger.</p>
+      <div class="info-karten">
+        <div class="info-karte"><div class="big">🐻</div><h4><button class="term" data-t="sohlengaenger">Sohlengänger</button></h4><p>Mensch, Bär, Igel</p></div>
+        <div class="info-karte"><div class="big">🐕</div><h4><button class="term" data-t="zehengaenger">Zehengänger</button></h4><p>Hund, Katze</p></div>
+        <div class="info-karte"><div class="big">🦌</div><h4><button class="term" data-t="zehenspitzengaenger">Zehenspitzengänger</button></h4><p>Reh, Pferd</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="sim reveal">
+      <div class="hotimg" id="speziBild">
+        <svg viewBox="0 0 480 220" role="img" aria-label="Drei Spezialisten unter den Säugetieren: ein Maulwurf in seinem Gang, eine Fledermaus mit ausgebreiteten Flügeln und ein Delfin im Meer. Sechs Stellen sind nummeriert.">
+          <rect x="0" y="0" width="154" height="220" rx="12" fill="#8c6b47"/>
+          <ellipse cx="78" cy="118" rx="70" ry="46" fill="#5b4330"/>
+          <g fill="#6f5439"><circle cx="20" cy="30" r="5"/><circle cx="60" cy="22" r="4"/><circle cx="118" cy="34" r="5"/><circle cx="136" cy="190" r="5"/><circle cx="16" cy="188" r="4"/><circle cx="90" cy="200" r="5"/></g>
+          <g transform="translate(2 8) scale(.9)">
+            <path d="M20,120 q-10,2 -14,-4" stroke="#e9a3a3" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <path d="M26,112 C28,92 52,86 78,88 C100,88 112,96 122,106 L146,116 C136,124 124,132 106,138 C86,146 56,148 40,140 C28,134 24,124 26,112 Z" fill="#3c3c46" stroke="#22222a" stroke-width="2" stroke-linejoin="round"/>
+            <circle cx="147" cy="116" r="4.2" fill="#f0a0a0" stroke="#22222a" stroke-width="1.2"/>
+            <circle cx="126" cy="108" r="2" fill="#fff"/>
+            <ellipse cx="46" cy="144" rx="9" ry="6" fill="#f0a8a8" stroke="#a65a5a" stroke-width="1.5"/>
+            <g transform="rotate(14 112 142)"><ellipse cx="116" cy="142" rx="24" ry="15" fill="#f0a8a8" stroke="#a65a5a" stroke-width="2"/>
+              <g fill="#fffaf0" stroke="#8a7a66" stroke-width="1.2" stroke-linejoin="round"><path d="M134,130 L156,126 L138,138 Z"/><path d="M138,138 L160,138 L138,146 Z"/><path d="M137,146 L158,150 L136,152 Z"/><path d="M132,152 L150,162 L130,158 Z"/></g></g>
+          </g>
+          <text x="77" y="212" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">Maulwurf</text>
+          <rect x="163" y="0" width="154" height="220" rx="12" fill="url(#gNacht)"/>
+          <circle cx="294" cy="30" r="12" fill="#f6efc4"/><circle cx="299" cy="27" r="11" fill="#2f3868"/>
+          <g id="batW"><path d="M246,102 L276,94 L306,64 Q298,92 312,92 Q300,104 304,118 Q296,126 290,138 Q272,134 252,142 Z" fill="#b9a0cf" stroke="#4a3a62" stroke-width="2" stroke-linejoin="round"/>
+            <g stroke="#4a3a62" stroke-width="2.4" stroke-linecap="round" fill="none"><path d="M246,102 L276,94"/><path d="M276,94 L306,64"/><path d="M276,94 L312,92"/><path d="M276,94 L304,118"/><path d="M276,94 L290,138"/><path d="M276,94 L284,86"/></g>
+            <circle cx="285" cy="85" r="2.4" fill="#4a3a62"/></g>
+          <use href="#batW" transform="translate(480 0) scale(-1 1)"/>
+          <ellipse cx="240" cy="116" rx="9" ry="24" fill="#6b4a32" stroke="#3a2818" stroke-width="2"/>
+          <circle cx="240" cy="88" r="8.5" fill="#7a573b" stroke="#3a2818" stroke-width="2"/>
+          <path d="M233,83 L231,70 L238,79 Z M247,83 L249,70 L242,79 Z" fill="#7a573b" stroke="#3a2818" stroke-width="1.6" stroke-linejoin="round"/>
+          <circle cx="237" cy="88" r="1.6" fill="#fff"/><circle cx="243" cy="88" r="1.6" fill="#fff"/>
+          <path d="M233,140 L247,140 L244,156 L236,156 Z" fill="#b9a0cf" stroke="#4a3a62" stroke-width="1.6" stroke-linejoin="round"/>
+          <text x="240" y="212" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">Fledermaus</text>
+          <rect x="326" y="0" width="154" height="220" rx="12" fill="url(#gMeer)"/>
+          <g fill="#fff" opacity=".6"><circle cx="350" cy="40" r="3"/><circle cx="360" cy="30" r="2"/><circle cx="458" cy="190" r="3"/></g>
+          <g transform="translate(403 6) scale(.88) translate(-395 0)">
+            <path d="M338,122 C346,126 354,124 362,118 C384,98 420,90 444,100 C452,104 458,108 462,112 L476,114 L476,118 L460,121 C450,132 428,146 398,148 C378,150 364,142 354,134 C348,134 342,130 338,122 Z" fill="#6b8fb0" stroke="#2f4b66" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M360,126 C384,142 428,146 458,121 C440,134 396,136 360,126 Z" fill="#dce8f0"/>
+            <path d="M338,122 C330,112 324,106 314,102 C322,112 322,118 320,126 C324,134 330,140 338,146 C336,138 336,130 338,122 Z" fill="#6b8fb0" stroke="#2f4b66" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M396,94 C396,80 404,72 416,68 C414,78 416,88 420,96 Z" fill="#5b7fa0" stroke="#2f4b66" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M426,128 C430,142 424,154 410,162 C412,150 412,138 414,128 Z" fill="#5b7fa0" stroke="#2f4b66" stroke-width="2" stroke-linejoin="round"/>
+            <circle cx="447" cy="108" r="2.6" fill="#15212b"/>
+          </g>
+          <text x="403" y="212" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">Delfin</text>
+        </svg>
+      </div>
+      <div class="sim-ctrl"><span class="hs-count chip" id="speziZahl">0 von 6 entdeckt</span><span class="hint" style="margin:0">Tippe auf die Zahlen im Bild.</span></div>
+    </div>
+    <div class="card reveal hs-info" id="speziInfo">
+      <div class="big">🔍</div><h3 style="margin:.3em 0 .2em">Drei Spezialisten</h3>
+      <p class="lead" style="margin:0">Manche Säugetiere leben ganz anders als Reh und Hund: unter der Erde, in der Luft oder im Meer. Ihr Körper verrät es. Tippe auf die sechs Zahlen.</p>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <div class="merke" style="margin-top:0"><h4>MERKE</h4><ul>
+      <li><button class="term" data-t="sohlengaenger">Sohlengänger</button> setzen die ganze Sohle auf, <button class="term" data-t="zehengaenger">Zehengänger</button> laufen auf den Zehen, <button class="term" data-t="zehenspitzengaenger">Zehenspitzengänger</button> auf den Zehenspitzen mit Hufen.</li>
+      <li>Je weniger vom Fuß den Boden berührt, desto länger ist das Bein und desto größer sind die Schritte – das macht schnelle Läufer.</li>
+      <li>Spezialisten haben besondere Vordergliedmaßen: <button class="term" data-t="grabhand">Grabhand</button> beim Maulwurf, <button class="term" data-t="flughaut">Flughaut</button> bei der Fledermaus, Flosse beim Delfin.</li>
+    </ul></div>
+    <div id="mc-s5"></div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Gleicher Bauplan, andere Aufgabe</h3>
+    <p class="m7-hinweis">Aufgaben mit dem lila Zeichen gehören zum M-Niveau. In M-Klassen zählen sie mit, in R-Klassen sind sie eine Zusatzaufgabe für Profis.</p>
+    <p>Arm, Flügel, Flosse und Grabhand sehen sehr verschieden aus. Sieh genau hin: In allen vieren stecken dieselben Knochen, hier in drei Farben. Nur Form und Größe unterscheiden sich, weil jede Vordergliedmaße etwas anderes leisten muss.</p>
+    <div class="sim" style="margin:12px 0">
+      <svg viewBox="0 0 480 330" role="img" aria-label="Vier Vordergliedmaßen im Vergleich: Arm des Menschen, Flügel des Vogels, Flosse des Delfins und Grabhand des Maulwurfs. In allen liegen Oberarmknochen (blau), Elle und Speiche (grün) und Handknochen (orange).">
+        <g>
+          <rect x="2" y="2" width="236" height="150" rx="12" fill="#f7fbfe" stroke="#d8e2ea"/>
+          <circle cx="20" cy="76" r="12" fill="#b6c4d0"/>
+          <rect x="14" y="68" width="82" height="16" rx="8" fill="#2f6fdb"/>
+          <rect x="100" y="62" width="62" height="8" rx="4" fill="#1b8a4b"/><rect x="100" y="76" width="62" height="11" rx="5.5" fill="#1b8a4b"/>
+          <rect x="164" y="62" width="14" height="26" rx="6" fill="#e08a1e"/>
+          <g stroke="#e08a1e" stroke-width="7" stroke-linecap="round" fill="none"><path d="M178,66 L222,48"/><path d="M178,70 L228,64"/><path d="M178,75 L230,78"/><path d="M178,80 L226,92"/><path d="M176,84 L214,104"/></g>
+          <g fill="#fff" opacity=".9"><circle cx="198" cy="58" r="2"/><circle cx="204" cy="68" r="2"/><circle cx="206" cy="77" r="2"/><circle cx="203" cy="87" r="2"/></g>
+          <text x="14" y="140" font-size="13" font-weight="800" fill="#15212b">A · Arm des Menschen</text>
+        </g>
+        <g transform="translate(242 0)">
+          <rect x="2" y="2" width="236" height="150" rx="12" fill="#f7fbfe" stroke="#d8e2ea"/>
+          <g id="gliedFeder" fill="#e6d8b4" stroke="#9a8760" stroke-width="1.3" stroke-linejoin="round"></g>
+          <rect x="14" y="60" width="62" height="14" rx="7" fill="#2f6fdb"/>
+          <rect x="80" y="62" width="76" height="6" rx="3" fill="#1b8a4b"/><rect x="80" y="70" width="76" height="9" rx="4.5" fill="#1b8a4b"/>
+          <rect x="158" y="72" width="38" height="9" rx="4.5" fill="#e08a1e"/><rect x="196" y="76" width="22" height="5" rx="2.5" fill="#e08a1e"/>
+          <circle cx="20" cy="67" r="11" fill="#b6c4d0"/>
+          <text x="14" y="140" font-size="13" font-weight="800" fill="#15212b">B · Flügel des Vogels</text>
+        </g>
+        <g transform="translate(0 166)">
+          <rect x="2" y="2" width="236" height="150" rx="12" fill="#f7fbfe" stroke="#d8e2ea"/>
+          <path d="M10,52 C40,36 100,34 150,48 C192,58 222,72 222,80 C222,90 192,102 150,108 C100,116 40,108 10,92 Z" fill="#cfe0ea" stroke="#6b8fa8" stroke-width="2" stroke-linejoin="round"/>
+          <rect x="20" y="66" width="44" height="18" rx="9" fill="#2f6fdb"/>
+          <rect x="66" y="60" width="40" height="9" rx="4.5" fill="#1b8a4b"/><rect x="66" y="72" width="40" height="11" rx="5.5" fill="#1b8a4b"/>
+          <rect x="108" y="62" width="14" height="22" rx="6" fill="#e08a1e"/>
+          <g stroke="#e08a1e" stroke-width="6" stroke-linecap="round" fill="none"><path d="M122,66 L208,66"/><path d="M122,71 L214,76"/><path d="M122,76 L212,86"/><path d="M122,81 L196,96"/></g>
+          <circle cx="22" cy="75" r="10" fill="#b6c4d0"/>
+          <text x="14" y="140" font-size="13" font-weight="800" fill="#15212b">C · Flosse des Delfins</text>
+        </g>
+        <g transform="translate(242 166)">
+          <rect x="2" y="2" width="236" height="150" rx="12" fill="#f7fbfe" stroke="#d8e2ea"/>
+          <path d="M12,62 L62,56 L64,98 L12,92 Z" fill="#2f6fdb"/>
+          <rect x="66" y="58" width="36" height="14" rx="5" fill="#1b8a4b"/><rect x="66" y="76" width="36" height="16" rx="5" fill="#1b8a4b"/>
+          <path d="M104,52 C120,44 152,46 160,58 L160,100 C152,108 120,110 104,100 Z" fill="#e08a1e"/>
+          <g fill="#fffaf0" stroke="#8a7a66" stroke-width="1.4" stroke-linejoin="round"><path d="M158,58 L204,50 L160,70 Z"/><path d="M160,70 L212,64 L160,82 Z"/><path d="M160,82 L214,80 L160,92 Z"/><path d="M160,92 L210,96 L158,102 Z"/></g>
+          <circle cx="20" cy="76" r="10" fill="#b6c4d0"/>
+          <text x="14" y="140" font-size="13" font-weight="800" fill="#15212b">D · Grabhand des Maulwurfs</text>
+        </g>
+      </svg>
+      <div class="legende"><span><i style="background:#2f6fdb"></i>Oberarmknochen</span><span><i style="background:#1b8a4b"></i>Elle und Speiche</span><span><i style="background:#e08a1e"></i>Handknochen</span><span><i style="background:#b6c4d0;border-radius:50%"></i>Schulter</span></div>
+    </div>
+    <p class="hint">Ordne jedes Merkmal der Aufgabe zu, für die es gebaut ist.</p>
+    <div id="sortGlied"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="s6">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Probenstoff · so wird in der Probe gefragt</div><h2>Training für die Probe</h2></div></div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Lückentext · leicht</span>
+    <h3 style="margin-top:4px">Setze die fehlenden Wörter ein</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapFort"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Paare finden · leicht</span>
+    <h3 style="margin-top:4px">Welches Tier ist wie gebaut?</h3>
+    <p class="hint">Tippe links auf ein Tier und dann rechts auf das passende Merkmal.</p>
+    <div id="paareTiere"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Zuordnen · mittel</span>
+    <h3 style="margin-top:4px">Wozu passt dieses Körpermerkmal?</h3>
+    <p class="hint">Tippe ein Merkmal an und dann das Fach, in dem das Tier es zum Schwimmen, Laufen oder Fliegen braucht.</p>
+    <div id="sortMerkmale"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Richtig oder falsch? · mittel</span>
+    <div id="tf"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Kreuzworträtsel · mittel</span>
+    <h3 style="margin-top:4px">Schwimmen, laufen, fliegen</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Schreibe ä als AE, ö als OE, ü als UE. Das Lösungswort beschreibt, was in diesem ganzen Modul gilt.</p>
+    <div id="cw"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Ankreuzen · mittel</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Offene Fragen · schwer</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung. Danach kannst du die Musterlösung ansehen.</p>
+    <div id="open"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Begründe und übertrage <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="openM"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 7 ============ -->
+<section class="station" id="s7">
+  <div class="st-head reveal"><div class="st-num">7</div><div><div class="eyebrow">Abschluss</div><h2>Bewegungs-Profi-Check</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Mit beiden Modulen kennst du jetzt die fünf Klassen der Wirbeltiere und weißt, wie ihr Körper zur Fortbewegung passt. Damit hast du den Themenbereich „Tiere an Land und in der Luft“ geschafft. Als Nächstes geht es um den Menschen – auch er ist ein Wirbeltier und atmet Luft. Im Themenbereich „Mensch und Gesundheit“ folgst du dem Weg der Luft durch deinen Körper.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik 7 · Lernmodul „Schwimmen, laufen, fliegen“ · Dein Fortschritt wird auf diesem Gerät gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="modul-basis.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, esc, shuffle, clamp, setText, reduced, register, solve} = Modul;
+
+/* ---------- Zeichnungen: Tiere als SVG ---------- */
+/* ---------- Zeichen-Helfer ---------- */
+const f1 = n => Math.round(n * 10) / 10;
+const rad = d => d * Math.PI / 180;
+// Glatte Kurve durch Stützpunkte (monotone kubische Interpolation): liefert eine Funktion s -> Wert
+function profil(pts){
+  const n = pts.length, X = pts.map(p => p[0]), Y = pts.map(p => p[1]), D = [], M = [];
+  for (let i = 0; i < n - 1; i++) D[i] = (Y[i + 1] - Y[i]) / (X[i + 1] - X[i]);
+  M[0] = D[0]; M[n - 1] = D[n - 2];
+  for (let i = 1; i < n - 1; i++) M[i] = D[i - 1] * D[i] <= 0 ? 0 : (D[i - 1] + D[i]) / 2;
+  for (let i = 0; i < n - 1; i++) {
+    if (D[i] === 0) { M[i] = M[i + 1] = 0; continue; }
+    const a = M[i] / D[i], b = M[i + 1] / D[i], h = Math.hypot(a, b);
+    if (h > 3) { M[i] = 3 * a / h * D[i]; M[i + 1] = 3 * b / h * D[i]; }
+  }
+  return s => {
+    if (s <= X[0]) return Y[0]; if (s >= X[n - 1]) return Y[n - 1];
+    let i = 0; while (s > X[i + 1]) i++;
+    const h = X[i + 1] - X[i], t = (s - X[i]) / h, t2 = t * t, t3 = t2 * t;
+    return (2 * t3 - 3 * t2 + 1) * Y[i] + (t3 - 2 * t2 + t) * h * M[i] + (-2 * t3 + 3 * t2) * Y[i + 1] + (t3 - t2) * h * M[i + 1];
+  };
+}
+// Verjüngtes Glied (Oberschenkel, Unterschenkel …) von P nach Q mit den Breiten w1 und w2
+function glied(P, Q, w1, w2){
+  const dx = Q[0] - P[0], dy = Q[1] - P[1], l = Math.hypot(dx, dy) || 1, nx = -dy / l, ny = dx / l;
+  return `<path d="M${f1(P[0] + nx * w1 / 2)},${f1(P[1] + ny * w1 / 2)} L${f1(Q[0] + nx * w2 / 2)},${f1(Q[1] + ny * w2 / 2)} L${f1(Q[0] - nx * w2 / 2)},${f1(Q[1] - ny * w2 / 2)} L${f1(P[0] - nx * w1 / 2)},${f1(P[1] - ny * w1 / 2)} Z"/><circle cx="${f1(P[0])}" cy="${f1(P[1])}" r="${f1(w1 / 2)}"/><circle cx="${f1(Q[0])}" cy="${f1(Q[1])}" r="${f1(w2 / 2)}"/>`;
+}
+// Zeichnet dieselben Formen zweimal: erst dick dunkel (Umriss), dann in der Füllfarbe
+function umrandet(formen, fuell, rand, dick){
+  return `<g fill="${rand}" stroke="${rand}" stroke-width="${dick}" stroke-linejoin="round" stroke-linecap="round">${formen}</g><g fill="${fuell}" stroke="none">${formen}</g>`;
+}
+
+/* ---------- Körper von oben: Fisch, Molch, Eidechse, Schlange ---------- */
+// s läuft vom Schwanzende (0) bis zur Kopfspitze (1); Halbbreiten für 300 Einheiten Länge
+const ARTEN = {
+  fisch: { L: 300, A: 22, k: .95, wf: 1.15, env: s => .1 + .9 * Math.pow(1 - s, 1.6),
+    pw: profil([[0, 1], [.06, 3.5], [.2, 7], [.4, 14], [.58, 19], [.7, 20.5], [.82, 18], [.92, 11], [.97, 5.5], [1, 0]]) },
+  molch: { L: 300, A: 22, k: .95, env: s => .14 + .86 * Math.pow(1 - s, 1.4),
+    pw: profil([[0, .6], [.08, 4], [.2, 8], [.35, 10.5], [.48, 10], [.56, 11.5], [.66, 13.5], [.78, 13], [.85, 10.5], [.89, 8.5], [.94, 9.5], [.98, 5], [1, 0]]) },
+  eidechse: { L: 300, A: 17, k: 1.1, env: s => .28 + .72 * Math.pow(1 - s, 1.2),
+    pw: profil([[0, .5], [.1, 2], [.25, 4.5], [.4, 7.5], [.52, 12], [.6, 16.5], [.68, 18.5], [.75, 16.5], [.8, 11.5], [.84, 9], [.88, 10.5], [.94, 8], [.98, 4], [1, 0]]) },
+  schlange: { L: 300, A: 24, k: 1.7, env: s => .55 + .45 * (1 - s),
+    pw: profil([[0, .5], [.15, 3], [.4, 6.5], [.7, 8], [.88, 8], [.92, 6.5], [.95, 8.5], [.985, 5], [1, 0]]) }
+};
+// Liefert das SVG-Bild eines Tieres von oben, Kopf rechts. cx, cy: Mitte; sc: Maßstab; o.amp: Stärke der Welle (0 bis 1); o.bein: Stärke des Beinschwungs
+function koerper(id, phase, cx, cy, sc, o){
+  o = o || {};
+  const art = ARTEN[id], N = 64, L = art.L * sc, amp = o.amp == null ? 1 : o.amp, bein = o.bein == null ? 1 : o.bein, P = [];
+  for (let j = 0; j <= N; j++) {
+    const s = j / N;
+    P.push({ s, x: cx - L / 2 + s * L, y: cy + amp * art.A * sc * art.env(s) * Math.sin(2 * Math.PI * art.k * s + phase), w: art.pw(s) * sc * (art.wf || 1) });
+  }
+  P.forEach((p, j) => { const a = P[Math.max(0, j - 1)], b = P[Math.min(N, j + 1)]; p.a = Math.atan2(b.y - a.y, b.x - a.x); });
+  const at = s => P[Math.round(s * N)];
+  const edge = (p, sg, k) => [p.x - Math.sin(p.a) * p.w * sg * (k == null ? 1 : k), p.y + Math.cos(p.a) * p.w * sg * (k == null ? 1 : k)];
+  const pt = q => `${f1(q[0])},${f1(q[1])}`;
+  const umriss = (k, plus) => { const A = P.map(p => edge(p, 1, 1)), B = P.map(p => edge(p, -1, 1)); void k; void plus; return "M" + A.map(pt).join(" L") + " L" + B.reverse().map(pt).join(" L") + " Z"; };
+  const bandBreit = (s0, s1, extra) => { const A = [], B = []; for (let j = Math.round(s0 * N); j <= Math.round(s1 * N); j++) { A.push(edge(P[j], 1, 1)); B.push(edge(P[j], -1, 1)); } const grow = (q, p, sg) => [q[0] - Math.sin(p.a) * extra * sg, q[1] + Math.cos(p.a) * extra * sg]; const A2 = A.map((q, i) => grow(q, P[Math.round(s0 * N) + i], 1)), B2 = B.map((q, i) => grow(q, P[Math.round(s0 * N) + i], -1)); return "M" + A2.map(pt).join(" L") + " L" + B2.reverse().map(pt).join(" L") + " Z"; };
+  const mitte = (s0, s1) => { const a = []; for (let j = Math.round(s0 * N); j <= Math.round(s1 * N); j++) a.push([P[j].x, P[j].y]); return "M" + a.map(pt).join(" L"); };
+  const seitenPunkt = (s, k) => { const p = at(s); return edge(p, 1, k); };
+  // Bein: Ansatz am Körperrand, Oberschenkel, Unterschenkel, Fuß mit drei Zehen
+  const glieder = (s, sg, swing, a, b, c, biegung, farbe, dick) => {
+    const p = at(s), th0 = p.a + sg * Math.PI / 2, E0 = edge(p, sg, .8);
+    const th1 = th0 - sg * swing, E1 = [E0[0] + Math.cos(th1) * a * sc, E0[1] + Math.sin(th1) * a * sc];
+    const th2 = th1 - sg * biegung, W = [E1[0] + Math.cos(th2) * b * sc, E1[1] + Math.sin(th2) * b * sc];
+    const th3 = p.a + sg * .45;
+    let z = `<path d="M${pt(E0)} L${pt(E1)} L${pt(W)}" fill="none" stroke="${farbe}" stroke-width="${f1(dick * sc)}" stroke-linecap="round" stroke-linejoin="round"/>`;
+    [-.5, 0, .5].forEach(d => { z += `<path d="M${pt(W)} L${pt([W[0] + Math.cos(th3 + d) * c * sc, W[1] + Math.sin(th3 + d) * c * sc])}" stroke="${farbe}" stroke-width="${f1(dick * .55 * sc)}" stroke-linecap="round"/>`; });
+    return z;
+  };
+  let s = "";
+  const rand = "#27301a";
+  if (id === "fisch") {
+    const C0 = P[0], d = C0.a + Math.PI, Lf = 42 * sc, T1 = [C0.x + Math.cos(d + .62) * Lf, C0.y + Math.sin(d + .62) * Lf], T2 = [C0.x + Math.cos(d - .62) * Lf, C0.y + Math.sin(d - .62) * Lf], M = [C0.x + Math.cos(d) * Lf * .55, C0.y + Math.sin(d) * Lf * .55];
+    s += `<path d="M${pt([C0.x, C0.y])} L${pt(T1)} Q${pt(M)} ${pt(T2)} Z" fill="#c9a24c" stroke="${rand}" stroke-width="2" stroke-linejoin="round"/>`;
+    [[.8, 1, 30, 11, .9], [.8, -1, 30, 11, .9], [.58, 1, 21, 8, .8], [.58, -1, 21, 8, .8]].forEach(([ps, sg, len, br, dev]) => {
+      const p = at(ps), th = p.a + sg * Math.PI / 2 + sg * dev, B = edge(p, sg, .85), T = [B[0] + Math.cos(th) * len * sc, B[1] + Math.sin(th) * len * sc], Mi = [B[0] + Math.cos(th) * len * sc * .5 - Math.sin(th) * br * sc * .5 * sg, B[1] + Math.sin(th) * len * sc * .5 + Math.cos(th) * br * sc * .5 * sg], Mj = [B[0] + Math.cos(th) * len * sc * .5 + Math.sin(th) * br * sc * .5 * sg, B[1] + Math.sin(th) * len * sc * .5 - Math.cos(th) * br * sc * .5 * sg];
+      s += `<path d="M${pt(B)} Q${pt(Mi)} ${pt(T)} Q${pt(Mj)} ${pt(B)} Z" fill="#d1ac55" stroke="${rand}" stroke-width="1.6" stroke-linejoin="round"/>`;
+    });
+    s += `<path d="${umriss()}" fill="#7f9040" stroke="${rand}" stroke-width="2.4" stroke-linejoin="round"/>`;
+    s += `<path d="${mitte(.12, .9)}" fill="none" stroke="#3d4a1c" stroke-width="${f1(3 * sc)}" stroke-linecap="round" opacity=".45"/>`;
+    for (let q = .22; q < .86; q += .075) { const p = at(q), sg = Math.round(q * 13) % 2 ? 1 : -1, e = edge(p, sg, .45); s += `<circle cx="${f1(e[0])}" cy="${f1(e[1])}" r="${f1(2.3 * sc)}" fill="${Math.round(q * 13) % 3 ? "#2f3a18" : "#d6402e"}"/>`; }
+    [1, -1].forEach(sg => { const e = edge(at(.9), sg, .5); s += `<circle cx="${f1(e[0])}" cy="${f1(e[1])}" r="${f1(3 * sc)}" fill="#fff" stroke="${rand}" stroke-width="1.2"/><circle cx="${f1(e[0] + 1)}" cy="${f1(e[1])}" r="${f1(1.5 * sc)}" fill="#15212b"/>`; });
+  } else if (id === "molch") {
+    s += `<path d="${bandBreit(0, .5, 5 * sc)}" fill="#f0b06a" opacity=".6" stroke="#c98235" stroke-width="1.2"/>`;
+    s += glieder(.76, 1, -1.35, 12, 11, 7, .05, "#4a4430", 4.6) + glieder(.76, -1, -1.35, 12, 11, 7, .05, "#4a4430", 4.6) + glieder(.55, 1, -1.3, 12, 12, 8, .08, "#4a4430", 4.8) + glieder(.55, -1, -1.3, 12, 12, 8, .08, "#4a4430", 4.8);
+    s += `<path d="${umriss()}" fill="#5d5638" stroke="${rand}" stroke-width="2.4" stroke-linejoin="round"/>`;
+    s += `<path d="${mitte(.1, .9)}" fill="none" stroke="#e8934a" stroke-width="${f1(2.6 * sc)}" stroke-linecap="round" opacity=".8"/>`;
+    for (let q = .2; q < .88; q += .06) { const p = at(q), sg = Math.round(q * 17) % 2 ? 1 : -1, e = edge(p, sg, .5); s += `<circle cx="${f1(e[0])}" cy="${f1(e[1])}" r="${f1(2 * sc)}" fill="#2a2618"/>`; }
+    [1, -1].forEach(sg => { const e = edge(at(.93), sg, .55); s += `<circle cx="${f1(e[0])}" cy="${f1(e[1])}" r="${f1(2.2 * sc)}" fill="#f4d98a" stroke="${rand}" stroke-width="1"/>`; });
+  } else if (id === "eidechse") {
+    const sw = .62 * bein, ph = [0, Math.PI];
+    s += glieder(.78, 1, sw * Math.sin(phase + ph[0]) + .1, 17, 15, 11, .85, "#6f6238", 7.6) + glieder(.78, -1, sw * Math.sin(phase + ph[1]) + .1, 17, 15, 11, .85, "#6f6238", 7.6);
+    s += glieder(.55, 1, sw * Math.sin(phase + ph[1]) - .25, 18, 16, 12, -.85, "#6f6238", 8.2) + glieder(.55, -1, sw * Math.sin(phase + ph[0]) - .25, 18, 16, 12, -.85, "#6f6238", 8.2);
+    s += `<path d="${umriss()}" fill="#8a7d47" stroke="${rand}" stroke-width="2.4" stroke-linejoin="round"/>`;
+    s += `<path d="${mitte(.08, .93)}" fill="none" stroke="#4d4226" stroke-width="${f1(3.4 * sc)}" stroke-linecap="round" opacity=".7"/>`;
+    for (let q = .3; q < .84; q += .05) { const p = at(q), sg = Math.round(q * 20) % 2 ? 1 : -1, e = edge(p, sg, .55); s += `<circle cx="${f1(e[0])}" cy="${f1(e[1])}" r="${f1(2.4 * sc)}" fill="${Math.round(q * 20) % 3 ? "#e8e0b8" : "#3a3220"}" stroke="#3a3220" stroke-width=".8"/>`; }
+    [1, -1].forEach(sg => { const e = edge(at(.93), sg, .6); s += `<circle cx="${f1(e[0])}" cy="${f1(e[1])}" r="${f1(2.3 * sc)}" fill="#15110f"/>`; });
+  } else {
+    s += `<path d="${umriss()}" fill="#5f7347" stroke="${rand}" stroke-width="2.4" stroke-linejoin="round"/>`;
+    s += `<path d="${mitte(.05, .88)}" fill="none" stroke="#c7d79a" stroke-width="${f1(2.4 * sc)}" stroke-linecap="round" opacity=".5"/>`;
+    for (let q = .1; q < .86; q += .045) { const p = at(q), sg = Math.round(q * 22) % 2 ? 1 : -1, e = edge(p, sg, .6); s += `<ellipse cx="${f1(e[0])}" cy="${f1(e[1])}" rx="${f1(2.8 * sc)}" ry="${f1(2 * sc)}" fill="#1f2a18" transform="rotate(${f1(p.a * 180 / Math.PI)} ${f1(e[0])} ${f1(e[1])})"/>`; }
+    [1, -1].forEach(sg => { const e = edge(at(.9), sg, .78); s += `<ellipse cx="${f1(e[0])}" cy="${f1(e[1])}" rx="${f1(2.6 * sc)}" ry="${f1(4.6 * sc)}" fill="#ecd34a" stroke="#1f2a18" stroke-width="1.2" transform="rotate(${f1(at(.9).a * 180 / Math.PI)} ${f1(e[0])} ${f1(e[1])})"/>`; });
+    [1, -1].forEach(sg => { const e = edge(at(.965), sg, .55); s += `<circle cx="${f1(e[0])}" cy="${f1(e[1])}" r="${f1(2.2 * sc)}" fill="#15110f"/>`; });
+    if (Math.sin(phase * 3) > 0) { const h = P[N], tx = h.x + Math.cos(h.a) * 12 * sc, ty = h.y + Math.sin(h.a) * 12 * sc, g1 = [tx + Math.cos(h.a + .5) * 6 * sc, ty + Math.sin(h.a + .5) * 6 * sc], g2 = [tx + Math.cos(h.a - .5) * 6 * sc, ty + Math.sin(h.a - .5) * 6 * sc]; s += `<path d="M${pt([h.x, h.y])} L${pt([tx, ty])} M${pt([tx, ty])} L${pt(g1)} M${pt([tx, ty])} L${pt(g2)}" stroke="#d6402e" stroke-width="${f1(1.8 * sc)}" stroke-linecap="round" fill="none"/>`; }
+  }
+  return s;
+}
+
+/* ---------- Frosch von der Seite: Sprung (t = 0 sitzt, t = 1 gestreckt), Zehenspitze bleibt bei (gx, gy) ---------- */
+function frosch(t, gx, gy, sc){
+  const lerp = (a, b) => a + (b - a) * t;
+  const L1 = 46 * sc, L2 = 50 * sc, L3 = 46 * sc;
+  const a1 = rad(lerp(-12, 138)), a2 = rad(lerp(128, 135)), a3 = rad(lerp(8, 130)), phi = lerp(-28, -42);
+  const v = (l, a) => [Math.cos(a) * l, Math.sin(a) * l];
+  const k1 = v(L1, a1), k2 = v(L2, a2), k3 = v(L3, a3);
+  const H = [gx - (k1[0] + k2[0] + k3[0]), gy - (k1[1] + k2[1] + k3[1])], K = [H[0] + k1[0], H[1] + k1[1]], A = [K[0] + k2[0], K[1] + k2[1]];
+  const sp = lerp(.16, .52), langs = [.7, .9, 1, .94, .76];
+  const spitzen = langs.map((q, i) => { const a = a3 + sp * (i - 2) * .5; return [A[0] + Math.cos(a) * L3 * q, A[1] + Math.sin(a) * L3 * q]; });
+  const pt = q => `${f1(q[0])},${f1(q[1])}`;
+  let bein = glied(H, K, 19 * sc, 14 * sc) + glied(K, A, 13 * sc, 8.5 * sc);
+  const zehen = spitzen.map(q => `<path d="M${pt(A)} L${pt(q)}" stroke-width="${f1(4.2 * sc)}" stroke-linecap="round" fill="none"/>`).join("");
+  let haut = `<path d="M${pt(A)} L${pt(spitzen[0])}`;
+  for (let i = 1; i < 5; i++) { const m = [(spitzen[i - 1][0] + spitzen[i][0]) / 2, (spitzen[i - 1][1] + spitzen[i][1]) / 2], c = [A[0] + (m[0] - A[0]) * .78, A[1] + (m[1] - A[1]) * .78]; haut += ` Q${pt(c)} ${pt(spitzen[i])}`; }
+  haut += " Z\"/>";
+  const ferne = `translate(${f1(8 * sc)} ${f1(-3 * sc)})`;
+  const beinMarkup = (fuell, rand, hautFarbe, dunkel) => `${umrandet(bein, fuell, rand, 3.6)}<g fill="${hautFarbe}" stroke="${rand}" stroke-width="1.6" stroke-linejoin="round">${haut}</g><g stroke="${dunkel}" fill="none" opacity=".8">${zehen}</g>`;
+  // Körper im Körperbild (Ursprung = Hüfte, x nach vorn)
+  const vorn = (a1v, a2v) => { const S = [70, 22], E = [S[0] + Math.cos(rad(a1v)) * 25, S[1] + Math.sin(rad(a1v)) * 25], W = [E[0] + Math.cos(rad(a2v)) * 25, E[1] + Math.sin(rad(a2v)) * 25]; const fin = [-.5, -.17, .17, .5].map(d => `<path d="M${pt(W)} L${pt([W[0] + Math.cos(rad(a2v) + d) * 10, W[1] + Math.sin(rad(a2v) + d) * 10])}" stroke-width="3.4" stroke-linecap="round" fill="none"/>`).join(""); return { arm: glied(S, E, 9, 7) + glied(E, W, 7, 5.5), finger: fin }; };
+  const arm = vorn(lerp(118, 6), lerp(118, 0));
+  const koerperPfad = "M-16,8 C-18,-14 -2,-32 24,-32 C46,-32 62,-32 78,-32 C96,-30 110,-16 116,-2 C118,4 112,8 104,10 C90,14 78,20 66,28 C50,36 18,36 0,28 C-10,24 -15,16 -16,8 Z";
+  let s = `<ellipse cx="${f1(gx + 30 * sc)}" cy="${f1(gy + 3 * sc)}" rx="${f1(90 * sc)}" ry="${f1(5 * sc)}" fill="#000" opacity=".12"/>`;
+  s += `<g transform="${ferne}">${beinMarkup("#3d7a2e", "#22461a", "#8cc26a", "#22461a")}</g>`;
+  s += `<g transform="translate(${f1(H[0])} ${f1(H[1])}) rotate(${f1(phi)}) scale(${sc})">`;
+  s += `<g transform="translate(4 -2)">${umrandet(arm.arm, "#3d7a2e", "#22461a", 3)}<g stroke="#22461a">${arm.finger}</g></g>`;
+  s += `<path d="${koerperPfad}" fill="#4f9a3c" stroke="#22461a" stroke-width="2.6" stroke-linejoin="round"/>`;
+  s += `<path d="M104,10 C90,14 78,20 66,28 C50,36 18,36 0,28 C-8,25 -13,19 -15,13 C20,26 62,22 104,10 Z" fill="#dfe9a8"/>`;
+  s += `<g fill="#2f6a26" opacity=".8"><ellipse cx="6" cy="-20" rx="6" ry="4.5"/><ellipse cx="30" cy="-25" rx="5" ry="4"/><ellipse cx="50" cy="-23" rx="4" ry="3.5"/><ellipse cx="14" cy="-6" rx="4.5" ry="3.5"/></g>`;
+  s += `<path d="M-8,-20 C20,-34 60,-34 80,-31" fill="none" stroke="#b9dc7c" stroke-width="3" stroke-linecap="round" opacity=".8"/>`;
+  s += `<circle cx="62" cy="-15" r="7" fill="#7cb25a" stroke="#22461a" stroke-width="1.6"/>`;
+  s += `<path d="M114,4 Q96,13 74,8" fill="none" stroke="#22461a" stroke-width="2" stroke-linecap="round"/><circle cx="106" cy="-8" r="1.8" fill="#22461a"/>`;
+  s += `<circle cx="86" cy="-33" r="11.5" fill="#f1d044" stroke="#22461a" stroke-width="2.2"/><ellipse cx="87" cy="-33" rx="7" ry="3.6" fill="#15110f"/>`;
+  s += `<g>${umrandet(arm.arm, "#4f9a3c", "#22461a", 3)}<g stroke="#22461a">${arm.finger}</g></g>`;
+  s += `</g>`;
+  s += `<g>${beinMarkup("#4f9a3c", "#22461a", "#a6d57e", "#3b7a2a")}</g>`;
+  return s;
+}
+
+/* ---------- Mäusebussard von unten im Segelflug (Mitte 0,0, Kopf oben) ---------- */
+// Einzelne gespitzte Feder (Pfad): Fuß bei (bx, by), Richtung deg, Länge len, halbe Breite br
+function feder(bx, by, deg, len, br){
+  const a = rad(deg), dx = Math.cos(a), dy = Math.sin(a), nx = -dy, ny = dx, tx = bx + dx * len, ty = by + dy * len, mx = bx + dx * len * .7, my = by + dy * len * .7;
+  return `M${f1(bx + nx * br)},${f1(by + ny * br)} L${f1(mx + nx * br * .95)},${f1(my + ny * br * .95)} Q${f1(tx + nx * br * .3)},${f1(ty + ny * br * .3)} ${f1(tx)},${f1(ty)} Q${f1(tx - nx * br * .3)},${f1(ty - ny * br * .3)} ${f1(mx - nx * br * .95)},${f1(my - ny * br * .95)} L${f1(bx - nx * br)},${f1(by - ny * br)} Z`;
+}
+function bussard(){
+  const HELL = "#d7c49b", DUNKEL = "#4b3826", fed = feder;
+  let fl = `<path d="M12,-40 C42,-57 84,-61 114,-52 L120,-30 C100,-16 66,6 14,22 Z" fill="${HELL}" stroke="${DUNKEL}" stroke-width="2" stroke-linejoin="round"/>`;
+  fl += `<g fill="#7a5f40" stroke="${DUNKEL}" stroke-width="1.6" stroke-linejoin="round">${[[-44, 38], [-26, 46], [-8, 48], [10, 44], [28, 36]].map(([d, l], i) => `<path d="${fed(111 + i * 2.6, -50 + i * 5.4, d, l, 6)}"/>`).join("")}</g>`;
+  fl += `<g stroke="${DUNKEL}" stroke-width="1.4" opacity=".55" fill="none"><path d="M28,17 L32,3"/><path d="M42,12 L46,-3"/><path d="M58,5 L62,-10"/><path d="M74,-3 L78,-17"/><path d="M90,-11 L93,-25"/><path d="M104,-19 L106,-32"/></g>`;
+  fl += `<path d="M18,19 C52,7 88,-8 118,-26" fill="none" stroke="#6f5538" stroke-width="5" opacity=".55" stroke-linecap="round"/>`;
+  fl += `<ellipse cx="104" cy="-38" rx="9" ry="6" fill="${DUNKEL}" opacity=".85" transform="rotate(-18 104 -38)"/>`;
+  let s = `<path d="M-14,14 L14,14 L25,74 Q0,85 -25,74 Z" fill="${HELL}" stroke="${DUNKEL}" stroke-width="2" stroke-linejoin="round"/>`;
+  s += `<g stroke="#6f5538" stroke-width="3.2" opacity=".8"><path d="M-18,42 L18,42"/><path d="M-20,55 L20,55"/><path d="M-22,67 L22,67"/></g>`;
+  s += `<g>${fl}</g><g transform="scale(-1 1)">${fl}</g>`;
+  s += `<ellipse cx="0" cy="-14" rx="18" ry="34" fill="#ece2c8" stroke="${DUNKEL}" stroke-width="2"/>`;
+  s += `<g stroke="#8a6a46" stroke-width="2.2" stroke-linecap="round" opacity=".8" fill="none"><path d="M-12,-20 Q-6,-14 -2,-20"/><path d="M2,-20 Q6,-14 12,-20"/><path d="M-13,-8 Q-7,-2 -2,-8"/><path d="M2,-8 Q7,-2 13,-8"/><path d="M-11,4 Q-6,10 -2,4"/><path d="M2,4 Q6,10 11,4"/></g>`;
+  s += `<circle cx="0" cy="-56" r="12" fill="#85694a" stroke="${DUNKEL}" stroke-width="2"/>`;
+  s += `<path d="M-4,-66 Q0,-80 5,-65 Q1,-68 -4,-66 Z" fill="#e3c35a" stroke="${DUNKEL}" stroke-width="1.6" stroke-linejoin="round"/>`;
+  s += `<circle cx="-6.5" cy="-58" r="2.6" fill="#fff"/><circle cx="6.5" cy="-58" r="2.6" fill="#fff"/><circle cx="-6.5" cy="-58" r="1.5" fill="#15110f"/><circle cx="6.5" cy="-58" r="1.5" fill="#15110f"/>`;
+  s += `<g fill="#e3c35a" stroke="${DUNKEL}" stroke-width="1.2"><ellipse cx="-7" cy="16" rx="4" ry="5"/><ellipse cx="7" cy="16" rx="4" ry="5"/></g>`;
+  return s;
+}
+
+/* ---------- Vogel von vorn für den Flügelschlag ---------- */
+// z: a = Winkel des Arms (Grad, plus = nach unten), h = Winkel der Hand zum Arm, sp = Spreizung der Handfedern (0 bis 1), y = Höhe des Körpers
+function vogelVorn(z){
+  const DUNKEL = "#4b3826", y = z.y, a = rad(z.a), ux = Math.cos(a), uy = Math.sin(a), nx = -uy, ny = ux, L = 82;
+  const W = [ux * L, uy * L], th = z.a + z.h, d = 3 + 9 * z.sp;
+  let fl = "";
+  [[-2, 54], [-1, 62], [0, 66], [1, 60], [2, 50]].forEach(([i, len]) => { fl += `<path d="${feder(W[0], W[1], th + i * d, len, 6.5)}" fill="#7a5f40" stroke="${DUNKEL}" stroke-width="1.5" stroke-linejoin="round"/>`; });
+  fl += `<path d="M${f1(15 * uy)},${f1(-15 * ux)} L${f1(W[0] - 10 * nx)},${f1(W[1] - 10 * ny)} L${f1(W[0] + 10 * nx)},${f1(W[1] + 10 * ny)} L${f1(-15 * uy)},${f1(15 * ux)} Z" fill="#cdb68b" stroke="${DUNKEL}" stroke-width="2" stroke-linejoin="round"/>`;
+  let s = `<g transform="translate(260 ${f1(118 + y)})">${fl}</g><g transform="translate(220 ${f1(118 + y)}) scale(-1 1)">${fl}</g>`;
+  s += `<ellipse cx="240" cy="${f1(142 + y)}" rx="25" ry="38" fill="#ece2c8" stroke="${DUNKEL}" stroke-width="2"/>`;
+  s += `<path d="M224,${f1(136 + y)} q6,6 12,0 M244,${f1(136 + y)} q6,6 12,0 M226,${f1(150 + y)} q6,6 12,0 M242,${f1(150 + y)} q6,6 12,0 M230,${f1(164 + y)} q5,5 10,0 M240,${f1(164 + y)} q5,5 10,0" stroke="#8a6a46" stroke-width="2.2" stroke-linecap="round" fill="none" opacity=".8"/>`;
+  s += `<circle cx="240" cy="${f1(98 + y)}" r="16" fill="#85694a" stroke="${DUNKEL}" stroke-width="2"/>`;
+  s += `<circle cx="233" cy="${f1(95 + y)}" r="3.6" fill="#fff"/><circle cx="247" cy="${f1(95 + y)}" r="3.6" fill="#fff"/><circle cx="233" cy="${f1(95.5 + y)}" r="2" fill="#15110f"/><circle cx="247" cy="${f1(95.5 + y)}" r="2" fill="#15110f"/>`;
+  s += `<path d="M235,${f1(103 + y)} Q240,${f1(117 + y)} 245,${f1(103 + y)} Z" fill="#e3c35a" stroke="${DUNKEL}" stroke-width="1.6" stroke-linejoin="round"/>`;
+  s += `<g fill="#e3c35a" stroke="${DUNKEL}" stroke-width="1.2"><ellipse cx="232" cy="${f1(180 + y)}" rx="5" ry="4"/><ellipse cx="248" cy="${f1(180 + y)}" rx="5" ry="4"/></g>`;
+  return s;
+}
+
+
+Modul.init({
+  key: "grumi-nt7-fortbewegung-v1",
+  thema: "Fortbewegung von Wirbeltieren und ihre Angepasstheit an Wasser, Land und Luft: Stromlinienform, Flossen und Schwimmblase der Fische, Frosch, Molch, Eidechse und Schlange, Flügel, Federn und Flugarten der Vögel, Sohlen-, Zehen- und Zehenspitzengänger, Maulwurf, Fledermaus und Delfin",
+  glossary: {
+    angepasst: ["Angepasstheit", "Der Körperbau eines Tieres passt zu seinem Lebensraum und seiner Fortbewegung, zum Beispiel Flossen im Wasser oder Flügel in der Luft."],
+    stromlinie: ["Stromlinienform", "Glatte Körperform, vorn rund und hinten spitz. Wasser oder Luft gleitet gut vorbei, und der Widerstand ist klein."],
+    flossen: ["Flossen", "Schwanzflosse: Antrieb. Rücken- und Afterflosse: halten den Fisch aufrecht. Brust- und Bauchflossen: steuern und bremsen."],
+    schwimmblase: ["Schwimmblase", "Mit Gas gefüllte Blase im Fisch. Ändert der Fisch die Füllung, steigt oder sinkt er – oder er schwebt auf einer Höhe."],
+    schlaengeln: ["Schlängeln", "Der Körper biegt sich in Wellen hin und her und schiebt das Tier voran. Fische, Molche, Eidechsen und Schlangen bewegen sich so."],
+    schwimmhaut: ["Schwimmhaut", "Dünne Haut zwischen den Zehen, zum Beispiel beim Frosch. Sie vergrößert die Fläche, mit der er Wasser nach hinten drückt."],
+    ruderschwanz: ["Ruderschwanz", "Breiter, flacher Schwanz, der wie ein Paddel das Wasser wegdrückt. Der Molch schwimmt damit."],
+    schwungfedern: ["Schwungfedern", "Lange, feste Federn an Flügel und Hand. Sie bilden die große Fläche, die den Vogel trägt und antreibt."],
+    deckfedern: ["Deckfedern", "Federn, die wie Dachziegel den Körper bedecken. Sie machen ihn glatt und stromlinienförmig und schützen vor Nässe."],
+    daunen: ["Daunenfedern", "Weiche, flaumige Federn unter den Deckfedern. Sie halten Luft fest und wärmen."],
+    brustbeinkamm: ["Brustbeinkamm", "Hohe Knochenleiste am Brustbein der Vögel. Hier setzen die kräftigen Flugmuskeln an."],
+    ruderflug: ["Ruderflug", "Der Vogel schlägt mit den Flügeln auf und ab und fliegt dabei vorwärts. Das kostet viel Kraft."],
+    gleitflug: ["Gleitflug", "Flug mit ausgebreiteten Flügeln ohne Flügelschlag. Der Vogel verliert dabei langsam an Höhe."],
+    segelflug: ["Segelflug", "Der Vogel kreist mit ausgebreiteten Flügeln in warmer, aufsteigender Luft (Aufwind) und steigt, ohne mit den Flügeln zu schlagen."],
+    ruettelflug: ["Rüttelflug", "Der Vogel steht flatternd an einer Stelle in der Luft, meist gegen den Wind, und späht nach Beute am Boden."],
+    sohlengaenger: ["Sohlengänger", "Tier, das mit der ganzen Fußsohle auftritt, zum Beispiel Mensch, Bär und Igel."],
+    zehengaenger: ["Zehengänger", "Tier, das nur auf den Zehen läuft, zum Beispiel Hund und Katze. Die Ferse ist angehoben."],
+    zehenspitzengaenger: ["Zehenspitzengänger", "Tier, das nur auf den Zehenspitzen läuft. Die Spitzen stecken in Hufen, zum Beispiel bei Reh und Pferd."],
+    flughaut: ["Flughaut", "Dünne Haut zwischen den langen Fingern, dem Körper und den Hinterbeinen der Fledermaus. Mit ihr fliegt sie."],
+    grabhand: ["Grabhand", "Breite Vorderpfote mit starken Krallen, zum Beispiel beim Maulwurf. Sie schaufelt Erde zur Seite."]
+  }
+});
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Ein Tier ist an seinen Lebensraum angepasst. Was heißt das?", o: ["Sein Körperbau passt zu seiner Fortbewegung und seinem Lebensraum.", "Es hat sich an einen neuen Ort gewöhnt.", "Es ist besonders groß und stark.", "Es lebt immer mit anderen Tieren zusammen."], a: 0, e: "Flossen im Wasser, Flügel in der Luft, lange Beine auf der Wiese: Der Körperbau passt zu dem, was das Tier dort tun muss."}
+  ],
+  s2: [
+    {q: "Warum sind Fische stromlinienförmig gebaut?", o: ["Ihr Körper bietet dem Wasser wenig Widerstand.", "So sind sie schwerer und sinken leichter.", "So können sie auch an Land laufen.", "So fallen sie Feinden weniger auf."], a: 0, e: "Vorn rund, in der Mitte dick, hinten spitz: Das Wasser gleitet am Körper vorbei, und der Fisch braucht weniger Kraft."},
+    {q: "Welche Flosse treibt den Fisch an?", o: ["die Schwanzflosse", "die Rückenflosse", "die Bauchflosse", "die Afterflosse"], a: 0, e: "Die Schwanzflosse drückt das Wasser nach hinten. Rücken- und Afterflosse halten den Fisch aufrecht, Brust- und Bauchflossen steuern."},
+    {q: "Wozu dient die Schwimmblase?", o: ["Der Fisch kann im Wasser schweben.", "Sie nimmt Sauerstoff aus dem Wasser auf.", "Sie treibt den Fisch an.", "Sie speichert Nahrung."], a: 0, e: "Die Schwimmblase ist mit Gas gefüllt. Mit mehr Gas steigt der Fisch, mit weniger sinkt er. Geatmet wird mit den Kiemen."}
+  ],
+  s3: [
+    {q: "Wozu hat der Frosch Schwimmhäute zwischen den Zehen?", o: ["Sie vergrößern die Fläche, mit der er das Wasser nach hinten drückt.", "Sie halten seine Füße warm.", "Sie helfen ihm, an Wänden zu klettern.", "Sie schützen ihn vor Feinden."], a: 0, e: "Beim Schwimmen streckt der Frosch die Beine nach hinten. Die große Fläche drückt viel Wasser weg und schiebt ihn nach vorn."},
+    {q: "Wie läuft eine Eidechse?", o: ["Die Beine stehen seitlich ab, und der Körper schlängelt hin und her.", "Sie hüpft auf langen Hinterbeinen.", "Sie läuft aufrecht auf zwei Beinen.", "Sie zieht den Bauch ganz ohne Beine über den Boden."], a: 0, e: "Der schlängelnde Körper macht die Schritte länger. Die Beine stützen den Körper am Boden ab."},
+    {q: "Wie kommt eine Schlange ohne Beine voran?", o: ["Sie schlängelt sich: Der Körper drückt sich gegen Unebenheiten, die Bauchschuppen haken sich ein.", "Sie springt mit kräftigen Muskeln nach vorn.", "Sie rollt sich wie ein Reifen.", "Sie zieht sich mit den Zähnen vorwärts."], a: 0, e: "Eine Welle läuft durch den Körper. Wo er sich gegen Steine oder Gras stemmt, schiebt es die Schlange nach vorn."}
+  ],
+  s4: [
+    {q: "Warum sind die Knochen vieler Vögel hohl?", o: ["Sie sind leicht, aber durch Streben im Inneren trotzdem stabil.", "Sie sind dadurch besonders schwer.", "Sie speichern darin Wasser für den Flug.", "Sie wachsen so schneller."], a: 0, e: "Beim Fliegen muss jedes Gramm in der Luft getragen werden. Hohle Knochen sparen Gewicht."},
+    {q: "Woran setzen die kräftigen Flugmuskeln an?", o: ["am Brustbeinkamm", "am Schnabel", "an den Schwungfedern", "am Schwanz"], a: 0, e: "Der Brustbeinkamm ist eine hohe Knochenleiste. Die Flugmuskeln ziehen von dort die Flügel nach unten."},
+    {q: "Welche Federn tragen den Vogel in der Luft und treiben ihn an?", o: ["die Schwungfedern an den Flügeln", "die Daunenfedern unter dem Gefieder", "die Deckfedern am Bauch", "die Schwanzfedern allein"], a: 0, e: "Die langen Schwungfedern bilden die große Fläche des Flügels. Daunen wärmen, Deckfedern glätten den Körper."}
+  ],
+  s5: [
+    {q: "Auf welchem Teil des Fußes läuft ein Reh?", o: ["auf den Zehenspitzen, die in Hufen stecken", "auf der ganzen Fußsohle", "auf den Zehen mit weichen Ballen", "auf den Fersen"], a: 0, e: "Das Reh ist ein Zehenspitzengänger. Hund und Katze laufen auf den Zehen, Bär und Mensch auf der ganzen Sohle."},
+    {q: "Welches Tier ist ein Sohlengänger?", o: ["der Bär", "der Hund", "das Reh", "die Katze"], a: 0, e: "Bär, Mensch und Igel setzen die ganze Fußsohle auf. Hund und Katze laufen auf den Zehen, Reh und Pferd auf den Zehenspitzen."},
+    {q: "Warum hat der Maulwurf breite Vorderfüße mit starken Krallen?", o: ["Er schaufelt damit Erde zur Seite und gräbt Gänge.", "Er fängt damit Fische.", "Er klettert damit auf Bäume.", "Er fliegt damit kurze Strecken."], a: 0, e: "Die Vorderfüße sind zu Schaufeln geworden – eine Angepasstheit an das Leben unter der Erde."}
+  ],
+  train: [
+    {q: "Welche Aussagen zum Schwimmen von Fischen stimmen?", o: ["Die Schwanzflosse treibt an.", "Der stromlinienförmige Körper spart Kraft.", "Schleim macht die Haut glatt.", "Die Schwimmblase treibt den Fisch an.", "Die Brustflossen sind die Kiemen."], a: [0, 1, 2], e: "Antrieb, Form und Schleim helfen beim Schwimmen. Die Schwimmblase lässt den Fisch nur schweben, geatmet wird mit Kiemen."},
+    {q: "Ein Mäusebussard kreist mit ausgebreiteten Flügeln in aufsteigender warmer Luft. Welche Flugart ist das?", o: ["Segelflug", "Ruderflug", "Rüttelflug", "Gleitflug"], a: 0, e: "Beim Segelflug trägt ihn die aufsteigende Luft nach oben, ohne dass er mit den Flügeln schlagen muss."},
+    {q: "Ein Turmfalke steht flatternd an einer Stelle in der Luft und sucht den Boden ab. Welche Flugart ist das?", o: ["Rüttelflug", "Segelflug", "Gleitflug", "Ruderflug"], a: 0, e: "Beim Rüttelflug schlägt der Vogel schnell mit den Flügeln und bleibt gegen den Wind auf der Stelle."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Kurz-Check"});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s5"), MC.s5, "mc5", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Gemeinsame Helfer ---------- */
+// Zahlen eines Zustands z sanft zum Ziel führen; zeichne(z) stellt das Bild ein
+function animiere(z, ziel, ms, zeichne){
+  const start = Object.assign({}, z), ks = Object.keys(ziel);
+  cancelAnimationFrame(z._raf || 0); z._raf = 0;
+  if (reduced || !ms) { ks.forEach(k => { z[k] = ziel[k]; }); zeichne(z); return; }
+  const t0 = performance.now();
+  (function s(t){
+    const q = Math.min(1, (t - t0) / ms), e = q < .5 ? 2 * q * q : 1 - Math.pow(-2 * q + 2, 2) / 2;
+    ks.forEach(k => { z[k] = start[k] + (ziel[k] - start[k]) * e; });
+    zeichne(z);
+    if (q < 1) z._raf = requestAnimationFrame(s);
+  })(t0);
+}
+// Auswahlknöpfe: jeder Knopf zeigt etwas; die Übung zählt, wenn alle einmal angetippt wurden
+function auswahl(box, anzahl, bei){
+  const gesehen = new Set();
+  $$("button", box).forEach(b => b.addEventListener("click", () => {
+    $$("button", box).forEach(x => x.classList.toggle("sel", x === b));
+    gesehen.add(b.dataset.k); bei(b.dataset.k, gesehen.size >= anzahl);
+  }));
+}
+
+
+// Bild für Bild laufen lassen, solange die Zeichnung sichtbar ist (und aktiv() gilt); gibt die Startfunktion zurück
+function laufend(sim, schritt, aktiv){
+  let sichtbar = false, laeuft = false, last = 0;
+  function tick(ts){
+    if (!sichtbar || !aktiv()) { laeuft = false; return; }
+    const dt = last ? Math.min(.05, (ts - last) / 1000) : 0; last = ts;
+    schritt(dt, ts / 1000); requestAnimationFrame(tick);
+  }
+  function los(){ if (laeuft || !sichtbar || reduced || !aktiv()) return; laeuft = true; last = 0; requestAnimationFrame(tick); }
+  Modul.onVisible(sim, v => { sichtbar = v; if (v) los(); });
+  return los;
+}
+
+/* ---------- Station 1: Landschaft ---------- */
+$("#szFrosch").innerHTML = frosch(0, 0, 0, 1);
+$("#szEidechse").innerHTML = koerper("eidechse", 1.0, 330, 224, .2, {amp: .8});
+$("#szBussard").innerHTML = bussard();
+Modul.makeHotspots($("#szeneBild"), $("#szeneInfo"), $("#szeneZahl"), [
+  {x: 27.4, y: 76, i: "🐟", t: "Forelle", s: "Die Forelle lebt im Bach. Ihr Körper ist schlank und glatt, und sie hat Flossen. Damit schwimmt sie schnell durchs Wasser."},
+  {x: 57, y: 52, i: "🐸", t: "Frosch", s: "Der Frosch sitzt am Ufer. Mit seinen langen Hinterbeinen springt er an Land und schwimmt im Wasser. Er lebt an beiden Orten."},
+  {x: 69, y: 64, i: "🦎", t: "Eidechse", s: "Die Eidechse sonnt sich auf dem Stein. Ihre vier kurzen Beine stehen seitlich vom Körper ab. Beim Laufen schlängelt sich der Körper hin und her."},
+  {x: 70, y: 40, i: "🦅", t: "Mäusebussard", s: "Der Mäusebussard kreist über dem Feld. Seine großen Flügel tragen ihn in warmer, aufsteigender Luft – er muss kaum mit ihnen schlagen."},
+  {x: 84.5, y: 55, i: "🦌", t: "Reh", s: "Das Reh rennt auf den Spitzen seiner Zehen. Seine Beine sind lang und dünn und enden in Hufen. So kommt es schnell voran."}
+], "szene");
+register("szene", "#szeneBild", "Bild erkunden: fünf Tiere in der Landschaft");
+
+/* ---------- Station 2: Strömungskanal ---------- */
+(function(){
+  const sim = $("#stromSim"), svg = $("#stromSvg"), gL = $("#stromLinien"), gW = $("#stromWirbel"), gK = $("#stromKoerper");
+  const bar = $("#sBalken"), wert = $("#sWert"), obs = $("#stromObs"), box = $("#stromWahl"), YC = 138, id = "strom";
+  register(id, "#stromWahl", "Versuch: Strömungskanal mit Klotz, Kugel und Fischform");
+  const sm = x => x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x);
+  const fh = profil([[0, 0], [.03, 14], [.1, 27], [.3, 36], [.45, 34.5], [.6, 26], [.8, 11], [.93, 3.5], [1, 0]]);
+  let fischPfad = "M140," + YC;
+  for (let x = 140; x <= 340; x += 5) fischPfad += " L" + x + "," + f1(YC - fh((x - 140) / 200));
+  for (let x = 340; x >= 140; x -= 5) fischPfad += " L" + x + "," + f1(YC + fh((x - 140) / 200));
+  const wirb = (cx, dy, r) => `<circle class="wirb" cx="${cx}" cy="${YC + dy}" r="${r}" fill="none" stroke="#e0453a" stroke-width="3" stroke-linecap="round"/>`;
+  const FORM = {
+    klotz: {h: x => 36 * sm((x - 190) / 8) * sm((290 - x) / 8), ende: 290, wH: 36, wL: 100, breite: 250, farbe: "#c93b3b", label: "sehr groß",
+      koerper: `<rect x="190" y="${YC - 36}" width="100" height="72" rx="4" fill="#a07a4c" stroke="#5b4326" stroke-width="3"/>`,
+      wirbel: wirb(328, -34, 24) + `<g transform="translate(0 ${2 * YC}) scale(1 -1)">${wirb(328, -34, 24)}</g><text x="368" y="${YC + 5}" font-size="13" font-weight="800" fill="#b9261c">Wirbel</text>`,
+      text: "Der Klotz wirkt wie eine Wand: Das Wasser muss abrupt ausweichen. Hinter ihm entstehen große Wirbel, das Wasser strömt unruhig. Der Widerstand ist sehr groß."},
+    kugel: {h: x => { const d = (x - 240) / 36; return Math.abs(d) >= 1 ? 0 : 36 * Math.sqrt(1 - d * d); }, ende: 276, wH: 22, wL: 62, breite: 140, farbe: "#e08a1e", label: "mittel",
+      koerper: `<circle cx="240" cy="${YC}" r="36" fill="#e9a43c" stroke="#9a5d0f" stroke-width="3"/>`,
+      wirbel: wirb(300, -20, 14) + `<g transform="translate(0 ${2 * YC}) scale(1 -1)">${wirb(300, -20, 14)}</g><text x="324" y="${YC + 5}" font-size="13" font-weight="800" fill="#b9261c">Wirbel</text>`,
+      text: "Die Kugel ist runder, das Wasser gleitet besser an ihr vorbei. Hinter ihr entstehen aber immer noch Wirbel. Der Widerstand ist mittel."},
+    fisch: {h: x => (x < 140 || x > 340) ? 0 : fh((x - 140) / 200), ende: 340, wH: 0, wL: 1, breite: 44, farbe: "#1b8a4b", label: "klein",
+      koerper: `<path d="${fischPfad} Z" fill="url(#gForelle)" stroke="#4a5a22" stroke-width="3" stroke-linejoin="round"/><circle cx="160" cy="${YC - 7}" r="4.4" fill="#fff" stroke="#3a3a2a" stroke-width="1.4"/><circle cx="161" cy="${YC - 7}" r="2.3" fill="#15212b"/><path d="M200,${YC - 26} C192,${YC - 10} 192,${YC + 10} 200,${YC + 26}" fill="none" stroke="#4a5a22" stroke-width="2.4" stroke-linecap="round"/>`,
+      wirbel: "",
+      text: "Bei der Fischform schließen sich die Strömungslinien hinter dem Körper wieder glatt. Es gibt kaum Wirbel. Der Widerstand ist klein – so spart ein Fisch Kraft."}
+  };
+  // Stromlinien: sie weichen dem Körper (und seinem Wirbelfeld) aus; obere Hälfte, die untere ist gespiegelt
+  function linien(f){
+    const D = f ? [16, 40, 66, 90, 112] : [0, 16, 40, 66, 90, 112];
+    let hoch = "";
+    D.forEach(d => {
+      let p = "";
+      for (let x = 0; x <= 480; x += 6) {
+        let h = f ? f.h(x) : 0;
+        if (f && x > f.ende) h = Math.max(h, f.wH * Math.exp(-(x - f.ende) / f.wL));
+        p += (x ? " L" : "M") + x + "," + f1(YC - Math.sqrt(d * d + h * h));
+      }
+      hoch += `<path class="fl" d="${p}"/>`;
+    });
+    const st = 'fill="none" stroke="#2f86bd" stroke-width="2.4" stroke-linecap="round"';
+    return `<g ${st}>${hoch}</g><g ${st} transform="translate(0 ${2 * YC}) scale(1 -1)">${hoch}</g>`;
+  }
+  gL.innerHTML = linien(null);
+  auswahl(box, 3, (k, alle) => {
+    const f = FORM[k];
+    gL.innerHTML = linien(f); gK.innerHTML = f.koerper; gW.innerHTML = f.wirbel;
+    bar.setAttribute("width", f.breite); bar.setAttribute("fill", f.farbe);
+    setText(wert, f.label); setText(obs, f.text);
+    if (alle) solve(id);
+  });
+  Modul.onVisible(sim, v => svg.classList.toggle("lauf", v));
+})();
+
+/* ---------- Station 2: Forelle mit Flossen ---------- */
+Modul.makeHotspots($("#fischBild"), $("#fischInfo"), $("#fischZahl"), [
+  {x: 9.2, y: 50, i: "🚀", t: "Schwanzflosse", s: "Sie ist der <strong>Antrieb</strong>. Sie schlägt hin und her und drückt das Wasser nach hinten. Dabei schiebt sich der Fisch nach vorn."},
+  {x: 57, y: 16, i: "⚓", t: "Rückenflosse", s: "Sie hält den Fisch <strong>aufrecht</strong>, ähnlich wie der Kiel eines Bootes. Ohne sie würde er sich im Wasser drehen und auf die Seite kippen."},
+  {x: 43, y: 76, i: "⚓", t: "Afterflosse", s: "Sie arbeitet mit der Rückenflosse zusammen: Beide <strong>stabilisieren</strong> den Fisch und halten ihn auf Kurs."},
+  {x: 76.5, y: 74.5, i: "🎯", t: "Brustflosse", s: "Mit den Brustflossen <strong>steuert</strong> der Fisch nach oben und unten. Zum <strong>Bremsen</strong> stellt er sie quer in den Wasserstrom."},
+  {x: 62, y: 83, i: "🎯", t: "Bauchflosse", s: "Auch die Bauchflossen helfen beim <strong>Steuern</strong> und Balancieren. Brust- und Bauchflossen gibt es paarweise, links und rechts."},
+  {x: 48.3, y: 46, i: "🎈", t: "Schwimmblase", s: "In ihr steckt Gas. Der Fisch kann die Füllung ändern: Mit mehr Gas steigt er, mit weniger sinkt er. Mit der passenden Füllung <strong>schwebt</strong> er, ohne sich zu bewegen."},
+  {x: 74, y: 39, i: "💧", t: "Schuppen mit Schleim", s: "Die Haut trägt Schuppen, darüber liegt eine dünne <strong>Schleimschicht</strong>. Sie macht den Fisch glatt, sodass das Wasser leichter vorbeigleitet, und schützt vor Keimen."}
+], "fisch");
+register("fisch", "#fischBild", "Bild erkunden: Flossen, Schwimmblase und Haut der Forelle");
+
+/* ---------- Station 2: Schlängelbewegung ---------- */
+(function(){
+  const sim = $("#wellenSim"), gF = $("#wFisch"), pf = $("#wPfeile"), txt = $("#wText");
+  let bg = ""; for (let r = 0; r < 2; r++) for (let i = 0; i < 9; i++) { const x = r * 480 + 20 + i * 53 + (i % 3) * 9, y = 24 + (i * 37) % 170; bg += `<path d="M${x},${y} q10,-5 20,0" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".8"/>`; }
+  $("#wBg").innerHTML = `<g id="wBgIn">${bg}</g>`;
+  const bgIn = $("#wBgIn"), z = {amp: 0, phase: 0, ofs: 0, pf: 0};
+  let lauf = false;
+  function mal(){ gF.innerHTML = koerper("fisch", z.phase, 240, 112, .95, {amp: z.amp}); bgIn.setAttribute("transform", `translate(${f1(-(z.ofs % 480))} 0)`); pf.setAttribute("opacity", z.pf.toFixed(2)); }
+  const los = laufend(sim, dt => { z.phase += dt * 6; z.ofs += dt * 70; mal(); }, () => lauf);
+  Modul.makeSchritte(sim, {
+    steps: [
+      "Von oben gesehen: Der Fisch liegt gestreckt im Wasser. Seine Muskeln sind entspannt.",
+      "Die Muskeln der einen Körperseite ziehen sich zusammen. Der Körper biegt sich zu dieser Seite.",
+      "Jetzt ziehen sich die Muskeln der anderen Seite zusammen. Der Körper biegt sich zur anderen Seite.",
+      "Das geht immer schneller hin und her. So läuft eine Welle von vorn nach hinten durch den Körper.",
+      "Am Ende der Welle drückt die Schwanzflosse das Wasser nach hinten. Das Wasser schiebt den Fisch nach vorn – er schwimmt."
+    ],
+    ms: 3200,
+    zeige(i){
+      const k = Math.max(0, i);
+      lauf = k >= 3;
+      z.phase = z.phase % (2 * Math.PI);
+      if (k < 3) animiere(z, k === 0 ? {amp: 0, phase: 0, pf: 0} : k === 1 ? {amp: 1, phase: 1.5, pf: 0} : {amp: 1, phase: 1.5 + Math.PI, pf: 0}, 700, mal);
+      else { animiere(z, {amp: 1, pf: k === 3 ? .3 : 1}, 600, mal); los(); }
+      setText(txt, ["Fisch ruht", "Biegung zur einen Seite", "Biegung zur anderen Seite", "Welle von vorn nach hinten", "Wasser nach hinten – Fisch nach vorn"][k]);
+    }
+  }, "wellen");
+  register("wellen", sim, "Animation: So schlängelt sich ein Fisch voran");
+  mal();
+})();
+
+/* ---------- Station 3: Frosch ---------- */
+(function(){
+  const g = $("#froTier"), r = $("#froRegler"), chip = $("#froChip"), obs = $("#froObs"), bahn = $("#froBahn"), id = "frosch";
+  register(id, "#froschSim", "Frosch: die Hinterbeine mit dem Regler strecken");
+  function zeig(){
+    const t = r.value / 100;
+    g.innerHTML = frosch(t, 196, 232, 1);
+    bahn.setAttribute("opacity", t > .7 ? ((t - .7) / .3 * .6).toFixed(2) : "0");
+    setText(chip, t < .25 ? "angewinkelt" : t < .75 ? "halb gestreckt" : "gestreckt");
+    chip.className = "chip" + (t > .9 ? " ok" : "");
+    setText(obs, t < .25 ? "Der Frosch sitzt. Die Hinterbeine sind eng angewinkelt wie eine gespannte Feder. Die kurzen Vorderbeine stützen den Körper."
+      : t < .75 ? "Die Beine strecken sich. Die Zehen spreizen sich, und die Schwimmhaut spannt sich zwischen ihnen auf. Der Körper hebt vom Boden ab."
+      : "Fast gestreckt: Gleich ist der Frosch in der Luft. Im Wasser würde jetzt die große Schwimmhaut viel Wasser nach hinten drücken.");
+    if (t >= .98) solve(id);
+  }
+  r.addEventListener("input", zeig); zeig();
+})();
+
+/* ---------- Station 3: Schlängeln im Vergleich ---------- */
+(function(){
+  const sim = $("#laborSim"), bg = $("#labBg"), gP = $("#labPunkte"), gT = $("#labTier"), name = $("#labName"), obs = $("#labObs"), box = $("#labWahl"), id = "labor";
+  register(id, "#labWahl", "Vergleich: Fisch, Molch, Eidechse und Schlange schlängeln sich");
+  const T = {
+    fisch: {n: "Fisch", farbe: "#d6ecf9", wasser: true, sc: .95, w: 6, v: 90, text: "Der Fisch hat Flossen. Die Welle läuft durch den ganzen Körper, die Schwanzflosse drückt das Wasser nach hinten. Er stößt sich am Wasser ab."},
+    molch: {n: "Molch im Wasser", farbe: "#d6ecf9", wasser: true, sc: .92, w: 5, v: 60, text: "Der Molch schwimmt ähnlich wie ein Fisch: Der Körper schlängelt, der breite Ruderschwanz schiebt ihn voran. Die Beine liegen am Körper an und bremsen nicht."},
+    eidechse: {n: "Eidechse", farbe: "#e9dfc4", wasser: false, sc: .95, w: 7, v: 70, text: "Die Eidechse stützt sich mit vier Beinen am Boden ab. Die Beine stehen seitlich ab. Bei jedem Schritt biegt sich der Körper zur Seite – so werden die Schritte länger."},
+    schlange: {n: "Schlange", farbe: "#e9dfc4", wasser: false, sc: 1, w: 4.5, v: 50, text: "Die Schlange hat keine Beine. Ihr Körper drückt sich seitlich gegen Unebenheiten am Boden, die breiten Bauchschuppen haken sich ein. Das schiebt sie nach vorn."}
+  };
+  function punkte(wasser){
+    let s = "";
+    for (let r = 0; r < 2; r++) for (let i = 0; i < 11; i++) {
+      const x = r * 480 + 14 + i * 43 + (i * 7 % 5) * 6, y = 34 + (i * 53) % 160;
+      s += wasser ? `<path d="M${x},${y} q9,-5 18,0" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".8"/>`
+        : i % 3 === 0 ? `<path d="M${x},${y} l-3,-8 M${x + 3},${y} l0,-9 M${x + 6},${y} l3,-8" stroke="#7fae5a" stroke-width="2.2" stroke-linecap="round" fill="none"/>`
+        : `<ellipse cx="${x}" cy="${y}" rx="${5 + i % 4}" ry="${3 + i % 3}" fill="${i % 2 ? "#b8ad92" : "#cbbf9f"}"/>`;
+    }
+    return `<g id="labPIn">${s}</g>`;
+  }
+  let k = "fisch", phase = 1.2, ofs = 0, pIn = null;
+  function mal(){ gT.innerHTML = koerper(k, phase, 240, 116, T[k].sc); pIn.setAttribute("transform", `translate(${f1(-(ofs % 480))} 0)`); }
+  function wechsle(){ const t = T[k]; bg.setAttribute("fill", t.farbe); gP.innerHTML = punkte(t.wasser); pIn = $("#labPIn"); setText(name, t.n); mal(); }
+  const los = laufend(sim, dt => { phase += dt * T[k].w; ofs += dt * T[k].v; mal(); }, () => !!k);
+  auswahl(box, 4, (kk, alle) => {
+    k = kk; wechsle(); setText(obs, T[k].text); los();
+    if (alle) solve(id);
+  });
+  wechsle(); los();   // Vorschau: zuerst schwimmt ein Fisch; gezählt wird erst, wenn du die Tiere antippst
+})();
+
+/* ---------- Station 4: Mäusebussard ---------- */
+$("#vogelGross").innerHTML = bussard();
+Modul.makeHotspots($("#vogelBild"), $("#vogelInfo"), $("#vogelZahl"), [
+  {x: 90, y: 28, i: "🐦", t: "Schwungfedern", s: "Die langen, festen Federn am Flügelende. Zusammen bilden sie die große Fläche, die den Vogel in der Luft trägt und antreibt."},
+  {x: 72.9, y: 40, i: "🦅", t: "Flügel = Vordergliedmaße", s: "Der Flügel ist eine umgebildete Vordergliedmaße. Im Inneren stecken Oberarm, Elle und Speiche und Handknochen – wie in deinem Arm."},
+  {x: 31.3, y: 40.7, i: "🐦", t: "Deckfedern", s: "Sie liegen wie Dachziegel übereinander und bedecken Körper und Flügel. Sie machen den Vogel glatt und stromlinienförmig und schützen vor Nässe."},
+  {x: 50, y: 57.3, i: "🐤", t: "Daunenfedern", s: "Unter den Deckfedern sitzen weiche, flaumige Daunen. Sie halten Luft fest und wärmen den Vogel."},
+  {x: 50, y: 36, i: "💪", t: "Brustbeinkamm", s: "Unter den Federn liegt das Brustbein mit einer hohen Knochenleiste, dem Kamm. Daran setzen die kräftigen Flugmuskeln an. Sie ziehen die Flügel nach unten."},
+  {x: 20, y: 28, i: "🎈", t: "Hohle Knochen", s: "Die Knochen sind innen hohl und durch dünne Querstreben verstärkt. So sind sie leicht und trotzdem stabil."},
+  {x: 50, y: 80, i: "🎯", t: "Schwanz", s: "Die Schwanzfedern bilden einen Fächer. Er wirkt wie ein Ruder: Der Vogel steuert und bremst damit."}
+], "vogel");
+register("vogel", "#vogelBild", "Bild erkunden: Federn, Flügel, Knochen und Muskeln des Vogels");
+
+/* ---------- Station 4: Flügelschlag ---------- */
+(function(){
+  const sim = $("#schlagSim"), g = $("#sVogel"), l1 = $("#sLuft"), l2 = $("#sLuft2"), txt = $("#sText");
+  const P = [
+    {a: -50, h: 12, sp: .3, y: 0, l1: 0, l2: 0},
+    {a: -8, h: 0, sp: 0, y: -3, l1: 0, l2: 0},
+    {a: 32, h: -22, sp: 0, y: -12, l1: 1, l2: 0},
+    {a: 2, h: 26, sp: 1, y: -6, l1: 0, l2: 1},
+    {a: -50, h: 12, sp: .3, y: 0, l1: 0, l2: 0}
+  ];
+  const z = Object.assign({}, P[0]);
+  function mal(){ g.innerHTML = vogelVorn(z); l1.setAttribute("opacity", z.l1.toFixed(2)); l2.setAttribute("opacity", z.l2.toFixed(2)); }
+  Modul.makeSchritte(sim, {
+    steps: [
+      "Die Flügel sind oben. Die kräftigen Brustmuskeln sind bereit.",
+      "Abschlag: Die Brustmuskeln ziehen die Flügel nach unten. Die Federn liegen dicht aneinander und bilden eine feste Fläche.",
+      "Die Flügel drücken die Luft nach unten und nach hinten. Das hebt den Vogel hoch und schiebt ihn nach vorn.",
+      "Aufschlag: Der Vogel winkelt die Flügel an und hebt sie. Die Federn spreizen sich wie die Lamellen einer Jalousie, die Luft strömt hindurch. So bremst fast nichts.",
+      "Die Flügel sind wieder oben. Jetzt beginnt der nächste Abschlag – so fliegt der Vogel im Ruderflug."
+    ],
+    ms: 3200,
+    zeige(i){ const k = Math.max(0, i); animiere(z, P[k], 650, mal); setText(txt, ["Flügel oben", "Abschlag", "Flügel unten", "Aufschlag", "Flügel oben"][k]); }
+  }, "fluegel");
+  register("fluegel", sim, "Animation: Abschlag und Aufschlag beim Ruderflug");
+  mal();
+})();
+
+/* ---------- Station 4: Flugarten ---------- */
+(function(){
+  const sim = $("#artenSim"), vogel = $("#faVogel"), obs = $("#artenObs"), box = $("#artenWahl"), id = "flugarten";
+  register(id, "#artenWahl", "Flugarten: Ruderflug, Gleitflug, Segelflug und Rüttelflug ansehen");
+  const G = {ruder: $("#faRuder"), gleit: $("#faGleit"), segel: $("#faSegel"), ruettel: $("#faRuettel")};
+  const P = {ruder: $("#faPfadR"), gleit: $("#faPfadG"), segel: $("#faPfadS")};
+  { let d = ""; for (let i = 0; i <= 140; i++) { const th = i / 140 * 3.2 * 2 * Math.PI; d += (i ? "L" : "M") + f1(240 + 96 * Math.cos(th)) + "," + f1(196 - th * 6.2 + 20 * Math.sin(th)); } P.segel.setAttribute("d", d); }
+  Object.keys(G).forEach(n => { G[n].style.display = n === "ruder" ? "" : "none"; });
+  const TXT = {
+    ruder: "Ruderflug: Der Vogel schlägt mit den Flügeln auf und ab und fliegt dabei vorwärts. Das kostet viel Kraft, aber er kann Tempo und Richtung jederzeit ändern. Beispiele: Amsel, Taube, Stockente.",
+    gleit: "Gleitflug: Die Flügel sind ausgebreitet und bewegen sich nicht. Der Vogel gleitet schräg nach unten und verliert dabei langsam an Höhe. Das spart Kraft, zum Beispiel beim Landeanflug.",
+    segel: "Segelflug: Vom warmen Boden steigt Luft auf (Aufwind). Der Vogel kreist mit ausgebreiteten Flügeln in dieser Luft und wird nach oben getragen – ohne zu schlagen. Beispiele: Mäusebussard, Storch.",
+    ruettel: "Rüttelflug: Der Vogel steht flatternd an einer Stelle in der Luft, gegen den Wind gerichtet. Von dort späht er nach Beute am Boden. Beispiel: Turmfalke."
+  };
+  const DAUER = {ruder: 4.2, gleit: 4.4, segel: 8.5};
+  // kleiner Vogel von der Seite (Kopf rechts); w = Stellung der Flügel: plus nach oben, minus nach unten
+  const fl = (w, k, farbe) => `<path d="M5,-1 C0,${f1(-7 * w * k)} -8,${f1(-17 * w * k)} -19,${f1(-22 * w * k)} C-15,${f1(-12 * w * k)} -15,${f1(-5 * w * k)} -10,1 Z" fill="${farbe}" stroke="#4b3826" stroke-width="1.4" stroke-linejoin="round"/>`;
+  const glyph = w => fl(w, .7, "#a89574") + `<path d="M-9,0 L-22,-3.5 L-22,3.5 Z" fill="#4b3826" stroke="#3a2a1a" stroke-width="1"/><ellipse cx="0" cy="0" rx="11" ry="4.8" fill="#6b5238" stroke="#3a2a1a" stroke-width="1.3"/>` + fl(w, 1, "#cdb68b") + `<circle cx="11" cy="-1.5" r="4" fill="#85694a" stroke="#3a2a1a" stroke-width="1.3"/><path d="M14.6,-2.2 L20.5,0 L14.6,0.6 Z" fill="#e3c35a" stroke="#3a2a1a" stroke-width="1"/><circle cx="12.4" cy="-2.4" r="1.1" fill="#fff"/>`;
+  let art = "ruder", u = 0;
+  function setze(t){ try { setze2(t); } catch (_) {} }
+  function setze2(t){
+    if (art === "ruettel") {
+      vogel.innerHTML = `<g transform="translate(${f1(240 + 3 * Math.sin(t * 9))} ${f1(104 + 2.5 * Math.sin(t * 13))}) scale(-1.9 1.9) rotate(-38)">${glyph(.9 * Math.sin(t * 28))}</g>`;
+      return;
+    }
+    const pf = P[art], len = pf.getTotalLength(), s0 = u * len, p = pf.getPointAtLength(s0), q0 = pf.getPointAtLength(Math.max(0, s0 - 1.5)), q1 = pf.getPointAtLength(Math.min(len, s0 + 1.5));
+    const ang = Math.atan2(q1.y - q0.y, q1.x - q0.x) * 180 / Math.PI, w = art === "ruder" ? .95 * Math.sin(t * 13) : art === "gleit" ? .32 : .36;
+    vogel.innerHTML = `<g transform="translate(${f1(p.x)} ${f1(p.y)}) ${Math.abs(ang) > 90 ? `scale(-1.9 1.9) rotate(${f1(180 - ang)})` : `rotate(${f1(ang)}) scale(1.9)`}">${glyph(w)}</g>`;
+  }
+  const los = laufend(sim, (dt, t) => { if (art !== "ruettel") u = (u + dt / DAUER[art]) % 1; setze(t); }, () => !!art);
+  auswahl(box, 4, (k, alle) => {
+    art = k; u = reduced ? .45 : 0;
+    Object.keys(G).forEach(n => { G[n].style.display = n === k ? "" : "none"; });
+    setText(obs, TXT[k]); setze(0); los();
+    if (alle) solve(id);
+  });
+  u = reduced ? .45 : 0; setze(0); los();
+})();
+
+/* ---------- Station 5: Gangarten ---------- */
+(function(){
+  const box = $("#gangWahl"), obs = $("#gangObs"), P = [null, $("#fp1"), $("#fp2"), $("#fp3")], id = "gang";
+  register(id, "#gangWahl", "Gangarten: Sohlen-, Zehen- und Zehenspitzengänger vergleichen");
+  const T = {
+    1: "Sohlengänger: Die ganze Fußsohle liegt auf dem Boden, auch die Ferse. Das gibt sicheren Halt. Beispiele: Mensch, Bär, Igel. Der Bär kann sich sogar auf die Hinterbeine stellen.",
+    2: "Zehengänger: Nur die Zehen berühren den Boden, die Ferse ist angehoben. Weiche Zehenballen machen das Laufen fast lautlos. Beispiele: Hund, Katze. Katzen schleichen sich so fast unhörbar an.",
+    3: "Zehenspitzengänger: Nur die Zehenspitzen berühren den Boden, sie stecken in Hufen. Das Bein wird dadurch besonders lang und macht große Schritte. Beispiele: Reh, Pferd. Das sind schnelle Läufer."
+  };
+  auswahl(box, 3, (k, alle) => {
+    P.forEach((p, i) => { if (p) p.classList.toggle("aus", i !== +k); });
+    setText(obs, T[k]);
+    if (alle) solve(id);
+  });
+})();
+
+/* ---------- Station 5: Spezialisten ---------- */
+Modul.makeHotspots($("#speziBild"), $("#speziInfo"), $("#speziZahl"), [
+  {x: 22.2, y: 61.7, i: "🐾", t: "Grabhand des Maulwurfs", s: "Die Vorderfüße sind breite Schaufeln mit starken Krallen. Der Maulwurf gräbt damit seine Gänge: Er schaufelt die Erde zur Seite und nach hinten."},
+  {x: 11.7, y: 48.6, i: "🐾", t: "Körper des Maulwurfs", s: "Der Körper ist walzenförmig und schmal. Die kurzen Haare liegen nicht in eine Richtung. So kommt der Maulwurf in engen Gängen vorwärts und rückwärts voran."},
+  {x: 40.8, y: 54.5, i: "🦇", t: "Flughaut der Fledermaus", s: "Zwischen den Fingern, dem Körper und den Hinterbeinen ist eine dünne, dehnbare Haut gespannt: die Flughaut. Mit ihr fliegt die Fledermaus. Federn hat sie nicht – sie ist ein Säugetier."},
+  {x: 62.5, y: 34.5, i: "🦇", t: "Verlängerte Finger", s: "Vier Finger sind sehr lang und halten die Flughaut wie die Speichen eines Schirms. Nur der Daumen bleibt klein und hat eine Kralle."},
+  {x: 88.7, y: 60.7, i: "🐬", t: "Flosse des Delfins", s: "Die Vordergliedmaßen sind zu Flossen geworden. Der Delfin steuert und bremst damit. Im Inneren stecken noch Oberarm-, Unterarm- und Handknochen."},
+  {x: 72.5, y: 50.9, i: "🐬", t: "Säugetier mit Fischform", s: "Der Delfin ist stromlinienförmig wie ein Fisch, aber ein Säugetier: Er atmet mit Lungen Luft, bringt lebende Junge zur Welt und säugt sie. Die Schwanzflosse treibt ihn an."}
+], "spezi");
+register("spezi", "#speziBild", "Bild erkunden: Maulwurf, Fledermaus und Delfin");
+
+/* ---------- Station 5: Vordergliedmaßen (M7) ---------- */
+{ // Federn am Vogelflügel: Armschwingen hängen an der Elle, Handschwingen an der Hand
+  let s = "";
+  for (let i = 0; i < 8; i++) s += `<path d="${feder(86 + i * 9.4, 75, 98 - i * 2, 46 + (i % 3) * 2, 6)}"/>`;
+  for (let j = 0; j < 5; j++) s += `<path d="${feder(162 + j * 7, 80, 72 - j * 15, 52 - j * 2, 6)}"/>`;
+  $("#gliedFeder").innerHTML = s;
+}
+Modul.plus(() => {
+  Modul.makeSort($("#sortGlied"), {
+    buckets: ["Greifen", "Fliegen", "Schwimmen", "Graben"],
+    items: [
+      {t: "fünf lange, bewegliche Finger", b: 0}, {t: "Daumen kann den anderen Fingern gegenüberstehen", b: 0},
+      {t: "Federn an Unterarm und Hand", b: 1}, {t: "wenige, verwachsene Handknochen", b: 1},
+      {t: "Hand und Finger zu einer festen Paddelfläche verbunden", b: 2}, {t: "kurzer, steifer Arm, nur die Schulter ist gut beweglich", b: 2},
+      {t: "breite Hand mit starken Krallen", b: 3}, {t: "kurze, sehr kräftige Knochen", b: 3}
+    ], cols: 130
+  }, "sortGlied");
+});
+
+
+/* ---------- Station 6: Training ---------- */
+Modul.makeGap($("#gapFort"), [
+  ["Fische sind ", {g: "stromlinienförmig"}, ". Die ", {g: "Schwanzflosse"}, " treibt sie an, und mit der ", {g: "Schwimmblase"}, " schweben sie im Wasser."],
+  ["Der Frosch hat lange ", {g: "Hinterbeine"}, ". Zwischen seinen Zehen spannen sich ", {g: "Schwimmhäute"}, "."],
+  ["Vögel haben hohle ", {g: "Knochen"}, ". Die kräftigen Flugmuskeln setzen am ", {g: "Brustbeinkamm"}, " an."],
+  ["Der Bär setzt die ganze Fußsohle auf – er ist ein ", {g: "Sohlengänger"}, ". Der Hund läuft nur auf den Zehen – er ist ein ", {g: "Zehengänger"}, "."]
+], "gapFort", ["Kiemen", "Fell"]);
+
+Modul.makePaare($("#paareTiere"), [
+  ["Forelle", "stromlinienförmig, Schwanzflosse treibt an"],
+  ["Frosch", "lange Hinterbeine, Schwimmhäute"],
+  ["Eidechse", "Beine stehen seitlich ab, schlängelt"],
+  ["Schlange", "ohne Beine, Bauchschuppen haken ein"],
+  ["Mäusebussard", "Flügel, Federn, hohle Knochen"],
+  ["Reh", "lange Beine, läuft auf Zehenspitzen"]
+], "paareTiere");
+
+Modul.makeSort($("#sortMerkmale"), {
+  buckets: ["im Wasser", "an Land", "in der Luft"],
+  items: [
+    {t: "Schwimmblase", b: 0}, {t: "Schwanzflosse", b: 0}, {t: "Schwimmhaut zwischen den Zehen", b: 0},
+    {t: "Hufe an den Zehenspitzen", b: 1}, {t: "Bauchschuppen der Schlange", b: 1}, {t: "Grabhände des Maulwurfs", b: 1},
+    {t: "Schwungfedern", b: 2}, {t: "hohle Knochen", b: 2}, {t: "Flughaut der Fledermaus", b: 2}
+  ], cols: 150
+}, "sortMerkmale");
+
+Modul.makeTF($("#tf"), [
+  ["Ein stromlinienförmiger Körper bremst im Wasser weniger als ein eckiger.", true],
+  ["Die Schwanzflosse des Fisches dient vor allem zum Steuern.", false],
+  ["Mit der Schwimmblase kann ein Fisch im Wasser schweben.", true],
+  ["Die Schlange bewegt sich mit vier kurzen Beinen vorwärts.", false],
+  ["Die Knochen fliegender Vögel sind hohl und deshalb leicht.", true],
+  ["Das Reh läuft als Sohlengänger auf der ganzen Fußsohle.", false],
+  ["Beim Aufschlag spreizen sich die Federn, damit Luft hindurchströmen kann.", true]
+], "tf");
+
+Modul.makeCrossword($("#cw"), {
+  words: [
+    {w: "SCHWIMMBLASE", r: 4, c: 0, d: "a", q: "Gasgefülltes Organ im Fisch: Damit kann er im Wasser schweben."},
+    {w: "STROMLINIE", r: 0, c: 5, d: "d", q: "Die glatte Körperform der Fische heißt …nform."},
+    {w: "SCHWIMMHAUT", r: 6, c: 1, d: "a", q: "Sie spannt sich beim Frosch zwischen den Zehen."},
+    {w: "ZEHENSPITZEN", r: 0, c: 0, d: "a", q: "Nur darauf berührt ein Reh den Boden."},
+    {w: "GRABHAND", r: 2, c: 4, d: "a", q: "Breite Schaufelpfote des Maulwurfs."},
+    {w: "RUDERFLUG", r: 9, c: 2, d: "a", q: "Flugart mit Flügelschlag auf und ab."},
+    {w: "FLUGHAUT", r: 8, c: 8, d: "d", q: "Dünne Haut zwischen den langen Fingern der Fledermaus."},
+    {w: "EIDECHSE", r: 0, c: 1, d: "d", q: "Reptil mit seitlich abstehenden Beinen."},
+    {w: "SCHLANGE", r: 13, c: 4, d: "a", q: "Reptil ohne Beine, das sich vorwärts schlängelt."},
+    {w: "SEGELFLUG", r: 11, c: 0, d: "a", q: "So kreist der Mäusebussard im Aufwind."}
+  ],
+  sol: [[4, 9], [0, 4], [9, 10], [11, 3], [0, 6], [2, 9], [0, 5], [11, 0], [0, 8]], solWord: "ANGEPASST"
+}, "cw");
+
+Modul.makeOpen($("#open"), [
+  {q: "Erkläre, warum ein Fisch stromlinienförmig gebaut ist und welche Aufgabe seine Schwanzflosse hat.",
+   m: "Der stromlinienförmige Körper (vorn rund, hinten spitz, glatt durch Schleim) bietet dem Wasser wenig Widerstand, sodass der Fisch weniger Kraft braucht. Die Schwanzflosse ist der Antrieb: Sie drückt das Wasser nach hinten und schiebt den Fisch nach vorn.",
+   k: ["stromlinien|spindel", "widerstand|reibung|bremst", "schwanzflosse", "antrieb|schiebt|drückt|treibt|vortrieb"], min: 3},
+  {q: "Nenne drei Merkmale, die einem Vogel das Fliegen möglich machen, und erkläre eines davon.",
+   m: "Die Flügel tragen lange Schwungfedern, die eine große Fläche bilden. Die Deckfedern machen den Körper glatt und stromlinienförmig. Die Knochen sind hohl und deshalb leicht. Kräftige Flugmuskeln setzen am Brustbeinkamm an und bewegen die Flügel.",
+   k: ["schwungfeder|flügel|feder", "deckfeder|glatt|stromlinien", "hohl|leicht", "brustbeinkamm|flugmuskel|muskel"], min: 3},
+  {q: "Vergleiche Sohlengänger, Zehengänger und Zehenspitzengänger. Nenne zu jedem ein Tier.",
+   m: "Sohlengänger setzen die ganze Fußsohle auf, zum Beispiel der Bär. Zehengänger laufen nur auf den Zehen, zum Beispiel der Hund. Zehenspitzengänger berühren den Boden nur mit den Zehenspitzen, die in Hufen stecken, zum Beispiel das Reh. Je weniger vom Fuß den Boden berührt, desto länger ist das Bein und desto größer sind die Schritte.",
+   k: ["sohle|bär|mensch|igel", "zehengänger|hund|katze", "zehenspitzen|huf|reh|pferd"], min: 3}
+], "open", "Lies noch einmal die Merke-Kästen in Station 2, 4 und 5.");
+
+Modul.plus(() => {
+  Modul.makeOpen($("#openM"), [
+    {q: "Ein Pinguin hat Flügel, kann aber nicht fliegen – schwimmen und tauchen kann er dafür hervorragend. Erkläre, wie sein Körperbau dazu passt.",
+     m: "Die Flügel des Pinguins sind kurz, steif und wie Flossen geformt. Damit kann er nicht fliegen, aber im Wasser kräftig rudern. Sein Körper ist stromlinienförmig, und seine Knochen sind schwer und nicht hohl. Das hilft ihm beim Tauchen.",
+     k: ["flügel|flosse", "stromlinien|spindel", "schwer|nicht hohl|dicht|massiv", "schwimm|wasser|tauch|rudern"], min: 3},
+    {q: "Arm, Flügel, Flosse und Grabhand sehen verschieden aus. Erkläre, warum man trotzdem von einem gemeinsamen Bauplan spricht.",
+     m: "In allen vier Gliedmaßen liegen dieselben Knochengruppen: Oberarmknochen, Elle und Speiche und Handknochen mit Fingern. Sie sehen verschieden aus, weil jede Gliedmaße eine andere Aufgabe hat: greifen, fliegen, schwimmen oder graben.",
+     k: ["oberarm", "elle|speiche|unterarm", "hand|finger", "aufgabe|angepasst|unterschied|verschieden"], min: 3}
+  ], "openM", "Überlege, welche Knochen du in jeder Gliedmaße wiederfindest.");
+});
+
+/* ---------- Station 7: Profi-Check ---------- */
+Modul.makeQuiz($("#quiz"), [].concat(MC.s1, MC.s2, MC.s3, MC.s4, MC.s5, MC.train, [
+  {q: "Was ist die Flughaut der Fledermaus?", o: ["eine dünne Haut zwischen Fingern, Körper und Hinterbeinen", "ein Kleid aus Daunenfedern", "eine Schwimmhaut zwischen den Zehen", "ein dichtes Fell am Bauch"], a: 0, e: "Die Flughaut spannt sich wie ein Schirm zwischen den sehr langen Fingern. Die Fledermaus ist ein Säugetier und hat keine Federn."},
+  {q: "Wie schwimmt ein Molch?", o: ["Der Körper schlängelt, der breite Ruderschwanz schiebt ihn voran.", "Er stößt sich mit langen Hinterbeinen ab.", "Er schlägt mit den Flügeln.", "Er lässt sich nur von der Strömung treiben."], a: 0, e: "Der Molch schwimmt ähnlich wie ein Fisch. Seine Beine liegen dabei am Körper an."},
+  {q: "Wozu sind Rücken- und Afterflosse wichtig?", o: ["Sie halten den Fisch aufrecht und auf Kurs.", "Sie treiben den Fisch an.", "Sie nehmen Sauerstoff auf.", "Sie machen den Fisch leichter."], a: 0, e: "Wie der Kiel eines Bootes verhindern sie, dass der Fisch kippt oder sich dreht."},
+  {q: "Welche Aufgabe hat der Schwanz eines Vogels im Flug?", o: ["Er wirkt wie ein Ruder: Der Vogel steuert und bremst damit.", "Er treibt den Vogel an.", "Er hält den Vogel warm.", "Er speichert Fett für den Flug."], a: 0, e: "Die Schwanzfedern bilden einen Fächer. Der Vogel spreizt oder neigt ihn, um zu steuern und zu bremsen."},
+  {q: "Warum läuft ein Zehenspitzengänger schnell?", o: ["Seine Beine sind lang und machen große Schritte.", "Er hat besonders breite Füße.", "Er läuft auf der ganzen Fußsohle.", "Er hat viel Fett in den Beinen."], a: 0, e: "Je weniger vom Fuß den Boden berührt, desto länger ist das Bein. Lange Beine machen große Schritte."},
+  {q: "Was unterscheidet den Gleitflug vom Ruderflug?", o: ["Beim Gleitflug schlägt der Vogel nicht mit den Flügeln.", "Beim Gleitflug schlägt der Vogel besonders schnell.", "Beim Gleitflug steht der Vogel in der Luft.", "Beim Gleitflug fliegt der Vogel immer nach oben."], a: 0, e: "Beim Gleitflug sind die Flügel ausgebreitet und ruhig. Der Vogel verliert dabei langsam an Höhe."}
+]), "quiz", "Bewegungs-Profi");
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

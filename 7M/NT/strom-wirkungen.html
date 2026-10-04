@@ -1,0 +1,936 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#3b1f7a">
+<title>Was Strom alles kann: Wirkungen | NT 7</title>
+<link rel="stylesheet" href="modul-basis.css">
+<style>
+.hero{background:linear-gradient(160deg,#1e1a5c,#6b2c9c 55%,#e8782a)}
+/* Tippflächen für Finger und Stift: mindestens 44 px */
+.btn.small,.tf-btns button,.opt,.tok{min-height:44px}
+.order-item .mv button,.schritt-punkte button{width:44px;height:44px}
+.gap{padding:9px 10px}
+.sim-ctrl input[type=range]{height:44px}
+.regler-zeile{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;flex:1 1 100%}
+.regler-zeile label{min-width:96px}
+.sim svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+/* Heizdraht: aufsteigende Wärme */
+.wellen path{fill:none;stroke:#e0453a;stroke-width:3.5;stroke-linecap:round;opacity:.8;animation:steigen 2.4s linear infinite paused}
+.lauf .wellen path{animation-play-state:running}
+.wellen path:nth-child(2){animation-delay:-.8s}
+.wellen path:nth-child(3){animation-delay:-1.6s}
+@keyframes steigen{0%{transform:translateY(16px);opacity:0}25%{opacity:.9}100%{transform:translateY(-20px);opacity:0}}
+/* Elektromagnet */
+.klammer{transition:transform .55s cubic-bezier(.3,.1,.3,1)}
+#magNagel{transition:transform .6s}
+.feldlinie{fill:none;stroke:#2f6fdb;stroke-width:2.5;stroke-dasharray:5 4;stroke-linecap:round}
+.lauf .feldlinie{animation:feld 1.4s ease-in-out infinite alternate}
+@keyframes feld{from{opacity:.5}to{opacity:1}}
+/* Energie-Ketten */
+.chain .step.geraet{background:#f1f5f8}
+.chain .step.waerme{border-style:dashed;background:#fff6f2}
+.chain .step.on.waerme{border-color:#e0453a;background:#fff1ec;box-shadow:0 0 0 4px rgba(224,69,58,.18)}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>NT 7</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Ohne Strom</a>
+      <a href="#s2"><b>2</b>Wärme</a>
+      <a href="#s3"><b>3</b>Licht</a>
+      <a href="#s4"><b>4</b>Magnet</a>
+      <a href="#s5"><b>5</b>Chemie</a>
+      <a href="#s6"><b>6</b>Energie</a>
+      <a href="#s7"><b>7</b>Training</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse 7M / 7R · Themenbereich Elektrizität · Lernmodul 2</div>
+    <h1>Was Strom alles kann: Wirkungen</h1>
+    <p>Strom macht mehr als nur Lampen hell. Er heizt Toaster, hebt Schrott mit Magneten, überzieht Schlüssel mit Kupfer und lädt dein Handy. In sieben Stationen erforschst du die vier Wirkungen des Stroms und siehst, wie dabei Energie umgewandelt wird.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s7">Direkt zum Probentraining</a>
+    </div>
+    <div class="goals">
+      <div>🔥 Ich nenne die vier Wirkungen des Stroms und ordne ihnen Geräte zu.</div>
+      <div>💡 Ich vergleiche Glühlampe und LED.</div>
+      <div>🔩 Ich baue im Versuch einen Elektromagneten und mache ihn stärker.</div>
+      <div>🔋 Ich benenne Energieumwandlungen, zum Beispiel beim Laden eines Akkus.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg</div><h2>Ein Morgen ohne Strom</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Es ist 6:45 Uhr. Du drückst auf den Lichtschalter – nichts passiert. Stromausfall!</p>
+      <p>In der Küche bleibt der Toaster kalt. Der Wasserkocher macht kein heißes Wasser, und dein Handy lässt sich nicht laden. Sogar der Fahrstuhl im Haus steht still.</p>
+      <p>Strom <strong>bewirkt</strong> eben viel: Er macht warm und hell, er bewegt Dinge, und er lädt Akkus auf. In diesem Modul lernst du die <strong>vier Wirkungen</strong> des Stroms kennen. Du erfährst auch, was dabei mit der <button class="term" data-t="energie">Energie</button> passiert.</p>
+      <div id="mc-s1"></div>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag leicht">Zuordnen · leicht</span>
+      <h3 style="margin-top:4px">Was macht der Strom in diesem Gerät?</h3>
+      <p class="hint">Tippe eine Karte an und dann das Fach, in das sie gehört. Überlege, was der Strom im Gerät hauptsächlich bewirkt.</p>
+      <div id="sortStart"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Wärmewirkung: Der Draht wird heiß</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Ein Handy-Ladegerät wird beim Laden warm, ein Toaster sogar glühend heiß. Der Grund ist derselbe: <strong>Fließt Strom durch einen Draht, wird der Draht warm.</strong> Das ist die <button class="term" data-t="waerme">Wärmewirkung</button> des Stroms.</p>
+      <p>Toaster, Wasserkocher und Bügeleisen haben dafür einen <button class="term" data-t="heizdraht">Heizdraht</button>. Er besteht aus einer Metall-Mischung, die viel Hitze aushält. Je stärker der Strom ist, desto heißer wird der Draht.</p>
+      <p class="hint">Probiere es aus: Stelle den Strom immer stärker. Wann beginnt der Draht zu glühen? Wie sieht er dann aus?</p>
+    </div>
+    <div class="sim reveal" id="drahtSim">
+      <svg viewBox="0 0 400 270" role="img" aria-label="Stromkreis aus Batterie und Heizdraht. Der Draht liegt in einem dunklen Kasten und glüht stärker, wenn der Strom stärker wird.">
+        <defs><filter id="dUnscharf" x="-150%" y="-30%" width="400%" height="160%"><feGaussianBlur stdDeviation="7"/></filter></defs>
+        <rect width="400" height="270" fill="#f7fbfe"/>
+        <rect x="232" y="58" width="96" height="166" rx="12" fill="#222831"/>
+        <g fill="none" stroke="#33414d" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M56 118V40H280V78"/>
+          <path d="M56 132V236H280V196"/>
+        </g>
+        <line x1="36" y1="118" x2="76" y2="118" stroke="#33414d" stroke-width="3"/>
+        <line x1="45" y1="132" x2="67" y2="132" stroke="#33414d" stroke-width="9"/>
+        <text x="82" y="123" font-size="16" font-weight="800" fill="#33414d">+</text>
+        <text x="82" y="143" font-size="18" font-weight="800" fill="#33414d">−</text>
+        <text x="100" y="134" font-size="13" font-weight="700" fill="#566674">Batterie</text>
+        <polyline id="dGlowLine" points="280,78 296,90 264,102 296,114 264,126 296,138 264,150 296,162 264,174 296,186 280,196" fill="none" stroke="#7d8791" stroke-width="16" stroke-linejoin="round" filter="url(#dUnscharf)" opacity="0"/>
+        <polyline id="dWire" points="280,78 296,90 264,102 296,114 264,126 296,138 264,150 296,162 264,174 296,186 280,196" fill="none" stroke="#7d8791" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="280" cy="78" r="5" fill="#c9d6df"/><circle cx="280" cy="196" r="5" fill="#c9d6df"/>
+        <text x="280" y="217" text-anchor="middle" font-size="12" font-weight="700" fill="#c9d6df">Heizdraht</text>
+        <g id="dWellen" class="wellen" style="opacity:0">
+          <path d="M342 200q-9-14 0-28t0-28t0-28"/>
+          <path d="M358 200q-9-14 0-28t0-28t0-28"/>
+          <path d="M374 200q-9-14 0-28t0-28t0-28"/>
+        </g>
+        <text x="144" y="170" text-anchor="middle" font-size="13" font-weight="600" fill="#566674">Der Draht ist</text>
+        <text id="dWort" x="144" y="198" text-anchor="middle" font-size="19" font-weight="800" fill="#15212b">kalt</text>
+      </svg>
+      <div class="sim-ctrl">
+        <label for="drahtRegler">Strom</label>
+        <input type="range" id="drahtRegler" min="0" max="100" value="0" step="1" aria-label="Stärke des Stroms">
+        <span class="chip" id="drahtChip">kein Strom</span>
+      </div>
+      <p class="obs" id="drahtObs" aria-live="polite">Es fließt kein Strom. Der Draht ist kalt. Schiebe den Regler nach rechts.</p>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:18px">
+    <h3 style="margin-top:0">Wärmewirkung im Alltag</h3>
+    <div class="info-karten">
+      <div class="info-karte"><div class="big">🍞</div><h4>Toaster</h4><p>Der Heizdraht glüht orange und röstet das Brot.</p></div>
+      <div class="info-karte"><div class="big">☕</div><h4>Wasserkocher</h4><p>Ein Heizdraht im Boden erhitzt das Wasser, bis es kocht.</p></div>
+      <div class="info-karte"><div class="big">👕</div><h4>Bügeleisen</h4><p>Ein Heizdraht erwärmt die Sohle. Sie glättet die Wäsche.</p></div>
+      <div class="info-karte"><div class="big">💨</div><h4>Föhn</h4><p>Ein Heizdraht erwärmt die Luft. Ein kleiner Motor bläst sie heraus.</p></div>
+    </div>
+    <div id="mc-s2"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>Lichtwirkung: Glühlampe und LED</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Strom kann auch Licht machen: Das ist die <button class="term" data-t="licht">Lichtwirkung</button>. Dafür gibt es verschiedene Wege. Zwei davon lernst du jetzt kennen.</p>
+      <div class="info-karten">
+        <div class="info-karte"><div class="big">💡</div><h4>Glühlampe</h4><p>Der Strom heizt einen dünnen Draht auf, die <button class="term" data-t="gluehwendel">Glühwendel</button>. Er wird so heiß, dass er hell <button class="term" data-t="gluehen">glüht</button>. Das Licht ist ein Nebenprodukt der Wärmewirkung.</p></div>
+        <div class="info-karte"><div class="big">✨</div><h4>LED-Lampe</h4><p>In der <button class="term" data-t="led">LED</button> leuchtet ein winziger Chip direkt, ohne zu glühen. Er macht aus demselben Strom mehr Licht und weniger Wärme als die Glühlampe.</p></div>
+      </div>
+      <p class="hint">Wechsle im Bild zwischen den Lampen. Wie verteilen sich 100 Teile <button class="term" data-t="elektrisch">elektrische Energie</button>?</p>
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li>Fließt Strom durch einen Draht, wird er warm: Wärmewirkung (Toaster, Wasserkocher, Bügeleisen).</li>
+        <li>Wird der Draht heiß genug, glüht er und leuchtet: Lichtwirkung der Glühlampe. Dabei entsteht viel mehr Wärme als Licht.</li>
+        <li>Die LED macht aus Strom mehr Licht und weniger Wärme als die Glühlampe.</li>
+      </ul></div>
+    </div>
+    <div class="sim reveal" id="lampenSim">
+      <svg viewBox="0 0 400 270" role="img" aria-label="Links eine Lampe, rechts 100 Quadrate. Gelb steht für Licht, rot für Wärme.">
+        <rect width="400" height="270" fill="#f7fbfe"/>
+        <text x="200" y="26" text-anchor="middle" font-size="14" font-weight="700" fill="#15212b">Aus 100 Teilen elektrischer Energie wird …</text>
+        <g id="lGl">
+          <path d="M70 138L74 160H102L106 138" fill="#eef5fa" stroke="#8a97a3" stroke-width="3"/>
+          <circle cx="88" cy="98" r="44" fill="#fdf0ea" stroke="#8a97a3" stroke-width="3"/>
+          <circle cx="88" cy="98" r="24" fill="#ffd34d" opacity=".5"/>
+          <path d="M80 160V120M96 160V120" stroke="#8a97a3" stroke-width="2.5" fill="none"/>
+          <polyline points="80,120 84,106 88,120 92,106 96,120" fill="none" stroke="#f2992e" stroke-width="3.5" stroke-linejoin="round"/>
+          <path d="M138 112H100" stroke="#566674" stroke-width="1.5"/>
+          <text x="140" y="116" font-size="12" font-weight="700" fill="#566674">Glühwendel</text>
+        </g>
+        <g id="lLed" style="display:none">
+          <path d="M70 138L74 160H102L106 138" fill="#eef5fa" stroke="#8a97a3" stroke-width="3"/>
+          <circle cx="88" cy="98" r="44" fill="#fffbe8" stroke="#8a97a3" stroke-width="3"/>
+          <circle cx="88" cy="98" r="40" fill="#ffe680" opacity=".75"/>
+          <rect x="85" y="106" width="6" height="54" fill="#9aa5ad"/>
+          <rect x="72" y="92" width="32" height="14" rx="3" fill="#ffd34d" stroke="#d49a1a" stroke-width="2"/>
+          <path d="M82 92v14M94 92v14" stroke="#d49a1a" stroke-width="1.5"/>
+          <g fill="#b9c4cc" stroke="#8a97a3" stroke-width="1.5"><rect x="68" y="146" width="40" height="5" rx="2"/><rect x="68" y="154" width="40" height="5" rx="2"/></g>
+          <path d="M138 99H106" stroke="#566674" stroke-width="1.5"/>
+          <text x="140" y="103" font-size="12" font-weight="700" fill="#566674">LED-Chip</text>
+        </g>
+        <rect x="72" y="160" width="32" height="30" rx="4" fill="#9aa5ad"/>
+        <path d="M72 168h32M72 176h32M72 184h32" stroke="#6b7782" stroke-width="2"/>
+        <path d="M82 190h12l-3 8h-6z" fill="#566674"/>
+        <text id="lName" x="88" y="222" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">Glühlampe</text>
+        <text id="lTag" x="88" y="242" text-anchor="middle" font-size="12" font-weight="700" fill="#b3261e">Glas wird sehr heiß</text>
+        <g id="waffel"></g>
+        <rect x="218" y="232" width="13" height="13" rx="2" fill="#f5c518"/><text id="lLegL" x="237" y="243" font-size="13" font-weight="700" fill="#15212b">Licht: 5</text>
+        <rect x="301" y="232" width="13" height="13" rx="2" fill="#e0453a"/><text id="lLegW" x="320" y="243" font-size="13" font-weight="700" fill="#15212b">Wärme: 95</text>
+      </svg>
+      <div class="sim-ctrl"><div class="wahl" id="lampenWahl" style="margin:0;flex:1 1 100%">
+        <button type="button" data-l="gl" data-fertig="1" class="sel">💡 Glühlampe</button>
+        <button type="button" data-l="led" data-fertig="1">✨ LED-Lampe</button>
+      </div></div>
+      <p class="obs" id="lampenObs" aria-live="polite"></p>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:18px"><div id="mc-s3"></div></div>
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Glühlampe und LED im Säulendiagramm</h3>
+    <p class="m7-hinweis">Aufgaben mit dem lila Zeichen gehören zum M-Niveau. In M-Klassen zählen sie mit, in R-Klassen sind sie eine Zusatzaufgabe für Profis.</p>
+    <p>Das Diagramm zeigt, wie sich 100 Teile elektrische Energie bei den beiden Lampen aufteilen. Die Werte sind gerundete Beispielwerte. Je nach Lampe liegen sie etwas anders.</p>
+    <figure style="max-width:460px;margin:0 auto 12px">
+      <svg viewBox="0 0 380 260" role="img" aria-label="Säulendiagramm: Aufteilung von 100 Teilen elektrischer Energie in Licht und Wärme bei einer Glühlampe und einer LED-Lampe." style="display:block;width:100%;height:auto;background:#fff;border:1px solid var(--line);border-radius:12px">
+        <g stroke="#e3eaf0" stroke-width="1"><line x1="56" y1="24" x2="290" y2="24"/><line x1="56" y1="43" x2="290" y2="43"/><line x1="56" y1="62" x2="290" y2="62"/><line x1="56" y1="81" x2="290" y2="81"/><line x1="56" y1="100" x2="290" y2="100"/><line x1="56" y1="119" x2="290" y2="119"/><line x1="56" y1="138" x2="290" y2="138"/><line x1="56" y1="157" x2="290" y2="157"/><line x1="56" y1="176" x2="290" y2="176"/><line x1="56" y1="195" x2="290" y2="195"/></g>
+        <g font-size="12" fill="#566674" text-anchor="end"><text x="50" y="218">0</text><text x="50" y="180">20</text><text x="50" y="142">40</text><text x="50" y="104">60</text><text x="50" y="66">80</text><text x="50" y="28">100</text></g>
+        <text transform="translate(13 119) rotate(-90)" text-anchor="middle" font-size="12" fill="#566674">Teile von 100</text>
+        <rect x="84" y="24" width="70" height="180.5" fill="#e0453a"/><rect x="84" y="204.5" width="70" height="9.5" fill="#f5c518"/>
+        <rect x="184" y="24" width="70" height="123.5" fill="#e0453a"/><rect x="184" y="147.5" width="70" height="66.5" fill="#f5c518"/>
+        <line x1="56" y1="24" x2="56" y2="214" stroke="#33414d" stroke-width="2"/><line x1="56" y1="214" x2="290" y2="214" stroke="#33414d" stroke-width="2"/>
+        <text x="119" y="236" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b">Glühlampe</text>
+        <text x="219" y="236" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b">LED-Lampe</text>
+        <rect x="298" y="60" width="13" height="13" rx="2" fill="#f5c518"/><text x="316" y="71" font-size="12" font-weight="700" fill="#15212b">Licht</text>
+        <rect x="298" y="84" width="13" height="13" rx="2" fill="#e0453a"/><text x="316" y="95" font-size="12" font-weight="700" fill="#15212b">Wärme</text>
+      </svg>
+    </figure>
+    <div id="mc-s3m"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Probenstoff</div><h2>Magnetische Wirkung: Der Nagel wird zum Magneten</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Fließt Strom durch einen Draht, entsteht um den Draht ein Magnetfeld. Das ist die <button class="term" data-t="magnet">magnetische Wirkung</button> des Stroms. Sie ist schwach – aber man kann sie verstärken.</p>
+      <ol class="schritt-liste">
+        <li>Wickle den Draht zu einer <button class="term" data-t="spule">Spule</button> mit vielen Windungen.</li>
+        <li>Stecke einen Eisennagel hinein.</li>
+        <li>Schließe eine Batterie an. Der Nagel wird zum <button class="term" data-t="elektromagnet">Elektromagneten</button>.</li>
+      </ol>
+      <p>Das Besondere: Ein Elektromagnet ist nur ein Magnet, <strong>solange Strom fließt</strong>. Schaltest du den Strom aus, lässt er alles los.</p>
+      <p class="hint">Verändere im Versuch immer nur eine Sache und lass die anderen gleich. So erkennst du, was wirkt. Zähle dabei die Büroklammern.</p>
+    </div>
+    <div class="sim reveal" id="magSim">
+      <svg viewBox="0 0 400 300" role="img" aria-label="Ein Eisennagel steckt in einer Spule. Die Spule ist mit Batterie und Schalter verbunden. Am Nagel hängen Büroklammern.">
+        <rect width="400" height="300" fill="#f7fbfe"/>
+        <rect x="0" y="268" width="400" height="32" fill="#d9c9a8"/>
+        <g id="magNagel">
+          <rect x="96" y="100" width="8" height="24" rx="2" fill="#7d8791"/>
+          <rect x="104" y="108" width="170" height="8" fill="#9aa5ad"/>
+          <polygon points="274,108 288,112 274,116" fill="#9aa5ad"/>
+          <path d="M246 131V119" stroke="#566674" stroke-width="1.5"/>
+          <text x="246" y="146" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">Eisennagel</text>
+        </g>
+        <g id="magSpule"></g>
+        <g fill="none" stroke="#33414d" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M234 100V40H40V62"/>
+          <path d="M40 100V122"/>
+          <path d="M40 138V170H126V124"/>
+        </g>
+        <circle cx="40" cy="62" r="4" fill="#33414d"/><circle cx="40" cy="100" r="4" fill="#33414d"/>
+        <line id="magBlatt" x1="40" y1="100" x2="40" y2="62" stroke="#33414d" stroke-width="3.5" stroke-linecap="round"/>
+        <text x="56" y="86" font-size="12" font-weight="700" fill="#566674">Schalter</text>
+        <line x1="24" y1="122" x2="56" y2="122" stroke="#33414d" stroke-width="3"/>
+        <line x1="30" y1="134" x2="50" y2="134" stroke="#33414d" stroke-width="8"/>
+        <text x="6" y="127" font-size="15" font-weight="800" fill="#33414d">+</text>
+        <text x="6" y="146" font-size="17" font-weight="800" fill="#33414d">−</text>
+        <text x="62" y="136" font-size="12" font-weight="700" fill="#566674">Batterie</text>
+        <path d="M180 90V98" stroke="#566674" stroke-width="1.5"/>
+        <text x="180" y="84" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">Spule</text>
+        <g id="magFeld" style="opacity:0"><path class="feldlinie" d="M296 98q18 14 0 28"/><path class="feldlinie" d="M304 90q28 22 0 44"/><path class="feldlinie" d="M312 82q38 30 0 60"/></g>
+        <text x="306" y="250" font-size="12" font-weight="700" fill="#566674">Büroklammern</text>
+        <g id="magKlammern"></g>
+      </svg>
+      <div class="sim-ctrl">
+        <div class="regler-zeile"><label for="magWind">Windungen</label><input type="range" id="magWind" min="5" max="30" step="5" value="15" aria-label="Anzahl der Windungen"><span class="chip" id="magWindChip">15</span></div>
+        <div class="regler-zeile"><label for="magStrom">Strom</label><input type="range" id="magStrom" min="1" max="5" step="1" value="3" aria-label="Stärke des Stroms"><span class="chip" id="magStromChip">mittel</span></div>
+        <div class="wahl" id="magWahl" style="margin:0;flex:1 1 100%">
+          <button type="button" id="magAn" data-fertig="1" class="sel">Strom an</button>
+          <button type="button" id="magAus" data-fertig="1">Strom aus</button>
+          <button type="button" id="magKernRein" data-fertig="1" class="sel">Eisennagel in der Spule</button>
+          <button type="button" id="magKernRaus" data-fertig="1">Eisennagel heraus</button>
+        </div>
+      </div>
+      <p class="obs" id="magObs" aria-live="polite"></p>
+      <p class="hint" id="magFort" style="margin:0;padding:8px 14px 12px"></p>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:18px">
+    <h3 style="margin-top:0">Wo steckt ein Elektromagnet drin?</h3>
+    <div class="info-karten">
+      <div class="info-karte"><div class="big">🏗️</div><h4>Schrottkran</h4><p>Strom an: Der Magnet hebt Eisenschrott. Strom aus: Der Schrott fällt ab. Das geht mit einem gewöhnlichen Magneten nicht.</p></div>
+      <div class="info-karte"><div class="big">🔔</div><h4>Klingel</h4><p>Ein Elektromagnet zieht den Klöppel an die Glocke. Dabei schaltet er sich kurz selbst aus. Das wiederholt sich schnell: Es klingelt.</p></div>
+      <div class="info-karte"><div class="big">⚙️</div><h4><button class="term" data-t="elektromotor">Elektromotor</button></h4><p>Magnetfelder ziehen und stoßen einen drehbaren Teil immer weiter. So dreht sich der Ventilator.</p></div>
+      <div class="info-karte"><div class="big">🔊</div><h4>Lautsprecher</h4><p>Eine Spule und ein Magnet bewegen eine Membran hin und her. So entsteht Schall.</p></div>
+    </div>
+    <p><strong>Aha:</strong> „Bewegt etwas“ von der Aufgabe am Anfang gehört hierher. Ventilator, Mixer und Fahrstuhl haben einen Elektromotor. Er nutzt die magnetische Wirkung des Stroms.</p>
+    <div id="mc-s4"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Probenstoff</div><h2>Chemische Wirkung: Strom verändert Stoffe</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Fließt Strom durch bestimmte Flüssigkeiten, können sich Stoffe verändern. Das ist die <button class="term" data-t="chemisch">chemische Wirkung</button> des Stroms.</p>
+      <p>Ein Beispiel ist das <button class="term" data-t="verkupfern">Verkupfern</button>: Ein Schlüssel bekommt eine dünne Haut aus Kupfer. Dazu hängt er am Minuspol in einer blauen Kupfersulfat-Lösung. Am Pluspol hängt eine Kupferplatte.</p>
+      <p class="hint">Starte die Animation oder gehe Schritt für Schritt. Achte darauf, wohin die Kupfer-Teilchen wandern.</p>
+      <p class="hint">⚠️ Das ist ein Beispiel zum Zuschauen. Die Lösung ist giftig, und Strom aus der Steckdose ist lebensgefährlich. Mach so etwas nie allein.</p>
+    </div>
+    <div class="sim reveal" id="vkSim">
+      <svg viewBox="0 0 400 300" role="img" aria-label="Glasgefäß mit blauer Kupfersulfat-Lösung. Links hängt ein Schlüssel am Minuspol, rechts eine Kupferplatte am Pluspol.">
+        <defs>
+          <g id="vkSchl" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"><circle cx="112" cy="168" r="10"/><path d="M112 178V240M112 214h14M112 230h14"/></g>
+        </defs>
+        <rect width="400" height="300" fill="#f7fbfe"/>
+        <path d="M72 150H328V262Q328 274 316 274H84Q72 274 72 262Z" fill="#4aa3e8" opacity=".5"/>
+        <path d="M70 116V262Q70 276 84 276H316Q330 276 330 262V116" fill="none" stroke="#8a97a3" stroke-width="4" stroke-linecap="round"/>
+        <g id="vkLeit" fill="none" stroke="#33414d" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M186 44H152"/><path d="M122 44H112V154"/><path d="M202 44H292V122"/>
+          <line id="vkBlatt" x1="122" y1="44" x2="148" y2="26"/>
+        </g>
+        <circle cx="122" cy="44" r="3.5" fill="#33414d"/><circle cx="152" cy="44" r="3.5" fill="#33414d"/>
+        <line x1="186" y1="34" x2="186" y2="54" stroke="#33414d" stroke-width="7"/>
+        <line x1="202" y1="24" x2="202" y2="64" stroke="#33414d" stroke-width="2.5"/>
+        <text x="171" y="32" font-size="18" font-weight="800" fill="#33414d">−</text>
+        <text x="210" y="32" font-size="16" font-weight="800" fill="#33414d">+</text>
+        <text x="148" y="68" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">Schalter</text>
+        <text x="104" y="88" text-anchor="end" font-size="12" font-weight="700" fill="#15212b">Schlüssel</text>
+        <text x="104" y="103" text-anchor="end" font-size="12" font-weight="700" fill="#15212b">(Minuspol)</text>
+        <text x="300" y="88" font-size="12" font-weight="700" fill="#15212b">Kupferplatte</text>
+        <text x="300" y="103" font-size="12" font-weight="700" fill="#15212b">(Pluspol)</text>
+        <text id="vkStrom" x="200" y="84" text-anchor="middle" font-size="13" font-weight="800" fill="#b86a00" style="opacity:0">Strom fließt</text>
+        <g id="vkPlatte" style="transform-origin:292px 0px"><rect x="282" y="122" width="20" height="124" fill="#c8743a" stroke="#8f4a1f" stroke-width="2"/></g>
+        <use href="#vkSchl" color="#8a97a3"/>
+        <use href="#vkSchl" id="vkCu" color="#c8743a" style="opacity:0;transition:opacity .9s"/>
+        <g id="vkTeilchen"></g>
+        <text x="200" y="266" text-anchor="middle" font-size="12" font-weight="700" fill="#0b2e4f">Kupfersulfat-Lösung</text>
+        <text id="vkText" x="200" y="293" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b"></text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag">Beispiel · Akku</span>
+      <h3 style="margin-top:4px">Akku laden: chemische Wirkung im Alltag</h3>
+      <p>Auch dein Handy nutzt die chemische Wirkung. Beim Laden treibt der Strom im <button class="term" data-t="akku">Akku</button> eine chemische Reaktion an. Die Energie bleibt als <button class="term" data-t="chemenergie">chemische Energie</button> gespeichert. Benutzt du das Handy, läuft die Reaktion zurück und liefert wieder Strom.</p>
+      <p>Weitere Beispiele: Wasserhähne bekommen mit Strom eine glänzende Metallschicht, zum Beispiel aus Chrom. Fließt Strom durch Wasser mit einem Zusatz, entstehen die Gase Wasserstoff (H₂) und Sauerstoff (O₂).</p>
+      <p class="hint">Wechsle im Bild zwischen Laden und Benutzen. Wohin fließt die Energie?</p>
+    </div>
+    <div class="sim reveal" id="akkuSim">
+      <svg viewBox="0 0 400 230" role="img" aria-label="Ladegerät, Akku und Lampe. Beim Laden fließt Energie vom Ladegerät in den Akku, beim Benutzen vom Akku zur Lampe.">
+        <rect width="400" height="230" fill="#f7fbfe"/>
+        <rect x="2" y="90" width="12" height="6" rx="2" fill="#8a97a3"/><rect x="2" y="116" width="12" height="6" rx="2" fill="#8a97a3"/>
+        <rect x="14" y="72" width="58" height="70" rx="10" fill="#e9eef2" stroke="#8a97a3" stroke-width="3"/>
+        <polygon points="46,84 34,110 43,110 39,130 55,100 46,100" fill="#f2992e"/>
+        <text x="43" y="164" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b">Ladegerät</text>
+        <rect x="150" y="78" width="100" height="58" rx="9" fill="#fff" stroke="#33414d" stroke-width="4"/>
+        <rect x="250" y="95" width="9" height="24" rx="2" fill="#33414d"/>
+        <rect id="akFuell" x="156" y="84" width="88" height="46" rx="5" fill="#7fd6a0" style="transform-origin:156px 0px;transform:scaleX(.35);transition:transform .9s"/>
+        <text x="200" y="104" text-anchor="middle" font-size="12" font-weight="800" fill="#0b3a1f">chemische</text>
+        <text x="200" y="120" text-anchor="middle" font-size="12" font-weight="800" fill="#0b3a1f">Energie</text>
+        <text x="200" y="158" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Akku</text>
+        <g id="akWaerme" style="opacity:0;transition:opacity .5s">
+          <path d="M180 70q-6-8 0-16t0-16" fill="none" stroke="#e0453a" stroke-width="3" stroke-linecap="round"/><path d="M200 70q-6-8 0-16t0-16" fill="none" stroke="#e0453a" stroke-width="3" stroke-linecap="round"/><path d="M220 70q-6-8 0-16t0-16" fill="none" stroke="#e0453a" stroke-width="3" stroke-linecap="round"/>
+          <text x="200" y="26" text-anchor="middle" font-size="12" font-weight="700" fill="#b3261e">etwas Wärme</text>
+        </g>
+        <g id="akPfeilL" style="opacity:0;transition:opacity .4s"><line x1="78" y1="107" x2="136" y2="107" stroke="#e0a800" stroke-width="7" stroke-linecap="round"/><polygon points="148,107 134,95 134,119" fill="#e0a800"/><text x="112" y="82" text-anchor="middle" font-size="11" font-weight="700" fill="#7a5200">elektrische</text><text x="112" y="95" text-anchor="middle" font-size="11" font-weight="700" fill="#7a5200">Energie</text></g>
+        <g id="akPfeilR" style="opacity:0;transition:opacity .4s"><line x1="266" y1="107" x2="312" y2="107" stroke="#e0a800" stroke-width="7" stroke-linecap="round"/><polygon points="324,107 310,95 310,119" fill="#e0a800"/><text x="292" y="82" text-anchor="middle" font-size="11" font-weight="700" fill="#7a5200">elektrische</text><text x="292" y="95" text-anchor="middle" font-size="11" font-weight="700" fill="#7a5200">Energie</text></g>
+        <circle id="akLicht" cx="358" cy="98" r="40" fill="#ffd34d" style="opacity:0;transition:opacity .5s"/>
+        <circle cx="358" cy="98" r="24" fill="#fff" stroke="#8a97a3" stroke-width="3"/>
+        <polyline points="350,108 354,98 358,108 362,98 366,108" fill="none" stroke="#f2992e" stroke-width="3" stroke-linejoin="round"/>
+        <rect x="346" y="122" width="24" height="14" rx="3" fill="#9aa5ad"/>
+        <text x="358" y="158" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b">Lampe</text>
+        <text id="akText" x="200" y="204" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">Wähle: Laden oder Benutzen</text>
+      </svg>
+      <div class="sim-ctrl"><div class="wahl" id="akWahl" style="margin:0;flex:1 1 100%">
+        <button type="button" data-m="laden" data-fertig="1">🔌 Akku laden</button>
+        <button type="button" data-m="nutzen" data-fertig="1">💡 Akku benutzen</button>
+      </div></div>
+      <p class="obs" id="akObs" aria-live="polite">Wähle Laden oder Benutzen und beobachte den Pfeil.</p>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <div id="mc-s5"></div>
+    <div class="merke"><h4>MERKE: Die vier Wirkungen des Stroms</h4><ul>
+      <li><strong>Wärmewirkung:</strong> Der Draht wird heiß (Toaster, Wasserkocher).</li>
+      <li><strong>Lichtwirkung:</strong> Der Draht glüht oder der Chip leuchtet (Glühlampe, LED).</li>
+      <li><strong>Magnetische Wirkung:</strong> Strom macht eine Spule mit Eisenkern zum Magneten (Schrottkran, Klingel, Motor).</li>
+      <li><strong>Chemische Wirkung:</strong> Strom verändert Stoffe (Verkupfern, Akku laden).</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="s6">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Probenstoff</div><h2>Energie wird umgewandelt, nicht verbraucht</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Im Alltag sagt man: Ein Gerät <em>verbraucht</em> Strom. Genauer ist: Es <strong>wandelt</strong> <button class="term" data-t="elektrisch">elektrische Energie</button> in eine andere Energieform um. Das nennt man <button class="term" data-t="umwandlung">Energieumwandlung</button>. Die Energie geht dabei nicht verloren.</p>
+      <div class="info-karten" style="grid-template-columns:repeat(auto-fit,minmax(135px,1fr))">
+        <div class="info-karte"><div class="big">⚡</div><h4>elektrische Energie</h4><p>Sie steckt im Strom. Steckdose und Batterie liefern sie.</p></div>
+        <div class="info-karte"><div class="big">🔥</div><h4><button class="term" data-t="waermeenergie">Wärmeenergie</button></h4><p>Sie macht Dinge warm oder heiß.</p></div>
+        <div class="info-karte"><div class="big">☀️</div><h4><button class="term" data-t="strahlung">Strahlungsenergie</button></h4><p>Das Licht transportiert sie.</p></div>
+        <div class="info-karte"><div class="big">🏃</div><h4><button class="term" data-t="bewegung">Bewegungsenergie</button></h4><p>Sie steckt in allem, was sich bewegt.</p></div>
+        <div class="info-karte"><div class="big">🔋</div><h4><button class="term" data-t="chemenergie">chemische Energie</button></h4><p>Sie ist in Stoffen gespeichert, zum Beispiel im Akku.</p></div>
+      </div>
+      <p>Und fast immer entsteht <strong>auch Wärme</strong>: Motor, Akku und Lampe werden warm. Diese Wärme ist meistens nicht gewollt.</p>
+    </div>
+    <div class="sim reveal" id="ketteSim">
+      <div style="padding:14px 14px 4px"><div class="chain" id="kette" aria-live="polite"></div></div>
+      <p class="hint" style="margin:0;padding:0 14px 8px">Das graue Kästchen ist das Gerät, die anderen sind Energieformen. Gestrichelt ist die Wärme, die nebenbei entsteht.</p>
+      <div class="sim-ctrl"><div class="wahl" id="ketteWahl" style="margin:0;flex:1 1 100%">
+        <button type="button" data-k="wk" data-fertig="1">☕ Wasserkocher</button>
+        <button type="button" data-k="led" data-fertig="1">💡 LED-Lampe</button>
+        <button type="button" data-k="motor" data-fertig="1">⚙️ Elektromotor</button>
+        <button type="button" data-k="akku" data-fertig="1">📱 Akku laden</button>
+        <button type="button" data-k="lampe" data-fertig="1">🔦 Taschenlampe</button>
+      </div></div>
+      <p class="obs" id="ketteObs" aria-live="polite">Tippe auf ein Gerät und schau, wohin die Energie wandert.</p>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:18px">
+    <div id="mc-s6"></div>
+    <div class="merke"><h4>MERKE</h4><ul>
+      <li>Geräte „verbrauchen“ keine Energie. Sie wandeln elektrische Energie in andere Energieformen um.</li>
+      <li>Wasserkocher: Wärmeenergie · LED: Strahlungsenergie (Licht) · Elektromotor: Bewegungsenergie · Akku beim Laden: chemische Energie.</li>
+      <li>Fast immer entsteht auch etwas Wärme. Die Gesamtmenge der Energie bleibt gleich.</li>
+    </ul></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Ein Gerät, zwei Wirkungen: der Föhn <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="openF"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 7 ============ -->
+<section class="station" id="s7">
+  <div class="st-head reveal"><div class="st-num">7</div><div><div class="eyebrow">Probenstoff · so wird in der Probe gefragt</div><h2>Training für die Probe</h2></div></div>
+
+  <div class="card reveal">
+    <h3 style="margin-top:0">Das musst du sicher können</h3>
+    <ul style="margin:0;padding-left:20px">
+      <li>Die vier Wirkungen des Stroms nennen und zu jeder ein Gerät sagen: Wärme (Toaster, Wasserkocher), Licht (LED-Lampe), Magnet (Elektromagnet am Schrottkran), Chemie (Akku beim Laden).</li>
+      <li>Energieumwandlungen benennen: Wasserkocher → Wärme, LED → Licht, Elektromotor → Bewegung, Akku beim Laden → chemische Energie.</li>
+    </ul>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Lückentext · leicht</span>
+    <h3 style="margin-top:4px">Setze die fehlenden Wörter ein</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapWirk"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Paare finden · leicht</span>
+    <h3 style="margin-top:4px">Welche Energie kommt heraus?</h3>
+    <p class="hint">Tippe links ein Gerät an und dann rechts die Energieform, die dabei herauskommt.</p>
+    <div id="paareEnergie"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Zuordnen · mittel</span>
+    <h3 style="margin-top:4px">Welche Wirkung des Stroms wird genutzt?</h3>
+    <div id="sortWirk"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Richtig oder falsch? · mittel</span>
+    <div id="tf"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Kreuzworträtsel · mittel</span>
+    <h3 style="margin-top:4px">Rund um die Wirkungen des Stroms</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Schreibe ä als AE, ö als OE, ü als UE.</p>
+    <div id="cw"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Ankreuzen · mittel</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag schwer">Offene Fragen · schwer</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung. Danach kannst du die Musterlösung ansehen.</p>
+    <div id="open"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Wo ist Wärme erwünscht, wo stört sie?</h3>
+    <p class="hint">Frage dich: Was soll das Gerät eigentlich bewirken? Ist die Wärme das Ziel oder nur ein Nebeneffekt?</p>
+    <div id="sortTransfer"></div>
+  </div>
+
+  <h3 class="reveal">Profi-Check</h3>
+  <div class="card reveal" id="quiz"></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Du kennst jetzt die vier Wirkungen des Stroms. Aber wie viel Strom fließt eigentlich – und was treibt ihn an? Im nächsten Modul geht es um <strong>Spannung und Stromstärke</strong>: Du lernst Volt und Ampere kennen und misst richtig.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik 7 · Lernmodul „Was Strom alles kann: Wirkungen“ · Dein Fortschritt wird auf diesem Gerät gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="modul-basis.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, esc, shuffle, clamp, setText, reduced, register, solve} = Modul;
+const NS = "http://www.w3.org/2000/svg";
+
+Modul.init({
+  key: "grumi-nt7-strom-wirkungen-v1",
+  hero: "funken",
+  thema: "Wirkungen des elektrischen Stroms (Wärmewirkung, Lichtwirkung, magnetische Wirkung, chemische Wirkung) und Energieumwandlung: Heizdraht, Glühlampe und LED, Elektromagnet, Verkupfern, Akku laden, Energieformen",
+  glossary: {
+    energie: ["Energie", "Energie steckt in allem, was etwas bewirken kann: erwärmen, leuchten oder bewegen. Sie geht nie verloren, sondern wird von einer Form in eine andere umgewandelt."],
+    waerme: ["Wärmewirkung", "Fließt Strom durch einen Draht, wird er warm. Das nutzen Toaster, Wasserkocher und Bügeleisen."],
+    heizdraht: ["Heizdraht", "Dünner Draht aus einer Metall-Mischung, der viel Hitze aushält. Fließt Strom hindurch, wird er heiß."],
+    gluehen: ["glühen", "Ein sehr heißer Körper leuchtet von selbst: erst dunkelrot, dann rot, orange, gelb und fast weiß."],
+    gluehwendel: ["Glühwendel", "Der dünne, aufgewickelte Draht in der Glühlampe. Er besteht aus Wolfram und glüht hell. Im Glaskolben ist Schutzgas statt Luft, sonst würde er verbrennen."],
+    licht: ["Lichtwirkung", "Strom kann Licht machen: In der Glühlampe glüht ein Draht, in der LED leuchtet ein winziger Chip."],
+    led: ["LED (Leuchtdiode)", "Lampe mit einem winzigen Leuchtchip. Er leuchtet, wenn Strom hindurchfließt, und glüht nicht. Eine LED macht aus Strom mehr Licht und weniger Wärme als eine Glühlampe."],
+    magnet: ["magnetische Wirkung", "Fließt Strom durch einen Draht, entsteht um ihn ein Magnetfeld. Dort wird Eisen angezogen. Genutzt in Elektromagnet, Klingel, Elektromotor und Lautsprecher."],
+    spule: ["Spule und Windungen", "Eine Spule ist ein Draht, der zu vielen Ringen aufgewickelt ist. Jeder Ring heißt Windung. Mehr Windungen machen das Magnetfeld stärker."],
+    elektromagnet: ["Elektromagnet", "Spule mit einem Eisenkern, zum Beispiel einem Nagel. Er ist nur ein Magnet, solange Strom fließt, und lässt sich ein- und ausschalten."],
+    elektromotor: ["Elektromotor", "Maschine, die elektrische Energie in Bewegungsenergie umwandelt. Magnetfelder drehen darin einen beweglichen Teil. Er steckt in Ventilator, Mixer und Straßenbahn."],
+    chemisch: ["chemische Wirkung", "Fließt Strom durch bestimmte Flüssigkeiten, können sich Stoffe verändern, zum Beispiel setzt sich Kupfer ab. Auch das Laden eines Akkus gehört dazu."],
+    verkupfern: ["Verkupfern", "Einen Gegenstand mit einer dünnen Kupferschicht überziehen. Dazu hängt man ihn am Minuspol in eine Kupfer-Lösung und schickt Strom hindurch."],
+    akku: ["Akku", "Wiederaufladbare Batterie. Beim Laden wandelt sie elektrische Energie in chemische Energie um, beim Benutzen wieder zurück."],
+    umwandlung: ["Energieumwandlung", "Energie wechselt ihre Form, zum Beispiel von elektrischer Energie in Wärmeenergie. Die Gesamtmenge bleibt gleich."],
+    elektrisch: ["elektrische Energie", "Die Energie, die im Strom steckt. Steckdose und Batterie liefern sie."],
+    waermeenergie: ["Wärmeenergie", "Die Energie, die in Wärme steckt (auch: thermische Energie). Sie macht Dinge warm oder heiß."],
+    strahlung: ["Strahlungsenergie", "Die Energie, die vom Licht transportiert wird. Eine Lampe wandelt elektrische Energie in Strahlungsenergie um."],
+    bewegung: ["Bewegungsenergie", "Die Energie eines bewegten Körpers. Je schneller und schwerer er ist, desto mehr hat er davon."],
+    chemenergie: ["chemische Energie", "Die Energie, die in Stoffen gespeichert ist, zum Beispiel in Akku, Batterie, Holz oder Essen."]
+  }
+});
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Der Strom fällt aus. Welches Gerät funktioniert trotzdem noch?", o: ["Taschenlampe mit Batterie", "Toaster", "Deckenlampe", "Wasserkocher"], a: 0, e: "Die Batterie liefert die elektrische Energie selbst. Toaster, Deckenlampe und Wasserkocher brauchen die Steckdose."}
+  ],
+  s2: [
+    {q: "Was passiert in einem Heizdraht, wenn Strom hindurchfließt?", o: ["Er wird warm oder heiß.", "Er wird kalt.", "Er wird zu einem Magneten.", "Er löst sich in Wasser auf."], a: 0, e: "Das ist die Wärmewirkung des Stroms. Je stärker der Strom, desto heißer wird der Draht."},
+    {q: "Welches Gerät nutzt vor allem die Wärmewirkung des Stroms?", o: ["Wasserkocher", "LED-Taschenlampe", "Türklingel", "Handy-Akku beim Laden"], a: 0, e: "Im Wasserkocher erhitzt ein Heizdraht das Wasser. Die Taschenlampe nutzt die Lichtwirkung, die Klingel die magnetische und der Akku die chemische Wirkung."}
+  ],
+  s3: [
+    {q: "Warum leuchtet eine Glühlampe?", o: ["Der Draht wird so heiß, dass er glüht.", "Im Glaskolben brennt ein Gas.", "Der Strom färbt das Glas gelb.", "Ein Magnet im Sockel erzeugt das Licht."], a: 0, e: "Die Glühwendel wird heiß und glüht. Im Glaskolben ist kein Sauerstoff, deshalb brennt dort nichts."},
+    {q: "Was stimmt für die LED im Vergleich zur Glühlampe?", o: ["Sie macht aus derselben Energie mehr Licht und weniger Wärme.", "Sie macht mehr Wärme und weniger Licht.", "Sie leuchtet nur, wenn ein Draht glüht.", "Sie braucht keine elektrische Energie."], a: 0, e: "Bei der LED wird ein größerer Teil der Energie zu Licht. Deshalb wird sie weniger heiß und spart Strom."}
+  ],
+  s4: [
+    {q: "Wie machst du einen Elektromagneten stärker?", o: ["Mehr Windungen wickeln", "Einen stärkeren Strom fließen lassen", "Einen Eisennagel in die Spule stecken", "Den Strom ausschalten"], a: [0, 1, 2], e: "Mehr Windungen, stärkerer Strom und ein Eisenkern machen den Magneten stärker. Ohne Strom ist er gar kein Magnet."},
+    {q: "Was passiert mit den Büroklammern, wenn du den Strom ausschaltest?", o: ["Sie fallen ab.", "Sie bleiben hängen.", "Sie werden heiß.", "Sie werden noch stärker angezogen."], a: 0, e: "Ein Elektromagnet ist nur ein Magnet, solange Strom fließt. Ohne Strom lässt er die Büroklammern los."},
+    {q: "Warum hängt am Schrottkran ein Elektromagnet und kein gewöhnlicher Magnet?", o: ["Man kann ihn ausschalten und den Schrott so wieder ablegen.", "Er ist leichter als ein gewöhnlicher Magnet.", "Er zieht auch Holz und Plastik an.", "Er braucht keinen Strom."], a: 0, e: "Ein gewöhnlicher Magnet würde den Schrott nie mehr loslassen. Beim Elektromagneten schaltest du einfach den Strom aus."}
+  ],
+  s5: [
+    {q: "Wo setzt sich beim Verkupfern das Kupfer ab?", o: ["Am Schlüssel, der am Minuspol hängt", "An der Kupferplatte am Pluspol", "Am Glas des Gefäßes", "An der Batterie"], a: 0, e: "Die Kupfer-Teilchen sind positiv geladen. Der Minuspol zieht sie an. Dort setzen sie sich als Kupferschicht ab."},
+    {q: "Was passiert beim Laden eines Akkus mit der Energie?", o: ["Elektrische Energie wird in chemische Energie umgewandelt.", "Chemische Energie wird in Wärme umgewandelt.", "Bewegungsenergie wird in elektrische Energie umgewandelt.", "Die Energie geht verloren."], a: 0, e: "Der Akku speichert die Energie als chemische Energie. Beim Benutzen wird sie wieder zu elektrischer Energie."}
+  ],
+  s6: [
+    {q: "Was wird im Elektromotor aus der elektrischen Energie?", o: ["Bewegungsenergie", "chemische Energie", "Strahlungsenergie", "Nichts, sie verschwindet."], a: 0, e: "Der Motor wandelt elektrische Energie in Bewegungsenergie um. Dabei wird er auch etwas warm."},
+    {q: "Was haben fast alle Energieumwandlungen gemeinsam?", o: ["Es entsteht auch etwas Wärme.", "Es entsteht immer ein Magnet.", "Es entsteht Kälte.", "Die Energie wird kleiner."], a: 0, e: "Ein Teil der Energie wird immer zu Wärme. Motor, Akku und Lampe werden warm. Die Gesamtmenge an Energie bleibt aber gleich."},
+    {q: "Was passiert mit der Energie, die ein Gerät „verbraucht“?", o: ["Sie wird in andere Energieformen umgewandelt.", "Sie verschwindet für immer.", "Sie fließt zurück in die Steckdose.", "Sie wird zu Kälte."], a: 0, e: "Energie geht nie verloren. Das Gerät wandelt sie um, zum Beispiel in Wärme, Licht oder Bewegung."}
+  ],
+  train: [
+    {q: "Welche Wirkung des Stroms nutzt ein Elektromagnet am Schrottkran?", o: ["die magnetische Wirkung", "die Wärmewirkung", "die Lichtwirkung", "die chemische Wirkung"], a: 0, e: "Der Strom macht den Kran-Magneten stark. Schaltet man ihn aus, fällt der Schrott ab."},
+    {q: "Welche Energieumwandlung findet im Wasserkocher statt?", o: ["elektrische Energie → Wärmeenergie", "elektrische Energie → Bewegungsenergie", "chemische Energie → Strahlungsenergie", "Wärmeenergie → elektrische Energie"], a: 0, e: "Der Heizdraht wandelt elektrische Energie in Wärmeenergie um. Das Wasser wird heiß."},
+    {q: "Welche Geräte nutzen vor allem die Wärmewirkung des Stroms?", o: ["Toaster", "Bügeleisen", "Heizlüfter", "LED-Lampe", "Elektromagnet am Kran"], a: [0, 1, 2], e: "In Toaster, Bügeleisen und Heizlüfter steckt ein Heizdraht. Die LED nutzt die Lichtwirkung, der Kran-Magnet die magnetische Wirkung."},
+    {q: "Du lädst dein Handy. Welche Wirkung des Stroms nutzt du dabei?", o: ["die chemische Wirkung", "die Lichtwirkung", "die magnetische Wirkung", "keine, der Strom wird nur gespeichert"], a: 0, e: "Im Akku läuft eine chemische Reaktion ab. Dabei wird elektrische Energie als chemische Energie gespeichert."}
+  ]
+};
+const EXTRA = [
+  {q: "Welche vier Wirkungen hat der elektrische Strom?", o: ["Wärme, Licht, Magnetismus und chemische Veränderung", "Wärme, Schall, Geruch und Farbe", "Kälte, Wind, Druck und Wasser", "Zug, Druck, Reibung und Auftrieb"], a: 0, e: "Das sind Wärmewirkung, Lichtwirkung, magnetische Wirkung und chemische Wirkung."},
+  {q: "Was soll eine LED-Lampe vor allem liefern?", o: ["Licht (Strahlungsenergie)", "Wärme", "Bewegung", "chemische Energie"], a: 0, e: "Die LED soll leuchten. Etwas Wärme entsteht nebenbei."},
+  {q: "Wozu steckt man einen Eisennagel in die Spule?", o: ["Der Elektromagnet wird dadurch viel stärker.", "Der Strom wird dadurch schwächer.", "Die Spule wird dadurch kälter.", "Die Batterie hält dadurch länger."], a: 0, e: "Das Eisen verstärkt das Magnetfeld der Spule."},
+  {q: "Warum werden Handy und Elektromotor bei der Arbeit warm?", o: ["Bei jeder Energieumwandlung entsteht auch Wärme.", "Sie sind kaputt.", "Sie sammeln Wärme aus der Luft.", "Wärme ist die einzige Energieform."], a: 0, e: "Ein Teil der Energie wird immer zu Wärme, auch wenn man sie gar nicht braucht."},
+  {q: "Woran siehst du beim Verkupfern die chemische Wirkung?", o: ["Der Schlüssel bekommt eine Kupferschicht.", "Der Schlüssel wird zum Magneten.", "Der Schlüssel leuchtet.", "Der Schlüssel glüht rot."], a: 0, e: "Das Kupfer aus der Lösung setzt sich am Schlüssel ab. Ein Stoff hat sich verändert."}
+];
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Kurz-Check"});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s5"), MC.s5, "mc5", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s6"), MC.s6, "mc6", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Station 1: Vorwissen ordnen ---------- */
+Modul.makeSort($("#sortStart"), {
+  buckets: ["macht warm", "macht hell", "bewegt etwas", "lädt etwas auf"],
+  items: [
+    {t: "Toaster", b: 0}, {t: "Wasserkocher", b: 0}, {t: "Bügeleisen", b: 0},
+    {t: "Schreibtischlampe", b: 1}, {t: "Taschenlampe", b: 1},
+    {t: "Ventilator", b: 2}, {t: "Mixer", b: 2}, {t: "Fahrstuhl", b: 2},
+    {t: "Handy am Ladekabel", b: 3}, {t: "Akku-Schrauber im Ladegerät", b: 3}
+  ], cols: 190, done: "✅ Richtig! Genau diese vier Gruppen kommen im Modul wieder vor."
+}, "sortStart");
+
+/* ---------- Station 2: Der Heizdraht ---------- */
+(function(){
+  const reg = $("#drahtRegler"), chip = $("#drahtChip"), obs = $("#drahtObs"), wire = $("#dWire"), glow = $("#dGlowLine"), wellen = $("#dWellen"), wort = $("#dWort"), sim = $("#drahtSim");
+  const id = "gluehdraht"; register(id, "#drahtSim", "Versuch: Den Strom stärker stellen, bis der Heizdraht glüht");
+  const STOPS = [[0, 125, 135, 145], [20, 143, 138, 136], [40, 154, 125, 120], [45, 122, 43, 36], [55, 179, 38, 30], [70, 232, 83, 30], [82, 245, 163, 30], [92, 255, 211, 77], [100, 255, 244, 194]];
+  function farbe(s){
+    for (let i = 1; i < STOPS.length; i++) {
+      if (s <= STOPS[i][0]) {
+        const a = STOPS[i - 1], b = STOPS[i], t = (s - a[0]) / (b[0] - a[0]);
+        return "rgb(" + [1, 2, 3].map(k => Math.round(a[k] + (b[k] - a[k]) * t)).join(",") + ")";
+      }
+    }
+    return "rgb(255,244,194)";
+  }
+  const STUFEN = [
+    {bis: 0, wort: "kalt", chip: "kein Strom", text: "Es fließt kein Strom. Der Draht ist kalt. Schiebe den Regler nach rechts."},
+    {bis: 24, wort: "warm", chip: "schwacher Strom", text: "Schwacher Strom: Der Draht wird warm. Das kennst du vom Handy-Ladegerät."},
+    {bis: 44, wort: "heiß", chip: "mittlerer Strom", text: "Der Draht wird richtig heiß, aber er glüht noch nicht. So arbeiten Wasserkocher und Bügeleisen."},
+    {bis: 69, wort: "glüht rot", chip: "starker Strom", text: "Ab etwa 500 °C glüht der Draht dunkelrot, dann rot. So sieht der Heizdraht im Toaster aus."},
+    {bis: 89, wort: "glüht orange", chip: "sehr starker Strom", text: "Der Draht glüht orange bis gelb. Je heißer er wird, desto heller leuchtet er."},
+    {bis: 100, wort: "glüht hellgelb", chip: "sehr starker Strom", text: "Der Draht glüht hellgelb bis weiß, weit über 1000 °C. Ein gewöhnlicher Draht würde jetzt bald durchbrennen. In der Glühlampe hält ein Draht aus Wolfram das aus – er liegt ohne Sauerstoff im Glaskolben."}
+  ];
+  let sah = false;
+  function zeig(){
+    const s = +reg.value, st = STUFEN.find(x => s <= x.bis) || STUFEN[STUFEN.length - 1], c = farbe(s);
+    wire.setAttribute("stroke", c); glow.setAttribute("stroke", c);
+    glow.setAttribute("opacity", (clamp((s - 42) / 50, 0, 1) * .95).toFixed(2));
+    wellen.style.opacity = s < 3 ? "0" : clamp(s / 45, .25, 1).toFixed(2);
+    setText(wort, st.wort); setText(chip, st.chip); setText(obs, st.text);
+    chip.className = "chip" + (s >= 90 ? " bad" : s >= 45 ? " warn" : "");
+    if (s >= 45) sah = true;
+    if (s >= 90 && sah) solve(id);
+  }
+  reg.addEventListener("input", zeig); reg.addEventListener("change", zeig); zeig();
+  Modul.onVisible(sim, v => $("svg", sim).classList.toggle("lauf", v && !reduced));
+})();
+
+/* ---------- Station 3: Glühlampe und LED ---------- */
+(function(){
+  const waffel = $("#waffel"), zellen = [], obs = $("#lampenObs"), name = $("#lName"), tag = $("#lTag"), legL = $("#lLegL"), legW = $("#lLegW"), gl = $("#lGl"), led = $("#lLed");
+  const btns = $$("#lampenWahl button"), id = "lampen"; register(id, "#lampenSim", "Vergleich: Wie verteilen sich 100 Teile Energie bei Glühlampe und LED?");
+  for (let k = 0; k < 100; k++) {
+    const r = document.createElementNS(NS, "rect"), zeile = Math.floor(k / 10), spalte = k % 10;
+    r.setAttribute("x", 218 + spalte * 17); r.setAttribute("y", 46 + (9 - zeile) * 17);
+    r.setAttribute("width", 15); r.setAttribute("height", 15); r.setAttribute("rx", 2);
+    r.style.transition = "fill .35s ease " + (k * 5) + "ms"; r.style.fill = "#e0453a";
+    waffel.appendChild(r); zellen.push(r);
+  }
+  const L = {
+    gl: {licht: 5, name: "Glühlampe", tag: "Glas wird sehr heiß", farbe: "#b3261e", text: "Glühlampe: Damit sie leuchtet, muss der Draht glühen. Nur etwa 5 von 100 Teilen werden zu Licht. Die übrigen etwa 95 Teile werden Wärme. Deshalb wird die Lampe so heiß."},
+    led: {licht: 35, name: "LED-Lampe", tag: "Gehäuse wird nur warm", farbe: "#8a5a00", text: "LED-Lampe: Der Chip leuchtet, ohne zu glühen. Etwa 35 von 100 Teilen werden zu Licht (je nach Lampe 30 bis 40), etwa 65 Teile werden Wärme. Für gleich viel Licht braucht die LED deshalb viel weniger Energie."}
+  };
+  const gesehen = new Set();
+  function zeig(art){
+    const x = L[art];
+    zellen.forEach((r, k) => { r.style.fill = k < x.licht ? "#f5c518" : "#e0453a"; });
+    gl.style.display = art === "gl" ? "" : "none"; led.style.display = art === "led" ? "" : "none";
+    setText(name, x.name); setText(tag, x.tag); tag.setAttribute("fill", x.farbe);
+    setText(legL, "Licht: " + x.licht); setText(legW, "Wärme: " + (100 - x.licht)); setText(obs, x.text);
+    btns.forEach(b => b.classList.toggle("sel", b.dataset.l === art));
+    gesehen.add(art); if (gesehen.size === 2) solve(id);
+  }
+  btns.forEach(b => b.addEventListener("click", () => zeig(b.dataset.l)));
+  zeig("gl");
+})();
+
+/* ---------- Station 3: Säulendiagramm (M7) ---------- */
+Modul.plus(() => {
+  Modul.makeMC($("#mc-s3m"), [
+    {q: "Lies am Diagramm ab: Wie viele von 100 Teilen werden bei der LED-Lampe zu Wärme?", o: ["etwa 65", "etwa 35", "etwa 95", "etwa 5"], a: 0, e: "Der rote Teil der LED-Säule reicht von etwa 35 bis 100. Das sind etwa 65 Teile. Die gelben 35 Teile sind das Licht."},
+    {q: "Wie oft so viel Licht macht die LED im Vergleich zur Glühlampe aus derselben Menge elektrischer Energie?", o: ["etwa 7-mal so viel", "etwa 2-mal so viel", "genauso viel", "etwa 30-mal so viel"], a: 0, e: "Die LED macht etwa 35 Teile Licht, die Glühlampe etwa 5. Es gilt 35 : 5 = 7. Deshalb braucht die LED für gleich viel Licht viel weniger Energie."}
+  ], "mc3m");
+});
+
+/* ---------- Station 4: Elektromagnet ---------- */
+(function(){
+  const W = $("#magWind"), S = $("#magStrom"), cW = $("#magWindChip"), cS = $("#magStromChip"), obs = $("#magObs"), fort = $("#magFort"), sim = $("#magSim");
+  const spule = $("#magSpule"), nagel = $("#magNagel"), klam = $("#magKlammern"), feld = $("#magFeld"), blatt = $("#magBlatt");
+  const bAn = $("#magAn"), bAus = $("#magAus"), bRein = $("#magKernRein"), bRaus = $("#magKernRaus");
+  const id = "magnet"; register(id, "#magSim", "Versuch: Elektromagnet – Windungen, Strom und Eisenkern verändern, Büroklammern zählen");
+  const WORT = ["", "sehr schwach", "schwach", "mittel", "stark", "sehr stark"];
+  const klammern = [];
+  for (let i = 0; i < 10; i++) {
+    const k = document.createElementNS(NS, "g"); k.setAttribute("class", "klammer");
+    k.innerHTML = '<rect x="-4" y="-9" width="8" height="18" rx="4" fill="none" stroke="#6b7782" stroke-width="2"/><rect x="-1.5" y="-5.5" width="3" height="12" rx="1.5" fill="none" stroke="#6b7782" stroke-width="1.6"/>';
+    klam.appendChild(k); klammern.push(k);
+  }
+  function platz(k, i, haengt){
+    k.style.transform = haengt
+      ? `translate(${288 + (i % 2 ? 3 : -3)}px,${128 + i * 13.5}px) rotate(0deg)`
+      : `translate(${244 + i * 13}px,262px) rotate(${90 + ((i * 37) % 30) - 15}deg)`;
+  }
+  let letzteN = 0;
+  function wickeln(n){
+    if (n === letzteN) return; letzteN = n;
+    const dx = 100 / n, x0 = 130 + dx * .5 - 4, x1 = 130 + dx * (n - .5) - 4, dick = n > 20 ? 2.2 : 3;
+    let s = `<path d="M126 124H${x0.toFixed(1)}M${(x1 + 8).toFixed(1)} 100H234" fill="none" stroke="#c0562b" stroke-width="3" stroke-linecap="round"/>`;
+    for (let i = 0; i < n; i++) { const x = 130 + dx * (i + .5) - 4; s += `<line x1="${x.toFixed(1)}" y1="124" x2="${(x + 8).toFixed(1)}" y2="100" stroke="#c0562b" stroke-width="${dick}" stroke-linecap="round"/>`; }
+    spule.innerHTML = s;
+  }
+  let an = true, kern = true, stark = false, aus = false, ohne = false;
+  function zeig(){
+    const N = +W.value, I = +S.value;
+    const n = an && kern ? Math.min(10, Math.floor(N / 5 * I / 3)) : 0;
+    setText(cW, String(N)); setText(cS, WORT[I]);
+    klammern.forEach((k, i) => platz(k, i, i < n));
+    wickeln(N);
+    nagel.style.transform = kern ? "translate(0px,0px)" : "translate(0px,92px)";
+    blatt.setAttribute("x2", an ? 40 : 22); blatt.setAttribute("y2", an ? 62 : 70);
+    feld.style.opacity = an && kern ? (.3 + n * .07).toFixed(2) : "0";
+    bAn.classList.toggle("sel", an); bAus.classList.toggle("sel", !an);
+    bRein.classList.toggle("sel", kern); bRaus.classList.toggle("sel", !kern);
+    let t;
+    if (!an) t = "Strom aus: Der Nagel ist kein Magnet mehr. Alle Büroklammern sind abgefallen.";
+    else if (!kern) t = "Ohne Eisennagel ist die Spule allein viel zu schwach. Keine Büroklammer bleibt hängen. Der Eisenkern verstärkt den Magneten stark.";
+    else if (n === 0) t = "Strom an, aber der Magnet ist zu schwach für eine Büroklammer. Wickle mehr Windungen oder stelle den Strom stärker.";
+    else t = `Strom an: ${n} ${n === 1 ? "Büroklammer hängt" : "Büroklammern hängen"} am Nagel. ${n < 8 ? "Mehr Windungen oder ein stärkerer Strom machen den Magneten stärker." : "Das ist ein starker Magnet."}`;
+    setText(obs, t);
+    if (n >= 8) stark = true; if (!an) aus = true; if (!kern) ohne = true;
+    setText(fort, "Dein Fortschritt im Versuch: " + (stark ? "✓" : "○") + " starker Magnet (8 Büroklammern oder mehr) · " + (aus ? "✓" : "○") + " Strom ausgeschaltet · " + (ohne ? "✓" : "○") + " Nagel herausgezogen");
+    if (stark && aus && ohne) solve(id);
+  }
+  W.addEventListener("input", zeig); W.addEventListener("change", zeig);
+  S.addEventListener("input", zeig); S.addEventListener("change", zeig);
+  bAn.addEventListener("click", () => { an = true; zeig(); });
+  bAus.addEventListener("click", () => { an = false; zeig(); });
+  bRein.addEventListener("click", () => { kern = true; zeig(); });
+  bRaus.addEventListener("click", () => { kern = false; zeig(); });
+  zeig();
+  Modul.onVisible(sim, v => $("svg", sim).classList.toggle("lauf", v && !reduced));
+})();
+
+/* ---------- Station 5: Verkupfern in Schritten ---------- */
+(function(){
+  const cu = $("#vkCu"), platte = $("#vkPlatte"), blatt = $("#vkBlatt"), leit = $("#vkLeit"), text = $("#vkText"), strom = $("#vkStrom"), tl = $("#vkTeilchen");
+  const P0 = [[150, 178], [172, 210], [198, 168], [222, 196], [248, 224], [184, 236], [236, 172], [262, 206]];
+  const P2 = [[132, 186], [136, 200], [132, 214], [136, 228], [132, 194], [136, 208], [132, 222], [136, 238]];
+  const P1 = P0.map((p, i) => [(p[0] + P2[i][0]) / 2, (p[1] + P2[i][1]) / 2]);
+  const teilchen = P0.map((p, i) => {
+    const g = document.createElementNS(NS, "g");
+    g.style.transition = "transform 1.1s ease-in-out, opacity .6s";
+    g.innerHTML = '<circle r="7.5" fill="#1d5fa8" stroke="#fff" stroke-width="1.5"/><text y="4" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">+</text>';
+    g.style.transform = `translate(${p[0]}px,${p[1]}px)`; tl.appendChild(g); return g;
+  });
+  Modul.makeSchritte($("#vkSim"), {
+    steps: [
+      "Der Aufbau: Im Glas ist eine blaue Kupfer-Lösung. Rechts hängt die Kupferplatte am <b>Pluspol</b>, links der Schlüssel am <b>Minuspol</b>. Noch ist der Schalter offen.",
+      "Der Schalter wird geschlossen. Der Stromkreis ist geschlossen, und der Strom fließt auch durch die Lösung.",
+      "In der Lösung schwimmen winzige, <b>positiv geladene Kupfer-Teilchen</b>. Der Minuspol zieht sie an. Sie wandern zum Schlüssel.",
+      "Am Schlüssel setzen sich die Kupfer-Teilchen ab. Aus den gelösten Teilchen wird festes Kupfer: Eine dünne, rötliche Schicht überzieht den Schlüssel.",
+      "Die Kupferplatte am Pluspol gibt dafür ständig neues Kupfer an die Lösung ab. Sie wird dünner. Die Lösung bleibt blau.",
+      "Nach einiger Zeit ist der Schlüssel kupferfarben: <b>verkupfert</b>. Schaltest du den Strom aus, hört alles auf."
+    ],
+    ms: 3400,
+    zeige(i){
+      const k = Math.max(0, i), pos = [P0, P0, P1, P2, P1, P0][k], zu = k >= 1 && k <= 4;
+      teilchen.forEach((g, j) => { g.style.transform = `translate(${pos[j][0]}px,${pos[j][1]}px)`; g.style.opacity = ".95"; });
+      cu.style.opacity = String([0, 0, 0, .45, .8, 1][k]);
+      platte.style.transform = `scaleX(${[1, 1, 1, 1, .7, .55][k]})`;
+      blatt.setAttribute("x2", zu ? 152 : 148); blatt.setAttribute("y2", zu ? 44 : 26);
+      leit.setAttribute("stroke", zu ? "#e08a1e" : "#33414d");
+      strom.style.opacity = zu ? "1" : "0";
+      setText(text, ["Schalter offen", "Der Strom fließt", "Kupfer-Teilchen wandern", "Kupfer setzt sich ab", "Die Platte wird dünner", "Schlüssel verkupfert"][k]);
+    }
+  }, "verkupfern");
+})();
+
+/* ---------- Station 5: Akku laden und benutzen ---------- */
+(function(){
+  const fuell = $("#akFuell"), pfL = $("#akPfeilL"), pfR = $("#akPfeilR"), licht = $("#akLicht"), waerme = $("#akWaerme"), text = $("#akText"), obs = $("#akObs");
+  const btns = $$("#akWahl button"), id = "akku"; register(id, "#akkuSim", "Versuch: Akku laden und benutzen – wohin fließt die Energie?");
+  const gesehen = new Set();
+  function zeig(m){
+    const laden = m === "laden";
+    fuell.style.transform = laden ? "scaleX(.95)" : "scaleX(.2)";
+    pfL.style.opacity = laden ? "1" : "0"; pfR.style.opacity = laden ? "0" : "1";
+    licht.style.opacity = laden ? "0" : ".85"; waerme.style.opacity = ".9";
+    setText(text, laden ? "Laden: elektrische → chemische Energie" : "Benutzen: chemische → elektrische Energie → Licht");
+    setText(obs, laden
+      ? "Beim Laden treibt der Strom im Akku eine chemische Reaktion an. Elektrische Energie wird als chemische Energie gespeichert. Dabei wird der Akku etwas warm."
+      : "Beim Benutzen läuft die Reaktion zurück. Die gespeicherte chemische Energie wird wieder zu elektrischer Energie. Die Lampe macht daraus Licht und etwas Wärme.");
+    btns.forEach(b => b.classList.toggle("sel", b.dataset.m === m));
+    gesehen.add(m); if (gesehen.size === 2) solve(id);
+  }
+  btns.forEach(b => b.addEventListener("click", () => zeig(b.dataset.m)));
+})();
+
+/* ---------- Station 6: Energie-Ketten ---------- */
+(function(){
+  const box = $("#kette"), obs = $("#ketteObs"), btns = $$("#ketteWahl button"), id = "kette";
+  register(id, "#ketteSim", "Versuch: Energie-Ketten – wohin wandert die Energie im Gerät?");
+  const K = {
+    wk: {text: "Wasserkocher: Der Heizdraht wandelt elektrische Energie in Wärmeenergie um. Das Wasser wird heiß. Hier ist die Wärme genau das Ziel.", knoten: [["⚡", "elektrische Energie"], ["☕", "Wasserkocher", 1], ["🔥", "Wärmeenergie"]]},
+    led: {text: "LED-Lampe: Die elektrische Energie wird zu Strahlungsenergie, also Licht. Etwas Wärme entsteht nebenbei.", knoten: [["⚡", "elektrische Energie"], ["💡", "LED-Lampe", 1], ["☀️", "Strahlungsenergie (Licht)"]], waerme: true},
+    motor: {text: "Elektromotor: Die elektrische Energie wird zu Bewegungsenergie. Der Ventilator dreht sich. Der Motor wird dabei etwas warm.", knoten: [["⚡", "elektrische Energie"], ["⚙️", "Elektromotor", 1], ["🏃", "Bewegungsenergie"]], waerme: true},
+    akku: {text: "Akku beim Laden: Die elektrische Energie wird zu chemischer Energie und im Akku gespeichert. Ladegerät und Akku werden etwas warm.", knoten: [["⚡", "elektrische Energie"], ["📱", "Handy-Akku (Laden)", 1], ["🔋", "chemische Energie"]], waerme: true},
+    lampe: {text: "Taschenlampe: Die Batterie wandelt chemische Energie in elektrische Energie um. Die Lampe macht daraus Licht und etwas Wärme.", knoten: [["🔋", "chemische Energie"], ["⚡", "elektrische Energie"], ["🔦", "Taschenlampe", 1], ["☀️", "Strahlungsenergie (Licht)"]], waerme: true}
+  };
+  box.innerHTML = '<div class="step"><span class="ic">❓</span>Wähle unten ein Gerät</div>';
+  const gesehen = new Set(); let zeiten = [];
+  function zeig(k){
+    zeiten.forEach(clearTimeout); zeiten = [];
+    const c = K[k];
+    box.innerHTML = c.knoten.map((n, i) => (i ? '<span class="to" aria-hidden="true">➜</span>' : "") + `<div class="step${n[2] ? " geraet" : ""}"><span class="ic">${n[0]}</span>${esc(n[1])}</div>`).join("")
+      + (c.waerme ? '<span class="to" aria-hidden="true">+</span><div class="step waerme"><span class="ic">🔥</span>etwas Wärme</div>' : "");
+    const teile = $$(".step", box);
+    teile.forEach((s, i) => { if (reduced) s.classList.add("on"); else zeiten.push(setTimeout(() => s.classList.add("on"), i * 450)); });
+    setText(obs, c.text);
+    btns.forEach(b => b.classList.toggle("sel", b.dataset.k === k));
+    gesehen.add(k); if (gesehen.size === btns.length) solve(id);
+  }
+  btns.forEach(b => b.addEventListener("click", () => zeig(b.dataset.k)));
+})();
+
+/* ---------- Station 6: Föhn (M7) ---------- */
+Modul.plus(() => {
+  Modul.makeOpen($("#openF"), [
+    {q: "Ein Föhn hat einen Heizdraht und einen kleinen Motor. Benenne die beiden Energieumwandlungen und begründe, warum der Föhn beides braucht.",
+     m: "Im Heizdraht wird elektrische Energie in Wärmeenergie umgewandelt (Wärmewirkung). Im Elektromotor wird elektrische Energie in Bewegungsenergie umgewandelt (magnetische Wirkung). Der Motor treibt ein Gebläse an, das die warme Luft zu den Haaren bläst. Ohne Motor bliebe die Wärme am Draht, ohne Heizdraht käme nur kalte Luft heraus.",
+     k: ["wärme|heizdraht", "bewegung|motor|gebläse|lüfter", "luft|bläst|haare|trock"], min: 2}
+  ], "openF", "Überlege, was der Heizdraht und was der Motor bewirkt.");
+});
+
+/* ---------- Station 7: Training ---------- */
+Modul.makeGap($("#gapWirk"), [
+  ["Fließt Strom durch einen Draht, wird er ", {g: "warm"}, ". Das nennt man die ", {g: "Wärmewirkung"}, ". Sie wird im Toaster und im ", {g: "Wasserkocher"}, " genutzt."],
+  ["Die ", {g: "LED"}, " macht aus Strom mehr Licht und weniger Wärme als die Glühlampe."],
+  ["Eine Spule mit Eisenkern ist ein ", {g: "Elektromagnet"}, ". Er ist nur ein Magnet, solange ", {g: "Strom"}, " fließt."],
+  ["Beim Laden wandelt ein Akku elektrische Energie in ", {g: "chemische"}, " Energie um."]
+], "gapWirk", ["Schall", "kalt"]);
+
+Modul.makePaare($("#paareEnergie"), [
+  ["Wasserkocher", "Wärmeenergie"],
+  ["LED-Lampe", "Strahlungsenergie (Licht)"],
+  ["Elektromotor", "Bewegungsenergie"],
+  ["Akku beim Laden", "chemische Energie"],
+  ["Batterie in der Taschenlampe", "elektrische Energie"]
+], "paareEnergie");
+
+Modul.makeSort($("#sortWirk"), {
+  buckets: ["Wärmewirkung", "Lichtwirkung", "magnetische Wirkung", "chemische Wirkung"],
+  items: [
+    {t: "Toaster", b: 0}, {t: "Wasserkocher", b: 0}, {t: "Bügeleisen", b: 0},
+    {t: "LED-Lampe", b: 1}, {t: "LED-Taschenlampe", b: 1},
+    {t: "Elektromagnet am Schrottkran", b: 2}, {t: "Türklingel", b: 2}, {t: "Elektromotor", b: 2},
+    {t: "Akku beim Laden", b: 3}, {t: "Verkupfern eines Schlüssels", b: 3}
+  ], cols: 190
+}, "sortWirk");
+
+Modul.makeTF($("#tf"), [
+  ["Fließt Strom durch einen Draht, kann sich der Draht erwärmen.", true],
+  ["Die Glühlampe macht aus elektrischer Energie fast nur Licht und kaum Wärme.", false],
+  ["Ein Elektromagnet ist nur ein Magnet, solange Strom fließt.", true],
+  ["Wickelt man mehr Windungen um den Nagel, wird der Elektromagnet schwächer.", false],
+  ["Beim Verkupfern setzt sich Kupfer am Schlüssel ab, der am Minuspol hängt.", true],
+  ["Ein Gerät verbraucht Energie: Sie ist danach einfach weg.", false],
+  ["Beim Laden wandelt ein Akku elektrische Energie in chemische Energie um.", true]
+], "tf");
+
+Modul.makeCrossword($("#cw"), {
+  words: [
+    {w: "GLUEHWENDEL", r: 0, c: 2, d: "d", q: "Dünner, aufgewickelter Draht in der Glühlampe. Er glüht hell."},
+    {w: "SCHROTTKRAN", r: 4, c: 0, d: "a", q: "Auf dem Schrottplatz hebt er mit einem Elektromagneten Eisen hoch."},
+    {w: "HEIZDRAHT", r: 9, c: 1, d: "a", q: "Er wird im Toaster heiß und glüht, wenn Strom fließt."},
+    {w: "ENERGIE", r: 6, c: 2, d: "a", q: "Sie wird nicht verbraucht, sondern umgewandelt."},
+    {w: "KUPFER", r: 2, c: 1, d: "a", q: "Rötliches Metall: Es setzt sich beim Verkupfern am Schlüssel ab."},
+    {w: "MAGNET", r: 0, c: 0, d: "a", q: "Mit Strom wird ein Nagel in der Spule zum Elektro-…"},
+    {w: "WAERME", r: 1, c: 8, d: "d", q: "Toaster und Wasserkocher machen sie aus Strom."},
+    {w: "SPULE", r: 4, c: 0, d: "d", q: "Draht, der in vielen Windungen aufgewickelt ist."},
+    {w: "AKKU", r: 2, c: 8, d: "a", q: "Wiederaufladbare Batterie, zum Beispiel im Handy."}
+  ],
+  sol: [[5, 2], [9, 3], [9, 6], [2, 1], [2, 11], [6, 3], [0, 2]], solWord: "WIRKUNG"
+}, "cw");
+
+Modul.makeOpen($("#open"), [
+  {q: "Nenne die vier Wirkungen des elektrischen Stroms und zu jeder ein Gerät oder Beispiel.",
+   m: "Wärmewirkung: zum Beispiel Toaster oder Wasserkocher. Lichtwirkung: zum Beispiel LED-Lampe. Magnetische Wirkung: zum Beispiel Elektromagnet am Schrottkran. Chemische Wirkung: zum Beispiel Akku beim Laden oder Verkupfern.",
+   k: ["wärme|warm|heiß", "licht|leucht|lampe", "magnet", "chemisch|chemie|akku|verkupfer"], min: 3},
+  {q: "Erkläre, warum eine LED-Lampe sparsamer ist als eine Glühlampe.",
+   m: "Bei der Glühlampe wird fast die ganze elektrische Energie zu Wärme. Nur etwa 5 von 100 Teilen werden zu Licht. Bei der LED wird ein viel größerer Teil zu Licht und ein kleinerer zu Wärme. Für gleich viel Licht braucht die LED deshalb weniger Energie.",
+   k: ["wärme|warm|heiß", "licht|hell|leucht", "weniger|sparsam|größer|mehr licht"], min: 2},
+  {q: "Beschreibe, wie man einen Elektromagneten stärker macht und warum er am Schrottkran praktisch ist.",
+   m: "Man macht ihn stärker mit mehr Windungen, mit stärkerem Strom und mit einem Eisenkern, zum Beispiel einem Nagel. Am Schrottkran ist er praktisch, weil man den Strom ausschalten kann: Mit Strom hält er den Schrott fest, ohne Strom lässt er ihn los.",
+   k: ["windung|wickel|spule", "strom|stärker", "eisen|nagel|kern", "ausschalt|abschalt|einschalt|loslass|los|fällt|ablegen|abwerf"], min: 3}
+], "open", "Lies noch einmal die Merke-Kästen in Station 3, 5 und 6.");
+
+Modul.plus(() => {
+  Modul.makeSort($("#sortTransfer"), {
+    buckets: ["Wärme ist erwünscht", "Wärme stört"],
+    items: [
+      {t: "Toaster", b: 0}, {t: "Bügeleisen", b: 0}, {t: "Heizlüfter", b: 0}, {t: "Wasserkocher", b: 0},
+      {t: "Handy beim Laden", b: 1}, {t: "Laptop", b: 1}, {t: "Glühlampe (man will Licht)", b: 1}, {t: "Elektromotor im Ventilator", b: 1}
+    ], cols: 220
+  }, "sortTransfer");
+});
+
+/* ---------- Profi-Check ---------- */
+Modul.makeQuiz($("#quiz"), [].concat(MC.s1, MC.s2, MC.s3, MC.s4, MC.s5, MC.s6, MC.train, EXTRA), "quiz", "Strom-Profi");
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

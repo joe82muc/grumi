@@ -1,0 +1,1125 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#33268f">
+<title>Der elektrische Widerstand | NT 7</title>
+<link rel="stylesheet" href="modul-basis.css">
+<style>
+.hero{background:linear-gradient(160deg,#1a1450,#4a2fb5 55%,#f2a73a)}
+.sim-wahl{padding:10px 14px;border-top:1px solid var(--line);background:#fbfdff}
+.sim-wahl .wahl{margin:0}
+.sim-wahl .titel{margin:0 0 6px;font-size:.9rem;font-weight:700;color:var(--muted)}
+.anz{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;border-top:1px solid var(--line);background:#fff}
+.bar{display:inline-block;width:90px;height:10px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--gold);border-radius:99px;transition:width .35s}
+.legende{display:flex;flex-wrap:wrap;gap:4px 18px;padding:8px 14px;font-size:.88rem;color:var(--muted);font-weight:600;background:#fbfdff;border-top:1px solid var(--line)}
+.legende i{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:-2px;margin-right:6px}
+.messtab{width:100%;border-collapse:collapse;font-size:.92rem;background:#fff;border-top:1px solid var(--line)}
+.messtab th,.messtab td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:center}
+.messtab th{background:var(--sky-l);color:var(--sky-d);font-size:.84rem}
+.messtab tr.neu td{background:#fff6dd;font-weight:700}
+.formel{font-size:1.9rem;font-weight:800;color:var(--sky-d);text-align:center;padding:10px 14px 6px;border-top:1px solid var(--line);background:#fff}
+.formel small{display:block;font-size:.9rem;color:var(--muted);font-weight:600;margin-top:2px}
+.beispiel{background:#fffdf5;border:2px solid var(--gold);border-radius:14px;padding:10px 14px;margin:10px 0;display:grid;gap:3px;font-size:.98rem}
+.rech-kopf{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.rech-punkte{letter-spacing:.2em;color:var(--sky-d);font-weight:800}
+.rech-story{font-weight:700;margin:0 0 4px}
+.rech-geg{margin:0 0 6px;color:var(--muted);font-size:.95rem}
+.wahl.rech{flex-direction:column;align-items:stretch;margin:8px 0}
+.wahl.rech button{text-align:left;font-weight:600;line-height:1.35}
+.wahl.rech button.falsch{border-color:var(--bad);background:var(--bad-l)}
+.rech-ende{text-align:center;padding:8px 0}
+.wahl[hidden],.row-btns[hidden]{display:none!important}
+#tzA,#tzB,#tzHalo,#tzGelb,#tzStrahlen,#hzWelle,#hzGlow,#mdWaerme,#mdPfeil,#dzDeckU,#dzDeckR,#dzDeckI,#diagLinie{transition:opacity .5s}
+#mdAtome circle{transition:fill .6s,stroke .4s}
+#mdAtome.hi circle{stroke:#e0793a;stroke-width:4}
+#mdAtome.warm circle{fill:#f0a35e;stroke:#c9702e;animation:wackel .16s infinite alternate}
+@keyframes wackel{from{transform:translate(-1.6px,-1px)}to{transform:translate(1.6px,1px)}}
+#diagPunkte circle{animation:popin .3s}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>NT 7</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Einstieg</a>
+      <a href="#s2"><b>2</b>Widerstand</a>
+      <a href="#s3"><b>3</b>Draht-Labor</a>
+      <a href="#s4"><b>4</b>Ohm'sches Gesetz</a>
+      <a href="#s5"><b>5</b>Rechnen</a>
+      <a href="#s6"><b>6</b>Passender Draht</a>
+      <a href="#s7"><b>7</b>Training</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse 7M / 7R · Themenbereich Elektrizität · Lernmodul 4</div>
+    <h1>Der elektrische Widerstand</h1>
+    <p>Gleiche Batterie, gleiche Lampe – und trotzdem leuchtet sie mal hell, mal schwach? Dann bremst etwas den Strom. In sieben Stationen findest du heraus, was das ist, wovon es abhängt und wie du es ausrechnest.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s7">Direkt zum Probentraining</a>
+    </div>
+    <div class="goals">
+      <div>🏃 Ich erkläre mit einem Modell, warum ein Draht den Strom bremst.</div>
+      <div>🔧 Ich sage, wovon der Widerstand eines Drahtes abhängt, und wähle den passenden Draht.</div>
+      <div>📈 Ich lese ein U-I-Diagramm und weiß: doppelte Spannung, doppelte Stromstärke.</div>
+      <div>🔢 Ich berechne den Widerstand mit R = U : I und schreibe die Rechnung mit Einheiten auf.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- Gemeinsame Zeichen: Elektron und Messgeräte (eigene Zeichnungen) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="gElektron"><circle r="8" fill="#2f6fdb" stroke="#fff" stroke-width="1.8"/><path d="M-4 0h8" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></g>
+    <g id="gMessA"><circle r="21" fill="#fff" stroke="#15212b" stroke-width="3"/><text y="8" text-anchor="middle" font-size="22" font-weight="800" fill="#15212b">A</text></g>
+    <g id="gMessV"><circle r="21" fill="#fff" stroke="#15212b" stroke-width="3"/><text y="8" text-anchor="middle" font-size="22" font-weight="800" fill="#15212b">V</text></g>
+  </defs>
+</svg>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg</div><h2>Hell oder dunkel?</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Du baust zwei gleiche Stromkreise auf: gleiche Batterie, gleiche Lampe. Nur der Draht ist verschieden – und schon leuchtet die Lampe mal hell, mal nur schwach.</p>
+      <p>Die <button class="term" data-t="spannung">Spannung</button> der Batterie bleibt gleich. Also muss sich die <button class="term" data-t="stromstaerke">Stromstärke</button> ändern. Aber warum?</p>
+      <p class="hint">Baue Draht A und Draht B nacheinander ein. Beobachte die Lampe und den Strommesser.</p>
+      <div id="mc-s1"></div>
+    </div>
+    <div class="sim reveal" id="tauschSim">
+      <svg viewBox="0 0 480 270" role="img" aria-label="Stromkreis aus Batterie, austauschbarem Draht, Lampe und Strommesser. Draht A ist kurz und dick, Draht B lang und dünn.">
+        <rect width="480" height="270" fill="#f7fbfe"/>
+        <text x="16" y="24" font-size="13" font-weight="800" fill="#566674">Gleiche Batterie, gleiche Lampe</text>
+        <g stroke="#15212b" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M70 128V62H130"/>
+          <path d="M330 62H410V126"/>
+          <path d="M410 174V240H261"/>
+          <path d="M219 240H70V150"/>
+        </g>
+        <!-- Spannungsquelle: langer, dünner Strich = Pluspol, kurzer, dicker Strich = Minuspol -->
+        <path d="M50 128H90" stroke="#15212b" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M59 150H81" stroke="#15212b" stroke-width="7" stroke-linecap="round"/>
+        <text x="42" y="124" text-anchor="end" font-size="16" font-weight="800" fill="#c93b3b">+</text>
+        <text x="42" y="158" text-anchor="end" font-size="20" font-weight="800" fill="#2f6fdb">−</text>
+        <text x="100" y="144" font-size="15" font-weight="800" fill="#15212b">6 V</text>
+        <text x="84" y="196" font-size="13" font-weight="700" fill="#566674">Batterie</text>
+        <!-- Draht A -->
+        <g id="tzA">
+          <path d="M130 62H185M275 62H330" stroke="#15212b" stroke-width="3" stroke-linecap="round" fill="none"/>
+          <rect x="185" y="49" width="90" height="26" rx="8" fill="#cf7b3c" stroke="#8a4a1c" stroke-width="2.5"/>
+          <text x="230" y="100" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Draht A</text>
+          <text x="230" y="117" text-anchor="middle" font-size="13" fill="#566674">kurz, dick, Kupfer</text>
+        </g>
+        <!-- Draht B -->
+        <g id="tzB" opacity="0">
+          <path d="M130 62q10-16 20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0" stroke="#8d99a6" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <text x="230" y="100" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Draht B</text>
+          <text x="230" y="117" text-anchor="middle" font-size="13" fill="#566674">lang, dünn, Konstantan</text>
+        </g>
+        <!-- Lampe -->
+        <circle id="tzHalo" cx="410" cy="150" r="46" fill="#ffd23a" opacity=".5"/>
+        <g id="tzStrahlen" transform="translate(410 150)" stroke="#f2a600" stroke-width="3.5" stroke-linecap="round"></g>
+        <circle cx="410" cy="150" r="24" fill="#fff" stroke="#15212b" stroke-width="3"/>
+        <circle id="tzGelb" cx="410" cy="150" r="22.5" fill="#ffd23a" opacity=".9"/>
+        <path d="M393 133L427 167M427 133L393 167" stroke="#15212b" stroke-width="3" stroke-linecap="round"/>
+        <text x="400" y="206" text-anchor="end" font-size="13" font-weight="700" fill="#566674">Lampe</text>
+        <!-- Strommesser -->
+        <use href="#gMessA" transform="translate(240 240)"/>
+        <text id="tzI" x="338" y="226" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">I = 0,60 A</text>
+      </svg>
+      <div class="sim-wahl"><p class="titel">Welchen Draht baust du ein?</p><div class="wahl" id="tzWahl"><button type="button" data-k="A">Draht A einbauen</button><button type="button" data-k="B">Draht B einbauen</button></div></div>
+      <p class="obs" id="tzObs">Tippe auf „Draht A“ oder „Draht B“ und vergleiche.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Was ist der Widerstand?</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Warum bremst ein Draht den Strom? Dafür brauchst du ein Modell – ein Bild im Kopf, das Unsichtbares anschaulich macht.</p>
+      <p>Ein Metalldraht besteht aus unzähligen <button class="term" data-t="atom">Atomen</button>. Sie sitzen fest auf ihren Plätzen. Dazwischen wandern <button class="term" data-t="elektron">Elektronen</button>, angetrieben von der Spannung.</p>
+      <p>Auf ihrem Weg stoßen die Elektronen immer wieder gegen die Atome. Das bremst sie. Wie stark ein Draht bremst, sagt der <button class="term" data-t="widerstand">elektrische Widerstand</button> <strong>R</strong>.</p>
+      <p class="hint">Starte die Animation oder gehe Schritt für Schritt. Achte auf den Weg des blauen Elektrons.</p>
+    </div>
+    <div class="sim reveal" id="modellSim">
+      <svg viewBox="0 0 500 250" role="img" aria-label="Metalldraht mit Atomen. Ein Elektron läuft vom Minuspol zum Pluspol und stößt dabei gegen Atome.">
+        <rect width="500" height="250" fill="#f7fbfe"/>
+        <rect x="44" y="52" width="412" height="150" rx="24" fill="#f6ecdf" stroke="#c9a37a" stroke-width="3"/>
+        <path d="M36 127H44M456 127H464" stroke="#15212b" stroke-width="3" stroke-linecap="round"/>
+        <g><circle cx="22" cy="127" r="14" fill="#2f6fdb"/><path d="M15 127h14" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/></g>
+        <g><circle cx="478" cy="127" r="14" fill="#c93b3b"/><path d="M471 127h14M478 120v14" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/></g>
+        <text x="44" y="40" font-size="15" font-weight="800" fill="#2f6fdb">Minuspol</text>
+        <text x="456" y="40" text-anchor="end" font-size="15" font-weight="800" fill="#c93b3b">Pluspol</text>
+        <g id="mdAtome" class="hi">
+          <circle cx="90" cy="92" r="16" fill="#9fb3c8" stroke="#6f8aa5" stroke-width="3"/><circle cx="170" cy="92" r="16" fill="#9fb3c8" stroke="#6f8aa5" stroke-width="3"/><circle cx="250" cy="92" r="16" fill="#9fb3c8" stroke="#6f8aa5" stroke-width="3"/><circle cx="330" cy="92" r="16" fill="#9fb3c8" stroke="#6f8aa5" stroke-width="3"/><circle cx="410" cy="92" r="16" fill="#9fb3c8" stroke="#6f8aa5" stroke-width="3"/>
+          <circle cx="130" cy="162" r="16" fill="#9fb3c8" stroke="#6f8aa5" stroke-width="3"/><circle cx="210" cy="162" r="16" fill="#9fb3c8" stroke="#6f8aa5" stroke-width="3"/><circle cx="290" cy="162" r="16" fill="#9fb3c8" stroke="#6f8aa5" stroke-width="3"/><circle cx="370" cy="162" r="16" fill="#9fb3c8" stroke="#6f8aa5" stroke-width="3"/>
+        </g>
+        <path id="mdPfad" fill="none" stroke="#2f6fdb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".6"/>
+        <g id="mdE" transform="translate(66 127)"><use href="#gElektron"/></g>
+        <g id="mdWaerme" opacity="0"><path d="M222 46q-6-8 0-16t0-16M252 46q-6-8 0-16t0-16M282 46q-6-8 0-16t0-16" stroke="#e0453a" stroke-width="3" fill="none" stroke-linecap="round"/><text x="306" y="36" font-size="15" font-weight="800" fill="#c93b3b">Wärme</text></g>
+        <g id="mdPfeil" opacity="0"><path d="M120 216H350" stroke="#2f6fdb" stroke-width="4" stroke-linecap="round"/><path d="M350 208l14 8-14 8z" fill="#2f6fdb"/></g>
+        <text id="mdText" x="250" y="242" text-anchor="middle" font-size="16" font-weight="800" fill="#15212b"></text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="sim reveal" id="hindernisSim">
+      <canvas id="hCanvas" width="960" height="400" role="img" aria-label="Modell eines Drahtes: Elektronen (blau) wandern zwischen Atomen (grau) vom Minuspol zum Pluspol und stoßen dabei an."></canvas>
+      <div class="legende"><span><i style="background:#2f6fdb"></i>Elektron</span><span><i style="background:#9fb3c8;border:2px solid #6f8aa5"></i>Atom</span></div>
+      <div class="sim-wahl"><p class="titel">Wie viele Atome stehen im Weg?</p><div class="wahl" id="hWahl"><button type="button" data-n="wenig">wenige</button><button type="button" data-n="mittel">mittel viele</button><button type="button" data-n="viel">sehr viele</button></div></div>
+      <div class="anz"><span class="chip" id="hChip">⚡ – Elektronen pro Sekunde (Modell)</span><span class="bar"><i id="hBalken"></i></span></div>
+      <p class="obs" id="hObs">Wähle eine Einstellung und beobachte, wie viele Elektronen pro Sekunde den Pluspol erreichen.</p>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag">Modellversuch</span>
+      <h3 style="margin-top:4px">Mehr Hindernisse – weniger Strom</h3>
+      <p>Hier siehst du den Draht von der Seite. Die Spannung treibt die Elektronen immer gleich stark an. Du änderst nur, <strong>wie viele Atome im Weg stehen</strong>.</p>
+      <p>Zähle mit: Wie viele Elektronen erreichen pro Sekunde den Pluspol? Das ist im Modell die Stromstärke.</p>
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li>Der <button class="term" data-t="widerstand">Widerstand</button> R sagt, wie stark ein Leiter den Strom bremst.</li>
+        <li>Je größer der Widerstand, desto kleiner die Stromstärke – bei gleicher Spannung.</li>
+        <li>Er wird in <button class="term" data-t="ohm">Ohm (Ω)</button> gemessen. Die Einheit ist nach <button class="term" data-t="georg">Georg Simon Ohm</button> benannt.</li>
+      </ul></div>
+    </div>
+  </div>
+  <div class="card reveal"><div id="mc-s2"></div></div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>Das Draht-Labor</h2></div></div>
+  <div class="grid2">
+    <div class="sim reveal" id="laborSim">
+      <svg viewBox="0 0 480 256" role="img" aria-label="Labor: Batterie, ein Draht mit einstellbarer Länge, Dicke, Material und Temperatur, eine Lampe und ein Strommesser">
+        <rect width="480" height="256" fill="#f7fbfe"/>
+        <g stroke="#15212b" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M60 118V50H120"/>
+          <path d="M330 50H400V102"/>
+          <path d="M400 150V224H261"/>
+          <path d="M219 224H60V140"/>
+        </g>
+        <path d="M40 118H80" stroke="#15212b" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M49 140H71" stroke="#15212b" stroke-width="7" stroke-linecap="round"/>
+        <text x="33" y="114" text-anchor="end" font-size="16" font-weight="800" fill="#c93b3b">+</text>
+        <text x="33" y="148" text-anchor="end" font-size="20" font-weight="800" fill="#2f6fdb">−</text>
+        <text x="90" y="134" font-size="15" font-weight="800" fill="#15212b">6 V</text>
+        <text x="76" y="190" font-size="13" font-weight="700" fill="#566674">Batterie</text>
+        <g id="laDraht"></g>
+        <g id="laQuer"></g>
+        <circle id="laHalo" cx="400" cy="126" r="44" fill="#ffd23a" opacity=".5"/>
+        <g id="laStrahlen" transform="translate(400 126)" stroke="#f2a600" stroke-width="3.5" stroke-linecap="round"></g>
+        <circle cx="400" cy="126" r="24" fill="#fff" stroke="#15212b" stroke-width="3"/>
+        <circle id="laGelb" cx="400" cy="126" r="22.5" fill="#ffd23a" opacity=".9"/>
+        <path d="M383 109L417 143M417 109L383 143" stroke="#15212b" stroke-width="3" stroke-linecap="round"/>
+        <text x="411" y="178" font-size="13" font-weight="700" fill="#566674">Lampe</text>
+        <text x="411" y="193" font-size="13" font-weight="700" fill="#566674">10 Ω</text>
+        <use href="#gMessA" transform="translate(240 224)"/>
+        <text id="laI" x="326" y="212" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">I = 0,40 A</text>
+      </svg>
+      <div class="sim-ctrl"><label for="laLang">Länge</label><input type="range" id="laLang" min="1" max="4" step="1" value="2"><span class="chip" id="laLangW">2 m</span></div>
+      <div class="sim-ctrl"><label for="laDick">Dicke (Querschnittsfläche)</label><input type="range" id="laDick" min="0" max="2" step="1" value="1"><span class="chip" id="laDickW">0,2 mm²</span></div>
+      <div class="sim-wahl"><p class="titel">Material</p><div class="wahl" id="laMat"><button type="button" data-m="kupfer">Kupfer</button><button type="button" data-m="eisen">Eisen</button><button type="button" data-m="konst" class="sel">Konstantan</button></div></div>
+      <div class="sim-wahl"><p class="titel">Temperatur des Drahtes</p><div class="wahl" id="laTemp"><button type="button" data-t="kalt" class="sel">kalt (20 °C)</button><button type="button" data-t="heiss">heiß (etwa 120 °C)</button></div></div>
+      <div class="anz"><span class="chip" id="laChipR">R = 5 Ω</span><span class="chip" id="laChipI">I = 0,40 A</span><span class="chip" id="laChipL">Lampe: hell</span><span class="bar"><i id="laBalken"></i></span></div>
+      <p class="obs" id="laObs">Ändere eine Einstellung nach der anderen und beobachte R, I und die Lampe.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Welcher Draht bremst am stärksten? Das hängt davon ab, wie er gebaut ist. Im Labor änderst du <strong>Länge</strong>, <strong>Dicke</strong>, <strong>Material</strong> und <strong>Temperatur</strong> – immer nur eines nach dem anderen.</p>
+      <ol class="schritt-liste">
+        <li>Ändere <strong>eine</strong> Einstellung.</li>
+        <li>Lies den Widerstand R, die Stromstärke I und die Lampe ab.</li>
+        <li>Formuliere einen Je-desto-Satz.</li>
+      </ol>
+      <p class="hint">Der Draht ist mit einer Lampe (10 Ω) in Reihe geschaltet, die Batterie hat 6 V. Mit Kupfer, 1 m, 0,4 mm² baust du Draht A aus dem Einstieg nach, mit Konstantan, 4 m, 0,1 mm² Draht B.</p>
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li><strong>Länger</strong> → größerer Widerstand. Ein langer Weg hat mehr Hindernisse.</li>
+        <li><strong>Dicker</strong> (größere <button class="term" data-t="querschnitt">Querschnittsfläche</button>) → kleinerer Widerstand.</li>
+        <li>Kupfer leitet gut, Eisen schlechter. <button class="term" data-t="konstantan">Konstantan</button> bremst von den dreien am stärksten.</li>
+        <li>Wird ein Draht aus Kupfer oder Eisen <button class="term" data-t="temperatur">heiß</button>, steigt sein Widerstand.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag leicht">Lückentext · leicht</span>
+      <h3 style="margin-top:4px">Deine Je-desto-Sätze</h3>
+      <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+      <div class="gaptext" id="gapJe"></div>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag mittel">Zuordnen · mittel</span>
+      <h3 style="margin-top:4px">Wird der Widerstand größer oder kleiner?</h3>
+      <div id="sortR"></div>
+    </div>
+  </div>
+  <div class="card reveal"><div id="mc-s3"></div></div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Warum ist das so? Erkläre im Modell</h3>
+    <p class="m7-hinweis">Aufgaben mit dem lila Zeichen gehören zum M-Niveau. In M-Klassen zählen sie mit, in R-Klassen sind sie eine Zusatzaufgabe für Profis.</p>
+    <p class="hint">Denke an den Hindernislauf aus Station 2. Tippe links auf eine Veränderung am Draht und rechts auf die passende Begründung.</p>
+    <div id="paareModell"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Probenstoff</div><h2>Das Ohm'sche Gesetz</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Jetzt wird gemessen. An einem Draht stellst du verschiedene Spannungen ein und liest die Stromstärke ab. Was fällt dir auf?</p>
+    <ol class="schritt-liste">
+      <li>Tippe auf eine Spannung von 1 V bis 6 V.</li>
+      <li>Lies am Strommesser die Stromstärke ab. Die Tabelle trägt sie für dich ein.</li>
+      <li>Schau dir an, wo die Punkte im Diagramm liegen – und was in der Spalte „U : I“ steht.</li>
+    </ol>
+    <p class="hint">Im Schaltplan zeichnet man den Draht als Rechteck. Das <button class="term" data-t="schaltzeichen">Schaltzeichen für einen Widerstand</button> ist ein Rechteck.</p>
+  </div>
+  <div class="grid2">
+    <div class="sim reveal" id="messSim">
+      <svg viewBox="0 0 480 236" role="img" aria-label="Schaltplan: Netzgerät, Draht als Rechteck, Strommesser in Reihe und Spannungsmesser parallel zum Draht">
+        <rect width="480" height="236" fill="#f7fbfe"/>
+        <g stroke="#15212b" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M60 120V78H200"/>
+          <path d="M280 78H420V200H261"/>
+          <path d="M219 200H60V142"/>
+          <path d="M190 78V28H219"/>
+          <path d="M261 28H290V78"/>
+        </g>
+        <circle cx="190" cy="78" r="4.5" fill="#15212b"/><circle cx="290" cy="78" r="4.5" fill="#15212b"/>
+        <path d="M40 120H80" stroke="#15212b" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M49 142H71" stroke="#15212b" stroke-width="7" stroke-linecap="round"/>
+        <text x="33" y="116" text-anchor="end" font-size="16" font-weight="800" fill="#c93b3b">+</text>
+        <text x="33" y="150" text-anchor="end" font-size="20" font-weight="800" fill="#2f6fdb">−</text>
+        <text x="92" y="136" font-size="14" font-weight="700" fill="#566674">Netzgerät</text>
+        <rect x="200" y="64" width="80" height="28" fill="#fff" stroke="#15212b" stroke-width="3"/>
+        <text x="240" y="84" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Draht</text>
+        <text x="240" y="112" text-anchor="middle" font-size="13" fill="#566674">als Widerstand</text>
+        <use href="#gMessV" transform="translate(240 28)"/>
+        <text id="mrU" x="302" y="34" font-size="15" font-weight="800" fill="#15212b">U = 0,0 V</text>
+        <use href="#gMessA" transform="translate(240 200)"/>
+        <text id="mrA" x="338" y="188" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">I = 0,00 A</text>
+      </svg>
+      <div class="sim-wahl"><p class="titel">Stelle die Spannung am Netzgerät ein</p><div class="wahl" id="mrWahl"></div></div>
+      <table class="messtab" id="mrTab"><thead><tr><th>Spannung U</th><th>Stromstärke I</th><th>U : I</th></tr></thead><tbody>
+        <tr><td>1 V</td><td>–</td><td>–</td></tr><tr><td>2 V</td><td>–</td><td>–</td></tr><tr><td>3 V</td><td>–</td><td>–</td></tr>
+        <tr><td>4 V</td><td>–</td><td>–</td></tr><tr><td>5 V</td><td>–</td><td>–</td></tr><tr><td>6 V</td><td>–</td><td>–</td></tr>
+      </tbody></table>
+      <p class="obs" id="mrObs">Tippe auf eine Spannung. Der Strommesser zeigt die Stromstärke, Tabelle und Diagramm füllen sich.</p>
+    </div>
+    <div>
+      <div class="sim reveal" id="diagSim">
+        <svg id="diagSvg" viewBox="0 0 480 334" role="img" aria-label="U-I-Diagramm: Spannung in Volt nach rechts, Stromstärke in Ampere nach oben, mit den gemessenen Punkten"></svg>
+        <p class="obs" id="diagObs">Hier entsteht dein <button class="term" data-t="kennlinie">U-I-Diagramm</button>. Jede Messung ist ein Punkt.</p>
+      </div>
+      <div class="merke reveal"><h4>MERKE</h4><ul>
+        <li>Bei einem Metalldraht (gleiche Temperatur) gilt: <strong>Doppelte Spannung → doppelte Stromstärke.</strong></li>
+        <li>Im U-I-Diagramm liegen die Punkte auf einer <strong>Geraden durch den Nullpunkt</strong>.</li>
+        <li>Der <button class="term" data-t="quotient">Quotient</button> U : I bleibt gleich. Er ist der Widerstand: <strong>R = U : I</strong>. Das ist das <button class="term" data-t="ohmsch">Ohm'sche Gesetz</button>.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal"><div id="mc-s4"></div></div>
+    <div class="card reveal">
+      <span class="task-tag m7">M7 · für 7R freiwillig</span>
+      <h3 style="margin-top:4px">Zwei Drähte im Diagramm</h3>
+      <svg id="kennSvg" viewBox="0 0 480 334" role="img" aria-label="U-I-Diagramm mit zwei Geraden: Draht A ist steiler, Draht B flacher. Bei 4 V fließen durch A 0,4 A und durch B 0,2 A." style="width:100%;height:auto;border-radius:12px;border:1px solid var(--line)"></svg>
+      <div id="mc-s4m" style="margin-top:8px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Probenstoff</div><h2>Rechnen mit R, U und I</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Aus der Messreihe weißt du: <strong>R = U : I</strong>. So rechnest du eine Aufgabe sauber auf:</p>
+      <ol class="schritt-liste">
+        <li>Schreibe auf, was <strong>gegeben</strong> ist und was <strong>gesucht</strong> ist.</li>
+        <li>Schreibe die <strong>Formel</strong> hin.</li>
+        <li>Setze die Werte <strong>mit Einheiten</strong> ein und rechne.</li>
+        <li>Schreibe einen <strong>Antwortsatz</strong>.</li>
+      </ol>
+      <div class="beispiel">
+        <div><b>Gegeben:</b> U = 6 V, I = 0,5 A</div>
+        <div><b>Gesucht:</b> R</div>
+        <div><b>Formel:</b> R = U : I</div>
+        <div><b>Rechnung:</b> R = 6 V : 0,5 A = 12 Ω</div>
+        <div><b>Antwort:</b> Der Widerstand beträgt 12 Ω.</div>
+      </div>
+      <p class="hint">Rechne in Volt und Ampere. Dann kommt automatisch Ohm heraus: 1 Ω = 1 V : 1 A.</p>
+    </div>
+    <div class="sim reveal" id="dreiSim">
+      <svg viewBox="0 0 400 290" role="img" aria-label="Merkdreieck: oben U, unten links R, unten rechts I. Das verdeckte Zeichen ist das gesuchte.">
+        <rect width="400" height="290" fill="#f7fbfe"/>
+        <polygon points="200,24 52,268 348,268" fill="#fff6dd" stroke="#b77a06" stroke-width="5" stroke-linejoin="round"/>
+        <path d="M119.9 156H280.1M200 156V268" stroke="#b77a06" stroke-width="5" fill="none"/>
+        <g font-size="60" font-weight="800" fill="#15212b" text-anchor="middle">
+          <text x="200" y="136">U</text><text x="136" y="250">R</text><text x="264" y="250">I</text>
+        </g>
+        <g id="dzDeckU" opacity="0"><polygon points="200,24 119.9,156 280.1,156" fill="#8a97a3" stroke="#566674" stroke-width="3"/><text x="200" y="136" font-size="60" font-weight="800" fill="#fff" text-anchor="middle">?</text></g>
+        <g id="dzDeckR" opacity="0"><polygon points="119.9,156 200,156 200,268 52,268" fill="#8a97a3" stroke="#566674" stroke-width="3"/><text x="136" y="250" font-size="60" font-weight="800" fill="#fff" text-anchor="middle">?</text></g>
+        <g id="dzDeckI" opacity="0"><polygon points="200,156 280.1,156 348,268 200,268" fill="#8a97a3" stroke="#566674" stroke-width="3"/><text x="264" y="250" font-size="60" font-weight="800" fill="#fff" text-anchor="middle">?</text></g>
+      </svg>
+      <div class="sim-wahl"><p class="titel">Verdecke die gesuchte Größe</p><div class="wahl" id="dzWahl"><button type="button" data-k="R">R verdecken</button><button type="button" data-k="I">I verdecken</button><button type="button" data-k="U">U verdecken</button></div></div>
+      <div class="formel" id="dzFormel">?<small>Tippe auf einen Knopf. Das <button class="term" data-t="merkdreieck">Merkdreieck</button> zeigt dir die Formel.</small></div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag mittel">Rechen-Trainer · mittel</span>
+      <h3 style="margin-top:4px">Wie groß ist der Widerstand?</h3>
+      <p class="hint">Lies die Angaben und wähle die richtige Rechnung mit Ergebnis. Bei einem Fehler erfährst du, was schiefgelaufen ist.</p>
+      <div id="rechnerA"></div>
+    </div>
+    <div class="card reveal"><div id="mc-s5"></div></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Umstellen: Gesucht sind I oder U</h3>
+    <p class="m7-hinweis">Verdecke im Merkdreieck die gesuchte Größe: Was übrig bleibt, zeigt dir die Rechnung. Nebeneinander heißt mal (·), übereinander heißt geteilt (:).</p>
+    <div class="beispiel">
+      <div><b>Beispiel:</b> Eine Heizspirale hat 46 Ω und liegt an der Steckdose (230 V).</div>
+      <div><b>Gesucht:</b> I · <b>Formel:</b> I = U : R</div>
+      <div><b>Rechnung:</b> I = 230 V : 46 Ω = 5 A</div>
+    </div>
+    <div id="rechnerM"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="s6">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Probenstoff</div><h2>Der passende Draht</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Welcher Draht passt zu welcher Aufgabe? Das hängt davon ab, was er tun soll.</p>
+      <div class="info-karten">
+        <div class="info-karte"><div class="big">🔌</div><h4>Zuleitung, Kabel</h4><p>Der Strom soll <strong>ungebremst</strong> fließen, und das Kabel soll kühl bleiben. Also: <strong>kleiner Widerstand</strong> – Kupfer, dick, nicht länger als nötig.</p></div>
+        <div class="info-karte"><div class="big">🍞</div><h4><button class="term" data-t="heizdraht">Heizdraht</button></h4><p>Der Draht soll <strong>heiß</strong> werden. Also: <strong>großer Widerstand</strong> – dünn, lang und aus einer <button class="term" data-t="legierung">Legierung</button>, die den Strom schlechter leitet.</p></div>
+      </div>
+      <p class="hint">Im Toaster fließt durch Kabel und Heizdraht <strong>derselbe Strom</strong> (Reihenschaltung). Schalte den Strom ein und vergleiche.</p>
+    </div>
+    <div class="sim reveal" id="hzSim">
+      <svg viewBox="0 0 480 262" role="img" aria-label="Steckdose, dickes Verlängerungskabel mit Strommesser und ein Toaster mit dünnem Heizdraht in einem Stromkreis">
+        <rect width="480" height="262" fill="#f7fbfe"/>
+        <rect x="14" y="98" width="52" height="64" rx="10" fill="#e9eef2" stroke="#8a97a3" stroke-width="3"/>
+        <circle cx="30" cy="130" r="5" fill="#15212b"/><circle cx="50" cy="130" r="5" fill="#15212b"/>
+        <text x="40" y="184" text-anchor="middle" font-size="13" font-weight="700" fill="#566674">Steckdose</text>
+        <text x="40" y="199" text-anchor="middle" font-size="13" fill="#566674">230 V</text>
+        <path d="M66 130H280" stroke="#8a4a1c" stroke-width="16" stroke-linecap="round"/>
+        <path d="M66 130H280" stroke="#cf7b3c" stroke-width="10" stroke-linecap="round"/>
+        <use href="#gMessA" transform="translate(104 130)"/>
+        <text id="hzI" x="104" y="172" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">I = 0 A</text>
+        <text x="202" y="100" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">Verlängerungskabel</text>
+        <text x="202" y="158" text-anchor="middle" font-size="13" fill="#566674">dick · Kupfer</text>
+        <text x="202" y="174" text-anchor="middle" font-size="13" fill="#566674">R etwa 0,05 Ω</text>
+        <g id="hzWelle" opacity="0"><path d="M340 50q-6-8 0-16t0-16M375 50q-6-8 0-16t0-16M410 50q-6-8 0-16t0-16" stroke="#e0453a" stroke-width="3" fill="none" stroke-linecap="round"/></g>
+        <rect x="280" y="58" width="184" height="144" rx="18" fill="#dfe5ea" stroke="#8a97a3" stroke-width="3"/>
+        <text x="372" y="78" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">Toaster</text>
+        <rect x="298" y="88" width="148" height="62" rx="10" fill="#2b333a"/>
+        <path id="hzGlow" d="M308 102L322 136L336 102L350 136L364 102L378 136L392 102L406 136L420 102L434 136" fill="none" stroke="#ffb347" stroke-width="13" stroke-linecap="round" stroke-linejoin="round" opacity="0"/>
+        <path id="hzDraht" d="M308 102L322 136L336 102L350 136L364 102L378 136L392 102L406 136L420 102L434 136" fill="none" stroke="#9aa6b2" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="372" y="172" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">Heizdraht</text>
+        <text x="372" y="188" text-anchor="middle" font-size="12" fill="#566674">dünn · lang · Legierung</text>
+        <text x="372" y="220" text-anchor="middle" font-size="13" fill="#566674">R etwa 55 Ω</text>
+        <text id="hzT1" x="202" y="246" text-anchor="middle" font-size="14" font-weight="800" fill="#566674"></text>
+        <text id="hzT2" x="372" y="246" text-anchor="middle" font-size="14" font-weight="800" fill="#566674"></text>
+      </svg>
+      <div class="sim-wahl"><p class="titel">Strom durch Kabel und Heizdraht</p><div class="wahl" id="hzWahl"><button type="button" data-k="aus" class="sel">Strom aus</button><button type="button" data-k="an">Strom an (etwa 4 A)</button></div></div>
+      <p class="obs" id="hzObs">Schalte den Strom ein und beobachte, was mit Kabel und Heizdraht geschieht.</p>
+    </div>
+  </div>
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag mittel">Zuordnen · mittel</span>
+      <h3 style="margin-top:4px">Was passt zu welchem Draht?</h3>
+      <div id="sort6"></div>
+    </div>
+    <div class="card reveal"><div id="mc-s6"></div></div>
+  </div>
+</section>
+
+<!-- ============ STATION 7 ============ -->
+<section class="station" id="s7">
+  <div class="st-head reveal"><div class="st-num">7</div><div><div class="eyebrow">Probenstoff · so wird in der Probe gefragt</div><h2>Training für die Probe</h2></div></div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Lückentext · leicht</span>
+    <h3 style="margin-top:4px">Setze die fehlenden Wörter ein</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gap7"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Paare finden · leicht</span>
+    <h3 style="margin-top:4px">Was gehört zusammen?</h3>
+    <p class="hint">Tippe links auf einen Begriff und dann rechts auf das Passende.</p>
+    <div id="paare7"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Richtig oder falsch? · mittel</span>
+    <div id="tf7"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Kreuzworträtsel · mittel</span>
+    <h3 style="margin-top:4px">Rund um den Widerstand</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Schreibe ä als AE, ö als OE, ü als UE.</p>
+    <div id="cw"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Ankreuzen · mittel bis schwer</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Offene Fragen · schwer</span>
+    <h3 style="margin-top:4px">Erkläre und rechne in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Bei der Rechenaufgabe schreibst du die Rechnung mit Einheiten auf. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung. Danach kannst du die Musterlösung ansehen.</p>
+    <div id="open"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Begründe und übertrage <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="openM"></div>
+  </div>
+
+  <h3 class="reveal">Profi-Check</h3>
+  <div class="card reveal" id="quiz"></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Du weißt jetzt: Wer viel Strom durch einen kleinen Widerstand schickt, bekommt Wärme. Das kann sehr gefährlich werden. Im nächsten Modul geht es um <strong>Sicherheit</strong> – was Sicherung und Schutzschalter tun und welche Regeln im Alltag schützen.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik 7 · Lernmodul „Der elektrische Widerstand“ · Dein Fortschritt wird auf diesem Gerät gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="modul-basis.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, esc, shuffle, clamp, setText, reduced, register, solve, fmt, onVisible} = Modul;
+const NS = "http://www.w3.org/2000/svg";
+// Zahl mit Dezimalkomma, überflüssige Nullen weglassen
+const zahl = (x, d = 2) => String(+x.toFixed(d)).replace(".", ",");
+// Einheit mit geschütztem Leerzeichen an die Zahl binden
+const ne = s => String(s).replace(/ (V|A|Ω)(?![A-Za-zÄÖÜäöü])/g, " $1");
+const aktiv = (box, btn) => $$("button", box).forEach(b => b.classList.toggle("sel", b === btn));
+
+Modul.init({
+  key: "grumi-nt7-widerstand-v1",
+  hero: "funken",
+  thema: "Der elektrische Widerstand: Widerstand als Bremse im Elektronenmodell, Einheit Ohm, Abhängigkeit des Drahtwiderstands von Länge, Querschnittsfläche, Material und Temperatur, Ohm'sches Gesetz, R = U : I und Umstellen, passender Draht (Verlängerungskabel, Heizdraht)",
+  glossary: {
+    widerstand: ["Elektrischer Widerstand (R)", "Er sagt, wie stark ein Leiter den Strom bremst. Formelzeichen R, Einheit Ohm (Ω). Großer Widerstand bedeutet: kleine Stromstärke."],
+    ohm: ["Ohm (Ω)", "Einheit des Widerstands. 1 Ω ist der Widerstand, bei dem 1 V eine Stromstärke von 1 A antreibt. Das Zeichen Ω ist der griechische Buchstabe Omega."],
+    georg: ["Georg Simon Ohm", "Deutscher Physiker (1789–1854), geboren in Erlangen. Er war Lehrer und später Professor in Nürnberg und München. Er untersuchte, wie Spannung und Stromstärke zusammenhängen."],
+    ohmsch: ["Ohm'sches Gesetz", "Bei einem Metalldraht mit gleichbleibender Temperatur bringt doppelte Spannung doppelte Stromstärke. Der Quotient U : I bleibt gleich."],
+    atom: ["Atom", "Winziger Baustein aller Stoffe. In einem Metall sitzen die Atome fest auf ihren Plätzen. Die Elektronen stoßen im Draht gegen sie."],
+    elektron: ["Elektron", "Winziges, negativ geladenes Teilchen. Wandern viele Elektronen gemeinsam durch einen Draht, fließt elektrischer Strom."],
+    spannung: ["Spannung (U)", "Sie gibt an, wie stark die Elektronen angetrieben werden. Formelzeichen U, Einheit Volt (V)."],
+    stromstaerke: ["Stromstärke (I)", "Sie gibt an, wie viele Elektronen in jeder Sekunde durch den Leiter fließen. Formelzeichen I, Einheit Ampere (A)."],
+    quotient: ["Quotient", "Das Ergebnis einer Division. Der Widerstand ist der Quotient aus Spannung und Stromstärke: R = U : I."],
+    kennlinie: ["U-I-Diagramm (Kennlinie)", "Diagramm, das zeigt, wie die Stromstärke von der Spannung abhängt. Bei einem Metalldraht ist es eine Gerade durch den Nullpunkt."],
+    querschnitt: ["Querschnittsfläche", "Die Fläche, die du siehst, wenn du den Draht quer durchschneidest. Ein dicker Draht hat eine große Querschnittsfläche."],
+    konstantan: ["Konstantan", "Metallmischung (Legierung) aus Kupfer und Nickel. Ihr Widerstand ist viel größer als bei Kupfer und ändert sich kaum mit der Temperatur."],
+    legierung: ["Legierung", "Mischung aus mehreren Metallen, zum Beispiel Konstantan aus Kupfer und Nickel."],
+    temperatur: ["Temperatur und Widerstand", "Wird ein Draht aus Kupfer oder Eisen heißer, schwingen seine Atome stärker. Die Elektronen stoßen öfter an, der Widerstand wird größer."],
+    heizdraht: ["Heizdraht", "Dünner, langer Draht aus einer Legierung mit großem Widerstand. Fließt Strom, wird er heiß und glüht, zum Beispiel im Toaster."],
+    merkdreieck: ["Merkdreieck", "Hilfe zum Umstellen: Verdecke die gesuchte Größe. Nebeneinander heißt mal (·), übereinander heißt geteilt (:)."],
+    schaltzeichen: ["Schaltzeichen Widerstand", "Im Schaltplan zeichnet man einen Widerstand als Rechteck."]
+  }
+});
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Die Lampe mit Draht B leuchtet schwächer als mit Draht A. Was zeigt der Strommesser?", o: ["Eine kleinere Stromstärke als bei Draht A.", "Eine größere Stromstärke als bei Draht A.", "Dieselbe Stromstärke wie bei Draht A.", "Gar nichts, denn es fließt kein Strom."], a: 0, e: "Weniger Strom heißt: weniger Elektronen pro Sekunde fließen durch die Lampe. Sie leuchtet schwächer – aber sie leuchtet noch, also fließt etwas Strom."},
+    {q: "Batterie und Lampe sind in beiden Versuchen gleich. Was bremst den Strom bei Draht B stärker?", o: ["Der Draht selbst – er hat einen größeren Widerstand.", "Die Batterie – sie wird schwächer.", "Die Luft um den Draht.", "Das Licht der Lampe."], a: 0, e: "Spannung und Lampe sind gleich geblieben. Nur der Draht war anders. Er bremst den Strom unterschiedlich stark."}
+  ],
+  s2: [
+    {q: "Warum bremst ein Metalldraht den Strom?", o: ["Die Elektronen stoßen gegen die Atome des Metalls.", "Die Elektronen werden im Draht verbraucht.", "Die Elektronen drehen am Pluspol um.", "Im Draht gibt es gar keine Elektronen."], a: 0, e: "Elektronen werden nicht verbraucht: Es kommen immer so viele an, wie losgelaufen sind. Aber die Stöße mit den Atomen bremsen sie."},
+    {q: "Wie heißt die Einheit des elektrischen Widerstands?", o: ["Ohm (Ω)", "Volt (V)", "Ampere (A)", "Watt (W)"], a: 0, e: "Volt misst die Spannung, Ampere die Stromstärke. Der Widerstand wird in Ohm gemessen – nach Georg Simon Ohm."}
+  ],
+  s3: [
+    {q: "Drei Drähte sind gleich lang und gleich dick. Welcher hat den kleinsten Widerstand?", o: ["der Kupferdraht", "der Eisendraht", "der Konstantandraht", "Alle drei haben denselben Widerstand."], a: 0, e: "Kupfer leitet am besten. Darum bestehen Kabel meist aus Kupfer."},
+    {q: "Ein Draht wird doppelt so lang gemacht, alles andere bleibt gleich. Was passiert mit seinem Widerstand?", o: ["Er wird größer.", "Er wird kleiner.", "Er bleibt gleich.", "Er wird null."], a: 0, e: "Mehr Strecke heißt: mehr Atome im Weg. Im Labor siehst du sogar: doppelt so lang, doppelter Widerstand."}
+  ],
+  s4: [
+    {q: "Durch einen Draht fließen bei 2 V genau 0,2 A. Wie viel Strom fließt bei 4 V?", o: ["0,4 A", "0,2 A", "0,1 A", "4 A"], a: 0, e: "Doppelte Spannung, doppelte Stromstärke: 2 · 0,2 A = 0,4 A."},
+    {q: "Du verdoppelst die Spannung an einem Metalldraht (die Temperatur bleibt gleich). Was geschieht mit seinem Widerstand R?", o: ["Er bleibt gleich.", "Er wird doppelt so groß.", "Er wird halb so groß.", "Er wird null."], a: 0, e: "Die Stromstärke wird doppelt so groß, aber U : I bleibt gleich. Der Widerstand gehört zum Draht – nicht zur Spannung."},
+    {q: "Wie sieht das U-I-Diagramm eines Metalldrahtes bei gleicher Temperatur aus?", o: ["Eine Gerade durch den Nullpunkt.", "Eine waagerechte Linie.", "Eine Kurve, die immer steiler wird.", "Eine Gerade, die nicht durch den Nullpunkt geht."], a: 0, e: "Ohne Spannung (0 V) fließt kein Strom (0 A). Doppelte Spannung bringt doppelte Stromstärke – darum liegen alle Punkte auf einer Geraden durch den Nullpunkt."}
+  ],
+  s4m: [
+    {q: "Im Diagramm siehst du zwei Drähte. Bei 4 V fließen durch Draht A 0,4 A und durch Draht B 0,2 A. Welche Aussage stimmt?", o: ["Draht B hat den größeren Widerstand. R(A) = 10 Ω und R(B) = 20 Ω.", "Draht A hat den größeren Widerstand, denn seine Gerade ist steiler. R(A) = 20 Ω und R(B) = 10 Ω.", "Beide haben denselben Widerstand, denn beide Geraden gehen durch den Nullpunkt.", "Draht B hat den größeren Widerstand. R(A) = 1,6 Ω und R(B) = 0,8 Ω."], a: 0, e: "Bei gleicher Spannung fließt durch B weniger Strom, also bremst B stärker: Die flachere Gerade gehört zum größeren Widerstand. R = U : I ergibt für A: 4 V : 0,4 A = 10 Ω und für B: 4 V : 0,2 A = 20 Ω."}
+  ],
+  s5: [
+    {q: "Welche Formel gehört zum Widerstand?", o: ["R = U : I", "R = U · I", "R = I : U", "R = U + I"], a: 0, e: "Widerstand = Spannung geteilt durch Stromstärke."},
+    {q: "Welche Einheit hat das Ergebnis von 12 V : 0,4 A?", o: ["Ω", "V", "A", "W"], a: 0, e: "Volt geteilt durch Ampere ergibt Ohm: 1 Ω = 1 V : 1 A. Hier: 12 V : 0,4 A = 30 Ω."}
+  ],
+  s6: [
+    {q: "Warum bestehen Verlängerungskabel aus dickem Kupferdraht?", o: ["Kupfer und ein dicker Draht haben einen kleinen Widerstand. Das Kabel bremst den Strom kaum und bleibt kühl.", "Ein dicker Draht hat einen großen Widerstand. Das schützt vor zu viel Strom.", "Kupfer leitet schlecht. Das macht das Kabel sicher.", "Damit das Kabel schwer ist und nicht wegrutscht."], a: 0, e: "Ein kleiner Widerstand bedeutet: wenig Bremse, wenig Wärme. Darum nimmt man für Zuleitungen gut leitende, dicke Kupferdrähte."},
+    {q: "Im Toaster fließt durch das Kabel und den Heizdraht derselbe Strom. Warum glüht nur der Heizdraht?", o: ["Er hat den viel größeren Widerstand. Darum wird in ihm viel mehr Energie in Wärme umgewandelt.", "Durch ihn fließt mehr Strom als durch das Kabel.", "Das Kabel hat überhaupt keinen Widerstand.", "Der Heizdraht wird von außen angezündet."], a: 0, e: "Bei gleichem Strom wird dort die meiste Wärme frei, wo der Widerstand am größten ist. Ganz ohne Widerstand ist allerdings kein Draht – auch das Kabel wird ein ganz kleines bisschen warm."}
+  ],
+  train: [
+    {q: "Durch einen Draht fließen bei 4 V genau 0,2 A. Wie groß ist sein Widerstand?", o: ["20 Ω", "0,8 Ω", "0,05 Ω", "20 V"], a: 0, e: "R = U : I = 4 V : 0,2 A = 20 Ω. Mit 0,8 hast du mal gerechnet, 0,05 ist I : U, und der Widerstand hat die Einheit Ω, nicht V."},
+    {q: "Welche Änderungen machen den Widerstand eines Kupferdrahtes größer?", o: ["Draht verlängern", "Draht dünner machen", "Draht stark erhitzen", "Draht dicker machen", "Draht kürzen"], a: [0, 1, 2], e: "Länger, dünner und heißer vergrößern den Widerstand. Dicker und kürzer verkleinern ihn."}
+  ],
+  extra: [
+    {q: "Welches Formelzeichen hat der elektrische Widerstand?", o: ["R", "I", "U", "Ω"], a: 0, e: "R ist das Formelzeichen. Ω ist das Zeichen der Einheit Ohm."},
+    {q: "Nach wem ist die Einheit Ohm benannt?", o: ["Georg Simon Ohm", "Alessandro Volta", "André-Marie Ampère", "Isaac Newton"], a: 0, e: "Volta gab dem Volt seinen Namen, Ampère dem Ampere und Ohm dem Ohm."},
+    {q: "Wie heißt die Fläche, die man sieht, wenn man einen Draht quer durchschneidet?", o: ["Querschnittsfläche", "Oberfläche", "Grundfläche", "Seitenfläche"], a: 0, e: "Ein dicker Draht hat eine große Querschnittsfläche und deshalb einen kleineren Widerstand."},
+    {q: "Bei gleicher Spannung wird der Widerstand eines Drahtes größer. Was passiert mit der Stromstärke?", o: ["Sie wird kleiner.", "Sie wird größer.", "Sie bleibt gleich.", "Sie wird doppelt so groß."], a: 0, e: "Mehr Bremse, weniger Strom."},
+    {q: "Welcher Werkstoff ist eine Legierung?", o: ["Konstantan", "Kupfer", "Eisen", "Wasser"], a: 0, e: "Konstantan besteht aus Kupfer und Nickel. Eine Mischung aus Metallen heißt Legierung."},
+    {q: "Ein Kupferdraht wird heiß. Was passiert mit seinem Widerstand?", o: ["Er wird größer.", "Er wird kleiner.", "Er bleibt immer gleich.", "Er verschwindet."], a: 0, e: "Heiße Atome schwingen stärker und stehen den Elektronen öfter im Weg."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Was meinst du?"});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s5"), MC.s5, "mc5", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s6"), MC.s6, "mc6", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Lampe: Helligkeit einstellen (Station 1 und 3) ---------- */
+function strahlenBauen(g){ g.innerHTML = Array.from({length: 8}, (_, k) => `<path d="M0-34V-48" transform="rotate(${k * 45})"/>`).join(""); }
+function lampeSetzen(t, h, cx, cy){
+  t.halo.setAttribute("opacity", (0.06 + 0.56 * h).toFixed(2));
+  t.gelb.setAttribute("opacity", (0.1 + 0.9 * h).toFixed(2));
+  t.str.setAttribute("opacity", (0.1 + 0.9 * h).toFixed(2));
+  t.str.setAttribute("transform", `translate(${cx} ${cy}) scale(${(0.45 + 0.75 * h).toFixed(2)})`);
+}
+
+/* ---------- Station 1: Draht A oder Draht B ---------- */
+(function(){
+  const id = "tausch"; register(id, "#tauschSim", "Einstiegsversuch: Draht A und Draht B in denselben Stromkreis einbauen");
+  const gA = $("#tzA"), gB = $("#tzB"), L = {halo: $("#tzHalo"), gelb: $("#tzGelb"), str: $("#tzStrahlen")}, anz = $("#tzI"), obs = $("#tzObs"), box = $("#tzWahl");
+  strahlenBauen(L.str);
+  const D = {
+    A: {I: 0.6, t: "Draht A: Die Lampe leuchtet hell. Der Strommesser zeigt 0,60 A. Der kurze, dicke Kupferdraht bremst den Strom kaum."},
+    B: {I: 0.2, t: "Draht B: Die Lampe leuchtet nur schwach. Der Strommesser zeigt nur 0,20 A. Der lange, dünne Draht aus Konstantan bremst den Strom viel stärker."}
+  };
+  const gesehen = new Set();
+  function zeige(k){
+    gA.style.opacity = k === "A" ? 1 : 0; gB.style.opacity = k === "B" ? 1 : 0;
+    lampeSetzen(L, D[k].I / 0.6, 410, 150);
+    setText(anz, "I = " + fmt(D[k].I, 2) + " A");
+  }
+  $$("button", box).forEach(b => b.addEventListener("click", () => {
+    zeige(b.dataset.k); aktiv(box, b); gesehen.add(b.dataset.k);
+    setText(obs, D[b.dataset.k].t + (gesehen.size === 2 ? " – Der Draht hat einen elektrischen Widerstand. Draht B hat den größeren." : ""));
+    if (gesehen.size === 2) solve(id);
+  }));
+  zeige("A");
+})();
+
+/* ---------- Station 2: Elektron im Draht (Animation in Schritten) ---------- */
+(function(){
+  const pfad = $("#mdPfad"), el = $("#mdE"), atome = $("#mdAtome"), waerme = $("#mdWaerme"), pfeil = $("#mdPfeil"), text = $("#mdText");
+  const P = [[66, 127], [118, 141], [160, 114], [199, 140], [240, 114], [279, 140], [320, 114], [359, 140], [400, 114], [448, 127]];
+  const cum = [0]; for (let k = 1; k < P.length; k++) cum.push(cum[k - 1] + Math.hypot(P[k][0] - P[k - 1][0], P[k][1] - P[k - 1][1]));
+  const GES = cum[cum.length - 1];
+  pfad.setAttribute("d", "M" + P.map(p => p.join(" ")).join(" L"));
+  pfad.style.strokeDasharray = GES + " " + GES;
+  let pos = 0, raf = 0;
+  function setze(p){
+    pos = p; const d = GES * p; pfad.style.strokeDashoffset = (GES - d).toFixed(1);
+    let k = 1; while (k < cum.length - 1 && cum[k] < d) k++;
+    const f = (d - cum[k - 1]) / (cum[k] - cum[k - 1] || 1), x = P[k - 1][0] + (P[k][0] - P[k - 1][0]) * f, y = P[k - 1][1] + (P[k][1] - P[k - 1][1]) * f;
+    el.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+  }
+  function gehe(p){
+    cancelAnimationFrame(raf);
+    if (reduced) { setze(p); return; }
+    const von = pos, t0 = performance.now(), dauer = Math.abs(p - von) * 3200 + 150;
+    (function tick(t){ const k = clamp((t - t0) / dauer, 0, 1); setze(von + (p - von) * k); if (k < 1) raf = requestAnimationFrame(tick); })(t0);
+  }
+  const ZIEL = [0, 0, cum[2] / GES, cum[6] / GES, 1, 1];
+  const TXT = ["Atome (grau) und ein Elektron (blau)", "Die Spannung treibt das Elektron an", "Stoß! Das Elektron prallt ab", "Stoß um Stoß – es wird gebremst", "Die Atome schwingen stärker: Wärme", "Das ist der Widerstand R"];
+  setze(0);
+  Modul.makeSchritte($("#modellSim"), {
+    steps: [
+      "Im Draht sitzen die Atome (grau) fest an ihren Plätzen. Dazwischen kann ein Elektron (blau) wandern.",
+      "Die Spannungsquelle treibt das Elektron an. Es läuft vom Minuspol (links) zum Pluspol (rechts).",
+      "Doch es kommt nicht weit: Es stößt gegen ein Atom und prallt ab, dann gegen das nächste.",
+      "Nach jedem Stoß fliegt es in eine neue Richtung und ist gebremst. Bei jedem Stoß gibt es etwas Energie an das Atom ab.",
+      "Die Atome schwingen stärker: Der Draht wird warm. Das Elektron kommt nur langsam voran.",
+      "Diese Bremswirkung ist der <b>elektrische Widerstand R</b>. Je mehr Stöße, desto größer der Widerstand – und desto weniger Elektronen kommen pro Sekunde an."
+    ],
+    ms: 3800,
+    zeige(i){
+      const k = Math.max(0, i);
+      gehe(ZIEL[k]);
+      atome.classList.toggle("hi", k === 0);
+      atome.classList.toggle("warm", k >= 3);
+      waerme.style.opacity = k >= 4 ? 1 : 0;
+      pfeil.style.opacity = k === 1 ? 1 : 0;
+      setText(text, TXT[k]);
+    }
+  }, "modell");
+})();
+
+/* ---------- Station 2: Hindernislauf der Elektronen (Modellversuch) ---------- */
+(function(){
+  const cv = $("#hCanvas"), ctx = cv.getContext("2d"), W = cv.width, H = cv.height;
+  const X0 = 60, X1 = 900, Y0 = 70, Y1 = 330, RA = 24, RE = 11, NE = 18, AE = 0.06, VMAX = 5, VTH = 1.5, FENSTER = 300;
+  const ANZ = {wenig: 3, mittel: 8, viel: 20};
+  const TEXT = {
+    wenig: "Wenige Atome: Die Elektronen kommen weit, ohne anzustoßen. Viele erreichen den Pluspol. Der Widerstand ist klein, die Stromstärke groß.",
+    mittel: "Mittel viele Atome: Die Elektronen stoßen öfter an und kommen langsamer voran. Der Widerstand ist größer, die Stromstärke kleiner.",
+    viel: "Sehr viele Atome: Fast ständig stoßen die Elektronen an. Nur wenige erreichen den Pluspol. Der Widerstand ist groß, die Stromstärke klein."
+  };
+  // Atompositionen: jede neue Position liegt möglichst weit von den bisherigen entfernt (immer dieselbe Reihenfolge)
+  const ALLE = (function(){
+    let seed = 20240915; const rnd = () => (seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296;
+    const out = [];
+    for (let k = 0; k < 24; k++) {
+      let best = null, bd = -1;
+      for (let c = 0; c < 40; c++) {
+        const p = {x: X0 + RA + 8 + rnd() * (X1 - X0 - 2 * RA - 16), y: Y0 + RA + 8 + rnd() * (Y1 - Y0 - 2 * RA - 16)};
+        let d = 1e9; for (const q of out) d = Math.min(d, Math.hypot(p.x - q.x, p.y - q.y));
+        if (d > bd) { bd = d; best = p; }
+      }
+      out.push(best);
+    }
+    return out;
+  })();
+  const id = "hindernis"; register(id, "#hindernisSim", "Modellversuch: Wie viele Atome stehen im Weg? Elektronen pro Sekunde beobachten");
+  const chip = $("#hChip"), balken = $("#hBalken"), obs = $("#hObs"), box = $("#hWahl");
+  let atome = ALLE.slice(0, ANZ.wenig), E = [], schritt = 0, kreuz = [], sichtbar = false, laeuft = false, last = 0, acc = 0, frame = 0;
+  const gesehen = new Set();
+  function frei(e){
+    for (let k = 0; k < 6; k++) {
+      let ok = true;
+      for (const a of atome) if ((e.x - a.x) ** 2 + (e.y - a.y) ** 2 < (RA + RE + 2) ** 2) { ok = false; break; }
+      if (ok) return;
+      e.x = X0 + Math.random() * (X1 - X0); e.y = Y0 + RE + Math.random() * (Y1 - Y0 - 2 * RE);
+    }
+  }
+  for (let k = 0; k < NE; k++) { const e = {x: X0 + Math.random() * (X1 - X0), y: Y0 + RE + Math.random() * (Y1 - Y0 - 2 * RE), vx: 0, vy: 0}; frei(e); E.push(e); }
+  function einSchritt(){
+    schritt++;
+    for (const e of E) {
+      e.vx += AE;
+      const sp = Math.hypot(e.vx, e.vy); if (sp > VMAX) { e.vx *= VMAX / sp; e.vy *= VMAX / sp; }
+      e.x += e.vx; e.y += e.vy;
+      if (e.y < Y0 + RE) { e.y = Y0 + RE; e.vy = Math.abs(e.vy); }
+      if (e.y > Y1 - RE) { e.y = Y1 - RE; e.vy = -Math.abs(e.vy); }
+      if (e.x > X1) { e.x -= X1 - X0; kreuz.push(schritt); }
+      if (e.x < X0) e.x += X1 - X0;
+      for (const a of atome) {
+        const dx = e.x - a.x, dy = e.y - a.y, r = RA + RE;
+        if (dx * dx + dy * dy < r * r) {
+          const d = Math.sqrt(dx * dx + dy * dy) || 0.01, g = Math.random() * 6.2832;
+          e.x = a.x + dx / d * (r + 0.5); e.y = a.y + dy / d * (r + 0.5); e.vx = VTH * Math.cos(g); e.vy = VTH * Math.sin(g);
+          break;
+        }
+      }
+    }
+    if (kreuz.length > 400) kreuz = kreuz.filter(s => s > schritt - FENSTER);
+  }
+  function rate(){ return kreuz.filter(s => s > schritt - FENSTER).length / (FENSTER / 60); }
+  function anzeige(){
+    const r = rate(); setText(chip, "⚡ " + Math.round(r) + " Elektronen pro Sekunde (Modell)"); balken.style.width = clamp(r / 8 * 100, 4, 100).toFixed(0) + "%";
+  }
+  function rundRechteck(x, y, w, h, r){ ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+  function zeichne(){
+    ctx.clearRect(0, 0, W, H); ctx.fillStyle = "#f7fbfe"; ctx.fillRect(0, 0, W, H);
+    rundRechteck(X0 - 16, Y0 - 16, X1 - X0 + 32, Y1 - Y0 + 32, 30); ctx.fillStyle = "#f6ecdf"; ctx.fill(); ctx.lineWidth = 4; ctx.strokeStyle = "#c9a37a"; ctx.stroke();
+    atome.forEach(a => { ctx.beginPath(); ctx.arc(a.x, a.y, RA, 0, 7); ctx.fillStyle = "#9fb3c8"; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = "#6f8aa5"; ctx.stroke(); });
+    E.forEach(e => { ctx.beginPath(); ctx.arc(e.x, e.y, RE, 0, 7); ctx.fillStyle = "#2f6fdb"; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = "#fff"; ctx.stroke(); ctx.fillStyle = "#fff"; ctx.fillRect(e.x - 5.5, e.y - 1.6, 11, 3.2); });
+    ctx.font = "800 32px system-ui, sans-serif"; ctx.textBaseline = "middle";
+    ctx.fillStyle = "#2f6fdb"; ctx.textAlign = "left"; ctx.fillText("− Minuspol", 24, 372);
+    ctx.fillStyle = "#c93b3b"; ctx.textAlign = "right"; ctx.fillText("Pluspol +", W - 24, 372);
+    ctx.fillStyle = "#15212b"; ctx.textAlign = "center"; ctx.fillText("Die Elektronen wandern nach rechts  →", W / 2, 36);
+  }
+  function einstellen(n){
+    atome = ALLE.slice(0, ANZ[n]); E.forEach(frei);
+    kreuz = []; for (let k = 0; k < (reduced ? 1100 : 420); k++) einSchritt();
+    anzeige(); zeichne();
+  }
+  function loop(t){
+    if (!sichtbar) { laeuft = false; return; }
+    acc += Math.min(60, t - last); last = t;
+    while (acc >= 16.67) { einSchritt(); acc -= 16.67; }
+    zeichne(); if (++frame % 20 === 0) anzeige();
+    requestAnimationFrame(loop);
+  }
+  onVisible(cv, v => { sichtbar = v; if (v && !reduced && !laeuft) { laeuft = true; last = performance.now(); acc = 0; requestAnimationFrame(loop); } });
+  $$("button", box).forEach(b => b.addEventListener("click", () => {
+    aktiv(box, b); einstellen(b.dataset.n); setText(obs, TEXT[b.dataset.n]);
+    gesehen.add(b.dataset.n); if (gesehen.size === 3) solve(id);
+  }));
+  einstellen("wenig");
+})();
+
+/* ---------- Station 3: Draht-Labor ---------- */
+(function(){
+  const id = "labor"; register(id, "#laborSim", "Draht-Labor: Länge, Dicke, Material und Temperatur ändern");
+  const RHO = {kupfer: 0.017, eisen: 0.10, konst: 0.50}, TF = {kupfer: 1.4, eisen: 1.6, konst: 1.0}, AQ = [0.1, 0.2, 0.4];
+  const FARBE = {kupfer: "#cf7b3c", eisen: "#6c7782", konst: "#c9b26a"};
+  const U = 6, RL = 10;
+  const draht = $("#laDraht"), quer = $("#laQuer"), L = {halo: $("#laHalo"), gelb: $("#laGelb"), str: $("#laStrahlen")}, anzI = $("#laI");
+  const sL = $("#laLang"), sD = $("#laDick"), wL = $("#laLangW"), wD = $("#laDickW"), boxM = $("#laMat"), boxT = $("#laTemp");
+  const cR = $("#laChipR"), cI = $("#laChipI"), cL = $("#laChipL"), bar = $("#laBalken"), obs = $("#laObs");
+  strahlenBauen(L.str);
+  let mat = "konst", heiss = false;
+  const gesehen = {l: new Set(), d: new Set(), m: new Set(["konst"]), t: new Set(["kalt"])};
+  const lampenWort = h => h >= 0.9 ? "sehr hell" : h >= 0.65 ? "hell" : h >= 0.4 ? "mittel" : "schwach";
+  function zeige(letzte){
+    const len = +sL.value, ai = +sD.value, A = AQ[ai];
+    let R = RHO[mat] * len / A; if (heiss) R *= TF[mat];
+    const I = U / (RL + R), h = clamp(I / (U / RL), 0, 1);
+    const w = 44 + 32 * len, x0 = 225 - w / 2, x1 = x0 + w, d = 12 * Math.sqrt(A / 0.4), r = 18 * Math.sqrt(A / 0.4);
+    draht.innerHTML = `<path d="M120 50H${x0}M${x1} 50H330" stroke="#15212b" stroke-width="3" stroke-linecap="round" fill="none"/>`
+      + (heiss ? `<line x1="${x0}" y1="50" x2="${x1}" y2="50" stroke="#ff7a2a" stroke-opacity=".55" stroke-width="${d + 10}" stroke-linecap="round"/>` : "")
+      + `<line x1="${x0}" y1="50" x2="${x1}" y2="50" stroke="${FARBE[mat]}" stroke-width="${d}" stroke-linecap="round"/>`
+      + `<path d="M${x0} 76H${x1}M${x0} 70v12M${x1} 70v12" stroke="#566674" stroke-width="2" fill="none"/>`
+      + `<text x="225" y="98" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Länge: ${len} m</text>`
+      + (heiss ? `<path d="M${x0 + 10} 30q-5-6 0-12t0-12M${225} 30q-5-6 0-12t0-12M${x1 - 10} 30q-5-6 0-12t0-12" stroke="#e0453a" stroke-width="2.5" fill="none" stroke-linecap="round"/>` : "");
+    quer.innerHTML = `<text x="258" y="124" text-anchor="middle" font-size="13" font-weight="700" fill="#566674">Querschnitt</text>`
+      + `<circle cx="258" cy="152" r="${r.toFixed(1)}" fill="${FARBE[mat]}" stroke="#15212b" stroke-width="2.5"/>`
+      + `<text x="258" y="187" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">${zahl(A, 1)} mm²</text>`;
+    lampeSetzen(L, h, 400, 126);
+    setText(anzI, "I = " + fmt(I, 2) + " A");
+    setText(wL, len + " m"); setText(wD, zahl(A, 1) + " mm²");
+    setText(cR, "R = " + zahl(R, R < 10 ? 2 : 1) + " Ω"); setText(cI, "I = " + fmt(I, 2) + " A"); setText(cL, "Lampe: " + lampenWort(h)); bar.style.width = (h * 100).toFixed(0) + "%";
+    const Z = {
+      l: len > (zeige.vl || len) ? "Länger: Der Weg ist länger, also stehen mehr Atome im Weg. R wird größer, I kleiner, die Lampe dunkler." : "Kürzer: Es stehen weniger Atome im Weg. R wird kleiner, I größer, die Lampe heller.",
+      d: ai > (zeige.vd === undefined ? ai : zeige.vd) ? "Dicker: Die Querschnittsfläche ist größer, R wird kleiner. Es fließt mehr Strom, die Lampe wird heller." : "Dünner: Die Querschnittsfläche ist kleiner, R wird größer. Es fließt weniger Strom, die Lampe wird dunkler.",
+      m: mat === "kupfer" ? "Kupfer leitet sehr gut: kleiner Widerstand, die Lampe leuchtet fast voll." : mat === "eisen" ? "Eisen bremst den Strom stärker als Kupfer." : "Konstantan bremst den Strom von den drei Metallen am stärksten.",
+      t: !heiss ? "Wieder kalt: Der Widerstand sinkt auf den Ausgangswert." : mat === "konst" ? "Heiß: Bei Konstantan ändert sich der Widerstand kaum – eine Ausnahme. Daher stammt auch der Name „Konstantan“." : "Heiß: Die Atome schwingen stärker, R wird größer, I kleiner."
+    };
+    if (letzte) setText(obs, Z[letzte]);
+    zeige.vl = len; zeige.vd = ai;
+    if (gesehen.l.size >= 2 && gesehen.d.size >= 2 && gesehen.m.size >= 3 && gesehen.t.size >= 2) solve(id);
+  }
+  sL.addEventListener("input", () => { gesehen.l.add(sL.value); zeige("l"); });
+  sD.addEventListener("input", () => { gesehen.d.add(sD.value); zeige("d"); });
+  $$("button", boxM).forEach(b => b.addEventListener("click", () => { mat = b.dataset.m; aktiv(boxM, b); gesehen.m.add(mat); zeige("m"); }));
+  $$("button", boxT).forEach(b => b.addEventListener("click", () => { heiss = b.dataset.t === "heiss"; aktiv(boxT, b); gesehen.t.add(b.dataset.t); zeige("t"); }));
+  zeige(null);
+  gesehen.l.add(sL.value); gesehen.d.add(sD.value);   // Startwerte zählen als gesehen, alles andere erst nach Bedienung
+})();
+
+Modul.makeGap($("#gapJe"), [
+  ["Je ", {g: "länger"}, " ein Draht ist, desto ", {g: "größer"}, " ist sein Widerstand."],
+  ["Je ", {g: "dicker"}, " ein Draht ist, desto ", {g: "kleiner"}, " ist sein Widerstand."],
+  ["Von den drei Metallen leitet ", {g: "Kupfer"}, " am besten. ", {g: "Konstantan"}, " hat den größten Widerstand."],
+  ["Wird ein Eisendraht heiß, ", {g: "steigt"}, " sein Widerstand."]
+], "gapJe", ["Plastik", "sinkt"]);
+
+Modul.makeSort($("#sortR"), {
+  buckets: ["Widerstand wird größer", "Widerstand wird kleiner"],
+  items: [
+    {t: "Draht länger machen", b: 0}, {t: "Draht dünner machen", b: 0}, {t: "Konstantan statt Kupfer nehmen", b: 0}, {t: "Eisendraht erhitzen", b: 0},
+    {t: "Draht dicker machen", b: 1}, {t: "Draht kürzen", b: 1}, {t: "Kupfer statt Eisen nehmen", b: 1}, {t: "Eisendraht abkühlen", b: 1}
+  ], cols: 170
+}, "sortR");
+
+Modul.plus(() => {
+  Modul.makePaare($("#paareModell"), [
+    ["Länger → R größer", "Mehr Atome im Weg: Die Elektronen stoßen öfter an."],
+    ["Kürzer → R kleiner", "Weniger Atome im Weg: Die Elektronen stoßen seltener an."],
+    ["Dicker → R kleiner", "Mehr Platz nebeneinander: Mehr Elektronen kommen gleichzeitig durch."],
+    ["Dünner → R größer", "Weniger Platz: Die Elektronen drängeln sich durch den engen Draht."],
+    ["Heißer → R größer", "Die Atome schwingen stärker und stehen öfter im Weg."]
+  ], "paareModell");
+});
+
+/* ---------- Station 4: Messreihe und Diagramm ---------- */
+const DG = {l: 64, r: 452, o: 26, u: 290};
+const dx = u => DG.l + u * (DG.r - DG.l) / 6, dy = i => DG.u - i * (DG.u - DG.o) / 0.6;
+function achsen(){
+  let s = `<rect width="480" height="334" fill="#f7fbfe"/>`;
+  for (let u = 0; u <= 6; u++) s += `<line x1="${dx(u).toFixed(1)}" y1="${DG.o}" x2="${dx(u).toFixed(1)}" y2="${DG.u}" stroke="#e1e9ef" stroke-width="1.5"/><text x="${dx(u).toFixed(1)}" y="${DG.u + 18}" text-anchor="middle" font-size="13" fill="#566674">${u}</text>`;
+  for (let k = 0; k <= 6; k++) s += `<line x1="${DG.l}" y1="${dy(k / 10).toFixed(1)}" x2="${DG.r}" y2="${dy(k / 10).toFixed(1)}" stroke="#e1e9ef" stroke-width="1.5"/><text x="${DG.l - 8}" y="${(dy(k / 10) + 4).toFixed(1)}" text-anchor="end" font-size="13" fill="#566674">${k ? "0," + k : "0"}</text>`;
+  s += `<path d="M${DG.l} ${DG.u}H${DG.r + 12}M${DG.l} ${DG.u}V${DG.o - 10}" stroke="#15212b" stroke-width="2.5" fill="none" stroke-linecap="round"/>`
+    + `<path d="M${DG.r + 12} ${DG.u - 5}l8 5-8 5zM${DG.l - 5} ${DG.o - 10}l5-8 5 8z" fill="#15212b"/>`
+    + `<text x="${(DG.l + DG.r) / 2}" y="328" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Spannung U in V</text>`
+    + `<text x="${DG.l + 16}" y="18" font-size="14" font-weight="800" fill="#15212b">Stromstärke I in A</text>`;
+  return s;
+}
+(function(){
+  const R = 10, id = "mess"; register(id, "#messSim", "Messreihe am Draht: Spannung von 1 V bis 6 V einstellen, Stromstärke ablesen");
+  const svg = $("#diagSvg"); svg.innerHTML = achsen() + `<line id="diagLinie" x1="${dx(0)}" y1="${dy(0)}" x2="${dx(6)}" y2="${dy(0.6)}" stroke="#2f6fdb" stroke-width="3.5" stroke-linecap="round" opacity="0"/><g id="diagPunkte"></g>`;
+  const box = $("#mrWahl"), rows = $$("#mrTab tbody tr"), obs = $("#mrObs"), dObs = $("#diagObs"), pt = $("#diagPunkte"), lin = $("#diagLinie"), tU = $("#mrU"), tA = $("#mrA");
+  const fertig = new Set();
+  box.innerHTML = [1, 2, 3, 4, 5, 6].map(u => `<button type="button" data-u="${u}">${u} V</button>`).join("");
+  $$("button", box).forEach(b => b.addEventListener("click", () => {
+    const u = +b.dataset.u, i = u / R;
+    aktiv(box, b);
+    setText(tU, "U = " + fmt(u, 1) + " V"); setText(tA, "I = " + fmt(i, 2) + " A");
+    const tds = $$("td", rows[u - 1]); tds[1].textContent = fmt(i, 2) + " A"; tds[2].textContent = zahl(u / i, 1) + " Ω";
+    rows.forEach(r => r.classList.toggle("neu", r === rows[u - 1]));
+    if (!fertig.has(u)) { fertig.add(u); pt.insertAdjacentHTML("beforeend", `<circle cx="${dx(u).toFixed(1)}" cy="${dy(i).toFixed(1)}" r="7" fill="#2f6fdb" stroke="#fff" stroke-width="2.5"/>`); }
+    if (fertig.size === 6) {
+      lin.setAttribute("opacity", ".5");
+      setText(obs, "Alle sechs Messungen sind da. Die Stromstärke wächst mit der Spannung. In jeder Zeile ergibt U : I denselben Wert: 10 Ω.");
+      setText(dObs, "Alle Punkte liegen auf einer Geraden durch den Nullpunkt. Bei 2 V fließen 0,20 A, bei 4 V genau 0,40 A: doppelte Spannung, doppelte Stromstärke. U : I = 10 Ω ist der Widerstand dieses Drahtes.");
+      solve(id);
+    } else {
+      setText(obs, `Bei ${u} V fließen ${fmt(i, 2)} A. Noch ${6 - fertig.size} Messung${6 - fertig.size === 1 ? "" : "en"} fehlen.`);
+    }
+  }));
+})();
+(function(){
+  const svg = $("#kennSvg"), ax = (u, i) => `${dx(u).toFixed(1)} ${dy(i).toFixed(1)}`;
+  svg.innerHTML = achsen()
+    + `<line x1="${dx(0)}" y1="${dy(0)}" x2="${dx(6)}" y2="${dy(0.6)}" stroke="#2f6fdb" stroke-width="3.5" stroke-linecap="round"/>`
+    + `<line x1="${dx(0)}" y1="${dy(0)}" x2="${dx(6)}" y2="${dy(0.3)}" stroke="#e0793a" stroke-width="3.5" stroke-linecap="round"/>`
+    + `<path d="M${ax(4, 0)}V${dy(0.4).toFixed(1)}M${ax(0, 0.4)}H${dx(4).toFixed(1)}M${ax(0, 0.2)}H${dx(4).toFixed(1)}" stroke="#566674" stroke-width="2" stroke-dasharray="5 5" fill="none"/>`
+    + `<circle cx="${dx(4).toFixed(1)}" cy="${dy(0.4).toFixed(1)}" r="6.5" fill="#2f6fdb" stroke="#fff" stroke-width="2.5"/><circle cx="${dx(4).toFixed(1)}" cy="${dy(0.2).toFixed(1)}" r="6.5" fill="#e0793a" stroke="#fff" stroke-width="2.5"/>`
+    + `<text x="${(dx(6) - 6).toFixed(1)}" y="${(dy(0.6) - 10).toFixed(1)}" text-anchor="end" font-size="14" font-weight="800" fill="#2f6fdb">Draht A</text>`
+    + `<text x="${(dx(6) - 6).toFixed(1)}" y="${(dy(0.3) - 10).toFixed(1)}" text-anchor="end" font-size="14" font-weight="800" fill="#c25f1f">Draht B</text>`;
+  Modul.plus(() => { Modul.makeMC($("#mc-s4m"), MC.s4m, "mc4m"); });
+})();
+
+/* ---------- Station 5: Merkdreieck ---------- */
+(function(){
+  const id = "dreieck"; register(id, "#dreiSim", "Merkdreieck: R, I und U verdecken und die Formel ablesen");
+  const deck = {U: $("#dzDeckU"), R: $("#dzDeckR"), I: $("#dzDeckI")}, formel = $("#dzFormel"), box = $("#dzWahl");
+  const F = {
+    R: ["R = U : I", "U steht über I: Übereinander heißt geteilt."],
+    I: ["I = U : R", "U steht über R: Übereinander heißt geteilt."],
+    U: ["U = R · I", "R und I stehen nebeneinander: Nebeneinander heißt mal."]
+  };
+  const gesehen = new Set();
+  $$("button", box).forEach(b => b.addEventListener("click", () => {
+    const k = b.dataset.k; aktiv(box, b);
+    Object.keys(deck).forEach(x => { deck[x].style.opacity = x === k ? 1 : 0; });
+    formel.innerHTML = `${F[k][0]}<small>${F[k][1]}</small>`;
+    gesehen.add(k); if (gesehen.size === 3) solve(id);
+  }));
+})();
+
+/* ---------- Station 5: Rechen-Trainer ---------- */
+function trainer(box, probs, id, text){
+  register(id, box, text);
+  box.innerHTML = `<div class="rech"><div class="rech-kopf"><span class="chip rz"></span><span class="rech-punkte"></span></div><p class="rech-story"></p><p class="rech-geg"></p><div class="wahl rech"></div><div class="fb"></div><div class="row-btns rech-ende" hidden><button type="button" class="btn small ghost nochmal">↺ Noch einmal üben</button></div></div>`;
+  const chip = $(".rz", box), punkte = $(".rech-punkte", box), story = $(".rech-story", box), geg = $(".rech-geg", box), wahl = $(".wahl", box), fb = $(".fb", box), ende = $(".rech-ende", box);
+  let reihe = probs, i = 0;
+  function frage(){
+    const p = reihe[i];
+    setText(chip, `Aufgabe ${i + 1} von ${reihe.length}`);
+    setText(punkte, reihe.map((_, k) => k < i ? "●" : "○").join(" "));
+    story.textContent = ne(p.s); geg.innerHTML = "<b>Gegeben:</b> " + esc(ne(p.g)) + " · <b>Gesucht:</b> " + esc(p.w);
+    wahl.hidden = false; ende.hidden = true;
+    wahl.innerHTML = shuffle(p.o).map(o => `<button type="button" data-ok="${o.ok ? 1 : 0}" data-h="${esc(o.h || "")}">${esc(ne(o.t))}</button>`).join("");
+    $$("button", wahl).forEach(b => b.addEventListener("click", () => {
+      if (b.dataset.ok === "1") {
+        fb.className = "fb show ok"; fb.textContent = `✅ Richtig! ${ne(p.e)}`;
+        i++; if (i >= reihe.length) fertig(); else frage();
+      } else { b.classList.add("falsch"); b.disabled = true; fb.className = "fb show bad"; fb.textContent = "❌ " + b.dataset.h; }
+    }));
+  }
+  function fertig(){
+    wahl.hidden = true; ende.hidden = false; story.textContent = "Geschafft!"; geg.textContent = ""; setText(chip, `Alle ${reihe.length} Aufgaben gelöst`); setText(punkte, reihe.map(() => "●").join(" "));
+    solve(id);
+  }
+  $(".nochmal", box).addEventListener("click", () => { reihe = shuffle(probs); i = 0; fb.className = "fb"; frage(); });
+  frage();
+}
+trainer($("#rechnerA"), [
+  {s: "Eine Lampe liegt an 6 V. Das Strommessgerät zeigt 0,5 A.", g: "U = 6 V, I = 0,5 A", w: "R", e: "Die Lampe hat einen Widerstand von 12 Ω.", o: [
+    {t: "R = U : I = 6 V : 0,5 A = 12 Ω", ok: 1},
+    {t: "R = U · I = 6 V · 0,5 A = 3 Ω", h: "Hier wurde mal gerechnet. Der Widerstand ist ein Quotient: Spannung geteilt durch Stromstärke."},
+    {t: "R = I : U = 0,5 A : 6 V ≈ 0,08 Ω", h: "Die Größen sind vertauscht. Es heißt U : I – die Spannung steht vorne."},
+    {t: "R = U : I = 6 V : 0,5 A = 12 V", h: "Die Zahl stimmt, aber nicht die Einheit. Der Widerstand wird in Ohm (Ω) gemessen, nicht in Volt."}]},
+  {s: "Ein Draht liegt an 9 V. Es fließen 0,3 A.", g: "U = 9 V, I = 0,3 A", w: "R", e: "Der Draht hat einen Widerstand von 30 Ω.", o: [
+    {t: "R = U : I = 9 V : 0,3 A = 30 Ω", ok: 1},
+    {t: "R = U · I = 9 V · 0,3 A = 2,7 Ω", h: "Hier wurde mal gerechnet. Der Widerstand ist ein Quotient: U geteilt durch I."},
+    {t: "R = U : I = 9 V : 0,3 A = 3 Ω", h: "Prüfe das Komma: 0,3 passt 30-mal in 9, denn 30 · 0,3 = 9."},
+    {t: "R = I : U = 0,3 A : 9 V ≈ 0,03 Ω", h: "Die Größen sind vertauscht. Die Spannung U steht beim Teilen vorne."}]},
+  {s: "Ein Heizdraht liegt an der Steckdose (230 V). Es fließen 2 A.", g: "U = 230 V, I = 2 A", w: "R", e: "Der Heizdraht hat einen Widerstand von 115 Ω.", o: [
+    {t: "R = U : I = 230 V : 2 A = 115 Ω", ok: 1},
+    {t: "R = U · I = 230 V · 2 A = 460 Ω", h: "Hier wurde mal gerechnet. Du musst 230 V durch 2 A teilen."},
+    {t: "R = I : U = 2 A : 230 V ≈ 0,009 Ω", h: "Die Größen sind vertauscht. Die Spannung steht vorne: U : I."},
+    {t: "R = U : I = 230 V : 2 A = 115 A", h: "Die Zahl stimmt, aber nicht die Einheit. Der Widerstand wird in Ohm (Ω) gemessen, nicht in Ampere."}]},
+  {s: "Ein Draht liegt an 3 V. Es fließen 0,6 A.", g: "U = 3 V, I = 0,6 A", w: "R", e: "Der Draht hat einen Widerstand von 5 Ω.", o: [
+    {t: "R = U : I = 3 V : 0,6 A = 5 Ω", ok: 1},
+    {t: "R = U · I = 3 V · 0,6 A = 1,8 Ω", h: "Hier wurde mal gerechnet. Der Widerstand ist ein Quotient."},
+    {t: "R = U : I = 3 V : 0,6 A = 0,5 Ω", h: "Das Ergebnis ist zu klein. Prüfe: 5 · 0,6 = 3, also passt 0,6 genau 5-mal in 3."},
+    {t: "R = I : U = 0,6 A : 3 V = 0,2 Ω", h: "Die Größen sind vertauscht. Die Spannung steht vorne: U : I."}]},
+  {s: "Ein Draht liegt an 12 V. Es fließen 0,6 A.", g: "U = 12 V, I = 0,6 A", w: "R", e: "Der Draht hat einen Widerstand von 20 Ω.", o: [
+    {t: "R = U : I = 12 V : 0,6 A = 20 Ω", ok: 1},
+    {t: "R = U · I = 12 V · 0,6 A = 7,2 Ω", h: "Hier wurde mal gerechnet. Der Widerstand ist ein Quotient: U geteilt durch I."},
+    {t: "R = I : U = 0,6 A : 12 V = 0,05 Ω", h: "Die Größen sind vertauscht. Die Spannung steht vorne: U : I."},
+    {t: "R = U : I = 12 V : 0,6 A = 20 V", h: "Die Zahl stimmt, aber nicht die Einheit. Der Widerstand wird in Ohm (Ω) gemessen."}]},
+  {s: "Ein Draht liegt an 10 V. Es fließen 0,25 A.", g: "U = 10 V, I = 0,25 A", w: "R", e: "Der Draht hat einen Widerstand von 40 Ω.", o: [
+    {t: "R = U : I = 10 V : 0,25 A = 40 Ω", ok: 1},
+    {t: "R = U · I = 10 V · 0,25 A = 2,5 Ω", h: "Hier wurde mal gerechnet. Der Widerstand ist ein Quotient."},
+    {t: "R = U : I = 10 V : 0,25 A = 4 Ω", h: "Prüfe das Komma: 0,25 passt 40-mal in 10, denn 40 · 0,25 = 10."},
+    {t: "R = I : U = 0,25 A : 10 V = 0,025 Ω", h: "Die Größen sind vertauscht. Die Spannung steht vorne: U : I."}]}
+], "rechnen", "Rechen-Trainer: R = U : I mit Einheiten ausrechnen");
+
+Modul.plus(() => {
+  trainer($("#rechnerM"), [
+    {s: "Eine Heizspirale hat 46 Ω und liegt an der Steckdose (230 V).", g: "U = 230 V, R = 46 Ω", w: "I", e: "Es fließen 5 A.", o: [
+      {t: "I = U : R = 230 V : 46 Ω = 5 A", ok: 1},
+      {t: "I = U · R = 230 V · 46 Ω = 10 580 A", h: "Hier wurde mal gerechnet. Verdecke I im Merkdreieck: U steht über R, also wird geteilt."},
+      {t: "I = R : U = 46 Ω : 230 V = 0,2 A", h: "Die Größen sind vertauscht. Für I teilst du die Spannung durch den Widerstand: U : R."},
+      {t: "I = U : R = 230 V : 46 Ω = 5 V", h: "Die Zahl stimmt, aber nicht die Einheit. Die Stromstärke wird in Ampere (A) gemessen."}]},
+    {s: "Durch einen Widerstand von 20 Ω fließen 0,3 A.", g: "R = 20 Ω, I = 0,3 A", w: "U", e: "Am Widerstand liegen 6 V.", o: [
+      {t: "U = R · I = 20 Ω · 0,3 A = 6 V", ok: 1},
+      {t: "U = R : I = 20 Ω : 0,3 A ≈ 67 V", h: "Hier wurde geteilt. Verdecke U im Merkdreieck: R und I stehen nebeneinander, also wird mal gerechnet."},
+      {t: "U = I : R = 0,3 A : 20 Ω = 0,015 V", h: "Die Größen sind vertauscht und es wurde geteilt. Für U gilt: U = R · I."},
+      {t: "U = R · I = 20 Ω · 0,3 A = 6 A", h: "Die Zahl stimmt, aber nicht die Einheit. Die Spannung wird in Volt (V) gemessen."}]},
+    {s: "Ein Draht hat 30 Ω und liegt an 12 V.", g: "U = 12 V, R = 30 Ω", w: "I", e: "Es fließen 0,4 A.", o: [
+      {t: "I = U : R = 12 V : 30 Ω = 0,4 A", ok: 1},
+      {t: "I = R : U = 30 Ω : 12 V = 2,5 A", h: "Die Größen sind vertauscht. Für I teilst du die Spannung durch den Widerstand: U : R."},
+      {t: "I = U : R = 12 V : 30 Ω = 4 A", h: "Prüfe das Komma: 4 A wären viel zu viel. Es gilt 30 · 0,4 = 12."},
+      {t: "I = U · R = 12 V · 30 Ω = 360 A", h: "Hier wurde mal gerechnet. Verdecke I im Merkdreieck: U steht über R, also wird geteilt."}]},
+    {s: "Durch einen Draht mit 5 Ω fließen 0,9 A.", g: "R = 5 Ω, I = 0,9 A", w: "U", e: "Am Draht liegen 4,5 V.", o: [
+      {t: "U = R · I = 5 Ω · 0,9 A = 4,5 V", ok: 1},
+      {t: "U = R : I = 5 Ω : 0,9 A ≈ 5,6 V", h: "Hier wurde geteilt. Für U gilt: R und I stehen nebeneinander, also mal."},
+      {t: "U = R · I = 5 Ω · 0,9 A = 45 V", h: "Prüfe das Komma: 5 · 0,9 = 4,5 und nicht 45."},
+      {t: "U = I : R = 0,9 A : 5 Ω = 0,18 V", h: "Die Größen sind vertauscht und es wurde geteilt. Für U gilt: U = R · I."}]}
+  ], "rechnenM", "Rechen-Trainer M7: nach I und U umstellen und rechnen");
+});
+
+/* ---------- Station 6: Kabel und Heizdraht ---------- */
+(function(){
+  const id = "heiz"; register(id, "#hzSim", "Verlängerungskabel und Heizdraht: Strom einschalten und vergleichen");
+  const glow = $("#hzGlow"), draht = $("#hzDraht"), welle = $("#hzWelle"), t1 = $("#hzT1"), t2 = $("#hzT2"), tI = $("#hzI"), obs = $("#hzObs"), box = $("#hzWahl");
+  function zeige(an){
+    glow.style.opacity = an ? 0.7 : 0; welle.style.opacity = an ? 1 : 0;
+    draht.setAttribute("stroke", an ? "#ff6a2a" : "#9aa6b2");
+    setText(tI, an ? "I = 4 A" : "I = 0 A");
+    setText(t1, an ? "Kabel bleibt kühl" : ""); setText(t2, an ? "Heizdraht glüht" : "");
+    t1.setAttribute("fill", an ? "#1b8a4b" : "#566674"); t2.setAttribute("fill", an ? "#c93b3b" : "#566674");
+    setText(obs, an ? "Durch beide fließen etwa 4 A. Der Heizdraht hat den viel größeren Widerstand: In ihm wird viel Energie in Wärme umgewandelt, er glüht. Im dicken Kupferkabel mit dem kleinen Widerstand wird kaum etwas warm."
+      : "Der Strom ist aus: Nichts fließt, nichts wird warm. Schalte ihn ein.");
+  }
+  $$("button", box).forEach(b => b.addEventListener("click", () => { aktiv(box, b); const an = b.dataset.k === "an"; zeige(an); if (an) solve(id); }));
+  zeige(false);
+})();
+
+Modul.makeSort($("#sort6"), {
+  buckets: ["Verlängerungskabel", "Heizdraht im Toaster"],
+  items: [
+    {t: "kleiner Widerstand", b: 0}, {t: "dick", b: 0}, {t: "Kupfer", b: 0}, {t: "soll kühl bleiben", b: 0},
+    {t: "großer Widerstand", b: 1}, {t: "dünn und lang", b: 1}, {t: "Legierung (z. B. aus Nickel und Chrom)", b: 1}, {t: "soll glühen", b: 1}
+  ], cols: 170
+}, "sort6");
+
+/* ---------- Station 7: Training ---------- */
+Modul.makeGap($("#gap7"), [
+  ["Der elektrische Widerstand sagt, wie stark ein Leiter den ", {g: "Strom"}, " bremst. Sein Formelzeichen ist ", {g: "R"}, ", seine Einheit heißt ", {g: "Ohm"}, "."],
+  ["Man berechnet ihn so: R = ", {g: "U"}, " : ", {g: "I"}, ". Bei 12 V und 0,4 A beträgt der Widerstand ", {g: "30"}, " Ω."],
+  ["Im Modell stoßen die ", {g: "Elektronen"}, " gegen die ", {g: "Atome"}, " des Metalls."]
+], "gap7", ["Volt", "4,8"]);
+
+Modul.makePaare($("#paare7"), [
+  ["Spannung U", "Volt (V)"],
+  ["Stromstärke I", "Ampere (A)"],
+  ["Widerstand R", "Ohm (Ω)"],
+  ["Georg Simon Ohm", "Namensgeber der Einheit Ω"],
+  ["R = U : I", "Widerstand berechnen"],
+  ["Konstantan", "Legierung mit großem Widerstand"]
+], "paare7");
+
+Modul.makeTF($("#tf7"), [
+  ["Ein großer Widerstand bremst den Strom stark.", true],
+  ["Der Widerstand wird in Volt gemessen.", false],
+  ["Ein längerer Draht hat bei gleichem Material und gleicher Dicke einen größeren Widerstand.", true],
+  ["Ein dickerer Draht hat einen größeren Widerstand als ein dünnerer (sonst alles gleich).", false],
+  ["Bei gleicher Spannung fließt durch einen größeren Widerstand mehr Strom.", false],
+  ["Den Widerstand berechnet man mit R = U : I.", true],
+  ["Verdoppelt man die Spannung an einem Metalldraht (gleiche Temperatur), wird auch die Stromstärke doppelt so groß.", true]
+], "tf7");
+
+Modul.makeCrossword($("#cw"), {
+  words: [
+    {w: "ELEKTRONEN", r: 7, c: 0, d: "a", q: "Winzige Teilchen, die durch den Draht wandern."},
+    {w: "WIDERSTAND", r: 3, c: 5, d: "d", q: "Er bremst den Strom. Seine Einheit ist das Ohm."},
+    {w: "KONSTANTAN", r: 10, c: 0, d: "a", q: "Metallmischung mit großem Widerstand, der sich kaum mit der Temperatur ändert."},
+    {w: "HEIZDRAHT", r: 12, c: 1, d: "a", q: "Dünner, langer Draht im Toaster, der glüht."},
+    {w: "SPANNUNG", r: 1, c: 7, d: "d", q: "Sie treibt die Elektronen an. Einheit: Volt."},
+    {w: "LEGIERUNG", r: 0, c: 9, d: "d", q: "Mischung aus mehreren Metallen."},
+    {w: "BATTERIE", r: 0, c: 0, d: "d", q: "Spannungsquelle, die du in eine Taschenlampe einlegst."},
+    {w: "KUPFER", r: 3, c: 2, d: "d", q: "Metall mit sehr kleinem Widerstand – darum in fast allen Kabeln."},
+    {w: "ATOM", r: 1, c: 0, d: "a", q: "Im Metall sitzen viele davon fest auf ihren Plätzen."}
+  ],
+  sol: [[0, 0], [5, 0], [4, 0], [1, 3], [1, 7], [6, 5]], solWord: "BREMSE"
+}, "cw");
+
+Modul.makeOpen($("#open"), [
+  {q: "Erkläre mit dem Modell, warum ein Draht den Strom bremst.",
+   m: "Im Draht stoßen die Elektronen immer wieder gegen die Atome des Metalls. Dadurch werden sie gebremst und kommen langsamer voran. Je mehr Stöße, desto weniger Elektronen kommen pro Sekunde an: Die Stromstärke wird kleiner, der Widerstand ist größer.",
+   k: ["stoß|stoss|prall|zusammen", "atom|hindernis", "bremst|gebremst|langsam|weniger|kleiner"], min: 2},
+  {q: "Berechne den Widerstand eines Drahtes, an dem 9 V liegen und durch den 0,3 A fließen. Schreibe die Rechnung mit Einheiten auf.",
+   m: "R = U : I = 9 V : 0,3 A = 30 Ω. Der Widerstand beträgt 30 Ohm.",
+   k: ["30", "ohm|ω", "u : i|geteilt|durch|:"], min: 2},
+  {q: "Nenne vier Dinge, von denen der Widerstand eines Metalldrahtes abhängt, und sage jeweils, wann er größer wird.",
+   m: "Länge: Je länger der Draht, desto größer ist sein Widerstand. Dicke: Je dicker der Draht (je größer die Querschnittsfläche), desto kleiner ist der Widerstand. Material: Kupfer hat einen kleineren Widerstand als Eisen. Temperatur: Wird ein Metalldraht heiß, steigt sein Widerstand.",
+   k: ["läng|lang", "dick|dünn|querschnitt", "material|kupfer|eisen|konstantan", "temperatur|heiß|warm|erhitz"], min: 3}
+], "open", "Lies noch einmal die Merke-Kästen in Station 2, 3 und 4 und das Beispiel in Station 5.");
+
+Modul.plus(() => {
+  Modul.makeOpen($("#openM"), [
+    {q: "Beim Einschalten einer Glühlampe fließt für einen kurzen Moment ein besonders großer Strom. Erkläre das mit dem Widerstand des Glühdrahts.",
+     m: "Der Glühdraht ist beim Einschalten noch kalt. Ein kalter Draht hat einen kleinen Widerstand, deshalb fließt bei gleicher Spannung ein großer Strom. Wird der Draht heiß, schwingen die Atome stärker, die Elektronen stoßen öfter an, der Widerstand steigt und die Stromstärke sinkt.",
+     k: ["kalt", "klein", "heiß|heiss|warm|glüh", "stärker|steigt|öfter|größer"], min: 3},
+    {q: "Im Toaster fließt durch die Zuleitung und den Heizdraht derselbe Strom. Begründe, warum die Zuleitung aus dickem Kupferdraht besteht, der Heizdraht aber dünn ist und aus einer Legierung.",
+     m: "Die Zuleitung soll den Strom nicht bremsen und kalt bleiben. Dafür braucht sie einen kleinen Widerstand: Kupfer leitet gut und der Draht ist dick. Der Heizdraht soll heiß werden. Dafür braucht er einen großen Widerstand: Er ist dünn und besteht aus einer Legierung, die den Strom schlechter leitet. Bei gleichem Strom wird im größeren Widerstand mehr Wärme frei.",
+     k: ["kupfer|dick", "klein", "groß", "dünn|legierung|lang", "heiß|wärme|warm|glüh"], min: 3}
+  ], "openM", "Denke an Länge, Dicke, Material und Temperatur – und an den Strom, der durch beide Drähte gleich ist.");
+});
+
+/* ---------- Profi-Check ---------- */
+Modul.makeQuiz($("#quiz"), [].concat(MC.s1, MC.s2, MC.s3, MC.s4, MC.s5, MC.s6, [MC.train[0]], MC.extra), "quiz", "Widerstands-Profi");
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

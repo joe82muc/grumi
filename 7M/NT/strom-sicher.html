@@ -1,0 +1,941 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#7a1f4a">
+<title>Sicher mit Strom umgehen | NT 7</title>
+<link rel="stylesheet" href="modul-basis.css">
+<style>
+.hero{background:linear-gradient(160deg,#13225c,#7a1f4a 55%,#e5731f)}
+.hotimg{position:relative}
+.hotimg svg{display:block;width:100%;height:auto}
+/* Auswahlknöpfe unter einer Grafik */
+.sim .wahl{margin:0;padding:12px 14px;border-top:1px solid var(--line);background:#fbfdff}
+.sim .wahl + .wahl{border-top:0;padding-top:0}
+.wahl:empty{display:none}
+.wahl button:disabled{opacity:.5;cursor:default}
+.wahl button.gesehen{border-color:var(--ok);background:var(--ok-l)}
+.wahl button.sel.gesehen{background:var(--sky);border-color:var(--sky);color:#fff}
+.sim .readout{padding-top:12px}
+/* Strom als fließende Striche */
+.fluss{stroke-dasharray:3 9;animation:fluss .7s linear infinite}
+@keyframes fluss{to{stroke-dashoffset:-12}}
+.pause .fluss,.pause .herz,.pause .flimmer{animation-play-state:paused}
+.herz{transform-box:fill-box;transform-origin:center;animation:herz 1s ease-in-out infinite}
+@keyframes herz{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+.flimmer{transform-box:fill-box;transform-origin:center;animation:flimmer .13s linear infinite alternate}
+@keyframes flimmer{from{transform:scale(.9) rotate(-8deg)}to{transform:scale(1.22) rotate(8deg)}}
+#bdFoehn,#bdStrom,#bdBlitz,#skHebel{transition:opacity .4s,transform .5s}
+/* Tabelle der Geräte */
+.tab{width:100%;border-collapse:collapse;font-size:.95rem;margin:8px 0 12px}
+.tab th,.tab td{border:1px solid var(--line);padding:6px 10px;text-align:left}
+.tab th{background:var(--sky-l);color:var(--sky-d)}
+.tab td:last-child{text-align:right;font-weight:700;white-space:nowrap}
+/* Regeln aufdecken */
+.regel-buehne{border:2px solid var(--line);border-radius:14px;padding:12px 14px;background:#fff;min-height:7.2em}
+.regel-buehne b{color:var(--sky-d)}
+.warnschild{display:flex;gap:14px;align-items:center}
+.warnschild svg{flex:none;width:84px;height:74px}
+@media (max-width:520px){.warnschild{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>NT 7</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Föhn!</a>
+      <a href="#s2"><b>2</b>Gefahr</a>
+      <a href="#s3"><b>3</b>Suchbild</a>
+      <a href="#s4"><b>4</b>Überlast</a>
+      <a href="#s5"><b>5</b>Schutz</a>
+      <a href="#s6"><b>6</b>Regeln</a>
+      <a href="#s7"><b>7</b>Training</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse 7M / 7R · Themenbereich Elektrizität · Lernmodul 5</div>
+    <h1>Sicher mit Strom umgehen</h1>
+    <p>Strom macht unser Leben bequem – und kann gefährlich werden. In sieben Stationen lernst du, wann Strom dem Körper schadet, wie Sicherung und Schutzschalter dich schützen und welche Regeln im Alltag Leben retten.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s7">Direkt zum Probentraining</a>
+    </div>
+    <div class="goals">
+      <div>🛁 Ich erkläre, warum ein Föhn in der Badewanne lebensgefährlich ist.</div>
+      <div>🔍 Ich erkenne Gefahren im Haushalt und begründe sie.</div>
+      <div>🛡️ Ich erkläre, was Sicherung, FI-Schutzschalter und Isolierung tun.</div>
+      <div>📋 Ich nenne Sicherheitsregeln mit Begründung und weiß, was bei einem Stromunfall zu tun ist.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg</div><h2>Der Föhn am Wannenrand</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Eine Freundin erzählt: „Ich föhne mir die Haare am liebsten in der Badewanne. Da ist es so schön warm.“</p>
+      <p>Bei dir gehen sofort die Alarmglocken an. Warum? Strom ist nützlich, aber er kann auch durch deinen Körper fließen. Das nennt man <button class="term" data-t="stromschlag">Stromschlag</button> – und der kann lebensgefährlich sein.</p>
+      <p>Der Grund: Dein Körper besteht zu mehr als der Hälfte aus Wasser. In diesem Wasser sind Salze gelöst. Du weißt schon: Wasser mit gelösten Salzen ist ein <button class="term" data-t="leiter">Leiter</button>. Auch Badewasser und Schweiß leiten. <strong>Darum leitet auch dein Körper den Strom.</strong></p>
+      <p class="hint">Probiere es rechts aus: Wohin fließt der Strom, wenn der Föhn ins Wasser rutscht?</p>
+      <div id="mc-s1"></div>
+    </div>
+    <div class="sim reveal" id="badSim">
+      <svg viewBox="0 0 480 290" role="img" aria-label="Badewanne mit einer Person im Wasser. Ein Föhn liegt am Wannenrand oder im Wasser. Ein Kabel führt zur Steckdose an der Wand.">
+        <rect width="480" height="290" fill="#f7fbfe"/>
+        <rect x="0" y="262" width="480" height="28" fill="#d9c9a8"/>
+        <!-- Steckdose an der Wand -->
+        <rect x="440" y="172" width="30" height="40" rx="5" fill="#fff" stroke="#8a97a3" stroke-width="2"/>
+        <circle cx="449" cy="187" r="3" fill="#15212b"/><circle cx="461" cy="187" r="3" fill="#15212b"/><rect x="447" y="196" width="16" height="4" rx="2" fill="#15212b"/>
+        <text x="472" y="166" text-anchor="end" font-size="11" font-weight="700" fill="#566674">Steckdose</text>
+        <!-- Wanne und Wasser -->
+        <path d="M26 118H330V196Q330 256 270 256H86Q26 256 26 196Z" fill="#fff" stroke="#8a97a3" stroke-width="4"/>
+        <path d="M34 150H322V196Q322 248 268 248H88Q34 248 34 196Z" fill="#8fd0f2" opacity=".9"/>
+        <text x="200" y="176" text-anchor="middle" font-size="12" font-weight="700" fill="#0b5d98">Wasser</text>
+        <!-- Abfluss aus Metall -->
+        <rect x="286" y="244" width="30" height="8" rx="3" fill="#7d8791"/>
+        <path d="M301 252V272" stroke="#7d8791" stroke-width="7"/>
+        <text x="330" y="284" font-size="11" font-weight="700" fill="#566674">Abfluss und Rohr (Metall)</text>
+        <!-- Person im Wasser -->
+        <path d="M96 150V216Q96 232 112 232H144Q160 232 160 216V150Z" fill="#f2c9a0" stroke="#8a5a2b" stroke-width="2" opacity=".78"/>
+        <circle cx="128" cy="122" r="17" fill="#f2c9a0" stroke="#15212b" stroke-width="3"/>
+        <path d="M112 114Q128 100 144 114" stroke="#6b3f1a" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <!-- Ablage am Wannenrand -->
+        <rect x="336" y="128" width="96" height="9" rx="3" fill="#c9b99a"/>
+        <!-- Kabel und Föhn -->
+        <path id="bdKabel" d="M358 106C336 106 344 170 384 184S430 194 440 192" fill="none" stroke="#3a444d" stroke-width="5" stroke-linecap="round"/>
+        <g id="bdFoehn" transform="translate(386 106)">
+          <rect x="-28" y="-12" width="56" height="24" rx="12" fill="#e0453a"/>
+          <rect x="28" y="-8" width="14" height="16" rx="3" fill="#8a97a3"/>
+          <rect x="-18" y="10" width="12" height="10" rx="3" fill="#3a444d"/>
+          <circle cx="-6" cy="0" r="3.5" fill="#fff"/>
+        </g>
+        <!-- Strom im Wasser -->
+        <g id="bdStrom" opacity="0" fill="none" stroke="#e8890c" stroke-width="5" stroke-linecap="round">
+          <path class="fluss" d="M258 198L166 192"/>
+          <path class="fluss" d="M140 232Q200 254 290 248"/>
+          <path class="fluss" d="M301 258V272H451V216"/>
+        </g>
+        <path id="bdBlitz" opacity="0" d="M132 160l-12 22h9l-6 18 18-26h-10l7-14z" fill="#f2b632" stroke="#15212b" stroke-width="1.5" stroke-linejoin="round"/>
+        <text id="bdText" x="240" y="26" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">Strom bleibt im Föhn</text>
+      </svg>
+      <div class="wahl" id="badWahl"></div>
+      <p class="obs" id="badObs">Tippe auf einen der beiden Knöpfe und beobachte den Strom.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Wann wird Strom gefährlich?</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Mit Batterien experimentierst du ohne Sorge. An der Steckdose wäre das lebensgefährlich. Was ist der Unterschied?</p>
+    <p>Entscheidend ist, <strong>wie viel Strom durch deinen Körper fließt</strong>. Eine hohe <button class="term" data-t="spannung">Spannung</button> treibt viel Strom durch den Körper, eine kleine Spannung nur sehr wenig. Und nasse Haut bremst den Strom kaum.</p>
+    <p>Kleine Stromstärken gibt man in <button class="term" data-t="milliampere">Milliampere (mA)</button> an. 1000 mA sind 1 A. Zum Vergleich: Durch eine kleine Leuchtdiode fließen etwa 20 mA.</p>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="sim reveal" id="quellenSim">
+      <svg viewBox="0 0 480 170" role="img" aria-label="Fünf Spannungsquellen nebeneinander: 1,5 Volt, 9 Volt, 12 Volt, 230 Volt und 15 000 Volt. Die ersten drei sind ungefährlich, die letzten zwei lebensgefährlich.">
+        <rect width="480" height="170" fill="#f7fbfe"/>
+        <g font-size="24" text-anchor="middle"><text x="72" y="40">🔋</text><text x="156" y="40">🔋</text><text x="240" y="40">🚗</text><text x="324" y="40">🔌</text><text x="408" y="40">⚡</text></g>
+        <g stroke="#fff" stroke-width="3">
+          <rect id="qSeg0" x="30" y="70" width="84" height="30" fill="#9bd9b3"/>
+          <rect id="qSeg1" x="114" y="70" width="84" height="30" fill="#9bd9b3"/>
+          <rect id="qSeg2" x="198" y="70" width="84" height="30" fill="#9bd9b3"/>
+          <rect id="qSeg3" x="282" y="70" width="84" height="30" fill="#e0453a"/>
+          <rect id="qSeg4" x="366" y="70" width="84" height="30" fill="#8f2525"/>
+        </g>
+        <g font-size="15" font-weight="800" text-anchor="middle">
+          <text x="72" y="91" fill="#15212b">1,5 V</text><text x="156" y="91" fill="#15212b">9 V</text><text x="240" y="91" fill="#15212b">12 V</text>
+          <text x="324" y="91" fill="#fff">230 V</text><text x="408" y="91" fill="#fff">15 000 V</text>
+        </g>
+        <g font-size="11" font-weight="700" fill="#566674" text-anchor="middle">
+          <text x="72" y="116">Mignonzelle</text><text x="156" y="116">9-V-Block</text><text x="240" y="116">Autobatterie</text><text x="324" y="116">Steckdose</text><text x="408" y="116">Bahnstrom</text>
+        </g>
+        <polygon id="qZeiger" points="-9,-14 9,-14 0,0" transform="translate(72 68)" fill="#15212b"/>
+        <path d="M36 130H276" stroke="#1b8a4b" stroke-width="3" stroke-linecap="round"/><path d="M288 130H444" stroke="#c93b3b" stroke-width="3" stroke-linecap="round"/>
+        <text x="156" y="152" text-anchor="middle" font-size="13" font-weight="800" fill="#1b8a4b">ungefährlich für den Körper</text>
+        <text x="366" y="152" text-anchor="middle" font-size="13" font-weight="800" fill="#c93b3b">Lebensgefahr</text>
+      </svg>
+      <div class="wahl" id="quellenWahl"></div>
+      <div class="wahl" id="hautWahl"></div>
+      <div class="readout"><span class="chip" id="quellenChip">Wähle eine Quelle</span></div>
+      <p class="obs" id="quellenObs">Tippe auf eine Spannungsquelle. Wechsle bei der Steckdose auch zwischen trockener und nasser Haut.</p>
+    </div>
+    <div class="sim reveal" id="koerperSim">
+      <svg viewBox="0 0 480 230" role="img" aria-label="Eine Person greift einen blanken Draht. Der Strom fließt von der Hand durch den Körper zum Boden. Rechts eine Skala von 0 bis 100 Milliampere mit den Zonen Kribbeln, Krampf und Lebensgefahr.">
+        <rect width="480" height="230" fill="#f7fbfe"/>
+        <path d="M30 206H190" stroke="#7d8791" stroke-width="5" stroke-linecap="round"/>
+        <path d="M18 24L50 100" stroke="#e0453a" stroke-width="5" stroke-linecap="round"/><circle cx="50" cy="100" r="5" fill="#d98a3a"/>
+        <path d="M100 134L96 204M122 134L126 204" stroke="#3a444d" stroke-width="9" stroke-linecap="round"/>
+        <rect x="84" y="62" width="52" height="76" rx="14" fill="#9fc4e8" stroke="#3a6fa0" stroke-width="2"/>
+        <path d="M86 74L54 100" stroke="#f2c9a0" stroke-width="9" stroke-linecap="round"/><path d="M134 74L158 112" stroke="#f2c9a0" stroke-width="9" stroke-linecap="round"/>
+        <circle cx="110" cy="40" r="17" fill="#f2c9a0" stroke="#15212b" stroke-width="3"/>
+        <path id="kStrom" class="fluss" d="M52 99L92 82L110 104L112 150L104 204" fill="none" stroke="#e8c13a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0"/>
+        <path id="kHerz" class="herz" d="M110 116C94 104 98 92 110 100C122 92 126 104 110 116Z" fill="#d9291c" stroke="#fff" stroke-width="1.5"/>
+        <text x="118" y="224" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">Boden</text>
+        <text x="325" y="66" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Wie stark wirkt der Strom?</text>
+        <g stroke="#fff" stroke-width="2">
+          <rect x="190" y="98" width="27" height="28" fill="#8fd0a8"/>
+          <rect x="217" y="98" width="58.4" height="28" fill="#f2d36b"/>
+          <rect x="275.4" y="98" width="62.6" height="28" fill="#f2992e"/>
+          <rect x="338" y="98" width="122" height="28" fill="#e0453a"/>
+        </g>
+        <g font-size="12" font-weight="800" text-anchor="middle"><text x="246" y="117" fill="#15212b">Kribbeln</text><text x="307" y="117" fill="#15212b">Krampf</text><text x="399" y="117" fill="#fff">Lebensgefahr</text></g>
+        <g font-size="12" font-weight="700" fill="#566674" text-anchor="middle"><text x="196" y="146">0</text><text x="217" y="146">1 mA</text><text x="275" y="146">10 mA</text><text x="338" y="146">30 mA</text><text x="448" y="146">100 mA</text></g>
+        <polygon id="kZeiger" points="-9,-14 9,-14 0,0" transform="translate(190 96)" fill="#15212b"/>
+        <text x="325" y="184" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">Strom durch den Körper (nicht gleichmäßig eingeteilt)</text>
+      </svg>
+      <div class="sim-ctrl"><label for="mA">Strom im Körper</label><input type="range" id="mA" min="0" max="100" value="0"><span class="chip" id="mAChip">0 mA</span></div>
+      <p class="obs" id="mAObs">Schiebe den Regler nach rechts und beobachte den Körper.</p>
+    </div>
+  </div>
+
+  <div class="merke reveal"><h4>MERKE</h4><ul>
+    <li>Gefährlich ist der Strom, der durch den <strong>Körper</strong> fließt.</li>
+    <li>Batterien (1,5 V bis 12 V) sind ungefährlich. Die <strong>Steckdose (230 V) ist lebensgefährlich</strong>.</li>
+    <li>Schon etwa 0,03 A (30 mA) können den <strong>Herzschlag stören</strong> (<button class="term" data-t="flimmern">Herzkammerflimmern</button>). Etwa ab 10 mA verkrampfen die <strong>Muskeln</strong>.</li>
+    <li>Wasser und nasse Haut leiten besonders gut.</li>
+  </ul></div>
+  <div class="card reveal"><div id="mc-s2"></div></div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>Wo steckt die Gefahr?</h2></div></div>
+  <div class="grid2">
+    <div class="sim reveal">
+      <div class="hotimg" id="hausBild">
+        <svg viewBox="0 0 480 300" role="img" aria-label="Schnitt durch ein Haus mit Bad, Wohnzimmer, Küche und Kinderzimmer. Draußen steht ein Hochspannungsmast, an dem ein Drachen hängt. Sieben Gefahren durch Strom sind nummeriert.">
+          <rect width="480" height="300" fill="#eaf4fb"/>
+          <rect x="0" y="270" width="480" height="30" fill="#b9d39a"/>
+          <rect x="16" y="30" width="320" height="240" fill="#fdfbf6" stroke="#8a97a3" stroke-width="3"/>
+          <line x1="16" y1="150" x2="336" y2="150" stroke="#8a97a3" stroke-width="5"/>
+          <line x1="136" y1="30" x2="136" y2="150" stroke="#8a97a3" stroke-width="3"/>
+          <line x1="176" y1="150" x2="176" y2="270" stroke="#8a97a3" stroke-width="3"/>
+          <!-- Bad: Wanne, Föhn, Steckdose -->
+          <rect x="26" y="104" width="96" height="42" rx="8" fill="#fff" stroke="#8a97a3" stroke-width="3"/>
+          <rect x="30" y="116" width="88" height="26" rx="5" fill="#8fd0f2"/>
+          <rect x="125" y="118" width="8" height="14" rx="2" fill="#fff" stroke="#8a97a3" stroke-width="1.5"/>
+          <path d="M88 98C70 76 118 96 129 120" fill="none" stroke="#3a444d" stroke-width="3" stroke-linecap="round"/>
+          <rect x="84" y="90" width="30" height="12" rx="6" fill="#e0453a"/><rect x="114" y="92" width="8" height="8" rx="2" fill="#8a97a3"/><rect x="90" y="100" width="7" height="9" rx="2" fill="#3a444d"/>
+          <!-- Wohnzimmer: Tisch, Laptop, Netzteil, Glas -->
+          <rect x="190" y="104" width="100" height="8" rx="2" fill="#a9835a"/><rect x="196" y="112" width="6" height="38" fill="#a9835a"/><rect x="278" y="112" width="6" height="38" fill="#a9835a"/>
+          <rect x="206" y="98" width="42" height="6" rx="2" fill="#566674"/><rect x="211" y="74" width="32" height="24" rx="2" fill="#2f5d4e" stroke="#566674" stroke-width="2"/>
+          <path d="M254 100H248" stroke="#3a444d" stroke-width="2"/><rect x="254" y="95" width="18" height="9" rx="2" fill="#3a444d"/>
+          <path d="M276 84H290L288 104H278Z" fill="#8fd0f2" stroke="#566674" stroke-width="2"/>
+          <path d="M269 105q-3 5 1 7" fill="none" stroke="#2f8fdb" stroke-width="3" stroke-linecap="round"/>
+          <!-- Wohnzimmer: Steckdose mit hintereinandergesteckten Leisten -->
+          <rect x="140" y="126" width="12" height="18" rx="2" fill="#fff" stroke="#8a97a3" stroke-width="1.5"/>
+          <rect x="156" y="138" width="46" height="9" rx="3" fill="#fff" stroke="#566674" stroke-width="2"/>
+          <rect x="168" y="126" width="46" height="9" rx="3" fill="#fff" stroke="#566674" stroke-width="2"/>
+          <g fill="none" stroke-width="3" stroke-linecap="round"><path d="M164 138q-4-16 8-22" stroke="#e0453a"/><path d="M178 126q-2-14 10-18" stroke="#1b6fb5"/><path d="M194 126q2-12 14-14" stroke="#1b8a4b"/><path d="M200 138q8-8 16-6" stroke="#b77a06"/><path d="M146 144q4 6 10 0" stroke="#3a444d"/></g>
+          <!-- Wohnzimmer: Stehlampe mit beschädigtem Kabel -->
+          <rect x="310" y="62" width="4" height="84" fill="#7d8791"/><path d="M298 62L328 62L320 44L306 44Z" fill="#f2d36b" stroke="#b77a06" stroke-width="2"/>
+          <path d="M312 146Q296 150 262 146" fill="none" stroke="#3a444d" stroke-width="4" stroke-linecap="round"/>
+          <path d="M286 148q6-8 12 0" fill="none" stroke="#d98a3a" stroke-width="5" stroke-linecap="round"/><path d="M276 140l5 6-5 2 5 6" fill="none" stroke="#f2b632" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Küche: Arbeitsplatte, Steckdose, Stecker am Kabel gezogen -->
+          <rect x="24" y="212" width="100" height="58" fill="#d8c7a4" stroke="#8a97a3" stroke-width="2"/><rect x="24" y="206" width="100" height="8" fill="#8a97a3"/>
+          <rect x="36" y="184" width="14" height="20" rx="2" fill="#fff" stroke="#8a97a3" stroke-width="1.5"/>
+          <rect x="48" y="190" width="14" height="9" rx="2" fill="#3a444d"/><path d="M62 195L98 214" stroke="#3a444d" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="102" cy="216" r="8" fill="#f2c9a0" stroke="#8a5a2b" stroke-width="2"/><path d="M106 220L140 246" stroke="#f2c9a0" stroke-width="10" stroke-linecap="round"/>
+          <!-- Kinderzimmer: Steckdose, Kleinkind mit Gabel -->
+          <rect x="196" y="226" width="14" height="20" rx="2" fill="#fff" stroke="#8a97a3" stroke-width="1.5"/><circle cx="200" cy="233" r="1.8" fill="#15212b"/><circle cx="206" cy="233" r="1.8" fill="#15212b"/>
+          <path d="M214 240L198 232" stroke="#b5bcc3" stroke-width="3" stroke-linecap="round"/><path d="M196 229l-3-2M198 231l-4-1M199 234l-4 1" stroke="#b5bcc3" stroke-width="2" stroke-linecap="round"/>
+          <path d="M232 246L216 240" stroke="#f2c9a0" stroke-width="7" stroke-linecap="round"/>
+          <circle cx="242" cy="226" r="11" fill="#f2c9a0" stroke="#15212b" stroke-width="2.5"/><rect x="230" y="238" width="24" height="24" rx="8" fill="#f2992e"/><path d="M236 262v8M248 262v8" stroke="#8a5a2b" stroke-width="6" stroke-linecap="round"/>
+          <circle cx="300" cy="258" r="9" fill="#e0453a"/>
+          <!-- draußen: zwei Masten, Leitungen, Drachen, Kind -->
+          <g stroke="#566674" stroke-width="3" fill="none"><path d="M346 270L356 64L366 270M350 130H362M348 190H364"/><path d="M452 270L462 64L472 270M456 130H468M454 190H470"/></g>
+          <path d="M340 66H372M446 66H478" stroke="#3a444d" stroke-width="5" stroke-linecap="round"/>
+          <path d="M356 62Q409 84 462 62M340 68Q409 92 478 68" fill="none" stroke="#15212b" stroke-width="2.5"/>
+          <polygon points="404,32 420,52 404,72 388,52" fill="#e0453a" stroke="#8f2525" stroke-width="2"/><path d="M404 32V72M388 52H420" stroke="#fff" stroke-width="1.5"/>
+          <path d="M404 72q-8 8 0 14q8 6 0 12" fill="none" stroke="#e0453a" stroke-width="3" stroke-linecap="round"/>
+          <path d="M404 72L376 244" stroke="#566674" stroke-width="1.5"/>
+          <circle cx="374" cy="244" r="8" fill="#f2c9a0" stroke="#15212b" stroke-width="2"/><rect x="366" y="253" width="16" height="18" rx="6" fill="#1b6fb5"/>
+        </svg>
+      </div>
+      <div class="sim-ctrl"><span class="hs-count chip" id="hausZahl">0 von 7 entdeckt</span><span class="hint" style="margin:0">Tippe auf die Zahlen im Bild.</span></div>
+    </div>
+    <div class="card reveal hs-info" id="hausInfo">
+      <div class="big">🔍</div><h3 style="margin:.3em 0 .2em">Gefahren-Suchbild</h3>
+      <p class="lead" style="margin:0">In diesem Haus und davor stecken sieben Gefahren durch Strom. Findest du alle? Tippe auf die Zahlen und lies, was dahintersteckt.</p>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:18px"><div id="mc-s3"></div></div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Probenstoff</div><h2>Zu viel Strom: Überlastung und Kurzschluss</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Mehrfachsteckdose, Wasserkocher, Toaster, Heizlüfter … Wie viele Geräte verträgt eine Leitung?</p>
+      <p>Alle Steckdosen im Haus sind <strong>parallel</strong> geschaltet. Jedes Gerät zieht seinen eigenen Strom. <strong>Alle Ströme fließen durch dieselbe Zuleitung</strong>, deshalb addieren sich die Stromstärken. Das kennst du von der Parallelschaltung.</p>
+      <p>Je größer die Stromstärke, desto stärker erwärmt sich der Draht. Zu viel Strom heißt <button class="term" data-t="ueberlast">Überlastung</button>: Die Leitung wird heiß – <strong>Brandgefahr!</strong> Darum ist jede Leitung abgesichert, meist mit einer <button class="term" data-t="sicherung">Sicherung</button> für 16 A.</p>
+      <p class="hint">Schalte rechts nacheinander Geräte an die <button class="term" data-t="leiste">Mehrfachsteckdose</button>. Wann greift die Sicherung ein? Dann nimm ein Gerät weg und schalte die Sicherung wieder ein.</p>
+    </div>
+    <div class="sim reveal" id="leisteSim">
+      <svg viewBox="0 0 480 252" role="img" aria-label="Links der Sicherungskasten mit einer 16-Ampere-Sicherung, rechts eine Mehrfachsteckdose mit fünf Geräten. Unten ein Balken zeigt die Stromstärke in der Leitung.">
+        <rect width="480" height="252" fill="#f7fbfe"/>
+        <rect x="14" y="20" width="118" height="136" rx="10" fill="#cfd8df" stroke="#8a97a3" stroke-width="3"/>
+        <text x="73" y="40" text-anchor="middle" font-size="12" font-weight="800" fill="#15212b">Sicherungskasten</text>
+        <rect x="44" y="50" width="58" height="82" rx="6" fill="#fff" stroke="#566674" stroke-width="2"/>
+        <rect id="skHebel" x="62" y="56" width="22" height="30" rx="4" fill="#1b8a4b" style="transform:translateY(0)"/>
+        <text id="skStatus" x="73" y="124" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">EIN</text>
+        <text x="73" y="148" text-anchor="middle" font-size="13" font-weight="800" fill="#566674">16 A</text>
+        <path id="skKabel" d="M132 90H250" fill="none" stroke="#7d8791" stroke-width="9"/>
+        <text x="190" y="76" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">Zuleitung</text>
+        <rect x="250" y="66" width="216" height="48" rx="8" fill="#fff" stroke="#566674" stroke-width="3"/>
+        <g id="skSteckplaetze"></g>
+        <g id="skGeraete"></g>
+        <text x="14" y="184" font-size="13" font-weight="700" fill="#15212b">Stromstärke in der Zuleitung</text>
+        <text id="skWert" x="466" y="184" text-anchor="end" font-size="15" font-weight="800" fill="#15212b">0 A</text>
+        <rect x="14" y="192" width="452" height="22" rx="11" fill="#eef2f5" stroke="#d8e2ea"/>
+        <rect id="skBalken" x="14" y="192" width="0" height="22" rx="11" fill="#1b8a4b"/>
+        <path d="M315.3 188V218" stroke="#c93b3b" stroke-width="3"/>
+        <g font-size="11" font-weight="700" fill="#566674"><text x="14" y="232">0 A</text><text x="315" y="232" text-anchor="middle" fill="#c93b3b">Grenze 16 A</text><text x="466" y="232" text-anchor="end">24 A</text></g>
+        <text id="skText" x="240" y="248" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">Wähle unten ein Gerät.</text>
+      </svg>
+      <div class="wahl" id="leisteWahl"></div>
+      <div class="sim-ctrl"><button class="btn small teal" id="skReset" type="button">↺ Sicherung wieder einschalten</button><span class="chip" id="skChip">Leitung kühl</span></div>
+      <p class="obs" id="skObs">Schalte Geräte ein und beobachte die Stromstärke.</p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="sim reveal" id="ksSim">
+      <svg viewBox="0 0 480 200" role="img" aria-label="Stromkreis mit Stromquelle und Lampe. Ein blanker Draht kann Hin- und Rückleitung vor der Lampe verbinden: ein Kurzschluss.">
+        <rect width="480" height="200" fill="#f7fbfe"/>
+        <g fill="none" stroke="#7d8791" stroke-width="6" stroke-linecap="round"><path d="M60 50V84M60 128V170H420V128M420 84V50H60"/></g>
+        <path d="M44 96H76" stroke="#15212b" stroke-width="3"/><path d="M52 112H68" stroke="#15212b" stroke-width="8"/>
+        <text x="86" y="108" font-size="12" font-weight="700" fill="#566674">Quelle</text>
+        <circle id="ksLampe" cx="420" cy="106" r="22" fill="#fff0a8" stroke="#15212b" stroke-width="3"/><path d="M405 91L435 121M435 91L405 121" stroke="#15212b" stroke-width="3"/>
+        <text x="388" y="111" text-anchor="end" font-size="12" font-weight="700" fill="#566674">Lampe</text>
+        <g id="ksBypass" opacity="0"><path d="M300 50V170" stroke="#d98a3a" stroke-width="7" stroke-linecap="round"/><path d="M286 104l12 8-10 4 12 10" fill="none" stroke="#f2b632" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <path id="ksFluss" class="fluss" d="M60 90V50H420V170H60V124" fill="none" stroke="#e8890c" stroke-width="4" stroke-linecap="round"/>
+        <text id="ksLabel" x="190" y="112" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Strom: klein</text>
+        <text id="ksText" x="240" y="26" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">Die Lampe leuchtet</text>
+      </svg>
+      <div class="wahl" id="ksWahl"></div>
+      <p class="obs" id="ksObs">Tippe auf einen Knopf und vergleiche den Strom.</p>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag">Kurzschluss</span>
+      <h3 style="margin-top:4px">Ein Weg ohne Gerät</h3>
+      <p>Den <button class="term" data-t="kurzschluss">Kurzschluss</button> kennst du schon. Im Haus entsteht er zum Beispiel, wenn bei einem durchgescheuerten Kabel zwei blanke Drähte zusammenstoßen. Der Strom fließt dann an der Lampe oder am Gerät vorbei.</p>
+      <p>Nichts bremst ihn mehr. Der Strom wird <strong>sehr groß – viel größer als 16 A</strong>. Der Draht erhitzt sich in kürzester Zeit. Die Sicherung unterbricht den Stromkreis dann sofort.</p>
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li><strong>Überlastung:</strong> zu viele Geräte, die Stromstärken addieren sich, die Leitung wird heiß.</li>
+        <li><strong>Kurzschluss:</strong> Strom nimmt einen Weg ohne Gerät und wird sehr groß.</li>
+        <li>In beiden Fällen unterbricht die <strong>Sicherung</strong> den Stromkreis, bevor ein Brand entsteht.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px"><div id="mc-s4"></div></div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Überschlag: Hält die Sicherung?</h3>
+    <p class="m7-hinweis">Aufgaben mit dem lila Zeichen gehören zum M-Niveau. In M-Klassen zählen sie mit, in R-Klassen sind sie eine Zusatzaufgabe für Profis.</p>
+    <p>Eine Mehrfachsteckdose hängt an einer Leitung mit 16-A-Sicherung. Du addierst die Stromstärken der Geräte. Ist die Summe größer als 16 A, schaltet die Sicherung ab.</p>
+    <table class="tab"><tr><th>Gerät</th><th>Stromstärke (etwa)</th></tr>
+      <tr><td>💡 Lampe</td><td>0,1 A</td></tr><tr><td>💻 Laptop</td><td>0,3 A</td></tr><tr><td>🍞 Toaster</td><td>4 A</td></tr><tr><td>☕ Wasserkocher</td><td>9 A</td></tr><tr><td>♨️ Heizlüfter</td><td>9 A</td></tr></table>
+    <div id="mc-ueber"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Probenstoff</div><h2>Die Schutzengel im Haus</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Im Haus wachen mehrere Schutzengel über dich. Jeder hat eine eigene Aufgabe.</p>
+    <div class="info-karten">
+      <div class="info-karte"><div class="big">🔌</div><h4><button class="term" data-t="sicherung">Sicherung</button></h4><p>Schützt die <strong>Leitung</strong>. Sie unterbricht den Stromkreis, wenn die Stromstärke zu groß wird (Überlastung, Kurzschluss).</p></div>
+      <div class="info-karte"><div class="big">🛡️</div><h4><button class="term" data-t="fi">FI-Schutzschalter</button></h4><p>Schützt <strong>Menschen</strong>. Er schaltet in Sekundenbruchteilen ab, wenn Strom einen falschen Weg nimmt, zum Beispiel durch einen Menschen.</p></div>
+      <div class="info-karte"><div class="big"><svg viewBox="0 0 60 34" width="56" height="32" aria-hidden="true"><path d="M8 17H52" stroke="#1b8a4b" stroke-width="14" stroke-linecap="round"/><path d="M16 9l8 16M30 9l8 16M44 10l5 10" stroke="#f2d336" stroke-width="5"/></svg></div><h4><button class="term" data-t="schutzleiter">Schutzleiter</button></h4><p>Das grün-gelbe Kabel leitet gefährlichen Strom von einem Metallgehäuse ab. Der <button class="term" data-t="schutzkontakt">Schutzkontakt</button> an Stecker und Steckdose verbindet es.</p></div>
+      <div class="info-karte"><div class="big">🔒</div><h4>Isolierung und Kindersicherung</h4><p>Die <button class="term" data-t="isolierung">Isolierung</button> hält den blanken Draht außer Reichweite. Die <button class="term" data-t="kindersicherung">Kindersicherung</button> verschließt die Steckdose.</p></div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag">Animation</span>
+      <h3 style="margin-top:4px">Der FI rettet Leben</h3>
+      <p>Wir spielen den Föhn aus Station 1 noch einmal durch – diesmal mit <button class="term" data-t="fi">FI-Schutzschalter</button>. Er vergleicht den Strom, der <strong>hin</strong> zum Gerät fließt, mit dem Strom, der <strong>zurück</strong> kommt. Normalerweise sind beide gleich groß. Nimmt ein Teil des Stroms einen falschen Weg, ist das ein <button class="term" data-t="fehlerstrom">Fehlerstrom</button>.</p>
+      <p class="hint">Starte die Animation oder gehe Schritt für Schritt. Achte auf die beiden Balken im FI.</p>
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li>Die <strong>Sicherung</strong> unterbricht den Stromkreis, wenn die Stromstärke zu groß wird.</li>
+        <li>Der <strong>FI-Schutzschalter</strong> schaltet in Sekundenbruchteilen ab, wenn Strom einen falschen Weg nimmt, zum Beispiel durch einen Menschen.</li>
+        <li>Die <strong>Isolierung</strong> verhindert die Berührung des blanken Drahts, die <strong>Kindersicherung</strong> das Hineinstecken von Gegenständen.</li>
+      </ul></div>
+    </div>
+    <div class="sim reveal" id="schutzSim">
+      <svg viewBox="0 0 480 310" role="img" aria-label="Schaltbild: Das Stromnetz links, oben der Hinweg mit Sicherung, unten der Rückweg, rechts der Föhn. Beide Leitungen laufen durch den FI-Schutzschalter. Ein zweiter Weg führt vom Föhn durch Wasser und Körper zur Erde.">
+        <rect width="480" height="310" fill="#f7fbfe"/>
+        <g fill="none" stroke="#7d8791" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path d="M46 84V50H420V82"/><path d="M420 142V170H46V136"/></g>
+        <circle cx="46" cy="110" r="26" fill="#fff" stroke="#15212b" stroke-width="3"/><text x="46" y="115" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">230 V</text>
+        <text x="46" y="192" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">Netz</text>
+        <rect x="86" y="40" width="46" height="20" rx="4" fill="#fff" stroke="#566674" stroke-width="2"/><text x="109" y="76" text-anchor="middle" font-size="12" font-weight="800" fill="#15212b">16 A</text>
+        <text x="109" y="33" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">Sicherung</text>
+        <rect id="seFI" x="150" y="26" width="118" height="164" rx="10" fill="#f3ecfb" stroke="#6b3fa0" stroke-width="3"/>
+        <text x="209" y="44" text-anchor="middle" font-size="12" font-weight="800" fill="#4b2d73">FI-Schutzschalter</text>
+        <text x="158" y="78" font-size="11" font-weight="700" fill="#4b2d73">hin</text><rect id="seBalHin" x="186" y="68" width="76" height="12" rx="3" fill="#e8890c"/>
+        <text x="158" y="104" font-size="11" font-weight="700" fill="#4b2d73">rück</text><rect id="seBalRueck" x="186" y="94" width="76" height="12" rx="3" fill="#e8890c"/>
+        <text id="seDiff" x="209" y="128" text-anchor="middle" font-size="12" font-weight="800" fill="#4b2d73">beide gleich groß</text>
+        <circle id="seLed" cx="172" cy="156" r="8" fill="#1b8a4b"/><text id="seLedText" x="188" y="161" font-size="13" font-weight="800" fill="#15212b">EIN</text>
+        <rect id="seFoehn" x="392" y="82" width="56" height="60" rx="10" fill="#e0453a"/><text x="420" y="116" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">Föhn</text>
+        <g id="seWasser" opacity="0">
+          <rect x="340" y="196" width="130" height="62" rx="14" fill="#8fd0f2" stroke="#2f8fdb" stroke-width="2"/>
+          <text x="374" y="228" text-anchor="middle" font-size="12" font-weight="800" fill="#0b5d98">Wasser</text><text x="374" y="244" text-anchor="middle" font-size="12" font-weight="800" fill="#0b5d98">+ Körper</text>
+          <circle cx="436" cy="217" r="10" fill="#f2c9a0" stroke="#15212b" stroke-width="2"/><rect x="422" y="229" width="28" height="24" rx="8" fill="#f2c9a0" stroke="#8a5a2b" stroke-width="2"/>
+        </g>
+        <g fill="none" stroke="#e8890c" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+          <path id="seHin" class="fluss" d="M46 84V50H420V82"/>
+          <path id="seRueck" class="fluss" d="M420 142V170H46V136"/>
+          <path id="seFehler" class="fluss" d="M436 142V282H12V110H20" stroke="#e0453a" stroke-width="5" opacity="0"/>
+        </g>
+        <g stroke="#15212b" stroke-width="2.5" stroke-linecap="round"><path d="M220 282V292M208 292H232M213 297H227M218 302H222"/></g>
+        <text x="246" y="300" font-size="11" font-weight="700" fill="#566674">Erde</text>
+        <text id="seStatus" x="470" y="22" text-anchor="end" font-size="13" font-weight="800" fill="#15212b">Alles normal</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <div class="warnschild">
+      <svg viewBox="0 0 84 74" role="img" aria-label="Warnzeichen: gelbes Dreieck mit schwarzem Blitz"><path d="M42 5L80 69H4Z" fill="#f2c623" stroke="#15212b" stroke-width="5" stroke-linejoin="round"/><path d="M47 22L32 45h10l-5 15 18-26H44l5-12Z" fill="#15212b"/></svg>
+      <div>
+        <h3 style="margin:0 0 4px">Draußen: Hochspannung</h3>
+        <p style="margin:0">Das gelbe Warnzeichen mit dem Blitz warnt vor gefährlicher elektrischer Spannung. Die Oberleitung der Bahn hat <strong>15 000 V</strong>, Freileitungen an Masten haben noch mehr (<button class="term" data-t="hochspannung">Hochspannung</button>). Dort kann der Strom schon <strong>überspringen</strong>, wenn du der Leitung nur nahe kommst – auch aus mehr als einem Meter Abstand. Deshalb: <strong>nie auf Waggons oder Masten klettern</strong> und Drachen nie in der Nähe von Leitungen steigen lassen.</p>
+      </div>
+    </div>
+  </div>
+  <div class="card reveal"><div id="mc-s5"></div></div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="s6">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Probenstoff</div><h2>Regeln und richtig helfen</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Technik schützt dich – aber du bist der wichtigste Schutz. <strong>Zu jeder Regel gibt es einen Grund.</strong></p>
+      <p class="hint">Tippe auf eine Regel und lies die Begründung. Sieh dir alle sechs an.</p>
+      <div class="wahl" id="regelWahl" style="padding:0"></div>
+      <div class="regel-buehne" id="regelBuehne">Wähle eine Regel.</div>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag probe">Stromunfall</span>
+      <h3 style="margin-top:4px">So hilfst du richtig</h3>
+      <p>Jemand hängt an einem defekten Gerät und kann nicht loslassen. Jetzt gilt: <strong>erst an dich selbst denken.</strong> Wer die Person anfasst, solange Strom fließt, wird selbst Teil des Stromkreises.</p>
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li>Die Person <strong>nicht anfassen</strong>.</li>
+        <li><strong>Strom abschalten:</strong> Stecker ziehen oder Sicherung beziehungsweise FI ausschalten.</li>
+        <li><strong>Notruf <button class="term" data-t="notruf">112</button></strong> wählen.</li>
+        <li>Erst wenn kein Strom mehr fließt, helfen. Nach jedem Stromunfall gehört die Person zum Arzt.</li>
+        <li>Bei Hochspannung (Bahn, Freileitung) nie hingehen: Abstand halten, 112 rufen.</li>
+      </ul></div>
+      <p class="hint">Bringe die Schritte in die richtige Reihenfolge.</p>
+      <div id="orderHilfe"></div>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:18px"><div id="mc-s6"></div></div>
+</section>
+
+<!-- ============ STATION 7 ============ -->
+<section class="station" id="s7">
+  <div class="st-head reveal"><div class="st-num">7</div><div><div class="eyebrow">Probenstoff · so wird in der Probe gefragt</div><h2>Training für die Probe und Profi-Check</h2></div></div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Lückentext · leicht</span>
+    <h3 style="margin-top:4px">Setze die fehlenden Wörter ein</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapStrom"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Richtig oder falsch? · mittel</span>
+    <div id="tf"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Zuordnen · mittel</span>
+    <h3 style="margin-top:4px">Wer hilft hier?</h3>
+    <p class="hint">Tippe eine Karte an und dann das Fach, in das sie gehört.</p>
+    <div id="sortSchutz"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Kreuzworträtsel · mittel</span>
+    <h3 style="margin-top:4px">Rund um die Sicherheit</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Schreibe ä als AE, ö als OE, ü als UE.</p>
+    <div id="cw"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Ankreuzen · mittel</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Offene Fragen · schwer</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung. Danach kannst du die Musterlösung ansehen.</p>
+    <div id="open"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Beurteile und begründe <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="openM"></div>
+  </div>
+
+  <h3 class="reveal">Profi-Check</h3>
+  <div class="card reveal" id="quiz"></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Mit diesem Modul hast du den Themenbereich Elektrizität abgeschlossen: vom Stromkreis über Spannung, Stromstärke und Widerstand bis zur Sicherheit. Auf der Übersicht findest du die anderen Themenbereiche und, wenn deine Lehrkraft sie freischaltet, die Probe zur Elektrizität.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik 7 · Lernmodul „Sicher mit Strom umgehen“ · Dein Fortschritt wird auf diesem Gerät gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="modul-basis.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, esc, shuffle, clamp, fmt, setText, reduced, register, solve} = Modul;
+const NS = "http://www.w3.org/2000/svg";
+// Animierte Grafiken laufen nur, solange sie im Bild sind
+function sichtbar(el){ Modul.onVisible(el, v => el.classList.toggle("pause", !v)); }
+
+Modul.init({
+  key: "grumi-nt7-strom-sicher-v1",
+  hero: "funken",
+  thema: "Sicherheit im Umgang mit Strom: der Körper leitet Strom, Wasser leitet, Gefahr durch Stromstärke im Körper (Herz, Muskeln), Überlastung und Kurzschluss, Sicherung, FI-Schutzschalter, Schutzleiter, Isolierung, Kindersicherung, Hochspannung, Sicherheitsregeln und richtiges Helfen bei einem Stromunfall",
+  glossary: {
+    stromschlag: ["Stromschlag", "Strom fließt durch den Körper. Er kann Muskeln verkrampfen, Verbrennungen verursachen und das Herz aus dem Takt bringen – das ist lebensgefährlich."],
+    leiter: ["Leiter", "Stoff, der den Strom gut leitet. Alle Metalle sind Leiter. Auch Wasser mit gelösten Salzen leitet – und damit dein Körper."],
+    spannung: ["Spannung (U)", "Sie gibt an, wie stark die Elektronen angetrieben werden. Einheit Volt (V). Je höher die Spannung, desto mehr Strom treibt sie durch deinen Körper."],
+    stromstaerke: ["Stromstärke (I)", "Sie gibt an, wie viele Elektronen in jeder Sekunde durch den Leiter fließen. Einheit Ampere (A)."],
+    milliampere: ["Milliampere (mA)", "Kleine Einheit für die Stromstärke: 1000 mA sind 1 A. 30 mA sind 0,03 A."],
+    flimmern: ["Herzkammerflimmern", "Der Herzmuskel zuckt hektisch, statt kräftig zu pumpen. Das Herz befördert kaum noch Blut – lebensgefährlich. Starker Strom durch den Körper kann es auslösen."],
+    ueberlast: ["Überlastung", "Zu viele Geräte hängen an einer Leitung. Die Stromstärken addieren sich, die Leitung wird zu heiß."],
+    leiste: ["Mehrfachsteckdose", "Leiste mit mehreren Steckdosen an einem Kabel. Alle Geräte daran teilen sich die eine Zuleitung."],
+    kurzschluss: ["Kurzschluss", "Die Pole einer Spannungsquelle sind direkt verbunden, ohne Gerät dazwischen. Der Strom wird sehr groß, Leitungen werden heiß."],
+    sicherung: ["Sicherung (Leitungsschutzschalter)", "Schalter im Sicherungskasten. Wird die Stromstärke zu groß, zum Beispiel über 16 A, unterbricht er den Stromkreis. So schützt er die Leitung vor Überhitzung."],
+    fi: ["FI-Schutzschalter", "Schutzschalter für Menschen. Er vergleicht den Strom, der hineinfließt, mit dem, der zurückkommt. Fehlt ein Teil, schaltet er in Sekundenbruchteilen ab."],
+    fehlerstrom: ["Fehlerstrom", "Strom, der einen falschen Weg nimmt, zum Beispiel durch Wasser oder einen Menschen. Er fehlt auf dem Rückweg."],
+    schutzleiter: ["Schutzleiter", "Grün-gelbes Kabel. Es verbindet das Metallgehäuse eines Geräts mit der Erde. Bekommt das Gehäuse Spannung, fließt der Strom über den Schutzleiter ab."],
+    schutzkontakt: ["Schutzkontakt", "Metallbügel und Metallkontakte an Steckdose und Stecker. Sie verbinden den Schutzleiter des Geräts mit dem Schutzleiter im Haus."],
+    isolierung: ["Isolierung", "Hülle aus einem Nichtleiter, meist Kunststoff, um einen Draht. Sie hält den Strom im Kabel und schützt vor Berührung."],
+    kindersicherung: ["Kindersicherung", "Kleine Klappen in der Steckdose. Sie verschließen die Öffnungen, damit niemand Gegenstände hineinstecken kann."],
+    hochspannung: ["Hochspannung", "Sehr hohe Spannung, zum Beispiel 15 000 V bei der Bahn-Oberleitung. Der Strom kann schon überspringen, ohne dass man die Leitung berührt."],
+    notruf: ["Notruf 112", "Nummer für Feuerwehr und Rettungsdienst in ganz Europa. Kostenlos, auch ohne Guthaben."]
+  }
+});
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Warum leitet dein Körper den Strom?", o: ["Er besteht zu mehr als der Hälfte aus Wasser mit gelösten Salzen.", "Er besteht aus Metall.", "Er ist warm.", "Er hat Knochen."], a: 0, e: "Wasser mit gelösten Salzen leitet. Darum ist dein Körper ein Leiter – und nasse Haut leitet noch besser als trockene."},
+    {q: "Der Föhn rutscht in die volle Badewanne. Was macht das Wasser?", o: ["Es leitet den Strom zum Körper.", "Es isoliert den Föhn.", "Es kühlt den Föhn, sonst passiert nichts.", "Es macht den Strom schwächer."], a: 0, e: "Badewasser enthält gelöste Salze und leitet. Es verbindet den Föhn mit dem Körper. So entsteht ein Stromkreis durch den Menschen."}
+  ],
+  s2: [
+    {q: "Welche Spannungsquelle ist für den Körper ungefährlich?", o: ["9-V-Blockbatterie", "Steckdose (230 V)", "Bahn-Oberleitung (15 000 V)", "Freileitung am Hochspannungsmast"], a: 0, e: "Batterien bis etwa 12 V treiben zu wenig Strom durch den Körper. Die Steckdose und alles darüber ist lebensgefährlich."},
+    {q: "Warum ist nasse Haut gefährlicher als trockene?", o: ["Nasse Haut leitet besser, es fließt mehr Strom durch den Körper.", "Nasse Haut ist wärmer.", "Nasse Haut ist dicker.", "Nasse Haut erzeugt selbst Strom."], a: 0, e: "Wasser mit gelösten Salzen leitet. Trockene Haut bremst den Strom, nasse Haut kaum."},
+    {q: "Was kann ein Strom von etwa 0,03 A durch den Körper auslösen?", o: ["Das Herz gerät aus dem Takt – Lebensgefahr.", "Die Knochen werden weich.", "Man bekommt Fieber.", "Gar nichts, so wenig ist harmlos."], a: 0, e: "Etwa 30 mA können Herzkammerflimmern auslösen. Das ist kaum mehr als der Strom in einer Leuchtdiode (etwa 20 mA) – für das Herz aber gefährlich. Schon ab etwa 10 mA verkrampfen die Muskeln."}
+  ],
+  s3: [
+    {q: "Warum ist ein Kabel mit abgescheuerter Isolierung gefährlich?", o: ["Der blanke Draht liegt frei. Wer ihn berührt, bekommt einen Stromschlag.", "Das Kabel ist zu lang.", "Das Kabel leitet keinen Strom mehr.", "Das Kabel wird zu kalt."], a: 0, e: "Die Isolierung hält den Strom im Kabel und schützt vor Berührung. Fehlt sie, liegt der Draht frei."},
+    {q: "Warum darf man Mehrfachsteckdosen nicht hintereinanderstecken und überladen?", o: ["Die Leitung wird zu heiß – Brandgefahr.", "Die Geräte laufen dann rückwärts.", "Die Spannung sinkt auf 1,5 V.", "Der Strom wird kleiner."], a: 0, e: "Alle Ströme fließen durch dieselbe Leitung. Wird die Stromstärke zu groß, erwärmt sich die Leitung stark."}
+  ],
+  s4: [
+    {q: "Was passiert mit der Stromstärke in der Zuleitung, wenn du ein weiteres Gerät einsteckst?", o: ["Sie wird größer, weil sich die Ströme addieren.", "Sie wird kleiner.", "Sie bleibt immer gleich.", "Sie verwandelt sich in Spannung."], a: 0, e: "Jedes Gerät zieht seinen Strom. Alle Ströme fließen durch dieselbe Zuleitung und zählen zusammen."},
+    {q: "Was geschieht bei einer Überlastung, wenn keine Sicherung eingreift?", o: ["Die Leitung wird sehr heiß – es droht ein Brand.", "Die Geräte werden kälter.", "Die Spannung steigt auf 1000 V.", "Die Leitung leitet besser."], a: 0, e: "Je größer die Stromstärke, desto stärker erwärmt sich der Draht. Die Sicherung verhindert das."},
+    {q: "Warum wird beim Kurzschluss die Stromstärke so groß?", o: ["Der Strom hat einen Weg ohne Gerät, das ihn bremst.", "Die Quelle wird stärker.", "Die Elektronen werden schwerer.", "Der Draht wird länger."], a: 0, e: "Ohne Gerät dazwischen bremst fast nichts den Strom. Er wird sehr groß, und der Draht heizt sich in Sekundenbruchteilen auf."}
+  ],
+  s5: [
+    {q: "Was tut die Sicherung?", o: ["Sie unterbricht den Stromkreis, wenn die Stromstärke zu groß wird.", "Sie macht den Strom ungefährlich.", "Sie erhöht die Spannung.", "Sie verbindet das Gehäuse mit der Erde."], a: 0, e: "Die Sicherung schützt die Leitung vor Überhitzung – bei Überlastung und bei Kurzschluss."},
+    {q: "Wann schaltet der FI-Schutzschalter ab?", o: ["Wenn Strom einen falschen Weg nimmt, zum Beispiel durch einen Menschen.", "Wenn eine Glühlampe kaputtgeht.", "Wenn der Wasserkocher eingeschaltet wird.", "Nur, wenn mehr als 16 A fließen."], a: 0, e: "Er vergleicht den Strom auf dem Hinweg mit dem auf dem Rückweg. Fehlt Strom, schaltet er in Sekundenbruchteilen ab."},
+    {q: "Durch einen Menschen fließen im Unglücksfall etwa 0,1 A. Warum merkt eine 16-A-Sicherung davon nichts?", o: ["0,1 A sind viel weniger als 16 A – für das Herz aber schon gefährlich.", "Die Sicherung ist dann kaputt.", "Menschen leiten keinen Strom.", "Die Sicherung schaltet nur nachts ab."], a: 0, e: "Darum gibt es zusätzlich den FI-Schutzschalter: Er reagiert schon auf winzige Fehlerströme."}
+  ],
+  s6: [
+    {q: "Dein kleiner Bruder hängt an einem defekten Kabel und kann nicht loslassen. Was tust du zuerst?", o: ["Den Strom abschalten (Stecker ziehen oder Sicherung ausschalten)", "Ihn sofort mit den Händen wegziehen", "Ihn mit einem nassen Tuch vom Kabel wegwischen", "Weglaufen und nichts sagen"], a: 0, e: "Wer ihn anfasst, solange Strom fließt, wird selbst Teil des Stromkreises. Erst abschalten, dann 112 rufen und helfen."},
+    {q: "Warum gehört jeder nach einem Stromunfall zum Arzt, auch wenn er sich wieder gut fühlt?", o: ["Das Herz kann auch später noch aus dem Takt geraten.", "Weil sonst Strom im Körper bleibt.", "Weil der Körper danach aufgeladen ist.", "Weil sonst die Haut grün wird."], a: 0, e: "Strom kann den Herzschlag stören, manchmal erst Stunden später. Darum muss ein Arzt nachsehen."}
+  ],
+  train: [
+    {q: "Welche Aufgabe hat die Isolierung eines Kabels?", o: ["Sie verhindert, dass man den blanken Draht berührt.", "Sie macht den Strom stärker.", "Sie schaltet bei Überlastung ab.", "Sie verschließt die Steckdose."], a: 0, e: "Die Isolierung ist eine Hülle aus Kunststoff. Sie hält den Strom im Draht. Die Kindersicherung dagegen verschließt die Steckdose."},
+    {q: "Welche Regeln gehören zum sicheren Umgang mit Strom?", o: ["Den Stecker am Stecker ziehen", "Keine Geräte mit nassen Händen benutzen", "Nichts in Steckdosen stecken", "Ein kaputtes Kabel mit Klebeband weiterbenutzen", "Den Föhn auf den Wannenrand legen"], a: [0, 1, 2], e: "Ein beschädigtes Kabel benutzt man nicht, eine Fachkraft ersetzt es. Der Föhn gehört nie in die Nähe von Wasser."},
+    {q: "Was stimmt für die Oberleitung der Bahn mit 15 000 V?", o: ["Der Strom kann schon überspringen, wenn man ihr nur nahe kommt.", "Sie ist ungefährlich, solange man sie nicht anfasst.", "Sie hat nur 1,5 V.", "Auf stehenden Waggons darf man klettern."], a: 0, e: "Bei Hochspannung kann der Strom durch die Luft springen. Auf Waggons und Masten zu klettern ist lebensgefährlich."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Kurz-Check"});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s5"), MC.s5, "mc5", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s6"), MC.s6, "mc6", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Station 1: Föhn am Wannenrand ---------- */
+(function(){
+  const wahl = $("#badWahl"), obs = $("#badObs"), foehn = $("#bdFoehn"), kabel = $("#bdKabel"), strom = $("#bdStrom"), blitz = $("#bdBlitz"), titel = $("#bdText");
+  const id = "bad"; register(id, "#badSim", "Badewanne: Wohin fließt der Strom, wenn der Föhn ins Wasser rutscht?");
+  const Z = [
+    {t: "🛁 Föhn liegt am Wannenrand", foehn: "translate(386px,106px)", kabel: "M358 106C336 106 344 170 384 184S430 194 440 192", an: 0, titel: "Strom bleibt im Föhn",
+     obs: "Der Föhn liegt trocken am Wannenrand. Der Strom fließt nur im Stromkreis aus Steckdose, Kabel und Föhn. Der Mensch gehört nicht dazu. Gefährlich ist es trotzdem: Ein Stoß, und der Föhn rutscht ab."},
+    {t: "💧 Föhn rutscht ins Wasser", foehn: "translate(278px,204px)", kabel: "M250 204C236 150 330 100 392 148S432 196 440 192", an: 1, titel: "Strom fließt durch den Körper!",
+     obs: "Der Föhn liegt im Wasser. Wasser leitet! Der Strom hat jetzt einen zweiten Weg: durch das Wasser, durch den Körper und durch Abfluss und Rohr zurück. Der Körper ist Teil des Stromkreises geworden – Lebensgefahr!"}
+  ];
+  const gesehen = new Set();
+  foehn.style.transform = Z[0].foehn;
+  wahl.innerHTML = Z.map((z, i) => `<button type="button" data-i="${i}">${esc(z.t)}</button>`).join("");
+  $$("button", wahl).forEach((b, i) => b.addEventListener("click", () => {
+    const z = Z[i];
+    foehn.style.transform = z.foehn; kabel.setAttribute("d", z.kabel);
+    strom.style.opacity = z.an; blitz.style.opacity = z.an;
+    setText(titel, z.titel); setText(obs, z.obs);
+    $$("button", wahl).forEach((x, k) => x.classList.toggle("sel", k === i));
+    gesehen.add(i); if (gesehen.size === Z.length) solve(id);
+  }));
+  sichtbar($("#badSim"));
+})();
+
+/* ---------- Station 2: Spannungsquellen ---------- */
+(function(){
+  const Q = [
+    {t: "🔋 1,5 V", x: 72, chip: "ungefährlich", cls: "ok", txt: "Eine Mignonzelle ist ungefährlich. Diese Spannung treibt so wenig Strom durch den Körper, dass du nichts spürst."},
+    {t: "🔋 9 V", x: 156, chip: "ungefährlich", cls: "ok", txt: "Auch die 9-V-Blockbatterie ist ungefährlich. Sie treibt zu wenig Strom durch deinen Körper."},
+    {t: "🚗 12 V", x: 240, chip: "für den Körper ungefährlich", cls: "warn", txt: "Für den Körper ungefährlich. Aber Vorsicht: Verbindet ein Metallteil wie ein Schlüssel oder ein Ring beide Pole der Autobatterie, ist das ein Kurzschluss. Das Metall wird sehr heiß."},
+    {t: "🔌 230 V", x: 324, chip: "lebensgefährlich", cls: "bad", txt: ["Lebensgefährlich! Diese Spannung treibt viel Strom durch den Körper. Er kann die Muskeln verkrampfen und das Herz aus dem Takt bringen – auch bei trockener Haut.", "Noch gefährlicher: Nasse Haut leitet viel besser. Durch den Körper fließt noch mehr Strom. Darum nie mit nassen Händen an Steckdosen und Geräte!"]},
+    {t: "🚆 15 000 V", x: 408, chip: "Lebensgefahr schon ohne Berührung", cls: "bad", txt: "Hochspannung! Der Strom kann durch die Luft überspringen, wenn du der Leitung nur nahe kommst. Nie auf Waggons oder Masten klettern."}
+  ];
+  const wahl = $("#quellenWahl"), haut = $("#hautWahl"), chip = $("#quellenChip"), obs = $("#quellenObs"), zeiger = $("#qZeiger");
+  const id = "quellen"; register(id, "#quellenSim", "Spannungsquellen: Welche sind für den Körper gefährlich?");
+  let q = -1, h = 0; const gQ = new Set(), gH = new Set();
+  wahl.innerHTML = Q.map((o, i) => `<button type="button" data-i="${i}">${esc(o.t)}</button>`).join("");
+  haut.innerHTML = '<button type="button">✋ trockene Haut</button><button type="button">💧 nasse Haut</button>';
+  function zeig(){
+    if (q < 0) return;
+    const o = Q[q];
+    zeiger.setAttribute("transform", `translate(${o.x} 68)`);
+    for (let i = 0; i < 5; i++) { const s = $("#qSeg" + i); s.setAttribute("stroke", i === q ? "#15212b" : "#fff"); s.setAttribute("stroke-width", i === q ? 4 : 3); }
+    chip.className = "chip " + o.cls; setText(chip, o.chip);
+    let t = Array.isArray(o.txt) ? o.txt[h] : o.txt;
+    if (q < 3 && h === 1) t += " Auch mit nasser Haut bleibt es ungefährlich.";
+    setText(obs, t);
+    $$("button", wahl).forEach((b, i) => b.classList.toggle("sel", i === q));
+    $$("button", haut).forEach((b, i) => b.classList.toggle("sel", i === h));
+    if (gQ.size === Q.length && gH.size === 2) solve(id);
+  }
+  $$("button", wahl).forEach((b, i) => b.addEventListener("click", () => { q = i; gQ.add(i); zeig(); }));
+  $$("button", haut).forEach((b, i) => b.addEventListener("click", () => { h = i; gH.add(i); if (q < 0) { q = 3; gQ.add(3); } zeig(); }));
+})();
+
+/* ---------- Station 2: Strom im Körper ---------- */
+(function(){
+  const r = $("#mA"), chip = $("#mAChip"), obs = $("#mAObs"), zeiger = $("#kZeiger"), strom = $("#kStrom"), herz = $("#kHerz");
+  const id = "koerper"; register(id, "#koerperSim", "Regler: Was Strom im Körper bewirkt (Kribbeln, Krampf, Herz)");
+  const FARBE = ["#8fd0a8", "#e8c13a", "#f2992e", "#e0453a"];
+  const TXT = [
+    "Du spürst nichts. So wenig Strom fließt zum Beispiel, wenn du eine Batterie anfasst.",
+    "Kribbeln: Ab etwa 1 mA (0,001 A) spürst du den Strom. Er ist unangenehm, aber noch nicht gefährlich.",
+    "Krampf: Ab etwa 10 mA verkrampfen die Muskeln. Wer ein Kabel fest greift, kann es nicht mehr loslassen!",
+    "Lebensgefahr! Ab etwa 30 mA (0,03 A) kann das Herz aus dem Takt geraten (Herzkammerflimmern). Es pumpt dann kaum noch Blut. Auch die Atemmuskeln können verkrampfen."
+  ];
+  const zone = mA => mA < 1 ? 0 : mA < 10 ? 1 : mA < 30 ? 2 : 3;
+  function zeig(){
+    const v = +r.value, mA = v * v / 100, z = zone(mA);
+    zeiger.setAttribute("transform", `translate(${(190 + v * 2.7).toFixed(1)} 96)`);
+    setText(chip, (mA < 10 ? fmt(mA, 1) : String(Math.round(mA))) + " mA");
+    chip.className = "chip" + (z === 3 ? " bad" : z === 2 ? " warn" : z === 0 ? " ok" : "");
+    strom.setAttribute("stroke", FARBE[z]); strom.setAttribute("stroke-width", (3 + Math.sqrt(mA)).toFixed(1)); strom.style.opacity = v === 0 ? 0 : 1;
+    herz.setAttribute("class", z === 3 ? "flimmer" : "herz");
+    setText(obs, TXT[z] + (v >= 98 ? " Dazu kommen schwere Verbrennungen." : ""));
+    if (z === 3) solve(id);
+  }
+  r.addEventListener("input", zeig); zeig();
+  sichtbar($("#koerperSim"));
+})();
+
+/* ---------- Station 3: Gefahren-Suchbild ---------- */
+Modul.makeHotspots($("#hausBild"), $("#hausInfo"), $("#hausZahl"), [
+  {x: 15.8, y: 28, i: "🛁", t: "Föhn an der Badewanne", s: "Wasser leitet. Fällt der Föhn ins Wasser, fließt Strom durch den Körper – <strong>Lebensgefahr!</strong> Föhn, Radio und andere Netzgeräte gehören nie in die Nähe von Wasser."},
+  {x: 57.9, y: 42.7, i: "⚠️", t: "Beschädigtes Kabel", s: "Die Isolierung ist durchgescheuert, der blanke Draht liegt frei. Wer ihn berührt, bekommt einen Stromschlag. Berühren sich zwei blanke Drähte, gibt es einen <strong>Kurzschluss</strong> – im schlimmsten Fall einen Brand. Kaputte Kabel nie benutzen!"},
+  {x: 38.8, y: 37.3, i: "🔌", t: "Überlastete Mehrfachsteckdose", s: "Zu viele starke Geräte, dazu Leisten hintereinander: Die Stromstärke in der Zuleitung wird zu groß. Kabel und Leiste werden heiß – <strong>Brandgefahr!</strong>"},
+  {x: 16.3, y: 62.7, i: "🔌", t: "Stecker am Kabel herausgezogen", s: "Wer am Kabel zieht, lockert die Drähte im Stecker oder beschädigt die Isolierung. Dann kann ein blanker Draht freiliegen. <strong>Immer am Stecker anfassen</strong> und ziehen."},
+  {x: 54.6, y: 21.3, i: "💧", t: "Getränk neben dem Netzteil", s: "Läuft das Getränk aus und Wasser dringt ins Netzteil, kann ein Kurzschluss oder Stromschlag entstehen. <strong>Flüssigkeiten gehören nie neben Elektrogeräte.</strong>"},
+  {x: 49.2, y: 66, i: "👶", t: "Kleinkind an der Steckdose", s: "Kleine Kinder stecken gern Dinge in die Löcher. Ein Metallteil berührt in der Steckdose die Leitung unter Spannung: <strong>Lebensgefahr!</strong> Eine Kindersicherung verschließt die Öffnungen."},
+  {x: 84.2, y: 17.3, i: "⚠️", t: "Drachen an der Hochspannungsleitung", s: "Eine Drachenschnur kann Strom leiten, vor allem, wenn sie feucht ist. Bei Hochspannung kann der Strom sogar <strong>überspringen</strong>. Drachen steigen lassen nur weit weg von Leitungen und Masten!"}
+], "haus");
+
+/* ---------- Station 4: Mehrfachsteckdose und Sicherung ---------- */
+(function(){
+  const GER = [
+    {ic: "💡", n: "Lampe", a: .1}, {ic: "💻", n: "Laptop", a: .3}, {ic: "🍞", n: "Toaster", a: 4},
+    {ic: "☕", n: "Wasserkocher", a: 9}, {ic: "♨️", n: "Heizlüfter", a: 9}
+  ];
+  const LIM = 16, MAX = 24;
+  const wahl = $("#leisteWahl"), reset = $("#skReset"), chip = $("#skChip"), obs = $("#skObs"), hebel = $("#skHebel"), status = $("#skStatus");
+  const kabel = $("#skKabel"), balken = $("#skBalken"), wert = $("#skWert"), text = $("#skText"), plaetze = $("#skSteckplaetze"), geraete = $("#skGeraete");
+  const id = "leiste"; register(id, "#leisteSim", "Mehrfachsteckdose: Geräte zuschalten, bis die Sicherung auslöst");
+  const an = GER.map(() => false), karten = [];
+  let aus = false, ausBei = 0, hinweis = "";
+  const a1 = g => fmt(g.a, g.a < 1 ? 1 : 0) + " A";
+  GER.forEach((g, i) => {
+    const x = 252 + i * 43;
+    plaetze.insertAdjacentHTML("beforeend", `<rect x="${x + 5}" y="78" width="28" height="24" rx="5" fill="#e9eef2"/><circle cx="${x + 14}" cy="90" r="2.6" fill="#15212b"/><circle cx="${x + 24}" cy="90" r="2.6" fill="#15212b"/>`);
+    const el = document.createElementNS(NS, "g");
+    el.innerHTML = `<path d="M${x + 19} 102V126" stroke="#3a444d" stroke-width="3"/><rect x="${x}" y="126" width="38" height="46" rx="7" fill="#fff" stroke="#b9cbd8" stroke-width="2"/>` +
+      `<text x="${x + 19}" y="150" text-anchor="middle" font-size="20">${g.ic}</text><text x="${x + 19}" y="166" text-anchor="middle" font-size="11" font-weight="800" fill="#15212b">${a1(g)}</text>`;
+    el.setAttribute("opacity", .3); geraete.appendChild(el); karten.push(el);
+  });
+  wahl.innerHTML = GER.map((g, i) => `<button type="button" data-i="${i}">${g.ic} ${esc(g.n)} ${a1(g)}</button>`).join("");
+  const summe = () => an.reduce((s, x, i) => s + (x ? GER[i].a : 0), 0);
+  function pruefe(){ if (!aus && summe() > LIM) { aus = true; ausBei = summe(); solve(id); } }
+  function zeig(){
+    const tot = summe(), I = aus ? 0 : tot;
+    balken.setAttribute("width", (clamp(I / MAX, 0, 1) * 452).toFixed(1));
+    balken.setAttribute("fill", I > 11 ? "#e8890c" : "#1b8a4b");
+    setText(wert, aus ? "0 A – Sicherung aus" : fmt(I, 1) + " A");
+    wert.setAttribute("fill", aus ? "#c93b3b" : "#15212b");
+    kabel.setAttribute("stroke", aus || I < 5 ? "#7d8791" : I <= 11 ? "#c9a14a" : "#e8890c");
+    hebel.style.transform = aus ? "translateY(34px)" : "translateY(0)"; hebel.setAttribute("fill", aus ? "#c93b3b" : "#1b8a4b");
+    setText(status, aus ? "AUS" : "EIN");
+    karten.forEach((k, i) => { k.setAttribute("opacity", an[i] ? (aus ? .55 : 1) : .3); $("rect:nth-of-type(1)", k).setAttribute("stroke", an[i] ? (aus ? "#c93b3b" : "#1b8a4b") : "#b9cbd8"); });
+    $$("button", wahl).forEach((b, i) => b.classList.toggle("sel", an[i]));
+    let c, k, o;
+    if (aus) { c = "bad"; k = "Sicherung aus"; setText(text, "Sicherung ausgelöst bei " + fmt(ausBei, 1) + " A!");
+      o = "Die Sicherung hat abgeschaltet: " + fmt(ausBei, 1) + " A sind mehr als 16 A. Es fließt kein Strom mehr, die Leitung kühlt ab. Schalte erst ein starkes Gerät aus und dann die Sicherung wieder ein."; }
+    else if (I === 0) { c = "ok"; k = "Leitung kühl"; setText(text, "Noch ist nichts eingeschaltet."); o = "Schalte Geräte ein und beobachte die Stromstärke."; }
+    else if (I < 5) { c = "ok"; k = "Leitung kühl"; setText(text, "Stromstärke klein: alles in Ordnung"); o = "Lampe und Laptop brauchen nur wenig Strom. Die Leitung bleibt kühl."; }
+    else if (I <= 11) { c = ""; k = "Leitung leicht warm"; setText(text, "Die Leitung wird warm"); o = "Ein starkes Gerät braucht viel Strom. Die Leitung erwärmt sich etwas. Noch ist alles unter 16 A."; }
+    else { c = "warn"; k = "Leitung warm"; setText(text, "Fast an der Grenze"); o = "Die Stromstärken addieren sich: Es sind " + fmt(I, 1) + " A. Ein weiteres starkes Gerät würde die Grenze von 16 A überschreiten."; }
+    chip.className = "chip" + (c ? " " + c : ""); setText(chip, k); setText(obs, (hinweis ? hinweis + " " : "") + o); hinweis = "";
+  }
+  $$("button", wahl).forEach((b, i) => b.addEventListener("click", () => { an[i] = !an[i]; pruefe(); zeig(); }));
+  reset.addEventListener("click", () => {
+    reset.dataset.fertig = "1";
+    if (!aus) { hinweis = "Die Sicherung ist schon eingeschaltet."; zeig(); return; }
+    aus = false; pruefe();
+    hinweis = aus ? "Immer noch zu viel! Nimm zuerst ein starkes Gerät weg." : "Sicherung eingeschaltet.";
+    zeig();
+  });
+  zeig();
+  sichtbar($("#leisteSim"));
+})();
+
+/* ---------- Station 4: Kurzschluss ---------- */
+(function(){
+  const wahl = $("#ksWahl"), obs = $("#ksObs"), bypass = $("#ksBypass"), fluss = $("#ksFluss"), lampe = $("#ksLampe"), label = $("#ksLabel"), text = $("#ksText");
+  const id = "kurzschluss"; register(id, "#ksSim", "Kurzschluss: Strom mit und ohne blanken Draht vergleichen");
+  const Z = [
+    {t: "💡 Normaler Stromkreis", d: "M60 90V50H420V170H60V124", w: 4, c: "#e8890c", by: 0, lampe: "#fff0a8", label: "Strom: klein", text: "Die Lampe leuchtet",
+     obs: "Der Strom fließt durch die Lampe. Sie bremst ihn, die Stromstärke bleibt klein."},
+    {t: "⚡ Zwei blanke Drähte berühren sich", d: "M60 90V50H300V170H60V124", w: 12, c: "#e0453a", by: 1, lampe: "#e4e8ec", label: "Strom: sehr groß!", text: "Kurzschluss!",
+     obs: "Der blanke Draht verbindet Hin- und Rückleitung vor der Lampe. Der Strom nimmt den Weg ohne Gerät. Nichts bremst ihn: Er wird sehr groß und der Draht heizt sich auf. Die Sicherung schaltet sofort ab."}
+  ];
+  const gesehen = new Set();
+  wahl.innerHTML = Z.map((z, i) => `<button type="button" data-i="${i}">${esc(z.t)}</button>`).join("");
+  $$("button", wahl).forEach((b, i) => b.addEventListener("click", () => {
+    const z = Z[i];
+    fluss.setAttribute("d", z.d); fluss.setAttribute("stroke-width", z.w); fluss.setAttribute("stroke", z.c);
+    bypass.setAttribute("opacity", z.by); lampe.setAttribute("fill", z.lampe);
+    setText(label, z.label); setText(text, z.text); setText(obs, z.obs);
+    $$("button", wahl).forEach((x, k) => x.classList.toggle("sel", k === i));
+    gesehen.add(i); if (gesehen.size === Z.length) solve(id);
+  }));
+  sichtbar($("#ksSim"));
+})();
+
+/* ---------- Station 4: Überschlag (M7) ---------- */
+Modul.plus(() => {
+  Modul.makeMC($("#mc-ueber"), [
+    {q: "Wasserkocher (9 A), Toaster (4 A) und Lampe (0,1 A) hängen an einer Leiste mit 16-A-Sicherung. Wie groß ist die Gesamtstromstärke, und was passiert?",
+     o: ["13,1 A – die Sicherung schaltet nicht ab", "13,1 A – die Sicherung schaltet ab", "9 A – nur das stärkste Gerät zählt", "22,1 A – die Sicherung schaltet ab"], a: 0,
+     e: "Die Stromstärken addieren sich: 9 A + 4 A + 0,1 A = 13,1 A. Das ist weniger als 16 A, die Sicherung bleibt eingeschaltet."},
+    {q: "Jetzt kommt noch ein Heizlüfter (9 A) an dieselbe Leiste. Was ist richtig?",
+     o: ["22,1 A – das ist mehr als 16 A, die Sicherung schaltet ab", "22,1 A – die Sicherung hält, sie verträgt viel", "13,1 A – der Heizlüfter ändert nichts", "9 A – nur der Heizlüfter zählt"], a: 0,
+     e: "13,1 A + 9 A = 22,1 A. Das ist mehr als 16 A: Die Sicherung unterbricht den Stromkreis."}
+  ], "ueber");
+});
+
+/* ---------- Station 5: Der FI rettet Leben (Animation in Schritten) ---------- */
+(function(){
+  const hin = $("#seHin"), rueck = $("#seRueck"), fehler = $("#seFehler"), wasser = $("#seWasser"), fi = $("#seFI"), led = $("#seLed"), ledText = $("#seLedText");
+  const balHin = $("#seBalHin"), balRueck = $("#seBalRueck"), diff = $("#seDiff"), status = $("#seStatus"), foehn = $("#seFoehn");
+  const STATUS = ["Alles normal", "Föhn im Wasser!", "FI misst den Unterschied", "Strom aus!", "Gerettet", "Trotzdem: Abstand zum Wasser"];
+  Modul.makeSchritte($("#schutzSim"), {
+    steps: [
+      "Alles in Ordnung: Der Strom fließt von der Steckdose zum Föhn und zurück. Der FI-Schutzschalter vergleicht beide Wege – sie sind gleich groß.",
+      "Der Föhn fällt ins Wasser. Wasser leitet: Ein Teil des Stroms nimmt einen zweiten Weg durch Wasser und Körper zur Erde. Die Sicherung merkt nichts, denn das ist viel weniger als 16 A.",
+      "Auf dem Rückweg kommt jetzt weniger Strom an als auf dem Hinweg. Der FI merkt den Unterschied, den <b>Fehlerstrom</b>. Schon etwa 0,03 A genügen.",
+      "Der FI schaltet in <b>Sekundenbruchteilen</b> ab. Der Stromkreis ist unterbrochen – auch der Weg durch den Körper.",
+      "Der Strom floss nur ganz kurz durch den Körper. So kann der FI-Schutzschalter <b>Leben retten</b>.",
+      "Aber verlass dich nie darauf: Der FI ist die letzte Rettung, kein Freibrief. Föhn und Radio gehören nie ans Badewasser."
+    ],
+    ms: 3400,
+    zeige(i){
+      const k = Math.max(0, i), laeuft = k <= 2;
+      hin.style.opacity = rueck.style.opacity = laeuft ? 1 : 0;
+      fehler.style.opacity = k >= 1 && k <= 2 ? 1 : 0;
+      wasser.style.opacity = k >= 1 ? 1 : 0;
+      balHin.setAttribute("width", laeuft ? 76 : 0); balRueck.setAttribute("width", k === 0 || k === 1 ? 76 : k === 2 ? 52 : 0);
+      setText(diff, k <= 1 ? "beide gleich groß" : k === 2 ? "Es fehlt Strom!" : "abgeschaltet");
+      diff.setAttribute("fill", k === 2 ? "#c93b3b" : "#4b2d73");
+      fi.setAttribute("fill", k === 2 ? "#fff3c4" : "#f3ecfb"); fi.setAttribute("stroke", k === 2 ? "#e8a000" : "#6b3fa0");
+      led.setAttribute("fill", k >= 3 ? "#c93b3b" : "#1b8a4b"); setText(ledText, k >= 3 ? "AUS" : "EIN");
+      foehn.setAttribute("fill", k >= 3 ? "#9aa5ad" : "#e0453a");
+      setText(status, STATUS[k]);
+    }
+  }, "schutz");
+  sichtbar($("#schutzSim"));
+})();
+
+/* ---------- Station 6: Regeln mit Begründung ---------- */
+(function(){
+  const R = [
+    {t: "Stecker am Stecker ziehen", g: "Wer am Kabel zieht, lockert die Drähte im Stecker oder beschädigt die Isolierung. Dann kann ein blanker Draht freiliegen: Gefahr durch Stromschlag und Kurzschluss."},
+    {t: "Keine Geräte mit nassen Händen oder am Wasser", g: "Wasser und nasse Haut leiten den Strom. Dann fließt viel mehr Strom durch deinen Körper. Im Bad gehören Netzgeräte nie ans Wasser."},
+    {t: "Nichts in Steckdosen stecken", g: "In der Steckdose liegen Kontakte unter 230 V. Ein Gegenstand aus Metall leitet den Strom in deine Hand: Lebensgefahr!"},
+    {t: "Kaputte Kabel nicht benutzen", g: "Ist die Isolierung beschädigt, liegt der blanke Draht frei: Stromschlag, Kurzschluss und Brandgefahr. Eine Fachkraft ersetzt das Kabel."},
+    {t: "Geräte nicht selbst öffnen", g: "Im Inneren liegen Teile unter Spannung, einige sogar nach dem Ausstecken noch. Reparaturen macht eine Fachkraft."},
+    {t: "Steckdosen nicht überlasten", g: "Zu viele starke Geräte lassen die Leitung heiß werden – Brandgefahr. Mehrfachsteckdosen nie hintereinanderstecken."}
+  ];
+  const wahl = $("#regelWahl"), buehne = $("#regelBuehne");
+  const id = "regeln"; register(id, "#regelWahl", "Sechs Sicherheitsregeln mit Begründung ansehen");
+  const gesehen = new Set();
+  wahl.innerHTML = R.map((r, i) => `<button type="button">${i + 1}. ${esc(r.t)}</button>`).join("");
+  $$("button", wahl).forEach((b, i) => b.addEventListener("click", () => {
+    buehne.innerHTML = `<b>Regel ${i + 1}: ${esc(R[i].t)}</b><br><strong>Warum?</strong> ${esc(R[i].g)}`;
+    $$("button", wahl).forEach((x, k) => x.classList.toggle("sel", k === i));
+    b.classList.add("gesehen"); gesehen.add(i);
+    if (gesehen.size === R.length) solve(id);
+  }));
+})();
+
+Modul.makeOrder($("#orderHilfe"), [
+  "Die verletzte Person nicht anfassen",
+  "Den Strom abschalten: Stecker ziehen oder Sicherung ausschalten",
+  "Den Notruf 112 wählen",
+  "Erst bei abgeschaltetem Strom der Person helfen"
+], "orderHilfe");
+
+/* ---------- Station 7: Training ---------- */
+Modul.makeGap($("#gapStrom"), [
+  ["Die ", {g: "Sicherung"}, " unterbricht den Stromkreis, wenn die ", {g: "Stromstärke"}, " zu groß wird."],
+  ["Der ", {g: "FI-Schutzschalter"}, " schaltet in Sekundenbruchteilen ab, wenn Strom einen ", {g: "falschen"}, " Weg nimmt, zum Beispiel durch einen Menschen."],
+  ["Die ", {g: "Isolierung"}, " verhindert, dass man den blanken ", {g: "Draht"}, " berührt. Die ", {g: "Kindersicherung"}, " verhindert, dass etwas in die Steckdose gesteckt wird."],
+  ["Wasser ", {g: "leitet"}, " den Strom. Darum darf man Geräte nie mit nassen Händen oder am Wasser benutzen."]
+], "gapStrom", ["Spannung", "Schutzleiter"]);
+
+Modul.makeTF($("#tf"), [
+  ["Batterien mit 1,5 V bis 12 V sind für den Körper ungefährlich.", true],
+  ["Die Steckdose ist nur dann gefährlich, wenn die Haut nass ist.", false],
+  ["Die Sicherung unterbricht den Stromkreis, wenn die Stromstärke zu groß wird.", true],
+  ["Der FI-Schutzschalter schaltet ab, wenn Strom einen falschen Weg nimmt.", true],
+  ["Einen Stecker zieht man am Kabel aus der Steckdose.", false],
+  ["Bei einem Stromunfall fasst man die Person sofort an, um zu helfen.", false],
+  ["Bei der Oberleitung der Bahn kann der Strom auch ohne Berührung überspringen.", true]
+], "tf");
+
+Modul.makeSort($("#sortSchutz"), {
+  buckets: ["Sicherung", "FI-Schutzschalter", "Isolierung / Kindersicherung"],
+  items: [
+    {t: "zu viele starke Geräte an einer Leiste", b: 0}, {t: "Kurzschluss durch zwei blanke Drähte", b: 0},
+    {t: "Föhn fällt ins Badewasser", b: 1}, {t: "Strom fließt durch einen Menschen zur Erde", b: 1},
+    {t: "Man will den blanken Draht berühren", b: 2}, {t: "Ein Kleinkind steckt eine Gabel in die Steckdose", b: 2}
+  ], cols: 150
+}, "sortSchutz");
+
+Modul.makeCrossword($("#cw"), {
+  words: [
+    {w: "HOCHSPANNUNG", r: 2, c: 0, d: "a", q: "Sehr hohe Spannung, zum Beispiel 15 000 V bei der Bahn."},
+    {w: "SCHUTZLEITER", r: 0, c: 3, d: "d", q: "Grün-gelbes Kabel, das Strom vom Metallgehäuse ableitet."},
+    {w: "KURZSCHLUSS", r: 11, c: 1, d: "a", q: "Der Strom nimmt einen Weg ohne Gerät und wird sehr groß."},
+    {w: "FEHLERSTROM", r: 6, c: 0, d: "a", q: "Strom, der einen falschen Weg nimmt, zum Beispiel durch einen Menschen."},
+    {w: "ISOLIERUNG", r: 4, c: 9, d: "d", q: "Kunststoffhülle um den Draht eines Kabels."},
+    {w: "SICHERUNG", r: 13, c: 1, d: "a", q: "Sie schaltet ab, wenn die Stromstärke zu groß wird."},
+    {w: "STECKDOSE", r: 0, c: 3, d: "a", q: "Hier steckt man den Stecker hinein (230 V)."},
+    {w: "NOTRUF", r: 9, c: 1, d: "a", q: "Die 112 ist der europaweite …"},
+    {w: "WASSER", r: 8, c: 11, d: "d", q: "Es leitet den Strom – darum nie Elektrogeräte damit zusammenbringen."}
+  ],
+  sol: [[0, 3], [4, 9], [0, 6], [2, 0], [6, 1], [13, 6]], solWord: "SICHER"
+}, "cw");
+
+Modul.makeOpen($("#open"), [
+  {q: "Nenne drei Regeln für den sicheren Umgang mit Strom und begründe eine davon.",
+   m: "Man zieht den Stecker am Stecker, nicht am Kabel. Man benutzt keine Geräte mit nassen Händen oder am Wasser. Man steckt nichts in die Steckdose. Begründung zur zweiten Regel: Wasser leitet den Strom, deshalb würde bei nassen Händen viel Strom durch den Körper fließen.",
+   k: ["stecker|kabel", "nass|wasser|feucht", "steckdose|kaputt|beschädigt|defekt|öffnen"], min: 2},
+  {q: "Erkläre, warum ein Föhn in der Badewanne lebensgefährlich ist. Was kann einen Menschen dabei retten?",
+   m: "Badewasser enthält gelöste Salze und leitet den Strom. Fällt der Föhn ins Wasser, fließt Strom durch den Körper. Das verkrampft die Muskeln und bringt das Herz aus dem Takt – das ist lebensgefährlich. Ein FI-Schutzschalter kann Leben retten, weil er in Sekundenbruchteilen abschaltet.",
+   k: ["wasser|nass", "leit", "körper|mensch|person", "herz|muskel|lebensgefähr|tod", "fi|schutzschalter"], min: 4},
+  {q: "Beschreibe, was Sicherung und FI-Schutzschalter jeweils tun, und erkläre den Unterschied.",
+   m: "Die Sicherung unterbricht den Stromkreis, wenn die Stromstärke zu groß wird, und schützt so die Leitung vor Überhitzung. Der FI-Schutzschalter schaltet in Sekundenbruchteilen ab, wenn Strom einen falschen Weg nimmt, zum Beispiel durch einen Menschen. Er schützt also Menschen, die Sicherung schützt die Leitung.",
+   k: ["sicherung", "stromstärke|zu groß|überlast|leitung", "fi|schutzschalter", "falsch|mensch|fehlerstrom|körper"], min: 3}
+], "open", "Lies noch einmal die Merke-Kästen in Station 2, 4 und 5.");
+
+Modul.plus(() => {
+  Modul.makeOpen($("#openM"), [
+    {q: "Lena steckt einen Heizlüfter (9 A) und einen Wasserkocher (9 A) in dieselbe Mehrfachsteckdose an einer Leitung mit 16-A-Sicherung. Darf sie das? Begründe mit einer Rechnung.",
+     m: "Nein. Die Stromstärken addieren sich: 9 A + 9 A = 18 A. Das ist mehr als 16 A. Die Sicherung würde abschalten, und ohne Sicherung würde sich die Leitung zu stark erwärmen – Brandgefahr.",
+     k: ["18", "16", "sicherung|schaltet ab|abschalten", "brand|heiß|erwärm|überlast"], min: 3},
+    {q: "Tom will mit nassen Händen ein defektes Radio reparieren. Der Stecker steckt noch in der Steckdose. Darf er das? Begründe.",
+     m: "Nein. Er muss zuerst den Stecker ziehen. Nasse Haut leitet den Strom gut, deshalb könnte viel Strom durch seinen Körper fließen – Lebensgefahr. Geräte öffnet und repariert man nicht selbst, das macht eine Fachkraft.",
+     k: ["stecker|strom abschalten|ausschalten", "nass|feucht", "leit|körper|stromschlag|lebensgefahr", "fachkraft|nicht selbst|nicht öffnen|reparier"], min: 3},
+    {q: "Warum zieht man einen Stecker am Stecker und nicht am Kabel aus der Steckdose? Begründe mit der Isolierung.",
+     m: "Am Kabel zu ziehen lockert die Drähte im Stecker oder beschädigt die Isolierung. Dann liegt ein blanker Draht frei: Man kann einen Stromschlag bekommen, oder zwei Drähte berühren sich und es gibt einen Kurzschluss.",
+     k: ["kabel", "isolierung|draht|drähte|lock|beschädig", "stromschlag|kurzschluss|brand|berühr|blank"], min: 2}
+  ], "openM", "Denke an Überlastung, nasse Haut und die Isolierung.");
+});
+
+/* ---------- Profi-Check ---------- */
+const EXTRA = [
+  {q: "Wofür ist die Kindersicherung in der Steckdose da?", o: ["Sie verhindert, dass Gegenstände hineingesteckt werden.", "Sie schaltet bei Überlastung ab.", "Sie leitet Strom zur Erde ab.", "Sie macht die Spannung kleiner."], a: 0, e: "Kleine Klappen verschließen die Öffnungen. Bei Überlastung schaltet die Sicherung ab, der Schutzleiter leitet Strom zur Erde ab."},
+  {q: "Welche Farbe hat der Schutzleiter?", o: ["grün-gelb", "rot", "blau", "schwarz"], a: 0, e: "Das grün-gelbe Kabel verbindet das Metallgehäuse eines Geräts mit der Erde."},
+  {q: "Wie ziehst du einen Stecker richtig aus der Steckdose?", o: ["Am Stecker anfassen und ziehen", "Am Kabel ziehen", "Mit einer Zange", "Gar nicht, die Steckdose schaltet von selbst ab"], a: 0, e: "Am Kabel zu ziehen lockert die Drähte und beschädigt die Isolierung."},
+  {q: "Was ist ein Fehlerstrom?", o: ["Strom, der einen falschen Weg nimmt, zum Beispiel durch einen Menschen", "Strom, der zu schwach ist", "Strom aus einer Batterie", "Strom, der rückwärts fließt"], a: 0, e: "Der FI-Schutzschalter merkt, dass dieser Strom auf dem Rückweg fehlt, und schaltet ab."}
+];
+Modul.makeQuiz($("#quiz"), [].concat(MC.s1, MC.s2, MC.s3, MC.s4, MC.s5, MC.s6, MC.train, EXTRA), "quiz", "Sicherheits-Profi");
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>
