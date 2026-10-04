@@ -1,0 +1,1051 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1b3a8f">
+<title>Der Stromkreis und sein Schaltplan | NT 7</title>
+<link rel="stylesheet" href="modul-basis.css">
+<style>
+.hero{background:linear-gradient(160deg,#13225c,#2458c6 55%,#f2b632)}
+/* Auswahlknöpfe unter einer Grafik */
+.sim .wahl{margin:0;padding:12px 14px;border-top:1px solid var(--line);background:#fbfdff}
+.wahl:empty{display:none}
+.wahl button:disabled{opacity:.5;cursor:default}
+.wahl button.leitet{border-color:var(--ok);background:var(--ok-l)}
+.wahl button.nicht{border-color:#9aa5ad;background:#eef2f5}
+.wahl button.jetzt{box-shadow:0 0 0 3px rgba(13,119,194,.45)}
+.wahl button.falsch{border-color:var(--bad);background:var(--bad-l)}
+.sim .readout{padding-top:12px}
+.sim-kopf{margin:0;padding:10px 14px;border-top:1px solid var(--line);background:#fbfdff;font-weight:700}
+.sim-fb{padding:0 14px 12px;background:#fbfdff}
+.sim-fb .fb{margin-top:0}
+.erg{padding:10px 14px;border-top:1px dashed var(--line);font-size:.95rem;background:#fff;display:grid;gap:4px}
+/* Schaltzeichen-Karten und -Quiz */
+.sz-bild{display:flex;gap:8px}
+.sz-bild svg{width:96px;height:66px;background:#f4f7fa;border-radius:10px;border:1px solid var(--line)}
+.zeichen-buehne{display:grid;grid-template-columns:150px 1fr;gap:16px;align-items:center}
+.zeichen-buehne svg{width:150px;height:112px;background:#f4f7fa;border-radius:16px;border:1px solid var(--line)}
+@media (max-width:520px){.zeichen-buehne{grid-template-columns:1fr;justify-items:center}}
+/* Aufbau und Schaltplan zuordnen */
+.plan-gegeben{border:2px solid var(--line);border-radius:14px;background:#fff;padding:6px;max-width:330px;margin:0 auto 10px}
+.plan-gegeben svg,.plan-wahl button svg{display:block;width:100%;height:auto}
+.plan-wahl{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:8px}
+.plan-wahl button{padding:5px;background:#fff}
+.plan-wahl button.falsch{border-color:var(--bad);background:#fff}
+/* Fehler im Schaltplan antippen */
+.spotbild{position:relative}
+.spot{position:absolute;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;border:3px solid #fff;background:var(--sky);color:#fff;font-weight:800;font-size:1.05rem;box-shadow:0 2px 8px rgba(0,0,0,.3);display:grid;place-items:center;padding:0}
+.spot.nein{background:#8a97a3}
+.spot.treffer{background:var(--bad)}
+.spot:disabled{cursor:default}
+/* Baukasten */
+.pal button{display:inline-flex;align-items:center;gap:6px;padding:6px 10px}
+.sim .pal button svg{display:inline-block;width:50px;height:32px;background:none}
+.platz{cursor:pointer}
+.platz:focus{outline:none}
+.platz:focus-visible rect{stroke:#f2b632}
+#kHebel,#kEnde{transition:transform .35s}
+#kGlow,#kStrahlen,#kPfeile,#pGlow,#pStrahlen{transition:opacity .4s}
+#morphBild g{transition:opacity .7s}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>NT 7</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Dunkel!</a>
+      <a href="#s2"><b>2</b>Stromkreis</a>
+      <a href="#s3"><b>3</b>Leiter</a>
+      <a href="#s4"><b>4</b>Schaltplan</a>
+      <a href="#s5"><b>5</b>Fehler</a>
+      <a href="#s6"><b>6</b>Training</a>
+      <a href="#s7"><b>7</b>Profi-Check</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse 7M / 7R · Themenbereich Elektrizität · Lernmodul 1</div>
+    <h1>Der Stromkreis und sein Schaltplan</h1>
+    <p>Lichtschalter, Klingel, Taschenlampe: Überall fließt Strom – aber nur, wenn sein Weg geschlossen ist. In sieben Stationen schließt du Stromkreise, testest, was Strom leitet, liest Schaltpläne und findest Fehler wie ein Profi.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s6">Direkt zum Probentraining</a>
+    </div>
+    <div class="goals">
+      <div>🔋 Ich nenne die Teile eines Stromkreises und erkläre ihre Aufgabe.</div>
+      <div>🔌 Ich unterscheide Leiter und Nichtleiter.</div>
+      <div>📐 Ich lese Schaltzeichen und ordne Schaltplan und Aufbau einander zu.</div>
+      <div>🔍 Ich finde Fehler in Schaltungen und erkläre ihre Folgen.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg</div><h2>Die Fahrradlampe bleibt dunkel</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Es ist schon dunkel, als du vom Training heimfahren willst. Du drückst den Knopf an deiner Fahrradlampe – nichts. Kein Licht.</p>
+      <p>Woran kann das liegen? Du hast vier <strong>Vermutungen</strong>. Eine Vermutung prüft man, indem man genau nachsieht oder etwas ausprobiert – eine nach der anderen.</p>
+      <p class="hint">Rechts siehst du die vier Teile der Lampe. Tippe auf eine Vermutung und prüfe sie. Hast du den Fehler gefunden, behebst du ihn.</p>
+      <div id="mc-s1"></div>
+    </div>
+    <div class="sim reveal">
+      <svg viewBox="0 0 480 250" id="radSvg" role="img" aria-label="Die vier Teile einer Fahrradlampe sind im Kreis verbunden: Schalter, Lämpchen, Kabel und Batterie">
+        <rect width="480" height="250" fill="#f7fbfe"/>
+        <path d="M170 70H310M375 105V145M310 180H170M105 145V105" fill="none" stroke="#b5651d" stroke-width="6" stroke-linecap="round"/>
+        <g id="radTeile"></g>
+      </svg>
+      <div class="wahl" id="radWahl"></div>
+      <p class="obs" id="radObs">Welche Vermutung prüfst du zuerst?</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Was ein Stromkreis braucht</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Damit eine Lampe leuchtet, braucht es vier Dinge. Zusammen bilden sie einen <button class="term" data-t="stromkreis">Stromkreis</button>.</p>
+    <div class="info-karten">
+      <div class="info-karte"><div class="big">🔋</div><h4>Spannungsquelle</h4><p>Zum Beispiel eine Batterie. Die <button class="term" data-t="quelle">Spannungsquelle</button> treibt den Strom an. Sie hat zwei Anschlüsse: <button class="term" data-t="pol">Pluspol und Minuspol</button>.</p></div>
+      <div class="info-karte"><div class="big">🔌</div><h4>Leiter</h4><p>Kabel aus Metall. Sie sind der Weg, auf dem der Strom fließt.</p></div>
+      <div class="info-karte"><div class="big">💡</div><h4>Gerät</h4><p>Eine Lampe, ein Motor oder ein Summer. Hier soll der Strom etwas bewirken.</p></div>
+      <div class="info-karte"><div class="big">🔘</div><h4>Schalter</h4><p>Der <button class="term" data-t="schalter">Schalter</button> schließt den Stromkreis oder unterbricht ihn.</p></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card reveal">
+      <span class="task-tag">Versuch</span>
+      <h3 style="margin-top:4px">Im Kreis herum</h3>
+      <p>Im Metall der Kabel stecken winzige Teilchen, die sich bewegen können: die <button class="term" data-t="elektron">Elektronen</button>. Sie sind immer da – auch wenn kein Strom fließt.</p>
+      <p>Schließt du den Schalter, treibt die Batterie die Elektronen an. Sie wandern im Kreis: vom Minuspol durch Kabel und Lampe zum Pluspol. Dieses Wandern ist der elektrische Strom.</p>
+      <p class="hint">Schließe den Schalter. Öffne ihn wieder. Ziehe dann bei geschlossenem Schalter das Kabel ab. Beobachte die blauen Punkte.</p>
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li>Ein Stromkreis besteht aus Spannungsquelle, Leitern, Schalter und einem Gerät, zum Beispiel einer Lampe.</li>
+        <li>Strom fließt nur im <button class="term" data-t="geschlossen">geschlossenen Stromkreis</button>.</li>
+        <li>Ist der Stromkreis an einer einzigen Stelle <button class="term" data-t="unterbrochen">unterbrochen</button>, fließt nirgends Strom.</li>
+      </ul></div>
+    </div>
+    <div class="sim reveal">
+      <svg viewBox="0 0 480 300" id="kreisSvg" role="img" aria-label="Stromkreis aus Batterie, Kabeln, Schalter und Lampe. Blaue Punkte im Kabel zeigen die Elektronen.">
+        <rect width="480" height="300" fill="#f7fbfe"/>
+        <!-- Kabel: außen Kupfer, innen hell, damit man die Elektronen sieht -->
+        <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M345 238H430V70H190M110 70H50V238H170" stroke="#b87333" stroke-width="13"/>
+          <path d="M345 238H430V70H190M110 70H50V238H170" stroke="#f6e3c5" stroke-width="8"/>
+        </g>
+        <rect x="104" y="76" width="12" height="11" fill="#8a97a3"/><rect x="184" y="76" width="12" height="11" fill="#8a97a3"/>
+        <g id="kHebel" style="transform-origin:110px 70px">
+          <line x1="110" y1="70" x2="190" y2="70" stroke="#b87333" stroke-width="13" stroke-linecap="round"/>
+          <line x1="110" y1="70" x2="190" y2="70" stroke="#f6e3c5" stroke-width="8" stroke-linecap="round"/>
+          <rect x="138" y="50" width="24" height="13" rx="4" fill="#c0392b"/>
+        </g>
+        <g id="kEnde" style="transform-origin:345px 238px">
+          <line x1="312" y1="238" x2="345" y2="238" stroke="#b87333" stroke-width="13" stroke-linecap="round"/>
+          <line x1="312" y1="238" x2="345" y2="238" stroke="#f6e3c5" stroke-width="8" stroke-linecap="round"/>
+          <rect x="304" y="229" width="14" height="18" rx="3" fill="#15212b"/>
+        </g>
+        <g id="kElektronen"></g>
+        <!-- Pfeile: Richtung der Elektronen -->
+        <g id="kPfeile" opacity="0" fill="none" stroke="#2f6fdb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M412 176V144M405 154l7-10 7 10"/><path d="M276 90H244M254 83l-10 7 10 7"/><path d="M68 140V172M61 162l7 10 7-10"/>
+        </g>
+        <!-- Lampe -->
+        <circle id="kGlow" cx="330" cy="36" r="42" fill="#ffd84d" opacity="0"/>
+        <g id="kStrahlen" opacity="0" stroke="#f2b632" stroke-width="3" stroke-linecap="round"><line x1="296" y1="36" x2="284" y2="36"/><line x1="364" y1="36" x2="376" y2="36"/><line x1="306" y1="14" x2="298" y2="6"/><line x1="354" y1="14" x2="362" y2="6"/></g>
+        <rect x="310" y="59" width="40" height="23" rx="5" fill="#8a97a3"/><rect x="321" y="50" width="18" height="11" fill="#b9c2ca"/>
+        <circle id="kGlas" cx="330" cy="34" r="21" fill="#fff8d6" stroke="#b9a25a" stroke-width="2"/>
+        <path id="kFaden" d="M319 41q5.5-14 11 0t11 0" fill="none" stroke="#8a5a2b" stroke-width="2"/>
+        <text x="330" y="104" text-anchor="middle" font-size="13" font-weight="700" fill="#566674">Lampe</text>
+        <text x="150" y="104" text-anchor="middle" font-size="13" font-weight="700" fill="#566674">Schalter</text>
+        <!-- Batterie -->
+        <rect x="160" y="230" width="12" height="16" rx="2" fill="#8a97a3"/><rect x="308" y="230" width="12" height="16" rx="2" fill="#8a97a3"/>
+        <rect x="170" y="214" width="140" height="48" rx="9" fill="#2b3a4a"/><rect x="170" y="214" width="34" height="48" rx="9" fill="#f2b632"/>
+        <text x="187" y="245" text-anchor="middle" font-size="20" font-weight="800" fill="#15212b">+</text>
+        <text x="294" y="245" text-anchor="middle" font-size="20" font-weight="800" fill="#fff">−</text>
+        <text x="246" y="243" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">Batterie</text>
+        <!-- Anzeige -->
+        <text id="kStatus" x="240" y="140" text-anchor="middle" font-size="17" font-weight="800" fill="#c93b3b">Stromkreis unterbrochen</text>
+        <text id="kStatus2" x="240" y="162" text-anchor="middle" font-size="13" font-weight="600" fill="#15212b">Alle Elektronen stehen still.</text>
+        <circle cx="166" cy="186" r="4" fill="#2f6fdb"/><text x="176" y="191" font-size="12" fill="#566674">= Elektron (stark vergrößert)</text>
+      </svg>
+      <div class="wahl" id="kreisWahl"><button type="button" id="kSchalter">Schalter schließen</button><button type="button" id="kKabel">Kabel abziehen</button></div>
+      <div class="readout"><span class="chip" id="kC1">○ Lampe leuchtet</span><span class="chip" id="kC2">○ Schalter unterbricht</span><span class="chip" id="kC3">○ Kabel ab unterbricht</span></div>
+      <p class="obs" id="kreisObs">Der Schalter ist offen. Die Elektronen sind schon im Kabel, aber sie stehen still. Schließe den Schalter.</p>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:18px"><div id="mc-s2"></div></div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>Leiter und Nichtleiter</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Nicht jeder Stoff lässt den Strom durch. Stoffe, die den Strom gut leiten, heißen <button class="term" data-t="leiter">Leiter</button>. Stoffe, die ihn nicht leiten, heißen <button class="term" data-t="nichtleiter">Nichtleiter</button>.</p>
+      <p>Mit einer <button class="term" data-t="pruefstrecke">Prüfstrecke</button> findest du es heraus: Der Stromkreis hat eine Lücke. Du klemmst einen Gegenstand hinein. Leuchtet die Lampe, dann leitet der Gegenstand.</p>
+      <span class="task-tag leicht">Versuch · leicht</span>
+      <p class="hint">Teste alle zehn Gegenstände. Vermute jedes Mal vorher: Leuchtet die Lampe?</p>
+      <h3>Warum Kabel einen Mantel haben</h3>
+      <svg viewBox="0 0 320 120" role="img" aria-label="Ein Kabel: außen ein Mantel aus Kunststoff, innen Drähte aus Kupfer" style="display:block;width:100%;max-width:360px;height:auto;margin:0 auto 10px">
+        <rect x="14" y="44" width="196" height="32" rx="16" fill="#2f6fdb"/>
+        <rect x="22" y="49" width="180" height="7" rx="3.5" fill="#7fa8f2"/>
+        <g stroke="#b87333" stroke-width="3.5" stroke-linecap="round" fill="none"><path d="M206 52C240 50 262 40 292 34"/><path d="M206 58C240 57 266 52 298 51"/><path d="M206 62C240 63 266 66 298 68"/><path d="M206 68C240 70 262 80 292 86"/></g>
+        <line x1="112" y1="80" x2="112" y2="94" stroke="#566674" stroke-width="2"/>
+        <text x="112" y="110" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b">Isolierung aus Kunststoff</text>
+        <line x1="262" y1="38" x2="262" y2="24" stroke="#566674" stroke-width="2"/>
+        <text x="250" y="18" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b">Draht aus Kupfer</text>
+      </svg>
+      <p>Im Kabel steckt Draht aus Kupfer – ein sehr guter Leiter. Außen herum liegt ein Mantel aus Kunststoff: die <button class="term" data-t="isolierung">Isolierung</button>. Kunststoff leitet nicht. So bleibt der Strom im Draht, und du kannst das Kabel anfassen.</p>
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li><strong>Leiter:</strong> alle Metalle (zum Beispiel Kupfer, Eisen, Aluminium) und <button class="term" data-t="graphit">Graphit</button>.</li>
+        <li><strong>Nichtleiter:</strong> Kunststoff, Glas, Gummi, trockenes Holz und Luft.</li>
+        <li>Wasser mit gelösten Salzen leitet. Auch Leitungswasser gehört dazu.</li>
+      </ul></div>
+    </div>
+    <div class="sim reveal">
+      <svg viewBox="0 0 480 280" id="pruefSvg" role="img" aria-label="Prüfstrecke: Stromkreis aus Batterie und Lampe mit einer Lücke zwischen zwei Klemmen">
+        <rect width="480" height="280" fill="#f7fbfe"/>
+        <path d="M70 104V60H410V214H322M158 214H70V176" fill="none" stroke="#566674" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="48" y="104" width="44" height="72" rx="6" fill="#2b3a4a"/><rect x="48" y="104" width="44" height="21" rx="6" fill="#f2b632"/><rect x="63" y="97" width="14" height="8" rx="2" fill="#8a97a3"/>
+        <text x="70" y="120" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">+</text><text x="70" y="169" text-anchor="middle" font-size="16" font-weight="800" fill="#fff">−</text>
+        <text x="102" y="146" font-size="12" font-weight="700" fill="#566674">Batterie</text>
+        <circle id="pGlow" cx="240" cy="32" r="40" fill="#ffd84d" opacity="0"/>
+        <g id="pStrahlen" opacity="0" stroke="#f2b632" stroke-width="3" stroke-linecap="round"><line x1="210" y1="32" x2="198" y2="32"/><line x1="270" y1="32" x2="282" y2="32"/><line x1="219" y1="12" x2="212" y2="5"/><line x1="261" y1="12" x2="268" y2="5"/></g>
+        <rect x="222" y="52" width="36" height="19" rx="4" fill="#8a97a3"/><rect x="231" y="45" width="18" height="9" fill="#b9c2ca"/>
+        <circle id="pGlas" cx="240" cy="30" r="19" fill="#fff8d6" stroke="#b9a25a" stroke-width="2"/>
+        <path id="pFaden" d="M230 36q5-13 10 0t10 0" fill="none" stroke="#8a5a2b" stroke-width="2"/>
+        <text x="292" y="50" font-size="12" font-weight="700" fill="#566674">Lampe</text>
+        <g id="pruefObj"></g>
+        <rect x="150" y="205" width="24" height="18" rx="4" fill="#c0392b"/><rect x="306" y="205" width="24" height="18" rx="4" fill="#15212b"/>
+        <text id="pruefName" x="240" y="272" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Lücke zwischen den Klemmen</text>
+      </svg>
+      <div class="wahl" id="pruefWahl"></div>
+      <div class="erg"><div><span class="chip" id="pruefZahl">0 von 10 getestet</span></div><div><b>Leitet:</b> <span id="pruefJa">–</span></div><div><b>Leitet nicht:</b> <span id="pruefNein">–</span></div></div>
+      <p class="obs" id="pruefObs">Wähle einen Gegenstand. Er kommt in die Lücke.</p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag probe">Zuordnen · leicht</span>
+      <h3 style="margin-top:4px">Leiter oder Nichtleiter?</h3>
+      <p class="hint">Tippe eine Karte an und dann das passende Fach.</p>
+      <div id="sortLeiter"></div>
+    </div>
+    <div class="card reveal"><div id="mc-s3"></div></div>
+  </div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Probenstoff</div><h2>Vom Aufbau zum Schaltplan</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Wer eine Schaltung plant, malt keine Batterien und Lampen ab. Das wäre mühsam, und jeder würde anders zeichnen. Stattdessen hat jedes Bauteil ein einfaches <button class="term" data-t="schaltzeichen">Schaltzeichen</button>. Die Zeichnung aus Schaltzeichen heißt <button class="term" data-t="schaltplan">Schaltplan</button>.</p>
+    <div class="info-karten">
+      <div class="info-karte"><div class="sz-bild" data-sz="leiter"></div><h4>Leiter</h4><p>Eine gerade Linie. Ecken zeichnet man als rechte Winkel.</p></div>
+      <div class="info-karte"><div class="sz-bild" data-sz="quelle"></div><h4>Spannungsquelle</h4><p>Zwei Striche: Der lange, dünne ist der Pluspol. Der kurze, dicke ist der Minuspol.</p></div>
+      <div class="info-karte"><div class="sz-bild" data-sz="lampe"></div><h4>Glühlampe</h4><p>Ein Kreis mit einem Kreuz. Das Zeichen steht für die <button class="term" data-t="gluehlampe">Glühlampe</button>.</p></div>
+      <div class="info-karte"><div class="sz-bild" data-sz="offen,zu"></div><h4>Schalter</h4><p>Links offen: Ein Stück der Linie ist abgehoben. Rechts geschlossen: Die Linie geht durch.</p></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card reveal">
+      <span class="task-tag">Animation</span>
+      <h3 style="margin-top:4px">Aus dem Aufbau wird ein Schaltplan</h3>
+      <p>Ein Schaltplan zeigt nicht, wie die Bauteile aussehen oder wo sie auf dem Tisch liegen. Er zeigt nur, <strong>welche Bauteile es gibt und wie sie verbunden sind</strong>.</p>
+      <p class="hint">Starte die Animation oder gehe Schritt für Schritt. Achte darauf, was aus jedem Bauteil wird.</p>
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li>Ein Schaltplan ist die Zeichnung eines Stromkreises aus Schaltzeichen.</li>
+        <li>Leiter zeichnet man als gerade Linien mit rechten Winkeln.</li>
+        <li>Spannungsquelle: langer, dünner Strich = Pluspol · kurzer, dicker Strich = Minuspol.</li>
+        <li>Glühlampe: Kreis mit Kreuz · Schalter: Linie mit abgehobenem Stück.</li>
+      </ul></div>
+    </div>
+    <div class="sim reveal" id="morphSim"><div id="morphBild"></div></div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag leicht">Schaltzeichen-Quiz · leicht</span>
+      <h3 style="margin-top:4px">Welches Bauteil ist das?</h3>
+      <div class="zeichen-buehne">
+        <svg viewBox="-40 -30 80 60" id="zqBild" role="img" aria-label="Ein Schaltzeichen"></svg>
+        <div><p class="hint" id="zqFrage" style="margin:0 0 6px">Was bedeutet dieses Schaltzeichen?</p><div class="wahl" id="zqWahl"></div></div>
+      </div>
+      <div class="fb" id="zqFb"></div>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag mittel">Zuordnen · mittel</span>
+      <h3 style="margin-top:4px">Aufbau und Schaltplan</h3>
+      <p class="hint" id="planFrage" style="margin:0 0 8px"></p>
+      <div class="plan-gegeben" id="planGegeben"></div>
+      <div class="wahl plan-wahl" id="planWahl"></div>
+      <div class="fb" id="planFb"></div>
+      <p class="hint" style="margin:10px 0 0">Liegen zwei Lampen hintereinander in einem Stromkreis, nennt man das <button class="term" data-t="reihe">Reihenschaltung</button>.</p>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:18px"><div id="mc-s4"></div></div>
+
+  <div class="grid2">
+    <div class="card reveal">
+      <span class="task-tag m7">M7 · für 7R freiwillig</span>
+      <h3 style="margin-top:4px">Schaltplan-Baukasten</h3>
+      <p class="m7-hinweis">Aufgaben mit dem lila Zeichen gehören zum M-Niveau. In M-Klassen zählen sie mit, in R-Klassen sind sie eine Zusatzaufgabe für Profis.</p>
+      <p><strong>Auftrag:</strong> Baue einen Schaltplan mit <strong>einer Spannungsquelle</strong>, <strong>einem Schalter</strong> und <strong>zwei Glühlampen hintereinander</strong>. Am Ende sollen beide Lampen leuchten.</p>
+      <ol class="schritt-liste">
+        <li>Tippe im Schaltplan auf einen Platz. Er wird blau.</li>
+        <li>Tippe darunter auf das Schaltzeichen, das dorthin soll.</li>
+        <li>Sind alle Plätze richtig belegt, schließe den Schalter.</li>
+      </ol>
+      <p class="hint">Ein Platz, an dem nur die Leitung weiterlaufen soll, bekommt das Zeichen „Leiter“.</p>
+    </div>
+    <div class="sim reveal">
+      <svg viewBox="0 0 480 290" id="bauSvg" role="img" aria-label="Schaltplan-Baukasten: ein Stromkreis mit fünf freien Plätzen für Schaltzeichen"><rect width="480" height="290" fill="#f7fbfe"/><g id="bauG"></g></svg>
+      <div class="wahl pal" id="bauPalette"></div>
+      <div class="wahl" id="bauAktion"><button type="button" id="bauUmlegen" disabled>Schalter schließen</button></div>
+      <p class="obs" id="bauObs">Tippe auf einen Platz und dann auf ein Schaltzeichen.</p>
+      <div class="row-btns" style="margin:0;padding:0 14px 12px"><button class="btn small ghost" id="bauLeeren" type="button">Alles leeren</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Probenstoff</div><h2>Fehler finden wie ein Profi</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Die Lampe bleibt dunkel? Dann stimmt im Stromkreis etwas nicht. Im Schaltplan findest du den Fehler oft schneller als im Kabelsalat.</p>
+      <ol class="schritt-liste">
+        <li>Starte an einem Pol der Spannungsquelle.</li>
+        <li>Folge der Leitung mit dem Finger durch alle Bauteile.</li>
+        <li>Kommst du <strong>ohne Lücke</strong> bis zum anderen Pol?</li>
+        <li>Führt der Weg <strong>durch die Lampe</strong> – oder an ihr vorbei?</li>
+      </ol>
+      <p>Besonders gefährlich ist der <button class="term" data-t="kurzschluss">Kurzschluss</button>: Eine Leitung verbindet die beiden Pole direkt, an der Lampe vorbei. Dann wird der Strom sehr groß. Leitungen und Batterie werden heiß.</p>
+    </div>
+    <div class="sim reveal">
+      <div class="spotbild" id="fehlerBild" data-probier></div>
+      <p class="sim-kopf" id="fehlerKopf"><span class="task-tag probe" style="margin:0 8px 0 0">Fehlersuche · mittel</span><span id="fehlerTitel"></span></p>
+      <div class="wahl" id="fehlerWahl"></div>
+      <div class="sim-fb"><div class="fb" id="fehlerFb"></div></div>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:18px"><div id="mc-s5"></div></div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="s6">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Probenstoff · so wird in der Probe gefragt</div><h2>Training für die Probe</h2></div></div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Lückentext · leicht</span>
+    <h3 style="margin-top:4px">Setze die fehlenden Wörter ein</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapKreis"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Paare finden · leicht</span>
+    <h3 style="margin-top:4px">Was hat welche Aufgabe?</h3>
+    <p class="hint">Tippe links auf einen Begriff und dann rechts auf seine Aufgabe.</p>
+    <div id="paareKreis"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Richtig oder falsch? · mittel</span>
+    <div id="tf"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Kreuzworträtsel · mittel</span>
+    <h3 style="margin-top:4px">Rund um den Stromkreis</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Schreibe ä als AE, ö als OE, ü als UE.</p>
+    <div id="cw"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Ankreuzen · mittel</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Offene Fragen · schwer</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung. Danach kannst du die Musterlösung ansehen.</p>
+    <div id="open"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Begründe und übertrage <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">In echt wandern die Elektronen im Kabel viel langsamer als in der Animation: oft weniger als einen Millimeter in der Sekunde.</p>
+    <div id="openM"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 7 ============ -->
+<section class="station" id="s7">
+  <div class="st-head reveal"><div class="st-num">7</div><div><div class="eyebrow">Abschluss</div><h2>Stromkreis-Profi-Check</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Du weißt jetzt, wann Strom fließt. Im nächsten Modul geht es darum, was er alles kann: Er macht <strong>Wärme und Licht</strong>, er macht einen Nagel zum <strong>Magneten</strong>, und er kann sogar Stoffe verändern.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik 7 · Lernmodul „Der Stromkreis und sein Schaltplan“ · Dein Fortschritt wird auf diesem Gerät gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="modul-basis.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, esc, shuffle, setText, reduced, onVisible, register, solve} = Modul;
+const NS = "http://www.w3.org/2000/svg";
+
+Modul.init({
+  key: "grumi-nt7-stromkreis-v1",
+  hero: "funken",
+  thema: "Elektrischer Stromkreis: Spannungsquelle, Leiter, Schalter und Lampe; geschlossener und unterbrochener Stromkreis; Leiter und Nichtleiter; Schaltzeichen und Schaltplan; Fehler in Schaltungen und Kurzschluss",
+  glossary: {
+    stromkreis: ["Stromkreis", "Geschlossener Weg für den Strom: von einem Pol der Spannungsquelle durch Leiter und Gerät zum anderen Pol."],
+    quelle: ["Spannungsquelle", "Bauteil, das den Strom antreibt, zum Beispiel eine Batterie, ein Akku oder ein Netzgerät."],
+    pol: ["Pluspol und Minuspol", "Die beiden Anschlüsse einer Spannungsquelle. Im Schaltzeichen: langer, dünner Strich = Pluspol, kurzer, dicker Strich = Minuspol."],
+    leiter: ["Leiter", "Stoff, der den Strom gut leitet. Alle Metalle sind Leiter, auch Graphit leitet."],
+    nichtleiter: ["Nichtleiter (Isolator)", "Stoff, der den Strom nicht leitet, zum Beispiel Kunststoff, Glas, Gummi oder trockenes Holz."],
+    isolierung: ["Isolierung", "Hülle aus einem Nichtleiter, meist Kunststoff, um einen Draht. Sie hält den Strom im Kabel und schützt vor Berührung."],
+    elektron: ["Elektronen", "Winzige Teilchen, die sich im Metall bewegen können. Wandern sie alle in eine Richtung, fließt Strom."],
+    schalter: ["Schalter", "Bauteil, mit dem man einen Stromkreis schließt (Strom fließt) oder unterbricht (kein Strom)."],
+    geschlossen: ["geschlossener Stromkreis", "Der Weg des Stroms hat keine Lücke. Nur dann fließt Strom."],
+    unterbrochen: ["unterbrochener Stromkreis", "Der Weg des Stroms hat eine Lücke, zum Beispiel durch einen offenen Schalter oder ein loses Kabel. Es fließt kein Strom."],
+    pruefstrecke: ["Prüfstrecke", "Stromkreis mit einer Lücke. Klemmt man einen Gegenstand hinein, zeigt die Lampe, ob er den Strom leitet."],
+    graphit: ["Graphit", "Schwarzer Stoff aus Kohlenstoff. Bleistiftminen enthalten Graphit. Er leitet den Strom, obwohl er kein Metall ist."],
+    schaltzeichen: ["Schaltzeichen", "Einfaches Zeichen für ein Bauteil, das überall gleich gezeichnet wird, zum Beispiel ein Kreis mit Kreuz für die Glühlampe."],
+    schaltplan: ["Schaltplan", "Zeichnung eines Stromkreises aus Schaltzeichen. Er zeigt, welche Bauteile es gibt und wie sie verbunden sind."],
+    gluehlampe: ["Glühlampe", "Lampe mit einem sehr dünnen Draht. Fließt Strom hindurch, glüht der Draht und leuchtet."],
+    reihe: ["Reihenschaltung", "Mehrere Bauteile liegen hintereinander in einem einzigen Stromkreis. Der Strom fließt nacheinander durch alle."],
+    kurzschluss: ["Kurzschluss", "Die Pole einer Spannungsquelle sind direkt verbunden, ohne Gerät dazwischen. Der Strom wird sehr groß, Leitungen werden heiß."]
+  }
+});
+
+/* ---------- Schaltzeichen (in allen Modulen zur Elektrizität gleich gezeichnet) ----------
+   Leiter = Linie · Spannungsquelle = langer dünner Strich (Pluspol) und kurzer dicker Strich (Minuspol)
+   Glühlampe = Kreis mit Kreuz · Schalter = Linie mit abgehobenem Stück (offen) oder durchgehend (geschlossen)
+   Jedes Zeichen liegt waagrecht um den Punkt (0,0), die Anschlüsse sind bei x = -24 und x = 24. */
+const INK = "#15212b";
+function sz(typ, opt){
+  opt = opt || {};
+  const s = `stroke="${INK}" stroke-width="3" stroke-linecap="round" fill="none"`;
+  if (typ === "leiter") return `<line x1="-24" y1="0" x2="24" y2="0" ${s}/>`;
+  if (typ === "quelle") return `<g ${s}><line x1="-24" y1="0" x2="-6" y2="0"/><line x1="6" y1="0" x2="24" y2="0"/><line x1="-6" y1="-17" x2="-6" y2="17" stroke-width="2.5"/><line x1="6" y1="-8" x2="6" y2="8" stroke-width="7" stroke-linecap="butt"/></g>`;
+  if (typ === "lampe") return `<g ${s}><line x1="-24" y1="0" x2="-15" y2="0"/><line x1="15" y1="0" x2="24" y2="0"/>${opt.an ? '<circle r="23" fill="#ffd84d" stroke="none" opacity=".5"/>' : ""}<circle r="15" fill="${opt.an ? "#ffe680" : "#fff"}"/><line x1="-10.6" y1="-10.6" x2="10.6" y2="10.6"/><line x1="-10.6" y1="10.6" x2="10.6" y2="-10.6"/></g>`;
+  if (typ === "offen") return `<g ${s}><line x1="-24" y1="0" x2="-14" y2="0"/><line x1="14" y1="0" x2="24" y2="0"/><line x1="-14" y1="0" x2="11" y2="-14"/><circle cx="-14" cy="0" r="3" fill="${INK}"/><circle cx="14" cy="0" r="3" fill="${INK}"/></g>`;
+  if (typ === "zu") return `<g ${s}><line x1="-24" y1="0" x2="24" y2="0"/><circle cx="-14" cy="0" r="3" fill="${INK}"/><circle cx="14" cy="0" r="3" fill="${INK}"/></g>`;
+  return "";
+}
+// Zeichen an eine Stelle setzen; die Leitung darunter wird mit der Hintergrundfarbe abgedeckt
+function setz(typ, x, y, rot, bg, opt){
+  return `<g transform="translate(${x} ${y}) rotate(${rot || 0})"><rect x="-24" y="-19" width="48" height="38" fill="${bg || "#fff"}"/>${sz(typ, opt)}</g>`;
+}
+// Plus und Minus neben eine Spannungsquelle schreiben (rot 0: Plus links, 90: Plus oben, 180: Plus rechts)
+function pole(x, y, rot, gr){
+  const t = (dx, dy, z, f) => `<text x="${x + dx}" y="${y + dy}" text-anchor="middle" font-size="${gr || 15}" font-weight="800" fill="${f}">${z}</text>`;
+  const p = rot === 90 ? [[-27, -2], [-27, gr ? 19 : 16]] : rot === 180 ? [[17, -9], [-18, -9]] : [[-17, -9], [18, -9]];
+  return t(p[0][0], p[0][1], "+", "#c0392b") + t(p[1][0], p[1][1], "−", "#2f6fdb");
+}
+$$(".sz-bild").forEach(el => {
+  el.innerHTML = el.dataset.sz.split(",").map(t => `<svg viewBox="-36 -27 72 50" role="img" aria-label="Schaltzeichen">${sz(t)}${t === "quelle" ? pole(0, 0, 0) : ""}</svg>`).join("");
+});
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Du findest ein loses Kabel und steckst es wieder fest. Warum leuchtet die Lampe jetzt?", o: ["Der Weg für den Strom ist wieder geschlossen.", "Das Kabel hat neuen Strom getankt.", "Die Lampe hat sich ausgeruht.", "Die Batterie ist dadurch voller geworden."], a: 0, e: "Strom fließt nur, wenn sein Weg von der Batterie zur Lampe und zurück nirgends unterbrochen ist."}
+  ],
+  s2: [
+    {q: "Wann fließt in einem Stromkreis Strom?", o: ["nur wenn der Stromkreis geschlossen ist", "immer, sobald eine Batterie da ist", "nur wenn der Schalter offen ist", "nur wenn das Kabel sehr kurz ist"], a: 0, e: "Der Weg muss von einem Pol der Batterie durch das Gerät bis zum anderen Pol durchgehen."},
+    {q: "Welche Aufgabe hat die Batterie im Stromkreis?", o: ["Sie treibt den Strom an.", "Sie unterbricht den Stromkreis.", "Sie leuchtet.", "Sie bremst die Elektronen."], a: 0, e: "Die Batterie ist die Spannungsquelle. Ohne sie bewegt sich kein Elektron."},
+    {q: "Die Lampe leuchtet. Jetzt ziehst du ein Kabel ab. Was passiert mit den Elektronen?", o: ["Alle bleiben stehen – im ganzen Stromkreis.", "Sie fließen bis zur Lücke und sammeln sich dort.", "Sie tropfen aus dem Kabelende heraus.", "Sie wandern in der anderen Hälfte weiter."], a: 0, e: "Ist der Kreis an einer Stelle offen, kann sich kein Elektron mehr weiterbewegen. Strom läuft nicht aus einem Kabel heraus."}
+  ],
+  s3: [
+    {q: "Welche Stoffe leiten den Strom gut?", o: ["Metalle wie Kupfer, Eisen und Aluminium", "Kunststoffe wie Plastik und Gummi", "Glas und Porzellan", "trockenes Holz und Papier"], a: 0, e: "Alle Metalle sind Leiter. Kupfer leitet besonders gut – deshalb sind Kabeldrähte meist aus Kupfer."},
+    {q: "Warum ist ein Kabel mit Kunststoff ummantelt?", o: ["Kunststoff leitet nicht – der Strom bleibt im Draht.", "Kunststoff leitet den Strom noch besser als Kupfer.", "Damit das Kabel schwerer wird.", "Damit der Draht nicht rostet."], a: 0, e: "Die Isolierung schützt dich vor dem Strom. Sie verhindert auch, dass sich zwei Drähte berühren."},
+    {q: "Du klemmst eine Bleistiftmine in die Prüfstrecke. Was beobachtest du?", o: ["Die Lampe leuchtet, denn Graphit leitet.", "Die Lampe bleibt dunkel, denn die Mine ist kein Metall.", "Die Mine fängt sofort an zu brennen.", "Die Lampe leuchtet heller als mit Kupferdraht."], a: 0, e: "Graphit ist ein Leiter, obwohl es kein Metall ist. Es leitet aber schlechter als Kupfer."}
+  ],
+  s4: [
+    {q: "Am Schaltzeichen der Spannungsquelle gibt es einen langen, dünnen und einen kurzen, dicken Strich. Wofür steht der lange, dünne?", o: ["für den Pluspol", "für den Minuspol", "für den Schalter", "für ein besonders langes Kabel"], a: 0, e: "Lang und dünn = Pluspol, kurz und dick = Minuspol."},
+    {q: "Was zeigt ein Schaltplan?", o: ["welche Bauteile es gibt und wie sie verbunden sind", "wie lang die Kabel sind und welche Farbe sie haben", "wie die Bauteile in echt aussehen", "wie viel die Bauteile kosten"], a: 0, e: "Ein Schaltplan ist kein Foto. Er zeigt nur die Bauteile als Schaltzeichen und ihre Verbindungen."}
+  ],
+  s5: [
+    {q: "Was ist ein Kurzschluss?", o: ["Eine Leitung verbindet die beiden Pole direkt – ohne Gerät dazwischen.", "Der Schalter wird nur kurz geschlossen.", "Das Kabel ist zu kurz für den Stromkreis.", "Die Lampe leuchtet nur kurz auf."], a: 0, e: "Beim Kurzschluss nimmt der Strom den direkten Weg. Er wird sehr groß, Leitungen und Batterie werden heiß."},
+    {q: "Zwei Lampen liegen hintereinander in einem Stromkreis. Eine davon brennt durch. Was passiert mit der anderen?", o: ["Sie geht auch aus – der Stromkreis ist unterbrochen.", "Sie leuchtet doppelt so hell.", "Sie leuchtet unverändert weiter.", "Sie fängt an zu blinken."], a: 0, e: "Bei Lampen hintereinander gibt es nur einen Weg. Ist er an einer Stelle unterbrochen, fließt nirgends Strom."}
+  ],
+  train: [
+    {q: "Welche Teile gehören zu einem einfachen Stromkreis?", o: ["Spannungsquelle", "Leiter", "Lampe oder ein anderes Gerät", "Magnet", "Wasserhahn"], a: [0, 1, 2], e: "Dazu kommt meist ein Schalter. Magnet und Wasserhahn haben im Stromkreis nichts verloren."},
+    {q: "Im Schaltplan siehst du einen Kreis mit einem Kreuz. Welches Bauteil ist das?", o: ["Glühlampe", "Schalter", "Spannungsquelle", "Leiter"], a: 0, e: "Kreis mit Kreuz = Glühlampe."},
+    {q: "Welcher Gegenstand ist ein Nichtleiter?", o: ["Plastiklöffel", "Eisennagel", "Alufolie", "Kupferdraht"], a: 0, e: "Kunststoff leitet nicht. Eisen, Aluminium und Kupfer sind Metalle und leiten."},
+    {q: "Zwei Lampen liegen hintereinander in einem Stromkreis. Wie heißt diese Schaltung?", o: ["Reihenschaltung", "Kurzschluss", "Prüfstrecke", "Kreisverkehr"], a: 0, e: "In der Reihenschaltung fließt der Strom nacheinander durch beide Lampen."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Was meinst du?"});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s5"), MC.s5, "mc5", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Station 1: Fehlersuche an der Fahrradlampe ---------- */
+(function(){
+  const g = $("#radTeile"), wahl = $("#radWahl"), obs = $("#radObs");
+  const id = "fahrrad"; register(id, "#radWahl", "Fehlersuche: Warum bleibt die Fahrradlampe dunkel?");
+  const T = {
+    batterie: {n: "Batterie", x: 40, y: 145, frage: "🔋 Batterie leer?",
+      ok: "Du probierst eine frische Batterie aus. Die Lampe bleibt dunkel – an der Batterie lag es nicht.",
+      defekt: "Die Batterie ist leer. Sie kann den Strom nicht mehr antreiben.",
+      fix: "Du legst eine frische Batterie ein – die Lampe leuchtet."},
+    kabel: {n: "Kabel", x: 310, y: 145, frage: "🔌 Kabel lose?",
+      ok: "Du prüfst die Kabel: Sie sitzen fest und sind nicht gebrochen.",
+      defekt: "Ein Kabel ist von seinem Anschluss gerutscht. Der Weg des Stroms hat eine Lücke.",
+      fix: "Du steckst das Kabel wieder fest – die Lampe leuchtet."},
+    lampe: {n: "Lämpchen", x: 310, y: 35, frage: "💡 Lämpchen kaputt?",
+      ok: "Du siehst dir das Lämpchen genau an: Der feine Draht im Glas ist heil.",
+      defekt: "Der feine Draht im Lämpchen ist durchgebrannt. Auch das unterbricht den Weg des Stroms.",
+      fix: "Du schraubst ein neues Lämpchen ein – es leuchtet."},
+    schalter: {n: "Schalter", x: 40, y: 35, frage: "🔘 Schalter aus?",
+      ok: "Der Schalter steht auf „an“. Daran liegt es nicht.",
+      defekt: "Der Schalter steht auf „aus“. Ein offener Schalter unterbricht den Weg des Stroms.",
+      fix: "Du schaltest ein – die Lampe leuchtet."}
+  };
+  const REIHE = ["batterie", "kabel", "lampe", "schalter"];
+  let fehler = "", stand = {}, phase = "suche";
+  // z: "?" ungeprüft, "ok" geprüft und heil, "defekt", "heil" repariert
+  function bild(k, z, an){
+    const zu = z === "?", kaputt = z === "defekt";
+    if (k === "schalter") return `<rect x="33" y="26" width="64" height="14" rx="5" fill="#d8c7a4" stroke="#8a7a55" stroke-width="2"/><circle cx="45" cy="33" r="4" fill="#566674"/><circle cx="85" cy="33" r="4" fill="#566674"/>`
+      + (zu ? "" : `<line x1="45" y1="33" x2="${kaputt ? 79 : 85}" y2="${kaputt ? 13 : 33}" stroke="#566674" stroke-width="5" stroke-linecap="round"/>`);
+    if (k === "lampe") return (an ? '<circle cx="65" cy="24" r="23" fill="#ffd84d" opacity=".55"/>' : "") + `<circle cx="65" cy="24" r="14" fill="${an ? "#ffe680" : "#fff8d6"}" stroke="#b9a25a" stroke-width="2"/><rect x="58" y="37" width="14" height="8" rx="2" fill="#8a97a3"/>`
+      + (an ? '<path d="M57 27q4-9 8 0t8 0" fill="none" stroke="#e67e00" stroke-width="2"/>' : zu ? "" : kaputt ? '<path d="M57 27q3-7 6-2M73 27q-3-7-6-1" fill="none" stroke="#8a5a2b" stroke-width="2" stroke-linecap="round"/>' : '<path d="M57 27q4-9 8 0t8 0" fill="none" stroke="#8a5a2b" stroke-width="2"/>');
+    if (k === "kabel") return `<circle cx="100" cy="24" r="6" fill="#8a97a3" stroke="#566674" stroke-width="2"/>`
+      + (zu ? '<path d="M28 30C36 22 40 22 46 26" fill="none" stroke="#b5651d" stroke-width="6" stroke-linecap="round"/><g fill="#9fb2c1"><circle cx="58" cy="28" r="3"/><circle cx="70" cy="28" r="3"/><circle cx="82" cy="28" r="3"/></g>'
+        : kaputt ? '<path d="M28 30C44 14 62 44 76 36" fill="none" stroke="#b5651d" stroke-width="6" stroke-linecap="round"/>'
+        : '<path d="M28 30C48 10 76 48 96 26" fill="none" stroke="#b5651d" stroke-width="6" stroke-linecap="round"/>');
+    return `<rect x="36" y="16" width="56" height="26" rx="5" fill="#fff" stroke="#2b3a4a" stroke-width="3"/><rect x="92" y="23" width="5" height="12" fill="#2b3a4a"/>`
+      + (zu ? "" : kaputt ? '<rect x="41" y="21" width="5" height="16" fill="#e0453a"/>' : '<g fill="#1b8a4b"><rect x="41" y="21" width="13" height="16"/><rect x="57" y="21" width="13" height="16"/><rect x="73" y="21" width="13" height="16"/></g>');
+  }
+  function marke(z){
+    if (z === "?") return '<circle cx="116" cy="14" r="11" fill="#9fb2c1"/><text x="116" y="19" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">?</text>';
+    if (z === "defekt") return '<circle cx="116" cy="14" r="11" fill="#c93b3b"/><path d="M111 9l10 10M121 9l-10 10" stroke="#fff" stroke-width="3" stroke-linecap="round"/>';
+    return '<circle cx="116" cy="14" r="11" fill="#1b8a4b"/><path d="M110 14l4 5 8-9" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>';
+  }
+  function zeichne(){
+    const an = phase === "fertig";
+    g.innerHTML = REIHE.map(k => {
+      const t = T[k], z = stand[k];
+      return `<g transform="translate(${t.x} ${t.y})"><rect width="130" height="70" rx="12" fill="${k === "lampe" && an ? "#fffbe6" : "#fff"}" stroke="${z === "defekt" ? "#c93b3b" : z === "?" ? "#9fb2c1" : "#1b8a4b"}" stroke-width="3"/>${bild(k, z, an)}<text x="65" y="62" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b">${t.n}</text>${marke(z)}</g>`;
+    }).join("");
+  }
+  function knoepfe(){
+    wahl.innerHTML = phase === "suche" ? REIHE.map(k => `<button type="button" data-k="${k}"${stand[k] !== "?" ? " disabled" : ""}>${T[k].frage}</button>`).join("")
+      : phase === "gefunden" ? '<button type="button" data-k="fix">🔧 Fehler beheben</button>' : '<button type="button" data-k="neu">🚲 Noch ein Fahrrad prüfen</button>';
+    $$("button", wahl).forEach(b => b.addEventListener("click", () => klick(b.dataset.k)));
+  }
+  function klick(k){
+    if (k === "neu") { neu(); return; }
+    if (k === "fix") { stand[fehler] = "heil"; phase = "fertig"; setText(obs, "🔧 " + T[fehler].fix + " Merke dir: Bei jedem der vier Fehler kann der Strom nicht im Kreis fließen."); solve(id); }
+    else if (k === fehler) { stand[k] = "defekt"; phase = "gefunden"; setText(obs, "❌ Fehler gefunden! " + T[k].defekt); }
+    else { stand[k] = "ok"; setText(obs, "✅ " + T[k].ok + " Prüfe die nächste Vermutung."); }
+    zeichne(); knoepfe();
+  }
+  function neu(){
+    const alt = fehler; do { fehler = REIHE[Math.floor(Math.random() * REIHE.length)]; } while (fehler === alt);
+    REIHE.forEach(k => { stand[k] = "?"; }); phase = "suche";
+    setText(obs, "Welche Vermutung prüfst du zuerst?"); zeichne(); knoepfe();
+  }
+  neu();
+})();
+
+/* ---------- Station 2: Stromkreis mit wandernden Elektronen ---------- */
+(function(){
+  const svg = $("#kreisSvg"), g = $("#kElektronen"), hebel = $("#kHebel"), ende = $("#kEnde"), obs = $("#kreisObs");
+  const bS = $("#kSchalter"), bK = $("#kKabel"), chips = [$("#kC1"), $("#kC2"), $("#kC3")];
+  const id = "kreis"; register(id, "#kreisSvg", "Versuch: Stromkreis schließen und unterbrechen");
+  // Weg der Elektronen: vom Minuspol (rechts an der Batterie) im Kreis zum Pluspol und durch die Batterie
+  const P = 1096, N = 34, ABSTAND = P / N;
+  const ort = s => s < 120 ? [310 + s, 238] : s < 288 ? [430, 238 - (s - 120)] : s < 668 ? [430 - (s - 288), 70] : s < 836 ? [50, 70 + (s - 668)] : [50 + (s - 836), 238];
+  const punkte = Array.from({length: N}, () => { const c = document.createElementNS(NS, "circle"); c.setAttribute("r", "3.6"); c.setAttribute("fill", "#2f6fdb"); g.appendChild(c); return c; });
+  let zu = false, dran = true, weg = 0, sichtbar = false, laeuft = false, zuletzt = 0;
+  const gesehen = new Set();
+  const fliesst = () => zu && dran;
+  function setze(){
+    punkte.forEach((c, i) => {
+      const s = (i * ABSTAND + weg) % P, p = ort(s);
+      c.setAttribute("cx", p[0].toFixed(1)); c.setAttribute("cy", p[1].toFixed(1));
+      c.setAttribute("opacity", (!zu && s > 524 && s < 612) || (!dran && s < 38) ? 0 : 1);
+    });
+  }
+  function tick(t){
+    if (!sichtbar || !fliesst() || reduced) { laeuft = false; return; }
+    weg = (weg + Math.min(60, t - zuletzt) * .045) % P; zuletzt = t; setze();
+    requestAnimationFrame(tick);
+  }
+  function los(){ if (!laeuft && sichtbar && fliesst() && !reduced) { laeuft = true; zuletzt = performance.now(); requestAnimationFrame(tick); } }
+  onVisible(svg, v => { sichtbar = v; los(); });
+  function zeig(){
+    const an = fliesst();
+    hebel.style.transform = zu ? "rotate(0deg)" : "rotate(-30deg)";
+    ende.style.transform = dran ? "rotate(0deg)" : "rotate(-38deg)";
+    $("#kGlow").style.opacity = an ? .55 : 0; $("#kStrahlen").style.opacity = an ? 1 : 0; $("#kPfeile").style.opacity = an ? 1 : 0;
+    $("#kGlas").setAttribute("fill", an ? "#ffe680" : "#fff8d6"); $("#kFaden").setAttribute("stroke", an ? "#e67e00" : "#8a5a2b");
+    setText(bS, zu ? "Schalter öffnen" : "Schalter schließen"); setText(bK, dran ? "Kabel abziehen" : "Kabel anstecken");
+    setText($("#kStatus"), an ? "Stromkreis geschlossen" : "Stromkreis unterbrochen"); $("#kStatus").setAttribute("fill", an ? "#1b8a4b" : "#c93b3b");
+    setText($("#kStatus2"), an ? "Die Elektronen wandern – die Lampe leuchtet." : "Alle Elektronen stehen still.");
+    const vorher = gesehen.has("an");
+    if (an) gesehen.add("an");
+    else if (vorher) { if (!zu && dran) gesehen.add("schalter"); if (zu && !dran) gesehen.add("kabel"); }
+    [["an", "Lampe leuchtet"], ["schalter", "Schalter unterbricht"], ["kabel", "Kabel ab unterbricht"]].forEach((x, i) => {
+      const da = gesehen.has(x[0]); chips[i].className = "chip" + (da ? " ok" : ""); setText(chips[i], (da ? "✓ " : "○ ") + x[1]);
+    });
+    const fertig = gesehen.size === 3;
+    setText(obs, (an ? "Der Stromkreis ist geschlossen. Überall im Kabel setzen sich die Elektronen gleichzeitig in Bewegung, und die Lampe leuchtet."
+      : zu && !dran ? "Das Kabel ist ab. Der Stromkreis hat eine Lücke. Kein Elektron bewegt sich mehr – auch nicht im Rest des Kabels."
+      : !zu && !dran ? "Schalter offen und Kabel ab: Der Stromkreis ist an zwei Stellen unterbrochen."
+      : vorher ? "Der Schalter ist offen. Der Stromkreis hat eine Lücke: Alle Elektronen bleiben stehen – nicht nur die am Schalter."
+      : "Der Schalter ist offen. Die Elektronen sind schon im Kabel, aber sie stehen still. Schließe den Schalter.") + (fertig ? " ✅ Du hast alles beobachtet." : ""));
+    setze(); los();
+    if (fertig) solve(id);
+  }
+  bS.addEventListener("click", () => { zu = !zu; zeig(); });
+  bK.addEventListener("click", () => { dran = !dran; zeig(); });
+  zeig();
+})();
+
+/* ---------- Station 3: Prüfstrecke ---------- */
+(function(){
+  const wasser = salz => '<path d="M192 182V246a6 6 0 0 0 6 6h84a6 6 0 0 0 6-6V182" fill="#fff" stroke="#566674" stroke-width="3"/><rect x="195" y="200" width="90" height="49" fill="#bfe1f7"/>'
+    + (salz ? '<g fill="#fff" stroke="#8a97a3" stroke-width="1"><rect x="214" y="243" width="5" height="5"/><rect x="224" y="244" width="4" height="4"/><rect x="236" y="243" width="5" height="5"/><rect x="248" y="244" width="4" height="4"/><rect x="258" y="243" width="5" height="5"/><rect x="230" y="238" width="4" height="4"/><rect x="244" y="238" width="4" height="4"/></g>' : "")
+    + '<rect x="202" y="188" width="8" height="52" fill="#6f7a83"/><rect x="270" y="188" width="8" height="52" fill="#6f7a83"/><path d="M162 206V172H206V190M318 206V172H274V190" fill="none" stroke="#566674" stroke-width="4" stroke-linejoin="round"/>';
+  const OBJ = [
+    {n: "Kupferdraht", h: 1, e: "Die Lampe leuchtet hell. Kupfer ist ein Metall und leitet sehr gut.",
+      b: '<path d="M176 214C196 200 216 228 240 214S284 200 304 214" fill="none" stroke="#b87333" stroke-width="5" stroke-linecap="round"/>'},
+    {n: "Eisennagel", h: 1, e: "Die Lampe leuchtet. Auch Eisen ist ein Metall – es leitet.",
+      b: '<rect x="176" y="203" width="7" height="22" rx="2" fill="#6f7a83"/><rect x="183" y="210" width="104" height="8" fill="#9aa5ad"/><path d="M287 210l17 4-17 4z" fill="#9aa5ad"/>'},
+    {n: "Alufolie", h: 1, e: "Die Lampe leuchtet. Aluminium ist ein Metall, also ein Leiter.",
+      b: '<path d="M178 202l16 4 14-6 16 5 16-4 16 5 16-6 14 4 18-3v24l-18 3-14-4-16 5-16-4-16 5-16-5-14 5-16-4z" fill="#dfe5ea" stroke="#9aa5ad" stroke-width="1.5" stroke-linejoin="round"/>'},
+    {n: "Bleistiftmine", h: .6, e: "Die Lampe leuchtet, aber etwas schwächer. Die Mine enthält Graphit. Graphit leitet – nur nicht so gut wie ein Metall.",
+      b: '<rect x="176" y="210" width="128" height="8" rx="4" fill="#3a444d"/>'},
+    {n: "Plastiklöffel", h: 0, e: "Die Lampe bleibt dunkel. Kunststoff leitet nicht.",
+      b: '<ellipse cx="200" cy="214" rx="24" ry="14" fill="#f08a5d"/><rect x="220" y="209" width="84" height="10" rx="5" fill="#f08a5d"/>'},
+    {n: "Holzstab", h: 0, e: "Die Lampe bleibt dunkel. Trockenes Holz leitet nicht.",
+      b: '<rect x="176" y="206" width="128" height="16" rx="3" fill="#d2a86a" stroke="#8a5a2b" stroke-width="1.5"/><path d="M186 211h40M240 217h46M198 217h20" stroke="#b08040" stroke-width="1.2"/>'},
+    {n: "Glasstab", h: 0, e: "Die Lampe bleibt dunkel. Glas ist ein Nichtleiter.",
+      b: '<rect x="176" y="207" width="128" height="14" rx="7" fill="#d7eef9" stroke="#7fb9d6" stroke-width="2"/><line x1="186" y1="211" x2="270" y2="211" stroke="#fff" stroke-width="2" stroke-linecap="round"/>'},
+    {n: "Gummiband", h: 0, e: "Die Lampe bleibt dunkel. Gummi leitet nicht.",
+      b: '<ellipse cx="240" cy="214" rx="64" ry="9" fill="none" stroke="#d98a3a" stroke-width="5"/>'},
+    {n: "Salzwasser", h: .3, e: "Die Lampe glimmt schwach. Wasser mit gelöstem Salz leitet – schlechter als ein Metall, aber es leitet.", b: wasser(true)},
+    {n: "destilliertes Wasser", h: 0, e: "Die Lampe bleibt dunkel. Ganz reines Wasser leitet fast gar nicht. Aber Vorsicht: Leitungswasser, Badewasser und Schweiß enthalten gelöste Salze – sie leiten!", b: wasser(false)}
+  ];
+  const wahl = $("#pruefWahl"), objG = $("#pruefObj"), obs = $("#pruefObs"), name = $("#pruefName");
+  const id = "pruef"; register(id, "#pruefSvg", "Versuch: Prüfstrecke für Leiter und Nichtleiter");
+  const getestet = new Set();
+  wahl.innerHTML = OBJ.map((o, i) => `<button type="button" data-i="${i}">${esc(o.n)}</button>`).join("");
+  $$("button", wahl).forEach(b => b.addEventListener("click", () => {
+    const i = +b.dataset.i, o = OBJ[i];
+    $$("button", wahl).forEach(x => x.classList.remove("jetzt"));
+    b.classList.add("jetzt", o.h ? "leitet" : "nicht");
+    objG.innerHTML = o.b; setText(name, o.n + (o.h ? " – leitet" : " – leitet nicht"));
+    name.setAttribute("fill", o.h ? "#1b8a4b" : "#566674");
+    $("#pGlow").style.opacity = o.h * .6; $("#pStrahlen").style.opacity = o.h;
+    $("#pGlas").setAttribute("fill", o.h ? "#ffe680" : "#fff8d6"); $("#pFaden").setAttribute("stroke", o.h ? "#e67e00" : "#8a5a2b");
+    getestet.add(i);
+    const liste = ja => OBJ.filter((x, k) => getestet.has(k) && !!x.h === ja).map(x => x.n).join(", ") || "–";
+    setText($("#pruefJa"), liste(true)); setText($("#pruefNein"), liste(false));
+    const alle = getestet.size === OBJ.length;
+    setText($("#pruefZahl"), alle ? "✓ alle 10 getestet" : getestet.size + " von 10 getestet"); $("#pruefZahl").className = "chip" + (alle ? " ok" : "");
+    setText(obs, o.e + (alle ? " ✅ Du hast alles getestet: Metalle und Graphit leiten, Kunststoff, Glas, Gummi und trockenes Holz nicht." : ""));
+    if (alle) solve(id);
+  }));
+})();
+
+Modul.makeSort($("#sortLeiter"), {
+  buckets: ["Leiter", "Nichtleiter"],
+  items: [
+    {t: "Büroklammer aus Stahl", b: 0}, {t: "Goldring", b: 0}, {t: "Münze", b: 0}, {t: "Schlüssel", b: 0}, {t: "Silberkette", b: 0},
+    {t: "Wollfaden", b: 1}, {t: "Porzellantasse", b: 1}, {t: "Lineal aus Plastik", b: 1}, {t: "Luftballon", b: 1}, {t: "Korken", b: 1}
+  ], cols: 150
+}, "sortLeiter");
+
+/* ---------- Station 4: Aus dem Aufbau wird ein Schaltplan ---------- */
+(function(){
+  const linie = `fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"`;
+  $("#morphBild").innerHTML = `<svg viewBox="0 0 480 300" role="img" aria-label="Ein Aufbau aus Batterie, Schalter und Lampe verwandelt sich Schritt für Schritt in einen Schaltplan">
+    <rect width="480" height="300" fill="#f7fbfe"/>
+    <g id="mKabelEcht" fill="none" stroke="#c0392b" stroke-width="5" stroke-linecap="round"><path d="M190 220C120 252 24 204 60 140S100 70 136 80"/><path d="M184 80C222 112 258 48 296 80"/><path d="M344 80C404 68 452 150 420 200S330 250 290 220"/></g>
+    <g id="mKabelPlan"><path d="M216 220H70V80H136M184 80H296M344 80H410V220H264" ${linie}/></g>
+    <g id="mBattEcht"><rect x="181" y="212" width="11" height="16" rx="2" fill="#8a97a3"/><rect x="288" y="212" width="11" height="16" rx="2" fill="#8a97a3"/><rect x="190" y="198" width="100" height="44" rx="9" fill="#2b3a4a"/><rect x="190" y="198" width="28" height="44" rx="9" fill="#f2b632"/>
+      <text x="204" y="226" text-anchor="middle" font-size="17" font-weight="800" fill="#15212b">+</text><text x="277" y="226" text-anchor="middle" font-size="17" font-weight="800" fill="#fff">−</text></g>
+    <g id="mBattVerl"><path d="M190 220H216M264 220H290" ${linie}/></g>
+    <g id="mBattPlan"><g transform="translate(240 220)">${sz("quelle")}</g>${pole(240, 220, 0)}</g>
+    <g id="mLampeEcht"><rect x="296" y="72" width="48" height="17" rx="4" fill="#8a97a3"/><rect x="311" y="62" width="18" height="12" fill="#b9c2ca"/><circle cx="320" cy="44" r="22" fill="#fff8d6" stroke="#b9a25a" stroke-width="2"/><path d="M309 51q5.5-14 11 0t11 0" fill="none" stroke="#8a5a2b" stroke-width="2"/></g>
+    <g id="mLampePlan" transform="translate(320 80)">${sz("lampe")}</g>
+    <g id="mSchEcht"><rect x="128" y="74" width="64" height="13" rx="4" fill="#d8c7a4" stroke="#8a7a55" stroke-width="2"/><circle cx="136" cy="80" r="5" fill="#566674"/><circle cx="184" cy="80" r="5" fill="#566674"/><line x1="136" y1="80" x2="176" y2="54" stroke="#566674" stroke-width="6" stroke-linecap="round"/><circle cx="176" cy="54" r="6" fill="#c0392b"/></g>
+    <g id="mSchPlan" transform="translate(160 80)">${sz("offen")}</g>
+    <text id="mLabS" x="160" y="118" text-anchor="middle" font-size="13" font-weight="700" fill="#566674">Schalter</text>
+    <text id="mLabL" x="320" y="118" text-anchor="middle" font-size="13" font-weight="700" fill="#566674">Lampe</text>
+    <text id="mLabB" x="240" y="264" text-anchor="middle" font-size="13" font-weight="700" fill="#566674">Batterie</text>
+    <text id="mCap" x="240" y="158" text-anchor="middle" font-size="16" font-weight="800" fill="#15212b"></text>
+  </svg>`;
+  const zeig = (sel, an) => { $(sel).style.opacity = an ? 1 : 0; };
+  Modul.makeSchritte($("#morphSim"), {
+    steps: [
+      "Das ist der Aufbau: Batterie, Schalter und Lampe, verbunden mit drei Kabeln.",
+      "Die Batterie wird zum Schaltzeichen der <b>Spannungsquelle</b>: langer, dünner Strich = Pluspol, kurzer, dicker Strich = Minuspol.",
+      "Die Lampe wird zum Schaltzeichen der <b>Glühlampe</b>: ein Kreis mit Kreuz.",
+      "Der <b>Schalter</b> wird zu einer Linie mit abgehobenem Stück. Man sieht sofort: Er ist offen.",
+      "Die Kabel werden zu <b>geraden Linien</b> mit rechten Winkeln. Wie lang oder krumm ein Kabel wirklich ist, spielt keine Rolle.",
+      "Fertig ist der <b>Schaltplan</b>. Er zeigt nur, welche Bauteile es gibt und wie sie verbunden sind."
+    ],
+    ms: 3000,
+    zeige(i){
+      const k = Math.max(0, i);
+      zeig("#mBattEcht", k < 1); zeig("#mBattPlan", k >= 1); zeig("#mBattVerl", k >= 1 && k < 4);
+      zeig("#mLampeEcht", k < 2); zeig("#mLampePlan", k >= 2);
+      zeig("#mSchEcht", k < 3); zeig("#mSchPlan", k >= 3);
+      zeig("#mKabelEcht", k < 4); zeig("#mKabelPlan", k >= 4);
+      setText($("#mLabB"), k >= 1 ? "Spannungsquelle" : "Batterie");
+      setText($("#mLabL"), k >= 2 ? "Glühlampe" : "Lampe");
+      setText($("#mLabS"), k >= 3 ? "Schalter (offen)" : "Schalter");
+      setText($("#mCap"), k >= 5 ? "Schaltplan" : k >= 1 ? "halb Aufbau, halb Schaltplan" : "Aufbau");
+    }
+  }, "morph");
+})();
+
+/* ---------- Station 4: Schaltzeichen-Quiz ---------- */
+(function(){
+  const Z = [
+    {s: "quelle", a: "Spannungsquelle", f: ["Glühlampe", "Schalter, geschlossen"], h: "Zwei Striche quer zur Leitung: ein langer, dünner und ein kurzer, dicker."},
+    {s: "lampe", a: "Glühlampe", f: ["Spannungsquelle", "Schalter, offen"], h: "Kreis mit Kreuz."},
+    {s: "offen", a: "Schalter, offen", f: ["Schalter, geschlossen", "Leiter"], h: "Ein Stück der Linie ist abgehoben – hier kommt kein Strom durch."},
+    {s: "zu", a: "Schalter, geschlossen", f: ["Schalter, offen", "Glühlampe"], h: "Die Linie geht zwischen den beiden Punkten durch."},
+    {s: "leiter", a: "Leiter", f: ["Schalter, offen", "Spannungsquelle"], h: "Eine einfache gerade Linie."},
+    {s: "quelle", pfeil: true, fr: "Der rote Pfeil zeigt auf den langen, dünnen Strich. Welcher Pol ist das?", a: "Pluspol", f: ["Minuspol", "gar kein Pol"], h: "Lang und dünn = Pluspol, kurz und dick = Minuspol."}
+  ];
+  const bild = $("#zqBild"), wahl = $("#zqWahl"), fb = $("#zqFb"), frage = $("#zqFrage");
+  const id = "zeichen"; register(id, "#zqWahl", "Schaltzeichen-Quiz: Schaltzeichen erkennen");
+  let i = 0;
+  function zeig(){
+    if (i >= Z.length) {
+      wahl.innerHTML = '<button type="button" class="sel">Noch einmal üben</button>'; frage.textContent = "Geschafft!";
+      fb.className = "fb show ok"; fb.textContent = "✅ Du kennst alle Schaltzeichen.";
+      $("button", wahl).addEventListener("click", () => { i = 0; fb.className = "fb"; zeig(); });
+      solve(id); return;
+    }
+    const z = Z[i];
+    bild.innerHTML = sz(z.s) + (z.pfeil ? '<g stroke="#e0453a" stroke-width="2.5" stroke-linecap="round" fill="none"><path d="M-30 -25L-11 -20"/><path d="M-11 -20l-6 -5M-11 -20l-7 2"/></g>' : "");
+    frage.textContent = `Zeichen ${i + 1} von ${Z.length}: ` + (z.fr || "Welches Bauteil ist das?");
+    wahl.innerHTML = shuffle([z.a].concat(z.f)).map(t => `<button type="button">${esc(t)}</button>`).join("");
+    $$("button", wahl).forEach(b => b.addEventListener("click", () => {
+      if (b.textContent === z.a) { fb.className = "fb show ok"; fb.textContent = "✅ Richtig: " + z.a + ". " + z.h; i++; zeig(); }
+      else { b.disabled = true; fb.className = "fb show bad"; fb.textContent = "❌ Nicht ganz. Vergleiche mit den vier Schaltzeichen oben in dieser Station."; }
+    }));
+  }
+  zeig();
+})();
+
+/* ---------- Station 4: Aufbau und Schaltplan zuordnen ---------- */
+// c: {l: Zahl der Lampen, s: "offen" | "zu" | "" (kein Schalter)} – Spannungsquelle links, Schalter oben, Lampen unten
+function planSvg(c){
+  let h = `<svg viewBox="0 0 240 150" role="img" aria-label="Schaltplan: Spannungsquelle, ${c.s ? (c.s === "zu" ? "Schalter geschlossen" : "Schalter offen") + ", " : "kein Schalter, "}${c.l === 2 ? "zwei Glühlampen" : "eine Glühlampe"}">`
+    + `<rect x="40" y="30" width="170" height="90" fill="none" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>` + setz("quelle", 40, 75, 90, "#fff") + pole(40, 75, 90, 20);
+  if (c.s) h += setz(c.s, 125, 30, 0, "#fff");
+  (c.l === 2 ? [90, 160] : [125]).forEach(x => { h += setz("lampe", x, 120, 0, "#fff"); });
+  return h + "</svg>";
+}
+function aufbauSvg(c){
+  const an = c.s !== "offen", L = c.l === 2 ? [85, 155] : [120], rechts = L[L.length - 1] + 14, links = L[0] - 14;
+  const kabel = d => `<path d="${d}" fill="none" stroke="#c0392b" stroke-width="4" stroke-linecap="round"/>`;
+  let h = `<svg viewBox="0 0 240 150" role="img" aria-label="Aufbau: Batterie, ${c.s ? (c.s === "zu" ? "Schalter geschlossen" : "Schalter offen") + ", " : "kein Schalter, "}${c.l === 2 ? "zwei Lampen" : "eine Lampe"}">`;
+  h += c.s ? kabel("M40 44C40 8 74 44 100 30") + kabel(`M140 30C222 22 226 132 ${rechts} 120`) : kabel(`M40 44C44 -6 226 4 220 76S${rechts + 40} 126 ${rechts} 120`);
+  if (c.l === 2) h += kabel("M141 120C132 134 108 106 99 120");
+  h += kabel(`M${links} 120C${links - 20} 140 40 142 40 104`);
+  h += '<rect x="26" y="50" width="28" height="54" rx="4" fill="#2b3a4a"/><rect x="26" y="50" width="28" height="16" rx="4" fill="#f2b632"/><rect x="35" y="44" width="10" height="7" rx="1.5" fill="#8a97a3"/><text x="40" y="63" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">+</text><text x="40" y="99" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">−</text>';
+  if (c.s) h += `<rect x="94" y="25" width="52" height="11" rx="3" fill="#d8c7a4" stroke="#8a7a55" stroke-width="1.5"/><circle cx="100" cy="30" r="4" fill="#566674"/><circle cx="140" cy="30" r="4" fill="#566674"/><line x1="100" y1="30" x2="${c.s === "zu" ? 140 : 133}" y2="${c.s === "zu" ? 30 : 9}" stroke="#566674" stroke-width="4.5" stroke-linecap="round"/>`;
+  L.forEach(x => {
+    h += (an ? `<circle cx="${x}" cy="100" r="20" fill="#ffd84d" opacity=".5"/>` : "") + `<circle cx="${x}" cy="100" r="13" fill="${an ? "#ffe680" : "#fff8d6"}" stroke="#b9a25a" stroke-width="2"/><path d="M${x - 6} 104q3-9 6 0t6 0" fill="none" stroke="${an ? "#e67e00" : "#8a5a2b"}" stroke-width="1.8"/><rect x="${x - 14}" y="112" width="28" height="12" rx="2.5" fill="#8a97a3"/>`;
+  });
+  return h + "</svg>";
+}
+(function(){
+  const R = [
+    {plan: true, geg: {l: 1, s: "offen"}, opt: [{l: 1, s: "offen"}, {l: 1, s: "zu"}, {l: 2, s: "offen"}],
+      fb: ["", "Sieh genau hin: Im Aufbau ist der Schalter offen.", "Zähle die Lampen: Im Aufbau gibt es nur eine."],
+      ok: "Eine Spannungsquelle, ein offener Schalter, eine Glühlampe – alles in einem Kreis."},
+    {plan: true, geg: {l: 2, s: "zu"}, opt: [{l: 2, s: "zu"}, {l: 1, s: "zu"}, {l: 2, s: ""}],
+      fb: ["", "Zähle die Lampen: Im Aufbau sind es zwei.", "In diesem Schaltplan fehlt der Schalter."],
+      ok: "Zwei Lampen hintereinander in einem Kreis: Das ist eine Reihenschaltung."},
+    {plan: false, geg: {l: 1, s: ""}, opt: [{l: 1, s: ""}, {l: 1, s: "offen"}, {l: 2, s: ""}],
+      fb: ["", "Im Schaltplan gibt es keinen Schalter.", "Im Schaltplan gibt es nur eine Lampe."],
+      ok: "Ohne Schalter ist der Stromkreis immer geschlossen – die Lampe leuchtet dauernd."}
+  ];
+  const frage = $("#planFrage"), geg = $("#planGegeben"), wahl = $("#planWahl"), fb = $("#planFb");
+  const id = "planwahl"; register(id, "#planWahl", "Zuordnen: Aufbau und Schaltplan");
+  let i = 0;
+  function zeig(){
+    if (i >= R.length) {
+      frage.textContent = "Geschafft! Du kannst Aufbau und Schaltplan einander zuordnen.";
+      geg.innerHTML = planSvg({l: 2, s: "zu"});
+      wahl.innerHTML = '<button type="button" class="sel" style="padding:8px 14px">Noch einmal üben</button>';
+      $("button", wahl).addEventListener("click", () => { i = 0; fb.className = "fb"; zeig(); });
+      solve(id); return;
+    }
+    const r = R[i];
+    frage.textContent = `Aufgabe ${i + 1} von ${R.length}: ` + (r.plan ? "Welcher Schaltplan passt zu diesem Aufbau?" : "Welcher Aufbau passt zu diesem Schaltplan?");
+    geg.innerHTML = r.plan ? aufbauSvg(r.geg) : planSvg(r.geg);
+    wahl.innerHTML = shuffle(r.opt.map((o, k) => ({o, k}))).map((x, n) => `<button type="button" data-k="${x.k}" aria-label="Möglichkeit ${n + 1}">${r.plan ? planSvg(x.o) : aufbauSvg(x.o)}</button>`).join("");
+    $$("button", wahl).forEach(b => b.addEventListener("click", () => {
+      const k = +b.dataset.k;
+      if (k === 0) { fb.className = "fb show ok"; fb.textContent = "✅ Richtig! " + r.ok; i++; zeig(); }
+      else { b.disabled = true; b.classList.add("falsch"); fb.className = "fb show bad"; fb.textContent = "❌ " + r.fb[k]; }
+    }));
+  }
+  zeig();
+})();
+
+/* ---------- Station 4: Schaltplan-Baukasten (M7) ---------- */
+Modul.plus(() => {
+  const id = "bau"; register(id, "#bauSvg", "Schaltplan-Baukasten: Reihenschaltung mit zwei Lampen bauen");
+  const svg = $("#bauSvg"), g = $("#bauG"), obs = $("#bauObs"), pal = $("#bauPalette"), umlegen = $("#bauUmlegen");
+  const PLATZ = [{x: 160, y: 60, rot: 0}, {x: 320, y: 60, rot: 0}, {x: 410, y: 145, rot: 90}, {x: 320, y: 230, rot: 180}, {x: 160, y: 230, rot: 180}];
+  const NAME = {lampe: "Glühlampe", quelle: "Spannungsquelle", schalter: "Schalter", leiter: "Leiter"};
+  let belegt = PLATZ.map(() => ""), aktiv = 0, zu = false, hinweis = "";
+  const zahl = t => belegt.filter(x => x === t).length;
+  function lage(){
+    const leer = belegt.filter(x => !x).length, q = zahl("quelle"), l = zahl("lampe"), s = zahl("schalter");
+    const kreis = !leer && (!s || zu);
+    return {leer, q, l, s, an: kreis && q === 1 && l > 0, kurz: kreis && q === 1 && l === 0, fertig: kreis && q === 1 && l === 2 && s === 1};
+  }
+  function text(z){
+    if (z.fertig) return "✅ Geschafft! Der Stromkreis ist geschlossen, beide Lampen leuchten. Zwei Lampen hintereinander in einem Kreis – das ist eine Reihenschaltung.";
+    if (z.leer === PLATZ.length) return "Tippe auf einen Platz und dann auf ein Schaltzeichen.";
+    if (z.leer) return `Noch ${z.leer === 1 ? "ein Platz ist" : z.leer + " Plätze sind"} frei. Dort ist der Stromkreis unterbrochen.`;
+    if (z.q === 0) return "Es fehlt die Spannungsquelle. Ohne sie treibt nichts den Strom an.";
+    if (z.q > 1) return "Im Auftrag steht nur eine Spannungsquelle. Ersetze die zweite durch ein anderes Zeichen.";
+    if (z.kurz) return "⚠️ Kurzschluss! Im Stromkreis ist kein Gerät. Der Strom würde sehr groß, die Leitungen würden heiß. Setze Lampen ein.";
+    if (z.l !== 2) return (z.an ? "Die Lampe leuchtet. " : "") + "Der Auftrag verlangt aber genau zwei Glühlampen.";
+    if (z.s === 0) return "Beide Lampen leuchten – aber es fehlt der Schalter. So kann man sie nicht ausschalten.";
+    if (z.s > 1) return "Ein Schalter genügt. Ersetze den zweiten durch einen Leiter.";
+    return "Der Schaltplan stimmt! Jetzt fehlt nur noch eines: Schließe den Schalter.";
+  }
+  function zeichne(){
+    const z = lage(), rot = "#e0453a";
+    let h = `<rect x="70" y="60" width="340" height="170" fill="none" stroke="${z.kurz ? rot : INK}" stroke-width="${z.kurz ? 5 : 3}" stroke-linejoin="round"/>`;
+    PLATZ.forEach((p, i) => {
+      const t = belegt[i], an = i === aktiv;
+      h += `<g class="platz" data-i="${i}" tabindex="0" role="button" aria-label="Platz ${i + 1}: ${t ? NAME[t] : "leer"}"><g transform="translate(${p.x} ${p.y}) rotate(${p.rot})">`
+        + `<rect x="-40" y="-31" width="80" height="62" rx="10" fill="${an ? "#e7f3fc" : "#f7fbfe"}" stroke="${an ? "#0d77c2" : "#9fb2c1"}" stroke-width="${an ? 3.5 : 2}"${t ? "" : ' stroke-dasharray="6 5"'}/>`
+        + (t ? `<path d="M-40 0H-24M24 0H40" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>` + sz(t === "schalter" ? (zu ? "zu" : "offen") : t, {an: z.an}) : "") + "</g>"
+        + (t === "quelle" ? pole(p.x, p.y, p.rot) : "")
+        + (t ? "" : `<text x="${p.x}" y="${p.y + 7}" text-anchor="middle" font-size="20" font-weight="800" fill="${an ? "#0d77c2" : "#9fb2c1"}">?</text>`) + "</g>";
+    });
+    g.innerHTML = h;
+    setText(obs, hinweis || text(z)); hinweis = "";
+    umlegen.disabled = !zahl("schalter"); setText(umlegen, zu ? "Schalter öffnen" : "Schalter schließen");
+    if (z.fertig) solve(id);
+  }
+  pal.innerHTML = ["lampe", "quelle", "schalter", "leiter"].map(t => `<button type="button" data-t="${t}"><svg viewBox="-28 -20 56 40" aria-hidden="true">${sz(t === "schalter" ? "offen" : t)}</svg>${NAME[t]}</button>`).join("");
+  $$("button", pal).forEach(b => b.addEventListener("click", () => {
+    if (aktiv < 0) hinweis = "Alle Plätze sind belegt. Tippe zuerst auf den Platz, den du ändern willst.";
+    else {
+      belegt[aktiv] = b.dataset.t;
+      // weiter zum nächsten freien Platz
+      let n = -1; for (let k = 1; k <= PLATZ.length; k++) { const j = (aktiv + k) % PLATZ.length; if (!belegt[j]) { n = j; break; } }
+      aktiv = n;
+    }
+    zeichne();
+  }));
+  const waehle = el => { const p = el && el.closest ? el.closest(".platz") : null; if (p) { aktiv = +p.dataset.i; zeichne(); const neu = $(`.platz[data-i="${aktiv}"]`, g); if (neu && document.activeElement !== neu && el.matches && el.matches(":focus")) neu.focus(); } };
+  svg.addEventListener("click", e => waehle(e.target));
+  svg.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); waehle(e.target); } });
+  umlegen.addEventListener("click", () => { zu = !zu; zeichne(); });
+  $("#bauLeeren").addEventListener("click", () => { belegt = PLATZ.map(() => ""); aktiv = 0; zu = false; zeichne(); });
+  zeichne();
+});
+
+/* ---------- Station 5: Fehler im Schaltplan finden ---------- */
+(function(){
+  const BG = "#f7fbfe", linie = `fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"`;
+  const HEIL = {A: "Die Spannungsquelle ist richtig angeschlossen: An beiden Polen hängt eine Leitung.", B: "Der Schalter ist geschlossen. Hier kommt der Strom durch.",
+    C: "Die Lampe ist richtig angeschlossen: Auf beiden Seiten führt eine Leitung weiter.", D: "Diese Leitung hat keine Lücke."};
+  const F = [
+    {treffer: "B", gefunden: "Genau: Der Schalter ist offen.",
+      a: "Der Stromkreis ist unterbrochen. Die Lampe bleibt dunkel.", f: ["Die Lampe leuchtet, aber schwächer.", "Der Strom fließt bis zum Schalter und staut sich dort."],
+      ok: "Ein offener Schalter ist wie eine hochgeklappte Brücke: Nichts kommt durch. Abhilfe: Schalter schließen."},
+    {treffer: "D", gefunden: "Genau: Die Leitung ist unterbrochen.",
+      a: "Es fließt nirgends Strom – auch nicht bis zur Lücke. Die Lampe bleibt dunkel.", f: ["Der Strom fließt bis zur Lücke und tropft dort heraus.", "Die Lampe leuchtet trotzdem, weil der Schalter geschlossen ist."],
+      ok: "Eine einzige Lücke genügt, und im ganzen Stromkreis steht alles still. Abhilfe: die Leitung flicken oder ersetzen."},
+    {treffer: "D", gefunden: "Genau: Hier fehlt die Leitung. Von der Lampe führt kein Weg zurück zum Minuspol.",
+      heil: {A: "Die Spannungsquelle selbst ist in Ordnung. Aber folge der Leitung: Kommst du vom Pluspol bis zum Minuspol?", C: "Die Lampe selbst ist in Ordnung. Aber sie ist nur an einer Seite angeschlossen. Wo fehlt etwas?"},
+      a: "Der Stromkreis ist nicht geschlossen. Die Lampe bleibt dunkel.", f: ["Die Lampe leuchtet halb so hell, weil nur eine Leitung da ist.", "Der Strom fließt in die Lampe hinein und bleibt dort."],
+      ok: "Jedes Bauteil braucht zwei Anschlüsse: Der Strom muss hinein und wieder hinaus können. Abhilfe: eine zweite Leitung von der Lampe zum Minuspol legen."},
+    {treffer: "D", gefunden: "Genau: Diese Leitung verbindet die beiden Pole direkt – an der Lampe vorbei.",
+      heil: {C: "Die Lampe ist richtig angeschlossen. Trotzdem fließt kaum Strom durch sie. Welchen Weg nimmt er stattdessen?"},
+      a: "Kurzschluss: Der Strom fließt an der Lampe vorbei und wird sehr groß. Die Leitungen werden heiß.", f: ["Die Lampe leuchtet doppelt so hell.", "Nichts – die zusätzliche Leitung stört nicht."],
+      ok: "Der Strom nimmt den Weg ohne Lampe. Weil ihn dort nichts bremst, wird er sehr groß: Leitungen und Batterie werden heiß, die Batterie ist schnell leer. Abhilfe: die falsche Leitung sofort entfernen."}
+  ];
+  const bild = $("#fehlerBild"), titel = $("#fehlerTitel"), wahl = $("#fehlerWahl"), fb = $("#fehlerFb");
+  const id = "fehler"; register(id, "#fehlerBild", "Fehlersuche: vier Schaltpläne mit je einem Fehler");
+  // Antippstellen: A Spannungsquelle, B Schalter, C Lampe, D Leitung (im vierten Plan die zusätzliche Leitung)
+  const ORT = n => ({A: [122, 140, 94, 140], B: [190, 98, 190, 66], C: [358, 140, 386, 140], D: n === 3 ? [258, 140, 294, 140] : [240, 194, 240, 224]});
+  function plan(n){
+    let h = `<svg viewBox="0 0 480 280" role="img" aria-label="Schaltplan ${n + 1} mit einem Fehler"><rect width="480" height="280" fill="${BG}"/>`;
+    h += n === 2 ? `<path d="M70 116V50H410V116M410 164V186M70 164V186" ${linie}/>` : `<rect x="70" y="50" width="340" height="180" ${linie}/>`;
+    if (n === 1) h += `<rect x="198" y="214" width="84" height="32" fill="${BG}"/><path d="M198 230Q212 230 218 242M282 230Q268 230 262 218" ${linie}/>`;
+    if (n === 3) h += `<path d="M300 50V230" ${linie}/><circle cx="300" cy="50" r="5" fill="${INK}"/><circle cx="300" cy="230" r="5" fill="${INK}"/>`;
+    h += setz("quelle", 70, 140, 90, BG) + pole(70, 140, 90) + setz(n === 0 ? "offen" : "zu", 190, 50, 0, BG) + setz("lampe", 410, 140, 90, BG);
+    const o = ORT(n);
+    Object.keys(o).forEach(k => { h += `<line x1="${o[k][0]}" y1="${o[k][1]}" x2="${o[k][2]}" y2="${o[k][3]}" stroke="#9fb2c1" stroke-width="2" stroke-dasharray="3 4"/>`; });
+    return h + "</svg>" + Object.keys(o).map(k => `<button type="button" class="spot" data-k="${k}" style="left:${(o[k][0] / 4.8).toFixed(1)}%;top:${(o[k][1] / 2.8).toFixed(1)}%" aria-label="Stelle ${k}">${k}</button>`).join("");
+  }
+  let i = 0;
+  function zeig(){
+    wahl.innerHTML = "";
+    if (i >= F.length) {
+      titel.textContent = "Geschafft! Du hast alle vier Fehler gefunden.";
+      wahl.innerHTML = '<button type="button" class="sel">Noch einmal üben</button>';
+      $("button", wahl).addEventListener("click", () => { i = 0; fb.className = "fb"; zeig(); });
+      $$(".spot", bild).forEach(s => { s.disabled = true; });
+      solve(id); return;
+    }
+    const f = F[i];
+    bild.innerHTML = plan(i);
+    titel.textContent = `Schaltplan ${i + 1} von ${F.length}: Tippe auf die Stelle mit dem Fehler.`;
+    $$(".spot", bild).forEach(s => s.addEventListener("click", () => {
+      const k = s.dataset.k;
+      if (k !== f.treffer) { s.disabled = true; s.classList.add("nein"); fb.className = "fb show bad"; fb.textContent = "❌ Stelle " + k + ": " + ((f.heil && f.heil[k]) || HEIL[k]); return; }
+      $$(".spot", bild).forEach(x => { x.disabled = true; }); s.classList.add("treffer");
+      fb.className = "fb show ok"; fb.textContent = "✅ " + f.gefunden;
+      titel.textContent = `Schaltplan ${i + 1} von ${F.length}: Was ist die Folge?`;
+      wahl.innerHTML = shuffle([f.a].concat(f.f)).map(t => `<button type="button" style="text-align:left">${esc(t)}</button>`).join("");
+      $$("button", wahl).forEach(b => b.addEventListener("click", () => {
+        if (b.textContent === f.a) { fb.className = "fb show ok"; fb.textContent = "✅ Richtig. " + f.ok; i++; zeig(); }
+        else { b.disabled = true; b.classList.add("falsch"); fb.className = "fb show bad"; fb.textContent = "❌ Überlege noch einmal: Kann der Strom hier im Kreis durch die Lampe fließen?"; }
+      }));
+    }));
+  }
+  zeig();
+})();
+
+/* ---------- Station 6: Training ---------- */
+Modul.makeGap($("#gapKreis"), [
+  ["Ein Stromkreis besteht aus einer ", {g: "Spannungsquelle"}, ", Leitern, einem Schalter und einem Gerät, zum Beispiel einer ", {g: "Lampe"}, "."],
+  ["Strom fließt nur, wenn der Stromkreis ", {g: "geschlossen"}, " ist. Ein offener ", {g: "Schalter"}, " unterbricht ihn."],
+  ["Metalle wie Kupfer sind gute ", {g: "Leiter"}, ". Kunststoff ist ein ", {g: "Nichtleiter"}, ". Deshalb haben Kabel eine ", {g: "Isolierung"}, " aus Kunststoff."],
+  ["Einen Stromkreis zeichnet man als ", {g: "Schaltplan"}, ". Jedes Bauteil hat darin ein eigenes ", {g: "Schaltzeichen"}, "."]
+], "gapKreis", ["Magnet", "unterbrochen"]);
+
+Modul.makePaare($("#paareKreis"), [
+  ["Batterie", "treibt den Strom an"],
+  ["Kabel", "leitet den Strom"],
+  ["Schalter", "schließt und unterbricht den Stromkreis"],
+  ["Lampe", "leuchtet, wenn Strom fließt"],
+  ["Isolierung", "schützt vor Berührung"],
+  ["Schaltplan", "zeigt die Verbindungen"]
+], "paareKreis");
+
+Modul.makeTF($("#tf"), [
+  ["Strom fließt nur in einem geschlossenen Stromkreis.", true],
+  ["Bei einem offenen Schalter fließt der Strom bis zum Schalter und wartet dort.", false],
+  ["Alle Metalle leiten den elektrischen Strom.", true],
+  ["Graphit leitet den Strom, obwohl es kein Metall ist.", true],
+  ["Im Schaltzeichen der Spannungsquelle steht der kurze, dicke Strich für den Pluspol.", false],
+  ["Im Schaltplan zeichnet man Leitungen als gerade Linien.", true],
+  ["Bei einem Kurzschluss leuchtet die Lampe besonders hell.", false]
+], "tf");
+
+Modul.makeCrossword($("#cw"), {
+  words: [
+    {w: "KURZSCHLUSS", r: 11, c: 1, d: "a", q: "Eine Leitung verbindet die Pole direkt, ohne Gerät dazwischen."},
+    {w: "STROMKREIS", r: 2, c: 11, d: "d", q: "Geschlossener Weg von Pol zu Pol, auf dem die Elektronen wandern."},
+    {w: "ISOLIERUNG", r: 4, c: 2, d: "d", q: "Mantel aus Kunststoff um den Draht eines Kabels."},
+    {w: "GLUEHLAMPE", r: 13, c: 2, d: "a", q: "Ihr Schaltzeichen ist ein Kreis mit Kreuz."},
+    {w: "ELEKTRONEN", r: 9, c: 0, d: "a", q: "Winzige Teilchen, die im Metall wandern, wenn Strom fließt."},
+    {w: "SCHALTPLAN", r: 0, c: 9, d: "d", q: "Zeichnung eines Stromkreises aus Schaltzeichen."},
+    {w: "BATTERIE", r: 2, c: 0, d: "d", q: "Spannungsquelle in der Taschenlampe."},
+    {w: "SCHALTER", r: 2, c: 5, d: "d", q: "Mit ihm schließt oder unterbricht man den Stromkreis."},
+    {w: "LEITER", r: 7, c: 2, d: "a", q: "Stoff, der den Strom gut durchlässt."},
+    {w: "KUPFER", r: 2, c: 7, d: "d", q: "Rötliches Metall, aus dem die meisten Kabeldrähte bestehen."}
+  ],
+  sol: [[5, 2], [3, 11], [11, 3], [9, 6], [6, 11]], solWord: "STROM"
+}, "cw");
+
+Modul.makeOpen($("#open"), [
+  {q: "Nenne die vier Teile eines einfachen Stromkreises und erkläre bei einem davon die Aufgabe.",
+   m: "Spannungsquelle (zum Beispiel eine Batterie), Leiter (Kabel), Schalter und ein Gerät, zum Beispiel eine Lampe. Die Batterie treibt den Strom an.",
+   k: ["spannungsquelle|batterie|akku", "leiter|kabel|leitung|draht", "schalter", "lampe|gerät|motor|summer"], min: 3},
+  {q: "Erkläre, warum Kabel innen aus Kupfer und außen aus Kunststoff bestehen.",
+   m: "Kupfer ist ein Metall und leitet den Strom sehr gut. Kunststoff ist ein Nichtleiter. Die Isolierung aus Kunststoff sorgt dafür, dass der Strom im Draht bleibt und man das Kabel anfassen kann.",
+   k: ["kupfer|metall", "leitet|leiter", "nichtleiter|isolier|isolator|leitet nicht|leitet keinen|schützt|schutz"], min: 2},
+  {q: "Die Lampe in einem Stromkreis leuchtet nicht. Nenne drei mögliche Fehler.",
+   m: "Der Schalter ist offen. Eine Leitung ist unterbrochen oder ein Kabel hat sich gelöst. Die Lampe ist kaputt. Auch eine leere Batterie kommt in Frage.",
+   k: ["schalter", "leitung|kabel|unterbrochen|lücke|gelöst|lose", "lampe|birne|durchgebrannt|glühdraht", "batterie|leer", "kurzschluss"], min: 3}
+], "open", "Lies noch einmal die Merke-Kästen in Station 2, 3 und 4.");
+
+Modul.plus(() => {
+  Modul.makeOpen($("#openM"), [
+    {q: "Beim Einschalten leuchtet die Lampe sofort – dabei wandern die Elektronen im Kabel nur sehr langsam. Erkläre das. Der Vergleich mit einer Fahrradkette hilft dir.",
+     m: "Im ganzen Kabel sind schon überall Elektronen. Wird der Stromkreis geschlossen, setzen sich alle gleichzeitig in Bewegung – wie die Glieder einer Fahrradkette: Trittst du in die Pedale, dreht sich das Hinterrad sofort mit. Deshalb bewegen sich auch die Elektronen in der Lampe sofort.",
+     k: ["überall|ganzen|schon", "gleichzeitig|zugleich|sofort|alle", "kette|fahrradkette|glieder"], min: 2},
+    {q: "In einem Schaltplan führt eine Leitung direkt vom Pluspol zum Minuspol – an der Lampe vorbei. Begründe, warum die Lampe dunkel bleibt und warum diese Schaltung gefährlich ist.",
+     m: "Das ist ein Kurzschluss. Der Strom nimmt den direkten Weg an der Lampe vorbei, deshalb bleibt sie dunkel. Weil kein Gerät den Strom bremst, wird er sehr groß. Leitung und Batterie werden heiß – es kann sogar brennen.",
+     k: ["kurzschluss|direkt|vorbei", "groß|stark", "heiß|warm|brenn|brand|feuer"], min: 2}
+  ], "openM", "Sieh dir den Versuch in Station 2 und den Kurzschluss in Station 5 noch einmal an.");
+});
+
+/* ---------- Station 7: Profi-Check ---------- */
+Modul.makeQuiz($("#quiz"), [].concat(MC.s1, MC.s2, MC.s3, MC.s4, MC.s5, MC.train, [
+  {q: "Was bedeutet „geschlossener Stromkreis“?", o: ["Der Weg führt ohne Lücke von einem Pol durch das Gerät zum anderen Pol.", "Der Schalter ist offen.", "Die Batterie steckt in einer geschlossenen Dose.", "Alle Kabel sind gleich lang."], a: 0, e: "Nur ohne Lücke können die Elektronen im Kreis wandern."},
+  {q: "Welches Schaltzeichen besteht aus einem langen, dünnen und einem kurzen, dicken Strich?", o: ["Spannungsquelle", "Glühlampe", "Schalter", "Leiter"], a: 0, e: "Der lange, dünne Strich ist der Pluspol, der kurze, dicke der Minuspol."},
+  {q: "Was sind Elektronen?", o: ["winzige Teilchen, die sich im Metall bewegen können", "kleine Lampen im Kabel", "Tropfen aus der Batterie", "der Kunststoff um das Kabel"], a: 0, e: "Wandern die Elektronen im Kreis, fließt Strom."},
+  {q: "Destilliertes Wasser leitet fast nicht. Warum ist Leitungswasser bei Strom trotzdem gefährlich?", o: ["Weil darin Salze gelöst sind – es leitet.", "Weil es kälter ist.", "Weil es aus Metall besteht.", "Weil es schneller fließt."], a: 0, e: "Schon kleine Mengen gelöster Salze machen Wasser zum Leiter."},
+  {q: "Wie zeichnet man Leitungen in einem Schaltplan?", o: ["als gerade Linien mit rechten Winkeln", "als Wellenlinien", "so krumm, wie die Kabel wirklich liegen", "gar nicht"], a: 0, e: "Der Schaltplan zeigt nur die Verbindungen – nicht, wie die Kabel wirklich verlaufen."}
+]), "quiz", "Stromkreis-Profi");
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

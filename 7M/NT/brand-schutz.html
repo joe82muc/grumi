@@ -1,0 +1,866 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#a8321a">
+<title>Brände verhindern und löschen | NT 7</title>
+<link rel="stylesheet" href="modul-basis.css">
+<style>
+.hero{background:linear-gradient(160deg,#6d1a10,#c2401c 55%,#f0a030)}
+.schild-buehne{display:grid;grid-template-columns:150px 1fr;gap:16px;align-items:center}
+.schild-buehne svg{width:150px;height:150px;background:#f4f7fa;border-radius:16px;border:1px solid var(--line)}
+@media (max-width:520px){.schild-buehne{grid-template-columns:1fr;justify-items:center}}
+.hotimg{position:relative}
+.hotimg svg{display:block;width:100%;height:auto}
+.anruf{border:2px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}
+.anruf-kopf{background:#15212b;color:#fff;padding:10px 14px;font-weight:700;display:flex;gap:10px;align-items:center}
+.anruf-verlauf{padding:12px 14px;display:grid;gap:8px;max-height:260px;overflow:auto}
+.blase{max-width:85%;padding:8px 12px;border-radius:14px;font-size:.96rem}
+.blase.leit{background:var(--sky-l);justify-self:start;border-bottom-left-radius:4px}
+.blase.ich{background:var(--ok-l);justify-self:end;border-bottom-right-radius:4px}
+.anruf-wahl{padding:12px 14px;border-top:1px solid var(--line);display:grid;gap:8px;background:#fbfdff}
+.anruf-wahl button{text-align:left;border:2px solid var(--line);background:#fff;border-radius:12px;padding:9px 12px;font-weight:600;min-height:44px}
+.anruf-wahl button.falsch{border-color:var(--bad);background:var(--bad-l)}
+.dreieck-wahl{display:flex;flex-wrap:wrap;gap:8px;padding:12px 14px;border-top:1px solid var(--line);background:#fbfdff}
+.dreieck-wahl button{border:2px solid var(--line);background:#fff;border-radius:12px;padding:8px 12px;font-weight:700;min-height:44px}
+.dreieck-wahl button.war{border-color:var(--ok);background:var(--ok-l)}
+#dSeiteB,#dSeiteS,#dSeiteZ,#dFlamme{transition:opacity .5s,transform .6s}
+#spFeuer,#spHitze,#spWasser,#spRauch,#fbFlamme,#fbWasser,#fbDampf,#fbBall,#fbDeckel{transition:opacity .6s,transform .6s}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>NT 7</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Alarm!</a>
+      <a href="#s2"><b>2</b>Brandschutz</a>
+      <a href="#s3"><b>3</b>Im Notfall</a>
+      <a href="#s4"><b>4</b>Löschen</a>
+      <a href="#s5"><b>5</b>Fettbrand</a>
+      <a href="#s6"><b>6</b>Training</a>
+      <a href="#s7"><b>7</b>Profi-Check</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse 7M / 7R · Themenbereich Luft · Lernmodul 6</div>
+    <h1>Brände verhindern und löschen</h1>
+    <p>Ein Feuer kann in wenigen Minuten ein ganzes Haus zerstören. In sieben Stationen lernst du, wie Gebäude vor Bränden geschützt werden, was du im Notfall tust und wie man ein Feuer richtig löscht – und wann Wasser alles nur schlimmer macht.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s6">Direkt zum Probentraining</a>
+    </div>
+    <div class="goals">
+      <div>🚪 Ich nenne Einrichtungen, die Gebäude vor Bränden schützen, und erkläre ihre Aufgabe.</div>
+      <div>📞 Ich weiß, wie ich mich bei Feuer verhalte und einen Notruf absetze.</div>
+      <div>🔺 Ich erkläre mit dem Feuerdreieck drei Wege, ein Feuer zu löschen.</div>
+      <div>🍳 Ich begründe, warum man brennendes Fett nie mit Wasser löscht.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- Zeichen für das Schilder-Quiz (eigene, vereinfachte Zeichnungen) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <path id="zFlamme" d="M0-17C7-8 11-2 11 5A11 11 0 0 1-11 5C-11 0-7-3-5-9C-3-5-1-5 0-17Z"/>
+    <symbol id="zFlucht" viewBox="0 0 120 120">
+      <rect x="6" y="24" width="108" height="72" rx="8" fill="#0a8f4d"/>
+      <rect x="18" y="36" width="30" height="48" fill="#fff"/>
+      <g stroke="#fff" stroke-width="6" stroke-linecap="round" fill="none"><path d="M64 60h34"/><path d="M86 48l12 12-12 12"/></g>
+      <g stroke="#0a8f4d" stroke-width="5" stroke-linecap="round" fill="none"><circle cx="34" cy="46" r="4" fill="#0a8f4d" stroke="none"/><path d="M34 52v14M34 56l-8 6M34 56l8 4M34 66l-7 12M34 66l8 10"/></g>
+    </symbol>
+    <symbol id="zLoescher" viewBox="0 0 120 120">
+      <rect x="10" y="10" width="100" height="100" rx="8" fill="#d9291c"/>
+      <rect x="34" y="42" width="26" height="52" rx="6" fill="#fff"/><rect x="42" y="30" width="10" height="14" fill="#fff"/>
+      <path d="M52 34h12q8 0 8 10v8" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M38 30h18" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+      <use href="#zFlamme" transform="translate(88 78) scale(1.1)" fill="#fff"/>
+    </symbol>
+    <symbol id="zSchlauch" viewBox="0 0 120 120">
+      <rect x="10" y="10" width="100" height="100" rx="8" fill="#d9291c"/>
+      <g fill="none" stroke="#fff" stroke-width="6"><circle cx="50" cy="56" r="24"/><circle cx="50" cy="56" r="12"/></g>
+      <path d="M50 80q-22 10-22 22M28 102h-8" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <use href="#zFlamme" transform="translate(92 84) scale(1.05)" fill="#fff"/>
+    </symbol>
+    <symbol id="zMelder" viewBox="0 0 120 120">
+      <rect x="10" y="10" width="100" height="100" rx="8" fill="#d9291c"/>
+      <rect x="30" y="30" width="44" height="44" rx="6" fill="none" stroke="#fff" stroke-width="6"/><circle cx="52" cy="52" r="9" fill="#fff"/>
+      <path d="M52 86v14M44 96l8 8 8-8" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="rotate(180 52 95)"/>
+      <use href="#zFlamme" transform="translate(92 84) scale(1.05)" fill="#fff"/>
+    </symbol>
+    <symbol id="zRauchen" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="50" fill="#fff" stroke="#d9291c" stroke-width="10"/>
+      <rect x="28" y="62" width="50" height="10" fill="#15212b"/><rect x="80" y="62" width="6" height="10" fill="#15212b"/>
+      <path d="M84 54q6-8 0-14M92 56q7-9 0-18" stroke="#15212b" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="M26 26l68 68" stroke="#d9291c" stroke-width="10" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="zFlammeVerbot" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="50" fill="#fff" stroke="#d9291c" stroke-width="10"/>
+      <path d="M40 88l26-34" stroke="#15212b" stroke-width="7" stroke-linecap="round"/>
+      <use href="#zFlamme" transform="translate(70 42) scale(1.25)" fill="#15212b"/>
+      <path d="M26 26l68 68" stroke="#d9291c" stroke-width="10" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="zBrennbar" viewBox="0 0 120 120">
+      <path d="M60 8L112 60 60 112 8 60Z" fill="#fff" stroke="#d9291c" stroke-width="8" stroke-linejoin="round"/>
+      <use href="#zFlamme" transform="translate(60 56) scale(1.7)" fill="#15212b"/>
+      <path d="M36 86h48" stroke="#15212b" stroke-width="6" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="zSammel" viewBox="0 0 120 120">
+      <rect x="10" y="10" width="100" height="100" rx="8" fill="#0a8f4d"/>
+      <g fill="#fff"><circle cx="48" cy="52" r="6"/><circle cx="72" cy="52" r="6"/><circle cx="60" cy="46" r="6"/><rect x="40" y="60" width="40" height="18" rx="6"/></g>
+      <g stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20l16 16M36 26v10H26"/><path d="M100 20L84 36M84 26v10h10"/><path d="M20 100l16-16M36 94V84H26"/><path d="M100 100L84 84M84 94V84h10"/></g>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg</div><h2>Es riecht nach Rauch</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Dienstag, kurz vor der Pause. Im Flur vor dem Werkraum riecht es verbrannt. Aus einem Papierkorb steigt grauer Rauch, dann zuckt eine erste Flamme.</p>
+      <p>Jetzt zählt jede Minute. Ein kleiner Brand wird schnell groß – und gefährlich ist nicht nur die Flamme. Die meisten Menschen, die bei einem Brand sterben, <strong>ersticken am Rauch</strong>. Oft haben sie das Feuer gar nicht bemerkt.</p>
+      <p>Deshalb gibt es <button class="term" data-t="brandschutz">Brandschutz</button>: Regeln, Zeichen und Geräte, die Brände verhindern, früh melden und klein halten.</p>
+      <div id="mc-s1"></div>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag leicht">Schilder-Quiz · leicht</span>
+      <h3 style="margin-top:4px">Zeichen, die Leben retten</h3>
+      <p>Die Farbe verrät schon viel: <strong style="color:#0a8f4d">Grün</strong> zeigt den Weg in Sicherheit, <strong style="color:#d9291c">rote Quadrate</strong> zeigen Geräte gegen das Feuer, <strong>rot durchgestrichene Kreise</strong> verbieten etwas, die <strong>Raute mit Flamme</strong> warnt vor einem Stoff.</p>
+      <div class="schild-buehne">
+        <svg viewBox="0 0 120 120" role="img" aria-label="Sicherheitszeichen" id="schildBild"><use id="schildUse" href="#zFlucht"/></svg>
+        <div><p class="hint" id="schildFrage" style="margin:0 0 6px">Was bedeutet dieses Zeichen?</p><div class="wahl" id="schildWahl"></div></div>
+      </div>
+      <div class="fb" id="schildFb"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Brandschutz im Gebäude</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Guter Brandschutz hat drei Aufgaben: Ein Brand soll <strong>gar nicht erst entstehen</strong>, er soll <strong>früh bemerkt</strong> werden, und er soll sich <strong>nicht ausbreiten</strong>.</p>
+    <div class="info-karten">
+      <div class="info-karte"><div class="big">🧱</div><h4>Beim Bauen vorbeugen</h4><p>Wände, Decken und Dämmung aus <button class="term" data-t="schwer">schwer entflammbarem Material</button>. <button class="term" data-t="tuer">Brandschutztüren</button> teilen lange Flure in Abschnitte.</p></div>
+      <div class="info-karte"><div class="big">🔔</div><h4>Früh warnen</h4><p><button class="term" data-t="rauchmelder">Rauchmelder</button> piepen laut, sobald Rauch aufsteigt. Mit dem Handmelder an der Wand löst man den Alarm selbst aus.</p></div>
+      <div class="info-karte"><div class="big">🧯</div><h4>Schnell löschen</h4><p><button class="term" data-t="loescher">Feuerlöscher</button>, Löschschlauch und <button class="term" data-t="loeschdecke">Löschdecke</button> für kleine Brände. Eine <button class="term" data-t="sprinkler">Sprinkleranlage</button> löscht von selbst.</p></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="sim reveal">
+      <div class="hotimg" id="hausBild">
+        <svg viewBox="0 0 480 300" role="img" aria-label="Schnitt durch ein Schulhaus mit Flur, Klassenzimmer und Treppenhaus. Sieben Stellen mit Brandschutz sind nummeriert.">
+          <rect width="480" height="300" fill="#eaf4fb"/>
+          <rect x="0" y="262" width="480" height="38" fill="#b9d39a"/>
+          <rect x="24" y="40" width="372" height="222" fill="#fdfbf6" stroke="#8a97a3" stroke-width="3"/>
+          <line x1="24" y1="150" x2="396" y2="150" stroke="#8a97a3" stroke-width="5"/>
+          <!-- Treppenhaus -->
+          <rect x="24" y="40" width="86" height="222" fill="#f1ede3" stroke="#8a97a3" stroke-width="3"/>
+          <path d="M34 256h14v-14h14v-14h14v-14h14v-14h10" fill="none" stroke="#8a97a3" stroke-width="3"/>
+          <path d="M34 146h14v-14h14v-14h14v-14h14v-14h10" fill="none" stroke="#8a97a3" stroke-width="3"/>
+          <rect x="50" y="48" width="40" height="18" rx="3" fill="#0a8f4d"/><path d="M60 57h16m-5-5 5 5-5 5" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <!-- Brandschutztür im Flur -->
+          <rect x="110" y="160" width="12" height="102" fill="#c9412b"/><rect x="113" y="200" width="6" height="14" rx="2" fill="#fff"/>
+          <!-- Rauchmelder und Sprinkler an der Decke -->
+          <rect x="176" y="151" width="26" height="8" rx="4" fill="#fff" stroke="#8a97a3" stroke-width="2"/><circle cx="189" cy="160" r="2.5" fill="#d9291c"/>
+          <line x1="122" y1="156" x2="396" y2="156" stroke="#b9261c" stroke-width="3"/>
+          <g fill="#b9261c"><rect x="252" y="156" width="6" height="10"/><rect x="246" y="166" width="18" height="4" rx="2"/><rect x="332" y="156" width="6" height="10"/><rect x="326" y="166" width="18" height="4" rx="2"/></g>
+          <!-- Feuerlöscher und Handmelder -->
+          <rect x="150" y="214" width="12" height="30" rx="4" fill="#d9291c"/><rect x="153" y="208" width="6" height="8" fill="#7d8791"/>
+          <rect x="296" y="196" width="18" height="18" rx="3" fill="#d9291c"/><circle cx="305" cy="205" r="4" fill="#fff"/>
+          <!-- Tür zum Klassenzimmer, Tafel oben -->
+          <rect x="216" y="196" width="34" height="66" fill="#d8c7a4" stroke="#8a97a3" stroke-width="2"/><circle cx="244" cy="230" r="2.5" fill="#6b5a3c"/>
+          <rect x="150" y="70" width="110" height="46" fill="#2f5d4e" stroke="#6b5a3c" stroke-width="3"/>
+          <g fill="#c9d6df" stroke="#8a97a3" stroke-width="2"><rect x="290" y="62" width="40" height="46"/><rect x="340" y="62" width="40" height="46"/></g>
+          <!-- Sammelplatz draußen -->
+          <line x1="438" y1="262" x2="438" y2="206" stroke="#7d8791" stroke-width="4"/>
+          <rect x="418" y="176" width="40" height="34" rx="4" fill="#0a8f4d"/><g fill="#fff"><circle cx="431" cy="189" r="3.5"/><circle cx="445" cy="189" r="3.5"/><rect x="426" y="194" width="24" height="9" rx="3"/></g>
+        </svg>
+      </div>
+      <div class="sim-ctrl"><span class="hs-count chip" id="hausZahl">0 von 7 entdeckt</span><span class="hint" style="margin:0">Tippe auf die Zahlen im Bild.</span></div>
+    </div>
+    <div class="card reveal hs-info" id="hausInfo">
+      <div class="big">🏫</div><h3 style="margin:.3em 0 .2em">Brandschutz in der Schule</h3>
+      <p class="lead" style="margin:0">In diesem Schulhaus stecken sieben Dinge, die bei einem Brand schützen. Findest du alle?</p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag">Animation</span>
+      <h3 style="margin-top:4px">So löscht eine Sprinkleranlage</h3>
+      <p>An der Decke sitzen Sprühköpfe. Sie hängen an einem Rohr, das immer mit Wasser gefüllt ist. Ein kleines <strong>Glasröhrchen</strong> hält jeden Sprühkopf verschlossen.</p>
+      <p class="hint">Starte die Animation oder gehe Schritt für Schritt. Achte auf das rote Glasröhrchen.</p>
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li>Brandschutz soll Brände verhindern – oder wenigstens dafür sorgen, dass sie sich nicht schnell ausbreiten.</li>
+        <li>Dazu gehören schwer entflammbare Baustoffe, Brandschutztüren, Feuerlöscher und Sprinkleranlagen.</li>
+        <li>Rauchmelder warnen vor giftigem Rauch, bevor Menschen ihn bemerken.</li>
+      </ul></div>
+    </div>
+    <div class="sim reveal" id="sprinklerSim">
+      <svg viewBox="0 0 480 280" role="img" aria-label="Raum mit Sprinkler an der Decke und einem brennenden Papierkorb am Boden">
+        <rect width="480" height="280" fill="#f7fbfe"/>
+        <rect x="0" y="0" width="480" height="26" fill="#cfd8df"/>
+        <rect x="0" y="244" width="480" height="36" fill="#d9c9a8"/>
+        <rect x="0" y="10" width="480" height="8" fill="#b9261c"/>
+        <text x="16" y="52" font-size="12" font-weight="700" fill="#566674">Rohr mit Wasser</text>
+        <!-- Sprühkopf -->
+        <rect x="234" y="18" width="12" height="16" fill="#b9261c"/>
+        <rect id="spGlas" x="237" y="34" width="6" height="14" rx="2" fill="#e0453a"/>
+        <g id="spScherben" opacity="0" stroke="#e0453a" stroke-width="2" stroke-linecap="round"><line x1="232" y1="42" x2="226" y2="50"/><line x1="248" y1="42" x2="254" y2="52"/><line x1="240" y1="50" x2="240" y2="58"/></g>
+        <path d="M228 50h24l-4 5h-16z" fill="#8a97a3"/>
+        <!-- Thermometer -->
+        <rect x="372" y="34" width="92" height="40" rx="8" fill="#fff" stroke="#d8e2ea"/>
+        <text x="418" y="50" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">unter der Decke</text>
+        <text id="spTemp" x="418" y="67" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">21 °C</text>
+        <!-- Rauch und Hitze -->
+        <g id="spRauch" opacity="0" fill="#9aa5ad"><ellipse cx="200" cy="40" rx="60" ry="10"/><ellipse cx="290" cy="38" rx="70" ry="9"/></g>
+        <g id="spHitze" opacity="0" stroke="#e0453a" stroke-width="3" fill="none" stroke-linecap="round"><path d="M214 190q-10-20 0-40t0-40"/><path d="M240 180q-10-20 0-40t0-40"/><path d="M266 190q-10-20 0-40t0-40"/></g>
+        <!-- Wasser -->
+        <g id="spWasser" opacity="0" stroke="#2f8fdb" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="3 9">
+          <line x1="240" y1="56" x2="170" y2="226"/><line x1="240" y1="56" x2="200" y2="232"/><line x1="240" y1="56" x2="232" y2="236"/><line x1="240" y1="56" x2="262" y2="234"/><line x1="240" y1="56" x2="292" y2="230"/><line x1="240" y1="56" x2="318" y2="224"/>
+        </g>
+        <!-- Papierkorb mit Feuer -->
+        <path d="M214 244l6-34h40l6 34z" fill="#7d8791"/>
+        <g id="spFeuer" opacity="0" transform="translate(240 206)"><use href="#zFlamme" transform="scale(2.2)" fill="#f2992e"/><use href="#zFlamme" transform="translate(0 6) scale(1.2)" fill="#ffd34d"/></g>
+        <text id="spText" x="240" y="270" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b"></text>
+      </svg>
+    </div>
+  </div>
+  <div class="card reveal"><div id="mc-s2"></div></div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>Richtig handeln, wenn es brennt</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Bei Feueralarm gilt: <strong>erst die Menschen, dann die Sachen.</strong> Löschen ist Aufgabe der Feuerwehr – deine Aufgabe ist, sicher hinauszukommen.</p>
+      <ol class="schritt-liste">
+        <li><strong>Ruhe bewahren</strong> und andere warnen. Den Alarm auslösen.</li>
+        <li><strong>Raum sofort verlassen.</strong> Jacke, Handy und Schultasche bleiben liegen.</li>
+        <li><strong>Fenster und Türen schließen</strong> (nicht absperren). So bekommt das Feuer weniger Luft, und der Rauch bleibt im Raum.</li>
+        <li>Den gekennzeichneten <button class="term" data-t="fluchtweg">Fluchtweg</button> nehmen – <strong>nie den Aufzug</strong>. Fällt der Strom aus, sitzt du darin fest.</li>
+        <li>Im Rauch <strong>gebückt gehen</strong>, ein Tuch vor Mund und Nase halten.</li>
+        <li>Am <button class="term" data-t="sammelplatz">Sammelplatz</button> bleiben, bis die Lehrkraft durchgezählt hat.</li>
+      </ol>
+    </div>
+    <div class="sim reveal">
+      <svg viewBox="0 0 480 260" role="img" aria-label="Ein Raum füllt sich von der Decke her mit Rauch. Eine Person steht, eine geht gebückt.">
+        <rect width="480" height="260" fill="#f7fbfe"/>
+        <rect x="20" y="24" width="440" height="212" fill="#fffdf7" stroke="#8a97a3" stroke-width="3"/>
+        <rect x="20" y="236" width="440" height="10" fill="#d9c9a8"/>
+        <rect id="rauchSchicht" x="22" y="26" width="436" height="0" fill="#6f7a83" opacity=".82"/>
+        <!-- stehende Person -->
+        <g stroke="#15212b" stroke-width="6" stroke-linecap="round" fill="none"><circle cx="150" cy="112" r="12" fill="#f2c9a0" stroke-width="3"/><path d="M150 126v54M150 140l-18 22M150 140l18 22M150 180l-14 52M150 180l14 52"/></g>
+        <text x="150" y="254" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">aufrecht</text>
+        <!-- gebückte Person -->
+        <g stroke="#15212b" stroke-width="6" stroke-linecap="round" fill="none"><circle cx="356" cy="192" r="12" fill="#f2c9a0" stroke-width="3"/><path d="M344 198l-34 8M310 206l-20 26M310 206l8 26M338 200l10 28"/></g>
+        <text x="330" y="254" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">gebückt</text>
+        <!-- Brandherd -->
+        <g transform="translate(60 222)"><use href="#zFlamme" transform="scale(1.4)" fill="#f2992e"/></g>
+      </svg>
+      <div class="sim-ctrl"><label for="rauchZeit">Zeit seit Brandbeginn</label><input type="range" id="rauchZeit" min="0" max="100" value="0"><span class="chip" id="rauchChip">0 Minuten</span></div>
+      <p class="obs" id="rauchObs">Schiebe den Regler. Beobachte, wo sich der Rauch sammelt.</p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag mittel">Notruf-Trainer · mittel</span>
+      <h3 style="margin-top:4px">Du rufst die Feuerwehr</h3>
+      <p>Die Nummer <button class="term" data-t="notruf">112</button> gilt in ganz Europa. Sie kostet nichts und funktioniert auch ohne Guthaben. Am anderen Ende sitzt ein Mensch in der Leitstelle, der dir Fragen stellt. Wähle jeweils die beste Antwort.</p>
+      <div class="anruf" id="anruf">
+        <div class="anruf-kopf">📞 <span id="anrufTitel">Notruf</span></div>
+        <div class="anruf-verlauf" id="anrufVerlauf"></div>
+        <div class="anruf-wahl" id="anrufWahl"></div>
+      </div>
+      <div class="fb" id="anrufFb"></div>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag probe">Reihenfolge · leicht</span>
+      <h3 style="margin-top:4px">So läuft ein Notruf ab</h3>
+      <p class="hint">Bringe die fünf Schritte in die richtige Reihenfolge.</p>
+      <div id="orderNotruf"></div>
+      <div id="mc-s3" style="margin-top:14px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Probenstoff</div><h2>Drei Wege, ein Feuer zu löschen</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Du kennst das <button class="term" data-t="feuerdreieck">Feuerdreieck</button>: Ein Feuer braucht <strong>Brennstoff</strong>, <strong>Sauerstoff</strong> und die <strong>Zündtemperatur</strong>. Fehlt nur eines davon, geht es aus.</p>
+      <p>Genau das nutzt man beim Löschen. Wer löscht, nimmt dem Feuer <strong>eine Seite des Dreiecks</strong> weg.</p>
+      <p class="hint">Probiere die Löschmethoden aus. Welche Seite verschwindet jeweils? Finde zu jeder der drei Seiten mindestens eine Methode.</p>
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li><strong>Abkühlen:</strong> Der brennende Stoff wird kälter als seine Zündtemperatur.</li>
+        <li><strong>Ersticken:</strong> Es kommt keine Luft und damit kein Sauerstoff mehr an den Brand.</li>
+        <li><strong>Brennstoff wegnehmen:</strong> Das Feuer findet nichts mehr, das brennen kann.</li>
+      </ul></div>
+    </div>
+    <div class="sim reveal">
+      <svg viewBox="0 0 400 300" role="img" aria-label="Feuerdreieck mit den Seiten Brennstoff, Sauerstoff und Zündtemperatur, in der Mitte eine Flamme">
+        <rect width="400" height="300" fill="#f7fbfe"/>
+        <g id="dSeiteB"><line x1="200" y1="36" x2="60" y2="252" stroke="#8a5a2b" stroke-width="28" stroke-linecap="round"/><text transform="translate(130 144) rotate(-57)" text-anchor="middle" dy="5" font-size="15" font-weight="800" fill="#fff">Brennstoff</text></g>
+        <g id="dSeiteS"><line x1="200" y1="36" x2="340" y2="252" stroke="#2f6fdb" stroke-width="28" stroke-linecap="round"/><text transform="translate(270 144) rotate(57)" text-anchor="middle" dy="5" font-size="15" font-weight="800" fill="#fff">Sauerstoff</text></g>
+        <g id="dSeiteZ"><line x1="60" y1="252" x2="340" y2="252" stroke="#e0453a" stroke-width="28" stroke-linecap="round"/><text x="200" y="257" text-anchor="middle" font-size="15" font-weight="800" fill="#fff">Zündtemperatur</text></g>
+        <g id="dFlamme" style="transform-origin:200px 190px"><use href="#zFlamme" transform="translate(200 172) scale(3.1)" fill="#f2992e"/><use href="#zFlamme" transform="translate(200 184) scale(1.7)" fill="#ffd34d"/></g>
+        <text id="dText" x="200" y="292" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b">Das Feuer brennt – alle drei Seiten sind da.</text>
+      </svg>
+      <div class="dreieck-wahl" id="dreieckWahl"></div>
+      <p class="obs" id="dreieckObs">Wähle eine Löschmethode.</p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="sim reveal">
+      <svg viewBox="0 0 480 240" id="waldSvg" role="img" aria-label="Modell eines Waldes aus vielen Bäumen. Ein Feuer breitet sich von links nach rechts aus."><rect width="480" height="240" fill="#eef5e6"/><g id="waldBaeume"></g></svg>
+      <div class="sim-ctrl"><button class="btn small" id="waldOhne" type="button">🔥 Ohne Schneise anzünden</button><button class="btn small teal" id="waldMit" type="button">🪓 Mit Schneise anzünden</button><span class="chip" id="waldChip">60 Bäume</span></div>
+      <p class="obs" id="waldObs">Starte beide Versuche und vergleiche, wie viele Bäume verbrennen.</p>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag">Modellversuch</span>
+      <h3 style="margin-top:4px">Der Wald aus Streichhölzern</h3>
+      <p>Im Sandkasten stecken viele Streichhölzer dicht nebeneinander – ein Modell für einen Wald. Zündet man eines an, springt die Flamme von Holz zu Holz.</p>
+      <p>Bei Waldbränden schlägt die Feuerwehr deshalb eine <button class="term" data-t="schneise">Brandschneise</button>: Sie fällt einen Streifen Bäume und räumt ihn frei. Dort findet das Feuer <strong>keinen Brennstoff</strong> mehr.</p>
+      <span class="task-tag probe" style="margin-top:8px">Zuordnen · mittel</span>
+      <h3 style="margin-top:4px">Welche Seite des Dreiecks fehlt?</h3>
+      <div id="sortLoeschen"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Probenstoff</div><h2>Achtung, Fettbrand – Wasser ist nicht immer richtig</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Öl in der Pfanne, das Handy klingelt, niemand passt auf. Über etwa 300 °C fängt das Fett <strong>von selbst</strong> an zu brennen. Der erste Gedanke: schnell Wasser drauf!</p>
+      <p>Genau das ist der gefährlichste Fehler in der Küche. Sieh dir an, was dann passiert – und was richtig ist.</p>
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li>Brennendes Fett <strong>niemals mit Wasser</strong> löschen – es entsteht eine <button class="term" data-t="fettexplosion">Fettexplosion</button>.</li>
+        <li>Richtig: Herd ausschalten und einen <strong>Deckel</strong> auf die Pfanne legen. Das Feuer erstickt.</li>
+      </ul></div>
+    </div>
+    <div class="sim reveal" id="fettSim">
+      <svg viewBox="0 0 480 300" role="img" aria-label="Pfanne mit brennendem Fett auf dem Herd">
+        <rect width="480" height="300" fill="#f7fbfe"/>
+        <rect x="0" y="236" width="480" height="64" fill="#cfd8df"/>
+        <rect x="150" y="226" width="180" height="12" rx="4" fill="#15212b"/>
+        <!-- Pfanne -->
+        <path d="M170 196h140l-12 30H182z" fill="#3a444d"/><rect x="306" y="198" width="92" height="9" rx="4" fill="#3a444d"/>
+        <rect x="178" y="200" width="124" height="8" fill="#e9c15a"/>
+        <g id="fbWasser" opacity="0"><path d="M120 70q40 30 100 118" stroke="#2f8fdb" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray="4 12"/><rect x="84" y="46" width="44" height="30" rx="6" fill="#bfe1f7" stroke="#2f8fdb" stroke-width="2" transform="rotate(-24 106 61)"/><rect x="186" y="208" width="108" height="6" fill="#2f8fdb"/></g>
+        <g id="fbDampf" opacity="0" fill="#dfe7ee"><circle cx="210" cy="176" r="22"/><circle cx="246" cy="164" r="28"/><circle cx="278" cy="178" r="20"/></g>
+        <g id="fbBall" opacity="0" style="transform-origin:240px 196px"><ellipse cx="240" cy="110" rx="92" ry="100" fill="#f2992e"/><ellipse cx="240" cy="120" rx="58" ry="74" fill="#ffd34d"/><g fill="#e0453a"><circle cx="150" cy="60" r="5"/><circle cx="330" cy="50" r="6"/><circle cx="196" cy="22" r="4"/><circle cx="292" cy="18" r="5"/></g></g>
+        <g id="fbFlamme" transform="translate(240 186)"><use href="#zFlamme" transform="scale(2.4)" fill="#f2992e"/><use href="#zFlamme" transform="translate(0 6) scale(1.3)" fill="#ffd34d"/></g>
+        <g id="fbDeckel" opacity="0" style="transform:translateY(-70px)"><path d="M164 196q76-26 152 0z" fill="#8a97a3" stroke="#566674" stroke-width="2"/><rect x="232" y="174" width="16" height="8" rx="3" fill="#566674"/></g>
+        <text id="fbText" x="240" y="284" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b"></text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="card reveal">
+    <h3 style="margin-top:0">Was brennt? Danach richtet sich das Löschmittel</h3>
+    <div class="info-karten">
+      <div class="info-karte"><div class="big">🗑️</div><h4>Papier, Holz, Stoff</h4><p>Wasser kühlt den Brand unter die Zündtemperatur. Auch der Feuerlöscher hilft.</p></div>
+      <div class="info-karte"><div class="big">🍳</div><h4>Fett und Öl</h4><p>Kein Wasser! Deckel drauf, Herd aus. Die Flamme erstickt.</p></div>
+      <div class="info-karte"><div class="big">🔌</div><h4>Elektrogeräte</h4><p>Kein Wasser – es leitet den Strom, ein Stromschlag droht. Stecker ziehen. Die Feuerwehr nimmt einen <button class="term" data-t="co2">Kohlenstoffdioxid-Löscher</button>.</p></div>
+      <div class="info-karte"><div class="big">⛽</div><h4>Benzin und Öl</h4><p>Benzin schwimmt auf Wasser und brennt dort weiter. Wasser verteilt den Brand nur. Die Feuerwehr deckt ihn mit <button class="term" data-t="schaum">Löschschaum</button> ab.</p></div>
+    </div>
+    <div id="mc-s5"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Brandklassen: Was steht auf dem Feuerlöscher?</h3>
+    <p class="m7-hinweis">Aufgaben mit dem lila Zeichen gehören zum M-Niveau. In M-Klassen zählen sie mit, in R-Klassen sind sie eine Zusatzaufgabe für Profis.</p>
+    <p>Auf jedem Feuerlöscher stehen Buchstaben. Sie sagen, für welche Brände er taugt: <strong>A</strong> = feste Stoffe, die Glut bilden · <strong>B</strong> = flüssige Stoffe · <strong>C</strong> = Gase · <strong>F</strong> = Speisefette und Speiseöle.</p>
+    <div id="sortKlassen"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="s6">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Probenstoff · so wird in der Probe gefragt</div><h2>Training für die Probe</h2></div></div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Lückentext · leicht</span>
+    <h3 style="margin-top:4px">Setze die fehlenden Wörter ein</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapBrand"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Paare finden · leicht</span>
+    <h3 style="margin-top:4px">Welche Einrichtung hat welche Aufgabe?</h3>
+    <p class="hint">Tippe links auf eine Einrichtung und dann rechts auf ihre Aufgabe.</p>
+    <div id="paareSchutz"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Richtig oder falsch? · mittel</span>
+    <div id="tf"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Kreuzworträtsel · mittel</span>
+    <h3 style="margin-top:4px">Rund um Brandschutz und Löschen</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Schreibe ä als AE, ö als OE, ü als UE.</p>
+    <div id="cw"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Ankreuzen · mittel</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Offene Fragen · schwer</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung. Danach kannst du die Musterlösung ansehen.</p>
+    <div id="open"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Begründe und übertrage <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="openM"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 7 ============ -->
+<section class="station" id="s7">
+  <div class="st-head reveal"><div class="st-num">7</div><div><div class="eyebrow">Abschluss</div><h2>Brandschutz-Profi-Check</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Feuer ist eine schnelle Reaktion mit Sauerstoff. Im nächsten Modul geht es um die langsame: <strong>Oxidation</strong> – warum Eisen rostet und ein angeschnittener Apfel braun wird.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik 7 · Lernmodul „Brände verhindern und löschen“ · Dein Fortschritt wird auf diesem Gerät gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="modul-basis.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, esc, shuffle, clamp, setText, reduced, register, solve} = Modul;
+const NS = "http://www.w3.org/2000/svg";
+
+Modul.init({
+  key: "grumi-nt7-brand-schutz-v1",
+  hero: "funken",
+  thema: "Brandschutz und Brandbekämpfung: Brandschutzeinrichtungen, Verhalten im Brandfall, Notruf 112, Löschmethoden nach dem Feuerdreieck, Fettbrand",
+  glossary: {
+    brandschutz: ["Brandschutz", "Alles, was Brände verhindert, früh meldet oder ihre Ausbreitung bremst: Baustoffe, Türen, Melder, Löschgeräte und Regeln."],
+    schwer: ["schwer entflammbar", "Ein Stoff, der nur schlecht Feuer fängt und nicht von selbst weiterbrennt. Solche Baustoffe bremsen einen Brand."],
+    tuer: ["Brandschutztür", "Besonders stabile Tür, die von selbst zufällt. Sie hält Feuer und Rauch für längere Zeit auf."],
+    rauchmelder: ["Rauchmelder", "Kleines Gerät an der Decke. Es piept sehr laut, sobald Rauch hineinzieht – auch nachts, wenn alle schlafen."],
+    sprinkler: ["Sprinkleranlage", "Löschanlage an der Decke. Wird es über einem Brand zu heiß, öffnet sich der Sprühkopf und sprüht Wasser."],
+    loescher: ["Feuerlöscher", "Tragbares Löschgerät für kleine Brände. Je nach Füllung löscht er mit Wasser, Schaum, Pulver oder Kohlenstoffdioxid."],
+    loeschdecke: ["Löschdecke", "Decke aus nicht brennbarem Gewebe. Über einen kleinen Brand gelegt, hält sie die Luft fern – die Flamme erstickt."],
+    fluchtweg: ["Fluchtweg (Rettungsweg)", "Der kürzeste sichere Weg ins Freie. Grüne Schilder mit Pfeil zeigen ihn an."],
+    sammelplatz: ["Sammelplatz", "Fester Ort im Freien, an dem sich alle nach dem Alarm treffen. Dort wird geprüft, ob jemand fehlt."],
+    notruf: ["Notruf 112", "Nummer für Feuerwehr und Rettungsdienst in ganz Europa. Kostenlos, auch ohne Guthaben."],
+    feuerdreieck: ["Feuerdreieck", "Ein Feuer braucht drei Dinge zugleich: Brennstoff, Sauerstoff und die Zündtemperatur."],
+    zuendtemperatur: ["Zündtemperatur", "Temperatur, auf die ein Stoff mindestens erhitzt werden muss, damit er zu brennen beginnt."],
+    ersticken: ["ersticken (ein Feuer)", "Dem Feuer die Luft nehmen. Ohne Sauerstoff geht die Flamme aus."],
+    schneise: ["Brandschneise", "Freigeräumter Streifen im Wald. Das Feuer findet dort keinen Brennstoff und kann nicht weiterlaufen."],
+    fettexplosion: ["Fettexplosion", "Wasser in brennendem Fett verdampft schlagartig und schleudert brennendes Fett als Stichflamme nach oben."],
+    schaum: ["Löschschaum", "Schaum legt sich wie eine Decke auf brennende Flüssigkeiten und hält den Sauerstoff fern."],
+    co2: ["Kohlenstoffdioxid-Löscher", "Löscher mit dem Gas Kohlenstoffdioxid (CO₂). Es verdrängt die Luft, leitet keinen Strom und hinterlässt keine Rückstände."],
+    brandklasse: ["Brandklasse", "Buchstabe auf dem Feuerlöscher: A feste Stoffe, B Flüssigkeiten, C Gase, F Speisefette."]
+  }
+});
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Der Papierkorb im Flur brennt. Was tust du zuerst?", o: ["Andere warnen und den Alarm auslösen", "Wasser holen und allein löschen", "Die Fenster aufreißen, damit der Rauch abzieht", "Ein Foto für die Klasse machen"], a: 0, e: "Erst warnen und Hilfe holen. Offene Fenster geben dem Feuer nur noch mehr Luft."}
+  ],
+  s2: [
+    {q: "Welche Aufgabe hat eine Brandschutztür?", o: ["Sie hält Feuer und Rauch auf.", "Sie löst den Alarm aus.", "Sie sprüht Wasser auf den Brand.", "Sie zeigt den Fluchtweg."], a: 0, e: "Brandschutztüren fallen von selbst zu und trennen den Brand vom Rest des Gebäudes."},
+    {q: "Was bringt einen Sprühkopf der Sprinkleranlage zum Öffnen?", o: ["die Hitze unter der Decke", "der Hausmeister mit einem Schalter", "lauter Feueralarm", "das Licht der Flammen"], a: 0, e: "Das Glasröhrchen platzt bei etwa 68 °C. Dann ist der Weg für das Wasser frei."},
+    {q: "Warum sind Rauchmelder so wichtig?", o: ["Sie warnen vor giftigem Rauch, bevor man ihn bemerkt.", "Sie löschen das Feuer.", "Sie rufen automatisch die Eltern an.", "Sie machen den Rauch ungiftig."], a: 0, e: "Viele Brände entstehen nachts. Im Schlaf riecht man Rauch nicht – der Melder weckt alle."}
+  ],
+  s3: [
+    {q: "Warum geht man in einem verrauchten Flur gebückt?", o: ["Rauch steigt nach oben – am Boden ist die Luft besser.", "Damit man nicht gesehen wird.", "Weil es am Boden wärmer ist.", "Damit man schneller laufen kann."], a: 0, e: "Heißer Rauch sammelt sich zuerst unter der Decke. Unten bleibt am längsten Atemluft."},
+    {q: "Warum benutzt man bei Feuer keinen Aufzug?", o: ["Er kann stecken bleiben und sich mit Rauch füllen.", "Er ist zu langsam.", "Er ist für Lehrkräfte reserviert.", "Er macht zu viel Lärm."], a: 0, e: "Fällt der Strom aus, sitzt man im Aufzug fest – und der Schacht wirkt wie ein Kamin für den Rauch."}
+  ],
+  s5: [
+    {q: "Öl in der Pfanne brennt. Was ist richtig?", o: ["Herd ausschalten und einen Deckel auf die Pfanne legen", "Wasser hineingießen", "Die Pfanne ans offene Fenster tragen", "Kräftig hineinpusten"], a: 0, e: "Der Deckel hält den Sauerstoff fern, die Flamme erstickt. Wasser führt zur Fettexplosion."},
+    {q: "Warum löscht man einen brennenden Fernseher nicht mit Wasser?", o: ["Wasser leitet Strom – es droht ein Stromschlag.", "Wasser brennt selbst.", "Wasser ist zu kalt.", "Der Fernseher schwimmt dann weg."], a: 0, e: "Erst den Stecker ziehen. Elektrobrände löscht man mit Löschmitteln, die keinen Strom leiten."},
+    {q: "Was passiert, wenn man Wasser auf brennendes Benzin gießt?", o: ["Das Benzin schwimmt oben, brennt weiter und verteilt sich.", "Das Benzin geht sofort aus.", "Das Benzin wird fest.", "Das Wasser fängt an zu brennen."], a: 0, e: "Benzin ist leichter als Wasser. Schaum deckt die Flüssigkeit ab und hält die Luft fern."}
+  ],
+  train: [
+    {q: "Welche Löschmethode nutzt die Feuerwehr, wenn sie einen Streifen Wald fällt?", o: ["Brennstoff wegnehmen", "abkühlen", "ersticken", "gar keine"], a: 0, e: "In der Schneise findet das Feuer keinen Brennstoff mehr."},
+    {q: "Welche Dinge gehören zum Brandschutz in einem Gebäude?", o: ["Rauchmelder", "Brandschutztüren", "Sprinkleranlage", "Vorhänge aus Papier", "offene Kerzen im Flur"], a: [0, 1, 2], e: "Papier und offene Flammen erhöhen die Brandgefahr – sie sind das Gegenteil von Brandschutz."},
+    {q: "Was sagst du beim Notruf, wenn nach dem Ort gefragt wird?", o: ["Straße, Gebäude und Stockwerk – so genau wie möglich", "nur den Namen der Stadt", "nichts, die finden mich schon", "meine Lieblingsfarbe"], a: 0, e: "Je genauer der Ort, desto schneller ist Hilfe da."},
+    {q: "Wasser löscht ein Lagerfeuer vor allem, weil es …", o: ["das Holz unter die Zündtemperatur abkühlt.", "den Brennstoff wegträgt.", "das Holz schwerer macht.", "die Luft wärmer macht."], a: 0, e: "Wasser nimmt dem Brand die Wärme. Außerdem hält der Wasserdampf etwas Luft fern."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Was würdest du tun?"});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s5"), MC.s5, "mc5", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Station 1: Schilder-Quiz ---------- */
+(function(){
+  const ZEICHEN = [
+    {s: "zFlucht", a: "Fluchtweg – hier geht es ins Freie", f: ["Hier ist der Aufzug", "Sporthalle"]},
+    {s: "zLoescher", a: "Hier hängt ein Feuerlöscher", f: ["Hier darf man grillen", "Getränkeautomat"]},
+    {s: "zRauchen", a: "Rauchen verboten", f: ["Raucherbereich", "Kerzen erlaubt"]},
+    {s: "zBrennbar", a: "Warnung: Der Stoff fängt leicht Feuer", f: ["Hier ist ein Lagerfeuerplatz", "Heizung"]},
+    {s: "zSchlauch", a: "Hier ist ein Löschschlauch", f: ["Gartenschlauch zum Blumengießen", "Wasserspender"]},
+    {s: "zFlammeVerbot", a: "Keine offene Flamme – Feuer verboten", f: ["Streichhölzer zu verkaufen", "Hier wird geheizt"]},
+    {s: "zMelder", a: "Brandmelder – hier löst man den Alarm aus", f: ["Lichtschalter", "Klingel für die Pause"]},
+    {s: "zSammel", a: "Sammelplatz – hier treffen sich alle", f: ["Spielplatz", "Bushaltestelle"]}
+  ];
+  const use = $("#schildUse"), wahl = $("#schildWahl"), fb = $("#schildFb"), frage = $("#schildFrage");
+  const id = "zeichen"; register(id, "#schildWahl", "Schilder-Quiz: Sicherheitszeichen erkennen");
+  let reihe = shuffle(ZEICHEN), i = 0;
+  function zeig(){
+    if (i >= reihe.length) {
+      wahl.innerHTML = '<button type="button" class="sel">Noch einmal üben</button>'; frage.textContent = "Geschafft!";
+      fb.className = "fb show ok"; fb.textContent = "✅ Du kennst alle acht Zeichen.";
+      $("button", wahl).addEventListener("click", () => { reihe = shuffle(ZEICHEN); i = 0; fb.className = "fb"; zeig(); });
+      solve(id); return;
+    }
+    const z = reihe[i]; use.setAttribute("href", "#" + z.s);
+    frage.textContent = `Zeichen ${i + 1} von ${reihe.length}: Was bedeutet es?`;
+    wahl.innerHTML = shuffle([z.a].concat(z.f)).map(t => `<button type="button">${esc(t)}</button>`).join("");
+    $$("button", wahl).forEach(b => b.addEventListener("click", () => {
+      if (b.textContent === z.a) { fb.className = "fb show ok"; fb.textContent = "✅ Richtig: " + z.a + "."; i++; zeig(); }
+      else { b.disabled = true; fb.className = "fb show bad"; fb.textContent = "❌ Nicht ganz. Achte auf Farbe und Form des Zeichens."; }
+    }));
+  }
+  zeig();
+})();
+
+/* ---------- Station 2: Schulhaus erkunden ---------- */
+Modul.makeHotspots($("#hausBild"), $("#hausInfo"), $("#hausZahl"), [
+  {x: 14.5, y: 19, i: "🟩", t: "Fluchtweg-Schild", s: "Grüne Schilder zeigen den kürzesten Weg ins Freie. Sie leuchten auch bei Stromausfall."},
+  {x: 24, y: 70, i: "🚪", t: "Brandschutztür", s: "Sie fällt von selbst zu und hält Feuer und Rauch lange auf. Deshalb darf man sie nie mit einem Keil offen halten."},
+  {x: 39.5, y: 58, i: "🔔", t: "Rauchmelder", s: "Er hängt an der Decke, weil Rauch nach oben steigt. Sobald Rauch hineinzieht, piept er sehr laut."},
+  {x: 70, y: 52, i: "🚿", t: "Sprinkler", s: "Die Sprühköpfe hängen an einem Rohr voller Wasser. Wird es darunter zu heiß, öffnen sie sich von selbst."},
+  {x: 32.5, y: 84, i: "🧯", t: "Feuerlöscher", s: "Für kleine Brände, die gerade erst entstehen. Benutzen darf ihn, wer es geübt hat – und nur, wenn der Fluchtweg frei bleibt."},
+  {x: 63.5, y: 72, i: "🆘", t: "Handmelder", s: "Scheibe eindrücken, Knopf drücken: Der Feueralarm geht im ganzen Haus los."},
+  {x: 91, y: 62, i: "👥", t: "Sammelplatz", s: "Hier treffen sich alle Klassen. Die Lehrkraft zählt durch – so merkt man sofort, wenn jemand fehlt."}
+], "haus");
+
+/* ---------- Station 2: Sprinkler in Schritten ---------- */
+(function(){
+  const feuer = $("#spFeuer"), hitze = $("#spHitze"), rauch = $("#spRauch"), glas = $("#spGlas"), scherben = $("#spScherben"), wasser = $("#spWasser"), temp = $("#spTemp"), text = $("#spText");
+  const T = ["21 °C", "32 °C", "55 °C", "68 °C", "45 °C", "24 °C"];
+  Modul.makeSchritte($("#sprinklerSim"), {
+    steps: [
+      "Alles ruhig. Das Rohr ist voll Wasser, das rote Glasröhrchen hält den Sprühkopf zu.",
+      "Im Papierkorb entsteht ein Feuer. Heiße Luft und Rauch steigen nach oben.",
+      "Unter der Decke staut sich die Hitze. Die Flüssigkeit im Glasröhrchen dehnt sich aus.",
+      "Bei etwa 68 °C platzt das Röhrchen. Der Sprühkopf ist offen.",
+      "Wasser sprüht genau auf den Brand und kühlt ihn ab. Nur dieser eine Sprühkopf hat sich geöffnet.",
+      "Das Feuer ist aus. Meist ruft die Anlage zugleich die Feuerwehr."
+    ],
+    zeige(i){
+      const k = Math.max(0, i);
+      feuer.style.opacity = k >= 1 && k <= 4 ? 1 : 0;
+      feuer.setAttribute("transform", `translate(240 206) scale(${k === 4 ? .5 : k >= 2 ? 1.25 : 1})`);
+      hitze.style.opacity = k >= 1 && k <= 3 ? 1 : 0;
+      rauch.style.opacity = k >= 2 && k <= 4 ? .8 : 0;
+      glas.style.opacity = k >= 3 ? 0 : 1; scherben.style.opacity = k === 3 ? 1 : 0;
+      wasser.style.opacity = k === 4 ? 1 : 0;
+      setText(temp, T[k]); temp.setAttribute("fill", k >= 2 && k <= 3 ? "#c93b3b" : "#15212b");
+      setText(text, ["Sprühkopf geschlossen", "Feuer entsteht", "Hitze staut sich", "Glasröhrchen platzt", "Wasser kühlt den Brand", "Feuer gelöscht"][k]);
+    }
+  }, "sprinkler");
+})();
+
+/* ---------- Station 3: Rauch im Raum ---------- */
+(function(){
+  const r = $("#rauchZeit"), schicht = $("#rauchSchicht"), chip = $("#rauchChip"), obs = $("#rauchObs");
+  const id = "rauch"; register(id, "#rauchZeit", "Animation: Rauch füllt den Raum von oben");
+  function zeig(){
+    const t = +r.value, h = t * 1.78;
+    schicht.setAttribute("height", h.toFixed(0));
+    setText(chip, (t / 20).toFixed(0) + (t < 30 ? " Minuten" : " Minuten"));
+    chip.className = "chip" + (t > 85 ? " bad" : t > 40 ? " warn" : "");
+    setText(obs, t < 12 ? "Der Rauch steigt nach oben und sammelt sich unter der Decke." :
+      t <= 40 ? "Die Rauchschicht wird dicker und sinkt langsam tiefer. Noch ist auf Kopfhöhe Luft." :
+      t <= 85 ? "Wer aufrecht steht, atmet jetzt giftigen Rauch ein. Gebückt bekommt man noch Luft." :
+      "Jetzt reicht der Rauch fast bis zum Boden. Höchste Zeit, draußen zu sein!");
+    if (t > 85) solve(id);
+  }
+  r.addEventListener("input", zeig); zeig();
+})();
+
+/* ---------- Station 3: Notruf-Trainer ---------- */
+(function(){
+  const verlauf = $("#anrufVerlauf"), wahl = $("#anrufWahl"), fb = $("#anrufFb"), titel = $("#anrufTitel");
+  const id = "notruf"; register(id, "#anruf", "Notruf-Trainer: die Feuerwehr rufen");
+  const S = [
+    {l: "Du greifst zum Telefon. Welche Nummer wählst du?", a: "112", f: [["115", "Das ist die Nummer der Behörden – dort hilft dir bei einem Brand niemand."], ["116 117", "Das ist der ärztliche Bereitschaftsdienst, nicht die Feuerwehr."]], ich: "Ich wähle 112."},
+    {l: "Notruf Feuerwehr und Rettungsdienst. Wer ruft an?", a: "Mein Name ist … Ich bin Schüler an der Mittelschule.", f: [["Hallo? Hören Sie mich?", "Bleib ruhig und antworte auf die Frage. Die Leitstelle muss wissen, mit wem sie spricht."], ["Kommen Sie schnell!", "Wohin denn? Ohne Namen und Ort kann niemand losfahren."]]},
+    {l: "Wo genau ist der Notfall?", a: "In der Mittelschule, Erdgeschoss, im Flur vor dem Werkraum.", f: [["In der Schule halt.", "Das ist zu ungenau. Nenne Gebäude, Stockwerk und Raum."], ["Bei uns.", "Die Leitstelle kann dich nicht sehen. Sag genau, wo es brennt."]]},
+    {l: "Was ist passiert?", a: "Ein Papierkorb brennt, es raucht stark. Alle verlassen das Gebäude. Verletzt ist niemand.", f: [["Es ist ganz schlimm!", "Das hilft nicht weiter. Beschreibe kurz: Was brennt? Sind Menschen in Gefahr?"], ["Keine Ahnung, ich lege jetzt auf.", "Niemals auflegen! Die Leitstelle beendet das Gespräch."]]},
+    {l: "Danke. Die Feuerwehr ist unterwegs. Bleib bitte kurz dran.", a: "Ich warte auf Ihre Fragen und lege erst auf, wenn Sie es sagen.", f: [["Tschüss!", "Zu früh. Vielleicht gibt es noch Rückfragen oder Anweisungen für dich."], ["Ich gehe mal schauen, ob es noch brennt.", "Auf keinen Fall zurück ins Gebäude! Bleib am Telefon und am Sammelplatz."]]}
+  ];
+  let i = 0;
+  function blase(t, wer){ const b = document.createElement("div"); b.className = "blase " + wer; b.textContent = t; verlauf.appendChild(b); verlauf.scrollTop = verlauf.scrollHeight; }
+  function frag(){
+    if (i >= S.length) {
+      wahl.innerHTML = '<button type="button">↺ Anruf noch einmal üben</button>';
+      $("button", wahl).addEventListener("click", () => { verlauf.innerHTML = ""; i = 0; fb.className = "fb"; frag(); });
+      titel.textContent = "Gespräch beendet"; fb.className = "fb show ok"; fb.textContent = "✅ Sehr gut! Mit diesen Angaben kann die Feuerwehr sofort losfahren.";
+      solve(id); return;
+    }
+    const s = S[i]; titel.textContent = i ? "Leitstelle – Schritt " + i + " von " + (S.length - 1) : "Notruf wählen";
+    blase(s.l, "leit");
+    wahl.innerHTML = shuffle([[s.a, ""]].concat(s.f)).map(o => `<button type="button" data-h="${esc(o[1])}">${esc(o[0])}</button>`).join("");
+    $$("button", wahl).forEach(b => b.addEventListener("click", () => {
+      if (!b.dataset.h) { blase(s.ich || s.a, "ich"); fb.className = "fb"; i++; frag(); }
+      else { b.classList.add("falsch"); b.disabled = true; fb.className = "fb show bad"; fb.textContent = "❌ " + b.dataset.h; }
+    }));
+  }
+  frag();
+})();
+
+Modul.makeOrder($("#orderNotruf"), [
+  "Die Nummer 112 wählen",
+  "Den eigenen Namen nennen",
+  "Sagen, wo es brennt",
+  "Kurz berichten, was passiert ist",
+  "Auf Rückfragen warten und die Hinweise befolgen"
+], "orderNotruf");
+
+/* ---------- Station 4: Feuerdreieck und Löschmethoden ---------- */
+(function(){
+  const M = [
+    {t: "💧 Wasser aufs Lagerfeuer", s: "Z", e: "Wasser kühlt das Holz ab. Es ist jetzt kälter als seine Zündtemperatur – abkühlen."},
+    {t: "🛡️ Löschdecke über den Papierkorb", s: "S", e: "Unter der Decke kommt keine Luft mehr an die Flamme. Ohne Sauerstoff erstickt das Feuer."},
+    {t: "🔧 Gashahn zudrehen", s: "B", e: "Es strömt kein Gas mehr nach. Ohne Brennstoff geht die Flamme sofort aus."},
+    {t: "🧯 Schaum auf brennendes Benzin", s: "S", e: "Der Schaum liegt wie ein Teppich auf der Flüssigkeit und hält den Sauerstoff fern – ersticken."},
+    {t: "🪓 Schneise in den Wald schlagen", s: "B", e: "Im freien Streifen stehen keine Bäume mehr. Dem Feuer fehlt der Brennstoff."}
+  ];
+  const seite = {B: $("#dSeiteB"), S: $("#dSeiteS"), Z: $("#dSeiteZ")}, flamme = $("#dFlamme"), text = $("#dText"), obs = $("#dreieckObs"), box = $("#dreieckWahl");
+  const NAME = {B: "Der Brennstoff fehlt", S: "Der Sauerstoff fehlt", Z: "Die Zündtemperatur ist unterschritten"};
+  const id = "dreieck"; register(id, "#dreieckWahl", "Feuerdreieck: zu jeder Seite eine Löschmethode finden");
+  const gefunden = new Set();
+  box.innerHTML = M.map((m, i) => `<button type="button" data-i="${i}">${m.t}</button>`).join("") + '<button type="button" data-i="-1">🔥 Feuer wieder an</button>';
+  $$("button", box).forEach(b => b.addEventListener("click", () => {
+    const i = +b.dataset.i;
+    Object.values(seite).forEach(g => { g.style.opacity = 1; });
+    if (i < 0) { flamme.style.transform = "scale(1)"; flamme.style.opacity = 1; setText(text, "Das Feuer brennt – alle drei Seiten sind da."); setText(obs, "Wähle eine Löschmethode."); return; }
+    const m = M[i]; seite[m.s].style.opacity = .15; flamme.style.transform = "scale(.05)"; flamme.style.opacity = 0;
+    setText(text, NAME[m.s] + " – das Feuer geht aus."); setText(obs, m.e);
+    b.classList.add("war"); gefunden.add(m.s);
+    if (gefunden.size === 3) { solve(id); setText(obs, m.e + " ✅ Du hast zu allen drei Seiten eine Löschmethode gefunden."); }
+  }));
+})();
+
+/* ---------- Station 4: Wald aus Streichhölzern ---------- */
+(function(){
+  const g = $("#waldBaeume"), chip = $("#waldChip"), obs = $("#waldObs");
+  const COLS = 12, ROWS = 5, id = "wald"; register(id, "#waldSvg", "Modellversuch: Waldbrand mit und ohne Schneise");
+  let B = [], timer = null; const lief = new Set();
+  function bau(schneise){
+    g.innerHTML = ""; B = [];
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+      const leer = schneise && (c === 6 || c === 7);
+      const x = 26 + c * 39, y = 34 + r * 42;
+      const el = document.createElementNS(NS, "g"); el.setAttribute("transform", `translate(${x} ${y})`);
+      el.innerHTML = leer ? '<rect x="-14" y="-22" width="28" height="44" fill="#d9c9a8" opacity=".7"/>' : '<rect x="-2" y="2" width="4" height="14" fill="#8a5a2b"/><circle r="11" cy="-4" fill="#3f9a52"/>';
+      g.appendChild(el); B.push({el, r, c, z: leer ? "leer" : "gruen", t: 0});
+    }
+    setText(chip, B.filter(b => b.z !== "leer").length + " Bäume");
+  }
+  function farbe(b){ const k = $("circle", b.el); if (k) k.setAttribute("fill", b.z === "brennt" ? "#f2992e" : b.z === "asche" ? "#5b6168" : "#3f9a52"); }
+  function start(schneise){
+    clearInterval(timer); bau(schneise);
+    B.filter(b => b.c === 0 && b.r === 2).forEach(b => { b.z = "brennt"; farbe(b); });
+    setText(obs, schneise ? "Das Feuer läuft auf die Schneise zu …" : "Das Feuer springt von Baum zu Baum …");
+    timer = setInterval(() => {
+      const brennend = B.filter(b => b.z === "brennt");
+      brennend.forEach(b => {
+        B.filter(n => n.z === "gruen" && Math.abs(n.r - b.r) + Math.abs(n.c - b.c) === 1).forEach(n => { n.neu = true; });
+        if (++b.t >= 2) b.z = "asche";
+      });
+      B.forEach(b => { if (b.neu) { b.neu = false; b.z = "brennt"; b.t = 0; } farbe(b); });
+      if (!B.some(b => b.z === "brennt")) {
+        clearInterval(timer);
+        const weg = B.filter(b => b.z === "asche").length, alle = B.filter(b => b.z !== "leer").length;
+        setText(chip, `${weg} von ${alle} verbrannt`);
+        setText(obs, schneise ? `Mit Schneise: Das Feuer findet im freien Streifen keinen Brennstoff. ${alle - weg} Bäume bleiben stehen.` : "Ohne Schneise: Der ganze Wald brennt ab.");
+        lief.add(schneise ? "mit" : "ohne");
+        if (lief.size === 2) solve(id);
+      }
+    }, reduced ? 60 : 260);
+  }
+  $("#waldOhne").addEventListener("click", () => start(false));
+  $("#waldMit").addEventListener("click", () => start(true));
+  bau(false);
+})();
+
+Modul.makeSort($("#sortLoeschen"), {
+  buckets: ["abkühlen", "ersticken", "Brennstoff wegnehmen"],
+  items: [
+    {t: "Wasser auf brennendes Holz", b: 0}, {t: "nasses Tuch auf die Glut", b: 0},
+    {t: "Deckel auf die Pfanne", b: 1}, {t: "Löschdecke überwerfen", b: 1}, {t: "Glas über die Kerze stülpen", b: 1}, {t: "Sand über das Feuer schaufeln", b: 1},
+    {t: "Gashahn zudrehen", b: 2}, {t: "Brandschneise schlagen", b: 2}, {t: "Holzstapel neben dem Feuer wegräumen", b: 2}
+  ], cols: 150
+}, "sortLoeschen");
+
+/* ---------- Station 5: Fettbrand in Schritten ---------- */
+(function(){
+  const flamme = $("#fbFlamme"), wasser = $("#fbWasser"), dampf = $("#fbDampf"), ball = $("#fbBall"), deckel = $("#fbDeckel"), text = $("#fbText");
+  Modul.makeSchritte($("#fettSim"), {
+    steps: [
+      "Das Fett in der Pfanne brennt. Es ist über 300 °C heiß.",
+      "<b>Falsch:</b> Jemand gießt Wasser hinein. Wasser ist schwerer als Fett und sinkt sofort nach unten.",
+      "Unter dem heißen Fett verdampft das Wasser schlagartig. Aus 1 Liter Wasser werden etwa 1700 Liter Wasserdampf.",
+      "Der Dampf reißt brennende Fetttröpfchen mit nach oben. Eine meterhohe Stichflamme entsteht: die Fettexplosion.",
+      "<b>Richtig:</b> Herd ausschalten und einen Deckel auf die Pfanne legen. Es kommt keine Luft mehr heran.",
+      "Ohne Sauerstoff erstickt die Flamme. Die Pfanne bleibt zugedeckt stehen, bis sie abgekühlt ist."
+    ],
+    ms: 3200,
+    zeige(i){
+      const k = Math.max(0, i);
+      flamme.style.opacity = k <= 1 || k === 4 ? 1 : 0;
+      flamme.setAttribute("transform", `translate(240 186) scale(${k === 4 ? .6 : 1})`);
+      wasser.style.opacity = k === 1 || k === 2 ? 1 : 0;
+      dampf.style.opacity = k === 2 ? 1 : 0;
+      ball.style.opacity = k === 3 ? 1 : 0; ball.style.transform = k === 3 ? "scale(1)" : "scale(.2)";
+      deckel.style.opacity = k >= 4 ? 1 : 0; deckel.style.transform = k >= 5 ? "translateY(0)" : k === 4 ? "translateY(-34px)" : "translateY(-70px)";
+      setText(text, ["Fett brennt", "Wasser sinkt unter das Fett", "Wasser verdampft schlagartig", "Fettexplosion!", "Deckel drauf, Herd aus", "Flamme erstickt"][k]);
+    }
+  }, "fettbrand");
+})();
+
+/* ---------- Station 5: Brandklassen (M7) ---------- */
+Modul.plus(() => {
+  Modul.makeSort($("#sortKlassen"), {
+    buckets: ["A · feste Stoffe", "B · Flüssigkeiten", "C · Gase", "F · Speisefette"],
+    items: [
+      {t: "Holzregal", b: 0}, {t: "Papierstapel", b: 0}, {t: "Benzin", b: 1}, {t: "Lack", b: 1},
+      {t: "Erdgas", b: 2}, {t: "Propan aus der Gasflasche", b: 2}, {t: "Frittieröl", b: 3}, {t: "Butterschmalz in der Pfanne", b: 3}
+    ], cols: 120
+  }, "sortKlassen");
+});
+
+/* ---------- Station 6: Training ---------- */
+Modul.makeGap($("#gapBrand"), [
+  ["Ein Feuer braucht Brennstoff, ", {g: "Sauerstoff"}, " und die ", {g: "Zündtemperatur"}, ". Wer löschen will, nimmt eines davon weg."],
+  ["Wasser löscht, weil es den brennenden Stoff ", {g: "abkühlt"}, ". Eine Löschdecke hält die ", {g: "Luft"}, " fern – das Feuer ", {g: "erstickt"}, "."],
+  ["Bei einem Waldbrand schlägt man eine ", {g: "Schneise"}, ". So fehlt dem Feuer der ", {g: "Brennstoff"}, "."],
+  ["Brennendes Fett löscht man niemals mit ", {g: "Wasser"}, ", sondern mit einem ", {g: "Deckel"}, "."]
+], "gapBrand", ["Benzin", "Wind"]);
+
+Modul.makePaare($("#paareSchutz"), [
+  ["Rauchmelder", "warnt früh vor giftigem Rauch"],
+  ["Sprinkleranlage", "löscht von selbst mit Wasser"],
+  ["Brandschutztür", "hält Feuer und Rauch auf"],
+  ["Feuerlöscher", "bekämpft kleine Brände"],
+  ["Fluchtweg-Schild", "zeigt den Weg ins Freie"],
+  ["Sammelplatz", "hier wird durchgezählt"]
+], "paareSchutz");
+
+Modul.makeTF($("#tf"), [
+  ["Die meisten Brandopfer sterben durch den Rauch, nicht durch die Flammen.", true],
+  ["Bei Feueralarm packt man zuerst seine Schultasche.", false],
+  ["Beim Verlassen des Raums schließt man Fenster und Türen.", true],
+  ["Eine Sprinkleranlage öffnet immer alle Sprühköpfe im ganzen Haus.", false],
+  ["Brennendes Fett löscht man am besten mit viel Wasser.", false],
+  ["Die Notrufnummer 112 gilt in ganz Europa.", true],
+  ["Eine Brandschneise nimmt dem Feuer den Brennstoff.", true]
+], "tf");
+
+Modul.makeCrossword($("#cw"), {
+  words: [
+    {w: "LOESCHDECKE", r: 4, c: 9, d: "d", q: "Sie erstickt kleine Flammen, wenn man sie darüberlegt."},
+    {w: "RAUCHMELDER", r: 11, c: 0, d: "a", q: "Gerät an der Decke, das laut piept, wenn es brennt."},
+    {w: "SAUERSTOFF", r: 5, c: 2, d: "a", q: "Gas aus der Luft, das jedes Feuer braucht."},
+    {w: "BRENNSTOFF", r: 0, c: 2, d: "d", q: "Holz, Papier, Benzin – alles, was brennen kann."},
+    {w: "FLUCHTWEG", r: 14, c: 2, d: "a", q: "Grüne Schilder zeigen diesen Weg ins Freie."},
+    {w: "ERSTICKEN", r: 4, c: 6, d: "d", q: "Löschen, indem man dem Feuer die Luft nimmt."},
+    {w: "SPRINKLER", r: 3, c: 0, d: "d", q: "Sprühkopf an der Decke, der bei Hitze von selbst löscht."},
+    {w: "ABKUEHLEN", r: 0, c: 1, d: "a", q: "So löscht Wasser: Es nimmt dem Brand die Wärme."},
+    {w: "FETTBRAND", r: 2, c: 1, d: "a", q: "Brand in der Pfanne, den man nie mit Wasser löscht."},
+    {w: "NOTRUF", r: 0, c: 11, d: "d", q: "Die 112 ist der europaweite …"}
+  ],
+  sol: [[6, 6], [6, 0], [12, 9], [0, 6], [6, 9], [11, 10]], solWord: "SICHER"
+}, "cw");
+
+Modul.makeOpen($("#open"), [
+  {q: "Nenne drei Einrichtungen des Brandschutzes in einem Gebäude und erkläre bei einer davon, wie sie schützt.",
+   m: "Zum Beispiel Rauchmelder, Brandschutztüren und Sprinkleranlage. Der Rauchmelder piept laut, sobald Rauch aufsteigt, und warnt die Menschen, bevor sie den Rauch bemerken.",
+   k: ["rauchmelder|melder", "brandschutztür|tür|feuerschutztür", "sprinkler|feuerlöscher|löscher|löschdecke|baustoff|baumaterial"], min: 2},
+  {q: "Erkläre, warum man brennendes Fett nicht mit Wasser löschen darf.",
+   m: "Das Wasser sinkt unter das heiße Fett und verdampft schlagartig. Der Wasserdampf reißt brennendes Fett mit nach oben. Es entsteht eine Stichflamme, die Fettexplosion.",
+   k: ["verdampf|dampf", "fett|öl", "stichflamme|explosion|spritzt|schleudert|reißt"], min: 2},
+  {q: "Beschreibe die drei Wege, ein Feuer zu löschen, und nenne zu jedem ein Beispiel.",
+   m: "Abkühlen: Wasser auf brennendes Holz. Ersticken (Luft fernhalten): Löschdecke oder Deckel. Brennstoff wegnehmen: Gashahn zudrehen oder eine Brandschneise schlagen.",
+   k: ["abkühl|kühl|wasser", "erstick|luft|sauerstoff|decke|deckel", "brennstoff|schneise|gashahn|entfern|wegnehmen"]}
+], "open", "Lies noch einmal die Merke-Kästen in Station 2, 4 und 5.");
+
+Modul.plus(() => {
+  Modul.makeOpen($("#openM"), [
+    {q: "Ein Benzinkanister ist umgekippt, das Benzin brennt. Begründe, warum Wasser hier nicht hilft, und nenne ein geeignetes Löschmittel.",
+     m: "Benzin ist leichter als Wasser. Es schwimmt oben, brennt weiter und wird vom Wasser sogar verteilt. Geeignet ist Löschschaum (oder Pulver): Er deckt die Flüssigkeit ab und hält den Sauerstoff fern.",
+     k: ["schwimm|leichter|oben", "verteil|breitet|weiter", "schaum|pulver|kohlenstoffdioxid|co2|co₂"], min: 2},
+    {q: "In manchen Rechenzentren wird im Brandfall der ganze Raum mit einem Gas wie Stickstoff geflutet. Erkläre mit dem Feuerdreieck, warum das Feuer dadurch ausgeht, und nenne einen Vorteil gegenüber Wasser.",
+     m: "Das Gas verdrängt die Luft und damit den Sauerstoff. Eine Seite des Feuerdreiecks fehlt – das Feuer erstickt. Vorteil: Die Computer werden nicht nass und nicht durch Wasser oder Kurzschluss zerstört.",
+     k: ["sauerstoff|luft", "verdräng|erstick|fehlt", "nass|wasser|geräte|computer|strom|kurzschluss|schaden"], min: 2}
+  ], "openM", "Überlege, welche Seite des Feuerdreiecks jeweils fehlt.");
+});
+
+/* ---------- Station 7: Profi-Check ---------- */
+Modul.makeQuiz($("#quiz"), [].concat(MC.s1, MC.s2, MC.s3, MC.s5, MC.train, [
+  {q: "Welche drei Dinge braucht ein Feuer?", o: ["Brennstoff, Sauerstoff, Zündtemperatur", "Wasser, Luft, Licht", "Rauch, Wind, Holz", "Wärme, Stickstoff, Wasser"], a: 0, e: "Das ist das Feuerdreieck. Fehlt eine Seite, geht das Feuer aus."},
+  {q: "Wo sammelt sich der Rauch in einem Raum zuerst?", o: ["unter der Decke", "am Boden", "in der Raummitte", "nur am Fenster"], a: 0, e: "Rauch ist heiß und steigt nach oben. Deshalb hängen Rauchmelder an der Decke."},
+  {q: "Was ist ein Sammelplatz?", o: ["der Treffpunkt im Freien nach dem Alarm", "das Lager für Feuerlöscher", "ein Raum zum Löschen", "der Parkplatz der Feuerwehr"], a: 0, e: "Dort wird durchgezählt, ob alle draußen sind."},
+  {q: "Wie viel Wasserdampf entsteht ungefähr aus 1 Liter Wasser?", o: ["etwa 1700 Liter", "etwa 2 Liter", "etwa 17 Liter", "gar keiner"], a: 0, e: "Diese gewaltige Ausdehnung schleudert beim Fettbrand das brennende Fett aus der Pfanne."},
+  {q: "Welche Löschmethode ist „ersticken“?", o: ["Löschdecke über einen brennenden Papierkorb", "Wasser auf ein Lagerfeuer", "Gashahn zudrehen", "Holz wegräumen"], a: 0, e: "Die Decke hält die Luft und damit den Sauerstoff fern."}
+]), "quiz", "Brandschutz-Profi");
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

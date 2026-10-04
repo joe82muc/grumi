@@ -349,6 +349,11 @@
       else teil.innerHTML = '<div class="note warn">Dieser Bereich konnte nicht geladen werden. Bitte die Seite neu laden.</div>';
     } else if (ANSICHT === "codes") {
       codesZeichnen(teil);
+    } else if (ANSICHT === "nt7" && global.NT7Verwaltung) {
+      // NT 7: über dem Lernstand steht das Freischalten der Themenbereiche und Module (nt7-verwaltung.js)
+      teil.innerHTML = '<div id="vw-nt7-frei"></div><div id="vw-fach"></div>';
+      global.NT7Verwaltung.freigabe($("vw-nt7-frei"), { api: API, pw: PW, klasse: KLASSE });
+      fachLaden($("vw-fach"));
     } else {
       fachLaden(teil);
     }

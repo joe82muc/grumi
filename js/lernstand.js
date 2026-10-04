@@ -191,7 +191,7 @@
       '<li>Gespeichert werden dein Code und welche Aufgaben du richtig gelöst hast. So sieht deine Lehrkraft, wie weit du bist. Dein Name wird nicht gespeichert.</li>' +
       '<li>Deine Antworten selbst werden nicht gespeichert.</li>' +
       '<li>Mit deinem Code kannst du auf jedem Gerät weiterlernen. Gib ihn nicht weiter.</li>' +
-      '<li>Jede Übung fragt beim Öffnen wieder nach deinem Code. So arbeitet auf einem geteilten iPad niemand unter deinem Code.</li>' +
+      '<li>In diesem Browser-Tab bleibst du angemeldet, bis du dich abmeldest oder 10 Minuten nichts tust. Melde dich an einem geteilten iPad ab, wenn du fertig bist.</li>' +
       '</ul></div>';
   }
 

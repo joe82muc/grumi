@@ -1,7 +1,10 @@
-/* Gemeinsame Bausteine der Lernmodule 2 bis 5 (Windkraft, Verbrennung, Explosionen).
+/* Gemeinsame Bausteine der NT-7-Lernmodule (alle außer luft-modul.html).
  * Übernommen aus luft-modul.html und verallgemeinert: Sterne-Fortschritt, Fachbegriffe,
  * Ankreuzen, Lückentext, Zuordnen, Richtig/Falsch, Reihenfolge, Bild beschriften,
  * Kreuzworträtsel, offene Fragen mit KI-Rückmeldung, Abschlussquiz und Konfetti.
+ * Dazu: Film mit Stopp-Fragen (makeFilm), Animation in Schritten (makeSchritte), Paare finden (makePaare),
+ * M7-Aufgaben (Modul.plus: für M-Klassen Pflicht, für R-Klassen freiwillig), Lernfortschritt nach Stationen
+ * (Element #modulStand) und die Freischaltung durch die Lehrkraft (themen.js, Server /api/nt7/freigabe).
  * Die Seite ruft Modul.init({...}) auf, baut ihre Übungen und zum Schluss Modul.ready().
  * Mit Bezeichnungen der Übungen (register mit Element und Text) und Aufgabenkatalog für die Lehreransicht.
  * NT 7: Anmeldung mit Code über js/lernstand.js (eigener Speicherstand je Kind, Meldung an die Lehrkraft).
@@ -28,17 +31,46 @@ function onVisible(el, cb){
 let KEY = "grumi-nt7-modul", THEMA = "", GLOSSARY = {}, onProgress = null;
 let solved = {};
 const tasks = new Set();
+// M7-Aufgaben: Modul.plus(() => { Modul.makeOpen(...); }) – für M-Klassen Pflicht, für R-Klassen freiwillig
+const plusTasks = new Set();
+let PLUS = false, ZUG = "";
+function plus(fn){ PLUS = true; try { fn(); } finally { PLUS = false; } }
+const freiwillig = id => ZUG === "R" && plusTasks.has(id);
 function load(k, d){ try { const v = localStorage.getItem(KEY + k); return v === null ? d : v; } catch (_) { return d; } }
 function save(k, v){ try { localStorage.setItem(KEY + k, v); } catch (_) {} }
 // el: Element oder CSS-Selektor der Übung, text: Bezeichnung für die Lehreransicht,
 // typ: Art der Übung (ergibt mit der Überschrift der Karte die Bezeichnung, wenn text fehlt)
 const meta = {};
-function register(id, el, text, typ){ tasks.add(id); if (el || text || typ) meta[id] = {el, text, typ}; updateStars(); }
+function register(id, el, text, typ){ tasks.add(id); if (PLUS) plusTasks.add(id); if (el || text || typ) meta[id] = {el, text, typ}; updateStars(); }
 function solve(id){ if (!solved[id]) { solved[id] = 1; save("", JSON.stringify(solved)); } updateStars(); if (window.Lernstand) window.Lernstand.geloest(id); }
 function updateStars(){
-  const n = [...tasks].filter(t => solved[t]).length; const s = $("#stars"); if (s) s.textContent = `⭐ ${n} / ${tasks.size}`; save("-total", tasks.size);
+  // Freiwillige Aufgaben (M7-Niveau für R-Klassen) zählen nicht zur Gesamtzahl, gelöste stehen als „+1“ dabei
+  const pflicht = [...tasks].filter(t => !freiwillig(t)), n = pflicht.filter(t => solved[t]).length;
+  const extra = [...tasks].filter(t => freiwillig(t) && solved[t]).length;
+  const s = $("#stars"); if (s) s.textContent = `⭐ ${n} / ${pflicht.length}` + (extra ? ` +${extra}` : ""); save("-total", pflicht.length);
+  // Für die Übersicht: genauer Stand (gelöste Pflichtaufgaben, Pflichtaufgaben)
+  if (plusTasks.size) save("-stand", JSON.stringify({g: n, t: pflicht.length}));
   // dritter Wert: gelöste Aufgaben und der Aufgabenkatalog (als Funktion, wird nur bei Bedarf berechnet)
-  if (onProgress) onProgress(n, tasks.size, {geloest: [...tasks].filter(t => solved[t]), katalog});
+  if (onProgress) onProgress(n, pflicht.length, {geloest: [...tasks].filter(t => solved[t]), katalog});
+  standPanel(pflicht, n);
+}
+// Lernfortschritt nach Stationen (nur wenn die Seite ein Element #modulStand hat): Prozent, Balken und je Station
+// ein Feld mit ✓ (alles gelöst), ◐ (begonnen) oder ○. Antippen springt zur Station.
+let standGeplant = false;
+function standPanel(pflicht, n){
+  const box = $("#modulStand"); if (!box || standGeplant) return;
+  standGeplant = true;
+  requestAnimationFrame(() => {
+    standGeplant = false;
+    const pf = [...tasks].filter(t => !freiwillig(t)), geloest = pf.filter(t => solved[t]).length;
+    const pct = pf.length ? Math.round(geloest / pf.length * 100) : 0, kat = katalog(), st = {};
+    pf.forEach(id => { const k = kat[id][1] || "?"; (st[k] = st[k] || {g: 0, t: 0}).t++; if (solved[id]) st[k].g++; });
+    const namen = {}; $$("#stations a").forEach(a => { const b = $("b", a); if (b) namen[b.textContent.trim()] = a.textContent.replace(b.textContent, "").trim(); });
+    box.innerHTML = `<div class="ms-kopf"><strong>Lernfortschritt: ${pct} %</strong><span>${geloest} von ${pf.length} Aufgaben gelöst</span></div>
+      <div class="ms-bar"><div style="width:${pct}%"></div></div>
+      <div class="ms-teile">${Object.keys(st).sort((a, b) => parseFloat(a) - parseFloat(b)).map(k => { const x = st[k], z = x.g === x.t ? "✓" : x.g ? "◐" : "○";
+        return `<a href="#s${esc(k)}" class="${x.g === x.t ? "fertig" : x.g ? "teil" : ""}"><b>${z}</b> ${esc(namen[k] || "Station " + k)} <small>${x.g}/${x.t}</small></a>`; }).join("")}</div>`;
+  });
 }
 // Aufgabenkatalog für die Lehreransicht: { id: [Bezeichnung, Station] }
 function katalog(){
@@ -72,6 +104,8 @@ function mehrGeloest(ids){
 let BASIS = "";
 function init(cfg){
   BASIS = cfg.key;
+  // Zug des Kindes (M oder R) für die M7-Aufgaben: aus der Anmeldung oder aus dem Link der Übersicht (themen.js)
+  ZUG = window.NT7 ? window.NT7.zug(lsAnmeldung()) : "";
   // Mit Code angemeldet: eigener Stand je Kind auf geteilten Geräten
   KEY = cfg.key + (lsKennung() ? "~" + lsKennung() + "~" : ""); THEMA = cfg.thema || ""; GLOSSARY = cfg.glossary || {};
   if (cfg.api) API = (location.hostname.endsWith("onrender.com") ? "" : "https://englisch-9.onrender.com") + cfg.api;
@@ -204,28 +238,73 @@ function anmeldungGueltig(s) {
   }
   return null;
 }
-function lsKennung(){
-  try { const s = anmeldungGueltig(JSON.parse(localStorage.getItem("grumi-code-anmeldung") || "null")); return s && s.code && s.kennung ? s.kennung : ""; } catch (_) { return ""; }
+function lsAnmeldung(){
+  try { const s = anmeldungGueltig(JSON.parse(localStorage.getItem("grumi-code-anmeldung") || "null")); return s && s.code && s.kennung ? s : null; } catch (_) { return null; }
 }
+function lsKennung(){ const s = lsAnmeldung(); return s ? s.kennung : ""; }
 function lernstand(basis){
   const name = String(basis).replace(/^grumi-nt7-/, "").replace(/-v\d+$/, "");
-  const info = LS_MODULE[name] || [0, document.title.split("|")[0].trim()];
+  // Nummer, Titel und Themenbereich kommen aus themen.js; die fünf ersten Module stehen zur Sicherheit auch hier
+  const reg = window.NT7 ? window.NT7.modulVon(name) : null;
+  const info = reg ? [reg.nr, reg.modul.titel] : (LS_MODULE[name] || [0, document.title.split("|")[0].trim()]);
+  const bereich = reg ? reg.thema.titel : "Luft", bnr = reg ? parseInt(reg.thema.nr, 10) || 1 : 1;
   const kat = katalog(), zaehler = {};
   const aufgaben = [...tasks].map(id => {
-    const teil = kat[id][1] ? "Station " + kat[id][1] : "Aufgaben";
+    // „Plus“ = M7-Aufgabe: zählt für R-Klassen nicht (so wertet auch die Verwaltung der Lehrkraft)
+    const teil = plusTasks.has(id) ? "Plus" : kat[id][1] ? "Station " + kat[id][1] : "Aufgaben";
     zaehler[teil] = (zaehler[teil] || 0) + 1;
     const m = meta[id] || {}, el = typeof m.el === "string" ? $(m.el) : m.el;
     return {id, teil, kurz: String(zaehler[teil]), text: kat[id][0], label: kat[id][0], el: el || null};
   });
-  const los = () => window.Lernstand.seite({kurs: "nt7", modul: "nt7-" + name, bereich: "Luft", bnr: 1, nr: info[0], kurz: "Modul " + info[0],
-    titel: info[1], aufgaben, anker: $("section.station"), mehrGeloest: ids => mehrGeloest(ids)});
+  const los = () => window.Lernstand.seite({kurs: "nt7", modul: "nt7-" + name, bereich, bnr, nr: info[0], kurz: "Modul " + info[0],
+    titel: info[1], aufgaben, anker: $("section.station"), mehrGeloest: ids => mehrGeloest(ids),
+    freiwillig: a => ZUG === "R" && a.teil === "Plus"});
   if (window.Lernstand) { los(); return; }
   const s = document.createElement("script");
   s.src = new URL("../../js/lernstand.js", LS_SKRIPT || location.href).href;
   s.onload = () => { if (window.Lernstand) los(); };
   document.head.appendChild(s);
 }
-function ready(){ if (Modul._onScroll) Modul._onScroll(); updateStars(); lernstand(BASIS); }
+/* ---------- Freischaltung durch die Lehrkraft (themen.js) ----------
+   Ist das Modul für die Klasse des Kindes gesperrt, verdeckt ein Hinweis die Stationen. Erst gilt der zuletzt
+   bekannte Stand des Geräts, dann der vom Server. Lernsteuerung, kein Geheimnisschutz. */
+function sperre(){
+  const N = window.NT7, reg = N ? N.modulVon(N.idAusKey(BASIS)) : null;
+  if (!reg) return;
+  const main = $("main"); if (!main) return;
+  let box = $("#nt7Sperre");
+  // art: "warten" (Stand wird geholt), "fehler" (Server antwortet nicht), sonst gesperrt
+  const zeig = (zu, text, art) => {
+    document.body.classList.toggle("nt7-zu", zu);
+    if (!zu) { if (box) box.remove(); box = null; return; }
+    if (!box) { box = document.createElement("div"); box.id = "nt7Sperre"; box.className = "wrap"; main.parentNode.insertBefore(box, main); }
+    box.innerHTML = `<div class="card nt7-sperre"><div class="big">${art === "warten" ? "⏳" : art === "fehler" ? "📡" : "🔒"}</div>
+      <h2>${art === "warten" ? "Einen Moment …" : art === "fehler" ? "Das lässt sich gerade nicht prüfen" : "Dieses Modul ist noch nicht freigeschaltet"}</h2>
+      <p class="lead">${esc(text)}</p><nav class="navlinks light">${art === "fehler" ? '<a href="#" class="nochmal">↻ Noch einmal versuchen</a>' : ""}<a href="index.html">📘 Zur Übersicht NT 7</a><a href="../../index.html">🏠 Startseite</a></nav></div>`;
+    const nochmal = $(".nochmal", box); if (nochmal) nochmal.addEventListener("click", e => { e.preventDefault(); location.reload(); });
+  };
+  if (N.VORSCHAU) {
+    const v = document.createElement("div"); v.className = "nt7-vorschau"; v.textContent = "👁 Vorschau für Lehrkräfte – ob die Klasse dieses Modul sieht, steht in der Verwaltung.";
+    document.body.insertBefore(v, document.body.firstChild); return;
+  }
+  const a = lsAnmeldung();
+  if (!a) { zeig(!N.offen(reg.modul, reg.thema, null), "Deine Lehrkraft schaltet es für deine Klasse frei. Melde dich mit deinem Code an, dann siehst du, was für dich offen ist."); return; }
+  let bekannt = false;
+  if (!reg.modul.offen) zeig(true, "Ich sehe nach, ob deine Lehrkraft das Modul für deine Klasse freigeschaltet hat.", "warten");
+  N.freigabe(a, stand => { bekannt = true; zeig(!N.offen(reg.modul, reg.thema, stand), "Deine Lehrkraft schaltet es frei, wenn ihr im Unterricht so weit seid. Frag sie, wenn du schon weiterlernen möchtest."); },
+    (text, wachtAuf) => { if (!bekannt && !reg.modul.offen) zeig(true, text || "Der Server antwortet gerade nicht. Versuche es gleich noch einmal.", wachtAuf ? "warten" : "fehler"); });
+}
+function ready(){
+  if (Modul._onScroll) Modul._onScroll(); updateStars();
+  // Ältere Module binden themen.js nicht selbst ein: nachladen, dann Lernstand und Freischaltung
+  // In der Vorschau für Lehrkräfte (?vorschau=1) gibt es keine Anmeldung und keinen Lernstand
+  const weiter = () => { ZUG = ZUG || (window.NT7 ? window.NT7.zug(lsAnmeldung()) : ""); if (!(window.NT7 && window.NT7.VORSCHAU)) lernstand(BASIS); sperre(); };
+  if (window.NT7) { weiter(); return; }
+  const s = document.createElement("script");
+  s.src = new URL("themen.js", LS_SKRIPT || location.href).href;
+  s.onload = weiter; s.onerror = () => lernstand(BASIS);
+  document.head.appendChild(s);
+}
 
 /* ---------- Ankreuzen ---------- */
 function makeMC(container, list, idPrefix, tag){
@@ -588,6 +667,153 @@ function makeQuiz(box, pool, id, profi){
   start();
 }
 
+/* ---------- Paare finden ---------- */
+// pairs: [[links, rechts], ...] – erst links antippen, dann das passende Gegenstück rechts
+function makePaare(box, pairs, id){
+  register(id, box, null, "Paare finden");
+  const L = shuffle(pairs.map((p, i) => ({t: p[0], i}))), R = shuffle(pairs.map((p, i) => ({t: p[1], i})));
+  box.innerHTML = `<div class="paare"><div class="paare-sp">${L.map(o => `<button class="tok" data-i="${o.i}" data-s="l">${esc(o.t)}</button>`).join("")}</div>
+    <div class="paare-sp">${R.map(o => `<button class="tok" data-i="${o.i}" data-s="r">${esc(o.t)}</button>`).join("")}</div></div><div class="fb"></div>`;
+  const fb = $(".fb", box); let wahl = null, fertig = 0;
+  $$(".tok", box).forEach(b => b.addEventListener("click", () => {
+    if (b.classList.contains("right")) return;
+    if (!wahl || wahl.dataset.s === b.dataset.s) { if (wahl) wahl.classList.remove("picked"); wahl = wahl === b ? null : b; if (wahl) wahl.classList.add("picked"); return; }
+    const a = wahl; wahl = null; a.classList.remove("picked");
+    if (a.dataset.i === b.dataset.i) {
+      [a, b].forEach(x => { x.classList.add("right"); x.disabled = true; }); fertig++;
+      fb.className = "fb show ok"; fb.textContent = fertig === pairs.length ? "✅ Alle Paare gefunden!" : `✅ Richtig! Noch ${pairs.length - fertig}.`;
+      if (fertig === pairs.length) solve(id);
+    } else {
+      [a, b].forEach(x => { x.classList.add("wrong"); setTimeout(() => x.classList.remove("wrong"), 700); });
+      fb.className = "fb show bad"; fb.textContent = "❌ Das passt nicht zusammen. Versuch es noch einmal.";
+    }
+  }));
+}
+
+/* ---------- Animation in Schritten ---------- */
+// cfg: {steps: ["Text zu Schritt 1", ...] oder [{t: "Text"}], zeige(i, box): stellt das Bild für Schritt i ein (0 = Anfang),
+//       ms: Dauer je Schritt beim Abspielen (Standard 2600)}
+// Zählt als bearbeitet, wenn der letzte Schritt erreicht wurde (abgespielt oder Schritt für Schritt).
+function makeSchritte(box, cfg, id){
+  register(id, box, null, "Animation");
+  const steps = cfg.steps.map(x => typeof x === "string" ? {t: x} : x), N = steps.length;
+  const ctrl = document.createElement("div"); ctrl.className = "schritte";
+  ctrl.innerHTML = `<div class="schritt-text" aria-live="polite"></div>
+    <div class="schritt-punkte">${steps.map((_, i) => `<button type="button" data-i="${i}" aria-label="Schritt ${i + 1}">${i + 1}</button>`).join("")}</div>
+    <div class="row-btns"><button class="btn small play" type="button">▶ Start</button><button class="btn small ghost next" type="button">Schritt für Schritt →</button><button class="btn small ghost again" type="button">↺ Nochmal</button></div>`;
+  box.appendChild(ctrl);
+  const text = $(".schritt-text", ctrl), play = $(".play", ctrl), dots = $$(".schritt-punkte button", ctrl);
+  let i = -1, timer = null;
+  function geh(k){
+    i = clamp(k, 0, N - 1);
+    text.innerHTML = `<b>Schritt ${i + 1} von ${N}:</b> ${steps[i].t}`;
+    dots.forEach((d, j) => { d.classList.toggle("an", j === i); d.classList.toggle("war", j < i); });
+    try { cfg.zeige(i, box); } catch (e) { console.error(e); }
+    if (i === N - 1) { halt(); solve(id); }
+  }
+  function halt(){ clearInterval(timer); timer = null; play.textContent = "▶ Start"; }
+  play.addEventListener("click", () => {
+    if (timer) { halt(); play.textContent = "▶ Weiter"; return; }
+    if (i >= N - 1) i = -1;
+    geh(i + 1); if (i < N - 1) { play.textContent = "⏸ Pause"; timer = setInterval(() => geh(i + 1), cfg.ms || 2600); }
+  });
+  $(".next", ctrl).addEventListener("click", () => { halt(); geh(i >= N - 1 ? 0 : i + 1); });
+  $(".again", ctrl).addEventListener("click", () => { halt(); i = -1; text.innerHTML = cfg.start || "Tippe auf „Start“ oder gehe Schritt für Schritt."; dots.forEach(d => d.classList.remove("an", "war")); try { cfg.zeige(-1, box); } catch (e) { console.error(e); } });
+  dots.forEach(d => d.addEventListener("click", () => { halt(); geh(+d.dataset.i); }));
+  text.innerHTML = cfg.start || "Tippe auf „Start“ oder gehe Schritt für Schritt.";
+  try { cfg.zeige(-1, box); } catch (e) { console.error(e); }
+}
+
+/* ---------- Film mit Stopp-Fragen (YouTube) ---------- */
+// cfg: {vid: "YouTube-Kennung", titel, quelle, dauer: "etwa 4 Minuten", stops: [{t: Sekunde, q: {q, o, a, e}}]}
+// Der Film wird erst nach dem Antippen von YouTube geladen (youtube-nocookie). An jedem Stopp hält er an, bis die
+// Frage richtig beantwortet ist. Lädt er nicht, stehen der Link zu YouTube und alle Fragen offen da.
+// Jede Stopp-Frage ist eine Aufgabe (prefix + Nummer); der Film gilt als bearbeitet, wenn alle beantwortet sind.
+function makeFilm(box, cfg, prefix){
+  const VID = cfg.vid, STOPS = cfg.stops, pid = prefix + "-yt";
+  box.innerHTML = `<div class="film"><div id="${pid}"></div>
+      <button class="film-poster" type="button"><span class="play">▶</span><b>Film starten</b><small>${esc(cfg.quelle || "")}${cfg.quelle ? ": " : ""}„${esc(cfg.titel || "Film")}“${cfg.dauer ? " (" + esc(cfg.dauer) + ")" : ""}. Erst mit diesem Klick wird der Film von YouTube geladen.</small></button>
+      <div class="film-stop">⏸ Film-Stopp!<br>Beantworte die Frage unter dem Film.</div></div>
+    <div class="film-chips" aria-label="Film-Stopps"></div>
+    <p class="hint film-hint" style="margin:8px 0 0">Der Film hält an ${STOPS.length} Stellen an. Die Knöpfe mit ❓ springen direkt zu einem Film-Stopp.</p><div class="film-qs"></div>`;
+  const qs = $(".film-qs", box), chipsBox = $(".film-chips", box), stopEl = $(".film-stop", box), startBtn = $(".film-poster", box), hint = $(".film-hint", box);
+  const mmss = t => Math.floor(t / 60) + ":" + String(Math.floor(t % 60)).padStart(2, "0");
+  let player = null, bereit = false, last = 0, cur = -1, failed = false;
+  STOPS.forEach((s, i) => {
+    const id = prefix + i + "-0";
+    s.wrap = document.createElement("div"); s.wrap.className = "film-q"; s.wrap.hidden = true;
+    const q = document.createElement("div"); s.wrap.appendChild(q);
+    makeMC(q, [s.q], prefix + i, {t: `Film-Stopp ${i + 1} · bei ${mmss(s.t)}`});
+    s.go = document.createElement("button"); s.go.className = "btn small"; s.go.type = "button"; s.go.textContent = "▶ Weiter im Film"; s.go.hidden = true;
+    s.go.addEventListener("click", () => resume(i));
+    s.wrap.appendChild(s.go); qs.appendChild(s.wrap);
+    s.chip = document.createElement("button"); s.chip.type = "button"; s.chip.textContent = `❓ ${mmss(s.t)}`;
+    s.chip.addEventListener("click", () => jump(i)); chipsBox.appendChild(s.chip);
+    const check = () => { if (solved[id]) { s.done = true; s.chip.classList.add("done"); s.chip.textContent = `✓ ${mmss(s.t)}`; if (!failed) s.go.hidden = false; } };
+    s.wrap.addEventListener("click", () => setTimeout(check, 0));
+    check();
+  });
+  function stopAt(i){
+    cur = i;
+    STOPS.forEach((s, k) => { s.wrap.hidden = k !== i; });
+    if (bereit) { player.pauseVideo(); stopEl.classList.add("show"); }
+    STOPS[i].wrap.scrollIntoView({block: "nearest", behavior: reduced ? "auto" : "smooth"});
+  }
+  function resume(i){
+    cur = -1; stopEl.classList.remove("show"); STOPS[i].wrap.hidden = true;
+    if (bereit) player.playVideo();
+  }
+  function jump(i){
+    if (bereit) { player.seekTo(STOPS[i].t, true); last = STOPS[i].t; }
+    stopAt(i);
+  }
+  function poll(){
+    if (!bereit) return;
+    const t = player.getCurrentTime();
+    if (cur < 0) for (let i = 0; i < STOPS.length; i++) {
+      const s = STOPS[i];
+      if (!s.done && last < s.t && t >= s.t && t - last < 3) { stopAt(i); break; }
+    }
+    last = t;
+  }
+  // Film lädt nicht oder darf nicht abgespielt werden: Link zu YouTube, alle Fragen offen zeigen
+  function fail(){
+    if (failed) return;
+    failed = true; cur = -1; stopEl.classList.remove("show");
+    if (!bereit) {
+      startBtn.disabled = false; $("b", startBtn).textContent = "Film auf YouTube öffnen";
+      startBtn.onclick = () => window.open("https://www.youtube.com/watch?v=" + VID, "_blank", "noopener");
+    }
+    hint.innerHTML = `Der Film lässt sich hier nicht abspielen. <a href="https://www.youtube.com/watch?v=${esc(VID)}" target="_blank" rel="noopener">Öffne ihn auf YouTube</a> und beantworte danach die Fragen hier.`;
+    STOPS.forEach(s => { s.wrap.hidden = false; s.go.hidden = true; });
+  }
+  function make(){
+    player = new YT.Player(pid, {
+      host: "https://www.youtube-nocookie.com", videoId: VID,
+      playerVars: {rel: 0, playsinline: 1, modestbranding: 1},
+      events: {
+        onReady: e => { bereit = true; startBtn.remove(); setInterval(poll, 250); e.target.playVideo(); },
+        onStateChange: e => {
+          if (e.data === 1 && cur >= 0) player.pauseVideo();
+          if (e.data === 0) { const offen = STOPS.findIndex(s => !s.done); if (offen >= 0) stopAt(offen); }
+        },
+        onError: fail
+      }
+    });
+  }
+  startBtn.addEventListener("click", () => {
+    if (failed) return;
+    startBtn.disabled = true; $("b", startBtn).textContent = "Film wird geladen …";
+    if (window.YT && YT.Player) make();
+    else {
+      const vorher = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => { if (vorher) vorher(); make(); };
+      const s = document.createElement("script"); s.src = "https://www.youtube.com/iframe_api"; s.onerror = fail; document.head.appendChild(s);
+    }
+    setTimeout(() => { if (!bereit) fail(); }, 20000);
+  });
+}
+
 /* ---------- Konfetti ---------- */
 function confetti(){
   if (reduced) return;
@@ -603,5 +829,6 @@ function confetti(){
 }
 
 const Modul = window.Modul = {$, $$, esc, shuffle, clamp, fmt, norm, setText, reduced, onVisible, load, save, init, ready, register, solve,
-  isSolved: id => !!solved[id], katalog, mehrGeloest, askKI, makeMC, makeGap, makeSort, makeTF, makeOrder, makeLabel, makeHotspots, makeCrossword, makeOpen, makeQuiz, confetti};
+  isSolved: id => !!solved[id], katalog, mehrGeloest, askKI, makeMC, makeGap, makeSort, makeTF, makeOrder, makeLabel, makeHotspots, makeCrossword, makeOpen, makeQuiz, confetti,
+  plus, zug: () => ZUG, makePaare, makeSchritte, makeFilm};
 })();

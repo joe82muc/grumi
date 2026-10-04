@@ -1,0 +1,1107 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f6f8f">
+<title>Der Weg der Luft: Atmungsorgane | NT 7</title>
+<link rel="stylesheet" href="modul-basis.css">
+<style>
+.hero{background:linear-gradient(160deg,#0a4f6a,#1687a7 55%,#6cc4bb)}
+.hotimg{position:relative}
+.hotimg svg{display:block;width:100%;height:auto}
+.bild{display:block;width:100%;max-width:460px;height:auto;margin:6px auto 8px;background:#f7fbfe;border:1px solid var(--line);border-radius:12px}
+.sim .wahl{margin:0;padding:12px 14px;border-top:1px solid var(--line);background:#fbfdff}
+.wahl button.war{border-color:var(--ok);background:var(--ok-l)}
+.wahl button.sel{background:var(--sky);border-color:var(--sky);color:#fff}
+.wahl button.falsch{border-color:var(--bad);background:var(--bad-l)}
+.wahl button[disabled]{cursor:default;opacity:.6}
+.achtung{font-size:.95rem;background:var(--warn-l);border:1px solid #f1d9a0;border-radius:10px;padding:8px 12px;color:#5c4300;margin:0 0 .9em}
+/* Kopfschnitt: Luftstrom, Kehldeckel */
+.fluss{opacity:0;transition:opacity .3s}
+.fluss.an{opacity:1}
+.sichtbar .fluss.an{animation:fluss .9s linear infinite}
+@keyframes fluss{to{stroke-dashoffset:-14}}
+#kdDeckel{transition:transform .5s}
+#kdPfeil{transition:opacity .3s}
+/* Flimmerhärchen */
+.sichtbar #flHaare.schlag path{animation:flimmer .9s ease-in-out infinite}
+@keyframes flimmer{0%,100%{transform:rotate(16deg)}40%{transform:rotate(-26deg)}}
+.sichtbar #flSchleim.band .streifen{animation:band 1.8s linear infinite}
+@keyframes band{to{transform:translateY(-48px)}}
+#flStaub circle{transition:transform 1.2s ease-in-out}
+#flEnde,#flLuft{transition:opacity .5s}
+/* Bronchialbaum, Bläschen-Modell */
+#baumL1,#baumL2,#baumL3{transition:opacity .4s}
+#blBalken{transition:transform .5s}
+/* Weg der Luft */
+.ring{fill:none;stroke:#f2b632;stroke-width:4}
+.sichtbar .ring{animation:ringpuls .7s ease-in-out infinite alternate}
+@keyframes ringpuls{from{stroke-opacity:1;stroke-width:5}to{stroke-opacity:.3;stroke-width:3}}
+#wegKugel,#wegKugelB,#wegO2{transition:opacity .3s}
+.beschrift{display:grid;grid-template-columns:minmax(0,440px) 1fr;gap:20px;align-items:start}
+@media (max-width:820px){.beschrift{grid-template-columns:1fr}}
+.beschrift svg{display:block;width:100%;height:auto;background:#eef6fb;border:1px solid var(--line);border-radius:12px}
+.legende{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;list-style:none;margin:14px 0 0;padding:0}
+.legende li{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:5px 8px;background:#fbfdff;color:var(--muted);font-weight:600;font-size:.95rem;min-width:0}
+.legende li b{flex:none;width:24px;height:24px;border-radius:50%;background:#15212b;color:#fff;display:grid;place-items:center;font-size:.8rem}
+.legende li.da{border-color:#a9dcbc;background:var(--ok-l);color:#135c33}
+.legende li.da b{background:var(--ok)}
+@media (max-width:420px){.legende li{font-size:.86rem;padding:5px 6px;gap:6px}}
+.weg-zeile .step{flex:1 1 104px;padding:7px 6px}
+.weg-zeile .step small{display:block;font-weight:600;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>NT 7</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Atemzüge</a>
+      <a href="#s2"><b>2</b>Nase &amp; Kehlkopf</a>
+      <a href="#s3"><b>3</b>Luftröhre</a>
+      <a href="#s4"><b>4</b>Lunge</a>
+      <a href="#s5"><b>5</b>Weg der Luft</a>
+      <a href="#s6"><b>6</b>Training</a>
+      <a href="#s7"><b>7</b>Profi-Check</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse 7M / 7R · Themenbereich Mensch und Gesundheit · Lernmodul 1</div>
+    <h1>Der Weg der Luft: Atmungsorgane</h1>
+    <p>Über 20&nbsp;000-mal am Tag strömt Luft in deine Lunge und wieder hinaus. In sieben Stationen begleitest du sie auf ihrem Weg: durch Nase, Kehlkopf und Luftröhre bis in die winzigen Lungenbläschen.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s6">Direkt zum Probentraining</a>
+    </div>
+    <div class="goals">
+      <div>👃 Ich nenne die Atmungsorgane in der richtigen Reihenfolge – von der Nasenhöhle bis zu den Lungenbläschen.</div>
+      <div>🌡️ Ich erkläre, warum es gesünder ist, durch die Nase zu atmen.</div>
+      <div>🌳 Ich beschreibe, wie Luftröhre und Bronchien gebaut sind und wie sie die Lunge sauber halten.</div>
+      <div>🍇 Ich erkläre, warum die Lunge aus Millionen winziger Lungenbläschen besteht.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg</div><h2>Du atmest – ohne nachzudenken</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Schließ kurz die Augen und achte nur auf deinen Atem. Ein, aus, ein, aus … Das tust du den ganzen Tag, sogar im Schlaf – und musst nie daran denken.</p>
+      <p>In Ruhe atmen die meisten Menschen <strong>etwa 15-mal in der Minute</strong>. Zähle bei dir nach: Ein paar Atemzüge mehr oder weniger sind ganz normal.</p>
+      <p><strong>Probiere es aus:</strong> Halte die Luft an und zähle langsam bis 15. Merkst du, wie der Drang zu atmen immer stärker wird?</p>
+      <p>Ohne Nahrung hält ein Mensch einige Wochen durch, ohne Wasser wenige Tage – <strong>ohne Luft nur wenige Minuten</strong>. Dein Körper braucht ständig Sauerstoff (O₂) aus der Luft.</p>
+      <p>Bei jedem Atemzug nimmt die Luft denselben Weg: durch die <button class="term" data-t="atmungsorgane">Atmungsorgane</button>. In diesem Modul gehst du diesen Weg Schritt für Schritt mit – von der Nasenspitze bis tief in die Lunge.</p>
+      <div id="mc-s1"></div>
+    </div>
+    <div class="sim reveal" id="atemSim">
+      <svg viewBox="0 0 400 230" role="img" aria-label="Oberkörper einer Person. Die Lunge wird beim Einatmen größer und beim Ausatmen kleiner.">
+        <rect width="400" height="230" fill="#eef6fb"/>
+        <path d="M96 230V190Q96 150 140 142L180 134V118H220V134L260 142Q304 150 304 190V230Z" fill="#3f8fb8"/>
+        <rect x="181" y="96" width="38" height="40" rx="10" fill="#f3cfae"/>
+        <circle cx="200" cy="64" r="40" fill="#f3cfae"/>
+        <path d="M161 54Q166 22 200 22T239 54Q224 38 200 38T161 54Z" fill="#5a4030"/>
+        <circle cx="186" cy="62" r="3.5" fill="#3b2e25"/><circle cx="214" cy="62" r="3.5" fill="#3b2e25"/>
+        <path d="M199 68q-4 8 2 9" fill="none" stroke="#b98a6e" stroke-width="2" stroke-linecap="round"/>
+        <path d="M190 86q10 6 20 0" fill="none" stroke="#b0553f" stroke-width="2.5" stroke-linecap="round"/>
+        <g id="atLunge">
+          <path d="M200 146v20" stroke="#dff0fb" stroke-width="7" stroke-linecap="round"/>
+          <path d="M196 160q-34-6-42 30q-4 26 4 32q22 4 38-8z" fill="#f6b9bd" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M204 160q34-6 42 30q4 26-4 32q-22 4-38-8z" fill="#f6b9bd" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
+        </g>
+        <g id="atEin">
+          <path d="M92 70h44M122 58l14 12-14 12" fill="none" stroke="#0d77c2" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="114" y="46" text-anchor="middle" font-size="14" font-weight="800" fill="#0d77c2">ein</text>
+        </g>
+        <g id="atAus">
+          <path d="M264 70h44M294 58l14 12-14 12" fill="none" stroke="#7d8791" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="286" y="46" text-anchor="middle" font-size="14" font-weight="800" fill="#566674">aus</text>
+        </g>
+      </svg>
+      <div class="sim-ctrl"><label for="atRate">Atemzüge in einer Minute</label><input type="range" id="atRate" min="10" max="50" step="1" value="15"><span class="chip" id="atChip">15</span></div>
+      <div class="readout"><span class="chip" id="atStd"></span><span class="chip" id="atTag"></span></div>
+      <p class="obs" id="atObs"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Nase, Mund und Kehlkopf: der Eingang</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Die Luft hat zwei Eingänge: die <button class="term" data-t="nasenhoehle">Nasenhöhle</button> und die <button class="term" data-t="mundhoehle">Mundhöhle</button>. Der bessere Weg führt durch die Nase. Sie ist Filter, Heizung und Luftbefeuchter in einem.</p>
+      <div class="info-karten">
+        <div class="info-karte"><div class="big">✨</div><h4>Reinigen</h4><p>Nasenhaare halten groben Staub auf. Feiner Staub und Krankheitserreger bleiben am Schleim der <button class="term" data-t="schleimhaut">Schleimhaut</button> kleben.</p></div>
+        <div class="info-karte"><div class="big">🌡️</div><h4>Anwärmen</h4><p>Die Schleimhaut ist stark durchblutet. Das warme Blut heizt kalte Luft auf.</p></div>
+        <div class="info-karte"><div class="big">💧</div><h4>Anfeuchten</h4><p>Die Schleimhaut ist immer feucht. Trockene Luft nimmt hier Wasser auf.</p></div>
+      </div>
+      <p>Oben in der Nasenhöhle sitzt außerdem die Riechschleimhaut. Mit ihr prüfst du die Luft – sie warnt dich zum Beispiel vor Rauch.</p>
+      <p class="hint">Probiere im Bild alle drei Knöpfe aus. Achte auf den Staub und auf den Kehldeckel.</p>
+    </div>
+    <div class="sim reveal" id="kopfSim">
+      <svg viewBox="0 0 480 380" role="img" aria-label="Schnitt durch Kopf und Hals von der Seite mit Nasenhöhle, Mundhöhle, Rachen, Kehldeckel, Kehlkopf, Luftröhre und Speiseröhre">
+        <rect width="480" height="380" fill="#eef6fb"/>
+        <g id="kopfBild">
+          <path d="M204 380L204 284Q200 270 176 266Q150 262 142 248Q136 238 139 230Q131 224 133 216Q134 210 139 208Q130 204 130 198Q131 190 137 187L118 181Q106 177 113 166L146 128Q141 106 152 84Q178 22 252 22Q352 22 364 128Q368 196 346 238L338 380Z" fill="#f6d9c2"/>
+          <!-- Wirbelsäule -->
+          <g fill="#f2eadb" stroke="#cbbd9f" stroke-width="1.5"><rect x="300" y="268" width="26" height="24" rx="5"/><rect x="300" y="298" width="26" height="24" rx="5"/><rect x="300" y="328" width="26" height="24" rx="5"/><rect x="300" y="358" width="26" height="24" rx="5"/></g>
+          <!-- Kehlkopf (Knorpel) und Speiseröhre -->
+          <path d="M226 286Q221 304 229 322L267 322L271 285Z" fill="#f3d7a0" stroke="#d4a94f" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M272 285L287 283L287 380L271 380Z" fill="#f0b98f" stroke="#cf8a55" stroke-width="1.5"/>
+          <line x1="279" y1="290" x2="279" y2="380" stroke="#b9703d" stroke-width="1.5"/>
+          <!-- Luftwege: Nasenhöhle, Rachen, Kehlkopf, Luftröhre; Mundhöhle -->
+          <path d="M126 183Q146 150 184 140Q216 134 248 140Q284 146 288 176L290 270Q290 280 282 282L272 284L266 296L263 318L262 380L238 380L237 318Q230 300 240 284L252 270L262 256L262 236Q268 228 270 214Q270 200 264 191L158 191Q138 190 126 183Z" fill="#dff0fb"/>
+          <path d="M150 209L156 202L244 203Q256 205 257 215Q258 224 268 228L266 241Q238 215 196 215Q166 215 154 223Z" fill="#dff0fb"/>
+          <path d="M126 183Q146 150 184 140Q216 134 248 140Q284 146 288 176L290 270Q290 280 282 282L272 284L266 296L263 318L262 380M238 380L237 318Q230 300 240 284L252 270M158 191Q138 190 126 183" fill="none" stroke="#6fa3cc" stroke-width="2" stroke-linejoin="round"/>
+          <g fill="none" stroke="#f0a8a0" stroke-width="7" stroke-linecap="round"><path d="M176 157Q208 147 246 153"/><path d="M164 174Q204 166 250 173"/></g>
+          <path d="M131 181l4-6M136 184l4-7M142 186l3-7" stroke="#7a5a45" stroke-width="1.4" stroke-linecap="round"/>
+          <!-- Gaumen mit Zäpfchen, Zunge, Zähne -->
+          <path d="M152 192L262 192Q270 200 270 214Q270 224 265 228Q259 224 258 214Q256 204 244 202L154 200Z" fill="#eec4b2" stroke="#c98f7c" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M152 225Q166 215 196 215Q238 215 263 241L262 256L252 270L178 268Q152 264 150 244Z" fill="#e58f8f" stroke="#c46c6c" stroke-width="2" stroke-linejoin="round"/>
+          <g fill="#fff" stroke="#cfc6b8"><rect x="144" y="199" width="5" height="9" rx="2"/><rect x="144" y="211" width="5" height="9" rx="2"/></g>
+          <!-- Stimmbänder, Knorpelspangen (nur vorn) -->
+          <path d="M235 299L247 303L235 307ZM265 299L253 303L265 307Z" fill="#c0392b"/>
+          <g fill="#9fc4e4" stroke="#6f9cc4" stroke-width="1.2"><rect x="229" y="327" width="9" height="8" rx="3"/><rect x="229" y="341" width="9" height="8" rx="3"/><rect x="229" y="355" width="9" height="8" rx="3"/><rect x="229" y="369" width="9" height="8" rx="3"/></g>
+          <!-- Umriss, Auge, Ohr -->
+          <path d="M204 380L204 284Q200 270 176 266Q150 262 142 248Q136 238 139 230Q131 224 133 216Q134 210 139 208Q130 204 130 198Q131 190 137 187L118 181Q106 177 113 166L146 128Q141 106 152 84Q178 22 252 22Q352 22 364 128Q368 196 346 238L338 380" fill="none" stroke="#c9a283" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M139 208L150 209" stroke="#b98a6e" stroke-width="1.5"/>
+          <path d="M158 122q10-7 20 0q-10 6-20 0z" fill="#fff" stroke="#8a6d57" stroke-width="1.5"/><circle cx="166" cy="122" r="3.2" fill="#3b2e25"/>
+          <path d="M154 108q12-8 26-2" stroke="#8a6d57" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M296 138q18-6 20 14q0 20-14 24" fill="none" stroke="#c9a283" stroke-width="2.5" stroke-linecap="round"/>
+        </g>
+        <!-- Luftstrom, Bissen, Staub, Kehldeckel -->
+        <path id="wegNase" class="fluss" d="M86 180L126 182Q160 164 200 164Q256 162 274 186Q281 210 277 250Q274 276 258 288Q249 298 250 324L250 358" fill="none" stroke="#1d8fe0" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 12"/>
+        <path id="wegMund" class="fluss" d="M92 210L150 209Q200 207 240 210Q258 218 266 236Q276 256 258 288Q249 298 250 324L250 358" fill="none" stroke="#1d8fe0" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 12"/>
+        <path id="wegBissen" d="M176 209Q230 205 252 222Q270 238 277 262Q280 276 279 292L279 372" fill="none" stroke="none"/>
+        <path id="kdPfeil" d="M242 356L250 372L258 356Z" fill="#1d8fe0" opacity="0"/>
+        <g id="kdDeckel" style="transform-origin:252px 271px"><line x1="252" y1="271" x2="267" y2="247" stroke="#d9772b" stroke-width="7" stroke-linecap="round"/></g>
+        <g id="kdStaub" fill="#5b4a3a"><circle r="3.5" opacity="0"/><circle r="3" opacity="0"/><circle r="3.5" opacity="0"/><circle r="3" opacity="0"/></g>
+        <circle id="kdBissen" r="7" fill="#b9792f" stroke="#7d4e19" stroke-width="1.5" opacity="0"/>
+        <!-- Beschriftung -->
+        <g stroke="#566674" stroke-width="1.5" fill="#566674">
+          <line x1="92" y1="142" x2="176" y2="160"/><circle cx="176" cy="160" r="2.5"/>
+          <line x1="86" y1="232" x2="196" y2="209"/><circle cx="196" cy="209" r="2.5"/>
+          <line x1="154" y1="302" x2="228" y2="302"/><circle cx="228" cy="302" r="2.5"/>
+          <line x1="158" y1="354" x2="234" y2="354"/><circle cx="234" cy="354" r="2.5"/>
+          <line x1="388" y1="196" x2="280" y2="214"/><circle cx="280" cy="214" r="2.5"/>
+          <line x1="388" y1="248" x2="264" y2="252"/><circle cx="264" cy="252" r="2.5"/>
+          <line x1="388" y1="338" x2="283" y2="338"/><circle cx="283" cy="338" r="2.5"/>
+        </g>
+        <g font-size="13" font-weight="700" fill="#15212b">
+          <text x="10" y="146">Nasenhöhle</text>
+          <text x="10" y="236">Mundhöhle</text>
+          <text x="92" y="306">Kehlkopf</text>
+          <text x="92" y="358">Luftröhre</text>
+          <text x="392" y="200">Rachen</text>
+          <text x="392" y="252">Kehldeckel</text>
+          <text x="392" y="342">Speiseröhre</text>
+        </g>
+        <text x="92" y="322" font-size="12" fill="#566674">mit Stimmbändern</text>
+        <text x="204" y="250" text-anchor="middle" font-size="12" font-weight="700" fill="#7a2e2e">Zunge</text>
+        <circle cx="16" cy="20" r="3.5" fill="#5b4a3a"/><text x="26" y="24" font-size="12" font-weight="700" fill="#566674">Staub</text>
+      </svg>
+      <div class="wahl" id="kopfWahl"></div>
+      <div class="readout" id="kopfChips"></div>
+      <p class="obs" id="kopfObs">Wähle aus, was die Person tut.</p>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <h3 style="margin-top:0">Kreuzung im Hals: der Kehlkopf</h3>
+    <p>Hinter Nase und Mund liegt der <button class="term" data-t="rachen">Rachen</button>. Hier kreuzen sich zwei Wege: der Weg der Luft und der Weg der Nahrung. Vorn im Hals liegt die Luftröhre, dahinter die <button class="term" data-t="speiseroehre">Speiseröhre</button>.</p>
+    <p>Den Eingang zur Luftröhre bildet der <button class="term" data-t="kehlkopf">Kehlkopf</button>. Damit nichts falsch abbiegt, gibt es den <button class="term" data-t="kehldeckel">Kehldeckel</button>: Beim Atmen steht er offen. Beim Schlucken legt er sich über den Kehlkopf – der Bissen rutscht in die Speiseröhre.</p>
+    <p>Im Kehlkopf sitzen auch die <button class="term" data-t="stimmbaender">Stimmbänder</button>. Strömt beim Ausatmen Luft hindurch, schwingen sie: So entsteht deine Stimme. Lege zwei Finger vorn an den Hals und summe – du spürst das Schwingen.</p>
+    <div class="merke"><h4>MERKE</h4><ul>
+      <li>Die Nasenhöhle reinigt, wärmt und befeuchtet die Atemluft. Deshalb ist es gesünder, durch die Nase zu atmen.</li>
+      <li>Der Kehldeckel verschließt beim Schlucken den Kehlkopf. So gelangt keine Nahrung in die Luftröhre.</li>
+      <li>Im Kehlkopf sitzen die Stimmbänder.</li>
+    </ul></div>
+    <div id="mc-s2"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>Luftröhre und Bronchien: ein Baum auf dem Kopf</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Unter dem Kehlkopf beginnt die <button class="term" data-t="luftroehre">Luftröhre</button>: ein Rohr, das die Luft zur Lunge leitet. Bei Erwachsenen ist sie etwa 10 bis 12 cm lang.</p>
+      <p>Dieses Rohr darf nie zusammenfallen. Deshalb stecken in seiner Wand feste <button class="term" data-t="knorpelspangen">Knorpelspangen</button>. Sie halten die Luftröhre offen – ähnlich wie die Rillen einen Staubsaugerschlauch. Die Spangen sind hufeisenförmig: Hinten, wo die Speiseröhre anliegt, sind sie offen.</p>
+      <p><strong>Fühl nach:</strong> Taste vorsichtig vorn an deinem Hals, unter dem Kehlkopf. Du spürst die Spangen als harte Rillen.</p>
+      <p>Innen ist die Luftröhre mit Schleimhaut ausgekleidet. Darauf sitzen winzige <button class="term" data-t="flimmerhaerchen">Flimmerhärchen</button>. Sie sind die Putzkolonne der Atemwege.</p>
+      <p class="hint">Starte die Animation und beobachte, was mit dem Staub passiert.</p>
+      <p class="achtung">🚭 <strong>Rauch schadet der Putzkolonne:</strong> Tabakrauch lähmt die Flimmerhärchen. Bei starken Rauchern werden sie zerstört. Dann bleibt der Schleim liegen und muss mühsam abgehustet werden.</p>
+    </div>
+    <div class="sim reveal" id="flimmerSim">
+      <svg viewBox="0 0 480 300" role="img" aria-label="Stark vergrößerter Schnitt durch die Wand der Luftröhre: Knorpelspange, Schleimhaut mit Flimmerhärchen, Schleimschicht und Staubteilchen">
+        <rect width="480" height="300" fill="#eef7fd"/>
+        <g id="flLuft">
+          <path d="M430 36V232" stroke="#a9d3f0" stroke-width="12" stroke-linecap="round" fill="none"/><path d="M410 222L430 250L450 222Z" fill="#a9d3f0"/>
+          <text x="430" y="22" text-anchor="middle" font-size="12" font-weight="700" fill="#2c6ea3">Atemluft</text>
+          <text x="430" y="270" text-anchor="middle" font-size="12" font-weight="700" fill="#2c6ea3">zur Lunge</text>
+        </g>
+        <rect x="0" y="0" width="150" height="300" fill="#f7d5cd"/>
+        <g fill="#a9cbe8" stroke="#6f9cc4" stroke-width="2"><rect x="22" y="10" width="92" height="76" rx="16"/><rect x="22" y="104" width="92" height="76" rx="16"/><rect x="22" y="198" width="92" height="76" rx="16"/></g>
+        <text x="68" y="139" text-anchor="middle" font-size="12" font-weight="700" fill="#2c5d86">Knorpel-</text>
+        <text x="68" y="154" text-anchor="middle" font-size="12" font-weight="700" fill="#2c5d86">spange</text>
+        <text x="8" y="293" font-size="12" font-weight="700" fill="#7a4a40">Wand der Luftröhre</text>
+        <rect x="150" y="0" width="26" height="300" fill="#ee9d9d"/>
+        <path d="M150 30h26M150 60h26M150 90h26M150 120h26M150 150h26M150 180h26M150 210h26M150 240h26M150 270h26M176 0v300" stroke="#c96f6f" stroke-width="1.5"/>
+        <g fill="#b85c5c"><circle cx="163" cy="15" r="4"/><circle cx="163" cy="45" r="4"/><circle cx="163" cy="75" r="4"/><circle cx="163" cy="105" r="4"/><circle cx="163" cy="135" r="4"/><circle cx="163" cy="165" r="4"/><circle cx="163" cy="195" r="4"/><circle cx="163" cy="225" r="4"/><circle cx="163" cy="255" r="4"/><circle cx="163" cy="285" r="4"/></g>
+        <g id="flHaare" fill="none" stroke="#8a4b4b" stroke-width="2" stroke-linecap="round"></g>
+        <g id="flSchleim">
+          <rect x="194" y="0" width="24" height="300" fill="#f2df8a" opacity=".85"/>
+          <g class="streifen" fill="#dcc350"><ellipse cx="206" cy="-30" rx="5" ry="9"/><ellipse cx="206" cy="18" rx="5" ry="9"/><ellipse cx="206" cy="66" rx="5" ry="9"/><ellipse cx="206" cy="114" rx="5" ry="9"/><ellipse cx="206" cy="162" rx="5" ry="9"/><ellipse cx="206" cy="210" rx="5" ry="9"/><ellipse cx="206" cy="258" rx="5" ry="9"/><ellipse cx="206" cy="306" rx="5" ry="9"/><ellipse cx="206" cy="354" rx="5" ry="9"/></g>
+        </g>
+        <g id="flStaub" fill="#5b4a3a"><circle r="6"/><circle r="5"/><circle r="6.5"/><circle r="5"/><circle r="5.5"/></g>
+        <text x="228" y="20" font-size="12" font-weight="700" fill="#7a6200">↑ zum Rachen</text>
+        <text id="flEnde" x="228" y="38" font-size="12" fill="#566674" opacity="0">verschluckt oder ausgehustet</text>
+        <g stroke="#566674" stroke-width="1.5"><line x1="246" y1="118" x2="218" y2="118"/><line x1="246" y1="196" x2="188" y2="196"/></g>
+        <text x="250" y="122" font-size="13" font-weight="700" fill="#15212b">Schleim</text>
+        <text x="250" y="200" font-size="13" font-weight="700" fill="#15212b">Flimmerhärchen</text>
+        <circle cx="254" cy="282" r="5.5" fill="#5b4a3a"/><text x="266" y="287" font-size="13" font-weight="700" fill="#15212b">Staub</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="sim reveal" id="baumSim">
+      <svg viewBox="0 0 480 340" role="img" aria-label="Modell: Die Luftröhre verzweigt sich in zwei Bronchien und dann in immer feinere Äste">
+        <rect width="480" height="340" fill="#eef6fb"/>
+        <path d="M230 58C140 10 10 20 6 150C0 230 4 300 12 326Q120 340 230 326Z" fill="#fbe3e5" stroke="#eab5ba" stroke-width="2"/>
+        <path d="M250 58C340 10 470 20 474 150C480 230 476 300 468 326Q360 340 250 326Z" fill="#fbe3e5" stroke="#eab5ba" stroke-width="2"/>
+        <line x1="240" y1="8" x2="240" y2="96" stroke="#4a90c9" stroke-width="16" stroke-linecap="round"/>
+        <path d="M233 22h14M233 34h14M233 46h14M233 58h14M233 70h14M233 82h14" stroke="#cfe6f7" stroke-width="2.5"/>
+        <g id="baumAeste" stroke="#4a90c9" stroke-linecap="round"></g>
+        <text x="256" y="24" font-size="13" font-weight="700" fill="#15212b">Luftröhre</text>
+        <g id="baumL1" opacity="0"><text x="292" y="112" font-size="13" font-weight="700" fill="#15212b">Bronchien</text></g>
+        <g id="baumL2" opacity="0"><text x="8" y="20" font-size="13" font-weight="700" fill="#15212b">Bronchiolen</text><line x1="34" y1="26" x2="54" y2="114" stroke="#566674" stroke-width="1.5"/></g>
+        <g id="baumL3" opacity="0"><text x="472" y="20" text-anchor="end" font-size="13" font-weight="700" fill="#15212b">Lungenbläschen</text><line x1="448" y1="26" x2="435" y2="88" stroke="#566674" stroke-width="1.5"/></g>
+      </svg>
+      <div class="sim-ctrl"><label for="baumN">Teilungen</label><input type="range" id="baumN" min="0" max="6" step="1" value="0"><span class="chip" id="baumChipN">0</span><span class="chip" id="baumChipA">1 Rohr</span></div>
+      <p class="obs" id="baumObs">Noch ist nur die Luftröhre zu sehen. Schiebe den Regler nach rechts.</p>
+    </div>
+    <div class="card reveal">
+      <h3 style="margin-top:0">Immer feiner verzweigt</h3>
+      <p>Am unteren Ende teilt sich die Luftröhre in zwei <button class="term" data-t="bronchien">Bronchien</button>. Jede führt in einen Lungenflügel.</p>
+      <p>Dort teilen sich die Bronchien immer wieder – wie die Äste eines Baums, der auf dem Kopf steht. Mit jeder Teilung werden die Äste dünner. Die feinsten heißen <button class="term" data-t="bronchiolen">Bronchiolen</button>. Sie sind dünner als ein Millimeter.</p>
+      <p class="hint">Schiebe den Regler und lass den Baum wachsen. Zähle mit: Wie viele Äste sind es nach jeder Teilung?</p>
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li>Knorpelspangen halten die Luftröhre offen.</li>
+        <li>Flimmerhärchen und Schleim fangen Staub ab und befördern ihn nach oben zum Rachen.</li>
+        <li>Die Luftröhre teilt sich in zwei Bronchien. Diese verzweigen sich immer feiner bis zu den Bronchiolen.</li>
+      </ul></div>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:18px"><div id="mc-s3"></div></div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Bau und Aufgabe gehören zusammen</h3>
+    <p class="m7-hinweis">Aufgaben mit dem lila Zeichen gehören zum M-Niveau. In M-Klassen zählen sie mit, in R-Klassen sind sie eine Zusatzaufgabe für Profis.</p>
+    <p class="hint">Links steht, wie etwas gebaut ist. Rechts steht, wozu das gut ist. Tippe links auf einen Satz und dann rechts auf den passenden.</p>
+    <div id="paareBau"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Probenstoff</div><h2>Die Lunge: Millionen winziger Bläschen</h2></div></div>
+  <div class="card reveal">
+    <p class="lead" style="margin:0">Die Bronchien führen in die Lunge. Sie besteht aus zwei <button class="term" data-t="lungenfluegel">Lungenflügeln</button> und liegt gut geschützt im <button class="term" data-t="brustkorb">Brustkorb</button>. Sieh dich darin um.</p>
+  </div>
+  <div class="grid2">
+    <div class="sim reveal">
+      <div class="hotimg" id="lungeBild">
+        <svg viewBox="0 0 480 340" role="img" aria-label="Blick von vorn in den Brustkorb: Luftröhre, zwei Lungenflügel, Herz, Rippen und Zwerchfell. Sechs Stellen sind nummeriert.">
+          <rect width="480" height="340" fill="#eef6fb"/>
+          <path d="M206 0L206 26Q204 44 150 54Q60 68 52 140L52 340L428 340L428 140Q420 68 330 54Q276 44 274 26L274 0Z" fill="#f6d9c2"/>
+          <path d="M206 0L206 26Q204 44 150 54Q60 68 52 140L52 340M274 0L274 26Q276 44 330 54Q420 68 428 140L428 340" fill="none" stroke="#c9a283" stroke-width="2.5"/>
+          <path d="M92 170Q84 250 92 340M388 170Q396 250 388 340" fill="none" stroke="#dcb898" stroke-width="2"/>
+          <!-- Lungenflügel mit Lappen -->
+          <path d="M228 78Q170 72 136 130Q112 190 118 262Q162 284 222 264Q232 200 230 130Z" fill="#f3a9ad" stroke="#cf7379" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M252 78Q310 72 344 130Q368 190 362 262Q330 276 298 268Q270 250 264 214Q250 170 250 130Z" fill="#f3a9ad" stroke="#cf7379" stroke-width="2.5" stroke-linejoin="round"/>
+          <g fill="none" stroke="#cf7379" stroke-width="2"><path d="M139 150Q180 162 230 142"/><path d="M121 222Q170 202 229 196"/><path d="M356 172Q312 202 262 206"/></g>
+          <!-- Luftröhre und Bronchien -->
+          <rect x="232" y="-4" width="16" height="102" fill="#dff0fb" stroke="#6fa3cc" stroke-width="2"/>
+          <path d="M232 10h16M232 22h16M232 34h16M232 46h16M232 58h16M232 70h16M232 82h16" stroke="#8fb7d9" stroke-width="2"/>
+          <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M240 96L204 128M240 96L276 128" stroke="#6fa3cc" stroke-width="13"/>
+            <path d="M240 90L240 96L204 128M240 96L276 128" stroke="#dff0fb" stroke-width="8.5"/>
+            <path d="M204 128L176 122M204 128L178 162M204 128L204 176M276 128L304 122M276 128L302 162M276 128L280 166" stroke="#5d9fd3" stroke-width="5"/>
+          </g>
+          <!-- Herz -->
+          <path d="M238 190Q226 214 246 244Q264 268 292 262Q308 250 302 222Q298 196 272 186Q252 180 238 190Z" fill="#c9434b" stroke="#9e2f36" stroke-width="2" stroke-linejoin="round"/>
+          <!-- Rippen und Brustbein -->
+          <g fill="none" stroke="#f4ead6" stroke-width="8" stroke-linecap="round" opacity=".62">
+            <path d="M234 92Q150 82 110 126"/><path d="M234 120Q150 110 110 154"/><path d="M234 148Q150 138 108 182"/><path d="M234 176Q150 166 106 210"/><path d="M234 204Q150 194 106 238"/><path d="M234 232Q152 222 108 266"/>
+            <path d="M246 92Q330 82 370 126"/><path d="M246 120Q330 110 370 154"/><path d="M246 148Q330 138 372 182"/><path d="M246 176Q330 166 374 210"/><path d="M246 204Q330 194 374 238"/><path d="M246 232Q328 222 372 266"/>
+          </g>
+          <rect x="233" y="86" width="14" height="156" rx="7" fill="#f4ead6" stroke="#cbbd9f" stroke-width="1.2" opacity=".55"/>
+          <!-- Zwerchfell -->
+          <path d="M96 304Q170 256 240 274Q310 256 384 304L384 318Q310 270 240 288Q170 270 96 318Z" fill="#c9713c" stroke="#a0522d" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="sim-ctrl"><span class="hs-count chip" id="lungeZahl">0 von 6 entdeckt</span><span class="hint" style="margin:0">Tippe auf die Zahlen im Bild.</span></div>
+    </div>
+    <div class="card reveal hs-info" id="lungeInfo">
+      <div class="big">🔎</div><h3 style="margin:.3em 0 .2em">Blick in den Brustkorb</h3>
+      <p class="lead" style="margin:0">Du siehst die Person von vorn. Sechs Stellen sind nummeriert. Findest du heraus, was dort liegt?</p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <h3 style="margin-top:0">Am Ende des Wegs: die Lungenbläschen</h3>
+      <p>An den Enden der Bronchiolen sitzen die <button class="term" data-t="lungenblaeschen">Lungenbläschen</button> – dicht an dicht wie die Beeren einer Weintraube. Jedes ist winzig: kleiner als ein halber Millimeter. In beiden Lungenflügeln zusammen sind es <strong>etwa 300 Millionen</strong>.</p>
+      <svg class="bild" viewBox="0 0 420 236" role="img" aria-label="Lungenbläschen am Ende einer Bronchiole, umsponnen von Kapillaren">
+        <defs><linearGradient id="bVerlauf" gradientUnits="userSpaceOnUse" x1="118" y1="0" x2="290" y2="0"><stop offset="0" stop-color="#3b6fd4"/><stop offset="1" stop-color="#d93b3b"/></linearGradient></defs>
+        <rect width="420" height="236" fill="#f7fbfe"/>
+        <path d="M56 236C72 204 104 182 128 154" fill="none" stroke="#3b6fd4" stroke-width="7" stroke-linecap="round"/>
+        <path d="M258 173C292 186 332 206 352 236" fill="none" stroke="#d93b3b" stroke-width="7" stroke-linecap="round"/>
+        <g id="bZoom"></g>
+        <path d="M-14 34Q100 44 174 104" fill="none" stroke="#6fa3cc" stroke-width="22" stroke-linecap="round"/>
+        <path d="M-14 34Q100 44 174 104L200 122" fill="none" stroke="#e3f1fb" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+        <g stroke="#566674" stroke-width="1.5" fill="#566674"><line x1="296" y1="66" x2="252" y2="92"/><circle cx="252" cy="92" r="2.5"/><line x1="296" y1="146" x2="266" y2="143"/><circle cx="266" cy="143" r="2.5"/></g>
+        <g font-size="13" font-weight="700" fill="#15212b"><text x="8" y="16">Bronchiole</text><text x="300" y="70">Lungenbläschen</text><text x="300" y="150">Kapillaren</text></g>
+        <text x="300" y="166" font-size="12" fill="#566674">haarfeine Blutgefäße</text>
+      </svg>
+      <p>Jedes Lungenbläschen ist von einem Netz haarfeiner Blutgefäße umsponnen: den <button class="term" data-t="kapillaren">Kapillaren</button>. Hier kommen sich Luft und Blut ganz nah.</p>
+      <p>Ausgebreitet wären alle Lungenbläschen zusammen <strong>etwa 80 bis 100 m²</strong> groß – so groß wie eine Wohnung mit vier Zimmern. Wie passt so viel Fläche in deinen Brustkorb? Das zeigt das Modell.</p>
+      <p class="hint">Blau und Rot zeigen das Blut in den Kapillaren. Was dort genau passiert, erfährst du im nächsten Modul.</p>
+    </div>
+    <div class="sim reveal" id="blasenSim">
+      <svg viewBox="0 0 480 280" role="img" aria-label="Modell im Schnitt: gleich viel Luft in einer großen Blase oder in vielen kleinen Bläschen. Ein Balken zeigt, wie lang die Wand zusammen ist.">
+        <rect width="480" height="280" fill="#f7fbfe"/>
+        <g id="blKreise" fill="#cfe8fa" stroke="#d93b3b" stroke-width="2.5"></g>
+        <text id="blFaktor" x="385" y="28" text-anchor="middle" font-size="15" font-weight="800" fill="#b32d2d">Wand: 1×</text>
+        <rect x="360" y="44" width="44" height="200" rx="4" fill="#f6e1e1"/>
+        <rect id="blBalken" x="360" y="44" width="44" height="200" fill="#d93b3b" style="transform-origin:382px 244px;transform:scaleY(.125)"/>
+        <g stroke="#8a97a3" stroke-width="1.5"><line x1="408" y1="219" x2="416" y2="219"/><line x1="408" y1="194" x2="416" y2="194"/><line x1="408" y1="144" x2="416" y2="144"/><line x1="408" y1="45" x2="416" y2="45"/></g>
+        <g font-size="12" font-weight="700" fill="#566674"><text x="420" y="223">1×</text><text x="420" y="198">2×</text><text x="420" y="148">4×</text><text x="420" y="50">8×</text></g>
+        <text x="382" y="266" text-anchor="middle" font-size="12" font-weight="700" fill="#2f6fdb">Luft: immer gleich viel</text>
+      </svg>
+      <div class="wahl" id="blasenWahl"></div>
+      <p class="obs" id="blasenObs">Im Bild siehst du einen Schnitt. Blau ist die Luft, die rote Linie ist die Wand. Probiere alle vier Knöpfe aus.</p>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <div class="merke" style="margin-top:0"><h4>MERKE</h4><ul>
+      <li>Die Lunge besteht aus zwei Lungenflügeln. Der Brustkorb schützt sie, darunter liegt das Zwerchfell.</li>
+      <li>An den Enden der Bronchiolen sitzen etwa 300 Millionen Lungenbläschen.</li>
+      <li>Jedes Lungenbläschen ist von Kapillaren umsponnen. Das sind haarfeine Blutgefäße.</li>
+      <li>Viele kleine Bläschen haben zusammen eine riesige Oberfläche: etwa 80 bis 100 m².</li>
+    </ul></div>
+    <div id="mc-s4"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Rechne und begründe: die riesige Oberfläche</h3>
+    <div id="mc-m4"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Probenstoff</div><h2>Der ganze Weg der Luft</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Jetzt setzt du alles zusammen. Begleite ein Luftteilchen auf seinem Weg – von der Nasenspitze bis ins Lungenbläschen.</p>
+      <p class="hint">Starte die Animation oder gehe Schritt für Schritt. Achte auf die blaue Kugel und auf die Zahlen im Bild.</p>
+      <div class="chain weg-zeile" id="wegKette">
+        <div class="step">Nasenhöhle<small>oder Mundhöhle</small></div><span class="to">→</span>
+        <div class="step">Kehlkopf</div><span class="to">→</span>
+        <div class="step">Luftröhre</div><span class="to">→</span>
+        <div class="step">Bronchien</div><span class="to">→</span>
+        <div class="step">Bronchiolen</div><span class="to">→</span>
+        <div class="step">Lungenbläschen<small>mit Kapillaren</small></div>
+      </div>
+      <span class="task-tag probe" style="margin-top:10px">Reihenfolge · leicht</span>
+      <h3 style="margin-top:4px">Der Weg beim Einatmen</h3>
+      <p class="hint">Bringe die sechs Stationen in die richtige Reihenfolge.</p>
+      <div id="orderWeg"></div>
+    </div>
+    <div class="sim reveal" id="wegSim">
+      <svg viewBox="0 0 460 450" role="img" aria-label="Kopf von der Seite und Oberkörper von vorn mit den acht Stationen der Atemluft: Nasenhöhle, Mundhöhle, Kehlkopf, Luftröhre, Bronchien, Bronchiolen, Lungenbläschen und Kapillaren">
+        <defs>
+          <linearGradient id="kVerlauf" gradientUnits="userSpaceOnUse" x1="346" y1="0" x2="428" y2="0"><stop offset="0" stop-color="#3b6fd4"/><stop offset="1" stop-color="#d93b3b"/></linearGradient>
+          <clipPath id="kLupe"><circle cx="378" cy="330" r="71"/></clipPath>
+        </defs>
+        <rect width="460" height="450" fill="#eef6fb"/>
+        <g id="koerperBild">
+          <use href="#kopfBild" transform="translate(40 6) scale(.5)"/>
+          <line x1="252" y1="271" x2="267" y2="247" stroke="#d9772b" stroke-width="7" stroke-linecap="round" transform="translate(40 6) scale(.5)"/>
+          <!-- Oberkörper -->
+          <path d="M142 194Q138 212 96 220Q34 230 28 286L28 450L302 450L302 286Q296 230 234 220Q212 212 209 194Z" fill="#f6d9c2"/>
+          <path d="M142 194Q138 212 96 220Q34 230 28 286L28 450M209 194Q212 212 234 220Q296 230 302 286L302 450" fill="none" stroke="#c9a283" stroke-width="2"/>
+          <!-- Lungenflügel -->
+          <path d="M156 246Q112 242 88 290Q70 340 76 392Q112 410 152 394Q160 350 158 290Z" fill="#f6b9bd" stroke="#d2787e" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M174 246Q218 242 242 290Q260 340 254 392Q226 406 198 396Q180 376 176 350Q170 316 172 290Z" fill="#f6b9bd" stroke="#d2787e" stroke-width="2" stroke-linejoin="round"/>
+          <!-- Luftröhre, Bronchien, Bronchiolen -->
+          <rect x="159" y="189" width="12" height="76" fill="#dff0fb" stroke="#6fa3cc" stroke-width="1.5"/>
+          <path d="M159 198h12M159 206h12M159 214h12M159 222h12M159 230h12M159 238h12M159 246h12M159 254h12" stroke="#8fb7d9" stroke-width="2"/>
+          <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M165 263L136 288M165 263L194 288" stroke="#6fa3cc" stroke-width="10"/>
+            <path d="M165 258L165 263L136 288M165 263L194 288" stroke="#dff0fb" stroke-width="6.5"/>
+            <path d="M136 288L116 282L102 296M136 288L114 312L98 338M136 288L138 330L128 368M194 288L214 282L228 296M194 288L216 312L232 338M194 288L192 330L202 368" stroke="#5d9fd3" stroke-width="5"/>
+            <path d="M114 312L120 346M138 330L146 362M116 282L110 266M98 338L90 362M128 368L118 386M128 368L140 384M216 312L210 346M192 330L188 358M214 282L220 266M232 338L242 360M202 368L212 386M202 368L196 384" stroke="#5d9fd3" stroke-width="3"/>
+          </g>
+          <!-- Zwerchfell -->
+          <path d="M52 426Q110 394 165 410Q220 394 278 426" fill="none" stroke="#b0582a" stroke-width="5" stroke-linecap="round"/>
+          <!-- Lupe: Lungenbläschen und Kapillaren -->
+          <circle cx="243" cy="363" r="8" fill="none" stroke="#15212b" stroke-width="1.5" stroke-dasharray="3 3"/>
+          <path d="M243 355L316 294M243 371L316 366" stroke="#15212b" stroke-width="1.2" stroke-dasharray="4 4" fill="none"/>
+          <circle cx="378" cy="330" r="72" fill="#fff" stroke="#15212b" stroke-width="2.5"/>
+          <g clip-path="url(#kLupe)">
+            <g id="kZoom"></g>
+            <path d="M312 280L372 327" stroke="#6fa3cc" stroke-width="13" stroke-linecap="round" fill="none"/>
+            <path d="M312 280L384 336" stroke="#e3f1fb" stroke-width="8" stroke-linecap="round" fill="none"/>
+          </g>
+          <text x="378" y="420" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">Blick durch die Lupe</text>
+          <!-- Nummern -->
+          <g stroke="#15212b" stroke-width="1.4"><line x1="60" y1="80" x2="124" y2="90"/><line x1="62" y1="128" x2="126" y2="111"/><line x1="108" y1="164" x2="156" y2="158"/><line x1="120" y1="234" x2="158" y2="234"/><line x1="228" y1="236" x2="191" y2="284"/><line x1="226" y1="380" x2="239" y2="354"/><line x1="420" y1="296" x2="401" y2="307"/><line x1="350" y1="380" x2="365" y2="374"/></g>
+          <g fill="#15212b"><circle cx="60" cy="80" r="10"/><circle cx="62" cy="128" r="10"/><circle cx="108" cy="164" r="10"/><circle cx="120" cy="234" r="10"/><circle cx="228" cy="236" r="10"/><circle cx="226" cy="380" r="10"/><circle cx="420" cy="296" r="10"/><circle cx="350" cy="380" r="10"/></g>
+          <g fill="#fff" font-size="12" font-weight="800" text-anchor="middle"><text x="60" y="84.3">1</text><text x="62" y="132.3">2</text><text x="108" y="168.3">3</text><text x="120" y="238.3">4</text><text x="228" y="240.3">5</text><text x="226" y="384.3">6</text><text x="420" y="300.3">7</text><text x="350" y="384.3">8</text></g>
+        </g>
+        <circle id="wegRing" class="ring" r="15" cx="-60" cy="-60"/>
+        <circle id="wegKugelB" r="6" fill="#58b4f0" stroke="#fff" stroke-width="2" opacity="0"/>
+        <circle id="wegKugel" r="7" fill="#0d77c2" stroke="#fff" stroke-width="2" opacity="0"/>
+        <circle id="wegO2" r="4.5" fill="#e0453a" stroke="#fff" stroke-width="1.5" opacity="0"/>
+        <text id="wegNr" x="345" y="62" text-anchor="middle" font-size="13" font-weight="700" fill="#566674">Der Weg der Luft</text>
+        <text id="wegName" x="345" y="92" text-anchor="middle" font-size="22" font-weight="800" fill="#0a4f6a">8 Stationen</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag probe">Beschriften · mittel</span>
+    <h3 style="margin-top:4px">Wie heißen die acht Teile?</h3>
+    <p class="hint">Im Bild blinkt eine Zahl. Tippe auf den passenden Namen. So beschriftest du nach und nach das ganze Bild.</p>
+    <div class="beschrift">
+      <svg id="bqBild" viewBox="0 0 460 450" role="img" aria-label="Kopf und Oberkörper mit acht nummerierten Teilen der Atmungsorgane zum Beschriften">
+        <rect width="460" height="450" fill="#eef6fb"/>
+        <use href="#koerperBild"/>
+        <g id="bqMarken"></g>
+        <circle id="bqRing" class="ring" r="15" cx="-60" cy="-60"/>
+        <text id="bqText" x="345" y="52" text-anchor="middle" font-size="13" font-weight="700" fill="#566674">Gesucht ist Nummer</text>
+        <circle cx="345" cy="94" r="27" fill="#f2b632"/>
+        <text id="bqNr" x="345" y="105" text-anchor="middle" font-size="30" font-weight="800" fill="#15212b">1</text>
+      </svg>
+      <div>
+        <p id="bqFrage" style="font-weight:700;margin:0 0 4px">Wie heißt Nummer 1?</p>
+        <div class="wahl" id="bqWahl"></div>
+        <div class="fb" id="bqFb"></div>
+        <ol class="legende" id="bqLegende"></ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="card reveal"><div id="mc-s5"></div></div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="s6">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Probenstoff · so wird in der Probe gefragt</div><h2>Training für die Probe</h2></div></div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Lückentext · leicht</span>
+    <h3 style="margin-top:4px">Setze die fehlenden Wörter ein</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapAtem"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Paare finden · leicht</span>
+    <h3 style="margin-top:4px">Wer erledigt was?</h3>
+    <p class="hint">Tippe links auf einen Begriff und dann rechts auf seine Aufgabe.</p>
+    <div id="paareOrgane"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Zuordnen · mittel</span>
+    <h3 style="margin-top:4px">Was gehört wohin?</h3>
+    <p class="hint">Tippe eine Karte an und dann das Organ, zu dem sie gehört.</p>
+    <div id="sortTeile"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Richtig oder falsch? · mittel</span>
+    <div id="tf"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Kreuzworträtsel · mittel</span>
+    <h3 style="margin-top:4px">Rund um die Atmungsorgane</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Schreibe ö als OE.</p>
+    <div id="cw"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Ankreuzen · mittel</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Offene Fragen · schwer</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung. Danach kannst du die Musterlösung ansehen.</p>
+    <div id="open"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Begründe und übertrage <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="openM"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 7 ============ -->
+<section class="station" id="s7">
+  <div class="st-head reveal"><div class="st-num">7</div><div><div class="eyebrow">Abschluss</div><h2>Atemwege-Profi-Check</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Du kennst jetzt den Weg der Luft. Aber wie kommt sie überhaupt in die Lunge hinein und wieder heraus? Und was passiert in den Lungenbläschen? Das zeigt das nächste Modul: <strong>Atmen und Gasaustausch</strong>.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik 7 · Lernmodul „Der Weg der Luft: Atmungsorgane“ · Dein Fortschritt wird auf diesem Gerät gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="modul-basis.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, esc, shuffle, clamp, setText, reduced, register, solve} = Modul;
+
+Modul.init({
+  key: "grumi-nt7-atmungsorgane-v1",
+  thema: "Atmungsorgane des Menschen: Weg der Luft durch Nasenhöhle, Mundhöhle, Kehlkopf, Luftröhre, Bronchien und Bronchiolen bis zu den Lungenbläschen mit ihren Kapillaren; Aufgaben der einzelnen Organe",
+  glossary: {
+    atmungsorgane: ["Atmungsorgane", "Alle Organe, durch die die Atemluft strömt: Nasenhöhle, Mundhöhle, Kehlkopf, Luftröhre, Bronchien und Lunge."],
+    nasenhoehle: ["Nasenhöhle", "Hohlraum hinter den Nasenlöchern. Hier wird die Atemluft gereinigt, angewärmt und befeuchtet."],
+    mundhoehle: ["Mundhöhle", "Hohlraum hinter den Lippen. Durch sie kann man auch atmen – die Luft wird dabei aber kaum gereinigt und angewärmt."],
+    schleimhaut: ["Schleimhaut", "Feuchte, gut durchblutete Haut im Inneren von Nase, Luftröhre und Bronchien. Ihr klebriger Schleim hält Staub fest."],
+    rachen: ["Rachen", "Raum hinter Nasenhöhle und Mundhöhle. Hier kreuzen sich der Weg der Luft und der Weg der Nahrung."],
+    kehlkopf: ["Kehlkopf", "Eingang zur Luftröhre, vorn am Hals zu ertasten. In ihm sitzen die Stimmbänder."],
+    kehldeckel: ["Kehldeckel", "Beweglicher Deckel am Kehlkopf. Beim Schlucken verschließt er den Weg in die Luftröhre."],
+    stimmbaender: ["Stimmbänder", "Zwei elastische Bänder im Kehlkopf. Die Ausatemluft bringt sie zum Schwingen – so entsteht die Stimme."],
+    speiseroehre: ["Speiseröhre", "Schlauch für die Nahrung vom Rachen zum Magen. Sie liegt hinter der Luftröhre und gehört nicht zu den Atmungsorganen."],
+    luftroehre: ["Luftröhre", "Rohr vom Kehlkopf zu den Bronchien, bei Erwachsenen etwa 10 bis 12 cm lang."],
+    knorpelspangen: ["Knorpelspangen", "Feste, hufeisenförmige Bögen in der Wand der Luftröhre. Sie halten das Rohr immer offen."],
+    flimmerhaerchen: ["Flimmerhärchen", "Winzige bewegliche Härchen auf der Schleimhaut. Sie befördern Schleim und Staub nach oben zum Rachen."],
+    bronchien: ["Bronchien", "Äste der Luftröhre. Zwei Hauptäste führen in die beiden Lungenflügel und verzweigen sich dort immer weiter."],
+    bronchiolen: ["Bronchiolen", "Die feinsten Äste der Bronchien, dünner als ein Millimeter. An ihren Enden sitzen die Lungenbläschen."],
+    lungenfluegel: ["Lungenflügel", "Die zwei Hälften der Lunge. Der rechte hat drei Lungenlappen, der linke zwei."],
+    brustkorb: ["Brustkorb", "Rippen, Brustbein und Wirbelsäule. Sie schützen Lunge und Herz wie ein Käfig."],
+    zwerchfell: ["Zwerchfell", "Muskelplatte unter der Lunge. Sie trennt den Brustraum vom Bauchraum und hilft beim Atmen."],
+    lungenblaeschen: ["Lungenbläschen", "Winzige, mit Luft gefüllte Bläschen an den Enden der Bronchiolen – etwa 300 Millionen. Hier geht der Sauerstoff ins Blut über."],
+    kapillaren: ["Kapillaren", "Haarfeine Blutgefäße. Sie umspinnen jedes Lungenbläschen wie ein Netz."],
+    oberflaeche: ["Oberflächenvergrößerung", "Viele kleine Teile haben zusammen eine größere Oberfläche als ein großes Teil. So schafft die Lunge 80 bis 100 m² auf engem Raum."]
+  }
+});
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Schätze: Wie oft atmet ein Mensch in Ruhe an einem ganzen Tag?", o: ["über 20 000-mal", "etwa 2 000-mal", "etwa 500-mal", "über 2 Millionen Mal"], a: 0, e: "15 Atemzüge in der Minute sind 900 in der Stunde – und 21 600 an einem Tag."},
+    {q: "Du hältst die Luft an. Warum musst du schon nach kurzer Zeit wieder atmen?", o: ["Der Körper braucht ständig neuen Sauerstoff und muss Kohlenstoffdioxid loswerden.", "Die Lunge ist dann ganz leer.", "Die Nase verstopft sonst.", "Die Luftröhre fällt sonst zusammen."], a: 0, e: "Sauerstoff lässt sich im Körper kaum speichern. Zugleich sammelt sich Kohlenstoffdioxid im Blut – dein Gehirn gibt den Befehl zum Atmen."}
+  ],
+  s2: [
+    {q: "Welche drei Aufgaben hat die Nasenhöhle beim Einatmen?", o: ["Sie reinigt, wärmt und befeuchtet die Luft.", "Sie kühlt, trocknet und presst die Luft.", "Sie nimmt den Sauerstoff ins Blut auf.", "Sie pumpt die Luft in die Lunge."], a: 0, e: "Nasenhaare und Schleim reinigen. Die gut durchblutete, feuchte Schleimhaut wärmt und befeuchtet."},
+    {q: "Was macht der Kehldeckel, wenn du schluckst?", o: ["Er legt sich über den Kehlkopf und verschließt den Weg in die Luftröhre.", "Er öffnet die Luftröhre besonders weit.", "Er verschließt die Speiseröhre.", "Er bringt die Stimmbänder zum Schwingen."], a: 0, e: "So rutscht der Bissen in die Speiseröhre und nicht in die Luftröhre."},
+    {q: "Wo entsteht deine Stimme?", o: ["im Kehlkopf, an den Stimmbändern", "in der Nasenhöhle", "in den Lungenbläschen", "in der Speiseröhre"], a: 0, e: "Die Ausatemluft bringt die Stimmbänder im Kehlkopf zum Schwingen."}
+  ],
+  s3: [
+    {q: "Wozu hat die Luftröhre Knorpelspangen?", o: ["Sie halten die Luftröhre offen.", "Sie fangen den Staub ab.", "Sie wärmen die Luft an.", "Sie pumpen die Luft in die Lunge."], a: 0, e: "Ohne die festen Spangen könnte das weiche Rohr zusammenfallen. Dann käme keine Luft mehr durch."},
+    {q: "Wohin befördern die Flimmerhärchen den Schleim mit dem Staub?", o: ["nach oben zum Rachen", "nach unten in die Lungenbläschen", "seitlich in die Speiseröhre", "nirgendwohin – sie halten ihn fest"], a: 0, e: "Im Rachen wird der Schleim verschluckt oder ausgehustet. So bleibt die Lunge sauber."},
+    {q: "Wie heißen die feinsten Äste der Bronchien?", o: ["Bronchiolen", "Kapillaren", "Knorpelspangen", "Stimmbänder"], a: 0, e: "Die Bronchien verzweigen sich immer weiter. Die feinsten Äste sind die Bronchiolen."}
+  ],
+  s4: [
+    {q: "Wovon ist jedes Lungenbläschen umsponnen?", o: ["von Kapillaren", "von Knorpelspangen", "von Flimmerhärchen", "von Stimmbändern"], a: 0, e: "Kapillaren sind haarfeine Blutgefäße. In ihnen fließt das Blut dicht an der Luft vorbei."},
+    {q: "Was schützt die Lunge vor Stößen?", o: ["der Brustkorb mit den Rippen", "das Zwerchfell", "die Luftröhre", "der Kehldeckel"], a: 0, e: "Rippen, Brustbein und Wirbelsäule bilden einen stabilen Käfig um Lunge und Herz."},
+    {q: "Warum hat die Lunge so viele winzige Lungenbläschen statt eines großen Hohlraums?", o: ["Viele kleine Bläschen haben zusammen eine viel größere Oberfläche.", "Kleine Bläschen sind leichter als ein großer Hohlraum.", "In kleine Bläschen passt mehr Staub.", "Ein großer Hohlraum würde die Luft abkühlen."], a: 0, e: "Du hast es im Modell gesehen: gleich viel Luft, aber viel mehr Wand. Dort treffen sich Luft und Blut."}
+  ],
+  m4: [
+    {q: "Die Haut eines Erwachsenen ist knapp 2 m² groß. Alle Lungenbläschen zusammen kommen auf etwa 100 m². Wievielmal so groß ist ihre Oberfläche?", o: ["etwa 50-mal so groß", "etwa 5-mal so groß", "etwa doppelt so groß", "etwa 200-mal so groß"], a: 0, e: "100 m² : 2 m² = 50. Die Lunge hat also etwa 50-mal so viel Fläche wie die ganze Haut."},
+    {q: "Warum braucht der Körper diese riesige Oberfläche?", o: ["Je größer die Fläche, desto mehr Sauerstoff kann gleichzeitig ins Blut übertreten.", "Damit mehr Staub in der Lunge Platz hat.", "Damit die Luft länger in der Lunge bleibt.", "Weil große Flächen die Luft besser anwärmen."], a: 0, e: "Der Sauerstoff gelangt nur durch die Wand der Lungenbläschen ins Blut. Viel Wand bedeutet: viel Sauerstoff in kurzer Zeit – genug für den ganzen Körper."}
+  ],
+  s5: [
+    {q: "Welcher Weg der Luft ist richtig?", o: ["Nasenhöhle → Kehlkopf → Luftröhre → Bronchien → Bronchiolen → Lungenbläschen", "Nasenhöhle → Luftröhre → Kehlkopf → Bronchiolen → Bronchien → Lungenbläschen", "Mundhöhle → Speiseröhre → Bronchien → Lungenbläschen", "Nasenhöhle → Kehlkopf → Bronchien → Luftröhre → Lungenbläschen → Bronchiolen"], a: 0, e: "Vom Groben zum Feinen: erst die Luftröhre, dann die Bronchien, dann die Bronchiolen – und ganz am Ende die Lungenbläschen."},
+    {q: "Wo endet der Weg der Luft?", o: ["in den Lungenbläschen", "in den Kapillaren", "im Zwerchfell", "im Kehlkopf"], a: 0, e: "Die Luft bleibt im Lungenbläschen. Nur der Sauerstoff wandert weiter – durch die dünne Wand ins Blut der Kapillaren."}
+  ],
+  train: [
+    {q: "Welche Teile gehören zu den Atmungsorganen?", o: ["Luftröhre", "Bronchien", "Lungenbläschen", "Speiseröhre", "Magen"], a: [0, 1, 2], e: "Speiseröhre und Magen gehören zum Weg der Nahrung."},
+    {q: "Du hast Schnupfen und atmest durch den Mund. Was ändert sich?", o: ["Die Luft kommt kälter, trockener und weniger sauber in der Luftröhre an.", "Die Luft enthält weniger Sauerstoff.", "Die Luft gelangt in die Speiseröhre.", "Die Lungenbläschen bleiben leer."], a: 0, e: "Die drei Aufgaben der Nasenhöhle fallen weg: reinigen, wärmen und befeuchten."},
+    {q: "Wie viele Lungenbläschen hat ein Mensch ungefähr?", o: ["etwa 300 Millionen", "etwa 300", "etwa 30 000", "genau zwei"], a: 0, e: "Zwei sind es bei den Lungenflügeln. Lungenbläschen gibt es etwa 300 Millionen."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Was meinst du?"});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.plus(() => Modul.makeMC($("#mc-m4"), MC.m4, "mcm4"));
+Modul.makeMC($("#mc-s5"), MC.s5, "mc5", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+// Animationen in einem Kasten laufen nur, solange er zu sehen ist
+const nurSichtbar = el => Modul.onVisible(el, v => el.classList.toggle("sichtbar", v));
+
+/* ---------- Station 1: Atem-Rechner ---------- */
+(function(){
+  const sim = $("#atemSim"), r = $("#atRate"), chip = $("#atChip"), std = $("#atStd"), tag = $("#atTag"), obs = $("#atObs"), lunge = $("#atLunge"), ein = $("#atEin"), aus = $("#atAus");
+  const id = "atemrechner"; register(id, "#atRate", "Atem-Rechner: Atemzüge in einer Minute, einer Stunde und an einem Tag");
+  const tsd = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  const werte = new Set();
+  function zeig(){
+    const n = +r.value;
+    setText(chip, n + " pro Minute"); setText(std, "in einer Stunde: " + tsd(n * 60)); setText(tag, "an einem Tag: " + tsd(n * 1440));
+    setText(obs, (n <= 13 ? "😴 So ruhig atmen viele Menschen im Schlaf." :
+      n <= 20 ? "📖 So atmest du in Ruhe – zum Beispiel beim Lesen oder im Unterricht." :
+      n <= 34 ? "🚶 Du bewegst dich: Deine Muskeln brauchen mehr Sauerstoff. Du atmest schneller und tiefer." :
+      "🏃 So schnell atmest du nur bei starker Anstrengung, zum Beispiel nach einem Sprint.") +
+      (werte.size >= 3 ? " ✅ Du hast mehrere Werte ausprobiert." : " Zähle deine eigenen Atemzüge eine Minute lang, stelle deinen Wert ein und probiere dann andere Werte aus."));
+  }
+  r.addEventListener("input", () => { werte.add(r.value); if (werte.size >= 3) solve(id); zeig(); });
+  let phase = 0, lauf = 0;
+  Modul.onVisible(sim, v => {
+    const meins = ++lauf; if (!v || reduced) return;
+    let zuletzt = performance.now();
+    (function tick(){
+      if (meins !== lauf) return;
+      const jetzt = performance.now(); phase += Math.min(.1, (jetzt - zuletzt) / 1000) * (+r.value) / 60 * 2 * Math.PI; zuletzt = jetzt;
+      lunge.setAttribute("transform", `translate(200 188) scale(${(1 + .09 * Math.sin(phase)).toFixed(3)}) translate(-200 -188)`);
+      const rein = Math.cos(phase) > 0; ein.style.opacity = rein ? 1 : .2; aus.style.opacity = rein ? .2 : 1;
+      requestAnimationFrame(tick);
+    })();
+  });
+  zeig();
+})();
+
+/* ---------- Station 2: Nase, Mund, Schlucken ---------- */
+(function(){
+  const sim = $("#kopfSim"), deckel = $("#kdDeckel"), wege = {nase: $("#wegNase"), mund: $("#wegMund")}, wBissen = $("#wegBissen"), bissen = $("#kdBissen"), pfeil = $("#kdPfeil"),
+    staub = $$("#kdStaub circle"), obs = $("#kopfObs"), chips = $("#kopfChips"), wahl = $("#kopfWahl");
+  const id = "kopf"; register(id, "#kopfWahl", "Versuch am Kopfschnitt: durch die Nase atmen, durch den Mund atmen, schlucken");
+  nurSichtbar(sim);
+  const MODI = [
+    {k: "nase", t: "👃 Durch die Nase atmen", stopp: [.14, .2, .26, .34], ox: [0, 0, 0, 0], oy: [-8, 9, -9, 8],
+     chips: '<span class="chip ok">Staub: bleibt in der Nase</span><span class="chip ok">Luft: angewärmt</span><span class="chip ok">Luft: angefeuchtet</span>',
+     e: "Die Luft strömt durch die Nasenhöhle. Der Staub bleibt an Nasenhaaren und Schleim hängen. Warm und feucht zieht die Luft am offenen Kehldeckel vorbei in die Luftröhre."},
+    {k: "mund", t: "👄 Durch den Mund atmen", stopp: [.74, .83, .91, .98], ox: [-5, 5, -4, 4], oy: [0, 0, 0, 0],
+     chips: '<span class="chip warn">Staub: gelangt in die Luftröhre</span><span class="chip warn">Luft: kaum angewärmt</span><span class="chip warn">Luft: bleibt trocken</span>',
+     e: "Die Luft nimmt die Abkürzung durch die Mundhöhle. Nichts hält den Staub auf – er gelangt bis in die Luftröhre. Die Luft bleibt kälter und trockener."},
+    {k: "schluck", t: "🍞 Einen Bissen schlucken",
+     chips: '<span class="chip">Kehldeckel: zu</span><span class="chip">Atmen: kurze Pause</span><span class="chip">Bissen: in die Speiseröhre</span>',
+     e: "Beim Schlucken klappt der Kehldeckel über den Kehlkopf. Der Bissen rutscht daran vorbei in die Speiseröhre. Für diesen Moment hältst du automatisch die Luft an."}
+  ];
+  const war = new Set(); let lauf = 0;
+  // Bewegt ein Teilchen an einer Linie entlang bis zum Anteil „ziel“; ox/oy: seitlicher Versatz am Ende
+  function entlang(el, linie, ziel, ms, verz, ox, oy){
+    const meins = lauf, L = linie.getTotalLength(), t0 = performance.now() + (reduced ? 0 : verz);
+    el.style.opacity = 1;
+    (function schritt(){
+      if (meins !== lauf) return;
+      const k = reduced ? 1 : clamp((performance.now() - t0) / ms, 0, 1), p = linie.getPointAtLength(L * ziel * k);
+      el.setAttribute("transform", `translate(${(p.x + ox * k).toFixed(1)} ${(p.y + oy * k).toFixed(1)})`);
+      if (k < 1) requestAnimationFrame(schritt);
+    })();
+  }
+  function zeig(i){
+    const m = MODI[i], atmen = m.k !== "schluck"; lauf++;
+    $$("button", wahl).forEach((b, j) => { b.classList.toggle("sel", j === i); if (j === i) b.classList.add("war"); });
+    deckel.style.transform = atmen ? "rotate(0deg)" : "rotate(91deg)";
+    Object.keys(wege).forEach(k => wege[k].classList.toggle("an", k === m.k));
+    pfeil.style.opacity = atmen ? 1 : 0;
+    staub.forEach((s, j) => { if (atmen) entlang(s, wege[m.k], m.stopp[j], 1500 + j * 150, j * 220, m.ox[j], m.oy[j]); else s.style.opacity = 0; });
+    if (atmen) bissen.style.opacity = 0; else entlang(bissen, wBissen, 1, 2400, 350, 0, 0);
+    chips.innerHTML = m.chips; war.add(m.k);
+    setText(obs, m.e + (war.size === MODI.length ? " ✅ Du hast alle drei Wege ausprobiert." : ""));
+    if (war.size === MODI.length) solve(id);
+  }
+  wahl.innerHTML = MODI.map((m, i) => `<button type="button" data-i="${i}">${m.t}</button>`).join("");
+  $$("button", wahl).forEach(b => b.addEventListener("click", () => zeig(+b.dataset.i)));
+})();
+
+/* ---------- Station 3: Flimmerhärchen in Schritten ---------- */
+(function(){
+  const sim = $("#flimmerSim"), haare = $("#flHaare"), schleim = $("#flSchleim"), staub = $$("#flStaub circle"), ende = $("#flEnde"), luft = $("#flLuft");
+  nurSichtbar(sim);
+  let h = "";
+  for (let y = 8; y < 300; y += 9) h += `<path d="M176 ${y}q11-1 21-8" style="transform-origin:176px ${y}px;animation-delay:${(y / 300 * .9 - .9).toFixed(2)}s"/>`;
+  haare.innerHTML = h;
+  // Orte der fünf Staubteilchen: Anfang, dann je Schritt
+  const P = [
+    [[300, -20], [366, -14], [424, -24], [340, -16], [400, -10]],
+    [[300, 70], [366, 150], [424, 110], [340, 236], [400, 250]],
+    [[206, 58], [205, 108], [207, 160], [205, 210], [206, 256]],
+    [[206, 58], [205, 108], [207, 160], [205, 210], [206, 256]],
+    [[206, -38], [205, 12], [207, 64], [205, 114], [206, 160]],
+    [[206, -40], [205, -40], [207, -40], [205, -40], [206, -40]]
+  ];
+  Modul.makeSchritte(sim, {
+    steps: [
+      "Mit jedem Atemzug kommt auch Staub in die Luftröhre.",
+      "Die Wand ist mit klebrigem Schleim überzogen. Der Staub bleibt daran hängen.",
+      "Unter dem Schleim sitzen die Flimmerhärchen. Sie schlagen wie Getreidehalme im Wind – immer in dieselbe Richtung.",
+      "Wie auf einem Förderband wandert der Schleim mit dem Staub nach oben zum Rachen.",
+      "Im Rachen wird der Schleim verschluckt oder ausgehustet. Die Lunge bleibt sauber."
+    ],
+    ms: 3200,
+    zeige(i){
+      const k = i + 1;
+      staub.forEach((s, j) => { s.style.transform = `translate(${P[k][j][0]}px,${P[k][j][1]}px)`; });
+      haare.classList.toggle("schlag", k >= 3);
+      schleim.classList.toggle("band", k >= 4);
+      ende.style.opacity = k === 5 ? 1 : 0;
+      luft.style.opacity = k <= 1 ? 1 : .45;
+    }
+  }, "flimmer");
+  register("flimmer", "#flimmerSim", "Animation: Flimmerhärchen befördern Staub nach oben");
+})();
+
+/* ---------- Station 3: Bronchialbaum ---------- */
+(function(){
+  const g = $("#baumAeste"), r = $("#baumN"), cN = $("#baumChipN"), cA = $("#baumChipA"), obs = $("#baumObs"), L1 = $("#baumL1"), L2 = $("#baumL2"), L3 = $("#baumL3");
+  const id = "baum"; register(id, "#baumN", "Versuch: Die Bronchien verzweigen sich wie ein Baum");
+  const LAENGE = [86, 54, 40, 29, 21, 15], BREITE = [11, 8, 6, 4.5, 3.2, 2.4], SPREIZ = [0, 32, 26, 22, 20, 18], MAX = 6;
+  const TEXT = [
+    "Noch ist nur die Luftröhre zu sehen. Schiebe den Regler nach rechts.",
+    "Erste Teilung: Die Luftröhre gabelt sich in zwei Bronchien – eine für jeden Lungenflügel.",
+    "Jeder Ast teilt sich wieder. Jetzt sind es 4 Äste.",
+    "8 Äste. Mit jeder Teilung werden sie dünner und kürzer.",
+    "16 Äste – der Baum füllt nach und nach die ganze Lunge aus.",
+    "32 Äste. Die feinsten Äste heißen Bronchiolen.",
+    "64 Äste nach nur 6 Teilungen! In deiner Lunge geht das über 20-mal so weiter. Ganz am Ende sitzen die Lungenbläschen."
+  ];
+  function zeichne(){
+    const n = +r.value; let h = "", blasen = "";
+    function ast(x, y, w, t){
+      const a = w * Math.PI / 180, x2 = x + LAENGE[t - 1] * Math.sin(a), y2 = y + LAENGE[t - 1] * Math.cos(a);
+      h += `<line x1="${x.toFixed(1)}" y1="${y.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke-width="${BREITE[t - 1]}"/>`;
+      if (t < n) { ast(x2, y2, w - SPREIZ[t], t + 1); ast(x2, y2, w + SPREIZ[t], t + 1); }
+      else if (t === MAX) blasen += `<circle cx="${x2.toFixed(1)}" cy="${y2.toFixed(1)}" r="4.5" fill="#f7a8ae" stroke="#d2787e" stroke-width="1.2"/>`;
+    }
+    if (n >= 1) { ast(240, 96, -50, 1); ast(240, 96, 50, 1); }
+    g.innerHTML = h + blasen;
+    L1.style.opacity = n >= 1 ? 1 : 0; L2.style.opacity = n >= 5 ? 1 : 0; L3.style.opacity = n === MAX ? 1 : 0;
+    setText(cN, n + (n === 1 ? " Teilung" : " Teilungen")); setText(cA, n ? Math.pow(2, n) + " Äste am Ende" : "1 Rohr");
+    setText(obs, TEXT[n]);
+  }
+  r.addEventListener("input", () => { zeichne(); if (+r.value === MAX) solve(id); });
+  zeichne();
+})();
+
+Modul.plus(() => {
+  Modul.makePaare($("#paareBau"), [
+    ["feste Knorpelspangen", "Die Luftröhre bleibt immer offen."],
+    ["Spangen sind hinten offen", "Die Speiseröhre kann sich ausdehnen."],
+    ["klebriger Schleim", "Staub bleibt hängen."],
+    ["Härchen schlagen nach oben", "Schleim wandert zum Rachen."],
+    ["immer feinere Äste", "Die Luft erreicht jeden Teil der Lunge."]
+  ], "paareBau");
+});
+
+/* ---------- Station 4: Blick in den Brustkorb ---------- */
+Modul.makeHotspots($("#lungeBild"), $("#lungeInfo"), $("#lungeZahl"), [
+  {x: 50, y: 14.7, i: "🌳", t: "Luftröhre und Bronchien", s: "Die Luftröhre teilt sich in zwei Bronchien. Jeder Lungenflügel bekommt seinen eigenen Ast."},
+  {x: 35.8, y: 58.8, i: "👉", t: "Rechter Lungenflügel", s: "Er ist etwas größer und hat drei Lungenlappen. Im Bild liegt er links, weil du die Person von vorn siehst."},
+  {x: 67.1, y: 44.1, i: "👈", t: "Linker Lungenflügel", s: "Er hat nur zwei Lungenlappen. Er ist kleiner, weil auf dieser Seite das Herz Platz braucht."},
+  {x: 56.7, y: 66.5, i: "❤️", t: "Herz", s: "Es liegt zwischen den beiden Lungenflügeln, etwas nach links versetzt. Herz und Lunge arbeiten eng zusammen."},
+  {x: 25, y: 43, i: "🛡️", t: "Rippen", s: "Zusammen mit Brustbein und Wirbelsäule bilden sie den Brustkorb. Er schützt Lunge und Herz wie ein Käfig."},
+  {x: 50, y: 83.5, i: "💪", t: "Zwerchfell", s: "Eine Muskelplatte unter der Lunge. Sie trennt den Brustraum vom Bauchraum. Wie sie beim Atmen hilft, zeigt das nächste Modul."}
+], "lunge");
+register("lunge", "#lungeBild", "Bild erkunden: Blick in den Brustkorb");
+
+/* ---------- Lungenbläschen mit Kapillaren zeichnen (Station 4 und Lupe in Station 5) ---------- */
+function blaeschen(g, cx, cy, d, r, verlauf, sw){
+  let b = "", k = "";
+  [-75, -15, 45, 105, 165].forEach(w => {
+    const a = w * Math.PI / 180, x = cx + d * Math.cos(a), y = cy + d * Math.sin(a), R = r + sw * .9;
+    const p = t => (x + R * Math.cos(a + t)).toFixed(1) + " " + (y + R * Math.sin(a + t)).toFixed(1);
+    b += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}"/>`;
+    k += `<path d="M${p(-1.25)}A${R} ${R} 0 0 1 ${p(1.25)}"/>`;
+  });
+  g.innerHTML = `<g fill="#e3f1fb" stroke="#e07f86" stroke-width="${(sw * .7).toFixed(1)}">${b}</g><circle cx="${cx}" cy="${cy}" r="${(d * .55).toFixed(1)}" fill="#e3f1fb"/><g fill="none" stroke="url(#${verlauf})" stroke-width="${sw}" stroke-linecap="round">${k}</g>`;
+}
+blaeschen($("#bZoom"), 200, 122, 44, 30, "bVerlauf", 4.5);
+blaeschen($("#kZoom"), 384, 336, 25, 17, "kVerlauf", 3);
+
+/* ---------- Station 4: eine große Blase oder viele kleine ---------- */
+(function(){
+  const g = $("#blKreise"), balken = $("#blBalken"), faktor = $("#blFaktor"), obs = $("#blasenObs"), wahl = $("#blasenWahl");
+  const id = "blasen"; register(id, "#blasenWahl", "Modell: eine große Blase oder viele kleine Bläschen (Oberfläche)");
+  const V = [
+    {k: 1, t: "1 große Blase", e: "Eine einzige große Blase: Die Wand (rote Linie) ist kurz. Nur an ihr können sich Luft und Blut begegnen."},
+    {k: 2, t: "4 Bläschen", e: "4 Bläschen mit gleich viel Luft: Ihre Wände sind zusammen schon doppelt so lang."},
+    {k: 4, t: "16 Bläschen", e: "16 Bläschen: Die Wand ist zusammen 4-mal so lang wie am Anfang – bei gleich viel Luft."},
+    {k: 8, t: "64 Bläschen", e: "64 Bläschen: 8-mal so viel Wand! Genau so macht es deine Lunge. Millionen winziger Bläschen ergeben eine riesige Oberfläche."}
+  ];
+  const war = new Set();
+  function zeig(i){
+    const v = V[i], a = 240 / v.k, rad = (108 / v.k).toFixed(2); let h = "";
+    for (let y = 0; y < v.k; y++) for (let x = 0; x < v.k; x++) h += `<circle cx="${20 + a * (x + .5)}" cy="${20 + a * (y + .5)}" r="${rad}"/>`;
+    g.innerHTML = h; g.setAttribute("stroke-width", v.k === 8 ? 2 : 2.5);
+    balken.style.transform = `scaleY(${v.k / 8})`;
+    setText(faktor, v.k === 1 ? "Wand: 1×" : `Wand: ${v.k}-mal so lang`);
+    $$("button", wahl).forEach((b, j) => b.classList.toggle("sel", j === i));
+    return v;
+  }
+  wahl.innerHTML = V.map((v, i) => `<button type="button" data-i="${i}">${v.t}</button>`).join("");
+  $$("button", wahl).forEach(b => b.addEventListener("click", () => {
+    const v = zeig(+b.dataset.i); b.classList.add("war"); war.add(v.k);
+    setText(obs, v.e + (war.size === V.length ? " ✅ Du hast alle vier Stufen verglichen." : ""));
+    if (war.size === V.length) solve(id);
+  }));
+  zeig(0); $$("button", wahl)[0].classList.remove("sel");
+})();
+
+/* ---------- Station 5: der Weg der Luft ---------- */
+const ORTE = [
+  {n: "Nasenhöhle", m: [60, 80], h: "Dieser Teil liegt hinter den Nasenlöchern.", e: "Hier wird die Luft gereinigt, angewärmt und befeuchtet."},
+  {n: "Mundhöhle", m: [62, 128], h: "Dieser Teil liegt hinter den Lippen.", e: "Sie ist der zweite Eingang für die Luft."},
+  {n: "Kehlkopf", m: [108, 164], h: "Hier sitzen die Stimmbänder.", e: "Er ist der Eingang zur Luftröhre."},
+  {n: "Luftröhre", m: [120, 234], h: "Gesucht ist das Rohr mit den Knorpelspangen.", e: "Knorpelspangen halten sie offen."},
+  {n: "Bronchien", m: [228, 236], h: "Hier teilt sich das Rohr in zwei Äste.", e: "Jeder Lungenflügel bekommt einen Ast."},
+  {n: "Bronchiolen", m: [226, 380], h: "Gesucht sind die feinsten Äste in der Lunge.", e: "Sie sind dünner als ein Millimeter."},
+  {n: "Lungenbläschen", m: [420, 296], h: "Gesucht sind die winzigen Bläschen am Ende der feinsten Äste.", e: "Hier endet der Weg der Luft."},
+  {n: "Kapillaren", m: [350, 380], h: "Gesucht sind die haarfeinen Blutgefäße um die Bläschen.", e: "In ihnen fließt das Blut dicht an der Luft vorbei."}
+];
+
+(function(){
+  const sim = $("#wegSim"), kugel = $("#wegKugel"), kugelB = $("#wegKugelB"), o2 = $("#wegO2"), ring = $("#wegRing"), nr = $("#wegNr"), name = $("#wegName"), kette = $$("#wegKette .step");
+  nurSichtbar(sim);
+  // Weg der blauen Kugel zu Schritt i (von ihrem Platz davor) und ihr Platz am Ende des Schritts
+  const WEG = [
+    [[70, 96], [104, 97], [140, 88]],
+    null,
+    [[140, 88], [172, 91], [178, 126], [171, 146], [165, 157]],
+    [[165, 157], [165, 232]],
+    [[165, 232], [165, 263], [186, 281]],
+    [[186, 281], [194, 288], [216, 312], [232, 338], [241, 358]],
+    [[241, 358], [322, 288], [384, 336], [408, 329.5]],
+    null
+  ];
+  const PLATZ = [[140, 88], [140, 88], [165, 157], [165, 232], [186, 281], [241, 358], [408, 329.5], [408, 329.5]];
+  const WEG_B = {1: [[74, 111], [110, 110], [140, 110]], 2: [[140, 110], [166, 113], [178, 126], [171, 146], [165, 157]]};
+  const GLIED = [0, 0, 1, 2, 3, 4, 5, 5];
+  const zaehler = new Map();
+  function setze(el, p, da){ zaehler.set(el, (zaehler.get(el) || 0) + 1); el.setAttribute("transform", `translate(${p[0]} ${p[1]})`); el.style.opacity = da ? 1 : 0; }
+  // Kugel an einem Linienzug entlang bewegen (gleichmäßig schnell)
+  function fahre(el, pts, ms){
+    const meins = (zaehler.get(el) || 0) + 1; zaehler.set(el, meins);
+    const seg = pts.slice(1).map((p, i) => Math.hypot(p[0] - pts[i][0], p[1] - pts[i][1])), L = seg.reduce((a, b) => a + b, 0) || 1, t0 = performance.now();
+    el.style.opacity = 1;
+    (function schritt(){
+      if (zaehler.get(el) !== meins) return;
+      const k = reduced ? 1 : clamp((performance.now() - t0) / ms, 0, 1); let s = k * L, i = 0;
+      while (i < seg.length - 1 && s > seg[i]) s -= seg[i++];
+      const a = pts[i], b = pts[i + 1], f = seg[i] ? clamp(s / seg[i], 0, 1) : 1;
+      el.setAttribute("transform", `translate(${(a[0] + (b[0] - a[0]) * f).toFixed(1)} ${(a[1] + (b[1] - a[1]) * f).toFixed(1)})`);
+      if (k < 1) requestAnimationFrame(schritt);
+    })();
+  }
+  let letzter = -1;
+  Modul.makeSchritte(sim, {
+    steps: [
+      "<b>Nasenhöhle:</b> Die Luft strömt durch die Nasenlöcher ein. Sie wird gereinigt, angewärmt und befeuchtet.",
+      "<b>Mundhöhle:</b> Das ist der zweite Eingang. Beim Sport atmest du oft durch den Mund. Dann wird die Luft aber kaum gereinigt und angewärmt.",
+      "<b>Kehlkopf:</b> Beide Wege treffen sich im Rachen. Der Kehldeckel steht offen, die Luft strömt durch den Kehlkopf.",
+      "<b>Luftröhre:</b> Knorpelspangen halten sie offen. Flimmerhärchen befördern Staub zurück nach oben.",
+      "<b>Bronchien:</b> Die Luftröhre teilt sich in zwei Äste – einen für jeden Lungenflügel.",
+      "<b>Bronchiolen:</b> In der Lunge verzweigen sich die Bronchien immer feiner. Die feinsten Äste heißen Bronchiolen.",
+      "<b>Lungenbläschen:</b> Blick durch die Lupe – am Ende jeder Bronchiole sitzen die Lungenbläschen. Hier endet der Weg der Luft.",
+      "<b>Kapillaren:</b> Haarfeine Blutgefäße umspinnen die Lungenbläschen. Hier wechselt der Sauerstoff (roter Punkt) aus der Luft ins Blut."
+    ],
+    ms: 3400,
+    zeige(i){
+      const folge = i === letzter + 1; letzter = i;
+      kette.forEach((s, j) => s.classList.toggle("on", i >= 0 && j === GLIED[i]));
+      if (i < 0) {
+        setze(kugel, [70, 96], false); setze(kugelB, [74, 111], false); setze(o2, [408, 329.5], false);
+        ring.setAttribute("cx", -60); ring.setAttribute("cy", -60);
+        setText(nr, "Der Weg der Luft"); setText(name, "8 Stationen"); return;
+      }
+      if (folge && WEG[i]) fahre(kugel, WEG[i], i === 6 ? 1700 : 1100); else setze(kugel, PLATZ[i], true);
+      if (i === 1) { if (folge) fahre(kugelB, WEG_B[1], 1100); else setze(kugelB, [140, 110], true); }
+      else if (i === 2 && folge) fahre(kugelB, WEG_B[2], 1100);
+      else setze(kugelB, [74, 111], false);
+      if (i === 7) { if (folge) fahre(o2, [[408, 329.5], [427, 324.4]], 1300); else setze(o2, [427, 324.4], true); }
+      else setze(o2, [408, 329.5], false);
+      ring.setAttribute("cx", ORTE[i].m[0]); ring.setAttribute("cy", ORTE[i].m[1]);
+      setText(nr, `Station ${i + 1} von 8`); setText(name, ORTE[i].n);
+    }
+  }, "weg");
+  register("weg", "#wegSim", "Animation: der Weg der Luft von der Nase bis ins Lungenbläschen");
+})();
+
+Modul.makeOrder($("#orderWeg"), ["Nasenhöhle", "Kehlkopf", "Luftröhre", "Bronchien", "Bronchiolen", "Lungenbläschen"], "orderWeg");
+
+/* ---------- Station 5: Bild beschriften ---------- */
+(function(){
+  const bild = $("#bqBild"), wahl = $("#bqWahl"), fb = $("#bqFb"), frage = $("#bqFrage"), leg = $("#bqLegende"), marken = $("#bqMarken"), ring = $("#bqRing"), nr = $("#bqNr"), text = $("#bqText");
+  const id = "beschriften"; register(id, "#bqWahl", "Beschriften: die acht Teile der Atmungsorgane im Bild benennen");
+  nurSichtbar(bild);
+  let reihe, i, fertig;
+  function legende(){ leg.innerHTML = ORTE.map((o, k) => `<li class="${fertig.has(k) ? "da" : ""}"><b>${k + 1}</b>${fertig.has(k) ? esc(o.n) : "?"}</li>`).join(""); }
+  function zeig(){
+    legende();
+    if (i >= reihe.length) {
+      ring.setAttribute("cx", -60); ring.setAttribute("cy", -60); setText(text, "Alles beschriftet"); setText(nr, "✓");
+      frage.textContent = "Geschafft! Alle acht Teile sind beschriftet.";
+      wahl.innerHTML = '<button type="button">↺ Noch einmal beschriften</button>';
+      $("button", wahl).addEventListener("click", start);
+      solve(id); return;
+    }
+    const k = reihe[i];
+    ring.setAttribute("cx", ORTE[k].m[0]); ring.setAttribute("cy", ORTE[k].m[1]);
+    setText(text, "Gesucht ist Nummer"); setText(nr, String(k + 1));
+    frage.textContent = `Nummer ${k + 1} blinkt im Bild. Wie heißt dieser Teil?`;
+  }
+  function tipp(b){
+    const k = reihe[i];
+    if (+b.dataset.k === k) {
+      b.disabled = true; b.classList.add("war"); fertig.add(k);
+      marken.innerHTML += `<circle cx="${ORTE[k].m[0]}" cy="${ORTE[k].m[1]}" r="10" fill="#1b8a4b"/><text x="${ORTE[k].m[0]}" y="${ORTE[k].m[1] + 4.3}" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">${k + 1}</text>`;
+      fb.className = "fb show ok"; fb.textContent = `✅ Richtig, Nummer ${k + 1}: ${ORTE[k].n}. ${ORTE[k].e}`;
+      i++; zeig();
+    } else {
+      b.classList.add("falsch"); setTimeout(() => b.classList.remove("falsch"), 800);
+      fb.className = "fb show bad"; fb.textContent = "❌ Nicht ganz. " + ORTE[k].h;
+    }
+  }
+  function start(){
+    reihe = shuffle(ORTE.map((_, k) => k)); i = 0; fertig = new Set(); marken.innerHTML = ""; fb.className = "fb";
+    wahl.innerHTML = shuffle(ORTE.map((o, k) => ({o, k}))).map(x => `<button type="button" data-k="${x.k}">${esc(x.o.n)}</button>`).join("");
+    $$("button", wahl).forEach(b => b.addEventListener("click", () => tipp(b)));
+    zeig();
+  }
+  start();
+})();
+
+/* ---------- Station 6: Training ---------- */
+Modul.makeGap($("#gapAtem"), [
+  ["Beim Einatmen strömt die Luft zuerst in die ", {g: "Nasenhöhle"}, ". Dort wird sie gereinigt, angewärmt und ", {g: "befeuchtet"}, "."],
+  ["Beim Schlucken verschließt der ", {g: "Kehldeckel"}, " den Kehlkopf. In der Wand der Luftröhre halten ", {g: "Knorpelspangen"}, " den Weg offen."],
+  ["Die ", {g: "Flimmerhärchen"}, " befördern Staub und Schleim nach oben zum Rachen."],
+  ["Die Luftröhre teilt sich in zwei ", {g: "Bronchien"}, ". Ihre feinsten Äste heißen ", {g: "Bronchiolen"}, "."],
+  ["Ganz am Ende sitzen die ", {g: "Lungenbläschen"}, ". Sie sind von haarfeinen ", {g: "Kapillaren"}, " umsponnen."]
+], "gapAtem", ["Speiseröhre", "Stimmbänder"]);
+
+Modul.makePaare($("#paareOrgane"), [
+  ["Nasenhöhle", "reinigt, wärmt und befeuchtet"],
+  ["Kehldeckel", "verschließt beim Schlucken"],
+  ["Stimmbänder", "erzeugen die Stimme"],
+  ["Knorpelspangen", "halten die Luftröhre offen"],
+  ["Flimmerhärchen", "befördern Staub nach oben"],
+  ["Kapillaren", "umspinnen die Lungenbläschen"]
+], "paareOrgane");
+
+Modul.makeSort($("#sortTeile"), {
+  buckets: ["Nasenhöhle", "Kehlkopf", "Luftröhre", "Lunge"],
+  items: [
+    {t: "Nasenhaare", b: 0}, {t: "Riechschleimhaut", b: 0},
+    {t: "Kehldeckel", b: 1}, {t: "Stimmbänder", b: 1},
+    {t: "Knorpelspangen", b: 2}, {t: "teilt sich in zwei Bronchien", b: 2},
+    {t: "Bronchiolen", b: 3}, {t: "Lungenbläschen", b: 3}, {t: "Lungenlappen", b: 3}
+  ], cols: 150
+}, "sortTeile");
+
+Modul.makeTF($("#tf"), [
+  ["Luft, die du durch die Nase einatmest, wird gereinigt, angewärmt und befeuchtet.", true],
+  ["Der Kehldeckel verschließt beim Schlucken die Speiseröhre.", false],
+  ["Die Luftröhre liegt im Hals vor der Speiseröhre.", true],
+  ["Die Flimmerhärchen befördern Staub nach unten in die Lungenbläschen.", false],
+  ["Die Bronchien verzweigen sich wie ein Baum, der auf dem Kopf steht.", true],
+  ["Der linke Lungenflügel ist größer als der rechte.", false],
+  ["Die Lungenbläschen sind von Kapillaren umsponnen.", true]
+], "tf");
+
+Modul.makeCrossword($("#cw"), {
+  words: [
+    {w: "LUFTROEHRE", r: 0, c: 8, d: "d", q: "Rohr mit Knorpelspangen zwischen Kehlkopf und Bronchien."},
+    {w: "NASENHOEHLE", r: 7, c: 0, d: "a", q: "Hier wird die Atemluft gereinigt, angewärmt und befeuchtet."},
+    {w: "BRONCHIOLEN", r: 0, c: 0, d: "a", q: "Die feinsten Äste der Bronchien."},
+    {w: "KEHLDECKEL", r: 9, c: 0, d: "a", q: "Er verschließt beim Schlucken den Weg in die Luftröhre."},
+    {w: "KAPILLAREN", r: 4, c: 1, d: "a", q: "Haarfeine Blutgefäße rund um die Lungenbläschen."},
+    {w: "ZWERCHFELL", r: 2, c: 2, d: "a", q: "Muskelplatte unter der Lunge."},
+    {w: "KEHLKOPF", r: 6, c: 3, d: "d", q: "Eingang zur Luftröhre – hier sitzen die Stimmbänder."},
+    {w: "BRONCHIEN", r: 11, c: 1, d: "a", q: "In diese zwei Äste teilt sich die Luftröhre."},
+    {w: "LUNGE", r: 9, c: 9, d: "d", q: "Organ aus zwei Flügeln im Brustkorb."},
+    {w: "SCHLEIM", r: 13, c: 5, d: "a", q: "Klebrige Flüssigkeit, an der Staub hängen bleibt."}
+  ],
+  sol: [[7, 1], [3, 8], [9, 8], [13, 11], [2, 2], [1, 8], [12, 9]], solWord: "ATEMZUG"
+}, "cw");
+
+Modul.makeOpen($("#open"), [
+  {q: "Beschreibe den Weg der Luft beim Einatmen von der Nase bis zu den Lungenbläschen. Nenne alle Stationen in der richtigen Reihenfolge.",
+   m: "Die Luft strömt durch die Nasenhöhle in den Rachen und durch den Kehlkopf in die Luftröhre. Die Luftröhre teilt sich in zwei Bronchien. Diese verzweigen sich immer feiner bis zu den Bronchiolen. An ihren Enden sitzen die Lungenbläschen.",
+   k: ["nasenhöhle|nase", "kehlkopf", "luftröhre", "bronchien", "bronchiolen", "lungenbläschen|bläschen"], min: 5},
+  {q: "Erkläre, warum es gesünder ist, durch die Nase zu atmen als durch den Mund.",
+   m: "In der Nasenhöhle wird die Luft gereinigt: Nasenhaare und Schleim halten Staub und Krankheitserreger zurück. Außerdem wird die Luft angewärmt und befeuchtet. Beim Atmen durch den Mund kommt sie kalt, trocken und ungefiltert in der Luftröhre an.",
+   k: ["reinig|staub|filter|sauber", "wärm|warm", "feucht"], min: 2},
+  {q: "Erkläre, wie die Luftröhre dafür sorgt, dass Staub nicht in die Lunge gelangt.",
+   m: "Die Luftröhre ist innen mit Schleim überzogen. Der Staub bleibt daran kleben. Die Flimmerhärchen schlagen in Richtung Rachen und befördern den Schleim mit dem Staub nach oben. Dort wird er verschluckt oder ausgehustet.",
+   k: ["schleim", "flimmerhärchen|flimmerhaare|härchen", "oben|rachen|hinaus|heraus"], min: 2}
+], "open", "Lies noch einmal die Merke-Kästen in Station 2, 3 und 4.");
+
+Modul.plus(() => {
+  Modul.makeOpen($("#openM"), [
+    {q: "Beim Essen hast du dich verschluckt und musst heftig husten. Erkläre, was passiert ist und wozu der Husten gut ist.",
+     m: "Beim Schlucken war der Kehldeckel nicht rechtzeitig zu – zum Beispiel, weil ich gleichzeitig gelacht oder gesprochen habe. Ein Krümel ist in den Kehlkopf und in die Luftröhre geraten. Der Husten ist ein Schutz: Ein kräftiger Luftstoß schleudert den Krümel wieder hinaus.",
+     k: ["kehldeckel", "luftröhre|kehlkopf", "hinaus|heraus|raus|luftstoß|schleudert|befördert|schutz"], min: 2},
+    {q: "Viele starke Raucher müssen morgens lange husten. Erkläre das mit dem, was du über die Flimmerhärchen weißt.",
+     m: "Tabakrauch lähmt die Flimmerhärchen und zerstört sie mit der Zeit. Sie können den Schleim mit Staub und Schadstoffen nicht mehr nach oben befördern. Der Schleim bleibt in den Bronchien liegen und muss durch Husten herausgebracht werden.",
+     k: ["flimmerhärchen|härchen", "lähm|zerstör|kaputt|schädig", "schleim"], min: 2}
+  ], "openM", "Lies noch einmal in Station 2 (Kehldeckel) und Station 3 (Flimmerhärchen) nach.");
+});
+
+/* ---------- Station 7: Profi-Check ---------- */
+Modul.makeQuiz($("#quiz"), [].concat(MC.s1, MC.s2, MC.s3, MC.s4, MC.s5, MC.train, [
+  {q: "Wie groß ist die Oberfläche aller Lungenbläschen zusammen ungefähr?", o: ["80 bis 100 m²", "etwa 2 m²", "etwa 1 m²", "über 10 000 m²"], a: 0, e: "Das ist so viel wie eine Wohnung mit vier Zimmern – und etwa 50-mal so viel wie die Haut."},
+  {q: "Welches Organ gehört nicht zu den Atmungsorganen?", o: ["die Speiseröhre", "die Luftröhre", "der Kehlkopf", "die Bronchien"], a: 0, e: "Die Speiseröhre leitet die Nahrung in den Magen. Sie liegt hinter der Luftröhre."},
+  {q: "Was schadet den Flimmerhärchen besonders?", o: ["Tabakrauch", "feuchte Luft", "lautes Sprechen", "tiefes Einatmen"], a: 0, e: "Rauch lähmt die Flimmerhärchen. Der Schleim mit dem Schmutz bleibt dann in den Atemwegen liegen."},
+  {q: "Wie viele Lungenflügel hat ein Mensch?", o: ["zwei", "einen", "drei", "fünf"], a: 0, e: "Der rechte Lungenflügel hat drei Lungenlappen, der linke zwei. Das sind fünf Lappen, aber zwei Flügel."},
+  {q: "Wo liegt das Zwerchfell?", o: ["unter der Lunge, zwischen Brustraum und Bauchraum", "im Kehlkopf", "zwischen den beiden Lungenflügeln", "in der Nasenhöhle"], a: 0, e: "Das Zwerchfell ist eine Muskelplatte. Wie es beim Atmen hilft, erfährst du im nächsten Modul."},
+  {q: "Warum musst du husten, wenn du dich verschluckst?", o: ["Ein kräftiger Luftstoß befördert den Krümel wieder aus der Luftröhre.", "Der Husten drückt den Krümel tiefer in die Lunge.", "Beim Husten schließt sich die Speiseröhre.", "Der Husten wärmt die Atemluft an."], a: 0, e: "Husten ist ein Schutz: Er hält die Atemwege frei."}
+]), "quiz", "Atemwege-Profi");
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

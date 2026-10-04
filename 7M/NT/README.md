@@ -1,8 +1,10 @@
 # Natur und Technik 7M / 7R
 
-- Übersicht 7M: `index.html` · Übersicht 7R: `../../7R/NT/index.html`
-- Beide Übersichten nutzen `uebersicht.js` und `uebersicht.css` aus diesem Ordner. Die Modulliste steht nur in `uebersicht.js`.
-- Lernmodule liegen hier in 7M/NT und werden von beiden Klassen genutzt. Modul 1: `luft-modul.html` (Bilder in `assets/luft-modul/`).
-- Modul 2: `windkraft-strom.html`, Modul 3: `windkraft-pro-contra.html` (Bilder in `assets/windkraft/`). Beide nutzen die gemeinsamen Bausteine `modul-basis.css` und `modul-basis.js` (Sterne, Übungstypen, Kreuzworträtsel, KI-Rückmeldung, Quiz).
-- Modul 4: `luft-verbrennung.html` (Bilder in `assets/verbrennung/`), Modul 5: `achtung-explosiv.html` (Bilder in `assets/explosiv/`). Beide nutzen ebenfalls `modul-basis.css` und `modul-basis.js`.
-- Proben (nur 7M): `probe.html`, Lehrerverwaltung: `lehrer.html`. Sie brauchen das Backend im Repository `englisch_9` (`https://englisch-9.onrender.com`) und `style.css`.
+- Übersicht 7M: `index.html` · Übersicht 7R: `../../7R/NT/index.html`. Beide nutzen `themen.js`, `uebersicht.js` und `uebersicht.css` aus diesem Ordner.
+- **`themen.js` ist die eine Liste** aller Themenbereiche, Module und Proben (Kennung, Titel, Datei, Speicherschlüssel). Übersicht, Module, Lernstand und die Verwaltung der Lehrkraft lesen daraus. Neues Modul = Datei anlegen und dort eintragen.
+- Lernmodule liegen hier in 7M/NT und werden von beiden Zügen genutzt (eine Datei je Modul). Gemeinsame Bausteine: `modul-basis.css` und `modul-basis.js` (Sterne, Übungstypen, Kreuzworträtsel, Schritt-Animation, Paare, Film mit Stopp-Fragen, KI-Rückmeldung, Quiz, Lernstand, Sperre).
+- **R und M:** Aufgaben für den M-Zug stehen in `Modul.plus(() => …)`. In 7R sind sie freiwillig und zählen nicht zu den Pflichtaufgaben.
+- **Freischalten:** Die Lehrkraft schaltet je Klasse Themenbereiche oder einzelne Module frei (`proben-verwalten.html` → Klasse → Natur und Technik, Skript `../../nt7-verwaltung.js`). Die fünf ersten Luft-Module sind ohne Zutun offen, alles Neue ist zuerst gesperrt. `?vorschau=1` zeigt der Lehrkraft ein gesperrtes Modul, ohne etwas zu speichern.
+- **Proben:** `probe.html` und `probe.js` zeigen die Proben des eigenen Zugs (`?thema=…&zug=R|M`, `?test=<Kennung>`). Fragen, Lösungen und Bewertung liegen nur auf dem Server (Repository `englisch_9`, `https://englisch-9.onrender.com`). Bilder zu Proben: `assets/proben/`. Lehrerseite: `lehrer.html`.
+- Bilder der Module: `assets/luft-modul/`, `assets/windkraft/`, `assets/verbrennung/`, `assets/explosiv/`. Die neuen Module zeichnen ihre Grafiken selbst (SVG im Modul).
+- Arbeitsweise, Plan und Protokoll: Ordner `Fortschritt/` (`ARBEITSMODUS.md`, `MODULPLAN.md`, `BAUANLEITUNG.md`, `README.md`).

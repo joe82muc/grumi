@@ -1,0 +1,1106 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#8a3f18">
+<title>Oxidation: Rost, Glut und braune Äpfel | NT 7</title>
+<link rel="stylesheet" href="modul-basis.css">
+<style>
+.hero{background:linear-gradient(160deg,#4a2412,#a8501e 55%,#e9a24c)}
+.hotimg{position:relative}
+.hotimg svg{display:block;width:100%;height:auto}
+.sim-ctrl input[type=range]{height:44px}
+.sim .wahl{padding:10px 14px;margin:0;border-top:1px solid var(--line);background:#fbfdff}
+.wahl button.war{border-color:var(--ok);background:var(--ok-l)}
+.wahl button.war.sel{border-color:var(--sky);background:var(--sky);color:#fff}
+.wahl button.falsch{border-color:var(--bad);background:var(--bad-l)}
+.wahl button[disabled]{opacity:.5;cursor:default}
+.gleichung{font-weight:800;font-size:1.08rem;text-align:center;background:var(--sky-l);color:var(--sky-d);border-radius:12px;padding:10px 12px;margin:0 0 .9em}
+.mini{display:block;width:64px;height:36px}
+/* Balkenwaage */
+#wBalken{transform-origin:240px 70px}
+#wBalken,#wL,#wR,#wBrenner{transition:transform .9s ease-in-out,opacity .5s}
+#wFrisch,#wGlut,#wOxid,#wLegende{transition:opacity .7s}
+.o2{opacity:0}
+.sichtbar .o2.flieg{animation:o2rein 2.4s ease-in infinite}
+@keyframes o2rein{0%{opacity:0;transform:translate(0,0)}15%{opacity:1}75%{opacity:1}100%{opacity:0;transform:translate(var(--tx),var(--ty))}}
+.sichtbar #wGlut.an .kern{animation:glimmen .9s ease-in-out infinite alternate}
+@keyframes glimmen{from{opacity:.55}to{opacity:1}}
+/* Wortgleichungs-Baukasten */
+.atom{transition:transform 1.4s ease-in-out}
+#wgFrage,#wgFrageT{transition:opacity .4s}
+.wg-kopf{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px 14px 0;border-top:1px solid var(--line)}
+.wg-text{padding:8px 14px 0;margin:0}
+.wg-zeile{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:10px 14px 12px}
+.wg-slot{min-width:100px;min-height:44px;padding:6px 10px;border:2px dashed var(--sky);border-radius:10px;background:var(--sky-l);display:grid;place-items:center;font-weight:700;color:var(--sky-d);text-align:center}
+.wg-slot.voll{border-style:solid;border-color:var(--ok);background:var(--ok-l);color:#135c33}
+.wg-op{font-weight:800;font-size:1.25rem}
+.wg-gruppe{font-size:.85rem;font-weight:700;color:var(--muted);padding:8px 14px 0;margin:0;border-top:1px solid var(--line);background:#fbfdff}
+.sim .wahl.ohne-linie{border-top:0;padding-top:6px}
+/* Formelgleichung (M7) */
+.formel-tab{display:grid;gap:6px;margin:10px 0 14px}
+.formel-tab div{display:flex;flex-wrap:wrap;gap:4px 16px;justify-content:space-between;align-items:center;border:1.5px solid var(--line);border-radius:12px;padding:8px 12px;background:#fbfdff}
+.formel-tab b{color:#4b2d73;white-space:nowrap}
+.gl-zeile{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:12px 14px;border-top:1px solid var(--line);background:#fbfdff;font-weight:800;font-size:1.15rem}
+.gl-zeile .wahl{display:inline-flex;flex-wrap:nowrap;gap:4px;align-items:center;margin:0;padding:0;border:0;background:none}
+.gl-zeile .wahl button{min-width:44px;padding:6px 0;font-size:1.2rem}
+.gl-zahl{display:inline-grid;place-items:center;min-width:34px;height:44px;border-radius:10px;background:#f3ecfb;color:#4b2d73;font-size:1.3rem}
+/* Nagelversuch */
+.rost,.trueb,#nFlocken{transition:opacity .3s}
+.glas-liste{list-style:none;margin:0 0 .9em;padding:0}
+.glas-liste li{position:relative;padding:4px 0 4px 36px}
+.glas-liste b{position:absolute;left:0;top:5px;width:26px;height:26px;border-radius:50%;background:var(--sky);color:#fff;display:grid;place-items:center;font-size:.85rem}
+/* Schutzschicht */
+.teilchen{transition:transform 1s ease-in}
+#schRostAlle,#schRostKratzer{transition:opacity .8s}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>NT 7</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Drei Rätsel</a>
+      <a href="#s2"><b>2</b>Eisenwolle</a>
+      <a href="#s3"><b>3</b>Teilchen</a>
+      <a href="#s4"><b>4</b>Rost</a>
+      <a href="#s5"><b>5</b>Schützen</a>
+      <a href="#s6"><b>6</b>Training</a>
+      <a href="#s7"><b>7</b>Profi-Check</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse 7M / 7R · Themenbereich Luft · Lernmodul 7</div>
+    <h1>Oxidation: Rost, Glut und braune Äpfel</h1>
+    <p>Ein Fahrrad rostet, Eisenwolle glüht, ein Apfel wird braun. Dahinter steckt jedes Mal derselbe Vorgang: Ein Stoff verbindet sich mit dem Sauerstoff der Luft. In sieben Stationen findest du heraus, was dabei passiert – und wie man Dinge davor schützt.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s6">Direkt zum Probentraining</a>
+    </div>
+    <div class="goals">
+      <div>⚖️ Ich erkläre, warum Eisenwolle beim Glühen schwerer wird.</div>
+      <div>✏️ Ich schreibe Wortgleichungen für Oxidationen auf und unterscheide Metalloxide und Nichtmetalloxide.</div>
+      <div>🚲 Ich weiß, was Eisen zum Rosten braucht.</div>
+      <div>🛡️ Ich begründe, wie man Eisen und Lebensmittel vor Sauerstoff schützt.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg</div><h2>Drei Rätsel, eine Ursache</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Nach den Ferien holst du dein Fahrrad aus dem Schuppen: Die Kette ist rotbraun und rau. In der Brotdose liegt noch ein Apfelschnitz – seine Schnittfläche ist braun. Und im NT-Raum hält deine Lehrkraft ein Büschel Eisenwolle in die Flamme: Es glüht hell auf.</p>
+    <p style="margin:0">Drei ganz verschiedene Dinge. Trotzdem steckt hinter allen dreien derselbe Vorgang. Sammle zuerst Hinweise.</p>
+  </div>
+  <div class="grid2">
+    <div class="sim reveal">
+      <div class="hotimg" id="raetselBild">
+        <svg viewBox="0 0 480 290" role="img" aria-label="Drei Bilder nebeneinander: eine rostige Fahrradkette, ein brauner Apfelschnitz und ein Büschel glühende Eisenwolle über einer Flamme">
+          <defs><clipPath id="wolleUnten"><rect x="360" y="124" width="72" height="30"/></clipPath></defs>
+          <rect width="480" height="290" fill="#eef5fa"/>
+          <g fill="#fff" stroke="#d8e2ea" stroke-width="2"><rect x="10" y="12" width="148" height="236" rx="12"/><rect x="166" y="12" width="148" height="236" rx="12"/><rect x="322" y="12" width="148" height="236" rx="12"/></g>
+          <!-- Fahrradkette mit Kettenblatt -->
+          <circle cx="64" cy="112" r="33" fill="#cdd5db" stroke="#7d8791" stroke-width="3"/>
+          <g fill="#fff" stroke="#7d8791" stroke-width="2"><circle cx="64" cy="92" r="6"/><circle cx="83" cy="106" r="6"/><circle cx="76" cy="128" r="6"/><circle cx="52" cy="128" r="6"/><circle cx="45" cy="106" r="6"/></g>
+          <circle cx="64" cy="112" r="7" fill="#566674"/>
+          <circle cx="112" cy="198" r="13" fill="#cdd5db" stroke="#7d8791" stroke-width="3"/><circle cx="112" cy="198" r="4" fill="#566674"/>
+          <path d="M33.8 138.2L96.9 211.1A20 20 0 0 0 131.1 192L102.2 100A40 40 0 1 0 33.8 138.2Z" fill="none" stroke="#9c4a1a" stroke-width="7" stroke-dasharray="8 3" stroke-linejoin="round"/>
+          <path d="M33.8 138.2L96.9 211.1A20 20 0 0 0 131.1 192L102.2 100A40 40 0 1 0 33.8 138.2Z" fill="none" stroke="#dd8a3c" stroke-width="3" stroke-dasharray="3 19"/>
+          <g fill="#b5622a" opacity=".8"><ellipse cx="41" cy="96" rx="7" ry="4" transform="rotate(-45 41 96)"/><ellipse cx="85" cy="134" rx="8" ry="4" transform="rotate(40 85 134)"/><ellipse cx="72" cy="83" rx="5" ry="3"/></g>
+          <g fill="#5aa9e6"><path d="M134 40c5 8 7 11 7 14a7 7 0 0 1-14 0c0-3 2-6 7-14z"/><path d="M116 62c4 6 5 8 5 10a5 5 0 0 1-10 0c0-2 1-4 5-10z"/></g>
+          <!-- Apfel, aufgeschnitten -->
+          <ellipse cx="240" cy="212" rx="56" ry="9" fill="#e3e9ee"/>
+          <path d="M240 104C224 84 188 94 192 138C194 176 216 204 240 198C264 204 286 176 288 138C292 94 256 84 240 104Z" fill="#dcb983" stroke="#c0392b" stroke-width="6" stroke-linejoin="round"/>
+          <g fill="#b98b50" opacity=".75"><ellipse cx="214" cy="132" rx="13" ry="18"/><ellipse cx="266" cy="150" rx="12" ry="20"/><ellipse cx="238" cy="178" rx="18" ry="9"/></g>
+          <path d="M240 122C231 128 229 152 240 166C251 152 249 128 240 122Z" fill="#ecd9ae" stroke="#b08a4f" stroke-width="1.5"/>
+          <g fill="#4a2f17"><ellipse cx="236" cy="144" rx="2.5" ry="5" transform="rotate(-14 236 144)"/><ellipse cx="244" cy="144" rx="2.5" ry="5" transform="rotate(14 244 144)"/></g>
+          <path d="M240 104q2-14 9-20" fill="none" stroke="#6b4a2b" stroke-width="4" stroke-linecap="round"/>
+          <path d="M249 86q14-11 23-2q-10 10-23 2z" fill="#5a9a3c"/>
+          <!-- Eisenwolle in der Zange über dem Brenner -->
+          <g stroke="#566674" stroke-width="4" stroke-linecap="round" fill="none"><path d="M456 36L416 98"/><path d="M463 46L422 106"/></g>
+          <ellipse cx="396" cy="124" rx="32" ry="27" fill="#a9b3bb"/>
+          <ellipse cx="396" cy="124" rx="32" ry="27" fill="#f2992e" clip-path="url(#wolleUnten)"/>
+          <ellipse cx="396" cy="137" rx="19" ry="10" fill="#ffd34d"/>
+          <path d="M370 118q9-15 22-4t24-7M372 106q10-10 22-2t20-6M380 98q8-6 16 0t12-2" fill="none" stroke="#6f7a83" stroke-width="2" stroke-linecap="round"/>
+          <path d="M370 130q10-10 22 0t26-4M376 142q10-8 20 0t18-3" fill="none" stroke="#c2401c" stroke-width="2" stroke-linecap="round"/>
+          <g transform="translate(396 124)" fill="none" stroke-width="2" stroke-linecap="round"><path d="M-30-10q-8-3-6-11M-19-22q-4-8 4-11M6-27q4-8 11-4" stroke="#6f7a83"/><path d="M32 4q8 2 5 10M22 20q7 5 2 11M1 27q-2 8-10 5M-25 17q-8 4-12-3" stroke="#c2401c"/></g>
+          <g fill="#f2992e"><circle cx="358" cy="150" r="2.2"/><circle cx="438" cy="146" r="2.6"/><circle cx="372" cy="168" r="1.8"/><circle cx="426" cy="166" r="2"/><circle cx="350" cy="128" r="1.6"/></g>
+          <rect x="378" y="234" width="36" height="8" rx="2" fill="#566674"/><rect x="390" y="194" width="12" height="40" fill="#8a97a3"/>
+          <path d="M386 194Q396 146 406 194Z" fill="#6ab7ee"/><path d="M391 194Q396 168 401 194Z" fill="#cfe9fb"/>
+          <g font-size="14" font-weight="700" fill="#15212b" text-anchor="middle"><text x="84" y="272">Fahrradkette</text><text x="240" y="272">Apfelschnitz</text><text x="396" y="272">Eisenwolle</text></g>
+        </svg>
+      </div>
+      <div class="sim-ctrl"><span class="hs-count chip" id="raetselZahl">0 von 3 entdeckt</span><span class="hint" style="margin:0">Tippe auf die Zahlen im Bild.</span></div>
+    </div>
+    <div class="card reveal hs-info" id="raetselInfo">
+      <div class="big">🔍</div><h3 style="margin:.3em 0 .2em">Was ist hier passiert?</h3>
+      <p class="lead" style="margin:0">Sieh dir alle drei Bilder an. Achte darauf, was jedes Mal mit im Spiel ist.</p>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:18px"><div id="mc-s1"></div></div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Der Versuch: Eisenwolle auf der Waage</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Glühende Eisenwolle sieht aus, als würde sie verbrennen und verschwinden. Stimmt das? Eine <button class="term" data-t="balkenwaage">Balkenwaage</button> verrät es.</p>
+      <p>An beiden Seiten hängt gleich viel Eisenwolle. Die Waage steht gerade. Dann wird nur das rechte Büschel entzündet.</p>
+      <span class="task-tag">Deine Vermutung</span>
+      <h3 style="margin-top:4px">Was zeigt die Waage nach dem Glühen?</h3>
+      <div class="wahl" id="waageWahl">
+        <button type="button" data-v="leichter">Rechts wird es leichter.</button>
+        <button type="button" data-v="gleich">Es bleibt alles gleich.</button>
+        <button type="button" data-v="schwerer">Rechts wird es schwerer.</button>
+      </div>
+      <div class="fb" id="waageFb"></div>
+      <p class="hint" style="margin:10px 0 0">Wähle zuerst deine Vermutung. Starte dann den Versuch oder gehe Schritt für Schritt.</p>
+    </div>
+    <div class="sim reveal" id="waageSim">
+      <svg viewBox="0 0 480 320" role="img" aria-label="Balkenwaage mit zwei Büscheln Eisenwolle. Das rechte Büschel wird entzündet, glüht durch und sinkt nach unten.">
+        <rect width="480" height="320" fill="#f7fbfe"/>
+        <rect x="0" y="292" width="480" height="28" fill="#d9c9a8"/>
+        <rect x="204" y="282" width="72" height="10" rx="3" fill="#566674"/>
+        <rect x="236" y="68" width="8" height="216" fill="#8a97a3"/>
+        <path d="M220 133q20 9 40 0" fill="none" stroke="#566674" stroke-width="2.5"/>
+        <line x1="240" y1="129" x2="240" y2="142" stroke="#566674" stroke-width="2.5"/>
+        <g id="wLegende" opacity="0"><circle cx="296" cy="26" r="6" fill="#e0453a" stroke="#a52c23"/><circle cx="306" cy="26" r="6" fill="#e0453a" stroke="#a52c23"/><text x="318" y="30" font-size="12" font-weight="700" fill="#a52c23">Sauerstoff aus der Luft</text></g>
+        <g id="wBalken">
+          <line x1="240" y1="70" x2="240" y2="126" stroke="#c0392b" stroke-width="3" stroke-linecap="round"/>
+          <line x1="86" y1="70" x2="394" y2="70" stroke="#3a444d" stroke-width="7" stroke-linecap="round"/>
+        </g>
+        <circle cx="240" cy="70" r="7" fill="#15212b"/>
+        <g id="wL">
+          <line x1="90" y1="70" x2="90" y2="134" stroke="#566674" stroke-width="2"/>
+          <g transform="translate(90 160)">
+            <ellipse rx="30" ry="26" fill="#b4bcc3"/>
+            <path d="M-24-6q10-16 22-4t22-6M-26 6q12-14 24 0t24-4M-20 17q10-10 20 0t18-2M-14-18q8-6 16 2t14-4M-28-10q-8-3-6-11M-17-22q-4-8 4-11M7-25q4-8 11-4M25-15q8-4 10 4M30 3q8 2 5 10M21 19q7 5 2 11M1 26q-2 8-10 5M-23 17q-8 4-12-3" fill="none" stroke="#6f7a83" stroke-width="2" stroke-linecap="round"/>
+          </g>
+          <text x="90" y="50" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b">Eisenwolle</text>
+        </g>
+        <g id="wR">
+          <line x1="390" y1="70" x2="390" y2="134" stroke="#566674" stroke-width="2"/>
+          <g transform="translate(390 160)">
+            <g id="wFrisch">
+              <ellipse rx="30" ry="26" fill="#b4bcc3"/>
+              <path d="M-24-6q10-16 22-4t22-6M-26 6q12-14 24 0t24-4M-20 17q10-10 20 0t18-2M-14-18q8-6 16 2t14-4M-28-10q-8-3-6-11M-17-22q-4-8 4-11M7-25q4-8 11-4M25-15q8-4 10 4M30 3q8 2 5 10M21 19q7 5 2 11M1 26q-2 8-10 5M-23 17q-8 4-12-3" fill="none" stroke="#6f7a83" stroke-width="2" stroke-linecap="round"/>
+            </g>
+            <g id="wGlut" opacity="0">
+              <ellipse rx="30" ry="26" fill="#f2992e"/><ellipse class="kern" rx="19" ry="15" fill="#ffd34d"/>
+              <path d="M-24-6q10-16 22-4t22-6M-26 6q12-14 24 0t24-4M-20 17q10-10 20 0t18-2M-14-18q8-6 16 2t14-4M-28-10q-8-3-6-11M-17-22q-4-8 4-11M7-25q4-8 11-4M25-15q8-4 10 4M30 3q8 2 5 10M21 19q7 5 2 11M1 26q-2 8-10 5M-23 17q-8 4-12-3" fill="none" stroke="#c2401c" stroke-width="2" stroke-linecap="round"/>
+              <g fill="#f2992e"><circle cx="-38" cy="-12" r="2.2"/><circle cx="36" cy="-20" r="2"/><circle cx="-30" cy="26" r="1.8"/><circle cx="38" cy="18" r="2.4"/></g>
+            </g>
+            <g id="wOxid" opacity="0">
+              <ellipse rx="30" ry="26" fill="#3d4650"/>
+              <path d="M-24-6q10-16 22-4t22-6M-26 6q12-14 24 0t24-4M-20 17q10-10 20 0t18-2M-14-18q8-6 16 2t14-4M-28-10q-8-3-6-11M-17-22q-4-8 4-11M7-25q4-8 11-4M25-15q8-4 10 4M30 3q8 2 5 10M21 19q7 5 2 11M1 26q-2 8-10 5M-23 17q-8 4-12-3" fill="none" stroke="#1b2229" stroke-width="2" stroke-linecap="round"/>
+              <g fill="#e0453a"><circle cx="-14" cy="-7" r="3.2"/><circle cx="3" cy="-13" r="3.2"/><circle cx="15" cy="2" r="3.2"/><circle cx="-6" cy="10" r="3.2"/><circle cx="9" cy="15" r="3.2"/><circle cx="-19" cy="8" r="3.2"/></g>
+            </g>
+          </g>
+          <text id="wName" x="390" y="50" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b">Eisenwolle</text>
+        </g>
+        <g id="wO2" fill="#e0453a" stroke="#a52c23">
+          <g class="o2" style="--tx:60px;--ty:46px"><circle cx="313" cy="112" r="6"/><circle cx="323" cy="112" r="6"/></g>
+          <g class="o2" style="--tx:64px;--ty:-14px;animation-delay:.5s"><circle cx="307" cy="178" r="6"/><circle cx="317" cy="178" r="6"/></g>
+          <g class="o2" style="--tx:46px;--ty:-60px;animation-delay:1s"><circle cx="329" cy="230" r="6"/><circle cx="339" cy="230" r="6"/></g>
+          <g class="o2" style="--tx:-54px;--ty:46px;animation-delay:.3s"><circle cx="447" cy="110" r="6"/><circle cx="457" cy="110" r="6"/></g>
+          <g class="o2" style="--tx:-58px;--ty:-16px;animation-delay:.8s"><circle cx="453" cy="180" r="6"/><circle cx="463" cy="180" r="6"/></g>
+          <g class="o2" style="--tx:-40px;--ty:-62px;animation-delay:1.3s"><circle cx="431" cy="234" r="6"/><circle cx="441" cy="234" r="6"/></g>
+        </g>
+        <g id="wBrenner" opacity="0">
+          <rect x="372" y="284" width="36" height="8" rx="2" fill="#566674"/><rect x="384" y="228" width="12" height="56" fill="#8a97a3"/>
+          <path d="M378 228Q390 146 402 228Z" fill="#6ab7ee"/><path d="M385 228Q390 184 395 228Z" fill="#cfe9fb"/>
+        </g>
+        <text id="wText" x="240" y="311" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b"></text>
+      </svg>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:18px">
+    <h3 style="margin-top:0">Was ist da passiert?</h3>
+    <p>Beim Glühen hat sich das Eisen mit <strong>Sauerstoff aus der Luft</strong> verbunden. Der Sauerstoff schwebt jetzt nicht mehr in der Luft, sondern steckt fest im Büschel. Sein Gewicht kommt dazu – deshalb sinkt die rechte Seite.</p>
+    <p>Eine Reaktion, bei der sich ein Stoff mit Sauerstoff verbindet, heißt <button class="term" data-t="oxidation">Oxidation</button>. Der neue Stoff, der dabei entsteht, ist ein <button class="term" data-t="oxid">Oxid</button>. Aus Eisen wird <button class="term" data-t="eisenoxid">Eisenoxid</button>.</p>
+    <p>Dass wirklich ein neuer Stoff entstanden ist, erkennst du an seinen Eigenschaften. So ist das bei jeder <button class="term" data-t="reaktion">chemischen Reaktion</button>:</p>
+    <div class="info-karten">
+      <div class="info-karte"><h4 style="margin-top:0">Vorher: Eisen</h4><p>silbergrau und glänzend, biegsam und zäh</p></div>
+      <div class="info-karte"><h4 style="margin-top:0">Nachher: Eisenoxid</h4><p>dunkel und matt, brüchig – und schwerer als das Eisen vorher</p></div>
+    </div>
+    <div class="merke"><h4>MERKE</h4><ul>
+      <li>Bei einer Oxidation verbindet sich ein Stoff mit Sauerstoff.</li>
+      <li>Der neue Stoff heißt Oxid. Er hat andere Eigenschaften als der Stoff vorher.</li>
+      <li>Das Oxid ist schwerer als der Stoff vorher, weil der Sauerstoff dazugekommen ist.</li>
+    </ul></div>
+    <div id="mc-s2"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>Teilchen und Wortgleichungen</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Was beim Glühen wirklich passiert, sieht man mit bloßem Auge nicht. Dafür hilft das <button class="term" data-t="teilchenmodell">Teilchenmodell</button>: Wir stellen uns die Bausteine der Stoffe als winzige Kugeln vor.</p>
+    <div class="info-karten">
+      <div class="info-karte">
+        <svg class="mini" viewBox="0 0 64 36" aria-hidden="true"><circle cx="32" cy="18" r="12" fill="#9aa7b3" stroke="#5f6b76" stroke-width="1.5"/></svg>
+        <h4><button class="term" data-t="atom">Atom</button></h4><p>Ein winziger Baustein. Aus Atomen sind alle Stoffe aufgebaut.</p>
+      </div>
+      <div class="info-karte">
+        <svg class="mini" viewBox="0 0 64 36" aria-hidden="true"><g fill="#e0453a" stroke="#a52c23" stroke-width="1.5"><circle cx="24" cy="18" r="11"/><circle cx="40" cy="18" r="11"/></g></svg>
+        <h4><button class="term" data-t="molekuel">Molekül</button></h4><p>Zwei oder mehr Atome, die fest miteinander verbunden sind. Sauerstoff kommt als Molekül O₂ vor.</p>
+      </div>
+      <div class="info-karte">
+        <svg class="mini" viewBox="0 0 64 36" aria-hidden="true"><g fill="#9aa7b3" stroke="#5f6b76" stroke-width="1.5"><circle cx="18" cy="11" r="7"/><circle cx="32" cy="11" r="7"/><circle cx="46" cy="11" r="7"/><circle cx="18" cy="25" r="7"/><circle cx="32" cy="25" r="7"/><circle cx="46" cy="25" r="7"/></g></svg>
+        <h4><button class="term" data-t="element">Element</button></h4><p>Ein Stoff aus nur einer Sorte von Atomen: zum Beispiel Eisen, Kohlenstoff, Schwefel oder Sauerstoff.</p>
+      </div>
+      <div class="info-karte">
+        <svg class="mini" viewBox="0 0 64 36" aria-hidden="true"><g stroke-width="1.5"><circle cx="16" cy="18" r="10" fill="#e0453a" stroke="#a52c23"/><circle cx="48" cy="18" r="10" fill="#e0453a" stroke="#a52c23"/><circle cx="32" cy="18" r="11" fill="#39424b" stroke="#15212b"/></g></svg>
+        <h4><button class="term" data-t="verbindung">Verbindung</button></h4><p>Ein Stoff, in dem verschiedene Atomsorten fest verbunden sind: zum Beispiel Eisenoxid oder Kohlenstoffdioxid.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card reveal">
+      <span class="task-tag leicht">Baukasten · leicht</span>
+      <h3 style="margin-top:4px">Reaktionen kurz aufschreiben</h3>
+      <p>Eine <button class="term" data-t="wortgleichung">Wortgleichung</button> ist die Kurzschrift für eine Reaktion. Links stehen die Stoffe vorher, rechts steht der neue Stoff. Das Pluszeichen liest du als „und“, den Pfeil als „reagieren zu“.</p>
+      <p class="gleichung">Eisen + Sauerstoff → Eisenoxid</p>
+      <p>Gelesen: „Eisen und Sauerstoff reagieren zu Eisenoxid.“</p>
+      <p class="hint">Baue zu vier Versuchen die Wortgleichung: Tippe die passenden Bausteine an. Stimmt die Gleichung, zeigt das Teilchenbild, wie sich die Atome neu ordnen.</p>
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li>Wortgleichung einer Oxidation: Stoff + Sauerstoff → Oxid.</li>
+        <li>Ein Element besteht aus einer Sorte Atome, eine Verbindung aus verschiedenen.</li>
+        <li>Bei einer Reaktion geht kein Atom verloren. Die Atome ordnen sich nur neu.</li>
+      </ul></div>
+    </div>
+    <div class="sim reveal" id="wgSim">
+      <svg viewBox="0 0 480 190" role="img" aria-label="Teilchenbild: links die Atome vor der Reaktion, rechts die Atome nach der Reaktion">
+        <rect width="480" height="190" fill="#f7fbfe"/>
+        <g font-size="13" font-weight="700" fill="#566674" text-anchor="middle"><text x="120" y="24">vorher</text><text x="360" y="24">nachher</text></g>
+        <path d="M224 100h30m-9-8l9 8l-9 8" fill="none" stroke="#566674" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect id="wgFrage" x="300" y="56" width="120" height="88" rx="12" fill="none" stroke="#9fb2c1" stroke-width="2" stroke-dasharray="6 5"/>
+        <text id="wgFrageT" x="360" y="111" text-anchor="middle" font-size="30" font-weight="800" fill="#9fb2c1">?</text>
+        <g id="wgAtome"></g>
+        <text id="wgNameL" x="120" y="176" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b"></text>
+        <text id="wgNameR" x="360" y="176" text-anchor="middle" font-size="13" font-weight="700" fill="#135c33"></text>
+      </svg>
+      <div class="wg-kopf"><span class="chip" id="wgNr">Versuch 1 von 4</span></div>
+      <p class="wg-text" id="wgText"></p>
+      <div class="wg-zeile" id="wgZeile"></div>
+      <p class="wg-gruppe">Stoffe vorher</p>
+      <div class="wahl ohne-linie" id="wgVor"></div>
+      <p class="wg-gruppe">Stoff nachher</p>
+      <div class="wahl ohne-linie" id="wgNach"></div>
+      <div class="wahl" id="wgWeiter"><button type="button" disabled>Nächster Versuch →</button></div>
+      <p class="obs" id="wgObs">Lies die Beschreibung. Welche zwei Stoffe reagieren miteinander?</p>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <h3 style="margin-top:0">Metalloxid oder Nichtmetalloxid?</h3>
+    <p>Eisen, Magnesium und Kupfer sind <strong>Metalle</strong>. Kohlenstoff und Schwefel sind <strong>Nichtmetalle</strong>. Danach heißen auch ihre Oxide:</p>
+    <div class="info-karten">
+      <div class="info-karte"><h4 style="margin-top:0"><button class="term" data-t="metalloxid">Metalloxid</button></h4><p>Metall + Sauerstoff. Beispiele: Eisenoxid, Magnesiumoxid, Kupferoxid. Diese Oxide sind feste Stoffe.</p></div>
+      <div class="info-karte"><h4 style="margin-top:0"><button class="term" data-t="nichtmetalloxid">Nichtmetalloxid</button></h4><p>Nichtmetall + Sauerstoff. Beispiele: Kohlenstoffdioxid, Schwefeldioxid. Diese beiden Oxide sind Gase.</p></div>
+    </div>
+    <span class="task-tag probe">Zuordnen · mittel</span>
+    <h3 style="margin-top:4px">Element, Metalloxid oder Nichtmetalloxid?</h3>
+    <div id="sortOxide"></div>
+    <div id="mc-s3" style="margin-top:14px"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Von der Wortgleichung zur Formelgleichung</h3>
+    <p class="m7-hinweis">Aufgaben mit dem lila Zeichen gehören zum M-Niveau. In M-Klassen zählen sie mit, in R-Klassen sind sie eine Zusatzaufgabe für Profis.</p>
+    <p>In der Chemie schreibt man statt der Namen die Symbole und Formeln der Stoffe: C für Kohlenstoff, S für Schwefel, Mg für Magnesium, O₂ für Sauerstoff. So wird aus der Wortgleichung eine <button class="term" data-t="formelgleichung">Formelgleichung</button>.</p>
+    <div class="formel-tab">
+      <div><span>Kohlenstoff + Sauerstoff → Kohlenstoffdioxid</span><b>C + O₂ → CO₂</b></div>
+      <div><span>Schwefel + Sauerstoff → Schwefeldioxid</span><b>S + O₂ → SO₂</b></div>
+      <div><span>Magnesium + Sauerstoff → Magnesiumoxid</span><b>2 Mg + O₂ → 2 MgO</b></div>
+    </div>
+    <p>Links und rechts vom Pfeil müssen von jeder Atomsorte <strong>gleich viele Atome</strong> stehen. Die kleine 2 in O₂ gehört zum Molekül: Es besteht aus zwei Sauerstoff-Atomen. Die große 2 vor Mg sagt, dass zwei Magnesium-Atome reagieren.</p>
+    <p>Bekommt glühende Kohle zu wenig Sauerstoff, entsteht statt Kohlenstoffdioxid (CO₂) das giftige <button class="term" data-t="co">Kohlenstoffmonoxid</button> (CO). „Mono“ bedeutet eins, „di“ bedeutet zwei: Im CO ist nur ein Sauerstoff-Atom mit dem Kohlenstoff-Atom verbunden.</p>
+    <div class="grid2">
+      <div class="sim" id="glSim">
+        <svg viewBox="0 0 480 130" role="img" aria-label="Teilchenbild zur Gleichung von Magnesium und Sauerstoff: links Magnesium-Atome und ein Sauerstoff-Molekül, rechts Magnesiumoxid">
+          <rect width="480" height="130" fill="#f7fbfe"/>
+          <g id="glBild"></g>
+        </svg>
+        <div class="gl-zeile">
+          <span class="wahl" aria-label="Zahl vor Mg"><button type="button" id="glMgM" aria-label="eins weniger">−</button><span class="gl-zahl" id="glMg">1</span><button type="button" id="glMgP" aria-label="eins mehr">+</button></span>
+          <span>Mg + O₂ →</span>
+          <span class="wahl" aria-label="Zahl vor MgO"><button type="button" id="glOxM" aria-label="eins weniger">−</button><span class="gl-zahl" id="glOx">1</span><button type="button" id="glOxP" aria-label="eins mehr">+</button></span>
+          <span>MgO</span>
+        </div>
+        <p class="obs" id="glObs">Stelle die Zahlen so ein, dass links und rechts gleich viele Atome stehen.</p>
+      </div>
+      <div>
+        <h4 style="margin:0 0 6px">Name und Formel</h4>
+        <p class="hint">Tippe links auf einen Namen und dann rechts auf die passende Formel.</p>
+        <div id="paareFormel"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Probenstoff</div><h2>Stille Oxidation: Wenn Eisen rostet</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Nicht jede Oxidation leuchtet und glüht. Manche läuft so langsam ab, dass man tagelang nichts bemerkt – ohne Flamme, ohne Glut. Man nennt sie <button class="term" data-t="stille">stille Oxidation</button>.</p>
+    <p style="margin:0">Das bekannteste Beispiel kennst du vom Fahrrad: Eisen <strong>rostet</strong>. Aber Eisen rostet nicht überall. Was braucht es dazu? Das zeigt der Versuch mit den vier Nägeln.</p>
+  </div>
+  <div class="grid2">
+    <div class="sim reveal" id="nagelSim">
+      <svg viewBox="0 0 480 296" role="img" aria-label="Vier Gläser mit je einem Eisennagel: A trockene Luft, B Wasser und Luft, C abgekochtes Wasser unter Öl, D Salzwasser und Luft">
+        <defs>
+          <filter id="nWeich" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7"/></filter>
+          <clipPath id="nKlipB"><path d="M142 140V210q0 8 8 8h64q8 0 8-8V140z"/></clipPath>
+          <clipPath id="nKlipD"><path d="M374 140V210q0 8 8 8h64q8 0 8-8V140z"/></clipPath>
+        </defs>
+        <rect width="480" height="296" fill="#f7fbfe"/>
+        <rect x="0" y="220" width="480" height="6" fill="#d9c9a8"/>
+        <!-- Glas A: trockene Luft -->
+        <rect x="26" y="62" width="80" height="14" rx="4" fill="#c9a26b"/>
+        <g fill="#e8f1f8" stroke="#9fb2c1"><circle cx="36" cy="213" r="4"/><circle cx="46" cy="214" r="4"/><circle cx="56" cy="213" r="4"/><circle cx="66" cy="214" r="4"/><circle cx="76" cy="213" r="4"/><circle cx="86" cy="214" r="4"/><circle cx="96" cy="213" r="4"/></g>
+        <g stroke="#7d8791" stroke-linecap="round"><line x1="48" y1="204" x2="84" y2="104" stroke-width="6"/><line x1="75.5" y1="101" x2="92.5" y2="107" stroke-width="5"/></g>
+        <line class="rost" data-g="0" x1="48" y1="204" x2="84" y2="104" stroke="#a4521f" stroke-width="7" stroke-linecap="round" opacity="0"/>
+        <!-- Glas B: Wasser und Luft -->
+        <path d="M142 140V210q0 8 8 8h64q8 0 8-8V140z" fill="#a9d8f5"/>
+        <g clip-path="url(#nKlipB)"><ellipse class="trueb" data-g="1" data-f=".45" cx="174" cy="186" rx="20" ry="30" fill="#b5622a" opacity="0" filter="url(#nWeich)"/></g>
+        <ellipse class="trueb" data-g="1" data-f=".8" cx="182" cy="214" rx="30" ry="4" fill="#8a3f18" opacity="0"/>
+        <g stroke="#7d8791" stroke-linecap="round"><line x1="164" y1="206" x2="200" y2="100" stroke-width="6"/><line x1="192" y1="97.2" x2="208" y2="102.8" stroke-width="5"/></g>
+        <line class="rost" data-g="1" x1="164" y1="206" x2="200" y2="100" stroke="#a4521f" stroke-width="7" stroke-linecap="round" opacity="0"/>
+        <!-- Glas C: abgekochtes Wasser unter Öl -->
+        <path d="M258 118V210q0 8 8 8h64q8 0 8-8V118z" fill="#a9d8f5"/>
+        <rect x="258" y="104" width="80" height="14" fill="#f2c94c"/>
+        <text x="346" y="116" font-size="12" font-weight="700" fill="#8a6d0a">Öl</text>
+        <g stroke="#7d8791" stroke-linecap="round"><line x1="276" y1="208" x2="318" y2="136" stroke-width="6"/><line x1="310.7" y1="131.7" x2="325.3" y2="140.3" stroke-width="5"/></g>
+        <line class="rost" data-g="2" x1="276" y1="208" x2="318" y2="136" stroke="#a4521f" stroke-width="7" stroke-linecap="round" opacity="0"/>
+        <!-- Glas D: Salzwasser und Luft -->
+        <path d="M374 140V210q0 8 8 8h64q8 0 8-8V140z" fill="#a9d8f5"/>
+        <g clip-path="url(#nKlipD)"><ellipse class="trueb" data-g="3" data-f=".7" cx="408" cy="184" rx="26" ry="34" fill="#b5622a" opacity="0" filter="url(#nWeich)"/></g>
+        <ellipse class="trueb" data-g="3" data-f="1" cx="414" cy="213" rx="34" ry="5.5" fill="#8a3f18" opacity="0"/>
+        <g fill="#fff" stroke="#9fb2c1"><rect x="384" y="209" width="6" height="6"/><rect x="398" y="210" width="6" height="6"/><rect x="424" y="210" width="6" height="6"/><rect x="438" y="209" width="6" height="6"/></g>
+        <g stroke="#7d8791" stroke-linecap="round"><line x1="396" y1="206" x2="432" y2="100" stroke-width="6"/><line x1="424" y1="97.2" x2="440" y2="102.8" stroke-width="5"/></g>
+        <line class="rost" data-g="3" x1="396" y1="206" x2="432" y2="100" stroke="#a4521f" stroke-width="8" stroke-linecap="round" opacity="0"/>
+        <g id="nFlocken" fill="#8a3f18" opacity="0"><circle cx="386" cy="198" r="2.5"/><circle cx="412" cy="204" r="3"/><circle cx="420" cy="190" r="2.2"/><circle cx="436" cy="200" r="2.6"/><circle cx="404" cy="182" r="2"/></g>
+        <!-- Glaswände, Buchstaben, Beschriftung -->
+        <g fill="none" stroke="#8a97a3" stroke-width="3" stroke-linecap="round">
+          <path d="M24 72V210q0 10 10 10h64q10 0 10-10V72"/><path d="M140 72V210q0 10 10 10h64q10 0 10-10V72"/><path d="M256 72V210q0 10 10 10h64q10 0 10-10V72"/><path d="M372 72V210q0 10 10 10h64q10 0 10-10V72"/>
+        </g>
+        <g fill="#0d77c2"><circle cx="66" cy="36" r="14"/><circle cx="182" cy="36" r="14"/><circle cx="298" cy="36" r="14"/><circle cx="414" cy="36" r="14"/></g>
+        <g font-size="15" font-weight="800" fill="#fff" text-anchor="middle"><text x="66" y="41">A</text><text x="182" y="41">B</text><text x="298" y="41">C</text><text x="414" y="41">D</text></g>
+        <g font-size="12" font-weight="700" fill="#15212b" text-anchor="middle"><text x="66" y="244">trockene Luft</text><text x="182" y="244">Wasser</text><text x="298" y="244">abgekochtes Wasser</text><text x="414" y="244">Salzwasser</text></g>
+        <g font-size="12" fill="#566674" text-anchor="middle"><text x="66" y="259">mit Trockenmittel</text><text x="182" y="259">und Luft</text><text x="298" y="259">unter Öl</text><text x="414" y="259">und Luft</text></g>
+        <g font-size="13" font-weight="800" text-anchor="middle"><text class="n-erg" x="66" y="284"></text><text class="n-erg" x="182" y="284"></text><text class="n-erg" x="298" y="284"></text><text class="n-erg" x="414" y="284"></text></g>
+      </svg>
+      <div class="sim-ctrl"><button class="btn small" id="nagelStart" type="button" disabled>⏩ Zwei Wochen vorspulen</button><span class="chip" id="nagelChip">Tag 0</span></div>
+      <p class="obs" id="nagelObs">Tippe zuerst rechts deine Vermutung an. Dann kannst du die Zeit vorspulen.</p>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag">Modellversuch</span>
+      <h3 style="margin-top:4px">Vier Nägel, vier Gläser</h3>
+      <p>In jedem Glas steckt ein blanker Eisennagel. Die Bedingungen sind verschieden:</p>
+      <ul class="glas-liste">
+        <li><b>A</b>Trockene Luft: Ein Trockenmittel nimmt alle Feuchtigkeit auf.</li>
+        <li><b>B</b>Leitungswasser, das Glas ist offen: Wasser und Luft kommen an den Nagel.</li>
+        <li><b>C</b>Abgekochtes Wasser unter einer Ölschicht: Beim Kochen ist die gelöste Luft entwichen, das Öl lässt keine neue heran.</li>
+        <li><b>D</b>Salzwasser, das Glas ist offen.</li>
+      </ul>
+      <span class="task-tag">Deine Vermutung</span>
+      <h3 style="margin-top:4px">In welchen Gläsern rostet der Nagel?</h3>
+      <p class="hint">Tippe alle Gläser an, in denen du Rost erwartest.</p>
+      <div class="wahl" id="nagelWahl">
+        <button type="button" data-g="0">Glas A</button><button type="button" data-g="1">Glas B</button><button type="button" data-g="2">Glas C</button><button type="button" data-g="3">Glas D</button><button type="button" data-g="x">in keinem</button>
+      </div>
+      <div class="fb" id="nagelFb"></div>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:18px">
+    <h3 style="margin-top:0">So entsteht Rost</h3>
+    <p>Der Versuch zeigt: Eisen rostet nur, wenn <strong>Sauerstoff und Wasser</strong> zusammenkommen. In Glas A fehlt das Wasser, in Glas C fehlt der Sauerstoff – dort bleibt der Nagel blank. Salz macht das Rosten schneller.</p>
+    <p class="gleichung">Eisen + Sauerstoff + Wasser → Rost</p>
+    <p><button class="term" data-t="rost">Rost</button> ist rotbraun, locker und bröckelig. Er schützt das Eisen darunter nicht: Luft und Wasser dringen immer weiter ein, bis alles durchgerostet ist.</p>
+    <h3>Auch Lebensmittel oxidieren still</h3>
+    <div class="info-karten">
+      <div class="info-karte"><div class="big">🍎</div><h4>Braune Schnittflächen</h4><p>Bei Apfel, Banane oder Avocado reagieren Stoffe aus der Frucht mit dem Sauerstoff der Luft. Das Fruchtfleisch wird braun.</p></div>
+      <div class="info-karte"><div class="big">🌰</div><h4>Altes Fett</h4><p>In Butter, Öl, Nüssen und Chips steckt Fett. Es reagiert langsam mit Sauerstoff und wird <button class="term" data-t="ranzig">ranzig</button>.</p></div>
+    </div>
+    <div class="merke"><h4>MERKE</h4><ul>
+      <li>Rosten ist eine stille Oxidation: langsam, ohne Flamme und ohne Glut.</li>
+      <li>Eisen rostet nur, wenn Sauerstoff und Wasser zusammenkommen. Salz beschleunigt das Rosten.</li>
+      <li>Auch Lebensmittel oxidieren: Äpfel werden braun, Fett wird ranzig.</li>
+    </ul></div>
+    <div id="mc-s4"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Probenstoff</div><h2>Schützen: Sauerstoff muss draußen bleiben</h2></div></div>
+  <div class="card reveal">
+    <p class="lead" style="margin:0">Rost zerstört Autos, Brücken und Werkzeug. Der Trick beim Schützen ist immer derselbe: <strong>Sauerstoff und Wasser dürfen nicht an das Eisen kommen.</strong> Dafür bekommt das Eisen eine Schutzschicht.</p>
+  </div>
+  <div class="grid2">
+    <div class="sim reveal" id="schutzSim">
+      <svg viewBox="0 0 480 262" role="img" aria-label="Schnitt durch ein Stück Eisen. Von oben kommen Sauerstoff- und Wasserteilchen. Eine Schutzschicht hält sie auf.">
+        <rect width="480" height="262" fill="#eef6fc"/>
+        <g><circle cx="24" cy="18" r="6" fill="#e0453a" stroke="#a52c23"/><circle cx="34" cy="18" r="6" fill="#e0453a" stroke="#a52c23"/><text x="46" y="22" font-size="12" font-weight="700" fill="#566674">Sauerstoff</text>
+          <circle cx="134" cy="23" r="3.4" fill="#bfe1f7" stroke="#2f8fdb"/><circle cx="146" cy="23" r="3.4" fill="#bfe1f7" stroke="#2f8fdb"/><circle cx="140" cy="17" r="7" fill="#2f8fdb"/><text x="154" y="22" font-size="12" font-weight="700" fill="#566674">Wasser</text></g>
+        <rect x="20" y="170" width="440" height="66" fill="#9aa7b3" stroke="#5f6b76" stroke-width="2"/>
+        <text x="240" y="212" text-anchor="middle" font-size="16" font-weight="800" fill="#15212b">Eisen</text>
+        <g id="schRostAlle" fill="#a4521f" opacity="0"><ellipse cx="60" cy="173" rx="30" ry="7"/><ellipse cx="130" cy="174" rx="34" ry="8"/><ellipse cx="205" cy="173" rx="32" ry="7"/><ellipse cx="275" cy="174" rx="34" ry="8"/><ellipse cx="345" cy="173" rx="32" ry="7"/><ellipse cx="418" cy="174" rx="34" ry="8"/></g>
+        <g id="schRostKratzer" fill="#a4521f" opacity="0"><ellipse cx="242" cy="175" rx="44" ry="9"/><ellipse cx="242" cy="170" rx="18" ry="6"/></g>
+        <rect id="schA" x="20" y="150" width="202" height="20" fill="#d9382e" opacity="0"/>
+        <rect id="schB" x="222" y="150" width="40" height="20" fill="#d9382e" opacity="0"/>
+        <rect id="schC" x="262" y="150" width="198" height="20" fill="#d9382e" opacity="0"/>
+        <text id="schName" x="34" y="165" font-size="12" font-weight="800" fill="#fff"></text>
+        <g id="schTeilchen">
+          <g class="teilchen" data-x="60" data-y="58"><circle cx="-5" r="6" fill="#e0453a" stroke="#a52c23"/><circle cx="5" r="6" fill="#e0453a" stroke="#a52c23"/></g>
+          <g class="teilchen" data-x="118" data-y="70"><circle cx="-6" cy="6" r="3.4" fill="#bfe1f7" stroke="#2f8fdb"/><circle cx="6" cy="6" r="3.4" fill="#bfe1f7" stroke="#2f8fdb"/><circle r="7" fill="#2f8fdb"/></g>
+          <g class="teilchen" data-x="176" data-y="52"><circle cx="-5" r="6" fill="#e0453a" stroke="#a52c23"/><circle cx="5" r="6" fill="#e0453a" stroke="#a52c23"/></g>
+          <g class="teilchen" data-x="232" data-y="72" data-spalt="1"><circle cx="-6" cy="6" r="3.4" fill="#bfe1f7" stroke="#2f8fdb"/><circle cx="6" cy="6" r="3.4" fill="#bfe1f7" stroke="#2f8fdb"/><circle r="7" fill="#2f8fdb"/></g>
+          <g class="teilchen" data-x="252" data-y="50" data-spalt="1"><circle cx="-5" r="6" fill="#e0453a" stroke="#a52c23"/><circle cx="5" r="6" fill="#e0453a" stroke="#a52c23"/></g>
+          <g class="teilchen" data-x="310" data-y="68"><circle cx="-6" cy="6" r="3.4" fill="#bfe1f7" stroke="#2f8fdb"/><circle cx="6" cy="6" r="3.4" fill="#bfe1f7" stroke="#2f8fdb"/><circle r="7" fill="#2f8fdb"/></g>
+          <g class="teilchen" data-x="368" data-y="56"><circle cx="-5" r="6" fill="#e0453a" stroke="#a52c23"/><circle cx="5" r="6" fill="#e0453a" stroke="#a52c23"/></g>
+          <g class="teilchen" data-x="426" data-y="74"><circle cx="-6" cy="6" r="3.4" fill="#bfe1f7" stroke="#2f8fdb"/><circle cx="6" cy="6" r="3.4" fill="#bfe1f7" stroke="#2f8fdb"/><circle r="7" fill="#2f8fdb"/></g>
+        </g>
+        <text id="schText" x="240" y="254" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b">Wähle unten einen Fall aus.</text>
+      </svg>
+      <div class="wahl" id="schutzWahl"></div>
+      <p class="obs" id="schutzObs">Probiere alle fünf Fälle aus. Beobachte, wie weit Sauerstoff und Wasser kommen.</p>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag">Unter der Lupe</span>
+      <h3 style="margin-top:4px">Drei Schutzschichten für Eisen</h3>
+      <div class="info-karten" style="grid-template-columns:1fr">
+        <div class="info-karte"><h4 style="margin-top:0">🎨 Lackieren und Streichen</h4><p>Eine Farbschicht deckt das Eisen ab. So sind Autos, Fahrradrahmen und Gartenzäune geschützt.</p></div>
+        <div class="info-karte"><h4 style="margin-top:0">🔧 Einfetten und Ölen</h4><p>Ein Fettfilm weist Wasser ab. Das passt für bewegliche Teile wie Fahrradkette, Scharniere und Werkzeug.</p></div>
+        <div class="info-karte"><h4 style="margin-top:0">🔩 <button class="term" data-t="verzinken">Verzinken</button></h4><p>Das Eisen bekommt einen dünnen Überzug aus dem Metall Zink. Leitplanken, Laternenmasten und Gießkannen sind verzinkt.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <span class="task-tag">Versuch</span>
+      <h3 style="margin-top:4px">Lebensmittel schützen</h3>
+      <p>Auch bei Lebensmitteln hilft es, den Sauerstoff fernzuhalten:</p>
+      <div class="info-karten" style="grid-template-columns:1fr">
+        <div class="info-karte"><h4 style="margin-top:0">📦 Luftdicht verpacken</h4><p>In der verschlossenen Packung kommt kein neuer Sauerstoff an Chips, Nüsse oder Kaffee. Chipstüten sind oft mit Stickstoff statt Luft gefüllt.</p></div>
+        <div class="info-karte"><h4 style="margin-top:0">🍋 <button class="term" data-t="antiox">Antioxidantien</button></h4><p>Stoffe wie Vitamin C reagieren selbst sehr leicht mit Sauerstoff. Sie fangen ihn ab, bevor er das Lebensmittel angreift. Zitronensaft enthält viel Vitamin C.</p></div>
+      </div>
+      <p class="hint" style="margin:0">Drei Apfelschnitze, drei Bedingungen: Schiebe den Regler und vergleiche.</p>
+    </div>
+    <div class="sim reveal" id="apfelSim">
+      <svg viewBox="0 0 480 222" role="img" aria-label="Drei Apfelschnitze: einer liegt offen an der Luft, einer ist mit Zitronensaft beträufelt, einer ist in Frischhaltefolie gewickelt">
+        <rect width="480" height="222" fill="#f7fbfe"/>
+        <!-- Schnitz 1: an der Luft -->
+        <path class="fleisch" d="M36 84Q90 200 144 84Q90 98 36 84Z" fill="#f7ecc4"/>
+        <path d="M36 84Q90 200 144 84" fill="none" stroke="#c0392b" stroke-width="6" stroke-linecap="round"/>
+        <path d="M78 96q12-5 24 0q-12 22-24 0z" fill="none" stroke="#b99a5c" stroke-width="1.5"/>
+        <g fill="#4a2f17"><ellipse cx="85" cy="103" rx="2.2" ry="4" transform="rotate(-12 85 103)"/><ellipse cx="95" cy="103" rx="2.2" ry="4" transform="rotate(12 95 103)"/></g>
+        <!-- Schnitz 2: mit Zitronensaft -->
+        <path class="fleisch" d="M186 84Q240 200 294 84Q240 98 186 84Z" fill="#f7ecc4"/>
+        <path d="M186 84Q240 200 294 84" fill="none" stroke="#c0392b" stroke-width="6" stroke-linecap="round"/>
+        <path d="M228 96q12-5 24 0q-12 22-24 0z" fill="none" stroke="#b99a5c" stroke-width="1.5"/>
+        <g fill="#4a2f17"><ellipse cx="235" cy="103" rx="2.2" ry="4" transform="rotate(-12 235 103)"/><ellipse cx="245" cy="103" rx="2.2" ry="4" transform="rotate(12 245 103)"/></g>
+        <g fill="#f7dc4a" stroke="#c9a800"><path d="M212 104c3 5 4 7 4 9a4 4 0 0 1-8 0c0-2 1-4 4-9z"/><path d="M268 102c3 5 4 7 4 9a4 4 0 0 1-8 0c0-2 1-4 4-9z"/><path d="M240 124c3 5 4 7 4 9a4 4 0 0 1-8 0c0-2 1-4 4-9z"/></g>
+        <g transform="translate(240 44)"><circle r="17" fill="#f7dc4a" stroke="#c9a800" stroke-width="2"/><g stroke="#c9a800" stroke-width="1.5"><line x1="-15" y1="0" x2="15" y2="0"/><line x1="-8" y1="-13" x2="8" y2="13"/><line x1="8" y1="-13" x2="-8" y2="13"/></g></g>
+        <!-- Schnitz 3: in Folie -->
+        <path class="fleisch" d="M336 84Q390 200 444 84Q390 98 336 84Z" fill="#f7ecc4"/>
+        <path d="M336 84Q390 200 444 84" fill="none" stroke="#c0392b" stroke-width="6" stroke-linecap="round"/>
+        <path d="M378 96q12-5 24 0q-12 22-24 0z" fill="none" stroke="#b99a5c" stroke-width="1.5"/>
+        <g fill="#4a2f17"><ellipse cx="385" cy="103" rx="2.2" ry="4" transform="rotate(-12 385 103)"/><ellipse cx="395" cy="103" rx="2.2" ry="4" transform="rotate(12 395 103)"/></g>
+        <rect x="326" y="70" width="128" height="86" rx="16" fill="#cfeafb" opacity=".45" stroke="#7fbfe6" stroke-width="2"/>
+        <path d="M340 84l16-8M346 96l22-12M424 142l16-8" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+        <g font-size="13" font-weight="700" fill="#15212b" text-anchor="middle"><text x="90" y="182">an der Luft</text><text x="240" y="182">mit Zitronensaft</text><text x="390" y="182">in Frischhaltefolie</text></g>
+        <g font-size="12" font-weight="700" fill="#566674" text-anchor="middle"><text class="a-stand" x="90" y="202">frisch</text><text class="a-stand" x="240" y="202">frisch</text><text class="a-stand" x="390" y="202">frisch</text></g>
+      </svg>
+      <div class="sim-ctrl"><label for="apfelZeit">Zeit</label><input type="range" id="apfelZeit" min="0" max="120" step="5" value="0"><span class="chip" id="apfelChip">0 Minuten</span></div>
+      <p class="obs" id="apfelObs">Schiebe den Regler bis zum Ende. Welcher Schnitz wird braun?</p>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag probe">Zuordnen · mittel</span>
+    <h3 style="margin-top:4px">Welcher Schutz passt?</h3>
+    <p class="hint">Tippe zuerst auf eine Karte und dann auf das passende Fach.</p>
+    <div id="sortSchutz"></div>
+    <div class="merke"><h4>MERKE</h4><ul>
+      <li>Wer vor Oxidation schützen will, hält Sauerstoff und Wasser fern.</li>
+      <li>Eisen schützt man durch Lackieren, Einfetten oder Verzinken.</li>
+      <li>Lebensmittel schützt man durch luftdichtes Verpacken oder mit Antioxidantien wie Vitamin C.</li>
+    </ul></div>
+    <div id="mc-s5"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="s6">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Probenstoff · so wird in der Probe gefragt</div><h2>Training für die Probe</h2></div></div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Lückentext · leicht</span>
+    <h3 style="margin-top:4px">Setze die fehlenden Wörter ein</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapOxi"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Paare finden · leicht</span>
+    <h3 style="margin-top:4px">Fachbegriff und Erklärung</h3>
+    <p class="hint">Tippe links auf einen Begriff und dann rechts auf die passende Erklärung.</p>
+    <div id="paareBegriffe"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Wortgleichungen · mittel</span>
+    <h3 style="margin-top:4px">Ergänze die Wortgleichungen</h3>
+    <p class="hint">Kupfer ist ein Metall wie Eisen. Sein Oxid bekommt den Namen nach demselben Muster. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapWort"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Richtig oder falsch? · mittel</span>
+    <div id="tf"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Reihenfolge · mittel</span>
+    <h3 style="margin-top:4px">Der Versuch mit der Eisenwolle</h3>
+    <p class="hint">Bringe die fünf Schritte in die richtige Reihenfolge.</p>
+    <div id="orderWaage"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Kreuzworträtsel · mittel</span>
+    <h3 style="margin-top:4px">Rund um die Oxidation</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Schreibe ä als AE, ö als OE, ü als UE.</p>
+    <div id="cw"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag schwer">Ankreuzen · schwer</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Offene Fragen · schwer</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung. Danach kannst du die Musterlösung ansehen.</p>
+    <div id="open"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Begründe und übertrage <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="openM"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 7 ============ -->
+<section class="station" id="s7">
+  <div class="st-head reveal"><div class="st-num">7</div><div><div class="eyebrow">Abschluss</div><h2>Oxidations-Profi-Check</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Luft kann mit Stoffen reagieren – und sie kann drücken. Im nächsten Modul geht es um den <strong>Luftdruck</strong>: warum ein Saugnapf an der Fliese hält und warum deine Ohren im Gebirge knacken.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik 7 · Lernmodul „Oxidation: Rost, Glut und braune Äpfel“ · Dein Fortschritt wird auf diesem Gerät gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="modul-basis.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, esc, shuffle, setText, reduced, register, solve} = Modul;
+
+Modul.init({
+  key: "grumi-nt7-oxidation-v1",
+  hero: "funken",
+  thema: "Oxidation: Reaktion eines Stoffes mit Sauerstoff, Oxid, Eisenwolle auf der Balkenwaage, Teilchenmodell, Wortgleichungen, Metalloxid und Nichtmetalloxid, stille Oxidation (Rosten, Lebensmittel), Schutz vor Oxidation",
+  glossary: {
+    oxidation: ["Oxidation", "Chemische Reaktion, bei der sich ein Stoff mit Sauerstoff verbindet. Dabei entsteht ein Oxid."],
+    oxid: ["Oxid", "Stoff, der bei einer Oxidation entsteht. Im Oxid ist der Sauerstoff fest mit dem anderen Stoff verbunden."],
+    eisenoxid: ["Eisenoxid", "Verbindung aus Eisen und Sauerstoff. Sie entsteht zum Beispiel, wenn Eisenwolle glüht: dunkel, matt und brüchig."],
+    balkenwaage: ["Balkenwaage", "Waage mit einem Balken, an dem links und rechts etwas hängt. Die schwerere Seite sinkt nach unten."],
+    reaktion: ["chemische Reaktion", "Vorgang, bei dem aus Stoffen neue Stoffe mit anderen Eigenschaften entstehen."],
+    teilchenmodell: ["Teilchenmodell", "Vorstellung, dass alle Stoffe aus winzigen Teilchen bestehen. Im Modell zeichnet man sie als Kugeln."],
+    atom: ["Atom", "Winziger Baustein, aus dem alle Stoffe aufgebaut sind. Jedes Element hat seine eigene Sorte von Atomen."],
+    molekuel: ["Molekül", "Teilchen aus zwei oder mehr Atomen, die fest miteinander verbunden sind, zum Beispiel O₂ oder CO₂."],
+    element: ["Element", "Grundstoff aus nur einer Sorte von Atomen, zum Beispiel Eisen, Kohlenstoff oder Sauerstoff."],
+    verbindung: ["Verbindung", "Stoff, in dem Atome verschiedener Elemente fest miteinander verbunden sind, zum Beispiel Eisenoxid oder Kohlenstoffdioxid."],
+    wortgleichung: ["Wortgleichung", "Kurzschrift für eine Reaktion mit den Namen der Stoffe: links die Stoffe vorher, rechts der neue Stoff. Der Pfeil bedeutet „reagieren zu“."],
+    metalloxid: ["Metalloxid", "Oxid eines Metalls, zum Beispiel Eisenoxid, Magnesiumoxid oder Kupferoxid."],
+    nichtmetalloxid: ["Nichtmetalloxid", "Oxid eines Nichtmetalls, zum Beispiel Kohlenstoffdioxid oder Schwefeldioxid."],
+    formelgleichung: ["Formelgleichung", "Reaktionsgleichung mit chemischen Symbolen und Formeln statt Namen, zum Beispiel C + O₂ → CO₂."],
+    co: ["Kohlenstoffmonoxid (CO)", "Giftiges Gas, das man weder sieht noch riecht. Es entsteht, wenn Kohlenstoff mit zu wenig Sauerstoff verbrennt."],
+    stille: ["stille Oxidation", "Oxidation, die langsam und ohne Flamme oder Glut abläuft, zum Beispiel das Rosten."],
+    rost: ["Rost", "Rotbrauner, bröckeliger Stoff. Er entsteht, wenn Eisen mit Sauerstoff und Wasser reagiert."],
+    ranzig: ["ranzig", "So nennt man Fett, das mit Sauerstoff reagiert hat. Es riecht und schmeckt unangenehm."],
+    verzinken: ["Verzinken", "Eisen bekommt einen dünnen Überzug aus dem Metall Zink. Er hält Sauerstoff und Wasser vom Eisen fern."],
+    antiox: ["Antioxidans (Mehrzahl: Antioxidantien)", "Stoff, der selbst sehr leicht mit Sauerstoff reagiert und so andere Stoffe schützt. Ein Beispiel ist Vitamin C."]
+  }
+});
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Was haben die rostige Kette, der braune Apfel und die glühende Eisenwolle gemeinsam?", o: ["Ein Stoff reagiert mit dem Sauerstoff aus der Luft.", "Alle drei sind nass geworden.", "Alle drei wurden stark erhitzt.", "Nichts – das ist reiner Zufall."], a: 0, e: "Jedes Mal verbindet sich ein Stoff mit Sauerstoff aus der Luft. Was dabei genau passiert, zeigt dir die nächste Station."}
+  ],
+  s2: [
+    {q: "Warum ist die Eisenwolle nach dem Glühen schwerer als vorher?", o: ["Sie hat Sauerstoff aus der Luft gebunden.", "Sie hat Wasser aufgesaugt.", "Hitze macht Eisen schwerer.", "An ihr klebt Ruß vom Brenner."], a: 0, e: "Das Eisen hat sich mit Sauerstoff verbunden. Das Gewicht des Sauerstoffs kommt dazu."},
+    {q: "Wie heißt die Reaktion eines Stoffes mit Sauerstoff?", o: ["Oxidation", "Verdunstung", "Schmelzen", "Auflösen"], a: 0, e: "Der Name kommt von Oxygenium – so heißt Sauerstoff in der Fachsprache. Daher stammt auch das Symbol O."},
+    {q: "Was ist ein Oxid?", o: ["ein neuer Stoff, der bei der Reaktion mit Sauerstoff entsteht", "ein anderes Wort für Sauerstoff", "ein besonders reines Metall", "der Rauch, der bei einem Feuer aufsteigt"], a: 0, e: "Im Oxid ist der Sauerstoff fest mit dem anderen Stoff verbunden – wie im Eisenoxid."}
+  ],
+  s3: [
+    {q: "Welche Wortgleichung ist richtig?", o: ["Magnesium + Sauerstoff → Magnesiumoxid", "Magnesium + Magnesiumoxid → Sauerstoff", "Magnesiumoxid + Sauerstoff → Magnesium", "Magnesium → Sauerstoff + Magnesiumoxid"], a: 0, e: "Links stehen die Stoffe vorher, rechts steht der neue Stoff: das Oxid."},
+    {q: "Was unterscheidet eine Verbindung von einem Element?", o: ["In einer Verbindung sind verschiedene Atomsorten fest verbunden.", "Eine Verbindung ist immer ein Gas.", "Eine Verbindung besteht aus nur einer Atomsorte.", "Verbindungen gibt es nur im Labor."], a: 0, e: "Ein Element besteht aus nur einer Atomsorte. In Eisenoxid stecken zwei: Eisen und Sauerstoff."},
+    {q: "Kohlenstoffdioxid ist ein …", o: ["Nichtmetalloxid", "Metalloxid", "Element", "Metall"], a: 0, e: "Kohlenstoff ist ein Nichtmetall. Sein Oxid ist deshalb ein Nichtmetalloxid."}
+  ],
+  s4: [
+    {q: "Was braucht Eisen, damit es rostet?", o: ["Sauerstoff und Wasser", "nur Sauerstoff", "nur Wasser", "Stickstoff und Wärme"], a: 0, e: "Fehlt eines von beiden, bleibt das Eisen blank. Das zeigen die Gläser A und C."},
+    {q: "Warum nennt man das Rosten eine „stille“ Oxidation?", o: ["Es läuft langsam und ohne Flamme oder Glut ab.", "Es passiert nur in der Nacht.", "Dabei entsteht kein neuer Stoff.", "Man braucht dafür keinen Sauerstoff."], a: 0, e: "Rosten dauert Tage und Wochen. Trotzdem ist es eine Oxidation: Eisen reagiert mit Sauerstoff."},
+    {q: "Im Winter rosten Autos besonders schnell. Woran liegt das?", o: ["Streusalz und Nässe beschleunigen das Rosten.", "Kälte macht Eisen weich.", "Im Winter enthält die Luft viel mehr Sauerstoff.", "Schnee besteht aus Rost."], a: 0, e: "Salzwasser lässt Eisen schneller rosten – wie in Glas D. Deshalb wäscht man im Winter das Salz vom Auto."}
+  ],
+  s5: [
+    {q: "Warum schützt eine Lackschicht Eisen vor dem Rosten?", o: ["Sie hält Sauerstoff und Wasser vom Eisen fern.", "Sie macht das Eisen härter.", "Sie kühlt das Eisen ab.", "Sie verwandelt das Eisen in ein anderes Metall."], a: 0, e: "Ohne Sauerstoff und Wasser kann Eisen nicht rosten. Die Schicht muss aber dicht bleiben."},
+    {q: "Warum bleibt ein Apfelschnitz mit Zitronensaft länger hell?", o: ["Das Vitamin C im Saft reagiert selbst mit dem Sauerstoff.", "Zitronensaft ist kälter als Luft.", "Der Saft färbt den Apfel gelb.", "Zitronensaft enthält Zink."], a: 0, e: "Vitamin C ist ein Antioxidans: Es fängt den Sauerstoff ab, bevor er mit dem Apfel reagiert."}
+  ],
+  train: [
+    {q: "Welche Vorgänge sind Oxidationen?", o: ["Ein Nagel rostet.", "Holzkohle verglüht auf dem Grill.", "Ein Apfelschnitz wird braun.", "Wasser gefriert zu Eis.", "Zucker löst sich im Tee."], a: [0, 1, 2], e: "Bei Rost, Glut und braunem Apfel reagiert ein Stoff mit Sauerstoff. Beim Gefrieren und beim Auflösen entsteht kein Oxid."},
+    {q: "Ein Kupferblech wird in der Flamme schwarz. Welche Wortgleichung passt?", o: ["Kupfer + Sauerstoff → Kupferoxid", "Kupfer + Stickstoff → Kupferoxid", "Kupferoxid + Sauerstoff → Kupfer", "Kupfer + Wasser → Rost"], a: 0, e: "Kupfer ist ein Metall. Mit Sauerstoff reagiert es zu einem Metalloxid: dem schwarzen Kupferoxid."},
+    {q: "Warum sind Chipstüten luftdicht verschlossen?", o: ["Damit das Fett der Chips nicht mit Sauerstoff reagiert und ranzig wird.", "Damit die Chips nicht rosten.", "Damit die Chips schwerer werden.", "Damit kein Stickstoff in die Tüte kommt."], a: 0, e: "Ohne neuen Sauerstoff bleibt das Fett lange frisch. Oft ist die Tüte sogar mit Stickstoff statt Luft gefüllt."},
+    {q: "In welchem Glas rostet ein Eisennagel am schnellsten?", o: ["in Salzwasser, an das Luft herankommt", "in trockener Luft", "in abgekochtem Wasser unter Öl", "in reinem Speiseöl"], a: 0, e: "Wasser und Sauerstoff sind beide da – und das Salz beschleunigt das Rosten zusätzlich."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Deine Vermutung"});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s5"), MC.s5, "mc5", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Station 1: drei Rätsel erkunden ---------- */
+Modul.makeHotspots($("#raetselBild"), $("#raetselInfo"), $("#raetselZahl"), [
+  {x: 8, y: 17, i: "🚲", t: "Rostige Fahrradkette", s: "Das Eisen der Kette stand wochenlang in feuchter Luft. An der Oberfläche ist aus dem glatten, grauen Metall ein neuer Stoff geworden: rotbrauner, bröckeliger Rost."},
+  {x: 40.5, y: 17, i: "🍎", t: "Brauner Apfelschnitz", s: "Solange der Apfel ganz ist, schützt ihn die Schale. An der Schnittfläche kommt Luft an das Fruchtfleisch. Schon nach wenigen Minuten wird es braun."},
+  {x: 73, y: 17, i: "🔥", t: "Glühende Eisenwolle", s: "Eisenwolle besteht aus hauchdünnen Eisenfäden. Einmal entzündet, glüht sie von selbst weiter – aber nur, solange Luft herankommt."}
+], "raetsel");
+
+/* ---------- Station 2: Eisenwolle auf der Balkenwaage ---------- */
+(function(){
+  const sim = $("#waageSim"), balken = $("#wBalken"), L = $("#wL"), R = $("#wR"), frisch = $("#wFrisch"), glut = $("#wGlut"), oxid = $("#wOxid"),
+    brenner = $("#wBrenner"), o2 = $$("#wO2 .o2"), name = $("#wName"), text = $("#wText"), legende = $("#wLegende");
+  const wahl = $("#waageWahl"), fb = $("#waageFb");
+  const WINKEL = [0, 0, 2, 4, 6, 6];
+  const NAME = ["Eisenwolle", "Eisenwolle", "glüht", "dunkel und brüchig", "schwerer als vorher", "Eisenoxid"];
+  const TEXT = ["Die Waage steht im Gleichgewicht", "Der Brenner zündet das rechte Büschel", "Die Eisenwolle glüht und bindet Sauerstoff", "Die Glut ist erloschen", "Die rechte Seite sinkt", "Eisen + Sauerstoff → Eisenoxid"];
+  let vermutung = "", weit = -1;
+  // Rückmeldung zur Vermutung: erst nach dem Schritt, in dem die Waage sinkt
+  function rueck(){
+    if (!vermutung) { fb.className = "fb"; return; }
+    if (weit < 4) { fb.className = "fb show mid"; fb.textContent = "Vermutung gemerkt. Starte jetzt den Versuch."; return; }
+    const ok = vermutung === "schwerer";
+    fb.className = "fb show " + (ok ? "ok" : "bad");
+    fb.textContent = ok ? "✅ Deine Vermutung stimmt: Die rechte Seite ist schwerer geworden." : "Der Versuch zeigt etwas anderes: Die rechte Seite ist schwerer geworden. Das überrascht fast alle.";
+  }
+  $$("button", wahl).forEach(b => b.addEventListener("click", () => {
+    vermutung = b.dataset.v; $$("button", wahl).forEach(x => x.classList.toggle("sel", x === b)); rueck();
+  }));
+  Modul.onVisible(sim, v => sim.classList.toggle("sichtbar", v));
+  Modul.makeSchritte(sim, {
+    steps: [
+      "Links und rechts hängt gleich viel Eisenwolle. Die Waage steht im Gleichgewicht.",
+      "Der Brenner entzündet das rechte Büschel. Dann wird er weggenommen.",
+      "Die Eisenwolle glüht von selbst weiter. Dabei verbindet sich das Eisen mit Sauerstoff aus der Luft.",
+      "Die Glut erlischt. Aus dem glänzenden Eisen ist ein dunkler, brüchiger Stoff geworden.",
+      "Die rechte Seite sinkt: Das Büschel ist <b>schwerer</b> als vorher.",
+      "Der Sauerstoff aus der Luft steckt jetzt fest im neuen Stoff. Er heißt <b>Eisenoxid</b>."
+    ],
+    ms: 3200,
+    zeige(i){
+      const k = Math.max(0, i), w = WINKEL[k], dy = 150 * Math.sin(w * Math.PI / 180);
+      balken.style.transform = `rotate(${w}deg)`;
+      L.style.transform = `translateY(${(-dy).toFixed(1)}px)`; R.style.transform = `translateY(${dy.toFixed(1)}px)`;
+      frisch.style.opacity = k <= 1 ? 1 : 0; glut.style.opacity = k === 2 ? 1 : 0; oxid.style.opacity = k >= 3 ? 1 : 0;
+      glut.classList.toggle("an", k === 2);
+      brenner.style.opacity = k === 1 ? 1 : 0; brenner.style.transform = k === 1 ? "translateX(0px)" : "translateX(40px)";
+      o2.forEach(g => { g.classList.toggle("flieg", k === 2); g.style.opacity = reduced && k === 2 ? 1 : ""; });
+      legende.style.opacity = k >= 2 ? 1 : 0;
+      setText(name, NAME[k]); setText(text, i < 0 ? "" : TEXT[k]);
+      if (i > weit) { weit = i; rueck(); }
+    }
+  }, "waage");
+})();
+
+/* ---------- Station 3: Wortgleichungs-Baukasten mit Teilchenbild ---------- */
+(function(){
+  const id = "wortgl"; register(id, "#wgSim", "Baukasten: vier Wortgleichungen zusammensetzen");
+  const AT = {
+    Fe: {r: 13, f: "#9aa7b3", s: "#5f6b76", t: "#15212b"}, Mg: {r: 13, f: "#d3dbe1", s: "#7d8791", t: "#15212b"},
+    C: {r: 12, f: "#39424b", s: "#15212b", t: "#fff"}, S: {r: 13, f: "#f2c230", s: "#b98d0a", t: "#15212b"}, O: {r: 11, f: "#e0453a", s: "#a52c23", t: "#fff"}
+  };
+  // atome: [Sorte, x vorher, y vorher, x nachher, y nachher] – links und rechts stehen immer gleich viele Atome
+  const V = [
+    {stoff: "Eisen", oxid: "Eisenoxid",
+     text: "Eisenwolle wird entzündet und glüht durch. Zurück bleibt ein dunkler, brüchiger Stoff.",
+     fertig: "Eisen und Sauerstoff reagieren zu Eisenoxid. Die Eisen- und Sauerstoff-Atome sitzen jetzt fest verbunden nebeneinander: ein fester Stoff.",
+     atome: [["Fe", 60, 110, 334, 100], ["Fe", 86, 110, 360, 100], ["Fe", 73, 88, 386, 100], ["O", 150, 70, 347, 82], ["O", 168, 70, 373, 82], ["O", 150, 130, 347, 118], ["O", 168, 130, 373, 118]]},
+    {stoff: "Kohlenstoff", oxid: "Kohlenstoffdioxid",
+     text: "Holzkohle besteht zum größten Teil aus Kohlenstoff. Auf dem Grill glüht sie rot und wird immer kleiner. Dabei entsteht ein unsichtbares Gas.",
+     fertig: "Kohlenstoff und Sauerstoff reagieren zu Kohlenstoffdioxid. Jedes Kohlenstoff-Atom hat sich mit zwei Sauerstoff-Atomen verbunden. Das Oxid ist ein Gas und verteilt sich in der Luft.",
+     atome: [["O", 150, 70, 322, 74], ["O", 168, 70, 362, 74], ["C", 62, 100, 342, 74], ["O", 150, 130, 372, 126], ["O", 168, 130, 412, 126], ["C", 86, 100, 392, 126]]},
+    {stoff: "Schwefel", oxid: "Schwefeldioxid",
+     text: "Gelbes Schwefelpulver wird entzündet. Es brennt mit blauer Flamme. Dabei entsteht ein Gas, das stechend riecht.",
+     fertig: "Schwefel und Sauerstoff reagieren zu Schwefeldioxid. Das Gas ist giftig. Deshalb zeigt man diesen Versuch nur unter dem Abzug.",
+     atome: [["O", 150, 70, 326, 86], ["O", 168, 70, 358, 86], ["S", 62, 100, 342, 72], ["O", 150, 130, 376, 138], ["O", 168, 130, 408, 138], ["S", 88, 100, 392, 124]]},
+    {stoff: "Magnesium", oxid: "Magnesiumoxid",
+     text: "Ein Band aus Magnesium wird in die Flamme gehalten. Es verbrennt mit grellweißem Licht. Zurück bleibt ein weißes Pulver.",
+     fertig: "Magnesium und Sauerstoff reagieren zu Magnesiumoxid, einem weißen Pulver. Auf jedes Magnesium-Atom kommt ein Sauerstoff-Atom.",
+     atome: [["Mg", 60, 87, 324, 88], ["Mg", 86, 87, 372, 88], ["Mg", 60, 113, 348, 112], ["Mg", 86, 113, 396, 112], ["O", 150, 70, 348, 88], ["O", 168, 70, 396, 88], ["O", 150, 130, 324, 112], ["O", 168, 130, 372, 112]]}
+  ];
+  const atome = $("#wgAtome"), frage = $("#wgFrage"), frageT = $("#wgFrageT"), nameL = $("#wgNameL"), nameR = $("#wgNameR");
+  const chipNr = $("#wgNr"), text = $("#wgText"), zeileEl = $("#wgZeile"), vor = $("#wgVor"), nach = $("#wgNach"), weiter = $("#wgWeiter button"), obs = $("#wgObs");
+  vor.innerHTML = shuffle(["Eisen", "Kohlenstoff", "Schwefel", "Magnesium", "Sauerstoff", "Stickstoff"]).map(t => `<button type="button">${t}</button>`).join("");
+  nach.innerHTML = shuffle(["Eisenoxid", "Kohlenstoffdioxid", "Schwefeldioxid", "Magnesiumoxid", "Asche"]).map(t => `<button type="button">${t}</button>`).join("");
+  const geschafft = new Set();
+  let nr = 0, v = V[0], links = [], fertig = false;
+  function zeile(){
+    const s = t => `<span class="wg-slot${t ? " voll" : ""}">${t || "?"}</span>`;
+    zeileEl.innerHTML = s(links[0]) + '<span class="wg-op">+</span>' + s(links[1]) + '<span class="wg-op">→</span>' + s(fertig ? v.oxid : "");
+  }
+  function neu(){
+    v = V[nr]; links = []; fertig = false;
+    setText(chipNr, `Versuch ${nr + 1} von ${V.length}`); setText(text, v.text);
+    // blasse Abdrücke bleiben links stehen, damit man vorher und nachher vergleichen kann
+    atome.innerHTML = v.atome.map(a => { const A = AT[a[0]]; return `<circle cx="${a[1]}" cy="${a[2]}" r="${A.r}" fill="${A.f}" opacity=".22"/>`; }).join("") +
+      v.atome.map(a => { const A = AT[a[0]]; return `<g class="atom" style="transform:translate(${a[1]}px,${a[2]}px)"><circle r="${A.r}" fill="${A.f}" stroke="${A.s}" stroke-width="1.5"/><text y="4" text-anchor="middle" font-size="11" font-weight="700" fill="${A.t}">${a[0]}</text></g>`; }).join("");
+    frage.style.opacity = 1; frageT.style.opacity = 1; setText(nameL, ""); setText(nameR, "");
+    $$("button", vor).concat($$("button", nach)).forEach(b => b.classList.remove("war", "falsch"));
+    weiter.disabled = true; weiter.textContent = nr < V.length - 1 ? "Nächster Versuch →" : "↺ Noch einmal von vorn";
+    zeile(); setText(obs, "Lies die Beschreibung. Welche zwei Stoffe reagieren miteinander?");
+  }
+  function falsch(b, t){ b.classList.add("falsch"); setTimeout(() => b.classList.remove("falsch"), 900); setText(obs, "❌ " + t); }
+  $$("button", vor).forEach(b => b.addEventListener("click", () => {
+    const t = b.textContent;
+    if (fertig) { setText(obs, "Diese Gleichung ist fertig. Tippe auf den Knopf darunter."); return; }
+    if (links.includes(t)) { setText(obs, t + " steht schon in der Gleichung."); return; }
+    if (links.length === 2) { setText(obs, "Die linke Seite ist voll. Jetzt fehlt der Stoff, der entsteht."); return; }
+    if (t === "Stickstoff") { falsch(b, "Stickstoff ist zwar der größte Teil der Luft, reagiert hier aber nicht mit. Gesucht ist das Gas, das auch ein Feuer braucht."); return; }
+    if (t !== v.stoff && t !== "Sauerstoff") { falsch(b, `In diesem Versuch reagiert nicht ${t}. Lies die Beschreibung noch einmal genau.`); return; }
+    links.push(t); b.classList.add("war"); zeile();
+    if (links.length === 2) { setText(nameL, v.stoff + " und Sauerstoff"); setText(obs, "✅ Die linke Seite stimmt. Welcher neue Stoff entsteht?"); }
+    else setText(obs, t === "Sauerstoff" ? "✅ Richtig: Sauerstoff aus der Luft reagiert mit. Und welcher Stoff reagiert mit ihm?" : `✅ Richtig: ${t} ist der Stoff, der hier reagiert. Mit welchem Gas aus der Luft?`);
+  }));
+  $$("button", nach).forEach(b => b.addEventListener("click", () => {
+    const t = b.textContent;
+    if (fertig) { setText(obs, "Diese Gleichung ist fertig. Tippe auf den Knopf darunter."); return; }
+    if (links.length < 2) { setText(obs, "Fülle zuerst die linke Seite: Welche zwei Stoffe reagieren miteinander?"); return; }
+    if (t === "Asche") { falsch(b, "Asche ist nur der Rest, der nicht verbrennt. Gesucht ist das Oxid: der neue Stoff aus " + v.stoff + " und Sauerstoff."); return; }
+    if (t !== v.oxid) { falsch(b, `${t} passt nicht. Im Namen des Oxids steckt der Stoff, der mit dem Sauerstoff reagiert hat.`); return; }
+    fertig = true; b.classList.add("war"); zeile();
+    $$(".atom", atome).forEach((g, i) => { g.style.transform = `translate(${v.atome[i][3]}px,${v.atome[i][4]}px)`; });
+    frage.style.opacity = 0; frageT.style.opacity = 0; setText(nameR, v.oxid);
+    geschafft.add(nr); weiter.disabled = false;
+    setText(obs, "✅ " + v.fertig + (geschafft.size === V.length ? " Du hast alle vier Wortgleichungen gebaut." : ""));
+    if (geschafft.size === V.length) solve(id);
+  }));
+  weiter.addEventListener("click", () => { nr = (nr + 1) % V.length; neu(); });
+  neu();
+})();
+
+Modul.makeSort($("#sortOxide"), {
+  buckets: ["Element", "Metalloxid", "Nichtmetalloxid"],
+  items: [
+    {t: "Eisen", b: 0}, {t: "Sauerstoff", b: 0}, {t: "Schwefel", b: 0},
+    {t: "Eisenoxid", b: 1}, {t: "Magnesiumoxid", b: 1}, {t: "Kupferoxid", b: 1},
+    {t: "Kohlenstoffdioxid", b: 2}, {t: "Schwefeldioxid", b: 2}
+  ], cols: 150
+}, "sortOxide");
+
+/* ---------- Station 3: Formelgleichung ausgleichen, Name und Formel (M7) ---------- */
+Modul.plus(() => {
+  const id = "ausgleich"; register(id, "#glSim", "Formelgleichung ausgleichen: Magnesium und Sauerstoff");
+  const bild = $("#glBild"), zMg = $("#glMg"), zOx = $("#glOx"), obs = $("#glObs");
+  const B = {mgM: $("#glMgM"), mgP: $("#glMgP"), oxM: $("#glOxM"), oxP: $("#glOxP")};
+  let n = 1, m = 1;
+  const kugel = (x, sym) => { const mg = sym === "Mg"; return `<circle cx="${x}" cy="54" r="${mg ? 13 : 11}" fill="${mg ? "#d3dbe1" : "#e0453a"}" stroke="${mg ? "#7d8791" : "#a52c23"}" stroke-width="1.5"/><text x="${x}" y="58" text-anchor="middle" font-size="11" font-weight="700" fill="${mg ? "#15212b" : "#fff"}">${sym}</text>`; };
+  function zeig(){
+    let s = "";
+    for (let i = 0; i < n; i++) s += kugel(30 + i * 30, "Mg");
+    s += '<text x="156" y="61" text-anchor="middle" font-size="20" font-weight="800" fill="#566674">+</text>' + kugel(184, "O") + kugel(202, "O");
+    s += '<path d="M226 54h30m-9-8l9 8l-9 8" fill="none" stroke="#566674" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>';
+    for (let j = 0; j < m; j++) s += kugel(288 + j * 48, "Mg") + kugel(310 + j * 48, "O");
+    const gleich = n === 2 && m === 2, farbe = gleich ? "#135c33" : "#8f2525";
+    s += `<text x="116" y="106" text-anchor="middle" font-size="13" font-weight="700" fill="${farbe}">links: ${n} Mg und 2 O</text>`;
+    s += `<text x="372" y="106" text-anchor="middle" font-size="13" font-weight="700" fill="${farbe}">rechts: ${m} Mg und ${m} O</text>`;
+    bild.innerHTML = s;
+    setText(zMg, String(n)); setText(zOx, String(m));
+    B.mgM.disabled = n <= 1; B.mgP.disabled = n >= 4; B.oxM.disabled = m <= 1; B.oxP.disabled = m >= 4;
+    if (gleich) { setText(obs, "✅ Ausgeglichen: Links und rechts stehen je 2 Magnesium-Atome und 2 Sauerstoff-Atome. Die Formelgleichung lautet 2 Mg + O₂ → 2 MgO."); solve(id); }
+    else if (m !== 2) setText(obs, `Sauerstoff: links 2 Atome, rechts ${m}. Ein O₂-Molekül liefert genau 2 Sauerstoff-Atome. Wie viele MgO entstehen daraus?`);
+    else setText(obs, `Magnesium: links ${n} ${n === 1 ? "Atom" : "Atome"}, rechts 2. Wie viele Magnesium-Atome brauchst du links?`);
+  }
+  B.mgM.addEventListener("click", () => { n = Math.max(1, n - 1); zeig(); });
+  B.mgP.addEventListener("click", () => { n = Math.min(4, n + 1); zeig(); });
+  B.oxM.addEventListener("click", () => { m = Math.max(1, m - 1); zeig(); });
+  B.oxP.addEventListener("click", () => { m = Math.min(4, m + 1); zeig(); });
+  zeig();
+  setText(obs, "Stelle die Zahlen so ein, dass links und rechts gleich viele Atome stehen.");
+
+  Modul.makePaare($("#paareFormel"), [
+    ["Sauerstoff", "O₂"], ["Kohlenstoff", "C"], ["Kohlenstoffdioxid", "CO₂"],
+    ["Kohlenstoffmonoxid", "CO"], ["Schwefeldioxid", "SO₂"], ["Magnesiumoxid", "MgO"]
+  ], "paareFormel");
+});
+
+/* ---------- Station 4: Vier Nägel – wann rostet Eisen? ---------- */
+(function(){
+  const id = "naegel"; register(id, "#nagelSim", "Modellversuch: vier Nägel – wann rostet Eisen?");
+  const wahl = $("#nagelWahl"), start = $("#nagelStart"), chip = $("#nagelChip"), obs = $("#nagelObs"), fb = $("#nagelFb");
+  const rost = $$("#nagelSim .rost"), trueb = $$("#nagelSim .trueb"), flocken = $("#nFlocken"), erg = $$("#nagelSim .n-erg");
+  const ROSTET = [false, true, false, true], ERG = ["kein Rost", "Rost", "kein Rost", "viel Rost"];
+  // Roststärke je Glas nach d Tagen (0 bis 1)
+  const STUFE = [() => 0, d => Math.min(1, d / 10) * .8, () => 0, d => Math.min(1, d / 6)];
+  const tipp = new Set(); let timer = null;
+  function zeig(d){
+    rost.forEach(el => { el.style.opacity = STUFE[+el.dataset.g](d).toFixed(2); });
+    trueb.forEach(el => { el.style.opacity = (STUFE[+el.dataset.g](d) * +el.dataset.f).toFixed(2); });
+    flocken.style.opacity = d > 6 ? Math.min(1, (d - 6) / 5).toFixed(2) : 0;
+    setText(chip, "Tag " + d);
+  }
+  $$("button", wahl).forEach(b => b.addEventListener("click", () => {
+    if (b.dataset.g === "x") { tipp.clear(); $$("button", wahl).forEach(x => x.classList.toggle("sel", x === b)); }
+    else {
+      const i = +b.dataset.g; if (tipp.has(i)) tipp.delete(i); else tipp.add(i);
+      b.classList.toggle("sel", tipp.has(i)); $('button[data-g="x"]', wahl).classList.remove("sel");
+    }
+    if (!timer) { start.disabled = false; if (start.dataset.fertig !== "1") setText(obs, "Vermutung gemerkt. Spule jetzt die Zeit vor."); }
+  }));
+  function ende(){
+    erg.forEach((t, i) => { t.textContent = ERG[i]; t.setAttribute("fill", ROSTET[i] ? "#8a3f18" : "#135c33"); });
+    setText(obs, "Nach zwei Wochen: Rost gibt es nur in B und D. In A fehlt das Wasser, in C fehlt der Sauerstoff. Im Salzwasser rostet der Nagel am stärksten.");
+    const richtig = ROSTET.filter((r, i) => tipp.has(i) === r).length;
+    fb.className = "fb show " + (richtig === 4 ? "ok" : "mid");
+    fb.textContent = richtig === 4 ? "✅ Volltreffer: Du hast alle vier Gläser richtig eingeschätzt." : `Du hast ${richtig} von 4 Gläsern richtig eingeschätzt. Vergleiche mit dem Bild: Der Nagel rostet nur, wenn Wasser und Sauerstoff zusammenkommen.`;
+    start.disabled = false; start.textContent = "↺ Noch einmal vorspulen"; start.dataset.fertig = "1";
+    solve(id);
+  }
+  start.addEventListener("click", () => {
+    if (timer) return;
+    start.dataset.fertig = "0"; start.disabled = true; fb.className = "fb"; erg.forEach(t => { t.textContent = ""; });
+    let d = 0; zeig(0); setText(obs, "Die Tage vergehen …");
+    timer = setInterval(() => {
+      d++; zeig(d);
+      if (d >= 14) { clearInterval(timer); timer = null; ende(); }
+    }, reduced ? 40 : 300);
+  });
+  zeig(0);
+})();
+
+/* ---------- Station 5: Schutzschicht unter der Lupe ---------- */
+(function(){
+  const id = "schutz"; register(id, "#schutzSim", "Schutzschicht unter der Lupe: fünf Fälle vergleichen");
+  const F = [
+    {t: "ohne Schutz", farbe: "", rost: "alle", s: "Sauerstoff und Wasser erreichen das Eisen: Es rostet.",
+     e: "Ohne Schutz treffen Sauerstoff und Wasser direkt auf das Eisen. Es beginnt zu rosten."},
+    {t: "🎨 Lack", farbe: "#d9382e", name: "Lack", hell: true, s: "Der Lack hält Sauerstoff und Wasser fern: kein Rost.",
+     e: "Die Lackschicht ist dicht. Sauerstoff und Wasser kommen nicht an das Eisen – es rostet nicht."},
+    {t: "🔩 Zinkschicht", farbe: "#c5d0d8", name: "Zinkschicht", s: "Das Zink deckt das Eisen ab: kein Rost.",
+     e: "Der Überzug aus Zink deckt das Eisen ganz ab. Sauerstoff und Wasser erreichen es nicht."},
+    {t: "🔧 Öl oder Fett", farbe: "#f2c94c", name: "Fettfilm", s: "Der Fettfilm weist das Wasser ab: kein Rost.",
+     e: "Der Fettfilm weist Wasser ab und hält die Luft fern. Er wird aber mit der Zeit abgewaschen und muss erneuert werden."},
+    {t: "Lack mit Kratzer", farbe: "#d9382e", name: "Lack", hell: true, kratzer: true, rost: "kratzer", s: "Am Kratzer rostet es – auch unter dem Lack.",
+     e: "Durch den Kratzer kommen Sauerstoff und Wasser an das Eisen. Dort beginnt es zu rosten, und der Rost frisst sich unter dem Lack weiter. Deshalb bessert man Kratzer schnell aus."}
+  ];
+  const box = $("#schutzWahl"), obs = $("#schutzObs"), text = $("#schText"), name = $("#schName");
+  const teile = [$("#schA"), $("#schB"), $("#schC")], rostAlle = $("#schRostAlle"), rostKratzer = $("#schRostKratzer"), teilchen = $$("#schTeilchen .teilchen");
+  const gesehen = new Set(); let warte = null;
+  const ort = (g, y) => { g.style.transform = `translate(${g.dataset.x}px,${y}px)`; };
+  teilchen.forEach(g => { g.style.transition = "none"; ort(g, +g.dataset.y); });
+  box.innerHTML = F.map((f, i) => `<button type="button" data-i="${i}">${f.t}</button>`).join("");
+  $$("button", box).forEach(b => b.addEventListener("click", () => {
+    const i = +b.dataset.i, f = F[i];
+    $$("button", box).forEach(x => x.classList.toggle("sel", x === b)); b.classList.add("war");
+    teile.forEach(r => { r.style.opacity = f.farbe ? 1 : 0; if (f.farbe) r.setAttribute("fill", f.farbe); });
+    if (f.kratzer) teile[1].style.opacity = 0;
+    setText(name, f.name || ""); name.setAttribute("fill", f.hell ? "#fff" : "#15212b");
+    rostAlle.style.opacity = 0; rostKratzer.style.opacity = 0; clearTimeout(warte);
+    // Teilchen oben neu starten und bis zur Schicht oder bis zum Eisen wandern lassen
+    teilchen.forEach(g => { g.style.transition = "none"; ort(g, +g.dataset.y); });
+    void box.offsetWidth; teilchen.forEach(g => { void getComputedStyle(g).transform; });
+    teilchen.forEach(g => { g.style.transition = ""; ort(g, !f.farbe || (f.kratzer && g.dataset.spalt) ? 161 : 141); });
+    warte = setTimeout(() => { if (f.rost === "alle") rostAlle.style.opacity = 1; if (f.rost === "kratzer") rostKratzer.style.opacity = 1; }, reduced ? 0 : 900);
+    setText(text, f.s); gesehen.add(i);
+    setText(obs, f.e + (gesehen.size === F.length ? " ✅ Du hast alle fünf Fälle untersucht." : ""));
+    if (gesehen.size === F.length) solve(id);
+  }));
+})();
+
+/* ---------- Station 5: Apfelschnitze ---------- */
+(function(){
+  const r = $("#apfelZeit"), chip = $("#apfelChip"), obs = $("#apfelObs"), fleisch = $$("#apfelSim .fleisch"), stand = $$("#apfelSim .a-stand");
+  const id = "apfel"; register(id, "#apfelSim", "Versuch: Apfelschnitze an der Luft, mit Zitronensaft und in Folie");
+  const ANTEIL = [1, .1, .3], HELL = [247, 236, 196], BRAUN = [172, 118, 62];
+  const farbe = a => "rgb(" + HELL.map((h, i) => Math.round(h + (BRAUN[i] - h) * a)).join(",") + ")";
+  function zeig(){
+    const t = +r.value, a = t / 120;
+    fleisch.forEach((p, i) => p.setAttribute("fill", farbe(a * ANTEIL[i])));
+    setText(chip, t + " Minuten");
+    setText(stand[0], t < 15 ? "frisch" : t < 60 ? "wird braun" : "braun");
+    setText(stand[1], t < 15 ? "frisch" : "bleibt hell");
+    setText(stand[2], t < 15 ? "frisch" : t < 90 ? "bleibt hell" : "kaum verändert");
+    setText(obs, t < 15 ? "Frisch geschnitten sehen alle drei Schnitze gleich aus." :
+      t < 60 ? "Der Schnitz an der Luft bekommt einen braunen Schimmer. Stoffe aus dem Apfel reagieren mit dem Sauerstoff." :
+      t < 115 ? "Der ungeschützte Schnitz ist deutlich braun. Die beiden anderen sind noch hell." :
+      "Nach zwei Stunden: An der Luft ist der Schnitz braun. Mit Zitronensaft bleibt er hell – das Vitamin C hat den Sauerstoff abgefangen. In der Folie kam nur wenig Luft heran.");
+    if (t >= 115) solve(id);
+  }
+  r.addEventListener("input", zeig); zeig();
+})();
+
+Modul.makeSort($("#sortSchutz"), {
+  buckets: ["Farbe oder Lack", "Öl oder Fett", "Zinkschicht", "luftdicht verpackt", "Zitronensaft"],
+  items: [
+    {t: "Autotür", b: 0}, {t: "bunter Fahrradrahmen", b: 0},
+    {t: "Fahrradkette", b: 1}, {t: "Türscharnier", b: 1},
+    {t: "Leitplanke", b: 2}, {t: "Gießkanne aus Blech", b: 2},
+    {t: "Kartoffelchips", b: 3}, {t: "gemahlener Kaffee", b: 3},
+    {t: "Apfelschnitze", b: 4}, {t: "Obstsalat", b: 4}
+  ], cols: 130
+}, "sortSchutz");
+
+/* ---------- Station 6: Training ---------- */
+Modul.makeGap($("#gapOxi"), [
+  ["Bei einer ", {g: "Oxidation"}, " reagiert ein Stoff mit ", {g: "Sauerstoff"}, ". Der neue Stoff heißt ", {g: "Oxid"}, "."],
+  ["Eisenwolle wird beim Glühen ", {g: "schwerer"}, ", weil sie Sauerstoff aus der ", {g: "Luft"}, " bindet."],
+  ["Rosten ist eine ", {g: "stille"}, " Oxidation. Eisen rostet nur, wenn Sauerstoff und ", {g: "Wasser"}, " zusammenkommen."],
+  ["Eine Schicht aus Lack, Fett oder ", {g: "Zink"}, " schützt das Eisen."]
+], "gapOxi", ["Stickstoff", "leichter"]);
+
+Modul.makePaare($("#paareBegriffe"), [
+  ["Atom", "winziger Baustein aller Stoffe"],
+  ["Molekül", "mehrere Atome, fest verbunden"],
+  ["Element", "Stoff aus nur einer Atomsorte"],
+  ["Verbindung", "Stoff aus verschiedenen Atomsorten"],
+  ["Oxidation", "Reaktion mit Sauerstoff"],
+  ["Oxid", "entsteht bei der Reaktion mit Sauerstoff"]
+], "paareBegriffe");
+
+Modul.makeGap($("#gapWort"), [
+  ["Eisen + ", {g: "Sauerstoff"}, " → Eisenoxid"],
+  ["Kohlenstoff + Sauerstoff → ", {g: "Kohlenstoffdioxid"}],
+  [{g: "Magnesium"}, " + Sauerstoff → Magnesiumoxid"],
+  ["Schwefel + Sauerstoff → ", {g: "Schwefeldioxid"}],
+  ["Kupfer + Sauerstoff → ", {g: "Kupferoxid"}]
+], "gapWort", ["Stickstoff", "Wasser"]);
+
+Modul.makeTF($("#tf"), [
+  ["Wenn Eisenwolle glüht, bindet sie Sauerstoff aus der Luft.", true],
+  ["Eisenwolle wird beim Glühen leichter, weil ein Teil verbrennt.", false],
+  ["Ein Oxid ist ein neuer Stoff mit anderen Eigenschaften.", true],
+  ["Eisen rostet auch in völlig trockener Luft.", false],
+  ["Kohlenstoffdioxid ist ein Metalloxid.", false],
+  ["In Salzwasser rostet Eisen schneller als in Leitungswasser.", true],
+  ["Eine Zinkschicht hält Sauerstoff und Wasser vom Eisen fern.", true]
+], "tf");
+
+Modul.makeOrder($("#orderWaage"), [
+  "Zwei gleich schwere Büschel Eisenwolle an die Balkenwaage hängen",
+  "Ein Büschel mit dem Brenner entzünden",
+  "Die Eisenwolle glüht durch und bindet Sauerstoff",
+  "Die Seite mit dem durchgeglühten Büschel sinkt",
+  "Ergebnis: Das Eisenoxid ist schwerer als das Eisen vorher"
+], "orderWaage");
+
+Modul.makeCrossword($("#cw"), {
+  words: [
+    {w: "VERBINDUNG", r: 3, c: 9, d: "d", q: "Stoff, in dem verschiedene Atomsorten fest verbunden sind."},
+    {w: "VERZINKEN", r: 8, c: 1, d: "a", q: "Eisen mit einer dünnen Schicht aus einem anderen Metall überziehen."},
+    {w: "SAUERSTOFF", r: 4, c: 3, d: "d", q: "Mit diesem Gas aus der Luft reagiert ein Stoff bei der Oxidation."},
+    {w: "OXIDATION", r: 2, c: 5, d: "d", q: "Reaktion eines Stoffes mit Sauerstoff."},
+    {w: "MOLEKUEL", r: 4, c: 7, d: "d", q: "Teilchen aus zwei oder mehr fest verbundenen Atomen."},
+    {w: "EISENOXID", r: 2, c: 0, d: "a", q: "Dieser Stoff entsteht, wenn Eisenwolle glüht."},
+    {w: "ELEMENT", r: 0, c: 0, d: "d", q: "Stoff aus nur einer Sorte von Atomen."},
+    {w: "ROST", r: 0, c: 2, d: "d", q: "Rotbrauner Stoff, der aus Eisen, Sauerstoff und Wasser entsteht."},
+    {w: "ATOM", r: 11, c: 1, d: "a", q: "Winziger Baustein, aus dem alle Stoffe aufgebaut sind."},
+    {w: "LACK", r: 10, c: 1, d: "d", q: "Farbschicht, die ein Auto vor Rost schützt."}
+  ],
+  sol: [[0, 2], [5, 7], [2, 2], [7, 5], [13, 3], [8, 3], [7, 3], [2, 1]], solWord: "ROSTFREI"
+}, "cw");
+
+Modul.makeOpen($("#open"), [
+  {q: "Erkläre, was eine Oxidation ist. Nenne ein Beispiel und schreibe die Wortgleichung dazu.",
+   m: "Bei einer Oxidation reagiert ein Stoff mit Sauerstoff. Dabei entsteht ein neuer Stoff, ein Oxid. Beispiel: Eisen + Sauerstoff → Eisenoxid.",
+   k: ["sauerstoff", "oxid", "eisen|magnesium|kohlenstoff|schwefel|kupfer|rost"]},
+  {q: "Nach dem Glühen ist Eisenwolle schwerer als vorher. Erkläre, woran das liegt.",
+   m: "Beim Glühen verbindet sich das Eisen mit Sauerstoff aus der Luft. Es entsteht Eisenoxid. Das Gewicht des gebundenen Sauerstoffs kommt zum Gewicht des Eisens dazu.",
+   k: ["sauerstoff", "luft|verbind|gebunden|bindet|aufgenommen|nimmt", "eisenoxid|oxid|dazu|zusätzlich|mehr gewicht"], min: 2},
+  {q: "Ein Gartentor aus Eisen soll viele Jahre halten. Erkläre, warum es ohne Schutz rostet, und nenne zwei Möglichkeiten, es zu schützen.",
+   m: "Eisen rostet, wenn Sauerstoff und Wasser zusammen an das Eisen kommen, zum Beispiel durch Regen und feuchte Luft. Schützen kann man das Tor durch Lackieren oder Verzinken. Die Schicht hält Sauerstoff und Wasser vom Eisen fern.",
+   k: ["sauerstoff|luft", "wasser|regen|feucht|nass", "lack|streich|farbe|verzink|zink|öl|fett"]}
+], "open", "Lies noch einmal die Merke-Kästen in Station 2, 4 und 5.");
+
+Modul.plus(() => {
+  Modul.makeOpen($("#openM"), [
+    {q: "Eisenwolle wird beim Glühen schwerer. Ein Holzscheit wird beim Verbrennen scheinbar leichter – am Ende bleibt nur wenig Asche. Begründe, warum das kein Widerspruch ist.",
+     m: "In beiden Fällen wird Sauerstoff gebunden und es entstehen Oxide. Das Eisenoxid ist fest und bleibt auf der Waage. Beim Holz entstehen vor allem gasförmige Oxide wie Kohlenstoffdioxid und Wasserdampf. Sie entweichen in die Luft und werden nicht mitgewogen.",
+     k: ["gas|kohlenstoffdioxid|co2|rauch|wasserdampf", "entweich|in die luft|verschwind|steigen|davon|weg", "fest|bleibt|waage"], min: 2},
+    {q: "Ein Holzkohlegrill darf nie in einem geschlossenen Raum benutzt werden. Erkläre, welches Gas dort entstehen kann, und schreibe seine Formel auf.",
+     m: "Bekommt die glühende Kohle zu wenig Sauerstoff, entsteht statt Kohlenstoffdioxid (CO₂) das Gas Kohlenstoffmonoxid (CO). Es ist giftig, und man kann es weder sehen noch riechen.",
+     k: ["kohlenstoffmonoxid|kohlenmonoxid|monoxid|monooxid", "zu wenig|wenig sauerstoff|nicht genug|sauerstoffmangel", "giftig|gift|erstick|tödlich|lebensgefähr"], min: 2}
+  ], "openM", "Überlege, wo der Sauerstoff nach der Reaktion steckt und ob das Oxid fest oder gasförmig ist.");
+});
+
+/* ---------- Station 7: Profi-Check ---------- */
+Modul.makeQuiz($("#quiz"), [].concat(MC.s1, MC.s2, MC.s3, MC.s4, MC.s5, MC.train, [
+  {q: "Was bedeutet der Pfeil in einer Wortgleichung?", o: ["reagieren zu", "ist gleich", "ist größer als", "wird abgezogen von"], a: 0, e: "Links vom Pfeil stehen die Stoffe vorher, rechts steht der neue Stoff."},
+  {q: "Aus wie vielen Atomen besteht ein Sauerstoff-Molekül (O₂)?", o: ["aus zwei", "aus einem", "aus drei", "aus acht"], a: 0, e: "Die kleine 2 hinter dem O verrät es: zwei Sauerstoff-Atome, fest verbunden."},
+  {q: "Welcher dieser Stoffe ist ein Metalloxid?", o: ["Magnesiumoxid", "Kohlenstoffdioxid", "Schwefeldioxid", "Sauerstoff"], a: 0, e: "Magnesium ist ein Metall. Sein Oxid ist deshalb ein Metalloxid."},
+  {q: "Woran erkennst du, dass beim Glühen der Eisenwolle ein neuer Stoff entstanden ist?", o: ["Er ist dunkel und brüchig – ganz anders als das Eisen vorher.", "Die Eisenwolle ist noch warm.", "Die Waage wackelt ein wenig.", "Der Brenner ist ausgegangen."], a: 0, e: "Ein neuer Stoff hat neue Eigenschaften. Daran erkennt man eine chemische Reaktion."},
+  {q: "Welche Schutzschicht haben Leitplanken an der Straße?", o: ["eine Schicht aus Zink", "eine Schicht aus Zitronensaft", "eine Schicht aus Rost", "gar keine"], a: 0, e: "Leitplanken sind verzinkt. Das Zink hält Sauerstoff und Wasser vom Eisen fern."},
+  {q: "Was bedeutet es, wenn Fett „ranzig“ ist?", o: ["Es hat mit Sauerstoff reagiert und schmeckt verdorben.", "Es ist gefroren.", "Es ist zu Rost geworden.", "Es wurde frisch hergestellt."], a: 0, e: "Fette oxidieren langsam an der Luft. Luftdichte Verpackungen bremsen das."}
+]), "quiz", "Oxidations-Profi");
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

@@ -12,13 +12,34 @@
     return data;
   }
   function status(message, bad = false) { $("status").textContent = message; $("status").classList.toggle("bad",bad); $("status").hidden = false; }
+  // Zug (M oder R) und Themenbereich kommen aus dem Link der Übersicht (?zug=R&thema=mensch) oder aus dem Tab.
+  // Proben mit Zug zeigt die Seite nur dem passenden Zug; die beiden ersten Luft-Proben (ohne Zug) sind für 7M.
+  const THEMEN = {luft: "Luft", tiere: "Atome und Tiere", mensch: "Mensch und Gesundheit", strom: "Elektrizität"};
+  let zug = /^[MR]$/i.test(params.get("zug") || "") ? params.get("zug").toUpperCase() : "";
+  try { if (zug) sessionStorage.setItem("grumi-nt7-zug", zug); else zug = sessionStorage.getItem("grumi-nt7-zug") || ""; } catch (_e) {}
+  const thema = THEMEN[params.get("thema")] ? params.get("thema") : "";
+  const passt = t => (t.zug ? (!zug || t.zug === zug) : zug !== "R") && (!thema || (t.thema || "luft") === thema);
+  (function kopf() {
+    const klasse = zug === "R" ? "7R" : zug === "M" ? "7M" : "7";
+    const zurueck = zug === "R" ? "../../7R/NT/index.html" : "index.html";
+    document.querySelector(".brand").setAttribute("href", zurueck);
+    document.querySelector(".brand span").textContent = klasse + " / NT";
+    document.querySelector(".top-tag").textContent = "Proben" + (thema ? " · " + THEMEN[thema] : "");
+    document.querySelector("#exam-main > .eyebrow").textContent = "Natur und Technik · Klasse " + klasse;
+    document.querySelector("#exam-main > h1").textContent = thema ? "Proben: " + THEMEN[thema] : "Proben Natur und Technik";
+    document.title = "Proben" + (thema ? " " + THEMEN[thema] : "") + " | Natur und Technik " + klasse;
+  })();
   async function load() {
     try {
       const data = await request("list");
+      data.tests = data.tests.filter(passt);
+      if (!data.tests.length) { $("exam-list").innerHTML = ""; status("Für diesen Themenbereich gibt es noch keine Probe."); return; }
       $("exam-list").innerHTML = data.tests.map(t => `<article class="exam-tile"><div><div class="eyebrow">${esc(t.scope)}</div><h2>${esc(t.title)}</h2><p>${t.itemCount} Aufgaben · ${t.maxPoints} Punkte · etwa ${t.minutes} Minuten</p></div><div><span class="pill ${t.unlocked ? "open" : ""}">${t.unlocked ? "Freigeschaltet" : "Gesperrt"}</span><br><button class="btn" data-test="${t.id}" ${t.unlocked ? "" : "disabled"}>Auswählen</button></div></article>`).join("");
-      status("Wähle eine freigeschaltete Probe. Zur Vorbereitung kannst du jederzeit zur Luft-Reihe zurückgehen.");
-      const desired = params.get("probe") === "2" ? "nt7-luft-2" : "nt7-luft-1";
-      const test = data.tests.find(t => t.id === desired && t.unlocked);
+      status("Wähle eine freigeschaltete Probe. Zur Vorbereitung kannst du jederzeit zu den Lernmodulen zurückgehen.");
+      // Vorauswahl: ?test=<Kennung> (neu), ?probe=1|2 (die beiden ersten Luft-Proben), sonst die einzige offene Probe
+      const offen = data.tests.filter(t => t.unlocked);
+      const desired = params.get("test") || (params.get("probe") === "2" ? "nt7-luft-2" : params.get("probe") === "1" ? "nt7-luft-1" : "");
+      const test = offen.find(t => t.id === desired) || (offen.length === 1 ? offen[0] : null);
       if (test) select(test);
     } catch (e) { status("Der Probenserver ist noch nicht erreichbar. Die Lernsequenzen funktionieren unabhängig davon. " + e.message,true); }
   }

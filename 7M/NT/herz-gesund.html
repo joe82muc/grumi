@@ -1,0 +1,1018 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#a3203f">
+<title>Herz und Kreislauf gesund halten | NT 7</title>
+<link rel="stylesheet" href="modul-basis.css">
+<style>
+.hero{background:linear-gradient(160deg,#6d1028,#b8284a 55%,#ee8a6e)}
+.bild{margin:12px 0}
+.bild svg{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--line);background:#f7fbfe}
+.sim-kopf{padding:14px 14px 6px}
+.sim-kopf h3{margin:4px 0 6px}
+.sim-kopf ol{margin:0 0 6px;padding-left:22px}
+.sim-kopf li{margin:3px 0}
+.sim-kopf p{margin:0 0 6px}
+.sim .wahl{padding:0 14px;margin:10px 0 12px}
+.uhr{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:10px 14px;border-top:1px solid var(--line);background:#fbfdff}
+.uhr button{border:2px solid var(--sky);background:#fff;color:var(--sky-d);border-radius:12px;padding:8px 12px;font-weight:700;min-height:44px}
+.uhr-zahl{font-variant-numeric:tabular-nums;font-size:1.7rem;font-weight:800;color:var(--sky-d);min-width:2.6em;text-align:center}
+.uhr-zahl.fertig{color:var(--ok)}
+.uhr-text{flex:1 1 150px;font-size:.92rem;color:var(--muted);font-weight:600}
+.puls-felder{padding:10px 14px 2px;display:grid;gap:8px;border-top:1px solid var(--line)}
+.puls-zeile{display:grid;grid-template-columns:minmax(0,1fr) 78px minmax(0,1fr);gap:10px;align-items:center}
+.puls-zeile label{font-weight:700;font-size:.95rem}
+.puls-zeile input{width:78px;min-height:44px;border:2px solid var(--line);border-radius:10px;padding:6px 4px;font:inherit;font-weight:800;text-align:center;background:#fff}
+.puls-zeile input:focus{outline:none;border-color:var(--sky)}
+.puls-zeile input.falsch{border-color:var(--bad);background:var(--bad-l)}
+.puls-zeile span{font-weight:700;color:var(--sky-d);font-size:.93rem}
+.legende{display:flex;flex-wrap:wrap;gap:6px 16px;padding:8px 14px;font-size:.88rem;color:var(--muted);border-top:1px solid var(--line);background:#fff}
+.legende i{display:inline-block;width:20px;height:10px;border-radius:3px;margin-right:6px;vertical-align:middle}
+.legende i.strich{height:0;border-top:3px dashed #b77a06;border-radius:0}
+@keyframes blutfluss{from{transform:translateX(0)}to{transform:translateX(44px)}}
+.fluss{animation:blutfluss 1.5s linear infinite;animation-play-state:paused}
+.laeuft .fluss{animation-play-state:running}
+#artLumen,#artDruck,.fluss ellipse{transition:opacity .3s}
+#infGebiet,#infPfropf,#infHinten,#infStelle,#infNotruf,#infFehlt,#infAb,#infO2{transition:opacity .6s,stroke .6s,width .6s,fill .6s}
+#raWandO,#raWandU{transition:transform .7s}
+#raCO circle{transition:fill .5s,stroke .5s}
+.bilanz{position:sticky;top:68px;z-index:5;display:grid;grid-template-columns:58px minmax(0,1fr);gap:12px;align-items:center;background:#fff;border:2px solid var(--line);border-radius:14px;padding:10px 12px;margin:12px 0;box-shadow:var(--shadow)}
+.bilanz svg{display:block;width:58px;height:54px}
+.bilanz strong{display:block}
+.bil-bar{position:relative;height:12px;border-radius:99px;background:var(--line);margin:6px 0 4px}
+.bil-bar div{height:100%;width:0;border-radius:99px;background:var(--warn);transition:width .3s}
+.bil-bar.ok div{background:var(--ok)}
+.bil-bar span{position:absolute;left:66.67%;top:-4px;bottom:-4px;width:3px;margin-left:-1px;background:var(--ink);border-radius:2px}
+.bilanz .hint{margin:0}
+.tag-frage h4{margin:14px 0 0;font-size:1rem}
+.tag-frage .wahl{margin:6px 0 0}
+.tag-frage .wahl button{text-align:left}
+.notfall{margin:0 0 .9em;padding-left:20px}
+.notfall li{margin:4px 0}
+/* Handy: etwas weniger Rand, damit mehr Text in eine Zeile passt */
+@media (max-width:520px){.card{padding:14px}.q{padding:12px}.sim-kopf{padding:12px 12px 4px}section.station{padding:36px 0 16px}}
+#bhFuell{transition:y .3s,height .3s}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>NT 7</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Nachmittag</a>
+      <a href="#s2"><b>2</b>Puls</a>
+      <a href="#s3"><b>3</b>Arterien</a>
+      <a href="#s4"><b>4</b>Risiken</a>
+      <a href="#s5"><b>5</b>Vorbeugen</a>
+      <a href="#s6"><b>6</b>Training</a>
+      <a href="#s7"><b>7</b>Profi-Check</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse 7M / 7R · Themenbereich Mensch und Gesundheit · Lernmodul 5</div>
+    <h1>Herz und Kreislauf gesund halten</h1>
+    <p>Dein Herz arbeitet Tag und Nacht, ohne eine einzige Pause. In sieben Stationen misst du deinen Puls, siehst, was Arterien eng macht, und findest heraus, was du selbst für ein gesundes Herz tun kannst.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s6">Direkt zum Probentraining</a>
+    </div>
+    <div class="goals">
+      <div>💓 Ich messe meinen Puls und vergleiche Ruhe, Belastung und Erholung.</div>
+      <div>🔍 Ich erkläre, wie Ablagerungen Arterien verengen und was ein Herzinfarkt ist.</div>
+      <div>🚭 Ich nenne Risikofaktoren für Herz und Kreislauf und erkläre, wie Rauchen schadet.</div>
+      <div>🏃 Ich plane meinen Alltag so, dass er meinem Herzen guttut.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg</div><h2>Zwei Nachmittage – zwei Herzen</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Donnerstag, 14 Uhr, die Schule ist aus. Zwei aus der 7. Klasse verbringen ihren Nachmittag ganz verschieden.</p>
+      <div class="bild">
+        <svg viewBox="0 0 480 250" role="img" aria-label="Links sitzt Jonas mit Spielkonsole, Chips und Limo auf dem Sofa. Rechts fährt Samira mit dem Fahrrad zum Training.">
+          <rect width="240" height="250" fill="#eef1f6"/>
+          <rect x="240" width="240" height="250" fill="#e2f2fb"/>
+          <rect y="204" width="240" height="46" fill="#dccdb0"/>
+          <rect x="240" y="216" width="240" height="34" fill="#b9d39a"/>
+          <!-- Jonas auf dem Sofa -->
+          <circle cx="200" cy="92" r="14" fill="#fff" stroke="#8a97a3" stroke-width="2"/><path d="M200 92v-9M200 92l7 4" stroke="#15212b" stroke-width="2" stroke-linecap="round"/>
+          <rect x="34" y="112" width="140" height="56" rx="14" fill="#8399c6"/>
+          <rect x="34" y="156" width="140" height="42" rx="10" fill="#6f86b8"/>
+          <rect x="24" y="138" width="22" height="66" rx="9" fill="#5d74a6"/><rect x="162" y="138" width="22" height="66" rx="9" fill="#5d74a6"/>
+          <g stroke="#15212b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+            <circle cx="104" cy="104" r="12" fill="#f2c9a0" stroke-width="3"/>
+            <path d="M104 118v40M104 158l22 6 2 38M104 158l8 8 2 36M104 128l16 16M104 128l4 18 12-2"/>
+          </g>
+          <rect x="116" y="138" width="24" height="12" rx="5" fill="#15212b"/><circle cx="122" cy="144" r="2" fill="#e0453a"/><circle cx="134" cy="144" r="2" fill="#7cc6f2"/>
+          <rect x="186" y="178" width="48" height="6" rx="2" fill="#a57c52"/><rect x="190" y="184" width="4" height="20" fill="#8a6a45"/><rect x="226" y="184" width="4" height="20" fill="#8a6a45"/>
+          <path d="M190 178l3-24h14l3 24z" fill="#f2992e"/><rect x="193" y="162" width="14" height="6" fill="#ffd34d"/>
+          <rect x="216" y="154" width="10" height="24" rx="3" fill="#5b3a1e"/><rect x="218" y="147" width="6" height="8" rx="1.5" fill="#c9412b"/>
+          <text x="120" y="30" text-anchor="middle" font-size="16" font-weight="800" fill="#15212b">Jonas</text>
+          <text x="120" y="50" text-anchor="middle" font-size="13" font-weight="600" fill="#566674">4 Stunden an der Konsole</text>
+          <text x="120" y="236" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b">Chips · Limo · Sofa</text>
+          <!-- Samira auf dem Rad -->
+          <circle cx="452" cy="34" r="15" fill="#f2b632"/>
+          <path d="M258 170h22M252 186h20M262 202h16" stroke="#8fb7d3" stroke-width="3" stroke-linecap="round"/>
+          <g fill="none" stroke="#15212b" stroke-width="4"><circle cx="312" cy="190" r="26"/><circle cx="408" cy="190" r="26"/></g>
+          <path d="M312 190H348L338 148H392L348 190M312 190L338 148M392 148L408 190M392 148l-2-12M382 134h18" stroke="#0d77c2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="326" y="141" width="22" height="7" rx="3" fill="#15212b"/>
+          <rect x="361" y="158" width="8" height="18" rx="3" fill="#2f8fdb" transform="rotate(38 365 167)"/>
+          <rect x="336" y="100" width="20" height="30" rx="8" fill="#c9412b" transform="rotate(45 346 115)"/>
+          <g stroke="#15212b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+            <circle cx="384" cy="92" r="12" fill="#f2c9a0" stroke-width="3"/>
+            <path d="M338 140L372 106M372 106l22 28M338 140l24 22-12 28"/>
+          </g>
+          <text x="352" y="30" text-anchor="middle" font-size="16" font-weight="800" fill="#15212b">Samira</text>
+          <text x="352" y="50" text-anchor="middle" font-size="13" font-weight="600" fill="#566674">mit dem Rad zum Training</text>
+          <text x="360" y="240" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b">Fahrrad · Wasser · Sport</text>
+          <line x1="240" y1="0" x2="240" y2="250" stroke="#fff" stroke-width="4"/>
+        </svg>
+      </div>
+      <p><strong>Jonas</strong> setzt sich mit Chips und Limo vor die Konsole – vier Stunden lang. <strong>Samira</strong> trinkt einen Schluck Wasser, steigt aufs Rad und fährt zum Training.</p>
+      <p>Ein einzelner Nachmittag auf dem Sofa schadet niemandem. Spannend wird es, wenn fast jeder Tag so aussieht. Das merkt das Herz – nicht heute, aber nach vielen Jahren.</p>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag">Deine Einschätzung</span>
+      <h3 style="margin-top:4px">Wessen Herz hat es auf Dauer leichter?</h3>
+      <p class="hint">Tippe an, was du vermutest. Hier gibt es noch kein Richtig oder Falsch.</p>
+      <div class="wahl" id="einWahl">
+        <button type="button">Das Herz von Jonas – es muss sich kaum anstrengen.</button>
+        <button type="button">Das Herz von Samira – es wird trainiert.</button>
+        <button type="button">Kein Unterschied – Herz ist Herz.</button>
+      </div>
+      <div class="fb" id="einFb"></div>
+      <div id="mc-s1" style="margin-top:14px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Puls messen und vergleichen</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Lege zwei Finger an dein Handgelenk. Spürst du das leichte Klopfen? Das ist dein <button class="term" data-t="puls">Puls</button>.</p>
+      <p>Bei jedem Herzschlag drückt das Herz Blut in die <button class="term" data-t="arterie">Arterien</button>. Diese Druckwelle fühlst du überall dort, wo eine Arterie dicht unter der Haut liegt. Ein Pulsschlag ist also ein Herzschlag.</p>
+      <p>Der Puls gibt an, wie oft dein Herz <strong>in einer Minute</strong> schlägt. Sitzt du ruhig, misst du deinen <button class="term" data-t="ruhepuls">Ruhepuls</button>.</p>
+      <div class="bild">
+        <svg viewBox="0 0 400 210" role="img" aria-label="Eine Hand mit der Handfläche nach oben. Zwei Finger der anderen Hand liegen am Handgelenk unterhalb des Daumens auf der Arterie.">
+          <rect width="400" height="210" fill="#f7fbfe"/>
+          <g fill="#f2c9a0" stroke="#c99a6b" stroke-width="2.5" stroke-linejoin="round">
+            <rect x="-10" y="88" width="190" height="64" rx="10"/>
+            <rect x="188" y="34" width="26" height="66" rx="13" transform="rotate(38 201 67)"/>
+            <rect x="262" y="72" width="100" height="20" rx="10"/><rect x="266" y="94" width="112" height="20" rx="10"/><rect x="266" y="116" width="102" height="20" rx="10"/><rect x="262" y="138" width="80" height="20" rx="10"/>
+            <rect x="166" y="70" width="112" height="92" rx="24"/>
+          </g>
+          <rect x="158" y="90.5" width="24" height="59" fill="#f2c9a0"/>
+          <path d="M0 101H170" stroke="#d9291c" stroke-width="4" stroke-dasharray="8 6" stroke-linecap="round" fill="none"/>
+          <g fill="#e6b58a" stroke="#b98558" stroke-width="2.5"><rect x="96" y="40" width="22" height="70" rx="11"/><rect x="122" y="36" width="22" height="74" rx="11"/></g>
+          <text x="120" y="24" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b">Zeige- und Mittelfinger</text>
+          <text x="246" y="38" font-size="13" font-weight="700" fill="#15212b">Daumen</text>
+          <path d="M52 174V106" stroke="#566674" stroke-width="1.5"/>
+          <text x="10" y="192" font-size="13" font-weight="700" fill="#c0392b">Arterie dicht unter der Haut</text>
+        </svg>
+      </div>
+      <h3 style="margin-top:.6em">So misst du</h3>
+      <ol class="schritt-liste">
+        <li>Lege Zeige- und Mittelfinger an die Innenseite des Handgelenks, unterhalb des Daumens. Miss nicht mit dem Daumen – er hat selbst einen Puls.</li>
+        <li>Drücke nur leicht, bis du das Klopfen spürst.</li>
+        <li>Zähle die Schläge <strong>15 Sekunden</strong> lang und rechne <strong>mal 4</strong>. So erhältst du die Schläge pro Minute.</li>
+      </ol>
+    </div>
+
+    <div class="sim reveal" id="pulsSim">
+      <div class="sim-kopf">
+        <span class="task-tag">Eigener Versuch</span>
+        <h3>Dein Puls: Ruhe, Belastung, Pause</h3>
+        <ol>
+          <li>Sitze eine Minute ruhig. Starte dann die Uhr und zähle 15 Sekunden lang deinen Puls.</li>
+          <li>Mache 20 Kniebeugen. Zähle <strong>sofort danach</strong> wieder 15 Sekunden.</li>
+          <li>Setz dich hin, warte 2 Minuten und zähle noch einmal.</li>
+        </ol>
+        <p class="hint">Mach die <button class="term" data-t="belastung">Belastung</button> nur mit, wenn du gesund bist und dich wohlfühlst. Sonst nimmst du die Beispielwerte.</p>
+      </div>
+      <div class="uhr">
+        <button type="button" id="uhr15">▶ 15 Sekunden zählen</button>
+        <button type="button" id="uhr120">▶ 2 Minuten Pause</button>
+        <span class="uhr-zahl" id="uhrZahl">15 s</span>
+        <span class="uhr-text" id="uhrText">Die Uhr hilft dir beim Zählen.</span>
+      </div>
+      <div class="puls-felder">
+        <div class="puls-zeile"><label for="pulsA">in Ruhe</label><input id="pulsA" type="text" inputmode="numeric" maxlength="2" autocomplete="off" placeholder="?" aria-label="Pulsschläge in 15 Sekunden in Ruhe"><span id="pulsAx">· 4 = ?</span></div>
+        <div class="puls-zeile"><label for="pulsB">direkt nach 20 Kniebeugen</label><input id="pulsB" type="text" inputmode="numeric" maxlength="2" autocomplete="off" placeholder="?" aria-label="Pulsschläge in 15 Sekunden nach 20 Kniebeugen"><span id="pulsBx">· 4 = ?</span></div>
+        <div class="puls-zeile"><label for="pulsC">nach 2 Minuten Pause</label><input id="pulsC" type="text" inputmode="numeric" maxlength="2" autocomplete="off" placeholder="?" aria-label="Pulsschläge in 15 Sekunden nach 2 Minuten Pause"><span id="pulsCx">· 4 = ?</span></div>
+        <p class="hint" style="margin:0">Trage ein, wie viele Schläge du in 15 Sekunden gezählt hast. Die Seite rechnet mal 4.</p>
+      </div>
+      <div class="wahl">
+        <button type="button" id="pulsZeichnen">📊 Diagramm zeichnen</button>
+        <button type="button" id="pulsBeispiel">Beispielwerte einsetzen</button>
+      </div>
+      <svg id="pulsDiagramm" viewBox="0 0 480 280" role="img" aria-label="Säulendiagramm: Puls in Ruhe, nach 20 Kniebeugen und nach 2 Minuten Pause"></svg>
+      <div class="legende">
+        <span><i style="background:#cfeeda"></i>typischer Ruhepuls: etwa 70 bis 90</span>
+        <span><i class="strich"></i>bei kräftiger Belastung meist über 120</span>
+      </div>
+      <p class="obs" id="pulsObs">Miss dreimal, trage deine Zahlen ein und tippe auf „Diagramm zeichnen“.</p>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <div class="merke"><h4>MERKE</h4><ul>
+      <li>Der Puls gibt an, wie oft das Herz in einer Minute schlägt.</li>
+      <li>Bei körperlicher Belastung schlägt das Herz schneller, und du atmest schneller.</li>
+      <li>In der Pause sinkt der Puls wieder auf den Ruhewert.</li>
+    </ul></div>
+    <div id="mc-s2"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Warum steigen Puls und Atemfrequenz bei Belastung?</h3>
+    <p class="m7-hinweis">Aufgaben mit dem lila Zeichen gehören zum M-Niveau. In M-Klassen zählen sie mit, in R-Klassen sind sie eine Zusatzaufgabe für Profis.</p>
+    <div class="grid2">
+      <div>
+        <p>Beim Rennen arbeiten deine Muskeln viel stärker als im Sitzen. Dafür brauchen sie mehr Energie – ihr <button class="term" data-t="energiebedarf">Energiebedarf</button> steigt.</p>
+        <p>Die Energie gewinnen die Muskeln aus Nährstoffen (vor allem Traubenzucker) und Sauerstoff. Dabei entstehen Kohlenstoffdioxid und Wasser.</p>
+        <p>Also muss mehr Sauerstoff hin und mehr Kohlenstoffdioxid weg. Du atmest schneller: Die <button class="term" data-t="atemfrequenz">Atemfrequenz</button> steigt. Und das Herz schlägt schneller, damit das Blut alles rascher transportiert.</p>
+      </div>
+      <div class="bild" style="margin:0">
+        <svg viewBox="0 0 480 190" role="img" aria-label="Ein Muskel nimmt Sauerstoff und Nährstoffe auf und gibt Kohlenstoffdioxid und Wasser ab. Dabei wird Energie für die Bewegung frei.">
+          <rect width="480" height="190" fill="#f7fbfe"/>
+          <defs>
+            <marker id="pfBlau" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5 0 10z" fill="#2f6fdb"/></marker>
+            <marker id="pfGruen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5 0 10z" fill="#1b8a4b"/></marker>
+            <marker id="pfGrau" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5 0 10z" fill="#5f6770"/></marker>
+            <marker id="pfGelb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5 0 10z" fill="#b77a06"/></marker>
+          </defs>
+          <path d="M148 86h28M304 86h28" stroke="#d8c7a4" stroke-width="10" stroke-linecap="round"/>
+          <path d="M170 86C200 44 280 44 310 86C280 128 200 128 170 86Z" fill="#c8545f" stroke="#8d2f3a" stroke-width="3"/>
+          <text x="240" y="91" text-anchor="middle" font-size="15" font-weight="800" fill="#fff">Muskel</text>
+          <path d="M52 44L164 74" stroke="#2f6fdb" stroke-width="4" fill="none" marker-end="url(#pfBlau)"/>
+          <text x="10" y="34" font-size="13" font-weight="700" fill="#2f6fdb">Sauerstoff</text>
+          <path d="M52 132L164 100" stroke="#1b8a4b" stroke-width="4" fill="none" marker-end="url(#pfGruen)"/>
+          <text x="10" y="152" font-size="13" font-weight="700" fill="#1b8a4b">Nährstoffe</text>
+          <path d="M316 74L424 44" stroke="#5f6770" stroke-width="4" fill="none" marker-end="url(#pfGrau)"/>
+          <text x="470" y="34" text-anchor="end" font-size="13" font-weight="700" fill="#5f6770">Kohlenstoffdioxid</text>
+          <path d="M316 100L424 132" stroke="#5f6770" stroke-width="4" fill="none" marker-end="url(#pfGrau)"/>
+          <text x="470" y="152" text-anchor="end" font-size="13" font-weight="700" fill="#5f6770">Wasser</text>
+          <path d="M240 122V150" stroke="#b77a06" stroke-width="4" fill="none" marker-end="url(#pfGelb)"/>
+          <text x="240" y="174" text-anchor="middle" font-size="14" font-weight="800" fill="#b77a06">Energie für die Bewegung</text>
+        </svg>
+      </div>
+    </div>
+    <h3>Je-desto-Sätze</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapJeDesto"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>Wenn Arterien enger werden</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Eine gesunde Arterie ist innen glatt, ihre Wand ist elastisch. Das Blut fließt ungehindert hindurch.</p>
+      <p>Über viele Jahre können sich in der Gefäßwand Fett und Kalk ablagern. Diese <strong>Ablagerungen</strong> machen die Arterie eng und starr. Die Krankheit heißt <button class="term" data-t="arteriosklerose">Arteriosklerose</button>.</p>
+      <p>Durch ein enges Gefäß passt weniger Blut. Das Herz muss mit mehr Kraft pumpen, der <button class="term" data-t="blutdruck">Blutdruck</button> steigt. Bleibt er dauerhaft zu hoch, spricht man von <button class="term" data-t="blutdruck">Bluthochdruck</button>.</p>
+      <p>Das Tückische: Man spürt davon lange nichts. Die Ablagerungen wachsen sehr langsam und beginnen oft schon in jungen Jahren. Deshalb lohnt es sich, früh auf das Herz zu achten.</p>
+      <p class="hint">Schiebe den Regler. Beobachte den Querschnitt, den Blutfluss und die Kraft, mit der das Herz pumpen muss.</p>
+    </div>
+    <div class="sim reveal">
+      <svg viewBox="0 0 480 284" id="artSvg" role="img" aria-label="Eine Arterie im Querschnitt und im Längsschnitt. Mit dem Regler wachsen gelbe Ablagerungen in das Gefäß hinein, die Öffnung für das Blut wird kleiner.">
+        <rect width="480" height="284" fill="#f7fbfe"/>
+        <defs>
+          <clipPath id="artClipL"><rect x="250" y="86" width="115" height="84"/></clipPath>
+          <clipPath id="artClipR"><rect x="365" y="86" width="105" height="84"/></clipPath>
+        </defs>
+        <text x="120" y="26" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Querschnitt</text>
+        <text x="360" y="26" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Längsschnitt</text>
+        <!-- Querschnitt -->
+        <circle cx="120" cy="138" r="92" fill="#d98a8f" stroke="#a5484f" stroke-width="3"/>
+        <circle cx="120" cy="138" r="70" fill="#f0c75e"/>
+        <circle id="artLumen" cx="120" cy="138" r="70" fill="#b3121f"/>
+        <g id="artZellen" fill="#e8636c">
+          <g><circle cx="110" cy="128" r="6"/><circle cx="130" cy="124" r="6"/><circle cx="134" cy="144" r="6"/><circle cx="114" cy="150" r="6"/><circle cx="102" cy="142" r="5"/></g>
+          <g id="artZ2"><circle cx="152" cy="126" r="6"/><circle cx="108" cy="106" r="6"/><circle cx="88" cy="150" r="6"/><circle cx="132" cy="170" r="6"/></g>
+          <g id="artZ3"><circle cx="147" cy="91" r="6"/><circle cx="73" cy="111" r="6"/><circle cx="93" cy="185" r="6"/><circle cx="167" cy="165" r="6"/><circle cx="172" cy="124" r="5"/><circle cx="68" cy="152" r="5"/></g>
+        </g>
+        <!-- Längsschnitt -->
+        <rect x="250" y="86" width="220" height="84" fill="#b3121f"/>
+        <g clip-path="url(#artClipL)"><g class="fluss" id="artFlussL" fill="#e8636c"></g></g>
+        <g clip-path="url(#artClipR)"><g class="fluss" id="artFlussR" fill="#e8636c"></g></g>
+        <path id="artBelagO" d="" fill="#f0c75e"/>
+        <path id="artBelagU" d="" fill="#f0c75e"/>
+        <rect x="250" y="70" width="220" height="16" fill="#d98a8f"/><rect x="250" y="170" width="220" height="16" fill="#d98a8f"/>
+        <path d="M250 70h220M250 186h220" stroke="#a5484f" stroke-width="3"/>
+        <text x="250" y="214" font-size="12" font-weight="700" fill="#15212b">So stark muss das Herz pumpen:</text>
+        <rect x="250" y="222" width="220" height="14" rx="7" fill="#e3e9ee"/>
+        <rect id="artDruck" x="250" y="222" width="77" height="14" rx="7" fill="#1b8a4b"/>
+        <!-- Legende -->
+        <g font-size="12" font-weight="600" fill="#15212b">
+          <rect x="62" y="258" width="12" height="12" rx="2" fill="#d98a8f"/><text x="80" y="269">Gefäßwand</text>
+          <rect x="172" y="258" width="12" height="12" rx="2" fill="#b3121f"/><text x="190" y="269">Blut</text>
+          <rect x="242" y="258" width="12" height="12" rx="2" fill="#f0c75e"/><text x="260" y="269">Ablagerung (Fett und Kalk)</text>
+        </g>
+      </svg>
+      <div class="sim-ctrl"><label for="artRegler">Ablagerungen</label><input type="range" id="artRegler" min="0" max="100" value="0"><span class="chip" id="artChip">freie Öffnung: 100 %</span></div>
+      <p class="obs" id="artObs">Schiebe den Regler nach rechts.</p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="sim reveal" id="infarktSim">
+      <svg viewBox="0 0 480 300" role="img" aria-label="Ein Herz mit Herzkranzgefäßen. Daneben ein vergrößerter Blick in ein Gefäß, das sich durch Ablagerungen und einen Blutpfropf verschließt.">
+        <rect width="480" height="300" fill="#f7fbfe"/>
+        <defs><clipPath id="herzForm"><path d="M62 128C50 74 116 52 146 92C172 52 246 64 240 132C235 190 186 236 148 266C108 236 74 190 62 128Z"/></clipPath></defs>
+        <!-- große Gefäße oben -->
+        <path d="M152 96C152 62 162 40 198 40" fill="none" stroke="#d9414e" stroke-width="22" stroke-linecap="round"/>
+        <path d="M116 96C110 70 104 54 92 40" fill="none" stroke="#5b8ad6" stroke-width="18" stroke-linecap="round"/>
+        <!-- Herzmuskel -->
+        <path d="M62 128C50 74 116 52 146 92C172 52 246 64 240 132C235 190 186 236 148 266C108 236 74 190 62 128Z" fill="#c8545f" stroke="#8d2f3a" stroke-width="3"/>
+        <g clip-path="url(#herzForm)"><ellipse id="infGebiet" cx="178" cy="214" rx="50" ry="58" fill="#8b90a6" opacity="0"/></g>
+        <!-- Herzkranzgefäße -->
+        <g fill="none" stroke-linecap="round" stroke-width="6">
+          <path d="M146 98C126 114 112 140 106 178" stroke="#e8362c"/>
+          <path d="M146 98C168 110 184 130 190 152" stroke="#e8362c"/>
+          <path d="M172 118C196 120 214 136 220 158" stroke="#e8362c"/>
+          <path id="infAb" d="M190 152C194 180 186 208 168 234" stroke="#e8362c"/>
+        </g>
+        <circle id="infStelle" cx="190" cy="152" r="5.5" fill="#f0c75e" stroke="#15212b" stroke-width="1.5" opacity="0"/>
+        <circle cx="190" cy="152" r="14" fill="none" stroke="#15212b" stroke-width="2" stroke-dasharray="4 3"/>
+        <path d="M203 146L268 100" stroke="#15212b" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <path d="M58 248L102 186" stroke="#566674" stroke-width="1.5"/>
+        <text x="6" y="264" font-size="12" font-weight="700" fill="#c0392b">Herzkranzgefäße</text>
+        <g id="infFehlt" opacity="0"><path d="M226 250L188 224" stroke="#566674" stroke-width="1.5"/><text x="230" y="259" font-size="12" font-weight="700" fill="#4d5266">hier fehlt Sauerstoff</text></g>
+        <!-- Blick in das Gefäß -->
+        <rect x="268" y="30" width="200" height="158" rx="14" fill="#fff" stroke="#d8e2ea" stroke-width="2"/>
+        <text x="368" y="54" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b">Blick in das Gefäß</text>
+        <rect x="282" y="80" width="172" height="60" fill="#b3121f"/>
+        <g fill="#e8636c"><ellipse cx="296" cy="96" rx="8" ry="5.5"/><ellipse cx="318" cy="110" rx="8" ry="5.5"/><ellipse cx="298" cy="126" rx="8" ry="5.5"/><ellipse cx="330" cy="92" rx="8" ry="5.5"/><ellipse cx="326" cy="128" rx="8" ry="5.5"/></g>
+        <g id="infHinten" fill="#e8636c"><ellipse cx="416" cy="96" rx="8" ry="5.5"/><ellipse cx="438" cy="112" rx="8" ry="5.5"/><ellipse cx="418" cy="126" rx="8" ry="5.5"/><ellipse cx="444" cy="92" rx="8" ry="5.5"/></g>
+        <path id="infBelagO" d="" fill="#f0c75e"/>
+        <path id="infBelagU" d="" fill="#f0c75e"/>
+        <ellipse id="infPfropf" cx="370" cy="120" rx="14" ry="9.5" fill="#4a0a10" opacity="0"/>
+        <rect x="282" y="66" width="172" height="14" fill="#d98a8f"/><rect x="282" y="140" width="172" height="14" fill="#d98a8f"/>
+        <g font-size="12" font-weight="600" fill="#15212b">
+          <rect x="284" y="165" width="12" height="12" rx="2" fill="#f0c75e"/><text x="301" y="176">Ablagerung</text>
+          <rect x="380" y="165" width="12" height="12" rx="2" fill="#4a0a10"/><text x="397" y="176">Blutpfropf</text>
+        </g>
+        <text x="368" y="214" text-anchor="middle" font-size="12" font-weight="600" fill="#15212b">Sauerstoff hinter der Engstelle</text>
+        <rect x="282" y="222" width="172" height="12" rx="6" fill="#e3e9ee"/>
+        <rect id="infO2" x="282" y="222" width="172" height="12" rx="6" fill="#1b8a4b"/>
+        <g id="infNotruf" opacity="0"><rect x="388" y="248" width="80" height="34" rx="8" fill="#d9291c"/><text x="428" y="272" text-anchor="middle" font-size="20" font-weight="800" fill="#fff">112</text></g>
+        <text id="infText" x="240" y="290" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b"></text>
+      </svg>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag">Animation</span>
+      <h3 style="margin-top:4px">Wenn ein Gefäß ganz zugeht</h3>
+      <p>Auch der Herzmuskel braucht Sauerstoff. Den bringen ihm die <button class="term" data-t="herzkranz">Herzkranzgefäße</button>.</p>
+      <p>Verschließt ein <button class="term" data-t="blutpfropf">Blutpfropf</button> eine verengte Stelle, kommt dahinter kein Blut mehr an. Das ist ein <button class="term" data-t="herzinfarkt">Herzinfarkt</button>. Passiert das in einem Gefäß im Gehirn, ist es ein <button class="term" data-t="schlaganfall">Schlaganfall</button>.</p>
+      <p class="hint">Starte die Animation oder gehe Schritt für Schritt. Achte auf den Balken „Sauerstoff hinter der Engstelle“.</p>
+      <h3>Daran erkennst du den Notfall</h3>
+      <ul class="notfall">
+        <li><strong>Herzinfarkt:</strong> starker Druck oder Schmerz in der Brust, oft mit Atemnot, Übelkeit oder kaltem Schweiß.</li>
+        <li><strong>Schlaganfall:</strong> Plötzlich hängt ein Mundwinkel, ein Arm ist gelähmt oder die Sprache klingt verwaschen.</li>
+      </ul>
+      <p>In beiden Fällen gilt: sofort den <button class="term" data-t="notruf">Notruf 112</button> wählen. Solche Notfälle treffen fast immer ältere Erwachsene – aber du kannst der Mensch sein, der Hilfe holt.</p>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <div class="merke"><h4>MERKE</h4><ul>
+      <li><strong>Arteriosklerose:</strong> Ablagerungen aus Fett und Kalk machen Arterien eng und starr.</li>
+      <li>Mögliche Folgen: Bluthochdruck, im schlimmsten Fall ein <strong>Herzinfarkt</strong> (Gefäß am Herzen verschlossen) oder ein <strong>Schlaganfall</strong> (Gefäß im Gehirn betroffen).</li>
+      <li>Im Notfall sofort die <strong>112</strong> rufen – jede Minute zählt.</li>
+    </ul></div>
+    <div id="mc-s3"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Probenstoff</div><h2>Risikofaktoren erkennen</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Alles, was Herz und Gefäße auf Dauer belastet, nennt man <button class="term" data-t="risikofaktor">Risikofaktor</button>. Je mehr Risikofaktoren zusammenkommen, desto wahrscheinlicher wird eine Herz-Kreislauf-Erkrankung.</p>
+    <p>Manche Risiken kann niemand ändern, zum Beispiel das Alter oder eine Veranlagung in der Familie. Die meisten aber hat man selbst in der Hand:</p>
+    <div class="info-karten">
+      <div class="info-karte"><div class="big">🍟</div><h4>Zu fett, zu süß, zu viel</h4><p>Viel Fett und Zucker fördern Ablagerungen in den Arterien und Übergewicht. Beides belastet das Herz.</p></div>
+      <div class="info-karte"><div class="big">📺</div><h4>Bewegungsmangel</h4><p>Ein Herz, das nie gefordert wird, bleibt schwach. Wer fast nur sitzt, nimmt außerdem leichter zu.</p></div>
+      <div class="info-karte"><div class="big">🚬</div><h4>Rauchen</h4><p>Stoffe aus dem Rauch verengen die Gefäße und stören den Transport von Sauerstoff. Mehr dazu gleich.</p></div>
+      <div class="info-karte"><div class="big">😫</div><h4>Dauerstress, wenig Schlaf</h4><p>Stress lässt Puls und Blutdruck steigen. Ohne Erholung kommt der Körper nicht zur Ruhe.</p></div>
+      <div class="info-karte"><div class="big">🍺</div><h4>Alkohol</h4><p>Alkohol kann den Blutdruck erhöhen und schadet auf Dauer dem Herzmuskel.</p></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card reveal">
+      <h3 style="margin-top:0">Rauchen genauer: zwei Stoffe, die das Herz treffen</h3>
+      <p><button class="term" data-t="nikotin">Nikotin</button> verengt die Blutgefäße und lässt das Herz schneller schlagen. Der Blutdruck steigt.</p>
+      <p><button class="term" data-t="co">Kohlenstoffmonoxid</button> entsteht, wenn Tabak verbrennt. Es besetzt in den roten Blutkörperchen den Platz, an dem sonst der Sauerstoff sitzt. Diese Blutkörperchen fallen für den Sauerstoff-Transport aus.</p>
+      <p>Das Herz muss also mehr arbeiten – und bekommt selbst weniger Sauerstoff.</p>
+      <p><strong>Und E-Zigaretten?</strong> In Vapes verbrennt kein Tabak. Die meisten enthalten aber Nikotin. Es macht abhängig und belastet Herz und Gefäße ebenfalls.</p>
+      <p class="hint">Vergleiche im Bild beide Zustände. Die Zeichnung zeigt das Prinzip, nicht die genaue Zahl der Blutkörperchen.</p>
+    </div>
+    <div class="sim reveal">
+      <svg viewBox="0 0 480 236" role="img" aria-label="Längsschnitt durch ein Blutgefäß mit zehn roten Blutkörperchen. Nach einer Zigarette ist das Gefäß enger, und ein Blutkörperchen trägt Kohlenstoffmonoxid statt Sauerstoff.">
+        <rect width="480" height="236" fill="#f7fbfe"/>
+        <rect x="0" y="44" width="480" height="136" fill="#b3121f"/>
+        <g id="raZellen" font-size="12" font-weight="800" text-anchor="middle" fill="#fff"></g>
+        <g id="raWandO"><rect x="0" y="20" width="480" height="34" fill="#d98a8f"/><path d="M0 54h480" stroke="#a5484f" stroke-width="2"/><text x="12" y="42" font-size="12" font-weight="700" fill="#7a2b33">Gefäßwand</text></g>
+        <g id="raWandU"><rect x="0" y="170" width="480" height="34" fill="#d98a8f"/><path d="M0 170h480" stroke="#a5484f" stroke-width="2"/></g>
+        <text id="raText" x="240" y="226" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b">Tippe unten beide Zustände an.</text>
+      </svg>
+      <div class="wahl" id="rauchWahl">
+        <button type="button" data-r="0">🚭 ohne Zigarette</button>
+        <button type="button" data-r="1">🚬 nach einer Zigarette</button>
+      </div>
+      <div class="readout">
+        <span class="chip" id="raChipG">Gefäß: normal weit</span>
+        <span class="chip" id="raChipH">Herzschlag: ruhig</span>
+        <span class="chip" id="raChipO">Sauerstoff: alle Plätze frei</span>
+      </div>
+      <p class="obs" id="raObs">Tippe beide Zustände an und vergleiche Gefäß, Herzschlag und Sauerstoff.</p>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag leicht">Zuordnen · leicht</span>
+    <h3 style="margin-top:4px">Risiko oder Schutz?</h3>
+    <p class="hint">Tippe auf eine Karte und dann auf das passende Feld.</p>
+    <div id="sortRisiko"></div>
+  </div>
+  <div class="card reveal"><div id="mc-s4"></div></div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Probenstoff</div><h2>Vorbeugen im Alltag</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Die gute Nachricht: Gegen die meisten Risikofaktoren kannst du selbst etwas tun. Das nennt man <button class="term" data-t="vorbeugen">Vorbeugung</button>.</p>
+      <div class="info-karten">
+        <div class="info-karte"><div class="big">🏃</div><h4>Jeden Tag bewegen</h4><p>Mindestens 60 Minuten am Tag. Alles zählt: Schulweg, Treppen, Pause, Sport.</p></div>
+        <div class="info-karte"><div class="big">🍎</div><h4>Ausgewogen essen</h4><p>Viel Gemüse, Obst und Vollkorn. Fettes, Süßes und Fast Food nur ab und zu. Wasser statt Limo.</p></div>
+        <div class="info-karte"><div class="big">🚭</div><h4>Nicht rauchen</h4><p>Am besten gar nicht erst anfangen – auch nicht mit Vapes.</p></div>
+        <div class="info-karte"><div class="big">😴</div><h4>Erholen und schlafen</h4><p>Jugendliche brauchen etwa 8 bis 10 Stunden Schlaf. Pausen und Hobbys bauen Stress ab.</p></div>
+      </div>
+      <p>Besonders gut ist Ausdauersport wie Laufen, Radfahren oder Schwimmen. Er wirkt gleich dreifach: Der Herzmuskel wird kräftiger, die Gefäße bleiben elastisch, und der Blutdruck sinkt.</p>
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li><strong>Risikofaktoren:</strong> zu fettes und zu süßes Essen, Übergewicht, Bewegungsmangel, Rauchen, Dauerstress, Alkohol.</li>
+        <li><strong>Vorbeugen:</strong> jeden Tag mindestens 60 Minuten Bewegung, ausgewogen essen, nicht rauchen, genug schlafen.</li>
+      </ul></div>
+      <div id="mc-s5"></div>
+    </div>
+    <div class="card reveal" id="tagPlan">
+      <span class="task-tag">Tagesplaner</span>
+      <h3 style="margin-top:4px">Dein Herz-Check für einen Schultag</h3>
+      <p>Triff fünf Entscheidungen. Die Herz-Bilanz zeigt sofort, wie dein Tag wirkt. Schaffst du mindestens <strong>60 Minuten Bewegung</strong>?</p>
+      <div class="bilanz">
+        <svg viewBox="0 0 60 56" aria-hidden="true">
+          <defs><clipPath id="bhClip"><rect id="bhFuell" x="0" y="56" width="60" height="0"/></clipPath></defs>
+          <path d="M30 52C8 36 2 24 6 14C10 4 24 4 30 16C36 4 50 4 54 14C58 24 52 36 30 52Z" fill="#f6d5d5" stroke="#c93b3b" stroke-width="2.5"/>
+          <path d="M30 52C8 36 2 24 6 14C10 4 24 4 30 16C36 4 50 4 54 14C58 24 52 36 30 52Z" fill="#e0453a" clip-path="url(#bhClip)"/>
+        </svg>
+        <div>
+          <strong id="bilPunkte">Herz-Bilanz: 0 von 10 Punkten</strong>
+          <div class="bil-bar" id="bilBar"><div></div><span title="Ziel: 60 Minuten"></span></div>
+          <p class="hint" id="bilMin">Bewegung: 0 von 60 Minuten (der Strich ist das Ziel)</p>
+        </div>
+      </div>
+      <div id="tagFragen"></div>
+      <div class="fb show mid" id="tagFb">Triff alle fünf Entscheidungen.</div>
+      <p class="hint" style="margin:10px 0 0">Die Punkte sind ein einfaches Modell dieser Seite – kein Messwert aus der Arztpraxis.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="s6">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Probenstoff · so wird in der Probe gefragt</div><h2>Training für die Probe</h2></div></div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Lückentext · leicht</span>
+    <h3 style="margin-top:4px">Setze die fehlenden Wörter ein</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapHerz"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Paare finden · leicht</span>
+    <h3 style="margin-top:4px">Welcher Begriff gehört zu welcher Erklärung?</h3>
+    <p class="hint">Tippe links auf einen Begriff und dann rechts auf die passende Erklärung.</p>
+    <div id="paareHerz"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Richtig oder falsch? · mittel</span>
+    <div id="tf"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Kreuzworträtsel · mittel</span>
+    <h3 style="margin-top:4px">Rund um Herz und Kreislauf</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Schreibe ä als AE, ö als OE, ü als UE.</p>
+    <div id="cw"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Ankreuzen · mittel</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Offene Fragen · schwer</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung. Danach kannst du die Musterlösung ansehen.</p>
+    <div id="open"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Diagramm auswerten: Puls beim 800-m-Lauf</h3>
+    <p>Zwei Jugendliche laufen 800 m im gleichen Tempo. Eine Person trainiert regelmäßig, die andere macht kaum Sport. Jede Minute wird der Puls gemessen (Beispielwerte).</p>
+    <div class="bild">
+      <svg id="laufDiagramm" viewBox="0 0 480 296" role="img" aria-label="Liniendiagramm: Puls von zwei Jugendlichen vor, während und nach einem 800-Meter-Lauf. Die trainierte Person hat den niedrigeren Puls und erholt sich schneller."></svg>
+    </div>
+    <div id="mc-m7"></div>
+    <h3>Begründe <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="openM"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 7 ============ -->
+<section class="station" id="s7">
+  <div class="st-head reveal"><div class="st-num">7</div><div><div class="eyebrow">Abschluss</div><h2>Herz-Profi-Check</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Von der Atmung über das Blut bis zum Herzen: Das war das letzte Modul im Themenbereich „Mensch und Gesundheit“. In der Übersicht siehst du, was als Nächstes für deine Klasse offen ist.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik 7 · Lernmodul „Herz und Kreislauf gesund halten“ · Dein Fortschritt wird auf diesem Gerät gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="modul-basis.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, esc, clamp, setText, register, solve, onVisible} = Modul;
+const NS = "http://www.w3.org/2000/svg";
+
+Modul.init({
+  key: "grumi-nt7-herz-gesund-v1",
+  thema: "Herz und Kreislauf gesund halten: Puls in Ruhe und bei Belastung, Arteriosklerose, Bluthochdruck, Herzinfarkt und Schlaganfall, Risikofaktoren (Fehlernährung, Bewegungsmangel, Rauchen, Stress, Alkohol) und Vorbeugung",
+  glossary: {
+    puls: ["Puls", "Druckwelle des Blutes, die du an einer Arterie fühlst. Die Zahl der Schläge pro Minute zeigt, wie schnell dein Herz schlägt."],
+    ruhepuls: ["Ruhepuls", "Puls, wenn du ruhig sitzt oder liegst. Bei Jugendlichen sind es etwa 70 bis 90 Schläge pro Minute."],
+    belastung: ["Belastung", "Körperliche Anstrengung, zum Beispiel Rennen, Treppensteigen oder Kniebeugen."],
+    atemfrequenz: ["Atemfrequenz", "Zahl der Atemzüge in einer Minute."],
+    energiebedarf: ["Energiebedarf", "So viel Energie braucht der Körper gerade. Bei Bewegung steigt der Energiebedarf der Muskeln."],
+    arterie: ["Arterie", "Blutgefäß, das Blut vom Herzen wegführt."],
+    arteriosklerose: ["Arteriosklerose", "Krankheit der Arterien: In der Gefäßwand lagern sich über Jahre Fett und Kalk ab. Die Arterie wird eng und starr."],
+    blutdruck: ["Blutdruck und Bluthochdruck", "Blutdruck ist der Druck, mit dem das Blut gegen die Wände der Arterien drückt. Ist er dauerhaft zu hoch, spricht man von Bluthochdruck."],
+    herzkranz: ["Herzkranzgefäße", "Arterien, die außen auf dem Herzen liegen. Sie versorgen den Herzmuskel selbst mit Sauerstoff und Nährstoffen."],
+    blutpfropf: ["Blutpfropf (Blutgerinnsel)", "Klumpen aus geronnenem Blut. Er kann ein enges Gefäß ganz verschließen."],
+    herzinfarkt: ["Herzinfarkt", "Ein Herzkranzgefäß ist verschlossen. Ein Teil des Herzmuskels bekommt keinen Sauerstoff mehr. Notfall: sofort 112."],
+    schlaganfall: ["Schlaganfall", "Ein Gefäß im Gehirn ist verstopft oder geplatzt. Ein Teil des Gehirns wird nicht mehr versorgt. Notfall: sofort 112."],
+    notruf: ["Notruf 112", "Nummer für den Rettungsdienst in ganz Europa. Kostenlos und rund um die Uhr erreichbar."],
+    risikofaktor: ["Risikofaktor", "Etwas, das eine Krankheit wahrscheinlicher macht – zum Beispiel Rauchen oder Bewegungsmangel."],
+    nikotin: ["Nikotin", "Stoff im Tabak und in den meisten E-Zigaretten. Er macht abhängig, verengt die Blutgefäße und lässt das Herz schneller schlagen."],
+    co: ["Kohlenstoffmonoxid (CO)", "Giftiges Gas im Tabakrauch. Es besetzt in den roten Blutkörperchen den Platz des Sauerstoffs."],
+    vorbeugen: ["Vorbeugung", "Alles, was man tut, damit eine Krankheit gar nicht erst entsteht."]
+  }
+});
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Schätze: Wie oft schlägt dein Herz an einem Tag?", o: ["etwa 100 000-mal", "etwa 1 000-mal", "etwa 10 000-mal", "etwa 10 Millionen Mal"], a: 0, e: "Rechne nach: 70 Schläge in der Minute · 60 Minuten · 24 Stunden = 100 800 Schläge."}
+  ],
+  s2: [
+    {q: "Was zeigt dir dein Puls?", o: ["wie oft dein Herz in einer Minute schlägt", "wie viel Blut du hast", "wie warm dein Blut ist", "wie tief du atmest"], a: 0, e: "Jeder Herzschlag drückt eine Welle Blut in die Arterien. Diese Welle spürst du als Puls."},
+    {q: "Du zählst in 15 Sekunden 20 Pulsschläge. Wie hoch ist dein Puls?", o: ["80 Schläge pro Minute", "20 Schläge pro Minute", "35 Schläge pro Minute", "300 Schläge pro Minute"], a: 0, e: "Eine Minute hat viermal 15 Sekunden: 20 · 4 = 80."}
+  ],
+  s3: [
+    {q: "Was passiert bei einer Arteriosklerose?", o: ["In der Wand der Arterien lagern sich Fett und Kalk ab.", "Die Arterien werden immer weiter.", "Das Blut wird dünner.", "Das Herz wird kleiner."], a: 0, e: "Die Ablagerungen machen die Arterien eng und starr. Das Blut kommt schlechter durch."},
+    {q: "Was ist ein Herzinfarkt?", o: ["Ein Gefäß, das den Herzmuskel versorgt, ist verschlossen.", "Das Herz schlägt beim Sport schneller.", "Ein Gefäß im Gehirn ist verstopft.", "Eine Vene im Bein ist geschwollen."], a: 0, e: "Hinter dem Verschluss bekommt der Herzmuskel keinen Sauerstoff mehr. Ein verstopftes Gefäß im Gehirn heißt Schlaganfall."},
+    {q: "Im Bus klagt eine ältere Frau plötzlich über starken Druck in der Brust und bekommt schlecht Luft. Was tust du?", o: ["Sofort den Notruf 112 wählen", "Abwarten, ob es von selbst besser wird", "Ihr ein Glas Wasser holen und weiterfahren", "Erst im Internet nachlesen"], a: 0, e: "Das kann ein Herzinfarkt sein. Dann zählt jede Minute – lieber einmal zu oft anrufen als einmal zu spät."}
+  ],
+  s4: [
+    {q: "Wie wirkt Nikotin auf Herz und Gefäße?", o: ["Die Gefäße werden enger, das Herz schlägt schneller.", "Die Gefäße werden weiter, das Herz schlägt langsamer.", "Es reinigt die Gefäße von Ablagerungen.", "Es wirkt gar nicht auf das Herz."], a: 0, e: "Durch enge Gefäße muss das Herz das Blut mit mehr Druck pumpen. Das belastet es bei jeder Zigarette."},
+    {q: "Warum ist Kohlenstoffmonoxid aus dem Tabakrauch gefährlich?", o: ["Es besetzt in den roten Blutkörperchen den Platz des Sauerstoffs.", "Es färbt das Blut blau.", "Es löst die Blutplättchen auf.", "Es lässt die Lunge wachsen."], a: 0, e: "Blutkörperchen mit Kohlenstoffmonoxid können keinen Sauerstoff mehr tragen. Der Körper bekommt weniger Sauerstoff."}
+  ],
+  s5: [
+    {q: "Wie viel Bewegung sollten Jugendliche jeden Tag mindestens haben?", o: ["60 Minuten", "5 Minuten", "15 Minuten", "6 Stunden"], a: 0, e: "Empfohlen ist mindestens eine Stunde am Tag. Auch Schulweg, Treppen und Spielen in der Pause zählen mit."},
+    {q: "Warum tut Ausdauersport dem Herzen gut?", o: ["Der Herzmuskel wird kräftiger und pumpt mit jedem Schlag mehr Blut.", "Das Herz muss danach nie wieder schnell schlagen.", "Durch Sport hat man weniger Blut.", "Die Arterien werden durch Sport enger."], a: 0, e: "Ein trainiertes Herz schafft dieselbe Arbeit mit weniger Schlägen. Deshalb ist der Ruhepuls bei sportlichen Menschen niedriger."}
+  ],
+  train: [
+    {q: "Wo kannst du deinen Puls gut fühlen?", o: ["an der Innenseite des Handgelenks", "außen am Ellenbogen", "am Fingernagel", "an der Ferse"], a: 0, e: "Dort liegt eine Arterie dicht unter der Haut. Auch am Hals kann man den Puls fühlen."},
+    {q: "Was ist ein Schlaganfall?", o: ["Ein Gefäß im Gehirn ist verstopft oder geplatzt.", "Ein Gefäß am Herzen ist verschlossen.", "Ein sehr schneller Puls nach dem Sport.", "Eine Verletzung durch einen Schlag auf den Kopf."], a: 0, e: "Ein Teil des Gehirns bekommt dann kein Blut mehr. Auch hier gilt: sofort 112."},
+    {q: "Was schützt Herz und Gefäße?", o: ["jeden Tag Bewegung", "nicht rauchen", "ausgewogen essen", "möglichst viel sitzen", "wenig schlafen"], a: [0, 1, 2], e: "Langes Sitzen und zu wenig Schlaf belasten den Körper. Bewegung, gutes Essen und rauchfrei leben schützen."},
+    {q: "Lohnt es sich für das Herz, mit dem Rauchen aufzuhören?", o: ["Ja, das Risiko für einen Herzinfarkt sinkt wieder.", "Nein, der Schaden bleibt immer gleich.", "Nur, wenn man jünger als 20 ist.", "Nein, Rauchen schadet nur der Lunge."], a: 0, e: "Schon kurz nach der letzten Zigarette sinken Puls und Blutdruck. Über die Jahre nimmt das Risiko deutlich ab. Am besten fängt man gar nicht erst an."}
+  ],
+  m7: [
+    {q: "Lies im Diagramm ab: Wie hoch ist der Puls der untrainierten Person am Ende des Laufs (Minute 6)?", o: ["etwa 180 Schläge pro Minute", "etwa 150 Schläge pro Minute", "etwa 120 Schläge pro Minute", "etwa 84 Schläge pro Minute"], a: 0, e: "Die rote Kurve erreicht bei Minute 6 die Linie bei 180. Die trainierte Person kommt im gleichen Tempo nur auf etwa 150."},
+    {q: "Vergleiche die beiden Kurven nach dem Lauf. Was stimmt?", o: ["Der Puls der trainierten Person ist nach etwa 4 Minuten fast wieder beim Ruhewert.", "Beide sind nach einer Minute wieder beim Ruhewert.", "Der Puls der untrainierten Person sinkt schneller.", "Nach dem Lauf steigt der Puls bei beiden weiter an."], a: 0, e: "Ein trainiertes Herz erholt sich schneller. Bei der untrainierten Person liegt der Puls auch nach 6 Minuten Pause noch über dem Ruhewert."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Schätzfrage"});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s5"), MC.s5, "mc5", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Station 1: erste Einschätzung ---------- */
+(function(){
+  const wahl = $("#einWahl"), fb = $("#einFb"), id = "einschaetzung";
+  register(id, "#einWahl", "Erste Einschätzung: Wessen Herz hat es auf Dauer leichter?");
+  const T = [
+    "Das denken viele. Aber ein Herz, das nie gefordert wird, bleibt schwach – wie ein Muskel, der nie trainiert wird.",
+    "Gute Vermutung! Das Herz ist ein Muskel. Wird es regelmäßig gefordert, wird es kräftiger.",
+    "Heute merkt man tatsächlich keinen Unterschied. Über viele Jahre aber schon."
+  ];
+  $$("button", wahl).forEach((b, i) => b.addEventListener("click", () => {
+    $$("button", wahl).forEach(x => x.classList.toggle("sel", x === b));
+    fb.className = "fb show mid"; fb.textContent = T[i] + " Ob deine Vermutung stimmt, prüfst du in den nächsten Stationen.";
+    solve(id);
+  }));
+})();
+
+/* ---------- Station 2: Puls-Versuch mit Säulendiagramm ---------- */
+(function(){
+  const id = "puls"; register(id, "#pulsSim", "Eigener Versuch: Puls in Ruhe, nach Belastung und nach der Pause messen und als Diagramm zeichnen");
+  const felder = ["#pulsA", "#pulsB", "#pulsC"].map(s => $(s)), aus = ["#pulsAx", "#pulsBx", "#pulsCx"].map(s => $(s));
+  const svg = $("#pulsDiagramm"), obs = $("#pulsObs");
+  const NAMEN = ["in Ruhe", "nach Kniebeugen", "nach der Pause"], FARBE = ["#2f6fdb", "#e0453a", "#f2992e"];
+  const y = v => 240 - Math.min(v, 200) * 1.05;
+  // gezählte Schläge in 15 Sekunden -> Schläge pro Minute (nur sinnvolle Werte)
+  function wert(i){ const n = parseInt(felder[i].value, 10); return n >= 8 && n <= 55 ? n * 4 : null; }
+  function rechne(){
+    felder.forEach((f, i) => {
+      const w = wert(i), leer = f.value.trim() === "";
+      setText(aus[i], leer ? "· 4 = ?" : w ? "· 4 = " + w + " pro Minute" : "Zähle noch einmal nach");
+      f.classList.toggle("falsch", !leer && !w);
+    });
+  }
+  function zeichne(w){
+    let h = '<rect width="480" height="280" fill="#f7fbfe"/>';
+    h += `<rect x="70" y="${y(90)}" width="390" height="${y(70) - y(90)}" fill="#cfeeda"/>`;
+    for (let v = 0; v <= 200; v += 40) h += `<line x1="70" y1="${y(v)}" x2="460" y2="${y(v)}" stroke="${v ? "#d8e2ea" : "#566674"}" stroke-width="${v ? 1 : 2}"/><text x="62" y="${y(v) + 4}" text-anchor="end" font-size="12" fill="#566674">${v}</text>`;
+    h += `<line x1="70" y1="${y(120)}" x2="460" y2="${y(120)}" stroke="#b77a06" stroke-width="2" stroke-dasharray="7 5"/>`;
+    h += '<text transform="translate(20 135) rotate(-90)" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">Schläge pro Minute</text>';
+    [144, 265, 386].forEach((cx, i) => {
+      const v = w ? w[i] : null;
+      if (v) h += `<rect x="${cx - 42}" y="${y(v)}" width="84" height="${240 - y(v)}" rx="5" fill="${FARBE[i]}"/><text x="${cx}" y="${y(v) - 7}" text-anchor="middle" font-size="16" font-weight="800" fill="#15212b">${v}</text>`;
+      else h += `<rect x="${cx - 42}" y="172" width="84" height="68" rx="5" fill="none" stroke="#9fb2c1" stroke-width="2" stroke-dasharray="6 5"/><text x="${cx}" y="214" text-anchor="middle" font-size="22" font-weight="800" fill="#9fb2c1">?</text>`;
+      h += `<text x="${cx}" y="262" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b">${NAMEN[i]}</text>`;
+    });
+    svg.innerHTML = h;
+  }
+  function auswerten(){
+    rechne();
+    const w = [0, 1, 2].map(wert);
+    if (w.some(v => !v)) {
+      zeichne(null);
+      obs.textContent = felder.some((f, i) => f.value.trim() !== "" && !w[i])
+        ? "Die rot markierte Zahl kann nicht stimmen. In 15 Sekunden zählt man meist zwischen 10 und 50 Schläge. Zähle noch einmal nach."
+        : "Trage zuerst alle drei Zahlen ein: die Schläge, die du in 15 Sekunden gezählt hast. Du kannst gerade nicht messen? Dann nimm die Beispielwerte.";
+      return;
+    }
+    zeichne(w);
+    const r = w[0], b = w[1], p = w[2], s = [`Dein Puls: ${r} in Ruhe, ${b} nach den Kniebeugen, ${p} nach der Pause.`];
+    if (b <= r) { s.push("Ungewöhnlich: Nach den Kniebeugen ist der Puls nicht höher als in Ruhe. Vielleicht hast du dich verzählt. Miss noch einmal."); obs.textContent = s.join(" "); return; }
+    s.push(`Bei Anstrengung schlägt dein Herz schneller – hier um ${b - r} Schläge pro Minute.`);
+    s.push(p >= b ? "Nach der Pause ist er noch nicht gesunken. Zähle am besten noch einmal nach." : p <= r + 10 ? "Nach 2 Minuten Pause bist du schon fast wieder beim Ruhewert." : "In der Pause sinkt er wieder. Ganz beim Ruhewert ist er nach 2 Minuten noch nicht – das ist normal.");
+    s.push(r < 70 ? "Dein Ruhepuls liegt unter dem typischen Bereich von etwa 70 bis 90. Bei sportlichen Menschen kommt das oft vor." : r > 90 ? "Dein Ruhepuls liegt über dem typischen Bereich von etwa 70 bis 90. Aufregung oder Herumlaufen kurz vor dem Messen treiben ihn hoch." : "Dein Ruhepuls liegt im typischen Bereich für Jugendliche (etwa 70 bis 90).");
+    obs.textContent = "✅ " + s.join(" ");
+    solve(id);
+  }
+  // Neue Zahl: Das alte Diagramm passt nicht mehr dazu und wird geleert
+  felder.forEach(f => f.addEventListener("input", () => {
+    f.value = f.value.replace(/\D/g, "").slice(0, 2); rechne(); zeichne(null);
+    obs.textContent = "Sind alle drei Zahlen eingetragen? Dann tippe auf „Diagramm zeichnen“.";
+  }));
+  $("#pulsZeichnen").addEventListener("click", auswerten);
+  $("#pulsBeispiel").addEventListener("click", () => { ["19", "34", "23"].forEach((v, i) => { felder[i].value = v; }); auswerten(); });
+  zeichne(null);
+
+  // Stoppuhr: 15 Sekunden zählen, 2 Minuten Pause
+  const zahl = $("#uhrZahl"), text = $("#uhrText"); let uhr = null;
+  function starte(sek, ende){
+    clearInterval(uhr); const bis = Date.now() + sek * 1000; zahl.classList.remove("fertig");
+    const tick = () => {
+      const rest = Math.max(0, Math.ceil((bis - Date.now()) / 1000));
+      setText(zahl, rest >= 60 ? Math.floor(rest / 60) + ":" + String(rest % 60).padStart(2, "0") : rest + " s");
+      if (!rest) { clearInterval(uhr); uhr = null; setText(text, ende); zahl.classList.add("fertig"); }
+    };
+    tick(); uhr = setInterval(tick, 200);
+  }
+  $("#uhr15").addEventListener("click", () => { setText(text, "Zähle jetzt deine Pulsschläge!"); starte(15, "Stopp! Trage deine Zahl unten ein."); });
+  $("#uhr120").addEventListener("click", () => { setText(text, "Pause: ruhig sitzen und normal atmen."); starte(120, "Pause vorbei. Zähle jetzt noch einmal 15 Sekunden."); });
+})();
+
+/* ---------- Station 2: M7 – Je-desto-Sätze ---------- */
+Modul.plus(() => {
+  Modul.makeGap($("#gapJeDesto"), [
+    ["Je stärker die Muskeln arbeiten, desto ", {g: "mehr"}, " Energie brauchen sie."],
+    ["Je mehr Energie die Muskeln brauchen, desto ", {g: "schneller"}, " schlägt das Herz."],
+    ["Je besser ein Mensch trainiert ist, desto ", {g: "niedriger"}, " ist sein Puls in Ruhe."],
+    ["Je besser ein Mensch trainiert ist, desto ", {g: "kürzer"}, " dauert es, bis sich sein Puls nach dem Sport erholt."]
+  ], "jedesto", ["weniger", "höher"]);
+});
+
+/* ---------- Station 3: Arterie mit Ablagerungen ---------- */
+(function(){
+  const r = $("#artRegler"), id = "arterie"; register(id, "#artRegler", "Schnittbild: Ablagerungen verengen eine Arterie");
+  const svg = $("#artSvg"), lumen = $("#artLumen"), zellen = $("#artZellen"), z2 = $("#artZ2"), z3 = $("#artZ3");
+  const belagO = $("#artBelagO"), belagU = $("#artBelagU"), druck = $("#artDruck"), chip = $("#artChip"), obs = $("#artObs");
+  // rote Blutkörperchen im Längsschnitt: gleiches Raster in beiden Hälften, damit der Fluss ohne Sprung läuft
+  function reihe(g, rows){
+    rows.forEach(row => { for (let x = row[1] - 44; x < 520; x += 44) {
+      const e = document.createElementNS(NS, "ellipse");
+      e.setAttribute("cx", x); e.setAttribute("cy", row[0]); e.setAttribute("rx", 9); e.setAttribute("ry", 6);
+      if (row[2]) e.setAttribute("class", row[2]); g.appendChild(e);
+    } });
+  }
+  reihe($("#artFlussL"), [[104, 228], [128, 250], [152, 228]]);
+  reihe($("#artFlussR"), [[104, 228, "r0"], [128, 250], [152, 228, "r2"]]);
+  const r0 = $$("#artFlussR .r0"), r2 = $$("#artFlussR .r2");
+  onVisible(svg, v => svg.classList.toggle("laeuft", v));
+  function zeig(){
+    const s = +r.value, rad = 70 - .42 * s, d = .25 * s / Math.SQRT2;
+    lumen.setAttribute("r", rad.toFixed(1)); lumen.setAttribute("cx", (120 - d).toFixed(1)); lumen.setAttribute("cy", (138 + d).toFixed(1));
+    zellen.setAttribute("transform", `translate(${(-d).toFixed(1)} ${d.toFixed(1)})`);
+    z2.style.opacity = rad > 46 ? 1 : 0; z3.style.opacity = rad > 62 ? 1 : 0;
+    belagO.setAttribute("d", `M318 86Q368 ${(86 + .72 * s).toFixed(1)} 418 86Z`);
+    belagU.setAttribute("d", `M318 170Q368 ${(170 - .6 * s).toFixed(1)} 418 170Z`);
+    r0.forEach(e => { e.style.opacity = clamp(1 - (s - 25) / 30, 0, 1); });
+    r2.forEach(e => { e.style.opacity = clamp(1 - (s - 55) / 30, 0, 1); });
+    druck.setAttribute("width", (220 * (.35 + .65 * s / 100)).toFixed(0));
+    druck.setAttribute("fill", s < 35 ? "#1b8a4b" : s < 70 ? "#e09b1a" : "#c93b3b");
+    const pct = Math.round(rad * rad / 49);
+    setText(chip, `freie Öffnung: ${pct} %`); chip.className = "chip" + (s > 70 ? " bad" : s > 35 ? " warn" : "");
+    setText(obs, s < 8 ? "Gesunde Arterie: Die Wand ist glatt und elastisch. Das Blut fließt ungehindert." :
+      s <= 35 ? "Erste Ablagerungen in der Gefäßwand. Das Blut kommt noch gut durch – man spürt nichts davon." :
+      s <= 70 ? "Die Arterie ist deutlich enger. Es passt weniger Blut hindurch, das Herz muss kräftiger pumpen. Der Blutdruck steigt." :
+      s <= 85 ? "Nur noch eine schmale Öffnung ist frei. Hinter der Engstelle kommt bei Anstrengung zu wenig Blut an." :
+      "Die Arterie ist fast verschlossen. Jetzt genügt ein kleiner Blutpfropf, und sie ist ganz zu. ✅ Du hast gesehen, wie Ablagerungen eine Arterie verengen.");
+    if (s > 85) solve(id);
+  }
+  r.addEventListener("input", zeig); zeig();
+})();
+
+/* ---------- Station 3: Herzinfarkt in Schritten ---------- */
+(function(){
+  const gebiet = $("#infGebiet"), ab = $("#infAb"), stelle = $("#infStelle"), hinten = $("#infHinten"), pfropf = $("#infPfropf");
+  const belagO = $("#infBelagO"), belagU = $("#infBelagU"), o2 = $("#infO2"), notruf = $("#infNotruf"), text = $("#infText"), fehlt = $("#infFehlt");
+  const H1 = [0, 16, 32, 32, 32, 12], H2 = [0, 6, 12, 12, 12, 4], O2 = [1, .9, .45, .03, 0, .85];
+  Modul.makeSchritte($("#infarktSim"), {
+    steps: [
+      "Auch das Herz braucht Blut. Die Herzkranzgefäße liegen außen auf dem Herzen und bringen dem Herzmuskel Sauerstoff.",
+      "Über viele Jahre lagern sich in der Wand eines Herzkranzgefäßes Fett und Kalk ab. Davon merkt man lange nichts.",
+      "Das Gefäß ist jetzt eng. Bei Anstrengung bekommt der Herzmuskel dahinter zu wenig Sauerstoff.",
+      "An der engen Stelle bildet sich ein Blutpfropf. Er verschließt das Gefäß ganz.",
+      "<b>Herzinfarkt:</b> Der Herzmuskel hinter dem Verschluss bekommt keinen Sauerstoff mehr. Ohne Hilfe stirbt dieser Teil ab.",
+      "<b>Sofort 112!</b> Im Krankenhaus wird das Gefäß wieder geöffnet. Je schneller das geschieht, desto mehr Herzmuskel bleibt erhalten."
+    ],
+    ms: 3400,
+    zeige(i){
+      const k = Math.max(0, i), zu = k === 3 || k === 4;
+      belagO.setAttribute("d", `M338 80Q370 ${80 + 2 * H1[k]} 402 80Z`);
+      belagU.setAttribute("d", `M338 140Q370 ${140 - 2 * H2[k]} 402 140Z`);
+      pfropf.style.opacity = zu ? 1 : 0;
+      hinten.style.opacity = zu ? 0 : k === 2 ? .45 : 1;
+      stelle.style.opacity = k >= 1 ? 1 : 0;
+      ab.setAttribute("stroke", zu ? "#7d8791" : k === 2 ? "#c9706f" : "#e8362c");
+      gebiet.style.opacity = [0, 0, .35, .6, 1, .25][k];
+      o2.setAttribute("width", Math.max(3, Math.round(172 * O2[k])));
+      o2.setAttribute("fill", O2[k] > .7 ? "#1b8a4b" : O2[k] > .2 ? "#e09b1a" : "#c93b3b");
+      notruf.style.opacity = k === 5 ? 1 : 0; fehlt.style.opacity = zu ? 1 : 0;
+      setText(text, ["Gefäß gesund – das Blut fließt frei", "Erste Ablagerungen", "Gefäß stark verengt", "Blutpfropf verschließt das Gefäß", "Herzinfarkt", "Notruf 112 – Gefäß wieder offen"][k]);
+    }
+  }, "infarkt");
+})();
+
+/* ---------- Station 4: Blutgefäß ohne und nach einer Zigarette ---------- */
+(function(){
+  const id = "rauchen"; register(id, "#rauchWahl", "Vergleich: Blutgefäß ohne Zigarette und nach einer Zigarette");
+  const POS = [[50, 91], [140, 91], [230, 91], [320, 91], [410, 91], [95, 133], [185, 133], [275, 133], [365, 133], [455, 133]];
+  $("#raZellen").innerHTML = POS.map((p, i) => `<g transform="translate(${p[0]} ${p[1]})"${i === 7 ? ' id="raCO"' : ""}><circle r="17" fill="#e0525c" stroke="#8f1420" stroke-width="2"/><text y="4.5">O₂</text></g>`).join("");
+  const co = $("#raCO"), wandO = $("#raWandO"), wandU = $("#raWandU"), text = $("#raText"), obs = $("#raObs");
+  const chipG = $("#raChipG"), chipH = $("#raChipH"), chipO = $("#raChipO"), gesehen = new Set();
+  function zeig(rauch){
+    wandO.style.transform = rauch ? "translateY(16px)" : "translateY(0)";
+    wandU.style.transform = rauch ? "translateY(-16px)" : "translateY(0)";
+    $("circle", co).setAttribute("fill", rauch ? "#5f6770" : "#e0525c"); $("circle", co).setAttribute("stroke", rauch ? "#2e343a" : "#8f1420");
+    setText($("text", co), rauch ? "CO" : "O₂");
+    setText(text, rauch ? "Gefäß enger · ein Platz ist mit CO besetzt" : "Gefäß weit · alle Blutkörperchen tragen Sauerstoff");
+    setText(chipG, rauch ? "Gefäß: verengt" : "Gefäß: normal weit"); chipG.className = "chip" + (rauch ? " bad" : " ok");
+    setText(chipH, rauch ? "Herzschlag: schneller" : "Herzschlag: ruhig"); chipH.className = "chip" + (rauch ? " bad" : " ok");
+    setText(chipO, rauch ? "Sauerstoff: Plätze durch CO besetzt" : "Sauerstoff: alle Plätze frei"); chipO.className = "chip" + (rauch ? " bad" : " ok");
+  }
+  $$("#rauchWahl button").forEach(b => b.addEventListener("click", () => {
+    const rauch = b.dataset.r === "1";
+    $$("#rauchWahl button").forEach(x => x.classList.toggle("sel", x === b));
+    zeig(rauch); gesehen.add(b.dataset.r);
+    let t = rauch ? "Nikotin verengt das Gefäß und treibt den Herzschlag an. Kohlenstoffmonoxid (CO) besetzt den Platz des Sauerstoffs: Das Herz arbeitet mehr und der Körper bekommt weniger Sauerstoff."
+      : "Ohne Zigarette: Das Gefäß ist weit, das Herz schlägt ruhig, und jedes rote Blutkörperchen kann Sauerstoff (O₂) tragen.";
+    if (gesehen.size === 2) { t += " ✅ Du hast beide Zustände verglichen."; solve(id); }
+    setText(obs, t);
+  }));
+})();
+
+Modul.makeSort($("#sortRisiko"), {
+  buckets: ["Risiko für Herz und Gefäße", "Schutz für Herz und Gefäße"],
+  items: [
+    {t: "jeden Tag viele Stunden sitzen", b: 0}, {t: "Zigaretten rauchen", b: 0}, {t: "Vapes mit Nikotin", b: 0}, {t: "oft Fast Food und süße Limo", b: 0}, {t: "ständig Stress und zu wenig Schlaf", b: 0},
+    {t: "mit dem Rad zur Schule fahren", b: 1}, {t: "Wasser trinken", b: 1}, {t: "Obst und Gemüse essen", b: 1}, {t: "Sport im Verein", b: 1}, {t: "genug schlafen", b: 1}
+  ], cols: 220
+}, "sortRisiko");
+
+/* ---------- Station 5: Tagesplaner mit Herz-Bilanz ---------- */
+(function(){
+  const id = "tagesplan"; register(id, "#tagPlan", "Tagesplaner: einen Schultag mit mindestens 60 Minuten Bewegung planen");
+  // je Möglichkeit: Text, Minuten Bewegung, Punkte, Hinweis (wenn die Wahl das Herz belastet)
+  const G = [
+    {t: "1 · Schulweg", o: [
+      ["🚗 Ich werde mit dem Auto gebracht.", 0, 0, "Schulweg: Vielleicht kannst du ein Stück zu Fuß gehen oder mit dem Rad fahren."],
+      ["🚌 Bus und ein Stück zu Fuß", 10, 1],
+      ["🚲 Mit dem Rad oder ganz zu Fuß", 20, 2]]},
+    {t: "2 · Große Pause", o: [
+      ["⚽ Fangen oder Ball spielen", 15, 2],
+      ["📱 Auf der Bank am Handy", 0, 0, "Pause: Schon ein paar Minuten Bewegung zählen mit."],
+      ["🚶 Über den Hof schlendern", 5, 1]]},
+    {t: "3 · Getränk", o: [
+      ["🍹 Limo oder Energydrink", 0, 0, "Getränk: Limo und Energydrinks enthalten viel Zucker. Wasser ist die bessere Wahl."],
+      ["💧 Wasser", 0, 2],
+      ["🍊 Saftschorle", 0, 1]]},
+    {t: "4 · Nachmittag", o: [
+      ["🎮 Drei Stunden zocken", 0, 0, "Nachmittag: Drei Stunden Sitzen am Stück – plane Bewegung dazu ein."],
+      ["👫 Mit Freunden draußen unterwegs", 30, 2],
+      ["🏊 Training im Verein", 45, 2]]},
+    {t: "5 · Abend", o: [
+      ["📺 Bis Mitternacht Serien schauen", 0, 0, "Abend: Zu wenig Schlaf stresst den Körper. Jugendliche brauchen etwa 8 bis 10 Stunden."],
+      ["📱 Noch eine Folge, dann etwa 8 Stunden Schlaf", 0, 1],
+      ["😴 Handy weg, etwa 9 Stunden Schlaf", 0, 2]]}
+  ];
+  const box = $("#tagFragen"), fb = $("#tagFb"), punkte = $("#bilPunkte"), bar = $("#bilBar"), min = $("#bilMin"), fuell = $("#bhFuell");
+  const wahl = G.map(() => -1);
+  box.innerHTML = G.map((g, gi) => `<div class="tag-frage"><h4>${esc(g.t)}</h4><div class="wahl" data-g="${gi}">${g.o.map((o, oi) => `<button type="button" data-o="${oi}">${esc(o[0])}</button>`).join("")}</div></div>`).join("");
+  function zeig(){
+    let m = 0, p = 0; const tipps = [], offen = [];
+    G.forEach((g, gi) => { const o = g.o[wahl[gi]]; if (!o) { offen.push(g.t.replace(/^\d · /, "")); return; } m += o[1]; p += o[2]; if (o[3]) tipps.push(o[3]); });
+    setText(punkte, `Herz-Bilanz: ${p} von 10 Punkten`);
+    $("div", bar).style.width = Math.min(100, m / 90 * 100) + "%"; bar.classList.toggle("ok", m >= 60);
+    setText(min, `Bewegung: ${m} von 60 Minuten (der Strich ist das Ziel)`);
+    fuell.setAttribute("y", (56 - 5.6 * p).toFixed(1)); fuell.setAttribute("height", (5.6 * p).toFixed(1));
+    if (offen.length) { fb.className = "fb show mid"; fb.textContent = "Noch offen: " + offen.join(", ") + "."; return; }
+    const ok = m >= 60;
+    fb.className = "fb show " + (ok ? "ok" : "bad");
+    fb.textContent = (ok ? `✅ Geschafft: ${m} Minuten Bewegung und ${p} von 10 Punkten. ` : `Bewegung: ${m} Minuten – bis zum Ziel fehlen noch ${60 - m}. Ändere eine Entscheidung. `) + tipps.slice(0, 2).join(" ") + (ok && !tipps.length ? "So sieht ein Tag aus, der deinem Herzen guttut." : "");
+    if (ok) solve(id);
+  }
+  $$(".wahl button", box).forEach(b => b.addEventListener("click", () => {
+    const g = +b.parentElement.dataset.g; wahl[g] = +b.dataset.o;
+    $$("button", b.parentElement).forEach(x => x.classList.toggle("sel", x === b));
+    zeig();
+  }));
+})();
+
+/* ---------- Station 6: Training ---------- */
+Modul.makeGap($("#gapHerz"), [
+  ["Der ", {g: "Puls"}, " zeigt, wie oft das Herz in einer Minute schlägt."],
+  ["Bei einer Arteriosklerose bilden sich ", {g: "Ablagerungen"}, " in den Arterien. Die Gefäße werden ", {g: "enger"}, "."],
+  ["Ist ein Gefäß am Herzen verschlossen, spricht man von einem ", {g: "Herzinfarkt"}, ". Ist ein Gefäß im Gehirn betroffen, ist es ein ", {g: "Schlaganfall"}, "."],
+  ["Rauchen und Bewegungsmangel sind ", {g: "Risikofaktoren"}, ". Jeden Tag mindestens 60 Minuten ", {g: "Bewegung"}, " schützen das Herz."]
+], "gapHerz", ["Venen", "weiter"]);
+
+Modul.makePaare($("#paareHerz"), [
+  ["Puls", "Herzschläge pro Minute"],
+  ["Arteriosklerose", "Ablagerungen in den Arterien"],
+  ["Herzinfarkt", "Gefäß am Herzen verschlossen"],
+  ["Schlaganfall", "Gefäß im Gehirn betroffen"],
+  ["Nikotin", "verengt die Blutgefäße"],
+  ["Kohlenstoffmonoxid", "nimmt dem Sauerstoff den Platz"]
+], "paareHerz");
+
+Modul.makeTF($("#tf"), [
+  ["Ablagerungen in den Arterien entstehen über Nacht.", false],
+  ["E-Zigaretten mit Nikotin sind für Herz und Gefäße harmlos.", false],
+  ["Wer regelmäßig Sport treibt, hat in Ruhe meist einen niedrigeren Puls.", true],
+  ["Dauerstress und zu wenig Schlaf belasten Herz und Kreislauf.", true],
+  ["Bei Verdacht auf einen Herzinfarkt wartet man erst einmal eine Stunde ab.", false]
+], "tf");
+
+Modul.makeCrossword($("#cw"), {
+  words: [
+    {w: "SCHLAGANFALL", r: 9, c: 0, d: "a", q: "Notfall: Ein Gefäß im Gehirn ist verstopft oder geplatzt."},
+    {w: "HERZINFARKT", r: 2, c: 4, d: "d", q: "Notfall: Ein Herzkranzgefäß ist verschlossen."},
+    {w: "BLUTDRUCK", r: 12, c: 1, d: "a", q: "Mit ihm drückt das Blut gegen die Wand der Arterien."},
+    {w: "NIKOTIN", r: 7, c: 4, d: "a", q: "Stoff im Tabak, der abhängig macht und die Gefäße verengt."},
+    {w: "BEWEGUNG", r: 3, c: 1, d: "a", q: "Davon brauchst du jeden Tag mindestens 60 Minuten."},
+    {w: "ARTERIE", r: 0, c: 2, d: "d", q: "Blutgefäß, das Blut vom Herzen wegführt."},
+    {w: "AUSDAUER", r: 0, c: 2, d: "a", q: "Laufen, Schwimmen und Radfahren trainieren die …"},
+    {w: "RAUCHEN", r: 1, c: 10, d: "d", q: "Risikofaktor mit Zigarette oder Shisha."},
+    {w: "STRESS", r: 4, c: 0, d: "d", q: "Dauernder Druck und Hektik – ein Risikofaktor für das Herz."},
+    {w: "PULS", r: 2, c: 6, d: "d", q: "Ihn fühlst du am Handgelenk."}
+  ],
+  sol: [[3, 5], [3, 4], [5, 6], [12, 7], [3, 7], [0, 5]], solWord: "GESUND"
+}, "cw");
+
+Modul.makeOpen($("#open"), [
+  {q: "Nenne drei Risikofaktoren für Herz-Kreislauf-Erkrankungen und erkläre bei einem davon, wie er schadet.",
+   m: "Risikofaktoren sind zum Beispiel Rauchen, Bewegungsmangel und zu fettes, zu süßes Essen. Beim Rauchen verengt das Nikotin die Blutgefäße, und das Herz muss schneller schlagen.",
+   k: ["rauch|nikotin|zigarette|vape", "bewegungsmangel|bewegung|sitzen", "essen|ernährung|fett|zucker|übergewicht|stress|schlaf|alkohol"], min: 2},
+  {q: "Erkläre, was bei einer Arteriosklerose in den Arterien passiert und warum das gefährlich ist.",
+   m: "In der Wand der Arterien lagern sich Fett und Kalk ab. Die Gefäße werden eng und starr, das Blut fließt schlechter und das Herz muss stärker pumpen. Verstopft ein Gefäß ganz, kann es zu einem Herzinfarkt oder Schlaganfall kommen.",
+   k: ["ablager|fett|kalk", "eng|verstopf|verschl|starr", "herzinfarkt|schlaganfall|infarkt|bluthochdruck|blutdruck"], min: 2},
+  {q: "Beschreibe drei Dinge, mit denen du selbst dein Herz gesund halten kannst.",
+   m: "Ich bewege mich jeden Tag mindestens 60 Minuten, zum Beispiel mit dem Rad zur Schule. Ich esse ausgewogen mit Obst und Gemüse und trinke Wasser statt Limo. Ich rauche nicht und schlafe genug.",
+   k: ["beweg|sport|rad|laufen", "essen|ernähr|obst|gemüse|wasser|trink", "rauch|nikotin|schlaf|stress|alkohol"], min: 2}
+], "open", "Lies noch einmal die Merke-Kästen in Station 3 und 5.");
+
+/* ---------- Station 6: M7 – Liniendiagramm zum 800-m-Lauf ---------- */
+(function(){
+  const svg = $("#laufDiagramm");
+  const T = [64, 64, 64, 118, 138, 146, 150, 112, 88, 74, 68, 65, 64], U = [84, 84, 84, 140, 165, 176, 180, 158, 138, 122, 110, 100, 94];
+  const x = m => 62 + m * 33, y = v => 240 - v * 1.05;
+  let h = '<rect width="480" height="296" fill="#f7fbfe"/>';
+  h += `<rect x="${x(2)}" y="30" width="${x(6) - x(2)}" height="210" fill="#fdebd3"/>`;
+  for (let v = 0; v <= 200; v += 20) h += `<line x1="62" y1="${y(v)}" x2="458" y2="${y(v)}" stroke="${v ? "#d8e2ea" : "#566674"}" stroke-width="${v ? 1 : 2}"/>` + (v % 40 === 0 ? `<text x="54" y="${y(v) + 4}" text-anchor="end" font-size="12" fill="#566674">${v}</text>` : "");
+  for (let m = 0; m <= 12; m++) h += `<line x1="${x(m)}" y1="240" x2="${x(m)}" y2="246" stroke="#566674" stroke-width="2"/>` + (m % 2 === 0 ? `<text x="${x(m)}" y="261" text-anchor="middle" font-size="12" fill="#566674">${m}</text>` : "");
+  h += '<line x1="62" y1="30" x2="62" y2="240" stroke="#566674" stroke-width="2"/>';
+  h += `<g font-size="12" font-weight="700" text-anchor="middle"><text x="${x(1)}" y="22" fill="#566674">Ruhe</text><text x="${x(4)}" y="22" fill="#b0600a">800-m-Lauf</text><text x="${x(9)}" y="22" fill="#566674">Erholung</text></g>`;
+  h += '<text transform="translate(16 135) rotate(-90)" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">Puls in Schlägen pro Minute</text>';
+  h += '<text x="260" y="284" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">Zeit in Minuten</text>';
+  const linie = (d, farbe) => `<polyline points="${d.map((v, m) => x(m) + "," + y(v).toFixed(1)).join(" ")}" fill="none" stroke="${farbe}" stroke-width="3" stroke-linejoin="round"/>`;
+  h += linie(U, "#c93b3b") + U.map((v, m) => `<rect x="${x(m) - 4}" y="${(y(v) - 4).toFixed(1)}" width="8" height="8" fill="#c93b3b"/>`).join("");
+  h += linie(T, "#0d77c2") + T.map((v, m) => `<circle cx="${x(m)}" cy="${y(v).toFixed(1)}" r="4.5" fill="#0d77c2"/>`).join("");
+  h += '<rect x="336" y="36" width="120" height="44" rx="6" fill="#fff" stroke="#d8e2ea"/>';
+  h += '<line x1="344" y1="51" x2="372" y2="51" stroke="#0d77c2" stroke-width="3"/><circle cx="358" cy="51" r="4.5" fill="#0d77c2"/><text x="379" y="55" font-size="12" font-weight="700" fill="#15212b">trainiert</text>';
+  h += '<line x1="344" y1="68" x2="372" y2="68" stroke="#c93b3b" stroke-width="3"/><rect x="354" y="64" width="8" height="8" fill="#c93b3b"/><text x="379" y="72" font-size="12" font-weight="700" fill="#15212b">untrainiert</text>';
+  svg.innerHTML = h;
+})();
+
+Modul.plus(() => {
+  Modul.makeMC($("#mc-m7"), MC.m7, "mcm", {t: "Diagramm lesen · M7"});
+  Modul.makeOpen($("#openM"), [
+    {q: "Begründe, warum dein Puls und deine Atemfrequenz steigen, wenn du rennst.",
+     m: "Beim Rennen arbeiten die Muskeln stärker und brauchen mehr Energie. Dafür müssen mehr Sauerstoff und Nährstoffe zu den Muskeln kommen, und mehr Kohlenstoffdioxid muss abtransportiert werden. Deshalb atmet man schneller, und das Herz schlägt schneller und pumpt mehr Blut.",
+     k: ["muskel", "energie", "sauerstoff", "kohlenstoffdioxid|co2|nährstoff|blut"], min: 3}
+  ], "openM", "Denke an die Kette: Muskeln – Energie – Sauerstoff – Atmung und Herzschlag.");
+});
+
+/* ---------- Station 7: Profi-Check ---------- */
+Modul.makeQuiz($("#quiz"), [].concat(MC.s1, MC.s2, MC.s3, MC.s4, MC.s5, MC.train, [
+  {q: "Welche Aufgabe hat dein Herz?", o: ["Es pumpt das Blut durch den ganzen Körper.", "Es reinigt die Atemluft.", "Es stellt das Blut her.", "Es verdaut die Nahrung."], a: 0, e: "Das Herz ist ein hohler Muskel. Es pumpt das Blut durch die Blutgefäße – ein Leben lang."},
+  {q: "Was passiert mit deinem Puls, wenn du 20 Kniebeugen machst?", o: ["Er steigt deutlich.", "Er sinkt.", "Er bleibt gleich.", "Er setzt aus."], a: 0, e: "Bei Anstrengung schlägt das Herz schneller, und du atmest schneller. In der Pause sinkt der Puls wieder."},
+  {q: "Wie hoch ist der Ruhepuls bei Jugendlichen ungefähr?", o: ["etwa 70 bis 90 Schläge pro Minute", "etwa 20 bis 30 Schläge pro Minute", "etwa 150 bis 170 Schläge pro Minute", "etwa 250 Schläge pro Minute"], a: 0, e: "In Ruhe sind es etwa 70 bis 90. Bei kräftiger Belastung steigt der Puls deutlich über 120."},
+  {q: "Was bedeutet das Wort „Risikofaktor“?", o: ["etwas, das eine Krankheit wahrscheinlicher macht", "ein Medikament gegen Herzinfarkt", "ein Gerät zum Pulsmessen", "eine Sportart für das Herz"], a: 0, e: "Rauchen, Bewegungsmangel und Dauerstress sind Risikofaktoren für Herz und Kreislauf."},
+  {q: "Wodurch wird eine Arterie bei einer Arteriosklerose enger?", o: ["durch Ablagerungen in der Gefäßwand", "durch zu viel Sauerstoff im Blut", "durch kaltes Wasser", "durch zu viel Schlaf"], a: 0, e: "Fett und Kalk lagern sich über viele Jahre in der Wand der Arterie ab."},
+  {q: "Was enthalten die meisten E-Zigaretten und Vapes?", o: ["Nikotin, das abhängig macht", "nur harmlosen Wasserdampf", "Vitamine", "reinen Sauerstoff"], a: 0, e: "Nikotin verengt die Gefäße und lässt das Herz schneller schlagen – auch ohne Tabakrauch."},
+  {q: "Was zählt zu deinen 60 Minuten Bewegung am Tag?", o: ["auch der Schulweg zu Fuß, Treppensteigen und Spielen in der Pause", "nur das Training im Sportverein", "nur der Sportunterricht", "nur Laufen auf der Tartanbahn"], a: 0, e: "Jede Bewegung zählt. Viele kleine Strecken am Tag ergeben zusammen eine Stunde."},
+  {q: "Welche Nummer wählst du bei Verdacht auf Herzinfarkt oder Schlaganfall?", o: ["112", "115", "110 und danach abwarten", "die Nummer der Schule"], a: 0, e: "Die 112 erreicht in ganz Europa den Rettungsdienst – kostenlos und rund um die Uhr."}
+]), "quiz", "Herz-Profi");
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

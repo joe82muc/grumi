@@ -1,0 +1,1201 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1f6b45">
+<title>Wirbeltiere: fünf Klassen | NT 7</title>
+<link rel="stylesheet" href="modul-basis.css">
+<style>
+.hero{background:linear-gradient(160deg,#143d2b,#237a52 55%,#9fcf6a)}
+.hotimg{position:relative}
+.hotimg svg{display:block;width:100%;height:auto}
+.sim .wahl{margin:0;padding:12px 14px;border-top:1px solid var(--line);background:#fbfdff}
+.wahl button.war{border-color:var(--ok);background:var(--ok-l)}
+.wahl button.sel.war{background:var(--sky);border-color:var(--sky)}
+.wahl button.falsch{border-color:var(--bad);background:var(--bad-l)}
+.wahl button.richtig{border-color:var(--ok);background:var(--ok-l);color:#135c33}
+.wahl button[disabled]{cursor:default}
+/* Station 1 und 5: Rätseltiere */
+.raetsel{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-top:10px}
+.raetsel-karte,.fall{border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;background:#fbfdff}
+.raetsel-karte svg,.fall svg{display:block;width:100%;max-width:210px;height:104px;margin:0 auto}
+.raetsel-karte h4,.fall h4{margin:4px 0 2px;font-size:1.06rem}
+.raetsel-karte p{margin:0 0 4px;font-size:.93rem;color:var(--muted)}
+.raetsel-karte .wahl,.fall .wahl{margin:8px 0 0;gap:6px}
+.raetsel-karte .wahl button,.fall .wahl button{padding:6px 10px;font-size:.92rem}
+.faelle{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:700px){.faelle{grid-template-columns:1fr}}
+.fall ul{margin:6px 0;padding-left:20px;font-size:.96rem}
+.fall .verm{margin:0}
+/* Station 2: Skelette */
+.ws-glow{opacity:.35}
+.laeuft .ws-glow{animation:wsPuls 1.6s ease-in-out infinite}
+@keyframes wsPuls{50%{opacity:.85}}
+/* Station 3: Steckbriefe */
+.steck{display:grid;grid-template-columns:minmax(200px,300px) 1fr;gap:8px 18px;padding:14px;align-items:center}
+@media (max-width:640px){.steck{grid-template-columns:1fr}}
+.steck svg{border-radius:12px}
+.steck h4{margin:0 0 8px;font-size:1.2rem}
+.st-zeile{display:grid;grid-template-columns:30px 1fr;gap:8px;align-items:start;border:1px solid var(--line);border-radius:12px;padding:7px 10px;background:#fbfdff;margin-bottom:6px}
+.st-zeile .ic{font-size:1.3rem;line-height:1.3}
+.st-zeile b{display:block;font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+#mS0,#mS1,#mS2,#mS3,#mS4,#mS5{transition:opacity .6s}
+/* Station 4: Bestimmungshilfe */
+.best-tier{display:grid;grid-template-columns:minmax(120px,210px) 1fr;gap:14px;align-items:center;border:1.5px solid var(--line);border-radius:14px;padding:10px 14px;background:#f6faf2}
+.best-tier svg{display:block;width:100%;height:118px}
+.best-tier h4{margin:6px 0 4px;font-size:1.12rem}
+.best-tier ul{margin:0;padding-left:18px;font-size:.96rem}
+@media (max-width:520px){.best-tier{grid-template-columns:1fr}}
+.best-baum{list-style:none;margin:16px 0 0;padding:0;counter-reset:bf}
+.best-baum li{counter-increment:bf;position:relative;display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center;border:2px solid var(--line);border-radius:14px;padding:10px 12px 10px 50px;margin:0 0 24px;background:#fff;transition:opacity .2s,border-color .2s}
+.best-baum li::before{content:counter(bf);position:absolute;left:12px;top:12px;width:28px;height:28px;border-radius:50%;background:var(--sky-l);color:var(--sky-d);font-weight:800;display:grid;place-items:center}
+.best-baum li:not(:last-child)::after{content:"Nein ↓";position:absolute;left:14px;bottom:-23px;font-size:.8rem;font-weight:700;color:var(--muted)}
+.best-baum li.aktiv{border-color:var(--sky);box-shadow:0 0 0 4px rgba(13,119,194,.15)}
+.best-baum li.gesperrt{opacity:.5}
+.best-baum li.fertig{border-color:#a9dcbc;background:#f4fbf6}
+.best-frage{font-weight:700}
+.best-baum .wahl{margin:0}
+.best-ziel{grid-column:1/-1;font-size:.9rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 10px}
+.best-ziel span{padding:3px 10px;border-radius:99px;border:1.5px dashed var(--line);background:#fafcfd}
+.best-ziel span.treffer{border-style:solid;border-color:var(--ok);background:var(--ok-l);color:var(--ok);font-weight:800}
+@media (max-width:520px){.best-baum li{grid-template-columns:1fr}}
+.best-weiter{margin:0}
+/* Station 5: Molch und Eidechse */
+.vergleich{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0}
+.vergleich figure{border:1.5px solid var(--line);border-radius:14px;padding:8px 10px;background:#fbfdff;text-align:center}
+.vergleich svg{display:block;width:100%;height:auto}
+.vergleich figcaption{font-weight:700;color:var(--ink)}
+/* M7: Zentralnervensystem */
+.zns{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+@media (max-width:820px){.zns{grid-template-columns:1fr}}
+.zns svg{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:14px;background:#f7fbfe}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>NT 7</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Rätseltiere</a>
+      <a href="#s2"><b>2</b>Bauplan</a>
+      <a href="#s3"><b>3</b>Fünf Klassen</a>
+      <a href="#s4"><b>4</b>Bestimmen</a>
+      <a href="#s5"><b>5</b>Knifflig</a>
+      <a href="#s6"><b>6</b>Training</a>
+      <a href="#s7"><b>7</b>Profi-Check</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse 7M / 7R · Themenbereich Tiere an Land und in der Luft · Lernmodul 1</div>
+    <h1>Wirbeltiere: fünf Klassen</h1>
+    <p>Forelle, Frosch, Eidechse, Amsel und Fuchs sehen ganz verschieden aus. Im Inneren sind sie aber nach demselben Plan gebaut. In sieben Stationen findest du heraus, was alle Wirbeltiere gemeinsam haben – und woran du Fische, Amphibien, Reptilien, Vögel und Säugetiere sicher unterscheidest.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s6">Direkt zum Probentraining</a>
+    </div>
+    <div class="goals">
+      <div>🐟 Ich nenne, was alle Wirbeltiere gemeinsam haben.</div>
+      <div>🔍 Ich unterscheide die fünf Wirbeltierklassen an ihren Merkmalen.</div>
+      <div>🐸 Ich ordne heimische Tiere der richtigen Klasse zu.</div>
+      <div>🦇 Ich begründe, warum Fledermaus, Delfin und Pinguin nicht das sind, wonach sie aussehen.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- Tierzeichnungen (eigene, vereinfachte Zeichnungen in Seitenansicht) -->
+<svg id="tierDefs" width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="gForelle" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6c7c3c"/><stop offset=".42" stop-color="#a9a25c"/><stop offset=".72" stop-color="#e6dba6"/><stop offset="1" stop-color="#f4eed4"/></linearGradient>
+    <linearGradient id="gEchse" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a6534"/><stop offset=".5" stop-color="#a08a4e"/><stop offset="1" stop-color="#e6dcae"/></linearGradient>
+    <linearGradient id="gMolch" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#34465a"/><stop offset=".6" stop-color="#4f6880"/><stop offset="1" stop-color="#6f8aa3"/></linearGradient>
+
+    <symbol id="tForelle" viewBox="0 0 240 120">
+      <g stroke="#3d4a2c" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M186 55L229 33C221 50 221 72 229 91L186 69Z" fill="#c2b06a"/>
+        <path d="M96 35L106 13C120 12 132 18 140 27L134 37Z" fill="#b3a35c"/>
+        <path d="M160 43C161 32 171 32 173 47Z" fill="#b3a35c"/>
+        <path d="M146 86L156 106C165 103 171 94 172 79Z" fill="#c2b06a"/>
+        <path d="M102 91L112 110C120 107 125 99 124 90Z" fill="#c2b06a"/>
+        <path d="M14 62C32 40 76 30 120 33C152 35 176 46 190 55L190 69C176 78 152 89 120 91C76 94 32 84 14 62Z" fill="url(#gForelle)"/>
+        <path d="M58 73C64 86 78 95 90 93C86 83 76 76 62 71Z" fill="#c9b972"/>
+        <path d="M52 44C61 54 61 72 52 82" fill="none"/>
+        <path d="M15 63C22 67 28 68 34 66" fill="none"/>
+      </g>
+      <g stroke="#8d7f45" stroke-width=".9" fill="none"><path d="M192 59L222 41M192 62L220 62M192 65L222 84M108 32L112 17M118 32L122 16M127 34L132 21"/></g>
+      <path d="M56 61C100 55 150 58 188 62" fill="none" stroke="#5f6a36" stroke-width=".9" stroke-dasharray="3 2.4"/>
+      <g fill="#2f3324"><circle cx="72" cy="47" r="2.1"/><circle cx="86" cy="55" r="1.9"/><circle cx="100" cy="43" r="2.1"/><circle cx="114" cy="50" r="1.9"/><circle cx="128" cy="43" r="2.1"/><circle cx="142" cy="51" r="1.9"/><circle cx="156" cy="48" r="1.8"/><circle cx="170" cy="55" r="1.7"/></g>
+      <g fill="#c8452e" stroke="#f6efd6" stroke-width=".9"><circle cx="80" cy="66" r="2.2"/><circle cx="104" cy="68" r="2.2"/><circle cx="128" cy="67" r="2.2"/><circle cx="152" cy="66" r="2.1"/></g>
+      <circle cx="36" cy="55" r="5.4" fill="#f4e7a2" stroke="#3d4a2c" stroke-width="1.4"/><circle cx="35.5" cy="55" r="2.7" fill="#15212b"/><circle cx="34.5" cy="53.8" r=".9" fill="#fff"/>
+    </symbol>
+
+    <symbol id="tFrosch" viewBox="0 0 200 140">
+      <g stroke="#4f3f1f" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M20 84C24 72 38 60 54 56C58 40 80 38 86 54C114 58 144 74 162 100C168 110 162 118 150 118L72 118C50 118 28 106 20 92Z" fill="#9c8148"/>
+        <path d="M21 92C30 106 50 118 72 118L150 118C122 113 84 106 54 98C42 95 30 93 21 92Z" fill="#efe6c2" stroke="none"/>
+        <path d="M80 60C92 60 104 66 108 76C98 78 86 74 80 68Z" fill="#5b4528" stroke="none"/>
+        <circle cx="93" cy="69" r="4.6" fill="#8a6c40" stroke="#5b4528" stroke-width="1.1"/>
+        <path d="M158 102C142 84 116 80 102 88C97 94 101 102 112 105C128 111 147 113 157 110Z" fill="#a68a4e"/>
+        <path d="M103 97C120 105 140 114 156 122L152 129C134 123 113 113 99 103Z" fill="#a68a4e"/>
+        <path d="M156 122L106 123.5L106 129L152 129.5Z" fill="#a68a4e"/>
+        <path d="M106 123.5L86 118L82 126.5L87 135L106 129Z" fill="#cdb777" stroke-width="1.1"/>
+        <path d="M106 126L86 118M106 126L82 126.5M106 126L87 135" fill="none" stroke-width="2.4"/>
+        <path d="M63 97C57 104 55 114 56 124L64 126C64 116 68 107 75 101Z" fill="#a68a4e"/>
+        <path d="M58 124L40 126M59 125L43 131M60 126L51 134" fill="none" stroke-width="2.4" stroke="#7a6436"/>
+        <path d="M20 88C36 93 60 87 82 76" fill="none" stroke-width="1.3"/>
+      </g>
+      <g fill="#5b4528"><ellipse cx="116" cy="72" rx="6" ry="3.2"/><ellipse cx="136" cy="86" rx="6.5" ry="3.4"/><ellipse cx="124" cy="92" rx="4" ry="2.4" transform="rotate(20 124 92)"/><ellipse cx="46" cy="72" rx="4" ry="2.2"/></g>
+      <path d="M118 86L126 100M132 88L140 104" stroke="#5b4528" stroke-width="3" stroke-linecap="round" opacity=".7"/>
+      <circle cx="71" cy="51" r="8" fill="#e8c24a" stroke="#4f3f1f" stroke-width="1.5"/><ellipse cx="71" cy="51" rx="5" ry="3.2" fill="#15212b"/><circle cx="68.5" cy="49.4" r="1.2" fill="#fff"/>
+      <circle cx="26" cy="82" r="1.3" fill="#4f3f1f"/>
+    </symbol>
+
+    <symbol id="tEidechse" viewBox="0 0 280 110">
+      <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M58 58L50 76L40 84M140 58L152 78L142 88" stroke="#3d3418" stroke-width="8.6"/><path d="M58 58L50 76L40 84M140 58L152 78L142 88" stroke="#6f6238" stroke-width="5.8"/>
+        <path d="M40 84L29 82M40 84L30 88M40 84L34 93M142 88L154 87M142 88L154 92M142 88L150 97" stroke="#3d3418" stroke-width="2"/>
+      </g>
+      <path d="M10 54C14 44 30 38 46 40C74 31 118 31 150 42C190 48 236 66 272 80C236 80 190 72 150 62C118 70 74 70 48 63C32 65 14 62 10 54Z" fill="url(#gEchse)" stroke="#3d3418" stroke-width="1.6" stroke-linejoin="round"/>
+      <g fill="#4a3a20"><ellipse cx="64" cy="40" rx="5" ry="2.8"/><ellipse cx="82" cy="38" rx="5" ry="2.8"/><ellipse cx="100" cy="37" rx="5" ry="2.8"/><ellipse cx="118" cy="38" rx="5" ry="2.8"/><ellipse cx="136" cy="41" rx="5" ry="2.8"/><ellipse cx="160" cy="48" rx="4" ry="2.2"/><ellipse cx="180" cy="53" rx="3.6" ry="2"/><ellipse cx="200" cy="59" rx="3.2" ry="1.8"/><ellipse cx="220" cy="65" rx="2.8" ry="1.6"/></g>
+      <g fill="#f6efd6"><circle cx="64" cy="40" r="1.1"/><circle cx="82" cy="38" r="1.1"/><circle cx="100" cy="37" r="1.1"/><circle cx="118" cy="38" r="1.1"/><circle cx="136" cy="41" r="1.1"/></g>
+      <path d="M60 52C90 46 126 48 150 54" fill="none" stroke="#6fa33a" stroke-width="5" stroke-linecap="round" opacity=".55"/>
+      <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M66 60L76 78L62 90M146 58L136 80L152 92" stroke="#3d3418" stroke-width="9.4"/><path d="M66 60L76 78L62 90M146 58L136 80L152 92" stroke="#93804a" stroke-width="6.4"/>
+        <path d="M62 90L48 88M62 90L49 93M62 90L53 98M62 90L59 100M152 92L167 90M152 92L168 95M152 92L165 100M152 92L158 102" stroke="#3d3418" stroke-width="2.1"/>
+      </g>
+      <path d="M11 56C20 59 32 59 42 56" fill="none" stroke="#3d3418" stroke-width="1.3" stroke-linecap="round"/>
+      <ellipse cx="46" cy="51" rx="1.8" ry="2.8" fill="#3d3418"/>
+      <circle cx="30" cy="48" r="3.3" fill="#15212b"/><circle cx="29" cy="47" r="1" fill="#fff"/><circle cx="15" cy="51" r=".9" fill="#3d3418"/>
+    </symbol>
+
+    <symbol id="tMolch" viewBox="0 0 280 110">
+      <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M58 60L52 76L44 82M140 60L150 76L142 84" stroke="#1f2a36" stroke-width="8.6"/><path d="M58 60L52 76L44 82M140 60L150 76L142 84" stroke="#3a4c60" stroke-width="5.8"/>
+      </g>
+      <path d="M10 56C12 46 28 40 44 42C74 34 118 34 150 44C176 38 222 44 270 72C232 80 190 78 150 67C118 73 74 73 48 66C30 68 12 65 10 56Z" fill="url(#gMolch)" stroke="#1f2a36" stroke-width="1.6" stroke-linejoin="round"/>
+      <path d="M13 61C30 67 50 67 74 70C100 73 130 71 150 67C176 74 214 78 252 74C214 72 176 66 150 61C130 65 90 65 60 63C40 62 24 62 13 61Z" fill="#f08a24"/>
+      <path d="M40 58C70 60 120 60 150 57" fill="none" stroke="#dfe9f2" stroke-width="3.4" stroke-linecap="round"/>
+      <g fill="#1f2a36"><circle cx="48" cy="58" r="1.3"/><circle cx="60" cy="59" r="1.3"/><circle cx="72" cy="59.5" r="1.3"/><circle cx="84" cy="60" r="1.3"/><circle cx="96" cy="60" r="1.3"/><circle cx="108" cy="59.8" r="1.3"/><circle cx="120" cy="59.4" r="1.3"/><circle cx="132" cy="58.8" r="1.3"/><circle cx="144" cy="57.8" r="1.3"/></g>
+      <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M66 62L74 78L62 88M146 60L138 78L150 88" stroke="#1f2a36" stroke-width="9.4"/><path d="M66 62L74 78L62 88M146 60L138 78L150 88" stroke="#4f6880" stroke-width="6.4"/>
+        <path d="M62 88L50 86M62 88L51 91M62 88L55 96M62 88L61 97M150 88L163 86M150 88L164 91M150 88L161 96M150 88L154 98" stroke="#1f2a36" stroke-width="2.6"/>
+      </g>
+      <path d="M11 58C20 61 30 61 40 59" fill="none" stroke="#1f2a36" stroke-width="1.3" stroke-linecap="round"/>
+      <circle cx="28" cy="50" r="3.6" fill="#e8c24a" stroke="#1f2a36" stroke-width="1"/><circle cx="28" cy="50" r="2" fill="#15212b"/>
+    </symbol>
+
+    <symbol id="tAmsel" viewBox="0 0 200 150">
+      <g stroke="#7a5a2a" stroke-width="3" stroke-linecap="round" fill="none"><path d="M112 114L110 138M110 138L96 140M110 138L99 145M110 138L105 147M110 138L120 142"/><path d="M96 116L92 140M92 140L78 141M92 140L80 146M92 140L86 148M92 140L102 144"/></g>
+      <path d="M34 54C32 40 44 30 58 32C70 34 78 42 82 50C112 52 142 66 154 86L194 104L190 116L148 104C132 120 102 124 82 116C60 108 48 92 46 74C38 70 34 62 34 54Z" fill="#26262b" stroke="#0e0e12" stroke-width="1.6" stroke-linejoin="round"/>
+      <path d="M78 66C104 60 134 74 152 92C128 100 98 98 82 88C74 82 72 72 78 66Z" fill="#3d3d46" stroke="#0e0e12" stroke-width="1.2"/>
+      <path d="M96 78C112 80 128 86 140 92M92 86C108 90 122 94 134 96" fill="none" stroke="#5c5c68" stroke-width="1.2" stroke-linecap="round"/>
+      <path d="M35 50L13 56L36 60Z" fill="#f2a01e" stroke="#9a5c00" stroke-width="1.3" stroke-linejoin="round"/><path d="M15 56L35 55" stroke="#9a5c00" stroke-width="1"/>
+      <circle cx="52" cy="46" r="5.2" fill="#f4c430"/><circle cx="52" cy="46" r="3.2" fill="#0e0e12"/><circle cx="51" cy="45" r="1" fill="#fff"/>
+    </symbol>
+
+    <symbol id="tFuchs" viewBox="0 0 270 160">
+      <g stroke="#6e3310" stroke-width="1.6" stroke-linejoin="round">
+        <path d="M196 78C222 62 256 70 263 96C266 112 246 120 228 110C212 100 200 94 190 90Z" fill="#d9722a"/>
+        <path d="M246 74C259 81 266 94 263 105C260 114 249 117 240 114C250 106 254 92 246 74Z" fill="#fbf3e6"/>
+        <path d="M100 100L111 100L109 150L99 150ZM195 104L206 108L204 150L194 150Z" fill="#b55a1f"/>
+        <path d="M60 46L66 24L74 50Z" fill="#b55a1f"/>
+        <path d="M72 70C100 56 164 56 198 70C212 78 212 98 200 106C170 116 104 114 78 106C62 100 60 78 72 70Z" fill="#d9722a"/>
+        <path d="M180 92C196 92 206 104 200 118C196 126 190 128 190 134L192 150L181 150L178 132C170 124 166 112 170 100C172 95 176 92 180 92Z" fill="#d9722a"/>
+        <path d="M85 100L98 100L96 150L85 150Z" fill="#d9722a"/>
+        <path d="M84 66C74 54 66 46 58 44L52 22L42 42C32 46 18 58 8 68C8 72 12 75 18 75C28 78 40 78 48 76C56 84 68 92 80 96Z" fill="#d9722a"/>
+      </g>
+      <path d="M85.6 126L97 126L96 150L85 150ZM179 134L190.5 134L192 150L181 150ZM99.6 128L110 128L109 150L99 150ZM194.4 130L205 130L204 150L194 150Z" fill="#3b2a20"/>
+      <path d="M79 152L96 152L96 147L84 147ZM175 152L192 152L192 147L180 147Z" fill="#3b2a20"/>
+      <path d="M10 70C20 70 34 68 44 66C52 74 62 84 78 94L80 96C68 92 56 84 48 76C40 78 28 78 18 75C12 75 9 72 10 70Z" fill="#fbf3e6"/>
+      <path d="M46 76.5C56 84 68 92 80 96C84 100 86 104 86 108C77 106 69 101 65 95C58 89 52 82 46 76.5Z" fill="#fbf3e6"/>
+      <path d="M50 30L45 42L55 42Z" fill="#3b2a20"/>
+      <circle cx="38" cy="54" r="2.7" fill="#15212b"/><circle cx="10.5" cy="68.5" r="3.2" fill="#15212b"/>
+      <path d="M18 75C26 74 34 72 40 70" fill="none" stroke="#6e3310" stroke-width="1.1" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="tFledermaus" viewBox="0 0 260 140">
+      <g stroke="#2e2420" stroke-width="1.6" stroke-linejoin="round">
+        <path d="M142 66L172 52L196 30L250 44C242 58 236 76 232 92C220 88 206 94 196 104C180 96 160 104 146 116Z" fill="#6a5750"/>
+        <path d="M118 66L88 52L64 30L10 44C18 58 24 76 28 92C40 88 54 94 64 104C80 96 100 104 114 116Z" fill="#6a5750"/>
+        <path d="M118 108L130 126L142 108Z" fill="#6a5750"/>
+      </g>
+      <g stroke="#2e2420" stroke-width="2.2" stroke-linecap="round" fill="none"><path d="M142 66L172 52L196 30M196 30L250 44M196 30L232 92M196 30L196 104M196 30L199 21"/><path d="M118 66L88 52L64 30M64 30L10 44M64 30L28 92M64 30L64 104M64 30L61 21"/></g>
+      <path d="M121 50C113 30 117 18 123 20C128 28 129 40 127 48ZM139 50C147 30 143 18 137 20C132 28 131 40 133 48Z" fill="#6b4a2e" stroke="#2e2420" stroke-width="1.4" stroke-linejoin="round"/>
+      <ellipse cx="130" cy="86" rx="14" ry="27" fill="#8a6037" stroke="#2e2420" stroke-width="1.6"/>
+      <circle cx="130" cy="56" r="12.5" fill="#8a6037" stroke="#2e2420" stroke-width="1.6"/>
+      <circle cx="125" cy="54" r="1.9" fill="#15212b"/><circle cx="135" cy="54" r="1.9" fill="#15212b"/><ellipse cx="130" cy="60" rx="2.6" ry="1.8" fill="#3b2a20"/>
+      <path d="M124 111L122 119M136 111L138 119" stroke="#2e2420" stroke-width="2.2" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="tSchleiche" viewBox="0 0 260 110">
+      <path d="M26 60C52 38 72 40 92 58C112 76 134 80 154 62C172 46 196 44 214 60C226 70 236 76 246 78" fill="none" stroke="#5a3c16" stroke-width="15.6" stroke-linecap="round"/>
+      <path d="M26 60C52 38 72 40 92 58C112 76 134 80 154 62C172 46 196 44 214 60C226 70 236 76 246 78" fill="none" stroke="#b9823e" stroke-width="12.6" stroke-linecap="round"/>
+      <path d="M30 55C52 37 70 38 90 54C112 72 134 76 152 59C172 42 196 41 214 55C226 64 236 71 244 74" fill="none" stroke="#e2b877" stroke-width="2.6" stroke-linecap="round" opacity=".9"/>
+      <ellipse cx="22" cy="63" rx="10.6" ry="7.6" transform="rotate(-38 22 63)" fill="#b9823e" stroke="#5a3c16" stroke-width="1.6"/>
+      <circle cx="19" cy="60" r="2.2" fill="#15212b"/><circle cx="18.4" cy="59.3" r=".7" fill="#fff"/>
+      <path d="M12 70C16 70 20 68 23 66" fill="none" stroke="#5a3c16" stroke-width="1.1" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="tDelfin" viewBox="0 0 270 130">
+      <g stroke="#2f4656" stroke-width="1.6" stroke-linejoin="round">
+        <path d="M232 84C244 80 254 70 262 58C262 72 258 84 250 90C256 96 260 106 258 116C248 110 238 100 230 92Z" fill="#5f7f96"/>
+        <path d="M128 33C136 14 150 8 158 8C152 18 152 30 156 39Z" fill="#5f7f96"/>
+        <path d="M8 71L36 65C38 54 48 46 62 42C100 28 150 30 186 44C210 54 228 70 238 82L234 92C212 84 186 84 160 88C120 96 72 94 44 82C36 80 30 78 26 76L8 73Z" fill="#7397ae"/>
+        <path d="M26 76C40 86 80 94 120 94C150 93 170 88 190 86C160 80 100 82 60 78C46 77 34 76 26 76Z" fill="#e3ecf1" stroke="none"/>
+        <path d="M78 86C82 100 92 112 104 116C102 104 98 92 92 84Z" fill="#5f7f96"/>
+      </g>
+      <path d="M8 72L40 70C44 70 46 68 48 66" fill="none" stroke="#2f4656" stroke-width="1.2" stroke-linecap="round"/>
+      <circle cx="52" cy="62" r="2.6" fill="#15212b"/><ellipse cx="70" cy="40.5" rx="2.6" ry="1.2" fill="#2f4656"/>
+    </symbol>
+
+    <symbol id="tPinguin" viewBox="0 0 140 170">
+      <path d="M52 156L40 164L62 164L64 156ZM74 156L66 164L88 164L86 156Z" fill="#f0a530" stroke="#9a5c00" stroke-width="1.2" stroke-linejoin="round"/>
+      <path d="M64 14C80 14 90 26 90 40C100 60 108 86 108 112C108 134 100 150 90 156L50 156C38 146 32 128 32 108C32 84 40 62 46 50C42 46 42 40 44 36C46 22 54 14 64 14Z" fill="#1f2a33" stroke="#0c1217" stroke-width="1.6" stroke-linejoin="round"/>
+      <path d="M52 52C64 58 74 56 78 64C84 80 86 106 82 130C80 142 76 152 72 156L52 156C44 146 40 128 40 108C40 86 46 66 52 52Z" fill="#fff"/>
+      <path d="M78 64C90 82 94 108 88 132C80 116 74 94 72 72Z" fill="#2c3944" stroke="#0c1217" stroke-width="1.2" stroke-linejoin="round"/>
+      <path d="M46 34L24 40L46 45Z" fill="#f0a530" stroke="#9a5c00" stroke-width="1.2" stroke-linejoin="round"/>
+      <circle cx="56" cy="32" r="3.2" fill="#fff"/><circle cx="55.6" cy="32" r="1.6" fill="#0c1217"/>
+      <path d="M60 50C68 54 78 52 84 46" fill="none" stroke="#f4c430" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg</div><h2>Wer gehört wohin?</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Im Bach steht eine Forelle, am Ufer sitzt ein Frosch, auf dem warmen Stein sonnt sich eine Eidechse. Im Baum singt eine Amsel, und über die Wiese läuft ein Fuchs.</p>
+      <p>Fünf Tiere, fünf ganz verschiedene Körper. Trotzdem gehören sie alle zur selben großen Gruppe: zu den <button class="term" data-t="wirbeltier">Wirbeltieren</button>. Biologen teilen diese Gruppe in fünf <button class="term" data-t="klasse">Klassen</button> ein. Aber wonach eigentlich?</p>
+      <div id="mc-s1"></div>
+    </div>
+    <div class="sim reveal">
+      <svg viewBox="0 0 480 300" role="img" aria-label="Landschaft mit fünf heimischen Tieren: Forelle im Bach, Frosch am Ufer, Eidechse auf einem Stein, Amsel auf einem Ast und Fuchs auf der Wiese">
+        <rect width="480" height="300" fill="#dff1fb"/>
+        <circle cx="430" cy="44" r="22" fill="#ffd95a"/>
+        <path d="M0 150C80 120 160 130 240 142C320 154 400 128 480 140L480 300L0 300Z" fill="#c4e0a0"/>
+        <path d="M0 196C90 176 200 184 300 196C380 206 440 198 480 192L480 300L0 300Z" fill="#a9d17e"/>
+        <rect x="34" y="60" width="18" height="140" fill="#8a5a2b"/>
+        <path d="M44 104C80 98 110 100 150 104" stroke="#8a5a2b" stroke-width="7" stroke-linecap="round" fill="none"/>
+        <circle cx="44" cy="46" r="40" fill="#5fa64a"/><circle cx="80" cy="40" r="28" fill="#6cb356"/><circle cx="14" cy="60" r="26" fill="#58a045"/>
+        <use href="#tAmsel" x="78" y="40" width="88" height="66"/>
+        <use href="#tFuchs" x="250" y="92" width="176" height="104.3"/>
+        <path d="M0 232C70 214 170 216 236 240C262 252 250 284 216 300L0 300Z" fill="#8fcdea"/>
+        <path d="M20 250q14-8 28 0t28 0M150 240q12-7 24 0t24 0M170 286q12-7 24 0t24 0" stroke="#fff" stroke-width="2" fill="none" opacity=".8" stroke-linecap="round"/>
+        <use href="#tForelle" x="30" y="232" width="130" height="65"/>
+        <use href="#tFrosch" x="198" y="186" width="92" height="64.4"/>
+        <ellipse cx="382" cy="268" rx="86" ry="22" fill="#b9b4a8"/><ellipse cx="372" cy="262" rx="62" ry="12" fill="#cbc6ba"/>
+        <use href="#tEidechse" x="300" y="206" width="168" height="66"/>
+      </svg>
+      <p class="obs" style="min-height:0">Fünf heimische Tiere – in Station 3 lernst du ihre Klassen kennen.</p>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag">Erste Vermutung</span>
+    <h3 style="margin-top:4px">Vier Rätseltiere – was denkst du?</h3>
+    <p>Diese vier Tiere machen es einem nicht leicht. Tippe bei jedem an, zu welcher Klasse es deiner Meinung nach gehört. Du kannst hier nichts falsch machen: Die Auflösung kommt in Station 5.</p>
+    <div class="raetsel" id="raetsel">
+      <div class="raetsel-karte"><svg viewBox="0 0 260 140" role="img" aria-label="Fledermaus mit ausgebreiteten Flügeln"><use href="#tFledermaus"/></svg><h4>Fledermaus</h4><p>Sie fliegt nachts und jagt Insekten.</p><div class="wahl"></div></div>
+      <div class="raetsel-karte"><svg viewBox="0 0 260 110" role="img" aria-label="Blindschleiche"><use href="#tSchleiche"/></svg><h4>Blindschleiche</h4><p>Sie hat keine Beine und kriecht durchs Gras.</p><div class="wahl"></div></div>
+      <div class="raetsel-karte"><svg viewBox="0 0 270 130" role="img" aria-label="Delfin"><use href="#tDelfin"/></svg><h4>Delfin</h4><p>Er lebt im Meer und hat Flossen.</p><div class="wahl"></div></div>
+      <div class="raetsel-karte"><svg viewBox="0 0 140 170" role="img" aria-label="Pinguin"><use href="#tPinguin"/></svg><h4>Pinguin</h4><p>Er kann nicht fliegen, taucht aber wie ein Weltmeister.</p><div class="wahl"></div></div>
+    </div>
+    <div class="fb" id="raetselFb"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Was alle Wirbeltiere gemeinsam haben</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Von außen sehen Forelle, Frosch, Eidechse, Amsel und Fuchs ganz verschieden aus. Schaut man in ihren Körper hinein, findet man bei allen dasselbe: ein Skelett mit einer <button class="term" data-t="wirbelsaeule">Wirbelsäule</button>.</p>
+      <p>Die Wirbelsäule besteht aus vielen kleinen Knochen, den <button class="term" data-t="wirbel">Wirbeln</button>. Sie liegt im Rücken, stützt den Körper und macht ihn trotzdem beweglich.</p>
+      <p>Weil das Skelett im Körper liegt, nennt man es <button class="term" data-t="innenskelett">Innenskelett</button>. Ein Käfer hat dagegen einen harten Panzer außen – und keine Wirbelsäule. Er ist ein <button class="term" data-t="wirbellos">wirbelloses Tier</button>.</p>
+      <p class="hint">Tippe die fünf Tiere an. Suche in jedem Skelett die leuchtende Wirbelsäule.</p>
+    </div>
+    <div class="sim reveal" id="skSim">
+      <svg viewBox="0 0 480 300" id="skSvg" role="img" aria-label="Skelett eines Wirbeltiers im Körperumriss. Die Wirbelsäule ist orange hervorgehoben."><rect width="480" height="300" fill="#f7fbfe"/></svg>
+      <div class="wahl" id="skWahl"></div>
+      <p class="obs" id="skObs">Wähle ein Tier.</p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="sim reveal">
+      <div class="hotimg" id="bauBild">
+        <svg viewBox="0 0 480 240" role="img" aria-label="Eine Zauneidechse von der Seite. Kopf, Rumpf und Schwanz sind farbig unterlegt, die Wirbelsäule ist eingezeichnet. Sechs Stellen sind nummeriert.">
+          <rect width="480" height="240" fill="#f7fbfe"/>
+          <rect x="28" y="30" width="71" height="186" rx="10" fill="#ffe7c2"/>
+          <rect x="101" y="30" width="154" height="186" rx="10" fill="#dcefd2"/>
+          <rect x="257" y="30" width="197" height="186" rx="10" fill="#d9e8f8"/>
+          <text x="63" y="52" text-anchor="middle" font-size="15" font-weight="800" fill="#8a5a00">Kopf</text>
+          <text x="196" y="52" text-anchor="middle" font-size="15" font-weight="800" fill="#2f6b2a">Rumpf</text>
+          <text x="355" y="52" text-anchor="middle" font-size="15" font-weight="800" fill="#1f5a93">Schwanz</text>
+          <use href="#tEidechse" x="20" y="50" width="440" height="172.9"/>
+          <g transform="translate(20 50) scale(1.5714)"><path d="M48 49C80 41 120 42 150 51C180 57 226 69 266 79" fill="none" stroke="#e8590c" stroke-width="3.4" stroke-dasharray="3.2 1.8"/></g>
+        </svg>
+      </div>
+      <div class="sim-ctrl"><span class="hs-count chip" id="bauZahl">0 von 6 entdeckt</span><span class="hint" style="margin:0">Tippe auf die Zahlen im Bild.</span></div>
+    </div>
+    <div class="card reveal hs-info" id="bauInfo">
+      <div class="big">🦎</div><h3 style="margin:.3em 0 .2em">Ein Bauplan für alle</h3>
+      <p class="lead" style="margin:0">Der Körper aller Wirbeltiere ist gleich gegliedert: Kopf, Rumpf und Schwanz. Am Rumpf sitzen die <button class="term" data-t="gliedmassen">Gliedmaßen</button>. Erkunde den Bauplan an der Zauneidechse.</p>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <div class="merke"><h4>MERKE</h4><ul>
+      <li>Alle Wirbeltiere haben ein Innenskelett mit einer Wirbelsäule.</li>
+      <li>Ihr Körper ist in Kopf, Rumpf und Schwanz gegliedert.</li>
+      <li>Die meisten Wirbeltiere haben vier Gliedmaßen.</li>
+    </ul></div>
+    <div id="mc-s2"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Gut geschützt: Gehirn und Rückenmark</h3>
+    <p class="m7-hinweis">Aufgaben mit dem lila Zeichen gehören zum M-Niveau. In M-Klassen zählen sie mit, in R-Klassen sind sie eine Zusatzaufgabe für Profis.</p>
+    <div class="zns">
+      <div>
+        <p>Schädel und Wirbelsäule sind mehr als eine Stütze. Sie schützen die Schaltzentrale des Körpers: das <button class="term" data-t="zns">Zentralnervensystem</button>. Es besteht aus <strong>Gehirn</strong> und <strong>Rückenmark</strong>.</p>
+        <p>Das Gehirn liegt im Schädel. Das Rückenmark ist ein dicker Strang aus Nerven. Es verläuft in einem Kanal mitten durch die Wirbel, dem <strong>Wirbelkanal</strong>. Vom Rückenmark ziehen Nerven in den ganzen Körper.</p>
+        <p>Auch das Zentralnervensystem ist ein gemeinsames Merkmal aller Wirbeltiere.</p>
+      </div>
+      <svg viewBox="0 0 480 230" role="img" aria-label="Fuchs von der Seite mit eingezeichnetem Gehirn im Schädel und Rückenmark in der Wirbelsäule. Daneben ein Wirbel im Querschnitt: Das Rückenmark liegt im Wirbelkanal.">
+        <rect width="480" height="230" fill="#f7fbfe"/>
+        <use href="#tFuchs" x="6" y="34" width="300" height="177.8" opacity=".28"/>
+        <g transform="translate(6 34) scale(1.1111)" fill="none" stroke-linecap="round">
+          <path d="M92 70L92 128M122 64L122 96M152 64L154 98M190 76L186 132M40 52L22 64" stroke="#e0a800" stroke-width="1.6"/>
+          <path d="M52 54C62 58 76 64 88 69C120 62 160 62 192 75C212 81 234 87 250 98" stroke="#f2b400" stroke-width="4.2"/>
+          <ellipse cx="44" cy="52" rx="11" ry="7.4" fill="#f29bb0" stroke="#b0486a" stroke-width="1.4"/>
+        </g>
+        <g font-size="13" font-weight="700" fill="#15212b">
+          <text x="60" y="22">Gehirn</text><path d="M80 26L58 86" stroke="#566674" stroke-width="1.2"/>
+          <text x="150" y="60">Rückenmark</text><path d="M186 65L176 104" stroke="#566674" stroke-width="1.2"/>
+          <text x="196" y="216">Nerven</text><path d="M214 202L178 150" stroke="#566674" stroke-width="1.2"/>
+        </g>
+        <line x1="322" y1="14" x2="322" y2="216" stroke="#d8e2ea" stroke-width="2"/>
+        <text x="402" y="24" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">Wirbel im Querschnitt</text>
+        <g stroke="#6b6250" stroke-width="2" stroke-linejoin="round">
+          <path d="M392 78L402 40L412 78Z" fill="#efe7d2"/>
+          <path d="M378 96L344 90L378 112ZM426 96L460 90L426 112Z" fill="#efe7d2"/>
+          <circle cx="402" cy="102" r="27" fill="#efe7d2"/>
+          <ellipse cx="402" cy="146" rx="46" ry="24" fill="#efe7d2"/>
+          <circle cx="402" cy="102" r="14" fill="#fff"/>
+          <circle cx="402" cy="102" r="9.5" fill="#f2b400" stroke="#b88a00"/>
+        </g>
+        <g font-size="12" font-weight="700" fill="#15212b" text-anchor="middle">
+          <text x="402" y="150">Wirbelkörper</text>
+          <text x="402" y="192">Rückenmark</text><text x="402" y="207">im Wirbelkanal</text>
+        </g>
+        <path d="M368 190C350 160 362 124 392 106" fill="none" stroke="#566674" stroke-width="1.2"/>
+      </svg>
+    </div>
+    <div class="gaptext" id="gapZns" style="margin-top:10px"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>Die fünf Klassen im Vergleich</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Die Wirbeltiere werden in fünf Klassen eingeteilt: <strong>Fische</strong>, <button class="term" data-t="lurche">Amphibien</button>, <button class="term" data-t="kriechtiere">Reptilien</button>, <strong>Vögel</strong> und <strong>Säugetiere</strong>.</p>
+    <p style="margin:0">Um sie zu unterscheiden, vergleicht man vier Merkmale: die <strong>Körperbedeckung</strong>, die <strong>Atmung</strong>, die <strong>Fortpflanzung</strong> und die <strong>Körpertemperatur</strong>. Sieh dir alle fünf Steckbriefe an.</p>
+  </div>
+
+  <div class="sim reveal" id="steckSim" style="margin-bottom:18px">
+    <div class="steck">
+      <svg viewBox="0 0 280 170" role="img" aria-label="Typisches Tier der gewählten Klasse" id="steckBild"><rect width="280" height="170" fill="#f1f7ea"/><use id="steckUse" href="#tForelle" x="20" y="25" width="240" height="120"/></svg>
+      <div>
+        <h4 id="steckTitel">Fische</h4>
+        <div class="st-zeile"><span class="ic">🛡️</span><div><b>Körperbedeckung</b><span id="st0"></span></div></div>
+        <div class="st-zeile"><span class="ic">💨</span><div><b>Atmung</b><span id="st1"></span></div></div>
+        <div class="st-zeile"><span class="ic">🐣</span><div><b>Fortpflanzung</b><span id="st2"></span></div></div>
+        <div class="st-zeile"><span class="ic">🌡️</span><div><b>Körpertemperatur</b><span id="st3"></span></div></div>
+        <p class="hint" id="steckBsp" style="margin:6px 0 0"></p>
+      </div>
+    </div>
+    <div class="wahl" id="steckWahl"></div>
+    <div class="sim-ctrl"><span class="chip" id="steckZahl">0 von 5 Steckbriefen angesehen</span><span class="hint" style="margin:0">Tippe alle fünf Klassen an.</span></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Zuordnen · leicht</span>
+    <h3 style="margin-top:4px">Welche Haut gehört zu welcher Klasse?</h3>
+    <p class="hint">Tippe erst auf eine Karte, dann auf die passende Klasse. In jedes Fach gehört genau eine Karte.</p>
+    <div id="sortHaut"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card reveal">
+      <span class="task-tag">Animation</span>
+      <h3 style="margin-top:4px">Ein Leben in zwei Welten: vom Laich zum Frosch</h3>
+      <p>Das Wort Amphibium bedeutet „in beiden Welten lebend“. Die Jungen leben im Wasser, die erwachsenen Tiere meist an Land.</p>
+      <p>Ein Froschweibchen legt seine Eier ins Wasser. Man nennt sie <button class="term" data-t="laich">Laich</button>. Daraus schlüpfen <button class="term" data-t="kaulquappe">Kaulquappen</button>, die mit <button class="term" data-t="kiemen">Kiemen</button> atmen. Erst nach einer <button class="term" data-t="metamorphose">Metamorphose</button> wird daraus ein Frosch.</p>
+      <p class="hint">Starte die Animation oder gehe Schritt für Schritt. Achte darauf, womit das Tier jeweils atmet.</p>
+    </div>
+    <div class="sim reveal" id="froschSim">
+      <svg viewBox="0 0 480 280" role="img" aria-label="Schnitt durch einen Teich mit Ufer. Die Entwicklung vom Laich über die Kaulquappe zum jungen Frosch wird in Schritten gezeigt.">
+        <rect width="480" height="280" fill="#eef8fd"/>
+        <rect x="0" y="56" width="480" height="196" fill="#bfe3f5"/>
+        <rect x="0" y="150" width="480" height="102" fill="#a9d6ee" opacity=".7"/>
+        <rect x="0" y="246" width="480" height="34" fill="#d9c9a8"/>
+        <path d="M228 280C254 250 272 186 292 150L352 146C364 124 376 84 390 52L480 52L480 280Z" fill="#b9d39a"/>
+        <path d="M228 280C254 250 272 186 292 150L352 146C364 124 376 84 390 52" fill="none" stroke="#8fae6e" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M0 56q12-6 24 0t24 0t24 0t24 0t24 0t24 0t24 0t24 0t24 0t24 0t24 0t24 0t24 0t24 0t24 0t24 0" fill="none" stroke="#fff" stroke-width="2.5"/>
+        <ellipse cx="236" cy="57" rx="26" ry="5" fill="#5fa34a"/><path d="M236 57L258 54" stroke="#bfe3f5" stroke-width="2"/>
+        <g stroke="#5fa34a" stroke-width="4" fill="none" stroke-linecap="round"><path d="M60 246C52 220 70 200 60 176C52 158 66 140 60 122"/><path d="M84 246C92 226 78 206 86 188"/></g>
+        <!-- Laich -->
+        <g id="mS0"><g fill="#fff" fill-opacity=".62" stroke="#7fa9c4" stroke-width="1.4"><circle cx="96" cy="86" r="10"/><circle cx="116" cy="82" r="10"/><circle cx="136" cy="88" r="10"/><circle cx="104" cy="102" r="10"/><circle cx="124" cy="100" r="10"/><circle cx="144" cy="104" r="10"/><circle cx="112" cy="118" r="10"/><circle cx="132" cy="118" r="10"/><circle cx="90" cy="112" r="10"/></g>
+          <g fill="#2f2a22"><circle cx="96" cy="86" r="3.4"/><circle cx="116" cy="82" r="3.4"/><circle cx="136" cy="88" r="3.4"/><circle cx="104" cy="102" r="3.4"/><circle cx="124" cy="100" r="3.4"/><circle cx="144" cy="104" r="3.4"/><circle cx="112" cy="118" r="3.4"/><circle cx="132" cy="118" r="3.4"/><circle cx="90" cy="112" r="3.4"/></g></g>
+        <!-- junge Kaulquappe mit äußeren Kiemen -->
+        <g id="mS1" opacity="0" transform="translate(176 150)">
+          <path d="M8-11C32-22 56-9 72 0C56 9 32 22 8 11Z" fill="#7a6a55" opacity=".5"/>
+          <path d="M10-5C30-7 52-3 70 0C52 3 30 7 10 5Z" fill="#3a332a"/>
+          <ellipse cx="0" cy="0" rx="16" ry="11" fill="#3a332a"/>
+          <path d="M5-8L1-20M9-9L9-22M13-8L18-19" stroke="#d0564a" stroke-width="2.4" stroke-linecap="round"/>
+          <circle cx="-8" cy="-3" r="2.4" fill="#fff"/><circle cx="-8.4" cy="-3" r="1.1" fill="#15212b"/>
+        </g>
+        <!-- Kaulquappe mit Hinterbeinen -->
+        <g id="mS2" opacity="0" transform="translate(150 172)">
+          <path d="M14-14C44-28 74-11 94 0C74 11 44 28 14 14Z" fill="#7a6a55" opacity=".5"/>
+          <path d="M16-6C42-9 70-4 92 0C70 4 42 9 16 6Z" fill="#3a332a"/>
+          <ellipse cx="0" cy="0" rx="23" ry="16" fill="#3a332a"/>
+          <path d="M18 11L28 20L20 27L30 30" fill="none" stroke="#3a332a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="-12" cy="-5" r="3" fill="#fff"/><circle cx="-12.5" cy="-5" r="1.4" fill="#15212b"/>
+        </g>
+        <!-- Kaulquappe mit vier Beinen an der Oberfläche -->
+        <g id="mS3" opacity="0" transform="translate(150 82)">
+          <path d="M16-11C42-22 66-9 82 0C66 9 42 22 16 11Z" fill="#8a7a5a" opacity=".5"/>
+          <path d="M18-5C40-8 64-3 80 0C64 3 40 8 18 5Z" fill="#544a30"/>
+          <ellipse cx="0" cy="0" rx="25" ry="14" fill="#544a30"/>
+          <path d="M20 9L31 17L22 25L34 28" fill="none" stroke="#544a30" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M-10 10L-14 21L-22 23" fill="none" stroke="#544a30" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="-13" cy="-8" r="4.4" fill="#e8c24a" stroke="#2f2a22" stroke-width="1.2"/><circle cx="-13" cy="-8" r="2" fill="#15212b"/>
+          <circle cx="-30" cy="-20" r="3.4" fill="#fff" stroke="#7fa9c4" stroke-width="1.2"/><circle cx="-36" cy="-28" r="2.2" fill="#fff" stroke="#7fa9c4" stroke-width="1"/>
+        </g>
+        <!-- junger Frosch mit Schwanzrest -->
+        <g id="mS4" opacity="0">
+          <path d="M324 133C336 132 346 137 352 145C342 146 332 144 324 140Z" fill="#9c8148" stroke="#4f3f1f" stroke-width="1.4" stroke-linejoin="round"/>
+          <use href="#tFrosch" x="270" y="100" width="70" height="49"/>
+        </g>
+        <!-- junger Frosch an Land -->
+        <g id="mS5" opacity="0"><use href="#tFrosch" x="392" y="-5" width="84" height="58.8"/></g>
+        <g font-size="13" font-weight="700" fill="#15212b">
+          <text x="12" y="22">Atmung: <tspan id="mAtm" font-weight="800" fill="#0d77c2">–</tspan></text>
+          <text x="12" y="42">Lebensraum: <tspan id="mOrt" font-weight="800" fill="#176b62">Wasser</tspan></text>
+        </g>
+        <text id="mText" x="190" y="268" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b"></text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="sim reveal">
+      <svg viewBox="0 0 480 300" role="img" aria-label="Links ein Fuchs und eine Eidechse mit ihrer Körpertemperatur, rechts ein Diagramm: Die Körpertemperatur der Eidechse steigt mit der Außentemperatur, die des Fuchses bleibt gleich.">
+        <rect width="480" height="300" fill="#f7fbfe"/>
+        <rect id="tHimmel" x="0" y="0" width="196" height="300" fill="#e6eff3"/>
+        <circle id="tSonne" cx="38" cy="36" r="18" fill="#ffd34d"/>
+        <path d="M0 150C60 140 130 142 196 150L196 300L0 300Z" fill="#b9d98f"/>
+        <use href="#tFuchs" x="26" y="62" width="150" height="88.9"/>
+        <rect x="92" y="14" width="98" height="40" rx="9" fill="#fff" stroke="#d9722a" stroke-width="2"/>
+        <text x="141" y="30" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">Körper des Fuchses</text>
+        <text x="141" y="47" text-anchor="middle" font-size="15" font-weight="800" fill="#b5531a">38–39 °C</text>
+        <ellipse cx="92" cy="262" rx="84" ry="18" fill="#b9b4a8"/>
+        <use href="#tEidechse" x="12" y="200" width="160" height="62.9"/>
+        <rect x="84" y="160" width="106" height="40" rx="9" fill="#fff" stroke="#6f8f3a" stroke-width="2"/>
+        <text x="137" y="176" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">Körper der Eidechse</text>
+        <text id="tEchseT" x="137" y="193" text-anchor="middle" font-size="15" font-weight="800" fill="#4d6a22">20 °C</text>
+        <!-- Diagramm -->
+        <rect x="203" y="8" width="271" height="284" rx="10" fill="#fff" stroke="#d8e2ea"/>
+        <text x="356" y="26" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">vereinfachtes Diagramm</text>
+        <g stroke="#e3eaf0" stroke-width="1"><path d="M248 198H464M248 150H464M248 102H464M248 54H464M302 246V54M356 246V54M410 246V54M464 246V54"/></g>
+        <path d="M248 40V246H470" fill="none" stroke="#15212b" stroke-width="2"/>
+        <g font-size="12" fill="#15212b" text-anchor="end"><text x="243" y="250">0</text><text x="243" y="202">10</text><text x="243" y="154">20</text><text x="243" y="106">30</text><text x="243" y="58">40</text></g>
+        <g font-size="12" fill="#15212b" text-anchor="middle"><text x="302" y="261">10</text><text x="356" y="261">20</text><text x="410" y="261">30</text><text x="464" y="261">40</text></g>
+        <text x="356" y="282" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">Außentemperatur in °C</text>
+        <text transform="translate(219 150) rotate(-90)" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">Körpertemperatur in °C</text>
+        <line id="tLinie" x1="356" y1="246" x2="356" y2="54" stroke="#8a97a3" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <path d="M248 61.2H464" stroke="#d9722a" stroke-width="4" stroke-linecap="round"/>
+        <path d="M275 222L437 78" stroke="#6f8f3a" stroke-width="4" stroke-linecap="round"/>
+        <text x="258" y="80" font-size="13" font-weight="800" fill="#b5531a">Fuchs</text>
+        <text x="398" y="156" font-size="13" font-weight="800" fill="#4d6a22">Eidechse</text>
+        <circle id="tMarkF" cx="356" cy="61.2" r="6.5" fill="#d9722a" stroke="#fff" stroke-width="2"/>
+        <circle id="tMarkE" cx="356" cy="150" r="6.5" fill="#6f8f3a" stroke="#fff" stroke-width="2"/>
+      </svg>
+      <div class="sim-ctrl"><label for="tempR">Außentemperatur</label><input type="range" id="tempR" min="5" max="35" step="1" value="20"><span class="chip" id="tempChip">20 °C</span></div>
+      <p class="obs" id="tempObs">Schiebe den Regler ganz nach links und ganz nach rechts.</p>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag">Versuch am Bildschirm</span>
+      <h3 style="margin-top:4px">Wechselwarm oder gleichwarm?</h3>
+      <p>Eine Eidechse kann ihre Körpertemperatur nicht selbst gleich halten. Ihr Körper ist etwa so warm wie die Umgebung – sie ist <button class="term" data-t="wechselwarm">wechselwarm</button>. An einem kühlen Morgen ist sie starr und muss sich erst in der Sonne aufwärmen.</p>
+      <p>Ein Fuchs hält seine Körpertemperatur immer fast gleich – er ist <button class="term" data-t="gleichwarm">gleichwarm</button>. Dafür braucht er viel Energie aus der Nahrung. Sein Fell verhindert, dass er zu viel Wärme verliert.</p>
+      <div class="merke"><h4>MERKE</h4><ul>
+        <li><strong>Körperbedeckung:</strong> Fische haben Schuppen mit Schleim, Amphibien eine nackte, feuchte Haut, Reptilien trockene Hornschuppen, Vögel Federn, Säugetiere Haare.</li>
+        <li><strong>Atmung:</strong> Fische atmen mit Kiemen, erwachsene Amphibien mit Lunge und Haut, Reptilien, Vögel und Säugetiere mit Lungen.</li>
+        <li><strong>Fortpflanzung:</strong> Fische und Amphibien legen Laich ins Wasser, Reptilien und Vögel legen Eier an Land, Säugetiere bringen lebende Junge zur Welt und säugen sie.</li>
+        <li><strong>Körpertemperatur:</strong> Fische, Amphibien und Reptilien sind wechselwarm, Vögel und Säugetiere gleichwarm.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px"><div id="mc-s3"></div></div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Das Diagramm auswerten</h3>
+    <p>Sieh dir das Diagramm im Versuch oben an. Auf der waagrechten Achse steht die Außentemperatur, auf der senkrechten Achse die Körpertemperatur. Jede Linie gehört zu einem Tier.</p>
+    <div id="mc-diagramm"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Probenstoff</div><h2>Heimische Tiere bestimmen</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Heimische Tiere sind Tiere, die bei uns wild leben: im Wald, am Bach, im Garten. Mit den vier Merkmalen aus Station 3 kannst du jedes von ihnen einer Klasse zuordnen.</p>
+    <span class="task-tag leicht">Zuordnen · leicht</span>
+    <h3 style="margin-top:4px">Zehn heimische Tiere – fünf Klassen</h3>
+    <p class="hint">Tippe erst auf ein Tier, dann auf die passende Klasse.</p>
+    <div id="sortTiere1"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Bestimmen · mittel</span>
+    <h3 style="margin-top:4px">Bestimmen wie die Profis</h3>
+    <p>Biologen benutzen eine <button class="term" data-t="bestimmung">Bestimmungshilfe</button>: eine Kette von Fragen, die man nur mit Ja oder Nein beantwortet. Am Ende steht die Klasse. Lies den Steckbrief des Tieres und beantworte die Fragen der Reihe nach.</p>
+    <div id="best">
+      <div class="best-tier">
+        <svg viewBox="0 0 280 150" role="img" aria-label="Das Tier, das bestimmt werden soll"><use id="bestUse" href="#tAmsel"/></svg>
+        <div><span class="chip" id="bestZahl">Tier 1 von 5</span><h4 id="bestName">Amsel</h4><ul id="bestFakten"></ul></div>
+      </div>
+      <ol class="best-baum" id="bestBaum">
+        <li><span class="best-frage">Hat das Tier <strong>Federn</strong>?</span><span class="wahl"><button type="button" data-a="1">Ja</button><button type="button" data-a="0">Nein</button></span><span class="best-ziel"><span data-k="3">Ja → Vogel</span></span></li>
+        <li><span class="best-frage">Hat das Tier <strong>Haare</strong> (ein Fell)?</span><span class="wahl"><button type="button" data-a="1">Ja</button><button type="button" data-a="0">Nein</button></span><span class="best-ziel"><span data-k="4">Ja → Säugetier</span></span></li>
+        <li><span class="best-frage">Hat das erwachsene Tier <strong>Flossen und Kiemen</strong>?</span><span class="wahl"><button type="button" data-a="1">Ja</button><button type="button" data-a="0">Nein</button></span><span class="best-ziel"><span data-k="0">Ja → Fisch</span></span></li>
+        <li><span class="best-frage">Ist die Haut <strong>trocken und mit Hornschuppen</strong> bedeckt?</span><span class="wahl"><button type="button" data-a="1">Ja</button><button type="button" data-a="0">Nein</button></span><span class="best-ziel"><span data-k="2">Ja → Reptil</span><span data-k="1">Nein (Haut nackt und feucht) → Amphibium</span></span></li>
+      </ol>
+      <div class="wahl best-weiter"><button type="button" id="bestNext" disabled>Nächstes Tier →</button></div>
+      <div class="fb" id="bestFb"></div>
+    </div>
+  </div>
+
+  <div class="card reveal"><div id="mc-s4"></div></div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Probenstoff</div><h2>Knifflige Fälle: Der Schein trügt</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Manche Tiere führen uns an der Nase herum: Sie leben oder bewegen sich wie Tiere einer ganz anderen Klasse. Jetzt löst du die vier Rätsel aus Station 1.</p>
+    <span class="task-tag mittel">Merkmale prüfen · mittel</span>
+    <p class="hint">Lies bei jedem Tier die Merkmale und entscheide dann, zu welcher Klasse es wirklich gehört.</p>
+    <div class="faelle" id="faelle">
+      <div class="fall"><svg viewBox="0 0 260 140" role="img" aria-label="Fledermaus"><use href="#tFledermaus"/></svg><h4>Fledermaus</h4><p class="hint verm"></p>
+        <ul><li>Ihr Körper ist mit einem Fell bedeckt.</li><li>Das Weibchen bringt ein lebendes Junges zur Welt und säugt es mit Milch.</li><li>Federn hat sie nicht: Zwischen ihren langen Fingerknochen spannt sich eine Flughaut.</li></ul>
+        <div class="wahl"></div><div class="fb"></div></div>
+      <div class="fall"><svg viewBox="0 0 260 110" role="img" aria-label="Blindschleiche"><use href="#tSchleiche"/></svg><h4>Blindschleiche</h4><p class="hint verm"></p>
+        <ul><li>Ihre Haut ist trocken und mit glatten Hornschuppen bedeckt.</li><li>Sie atmet mit Lungen.</li><li>Sie kann blinzeln und bei Gefahr ihren Schwanz abwerfen – wie eine Eidechse.</li></ul>
+        <div class="wahl"></div><div class="fb"></div></div>
+      <div class="fall"><svg viewBox="0 0 270 130" role="img" aria-label="Delfin"><use href="#tDelfin"/></svg><h4>Delfin</h4><p class="hint verm"></p>
+        <ul><li>Er atmet mit Lungen und muss zum Luftholen auftauchen.</li><li>Das Weibchen bringt ein lebendes Junges zur Welt und säugt es mit Milch.</li><li>Seine Körpertemperatur bleibt immer gleich.</li></ul>
+        <div class="wahl"></div><div class="fb"></div></div>
+      <div class="fall"><svg viewBox="0 0 140 170" role="img" aria-label="Pinguin"><use href="#tPinguin"/></svg><h4>Pinguin</h4><p class="hint verm"></p>
+        <ul><li>Sein Körper ist dicht mit Federn bedeckt.</li><li>Das Weibchen legt ein Ei mit Kalkschale, das ausgebrütet wird.</li><li>Er hat einen Schnabel. Seine Flügel sind schmal und steif wie Paddel.</li></ul>
+        <div class="wahl"></div><div class="fb"></div></div>
+    </div>
+    <div class="merke"><h4>MERKE</h4><ul>
+      <li>Über die Klasse entscheiden die Merkmale des Körpers – nicht der Lebensraum und nicht die Art, sich zu bewegen.</li>
+      <li>Fledermaus, Wal und Delfin sind Säugetiere. Der Pinguin ist ein Vogel.</li>
+      <li>Die Blindschleiche ist ein Reptil: eine Echse ohne Beine, keine Schlange.</li>
+    </ul></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card reveal">
+      <span class="task-tag mittel">Zuordnen · mittel</span>
+      <h3 style="margin-top:4px">Verwechslungsgefahr: Molch oder Eidechse?</h3>
+      <p>Beide haben vier Beine und einen langen Schwanz. Trotzdem gehören sie zu verschiedenen Klassen. Den Unterschied verrät vor allem die Haut.</p>
+      <div class="vergleich">
+        <figure><svg viewBox="0 0 280 110" role="img" aria-label="Bergmolch"><use href="#tMolch"/></svg><figcaption>Bergmolch</figcaption></figure>
+        <figure><svg viewBox="0 0 280 110" role="img" aria-label="Zauneidechse"><use href="#tEidechse"/></svg><figcaption>Zauneidechse</figcaption></figure>
+      </div>
+      <div id="sortMolch"></div>
+    </div>
+    <div class="card reveal"><div id="mc-s5"></div></div>
+  </div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="s6">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Probenstoff · so wird in der Probe gefragt</div><h2>Training für die Probe</h2></div></div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Lückentext · leicht</span>
+    <h3 style="margin-top:4px">Setze die fehlenden Wörter ein</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapTiere"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag leicht">Paare finden · leicht</span>
+    <h3 style="margin-top:4px">Fachbegriff und Erklärung</h3>
+    <p class="hint">Tippe links auf einen Begriff und dann rechts auf die passende Erklärung.</p>
+    <div id="paareBegriffe"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Richtig oder falsch? · mittel</span>
+    <div id="tf"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Zuordnen · mittel</span>
+    <h3 style="margin-top:4px">Noch zehn heimische Tiere</h3>
+    <p class="hint">Achtung: Hier sind auch knifflige Fälle dabei.</p>
+    <div id="sortTiere2"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Kreuzworträtsel · mittel</span>
+    <h3 style="margin-top:4px">Rund um die Wirbeltiere</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Schreibe ä als AE.</p>
+    <div id="cw"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag mittel">Ankreuzen · mittel</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Offene Fragen · schwer</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung. Danach kannst du die Musterlösung ansehen.</p>
+    <div id="open"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:4px">Begründe mit Merkmalen <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="openM"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 7 ============ -->
+<section class="station" id="s7">
+  <div class="st-head reveal"><div class="st-num">7</div><div><div class="eyebrow">Abschluss</div><h2>Wirbeltier-Profi-Check</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Du weißt jetzt, woran man die fünf Klassen der Wirbeltiere erkennt. Im nächsten Modul geht es darum, wie ihr Körper zum Leben im Wasser, an Land und in der Luft passt: <strong>Schwimmen, laufen, fliegen</strong>.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="index.html">📘 Übersicht NT 7M</a>
+      <a href="../../7R/NT/index.html">📗 Übersicht NT 7R</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik 7 · Lernmodul „Wirbeltiere: fünf Klassen“ · Dein Fortschritt wird auf diesem Gerät gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="modul-basis.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, esc, setText, register, solve} = Modul;
+const NS = "http://www.w3.org/2000/svg";
+
+Modul.init({
+  key: "grumi-nt7-wirbeltiere-v1",
+  thema: "Wirbeltiere: gemeinsame Merkmale (Innenskelett mit Wirbelsäule, Körpergliederung) und die fünf Klassen Fische, Amphibien, Reptilien, Vögel und Säugetiere mit Körperbedeckung, Atmung, Fortpflanzung und Körpertemperatur; heimische Tiere zuordnen",
+  glossary: {
+    wirbeltier: ["Wirbeltier", "Tier mit einem Innenskelett und einer Wirbelsäule. Dazu gehören Fische, Amphibien, Reptilien, Vögel und Säugetiere – auch der Mensch."],
+    wirbelsaeule: ["Wirbelsäule", "Kette aus vielen Wirbeln im Rücken. Sie stützt den Körper und ist trotzdem beweglich."],
+    wirbel: ["Wirbel", "Einzelner Knochen der Wirbelsäule."],
+    innenskelett: ["Innenskelett", "Gerüst aus Knochen, das im Inneren des Körpers liegt. Es stützt den Körper und schützt innere Organe."],
+    wirbellos: ["wirbelloses Tier", "Tier ohne Wirbelsäule, zum Beispiel Regenwurm, Schnecke, Käfer oder Spinne."],
+    gliedmassen: ["Gliedmaßen", "Arme und Beine, Flügel oder Flossen. Die meisten Wirbeltiere haben zwei Vorder- und zwei Hintergliedmaßen."],
+    klasse: ["Klasse", "Große Gruppe von Tieren mit gleichen Merkmalen. Die Wirbeltiere werden in fünf Klassen eingeteilt."],
+    kiemen: ["Kiemen", "Atmungsorgane der Fische und der Kaulquappen. Sie nehmen den Sauerstoff auf, der im Wasser gelöst ist."],
+    laich: ["Laich", "Eier ohne feste Schale, die Fische und Amphibien ins Wasser legen."],
+    kaulquappe: ["Kaulquappe", "Larve von Fröschen und Kröten. Sie lebt im Wasser, hat einen Ruderschwanz und atmet mit Kiemen."],
+    metamorphose: ["Metamorphose", "Verwandlung der Larve zum erwachsenen Tier, zum Beispiel von der Kaulquappe zum Frosch."],
+    lurche: ["Amphibien (Lurche)", "Wirbeltiere mit nackter, feuchter Haut. Die Larven leben im Wasser, die Erwachsenen meist an Land: Frösche, Kröten, Molche und Salamander."],
+    kriechtiere: ["Reptilien (Kriechtiere)", "Wirbeltiere mit trockener Haut aus Hornschuppen, die mit Lungen atmen: Eidechsen, Schlangen, Schildkröten und Krokodile."],
+    hornschuppen: ["Hornschuppen", "Feste, trockene Schuppen aus Horn – demselben Stoff wie deine Fingernägel. Sie schützen Reptilien vor dem Austrocknen."],
+    wechselwarm: ["wechselwarm", "Die Körpertemperatur ändert sich mit der Temperatur der Umgebung. Wechselwarm sind Fische, Amphibien und Reptilien."],
+    gleichwarm: ["gleichwarm", "Die Körpertemperatur bleibt fast immer gleich, egal wie warm oder kalt es draußen ist. Gleichwarm sind Vögel und Säugetiere."],
+    brutpflege: ["Brutpflege", "Eltern kümmern sich um Eier und Junge: Sie brüten, wärmen, füttern und beschützen."],
+    saeugen: ["säugen", "Die Mutter ernährt ihre Jungen mit Milch aus ihren Milchdrüsen. Das gibt es nur bei Säugetieren."],
+    bestimmung: ["Bestimmungshilfe", "Kette von Fragen, mit der man Schritt für Schritt herausfindet, zu welcher Gruppe ein Lebewesen gehört."],
+    zns: ["Zentralnervensystem (M7)", "Gehirn und Rückenmark zusammen. Es steuert den Körper. Der Schädel schützt das Gehirn, die Wirbelsäule das Rückenmark."]
+  }
+});
+
+const KLASSEN = ["Fisch", "Amphibium", "Reptil", "Vogel", "Säugetier"];
+// Größe der Zeichnungen (viewBox der Symbole): so wird ein Tier mittig in eine Fläche gesetzt
+const SYM = {tForelle: [240, 120], tFrosch: [200, 140], tEidechse: [280, 110], tMolch: [280, 110], tAmsel: [200, 150], tFuchs: [270, 160]};
+function passe(use, id, x, y, w, h){
+  const [sw, sh] = SYM[id], f = Math.min(w / sw, h / sh);
+  use.setAttribute("href", "#" + id);
+  use.setAttribute("width", (sw * f).toFixed(1)); use.setAttribute("height", (sh * f).toFixed(1));
+  use.setAttribute("x", (x + (w - sw * f) / 2).toFixed(1)); use.setAttribute("y", (y + (h - sh * f) / 2).toFixed(1));
+}
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Was meinst du: Wonach ordnen Biologen die Tiere in Gruppen?", o: ["nach ihrem Körperbau", "nach ihrer Farbe", "nach ihrem Lebensraum", "nach ihrer Größe"], a: 0, e: "Entscheidend ist der Körperbau, zum Beispiel Skelett, Haut und Atmung. Der Lebensraum kann täuschen – das siehst du in Station 5."}
+  ],
+  s2: [
+    {q: "Was haben alle Wirbeltiere gemeinsam?", o: ["ein Innenskelett mit Wirbelsäule", "ein Fell", "vier Beine zum Laufen", "Flügel oder Flossen"], a: 0, e: "Fell, Beine oder Flügel haben nur manche Wirbeltiere. Die Wirbelsäule haben alle."},
+    {q: "In welche Abschnitte ist der Körper eines Wirbeltiers gegliedert?", o: ["Kopf, Rumpf und Schwanz", "Kopf, Brust und Hinterleib", "Kopf und Fuß", "Rumpf und Flügel"], a: 0, e: "Kopf, Brust und Hinterleib – so sind Insekten gegliedert. Bei Wirbeltieren sind es Kopf, Rumpf und Schwanz."},
+    {q: "Woraus besteht die Wirbelsäule?", o: ["aus vielen einzelnen Wirbeln", "aus einem einzigen langen Knochen", "aus Muskeln", "aus Horn wie die Fingernägel"], a: 0, e: "Viele kleine Wirbel hintereinander: Das macht die Wirbelsäule stabil und beweglich zugleich."}
+  ],
+  s3: [
+    {q: "Welche Wirbeltiere atmen ihr ganzes Leben lang mit Kiemen?", o: ["Fische", "Amphibien", "Reptilien", "Säugetiere"], a: 0, e: "Amphibien atmen nur als Larven mit Kiemen. Fische behalten ihre Kiemen ein Leben lang."},
+    {q: "Woran erkennst du ein Reptil?", o: ["an der trockenen Haut mit Hornschuppen", "an der nackten, feuchten Haut", "an den Federn", "am Fell"], a: 0, e: "Nackte, feuchte Haut haben Amphibien, Federn haben Vögel, ein Fell haben Säugetiere."},
+    {q: "Welche Klassen sind gleichwarm?", o: ["Vögel und Säugetiere", "Fische und Amphibien", "Reptilien und Vögel", "alle Wirbeltiere"], a: 0, e: "Nur Vögel und Säugetiere halten ihre Körpertemperatur fast gleich. Federn und Fell helfen ihnen dabei."}
+  ],
+  s4: [
+    {q: "Die Erdkröte hat eine warzige Haut ohne Schuppen und legt Laichschnüre ins Wasser. Zu welcher Klasse gehört sie?", o: ["Amphibien", "Reptilien", "Fische", "Säugetiere"], a: 0, e: "Haut ohne Schuppen und Laich im Wasser: Das passt nur zu den Amphibien."},
+    {q: "Am Waldrand sonnt sich ein Tier auf einem Stein. Es hat vier Beine und eine trockene, schuppige Haut. Was ist es am ehesten?", o: ["eine Zauneidechse", "ein Bergmolch", "ein Feuersalamander", "ein Grasfrosch"], a: 0, e: "Trockene Hornschuppen hat nur ein Reptil. Molch, Salamander und Frosch sind Amphibien mit nackter, feuchter Haut."}
+  ],
+  s5: [
+    {q: "Warum gehört ein Wal zu den Säugetieren und nicht zu den Fischen?", o: ["Er atmet mit Lungen und säugt seine Jungen.", "Er ist sehr groß.", "Er lebt im Meer.", "Er hat Flossen."], a: 0, e: "Flossen und das Leben im Meer sagen nichts über die Klasse. Lunge und Milch für die Jungen schon."},
+    {q: "Die Blindschleiche hat keine Beine. Warum ist sie trotzdem keine Schlange?", o: ["Sie ist eine Echse: Sie kann blinzeln und ihren Schwanz abwerfen.", "Sie hat eine feuchte Haut wie ein Frosch.", "Sie ist ein großer Wurm.", "Sie atmet mit Kiemen."], a: 0, e: "Schlangen haben keine beweglichen Augenlider. Die Blindschleiche schon – sie ist eine Echse. Beide sind aber Reptilien."}
+  ],
+  train: [
+    {q: "Welche Merkmale passen zu den Säugetieren?", o: ["Haare (Fell)", "Die Jungen werden gesäugt.", "gleichwarm", "atmen mit Kiemen", "legen Laich ins Wasser"], a: [0, 1, 2], e: "Kiemen und Laich gehören zu Fischen und Amphibien."},
+    {q: "Ein Tier hat trockene Hornschuppen und legt Eier mit weicher Schale an Land. Zu welcher Klasse gehört es?", o: ["Reptilien", "Amphibien", "Fische", "Vögel"], a: 0, e: "Trockene Hornschuppen und Eier mit weicher Schale: Das sind Reptilien. Vogeleier haben eine harte Kalkschale."},
+    {q: "Was bedeutet „wechselwarm“?", o: ["Die Körpertemperatur ändert sich mit der Temperatur der Umgebung.", "Das Tier wechselt jedes Jahr sein Fell.", "Das Tier ist immer gleich warm.", "Das Tier lebt abwechselnd im Wasser und an Land."], a: 0, e: "Wechselwarme Tiere sind etwa so warm wie ihre Umgebung. Bei Kälte werden sie langsam und starr."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Was meinst du?"});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s5"), MC.s5, "mc5", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Station 1: erste Vermutung (wird in Station 5 aufgelöst) ---------- */
+let verm = [];
+try { verm = JSON.parse(Modul.load("-verm", "[]")) || []; } catch (_) { verm = []; }
+(function(){
+  const id = "vermutung"; register(id, "#raetsel", "Einstieg: erste Vermutung zu vier Rätseltieren");
+  const fb = $("#raetselFb");
+  function stand(){
+    const n = [0, 1, 2, 3].filter(i => verm[i] != null).length;
+    fb.className = "fb show " + (n === 4 ? "ok" : "mid");
+    fb.textContent = n === 4 ? "✅ Alle vier Vermutungen sind gespeichert. In Station 5 erfährst du, ob du richtig liegst." : `${n} von 4 Vermutungen gespeichert.`;
+    if (n === 4) solve(id);
+  }
+  $$("#raetsel .wahl").forEach((box, i) => {
+    box.innerHTML = KLASSEN.map((k, j) => `<button type="button" data-k="${j}">${k}</button>`).join("");
+    $$("button", box).forEach(b => {
+      if (verm[i] === +b.dataset.k) b.classList.add("sel");
+      b.addEventListener("click", () => {
+        verm[i] = +b.dataset.k; $$("button", box).forEach(x => x.classList.toggle("sel", x === b));
+        Modul.save("-verm", JSON.stringify(verm)); stand(); vermZeigen();
+      });
+    });
+  });
+  if (verm.some(x => x != null)) stand();
+})();
+function vermZeigen(){
+  $$("#faelle .verm").forEach((p, i) => setText(p, verm[i] != null ? "Deine Vermutung aus Station 1: " + KLASSEN[verm[i]] : "In Station 1 hast du hier noch nichts vermutet."));
+}
+
+/* ---------- Station 2: Skelette vergleichen ---------- */
+(function(){
+  const svg = $("#skSvg"), box = $("#skWahl"), obs = $("#skObs"), sim = $("#skSim");
+  const id = "skelett"; register(id, "#skWahl", "Skelette vergleichen: die Wirbelsäule bei fünf Wirbeltieren finden");
+  // Alle Wege stehen in den Koordinaten der Tierzeichnung. fl = Knochenflächen, dk = dicke Knochen, dn = dünne Knochen,
+  // ws = Wirbelsäule, lab = [Text, Zielpunkt x, y (Zeichnung), Ort des Textes x, y (Bild)]
+  const T = [
+    {k: "🐟 Forelle", sym: "tForelle", s: 1.8, x: 24, y: 42, ws: "M54 60C100 56 150 58 190 62",
+     fl: "M17 62C25 50 40 45 52 45L54 80C40 81 25 74 17 62Z", auge: [36, 55, 5],
+     dk: "M56 47C60 60 60 72 56 82",
+     dn: "M62 59L67 45M72 59L78 42M82 58.5L88 40M92 58L98 39M102 58L108 39M112 58L118 40M122 58L128 41M132 58.5L138 43M142 59L148 45M152 59L158 47M162 60L168 50M172 60.5L178 53M182 61L186 56M62 59L66 76M72 59L77 80M82 58.5L87 82M92 58L97 83M102 58L107 83M112 58L117 82M122 58L127 80M132 58.5L138 74M142 59L148 73M152 59L158 71M162 60L168 69M172 60.5L178 67M182 61L186 65M190 62L224 38M190 62L222 49M190 62L220 60M190 62L222 74M190 62L224 86M104 35L108 17M112 34L118 16M120 34L128 19M128 35L136 25M60 74L86 91M62 76L76 90M106 91L113 106M112 91L120 103M150 85L157 102M158 83L166 98",
+     lab: [["Schädel", 34, 49, 62, 26], ["Wirbelsäule", 160, 59, 330, 26], ["Gräten", 97, 80, 150, 288], ["Flossenstrahlen", 216, 72, 392, 288]],
+     t: "Bachforelle: Die Wirbelsäule reicht vom Schädel bis zur Schwanzflosse. An den Wirbeln sitzen dünne Gräten, in den Flossen stecken Flossenstrahlen."},
+    {k: "🐸 Frosch", sym: "tFrosch", s: 1.75, x: 65, y: 26, ws: "M85 68C100 69 118 75 132 85",
+     fl: "M22 87C27 73 42 63 56 59C60 47 80 45 85 60L85 79C66 88 44 92 22 91Z", auge: [71, 56, 6],
+     dk: "M132 85L151 98M128 89L152 104M152 104L108 95M106 97L153 125M153 126L108 126M69 98L61 112L60 124",
+     dn: "M108 126L86 118M108 126L82 126.5M108 126L87 135M60 124L42 126M60 124L44 131M60 124L52 133",
+     lab: [["Schädel", 40, 76, 96, 56], ["Wirbelsäule", 110, 72, 300, 60], ["Vorderbein", 61, 116, 110, 288], ["lange Hinterbeinknochen", 130, 110, 330, 288]],
+     t: "Grasfrosch: Die Wirbelsäule ist kurz, einen Schwanz hat der erwachsene Frosch nicht. Auffällig sind die langen Knochen der Hinterbeine – ideal zum Springen."},
+    {k: "🦎 Eidechse", sym: "tEidechse", s: 1.6, x: 16, y: 70, ws: "M48 49C80 41 120 42 150 51C180 57 222 68 256 77",
+     fl: "M12 54C16 46 30 41 46 42L48 60C34 62 18 60 12 54ZM61 56a5 4 0 1 0 10 0a5 4 0 1 0-10 0ZM141 56a5 4 0 1 0 10 0a5 4 0 1 0-10 0Z", auge: [30, 49, 3.6],
+     dk: "M66 58L76 78L62 90M146 58L136 80L152 92",
+     dn: "M64 46q-3 9 0 17M74 44q-3 9 0 18M84 43q-3 10 0 19M94 42.5q-3 10 0 19.5M104 42.6q-3 10 0 19.4M114 43.3q-3 10 0 18.7M124 44.6q-3 9 0 17.4M134 46.6q-3 8 0 15.4M62 90L48 88M62 90L49 93M62 90L53 98M62 90L59 100M152 92L167 90M152 92L168 95M152 92L165 100M152 92L158 102",
+     lab: [["Schädel", 30, 45, 58, 98], ["Wirbelsäule", 120, 42.5, 240, 98], ["Schwanzwirbel", 226, 69, 400, 140], ["Vorderbein", 70, 84, 84, 276], ["Rippen", 104, 58, 190, 276], ["Hinterbein", 142, 84, 300, 276]],
+     t: "Zauneidechse: Die Wirbelsäule läuft vom Kopf bis in die Schwanzspitze. Die vier Beine setzen seitlich am Rumpf an."},
+    {k: "🐦 Amsel", sym: "tAmsel", s: 1.7, x: 70, y: 22, ws: "M68 56C76 58 78 64 86 70C104 72 124 78 140 90L154 98",
+     fl: "M38 48L16 56L38 58ZM38 50C38 40 46 34 56 34C66 34 72 42 72 50C70 58 62 62 54 62C46 62 40 58 38 50ZM86 96C98 112 122 118 138 106L134 99C120 105 102 103 90 93Z", auge: [52, 46, 5],
+     dk: "M86 72L112 84L92 90L128 98M118 98L104 109L112 122L110 138",
+     dn: "M94 72L93 96M103 74.5L104 100M112 77.5L115 102M121 81L125 102M110 138L96 140M110 138L99 145M110 138L105 147M110 138L120 142",
+     lab: [["Schädel", 56, 37, 110, 40], ["Wirbelsäule", 112, 75, 300, 56], ["Flügelknochen", 124, 96, 404, 130], ["Brustbein", 100, 107, 132, 290], ["Beinknochen", 111, 126, 356, 290]],
+     t: "Amsel: Im Rumpf ist die Wirbelsäule steif, der Hals ist sehr beweglich. Die Vordergliedmaßen sind Flügel. Der lange Schwanz besteht nur aus Federn."},
+    {k: "🐾 Fuchs", sym: "tFuchs", s: 1.6, x: 24, y: 30, ws: "M64 57C72 61 80 65 88 70C120 63 160 63 192 76C212 82 236 88 252 100",
+     fl: "M10 69C20 58 36 47 52 45C60 45 66 50 66 58C60 68 50 74 40 76C30 78 18 76 12 73ZM84 70L97 72L92 92ZM178 77L198 81L190 96Z", auge: [40, 55, 4.6],
+     dk: "M92 92L94 108L91 132L90 146L84 150M190 95L176 114L188 132L186 146L177 150",
+     dn: "M100 68q-4 14-2 28M109 66.5q-4 15-1 31M118 65.5q-4 16 0 34M127 65q-4 16 1 34M136 65.5q-3 15 2 32M145 66.5q-3 13 3 28",
+     lab: [["Schädel", 36, 52, 70, 52], ["Wirbelsäule", 140, 64, 250, 98], ["Schwanzwirbel", 236, 88, 412, 112], ["Vorderbein", 92, 122, 96, 216], ["Rippen", 124, 94, 246, 252], ["Hinterbein", 184, 126, 404, 252]],
+     t: "Fuchs: Die Wirbelsäule trägt den Körper wie eine Brücke. Die Rippen schützen Herz und Lunge, die vier Beine stehen unter dem Rumpf."}
+  ];
+  const g = document.createElementNS(NS, "g"); svg.appendChild(g);
+  const gesehen = new Set();
+  const HALO = 'paint-order="stroke" stroke="#f7fbfe" stroke-width="4" stroke-linejoin="round"';
+  function zeig(i){
+    const t = T[i], [sw, sh] = SYM[t.sym];
+    g.innerHTML = `<g transform="translate(${t.x} ${t.y}) scale(${t.s})">
+        <use href="#${t.sym}" width="${sw}" height="${sh}" opacity=".2"/>
+        <path d="${t.dn}" fill="none" stroke="#4a4f57" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="${t.fl}" fill="#fbf7ea" stroke="#4a4f57" stroke-width="1.3" stroke-linejoin="round"/>
+        <path d="${t.dk}" fill="none" stroke="#4a4f57" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="${t.dk}" fill="none" stroke="#fbf7ea" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="${t.auge[0]}" cy="${t.auge[1]}" r="${t.auge[2]}" fill="#dfe6ec" stroke="#4a4f57" stroke-width="1.1"/>
+        <path class="ws-glow" d="${t.ws}" fill="none" stroke="#ff9f43" stroke-width="10" stroke-linecap="round"/>
+        <path d="${t.ws}" fill="none" stroke="#e8590c" stroke-width="5" stroke-dasharray="3.2 1.5"/>
+      </g>` + t.lab.map(l => {
+        const zx = t.x + t.s * l[1], zy = t.y + t.s * l[2], oben = l[4] < zy;
+        return `<line x1="${l[3]}" y1="${oben ? l[4] + 5 : l[4] - 14}" x2="${zx.toFixed(1)}" y2="${zy.toFixed(1)}" stroke="#566674" stroke-width="1.3"/><circle cx="${zx.toFixed(1)}" cy="${zy.toFixed(1)}" r="2.6" fill="#566674"/>
+          <text x="${l[3]}" y="${l[4]}" text-anchor="middle" font-size="13" font-weight="${l[0] === "Wirbelsäule" ? 800 : 700}" fill="${l[0] === "Wirbelsäule" ? "#c2410c" : "#15212b"}" ${HALO}>${l[0]}</text>`;
+      }).join("");
+    $$("button", box).forEach((b, j) => b.classList.toggle("sel", j === i));
+    return t;
+  }
+  box.innerHTML = T.map((t, i) => `<button type="button" data-i="${i}">${t.k}</button>`).join("");
+  $$("button", box).forEach(b => b.addEventListener("click", () => {
+    const i = +b.dataset.i, t = zeig(i);
+    gesehen.add(i); b.classList.add("war");
+    setText(obs, t.t + (gesehen.size === T.length ? " ✅ Alle fünf haben eine Wirbelsäule – deshalb sind sie Wirbeltiere." : ""));
+    if (gesehen.size === T.length) solve(id);
+  }));
+  zeig(0); setText(obs, "Hier siehst du das Skelett einer Bachforelle. Tippe nacheinander alle fünf Tiere an.");
+  Modul.onVisible(sim, v => sim.classList.toggle("laeuft", v));
+})();
+
+/* ---------- Station 2: Bauplan erkunden ---------- */
+Modul.makeHotspots($("#bauBild"), $("#bauInfo"), $("#bauZahl"), [
+  {x: 13.1, y: 34.2, i: "👀", t: "Kopf", s: "Im Kopf sitzen das Gehirn und wichtige Sinnesorgane: Augen, Nase und Ohren. Der knöcherne Schädel schützt sie."},
+  {x: 31.3, y: 35, i: "❤️", t: "Rumpf", s: "Im Rumpf liegen die inneren Organe, zum Beispiel Herz, Lunge und Magen. Wirbelsäule und Rippen schützen sie."},
+  {x: 75, y: 48.3, i: "🐊", t: "Schwanz", s: "Im Schwanz setzt sich die Wirbelsäule fort. Er hilft beim Schwimmen, beim Steuern oder beim Halten des Gleichgewichts. Beim erwachsenen Frosch und beim Menschen ist er zurückgebildet."},
+  {x: 23.3, y: 81.7, i: "💪", t: "Vordergliedmaßen", s: "Zwei Vordergliedmaßen: bei der Eidechse die Vorderbeine, beim Vogel die Flügel, bei dir die Arme. Beim Fisch entsprechen ihnen die Brustflossen."},
+  {x: 54.6, y: 82.5, i: "👣", t: "Hintergliedmaßen", s: "Zwei Hintergliedmaßen: die Hinterbeine, beim Fisch die Bauchflossen. Zusammen sind es vier Gliedmaßen. Schlangen und Blindschleichen haben ihre Beine im Lauf der Entwicklung verloren."},
+  {x: 44.6, y: 45, i: "🔗", t: "Wirbelsäule", s: "Wie eine Kette aus vielen Wirbeln zieht sie sich vom Kopf bis in die Schwanzspitze. Sie stützt den Körper und bleibt trotzdem beweglich."}
+], "bau");
+
+/* ---------- Station 2: Zentralnervensystem (M7) ---------- */
+Modul.plus(() => {
+  Modul.makeGap($("#gapZns"), [
+    ["Gehirn und ", {g: "Rückenmark"}, " bilden zusammen das ", {g: "Zentralnervensystem"}, "."],
+    ["Das Gehirn wird vom ", {g: "Schädel"}, " geschützt. Das Rückenmark verläuft im ", {g: "Wirbelkanal"}, " der Wirbelsäule."],
+    ["Vom Rückenmark ziehen ", {g: "Nerven"}, " in alle Teile des Körpers."]
+  ], "gapZns", ["Rippen", "Muskeln"]);
+});
+
+/* ---------- Station 3: Steckbriefe der fünf Klassen ---------- */
+(function(){
+  const K = [
+    {k: "🐟 Fische", n: "Fische", s: "tForelle", m: ["Haut mit Schuppen, darüber eine Schleimschicht", "mit Kiemen – ein Leben lang", "legen sehr viele Eier ohne Schale ins Wasser (Laich)", "wechselwarm"], b: "Bachforelle, Karpfen, Hecht"},
+    {k: "🐸 Amphibien", n: "Amphibien (Lurche)", s: "tFrosch", m: ["nackte, feuchte Haut ohne Schuppen", "als Larve mit Kiemen, erwachsen mit Lunge und durch die Haut", "legen Eier ohne Schale ins Wasser (Laich)", "wechselwarm"], b: "Grasfrosch, Erdkröte, Feuersalamander, Bergmolch"},
+    {k: "🦎 Reptilien", n: "Reptilien (Kriechtiere)", s: "tEidechse", m: ["trockene Haut mit Hornschuppen", "mit Lungen – ein Leben lang", "legen meist Eier mit weicher Schale an Land", "wechselwarm"], b: "Zauneidechse, Ringelnatter, Kreuzotter, Blindschleiche"},
+    {k: "🐦 Vögel", n: "Vögel", s: "tAmsel", m: ["Federn", "mit Lungen", "legen Eier mit harter Kalkschale, brüten sie aus und füttern die Jungen", "gleichwarm"], b: "Amsel, Mäusebussard, Stockente, Buntspecht"},
+    {k: "🐾 Säugetiere", n: "Säugetiere", s: "tFuchs", m: ["Haare (Fell)", "mit Lungen", "bringen lebende Junge zur Welt und säugen sie mit Milch", "gleichwarm"], b: "Reh, Igel, Eichhörnchen, Fuchs, Fledermaus, Maulwurf"}
+  ];
+  const id = "steckbrief"; register(id, "#steckWahl", "Steckbriefe: die fünf Wirbeltierklassen ansehen und vergleichen");
+  const box = $("#steckWahl"), zahl = $("#steckZahl"), gesehen = new Set();
+  box.innerHTML = K.map((k, i) => `<button type="button" data-i="${i}">${k.k}</button>`).join("");
+  function zeig(i){
+    const k = K[i];
+    passe($("#steckUse"), k.s, 14, 10, 252, 150);
+    setText($("#steckTitel"), k.n);
+    k.m.forEach((t, j) => setText($("#st" + j), t));
+    setText($("#steckBsp"), "Heimische Beispiele: " + k.b);
+    $$("button", box).forEach((b, j) => b.classList.toggle("sel", j === i));
+  }
+  $$("button", box).forEach(b => b.addEventListener("click", () => {
+    const i = +b.dataset.i; zeig(i); gesehen.add(i); b.classList.add("war");
+    setText(zahl, gesehen.size === K.length ? "✅ Alle fünf Steckbriefe angesehen" : `${gesehen.size} von ${K.length} Steckbriefen angesehen`);
+    if (gesehen.size === K.length) { zahl.className = "chip ok"; solve(id); }
+  }));
+  zeig(0);
+})();
+
+Modul.makeSort($("#sortHaut"), {
+  pairs: true, buckets: ["Fische", "Amphibien", "Reptilien", "Vögel", "Säugetiere"],
+  items: [{t: "Schuppen mit Schleimschicht", b: 0}, {t: "nackte, feuchte Haut", b: 1}, {t: "trockene Hornschuppen", b: 2}, {t: "Federn", b: 3}, {t: "Haare", b: 4}], cols: 240
+}, "sortHaut");
+
+/* ---------- Station 3: vom Laich zum Frosch ---------- */
+(function(){
+  const S = [0, 1, 2, 3, 4, 5].map(i => $("#mS" + i)), atm = $("#mAtm"), ort = $("#mOrt"), text = $("#mText");
+  const ATM = ["im Ei", "Kiemen", "Kiemen", "Kiemen und Lunge", "Lunge und Haut", "Lunge und Haut"];
+  const ORT = ["Wasser", "Wasser", "Wasser", "Wasser", "Wasser und Ufer", "Land"];
+  Modul.makeSchritte($("#froschSim"), {
+    steps: [
+      "Im zeitigen Frühjahr legt das Grasfrosch-Weibchen einen <b>Laichballen</b> ins flache Wasser. Jedes Ei steckt in einer durchsichtigen Hülle.",
+      "Aus den Eiern schlüpfen <b>Kaulquappen</b>. Sie haben einen Ruderschwanz und atmen mit <b>Kiemen</b> – wie Fische.",
+      "Die Kaulquappe wächst. Zuerst erscheinen die <b>Hinterbeine</b>.",
+      "Dann brechen die <b>Vorderbeine</b> durch. Im Körper entsteht eine <b>Lunge</b>: Die Kaulquappe schwimmt jetzt oft nach oben und schnappt Luft.",
+      "Der Schwanz wird immer kürzer, die Kiemen verschwinden. Aus der Kaulquappe ist ein winziger Frosch geworden.",
+      "Der junge Frosch geht an Land. Er atmet mit der <b>Lunge</b> und durch die feuchte <b>Haut</b>. Diese Verwandlung heißt Metamorphose."
+    ],
+    ms: 3200,
+    zeige(i){
+      const k = Math.max(0, i);
+      S.forEach((g, j) => { g.style.opacity = j === k ? 1 : 0; });
+      setText(atm, ATM[k]); setText(ort, ORT[k]);
+      setText(text, ["Laichballen", "Kaulquappe mit Kiemen", "Hinterbeine wachsen", "Vorderbeine und Lunge entstehen", "Der Schwanz bildet sich zurück", "Junger Frosch an Land"][k]);
+    }
+  }, "frosch");
+})();
+
+/* ---------- Station 3: wechselwarm und gleichwarm ---------- */
+(function(){
+  const r = $("#tempR"), chip = $("#tempChip"), obs = $("#tempObs");
+  const id = "temp"; register(id, "#tempR", "Versuch am Bildschirm: Körpertemperatur von Eidechse und Fuchs bei Kälte und Wärme");
+  const X = t => 248 + t * 5.4, Y = t => 246 - t * 4.8;
+  let kalt = false, warm = false, bewegt = false;
+  function zeig(){
+    const t = +r.value, f = (t - 5) / 30;
+    setText(chip, t + " °C"); chip.className = "chip" + (t <= 10 ? "" : t >= 28 ? " warn" : " ok");
+    setText($("#tEchseT"), t + " °C");
+    $("#tMarkE").setAttribute("cx", X(t)); $("#tMarkE").setAttribute("cy", Y(t)); $("#tMarkF").setAttribute("cx", X(t));
+    $("#tLinie").setAttribute("x1", X(t)); $("#tLinie").setAttribute("x2", X(t));
+    $("#tHimmel").setAttribute("fill", `rgb(${Math.round(214 + 41 * f)},${Math.round(228 + 14 * f)},${Math.round(240 - 44 * f)})`);
+    $("#tSonne").setAttribute("r", (10 + 16 * f).toFixed(1)); $("#tSonne").setAttribute("opacity", (.3 + .7 * f).toFixed(2));
+    if (!bewegt) return;
+    setText(obs, t <= 10 ? "Kalt! Der Körper der Eidechse ist fast so kalt wie die Luft. Sie ist starr und kann kaum laufen. Der Fuchs bleibt etwa 38 bis 39 °C warm." :
+      t < 28 ? "Die Eidechse wird mit der Luft wärmer und beweglicher. Der Fuchs hat weiter etwa 38 bis 39 °C." :
+      "Warm! Jetzt ist die Eidechse flink. Ihr Körper ist etwa so warm wie die Umgebung. Der Fuchs hat immer noch etwa 38 bis 39 °C.");
+    if (t <= 8) kalt = true; if (t >= 32) warm = true;
+    if (kalt && warm) { solve(id); setText(obs, obs.textContent + " ✅ Du hast beide Tiere bei Kälte und bei Wärme verglichen."); }
+  }
+  r.addEventListener("input", () => { bewegt = true; zeig(); }); zeig();
+})();
+
+Modul.plus(() => {
+  Modul.makeMC($("#mc-diagramm"), [
+    {q: "Lies im Diagramm ab: Wie warm ist der Körper der Eidechse bei 10 °C Außentemperatur?", o: ["etwa 10 °C", "etwa 38 °C", "etwa 25 °C", "0 °C"], a: 0, e: "Gehe bei 10 °C senkrecht nach oben bis zur Linie der Eidechse. Dort liest du links etwa 10 °C ab."},
+    {q: "Welche Je-desto-Aussage passt zum Diagramm?", o: ["Je wärmer es draußen ist, desto wärmer ist der Körper der Eidechse.", "Je wärmer es draußen ist, desto kälter ist der Körper des Fuchses.", "Je kälter es draußen ist, desto wärmer ist der Körper der Eidechse.", "Je wärmer es draußen ist, desto wärmer ist der Körper des Fuchses."], a: 0, e: "Die Linie der Eidechse steigt an. Die Linie des Fuchses verläuft waagrecht: Seine Körpertemperatur bleibt gleich."}
+  ], "mcd", {t: "Diagramm lesen · M7"});
+});
+
+/* ---------- Station 4: heimische Tiere zuordnen ---------- */
+const KLASSEN_MZ = ["Fische", "Amphibien", "Reptilien", "Vögel", "Säugetiere"];
+Modul.makeSort($("#sortTiere1"), {
+  buckets: KLASSEN_MZ,
+  items: [{t: "Bachforelle", b: 0}, {t: "Hecht", b: 0}, {t: "Grasfrosch", b: 1}, {t: "Erdkröte", b: 1}, {t: "Zauneidechse", b: 2}, {t: "Ringelnatter", b: 2}, {t: "Amsel", b: 3}, {t: "Stockente", b: 3}, {t: "Reh", b: 4}, {t: "Igel", b: 4}],
+  cols: 150
+}, "sortTiere1");
+
+/* ---------- Station 4: Bestimmungshilfe ---------- */
+(function(){
+  // a = richtige Antworten auf die vier Fragen (true = Ja), h = Hinweis bei falscher Antwort, e = Ergebnis
+  const TIERE = [
+    {n: "Amsel", s: "tAmsel", f: ["schwarzes Gefieder, gelber Schnabel", "legt Eier in ein Nest und brütet sie aus", "atmet mit Lungen"], a: [true],
+     h: ["Sieh dir das Bild an: Der Körper der Amsel ist mit Federn bedeckt."], e: "Federn hat nur ein Vogel: Die Amsel gehört zu den Vögeln."},
+    {n: "Fuchs", s: "tFuchs", f: ["rotbraunes Fell", "bringt lebende Junge zur Welt", "die Jungen trinken Milch"], a: [false, true],
+     h: ["Der Fuchs hat keine Federn. Sein Körper ist mit einem Fell bedeckt.", "Das Fell des Fuchses besteht aus Haaren."], e: "Ein Fell aus Haaren haben nur Säugetiere: Der Fuchs ist ein Säugetier."},
+    {n: "Bachforelle", s: "tForelle", f: ["Haut mit Schuppen und Schleimschicht", "schwimmt mit Flossen", "atmet mit Kiemen"], a: [false, false, true],
+     h: ["Federn hat die Forelle nicht. Ihre Haut trägt Schuppen.", "Haare hat die Forelle nicht. Ihre Haut trägt Schuppen.", "Lies den Steckbrief: Die Forelle schwimmt mit Flossen und atmet mit Kiemen."], e: "Flossen und Kiemen: Die Bachforelle ist ein Fisch."},
+    {n: "Zauneidechse", s: "tEidechse", f: ["trockene Haut mit Hornschuppen", "vier Beine und ein langer Schwanz", "atmet mit Lungen"], a: [false, false, false, true],
+     h: ["Die Eidechse hat keine Federn, sondern Schuppen.", "Die Eidechse hat keine Haare, sondern Schuppen.", "Die Eidechse hat Beine statt Flossen und atmet mit Lungen.", "Lies den Steckbrief: Die Haut der Eidechse ist trocken und mit Hornschuppen bedeckt."], e: "Trockene Haut mit Hornschuppen: Die Zauneidechse ist ein Reptil."},
+    {n: "Bergmolch", s: "tMolch", f: ["nackte, feuchte Haut ohne Schuppen", "vier Beine und ein langer Schwanz", "erwachsene Tiere atmen mit Lungen und durch die Haut"], a: [false, false, false, false],
+     h: ["Der Molch hat keine Federn. Seine Haut ist nackt.", "Der Molch hat keine Haare. Seine Haut ist nackt.", "Der erwachsene Molch hat Beine statt Flossen und atmet mit Lungen.", "Lies den Steckbrief: Die Haut des Molchs ist nackt und feucht – ohne Schuppen."], e: "Nackte, feuchte Haut: Der Bergmolch ist ein Amphibium – auch wenn er einer Eidechse ähnlich sieht."}
+  ];
+  const id = "bestimmen"; register(id, "#best", "Bestimmungshilfe: fünf heimische Tiere mit Ja-Nein-Fragen bestimmen");
+  const baum = $("#bestBaum"), rows = $$("li", baum), fb = $("#bestFb"), next = $("#bestNext");
+  const fertig = new Set();
+  let n = 0, q = 0, ende = false;
+  function zeichne(){
+    rows.forEach((r, i) => {
+      const akt = !ende && i === q;
+      r.classList.toggle("aktiv", akt); r.classList.toggle("fertig", i < q || (ende && i === q)); r.classList.toggle("gesperrt", i > q);
+      $$("button", r).forEach(b => { b.disabled = !akt; });
+    });
+  }
+  function lade(){
+    const t = TIERE[n]; q = 0; ende = false;
+    passe($("#bestUse"), t.s, 6, 6, 268, 138);
+    setText($("#bestName"), t.n); setText($("#bestZahl"), `Tier ${n + 1} von ${TIERE.length}`);
+    $("#bestFakten").innerHTML = t.f.map(x => `<li>${esc(x)}</li>`).join("");
+    $$("button", baum).forEach(b => b.classList.remove("falsch", "richtig"));
+    $$(".best-ziel span", baum).forEach(s => s.classList.remove("treffer"));
+    fb.className = "fb"; next.disabled = true; next.textContent = "Nächstes Tier →"; zeichne();
+  }
+  rows.forEach((r, i) => $$("button", r).forEach(b => b.addEventListener("click", () => {
+    if (ende || i !== q) return;
+    const t = TIERE[n], ja = b.dataset.a === "1";
+    if (ja !== t.a[i]) { b.classList.add("falsch"); b.disabled = true; fb.className = "fb show bad"; fb.textContent = "❌ " + t.h[i]; return; }
+    b.classList.add("richtig");
+    if (ja || i === rows.length - 1) {
+      ende = true; fertig.add(n);
+      const ziel = $(`.best-ziel span[data-k="${ja ? [3, 4, 0, 2][i] : 1}"]`, r); if (ziel) ziel.classList.add("treffer");
+      fb.className = "fb show ok"; fb.textContent = "✅ " + t.e + (fertig.size === TIERE.length ? " 🎉 Du hast alle fünf Tiere bestimmt!" : "");
+      next.disabled = false; next.textContent = n < TIERE.length - 1 ? "Nächstes Tier →" : "↺ Noch einmal von vorn";
+      if (fertig.size === TIERE.length) solve(id);
+    } else { q++; fb.className = "fb"; }
+    zeichne();
+  })));
+  next.addEventListener("click", () => { n = (n + 1) % TIERE.length; lade(); });
+  lade();
+})();
+
+/* ---------- Station 5: knifflige Fälle ---------- */
+(function(){
+  const F = [
+    {a: 4, ok: "Fell und Milch für die Jungen gibt es nur bei Säugetieren. Die Fledermaus ist das einzige Säugetier, das richtig fliegen kann.", f: {3: "Vögel haben Federn und legen Eier. Die Fledermaus hat ein Fell und säugt ihr Junges."}},
+    {a: 2, ok: "Trockene Hornschuppen und Lungen: Die Blindschleiche ist ein Reptil. Sie ist keine Schlange, sondern eine Echse ohne Beine – und blind ist sie auch nicht.", f: {1: "Amphibien haben eine nackte, feuchte Haut. Die Haut der Blindschleiche ist trocken und schuppig.", 0: "Fische atmen mit Kiemen. Die Blindschleiche atmet mit Lungen."}},
+    {a: 4, ok: "Lunge, lebendes Junges, Milch: Der Delfin ist ein Säugetier. Haare hat er fast keine – eine dicke Fettschicht hält ihn warm.", f: {0: "Fische atmen mit Kiemen und legen Laich. Der Delfin atmet mit Lungen und säugt sein Junges."}},
+    {a: 3, ok: "Federn, Schnabel und Eier mit Kalkschale: Der Pinguin ist ein Vogel. Fliegen kann er nicht – dafür „fliegt“ er unter Wasser.", f: {4: "Säugetiere haben Haare und säugen ihre Jungen. Der Pinguin hat Federn und legt Eier.", 0: "Fische haben Schuppen und Kiemen. Der Pinguin hat Federn und atmet mit Lungen."}}
+  ];
+  const id = "faelle"; register(id, "#faelle", "Knifflige Fälle: Fledermaus, Blindschleiche, Delfin und Pinguin richtig einordnen");
+  const geloest = new Set();
+  $$("#faelle .fall").forEach((karte, i) => {
+    const box = $(".wahl", karte), fb = $(".fb", karte), f = F[i];
+    box.innerHTML = KLASSEN.map((k, j) => `<button type="button" data-k="${j}">${k}</button>`).join("");
+    $$("button", box).forEach(b => b.addEventListener("click", () => {
+      const k = +b.dataset.k;
+      if (k === f.a) {
+        $$("button", box).forEach(x => { x.disabled = true; }); b.classList.add("richtig");
+        const v = verm[i] == null ? "" : verm[i] === f.a ? " Deine Vermutung aus Station 1 war richtig!" : ` In Station 1 hattest du „${KLASSEN[verm[i]]}“ vermutet – jetzt weißt du es genau.`;
+        fb.className = "fb show ok"; fb.textContent = "✅ " + KLASSEN[f.a] + "! " + f.ok + v;
+        geloest.add(i); if (geloest.size === F.length) solve(id);
+      } else {
+        b.disabled = true; b.classList.add("falsch"); fb.className = "fb show bad";
+        fb.textContent = "❌ " + (f.f[k] || "Das passt nicht zu den Merkmalen. Vergleiche Haut, Atmung und Fortpflanzung mit den Steckbriefen aus Station 3.");
+      }
+    }));
+  });
+  vermZeigen();
+})();
+
+Modul.makeSort($("#sortMolch"), {
+  buckets: ["Bergmolch (Amphibium)", "Zauneidechse (Reptil)"],
+  items: [{t: "nackte, feuchte Haut", b: 0}, {t: "legt Eier ins Wasser", b: 0}, {t: "Larven atmen mit Kiemen", b: 0}, {t: "trockene Haut mit Hornschuppen", b: 1}, {t: "legt Eier mit Schale an Land", b: 1}, {t: "sonnt sich gern auf warmen Steinen", b: 1}],
+  cols: 180
+}, "sortMolch");
+
+/* ---------- Station 6: Training ---------- */
+Modul.makeGap($("#gapTiere"), [
+  ["Alle Wirbeltiere haben ein Innenskelett mit einer ", {g: "Wirbelsäule"}, ". Ihr Körper ist in Kopf, ", {g: "Rumpf"}, " und Schwanz gegliedert."],
+  ["Fische atmen mit ", {g: "Kiemen"}, ". Ihre Haut trägt ", {g: "Schuppen"}, " und eine Schleimschicht."],
+  ["Amphibien haben eine nackte, ", {g: "feuchte"}, " Haut. Ihre Larven heißen ", {g: "Kaulquappen"}, "."],
+  ["Vögel tragen ", {g: "Federn"}, ". Säugetiere haben Haare und ", {g: "säugen"}, " ihre Jungen."]
+], "gapTiere", ["Panzer", "Raupen"]);
+
+Modul.makePaare($("#paareBegriffe"), [
+  ["wechselwarm", "so warm wie die Umgebung"],
+  ["gleichwarm", "immer fast gleich warm"],
+  ["Laich", "Eier ohne Schale im Wasser"],
+  ["Kaulquappe", "Larve des Frosches"],
+  ["Brutpflege", "Eltern versorgen ihre Jungen"],
+  ["Wirbel", "Knochen der Wirbelsäule"]
+], "paareBegriffe");
+
+Modul.makeTF($("#tf"), [
+  ["Alle Wirbeltiere haben eine Wirbelsäule.", true],
+  ["Die Fledermaus ist ein Vogel, weil sie fliegen kann.", false],
+  ["Amphibien atmen als Larven mit Kiemen und als erwachsene Tiere mit Lungen.", true],
+  ["Reptilien haben eine nackte, feuchte Haut.", false],
+  ["Vögel und Säugetiere sind gleichwarm.", true],
+  ["Fische legen Eier mit einer harten Kalkschale.", false],
+  ["Der Delfin atmet mit Lungen.", true]
+], "tf");
+
+Modul.makeSort($("#sortTiere2"), {
+  buckets: KLASSEN_MZ,
+  items: [{t: "Karpfen", b: 0}, {t: "Feuersalamander", b: 1}, {t: "Bergmolch", b: 1}, {t: "Kreuzotter", b: 2}, {t: "Blindschleiche", b: 2}, {t: "Mäusebussard", b: 3}, {t: "Buntspecht", b: 3}, {t: "Eichhörnchen", b: 4}, {t: "Fledermaus", b: 4}, {t: "Maulwurf", b: 4}],
+  cols: 150
+}, "sortTiere2");
+
+Modul.makeCrossword($("#cw"), {
+  words: [
+    {w: "WIRBELSAEULE", r: 0, c: 1, d: "d", q: "Sie zieht sich durch den Rücken aller Wirbeltiere."},
+    {w: "SAEUGETIER", r: 7, c: 0, d: "a", q: "Tier mit Haaren, das seine Jungen mit Milch ernährt."},
+    {w: "KAULQUAPPE", r: 2, c: 3, d: "d", q: "Larve des Frosches."},
+    {w: "REPTILIEN", r: 3, c: 7, d: "d", q: "Klasse der Eidechsen und Schlangen."},
+    {w: "AMPHIBIEN", r: 0, c: 5, d: "d", q: "Klasse der Frösche, Kröten und Molche."},
+    {w: "LAICH", r: 0, c: 4, d: "a", q: "Eier von Fischen und Fröschen im Wasser."},
+    {w: "FEDERN", r: 11, c: 0, d: "a", q: "Daran erkennst du jeden Vogel."},
+    {w: "KIEMEN", r: 9, c: 6, d: "a", q: "Damit atmen Fische."},
+    {w: "RUMPF", r: 7, c: 9, d: "d", q: "Körperabschnitt zwischen Kopf und Schwanz."},
+    {w: "SCHUPPEN", r: 2, c: 11, d: "d", q: "Sie bedecken die Haut von Fisch und Eidechse."}
+  ],
+  sol: [[7, 0], [9, 6], [11, 3], [10, 1], [8, 1], [6, 7], [7, 6]], solWord: "SKELETT"
+}, "cw");
+
+Modul.makeOpen($("#open"), [
+  {q: "Nenne zwei Merkmale, die alle Wirbeltiere gemeinsam haben.",
+   m: "Alle Wirbeltiere haben ein Innenskelett mit einer Wirbelsäule. Ihr Körper ist in Kopf, Rumpf und Schwanz gegliedert. Die meisten haben außerdem vier Gliedmaßen.",
+   k: ["wirbelsäule|innenskelett|skelett", "kopf|rumpf|schwanz|gegliedert", "gliedmaßen|beine"], min: 2},
+  {q: "Vergleiche Fisch und Vogel: Womit ist ihr Körper bedeckt, und womit atmen sie?",
+   m: "Der Fisch hat Schuppen mit einer Schleimschicht und atmet mit Kiemen. Der Vogel hat Federn und atmet mit Lungen.",
+   k: ["schuppen|schleim", "kiemen", "federn|gefieder", "lunge"], min: 3},
+  {q: "Die Fledermaus kann fliegen. Erkläre mit zwei Merkmalen, warum sie trotzdem kein Vogel ist.",
+   m: "Die Fledermaus hat ein Fell und keine Federn. Sie legt keine Eier, sondern bringt lebende Junge zur Welt und säugt sie mit Milch. Deshalb ist sie ein Säugetier.",
+   k: ["fell|haare", "säugt|milch|gesäugt", "lebend|keine eier|junge zur welt", "säugetier"], min: 2}
+], "open", "Lies noch einmal die Merke-Kästen in Station 2, 3 und 5.");
+
+Modul.plus(() => {
+  Modul.makeOpen($("#openM"), [
+    {q: "Forscher entdecken ein unbekanntes Tier. Steckbrief: nackte, feuchte Haut · vier Beine · die Jungen leben mit Kiemen im Wasser · die Erwachsenen atmen mit Lungen. Zu welcher Klasse gehört es? Begründe mit den Merkmalen.",
+     m: "Das Tier ist ein Amphibium. Dafür sprechen die nackte, feuchte Haut und die Entwicklung: Die Jungen atmen im Wasser mit Kiemen, die erwachsenen Tiere mit Lungen.",
+     k: ["amphib|lurch", "haut|nackt|feucht", "kiemen|lunge|larve|entwicklung"]},
+    {q: "Das Schnabeltier lebt in Australien. Es legt Eier, hat aber ein Fell und ernährt seine Jungen mit Milch. Begründe, zu welcher Wirbeltierklasse es gehört.",
+     m: "Das Schnabeltier ist ein Säugetier. Entscheidend sind das Fell und die Milch für die Jungen – beides gibt es nur bei Säugetieren. Dass es Eier legt, ist eine seltene Ausnahme.",
+     k: ["säugetier|säuger", "fell|haare", "milch|säugt"], min: 2}
+  ], "openM", "Vergleiche die Merkmale mit den Steckbriefen der fünf Klassen in Station 3.");
+});
+
+/* ---------- Station 7: Profi-Check ---------- */
+Modul.makeQuiz($("#quiz"), [].concat(MC.s1, MC.s2, MC.s3, MC.s4, MC.s5, MC.train, [
+  {q: "Wie heißt die Larve des Frosches?", o: ["Kaulquappe", "Raupe", "Made", "Puppe"], a: 0, e: "Aus dem Laich schlüpfen Kaulquappen. Sie verwandeln sich später in Frösche."},
+  {q: "Zu welcher Klasse gehört der Feuersalamander?", o: ["Amphibien", "Reptilien", "Fische", "Säugetiere"], a: 0, e: "Seine Haut ist nackt und feucht, seine Larven leben im Wasser: ein Amphibium."},
+  {q: "Welches dieser Tiere ist ein Säugetier?", o: ["Fledermaus", "Pinguin", "Kreuzotter", "Karpfen"], a: 0, e: "Die Fledermaus hat ein Fell und säugt ihr Junges."},
+  {q: "Womit atmet eine erwachsene Erdkröte?", o: ["mit Lungen und durch die Haut", "mit Kiemen", "nur durch den Mund", "mit Lungen und Kiemen zugleich"], a: 0, e: "Nur die Kaulquappen atmen mit Kiemen. Erwachsene Amphibien atmen mit Lungen und durch die feuchte Haut."},
+  {q: "Wie nennt man die Eier, die Fische und Amphibien ins Wasser legen?", o: ["Laich", "Kokon", "Nest", "Puppen"], a: 0, e: "Laich hat keine feste Schale. An Land würde er austrocknen."},
+  {q: "Welche Tiere legen Eier mit einer harten Kalkschale?", o: ["Vögel", "Fische", "Amphibien", "Säugetiere"], a: 0, e: "Die Kalkschale schützt das Vogelei. Die Eltern brüten es aus."},
+  {q: "Welches dieser Tiere ist kein Wirbeltier?", o: ["Regenwurm", "Forelle", "Fledermaus", "Blindschleiche"], a: 0, e: "Der Regenwurm hat keine Knochen und keine Wirbelsäule. Die Blindschleiche sieht nur aus wie ein Wurm – sie ist ein Reptil."}
+]), "quiz", "Wirbeltier-Profi");
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

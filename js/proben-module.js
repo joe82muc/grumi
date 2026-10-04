@@ -47,9 +47,12 @@
     {
       key: "nt7", subject: "Natur und Technik", stufen: [7],
       listPath: "/api/nt7/list", unlockPath: "/api/nt7/teacher/unlock",
-      /* Die NT-Übersicht zeigt die Proben nur in 7M */
-      klasse: function () { return "7M"; }, link: function () { return "7M/NT/lehrer.html"; },
-      schueler: function (t) { return "7M/NT/probe.html?probe=" + (/-2$/.test(t.id) ? "2" : "1"); }
+      /* Proben 1 bis 4 gibt es je Zug (t.zug = "R" oder "M"); die beiden ersten Luft-Proben sind für 7M */
+      klasse: function (t) { return t.zug ? "7" + t.zug : "7M"; }, link: function () { return "7M/NT/lehrer.html"; },
+      schueler: function (t) {
+        return t.zug ? "7M/NT/probe.html?test=" + encodeURIComponent(t.id) + "&zug=" + t.zug
+          : "7M/NT/probe.html?probe=" + (/-2$/.test(t.id) ? "2" : "1");
+      }
     },
     {
       /* Der Argumentationstrainer kennt keine Freischaltung - er ist

@@ -191,6 +191,17 @@ Nicht dabei: Mathe und WiB (so gewünscht), Proben (eigene Freischaltung), Argum
   `klasse-rat.json`, gespiegelt nach Upstash „grumiproben“. Löschfristen: Heft 60 Tage nach dem Termin, Klassenrat
   ab 1. September alles aus dem alten Schuljahr. An die KI gehen nur Jahrgangsstufe, Thema und Text.
 
+## Stand 04.10.2026, später: Natur und Technik 7 für alle Themenbereiche
+
+Einzelheiten: `7M/NT/Fortschritt/` (`ARBEITSMODUS.md`, `MODULPLAN.md`, `BAUANLEITUNG.md`, `README.md`).
+
+- **Übersicht NT 7** (7M und 7R) zeigt fünf Themenbereiche mit Modulen, Fortschritt und Proben. Neu ist das
+  **Freischalten je Klasse**: Verwaltung → Klasse → Natur und Technik → „Themen und Module freischalten“
+  (`nt7-verwaltung.js`, Server `nt7-freigabe.js`). Die fünf ersten Luft-Module bleiben für alle offen.
+- **Neue Module** mit Aufgaben auf zwei Niveaus (M7-Aufgaben sind in 7R freiwillig): „Brände verhindern und löschen“ (`brand-schutz.html`), „Oxidation: Rost, Glut und braune Äpfel“ (`oxidation.html`), „Atommodelle: von Demokrit bis Rutherford“ (`atommodelle.html`), „Wirbeltiere: fünf Klassen“ (`wirbeltiere.html`), „Der Weg der Luft: Atmungsorgane“ (`atmungsorgane.html`), „Blut: Was fließt da eigentlich?“ (`blut.html`), „Herz und Kreislauf gesund halten“ (`herz-gesund.html`), „Der Stromkreis und sein Schaltplan“ (`stromkreis.html`), „Spannung und Stromstärke“ (`spannung-stromstaerke.html`).
+- **Proben 1 bis 4 je Zug** für NT 7 (Reiter „Proben“, Klasse 7R bzw. 7M); `js/proben-module.js` kennt den Zug einer Probe.
+- `js/lernstand.js`: Hinweis im Anmeldedialog an die Regel „im Tab angemeldet, 10 Minuten“ angepasst.
+
 ## Offen
 
 - Deutsch 7/8: Inhalte im Unterricht gegenlesen lassen (Niveau, Fachbegriffe der eingeführten Lehrwerke).
@@ -199,3 +210,5 @@ Nicht dabei: Mathe und WiB (so gewünscht), Proben (eigene Freischaltung), Argum
 - Schulleitung/Datenschutzbeauftragte über Upstash informieren (Auftragsverarbeitung).
 - Datenschutzbeauftragten über den Klassenrat-Briefkasten informieren (Freitext der Kinder, KI-Prüfung); die
   Datenschutzhinweise sind ergänzt (Stand 4.10.2026).
+- NT 7: neue Module und Proben vor dem Einsatz über „Vorschau“ gegenlesen (Niveau, Begriffe wie im Unterricht eingeführt).
+- NT 7: Videos mit Stopp-Fragen erst einbauen, wenn die Lehrkraft sie angesehen hat (Kandidaten in `7M/NT/Fortschritt/MODULPLAN.md`).
