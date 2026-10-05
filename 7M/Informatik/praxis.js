@@ -135,8 +135,33 @@ function frageFeld(inhalt, p, ok) {
 //                | { art: "zahl", frage, wert, tol: 0, einheit: "px", tipp }
 //                | { art: "wort", frage, antworten: ["192.168.0.10"], tipp }
 //                | { art: "datei", text, accept: ".png", pruefe: info => [{ ok, text }] , lies: datei => Promise(info),
-//                    ersatz: { art: "zahl" | "wort", frage, … } }      Frage zum Ergebnis, wenn die Datei hier fehlt
+//                    ersatz: { art: "zahl" | "wort", frage, … },       Frage zum Ergebnis, wenn die Datei hier fehlt
+//                    server: { pfad: "/api/inf8/excel/pruefen", aufgabe: "formeln-auf1" } }
+//                    mit server: Die Datei wird hochgeladen, ein Prüfprogramm auf dem Server prüft die Punkte, die KI
+//                    schreibt die Rückmeldung (nichts wird gespeichert). Ist der Server nicht erreichbar, prüft die
+//                    Seite selbst mit lies/pruefe.
 //                | { art: "liste", punkte: ["Ich sehe …"] } }
+// Datei an den Server schicken. Liefert die Antwort { lesbar, erfuellt, punkte, rueckmeldung, quelle } oder null,
+// wenn der Server nicht erreichbar ist (dann prüft die Seite selbst). Der Server schläft manchmal: bis 75 Sekunden warten.
+const SERVER = location.hostname.endsWith("onrender.com") ? "" : "https://englisch-9.onrender.com";
+async function hochladen(datei, server, melde) {
+  if (datei.size > 440 * 1024) return null;
+  const b64 = await new Promise((ok, fehler) => {
+    const leser = new FileReader();
+    leser.onload = () => ok(String(leser.result).replace(/^[^,]*,/, "")); leser.onerror = () => fehler(new Error("Die Datei lässt sich nicht lesen."));
+    leser.readAsDataURL(datei);
+  });
+  const ctl = new AbortController(), ende = setTimeout(() => ctl.abort(), 75000);
+  const geduld = setTimeout(() => melde("Der Server wacht gerade auf. Das kann bis zu einer Minute dauern …"), 7000);
+  try {
+    const r = await fetch(SERVER + server.pfad, {method: "POST", headers: {"Content-Type": "application/json"}, signal: ctl.signal, body: JSON.stringify({aufgabe: server.aufgabe, datei: b64})});
+    if (!r.ok) return null;
+    const d = await r.json();
+    return d && d.ok && Array.isArray(d.punkte) ? d : null;
+  } catch (_e) { return null; }
+  finally { clearTimeout(ende); clearTimeout(geduld); }
+}
+
 function makeAuftrag(box, cfg, id) {
   const istM = M.zug() === "M";
   const schritte = (istM && cfg.kurz && cfg.kurz.length ? cfg.kurz : cfg.schritte || []).map(s => typeof s === "string" ? {t: s} : s);
@@ -180,22 +205,33 @@ function makeAuftrag(box, cfg, id) {
     register(id, box, name);
     // p.ersatz: Frage zum Ergebnis (art "zahl" oder "wort") für alle, die ihre Datei hier nicht auswählen können
     // (Tablet, anderes Gerät, Browser ohne Entpacken)
-    inhalt.innerHTML = `<p class="pruef-frage">${p.text || "Wähle deine gespeicherte Datei aus. Sie wird nur hier auf dem Gerät geprüft und nicht hochgeladen."}</p>
-      <label class="btn small ghost pruef-datei">📂 Datei auswählen<input type="file" ${p.accept ? `accept="${esc(p.accept)}"` : ""} hidden></label><ul class="pruef-liste"></ul><div class="fb"></div>
+    inhalt.innerHTML = `<p class="pruef-frage">${p.text || (p.server ? "Lade deine gespeicherte Datei hoch. Sie wird geprüft, und die KI schreibt dir eine Rückmeldung. Gespeichert wird die Datei dabei nicht." : "Wähle deine gespeicherte Datei aus. Sie wird nur hier auf dem Gerät geprüft und nicht hochgeladen.")}</p>
+      <label class="btn small ghost pruef-datei">${p.server ? "📤 Datei hochladen" : "📂 Datei auswählen"}<input type="file" ${p.accept ? `accept="${esc(p.accept)}"` : ""} hidden></label><ul class="pruef-liste"></ul><div class="pruef-ki" hidden></div><div class="fb"></div>
       ${p.ersatz ? `<details class="pruef-ersatz"><summary>${esc(p.ersatzTitel || "Du hast die Datei nicht auf diesem Gerät?")}</summary><div class="pruef-ersatz-inhalt"></div></details>` : ""}`;
-    const eingabe = $("input[type=file]", inhalt), liste = $(".pruef-liste", inhalt), fb = $(".fb", inhalt);
+    const eingabe = $("input[type=file]", inhalt), liste = $(".pruef-liste", inhalt), fb = $(".fb", inhalt), ki = $(".pruef-ki", inhalt);
+    let laeuft = false;
     eingabe.addEventListener("change", async () => {
-      const datei = eingabe.files && eingabe.files[0]; if (!datei) return;
-      liste.innerHTML = ""; fb.className = "fb show mid"; fb.textContent = "Datei wird geprüft …";
+      const datei = eingabe.files && eingabe.files[0]; if (!datei || laeuft) return;
+      laeuft = true; inhalt.classList.add("prueft");
+      liste.innerHTML = ""; ki.hidden = true; fb.className = "fb show mid"; fb.textContent = p.server ? "Datei wird hochgeladen und geprüft …" : "Datei wird geprüft …";
       try {
-        const info = await (p.lies || liesBild)(datei), punkte = p.pruefe(info) || [];
+        let punkte, ok;
+        const antwort = p.server ? await hochladen(datei, p.server, text => { fb.textContent = text; }) : null;
+        if (antwort) {
+          if (!antwort.lesbar) throw new Error(antwort.rueckmeldung);
+          punkte = antwort.punkte; ok = !!antwort.erfuellt;
+          if (antwort.rueckmeldung && antwort.quelle === "ki") { ki.hidden = false; ki.innerHTML = `<b>🤖 Rückmeldung der KI:</b> ${esc(antwort.rueckmeldung)}`; }
+        } else {
+          if (p.server && !p.pruefe) throw new Error("Der Server ist gerade nicht erreichbar. Versuche es in einer Minute noch einmal.");
+          punkte = p.pruefe(await (p.lies || liesBild)(datei)) || []; ok = punkte.length > 0 && punkte.every(x => x.ok);
+          if (p.server) { ki.hidden = false; ki.textContent = "Der Server war gerade nicht erreichbar. Deine Datei wurde deshalb hier auf dem Gerät geprüft – ohne Rückmeldung der KI."; }
+        }
         liste.innerHTML = punkte.map(x => `<li class="${x.ok ? "ok" : "bad"}">${x.ok ? "✓" : "✗"} ${esc(x.text)}</li>`).join("");
-        const ok = punkte.length > 0 && punkte.every(x => x.ok);
         fb.className = "fb show " + (ok ? "ok" : "bad");
-        fb.textContent = ok ? "✅ Deine Datei erfüllt alle Punkte." : "❌ Noch nicht ganz. Verbessere die Punkte mit ✗, speichere und wähle die Datei noch einmal aus.";
+        fb.textContent = ok ? "✅ Deine Datei erfüllt alle Punkte." : "❌ Noch nicht ganz. Verbessere die Punkte mit ✗, speichere und " + (p.server ? "lade die Datei noch einmal hoch." : "wähle die Datei noch einmal aus.");
         if (ok) { solve(id); geschafft(); }
       } catch (x) { fb.className = "fb show bad"; fb.textContent = "❌ " + (x.message || "Die Datei lässt sich nicht prüfen."); }
-      eingabe.value = "";
+      laeuft = false; inhalt.classList.remove("prueft"); eingabe.value = "";
     });
     const ersatz = p.ersatz ? frageFeld($(".pruef-ersatz-inhalt", inhalt), p.ersatz, () => { solve(id); geschafft(); }) : null;
     if (M.isSolved(id)) { geschafft(); fb.className = "fb show ok"; fb.textContent = "✅ Diese Prüfung hast du schon bestanden."; }
@@ -207,7 +243,7 @@ function makeAuftrag(box, cfg, id) {
         const bytes = Uint8Array.from(atob(d.b64), c => c.charCodeAt(0)), dt = new DataTransfer();
         dt.items.add(new File([bytes], d.name));
         eingabe.files = dt.files; eingabe.dispatchEvent(new Event("change"));
-        for (let n = 0; n < 80 && !M.isSolved(id) && !/❌/.test(fb.textContent); n++) await warte(50);
+        for (let n = 0; n < (p.server ? 400 : 80) && !M.isSolved(id) && !/❌/.test(fb.textContent); n++) await warte(50);
       } else if (ersatz) { $(".pruef-ersatz", inhalt).open = true; await ersatz.loese(); }
     };
   } else {

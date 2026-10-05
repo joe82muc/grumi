@@ -60,21 +60,21 @@
       text: "Zellen, Zeilen, Spalten und erste Formeln: Du lässt Excel für dich rechnen.",
       proben: [{ R: "inf8-p3-r", M: "inf8-p3-m" }],
       module: [
-        { id: "kennenlernen", titel: "Excel kennenlernen", key: "grumi-i8-kennenlernen-v1", pc: "Excel",
+        { id: "kennenlernen", titel: "Excel kennenlernen", href: "kennenlernen.html", key: "grumi-i8-kennenlernen-v1", pc: "Excel",
           text: "Zelle, Zeile, Spalte, Zelladresse, Arbeitsblatt: Du findest dich in Excel zurecht.",
-          tags: ["Excel", "Tabelle zum Antippen"] },
-        { id: "eingeben", titel: "Daten eingeben", key: "grumi-i8-eingeben-v1", pc: "Excel",
+          tags: ["Excel", "Datei hochladen", "Tabelle zum Antippen"] },
+        { id: "eingeben", titel: "Daten eingeben", href: "eingeben.html", key: "grumi-i8-eingeben-v1", pc: "Excel",
           text: "Du legst deine erste kleine Tabelle an: Texte, Zahlen, Überschriften – und speicherst sie.",
           tags: ["Excel", "Startdatei"] },
-        { id: "formeln", titel: "Erste Formeln", key: "grumi-i8-formeln-v1", pc: "Excel",
+        { id: "formeln", titel: "Erste Formeln", href: "formeln.html", key: "grumi-i8-formeln-v1", pc: "Excel",
           text: "Plus, minus, mal, geteilt: Mit dem Gleichheitszeichen rechnet Excel für dich.",
           tags: ["Excel", "Startdatei"] },
-        { id: "kopieren", titel: "Formeln kopieren", key: "grumi-i8-kopieren-v1", pc: "Excel",
+        { id: "kopieren", titel: "Formeln kopieren", href: "kopieren.html", key: "grumi-i8-kopieren-v1", pc: "Excel",
           text: "Eine Formel schreiben, zwanzigmal benutzen: Excel passt die Zellbezüge beim Kopieren an.",
           tags: ["Excel", "Animation"] },
-        { id: "anwendung", titel: "Kleine Anwendung", key: "grumi-i8-anwendung-v1", pc: "Excel",
+        { id: "anwendung", titel: "Kleine Anwendung", href: "anwendung.html", key: "grumi-i8-anwendung-v1", pc: "Excel",
           text: "Was kostet das Klassenfest? Du baust eine Tabelle, die alles ausrechnet.",
-          tags: ["Excel", "Mini-Projekt"] }
+          tags: ["Excel", "Datei hochladen", "Probenstoff"] }
       ]
     },
     {
@@ -96,7 +96,7 @@
           tags: ["Excel", "Startdatei"] },
         { id: "miniprojekt", titel: "Mini-Projekt", key: "grumi-i8-miniprojekt-v1", pc: "Excel",
           text: "Die Abrechnung für den Pausenverkauf: deine eigene Tabelle von Anfang bis Ende.",
-          tags: ["Excel", "Mini-Projekt"] }
+          tags: ["Excel", "Datei hochladen", "Probenstoff"] }
       ]
     },
     {

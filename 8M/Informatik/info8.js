@@ -37,7 +37,9 @@ function makeEingabe(box, cfg, id) {
     if (!feld.value.trim()) { fb.className = "fb show mid"; fb.textContent = "Trag zuerst dein Ergebnis ein."; return; }
     const ok = stimmt(feld.value);
     fb.className = "fb show " + (ok ? "ok" : "bad");
-    fb.textContent = ok ? "✅ Richtig!" + (cfg.erfolg ? " " + cfg.erfolg : "") : "❌ Das passt noch nicht. " + (cfg.tipp || "Sieh noch einmal genau nach.");
+    // Formel ohne Gleichheitszeichen: fast richtig – aber für Excel wäre das nur ein Text
+    const ohneGleich = !ok && !istZahl && (cfg.antworten || []).some(a => a.charAt(0) === "=" && glatt(a) === glatt("=" + feld.value.trim()));
+    fb.textContent = ok ? "✅ Richtig!" + (cfg.erfolg ? " " + cfg.erfolg : "") : ohneGleich ? "❌ Fast! Am Anfang fehlt das Gleichheitszeichen. Ohne = ist es für Excel nur ein Text." : "❌ Das passt noch nicht. " + (cfg.tipp || "Sieh noch einmal genau nach.");
     if (ok) { save("-wert-" + id, feld.value); solve(id); }
   }
   $(".check", wrap).addEventListener("click", pruefen);
