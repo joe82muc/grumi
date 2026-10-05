@@ -97,6 +97,34 @@ function liesBild(datei) {
   });
 }
 
+/* ---------- Frage zum Ergebnis: Zahl oder Wort aus dem Programm ---------- */
+// p: { art: "zahl", frage, wert, tol, einheit, tipp, erfolg } | { art: "wort", frage, antworten: [...], tipp, erfolg }
+// Liefert { loese(), zeige(wert) }. ok(wert) wird bei der richtigen Antwort aufgerufen.
+function frageFeld(inhalt, p, ok) {
+  inhalt.innerHTML = `<label class="pruef-frage">${esc(p.frage)}</label>
+    <div class="pruef-zeile"><input type="text" class="pruef-eingabe" ${p.art === "zahl" ? 'inputmode="decimal"' : ""} autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="${esc(p.frage)}">${p.einheit ? `<span class="pruef-einheit">${esc(p.einheit)}</span>` : ""}
+    <button type="button" class="btn small check">Prüfen</button></div><div class="fb"></div>`;
+  const feld = $(".pruef-eingabe", inhalt), fb = $(".fb", inhalt);
+  // Wörter: Groß- und Kleinschreibung, Umlaute, doppelte Leerzeichen und Satzzeichen am Ende sind egal
+  const wort = v => einfach(v).replace(/[–—]/g, "-").replace(/\s*-\s*/g, "-").replace(/[.!?:;,"„“']+$/g, "").replace(/^["„“']+/g, "");
+  const stimmt = v => p.art === "zahl"
+    ? Math.abs(parseFloat(String(v).replace(/\s/g, "").replace(",", ".")) - p.wert) <= (p.tol || 0)
+    : (p.antworten || []).some(a => wort(a) === wort(v));
+  const pruefen = () => {
+    if (!feld.value.trim()) { fb.className = "fb show mid"; fb.textContent = "Trag zuerst dein Ergebnis ein."; return; }
+    const richtig = stimmt(feld.value);
+    fb.className = "fb show " + (richtig ? "ok" : "bad");
+    fb.textContent = richtig ? "✅ Richtig – dein Ergebnis stimmt." + (p.erfolg ? " " + p.erfolg : "") : "❌ Das passt noch nicht. " + (p.tipp || "Schau im Programm noch einmal nach.");
+    if (richtig) ok(feld.value);
+  };
+  $(".check", inhalt).addEventListener("click", pruefen);
+  feld.addEventListener("keydown", e => { if (e.key === "Enter") pruefen(); });
+  return {
+    zeige: wert => { feld.value = wert; },
+    loese: async () => { feld.value = p.art === "zahl" ? String(p.wert).replace(".", ",") : p.antworten[0]; $(".check", inhalt).click(); }
+  };
+}
+
 /* ---------- Praxisauftrag ---------- */
 // cfg: { titel, pc: "GIMP", zeit: "etwa 15 Minuten", ziel: "Das ist am Ende fertig …",
 //        material: [{ name: "Übungsbild", href: "assets/…", text: "herunterladen" }],
@@ -106,7 +134,8 @@ function liesBild(datei) {
 //        pruefung: { art: "frage", fragen: [{q, o, a, e}] }
 //                | { art: "zahl", frage, wert, tol: 0, einheit: "px", tipp }
 //                | { art: "wort", frage, antworten: ["192.168.0.10"], tipp }
-//                | { art: "datei", text, accept: ".png", pruefe: info => [{ ok, text }] , lies: datei => Promise(info) }
+//                | { art: "datei", text, accept: ".png", pruefe: info => [{ ok, text }] , lies: datei => Promise(info),
+//                    ersatz: { art: "zahl" | "wort", frage, … } }      Frage zum Ergebnis, wenn die Datei hier fehlt
 //                | { art: "liste", punkte: ["Ich sehe …"] } }
 function makeAuftrag(box, cfg, id) {
   const istM = M.zug() === "M";
@@ -121,7 +150,7 @@ function makeAuftrag(box, cfg, id) {
     <h3>${esc(cfg.titel || "Auftrag")}</h3>
     ${cfg.ziel ? `<p class="auftrag-ziel"><b>Ziel:</b> ${cfg.ziel}</p>` : ""}
     ${cfg.material && cfg.material.length ? `<p class="auftrag-material">${cfg.material.map(m => `<a class="btn small ghost" href="${esc(m.href)}" download>📥 ${esc(m.name)}</a>`).join(" ")}</p>` : ""}
-    <ol class="auftrag-schritte">${schritte.map((s, i) => `<li><button type="button" class="haken" data-i="${i}" aria-pressed="false" aria-label="Schritt ${i + 1} erledigt"></button><div><span>${s.t}</span>${s.bild ? `<figure><img class="zoomable" loading="lazy" src="${esc(s.bild)}" alt="${esc(s.alt || "")}"></figure>` : ""}</div></li>`).join("")}</ol>
+    <ol class="auftrag-schritte">${schritte.map((s, i) => `<li><button type="button" class="haken" data-i="${i}" aria-pressed="false" aria-label="Schritt ${i + 1} erledigt"></button><div><span>${s.t}</span>${s.bild ? `<figure><img class="zoomable" loading="lazy" src="${esc(s.bild)}" alt="${esc(s.alt || "")}"><figcaption>🔍 Zum Vergrößern antippen${s.quelle ? " · " + esc(s.quelle) : ""}</figcaption></figure>` : ""}</div></li>`).join("")}</ol>
     <div class="auftrag-hilfen"></div>
     <div class="auftrag-pruefung"><div class="pruef-kopf">✅ Fertig? Prüfe dein Ergebnis</div><div class="pruef-inhalt"></div></div>`;
   // Schritte abhaken (nur als Merkhilfe – erledigt ist der Auftrag erst mit der Ergebnisprüfung)
@@ -144,28 +173,16 @@ function makeAuftrag(box, cfg, id) {
     if (alle()) geschafft();
   } else if (p.art === "zahl" || p.art === "wort") {
     register(id, box, name);
-    inhalt.innerHTML = `<label class="pruef-frage">${esc(p.frage)}</label>
-      <div class="pruef-zeile"><input type="text" class="pruef-eingabe" ${p.art === "zahl" ? 'inputmode="decimal"' : ""} autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="${esc(p.frage)}">${p.einheit ? `<span class="pruef-einheit">${esc(p.einheit)}</span>` : ""}
-      <button type="button" class="btn small check">Prüfen</button></div><div class="fb"></div>`;
-    const feld = $(".pruef-eingabe", inhalt), fb = $(".fb", inhalt);
-    const stimmt = v => p.art === "zahl"
-      ? Math.abs(parseFloat(String(v).replace(/\s/g, "").replace(",", ".")) - p.wert) <= (p.tol || 0)
-      : (p.antworten || []).some(a => einfach(a) === einfach(v));
-    const pruefen = () => {
-      if (!feld.value.trim()) { fb.className = "fb show mid"; fb.textContent = "Trag zuerst dein Ergebnis ein."; return; }
-      const ok = stimmt(feld.value);
-      fb.className = "fb show " + (ok ? "ok" : "bad");
-      fb.textContent = ok ? "✅ Richtig – dein Ergebnis stimmt." + (p.erfolg ? " " + p.erfolg : "") : "❌ Das passt noch nicht. " + (p.tipp || "Schau im Programm noch einmal nach.");
-      if (ok) { save("-wert-" + id, feld.value); solve(id); geschafft(); }
-    };
-    $(".check", inhalt).addEventListener("click", pruefen);
-    feld.addEventListener("keydown", e => { if (e.key === "Enter") pruefen(); });
-    if (M.isSolved(id)) { feld.value = load("-wert-" + id, ""); geschafft(); }
-    M.loeser[id] = async () => { feld.value = p.art === "zahl" ? String(p.wert).replace(".", ",") : p.antworten[0]; $(".check", inhalt).click(); };
+    const f = frageFeld(inhalt, p, wert => { save("-wert-" + id, wert); solve(id); geschafft(); });
+    if (M.isSolved(id)) { f.zeige(load("-wert-" + id, "")); geschafft(); }
+    M.loeser[id] = f.loese;
   } else if (p.art === "datei") {
     register(id, box, name);
+    // p.ersatz: Frage zum Ergebnis (art "zahl" oder "wort") für alle, die ihre Datei hier nicht auswählen können
+    // (Tablet, anderes Gerät, Browser ohne Entpacken)
     inhalt.innerHTML = `<p class="pruef-frage">${p.text || "Wähle deine gespeicherte Datei aus. Sie wird nur hier auf dem Gerät geprüft und nicht hochgeladen."}</p>
-      <label class="btn small ghost pruef-datei">📂 Datei auswählen<input type="file" ${p.accept ? `accept="${esc(p.accept)}"` : ""} hidden></label><ul class="pruef-liste"></ul><div class="fb"></div>`;
+      <label class="btn small ghost pruef-datei">📂 Datei auswählen<input type="file" ${p.accept ? `accept="${esc(p.accept)}"` : ""} hidden></label><ul class="pruef-liste"></ul><div class="fb"></div>
+      ${p.ersatz ? `<details class="pruef-ersatz"><summary>${esc(p.ersatzTitel || "Du hast die Datei nicht auf diesem Gerät?")}</summary><div class="pruef-ersatz-inhalt"></div></details>` : ""}`;
     const eingabe = $("input[type=file]", inhalt), liste = $(".pruef-liste", inhalt), fb = $(".fb", inhalt);
     eingabe.addEventListener("change", async () => {
       const datei = eingabe.files && eingabe.files[0]; if (!datei) return;
@@ -175,12 +192,24 @@ function makeAuftrag(box, cfg, id) {
         liste.innerHTML = punkte.map(x => `<li class="${x.ok ? "ok" : "bad"}">${x.ok ? "✓" : "✗"} ${esc(x.text)}</li>`).join("");
         const ok = punkte.length > 0 && punkte.every(x => x.ok);
         fb.className = "fb show " + (ok ? "ok" : "bad");
-        fb.textContent = ok ? "✅ Deine Datei erfüllt alle Punkte." : "❌ Noch nicht ganz. Verbessere die Punkte mit ✗ und wähle die Datei noch einmal aus.";
+        fb.textContent = ok ? "✅ Deine Datei erfüllt alle Punkte." : "❌ Noch nicht ganz. Verbessere die Punkte mit ✗, speichere und wähle die Datei noch einmal aus.";
         if (ok) { solve(id); geschafft(); }
       } catch (x) { fb.className = "fb show bad"; fb.textContent = "❌ " + (x.message || "Die Datei lässt sich nicht prüfen."); }
       eingabe.value = "";
     });
+    const ersatz = p.ersatz ? frageFeld($(".pruef-ersatz-inhalt", inhalt), p.ersatz, () => { solve(id); geschafft(); }) : null;
     if (M.isSolved(id)) { geschafft(); fb.className = "fb show ok"; fb.textContent = "✅ Diese Prüfung hast du schon bestanden."; }
+    // Einheiten-Prüfer: legt die Lösungsdatei in das Dateifeld (window.grumiLoesungsDatei gibt es nur dort), sonst die Ersatzfrage
+    M.loeser[id] = async () => {
+      if (M.isSolved(id)) return;
+      const d = typeof window.grumiLoesungsDatei === "function" ? await window.grumiLoesungsDatei(id) : null;
+      if (d && d.b64) {
+        const bytes = Uint8Array.from(atob(d.b64), c => c.charCodeAt(0)), dt = new DataTransfer();
+        dt.items.add(new File([bytes], d.name));
+        eingabe.files = dt.files; eingabe.dispatchEvent(new Event("change"));
+        for (let n = 0; n < 80 && !M.isSolved(id) && !/❌/.test(fb.textContent); n++) await warte(50);
+      } else if (ersatz) { $(".pruef-ersatz", inhalt).open = true; await ersatz.loese(); }
+    };
   } else {
     register(id, box, name);
     const punkte = p.punkte || [];
