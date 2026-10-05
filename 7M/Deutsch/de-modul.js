@@ -63,10 +63,11 @@ function mehrGeloest(ids){
    Mit Code angemeldet: eigener Speicherstand je Kind (Schlüssel + "~code-123~"), gelöste Aufgaben gehen an die
    Lehrkraft, oben steht „Das fehlt dir noch“. Unabhängig davon bleibt „Dein Training starten“ (Name) für die
    KI-geprüften Texte des Argumentationstrainings. */
+// Nummern wie in der Übersicht und auf den Seiten („Lernmodul 2“ …); Modul 1 ist der Argumentations-Führerschein (app.js)
 const LS_MODULE = {
-  "argumente-formulieren": [1, "Argumente formulieren"], "angemessen-ausdruecken": [2, "Sich angemessen ausdrücken"],
-  "ueberzeugend-argumentieren": [3, "Überzeugend argumentieren"], "sachlich-diskutieren": [4, "Sachlich diskutieren"],
-  "tisch-duell": [5, "Tisch-Duell zu zweit"]
+  "argumente-formulieren": [2, "Argumente formulieren"], "angemessen-ausdruecken": [3, "Sich angemessen ausdrücken"],
+  "ueberzeugend-argumentieren": [4, "Überzeugend argumentieren"], "sachlich-diskutieren": [5, "Sachlich diskutieren"],
+  "tisch-duell": [6, "Tisch-Duell zu zweit"]
 };
 // Einmal anmelden: Im selben Browser-Tab gilt die Code-Anmeldung weiter, bis das Kind sich abmeldet, den Tab
 // schließt oder länger als 10 Minuten nichts tippt oder anklickt. Ein neuer Tab fragt wieder nach dem Code.
@@ -117,6 +118,19 @@ function lernstand(){
   const s = document.createElement("script");
   s.src = new URL("../../js/lernstand.js", LS_SKRIPT || location.href).href;
   s.onload = () => { if (window.Lernstand) los(); };
+  document.head.appendChild(s);
+}
+/* ---------- Freischaltung durch die Lehrkraft (themen.js, window.D7) ----------
+   Ist das Modul für die Klasse des Kindes gesperrt, verdeckt ein Hinweis die Stationen. Ältere, zwischengespeicherte
+   Seiten binden themen.js nicht selbst ein: dann wird die Liste nachgeladen. */
+const VORSCHAU = /[?&]vorschau=1/.test(location.search);
+function sperre(){
+  if (!MODUL) return;
+  const los = () => { if (window.D7) window.D7.sperre(MODUL, codeSitzung(), {anmelden: () => openLogin()}); };
+  if (window.D7) { los(); return; }
+  const s = document.createElement("script");
+  s.src = new URL("themen.js", LS_SKRIPT || location.href).href;
+  s.onload = los;
   document.head.appendChild(s);
 }
 function updateStars(){ const n = [...tasks].filter(t => solved[t]).length; const s = $("#stars"); if (s) s.textContent = `⭐ ${n} / ${tasks.size}`; if (MODUL) save("-total", tasks.size); }
@@ -313,9 +327,10 @@ function init(cfg){
 
   buildLogin(); renderWho();
   // Mit Code schon angemeldet: ohne Fenster starten; sonst Anmeldung (Code oder Name)
-  mitCodeStarten().then(ok => { if (!ok && MODUL && !session.token) openLogin(); });
+  // In der Vorschau für Lehrkräfte (?vorschau=1) gibt es keine Anmeldung und keinen Lernstand
+  mitCodeStarten().then(ok => { if (!ok && MODUL && !session.token && !VORSCHAU) openLogin(); });
 }
-function ready(){ if (Modul._onScroll) Modul._onScroll(); updateStars(); lernstand(); }
+function ready(){ if (Modul._onScroll) Modul._onScroll(); updateStars(); if (!VORSCHAU) lernstand(); sperre(); }
 
 /* ---------- Ankreuzen ---------- */
 function makeMC(container, list, idPrefix, tag){
@@ -750,6 +765,6 @@ function confetti(){
   })();
 }
 
-const Modul = window.Modul = {$, $$, esc, shuffle, norm, words, load, save, init, ready, register, solve, session, openLogin, renderWho, api, API_BASE, mitCodeStarten, abmelden, neuLaden,
+const Modul = window.Modul = {$, $$, esc, shuffle, norm, words, load, save, init, ready, register, solve, session, openLogin, renderWho, api, API_BASE, mitCodeStarten, codeSitzung, abmelden, neuLaden,
   isSolved: id => !!solved[id], makeMC, makeGap, makeSort, makeTF, makeOrder, makeMark, makeOpen, makeDuel, makeObs, makeVote, makeDiary, makeQuiz, confetti};
 })();

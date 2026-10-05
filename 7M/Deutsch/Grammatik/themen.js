@@ -4,6 +4,8 @@
  * Satzreihe und Satzgefüge, Subjekt- und Objektsatz (Gliedsätze). Plus = M-Zug, für R-Klassen freiwillig. */
 Grammatik.vorgaben({
   kurs: "d7", bereich: "Grammatik", bnr: 2, prefix: "d7-gr-", fach: "Deutsch 7", kurzPrefix: "G",
+  // Freischaltung durch die Lehrkraft je Klasse: Liste der Module in ../themen.js (window.D7)
+  liste: { name: "D7", src: "../themen.js" },
   fachHref: "../index.html", indexHref: "../index.html#grammatik", indexName: "Alle Grammatik-Themen",
   themen: [
     ["gr_01.html", "Wortarten und Pronomen"], ["gr_02.html", "Zeitformen bis Futur II"], ["gr_03.html", "Aktiv und Passiv"],

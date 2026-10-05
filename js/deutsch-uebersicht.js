@@ -1,4 +1,5 @@
-/* Deutsch 7, 8 und 9 · Übersichtsseiten: Fortschritt je Modul wie bei NT 7 (Balken, „⭐ n / m“, „Weiterlernen →“).
+/* Deutsch 8 und 9 · Übersichtsseiten: Fortschritt je Modul wie bei NT 7 (Balken, „⭐ n / m“, „Weiterlernen →“).
+ * (Deutsch 7 hat mit dem Freischalten je Klasse eine eigene Übersicht: 7M/Deutsch/uebersicht.js.)
  * Ein Modul-Link <a class="mod" data-key="grumi-d9-sb-01" data-total="10"> (oder eine Karte .skarte) liest den Stand, den js/grammatik.js
  * auf diesem Gerät speichert – mit Code angemeldet je Kind (Schlüssel + "~code-123~"). */
 (function () {

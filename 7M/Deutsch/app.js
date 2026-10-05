@@ -45,6 +45,47 @@ function writeCodeSession(st) {
 }
 function clearCodeSession() { try { localStorage.removeItem(CODE_KEY); OLD_CODE_KEYS.forEach((k) => localStorage.removeItem(k)); } catch (_e) {} }
 const DRAFT_KEY = "grumi-de7-argument-drafts-v1";
+
+/* Freischaltung durch die Lehrkraft und Lernstand der Klasse
+   Der Führerschein ist Modul 1 von „Argumentieren und diskutieren“ (themen.js, window.D7). Ist er für die Klasse des
+   Kindes gesperrt, verdeckt ein Hinweis den Arbeitsbereich. Bestandene Stufen gehen wie in den anderen Modulen an
+   den Lernstand der Klasse (Verwaltung der Lehrkraft, /api/nt9/fortschritt). */
+const PREVIEW = /[?&]vorschau=1/.test(location.search); // Vorschau für Lehrkräfte: ohne Anmeldung
+const LIST_SCRIPT = document.currentScript && document.currentScript.src;
+const STAGE_MODULE = "d7-argumentationstrainer";
+let accessFor = null; // Code, für den die Freischaltung zuletzt geprüft wurde
+function checkAccess() {
+  const code = codeSession(), who = code ? code.code : "";
+  if (accessFor === who) return;
+  accessFor = who;
+  const run = () => {
+    if (window.D7) window.D7.sperre("argumentationstrainer", codeSession(), { verstecken: ".app-layout", vor: document.querySelector(".app-layout"), anmelden: openLogin });
+  };
+  if (window.D7) { run(); return; }
+  // Ältere, zwischengespeicherte Seiten binden themen.js nicht selbst ein
+  const script = document.createElement("script");
+  script.src = new URL("themen.js", LIST_SCRIPT || location.href).href;
+  script.onload = run;
+  document.head.appendChild(script);
+}
+function reportStages() {
+  const code = codeSession();
+  if (PREVIEW || !code || !state.student || state.student.code !== code.code) return;
+  const stages = state.config.stages.filter((stage) => state.progress.stages[String(stage.id)]?.passed);
+  const key = `grumi-de7-stufen~${code.kennung}~`; // so viele Stufen kennt der Lernstand schon (je Kind auf diesem Gerät)
+  let known = "";
+  try { known = localStorage.getItem(key) || ""; } catch (_e) {}
+  if (!stages.length || known === String(stages.length)) return;
+  const katalog = {};
+  state.config.stages.forEach((stage) => { katalog[`${STAGE_MODULE}-s${stage.id}`] = [`Stufe ${stage.id}: ${stage.title}`, "Stufen"]; });
+  fetch(`${API_BASE}/api/nt9/fortschritt/melden`, {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      code: code.code, klasse: code.klasse, modul: STAGE_MODULE, geloest: stages.map((stage) => `${STAGE_MODULE}-s${stage.id}`), gesamt: state.config.stages.length, katalog,
+      meta: { bereich: "Argumentieren und diskutieren", bnr: 1, titel: "Argumentations-Führerschein", kurz: "Modul 1", nr: 1 }
+    })
+  }).then((response) => { if (response.ok) { try { localStorage.setItem(key, String(stages.length)); } catch (_e) {} } }).catch(() => {});
+}
 const WORDS = {
   1: ["weil", "denn", "deshalb", "zum Beispiel", "vergleichbar ist"],
   2: ["einerseits", "andererseits", "dafür spricht", "dagegen spricht", "insgesamt"],
@@ -132,7 +173,7 @@ async function init() {
       clearSession();
     }
   }
-  openLogin();
+  if (!PREVIEW) openLogin();
 }
 
 function bindDom() {
@@ -206,6 +247,7 @@ function renderAll() {
   renderProgress();
   dom.studentLabel.textContent = state.student ? `${state.student.firstName} · ${state.student.className}` : "Noch nicht angemeldet";
   refreshIcons();
+  checkAccess();
 }
 
 function renderTopics() {
@@ -461,6 +503,7 @@ function renderProgress() {
     return item;
   }));
   dom.licenceResult.hidden = !state.progress.licenceReady;
+  reportStages();
   refreshIcons();
 }
 

@@ -360,6 +360,12 @@
       global.NT7Verwaltung.freigabe($("vw-i7-frei"), { api: API, pw: PW, klasse: KLASSE, liste: global.INF7, pfad: "/api/inf7", ordner: "7M/Informatik/",
         worte: { titel: "Module und Einheiten", das: "die Einheit", neu: "Neue Einheiten", von: "Einheiten", plan: "Einheiten in Vorbereitung" } });
       fachLaden($("vw-fach"));
+    } else if (ANSICHT === "d7" && global.NT7Verwaltung && global.D7) {
+      // Deutsch 7: über dem Lernstand steht das Freischalten der Themenbereiche und Module (gleiche Ansicht wie NT 7)
+      teil.innerHTML = '<div id="vw-d7-frei"></div><div id="vw-fach"></div>';
+      global.NT7Verwaltung.freigabe($("vw-d7-frei"), { api: API, pw: PW, klasse: KLASSE, liste: global.D7, pfad: "/api/d7", ordner: "7M/Deutsch/",
+        worte: { titel: "Themenbereiche und Module", das: "das Modul", neu: "Alle Module", von: "Modulen", plan: "Module in Vorbereitung", ohneProben: true } });
+      fachLaden($("vw-fach"));
     } else {
       fachLaden(teil);
     }

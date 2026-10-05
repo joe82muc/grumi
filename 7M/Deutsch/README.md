@@ -14,3 +14,11 @@ Die Module 1–5 sind Selbstlernmodule ohne Gruppenarbeit; Modul 6 ist bewusst P
 Gemeinsame Bausteine der Module 2–6: `de-modul.css` und `de-modul.js` (Anmeldung „Dein Training starten“, Klick-Übungen, Markieren, Freitexte mit KI-Checkliste, Duell, Beobachtungsbogen, Lerntagebuch, Vorlesen). Bilder in `bilder/` (WebP, 1200 px); die Originale liegen außerhalb des Repos in OneDrive `7/Deutsch/Bilder`.
 
 Eine Anmeldung gilt für alle Module (localStorage `grumi-de7-argument-session-v1`). Die KI-Kontrolle läuft auf Render `englisch-9` (Repo `englisch_9`): Trainer unter `/api/de7-argument/...`, Module unter `/api/de7-argument/modul/check|duell|tagebuch` (`backend/api/deutsch7-module.js`). Ohne Server prüfen die Seiten offline nach Stichworten. Lehreransicht: `lehrer.html` (zeigt Trainer-Fassungen und Modul-Einträge).
+
+## Freischalten je Klasse und Lernfortschritt (seit 05.10.2026)
+
+- `themen.js` (`window.D7`) nennt die drei Themenbereiche (Argumentieren, Grammatik, Rechtschreibung) und ihre 20 Module an einer Stelle. Übersicht (`index.html` mit `uebersicht.js`), Modulseiten und Verwaltung lesen daraus. Neues Modul = Seite anlegen und dort eintragen.
+- Alle Module sind je Klasse zuerst gesperrt. Die Lehrkraft schaltet in der Verwaltung (`proben-verwalten.html` → Klasse → Deutsch) ganze Themenbereiche oder einzelne Module frei. Server: `/api/d7/freigabe` und `/api/d7/lehrer/freigabe[/setzen]` (Repo `englisch_9`, `nt7-freigabe.js`, Datei `d7-freigabe.json`). Ohne Code ist nichts offen.
+- Jede Modulseite prüft die Freischaltung selbst (`D7.sperre`): `de-modul.js`, `app.js` und über `Grammatik/themen.js` bzw. `Rechtschreibung/themen.js` der Baukasten `js/grammatik.js` (Vorgabe `liste`). Mit `?vorschau=1` (Link aus der Verwaltung) sieht die Lehrkraft jede Seite ohne Anmeldung.
+- Die Übersicht zeigt den Lernfortschritt gesamt, je Themenbereich und je Modul (Stand des Geräts plus Stand vom Server). Plus-Aufgaben zählen für R-Klassen nicht mit.
+- Die Lehrkraft sieht den Lernstand der Klasse im selben Reiter unter dem Freischalten. Der Führerschein meldet bestandene Stufen als „Modul 1“ (`d7-argumentationstrainer`), die Module 2 bis 6 tragen dort jetzt dieselben Nummern wie auf ihren Seiten.

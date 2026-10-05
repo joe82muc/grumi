@@ -3,7 +3,8 @@
  * Die Seite lädt js/lernstand.js und dieses Skript und ruft Grammatik.seite({...}) mit ihren Inhalten auf:
  *   { nr, titel, lead, ziele: [..], merk: [{ t, html }], fallen: [..], basis: [Aufgabe], plus: [Aufgabe] }
  * Vorgaben je Ordner (Grammatik.vorgaben, z. B. in themen.js): kurs, bereich, bnr, prefix (Lernstand-Modul = prefix + NN),
- *   themen [[Datei, Titel] …], fach („Deutsch 7“), fachHref, indexHref, kurzPrefix, ki. Ohne Vorgaben gilt Deutsch 9 Grammatik.
+ *   themen [[Datei, Titel] …], fach („Deutsch 7“), fachHref, indexHref, kurzPrefix, ki, liste ({ name, src }: Freischaltung
+ *   durch die Lehrkraft, Deutsch 7). Ohne Vorgaben gilt Deutsch 9 Grammatik.
  * Einzelseiten außerhalb der Reihe: extra: true, modul: "d9-…", basisName/plusName für eigene Abschnittsnamen.
  * Aufgabe: { typ, t (Auftrag), info?, tipp?, quali?, ... }
  *   wahl      items: [{ f?, s?, o: [..], a: Index, e? (Erklärung bei Fehler) }], mischen?
@@ -765,8 +766,27 @@
     global.addEventListener("scroll", function () { if (!wartet) { wartet = true; global.requestAnimationFrame(scrollen); } }, { passive: true });
     scrollen();
 
+    // Freischaltung durch die Lehrkraft: cfg.liste = { name, src } nennt die Kursliste (Deutsch 7: window.D7 aus
+    // ../themen.js). Ist das Thema für die Klasse des Kindes gesperrt, verdeckt ein Hinweis die Seite. Mit
+    // ?vorschau=1 (Link aus der Verwaltung) sieht die Lehrkraft die Seite ohne Anmeldung und ohne Lernstand.
+    var vorschau = Boolean(cfg.liste) && /[?&]vorschau=1/.test(global.location.search);
+    if (cfg.liste) {
+      var sperren = function () {
+        var liste = global[cfg.liste.name];
+        if (liste && liste.sperre) liste.sperre(MODUL.replace(cfg.kurs + "-", ""), s, { uebersicht: cfg.indexHref, start: WURZEL + "index.html",
+          anmelden: global.Lernstand ? function () { global.Lernstand.anmelden(); } : null });
+      };
+      if (global[cfg.liste.name]) sperren();
+      else {
+        // Ältere, zwischengespeicherte Seiten binden die Liste nicht selbst ein
+        var nachladen = doc.createElement("script");
+        nachladen.src = cfg.liste.src; nachladen.onload = sperren;
+        doc.head.appendChild(nachladen);
+      }
+    }
+
     // Lernstand mit Code (js/lernstand.js): Stand oben, gelöste Aufgaben an die Lehrkraft
-    if (global.Lernstand) {
+    if (global.Lernstand && !vorschau) {
       global.Lernstand.seite({
         kurs: cfg.kurs, bereich: cfg.bereich, bnr: cfg.bnr, modul: MODUL, nr: cfg.lsNr || cfg.nr, kurz: cfg.kurz || cfg.kurzPrefix + cfg.nr, titel: cfg.titel,
         aufgaben: karten.map(function (k) { return { id: k.id, teil: k.plus ? "Plus" : "Basis", kurz: k.kurz, text: ohneFmt(k.a.t).slice(0, 100), el: k.el }; }),

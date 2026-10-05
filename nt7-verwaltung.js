@@ -7,6 +7,7 @@
  * Auch für Informatik 7 (Module und Einheiten, 7M/Informatik/themen.js, Server /api/inf7):
  *   NT7Verwaltung.freigabe(el, { api, pw, klasse, liste: window.INF7, pfad: "/api/inf7", ordner: "7M/Informatik/",
  *                                worte: { titel, das, neu, von, plan } })
+ * und für Deutsch 7 (Themenbereiche und Module, 7M/Deutsch/themen.js, Server /api/d7; worte.ohneProben: kein Hinweis auf Proben).
  */
 (function (global) {
   "use strict";
@@ -67,7 +68,7 @@
     function zeichnen(meldung) {
       var h = '<summary>🔓 ' + esc(W.titel) + ' freischalten <small>für Klasse ' + esc(ctx.klasse) + "</small></summary>" +
         '<p class="sub" style="margin:0 0 .2rem">Offen heißt: Die Kinder der ' + esc(ctx.klasse) + " sehen " + esc(W.das) + " nach der Anmeldung mit ihrem Code in ihrer Übersicht. " +
-        esc(W.neu) + " sind zuerst gesperrt, damit du sie vorher ansehen kannst („Vorschau“). Proben schaltest du im Reiter „Proben“ frei.</p>" +
+        esc(W.neu) + " sind zuerst gesperrt, damit du sie vorher ansehen kannst („Vorschau“)." + (W.ohneProben ? "" : " Proben schaltest du im Reiter „Proben“ frei.") + "</p>" +
         '<div id="nt7f-msg">' + (meldung ? '<div class="note ' + meldung[1] + '" style="margin:.5rem 0 0">' + esc(meldung[0]) + "</div>" : "") + "</div>";
       N.THEMEN.forEach(function (t) {
         var fertig = t.module.filter(function (m) { return m.href; });
