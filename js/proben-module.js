@@ -55,6 +55,13 @@
       }
     },
     {
+      /* Informatik 7: je Modul eine Probe, in einer Fassung für 7R und für 7M (t.zug) */
+      key: "inf7", subject: "Informatik", stufen: [7],
+      listPath: "/api/inf7/list", unlockPath: "/api/inf7/teacher/unlock",
+      klasse: function (t) { return "7" + (t.zug || ""); }, link: function () { return "7M/Informatik/lehrer.html"; },
+      schueler: function (t) { return "7M/Informatik/probe.html?test=" + encodeURIComponent(t.id) + (t.zug ? "&zug=" + t.zug : ""); }
+    },
+    {
       /* Der Argumentationstrainer kennt keine Freischaltung - er ist
          immer offen. Er steht in der Verwaltung nur als Hinweis mit Link. */
       key: "de7-argument", subject: "Deutsch", noUnlock: true, stufen: [7],

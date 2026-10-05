@@ -3,6 +3,10 @@
  * Aufruf aus lernfortschritt.js:  NT7Verwaltung.freigabe(el, { api, pw, klasse })
  * Themen und Module: 7M/NT/themen.js (window.NT7). Server: /api/nt7/lehrer/freigabe (englisch_9, nt7-freigabe.js).
  * Proben werden weiter im Reiter „Proben“ freigeschaltet.
+ *
+ * Auch für Informatik 7 (Module und Einheiten, 7M/Informatik/themen.js, Server /api/inf7):
+ *   NT7Verwaltung.freigabe(el, { api, pw, klasse, liste: window.INF7, pfad: "/api/inf7", ordner: "7M/Informatik/",
+ *                                worte: { titel, das, neu, von, plan } })
  */
 (function (global) {
   "use strict";
@@ -40,7 +44,7 @@
   function post(ctx, route, body) {
     body = body || {};
     body.password = ctx.pw; body.klasse = ctx.klasse;
-    return fetch(ctx.api + "/api/nt7/lehrer/freigabe" + route, {
+    return fetch(ctx.api + (ctx.pfad || "/api/nt7") + "/lehrer/freigabe" + route, {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body)
     }).then(function (r) {
       return r.json().catch(function () { return {}; }).then(function (d) {
@@ -51,22 +55,25 @@
   }
 
   function freigabe(el, ctx) {
-    var N = global.NT7;
+    var N = ctx.liste || global.NT7;
     if (!N) { el.innerHTML = ""; return; }
+    // Bezeichnungen: NT 7 spricht von Themen und Modulen, Informatik 7 von Modulen und Einheiten
+    var W = ctx.worte || { titel: "Themen und Module", das: "das Modul", neu: "Neue Themenbereiche", von: "Modulen", plan: "Module in Vorbereitung" };
+    var ORDNER = ctx.ordner || "7M/NT/";
     stil();
     var STAND = null, offenGeklappt = true;
-    el.innerHTML = '<details class="nt7f" open><summary>🔓 Themen und Module freischalten <small>für Klasse ' + esc(ctx.klasse) + '</small></summary><div class="skel">Stand wird geladen …</div></details>';
+    el.innerHTML = '<details class="nt7f" open><summary>🔓 ' + esc(W.titel) + ' freischalten <small>für Klasse ' + esc(ctx.klasse) + '</small></summary><div class="skel">Stand wird geladen …</div></details>';
 
     function zeichnen(meldung) {
-      var h = '<summary>🔓 Themen und Module freischalten <small>für Klasse ' + esc(ctx.klasse) + "</small></summary>" +
-        '<p class="sub" style="margin:0 0 .2rem">Offen heißt: Die Kinder der ' + esc(ctx.klasse) + " sehen das Modul nach der Anmeldung mit ihrem Code in ihrer Übersicht. " +
-        "Neue Themenbereiche sind zuerst gesperrt, damit du sie vorher ansehen kannst („Vorschau“). Proben schaltest du im Reiter „Proben“ frei.</p>" +
+      var h = '<summary>🔓 ' + esc(W.titel) + ' freischalten <small>für Klasse ' + esc(ctx.klasse) + "</small></summary>" +
+        '<p class="sub" style="margin:0 0 .2rem">Offen heißt: Die Kinder der ' + esc(ctx.klasse) + " sehen " + esc(W.das) + " nach der Anmeldung mit ihrem Code in ihrer Übersicht. " +
+        esc(W.neu) + " sind zuerst gesperrt, damit du sie vorher ansehen kannst („Vorschau“). Proben schaltest du im Reiter „Proben“ frei.</p>" +
         '<div id="nt7f-msg">' + (meldung ? '<div class="note ' + meldung[1] + '" style="margin:.5rem 0 0">' + esc(meldung[0]) + "</div>" : "") + "</div>";
       N.THEMEN.forEach(function (t) {
         var fertig = t.module.filter(function (m) { return m.href; });
         var offen = fertig.filter(function (m) { return N.offen(m, t, STAND); }).length;
         h += '<div class="nt7f-thema"><div class="nt7f-kopf"><div><b>' + t.icon + " " + esc(t.titel) + "</b><small>" +
-          (fertig.length ? offen + " von " + fertig.length + " Modulen offen" : "Module in Vorbereitung") + "</small></div>" +
+          (fertig.length ? offen + " von " + fertig.length + " " + esc(W.von) + " offen" : esc(W.plan)) + "</small></div>" +
           (fertig.length ? '<div class="nt7f-knoepfe"><button class="btn btn-sm btn-ok" type="button" data-thema="' + esc(t.id) + '" data-offen="1"' + (offen === fertig.length ? " disabled" : "") + ">Alle freischalten</button>" +
             '<button class="btn btn-sm btn-ghost" type="button" data-thema="' + esc(t.id) + '" data-offen="0"' + (offen === 0 ? " disabled" : "") + ">Alle sperren</button></div>" : "") + "</div>";
         t.module.forEach(function (m, i) {
@@ -74,7 +81,7 @@
           var o = N.offen(m, t, STAND);
           h += '<div class="nt7f-zeile"><span class="nr">' + (i + 1) + "</span><span>" + esc(m.titel) + "</span>" +
             '<button class="nt7f-schalter' + (o ? " offen" : "") + '" type="button" data-modul="' + esc(m.id) + '" data-offen="' + (o ? "0" : "1") + '" aria-pressed="' + o + '">' + (o ? "✓ offen" : "🔒 gesperrt") + "</button>" +
-            '<a href="7M/NT/' + esc(m.href) + '?vorschau=1" target="_blank" rel="noopener">Vorschau ↗</a></div>';
+            '<a href="' + esc(ORDNER) + esc(m.href) + '?vorschau=1" target="_blank" rel="noopener">Vorschau ↗</a></div>';
         });
         h += "</div>";
       });
@@ -105,7 +112,7 @@
       STAND = { themen: d.themen || {}, module: d.module || {} };
       zeichnen();
     }).catch(function (x) {
-      el.querySelector("details").innerHTML = "<summary>🔓 Themen und Module freischalten</summary>" +
+      el.querySelector("details").innerHTML = "<summary>🔓 " + esc(W.titel) + " freischalten</summary>" +
         '<div class="note bad">Der Stand konnte nicht geladen werden: ' + esc(x.message) + "</div>";
     });
   }

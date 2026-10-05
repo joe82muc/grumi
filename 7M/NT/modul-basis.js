@@ -9,10 +9,14 @@
  * Mit Bezeichnungen der Übungen (register mit Element und Text) und Aufgabenkatalog für die Lehreransicht.
  * NT 7: Anmeldung mit Code über js/lernstand.js (eigener Speicherstand je Kind, Meldung an die Lehrkraft).
  * Kopien ohne die Anmeldung liegen in 9M/ und 9R/NT_9/App12_Organische_Rohstoffe (NT 9 hat fortschritt.js).
+ * Andere Kurse (Informatik 7: 7M/Informatik/themen.js) nutzen diese Datei mit: Sie setzen window.GRUMI_KURS auf
+ * eine Kursliste mit derselben Schnittstelle wie window.NT7 und den Angaben KURS, PREFIX, WORT, DAS, SPERRE, ZURUECK.
  */
 (function(){
 "use strict";
 const LS_SKRIPT = document.currentScript && document.currentScript.src;
+// Kursliste der Seite: NT 7 (themen.js) oder ein anderer Kurs (window.GRUMI_KURS)
+const KL = () => window.GRUMI_KURS || window.NT7;
 
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
@@ -105,7 +109,7 @@ let BASIS = "";
 function init(cfg){
   BASIS = cfg.key;
   // Zug des Kindes (M oder R) für die M7-Aufgaben: aus der Anmeldung oder aus dem Link der Übersicht (themen.js)
-  ZUG = window.NT7 ? window.NT7.zug(lsAnmeldung()) : "";
+  ZUG = KL() ? KL().zug(lsAnmeldung()) : "";
   // Mit Code angemeldet: eigener Stand je Kind auf geteilten Geräten
   KEY = cfg.key + (lsKennung() ? "~" + lsKennung() + "~" : ""); THEMA = cfg.thema || ""; GLOSSARY = cfg.glossary || {};
   if (cfg.api) API = (location.hostname.endsWith("onrender.com") ? "" : "https://englisch-9.onrender.com") + cfg.api;
@@ -243,9 +247,10 @@ function lsAnmeldung(){
 }
 function lsKennung(){ const s = lsAnmeldung(); return s ? s.kennung : ""; }
 function lernstand(basis){
-  const name = String(basis).replace(/^grumi-nt7-/, "").replace(/-v\d+$/, "");
+  const K = KL() || {}, kurs = K.KURS || "nt7", pre = K.PREFIX || "grumi-nt7-";
+  const name = (String(basis).indexOf(pre) === 0 ? String(basis).slice(pre.length) : String(basis)).replace(/-v\d+$/, "");
   // Nummer, Titel und Themenbereich kommen aus themen.js; die fünf ersten Module stehen zur Sicherheit auch hier
-  const reg = window.NT7 ? window.NT7.modulVon(name) : null;
+  const reg = KL() ? KL().modulVon(name) : null;
   const info = reg ? [reg.nr, reg.modul.titel] : (LS_MODULE[name] || [0, document.title.split("|")[0].trim()]);
   const bereich = reg ? reg.thema.titel : "Luft", bnr = reg ? parseInt(reg.thema.nr, 10) || 1 : 1;
   const kat = katalog(), zaehler = {};
@@ -256,7 +261,7 @@ function lernstand(basis){
     const m = meta[id] || {}, el = typeof m.el === "string" ? $(m.el) : m.el;
     return {id, teil, kurz: String(zaehler[teil]), text: kat[id][0], label: kat[id][0], el: el || null};
   });
-  const los = () => window.Lernstand.seite({kurs: "nt7", modul: "nt7-" + name, bereich, bnr, nr: info[0], kurz: "Modul " + info[0],
+  const los = () => window.Lernstand.seite({kurs, modul: kurs + "-" + name, bereich, bnr, nr: info[0], kurz: (K.WORT || "Modul") + " " + info[0],
     titel: info[1], aufgaben, anker: $("section.station"), mehrGeloest: ids => mehrGeloest(ids),
     freiwillig: a => ZUG === "R" && a.teil === "Plus"});
   if (window.Lernstand) { los(); return; }
@@ -269,7 +274,7 @@ function lernstand(basis){
    Ist das Modul für die Klasse des Kindes gesperrt, verdeckt ein Hinweis die Stationen. Erst gilt der zuletzt
    bekannte Stand des Geräts, dann der vom Server. Lernsteuerung, kein Geheimnisschutz. */
 function sperre(){
-  const N = window.NT7, reg = N ? N.modulVon(N.idAusKey(BASIS)) : null;
+  const N = KL(), reg = N ? N.modulVon(N.idAusKey(BASIS)) : null;
   if (!reg) return;
   const main = $("main"); if (!main) return;
   let box = $("#nt7Sperre");
@@ -279,27 +284,27 @@ function sperre(){
     if (!zu) { if (box) box.remove(); box = null; return; }
     if (!box) { box = document.createElement("div"); box.id = "nt7Sperre"; box.className = "wrap"; main.parentNode.insertBefore(box, main); }
     box.innerHTML = `<div class="card nt7-sperre"><div class="big">${art === "warten" ? "⏳" : art === "fehler" ? "📡" : "🔒"}</div>
-      <h2>${art === "warten" ? "Einen Moment …" : art === "fehler" ? "Das lässt sich gerade nicht prüfen" : "Dieses Modul ist noch nicht freigeschaltet"}</h2>
-      <p class="lead">${esc(text)}</p><nav class="navlinks light">${art === "fehler" ? '<a href="#" class="nochmal">↻ Noch einmal versuchen</a>' : ""}<a href="index.html">📘 Zur Übersicht NT 7</a><a href="../../index.html">🏠 Startseite</a></nav></div>`;
+      <h2>${art === "warten" ? "Einen Moment …" : art === "fehler" ? "Das lässt sich gerade nicht prüfen" : esc(N.SPERRE || "Dieses Modul ist noch nicht freigeschaltet")}</h2>
+      <p class="lead">${esc(text)}</p><nav class="navlinks light">${art === "fehler" ? '<a href="#" class="nochmal">↻ Noch einmal versuchen</a>' : ""}<a href="index.html">${esc(N.ZURUECK || "📘 Zur Übersicht NT 7")}</a><a href="../../index.html">🏠 Startseite</a></nav></div>`;
     const nochmal = $(".nochmal", box); if (nochmal) nochmal.addEventListener("click", e => { e.preventDefault(); location.reload(); });
   };
   if (N.VORSCHAU) {
-    const v = document.createElement("div"); v.className = "nt7-vorschau"; v.textContent = "👁 Vorschau für Lehrkräfte – ob die Klasse dieses Modul sieht, steht in der Verwaltung.";
+    const v = document.createElement("div"); v.className = "nt7-vorschau"; v.textContent = "👁 Vorschau für Lehrkräfte – ob die Klasse " + (N.WORT === "Einheit" ? "diese Einheit" : "dieses Modul") + " sieht, steht in der Verwaltung.";
     document.body.insertBefore(v, document.body.firstChild); return;
   }
-  const a = lsAnmeldung();
-  if (!a) { zeig(!N.offen(reg.modul, reg.thema, null), "Deine Lehrkraft schaltet es für deine Klasse frei. Melde dich mit deinem Code an, dann siehst du, was für dich offen ist."); return; }
+  const a = lsAnmeldung(), es = N.ES || "es";
+  if (!a) { zeig(!N.offen(reg.modul, reg.thema, null), "Deine Lehrkraft schaltet " + es + " für deine Klasse frei. Melde dich mit deinem Code an, dann siehst du, was für dich offen ist."); return; }
   let bekannt = false;
-  if (!reg.modul.offen) zeig(true, "Ich sehe nach, ob deine Lehrkraft das Modul für deine Klasse freigeschaltet hat.", "warten");
-  N.freigabe(a, stand => { bekannt = true; zeig(!N.offen(reg.modul, reg.thema, stand), "Deine Lehrkraft schaltet es frei, wenn ihr im Unterricht so weit seid. Frag sie, wenn du schon weiterlernen möchtest."); },
+  if (!reg.modul.offen) zeig(true, "Ich sehe nach, ob deine Lehrkraft " + (N.DAS || "das Modul") + " für deine Klasse freigeschaltet hat.", "warten");
+  N.freigabe(a, stand => { bekannt = true; zeig(!N.offen(reg.modul, reg.thema, stand), "Deine Lehrkraft schaltet " + es + " frei, wenn ihr im Unterricht so weit seid. Frag sie, wenn du schon weiterlernen möchtest."); },
     (text, wachtAuf) => { if (!bekannt && !reg.modul.offen) zeig(true, text || "Der Server antwortet gerade nicht. Versuche es gleich noch einmal.", wachtAuf ? "warten" : "fehler"); });
 }
 function ready(){
   if (Modul._onScroll) Modul._onScroll(); updateStars();
   // Ältere Module binden themen.js nicht selbst ein: nachladen, dann Lernstand und Freischaltung
   // In der Vorschau für Lehrkräfte (?vorschau=1) gibt es keine Anmeldung und keinen Lernstand
-  const weiter = () => { ZUG = ZUG || (window.NT7 ? window.NT7.zug(lsAnmeldung()) : ""); if (!(window.NT7 && window.NT7.VORSCHAU)) lernstand(BASIS); sperre(); };
-  if (window.NT7) { weiter(); return; }
+  const weiter = () => { ZUG = ZUG || (KL() ? KL().zug(lsAnmeldung()) : ""); if (!(KL() && KL().VORSCHAU)) lernstand(BASIS); sperre(); };
+  if (KL()) { weiter(); return; }
   const s = document.createElement("script");
   s.src = new URL("themen.js", LS_SKRIPT || location.href).href;
   s.onload = weiter; s.onerror = () => lernstand(BASIS);
@@ -830,5 +835,5 @@ function confetti(){
 
 const Modul = window.Modul = {$, $$, esc, shuffle, clamp, fmt, norm, setText, reduced, onVisible, load, save, init, ready, register, solve,
   isSolved: id => !!solved[id], katalog, mehrGeloest, askKI, makeMC, makeGap, makeSort, makeTF, makeOrder, makeLabel, makeHotspots, makeCrossword, makeOpen, makeQuiz, confetti,
-  plus, zug: () => ZUG, makePaare, makeSchritte, makeFilm};
+  plus, zug: () => ZUG, makePaare, makeSchritte, makeFilm, anmeldung: lsAnmeldung};
 })();

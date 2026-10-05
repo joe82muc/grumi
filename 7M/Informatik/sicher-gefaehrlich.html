@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Sicher oder gefährlich? | Informatik 7</title>
+<link rel="stylesheet" href="../NT/modul-basis.css">
+<link rel="stylesheet" href="einheit.css">
+<style>
+/* lange Adressen und Wörter dürfen umbrechen (Handybreite) */
+.q-title,.mark,.nachricht .n-text{overflow-wrap:anywhere;word-break:break-word}
+
+/* Station 1: Lage über der Nachricht, Chat-Zeilen */
+.lage{margin:0 0 10px;padding:7px 12px;border-left:4px solid #9ccbee;background:var(--sky-l);border-radius:0 10px 10px 0;font-weight:600;font-size:.97rem}
+.nachricht .zeile{margin:0 0 6px}
+.nachricht .zeile:last-child{margin-bottom:0}
+.nachricht .n-adresse{text-decoration:underline}
+.nachricht .n-art{white-space:nowrap}
+
+/* Station 3: Adresszeile und Auflösung nach der Antwort */
+.adressbild{display:block;width:100%;max-width:460px;height:auto;margin:6px auto 0}
+.adressbild text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.adressbild .mono{font-family:Consolas,"Courier New",ui-monospace,monospace}
+.regel{background:#fff8e1;border:2px solid var(--gold);border-radius:12px;padding:12px 14px;font-size:1.05rem;margin:0 0 12px}
+.nummern{counter-reset:n;list-style:none;margin:10px 0;padding:0;display:grid;gap:8px}
+.nummern li{counter-increment:n;display:flex;gap:10px;align-items:flex-start}
+.nummern li::before{content:counter(n);flex:none;width:28px;height:28px;border-radius:50%;background:var(--sky);color:#fff;font-weight:800;display:grid;place-items:center;font-size:.9rem}
+.adresszeile{display:flex;gap:10px;align-items:flex-start;max-width:560px;border:2px solid #b9c7d3;border-radius:16px;background:#f1f3f4;padding:12px 16px}
+.adresszeile .schloss{flex:none;line-height:1.7}
+.adresszeile .url{min-width:0;font:600 1.02rem/1.7 ui-monospace,Consolas,"Courier New",monospace;overflow-wrap:anywhere;word-break:break-word}
+@media (max-width:520px){.adresszeile{padding:10px 12px;gap:8px}.adresszeile .url{font-size:.82rem}}
+.u-legende{display:none;margin:8px 0 0;font-size:.95rem}
+.entscheiden.geprueft .u-legende{display:block}
+.entscheiden.geprueft .u-davor,.entscheiden.geprueft .u-danach{opacity:.5}
+.entscheiden.geprueft .u-name{background:#dbe8fb;box-shadow:0 2px 0 #0b57d0;border-radius:4px;font-weight:800;color:#0a3f94;padding:0 2px}
+.entscheiden.geprueft .u-endung{background:#fde4e0;border-radius:4px;font-weight:800;color:#a32a1f;padding:0 2px}
+
+/* Station 4: Berechtigungs-Fenster */
+.berechtigung{max-width:420px;margin:0 auto;border:1px solid var(--line);border-radius:20px;background:#fff;box-shadow:0 8px 24px rgba(20,40,60,.16);padding:18px 20px;text-align:center}
+.berechtigung .b-ic{display:grid;place-items:center;width:58px;height:58px;margin:0 auto 8px;border-radius:16px;background:var(--sky-l);font-size:2rem}
+.berechtigung .b-app{font-weight:800;font-size:1.1rem}
+.berechtigung .b-frage{margin:6px 0 0;font-size:1.08rem}
+.info-karte .big{font-size:1.7rem}
+.grid2 > .merke{margin:0}
+
+/* Station 5: Passwort-Werkstatt */
+.pw-warnung{display:flex;gap:10px;align-items:flex-start;background:#fff4dc;border:2px solid #f1d9a0;border-radius:12px;padding:10px 14px;margin:8px 0 14px;color:#6b4700;font-weight:600}
+.pw-warnung b{color:#8f2525}
+.pw-label{display:block;font-weight:800;margin:0 0 6px}
+.pw-zeile{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.pw-feld{flex:1;min-width:200px;border:2px solid var(--line);border-radius:12px;padding:12px 14px;font:700 1.15rem/1.3 ui-monospace,Consolas,"Courier New",monospace;letter-spacing:.04em}
+.pw-feld:focus{outline:none;border-color:var(--sky)}
+.pw-balken{height:14px;border-radius:99px;background:var(--line);overflow:hidden;margin:12px 0 6px}
+.pw-fuell{height:100%;width:0;border-radius:99px;background:#c5ced8;transition:width .25s,background .25s}
+.pw-stufe{font-weight:800;min-height:1.6em}
+.pw-liste{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
+.pw-liste li{display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--muted);font-weight:600}
+.pw-z{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid #c5ced8;display:grid;place-items:center;font-size:.85rem;font-weight:900;color:#fff}
+.pw-liste li.ok{border-color:#a9dcbc;background:var(--ok-l);color:#135c33}
+.pw-liste li.ok .pw-z{background:var(--ok);border-color:var(--ok)}
+.pw-liste li.nein{border-color:#f0a8a8;background:var(--bad-l);color:#8f2525}
+.pw-liste li.nein .pw-z{background:var(--bad);border-color:var(--bad)}
+.pw-satz{margin:10px 0 6px;padding:10px 12px;border-radius:10px;background:#fff;border:1px solid var(--line);font-size:1.02rem}
+.pw-satz b{color:var(--sky-d);font-size:1.1em}
+.pw-ergebnis code{display:inline-block;margin-top:2px;padding:3px 10px;border-radius:8px;background:var(--sky-l);color:var(--sky-d);font:800 1.15rem/1.4 ui-monospace,Consolas,"Courier New",monospace}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 7</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Posteingang</a>
+      <a href="#s2"><b>2</b>Warnzeichen</a>
+      <a href="#s3"><b>3</b>Link-Check</a>
+      <a href="#s4"><b>4</b>Apps</a>
+      <a href="#s5"><b>5</b>Passwort</a>
+      <a href="#s6"><b>6</b>Sichern</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">💻 Übersicht Informatik 7M</a>
+      <a href="../../7R/Informatik/index.html">💻 Übersicht Informatik 7R</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 7M / 7R · Modul 1: Internet und Sicherheit · Einheit 2</div>
+    <h1>Sicher oder gefährlich?</h1>
+    <p>Eine SMS vom Paketdienst, eine E-Mail von der Bank, eine App, die alles wissen will: Nicht jede Nachricht meint es gut mit dir. Heute prüfst du Nachrichten, Adressen und Apps wie ein Profi – und baust dir ein starkes Passwort.</p>
+    <div class="zeit">⏱ etwa 40 Minuten · am Tablet oder am PC</div>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s5">🔑 Direkt zur Passwort-Werkstatt</a>
+    </div>
+    <div class="goals">
+      <div>🎣 Ich erkenne Phishing an Warnzeichen.</div>
+      <div>🔗 Ich prüfe eine Internetadresse, bevor ich tippe.</div>
+      <div>📱 Ich erlaube einer App nur, was nötig ist.</div>
+      <div>🔑 Ich baue ein sicheres Passwort.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in dieser Einheit"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Ausprobieren</div><h2>Dein Posteingang</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag">Entscheiden</span>
+    <p class="lead">Sieben Nachrichten sind angekommen. Welche kannst du bedenkenlos öffnen, welche sind gefährlich? Lies genau und entscheide. Danach erfährst du, warum.</p>
+    <p class="hint">Drei Fragen helfen: Kenne ich den Absender? Erwarte ich diese Nachricht? Soll ich schnell etwas tippen, zahlen oder verraten?</p>
+    <div id="ent1"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Genau hinschauen</div><h2>Warnzeichen finden</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag">Stellen finden</span>
+    <p class="lead">Eine E-Mail wie die der „Musterbank“ kennst du schon aus deinem Posteingang. Das war <button class="term" data-t="phishing">Phishing</button>: Betrüger „fischen“ mit gefälschten Nachrichten nach Passwörtern und Daten.</p>
+    <p>Wer auf so einen <button class="term" data-t="link">Link</button> tippt, landet auf einer falschen Seite oder holt sich <button class="term" data-t="schadsoftware">Schadsoftware</button> aufs Gerät, die Daten <button class="term" data-t="ausspaehen">ausspäht</button>. <b>Tippe alle Stellen an, die dich misstrauisch machen.</b> Sieben Warnzeichen sind versteckt.</p>
+    <div id="mark1"></div>
+  </div>
+  <div class="karten reveal" style="margin-bottom:18px">
+    <div class="karte"><span class="ic">📨</span><h4><button class="term" data-t="spam">Spam</button></h4><p>Unerwünschte Nachrichten, die massenhaft an viele Menschen geschickt werden. Meist ist es Werbung, manchmal Betrug. Nicht antworten, einfach löschen.</p></div>
+    <div class="karte"><span class="ic">🎣</span><h4><button class="term" data-t="phishing">Phishing</button></h4><p>Gefälschte Nachrichten, mit denen Betrüger nach Passwörtern und Daten „fischen“. Sie sehen oft echt aus – darum gibt es Warnzeichen.</p></div>
+  </div>
+  <div class="grid2 reveal">
+    <div class="merke">
+      <h4>MERKE: Daran erkennst du Phishing</h4>
+      <ul>
+        <li>Absender oder Link sind falsch: Sie passen nicht zur echten Firma.</li>
+        <li>Die Anrede ist unpersönlich: „Sehr geehrter Kunde“.</li>
+        <li>Zeitdruck und Drohung: „sofort“, „sonst sperren wir“.</li>
+        <li>Die Nachricht fragt nach Passwort, PIN oder Daten – oft mit Rechtschreibfehlern.</li>
+      </ul>
+    </div>
+    <div class="merke">
+      <h4>MERKE: Das tust du</h4>
+      <ul>
+        <li>Nicht antippen. Auch nicht „nur mal schauen“.</li>
+        <li>Nichts eingeben: kein Passwort, keine PIN, keine Daten.</li>
+        <li>Löschen oder als Spam melden.</li>
+        <li>Im Zweifel Erwachsene fragen. Die Seite der Bank tippst du selbst ein – nie über den Link.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Verstehen und prüfen</div><h2>Link-Check</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <h3 style="margin-top:0">So ist eine Adresse aufgebaut</h3>
+      <svg class="adressbild" viewBox="0 0 380 176" role="img" aria-label="Eine Adresszeile mit der Adresse https://www.musterbank.example/anmelden. Die Endung .example ist rot markiert, der Name der Seite musterbank davor blau. Alles andere ist egal. Ein Pfeil zeigt: von hinten lesen.">
+        <defs>
+          <marker id="pfeilSpitze" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#3f55c4"/></marker>
+        </defs>
+        <rect x="6" y="8" width="368" height="46" rx="23" fill="#f1f3f4" stroke="#b9c7d3" stroke-width="2"/>
+        <g transform="translate(20 20)"><rect x="0" y="9" width="14" height="12" rx="3" fill="#6b7a88"/><path d="M2.5 9V6.5a4.5 4.5 0 0 1 9 0V9" fill="none" stroke="#6b7a88" stroke-width="2.4"/></g>
+        <rect x="46" y="21" width="93.6" height="22" rx="4" fill="#e3e8ee"/>
+        <rect x="139.6" y="21" width="78" height="22" rx="4" fill="#dbe8fb" stroke="#0b57d0" stroke-width="2"/>
+        <rect x="217.6" y="21" width="62.4" height="22" rx="4" fill="#fde4e0" stroke="#c0392b" stroke-width="2"/>
+        <rect x="280" y="21" width="70.2" height="22" rx="4" fill="#e3e8ee"/>
+        <g class="mono" font-size="13" font-weight="700">
+          <text x="48" y="36.5" textLength="89.6" lengthAdjust="spacing" fill="#566674">https://www.</text>
+          <text x="141.6" y="36.5" textLength="74" lengthAdjust="spacing" fill="#0a3f94">musterbank</text>
+          <text x="219.6" y="36.5" textLength="58.4" lengthAdjust="spacing" fill="#a32a1f">.example</text>
+          <text x="282" y="36.5" textLength="66.2" lengthAdjust="spacing" fill="#566674">/anmelden</text>
+        </g>
+        <g fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M48 60v6h89.6v-6" stroke="#8a99a6"/>
+          <path d="M141.6 60v6h74v-6" stroke="#0b57d0"/>
+          <path d="M219.6 60v6h58.4v-6" stroke="#c0392b"/>
+          <path d="M282 60v6h66.2v-6" stroke="#8a99a6"/>
+          <path d="M178.6 66v36" stroke="#0b57d0" stroke-dasharray="3 4"/>
+        </g>
+        <g font-size="14" font-weight="700">
+          <text x="92.8" y="86" text-anchor="middle" fill="#566674">egal</text>
+          <text x="315" y="86" text-anchor="middle" fill="#566674">egal</text>
+          <circle cx="225" cy="81" r="10" fill="#c0392b"/><text x="225" y="86" text-anchor="middle" font-size="13" fill="#fff">1</text>
+          <text x="238" y="86" fill="#a32a1f">Endung</text>
+          <circle cx="124" cy="111" r="10" fill="#0b57d0"/><text x="124" y="116" text-anchor="middle" font-size="13" fill="#fff">2</text>
+          <text x="137" y="116" fill="#0a3f94">Name der Seite</text>
+        </g>
+        <line x1="366" y1="146" x2="24" y2="146" stroke="#3f55c4" stroke-width="3" stroke-linecap="round" marker-end="url(#pfeilSpitze)"/>
+        <text x="194" y="169" text-anchor="middle" font-size="15" font-weight="800" fill="#3f55c4">von hinten lesen</text>
+      </svg>
+      <p class="hint" style="margin:10px 0 0">Was vor dem Namen steht und was nach der Endung kommt, sagt dir nicht, wem die Seite gehört.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead" style="margin-top:0">Ein Link kann überallhin führen. Darum prüfst du die Adresse, <b>bevor du tippst</b>.</p>
+      <div class="regel"><b>Lies die Adresse von hinten:</b> Direkt vor der <button class="term" data-t="endung">Endung</button> steht der Name der Seite.</div>
+      <ol class="nummern">
+        <li><span>Suche die Endung. In unseren Beispielen ist das <b>.example</b>.</span></li>
+        <li><span>Lies das Wort direkt davor. Das ist der <b>Name der Seite</b>.</span></li>
+        <li><span>Passt der Name zu der Firma, die du erwartest? Wenn nicht: Finger weg.</span></li>
+      </ol>
+      <p class="hint" style="margin-bottom:0">In unseren Beispielen enden Adressen auf <b>.example</b>. Solche Adressen gibt es nicht wirklich. Echte enden zum Beispiel auf .de oder .com.</p>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag">Entscheiden</span>
+    <p class="lead">Die echte Seite der Musterbank heißt <b>musterbank.example</b>, die des Paketdienstes <b>paketblitz.example</b>. Welche Adressen sind echt, welche gefälscht?</p>
+    <div id="ent2"></div>
+    <div class="merke">
+      <h4>MERKE</h4>
+      <ul>
+        <li>Lies die Adresse von hinten: Direkt vor der Endung steht der Name der Seite.</li>
+        <li>Auch kleine Tricks sind Fälschungen: „rn“ statt „m“, zusätzliche Wörter wie „sicherheit“.</li>
+        <li>Das Schloss 🔒 und „https“ heißen nur: Die Verbindung ist verschlüsselt. Ob die Seite echt ist, sagen sie nicht.</li>
+        <li>Halte einen Link lange gedrückt (am PC: Maus darüberhalten). Dann siehst du die Adresse dahinter.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Nachdenken</div><h2>Was wollen Apps wissen?</h2></div></div>
+  <div class="card reveal">
+    <p class="lead" style="margin-top:0">Apps und Webseiten sammeln Daten über dich. Alles zusammen ist deine <button class="term" data-t="datenspur">Datenspur</button>. Firmen verkaufen damit Werbung, die genau zu dir passt.</p>
+    <div class="info-karten">
+      <div class="info-karte"><div class="big">📍</div><h4>Wo du bist</h4><p>Standort</p></div>
+      <div class="info-karte"><div class="big">👥</div><h4>Wen du kennst</h4><p>Kontakte</p></div>
+      <div class="info-karte"><div class="big">👀</div><h4>Was du ansiehst</h4><p>Suchen, Videos, Seiten</p></div>
+    </div>
+    <p style="margin-bottom:0">Darum fragt dich jede App, was sie darf. <b>Du entscheidest.</b></p>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Entscheiden</span>
+    <p class="lead">Sechs Apps fragen nach einer <button class="term" data-t="berechtigung">Berechtigung</button>. Erlaubst du es oder lehnst du ab?</p>
+    <div id="ent3"></div>
+    <div class="merke">
+      <h4>MERKE</h4>
+      <ul>
+        <li><b>Erlaube nur, was die App für ihre Aufgabe braucht.</b></li>
+        <li>Du kannst jede Erlaubnis später in den Einstellungen wieder ändern.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Selber bauen</div><h2>Passwort-Werkstatt</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <span class="task-tag">Ausprobieren</span>
+      <p class="lead" style="margin-top:0">Baue ein Test-<button class="term" data-t="passwort">Passwort</button>, bei dem alle fünf Punkte grün werden.</p>
+      <div class="pw-warnung"><span aria-hidden="true">⚠️</span><div><b>Nimm hier KEIN echtes Passwort von dir.</b> Die Seite schickt nichts weg. Denk dir ein Test-Passwort aus, das du sonst nirgends benutzt.</div></div>
+      <div id="pwBox">
+        <label class="pw-label" for="pwFeld">Dein Test-Passwort</label>
+        <div class="pw-zeile">
+          <input id="pwFeld" class="pw-feld" type="text" name="test-passwort-uebung" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="40" placeholder="Tippe hier …">
+          <span class="chip" id="pwZahl">0 Zeichen</span>
+        </div>
+        <div class="pw-balken" aria-hidden="true"><div class="pw-fuell" id="pwFuell"></div></div>
+        <div class="pw-stufe" id="pwStufe" aria-live="polite">Tippe etwas ein.</div>
+        <ul class="pw-liste" id="pwListe">
+          <li><span class="pw-z" aria-hidden="true"></span><span class="pw-t">mindestens 10 Zeichen</span></li>
+          <li><span class="pw-z" aria-hidden="true"></span><span class="pw-t">große und kleine Buchstaben</span></li>
+          <li><span class="pw-z" aria-hidden="true"></span><span class="pw-t">eine Zahl</span></li>
+          <li><span class="pw-z" aria-hidden="true"></span><span class="pw-t">ein Sonderzeichen, zum Beispiel ! ? # %</span></li>
+          <li><span class="pw-z" aria-hidden="true"></span><span class="pw-t">kein „passwort“, „1234“, „qwertz“ und kein Name wie „max“ oder „anna“</span></li>
+        </ul>
+        <div class="fb" id="pwFb"></div>
+      </div>
+    </div>
+    <div>
+      <div class="card reveal">
+        <div class="info-karte" style="border:0;padding:0;background:none">
+          <div class="big">💡</div>
+          <h4>Tipp: der Satz-Trick</h4>
+          <p>Denk dir einen erfundenen Satz aus, den du dir gut merken kannst – ohne echte Namen und Geburtstage. Nimm von jedem Wort den ersten Buchstaben. Zahlen und Satzzeichen bleiben stehen.</p>
+        </div>
+        <p class="pw-satz">„<b>M</b>ein <b>H</b>und <b>B</b>ello <b>f</b>risst <b>a</b>m <b>l</b>iebsten <b>2</b> <b>d</b>icke <b>W</b>ürste<b>!</b>“</p>
+        <p class="pw-ergebnis" style="margin:0">wird zu <code>MHBfal2dW!</code></p>
+        <div id="pwHilfen"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card reveal" id="mc5" style="margin-top:18px"></div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="s6">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Kurz sichern</div><h2>Das nimmst du mit</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal"><span class="task-tag">Richtig oder falsch?</span><div id="tf"></div></div>
+    <div class="card reveal"><span class="task-tag">Paare finden</span><p>Was gehört zusammen? Tippe links einen Begriff an und rechts die passende Erklärung.</p><div id="paare"></div></div>
+  </div>
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span> <span class="ki-badge">✨ KI prüft</span>
+    <p class="m7-hinweis">Hier erklärst du in eigenen Worten. Die KI gibt dir einen kurzen Hinweis – nicht die Lösung.</p>
+    <div id="openM"></div>
+  </div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieser Einheit auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Du erkennst jetzt Spam, Phishing und falsche Links. In der nächsten Einheit geht es um deine <strong>Rechte im Internet</strong>: Darfst du ein Foto posten? Wem gehören Bilder und Texte? Und wie bleibst du fair?</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="rechte.html">➡️ Nächste Einheit: Rechte im Internet</a>
+      <a href="index.html">💻 Übersicht Informatik 7M</a>
+      <a href="../../7R/Informatik/index.html">💻 Übersicht Informatik 7R</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Informatik 7 · Einheit „Sicher oder gefährlich?“ · Dein Fortschritt wird auf diesem Gerät gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../NT/modul-basis.js"></script>
+<script src="praxis.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, register, solve} = Modul;
+const KEY = "grumi-i7-sicher-gefaehrlich-v1";
+
+Modul.init({
+  key: KEY,
+  api: "/api/inf7/uebung/feedback",
+  thema: "Sicherheit im Netz: Spam und Phishing erkennen (Absenderadresse, unpersönliche Anrede, Zeitdruck, Drohung, Link auf fremde Adresse, Frage nach Passwort oder PIN, Rechtschreibfehler), Internetadressen von hinten lesen (Name der Seite direkt vor der Endung), Datensammlung und Berechtigungen von Apps, sicheres Passwort bauen (lang, Zeichenarten, Satz-Trick, für jeden Dienst ein eigenes, nie verraten)",
+  glossary: {
+    spam: ["Spam", "Unerwünschte Nachrichten, die massenhaft an viele Menschen geschickt werden. Meist ist es Werbung, manchmal Betrug."],
+    phishing: ["Phishing", "Betrüger „fischen“ mit gefälschten Nachrichten nach Passwörtern und anderen Daten. Wer auf den Link tippt, landet auf einer falschen Seite."],
+    schadsoftware: ["Schadsoftware", "Programme, die auf deinem Gerät Schaden anrichten oder Daten ausspähen. Sie kommen zum Beispiel über falsche Links und Anhänge."],
+    ausspaehen: ["Ausspähen", "Heimlich Daten von jemandem sammeln, zum Beispiel mit Schadsoftware oder gefälschten Seiten."],
+    datenspur: ["Datenspur", "Alles, was Apps und Webseiten über dich sammeln: wo du bist, wer in deinen Kontakten steht, was du ansiehst und suchst."],
+    berechtigung: ["Berechtigung", "Das, was du einer App erlaubst, zum Beispiel Kamera, Mikrofon, Standort oder Kontakte. Du kannst es in den Einstellungen ändern."],
+    endung: ["Endung", "Der letzte Teil einer Internetadresse, zum Beispiel .de oder .com. In unseren Beispielen steht dort .example. Direkt davor steht der Name der Seite."],
+    link: ["Link", "Ein Verweis, auf den du tippst, um eine Seite zu öffnen. Die Adresse dahinter ist nicht immer die, die man sieht."],
+    passwort: ["Passwort", "Der geheime Schlüssel zu deinem Konto. Es ist lang, schwer zu erraten und gehört nur dir."]
+  }
+});
+
+/* ---------- Bausteine für die Nachrichten-Bilder (Klassen aus einheit.css) ---------- */
+const lage = t => `<p class="lage">${t}</p>`;
+const kopf = (bild, von, klein, art) => `<div class="n-kopf"><span class="n-bild" aria-hidden="true">${bild}</span><div class="n-von">${von}<small>${klein}</small></div><span class="n-art">${art}</span></div>`;
+const chat = (k, zeilen) => `<div class="nachricht chat">${k}<div class="n-text">${zeilen.map(z => `<div class="zeile"><span class="blase">${z}</span></div>`).join("")}</div></div>`;
+const mail = (k, betreff, text) => `<div class="nachricht">${k}<div class="n-betreff">${betreff}</div><div class="n-text">${text}</div></div>`;
+
+/* ---------- Station 1: Dein Posteingang ---------- */
+Modul.makeEntscheiden($("#ent1"), {
+  optionen: ["✅ unbedenklich", "⚠️ gefährlich"],
+  frage: "Unbedenklich oder gefährlich?",
+  fertig: "Alle sieben Nachrichten richtig eingeschätzt! Gleich schaust du dir die Warnzeichen genau an.",
+  faelle: [
+    {kurz: "SMS von „PaketBlitz“ mit Link und Zollgebühr",
+     html: lage("Du hast nichts bestellt und wartest auf kein Paket.") +
+       chat(kopf("📱", "Unbekannte Nummer", "nicht in deinen Kontakten", "SMS"),
+         [`<b>PaketBlitz:</b> Dein Paket konnte nicht zugestellt werden. Bitte zahle jetzt 1,99 € Zollgebühr:<span class="n-adresse">paketblitz-zoll.example/zahlen</span>`]),
+     a: 1, e: "Unbekannte Nummer, ein Link und Geld für ein Paket, das es gar nicht gibt: Das ist ein typischer Betrug per SMS."},
+    {kurz: "Nachricht von Frau Sommer: Sportsachen mitbringen",
+     html: lage("Frau Sommer ist deine Lehrerin. Sie steht in deinen Kontakten.") +
+       chat(kopf("🏫", "Frau Sommer", "in deinen Kontakten", "Messenger"),
+         ["Hallo zusammen, morgen bitte die Sportsachen mitbringen. Wir sind in der Halle."]),
+     a: 0, e: "Du kennst die Absenderin, die Nachricht passt zum Schulalltag und will nichts Geheimes von dir."},
+    {kurz: "Rundbrief des Sportvereins, selbst bestellt",
+     html: lage("Du hast den Rundbrief deines Sportvereins selbst bestellt.") +
+       mail(kopf("⚽", "Sportverein Musterstadt", "rundbrief@sv-musterstadt.example", "E-Mail"),
+         "Rundbrief Oktober: neue Trainingszeiten",
+         "Hallo zusammen, ab nächster Woche trainiert die U14 dienstags und donnerstags um 17 Uhr in der Halle. Wir freuen uns auf euch!"),
+     a: 0, e: "Der Absender ist bekannt, du hast den Rundbrief selbst bestellt, und niemand will Geld oder Passwörter von dir."},
+    {kurz: "E-Mail: „Du hast ein Handy gewonnen“ mit Knopf",
+     html: lage("Du hast bei keinem Gewinnspiel mitgemacht.") +
+       mail(kopf("🎁", "Glücks-Aktion", "gewinn@glueck-aktion.example", "E-Mail"),
+         "🎁 Glückwunsch! Du hast ein Handy gewonnen!",
+         `Du bist unser Gewinner des Tages! Tippe jetzt hier und hol dir dein neues Handy. Nur heute!<br><span class="n-link">Jetzt Gewinn abholen</span>`),
+     a: 1, e: "Ein Gewinn ohne Gewinnspiel ist ein Lockangebot: Wer tippt, landet auf einer falschen Seite."},
+    {kurz: "Freund Ben schickt das verabredete Foto der Hausaufgabe",
+     html: lage("Ihr habt verabredet, dass Ben dir das Foto der Hausaufgabe schickt.") +
+       chat(kopf("👦", "Ben", "in deinen Kontakten", "Messenger"),
+         ["Hier ist das Foto von der Hausaufgabe, wie verabredet.", "📷 hausaufgabe.jpg"]),
+     a: 0, e: "Ben kennst du, ihr habt das Foto verabredet, und es gibt weder einen Link noch eine Forderung."},
+    {kurz: "„Hallo Mama“ von unbekannter Nummer: 800 € überweisen",
+     html: lage("Diese Nachricht bekommt deine Mutter.") +
+       chat(kopf("❓", "Unbekannte Nummer", "nicht in den Kontakten", "Messenger"),
+         ["Hallo Mama, mein Handy ist kaputt. Das ist meine neue Nummer.", "Kannst du mir schnell 800 € überweisen? Ich erkläre es dir später."]),
+     a: 1, e: "Fremde Nummer und schnelles Geld: Hier gibt sich ein Betrüger als Kind aus – erst auf der alten Nummer nachfragen!"},
+    {kurz: "E-Mail der „Musterbank“: Konto wird gesperrt, Daten bestätigen",
+     html: lage("Du hast ein Konto bei der Musterbank.") +
+       mail(kopf("🏦", "Musterbank Service", "service@musterbank-sicherheit.example", "E-Mail"),
+         "Wichtig: Ihr Konto wird gesperrt!",
+         `Sehr geehrter Kunde, Ihr Konto wird in 24 Stunden gesperrt. Bestätigen Sie jetzt Ihre Daten.<br><span class="n-link">Daten bestätigen</span>`),
+     a: 1, e: "Zeitdruck, Drohung und die Bitte um Daten: So arbeiten Betrüger, wenn sie nach deinen Daten „fischen“ (Phishing)."}
+  ]
+}, "ent1");
+
+/* ---------- Station 2: Warnzeichen finden ---------- */
+Modul.makeMarkieren($("#mark1"), {
+  name: "Phishing-E-Mail der „Musterbank“: sieben Warnzeichen antippen",
+  finde: "Warnzeichen",
+  fertig: "Alle sieben Warnzeichen gefunden! Schon zwei oder drei davon reichen, um misstrauisch zu werden.",
+  kopf: "💡 Die echte Musterbank schreibt immer von Adressen, die auf <b>@musterbank.example</b> enden.",
+  teile: [
+    "Von: ", {t: "service@musterbank-sicherheit.example", w: true, e: "Falsche Absenderadresse: Sie endet nicht auf musterbank.example, sondern hat noch ein Wort angehängt."}, "\n",
+    "An: ", {t: "dir@post.example", w: false, e: "Das ist deine eigene Adresse. Daran ist nichts auffällig."}, "\n",
+    "Gesendet: ", {t: "heute, 07:15 Uhr", w: false, e: "Die Uhrzeit ist unauffällig."}, "\n",
+    "Betreff: ", {t: "Wichtige Mitteilung zu Ihrem Konto", w: false, e: "Der Betreff klingt wichtig, beweist aber noch nichts. Schau dir den Text an."}, "\n\n",
+    {t: "Sehr geehrter Kunde,", w: true, e: "Unpersönliche Anrede: Deine Bank kennt deinen Namen. Betrüger schreiben an viele Menschen gleichzeitig."}, "\n\n",
+    "wir haben ein Problem mit Ihrem Konto ", {t: "festgestelt", w: true, e: "Rechtschreibfehler: Echte Banken prüfen ihre Texte. Fehler sind ein Hinweis, aber kein sicherer Beweis."}, ". ",
+    {t: "Handeln Sie sofort, Sie haben nur 24 Stunden Zeit!", w: true, e: "Zeitdruck: Du sollst schnell handeln und nicht nachdenken."}, " ",
+    {t: "Sonst sperren wir Ihr Konto.", w: true, e: "Drohung: Mit einer Sperrung wollen sie dir Angst machen."}, "\n\n",
+    "Bitte bestätigen Sie Ihre Daten auf dieser Seite:\n",
+    {t: "https://musterbank.example.konto-pruefen.example/anmelden", w: true, e: "Link auf eine fremde Adresse: Von hinten gelesen steht vor der Endung „konto-pruefen“ – das ist nicht die Musterbank."}, "\n\n",
+    "Geben Sie dort ", {t: "Ihr Passwort und Ihre PIN", w: true, e: "Frage nach Passwort und PIN: Eine echte Bank fragt das nie per E-Mail."}, " ein.\n\n",
+    {t: "Mit freundlichen Grüßen", w: false, e: "Eine höfliche Grußformel. Die steht auch in Betrugs-Mails und sagt nichts über echt oder falsch."}, "\n",
+    {t: "Ihre Musterbank", w: false, e: "Der Name der Bank steht drin. Den kann jeder abtippen – er beweist nichts."}, "\n\n",
+    {t: "Datenschutz", w: false, e: "Solche Links am Ende lassen sich leicht abschreiben. Sie beweisen nicht, dass die E-Mail echt ist."}, " · ",
+    {t: "Impressum", w: false, e: "Auch das lässt sich leicht abschreiben. Es beweist nicht, dass die E-Mail echt ist."}
+  ]
+}, "mark1");
+
+/* ---------- Station 3: Link-Check ---------- */
+const wbr = s => s.replace(/([./-])/g, "$1<wbr>");
+const adr = (davor, name, endung, danach) => `<div class="adresszeile"><span class="schloss" aria-hidden="true">${davor.indexOf("https") === 0 ? "🔒" : "⚠️"}</span><span class="url"><span class="u-davor">${wbr(davor)}</span><span class="u-name">${wbr(name)}</span><span class="u-endung">${endung}</span><span class="u-danach">${wbr(danach)}</span></span></div>` +
+  `<p class="u-legende">Von hinten gelesen: <span class="u-name">Name der Seite</span> vor der <span class="u-endung">Endung</span></p>`;
+Modul.makeEntscheiden($("#ent2"), {
+  optionen: ["echt", "gefälscht"],
+  frage: "Echt oder gefälscht?",
+  fertig: "Alle fünf Adressen richtig geprüft! Wer von hinten liest, erkennt die meisten Fälschungen.",
+  faelle: [
+    {kurz: "Adresse prüfen: https://www.musterbank.example/anmelden", html: adr("https://www.", "musterbank", ".example", "/anmelden"), a: 0,
+     e: "Direkt vor „.example“ steht „musterbank“. Was davor und danach steht, ist egal – die Adresse ist echt."},
+    {kurz: "Adresse prüfen: https://musterbank.example.konto-pruefen.example/anmelden", html: adr("https://musterbank.example.", "konto-pruefen", ".example", "/anmelden"), a: 1,
+     e: "Von hinten gelesen steht vor „.example“ das Wort „konto-pruefen“. „musterbank“ steht nur davor, um dich zu täuschen."},
+    {kurz: "Adresse prüfen: https://www.rnusterbank.example", html: adr("https://www.", "rnusterbank", ".example", ""), a: 1,
+     e: "Schau genau: Da steht „rn“ (r und n) statt „m“. „rnusterbank“ ist nicht „musterbank“."},
+    {kurz: "Adresse prüfen: https://www.paketblitz.example/sendung", html: adr("https://www.", "paketblitz", ".example", "/sendung"), a: 0,
+     e: "Direkt vor „.example“ steht „paketblitz“. Das ist der echte Paketdienst."},
+    {kurz: "Adresse prüfen: http://musterbank-sicherheit.example/login", html: adr("http://", "musterbank-sicherheit", ".example", "/login"), a: 1,
+     e: "Der Name der Seite ist „musterbank-sicherheit“ und nicht „musterbank“. Außerdem fehlt das „s“ bei „http“."}
+  ]
+}, "ent2");
+// Nach der Antwort zeigt die Adresse farbig: Name der Seite (blau) und Endung (rot)
+(function () {
+  const box = $("#ent2");
+  box.addEventListener("click", e => {
+    if (e.target.closest(".ent-wahl button")) box.classList.add("geprueft");
+    else if (e.target.closest(".weiter, .nochmal")) box.classList.remove("geprueft");
+  });
+})();
+
+/* ---------- Station 4: Was wollen Apps wissen? ---------- */
+const berecht = (ic, app, satz) => `<div class="berechtigung"><div class="b-ic" aria-hidden="true">${ic}</div><div class="b-app">${app}</div><p class="b-frage">${satz}</p></div>`;
+Modul.makeEntscheiden($("#ent3"), {
+  optionen: ["erlauben", "ablehnen"],
+  frage: "Erlaubst du das?",
+  fertig: "Alle sechs richtig! Du erlaubst nur, was eine App wirklich braucht.",
+  faelle: [
+    {kurz: "Taschenlampen-App will auf die Kontakte zugreifen", html: berecht("🔦", "Taschenlampen-App", "möchte auf deine <b>Kontakte</b> zugreifen."), a: 1,
+     e: "Eine Taschenlampe schaltet nur das Licht an. Deine Kontakte braucht sie dafür nicht."},
+    {kurz: "Navi-App will auf den Standort zugreifen", html: berecht("🚗", "Navi-App", "möchte auf deinen <b>Standort</b> zugreifen."), a: 0,
+     e: "Ein Navi muss wissen, wo du bist, sonst findet es keinen Weg."},
+    {kurz: "Foto-App will die Kamera benutzen", html: berecht("📷", "Foto-App", "möchte die <b>Kamera</b> benutzen."), a: 0,
+     e: "Ohne Kamera kann eine Foto-App keine Bilder machen."},
+    {kurz: "Rechen-Spiel will das Mikrofon benutzen", html: berecht("🔢", "Rechen-Spiel", "möchte das <b>Mikrofon</b> benutzen."), a: 1,
+     e: "Zum Rechnen braucht ein Spiel kein Mikrofon – außer um mitzuhören."},
+    {kurz: "Mal-App will die SMS lesen", html: berecht("🎨", "Mal-App", "möchte deine <b>SMS lesen</b>."), a: 1,
+     e: "Zum Malen braucht eine App deine Nachrichten nicht. Die sind privat."},
+    {kurz: "Wetter-App will auf den Standort zugreifen", html: berecht("☀️", "Wetter-App", "möchte auf deinen <b>Standort</b> zugreifen."), a: 0,
+     e: "Für das Wetter an deinem Ort braucht die App den Standort."}
+  ]
+}, "ent3");
+
+/* ---------- Station 5: Passwort-Werkstatt ---------- */
+// Das Test-Passwort bleibt auf dieser Seite: nichts wird gesendet, gespeichert oder in den Lernstand geschrieben.
+(function () {
+  const feld = $("#pwFeld"), zahl = $("#pwZahl"), fuell = $("#pwFuell"), stufeEl = $("#pwStufe"), fb = $("#pwFb"), zeilen = $$("#pwListe li");
+  register("passwort", "#pwBox", "Passwort-Werkstatt: ein Test-Passwort bauen, das alle fünf Punkte erfüllt");
+  const STUFEN = [["Tippe etwas ein.", "#c5ced8"], ["sehr schwach", "#c93b3b"], ["schwach", "#e0702f"], ["mittel", "#d9a21b"], ["gut", "#7fb83a"], ["stark", "#1b8a4b"]];
+  const SCHWACH = ["passwort", "password", "1234", "qwertz", "qwerty", "hallo"];
+  const NAMEN = ["max", "anna", "lena", "paul", "leon", "luca", "lukas", "jonas", "felix", "finn", "noah", "emma", "sophie", "sarah", "laura", "julia", "hannah", "lisa", "maria", "david", "simon", "alex", "nico"];
+  const TEXT5 = $(".pw-t", zeilen[4]).textContent;
+  function bewerte(pw) {
+    const klein = pw.toLowerCase(), gefunden = SCHWACH.concat(NAMEN).find(w => klein.indexOf(w) >= 0) || "";
+    return {
+      gefunden,
+      ok: [pw.length >= 10, /[a-zäöüß]/.test(pw) && /[A-ZÄÖÜ]/.test(pw), /\d/.test(pw), /[^A-Za-zÄÖÜäöüß0-9\s]/.test(pw), pw.length > 0 && !gefunden]
+    };
+  }
+  function zeige() {
+    const pw = feld.value, r = bewerte(pw), alle = r.ok.every(Boolean);
+    zahl.textContent = pw.length + " Zeichen";
+    zeilen.forEach((li, i) => {
+      const ok = r.ok[i], nein = i === 4 && !!r.gefunden;
+      li.classList.toggle("ok", ok); li.classList.toggle("nein", nein);
+      $(".pw-z", li).textContent = ok ? "✓" : nein ? "✗" : "";
+    });
+    $(".pw-t", zeilen[4]).textContent = r.gefunden ? `enthält „${r.gefunden}“ – das lässt sich leicht erraten` : TEXT5;
+    // Stärke: Zahl der erfüllten Punkte, aber kurze Passwörter und Wörter wie „passwort“ bleiben schwach
+    let st = r.ok.filter(Boolean).length;
+    if (!pw) st = 0;
+    else { if (pw.length < 6) st = Math.min(st, 1); else if (pw.length < 10) st = Math.min(st, 3); if (r.gefunden) st = Math.min(st, 2); st = Math.max(st, 1); }
+    fuell.style.width = (st / 5 * 100) + "%"; fuell.style.background = STUFEN[st][1];
+    stufeEl.textContent = st ? "Stärke: " + STUFEN[st][0] : STUFEN[0][0];
+    if (alle) {
+      fb.className = "fb show ok";
+      fb.innerHTML = "✅ Geschafft! Dein Test-Passwort erfüllt alle fünf Punkte. Noch besser: Bau es aus einem Satz (Satz-Trick) – dann ist es kaum zu erraten und trotzdem leicht zu merken.";
+      solve("passwort");
+    } else fb.className = "fb";
+  }
+  feld.addEventListener("input", zeige);
+  if (Modul.isSolved("passwort")) { fb.className = "fb show ok"; fb.textContent = "✅ Das hast du schon geschafft. Probiere gern noch einen anderen Satz aus."; }
+  // Für den Einheiten-Prüfer: füllt das Feld über die Oberfläche
+  Modul.loeser.passwort = async () => { feld.focus(); feld.value = "MHBfal2dW!"; feld.dispatchEvent(new Event("input", {bubbles: true})); };
+})();
+
+Modul.makeHilfen($("#pwHilfen"), [
+  "Denk dir einen Satz aus, den du dir gut merken kannst. Er soll erfunden sein, ohne echte Namen.",
+  "Nimm von jedem Wort den ersten Buchstaben. Zahlen und Satzzeichen schreibst du unverändert dazu.",
+  "Schau auf die Liste: Welche Punkte sind noch grau? Ergänze, was fehlt – zum Beispiel eine Zahl und ein Ausrufezeichen. Mindestens 10 Zeichen schaffst du leichter mit einem längeren Satz."
+], null, "pw");
+
+Modul.makeMC($("#mc5"), [
+  {q: "Du hast ein starkes Passwort gebaut. Wie benutzt du es am besten?",
+   o: ["Für jeden Dienst baue ich ein eigenes Passwort.", "Ich nehme es für alle meine Konten, dann vergesse ich es nicht.", "Ich nehme überall dasselbe Passwort und ändere nur die Zahl am Ende.", "Ich schicke es einem Freund, falls ich es vergesse."], a: 0,
+   e: "Wird ein Passwort gestohlen, kommt der Dieb sonst in alle Konten. Mit einem eigenen Passwort je Dienst bleibt der Schaden klein."},
+  {q: "Dein bester Freund sagt: „Gib mir kurz dein Passwort, ich spiele auf deinem Konto.“ Was tust du?",
+   o: ["Ich verrate es niemandem, auch nicht meinem besten Freund.", "Ich verrate es ihm, er ist ja mein Freund.", "Ich verrate es ihm, aber nur dieses eine Mal.", "Ich schreibe es ihm in den Klassenchat."], a: 0,
+   e: "Ein Passwort ist geheim. Auch gute Freunde können es aus Versehen weitergeben – oder ihr streitet euch irgendwann."}
+], "mc5", {t: "Kurz-Check"});
+
+/* ---------- Station 6: Kurz sichern ---------- */
+Modul.makeTF($("#tf"), [
+  ["Spam sind unerwünschte Nachrichten, die an viele Menschen gleichzeitig geschickt werden.", true],
+  ["Eine echte Bank fragt dich per E-Mail nach deiner PIN.", false],
+  ["Wenn eine Nachricht Druck macht und sofortiges Handeln verlangt, solltest du besonders vorsichtig sein.", true],
+  ["Eine Taschenlampen-App braucht Zugriff auf deine Kontakte.", false],
+  ["Ein Schloss vor der Adresse zeigt, dass die Seite echt ist.", false],
+  ["Für jeden Dienst sollte man ein eigenes Passwort haben.", true]
+], "tf");
+
+Modul.makePaare($("#paare"), [
+  ["Spam", "unerwünschte Nachricht, die massenhaft verschickt wird"],
+  ["Phishing", "gefälschte Nachricht, die nach Passwörtern „fischt“"],
+  ["Schadsoftware", "Programm, das auf deinem Gerät Schaden anrichtet"],
+  ["Datenspur", "alles, was Apps und Seiten über dich sammeln"],
+  ["Passwort", "geheimer Schlüssel zu deinem Konto"]
+], "paare");
+
+Modul.plus(() => {
+  Modul.makeOpen($("#openM"), [
+    {q: "Dein Freund bekommt die Nachricht: „Dein Spielkonto wird gelöscht! Gib sofort dein Passwort ein: spielwelt.example.konto-retten.example“ Was rätst du ihm – und woran erkennst du den Betrug?",
+     m: "Ich rate ihm, nicht auf den Link zu tippen und auf keinen Fall sein Passwort einzugeben. Das ist Phishing: Die Nachricht macht Zeitdruck („sofort“) und droht mit dem Löschen des Kontos. Außerdem ist die Adresse gefälscht, denn direkt vor der Endung steht „konto-retten“ und nicht „spielwelt“. Er soll die Nachricht löschen oder melden und im Zweifel Erwachsene fragen.",
+     k: ["phishing|betrug|betrüger|fälsch|fake", "zeitdruck|sofort|druck|droh|angst|eile|schnell", "adresse|endung|konto-retten|domain|link", "nicht antippen|nicht|nie|keinesfalls|auf keinen fall|löschen|ignorier|melden|erwachsene"], min: 3}
+  ], "openM", "Schau dir noch einmal die Warnzeichen aus Station 2 und den Link-Check aus Station 3 an.");
+});
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

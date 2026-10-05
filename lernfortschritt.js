@@ -37,7 +37,7 @@
     d7: "7M/Deutsch/index.html", d8: "8/Deutsch/index.html", d9: "9/Deutsch/index.html",
     e7: "7/Englisch_7/index.html", e8: "8R/Englisch/index.html",
     e9: { M: "9M/Englisch_9/index.html", R: "9R/Englisch/index.html" },
-    i7: "7/Informatik_7/index.html", i8: "8/Informatik_8/index.html", i9: "9/Informatik_9/index.html"
+    i7: { M: "7M/Informatik/index.html", R: "7R/Informatik/index.html" }, i8: "8/Informatik_8/index.html", i9: "9/Informatik_9/index.html"
   };
   try {
     KLASSE = global.localStorage.getItem("lf-klasse") || "";
@@ -353,6 +353,12 @@
       // NT 7: über dem Lernstand steht das Freischalten der Themenbereiche und Module (nt7-verwaltung.js)
       teil.innerHTML = '<div id="vw-nt7-frei"></div><div id="vw-fach"></div>';
       global.NT7Verwaltung.freigabe($("vw-nt7-frei"), { api: API, pw: PW, klasse: KLASSE });
+      fachLaden($("vw-fach"));
+    } else if (ANSICHT === "i7" && global.NT7Verwaltung && global.INF7) {
+      // Informatik 7: über dem Lernstand steht das Freischalten der Module und Einheiten (gleiche Ansicht wie NT 7)
+      teil.innerHTML = '<div id="vw-i7-frei"></div><div id="vw-fach"></div>';
+      global.NT7Verwaltung.freigabe($("vw-i7-frei"), { api: API, pw: PW, klasse: KLASSE, liste: global.INF7, pfad: "/api/inf7", ordner: "7M/Informatik/",
+        worte: { titel: "Module und Einheiten", das: "die Einheit", neu: "Neue Einheiten", von: "Einheiten", plan: "Einheiten in Vorbereitung" } });
       fachLaden($("vw-fach"));
     } else {
       fachLaden(teil);

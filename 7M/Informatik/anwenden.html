@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Wiederholen und anwenden | Informatik 7</title>
+<link rel="stylesheet" href="../NT/modul-basis.css">
+<link rel="stylesheet" href="einheit.css">
+<style>
+.hero{background:linear-gradient(160deg,#3a1f6b,#6a3fc4 55%,#b79af5)}
+.vergleich{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:640px){.vergleich{grid-template-columns:1fr}}
+.vergleich figure{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.vergleich figcaption{padding:6px 10px;margin:0;font-weight:800;font-size:.9rem;background:#f3f6fb;border-top:1px solid var(--line);color:var(--ink)}
+.vergleich svg{display:block;width:100%;height:auto}
+.vergleich svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#bildNeu{cursor:pointer}
+.treffer{fill:rgba(224,69,58,0);stroke:rgba(224,69,58,0);stroke-width:4;pointer-events:all}
+.treffer.gefunden{fill:rgba(224,69,58,.14);stroke:#e0453a}
+/* Duell gegen die KI (wie im NT-7-Modul „Windkraft – pro und contra“) */
+.duel{display:flex;flex-direction:column;gap:10px}
+.score{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#f4f8fb;border-radius:12px;padding:8px 12px;font-weight:800}
+.score .pts{font-size:1.5rem;color:var(--sky-d);font-variant-numeric:tabular-nums}
+.score .pts.ki{color:#5a3a9a}
+.score > span{white-space:nowrap}
+@media (max-width:480px){.score{padding:8px;font-size:.92rem}.score .pts{font-size:1.25rem}.score .chip{font-size:.78rem;padding:3px 7px}}
+.chat{display:flex;flex-direction:column;gap:10px;max-height:460px;overflow-y:auto;padding:4px 2px}
+.msg{display:flex;gap:8px;align-items:flex-end;animation:popin .25s}
+.msg .av{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:1.2rem;background:#efe8fb}
+.msg .b{border-radius:16px 16px 16px 4px;padding:9px 13px;background:#f3eefc;border:1px solid #ddd0f5;font-size:.96rem;overflow-wrap:anywhere}
+.msg.me{flex-direction:row-reverse}
+.msg.me .av{background:var(--sky-l)}
+.msg.me .b{border-radius:16px 16px 4px 16px;background:var(--sky-l);border-color:#b9dcf5}
+.msg .b small{display:block;font-weight:700;color:var(--muted);margin-bottom:2px}
+.msg.good .b{background:var(--ok-l);border-color:#9fd8b4}
+.msg.mid .b{background:var(--warn-l);border-color:#f1d9a0}
+.msg.bad .b{background:var(--bad-l);border-color:#f0b0b0}
+.tips{display:none;background:#fffbea;border:1px dashed #e7c86a;border-radius:12px;padding:8px 12px;font-size:.93rem}
+.tips.show{display:block;animation:popin .2s}
+.tips ul{margin:.3em 0 0;padding-left:20px}
+.tips li{margin:3px 0}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 7</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Echt oder erfunden?</a>
+      <a href="#s2"><b>2</b>Phishing-Detektiv</a>
+      <a href="#s3"><b>3</b>Posten?</a>
+      <a href="#s4"><b>4</b>KI-Duell</a>
+      <a href="#s5"><b>5</b>Profi-Check</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">💻 Übersicht Informatik 7M</a>
+      <a href="../../7R/Informatik/index.html">💻 Übersicht Informatik 7R</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 7M / 7R · Modul 1: Internet und Sicherheit · Einheit 4</div>
+    <h1>Wiederholen und anwenden</h1>
+    <p>Jetzt zeigst du, was du kannst: Meldungen prüfen, Betrüger entlarven, klug entscheiden. Am Ende wartet ein Duell gegen die KI – und der Profi-Check für die Probe.</p>
+    <div class="zeit">⏱ etwa 40 Minuten · am Tablet oder am PC</div>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s4">⚔️ Direkt zum KI-Duell</a>
+    </div>
+    <div class="goals">
+      <div>📰 Ich prüfe, ob eine Meldung glaubwürdig ist.</div>
+      <div>🎣 Ich entlarve Betrugsnachrichten und begründe das.</div>
+      <div>📸 Ich entscheide sicher, was ich posten darf.</div>
+      <div>🏆 Ich bin bereit für die Probe.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in dieser Einheit"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Ausprobieren</div><h2>Echt oder erfunden?</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag">Entscheiden</span>
+    <p class="lead">Sechs Meldungen aus dem Netz. Welchen kannst du glauben?</p>
+    <div id="entMeldung"></div>
+  </div>
+  <div class="card reveal">
+    <h3 style="margin-top:0">Vier Fragen an jede Meldung</h3>
+    <div class="karten">
+      <div class="karte"><span class="ic">👤</span><h4>Wer schreibt das?</h4><p>Steht ein Name, eine Zeitung, eine Behörde dahinter? Oder niemand?</p></div>
+      <div class="karte"><span class="ic">🔎</span><h4>Steht es auch woanders?</h4><p>Wichtige Nachrichten findest du bei mehreren <button class="term" data-t="quelle">Quellen</button>.</p></div>
+      <div class="karte"><span class="ic">📣</span><h4>Wie klingt es?</h4><p>Großbuchstaben, viele Ausrufezeichen, „Teile das sofort!“ – das soll dich aufregen.</p></div>
+      <div class="karte"><span class="ic">📷</span><h4>Passt das Bild?</h4><p>Bilder können alt sein, woanders herkommen oder bearbeitet sein.</p></div>
+    </div>
+    <div class="merke">
+      <h4>MERKE</h4>
+      <ul>
+        <li>Eine <button class="term" data-t="falschmeldung">Falschmeldung</button> will dich aufregen – damit du sie teilst, ohne nachzudenken.</li>
+        <li>Erst prüfen, dann teilen. Im Zweifel: nicht teilen.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card reveal" id="fakeKarte">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <h3 style="margin-top:.2em">Bilder können lügen</h3>
+    <p>Links das Foto, wie es wirklich war. Rechts wurde es am Computer verändert. Tippe im rechten Bild auf die <b>drei</b> Stellen, die verändert wurden.</p>
+    <div class="vergleich">
+      <figure>
+        <svg viewBox="0 0 360 230" role="img" aria-label="Originalbild: Schulhaus bei Sonne, auf dem Schild steht „Schulfest 14 Uhr“, davor zwei Kinder, der Platz ist sauber.">
+          <rect width="360" height="230" fill="#dff1ff"/><rect y="170" width="360" height="60" fill="#b9e3b1"/>
+          <circle cx="58" cy="44" r="24" fill="#ffd34d"/>
+          <rect x="92" y="78" width="150" height="94" fill="#f4d9a6" stroke="#8a6a3a" stroke-width="2"/><path d="M84 80L167 40L250 80Z" fill="#c0563a" stroke="#8a3a2a" stroke-width="2"/>
+          <g fill="#9fd0f0" stroke="#5a7f99"><rect x="106" y="94" width="26" height="24"/><rect x="154" y="94" width="26" height="24"/><rect x="202" y="94" width="26" height="24"/></g>
+          <rect x="154" y="130" width="26" height="42" fill="#8a6a3a"/>
+          <rect x="268" y="150" width="6" height="40" fill="#8a6a3a"/><rect x="232" y="118" width="80" height="42" rx="4" fill="#fff" stroke="#15212b" stroke-width="2"/>
+          <text x="272" y="136" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">Schulfest</text><text x="272" y="152" text-anchor="middle" font-size="12" font-weight="700" fill="#1b8a4b">14 Uhr</text>
+          <g stroke="#15212b" stroke-width="3" stroke-linecap="round" fill="none"><circle cx="40" cy="160" r="8" fill="#ffcf9f"/><path d="M40 168v24M40 176l-10 8M40 176l10 8M40 192l-8 16M40 192l8 16"/><circle cx="70" cy="164" r="7" fill="#ffcf9f"/><path d="M70 171v22M70 178l-9 8M70 178l9 8M70 193l-7 15M70 193l7 15"/></g>
+        </svg>
+        <figcaption>Original</figcaption>
+      </figure>
+      <figure>
+        <svg id="bildNeu" viewBox="0 0 360 230" role="img" aria-label="Bearbeitetes Bild: dunkle Wolke statt Sonne, auf dem Schild steht „Schulfest fällt aus“, auf dem Platz liegt Müll.">
+          <rect width="360" height="230" fill="#dff1ff"/><rect y="170" width="360" height="60" fill="#b9e3b1"/>
+          <path d="M28 54q-12-2-10-14q2-11 14-10q4-13 18-11q8-10 20-4q12-4 19 7q14 0 14 14q2 14-14 16z" fill="#6b7480"/>
+          <rect x="92" y="78" width="150" height="94" fill="#f4d9a6" stroke="#8a6a3a" stroke-width="2"/><path d="M84 80L167 40L250 80Z" fill="#c0563a" stroke="#8a3a2a" stroke-width="2"/>
+          <g fill="#9fd0f0" stroke="#5a7f99"><rect x="106" y="94" width="26" height="24"/><rect x="154" y="94" width="26" height="24"/><rect x="202" y="94" width="26" height="24"/></g>
+          <rect x="154" y="130" width="26" height="42" fill="#8a6a3a"/>
+          <rect x="268" y="150" width="6" height="40" fill="#8a6a3a"/><rect x="232" y="118" width="80" height="42" rx="4" fill="#fff" stroke="#15212b" stroke-width="2"/>
+          <text x="272" y="136" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">Schulfest</text><text x="272" y="152" text-anchor="middle" font-size="12" font-weight="700" fill="#c93b3b">fällt aus</text>
+          <g stroke="#15212b" stroke-width="3" stroke-linecap="round" fill="none"><circle cx="40" cy="160" r="8" fill="#ffcf9f"/><path d="M40 168v24M40 176l-10 8M40 176l10 8M40 192l-8 16M40 192l8 16"/><circle cx="70" cy="164" r="7" fill="#ffcf9f"/><path d="M70 171v22M70 178l-9 8M70 178l9 8M70 193l-7 15M70 193l7 15"/></g>
+          <g stroke="#5c4a3a" stroke-width="1.5"><rect x="108" y="200" width="16" height="10" fill="#b08a5a" transform="rotate(-18 116 205)"/><circle cx="134" cy="208" r="6" fill="#d9d2c4"/><rect x="142" y="196" width="10" height="14" fill="#7fa8f5" transform="rotate(24 147 203)"/></g>
+          <circle class="treffer" data-i="0" cx="58" cy="42" r="34"/><circle class="treffer" data-i="1" cx="272" cy="140" r="38"/><circle class="treffer" data-i="2" cx="130" cy="204" r="30"/>
+        </svg>
+        <figcaption>Bearbeitet – tippe auf die Veränderungen</figcaption>
+      </figure>
+    </div>
+    <div class="row-btns"><span class="chip" id="fakeZahl">0 von 3 gefunden</span></div>
+    <div class="fb" id="fakeFb"></div>
+    <div id="mc-fake"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Anwenden</div><h2>Phishing-Detektiv</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <span class="task-tag">Warnzeichen finden</span>
+      <p>Diese SMS kommt am Morgen. Tippe alle Stellen an, die dich misstrauisch machen.</p>
+      <div id="markSms"></div>
+    </div>
+    <div>
+      <div class="card reveal" id="mc-s2"></div>
+      <div class="merke reveal">
+        <h4>MERKE</h4>
+        <ul>
+          <li><button class="term" data-t="phishing">Phishing</button> erkennst du an Zeitdruck, Drohungen, fremden Adressen und der Frage nach Geld oder Passwörtern.</li>
+          <li>Nicht antippen. Nichts eingeben. Löschen – und einem Erwachsenen sagen.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Anwenden</div><h2>Posten: ja oder nein?</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag">Entscheiden</span>
+    <p class="lead">Sechs Situationen. Denk an das <button class="term" data-t="bildrecht">Recht am eigenen Bild</button>, an das <button class="term" data-t="urheber">Urheberrecht</button> – und an deine eigenen Daten.</p>
+    <div id="entPosten"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Spielerisch üben</div><h2>⚔️ Duell gegen die KI</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Die KI spielt den <b>Trick-Bot</b>. Er schickt dir Betrugsnachrichten. Du entlarvst ihn.</p>
+      <ol>
+        <li>Der Trick-Bot schickt eine Nachricht.</li>
+        <li>Du schreibst in einem ganzen Satz: <b>Woran erkennst du den Betrug?</b></li>
+        <li>Die KI prüft deine Begründung und verteilt Punkte.</li>
+      </ol>
+      <p>Du weißt nicht weiter? Tippe auf <strong>💡 Tipp</strong>.</p>
+      <p class="hint">Punkte: gute Begründung = 2 Punkte für dich. Halb richtig = je 1 Punkt. Keine passende Begründung = 2 Punkte für den Trick-Bot.</p>
+    </div>
+    <div class="card reveal duel" id="duel"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Probenstoff · so wird in der Probe gefragt</div><h2>Profi-Check</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag">Kreuzworträtsel</span>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Umlaute gibt es hier nicht.</p>
+    <div id="cw"></div>
+  </div>
+  <div class="card reveal" id="quiz"></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Die wichtigsten Fachbegriffe aus Modul 1 auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Du hast Modul 1 geschafft. Als Nächstes kommt die <strong>Probe 1</strong> – deine Lehrkraft schaltet sie in der Übersicht frei. Danach geht es an den PC: Du baust mit <strong>Filius</strong> dein erstes Netzwerk.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="index.html">💻 Übersicht Informatik 7M</a>
+      <a href="../../7R/Informatik/index.html">💻 Übersicht Informatik 7R</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Informatik 7 · Einheit „Wiederholen und anwenden“ · Dein Fortschritt wird auf diesem Gerät gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../NT/modul-basis.js"></script>
+<script src="praxis.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, esc, register, solve} = Modul;
+
+Modul.init({
+  key: "grumi-i7-anwenden-v1",
+  api: "/api/inf7/uebung/feedback",
+  hero: "funken",
+  thema: "Digitaler Informationsaustausch – Wiederholung: Falschmeldungen und Quellen prüfen, Phishing und Betrugsnachrichten erkennen, Recht am eigenen Bild, Urheberrecht, bearbeitete Bilder",
+  glossary: {
+    falschmeldung: ["Falschmeldung", "Eine Nachricht, die nicht stimmt. Oft ist sie absichtlich erfunden, damit sich viele aufregen und sie weiterschicken."],
+    quelle: ["Quelle", "Die Stelle, von der eine Information oder ein Bild stammt – zum Beispiel eine Zeitung, eine Behörde oder eine Internetseite."],
+    phishing: ["Phishing", "Betrüger „fischen“ mit gefälschten Nachrichten nach Passwörtern, Kartennummern und anderen Daten."],
+    spam: ["Spam", "Unerwünschte Nachrichten, die an sehr viele Menschen gleichzeitig gehen – meist Werbung oder Betrug."],
+    kettenbrief: ["Kettenbrief", "Eine Nachricht, die dich drängt, sie an viele weiterzuschicken – oft mit einer Drohung oder einem Versprechen."],
+    bildrecht: ["Recht am eigenen Bild", "Ein Foto, auf dem du zu erkennen bist, darf nur veröffentlicht werden, wenn du es erlaubst."],
+    urheber: ["Urheberrecht", "Wer ein Foto, ein Lied oder einen Text erschaffen hat, ist Urheber. Nur er oder sie entscheidet, wer es verwenden darf."],
+    bearbeitet: ["Bearbeitetes Bild", "Ein Bild, das am Computer verändert wurde. Man sieht es ihm oft nicht an."],
+    passwort: ["Passwort", "Ein geheimes Wort aus Buchstaben, Zahlen und Zeichen. Es schützt dein Konto."],
+    server: ["Server", "Ein Computer, der immer eingeschaltet ist und für andere Geräte arbeitet."]
+  }
+});
+
+/* ---------- Station 1 ---------- */
+const beitrag = (bild, von, adresse, text, fuss) => `<div class="nachricht beitrag"><div class="n-kopf"><span class="n-bild">${bild}</span><div class="n-von">${von}<small>${adresse}</small></div></div><p class="n-text">${text}</p>${fuss ? `<div class="n-fuss">${fuss}</div>` : ""}</div>`;
+Modul.makeEntscheiden($("#entMeldung"), {
+  optionen: ["✅ glaubwürdig", "⚠️ unglaubwürdig"], frage: "Kannst du das glauben?",
+  faelle: [
+    {html: beitrag("⚡", "News-Blitz 24", "news-blitz-24.example", "SCHOCK!!! Schule ab morgen für IMMER verboten – das will dir KEINER sagen!!! Teile das SOFORT mit allen!!!", "<span>12.403 mal geteilt</span>"), a: 1,
+     kurz: "Meldung „Schule für immer verboten“", e: "Großbuchstaben, viele Ausrufezeichen, keine Quelle und „Teile das sofort“: So sehen Falschmeldungen aus."},
+    {html: beitrag("📚", "Stadtbücherei Musterstadt", "www.buecherei-musterstadt.example", "Die Bücherei bleibt am Freitag wegen einer Fortbildung geschlossen. Ab Samstag sind wir wieder für euch da.", "<span>Mitteilung vom 6. Oktober</span>"), a: 0,
+     kurz: "Mitteilung der Stadtbücherei", e: "Klarer Absender, sachliche Sprache, ein Datum – und du könntest dort einfach nachfragen."},
+    {html: `<div class="nachricht chat"><div class="n-kopf"><span class="n-bild">👥</span><div class="n-von">Klassengruppe 7<small>weitergeleitet</small></div></div><div class="n-text"><span class="blase">Schick das an 10 Leute, sonst wird dein Konto morgen gelöscht! Das ist KEIN Scherz!</span></div></div>`, a: 1,
+     kurz: "Kettenbrief „Schick das an 10 Leute“", e: "Das ist ein Kettenbrief. Niemand löscht dein Konto, weil du eine Nachricht nicht weiterschickst."},
+    {html: beitrag("📰", "Musterstädter Anzeiger", "www.musterstaedter-anzeiger.example · von Jana Berg", "Der Stadtrat hat einen neuen Radweg an der Hauptstraße beschlossen. Die Bauarbeiten beginnen im Frühjahr.", "<span>Lokales · 5. Oktober</span>"), a: 0,
+     kurz: "Zeitungsbericht über den Radweg", e: "Eine Zeitung mit Namen der Autorin und Datum – sachlich und nachprüfbar."},
+    {html: beitrag("💊", "Gesund-Tipps Blog", "top-gesund-tricks.example", "Arzt enthüllt: Mit diesem einen Trick wirst du in 3 Tagen 10 cm größer! Die Pillen gibt es nur heute zum halben Preis.", "<span>Anzeige</span>"), a: 1,
+     kurz: "„In 3 Tagen 10 cm größer“", e: "Zu schön, um wahr zu sein – und am Ende will dir jemand etwas verkaufen."},
+    {html: beitrag("🏫", "Mittelschule Musterstadt", "www.mittelschule-musterstadt.example", "Wandertag der 7. Klassen am 14. Oktober. Treffpunkt ist um 8 Uhr am Pausenhof. Bitte an feste Schuhe denken.", "<span>Aktuelles</span>"), a: 0,
+     kurz: "Wandertag auf der Schul-Homepage", e: "Die Seite der Schule ist die richtige Quelle für Termine der Schule."}
+  ],
+  fertig: "Alle Meldungen richtig eingeschätzt!"
+}, "entMeldung");
+
+// M7: bearbeitetes Bild
+Modul.plus(() => {
+  const ERKL = ["Aus der Sonne wurde eine dunkle Wolke. So wirkt die Stimmung gleich schlechter.", "Auf dem Schild steht jetzt „fällt aus“. Mit zwei Wörtern wird aus einer Einladung eine falsche Nachricht.", "Der Müll wurde hineinkopiert. So sieht die Schule ungepflegt aus."];
+  const fb = $("#fakeFb"), zahl = $("#fakeZahl"), treffer = $$("#bildNeu .treffer"), gefunden = new Set();
+  register("bildfake", "#fakeKarte", "M7: drei Veränderungen im bearbeiteten Bild finden");
+  const stand = () => { zahl.textContent = `${gefunden.size} von 3 gefunden`; zahl.classList.toggle("ok", gefunden.size === 3); };
+  if (Modul.isSolved("bildfake")) { treffer.forEach((t, i) => { t.classList.add("gefunden"); gefunden.add(i); }); stand(); }
+  $("#bildNeu").addEventListener("click", e => {
+    const t = e.target.closest(".treffer");
+    if (!t) { fb.className = "fb show mid"; fb.textContent = "🟡 An dieser Stelle ist nichts verändert. Vergleiche noch einmal mit dem Original."; return; }
+    const i = +t.dataset.i; t.classList.add("gefunden"); gefunden.add(i); stand();
+    fb.className = "fb show ok"; fb.innerHTML = "✅ " + esc(ERKL[i]) + (gefunden.size === 3 ? "<br><b>Alle drei gefunden! Ein bearbeitetes Bild kann eine ganz andere Geschichte erzählen.</b>" : "");
+    if (gefunden.size === 3) solve("bildfake");
+  });
+  Modul.loeser.bildfake = async () => { treffer.forEach(t => t.dispatchEvent(new MouseEvent("click", {bubbles: true}))); };
+  Modul.makeMC($("#mc-fake"), [
+    {q: "Jemand verschickt das bearbeitete Bild in der Klassengruppe. Was ist das Problem?",
+     o: ["Viele glauben einem Bild sofort – so verbreitet sich eine falsche Nachricht schnell.", "Bearbeitete Bilder brauchen mehr Speicherplatz.", "Bilder darf man grundsätzlich nie verschicken.", "Es gibt kein Problem, denn jeder erkennt die Bearbeitung."], a: 0,
+     e: "Bilder wirken wie Beweise. Deshalb gilt auch bei Bildern: erst prüfen, dann teilen."}
+  ], "mcfake", {t: "M7 · Kurz-Check"});
+});
+
+/* ---------- Station 2 ---------- */
+Modul.makeMarkieren($("#markSms"), {
+  name: "Warnzeichen in einer SMS finden",
+  kopf: "<b>SMS</b> von einer unbekannten Nummer · heute, 07:42",
+  teile: [
+    "PaketBlitz: ", {t: "Ihr Paket", w: false, e: "Ob wirklich ein Paket unterwegs ist, weißt du selbst am besten. Die Wörter allein sind noch kein Warnzeichen."},
+    " konnte nicht zugestellt werden. ", {t: "Zahlen Sie 1,99 € Zollgebühr", w: true, e: "Ein Paketdienst verlangt kein Geld über einen Link in einer SMS."},
+    " ", {t: "innerhalb von 12 Stunden", w: true, e: "Zeitdruck! Du sollst handeln, bevor du nachdenkst."},
+    ", ", {t: "sonst wird das Paket vernichtet", w: true, e: "Eine Drohung soll dir Angst machen."}, ".\n",
+    {t: "paketblitz.example.zoll-bezahlen.example/p?id=4471", w: true, e: "Lies die Adresse von hinten: Vor der letzten Endung steht „zoll-bezahlen“ – das ist nicht die Seite von PaketBlitz."}, "\n",
+    {t: "Geben Sie dort Ihre Kartennummer ein.", w: true, e: "Kartennummern, Passwörter und PINs gibt man nie über einen Link aus einer Nachricht ein."},
+    " ", {t: "Vielen Dank.", w: false, e: "Höflich können auch Betrüger sein. Das ist kein Warnzeichen – aber auch kein Beweis, dass die Nachricht echt ist."},
+    " ", {t: "Ihr PaketBlitz-Team", w: false, e: "Einen Namen kann jeder unter eine Nachricht setzen."}
+  ],
+  fertig: "Du hast alle fünf Warnzeichen gefunden – diese SMS ist Phishing."
+}, "markSms");
+
+Modul.makeMC($("#mc-s2"), [
+  {q: "Ups – du hast schon auf den Link getippt. Was ist jetzt richtig?",
+   o: ["Die Seite sofort schließen und nichts eingeben", "Schnell die Kartennummer eingeben, damit das Paket ankommt", "Einem Erwachsenen Bescheid sagen", "Die SMS an alle Freunde weiterschicken"], a: [0, 2],
+   e: "Schließen, nichts eingeben und Bescheid sagen. Hast du doch etwas eingegeben, änderst du sofort dein Passwort."},
+  {q: "Woran erkennst du am sichersten, ob ein Link echt ist?",
+   o: ["An dem Namen, der direkt vor der letzten Endung der Adresse steht", "An der Farbe des Links", "Daran, dass die Nachricht höflich ist", "Daran, dass ein bekannter Firmenname im Text vorkommt"], a: 0,
+   e: "Der Name der Seite steht direkt vor der Endung. Alles davor kann frei erfunden sein."}
+], "mc2", {t: "Kurz-Check"});
+
+/* ---------- Station 3 ---------- */
+Modul.makeEntscheiden($("#entPosten"), {
+  optionen: ["👍 Ja, das geht", "✋ Nein, lieber nicht"], frage: "Ist das in Ordnung?",
+  faelle: [
+    {t: "Ein Foto von dir und deinem Hund im Garten.", a: 0, e: "Dein eigenes Bild, niemand sonst ist zu sehen – das entscheidest du selbst."},
+    {t: "Ein Bild aus der Bildersuche als Titelbild für die Schülerzeitung, die im Internet steht.", a: 1, e: "Das Bild gehört jemand anderem. Ohne Erlaubnis darfst du es nicht veröffentlichen."},
+    {t: "Das Foto von der Geburtstagsfeier. Alle, die darauf sind, haben „ja“ gesagt.", a: 0, e: "Alle haben zugestimmt – dann ist es in Ordnung."},
+    {t: "Deine Adresse und deine Handynummer in deinem öffentlichen Profil.", a: 1, e: "Verboten ist das nicht – aber klug ist es auch nicht: Fremde können dich dann anrufen oder finden. Private Daten gehören nicht in ein öffentliches Profil."},
+    {t: "Ein Bild, das du selbst gemalt hast.", a: 0, e: "Du bist der Urheber. Du bestimmst, was mit deinem Bild passiert."},
+    {t: "Ein Bildschirmfoto vom Zeugnis deines Freundes – er weiß nichts davon.", a: 1, e: "Das sind private Daten deines Freundes. Ohne seine Erlaubnis geht das nicht."}
+  ],
+  fertig: "Alle sechs Fälle richtig entschieden!"
+}, "entPosten");
+
+/* ---------- Station 4: Duell gegen die KI ---------- */
+(function(){
+  // k: Stichwortgruppen für die Prüfung ohne KI (eine passende Gruppe genügt), m: mögliche Begründungen
+  const RUNDEN = [
+    {arg: "Herzlichen Glückwunsch! Du bist der 1.000.000. Besucher und hast ein neues Handy gewonnen. Gib nur schnell deine Adresse und dein Geburtsdatum ein!",
+     m: "Ich habe bei keinem Gewinnspiel mitgemacht, und niemand verschenkt einfach Handys. Die wollen nur meine Daten sammeln.",
+     k: ["gewinnspiel|mitgemacht|teilgenommen|verschenk|geschenk|zu schön|umsonst|gratis", "daten|adresse|geburtsdatum|sammeln"],
+     tips: ["Satzanfang: „Das ist Betrug, weil …“", "Idee: Hast du überhaupt bei einem Gewinnspiel mitgemacht?", "Idee: Was will der Absender von dir haben – und was kann er damit anfangen?"],
+     yes: "Mist, du hast recht: Niemand verschenkt einfach Handys. Ich wollte nur deine Daten.", no: "Ha! Das war keine Begründung. Dein Geburtsdatum bitte!"},
+    {arg: "Hier ist dein Paketdienst PaketBlitz. Dein Paket hängt im Zoll. Zahle 1,99 € über diesen Link: paketblitz.example.zoll-zahlen.example",
+     m: "Die Adresse ist gefälscht: Vor der letzten Endung steht nicht paketblitz, sondern zoll-zahlen. Außerdem verlangt ein Paketdienst kein Geld über einen Link.",
+     k: ["adresse|link|endung|zoll-zahlen|gefälscht|falsche seite", "geld|zahlen|bezahlen|nichts bestellt|kein paket"],
+     tips: ["Satzanfang: „Der Link ist nicht echt, denn …“", "Idee: Lies die Adresse von hinten. Was steht direkt vor der letzten Endung?", "Idee: Hast du überhaupt etwas bestellt? Und wie bezahlt man normalerweise Gebühren?"],
+     yes: "Erwischt. Die Adresse gehört gar nicht zu PaketBlitz – das hast du gut gesehen.", no: "Das überzeugt mich nicht. Der Link sieht doch gut aus, oder?"},
+    {arg: "Hi, ich bin's, dein Cousin! Hab eine neue Nummer. Kannst du mir kurz den Code schicken, den du gleich per SMS bekommst?",
+     m: "Ich kenne die Nummer nicht und kann nicht sicher sein, wer schreibt. Einen Code aus einer SMS gibt man nie weiter – damit kann jemand mein Konto übernehmen. Ich rufe meinen Cousin unter der alten Nummer an.",
+     k: ["code|weitergeben|weiter geben|konto|übernehmen", "nummer|unbekannt|anrufen|nachfragen|sicher sein|kenne"],
+     tips: ["Satzanfang: „Einen Code gebe ich nicht weiter, weil …“", "Idee: Woher weißt du, dass wirklich dein Cousin schreibt?", "Idee: Was kann jemand mit einem Code machen, der an dein Handy geschickt wird?"],
+     yes: "Stimmt. Mit dem Code hätte ich dein Konto übernommen. Gut, dass du erst anrufst.", no: "Ach komm, ich bin doch dein Cousin! Den Code, bitte."},
+    {arg: "Sicherheitsteam von Spielwelt: Dein Konto wurde gehackt! Schick uns sofort dein Passwort, sonst löschen wir alles in 10 Minuten.",
+     m: "Ein echter Anbieter fragt nie nach dem Passwort. Der Zeitdruck und die Drohung sollen mich nur zu einer schnellen Antwort bringen.",
+     k: ["passwort|fragt nie|niemals", "zeitdruck|sofort|10 minuten|druck|drohung|droht|angst"],
+     tips: ["Satzanfang: „Ein echter Anbieter würde nie …“", "Idee: Wer darf dein Passwort kennen?", "Idee: Warum soll alles in 10 Minuten passieren?"],
+     yes: "Verflixt! Kein echter Anbieter fragt nach dem Passwort. Du lässt dich nicht unter Druck setzen.", no: "Tick, tack … noch 9 Minuten! Das Passwort, schnell!"}
+  ];
+  const LETZT = {frage: "Jetzt du: Nenne deine wichtigste Regel für unbekannte Nachrichten – und begründe sie kurz.",
+    m: "Ich tippe bei unbekannten Nachrichten auf keinen Link und gebe keine Daten ein, weil dahinter Betrüger stecken können. Im Zweifel frage ich einen Erwachsenen.",
+    k: ["link|antippen|tippen|klicken|anklicken", "daten|passwort|eingeben|verraten|weitergeben", "erwachsene|eltern|lehrkraft|fragen|nachfragen", "löschen|melden|blockieren|ignorieren"],
+    reply: "Eine starke Regel. Gegen dich habe ich als Trick-Bot keine Chance – so bleibst du im Netz sicher."};
+  const box = $("#duel");
+  register("duell", "#duel", "Duell gegen die KI: Betrugsnachrichten entlarven und begründen");
+  let r, me, ki, tipN;
+  function vorher(){
+    box.innerHTML = `<h3 style="margin:0">Bereit?</h3><p class="hint" style="margin:0">Vier Betrugsnachrichten und ein letztes Wort. Schreibe immer mindestens einen ganzen Satz.</p>
+      <div class="row-btns"><button class="btn start" type="button">⚔️ Duell starten</button></div>`;
+    $(".start", box).addEventListener("click", start);
+  }
+  function start(){
+    r = 0; me = 0; ki = 0;
+    box.innerHTML = `<div class="score"><span>🧑 Du <span class="pts me">0</span></span><span class="chip rnd"></span><span><span class="pts ki">0</span> Trick-Bot 🤖</span></div>
+      <div class="chat" aria-live="polite"></div><div class="input"></div>`;
+    say("ki", "Ich bin der <b>Trick-Bot</b>. Mal sehen, ob du auf mich hereinfällst!");
+    runde();
+  }
+  function say(who, html, cls){
+    const chat = $(".chat", box), m = document.createElement("div");
+    m.className = "msg " + (who === "me" ? "me " : "") + (cls || "");
+    m.innerHTML = `<div class="av">${who === "me" ? "🧑" : "🤖"}</div><div class="b">${html}</div>`;
+    chat.appendChild(m); chat.scrollTop = chat.scrollHeight;
+  }
+  function punkte(){ $(".pts.me", box).textContent = me; $(".pts.ki", box).textContent = ki; }
+  function runde(){
+    const last = r >= RUNDEN.length, R = last ? LETZT : RUNDEN[r];
+    $(".rnd", box).textContent = last ? "Letztes Wort" : `Runde ${r + 1} / ${RUNDEN.length}`;
+    if (!last) say("ki", `<small>Nachricht ${r + 1}</small>„${esc(R.arg)}“`);
+    else say("ki", `<small>Letzte Runde</small>${esc(R.frage)}`);
+    tipN = 0;
+    const tips = last ? ["Satzanfang: „Meine wichtigste Regel ist …, weil …“", "Idee: Denk an Links, an deine Daten und an Menschen, die du fragen kannst."] : R.tips;
+    $(".input", box).innerHTML = `<div class="ki"><textarea placeholder="${last ? "Deine wichtigste Regel …" : "Woran erkennst du den Betrug?"}" aria-label="Deine Antwort"></textarea></div>
+      <div class="tips"><strong>💡 Das hilft dir:</strong><ul></ul></div>
+      <div class="row-btns"><button class="btn small teal go" type="button">⚔️ ${last ? "Antworten" : "Entlarven"}</button><button class="btn small ghost tip" type="button">💡 Tipp</button></div><div class="ki"><div class="status"></div></div>`;
+    const ta = $("textarea", box), go = $(".go", box), tipBtn = $(".tip", box), st = $(".status", box);
+    ta.dataset.muster = R.m;
+    tipBtn.addEventListener("click", () => {
+      if (tipN >= tips.length) return;
+      $(".tips", box).classList.add("show"); $(".tips ul", box).insertAdjacentHTML("beforeend", `<li>${esc(tips[tipN++])}</li>`);
+      if (tipN >= tips.length) { tipBtn.disabled = true; tipBtn.textContent = "💡 Keine weiteren Tipps"; }
+    });
+    go.addEventListener("click", async () => {
+      const a = ta.value.trim();
+      if (a.length < 12) { st.textContent = "Schreib mindestens einen ganzen Satz."; return; }
+      go.disabled = true; tipBtn.disabled = true; ta.disabled = true;
+      say("me", esc(a));
+      st.innerHTML = '<span class="dots">Die KI prüft deine Begründung</span>';
+      const frage = last ? "Lern-Duell zu Betrugsnachrichten (Phishing). Die Schülerin oder der Schüler soll eine eigene wichtige Regel für den Umgang mit unbekannten Nachrichten nennen und kurz begründen."
+        : `Lern-Duell zu Betrugsnachrichten (Phishing). Ein Betrüger hat geschrieben: „${R.arg}“ Die Schülerin oder der Schüler soll in einem Satz erklären, woran man den Betrug erkennt. Es genügt ein zutreffendes Warnzeichen mit kurzer Begründung.`;
+      const res = await Modul.askKI({frage, erwartet: "Mögliche Antwort: " + R.m, antwort: a, keywords: R.k.map(x => x.split("|")[0])},
+        () => st.innerHTML = '<span class="dots">Der KI-Server wacht gerade auf – das kann bis zu einer Minute dauern</span>');
+      let note;
+      if (res) note = res.richtig ? "good" : res.teilweise ? "mid" : "bad";
+      else { // ohne KI: passendes Stichwort und ganzer Satz = überzeugend
+        const t = Modul.norm(a), treffer = R.k.some(g => g.split("|").some(w => t.includes(Modul.norm(w))));
+        note = treffer ? (a.length >= 25 ? "good" : "mid") : a.length >= 45 ? "mid" : "bad";
+      }
+      st.textContent = res ? "✨ Bewertet von der KI" : "Bewertung nach Stichworten (die KI war nicht erreichbar)";
+      const schiri = res && res.rueckmeldung ? `<small style="margin-top:6px">Schiedsrichter: ${esc(res.rueckmeldung)}</small>` : "";
+      if (note === "good") me += 2; else if (note === "mid") { me += 1; ki += 1; } else ki += 2;
+      punkte();
+      if (last) say("ki", (note === "bad" ? "Das war mir noch zu wenig begründet. " : "") + esc(R.reply) + schiri, note);
+      else {
+        const txt = note === "good" ? `✅ +2 für dich. ${esc(R.yes)}` : note === "mid" ? "🟡 Je 1 Punkt. Da ist etwas dran – aber nenne das Warnzeichen noch genauer." : `❌ +2 für mich. ${esc(R.no)}`;
+        say("ki", txt + (note !== "good" ? `<small style="margin-top:6px">So hättest du mich entlarven können: ${esc(R.m)}</small>` : "") + schiri, note);
+      }
+      $(".input", box).innerHTML = `<div class="row-btns"><button class="btn small next" type="button">${last ? "Ergebnis ansehen" : "Nächste Nachricht →"}</button></div>`;
+      $(".next", box).addEventListener("click", () => { r++; last ? ende() : runde(); });
+    });
+  }
+  function ende(){
+    $(".rnd", box).textContent = "Ende";
+    const msg = me > ki ? "🏆 Du hast den Trick-Bot besiegt! Du erkennst Betrug und kannst es begründen." : me === ki ? "🤝 Unentschieden! Lies die Beispiel-Antworten und versuch es noch einmal." : "🤖 Diesmal war der Trick-Bot vorn. Lies die Tipps und die Beispiel-Antworten – beim nächsten Mal hast du ihn.";
+    say("ki", `<b>Endstand: Du ${me} – Trick-Bot ${ki}</b><br>${msg}`, me >= ki ? "good" : "mid");
+    $(".input", box).innerHTML = `<div class="row-btns"><button class="btn small again" type="button">🔁 Nochmal</button></div>`;
+    $(".again", box).addEventListener("click", start);
+    solve("duell");
+    if (me > ki) Modul.confetti();
+  }
+  vorher();
+  // Für den Einheiten-Prüfer: spielt das Duell mit den Beispiel-Antworten durch
+  Modul.loeser.duell = async () => {
+    const warte = ms => new Promise(x => setTimeout(x, ms));
+    const s = $(".start", box); if (s) s.click();
+    for (let n = 0; n < 8 && !Modul.isSolved("duell"); n++) {
+      const ta = $("textarea", box), go = $(".go", box);
+      if (ta && go && !go.disabled) { ta.value = ta.dataset.muster; go.click(); }
+      for (let k = 0; k < 600 && !$(".next", box) && !$(".again", box); k++) await warte(50);
+      const next = $(".next", box); if (next) next.click();
+      await warte(30);
+    }
+  };
+})();
+
+/* ---------- Station 5 ---------- */
+Modul.makeCrossword($("#cw"), {
+  words: [
+    {w: "PHISHING", r: 1, c: 1, d: "d", q: "Betrüger „fischen“ mit gefälschten Nachrichten nach Passwörtern"},
+    {w: "PASSWORT", r: 1, c: 1, d: "a", q: "Geheimes Wort, das dein Konto schützt"},
+    {w: "URHEBER", r: 0, c: 7, d: "d", q: "So heißt, wer ein Foto, ein Lied oder einen Text erschaffen hat"},
+    {w: "QUELLE", r: 3, c: 5, d: "a", q: "Sie gibst du an, wenn du ein fremdes Bild im Referat zeigst"},
+    {w: "SERVER", r: 5, c: 3, d: "a", q: "Computer, der immer eingeschaltet ist und Nachrichten weiterschickt"},
+    {w: "ANHANG", r: 7, c: 0, d: "a", q: "Datei, die mit einer E-Mail mitgeschickt wird"},
+    {w: "SPAM", r: 5, c: 3, d: "d", q: "Unerwünschte Massen-Nachrichten, meist Werbung"},
+    {w: "BETREFF", r: 2, c: 10, d: "d", q: "Kurze Zeile, die sagt, worum es in einer E-Mail geht"}
+  ],
+  sol: [[1, 4], [3, 6], [5, 10], [8, 10], [3, 7], [7, 4]], solWord: "SURFEN"
+}, "cw");
+
+Modul.makeQuiz($("#quiz"), [
+  {q: "Welche Adresse sehen die anderen Empfänger einer E-Mail NICHT?", o: ["Die Adresse im Feld Bcc", "Die Adresse im Feld An", "Die Adresse im Feld Cc", "Alle Adressen sind immer sichtbar"], a: 0, e: "Bcc heißt Blindkopie: Diese Adresse bleibt für die anderen unsichtbar."},
+  {q: "Du schreibst deiner Lehrerin eine E-Mail. Welcher Anfang passt?", o: ["Sehr geehrte Frau Sommer,", "Hey du,", "Yo!", "Gar keine Anrede – gleich losschreiben"], a: 0, e: "Eine E-Mail an Erwachsene beginnt mit einer höflichen Anrede."},
+  {q: "Das Handy des Empfängers ist aus. Was macht der Server mit der Nachricht?", o: ["Er hebt sie auf, bis das Handy wieder online ist.", "Er löscht sie sofort.", "Er schickt sie an ein anderes Handy.", "Er schickt sie zurück."], a: 0, e: "Der Server bewahrt die Nachricht auf und schickt sie später weiter."},
+  {q: "Was ist Phishing?", o: ["Betrüger wollen mit gefälschten Nachrichten an Passwörter und Daten kommen.", "Ein Spiel, bei dem man Fische fängt.", "Werbung für Angelzubehör.", "Ein Programm, das Bilder bearbeitet."], a: 0, e: "Phishing kommt von „fischen“: Betrüger fischen nach deinen Daten."},
+  {q: "Welche Nachricht ist am verdächtigsten?", o: ["„Bestätigen Sie in 24 Stunden Ihr Passwort – sonst wird Ihr Konto gesperrt!“", "„Morgen bitte Sportsachen mitbringen.“", "„Die Bücherei hat am Freitag geschlossen.“", "„Danke für das Foto von der Hausaufgabe!“"], a: 0, e: "Zeitdruck, Drohung und die Frage nach dem Passwort – drei Warnzeichen auf einmal."},
+  {q: "Welche Adresse gehört wirklich zur Musterbank?", o: ["www.musterbank.example/anmelden", "musterbank.example.sicher-login.example", "www.rnusterbank.example", "musterbank-konto-pruefen.example"], a: 0, e: "Direkt vor der Endung muss „musterbank“ stehen – und zwar richtig geschrieben."},
+  {q: "Eine Taschenlampen-App will deine Kontakte lesen. Was tust du?", o: ["Ich lehne ab – dafür braucht die App meine Kontakte nicht.", "Ich erlaube es, sonst wird die App böse.", "Ich erlaube alles, das geht am schnellsten.", "Ich schicke der App meine Adresse."], a: 0, e: "Erlaube nur, was eine App für ihre Aufgabe wirklich braucht."},
+  {q: "Welches Passwort ist am sichersten?", o: ["Hz7!kPw3#Lm", "12345678", "passwort", "max2012"], a: 0, e: "Lang, mit großen und kleinen Buchstaben, Zahlen und Sonderzeichen – und ohne Namen."},
+  {q: "Du willst ein Gruppenfoto posten. Zwei Mitschüler sind dagegen. Was gilt?", o: ["Ich poste es nicht – sie haben das Recht am eigenen Bild.", "Die Mehrheit entscheidet.", "Ich poste es, sie sind ja nur klein zu sehen.", "Ich poste es und lösche es später wieder."], a: 0, e: "Jeder entscheidet selbst, ob ein Bild von ihm veröffentlicht wird."},
+  {q: "Wer ist der Urheber eines Fotos?", o: ["Wer das Foto aufgenommen hat", "Wer das Foto im Internet findet", "Wer auf dem Foto zu sehen ist", "Wer das Foto zuerst teilt"], a: 0, e: "Urheber ist, wer das Werk erschaffen hat."},
+  {q: "Du zeigst in deinem Referat ein Bild aus dem Internet. Was gehört dazu?", o: ["Die Quelle angeben", "Das Bild spiegeln, damit es keiner erkennt", "Nichts – im Internet ist alles frei", "Den Namen des Fotografen entfernen"], a: 0, e: "Zur Quelle gehören: Wer hat es gemacht, wie heißt es, wo hast du es gefunden und wann."},
+  {q: "Jemand beleidigt dich immer wieder in der Klassengruppe. Was ist ein guter Schritt?", o: ["Bildschirmfoto machen und mit einer Vertrauensperson sprechen", "Noch schlimmer zurückbeleidigen", "Das Handy wegwerfen", "Allen in der Gruppe drohen"], a: 0, e: "Beweise sichern, nicht zurückbeleidigen, blockieren und melden – und dir Hilfe holen."},
+  {q: "Eine Meldung besteht fast nur aus GROSSBUCHSTABEN und Ausrufezeichen und nennt keine Quelle. Was denkst du?", o: ["Unglaubwürdig – erst prüfen, nicht teilen", "Das muss sehr wichtig sein, sofort teilen", "Großbuchstaben bedeuten: von der Polizei", "Ohne Quelle ist eine Meldung am ehrlichsten"], a: 0, e: "So eine Meldung will dich aufregen. Prüfe sie, bevor du sie weiterschickst."},
+  {q: "Was ist Spam?", o: ["Unerwünschte Nachrichten, die an sehr viele Menschen gehen", "Eine E-Mail von deiner Lehrkraft", "Ein Anhang mit einem Bild", "Ein besonders sicheres Passwort"], a: 0, e: "Spam ist Massen-Post, die niemand bestellt hat – meist Werbung oder Betrug."},
+  {q: "Welcher Weg passt für eine Bewerbung um einen Praktikumsplatz?", o: ["E-Mail mit Anhang", "Sprachnachricht", "Kommentar unter einem Video", "Kettenbrief"], a: 0, e: "Für Offizielles nimmt man eine E-Mail."},
+  {q: "„Schick das an 10 Leute, sonst passiert etwas Schlimmes!“ – was ist das?", o: ["Ein Kettenbrief, den man nicht weiterschickt", "Eine wichtige Warnung", "Eine Nachricht vom Anbieter", "Eine Hausaufgabe"], a: 0, e: "Kettenbriefe machen Angst oder versprechen Glück. Einfach löschen."}
+], "quiz", "Internet-Profi");
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

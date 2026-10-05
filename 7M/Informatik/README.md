@@ -1,0 +1,12 @@
+# Informatik 7M / 7R
+
+- Übersicht 7M: `index.html` · Übersicht 7R: `../../7R/Informatik/index.html`. Beide nutzen `themen.js`, `uebersicht.js`, `../NT/uebersicht.css` und `uebersicht-informatik.css`.
+- **`themen.js` ist die eine Liste** aller Module, Einheiten und Proben (Kennung, Titel, Datei, Speicherschlüssel). Übersicht, Einheiten, Lernstand und die Verwaltung der Lehrkraft lesen daraus. Neue Einheit = Datei anlegen und dort `href` eintragen.
+- **Fünf Module, 26 Einheiten:** Internet und Sicherheit · Netzwerke mit Filius · Digitale Bilder mit GIMP · Vektorgrafik mit Inkscape · Programmieren mit Scratch. Eine Einheit ist eine Seite für etwa 40 Minuten und wird von beiden Zügen genutzt.
+- Gemeinsame Bausteine kommen aus NT 7 (`../NT/modul-basis.css`, `../NT/modul-basis.js`: Sterne, Übungstypen, Kreuzworträtsel, Schritt-Animation, KI-Rückmeldung, Quiz, Lernstand, Sperre). Für Informatik dazu: `einheit.css` und `praxis.js` (Praxisauftrag mit Hilfestufen und Ergebnisprüfung, Fälle entscheiden, Stellen im Text finden) sowie `email-uebung.js` (nachgebautes E-Mail-Fenster).
+- **R und M:** Aufgaben für den M-Zug stehen in `Modul.plus(() => …)`. In 7R sind sie freiwillig und zählen nicht zu den Pflichtaufgaben. Hilfen bekommt 7R sofort, 7M erst nach einer Wartezeit.
+- **Freischalten:** Die Lehrkraft schaltet je Klasse Module oder einzelne Einheiten frei (`proben-verwalten.html` → Klasse → Informatik, Skript `../../nt7-verwaltung.js`). Alles ist zuerst gesperrt; ohne Anmeldung mit Code ist nichts offen. `?vorschau=1` zeigt der Lehrkraft eine gesperrte Einheit, ohne etwas zu speichern.
+- **Proben:** je Modul eine Probe in einer Fassung für 7R und 7M, etwa 15 bis 20 Minuten. `probe.html` und `probe.js` zeigen die Probe des eigenen Zugs (`?thema=…&zug=R|M`, `?test=<Kennung>`). Fragen, Lösungen und Bewertung liegen nur auf dem Server (`/api/inf7`). Lehrerseite: `lehrer.html`.
+- **Praxis am Windows-PC:** Filius, GIMP und Scratch sind Pflicht am PC, Inkscape ebenso. Die Einheiten dazu sind als „Windows-PC erforderlich“ gekennzeichnet.
+- Die bisherigen Stunden bleiben unter `../../7/Informatik_7/index.html` erreichbar.
+- Beispiele in den Einheiten verwenden erfundene Namen und Adressen mit der Endung `.example`. Zeichnungen sind eigene SVG-Grafiken.
