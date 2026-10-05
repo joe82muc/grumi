@@ -21,6 +21,12 @@
 - **Scratch (Modul 5):** `scratch.js` und `scratch.css` zeichnen die Blöcke als eigene Grafiken und bieten eine
   kleine Bühne, auf der einfache Programme laufen (Programm lesen, starten, Blöcke ordnen). Programmiert wird im
   echten Scratch.
+- **Bildschirmfotos aus Scratch** liegen in `assets/scratch/` (fertige Programme für die dritte Hilfe, dazu Stellen
+  der Oberfläche: Bereiche, Eigenschaften unter der Bühne, Fenster „Neue Variable“, Menü „Datei“). Scratch erlaubt
+  Bildschirmfotos (Lizenz CC BY-SA) mit dem Hinweis „Scratch is a project of the Scratch Foundation. It is available
+  for free at https://scratch.mit.edu“ – er steht in jeder Scratch-Einheit unter dem Auftrag. Das Scratch-Logo und
+  die Scratch-Katze sind Marken und dürfen nicht verwendet werden: Kein Bild zeigt sie (keine Menüleiste, keine
+  Bühne, keine Figurenliste).
 - **Dateien hochladen:** Bei den Aufträgen in Excel und Scratch lädt das Kind seine gespeicherte Datei (`.xlsx`
   oder `.sb3`) in der Einheit hoch (`pruefung.server` in `Modul.makeAuftrag`). Der Server prüft die Punkte der
   Aufgabe mit einem Prüfprogramm, die KI schreibt eine kurze Rückmeldung. Gespeichert wird die Datei nicht. Ist der
