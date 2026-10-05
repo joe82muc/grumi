@@ -41,18 +41,18 @@
       text: "Welche Daten gibst du preis, was machen Unternehmen damit – und wie behältst du die Kontrolle?",
       proben: [{ R: "inf8-p2-r", M: "inf8-p2-m" }],
       module: [
-        { id: "spuren", titel: "Welche Daten gebe ich preis?", key: "grumi-i8-spuren-v1",
+        { id: "spuren", titel: "Welche Daten gebe ich preis?", href: "spuren.html", key: "grumi-i8-spuren-v1",
           text: "Name, Standort, Fotos, Suchverlauf: Ein ganz normaler Tag – und wie viele Daten dabei zusammenkommen.",
-          tags: ["Datenspuren sammeln", "Tablet geeignet"] },
-        { id: "bedingungen", titel: "Datenschutzbedingungen", key: "grumi-i8-bedingungen-v1",
+          tags: ["Datenspuren sammeln", "Anmeldung ausfüllen", "Tablet geeignet"] },
+        { id: "bedingungen", titel: "Datenschutzbedingungen", href: "bedingungen.html", key: "grumi-i8-bedingungen-v1",
           text: "Niemand liest sie – du schon: kurze Ausschnitte prüfen. Was wird gesammelt, wozu, und wem nützt es?",
-          tags: ["Texte prüfen", "Tablet geeignet"] },
-        { id: "bigdata", titel: "Big Data", key: "grumi-i8-bigdata-v1",
+          tags: ["Texte prüfen", "Stellen finden", "Tablet geeignet"] },
+        { id: "bigdata", titel: "Big Data", href: "bigdata.html", key: "grumi-i8-bigdata-v1",
           text: "Viele kleine Daten ergeben ein genaues Bild von dir. Du siehst zu, wie ein Profil entsteht.",
-          tags: ["Animation", "Tablet geeignet"] },
-        { id: "schuetzen", titel: "Wie schütze ich meine Daten?", key: "grumi-i8-schuetzen-v1",
+          tags: ["Animation", "Empfehlungs-Maschine", "Tablet geeignet"] },
+        { id: "schuetzen", titel: "Wie schütze ich meine Daten?", href: "schuetzen.html", key: "grumi-i8-schuetzen-v1",
           text: "Berechtigungen, Standort, Cookies, Privatsphäre: Du stellst ein Handy so ein, dass es weniger verrät.",
-          tags: ["Einstellungen üben", "Probenstoff"] }
+          tags: ["Einstellungen üben", "Kreuzworträtsel", "Probenstoff"] }
       ]
     },
     {
