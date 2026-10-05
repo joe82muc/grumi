@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Mini-Anwendung: Zahlenraten | Informatik 8</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="einheit8.css">
+<link rel="stylesheet" href="scratch.css">
+<style>
+.spur{width:100%;max-width:560px;margin:12px auto;border-collapse:collapse;background:#fff;border:2px solid var(--line);border-radius:12px;overflow:hidden}
+.spur th,.spur td{padding:7px 10px;text-align:center;border-top:1px solid var(--line)}
+.spur th{background:#f4f7fb;font-size:.85rem;color:var(--muted);border-top:0}
+.spur td{font-weight:700}
+.spur tr.jetzt td{background:#fff3c4}
+.spur tr.spaeter td{color:transparent}
+.bau{display:grid;gap:8px;margin:12px 0;counter-reset:bau}
+.bau div{display:grid;grid-template-columns:2.2em 1fr;gap:10px;align-items:start;background:#f4f7fb;border-radius:10px;padding:8px 12px}
+.bau div::before{counter-increment:bau;content:counter(bau);display:grid;place-items:center;width:1.9em;height:1.9em;border-radius:50%;background:#ffab19;color:#3b2500;font-weight:800}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 8</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Ausprobieren</a>
+      <a href="#s2"><b>2</b>Verstehen</a>
+      <a href="#s3"><b>3</b>In Scratch</a>
+      <a href="#s4"><b>4</b>Anwenden</a>
+      <a href="#s5"><b>5</b>Sichern</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">💻 Übersicht Informatik 8M</a>
+      <a href="../../8R/Informatik/index.html">💻 Übersicht Informatik 8R</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 8M / 8R · Modul 5: Programmieren mit Scratch · Einheit 7</div>
+    <h1>Mini-Anwendung: Zahlenraten</h1>
+    <p>Die Figur denkt sich eine Zahl von 1 bis 10 aus. Du rätst – und sie verrät dir nur: zu groß oder zu klein. In diesem kleinen Spiel steckt alles, was du bisher gelernt hast, und ein neuer Baustein: die Wiederholung. In der Informatik heißt sie Schleife.</p>
+    <div class="zeit">⏱ etwa 45 Minuten · Praxis in Scratch (im Browser)</div>
+    <div><span class="pc-tag" title="Diese Einheit machst du am PC">🖥 PC mit Scratch im Browser erforderlich</span></div>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s3">🛠 Direkt zum Auftrag</a>
+    </div>
+    <div class="goals">
+      <div>🎲 Ich lasse das Programm eine Zufallszahl merken.</div>
+      <div>🔁 Ich wiederhole Blöcke, bis eine Bedingung wahr ist.</div>
+      <div>🔀 Ich gebe in der Schleife einen Hinweis mit einer Verzweigung.</div>
+      <div>🎮 Ich baue aus allen Bausteinen ein Spiel.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div class="pc-banner"><span class="big">🖥</span><div><b>PC mit Scratch erforderlich.</b> Den Auftrag in Station 3 machst du in Scratch (scratch.mit.edu). Die Stationen 1, 2, 4 und 5 gehen auch am Tablet.</div></div>
+<div id="modulStand" aria-label="Dein Lernfortschritt in dieser Einheit"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Ausprobieren</div><h2>Erst spielen</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag">Versuch</span>
+    <div id="versuch1"></div>
+    <div id="mc-s1"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Verstehen</div><h2>Fünf Bausteine – ein Spiel</h2></div></div>
+  <div class="card reveal">
+    <p class="lead" style="margin-top:0">Das Spiel besteht aus fünf Teilen. Drei davon kennst du schon, zwei sind neu:</p>
+    <div class="bau">
+      <div><span><b>Zahl ausdenken (neu!):</b> Eine Variable merkt sich eine <button class="term" data-t="zufall">Zufallszahl</button> von 1 bis 10.</span></div>
+      <div><span><b>Fragen:</b> Die Figur fragt nach dem ersten Tipp.</span></div>
+      <div><span><b>Wiederholen (neu!):</b> Der Block „wiederhole bis …“ ist eine <button class="term" data-t="schleife">Schleife</button>. Die Blöcke in seinem Inneren laufen immer wieder – so lange, bis die Bedingung wahr ist.</span></div>
+      <div><span><b>Hinweis geben:</b> In der Schleife sagt eine Verzweigung „Zu groß!“ oder „Zu klein!“. Danach wird <b>noch einmal gefragt</b>.</span></div>
+      <div><span><b>Gewonnen:</b> Erst wenn die Antwort stimmt, geht es unter der Schleife weiter: „Richtig!“</span></div>
+    </div>
+    <p>Sieh zu, wie das Programm arbeitet. Die Geheimzahl ist in diesem Beispiel <b>6</b>:</p>
+    <div class="sim" id="animSim">
+      <table class="spur" aria-live="polite">
+        <tr><th>Eingabe</th><th>Antwort = 6 ?</th><th>Antwort &gt; 6 ?</th><th>Die Figur sagt</th></tr>
+        <tr data-i="1"><td>9</td><td>falsch</td><td>wahr</td><td>Zu groß!</td></tr>
+        <tr data-i="2"><td>3</td><td>falsch</td><td>falsch</td><td>Zu klein!</td></tr>
+        <tr data-i="3"><td>6</td><td>wahr</td><td>–</td><td>Richtig!</td></tr>
+      </table>
+    </div>
+    <div class="merke">
+      <h4>MERKE</h4>
+      <ul>
+        <li><b>„wiederhole bis …“</b> wiederholt die Blöcke in seinem Inneren, bis die Bedingung <b>wahr</b> ist. So eine Wiederholung heißt <b>Schleife</b>.</li>
+        <li>Ist die Bedingung schon am Anfang wahr, läuft das Innere <b>kein einziges Mal</b>.</li>
+        <li>In der Schleife muss sich etwas ändern – hier: eine neue Antwort. Sonst hört sie nie auf (<button class="term" data-t="endlos">Endlosschleife</button>).</li>
+        <li>Die Verzweigung steckt hier <b>in</b> der Schleife. Blöcke ineinander nennt man <b>Schachtelung</b>.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card reveal" id="mc-s2"></div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Selber machen · in Scratch</div><h2>Das Spiel bauen</h2></div></div>
+  <div class="reveal" id="auf1"></div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Anwenden</div><h2>Ordnen, mitdenken, Fehler finden</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag">Blöcke ordnen</span>
+    <div id="reihe1"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Mitdenken</span>
+    <p class="lead">Die Geheimzahl ist <b>4</b>. Jemand gibt nacheinander <b>7</b>, <b>2</b> und <b>4</b> ein.</p>
+    <div id="spurF1"></div>
+    <div id="spurF2"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Fehler finden</span>
+    <p class="lead">In diesem Programm fehlt ein Block. Finde heraus, was beim Spielen passiert.</p>
+    <div class="scr-programm" id="fehlerProg"></div>
+    <div id="mc-s4"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag m7">M8 · für 8R freiwillig</span>
+    <p class="m7-hinweis">Ein gutes Spiel zählt mit: Wie viele Versuche hast du gebraucht? Dafür brauchst du eine zweite Variable.</p>
+    <div id="versuchM"></div>
+    <div id="aufM"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag m7">M8 · für 8R freiwillig</span> <span class="ki-badge">✨ KI prüft</span>
+    <p class="m7-hinweis">Erkläre in eigenen Worten. Die KI gibt dir einen kurzen Hinweis – nicht die Lösung.</p>
+    <div id="openM"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Kurz sichern</div><h2>Das nimmst du mit</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal"><span class="task-tag">Richtig oder falsch?</span><div id="tf"></div></div>
+    <div class="card reveal"><span class="task-tag">Lückentext</span><div class="gaptext" id="gap"></div></div>
+  </div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieser Einheit auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Du hast ein vollständiges Spiel programmiert. In der letzten Einheit des Moduls bist du dran: Du planst und baust dein eigenes kleines Projekt – ein Quiz, einen Rechentrainer oder etwas ganz anderes.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="index.html">💻 Übersicht Informatik 8M</a>
+      <a href="../../8R/Informatik/index.html">💻 Übersicht Informatik 8R</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Informatik 8 · Einheit „Mini-Anwendung: Zahlenraten“ · Dein Fortschritt wird auf diesem Gerät gespeichert. · Scratch ist ein Projekt der Scratch Foundation (scratch.mit.edu). Die Blöcke, die Figur und die Bühne auf dieser Seite sind eigene Nachbildungen.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info8.js"></script>
+<script src="excel-datei.js"></script>
+<script src="scratch.js"></script>
+<script src="scratch-aufgaben.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$} = Modul;
+
+Modul.init({
+  key: "grumi-i8-zahlenraten-v1",
+  api: "/api/inf8/uebung/feedback",
+  thema: "Programmieren mit Scratch, Klasse 8: Mini-Anwendung Zahlenraten – Zufallszahl in einer Variablen, Schleife „wiederhole bis …“ mit Bedingung, Verzweigung für den Hinweis (zu groß, zu klein), erneute Eingabe in der Schleife, Zähler für die Versuche",
+  glossary: {
+    zufall: ["Zufallszahl", "Eine Zahl, die der Computer auswürfelt. Der grüne Block „Zufallszahl von 1 bis 10“ würfelt bei jedem Start neu. Es kann auch zufällig dieselbe Zahl sein."],
+    schleife: ["Schleife (Wiederholung)", "Blöcke, die mehrmals hintereinander ausgeführt werden. „wiederhole bis …“ wiederholt, bis die Bedingung wahr ist."],
+    bedingung: ["Bedingung", "Eine Aussage, die wahr oder falsch ist, zum Beispiel „Antwort = geheimzahl“."],
+    endlos: ["Endlosschleife", "Eine Schleife, die nie aufhört, weil ihre Bedingung nie wahr wird. Meistens ein Fehler."],
+    variable: ["Variable", "Ein Speicherplatz mit einem Namen. Hier merkt sie sich die Geheimzahl."],
+    zaehler: ["Zähler", "Eine Variable, die mitzählt. Sie bekommt einen Startwert und wird in der Schleife mit „ändere … um 1“ erhöht."]
+  }
+});
+const SCHLEIFE = ["bis", ["=", ["antwort"], ["var", "geheimzahl"]], [["fallsSonst", [">", ["antwort"], ["var", "geheimzahl"]], [["sageFuer", "Zu groß!", 1]], [["sageFuer", "Zu klein!", 1]]], ["frage", "Rate noch einmal!"]]];
+const SPIEL = [["flagge"], ["setze", "geheimzahl", ["zufall", 1, 10]], ["frage", "Ich denke mir eine Zahl von 1 bis 10. Rate!"], SCHLEIFE, ["sageFuer", "Richtig!", 2]];
+const geheim = v => v.geheimzahl;
+
+/* ---------- Station 1 ---------- */
+Modul.makeScratchVersuch($("#versuch1"), {
+  text: "Die Figur hat sich eine Zahl von 1 bis 10 ausgedacht. <b>Starte das Spiel und rate</b>, bis du die Zahl gefunden hast. Lies danach das Programm: Welcher Block ist neu?",
+  name: "Versuch: Zahlenraten spielen",
+  programm: SPIEL,
+  fertig: p => p.gesagt.includes("Richtig!") ? true : "Rate weiter, bis die Figur „Richtig!“ sagt.",
+  loesung: [[v => v.geheimzahl + 1, v => v.geheimzahl - 1, geheim]],
+  erfolg: "Geschafft! Bei jedem Start denkt sich die Figur eine neue Zahl aus."
+}, "versuch1");
+Modul.makeMC($("#mc-s1"), [
+  {q: "Mit welcher Zahl fängst du am besten an, wenn du möglichst wenige Versuche brauchen willst?",
+   o: ["mit 5 – in der Mitte", "mit 1 – ganz unten", "mit 10 – ganz oben", "Das ist egal."], a: 0,
+   e: "Nach dem Hinweis „zu groß“ oder „zu klein“ fällt die Hälfte der Zahlen weg."},
+  {q: "Warum zeigt die Bühne die Geheimzahl nicht an?",
+   o: ["Sonst wäre das Raten zu leicht.", "Variablen kann man nie anzeigen.", "Die Zahl ist zu groß für die Bühne.", "Das Programm kennt die Zahl selbst nicht."], a: 0,
+   e: "Das Programm kennt die Zahl genau – sie steckt in einer Variablen. In Scratch entfernst du dafür das Häkchen vor der Variablen."}
+], "mc1", {t: "Nach dem Spiel"});
+
+/* ---------- Station 2 ---------- */
+(function () {
+  const zeilen = $$("#animSim .spur tr[data-i]");
+  Modul.makeSchritte($("#animSim"), {
+    steps: [
+      "Die Figur merkt sich die Geheimzahl 6 und fragt zum ersten Mal.",
+      "Eingabe <b>9</b>. Die Schleife prüft: 9 = 6? Falsch – also läuft das Innere. Dort: 9 &gt; 6? Wahr. Die Figur sagt „Zu groß!“ und fragt noch einmal.",
+      "Eingabe <b>3</b>. Wieder prüft die Schleife: 3 = 6? Falsch. Im Inneren: 3 &gt; 6? Falsch – also der „sonst“-Zweig: „Zu klein!“. Dann die nächste Frage.",
+      "Eingabe <b>6</b>. Die Schleife prüft: 6 = 6? <b>Wahr.</b> Das Innere läuft nicht mehr. Es geht unter der Schleife weiter: „Richtig!“"
+    ],
+    start: "Tippe auf „Start“.", ms: 3600,
+    zeige(i) { zeilen.forEach(z => { const n = +z.dataset.i; z.classList.toggle("jetzt", n === i); z.classList.toggle("spaeter", n > Math.max(i, 0)); }); }
+  }, "anim1");
+})();
+
+Modul.makeMC($("#mc-s2"), [
+  {q: "Wie lange wiederholt der Block „wiederhole bis Antwort = geheimzahl“ sein Inneres?",
+   o: ["bis die Antwort mit der Geheimzahl übereinstimmt", "genau zehnmal", "solange die Antwort richtig ist", "bis die Figur die Bühne verlässt"], a: 0,
+   e: "„bis“ heißt: Sobald die Bedingung wahr ist, ist Schluss."},
+  {q: "Du rätst gleich beim ersten Mal richtig. Wie oft läuft das Innere der Schleife?",
+   o: ["kein einziges Mal", "einmal", "zweimal", "zehnmal"], a: 0,
+   e: "Die Bedingung ist sofort wahr. Die Figur sagt gleich „Richtig!“."},
+  {q: "Welcher Block sorgt dafür, dass die Geheimzahl bei jedem Start neu ausgewürfelt wird?",
+   o: ["Zufallszahl von 1 bis 10", "frage … und warte", "wiederhole bis …", "sage Richtig!"], a: 0,
+   e: "Der grüne Block aus dem Bereich Operatoren würfelt eine Zahl aus."}
+], "mc2", {t: "Kurz-Check"});
+
+/* ---------- Station 3: Auftrag in Scratch ---------- */
+Modul.makeAuftrag($("#auf1"), {
+  titel: "Zahlenraten", pc: "Scratch", zeit: "etwa 25 Minuten",
+  ziel: "Dein Spiel läuft: Die Figur merkt sich eine Zufallszahl, fragt, gibt Hinweise und sagt am Ende „Richtig!“. Du baust es in zwei Stufen.",
+  schritte: [
+    "Öffne Scratch und lege im Bereich <span class=\"menue\">Variablen</span> die Variable <b>geheimzahl</b> an. Entferne das Häkchen vor ihrem Namen – sonst steht die Lösung auf der Bühne.",
+    "<b>Stufe 1 – das Gerüst.</b> Baue den Anfang: <b>Wenn (grüne Fahne) angeklickt wird</b> · <b>setze geheimzahl auf …</b>. Ziehe aus <span class=\"menue\">Operatoren</span> den Block <b>„Zufallszahl von 1 bis 10“</b> in das Feld.",
+    "Hänge an: <b>frage Ich denke mir eine Zahl von 1 bis 10. Rate! und warte</b>.",
+    "Hänge aus <span class=\"menue\">Steuerung</span> den Block <b>„wiederhole bis …“</b> an. In sein sechseckiges Feld kommt der Vergleich <b>Antwort = geheimzahl</b>.",
+    "Lege in die Schleife den Block <b>frage Rate noch einmal! und warte</b>.",
+    "Unter die Schleife (nicht hinein!) hängst du: <b>sage Richtig! für 2 Sekunden</b>.",
+    "Teste: Das Spiel läuft schon. Die Figur fragt so lange, bis du die Zahl triffst – nur Hinweise gibt sie noch nicht.",
+    "<b>Stufe 2 – die Hinweise.</b> Lege in die Schleife <b>über</b> den Frage-Block einen Block <b>„falls …, dann … sonst“</b> mit der Bedingung <b>Antwort &gt; geheimzahl</b>. Bei „dann“: <b>sage Zu groß! für 1 Sekunden</b>. Bei „sonst“: <b>sage Zu klein! für 1 Sekunden</b>.",
+    "Spiele dein Spiel ein paarmal. Speichere über <span class=\"menue\">Datei</span> → <span class=\"menue\">Auf deinem Computer speichern</span>."
+  ],
+  kurz: [
+    "Baue in Scratch das Zahlenraten-Spiel: Eine Variable merkt sich eine Zufallszahl von 1 bis 10.",
+    "Die Figur fragt nach einem Tipp und wiederholt, bis die Antwort stimmt. In der Schleife sagt sie „Zu groß!“ oder „Zu klein!“ und fragt noch einmal.",
+    "Nach der Schleife sagt sie „Richtig!“.",
+    "Teste und speichere über <span class=\"menue\">Datei</span> → <span class=\"menue\">Auf deinem Computer speichern</span>."
+  ],
+  hilfen: [
+    "Das Programm hat zwei Fragen: eine <b>vor</b> der Schleife und eine <b>in</b> der Schleife. Beide sind nötig.",
+    "Sagt die Figur ohne Ende „Zu groß!“? Dann fehlt die Frage in der Schleife. Klicke auf das rote Stopp-Zeichen und ergänze sie.",
+    "So sieht das fertige Programm aus:<div class=\"scr-programm\" id=\"hilfeProg\"></div>"
+  ],
+  loesung: "Fahne · setze geheimzahl auf Zufallszahl von 1 bis 10 · frage … · wiederhole bis Antwort = geheimzahl: [falls Antwort > geheimzahl, dann: sage Zu groß! · sonst: sage Zu klein!] und [frage Rate noch einmal!] · danach: sage Richtig!",
+  pruefung: {
+    art: "datei", accept: ".sb3", lies: Modul.liesScratch, pruefe: Modul.scratchPruefung["zahlenraten-auf1"], server: {pfad: "/api/inf8/scratch/pruefen", aufgabe: "zahlenraten-auf1"},
+    text: "Lade dein gespeichertes Projekt hoch (die Datei mit der Endung <b>.sb3</b> aus dem Ordner Downloads). Es wird geprüft, und die KI schreibt dir eine Rückmeldung. Gespeichert wird die Datei dabei nicht.",
+    ersatz: {art: "wort", frage: "Die Geheimzahl ist 6. Du gibst 9 ein. Was sagt die Figur?", antworten: ["Zu groß", "Zu groß!"], tipp: "9 ist größer als 6 – welcher Zweig der Verzweigung läuft dann?"}
+  }
+}, "auf1");
+(function () { const el = document.getElementById("hilfeProg"); if (el) Modul.scratchBloecke(el, SPIEL); })();
+
+/* ---------- Station 4 ---------- */
+Modul.makeBlockReihe($("#reihe1"), {
+  text: "Das Grundgerüst des Spiels ist durcheinandergeraten. Bringe die Blöcke in die richtige Reihenfolge. Zuerst denkt sich die Figur die Zahl aus – erst dann fragt sie.",
+  name: "Blöcke ordnen: Grundgerüst des Zahlenratens",
+  bloecke: [["flagge"], ["setze", "geheimzahl", ["zufall", 1, 10]], ["frage", "Ich habe eine Zahl. Rate!"], ["bis", ["=", ["antwort"], ["var", "geheimzahl"]], [["frage", "Rate noch einmal!"]]], ["sageFuer", "Richtig!", 2]], fest: 1,
+  erfolg: "Zahl ausdenken – fragen – wiederholen – gewonnen."
+}, "reihe1");
+
+Modul.makeEingabe($("#spurF1"), {
+  frage: "Wie oft sagt die Figur „Zu groß!“?",
+  wert: 1, tipp: "Vergleiche jede Eingabe mit der 4: Nur die 7 ist größer.",
+  name: "Mitdenken: Zahl der Hinweise „Zu groß!“"
+}, "spur1");
+Modul.makeEingabe($("#spurF2"), {
+  frage: "Wie oft läuft das Innere der Schleife?",
+  wert: 2, tipp: "Bei 7 und bei 2 ist die Bedingung „Antwort = 4“ falsch. Bei der dritten Eingabe ist sie wahr.",
+  erfolg: "Zwei falsche Tipps, zwei Durchläufe. Beim dritten Tipp endet die Schleife sofort.",
+  name: "Mitdenken: Zahl der Schleifendurchläufe"
+}, "spur2");
+
+Modul.scratchBloecke($("#fehlerProg"), [["flagge"], ["setze", "geheimzahl", ["zufall", 1, 10]], ["frage", "Rate!"],
+  ["bis", ["=", ["antwort"], ["var", "geheimzahl"]], [["fallsSonst", [">", ["antwort"], ["var", "geheimzahl"]], [["sageFuer", "Zu groß!", 1]], [["sageFuer", "Zu klein!", 1]]]]], ["sageFuer", "Richtig!", 2]]);
+Modul.makeMC($("#mc-s4"), [
+  {q: "Jemand rät beim ersten Mal falsch. Was passiert dann?",
+   o: ["Die Figur wiederholt ohne Ende denselben Hinweis.", "Die Figur sagt sofort „Richtig!“.", "Das Programm beendet sich.", "Die Figur fragt noch einmal."], a: 0,
+   e: "In der Schleife wird nicht neu gefragt. Die Antwort bleibt dieselbe – die Bedingung wird nie wahr."},
+  {q: "Wie nennt man eine Schleife, die nie aufhört?",
+   o: ["Endlosschleife", "Zufallsschleife", "Variable", "Verzweigung"], a: 0,
+   e: "In Scratch hältst du sie mit dem roten Stopp-Zeichen über der Bühne an."},
+  {q: "Welcher Block fehlt – und wo?",
+   o: ["„frage … und warte“ am Ende der Schleife", "„sage Richtig!“ in der Schleife", "„setze geheimzahl“ in der Schleife", "eine zweite grüne Fahne"], a: 0,
+   e: "Nur mit einer neuen Eingabe kann die Bedingung irgendwann wahr werden."}
+], "mc4", {t: "Fehlersuche"});
+
+Modul.plus(() => {
+  Modul.makeScratchVersuch($("#versuchM"), {
+    text: "Dieses Spiel zählt mit. Lies das Programm: Wo bekommt <b>versuche</b> seinen Startwert, wo wird weitergezählt? Spiele dann eine Runde.",
+    name: "Versuch: Zahlenraten mit Zähler für die Versuche",
+    programm: [["flagge"], ["setze", "geheimzahl", ["zufall", 1, 10]], ["setze", "versuche", 1], ["frage", "Ich denke mir eine Zahl von 1 bis 10. Rate!"],
+      ["bis", ["=", ["antwort"], ["var", "geheimzahl"]], [["aendere", "versuche", 1], ["fallsSonst", [">", ["antwort"], ["var", "geheimzahl"]], [["sageFuer", "Zu groß!", 1]], [["sageFuer", "Zu klein!", 1]]], ["frage", "Rate noch einmal!"]]],
+      ["sageFuer", ["verbinde", "Richtig! Versuche: ", ["var", "versuche"]], 3]],
+    fertig: p => p.gesagt.some(s => /^Richtig!/.test(s)) ? true : "Rate weiter, bis die Figur „Richtig!“ sagt.",
+    loesung: [[v => v.geheimzahl + 1, geheim]],
+    erfolg: "Der Zähler startet bei 1 (für den ersten Tipp) und steigt bei jedem falschen Tipp um 1."
+  }, "versuchM");
+  Modul.makeAuftrag($("#aufM"), {
+    titel: "Versuche mitzählen", pc: "Scratch", zeit: "etwa 10 Minuten",
+    ziel: "Am Ende sagt die Figur nicht nur „Richtig!“, sondern auch, wie viele Versuche du gebraucht hast.",
+    schritte: [
+      "Öffne dein Zahlenraten-Spiel (<span class=\"menue\">Datei</span> → <span class=\"menue\">Load from your computer</span> (das heißt: vom Computer laden)) und lege eine zweite Variable an: <b>versuche</b>.",
+      "Gib ihr vor der Schleife den Startwert 1.",
+      "Zähle in der Schleife bei jedem falschen Tipp um 1 weiter.",
+      "Ändere den letzten Satz: Die Figur soll „Richtig! Versuche: “ und die Zahl der Versuche sagen.",
+      "Teste und speichere dein Projekt."
+    ],
+    hilfen: [
+      "Startwert: „setze versuche auf 1“ – unter dem Block mit der Zufallszahl.",
+      "Weiterzählen: „ändere versuche um 1“ – als erster Block in der Schleife.",
+      "Ausgabe: sage (verbinde „Richtig! Versuche: “ und versuche)."
+    ],
+    loesung: "Vor der Schleife: setze versuche auf 1. In der Schleife: ändere versuche um 1. Am Ende: sage (verbinde „Richtig! Versuche: “ und versuche).",
+    pruefung: {
+      art: "datei", accept: ".sb3", lies: Modul.liesScratch, pruefe: Modul.scratchPruefung["zahlenraten-aufM"], server: {pfad: "/api/inf8/scratch/pruefen", aufgabe: "zahlenraten-aufM"},
+      text: "Lade dein gespeichertes Projekt hoch (Endung <b>.sb3</b>). Geprüft wird der Zähler.",
+      ersatz: {art: "zahl", frage: "Du rätst zweimal falsch und beim dritten Mal richtig. Welche Zahl nennt die Figur als Versuche?", wert: 3, tipp: "Startwert 1, dazu kommt 1 für jeden falschen Tipp."}
+    }
+  }, "aufM");
+
+  Modul.makeOpen($("#openM"), [
+    {q: "Erkläre, warum in der Schleife noch einmal „frage … und warte“ stehen muss. Was passiert, wenn der Block fehlt?",
+     m: "Ohne die neue Frage bleibt die Antwort immer dieselbe. Die Bedingung „Antwort = geheimzahl“ wird dann nie wahr, und die Schleife hört nicht auf. Das ist eine Endlosschleife.",
+     k: ["dieselbe|gleiche antwort|gleich bleibt|ändert sich nicht|bleibt gleich|immer die|keine neue|nicht neu", "endlos|hört nie|hört nicht|nie auf|für immer|ohne ende|unendlich|immer weiter|ewig", "bedingung|nie wahr|nie richtig|nie gleich|nicht wahr"], min: 2}
+  ], "openM", "Was vergleicht die Schleife bei jedem Durchlauf – und kann sich das ohne neue Frage ändern?");
+});
+
+/* ---------- Station 5 ---------- */
+Modul.makeTF($("#tf"), [
+  ["„wiederhole bis …“ wiederholt, bis die Bedingung wahr ist.", true],
+  ["Eine Zufallszahl ist bei jedem Start dieselbe.", false],
+  ["Die Geheimzahl wird in einer Variablen gespeichert.", true],
+  ["Fehlt die Frage in der Schleife, entsteht eine Endlosschleife.", true],
+  ["„sage Richtig!“ gehört in die Schleife.", false],
+  ["Ist die Bedingung sofort wahr, läuft das Innere der Schleife gar nicht.", true]
+], "tf");
+
+Modul.makeGap($("#gap"), [
+  ["Der Block „wiederhole bis …“ ist eine ", {g: "Schleife"}, "."],
+  ["Sie endet, wenn die Bedingung ", {g: "wahr"}, " ist."],
+  ["Die gesuchte Zahl liefert der Block „", {g: "Zufallszahl"}, " von 1 bis 10“."],
+  ["Eine Schleife, die nie aufhört, heißt ", {g: "Endlosschleife"}, "."]
+], "gap", ["falsch", "Verzweigung"]);
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

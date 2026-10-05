@@ -362,8 +362,8 @@ Modul.makeTabellenAufgabe($("#trainAufgabe"), {
   name: "Training: Formel schreiben, kopieren, Summe bilden",
   tabelle: {spalten: 4, zeilen: 5, griff: true, start: "D2", eingabe: ["D2", "D3", "D4", "D5"], breit: {A: 120},
     zellen: {A1: "Kuchen", B1: "Preis", C1: "Stück", D1: "Einnahme", A2: "Apfelkuchen", B2: "1,5", C2: "12", A3: "Muffin", B3: "1", C3: "20", A4: "Zimtschnecke", B4: "1,2", C4: "15", A5: "Zusammen"}},
-  pruefe: t => [2, 3, 4].map(z => { const ok = F(t.formel("D" + z), [`=B${z}*C${z}`, `=C${z}*B${z}`]);
-    return {ok, text: ok ? `D${z}: ${t.formel("D" + z)} ergibt ${t.text("D" + z)}.` : `D${z}: Hier fehlt die Formel Preis mal Stück.`}; }).concat([(() => {
+  pruefe: t => [2, 3, 4].map(z => { const ok = F(t.formel("D" + z), [`=B${z}*C${z}`, `=C${z}*B${z}`]), nurZahlen = t.formel("D" + z) !== "" && !t.bezuege("D" + z).length;
+    return {ok, text: ok ? `D${z}: ${t.formel("D" + z)} ergibt ${t.text("D" + z)}.` : nurZahlen ? `D${z}: In der Formel stehen nur getippte Zahlen. Rechne mit den Zelladressen: Preis (B${z}) mal Stück (C${z}).` : `D${z}: Hier fehlt die Formel Preis mal Stück.`}; }).concat([(() => {
       const ok = F(t.formel("D5"), ["=SUMME(D2:D4)", "=D2+D3+D4", "=SUMME(D2;D3;D4)"]);
       return {ok, text: ok ? "D5: " + t.formel("D5") + " ergibt " + t.text("D5") + "." : "D5: Hier fehlt die Formel, die D2 bis D4 zusammenzählt."}; })()]),
   loesung: {setze: {D2: "=B2*C2", D5: "=SUMME(D2:D4)"}, fuelle: [["D2", "D4"]]},

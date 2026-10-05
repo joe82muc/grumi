@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Relative Zellbezüge | Informatik 8</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="einheit8.css">
+<style>
+.formel{font-family:Consolas,"Courier New",monospace;font-weight:700;background:#eef1f4;border-radius:5px;padding:1px 6px;white-space:nowrap}
+.weg{display:grid;gap:8px;margin:12px 0}
+.weg div{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;background:#f4f7fb;border-radius:10px;padding:8px 12px}
+.weg b{font-family:Consolas,"Courier New",monospace;background:#fff;border:1px solid var(--line);border-radius:6px;padding:2px 8px;white-space:nowrap}
+.richtung{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.richtung div{border:2px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff}
+.richtung h5{margin:0 0 6px;font-size:1rem}
+.richtung span{font-family:Consolas,"Courier New",monospace;font-weight:700}
+.richtung em{font-style:normal;color:#b42318}
+@media (max-width:560px){.richtung{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 8</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Ausprobieren</a>
+      <a href="#s2"><b>2</b>Verstehen</a>
+      <a href="#s3"><b>3</b>Am PC</a>
+      <a href="#s4"><b>4</b>Anwenden</a>
+      <a href="#s5"><b>5</b>Sichern</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">💻 Übersicht Informatik 8M</a>
+      <a href="../../8R/Informatik/index.html">💻 Übersicht Informatik 8R</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 8M / 8R · Modul 4: Excel – Zellbezüge und Anwendungen · Einheit 1</div>
+    <h1>Relative Zellbezüge</h1>
+    <p>Du kopierst eine Formel – und Excel schreibt sie für jede Zelle um. Warum eigentlich? In dieser Einheit findest du heraus, wie Excel eine Formel „liest“ und was beim Kopieren nach unten und nach rechts passiert.</p>
+    <div class="zeit">⏱ etwa 40 Minuten · Praxis am Windows-PC</div>
+    <div><span class="pc-tag" title="Diese Einheit machst du am Windows-PC">🖥 Windows-PC mit Excel erforderlich</span></div>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s3">🛠 Direkt zum Auftrag</a>
+    </div>
+    <div class="goals">
+      <div>📍 Ich erkläre, was ein relativer Zellbezug ist.</div>
+      <div>↕️ Ich kopiere Formeln nach unten und nach rechts.</div>
+      <div>🔮 Ich sage voraus, wie eine kopierte Formel aussieht.</div>
+      <div>🔧 Ich finde eine Zelle, in der die Formel fehlt.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div class="pc-banner"><span class="big">🖥</span><div><b>Windows-PC erforderlich.</b> Den Auftrag in Station 3 machst du im Programm Excel. Die Stationen 1, 2, 4 und 5 gehen auch am Tablet.</div></div>
+<div id="modulStand" aria-label="Dein Lernfortschritt in dieser Einheit"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Ausprobieren</div><h2>Einmal nach unten, einmal nach rechts</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag">Versuch</span>
+    <div id="ziehAufgabe"></div>
+    <p class="hint">Am Tablet: Tippe die Zelle an, lege den Finger auf das grüne Kästchen und ziehe.</p>
+    <div id="ziehF1"></div>
+    <div id="ziehF2"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Verstehen</div><h2>Excel merkt sich den Weg</h2></div></div>
+  <div class="card reveal">
+    <p class="lead" style="margin-top:0">In D2 steht <span class="formel">=B2+C2</span>. Du liest: „B2 plus C2“. Excel liest etwas anderes – eine <b>Wegbeschreibung</b>:</p>
+    <div class="weg">
+      <div><b>B2</b><span>„Nimm die Zelle <b style="font-family:inherit;border:0;padding:0;background:none">zwei Schritte links</b> von mir.“</span></div>
+      <div><b>C2</b><span>„Nimm die Zelle <b style="font-family:inherit;border:0;padding:0;background:none">einen Schritt links</b> von mir.“</span></div>
+    </div>
+    <p>Kopierst du die Formel, nimmt sie diese Wegbeschreibung mit. An der neuen Stelle geht sie wieder zwei Schritte und einen Schritt nach links – und landet bei anderen Zellen. Deshalb sieht die Formel dort anders aus.</p>
+    <div class="sim" id="animSim"><div id="animTab" style="padding:12px"></div></div>
+  </div>
+  <div class="card reveal">
+    <div class="richtung" aria-label="Was sich beim Kopieren ändert">
+      <div><h5>⬇ Nach unten kopiert</h5><span>=B<em>2</em>+C<em>2</em></span> wird <span>=B<em>3</em>+C<em>3</em></span><br>Die <b>Zeilennummern</b> zählen weiter.</div>
+      <div><h5>➡ Nach rechts kopiert</h5><span>=<em>B</em>2+<em>B</em>3</span> wird <span>=<em>C</em>2+<em>C</em>3</span><br>Die <b>Spaltenbuchstaben</b> zählen weiter.</div>
+    </div>
+    <div class="merke">
+      <h4>MERKE</h4>
+      <ul>
+        <li>Ein <button class="term" data-t="bezug">Zellbezug</button> wie B2 ist für Excel eine Wegbeschreibung: „so viele Schritte von mir entfernt“.</li>
+        <li>So ein Bezug heißt <button class="term" data-t="relativ">relativer Zellbezug</button>. Beim Kopieren passt er sich an.</li>
+        <li>Nach <b>unten</b> ändern sich die Zeilennummern, nach <b>rechts</b> die Spaltenbuchstaben.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card reveal" id="mc-s2"></div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Selber machen · am PC</div><h2>Wer kommt mit zum Wandertag?</h2></div></div>
+  <div class="reveal" id="auf1"></div>
+  <div class="card reveal">
+    <span class="task-tag">Was wäre, wenn …?</span>
+    <p class="lead">Probiere es in deiner Excel-Datei aus:</p>
+    <div id="wennFrage"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Anwenden</div><h2>Vorhersagen und reparieren</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag">Vorhersagen</span>
+    <p class="lead">Wie sieht die Formel an der neuen Stelle aus?</p>
+    <div id="vorF1"></div>
+    <div id="vorF2"></div>
+    <div id="vorF3"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Fehler finden</span>
+    <div id="repAufgabe"></div>
+  </div>
+  <div class="card reveal" id="mc-s4"></div>
+  <div class="card reveal">
+    <span class="task-tag m7">M8 · für 8R freiwillig</span>
+    <p class="m7-hinweis">Eine Formel lässt sich auch an eine ganz andere Stelle kopieren: Zelle anklicken, <kbd>Strg</kbd> + <kbd>C</kbd>, Zielzelle anklicken, <kbd>Strg</kbd> + <kbd>V</kbd>. Die Wegbeschreibung wandert mit.</p>
+    <div id="weitF1"></div>
+    <div id="mc-m"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag m7">M8 · für 8R freiwillig</span> <span class="ki-badge">✨ KI prüft</span>
+    <p class="m7-hinweis">Erkläre in eigenen Worten. Die KI gibt dir einen kurzen Hinweis – nicht die Lösung.</p>
+    <div id="openM"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Kurz sichern</div><h2>Das nimmst du mit</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal"><span class="task-tag">Richtig oder falsch?</span><div id="tf"></div></div>
+    <div class="card reveal"><span class="task-tag">Lückentext</span><div class="gaptext" id="gap"></div></div>
+  </div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieser Einheit auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Meistens ist es genau richtig, dass sich Bezüge beim Kopieren anpassen. Manchmal aber soll ein Bezug stehen bleiben – zum Beispiel, wenn ein Preis nur in einer einzigen Zelle steht. Wie das geht, lernst du in der nächsten Einheit.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="index.html">💻 Übersicht Informatik 8M</a>
+      <a href="../../8R/Informatik/index.html">💻 Übersicht Informatik 8R</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Informatik 8 · Einheit „Relative Zellbezüge“ · Dein Fortschritt wird auf diesem Gerät gespeichert. · Excel ist ein Programm von Microsoft; die Tabellen auf dieser Seite sind eigene Nachbildungen. Alle Zahlen sind erfunden.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info8.js"></script>
+<script src="tabelle.js"></script>
+<script src="excel-datei.js"></script>
+<script src="excel-aufgaben.js"></script>
+<script>
+(function(){
+"use strict";
+const {$} = Modul;
+
+Modul.init({
+  key: "grumi-i8-relativ-v1",
+  api: "/api/inf8/uebung/feedback",
+  thema: "Tabellenkalkulation mit Excel, Klasse 8: relative Zellbezüge – Excel versteht einen Zellbezug als Weg von der Formelzelle aus; beim Kopieren nach unten ändern sich die Zeilennummern, nach rechts die Spaltenbuchstaben; Fehlerwert #BEZUG!",
+  glossary: {
+    bezug: ["Zellbezug", "Die Adresse einer Zelle in einer Formel, zum Beispiel B2. Die Formel rechnet mit dem, was in dieser Zelle steht."],
+    relativ: ["Relativer Zellbezug", "Ein Zellbezug ohne Dollarzeichen, zum Beispiel B2. Excel merkt sich, wie weit die Zelle von der Formel entfernt ist. Beim Kopieren passt sich der Bezug an."],
+    kopieren: ["Formel kopieren", "Eine Formel in andere Zellen übertragen – mit dem Ausfüllkästchen oder mit Strg + C und Strg + V."],
+    griff: ["Ausfüllkästchen", "Das kleine Quadrat unten rechts an der aktiven Zelle. Ziehst du daran, kopiert Excel den Inhalt in die Nachbarzellen."],
+    bezugfehler: ["#BEZUG!", "Fehlerwert: Die Formel soll eine Zelle ansprechen, die es nicht gibt – zum Beispiel links von Spalte A."]
+  }
+});
+const F = Modul.formelGleich;
+const PFAND = {A1: "Klasse", B1: "Woche 1", C1: "Woche 2", D1: "Zusammen", A2: "8a", B2: "34", C2: "41", D2: "=B2+C2", A3: "8b", B3: "28", C3: "37", A4: "8c", B4: "45", C4: "30", A5: "Alle", B5: "=B2+B3+B4"};
+
+/* ---------- Station 1: nach unten und nach rechts ziehen ---------- */
+Modul.makeTabellenAufgabe($("#ziehAufgabe"), {
+  text: "Drei Klassen sammeln Pfandflaschen. Zwei Formeln stehen schon da: in D2 <span class=\"formel\">=B2+C2</span> und in B5 <span class=\"formel\">=B2+B3+B4</span>. <b>Ziehe D2 nach unten bis D4. Ziehe danach B5 nach rechts bis D5.</b>",
+  name: "Tabelle: eine Formel nach unten und eine nach rechts kopieren",
+  tabelle: {spalten: 4, zeilen: 5, zellen: PFAND, eingabe: ["D2", "D3", "D4", "B5", "C5", "D5"], griff: true, start: "D2", breit: {A: 80}},
+  pruefe: t => {
+    const unten = [3, 4].every(z => F(t.formel("D" + z), ["=B" + z + "+C" + z, "=C" + z + "+B" + z]));
+    const rechts = ["C", "D"].every(s => F(t.formel(s + "5"), [`=${s}2+${s}3+${s}4`]));
+    return [
+      {ok: unten, text: unten ? "D3 und D4: Jede Klasse hat ihre eigene Summe (" + t.text("D3") + " und " + t.text("D4") + ")." : "D3 und D4: Hier fehlen noch die kopierten Formeln. Tippe D2 an und ziehe das Ausfüllkästchen nach unten bis D4."},
+      {ok: rechts, text: rechts ? "C5 und D5: Jede Spalte hat ihre eigene Summe (" + t.text("C5") + " und " + t.text("D5") + ")." : "C5 und D5: Hier fehlen noch die kopierten Formeln. Tippe B5 an und ziehe das Ausfüllkästchen nach rechts bis D5."}
+    ];
+  },
+  loesung: {fuelle: [["D2", "D4"], ["B5", "D5"]]},
+  erfolg: "Zwei Formeln, sechs Ergebnisse."
+}, "zieh");
+Modul.makeEingabe($("#ziehF1"), {
+  frage: "Tippe nach dem Ziehen die Zelle <b>D4</b> an und sieh in die Bearbeitungsleiste über der Tabelle. Welche Formel steht dort?",
+  antworten: ["=B4+C4"], platz: "=…", tipp: "Die Formel steht in der Bearbeitungsleiste, sobald D4 ausgewählt ist.",
+  erfolg: "Nach unten sind aus den Zweien Vieren geworden. B und C sind geblieben.",
+  name: "Nach unten kopierte Formel ablesen"
+}, "ziehF1");
+Modul.makeEingabe($("#ziehF2"), {
+  frage: "Tippe jetzt <b>C5</b> an. Welche Formel steht dort?",
+  antworten: ["=C2+C3+C4"], platz: "=…", tipp: "Die Formel steht in der Bearbeitungsleiste, sobald C5 ausgewählt ist.",
+  erfolg: "Nach rechts ist aus jedem B ein C geworden. Die Zahlen 2, 3 und 4 sind geblieben.",
+  name: "Nach rechts kopierte Formel ablesen"
+}, "ziehF2");
+
+/* ---------- Station 2: Animation ---------- */
+(function () {
+  const t = Modul.tabelle($("#animTab"), {spalten: 4, zeilen: 5, zellen: PFAND, breit: {A: 80, D: 110}});
+  Modul.makeSchritte($("#animSim"), {
+    steps: [
+      "In D2 steht <b>=B2+C2</b>. Von D2 aus gesehen: zwei Schritte nach links (B2) und einen Schritt nach links (C2).",
+      "Die Formel wandert nach D3. Wieder zwei Schritte und einen Schritt nach links – jetzt landet sie bei B3 und C3. In der Zelle steht <b>=B3+C3</b>.",
+      "In D4 dasselbe Spiel: <b>=B4+C4</b>. Der Weg ist gleich geblieben, die Zellen sind andere.",
+      "Jetzt die Summe unten. In B5 steht <b>=B2+B3+B4</b>: die drei Zellen direkt über der Formel.",
+      "Die Formel wandert nach rechts, nach C5. Die drei Zellen darüber heißen dort C2, C3 und C4: <b>=C2+C3+C4</b>.",
+      "Und in D5: <b>=D2+D3+D4</b>. Nach rechts haben sich die Buchstaben geändert, nach unten die Zahlen."
+    ],
+    start: "Tippe auf „Start“.", ms: 3200,
+    zeige(i) {
+      [3, 4].forEach(z => t.setze("D" + z, i >= z - 2 ? `=B${z}+C${z}` : "", true));
+      ["C", "D"].forEach((s, k) => t.setze(s + "5", i >= 4 + k ? `=${s}2+${s}3+${s}4` : "", true));
+      t.formelnZeigen(i >= 0);
+      const ziel = ["D2", "D3", "D4", "B5", "C5", "D5"][Math.max(0, i)];
+      const quelle = i < 0 ? [] : i < 3 ? ["B" + (i + 2), "C" + (i + 2)] : [2, 3, 4].map(z => ziel.charAt(0) + z);
+      t.markiere(quelle, "hell");
+      t.markiere(i >= 0 ? [ziel] : [], "gut");
+    }
+  }, "anim1");
+})();
+
+Modul.makeMC($("#mc-s2"), [
+  {q: "Wie „liest“ Excel den Bezug B2 in der Formel =B2+C2, die in D2 steht?",
+   o: ["als Weg: zwei Schritte links von der Formel", "als feste Adresse, die immer gleich bleibt", "als Zahl, die in B2 gerade steht", "als Überschrift der Spalte B"], a: 0,
+   e: "Excel merkt sich, wie weit die Zelle von der Formel entfernt ist. Deshalb passt sich der Bezug beim Kopieren an."},
+  {q: "Wie heißt ein Zellbezug, der sich beim Kopieren anpasst?",
+   o: ["relativer Zellbezug", "fester Zellbezug", "doppelter Zellbezug", "leerer Zellbezug"], a: 0,
+   e: "Relativ bedeutet hier: von der Lage der Formel abhängig."},
+  {q: "Du kopierst eine Formel nach rechts. Was ändert Excel?",
+   o: ["die Spaltenbuchstaben", "die Zeilennummern", "die Rechenzeichen", "nichts"], a: 0,
+   e: "Nach rechts zählt Excel die Buchstaben weiter: B, C, D … Die Zeilennummern bleiben."}
+], "mc2", {t: "Kurz-Check"});
+
+/* ---------- Station 3: Auftrag am PC ---------- */
+Modul.makeAuftrag($("#auf1"), {
+  titel: "Personen zählen – mit zwei Formeln", pc: "Excel", zeit: "etwa 15 Minuten",
+  ziel: "Für jede Klasse steht in Spalte D, wie viele Personen mitkommen. In Zeile 6 steht für jede Spalte die Summe. Getippt hast du dafür nur zwei Formeln.",
+  material: [{name: "Startdatei wandertag_start.xlsx", href: "assets/excel/wandertag_start.xlsx"}],
+  schritte: [
+    "Lade die Startdatei herunter und öffne sie in Excel. Erscheint oben ein gelber Balken, klicke auf <span class=\"menue\">Bearbeitung aktivieren</span>.",
+    "Klicke auf <b>D2</b>. Zähle Kinder und Begleitpersonen zusammen: <span class=\"formel\">=B2+C2</span>. Drücke die Eingabetaste.",
+    "Klicke wieder auf <b>D2</b> und ziehe das Ausfüllkästchen <b>nach unten bis D5</b>.",
+    "Klicke auf <b>B6</b>. Zähle alle Kinder zusammen: <span class=\"formel\">=SUMME(B2:B5)</span>.",
+    "Klicke wieder auf <b>B6</b> und ziehe das Ausfüllkästchen <b>nach rechts bis D6</b>.",
+    "Kontrolliere: Klicke auf D4 und auf C6 und lies in der Bearbeitungsleiste, welche Formel dort steht.",
+    "Speichere die Datei unter einem neuen Namen: Drücke die Taste <kbd>F12</kbd>. Es öffnet sich das Fenster „Speichern unter“. Wähle deinen Ordner, tippe den Namen <b>wandertag</b> ein und klicke auf <span class=\"menue\">Speichern</span>."
+  ],
+  kurz: [
+    "Öffne die Startdatei in Excel.",
+    "Lass Excel in Spalte D für jede Klasse die Personen ausrechnen. Schreibe nur <b>eine</b> Formel und kopiere sie.",
+    "Lass Excel in Zeile 6 jede Spalte zusammenzählen. Schreibe wieder nur <b>eine</b> Formel und kopiere sie nach rechts.",
+    "Speichere unter dem neuen Namen <b>wandertag</b> (Taste <kbd>F12</kbd>)."
+  ],
+  hilfen: [
+    "Personen = Kinder plus Begleitpersonen. Beide Zahlen stehen in derselben Zeile.",
+    "Nach rechts kopierst du genauso wie nach unten: Zelle anklicken, auf das kleine Quadrat unten rechts zeigen, mit gedrückter Maustaste ziehen.",
+    "Öffnet <kbd>F12</kbd> kein Fenster? Halte zusätzlich die Taste <kbd>Fn</kbd> gedrückt – oder gehe über <span class=\"menue\">Datei</span> → <span class=\"menue\">Speichern unter</span> → <span class=\"menue\">Durchsuchen</span>.",
+    "Die beiden Formeln: D2 <span class=\"formel\">=B2+C2</span> (bis D5 ziehen) · B6 <span class=\"formel\">=SUMME(B2:B5)</span> (bis D6 ziehen)"
+  ],
+  loesung: "D2 bis D5 zeigen 29 · 26 · 30 · 25. In Zeile 6 stehen 100 Kinder, 10 Begleitpersonen und 110 Personen.",
+  pruefung: {
+    art: "datei", accept: ".xlsx", lies: Modul.liesExcel, pruefe: Modul.excelPruefung["relativ-auf1"], server: {pfad: "/api/inf8/excel/pruefen", aufgabe: "relativ-auf1"},
+    text: "Lade deine gespeicherte Datei <b>wandertag.xlsx</b> hoch. Sie wird geprüft, und die KI schreibt dir eine Rückmeldung. Gespeichert wird die Datei dabei nicht.",
+    ersatz: {art: "zahl", frage: "Wie viele Personen kommen zusammen mit? Lies das Ergebnis in D6 ab.", wert: 110, tipp: "In D6 steht die Summe von D2 bis D5."}
+  }
+}, "auf1");
+Modul.makeEingabe($("#wennFrage"), {
+  frage: "Die 8b nimmt eine dritte Begleitperson mit. Ändere <b>C3</b> auf 3. Wie viele Personen kommen jetzt zusammen mit (D6)?",
+  wert: 111, tipp: "Drei Zellen rechnen von selbst neu: D3, C6 und D6. In D6 steht eine Person mehr als vorher.",
+  erfolg: "Eine Zahl geändert – drei Ergebnisse haben sich von selbst angepasst.",
+  name: "Was wäre, wenn: eine Zahl ändern, die Summen rechnen neu"
+}, "wenn1");
+
+/* ---------- Station 4 ---------- */
+Modul.makeEingabe($("#vorF1"), {
+  frage: "In D3 steht <span class=\"formel\">=B3-C3</span>. Du ziehst die Formel nach unten bis D7. Welche Formel steht in D7?",
+  antworten: ["=B7-C7"], platz: "=…", tipp: "Nach unten ändern sich nur die Zeilennummern. Aus jeder 3 wird eine 7.",
+  name: "Vorhersage: =B3-C3 nach unten bis Zeile 7"
+}, "vor1");
+Modul.makeEingabe($("#vorF2"), {
+  frage: "In C5 steht <span class=\"formel\">=C2*C3</span>. Du ziehst die Formel eine Zelle nach rechts in D5. Welche Formel steht in D5?",
+  antworten: ["=D2*D3"], platz: "=…", tipp: "Nach rechts ändern sich nur die Buchstaben. Aus jedem C wird ein D.",
+  name: "Vorhersage: =C2*C3 eine Spalte nach rechts"
+}, "vor2");
+Modul.makeEingabe($("#vorF3"), {
+  frage: "In B8 steht <span class=\"formel\">=SUMME(B2:B7)</span>. Du ziehst die Formel nach rechts bis E8. Welche Formel steht in E8?",
+  antworten: ["=SUMME(E2:E7)"], platz: "=…", tipp: "Der Bereich wandert mit: Aus „von B2 bis B7“ wird in Spalte E „von E2 bis E7“.",
+  name: "Vorhersage: Summe nach rechts kopieren"
+}, "vor3");
+
+Modul.makeTabellenAufgabe($("#repAufgabe"), {
+  text: "Lesewettbewerb: gelesene Seiten in zwei Wochen. In <b>einer</b> Zelle der Spalte D hat jemand das Ergebnis eingetippt, statt die Formel zu kopieren – und sich dabei verrechnet. Tippe die Zellen an, lies in der Bearbeitungsleiste mit, <b>finde die Zelle und repariere sie</b>.",
+  name: "Tabelle: Zelle mit getippter Zahl statt Formel finden und reparieren",
+  tabelle: {spalten: 4, zeilen: 5, eingabe: ["D2", "D3", "D4", "D5"], start: "D2", breit: {A: 90},
+    zellen: {A1: "Gruppe", B1: "Woche 1", C1: "Woche 2", D1: "Seiten", A2: "Rot", B2: "64", C2: "58", D2: "=B2+C2", A3: "Blau", B3: "71", C3: "49", D3: "=B3+C3", A4: "Grün", B4: "50", C4: "47", D4: "95", A5: "Gelb", B5: "62", C5: "66", D5: "=B5+C5"}},
+  pruefe: t => {
+    const ok = F(t.formel("D4"), ["=B4+C4", "=C4+B4", "=SUMME(B4:C4)"]), rest = [2, 3, 5].every(z => F(t.formel("D" + z), ["=B" + z + "+C" + z, "=C" + z + "+B" + z]));
+    return [
+      {ok, text: ok ? "D4: Jetzt steht dort eine Formel – und das Ergebnis ist 97 statt 95." : "In einer Zelle der Spalte D steht noch eine getippte Zahl. In der Bearbeitungsleiste erkennst du sie daran, dass kein Gleichheitszeichen davorsteht."},
+      {ok: rest, text: rest ? "Die anderen drei Formeln sind unverändert." : "Eine der anderen Formeln ist verändert. Tippe auf „Zurücksetzen“ und versuche es noch einmal."}
+    ];
+  },
+  loesung: {setze: {D4: "=B4+C4"}},
+  erfolg: "Eine getippte Zahl sieht in der Tabelle aus wie ein Ergebnis. Erst die Bearbeitungsleiste verrät den Unterschied."
+}, "rep");
+
+Modul.makeMC($("#mc-s4"), [
+  {q: "Woran erkennst du, ob in einer Zelle eine Formel oder eine getippte Zahl steht?",
+   o: ["In der Bearbeitungsleiste beginnt eine Formel mit =.", "Formeln stehen immer links in der Zelle.", "Getippte Zahlen sind immer fett.", "Formeln haben einen gelben Hintergrund."], a: 0,
+   e: "In der Zelle siehst du nur das Ergebnis. Die Bearbeitungsleiste zeigt, was wirklich in der Zelle steht."},
+  {q: "Warum ist eine getippte Zahl zwischen lauter Formeln gefährlich?",
+   o: ["Sie rechnet nicht neu, wenn sich die Zahlen ändern.", "Excel löscht sie beim Speichern.", "Sie macht die Datei sehr groß.", "Excel zeigt dann #BEZUG! an."], a: 0,
+   e: "Alle Formeln passen sich an – nur diese eine Zahl bleibt stehen und stimmt irgendwann nicht mehr."},
+  {q: "In E2 steht =C2+D2. Du brauchst dieselbe Rechnung in E3 bis E20. Was ist der beste Weg?",
+   o: ["E2 mit dem Ausfüllkästchen nach unten ziehen", "jede Formel einzeln tippen", "die Ergebnisse im Kopf rechnen und eintippen", "E2 achtzehnmal ausschneiden"], a: 0,
+   e: "Einmal schreiben, dann ziehen: Excel passt die Zeilennummern selbst an."}
+], "mc4", {t: "Kurz-Check"});
+
+Modul.plus(() => {
+  Modul.makeEingabe($("#weitF1"), {
+    frage: "In D2 steht <span class=\"formel\">=B2+C2</span>. Du kopierst D2 und fügst die Formel in <b>F4</b> ein – zwei Spalten weiter rechts und zwei Zeilen weiter unten. Welche Formel steht in F4?",
+    antworten: ["=D4+E4"], platz: "=…", tipp: "Von F4 aus: zwei Schritte nach links und einen Schritt nach links, in derselben Zeile.",
+    erfolg: "Der Weg ist derselbe geblieben: zwei Schritte und einen Schritt nach links.",
+    name: "Vorhersage: Formel an eine andere Stelle kopieren"
+  }, "weit1");
+  Modul.makeMC($("#mc-m"), [
+    {q: "Du kopierst die Formel =B2+C2 aus D2 in die Zelle A8. Excel zeigt dort #BEZUG!. Warum?",
+     o: ["Zwei Schritte links von A8 gibt es keine Zelle.", "In Zeile 8 stehen noch keine Zahlen.", "Die Formel ist für Spalte A zu lang.", "Spalte A darf keine Formeln enthalten."], a: 0,
+     e: "Die Formel will von A8 aus nach links gehen. Dort endet das Blatt – der Bezug führt ins Leere."},
+    {q: "In B6 steht =SUMME(B2:B5). Du kopierst B6 nach B9. Welche Formel steht in B9?",
+     o: ["=SUMME(B5:B8)", "=SUMME(B2:B5)", "=SUMME(B2:B8)", "=SUMME(E2:E5)"], a: 0,
+     e: "Die Formel meint: „die vier Zellen direkt über mir“. Von B9 aus sind das B5 bis B8."}
+  ], "mcM", {t: "Knifflig"});
+
+  Modul.makeOpen($("#openM"), [
+    {q: "Erkläre in eigenen Worten, was ein relativer Zellbezug ist und was mit ihm beim Kopieren passiert.",
+     m: "Ein relativer Zellbezug ist ein Bezug ohne Dollarzeichen, zum Beispiel B2. Excel merkt sich, wie weit die Zelle von der Formel entfernt ist. Beim Kopieren passt sich der Bezug an: Nach unten ändert sich die Zeilennummer, nach rechts der Spaltenbuchstabe.",
+     k: ["passt sich|anpass|ändert sich|verändert sich|wandert mit|verschieb|zählt weiter|mitgeh", "zeilennummer|zeile|unten", "buchstabe|spalte|rechts", "entfernt|schritte|abstand|von der formel aus|lage|position"], min: 2}
+  ], "openM", "Denke an die Wegbeschreibung aus Station 2: Was merkt sich Excel – und was folgt daraus beim Kopieren?");
+});
+
+/* ---------- Station 5 ---------- */
+Modul.makeTF($("#tf"), [
+  ["Ein relativer Zellbezug passt sich beim Kopieren an.", true],
+  ["Beim Kopieren nach rechts ändern sich die Zeilennummern.", false],
+  ["Aus =B2+C2 wird eine Zeile tiefer =B3+C3.", true],
+  ["Aus =B2+B3 wird eine Spalte weiter rechts =C2+C3.", true],
+  ["Excel schreibt beim Kopieren überall genau dieselbe Formel hin.", false],
+  ["Ob in einer Zelle eine Formel steht, zeigt die Bearbeitungsleiste.", true]
+], "tf");
+
+Modul.makeGap($("#gap"), [
+  ["Ein Zellbezug, der sich beim Kopieren anpasst, heißt ", {g: "relativ"}, "."],
+  ["Beim Kopieren nach unten ändern sich die ", {g: "Zeilennummern"}, "."],
+  ["Beim Kopieren nach rechts ändern sich die ", {g: "Spaltenbuchstaben"}, "."],
+  ["Zum Kopieren ziehst du am ", {g: "Ausfüllkästchen"}, "."]
+], "gap", ["absolut", "Namenfeld"]);
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

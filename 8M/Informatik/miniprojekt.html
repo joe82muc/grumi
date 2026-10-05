@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Mini-Projekt: Pausenverkauf | Informatik 8</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="einheit8.css">
+<style>
+.formel{font-family:Consolas,"Courier New",monospace;font-weight:700;background:#eef1f4;border-radius:5px;padding:1px 6px;white-space:nowrap}
+.plan-bild{max-width:100%;overflow-x:auto}
+.kette{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0;font-weight:700}
+.kette span{background:#f4f7fb;border:2px solid var(--line);border-radius:10px;padding:6px 12px}
+.kette i{font-style:normal;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 8</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Planen</a>
+      <a href="#s2"><b>2</b>Am PC</a>
+      <a href="#s3"><b>3</b>Auswerten</a>
+      <a href="#s4"><b>4</b>Training</a>
+      <a href="#s5"><b>5</b>Profi-Check</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">💻 Übersicht Informatik 8M</a>
+      <a href="../../8R/Informatik/index.html">💻 Übersicht Informatik 8R</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 8M / 8R · Modul 4: Excel – Zellbezüge und Anwendungen · Einheit 5</div>
+    <h1>Mini-Projekt: Pausenverkauf</h1>
+    <p>Eure Klasse verkauft in der Pause Brezen, Äpfel, Müsliriegel und Saftschorle. Lohnt sich das? Du baust die Abrechnung: Verkaufspreise, Einnahmen, Kosten und Gewinn – mit allem, was du in diesem Modul gelernt hast.</p>
+    <div class="zeit">⏱ etwa 45 Minuten · Praxis am Windows-PC · Stoff für die Probe</div>
+    <div><span class="pc-tag" title="Diese Einheit machst du am Windows-PC">🖥 Windows-PC mit Excel erforderlich</span></div>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s2">🛠 Direkt zum Auftrag</a>
+    </div>
+    <div class="goals">
+      <div>📝 Ich plane eine Tabelle, bevor ich tippe.</div>
+      <div>📌 Ich benutze relative und absolute Bezüge in einem Projekt.</div>
+      <div>🔁 Ich teste mit geänderten Zahlen, was sich lohnt.</div>
+      <div>🏁 Ich bin bereit für die Probe zu Modul 4.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div class="pc-banner"><span class="big">🖥</span><div><b>Windows-PC erforderlich.</b> Die Aufträge in den Stationen 2 und 3 machst du im Programm Excel. Die Stationen 1, 4 und 5 gehen auch am Tablet.</div></div>
+<div id="modulStand" aria-label="Dein Lernfortschritt in dieser Einheit"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Planen</div><h2>Was soll die Tabelle ausrechnen?</h2></div></div>
+  <div class="card reveal">
+    <p class="lead" style="margin-top:0">Die Klasse kauft die Sachen ein und schlägt auf jedes Stück denselben Betrag auf. Dieser <b>Aufschlag</b> steht nur einmal in der Tabelle, in B1. Die gelben Zellen rechnet Excel aus.</p>
+    <div class="plan-bild" id="planTab"></div>
+    <div class="kette" aria-label="So hängen die Spalten zusammen">
+      <span>Einkaufspreis + Aufschlag</span><i>→</i><span>Verkaufspreis</span><i>→</i><span>Einnahmen und Kosten</span><i>→</i><span>Gewinn</span>
+    </div>
+    <div id="planFrage"></div>
+  </div>
+  <div class="grid2">
+    <div class="card reveal">
+      <span class="task-tag">Zuordnen</span>
+      <p>Was rechnet welche Spalte?</p>
+      <div id="paareSpalten"></div>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag">Entscheiden</span>
+      <p>Du kopierst alle Formeln nach unten. Welcher Bezug wandert mit, welcher bleibt fest?</p>
+      <div id="sortBezug"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Selber machen · am PC</div><h2>Die Abrechnung bauen</h2></div></div>
+  <div class="reveal" id="auf1"></div>
+  <div class="card reveal">
+    <span class="task-tag">Was wäre, wenn …?</span>
+    <p class="lead">Jetzt lohnt sich der feste Bezug. Probiere es in deiner Excel-Datei aus:</p>
+    <div id="wennFrage"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Auswerten und prüfen</div><h2>Was sagt die Tabelle?</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag">Ablesen</span>
+    <p class="lead">Stelle den Aufschlag wieder auf 0,4. Lies dann aus deiner Tabelle ab:</p>
+    <div id="lesF1"></div>
+    <div id="lesF2"></div>
+  </div>
+  <div class="card reveal" id="mc-s3"></div>
+  <div class="card reveal">
+    <span class="task-tag m7">M8 · für 8R freiwillig</span>
+    <p class="m7-hinweis">Welcher Artikel trägt wie viel zum Gewinn bei? Dafür brauchst du noch einmal einen Anteil – und einen festen Bezug.</p>
+    <div id="aufM"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag m7">M8 · für 8R freiwillig</span> <span class="ki-badge">✨ KI prüft</span>
+    <p class="m7-hinweis">Beschreibe dein Vorgehen. Die KI gibt dir einen kurzen Hinweis – nicht die Lösung.</p>
+    <div id="openM"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Training für die Probe</div><h2>Alles aus Modul 4</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Kreuzworträtsel</span>
+    <p>Zehn Begriffe aus den fünf Einheiten. Die markierten Felder ergeben das Lösungswort.</p>
+    <div id="cw"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Formeln schreiben</span>
+    <div id="trainAufgabe"></div>
+  </div>
+  <div class="grid2">
+    <div class="card reveal"><span class="task-tag probe">Lückentext</span><div class="gaptext" id="gap"></div></div>
+    <div class="card reveal"><span class="task-tag probe">Richtig oder falsch?</span><div id="tf"></div></div>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Zum Schluss</div><h2>Profi-Check</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <h3 class="reveal">Wortspeicher zu Modul 4</h3>
+  <p class="hint reveal">Alle wichtigen Fachbegriffe des Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Damit hast du beide Excel-Module geschafft. Wenn deine Lehrkraft die Probe zu Modul 4 freischaltet, findest du sie auf der Übersicht. Danach wird programmiert: mit Scratch.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="index.html">💻 Übersicht Informatik 8M</a>
+      <a href="../../8R/Informatik/index.html">💻 Übersicht Informatik 8R</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Informatik 8 · Einheit „Mini-Projekt: Pausenverkauf“ · Dein Fortschritt wird auf diesem Gerät gespeichert. · Excel ist ein Programm von Microsoft; die Tabellen auf dieser Seite sind eigene Nachbildungen. Alle Preise und Stückzahlen sind erfunden.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info8.js"></script>
+<script src="tabelle.js"></script>
+<script src="excel-datei.js"></script>
+<script src="excel-aufgaben.js"></script>
+<script>
+(function(){
+"use strict";
+const {$} = Modul;
+
+Modul.init({
+  key: "grumi-i8-miniprojekt-v1",
+  api: "/api/inf8/uebung/feedback",
+  thema: "Tabellenkalkulation mit Excel, Klasse 8: Mini-Projekt Pausenverkauf – Verkaufspreis mit festem Aufschlag (absoluter Bezug), Einnahmen, Kosten, Gewinn, Summen; Wiederholung von Modul 4: relative und absolute Zellbezüge, Prozent und Anteile",
+  glossary: {
+    relativ: ["Relativer Zellbezug", "Ein Zellbezug ohne Dollarzeichen, zum Beispiel B4. Er wandert beim Kopieren mit."],
+    absolut: ["Absoluter Zellbezug", "Ein Zellbezug mit zwei Dollarzeichen, zum Beispiel $B$1. Er bleibt beim Kopieren stehen."],
+    dollar: ["Dollarzeichen $", "Macht in einem Zellbezug fest, was dahinter steht: vor dem Buchstaben die Spalte, vor der Zahl die Zeile."],
+    f4: ["Taste F4", "Setzt beim Tippen einer Formel beide Dollarzeichen in den Bezug, den du gerade getippt hast. Einmal drücken genügt."],
+    griff: ["Ausfüllkästchen", "Das kleine Quadrat unten rechts an der aktiven Zelle. Damit kopierst du Formeln nach unten oder nach rechts."],
+    anteil: ["Anteil", "Teil geteilt durch Ganzes. 42 von 200 sind 0,21 – oder 21 %."],
+    prozentformat: ["Prozentformat", "Ein Zahlenformat. Es zeigt 0,25 als 25 % an. Die Zahl in der Zelle bleibt dieselbe."],
+    aufschlag: ["Aufschlag", "Der Betrag, den ein Verkäufer auf den Einkaufspreis draufrechnet."],
+    einnahmen: ["Einnahmen", "Das Geld, das beim Verkauf hereinkommt: Verkaufspreis mal verkaufte Stück."],
+    kosten: ["Kosten", "Das Geld, das für den Einkauf ausgegeben wurde: Einkaufspreis mal verkaufte Stück."],
+    gewinn: ["Gewinn", "Was übrig bleibt: Einnahmen minus Kosten."]
+  }
+});
+const F = Modul.formelGleich;
+const fest = (t, a, ziel) => t.bezuege(a).some(b => b === "$" + ziel.charAt(0) + "$" + ziel.slice(1) || b === ziel.charAt(0) + "$" + ziel.slice(1));
+const nah = (x, y) => typeof x === "number" && Math.abs(x - y) < 0.0001;
+
+/* ---------- Station 1 ---------- */
+(function () {
+  const z = {A1: "Aufschlag je Stück", B1: "0,4", A3: "Artikel", B3: "Einkaufspreis", C3: "Verkaufspreis", D3: "verkauft", E3: "Einnahmen", F3: "Kosten", G3: "Gewinn",
+    A4: "Butterbreze", B4: "0,55", D4: "48", A5: "Apfel", B5: "0,3", D5: "35", A6: "Müsliriegel", B6: "0,45", D6: "40", A7: "Saftschorle", B7: "0,6", D7: "52", A8: "Zusammen"};
+  const gelb = ["C4", "C5", "C6", "C7", "E4", "E5", "E6", "E7", "F4", "F5", "F6", "F7", "G4", "G5", "G6", "G7", "D8", "E8", "F8", "G8"];
+  gelb.forEach(a => { z[a] = "?"; });
+  const t = Modul.tabelle($("#planTab"), {spalten: 7, zeilen: 8, breit: {A: 150, B: 110, C: 110}, zellen: z});
+  t.markiere(gelb, "hell");
+})();
+
+Modul.makeEingabe($("#planFrage"), {
+  frage: "Rechne im Kopf, bevor Excel es tut: Eine Butterbreze kostet im Einkauf 0,55 €. Dazu kommt der Aufschlag aus B1. Welcher Verkaufspreis muss in C4 herauskommen?",
+  wert: 0.95, tol: 0.001, einheit: "€", tipp: "Einkaufspreis plus Aufschlag: 0,55 € plus 0,40 €.",
+  erfolg: "Mit so einer Kopfrechnung prüfst du später deine erste Formel.",
+  name: "Überschlag: ersten Verkaufspreis im Kopf rechnen"
+}, "plan1");
+
+Modul.makePaare($("#paareSpalten"), [
+  ["Verkaufspreis", "Einkaufspreis plus Aufschlag"],
+  ["Einnahmen", "Verkaufspreis mal verkaufte Stück"],
+  ["Kosten", "Einkaufspreis mal verkaufte Stück"],
+  ["Gewinn", "Einnahmen minus Kosten"]
+], "paareSpalten");
+
+Modul.makeSort($("#sortBezug"), {
+  buckets: ["↕ wandert mit", "📌 bleibt fest"], cols: 200,
+  items: [
+    {t: "Einkaufspreis des Artikels", b: 0},
+    {t: "Aufschlag je Stück in B1", b: 1},
+    {t: "verkaufte Stück des Artikels", b: 0},
+    {t: "Einnahmen des Artikels", b: 0},
+    {t: "Kosten des Artikels", b: 0}
+  ],
+  done: "✅ Richtig! Nur der Aufschlag steht ein einziges Mal in der Tabelle – nur er braucht Dollarzeichen."
+}, "sortBezug");
+
+/* ---------- Station 2: Auftrag am PC ---------- */
+Modul.makeAuftrag($("#auf1"), {
+  titel: "Der Pausenverkauf rechnet sich", pc: "Excel", zeit: "etwa 20 Minuten",
+  ziel: "Die Tabelle rechnet für jeden Artikel Verkaufspreis, Einnahmen, Kosten und Gewinn aus. In Zeile 8 stehen die Summen. Ändert sich der Aufschlag in B1, rechnet alles neu.",
+  material: [{name: "Startdatei pausenverkauf_start.xlsx", href: "assets/excel/pausenverkauf_start.xlsx"}],
+  schritte: [
+    "Lade die Startdatei herunter und öffne sie in Excel. Erscheint oben ein gelber Balken, klicke auf <span class=\"menue\">Bearbeitung aktivieren</span>.",
+    "<b>Verkaufspreis:</b> Klicke auf <b>C4</b>. Tippe <span class=\"formel\">=B4+B1</span> und drücke direkt danach <kbd>F4</kbd>: Aus B1 wird $B$1. Drücke die Eingabetaste. Klicke wieder auf <b>C4</b> und ziehe das Ausfüllkästchen nach unten bis <b>C7</b>.",
+    "<b>Einnahmen:</b> Schreibe in <b>E4</b> die Formel <span class=\"formel\">=C4*D4</span>.",
+    "<b>Kosten:</b> Schreibe in <b>F4</b> die Formel <span class=\"formel\">=B4*D4</span>.",
+    "<b>Gewinn:</b> Schreibe in <b>G4</b> die Formel <span class=\"formel\">=E4-F4</span>.",
+    "Markiere <b>E4 bis G4</b> (auf E4 klicken und bis G4 ziehen). Ziehe dann das Ausfüllkästchen an G4 nach unten bis <b>Zeile 7</b>. So kopierst du drei Formeln auf einmal.",
+    "<b>Summen:</b> Schreibe in <b>D8</b> die Formel <span class=\"formel\">=SUMME(D4:D7)</span> und drücke die Eingabetaste. Klicke wieder auf <b>D8</b> und ziehe das Ausfüllkästchen nach rechts bis <b>G8</b>.",
+    "Kontrolliere: Der Gewinn zusammen in G8 muss 70 sein.",
+    "Speichere die Datei unter einem neuen Namen: Drücke die Taste <kbd>F12</kbd>, wähle deinen Ordner, tippe den Namen <b>pausenverkauf</b> ein und klicke auf <span class=\"menue\">Speichern</span>."
+  ],
+  kurz: [
+    "Öffne die Startdatei in Excel.",
+    "Lass Excel für jeden Artikel den Verkaufspreis ausrechnen: Einkaufspreis plus Aufschlag. Der Aufschlag steht nur in B1.",
+    "Lass Excel Einnahmen, Kosten und Gewinn jedes Artikels ausrechnen. Schreibe jede Formel nur einmal und kopiere sie.",
+    "Bilde in Zeile 8 die Summen der Spalten D bis G.",
+    "Speichere unter dem neuen Namen <b>pausenverkauf</b> (Taste <kbd>F12</kbd>)."
+  ],
+  hilfen: [
+    "Vier Rechnungen: Verkaufspreis = Einkaufspreis + Aufschlag · Einnahmen = Verkaufspreis mal Stück · Kosten = Einkaufspreis mal Stück · Gewinn = Einnahmen − Kosten.",
+    "Zeigt C6 den Fehlerwert #WERT!, fehlen in C4 die Dollarzeichen. Schreibe die Formel in C4 neu – mit $B$1 – und ziehe sie noch einmal nach unten.",
+    "Einmal <kbd>F4</kbd> genügt. Stehen nicht beide Dollarzeichen da, drücke weiter, bis $B$1 dasteht. F4 wirkt nur, solange du die Formel noch tippst.",
+    "Öffnet <kbd>F12</kbd> kein Fenster? Halte zusätzlich die Taste <kbd>Fn</kbd> gedrückt – oder gehe über <span class=\"menue\">Datei</span> → <span class=\"menue\">Speichern unter</span> → <span class=\"menue\">Durchsuchen</span>.",
+    "Die Formeln der Zeile 4: C4 <span class=\"formel\">=B4+$B$1</span> · E4 <span class=\"formel\">=C4*D4</span> · F4 <span class=\"formel\">=B4*D4</span> · G4 <span class=\"formel\">=E4-F4</span>. Zeile 8: D8 <span class=\"formel\">=SUMME(D4:D7)</span>, nach rechts bis G8 ziehen."
+  ],
+  loesung: "Verkaufspreise 0,95 · 0,7 · 0,85 · 1. Gewinn je Artikel 19,2 · 14 · 16 · 20,8. In Zeile 8: 175 Stück, Einnahmen 156,1, Kosten 86,1, Gewinn 70.",
+  pruefung: {
+    art: "datei", accept: ".xlsx", lies: Modul.liesExcel, pruefe: Modul.excelPruefung["miniprojekt-auf1"], server: {pfad: "/api/inf8/excel/pruefen", aufgabe: "miniprojekt-auf1"},
+    text: "Lade deine gespeicherte Datei <b>pausenverkauf.xlsx</b> hoch. Sie wird geprüft, und die KI schreibt dir eine Rückmeldung. Gespeichert wird die Datei dabei nicht.",
+    ersatz: {art: "zahl", frage: "Wie hoch ist der Gewinn zusammen? Lies das Ergebnis in G8 ab.", wert: 70, tol: 0.001, einheit: "€", tipp: "In G8 steht die Summe der vier Gewinne aus G4 bis G7."}
+  }
+}, "auf1");
+Modul.makeEingabe($("#wennFrage"), {
+  frage: "Die Klasse überlegt, 50 Cent aufzuschlagen. Ändere nur die Zelle <b>B1</b> auf 0,5. Wie hoch wäre der Gewinn zusammen (G8)?",
+  wert: 87.5, tol: 0.001, einheit: "€", tipp: "Du musst keine Formel ändern. Tippe in B1 die neue Zahl ein und lies G8 ab.",
+  erfolg: "Eine Zelle geändert – und alle Verkaufspreise, Einnahmen und Gewinne haben sich angepasst.",
+  name: "Was wäre, wenn: Aufschlag ändern, Gewinn ablesen"
+}, "wenn1");
+
+/* ---------- Station 3 ---------- */
+Modul.makeEingabe($("#lesF1"), {
+  frage: "Welcher Artikel bringt den höchsten Gewinn?",
+  antworten: ["Saftschorle", "die Saftschorle", "Saft", "Schorle"], tipp: "Vergleiche die vier Zahlen in der Spalte „Gewinn“.",
+  erfolg: "20,80 € – sie wurde am häufigsten verkauft, und an jedem Stück verdient die Klasse gleich viel.",
+  name: "Aus der Tabelle ablesen: Artikel mit dem höchsten Gewinn"
+}, "les1");
+Modul.makeEingabe($("#lesF2"), {
+  frage: "Wie viele Stück wurden zusammen verkauft (D8)?",
+  wert: 175, tipp: "In D8 steht die Summe von D4 bis D7.",
+  name: "Aus der Tabelle ablesen: verkaufte Stück zusammen"
+}, "les2");
+
+Modul.makeMC($("#mc-s3"), [
+  {q: "Wie kannst du den Gewinn zusammen nachprüfen, ohne die Spalten E bis G anzusehen?",
+   o: ["175 verkaufte Stück mal 0,40 € Aufschlag", "175 verkaufte Stück mal 0,55 € Einkaufspreis", "die vier Einkaufspreise zusammenzählen", "den Aufschlag durch 175 teilen"], a: 0,
+   e: "An jedem Stück verdient die Klasse genau den Aufschlag: 175 · 0,40 € = 70 €. Das passt zu G8."},
+  {q: "In C6 steht nach dem Kopieren #WERT!. Was ist die Ursache?",
+   o: ["Der Bezug auf den Aufschlag ist nicht fest und zeigt jetzt auf eine Überschrift.", "Der Müsliriegel ist zu billig.", "In D6 steht keine Zahl.", "Die Spalte C ist zu schmal."], a: 0,
+   e: "Aus B1 wurde beim Kopieren B2 und dann B3 – dort steht das Wort „Einkaufspreis“."},
+  {q: "Warum steht der Aufschlag in einer eigenen Zelle und nicht als Zahl in jeder Formel?",
+   o: ["So ändert man ihn an einer einzigen Stelle.", "Excel kann nicht mit 0,4 rechnen.", "Zahlen in Formeln sind verboten.", "So wird die Tabelle breiter."], a: 0,
+   e: "Mit =B4+0,4 müsstest du jede Formel ändern. Mit =B4+$B$1 genügt eine Zelle."}
+], "mc3", {t: "Kurz-Check"});
+
+Modul.plus(() => {
+  Modul.makeAuftrag($("#aufM"), {
+    titel: "Welcher Artikel bringt am meisten?", pc: "Excel", zeit: "etwa 10 Minuten",
+    ziel: "In Spalte H steht für jeden Artikel, wie viel Prozent des Gewinns er bringt.",
+    schritte: [
+      "Stelle den Aufschlag in B1 wieder auf <b>0,4</b>.",
+      "Schreibe in <b>H3</b> die Überschrift <b>Anteil am Gewinn</b>.",
+      "Schreibe in <b>H4</b> eine Formel für den Anteil: Gewinn des Artikels geteilt durch den Gewinn zusammen. Überlege, welcher Bezug fest sein muss.",
+      "Kopiere die Formel nach unten bis <b>H7</b> und lass die vier Zahlen in Prozent anzeigen.",
+      "Speichere mit <kbd>Strg</kbd> + <kbd>S</kbd>."
+    ],
+    hilfen: [
+      "Anteil = Teil geteilt durch Ganzes. Der Teil ist der Gewinn des Artikels (Spalte G), das Ganze ist der Gewinn zusammen.",
+      "Der Gewinn zusammen steht nur in G8. Dieser Bezug braucht die Dollarzeichen.",
+      "H4: <span class=\"formel\">=G4/$G$8</span>, bis H7 ziehen, dann H4 bis H7 markieren und auf <span class=\"menue\">%</span> klicken."
+    ],
+    loesung: "H4 bis H7 zeigen 27 % · 20 % · 23 % · 30 %.",
+    pruefung: {
+      art: "datei", accept: ".xlsx", lies: Modul.liesExcel, pruefe: Modul.excelPruefung["miniprojekt-aufM"], server: {pfad: "/api/inf8/excel/pruefen", aufgabe: "miniprojekt-aufM"},
+      text: "Lade deine Datei <b>pausenverkauf.xlsx</b> noch einmal hoch. Geprüft wird jetzt die Spalte H.",
+      ersatz: {art: "zahl", frage: "Wie viel Prozent des Gewinns bringt die Saftschorle (H7)?", wert: 30, einheit: "%", tipp: "20,8 von 70 – Excel zeigt mit dem Prozentformat eine ganze Prozentzahl."}
+    }
+  }, "aufM");
+
+  Modul.makeOpen($("#openM"), [
+    {q: "Die Klasse möchte mindestens 100 € Gewinn machen. Beschreibe, wie du mit deiner Tabelle herausfindest, welcher Aufschlag dafür nötig ist.",
+     m: "Ich ändere den Aufschlag in B1 und probiere verschiedene Werte aus. Nach jeder Änderung lese ich den Gewinn zusammen in G8 ab. Bei 0,58 € Aufschlag sind es etwas mehr als 100 €.",
+     k: ["b1|aufschlag", "änder|ausprobier|probier|erhöh|verschiedene|teste|einsetz|eintipp|größer|höher", "g8|gewinn zusammen|gesamtgewinn|ables|abgeles|lese ich|les ich|nachschau|summe"], min: 2}
+  ], "openM", "Welche Zelle änderst du – und in welcher Zelle liest du ab, ob es reicht?");
+});
+
+/* ---------- Station 4: Training ---------- */
+Modul.makeCrossword($("#cw"), {
+  words: [
+    {w: "ZELLBEZUG", r: 9, c: 0, d: "a", q: "Adresse einer Zelle in einer Formel, zum Beispiel B4"},
+    {w: "ABSOLUT", r: 5, c: 3, d: "d", q: "so heißt ein Bezug, der beim Kopieren stehen bleibt"},
+    {w: "RELATIV", r: 5, c: 0, d: "a", q: "so heißt ein Bezug, der beim Kopieren mitwandert"},
+    {w: "KOPIEREN", r: 0, c: 0, d: "d", q: "das tust du mit einer Formel, wenn du am Ausfüllkästchen ziehst"},
+    {w: "FORMAT", r: 0, c: 4, d: "d", q: "ändert nur die Anzeige einer Zahl, zum Beispiel in Prozent"},
+    {w: "SUMME", r: 7, c: 3, d: "a", q: "zählt einen ganzen Bereich zusammen"},
+    {w: "GEWINN", r: 8, c: 1, d: "d", q: "Einnahmen minus Kosten"},
+    {w: "DOLLAR", r: 1, c: 3, d: "a", q: "Name des Zeichens, das einen Bezug festmacht"},
+    {w: "PROZENT", r: 0, c: 8, d: "d", q: "Hundertstel: 0,25 sind 25 …"},
+    {w: "ANTEIL", r: 13, c: 0, d: "a", q: "Teil geteilt durch Ganzes"}
+  ],
+  sol: [[0, 8], [4, 4], [10, 3], [7, 3], [7, 7]], solWord: "PAUSE"
+}, "cw");
+
+Modul.makeTabellenAufgabe($("#trainAufgabe"), {
+  text: "Ein Schulkino zeigt einen Film in drei Vorstellungen. Jede Karte kostet gleich viel (B1). Schreibe in <b>C4</b> die Formel für die Einnahmen, kopiere sie bis <b>C6</b> und bilde in <b>B7</b> und <b>C7</b> die Summen.",
+  name: "Training: Formel mit festem Bezug schreiben, kopieren, Summen bilden",
+  tabelle: {spalten: 3, zeilen: 7, griff: true, start: "C4", eingabe: ["C4", "C5", "C6", "B7", "C7"], breit: {A: 130}, format: {C: "euro", B1: "euro"},
+    zellen: {A1: "Preis je Karte", B1: "2,5", A3: "Vorstellung", B3: "Karten", C3: "Einnahmen", A4: "Montag", B4: "60", A5: "Mittwoch", B5: "84", A6: "Freitag", B6: "110", A7: "Zusammen"}},
+  pruefe: t => {
+    const zeilen = [4, 5, 6], offen = zeilen.filter(z => !(nah(t.wert("C" + z), t.wert("B" + z) * 2.5) && fest(t, "C" + z, "B1"))).map(z => "C" + z);
+    const wert = zeilen.every(z => nah(t.wert("C" + z), t.wert("B" + z) * 2.5));
+    const b7 = F(t.formel("B7"), ["=SUMME(B4:B6)", "=B4+B5+B6"]), c7 = F(t.formel("C7"), ["=SUMME(C4:C6)", "=C4+C5+C6"]);
+    return [
+      {ok: !offen.length, text: !offen.length ? "Einnahmen: " + t.formel("C4") + " – 150 € · 210 € · 275 €." : wert ? "Die Einnahmen stimmen, aber der Bezug auf den Preis in B1 ist nicht überall fest (" + offen.join(", ") + ")." : "Die Einnahmen stimmen noch nicht in: " + offen.join(", ") + ". Rechne Karten mal Preis je Karte – mit festem Bezug auf B1."},
+      {ok: b7, text: b7 ? "B7: " + t.formel("B7") + " ergibt " + t.text("B7") + " Karten." : "B7: Hier fehlt die Formel, die B4 bis B6 zusammenzählt."},
+      {ok: c7, text: c7 ? "C7: " + t.formel("C7") + " ergibt " + t.text("C7") + "." : "C7: Hier fehlt die Formel, die C4 bis C6 zusammenzählt. Du kannst B7 nach rechts ziehen."}
+    ];
+  },
+  loesung: {setze: {C4: "=B4*$B$1", B7: "=SUMME(B4:B6)"}, fuelle: [["C4", "C6"], ["B7", "C7"]]},
+  erfolg: "Fester Bezug, kopieren, zusammenzählen – das brauchst du auch in der Probe."
+}, "train");
+
+Modul.makeGap($("#gap"), [
+  ["Ein Bezug ohne Dollarzeichen heißt ", {g: "relativ"}, "."],
+  ["Ein Bezug wie $B$1 heißt ", {g: "absolut"}, "."],
+  ["Aus =B4*$B$1 wird eine Zeile tiefer ", {g: "=B5*$B$1"}, "."],
+  ["Einen Anteil rechnest du so: Teil ", {g: "geteilt durch"}, " Ganzes."],
+  ["Gewinn ist Einnahmen ", {g: "minus"}, " Kosten."]
+], "gap", ["=B5*$B$2", "mal"]);
+
+Modul.makeTF($("#tf"), [
+  ["Beim Kopieren nach rechts ändern sich bei relativen Bezügen die Spaltenbuchstaben.", true],
+  ["Ein absoluter Bezug zeigt nach dem Kopieren auf eine andere Zelle.", false],
+  ["Steht ein Wert nur einmal in der Tabelle, braucht der Bezug darauf Dollarzeichen.", true],
+  ["Das Prozentformat ändert die Zahl in der Zelle: Aus 0,25 wird 25.", false],
+  ["Zeigt nach dem Kopieren jede Zeile dasselbe Ergebnis, sind zu viele Bezüge fest.", true],
+  ["Eine Zahl in einer eigenen Zelle lässt sich leichter ändern als eine Zahl in zwanzig Formeln.", true]
+], "tf");
+
+/* ---------- Station 5 ---------- */
+Modul.makeQuiz($("#quiz"), [
+  {q: "Wie heißt ein Zellbezug, der sich beim Kopieren anpasst?", o: ["relativer Zellbezug", "absoluter Zellbezug", "fester Zellbezug", "leerer Zellbezug"], a: 0, e: "Relative Bezüge haben keine Dollarzeichen und wandern mit."},
+  {q: "Was bedeutet $B$1 in einer Formel?", o: ["immer Spalte B, immer Zeile 1", "in B1 steht ein Geldbetrag", "B1 mal 1", "B1 ist gesperrt"], a: 0, e: "Die Dollarzeichen machen Spalte und Zeile fest."},
+  {q: "In D2 steht =B2+C2. Du kopierst nach unten. Was steht in D5?", o: ["=B5+C5", "=B2+C2", "=E2+F2", "=B5+C2"], a: 0, e: "Nach unten zählen die Zeilennummern weiter."},
+  {q: "In B6 steht =B4+B5. Du kopierst nach rechts. Was steht in D6?", o: ["=D4+D5", "=B4+B5", "=B6+B7", "=D6+D7"], a: 0, e: "Nach rechts zählen die Spaltenbuchstaben weiter."},
+  {q: "In C4 steht =B4*$B$1. Du kopierst nach unten. Was steht in C6?", o: ["=B6*$B$1", "=B6*$B$3", "=B4*$B$1", "=B6*B3"], a: 0, e: "B4 wandert mit, $B$1 bleibt stehen."},
+  {q: "Welche Taste setzt in Excel die Dollarzeichen?", o: ["F4", "F12", "Entf", "Esc"], a: 0, e: "Formel tippen und direkt hinter dem Bezug F4 drücken."},
+  {q: "Wann brauchst du einen absoluten Zellbezug?", o: ["wenn ein Wert nur einmal dasteht und für alle Zeilen gilt", "wenn eine Formel sehr lang ist", "immer bei SUMME", "wenn die Zahl ein Geldbetrag ist"], a: 0, e: "Zum Beispiel ein Preis, ein Rabatt oder ein Aufschlag in einer einzigen Zelle."},
+  {q: "Nach dem Kopieren stehen in der Spalte 0 und #WERT!. Was ist passiert?", o: ["Ein Bezug hätte fest sein müssen.", "Die Datei ist beschädigt.", "Es sind zu viele Dollarzeichen.", "Die Spalte ist zu schmal."], a: 0, e: "Der Bezug ist auf leere Zellen und Überschriften gerutscht."},
+  {q: "Nach dem Kopieren zeigt jede Zeile dasselbe Ergebnis. Was ist passiert?", o: ["Alle Bezüge sind festgemacht.", "Es fehlt ein Dollarzeichen.", "Die Formel hat kein =.", "Excel hat sich verrechnet."], a: 0, e: "Wenn nichts mitwandert, rechnet jede Zeile mit denselben Zellen."},
+  {q: "Wie rechnest du einen Anteil aus?", o: ["Teil geteilt durch Ganzes", "Ganzes geteilt durch Teil", "Teil mal Ganzes", "Ganzes minus Teil"], a: 0, e: "42 von 200: 42 / 200 = 0,21."},
+  {q: "Was macht das Prozentformat?", o: ["Es zeigt 0,21 als 21 % an.", "Es macht aus 0,21 die Zahl 21.", "Es rundet auf ganze Euro.", "Es löscht die Formel."], a: 0, e: "Nur die Anzeige ändert sich. Die Zahl in der Zelle bleibt 0,21."},
+  {q: "Wie rechnest du den Gewinn aus?", o: ["Einnahmen minus Kosten", "Kosten minus Einnahmen", "Einnahmen plus Kosten", "Einnahmen mal Kosten"], a: 0, e: "Was nach Abzug der Kosten übrig bleibt, ist der Gewinn."}
+], "quiz", "Zellbezug-Profi");
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

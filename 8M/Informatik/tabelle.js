@@ -218,7 +218,8 @@ function tabelle(el, cfg) {
     hinweis.textContent = "";
     // Bezüge der Formel farbig zeigen (wie in Excel beim Bearbeiten)
     [...new Set(bezuege(a).map(b => b.replace(/\$/g, "")))].slice(0, 3).forEach((b, i) => { const z = td(b); if (z) z.classList.add("bz" + (i + 1)); });
-    if (cfg.griff && darf(a)) { const g = document.createElement("span"); g.className = "tab8-griff"; g.title = "Ausfüllkästchen: ziehen, um zu kopieren"; c.appendChild(g); ziehbar(g); }
+    // Ausfüllkästchen auch an der Startzelle, wenn sie selbst gesperrt ist (dort steht dann die vorgegebene Formel)
+    if (cfg.griff && (darf(a) || a === String(cfg.start || "").toUpperCase())) { const g = document.createElement("span"); g.className = "tab8-griff"; g.title = "Ausfüllkästchen: ziehen, um zu kopieren"; c.appendChild(g); ziehbar(g); }
     if (!still && cfg.waehlen) cfg.waehlen(a, api);
   }
   function setze(a, inhalt, still) {
