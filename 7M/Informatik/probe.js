@@ -1,5 +1,7 @@
 /* Proben Informatik 7 (7R und 7M) – abgeleitet von 7M/NT/probe.js, Server: /api/inf7 (englisch_9, nt7.js mit inf7-fragen.js).
-   Je Modul eine Probe in einer Fassung für 7R und für 7M. Zusätzliche Aufgabenart: Reihenfolge (order). */
+   Je Modul eine Probe in einer Fassung für 7R und für 7M. Zusätzliche Aufgabenart: Reihenfolge (order).
+   Informatik 8 (8M/Informatik/probe.html) nutzt dieses Skript mit: Dort steht themen.js davor, und die Kursliste
+   (window.GRUMI_KURS) nennt STUFE, PFAD und die Module. */
 (function () {
   "use strict";
   const params = new URLSearchParams(location.search);
@@ -7,8 +9,9 @@
   const $ = id => document.getElementById(id);
   const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[c]);
   let selected, student, exam;
+  const KURS = window.GRUMI_KURS || null, ST = (KURS && KURS.STUFE) || "7", PFAD = (KURS && KURS.PFAD) || "/api/inf7";
   async function request(route, body) {
-    const res = await fetch(API + "/api/inf7/" + route, body ? {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)} : {});
+    const res = await fetch(API + PFAD + "/" + route, body ? {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)} : {});
     const data = await res.json();
     if (!res.ok) throw new Error(({locked:"Diese Probe ist noch gesperrt.",already_submitted:"Diese Probe wurde mit diesem Code bereits abgegeben.",submission_in_progress:"Eine Abgabe läuft bereits."})[data.error] || data.message || data.error || "Serverfehler");
     return data;
@@ -16,14 +19,15 @@
   function status(message, bad = false) { $("status").textContent = message; $("status").classList.toggle("bad",bad); $("status").hidden = false; }
   // Zug (M oder R) und Modul kommen aus dem Link der Übersicht (?zug=R&thema=filius) oder aus dem Tab.
   // Jede Probe gibt es in einer Fassung je Zug; die Seite zeigt nur die Fassung des eigenen Zugs.
-  const THEMEN = {sicher: "Internet und Sicherheit", filius: "Netzwerke mit Filius", gimp: "Digitale Bilder mit GIMP", inkscape: "Vektorgrafik mit Inkscape", scratch: "Programmieren mit Scratch"};
+  const THEMEN = KURS && KURS.THEMEN ? KURS.THEMEN.reduce((o, t) => { o[t.id] = t.titel; return o; }, {})
+    : {sicher: "Internet und Sicherheit", filius: "Netzwerke mit Filius", gimp: "Digitale Bilder mit GIMP", inkscape: "Vektorgrafik mit Inkscape", scratch: "Programmieren mit Scratch"};
   let zug = /^[MR]$/i.test(params.get("zug") || "") ? params.get("zug").toUpperCase() : "";
-  try { if (zug) sessionStorage.setItem("grumi-i7-zug", zug); else zug = sessionStorage.getItem("grumi-i7-zug") || ""; } catch (_e) {}
+  try { if (zug) sessionStorage.setItem("grumi-i" + ST + "-zug", zug); else zug = sessionStorage.getItem("grumi-i" + ST + "-zug") || ""; } catch (_e) {}
   const thema = THEMEN[params.get("thema")] ? params.get("thema") : "";
   const passt = t => (!zug || !t.zug || t.zug === zug) && (!thema || t.thema === thema);
   (function kopf() {
-    const klasse = zug === "R" ? "7R" : zug === "M" ? "7M" : "7";
-    const zurueck = zug === "R" ? "../../7R/Informatik/index.html" : "index.html";
+    const klasse = zug === "R" ? ST + "R" : zug === "M" ? ST + "M" : ST;
+    const zurueck = zug === "R" ? "../../" + ST + "R/Informatik/index.html" : "index.html";
     document.querySelector(".brand").setAttribute("href", zurueck);
     document.querySelector(".brand span").textContent = klasse + " / Informatik";
     document.querySelector(".top-tag").textContent = "Proben" + (thema ? " · " + THEMEN[thema] : "");

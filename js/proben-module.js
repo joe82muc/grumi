@@ -77,6 +77,13 @@
       schueler: function () { return "7/Informatik_7/probe/probe.html"; }
     },
     {
+      /* Informatik 8, Version 2: je Modul eine Probe, in einer Fassung für 8R und für 8M (t.zug) */
+      key: "inf8", subject: "Informatik", stufen: [8],
+      listPath: "/api/inf8/list", unlockPath: "/api/inf8/teacher/unlock",
+      klasse: function (t) { return "8" + (t.zug || ""); }, link: function () { return "8M/Informatik/lehrer.html"; },
+      schueler: function (t) { return "8M/Informatik/probe.html?test=" + encodeURIComponent(t.id) + (t.zug ? "&zug=" + t.zug : ""); }
+    },
+    {
       key: "informatik8", subject: "Informatik", stufen: [8],
       listPath: "/api/informatik8/list", unlockPath: "/api/informatik8/unlock",
       klasse: function () { return "8"; }, link: function () { return "8/Informatik_8/probe/lehrer.html"; },

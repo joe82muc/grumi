@@ -360,6 +360,13 @@
       global.NT7Verwaltung.freigabe($("vw-i7-frei"), { api: API, pw: PW, klasse: KLASSE, liste: global.INF7, pfad: "/api/inf7", ordner: "7M/Informatik/",
         worte: { titel: "Module und Einheiten", das: "die Einheit", neu: "Neue Einheiten", von: "Einheiten", plan: "Einheiten in Vorbereitung" } });
       fachLaden($("vw-fach"));
+    } else if (ANSICHT === "i8" && global.NT7Verwaltung && global.INF8) {
+      // Informatik 8, Version 2 (8M/Informatik): Freischalten der Module und Einheiten wie bei Informatik 7.
+      // Der Lernstand darunter zeigt auch die bisherigen Module (8/Informatik_8).
+      teil.innerHTML = '<div id="vw-i8-frei"></div><div id="vw-fach"></div>';
+      global.NT7Verwaltung.freigabe($("vw-i8-frei"), { api: API, pw: PW, klasse: KLASSE, liste: global.INF8, pfad: "/api/inf8", ordner: "8M/Informatik/",
+        worte: { titel: "Version 2: Module und Einheiten", das: "die Einheit", neu: "Neue Einheiten", von: "Einheiten", plan: "Einheiten in Vorbereitung" } });
+      fachLaden($("vw-fach"));
     } else if (ANSICHT === "d7" && global.NT7Verwaltung && global.D7) {
       // Deutsch 7: über dem Lernstand steht das Freischalten der Themenbereiche und Module (gleiche Ansicht wie NT 7)
       teil.innerHTML = '<div id="vw-d7-frei"></div><div id="vw-fach"></div>';
@@ -537,6 +544,7 @@
       nt7: { results: "/api/nt7/teacher/results", del: "/api/nt7/teacher/delete", override: "/api/nt7/teacher/override", nurText: true },
       infoaustausch: std("/api/infoaustausch"),
       informatik8: std("/api/informatik8"),
+      inf8: { results: "/api/inf8/teacher/results", del: "/api/inf8/teacher/delete", override: "/api/inf8/teacher/override", nurText: true },
       nt9probe: std("/api/nt9probe"),
       netzwerktest: std("/api/netzwerktest"),
       filiuspruefung: { results: "/api/filiuspruefung/results", del: "/api/filiuspruefung/delete-submission" }

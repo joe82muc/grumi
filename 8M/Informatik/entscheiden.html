@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Informationen gezielt nutzen | Informatik 8</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="einheit8.css">
+<style>
+#boerseAus .app8-treffer{max-height:420px;overflow-y:auto;padding-right:4px}
+.treffer-zeile{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin:0 0 10px;font-weight:800}
+.vergleich{width:100%;border-collapse:collapse;font-size:.97rem}
+.vergleich th,.vergleich td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.vergleich th:first-child,.vergleich td:first-child{text-align:left;white-space:normal}
+.vergleich th button{font:inherit;font-weight:800;color:var(--sky-d);background:none;border:0;padding:4px 2px;cursor:pointer;min-height:40px}
+.vergleich th button.sel::after{content:" ▼";font-size:.7em}
+.vergleich th button.sel.auf::after{content:" ▲"}
+.tab-rahmen{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:#fff}
+.schritt4{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;counter-reset:s4}
+.schritt4 div{counter-increment:s4;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:#fff}
+.schritt4 div::before{content:counter(s4);display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--sky);color:#fff;font-weight:800;margin-bottom:6px}
+.schritt4 b{display:block}
+.schritt4 span{color:var(--muted);font-size:.93rem}
+.lektionen{display:grid;gap:8px;padding:14px}
+.lektion{border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
+.lektion > button{display:flex;gap:10px;align-items:center;width:100%;text-align:left;font:inherit;font-weight:800;padding:12px 14px;background:#fff;border:0;cursor:pointer;min-height:48px}
+.lektion > button .nr{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#ece7f8;color:#5b3c9c;flex:none}
+.lektion.gelesen > button .nr{background:var(--ok);color:#fff}
+.lektion p{margin:0;padding:0 14px 14px 52px}
+.kurs-stand{display:flex;gap:10px;align-items:center;padding:0 14px 14px;font-weight:700;font-size:.92rem;color:var(--muted)}
+.kurs-stand .bar{flex:1;height:10px;border-radius:99px;background:#e8eef1;overflow:hidden}
+.kurs-stand .bar div{height:100%;background:var(--ok);width:0;transition:width .3s}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 8</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Ausprobieren</a>
+      <a href="#s2"><b>2</b>Vorgehen</a>
+      <a href="#s3"><b>3</b>Vergleichen</a>
+      <a href="#s4"><b>4</b>Lernen</a>
+      <a href="#s5"><b>5</b>Sichern</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">💻 Übersicht Informatik 8M</a>
+      <a href="../../8R/Informatik/index.html">💻 Übersicht Informatik 8R</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 8M / 8R · Modul 1: Digitale Informationssysteme · Einheit 3</div>
+    <h1>Informationen gezielt nutzen</h1>
+    <p>Bald steht dein Praktikum an. Ein Portal zeigt dir viele Plätze – aber welcher passt zu dir? Heute lernst du, wie du bei vielen Treffern eine gute Entscheidung triffst.</p>
+    <div class="zeit">⏱ etwa 40 Minuten · am Tablet oder am PC</div>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s5">📝 Kurz sichern</a>
+    </div>
+    <div class="goals">
+      <div>🔎 Ich filtere und sortiere, bis nur noch passende Treffer übrig sind.</div>
+      <div>⚖️ Ich vergleiche Angebote nach dem, was mir wichtig ist.</div>
+      <div>✅ Ich treffe eine Entscheidung und begründe sie mit Informationen.</div>
+      <div>🎓 Ich nutze eine Lernplattform, um mir etwas Neues anzueignen.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in dieser Einheit"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Ausprobieren</div><h2>Die Praktikumsbörse</h2></div></div>
+  <div class="card reveal" id="boerseKarte">
+    <span class="task-tag">Versuch</span>
+    <p class="lead">Die Praktikumsbörse „SchnupperStart“ kennt alle freien Plätze rund um Wiesental. Stell die Filter ein und beantworte die Fragen darunter.</p>
+    <div class="app8 gruen">
+      <div class="app8-kopf"><span class="logo">🎯</span><div>SchnupperStart<small>Praktikumsbörse für Wiesental und Umgebung</small></div></div>
+      <div class="app8-form">
+        <label>Bereich<select id="bBereich"><option value="">alle Bereiche</option><option>Handwerk</option><option>Technik</option><option>Gesundheit</option><option>Handel</option><option>Büro</option></select></label>
+        <label>Entfernung<select id="bWeg"><option value="99">egal</option><option value="5">bis 5 km</option><option value="10">bis 10 km</option></select></label>
+        <label>Sortieren nach<select id="bSort"><option value="name">Betrieb (A–Z)</option><option value="km">Entfernung</option><option value="start">Arbeitsbeginn</option></select></label>
+      </div>
+      <div class="app8-aus" id="boerseAus" aria-live="polite"></div>
+    </div>
+    <div id="boerseF1"></div>
+    <div id="boerseF2"></div>
+    <div id="boerseF3"></div>
+  </div>
+  <div class="card reveal" id="mc-s1"></div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Verstehen</div><h2>In vier Schritten zur Entscheidung</h2></div></div>
+  <div class="card reveal">
+    <p class="lead" style="margin-top:0">Ein Informationssystem nimmt dir das Suchen ab – aber nicht das Denken. So gehst du vor:</p>
+    <div class="schritt4">
+      <div><b>Klären</b><span>Was will ich wissen? Was ist mir wichtig? Das sind meine <button class="term" data-t="kriterium">Kriterien</button>.</span></div>
+      <div><b>Suchen</b><span>Mit <button class="term" data-t="filter">Filtern</button> einschränken, bis nur noch passende <button class="term" data-t="treffer">Treffer</button> übrig sind.</span></div>
+      <div><b>Vergleichen</b><span><button class="term" data-t="sortieren">Sortieren</button> und die Treffer nebeneinander ansehen.</span></div>
+      <div><b>Entscheiden</b><span>Auswählen – und sagen können, warum.</span></div>
+    </div>
+    <div class="merke">
+      <h4>MERKE</h4>
+      <ul>
+        <li>Ein Filter lässt Treffer weg, die nicht passen. Beim Sortieren bleiben alle da – nur die Reihenfolge ändert sich.</li>
+        <li>Das System liefert Informationen. Die Entscheidung triffst du – nach deinen Kriterien.</li>
+        <li>Treffer mit dem Wort <button class="term" data-t="anzeige">Anzeige</button> sind bezahlte Werbung.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card reveal">
+      <span class="task-tag">Reihenfolge</span>
+      <p>Emre sucht ein Fahrrad im Internet. Bringe sein Vorgehen in die richtige Reihenfolge.</p>
+      <div id="orderRad"></div>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag">Zuordnen</span>
+      <p>Filtern oder sortieren?</p>
+      <div id="sortFS"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Anwenden</div><h2>Gleiche Daten – andere Entscheidung</h2></div></div>
+  <div class="card reveal">
+    <p class="lead" style="margin-top:0">Ein Vergleichsportal zeigt vier Kopfhörer. Tippe auf eine Überschrift, um die Tabelle danach zu sortieren.</p>
+    <div class="tab-rahmen"><table class="vergleich" id="vergleich"></table></div>
+    <p class="hint">Alle Produkte sind erfunden.</p>
+  </div>
+  <div class="card reveal" id="mc-s3"></div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Anwenden</div><h2>Wissen holen auf der Lernplattform</h2></div></div>
+  <div class="card reveal" id="kursKarte">
+    <p class="lead" style="margin-top:0">Auch eine <button class="term" data-t="lernplattform">Lernplattform</button> ist ein Informationssystem. Hier holst du dir Wissen in kleinen Schritten. Lies die drei Lektionen des Kurses, dann kommt der Test.</p>
+    <div class="app8 lila">
+      <div class="app8-kopf"><span class="logo">🎓</span><div>Kurskiste<small>Kurs: In drei Schritten zum Praktikum</small></div></div>
+      <div class="lektionen" id="lektionen"></div>
+      <div class="kurs-stand"><span id="kursText">0 von 3 Lektionen gelesen</span><div class="bar"><div id="kursBar"></div></div></div>
+    </div>
+  </div>
+  <div class="card reveal" id="mc-s4"></div>
+  <div class="card reveal">
+    <span class="task-tag m7">M8 · für 8R freiwillig</span>
+    <div id="mcM"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag m7">M8 · für 8R freiwillig</span> <span class="ki-badge">✨ KI prüft</span>
+    <p class="m7-hinweis">Entscheide und begründe. Die KI gibt dir einen kurzen Hinweis – nicht die Lösung.</p>
+    <div id="openM"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Kurz sichern</div><h2>Das nimmst du mit</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal"><span class="task-tag">Richtig oder falsch?</span><div id="tf"></div></div>
+    <div class="card reveal"><span class="task-tag">Lückentext</span><div class="gaptext" id="gap"></div></div>
+  </div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieser Einheit auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Du kannst jetzt mit einem Informationssystem zu einer guten Entscheidung kommen. In der nächsten Einheit vergleichst du verschiedene Systeme: Welches passt zu welcher Aufgabe – und wie gut ist es?</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="vergleichen.html">➡️ Nächste Einheit: Informationssysteme vergleichen</a>
+      <a href="index.html">💻 Übersicht Informatik 8M</a>
+      <a href="../../8R/Informatik/index.html">💻 Übersicht Informatik 8R</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Informatik 8 · Einheit „Informationen gezielt nutzen“ · Dein Fortschritt wird auf diesem Gerät gespeichert. · Alle Betriebe, Portale und Produkte sind erfunden.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info8.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, esc, register, solve} = Modul;
+
+Modul.init({
+  key: "grumi-i8-entscheiden-v1",
+  api: "/api/inf8/uebung/feedback",
+  thema: "Digitale Informationssysteme gezielt nutzen, Klasse 8: Praktikumsbörse und Vergleichsportal, filtern, sortieren, nach eigenen Kriterien vergleichen, eine Entscheidung begründen; Lernplattform (E-Learning)",
+  glossary: {
+    filter: ["Filter", "Eine Einstellung, die die Suche einschränkt. Treffer, die nicht passen, werden nicht mehr angezeigt."],
+    sortieren: ["Sortieren", "Die Treffer in eine Reihenfolge bringen, zum Beispiel nach Preis oder Entfernung. Es fällt dabei nichts weg."],
+    kriterium: ["Kriterium", "Etwas, das dir bei einer Auswahl wichtig ist, zum Beispiel ein kurzer Weg oder ein niedriger Preis. Mehrzahl: Kriterien."],
+    treffer: ["Treffer", "Ein Ergebnis, das das System zu deiner Anfrage gefunden hat."],
+    anzeige: ["Anzeige", "Bezahlte Werbung. Sie steht oft ganz oben, auch wenn sie nicht am besten zu deiner Suche passt."],
+    lernplattform: ["Lernplattform", "Ein Informationssystem zum Lernen: Es bietet Kurse, Aufgaben und Tests und merkt sich deinen Fortschritt. Man sagt auch E-Learning-System."],
+    berufsportal: ["Berufsportal", "Ein Informationssystem zu Berufen: Es beschreibt Berufe und zeigt freie Plätze für Praktikum und Ausbildung."]
+  }
+});
+
+/* ---------- Station 1: Praktikumsbörse ---------- */
+(function () {
+  // Betrieb, Beruf, Bereich, Ort, km, Arbeitsbeginn in Minuten, freie Plätze
+  const D = [
+    ["Elektronikwerk Funke", "Elektroniker/in für Geräte und Systeme", "Technik", "Bergheim", 12, 450, 1],
+    ["Bäckerei Morgenduft", "Bäcker/in", "Handwerk", "Wiesental", 1, 360, 1],
+    ["Buchladen Lesezeichen", "Buchhändler/in", "Handel", "Neustadt", 9, 540, 1],
+    ["Elektro Blitz", "Elektroniker/in", "Handwerk", "Wiesental", 4, 435, 1],
+    ["Malerbetrieb Farbenfroh", "Maler/in und Lackierer/in", "Handwerk", "Neustadt", 9, 450, 2],
+    ["Maschinenbau Eisenhart", "Industriemechaniker/in", "Technik", "Wiesental", 3, 405, 2],
+    ["Physiopraxis Rückenwind", "Physiotherapeut/in", "Gesundheit", "Bergheim", 11, 480, 1],
+    ["Praxis Dr. Sonnenschein", "Medizinische/r Fachangestellte/r", "Gesundheit", "Wiesental", 1, 465, 1],
+    ["Rathaus Wiesental", "Verwaltungsfachangestellte/r", "Büro", "Wiesental", 3, 480, 1],
+    ["Schreinerei Holzwurm", "Schreiner/in", "Handwerk", "Wiesental", 2, 420, 1],
+    ["Seniorenheim Lindenhof", "Pflegefachfrau/Pflegefachmann", "Gesundheit", "Neustadt", 8, 390, 3],
+    ["Spedition Rollgut", "Kaufmann/Kauffrau für Büromanagement", "Büro", "Bergheim", 13, 450, 1],
+    ["Supermarkt Frischekorb", "Kaufmann/Kauffrau im Einzelhandel", "Handel", "Wiesental", 2, 480, 2],
+    ["Zahnarztpraxis Blitzblank", "Zahnmedizinische/r Fachangestellte/r", "Gesundheit", "Neustadt", 7, 495, 1]
+  ];
+  const uhr = m => Math.floor(m / 60) + ":" + String(m % 60).padStart(2, "0");
+  const bereich = $("#bBereich"), weg = $("#bWeg"), sort = $("#bSort"), aus = $("#boerseAus");
+  const karte = (d, anzeige) => `<div class="app8-karte${anzeige ? " anzeige" : ""}"><h4>${esc(d[1])}</h4><p>${esc(d[0])} · ${esc(d[3])}</p>
+    <div class="zeile">${anzeige ? "<span>Anzeige</span>" : ""}<span>${d[4]} km</span><span>Beginn ${uhr(d[5])} Uhr</span><span>${d[6]} ${d[6] === 1 ? "Platz" : "Plätze"} frei</span></div></div>`;
+  function zeig() {
+    const b = bereich.value, max = +weg.value, s = sort.value;
+    const liste = D.filter(d => (!b || d[2] === b) && d[4] <= max)
+      .sort((x, y) => s === "km" ? x[4] - y[4] || x[0].localeCompare(y[0], "de") : s === "start" ? x[5] - y[5] || x[0].localeCompare(y[0], "de") : x[0].localeCompare(y[0], "de"));
+    aus.innerHTML = `<div class="treffer-zeile"><span>${liste.length} Treffer</span><span class="hint">${b || "alle Bereiche"} · ${max < 99 ? "bis " + max + " km" : "jede Entfernung"}</span></div>
+      <div class="app8-treffer">${karte(D[11], true)}${liste.length ? liste.map(d => karte(d)).join("") : '<p class="leer">Kein Platz passt zu deinen Filtern. Lockere einen Filter.</p>'}</div>`;
+  }
+  [bereich, weg, sort].forEach(e => e.addEventListener("change", zeig));
+  zeig();
+  Modul.makeEingabe($("#boerseF1"), {
+    frage: "Leon sucht einen Platz im Bereich Handwerk. Er will höchstens 5 km fahren. Wie viele Treffer zeigt die Börse?",
+    wert: 3, einheit: "Treffer", tipp: "Stelle Bereich „Handwerk“ und Entfernung „bis 5 km“ ein. Die Zahl der Treffer steht über der Liste. Die Anzeige zählt nicht mit.",
+    name: "Praktikumsbörse: nach Bereich und Entfernung filtern"
+  }, "boerse1");
+  Modul.makeEingabe($("#boerseF2"), {
+    frage: "Leon möchte nicht vor 7 Uhr anfangen. Welcher Betrieb aus seiner Trefferliste scheidet deshalb aus?",
+    antworten: ["Bäckerei Morgenduft", "Morgenduft", "Bäckerei", "die Bäckerei", "die Bäckerei Morgenduft", "Baeckerei Morgenduft", "Bäcker", "der Bäcker", "beim Bäcker", "Bäcker Morgenduft"], platz: "Name des Betriebs",
+    tipp: "Lass Leons Filter stehen und sortiere nach Arbeitsbeginn. Der früheste Beginn steht oben.",
+    erfolg: "Hier beginnt die Arbeit schon um 6:00 Uhr.",
+    name: "Praktikumsbörse: nach Arbeitsbeginn sortieren"
+  }, "boerse2");
+  Modul.makeEingabe($("#boerseF3"), {
+    frage: "Aylin interessiert sich für den Bereich Gesundheit. Sie will höchstens 10 km fahren. Mit dem Bus kann sie frühestens um 7:45 Uhr im Betrieb sein. Wie viele Betriebe kommen für sie in Frage?",
+    wert: 2, einheit: "Betriebe", tipp: "Filtere nach „Gesundheit“ und „bis 10 km“. Prüfe dann bei jedem Treffer den Arbeitsbeginn: 7:45 Uhr oder später?",
+    erfolg: "Den letzten Schritt musstest du selbst machen: Für den Arbeitsbeginn gibt es keinen Filter.",
+    name: "Praktikumsbörse: Treffer mit einem eigenen Kriterium prüfen"
+  }, "boerse3");
+})();
+
+Modul.makeMC($("#mc-s1"), [
+  {q: "Ganz oben steht immer ein Treffer mit dem Wort „Anzeige“. Was bedeutet das?",
+   o: ["Der Betrieb hat dafür bezahlt, dass sein Angebot ganz oben steht.", "Dieser Platz passt am besten zu deiner Suche.", "Die Börse empfiehlt diesen Platz besonders.", "Dieser Platz ist als einziger noch frei."], a: 0,
+   e: "Eine Anzeige ist Werbung. Sie steht oben, weil dafür bezahlt wurde – auch wenn sie gar nicht zu deinen Filtern passt."},
+  {q: "Aylin hat mehrere passende Plätze gefunden. Wer entscheidet, welcher davon der beste ist?",
+   o: ["Aylin – nach dem, was ihr wichtig ist", "die Börse – sie zeigt den besten Platz zuerst", "der Betrieb, der am nächsten liegt", "niemand – alle Plätze sind genau gleich"], a: 0,
+   e: "Das System liefert die Informationen. Die Entscheidung trifft Aylin selbst."},
+  {q: "Du stellst „Handel“ und „bis 5 km“ ein. Die Liste wird sehr kurz. Was machst du, wenn dir kein Treffer gefällt?",
+   o: ["einen Filter lockern, zum Beispiel „bis 10 km“", "aufgeben – mehr Plätze gibt es nicht", "die Seite so oft neu laden, bis mehr Plätze kommen", "die Anzeige nehmen"], a: 0,
+   e: "Je strenger die Filter, desto weniger Treffer. Lockerst du einen Filter, zeigt das System wieder mehr an."}
+], "mc1", {t: "Kurz-Check"});
+
+/* ---------- Station 2 ---------- */
+Modul.makeOrder($("#orderRad"), [
+  "Emre überlegt: höchstens 250 €, 26 Zoll, mit Licht.",
+  "Er stellt im Portal die Filter für Preis und Größe ein.",
+  "Er sortiert die Treffer nach dem Preis.",
+  "Er vergleicht die drei günstigsten Räder genau.",
+  "Er entscheidet sich für ein Rad und kann sagen, warum."
+], "orderRad");
+
+Modul.makeSort($("#sortFS"), {
+  buckets: ["🔎 Filtern", "↕️ Sortieren"], cols: 200,
+  items: [
+    {t: "nur Plätze im Bereich Technik zeigen", b: 0},
+    {t: "alles über 10 km ausblenden", b: 0},
+    {t: "nur Räder bis 250 € anzeigen", b: 0},
+    {t: "den kürzesten Weg nach oben holen", b: 1},
+    {t: "das billigste Angebot zuerst zeigen", b: 1},
+    {t: "die Liste nach dem Abc ordnen", b: 1}
+  ],
+  done: "✅ Richtig! Filtern lässt etwas weg, Sortieren ändert nur die Reihenfolge."
+}, "sortFS");
+
+/* ---------- Station 3: Vergleichstabelle ---------- */
+(function () {
+  const P = [["Klangwolke K2", 34.9, 20, 180, 4.1], ["BassBiber Mini", 24.9, 12, 150, 3.8], ["Lauschkopf Air", 59, 35, 210, 4.6], ["Ohrwurm Go", 39.9, 28, 240, 4.3]];
+  const KOPF = ["Kopfhörer", "Preis", "Akku", "Gewicht", "Bewertung"];
+  const tab = $("#vergleich"); let nach = 0, auf = true;
+  const euro = v => v.toFixed(2).replace(".", ",") + " €";
+  function zeig() {
+    const l = P.slice().sort((a, b) => nach === 0 ? a[0].localeCompare(b[0], "de") * (auf ? 1 : -1) : (a[nach] - b[nach]) * (auf ? 1 : -1));
+    tab.innerHTML = `<thead><tr>${KOPF.map((k, i) => `<th><button type="button" data-i="${i}" class="${i === nach ? "sel" + (auf ? " auf" : "") : ""}">${k}</button></th>`).join("")}</tr></thead>
+      <tbody>${l.map(p => `<tr><td><b>${p[0]}</b></td><td>${euro(p[1])}</td><td>${p[2]} Stunden</td><td>${p[3]} g</td><td>${String(p[4]).replace(".", ",")} von 5 ★</td></tr>`).join("")}</tbody>`;
+    $$("button", tab).forEach(b => b.addEventListener("click", () => { const i = +b.dataset.i; if (i === nach) auf = !auf; else { nach = i; auf = i === 0 || i === 1 || i === 3; } zeig(); }));
+  }
+  zeig();
+})();
+
+Modul.makeMC($("#mc-s3"), [
+  {q: "Samira hat 40 € gespart. Am wichtigsten ist ihr, dass der Akku lange hält. Welcher Kopfhörer passt?",
+   o: ["Ohrwurm Go", "Klangwolke K2", "BassBiber Mini", "Lauschkopf Air"], a: 0,
+   e: "Unter 40 € bleiben drei Kopfhörer. Von ihnen hält der Ohrwurm Go mit 28 Stunden am längsten."},
+  {q: "Jonas braucht den Kopfhörer zum Joggen. Er soll so leicht wie möglich sein. Welcher passt?",
+   o: ["BassBiber Mini", "Klangwolke K2", "Ohrwurm Go", "Lauschkopf Air"], a: 0,
+   e: "Sortiere nach Gewicht: Mit 150 g ist der BassBiber Mini der leichteste."},
+  {q: "Elif ist der Preis egal. Sie will den Kopfhörer mit der besten Bewertung. Welchen nimmt sie?",
+   o: ["Lauschkopf Air", "Ohrwurm Go", "Klangwolke K2", "BassBiber Mini"], a: 0,
+   e: "Mit 4,6 von 5 Sternen ist der Lauschkopf Air am besten bewertet."},
+  {q: "Drei Kinder, dieselbe Tabelle, drei verschiedene Kopfhörer. Warum?",
+   o: ["Jedes Kind hat andere Kriterien.", "Das Portal zeigt jedem Kind andere Daten.", "Zwei der Kinder haben falsch gelesen.", "Die Tabelle ändert bei jedem Aufruf die Preise."], a: 0,
+   e: "Die Daten sind für alle gleich. Welcher Treffer der beste ist, hängt davon ab, was dir wichtig ist."}
+], "mc3", {t: "Entscheide mit der Tabelle"});
+
+/* ---------- Station 4: Lernplattform ---------- */
+(function () {
+  const L = [
+    ["Rechtzeitig anfangen", "Beliebte Betriebe vergeben ihre Praktikumsplätze früh. Bewirb dich deshalb etwa drei Monate vor dem Praktikum. Notiere dir, bis wann du eine Antwort brauchst."],
+    ["Die Bewerbung", "Zu einer Bewerbung für ein Praktikum gehören ein kurzes Anschreiben und ein Lebenslauf. Im Anschreiben steht, für welchen Zeitraum du dich bewirbst und warum dich der Beruf interessiert."],
+    ["Der erste Tag", "Sei pünktlich – am besten zehn Minuten früher. Frag vorher nach, welche Kleidung du brauchst. In einer Werkstatt sind das oft feste Schuhe."]
+  ];
+  const box = $("#lektionen"), text = $("#kursText"), bar = $("#kursBar");
+  let gelesen = new Set();
+  try { gelesen = new Set(JSON.parse(Modul.load("-lektionen", "[]")) || []); } catch (_e) {}
+  register("kurs", "#kursKarte", "Lernplattform: die drei Lektionen des Kurses lesen");
+  box.innerHTML = L.map((l, i) => `<div class="lektion" data-i="${i}"><button type="button" aria-expanded="false"><span class="nr">${i + 1}</span>${esc(l[0])}</button><p hidden>${esc(l[1])}</p></div>`).join("");
+  const stand = () => {
+    text.textContent = `${gelesen.size} von 3 Lektionen gelesen`; bar.style.width = (gelesen.size / 3 * 100) + "%";
+    $$(".lektion", box).forEach(el => el.classList.toggle("gelesen", gelesen.has(+el.dataset.i)));
+    if (gelesen.size >= 3) solve("kurs");
+  };
+  $$(".lektion", box).forEach(el => {
+    const b = $("button", el), p = $("p", el);
+    b.addEventListener("click", () => {
+      const auf = p.hidden; p.hidden = !auf; b.setAttribute("aria-expanded", String(auf));
+      if (auf) { gelesen.add(+el.dataset.i); Modul.save("-lektionen", JSON.stringify([...gelesen])); stand(); }
+    });
+  });
+  stand();
+  Modul.loeser.kurs = async () => { $$(".lektion", box).forEach(el => { if (!gelesen.has(+el.dataset.i)) $("button", el).click(); }); };
+})();
+
+Modul.makeMC($("#mc-s4"), [
+  {q: "Wann solltest du dich laut Kurs um ein Praktikum bewerben?",
+   o: ["etwa drei Monate vorher", "in der Woche davor", "am ersten Tag des Praktikums", "erst, wenn der Betrieb nachfragt"], a: 0,
+   e: "So steht es in Lektion 1: Beliebte Betriebe vergeben ihre Plätze früh."},
+  {q: "Was gehört laut Kurs zu einer Bewerbung für ein Praktikum?",
+   o: ["ein Anschreiben und ein Lebenslauf", "nur eine kurze Nachricht im Chat", "ein Foto vom letzten Urlaub", "das Zeugnis der Grundschule"], a: 0,
+   e: "Lektion 2: Anschreiben und Lebenslauf. Im Anschreiben stehen der Zeitraum und dein Interesse am Beruf."},
+  {q: "Woran siehst du auf einer Lernplattform, wie weit du in einem Kurs bist?",
+   o: ["am Fortschrittsbalken", "an der Farbe des Hintergrunds", "an der Uhrzeit oben im Browser", "an der Zahl der anderen Kinder im Kurs"], a: 0,
+   e: "Eine Lernplattform merkt sich, was du schon bearbeitet hast, und zeigt es dir an – hier als Balken."}
+], "mc4", {t: "Test zum Kurs"});
+
+Modul.plus(() => {
+  Modul.makeMC($("#mcM"), [
+    {q: "In der Praktikumsbörse steht nicht, wann die Arbeit endet. Wie kommst du am besten an diese Information?",
+     o: ["Ich frage beim Betrieb nach.", "Ich schätze es einfach.", "Ich nehme den Platz, der ganz oben steht.", "Ich warte, bis die Börse es von selbst anzeigt."], a: 0,
+     e: "Kein Informationssystem enthält alles. Fehlt dir eine wichtige Angabe, holst du sie dir an der Quelle – hier beim Betrieb."},
+    {q: "Zwei Portale zeigen für denselben Beruf unterschiedliche Arbeitszeiten. Was ist am klügsten?",
+     o: ["prüfen, welche Angabe neuer ist, und beim Betrieb nachfragen", "die Angabe nehmen, die mir besser gefällt", "dem Portal glauben, das schöner aussieht", "beide Zeiten zusammenzählen und teilen"], a: 0,
+     e: "Daten können veraltet sein. Bei wichtigen Entscheidungen prüfst du, wie aktuell eine Angabe ist, und fragst im Zweifel nach."}
+  ], "mcM", {t: "Wenn Informationen fehlen"});
+
+  Modul.makeOpen($("#openM"), [
+    {q: "Leon hat zwei Zusagen: Schreinerei Holzwurm (2 km, Beginn 7:00 Uhr) und Elektro Blitz (4 km, Beginn 7:15 Uhr). Entscheide dich für einen Platz und begründe mit zwei Angaben.",
+     m: "Ich würde die Schreinerei Holzwurm nehmen. Der Weg ist mit 2 km kürzer, und der Beruf Schreiner interessiert mich mehr. Dass die Arbeit schon um 7:00 Uhr beginnt, stört mich nicht.",
+     k: ["holzwurm|schreiner|blitz|elektr", "km|der weg|den weg|entfern|nah|näher|nähe|kürzer|weit", "uhr|beginn|anfang|früh|spät|aufsteh", "beruf|interess|spaß|gefäll"], min: 3}
+  ], "openM", "Nenne den Platz, den du wählst, und zwei Gründe – zum Beispiel den Weg, den Arbeitsbeginn oder dein Interesse am Beruf.");
+});
+
+/* ---------- Station 5 ---------- */
+Modul.makeTF($("#tf"), [
+  ["Ein Filter zeigt nur noch die Treffer, die zu deinen Angaben passen.", true],
+  ["Beim Sortieren werden unpassende Treffer gelöscht.", false],
+  ["Der oberste Treffer ist immer der beste für dich.", false],
+  ["Bevor du suchst, überlegst du, was dir wichtig ist.", true],
+  ["Ein Informationssystem liefert Informationen – entscheiden musst du selbst.", true],
+  ["Auf einer Lernplattform eignest du dir Wissen in kleinen Schritten an.", true]
+], "tf");
+
+Modul.makeGap($("#gap"), [
+  ["Mit einem ", {g: "Filter"}, " schränkst du die Suche ein, zum Beispiel auf einen Bereich."],
+  ["Beim ", {g: "Sortieren"}, " bleiben alle Treffer da, nur die Reihenfolge ändert sich."],
+  ["Was dir bei der Auswahl wichtig ist, nennt man ", {g: "Kriterium"}, "."],
+  ["Bezahlte Treffer sind mit dem Wort ", {g: "Anzeige"}, " gekennzeichnet."]
+], "gap", ["Server", "Passwort"]);
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

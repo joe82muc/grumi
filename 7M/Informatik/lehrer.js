@@ -1,4 +1,5 @@
-/* Lehrerseite der Proben Informatik 7 – abgeleitet von 7M/NT/lehrer.js, Server: /api/inf7. */
+/* Lehrerseite der Proben Informatik 7 – abgeleitet von 7M/NT/lehrer.js, Server: /api/inf7.
+   Informatik 8 (8M/Informatik/lehrer.html) nutzt dieses Skript mit und setzt davor window.GRUMI_PROBEN_PFAD = "/api/inf8". */
 (function () {
   "use strict";
   const params = new URLSearchParams(location.search);
@@ -10,8 +11,9 @@
   const $ = id => document.getElementById(id);
   const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[c]);
   let password = "", tests = [];
+  const PFAD = window.GRUMI_PROBEN_PFAD || "/api/inf7";
   async function request(route, body = {}) {
-    const response = await fetch(API + "/api/inf7/teacher/" + route,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...body,password})});
+    const response = await fetch(API + PFAD + "/teacher/" + route,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...body,password})});
     if (route === "export" && response.ok) return response.blob();
     const data = await response.json();
     if (!response.ok) throw new Error(data.error === "bad_password" ? "Passwort nicht richtig." : data.error || "Serverfehler");
@@ -20,7 +22,7 @@
   const status = (text,bad=false) => { $("teacher-status").textContent = text; $("teacher-status").classList.toggle("bad",bad); };
   async function load() {
     try {
-      const [list,results] = await Promise.all([fetch(API+"/api/inf7/list").then(r=>r.json()),request("results",{testId:$("filter-test").value})]);
+      const [list,results] = await Promise.all([fetch(API+PFAD+"/list").then(r=>r.json()),request("results",{testId:$("filter-test").value})]);
       tests = list.tests;
       $("teacher-content").hidden = false;
       $("unlock-list").innerHTML = `<h2>Freischaltung</h2>${tests.map(t => `<div class="unlock-row"><div><strong>${esc(t.title)}</strong><span>${t.itemCount} Aufgaben · ${t.maxPoints} Punkte</span></div><label class="switch-label"><input type="checkbox" data-unlock="${t.id}" ${t.unlocked ? "checked" : ""}> ${t.unlocked ? "Offen" : "Gesperrt"}</label></div>`).join("")}`;

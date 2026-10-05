@@ -1,5 +1,7 @@
 /* Übersichtsseite Informatik 7M / 7R (nach dem Vorbild von 7M/NT/uebersicht.js)
  * Beide Klassen nutzen dieselben Einheiten aus 7M/Informatik. Module und Einheiten stehen in themen.js.
+ * Informatik 8 (8M/Informatik, 8R/Informatik) nutzt dieses Skript mit: Die Kursliste (window.GRUMI_KURS = INF8) nennt
+ * STUFE ("8"), PFAD ("/api/inf8"), ALT (Verweis auf die bisherigen Stunden) und INTRO (Einleitung im Kopf).
  * Die Seite setzt <body data-klasse="7M|7R" data-base="Pfad zu 7M/Informatik/" data-root="Pfad zur Startseite">
  * und bindet themen.js vor diesem Skript ein.
  *
@@ -11,13 +13,16 @@
 (function () {
   "use strict";
 
-  const KURS = window.INF7;
+  const KURS = window.GRUMI_KURS || window.INF7;
+  const ST = KURS.STUFE || "7", PFAD = KURS.PFAD || "/api/inf7";
+  const ALT = KURS.ALT || {href: "7/Informatik_7/index.html", text: "Bisherige Stunden"};
+  const INTRO = KURS.INTRO || "Fünf Module mit kurzen Einheiten: ausprobieren, verstehen, kurz sichern. Bei Filius, GIMP, Inkscape und Scratch arbeitest du am Windows-PC. Deine Lehrkraft schaltet die Einheiten nach und nach frei.";
   const THEMEN = KURS.THEMEN;
   const body = document.body;
-  const klasse = body.dataset.klasse || "7M";
+  const klasse = body.dataset.klasse || ST + "M";
   const base = body.dataset.base || "";
   const root = body.dataset.root || "../../";
-  const andere = klasse === "7M" ? "7R" : "7M";
+  const andere = klasse === ST + "M" ? ST + "R" : ST + "M";
   const esc = s => String(s).replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"})[c]);
   const SITZUNG = "grumi-code-anmeldung";
 
@@ -51,11 +56,11 @@
     }
     return null;
   }
-  // Gültige Anmeldung eines Kindes der 7. Klasse (andere Stufen sehen die Seite wie Gäste)
+  // Gültige Anmeldung eines Kindes dieser Jahrgangsstufe (andere Stufen sehen die Seite wie Gäste)
   function anmeldung() {
     try {
       const a = anmeldungGueltig(JSON.parse(localStorage.getItem(SITZUNG) || "null"));
-      return a && /^7[MR]$/.test(String(a.zug || "")) ? a : null;
+      return a && new RegExp("^" + ST + "[MR]$").test(String(a.zug || "")) ? a : null;
     } catch (_) { return null; }
   }
   function zugVon(k) { const m = /^(\d+)/.exec(String(k || "")); return m ? m[1] + (/M$/.test(k) ? "M" : "R") : ""; }
@@ -141,17 +146,17 @@
     const altFeld = document.getElementById("codeFeld"), getippt = altFeld ? altFeld.value : "", imFeld = altFeld && document.activeElement === altFeld;
     const a = anmeldung();
     const zug = a ? a.zug.slice(1) : klasse.slice(1);
-    try { sessionStorage.setItem("grumi-i7-zug", zug); } catch (_e) {}
+    try { sessionStorage.setItem("grumi-i" + ST + "-zug", zug); } catch (_e) {}
     const staende = THEMEN.map(t => themaStand(t, a));
     const offenGesamt = staende.reduce((s, x) => s + x.offen, 0), fertigGesamt = staende.reduce((s, x) => s + x.fertig, 0);
     const pctGesamt = offenGesamt ? Math.round(THEMEN.reduce((s, t, i) => s + staende[i].pct * staende[i].offen, 0) / offenGesamt) : 0;
 
     // Solange nichts offen ist, arbeiten die Klassen mit den bisherigen Stunden weiter – der Weg dorthin steht dabei.
     // (Angemeldet erst, wenn der Stand der Klasse bekannt ist – sonst blitzt der Hinweis beim Laden auf.)
-    const alt = `<a href="${root}7/Informatik_7/index.html">📚 Bisherige Stunden</a>`;
+    const alt = `<a href="${root}${ALT.href}">📚 ${esc(ALT.text)}</a>`;
     const nochNichts = offenGesamt || (a && !STAND) ? "" : `<p class="hinweis bisher">${a
-      ? "Für deine Klasse ist hier noch nichts freigeschaltet. Bis dahin arbeitest du mit den bisherigen Stunden weiter:"
-      : "Ohne Code ist hier noch nichts offen. Melde dich oben mit deinem Code an. Die bisherigen Stunden findest du hier:"} ${alt}</p>`;
+      ? (KURS.NOCH_NICHTS || "Für deine Klasse ist hier noch nichts freigeschaltet. Bis dahin arbeitest du mit den bisherigen Stunden weiter:")
+      : (KURS.OHNE_CODE || "Ohne Code ist hier noch nichts offen. Melde dich oben mit deinem Code an. Die bisherigen Stunden findest du hier:")} ${alt}</p>`;
 
     const kopf = a
       ? `<div class="wer"><span>👤 ${esc(a.name)} · Klasse ${esc(a.klasse)}</span><button type="button" id="abmelden">Abmelden</button></div>`
@@ -164,14 +169,14 @@
       <nav class="navlinks" aria-label="Navigation">
         <a href="${root}index.html">🏠 Startseite Lernplattform</a>
         <a href="${root}index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
-        <a href="${root}${andere}/Informatik/index.html">${andere === "7M" ? "📘" : "📗"} Übersicht Informatik ${andere}</a>
-        <a href="${root}7/Informatik_7/index.html">📚 Bisherige Stunden</a>
+        <a href="${root}${andere}/Informatik/index.html">${andere === ST + "M" ? "📘" : "📗"} Übersicht Informatik ${andere}</a>
+        <a href="${root}${ALT.href}">📚 ${esc(ALT.text)}</a>
       </nav>
       <div class="hero-grid">
         <div>
           <div class="eyebrow">Klasse ${klasse} · Informatik</div>
           <h1>Informatik ${klasse}</h1>
-          <p>Fünf Module mit kurzen Einheiten: ausprobieren, verstehen, kurz sichern. Bei Filius, GIMP, Inkscape und Scratch arbeitest du am Windows-PC. Deine Lehrkraft schaltet die Einheiten nach und nach frei.</p>
+          <p>${esc(INTRO)}</p>
         </div>
         <div class="hero-box">${kopf}
           <p class="klein">${a ? "Du siehst, was deine Lehrkraft für deine Klasse freigeschaltet hat." : "Mit deinem Code siehst du, was deine Lehrkraft für deine Klasse freigeschaltet hat. Ohne Code ist noch nichts offen."}</p>
@@ -181,7 +186,7 @@
   </header>
   <main class="wrap">
     <section class="gesamt" aria-label="Dein Lernfortschritt">
-      <div class="gesamt-kopf"><div><div class="eyebrow dark">Informatik 7 Gesamtfortschritt</div><div class="gesamt-zahl">${pctGesamt} %</div></div>
+      <div class="gesamt-kopf"><div><div class="eyebrow dark">Informatik ${ST} Gesamtfortschritt</div><div class="gesamt-zahl">${pctGesamt} %</div></div>
         <p>${offenGesamt ? `${fertigGesamt} von ${offenGesamt} Einheiten abgeschlossen` : "Noch keine Einheit freigeschaltet"}${a ? "" : " · auf diesem Gerät"}</p></div>
       <div class="bar gross"><div style="width:${pctGesamt}%"></div></div>
       <div class="gesamt-themen">${THEMEN.map((t, i) => staende[i].offen
@@ -230,7 +235,7 @@
   }
   laden();
   // Welche Proben gibt es, welche sind offen? (öffentliche Liste, ohne Anmeldung)
-  fetch(KURS.API + "/api/inf7/list").then(r => r.json()).then(d => { if (d && d.ok && Array.isArray(d.tests)) { PROBEN = d.tests; zeichnen(); } }).catch(() => {});
+  fetch(KURS.API + PFAD + "/list").then(r => r.json()).then(d => { if (d && d.ok && Array.isArray(d.tests)) { PROBEN = d.tests; zeichnen(); } }).catch(() => {});
   // Zurück aus einer Einheit (auch über den Zurück-Knopf): Fortschritt neu lesen
   window.addEventListener("pageshow", e => { if (e.persisted) zeichnen(); });
 })();

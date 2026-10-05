@@ -1,0 +1,28 @@
+# Informatik 8M / 8R (Version 2, Schuljahr 2026/27)
+
+- Übersicht 8M: `index.html` · Übersicht 8R: `../../8R/Informatik/index.html`. Beide nutzen `themen.js` und die
+  Übersicht von Informatik 7 (`../../7M/Informatik/uebersicht.js`, `../../7M/NT/uebersicht.css`).
+- Die bisherigen Module bleiben unter `../../8/Informatik_8/index.html` erreichbar und sind weiter der Einstieg von
+  der Startseite. Von dort führen die Verweise „Version 2“ hierher.
+- **`themen.js` ist die eine Liste** aller Module, Einheiten und Proben (Kennung, Titel, Datei, Speicherschlüssel).
+  Übersicht, Einheiten, Lernstand und die Verwaltung der Lehrkraft lesen daraus. Neue Einheit = Datei anlegen und
+  dort `href` eintragen.
+- **Fünf Module, 26 Einheiten:** Digitale Informationssysteme · Datenschutz und Big Data · Excel Grundlagen ·
+  Excel: Zellbezüge und Anwendungen · Programmieren mit Scratch. Eine Einheit ist eine Seite für etwa 40 Minuten
+  und wird von beiden Zügen genutzt.
+- Gemeinsame Bausteine: `../../7M/NT/modul-basis.css` und `modul-basis.js` (Sterne, Übungstypen, Kreuzworträtsel,
+  Animation in Schritten, KI-Rückmeldung, Profi-Check, Lernstand, Sperre), `../../7M/Informatik/einheit.css` und
+  `praxis.js` (Praxisauftrag mit Hilfestufen und Ergebnisprüfung, Fälle entscheiden, Stellen im Text finden).
+  Für Informatik 8 dazu: `einheit8.css` und `info8.js` (nachgebaute kleine Anwendungen, Eingabe-Frage).
+- **R und M:** Aufgaben für den M-Zug stehen in `Modul.plus(() => …)`. In 8R sind sie freiwillig und zählen nicht
+  zu den Pflichtaufgaben. Hilfen bekommt 8R sofort, 8M erst nach einer Wartezeit.
+- **Freischalten:** Die Lehrkraft schaltet je Klasse Module oder einzelne Einheiten frei (`proben-verwalten.html`
+  → Klasse → Informatik, Abschnitt „Version 2“). Alles ist zuerst gesperrt; ohne Anmeldung mit Code ist nichts offen.
+  `?vorschau=1` zeigt der Lehrkraft eine gesperrte Einheit, ohne etwas zu speichern.
+- **Proben:** je Modul eine Probe in einer Fassung für 8R und 8M, etwa 15 bis 20 Minuten. `probe.html` zeigt die
+  Probe des eigenen Zugs (`?thema=…&zug=R|M`, `?test=<Kennung>`). Fragen, Lösungen und Bewertung liegen nur auf dem
+  Server (`/api/inf8`). Lehrerseite: `lehrer.html`.
+- **Praxis am Windows-PC:** Excel (Module 3 und 4) und Scratch im Browser (Modul 5). Die Einheiten dazu sind als
+  „Windows-PC erforderlich“ gekennzeichnet. Die Module 1 und 2 gehen ganz am Tablet.
+- Beispiele verwenden erfundene Namen, Betriebe, Portale und Produkte; Internetadressen enden auf `.example`.
+  Zeichnungen sind eigene SVG-Grafiken.
