@@ -46,6 +46,7 @@
   var BUCHSTABE = /[A-Za-zÄÖÜäöüß]{2}/;
 
   var sprache = "de", lauf = 0, amWerk = false, zeitgeber = 0, offen = 0;
+  var lage = { anmelden: false, fehler: false, teil: false };   // was der Hinweis in der Leiste sagen muss (gilt, bis die Sprache wechselt)
   var einheiten = new Map();        // Element -> { orig: [Knoten], mine: [Knoten] } (auch für die Bausteine im Satz)
   var attribute = [];               // { el, name, orig }
   var meine = new WeakSet();        // Textknoten, die diese Datei gesetzt hat
@@ -74,11 +75,15 @@
     return NIE[tag(el)] || el.id === "gu-leiste" || el.getAttribute("translate") === "no" || (el.classList && el.classList.contains("notranslate")) || el.isContentEditable;
   }
   function imSperrbereich(el) { for (var e = el; e && e.nodeType === 1; e = e.parentNode) if (gesperrt(e)) return true; return false; }
-  // Rückmeldungen der KI auf eine freie Antwort (Aufgaben mit class="… ki", data-uebersetzen="fluechtig") und alles,
-  // worin etwas Getipptes steht: kann Eigenes des Kindes enthalten – übersetzen ja, speichern nein
+  // Rückmeldungen der KI auf eine freie Antwort (das Feld .fb in einer Aufgabe mit class="… ki", oder
+  // data-uebersetzen="fluechtig") und alles, worin etwas Getipptes steht: kann Eigenes des Kindes enthalten –
+  // übersetzen ja, speichern nein. Die Aufgabe selbst ist fester Seitentext.
   function fluechtig(el, text) {
+    var inRueckmeldung = false;
     for (var e = el; e && e.nodeType === 1; e = e.parentNode) {
-      if (e.getAttribute("data-uebersetzen") === "fluechtig" || (e.classList && (e.classList.contains("ki") || e.classList.contains("ki-antwort") || e.classList.contains("ki-feedback")))) return true;
+      if (e.getAttribute("data-uebersetzen") === "fluechtig") return true;
+      if (e.classList && (e.classList.contains("fb") || e.classList.contains("ki-antwort") || e.classList.contains("ki-feedback"))) inRueckmeldung = true;
+      if (inRueckmeldung && e.classList && e.classList.contains("ki")) return true;
     }
     var klein = text.toLowerCase();
     return Object.keys(getippt).some(function (w) { return klein.indexOf(w) >= 0; });
@@ -190,7 +195,8 @@
   // Alles Unübersetzte holen und einbauen. Zuerst aus dem Speicher des Geräts, der Rest in Paketen vom Server.
   function uebersetzen() {
     if (sprache === "de") return;
-    var nr = lauf, W = WORTE[sprache], liste = sammeln(), fehlt = [], anmelden = false, voll = false, fehler = false, nichtDa = 0;
+    var nr = lauf, W = WORTE[sprache], liste = sammeln(), fehlt = [];
+    var schluss = function () { meldung(lage.anmelden ? W.anmelden : lage.fehler ? W.fehler : lage.teil ? W.hinweis + " " + W.teil : W.hinweis, lage.anmelden || lage.fehler ? "warn" : ""); };
     if (!liste.length) return;
     amWerk = true;
     liste.forEach(function (e) {
@@ -198,7 +204,7 @@
       if (!(da && einbauen(e, da))) fehlt.push(e);
     });
     amWerk = false;
-    if (!fehlt.length) { if (!offen) meldung(W.hinweis); return; }
+    if (!fehlt.length) { if (!offen) schluss(); return; }
     // Pakete: gleiche Texte nur einmal, feste und flüchtige getrennt
     var pakete = [], je = { true: null, false: null };
     fehlt.forEach(function (e) {
@@ -216,7 +222,7 @@
       if (i >= pakete.length) {
         offen--;
         lagerSichern();
-        meldung(anmelden ? W.anmelden : fehler ? W.fehler : voll || nichtDa ? W.hinweis + " " + W.teil : W.hinweis, anmelden || fehler ? "warn" : "");
+        if (!offen) schluss();
         return;
       }
       var p = pakete[i++], body = { sprache: sprache, texte: p.texte };
@@ -224,18 +230,18 @@
       if (code()) body.code = code();
       post(body).then(function (d) {
         if (nr !== lauf) return;
-        if (!d || !d.ok || !Array.isArray(d.texte)) { fehler = true; return; }
-        if (d.anmelden) anmelden = true;
-        if (d.voll) voll = true;
+        if (!d || !d.ok || !Array.isArray(d.texte)) { lage.fehler = true; return; }
+        if (d.anmelden) lage.anmelden = true;
+        if (d.voll) lage.teil = true;
         amWerk = true;
         p.texte.forEach(function (t, k) {
           var u = d.texte[k];
-          if (!u) { nichtDa++; ohne[t] = 1; return; }
+          if (!u) { lage.teil = true; ohne[t] = 1; return; }
           if (p.fest) lager[kurz(t)] = u;
           p.wo[t].forEach(function (e) { if (e.el.isConnected) einbauen(e, u); });
         });
         amWerk = false;
-      }).catch(function () { fehler = true; }).then(function () {
+      }).catch(function () { lage.fehler = true; }).then(function () {
         Object.keys(p.wo).forEach(function (t) { p.wo[t].forEach(function (e) { e.el.__guWartet = false; }); });
         weiter();
       });
@@ -247,6 +253,8 @@
     lauf++;
     if (sprache !== "de") zurueck();
     sprache = id;
+    lage = { anmelden: false, fehler: false, teil: false };
+    ohne = {};
     if (merken) schreib(MERK, id);
     doc.documentElement.setAttribute("lang", id);
     Array.prototype.forEach.call(doc.querySelectorAll("#gu-leiste [data-sprache]"), function (b) {
