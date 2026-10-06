@@ -223,8 +223,35 @@ Wunsch der Lehrkraft: ein Code, mit dem alle Module aller Klassen offen sind. De
   zwischen 100 und 999, ein Kind kann 000 nie bekommen. Ändern oder abschalten: beim Server (Render) die
   Umgebungsvariable `LEHRER_CODE` setzen – drei Ziffern mit führender 0 (z. B. `042`) oder `aus`.
 
+## Stand 07.10.2026: NT 9 wie NT 7, eigene Hausaufgaben-Einträge, Sprachfahnen, Block-Proben
+
+- **NT 9 wie NT 7:** `9M/NT_9/themen.js` (NT9M) und `9R/NT_9/themen.js` (NT9R) mit dem Kursliste-Gerüst
+  (`js/kursliste.js`, `js/kurs-sperre.js`, `js/kurs-uebersicht.js`). Kürzel O1–O7, R1–R6, K1–K4. Alles ist zuerst
+  offen, die Lehrkraft sperrt je Klasse (Verwaltung → Klasse → Natur und Technik, Server `/api/n9`). Die gemeinsamen
+  Seiten liegen nur auf GitHub unter `9/NT_9/`; die alte gemeinsame Übersicht dort führt zur Übersicht des eigenen Zugs.
+- **Hausaufgabenheft:** Kinder schreiben sich selbst Einträge (Knopf „Eigenen Eintrag schreiben“, Reiter „Von mir“).
+  Nur das Kind sieht sie; der Server löscht sie 14 Tage nach dem Schreiben (`/api/klasse/heft/eigen/…`,
+  `klasse-heft-eigen.json`).
+- **Sprachfahnen in Informatik 8:** Deutsch, Englisch, Ukrainisch, Ungarisch, Kroatisch (`js/uebersetzen.js`,
+  Server `/api/uebersetzen`). Jedes Textstück wird einmal von der KI übersetzt und dann gespeichert; Neues nur für
+  angemeldete Kinder. Proben bleiben deutsch, die Kinder antworten weiter auf Deutsch.
+- **Block-Proben NT 7 und NT 9:** je Themenbereich eine Probe über alle seine Module, R- und M-Fassung, 30 bis
+  45 Minuten, etwa 46 Punkte. Jede Aufgabe nennt ihr Modul, Transferaufgaben sind gekennzeichnet; in der Rückgabe
+  steht „Punkte je Modul“. NT 7: Luft, Atome und Materie, Tiere, Mensch und Gesundheit, Elektrizität
+  (`nt7-<bereich>-r|-m`). NT 9: Organische Rohstoffe (Auswahl aus der langen Probe), Radioaktivität, Kernenergie
+  (`nt9m-|nt9r-<bereich>`). Die bisherigen Proben bleiben als frühere Fassung: Ergebnisse einsehbar, kein
+  Freischalten mehr. Prüfwerkzeug: `.codex-build/proben-werkzeug/pruefe-block.js`.
+
 ## Offen
 
+- NT 7 und NT 9: die neuen Block-Proben vor dem ersten Einsatz gegenlesen (Lehrercode 000 schreibt sie nicht;
+  am einfachsten in der Verwaltung freischalten und mit einem Test-Code ansehen).
+- Beim Schreiben der Proben aufgefallen, in den Modulen nicht geändert: NT 7 `luft-modul` („Windmühlen seit über
+  4000 Jahren“, „Sturm ab etwa 100 km/h“), `luft-verbrennung` (Zündtemperaturen überschneiden sich);
+  NT 9 App3 (MRT als Beispiel für Strahlung), App7 (Dosiswerte passen nicht zusammen), App10 („durch Moderatoren
+  gesteuert“ – richtig: Steuerstäbe), App11 (Nr. 4 „Druckhalter“ zeigt den Dampferzeuger).
+- Sprachfahnen: Das erste Öffnen einer Seite in einer Sprache dauert etwa 30 Sekunden. Der Speicher ließe sich
+  vorab füllen (26 Einheiten × 4 Sprachen, kostet KI-Guthaben).
 - Deutsch 7/8: Inhalte im Unterricht gegenlesen lassen (Niveau, Fachbegriffe der eingeführten Lehrwerke).
 - Englisch 7 G1–G4 „Übungen zur Regel“ und Beispielsätze der Vokabeltrainer 7/8R auf Buchnähe prüfen.
 - Vokabeltrainer: Ton auf echten iPads kurz prüfen (der Test-Safari unter Windows hat keine Tonausgabe).
