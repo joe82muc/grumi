@@ -796,7 +796,27 @@
     return String(d.getDate()).padStart(2, "0") + "." + String(d.getMonth() + 1).padStart(2, "0") + "." + String(d.getFullYear()).slice(2) + " " + uhr;
   }
   function stufe(pct) { return pct >= 80 ? 2 : pct >= 40 ? 1 : 0; }
-  function kursModule() { return DATEN.module.filter(function (m) { return m.kurs === ANSICHT; }); }
+  // Module des Kurses: was der Server kennt (eine Übung meldet sich an, sobald ein Kind sie öffnet) – ergänzt um alle
+  // Module aus der Modulliste des Fachs (themen.js). So steht jeder Themenbereich in der Auswahl, auch wenn dort noch
+  // kein Kind gearbeitet hat; die Spalten zeigen dann „–“. Extra-Module und Geplantes kommen nicht dazu.
+  function kursModule() {
+    var bekannt = DATEN.module.filter(function (m) { return m.kurs === ANSICHT; });
+    var L = { nt7: global.NT7, d7: global.D7, i7: global.INF7, i8: global.INF8 }[ANSICHT];
+    if (!L || !L.THEMEN) return bekannt;
+    var da = {}, alle = bekannt.slice();
+    bekannt.forEach(function (m) { da[m.id] = 1; });
+    L.THEMEN.forEach(function (t) {
+      t.module.forEach(function (m, i) {
+        var id = ANSICHT + "-" + m.id;
+        if (da[id] || !m.href || m.extra) return;
+        alle.push({ id: id, kurs: ANSICHT, bereich: t.titel, bnr: parseInt(t.nr, 10) || 99, nr: i + 1, titel: m.titel, kurz: m.kz || "", klassen: [] });
+      });
+    });
+    // Reihenfolge wie in der Modulliste: erst der Themenbereich, dann das Modul (die Liste des Servers bleibt sonst wie sie ist)
+    return alle.map(function (m, i) { return [m, i]; }).sort(function (a, b) {
+      return (a[0].bnr || 99) - (b[0].bnr || 99) || (a[0].nr || 999) - (b[0].nr || 999) || a[1] - b[1];
+    }).map(function (x) { return x[0]; });
+  }
   function bereichListe() {
     var b = [];
     kursModule().forEach(function (m) { var x = m.bereich || "Module"; if (b.indexOf(x) < 0) b.push(x); });

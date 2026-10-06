@@ -119,10 +119,10 @@
     <h2>Ergebnisse</h2>
     <p class="sub">Teil A sind die Ankreuzfragen, Teil B ist die hochgeladene Filius-Datei.
       Die Datei wird vom Server ausgelesen und exakt gepr&uuml;ft.</p>
-    <div class="note bad" style="margin-top:0;margin-bottom:.9rem">
-      <strong>Ergebnisse gleich nach der Stunde als CSV sichern.</strong><br>
-      Der Server speichert nur vor&uuml;bergehend: Bei einem Neustart oder einer
-      Aktualisierung gehen die Abgaben verloren.
+    <div class="note ok" id="speicher-hinweis" style="margin-top:0;margin-bottom:.9rem">
+      <strong>&#10003; Die Abgaben werden dauerhaft gespeichert.</strong><br>
+      Sie liegen in der Datenbank der Proben und bleiben auch nach einem Neustart des Servers erhalten.
+      Die CSV-Datei ist eine zus&auml;tzliche Kopie f&uuml;r deine Unterlagen.
     </div>
     <div style="display:flex;gap:.6rem;align-items:flex-end;flex-wrap:wrap">
       <div style="flex:1;min-width:200px">
@@ -137,6 +137,7 @@
   </section>
 </div>
 
+<script src="../../../js/probe-rueckgabe-lehrer.js"></script>
 <script>
 /* Abgaben mit Code: Name aus der Namensliste der Lehrkraft (nur in diesem Browser, siehe proben-verwalten.html) */
 const NAMEN = (() => { try { return JSON.parse(localStorage.getItem('lf-nt9-namen') || '{}') || {}; } catch(_e){ return {}; } })();
@@ -166,6 +167,9 @@ async function login(){
       +'In Render beim Dienst <strong>englisch-9</strong> neu deployen.','bad'); $('b-login').disabled=false; return; }
     if(!r.ok) throw new Error(r.status);
     PW = pw;
+    // Korrigierte Proben an die Kinder zurückgeben und als Elternansicht drucken (js/probe-rueckgabe-lehrer.js)
+    if (window.ProbeRueckgabeLehrer) ProbeRueckgabeLehrer.start({ api: API, modul: 'filiuspruefung', passwort: () => PW, namen: NAMEN, fach: 'Informatik', wurzel: '../../../',
+      wer: r => (r.code ? (NAMEN[r.code] ? NAMEN[r.code] + ' (Code ' + r.code + ')' : 'Code ' + r.code) : [r.firstName, r.lastName].filter(Boolean).join(' ')) });
     $('v-login').classList.add('hidden');
     $('v-admin').classList.remove('hidden');
     $('v-res').classList.remove('hidden');
@@ -331,6 +335,7 @@ function tabelle(rows){
       }catch(e){ del.disabled=false; alert('Konnte nicht geloescht werden.'); }
     });
     tdX.appendChild(del);
+    if (window.ProbeRueckgabeLehrer) ProbeRueckgabeLehrer.zelle(tdX, r);
 
     tr.append(tdK,tdN,tdD,tdA,tdB,tdG,tdNo,tdX);
     tb.appendChild(tr);

@@ -50,6 +50,13 @@
   var eintrag = function (r) { return (STAND || {})[schluessel(r)] || null; };
   var mitLoesung = function () { var h = doc.getElementById("prl-loesung"); return !h || h.checked; };
 
+  // Antwort oder Lösung als Text. Zuordnen und Reihenfolge (Liste mit labels): „links → rechts“ je Paar – wie auf dem
+  // Server (proben-rueckgabe.js), damit Kind, Eltern und Lehrkraft dasselbe lesen.
+  function text(v, labels) {
+    if (Array.isArray(v) && Array.isArray(labels) && labels.length) return labels.map(function (l, j) { return String(l) + " → " + (v[j] == null || v[j] === "" ? "–" : String(v[j])); }).join("; ");
+    if (Array.isArray(v)) return v.join(", ");
+    return v == null ? "" : typeof v === "object" ? JSON.stringify(v) : String(v);
+  }
   // Abgabe so aufbereiten, wie korrektur.html sie zeigt (gleiche Felder wie /api/proben/rueckgabe/ansehen)
   function blattDaten(r) {
     var e = eintrag(r), name = (C.namen || {})[r.code] || [r.firstName, r.lastName].filter(Boolean).join(" ");
@@ -59,8 +66,8 @@
       score: r.score, total: r.total, percent: r.percent, grade: r.grade,
       aufgaben: (r.details || []).map(function (d, i) {
         var max = typeof d.maxPoints === "number" ? d.maxPoints : 1, punkte = typeof d.points === "number" ? d.points : d.correct ? 1 : 0;
-        var a = { nr: d.nr != null ? d.nr : i + 1, prompt: d.prompt || "", given: Array.isArray(d.given) ? d.given.join(", ") : d.given == null ? "" : String(d.given), points: punkte, max: max, comment: d.comment || "" };
-        if (punkte < max && d.expected != null && d.expected !== "") { a.loesung = Array.isArray(d.expected) ? d.expected.join(", ") : String(d.expected); a.beispiel = d.type === "text"; }
+        var a = { nr: d.nr != null ? d.nr : i + 1, prompt: d.prompt || "", given: text(d.given, d.labels), points: punkte, max: max, comment: d.comment || "" };
+        if (punkte < max && d.expected != null && d.expected !== "") { a.loesung = text(d.expected, d.labels); a.beispiel = d.type === "text"; }
         return a;
       })
     };
@@ -108,7 +115,8 @@
   }
 
   function leiste() {
-    var tabelle = ZELLEN.length ? ZELLEN[0].td.closest("table") : null;
+    // Die Leiste steht über der Ergebnistabelle – oder über der Liste der Abgaben, die die Seite nennt (cfg.liste)
+    var tabelle = ZELLEN.length ? (ZELLEN[0].td.closest("table") || (C.liste && C.liste()) || null) : null;
     var alt = doc.getElementById("prl-leiste");
     if (!tabelle) { if (alt) alt.remove(); return; }
     var rows = ZELLEN.map(function (z) { return z.r; }), mitCode = rows.filter(function (r) { return r.code; });
@@ -164,13 +172,16 @@
   function speicherHinweis() {
     var box = doc.getElementById("speicher-hinweis");
     if (!box) return;
+    // data-klasse: Grundklasse der Seite für Hinweise („note“ oder „notice“), data-datei: „CSV-Datei“ oder „Excel-Datei“
+    var klasse = box.getAttribute("data-klasse") || "note", datei = box.getAttribute("data-datei") || "CSV-Datei";
     global.fetch(C.api + "/api/proben-speicher/status").then(function (r) { return r.json(); }).then(function (d) {
+      box.hidden = false;
       if (d && d.ok && d.verbunden) {
-        box.className = "note ok";
-        box.innerHTML = "<strong>✓ Die Abgaben sind dauerhaft gespeichert.</strong><br>Sie liegen in der Datenbank der Proben und bleiben auch nach einem Neustart des Servers erhalten. Die CSV-Datei ist eine zusätzliche Kopie für deine Unterlagen.";
+        box.className = klasse + " ok";
+        box.innerHTML = "<strong>✓ Die Abgaben sind dauerhaft gespeichert.</strong><br>Sie liegen in der Datenbank der Proben und bleiben auch nach einem Neustart des Servers erhalten. Die " + esc(datei) + " ist eine zusätzliche Kopie für deine Unterlagen.";
       } else {
-        box.className = "note bad";
-        box.innerHTML = "<strong>Ergebnisse gleich nach der Stunde als CSV sichern.</strong><br>Die Datenbank der Proben ist gerade nicht verbunden: Bei einem Neustart des Servers können die Abgaben verloren gehen. Die CSV-Datei auf deinem Rechner ist dann die dauerhafte Kopie.";
+        box.className = klasse + " bad";
+        box.innerHTML = "<strong>Ergebnisse gleich nach der Stunde als " + esc(datei) + " sichern.</strong><br>Die Datenbank der Proben ist gerade nicht verbunden: Bei einem Neustart des Servers können die Abgaben verloren gehen. Die " + esc(datei) + " auf deinem Rechner ist dann die dauerhafte Kopie.";
       }
     }).catch(function () {});
   }

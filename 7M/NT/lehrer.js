@@ -27,9 +27,19 @@
       filter.innerHTML = `<option value="">Alle Proben</option>${tests.map(t=>`<option value="${t.id}">${esc(t.title)}</option>`).join("")}`; filter.value = current;
       $("results").innerHTML = results.submissions.length ? results.submissions.map(row => `<article class="student-result"><div class="student-head"><div><h3>${esc(wer(row))}</h3><span>${esc(row.className)} · ${esc(row.testTitle)} · ${new Date(row.submittedAt).toLocaleString("de-DE")}</span></div><strong>${row.score}/${row.total} · Note ${row.grade}${row.needsReview ? " · prüfen" : ""}</strong></div><details><summary>Antworten und Korrektur ansehen</summary>${row.details.map(d => `<div class="teacher-detail"><strong>${d.nr}. ${esc(d.prompt)} (${d.points}/${d.maxPoints})</strong><p>Antwort: ${esc(Array.isArray(d.given) ? d.given.join(" | ") : d.given || "–")}</p><p>Lösung: ${esc(Array.isArray(d.expected) ? d.expected.join(" | ") : d.expected)}</p>${d.comment ? `<p>${esc(d.comment)} · ${esc(d.source)}</p>` : ""}${d.type === "text" ? `<label>Punkte anpassen <input type="number" min="0" max="${d.maxPoints}" value="${d.points}" data-points="${d.nr}"></label> <button class="btn secondary" data-override="${row.id}" data-nr="${d.nr}">Speichern</button>` : ""}</div>`).join("")}<button class="btn danger" data-delete="${row.id}">Abgabe löschen (Nachschreiben)</button></details></article>`).join("") : `<p>Noch keine Abgaben.</p>`;
       status(`${results.submissions.length} Abgaben geladen.`);
+      // Korrigierte Proben zurückgeben und als Elternansicht drucken (js/probe-rueckgabe-lehrer.js): Knöpfe je Abgabe
+      if (window.ProbeRueckgabeLehrer) [...$("results").querySelectorAll(".student-result")].forEach((el, i) => {
+        const platz = document.createElement("div"); el.querySelector(".student-head").after(platz);
+        window.ProbeRueckgabeLehrer.zelle(platz, results.submissions[i]);
+      });
     } catch (err) { status(err.message,true); }
   }
-  $("login").addEventListener("submit", e => { e.preventDefault(); password = $("password").value; load(); });
+  $("login").addEventListener("submit", e => {
+    e.preventDefault(); password = $("password").value;
+    if (window.ProbeRueckgabeLehrer) window.ProbeRueckgabeLehrer.start({ api: API, modul: "nt7", passwort: () => password, namen: NAMEN, fach: "Natur und Technik", wurzel: "../../", liste: () => $("results"),
+      wer: r => (r.code ? (NAMEN[r.code] ? NAMEN[r.code] + " (Code " + r.code + ")" : "Code " + r.code) : [r.firstName, r.lastName].filter(Boolean).join(" ")) });
+    load();
+  });
   $("filter-test").addEventListener("change", load);
   $("unlock-list").addEventListener("change", async e => {
     const checkbox = e.target.closest("[data-unlock]"); if (!checkbox) return;
