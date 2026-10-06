@@ -323,18 +323,29 @@
       });
     }
 
-    // Deutsch 7: Hat die Lehrkraft eine korrigierte Probe zurückgegeben, die das Kind noch nicht geöffnet hat?
+    // Zurückbekommen: korrigierte Proben aller Fächer, die die Lehrkraft zurückgegeben hat (proben-rueckgabe.js auf dem
+    // Server; Deutsch 7 steht mit in der Liste). Als Kachel stehen sie da, solange sie ungeöffnet sind, und danach noch
+    // mindestens 3 Tage (rechnet der Server: aktuell); alle anderen hinter „Alle ansehen“.
     function korrekturen(s) {
       var box = doc.getElementById("kb-korrektur");
-      if (!box || parseInt(s.zug, 10) !== 7 || !s.code) return;
-      fetch(API + "/api/d7/proben/meine", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: s.code }) })
-        .then(function (r) { return r.ok ? r.json() : { abgaben: [] }; }).then(function (d) {
+      if (!box || !s.code) return;
+      fetch(API + "/api/proben/rueckgabe/meine", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: s.code }) })
+        .then(function (r) { return r.ok ? r.json() : { rueckgaben: [] }; }).then(function (d) {
           if (!doc.body.contains(box)) return;
-          var neu = (d.abgaben || []).filter(function (a) { return a.status === "korrigiert" && a.neu; });
-          box.hidden = !neu.length;
-          box.innerHTML = neu.length ? '<h3 class="kb-abschnitt">📄 Zurückbekommen</h3><div class="kb-kacheln">' + neu.map(function (a) {
-            return '<a class="kb-kachel kb-gross kb-probe" href="7M/Deutsch/korrektur.html?test=' + encodeURIComponent(a.testId) + '"><span class="kb-emoji" aria-hidden="true">📄</span><b>Deutsch – Probe ' + esc(String(a.nr)) + " korrigiert</b><small>NEUE KORREKTUR · Korrektur öffnen</small></a>";
-          }).join("") + "</div>" : "";
+          var alle = d.rueckgaben || [], neu = alle.filter(function (a) { return a.aktuell || a.neu; });
+          var fach = function (a) { return a.fach === "NT" ? "Natur und Technik" : a.fach || "Probe"; };
+          var link = function (a) {
+            return a.modul === "d7proben" ? "7M/Deutsch/korrektur.html?test=" + encodeURIComponent(a.testId)
+              : "korrektur.html?modul=" + encodeURIComponent(a.modul) + "&id=" + encodeURIComponent(a.id);
+          };
+          var titel = function (a) { var m = /-p(\d+)-/.exec(a.testId || ""); return a.modul === "d7proben" && m ? "Deutsch – Probe " + m[1] + " korrigiert" : fach(a) + " – korrigiert"; };
+          box.hidden = !alle.length;
+          box.innerHTML = alle.length ? '<h3 class="kb-abschnitt">📄 Zurückbekommen</h3>' +
+            (neu.length ? '<div class="kb-kacheln">' + neu.map(function (a) {
+              return '<a class="kb-kachel kb-gross kb-probe" href="' + esc(link(a)) + '"><span class="kb-emoji" aria-hidden="true">📄</span><b>' + esc(titel(a)) + "</b><small>" +
+                (a.modul === "d7proben" ? "" : esc(a.titel) + " · ") + (a.neu ? "NEUE KORREKTUR · Korrektur öffnen" : "Korrektur noch einmal ansehen") + "</small></a>";
+            }).join("") + "</div>" : "") +
+            '<p style="margin:.4rem 0 0"><a href="korrektur.html" style="font-weight:800">📂 Alle zurückbekommenen Proben ansehen (' + alle.length + ")</a></p>" : "";
         }).catch(function () {});
     }
 

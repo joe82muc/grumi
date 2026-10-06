@@ -57,6 +57,7 @@
   function merken(k, v) { try { global.localStorage.setItem(k, v); } catch (_e) {} }
 
   var CSS = "" +
+    ".lf-zur{color:#17633a;font-weight:800}.lf-zur-alle{margin-top:.3rem;font-size:.78rem;padding:.25rem .6rem}" +
     ".lf-ns{margin:0 0 .8rem;padding:.7rem .85rem;border:1.5px solid var(--line);border-radius:12px;background:#f8fafc}" +
     ".vw-gruppe{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;margin:.35rem 0}" +
     ".vw-stufe{font-size:.74rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:5.2rem}" +
@@ -469,7 +470,8 @@
               (n.verlassen ? " · " + n.verlassen + "× die Probe verlassen (anderer Tab oder andere App)" : "") + (n.nachpruefen ? " · KI-Bewertung noch prüfen" : "") + " · Klicken zum Bearbeiten oder Löschen") + '">' +
             '<span class="lf-note ' + notenFarbe(n.note) + '">' + esc(n.note) + "</span>" + (n.nachpruefen ? ' <span title="KI-Bewertung noch prüfen">⚠️</span>' : "") +
             (n.lrs ? '<span class="lf-lrs-b">LRS</span>' : "") +
-            '<span class="lf-np">' + esc(n.punkte + "/" + n.max + " · " + datumText(n.datum)) + (n.verlassen ? ' · <span class="lf-weg">' + n.verlassen + "× verlassen</span>" : "") + "</span></td>";
+            '<span class="lf-np">' + esc(n.punkte + "/" + n.max + " · " + datumText(n.datum)) + (n.verlassen ? ' · <span class="lf-weg">' + n.verlassen + "× verlassen</span>" : "") + "</span>" +
+            (n.zurueck ? '<span class="lf-np lf-zur" title="Zurückgegeben am ' + esc(datumText(n.zurueck, true)) + (n.geoeffnet ? ", vom Kind geöffnet am " + esc(datumText(n.geoeffnet, true)) : ", noch nicht geöffnet") + '">📤 ' + (n.geoeffnet ? "geöffnet" : "zurückgegeben") + "</span>" : "") + "</td>";
         });
         h += '<td class="lf-schnitt">' + (schnitt(noten) || '<span class="lf-leer">–</span>') + "</td></tr>";
       });
@@ -477,15 +479,35 @@
       P.forEach(function (p) {
         var codes = Object.keys(p.noten);
         h += '<td class="lf-schnitt">' + schnitt(codes.map(function (c) { return p.noten[c].note; })) +
-          '<span class="lf-np">' + codes.length + " von " + liste.length + " abgegeben</span></td>";
+          '<span class="lf-np">' + codes.length + " von " + liste.length + " abgegeben</span>" +
+          (function () {
+            var zur = codes.filter(function (c) { return p.noten[c].zurueck; }).length;
+            if (p.modul === "d7proben") return zur ? '<span class="lf-np">📤 ' + zur + " zurückgegeben</span>" : "";
+            return '<span class="lf-np">📤 ' + zur + " von " + codes.length + ' zurückgegeben</span><button type="button" class="btn btn-ghost btn-sm lf-zur-alle" data-zurueck-alle="' + esc(p.modul + "|" + p.testId) + '"' +
+              (zur >= codes.length ? " disabled" : "") + ">📤 Alle zurückgeben</button>";
+          })() + "</td>";
       });
       h += "<td></td></tr></tfoot></table></div>" +
         '<p class="sub" style="margin:.5rem 0 0">⚠️ = Die KI war bei einer freien Antwort unsicher oder nicht erreichbar. Bitte in der Lehrerseite der Probe nachsehen. ' +
-        "<b>LRS</b> = mit Notenschutz gewertet (Rechtschreibung zählt nicht). <b>× verlassen</b> = So oft hat das Kind während der Probe in einen anderen Tab oder eine andere App gewechselt.</p>";
+        "<b>LRS</b> = mit Notenschutz gewertet (Rechtschreibung zählt nicht). <b>× verlassen</b> = So oft hat das Kind während der Probe in einen anderen Tab oder eine andere App gewechselt. " +
+        "<b>📤 zurückgegeben</b> = Das Kind sieht die korrigierte Probe auf seiner Startseite unter „Zurückbekommen“ und kann sie für die Eltern drucken; „geöffnet“ heißt, es hat sie angesehen. Zurückgeben: auf eine Note klicken oder unten „Alle zurückgeben“. Deutsch-Proben gibst du auf ihrer Korrekturseite frei.</p>";
     }
     teil.innerHTML = h;
     $("lf-nreload").addEventListener("click", function () { notenLaden(teil); });
     $("lf-ncsv").addEventListener("click", notenCsv);
+    Array.prototype.forEach.call(teil.querySelectorAll("[data-zurueck-alle]"), function (b) {
+      b.addEventListener("click", function () {
+        var k = b.getAttribute("data-zurueck-alle").split("|"), modul = k[0], testId = k.slice(1).join("|");
+        var zeilen = NOTEN.noten.filter(function (x) { return x.modul === modul && x.testId === testId && !x.zurueck; });
+        if (!zeilen.length) return;
+        if (!global.confirm("„" + zeilen[0].titel + "“ an " + zeilen.length + (zeilen.length === 1 ? " Kind" : " Kinder") + " der Klasse " + KLASSE + " zurückgeben?\n\nDie Kinder sehen dann ihre Antworten, die Punkte, die Rückmeldungen und bei Fehlern die richtige Lösung – auf der Startseite unter „Zurückbekommen“. Sieh vorher die Abgaben mit ⚠️ an.")) return;
+        b.disabled = true;
+        apiPost("/api/proben/rueckgabe/freigeben", { eintraege: zeilen.map(function (x) { return { modul: x.modul, id: x.id }; }), offen: true, mitLoesung: true }).then(function (d) {
+          hinweis(d.anzahl + (d.anzahl === 1 ? " Probe ist" : " Proben sind") + " zurückgegeben. Die Kinder finden sie auf ihrer Startseite unter „Zurückbekommen“.", "ok");
+          notenLaden(teil);
+        }).catch(function (e) { b.disabled = false; hinweis("Zurückgeben hat nicht geklappt: " + e.message, "bad"); });
+      });
+    });
     Array.prototype.forEach.call(teil.querySelectorAll("[data-abgabe]"), function (td) {
       td.addEventListener("click", function () {
         var k = td.getAttribute("data-abgabe").split("|");
@@ -552,6 +574,7 @@
       vokabeltest: { results: "/api/vokabeltest/results", del: "/api/vokabeltest/delete-submission" },
       grammatik9r: std("/api/grammatik9r"),
       nt7: { results: "/api/nt7/teacher/results", del: "/api/nt7/teacher/delete", override: "/api/nt7/teacher/override", nurText: true },
+      inf7: { results: "/api/inf7/teacher/results", del: "/api/inf7/teacher/delete", override: "/api/inf7/teacher/override", nurText: true },
       infoaustausch: std("/api/infoaustausch"),
       informatik8: std("/api/informatik8"),
       inf8: { results: "/api/inf8/teacher/results", del: "/api/inf8/teacher/delete", override: "/api/inf8/teacher/override", nurText: true },
@@ -629,9 +652,28 @@
         (link ? '<a class="btn btn-ghost btn-sm" href="' + esc(link) + '" target="_blank" rel="noopener">Lehrerseite der Probe ↗</a>' : "") +
         '<label class="lf-mitl"><input type="checkbox" data-mitloesung checked> mit Lösungen</label>' +
         '<button type="button" class="btn btn-ghost btn-sm" data-druck>🖨️ Für die Eltern drucken</button>' +
+        (n.zurueck ? '<button type="button" class="btn btn-ghost btn-sm" data-zuruecknehmen>Rückgabe zurücknehmen</button>' : '<button type="button" class="btn btn-sm" data-zurueckgeben>📤 An das Kind zurückgeben</button>') +
         (anzahlKlasse > 1 ? '<button type="button" class="btn btn-ghost btn-sm" data-druck-alle>🖨️ Ganze Klasse drucken (' + anzahlKlasse + ")</button>" : "");
       var speichern = fuss.querySelector("[data-speichern]");
       fuss.querySelector("[data-loeschen]").addEventListener("click", loeschen);
+      if (n.zurueck) meldung("📤 Zurückgegeben am " + datumText(n.zurueck, true) + (n.geoeffnet ? " – vom Kind geöffnet am " + datumText(n.geoeffnet, true) + "." : " – das Kind hat die Korrektur noch nicht geöffnet.") + " Geänderte Punkte sieht das Kind sofort.");
+      var zurueck = function (offen) {
+        var kommentar;
+        if (offen) {
+          kommentar = global.prompt("Kommentar für " + (name || "Code " + n.code) + " (erscheint über der Korrektur – kann leer bleiben):", "");
+          if (kommentar === null) return;
+        } else if (!global.confirm("Rückgabe zurücknehmen?\n\nDas Kind sieht die korrigierte Probe dann nicht mehr.")) return;
+        var body = { eintraege: [{ modul: n.modul, id: n.id }], offen: offen, mitLoesung: fuss.querySelector("[data-mitloesung]").checked };
+        if (offen) body.kommentar = kommentar;
+        apiPost("/api/proben/rueckgabe/freigeben", body).then(function () {
+          geaendert = true; dlg.close();
+          hinweis(offen ? "„" + n.titel + "“ ist an " + (name || "Code " + n.code) + " zurückgegeben. Das Kind findet die Korrektur auf seiner Startseite unter „Zurückbekommen“."
+            : "Die Rückgabe an " + (name || "Code " + n.code) + " ist zurückgenommen.", "ok");
+        }).catch(function (e) { meldung("Das hat nicht geklappt: " + e.message, "bad"); });
+      };
+      var zg = fuss.querySelector("[data-zurueckgeben]"), zn = fuss.querySelector("[data-zuruecknehmen]");
+      if (zg) zg.addEventListener("click", function () { zurueck(true); });
+      if (zn) zn.addEventListener("click", function () { zurueck(false); });
       function drucken(nurDieses) {
         // Fenster sofort öffnen (sonst blockiert der Browser), dann den aktuellen Stand frisch laden
         var w = global.open("", "_blank");

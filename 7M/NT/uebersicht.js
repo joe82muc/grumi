@@ -137,6 +137,28 @@
     }</strong><br>${offen.length ? "Deine Lehrkraft hat die Probe freigeschaltet." : "Die Lehrkraft schaltet die Probe frei. Dann kannst du sie hier bearbeiten."}</div><span class="mod-go">Öffnen →</span></a>`;
   }
 
+  // Übersichtlich bleiben: Gesperrte Module, noch nicht freigeschaltete Proben, Geplantes und Themenbereiche, in denen
+  // für diese Klasse nichts offen ist, werden ausgeblendet. Sie stehen weiter im Seitenaufbau (nur unsichtbar) – sobald
+  // die Lehrkraft etwas freischaltet, erscheint es. In der Vorschau der Lehrkraft ist ohnehin alles offen.
+  function nurOffene() {
+    if (!document.getElementById("nur-offene-stil")) {
+      const s = document.createElement("style"); s.id = "nur-offene-stil";
+      s.textContent = "body.nur-offene .mod.zu,body.nur-offene .skarte.zu,body.nur-offene .mod.planned,body.nur-offene .probe-plan," +
+        "body.nur-offene a.probe:not(.offen):not(.korrigiert):not(.abgegeben),body.nur-offene section.thema.leer,.nur-offene-weg{display:none!important}";
+      document.head.appendChild(s);
+    }
+    document.body.classList.add("nur-offene");
+    const sichtbar = a => !a.classList.contains("probe") || a.classList.contains("offen") || a.classList.contains("korrigiert");
+    document.querySelectorAll("section.thema").forEach(sec => {
+      sec.classList.toggle("leer", ![...sec.querySelectorAll("a[href]")].some(sichtbar) && !sec.querySelector(".probe.abgegeben"));
+    });
+    // Sprungmarken oben und Fortschrittsleiste: nur Bereiche, die zu sehen sind
+    document.querySelectorAll('.navlinks a[href^="#"],.gesamt-themen a[href^="#"]').forEach(a => {
+      const ziel = document.getElementById(decodeURIComponent(a.getAttribute("href").slice(1)));
+      a.classList.toggle("nur-offene-weg", !!ziel && ziel.classList.contains("leer"));
+    });
+  }
+
   function zeichnen() {
     // Tippt das Kind gerade seinen Code, bleibt die Eingabe beim Neuzeichnen erhalten
     const altFeld = document.getElementById("codeFeld"), getippt = altFeld ? altFeld.value : "", imFeld = altFeld && document.activeElement === altFeld;
@@ -210,6 +232,7 @@
     }
     const ab = document.getElementById("abmelden");
     if (ab) ab.addEventListener("click", () => { try { localStorage.removeItem(SITZUNG); } catch (_e) {} grumiTab().ende(); STAND = null; QUELLE = "gast"; HINWEIS = ""; zeichnen(); });
+    nurOffene();
   }
 
   // Stand der Freischaltung holen (erst vom Gerät, dann vom Server) und neu zeichnen
