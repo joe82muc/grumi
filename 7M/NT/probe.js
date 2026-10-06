@@ -38,11 +38,15 @@
   function status(message, bad = false) { $("status").textContent = message; $("status").classList.toggle("bad",bad); $("status").hidden = false; }
   // Zug (M oder R) und Themenbereich kommen aus dem Link der Übersicht (?zug=R&thema=mensch) oder aus dem Tab.
   // Proben mit Zug zeigt die Seite nur dem passenden Zug; die beiden ersten Luft-Proben (ohne Zug) sind für 7M.
-  const THEMEN = {luft: "Luft", tiere: "Atome und Tiere", mensch: "Mensch und Gesundheit", strom: "Elektrizität"};
+  // Seit 07.10.2026 gibt es je Themenbereich eine Probe über alle seine Module (R- und M-Fassung). Frühere Fassungen
+  // (alt) zeigt die Seite nur noch, solange sie freigeschaltet sind.
+  const THEMEN = {luft: "Luft", atome: "Atome und Materie", tiere: "Tiere an Land und in der Luft", mensch: "Mensch und Gesundheit", strom: "Elektrizität"};
   let zug = /^[MR]$/i.test(params.get("zug") || "") ? params.get("zug").toUpperCase() : "";
   try { if (zug) sessionStorage.setItem("grumi-nt7-zug", zug); else zug = sessionStorage.getItem("grumi-nt7-zug") || ""; } catch (_e) {}
   const thema = THEMEN[params.get("thema")] ? params.get("thema") : "";
-  const passt = t => (t.zug ? (!zug || t.zug === zug) : zug !== "R") && (!thema || (t.thema || "luft") === thema);
+  const passt = t => (t.zug ? (!zug || t.zug === zug) : zug !== "R") && (!thema || (t.thema || "luft") === thema) && (!t.alt || t.unlocked);
+  // Woher die Aufgabe stammt: Modul (Titel) und „Transfer“ – steht in der Probe und im Ergebnis bei jeder Aufgabe
+  const herkunft = a => (a.modulTitel ? `<span class="pill herkunft" title="Diese Aufgabe gehört zu diesem Lernmodul">📘 ${esc(a.modulTitel)}</span>` : "") + (a.transfer ? `<span class="pill transfer" title="Hier wendest du dein Wissen auf etwas Neues an">🔁 Transfer</span>` : "");
   (function kopf() {
     const klasse = zug === "R" ? "7R" : zug === "M" ? "7M" : "7";
     const zurueck = zug === "R" ? "../../7R/NT/index.html" : "index.html";
@@ -78,21 +82,23 @@
     let controls = "";
     if (item.type === "choice") controls = `<div class="options">${item.options.map((o,j) => `<label class="option"><input type="radio" name="item-${item.nr}" value="${j}"><span>${esc(o)}</span></label>`).join("")}</div>`;
     if (item.type === "match") controls = item.labels.map((label,j) => `<label class="match-row"><strong>${esc(label)}</strong><select data-match="${j}"><option value="">Bitte zuordnen</option>${item.targets.map(o => `<option value="${esc(o)}">${esc(o)}</option>`).join("")}</select></label>`).join("");
+    // Reihenfolge: für jeden Platz (1., 2., …) den passenden Schritt wählen
+    if (item.type === "order") controls = item.steps.map((_,j) => `<label class="match-row"><strong>${j+1}.</strong><select data-order="${j}"><option value="">Bitte wählen</option>${item.steps.map(o => `<option value="${esc(o)}">${esc(o)}</option>`).join("")}</select></label>`).join("");
     if (item.type === "text") controls = `<textarea aria-label="Antwort zu Aufgabe ${item.nr}" rows="4" maxlength="1500" placeholder="Schreibe deine Antwort in eigenen Worten."></textarea>`;
-    return `<section class="check exam-question" data-nr="${item.nr}"><div class="question-head"><span class="pill">Aufgabe ${item.nr}</span><span>${item.points} ${item.points === 1 ? "Punkt" : "Punkte"}</span></div><h3>${esc(item.prompt)}</h3>${image}${controls}</section>`;
+    return `<section class="check exam-question" data-nr="${item.nr}"><div class="question-head"><span class="kopf-links"><span class="pill">Aufgabe ${item.nr}</span>${herkunft(item)}</span><span>${item.points} ${item.points === 1 ? "Punkt" : "Punkte"}</span></div><h3>${esc(item.prompt)}</h3>${image}${controls}</section>`;
   }
   function collect() {
     return exam.items.map(item => {
       const el = document.querySelector(`[data-nr="${item.nr}"]`);
       if (item.type === "choice") { const radio = el.querySelector("input:checked"); return radio ? Number(radio.value) : null; }
-      if (item.type === "match") return [...el.querySelectorAll("select")].map(select => select.value);
+      if (item.type === "match" || item.type === "order") return [...el.querySelectorAll("select")].map(select => select.value);
       return el.querySelector("textarea").value.trim();
     });
   }
   function resultMarkup(detail) {
     const given = Array.isArray(detail.given) ? detail.given.map((v,j) => `${esc(detail.labels[j])}: ${esc(v || "–")}`).join("<br>") : esc(detail.given || "–");
     const expected = Array.isArray(detail.expected) ? detail.expected.map((v,j) => `${esc(detail.labels[j])}: ${esc(v)}`).join("<br>") : esc(detail.expected);
-    return `<div class="result-row"><div class="question-head"><strong>Aufgabe ${detail.nr}</strong><strong>${detail.points} / ${detail.maxPoints}</strong></div><p>${esc(detail.prompt)}</p><p><b>Deine Antwort:</b><br>${given}</p><p><b>Lösung:</b><br>${expected}</p>${detail.comment ? `<p class="video-note">${esc(detail.comment)}</p>` : ""}</div>`;
+    return `<div class="result-row"><div class="question-head"><span class="kopf-links"><strong>Aufgabe ${detail.nr}</strong>${herkunft(detail)}</span><strong>${detail.points} / ${detail.maxPoints}</strong></div><p>${esc(detail.prompt)}</p><p><b>Deine Antwort:</b><br>${given}</p><p><b>Lösung:</b><br>${expected}</p>${detail.comment ? `<p class="video-note">${esc(detail.comment)}</p>` : ""}</div>`;
   }
   $("exam-list").addEventListener("click", e => {
     const button = e.target.closest("[data-test]");

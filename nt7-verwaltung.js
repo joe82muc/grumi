@@ -92,7 +92,8 @@
       }) : [];
       return Promise.all(mods.map(function (mod) {
         return fetch(ctx.api + mod.listPath).then(function (r) { return r.ok ? r.json() : { tests: [] }; }).then(function (d) {
-          return (d.tests || []).filter(function (t) { var k = mod.klasse(t); return listeVon(mod, t) === N && (k === String(STUFE) || k === STUFE + ZUG); })
+          // frühere Fassungen einer Probe (alt) stehen nur noch hier, solange sie offen sind (damit man sie sperren kann)
+          return (d.tests || []).filter(function (t) { if (t.alt && !t.unlocked) return false; var k = mod.klasse(t); return listeVon(mod, t) === N && (k === String(STUFE) || k === STUFE + ZUG); })
             .map(function (t) { return { mod: mod, id: t.id, titel: t.title || t.id, offen: !!t.unlocked, aufgaben: t.itemCount, punkte: t.maxPoints, klasse: mod.klasse(t), link: mod.link ? mod.link(t) : "", schueler: mod.schueler ? mod.schueler(t) : "" }; });
         }).catch(function () { return []; });
       })).then(function (teile) { PROBEN = [].concat.apply([], teile); });

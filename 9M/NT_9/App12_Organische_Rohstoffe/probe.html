@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
-<title>Probe Organische Rohstoffe | NT 9</title>
-<meta name="description" content="Schriftliche Probe zu den organischen Rohstoffen (Module 1 bis 7) f&uuml;r Natur und Technik in der 9. Klasse. Wird von der Lehrkraft freigeschaltet.">
+<title>Probe Natur und Technik | NT 9</title>
+<meta name="description" content="Schriftliche Proben f&uuml;r Natur und Technik in der 9. Klasse: Organische Rohstoffe, Radioaktivit&auml;t, Kernenergie. Werden von der Lehrkraft freigeschaltet.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -112,6 +112,7 @@
     background:var(--net-1);color:#fff;font-size:.82rem;font-weight:800;
   }
   .q-text{font-size:1.02rem;font-weight:600;flex:1}
+  .q-modul{display:block;margin-top:3px;font-size:.8rem;font-weight:800;color:var(--net-1)}
   .q-pts{
     flex:0 0 auto;border-radius:999px;background:var(--blue-soft);color:var(--net-1);
     padding:3px 10px;font-size:.78rem;font-weight:800;white-space:nowrap;
@@ -240,7 +241,7 @@
 
 <nav class="ex-crumbs" aria-label="Pfad">
   <a href="../../../index.html">Start</a>
-  <a href="index.html">Organische Rohstoffe</a>
+  <a href="../%C3%BCbersicht_themen.html">Natur und Technik 9M</a>
   <span>Probe</span>
 </nav>
 
@@ -250,11 +251,12 @@
   <section id="view-start">
     <div class="hero">
       <span class="code">Schriftliche Probe</span>
-      <h1>Organische Rohstoffe</h1>
+      <h1>Probe Natur und Technik</h1>
       <p>
         Trage deinen Code ein und w&auml;hle die Probe aus. Die Probe hat einen Teil
-        zu jedem Modul 1&ndash;7 und zwei Aufgaben zum Stellungnehmen. Du hast etwa
-        <strong>60 Minuten</strong> Zeit und kannst sie <strong>nur einmal</strong> abgeben.
+        zu jedem Modul des Themenbereichs und am Schluss Transferaufgaben. Bei jeder Aufgabe steht,
+        zu welchem Modul sie geh&ouml;rt. Du hast <strong id="t-min">etwa 45 Minuten</strong> Zeit
+        und kannst sie <strong>nur einmal</strong> abgeben.
         Mit 🔊 kannst du dir jede Aufgabe vorlesen lassen. Rechtschreibung z&auml;hlt nicht.
       </p>
     </div>
@@ -285,7 +287,7 @@
   <section id="view-test" hidden>
     <div class="hero">
       <span class="code" id="t-code">Probe</span>
-      <h1 id="t-title">Organische Rohstoffe</h1>
+      <h1 id="t-title">Probe Natur und Technik</h1>
       <p id="t-person">&nbsp;</p>
     </div>
 
@@ -403,6 +405,11 @@ async function loadTests(){
     sel.innerHTML = open.map(t =>
       '<option value="' + esc(t.id) + '">' + esc(t.title) + ' (' + t.maxPoints + ' Punkte)</option>'
     ).join('');
+    // Vorauswahl über ?test=<Kennung> (Kachel der Übersicht); die Zeit richtet sich nach der gewählten Probe
+    const wunsch = new URLSearchParams(location.search).get('test');
+    if(wunsch && open.some(t => t.id === wunsch)) sel.value = wunsch;
+    const zeit = () => { const t = open.find(x => x.id === sel.value); $('t-min').textContent = 'etwa ' + ((t && t.minutes) || 45) + ' Minuten'; };
+    sel.addEventListener('change', zeit); zeit();
     msg('start-msg','');
   }catch(e){
     sel.innerHTML = '<option value="">--</option>';
@@ -519,7 +526,8 @@ function buildQuestions(){
     let html =
       '<div class="q-head">' +
         '<span class="q-no">' + it.nr + '</span>' +
-        '<span class="q-text">' + esc(it.prompt) + '</span>' +
+        '<span class="q-text">' + esc(it.prompt) +
+          (it.transfer && it.modulTitel ? '<small class="q-modul" title="Diese Aufgabe baut auf diesem Modul auf">📘 ' + esc(it.modulTitel) + '</small>' : '') + '</span>' +
         '<span class="q-pts">' + it.points + (it.points === 1 ? ' Punkt' : ' Punkte') + '</span>' +
         '<button type="button" class="vorlesen" data-i="' + i + '" aria-label="Aufgabe vorlesen" title="Aufgabe vorlesen">🔊</button>' +
       '</div>';
@@ -724,7 +732,7 @@ function showResult(r){
       h += '<div class="res-teil">' + esc(d.teil) + '</div>';
     }
     h += '<div class="res-q ' + cls + '">' +
-      '<div class="rq-top"><div><b>' + d.nr + '.</b> ' + esc(d.prompt) + '</div>' +
+      '<div class="rq-top"><div><b>' + d.nr + '.</b> ' + esc(d.prompt) + (d.transfer && d.modulTitel ? '<small class="q-modul">📘 ' + esc(d.modulTitel) + '</small>' : '') + '</div>' +
       '<div class="rq-p">' + d.points + '/' + d.maxPoints + '</div></div>' +
       '<div class="rq-given"><span>Deine Antwort:</span> ' +
         (d.given ? esc(d.given) : '<i>keine Antwort</i>') + '</div>';

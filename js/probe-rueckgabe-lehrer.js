@@ -71,6 +71,11 @@
         var max = typeof d.maxPoints === "number" ? d.maxPoints : 1, punkte = typeof d.points === "number" ? d.points : d.correct ? 1 : 0;
         var a = { nr: d.nr != null ? d.nr : i + 1, prompt: d.prompt || "", given: text(d.given, d.labels), points: punkte, max: max, comment: d.comment || "" };
         if (punkte < max && d.expected != null && d.expected !== "") { a.loesung = text(d.expected, d.labels); a.beispiel = d.type === "text"; }
+        // Herkunft der Aufgabe (Block-Proben): Modul und „Transfer“ – wie in der Rückgabe an das Kind (proben-rueckgabe.js)
+        var teil = String(d.teil || ""), transfer = Boolean(d.transfer) || teil.slice(0, 8).toLowerCase() === "transfer";
+        var modul = String(d.modulTitel || (transfer ? "" : teil)).trim();
+        if (modul) a.modul = modul;
+        if (transfer) a.transfer = true;
         return a;
       })
     };

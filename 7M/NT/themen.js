@@ -18,7 +18,7 @@
     {
       id: "luft", nr: "01", titel: "Luft", icon: "🌬️",
       text: "Unsichtbar, aber lebenswichtig: was Luft kann, woraus sie besteht, wie wir Wind nutzen, warum Feuer Luft braucht und wie man Brände löscht.",
-      proben: [{ M: "nt7-luft-1" }, { M: "nt7-luft-2" }, { R: "nt7-p1-r", M: "nt7-p1-m" }],
+      proben: [{ R: "nt7-luft-r", M: "nt7-luft-m" }],
       module: [
         { id: "luft-modul", kz: "L1", titel: "Luft – unsichtbar, aber lebenswichtig", href: "luft-modul.html", key: "grumi-nt7-luft-modul-v1", offen: true,
           text: "Luft zum Leben, bewegte Luft, Luft und Feuer, Zusammensetzung, Eigenschaften der Luft, chemische Symbole und Formeln.",
@@ -52,7 +52,7 @@
     {
       id: "atome", nr: "02", titel: "Atome und Materie", icon: "⚛️",
       text: "Woraus alles besteht: wie sich die Vorstellung vom Atom entwickelt hat und wie das Periodensystem die Elemente ordnet.",
-      probeHinweis: "Die Probe zu diesem Themenbereich steht beim Themenbereich „Tiere“ (Probe 2: Atome und Tiere).",
+      proben: [{ R: "nt7-atome-r", M: "nt7-atome-m" }],
       module: [
         { id: "atommodelle", kz: "A1", titel: "Atommodelle: von Demokrit bis Rutherford", href: "atommodelle.html", key: "grumi-nt7-atommodelle-v1",
           text: "Unteilbare Teilchen, Kugelmodell und der Versuch mit der Goldfolie: wie Forscher herausfanden, dass ein Atom fast leer ist.",
@@ -65,7 +65,7 @@
     {
       id: "tiere", nr: "03", titel: "Tiere an Land und in der Luft", icon: "🦎",
       text: "Fische, Amphibien, Reptilien, Vögel und Säugetiere: woran man sie erkennt und wie ihr Körper zu ihrem Lebensraum passt.",
-      proben: [{ R: "nt7-p2-r", M: "nt7-p2-m" }],
+      proben: [{ R: "nt7-tiere-r", M: "nt7-tiere-m" }],
       module: [
         { id: "wirbeltiere", kz: "T1", titel: "Wirbeltiere: fünf Klassen", href: "wirbeltiere.html", key: "grumi-nt7-wirbeltiere-v1",
           text: "Was alle Wirbeltiere gemeinsam haben und woran du Fische, Amphibien, Reptilien, Vögel und Säugetiere unterscheidest.",
@@ -78,7 +78,7 @@
     {
       id: "mensch", nr: "04", titel: "Mensch und Gesundheit", icon: "🩺",
       text: "Atmung, Blut, Herz und Blutkreislauf: wie dein Körper Sauerstoff aufnimmt, verteilt und gesund bleibt.",
-      proben: [{ R: "nt7-p3-r", M: "nt7-p3-m" }],
+      proben: [{ R: "nt7-mensch-r", M: "nt7-mensch-m" }],
       module: [
         { id: "atmungsorgane", kz: "M1", titel: "Der Weg der Luft: Atmungsorgane", href: "atmungsorgane.html", key: "grumi-nt7-atmungsorgane-v1",
           text: "Von der Nase bis zu den Lungenbläschen: welche Organe die Atemluft durchströmt und was jedes davon leistet.",
@@ -100,7 +100,7 @@
     {
       id: "strom", nr: "05", titel: "Elektrizität", icon: "⚡",
       text: "Stromkreis und Schaltplan, was Strom bewirkt, Spannung, Stromstärke und Widerstand – und wie du sicher mit Strom umgehst.",
-      proben: [{ R: "nt7-p4-r", M: "nt7-p4-m" }],
+      proben: [{ R: "nt7-strom-r", M: "nt7-strom-m" }],
       module: [
         { id: "stromkreis", kz: "E1", titel: "Der Stromkreis und sein Schaltplan", href: "stromkreis.html", key: "grumi-nt7-stromkreis-v1",
           text: "Was ein Stromkreis braucht, Schaltzeichen lesen, Schaltpläne bauen und Fehler in Schaltungen finden.",
@@ -133,15 +133,24 @@
   // Ein Kürzel bleibt für immer bei seinem Modul: Neue Module bekommen die nächste freie Nummer ihres Themenbereichs,
   // vergebene Kürzel werden nicht neu verteilt (auch nicht, wenn sich die Reihenfolge ändert).
   //
-  // PROBE_INHALT: Proben, die nicht genau die Module ihres Themenbereichs abdecken. Fehlt eine Probe hier, enthält sie
-  // alle Module des Themenbereichs, bei dem sie steht (ohne Extra-Module). So steht in der Verwaltung bei jeder Probe,
-  // welche Module die Kinder dafür brauchen.
+  // Proben (seit 07.10.2026): Je Themenbereich gibt es EINE Probe über alle seine Module, als R- und als M-Fassung
+  // (proben: [{ R, M }] beim Themenbereich; Server: nt7-block-<bereich>.js). Bei jeder Aufgabe steht ihr Modul.
+  //
+  // PROBE_INHALT: Proben, die nicht genau die Module ihres Themenbereichs abdecken – das sind nur noch die früheren
+  // Fassungen (auf dem Server „alt“: Ergebnisse bleiben einsehbar, freigeschaltet werden sie nicht mehr). Fehlt eine
+  // Probe hier, enthält sie alle Module des Themenbereichs, bei dem sie steht (ohne Extra-Module). So steht in der
+  // Verwaltung bei jeder Probe, welche Module die Kinder dafür brauchen.
+  var LUFT_ALLE = ["luft-modul", "windkraft-strom", "windkraft-procontra", "luft-verbrennung", "achtung-explosiv", "brand-schutz", "oxidation", "luftdruck", "forschen"];
+  var MENSCH_ALLE = ["atmungsorgane", "atmen-gasaustausch", "blut", "herz-kreislauf", "herz-gesund"], STROM_ALLE = ["stromkreis", "strom-wirkungen", "spannung-stromstaerke", "widerstand", "strom-sicher"];
   var PROBE_INHALT = {
     "nt7-luft-1": ["luft-modul", "windkraft-strom", "windkraft-procontra", "luftdruck"],
     "nt7-luft-2": ["luft-verbrennung", "brand-schutz", "oxidation"],
     "nt7-p1-r": ["luft-modul", "windkraft-strom", "luft-verbrennung", "brand-schutz", "oxidation", "luftdruck", "forschen"],
+    "nt7-p1-m": LUFT_ALLE,
     "nt7-p2-r": ["atommodelle", "atombau-pse", "wirbeltiere", "fortbewegung"],
-    "nt7-p2-m": ["atommodelle", "atombau-pse", "wirbeltiere", "fortbewegung"]
+    "nt7-p2-m": ["atommodelle", "atombau-pse", "wirbeltiere", "fortbewegung"],
+    "nt7-p3-r": MENSCH_ALLE, "nt7-p3-m": MENSCH_ALLE,
+    "nt7-p4-r": STROM_ALLE, "nt7-p4-m": STROM_ALLE
   };
   function probeModule(testId) {
     var ids = PROBE_INHALT[testId], liste = [];

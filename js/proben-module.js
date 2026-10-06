@@ -109,7 +109,7 @@
       listPath: "/api/nt9probe/list", unlockPath: "/api/nt9probe/unlock",
       klasse: nt9Zug,
       link: function (t) { return nt9Zug(t) + "/NT_9/App12_Organische_Rohstoffe/lehrer.html"; },
-      schueler: function (t) { return nt9Zug(t) + "/NT_9/App12_Organische_Rohstoffe/probe.html"; }
+      schueler: function (t) { return nt9Zug(t) + "/NT_9/App12_Organische_Rohstoffe/probe.html?test=" + encodeURIComponent(t.id); }
     },
     {
       key: "netzwerktest", subject: "Informatik", stufen: [9],

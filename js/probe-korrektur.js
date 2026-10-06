@@ -74,10 +74,34 @@
       document.head.appendChild(s);
     }
     return `<table class="k-tab"><thead><tr><th class="nr">Nr.</th><th>Aufgabe</th><th>Deine Antwort</th><th class="p"></th><th>Richtig ist</th></tr></thead><tbody>` +
-      aufgaben.map(a => `<tr class="${a.points >= a.max ? "ok" : "no"}"><td class="nr">${esc(a.nr)}</td><td>${esc(a.prompt)}</td>` +
+      aufgaben.map(a => `<tr class="${a.points >= a.max ? "ok" : "no"}"><td class="nr">${esc(a.nr)}</td><td>${esc(a.prompt)}${a.modul || a.transfer ? `<small>${a.modul ? "📘 " + esc(a.modul) : ""}${a.modul && a.transfer ? " · " : ""}${a.transfer ? "🔁 Transfer" : ""}</small>` : ""}</td>` +
         `<td class="a${a.given ? "" : " leer"}">${a.given ? esc(a.given) : "keine Antwort"}${a.comment ? `<small>${esc(a.comment)}</small>` : ""}</td>` +
         // ein Punkt: Haken oder Kreuz; mehrere Punkte: erreichte von möglichen
         `<td class="p">${a.max > 1 ? zahl(a.points) + "/" + zahl(a.max) : a.points >= a.max ? "✓" : "✗"}</td><td>${a.loesung ? (a.beispiel ? "z. B. " : "") + esc(a.loesung) : ""}</td></tr>`).join("") + "</tbody></table>";
+  }
+  // Herkunft einer Aufgabe: Modul und „Transfer“ (Block-Proben in Natur und Technik)
+  function herkunft(a) {
+    return (a.modul ? `<span class="k-modul">📘 ${esc(a.modul)}</span>` : "") + (a.transfer ? `<span class="k-transfer">🔁 Transfer</span>` : "");
+  }
+  // Punkte je Modul – zeigt, welches Modul das Kind noch einmal ansehen sollte
+  function jeModul(aufgaben) {
+    const reihe = [], map = {};
+    aufgaben.forEach(a => { if (!a.modul) return; if (!map[a.modul]) { map[a.modul] = { p: 0, max: 0 }; reihe.push(a.modul); } map[a.modul].p += Number(a.points) || 0; map[a.modul].max += Number(a.max) || 0; });
+    if (reihe.length < 2) return "";
+    if (!document.getElementById("k-modul-stil")) {
+      const s = document.createElement("style"); s.id = "k-modul-stil";
+      s.textContent = ".k-module{margin-top:14px;background:#fff;border:1px solid #e5d9db;border-radius:14px;padding:12px 14px}.k-module h2{margin:0 0 8px;font-size:1rem}" +
+        ".k-module ul{list-style:none;margin:0;padding:0;display:grid;gap:5px}.k-module li{display:grid;grid-template-columns:minmax(0,1fr) 90px auto;gap:10px;align-items:center;font-size:.95rem}" +
+        ".k-module .balken{height:9px;border-radius:99px;background:#eee3e5;overflow:hidden}.k-module .balken i{display:block;height:100%;background:#15803d}.k-module li.wenig .balken i{background:#b3261e}.k-module li.mittel .balken i{background:#c27a00}" +
+        ".k-module b{white-space:nowrap}.k-module p{margin:8px 0 0;font-size:.85rem;color:#6b5b5f}" +
+        ".k-modul,.k-transfer{display:inline-block;margin-left:8px;padding:2px 9px;border-radius:99px;font-size:.78rem;font-weight:700;background:#e7f3fc;color:#0b5d98}.k-transfer{background:#fef3c7;color:#92400e}" +
+        "@media print{.k-module{break-inside:avoid;padding:6pt 8pt}.k-module li{font-size:9pt}.k-modul,.k-transfer{border:1px solid #999;background:none;color:#000}}";
+      document.head.appendChild(s);
+    }
+    return `<div class="k-module"><h2>Punkte je Modul</h2><ul>` + reihe.map(m => {
+      const x = map[m], pct = x.max ? Math.round(x.p / x.max * 100) : 0;
+      return `<li class="${pct < 40 ? "wenig" : pct < 70 ? "mittel" : ""}"><span>${esc(m)}</span><span class="balken"><i style="width:${pct}%"></i></span><b>${zahl(x.p)} / ${zahl(x.max)}</b></li>`;
+    }).join("") + `</ul><p>Bei wenigen Punkten lohnt es sich, dieses Modul noch einmal durchzuarbeiten.</p></div>`;
   }
   function blatt(k) {
     return `<div class="kopfkarte"><div><div class="eyebrow">Korrigierte Probe · ${esc(fach(k.fach))}</div><h1>${esc(k.titel)}</h1>
@@ -85,11 +109,12 @@
         ${k.code ? `<dt>Schülerkennung</dt><dd>Code ${esc(k.code)}</dd>` : ""}${k.name ? `<dt>Name</dt><dd>${esc(k.name)}</dd>` : `<dt class="nur-druck">Name</dt><dd class="nur-druck">________________________________</dd>`}</dl></div>
       <div class="ergebnis"><span>Punkte</span><strong>${zahl(k.score)} / ${zahl(k.total)}</strong><span>${esc(k.percent)} %</span>${k.grade !== "" && k.grade != null ? `<span class="note">Note ${esc(k.grade)}</span>` : ""}</div></div>` +
       (k.kommentar ? `<div class="k-lehrer" style="margin-top:14px"><div class="k-teil" style="margin-top:0"><span>Kommentar deiner Lehrkraft</span><p style="white-space:pre-line;margin:0">${esc(k.kommentar)}</p></div></div>` : "") +
+      jeModul(k.aufgaben) +
       `<div id="k-aufgaben" style="margin-top:14px">` + (kurzeAufgaben(k.aufgaben) ? tabelle(k.aufgaben) : k.aufgaben.length ? k.aufgaben.map(a => {
         const punkte = `<span class="k-punkte${a.points >= a.max ? " voll" : a.points === 0 ? " null" : ""}">${zahl(a.points)} / ${zahl(a.max)}</span>`;
         const korrektur = (a.comment ? `<p>${esc(a.comment)}</p>` : "") + (a.loesung ? `<p>${a.beispiel ? "Beispiel für eine richtige Antwort: " : "Richtig ist: "}${esc(a.loesung)}</p>` : "") ||
           (a.points >= a.max ? "<p>Richtig.</p>" : "");
-        return `<section class="k-aufgabe"><div class="k-kopf"><b>Aufgabe ${esc(a.nr)}</b>${punkte}</div>` +
+        return `<section class="k-aufgabe"><div class="k-kopf"><b>Aufgabe ${esc(a.nr)}${herkunft(a)}</b>${punkte}</div>` +
           teil("Aufgabe", a.prompt ? `<p>${esc(a.prompt)}</p>` : "") +
           teil("Deine Antwort", `<div class="k-antwort${a.given ? "" : " leer"}">${a.given ? esc(a.given) : "Keine Antwort."}</div>`) +
           teil("Korrektur", korrektur) + "</section>";
