@@ -202,6 +202,27 @@ Einzelheiten: `7M/NT/Fortschritt/` (`ARBEITSMODUS.md`, `MODULPLAN.md`, `BAUANLEI
 - **Proben 1 bis 4 je Zug** für NT 7 (Reiter „Proben“, Klasse 7R bzw. 7M); `js/proben-module.js` kennt den Zug einer Probe.
 - `js/lernstand.js`: Hinweis im Anmeldedialog an die Regel „im Tab angemeldet, 10 Minuten“ angepasst.
 
+## Stand 06.10.2026: Lehrercode
+
+Wunsch der Lehrkraft: ein Code, mit dem alle Module aller Klassen offen sind. Der Lehrercode ist **000**.
+
+- **Was er öffnet:** In den Übersichten von Natur und Technik 7, Deutsch 7, Informatik 7 und Informatik 8 ist mit ihm
+  jedes Modul offen – auch die, die für die Klassen noch gesperrt sind, und die Extra-Module. Er gilt auf den Seiten
+  beider Züge (7M und 7R, 8M und 8R); die Seite, auf der man ist, bestimmt den Zug. Auf der Startseite zeigt er statt
+  des Klassenbereichs alle Klassen und Fächer und den Weg in die Verwaltung. In den Fächern ohne Freischaltung
+  (Deutsch 8 und 9, Englisch, Informatik 9, NT 9) ist er einfach eine gültige Anmeldung.
+- **Was er nicht kann:** Er gehört zu keiner Klasse. Der Lernstand bleibt auf dem Gerät und wird nicht gemeldet,
+  hochgeladene Dateien werden nicht aufbewahrt, Proben lassen sich damit nicht beginnen („Mit dem Lehrercode kann keine
+  Probe geschrieben werden“), Hausaufgabenheft und Klassenrat gibt es nur in der Verwaltung.
+- **Technik:** Server `nt9-fortschritt.js` (`lehrerCode()`, Klasse „Lehrkraft“); die Routen `…/freigabe` antworten mit
+  `alles: true`, die Kurslisten (`themen.js` von NT 7, Informatik 7, Informatik 8, Deutsch 7) zeigen dann alles offen.
+  Übersichten (`7M/NT/uebersicht.js`, `7M/Informatik/uebersicht.js`, `7M/Deutsch/uebersicht.js`) und die Startseite
+  (`js/klasse.js`) erkennen die Anmeldung an der Klasse „Lehrkraft“.
+- **Sicherheit:** 000 lässt sich erraten. Wer ihn eintippt, sieht alle Module – aber keine Lösungen, keine Noten und
+  keine Daten der Kinder; das Freischalten ist eine Lernsteuerung, kein Geheimnisschutz. Die Codes der Kinder liegen
+  zwischen 100 und 999, ein Kind kann 000 nie bekommen. Ändern oder abschalten: beim Server (Render) die
+  Umgebungsvariable `LEHRER_CODE` setzen – drei Ziffern mit führender 0 (z. B. `042`) oder `aus`.
+
 ## Offen
 
 - Deutsch 7/8: Inhalte im Unterricht gegenlesen lassen (Niveau, Fachbegriffe der eingeführten Lehrwerke).

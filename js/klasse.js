@@ -208,7 +208,25 @@
       doc.body.classList.toggle("kb-angemeldet", Boolean(s));
       if (!s) { doc.body.classList.remove("kb-alle-zeigen"); el.innerHTML = ""; anmeldung(); return; }
       kopf.innerHTML = "";
+      if (s.klasse === "Lehrkraft") { bereichLehrkraft(s); return; }
       bereich(s);
+    }
+
+    // Lehrercode: gehört zu keiner Klasse. Statt Hausaufgabenheft und Klassenrat stehen hier der Hinweis, was der
+    // Code öffnet, und der Weg in die Verwaltung; darunter sind gleich alle Klassen und Fächer zu sehen.
+    function bereichLehrkraft(s) {
+      doc.body.classList.add("kb-alle-zeigen");
+      el.innerHTML =
+        '<div class="kb-hallo"><div><span class="kb-kicker">Angemeldet mit dem Lehrercode</span><h2>Hallo! Für dich ist alles offen</h2>' +
+        "<p>" + esc(s.name) + " · Lehrkraft</p></div>" +
+        '<button class="kb-abmelden" type="button">Abmelden</button></div>' +
+        '<h3 class="kb-abschnitt">Das öffnet der Lehrercode</h3>' +
+        '<p class="kb-lehrer-text" style="margin:0 0 14px;max-width:64ch;line-height:1.5">In den Übersichten von Natur und Technik 7, Deutsch 7, Informatik 7 und Informatik 8 siehst du jedes Modul – auch die, ' +
+        "die für die Klassen noch gesperrt sind. Wähle unten eine Klasse und ein Fach. Dein Lernstand wird nicht an die Verwaltung gemeldet, " +
+        "und eine Probe kannst du mit diesem Code nicht schreiben.</p>" +
+        '<div class="kb-kacheln"><a class="kb-kachel kb-gross" href="proben-verwalten.html"><span class="kb-emoji" aria-hidden="true">🗂️</span><b>Verwaltung</b>' +
+        "<small>Freischalten, Lernstand, Proben, Hausaufgabenheft, Klassenrat</small></a></div>";
+      el.querySelector(".kb-abmelden").addEventListener("click", function () { abmelden(); zeichnen(); global.scrollTo(0, 0); });
     }
 
     function anmeldung() {

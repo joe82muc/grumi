@@ -152,6 +152,8 @@
   // Ist die Einheit für diesen Stand offen? stand: { themen, module } vom Server, null = niemand angemeldet
   function offen(modul, thema, stand) {
     if (VORSCHAU) return true;
+    // Lehrercode: Der Server meldet „alles“ – dann ist jedes Modul offen, auch Extra-Module
+    if (stand && stand.alles) return true;
     var s = stand || {}, m = (s.module || {})[modul.id], t = (s.themen || {})[thema.id];
     if (m === true || m === false) return m;
     if (t === true || t === false) return t;
@@ -177,6 +179,7 @@
     }).then(function (r) { return r.json().then(function (d) { d.status = r.status; return d; }); }).then(function (d) {
       if (!d.ok) throw new Error(d.error || "Fehler " + d.status);
       var stand = { themen: d.themen || {}, module: d.module || {}, klasse: d.klasse, zeit: Date.now() };
+      if (d.alles) stand.alles = true;
       try { global.localStorage.setItem(SPEICHER + d.klasse, JSON.stringify(stand)); } catch (_e) {}
       cb(stand, "server");
     }).catch(function () {

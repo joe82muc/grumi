@@ -58,10 +58,12 @@
     }
     return null;
   }
-  // Gültige Anmeldung eines Kindes dieser Jahrgangsstufe (andere Stufen sehen die Seite wie Gäste)
+  // Gültige Anmeldung eines Kindes dieser Jahrgangsstufe (andere Stufen sehen die Seite wie Gäste).
+  // Lehrercode (Klasse „Lehrkraft“): gilt auf jeder Übersicht und zählt dort zum Zug der Seite; alles ist offen.
   function anmeldung() {
     try {
       const a = anmeldungGueltig(JSON.parse(localStorage.getItem(SITZUNG) || "null"));
+      if (a && a.klasse === "Lehrkraft") return Object.assign({}, a, {zug: klasse, lehrer: true});
       return a && new RegExp("^" + ST + "[MR]$").test(String(a.zug || "")) ? a : null;
     } catch (_) { return null; }
   }
@@ -165,7 +167,7 @@
       : (KURS.OHNE_CODE || "Ohne Code ist hier noch nichts offen. Melde dich oben mit deinem Code an. Die bisherigen Stunden findest du hier:")} ${alt}</p>`;
 
     const kopf = a
-      ? `<div class="wer"><span>👤 ${esc(a.name)} · Klasse ${esc(a.klasse)}</span><button type="button" id="abmelden">Abmelden</button></div>`
+      ? `<div class="wer"><span>👤 ${a.lehrer ? "Lehrkraft · " + esc(a.name) : esc(a.name) + " · Klasse " + esc(a.klasse)}</span><button type="button" id="abmelden">Abmelden</button></div>`
       : `<form class="code" id="codeForm" novalidate><label for="codeFeld">Dein Code</label><input id="codeFeld" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" placeholder="···">
           <button type="submit">Anmelden</button><p id="codeFehler" role="alert"></p></form>`;
 
@@ -185,7 +187,7 @@
           <p>${esc(INTRO)}</p>
         </div>
         <div class="hero-box">${kopf}
-          <p class="klein">${a ? "Du siehst, was deine Lehrkraft für deine Klasse freigeschaltet hat." : "Mit deinem Code siehst du, was deine Lehrkraft für deine Klasse freigeschaltet hat. Ohne Code ist noch nichts offen."}</p>
+          <p class="klein">${a && a.lehrer ? "Lehrercode: Alle Module und Einheiten sind offen – auch die, die für die Klassen noch gesperrt sind. Dein Lernstand wird nicht gemeldet." : a ? "Du siehst, was deine Lehrkraft für deine Klasse freigeschaltet hat." : "Mit deinem Code siehst du, was deine Lehrkraft für deine Klasse freigeschaltet hat. Ohne Code ist noch nichts offen."}</p>
         </div>
       </div>
     </div>
@@ -210,7 +212,7 @@
       ${probenKachel(t, zug)}
     </section>`; }).join("")}
   </main>
-  <footer class="wrap">GRUMI · Informatik ${kl} · Dein Fortschritt wird auf diesem Gerät gespeichert${a ? " und mit deinem Code an deine Lehrkraft gemeldet" : ""}.</footer>`;
+  <footer class="wrap">GRUMI · Informatik ${kl} · Dein Fortschritt wird auf diesem Gerät gespeichert${a && !a.lehrer ? " und mit deinem Code an deine Lehrkraft gemeldet" : ""}.</footer>`;
 
     const form = document.getElementById("codeForm");
     if (form) {

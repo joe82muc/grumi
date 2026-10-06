@@ -52,10 +52,12 @@
     }
     return null;
   }
-  // Gültige Anmeldung eines Kindes der 7. Klasse (andere Stufen sehen die Seite wie Gäste)
+  // Gültige Anmeldung eines Kindes der 7. Klasse (andere Stufen sehen die Seite wie Gäste).
+  // Lehrercode (Klasse „Lehrkraft“): gilt auf jeder Übersicht und zählt dort zum Zug der Seite; alles ist offen.
   function anmeldung() {
     try {
       const a = anmeldungGueltig(JSON.parse(localStorage.getItem(SITZUNG) || "null"));
+      if (a && a.klasse === "Lehrkraft") return Object.assign({}, a, {zug: klasse, lehrer: true});
       return a && /^7[MR]$/.test(String(a.zug || "")) ? a : null;
     } catch (_) { return null; }
   }
@@ -146,7 +148,7 @@
     const pctGesamt = offenGesamt ? Math.round(THEMEN.reduce((s, t, i) => s + staende[i].pct * staende[i].offen, 0) / offenGesamt) : 0;
 
     const kopf = a
-      ? `<div class="wer"><span>👤 ${esc(a.name)} · Klasse ${esc(a.klasse)}</span><button type="button" id="abmelden">Abmelden</button></div>`
+      ? `<div class="wer"><span>👤 ${a.lehrer ? "Lehrkraft · " + esc(a.name) : esc(a.name) + " · Klasse " + esc(a.klasse)}</span><button type="button" id="abmelden">Abmelden</button></div>`
       : `<form class="code" id="codeForm" novalidate><label for="codeFeld">Dein Code</label><input id="codeFeld" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" placeholder="···">
           <button type="submit">Anmelden</button><p id="codeFehler" role="alert"></p></form>`;
 
@@ -165,7 +167,7 @@
           <p>Hier findest du alle Lernmodule. Jedes Modul enthält Texte, Animationen, Versuche zum Ausprobieren und Übungen, die dich auf die Probe vorbereiten. Deine Lehrkraft schaltet die Themenbereiche nach und nach frei.</p>
         </div>
         <div class="hero-box">${kopf}
-          <p class="klein">${a ? "Du siehst, was deine Lehrkraft für deine Klasse freigeschaltet hat." : "Mit deinem Code siehst du, was deine Lehrkraft für deine Klasse freigeschaltet hat. Ohne Code sind nur die ersten Module zum Thema Luft offen."}</p>
+          <p class="klein">${a && a.lehrer ? "Lehrercode: Alle Themen und Module sind offen – auch die, die für die Klassen noch gesperrt sind. Dein Lernstand wird nicht gemeldet." : a ? "Du siehst, was deine Lehrkraft für deine Klasse freigeschaltet hat." : "Mit deinem Code siehst du, was deine Lehrkraft für deine Klasse freigeschaltet hat. Ohne Code sind nur die ersten Module zum Thema Luft offen."}</p>
         </div>
       </div>
     </div>
@@ -189,7 +191,7 @@
       ${probenKachel(t, zug)}
     </section>`; }).join("")}
   </main>
-  <footer class="wrap">GRUMI · Natur und Technik ${klasse} · Dein Fortschritt wird auf diesem Gerät gespeichert${a ? " und mit deinem Code an deine Lehrkraft gemeldet" : ""}.</footer>`;
+  <footer class="wrap">GRUMI · Natur und Technik ${klasse} · Dein Fortschritt wird auf diesem Gerät gespeichert${a && !a.lehrer ? " und mit deinem Code an deine Lehrkraft gemeldet" : ""}.</footer>`;
 
     const form = document.getElementById("codeForm");
     if (form) {

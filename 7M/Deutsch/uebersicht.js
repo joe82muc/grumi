@@ -20,6 +20,8 @@
   const VORSCHAU = D7.VORSCHAU ? "?vorschau=1" : "";
 
   let STAND = null, HINWEIS = "", SERVER = null, trainerStufen = null, gesprungen = false;
+  // Lehrercode (Klasse „Lehrkraft“): Der Server meldet für die Freischaltung „alles“ (themen.js)
+  const LEHRER_TEXT = "Du bist mit dem Lehrercode angemeldet: Alle Module sind offen – auch die Extra-Module und alles, was für die Klassen noch gesperrt ist. Dein Lernstand wird nicht gemeldet.";
 
   // Was der Server vom Kind kennt: { "d7-gr-01": { g: [Aufgaben], t: Anzahl }, … }
   function serverStand(m) { return (SERVER && SERVER["d7-" + m.id]) || null; }
@@ -149,10 +151,10 @@
     const st = session.student, a = Modul.codeSitzung();
     $("#start").innerHTML = st
       ? (st.code
-        ? `<span class="ic" aria-hidden="true">👋</span><div><strong>Hallo!</strong><span>Du bist mit Code ${esc(st.code)} (Klasse ${esc(st.className)}) angemeldet. Du siehst, was deine Lehrkraft für deine Klasse freigeschaltet hat.</span></div><button class="btn ghost small" id="out" type="button">Abmelden</button>`
+        ? `<span class="ic" aria-hidden="true">👋</span><div><strong>Hallo!</strong><span>${st.className === "Lehrkraft" ? LEHRER_TEXT : `Du bist mit Code ${esc(st.code)} (Klasse ${esc(st.className)}) angemeldet. Du siehst, was deine Lehrkraft für deine Klasse freigeschaltet hat.`}</span></div><button class="btn ghost small" id="out" type="button">Abmelden</button>`
         : `<span class="ic" aria-hidden="true">👋</span><div><strong>Hallo ${esc(st.firstName)}!</strong><span>Du bist als ${esc(st.firstName)} ${esc(st.lastName)} (${esc(st.className)}) angemeldet. Mit deinem Code siehst du, was für deine Klasse freigeschaltet ist.</span></div><button class="btn ghost small" id="out" type="button">Abmelden</button>`)
       : a
-        ? `<span class="ic" aria-hidden="true">👋</span><div><strong>Hallo!</strong><span>Du bist mit Code ${esc(a.code)} (Klasse ${esc(a.klasse)}) angemeldet. Du siehst, was deine Lehrkraft für deine Klasse freigeschaltet hat.</span></div><button class="btn ghost small" id="out" type="button">Abmelden</button>`
+        ? `<span class="ic" aria-hidden="true">👋</span><div><strong>Hallo!</strong><span>${a.klasse === "Lehrkraft" ? LEHRER_TEXT : `Du bist mit Code ${esc(a.code)} (Klasse ${esc(a.klasse)}) angemeldet. Du siehst, was deine Lehrkraft für deine Klasse freigeschaltet hat.`}</span></div><button class="btn ghost small" id="out" type="button">Abmelden</button>`
         : `<span class="ic" aria-hidden="true">✍️</span><div><strong>Dein Training starten</strong><span>Gib einmal deinen Code ein – dann siehst du, was deine Lehrkraft für deine Klasse freigeschaltet hat, und dein Lernstand bleibt in allen Modulen zusammen.</span></div><button class="btn light" id="in" type="button">➜ Training starten</button>`;
     const out = $("#out"), inn = $("#in");
     if (out) out.addEventListener("click", () => Modul.abmelden());
