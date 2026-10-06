@@ -3,8 +3,8 @@
 - Übersicht 8M: `index.html` · Übersicht 8R: `../../8R/Informatik/index.html`. Beide nutzen `themen.js` und die
   Übersicht von Informatik 7 (`../../7M/Informatik/uebersicht.js`, `../../7M/NT/uebersicht.css`).
 - Seit dem 06.10.2026 ist das der Einstieg von der Startseite. Die bisherigen Module (`../../8/Informatik_8/`) sind
-  entfernt; ihre alte Adresse zeigt als Wegweiser hierher. Nur die alte Probe (`../../8/Informatik_8/probe/`) ist für
-  die Lehrkraft noch erreichbar.
+  entfernt – auch die alte Probe „Digitaler Informationsaustausch“. Die alte Adresse zeigt als Wegweiser
+  hierher. Abgaben der alten Probe liegen weiter auf dem Server (`/api/informatik8`), nur die Seiten dazu gibt es nicht mehr.
 - **`themen.js` ist die eine Liste** aller Module, Einheiten und Proben (Kennung, Titel, Datei, Speicherschlüssel).
   Übersicht, Einheiten, Lernstand und die Verwaltung der Lehrkraft lesen daraus. Neue Einheit = Datei anlegen und
   dort `href` eintragen.

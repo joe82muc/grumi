@@ -84,12 +84,6 @@
       schueler: function (t) { return "8M/Informatik/probe.html?test=" + encodeURIComponent(t.id) + (t.zug ? "&zug=" + t.zug : ""); }
     },
     {
-      key: "informatik8", subject: "Informatik", stufen: [8],
-      listPath: "/api/informatik8/list", unlockPath: "/api/informatik8/unlock",
-      klasse: function () { return "8"; }, link: function () { return "8/Informatik_8/probe/lehrer.html"; },
-      schueler: function () { return "8/Informatik_8/probe/probe.html"; }
-    },
-    {
       /* NT 9M/9R: Probe Organische Rohstoffe (Module 1-7), je eine Fassung pro Zug */
       key: "nt9probe", subject: "Natur und Technik", stufen: [9],
       listPath: "/api/nt9probe/list", unlockPath: "/api/nt9probe/unlock",
