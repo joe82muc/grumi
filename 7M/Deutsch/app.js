@@ -82,7 +82,7 @@ function reportStages() {
     method: "POST", headers: { "content-type": "application/json" },
     body: JSON.stringify({
       code: code.code, klasse: code.klasse, modul: STAGE_MODULE, geloest: stages.map((stage) => `${STAGE_MODULE}-s${stage.id}`), gesamt: state.config.stages.length, katalog,
-      meta: { bereich: "Argumentieren und diskutieren", bnr: 1, titel: "Argumentations-Führerschein", kurz: "Modul 1", nr: 1 }
+      meta: { bereich: "Argumentieren und diskutieren", bnr: 3, titel: "Argumentations-Führerschein", kurz: "Modul 1", nr: 1 }
     })
   }).then((response) => { if (response.ok) { try { localStorage.setItem(key, String(stages.length)); } catch (_e) {} } }).catch(() => {});
 }

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#b23a48">
 <title>Deutsch 7 | GRUMI Lernplattform</title>
-<meta name="description" content="Deutsch für die Klassen 7M und 7R: Argumentieren und Diskutieren, Grammatik und Rechtschreibung nach dem LehrplanPLUS – mit Übungen, KI-Rückmeldung und Lernstand per Code.">
+<meta name="description" content="Deutsch für die Klassen 7M und 7R nach dem LehrplanPLUS: Erzählen, Sachtexte, Argumentieren, Literatur und Medien, Grammatik und Rechtschreibung – mit Übungen, KI-Rückmeldung, Proben und Lernstand per Code.">
 <link rel="stylesheet" href="de-modul.css">
 <style>
 .hero .wrap{padding-bottom:64px}
@@ -105,6 +105,25 @@
 .skarte h3{margin:0;font-size:1.05rem}
 .skarte .bsp{margin:2px 0 0;padding:7px 10px;border-radius:10px;background:var(--bg);font-size:.92rem;line-height:1.45}
 .skarte .bsp b{color:var(--pri-d)}
+/* Proben eines Themenbereichs und „Neue Korrektur“ */
+.proben{display:grid;gap:10px;margin-top:12px}
+.proben:empty{display:none}
+.probe{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:13px 16px;border:1.5px dashed #e3b9bf;border-radius:16px;background:#fff9f4;color:inherit;text-decoration:none}
+a.probe:hover{box-shadow:0 6px 18px rgba(178,58,72,.14)}
+a.probe:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.probe > span:first-child{font-size:1.7rem}
+.probe.offen{border-style:solid;border-color:#a9dcbc;background:#f4fbf6}
+.probe.abgegeben{grid-template-columns:auto 1fr;border-style:solid;border-color:var(--line);background:#faf7f5}
+.probe.korrigiert{border-style:solid;border-color:#f1d9a0;background:#fffaf0}
+.probe.korrigiert.neu{border-width:2px;border-color:var(--gold);box-shadow:0 4px 16px rgba(242,182,50,.28)}
+.probe.oben{margin-top:12px}
+.probe-marke{display:inline-block;margin-left:6px;padding:1px 9px;border-radius:99px;background:#eeeae8;color:var(--muted);font-size:.74rem;font-weight:800;vertical-align:middle}
+.probe.neu .probe-marke{background:var(--gold);color:#3b2a00}
+.probe-plan{margin:0;padding:9px 14px;border-radius:12px;background:#f6f2ef;color:var(--muted);font-size:.92rem}
+.meine-proben{margin:10px 0 0;font-weight:700}
+.meine-proben a{color:var(--pri-d)}
+.thema .lp{margin-top:6px;color:var(--muted);font-size:.8rem}
+@media (max-width:600px){.probe{grid-template-columns:auto 1fr}.probe .mod-go{grid-column:2}}
 @media (max-width:900px){.how{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:600px){.mod{grid-template-columns:auto 1fr}.mod-go{grid-column:2}.thema{padding:16px}.how{grid-template-columns:1fr}.ki-note{grid-template-columns:1fr}}
 </style>
@@ -119,8 +138,8 @@
     </nav>
     <div class="eyebrow">Klasse 7M und 7R · Deutsch</div>
     <h1>Deutsch 7</h1>
-    <p>Argumentieren, Grammatik und Rechtschreibung: Übungen zum Anklicken, Duelle gegen die KI und eigene Texte, die die KI mit einer Checkliste prüft. Deine Lehrkraft schaltet die Module nach und nach frei. Mit deinem Code siehst du, was offen ist und wie weit du bist.</p>
-    <nav class="navlinks" style="margin:18px 0 0" aria-label="Bereiche"><a href="#argumentieren">🗣️ Argumentieren</a><a href="#grammatik">✍️ Grammatik</a><a href="#rechtschreibung">📝 Rechtschreibung</a></nav>
+    <p>Erzählen, Sachtexte, Argumentieren, Literatur, Grammatik und Rechtschreibung: lesen, ausprobieren, selbst schreiben – die KI gibt dir Rückmeldung, deine Lehrkraft schaltet Module und Proben nach und nach frei. Mit deinem Code siehst du, was offen ist, wie weit du bist und ob eine korrigierte Probe auf dich wartet.</p>
+    <nav class="navlinks" style="margin:18px 0 0" aria-label="Bereiche"><a href="#erzaehlen">✏️ Erzählen</a><a href="#sachtexte">🔎 Sachtexte</a><a href="#argumentieren">🗣️ Argumentieren</a><a href="#literatur">📖 Literatur</a><a href="#grammatik">✍️ Grammatik</a><a href="#rechtschreibung">📝 Rechtschreibung</a></nav>
     <div class="start" id="start" aria-live="polite"></div>
   </div>
 </div>
@@ -128,7 +147,7 @@
 <main class="wrap">
   <div id="d7-app"><noscript><p class="hinweis">Diese Übersicht braucht JavaScript.</p></noscript></div>
 
-  <h2 class="sec-title">So lernst du mit den Argumentier-Modulen</h2>
+  <h2 class="sec-title">So lernst du in Deutsch 7</h2>
   <ol class="how">
     <li><b>Training starten</b><span>Einmal deinen Code eingeben – die Anmeldung gilt für alle Fächer.</span></li>
     <li><b>Schritt für Schritt üben</b><span>Lesen, sortieren, markieren: Klick-Übungen zeigen sofort, ob es stimmt.</span></li>
@@ -136,17 +155,22 @@
     <li><b>Gegen die KI oder zu zweit antreten</b><span>Im Duell übst du, auf Einwände einzugehen und sachlich zu kontern – gegen die KI oder im Tisch-Duell gegen deinen Partner.</span></li>
   </ol>
 
+  <div class="ki-note" style="border-color:#f1d9a0;background:#fffaf0">
+    <span class="e" aria-hidden="true">📄</span>
+    <p><strong>So laufen die Proben:</strong> Du schreibst die Probe mit deinem Code. Zuerst korrigiert die KI nach einem festen Bewertungsplan, dann prüft deine Lehrkraft jede Aufgabe und entscheidet über die Punkte. Danach bekommst du die korrigierte Probe hier zurück: mit deinen Antworten, den Punkten und einem Tipp für das nächste Mal. Du kannst sie ausdrucken und zu Hause zeigen.</p>
+  </div>
+
   <div class="ki-note">
     <span class="e" aria-hidden="true">✨</span>
     <p><strong>So funktioniert die KI-Kontrolle:</strong> Die KI liest deinen Text und hakt die Punkte der Checkliste ab. Sie gibt dir einen Tipp, schreibt deinen Text aber nicht für dich. Deine Texte werden mit deinem Namen gespeichert – nur für dich und deine Lehrkraft. Schreib keine privaten Angaben (Adresse, Telefonnummer) in deine Texte.</p>
   </div>
 </main>
 
-<footer class="wrap">GRUMI · Deutsch 7M und 7R · Argumentieren, Grammatik und Rechtschreibung</footer>
+<footer class="wrap">GRUMI · Deutsch 7M und 7R · nach dem LehrplanPLUS Bayern (Mittelschule)</footer>
 
 <script src="themen.js"></script>
 <script src="../../js/lernstand.js"></script>
-<script src="de-modul.js?v=20261005"></script>
-<script src="uebersicht.js?v=20261005"></script>
+<script src="de-modul.js?v=20261006"></script>
+<script src="uebersicht.js?v=20261006"></script>
 </body>
 </html>

@@ -3,7 +3,7 @@
  * Getrennt- und Zusammenschreibung (Betonungsprobe), s-Laute und das/dass, Fremdwörter und Merkwörter,
  * Zeichensetzung (M: auch Einschübe und Infinitivgruppen), Worttrennung. Plus = M-Zug, für R-Klassen freiwillig. */
 Grammatik.vorgaben({
-  kurs: "d7", bereich: "Rechtschreibung", bnr: 3, prefix: "d7-rs-", fach: "Deutsch 7", kurzPrefix: "R",
+  kurs: "d7", bereich: "Rechtschreibung und Sprachtraining", bnr: 6, prefix: "d7-rs-", fach: "Deutsch 7", kurzPrefix: "R",
   // Freischaltung durch die Lehrkraft je Klasse: Liste der Module in ../themen.js (window.D7)
   liste: { name: "D7", src: "../themen.js" },
   fachHref: "../index.html", indexHref: "../index.html#rechtschreibung", indexName: "Alle Rechtschreib-Themen",

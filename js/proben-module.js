@@ -71,6 +71,15 @@
       schueler: function () { return "7M/Deutsch/argumentationstrainer.html"; }
     },
     {
+      /* Deutsch 7: Proben 1 bis 8, je für 7R und 7M (t.zug) und in Variante A und B (B = Nachschreiber, für die
+         Kinder erst sichtbar, wenn sie offen ist – die Verwaltung fragt deshalb mit „alle=1“). Die KI korrigiert
+         vor, die Lehrkraft prüft und gibt die korrigierte Probe zurück (Lehrerseite proben-lehrer.html). */
+      key: "d7proben", subject: "Deutsch", stufen: [7],
+      listPath: "/api/d7/proben/list?alle=1", unlockPath: "/api/d7/proben/teacher/unlock",
+      klasse: function (t) { return "7" + (t.zug || ""); }, link: function (t) { return "7M/Deutsch/proben-lehrer.html?nr=" + t.nr; },
+      schueler: function (t) { return "7M/Deutsch/probe.html?test=" + encodeURIComponent(t.id) + (t.zug ? "&zug=" + t.zug : ""); }
+    },
+    {
       key: "infoaustausch", subject: "Informatik", stufen: [7],
       listPath: "/api/infoaustausch/list", unlockPath: "/api/infoaustausch/unlock",
       klasse: function () { return "7"; }, link: function () { return "7/Informatik_7/probe/lehrer.html"; },

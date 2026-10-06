@@ -1,8 +1,12 @@
-/* Deutsch 7 (7M und 7R): die drei Themenbereiche und ihre Module an einer Stelle.
- * Genutzt von der Übersicht (index.html mit uebersicht.js), den Modulseiten (de-modul.js, app.js, Grammatik/themen.js,
- * Rechtschreibung/themen.js) und der Verwaltung (nt7-verwaltung.js in proben-verwalten.html).
+/* Deutsch 7 (7M und 7R): die sechs Themenbereiche, ihre Module und Proben an einer Stelle.
+ * Genutzt von der Übersicht (index.html mit uebersicht.js), den Modulseiten (../NT/modul-basis.js mit d7-kit.js für
+ * Erzählen, Sachtexte, Literatur; de-modul.js, app.js für Argumentieren; Grammatik/themen.js, Rechtschreibung/themen.js)
+ * und der Verwaltung (nt7-verwaltung.js in proben-verwalten.html).
  * Aufbau und Logik wie 7M/NT/themen.js:
- *   Thema  = Themenbereich (Argumentieren, Grammatik, Rechtschreibung)
+ *   Thema  = Themenbereich (Erzählen, Sachtexte, Argumentieren, Literatur und Medien, Grammatik, Rechtschreibung)
+ *            proben = Nummern der Proben dieses Bereichs (1 bis 8). Jede Probe gibt es auf dem Server viermal:
+ *                     d7-p<nr>-r-a, -r-b, -m-a, -m-b (R7/M7, Variante A und Nachschreiber-Variante B)
+ *            lp     = Lernbereiche des LehrplanPLUS, zu denen der Themenbereich gehört
  *   Modul  = eine Seite in diesem Ordner
  *            id    = Kennung in der Freischaltung; der Lernstand heißt „d7-<id>“
  *            key   = Speicherschlüssel des Fortschritts auf dem Gerät
@@ -23,7 +27,58 @@
 
   var THEMEN = [
     {
-      id: "argumentieren", nr: "01", titel: "Argumentieren und diskutieren", kurz: "Argumentieren", icon: "🗣️",
+      id: "erzaehlen", nr: "01", titel: "Erzählen und kreativ schreiben", kurz: "Erzählen", icon: "✏️", proben: [1],
+      lp: "Schreiben (D7 3.2, 3.3) · Sprechen und Zuhören (D7 1.2)",
+      text: "Von der ersten Idee bis zur fertigen Erzählung: planen, spannend aufbauen, lebendig schreiben und den eigenen Text überarbeiten – mit dem Schreibtrainer.",
+      module: [
+        { id: "erz-01", titel: "Ideen finden und planen", href: "erz_01.html", key: "grumi-d7-erz-01-v1", tab: "Planen",
+          text: "Woher kommen gute Ideen? Einfälle sammeln, mit W-Fragen ordnen und einen Schreibplan anlegen, bevor der erste Satz steht.",
+          tags: ["Ideenstern", "Schreibplan", "🎧 Hörtext: Interview"] },
+        { id: "erz-02", titel: "Einleitung, Hauptteil, Schluss", href: "erz_02.html", key: "grumi-d7-erz-02-v1", tab: "Aufbau",
+          text: "Wie eine Erzählung gebaut ist: Die Einleitung führt hin, der Hauptteil erzählt Schritt für Schritt, der Schluss rundet ab.",
+          tags: ["Aufbau", "Erzählschritte ordnen", "✨ Schreibtrainer"] },
+        { id: "erz-03", titel: "Spannung und Höhepunkt", href: "erz_03.html", key: "grumi-d7-erz-03-v1", tab: "Aufbau",
+          text: "Spannung aufbauen, verzögern und auf den Höhepunkt zusteuern – so bleibt deine Leserin bis zum Schluss dabei.",
+          tags: ["Spannungskurve", "Höhepunkt ausgestalten", "✨ Schreibtrainer"] },
+        { id: "erz-04", titel: "Gefühle, Gedanken, wörtliche Rede", href: "erz_04.html", key: "grumi-d7-erz-04-v1", tab: "Sprache",
+          text: "Figuren werden lebendig, wenn man erfährt, was sie fühlen, denken und sagen. Mit den Zeichen der wörtlichen Rede.",
+          tags: ["Zeigen statt behaupten", "Redezeichen", "✨ Schreibtrainer"] },
+        { id: "erz-05", titel: "Lebendig schreiben", href: "erz_05.html", key: "grumi-d7-erz-05-v1", tab: "Sprache",
+          text: "Abwechslungsreiche Satzanfänge, treffende Verben und passende Adjektive machen aus einem braven Text eine gute Erzählung.",
+          tags: ["Satzanfänge", "Verben und Adjektive", "⚔️ Duell gegen die KI"] },
+        { id: "erz-06", titel: "Schreibwerkstatt: überarbeiten", href: "erz_06.html", key: "grumi-d7-erz-06-v1", tab: "Schreiben",
+          text: "Einen Text mit der Checkliste prüfen, gezielt verbessern und eine eigene Erzählung schreiben. Die KI gibt Rückmeldung, du verbesserst selbst.",
+          tags: ["Checkliste", "✨ Schreibtrainer", "👥 Tischduell"] }
+      ]
+    },
+    {
+      id: "sachtexte", nr: "02", titel: "Sachtexte und Informationen", kurz: "Sachtexte", icon: "🔎", proben: [2, 3],
+      lp: "Lesen – mit Texten und weiteren Medien umgehen (D7 2.1, 2.3) · Schreiben (D7 3.2)",
+      text: "Texte gezielt lesen, Wichtiges finden, Aussagen mit Zeilenangaben belegen, zusammenfassen und Diagramme, Tabellen und Formulare verstehen.",
+      module: [
+        { id: "sach-01", titel: "Sachtexte gezielt lesen", href: "sach_01.html", key: "grumi-d7-sach-01-v1", tab: "Lesen",
+          text: "Erst überfliegen, dann genau lesen: Abschnitte erkennen, Überschriften finden, W-Fragen stellen und unbekannte Wörter aus dem Zusammenhang klären.",
+          tags: ["Lesestrategie", "Textstellen antippen", "Zeilennummern"] },
+        { id: "sach-02", titel: "Das Wichtige finden", href: "sach_02.html", key: "grumi-d7-sach-02-v1", tab: "Lesen",
+          text: "Schlüsselwörter markieren, Wichtiges von Einzelheiten trennen und die Kernaussage eines Textes in einem Satz sagen.",
+          tags: ["Schlüsselwörter", "Kernaussage", "⚔️ Duell gegen die KI"] },
+        { id: "sach-03", titel: "Mit dem Text belegen", href: "sach_03.html", key: "grumi-d7-sach-03-v1", tab: "Belegen",
+          text: "Aussagen mit Textstellen beweisen: die Stelle finden, die Zeilen angeben, kurz zitieren und das Zitat erklären.",
+          tags: ["Zeilenangaben", "Zitate", "⚔️ Duell gegen die KI"] },
+        { id: "sach-04", titel: "Zusammenfassen", href: "sach_04.html", key: "grumi-d7-sach-04-v1", tab: "Schreiben",
+          text: "Aus einem langen Text wird ein kurzer: Stichpunkte sammeln, ordnen und eine sachliche Zusammenfassung schreiben.",
+          tags: ["Stichpunkte", "Zusammenfassung", "✨ Schreibtrainer"] },
+        { id: "sach-05", titel: "Diagramme, Tabellen, Formulare", href: "sach_05.html", key: "grumi-d7-sach-05-v1", tab: "Lesen",
+          text: "Nicht jeder Text besteht aus Sätzen: Diagramme und Tabellen auswerten, Aussagen dazu formulieren und ein Formular richtig ausfüllen.",
+          tags: ["Diagramm lesen", "Tabelle", "Formular ausfüllen"] },
+        { id: "sach-06", titel: "Texte vergleichen", href: "sach_06.html", key: "grumi-d7-sach-06-v1", tab: "Vergleichen",
+          text: "Zwei Texte, ein Thema: Was will der Text – informieren oder auffordern? Texte vergleichen, eine Radionachricht verstehen.",
+          tags: ["Absicht erkennen", "🎧 Hörtext: Nachricht", "👥 Tischduell"] }
+      ]
+    },
+    {
+      id: "argumentieren", nr: "03", titel: "Argumentieren und diskutieren", kurz: "Argumentieren", icon: "🗣️", proben: [4],
+      lp: "Sprechen und Zuhören (D7 1.2, 1.3) · Schreiben (D7 3.2)",
       text: "Meinungen begründen, auf andere eingehen, fair streiten und überzeugen – vom einzelnen Argument bis zur ganzen Diskussion.",
       module: [
         { id: "argumentationstrainer", titel: "Argumentations-Führerschein", href: "argumentationstrainer.html", tab: "Grundkurs", grund: true, trainer: true,
@@ -43,11 +98,40 @@
           tags: ["Beobachtungsbogen", "✨ KI prüft Freitexte", "🗣️ KI-Diskussion"] },
         { id: "tisch-duell", titel: "Tisch-Duell zu zweit", href: "tisch-duell.html", key: "grumi-de7-tisch-duell-v1", tab: "Partnerarbeit",
           text: "Zwei an einem Tisch, jeder am eigenen iPad: Einer ist dafür, einer dagegen. Ihr schickt euch abwechselnd Argumente – die KI prüft jeden Beitrag, bevor er beim Partner ankommt.",
-          tags: ["👥 Zu zweit am Tisch", "✨ KI prüft jeden Beitrag", "⚔️ Pro gegen Kontra"] }
+          tags: ["👥 Zu zweit am Tisch", "✨ KI prüft jeden Beitrag", "⚔️ Pro gegen Kontra"] },
+        { id: "arg-07", titel: "Stellungnahme und Leserbrief", href: "arg_07.html", key: "grumi-d7-arg-07-v1", tab: "Schreiben",
+          text: "Schulhund – ja oder nein? Einen Leserbrief untersuchen, die Bausteine eines Arguments erkennen, einen Einwand entkräften und selbst Stellung nehmen.",
+          tags: ["Bausteine eines Arguments", "Einwand entkräften", "✨ Schreibtrainer"] }
       ]
     },
     {
-      id: "grammatik", nr: "02", titel: "Grammatik", kurz: "Grammatik", icon: "✍️",
+      id: "literatur", nr: "04", titel: "Literatur und Medien", kurz: "Literatur", icon: "📖", proben: [5],
+      lp: "Lesen – mit Texten und weiteren Medien umgehen (D7 2.2, 2.4) · Sprechen und Zuhören (D7 1.1, 1.4)",
+      text: "Geschichten und Gedichte verstehen, Figuren beschreiben, Deutungen am Text belegen, genau zuhören und Buch, Hörspiel und Film vergleichen.",
+      module: [
+        { id: "lit-01", titel: "Erzähltexte und Kurzgeschichte", href: "lit_01.html", key: "grumi-d7-lit-01-v1", tab: "Lesen",
+          text: "Wer erzählt hier, was passiert und wie endet es? Die Handlung einer kurzen Geschichte erfassen und die Merkmale einer Kurzgeschichte erkennen.",
+          tags: ["Handlung", "Erzähler", "Merkmale"] },
+        { id: "lit-02", titel: "Figuren und ihre Beziehungen", href: "lit_02.html", key: "grumi-d7-lit-02-v1", tab: "Figuren",
+          text: "Figuren beschreiben: Was tun sie, was sagen sie, was fühlen sie? Eigenschaften am Text belegen und Beziehungen zwischen Figuren erklären.",
+          tags: ["Charakterisierung", "Textbelege", "⚔️ Duell gegen die KI"] },
+        { id: "lit-03", titel: "Gedichte", href: "lit_03.html", key: "grumi-d7-lit-03-v1", tab: "Lyrik",
+          text: "Strophe, Vers und Reim, sprachliche Bilder und Stimmung: Gedichte untersuchen, vortragen und selbst weiterschreiben.",
+          tags: ["Reim und Bild", "Vortragen", "👥 Tischduell"] },
+        { id: "lit-04", titel: "Zuhören: Hörtexte und Hörspiel", href: "lit_04.html", key: "grumi-d7-lit-04-v1", tab: "Zuhören",
+          text: "Genau zuhören und Notizen machen: ein Gespräch, eine kurze Geschichte und eine Hörspielszene mit Geräuschen.",
+          tags: ["🎧 Drei Hörtexte", "Notizen", "Hörspiel"] },
+        { id: "lit-05", titel: "Jugendbuch und szenisches Spiel", href: "lit_05.html", key: "grumi-d7-lit-05-v1", tab: "Buch",
+          text: "Dein eigenes Jugendbuch untersuchen: Lesetagebuch, Figurenkarte, Brief an eine Figur – und aus einer Stelle eine Spielszene machen.",
+          tags: ["Lesetagebuch", "Rollenkarte", "✨ Schreibtrainer"] },
+        { id: "lit-06", titel: "Film und Medien vergleichen", href: "lit_06.html", key: "grumi-d7-lit-06-v1", tab: "Medien",
+          text: "Wie erzählt ein Film? Kamera, Ton und Schnitt verstehen, Buch, Hörspiel und Film vergleichen, erfunden und wirklich unterscheiden.",
+          tags: ["Kamera-Einstellungen", "Medienvergleich", "Echt oder erfunden?"] }
+      ]
+    },
+    {
+      id: "grammatik", nr: "05", titel: "Grammatik und Sprache", kurz: "Grammatik", icon: "✍️", proben: [6, 7],
+      lp: "Sprachgebrauch und Sprache untersuchen und reflektieren (D7 4.2)",
       text: "Sieben Themen nach dem Lehrplan: erst die Merkkästen lesen, dann üben. Basis für alle, Plus für den M-Zug – für R-Klassen freiwillig.",
       module: [
         { id: "gr-01", titel: "Wortarten und Pronomen", href: "Grammatik/gr_01.html", key: "grumi-d7-gr-01", basis: 6, plus: 4,
@@ -65,7 +149,12 @@
         { id: "gr-06", titel: "Satzreihe und Satzgefüge", href: "Grammatik/gr_06.html", key: "grumi-d7-gr-06", basis: 6, plus: 3,
           text: "Haupt- und Nebensatz, Sätze verbinden, Kommas setzen." },
         { id: "gr-07", titel: "Gliedsätze", href: "Grammatik/gr_07.html", key: "grumi-d7-gr-07", basis: 6, plus: 3,
-          text: "Subjektsatz und Objektsatz – im M-Zug auch Adverbialsätze." },
+          text: "Subjektsatz und Objektsatz – im M-Zug auch Adverbialsätze.",
+          extraFrage: "Fit in Grammatik? Zeig es im Duell!",
+          extraText: "Zusatz für alle sieben Themen: Fehler aufspüren, gegen die KI antreten und zu zweit am Tisch um Punkte spielen." },
+        // Zusatz zur Grammatik: Duelle (einzeln freischaltbar, zählt nicht zum Lernfortschritt)
+        { id: "gr-duell", extra: "gr-07", kurz: "Duelle", titel: "Grammatik-Duelle", href: "gr_duell.html", key: "grumi-d7-gr-duell-v1",
+          text: "Fehler finden, KI-Duell, Tischduell." },
         // Extra zu Modul 2: Zeitformen wiederholen (für 7M und 7R gleich, ohne Plus-Teil)
         { id: "zf-praesens", extra: "gr-02", kurz: "Präsens", titel: "Präsens (Gegenwart)", href: "Grammatik/zf_praesens.html", key: "grumi-d7-zf-praesens", basis: 4,
           text: "Was jetzt passiert oder immer so ist." },
@@ -80,7 +169,8 @@
       ]
     },
     {
-      id: "rechtschreibung", nr: "03", titel: "Rechtschreibung", kurz: "Rechtschreibung", icon: "📝",
+      id: "rechtschreibung", nr: "06", titel: "Rechtschreibung und Sprachtraining", kurz: "Rechtschreibung", icon: "📝", proben: [8],
+      lp: "Sprachgebrauch und Sprache untersuchen und reflektieren (D7 4.3)",
       text: "Sieben Themen mit Strategien, Regeln und vielen Übungen. Jede Karte zeigt dir ein kurzes Beispiel.",
       module: [
         { id: "rs-01", titel: "Rechtschreibstrategien", href: "Rechtschreibung/rs_01.html", key: "grumi-d7-rs-01", basis: 6, plus: 3, icon: "🧭",
@@ -96,7 +186,14 @@
         { id: "rs-06", titel: "Kommasetzung", href: "Rechtschreibung/rs_06.html", key: "grumi-d7-rs-06", basis: 6, plus: 3, icon: "✒️",
           bsp: "Ich weiß<b>,</b> dass du recht hast." },
         { id: "rs-07", titel: "Worttrennung", href: "Rechtschreibung/rs_07.html", key: "grumi-d7-rs-07", basis: 5, plus: 2, icon: "✂️",
-          bsp: "Zu-<b>ck</b>er · Fens-ter · Was-ser" }
+          bsp: "Zu-<b>ck</b>er · Fens-ter · Was-ser" },
+        // Individuelles Fehlertraining: zeigt, bei welcher Fehlerart ein Kind unsicher ist, und bietet dazu kurze Übungen an
+        { id: "rs-fehler", titel: "Mein Fehlertraining", href: "rs_fehler.html", key: "grumi-d7-rs-fehler-v1", icon: "🎯",
+          bsp: "Wo passieren <b>deine</b> Fehler? Finde es heraus und übe genau das.",
+          extraFrage: "Sicher in Rechtschreibung? Zeig es im Duell!",
+          extraText: "Zusatz: Fehler aufspüren, gegen die KI antreten und zu zweit am Tisch um Punkte spielen." },
+        { id: "rs-duell", extra: "rs-fehler", kurz: "Duelle", titel: "Rechtschreib-Duelle", href: "rs_duell.html", key: "grumi-d7-rs-duell-v1",
+          text: "Fehler finden, KI-Duell, Tischduell." }
       ]
     }
   ];
@@ -236,6 +333,23 @@
     });
   }
 
+  // Für die Bausteine von NT 7 (../NT/modul-basis.js): Kennung des Moduls aus seinem Speicherschlüssel
+  // („grumi-d7-erz-01-v1“ -> „erz-01“) und Zug des Kindes (M oder R)
+  var PREFIX = "grumi-d7-";
+  function idAusKey(key) { return String(key || "").replace(/^grumi-d7-/, "").replace(/-v\d+$/, ""); }
+  // Zug des Kindes: aus der Anmeldung („7M“/„7R“), sonst aus dem Link der Übersicht (?zug=R) oder dem Tab
+  function zug(anmeldung) {
+    var z = anmeldung && /^7[MR]$/.test(String(anmeldung.zug || "")) ? anmeldung.zug.slice(1) : "";
+    if (!z) { var m = /[?&]zug=([MR])\b/i.exec(suche); if (m) z = m[1].toUpperCase(); }
+    try {
+      if (z) global.sessionStorage.setItem("grumi-d7-zug", z);
+      else z = global.sessionStorage.getItem("grumi-d7-zug") || "";
+    } catch (_e) {}
+    return z;
+  }
+  // Kennung einer Probe auf dem Server: Nummer, Zug (R oder M), Variante (A oder B)
+  function probeId(nr, z, variante) { return "d7-p" + nr + "-" + String(z || "M").toLowerCase() + "-" + String(variante || "A").toLowerCase(); }
+
   // Extra-Module eines Moduls (in der Reihenfolge der Liste)
   function extrasVon(id) {
     var reg = modulVon(id);
@@ -243,6 +357,12 @@
   }
 
   global.D7 = {
-    THEMEN: THEMEN, API: API, VORSCHAU: VORSCHAU, modulVon: modulVon, offen: offen, freigabe: freigabe, sperre: sperre, extrasVon: extrasVon
+    THEMEN: THEMEN, API: API, VORSCHAU: VORSCHAU, modulVon: modulVon, offen: offen, freigabe: freigabe, sperre: sperre, extrasVon: extrasVon,
+    idAusKey: idAusKey, zug: zug, probeId: probeId,
+    // Angaben für die Bausteine von NT 7 (Seiten mit ../NT/modul-basis.js)
+    KURS: "d7", PREFIX: PREFIX, WORT: "Modul", DAS: "das Modul", ES: "es",
+    SPERRE: "Dieses Modul ist noch nicht freigeschaltet", ZURUECK: "📚 Zur Übersicht Deutsch 7"
   };
+  // Seiten, die die NT-7-Bausteine nutzen, finden die Kursliste hier (nicht in der Verwaltung: dort stehen mehrere Listen)
+  if (!global.GRUMI_KURS && !/proben-verwalten/.test(global.location.pathname)) global.GRUMI_KURS = global.D7;
 })(window);

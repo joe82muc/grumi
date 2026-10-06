@@ -1,0 +1,230 @@
+/* Deutsch 7: Probe schreiben (probe.html), korrigierte Probe ansehen und drucken (korrektur.html),
+   Korrektur der Lehrkraft (proben-lehrer.html). Farben wie die Deutsch-7-Module (Rot und Gold). */
+:root{--pri:#b23a48;--pri-d:#8a2434;--pri-l:#fbecee;--teal:#176b62;--ink:#1f1a1c;--muted:#62585b;--bg:#f7f4f2;--line:#e6dcd9;
+  --ok:#1b8a4b;--ok-l:#e3f6ea;--bad:#c93b3b;--bad-l:#fdecec;--warn-l:#fff4dc;--gold:#f2b632}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+h1,h2,h3{line-height:1.2;margin:0 0 .45em}
+h1{font-size:1.85rem}
+h2{font-size:1.35rem}
+h3{font-size:1.08rem}
+p{margin:0 0 .8em}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:58px;padding:8px max(16px,calc((100vw - 1320px)/2));background:var(--pri-d);color:#fff}
+.brand{color:#fff;text-decoration:none;font-weight:800;font-size:1.15rem}
+.brand span{margin-left:.5rem;font-weight:600;font-size:.9rem;opacity:.85}
+.top-tag{font-size:.88rem;opacity:.9}
+main{max-width:1320px;margin:0 auto;padding:22px 16px 80px}
+main.schmal{max-width:900px}
+.eyebrow{font-size:.78rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--pri-d)}
+.intro{max-width:70ch;color:#4a4144;font-size:1.04rem}
+.notice{max-width:900px;margin:12px 0;padding:11px 14px;border-left:4px solid var(--gold);border-radius:0 10px 10px 0;background:var(--warn-l);color:#5a4200}
+.notice.bad{border-color:var(--bad);background:var(--bad-l);color:#7a2424}
+.notice.gut{border-color:var(--ok);background:var(--ok-l);color:#17633a}
+.pill{display:inline-block;padding:3px 11px;border:1px solid var(--line);border-radius:99px;background:#fff;color:#4a4144;font-size:.78rem;font-weight:800;white-space:nowrap}
+.pill.open{border-color:#a9dcbc;background:var(--ok-l);color:var(--ok)}
+.pill.b{border-color:#f1d9a0;background:#fff6dd;color:#7a5200}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:9px 18px;border:1.5px solid var(--pri);border-radius:12px;background:var(--pri);color:#fff;font-weight:800;text-decoration:none}
+.btn:hover{background:var(--pri-d)}
+.btn.secondary{background:#fff;color:var(--pri-d)}
+.btn.secondary:hover{background:var(--pri-l)}
+.btn.klein{min-height:36px;padding:5px 12px;border-radius:10px;font-size:.9rem}
+.btn.gruen{border-color:var(--ok);background:var(--ok)}
+.btn.danger{border-color:var(--bad);background:#fff;color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.field{display:grid;gap:4px;font-weight:700}
+.field input,.field select{min-height:44px;padding:8px 12px;border:1.5px solid #cfc2bd;border-radius:10px;background:#fff}
+
+/* Liste der Proben */
+.exam-list{display:grid;gap:12px;max-width:900px;margin:16px 0}
+.exam-tile{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;padding:16px 18px;border:1.5px solid var(--line);border-radius:16px;background:#fff}
+.exam-tile h2{margin:2px 0 4px;font-size:1.2rem}
+.exam-tile p{margin:0;color:var(--muted);font-size:.95rem}
+.exam-tile > div:last-child{display:grid;gap:8px;justify-items:end}
+.unit-section{max-width:900px;margin-top:22px;padding:18px;border:1.5px solid #ecc7cc;border-radius:16px;background:#fff}
+.identity-grid{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.identity-grid input{width:9em;font-size:1.3rem;font-weight:800;letter-spacing:.2em;text-align:center}
+
+/* Probe: links der Text, rechts die Aufgaben */
+.exam-head{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;margin-bottom:10px}
+.exam-head h2{margin:0}
+.zweispaltig{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:20px;align-items:start}
+.zweispaltig.ohne-text{grid-template-columns:minmax(0,1fr);max-width:900px}
+.lesespalte{position:sticky;top:10px;max-height:calc(100vh - 20px);overflow:auto;padding-right:2px;-webkit-overflow-scrolling:touch}
+.text-reiter{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.text-reiter button{padding:6px 12px;border:1.5px solid var(--line);border-radius:99px;background:#fff;font-weight:700;font-size:.88rem}
+.text-reiter button.an{border-color:var(--pri);background:var(--pri);color:#fff}
+.text-knopf,.text-zu{display:none}
+.frage{margin:0 0 14px;padding:16px 18px;border:1.5px solid var(--line);border-radius:16px;background:#fff}
+.frage-kopf{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:space-between;margin-bottom:8px;color:var(--muted);font-size:.88rem;font-weight:700}
+.frage h3{margin:0 0 10px;font-size:1.06rem;line-height:1.4;white-space:pre-line}
+.frage .bezug{display:inline-block;margin:0 0 8px;padding:2px 9px;border-radius:8px;background:#fbf5ea;color:#7a5200;font-size:.8rem;font-weight:700}
+.frage .hilfe{margin:0 0 10px;padding:8px 12px;border-radius:10px;background:#eef6fb;color:#22506b;font-size:.92rem}
+.vorgabe{margin:0 0 10px;padding:9px 12px;border-left:4px solid var(--gold);border-radius:0 10px 10px 0;background:#fffaf0;white-space:pre-line}
+.options{display:grid;gap:8px}
+.option{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1.5px solid #dfd3ce;border-radius:12px;cursor:pointer;min-height:44px}
+.option:has(input:checked){border-color:var(--pri);background:var(--pri-l)}
+.option input{flex:none;width:20px;height:20px;margin-top:3px;accent-color:var(--pri)}
+.match-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:10px;align-items:center;margin:8px 0}
+.match-row.lang{grid-template-columns:1fr;gap:4px;margin:10px 0}
+.frage button.bezug{border:0;cursor:pointer;font-family:inherit}
+.match-row select,.order-row select{width:100%;min-height:44px;padding:8px 10px;border:1.5px solid #cfc2bd;border-radius:10px;background:#fff}
+.order-row{display:grid;grid-template-columns:5.2em minmax(0,1fr);gap:10px;align-items:center;margin:8px 0}
+.feld-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:center;margin:8px 0}
+.feld-row.breit{grid-template-columns:1fr}
+.feld-row input{width:100%;min-height:44px;padding:8px 12px;border:1.5px solid #cfc2bd;border-radius:10px;background:#fff}
+.zeile-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-weight:700}
+.zeile-row input{width:4.6em;min-height:44px;padding:8px;border:1.5px solid #cfc2bd;border-radius:10px;background:#fff;text-align:center;font-weight:800}
+.frage textarea{display:block;width:100%;min-height:120px;padding:11px 13px;border:1.5px solid #cfc2bd;border-radius:12px;background:#fff;line-height:1.6;resize:vertical}
+.frage textarea.lang{min-height:340px}
+.zaehler{margin-top:6px;color:var(--muted);font-size:.86rem;font-weight:700}
+.zaehler.gut{color:var(--ok)}
+/* Kommas setzen: zwischen zwei Wörtern antippen */
+.komma-satz{margin:10px 0;padding:10px 12px;border:1.5px solid #dfd3ce;border-radius:12px;line-height:2.5}
+.komma-satz span{white-space:nowrap}
+.komma-luecke{position:relative;display:inline-block;width:1.25em;height:1.9em;margin:0 1px;vertical-align:middle}
+.komma-luecke input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.komma-luecke i{position:absolute;inset:0;display:grid;place-items:center;border:1.5px dashed #cdbfb9;border-radius:7px;color:transparent;font-style:normal;font-weight:900;font-size:1.3em;line-height:1}
+.komma-luecke input:checked + i{border-style:solid;border-color:var(--pri);background:var(--pri-l);color:var(--pri-d)}
+.komma-luecke input:focus-visible + i{outline:3px solid var(--gold)}
+.material{margin:0 0 10px;padding:11px 14px;border:1.5px dashed #e3b9bf;border-radius:12px;background:#fff9f4;white-space:pre-line}
+.abgabe-leiste{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:8px;padding:14px 16px;border-radius:16px;background:#fff;border:1.5px solid #ecc7cc}
+
+@media (max-width:980px){
+  .zweispaltig{grid-template-columns:minmax(0,1fr)}
+  .lesespalte{position:fixed;inset:0;z-index:60;max-height:none;padding:56px 12px 24px;background:var(--bg);display:none}
+  body.text-offen .lesespalte{display:block}
+  body.text-offen{overflow:hidden}
+  .text-knopf{display:inline-flex;position:fixed;right:14px;bottom:14px;z-index:50;box-shadow:0 8px 24px rgba(60,20,30,.3)}
+  body.text-offen .text-knopf{display:none}
+  .text-zu{display:inline-flex;position:fixed;top:10px;right:12px;z-index:70}
+  body:not(.text-offen) .text-zu{display:none}
+  .zweispaltig.ohne-text ~ .text-knopf,.ohne-text-seite .text-knopf{display:none}
+}
+@media (max-width:560px){
+  .exam-tile{grid-template-columns:1fr}
+  .exam-tile > div:last-child{justify-items:start}
+  .match-row,.feld-row{grid-template-columns:1fr}
+  main{padding-left:12px;padding-right:12px}
+}
+
+/* ---------- Korrigierte Probe (Kind, Eltern, Ausdruck) ---------- */
+.kopfkarte{display:grid;grid-template-columns:1fr auto;gap:10px 22px;align-items:center;padding:18px 20px;border:1.5px solid #ecc7cc;border-radius:18px;background:#fff}
+.kopfkarte dl{display:grid;grid-template-columns:auto 1fr;gap:2px 14px;margin:8px 0 0;font-size:.95rem}
+.kopfkarte dt{color:var(--muted);font-weight:700}
+.kopfkarte dd{margin:0;font-weight:700}
+.ergebnis{display:grid;justify-items:center;gap:2px;min-width:150px;padding:12px 18px;border-radius:16px;background:var(--pri-l);color:var(--pri-d);text-align:center}
+.ergebnis strong{font-size:1.9rem;line-height:1.1}
+.ergebnis .note{font-size:1.15rem;font-weight:800}
+.druck-leiste{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 18px}
+.k-aufgabe{margin:0 0 14px;padding:16px 18px;border:1.5px solid var(--line);border-radius:16px;background:#fff;break-inside:avoid-page}
+.k-aufgabe.lang{break-inside:auto}
+.k-kopf{display:flex;gap:10px;align-items:baseline;justify-content:space-between;margin-bottom:6px}
+.k-kopf b{font-size:1.02rem}
+.k-punkte{flex:none;padding:3px 12px;border-radius:99px;background:#f1ece9;font-weight:800;font-variant-numeric:tabular-nums}
+.k-punkte.voll{background:var(--ok-l);color:var(--ok)}
+.k-punkte.null{background:var(--bad-l);color:var(--bad)}
+.k-punkte.ohne{background:#eeeae8;color:var(--muted);font-weight:700}
+.k-teil{margin-top:10px}
+.k-teil > span{display:block;margin-bottom:2px;color:var(--pri-d);font-size:.74rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
+.k-teil p{margin:0;white-space:pre-line}
+.k-antwort{padding:9px 12px;border-radius:10px;background:#faf6f3;white-space:pre-wrap;overflow-wrap:anywhere}
+.k-antwort.leer{color:var(--muted);font-style:italic}
+.k-schritt{padding:9px 12px;border-left:4px solid var(--gold);border-radius:0 10px 10px 0;background:#fffaf0}
+.k-liste{margin:0;padding-left:1.2em}
+.k-liste li{margin:3px 0}
+.k-raster{width:100%;border-collapse:collapse;margin-top:4px;font-size:.95rem}
+.k-raster th,.k-raster td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.k-raster td.p,.k-raster th.p{text-align:right;white-space:nowrap;font-weight:800;font-variant-numeric:tabular-nums}
+.k-raster tr.aus td{color:var(--muted)}
+.k-zeilen{display:grid;gap:4px;margin:0;padding:0;list-style:none}
+.k-zeilen li{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) auto;gap:8px;padding:5px 8px;border-radius:8px;background:#faf6f3;font-size:.95rem}
+.k-zeilen li.r{background:var(--ok-l)}
+.k-zeilen li.f{background:var(--bad-l)}
+.k-zeilen li.aus{background:#f1ece9;color:var(--muted)}
+.k-zeilen small{color:var(--muted)}
+.k-lehrer{margin:0 0 14px;padding:14px 18px;border:1.5px solid #f1d9a0;border-radius:16px;background:#fffaf0}
+.unterschrift{display:none}
+.nur-druck{display:none}
+
+/* ---------- Korrektur der Lehrkraft ---------- */
+.l-leiste{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin:14px 0}
+.l-uebersicht{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:.95rem}
+.l-uebersicht th,.l-uebersicht td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left}
+.l-uebersicht th{background:#faf3ef;font-size:.82rem;text-transform:uppercase;letter-spacing:.04em}
+.l-uebersicht tr.an td{background:#fff6dd}
+.l-uebersicht tbody tr{cursor:pointer}
+.l-uebersicht tbody tr:hover td{background:#fbf5ea}
+.stand{display:inline-block;padding:2px 10px;border-radius:99px;font-size:.78rem;font-weight:800;white-space:nowrap}
+.stand.eingegangen{background:#eef1f6;color:#44506a}
+.stand.zu-pruefen{background:#ffe9c2;color:#7a4a00}
+.stand.bestaetigt{background:#e3edfc;color:#1f4e9e}
+.stand.freigegeben{background:var(--ok-l);color:var(--ok)}
+.stand.offen{background:var(--ok-l);color:var(--ok)}
+.stand.zu{background:#eeeae8;color:var(--muted)}
+.l-abgabe{margin-top:18px;padding:18px;border:2px solid #ecc7cc;border-radius:18px;background:#fff}
+.l-kopf{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;justify-content:space-between}
+.l-schalter{display:flex;flex-wrap:wrap;gap:8px 18px;margin:10px 0;padding:10px 12px;border-radius:12px;background:#f6f2ef;font-size:.93rem}
+.l-schalter label{display:inline-flex;gap:6px;align-items:center;font-weight:700}
+.l-aufgabe{margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:14px;background:#fffdfb}
+.l-aufgabe.pruefen{border-color:#f1b955;box-shadow:inset 4px 0 0 #f1b955}
+.l-zwei{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:14px}
+.l-horizont{margin:6px 0 0;padding:0;list-style:none;font-size:.92rem}
+.l-horizont li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:5px 0;border-bottom:1px dashed var(--line)}
+.l-horizont small{display:block;color:var(--muted)}
+.l-horizont input{width:4.4em;min-height:38px;padding:4px 6px;border:1.5px solid #cfc2bd;border-radius:8px;text-align:center;font-weight:800}
+.l-aufgabe textarea{width:100%;min-height:58px;padding:8px 10px;border:1.5px solid #cfc2bd;border-radius:10px;background:#fff;font-size:.95rem;line-height:1.45;resize:vertical}
+.l-aufgabe label.t{display:block;margin-top:8px;color:var(--pri-d);font-size:.74rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
+.l-quelle{color:var(--muted);font-size:.82rem;font-weight:700}
+.l-knoepfe{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.l-ende{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:16px;padding-top:14px;border-top:2px solid var(--line)}
+@media (max-width:820px){.l-zwei{grid-template-columns:1fr}.kopfkarte{grid-template-columns:1fr}.k-zeilen li{grid-template-columns:1fr}}
+
+@media print{
+  @page{size:A4;margin:14mm 14mm 16mm}
+  body{background:#fff;font-size:10.5pt;line-height:1.4}
+  .topbar,.druck-leiste,.kein-druck,.text-knopf,.text-zu{display:none!important}
+  main{max-width:none;padding:0}
+  body{font-size:9.5pt;line-height:1.35}
+  .kopfkarte,.k-aufgabe,.k-lehrer{border:1px solid #999;border-radius:5px;padding:5px 9px;margin-bottom:5px}
+  .k-teil{margin-top:4px}
+  .k-teil > span{font-size:6.5pt;margin-bottom:0}
+  .k-antwort,.k-schritt{padding:3px 8px;border-radius:4px}
+  .k-zeilen{gap:2px}
+  .k-zeilen li{padding:2px 7px;border-radius:4px;font-size:9pt}
+  .k-raster{font-size:9pt;margin-top:0}
+  .k-raster th,.k-raster td{padding:2px 6px}
+  .k-kopf{margin-bottom:2px}
+  .k-punkte{padding:1px 9px}
+  .ergebnis{padding:6px 12px;min-width:110px}
+  .ergebnis strong{font-size:15pt}
+  .kopfkarte dl{margin-top:3px;font-size:9.5pt}
+  #k-aufgaben{margin-top:6px!important}
+  dt.nur-druck,dd.nur-druck{display:block}
+  .ergebnis{background:#fff;border:1.5px solid #333;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .k-antwort,.k-schritt,.k-zeilen li{background:#fff!important;border:1px solid #bbb}
+  .k-punkte{background:#fff!important;border:1px solid #333;color:#000!important}
+  .k-teil > span,.eyebrow{color:#000}
+  h1{font-size:15pt}
+  h2{font-size:12pt}
+  .unterschrift{display:grid;grid-template-columns:1fr 1fr;gap:18mm;margin-top:14mm;font-size:9pt}
+  .unterschrift div{padding-top:2mm;border-top:1px solid #333}
+  .nur-druck{display:block}
+  a{color:#000;text-decoration:none}
+}
+
+/* Probenmodus: Hinweis für das Kind, Protokoll und Einstellung für die Lehrkraft */
+.schutz-hinweis{margin:0 0 12px;padding:8px 12px;border-radius:10px;background:#f1f5f9;color:#334155;font-size:.88rem;font-weight:600}
+.l-ueberwachung{margin:10px 0 0;padding:10px 14px;border:1.5px solid #e5d7b0;border-radius:12px;background:#fffdf6}
+.l-ueberwachung summary{cursor:pointer;font-weight:800}
+.l-ueberwachung h4{margin:10px 0 2px;font-size:.95rem}
+.l-ueberwachung ol,.l-ueberwachung ul{margin:2px 0 6px;padding-left:22px}
+.l-ueberwachung p{margin:4px 0}
+.l-einfuegen{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin-top:10px}
+.l-einfuegen label{font-weight:700}
+.l-einfuegen select{margin-left:6px;padding:4px 8px;border:1.5px solid #cbd5e1;border-radius:8px;font:inherit}
+@media print{.schutz-hinweis,.l-ueberwachung,.l-einfuegen{display:none}}

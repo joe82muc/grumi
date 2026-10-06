@@ -259,6 +259,7 @@
         "<p>" + esc(s.name) + " · Klasse " + esc(s.klasse) + "</p></div>" +
         '<button class="kb-abmelden" type="button">Abmelden</button></div>' +
         '<div id="kb-proben" hidden></div>' +
+        '<div id="kb-korrektur" hidden></div>' +
         '<h3 class="kb-abschnitt">Deine Klasse</h3>' +
         '<div class="kb-kacheln">' +
         '<a class="kb-kachel kb-gross kb-heft" href="hausaufgaben.html"><span class="kb-emoji" aria-hidden="true">📚</span><b>Hausaufgabenheft</b><small id="kb-heft-info">Was ist auf?</small></a>' +
@@ -279,6 +280,7 @@
       });
       heftInfo(s);
       proben(s);
+      korrekturen(s);
       // Alle 45 Sekunden nachsehen, ob eine Probe freigeschaltet wurde – höchstens eine halbe Stunde lang,
       // damit ein vergessener Tab den Server nicht dauerhaft wach hält
       var runden = 0;
@@ -321,10 +323,25 @@
       });
     }
 
-    // Kommt das Kind zum Tab zurück, gleich nach offenen Proben sehen
+    // Deutsch 7: Hat die Lehrkraft eine korrigierte Probe zurückgegeben, die das Kind noch nicht geöffnet hat?
+    function korrekturen(s) {
+      var box = doc.getElementById("kb-korrektur");
+      if (!box || parseInt(s.zug, 10) !== 7 || !s.code) return;
+      fetch(API + "/api/d7/proben/meine", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: s.code }) })
+        .then(function (r) { return r.ok ? r.json() : { abgaben: [] }; }).then(function (d) {
+          if (!doc.body.contains(box)) return;
+          var neu = (d.abgaben || []).filter(function (a) { return a.status === "korrigiert" && a.neu; });
+          box.hidden = !neu.length;
+          box.innerHTML = neu.length ? '<h3 class="kb-abschnitt">📄 Zurückbekommen</h3><div class="kb-kacheln">' + neu.map(function (a) {
+            return '<a class="kb-kachel kb-gross kb-probe" href="7M/Deutsch/korrektur.html?test=' + encodeURIComponent(a.testId) + '"><span class="kb-emoji" aria-hidden="true">📄</span><b>Deutsch – Probe ' + esc(String(a.nr)) + " korrigiert</b><small>NEUE KORREKTUR · Korrektur öffnen</small></a>";
+          }).join("") + "</div>" : "";
+        }).catch(function () {});
+    }
+
+    // Kommt das Kind zum Tab zurück, gleich nach offenen Proben und neuen Korrekturen sehen
     doc.addEventListener("visibilitychange", function () {
       var s = doc.visibilityState === "visible" && doc.getElementById("kb-proben") ? sitzung() : null;
-      if (s) proben(s);
+      if (s) { proben(s); korrekturen(s); }
     });
 
     zeichnen();

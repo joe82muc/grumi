@@ -112,7 +112,7 @@ function lernstand(){
     zaehler[teil] = (zaehler[teil] || 0) + 1;
     return {id, teil, kurz: String(zaehler[teil]), text: kat[id][0], label: kat[id][0], el: (meta[id] || {}).el || null};
   });
-  const los = () => window.Lernstand.seite({kurs: "d7", modul: "d7-" + name, bereich: "Argumentieren und diskutieren", bnr: 1,
+  const los = () => window.Lernstand.seite({kurs: "d7", modul: "d7-" + name, bereich: "Argumentieren und diskutieren", bnr: 3,
     nr: info[0], kurz: "Modul " + info[0], titel: info[1], aufgaben, anker: $("section.station"), mehrGeloest: ids => mehrGeloest(ids), dialog: false});
   if (window.Lernstand) { los(); return; }
   const s = document.createElement("script");

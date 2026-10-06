@@ -3,7 +3,7 @@
  * Zeitformen bis Futur II, Aktiv und Passiv, Konjunktiv I (M: auch II), Satzglieder und Kausaladverbiale,
  * Satzreihe und Satzgefüge, Subjekt- und Objektsatz (Gliedsätze). Plus = M-Zug, für R-Klassen freiwillig. */
 Grammatik.vorgaben({
-  kurs: "d7", bereich: "Grammatik", bnr: 2, prefix: "d7-gr-", fach: "Deutsch 7", kurzPrefix: "G",
+  kurs: "d7", bereich: "Grammatik und Sprache", bnr: 5, prefix: "d7-gr-", fach: "Deutsch 7", kurzPrefix: "G",
   // Freischaltung durch die Lehrkraft je Klasse: Liste der Module in ../themen.js (window.D7)
   liste: { name: "D7", src: "../themen.js" },
   fachHref: "../index.html", indexHref: "../index.html#grammatik", indexName: "Alle Grammatik-Themen",

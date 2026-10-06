@@ -7,6 +7,10 @@
  * - Lernfortschritt: je Modul, je Themenbereich und gesamt. Gezählt wird, was auf diesem Gerät gespeichert ist, und
  *   mit Code zusätzlich, was der Server vom Kind kennt (so stimmt der Stand auch auf einem anderen Gerät).
  *   Plus-Aufgaben in Grammatik und Rechtschreibung zählen für R-Klassen nicht mit (freiwillig).
+ * - Proben: je Themenbereich (themen.js: proben). Welche es gibt und ob sie offen sind, sagt der Server
+ *   (/api/d7/proben/list); Variante B (Nachschreiber) steht dort erst, wenn die Lehrkraft sie freischaltet.
+ *   Mit Code zeigt die Seite die eigenen Abgaben: „abgegeben“ oder – nach der Freigabe durch die Lehrkraft –
+ *   „NEUE KORREKTUR“ mit dem Knopf „Korrektur öffnen“ (korrektur.html).
  * - Extra-Module (themen.js: extra = Kennung ihres Moduls, z. B. „Zeitformen wiederholen“ zu Modul 2 der Grammatik):
  *   Sie stehen als Kasten unter ihrem Modul, sobald die Lehrkraft mindestens eines freigeschaltet hat, und zählen
  *   nicht zum Lernfortschritt.
@@ -20,6 +24,9 @@
   const VORSCHAU = D7.VORSCHAU ? "?vorschau=1" : "";
 
   let STAND = null, HINWEIS = "", SERVER = null, trainerStufen = null, gesprungen = false;
+  // Proben: Liste des Servers (null = noch keine Antwort) und die eigenen Abgaben des angemeldeten Kindes
+  let PROBEN = null, MEINE = null;
+  const datum = iso => { const d = new Date(iso); return isNaN(d) ? "" : d.toLocaleDateString("de-DE", {day: "2-digit", month: "2-digit"}); };
   // Lehrercode (Klasse „Lehrkraft“): Der Server meldet für die Freischaltung „alles“ (themen.js)
   const LEHRER_TEXT = "Du bist mit dem Lehrercode angemeldet: Alle Module sind offen – auch die Extra-Module und alles, was für die Klassen noch gesperrt ist. Dein Lernstand wird nicht gemeldet.";
 
@@ -101,6 +108,35 @@
       }).join("")}</div></div>`;
   }
 
+  // Proben eines Themenbereichs für den Zug des Kindes (ohne Anmeldung: neutral, ohne Zug)
+  function probenKacheln(thema, a) {
+    const zug = D7.zug(a);
+    return (thema.proben || []).map(nr => {
+      const da = PROBEN ? PROBEN.filter(t => t.nr === nr && (!zug || t.zug === zug)) : null;
+      const name = da && da.length ? da[0].title.replace(/ – Variante B$/, "").replace(/ \((R7|M7)\)/, "") : "Probe " + nr;
+      if (da && !da.length) return `<p class="probe-plan">📝 Probe ${nr} zu diesem Bereich ist in Vorbereitung.</p>`;
+      const meine = (MEINE || []).find(m => m.nr === nr);
+      if (meine && meine.status === "korrigiert") {
+        return `<a class="probe korrigiert${meine.neu ? " neu" : ""}" data-probe="${nr}" href="korrektur.html?test=${encodeURIComponent(meine.testId)}"><span>📄</span><div><strong>Deutsch – Probe ${nr} korrigiert</strong>
+          <span class="probe-marke">${meine.neu ? "NEUE KORREKTUR" : "korrigiert zurück am " + datum(meine.freigegebenAm)}</span><br>${esc(meine.title)} · Du kannst die Korrektur ansehen und ausdrucken.</div><span class="mod-go">Korrektur öffnen →</span></a>`;
+      }
+      if (meine) {
+        return `<div class="probe abgegeben" data-probe="${nr}"><span>✅</span><div><strong>${esc(meine.title)}: abgegeben am ${datum(meine.abgegebenAm)}</strong><br>Deine Lehrkraft prüft die Korrektur. Danach findest du sie hier.</div></div>`;
+      }
+      const offen = (da || []).filter(t => t.unlocked);
+      const ziel = offen.length === 1 ? "probe.html?test=" + encodeURIComponent(offen[0].id) + "&zug=" + offen[0].zug : "probe.html?nr=" + nr + (zug ? "&zug=" + zug : "");
+      return `<a class="probe${offen.length ? " offen" : ""}" data-probe="${nr}" href="${ziel}"><span>📝</span><div><strong>${offen.length ? "Jetzt offen: " + esc(offen.map(t => t.title).join(" · ")) : esc(name)}</strong><br>${
+        offen.length ? "Deine Lehrkraft hat die Probe freigeschaltet." : "Die Lehrkraft schaltet die Probe frei. Dann kannst du sie hier schreiben."}</div><span class="mod-go">Öffnen →</span></a>`;
+    }).join("");
+  }
+  // Oben auf der Seite: neue Korrekturen, damit sie niemand übersieht
+  function neueKorrekturen() {
+    const neu = (MEINE || []).filter(m => m.status === "korrigiert" && m.neu);
+    return neu.map(m => `<a class="probe korrigiert neu oben" href="korrektur.html?test=${encodeURIComponent(m.testId)}"><span>📄</span><div><strong>Deutsch – Probe ${m.nr} korrigiert</strong>
+      <span class="probe-marke">NEUE KORREKTUR</span><br>${esc(m.title)}</div><span class="mod-go">Korrektur öffnen →</span></a>`).join("") +
+      ((MEINE || []).length ? `<p class="meine-proben"><a href="korrektur.html">📂 Meine Proben (${MEINE.length})</a></p>` : "");
+  }
+
   // Fortschritt eines Themenbereichs: nur Module, die für die Klasse offen sind (Extra-Module zählen nicht mit)
   function themaStand(thema, a) {
     const offen = haupt(thema).filter(m => D7.offen(m, thema, STAND));
@@ -129,15 +165,18 @@
         : `<a href="#${t.id}" class="zu"><span>${t.icon} ${esc(t.kurz)}</span><span class="bar"></span><b>🔒</b></a>`).join("")}</div>
       ${D7.VORSCHAU ? '<p class="hinweis vorschau">👁 Vorschau für Lehrkräfte: Hier sind alle Module sichtbar. Was eine Klasse sieht, stellst du in der Verwaltung ein (Klasse → Deutsch).</p>' : ""}
       ${HINWEIS ? `<p class="hinweis">${esc(HINWEIS)}</p>` : ""}${leer ? `<p class="hinweis">${esc(leer)}</p>` : ""}
+      ${neueKorrekturen()}
     </section>
     ${THEMEN.map((t, i) => {
       const s = staende[i];
-      const status = s.offen ? `<span class="ok">${s.fertig} von ${s.offen} Modulen abgeschlossen</span>` : '<span class="zu">🔒 noch nicht freigeschaltet</span>';
+      const status = s.offen ? `<span class="ok">${s.fertig} von ${s.offen} Modulen abgeschlossen</span>`
+        : haupt(t).length ? '<span class="zu">🔒 noch nicht freigeschaltet</span>' : '<span class="zu">Module in Vorbereitung</span>';
       return `<section class="thema${s.offen ? "" : " gesperrt"}" id="${t.id}" aria-labelledby="t${i + 1}">
       <div class="thema-head"><span class="thema-icon" aria-hidden="true">${t.icon}</span>
         <div><div class="eyebrow">Themenbereich ${t.nr}</div><h2 id="t${i + 1}">${esc(t.titel)}</h2><p>${esc(t.text)}</p>
         <div class="mod-status thema-status">${status}</div></div></div>
       <div class="${t.id === "rechtschreibung" ? "karten" : "mods"}">${haupt(t).map((m, k) => modulKarte(m, k, t, a) + extraKasten(m, t, a)).join("")}</div>
+      <div class="proben">${probenKacheln(t, a)}</div>
     </section>`; }).join("")}`;
 
     // Link von außen auf einen Themenbereich (…#grammatik): Die Abschnitte entstehen erst hier
@@ -175,12 +214,17 @@
   // Stand der Freischaltung holen (erst vom Gerät, dann vom Server), dazu den Lernstand des Kindes vom Server
   function laden() {
     const a = Modul.codeSitzung();
-    STAND = null; HINWEIS = ""; SERVER = null;
+    STAND = null; HINWEIS = ""; SERVER = null; MEINE = null;
     zeichnen();
+    // Welche Proben gibt es, welche sind offen? (öffentliche Liste, ohne Anmeldung)
+    fetch(D7.API + "/api/d7/proben/list").then(r => r.json()).then(d => { if (d && d.ok) { PROBEN = d.tests || []; zeichnen(); } }).catch(() => {});
     D7.freigabe(a, stand => { STAND = stand; HINWEIS = ""; zeichnen(); }, text => { if (text) { HINWEIS = text; zeichnen(); } });
     if (!a) return;
     fetch(D7.API + "/api/nt9/fortschritt/anmelden", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({code: a.code})})
       .then(r => r.json()).then(d => { if (d && d.ok && d.fortschritt) { SERVER = d.fortschritt; zeichnen(); } }).catch(() => {});
+    // Eigene Proben: abgegeben oder korrigiert zurück (mit dem Lehrercode gibt es keine)
+    fetch(D7.API + "/api/d7/proben/meine", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({code: a.code})})
+      .then(r => r.json()).then(d => { if (d && d.ok) { MEINE = d.abgaben || []; zeichnen(); } }).catch(() => {});
   }
 
   document.addEventListener("de7-login", start);

@@ -1,0 +1,15 @@
+D7Texte.add({
+  id: "erz-linie-m", titel: "Die falsche Linie", textsorte: "Erzählung", zug: "M7",
+  modul: "Erzählen und kreativ schreiben", unterthema: "Aufbau: Einleitung, Hauptteil, Schluss", woerter: 415, schwierigkeit: "mittel",
+  lehrplan: "D7 3.2, 2.2", thema: "In den falschen Bus gestiegen", quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text",
+  erstellung: "eigener Text für GRUMI (Mustererzählung)", zeilennummern: true, probe: false,
+  absaetze: [
+    "An einem Donnerstag im November wollte ich nach dem Training nur noch eines: nach Hause, unter die warme Dusche. Es war längst dunkel, und an der Haltestelle am Sportplatz pfiff der Wind durch das Wartehäuschen. Ich zog die Kapuze tief ins Gesicht und scrollte durch die Nachrichten auf meinem Handy.",
+    "Als der Bus endlich hielt, stieg ich ein, ohne den Blick zu heben. Ich ließ mich in die letzte Reihe fallen, steckte die Kopfhörer in die Ohren und drehte die Musik auf. Draußen glitten Schaufenster und Ampeln vorbei, doch ich achtete nicht darauf.",
+    "Erst nach vier oder fünf Liedern sah ich zufällig aus dem Fenster – und stutzte. Diese Häuser hatte ich noch nie gesehen. Wo war die Bäckerei an der Ecke? Wo die Tankstelle mit dem blauen Schild? Mir wurde heiß unter der Jacke. Langsam hob ich den Kopf zur Anzeige über dem Fahrer. Dort leuchtete eine Liniennummer, die ich nicht kannte. Ich saß im falschen Bus!",
+    "Mit fliegenden Fingern tippte ich die Nummer meiner Mutter. Der Akku zeigte ein einziges Prozent. Noch bevor es klingelte, wurde der Bildschirm schwarz. Ich drückte den Knopf an der Seite, einmal, zweimal – nichts. Mein Herz hämmerte, als wollte es aus der Brust springen. Inzwischen hatten wir die Stadt hinter uns gelassen. An jeder Haltestelle stiegen ein paar Leute aus, aber niemand mehr ein. Schließlich war ich der einzige Fahrgast. Sollte ich einfach irgendwo aussteigen? Aber wo war ich überhaupt?",
+    "„Endstation, bitte alle aussteigen!“ Die Stimme des Fahrers ließ mich zusammenzucken. Mit weichen Knien ging ich nach vorne. Hinter der Scheibe lag ein unbeleuchteter Parkplatz, dahinter nur schwarzes Feld. „Ich … ich bin falsch eingestiegen“, stammelte ich und merkte, wie mir die Tränen in die Augen schossen. Der Fahrer drehte sich langsam um. Er hatte einen grauen Bart und musterte mich so lange, dass ich am liebsten im Boden versunken wäre. Dann zogen sich seine Mundwinkel nach oben. „Das passiert jede Woche einem“, sagte er ruhig. „Wo musst du denn hin?“",
+    "Ich nannte ihm unsere Straße. „Dann bleib sitzen“, brummte er, „in zehn Minuten fahre ich zurück. Am Rathaus steigst du um, ich sage dir Bescheid.“ Er reichte mir sogar sein eigenes Handy, damit ich zu Hause anrufen konnte. Als ich die Stimme meiner Mutter hörte, fiel mir ein Stein vom Herzen.",
+    "Eine gute Stunde später stand ich endlich vor unserer Haustür. Meine Mutter sagte kein Wort, sie drückte mich nur fest an sich. Seit diesem Abend schaue ich immer zuerst auf die Anzeige – und erst dann auf mein Handy."
+  ]
+});

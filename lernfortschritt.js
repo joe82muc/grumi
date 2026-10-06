@@ -369,10 +369,12 @@
       if (global.AbgabenVerwaltung) global.AbgabenVerwaltung.zeige($("vw-i8-abgaben"), { api: API, pw: PW, klasse: KLASSE, pfad: "/api/inf8", liste: global.INF8, name: nameVon });
       fachLaden($("vw-fach"));
     } else if (ANSICHT === "d7" && global.NT7Verwaltung && global.D7) {
-      // Deutsch 7: über dem Lernstand steht das Freischalten der Themenbereiche und Module (gleiche Ansicht wie NT 7)
-      teil.innerHTML = '<div id="vw-d7-frei"></div><div id="vw-fach"></div>';
+      // Deutsch 7: über dem Lernstand steht das Freischalten der Themenbereiche und Module (gleiche Ansicht wie NT 7),
+      // darunter der Weg zur Korrektur der Proben und die Schülertexte aus dem Schreibtrainer (texte-verwaltung.js)
+      teil.innerHTML = '<div id="vw-d7-frei"></div><div id="vw-d7-texte"></div><div id="vw-fach"></div>';
       global.NT7Verwaltung.freigabe($("vw-d7-frei"), { api: API, pw: PW, klasse: KLASSE, liste: global.D7, pfad: "/api/d7", ordner: "7M/Deutsch/",
-        worte: { titel: "Themenbereiche und Module", das: "das Modul", neu: "Alle Module", von: "Modulen", plan: "Module in Vorbereitung", ohneProben: true } });
+        worte: { titel: "Themenbereiche und Module", das: "das Modul", neu: "Alle Module", von: "Modulen", plan: "Module in Vorbereitung" } });
+      if (global.TexteVerwaltung) global.TexteVerwaltung.zeige($("vw-d7-texte"), { api: API, pw: PW, klasse: KLASSE, liste: global.D7, name: nameVon });
       fachLaden($("vw-fach"));
     } else {
       fachLaden(teil);
