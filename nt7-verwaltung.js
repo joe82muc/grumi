@@ -2,7 +2,8 @@
  * Themenbereiche und Module von NT 7 für diese Klasse freischalten oder sperren.
  * Aufruf aus lernfortschritt.js:  NT7Verwaltung.freigabe(el, { api, pw, klasse })
  * Themen und Module: 7M/NT/themen.js (window.NT7). Server: /api/nt7/lehrer/freigabe (englisch_9, nt7-freigabe.js).
- * Proben werden weiter im Reiter „Proben“ freigeschaltet.
+ * Die Proben des Fachs stehen unter den Modulen, die sie enthalten (js/proben-module.js: liste, probeModule in themen.js),
+ * und lassen sich dort freischalten – wie im Reiter „Proben“. Eine Probe gilt für alle Klassen ihres Zugs.
  *
  * Auch für Informatik 7 (Module und Einheiten, 7M/Informatik/themen.js, Server /api/inf7):
  *   NT7Verwaltung.freigabe(el, { api, pw, klasse, liste: window.INF7, pfad: "/api/inf7", ordner: "7M/Informatik/",
@@ -33,11 +34,14 @@
     ".nt7f-extra-kopf{padding:.45rem .9rem .35rem 1.7rem;border-top:1px solid var(--line);background:#fffaf2;font-size:.86rem;color:#6b4e16}" +
     ".nt7f-extra-kopf b{display:block}" +
     ".nt7f-zeile a{font-size:.82rem;font-weight:800;color:var(--accent);white-space:nowrap}" +
+    ".nt7f-probe{display:grid;grid-template-columns:3.1rem 1fr auto auto;gap:.5rem .8rem;align-items:center;padding:.55rem .9rem;border-top:1px solid var(--line);background:#f4f7ff}" +
+    ".nt7f-probe .nr{font-size:1.05rem}.nt7f-probe a{font-size:.82rem;font-weight:800;color:var(--accent);white-space:nowrap}" +
+    ".nt7f-probe small{display:block;color:var(--muted);font-weight:700;font-size:.78rem;line-height:1.4}" +
     ".nt7f-schalter{border:1.5px solid var(--line);border-radius:999px;padding:.32rem .8rem;font:800 .82rem inherit;font-family:inherit;cursor:pointer;background:#eef1f5;color:#4b5563;min-width:7.4rem}" +
     ".nt7f-schalter.offen{background:#e9f8ee;border-color:#9bd3ae;color:#15803d}" +
     ".nt7f-schalter[disabled]{opacity:.6;cursor:wait}" +
     ".nt7f-plan{font-size:.78rem;font-weight:800;color:var(--muted);white-space:nowrap}" +
-    "@media(max-width:640px){.nt7f-zeile{grid-template-columns:2.9rem 1fr auto}.nt7f-zeile a{grid-column:2}}";
+    "@media(max-width:640px){.nt7f-zeile,.nt7f-probe{grid-template-columns:2.9rem 1fr auto}.nt7f-zeile a,.nt7f-probe a{grid-column:2}}";
 
   function stil() {
     if (doc.getElementById("nt7f-stil")) return;
@@ -77,10 +81,39 @@
     function nr(m, ersatz) {
       return m.kz ? '<span class="nr kz" title="Festes Kürzel dieses Moduls – nur in der Verwaltung zu sehen">' + esc(m.kz) + "</span>" : '<span class="nr">' + ersatz + "</span>";
     }
+    // Proben des Fachs für den Zug dieser Klasse: [{ mod, id, titel, offen, aufgaben, punkte, klasse, link }]
+    var G = global.GrumiProbenModule, PROBEN = [];
+    var STUFE = parseInt(ctx.klasse, 10) || 0, ZUG = /M$/.test(ctx.klasse) ? "M" : "R";
+    function listeVon(mod, t) { var n = typeof mod.liste === "function" ? mod.liste(t) : mod.liste; return n ? global[n] : null; }
+    function probenLaden() {
+      var mods = G && N.probeModule ? G.MODULES.filter(function (m) {
+        return m.liste && m.listPath && m.unlockPath && (!m.stufen || m.stufen.indexOf(STUFE) >= 0) && (typeof m.liste === "function" || global[m.liste] === N);
+      }) : [];
+      return Promise.all(mods.map(function (mod) {
+        return fetch(ctx.api + mod.listPath).then(function (r) { return r.ok ? r.json() : { tests: [] }; }).then(function (d) {
+          return (d.tests || []).filter(function (t) { var k = mod.klasse(t); return listeVon(mod, t) === N && (k === String(STUFE) || k === STUFE + ZUG); })
+            .map(function (t) { return { mod: mod, id: t.id, titel: t.title || t.id, offen: !!t.unlocked, aufgaben: t.itemCount, punkte: t.maxPoints, klasse: mod.klasse(t), link: mod.link ? mod.link(t) : "" }; });
+        }).catch(function () { return []; });
+      })).then(function (teile) { PROBEN = [].concat.apply([], teile); });
+    }
+    function fuerWen(p) { return /\d$/.test(p.klasse) ? "für alle " + p.klasse + ". Klassen" : "für alle " + p.klasse + "-Klassen"; }
+    // Zeilen der Proben, die Module dieses Themenbereichs enthalten – sie stehen unter den Modulen
+    function probenZeilen(t) {
+      return PROBEN.filter(function (p) { return N.probeModule(p.id).some(function (m) { return t.module.indexOf(m) >= 0; }); }).map(function (p) {
+        var teile = [], inhalt = N.probeModule(p.id).map(function (m) { return m.kz; }).join(" ");
+        if (p.aufgaben) teile.push(p.aufgaben + " Aufgaben");
+        if (p.punkte) teile.push(p.punkte + " Punkte");
+        if (inhalt) teile.push("enthält " + inhalt);
+        teile.push("gilt " + fuerWen(p));
+        return '<div class="nt7f-probe"><span class="nr" aria-hidden="true">📝</span><span><b>' + esc(p.titel) + "</b><small>" + esc(teile.join(" · ")) + "</small></span>" +
+          '<button class="nt7f-schalter' + (p.offen ? " offen" : "") + '" type="button" data-probe="' + esc(p.id) + '" data-offen="' + (p.offen ? "0" : "1") + '" aria-pressed="' + p.offen + '">' + (p.offen ? "✓ offen" : "🔒 gesperrt") + "</button>" +
+          (p.link ? '<a href="' + esc(p.link) + '">Ergebnisse →</a>' : "<span></span>") + "</div>";
+      }).join("");
+    }
     function zeichnen(meldung) {
       var h = '<summary>🔓 ' + esc(W.titel) + ' freischalten <small>für Klasse ' + esc(ctx.klasse) + "</small></summary>" +
         '<p class="sub" style="margin:0 0 .2rem">Offen heißt: Die Kinder der ' + esc(ctx.klasse) + " sehen " + esc(W.das) + " nach der Anmeldung mit ihrem Code in ihrer Übersicht. " +
-        esc(W.neu) + " sind zuerst gesperrt, damit du sie vorher ansehen kannst („Vorschau“)." + (W.ohneProben ? "" : " Proben schaltest du im Reiter „Proben“ frei.") +
+        esc(W.neu) + " sind zuerst gesperrt, damit du sie vorher ansehen kannst („Vorschau“)." + (W.ohneProben ? "" : " Die Proben (📝) stehen unter den Modulen, die sie enthalten – eine Probe gilt immer für alle Klassen ihres Zugs.") +
         " Das Kürzel vorn (z. B. " + esc(beispielKz()) + ") ist der feste Name des Moduls: Die Kinder sehen es nicht, bei jeder Probe steht damit, welche Module sie enthält.</p>" +
         '<div id="nt7f-msg">' + (meldung ? '<div class="note ' + meldung[1] + '" style="margin:.5rem 0 0">' + esc(meldung[0]) + "</div>" : "") + "</div>";
       N.THEMEN.forEach(function (t) {
@@ -110,7 +143,7 @@
               '<a href="' + esc(ORDNER) + esc(x.href) + '?vorschau=1" target="_blank" rel="noopener">Vorschau ↗</a></div>';
           });
         });
-        h += "</div>";
+        h += probenZeilen(t) + "</div>";
       });
       var d = el.querySelector("details");
       d.innerHTML = h;
@@ -118,6 +151,18 @@
       d.addEventListener("toggle", function () { offenGeklappt = d.open; });
       Array.prototype.forEach.call(d.querySelectorAll("[data-modul]"), function (b) {
         b.addEventListener("click", function () { setzen(b, { art: "modul", id: b.getAttribute("data-modul"), offen: b.getAttribute("data-offen") === "1" }); });
+      });
+      Array.prototype.forEach.call(d.querySelectorAll("[data-probe]"), function (b) {
+        b.addEventListener("click", function () {
+          var p = PROBEN.filter(function (x) { return x.id === b.getAttribute("data-probe"); })[0], auf = b.getAttribute("data-offen") === "1";
+          if (!p) return;
+          b.disabled = true;
+          fetch(ctx.api + p.mod.unlockPath, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: ctx.pw, testId: p.id, open: auf }) })
+            .then(function (r) { return r.json().catch(function () { return {}; }).then(function (x) { if (!r.ok || !x.ok) throw new Error(x.error || "HTTP " + r.status); }); })
+            .then(probenLaden)
+            .then(function () { zeichnen(["„" + p.titel + "“ ist jetzt " + (auf ? "freigeschaltet – " + fuerWen(p) + ". Den Link für die Kinder findest du im Reiter „Proben“." : "gesperrt."), "ok"]); })
+            .catch(function (x) { b.disabled = false; zeichnen(["Die Probe ließ sich nicht umschalten: " + x.message, "bad"]); });
+        });
       });
       Array.prototype.forEach.call(d.querySelectorAll("[data-thema]"), function (b) {
         b.addEventListener("click", function () {
@@ -140,7 +185,8 @@
       }).catch(function (x) { knopf.disabled = false; zeichnen(["Das Freischalten hat nicht geklappt: " + x.message, "bad"]); });
     }
 
-    post(ctx, "", {}).then(function (d) {
+    Promise.all([post(ctx, "", {}), probenLaden()]).then(function (teile) {
+      var d = teile[0];
       STAND = { themen: d.themen || {}, module: d.module || {} };
       zeichnen();
     }).catch(function (x) {

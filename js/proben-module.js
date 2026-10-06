@@ -7,8 +7,9 @@
  *   klasse     "7" = alle 7. Klassen, "7M"/"7R" = nur dieser Zug
  *   stufen     Jahrgangsstufen, in denen das Modul Proben haben kann (die Startseite fragt nur diese ab)
  *   link       Lehrerseite (Ergebnisse), schueler = Seite für die Kinder
- *   liste      Name der Modulliste des Fachs (window.NT7, INF7, INF8, D7 aus den themen.js): Die Verwaltung zeigt
- *              damit bei jeder Probe, welche Module sie enthält (feste Kürzel wie „L3“, nur dort zu sehen)
+ *   liste      Name der Modulliste des Fachs (window.NT7, INF7, INF8, D7 aus den themen.js) oder Funktion, die ihn
+ *              für eine Probe liefert: Die Verwaltung zeigt damit bei jeder Probe, welche Module sie enthält (feste
+ *              Kürzel wie „L3“, nur dort zu sehen), und stellt die Probe beim Freischalten unter diese Module
  *   inhalt     dasselbe für Proben ohne Modulliste: Funktion, die [{ kz, titel }] liefert
  * Neue Probenart: hier eintragen – dann steht sie in der Verwaltung und auf der Startseite der Kinder.
  */
@@ -125,7 +126,7 @@
   function probeInhalt(mod, test) {
     if (!mod) return [];
     if (mod.inhalt) return mod.inhalt(test) || [];
-    var L = mod.liste && global[mod.liste];
+    var L = mod.liste && global[typeof mod.liste === "function" ? mod.liste(test) : mod.liste];
     return L && L.probeModule ? L.probeModule(test.id).map(function (m) { return { kz: m.kz || "", titel: m.titel }; }) : [];
   }
 
