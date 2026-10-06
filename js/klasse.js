@@ -294,9 +294,10 @@
       post("/api/klasse/heft", { code: s.code }).then(function (d) {
         var info = doc.getElementById("kb-heft-info");
         if (!info || !d.ok) return;
-        var heute = d.heute, bis = tagPlus(heute, 7);
-        var n = d.eintraege.filter(function (e) { return e.faellig >= heute && e.faellig <= bis; }).length;
-        var h = d.eintraege.filter(function (e) { return e.faellig === heute; }).length;
+        // mitgezählt wird auch, was das Kind sich selbst eingetragen hat (d.eigene)
+        var heute = d.heute, bis = tagPlus(heute, 7), liste = d.eintraege.concat(d.eigene || []);
+        var n = liste.filter(function (e) { return e.faellig >= heute && e.faellig <= bis; }).length;
+        var h = liste.filter(function (e) { return e.faellig === heute; }).length;
         info.textContent = !n ? "Gerade ist nichts eingetragen 🎉" : (h ? h + " für heute · " : "") + n + (n === 1 ? " Eintrag" : " Einträge") + " diese Woche";
       }).catch(function () {});
     }
@@ -389,11 +390,22 @@
   /* ============================================================
      Hausaufgabenheft
      ============================================================ */
+  // Fächer zur Auswahl beim eigenen Eintrag (dieselben wie im Formular der Lehrkraft, klasse-verwaltung.js)
+  var EIGEN_FAECHER = ["Deutsch", "Mathematik", "Englisch", "Natur und Technik", "GPG", "Wirtschaft und Beruf", "Informatik", "Ethik", "Religion", "Sport", "Musik", "Kunst", "Werken", "Soziales", "Technik", "Sonstiges"];
+  var EIGEN_ARTEN = [["aufgabe", "✏️ Hausaufgabe"], ["probe", "📝 Probe"], ["termin", "📅 Termin"]];
+
   function heft(el) {
     if (!el) return;
     var ansicht = "woche", daten = null, S = null;
+    // Eigener Eintrag: Das Kind schreibt sich selbst etwas ins Heft. Nur es selbst sieht den Eintrag (er hängt an
+    // seinem Code); der Server löscht ihn nach 14 Tagen. „form“ merkt sich das Getippte, solange neu gezeichnet wird.
+    var form = { offen: false, fach: "", typ: "aufgabe", text: "", faellig: "", fehler: "", sendet: false }, meldung = "";
     function erledigtKey() { return "grumi-heft-erledigt~" + S.kennung + "~"; }
     function erledigt() { return liesJson(erledigtKey()) || {}; }
+    function eigenTage() { return (daten && daten.eigenTage) || 14; }
+    function alle() {
+      return daten.eintraege.concat(daten.eigene).sort(function (a, b) { return a.faellig < b.faellig ? -1 : a.faellig > b.faellig ? 1 : 0; });
+    }
 
     function laden() {
       el.innerHTML = '<div class="kb-karte kb-lade">Dein Heft wird aufgeschlagen …</div>';
@@ -403,9 +415,12 @@
         if (abgemeldet(el, d)) return;
         if (!d.ok) throw new Error(d.error || "Fehler");
         daten = d;
+        // kann: Der Server kennt eigene Einträge (sonst gibt es den Knopf dafür nicht)
+        daten.kann = Array.isArray(d.eigene);
+        daten.eigene = d.eigene || [];
         // Häkchen für Einträge, die es nicht mehr gibt, aufräumen
         var da = {}, alt = erledigt(), neu = {};
-        d.eintraege.forEach(function (e) { da[e.id] = 1; });
+        alle().forEach(function (e) { da[e.id] = 1; });
         Object.keys(alt).forEach(function (id) { if (da[id]) neu[id] = 1; });
         schreib(erledigtKey(), JSON.stringify(neu));
         var unter = doc.getElementById("kb-held-text");
@@ -419,35 +434,110 @@
 
     function gruppen() {
       var heute = daten.heute, bis = tagPlus(heute, 7);
-      var alle = daten.eintraege.filter(function (e) { return e.faellig >= heute; });
+      var kommend = alle().filter(function (e) { return e.faellig >= heute; });
       return {
-        heute: alle.filter(function (e) { return e.faellig === heute; }),
-        woche: alle.filter(function (e) { return e.faellig <= bis; }),
-        termine: alle.filter(function (e) { return e.typ !== "aufgabe"; })
+        heute: kommend.filter(function (e) { return e.faellig === heute; }),
+        woche: kommend.filter(function (e) { return e.faellig <= bis; }),
+        termine: kommend.filter(function (e) { return e.typ !== "aufgabe"; }),
+        // alles, was das Kind selbst geschrieben hat – auch was erst nach dieser Woche fällig ist
+        eigene: kommend.filter(function (e) { return e.eigen; })
       };
     }
 
     function karte(e, mitTag) {
       var i = fachInfo(e.fach), fertig = erledigt()[e.id];
       var marke = e.typ === "probe" ? '<span class="kb-marke kb-probe-m">📝 Probe</span>' : e.typ === "termin" ? '<span class="kb-marke kb-termin-m">📅 Termin</span>' : '<span class="kb-marke">✏️ Hausaufgabe</span>';
-      return '<article class="kb-eintrag kb-fach-' + i.art + (fertig ? " kb-erledigt" : "") + '" data-id="' + esc(e.id) + '">' +
+      return '<article class="kb-eintrag kb-fach-' + i.art + (fertig ? " kb-erledigt" : "") + (e.eigen ? " kb-eigen" : "") + '" data-id="' + esc(e.id) + '">' +
         '<div class="kb-fach-bild" aria-hidden="true">' + i.bild + "</div>" +
         "<div><h3>" + esc(e.fach) + "</h3><p>" + esc(e.text) + "</p>" +
         (mitTag ? '<div class="kb-wann">' + (e.typ === "aufgabe" ? "Fällig: " : "Am: ") + esc(wannText(e.faellig, daten.heute)) + "</div>" : "") +
         (e.link ? '<a class="kb-link" href="' + esc(e.link) + '" target="_blank" rel="noopener">Material öffnen ↗</a>' : "") +
         (e.typ === "aufgabe" ? '<label class="kb-haken"><input type="checkbox"' + (fertig ? " checked" : "") + "> Erledigt</label>" : "") +
-        '</div><div class="kb-rechts">' + marke + "</div></article>";
+        (e.eigen ? '<div class="kb-eigen-info">Nur du siehst diesen Eintrag. Er wird am ' + esc(tagKurz(e.bis)) + ' von selbst gelöscht. <button type="button" class="kb-eigen-weg" data-weg="' + esc(e.id) + '">Löschen</button></div>' : "") +
+        '</div><div class="kb-rechts">' + marke + (e.eigen ? '<span class="kb-marke kb-eigen-m">✍️ Von dir</span>' : "") + "</div></article>";
+    }
+
+    // Formular „Eigener Eintrag“ (über den Reitern): Knopf zum Aufklappen oder die Felder
+    function formularHtml() {
+      if (!daten.kann) return "";
+      var ok = meldung ? '<div class="kb-eigen-ok" role="status">' + esc(meldung) + "</div>" : "";
+      if (!form.offen) return ok + '<div class="kb-eigen-leiste"><button type="button" class="kb-knopf kb-klein kb-eigen-neu">✏️ Eigenen Eintrag schreiben</button></div>';
+      var heute = daten.heute, tag = form.faellig || tagPlus(heute, 1), fach = form.fach;
+      return '<form class="kb-karte kb-eigen-form" novalidate><h2>✏️ Eigener Eintrag</h2>' +
+        '<p class="kb-eigen-hinweis">Schreib dir selbst etwas ins Heft. <b>Nur du siehst diesen Eintrag</b> – nicht deine Klasse und nicht deine Lehrkraft. Nach ' + eigenTage() + " Tagen wird er von selbst gelöscht.</p>" +
+        '<div class="kb-eigen-felder"><label for="kb-eigen-fach">Fach<select id="kb-eigen-fach"><option value="">Bitte wählen …</option>' + EIGEN_FAECHER.map(function (f) {
+          return '<option value="' + esc(f) + '"' + (f === fach ? " selected" : "") + ">" + esc(f) + "</option>";
+        }).join("") + "</select></label>" +
+        '<label for="kb-eigen-tag">Bis wann?<input type="date" id="kb-eigen-tag" min="' + heute + '" max="' + tagPlus(heute, eigenTage()) + '" value="' + esc(tag) + '"></label></div>' +
+        '<fieldset class="kb-themen kb-eigen-art"><legend>Was ist es?</legend>' + EIGEN_ARTEN.map(function (a) {
+          return '<label><input type="radio" name="kb-eigen-art" value="' + a[0] + '"' + (form.typ === a[0] ? " checked" : "") + "><span>" + a[1] + "</span></label>";
+        }).join("") + "</fieldset>" +
+        '<label class="kb-feld-titel" for="kb-eigen-text">Was musst du machen?</label>' +
+        '<textarea class="kb-text" id="kb-eigen-text" maxlength="300" rows="3" placeholder="z. B. Arbeitsblatt fertig machen">' + esc(form.text) + "</textarea>" +
+        '<div class="kb-zaehler"><span id="kb-eigen-zahl">' + form.text.length + "</span> / 300</div>" +
+        '<p class="kb-fehler" role="alert">' + esc(form.fehler) + "</p>" +
+        '<div class="kb-eigen-knoepfe"><button class="kb-knopf kb-klein" type="submit"' + (form.sendet ? " disabled" : "") + ">" + (form.sendet ? "Einen Moment …" : "Eintragen") + "</button>" +
+        '<button class="kb-knopf kb-klein kb-ruhig" type="button" data-eigen-zu>Abbrechen</button></div></form>';
+    }
+    function formularAn() {
+      var neu = el.querySelector(".kb-eigen-neu");
+      if (neu) neu.addEventListener("click", function () { form.offen = true; form.fehler = ""; meldung = ""; zeichnen(); var f = doc.getElementById("kb-eigen-fach"); if (f) f.focus(); });
+      var f = el.querySelector(".kb-eigen-form");
+      if (!f) return;
+      var fach = f.querySelector("#kb-eigen-fach"), tag = f.querySelector("#kb-eigen-tag"), txt = f.querySelector("#kb-eigen-text"), fehler = f.querySelector(".kb-fehler");
+      function merken() {
+        form.fach = fach.value; form.faellig = tag.value; form.text = txt.value;
+        var art = f.querySelector('input[name="kb-eigen-art"]:checked'); form.typ = art ? art.value : "aufgabe";
+      }
+      [fach, tag, txt].forEach(function (x) { x.addEventListener("input", function () { merken(); form.fehler = ""; fehler.textContent = ""; f.querySelector("#kb-eigen-zahl").textContent = txt.value.length; }); });
+      Array.prototype.forEach.call(f.querySelectorAll('input[name="kb-eigen-art"]'), function (r) { r.addEventListener("change", merken); });
+      f.querySelector("[data-eigen-zu]").addEventListener("click", function () { form.offen = false; form.fehler = ""; zeichnen(); });
+      f.addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        if (form.sendet) return;
+        merken();
+        var text = form.text.replace(/\s+/g, " ").trim(), heute = daten.heute;
+        var zeige = function (t, feld) { form.fehler = t; fehler.textContent = t; if (feld) feld.focus(); };
+        if (!form.fach) return zeige("Bitte wähle ein Fach.", fach);
+        if (!form.faellig || form.faellig < heute || form.faellig > tagPlus(heute, eigenTage())) return zeige("Bitte wähle einen Tag in den nächsten " + eigenTage() + " Tagen.", tag);
+        if (text.length < 2) return zeige("Schreib bitte auf, was du erledigen sollst.", txt);
+        form.sendet = true; form.fehler = ""; zeichnen();
+        post("/api/klasse/heft/eigen/speichern", { code: S.code, fach: form.fach, typ: form.typ, text: form.text, faellig: form.faellig }).then(function (d) {
+          form.sendet = false;
+          if (abgemeldet(el, d)) return;
+          if (!d.ok || !d.eintrag) { form.fehler = d.error || "Das hat gerade nicht geklappt. Versuche es noch einmal."; zeichnen(); return; }
+          daten.eigene.push(d.eintrag);
+          meldung = "Eingetragen ✓ Nur du siehst diesen Eintrag. Am " + tagKurz(d.eintrag.bis) + " wird er von selbst gelöscht.";
+          // dorthin wechseln, wo der Eintrag zu sehen ist
+          ansicht = d.eintrag.faellig <= tagPlus(daten.heute, 7) ? (d.eintrag.faellig === daten.heute ? "heute" : "woche") : "eigene";
+          form = { offen: false, fach: "", typ: "aufgabe", text: "", faellig: "", fehler: "", sendet: false };
+          zeichnen();
+        }).catch(function () { form.sendet = false; form.fehler = "Keine Verbindung zum Server. Versuche es noch einmal."; zeichnen(); });
+      });
+    }
+    function loeschen(id) {
+      if (!global.confirm("Diesen Eintrag löschen?")) return;
+      post("/api/klasse/heft/eigen/loeschen", { code: S.code, id: id }).then(function (d) {
+        if (abgemeldet(el, d)) return;
+        if (!d.ok) throw new Error(d.error || "Fehler");
+        daten.eigene = daten.eigene.filter(function (e) { return e.id !== id; });
+        var e = erledigt(); delete e[id]; schreib(erledigtKey(), JSON.stringify(e));
+        meldung = "Eintrag gelöscht.";
+        zeichnen();
+      }).catch(function () { meldung = "Das Löschen hat gerade nicht geklappt. Versuche es noch einmal."; zeichnen(); });
     }
 
     function zeichnen() {
-      var g = gruppen(), liste = g[ansicht], h = "";
-      h += '<div class="kb-reiter" role="tablist">' + [["heute", "Heute"], ["woche", "Diese Woche"], ["termine", "Proben & Termine"]].map(function (r) {
+      var g = gruppen(), liste = g[ansicht], h = formularHtml();
+      var reiter = [["heute", "Heute"], ["woche", "Diese Woche"], ["termine", "Proben & Termine"]];
+      if (daten.kann) reiter.push(["eigene", "✍️ Von mir"]);
+      h += '<div class="kb-reiter' + (daten.kann ? " kb-vier" : "") + '" role="tablist">' + reiter.map(function (r) {
         return '<button type="button" role="tab" data-ansicht="' + r[0] + '" aria-selected="' + (ansicht === r[0]) + '" class="' + (ansicht === r[0] ? "kb-an" : "") + '">' + r[1] + "<span>" + g[r[0]].length + (g[r[0]].length === 1 ? " Eintrag" : " Einträge") + "</span></button>";
       }).join("") + "</div>";
       if (!liste.length) {
-        h += '<div class="kb-leer"><span class="kb-emoji" aria-hidden="true">' + (ansicht === "termine" ? "🗓️" : "🎉") + "</span><b>" +
-          (ansicht === "heute" ? "Für heute ist nichts eingetragen." : ansicht === "woche" ? "Diese Woche ist nichts eingetragen." : "Keine Proben und Termine eingetragen.") +
-          "</b><span>" + (ansicht === "heute" && g.woche.length ? "Schau bei „Diese Woche“ nach, was als Nächstes kommt." : "Frag im Zweifel deine Lehrkraft.") + "</span></div>";
+        h += '<div class="kb-leer"><span class="kb-emoji" aria-hidden="true">' + (ansicht === "termine" ? "🗓️" : ansicht === "eigene" ? "✍️" : "🎉") + "</span><b>" +
+          (ansicht === "heute" ? "Für heute ist nichts eingetragen." : ansicht === "woche" ? "Diese Woche ist nichts eingetragen." : ansicht === "eigene" ? "Du hast noch nichts selbst eingetragen." : "Keine Proben und Termine eingetragen.") +
+          "</b><span>" + (ansicht === "eigene" ? "Mit „Eigenen Eintrag schreiben“ notierst du dir selbst etwas – zum Beispiel für ein Fach, das hier nicht steht." : ansicht === "heute" && g.woche.length ? "Schau bei „Diese Woche“ nach, was als Nächstes kommt." : "Frag im Zweifel deine Lehrkraft.") + "</span></div>";
       } else if (ansicht === "heute") {
         h += liste.map(function (e) { return karte(e, false); }).join("");
       } else {
@@ -462,8 +552,12 @@
         });
       }
       el.innerHTML = h;
+      formularAn();
+      Array.prototype.forEach.call(el.querySelectorAll("[data-weg]"), function (b) {
+        b.addEventListener("click", function () { loeschen(b.getAttribute("data-weg")); });
+      });
       Array.prototype.forEach.call(el.querySelectorAll("[data-ansicht]"), function (b) {
-        b.addEventListener("click", function () { ansicht = b.getAttribute("data-ansicht"); zeichnen(); });
+        b.addEventListener("click", function () { ansicht = b.getAttribute("data-ansicht"); meldung = ""; zeichnen(); });
       });
       Array.prototype.forEach.call(el.querySelectorAll(".kb-haken input"), function (c) {
         c.addEventListener("change", function () {
