@@ -118,7 +118,7 @@
     function zeichnen(meldung) {
       var h = '<summary>🔓 ' + esc(W.titel) + ' freischalten <small>für Klasse ' + esc(ctx.klasse) + "</small></summary>" +
         '<p class="sub" style="margin:0 0 .2rem">Offen heißt: Die Kinder der ' + esc(ctx.klasse) + " sehen " + esc(W.das) + " nach der Anmeldung mit ihrem Code in ihrer Übersicht. " +
-        esc(W.neu) + " sind zuerst gesperrt, damit du sie vorher ansehen kannst („Vorschau“)." + (W.ohneProben ? "" : " Die Proben (📝) stehen unter den Modulen, die sie enthalten – eine Probe gilt immer für alle Klassen ihres Zugs und schließt sich 3 Stunden nach dem Freischalten von selbst.") +
+        (W.offenVorgabe ? "Hier ist zuerst alles offen – du sperrst, was die Klasse (noch) nicht sehen soll." : esc(W.neu) + " sind zuerst gesperrt, damit du sie vorher ansehen kannst („Vorschau“).") + (W.ohneProben ? "" : " Die Proben (📝) stehen unter den Modulen, die sie enthalten – eine Probe gilt immer für alle Klassen ihres Zugs und schließt sich 3 Stunden nach dem Freischalten von selbst.") +
         " Das Kürzel vorn (z. B. " + esc(beispielKz()) + ") ist der feste Name des Moduls: Die Kinder sehen es nicht, bei jeder Probe steht damit, welche Module sie enthält.</p>" +
         '<div id="nt7f-msg">' + (meldung ? '<div class="note ' + meldung[1] + '" style="margin:.5rem 0 0">' + esc(meldung[0]) + "</div>" : "") + "</div>";
       N.THEMEN.forEach(function (t) {

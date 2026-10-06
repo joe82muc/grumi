@@ -8,15 +8,18 @@
  *     kurs: "e7",              Kurs im Lernstand (js/lernstand.js)
  *     stufe: 7, zuege: ["M", "R"], fach: "Englisch", titel: "Englisch 7",
  *     pfad: "/api/e7",         Freischaltung auf dem Server (nt7-freigabe.js)
- *     ordner: "7/Englisch_7/", Ordner der Liste, vom Wurzelordner der Website aus
+ *     ordner: "7/Englisch_7/", Ordner der Liste, vom Wurzelordner der Website aus; uebersicht: Datei der Übersicht dort (index.html)
  *     themen: [{ id, nr, titel, kurz, icon, text, module: [{ id, kz, titel, href, text, art, ls, auch }] }],
  *     probeInhalt: { "<test>": ["<modul>", …] }    Proben, die nicht nach der Regel unten zugeordnet werden
+ *     proben: { "<test>": "<themenbereich>" }      Proben, die einen ganzen Themenbereich abdecken (z. B. NT 9)
  *   })
  *
  * Modul: kz = festes Kürzel (nur in der Verwaltung zu sehen), href = Seite (vom Ordner der Liste aus), auch = weitere
  * Adressen derselben Seite, art = Wortschatz | Grammatik | …, ls = Kennung im Lernstand (endet sie mit „-“, gilt sie
- * als Anfang mehrerer Kennungen). Alles ist zuerst gesperrt; die Lehrkraft schaltet je Klasse frei
- * (Verwaltung → Klasse → Fach). Das ist eine Lernsteuerung, kein Geheimnisschutz: Die Seiten sind öffentliche Dateien.
+ * als Anfang mehrerer Kennungen), offen: true = von sich aus offen (NT 9), ohne href = in Vorbereitung. Sonst ist
+ * alles zuerst gesperrt; die Lehrkraft schaltet je Klasse frei oder sperrt (Verwaltung → Klasse → Fach). Das ist eine
+ * Lernsteuerung, kein Geheimnisschutz: Die Seiten sind öffentliche Dateien.
+ * NT 9 nutzt das Gerüst auch: 9M/NT_9/themen.js (NT9M) und 9R/NT_9/themen.js (NT9R), Server /api/n9.
  *
  * Englisch-Tests heißen e<Stufe><Zug>-u<Unit>-<Art>: „kt-g2“ gehört zum Grammatik-Modul G2 der Unit, „probe“ zu
  * allen Grammatik-Modulen der Unit, alles andere (test1, probe1, versuch) zum Vokabeltrainer der Unit.
@@ -104,7 +107,7 @@
 
   function bauen(cfg) {
     var THEMEN = cfg.themen, PFAD = cfg.pfad, STUFE = String(cfg.stufe), SPEICHER = "grumi-" + cfg.name.toLowerCase() + "-freigabe~";
-    var INHALT = cfg.probeInhalt || {};
+    var INHALT = cfg.probeInhalt || {}, PROBEN = cfg.proben || {};
 
     function modulVon(id) {
       for (var i = 0; i < THEMEN.length; i++) for (var j = 0; j < THEMEN[i].module.length; j++) {
@@ -183,7 +186,8 @@
 
     // Themenbereich(e) einer Probe und die Module, die sie enthält
     function probeTeile(testId) {
-      var m = /^e\d+[mr]?-u(\d+)-(.+)$/i.exec(String(testId || ""));
+      if (PROBEN[testId]) return { thema: PROBEN[testId], art: "alle" };
+      var m =/^e\d+[mr]?-u(\d+)-(.+)$/i.exec(String(testId || ""));
       return m ? { thema: "u" + m[1], art: m[2].toLowerCase() } : null;
     }
     function probeThemen(testId) {
@@ -196,6 +200,7 @@
         t.module.forEach(function (m) {
           if (ids) { if (ids.indexOf(m.id) >= 0) liste.push(m); return; }
           if (!p || t.id !== p.thema) return;
+          if (p.art === "alle") { if (!m.extra) liste.push(m); return; }
           var g = /^kt-g(\d+)$/.exec(p.art);
           if (g) { if (m.id === t.id + "-g" + g[1]) liste.push(m); }
           else if (p.art === "probe") { if (m.art === "Grammatik") liste.push(m); }
@@ -207,7 +212,7 @@
 
     var L = {
       THEMEN: THEMEN, API: API, VORSCHAU: VORSCHAU, NAME: cfg.name, KURS: cfg.kurs, STUFE: STUFE, ZUEGE: cfg.zuege || ["M", "R"], PFAD: PFAD,
-      FACH: cfg.fach || "", TITEL: cfg.titel || "", ORDNER: cfg.ordner, INTRO: cfg.intro || "", ANDERE: cfg.andere || null, FARBE: cfg.farbe || "",
+      FACH: cfg.fach || "", TITEL: cfg.titel || "", ORDNER: cfg.ordner, UEBERSICHT: cfg.uebersicht || "index.html", INTRO: cfg.intro || "", ANDERE: cfg.andere || null, FARBE: cfg.farbe || "",
       modulVon: modulVon, modulZurSeite: modulZurSeite, modulZumLernstand: modulZumLernstand, offen: offen, freigabe: freigabe,
       probeModule: probeModule, probeThemen: probeThemen
     };

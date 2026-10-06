@@ -377,6 +377,14 @@
         worte: { titel: "Themenbereiche und Module", das: "das Modul", neu: "Alle Module", von: "Modulen", plan: "Module in Vorbereitung" } });
       if (global.TexteVerwaltung) global.TexteVerwaltung.zeige($("vw-d7-texte"), { api: API, pw: PW, klasse: KLASSE, liste: global.D7, name: nameVon });
       fachLaden($("vw-fach"));
+    } else if (ANSICHT === "nt9" && global.NT7Verwaltung && nt9Liste()) {
+      // NT 9: Themenbereiche und Seiten je Klasse sperren oder freischalten (gleiche Ansicht wie NT 7). Hier ist alles
+      // von sich aus offen – die Lehrkraft sperrt, was eine Klasse nicht sehen soll. Je Zug eine Liste, Stand unter /api/n9.
+      var NL = nt9Liste();
+      teil.innerHTML = '<div id="vw-n9-frei"></div><div id="vw-fach"></div>';
+      global.NT7Verwaltung.freigabe($("vw-n9-frei"), { api: API, pw: PW, klasse: KLASSE, liste: NL, pfad: NL.PFAD, ordner: NL.ORDNER,
+        worte: { titel: "Themen und Seiten", das: "die Seite", neu: "", von: "Seiten", plan: "Seiten in Vorbereitung", offenVorgabe: true } });
+      fachLaden($("vw-fach"));
     } else if (/^e[789]$/.test(ANSICHT) && global.NT7Verwaltung && englischListe()) {
       // Englisch 7, 8 und 9: über dem Lernstand steht das Freischalten der Units und Seiten (gleiche Ansicht wie NT 7).
       // Für die 9. Klassen gibt es je Zug eine Liste (9M/Englisch_9, 9R/Englisch), der Stand liegt gemeinsam unter /api/e9.
@@ -841,8 +849,11 @@
     var r = L && L.modulVon ? L.modulVon(String(m.id).slice(String(m.kurs).length + 1)) : null;
     // Englisch: Die Liste nennt bei jeder Seite ihre Kennung im Lernstand (ls)
     if (!r && /^e[789]$/.test(m.kurs) && englischListe()) r = englischListe().modulZumLernstand(m.id);
+    if (!r && m.kurs === "nt9" && nt9Liste()) r = nt9Liste().modulZumLernstand(m.id);
     return (r && r.modul.kz) || "";
   }
+  // NT-9-Liste zur gewählten Klasse (9M/NT_9/themen.js oder 9R/NT_9/themen.js)
+  function nt9Liste() { return stufeVon(KLASSE) === 9 ? (zugBuchstabe(KLASSE) === "M" ? global.NT9M : global.NT9R) : null; }
   // Englisch-Liste (themen.js) zur gewählten Klasse: 7 -> E7, 8 -> E8, 9 -> E9M oder E9R
   function englischListe() {
     var st = stufeVon(KLASSE);

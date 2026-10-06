@@ -1,11 +1,12 @@
-/* Übersicht eines Kurses mit Kursliste (js/kursliste.js) – zuerst Englisch 7, 8R, 9R und 9M.
+/* Übersicht eines Kurses mit Kursliste (js/kursliste.js) – Englisch 7, 8R, 9R und 9M, dazu NT 9M und 9R.
  * Aussehen und Aufbau wie die Übersichten von NT 7 und Informatik (7M/NT/uebersicht.css), aber aufgeräumt:
  * Die Kinder sehen nur, was ihre Lehrkraft für ihre Klasse freigeschaltet hat – Seiten, Bereiche und Tests.
  *
  * Die Seite setzt <body data-root="Pfad zur Startseite"> und bindet vorher ein:
  *   js/kursliste.js, themen.js des Kurses, js/proben-module.js (Tests der Units)
  *
- * - Freischaltung: Verwaltung → Klasse → Englisch. Ohne Code ist nichts offen; oben steht das Feld für den Code.
+ * - Freischaltung: Verwaltung → Klasse → Fach. Englisch: Ohne Code ist nichts offen; oben steht das Feld für den Code.
+ *   NT 9: Die Seiten sind von sich aus offen (offen: true in der Liste), auch ohne Code – die Lehrkraft sperrt je Klasse.
  * - Lernstand: vom Server (derselbe wie in js/lernstand.js), je Seite als Balken.
  * - Tests: Vokabel- und Grammatiktests erscheinen bei ihrer Unit, sobald die Lehrkraft sie freischaltet.
  * - Kürzel der Seiten (A1, B2 …) stehen nur in der Verwaltung, hier nirgends.
@@ -16,8 +17,10 @@
   if (!K || !L) return;
   const body = document.body, root = body.dataset.root || "../../", esc = K.esc, THEMEN = L.THEMEN;
   const app = document.getElementById("app");
-  const ART = { Wortschatz: "🔤", Grammatik: "🧩", Sprechen: "🗣️", Schreiben: "✍️", Mediation: "🔁", Bilder: "🖼️" };
+  const ART = { Wortschatz: "🔤", Grammatik: "🧩", Sprechen: "🗣️", Schreiben: "✍️", Mediation: "🔁", Bilder: "🖼️", Modul: "📘", Gruppenarbeit: "👥", Übung: "✏️" };
   let STAND = null, HINWEIS = "", PROBEN = null, SERVER = null;
+  // Kurs, dessen Seiten von sich aus offen sind (NT 9): Auch ohne Code ist alles zu sehen, freigeschaltete Proben ebenso
+  const VON_SICH_OFFEN = THEMEN.some(t => t.module.some(m => m.href && m.offen));
 
   // Gültige Anmeldung eines Kindes dieser Jahrgangsstufe (andere Stufen sehen die Seite wie Gäste).
   // Lehrercode (Klasse „Lehrkraft“): alles ist offen, der Lernstand wird nicht gemeldet.
@@ -74,8 +77,8 @@
 
   // Offene Tests eines Bereichs für den Zug des Kindes: je Test eine Kachel
   function probenKacheln(thema, a) {
-    if (!PROBEN || !a) return "";
-    const zug = a.lehrer ? "" : String(a.zug || "");
+    if (!PROBEN || (!a && !VON_SICH_OFFEN)) return "";
+    const zug = !a || a.lehrer ? "" : String(a.zug || "");
     return PROBEN.filter(p => p.offen && L.probeThemen(p.id).indexOf(thema.id) >= 0 && (!zug || p.klasse === zug || p.klasse === L.STUFE)).map(p =>
       `<a class="probe offen" data-probe="${esc(p.id)}" href="${esc(root + p.link)}"><span>📝</span><div><strong>Jetzt offen: ${esc(p.titel)}</strong><br>Deine Lehrkraft hat den Test freigeschaltet.</div><span class="mod-go">Öffnen →</span></a>`).join("");
   }
@@ -104,7 +107,8 @@
     const offenGesamt = staende.reduce((s, x) => s + x.offen, 0);
     const mitStand = staende.reduce((s, x) => s + x.mitStand, 0), fertigGesamt = staende.reduce((s, x) => s + x.fertig, 0);
     const pctGesamt = mitStand ? Math.round(staende.reduce((s, x) => s + x.pct * x.mitStand, 0) / mitStand) : 0;
-    const testsOffen = a && PROBEN ? THEMEN.some(t => probenKacheln(t, a)) : false;
+    const testsOffen = PROBEN ? THEMEN.some(t => probenKacheln(t, a)) : false;
+    const gastHinweis = !a && offenGesamt && VON_SICH_OFFEN ? '<p class="hinweis bisher">Melde dich oben mit deinem Code an – dann siehst du hier deinen Lernstand.</p>' : "";
 
     const kopf = a
       ? `<div class="wer"><span>👤 ${a.lehrer ? "Lehrkraft · " + esc(a.name) : esc(a.name) + " · Klasse " + esc(a.klasse)}</span><button type="button" id="abmelden">Abmelden</button></div>`
@@ -129,7 +133,7 @@
           <p>${esc(L.INTRO)}</p>
         </div>
         <div class="hero-box">${kopf}
-          <p class="klein">${a && a.lehrer ? "Lehrercode: Alle Seiten sind offen – auch die, die für die Klassen noch gesperrt sind. Dein Lernstand wird nicht gemeldet." : a ? "Du siehst, was deine Lehrkraft für deine Klasse freigeschaltet hat." : "Mit deinem Code siehst du, was deine Lehrkraft für deine Klasse freigeschaltet hat."}</p>
+          <p class="klein">${a && a.lehrer ? "Lehrercode: Alle Seiten sind offen – auch die, die für die Klassen noch gesperrt sind. Dein Lernstand wird nicht gemeldet." : a ? "Du siehst, was deine Lehrkraft für deine Klasse freigeschaltet hat." : VON_SICH_OFFEN ? "Mit deinem Code merkt sich GRUMI deinen Lernstand – und du siehst, was für deine Klasse gilt." : "Mit deinem Code siehst du, was deine Lehrkraft für deine Klasse freigeschaltet hat."}</p>
         </div>
       </div>
     </div>
@@ -142,7 +146,7 @@
       <div class="gesamt-themen">${THEMEN.map((t, i) => staende[i].offen
         ? `<a href="#thema-${t.id}"><span>${t.icon} ${esc(t.kurz || t.titel)}</span><span class="bar"><span style="width:${staende[i].pct}%"></span></span><b>${staende[i].mitStand ? staende[i].pct + " %" : "offen"}</b></a>`
         : `<a href="#thema-${t.id}" class="zu nur-offene-weg"><span>${t.icon} ${esc(t.kurz || t.titel)}</span><span class="bar"></span><b>🔒</b></a>`).join("")}</div>
-      ${HINWEIS ? `<p class="hinweis">${esc(HINWEIS)}</p>` : ""}${nochNichts}
+      ${HINWEIS ? `<p class="hinweis">${esc(HINWEIS)}</p>` : ""}${nochNichts}${gastHinweis}
     </section>
     ${THEMEN.map((t, i) => {
       const s = staende[i];

@@ -6,7 +6,9 @@
  * Das Skript lädt js/kursliste.js und die Liste nach, findet die Seite über ihre Adresse in der Liste und fragt den
  * Stand der Klasse ab (erst der zuletzt bekannte Stand des Geräts, dann der Server). Bis das entschieden ist, bleibt
  * der Inhalt unsichtbar – so blitzt eine gesperrte Seite nicht auf. Ohne Anmeldung ist alles gesperrt; der Hinweis
- * enthält dann das Feld für den Code. Seiten, die nicht in der Liste stehen, bleiben offen.
+ * enthält dann das Feld für den Code. Seiten, die nicht in der Liste stehen, bleiben offen – ebenso Seiten, die in der
+ * Liste „offen: true“ haben (NT 9): Sie sind sofort zu sehen und werden nur verdeckt, wenn die Lehrkraft sie für die
+ * Klasse des Kindes gesperrt hat.
  * Lehrkräfte: ?vorschau=1 (Link „Vorschau“ in der Verwaltung) zeigt die Seite immer, der Lehrercode ebenso.
  * Lernsteuerung, kein Geheimnisschutz: Die Seiten sind öffentliche Dateien.
  */
@@ -71,7 +73,7 @@
     // Übersicht des eigenen Zugs: Ein Kind der 9M landet nicht in der Übersicht der 9R (gemeinsam genutzte Seiten)
     var ich = global.GrumiKursliste ? global.GrumiKursliste.anmeldung() : null;
     var andere = L && L.ANDERE && ich && String(ich.zug || "").slice(-1) === L.ANDERE.zug ? L.ANDERE : null;
-    var uebersicht = L ? wurzel + encodeURI(andere ? andere.href : L.ORDNER + "index.html") : wurzel + "index.html";
+    var uebersicht = L ? wurzel + encodeURI(andere ? andere.href : L.ORDNER + (L.UEBERSICHT || "index.html")) : wurzel + "index.html";
     var uebersichtName = andere ? andere.titel : L ? L.TITEL : "";
     box.innerHTML = '<div class="kurs-sperre" role="status"><div class="big" aria-hidden="true">' + (art === "warten" ? "⏳" : art === "fehler" ? "📡" : "🔒") + "</div>" +
       "<h2>" + esc(titel) + "</h2><p>" + esc(text) + "</p>" +
@@ -125,18 +127,21 @@
       return;
     }
     var bekannt = false;
+    // Seiten, die von sich aus offen sind (z. B. NT 9): gleich zeigen – gesperrt wird nur, wenn die Lehrkraft es für die Klasse so gesetzt hat
+    var vonSichAusOffen = Boolean(reg.modul.offen);
+    if (vonSichAusOffen) offenZeigen();
     L.freigabe(a, function (stand) {
       if (nr !== lauf) return;
       bekannt = true;
       if (L.offen(reg.modul, reg.thema, stand)) offenZeigen();
       else hinweis("zu", titel, "Deine Lehrkraft schaltet das frei, wenn ihr im Unterricht so weit seid. Frag sie, wenn du schon weiterlernen möchtest.");
     }, function (text, wachtAuf) {
-      if (nr !== lauf || bekannt) return;
+      if (nr !== lauf || bekannt || vonSichAusOffen) return;
       if (wachtAuf) hinweis("warten", "Einen Moment …", text);
       else hinweis("fehler", "Das lässt sich gerade nicht prüfen", text || "Der Server antwortet gerade nicht. Versuche es gleich noch einmal.");
     });
     // Noch kein Stand auf dem Gerät: kurz warten, statt die Seite unsichtbar zu lassen
-    setTimeout(function () { if (nr === lauf && !bekannt && doc.documentElement.classList.contains("kurs-prueft")) hinweis("warten", "Einen Moment …", "Ich sehe nach, ob deine Lehrkraft das für deine Klasse freigeschaltet hat."); }, 700);
+    setTimeout(function () { if (nr === lauf && !bekannt && !vonSichAusOffen && doc.documentElement.classList.contains("kurs-prueft")) hinweis("warten", "Einen Moment …", "Ich sehe nach, ob deine Lehrkraft das für deine Klasse freigeschaltet hat."); }, 700);
   }
 
   function start() {

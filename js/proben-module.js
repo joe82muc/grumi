@@ -104,11 +104,8 @@
     },
     {
       /* NT 9M/9R: Probe Organische Rohstoffe (Module 1-7), je eine Fassung pro Zug */
-      key: "nt9probe", subject: "Natur und Technik", stufen: [9],
-      inhalt: function () {
-        return ["Kohlenstoff, Holz und Raps", "Biodiesel, Stärke und Nachhaltigkeit", "Entstehung fossiler Rohstoffe", "Erdölaufbereitung und Fraktionen",
-          "Kohlenstoffkreislauf und Treibhauseffekt", "Erdöl – Rohstoff mit Zukunft?", "Ohne Erdöl – geht das?"].map(function (t, i) { return { kz: "Modul " + (i + 1), titel: t }; });
-      },
+      /* Modulliste je Zug (9M/NT_9/themen.js, 9R/NT_9/themen.js): Die Probe steht beim Freischalten unter den Modulen O1 bis O7 */
+      key: "nt9probe", subject: "Natur und Technik", stufen: [9], liste: function (t) { return /^nt9r-/.test(t.id) ? "NT9R" : "NT9M"; },
       listPath: "/api/nt9probe/list", unlockPath: "/api/nt9probe/unlock",
       klasse: nt9Zug,
       link: function (t) { return nt9Zug(t) + "/NT_9/App12_Organische_Rohstoffe/lehrer.html"; },
