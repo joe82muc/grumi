@@ -651,6 +651,8 @@
         inhalt.innerHTML = h + "</tbody></table>" + (api.override ? "" : '<p class="sub">Bei dieser Probe lassen sich die Punkte nicht ändern, nur die Abgabe löschen.</p>') +
           (api.nurText ? '<p class="sub">Ankreuzen und Zuordnen wertet der Schlüssel, ändern lassen sich hier die Punkte der freien Antworten.</p>' : "");
       }
+      // Probenmodus: was der Browser des Kindes festgehalten hat – Verlassen mit Uhrzeit und Dauer, Einfügen, Kopieren (js/probe-protokoll.js)
+      if (global.ProbeProtokoll) inhalt.insertAdjacentHTML("beforeend", global.ProbeProtokoll.html(sub));
       var felder = Array.prototype.slice.call(inhalt.querySelectorAll("input[data-nr]"));
       // Abgaben dieser Probe aus der angezeigten Klasse (für den Klassensatz)
       var klassenIds = {};

@@ -17,14 +17,15 @@
  *
  * Protokoll (immer mitgeschrieben, nur auf diesem Gerät, bis zur Abgabe):
  *   wechsel   [{ art: "verborgen" | "fokus" | "geschlossen", von, bis, sekunden }]  Seite war nicht sichtbar, das Fenster hatte
- *             den Fokus verloren (nur mit ueberwachung: true, ab 2 Sekunden). Welche Seite oder App stattdessen offen
+ *             den Fokus verloren (nicht mit ueberwachung: false; ab 2 Sekunden). Welche Seite oder App stattdessen offen
  *             war, kann ein Browser nicht erkennen – das steht deshalb nirgends.
  *   einfuegen [{ zeit, zeichen, woerter, erlaubt }]   Der eingefügte Text selbst wird nie gespeichert.
  *   kopieren  [{ zeit, art: "copy" | "cut", zeichen }]
  *   spruenge  [{ zeit, woerter, sekunden, vorher, nachher }]   sehr viel neuer Text in sehr kurzer Zeit
  * Zusätzliche Angaben für start():
- *   ueberwachung: true            nach der Rückkehr ein deutlicher Hinweis mit „Weiter“ (1., 2., ab dem 3. Mal),
- *                                 auch der verlorene Fensterfokus zählt; ohne diese Angabe bleibt es beim kurzen Hinweis
+ *   ueberwachung: false           nur ein kurzer Hinweis nach der Rückkehr. Vorgabe (seit 06.10.2026 für alle Proben): nach
+ *                                 der Rückkehr ein deutlicher Hinweis mit „Weiter“ (1., 2., ab dem 3. Mal), auch der verlorene
+ *                                 Fensterfokus zählt, und über den Aufgaben steht, was im Probenmodus festgehalten wird
  *   einfuegen: "protokollieren"   Einfügen ist erlaubt und wird protokolliert (Vorgabe: "sperren")
  * Nichts davon gibt eine Probe ab oder bewertet sie: Was die Ereignisse bedeuten, entscheidet die Lehrkraft.
  * Gesichert werden Textfelder, Auswahllisten, Radio-Knöpfe und gewählte Antwortknöpfe (.opt mit .sel/.richtig),
@@ -259,10 +260,19 @@
   global.ProbeSchutz = {
     start: function (cfg) {
       aktiv = { testId: String(cfg.testId), code: String(cfg.code), box: cfg.box, extra: cfg.extra || null,
-        ueberwachung: Boolean(cfg.ueberwachung), einfuegen: cfg.einfuegen === "protokollieren" ? "protokollieren" : "sperren" };
+        ueberwachung: cfg.ueberwachung !== false, einfuegen: cfg.einfuegen === "protokollieren" ? "protokollieren" : "sperren" };
       zahl = 0; sockel = 0; draussen = false; prot = LEER(); weg = null;
       alleFelder(aktiv.box);
       stilEinmal(); doc.body.classList.add("probe-laeuft");
+      // Offen sagen, was im Probenmodus festgehalten wird (eine Seite mit eigenem Hinweis – Kennung „schutz-hinweis“ – behält ihn)
+      if (aktiv.ueberwachung && !doc.getElementById("schutz-hinweis") && aktiv.box.parentNode) {
+        var sh = doc.createElement("p");
+        sh.id = "schutz-hinweis"; sh.className = "schutz-hinweis"; sh.setAttribute("data-von", "probe-schutz");
+        sh.style.cssText = "margin:0 0 12px;padding:8px 12px;border-radius:10px;background:#f1f5f9;color:#334155;font-size:.88rem;font-weight:600;line-height:1.4";
+        sh.textContent = "🔒 Probenmodus: Verlässt du diese Seite (anderer Tab, andere App), wird das mit Uhrzeit und Dauer für deine Lehrkraft festgehalten. " +
+          (aktiv.einfuegen === "protokollieren" ? "Eingefügter Text wird mit Uhrzeit und Länge vermerkt." : "Einfügen und Kopieren sind gesperrt.");
+        aktiv.box.parentNode.insertBefore(sh, aktiv.box);
+      }
       var s = lies(schluessel()), zurueck = false;
       if (s && Date.now() - (s.zeit || 0) < MAX_ALTER) { wiederherstellen(s); zurueck = true; }
       // was beim Aufbau oder nach dem Zurückholen schon in den Feldern steht, ist kein Textsprung
@@ -279,6 +289,7 @@
       aktiv = null; clearTimeout(timer); doc.body.classList.remove("probe-laeuft");
       prot = LEER(); weg = null;
       var w = doc.getElementById("probe-schutz-warnung"); if (w) w.remove();
+      var sh = doc.querySelector('#schutz-hinweis[data-von="probe-schutz"]'); if (sh) sh.remove();
     }
   };
 

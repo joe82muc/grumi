@@ -14,7 +14,7 @@
  */
 (function (global) {
   "use strict";
-  var doc = global.document;
+  var doc = global.document, EIGENES = doc.currentScript ? doc.currentScript.src : "";
   var C = null, STAND = null, ZELLEN = [], geplant = false;
 
   function esc(s) {
@@ -43,7 +43,10 @@
       ".prl-leiste .platz{flex:1}.prl-leiste p{flex-basis:100%;margin:0;color:#475569;font-size:.82rem}" +
       ".prl-leiste button{border:1.5px solid #15803d;border-radius:999px;background:#15803d;color:#fff;font:800 .82rem inherit;font-family:inherit;padding:.4rem .9rem;cursor:pointer}" +
       ".prl-leiste button.neben{background:#fff;color:#17633a}.prl-leiste button[disabled]{opacity:.5;cursor:default}" +
-      "#prl-msg{flex-basis:100%;font-weight:700}";
+      "#prl-msg{flex-basis:100%;font-weight:700}" +
+      ".prl button.auffaellig{border-color:#d97706;background:#fffbeb;color:#92400e}" +
+      "#prl-dlg{width:min(640px,calc(100vw - 24px));border:0;border-radius:16px;padding:16px 18px;box-shadow:0 20px 60px rgba(0,0,0,.3);font:16px/1.45 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}" +
+      "#prl-dlg::backdrop{background:rgba(15,23,42,.45)}#prl-dlg h3{margin:0 0 2px;font-size:1.1rem}#prl-dlg .zu{float:right;border:1.5px solid #cbd5e1;border-radius:999px;background:#fff;font:700 .85rem inherit;font-family:inherit;padding:.3rem .8rem;cursor:pointer}";
     doc.head.appendChild(s);
   }
   var schluessel = function (r) { return C.modul + "|" + r.id; };
@@ -95,12 +98,17 @@
     var h = "";
     if (e) h += '<span class="stand" title="Das Kind findet die Probe auf seiner Startseite unter „Zurückbekommen“">📤 zurückgegeben am ' + esc(datum(e.freigegebenAm)) + (e.geoeffnetAm ? " · geöffnet am " + esc(datum(e.geoeffnetAm)) : " · noch nicht geöffnet") + "</span>";
     h += '<button type="button" data-prl="druck" title="Korrigierte Probe mit Unterschriftsfeld – zum Mitgeben für die Eltern">🖨 Elternansicht</button>';
+    // Probenmodus: Hat der Browser des Kindes etwas festgehalten (Verlassen mit Uhrzeit und Dauer, Einfügen, Kopieren)?
+    var auffaellig = global.ProbeProtokoll ? global.ProbeProtokoll.kurz(r) : "";
+    if (auffaellig || r.verlassen) h += '<button type="button" class="auffaellig" data-prl="prot" title="Probenüberwachung ansehen">🔎 ' + esc(auffaellig || r.verlassen + "× verlassen") + "</button>";
     if (!r.code) h += '<button type="button" disabled title="Diese Abgabe wurde ohne Code geschrieben – zurückgeben geht nur mit Code">📤 Zurückgeben</button>';
     else if (e) h += '<button type="button" data-prl="nehmen">Rückgabe zurücknehmen</button>';
     else h += '<button type="button" class="haupt" data-prl="geben" title="Das Kind sieht dann Antworten, Punkte und bei Fehlern die Lösung">📤 Zurückgeben</button>';
     el.innerHTML = h;
     var druck = el.querySelector('[data-prl="druck"]'), geben = el.querySelector('[data-prl="geben"]'), nehmen = el.querySelector('[data-prl="nehmen"]');
     if (druck) druck.addEventListener("click", function () { drucken([r]); });
+    var prot = el.querySelector('[data-prl="prot"]');
+    if (prot) prot.addEventListener("click", function () { protokollZeigen(r); });
     if (geben) geben.addEventListener("click", function () {
       var k = global.prompt("Kommentar für " + C.wer(r) + " (erscheint über der Korrektur – kann leer bleiben):", "");
       if (k === null) return;
@@ -112,6 +120,15 @@
       nehmen.disabled = true;
       freigeben([r], false).then(function () { meldung("Die Rückgabe an " + C.wer(r) + " ist zurückgenommen."); }).catch(function (x) { nehmen.disabled = false; meldung("Das hat nicht geklappt: " + x.message, "bad"); });
     });
+  }
+
+  function protokollZeigen(r) {
+    var dlg = doc.getElementById("prl-dlg");
+    if (!dlg) { dlg = doc.createElement("dialog"); dlg.id = "prl-dlg"; doc.body.appendChild(dlg); }
+    dlg.innerHTML = '<button type="button" class="zu">Schließen</button><h3>' + esc(C.wer(r)) + '</h3><p style="margin:0;color:#64748b;font-size:.9rem">' + esc(r.testTitle || "") + "</p>" +
+      (global.ProbeProtokoll ? global.ProbeProtokoll.html(r) : "<p>" + esc(r.verlassen || 0) + "× verlassen</p>");
+    dlg.querySelector(".zu").addEventListener("click", function () { dlg.close(); });
+    if (typeof dlg.showModal === "function") { if (!dlg.open) dlg.showModal(); } else dlg.setAttribute("open", "");
   }
 
   function leiste() {
@@ -129,7 +146,8 @@
       '<button type="button" class="neben" id="prl-alle-druck">🖨 Alle für die Eltern drucken</button>' +
       '<button type="button" id="prl-alle"' + (offen.length ? "" : " disabled") + ">📤 Alle zurückgeben</button>" +
       "<p>Zurückgegebene Proben sehen die Kinder mit ihrem Code auf der Startseite unter „Zurückbekommen“: Antworten, Punkte, bei Fehlern die richtige Lösung – zum Ansehen und zum Drucken für die Eltern. " +
-      "Die Elternansicht kannst du auch selbst drucken, einzeln oder für alle Abgaben der Liste (je Kind ein Blatt mit Unterschriftsfeld).</p>" +
+      "Die Elternansicht kannst du auch selbst drucken, einzeln oder für alle Abgaben der Liste (je Kind ein Blatt mit Unterschriftsfeld). " +
+      "🔎 Probenmodus: Hat ein Kind die Probe verlassen oder etwas einfügen wollen, steht das mit Uhrzeit und Dauer bei seiner Abgabe.</p>" +
       '<span id="prl-msg" role="status"></span>';
     tabelle.parentNode.insertBefore(el, tabelle);
     meldung(text);
@@ -190,6 +208,12 @@
     C = cfg; STAND = null; ZELLEN = [];
     stil();
     speicherHinweis();
+    // Anzeige des Probenmodus (js/probe-protokoll.js) nachladen – liegt neben diesem Skript
+    if (!global.ProbeProtokoll && EIGENES && !doc.getElementById("prl-protokoll-skript")) {
+      var ps = doc.createElement("script"); ps.id = "prl-protokoll-skript"; ps.src = EIGENES.replace(/[^/]*$/, "") + "probe-protokoll.js";
+      ps.onload = function () { if (STAND) zeichnen(); };
+      doc.head.appendChild(ps);
+    }
     return standLaden().then(zeichnen);
   }
 

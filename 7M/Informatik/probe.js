@@ -137,7 +137,7 @@
     if (!confirm("Probe wirklich abgeben? Danach kannst du nichts mehr ändern.")) return;
     const button = $("submit-exam"); button.disabled = true; button.textContent = "Wird ausgewertet ...";
     try {
-      const data = await abgeben({testId:exam.test.id,...student,answers:collect(),verlassen:ProbeSchutz.verlassen()}, text => { status(text,true); button.textContent = "Wird noch einmal gesendet ..."; });
+      const data = await abgeben({testId:exam.test.id,...student,answers:collect(),verlassen:ProbeSchutz.verlassen(),protokoll:ProbeSchutz.protokoll()}, text => { status(text,true); button.textContent = "Wird noch einmal gesendet ..."; });
       if (data.angekommen) {
         ProbeSchutz.ende();
         $("questions-section").hidden = true; $("status").hidden = true;
