@@ -1,7 +1,7 @@
 /* Deutsch 7 · Erzählen und kreativ schreiben · Modul 5: Lebendig schreiben
    (Satzanfänge, treffende Verben, Adjektive und Vergleiche, Wiederholungen vermeiden; Duell gegen die KI)
    LehrplanPLUS D7 3.2 (sprachliche Mittel gezielt einsetzen), 3.3 (Texte sprachlich überarbeiten: Satzanfänge,
-   Wortwahl), 4.1 (Wortfelder, Wortschatz). Alle Beispiele sind eigens für GRUMI geschrieben. */
+   Wortwahl), 4.2 (Wörter ordnen und treffend verwenden: Wortfelder). Alle Beispiele sind eigens für GRUMI geschrieben. */
 D7Kit.seite({
   id: "erz-05",
   titel: "Lebendig schreiben",

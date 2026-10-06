@@ -2,7 +2,7 @@
    (Strophe, Vers, Reim; Reimschema: Paarreim, Kreuzreim, umarmender Reim; sprachliche Bilder: Vergleich, Personifikation,
    M7: Metapher und Wirkung; Stimmung, Vortragen; Schreibtrainer: weiterdichten oder umschreiben; Tischduell)
    LehrplanPLUS D7 2.2 (lyrische Texte erschließen: äußere Form, Reim, sprachliche Bilder; M7: Wirkung sprachlicher Mittel),
-   1.2 (Texte sinngestaltend vortragen), 3.2 (gestaltend schreiben).
+   2.1 (Texte sinnentsprechend vortragen), 3.2 (kreative Schreibformen: Gedichte umschreiben).
    Gedichte (texte/literatur/gedichte.js), alle gemeinfrei, Wortlaut am 06.10.2026 mit Wikisource verglichen:
    Morgenstern „Die drei Spatzen“ (10 Verse) · Ringelnatz „Die Ameisen“ (6) · Fontane „Mittag“ (8) · Mörike „Er ist’s“ (9)
    · nur M7: Rilke „Der Panther“ (12). Bei Gedichten ist die Zeilennummer die Versnummer. */

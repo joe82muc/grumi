@@ -27,6 +27,7 @@
   var API = "", PW = "", box = null, PROBEN = null;
   var KLASSEN = [], KURSE = [], CODES = [], SPEICHER = "", KLASSE = "", ANSICHT = "";
   var ZUG_LEER = ""; // Zug ohne Klasse mit Codes (z. B. "9R"), Ansicht "zug"
+  var namenHoerer = false;
   var DATEN = null, NOTEN = null, BEREICH = "", SICHT = [], OFFEN = {}, AUSWERTUNG_MODUL = "", ALLE_AUFGABEN = false, FEHLER_MODUL = "";
   var KURZ = 12; // so viele Aufgaben zeigt die Klassenauswertung zuerst
   var FACH_ICON = { nt: "🔬", d: "📖", e: "💬", i: "💻" };
@@ -43,14 +44,20 @@
     KLASSE = global.localStorage.getItem("lf-klasse") || "";
     ANSICHT = global.localStorage.getItem("lf-ansicht") || "proben";
   } catch (_e) {}
-  // Getrennte Namensliste der Lehrkraft: { code: name }, nur in diesem Browser
+  // Getrennte Namensliste der Lehrkraft: { code: name }. Sie steht im Browser dieses Geräts; mit einem Namens-Schlüssel
+  // legt js/namen-sync.js sie zusätzlich verschlüsselt beim Server ab, damit sie auf jedem Gerät der Lehrkraft steht.
   var NAMEN_KEY = "lf-nt9-namen", NAMEN = {};
-  try { NAMEN = JSON.parse(global.localStorage.getItem(NAMEN_KEY) || "{}") || {}; } catch (_e) { NAMEN = {}; }
-  function namenSichern() { try { global.localStorage.setItem(NAMEN_KEY, JSON.stringify(NAMEN)); } catch (_e) {} }
+  function namenLesen() { try { NAMEN = JSON.parse(global.localStorage.getItem(NAMEN_KEY) || "{}") || {}; } catch (_e) { NAMEN = {}; } }
+  namenLesen();
+  function namenSichern() {
+    if (global.NamenSync) { global.NamenSync.speichern(NAMEN); return; }
+    try { global.localStorage.setItem(NAMEN_KEY, JSON.stringify(NAMEN)); } catch (_e) {}
+  }
   function nameVon(code) { return NAMEN[code] || ""; }
   function merken(k, v) { try { global.localStorage.setItem(k, v); } catch (_e) {} }
 
   var CSS = "" +
+    ".lf-ns{margin:0 0 .8rem;padding:.7rem .85rem;border:1.5px solid var(--line);border-radius:12px;background:#f8fafc}" +
     ".vw-gruppe{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;margin:.35rem 0}" +
     ".vw-stufe{font-size:.74rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:5.2rem}" +
     ".vw-chip{display:inline-flex;align-items:center;gap:.35rem;padding:.45rem .85rem;border:1.5px solid var(--line);border-radius:999px;background:#fff;font:inherit;font-weight:800;font-size:.95rem;cursor:pointer;color:var(--dark)}" +
@@ -945,15 +952,58 @@
       '<textarea class="lf-namen" id="' + id + '-namen" aria-label="Vornamen, einer pro Zeile" placeholder="Hier stehen die Vornamen, einer pro Zeile – von Hand eingetragen oder aus der Klassenliste geladen."></textarea>';
   }
   function datenschutzHinweis() {
-    return '<div class="note">Auf dem Server (Datenbanken von Upstash in Frankfurt) liegen nur Code, Klasse und welche Aufgaben gelöst sind, bei Proben dazu Antworten und Note – keine Namen. ' +
-      'Die Namensliste steht nur in diesem Browser. Für ein anderes Gerät: „Namensliste speichern“ und dort „Gespeicherte Namensliste laden“. Die Klassenliste aus dem Schulmanager enthält viele persönliche Daten: Nach dem Laden die Datei aus dem Download-Ordner löschen. Am Schuljahresende die Klasse löschen.</div>';
+    return '<div class="note">Auf dem Server (Datenbanken von Upstash in Frankfurt) liegen Code, Klasse und welche Aufgaben gelöst sind, bei Proben dazu Antworten und Note – keine lesbaren Namen. ' +
+      'Die Namensliste steht im Browser dieses Geräts. Mit „Namen auf allen deinen Geräten“ wird sie zusätzlich verschlüsselt hinterlegt: Der Namens-Schlüssel bleibt bei dir, Server und Anbieter sehen nur Schlüsseltext. Ohne diese Sicherung: „Namensliste speichern“ und auf dem anderen Gerät „Gespeicherte Namensliste laden“. Die Klassenliste aus dem Schulmanager enthält viele persönliche Daten: Nach dem Laden die Datei aus dem Download-Ordner löschen. Am Schuljahresende die Klasse löschen.</div>';
+  }
+
+  /* ---------- Namen auf allen Geräten der Lehrkraft (js/namen-sync.js) ---------- */
+  function namenBox() {
+    var S = global.NamenSync;
+    if (!S) return "";
+    var z = S.status(), kopf = '<div class="lf-ns" id="lf-ns"><b>📱 Namen auf allen deinen Geräten</b>';
+    var text = '<p class="sub" id="lf-ns-status" style="margin:.25rem 0 .45rem' + (z.fehler ? ";color:#b45309" : "") + '">' + esc(z.text) + "</p>";
+    if (z.zustand === "unmoeglich") return kopf + text + "</div>";
+    if (z.zustand === "an") {
+      return kopf + text + '<div class="btn-row" style="margin:0"><button class="btn btn-ghost btn-sm" id="lf-ns-trennen" type="button">Schlüssel auf diesem Gerät vergessen</button>' +
+        '<button class="btn btn-ghost btn-sm" id="lf-ns-aus" type="button">Sicherung beenden und auf dem Server löschen</button></div></div>';
+    }
+    var holen = z.zustand === "eingabe";
+    return kopf + text +
+      (holen ? "" : '<p class="sub" style="margin:0 0 .45rem">Lege einen <b>Namens-Schlüssel</b> fest: ein eigenes Kennwort mit mindestens 8 Zeichen, nicht das Lehrkraft-Passwort. Damit wird die Namensliste auf diesem Gerät verschlüsselt und so beim Server hinterlegt. Der Schlüssel selbst bleibt bei dir – merke ihn dir gut. Auf jedem weiteren Gerät gibst du ihn einmal ein.</p>') +
+      '<div class="btn-row" style="margin:0"><input type="password" id="lf-ns-feld" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Namens-Schlüssel" aria-label="Namens-Schlüssel" style="flex:1 1 220px;min-width:0;max-width:340px;padding:.5rem .7rem;border:1.5px solid var(--line);border-radius:10px;font:inherit">' +
+      '<button class="btn btn-sm" id="lf-ns-los" type="button">' + (holen ? "Namen auf dieses Gerät holen" : "Einrichten") + "</button>" +
+      (holen ? '<button class="btn btn-ghost btn-sm" id="lf-ns-neu" type="button">Schlüssel vergessen? Neu einrichten</button>' : "") + "</div></div>";
+  }
+  function namenBoxAn(teil) {
+    var S = global.NamenSync;
+    if (!S || !$("lf-ns")) return;
+    var neuZeichnen = function () { namenLesen(); zeichnen(); };
+    var los = function (neu) {
+      var feld = $("lf-ns-feld"), wert = feld ? feld.value : "", knopf = $("lf-ns-los");
+      if (neu && !global.confirm("Neu einrichten?\n\nDie gesicherte Liste auf dem Server wird durch die Namen dieses Geräts ersetzt (" + Object.keys(NAMEN).length + " Namen). Andere Geräte brauchen danach den neuen Namens-Schlüssel.")) return;
+      if (knopf) knopf.disabled = true;
+      (neu || S.status().zustand !== "eingabe" ? S.einrichten(wert) : S.verbinden(wert)).then(function () {
+        neuZeichnen();
+        hinweis(neu || !Object.keys(NAMEN).length ? "Die Namensliste ist verschlüsselt gesichert." : "Die Namensliste ist verschlüsselt gesichert und abgeglichen: " + Object.keys(NAMEN).length + " Namen auf diesem Gerät.", "ok");
+      }).catch(function (e) { if (knopf) knopf.disabled = false; hinweis(e.message, "bad"); });
+    };
+    if ($("lf-ns-los")) $("lf-ns-los").addEventListener("click", function () { los(false); });
+    if ($("lf-ns-feld")) $("lf-ns-feld").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); los(false); } });
+    if ($("lf-ns-neu")) $("lf-ns-neu").addEventListener("click", function () { los(true); });
+    if ($("lf-ns-trennen")) $("lf-ns-trennen").addEventListener("click", function () { S.trennen(); codesZeichnen(teil); });
+    if ($("lf-ns-aus")) $("lf-ns-aus").addEventListener("click", function () {
+      if (!global.confirm("Sicherung beenden?\n\nDie verschlüsselte Namensliste wird auf dem Server gelöscht. Auf diesem Gerät bleiben die Namen stehen; andere Geräte behalten, was sie schon haben.")) return;
+      S.abschalten().then(function () { codesZeichnen(teil); hinweis("Die gesicherte Namensliste ist auf dem Server gelöscht.", "ok"); }).catch(function (e) { hinweis("Das hat nicht geklappt: " + e.message, "bad"); });
+    });
   }
 
   function codesZeichnen(teil) {
     var liste = codesDerKlasse(KLASSE);
     var fehlend = liste.filter(function (k) { return !k.name; }).length;
     var h = '<h3 class="lf-h3" style="margin-top:0">Codes der Klasse ' + esc(KLASSE) + " (" + liste.length + ")</h3>" +
-      (fehlend ? '<div class="note warn" style="margin:0 0 .7rem">Für ' + fehlend + (fehlend === 1 ? " Code fehlt" : " Codes fehlen") + ' in diesem Browser der Name. Lade die Namensliste, die du auf deinem anderen Gerät gespeichert hast.</div>' : "") +
+      (fehlend ? '<div class="note warn" style="margin:0 0 .7rem">Für ' + fehlend + (fehlend === 1 ? " Code fehlt" : " Codes fehlen") + ' auf diesem Gerät der Name.' +
+        (global.NamenSync && global.NamenSync.status().zustand === "eingabe" ? " Gib unten deinen Namens-Schlüssel ein, dann werden die Namen geholt." : " Trage ihn mit ✏️ ein oder lade eine gespeicherte Namensliste.") + "</div>" : "") +
+      namenBox() +
       '<div class="btn-row" style="margin:0 0 .3rem"><button class="btn btn-ghost btn-sm" id="lf-drucken" type="button"' + (liste.length ? "" : " disabled") + ">🖨️ Codeliste drucken</button>" +
       '<button class="btn btn-ghost btn-sm" id="lf-namen-export" type="button"' + (Object.keys(NAMEN).length ? "" : " disabled") + ">Namensliste speichern</button>" +
       '<button class="btn btn-ghost btn-sm" id="lf-namen-import" type="button">Gespeicherte Namensliste laden</button>' +
@@ -974,6 +1024,7 @@
       '<button class="btn btn-bad btn-sm" id="lf-kl-loeschen" type="button">Ganze Klasse löschen</button></div>' +
       datenschutzHinweis();
     teil.innerHTML = h;
+    namenBoxAn(teil);
     $("lf-drucken").addEventListener("click", function () { drucken(KLASSE, liste); });
     $("lf-namen-export").addEventListener("click", namenExport);
     $("lf-namen-import").addEventListener("click", function () { $("lf-namen-datei").click(); });
@@ -1060,7 +1111,7 @@
   }
 
   function umbenennen(code) {
-    var name = global.prompt("Name für Code " + code + " (nur in diesem Browser gespeichert):", nameVon(code));
+    var name = global.prompt("Name für Code " + code + " (nur für dich sichtbar):", nameVon(code));
     if (name === null) return;
     name = name.replace(/\s+/g, " ").trim().slice(0, 40);
     if (name) NAMEN[code] = name; else delete NAMEN[code];
@@ -1275,7 +1326,13 @@
       stil();
       box = container; PW = pw; API = apiBase || ""; PROBEN = proben || null;
       rahmen();
-      return klassenLaden().then(zeichnen).catch(function () {});
+      // Namensliste abgleichen (falls auf diesem Gerät ein Namens-Schlüssel liegt); neue Namen gleich anzeigen
+      var S = global.NamenSync, namen = Promise.resolve();
+      if (S) {
+        if (!namenHoerer) { namenHoerer = true; S.wennGeaendert(function () { namenLesen(); if (box && KLASSEN.length) zeichnen(); }); }
+        namen = S.start(API, PW).then(namenLesen, function () {});
+      }
+      return Promise.all([klassenLaden(), namen]).then(zeichnen).catch(function () {});
     }
   };
 })(window);

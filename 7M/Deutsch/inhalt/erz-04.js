@@ -1,7 +1,7 @@
 /* Deutsch 7 · Erzählen und kreativ schreiben · Modul 4: Gefühle, Gedanken, wörtliche Rede
    (zeigen statt behaupten, äußere und innere Handlung, Zeichen der wörtlichen Rede, Wortfeld „sagen“)
    LehrplanPLUS D7 3.2 (erzählerische Mittel: innere und äußere Handlung, wörtliche Rede), 4.3 (Zeichensetzung bei
-   wörtlicher Rede), 4.1 (Wortschatz erweitern, Wortfelder). Alle Beispiele sind eigens für GRUMI geschrieben. */
+   wörtlicher Rede), 4.2 (Wörter ordnen und treffend verwenden: Wortfeld „sagen“). Alle Beispiele sind eigens für GRUMI geschrieben. */
 D7Kit.seite({
   id: "erz-04",
   titel: "Gefühle, Gedanken, wörtliche Rede",
