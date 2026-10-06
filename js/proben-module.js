@@ -33,17 +33,23 @@
     return "";
   }
   function nt9Zug(t) { return /^nt9r-/.test(t.id) ? "9R" : "9M"; }
+  /* Modulliste (themen.js) zu einem Englisch-Test – aus der Test-ID: E7, E8, E9M oder E9R */
+  function englischListe(t) {
+    var m = String(t.id || "").match(/^e(\d+)([mr]?)-/i);
+    if (!m) return "";
+    return m[1] === "9" ? (m[2].toLowerCase() === "m" ? "E9M" : "E9R") : "E" + m[1];
+  }
 
   var MODULES = [
     {
-      key: "vokabeltest", subject: "Englisch", stufen: [7, 8, 9],
+      key: "vokabeltest", subject: "Englisch", stufen: [7, 8, 9], liste: englischListe,
       listPath: "/api/vokabeltest/list", unlockPath: "/api/vokabeltest/unlock",
       klasse: idKlasse, link: function (t) { return englischSeite(t, "test/lehrer.html"); },
       schueler: function (t) { return englischSeite(t, "test/vokabeltest.html") + "?test=" + encodeURIComponent(t.id); }
     },
     {
       /* Englisch 9R, 9M, 7M und 7R: Grammatikprobe und Grammatiktests G1-G4 (Unit 1) */
-      key: "grammatik9r", subject: "Englisch", stufen: [7, 9],
+      key: "grammatik9r", subject: "Englisch", stufen: [7, 9], liste: englischListe,
       listPath: "/api/grammatik9r/list", unlockPath: "/api/grammatik9r/unlock",
       klasse: idKlasse, link: function (t) { return englischSeite(t, "probe/lehrer.html"); },
       schueler: function (t) { return englischSeite(t, "probe/grammatikprobe.html") + "?test=" + encodeURIComponent(t.id); }

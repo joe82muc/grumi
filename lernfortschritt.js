@@ -384,6 +384,14 @@
         worte: { titel: "Themenbereiche und Module", das: "das Modul", neu: "Alle Module", von: "Modulen", plan: "Module in Vorbereitung" } });
       if (global.TexteVerwaltung) global.TexteVerwaltung.zeige($("vw-d7-texte"), { api: API, pw: PW, klasse: KLASSE, liste: global.D7, name: nameVon });
       fachLaden($("vw-fach"));
+    } else if (/^e[789]$/.test(ANSICHT) && global.NT7Verwaltung && englischListe()) {
+      // Englisch 7, 8 und 9: über dem Lernstand steht das Freischalten der Units und Seiten (gleiche Ansicht wie NT 7).
+      // Für die 9. Klassen gibt es je Zug eine Liste (9M/Englisch_9, 9R/Englisch), der Stand liegt gemeinsam unter /api/e9.
+      var EL = englischListe();
+      teil.innerHTML = '<div id="vw-e-frei"></div><div id="vw-fach"></div>';
+      global.NT7Verwaltung.freigabe($("vw-e-frei"), { api: API, pw: PW, klasse: KLASSE, liste: EL, pfad: EL.PFAD, ordner: EL.ORDNER,
+        worte: { titel: "Units und Seiten", das: "die Seite", neu: "Alle Seiten", von: "Seiten", plan: "Seiten in Vorbereitung" } });
+      fachLaden($("vw-fach"));
     } else {
       fachLaden(teil);
     }
@@ -808,7 +816,14 @@
   function kuerzel(m) {
     var L = { nt7: global.NT7, d7: global.D7, i7: global.INF7, i8: global.INF8 }[m.kurs];
     var r = L && L.modulVon ? L.modulVon(String(m.id).slice(String(m.kurs).length + 1)) : null;
+    // Englisch: Die Liste nennt bei jeder Seite ihre Kennung im Lernstand (ls)
+    if (!r && /^e[789]$/.test(m.kurs) && englischListe()) r = englischListe().modulZumLernstand(m.id);
     return (r && r.modul.kz) || "";
+  }
+  // Englisch-Liste (themen.js) zur gewählten Klasse: 7 -> E7, 8 -> E8, 9 -> E9M oder E9R
+  function englischListe() {
+    var st = stufeVon(KLASSE);
+    return st === 9 ? (zugBuchstabe(KLASSE) === "M" ? global.E9M : global.E9R) : st === 8 ? global.E8 : st === 7 ? global.E7 : null;
   }
   function kurzName(m) { return kuerzel(m) || m.kurz || m.titel || "Modul " + m.nr; }
   // Notenübersicht: Module, die eine Probe enthält (Kürzel; der Titel steht beim Darüberfahren) – js/proben-module.js

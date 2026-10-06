@@ -99,7 +99,10 @@
     function fuerWen(p) { return /\d$/.test(p.klasse) ? "für alle " + p.klasse + ". Klassen" : "für alle " + p.klasse + "-Klassen"; }
     // Zeilen der Proben, die Module dieses Themenbereichs enthalten – sie stehen unter den Modulen
     function probenZeilen(t) {
-      return PROBEN.filter(function (p) { return N.probeModule(p.id).some(function (m) { return t.module.indexOf(m) >= 0; }); }).map(function (p) {
+      return PROBEN.filter(function (p) {
+        // Englisch nennt den Bereich der Probe selbst (Unit aus der Test-ID), sonst zählen die enthaltenen Module
+        return N.probeThemen ? N.probeThemen(p.id).indexOf(t.id) >= 0 : N.probeModule(p.id).some(function (m) { return t.module.indexOf(m) >= 0; });
+      }).map(function (p) {
         var teile = [], inhalt = N.probeModule(p.id).map(function (m) { return m.kz; }).join(" ");
         if (p.aufgaben) teile.push(p.aufgaben + " Aufgaben");
         if (p.punkte) teile.push(p.punkte + " Punkte");
