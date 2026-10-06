@@ -134,6 +134,8 @@
       if (nr !== lauf) return;
       bekannt = true;
       if (L.offen(reg.modul, reg.thema, stand)) offenZeigen();
+      // Von sich aus offene Seite, die die Lehrkraft für die Klasse gesperrt hat: „noch nicht“ würde hier nicht stimmen
+      else if (vonSichAusOffen) hinweis("zu", "„" + reg.modul.titel + "“ ist für deine Klasse gerade gesperrt", "Deine Lehrkraft hat diese Seite für deine Klasse gesperrt. Frag sie, wenn du damit lernen möchtest.");
       else hinweis("zu", titel, "Deine Lehrkraft schaltet das frei, wenn ihr im Unterricht so weit seid. Frag sie, wenn du schon weiterlernen möchtest.");
     }, function (text, wachtAuf) {
       if (nr !== lauf || bekannt || vonSichAusOffen) return;
