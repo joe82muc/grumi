@@ -176,7 +176,7 @@ const API_BASE = (location.hostname.includes('github.io') || location.protocol =
 
 /* Die Module (Endpunkte, Klassen, Lehrer- und Schülerseiten) stehen in js/proben-module.js,
    weil auch die Startseite der Kinder sie für die Proben-Kachel braucht. */
-const { MODULES, probeInhalt } = window.GrumiProbenModule;
+const { MODULES, probeInhalt, beiModulen } = window.GrumiProbenModule;
 
 /* Reihenfolge der Faecher in der Anzeige */
 const SUBJECT_ORDER = ['Englisch','Deutsch','Mathematik','Natur und Technik','Informatik'];
@@ -245,7 +245,7 @@ const Proben = (() => {
         const data = await res.json();
         (data.tests || []).forEach(t => rows.push({
           mod, subject: mod.subject, id: t.id, title: t.title || t.id, klasse: mod.klasse(t),
-          unlocked: Boolean(t.unlocked), itemCount: t.itemCount, maxPoints: t.maxPoints, inhalt: probeInhalt(mod, t),
+          unlocked: Boolean(t.unlocked), itemCount: t.itemCount, maxPoints: t.maxPoints, inhalt: probeInhalt(mod, t), beiModulen: beiModulen(mod, t),
           link: mod.link(t), schueler: mod.schueler(t)
         }));
       }catch(e){ fehlend.push(mod.key); }
@@ -255,14 +255,22 @@ const Proben = (() => {
 
   // f: { stufe, zug } oder null (alle). Probe „7“ gilt für alle 7. Klassen, „7M“ nur für den M-Zug.
   // f.zuege: weitere Züge derselben Stufe, die mit angezeigt werden (z. B. 9R, solange es keine 9R-Klasse gibt)
+  // f.fach: nur die Proben dieses Fachs, die nicht schon unter Modulen der Freischalt-Liste stehen (Reiter eines Fachs)
   function passt(r){
     if(!filter) return true;
+    if(filter.fach && (r.subject !== filter.fach || r.beiModulen || r.noUnlock)) return false;
     return r.klasse === String(filter.stufe) || r.klasse === filter.stufe + filter.zug ||
       (filter.zuege || []).some(z => r.klasse === filter.stufe + z);
   }
 
   async function zeigen(container, f){
     ziel = container; filter = f;
+    if(f && f.fach){
+      // Im Reiter eines Fachs: ohne Werkzeugleiste, und nur wenn es dort Proben gibt (sonst bleibt der Platz leer)
+      container.innerHTML = '<div id="pr-msg"></div><div id="pr-groups"></div>';
+      await neuLaden();
+      return;
+    }
     container.innerHTML =
       '<div class="toolbar" style="margin-bottom:.4rem"><div class="spacer"></div>' +
       '<button class="btn btn-ghost btn-sm" id="pr-reload" type="button">Neu laden</button>' +
@@ -285,6 +293,11 @@ const Proben = (() => {
     const box = $('pr-groups');
     box.innerHTML = '';
     const sichtbar = ROWS.filter(passt);
+    if(filter && filter.fach){
+      if(!sichtbar.length){ box.innerHTML = ''; note($('pr-msg'), ''); return; }
+      box.innerHTML = '<p class="sub" style="margin:0 0 .5rem">📝 Proben in ' + esc(filter.fach) + ': Freischalten gilt für die Probe selbst – also für alle Klassen, die sie schreiben. ' +
+        'Ist eine Probe offen, steht der Link für die Kinder direkt dabei. Offene Proben schließen sich 3 Stunden nach dem Freischalten von selbst (Abgeben geht noch 1 Stunde länger).</p>';
+    }
     if(!sichtbar.length){
       box.innerHTML = '<div class="skel">' + (ROWS.length ? 'Für diese Klasse gibt es (noch) keine Proben.' : 'Es konnten keine Proben geladen werden.') + '</div>';
     }

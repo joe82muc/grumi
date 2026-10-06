@@ -136,5 +136,13 @@
     return L && L.probeModule ? L.probeModule(test.id).map(function (m) { return { kz: m.kz || "", titel: m.titel }; }) : [];
   }
 
-  global.GrumiProbenModule = { MODULES: MODULES, idKlasse: idKlasse, englischSeite: englischSeite, probeInhalt: probeInhalt };
+  /* Steht die Probe in der Freischalt-Liste ihres Fachs schon unter Modulen? (Dann braucht sie beim Fach keine eigene
+     Karte.) Englisch nennt den Bereich über die Test-ID (probeThemen), sonst zählen die enthaltenen Module. */
+  function beiModulen(mod, test) {
+    var L = mod && mod.liste && global[typeof mod.liste === "function" ? mod.liste(test) : mod.liste];
+    if (!L || !L.probeModule) return false;
+    return L.probeThemen ? L.probeThemen(test.id).length > 0 : L.probeModule(test.id).length > 0;
+  }
+
+  global.GrumiProbenModule = { MODULES: MODULES, idKlasse: idKlasse, englischSeite: englischSeite, probeInhalt: probeInhalt, beiModulen: beiModulen };
 })(window);

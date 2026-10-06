@@ -42,7 +42,7 @@
   };
   try {
     KLASSE = global.localStorage.getItem("lf-klasse") || "";
-    ANSICHT = global.localStorage.getItem("lf-ansicht") || "proben";
+    ANSICHT = global.localStorage.getItem("lf-ansicht") || "noten";
   } catch (_e) {}
   // Getrennte Namensliste der Lehrkraft: { code: name }. Sie steht im Browser dieses Geräts; mit einem Namens-Schlüssel
   // legt js/namen-sync.js sie zusätzlich verschlüsselt beim Server ab, damit sie auf jedem Gerät der Lehrkraft steht.
@@ -278,7 +278,7 @@
     Array.prototype.forEach.call($("vw-klassen").querySelectorAll("[data-klasse]"), function (b) {
       b.addEventListener("click", function () {
         KLASSE = b.getAttribute("data-klasse"); merken("lf-klasse", KLASSE);
-        if (ANSICHT === "neu" || ANSICHT === "alle" || ANSICHT === "zug") ANSICHT = "proben";
+        if (ANSICHT === "neu" || ANSICHT === "alle" || ANSICHT === "zug") ANSICHT = "noten";
         OFFEN = {}; ALLE_AUFGABEN = false; DATEN = null;
         zeichnen();
       });
@@ -319,16 +319,19 @@
       if (PROBEN) PROBEN.zeigen($("vw-proben"), { stufe: zst, zug: zz });
       return;
     }
-    if (ANSICHT === "zug") ANSICHT = "proben";
+    if (ANSICHT === "zug") ANSICHT = "noten";
     if (!KLASSE) { el.innerHTML = ""; return; }
     var kurse = klassenKurse(KLASSE);
-    var gueltig = ["proben", "noten", "heft", "rat", "codes"].concat(kurse.map(function (k) { return k.id; }));
-    if (gueltig.indexOf(ANSICHT) < 0) ANSICHT = "proben";
+    // Einen eigenen Reiter „Proben“ gibt es nicht mehr (06.10.2026): Proben werden beim Fach freigeschaltet – unter den
+    // Modulen, die sie enthalten (nt7-verwaltung.js), sonst als Karten über dem Lernstand des Fachs (fachProben).
+    // Alle Proben aller Klassen stehen weiter hinter dem Knopf oben.
+    var gueltig = ["noten", "heft", "rat", "codes"].concat(kurse.map(function (k) { return k.id; }));
+    if (gueltig.indexOf(ANSICHT) < 0) ANSICHT = "noten";
     var info = KLASSEN.filter(function (k) { return k.klasse === KLASSE; })[0] || { anzahl: 0 };
     var h = '<div class="vw-kl-kopf"><h2>Klasse ' + esc(KLASSE) + '</h2><span class="vw-badge">Jahrgangsstufe ' + stufeVon(KLASSE) + " · " + zugText(KLASSE) +
       " · " + info.anzahl + (info.anzahl === 1 ? " Code" : " Codes") + "</span></div>";
     if (nurZug(KLASSE)) h += '<div class="note warn" style="margin:0 0 .9rem">Diese Codes stammen aus der ersten Fassung und kennen nur den Zug. Unter „Codes &amp; Namen“ kannst du die Klasse umbenennen, z. B. in ' + (zugBuchstabe(KLASSE) === "M" ? stufeVon(KLASSE) + "aM" : stufeVon(KLASSE) + "d") + ". Codes und Lernstand bleiben erhalten.</div>";
-    h += '<nav class="vw-tabs" aria-label="Bereiche der Klasse"><button type="button" data-ansicht="proben">🔓 Proben</button>' +
+    h += '<nav class="vw-tabs" aria-label="Bereiche der Klasse">' +
       '<button type="button" data-ansicht="noten">📝 Noten</button>' +
       '<button type="button" data-ansicht="heft">📚 Hausaufgaben</button><button type="button" data-ansicht="rat">📮 Klassenrat</button>' +
       kurse.map(function (k) { return '<button type="button" data-ansicht="' + esc(k.id) + '">' + (FACH_ICON[k.fach] || "📈") + " " + esc(k.fachName) + "</button>"; }).join("") +
@@ -339,17 +342,7 @@
       b.addEventListener("click", function () { ansicht(b.getAttribute("data-ansicht")); });
     });
     var teil = $("vw-teil");
-    if (ANSICHT === "proben") {
-      teil.innerHTML = '<p class="sub">Proben für Klasse ' + esc(KLASSE) + '. Freischalten gilt für die Probe selbst – also für alle Klassen, die sie schreiben (z. B. alle ' + stufeVon(KLASSE) + zugBuchstabe(KLASSE) + '-Klassen). Ist eine Probe offen, steht der Link für die Kinder direkt dabei. Offene Proben schließen sich 3 Stunden nach dem Freischalten von selbst (Abgeben geht noch 1 Stunde länger).</p><div id="vw-proben"></div>';
-      // Gibt es für den anderen Zug dieser Stufe noch keine Klasse (z. B. 9R), stehen dessen Proben hier mit dabei
-      var ohneKlasse = fehlendeZuege(stufeVon(KLASSE));
-      if (ohneKlasse.length) {
-        var namenOhne = ohneKlasse.map(function (z) { return stufeVon(KLASSE) + z; }).join(" und ");
-        teil.insertAdjacentHTML("afterbegin", '<div class="note warn" style="margin:0 0 .8rem">Für ' + esc(namenOhne) + " gibt es noch keine Klasse mit Codes. " +
-          "Deshalb stehen die " + esc(namenOhne) + "-Proben hier mit dabei (Kennzeichen „Klasse " + esc(namenOhne) + "“). Damit sich die Kinder anmelden können, lege die Klasse unter „＋ Neue Klasse (Klassenliste hochladen)“ an.</div>");
-      }
-      if (PROBEN) PROBEN.zeigen($("vw-proben"), { stufe: stufeVon(KLASSE), zug: zugBuchstabe(KLASSE), zuege: ohneKlasse });
-    } else if (ANSICHT === "noten") {
+    if (ANSICHT === "noten") {
       notenLaden(teil);
     } else if (ANSICHT === "heft" || ANSICHT === "rat") {
       // Hausaufgabenheft und Klassenrat-Briefkasten der Klasse (klasse-verwaltung.js)
@@ -393,7 +386,15 @@
         worte: { titel: "Units und Seiten", das: "die Seite", neu: "Alle Seiten", von: "Seiten", plan: "Seiten in Vorbereitung" } });
       fachLaden($("vw-fach"));
     } else {
-      fachLaden(teil);
+      teil.innerHTML = '<div id="vw-fach"></div>';
+      fachLaden($("vw-fach"));
+    }
+    // Proben des Fachs, die nicht unter Modulen stehen (Fächer ohne Modulliste wie NT 9 oder Informatik 9, ältere
+    // Proben ohne Zuordnung): als Karten über dem Lernstand, freischaltbar wie bisher im Reiter „Proben“
+    var fachEl = $("vw-fach"), kurs = kursVon(ANSICHT);
+    if (fachEl && kurs && PROBEN) {
+      fachEl.insertAdjacentHTML("beforebegin", '<div id="vw-fach-proben"></div>');
+      PROBEN.zeigen($("vw-fach-proben"), { stufe: stufeVon(KLASSE), zug: zugBuchstabe(KLASSE), fach: kurs.fachName });
     }
   }
 

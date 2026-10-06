@@ -3,7 +3,8 @@
  * Aufruf aus lernfortschritt.js:  NT7Verwaltung.freigabe(el, { api, pw, klasse })
  * Themen und Module: 7M/NT/themen.js (window.NT7). Server: /api/nt7/lehrer/freigabe (englisch_9, nt7-freigabe.js).
  * Die Proben des Fachs stehen unter den Modulen, die sie enthalten (js/proben-module.js: liste, probeModule in themen.js),
- * und lassen sich dort freischalten – wie im Reiter „Proben“. Eine Probe gilt für alle Klassen ihres Zugs.
+ * und lassen sich dort freischalten (einen eigenen Reiter „Proben“ gibt es nicht mehr). Eine Probe gilt für alle
+ * Klassen ihres Zugs. Ist sie offen, steht der Link für die Kinder dabei.
  *
  * Auch für Informatik 7 (Module und Einheiten, 7M/Informatik/themen.js, Server /api/inf7):
  *   NT7Verwaltung.freigabe(el, { api, pw, klasse, liste: window.INF7, pfad: "/api/inf7", ordner: "7M/Informatik/",
@@ -92,7 +93,7 @@
       return Promise.all(mods.map(function (mod) {
         return fetch(ctx.api + mod.listPath).then(function (r) { return r.ok ? r.json() : { tests: [] }; }).then(function (d) {
           return (d.tests || []).filter(function (t) { var k = mod.klasse(t); return listeVon(mod, t) === N && (k === String(STUFE) || k === STUFE + ZUG); })
-            .map(function (t) { return { mod: mod, id: t.id, titel: t.title || t.id, offen: !!t.unlocked, aufgaben: t.itemCount, punkte: t.maxPoints, klasse: mod.klasse(t), link: mod.link ? mod.link(t) : "" }; });
+            .map(function (t) { return { mod: mod, id: t.id, titel: t.title || t.id, offen: !!t.unlocked, aufgaben: t.itemCount, punkte: t.maxPoints, klasse: mod.klasse(t), link: mod.link ? mod.link(t) : "", schueler: mod.schueler ? mod.schueler(t) : "" }; });
         }).catch(function () { return []; });
       })).then(function (teile) { PROBEN = [].concat.apply([], teile); });
     }
@@ -108,7 +109,8 @@
         if (p.punkte) teile.push(p.punkte + " Punkte");
         if (inhalt) teile.push("enthält " + inhalt);
         teile.push("gilt " + fuerWen(p));
-        return '<div class="nt7f-probe"><span class="nr" aria-hidden="true">📝</span><span><b>' + esc(p.titel) + "</b><small>" + esc(teile.join(" · ")) + "</small></span>" +
+        return '<div class="nt7f-probe"><span class="nr" aria-hidden="true">📝</span><span><b>' + esc(p.titel) + "</b><small>" + esc(teile.join(" · ")) +
+          (p.offen && p.schueler ? ' · <a href="' + esc(p.schueler) + '" target="_blank" rel="noopener">🔗 Seite für die Kinder ↗</a>' : "") + "</small></span>" +
           '<button class="nt7f-schalter' + (p.offen ? " offen" : "") + '" type="button" data-probe="' + esc(p.id) + '" data-offen="' + (p.offen ? "0" : "1") + '" aria-pressed="' + p.offen + '">' + (p.offen ? "✓ offen" : "🔒 gesperrt") + "</button>" +
           (p.link ? '<a href="' + esc(p.link) + '">Ergebnisse →</a>' : "<span></span>") + "</div>";
       }).join("");
@@ -116,7 +118,7 @@
     function zeichnen(meldung) {
       var h = '<summary>🔓 ' + esc(W.titel) + ' freischalten <small>für Klasse ' + esc(ctx.klasse) + "</small></summary>" +
         '<p class="sub" style="margin:0 0 .2rem">Offen heißt: Die Kinder der ' + esc(ctx.klasse) + " sehen " + esc(W.das) + " nach der Anmeldung mit ihrem Code in ihrer Übersicht. " +
-        esc(W.neu) + " sind zuerst gesperrt, damit du sie vorher ansehen kannst („Vorschau“)." + (W.ohneProben ? "" : " Die Proben (📝) stehen unter den Modulen, die sie enthalten – eine Probe gilt immer für alle Klassen ihres Zugs.") +
+        esc(W.neu) + " sind zuerst gesperrt, damit du sie vorher ansehen kannst („Vorschau“)." + (W.ohneProben ? "" : " Die Proben (📝) stehen unter den Modulen, die sie enthalten – eine Probe gilt immer für alle Klassen ihres Zugs und schließt sich 3 Stunden nach dem Freischalten von selbst.") +
         " Das Kürzel vorn (z. B. " + esc(beispielKz()) + ") ist der feste Name des Moduls: Die Kinder sehen es nicht, bei jeder Probe steht damit, welche Module sie enthält.</p>" +
         '<div id="nt7f-msg">' + (meldung ? '<div class="note ' + meldung[1] + '" style="margin:.5rem 0 0">' + esc(meldung[0]) + "</div>" : "") + "</div>";
       N.THEMEN.forEach(function (t) {
@@ -163,7 +165,7 @@
           fetch(ctx.api + p.mod.unlockPath, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: ctx.pw, testId: p.id, open: auf }) })
             .then(function (r) { return r.json().catch(function () { return {}; }).then(function (x) { if (!r.ok || !x.ok) throw new Error(x.error || "HTTP " + r.status); }); })
             .then(probenLaden)
-            .then(function () { zeichnen(["„" + p.titel + "“ ist jetzt " + (auf ? "freigeschaltet – " + fuerWen(p) + ". Den Link für die Kinder findest du im Reiter „Proben“." : "gesperrt."), "ok"]); })
+            .then(function () { zeichnen(["„" + p.titel + "“ ist jetzt " + (auf ? "freigeschaltet – " + fuerWen(p) + ". Die Kinder finden sie auf ihrer Startseite und in der Übersicht des Fachs; der Link steht auch bei der Probe." : "gesperrt."), "ok"]); })
             .catch(function (x) { b.disabled = false; zeichnen(["Die Probe ließ sich nicht umschalten: " + x.message, "bad"]); });
         });
       });
