@@ -8,6 +8,10 @@
  *   NT7Verwaltung.freigabe(el, { api, pw, klasse, liste: window.INF7, pfad: "/api/inf7", ordner: "7M/Informatik/",
  *                                worte: { titel, das, neu, von, plan } })
  * und für Deutsch 7 (Themenbereiche und Module, 7M/Deutsch/themen.js, Server /api/d7; worte.ohneProben: kein Hinweis auf Proben).
+ *
+ * Extra-Module (in der Liste mit extra: "<Kennung ihres Moduls>", z. B. „Zeitformen wiederholen“ in Deutsch 7) stehen
+ * eingerückt unter ihrem Modul. Sie zählen bei „x von y offen“ nicht mit und folgen nicht „Alle freischalten“ –
+ * jedes wird einzeln geschaltet.
  */
 (function (global) {
   "use strict";
@@ -24,6 +28,9 @@
     ".nt7f-zeile{display:grid;grid-template-columns:2rem 1fr auto auto;gap:.5rem .8rem;align-items:center;padding:.5rem .9rem;border-top:1px solid var(--line)}" +
     ".nt7f-zeile .nr{font-weight:900;color:var(--muted)}" +
     ".nt7f-zeile.plan{color:var(--muted)}" +
+    ".nt7f-zeile.extra{background:#fffaf2;padding-left:1.7rem}.nt7f-zeile.extra .nr{color:#b7791f}" +
+    ".nt7f-extra-kopf{padding:.45rem .9rem .35rem 1.7rem;border-top:1px solid var(--line);background:#fffaf2;font-size:.86rem;color:#6b4e16}" +
+    ".nt7f-extra-kopf b{display:block}" +
     ".nt7f-zeile a{font-size:.82rem;font-weight:800;color:var(--accent);white-space:nowrap}" +
     ".nt7f-schalter{border:1.5px solid var(--line);border-radius:999px;padding:.32rem .8rem;font:800 .82rem inherit;font-family:inherit;cursor:pointer;background:#eef1f5;color:#4b5563;min-width:7.4rem}" +
     ".nt7f-schalter.offen{background:#e9f8ee;border-color:#9bd3ae;color:#15803d}" +
@@ -71,18 +78,31 @@
         esc(W.neu) + " sind zuerst gesperrt, damit du sie vorher ansehen kannst („Vorschau“)." + (W.ohneProben ? "" : " Proben schaltest du im Reiter „Proben“ frei.") + "</p>" +
         '<div id="nt7f-msg">' + (meldung ? '<div class="note ' + meldung[1] + '" style="margin:.5rem 0 0">' + esc(meldung[0]) + "</div>" : "") + "</div>";
       N.THEMEN.forEach(function (t) {
-        var fertig = t.module.filter(function (m) { return m.href; });
+        var haupt = t.module.filter(function (m) { return !m.extra; });
+        var fertig = haupt.filter(function (m) { return m.href; });
         var offen = fertig.filter(function (m) { return N.offen(m, t, STAND); }).length;
         h += '<div class="nt7f-thema"><div class="nt7f-kopf"><div><b>' + t.icon + " " + esc(t.titel) + "</b><small>" +
           (fertig.length ? offen + " von " + fertig.length + " " + esc(W.von) + " offen" : esc(W.plan)) + "</small></div>" +
           (fertig.length ? '<div class="nt7f-knoepfe"><button class="btn btn-sm btn-ok" type="button" data-thema="' + esc(t.id) + '" data-offen="1"' + (offen === fertig.length ? " disabled" : "") + ">Alle freischalten</button>" +
             '<button class="btn btn-sm btn-ghost" type="button" data-thema="' + esc(t.id) + '" data-offen="0"' + (offen === 0 ? " disabled" : "") + ">Alle sperren</button></div>" : "") + "</div>";
-        t.module.forEach(function (m, i) {
+        haupt.forEach(function (m, i) {
           if (!m.href) { h += '<div class="nt7f-zeile plan"><span class="nr">' + (i + 1) + "</span><span>" + esc(m.titel) + '</span><span class="nt7f-plan">in Vorbereitung</span><span></span></div>'; return; }
           var o = N.offen(m, t, STAND);
           h += '<div class="nt7f-zeile"><span class="nr">' + (i + 1) + "</span><span>" + esc(m.titel) + "</span>" +
             '<button class="nt7f-schalter' + (o ? " offen" : "") + '" type="button" data-modul="' + esc(m.id) + '" data-offen="' + (o ? "0" : "1") + '" aria-pressed="' + o + '">' + (o ? "✓ offen" : "🔒 gesperrt") + "</button>" +
             '<a href="' + esc(ORDNER) + esc(m.href) + '?vorschau=1" target="_blank" rel="noopener">Vorschau ↗</a></div>';
+          // Extra-Module dieses Moduls: eingerückt, jedes einzeln schaltbar
+          var extras = t.module.filter(function (x) { return x.extra === m.id && x.href; });
+          if (extras.length) {
+            h += '<div class="nt7f-extra-kopf"><b>＋ Extra zu „' + esc(m.titel) + "“ – einzeln freischalten</b>" +
+              (m.extraFrage ? "Die Kinder sehen sie unter diesem Modul: „" + esc(m.extraFrage) + "“ Sie zählen nicht zum Lernfortschritt." : "") + "</div>";
+          }
+          extras.forEach(function (x) {
+            var xo = N.offen(x, t, STAND);
+            h += '<div class="nt7f-zeile extra"><span class="nr">↳</span><span>' + esc(x.titel) + "</span>" +
+              '<button class="nt7f-schalter' + (xo ? " offen" : "") + '" type="button" data-modul="' + esc(x.id) + '" data-offen="' + (xo ? "0" : "1") + '" aria-pressed="' + xo + '">' + (xo ? "✓ offen" : "🔒 gesperrt") + "</button>" +
+              '<a href="' + esc(ORDNER) + esc(x.href) + '?vorschau=1" target="_blank" rel="noopener">Vorschau ↗</a></div>';
+          });
         });
         h += "</div>";
       });
@@ -97,7 +117,8 @@
         b.addEventListener("click", function () {
           var t = N.THEMEN.filter(function (x) { return x.id === b.getAttribute("data-thema"); })[0];
           // Das Thema gilt danach für alle seine Module: Einzel-Einträge der Module räumt der Server mit auf
-          setzen(b, { art: "thema", id: t.id, offen: b.getAttribute("data-offen") === "1", module: t.module.map(function (m) { return m.id; }) });
+          // (Extra-Module bleiben, wie sie sind: Sie werden nur einzeln geschaltet)
+          setzen(b, { art: "thema", id: t.id, offen: b.getAttribute("data-offen") === "1", module: t.module.filter(function (m) { return !m.extra; }).map(function (m) { return m.id; }) });
         });
       });
     }

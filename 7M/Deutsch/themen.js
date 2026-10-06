@@ -8,6 +8,10 @@
  *            key   = Speicherschlüssel des Fortschritts auf dem Gerät
  *            href  = Datei in 7M/Deutsch
  *            basis, plus = Zahl der Aufgaben (Grammatik und Rechtschreibung; Plus ist für R-Klassen freiwillig)
+ *            extra = Kennung des Moduls, zu dem ein Extra-Modul gehört (kleine Wiederholung, z. B. „Präsens“ zu
+ *                    „Zeitformen bis Futur II“). Extras hängen in der Übersicht unter ihrem Modul, zählen nicht zum
+ *                    Lernfortschritt und werden nur einzeln freigeschaltet – „Alle freischalten“ öffnet sie nicht mit.
+ *            extraFrage, extraText = Überschrift und Satz über den Extras eines Moduls
  *
  * Freischalten: Die Lehrkraft schaltet je Klasse Themenbereiche oder einzelne Module frei (Verwaltung → Klasse →
  * Deutsch, Server /api/d7/freigabe). Ein Eintrag für das Modul geht vor dem Eintrag seines Themenbereichs; ohne
@@ -49,7 +53,9 @@
         { id: "gr-01", titel: "Wortarten und Pronomen", href: "Grammatik/gr_01.html", key: "grumi-d7-gr-01", basis: 6, plus: 4,
           text: "Wortarten wiederholen, Demonstrativ- und Relativpronomen, Relativsätze bilden." },
         { id: "gr-02", titel: "Zeitformen bis Futur II", href: "Grammatik/gr_02.html", key: "grumi-d7-gr-02", basis: 6, plus: 4,
-          text: "Alle sechs Zeitformen bilden und bestimmen – neu: das Futur II." },
+          text: "Alle sechs Zeitformen bilden und bestimmen – neu: das Futur II.",
+          extraFrage: "Du kennst dich noch nicht so gut mit Zeitformen aus?",
+          extraText: "Dann wiederhole zuerst – jede Zeitform einzeln, mit kurzer Erklärung und vier Übungen." },
         { id: "gr-03", titel: "Aktiv und Passiv", href: "Grammatik/gr_03.html", key: "grumi-d7-gr-03", basis: 6, plus: 4,
           text: "Wer handelt, was passiert? Das Passiv bilden und Sätze umformen." },
         { id: "gr-04", titel: "Konjunktiv", href: "Grammatik/gr_04.html", key: "grumi-d7-gr-04", basis: 6, plus: 4,
@@ -59,7 +65,18 @@
         { id: "gr-06", titel: "Satzreihe und Satzgefüge", href: "Grammatik/gr_06.html", key: "grumi-d7-gr-06", basis: 6, plus: 3,
           text: "Haupt- und Nebensatz, Sätze verbinden, Kommas setzen." },
         { id: "gr-07", titel: "Gliedsätze", href: "Grammatik/gr_07.html", key: "grumi-d7-gr-07", basis: 6, plus: 3,
-          text: "Subjektsatz und Objektsatz – im M-Zug auch Adverbialsätze." }
+          text: "Subjektsatz und Objektsatz – im M-Zug auch Adverbialsätze." },
+        // Extra zu Modul 2: Zeitformen wiederholen (für 7M und 7R gleich, ohne Plus-Teil)
+        { id: "zf-praesens", extra: "gr-02", kurz: "Präsens", titel: "Präsens (Gegenwart)", href: "Grammatik/zf_praesens.html", key: "grumi-d7-zf-praesens", basis: 4,
+          text: "Was jetzt passiert oder immer so ist." },
+        { id: "zf-praeteritum", extra: "gr-02", kurz: "Präteritum", titel: "Präteritum (1. Vergangenheit)", href: "Grammatik/zf_praeteritum.html", key: "grumi-d7-zf-praeteritum", basis: 4,
+          text: "Schriftlich erzählen: Es war einmal …" },
+        { id: "zf-perfekt", extra: "gr-02", kurz: "Perfekt", titel: "Perfekt (2. Vergangenheit)", href: "Grammatik/zf_perfekt.html", key: "grumi-d7-zf-perfekt", basis: 4,
+          text: "Mündlich erzählen: Ich habe … gespielt." },
+        { id: "zf-plusquamperfekt", extra: "gr-02", kurz: "Plusquamperfekt", titel: "Plusquamperfekt (Vorvergangenheit)", href: "Grammatik/zf_plusquamperfekt.html", key: "grumi-d7-zf-plusquamperfekt", basis: 4,
+          text: "Was vorher schon passiert war." },
+        { id: "zf-futur", extra: "gr-02", kurz: "Futur I", titel: "Futur I (Zukunft)", href: "Grammatik/zf_futur.html", key: "grumi-d7-zf-futur", basis: 4,
+          text: "Was noch kommen wird." }
       ]
     },
     {
@@ -102,6 +119,8 @@
   function offen(modul, thema, stand) {
     if (VORSCHAU) return true;
     var s = stand || {}, m = (s.module || {})[modul.id], t = (s.themen || {})[thema.id];
+    // Extra-Module folgen nicht dem Themenbereich: Sie sind nur offen, wenn die Lehrkraft sie einzeln freischaltet
+    if (modul.extra) return m === true;
     if (m === true || m === false) return m;
     if (t === true || t === false) return t;
     return Boolean(modul.offen);
@@ -113,13 +132,21 @@
   // Stand der Klasse holen. cb(stand, quelle) kommt bis zu zweimal: sofort aus dem Speicher des Geräts
   // (quelle "speicher"), dann vom Server ("server"). Ohne Anmeldung: cb(null, "gast").
   // Antwortet der Server nicht, bleibt es beim Speicher; fehler(text) meldet das (z. B. „Server wacht auf“).
+  var laufend = {};
   function freigabe(anmeldung, cb, fehler) {
     if (!anmeldung || !anmeldung.code) { cb(null, "gast"); return; }
     var alt = liesSpeicher(anmeldung.klasse);
     if (alt) cb(alt, "speicher");
+    // Läuft für diesen Code schon eine Abfrage (z. B. Sperre der Seite und Hinweis auf Extra-Module), hängt sich die
+    // zweite an: eine Anfrage an den Server, beide bekommen die Antwort
+    var code = String(anmeldung.code);
+    if (laufend[code]) { laufend[code].push([cb, fehler]); return; }
+    var warten = laufend[code] = [];
+    var cbAlle = function (stand, quelle) { cb(stand, quelle); warten.forEach(function (w) { w[0](stand, quelle); }); };
+    var fehlerAlle = function (text, wachtAuf) { if (fehler) fehler(text, wachtAuf); warten.forEach(function (w) { if (w[1]) w[1](text, wachtAuf); }); };
     var ctl = global.AbortController ? new AbortController() : null;
     var zeit = setTimeout(function () { if (ctl) ctl.abort(); }, 75000);
-    var langsam = setTimeout(function () { if (fehler) fehler("Der Server wacht gerade auf – das kann bis zu einer Minute dauern.", true); }, 6000);
+    var langsam = setTimeout(function () { fehlerAlle("Der Server wacht gerade auf – das kann bis zu einer Minute dauern.", true); }, 6000);
     global.fetch(API + "/api/d7/freigabe", {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: anmeldung.code }),
       signal: ctl ? ctl.signal : undefined
@@ -127,10 +154,10 @@
       if (!d.ok) throw new Error(d.error || "Fehler " + d.status);
       var stand = { themen: d.themen || {}, module: d.module || {}, klasse: d.klasse, zeit: Date.now() };
       try { global.localStorage.setItem(SPEICHER + d.klasse, JSON.stringify(stand)); } catch (_e) {}
-      cb(stand, "server");
+      cbAlle(stand, "server");
     }).catch(function () {
-      if (fehler) fehler(alt ? "" : "Der Server antwortet gerade nicht. Was freigeschaltet ist, lässt sich nicht prüfen.", false);
-    }).then(function () { clearTimeout(zeit); clearTimeout(langsam); });
+      fehlerAlle(alt ? "" : "Der Server antwortet gerade nicht. Was freigeschaltet ist, lässt sich nicht prüfen.", false);
+    }).then(function () { clearTimeout(zeit); clearTimeout(langsam); delete laufend[code]; });
   }
 
   /* ---------- Sperre auf einer Modulseite ----------
@@ -206,7 +233,13 @@
     });
   }
 
+  // Extra-Module eines Moduls (in der Reihenfolge der Liste)
+  function extrasVon(id) {
+    var reg = modulVon(id);
+    return reg ? reg.thema.module.filter(function (m) { return m.extra === id; }) : [];
+  }
+
   global.D7 = {
-    THEMEN: THEMEN, API: API, VORSCHAU: VORSCHAU, modulVon: modulVon, offen: offen, freigabe: freigabe, sperre: sperre
+    THEMEN: THEMEN, API: API, VORSCHAU: VORSCHAU, modulVon: modulVon, offen: offen, freigabe: freigabe, sperre: sperre, extrasVon: extrasVon
   };
 })(window);

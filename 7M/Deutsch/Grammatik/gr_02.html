@@ -111,6 +111,33 @@
         ] }
     ]
   });
+
+  // Extra-Module „Zeitformen wiederholen“ (../themen.js, extra: "gr-02"): Hat die Lehrkraft für die Klasse welche
+  // freigeschaltet, steht über dem Merkwissen ein Kasten mit den Verweisen. In der Vorschau zeigt er alle.
+  (function () {
+    var D7 = window.D7, extras = D7 && D7.extrasVon ? D7.extrasVon("gr-02") : [];
+    if (!extras.length) return;
+    var reg = D7.modulVon("gr-02");
+    function zeig(stand) {
+      var offen = extras.filter(function (m) { return D7.offen(m, reg.thema, stand); }), alt = document.getElementById("zf-extras");
+      if (alt) alt.remove();
+      var anker = document.querySelector("#verstehen .merk-grid");
+      if (!offen.length || !anker) return;
+      var box = document.createElement("div");
+      box.id = "zf-extras";
+      box.style.cssText = "margin:0 0 16px;padding:14px 16px;border:1.5px dashed #e3b9bf;border-radius:14px;background:#fff9f4";
+      box.innerHTML = '<b style="display:block;font-size:1.05rem">🔁 ' + reg.modul.extraFrage + '</b>' +
+        '<span style="display:block;margin:2px 0 10px;color:#5f5257">' + reg.modul.extraText + '</span>' +
+        offen.map(function (m) {
+          return '<a href="' + m.href.replace(/^Grammatik\//, "") + (D7.VORSCHAU ? "?vorschau=1" : "") + '" data-extra="' + m.id +
+            '" style="display:inline-block;margin:0 8px 8px 0;padding:8px 14px;border:1.5px solid #ecc7cc;border-radius:999px;background:#fff;color:#8e2a37;font-weight:700;text-decoration:none">' + m.titel + "</a>";
+        }).join("");
+      anker.parentNode.insertBefore(box, anker);
+    }
+    if (D7.VORSCHAU) { zeig(null); return; }
+    var kind = window.Lernstand && window.Lernstand.schueler;
+    if (kind && kind.code) D7.freigabe(kind, function (stand) { zeig(stand); });
+  })();
   </script>
 </body>
 </html>

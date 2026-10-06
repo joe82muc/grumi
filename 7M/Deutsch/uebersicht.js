@@ -7,6 +7,9 @@
  * - Lernfortschritt: je Modul, je Themenbereich und gesamt. Gezählt wird, was auf diesem Gerät gespeichert ist, und
  *   mit Code zusätzlich, was der Server vom Kind kennt (so stimmt der Stand auch auf einem anderen Gerät).
  *   Plus-Aufgaben in Grammatik und Rechtschreibung zählen für R-Klassen nicht mit (freiwillig).
+ * - Extra-Module (themen.js: extra = Kennung ihres Moduls, z. B. „Zeitformen wiederholen“ zu Modul 2 der Grammatik):
+ *   Sie stehen als Kasten unter ihrem Modul, sobald die Lehrkraft mindestens eines freigeschaltet hat, und zählen
+ *   nicht zum Lernfortschritt.
  */
 (function () {
   "use strict";
@@ -82,9 +85,23 @@
       ${balken(p)}</div><div class="mod-go">${weiter(z, p)}</div></a>`;
   }
 
-  // Fortschritt eines Themenbereichs: nur Module, die für die Klasse offen sind
+  // Die Module eines Themenbereichs ohne die Extra-Module
+  const haupt = thema => thema.module.filter(m => !m.extra);
+
+  // Kasten mit den Extra-Modulen eines Moduls – nur die, die für die Klasse offen sind
+  function extraKasten(m, thema, a) {
+    const offene = thema.module.filter(x => x.extra === m.id && D7.offen(x, thema, STAND));
+    if (!offene.length) return "";
+    return `<div class="extras" data-extras="${esc(m.id)}"><div class="extras-kopf"><b>🔁 ${esc(m.extraFrage || "Noch unsicher?")}</b>${m.extraText ? `<span>${esc(m.extraText)}</span>` : ""}</div>
+      <div class="extras-liste">${offene.map(x => {
+        const p = fortschritt(x, a), z = zustand(p);
+        return `<a class="extra ${z[0]}" data-modul="${esc(x.id)}" href="${x.href}${VORSCHAU}"><b>${z[0] === "fertig" ? "✓ " : ""}${esc(x.titel)}</b><small>${p && p.solved ? `⭐ ${p.solved} / ${p.total}` : esc(x.text)}</small></a>`;
+      }).join("")}</div></div>`;
+  }
+
+  // Fortschritt eines Themenbereichs: nur Module, die für die Klasse offen sind (Extra-Module zählen nicht mit)
   function themaStand(thema, a) {
-    const offen = thema.module.filter(m => D7.offen(m, thema, STAND));
+    const offen = haupt(thema).filter(m => D7.offen(m, thema, STAND));
     const ps = offen.map(m => fortschritt(m, a));
     const pct = offen.length ? Math.round(ps.reduce((s, p) => s + (p ? p.pct : 0), 0) / offen.length) : 0;
     return {offen: offen.length, fertig: ps.filter(p => p && p.pct >= 100).length, pct};
@@ -118,7 +135,7 @@
       <div class="thema-head"><span class="thema-icon" aria-hidden="true">${t.icon}</span>
         <div><div class="eyebrow">Themenbereich ${t.nr}</div><h2 id="t${i + 1}">${esc(t.titel)}</h2><p>${esc(t.text)}</p>
         <div class="mod-status thema-status">${status}</div></div></div>
-      <div class="${t.id === "rechtschreibung" ? "karten" : "mods"}">${t.module.map((m, k) => modulKarte(m, k, t, a)).join("")}</div>
+      <div class="${t.id === "rechtschreibung" ? "karten" : "mods"}">${haupt(t).map((m, k) => modulKarte(m, k, t, a) + extraKasten(m, t, a)).join("")}</div>
     </section>`; }).join("")}`;
 
     // Link von außen auf einen Themenbereich (…#grammatik): Die Abschnitte entstehen erst hier
