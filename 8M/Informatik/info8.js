@@ -48,5 +48,17 @@ function makeEingabe(box, cfg, id) {
   M.loeser[id] = async () => { if (M.isSolved(id)) return; feld.value = istZahl ? String(cfg.wert).replace(".", ",") : cfg.antworten[0]; pruefen(); };
 }
 
+/* ---------- Navigation zum eigenen Zug ---------- */
+// Jede Einheit nennt im Kopf und am Ende beide Übersichten (8M und 8R). Ist der Zug des Kindes bekannt (Anmeldung
+// oder Link der Übersicht), bleibt nur die eigene – und die Marke im Kopf führt dorthin statt immer zu 8M.
+(function () {
+  let z = "";
+  try { z = window.INF8 && window.INF8.zug ? window.INF8.zug(M.anmeldung ? M.anmeldung() : null) : ""; } catch (_e) {}
+  if (!z) return;
+  const eigene = z === "R" ? "../../8R/Informatik/index.html" : "index.html", andere = z === "R" ? "index.html" : "../../8R/Informatik/index.html";
+  document.querySelectorAll('.navlinks a[href="' + andere + '"]').forEach(a => a.remove());
+  document.querySelectorAll('a.brand[href="index.html"]').forEach(a => a.setAttribute("href", eigene));
+})();
+
 Object.assign(M, {makeEingabe, warte, glatt});
 })();

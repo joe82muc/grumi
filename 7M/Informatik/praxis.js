@@ -154,7 +154,10 @@ async function hochladen(datei, server, melde) {
   const ctl = new AbortController(), ende = setTimeout(() => ctl.abort(), 75000);
   const geduld = setTimeout(() => melde("Der Server wacht gerade auf. Das kann bis zu einer Minute dauern …"), 7000);
   try {
-    const r = await fetch(SERVER + server.pfad, {method: "POST", headers: {"Content-Type": "application/json"}, signal: ctl.signal, body: JSON.stringify({aufgabe: server.aufgabe, datei: b64})});
+    // Ist das Kind mit seinem Code angemeldet, geht der Code mit: Der Server bewahrt die Datei dann für die Lehrkraft
+    // auf (Antwort: gespeichert). In der Vorschau der Lehrkraft gibt es keine Anmeldung – dort wird nichts aufbewahrt.
+    const kind = window.Lernstand && window.Lernstand.schueler;
+    const r = await fetch(SERVER + server.pfad, {method: "POST", headers: {"Content-Type": "application/json"}, signal: ctl.signal, body: JSON.stringify({aufgabe: server.aufgabe, datei: b64, ...(kind && kind.code ? {code: kind.code} : {})})});
     if (!r.ok) return null;
     const d = await r.json();
     return d && d.ok && Array.isArray(d.punkte) ? d : null;
@@ -205,21 +208,22 @@ function makeAuftrag(box, cfg, id) {
     register(id, box, name);
     // p.ersatz: Frage zum Ergebnis (art "zahl" oder "wort") für alle, die ihre Datei hier nicht auswählen können
     // (Tablet, anderes Gerät, Browser ohne Entpacken)
-    inhalt.innerHTML = `<p class="pruef-frage">${p.text || (p.server ? "Lade deine gespeicherte Datei hoch. Sie wird geprüft, und die KI schreibt dir eine Rückmeldung. Gespeichert wird die Datei dabei nicht." : "Wähle deine gespeicherte Datei aus. Sie wird nur hier auf dem Gerät geprüft und nicht hochgeladen.")}</p>
-      <label class="btn small ghost pruef-datei">${p.server ? "📤 Datei hochladen" : "📂 Datei auswählen"}<input type="file" ${p.accept ? `accept="${esc(p.accept)}"` : ""} hidden></label><ul class="pruef-liste"></ul><div class="pruef-ki" hidden></div><div class="fb"></div>
+    inhalt.innerHTML = `<p class="pruef-frage">${p.text || (p.server ? "Lade deine gespeicherte Datei hoch. Sie wird geprüft, und die KI schreibt dir eine Rückmeldung." : "Wähle deine gespeicherte Datei aus. Sie wird nur hier auf dem Gerät geprüft und nicht hochgeladen.")}</p>
+      <label class="btn small ghost pruef-datei">${p.server ? "📤 Datei hochladen" : "📂 Datei auswählen"}<input type="file" ${p.accept ? `accept="${esc(p.accept)}"` : ""} hidden></label><ul class="pruef-liste"></ul><div class="pruef-ki" hidden></div><p class="pruef-gemerkt" hidden></p><div class="fb"></div>
       ${p.ersatz ? `<details class="pruef-ersatz"><summary>${esc(p.ersatzTitel || "Du hast die Datei nicht auf diesem Gerät?")}</summary><div class="pruef-ersatz-inhalt"></div></details>` : ""}`;
-    const eingabe = $("input[type=file]", inhalt), liste = $(".pruef-liste", inhalt), fb = $(".fb", inhalt), ki = $(".pruef-ki", inhalt);
+    const eingabe = $("input[type=file]", inhalt), liste = $(".pruef-liste", inhalt), fb = $(".fb", inhalt), ki = $(".pruef-ki", inhalt), gemerkt = $(".pruef-gemerkt", inhalt);
     let laeuft = false;
     eingabe.addEventListener("change", async () => {
       const datei = eingabe.files && eingabe.files[0]; if (!datei || laeuft) return;
       laeuft = true; inhalt.classList.add("prueft");
-      liste.innerHTML = ""; ki.hidden = true; fb.className = "fb show mid"; fb.textContent = p.server ? "Datei wird hochgeladen und geprüft …" : "Datei wird geprüft …";
+      liste.innerHTML = ""; ki.hidden = true; gemerkt.hidden = true; fb.className = "fb show mid"; fb.textContent = p.server ? "Datei wird hochgeladen und geprüft …" : "Datei wird geprüft …";
       try {
         let punkte, ok;
         const antwort = p.server ? await hochladen(datei, p.server, text => { fb.textContent = text; }) : null;
         if (antwort) {
           if (!antwort.lesbar) throw new Error(antwort.rueckmeldung);
           punkte = antwort.punkte; ok = !!antwort.erfuellt;
+          if (antwort.gespeichert) { gemerkt.hidden = false; gemerkt.textContent = "📁 Deine Lehrkraft kann diese Datei ansehen."; }
           if (antwort.rueckmeldung && antwort.quelle === "ki") { ki.hidden = false; ki.innerHTML = `<b>🤖 Rückmeldung der KI:</b> ${esc(antwort.rueckmeldung)}`; }
         } else {
           if (p.server && !p.pruefe) throw new Error("Der Server ist gerade nicht erreichbar. Versuche es in einer Minute noch einmal.");

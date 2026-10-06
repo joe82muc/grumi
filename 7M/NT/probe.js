@@ -11,6 +11,30 @@
     if (!res.ok) throw new Error(({locked:"Diese Probe ist noch gesperrt.",already_submitted:"Diese Probe wurde mit diesem Code bereits abgegeben.",submission_in_progress:"Eine Abgabe läuft bereits."})[data.error] || data.message || data.error || "Serverfehler");
     return data;
   }
+  // Abgabe: Bei Netz- oder Serverfehler versucht es die Seite von selbst noch dreimal (die Antworten bleiben stehen).
+  // Kam schon die erste Sendung an und nur die Antwort ging verloren, meldet der Server beim neuen Versuch
+  // „schon abgegeben“ – dann ist die Abgabe da (angekommen), nur das Ergebnis lässt sich hier nicht mehr zeigen.
+  async function abgeben(body, melde) {
+    const FEHLER = {locked:"Diese Probe ist gesperrt. Sag deiner Lehrkraft Bescheid – deine Antworten bleiben hier stehen.",already_submitted:"Diese Probe wurde mit diesem Code bereits abgegeben."};
+    let letzter = "";
+    for (let versuch = 1; versuch <= 4; versuch++) {
+      const ctl = new AbortController(), frist = setTimeout(() => ctl.abort(), 70000);
+      try {
+        const res = await fetch(API + "/api/nt7/submit", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body),signal:ctl.signal});
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.result) return data;
+        if (res.status === 409 && versuch > 1) return {angekommen:true};
+        if (res.status === 409 && data.error === "submission_in_progress") letzter = "Eine Abgabe läuft bereits.";
+        else if (res.status >= 400 && res.status < 500 && res.status !== 429) throw Object.assign(new Error(FEHLER[data.error] || data.message || data.error || "Die Abgabe wurde nicht angenommen."), {endgueltig:true});
+        else letzter = "Der Server ist gerade nicht erreichbar.";
+      } catch (err) {
+        if (err.endgueltig) throw err;
+        letzter = err.name === "AbortError" ? "Der Server antwortet nicht." : "Keine Verbindung zum Server.";
+      } finally { clearTimeout(frist); }
+      if (versuch < 4) { melde(letzter + " Neuer Versuch " + (versuch + 1) + " von 4 … Lass die Seite offen.", versuch + 1); await new Promise(r => setTimeout(r, 3000 * versuch)); }
+    }
+    throw new Error("Die Abgabe ist noch nicht angekommen (" + letzter + "). Deine Antworten bleiben hier stehen. Sag deiner Lehrkraft Bescheid und tippe dann noch einmal auf „Probe abgeben“.");
+  }
   function status(message, bad = false) { $("status").textContent = message; $("status").classList.toggle("bad",bad); $("status").hidden = false; }
   // Zug (M oder R) und Themenbereich kommen aus dem Link der Übersicht (?zug=R&thema=mensch) oder aus dem Tab.
   // Proben mit Zug zeigt die Seite nur dem passenden Zug; die beiden ersten Luft-Proben (ohne Zug) sind für 7M.
@@ -98,9 +122,17 @@
     if (!confirm("Probe wirklich abgeben? Danach kannst du nichts mehr ändern.")) return;
     const button = $("submit-exam"); button.disabled = true; button.textContent = "Wird ausgewertet ...";
     try {
-      const data = await request("submit",{testId:exam.test.id,...student,answers:collect(),verlassen:ProbeSchutz.verlassen()});
+      const data = await abgeben({testId:exam.test.id,...student,answers:collect(),verlassen:ProbeSchutz.verlassen()}, text => { status(text,true); button.textContent = "Wird noch einmal gesendet ..."; });
+      if (data.angekommen) {
+        ProbeSchutz.ende();
+        $("questions-section").hidden = true; $("status").hidden = true;
+        $("result-section").innerHTML = `<div class="eyebrow">Abgegeben · ${esc(exam.test.title)}</div><h1>Deine Abgabe ist angekommen</h1><p class="notice">Die Verbindung war kurz unterbrochen. Deine Antworten sind gespeichert. Dein Ergebnis zeigt dir deine Lehrkraft.</p>`;
+        $("result-section").hidden = false; window.scrollTo({top:0,behavior:"smooth"});
+        return;
+      }
       ProbeSchutz.ende();
       $("questions-section").hidden = true;
+      $("status").hidden = true;
       const r = data.result;
       $("result-section").innerHTML = `<div class="eyebrow">Abgegeben · ${esc(exam.test.title)}</div><h1>Dein Ergebnis</h1><div class="score-line"><strong>${r.score} / ${r.total}</strong><span>${r.percent} % · Note ${r.grade}</span></div>${r.needsReview ? `<p class="notice">Einige freie Antworten wurden nur vorläufig mit Stichwörtern bewertet, weil die KI nicht erreichbar war. Die Lehrkraft kann die Punkte korrigieren.</p>` : ""}<h2>Lösungsschlüssel und Rückmeldung</h2>${r.details.map(resultMarkup).join("")}<p class="nextbar"><a class="btn secondary" href="index.html">Zurück zur Lernreihe</a></p>`;
       $("result-section").hidden = false; window.scrollTo({top:0,behavior:"smooth"});

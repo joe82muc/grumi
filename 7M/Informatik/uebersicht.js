@@ -15,14 +15,16 @@
 
   const KURS = window.GRUMI_KURS || window.INF7;
   const ST = KURS.STUFE || "7", PFAD = KURS.PFAD || "/api/inf7";
-  const ALT = KURS.ALT || {href: "7/Informatik_7/index.html", text: "Bisherige Stunden"};
+  // ALT: null = es gibt keine bisherigen Stunden mehr (Informatik 8 seit dem 06.10.2026)
+  const ALT = KURS.ALT === null ? null : (KURS.ALT || {href: "7/Informatik_7/index.html", text: "Bisherige Stunden"});
   const INTRO = KURS.INTRO || "Fünf Module mit kurzen Einheiten: ausprobieren, verstehen, kurz sichern. Bei Filius, GIMP, Inkscape und Scratch arbeitest du am Windows-PC. Deine Lehrkraft schaltet die Einheiten nach und nach frei.";
   const THEMEN = KURS.THEMEN;
   const body = document.body;
   const klasse = body.dataset.klasse || ST + "M";
   const base = body.dataset.base || "";
   const root = body.dataset.root || "../../";
-  const andere = klasse === ST + "M" ? ST + "R" : ST + "M";
+  const andereVon = k => k === ST + "M" ? ST + "R" : ST + "M";
+  const TITEL = document.title;
   const esc = s => String(s).replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"})[c]);
   const SITZUNG = "grumi-code-anmeldung";
 
@@ -145,7 +147,11 @@
     // Tippt das Kind gerade seinen Code, bleibt die Eingabe beim Neuzeichnen erhalten
     const altFeld = document.getElementById("codeFeld"), getippt = altFeld ? altFeld.value : "", imFeld = altFeld && document.activeElement === altFeld;
     const a = anmeldung();
-    const zug = a ? a.zug.slice(1) : klasse.slice(1);
+    // Angemeldet zeigt die Seite den Zug des Kindes – auch wenn es die Übersicht des anderen Zugs geöffnet hat
+    // (auf der Startseite die falsche Kachel angetippt). Einheiten und Proben richten sich ohnehin nach dem Code.
+    const kl = a ? a.zug : klasse, andere = andereVon(kl);
+    document.title = TITEL.split(klasse).join(kl);
+    const zug = kl.slice(1);
     try { sessionStorage.setItem("grumi-i" + ST + "-zug", zug); } catch (_e) {}
     const staende = THEMEN.map(t => themaStand(t, a));
     const offenGesamt = staende.reduce((s, x) => s + x.offen, 0), fertigGesamt = staende.reduce((s, x) => s + x.fertig, 0);
@@ -153,7 +159,7 @@
 
     // Solange nichts offen ist, arbeiten die Klassen mit den bisherigen Stunden weiter – der Weg dorthin steht dabei.
     // (Angemeldet erst, wenn der Stand der Klasse bekannt ist – sonst blitzt der Hinweis beim Laden auf.)
-    const alt = `<a href="${root}${ALT.href}">📚 ${esc(ALT.text)}</a>`;
+    const alt = ALT ? `<a href="${root}${ALT.href}">📚 ${esc(ALT.text)}</a>` : "";
     const nochNichts = offenGesamt || (a && !STAND) ? "" : `<p class="hinweis bisher">${a
       ? (KURS.NOCH_NICHTS || "Für deine Klasse ist hier noch nichts freigeschaltet. Bis dahin arbeitest du mit den bisherigen Stunden weiter:")
       : (KURS.OHNE_CODE || "Ohne Code ist hier noch nichts offen. Melde dich oben mit deinem Code an. Die bisherigen Stunden findest du hier:")} ${alt}</p>`;
@@ -170,12 +176,12 @@
         <a href="${root}index.html">🏠 Startseite Lernplattform</a>
         <a href="${root}index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
         <a href="${root}${andere}/Informatik/index.html">${andere === ST + "M" ? "📘" : "📗"} Übersicht Informatik ${andere}</a>
-        <a href="${root}${ALT.href}">📚 ${esc(ALT.text)}</a>
+        ${ALT ? `<a href="${root}${ALT.href}">📚 ${esc(ALT.text)}</a>` : ""}
       </nav>
       <div class="hero-grid">
         <div>
-          <div class="eyebrow">Klasse ${klasse} · Informatik</div>
-          <h1>Informatik ${klasse}</h1>
+          <div class="eyebrow">Klasse ${kl} · Informatik</div>
+          <h1>Informatik ${kl}</h1>
           <p>${esc(INTRO)}</p>
         </div>
         <div class="hero-box">${kopf}
@@ -204,7 +210,7 @@
       ${probenKachel(t, zug)}
     </section>`; }).join("")}
   </main>
-  <footer class="wrap">GRUMI · Informatik ${klasse} · Dein Fortschritt wird auf diesem Gerät gespeichert${a ? " und mit deinem Code an deine Lehrkraft gemeldet" : ""}.</footer>`;
+  <footer class="wrap">GRUMI · Informatik ${kl} · Dein Fortschritt wird auf diesem Gerät gespeichert${a ? " und mit deinem Code an deine Lehrkraft gemeldet" : ""}.</footer>`;
 
     const form = document.getElementById("codeForm");
     if (form) {

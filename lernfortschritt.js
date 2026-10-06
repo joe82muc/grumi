@@ -37,7 +37,7 @@
     d7: "7M/Deutsch/index.html", d8: "8/Deutsch/index.html", d9: "9/Deutsch/index.html",
     e7: "7/Englisch_7/index.html", e8: "8R/Englisch/index.html",
     e9: { M: "9M/Englisch_9/index.html", R: "9R/Englisch/index.html" },
-    i7: { M: "7M/Informatik/index.html", R: "7R/Informatik/index.html" }, i8: "8/Informatik_8/index.html", i9: "9/Informatik_9/index.html"
+    i7: { M: "7M/Informatik/index.html", R: "7R/Informatik/index.html" }, i8: { M: "8M/Informatik/index.html", R: "8R/Informatik/index.html" }, i9: "9/Informatik_9/index.html"
   };
   try {
     KLASSE = global.localStorage.getItem("lf-klasse") || "";
@@ -361,11 +361,12 @@
         worte: { titel: "Module und Einheiten", das: "die Einheit", neu: "Neue Einheiten", von: "Einheiten", plan: "Einheiten in Vorbereitung" } });
       fachLaden($("vw-fach"));
     } else if (ANSICHT === "i8" && global.NT7Verwaltung && global.INF8) {
-      // Informatik 8, Version 2 (8M/Informatik): Freischalten der Module und Einheiten wie bei Informatik 7.
-      // Der Lernstand darunter zeigt auch die bisherigen Module (8/Informatik_8).
-      teil.innerHTML = '<div id="vw-i8-frei"></div><div id="vw-fach"></div>';
+      // Informatik 8 (8M/Informatik): Freischalten der Module und Einheiten wie bei Informatik 7, darunter die
+      // Dateien, die die Kinder in den Einheiten hochgeladen haben (abgaben-verwaltung.js).
+      teil.innerHTML = '<div id="vw-i8-frei"></div><div id="vw-i8-abgaben"></div><div id="vw-fach"></div>';
       global.NT7Verwaltung.freigabe($("vw-i8-frei"), { api: API, pw: PW, klasse: KLASSE, liste: global.INF8, pfad: "/api/inf8", ordner: "8M/Informatik/",
-        worte: { titel: "Version 2: Module und Einheiten", das: "die Einheit", neu: "Neue Einheiten", von: "Einheiten", plan: "Einheiten in Vorbereitung" } });
+        worte: { titel: "Module und Einheiten", das: "die Einheit", neu: "Neue Einheiten", von: "Einheiten", plan: "Einheiten in Vorbereitung" } });
+      if (global.AbgabenVerwaltung) global.AbgabenVerwaltung.zeige($("vw-i8-abgaben"), { api: API, pw: PW, klasse: KLASSE, pfad: "/api/inf8", liste: global.INF8, name: nameVon });
       fachLaden($("vw-fach"));
     } else if (ANSICHT === "d7" && global.NT7Verwaltung && global.D7) {
       // Deutsch 7: über dem Lernstand steht das Freischalten der Themenbereiche und Module (gleiche Ansicht wie NT 7)

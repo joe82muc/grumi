@@ -200,10 +200,10 @@
     // Angaben für die gemeinsamen Bausteine (7M/NT/modul-basis.js) und die Übersicht (7M/Informatik/uebersicht.js)
     KURS: "i8", PREFIX: PREFIX, WORT: "Einheit", DAS: "die Einheit", ES: "sie", STUFE: "8", PFAD: "/api/inf8",
     SPERRE: "Diese Einheit ist noch nicht freigeschaltet", ZURUECK: "💻 Zur Übersicht Informatik 8",
-    ALT: { href: "8/Informatik_8/index.html", text: "Bisherige Module" },
+    ALT: null,          // die bisherigen Module (8/Informatik_8) sind seit dem 06.10.2026 entfernt
     INTRO: "Fünf Module mit kurzen Einheiten: ausprobieren, anwenden, verstehen, sichern. Bei Excel und Scratch arbeitest du am Windows-PC. Deine Lehrkraft schaltet die Einheiten nach und nach frei.",
-    NOCH_NICHTS: "Für deine Klasse ist hier noch nichts freigeschaltet. Bis dahin arbeitest du mit den bisherigen Modulen weiter:",
-    OHNE_CODE: "Ohne Code ist hier noch nichts offen. Melde dich oben mit deinem Code an. Die bisherigen Module findest du hier:"
+    NOCH_NICHTS: "Für deine Klasse ist hier noch nichts freigeschaltet. Deine Lehrkraft schaltet die Einheiten frei.",
+    OHNE_CODE: "Ohne Code ist hier noch nichts offen. Melde dich oben mit deinem Code an."
   };
   // Auf den Seiten von Informatik 8 arbeiten die Bausteine mit dieser Liste. Die Verwaltung der Lehrkraft lädt
   // mehrere Kurslisten und spricht sie mit ihrem Namen an (INF8, INF7, NT7).
