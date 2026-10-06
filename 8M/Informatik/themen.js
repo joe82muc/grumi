@@ -22,16 +22,16 @@
       text: "Suchmaschine, Fahrplan, Lernplattform, Berufsportal: Du findest heraus, wie solche Systeme arbeiten, und nutzt sie für kluge Entscheidungen.",
       proben: [{ R: "inf8-p1-r", M: "inf8-p1-m" }],
       module: [
-        { id: "eva", titel: "Was ist ein Informationssystem?", href: "eva.html", key: "grumi-i8-eva-v1",
+        { id: "eva", kz: "I1", titel: "Was ist ein Informationssystem?", href: "eva.html", key: "grumi-i8-eva-v1",
           text: "Du fragst, das System antwortet: Eingabe, Verarbeitung, Ausgabe – an einer Fahrplanauskunft zum Ausprobieren.",
           tags: ["Fahrplan ausprobieren", "Animation", "Tablet geeignet"] },
-        { id: "aufbau", titel: "Aufbau eines Informationssystems", href: "aufbau.html", key: "grumi-i8-aufbau-v1",
+        { id: "aufbau", kz: "I2", titel: "Aufbau eines Informationssystems", href: "aufbau.html", key: "grumi-i8-aufbau-v1",
           text: "Nutzer, Anwendung, Server, Daten: Du verfolgst eine Anfrage auf ihrem Weg und findest heraus, wo es klemmt.",
           tags: ["Anfrage verfolgen", "Fehler finden", "Tablet geeignet"] },
-        { id: "entscheiden", titel: "Informationen gezielt nutzen", href: "entscheiden.html", key: "grumi-i8-entscheiden-v1",
+        { id: "entscheiden", kz: "I3", titel: "Informationen gezielt nutzen", href: "entscheiden.html", key: "grumi-i8-entscheiden-v1",
           text: "Welcher Praktikumsplatz passt? Du filterst, vergleichst und triffst eine Entscheidung, die du begründen kannst.",
           tags: ["Berufsportal", "Filtern und sortieren", "Tablet geeignet"] },
-        { id: "vergleichen", titel: "Informationssysteme vergleichen", href: "vergleichen.html", key: "grumi-i8-vergleichen-v1",
+        { id: "vergleichen", kz: "I4", titel: "Informationssysteme vergleichen", href: "vergleichen.html", key: "grumi-i8-vergleichen-v1",
           text: "Für jede Aufgabe das passende System: Du wählst aus, bewertest und zeigst im Profi-Check, was du kannst.",
           tags: ["Fälle entscheiden", "Kreuzworträtsel", "Probenstoff"] }
       ]
@@ -41,16 +41,16 @@
       text: "Welche Daten gibst du preis, was machen Unternehmen damit – und wie behältst du die Kontrolle?",
       proben: [{ R: "inf8-p2-r", M: "inf8-p2-m" }],
       module: [
-        { id: "spuren", titel: "Welche Daten gebe ich preis?", href: "spuren.html", key: "grumi-i8-spuren-v1",
+        { id: "spuren", kz: "D1", titel: "Welche Daten gebe ich preis?", href: "spuren.html", key: "grumi-i8-spuren-v1",
           text: "Name, Standort, Fotos, Suchverlauf: Ein ganz normaler Tag – und wie viele Daten dabei zusammenkommen.",
           tags: ["Datenspuren sammeln", "Anmeldung ausfüllen", "Tablet geeignet"] },
-        { id: "bedingungen", titel: "Datenschutzbedingungen", href: "bedingungen.html", key: "grumi-i8-bedingungen-v1",
+        { id: "bedingungen", kz: "D2", titel: "Datenschutzbedingungen", href: "bedingungen.html", key: "grumi-i8-bedingungen-v1",
           text: "Niemand liest sie – du schon: kurze Ausschnitte prüfen. Was wird gesammelt, wozu, und wem nützt es?",
           tags: ["Texte prüfen", "Stellen finden", "Tablet geeignet"] },
-        { id: "bigdata", titel: "Big Data", href: "bigdata.html", key: "grumi-i8-bigdata-v1",
+        { id: "bigdata", kz: "D3", titel: "Big Data", href: "bigdata.html", key: "grumi-i8-bigdata-v1",
           text: "Viele kleine Daten ergeben ein genaues Bild von dir. Du siehst zu, wie ein Profil entsteht.",
           tags: ["Animation", "Empfehlungs-Maschine", "Tablet geeignet"] },
-        { id: "schuetzen", titel: "Wie schütze ich meine Daten?", href: "schuetzen.html", key: "grumi-i8-schuetzen-v1",
+        { id: "schuetzen", kz: "D4", titel: "Wie schütze ich meine Daten?", href: "schuetzen.html", key: "grumi-i8-schuetzen-v1",
           text: "Berechtigungen, Standort, Cookies, Privatsphäre: Du stellst ein Handy so ein, dass es weniger verrät.",
           tags: ["Einstellungen üben", "Kreuzworträtsel", "Probenstoff"] }
       ]
@@ -60,19 +60,19 @@
       text: "Zellen, Zeilen, Spalten und erste Formeln: Du lässt Excel für dich rechnen.",
       proben: [{ R: "inf8-p3-r", M: "inf8-p3-m" }],
       module: [
-        { id: "kennenlernen", titel: "Excel kennenlernen", href: "kennenlernen.html", key: "grumi-i8-kennenlernen-v1", pc: "Excel",
+        { id: "kennenlernen", kz: "E1", titel: "Excel kennenlernen", href: "kennenlernen.html", key: "grumi-i8-kennenlernen-v1", pc: "Excel",
           text: "Zelle, Zeile, Spalte, Zelladresse, Arbeitsblatt: Du findest dich in Excel zurecht.",
           tags: ["Excel", "Datei hochladen", "Tabelle zum Antippen"] },
-        { id: "eingeben", titel: "Daten eingeben", href: "eingeben.html", key: "grumi-i8-eingeben-v1", pc: "Excel",
+        { id: "eingeben", kz: "E2", titel: "Daten eingeben", href: "eingeben.html", key: "grumi-i8-eingeben-v1", pc: "Excel",
           text: "Du legst deine erste kleine Tabelle an: Texte, Zahlen, Überschriften – und speicherst sie.",
           tags: ["Excel", "Startdatei"] },
-        { id: "formeln", titel: "Erste Formeln", href: "formeln.html", key: "grumi-i8-formeln-v1", pc: "Excel",
+        { id: "formeln", kz: "E3", titel: "Erste Formeln", href: "formeln.html", key: "grumi-i8-formeln-v1", pc: "Excel",
           text: "Plus, minus, mal, geteilt: Mit dem Gleichheitszeichen rechnet Excel für dich.",
           tags: ["Excel", "Startdatei"] },
-        { id: "kopieren", titel: "Formeln kopieren", href: "kopieren.html", key: "grumi-i8-kopieren-v1", pc: "Excel",
+        { id: "kopieren", kz: "E4", titel: "Formeln kopieren", href: "kopieren.html", key: "grumi-i8-kopieren-v1", pc: "Excel",
           text: "Eine Formel schreiben, zwanzigmal benutzen: Excel passt die Zellbezüge beim Kopieren an.",
           tags: ["Excel", "Animation"] },
-        { id: "anwendung", titel: "Kleine Anwendung", href: "anwendung.html", key: "grumi-i8-anwendung-v1", pc: "Excel",
+        { id: "anwendung", kz: "E5", titel: "Kleine Anwendung", href: "anwendung.html", key: "grumi-i8-anwendung-v1", pc: "Excel",
           text: "Was kostet das Klassenfest? Du baust eine Tabelle, die alles ausrechnet.",
           tags: ["Excel", "Datei hochladen", "Probenstoff"] }
       ]
@@ -82,19 +82,19 @@
       text: "Relative und absolute Zellbezüge, Prozentrechnung und ein eigenes kleines Projekt.",
       proben: [{ R: "inf8-p4-r", M: "inf8-p4-m" }],
       module: [
-        { id: "relativ", titel: "Relative Zellbezüge", href: "relativ.html", key: "grumi-i8-relativ-v1", pc: "Excel",
+        { id: "relativ", kz: "Z1", titel: "Relative Zellbezüge", href: "relativ.html", key: "grumi-i8-relativ-v1", pc: "Excel",
           text: "Die Formel wandert mit: Was beim Kopieren nach unten und nach rechts passiert.",
           tags: ["Excel", "Datei hochladen", "Animation"] },
-        { id: "absolut", titel: "Absolute Zellbezüge", href: "absolut.html", key: "grumi-i8-absolut-v1", pc: "Excel",
+        { id: "absolut", kz: "Z2", titel: "Absolute Zellbezüge", href: "absolut.html", key: "grumi-i8-absolut-v1", pc: "Excel",
           text: "Manchmal soll eine Zelle fest bleiben. Das Dollarzeichen hält sie fest.",
           tags: ["Excel", "Datei hochladen", "Animation"] },
-        { id: "relativ-absolut", titel: "Relativ oder absolut?", href: "relativ-absolut.html", key: "grumi-i8-relativ-absolut-v1",
+        { id: "relativ-absolut", kz: "Z3", titel: "Relativ oder absolut?", href: "relativ-absolut.html", key: "grumi-i8-relativ-absolut-v1",
           text: "Viele kurze Entscheidungen: Wo gehört ein Dollarzeichen hin – und wo nicht?",
           tags: ["Fälle entscheiden", "Tablet geeignet"] },
-        { id: "prozent", titel: "Prozentrechnung mit Excel", href: "prozent.html", key: "grumi-i8-prozent-v1", pc: "Excel",
+        { id: "prozent", kz: "Z4", titel: "Prozentrechnung mit Excel", href: "prozent.html", key: "grumi-i8-prozent-v1", pc: "Excel",
           text: "Anteil und Rabatt: Was du aus Mathe kennst, rechnet jetzt die Tabelle.",
           tags: ["Excel", "Datei hochladen"] },
-        { id: "miniprojekt", titel: "Mini-Projekt", href: "miniprojekt.html", key: "grumi-i8-miniprojekt-v1", pc: "Excel",
+        { id: "miniprojekt", kz: "Z5", titel: "Mini-Projekt", href: "miniprojekt.html", key: "grumi-i8-miniprojekt-v1", pc: "Excel",
           text: "Die Abrechnung für den Pausenverkauf: deine eigene Tabelle von Anfang bis Ende.",
           tags: ["Excel", "Datei hochladen", "Probenstoff"] }
       ]
@@ -104,28 +104,28 @@
       text: "Programme, die fragen, rechnen und antworten: Eingabe, Variablen, Bedingungen – bis zum eigenen kleinen Projekt.",
       proben: [{ R: "inf8-p5-r", M: "inf8-p5-m" }],
       module: [
-        { id: "scratch-start", titel: "Wieder da: Scratch", href: "scratch-start.html", key: "grumi-i8-scratch-start-v1", pc: "Scratch",
+        { id: "scratch-start", kz: "S1", titel: "Wieder da: Scratch", href: "scratch-start.html", key: "grumi-i8-scratch-start-v1", pc: "Scratch",
           text: "Blöcke, Bühne, grüne Fahne: Du findest dich wieder zurecht und baust dein erstes Programm.",
           tags: ["Scratch", "Projekt hochladen", "Bühne zum Ausprobieren"] },
-        { id: "objekte", titel: "Objekte und Eigenschaften", href: "objekte.html", key: "grumi-i8-objekte-v1", pc: "Scratch",
+        { id: "objekte", kz: "S2", titel: "Objekte und Eigenschaften", href: "objekte.html", key: "grumi-i8-objekte-v1", pc: "Scratch",
           text: "Jede Figur ist ein Objekt mit Eigenschaften: Position, Größe, Richtung. Blöcke ändern ihre Werte – und du erstellst ein zweites Objekt.",
           tags: ["Scratch", "Projekt hochladen"] },
-        { id: "eingabe", titel: "Eingabe", href: "eingabe.html", key: "grumi-i8-eingabe-v1", pc: "Scratch",
+        { id: "eingabe", kz: "S3", titel: "Eingabe", href: "eingabe.html", key: "grumi-i8-eingabe-v1", pc: "Scratch",
           text: "„Wie heißt du?“ – dein Programm fragt und wartet auf deine Antwort.",
           tags: ["Scratch", "Projekt hochladen"] },
-        { id: "ausgabe", titel: "Ausgabe", href: "ausgabe.html", key: "grumi-i8-ausgabe-v1", pc: "Scratch",
+        { id: "ausgabe", kz: "S4", titel: "Ausgabe", href: "ausgabe.html", key: "grumi-i8-ausgabe-v1", pc: "Scratch",
           text: "„Hallo Mia!“ – dein Programm setzt Texte zusammen und antwortet.",
           tags: ["Scratch", "Projekt hochladen"] },
-        { id: "variablen", titel: "Variablen und Dateneingabe", href: "variablen.html", key: "grumi-i8-variablen-v1", pc: "Scratch",
+        { id: "variablen", kz: "S5", titel: "Variablen und Dateneingabe", href: "variablen.html", key: "grumi-i8-variablen-v1", pc: "Scratch",
           text: "Zwei Antworten merken und mit einer Eingabe rechnen: Dein Programm bekommt ein Gedächtnis.",
           tags: ["Scratch", "Projekt hochladen", "Animation"] },
-        { id: "verzweigung", titel: "Bedingungen und Verschachtelung", href: "verzweigung.html", key: "grumi-i8-verzweigung-v1", pc: "Scratch",
+        { id: "verzweigung", kz: "S6", titel: "Bedingungen und Verschachtelung", href: "verzweigung.html", key: "grumi-i8-verzweigung-v1", pc: "Scratch",
           text: "Richtig oder falsch? Dein Programm entscheidet – auch in zwei Stufen.",
           tags: ["Scratch", "Projekt hochladen"] },
-        { id: "zahlenraten", titel: "Mini-Anwendung: Zahlenraten", href: "zahlenraten.html", key: "grumi-i8-zahlenraten-v1", pc: "Scratch",
+        { id: "zahlenraten", kz: "S7", titel: "Mini-Anwendung: Zahlenraten", href: "zahlenraten.html", key: "grumi-i8-zahlenraten-v1", pc: "Scratch",
           text: "Der Computer denkt sich eine Zahl, du rätst. Eingabe, Vergleich und Wiederholung in einem Spiel.",
           tags: ["Scratch", "Projekt hochladen", "Spiel"] },
-        { id: "eigenes-projekt", titel: "Mein eigenes kleines Projekt", href: "eigenes-projekt.html", key: "grumi-i8-eigenes-projekt-v1", pc: "Scratch",
+        { id: "eigenes-projekt", kz: "S8", titel: "Mein eigenes kleines Projekt", href: "eigenes-projekt.html", key: "grumi-i8-eigenes-projekt-v1", pc: "Scratch",
           text: "Quiz, Rechentrainer oder eigene Idee: Du planst, baust und testest ein eigenes Programm.",
           tags: ["Scratch", "Projekt hochladen", "Probenstoff"] }
       ]
@@ -139,6 +139,24 @@
   try { suche = global.location.search || ""; } catch (_e) {}
   // Vorschau für Lehrkräfte (Link aus der Verwaltung): zeigt eine Einheit, auch wenn sie für die Klasse gesperrt ist
   var VORSCHAU = /[?&]vorschau=1/.test(suche);
+
+  // Feste Kürzel der Module (kz, z. B. „I3“): Buchstabe des Themenbereichs + Nummer. Zu sehen sind sie nur in der
+  // Verwaltung der Lehrkraft (Freischalten, Lernfortschritt, Proben) – in den Seiten der Kinder steht kein Kürzel.
+  // Ein Kürzel bleibt für immer bei seinem Modul: Neue Module bekommen die nächste freie Nummer ihres Themenbereichs,
+  // vergebene Kürzel werden nicht neu verteilt (auch nicht, wenn sich die Reihenfolge ändert).
+  //
+  // PROBE_INHALT: Proben, die nicht genau die Module ihres Themenbereichs abdecken. Fehlt eine Probe hier, enthält sie
+  // alle Module des Themenbereichs, bei dem sie steht (ohne Extra-Module). So steht in der Verwaltung bei jeder Probe,
+  // welche Module die Kinder dafür brauchen.
+  var PROBE_INHALT = {};
+  function probeModule(testId) {
+    var ids = PROBE_INHALT[testId], liste = [];
+    THEMEN.forEach(function (t) {
+      var dabei = (t.proben || []).some(function (p) { return p && (p.R === testId || p.M === testId); });
+      t.module.forEach(function (m) { if (ids ? ids.indexOf(m.id) >= 0 : dabei && !m.extra) liste.push(m); });
+    });
+    return liste;
+  }
 
   function modulVon(id) {
     for (var i = 0; i < THEMEN.length; i++) for (var j = 0; j < THEMEN[i].module.length; j++) {
@@ -199,7 +217,7 @@
   }
 
   global.INF8 = {
-    THEMEN: THEMEN, API: API, VORSCHAU: VORSCHAU, modulVon: modulVon, idAusKey: idAusKey, offen: offen, freigabe: freigabe, zug: zug,
+    THEMEN: THEMEN, probeModule: probeModule, API: API, VORSCHAU: VORSCHAU, modulVon: modulVon, idAusKey: idAusKey, offen: offen, freigabe: freigabe, zug: zug,
     // Angaben für die gemeinsamen Bausteine (7M/NT/modul-basis.js) und die Übersicht (7M/Informatik/uebersicht.js)
     KURS: "i8", PREFIX: PREFIX, WORT: "Einheit", DAS: "die Einheit", ES: "sie", STUFE: "8", PFAD: "/api/inf8",
     SPERRE: "Diese Einheit ist noch nicht freigeschaltet", ZURUECK: "💻 Zur Übersicht Informatik 8",

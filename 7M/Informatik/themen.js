@@ -22,16 +22,16 @@
       text: "Nachrichten schreiben, Gefahren erkennen, Rechte kennen: So tauschst du dich im Netz sicher und fair aus.",
       proben: [{ R: "inf7-p1-r", M: "inf7-p1-m" }],
       module: [
-        { id: "alltag", titel: "Kommunikation im Alltag", href: "alltag.html", key: "grumi-i7-alltag-v1",
+        { id: "alltag", kz: "I1", titel: "Kommunikation im Alltag", href: "alltag.html", key: "grumi-i7-alltag-v1",
           text: "Messenger, E-Mail, Videokonferenz oder soziales Netzwerk? Du wählst den passenden Weg, schreibst eine E-Mail und siehst, wie eine Nachricht ankommt.",
           tags: ["E-Mail üben", "Animation", "Tablet geeignet"] },
-        { id: "sicher-gefaehrlich", titel: "Sicher oder gefährlich?", href: "sicher-gefaehrlich.html", key: "grumi-i7-sicher-gefaehrlich-v1",
+        { id: "sicher-gefaehrlich", kz: "I2", titel: "Sicher oder gefährlich?", href: "sicher-gefaehrlich.html", key: "grumi-i7-sicher-gefaehrlich-v1",
           text: "Spam, Phishing und falsche Links erkennen, Apps nicht alles erlauben und ein sicheres Passwort bauen.",
           tags: ["Posteingang prüfen", "Passwort-Check", "Tablet geeignet"] },
-        { id: "rechte", titel: "Rechte im Internet", href: "rechte.html", key: "grumi-i7-rechte-v1",
+        { id: "rechte", kz: "I3", titel: "Rechte im Internet", href: "rechte.html", key: "grumi-i7-rechte-v1",
           text: "Darf ich das posten? Recht am eigenen Bild, Urheberrecht, Quellen angeben – und fair bleiben im Netz.",
           tags: ["Fälle entscheiden", "Quellen", "Tablet geeignet"] },
-        { id: "anwenden", titel: "Wiederholen und anwenden", href: "anwenden.html", key: "grumi-i7-anwenden-v1",
+        { id: "anwenden", kz: "I4", titel: "Wiederholen und anwenden", href: "anwenden.html", key: "grumi-i7-anwenden-v1",
           text: "Falschmeldungen prüfen, Phishing entlarven und im Duell gegen die KI zeigen, was du kannst. Mit Kreuzworträtsel und Profi-Check.",
           tags: ["Duell gegen die KI", "Kreuzworträtsel", "Probenstoff"] }
       ]
@@ -41,19 +41,19 @@
       text: "Du baust am PC eigene kleine Netzwerke: Rechner verbinden, Nachrichten schicken, eine Webseite abrufen und zwei Netze koppeln.",
       proben: [{ R: "inf7-p2-r", M: "inf7-p2-m" }],
       module: [
-        { id: "zwei-computer", titel: "Zwei Computer verbinden", href: "zwei-computer.html", key: "grumi-i7-zwei-computer-v1", pc: "Filius",
+        { id: "zwei-computer", kz: "F1", titel: "Zwei Computer verbinden", href: "zwei-computer.html", key: "grumi-i7-zwei-computer-v1", pc: "Filius",
           text: "Zwei Rechner, ein Kabel, zwei IP-Adressen: dein erstes Netzwerk – und der Test, ob es klappt.",
           tags: ["Filius", "Startdatei"] },
-        { id: "switch", titel: "Der Switch", href: "switch.html", key: "grumi-i7-switch-v1", pc: "Filius",
+        { id: "switch", kz: "F2", titel: "Der Switch", href: "switch.html", key: "grumi-i7-switch-v1", pc: "Filius",
           text: "Mehr als zwei Rechner brauchen einen Verteiler. Du baust ein Sternnetz mit einem Switch.",
           tags: ["Filius", "Startdatei"] },
-        { id: "ping", titel: "Nachrichten und Ping", href: "ping.html", key: "grumi-i7-ping-v1", pc: "Filius",
+        { id: "ping", kz: "F3", titel: "Nachrichten und Ping", href: "ping.html", key: "grumi-i7-ping-v1", pc: "Filius",
           text: "Ist der andere Rechner erreichbar? Mit Ping prüfst du die Verbindung und findest Fehler.",
           tags: ["Filius", "Fehler finden"] },
-        { id: "server", titel: "Server und Webseite", href: "server.html", key: "grumi-i7-server-v1", pc: "Filius",
+        { id: "server", kz: "F4", titel: "Server und Webseite", href: "server.html", key: "grumi-i7-server-v1", pc: "Filius",
           text: "Ein Rechner bietet eine Webseite an, die anderen rufen sie ab: Server, Client und Browser.",
           tags: ["Filius", "Startdatei"] },
-        { id: "router", titel: "Zwei Netze und Router", href: "router.html", key: "grumi-i7-router-v1", pc: "Filius",
+        { id: "router", kz: "F5", titel: "Zwei Netze und Router", href: "router.html", key: "grumi-i7-router-v1", pc: "Filius",
           text: "Zwei Netze bleiben getrennt – bis ein Router sie verbindet. Wozu das Gateway da ist.",
           tags: ["Filius", "Startdatei"] }
       ]
@@ -63,19 +63,19 @@
       text: "Pixel sichtbar machen, Bilder zuschneiden, verbessern und freistellen – und ein eigenes kleines Bildprojekt.",
       proben: [{ R: "inf7-p3-r", M: "inf7-p3-m" }],
       module: [
-        { id: "pixel", titel: "Digitale Bilder und Pixel", key: "grumi-i7-pixel-v1", pc: "GIMP",
+        { id: "pixel", kz: "G1", titel: "Digitale Bilder und Pixel", key: "grumi-i7-pixel-v1", pc: "GIMP",
           text: "Ein Foto besteht aus winzigen Farbpunkten. Du zoomst hinein, bis du sie siehst.",
           tags: ["GIMP", "Übungsbild"] },
-        { id: "zuschneiden", titel: "Zuschneiden und Größe ändern", key: "grumi-i7-zuschneiden-v1", pc: "GIMP",
+        { id: "zuschneiden", kz: "G2", titel: "Zuschneiden und Größe ändern", key: "grumi-i7-zuschneiden-v1", pc: "GIMP",
           text: "Bild öffnen, zuschneiden, kleiner machen und richtig speichern.",
           tags: ["GIMP", "Übungsbild"] },
-        { id: "verbessern", titel: "Bild verbessern", key: "grumi-i7-verbessern-v1", pc: "GIMP",
+        { id: "verbessern", kz: "G3", titel: "Bild verbessern", key: "grumi-i7-verbessern-v1", pc: "GIMP",
           text: "Zu dunkel, zu blass, schief? Helligkeit, Kontrast, Farben und Drehen.",
           tags: ["GIMP", "Übungsbild"] },
-        { id: "freistellen", titel: "Freistellen", key: "grumi-i7-freistellen-v1", pc: "GIMP",
+        { id: "freistellen", kz: "G4", titel: "Freistellen", key: "grumi-i7-freistellen-v1", pc: "GIMP",
           text: "Ein Motiv vom Hintergrund lösen, den Hintergrund durchsichtig machen und als PNG exportieren.",
           tags: ["GIMP", "Übungsbild"] },
-        { id: "retusche", titel: "Retusche und Mini-Projekt", key: "grumi-i7-retusche-v1", pc: "GIMP",
+        { id: "retusche", kz: "G5", titel: "Retusche und Mini-Projekt", key: "grumi-i7-retusche-v1", pc: "GIMP",
           text: "Etwas Störendes aus dem Bild entfernen und ein eigenes kleines Bild gestalten.",
           tags: ["GIMP", "Mini-Projekt"] }
       ]
@@ -85,16 +85,16 @@
       text: "Grafiken aus Formen statt aus Pixeln: vergrößern ohne Unschärfe, Objekte und ihre Eigenschaften, ein eigenes Symbol.",
       proben: [{ R: "inf7-p4-r", M: "inf7-p4-m" }],
       module: [
-        { id: "raster-vektor", titel: "Raster oder Vektor?", key: "grumi-i7-raster-vektor-v1",
+        { id: "raster-vektor", kz: "V1", titel: "Raster oder Vektor?", key: "grumi-i7-raster-vektor-v1",
           text: "Ein Foto wird beim Vergrößern unscharf, eine Vektorgrafik nicht. Du findest heraus, warum.",
           tags: ["Animation", "Tablet geeignet"] },
-        { id: "inkscape-start", titel: "Inkscape: die ersten Formen", key: "grumi-i7-inkscape-start-v1", pc: "Inkscape",
+        { id: "inkscape-start", kz: "V2", titel: "Inkscape: die ersten Formen", key: "grumi-i7-inkscape-start-v1", pc: "Inkscape",
           text: "Rechteck, Kreis, Farbe, Größe, Position, Drehen – jedes Objekt hat Eigenschaften.",
           tags: ["Inkscape"] },
-        { id: "objekte", titel: "Objekte kombinieren", key: "grumi-i7-objekte-v1", pc: "Inkscape",
+        { id: "objekte", kz: "V3", titel: "Objekte kombinieren", key: "grumi-i7-objekte-v1", pc: "Inkscape",
           text: "Kopieren, gruppieren, anordnen und Text setzen: Aus einfachen Formen wird ein Bild.",
           tags: ["Inkscape"] },
-        { id: "logo", titel: "Eigenes Symbol oder Logo", key: "grumi-i7-logo-v1", pc: "Inkscape",
+        { id: "logo", kz: "V4", titel: "Eigenes Symbol oder Logo", key: "grumi-i7-logo-v1", pc: "Inkscape",
           text: "Du planst und zeichnest ein eigenes Symbol – ein App-Zeichen, ein Piktogramm oder ein Logo.",
           tags: ["Inkscape", "Mini-Projekt"] }
       ]
@@ -104,28 +104,28 @@
       text: "Mit Blöcken programmieren: Figuren bewegen, steuern, wiederholen, entscheiden, Punkte zählen – bis zum eigenen Mini-Spiel.",
       proben: [{ R: "inf7-p5-r", M: "inf7-p5-m" }],
       module: [
-        { id: "bewegung", titel: "Meine erste Bewegung", key: "grumi-i7-bewegung-v1", pc: "Scratch",
+        { id: "bewegung", kz: "S1", titel: "Meine erste Bewegung", key: "grumi-i7-bewegung-v1", pc: "Scratch",
           text: "Figur, Bühne, grüne Fahne: Nach wenigen Minuten bewegt sich deine Figur.",
           tags: ["Scratch", "Starterprojekt"] },
-        { id: "sequenz", titel: "Befehle der Reihe nach", key: "grumi-i7-sequenz-v1", pc: "Scratch",
+        { id: "sequenz", kz: "S2", titel: "Befehle der Reihe nach", key: "grumi-i7-sequenz-v1", pc: "Scratch",
           text: "Gehen, drehen, sprechen: Die Reihenfolge der Blöcke entscheidet, was passiert.",
           tags: ["Scratch"] },
-        { id: "wiederholung", titel: "Wiederholen", key: "grumi-i7-wiederholung-v1", pc: "Scratch",
+        { id: "wiederholung", kz: "S3", titel: "Wiederholen", key: "grumi-i7-wiederholung-v1", pc: "Scratch",
           text: "Statt zehnmal derselbe Block: „wiederhole“ und „wiederhole fortlaufend“.",
           tags: ["Scratch", "Animation"] },
-        { id: "steuerung", titel: "Mit der Tastatur steuern", key: "grumi-i7-steuerung-v1", pc: "Scratch",
+        { id: "steuerung", kz: "S4", titel: "Mit der Tastatur steuern", key: "grumi-i7-steuerung-v1", pc: "Scratch",
           text: "Pfeiltasten drücken, Figur bewegt sich: Programme reagieren auf Ereignisse.",
           tags: ["Scratch", "Starterprojekt"] },
-        { id: "bedingung", titel: "Wenn – dann", key: "grumi-i7-bedingung-v1", pc: "Scratch",
+        { id: "bedingung", kz: "S5", titel: "Wenn – dann", key: "grumi-i7-bedingung-v1", pc: "Scratch",
           text: "Die Figur berührt den Rand – und dann? Dein Programm prüft eine Bedingung.",
           tags: ["Scratch", "Starterprojekt"] },
-        { id: "alternative", titel: "Wenn – dann – sonst", key: "grumi-i7-alternative-v1", pc: "Scratch",
+        { id: "alternative", kz: "S6", titel: "Wenn – dann – sonst", key: "grumi-i7-alternative-v1", pc: "Scratch",
           text: "Zwei Wege: Das Programm entscheidet, welchen es geht.",
           tags: ["Scratch", "Animation"] },
-        { id: "variablen", titel: "Punkte zählen mit Variablen", key: "grumi-i7-variablen-v1", pc: "Scratch",
+        { id: "variablen", kz: "S7", titel: "Punkte zählen mit Variablen", key: "grumi-i7-variablen-v1", pc: "Scratch",
           text: "Eine Variable merkt sich einen Wert – zum Beispiel deinen Punktestand.",
           tags: ["Scratch", "Starterprojekt"] },
-        { id: "minispiel", titel: "Mein Mini-Spiel", key: "grumi-i7-minispiel-v1", pc: "Scratch",
+        { id: "minispiel", kz: "S8", titel: "Mein Mini-Spiel", key: "grumi-i7-minispiel-v1", pc: "Scratch",
           text: "Alles zusammen: ein kleines Fangspiel mit Steuerung, Bedingung und Punkten.",
           tags: ["Scratch", "Mini-Projekt"] }
       ]
@@ -139,6 +139,24 @@
   try { suche = global.location.search || ""; } catch (_e) {}
   // Vorschau für Lehrkräfte (Link aus der Verwaltung): zeigt eine Einheit, auch wenn sie für die Klasse gesperrt ist
   var VORSCHAU = /[?&]vorschau=1/.test(suche);
+
+  // Feste Kürzel der Module (kz, z. B. „I3“): Buchstabe des Themenbereichs + Nummer. Zu sehen sind sie nur in der
+  // Verwaltung der Lehrkraft (Freischalten, Lernfortschritt, Proben) – in den Seiten der Kinder steht kein Kürzel.
+  // Ein Kürzel bleibt für immer bei seinem Modul: Neue Module bekommen die nächste freie Nummer ihres Themenbereichs,
+  // vergebene Kürzel werden nicht neu verteilt (auch nicht, wenn sich die Reihenfolge ändert).
+  //
+  // PROBE_INHALT: Proben, die nicht genau die Module ihres Themenbereichs abdecken. Fehlt eine Probe hier, enthält sie
+  // alle Module des Themenbereichs, bei dem sie steht (ohne Extra-Module). So steht in der Verwaltung bei jeder Probe,
+  // welche Module die Kinder dafür brauchen.
+  var PROBE_INHALT = {};
+  function probeModule(testId) {
+    var ids = PROBE_INHALT[testId], liste = [];
+    THEMEN.forEach(function (t) {
+      var dabei = (t.proben || []).some(function (p) { return p && (p.R === testId || p.M === testId); });
+      t.module.forEach(function (m) { if (ids ? ids.indexOf(m.id) >= 0 : dabei && !m.extra) liste.push(m); });
+    });
+    return liste;
+  }
 
   function modulVon(id) {
     for (var i = 0; i < THEMEN.length; i++) for (var j = 0; j < THEMEN[i].module.length; j++) {
@@ -199,7 +217,7 @@
   }
 
   global.INF7 = {
-    THEMEN: THEMEN, API: API, VORSCHAU: VORSCHAU, modulVon: modulVon, idAusKey: idAusKey, offen: offen, freigabe: freigabe, zug: zug,
+    THEMEN: THEMEN, probeModule: probeModule, API: API, VORSCHAU: VORSCHAU, modulVon: modulVon, idAusKey: idAusKey, offen: offen, freigabe: freigabe, zug: zug,
     // Angaben für die gemeinsamen Bausteine (7M/NT/modul-basis.js)
     KURS: "i7", PREFIX: PREFIX, WORT: "Einheit", DAS: "die Einheit", ES: "sie",
     SPERRE: "Diese Einheit ist noch nicht freigeschaltet", ZURUECK: "💻 Zur Übersicht Informatik 7"

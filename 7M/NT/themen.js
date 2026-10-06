@@ -20,31 +20,31 @@
       text: "Unsichtbar, aber lebenswichtig: was Luft kann, woraus sie besteht, wie wir Wind nutzen, warum Feuer Luft braucht und wie man Brände löscht.",
       proben: [{ M: "nt7-luft-1" }, { M: "nt7-luft-2" }, { R: "nt7-p1-r", M: "nt7-p1-m" }],
       module: [
-        { id: "luft-modul", titel: "Luft – unsichtbar, aber lebenswichtig", href: "luft-modul.html", key: "grumi-nt7-luft-modul-v1", offen: true,
+        { id: "luft-modul", kz: "L1", titel: "Luft – unsichtbar, aber lebenswichtig", href: "luft-modul.html", key: "grumi-nt7-luft-modul-v1", offen: true,
           text: "Luft zum Leben, bewegte Luft, Luft und Feuer, Zusammensetzung, Eigenschaften der Luft, chemische Symbole und Formeln.",
           tags: ["Versuche", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "windkraft-strom", titel: "Windkraft: Strom aus bewegter Luft", href: "windkraft-strom.html", key: "grumi-nt7-windkraft-strom-v1", offen: true,
+        { id: "windkraft-strom", kz: "L2", titel: "Windkraft: Strom aus bewegter Luft", href: "windkraft-strom.html", key: "grumi-nt7-windkraft-strom-v1", offen: true,
           text: "Windmühle und Windkraftanlage, Aufbau mit Rotorblatt, Getriebe, Generator und Bremse, vom Wind zum Strom, warum Windräder immer größer werden.",
           tags: ["Animationen", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "windkraft-procontra", titel: "Windkraft – pro und contra", href: "windkraft-pro-contra.html", key: "grumi-nt7-windkraft-procontra-v1", offen: true,
+        { id: "windkraft-procontra", kz: "L3", titel: "Windkraft – pro und contra", href: "windkraft-pro-contra.html", key: "grumi-nt7-windkraft-procontra-v1", offen: true,
           text: "Argumente für und gegen Windräder sortieren, Standort-Planer für einen Kompromiss und ein Wortgefecht gegen die KI.",
           tags: ["Standort-Planer", "Probenstoff", "Duell gegen die KI"] },
-        { id: "luft-verbrennung", titel: "Luft und Verbrennung", href: "luft-verbrennung.html", key: "grumi-nt7-luft-verbrennung-v1", offen: true,
+        { id: "luft-verbrennung", kz: "L4", titel: "Luft und Verbrennung", href: "luft-verbrennung.html", key: "grumi-nt7-luft-verbrennung-v1", offen: true,
           text: "Brennbare Stoffe, das Feuerdreieck, die Zündtemperatur, warum Feuer Sauerstoff braucht und warum fein zerteilte Stoffe besser brennen.",
           tags: ["Versuche", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "achtung-explosiv", titel: "Achtung, explosiv!", href: "achtung-explosiv.html", key: "grumi-nt7-achtung-explosiv-v1", offen: true,
+        { id: "achtung-explosiv", kz: "L5", titel: "Achtung, explosiv!", href: "achtung-explosiv.html", key: "grumi-nt7-achtung-explosiv-v1", offen: true,
           text: "Mehlstaub-Explosion, explosive Gasgemische, Druckwelle, kontrollierte Explosionen im Automotor und Vorsicht beim Grillen.",
           tags: ["Lehrerversuche", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "brand-schutz", titel: "Brände verhindern und löschen", href: "brand-schutz.html", key: "grumi-nt7-brand-schutz-v1",
+        { id: "brand-schutz", kz: "L6", titel: "Brände verhindern und löschen", href: "brand-schutz.html", key: "grumi-nt7-brand-schutz-v1",
           text: "Brandschutz im Gebäude, Rauchmelder und Sprinkler, richtig handeln im Notfall und drei Wege, ein Feuer zu löschen.",
           tags: ["Animationen", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "oxidation", titel: "Oxidation: Rost, Glut und braune Äpfel", href: "oxidation.html", key: "grumi-nt7-oxidation-v1",
+        { id: "oxidation", kz: "L7", titel: "Oxidation: Rost, Glut und braune Äpfel", href: "oxidation.html", key: "grumi-nt7-oxidation-v1",
           text: "Wenn Stoffe mit Sauerstoff reagieren: Eisenwolle auf der Waage, Wortgleichungen, Oxide, Rost und wie man davor schützt.",
           tags: ["Versuche", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "luftdruck", titel: "Der Luftdruck", href: "luftdruck.html", key: "grumi-nt7-luftdruck-v1",
+        { id: "luftdruck", kz: "L8", titel: "Der Luftdruck", href: "luftdruck.html", key: "grumi-nt7-luftdruck-v1",
           text: "Luft hat Gewicht und drückt von allen Seiten: Luftsäule, Luftdruck in Tal und Gebirge, Saugnapf und die berühmten Halbkugeln.",
           tags: ["Animationen", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "forschen", titel: "Forschen wie die Profis", href: "forschen.html", key: "grumi-nt7-forschen-v1",
+        { id: "forschen", kz: "L9", titel: "Forschen wie die Profis", href: "forschen.html", key: "grumi-nt7-forschen-v1",
           text: "Von der Frage über die Vermutung zum Versuch: planen, beobachten, messen, Diagramme lesen und sicher experimentieren.",
           tags: ["Versuchsprotokoll", "Diagramme", "KI-Rückmeldung"] }
       ]
@@ -54,10 +54,10 @@
       text: "Woraus alles besteht: wie sich die Vorstellung vom Atom entwickelt hat und wie das Periodensystem die Elemente ordnet.",
       probeHinweis: "Die Probe zu diesem Themenbereich steht beim Themenbereich „Tiere“ (Probe 2: Atome und Tiere).",
       module: [
-        { id: "atommodelle", titel: "Atommodelle: von Demokrit bis Rutherford", href: "atommodelle.html", key: "grumi-nt7-atommodelle-v1",
+        { id: "atommodelle", kz: "A1", titel: "Atommodelle: von Demokrit bis Rutherford", href: "atommodelle.html", key: "grumi-nt7-atommodelle-v1",
           text: "Unteilbare Teilchen, Kugelmodell und der Versuch mit der Goldfolie: wie Forscher herausfanden, dass ein Atom fast leer ist.",
           tags: ["Animationen", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "atombau-pse", titel: "Atombau und Periodensystem", href: "atombau-pse.html", key: "grumi-nt7-atombau-pse-v1",
+        { id: "atombau-pse", kz: "A2", titel: "Atombau und Periodensystem", href: "atombau-pse.html", key: "grumi-nt7-atombau-pse-v1",
           text: "Protonen, Neutronen und Elektronen zählen, das Periodensystem lesen und Metalle, Nichtmetalle und Edelgase unterscheiden.",
           tags: ["Atom-Baukasten", "Probenstoff", "KI-Rückmeldung"] }
       ]
@@ -67,10 +67,10 @@
       text: "Fische, Amphibien, Reptilien, Vögel und Säugetiere: woran man sie erkennt und wie ihr Körper zu ihrem Lebensraum passt.",
       proben: [{ R: "nt7-p2-r", M: "nt7-p2-m" }],
       module: [
-        { id: "wirbeltiere", titel: "Wirbeltiere: fünf Klassen", href: "wirbeltiere.html", key: "grumi-nt7-wirbeltiere-v1",
+        { id: "wirbeltiere", kz: "T1", titel: "Wirbeltiere: fünf Klassen", href: "wirbeltiere.html", key: "grumi-nt7-wirbeltiere-v1",
           text: "Was alle Wirbeltiere gemeinsam haben und woran du Fische, Amphibien, Reptilien, Vögel und Säugetiere unterscheidest.",
           tags: ["Tier-Steckbriefe", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "fortbewegung", titel: "Schwimmen, laufen, fliegen", href: "fortbewegung.html", key: "grumi-nt7-fortbewegung-v1",
+        { id: "fortbewegung", kz: "T2", titel: "Schwimmen, laufen, fliegen", href: "fortbewegung.html", key: "grumi-nt7-fortbewegung-v1",
           text: "Stromlinienform, Flossen, Beine und Flügel: wie Wirbeltiere an Wasser, Land und Luft angepasst sind.",
           tags: ["Animationen", "Probenstoff", "KI-Rückmeldung"] }
       ]
@@ -80,19 +80,19 @@
       text: "Atmung, Blut, Herz und Blutkreislauf: wie dein Körper Sauerstoff aufnimmt, verteilt und gesund bleibt.",
       proben: [{ R: "nt7-p3-r", M: "nt7-p3-m" }],
       module: [
-        { id: "atmungsorgane", titel: "Der Weg der Luft: Atmungsorgane", href: "atmungsorgane.html", key: "grumi-nt7-atmungsorgane-v1",
+        { id: "atmungsorgane", kz: "M1", titel: "Der Weg der Luft: Atmungsorgane", href: "atmungsorgane.html", key: "grumi-nt7-atmungsorgane-v1",
           text: "Von der Nase bis zu den Lungenbläschen: welche Organe die Atemluft durchströmt und was jedes davon leistet.",
           tags: ["Animationen", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "atmen-gasaustausch", titel: "Atmen und Gasaustausch", href: "atmen-gasaustausch.html", key: "grumi-nt7-atmen-gasaustausch-v1",
+        { id: "atmen-gasaustausch", kz: "M2", titel: "Atmen und Gasaustausch", href: "atmen-gasaustausch.html", key: "grumi-nt7-atmen-gasaustausch-v1",
           text: "Wie Zwerchfell und Rippen die Lunge füllen und leeren und wie Sauerstoff ins Blut und Kohlenstoffdioxid hinaus gelangt.",
           tags: ["Modellversuch", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "blut", titel: "Blut: Was fließt da eigentlich?", href: "blut.html", key: "grumi-nt7-blut-v1",
+        { id: "blut", kz: "M3", titel: "Blut: Was fließt da eigentlich?", href: "blut.html", key: "grumi-nt7-blut-v1",
           text: "Blutplasma, rote und weiße Blutkörperchen und Blutplättchen: wer was erledigt und warum Blutspenden Leben retten.",
           tags: ["Animationen", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "herz-kreislauf", titel: "Herz und Blutkreislauf", href: "herz-kreislauf.html", key: "grumi-nt7-herz-kreislauf-v1",
+        { id: "herz-kreislauf", kz: "M4", titel: "Herz und Blutkreislauf", href: "herz-kreislauf.html", key: "grumi-nt7-herz-kreislauf-v1",
           text: "Das Herz als Pumpe mit vier Räumen und ein Kreislauf mit zwei Schleifen: der Weg des Blutes durch Körper und Lunge.",
           tags: ["Animationen", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "herz-gesund", titel: "Herz und Kreislauf gesund halten", href: "herz-gesund.html", key: "grumi-nt7-herz-gesund-v1",
+        { id: "herz-gesund", kz: "M5", titel: "Herz und Kreislauf gesund halten", href: "herz-gesund.html", key: "grumi-nt7-herz-gesund-v1",
           text: "Puls messen, Belastung und Erholung vergleichen, Risiken wie Rauchen und Bewegungsmangel erkennen und vorbeugen.",
           tags: ["Puls-Versuch", "Diagramme", "KI-Rückmeldung"] }
       ]
@@ -102,19 +102,19 @@
       text: "Stromkreis und Schaltplan, was Strom bewirkt, Spannung, Stromstärke und Widerstand – und wie du sicher mit Strom umgehst.",
       proben: [{ R: "nt7-p4-r", M: "nt7-p4-m" }],
       module: [
-        { id: "stromkreis", titel: "Der Stromkreis und sein Schaltplan", href: "stromkreis.html", key: "grumi-nt7-stromkreis-v1",
+        { id: "stromkreis", kz: "E1", titel: "Der Stromkreis und sein Schaltplan", href: "stromkreis.html", key: "grumi-nt7-stromkreis-v1",
           text: "Was ein Stromkreis braucht, Schaltzeichen lesen, Schaltpläne bauen und Fehler in Schaltungen finden.",
           tags: ["Schaltungs-Baukasten", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "strom-wirkungen", titel: "Was Strom alles kann: Wirkungen", href: "strom-wirkungen.html", key: "grumi-nt7-strom-wirkungen-v1",
+        { id: "strom-wirkungen", kz: "E2", titel: "Was Strom alles kann: Wirkungen", href: "strom-wirkungen.html", key: "grumi-nt7-strom-wirkungen-v1",
           text: "Licht, Wärme, Magnetismus und chemische Vorgänge: wie elektrische Energie in andere Energieformen umgewandelt wird.",
           tags: ["Versuche", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "spannung-stromstaerke", titel: "Spannung und Stromstärke", href: "spannung-stromstaerke.html", key: "grumi-nt7-spannung-stromstaerke-v1",
+        { id: "spannung-stromstaerke", kz: "E3", titel: "Spannung und Stromstärke", href: "spannung-stromstaerke.html", key: "grumi-nt7-spannung-stromstaerke-v1",
           text: "Ein Modell für den Strom, Volt und Ampere, richtig messen und was in Reihen- und Parallelschaltung passiert.",
           tags: ["Messen", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "widerstand", titel: "Der elektrische Widerstand", href: "widerstand.html", key: "grumi-nt7-widerstand-v1",
+        { id: "widerstand", kz: "E4", titel: "Der elektrische Widerstand", href: "widerstand.html", key: "grumi-nt7-widerstand-v1",
           text: "Warum manche Leiter den Strom bremsen, das Ohm'sche Gesetz, einfache Rechnungen und der passende Draht.",
           tags: ["Rechnen", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "strom-sicher", titel: "Sicher mit Strom umgehen", href: "strom-sicher.html", key: "grumi-nt7-strom-sicher-v1",
+        { id: "strom-sicher", kz: "E5", titel: "Sicher mit Strom umgehen", href: "strom-sicher.html", key: "grumi-nt7-strom-sicher-v1",
           text: "Wann Strom gefährlich wird, was Sicherung und Schutzschalter tun und welche Regeln im Alltag schützen.",
           tags: ["Gefahren erkennen", "Probenstoff", "KI-Rückmeldung"] }
       ]
@@ -127,6 +127,30 @@
   try { suche = global.location.search || ""; } catch (_e) {}
   // Vorschau für Lehrkräfte (Link aus der Verwaltung): zeigt ein Modul, auch wenn es für die Klasse gesperrt ist
   var VORSCHAU = /[?&]vorschau=1/.test(suche);
+
+  // Feste Kürzel der Module (kz, z. B. „L3“): Buchstabe des Themenbereichs + Nummer. Zu sehen sind sie nur in der
+  // Verwaltung der Lehrkraft (Freischalten, Lernfortschritt, Proben) – in den Seiten der Kinder steht kein Kürzel.
+  // Ein Kürzel bleibt für immer bei seinem Modul: Neue Module bekommen die nächste freie Nummer ihres Themenbereichs,
+  // vergebene Kürzel werden nicht neu verteilt (auch nicht, wenn sich die Reihenfolge ändert).
+  //
+  // PROBE_INHALT: Proben, die nicht genau die Module ihres Themenbereichs abdecken. Fehlt eine Probe hier, enthält sie
+  // alle Module des Themenbereichs, bei dem sie steht (ohne Extra-Module). So steht in der Verwaltung bei jeder Probe,
+  // welche Module die Kinder dafür brauchen.
+  var PROBE_INHALT = {
+    "nt7-luft-1": ["luft-modul", "windkraft-strom", "windkraft-procontra", "luftdruck"],
+    "nt7-luft-2": ["luft-verbrennung", "brand-schutz", "oxidation"],
+    "nt7-p1-r": ["luft-modul", "windkraft-strom", "luft-verbrennung", "brand-schutz", "oxidation", "luftdruck", "forschen"],
+    "nt7-p2-r": ["atommodelle", "atombau-pse", "wirbeltiere", "fortbewegung"],
+    "nt7-p2-m": ["atommodelle", "atombau-pse", "wirbeltiere", "fortbewegung"]
+  };
+  function probeModule(testId) {
+    var ids = PROBE_INHALT[testId], liste = [];
+    THEMEN.forEach(function (t) {
+      var dabei = (t.proben || []).some(function (p) { return p && (p.R === testId || p.M === testId); });
+      t.module.forEach(function (m) { if (ids ? ids.indexOf(m.id) >= 0 : dabei && !m.extra) liste.push(m); });
+    });
+    return liste;
+  }
 
   function modulVon(id) {
     for (var i = 0; i < THEMEN.length; i++) for (var j = 0; j < THEMEN[i].module.length; j++) {
@@ -186,5 +210,5 @@
     return z === "R" ? "R" : z === "M" ? "M" : "";
   }
 
-  global.NT7 = { THEMEN: THEMEN, API: API, VORSCHAU: VORSCHAU, modulVon: modulVon, idAusKey: idAusKey, offen: offen, freigabe: freigabe, zug: zug };
+  global.NT7 = { THEMEN: THEMEN, probeModule: probeModule, API: API, VORSCHAU: VORSCHAU, modulVon: modulVon, idAusKey: idAusKey, offen: offen, freigabe: freigabe, zug: zug };
 })(window);

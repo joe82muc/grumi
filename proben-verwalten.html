@@ -92,6 +92,12 @@
   }
   .test-card h4{font-size:.98rem;font-weight:800}
   .test-card .meta{font-size:.82rem;color:var(--muted);font-weight:600;margin-top:.15rem}
+  .test-card .inhalt{font-size:.82rem;margin-top:.35rem}
+  .test-card .inhalt summary{cursor:pointer;line-height:1.9}
+  .test-card .inhalt .lbl{color:var(--muted);font-weight:700}
+  .test-card .inhalt .kz{display:inline-block;background:#eef2ff;color:#3730a3;border-radius:7px;padding:0 .4rem;font-weight:800;white-space:nowrap}
+  .test-card .inhalt ul{margin:.3rem 0 0;padding-left:1.1rem;color:var(--muted);font-weight:600}
+  .test-card .inhalt li b{color:#3730a3}
   .right{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
   .state{font-size:.78rem;font-weight:800;border-radius:99px;padding:.22rem .7rem}
   .state.on{background:var(--ok);color:#fff}
@@ -165,7 +171,7 @@ const API_BASE = (location.hostname.includes('github.io') || location.protocol =
 
 /* Die Module (Endpunkte, Klassen, Lehrer- und Schülerseiten) stehen in js/proben-module.js,
    weil auch die Startseite der Kinder sie für die Proben-Kachel braucht. */
-const { MODULES } = window.GrumiProbenModule;
+const { MODULES, probeInhalt } = window.GrumiProbenModule;
 
 /* Reihenfolge der Faecher in der Anzeige */
 const SUBJECT_ORDER = ['Englisch','Deutsch','Mathematik','Natur und Technik','Informatik'];
@@ -234,7 +240,7 @@ const Proben = (() => {
         const data = await res.json();
         (data.tests || []).forEach(t => rows.push({
           mod, subject: mod.subject, id: t.id, title: t.title || t.id, klasse: mod.klasse(t),
-          unlocked: Boolean(t.unlocked), itemCount: t.itemCount, maxPoints: t.maxPoints,
+          unlocked: Boolean(t.unlocked), itemCount: t.itemCount, maxPoints: t.maxPoints, inhalt: probeInhalt(mod, t),
           link: mod.link(t), schueler: mod.schueler(t)
         }));
       }catch(e){ fehlend.push(mod.key); }
@@ -299,6 +305,15 @@ const Proben = (() => {
 
   function voll(pfad){ try { return new URL(pfad, location.href).href; } catch(e){ return pfad; } }
 
+  // Welche Module enthält die Probe? Feste Kürzel (z. B. L3) – aufklappen zeigt die Titel
+  function inhaltHtml(r){
+    const m = r.inhalt || [];
+    if(!m.length) return '';
+    return '<details class="inhalt"><summary><span class="lbl">Enthält ' + m.length + (m.length === 1 ? ' Modul:' : ' Module:') + '</span> ' +
+      m.map(x => '<span class="kz" title="' + esc(x.titel) + '">' + esc(x.kz) + '</span>').join(' ') + '</summary><ul>' +
+      m.map(x => '<li><b>' + esc(x.kz) + '</b> ' + esc(x.titel) + '</li>').join('') + '</ul></details>';
+  }
+
   function card(r){
     const el = document.createElement('div');
     el.className = 'test-card' + (r.unlocked ? ' open' : '');
@@ -308,7 +323,7 @@ const Proben = (() => {
     const offenLink = r.schueler && (r.unlocked || r.noUnlock);
     el.innerHTML =
       '<div class="left"><div class="who"><span class="klasse">Klasse ' + esc(r.klasse) + '</span><h4>' + esc(r.title) + '</h4></div>' +
-      '<div class="meta">' + esc(teile.join(' · ')) + '</div>' +
+      '<div class="meta">' + esc(teile.join(' · ')) + '</div>' + inhaltHtml(r) +
       '<div class="src">' + (r.link ? '<a href="' + esc(r.link) + '">Ergebnisse und Export →</a>' : '') +
       (r.schueler && !offenLink ? '<a href="' + esc(r.schueler) + '" target="_blank" rel="noopener">Schülerseite ansehen ↗</a>' : '') + '</div></div>' +
       '<div class="right"></div>' +

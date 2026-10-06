@@ -453,7 +453,7 @@
       P.forEach(function (p) {
         var link = PROBEN && PROBEN.link ? PROBEN.link(p.modul, p.testId) : "";
         h += "<th>" + (link ? '<a href="' + esc(link) + '" title="Antworten und Korrektur">' + esc(p.titel) + "</a>" : esc(p.titel)) +
-          "<small>" + esc(p.fach) + " · " + esc(datumText(p.datum)) + "</small></th>";
+          "<small>" + esc(p.fach) + " · " + esc(datumText(p.datum)) + "</small>" + probeInhalt(p) + "</th>";
       });
       h += "<th>Ø</th></tr></thead><tbody>";
       liste.forEach(function (kind) {
@@ -803,7 +803,22 @@
       return liste.some(function (kind) { return kind.module[m.id]; });
     });
   }
-  function kurzName(m) { return m.kurz || m.titel || "Modul " + m.nr; }
+  // Festes Kürzel des Moduls aus der Modulliste des Fachs (themen.js: kz, z. B. „L3“). Übungen ohne Liste behalten
+  // den Kurznamen, den ihre Seite meldet (z. B. „G2“ in Deutsch 8).
+  function kuerzel(m) {
+    var L = { nt7: global.NT7, d7: global.D7, i7: global.INF7, i8: global.INF8 }[m.kurs];
+    var r = L && L.modulVon ? L.modulVon(String(m.id).slice(String(m.kurs).length + 1)) : null;
+    return (r && r.modul.kz) || "";
+  }
+  function kurzName(m) { return kuerzel(m) || m.kurz || m.titel || "Modul " + m.nr; }
+  // Notenübersicht: Module, die eine Probe enthält (Kürzel; der Titel steht beim Darüberfahren) – js/proben-module.js
+  function probeInhalt(p) {
+    var G = global.GrumiProbenModule, mod = G && G.MODULES.filter(function (x) { return x.key === p.modul; })[0];
+    var liste = mod && G.probeInhalt ? G.probeInhalt(mod, { id: p.testId }) : [];
+    if (!liste.length) return "";
+    return '<small class="lf-inhalt" title="' + esc(liste.map(function (x) { return x.kz + " " + x.titel; }).join(" · ")) + '">Module: ' +
+      esc(liste.map(function (x) { return x.kz; }).join(" ")) + "</small>";
+  }
   // Station: Zahl = Station der NT-Seiten, sonst Name des Teils (Englisch: „Mehr üben“ …)
   function stationText(s) { return /^\d+$/.test(s) ? "Station " + s : s; }
   function stationKurz(s) { return !s ? "" : /^\d+$/.test(s) ? "S" + s : s; }

@@ -7,6 +7,9 @@
  *   klasse     "7" = alle 7. Klassen, "7M"/"7R" = nur dieser Zug
  *   stufen     Jahrgangsstufen, in denen das Modul Proben haben kann (die Startseite fragt nur diese ab)
  *   link       Lehrerseite (Ergebnisse), schueler = Seite für die Kinder
+ *   liste      Name der Modulliste des Fachs (window.NT7, INF7, INF8, D7 aus den themen.js): Die Verwaltung zeigt
+ *              damit bei jeder Probe, welche Module sie enthält (feste Kürzel wie „L3“, nur dort zu sehen)
+ *   inhalt     dasselbe für Proben ohne Modulliste: Funktion, die [{ kz, titel }] liefert
  * Neue Probenart: hier eintragen – dann steht sie in der Verwaltung und auf der Startseite der Kinder.
  */
 (function (global) {
@@ -45,7 +48,7 @@
       schueler: function (t) { return englischSeite(t, "probe/grammatikprobe.html") + "?test=" + encodeURIComponent(t.id); }
     },
     {
-      key: "nt7", subject: "Natur und Technik", stufen: [7],
+      key: "nt7", subject: "Natur und Technik", stufen: [7], liste: "NT7",
       listPath: "/api/nt7/list", unlockPath: "/api/nt7/teacher/unlock",
       /* Proben 1 bis 4 gibt es je Zug (t.zug = "R" oder "M"); die beiden ersten Luft-Proben sind für 7M */
       klasse: function (t) { return t.zug ? "7" + t.zug : "7M"; }, link: function () { return "7M/NT/lehrer.html"; },
@@ -56,7 +59,7 @@
     },
     {
       /* Informatik 7: je Modul eine Probe, in einer Fassung für 7R und für 7M (t.zug) */
-      key: "inf7", subject: "Informatik", stufen: [7],
+      key: "inf7", subject: "Informatik", stufen: [7], liste: "INF7",
       listPath: "/api/inf7/list", unlockPath: "/api/inf7/teacher/unlock",
       klasse: function (t) { return "7" + (t.zug || ""); }, link: function () { return "7M/Informatik/lehrer.html"; },
       schueler: function (t) { return "7M/Informatik/probe.html?test=" + encodeURIComponent(t.id) + (t.zug ? "&zug=" + t.zug : ""); }
@@ -74,7 +77,7 @@
       /* Deutsch 7: Proben 1 bis 8, je für 7R und 7M (t.zug) und in Variante A und B (B = Nachschreiber, für die
          Kinder erst sichtbar, wenn sie offen ist – die Verwaltung fragt deshalb mit „alle=1“). Die KI korrigiert
          vor, die Lehrkraft prüft und gibt die korrigierte Probe zurück (Lehrerseite proben-lehrer.html). */
-      key: "d7proben", subject: "Deutsch", stufen: [7],
+      key: "d7proben", subject: "Deutsch", stufen: [7], liste: "D7",
       listPath: "/api/d7/proben/list?alle=1", unlockPath: "/api/d7/proben/teacher/unlock",
       klasse: function (t) { return "7" + (t.zug || ""); }, link: function (t) { return "7M/Deutsch/proben-lehrer.html?nr=" + t.nr; },
       schueler: function (t) { return "7M/Deutsch/probe.html?test=" + encodeURIComponent(t.id) + (t.zug ? "&zug=" + t.zug : ""); }
@@ -87,7 +90,7 @@
     },
     {
       /* Informatik 8, Version 2: je Modul eine Probe, in einer Fassung für 8R und für 8M (t.zug) */
-      key: "inf8", subject: "Informatik", stufen: [8],
+      key: "inf8", subject: "Informatik", stufen: [8], liste: "INF8",
       listPath: "/api/inf8/list", unlockPath: "/api/inf8/teacher/unlock",
       klasse: function (t) { return "8" + (t.zug || ""); }, link: function () { return "8M/Informatik/lehrer.html"; },
       schueler: function (t) { return "8M/Informatik/probe.html?test=" + encodeURIComponent(t.id) + (t.zug ? "&zug=" + t.zug : ""); }
@@ -95,6 +98,10 @@
     {
       /* NT 9M/9R: Probe Organische Rohstoffe (Module 1-7), je eine Fassung pro Zug */
       key: "nt9probe", subject: "Natur und Technik", stufen: [9],
+      inhalt: function () {
+        return ["Kohlenstoff, Holz und Raps", "Biodiesel, Stärke und Nachhaltigkeit", "Entstehung fossiler Rohstoffe", "Erdölaufbereitung und Fraktionen",
+          "Kohlenstoffkreislauf und Treibhauseffekt", "Erdöl – Rohstoff mit Zukunft?", "Ohne Erdöl – geht das?"].map(function (t, i) { return { kz: "Modul " + (i + 1), titel: t }; });
+      },
       listPath: "/api/nt9probe/list", unlockPath: "/api/nt9probe/unlock",
       klasse: nt9Zug,
       link: function (t) { return nt9Zug(t) + "/NT_9/App12_Organische_Rohstoffe/lehrer.html"; },
@@ -114,5 +121,13 @@
     }
   ];
 
-  global.GrumiProbenModule = { MODULES: MODULES, idKlasse: idKlasse, englischSeite: englischSeite };
+  /* Module, die eine Probe enthält: [{ kz, titel }] – aus der Modulliste des Fachs (probeModule in themen.js) */
+  function probeInhalt(mod, test) {
+    if (!mod) return [];
+    if (mod.inhalt) return mod.inhalt(test) || [];
+    var L = mod.liste && global[mod.liste];
+    return L && L.probeModule ? L.probeModule(test.id).map(function (m) { return { kz: m.kz || "", titel: m.titel }; }) : [];
+  }
+
+  global.GrumiProbenModule = { MODULES: MODULES, idKlasse: idKlasse, englischSeite: englischSeite, probeInhalt: probeInhalt };
 })(window);
