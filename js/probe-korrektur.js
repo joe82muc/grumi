@@ -54,13 +54,38 @@
   }
 
   function teil(titel, inhalt, klasse) { return inhalt ? `<div class="k-teil"><span>${titel}</span><div class="${klasse || ""}">${inhalt}</div></div>` : ""; }
+  // Viele kurze Aufgaben (Vokabeltest, Grammatikprobe): als Tabelle, damit die Korrektur auf ein bis zwei Blätter passt
+  function kurzeAufgaben(aufgaben) {
+    const kurz = (s, n) => String(s || "").length <= n;
+    return aufgaben.length >= 15 && aufgaben.every(a => kurz(a.prompt, 120) && kurz(a.given, 120) && kurz(a.loesung, 160) && kurz(a.comment, 200));
+  }
+  function tabelle(aufgaben) {
+    if (!document.getElementById("k-tab-stil")) {
+      const s = document.createElement("style"); s.id = "k-tab-stil";
+      s.textContent = ".k-tab{width:100%;border-collapse:collapse;background:#fff;border:1px solid #e5d9db;border-radius:12px;font-size:.98rem}" +
+        ".k-tab th{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;text-align:left;color:#6b5b5f;padding:8px 10px;border-bottom:2px solid #e5d9db}" +
+        ".k-tab td{padding:6px 10px;border-bottom:1px solid #f0e6e8;vertical-align:top;overflow-wrap:anywhere}" +
+        ".k-tab .nr{color:#8a7a7e;width:2.4em}.k-tab .p{width:3.2em;font-weight:800;text-align:center;white-space:nowrap}" +
+        ".k-tab tr.ok .p{color:#15803d}.k-tab tr.no .p,.k-tab tr.no .a{color:#b3261e}.k-tab .leer{color:#9a8a8e;font-style:italic}.k-tab small{display:block;color:#6b5b5f}" +
+        "@media (max-width:560px){.k-tab{font-size:.88rem}.k-tab td,.k-tab th{padding:5px 6px}}" +
+        // Druck: Kopf zweispaltig (Angaben links, Punkte rechts) und enge Zeilen – 35 Wörter passen auf ein A4-Blatt
+        "@media print{.kopfkarte{grid-template-columns:1fr auto!important;align-items:start}.k-tab{font-size:9pt;border-radius:0}.k-tab td{padding:1.6pt 6pt}.k-tab th{padding:2.5pt 6pt;font-size:6.5pt}" +
+        ".k-tab tr{break-inside:avoid}.k-fuss{font-size:7.5pt!important;margin-top:4pt!important}.unterschrift{margin-top:10mm!important}}";
+      document.head.appendChild(s);
+    }
+    return `<table class="k-tab"><thead><tr><th class="nr">Nr.</th><th>Aufgabe</th><th>Deine Antwort</th><th class="p"></th><th>Richtig ist</th></tr></thead><tbody>` +
+      aufgaben.map(a => `<tr class="${a.points >= a.max ? "ok" : "no"}"><td class="nr">${esc(a.nr)}</td><td>${esc(a.prompt)}</td>` +
+        `<td class="a${a.given ? "" : " leer"}">${a.given ? esc(a.given) : "keine Antwort"}${a.comment ? `<small>${esc(a.comment)}</small>` : ""}</td>` +
+        // ein Punkt: Haken oder Kreuz; mehrere Punkte: erreichte von möglichen
+        `<td class="p">${a.max > 1 ? zahl(a.points) + "/" + zahl(a.max) : a.points >= a.max ? "✓" : "✗"}</td><td>${a.loesung ? (a.beispiel ? "z. B. " : "") + esc(a.loesung) : ""}</td></tr>`).join("") + "</tbody></table>";
+  }
   function blatt(k) {
     return `<div class="kopfkarte"><div><div class="eyebrow">Korrigierte Probe · ${esc(fach(k.fach))}</div><h1>${esc(k.titel)}</h1>
-        <dl><dt>Klasse</dt><dd>${esc(k.klasse || "")}</dd><dt>Geschrieben am</dt><dd>${datum(k.datum)}</dd><dt>Zurückbekommen am</dt><dd>${datum(k.freigegebenAm)}</dd>
-        <dt>Schülerkennung</dt><dd>Code ${esc(k.code)}</dd><dt class="nur-druck">Name</dt><dd class="nur-druck">________________________________</dd></dl></div>
+        <dl><dt>Klasse</dt><dd>${esc(k.klasse || "")}</dd><dt>Geschrieben am</dt><dd>${datum(k.datum)}</dd>${k.freigegebenAm ? `<dt>Zurückbekommen am</dt><dd>${datum(k.freigegebenAm)}</dd>` : ""}
+        ${k.code ? `<dt>Schülerkennung</dt><dd>Code ${esc(k.code)}</dd>` : ""}${k.name ? `<dt>Name</dt><dd>${esc(k.name)}</dd>` : `<dt class="nur-druck">Name</dt><dd class="nur-druck">________________________________</dd>`}</dl></div>
       <div class="ergebnis"><span>Punkte</span><strong>${zahl(k.score)} / ${zahl(k.total)}</strong><span>${esc(k.percent)} %</span>${k.grade !== "" && k.grade != null ? `<span class="note">Note ${esc(k.grade)}</span>` : ""}</div></div>` +
       (k.kommentar ? `<div class="k-lehrer" style="margin-top:14px"><div class="k-teil" style="margin-top:0"><span>Kommentar deiner Lehrkraft</span><p style="white-space:pre-line;margin:0">${esc(k.kommentar)}</p></div></div>` : "") +
-      `<div id="k-aufgaben" style="margin-top:14px">` + (k.aufgaben.length ? k.aufgaben.map(a => {
+      `<div id="k-aufgaben" style="margin-top:14px">` + (kurzeAufgaben(k.aufgaben) ? tabelle(k.aufgaben) : k.aufgaben.length ? k.aufgaben.map(a => {
         const punkte = `<span class="k-punkte${a.points >= a.max ? " voll" : a.points === 0 ? " null" : ""}">${zahl(a.points)} / ${zahl(a.max)}</span>`;
         const korrektur = (a.comment ? `<p>${esc(a.comment)}</p>` : "") + (a.loesung ? `<p>${a.beispiel ? "Beispiel für eine richtige Antwort: " : "Richtig ist: "}${esc(a.loesung)}</p>` : "") ||
           (a.points >= a.max ? "<p>Richtig.</p>" : "");
@@ -92,6 +117,21 @@
   $("code-form").addEventListener("submit", e => { e.preventDefault(); code = $("code").value.trim(); start(); });
   $("drucken").addEventListener("click", () => window.print());
   $("pdf").addEventListener("click", () => { $("pdf-hilfe").hidden = false; setTimeout(() => window.print(), 150); });
+
+  // Elternansicht für die Lehrkraft: Die Lehrerseite einer Probe öffnet diese Seite mit „#druck“ und übergibt die
+  // Abgaben über window.GrumiDruck (js/probe-rueckgabe-lehrer.js) – nichts davon steht in der Adresse, nichts wird vom
+  // Server geholt. Je Kind ein Blatt (mit Namen, wenn die Lehrkraft die Namensliste hat), im Druck je Blatt eine Seite.
+  let druck = null;
+  if (location.hash === "#druck") { try { druck = window.opener && window.opener.GrumiDruck; } catch (_e) {} }
+  if (Array.isArray(druck) && druck.length) {
+    $("anmelden").hidden = true; $("liste").hidden = true;
+    $("blatt").innerHTML = druck.map(blatt).join('<div style="break-after:page;page-break-after:always;height:0"></div><hr class="kein-druck" style="margin:28px 0;border:0;border-top:2px dashed #d9c9cc">');
+    document.querySelectorAll(".druck-leiste a").forEach(a => { a.style.display = "none"; });   // Wege für Kinder
+    $("drucken").textContent = druck.length === 1 ? "🖨 Elternansicht drucken" : "🖨 Alle " + druck.length + " Blätter drucken";
+    $("korrektur").hidden = false;
+    document.title = "Elternansicht: " + druck[0].titel + " | GRUMI";
+    return;
+  }
 
   code = gemerkterCode();
   if (code) start(); else $("anmelden").hidden = false;

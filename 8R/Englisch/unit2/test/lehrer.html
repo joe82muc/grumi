@@ -127,11 +127,10 @@
     <h2>Ergebnisse</h2>
     <p class="sub">Auswertung nach Notenschl&uuml;ssel M-Zug (50&nbsp;% = Note 4).</p>
 
-    <div class="note bad" style="margin-top:0;margin-bottom:.9rem">
-      <strong>Ergebnisse gleich nach der Stunde als CSV sichern.</strong><br>
-      Der Server speichert nur vor&uuml;bergehend: Bei einem Neustart oder einer
-      Aktualisierung gehen die Abgaben verloren. Die CSV-Datei auf deinem Rechner
-      ist die dauerhafte Kopie.
+    <div class="note ok" id="speicher-hinweis" style="margin-top:0;margin-bottom:.9rem">
+      <strong>&#10003; Die Abgaben werden dauerhaft gespeichert.</strong><br>
+      Sie liegen in der Datenbank der Proben und bleiben auch nach einem Neustart des Servers erhalten.
+      Die CSV-Datei ist eine zus&auml;tzliche Kopie f&uuml;r deine Unterlagen.
     </div>
 
     <div style="display:flex;gap:.6rem;align-items:flex-end;flex-wrap:wrap">
@@ -149,6 +148,7 @@
 
 </div>
 
+<script src="../../../../js/probe-rueckgabe-lehrer.js"></script>
 <script>
 /* Abgaben mit Code: Name aus der Namensliste der Lehrkraft (nur in diesem Browser, siehe proben-verwalten.html) */
 const NAMEN = (() => { try { return JSON.parse(localStorage.getItem('lf-nt9-namen') || '{}') || {}; } catch(_e){ return {}; } })();
@@ -194,6 +194,9 @@ async function doLogin(){
     }
     if(!res.ok) throw new Error('HTTP ' + res.status);
     PW = pw;
+    // Korrigierte Proben an die Kinder zurückgeben und als Elternansicht drucken (js/probe-rueckgabe-lehrer.js)
+    if (window.ProbeRueckgabeLehrer) ProbeRueckgabeLehrer.start({ api: API_BASE, modul: 'vokabeltest', passwort: () => PW, namen: NAMEN, fach: 'Englisch', wurzel: '../../../../',
+      wer: r => (r.code ? (NAMEN[r.code] ? NAMEN[r.code] + ' (Code ' + r.code + ')' : 'Code ' + r.code) : [r.firstName, r.lastName].filter(Boolean).join(' ')) });
     $('view-login').classList.add('hidden');
     $('view-admin').classList.remove('hidden');
     $('view-results').classList.remove('hidden');
@@ -357,6 +360,7 @@ function renderTable(rows){
     del.title = 'Abgabe löschen, damit neu geschrieben werden kann';
     del.addEventListener('click', () => deleteSubmission(r));
     tdX.appendChild(del);
+    if (window.ProbeRueckgabeLehrer) ProbeRueckgabeLehrer.zelle(tdX, r);
 
     tr.append(tdC, tdN, tdD, tdP, tdPc, tdG, tdX);
     tb.appendChild(tr);

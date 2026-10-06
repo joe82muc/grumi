@@ -139,11 +139,10 @@
     <p class="sub">Notenschl&uuml;ssel: <b>7M</b> 50&nbsp;% = Note 4 (1 ab 92&nbsp;%, 2 ab 81&nbsp;%, 3 ab 67&nbsp;%, 4 ab 50&nbsp;%, 5 ab 30&nbsp;%) &middot; <b>7R</b> 50&nbsp;% = Note 3 (1 ab 87&nbsp;%, 2 ab 73&nbsp;%, 3 ab 50&nbsp;%, 4 ab 37&nbsp;%, 5 ab 20&nbsp;%).
       L&uuml;cken werden exakt gepr&uuml;ft (Kurz- und Langformen gelten), abgelehnte L&uuml;cken sieht sich zus&auml;tzlich die KI an. S&auml;tze bewertet die KI nach der Zeitform. Du kannst jede Punktzahl &auml;ndern.</p>
 
-    <div class="note bad" style="margin-top:0;margin-bottom:.9rem">
-      <strong>Ergebnisse gleich nach der Stunde als CSV sichern.</strong><br>
-      Der Server speichert nur vor&uuml;bergehend: Bei einem Neustart oder einer
-      Aktualisierung gehen die Abgaben verloren. Die CSV-Datei auf deinem Rechner
-      ist die dauerhafte Kopie.
+    <div class="note ok" id="speicher-hinweis" style="margin-top:0;margin-bottom:.9rem">
+      <strong>&#10003; Die Abgaben werden dauerhaft gespeichert.</strong><br>
+      Sie liegen in der Datenbank der Proben und bleiben auch nach einem Neustart des Servers erhalten.
+      Die CSV-Datei ist eine zus&auml;tzliche Kopie f&uuml;r deine Unterlagen.
     </div>
 
     <div style="display:flex;gap:.6rem;align-items:flex-end;flex-wrap:wrap">
@@ -160,6 +159,7 @@
   </section>
 </div>
 
+<script src="../../../../js/probe-rueckgabe-lehrer.js"></script>
 <script>
 /* Abgaben mit Code: Name aus der Namensliste der Lehrkraft (nur in diesem Browser, siehe proben-verwalten.html) */
 const NAMEN = (() => { try { return JSON.parse(localStorage.getItem('lf-nt9-namen') || '{}') || {}; } catch(_e){ return {}; } })();
@@ -205,6 +205,9 @@ async function doLogin(){
     }
     if(!res.ok) throw new Error('HTTP ' + res.status);
     PW = pw;
+    // Korrigierte Proben an die Kinder zurückgeben und als Elternansicht drucken (js/probe-rueckgabe-lehrer.js)
+    if (window.ProbeRueckgabeLehrer) ProbeRueckgabeLehrer.start({ api: API_BASE, modul: 'grammatik9r', passwort: () => PW, namen: NAMEN, fach: 'Englisch', wurzel: '../../../../',
+      wer: r => (r.code ? (NAMEN[r.code] ? NAMEN[r.code] + ' (Code ' + r.code + ')' : 'Code ' + r.code) : [r.firstName, r.lastName].filter(Boolean).join(' ')) });
     $('view-login').classList.add('hidden');
     $('view-admin').classList.remove('hidden');
     $('view-results').classList.remove('hidden');
@@ -416,6 +419,7 @@ function renderTable(rows){
       }catch(e){ del.disabled = false; alert('Konnte nicht geloescht werden.'); }
     });
     tdX.appendChild(del);
+    if (window.ProbeRueckgabeLehrer) ProbeRueckgabeLehrer.zelle(tdX, r);
 
     tr.append(tdC, tdN, tdD, tdP, tdPc, tdG, tdX);
     tb.appendChild(tr);
