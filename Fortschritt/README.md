@@ -246,12 +246,15 @@ Wunsch der Lehrkraft: ein Code, mit dem alle Module aller Klassen offen sind. De
 
 - NT 7 und NT 9: die neuen Block-Proben vor dem ersten Einsatz gegenlesen (Lehrercode 000 schreibt sie nicht;
   am einfachsten in der Verwaltung freischalten und mit einem Test-Code ansehen).
-- Beim Schreiben der Proben aufgefallen, in den Modulen nicht geändert: NT 7 `luft-modul` („Windmühlen seit über
-  4000 Jahren“, „Sturm ab etwa 100 km/h“), `luft-verbrennung` (Zündtemperaturen überschneiden sich);
-  NT 9 App3 (MRT als Beispiel für Strahlung), App7 (Dosiswerte passen nicht zusammen), App10 („durch Moderatoren
-  gesteuert“ – richtig: Steuerstäbe), App11 (Nr. 4 „Druckhalter“ zeigt den Dampferzeuger).
-- Sprachfahnen: Das erste Öffnen einer Seite in einer Sprache dauert etwa 30 Sekunden. Der Speicher ließe sich
-  vorab füllen (26 Einheiten × 4 Sprachen, kostet KI-Guthaben).
+- Fachliche Korrekturen vom 07.10.2026 (beim Schreiben der Proben aufgefallen, auf Wunsch behoben): NT 7 Luft
+  (Windmühlen seit gut 1000 Jahren, Sturm ab etwa 75 km/h), Luftdruck (16 Pferde in Magdeburg, nicht 1654),
+  Strom sicher (Parallelschaltung nicht mehr vorausgesetzt); NT 9 MRT ohne Strahlung, Milch 15 statt 300 Becquerel,
+  Strahlenwerte mit Radon wie beim Bundesamt für Strahlenschutz, eigener Lesetext statt Buchseiten-Verweis (App8),
+  Meitner und Frisch, Moderatoren/Steuerstäbe, Nr. 4 = Dampferzeuger, Pripjat, Endlager-Zeitplan.
+  Nicht geändert: Zündtemperaturen in `luft-verbrennung` (übliche Tabellenwerte, Bereiche dürfen sich überschneiden).
+  Werkzeug: `.codex-build/nt9-werkzeug/korrekturen-2026-10-07.js`, `test-korrekturen.js`.
+- Sprachfahnen: Übersetzt wird nur bei Bedarf (Entscheidung vom 07.10.2026) – das erste Öffnen einer Seite in einer
+  Sprache dauert deshalb etwa 30 Sekunden, danach kommt sie aus dem Speicher.
 - Deutsch 7/8: Inhalte im Unterricht gegenlesen lassen (Niveau, Fachbegriffe der eingeführten Lehrwerke).
 - Englisch 7 G1–G4 „Übungen zur Regel“ und Beispielsätze der Vokabeltrainer 7/8R auf Buchnähe prüfen.
 - Vokabeltrainer: Ton auf echten iPads kurz prüfen (der Test-Safari unter Windows hat keine Tonausgabe).
