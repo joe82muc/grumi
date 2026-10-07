@@ -222,7 +222,7 @@
     box.innerHTML =
       '<div class="toolbar"><div><h2>Klasse wählen</h2>' +
       '<p class="sub" style="margin:0">Proben, Lernfortschritt und Codes gibt es je Klasse. Neue Klasse = Klassenliste aus dem Schulmanager hochladen.</p></div>' +
-      '<div class="spacer"></div><button class="btn btn-ghost btn-sm" id="vw-reload" type="button">Neu laden</button></div>' +
+      '<div class="spacer"></div><a class="btn btn-ghost btn-sm" href="kalender-verwalten.html">Probenkalender 2026/2027</a><button class="btn btn-ghost btn-sm" id="vw-reload" type="button">Neu laden</button></div>' +
       '<div id="vw-klassen"><div class="skel">Klassen werden geladen … Wenn der Server schläft, dauert das bis zu einer Minute.</div></div>' +
       '<div id="vw-msg"></div>' +
       '<div id="vw-inhalt" style="margin-top:1rem"></div>';
@@ -325,7 +325,7 @@
     // Einen eigenen Reiter „Proben“ gibt es nicht mehr (06.10.2026): Proben werden beim Fach freigeschaltet – unter den
     // Modulen, die sie enthalten (nt7-verwaltung.js), sonst als Karten über dem Lernstand des Fachs (fachProben).
     // Alle Proben aller Klassen stehen weiter hinter dem Knopf oben.
-    var gueltig = ["noten", "heft", "rat", "codes"].concat(kurse.map(function (k) { return k.id; }));
+    var gueltig = ["noten", "heft", "rat", "kalender", "codes"].concat(kurse.map(function (k) { return k.id; }));
     if (gueltig.indexOf(ANSICHT) < 0) ANSICHT = "noten";
     var info = KLASSEN.filter(function (k) { return k.klasse === KLASSE; })[0] || { anzahl: 0 };
     var h = '<div class="vw-kl-kopf"><h2>Klasse ' + esc(KLASSE) + '</h2><span class="vw-badge">Jahrgangsstufe ' + stufeVon(KLASSE) + " · " + zugText(KLASSE) +
@@ -333,7 +333,7 @@
     if (nurZug(KLASSE)) h += '<div class="note warn" style="margin:0 0 .9rem">Diese Codes stammen aus der ersten Fassung und kennen nur den Zug. Unter „Codes &amp; Namen“ kannst du die Klasse umbenennen, z. B. in ' + (zugBuchstabe(KLASSE) === "M" ? stufeVon(KLASSE) + "aM" : stufeVon(KLASSE) + "d") + ". Codes und Lernstand bleiben erhalten.</div>";
     h += '<nav class="vw-tabs" aria-label="Bereiche der Klasse">' +
       '<button type="button" data-ansicht="noten">📝 Noten</button>' +
-      '<button type="button" data-ansicht="heft">📚 Hausaufgaben</button><button type="button" data-ansicht="rat">📮 Klassenrat</button>' +
+      '<button type="button" data-ansicht="heft">📚 Hausaufgaben</button><button type="button" data-ansicht="kalender">Probenkalender</button><button type="button" data-ansicht="rat">📮 Klassenrat</button>' +
       kurse.map(function (k) { return '<button type="button" data-ansicht="' + esc(k.id) + '">' + (FACH_ICON[k.fach] || "📈") + " " + esc(k.fachName) + "</button>"; }).join("") +
       '<button type="button" data-ansicht="codes">👥 Codes &amp; Namen</button></nav><div id="vw-teil"></div>';
     el.innerHTML = h;
@@ -348,6 +348,9 @@
       // Hausaufgabenheft und Klassenrat-Briefkasten der Klasse (klasse-verwaltung.js)
       if (global.KlasseVerwaltung) global.KlasseVerwaltung[ANSICHT](teil, { api: API, pw: PW, klasse: KLASSE, nameVon: nameVon });
       else teil.innerHTML = '<div class="note warn">Dieser Bereich konnte nicht geladen werden. Bitte die Seite neu laden.</div>';
+    } else if (ANSICHT === "kalender") {
+      if (global.GrumiKalender) global.GrumiKalender.mount(teil, { api: API, klasse: KLASSE, adminPassword: PW });
+      else teil.innerHTML = '<div class="note warn">Der Kalender konnte nicht geladen werden. Bitte neu laden.</div>';
     } else if (ANSICHT === "codes") {
       codesZeichnen(teil);
     } else if (ANSICHT === "nt7" && global.NT7Verwaltung) {

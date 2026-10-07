@@ -17,7 +17,7 @@
   "use strict";
   var doc = global.document;
   var SITZUNG = "grumi-code-anmeldung";
-  var API = global.location.hostname.slice(-12) === "onrender.com" ? "" : "https://englisch-9.onrender.com";
+  var API = global.location.hostname.slice(-12) === "onrender.com" || /^(localhost|127\.0\.0\.1)$/.test(global.location.hostname) ? "" : "https://englisch-9.onrender.com";
   var PAUSE_MS = 10 * 60 * 1000;
 
   function lies(k) { try { return global.localStorage.getItem(k); } catch (_e) { return null; } }
@@ -263,6 +263,7 @@
         '<h3 class="kb-abschnitt">Deine Klasse</h3>' +
         '<div class="kb-kacheln">' +
         '<a class="kb-kachel kb-gross kb-heft" href="hausaufgaben.html"><span class="kb-emoji" aria-hidden="true">📚</span><b>Hausaufgabenheft</b><small id="kb-heft-info">Was ist auf?</small></a>' +
+        '<a class="kb-kachel kb-gross" href="kalender.html"><img src="Kalender/vendor/calendar-days.svg" alt="" width="34" height="34"><b>Probenkalender</b><small>2026/2027</small></a>' +
         '<a class="kb-kachel kb-gross kb-rat" href="klassenrat.html"><span class="kb-emoji" aria-hidden="true">📮</span><b>Klassenrat</b><small>Wirf dein Thema in den Briefkasten</small></a>' +
         "</div>" +
         (liste.length ? '<h3 class="kb-abschnitt">Deine Fächer</h3><div class="kb-kacheln">' + liste.map(function (f) {
@@ -650,6 +651,14 @@
 
   global.Klasse = {
     sitzung: sitzung, anmelden: anmelden, abmelden: abmelden, startseite: startseite, heft: heft, rat: rat,
+    kalender: function (el) {
+      tor(el, function (s) {
+        if (global.GrumiKalender) global.GrumiKalender.mount(el, { api: API, code: s.code, klasse: s.klasse,
+          sessionValid: function () { return Boolean(sitzung()); },
+          onExpired: function () { abmelden(); global.location.reload(); }
+        });
+      });
+    },
     heuteHier: heuteHier, fachInfo: fachInfo
   };
 })(window);
