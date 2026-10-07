@@ -9,6 +9,12 @@
 
 Unter **Zugaenge** mit dem bestehenden Verwaltungs-Passwort persoenliche Benutzernamen und Passwoerter (mindestens 8 Zeichen) vergeben. Keine offene Selbstregistrierung. Die Lehrkraft kann ihr Passwort selbst aendern. Zuruecksetzen oder Deaktivieren widerruft alle Sitzungen dieses Zugangs. Fremde Termine sind lesbar, nicht editierbar. Deaktivierte Konten bleiben als Urheber vorhandener Termine erhalten.
 
+## Persoenliche Druckuebersicht
+
+Druckersymbol: aktueller Monat oder gesamtes Schuljahr, A4 quer. Immer nur Termine des angemeldeten Zugangs, ueber alle eigenen Klassen; Klassen-/Lehrkraftfilter und Suche am Bildschirm begrenzen den Druck nicht. Auch das normale Browser-Drucken verwendet bei angemeldeten Lehrkraeften diese persoenliche Monatsuebersicht. Ferien, Feiertage und Buss-/Bettag sind markiert. Keine Zugangsdaten, Verwaltungsoberflaeche oder Termine anderer Lehrkraefte im Ausdruck. Bei vielen langen Terminen kann ein Monat auf weitere Seiten umbrechen; Termine werden nicht abgeschnitten.
+
+Tests: `node --test Kalender/kalender-druck.test.cjs`; Druck-/Browserpruefung: `node Kalender/druck-browser-test.cjs` (Playwright und Chrome wie unten). Die dabei erzeugten PDFs enthalten ausschliesslich synthetische Testdaten und liegen unter `.codex-build/kalender-druck-qa`.
+
 ## Server / Auslieferung
 
 Die verwendete Server-Arbeitskopie liegt in `.codex-build/englisch_9-deploy/backend`. Dort sind die Registrierung und der kleine Klassenlisten-Hook eingebaut. Frontend und Server werden getrennt ueber die Repositories `grumi` und `englisch_9` ausgeliefert. Die aeltere Backend-Kopie unter `9M/Englisch_9` enthaelt nicht die aktuelle Klassenverwaltung und wurde nicht geaendert.

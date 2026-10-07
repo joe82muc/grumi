@@ -14,7 +14,7 @@
     var pupil = Boolean(opts.code), session = getSession(), account = null, events = [], teachers = [], classes = [], storage = "", preview = false;
     var tag = today(); if (tag < D.von || tag > D.bis) tag = D.von;
     var month = tag.slice(0, 7), selected = tag, view = "monat", filterClass = opts.klasse || "", filterTeacher = "", search = "", stopped = false, loading = false;
-    var poll;
+    var poll, printYear = false, printRoot = null;
     function $(s) { return el.querySelector(s); }
     function icons() { if (global.lucide) global.lucide.createIcons({ root:el }); }
     function message(text, error) { var box = $("[data-message]"); if (box) { box.textContent = text || ""; box.className = "gk-message" + (error ? " gk-error" : ""); } }
@@ -42,6 +42,7 @@
       b.className = "gk-message" + (err ? " gk-error" : "");
     }
     function login(error) {
+      finishPrint();
       account = null;
       el.innerHTML = '<div class="gk-top"><div><h1>Probenkalender</h1><p class="gk-muted">Schuljahr 2026/2027 · Kollegium</p></div><button type="button" data-accounts>' + icon("users") + 'Zugänge</button></div>' +
         '<form class="gk-login"><h2>Lehrkraft-Anmeldung</h2><label>Benutzername<input name="benutzer" autocomplete="username" maxlength="40" required></label><label>Passwort<input type="password" name="passwort" autocomplete="current-password" maxlength="128" required></label><div data-message class="gk-message" role="status"></div><button class="gk-primary" type="submit">' + icon("log-in") + 'Anmelden</button></form>';
@@ -65,7 +66,7 @@
         (!pupil && storage === "datei" ? '<div class="gk-message gk-warning">Datei-Speicher: Auf Render gehen Termine und Zugänge ohne Datenbank oder persistenten Datenträger beim Neustart verloren.</div>' : '') +
         '<div class="gk-toolbar">' + btn("chevron-left","Voriger Monat","prev") + '<select class="gk-month" aria-label="Monat">' + months.map(function (m) { return '<option value="' + m[0] + '"' + (m[0]===month?' selected':'') + '>' + m[1] + '</option>'; }).join("") + '</select>' + btn("chevron-right","Nächster Monat","next") + btn("calendar-days","Heute","today") +
         '<div class="gk-segments"><button type="button" data-view="monat" aria-label="Monatsansicht" title="Monatsansicht" aria-pressed="' + (view==="monat") + '">' + icon("calendar") + '</button><button type="button" data-view="liste" aria-label="Listenansicht" title="Listenansicht" aria-pressed="' + (view==="liste") + '">' + icon("list") + '</button></div><span class="gk-spacer"></span>' +
-        btn("refresh-cw","Neu laden","reload") + btn("download","TXT exportieren","export") +
+        btn("refresh-cw","Neu laden","reload") + btn("download","TXT exportieren","export") + (pupil ? '' : btn("printer","Meine Kalenderübersicht drucken","print")) +
         (pupil ? '' : '<button type="button" data-action="import">' + icon("upload") + 'Import</button><button type="button" class="gk-primary" data-action="new">' + icon("plus") + 'Probe</button>') + '</div>' +
         '<div class="gk-filters">' + (pupil ? '' : '<label>Klasse<select data-filter="class"><option value="">Alle Klassen</option>' + classes.map(function (k) { return '<option' + (k===filterClass?' selected':'') + '>' + esc(k) + '</option>'; }).join("") + '</select></label><label>Lehrkraft<select data-filter="teacher"><option value="">Alle Lehrkräfte</option>' + teachers.map(function (t) { return '<option value="' + esc(t.id) + '"' + (t.id===filterTeacher?' selected':'') + '>' + esc(t.name) + '</option>'; }).join("") + '</select></label>') +
         '<label>Suche<input type="search" data-search placeholder="Fach oder Titel" value="' + esc(search) + '"></label></div><div data-content></div>' +
@@ -132,6 +133,7 @@
       if (a==='password') passwordDialog();
       if (a==='reload') load();
       if (a==='export') exportTxt();
+      if (a==='print') printDialog();
       if (a==='prev'||a==='next') { var d=new Date(month+'-15T12:00:00Z'); d.setUTCMonth(d.getUTCMonth()+(a==='prev'?-1:1)); month=d.toISOString().slice(0,7); selected=month+'-01'; draw(); }
       if (a==='today') { selected=today(); if (selected<D.von||selected>D.bis) selected=D.von; month=selected.slice(0,7); draw(); }
       if (a==='logout') { post('abmelden').catch(function () {}).finally(function () { session=null; putSession(null); login(); }); }
@@ -194,6 +196,28 @@
       var raw=global.Papa.unparse({fields:['Datum','Klasse','Fach','Titel','Stunde','Hinweis'],data:rows.map(function (e) { return Object.values(e); })},{delimiter:';',escapeFormulae:true});
       var u=URL.createObjectURL(new Blob(['\uFEFF'+raw],{type:'text/plain;charset=utf-8'})), a=document.createElement('a'); a.href=u; a.download='GRUMI_Proben_2026-2027'+(filterClass?'_'+filterClass:'')+'.txt'; a.click(); setTimeout(function () { URL.revokeObjectURL(u); },5000);
     }
+    function clearPrint() {
+      if (!printRoot) return;
+      printRoot.remove(); printRoot=null; document.body.classList.remove('gk-print-mode');
+    }
+    function finishPrint() { clearPrint(); printYear=false; }
+    function preparePrint() {
+      if (pupil || !account || stopped || !el.isConnected) return;
+      clearPrint();
+      printRoot=document.createElement('div'); printRoot.className='gk-print-root';
+      printRoot.innerHTML=global.GrumiKalenderDruck.render(account,events,month,printYear);
+      document.body.appendChild(printRoot); document.body.classList.add('gk-print-mode');
+    }
+    function printDialog() {
+      if (pupil || !account) return;
+      var label=new Date(month+'-01T12:00:00Z').toLocaleDateString('de-DE',{month:'long',year:'numeric',timeZone:'UTC'});
+      var node=dialog('Meine Kalenderübersicht','<p class="gk-muted">'+esc(account.name)+' · Alle eigenen Klassen</p><form style="margin-top:16px"><label>Zeitraum<select name="zeitraum"><option value="monat">'+esc(label)+'</option><option value="schuljahr">Schuljahr 2026/2027</option></select></label><div data-modal-message class="gk-message" role="status"></div><div class="gk-form-actions"><button type="submit" class="gk-primary">'+icon('printer')+'Drucken</button></div></form>');
+      node.querySelector('form').onsubmit=function (ev) {
+        ev.preventDefault(); printYear=ev.currentTarget.elements.zeitraum.value==='schuljahr';
+        try { preparePrint(); node.close(); global.print(); }
+        catch (e) { finishPrint(); message('Die Druckansicht konnte nicht geöffnet werden: '+e.message,true); }
+      };
+    }
     function passwordDialog() {
       var node=dialog('Passwort ändern','<form><label>Bisheriges Passwort<input type="password" name="alt" autocomplete="current-password" required maxlength="128"></label><label style="margin-top:14px">Neues Passwort<input type="password" name="neu" autocomplete="new-password" required minlength="8" maxlength="128"></label><div data-modal-message class="gk-message" role="status"></div><div class="gk-form-actions"><button class="gk-primary" type="submit">'+icon('check')+'Ändern</button></div></form>');
       node.querySelector('form').onsubmit=async function (ev) { ev.preventDefault(); try { await post('passwort',Object.fromEntries(new FormData(ev.currentTarget))); node.close(); session=null; putSession(null); login('Passwort geändert. Bitte erneut anmelden.'); } catch(e) { modalMessage(node,e.message,true); } };
@@ -222,8 +246,9 @@
     function visible() { if (!document.hidden&&(pupil||account)) load(true); }
     if (pupil||session) { el.innerHTML='<div data-message class="gk-message" role="status">Kalender wird geladen …</div>'; load(); } else login();
     document.addEventListener('visibilitychange',visible);
+    if (!pupil) { global.addEventListener('beforeprint',preparePrint); global.addEventListener('afterprint',finishPrint); }
     poll=setInterval(function () { if (!el.isConnected) { stop(); return; } visible(); },60000);
-    function stop() { stopped=true; clearInterval(poll); document.removeEventListener('visibilitychange',visible); }
+    function stop() { stopped=true; clearInterval(poll); document.removeEventListener('visibilitychange',visible); global.removeEventListener('beforeprint',preparePrint); global.removeEventListener('afterprint',finishPrint); finishPrint(); }
     return { stop:stop };
   }
   global.GrumiKalender = { mount:mount };
