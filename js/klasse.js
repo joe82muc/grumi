@@ -447,7 +447,7 @@
 
     function karte(e, mitTag) {
       var i = fachInfo(e.fach), fertig = erledigt()[e.id];
-      var marke = e.typ === "probe" ? '<span class="kb-marke kb-probe-m">📝 Probe</span>' : e.typ === "termin" ? '<span class="kb-marke kb-termin-m">📅 Termin</span>' : '<span class="kb-marke">✏️ Hausaufgabe</span>';
+      var marke = e.typ === "probe" ? '<span class="kb-marke kb-probe-m">📝 ' + (e.quelle === "kalender" ? "Probentermin" : "Probe") + '</span>' : e.typ === "termin" ? '<span class="kb-marke kb-termin-m">📅 Termin</span>' : '<span class="kb-marke">✏️ Hausaufgabe</span>';
       return '<article class="kb-eintrag kb-fach-' + i.art + (fertig ? " kb-erledigt" : "") + (e.eigen ? " kb-eigen" : "") + '" data-id="' + esc(e.id) + '">' +
         '<div class="kb-fach-bild" aria-hidden="true">' + i.bild + "</div>" +
         "<div><h3>" + esc(e.fach) + "</h3><p>" + esc(e.text) + "</p>" +
@@ -529,7 +529,7 @@
     }
 
     function zeichnen() {
-      var g = gruppen(), liste = g[ansicht], h = formularHtml();
+      var g = gruppen(), liste = g[ansicht], h = (daten.kalenderFehler ? '<p class="kb-fehler" role="status">' + esc(daten.kalenderFehler) + '</p>' : '') + formularHtml();
       var reiter = [["heute", "Heute"], ["woche", "Diese Woche"], ["termine", "Proben & Termine"]];
       if (daten.kann) reiter.push(["eigene", "✍️ Von mir"]);
       h += '<div class="kb-reiter' + (daten.kann ? " kb-vier" : "") + '" role="tablist">' + reiter.map(function (r) {

@@ -4,13 +4,16 @@ let express;
 try { express = require("express"); }
 catch (_) { express = require("../.codex-build/englisch_9-deploy/backend/node_modules/express"); }
 const { registerKalenderRoutes } = require("./server/kalender");
+const { registerKlasseRoutes } = require("../.codex-build/englisch_9-deploy/backend/api/klasse");
 const app = express(), root = path.resolve(__dirname,".."), port = Number(process.env.KALENDER_PORT || 5187);
 const admin = process.env.KALENDER_DEMO_ADMIN || "Vorschau-2026!";
 const demoPass = "Demo-2026!";
 const child = async (code) => code === "101" ? { code, klasse:"7aM", zug:"7M" } : code === "202" ? { code, klasse:"8c", zug:"8R" } : code === "000" ? { code, lehrer:true, klasse:"Lehrkraft" } : null;
 app.use(express.json({ limit:"1mb" }));
 app.use((_req,res,next) => { res.set("X-Content-Type-Options","nosniff"); next(); });
-registerKalenderRoutes(app,{ dataDir:path.join(root,".codex-build","kalender-vorschau"), teacherPassword:admin, kindZumCode:child, klassenLaden:async () => ["7aM","7b","7c","7d","8b","8c","9aM","9d"], vorschau:true });
+const dataDir=process.env.KALENDER_DEMO_DATADIR || path.join(root,".codex-build","kalender-vorschau");
+const kalender=registerKalenderRoutes(app,{ dataDir, teacherPassword:admin, kindZumCode:child, klassenLaden:async () => ["7aM","7b","7c","7d","8b","8c","9aM","9d"], vorschau:true });
+registerKlasseRoutes(app,{ dataDir, teacherPassword:admin, kindZumCode:child, kalenderTermine:(klasse) => kalender.heft(klasse) });
 app.post("/api/nt9/fortschritt/anmelden", async (req,res) => {
   const k = await child(req.body.code);
   res.status(k&&!k.lehrer?200:401).json(k&&!k.lehrer?{ok:true,...k,fortschritt:{}}:{ok:false,error:"Lokale Vorschau: Schülercode 101 (7aM) oder 202 (8c)."});

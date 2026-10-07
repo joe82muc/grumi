@@ -15,6 +15,12 @@ Druckersymbol: aktueller Monat oder gesamtes Schuljahr, A4 quer. Immer nur Termi
 
 Tests: `node --test Kalender/kalender-druck.test.cjs`; Druck-/Browserpruefung: `node Kalender/druck-browser-test.cjs` (Playwright und Chrome wie unten). Die dabei erzeugten PDFs enthalten ausschliesslich synthetische Testdaten und liegen unter `.codex-build/kalender-druck-qa`.
 
+## Probentermine im Hausaufgabenheft
+
+Kalendertermine erscheinen automatisch zusaetzlich als **Probentermin** im Hausaufgabenheft ihrer Klasse, auch vorhandene und importierte Termine. Kalender und Heft verwenden dieselbe Quelle; kein zweiter Datensatz und kein wiederholtes Kopieren. Datum, Fach, Titel, Stunde und Hinweis bleiben aktuell. Verschieben, Klassenwechsel und Loeschen im Probenkalender gelten beim naechsten Laden des Hefts. Normale Hausaufgaben und private Eintraege der Kinder bleiben unveraendert. Aenderungen an Kalenderterminen erfolgen ausschliesslich im Probenkalender. Bei einem Kalender-Speicherfehler bleiben Hausaufgaben verfuegbar, mit sichtbarer Warnung zu fehlenden Probenterminen.
+
+Integrationstest: `node --test .codex-build/englisch_9-deploy/backend/api/kalender-heft.test.js`; Browserpruefung: `node Kalender/heft-browser-test.cjs` (isolierte lokale Vorschau).
+
 ## Server / Auslieferung
 
 Die verwendete Server-Arbeitskopie liegt in `.codex-build/englisch_9-deploy/backend`. Dort sind die Registrierung und der kleine Klassenlisten-Hook eingebaut. Frontend und Server werden getrennt ueber die Repositories `grumi` und `englisch_9` ausgeliefert. Die aeltere Backend-Kopie unter `9M/Englisch_9` enthaelt nicht die aktuelle Klassenverwaltung und wurde nicht geaendert.

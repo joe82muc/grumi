@@ -105,7 +105,7 @@
       '<div class="kv-voll btn-row" style="margin-top:0"><button class="btn" type="submit" id="kv-heft-ok">Eintragen</button>' +
       '<button class="btn btn-ghost" type="button" id="kv-heft-abbruch" hidden>Abbrechen</button></div>' +
       "</form>" +
-      '<div id="kv-heft-msg"></div><div id="kv-heft-liste"><div class="skel">Einträge werden geladen …</div></div>';
+      '<div id="kv-heft-msg"></div><div id="kv-heft-kalender-msg" role="status"></div><div id="kv-heft-liste"><div class="skel">Einträge werden geladen …</div></div>';
     var $ = function (id) { return doc.getElementById(id); };
     var msg = $("kv-heft-msg");
     $("kv-faellig").value = naechsterSchultag();
@@ -134,11 +134,12 @@
     function zeile(e) {
       var alt = e.faellig < HEUTE;
       return '<div class="kv-zeile' + (alt ? " kv-alt" : "") + '"><div class="kv-links"><div class="kv-kopf"><span class="kv-datum">' + esc(datumText(e.faellig)) + "</span>" +
-        '<span class="kv-marke ' + esc(e.typ) + '">' + esc(ARTEN[e.typ] || e.typ) + "</span><span>" + esc(e.fach) + "</span></div>" +
+        '<span class="kv-marke ' + esc(e.typ) + '">' + esc(e.quelle === "kalender" ? "Probentermin" : ARTEN[e.typ] || e.typ) + "</span><span>" + esc(e.fach) + "</span></div>" +
         '<div class="kv-text">' + esc(e.text) + "</div>" +
         (e.link ? '<div class="kv-meta"><a href="' + esc(e.link) + '" target="_blank" rel="noopener">' + esc(e.link) + "</a></div>" : "") + "</div>" +
-        '<div class="kv-knoepfe"><button class="btn btn-ghost btn-sm" type="button" data-bearbeiten="' + esc(e.id) + '">Bearbeiten</button>' +
-        '<button class="btn btn-bad btn-sm" type="button" data-loeschen="' + esc(e.id) + '">Löschen</button></div></div>';
+        (e.quelle === "kalender" ? '<div class="kv-knoepfe"><a class="btn btn-ghost btn-sm" href="kalender-verwalten.html">Im Probenkalender öffnen</a></div>' :
+          '<div class="kv-knoepfe"><button class="btn btn-ghost btn-sm" type="button" data-bearbeiten="' + esc(e.id) + '">Bearbeiten</button>' +
+          '<button class="btn btn-bad btn-sm" type="button" data-loeschen="' + esc(e.id) + '">Löschen</button></div>') + '</div>';
     }
 
     function zeichnen() {
@@ -174,6 +175,7 @@
     function laden() {
       return post(ctx, "heft/liste", { klasse: ctx.klasse }).then(function (d) {
         LISTE = d.eintraege || []; HEUTE = d.heute || HEUTE;
+        note($("kv-heft-kalender-msg"), d.kalenderFehler, "warn");
         zeichnen();
       }).catch(function (x) {
         var box = $("kv-heft-liste");
