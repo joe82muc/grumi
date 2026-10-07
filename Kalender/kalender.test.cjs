@@ -4,6 +4,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
+const crypto = require("node:crypto");
 const D = require("./kalender-daten");
 const I = require("./kalender-import");
 const { registerKalenderRoutes } = require("./server/kalender");
@@ -104,6 +105,61 @@ async function fixture(t, overrides = {}) {
   return { post, account, dir, store:server.store };
 }
 const exam = { datum:"2026-10-23", klasse:"7aM", fach:"Englisch", titel:"Unit 1", stunde:"5. Stunde", hinweis:"Üben", bestaetigt:true };
+async function gleichzeitig(f, ...calls) {
+  const all=f.store.all; let count=0, release;
+  const gate=new Promise(resolve=>{release=resolve;});
+  f.store.all=async bucket=>{
+    const snapshot=await all(bucket);
+    if (bucket==="termine" && ++count<=calls.length) {
+      if (count===calls.length) release();
+      await gate;
+    }
+    return snapshot;
+  };
+  try { return await Promise.all(calls.map(call=>call())); }
+  finally { f.store.all=all; }
+}
+test("Gleichzeitige neue Termine zweier Lehrkraefte: nur ein Eintrag", {timeout:10000}, async t=>{
+  const f=await fixture(t), a=await f.account("lehrer-a","A"), b=await f.account("lehrer-b","B");
+  const results=await gleichzeitig(f,()=>f.post("speichern",exam,a),()=>f.post("speichern",exam,b));
+  assert.deepEqual(results.map(r=>r.status).sort(),[200,409]);
+  assert.match(results.find(r=>r.status===409).error,/bereits eingetragen/);
+  assert.equal((await f.store.all("termine")).length,1);
+  for (const response of [await f.post("liste",{},a),await f.post("klasse",{code:"101"})]) {
+    assert.ok(response.eintraege.every(e=>e._finger===undefined));
+  }
+});
+test("Speichern und Import gleichzeitig erzeugen keinen doppelten Termin", {timeout:10000}, async t=>{
+  const f=await fixture(t), token=await f.account("lehrer","A");
+  const [save,imported]=await gleichzeitig(f,()=>f.post("speichern",exam,token),()=>f.post("import",{bestaetigt:true,eintraege:[{...exam,uid:"parallel"}]},token));
+  assert.ok([200,409].includes(save.status)); assert.equal(imported.status,200);
+  assert.equal((save.status===200?1:0)+imported.anzahl,1);
+  assert.equal((await f.store.all("termine")).length,1);
+});
+test("Parallele Importe mit verschiedenen UIDs deduplizieren den Inhalt", {timeout:10000}, async t=>{
+  const f=await fixture(t), token=await f.account("lehrer","A");
+  const results=await gleichzeitig(f,...["quelle-a","quelle-b"].map(uid=>()=>f.post("import",{bestaetigt:true,eintraege:[{...exam,uid}]},token)));
+  assert.ok(results.every(r=>r.status===200));
+  assert.equal(results.reduce((n,r)=>n+r.anzahl,0),1);
+  assert.equal((await f.store.all("termine")).length,1);
+});
+test("Parallele Aenderungen verschiedener Termine duerfen nicht zusammenfallen", {timeout:10000}, async t=>{
+  const f=await fixture(t), token=await f.account("lehrer","A");
+  const a=(await f.post("speichern",{...exam,titel:"A"},token)).eintrag;
+  const b=(await f.post("speichern",{...exam,titel:"B"},token)).eintrag;
+  const results=await gleichzeitig(f,...[a,b].map(e=>()=>f.post("speichern",{...e,titel:"Gemeinsam",bestaetigt:true},token)));
+  assert.deepEqual(results.map(r=>r.status).sort(),[200,409]);
+  assert.equal((await f.store.all("termine")).filter(e=>e.titel==="Gemeinsam").length,1);
+});
+test("Aenderung oder Loeschung gibt den bisherigen Fingerprint wieder frei", async t=>{
+  const f=await fixture(t), token=await f.account("lehrer","A");
+  const a=(await f.post("speichern",exam,token)).eintrag;
+  const changed=await f.post("speichern",{...a,titel:"Neuer Titel",bestaetigt:true},token);
+  assert.equal(changed.status,200);
+  assert.equal((await f.post("speichern",exam,token)).status,200);
+  assert.equal((await f.post("loeschen",{id:a.id,version:changed.eintrag.version},token)).status,200);
+  assert.equal((await f.post("speichern",{...exam,titel:"Neuer Titel"},token)).status,200);
+});
 test("Zugangsverwaltung geschuetzt, Passwort nur gehasht; Login case-insensitive", async (t) => {
   const f = await fixture(t);
   assert.equal((await f.post("admin/liste")).status, 401);
@@ -190,6 +246,24 @@ test("Datei-Neustart behaelt Eintraege/Konten, konkurrierende CAS-Updates nur ei
   assert.equal(await again.raw("konten", "constructor"), null);
   assert.equal(await again.raw("konten", "__proto__"), null);
 });
+test("Dateispeicher: Altbestand und doppelte IDs/Inhalte innerhalb eines Imports",async t=>{
+  const f=await fixture(t), legacy={...exam,id:"old",titel:"GRÖSSE ÜBEN"};
+  assert.equal(await f.store.cas("termine","old",null,legacy),true);
+  assert.equal(await f.store.save("new",null,{...legacy,id:"new",titel:"grösse üben"}),-1);
+  assert.equal(await f.store.import([{...exam,id:"a",titel:"A"},{...exam,id:"a",titel:"B"},{...exam,id:"b",titel:"A"}]),1);
+  assert.equal((await f.store.all("termine")).length,2);
+  assert.equal(JSON.parse(await f.store.raw("termine","a")).titel,"A");
+});
+test("Dateispeicher: parallele Kapazitaetsgrenze und kein teilweiser Import",async t=>{
+  const f=await fixture(t);
+  assert.equal(await f.store.import(Array.from({length:4999},(_,i)=>({...exam,id:"id"+i,titel:"Test "+i}))),4999);
+  const results=await Promise.all([f.store.save("last-a",null,{...exam,id:"last-a",titel:"Last A"}),f.store.save("last-b",null,{...exam,id:"last-b",titel:"Last B"})]);
+  assert.deepEqual(results.sort(),[-3,1]);
+  const raw=await f.store.raw("termine","id0");assert.equal(await f.store.cas("termine","id0",raw,null),true);
+  assert.equal(await f.store.import([{...exam,id:"extra-a",titel:"Extra A"},{...exam,id:"extra-b",titel:"Extra B"}]),-3);
+  assert.equal((await f.store.all("termine")).length,4999);
+  assert.equal(await f.store.raw("termine","extra-a"),null);
+});
 test("Upstash-Fehler: kein lokaler Fallback, keine Erfolgsmeldung", async (t) => {
   const f = await fixture(t, { redis:{ url:"https://test.upstash.io", token:"test" }, fetch:async () => { throw new Error("offline"); } });
   assert.equal((await f.post("admin/liste", { password:"Admin-Test-Only" })).status, 503);
@@ -213,8 +287,25 @@ test("Redis-REST-Vertrag: geteilte Konten, Sitzungen, CAS und idempotenter Impor
         result=(b.get(id)||"")===old?1:0;
         if (result) { if (next==="") b.delete(id); else b.set(id,next); }
       } else {
-        assert.ok(script.includes("HSETNX")); result=0;
-        for (let i=0;i<params.length;i+=2) if (!b.has(params[i])) { b.set(params[i],params[i+1]); result++; }
+        const [legacyRaw,...rest]=params, legacy=JSON.parse(legacyRaw), fingerprints=new Map();
+        for (const [id,raw] of b) {
+          const e=JSON.parse(raw), fp=e._finger || legacy[crypto.createHash("sha1").update(raw).digest("hex")];
+          assert.ok(fp); fingerprints.set(id,fp);
+        }
+        if (script.startsWith("-- grumi-save")) {
+          const [id,old,next]=rest, fp=JSON.parse(next)._finger;
+          result=(b.get(id)||"")!==old?0:[...fingerprints].some(([key,value])=>key!==id && value===fp)?-1:b.size>=5000&&!b.has(id)?-3:1;
+          if (result===1) b.set(id,next);
+        } else {
+          assert.ok(script.startsWith("-- grumi-import"));
+          const seen=new Set(fingerprints.values()), add=[];
+          for (const [id,raw] of JSON.parse(rest[0])) {
+            const fp=JSON.parse(raw)._finger;
+            if (!b.has(id)&&!seen.has(fp)) { add.push([id,raw]); seen.add(fp); }
+          }
+          result=b.size+add.length>5000?-3:add.length;
+          if (result>=0) for (const [id,raw] of add) b.set(id,raw);
+        }
       }
     } else throw new Error("Unexpected Redis command: "+cmd);
     return {ok:true,json:async()=>({result})};

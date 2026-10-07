@@ -17,7 +17,7 @@ Tests: `node --test Kalender/kalender-druck.test.cjs`; Druck-/Browserpruefung: `
 
 ## Probentermine im Hausaufgabenheft
 
-Kalendertermine erscheinen automatisch zusaetzlich als **Probentermin** im Hausaufgabenheft ihrer Klasse, auch vorhandene und importierte Termine. Kalender und Heft verwenden dieselbe Quelle; kein zweiter Datensatz und kein wiederholtes Kopieren. Datum, Fach, Titel, Stunde und Hinweis bleiben aktuell. Verschieben, Klassenwechsel und Loeschen im Probenkalender gelten beim naechsten Laden des Hefts. Normale Hausaufgaben und private Eintraege der Kinder bleiben unveraendert. Aenderungen an Kalenderterminen erfolgen ausschliesslich im Probenkalender. Bei einem Kalender-Speicherfehler bleiben Hausaufgaben verfuegbar, mit sichtbarer Warnung zu fehlenden Probenterminen.
+Kalendertermine erscheinen automatisch zusaetzlich als **Probentermin** im Hausaufgabenheft ihrer Klasse, auch vorhandene und importierte Termine. Kalender und Heft verwenden dieselbe Quelle; kein zweiter Datensatz und kein wiederholtes Kopieren. Datum, Fach, Titel und Stunde bleiben aktuell. Zusatzinfos/Hinweise werden ausschliesslich im Probenkalender angezeigt, nicht im Hausaufgabenheft (auch nicht in dessen Verwaltung). Verschieben, Klassenwechsel und Loeschen im Probenkalender gelten beim naechsten Laden des Hefts. Normale Hausaufgaben und private Eintraege der Kinder bleiben unveraendert. Aenderungen an Kalenderterminen erfolgen ausschliesslich im Probenkalender. Bei einem Kalender-Speicherfehler bleiben Hausaufgaben verfuegbar, mit sichtbarer Warnung zu fehlenden Probenterminen.
 
 Integrationstest: `node --test .codex-build/englisch_9-deploy/backend/api/kalender-heft.test.js`; Browserpruefung: `node Kalender/heft-browser-test.cjs` (isolierte lokale Vorschau).
 
@@ -55,7 +55,7 @@ In `proben-speicher.js` `kalender-lokal.json` in `AUSGENOMMEN` aufnehmen. Kalend
 
 ### Dauerhafte Speicherung
 
-Nutzt die vorhandenen Variablen `UPSTASH_grumiproben` und `UPSTASH_grumiproben_token`. Eigene Redis-Keys `grumi:kalender:2026-2027:*`; jede Mutation wird vor der Erfolgsantwort zentral bestaetigt. Atomare Compare-and-set-Pruefung fuer Bearbeitung/Loeschung; atomarer Import mit stabilen IDs gegen wiederholten Import. Es gibt keinen lokalen Fallback bei einem Datenbankfehler. Ohne konfigurierte Datenbank wird atomar in `kalender-lokal.json` gespeichert; auf Render ist dies ohne persistenten Datentraeger **nicht dauerhaft**, und die UI warnt entsprechend.
+Nutzt die vorhandenen Variablen `UPSTASH_grumiproben` und `UPSTASH_grumiproben_token`. Eigene Redis-Keys `grumi:kalender:2026-2027:*`; jede Mutation wird vor der Erfolgsantwort zentral bestaetigt. Atomare Compare-and-set-Pruefung fuer Bearbeitung/Loeschung; atomare Inhaltspruefung gegen Duplikate bei gleichzeitigem Speichern, Aendern und Importieren, auch mit verschiedenen IDs/UIDs und ueber mehrere Serverinstanzen. Bestehende Termine ohne internen Fingerprint werden ohne Umschreiben beruecksichtigt; bei parallelen Altbestandsaenderungen wird die Pruefung begrenzt wiederholt. Es gibt keinen lokalen Fallback bei einem Datenbankfehler. Ohne konfigurierte Datenbank wird atomar in `kalender-lokal.json` gespeichert; auf Render ist dies ohne persistenten Datentraeger **nicht dauerhaft**, und die UI warnt entsprechend.
 
 Passwoerter: zufaelliger Salt und scrypt; keine Klartextspeicherung. Sitzungen: zufaellige Bearer-Tokens, nur deren SHA-256-Key serverseitig gespeichert, 8 Stunden Gueltigkeit, im Browser nur sessionStorage. Kalender-Anfragen nicht zwischenspeichern. Login-Fehlversuche werden je Server/IP begrenzt; bei mehreren Instanzen sollte der vorgeschaltete Dienst zusaetzlich das Login begrenzen. Nur TLS verwenden. Die Konten-Tabelle und der Datenordner duerfen nicht statisch oeffentlich ausgeliefert werden.
 
@@ -77,8 +77,11 @@ Lokal eingebundene Drittanbieter: ICAL.js 2.2.1 (MPL-2.0), Papa Parse 5.5.3 (MIT
 
 ```powershell
 node --test Kalender/kalender.test.cjs
+node --test Kalender/kalender-redis.test.cjs
 node Kalender/vorschau.cjs
 ```
+
+Die Redis-Lua-Tests benoetigen einen isolierten lokalen Redis-Testserver und das npm-Modul `redis` (4.x). `KALENDER_REDIS_TEST_URL` auf dessen Adresse setzen (nur `127.0.0.1`), optional `KALENDER_REDIS_MODULE` auf den Modulpfad. Ohne Testserver werden sie ausdruecklich uebersprungen. Tests verwenden zufaellige eigene Keys und loeschen nur diese.
 
 Browserpruefung mit lokal installiertem Playwright: `node Kalender/browser-test.cjs`. Alternativ `PLAYWRIGHT_MODULE` auf den vorhandenen Modulpfad setzen; `CHROME_PATH` fuer eine andere Chrome-Installation. Die Pruefung importiert Beispieldaten ausschliesslich in die lokale Vorschau. Ohne die private hochgeladene ICS wird `test-fixture.ics` mit synthetischen Daten verwendet. Screenshots liegen unter `.codex-build/kalender-qa`. Die private Original-ICS wird nicht mitveroeffentlicht.
 

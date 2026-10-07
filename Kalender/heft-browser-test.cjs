@@ -39,6 +39,8 @@ async function fit(page){assert.equal(await page.evaluate(()=>document.documentE
     await loginKid(page,"101");
     const ownCard=page.locator('[data-id="kalender:'+own.id+'"]');
     assert.match(await ownCard.textContent(),/Probentermin/);assert.match(await ownCard.textContent(),/2\. Stunde/);
+    assert.ok(!(await ownCard.textContent()).includes('Schreibplan vorbereiten'));
+    assert.equal((await post('/api/kalender/liste',{},token)).eintraege.find(e=>e.id===own.id).hinweis,'Schreibplan vorbereiten');
     assert.equal(await ownCard.locator('input,[data-weg]').count(),0);
     assert.ok((await page.locator('.kb-eintrag').allTextContents()).some(t=>t.includes('Pinsel mitbringen')));
     assert.ok(!(await page.locator('.kb-eintrag').allTextContents()).some(t=>t.includes('Netzwerke')));
@@ -49,6 +51,7 @@ async function fit(page){assert.equal(await page.evaluate(()=>document.documentE
     await page.reload();await page.locator('.kb-reiter').waitFor();await page.locator('[data-ansicht=termine]').click();assert.equal(await ownCard.count(),0);
     const second=await browser.newPage({viewport:{width:375,height:850}});second.on('pageerror',e=>errors.push(e.message));await loginKid(second,'202');await second.locator('[data-ansicht=termine]').click();
     assert.equal(await second.locator('.kb-eintrag').count(),2);assert.match(await second.locator('[data-id="kalender:'+own.id+'"]').textContent(),/Erzaehlung verschoben/);
+    assert.ok(!(await second.locator('.kb-eintrag').allTextContents()).some(t=>t.includes('window.__heftXss')));
     assert.equal(await second.evaluate(()=>window.__heftXss),undefined);assert.equal(await second.locator('.kb-eigen').count(),0);await fit(second);await second.screenshot({path:path.join(out,'klasse8-mobil.png'),fullPage:true});
     await post("/api/kalender/loeschen",{id:updated.id,version:updated.version},token);await second.reload();await second.locator('.kb-reiter').waitFor();await second.locator('[data-ansicht=termine]').click();assert.equal(await second.locator('.kb-eintrag').count(),1);
     console.log('Kinder: passende Klasse, Probentermin mit Stunde, Import, Klassenwechsel, Verschieben, Loeschen und private Notizen korrekt; 320/375/768 px ohne Ueberlauf.');
