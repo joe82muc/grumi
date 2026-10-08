@@ -137,6 +137,7 @@
         return;
       }
       ProbeSchutz.ende();
+      if (ProbeSchutz.abgegeben && ProbeSchutz.abgegeben(data.result, { box: $("result-section"), weg: [$("questions-section"), $("status")], titel: exam.test.title })) return;   // Note erst nach der Rückgabe
       $("questions-section").hidden = true;
       $("status").hidden = true;
       const r = data.result;

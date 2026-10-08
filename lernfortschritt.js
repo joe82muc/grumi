@@ -145,6 +145,7 @@
     ".lf-noten th a{color:var(--accent);text-decoration:none}.lf-noten th a:hover{text-decoration:underline}" +
     ".lf-ck .lf-lrs{font-size:.72rem;font-weight:900;border:1.5px solid var(--line);border-radius:999px;padding:.1rem .45rem;color:var(--muted);background:#fff}" +
     ".lf-ck .lf-lrs.an{background:#6d28d9;border-color:#6d28d9;color:#fff}" +
+    ".lf-lrs-knopf.an{background:#6d28d9;border-color:#6d28d9;color:#fff}" +
     ".lf-lrs-b{display:inline-block;margin-left:.35rem;padding:0 .4rem;border-radius:99px;background:#ede9fe;color:#5b21b6;font-size:.7rem;font-weight:900;vertical-align:middle}" +
     ".lf-weg{color:#b45309;font-weight:800}" +
     ".lf-namen{width:100%;min-height:120px;padding:.6rem .7rem;border:1.5px solid var(--line);border-radius:10px;font:inherit;font-size:.95rem;resize:vertical}" +
@@ -599,7 +600,8 @@
   var ABGABE_API = (function () {
     function std(p) { return { results: p + "/results", del: p + "/delete-submission", override: p + "/override" }; }
     return {
-      vokabeltest: { results: "/api/vokabeltest/results", del: "/api/vokabeltest/delete-submission" },
+      // lrs: Notenschutz LRS je Abgabe nachträglich an/aus (der Server wertet die Antworten neu)
+      vokabeltest: { results: "/api/vokabeltest/results", del: "/api/vokabeltest/delete-submission", override: "/api/vokabeltest/override", lrs: "/api/vokabeltest/lrs" },
       grammatik9r: std("/api/grammatik9r"),
       nt7: { results: "/api/nt7/teacher/results", del: "/api/nt7/teacher/delete", override: "/api/nt7/teacher/override", nurText: true },
       inf7: { results: "/api/inf7/teacher/results", del: "/api/inf7/teacher/delete", override: "/api/inf7/teacher/override", nurText: true },
@@ -621,12 +623,12 @@
       });
     });
   }
-  function abgabeDialog(n, teil) {
+  function abgabeDialog(n, teil, schonGeaendert) {
     var api = ABGABE_API[n.modul];
     if (!api) { hinweis("Diese Probe lässt sich hier nicht bearbeiten. Bitte die Lehrerseite der Probe öffnen.", "warn"); return; }
     var dlg = $("lf-abgabe");
     if (!dlg) { dlg = doc.createElement("dialog"); dlg.id = "lf-abgabe"; dlg.className = "lf-dlg"; doc.body.appendChild(dlg); }
-    var geaendert = false, name = nameVon(n.code), link = PROBEN && PROBEN.link ? PROBEN.link(n.modul, n.testId) : "";
+    var geaendert = Boolean(schonGeaendert), name = nameVon(n.code), link = PROBEN && PROBEN.link ? PROBEN.link(n.modul, n.testId) : "";
     function stand(note, punkte, max, prozent) {
       return '<span class="lf-note ' + notenFarbe(note) + '">' + esc(note) + "</span> <b>" + esc(punkte + " von " + max + " Punkten") + "</b> (" + esc(prozent) + " %)" +
         (n.lrs ? ' <span class="lf-lrs-b" title="Notenschutz LRS">LRS</span>' : "") + (n.verlassen ? ' · <span class="lf-weg">' + n.verlassen + "× verlassen</span>" : "");
@@ -663,7 +665,8 @@
           var aenderbar = Boolean(api.override) && (!api.nurText || x.type === "text");
           h += '<tr><td class="lf-code">' + esc(x.nr) + '</td><td><div class="lf-aufg">' + esc(x.prompt || "") + "</div>" +
             (x.given ? '<div class="lf-antw">„' + esc(x.given) + "“</div>" : '<div class="lf-antw lf-leer">keine Antwort</div>') +
-            (x.comment ? '<div class="lf-kom">Rückmeldung: ' + esc(x.comment) + "</div>" : "") + '</td><td class="lf-pkt">' +
+            (x.comment ? '<div class="lf-kom">Rückmeldung: ' + esc(x.comment) + "</div>" : "") +
+            (pkt < max && typeof x.expected === "string" && x.expected ? '<div class="lf-kom">Lösung: ' + esc(x.expected) + "</div>" : "") + '</td><td class="lf-pkt">' +
             (aenderbar ? '<input type="number" inputmode="numeric" min="0" max="' + max + '" step="1" value="' + pkt + '" data-nr="' + esc(x.nr) + '" data-alt="' + pkt +
               '" data-max="' + max + '" aria-label="Punkte für Aufgabe ' + esc(x.nr) + '"> / ' + max : esc(pkt) + " / " + max) + "</td></tr>";
         });
@@ -680,6 +683,8 @@
       fuss.innerHTML = (felder.length ? '<button type="button" class="btn btn-ok btn-sm" data-speichern disabled>Punkte speichern</button>' : "") +
         '<button type="button" class="btn btn-bad btn-sm" data-loeschen>Abgabe löschen (Nachschreiben)</button>' +
         (link ? '<a class="btn btn-ghost btn-sm" href="' + esc(link) + '" target="_blank" rel="noopener">Lehrerseite der Probe ↗</a>' : "") +
+        (api.lrs ? '<button type="button" class="btn btn-ghost btn-sm lf-lrs-knopf' + (sub.lrs ? " an" : "") + '" data-lrs-abgabe aria-pressed="' + Boolean(sub.lrs) + '" title="Notenschutz LRS für diese Abgabe: Die Rechtschreibung zählt nicht, Punkte und Note werden neu berechnet">' +
+          (sub.lrs ? "✓ LRS: Rechtschreibung zählt nicht" : "LRS: Rechtschreibung nicht werten") + "</button>" : "") +
         '<label class="lf-mitl"><input type="checkbox" data-mitloesung checked> mit Lösungen</label>' +
         '<button type="button" class="btn btn-ghost btn-sm" data-druck>🖨️ Für die Eltern drucken</button>' +
         (n.zurueck ? '<button type="button" class="btn btn-ghost btn-sm" data-zuruecknehmen>Rückgabe zurücknehmen</button>' : '<button type="button" class="btn btn-sm" data-zurueckgeben>📤 An das Kind zurückgeben</button>') +
@@ -701,6 +706,19 @@
             : "Die Rückgabe an " + (name || "Code " + n.code) + " ist zurückgenommen.", "ok");
         }).catch(function (e) { meldung("Das hat nicht geklappt: " + e.message, "bad"); });
       };
+      // Notenschutz LRS nur für diese Abgabe an/aus – z. B. wenn er beim Code noch nicht eingetragen war
+      var lrsKnopf = fuss.querySelector("[data-lrs-abgabe]");
+      if (lrsKnopf) lrsKnopf.addEventListener("click", function () {
+        var an = !sub.lrs, wer = name || "Code " + n.code;
+        if (!global.confirm(an ? "Notenschutz LRS für " + wer + " einschalten?\n\nIn dieser Abgabe zählt die Rechtschreibung dann nicht: Die Antworten werden neu gewertet, Punkte und Note können sich ändern.\n\nFür künftige Proben schaltest du LRS bei „Codes & Namen“ ein."
+          : "Notenschutz LRS für " + wer + " wieder ausschalten?\n\nIn dieser Abgabe zählt die Rechtschreibung dann wieder. Punkte und Note werden neu berechnet.")) return;
+        lrsKnopf.disabled = true; meldung("Die Antworten werden neu gewertet …");
+        apiPost(api.lrs, { submissionId: n.id, lrs: an }).then(function (r) {
+          n.lrs = r.lrs; n.note = r.grade; n.punkte = r.score; n.prozent = r.percent;
+          abgabeDialog(n, teil, true);
+          hinweis(wer + ": Notenschutz LRS ist " + (r.lrs ? "an – Rechtschreibung zählt in dieser Abgabe nicht" : "aus") + ". Neue Note: " + r.grade + " (" + r.score + " von " + r.total + " Punkten).", "ok");
+        }).catch(function (e) { lrsKnopf.disabled = false; meldung("Das hat nicht geklappt: " + e.message, "bad"); });
+      });
       var zg = fuss.querySelector("[data-zurueckgeben]"), zn = fuss.querySelector("[data-zuruecknehmen]");
       if (zg) zg.addEventListener("click", function () { zurueck(true); });
       if (zn) zn.addEventListener("click", function () { zurueck(false); });
@@ -1131,7 +1149,7 @@
           '<button type="button" data-umbenennen="' + esc(k.code) + '" title="Namen ändern" aria-label="Namen ändern">✏️</button>' +
           '<button type="button" data-loeschen="' + esc(k.code) + '" title="Code und Lernstand löschen" aria-label="Löschen">🗑️</button></div>';
       }).join("") + "</div>" +
-      '<p class="sub" style="margin:.5rem 0 0"><b>LRS</b> = Notenschutz wegen Lese-Rechtschreib-Störung: In Proben zählt die Rechtschreibung nicht (Englisch: Ein Wort zählt, wenn es erkennbar gemeint ist). Gilt für Abgaben ab dem Einschalten. Auf dem Server steht dazu nur der Code, kein Name.</p>' +
+      '<p class="sub" style="margin:.5rem 0 0"><b>LRS</b> = Notenschutz wegen Lese-Rechtschreib-Störung: In Proben zählt die Rechtschreibung nicht (Englisch: Ein Wort zählt, wenn es erkennbar gemeint ist). Gilt für Abgaben ab dem Einschalten – am besten vor der Probe einschalten. Für einen schon abgegebenen Vokabeltest: im Reiter „Noten“ auf die Note klicken → „LRS: Rechtschreibung nicht werten“. Auf dem Server steht dazu nur der Code, kein Name.</p>' +
       '<h3 class="lf-h3">Weitere Kinder hinzufügen</h3>' +
       '<p class="sub">Vornamen eintragen (einen pro Zeile) oder die Klassenliste laden. Wer schon einen Code hat, bekommt keinen zweiten.</p>' +
       namensFeld("lf") +

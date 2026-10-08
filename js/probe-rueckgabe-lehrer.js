@@ -9,6 +9,8 @@
  *   auf seiner Startseite unter „Zurückbekommen“ (korrektur.html) und kann sie für die Eltern drucken.
  * - Elternansicht: Die Lehrkraft druckt dieselbe Ansicht selbst – einzeln oder für alle angezeigten Abgaben. Dazu
  *   öffnet sich korrektur.html#druck; die Abgaben werden über window.GrumiDruck übergeben (nichts steht in der Adresse).
+ * - Notenschutz LRS (Vokabeltest): je Abgabe an- oder ausschalten – der Server wertet die Antworten neu, die
+ *   Rechtschreibung zählt dann nicht. Für künftige Proben steht LRS in der Verwaltung beim Code.
  * - Speicher-Hinweis: Die Abgaben liegen dauerhaft in der Datenbank der Proben (proben-speicher.js). Nur wenn der
  *   Server meldet, dass sie nicht verbunden ist, erscheint die Warnung, die CSV-Datei zu sichern.
  */
@@ -16,6 +18,8 @@
   "use strict";
   var doc = global.document, EIGENES = doc.currentScript ? doc.currentScript.src : "";
   var C = null, STAND = null, ZELLEN = [], geplant = false;
+  // Module, bei denen die Rechtschreibung zählt und sich der Notenschutz LRS je Abgabe nachträglich schalten lässt
+  var LRS_ROUTE = { vokabeltest: "/api/vokabeltest/lrs" };
 
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
@@ -45,6 +49,7 @@
       ".prl-leiste button.neben{background:#fff;color:#17633a}.prl-leiste button[disabled]{opacity:.5;cursor:default}" +
       "#prl-msg{flex-basis:100%;font-weight:700}" +
       ".prl button.auffaellig{border-color:#d97706;background:#fffbeb;color:#92400e}" +
+      ".prl button.lrs-an{border-color:#6d28d9;background:#6d28d9;color:#fff}" +
       "#prl-dlg{width:min(640px,calc(100vw - 24px));border:0;border-radius:16px;padding:16px 18px;box-shadow:0 20px 60px rgba(0,0,0,.3);font:16px/1.45 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}" +
       "#prl-dlg::backdrop{background:rgba(15,23,42,.45)}#prl-dlg h3{margin:0 0 2px;font-size:1.1rem}#prl-dlg .zu{float:right;border:1.5px solid #cbd5e1;border-radius:999px;background:#fff;font:700 .85rem inherit;font-family:inherit;padding:.3rem .8rem;cursor:pointer}";
     doc.head.appendChild(s);
@@ -87,7 +92,10 @@
     if (!w) meldung("Das neue Fenster wurde vom Browser blockiert. Erlaube Pop-ups für diese Seite und versuche es noch einmal.", "bad");
   }
 
+  // Die letzte Meldung übersteht das Neuladen der Liste (die Leiste wird dabei neu gebaut)
+  var LETZTE = { text: "", art: "", zeit: 0 };
   function meldung(text, art) {
+    LETZTE = { text: text || "", art: art || "", zeit: Date.now() };
     var m = doc.getElementById("prl-msg");
     if (m) { m.textContent = text || ""; m.style.color = art === "bad" ? "#b3261e" : "#17633a"; }
     else if (text && art === "bad") global.alert(text);
@@ -106,6 +114,10 @@
     // Probenmodus: Hat der Browser des Kindes etwas festgehalten (Verlassen mit Uhrzeit und Dauer, Einfügen, Kopieren)?
     var auffaellig = global.ProbeProtokoll ? global.ProbeProtokoll.kurz(r) : "";
     if (auffaellig || r.verlassen) h += '<button type="button" class="auffaellig" data-prl="prot" title="Probenüberwachung ansehen">🔎 ' + esc(auffaellig || r.verlassen + "× verlassen") + "</button>";
+    // Notenschutz LRS für diese eine Abgabe an/aus: Der Server wertet die gespeicherten Antworten neu (ohne Rechtschreibung)
+    if (LRS_ROUTE[C.modul]) h += '<button type="button" data-prl="lrs"' + (r.lrs ? ' class="lrs-an"' : "") + ' aria-pressed="' + Boolean(r.lrs) + '" title="' +
+      (r.lrs ? "Mit Notenschutz LRS gewertet: Rechtschreibung zählt nicht. Klicken schaltet ihn für diese Abgabe wieder aus." : "Notenschutz LRS für diese Abgabe einschalten: Die Rechtschreibung zählt dann nicht, Punkte und Note werden neu berechnet.") + '">' +
+      (r.lrs ? "✓ LRS: Rechtschreibung zählt nicht" : "LRS: Rechtschreibung nicht werten") + "</button>";
     if (!r.code) h += '<button type="button" disabled title="Diese Abgabe wurde ohne Code geschrieben – zurückgeben geht nur mit Code">📤 Zurückgeben</button>';
     else if (e) h += '<button type="button" data-prl="nehmen">Rückgabe zurücknehmen</button>';
     else h += '<button type="button" class="haupt" data-prl="geben" title="Das Kind sieht dann Antworten, Punkte und bei Fehlern die Lösung">📤 Zurückgeben</button>';
@@ -114,6 +126,24 @@
     if (druck) druck.addEventListener("click", function () { drucken([r]); });
     var prot = el.querySelector('[data-prl="prot"]');
     if (prot) prot.addEventListener("click", function () { protokollZeigen(r); });
+    var lrs = el.querySelector('[data-prl="lrs"]');
+    if (lrs) lrs.addEventListener("click", function () {
+      var an = !r.lrs;
+      if (!global.confirm(an ? "Notenschutz LRS für " + C.wer(r) + " einschalten?\n\nIn dieser Abgabe zählt die Rechtschreibung dann nicht: Die Antworten werden neu gewertet, Punkte und Note können sich ändern.\n\nFür künftige Proben schaltest du LRS in der Verwaltung beim Code ein (Klasse → Codes & Namen)."
+        : "Notenschutz LRS für " + C.wer(r) + " wieder ausschalten?\n\nIn dieser Abgabe zählt die Rechtschreibung dann wieder. Punkte und Note werden neu berechnet.")) return;
+      lrs.disabled = true; lrs.textContent = "Wird neu gewertet …";
+      global.fetch(C.api + LRS_ROUTE[C.modul], { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: C.passwort(), submissionId: r.id, lrs: an }) })
+        .then(function (a) { return a.json().catch(function () { return {}; }).then(function (d) {
+          if (!a.ok || !d.ok) throw new Error(d.message || (a.status === 404 && !d.error ? "Der Server kennt das noch nicht (alter Stand)." : d.error || "HTTP " + a.status));
+          return d;
+        }); })
+        .then(function (d) {
+          meldung(C.wer(r) + ": Notenschutz LRS ist " + (d.lrs ? "an – Rechtschreibung zählt nicht" : "aus") + ". Neu gewertet: " + d.score + " von " + d.total + " Punkten, Note " + d.grade + ".");
+          var neu = C.neuLaden || global.loadResults;
+          if (typeof neu === "function") neu(); else { r.lrs = d.lrs; zeichnen(); }
+        })
+        .catch(function (x) { zeichnen(); meldung("Das hat nicht geklappt: " + x.message, "bad"); });
+    });
     if (geben) geben.addEventListener("click", function () {
       var k = global.prompt("Kommentar für " + C.wer(r) + " (erscheint über der Korrektur – kann leer bleiben):", "");
       if (k === null) return;
@@ -143,7 +173,7 @@
     if (!tabelle) { if (alt) alt.remove(); return; }
     var rows = ZELLEN.map(function (z) { return z.r; }), mitCode = rows.filter(function (r) { return r.code; });
     var zurueck = mitCode.filter(eintrag).length, offen = mitCode.filter(function (r) { return !eintrag(r); });
-    var haken = alt ? mitLoesung() : true, text = alt ? (doc.getElementById("prl-msg") || {}).textContent || "" : "";
+    var haken = alt ? mitLoesung() : true, letzte = Date.now() - LETZTE.zeit < 30000 ? LETZTE : { text: "", art: "" };
     if (alt) alt.remove();
     var el = doc.createElement("div"); el.id = "prl-leiste"; el.className = "prl-leiste";
     el.innerHTML = "<span><b>📤 " + zurueck + " von " + mitCode.length + "</b> an die Kinder zurückgegeben</span>" +
@@ -155,7 +185,7 @@
       "🔎 Probenmodus: Hat ein Kind die Probe verlassen oder etwas einfügen wollen, steht das mit Uhrzeit und Dauer bei seiner Abgabe.</p>" +
       '<span id="prl-msg" role="status"></span>';
     tabelle.parentNode.insertBefore(el, tabelle);
-    meldung(text);
+    if (letzte.text) { var m = doc.getElementById("prl-msg"); m.textContent = letzte.text; m.style.color = letzte.art === "bad" ? "#b3261e" : "#17633a"; }
     doc.getElementById("prl-alle-druck").addEventListener("click", function () { drucken(rows); });
     doc.getElementById("prl-alle").addEventListener("click", function () {
       if (!offen.length) return;

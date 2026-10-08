@@ -14,6 +14,7 @@
  *   ProbeSchutz.verlassen()   Anzahl, mit der Abgabe schicken
  *   ProbeSchutz.protokoll()   was während der Probe technisch aufgefallen ist (siehe unten), mit der Abgabe schicken
  *   ProbeSchutz.ende()        nach erfolgreicher Abgabe
+ *   ProbeSchutz.abgegeben(result, { box, weg, titel })   danach: Bestätigung statt Ergebnis (Note erst nach der Rückgabe)
  *
  * Protokoll (immer mitgeschrieben, nur auf diesem Gerät, bis zur Abgabe):
  *   wechsel   [{ art: "verborgen" | "fokus" | "geschlossen", von, bis, sekunden }]  Seite war nicht sichtbar, das Fenster hatte
@@ -49,7 +50,7 @@
   var LEER = function () { return { wechsel: [], einfuegen: [], kopieren: [], spruenge: [] }; };
   var prot = LEER(), weg = null, stumm = false, ebenEingefuegt = 0;
   var MAX_EINTRAEGE = 200, SPRUNG_WOERTER = 30, SPRUNG_MS = 3000, FOKUS_MIN_SEK = 2, NEULADEN_MAX_SEK = 30;
-  var sockel = 0, entladen = 0;
+  var sockel = 0, entladen = 0, zuletzt = "";
   function jetzt() { return new Date().toISOString(); }
   function woerter(t) { var m = String(t || "").trim().match(/\S+/g); return m ? m.length : 0; }
   function merke(liste, eintrag) { if (liste.length < MAX_EINTRAEGE) liste.push(eintrag); }
@@ -307,11 +308,37 @@
       bald();
     },
     ende: function () {
-      if (aktiv) loesch(schluessel());
+      if (aktiv) { loesch(schluessel()); zuletzt = aktiv.code; }
       aktiv = null; clearTimeout(timer); doc.body.classList.remove("probe-laeuft", "probe-kopieren-frei");
       prot = LEER(); weg = null;
       var w = doc.getElementById("probe-schutz-warnung"); if (w) w.remove();
       var sh = doc.querySelector('#schutz-hinweis[data-von="probe-schutz"]'); if (sh) sh.remove();
+    },
+    // Note erst nach der Rückgabe: Der Server nennt nach der Abgabe weder Punkte noch Note noch Lösungen
+    // (result.abgegeben). Dann zeigt die Seite statt des Ergebnisses diese Bestätigung – überall derselbe Wortlaut.
+    //   if (ProbeSchutz.abgegeben(data.result, { box: Ergebnisbereich, weg: Aufgabenbereich(e), titel })) return;
+    // Liefert false, wenn doch ein Ergebnis kam; die Seite zeigt es dann wie früher.
+    abgegeben: function (result, cfg) {
+      if (!result || result.abgegeben !== true || !cfg || !cfg.box) return false;
+      [].concat(cfg.weg || []).forEach(function (el) { if (el) { el.hidden = true; el.classList.add("hidden"); } });
+      var zeit = new Date(result.submittedAt || Date.now());
+      var wann = isNaN(zeit) ? "" : zeit.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) + " Uhr";
+      var karte = doc.createElement("div");
+      karte.id = "probe-abgegeben"; karte.setAttribute("role", "status");
+      karte.style.cssText = "max-width:560px;margin:8px auto;padding:26px 22px;border-radius:18px;border:2px solid #86d3a4;background:#f0fbf4;color:#15212b;text-align:center;" +
+        "font:16px/1.5 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif";
+      function zeile(tag, text, stil) { var e = doc.createElement(tag); e.textContent = text; e.style.cssText = stil; karte.appendChild(e); return e; }
+      zeile("div", "✓", "width:64px;height:64px;margin:0 auto 10px;border-radius:50%;background:#15803d;color:#fff;font-size:38px;font-weight:900;line-height:64px");
+      zeile("h2", "Abgegeben!", "margin:0 0 6px;font-size:1.5rem;font-weight:900;color:#14532d");
+      zeile("p", "Deine Probe ist gespeichert" + (cfg.titel ? ": " + cfg.titel : "") + ".", "margin:0 0 4px;font-weight:700");
+      zeile("p", [zuletzt ? "Code " + zuletzt : "", wann].filter(Boolean).join(" · "), "margin:0 0 14px;color:#52606d;font-size:.92rem");
+      zeile("p", "Deine Note bekommst du von deiner Lehrkraft zurück. Die korrigierte Probe findest du dann auf der GRUMI-Startseite unter „Zurückbekommen“.", "margin:0 0 10px");
+      zeile("p", "Du kannst diese Seite jetzt schließen.", "margin:0;color:#52606d;font-size:.92rem");
+      cfg.box.textContent = "";
+      cfg.box.appendChild(karte);
+      cfg.box.hidden = false; cfg.box.classList.remove("hidden");
+      try { global.scrollTo(0, 0); } catch (_e) {}
+      return true;
     }
   };
 

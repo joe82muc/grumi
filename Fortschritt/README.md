@@ -273,6 +273,26 @@ Wunsch der Lehrkraft: ein Code, mit dem alle Module aller Klassen offen sind. De
   Freischalten, Lehrercode, Verwaltung, Startseite, Noten); Gegenprüfung Deutsch 7. Einzelheiten und offene Punkte
   stehen lokal in `progress/deutsch8/` (README, MODULE, PROBEN, TESTS, OFFEN).
 
+## Stand 08.10.2026, später: Proben – Note erst nach der Rückgabe, LRS je Abgabe
+
+- **Note erst nach der Rückgabe (alle Proben der Klassen 7 bis 9):** Nach dem Abgeben sieht das Kind nur noch
+  „Abgegeben!“ mit Titel, Code und Uhrzeit – keine Punkte, keine Note, keine Lösungen. Der Server schickt sie auch
+  nicht mehr mit (`abgabeOhneErgebnis` und die Liste `ABGABE_ROUTEN` in `backend/api/probe-kind.js`, eingehängt in
+  `server.js`). Die Lehrkraft sieht alles sofort (Verwaltung → Klasse → Noten, Lehrerseite der Probe) und gibt die Probe
+  zurück; dann steht sie beim Kind auf der Startseite unter „Zurückbekommen“. Deutsch 7 und 8 hatten das schon.
+  Seiten: `ProbeSchutz.abgegeben()` in `js/probe-schutz.js`, eine Zeile nach `ProbeSchutz.ende()` in jeder Probe-Seite
+  (Werkzeug: `.codex-build/proben-werkzeug/note-nach-rueckgabe.js`).
+- **Notenschutz LRS je Abgabe (Vokabeltests):** Schalter „LRS: Rechtschreibung nicht werten“ bei jeder Abgabe – auf
+  der Lehrerseite des Tests und in der Verwaltung (Noten → Klick auf die Note). Der Server wertet die gespeicherten
+  Antworten neu (`/api/vokabeltest/lrs`); mit Notenschutz wird nichts schlechter, Ausschalten führt genau zum alten
+  Stand zurück. Der Schalter beim Code („Codes & Namen“) gilt weiter für alle künftigen Proben.
+- **Einzelne Vokabel selbst werten:** In der Verwaltung lassen sich im Vokabeltest die Punkte je Wort ändern (0 oder 1,
+  `/api/vokabeltest/override`); die Note rechnet sich neu, die Entscheidung der Lehrkraft bleibt auch bei LRS an/aus.
+- **Rückgabe und Elternausdruck:** Zählt ein Wort trotz kleinem Schreibfehler, steht die richtige Schreibung dabei.
+- **Geprüft:** Vokabeltest 3 der 7M als ganzer Ablauf in Chrome und im Safari-Testbrowser (schreiben, Seite verlassen,
+  neu laden, abgeben, Noten, LRS, zurückgeben, „Zurückbekommen“, Elternausdruck, Lernliste); alle 81 Proben der zehn
+  Module über die Schnittstelle. Einzelheiten lokal in `progress/proben/`.
+
 ## Offen
 
 - Deutsch 8 (08.10.2026): jede Probe vor dem ersten Einsatz lesen („Probe mit Lösungen“), die echte KI-Vorkorrektur mit
