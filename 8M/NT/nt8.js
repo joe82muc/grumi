@@ -221,7 +221,7 @@
     el.innerHTML = '<div class="film"><button class="film-poster" type="button"><span class="play">▶</span><b>Film starten</b><small>' + esc(cfg.quelle || "") + ': „' + esc(cfg.titel || "Film") + "“" + (cfg.dauer ? " (" + esc(cfg.dauer) + ")" : "") +
       ". Erst mit diesem Klick wird der Film von " + woher + " geladen.</small></button></div>" +
       '<p class="hint nf-hinweis">' + (cfg.abschnitt ? "Sieh dir den Abschnitt " + esc(cfg.abschnitt) + " an. " : "") + (stops.length ? "Halte an den genannten Stellen an und beantworte die Frage. " : "") +
-      'Lädt der Film nicht? <a href="' + esc(cfg.seite) + '" target="_blank" rel="noopener">" + (yt ? "Auf YouTube öffnen" : "In der Mediathek öffnen") + "</a>.</p><div class="nf-fragen"></div>';
+      'Lädt der Film nicht? <a href="' + esc(cfg.seite) + '" target="_blank" rel="noopener">' + (yt ? "Auf YouTube öffnen" : "In der Mediathek öffnen") + '</a>.</p><div class="nf-fragen"></div>';
     var flaeche = $(".film", el);
     $(".film-poster", el).addEventListener("click", function () {
       if (!cfg.einbetten) { global.open(cfg.seite, "_blank", "noopener"); return; }
