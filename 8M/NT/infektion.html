@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#a8324a">
+<title>Infektionskrankheiten und Immunabwehr | NT 8</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="nt8.css">
+<style>
+.hero{background:linear-gradient(160deg,#5a1f3a,#b23a48 55%,#f08a4b)}
+.kid{transition:fill .5s;}
+.kid.rot{fill:#e0453a}
+.tropf{transition:r .5s,opacity .5s}
+.sim input[type=range]{width:100%;min-height:44px}
+.vergleich{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.vergleich{grid-template-columns:1fr}}
+.ph{transition:fill .4s}
+#schlAk{transition:transform .6s}
+.hq-zahl{font-weight:800;font-size:1.05rem}
+.erreg-tab{width:100%;border-collapse:collapse;margin:10px 0;font-size:.95rem}
+.erreg-tab caption{text-align:left;font-weight:800;padding-bottom:4px}
+.erreg-tab th,.erreg-tab td{border:1px solid #c8d3dc;padding:6px 8px;text-align:left;vertical-align:top;overflow-wrap:anywhere}
+.erreg-tab th{background:#f1f5f8;white-space:nowrap}
+.hiv-verlauf{margin:4px 0 10px;padding-left:1.3em}
+.hiv-verlauf li{margin:3px 0}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>NT 8</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Ein Nieser</a>
+      <a href="#s2"><b>2</b>Verlauf</a>
+      <a href="#s3"><b>3</b>Abwehr</a>
+      <a href="#s4"><b>4</b>Impfen</a>
+      <a href="#s5"><b>5</b>Erreger</a>
+      <a href="#s6"><b>6</b>Training</a>
+      <a href="#s7"><b>7</b>Profi-Check</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">🔬 Übersicht NT 8</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse 8 · Mensch und Gesundheit · Lernmodul 2</div>
+    <h1>Infektionskrankheiten und Immunabwehr</h1>
+    <p>Einer niest – und eine Woche später fehlen drei in der Klasse. Du findest heraus, wie Erreger sich ausbreiten, wie dein Körper sich wehrt und wie du dich und andere schützen kannst.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s3">Direkt zur Abwehr</a>
+    </div>
+    <div class="goals">
+      <div>📈 Ich beschreibe den Verlauf einer Infektionskrankheit.</div>
+      <div>🧼 Ich nenne Übertragungswege und passende Schutzmaßnahmen.</div>
+      <div>🛡️ Ich erkläre, wie sich der Körper gegen Erreger wehrt.</div>
+      <div>💉 Ich beschreibe, warum eine Impfung schützt.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg</div><h2>Ein Nieser im Klassenzimmer</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Ein Kind im Klassenzimmer ist erkältet und niest kräftig. Winzige Tröpfchen fliegen durch den Raum – mit Erregern darin.</p>
+      <p>Das ist ein Modell mit festen Werten, kein echter Messwert. Wähle erst Schutzmaßnahmen (sie leuchten, wenn sie an sind) und drücke dann <strong>Nieser!</strong>. Rot sind angesteckte Kinder.</p>
+      <p><strong>Probier es aus:</strong> Vergleiche einen Nieser ohne Schutz mit einem Nieser mit Schutz.</p>
+      <div id="mc-s1"></div>
+    </div>
+    <div class="sim reveal" id="ansSim">
+      <svg viewBox="0 0 520 300" role="img" aria-label="Klassenzimmer von oben: links ein niesendes Kind, rechts 15 Kinder, angesteckte Kinder werden rot">
+        <rect width="520" height="300" fill="#f7fbfe"/>
+        <circle id="ansTropf" class="tropf" cx="50" cy="150" r="10" fill="#4aa3df" opacity="0"/>
+        <circle cx="50" cy="150" r="20" fill="#f2b632" stroke="#8a5a00" stroke-width="2"/>
+        <text x="50" y="196" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">niest</text>
+        <g id="ansKids"></g>
+        <text id="ansZahl" x="260" y="288" text-anchor="middle" font-size="14" font-weight="800" fill="#566674">Noch niemand angesteckt.</text>
+      </svg>
+      <div class="wahl" style="margin:8px 0 0"><button type="button" data-an="haende">🧼 Hände waschen</button><button type="button" data-an="luft">🌬️ Lüften</button><button type="button" data-an="abstand">↔ Abstand halten</button></div>
+      <div class="sim-ctrl"><button type="button" class="btn small" id="ansStart">🤧 Nieser!</button></div>
+      <p class="obs" id="ansObs">Drücke „Nieser!“ ganz ohne Schutz.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Verstehen</div><h2>Der Verlauf einer Infektion</h2></div></div>
+  <div class="grid2">
+    <div class="sim reveal" id="verlaufSim">
+      <svg viewBox="0 0 520 220" role="img" aria-label="Vier Phasen einer Infektionskrankheit hintereinander: Infektion (Ansteckung), Inkubation (Inkubationszeit), Krankheit (Ausbruch), Gesundung (Genesung)">
+        <rect width="520" height="220" fill="#f7fbfe"/>
+        <g id="vPh"></g>
+        <line x1="20" y1="190" x2="500" y2="190" stroke="#566674" stroke-width="3"/><path d="M494 183 l10 7 l-10 7" fill="none" stroke="#566674" stroke-width="3"/>
+        <text x="260" y="212" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">Zeit</text>
+      </svg>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Eine Infektionskrankheit läuft in Phasen ab. Man ist nicht sofort krank.</p>
+      <p>Bei der <button class="term" data-t="infektion">Infektion (Ansteckung)</button> gelangen <button class="term" data-t="erreger">Erreger</button> in den Körper. Während der <button class="term" data-t="inkubation">Inkubation (Inkubationszeit)</button> vermehren sie sich, aber man spürt noch nichts – ansteckend kann man trotzdem schon sein. Dann beginnt die <strong>Krankheit</strong> (Ausbruch) mit <button class="term" data-t="symptome">Symptomen</button> (Krankheitszeichen) wie Fieber. Hat die Abwehr gesiegt, folgt die <strong>Gesundung</strong> (Genesung).</p>
+      <div id="order2"></div>
+    </div>
+  </div>
+  <div class="card reveal">
+    <h3 style="margin-top:0">Fieberkurve lesen</h3>
+    <p><button class="term" data-t="fieber">Fieber</button> ist keine Krankheit, sondern eine <strong>Abwehrreaktion</strong>: Bei höherer Temperatur arbeiten die Abwehrzellen besser, und viele Erreger vermehren sich schlechter. Hier siehst du das Beispiel eines erfundenen Verlaufs.</p>
+    <svg viewBox="0 0 520 260" role="img" aria-label="Fieberkurve über 8 Tage: Anstieg ab Tag 3, Höchstwert 39,2 Grad an Tag 4, danach Abfall bis Tag 8" style="width:100%;height:auto;background:#f7fbfe;border-radius:12px">
+      <rect x="60" y="30" width="134" height="170" fill="#e3f1fb"/><rect x="194" y="30" width="215" height="170" fill="#ffe3df"/><rect x="409" y="30" width="81" height="170" fill="#dff2e3"/>
+      <text x="127" y="46" text-anchor="middle" font-size="12" font-weight="700" fill="#1d5fa8">Inkubation</text>
+      <text x="301" y="46" text-anchor="middle" font-size="12" font-weight="700" fill="#b23a48">Krankheit</text>
+      <text x="450" y="46" text-anchor="middle" font-size="12" font-weight="700" fill="#2a7a45">Gesundung</text>
+      <g stroke="#c8d3dc" stroke-width="1"><line x1="60" y1="200" x2="490" y2="200"/><line x1="60" y1="158" x2="490" y2="158"/><line x1="60" y1="115" x2="490" y2="115"/><line x1="60" y1="73" x2="490" y2="73"/></g>
+      <line x1="60" y1="115" x2="490" y2="115" stroke="#e0453a" stroke-width="2" stroke-dasharray="6 4"/>
+      <text x="486" y="110" text-anchor="end" font-size="11" font-weight="700" fill="#e0453a">38 °C</text>
+      <g font-size="11" fill="#566674" text-anchor="end"><text x="54" y="204">36</text><text x="54" y="162">37</text><text x="54" y="119">38</text><text x="54" y="77">39</text></g>
+      <polyline fill="none" stroke="#15212b" stroke-width="3" points="60,166 114,166 168,163 222,140 276,70 330,77 383,111 437,153 490,166"/>
+      <g fill="#15212b"><circle cx="60" cy="166" r="4"/><circle cx="114" cy="166" r="4"/><circle cx="168" cy="163" r="4"/><circle cx="222" cy="140" r="4"/><circle cx="276" cy="70" r="5" fill="#e0453a"/><circle cx="330" cy="77" r="4"/><circle cx="383" cy="111" r="4"/><circle cx="437" cy="153" r="4"/><circle cx="490" cy="166" r="4"/></g>
+      <g font-size="12" font-weight="700" fill="#566674" text-anchor="middle"><text x="60" y="222">Tag 0</text><text x="168" y="222">Tag 2</text><text x="276" y="222">Tag 4</text><text x="383" y="222">Tag 6</text><text x="490" y="222">Tag 8</text></g>
+      <text x="20" y="20" font-size="12" font-weight="700" fill="#566674">Körpertemperatur in °C</text>
+    </svg>
+    <span class="task-tag leicht" style="margin-top:12px">Diagramm lesen · leicht</span>
+    <div id="mc-s2"></div>
+  </div>
+  <div class="card reveal">
+    <h3 style="margin-top:0">Wie kommen Erreger zu uns – und wie schützt man sich?</h3>
+    <div class="info-karten">
+      <div class="info-karte"><div class="big">💨</div><h4>Tröpfcheninfektion</h4><p>Beim Niesen, Husten und Sprechen.</p></div>
+      <div class="info-karte"><div class="big">🤲</div><h4>Schmierinfektion</h4><p>Erreger von Türklinke zu Mund oder Nase.</p></div>
+      <div class="info-karte"><div class="big">🤝</div><h4>Direkter Körperkontakt</h4><p>Hautkontakt, gemeinsame Handtücher (z. B. Fußpilz).</p></div>
+      <div class="info-karte"><div class="big">🍽️</div><h4>Lebensmittel und Wasser</h4><p>Verunreinigt, z. B. Salmonellen in rohem Fleisch oder Eiern.</p></div>
+      <div class="info-karte"><div class="big">🩸</div><h4>Wunden</h4><p>Erreger dringen durch offene Haut ein, z. B. Wundstarrkrampf (Tetanus).</p></div>
+      <div class="info-karte"><div class="big">🕷️</div><h4>Tiere als Überträger</h4><p>Zecken übertragen Erreger beim Stich.</p></div>
+    </div>
+    <span class="task-tag leicht" style="margin-top:14px">Paare finden · leicht</span>
+    <h3 style="margin-top:4px">Welcher Schutz passt?</h3>
+    <div id="paare2"></div>
+    <span class="task-tag mittel" style="margin-top:14px">Anwenden · mittel</span>
+    <div id="mc-s2z"></div>
+    <div class="merke"><h4>MERKE</h4><ul><li>Phasen: Infektion (Ansteckung) – Inkubation (Inkubationszeit) – Krankheit (Ausbruch) – Gesundung (Genesung).</li><li>Schutz: Hände waschen, in die Armbeuge niesen, lüften, Wunden versorgen, Zecken absuchen.</li><li>Fieber ist eine Abwehrreaktion.</li></ul></div>
+  </div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Verstehen</div><h2>Die Abwehr des Körpers</h2></div></div>
+  <div class="grid2">
+    <div class="sim reveal" id="abwehrSim">
+      <svg viewBox="0 0 520 300" role="img" aria-label="Animation: Erreger an der Haut, durch eine Wunde ins Körperinnere, Fresszelle, Antikörper, Gedächtniszelle">
+        <defs>
+          <g id="er"><circle r="13" fill="#7a9a2e" stroke="#4b6416" stroke-width="2"/><g stroke="#4b6416" stroke-width="3" stroke-linecap="round"><line x1="0" y1="-13" x2="0" y2="-20"/><line x1="0" y1="13" x2="0" y2="20"/><line x1="-13" y1="0" x2="-20" y2="0"/><line x1="13" y1="0" x2="20" y2="0"/><line x1="9" y1="9" x2="14" y2="14"/><line x1="-9" y1="-9" x2="-14" y2="-14"/><line x1="9" y1="-9" x2="14" y2="-14"/><line x1="-9" y1="9" x2="-14" y2="14"/></g></g>
+          <g id="ak"><path d="M0 22 V6 M0 6 L-11 -9 M0 6 L11 -9" stroke="#e0803a" stroke-width="5" fill="none" stroke-linecap="round"/></g>
+        </defs>
+        <rect width="520" height="95" fill="#eaf4fb"/><text x="12" y="20" font-size="12" font-weight="700" fill="#566674">Außenwelt</text>
+        <rect y="95" width="520" height="30" fill="#e8b79a"/><text x="12" y="115" font-size="12" font-weight="800" fill="#6b3a1e">Haut und Schleimhaut</text>
+        <rect y="125" width="520" height="175" fill="#fdeceb"/><text x="12" y="290" font-size="12" font-weight="700" fill="#b23a48">Körperinneres</text>
+        <rect id="abWunde" x="196" y="95" width="30" height="30" fill="#fdeceb" opacity="0"/>
+        <g id="ab0"><use href="#er" x="110" y="66"/><path d="M110 88 v-4" stroke="#e0453a" stroke-width="3"/><text x="140" y="72" font-size="13" font-weight="800" fill="#e0453a">Stopp!</text><text x="260" y="40" font-size="12" font-weight="700" fill="#8a4b00">Barrieren: Haut, Schleimhaut,</text><text x="260" y="56" font-size="12" font-weight="700" fill="#8a4b00">Tränen, Magensäure</text></g>
+        <g id="ab1"><text x="150" y="60" font-size="12" font-weight="700" fill="#e0453a">Wunde: Erreger kommen durch</text><use href="#er" x="211" y="190"/><ellipse cx="290" cy="190" rx="46" ry="34" fill="#f5c26b" stroke="#a8741a" stroke-width="2"/><text x="296" y="194" text-anchor="middle" font-size="12" font-weight="800" fill="#5a3b00">Fresszelle</text></g>
+        <g id="ab2"><use href="#er" x="211" y="205"/><use href="#ak" x="170" y="165"/><use href="#ak" x="250" y="165"/><use href="#ak" x="175" y="240"/><use href="#ak" x="250" y="240"/><text x="330" y="190" font-size="12" font-weight="800" fill="#e0803a">Antikörper: passen wie</text><text x="330" y="206" font-size="12" font-weight="800" fill="#e0803a">Schlüssel ins Schloss</text></g>
+        <g id="ab3"><circle cx="300" cy="205" r="22" fill="#3b5ccc" stroke="#233a8a" stroke-width="2"/><text x="300" y="210" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">G</text><text x="300" y="248" text-anchor="middle" font-size="12" font-weight="800" fill="#233a8a">Gedächtniszelle</text><text x="170" y="205" font-size="12" font-weight="800" fill="#2a7a45">Erreger beseitigt ✔</text></g>
+      </svg>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Dein Körper ist eine Festung mit mehreren Verteidigungslinien.</p>
+      <p>Erste Linie: <strong>Barrieren</strong> wie Haut, Schleimhaut, Tränen und Magensäure. Kommen Erreger doch hinein, fressen <button class="term" data-t="fresszelle">Fresszellen</button> sie auf – das geht bei jedem Erreger gleich. Auch Fieber gehört dazu. Wirkt das nicht, setzt die gezielte Abwehr ein. Sieh dir die Animation Schritt für Schritt an.</p>
+      <div id="mc-s3"></div>
+      <div data-zug="M" class="mehr-wissen-box">
+        <details class="mehr-wissen" open><summary>Mehr wissen (M8): die gezielte Abwehr</summary><div>Die gezielte Abwehr passt zu genau einem Erreger. Sie bildet <button class="term" data-t="antikoerper">Antikörper</button>, die auf den Erreger passen wie ein Schlüssel ins Schloss, und <button class="term" data-t="gedaechtnis">Gedächtniszellen</button>, die den Erreger lange merken. Wer eine Krankheit überstanden hat, ist oft <button class="term" data-t="immun">immun</button>.</div></details>
+      </div>
+    </div>
+  </div>
+  <div class="card reveal">
+    <h3 style="margin-top:0">Schlüssel und Schloss</h3>
+    <p class="hint">Jeder Erreger trägt ein bestimmtes Merkmal an seiner Oberfläche. Nur ein Antikörper mit passender Form kann sich anheften.</p>
+    <div class="sim" style="margin-top:8px">
+      <svg viewBox="0 0 520 220" role="img" aria-label="Ein Erreger mit einem Merkmal an der Oberfläche und ein Antikörper mit einer Aussparung, die passen oder nicht passen">
+        <rect width="520" height="220" fill="#f7fbfe"/>
+        <circle cx="130" cy="110" r="50" fill="#7a9a2e" stroke="#4b6416" stroke-width="3"/>
+        <g id="schlBump" fill="#7a9a2e" stroke="#4b6416" stroke-width="3"></g>
+        <text x="130" y="190" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">Erreger</text>
+        <g id="schlAk" style="transform:translate(0px,0px)">
+          <rect x="340" y="70" width="110" height="80" rx="10" fill="#e0803a" stroke="#8a4b00" stroke-width="3"/>
+          <g id="schlNotch" fill="#f7fbfe" stroke="#8a4b00" stroke-width="3"></g>
+          <text x="400" y="116" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">Antikörper</text>
+        </g>
+        <text id="schlText" x="260" y="30" text-anchor="middle" font-size="14" font-weight="800" fill="#566674">Wähle einen Erreger.</text>
+      </svg>
+      <div class="wahl" style="margin:8px 0 0" data-gruppe="er"><button type="button" data-er="0">Erreger 1</button><button type="button" data-er="1">Erreger 2</button><button type="button" data-er="2">Erreger 3</button></div>
+      <div class="wahl" style="margin:8px 0 0" data-gruppe="ak"><button type="button" data-ak="0">Antikörper A</button><button type="button" data-ak="1">Antikörper B</button><button type="button" data-ak="2">Antikörper C</button></div>
+    </div>
+    <div id="forscher3" style="margin-top:14px"></div>
+    <div class="merke" id="merke3"><h4>MERKE</h4><ul><li>Antikörper passen nach dem <strong>Schlüssel-Schloss-Prinzip</strong> nur auf einen bestimmten Erreger.</li><li>Gegen einen anderen Erreger muss der Körper erst neue Antikörper bilden.</li></ul></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag m8">M8 · für 8R freiwillig</span>
+    <h3 style="margin-top:4px">Gezielte Abwehr</h3>
+    <div id="mc-s3m"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Anwenden</div><h2>Impfen: Training für die Abwehr</h2></div></div>
+  <div class="grid2">
+    <div class="sim reveal" id="impfSim">
+      <svg viewBox="0 0 520 280" role="img" aria-label="Animation einer Impfung: Spritze, Körper lernt den Erreger kennen, echter Erreger wird schnell abgewehrt">
+        <rect width="520" height="280" fill="#f7fbfe"/>
+        <rect x="190" y="20" width="320" height="240" rx="24" fill="#fdeceb" stroke="#b23a48" stroke-width="2"/><text x="350" y="42" text-anchor="middle" font-size="12" font-weight="800" fill="#b23a48">Körper</text>
+        <g id="im0"><text x="40" y="90" font-size="44">💉</text><text x="14" y="140" font-size="12" font-weight="700" fill="#566674">Impfstoff:</text><text x="14" y="156" font-size="12" font-weight="700" fill="#566674">harmlose Erreger-</text><text x="14" y="172" font-size="12" font-weight="700" fill="#566674">teile</text><circle cx="150" cy="185" r="8" fill="#a9c25a" stroke="#4b6416" stroke-width="2"/><path d="M100 90 L200 140" stroke="#e0453a" stroke-width="3"/></g>
+        <g id="im1"><use href="#er" x="260" y="140" transform="scale(.6)" opacity="0"/><circle cx="270" cy="150" r="9" fill="#a9c25a" stroke="#4b6416" stroke-width="2"/><use href="#ak" x="330" y="110"/><use href="#ak" x="380" y="170"/><use href="#ak" x="440" y="115"/><circle cx="420" cy="215" r="18" fill="#3b5ccc"/><text x="420" y="220" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">G</text><text x="350" y="245" text-anchor="middle" font-size="12" font-weight="800" fill="#233a8a">Körper lernt den Erreger kennen</text></g>
+        <g id="im2"><use href="#er" x="270" y="120"/><use href="#ak" x="240" y="100"/><use href="#ak" x="300" y="95"/><use href="#ak" x="245" y="160"/><use href="#ak" x="305" y="160"/><circle cx="420" cy="215" r="18" fill="#3b5ccc"/><text x="420" y="220" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">G</text><text x="350" y="245" text-anchor="middle" font-size="12" font-weight="800" fill="#2a7a45">Echter Erreger: schnell abgewehrt</text></g>
+      </svg>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Eine <button class="term" data-t="impfung">Impfung</button> ist wie eine Übung für den Ernstfall.</p>
+      <p>Der Impfstoff enthält Erreger, die abgeschwächt oder abgetötet sind, oder nur Teile davon. Sie machen nicht krank. Der Körper <strong>lernt den Erreger kennen, ohne krank zu werden</strong>, und ist beim nächsten Mal vorbereitet: Die Abwehr läuft sofort an.</p>
+      <p>Alle Impfungen stehen im <button class="term" data-t="impfpass">Impfpass</button>. Manche müssen nach einiger Zeit aufgefrischt werden. Bei Fragen zu Impfungen hilft die Kinderärztin oder der Kinderarzt.</p>
+      <div id="mc-s4"></div>
+      <div class="merke"><h4>MERKE</h4><ul><li>Eine Impfung lässt den Körper den Erreger kennenlernen, ohne dass man krank wird.</li><li>Der Impfpass zeigt, welche Impfungen aufgefrischt werden müssen.</li></ul></div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card reveal" data-zug="M">
+      <details class="mehr-wissen" open><summary>Mehr wissen (M8): aktiv und passiv</summary><div>Bei der <strong>aktiven Immunisierung</strong> (normale Impfung) bildet der Körper selbst Antikörper und Gedächtniszellen. Der Schutz hält lange. Bei der <strong>passiven Immunisierung</strong> bekommt man fertige Antikörper. Sie wirken sofort, werden aber abgebaut – der Schutz hält nur kurz, Gedächtniszellen entstehen nicht.</div></details>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag m8">M8 · für 8R freiwillig</span>
+      <h3 style="margin-top:4px">Aktiv oder passiv?</h3>
+      <p class="hint">Aktive Immunisierung: der Körper arbeitet selbst. Passive: fertige Antikörper kommen von außen. Ordne zu.</p>
+      <div id="sort4"></div>
+    </div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag m8">M8 · für 8R freiwillig</span>
+    <h3 style="margin-top:4px">Antikörper-Kurve lesen</h3>
+    <p>Die Kurve zeigt (im Modell), wie viele Antikörper im Blut sind: nach der ersten Impfung in Woche 0 und nach der zweiten Impfung in Woche 8.</p>
+    <svg viewBox="0 0 520 250" role="img" aria-label="Antikörper-Kurve: nach der ersten Impfung langsamer, flacher Anstieg, nach der zweiten Impfung schneller, hoher Anstieg, der länger bleibt" style="width:100%;height:auto;background:#f7fbfe;border-radius:12px">
+      <line x1="60" y1="20" x2="60" y2="210" stroke="#566674" stroke-width="2"/><line x1="60" y1="210" x2="500" y2="210" stroke="#566674" stroke-width="2"/>
+      <line x1="60" y1="30" x2="60" y2="210" stroke="#2f6fdb" stroke-width="1" stroke-dasharray="5 4"/><line x1="276" y1="30" x2="276" y2="210" stroke="#e0803a" stroke-width="2" stroke-dasharray="6 4"/>
+      <text x="66" y="38" font-size="12" font-weight="700" fill="#2f6fdb">1. Impfung</text><text x="282" y="38" font-size="12" font-weight="700" fill="#e0803a">2. Impfung</text>
+      <polyline fill="none" stroke="#1d5fa8" stroke-width="3.5" points="60,210 87,207 114,179 141,150 168,159 222,179 276,193 289,142 316,48 357,65 411,91 492,117"/>
+      <text x="20" y="18" font-size="12" font-weight="700" fill="#566674">Menge Antikörper (Modell)</text>
+      <g font-size="12" font-weight="700" fill="#566674" text-anchor="middle"><text x="60" y="230">0</text><text x="168" y="230">4</text><text x="276" y="230">8</text><text x="384" y="230">12</text><text x="492" y="230">16</text><text x="280" y="246">Wochen</text></g>
+    </svg>
+    <div id="mc-s4m"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Unterscheiden</div><h2>Bakterien, Viren oder Pilze?</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Erreger gibt es in drei Gruppen: <button class="term" data-t="bakterien">Bakterien</button>, <button class="term" data-t="viren">Viren</button> und Pilze.</p>
+      <p>Zecken können beides übertragen: <strong>Borreliose</strong> (Bakterien) und <strong>FSME</strong> (Viren). Gegen FSME gibt es eine Impfung, gegen Borreliose nicht – sie wird mit Antibiotika behandelt. <strong>Fußpilz</strong> wird von einem Pilz verursacht – in feuchter Wärme, etwa in Schwimmbädern, fühlt er sich wohl.</p>
+      <table class="erreg-tab"><caption>Erreger – Beispiele</caption><tbody>
+        <tr><th>Bakterien</th><td>Scharlach, Keuchhusten, Tuberkulose, Wundstarrkrampf (Tetanus), Salmonellen-Erkrankung, Borreliose</td></tr>
+        <tr><th>Viren</th><td>Grippe, Masern, Mumps, Röteln, Windpocken, FSME</td></tr>
+        <tr><th>Pilze</th><td>Fußpilz, Nagelpilz</td></tr>
+      </tbody></table>
+      <p><button class="term" data-t="antibiotikum">Antibiotika</button> wirken <strong>nur gegen Bakterien</strong>, nicht gegen Viren. Gegen eine Grippe helfen sie also nicht. Man nimmt sie genau so lange, wie die Ärztin oder der Arzt es verordnet hat.</p>
+      <div class="merke"><h4>MERKE</h4><ul><li>Erreger: Bakterien, Viren, Pilze.</li><li>Antibiotika wirken nur gegen Bakterien.</li></ul></div>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag leicht">Zuordnen · leicht</span>
+      <h3 style="margin-top:4px">Welcher Erreger steckt dahinter?</h3>
+      <div id="sort5"></div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card reveal">
+      <span class="task-tag mittel">Verstehen · mittel</span>
+      <h3 style="margin-top:4px">Antibiotika</h3>
+      <div id="mc-s5"></div>
+    </div>
+    <div class="card reveal">
+      <h3 style="margin-top:0">HIV und Aids – kurz erklärt</h3>
+      <p><strong>Übertragung:</strong> Das <button class="term" data-t="hiv">HI-Virus</button> geht über ungeschützten Geschlechtsverkehr, über Blut (z. B. gemeinsam benutzte Spritzen) und von der Mutter auf das Kind (Schwangerschaft, Geburt, Stillen). Kein Risiko im Alltag: Händeschütteln, Umarmen, Küssen, gemeinsames Geschirr, Toilette, Husten, Mückenstich.</p>
+      <p><strong>Verlauf:</strong></p>
+      <ol class="hiv-verlauf"><li>Nach der Ansteckung oft kurze Beschwerden wie bei einer Grippe.</li><li>Dann oft viele Jahre ohne Beschwerden – das Virus ist aber im Körper, man kann andere anstecken.</li><li>Das Virus befällt Helferzellen, die die Abwehr steuern. Ohne Behandlung wird die Abwehr immer schwächer.</li><li><button class="term" data-t="aids">Aids</button>: Der Körper kann sich gegen sonst harmlose Erreger nicht mehr wehren.</li></ol>
+      <p><strong>Schutz und Behandlung:</strong> Kondome; kein fremdes Blut berühren (Einmalhandschuhe bei Erster Hilfe). Gewissheit gibt nur ein Test. HIV ist bis heute nicht heilbar, aber Medikamente halten das Virus in Schach: Wer sie regelmäßig nimmt, kann lange und gut leben.</p>
+      <span class="task-tag leicht">Verstehen · leicht</span>
+      <div id="mc-s5h"></div>
+    </div>
+  </div>
+  <div class="card reveal" data-zug="M">
+    <details class="mehr-wissen" open><summary>Mehr wissen (M8): Resistenz und Herdenschutz</summary><div>Wer Antibiotika zu früh absetzt oder bei Viren nimmt, fördert <button class="term" data-t="resistenz">Resistenz</button>: Unempfindliche Bakterien überleben und vermehren sich. Darum nimmt man Antibiotika nur nach ärztlicher Verordnung und zu Ende. Sind viele Menschen geimpft, bekommt der Erreger kaum noch neue Wirte – das nennt man <button class="term" data-t="herdenschutz">Herdenschutz</button>.</div></details>
+  </div>
+  <div class="grid2">
+    <div class="card reveal">
+      <span class="task-tag m8">M8 · für 8R freiwillig</span>
+      <h3 style="margin-top:4px">Antibiotika und Resistenz</h3>
+      <div id="mc-s5m"></div>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag m8">M8 · für 8R freiwillig</span>
+      <h3 style="margin-top:4px">Herdenschutz ausprobieren</h3>
+      <p class="hint">Modell: 100 Menschen, einer ist ungeimpft erkrankt (roter Rand). Erreger springen nur auf ungeimpfte Nachbarn. Verändere den Anteil der Geimpften.</p>
+      <div class="sim" id="herdSim">
+        <svg viewBox="0 0 520 300" role="img" aria-label="100 Personen in einem Gitter; geimpfte blau, ungeimpfte grau, erkrankte rot">
+          <rect width="520" height="300" fill="#f7fbfe"/>
+          <g id="hqGitter"></g>
+          <g font-size="12" font-weight="700"><circle cx="330" cy="70" r="8" fill="#2f6fdb"/><text x="346" y="75" fill="#15212b">geimpft</text><circle cx="330" cy="100" r="8" fill="#b9c3cc"/><text x="346" y="105" fill="#15212b">ungeimpft, gesund</text><circle cx="330" cy="130" r="8" fill="#e0453a"/><text x="346" y="135" fill="#15212b">erkrankt</text></g>
+          <text id="hqText" x="320" y="200" font-size="14" font-weight="800" fill="#566674"></text>
+        </svg>
+        <div class="sim-ctrl"><label>Geimpft: <span class="hq-zahl" id="hqWert">0</span> %<input type="range" id="hqRange" min="0" max="100" step="5" value="0"></label></div>
+        <p class="obs" id="hqObs">Schiebe den Regler.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="s6">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Üben</div><h2>Training für die Probe</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <span class="task-tag leicht">Richtig oder falsch · leicht</span>
+      <div id="tf6"></div>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag mittel">Reihenfolge · mittel</span>
+      <h3 style="margin-top:4px">Die Abwehr arbeitet</h3>
+      <p class="hint">Bringe die Schritte in die richtige Reihenfolge.</p>
+      <div id="order6"></div>
+    </div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Kreuzworträtsel</span>
+    <div id="cw6"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag schwer">Anwenden · schwer</span>
+    <h3 style="margin-top:4px">Was tun?</h3>
+    <div id="mc-s6"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag schwer">Erklären und übertragen · schwer</span>
+    <h3 style="margin-top:4px">In eigenen Worten <span class="hint">✨ KI prüft</span></h3>
+    <p class="hint">Du bekommst zuerst nur einen Tipp. Überarbeite dann deine Antwort.</p>
+    <div id="open6"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Duell gegen die KI</span>
+    <h3 style="margin-top:4px">Erwischst du die KI?</h3>
+    <p class="hint">Die KI stellt fünf Behauptungen auf. Manche sind falsch. Für den Sieg brauchst du mindestens 3 Punkte.</p>
+    <div id="duell6"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag m8">M8 · für 8R freiwillig</span>
+    <h3 style="margin-top:4px">Erklären und begründen <span class="hint">✨ KI prüft</span></h3>
+    <div id="open6m"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 7 ============ -->
+<section class="station" id="s7">
+  <div class="st-head reveal"><div class="st-num">7</div><div><div class="eyebrow">Sichern</div><h2>Profi-Check und Lernkarten</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <div class="card reveal">
+    <span class="task-tag">Lernkarten</span>
+    <p class="hint">Die Karten gehören zum Lernset für die Probe. Sie zählen nicht zum Abschluss des Moduls – sie helfen dir beim Wiederholen.</p>
+    <div id="lernkarten"></div>
+  </div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Im nächsten Modul geht es um Genussmittel und Drogen: Wie entsteht eine Abhängigkeit, und wo gibt es Hilfe?</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="index.html">🔬 Übersicht NT 8</a>
+      <a href="sucht.html">➡️ Nächstes Modul: Genussmittel, Drogen und Abhängigkeit</a>
+      <a href="#" data-lernset>🧠 Lernset zur Probe</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik 8 · Lernmodul „Infektionen, Immunsystem und Impfung“ · Dein Fortschritt wird auf diesem Gerät gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="karten.js"></script>
+<script src="nt8.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, register, solve} = Modul;
+const NS = "http://www.w3.org/2000/svg";
+
+NT8M.start({
+  id: "infektion",
+  thema: "Infektionskrankheiten und Immunsystem: Phasen einer Infektion, Erreger (Bakterien, Viren, Pilze), Übertragungswege und Schutz, unspezifische Abwehr, Fieber, Impfung, HIV und Aids; M8: spezifische Immunreaktion (Antikörper, Gedächtniszellen), aktive und passive Immunisierung, Resistenz, Herdenschutz",
+  glossary: {
+    infektion: ["Infektion (Ansteckung)", "Erreger gelangen in den Körper und beginnen sich zu vermehren."],
+    erreger: ["Erreger", "Kleinstlebewesen oder Viren, die Krankheiten auslösen: Bakterien, Viren und Pilze."],
+    inkubation: ["Inkubation (Inkubationszeit)", "Die Zeit zwischen der Infektion (Ansteckung) und den ersten Symptomen."],
+    symptome: ["Symptome", "Krankheitszeichen, die man spürt oder sieht, zum Beispiel Fieber, Husten oder Halsschmerzen."],
+    fieber: ["Fieber", "Körpertemperatur über etwa 38 °C. Es ist eine Abwehrreaktion des Körpers."],
+    bakterien: ["Bakterien", "Winzige Lebewesen aus nur einer Zelle. Manche machen krank, z. B. Scharlach, Salmonellen oder Borreliose."],
+    viren: ["Viren", "Noch viel kleiner als Bakterien. Sie vermehren sich nur in Körperzellen, z. B. bei Grippe, Masern oder FSME."],
+    antibiotikum: ["Antibiotikum", "Medikament, das Bakterien abtötet oder hemmt. Gegen Viren wirkt es nicht. Man nimmt es genau so lange, wie die Ärztin oder der Arzt es verordnet hat."],
+    fresszelle: ["Fresszelle", "Abwehrzelle, die Erreger umschließt und auffrisst. Sie arbeitet bei jedem Erreger gleich."],
+    antikoerper: ["Antikörper", "Eiweiße, die genau auf einen bestimmten Erreger passen und ihn markieren.", "Das Schlüssel-Schloss-Prinzip: Ein Antikörper passt nur auf ein bestimmtes Merkmal eines Erregers."],
+    gedaechtnis: ["Gedächtniszellen", "Abwehrzellen, die sich einen Erreger merken. Beim nächsten Kontakt wird die Abwehr viel schneller.", "Deshalb steigt die Antikörper-Kurve beim zweiten Kontakt schneller und höher."],
+    immun: ["immun", "Gegen einen Erreger geschützt, weil der Körper ihn kennt."],
+    impfung: ["Impfung", "Der Körper lernt einen Erreger ungefährlich kennen und ist beim nächsten Mal vorbereitet.", "Aktive Immunisierung: Der Körper bildet selbst Antikörper und Gedächtniszellen. Passive Immunisierung: fertige Antikörper, Schutz nur kurz."],
+    impfpass: ["Impfpass", "Heft, in dem alle Impfungen eingetragen sind."],
+    hiv: ["HIV", "Das HI-Virus befällt Abwehrzellen und schwächt das Immunsystem. Ohne Behandlung kann Aids entstehen. HIV ist bisher nicht heilbar, aber mit Medikamenten gut behandelbar."],
+    aids: ["Aids", "Spätes Stadium einer unbehandelten HIV-Infektion: Die Abwehr ist so geschwächt, dass sonst harmlose Erreger gefährlich werden."],
+    resistenz: ["Resistenz", "Unempfindlichkeit von Bakterien gegen ein Antibiotikum."],
+    herdenschutz: ["Herdenschutz", "Sind genug Menschen geimpft, kann sich ein Erreger kaum ausbreiten – auch Ungeimpfte sind besser geschützt."]
+  }
+});
+
+/* ---------- Station 1: Nieser ---------- */
+(function(){
+  register("ansteck", "#ansSim", "Simulation: Ansteckung im Klassenzimmer, Schutz ein- und ausschalten");
+  const g = $("#ansKids"); const kids = [];
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 5; c++) {
+    const x = 150 + c * 80, y = 70 + r * 70, el = document.createElementNS(NS, "circle");
+    el.setAttribute("cx", x); el.setAttribute("cy", y); el.setAttribute("r", 17); el.setAttribute("class", "kid");
+    el.setAttribute("fill", "#b9c3cc"); el.setAttribute("stroke", "#566674"); el.setAttribute("stroke-width", 2);
+    g.appendChild(el); kids.push({el, d: Math.hypot(x - 50, y - 150), i: kids.length});
+  }
+  const ordnung = kids.slice().sort((a, b) => a.d - b.d || a.i - b.i);
+  const zahlen = [10, 6, 3, 1], an = {haende: false, luft: false, abstand: false}, runs = {};
+  $$("[data-an]").forEach(b => b.addEventListener("click", () => { an[b.dataset.an] = !an[b.dataset.an]; b.classList.toggle("sel", an[b.dataset.an]); }));
+  $("#ansStart").addEventListener("click", () => {
+    const m = Object.values(an).filter(Boolean).length, n = zahlen[m];
+    kids.forEach(k => { k.el.classList.remove("rot"); k.el.style.transitionDelay = "0s"; });
+    ordnung.slice(0, n).forEach((k, j) => { k.el.style.transitionDelay = (j * 0.12) + "s"; k.el.classList.add("rot"); });
+    const t = $("#ansTropf"); t.setAttribute("r", 130 - m * 30); t.setAttribute("opacity", (0.28 - m * 0.06).toFixed(2));
+    $("#ansZahl").textContent = "Angesteckt: " + n + " von 15 Kindern";
+    $("#ansObs").textContent = m === 0 ? "Ohne Schutz werden viele Kinder angesteckt. Schalte jetzt Schutzmaßnahmen ein und niese noch einmal." :
+      "Mit " + m + " Schutzmaßnahme" + (m > 1 ? "n" : "") + " sind es weniger. Jede Maßnahme senkt die Zahl der Ansteckungen.";
+    runs[m > 0 ? "mit" : "ohne"] = 1;
+    if (runs.mit && runs.ohne) solve("ansteck");
+  });
+  Modul.loeser.ansteck = () => {
+    $$("[data-an]").forEach(b => { if (b.classList.contains("sel")) b.click(); });
+    $("#ansStart").click();
+    $$("[data-an]").forEach(b => b.click());
+    $("#ansStart").click();
+  };
+  Modul.makeMC($("#mc-s1"), [
+    {q: "Was verändert sich, wenn du Hände waschen, Lüften und Abstand zusammen einschaltest?", o: ["Es werden deutlich weniger Kinder angesteckt.", "Es werden mehr Kinder angesteckt.", "Es ändert sich nichts.", "Nur das niesende Kind wird gesund."], a: 0, e: "Jede Schutzmaßnahme verringert die Zahl der Erreger, die andere erreichen – zusammen wirken sie am besten."}
+  ], "mc1", {t: "Deine Beobachtung"});
+})();
+
+/* ---------- Station 2: Verlauf ---------- */
+(function(){
+  const phasen = [["Infektion", "Erreger gelangen", "in den Körper", "🙂", "(Ansteckung)"], ["Inkubation", "Erreger vermehren", "sich, noch kein Anzeichen", "😐", "(Inkubationszeit)"], ["Krankheit", "Symptome,", "z. B. Fieber", "🤒", "(Ausbruch)"], ["Gesundung", "Die Abwehr", "hat gesiegt", "😊", "(Genesung)"]];
+  const g = $("#vPh"); let h = "";
+  phasen.forEach((p, k) => {
+    const x = 10 + k * 128;
+    h += '<rect class="ph" id="vr' + k + '" x="' + x + '" y="70" width="118" height="60" rx="10" fill="#e8eef3" stroke="#566674" stroke-width="2"/>' +
+      '<text id="vt' + k + '" x="' + (x + 59) + '" y="98" text-anchor="middle" font-size="12" font-weight="800" fill="#15212b">' + (k + 1) + " " + p[0] + '</text>' +
+      '<text id="va' + k + '" x="' + (x + 59) + '" y="116" text-anchor="middle" font-size="11" font-weight="700" fill="#15212b">' + p[4] + '</text>' +
+      '<text x="' + (x + 59) + '" y="50" text-anchor="middle" font-size="30">' + p[3] + '</text>' +
+      '<text x="' + (x + 59) + '" y="152" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">' + p[1] + '</text>' +
+      '<text x="' + (x + 59) + '" y="167" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">' + p[2] + '</text>';
+  });
+  g.innerHTML = h;
+  const act = ["#4aa3df", "#f2b632", "#e0453a", "#2fa55a"];
+  Modul.makeSchritte($("#verlaufSim"), {
+    steps: ["Die Infektion (Ansteckung): Erreger gelangen in den Körper, zum Beispiel beim Einatmen von Tröpfchen.",
+      "Die Inkubation (Inkubationszeit): Die Erreger vermehren sich. Man fühlt sich noch gesund, kann aber schon andere anstecken.",
+      "Die Krankheit (Ausbruch): Symptome (Krankheitszeichen) wie Fieber, Husten oder Halsschmerzen. Die Abwehr kämpft.",
+      "Die Gesundung (Genesung): Die Erreger sind besiegt, die Symptome verschwinden."],
+    zeige(i){ phasen.forEach((p, k) => { $("#vr" + k).setAttribute("fill", k === i ? act[k] : "#e8eef3"); $("#vt" + k).setAttribute("fill", k === i ? "#fff" : "#15212b"); $("#va" + k).setAttribute("fill", k === i ? "#fff" : "#15212b"); }); }
+  }, "anim2");
+  Modul.makeOrder($("#order2"), ["Infektion (Ansteckung)", "Inkubation (Inkubationszeit)", "Krankheit (Ausbruch)", "Gesundung (Genesung)"], "order2");
+  Modul.makeMC($("#mc-s2"), [
+    {q: "An welchem Tag war die Temperatur am höchsten?", o: ["Tag 4", "Tag 2", "Tag 6", "Tag 8"], a: 0, e: "Der Gipfel der Kurve liegt bei Tag 4 – etwa 39,2 °C."},
+    {q: "Warum ist Fieber nicht nur schlecht?", o: ["Es ist eine Abwehrreaktion: Die Abwehrzellen arbeiten besser, viele Erreger vermehren sich schlechter.", "Es tötet alle Erreger sofort ab.", "Es zeigt, dass die Abwehr ausgefallen ist.", "Es macht den Körper immun."], a: 0, e: "Höhere Temperatur hilft der Abwehr. Bei hohem oder langem Fieber gehört man trotzdem zur Ärztin oder zum Arzt."}
+  ], "mc2", {t: "Kurz-Check"});
+  Modul.makePaare($("#paare2"), [
+    ["Tröpfchen beim Niesen", "in die Armbeuge niesen, lüften"],
+    ["Schmierinfektion über die Hände", "Hände mit Seife waschen"],
+    ["rohe Eier und rohes Fleisch", "gut durchgaren, Küche sauber halten"],
+    ["offene Wunde", "reinigen und abdecken"],
+    ["Zeckenstich", "lange Kleidung, Körper absuchen"]
+  ], "paare2");
+  Modul.makeMC($("#mc-s2z"), [
+    {q: "Nach einem Spaziergang im hohen Gras: Was ist sinnvoll?", o: ["Den Körper nach Zecken absuchen und eine Zecke zügig entfernen.", "Nichts tun, Zecken gibt es nur im Urlaub.", "Die Kleidung sofort wegwerfen.", "Nur den Kopf untersuchen."], a: 0, e: "Zecken übertragen die Erreger erst nach einiger Zeit. Je schneller sie entfernt werden, desto kleiner das Risiko. Bei Unsicherheit hilft die Kinderärztin oder der Kinderarzt."}
+  ], "mc2z", {t: "Zecken"});
+})();
+
+/* ---------- Station 3: Abwehr ---------- */
+Modul.makeSchritte($("#abwehrSim"), {
+  steps: ["Erste Linie: Haut und Schleimhaut halten die meisten Erreger draußen. Tränen und Magensäure helfen mit.",
+    "Durch eine Wunde kommen Erreger doch hinein. Die Fresszelle umschließt sie und frisst sie auf.",
+    "Reicht das nicht, bildet der Körper Antikörper. Sie passen genau auf diesen Erreger.",
+    "Der Erreger ist beseitigt. Gedächtniszellen bleiben zurück und merken sich ihn."],
+  zeige(i){
+    $("#ab0").setAttribute("opacity", i <= 0 ? "1" : "0"); $("#ab1").setAttribute("opacity", i === 1 ? "1" : "0");
+    $("#ab2").setAttribute("opacity", i === 2 ? "1" : "0"); $("#ab3").setAttribute("opacity", i === 3 ? "1" : "0");
+    $("#abWunde").setAttribute("opacity", i >= 1 ? "1" : "0");
+  }
+}, "anim3");
+Modul.makeMC($("#mc-s3"), [
+  {q: "Was gehört zu den Barrieren des Körpers?", o: ["Haut, Schleimhaut, Tränen und Magensäure", "Antibiotika und Fieberthermometer", "Impfpass und Spritze", "Blut und Knochen"], a: 0, e: "Barrieren halten Erreger schon draußen oder töten sie ab, bevor sie eindringen."},
+  {q: "Was machen Fresszellen?", o: ["Sie umschließen Erreger und fressen sie auf.", "Sie bilden Fieber.", "Sie verwandeln Bakterien in Viren.", "Sie bringen Sauerstoff zu den Zellen."], a: 0, e: "Fresszellen arbeiten bei jedem Erreger gleich – das ist die unspezifische Abwehr."}
+], "mc3", {t: "Kurz-Check"});
+(function(){
+  // Schlüssel-Schloss: eigener Versuch ohne NTLabor
+  const formen = [ // 0 Dreieck, 1 Rund, 2 Quadrat
+    {bump: '<polygon points="180,90 205,110 180,130"/>', notch: '<polygon points="340,90 365,110 340,130"/>'},
+    {bump: '<path d="M180 90 A20 20 0 0 1 180 130 Z"/>', notch: '<path d="M340 90 A20 20 0 0 1 340 130 Z"/>'},
+    {bump: '<rect x="180" y="92" width="24" height="36"/>', notch: '<rect x="340" y="92" width="24" height="36"/>'}
+  ];
+  const erForm = [1, 2, 0]; // Erreger 1 = rund, 2 = quadratisch, 3 = dreieckig; Antikörper A = Dreieck, B = rund, C = quadratisch
+  const gefunden = {}, cbs = []; let er = -1, ak = -1;
+  const text = t => { $("#schlText").textContent = t; };
+  function dock(dx) { $("#schlAk").style.transform = "translate(" + dx + "px,0px)"; }
+  const lab = {
+    entdeckt(){ return {paar: Object.keys(gefunden).length, gefunden}; },
+    beiAenderung(f){ cbs.push(f); },
+    loese(){ for (let e = 0; e < 3; e++) { $('[data-er="' + e + '"]').click(); $('[data-ak="' + erForm[e] + '"]').click(); } }
+  };
+  $$("[data-er]").forEach(b => b.addEventListener("click", () => {
+    er = +b.dataset.er; $$("[data-er]").forEach(x => x.classList.toggle("sel", x === b));
+    $("#schlBump").innerHTML = formen[erForm[er]].bump; dock(0);
+    if (ak < 0) $("#schlNotch").innerHTML = formen[0].notch;
+    text("Erreger " + (er + 1) + ": Welcher Antikörper passt?");
+  }));
+  $$("[data-ak]").forEach(b => b.addEventListener("click", () => {
+    if (er < 0) { text("Wähle zuerst einen Erreger."); return; }
+    ak = +b.dataset.ak; $$("[data-ak]").forEach(x => x.classList.toggle("sel", x === b));
+    $("#schlNotch").innerHTML = formen[ak].notch;
+    if (ak === erForm[er]) { dock(-160); text("✔ Passt! Der Antikörper heftet sich an den Erreger."); gefunden[er] = 1; cbs.forEach(f => f()); }
+    else { dock(-120); text("✘ Passt nicht – das Schloss ist ein anderes."); setTimeout(() => dock(0), 700); }
+  }));
+  NT8M.entdecke({
+    id: "schluessel", labor: lab, el: "#forscher3", sicherung: "#merke3",
+    auftrag: "Finde für jeden der drei Erreger den Antikörper, der passt. Wähle einen Erreger und probiere die Antikörper aus.",
+    ziel(e){ const n = e.paar || 0; return {fertig: n === 3, text: n === 3 ? "Du hast zu allen drei Erregern den passenden Antikörper gefunden. Halte deine Beobachtung fest:" : "Gefunden: " + n + " von 3 passenden Paaren."}; },
+    frage: {q: "Wann kann sich ein Antikörper an einen Erreger heften?", o: ["wenn seine Form genau zum Merkmal des Erregers passt", "wenn er größer ist als der Erreger", "wenn beide dieselbe Farbe haben", "bei jedem Erreger gleich gut"], a: 0, e: "Das ist das Schlüssel-Schloss-Prinzip: Ein Antikörper passt nur auf einen bestimmten Erreger."}
+  });
+})();
+NT8M.plus(() => {
+  Modul.makeMC($("#mc-s3m"), [
+    {q: "Jemand hatte als Kind Masern und bekommt sie nie wieder. Wie erklärst du das?", o: ["Gedächtniszellen kennen den Erreger und bilden sofort passende Antikörper.", "Die Haut ist seitdem dicker geworden.", "Fresszellen merken sich jeden Erreger für immer.", "Antibiotika bleiben im Körper."], a: 0, e: "Gedächtniszellen sind der Grund für die Immunität: Die gezielte Abwehr ist beim zweiten Kontakt viel schneller."}
+  ], "mc3m", {t: "Gezielte Abwehr"});
+});
+
+/* ---------- Station 4: Impfen ---------- */
+Modul.makeSchritte($("#impfSim"), {
+  steps: ["Der Impfstoff enthält nur harmlose Teile des Erregers. Er macht nicht krank.",
+    "Der Körper reagiert und bildet Abwehrstoffe. Er lernt den Erreger kennen – ohne krank zu werden.",
+    "Später kommt der echte Erreger. Der Körper ist vorbereitet und wehrt ihn schnell ab."],
+  zeige(i){
+    $("#im0").setAttribute("opacity", i <= 0 ? "1" : "0"); $("#im1").setAttribute("opacity", i === 1 ? "1" : "0"); $("#im2").setAttribute("opacity", i === 2 ? "1" : "0");
+  }
+}, "anim4");
+Modul.makeMC($("#mc-s4"), [
+  {q: "Warum macht eine Impfung nicht krank, schützt aber trotzdem?", o: ["Der Körper lernt den Erreger in harmloser Form kennen und ist beim nächsten Mal vorbereitet.", "Die Impfung tötet alle Erreger im Körper ab.", "Die Impfung ist ein Antibiotikum.", "Die Impfung ersetzt die Haut."], a: 0, e: "Der Impfstoff enthält abgeschwächte oder abgetötete Erreger oder nur Teile davon. So übt die Abwehr, ohne dass man krank wird."}
+], "mc4", {t: "Kurz-Check"});
+NT8M.plus(() => {
+  Modul.makeSort($("#sort4"), {buckets: ["aktive Immunisierung", "passive Immunisierung"], cols: 150, items: [
+    {t: "Körper bildet selbst Antikörper", b: 0}, {t: "Schutz hält lange", b: 0}, {t: "Gedächtniszellen entstehen", b: 0},
+    {t: "fertige Antikörper werden gegeben", b: 1}, {t: "wirkt sofort", b: 1}, {t: "Schutz hält nur kurz", b: 1}
+  ]}, "sort4");
+  Modul.makeMC($("#mc-s4m"), [
+    {q: "Was zeigt die Kurve beim zweiten Kontakt im Vergleich zum ersten?", o: ["Die Antikörper steigen schneller, höher und bleiben länger.", "Die Antikörper steigen langsamer und niedriger.", "Es entstehen gar keine Antikörper mehr.", "Die Kurve sieht beide Male gleich aus."], a: 0, e: "Gedächtniszellen erkennen den Erreger sofort. Deshalb wird nach einer Auffrischung die Abwehr schneller und stärker."}
+  ], "mc4m", {t: "Kurve auswerten"});
+});
+
+/* ---------- Station 5: Erreger ---------- */
+Modul.makeSort($("#sort5"), {buckets: ["Bakterien", "Viren", "Pilze"], cols: 110, items: [
+  {t: "Borreliose", b: 0}, {t: "Scharlach", b: 0}, {t: "Salmonellen", b: 0},
+  {t: "FSME", b: 1}, {t: "Grippe", b: 1}, {t: "Masern", b: 1},
+  {t: "Fußpilz", b: 2}, {t: "Nagelpilz", b: 2}
+]}, "sort5");
+Modul.makeMC($("#mc-s5"), [
+  {q: "Dein Freund hat Grippe und möchte Antibiotika. Was stimmt?", o: ["Antibiotika helfen nicht, denn die Grippe wird von Viren ausgelöst.", "Antibiotika heilen jede Krankheit.", "Antibiotika wirken nur bei Fieber.", "Antibiotika sind ein Impfstoff gegen Grippe."], a: 0, e: "Antibiotika wirken nur gegen Bakterien. Welche Medikamente nötig sind, entscheidet die Ärztin oder der Arzt."}
+], "mc5", {t: "Antibiotika"});
+Modul.makeMC($("#mc-s5h"), [
+  {q: "Warum kann jemand mit HIV andere anstecken, obwohl er sich gesund fühlt?", o: ["Das Virus ist im Körper, auch wenn viele Jahre keine Beschwerden auftreten.", "Weil man bei HIV immer sichtbar krank aussieht.", "Weil Aids nach der Ansteckung sofort ausbricht.", "Weil HIV durch die Luft übertragen wird."], a: 0, e: "Nach kurzen Beschwerden folgen oft viele Jahre ohne Symptome. Das Virus bleibt aber im Körper und kann übertragen werden. Gewissheit gibt nur ein Test; Medikamente halten das Virus in Schach."}
+], "mc5h", {t: "HIV-Verlauf"});
+NT8M.plus(() => {
+  Modul.makeMC($("#mc-s5m"), [
+    {q: "Warum nimmt man ein verordnetes Antibiotikum bis zum Ende und nicht bei Viren?", o: ["Sonst überleben unempfindliche Bakterien und vermehren sich – es entstehen resistente Bakterien.", "Weil Antibiotika sonst nicht mehr schmecken.", "Weil Viren sonst stärker werden.", "Weil man sonst Fieber bekommt."], a: 0, e: "Ein falscher Einsatz fördert Resistenz. Dann wirkt das Antibiotikum später nicht mehr."}
+  ], "mc5m", {t: "Resistenz"});
+  // Herdenschutz-Simulation
+  register("herd", "#herdSim", "Simulation Herdenschutz: Anteil der Geimpften verändern");
+  const gitter = $("#hqGitter"), pers = [], START = 55; let s = 12345;
+  const rnd = () => (s = (s * 1103515245 + 12345) % 2147483648) / 2147483648;
+  const ord = []; for (let i = 0; i < 100; i++) if (i !== START) ord.push(i);
+  for (let i = ord.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [ord[i], ord[j]] = [ord[j], ord[i]]; }
+  const rang = {}; ord.forEach((p, k) => rang[p] = k);
+  for (let i = 0; i < 100; i++) {
+    const c = document.createElementNS(NS, "circle"); c.setAttribute("cx", 28 + (i % 10) * 27); c.setAttribute("cy", 24 + Math.floor(i / 10) * 27); c.setAttribute("r", 10);
+    if (i === START) { c.setAttribute("stroke", "#15212b"); c.setAttribute("stroke-width", 3); }
+    gitter.appendChild(c); pers.push(c);
+  }
+  const gesehen = {};
+  function zeige(q) {
+    const impf = new Set(ord.slice(0, Math.min(99, Math.round(q))));
+    const krank = new Set([START]), todo = [START];
+    while (todo.length) { const p = todo.pop(), r = Math.floor(p / 10), c = p % 10;
+      for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) { const rr = r + dr, cc = c + dc; if (rr < 0 || rr > 9 || cc < 0 || cc > 9) continue; const n = rr * 10 + cc; if (!impf.has(n) && !krank.has(n)) { krank.add(n); todo.push(n); } } }
+    pers.forEach((c, i) => c.setAttribute("fill", krank.has(i) ? "#e0453a" : impf.has(i) ? "#2f6fdb" : "#b9c3cc"));
+    $("#hqWert").textContent = q; $("#hqText").textContent = "Erkrankt: " + krank.size + " von 100";
+    $("#hqObs").textContent = q <= 20 ? "Kaum jemand ist geimpft: Der Erreger springt von Mensch zu Mensch." : q >= 80 ? "Fast alle sind geimpft: Die Ansteckungskette reißt schnell ab. Das schützt auch die Ungeimpften." : "Je mehr Menschen geimpft sind, desto weniger erkranken.";
+    return krank.size;
+  }
+  $("#hqRange").addEventListener("input", e => { const q = +e.target.value; zeige(q); if (q <= 20) gesehen.wenig = 1; if (q >= 80) gesehen.viel = 1; if (gesehen.wenig && gesehen.viel) solve("herd"); });
+  Modul.loeser.herd = () => { const r = $("#hqRange"); [10, 90].forEach(v => { r.value = v; r.dispatchEvent(new Event("input", {bubbles: true})); }); };
+  zeige(0);
+});
+
+/* ---------- Station 6: Training ---------- */
+Modul.makeTF($("#tf6"), [
+  ["Die Zeit zwischen Infektion (Ansteckung) und ersten Symptomen heißt Inkubation (Inkubationszeit).", true],
+  ["Antibiotika helfen gegen Viren.", false],
+  ["Haut und Schleimhaut sind Barrieren gegen Erreger.", true],
+  ["Fieber ist eine Abwehrreaktion des Körpers.", true],
+  ["Borreliose wird durch Viren ausgelöst.", false],
+  ["Händewaschen schützt vor Schmierinfektionen.", true],
+  ["Bei Händeschütteln steckt man sich mit HIV an.", false]
+], "tf6");
+Modul.makeOrder($("#order6"), [
+  "Erreger dringen durch eine kleine Wunde ein.",
+  "Fresszellen umschließen und fressen Erreger.",
+  "Der Körper bildet passende Antikörper.",
+  "Die Erreger werden unschädlich gemacht.",
+  "Gedächtniszellen bleiben zurück."
+], "order6");
+Modul.makeCrossword($("#cw6"), {
+  words: [
+    {w: "INKUBATION", r: 0, c: 5, d: "d", q: "Name der Zeit zwischen Infektion (Ansteckung) und den ersten Symptomen"},
+    {w: "IMMUNSYSTEM", r: 1, c: 1, d: "a", q: "Das Abwehrsystem des Körpers"},
+    {w: "ANTIKOERPER", r: 8, c: 0, d: "a", q: "Er passt wie ein Schlüssel auf einen bestimmten Erreger (ö = OE)"},
+    {w: "BAKTERIEN", r: 6, c: 2, d: "a", q: "Gegen sie wirken Antibiotika"},
+    {w: "ERREGER", r: 3, c: 9, d: "d", q: "Löst eine Infektionskrankheit aus"},
+    {w: "FIEBER", r: 0, c: 1, d: "d", q: "Abwehrreaktion mit erhöhter Körpertemperatur"},
+    {w: "VIREN", r: 4, c: 7, d: "a", q: "Sie lösen Grippe und Masern aus"},
+    {w: "HAUT", r: 3, c: 3, d: "a", q: "Erste Barriere des Körpers"}
+  ],
+  sol: [[0, 5], [1, 2], [8, 8], [0, 1], [3, 5], [8, 1], [7, 9]], solWord: "IMPFUNG"
+}, "cw");
+Modul.makeMC($("#mc-s6"), [
+  {q: "Mia hat sich beim Radeln das Knie aufgeschürft. Was ist am sinnvollsten?", o: ["Die Wunde sauber machen und abdecken, damit weniger Erreger eindringen.", "Die Wunde offen lassen und Erde draufstreuen.", "Sofort ein Antibiotikum nehmen.", "Die Wunde nicht beachten."], a: 0, e: "Die Haut ist eine Barriere. Ist sie verletzt, hilft Sauberkeit. Den Impfpass kann man bei Gelegenheit prüfen; Fragen beantwortet die Kinderärztin oder der Kinderarzt."}
+], "mc6", {t: "Alltag"});
+NT8M.offen($("#open6"), [
+  {q: "Erkläre in eigenen Worten, wie eine Impfung schützt.", m: "Bei einer Impfung lernt der Körper den Erreger kennen, ohne krank zu werden. Beim nächsten Mal ist er vorbereitet und wehrt den Erreger schnell ab.",
+    k: ["lern|kennen|erkenn", "nicht krank|ohne krank|ungefährlich|abgeschwächt|harmlos", "vorbereitet|schnell|abwehr|schütz"], min: 2, satz: "Bei einer Impfung lernt der Körper …"},
+  {q: "Warum helfen Antibiotika nicht bei einer Grippe?", m: "Die Grippe wird von Viren ausgelöst. Antibiotika wirken nur gegen Bakterien, nicht gegen Viren.",
+    k: ["virus|viren", "bakteri", "nur|nicht|wirk"], min: 2, satz: "Antibiotika wirken nur gegen …"},
+  {q: "Beschreibe zwei Maßnahmen, mit denen du dich und andere vor Ansteckung schützen kannst, und sage, warum sie helfen.", m: "Ich kann mir die Hände waschen, damit keine Erreger von den Händen in Mund oder Nase kommen. Ich kann in die Armbeuge niesen, damit die Tröpfchen mit Erregern nicht zu anderen fliegen.",
+    k: ["hände|haende|waschen|hygiene", "armbeuge|niesen|husten|lüften|lueften|abstand|impf", "erreger|tröpfchen|troepfchen|ansteck|übertrag|uebertrag"], min: 2, satz: "Ich kann … Das hilft, weil …"}
+], "open", "Schau in Station 1 und 2 nach: Wie verbreiten sich Erreger, und wie kann man sie aufhalten?");
+NT8M.duell($("#duell6"), {titel: "Infektion", runden: [
+  {b: "Gegen eine Grippe helfen Antibiotika.", stimmt: false, o: ["Antibiotika wirken nur gegen Bakterien.", "Antibiotika wirken nur gegen Pilze.", "Antibiotika wirken gegen alle Krankheiten."], a: 0, e: "Die Grippe wird von Viren ausgelöst."},
+  {b: "Eine Impfung bereitet den Körper auf einen Erreger vor, ohne dass man krank wird.", stimmt: true, e: "Der Körper lernt den Erreger in harmloser Form kennen."},
+  {b: "Fieber hat nie etwas mit der Abwehr zu tun.", stimmt: false, o: ["Fieber ist eine Abwehrreaktion.", "Fieber ist ein Erreger.", "Fieber kommt nur von der Sonne."], a: 0, e: "Bei höherer Temperatur arbeiten Abwehrzellen besser."},
+  {b: "Mit HIV steckt man sich beim Händeschütteln an.", stimmt: false, o: ["Im normalen Alltag wird HIV nicht übertragen.", "HIV ist durch die Luft übertragbar.", "HIV geht nur über Tiere."], a: 0, e: "HIV wird über Blut, ungeschützten Geschlechtsverkehr und von der Mutter auf das Kind übertragen."},
+  {b: "Die Inkubation (Inkubationszeit) liegt zwischen Infektion (Ansteckung) und ersten Symptomen.", stimmt: true, e: "In dieser Zeit vermehren sich die Erreger schon."}
+]}, "duell");
+NT8M.plus(() => {
+  NT8M.offen($("#open6m"), [
+    {q: "Vergleiche aktive und passive Immunisierung: Wie entsteht der Schutz, wie schnell wirkt er und wie lange hält er?",
+      m: "Bei der aktiven Immunisierung bildet der Körper selbst Antikörper und Gedächtniszellen, das dauert etwas, der Schutz hält aber lange. Bei der passiven bekommt man fertige Antikörper, sie wirken sofort, werden aber abgebaut und schützen nur kurz.",
+      k: ["aktiv", "passiv", "sofort|schnell", "lange|kurz|gedächtnis|gedaechtnis"], min: 3, satz: "Bei der aktiven Immunisierung … Bei der passiven …"},
+    {q: "Erkläre mit dem Herdenschutz, warum es auch Menschen nützt, wenn andere geimpft sind – zum Beispiel Babys, die noch nicht geimpft werden können.",
+      m: "Sind viele Menschen geimpft, findet der Erreger kaum Ungeimpfte, an die er weitergegeben werden kann. Die Ansteckungsketten reißen ab. So sind auch Babys besser geschützt.",
+      k: ["viele|meisten|hohe", "ansteck|weitergegeben|übertrag|uebertrag|ausbreit", "schütz|schuetz|geschützt"], min: 3, satz: "Wenn viele Menschen geimpft sind, …"}
+  ], "openm", "Denke an die Herdenschutz-Simulation: Was passiert bei vielen Geimpften?");
+});
+
+/* ---------- Station 7: Profi-Check ---------- */
+Modul.makeQuiz($("#quiz"), [
+  {q: "Wie heißt die Zeit zwischen Infektion (Ansteckung) und ersten Symptomen?", o: ["Inkubation (Inkubationszeit)", "Gesundung (Genesung)", "Fieberzeit", "Immunzeit"], a: 0},
+  {q: "Welcher Übertragungsweg ist eine Schmierinfektion?", o: ["Erreger gelangen von den Händen in Mund oder Nase.", "Erreger fliegen als Tröpfchen durch die Luft.", "Eine Zecke sticht.", "Erreger kommen über die Sonne."], a: 0},
+  {q: "Was schützt gut vor einer Ansteckung über Tröpfchen?", o: ["in die Armbeuge niesen und lüften", "Handschuhe im Sommer tragen", "Süßigkeiten essen", "das Fenster schließen"], a: 0},
+  {q: "Wogegen helfen Antibiotika?", o: ["gegen Bakterien", "gegen Viren", "gegen Grippe", "gegen jede Krankheit"], a: 0},
+  {q: "Wodurch wird die Grippe ausgelöst?", o: ["durch Viren", "durch Bakterien", "durch Pilze", "durch Zecken"], a: 0},
+  {q: "Welcher Erreger löst Borreliose aus?", o: ["Bakterien", "Viren", "Pilze", "Würmer"], a: 0},
+  {q: "Wodurch wird Fußpilz ausgelöst?", o: ["durch einen Pilz", "durch Viren", "durch Bakterien aus Zecken", "durch Kälte"], a: 0},
+  {q: "Was gehört zu den Barrieren des Körpers?", o: ["Haut und Schleimhaut", "Fresszellen", "Antikörper", "Antibiotika"], a: 0},
+  {q: "Was tun Fresszellen?", o: ["Sie umschließen und fressen Erreger.", "Sie erzeugen Hunger.", "Sie bilden den Impfpass.", "Sie töten nur Viren."], a: 0},
+  {q: "Warum steigt bei einer Infektion oft die Körpertemperatur?", o: ["Fieber ist eine Abwehrreaktion.", "Die Haut ist zu dick.", "Die Fresszellen schlafen.", "Der Impfpass ist abgelaufen."], a: 0},
+  {q: "Wie schützt eine Impfung?", o: ["Der Körper lernt den Erreger ungefährlich kennen und ist beim nächsten Mal vorbereitet.", "Sie tötet alle Erreger im Körper.", "Sie ersetzt das Immunsystem.", "Sie wirkt nur gegen Bakterien."], a: 0},
+  {q: "Wo sind alle Impfungen eingetragen?", o: ["im Impfpass", "im Zeugnis", "im Hausaufgabenheft", "im Fieberthermometer"], a: 0},
+  {q: "Wie wird HIV übertragen?", o: ["über Blut, ungeschützten Geschlechtsverkehr und von der Mutter auf das Kind", "durch Händeschütteln", "durch Umarmen", "durch gemeinsames Trinken"], a: 0},
+  {q: "Welche Schutzmaßnahme gibt es gegen HIV?", o: ["Kondome", "Antibiotika", "Lüften", "Fieber messen"], a: 0},
+  {q: "Wogegen gibt es eine Impfung, wenn man von einer Zecke gestochen werden kann?", o: ["gegen FSME", "gegen Borreliose", "gegen Fußpilz", "gegen alle Zeckenkrankheiten"], a: 0}
+], "quiz", "Infektions-Profi");
+
+NT8M.fertig();
+})();
+</script>
+</body>
+</html>

@@ -65,6 +65,15 @@
       }
     },
     {
+      /* NT 8: je Themenbereich eine Probe über seine Module – für 8R und 8M (t.zug), Variante A und Nachschreibprobe B
+         (t.variante). Beginn und Zwischenstand liegen auf dem Server; die KI korrigiert vor, die Lehrkraft prüft und
+         gibt die korrigierte Probe zurück (Lehrerseite 8M/NT/lehrer.html). */
+      key: "nt8", subject: "Natur und Technik", stufen: [8], liste: "NT8",
+      listPath: "/api/nt8/list", unlockPath: "/api/nt8/teacher/unlock",
+      klasse: function (t) { return "8" + (t.zug || ""); }, link: function (t) { return "8M/NT/lehrer.html?test=" + encodeURIComponent(t.id); },
+      schueler: function (t) { return "8M/NT/probe.html?test=" + encodeURIComponent(t.id) + (t.zug ? "&zug=" + t.zug : ""); }
+    },
+    {
       /* Informatik 7: je Modul eine Probe, in einer Fassung für 7R und für 7M (t.zug) */
       key: "inf7", subject: "Informatik", stufen: [7], liste: "INF7",
       listPath: "/api/inf7/list", unlockPath: "/api/inf7/teacher/unlock",

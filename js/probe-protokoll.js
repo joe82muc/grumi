@@ -5,6 +5,7 @@
  *
  *   ProbeProtokoll.html(abgabe)   Block zum Aufklappen (abgabe.protokoll, abgabe.verlassen)
  *   ProbeProtokoll.kurz(abgabe)   eine Zeile: „2 Wechsel (1 Minute 5 Sekunden) · 1 Einfügeversuch“ oder ""
+ *   ProbeProtokoll.uebersicht(abgabe)   Kasten „Probensicherheit“ mit allen Zahlen und den Ereignissen der Reihe nach (NT 8)
  *
  * Welche Seite oder App offen war, kann ein Browser nicht erkennen – das steht nirgends. Nichts davon ändert Punkte
  * oder Note: Was die Vorgänge bedeuten, entscheidet die Lehrkraft. (Deutsch 7 zeigt dasselbe in proben-lehrer.js.)
@@ -33,12 +34,37 @@
   }
   function teile(r) {
     var p = (r && r.protokoll) || {};
-    return { w: p.wechsel || [], e: p.einfuegen || [], k: p.kopieren || [], s: p.spruenge || [] };
+    return { w: p.wechsel || [], e: p.einfuegen || [], k: p.kopieren || [], s: p.spruenge || [], v: p.verbindung || [] };
   }
+  var abbrueche = function (v) { return v.filter(function (x) { return x.art === "weg"; }).length; };
   function kurz(r) {
-    var t = teile(r), gesamt = t.w.reduce(function (n, x) { return n + (x.sekunden || 0); }, 0);
+    var t = teile(r), gesamt = t.w.reduce(function (n, x) { return n + (x.sekunden || 0); }, 0), ab = abbrueche(t.v);
     return [t.w.length ? t.w.length + " Wechsel (" + dauer(gesamt) + ")" : "", t.e.length ? t.e.length + (t.e.length === 1 ? " Einfügeversuch" : " Einfügeversuche") : "",
-      t.k.length ? t.k.length + "× Kopieren" : "", t.s.length ? t.s.length + (t.s.length === 1 ? " großer Textsprung" : " große Textsprünge") : ""].filter(Boolean).join(" · ");
+      t.k.length ? t.k.length + "× Kopieren" : "", t.s.length ? t.s.length + (t.s.length === 1 ? " großer Textsprung" : " große Textsprünge") : "",
+      ab ? ab + (ab === 1 ? " Verbindungsabbruch" : " Verbindungsabbrüche") : ""].filter(Boolean).join(" · ");
+  }
+  /* Übersicht „Probensicherheit“ (NT 8): alle Zahlen auf einen Blick, darunter die Ereignisse der Reihe nach.
+     Bearbeitungszeit und „neu geladen“ kommen von der Sitzung auf dem Server (dauerSek, fortgesetzt). */
+  function uebersicht(r) {
+    stil();
+    var t = teile(r), draussen = t.w.reduce(function (n, x) { return n + (x.sekunden || 0); }, 0), ab = abbrueche(t.v);
+    var zeit = function (sek) { var m = Math.floor(sek / 60), s = sek % 60; return m + ":" + (s < 10 ? "0" : "") + s; };
+    var ereignisse = []
+      .concat(t.w.map(function (x) { return [x.von, "GRUMI verlassen – wieder geöffnet " + uhr(x.bis) + ", Dauer: " + dauer(x.sekunden || 0) + (x.art === "fokus" ? " (Fenster ohne Eingabefokus)" : x.art === "geschlossen" ? " (Seite geschlossen oder neu geladen)" : "")]; }))
+      .concat(t.e.map(function (x) { return [x.zeit, "Einfügeversuch (" + (x.woerter || 0) + " Wörter) – " + (x.erlaubt ? "eingefügt" : "verhindert")]; }))
+      .concat(t.k.map(function (x) { return [x.zeit, (x.art === "cut" ? "Ausschneiden" : "Kopieren") + " versucht – verhindert"]; }))
+      .concat(t.s.map(function (x) { return [x.zeit, "ungewöhnlich große Texteingabe: " + (x.woerter || 0) + " neue Wörter in höchstens " + (x.sekunden || 0) + " Sekunden"]; }))
+      .concat(t.v.map(function (x) { return [x.zeit, x.art === "weg" ? "Verbindung verloren" : "Verbindung wieder da"]; }))
+      .sort(function (a, b) { return String(a[0]).localeCompare(String(b[0])); });
+    var zeile = function (name, wert) { return "<tr><td>" + name + "</td><td><b>" + esc(wert) + "</b></td></tr>"; };
+    return '<div class="pp-box pp-ueber"><b>🔎 PROBENSICHERHEIT</b><table style="border-collapse:collapse;margin:6px 0">' +
+      (r && r.dauerSek != null ? zeile("Bearbeitungszeit:", zeit(r.dauerSek)) : "") +
+      zeile("GRUMI verlassen:", t.w.length + "×") + zeile("Gesamtdauer außerhalb:", dauer(draussen)) +
+      zeile("Einfügeversuche:", t.e.length) + zeile("Kopierversuche:", t.k.length) + zeile("Verbindungsabbrüche:", ab) +
+      zeile("ungewöhnliche Texteingaben:", t.s.length) + (r && r.fortgesetzt ? zeile("Seite neu geladen:", r.fortgesetzt + "×") : "") +
+      (r && r.nachSperre ? zeile("Abgabe:", "nach dem Sperren der Probe") : "") + (r && r.vonLehrkraft ? zeile("Abgabe:", "Zwischenstand von der Lehrkraft übernommen") : "") + "</table>" +
+      (ereignisse.length ? "<details><summary>Details anzeigen</summary><ol>" + ereignisse.map(function (e) { return "<li>" + esc(uhr(e[0])) + " – " + esc(e[1]) + "</li>"; }).join("") + "</ol></details>" : "") +
+      '<p class="pp-quelle">Festgehalten werden nur technische Ereignisse des Browsers – nicht, welche Seite oder App geöffnet war. Nichts davon ändert Punkte oder Note; was die Vorgänge bedeuten, entscheidest du.</p></div>';
   }
   function html(r) {
     stil();
@@ -66,5 +92,5 @@
       '<p class="pp-quelle">Festgehalten werden nur technische Ereignisse des Browsers. Welche Seite oder App geöffnet war, lässt sich nicht erkennen; eingefügter Text wird nicht gespeichert. ' +
       "Nichts davon ändert Punkte oder Note – was die Vorgänge bedeuten, entscheidest du.</p></details>";
   }
-  global.ProbeProtokoll = { html: html, kurz: kurz };
+  global.ProbeProtokoll = { html: html, kurz: kurz, uebersicht: uebersicht };
 })(window);

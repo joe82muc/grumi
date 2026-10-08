@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0d77c2">
+<title>Lernkarten | NT 8</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="nt8.css">
+</head>
+<body class="lk-seite">
+<header class="top nicht-drucken">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html" id="lkMarke">GRUMI<small>NT 8</small></a>
+    <nav class="stations"><a href="index.html" id="lkZurueck"><b>←</b>Zur Übersicht NT 8</a></nav>
+  </div>
+</header>
+<main class="wrap" style="padding-top:22px;padding-bottom:40px">
+  <div class="nicht-drucken">
+    <div class="eyebrow" style="color:var(--sky-d)" id="lkOben">Natur und Technik 8 · Lernkarten</div>
+    <h1 id="lkTitel" style="margin:.15em 0 .3em">Lernkarten</h1>
+    <p class="lead" id="lkText">Frage lesen, Antwort überlegen, umdrehen und ehrlich ankreuzen: gewusst oder noch nicht.</p>
+    <div class="lk-druckleiste" id="lkDruckleiste" hidden>
+      <button class="btn" type="button" id="lkDrucken">🖨 Drucken / als PDF speichern</button>
+      <a class="btn ghost" id="lkBlatt" href="#">📄 Kompaktes Lernblatt</a>
+      <a class="btn ghost" id="lkAusschneiden" href="#">✂ Karten zum Ausschneiden</a>
+      <a class="btn ghost" id="lkTrainer" href="#">🧠 Zurück zum Trainer</a>
+    </div>
+  </div>
+  <div class="card" id="lkTrainerBox"></div>
+  <div id="lkDruck"></div>
+  <div class="card nicht-drucken" id="lkModule" hidden></div>
+</main>
+<script src="themen.js"></script>
+<script src="karten.js"></script>
+<script>
+(function () {
+  "use strict";
+  var P = new URLSearchParams(location.search), K = window.NT8Karten, L = window.NT8;
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]; }); };
+  var zug = K.zug();
+  // R-Kinder kommen von der Übersicht der 8R: Marke und „Zurück“ führen dorthin
+  if (zug === "R") { $("lkMarke").href = "../../8R/NT/index.html"; $("lkZurueck").href = "../../8R/NT/index.html"; }
+
+  // Lernset: ?probe=<Themenbereich> (alle Module der Probe) oder ?modul=<Kennung>[,<Kennung>…]
+  var thema = L.themaVon(P.get("probe") || ""), module, titel, cfg;
+  if (thema) {
+    module = thema.module.filter(function (m) { return m.href && !m.extra; }).map(function (m) { return m.id; });
+    titel = "Lernset Probe " + parseInt(thema.nr, 10) + ": " + thema.titel;
+    cfg = { probe: thema.id };
+  } else {
+    module = String(P.get("modul") || "").split(",").filter(function (id) { return L.modulVon(id); });
+    titel = module.length === 1 ? "Lernkarten: " + L.modulVon(module[0]).modul.titel : "Lernkarten";
+    cfg = { module: module };
+  }
+  $("lkTitel").textContent = titel;
+  document.title = titel + " | NT 8";
+  if (!module.length) { $("lkTrainerBox").innerHTML = '<p class="lk-hinweis">Dieses Lernset gibt es nicht. Geh zurück zur Übersicht und wähle dort ein Modul oder eine Probe.</p>'; return; }
+
+  // Nur Karten von Modulen, die für die Klasse offen sind (Lernsteuerung wie bei den Modulen selbst)
+  function los(offene) {
+    var art = P.get("druck");
+    if (!offene.length) { $("lkTrainerBox").innerHTML = '<p class="lk-hinweis">🔒 Die Module zu diesem Lernset sind für deine Klasse noch nicht freigeschaltet.</p>'; return; }
+    if (art === "blatt" || art === "karten") {
+      document.body.classList.add("lk-druckt");
+      $("lkTrainerBox").hidden = true; $("lkDruckleiste").hidden = false;
+      $("lkText").textContent = art === "karten" ? "Ausschneiden, an der gestrichelten Linie falten und zusammenkleben – oder dich mit einem Partner abfragen." : "Decke die rechte Spalte ab und frag dich selbst ab.";
+      $("lkBlatt").href = K.druckLink(cfg, "blatt"); $("lkAusschneiden").href = K.druckLink(cfg, "karten");
+      $("lkTrainer").href = K.druckLink(cfg, "x").replace(/&druck=x$/, "");
+      $("lkDrucken").addEventListener("click", function () { window.print(); });
+      K.druck($("lkDruck"), { module: offene, art: art, titel: titel, zug: zug });
+      return;
+    }
+    var modus = P.get("modus");
+    var t = K.trainer($("lkTrainerBox"), Object.assign({ titel: titel, zug: zug }, cfg, { module: offene }));
+    if (modus && K.MODI[modus]) K.laden(offene, function () { t.beginne(modus); });
+    if (thema) {
+      // Stand je Modul des Lernsets
+      K.laden(offene, function () {
+        var box = $("lkModule"); box.hidden = false;
+        function zeichnen() {
+          box.innerHTML = "<h3 style=\"margin-top:0\">Karten je Modul</h3>" + offene.map(function (id) {
+            var st = K.status([id], zug);
+            return '<a class="lk-zeile" href="lernkarten.html?modul=' + encodeURIComponent(id) + '"><span>' + esc(L.modulVon(id).modul.titel) + '</span><span class="lk-bar"><span style="width:' + st.pct + '%"></span></span><b>' + st.sicher + " / " + st.gesamt + " sicher</b></a>";
+          }).join("");
+        }
+        zeichnen();
+        document.addEventListener("click", function () { setTimeout(zeichnen, 60); });
+      });
+    }
+  }
+  var a = K.anmeldung();
+  var alle = module.slice();
+  if (L.VORSCHAU || (a && a.lehrer)) { los(alle); return; }
+  if (!a) { los(alle.filter(function (id) { var r = L.modulVon(id); return L.offen(r.modul, r.thema, null); })); return; }
+  // Der Stand kommt erst vom Gerät, dann vom Server: Läuft der Trainer schon, bleibt er, wie er ist
+  var gestartet = false;
+  L.freigabe(a, function (stand) {
+    if (gestartet) return;
+    var offene = alle.filter(function (id) { var r = L.modulVon(id); return L.offen(r.modul, r.thema, stand); });
+    gestartet = offene.length > 0;
+    los(offene);
+  }, function (text) { if (!gestartet && text) $("lkTrainerBox").innerHTML = '<p class="lk-hinweis">' + esc(text) + "</p>"; });
+})();
+</script>
+</body>
+</html>

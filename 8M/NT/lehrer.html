@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="de">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Lehrkraft | Proben NT 8</title>
+<link rel="stylesheet" href="../../7M/NT/style.css"><link rel="stylesheet" href="nt8.css">
+<style>
+  .ab-status{display:inline-block;padding:2px 10px;border-radius:99px;font-size:.78rem;font-weight:800;margin-left:6px}
+  .ab-status.pruefen{background:#fff4dc;color:#7a5200}.ab-status.ok{background:#e3f6ea;color:#135c33}.ab-status.zurueck{background:#e7f3fc;color:#095a93}
+  .k-zeile{border-top:1px solid #e3ebf1;padding:12px 0}.k-zeile:first-child{border-top:0}
+  .k-zeile h4{margin:0 0 4px;font-size:1rem}.k-zeile p{margin:4px 0}
+  .k-quelle{font-size:.78rem;font-weight:800;padding:1px 8px;border-radius:99px;background:#eef2f5;color:#44525d;margin-left:6px}
+  .k-quelle.ki{background:#f3e8ff;color:#6b21a8}.k-quelle.lehrkraft{background:#e3f6ea;color:#135c33}.k-quelle.stichworte{background:#fff4dc;color:#7a5200}
+  .k-form{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center;margin-top:8px;padding:10px;border-radius:12px;background:#f7fbfe}
+  .k-form input[type=number]{width:5em;padding:6px 8px;border:2px solid #b9cbd8;border-radius:10px;font:inherit}
+  .k-form textarea{width:100%;min-height:44px;padding:6px 8px;border:2px solid #b9cbd8;border-radius:10px;font:inherit}
+  .k-form .knoepfe{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px}
+  .k-antwort{white-space:pre-wrap;background:#fff;border:1px solid #d8e2ea;border-radius:10px;padding:8px 10px}
+  .sitz-tab{width:100%;border-collapse:collapse;font-size:.92rem}.sitz-tab th,.sitz-tab td{padding:6px 8px;border-bottom:1px solid #e3ebf1;text-align:left}
+  .gesamt-form{margin-top:12px;padding:12px;border:1.5px solid #bfe0cb;border-radius:14px;background:#f4fbf6}
+  .gesamt-form textarea{width:100%;min-height:60px;padding:8px 10px;border:2px solid #b9cbd8;border-radius:10px;font:inherit}
+  .frei-gruppe{margin:10px 0;padding:10px 12px;border:1px solid #d8e2ea;border-radius:12px;background:#fff}
+  .frei-gruppe h3{margin:0 0 6px;font-size:1rem}
+  .unlock-row .rechts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end}
+  .btn.klein{padding:6px 12px;font-size:.88rem}
+  #vorschau-box{margin:12px 0;padding:14px 16px;border:2px solid #b9cbd8;border-radius:14px;background:#fff}
+  #vorschau-box h3{margin:0 0 2px}.v-kopf{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:flex-start}
+  .v-aufgabe{border-top:1px solid #e3ebf1;padding:12px 0;break-inside:avoid}.v-aufgabe h4{margin:0 0 4px;font-size:1rem}
+  .v-marken{font-size:.8rem;color:#566674;font-weight:700}.v-aufgabe p{margin:4px 0}
+  .v-loesung{margin-top:6px;padding:8px 10px;border-radius:10px;background:#f4fbf6;border:1px solid #bfe0cb}
+  .v-loesung ul,.v-loesung ol{margin:4px 0;padding-left:22px}.v-loesung li.ok{font-weight:700}
+  @media print{body.vorschau-druck .topbar,body.vorschau-druck main > :not(#teacher-content),body.vorschau-druck #teacher-content > :not(#vorschau-box),body.vorschau-druck .v-knoepfe{display:none !important}body.vorschau-druck #vorschau-box{border:0;padding:0}}
+</style></head>
+<body>
+  <header class="topbar"><a class="brand" href="index.html">GRUMI <span>8 / NT</span></a><span class="top-tag">Lehrkraft</span></header>
+  <main class="narrow">
+    <div class="eyebrow">Lehrkraft · Natur und Technik 8</div><h1>Proben: freischalten, prüfen, zurückgeben</h1>
+    <p class="intro">Die KI korrigiert freie Antworten nur vor. Du prüfst jede Abgabe, änderst Punkte und Hinweise, bestätigst das Ergebnis und gibst die korrigierte Probe zurück – erst dann sieht das Kind Punkte, Korrektur und Lernschritte.</p>
+    <form id="login" class="login-row"><label class="field">Lehrkraft-Passwort<input type="password" id="password" required autocomplete="current-password"></label><button class="btn" type="submit">Proben laden</button></form>
+    <p id="teacher-status" class="notice" role="status">Das Passwort bleibt nur während dieser geöffneten Seite im Speicher.</p>
+    <p id="speicher-hinweis" class="notice" data-klasse="notice" hidden></p>
+    <section id="teacher-content" hidden>
+      <h2>Freischaltung</h2><div id="unlock-list"></div>
+      <div id="vorschau-box" hidden></div>
+      <div class="teacher-toolbar"><h2>Laufende Bearbeitungen</h2><div><button class="btn secondary" id="sitz-neu" type="button">Aktualisieren</button></div></div>
+      <div id="sitzungen"></div>
+      <div class="teacher-toolbar"><h2>Abgaben</h2><div><select id="filter-test" aria-label="Probe filtern"><option value="">Alle Proben</option></select> <button class="btn secondary" id="analyse" type="button">Aufgabenanalyse</button> <button class="btn secondary" id="export" type="button">CSV herunterladen</button></div></div>
+      <div id="analyse-box" hidden></div>
+      <div id="results"></div>
+    </section>
+  </main>
+  <script src="themen.js"></script>
+  <script src="labor.js"></script>
+  <script src="darstellung.js"></script>
+  <script src="diagnose.js"></script>
+  <script src="../../js/probe-protokoll.js"></script>
+  <script src="../../js/probe-rueckgabe-lehrer.js"></script>
+  <script src="lehrer.js"></script>
+</body></html>

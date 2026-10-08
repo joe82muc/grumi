@@ -103,8 +103,42 @@
       return `<li class="${pct < 40 ? "wenig" : pct < 70 ? "mittel" : ""}"><span>${esc(m)}</span><span class="balken"><i style="width:${pct}%"></i></span><b>${zahl(x.p)} / ${zahl(x.max)}</b></li>`;
     }).join("") + `</ul><p>Bei wenigen Punkten lohnt es sich, dieses Modul noch einmal durchzuarbeiten.</p></div>`;
   }
-  function blatt(k) {
-    return `<div class="kopfkarte"><div><div class="eyebrow">Korrigierte Probe · ${esc(fach(k.fach))}</div><h1>${esc(k.titel)}</h1>
+  /* ---------- NT 8: Abbildungen, Lernschritte, Zusammenfassung ----------
+     Bild, Messwerttabelle, Diagramm und Versuche einer Aufgabe zeichnet 8M/NT/darstellung.js (mit labor.js) – geladen
+     wird es erst, wenn eine Probe so etwas enthält. Versuche stehen hier als Bild des Endzustands mit Beschreibung. */
+  const nt8Noetig = liste => liste.some(k => (k.aufgaben || []).some(a => a.tabelle || a.diagramm || a.labor || a.zustand || a.image));
+  function nt8Laden() {
+    return new Promise(fertig => {
+      if (window.NT8Darstellung) return fertig();
+      const css = document.createElement("link"); css.rel = "stylesheet"; css.href = "8M/NT/nt8.css"; document.head.appendChild(css);
+      const dateien = ["8M/NT/labor.js", "8M/NT/darstellung.js"];
+      (function naechste(i) { if (i >= dateien.length) return fertig(); const s = document.createElement("script"); s.src = dateien[i]; s.onload = s.onerror = () => naechste(i + 1); document.head.appendChild(s); })(0);
+    });
+  }
+  function nt8Fuellen(liste) {
+    if (!window.NT8Darstellung) return;
+    document.querySelectorAll("#blatt [data-k-labor]").forEach(el => {
+      const [b, nr] = el.dataset.kLabor.split("|"), a = ((liste[b] || {}).aufgaben || []).find(x => String(x.nr) === nr);
+      if (a && !el.firstChild) window.NT8Darstellung.labor(el, a, { statisch: true });
+    });
+  }
+  const darstellung = (a, b) => (window.NT8Darstellung ? window.NT8Darstellung.html(a, "8M/NT/") : "") + (a.labor ? `<div data-k-labor="${b}|${esc(a.nr)}"></div>` : "");
+  // „Dein nächster Lernschritt“: Hinweis aus der Korrektur, sonst das Modul, das die Aufgabe geübt hat
+  const lernschritt = a => (a.tipp ? esc(a.tipp) : a.points < a.max && a.modul ? `Wiederhole im Modul „${esc(a.modul)}“ die passende Station${a.transfer ? " und übe Transferaufgaben in der Probe-Vorbereitung" : ""}.` : "");
+  // Am Ende: Was schon gut klappt und was noch geübt werden sollte (nach den Punkten je Modul; ab 70 % „gut“)
+  function fazit(aufgaben) {
+    const map = {}, reihe = [];
+    aufgaben.forEach(a => { [a.modul, a.transfer ? "Transfer: Wissen auf Neues anwenden" : ""].forEach(n => { if (!n) return; if (!map[n]) { map[n] = { p: 0, max: 0 }; reihe.push(n); } map[n].p += Number(a.points) || 0; map[n].max += Number(a.max) || 0; }); });
+    if (reihe.length < 2) return "";
+    const gut = reihe.filter(n => map[n].max && map[n].p / map[n].max >= .7), ueben = reihe.filter(n => map[n].max && map[n].p / map[n].max < .7);
+    const liste = l => l.length ? "<ul>" + l.map(n => `<li>${esc(n)}</li>`).join("") + "</ul>" : "<p>–</p>";
+    return `<div class="k-fazit" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:14px">
+      <div style="background:#f0fbf4;border:1.5px solid #86d3a4;border-radius:14px;padding:10px 14px"><b>DAS KANNST DU SCHON GUT</b>${liste(gut)}</div>
+      <div style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:14px;padding:10px 14px"><b>DAS SOLLTEST DU NOCH ÜBEN</b>${liste(ueben)}</div></div>`;
+  }
+  function blatt(k, b) {
+    const nt8 = k.modul === "nt8";
+    return `<div class="kopfkarte"><div><div class="eyebrow">Korrigierte Probe · ${esc(fach(k.fach))}${k.variante === "B" ? " · Nachschreibprobe" : ""}</div><h1>${esc(k.titel)}</h1>
         <dl><dt>Klasse</dt><dd>${esc(k.klasse || "")}</dd><dt>Geschrieben am</dt><dd>${datum(k.datum)}</dd>${k.freigegebenAm ? `<dt>Zurückbekommen am</dt><dd>${datum(k.freigegebenAm)}</dd>` : ""}
         ${k.code ? `<dt>Schülerkennung</dt><dd>Code ${esc(k.code)}</dd>` : ""}${k.name ? `<dt>Name</dt><dd>${esc(k.name)}</dd>` : `<dt class="nur-druck">Name</dt><dd class="nur-druck">________________________________</dd>`}</dl></div>
       <div class="ergebnis"><span>Punkte</span><strong>${zahl(k.score)} / ${zahl(k.total)}</strong><span>${esc(k.percent)} %</span>${k.grade !== "" && k.grade != null ? `<span class="note">Note ${esc(k.grade)}</span>` : ""}</div></div>` +
@@ -115,17 +149,20 @@
         const korrektur = (a.comment ? `<p>${esc(a.comment)}</p>` : "") + (a.loesung ? `<p>${a.beispiel ? "Beispiel für eine richtige Antwort: " : "Richtig ist: "}${esc(a.loesung)}</p>` : "") ||
           (a.points >= a.max ? "<p>Richtig.</p>" : "");
         return `<section class="k-aufgabe"><div class="k-kopf"><b>Aufgabe ${esc(a.nr)}${herkunft(a)}</b>${punkte}</div>` +
-          teil("Aufgabe", a.prompt ? `<p>${esc(a.prompt)}</p>` : "") +
+          teil("Aufgabe", (a.prompt ? `<p>${esc(a.prompt)}</p>` : "") + (nt8 ? darstellung(a, b || 0) : "")) +
           teil("Deine Antwort", `<div class="k-antwort${a.given ? "" : " leer"}">${a.given ? esc(a.given) : "Keine Antwort."}</div>`) +
-          teil("Korrektur", korrektur) + "</section>";
+          teil("Korrektur", korrektur) + (nt8 ? teil("Dein nächster Lernschritt", lernschritt(a) ? `<p>${lernschritt(a)}</p>` : "") : "") + "</section>";
       }).join("") : `<p class="notice">Für diese Probe gibt es keine Einzelauflistung der Antworten.</p>`) + "</div>" +
+      (nt8 ? fazit(k.aufgaben) : "") +
       `<p class="k-fuss" style="margin-top:12px;font-size:.85rem;color:var(--muted)">Die Probe wurde am Tablet geschrieben. Freie Antworten wurden mit KI-Unterstützung bewertet, maßgeblich ist die Bewertung der Lehrkraft.</p>` +
       `<div class="unterschrift"><div>Datum, Unterschrift einer/eines Erziehungsberechtigten</div><div>Das nehme ich mir für das nächste Mal vor:</div></div>`;
   }
   async function zeigen() {
     const k = (await post("ansehen", { code, modul: MODUL, id: ID })).korrektur;
     $("anmelden").hidden = true; $("liste").hidden = true;
-    $("blatt").innerHTML = blatt(k);
+    if (nt8Noetig([k])) await nt8Laden();
+    $("blatt").innerHTML = blatt(k, 0);
+    nt8Fuellen([k]);
     $("korrektur").hidden = false;
     document.title = "Korrigierte Probe: " + k.titel + " | GRUMI";
     status("");
@@ -150,7 +187,9 @@
   if (location.hash === "#druck") { try { druck = window.opener && window.opener.GrumiDruck; } catch (_e) {} }
   if (Array.isArray(druck) && druck.length) {
     $("anmelden").hidden = true; $("liste").hidden = true;
-    $("blatt").innerHTML = druck.map(blatt).join('<div style="break-after:page;page-break-after:always;height:0"></div><hr class="kein-druck" style="margin:28px 0;border:0;border-top:2px dashed #d9c9cc">');
+    const zeichneDruck = () => { $("blatt").innerHTML = druck.map(blatt).join('<div style="break-after:page;page-break-after:always;height:0"></div><hr class="kein-druck" style="margin:28px 0;border:0;border-top:2px dashed #d9c9cc">'); nt8Fuellen(druck); };
+    zeichneDruck();
+    if (nt8Noetig(druck)) nt8Laden().then(zeichneDruck);
     document.querySelectorAll(".druck-leiste a").forEach(a => { a.style.display = "none"; });   // Wege für Kinder
     $("drucken").textContent = druck.length === 1 ? "🖨 Elternansicht drucken" : "🖨 Alle " + druck.length + " Blätter drucken";
     $("korrektur").hidden = false;

@@ -1,0 +1,882 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2b5d6e">
+<title>Chemische Reaktionen erkennen | NT 8</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="nt8.css">
+<style>
+.hero{background:linear-gradient(160deg,#1c2f4f,#2b6e7e 55%,#e0a030)}
+.vergleich{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.vergleich figure{margin:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#f7fbfe}
+.vergleich figcaption{padding:6px 10px;font-size:.9rem;font-weight:700;background:#fff;border-top:1px solid var(--line)}
+.vergleich svg{display:block;width:100%;height:auto}
+@media (max-width:560px){.vergleich{gap:8px}.vergleich figcaption{font-size:.82rem;padding:5px 7px}}
+/* Reaktions-Detektiv */
+#detSvg .dsz{display:none}
+#detSvg[data-sz="gas"] #dg,#detSvg[data-sz="waerme"] #dw,#detSvg[data-sz="farbe"] #df,#detSvg[data-sz="nd"] #dn{display:block}
+#detSvg.reset *{transition:none !important;animation:none !important}
+.blase{opacity:0}
+#detSvg.lauf-gas .blase{animation:steig 1.5s linear infinite}
+@keyframes steig{0%{transform:translateY(0);opacity:0}15%{opacity:.95}100%{transform:translateY(-95px);opacity:0}}
+#dgTab{transition:transform 2.4s ease-in}
+#detSvg.lauf-gas #dgTab{transform:translateY(100px) scale(.5);transform-origin:260px 122px}
+#dgText{opacity:0;transition:opacity .6s .6s}
+#detSvg.lauf-gas #dgText{opacity:1}
+#dwQ{transform:scaleY(.2);transform-origin:0 240px;transition:transform 3s ease-out}
+#detSvg.lauf-waerme #dwQ{transform:scaleY(.62)}
+#dwWellen{opacity:0;transition:opacity 1.5s .5s}
+#detSvg.lauf-waerme #dwWellen{opacity:1}
+#dfFleisch{fill:#f7ecb0;transition:fill 4s}
+#dfSw{fill:#f7ecb0;transition:fill 4s}
+#detSvg.lauf-farbe #dfFleisch,#detSvg.lauf-farbe #dfSw{fill:#a8743a}
+#dnStrahl{opacity:0}
+#detSvg.lauf-nd #dnStrahl{animation:strahl 1.8s forwards}
+@keyframes strahl{0%{opacity:0}10%{opacity:1}75%{opacity:1}100%{opacity:0}}
+#dnMilch{opacity:0;transition:opacity 3s .9s}
+#detSvg.lauf-nd #dnMilch{opacity:.9}
+.flocke{opacity:0}
+#detSvg.lauf-nd .flocke{animation:fall 2.2s 1.2s ease-in forwards}
+@keyframes fall{0%{opacity:0;transform:translateY(0)}20%{opacity:1}100%{opacity:1;transform:translateY(58px)}}
+#dnBoden{opacity:0;transition:opacity 1s 3.2s}
+#detSvg.lauf-nd #dnBoden{opacity:1}
+#dnText{opacity:0;transition:opacity .8s 3.6s}
+#detSvg.lauf-nd #dnText{opacity:1}
+.heft{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:4px}
+.heft li{border:1px dashed var(--line);border-radius:8px;padding:5px 10px;font-size:.92rem;color:#8896a3;background:#fff}
+.heft li.da{border-style:solid;color:#15212b;background:#f2faf5;border-color:#7cc59a}
+/* Kugel-Baukasten */
+.kb{border:1px solid var(--line);border-radius:14px;padding:12px;background:#f7fbfe;margin-top:10px}
+.kb h4{margin:10px 0 6px;font-size:.95rem;color:#566674}
+.kb-zeile{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.kb-fig{text-align:center;font-size:.85rem;font-weight:700;color:#566674}
+.kb-fig svg{display:block;margin:0 auto}
+.kb-pool{display:flex;flex-wrap:wrap;gap:8px;min-height:56px;align-items:center}
+.kb-atom,.kb-slot{border-radius:50%;font-weight:800;cursor:pointer;padding:0;font-family:inherit}
+.kb-atom{width:48px;height:48px;font-size:1.05rem;border:2px solid #4a5a67}
+.kb-atom.H,.kb-slot.f-H{background:#fff;color:#15212b}
+.kb-atom.O,.kb-slot.f-O{background:#e0453a;color:#fff;border-color:#8a2118}
+.kb-atom.O{width:54px;height:54px}
+.kb-atom.sel{outline:4px solid #2f6fdb;outline-offset:2px}
+.kb-mol{position:relative}
+.kb-slot{position:absolute;border:2px dashed #9aa9b5;background:transparent;color:transparent;font-size:1.05rem}
+.kb-slot.s-H{width:44px;height:44px}
+.kb-slot.s-O{width:52px;height:52px}
+.kb-slot.f-H,.kb-slot.f-O{border-style:solid;border-color:#4a5a67;color:inherit}
+.kb-slot.f-O{border-color:#8a2118}
+.kb-slot.f-H{color:#15212b}.kb-slot.f-O{color:#fff}
+.kb-slot.zu{opacity:.5}
+.kb-zaehler{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:12px;padding:8px 12px;border-radius:10px;background:#fff;border:1px solid var(--line);font-size:.97rem}
+.kb-zaehler.gleich{background:#f2faf5;border-color:#7cc59a}
+.kb-hint{margin:0;color:#8896a3;font-size:.9rem}
+.mehr-wissen-box svg{max-width:100%;height:auto}
+@media (max-width:560px){.kb{padding:10px 8px}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>NT 8</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Was passiert?</a>
+      <a href="#s2"><b>2</b>Detektiv</a>
+      <a href="#s3"><b>3</b>Chemisch?</a>
+      <a href="#s4"><b>4</b>Synthese, Analyse</a>
+      <a href="#s5"><b>5</b>Kugelmodell</a>
+      <a href="#s6"><b>6</b>Training</a>
+      <a href="#s7"><b>7</b>Profi-Check</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">🔬 Übersicht NT 8</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse 8 · Atome, Ionen und chemische Reaktionen · Lernmodul 3</div>
+    <h1>Chemische Reaktionen erkennen</h1>
+    <p>Ein Apfel wird braun, ein Nagel rostet, eine Brausetablette sprudelt. Bei manchen Vorgängen entsteht etwas ganz Neues. Du wirst zum Detektiv und erkennst, wann – und wie man es mit Kugeln erklärt.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s5">Direkt zum Kugelmodell</a>
+    </div>
+    <div class="goals">
+      <div>🔎 Ich erkenne chemische Reaktionen an ihren Anzeichen.</div>
+      <div>⚖️ Ich unterscheide Stoffumwandlung und physikalischen Vorgang.</div>
+      <div>🔁 Ich erkläre Synthese und Analyse mit einer Wortgleichung.</div>
+      <div>⚪ Ich zeige mit Kugeln, dass die Atome nur neu angeordnet werden.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg</div><h2>Was ist hier passiert?</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Vier Beobachtungen aus dem Alltag. Bei manchen verändert sich ein Stoff nur äußerlich. Bei anderen wird aus Stoffen etwas ganz Neues.</p>
+      <p><strong>Vermute:</strong> Sieh dir die Bilder genau an. Bei welchen entsteht ein <em>neuer Stoff</em> mit anderen Eigenschaften?</p>
+      <div id="mc-s1"></div>
+    </div>
+    <div class="vergleich reveal">
+      <figure>
+        <svg viewBox="0 0 200 130" role="img" aria-label="Ein rostiger Nagel mit rotbraunen Flecken"><rect width="200" height="130" fill="#eef6fb"/>
+          <g transform="rotate(-22 100 62)"><rect x="40" y="56" width="124" height="9" rx="3" fill="#a9552a"/><ellipse cx="38" cy="60.5" rx="8" ry="13" fill="#8c3f1d"/><path d="M164 56 L190 60.5 L164 65Z" fill="#a9552a"/><circle cx="72" cy="60" r="5" fill="#d9822b"/><circle cx="112" cy="62" r="6" fill="#c8742c"/><circle cx="142" cy="59" r="4" fill="#d9822b"/><circle cx="92" cy="58" r="3" fill="#e09a43"/></g>
+          <path d="M150 100 q4 -8 8 0 q-4 6 -8 0Z M60 104 q3 -7 6 0 q-3 5 -6 0Z" fill="#7fb6d6"/></svg>
+        <figcaption>Nagel nach Wochen im Regen</figcaption>
+      </figure>
+      <figure>
+        <svg viewBox="0 0 200 130" role="img" aria-label="Ein Glas Wasser, in dem eine Brausetablette sprudelt"><rect width="200" height="130" fill="#eef6fb"/>
+          <path d="M62 14 V102 Q62 116 76 116 H124 Q138 116 138 102 V14" fill="#fff" stroke="#4a5a67" stroke-width="3"/>
+          <path d="M65 44 H135 V102 Q135 113 124 113 H76 Q65 113 65 102Z" fill="#bfe3f5"/>
+          <ellipse cx="100" cy="94" rx="20" ry="7" fill="#fff" stroke="#9aa9b5" stroke-width="2"/>
+          <g fill="#fff" stroke="#6fa8c7" stroke-width="1.5"><circle cx="86" cy="80" r="4"/><circle cx="104" cy="70" r="5"/><circle cx="118" cy="82" r="3.5"/><circle cx="95" cy="58" r="3"/><circle cx="112" cy="52" r="4"/><circle cx="82" cy="62" r="2.5"/></g></svg>
+        <figcaption>Brausetablette im Wasser</figcaption>
+      </figure>
+      <figure>
+        <svg viewBox="0 0 200 130" role="img" aria-label="Eine angeschnittene Apfelhälfte, deren Fruchtfleisch braun geworden ist"><rect width="200" height="130" fill="#eef6fb"/>
+          <ellipse cx="100" cy="68" rx="52" ry="48" fill="#c0392b"/><ellipse cx="100" cy="68" rx="45" ry="41" fill="#b8854a"/><ellipse cx="100" cy="68" rx="30" ry="26" fill="#a8743a" opacity=".6"/>
+          <path d="M100 66 q-8 -6 0 -12 q8 6 0 12Z M100 82 q-7 -6 0 -12 q7 6 0 12Z" fill="#4a2f12"/><path d="M100 22 q4 -14 14 -16" fill="none" stroke="#5b3a14" stroke-width="3"/></svg>
+        <figcaption>Apfel, eine Stunde angeschnitten</figcaption>
+      </figure>
+      <figure>
+        <svg viewBox="0 0 200 130" role="img" aria-label="Ein Eiswürfel schmilzt und bildet eine kleine Pfütze"><rect width="200" height="130" fill="#eef6fb"/>
+          <ellipse cx="100" cy="104" rx="62" ry="11" fill="#aedcf2"/><rect x="72" y="34" width="56" height="56" rx="9" fill="#d7eefa" stroke="#7fb6d6" stroke-width="3"/><path d="M80 44 L92 44 M80 52 L80 62" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+          <path d="M138 70 q7 12 0 17 q-7 -5 0 -17Z" fill="#7fb6d6"/></svg>
+        <figcaption>Eiswürfel in der Sonne</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Ausprobieren</div><h2>Der Reaktions-Detektiv</h2></div></div>
+  <div class="grid2">
+    <div class="sim reveal" id="detSim">
+      <span class="versuch-art" id="detArt">SCHÜLERVERSUCH · mit der Lehrkraft</span>
+      <svg id="detSvg" data-sz="gas" viewBox="0 0 520 300" role="img" aria-label="Vier Versuche: Brausetablette im Wasser, Taschenwärmer mit Thermometer, Apfelstück, zwei klare Lösungen werden trüb">
+        <rect width="520" height="300" fill="#f7fbfe"/>
+        <g id="dg" class="dsz">
+          <path d="M195 60 V240 Q195 262 217 262 H303 Q325 262 325 240 V60" fill="#fff" stroke="#4a5a67" stroke-width="3"/>
+          <path d="M198 130 H322 V240 Q322 259 303 259 H217 Q198 259 198 240Z" fill="#bfe3f5"/>
+          <ellipse id="dgTab" cx="260" cy="122" rx="26" ry="9" fill="#fff" stroke="#9aa9b5" stroke-width="2"/>
+          <g fill="#fff" stroke="#6fa8c7" stroke-width="1.5">
+            <circle class="blase" cx="225" cy="240" r="5" style="animation-delay:0s"/><circle class="blase" cx="250" cy="245" r="4" style="animation-delay:.25s"/><circle class="blase" cx="272" cy="238" r="6" style="animation-delay:.6s"/><circle class="blase" cx="295" cy="244" r="4" style="animation-delay:.9s"/>
+            <circle class="blase" cx="238" cy="236" r="4" style="animation-delay:1.1s"/><circle class="blase" cx="284" cy="240" r="5" style="animation-delay:.4s"/><circle class="blase" cx="262" cy="242" r="3.5" style="animation-delay:1.3s"/><circle class="blase" cx="308" cy="238" r="4" style="animation-delay:.75s"/>
+          </g>
+          <text x="260" y="40" text-anchor="middle" font-size="14" font-weight="800" fill="#566674">Brausetablette in Wasser</text>
+          <g id="dgText"><text x="420" y="150" text-anchor="middle" font-size="14" font-weight="800" fill="#1b8a4b">Es sprudelt:</text>
+          <text x="420" y="170" text-anchor="middle" font-size="14" font-weight="800" fill="#1b8a4b">ein Gas entsteht</text></g>
+        </g>
+        <g id="dw" class="dsz">
+          <rect x="70" y="100" width="170" height="110" rx="16" fill="#dfe6ec" stroke="#4a5a67" stroke-width="3"/>
+          <text x="155" y="150" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Taschenwärmer</text>
+          <text x="155" y="172" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">Eisenpulver + Luft</text>
+          <g id="dwWellen" fill="none" stroke="#e0453a" stroke-width="3" stroke-linecap="round"><path d="M110 80 q-8 -10 0 -20 q8 -10 0 -20"/><path d="M155 80 q-8 -10 0 -20 q8 -10 0 -20"/><path d="M200 80 q-8 -10 0 -20 q8 -10 0 -20"/></g>
+          <rect x="350" y="50" width="22" height="180" rx="11" fill="#fff" stroke="#4a5a67" stroke-width="3"/>
+          <rect id="dwQ" x="355" y="60" width="12" height="180" rx="5" fill="#e0453a"/>
+          <circle cx="361" cy="246" r="20" fill="#e0453a" stroke="#4a5a67" stroke-width="3"/>
+          <text id="dwTemp" x="361" y="34" text-anchor="middle" font-size="16" font-weight="800" fill="#c0392b">20 °C</text>
+          <text x="420" y="150" font-size="13" font-weight="700" fill="#566674">Thermometer</text>
+        </g>
+        <g id="df" class="dsz">
+          <ellipse cx="170" cy="150" rx="100" ry="80" fill="#c0392b"/>
+          <ellipse id="dfFleisch" cx="170" cy="150" rx="90" ry="70"/>
+          <ellipse cx="170" cy="150" rx="40" ry="30" fill="#e8d98a" opacity=".55"/>
+          <path d="M170 148 q-9 -7 0 -14 q9 7 0 14Z M170 168 q-8 -7 0 -14 q8 7 0 14Z" fill="#4a2f12"/>
+          <text x="170" y="256" text-anchor="middle" font-size="14" font-weight="800" fill="#566674">Apfelstück an der Luft</text>
+          <rect x="350" y="90" width="90" height="46" rx="8" fill="#f7ecb0" stroke="#4a5a67" stroke-width="2"/><text x="395" y="156" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">frisch</text>
+          <rect x="350" y="176" width="90" height="46" rx="8" id="dfSw" stroke="#4a5a67" stroke-width="2"/><text id="dfZeit" x="395" y="242" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">frisch</text>
+        </g>
+        <g id="dn" class="dsz">
+          <path d="M70 40 V96 H130 V40" fill="#e9f4fb" stroke="#4a5a67" stroke-width="3"/><rect x="73" y="56" width="54" height="38" fill="#cfeaf7" opacity=".7"/>
+          <path d="M150 40 V96 H210 V40" fill="#e9f4fb" stroke="#4a5a67" stroke-width="3"/><rect x="153" y="56" width="54" height="38" fill="#cfeaf7" opacity=".7"/>
+          <text x="100" y="30" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">Lösung 1</text><text x="180" y="30" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">Lösung 2</text>
+          <g id="dnStrahl" stroke="#9ad0ee" stroke-width="5" stroke-linecap="round"><path d="M120 100 L255 170"/><path d="M160 100 L270 170"/></g>
+          <path d="M230 150 V250 Q230 270 250 270 H400 Q420 270 420 250 V150" fill="#fff" stroke="#4a5a67" stroke-width="3"/>
+          <path d="M233 185 H417 V250 Q417 267 400 267 H250 Q233 267 233 250Z" fill="#cfeaf7" opacity=".75"/>
+          <path id="dnMilch" d="M233 185 H417 V250 Q417 267 400 267 H250 Q233 267 233 250Z" fill="#f3f3ee"/>
+          <g fill="#fff" stroke="#b9c3cb" stroke-width="1.5"><circle class="flocke" cx="270" cy="192" r="4"/><circle class="flocke" cx="300" cy="196" r="3.5"/><circle class="flocke" cx="330" cy="190" r="4.5"/><circle class="flocke" cx="360" cy="196" r="3.5"/><circle class="flocke" cx="390" cy="192" r="4"/><circle class="flocke" cx="285" cy="202" r="3"/><circle class="flocke" cx="345" cy="204" r="3"/><circle class="flocke" cx="375" cy="204" r="3.5"/></g>
+          <rect id="dnBoden" x="240" y="251" width="170" height="14" rx="6" fill="#fff" stroke="#b9c3cb" stroke-width="2"/>
+          <text x="325" y="142" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">Becherglas</text>
+          <g id="dnText"><text x="468" y="205" text-anchor="middle" font-size="13" font-weight="800" fill="#1b8a4b">weiße</text><text x="468" y="223" text-anchor="middle" font-size="13" font-weight="800" fill="#1b8a4b">Flocken</text></g>
+        </g>
+      </svg>
+      <div class="wahl" style="margin:8px 0 0"><button type="button" data-det="gas" class="sel">💨 Gas</button><button type="button" data-det="waerme">🔥 Wärme</button><button type="button" data-det="farbe">🎨 Farbe</button><button type="button" data-det="nd">🌫️ Niederschlag</button></div>
+      <div class="sim-ctrl"><button type="button" id="detGo">▶ Versuch starten</button></div>
+      <p class="obs" id="detObs">Wähle einen Versuch und starte ihn. Beobachte genau.</p>
+      <ul class="heft" id="detHeft" aria-label="Dein Beobachtungsheft">
+        <li data-h="gas">Gas: noch nicht beobachtet</li><li data-h="waerme">Wärme: noch nicht beobachtet</li><li data-h="farbe">Farbe: noch nicht beobachtet</li><li data-h="nd">Niederschlag: noch nicht beobachtet</li>
+      </ul>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Chemikerinnen und Chemiker sind Detektive. Sie suchen Spuren, die verraten: Hier hat sich ein neuer Stoff gebildet.</p>
+      <p>Starte alle vier Versuche und fülle dein Beobachtungsheft. Du siehst Gasbläschen, Wärme, eine neue Farbe und einen <button class="term" data-t="niederschlag">Niederschlag</button>.</p>
+      <div class="sicherheit"><h4>⚠️ Sicher experimentieren</h4><ul><li><strong>Schülerversuche in der Klasse:</strong> Brausetablette in Wasser, Backpulver mit Essig, Eisenwolle im feuchten Glas, Apfelstück. Immer mit Schutzbrille, nichts probieren.</li><li><strong>Lehrerversuch:</strong> Die zwei klaren Lösungen mischt nur die Lehrkraft.</li></ul></div>
+      <div id="forscher2" style="margin-top:14px"></div>
+      <div class="merke" id="merke2"><h4>MERKE</h4><ul><li>Anzeichen einer chemischen Reaktion sind: <strong>Gasentwicklung, Wärmeentwicklung, Farbänderung</strong> und <strong>Niederschlag</strong>.</li><li>Sie sind nur <strong>Hinweise</strong>. Sicher ist die Reaktion erst, wenn ein <strong>neuer Stoff</strong> mit neuen Eigenschaften entstanden ist.</li></ul></div>
+    </div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag leicht">Kurz-Check · leicht</span>
+    <div id="mc-s2"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Verstehen</div><h2>Chemische Reaktion oder physikalischer Vorgang?</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Eis schmilzt. Ein Nagel rostet. Beides verändert etwas – aber nicht auf dieselbe Weise.</p>
+      <p>Beim Rosten entsteht aus Eisen und Sauerstoff aus der Luft ein neuer Stoff mit anderen Eigenschaften: <strong>Rost</strong>. Man nennt das <button class="term" data-t="stoffumwandlung">Stoffumwandlung</button>. Die Stoffe vorher heißen <button class="term" data-t="ausgangsstoff">Ausgangsstoffe</button>, die neuen <button class="term" data-t="produkt">Produkte</button>.</p>
+      <p>Beim Schmelzen bleibt der Stoff derselbe: Eis und Wasser sind beides Wasser. Das ist ein <button class="term" data-t="physikalisch">physikalischer Vorgang</button>.</p>
+    </div>
+    <div class="card reveal">
+      <svg viewBox="0 0 520 250" role="img" aria-label="Oben: Eisen und Sauerstoff reagieren zu Rost, ein neuer Stoff. Unten: Eis wird zu Wasser, derselbe Stoff in anderem Zustand" style="width:100%;height:auto">
+        <rect width="520" height="250" fill="#f7fbfe" rx="10"/>
+        <text x="260" y="26" text-anchor="middle" font-size="14" font-weight="800" fill="#c0392b">Chemische Reaktion: neuer Stoff</text>
+        <rect x="20" y="42" width="100" height="50" rx="8" fill="#9aa9b5" stroke="#4a5a67" stroke-width="2"/><text x="70" y="72" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Eisen</text>
+        <text x="138" y="73" text-anchor="middle" font-size="20" font-weight="800" fill="#15212b">+</text>
+        <rect x="156" y="42" width="110" height="50" rx="8" fill="#d7eefa" stroke="#4a5a67" stroke-width="2"/><text x="211" y="72" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Sauerstoff</text>
+        <path d="M284 67 H350 m-10 -8 l10 8 l-10 8" fill="none" stroke="#15212b" stroke-width="3"/>
+        <rect x="364" y="42" width="130" height="50" rx="8" fill="#b9542a" stroke="#6a2c12" stroke-width="2"/><text x="429" y="72" text-anchor="middle" font-size="15" font-weight="800" fill="#fff">Rost</text>
+        <text x="260" y="112" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">Rost ist rotbraun und bröckelig – ganz andere Eigenschaften als Eisen</text>
+        <line x1="20" y1="132" x2="500" y2="132" stroke="#c9d6df" stroke-width="2" stroke-dasharray="6 5"/>
+        <text x="260" y="156" text-anchor="middle" font-size="14" font-weight="800" fill="#1d6f9c">Physikalischer Vorgang: derselbe Stoff</text>
+        <rect x="70" y="172" width="120" height="50" rx="8" fill="#d7eefa" stroke="#4a5a67" stroke-width="2"/><text x="130" y="195" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Wasser</text><text x="130" y="212" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">fest (Eis)</text>
+        <path d="M212 197 H300 m-10 -8 l10 8 l-10 8" fill="none" stroke="#15212b" stroke-width="3"/>
+        <rect x="322" y="172" width="120" height="50" rx="8" fill="#bfe3f5" stroke="#4a5a67" stroke-width="2"/><text x="382" y="195" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Wasser</text><text x="382" y="212" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">flüssig</text>
+        <text x="260" y="242" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">Nur der Zustand ändert sich</text>
+      </svg>
+    </div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag mittel">Zuordnen · mittel</span>
+    <h3 style="margin-top:4px">Sortiere die Beispiele</h3>
+    <p class="hint">Bleibt der Stoff derselbe – oder entsteht ein neuer?</p>
+    <div id="sort3"></div>
+    <div class="merke" style="margin-top:14px"><h4>MERKE</h4><ul><li><strong>Chemische Reaktion:</strong> Stoffumwandlung – es entstehen neue Stoffe mit neuen Eigenschaften.</li><li><strong>Physikalischer Vorgang:</strong> Der Stoff bleibt derselbe (Schmelzen, Verdampfen, Lösen, Zerkleinern).</li></ul></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag mittel">Kurz-Check · mittel</span>
+    <div id="mc-s3"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Verstehen</div><h2>Synthese und Analyse</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Aus zwei Stoffen wird einer – oder ein Stoff wird zerlegt. Beides zeigt Wasser besonders gut.</p>
+    <p>Eine <button class="term" data-t="synthese">Synthese</button> baut einen Stoff auf, eine <button class="term" data-t="analyse">Analyse</button> zerlegt ihn. Beides schreibt man als <button class="term" data-t="wortgleichung">Wortgleichung</button> mit Pfeil.</p>
+    <div class="sicherheit"><h4>⚠️ Nur die Lehrkraft – nicht nachmachen!</h4><ul><li>Beide Versuche sind <strong>Lehrerversuche</strong>: Wasserstoff und Sauerstoff können heftig explodieren.</li><li>Die Lehrkraft arbeitet mit Schutzscheibe, Schutzbrille und Gehörschutz. Du siehst sie hier als Animation.</li></ul></div>
+  </div>
+  <div class="grid2">
+    <div class="sim reveal" id="synSim">
+      <span class="versuch-art lehrer">LEHRERVERSUCH · nur die Lehrkraft · nicht nachmachen</span>
+      <svg viewBox="0 0 520 290" role="img" aria-label="Animation: Knallgasreaktion. Wasserstoff und Sauerstoff reagieren zu Wasser, mit Kugelmodell" id="synSvg"></svg>
+    </div>
+    <div class="card reveal">
+      <h3 style="margin-top:0">Synthese: Knallgasreaktion</h3>
+      <p>Sieh dir die Animation Schritt für Schritt an. Achte auf die Kugeln im Kasten: Welche Atome sind vorher da, welche nachher?</p>
+      <span class="task-tag leicht">Beobachte die Atome</span>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card reveal">
+      <h3 style="margin-top:0">Analyse: Wasser wird zerlegt</h3>
+      <p>Jetzt läuft es rückwärts. Mit elektrischem Strom zerlegt die Lehrkraft Wasser in seine Bausteine. Auch hier gilt: Zähle die Kugeln.</p>
+      <span class="task-tag leicht">Beobachte die Gase</span>
+    </div>
+    <div class="sim reveal" id="anaSim">
+      <span class="versuch-art lehrer">LEHRERVERSUCH · nur die Lehrkraft · nicht nachmachen</span>
+      <svg viewBox="0 0 520 330" role="img" aria-label="Animation: Zersetzung von Wasser mit elektrischem Strom in Wasserstoff und Sauerstoff, mit Kugelmodell" id="anaSvg"></svg>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card reveal">
+      <span class="task-tag mittel">Wortgleichungen · mittel</span>
+      <h3 style="margin-top:4px">Lege die Gleichungen</h3>
+      <p class="hint">Tippe ein Wort an, dann eine Lücke. Der Pfeil bedeutet „reagiert zu“.</p>
+      <div class="gaptext" id="gap4"></div>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag mittel">Zuordnen · mittel</span>
+      <h3 style="margin-top:4px">Synthese oder Analyse?</h3>
+      <div id="sort4"></div>
+    </div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag leicht">Kurz-Check · leicht</span>
+    <div id="mc-s4"></div>
+    <div class="merke" style="margin-top:14px"><h4>MERKE</h4><ul><li><strong>Synthese:</strong> Aus zwei Stoffen entsteht ein neuer Stoff. Wasserstoff + Sauerstoff → Wasser.</li><li><strong>Analyse:</strong> Ein Stoff wird zerlegt. Wasser → Wasserstoff + Sauerstoff.</li><li>In der Wortgleichung stehen links die Ausgangsstoffe, rechts die Produkte, der Pfeil heißt „reagiert zu“.</li></ul></div>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Modell</div><h2>Das Kugelmodell</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Was passiert bei Synthese und Analyse im Inneren? Die Antwort liefert ein Modell: das <button class="term" data-t="kugelmodell">Kugelmodell</button> von John Dalton.</p>
+    <p>Man stellt sich jeden Stoff aus kleinsten Teilchen vor, die aus <button class="term" data-t="atom">Atomen</button> bestehen, gezeichnet als Kugeln. Wasserstoff (H, weiß) und Sauerstoff (O, rot) treten als Zweier-Teilchen auf: H₂ und O₂.</p>
+    <p><strong>Baue selbst:</strong> Wähle eine Reaktion, trenne die Teilchen und ordne die Atome neu an. Zähle dabei mit!</p>
+    <div class="kb" id="kbBox">
+      <div class="wahl" style="margin:0"><button type="button" data-kreak="syn" class="sel">Synthese: Wasser bilden</button><button type="button" data-kreak="ana">Analyse: Wasser zerlegen</button></div>
+      <h4>Vorher: Ausgangsstoffe</h4>
+      <div class="kb-zeile" id="kbVor"></div>
+      <div class="sim-ctrl" style="margin-top:10px"><button type="button" class="btn" id="kbLoesen">✂️ Teilchen trennen: Atome frei machen</button><button type="button" class="btn ghost" id="kbNeu">↺ Neu beginnen</button></div>
+      <h4>Freie Atome (tippe eins an)</h4>
+      <div class="kb-pool" id="kbPool"></div>
+      <h4>Nachher: Produkte (tippe auf einen freien Platz)</h4>
+      <div class="kb-zeile" id="kbNach"></div>
+      <div class="kb-zaehler" id="kbZ" aria-live="polite"></div>
+      <p class="obs" id="kbObs">Trenne zuerst die Teilchen, dann setze die Atome ein.</p>
+    </div>
+    <div id="forscher5" style="margin-top:14px"></div>
+    <div class="merke" id="merke5"><h4>MERKE</h4><ul><li>Stoffe bestehen aus <strong>Atomen</strong>, die man sich als Kugeln vorstellt. Atome derselben Sorte sind gleich.</li><li>Bei einer chemischen Reaktion werden die Atome nur <strong>neu angeordnet</strong>: Kein Atom geht verloren, keines kommt dazu.</li><li>Darum gibt es <strong>vorher und nachher von jeder Sorte gleich viele Kugeln</strong>.</li></ul></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag leicht">Kurz-Check · leicht</span>
+    <div id="mc-s5"></div>
+  </div>
+  <div data-zug="M" class="mehr-wissen-box reveal">
+    <details class="mehr-wissen" open><summary>Mehr wissen (M8): weitere Kennzeichen und die Umsetzung</summary><div>
+      <p><strong>Energieumwandlung:</strong> Jede chemische Reaktion gibt Energie ab oder nimmt Energie auf. Du kennst das als exotherm (Energie wird abgegeben) und endotherm (Energie wird aufgenommen).</p>
+      <p><strong>Erhaltung der Masse:</strong> Die Masse der Ausgangsstoffe ist gleich der Masse der Produkte. Das Kugelmodell begründet es: Die Atome bleiben erhalten, nur ihre Anordnung ändert sich. Beispiel: 4 g Wasserstoff + 32 g Sauerstoff → 36 g Wasser.</p>
+      <p><strong>Umsetzung:</strong> Neben Synthese und Analyse gibt es die Umsetzung. Zwei Stoffe tauschen ihre Partner. Im Lehrerversuch gibt man Silbernitrat-Lösung zu Natriumchlorid-Lösung: Es fällt weißes Silberchlorid aus, Natriumnitrat bleibt gelöst.</p>
+      <svg viewBox="0 0 520 190" role="img" aria-label="Partnertausch: Silbernitrat und Natriumchlorid reagieren zu Silberchlorid und Natriumnitrat" style="width:100%;height:auto;max-width:520px">
+        <rect width="520" height="190" fill="#f7fbfe" rx="10"/>
+        <rect x="60" y="14" width="57" height="40" fill="#b4bcc4" stroke="#4a5a67" stroke-width="2"/><rect x="117" y="14" width="57" height="40" fill="#8fb8e6" stroke="#4a5a67" stroke-width="2"/>
+        <text x="88" y="38" text-anchor="middle" font-size="12" font-weight="800">Silber</text><text x="145" y="38" text-anchor="middle" font-size="12" font-weight="800">nitrat</text>
+        <text x="192" y="40" text-anchor="middle" font-size="20" font-weight="800">+</text>
+        <rect x="210" y="14" width="57" height="40" fill="#c7a6e0" stroke="#4a5a67" stroke-width="2"/><rect x="267" y="14" width="57" height="40" fill="#9fd9a9" stroke="#4a5a67" stroke-width="2"/>
+        <text x="238" y="38" text-anchor="middle" font-size="12" font-weight="800">Natrium</text><text x="295" y="38" text-anchor="middle" font-size="12" font-weight="800">chlorid</text>
+        <path d="M192 66 V104 m-8 -10 l8 10 l8 -10" fill="none" stroke="#15212b" stroke-width="3"/><text x="206" y="90" font-size="12" font-weight="700" fill="#566674">reagiert zu</text>
+        <rect x="60" y="118" width="57" height="40" fill="#b4bcc4" stroke="#4a5a67" stroke-width="2"/><rect x="117" y="118" width="57" height="40" fill="#9fd9a9" stroke="#4a5a67" stroke-width="2"/>
+        <text x="88" y="142" text-anchor="middle" font-size="12" font-weight="800">Silber</text><text x="145" y="142" text-anchor="middle" font-size="12" font-weight="800">chlorid</text>
+        <text x="192" y="144" text-anchor="middle" font-size="20" font-weight="800">+</text>
+        <rect x="210" y="118" width="57" height="40" fill="#c7a6e0" stroke="#4a5a67" stroke-width="2"/><rect x="267" y="118" width="57" height="40" fill="#8fb8e6" stroke="#4a5a67" stroke-width="2"/>
+        <text x="238" y="142" text-anchor="middle" font-size="12" font-weight="800">Natrium</text><text x="295" y="142" text-anchor="middle" font-size="12" font-weight="800">nitrat</text>
+        <text x="60" y="178" font-size="12" font-weight="700" fill="#566674">weißer Niederschlag</text><text x="210" y="178" font-size="12" font-weight="700" fill="#566674">bleibt gelöst</text>
+        <text x="340" y="40" font-size="12" font-weight="700" fill="#c0392b">Lehrerversuch</text><text x="340" y="56" font-size="12" font-weight="700" fill="#c0392b">nicht nachmachen</text>
+      </svg>
+    </div></details>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag m8">M8 · für 8R freiwillig</span>
+    <h3 style="margin-top:4px">Bleibt die Masse gleich?</h3>
+    <span class="versuch-art lehrer">LEHRERVERSUCH · nur die Lehrkraft</span>
+    <p>Wiegt man vor und nach einer Reaktion in einem <strong>geschlossenen Gefäß</strong>, zeigt die Waage dieselbe Masse. Das nennt man <button class="term" data-t="massenerhaltung">Erhaltung der Masse</button>. Sieh dir den Versuch an und beantworte dann die Fragen.</p>
+    <div class="grid2">
+      <div class="sim" id="waageSim"><svg viewBox="0 0 520 280" role="img" aria-label="Animation: Eine Waage zeigt vor und nach der Reaktion im geschlossenen Gefäß dieselbe Masse" id="waageSvg"></svg></div>
+      <div>
+        <div id="mc-s5m"></div>
+        <div id="hilfe5m"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="s6">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Üben</div><h2>Training für die Probe</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <span class="task-tag leicht">Richtig oder falsch · leicht</span>
+      <div id="tf6"></div>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag mittel">Reihenfolge · mittel</span>
+      <h3 style="margin-top:4px">Wasser wird zerlegt</h3>
+      <p class="hint">Bringe die Schritte in die richtige Reihenfolge.</p>
+      <div id="order6"></div>
+    </div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Kreuzworträtsel</span>
+    <div id="cw6"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag schwer">Erklären und übertragen · schwer</span>
+    <h3 style="margin-top:4px">In eigenen Worten <span class="hint">✨ KI prüft</span></h3>
+    <p class="hint">Du bekommst zuerst nur einen Tipp. Überarbeite dann deine Antwort.</p>
+    <div id="open6"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Duell gegen die KI</span>
+    <h3 style="margin-top:4px">Erwischst du die KI?</h3>
+    <p class="hint">Die KI stellt fünf Behauptungen auf. Manche sind falsch. Für den Sieg brauchst du mindestens 3 Punkte.</p>
+    <div id="duell6"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag m8">M8 · für 8R freiwillig</span>
+    <h3 style="margin-top:4px">Begründen mit dem Modell <span class="hint">✨ KI prüft</span></h3>
+    <div id="open6m"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 7 ============ -->
+<section class="station" id="s7">
+  <div class="st-head reveal"><div class="st-num">7</div><div><div class="eyebrow">Sichern</div><h2>Profi-Check und Lernkarten</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <div class="card reveal">
+    <span class="task-tag">Lernkarten</span>
+    <p class="hint">Die Karten gehören zum Lernset für die Probe. Sie zählen nicht zum Abschluss des Moduls – sie helfen dir beim Wiederholen.</p>
+    <div id="lernkarten"></div>
+  </div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Du erkennst Reaktionen und erklärst sie mit Kugeln. Im nächsten Modul wertest du Versuche aus wie im Labor: mit Protokoll, Reaktionsschema und der Suche nach Fehlern.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="index.html">🔬 Übersicht NT 8</a>
+      <a href="reaktionen-auswerten.html">➡️ Nächstes Modul: Reaktionen verstehen und auswerten</a>
+      <a href="#" data-lernset>🧠 Lernset zur Probe</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik 8 · Lernmodul „Chemische Reaktionen erkennen“ · Dein Fortschritt wird auf diesem Gerät gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="karten.js"></script>
+<script src="nt8.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, register, solve} = Modul;
+
+NT8M.start({
+  id: "reaktionen",
+  thema: "Chemische Reaktionen erkennen: Anzeichen (Gas, Wärme, Farbe, Niederschlag), Stoffumwandlung und Abgrenzung zum physikalischen Vorgang, Synthese und Analyse mit Wortgleichung, Dalton-Kugelmodell (Atome werden nur umgruppiert); M8: Energieumwandlung, Erhaltung der Masse, Umsetzung",
+  glossary: {
+    niederschlag: ["Niederschlag", "Ein fester Stoff, der aus einer Lösung ausfällt. Die Flüssigkeit wird trüb, die Flocken sinken ab.", "Beispiel im Alltag: Kalk im Wasserkocher. Er war im Wasser gelöst und setzt sich beim Erhitzen als fester Stoff ab."],
+    stoffumwandlung: ["Stoffumwandlung", "Aus Stoffen entstehen neue Stoffe mit neuen Eigenschaften. Das ist das wichtigste Kennzeichen einer chemischen Reaktion."],
+    ausgangsstoff: ["Ausgangsstoff", "Ein Stoff, der vor der Reaktion da ist. In der Wortgleichung steht er links vom Pfeil."],
+    produkt: ["Produkt", "Ein Stoff, der bei der Reaktion entsteht. In der Wortgleichung steht er rechts vom Pfeil."],
+    physikalisch: ["Physikalischer Vorgang", "Ein Vorgang, bei dem der Stoff derselbe bleibt, zum Beispiel Schmelzen, Verdampfen, Lösen oder Zerkleinern."],
+    synthese: ["Synthese", "Aus zwei (oder mehr) Stoffen entsteht ein neuer Stoff. Beispiel: Wasserstoff + Sauerstoff → Wasser."],
+    analyse: ["Analyse", "Ein Stoff wird in andere Stoffe zerlegt. Beispiel: Wasser → Wasserstoff + Sauerstoff."],
+    wortgleichung: ["Wortgleichung", "Sie beschreibt eine Reaktion mit Namen: Ausgangsstoffe links, Produkte rechts, dazwischen der Reaktionspfeil „reagiert zu“."],
+    kugelmodell: ["Kugelmodell", "Ein Modell von John Dalton: Stoffe bestehen aus Atomen, die man sich als Kugeln vorstellt.", "Atome derselben Sorte sind gleich. Bei einer Reaktion werden Atome nur neu angeordnet. Heute weiß man, dass Atome aus noch kleineren Teilen bestehen – für Reaktionen reicht das Kugelmodell aber gut aus."],
+    atom: ["Atom", "Ein kleinstes Teilchen eines Elements. Im Kugelmodell zeichnet man es als Kugel."],
+    massenerhaltung: ["Erhaltung der Masse", "Bei einer Reaktion in einem geschlossenen Gefäß ist die Masse der Ausgangsstoffe gleich der Masse der Produkte.", "Begründung im Kugelmodell: Die Atome bleiben erhalten, nur ihre Anordnung ändert sich."]
+  }
+});
+
+/* ---------- gemeinsame Kugel-Zeichnungen ---------- */
+const AT = {
+  H: (x, y) => '<circle cx="' + x + '" cy="' + y + '" r="11" fill="#fff" stroke="#4a5a67" stroke-width="2"/><text x="' + x + '" y="' + (y + 4) + '" text-anchor="middle" font-size="12" font-weight="800" fill="#15212b">H</text>',
+  O: (x, y) => '<circle cx="' + x + '" cy="' + y + '" r="17" fill="#e0453a" stroke="#8a2118" stroke-width="2"/><text x="' + x + '" y="' + (y + 5) + '" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">O</text>'
+};
+const MOL = {
+  H2: (x, y) => AT.H(x - 10, y) + AT.H(x + 10, y),
+  O2: (x, y) => AT.O(x - 16, y) + AT.O(x + 16, y),
+  H2O: (x, y) => AT.O(x, y - 4) + AT.H(x - 22, y + 13) + AT.H(x + 22, y + 13)
+};
+const FORM = {H2: "H₂", O2: "O₂", H2O: "H₂O"};
+const NAME = {H2: "Wasserstoff", O2: "Sauerstoff", H2O: "Wasser"};
+const mol = (t, x, y) => '<g>' + MOL[t](x, y) + '</g>';
+const molMitName = (t, x, y, dy) => mol(t, x, y) + '<text x="' + x + '" y="' + (y + dy) + '" text-anchor="middle" font-size="12" font-weight="800" fill="#15212b">' + FORM[t] + '</text>';
+
+/* ---------- Station 1 ---------- */
+Modul.makeMC($("#mc-s1"), [
+  {q: "Bei welchen Bildern entsteht ein neuer Stoff? (mehrere Antworten)", o: ["Nagel: Es bildet sich Rost.", "Brausetablette: Es sprudelt.", "Apfel: Das Fruchtfleisch wird braun.", "Eiswürfel: Er schmilzt zu Wasser."], a: [0, 1, 2],
+    e: "Rost, das Gas beim Sprudeln und der braune Apfel sind neue Stoffe. Beim Schmelzen bleibt es Wasser – nur der Zustand ändert sich."}
+], "mc1", {t: "Deine Vermutung"});
+
+/* ---------- Station 2: Reaktions-Detektiv ---------- */
+(function(){
+  const gesehen = {}, svg = $("#detSvg"), cbs = [];
+  let cur = "gas", timers = [];
+  const ART = {
+    gas: ["SCHÜLERVERSUCH · mit der Lehrkraft", false], farbe: ["SCHÜLERVERSUCH · mit der Lehrkraft", false],
+    waerme: ["ALLTAGSBEISPIEL · Einweg-Taschenwärmer", "neutral"], nd: ["LEHRERVERSUCH · nur die Lehrkraft", true]
+  };
+  const BEOB = {
+    gas: "Gas: Es sprudelt. Bläschen steigen auf – ein Gas entsteht.",
+    waerme: "Wärme: Der Taschenwärmer wird warm, ohne dass jemand heizt.",
+    farbe: "Farbe: Das Apfelstück wird braun.",
+    nd: "Niederschlag: Aus zwei klaren Lösungen wird eine trübe – weiße Flocken fallen aus."
+  };
+  const OBS = {
+    gas: "Die Tablette sinkt, Bläschen steigen auf. Das Gas ist ein neuer Stoff.",
+    waerme: "Die Temperatur steigt: Im Beutel läuft eine Reaktion ab, die Wärme abgibt.",
+    farbe: "Die Farbe wechselt von hellgelb zu braun. Das Fruchtfleisch hat sich verändert.",
+    nd: "Beide Lösungen sind klar, gemischt wird es trüb. Ein fester Stoff fällt aus: ein Niederschlag."
+  };
+  function waehle(k){
+    cur = k; svg.dataset.sz = k; leere();
+    $$("[data-det]").forEach(b => b.classList.toggle("sel", b.dataset.det === k));
+    const art = $("#detArt"), a = ART[k];
+    art.textContent = a[0]; art.classList.toggle("lehrer", a[1] === true); art.style.background = a[1] === "neutral" ? "#566674" : "";
+    $("#detObs").textContent = gesehen[k] ? OBS[k] : "Starte den Versuch und beobachte genau.";
+  }
+  function leere(){
+    timers.forEach(clearTimeout); timers = [];
+    svg.classList.add("reset"); svg.setAttribute("class", "reset"); void svg.getBoundingClientRect(); svg.removeAttribute("class");
+    $("#dwTemp").textContent = "20 °C"; $("#dfZeit").textContent = "frisch";
+  }
+  function los(){
+    leere(); void svg.getBoundingClientRect();
+    svg.classList.add("lauf-" + cur);
+    if (cur === "waerme") timers.push(setTimeout(() => { $("#dwTemp").textContent = "ca. 50 °C"; }, 1800));
+    if (cur === "farbe") timers.push(setTimeout(() => { $("#dfZeit").textContent = "nach 30 Minuten"; }, 1500));
+    gesehen[cur] = 1;
+    $("#detObs").textContent = OBS[cur];
+    const li = $('#detHeft li[data-h="' + cur + '"]'); li.textContent = BEOB[cur]; li.classList.add("da");
+    cbs.forEach(f => f());
+  }
+  $$("[data-det]").forEach(b => b.addEventListener("click", () => waehle(b.dataset.det)));
+  $("#detGo").addEventListener("click", los);
+  waehle("gas");
+  const lab = {
+    entdeckt: () => Object.assign({}, gesehen),
+    beiAenderung: f => cbs.push(f),
+    loese: () => { ["gas", "waerme", "farbe", "nd"].forEach(k => { waehle(k); los(); }); }
+  };
+  NT8M.entdecke({
+    id: "detektiv", labor: lab, el: "#forscher2", sicherung: "#merke2",
+    auftrag: "Starte alle vier Versuche. Notiere im Beobachtungsheft, woran du jeweils merkst, dass etwas passiert.",
+    ziel(e){
+      const n = ["gas", "waerme", "farbe", "nd"].filter(k => e[k]).length;
+      return {fertig: n === 4, text: n === 4 ? "Du hast alle vier Versuche beobachtet. Halte fest:" : "Beobachtet: " + n + " von 4 Versuchen."};
+    },
+    frage: {q: "Was haben die vier Versuche gemeinsam?", o: ["Es gibt jeweils ein Anzeichen dafür, dass ein neuer Stoff entsteht.", "Es wird immer heiß.", "Es entsteht immer ein Gas.", "Es verändert sich nur die Form des Stoffes."], a: 0,
+      e: "Gas, Wärme, neue Farbe und Niederschlag sind Hinweise auf eine chemische Reaktion."}
+  });
+  Modul.makeMC($("#mc-s2"), [
+    {q: "Im Wasserkocher setzt sich beim Erhitzen von hartem Wasser ein weißer, fester Belag ab: Kalk. Welches Anzeichen ist das?", o: ["Niederschlag", "Gasentwicklung", "Farbänderung", "Wärmeentwicklung"], a: 0, e: "Ein fester Stoff, der vorher gelöst war, fällt aus der Flüssigkeit aus – das nennt man Niederschlag."},
+    {q: "Ein Taschenwärmer wird warm, ohne dass man ihn erhitzt. Was ist die Ursache?", o: ["Im Beutel läuft eine chemische Reaktion ab, die Wärme abgibt.", "Der Beutel hängt an einer Steckdose.", "Das Eisenpulver schmilzt.", "Die Luft im Beutel wird zusammengedrückt."], a: 0, e: "Eisenpulver reagiert mit Sauerstoff aus der Luft. Bei dieser Reaktion wird Wärme frei."}
+  ], "mc2", {t: "Kurz-Check"});
+})();
+
+/* ---------- Station 3: chemisch oder physikalisch ---------- */
+Modul.makeSort($("#sort3"), {buckets: ["chemische Reaktion (neuer Stoff)", "physikalischer Vorgang (Stoff bleibt)"], cols: 170, items: [
+  {t: "Ein Nagel rostet.", b: 0}, {t: "Papier verbrennt.", b: 0}, {t: "Ein Apfel wird braun.", b: 0}, {t: "Zucker wird in der Pfanne zu braunem Karamell.", b: 0}, {t: "Eine Brausetablette sprudelt im Wasser.", b: 0},
+  {t: "Ein Eiswürfel schmilzt.", b: 1}, {t: "Zucker löst sich im Tee.", b: 1}, {t: "Wasser kocht und wird zu Dampf.", b: 1}, {t: "Ein Brett wird zersägt.", b: 1}, {t: "Kerzenwachs wird flüssig.", b: 1}
+]}, "sort3");
+Modul.makeMC($("#mc-s3"), [
+  {q: "Wasser kocht und sprudelt. Warum ist das keine chemische Reaktion?", o: ["Die Blasen sind Wasserdampf – derselbe Stoff wie das Wasser.", "Weil es dabei heiß wird.", "Weil Wasser sich nicht verändern kann.", "Weil es dabei keine Blasen geben darf."], a: 0, e: "Beim Verdampfen ändert sich nur der Zustand. Es entsteht kein neuer Stoff."},
+  {q: "Woran erkennst du sicher, dass eine chemische Reaktion abgelaufen ist?", o: ["Es ist ein neuer Stoff mit neuen Eigenschaften entstanden.", "Es sprudelt.", "Es wird warm.", "Der Stoff hat seine Form verändert."], a: 0, e: "Sprudeln, Wärme oder eine andere Form gibt es auch bei physikalischen Vorgängen. Sicher ist nur: Es entsteht ein neuer Stoff."}
+], "mc3", {t: "Kurz-Check"});
+
+/* ---------- Station 4: Synthese und Analyse ---------- */
+const PANEL = '<rect x="268" y="14" width="244" height="262" rx="14" fill="#fff" stroke="#c9d6df" stroke-width="2"/>';
+const LEGENDE = (y) => AT.H(290, y) + '<text x="306" y="' + (y + 4) + '" font-size="11" font-weight="700" fill="#566674">Wasserstoff-Atom</text>' + '<circle cx="410" cy="' + y + '" r="7" fill="#e0453a" stroke="#8a2118" stroke-width="2"/><text x="422" y="' + (y + 4) + '" font-size="11" font-weight="700" fill="#566674">Sauerstoff-Atom</text>';
+const GLEICH = (id, a, b, c) => '<g id="' + id + '" opacity="0"><text x="390" y="90" text-anchor="middle" font-size="16" font-weight="800" fill="#15212b">' + a + '</text><path d="M390 108 V150 m-9 -11 l9 11 l9 -11" fill="none" stroke="#15212b" stroke-width="3"/><text x="402" y="134" font-size="12" font-weight="700" fill="#566674">reagiert zu</text><text x="390" y="184" text-anchor="middle" font-size="16" font-weight="800" fill="#15212b">' + b + '</text><text x="390" y="212" text-anchor="middle" font-size="12" font-weight="700" fill="#1b8a4b">' + c + '</text></g>';
+
+// Synthese: Knallgasreaktion
+(function(){
+  const s = $("#synSvg");
+  s.innerHTML = '<rect width="520" height="290" fill="#f7fbfe"/>' + PANEL +
+    '<path d="M70 70 V200 Q70 246 120 246 Q170 246 170 200 V70" fill="#fff" stroke="#4a5a67" stroke-width="4"/>' +
+    '<g id="syGas" fill="#9ad0ee"><circle cx="90" cy="110" r="4"/><circle cx="120" cy="100" r="4"/><circle cx="150" cy="115" r="4"/><circle cx="100" cy="150" r="4"/><circle cx="140" cy="160" r="4"/><circle cx="115" cy="195" r="4"/><circle cx="90" cy="215" r="4"/><circle cx="148" cy="210" r="4"/><circle cx="125" cy="130" r="4"/></g>' +
+    '<g id="syTropfen" opacity="0" fill="#6fa8c7"><circle cx="82" cy="130" r="4"/><circle cx="158" cy="160" r="4"/><circle cx="84" cy="190" r="4"/><circle cx="156" cy="205" r="4"/><circle cx="90" cy="220" r="3.5"/></g>' +
+    '<g id="syFlamme" opacity="0"><path d="M120 50 L132 20 L142 44 L168 14 L158 52 L186 56 L156 68 L170 92 L136 78 L120 100 L112 76 L82 90 L98 66 L70 52 L106 50 L100 22Z" fill="#f2b632" stroke="#e0453a" stroke-width="3"/><text x="124" y="64" text-anchor="middle" font-size="14" font-weight="800" fill="#c0392b">KNALL!</text></g>' +
+    '<text x="120" y="272" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">Schutzgefäß</text>' +
+    '<text x="390" y="40" text-anchor="middle" font-size="13" font-weight="800" fill="#566674" id="syTitel">Kugelmodell: vorher</text>' +
+    '<g id="syVor">' + molMitName("H2", 320, 100, 36) + molMitName("H2", 320, 190, 36) + molMitName("O2", 440, 145, 40) + '</g>' +
+    '<g id="syNach" opacity="0">' + molMitName("H2O", 325, 120, 42) + molMitName("H2O", 440, 120, 42) + '<text x="390" y="190" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">4 H-Atome und 2 O-Atome</text></g>' +
+    GLEICH("syGl", "Wasserstoff + Sauerstoff", "Wasser", "Synthese") + LEGENDE(250);
+  Modul.makeSchritte($("#synSim"), {
+    steps: ["Im Schutzgefäß ist Knallgas, ein Gemisch aus Wasserstoff und Sauerstoff. Im Kugelmodell sind das 2 Wasserstoff-Teilchen (H₂) und 1 Sauerstoff-Teilchen (O₂).",
+      "Die Lehrkraft zündet das Gemisch mit allen Schutzmaßnahmen: Schutzscheibe, Schutzbrille und Gehörschutz. Es knallt laut und wird sehr heiß. Nachmachen ist lebensgefährlich!",
+      "Nach dem Knall beschlägt das Gefäß mit Tröpfchen: Wasser ist entstanden. Im Kugelmodell sind es 2 Wasser-Teilchen, gebaut aus denselben 4 + 2 Atomen wie vorher.",
+      "Die Wortgleichung: Wasserstoff + Sauerstoff → Wasser. Links stehen die Ausgangsstoffe, rechts das Produkt, der Pfeil heißt „reagiert zu“. Aus zwei Stoffen wird einer: Das ist eine Synthese."],
+    zeige(i){
+      i = Math.max(i, 0);
+      const o = (id, v) => $("#" + id).setAttribute("opacity", v ? "1" : "0");
+      o("syFlamme", i === 1); o("syVor", i <= 1); o("syNach", i === 2); o("syGl", i === 3); o("syTropfen", i >= 2);
+      $("#syGas").setAttribute("opacity", i <= 1 ? "1" : "0.25");
+      $("#syTitel").textContent = i === 3 ? "Wortgleichung" : i === 2 ? "Kugelmodell: nachher" : "Kugelmodell: vorher";
+      $("#syTitel").setAttribute("y", i === 3 ? "50" : "40");
+    }
+  }, "anim4a");
+})();
+
+// Analyse: Zersetzung von Wasser
+(function(){
+  const s = $("#anaSvg");
+  s.innerHTML = '<rect width="520" height="330" fill="#f7fbfe"/>' + PANEL.replace('height="262"', 'height="300"') +
+    '<style>.anB{opacity:0}#anaSvg.strom .anB{animation:steig 1.5s linear infinite}#anaSvg #anGasL,#anaSvg #anGasR{transform:scaleY(0);transform-origin:0 60px;transition:transform 3s ease-out}#anaSvg #anGasR{transform-origin:0 60px}#anaSvg.gase #anGasL,#anaSvg.gase #anGasR{transform:scaleY(1)}</style>' +
+    '<text x="70" y="26" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">Minuspol</text><text x="170" y="26" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">Pluspol</text>' +
+    '<text x="70" y="44" text-anchor="middle" font-size="13" font-weight="800" fill="#1d6f9c">Wasserstoff</text><text x="170" y="44" text-anchor="middle" font-size="13" font-weight="800" fill="#c0392b">Sauerstoff</text>' +
+    '<rect x="50" y="60" width="40" height="160" fill="#bfe3f5" stroke="#4a5a67" stroke-width="3"/><rect x="150" y="60" width="40" height="160" fill="#bfe3f5" stroke="#4a5a67" stroke-width="3"/>' +
+    '<rect id="anGasL" x="53" y="60" width="34" height="80" fill="#f3f7fa"/><rect id="anGasR" x="153" y="60" width="34" height="40" fill="#f3f7fa"/>' +
+    '<path d="M32 220 H208 V262 Q208 276 194 276 H46 Q32 276 32 262Z" fill="#bfe3f5" stroke="#4a5a67" stroke-width="3"/>' +
+    '<path d="M70 240 V150 M170 240 V150" stroke="#15212b" stroke-width="4"/>' +
+    '<g fill="#fff" stroke="#6fa8c7" stroke-width="1.5"><circle class="anB" cx="66" cy="205" r="4" style="animation-delay:0s"/><circle class="anB" cx="74" cy="210" r="3.5" style="animation-delay:.5s"/><circle class="anB" cx="166" cy="205" r="4" style="animation-delay:.2s"/><circle class="anB" cx="174" cy="210" r="3.5" style="animation-delay:.8s"/><circle class="anB" cx="70" cy="200" r="3" style="animation-delay:1s"/><circle class="anB" cx="170" cy="200" r="3" style="animation-delay:1.2s"/></g>' +
+    '<text x="70" y="262" text-anchor="middle" font-size="16" font-weight="800" fill="#15212b">−</text><text x="170" y="262" text-anchor="middle" font-size="16" font-weight="800" fill="#15212b">+</text>' +
+    '<path d="M70 276 V296 H96 M170 276 V296 H144" fill="none" stroke="#5f6770" stroke-width="3"/><rect x="96" y="282" width="48" height="34" rx="6" fill="#f2b632" stroke="#8a5a00" stroke-width="2"/><text x="120" y="304" text-anchor="middle" font-size="11" font-weight="800" fill="#5a3b00">Strom</text>' +
+    '<g id="anProbe" opacity="0"><path d="M62 40 L72 12 L80 34 L102 8 L94 42 L116 46 L92 56 L102 74 L76 64 L62 80 L56 62 L34 72 L46 54 L26 44 L52 42 L46 18Z" fill="#f2b632" stroke="#e0453a" stroke-width="2" transform="translate(0 -4) scale(.9)"/><text x="68" y="50" text-anchor="middle" font-size="11" font-weight="800" fill="#c0392b">Knall</text><path d="M150 52 L190 20" stroke="#8a5a00" stroke-width="5"/><circle cx="150" cy="53" r="7" fill="#ff7a1a"/><text x="170" y="12" text-anchor="middle" font-size="11" font-weight="800" fill="#c0392b">glüht auf</text></g>' +
+    '<text x="390" y="40" text-anchor="middle" font-size="13" font-weight="800" fill="#566674" id="anTitel">Kugelmodell: vorher</text>' +
+    '<g id="anVor">' + molMitName("H2O", 325, 120, 42) + molMitName("H2O", 440, 120, 42) + '<text x="390" y="190" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">4 H-Atome und 2 O-Atome</text></g>' +
+    '<g id="anNach" opacity="0">' + molMitName("H2", 320, 100, 36) + molMitName("H2", 320, 190, 36) + molMitName("O2", 440, 145, 40) + '</g>' +
+    GLEICH("anGl", "Wasser", "Wasserstoff + Sauerstoff", "Analyse").replace('y="134"', 'y="134"') + LEGENDE(270);
+  Modul.makeSchritte($("#anaSim"), {
+    steps: ["Das Zersetzungsgerät ist mit Wasser gefüllt. Damit das Wasser den Strom leitet, gibt die Lehrkraft einen Zusatz hinein. Im Kugelmodell: 2 Wasser-Teilchen.",
+      "Die Lehrkraft schaltet Gleichstrom aus einem Netzgerät ein, nie aus der Steckdose. An beiden Polen steigen Gasbläschen auf und sammeln sich oben.",
+      "Im Rohr am Minuspol ist doppelt so viel Gas wie im Rohr am Pluspol. Im Kugelmodell: 2 Wasserstoff-Teilchen (H₂) und 1 Sauerstoff-Teilchen (O₂).",
+      "Die Lehrkraft prüft die Gase. Wasserstoff macht die Knallgasprobe: ein pfeifender Knall. Sauerstoff lässt einen glimmenden Holzspan hell aufglühen.",
+      "Die Wortgleichung: Wasser → Wasserstoff + Sauerstoff. Ein Stoff wird zerlegt: Das ist eine Analyse. Dafür muss die ganze Zeit Energie zugeführt werden, hier als elektrischer Strom."],
+    zeige(i){
+      i = Math.max(i, 0);
+      const o = (id, v) => $("#" + id).setAttribute("opacity", v ? "1" : "0");
+      s.classList.toggle("strom", i === 1 || i === 2); s.classList.toggle("gase", i >= 1);
+      o("anVor", i <= 1); o("anNach", i === 2 || i === 3); o("anGl", i === 4); o("anProbe", i === 3);
+      $("#anTitel").textContent = i === 4 ? "Wortgleichung" : i >= 2 ? "Kugelmodell: nachher" : "Kugelmodell: vorher";
+      $("#anTitel").setAttribute("y", i === 4 ? "50" : "40");
+    }
+  }, "anim4b");
+})();
+
+Modul.makeGap($("#gap4"), [
+  ["Synthese: Wasserstoff + ", {g: "Sauerstoff"}, " → ", {g: "Wasser"}],
+  ["Analyse: Wasser → ", {g: "Wasserstoff"}, " + ", {g: "Sauerstoff"}]
+], "gap4", ["Wasserdampf", "Rost"]);
+Modul.makeSort($("#sort4"), {buckets: ["Synthese", "Analyse"], cols: 150, items: [
+  {t: "Wasserstoff und Sauerstoff reagieren zu Wasser.", b: 0}, {t: "Kohlenstoff und Sauerstoff reagieren zu Kohlenstoffdioxid.", b: 0}, {t: "Eisen und Sauerstoff reagieren zu Rost.", b: 0},
+  {t: "Wasser wird mit Strom in zwei Gase zerlegt.", b: 1}, {t: "Wasserstoffperoxid zerfällt zu Wasser und Sauerstoff.", b: 1}, {t: "Kalkstein wird stark erhitzt und zerfällt in Branntkalk und Kohlenstoffdioxid.", b: 1}
+]}, "sort4");
+Modul.makeMC($("#mc-s4"), [
+  {q: "Welche Aussage über die Knallgasreaktion stimmt?", o: ["Aus zwei Gasen entsteht ein neuer Stoff: Wasser.", "Aus Wasser entstehen zwei Gase.", "Es entsteht kein neuer Stoff.", "Es verschwindet Sauerstoff, ohne dass etwas entsteht."], a: 0, e: "Wasserstoff und Sauerstoff reagieren zu Wasser. Das ist eine Synthese."},
+  {q: "Bei der Zersetzung von Wasser sammelt sich in einem Rohr doppelt so viel Gas wie im anderen. Welches Gas ist es?", o: ["Wasserstoff", "Sauerstoff", "Wasserdampf", "Luft"], a: 0, e: "Aus 2 Wasser-Teilchen entstehen 2 Wasserstoff-Teilchen (H₂) und 1 Sauerstoff-Teilchen (O₂). Darum ist es doppelt so viel Wasserstoff."}
+], "mc4", {t: "Kurz-Check"});
+
+/* ---------- Station 5: Kugel-Baukasten ---------- */
+(function(){
+  const box = $("#kbBox"), cbs = [];
+  const KB = {syn: {vor: ["H2", "H2", "O2"], nach: ["H2O", "H2O"]}, ana: {vor: ["H2O", "H2O"], nach: ["H2", "H2", "O2"]}};
+  const SLOTS = {H2: ["H", "H"], O2: ["O", "O"], H2O: ["H", "O", "H"]};
+  const POS = {H2: [[0, 0], [48, 0]], O2: [[0, 0], [56, 0]], H2O: [[0, 56], [46, 0], [100, 56]]};
+  const BOX = {H2: [92, 44], O2: [108, 52], H2O: [144, 100]};
+  const ATOME = {H2: {H: 2}, O2: {O: 2}, H2O: {H: 2, O: 1}};
+  const ATNAME = {H: "Wasserstoff-Atom", O: "Sauerstoff-Atom"};
+  const fertig = {syn: false, ana: false};
+  let cur = "syn", frei = false, sel = null, slots = [], pool = [];
+
+  function neu(){
+    frei = false; sel = null; slots = []; pool = [];
+    const r = KB[cur];
+    r.nach.forEach((t, m) => SLOTS[t].forEach((typ, k) => slots.push({m, k, typ, t, atom: null})));
+    r.vor.forEach(t => Object.keys(ATOME[t]).forEach(a => { for (let n = 0; n < ATOME[t][a]; n++) pool.push({typ: a}); }));
+    pool = pool.map((p, i) => ({id: i, typ: p.typ}));
+    pool.sort((a, b) => (a.id % 2) - (b.id % 2) || a.id - b.id);
+    obs("Trenne zuerst die Teilchen, dann setze die Atome ein.");
+    zeichne();
+  }
+  function obs(t){ $("#kbObs").textContent = t; }
+  function summe(liste){ const c = {H: 0, O: 0}; liste.forEach(a => c[a]++); return c; }
+  function vorAtome(){ const a = []; KB[cur].vor.forEach(t => Object.keys(ATOME[t]).forEach(x => { for (let n = 0; n < ATOME[t][x]; n++) a.push(x); })); return a; }
+  function zeichne(){
+    const r = KB[cur];
+    $("#kbVor").innerHTML = r.vor.map(t => '<div class="kb-fig"><svg viewBox="-40 -30 80 60" width="80" height="60">' + MOL[t](0, 0) + '</svg>' + NAME[t] + '<br>' + FORM[t] + '</div>').join("");
+    const platziert = new Set(slots.filter(s => s.atom !== null).map(s => s.atom));
+    $("#kbPool").innerHTML = !frei ? '<p class="kb-hint">Noch sind alle Atome fest verbunden. Tippe auf „Teilchen trennen“.</p>' :
+      pool.filter(p => !platziert.has(p.id)).map(p => '<button type="button" class="kb-atom ' + p.typ + (sel === p.id ? " sel" : "") + '" data-atom="' + p.id + '" data-typ="' + p.typ + '" aria-label="' + ATNAME[p.typ] + '">' + p.typ + '</button>').join("") || '<p class="kb-hint">Alle Atome sind eingesetzt.</p>';
+    let i = 0;
+    $("#kbNach").innerHTML = r.nach.map((t, m) => {
+      const teil = SLOTS[t].map((typ, k) => {
+        const s = slots[i + k], p = POS[t][k];
+        return '<button type="button" class="kb-slot s-' + typ + (s.atom !== null ? " f-" + typ : "") + (frei ? "" : " zu") + '" data-slot="' + (i + k) + '" data-typ="' + typ + '" style="left:' + p[0] + 'px;top:' + p[1] + 'px" aria-label="Platz für ein ' + ATNAME[typ] + '">' + (s.atom !== null ? typ : "") + "</button>";
+      }).join("");
+      i += SLOTS[t].length;
+      return '<div class="kb-fig"><div class="kb-mol" style="width:' + BOX[t][0] + 'px;height:' + BOX[t][1] + 'px;margin:0 auto 4px">' + teil + "</div>" + NAME[t] + "<br>" + FORM[t] + "</div>";
+    }).join("");
+    const n = summe(slots.filter(s => s.atom !== null).map(s => s.typ)), v = summe(vorAtome());
+    const ganz = slots.every(s => s.atom !== null);
+    const z = $("#kbZ");
+    z.innerHTML = '<span>Vorher: <b>' + v.H + ' × H · ' + v.O + ' × O</b></span><span>Nachher: <b>' + n.H + ' × H · ' + n.O + ' × O</b></span>' + (ganz ? '<span>✅ gleich viele!</span>' : "");
+    z.classList.toggle("gleich", ganz);
+  }
+  function geprueft(){
+    if (!slots.every(s => s.atom !== null)) return;
+    fertig[cur] = true;
+    const v = summe(vorAtome());
+    obs("Geschafft! Vorher " + v.H + " H und " + v.O + " O, nachher " + v.H + " H und " + v.O + " O. Die Atome sind nur neu angeordnet – kein Atom ging verloren, keines kam dazu." + (fertig.syn && fertig.ana ? "" : " Probiere jetzt die andere Reaktion."));
+    cbs.forEach(f => f());
+  }
+  box.addEventListener("click", e => {
+    const a = e.target.closest(".kb-atom"), s = e.target.closest(".kb-slot"), w = e.target.closest("[data-kreak]");
+    if (w) { cur = w.dataset.kreak; $$("[data-kreak]", box).forEach(b => b.classList.toggle("sel", b === w)); neu(); return; }
+    if (e.target.closest("#kbLoesen")) { frei = true; obs("Die Atome sind frei. Tippe ein Atom an und dann einen passenden Platz bei den Produkten."); zeichne(); return; }
+    if (e.target.closest("#kbNeu")) { neu(); return; }
+    if (a) { sel = sel === +a.dataset.atom ? null : +a.dataset.atom; zeichne(); return; }
+    if (s) {
+      const sl = slots[+s.dataset.slot];
+      if (!frei) { obs("Trenne zuerst die Teilchen mit dem Knopf „Teilchen trennen“."); return; }
+      if (sl.atom !== null) { sl.atom = null; zeichne(); return; }
+      if (sel === null) { obs("Tippe zuerst ein freies Atom an."); return; }
+      const at = pool.find(p => p.id === sel);
+      if (at.typ !== sl.typ) { obs("Das ist ein " + ATNAME[at.typ] + " (" + at.typ + "). Dieser Platz braucht ein " + ATNAME[sl.typ] + " (" + sl.typ + ")."); return; }
+      sl.atom = sel; sel = null; zeichne(); geprueft();
+    }
+  });
+  neu();
+  const lab = {
+    entdeckt: () => Object.assign({}, fertig),
+    beiAenderung: f => cbs.push(f),
+    loese: () => {
+      ["syn", "ana"].forEach(k => {
+        box.querySelector('[data-kreak="' + k + '"]').click();
+        box.querySelector("#kbLoesen").click();
+        for (let i = 0; i < slots.length; i++) {
+          box.querySelector('.kb-atom[data-typ="' + slots[i].typ + '"]').click();
+          box.querySelector('.kb-slot[data-slot="' + i + '"]').click();
+        }
+      });
+    }
+  };
+  NT8M.entdecke({
+    id: "kugel", labor: lab, el: "#forscher5", sicherung: "#merke5", text: "Kugel-Baukasten: Synthese und Analyse von Wasser nachbauen",
+    auftrag: "Baue die Synthese und die Analyse von Wasser mit Kugeln nach. Zähle vorher und nachher: Wie viele Atome jeder Sorte sind es?",
+    ziel(e){
+      const n = (e.syn ? 1 : 0) + (e.ana ? 1 : 0);
+      return {fertig: n === 2, text: n === 2 ? "Beide Reaktionen sind gebaut. Halte deine Beobachtung fest:" : "Gebaut: " + n + " von 2 Reaktionen."};
+    },
+    frage: {q: "Wie viele Atome jeder Sorte gibt es vorher und nachher?", o: ["Vorher und nachher gleich viele.", "Nachher mehr als vorher.", "Nachher weniger als vorher.", "Nachher gibt es neue Atomsorten."], a: 0,
+      e: "Die Atome werden nur neu angeordnet. Es geht keines verloren und es kommt keines dazu."}
+  });
+  Modul.makeMC($("#mc-s5"), [
+    {q: "Bei der Synthese von Wasser sind vorher 4 Wasserstoff- und 2 Sauerstoff-Atome da. Wie viele sind es nachher im Wasser?", o: ["4 Wasserstoff- und 2 Sauerstoff-Atome", "2 Wasserstoff- und 4 Sauerstoff-Atome", "4 Wasserstoff- und 1 Sauerstoff-Atom", "6 Wasserstoff-Atome"], a: 0, e: "Es geht kein Atom verloren und keines kommt dazu. Nachher sind es wieder 4 H und 2 O – in 2 Wasser-Teilchen."},
+    {q: "Was geschieht im Kugelmodell mit den Atomen bei einer chemischen Reaktion?", o: ["Sie werden neu angeordnet.", "Sie verschwinden und neue entstehen.", "Sie werden zerstört.", "Sie werden zu einer anderen Atomsorte."], a: 0, e: "Die Atome bleiben dieselben, nur ihre Anordnung ändert sich. So entstehen neue Stoffe."}
+  ], "mc5", {t: "Kurz-Check"});
+})();
+
+// M8: Waage (Erhaltung der Masse)
+NT8M.plus(() => {
+  const s = $("#waageSvg");
+  s.innerHTML = '<style>#waageSvg .wb{opacity:0}#waageSvg.sprudel .wb{animation:steig 1.4s linear infinite}#wTab{transition:transform 1.6s ease-in}</style><rect width="520" height="280" fill="#f7fbfe"/>' +
+    '<rect x="90" y="226" width="340" height="38" rx="10" fill="#8795a1" stroke="#4a5a67" stroke-width="3"/><rect x="190" y="234" width="140" height="22" rx="4" fill="#15212b"/>' +
+    '<text id="wAnz" x="260" y="251" text-anchor="middle" font-size="15" font-weight="800" fill="#7dff9c">150,0 g</text>' +
+    '<path d="M215 90 V176 Q215 224 260 224 Q305 224 305 176 V90 Z" fill="#fff" stroke="#4a5a67" stroke-width="3"/>' +
+    '<path d="M218 150 H302 V176 Q302 221 260 221 Q218 221 218 176Z" fill="#bfe3f5"/>' +
+    '<ellipse id="wTab" cx="260" cy="118" rx="18" ry="7" fill="#fff" stroke="#9aa9b5" stroke-width="2"/>' +
+    '<g fill="#fff" stroke="#6fa8c7" stroke-width="1.5"><circle class="wb" cx="240" cy="205" r="4" style="animation-delay:0s"/><circle class="wb" cx="262" cy="210" r="5" style="animation-delay:.4s"/><circle class="wb" cx="282" cy="204" r="4" style="animation-delay:.8s"/><circle class="wb" cx="250" cy="200" r="3" style="animation-delay:1s"/></g>' +
+    '<g id="wDeckel"><rect x="209" y="78" width="102" height="14" rx="5" fill="#f2b632" stroke="#8a5a00" stroke-width="2"/><text x="260" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">fest verschlossen</text></g>' +
+    '<g id="wGas" opacity="0" fill="none" stroke="#1b8a4b" stroke-width="3" stroke-linecap="round"><path d="M240 60 q-8 -10 0 -20 q8 -10 0 -20"/><path d="M280 60 q-8 -10 0 -20 q8 -10 0 -20"/><text x="360" y="50" font-size="12" font-weight="800" fill="#1b8a4b" stroke="none">Gas entweicht</text></g>' +
+    '<text id="wTxt" x="360" y="140" font-size="13" font-weight="800" fill="#566674"></text>';
+  Modul.makeSchritte($("#waageSim"), {
+    steps: ["Ein verschlossenes, druckfestes Gefäß steht auf der Waage (das macht nur die Lehrkraft): Wasser und ein kleines Stück Brausetablette. Die Waage zeigt 150,0 g.",
+      "Die Tablette fällt ins Wasser und sprudelt. Das Gas bleibt im geschlossenen Gefäß.",
+      "Nach der Reaktion zeigt die Waage noch immer 150,0 g: Die Masse der Produkte ist gleich der Masse der Ausgangsstoffe.",
+      "Zum Vergleich: Wird das Gefäß geöffnet, entweicht das Gas und die Waage zeigt weniger (hier 149,6 g). Die Masse ist nicht verschwunden – das Gas wird nur nicht mehr mitgewogen."],
+    zeige(i){
+      i = Math.max(i, 0);
+      $("#wTab").style.transform = i >= 1 ? "translateY(80px) scale(.6)" : "none"; $("#wTab").style.transformOrigin = "260px 118px";
+      s.classList.toggle("sprudel", i === 1 || i === 2);
+      $("#wDeckel").setAttribute("opacity", i <= 2 ? "1" : "0");
+      $("#wGas").setAttribute("opacity", i === 3 ? "1" : "0");
+      $("#wAnz").textContent = i === 3 ? "149,6 g" : "150,0 g";
+      $("#wTxt").textContent = i === 2 ? "vorher = nachher" : i === 3 ? "offen: weniger" : "";
+    }
+  }, "anim5m");
+  Modul.makeMC($("#mc-s5m"), [
+    {q: "4 g Wasserstoff reagieren mit 32 g Sauerstoff vollständig zu Wasser. Wie viel Wasser entsteht?", o: ["36 g", "28 g", "32 g", "128 g"], a: 0, e: "Die Masse bleibt erhalten: 4 g + 32 g = 36 g."},
+    {q: "18 g Wasser werden vollständig zerlegt. Dabei entstehen 2 g Wasserstoff. Wie viel Sauerstoff entsteht?", o: ["16 g", "20 g", "9 g", "2 g"], a: 0, e: "Die Masse der Produkte ist so groß wie die des Wassers: 18 g − 2 g = 16 g."},
+    {q: "Silbernitrat-Lösung und Natriumchlorid-Lösung werden gemischt. Es fällt ein weißer Niederschlag aus, die Partner werden getauscht. Welche Wortgleichung stimmt?", o: ["Silbernitrat + Natriumchlorid → Silberchlorid + Natriumnitrat", "Silbernitrat → Silber + Nitrat", "Silbernitrat + Natriumchlorid → Silberchlorid", "Silber + Natriumchlorid → Silbernitrat + Natrium"], a: 0, e: "Bei der Umsetzung tauschen die Stoffe ihre Partner. Silberchlorid ist der weiße Niederschlag."},
+    {q: "Bei der Zersetzung von Wasser muss die ganze Zeit Strom fließen. Was sagt das über die Energie?", o: ["Die Reaktion nimmt Energie auf.", "Die Reaktion gibt Energie ab.", "Energie spielt bei Reaktionen keine Rolle.", "Die Energie verschwindet bei der Reaktion."], a: 0, e: "Zum Zerlegen von Wasser muss man Energie zuführen: Die Reaktion nimmt Energie auf (endotherm)."}
+  ], "mc5m", {t: "M8-Check"});
+  NT8M.hilfen("#hilfe5m", ["Vergleiche die Masse der Ausgangsstoffe mit der Masse der Produkte.", "Bei der Zerlegung sind die Produkte zusammen so schwer wie das Wasser vorher."]);
+});
+
+/* ---------- Station 6: Training ---------- */
+Modul.makeTF($("#tf6"), [
+  ["Wenn Eis schmilzt, entsteht ein neuer Stoff.", false],
+  ["Bei einer Synthese entsteht aus zwei Stoffen ein neuer Stoff.", true],
+  ["Bei einer Analyse wird ein Stoff in andere Stoffe zerlegt.", true],
+  ["Im Kugelmodell verschwinden bei einer Reaktion einzelne Atome.", false],
+  ["Rost hat andere Eigenschaften als Eisen.", true],
+  ["Wenn eine Flüssigkeit sprudelt, ist das immer eine chemische Reaktion.", false]
+], "tf6");
+Modul.makeOrder($("#order6"), [
+  "Das Gerät wird mit Wasser gefüllt und an Gleichstrom angeschlossen.",
+  "Der Strom fließt: An beiden Polen steigen Gasbläschen auf.",
+  "In einem Rohr sammelt sich doppelt so viel Gas wie im anderen.",
+  "Die Lehrkraft prüft die Gase mit Knallgasprobe und Glimmspanprobe.",
+  "Ergebnis: Wasser wurde in Wasserstoff und Sauerstoff zerlegt."
+], "order6");
+Modul.makeCrossword($("#cw6"), {
+  words: [
+    {w: "NIEDERSCHLAG", r: 2, c: 2, d: "d", q: "Fester Stoff, der aus einer Lösung ausfällt"},
+    {w: "SYNTHESE", r: 2, c: 0, d: "a", q: "Aus zwei Stoffen entsteht ein neuer Stoff"},
+    {w: "PRODUKT", r: 7, c: 1, d: "a", q: "Stoff, der bei einer Reaktion entsteht"},
+    {w: "ANALYSE", r: 12, c: 0, d: "a", q: "Ein Stoff wird in andere Stoffe zerlegt"},
+    {w: "KUGEL", r: 6, c: 5, d: "d", q: "So zeichnet man im Modell ein Atom"},
+    {w: "WASSER", r: 0, c: 0, d: "d", q: "Produkt der Knallgasreaktion"},
+    {w: "ATOM", r: 6, c: 7, d: "d", q: "Kleinstes Teilchen eines Elements"},
+    {w: "ROST", r: 0, c: 6, d: "d", q: "Neuer Stoff, der aus Eisen und Sauerstoff entsteht"},
+    {w: "GAS", r: 11, c: 0, d: "d", q: "Beim Sprudeln der Brausetablette entsteht es"}
+  ],
+  sol: [[5, 0], [6, 2], [12, 0], [6, 5], [7, 7], [3, 2], [1, 6], [12, 1]], solWord: "REAKTION"
+}, "cw");
+NT8M.offen($("#open6"), [
+  {q: "Erkläre, was man unter einer Stoffumwandlung versteht, und gib ein Beispiel.", m: "Bei einer Stoffumwandlung entstehen aus den Ausgangsstoffen neue Stoffe mit neuen Eigenschaften, zum Beispiel wird Eisen mit Sauerstoff zu Rost.",
+    k: ["neue stoff|neuer stoff|neuen stoff", "eigenschaft", "rost|eisen|brause|apfel|verbrenn"], min: 2, satz: "Bei einer Stoffumwandlung …"},
+  {q: "Ein Eiswürfel schmilzt, ein Nagel rostet. Erkläre, warum nur eines davon eine chemische Reaktion ist.", m: "Beim Schmelzen bleibt der Stoff derselbe: Eis und Wasser sind beides Wasser. Beim Rosten entsteht aus Eisen und Sauerstoff Rost, ein neuer Stoff mit anderen Eigenschaften.",
+    k: ["derselbe|gleiche stoff|bleibt|nur der zustand", "neue stoff|neuer stoff|rost", "eigenschaft|anders|verändert"], min: 2, satz: "Beim Schmelzen … Beim Rosten …"},
+  {q: "Transfer: Zwei Wasser-Teilchen werden im Kugelmodell zerlegt. Beschreibe, was mit den Atomen passiert, und nenne die Produkte.", m: "Die Teilchen werden getrennt und die Atome gruppieren sich neu. Aus 2 Wasser-Teilchen entstehen 2 Wasserstoff-Teilchen und 1 Sauerstoff-Teilchen. Es geht kein Atom verloren und keines kommt dazu.",
+    k: ["neu angeordnet|umgruppier|gruppieren sich neu|ordnen sich neu|anders angeordnet|neu zusammen", "wasserstoff", "sauerstoff", "verloren|dazu|gleich viele|bleibt"], min: 3, satz: "Die Atome … Es entstehen …"}
+], "open", "Schau in Station 3 und 5 nach: Was bleibt gleich, was ändert sich?");
+NT8M.duell($("#duell6"), {titel: "Chemische Reaktionen", runden: [
+  {b: "Wenn Wasser verdampft, entsteht ein neuer Stoff.", stimmt: false, o: ["Wasserdampf ist derselbe Stoff wie Wasser.", "Es entsteht Sauerstoff.", "Es entsteht Rost."], a: 0, e: "Verdampfen ist ein physikalischer Vorgang."},
+  {b: "Bei der Synthese von Wasser reagieren Wasserstoff und Sauerstoff.", stimmt: true, e: "Wasserstoff + Sauerstoff → Wasser."},
+  {b: "Im Kugelmodell werden bei einer Reaktion neue Atome erzeugt.", stimmt: false, o: ["Die Atome werden nur neu angeordnet.", "Die Atome werden zerstört.", "Die Atome werden kleiner."], a: 0, e: "Es geht kein Atom verloren und es kommt keines dazu."},
+  {b: "Rost entsteht, wenn Eisen mit Sauerstoff reagiert.", stimmt: true, e: "Feuchtigkeit beschleunigt das Rosten. Rost ist ein neuer Stoff."},
+  {b: "Das Zerlegen von Wasser mit Strom nennt man Synthese.", stimmt: false, o: ["Man nennt es Analyse.", "Man nennt es Schmelzen.", "Man nennt es Lösen."], a: 0, e: "Ein Stoff wird zerlegt: Das ist eine Analyse."}
+]}, "duell");
+NT8M.plus(() => {
+  NT8M.offen($("#open6m"), [
+    {q: "Begründe mit dem Kugelmodell, warum die Gesamtmasse bei einer chemischen Reaktion in einem geschlossenen Gefäß gleich bleibt.",
+      m: "Bei der Reaktion werden die Atome nur neu angeordnet. Es geht kein Atom verloren und es kommt keines dazu, und jedes Atom behält seine Masse. Deshalb ist die Masse der Produkte gleich der Masse der Ausgangsstoffe.",
+      k: ["neu angeordnet|umgruppier|neu gruppier|anders angeordnet|neu zusammen", "verloren|dazu|gleich viele|gleiche anzahl|bleibt", "masse"], min: 3, satz: "Im Kugelmodell werden die Atome … Deshalb …"}
+  ], "openm", "Denk an die Kugeln: Wie viele sind vorher und nachher da?");
+});
+
+/* ---------- Station 7: Profi-Check ---------- */
+Modul.makeQuiz($("#quiz"), [
+  {q: "Was ist das wichtigste Kennzeichen einer chemischen Reaktion?", o: ["Es entstehen neue Stoffe mit neuen Eigenschaften.", "Es wird immer warm.", "Es sprudelt immer.", "Der Stoff ändert nur seine Form."], a: 0},
+  {q: "Welcher Vorgang ist eine chemische Reaktion?", o: ["Ein Nagel rostet.", "Ein Eiswürfel schmilzt.", "Zucker löst sich im Tee.", "Wasser verdampft."], a: 0},
+  {q: "Welcher Vorgang ist ein physikalischer Vorgang?", o: ["Kerzenwachs schmilzt.", "Papier verbrennt.", "Ein Apfel wird braun.", "Eine Brausetablette sprudelt."], a: 0},
+  {q: "Was ist ein Niederschlag?", o: ["Ein fester Stoff, der aus einer Lösung ausfällt.", "Ein Gas, das aufsteigt.", "Regen, der vom Himmel fällt.", "Ein Stoff, der sich im Wasser löst."], a: 0},
+  {q: "Was versteht man unter einer Synthese?", o: ["Aus zwei Stoffen entsteht ein neuer Stoff.", "Ein Stoff wird zerlegt.", "Ein Stoff schmilzt.", "Ein Stoff löst sich auf."], a: 0},
+  {q: "Was versteht man unter einer Analyse?", o: ["Ein Stoff wird in andere Stoffe zerlegt.", "Aus zwei Stoffen entsteht ein neuer Stoff.", "Ein Stoff verdampft.", "Zwei Stoffe vermischen sich nur."], a: 0},
+  {q: "Welche Wortgleichung beschreibt die Knallgasreaktion?", o: ["Wasserstoff + Sauerstoff → Wasser", "Wasser → Wasserstoff + Sauerstoff", "Wasser + Sauerstoff → Wasserstoff", "Wasserstoff → Wasser + Sauerstoff"], a: 0},
+  {q: "Wo stehen in einer Wortgleichung die Ausgangsstoffe?", o: ["links vom Reaktionspfeil", "rechts vom Reaktionspfeil", "über dem Reaktionspfeil", "gar nicht"], a: 0},
+  {q: "Wie liest man den Reaktionspfeil?", o: ["„reagiert zu“", "„ist gleich“", "„wird gelöst in“", "„ist größer als“"], a: 0},
+  {q: "Wie stellt man sich im Kugelmodell ein Atom vor?", o: ["als Kugel", "als Würfel", "als Flüssigkeit", "als Lichtstrahl"], a: 0},
+  {q: "Was geschieht im Kugelmodell bei einer chemischen Reaktion?", o: ["Die Atome werden neu angeordnet.", "Die Atome verschwinden.", "Es entstehen neue Atome aus dem Nichts.", "Die Atome werden größer."], a: 0},
+  {q: "Vor einer Reaktion gibt es 6 Wasserstoff-Atome. Wie viele sind es nachher?", o: ["6", "3", "12", "0"], a: 0},
+  {q: "Welches Anzeichen siehst du, wenn eine Brausetablette sprudelt?", o: ["Gasentwicklung", "Niederschlag", "Schmelzen", "Erstarren"], a: 0},
+  {q: "Wer darf die Knallgasreaktion und die Zerlegung von Wasser durchführen?", o: ["nur die Lehrkraft", "jeder zu Hause", "alle Schülerinnen und Schüler", "nur ältere Geschwister"], a: 0},
+  {q: "Warum ist Sprudeln allein noch kein sicherer Beweis für eine chemische Reaktion?", o: ["Auch kochendes Wasser sprudelt, ohne dass ein neuer Stoff entsteht.", "Weil Sprudeln immer physikalisch ist.", "Weil Gase unsichtbar sind.", "Weil Sprudeln nur im Winter vorkommt."], a: 0}
+], "quiz", "Reaktions-Profi");
+
+NT8M.fertig();
+})();
+</script>
+</body>
+</html>

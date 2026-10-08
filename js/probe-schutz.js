@@ -23,6 +23,7 @@
  *   einfuegen [{ zeit, zeichen, woerter, erlaubt }]   Der eingefügte Text selbst wird nie gespeichert.
  *   kopieren  [{ zeit, art: "copy" | "cut", zeichen }]
  *   spruenge  [{ zeit, woerter, sekunden, vorher, nachher }]   sehr viel neuer Text in sehr kurzer Zeit
+ *   verbindung [{ zeit, art: "weg" | "da" }]   Das Gerät hat die Verbindung verloren bzw. wieder bekommen
  * Zusätzliche Angaben für start():
  *   ueberwachung: false           nur ein kurzer Hinweis nach der Rückkehr. Vorgabe (seit 06.10.2026 für alle Proben): nach
  *                                 der Rückkehr ein deutlicher Hinweis mit „Weiter“ (1., 2., ab dem 3. Mal), auch der verlorene
@@ -47,7 +48,7 @@
   var MAX_ALTER = 6 * 60 * 60 * 1000;
   var FELD = "input[type=text], input:not([type]), textarea";
   var aktiv = null, zahl = 0, draussen = false, timer = null;
-  var LEER = function () { return { wechsel: [], einfuegen: [], kopieren: [], spruenge: [] }; };
+  var LEER = function () { return { wechsel: [], einfuegen: [], kopieren: [], spruenge: [], verbindung: [] }; };
   var prot = LEER(), weg = null, stumm = false, ebenEingefuegt = 0;
   var MAX_EINTRAEGE = 200, SPRUNG_WOERTER = 30, SPRUNG_MS = 3000, FOKUS_MIN_SEK = 2, NEULADEN_MAX_SEK = 30;
   var sockel = 0, entladen = 0, zuletzt = "";
@@ -126,7 +127,7 @@
     if (s.x && aktiv.extra) { try { aktiv.extra.setzen(s.x); } catch (_e) {} }
     // Stand einer älteren Fassung dieser Datei: Dort gab es nur die Zahl
     sockel = s.p && s.p.wechsel ? 0 : s.verlassen || 0;
-    if (s.p && s.p.wechsel) { prot = LEER(); ["wechsel", "einfuegen", "kopieren", "spruenge"].forEach(function (k) { if (Array.isArray(s.p[k])) prot[k] = s.p[k].slice(0, MAX_EINTRAEGE); }); }
+    if (s.p && s.p.wechsel) { prot = LEER(); ["wechsel", "einfuegen", "kopieren", "spruenge", "verbindung"].forEach(function (k) { if (Array.isArray(s.p[k])) prot[k] = s.p[k].slice(0, MAX_EINTRAEGE); }); }
     zahl = sockel + prot.wechsel.length;
     // Die Seite wurde neu geladen, während sie verlassen war: Die Rückkehr ist jetzt
     if (s.o && s.o.von) { weg = s.o; kommt(); }
@@ -206,6 +207,11 @@
     entladen = Date.now();
     if (aktiv && weg && weg.art === "verborgen" && Date.now() - Date.parse(weg.von) < 1500) { weg.art = "neuladen"; draussen = false; zahl = sockel + prot.wechsel.length; }
     sichern();
+  });
+
+  /* ---------- Verbindung: WLAN weg und wieder da (nur Zeitpunkte) ---------- */
+  ["offline", "online"].forEach(function (art) {
+    global.addEventListener(art, function () { if (!aktiv) return; merke(prot.verbindung, { zeit: jetzt(), art: art === "offline" ? "weg" : "da" }); sichern(); });
   });
 
   /* ---------- Nicht einfügen, nicht kopieren ---------- */

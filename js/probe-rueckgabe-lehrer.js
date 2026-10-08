@@ -81,8 +81,11 @@
         var modul = String(d.modulTitel || (transfer ? "" : teil)).trim();
         if (modul) a.modul = modul;
         if (transfer) a.transfer = true;
+        // NT 8: Abbildung, Messwerttabelle, Diagramm, Endzustand einer Bauaufgabe und Lernhinweis (wie proben-rueckgabe.js)
+        ["image", "imageAlt", "tabelle", "diagramm", "labor", "zustand", "regeln", "tipp", "kompetenz"].forEach(function (k) { if (d[k] !== undefined && d[k] !== "") a[k] = d[k]; });
         return a;
-      })
+      }),
+      modul: C.modul, variante: r.variante || ""
     };
   }
   function drucken(rows) {

@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#b5651d">
+<title>Elektrische Leistung und Stromkosten | NT 8</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="nt8.css">
+<style>
+.hero{background:linear-gradient(160deg,#4a2a0f,#b5651d 55%,#f2b632)}
+.grid2>*{min-width:0}
+svg{max-width:100%;height:auto}
+.vergleich{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.vergleich>*{min-width:0}
+.vergleich figure{margin:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#f7fbfe}
+.vergleich figcaption{padding:6px 10px;font-size:.9rem;font-weight:700;background:#fff;border-top:1px solid var(--line)}
+@media (max-width:560px){.vergleich{grid-template-columns:1fr}}
+.messtab{width:100%;table-layout:fixed;border-collapse:collapse;margin:8px 0;font-size:.95rem}
+.messtab th,.messtab td{border:1px solid var(--line);padding:6px 6px;text-align:center;overflow-wrap:anywhere}
+.messtab th{background:var(--sky-l)}
+.reglerzeile{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0;min-width:0}
+.reglerzeile label{font-weight:700;min-width:0}
+.reglerzeile input[type=range]{flex:1 1 180px;min-width:0;height:44px}
+.reglerzeile output{font-weight:800;min-width:70px}
+.formelbox{background:#fff7e6;border:2px solid #f2b632;border-radius:12px;padding:10px 14px;font-size:1.15rem;font-weight:800;text-align:center;margin:10px 0}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>NT 8</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Zwei Geräte</a>
+      <a href="#s2"><b>2</b>Typenschilder</a>
+      <a href="#s3"><b>3</b>P = U · I</a>
+      <a href="#s4"><b>4</b>Kilowattstunde</a>
+      <a href="#s5"><b>5</b>Energie sparen</a>
+      <a href="#s6"><b>6</b>Training</a>
+      <a href="#s7"><b>7</b>Profi-Check</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">🔬 Übersicht NT 8</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse 8 · Energie nutzen · Lernmodul 2</div>
+    <h1>Elektrische Leistung und Stromkosten</h1>
+    <p>Ein Wasserkocher macht in zwei Minuten Wasser heiß, eine LED-Lampe leuchtet stundenlang fast umsonst. Woran liegt das – und was kostet es? Du liest Typenschilder, rechnest Kosten aus und findest die Stromfresser im Haushalt.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s4">Direkt zum Kosten-Rechner</a>
+    </div>
+    <div class="goals">
+      <div>⚡ Ich erkläre, was die Leistung eines Geräts angibt.</div>
+      <div>🧮 Ich berechne die Leistung mit P = U · I.</div>
+      <div>💶 Ich bestimme Energiebedarf in kWh und die Stromkosten.</div>
+      <div>🌱 Ich bewerte Möglichkeiten zum Energiesparen.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg</div><h2>Wasserkocher gegen LED-Lampe</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Ein Wasserkocher und eine LED-Lampe hängen am selben Stromnetz. Trotzdem wird der Kocher nach kurzer Zeit heiß, die Lampe kaum.</p>
+      <p>Der Unterschied liegt in der <button class="term" data-t="leistung">Leistung</button>: Sie sagt, wie viel elektrische Energie ein Gerät in <strong>jeder Sekunde</strong> umwandelt. Rechts füllen sich zwei Becher mit der umgewandelten Energie. Starte den Versuch und beobachte.</p>
+      <span class="task-tag leicht" style="margin-top:12px">Schätzen und ordnen · leicht</span>
+      <p class="hint">Schätze: Welches Gerät wandelt in jeder Sekunde am meisten Energie um? Ordne vom kleinsten zum größten Wert. Die genauen Zahlen lernst du gleich kennen.</p>
+      <div id="order1"></div>
+    </div>
+    <div class="sim reveal" id="becherSim">
+      <svg viewBox="0 0 520 300" role="img" aria-label="Zwei Becher füllen sich mit umgewandelter Energie: Der Becher des Wasserkochers wird voll, der Becher der LED-Lampe bleibt fast leer">
+        <rect width="520" height="300" fill="#f7fbfe"/>
+        <text x="260" y="30" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b" id="bZeit">Zeit: 0 Sekunden</text>
+        <rect x="60" y="60" width="140" height="150" fill="#fff" stroke="#566674" stroke-width="3"/>
+        <g id="bWK" style="transform-origin:130px 210px;transform:scaleY(0)"><rect x="62" y="60" width="136" height="148" fill="#e0803a"/></g>
+        <rect x="320" y="60" width="140" height="150" fill="#fff" stroke="#566674" stroke-width="3"/>
+        <g id="bLED" style="transform-origin:390px 210px;transform:scaleY(0)"><rect x="322" y="60" width="136" height="148" fill="#f2b632"/></g>
+        <text x="130" y="238" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">☕ Wasserkocher</text>
+        <text x="130" y="260" text-anchor="middle" font-size="14" font-weight="700" fill="#c0392b">2000 W</text>
+        <text x="390" y="238" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">💡 LED-Lampe</text>
+        <text x="390" y="260" text-anchor="middle" font-size="14" font-weight="700" fill="#c0392b">8 W</text>
+        <text x="260" y="286" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">Becher = umgewandelte Energie</text>
+      </svg>
+      <div class="sim-ctrl"><button class="btn" type="button" id="bStart">▶ 10 Sekunden laufen lassen</button> <button class="btn ghost" type="button" id="bReset">Zurücksetzen</button></div>
+      <p class="obs" id="bObs">Starte den Versuch. Beide Geräte laufen gleich lang.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Ausprobieren</div><h2>Was auf dem Typenschild steht</h2></div></div>
+  <div class="grid2">
+    <div class="sim reveal" id="schildSim">
+      <svg viewBox="0 0 520 260" role="img" aria-label="Typenschild eines Geräts mit Netzspannung und Leistungsangabe">
+        <rect width="520" height="260" fill="#f7fbfe"/>
+        <rect x="50" y="14" width="420" height="180" rx="12" fill="#e8edf1" stroke="#566674" stroke-width="3"/>
+        <rect x="50" y="14" width="420" height="30" rx="12" fill="#566674"/>
+        <text x="260" y="35" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">TYPENSCHILD</text>
+        <text id="sName" x="260" y="78" text-anchor="middle" font-size="22" font-weight="800" fill="#15212b">Wähle ein Gerät</text>
+        <text x="260" y="108" text-anchor="middle" font-size="15" font-weight="700" fill="#566674">Netzspannung: 230 V ~</text>
+        <text id="sP" x="260" y="150" text-anchor="middle" font-size="28" font-weight="800" fill="#c0392b">P = ?</text>
+        <text id="sKW" x="260" y="180" text-anchor="middle" font-size="16" font-weight="700" fill="#15212b"> </text>
+        <text id="sLED" x="260" y="222" text-anchor="middle" font-size="14" font-weight="800" fill="#1b5e9b"> </text>
+        <text x="260" y="246" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">Typische Werte – bei jedem Gerät etwas anders</text>
+      </svg>
+      <div class="sim-ctrl"><div class="wahl" style="margin:0">
+        <button type="button" data-geraet="0">💡 LED-Lampe</button>
+        <button type="button" data-geraet="1">📺 Fernseher</button>
+        <button type="button" data-geraet="2">💨 Föhn</button>
+        <button type="button" data-geraet="3">☕ Wasserkocher</button>
+        <button type="button" data-geraet="4">🍳 Herdplatte</button>
+      </div></div>
+      <p class="obs" id="sObs">Tippe nacheinander alle fünf Geräte an und lies die Leistung ab.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Fast jedes Elektrogerät trägt ein <button class="term" data-t="typenschild">Typenschild</button>. Darauf steht, mit welcher Spannung es arbeitet und welche Leistung es hat.</p>
+      <p>Die Leistung wird in <button class="term" data-t="watt">Watt</button> (W) angegeben. Große Werte kürzt man ab: <strong>1 kW = 1000 W</strong> (Kilowatt). Für Kraftwerke braucht man Megawatt: 1 MW = 1000 kW = 1 Million Watt.</p>
+      <p>Die Einheit trägt den Namen des schottischen Ingenieurs <strong>James Watt</strong> (1736–1819), der die Dampfmaschine entscheidend verbessert hat.</p>
+      <div class="merke"><h4>MERKE</h4><ul><li>Die Leistung gibt an, wie viel Energie ein Gerät in jeder Sekunde umwandelt.</li><li>Einheit: Watt (W). 1 kW = 1000 W.</li><li>Große Leistung bedeutet: viel Energie in kurzer Zeit.</li></ul></div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card reveal">
+      <span class="task-tag leicht">Kurz-Check · leicht</span>
+      <div id="mc-s2"></div>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag mittel">Zuordnen · mittel</span>
+      <p class="hint">Sortiere die Geräte nach ihrer Leistung.</p>
+      <div id="sort2"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Forscherlabor</div><h2>Leistung berechnen: P = U · I</h2></div></div>
+  <div class="grid2">
+    <div class="sim reveal" id="pSim">
+      <svg viewBox="0 0 520 290" role="img" aria-label="Drei Anzeigen: Spannung 230 Volt, Stromstärke einstellbar, Leistung als Ergebnis, darunter ein Balken für die Leistung">
+        <rect width="520" height="290" fill="#f7fbfe"/>
+        <rect x="20" y="26" width="140" height="100" rx="10" fill="#fff" stroke="#2f6fdb" stroke-width="3"/>
+        <text x="90" y="52" text-anchor="middle" font-size="14" font-weight="800" fill="#2f6fdb">Spannung U</text>
+        <text x="90" y="95" text-anchor="middle" font-size="26" font-weight="800" fill="#15212b">230 V</text>
+        <text x="90" y="116" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">fest</text>
+        <text x="180" y="86" text-anchor="middle" font-size="26" font-weight="800" fill="#15212b">·</text>
+        <rect x="200" y="26" width="140" height="100" rx="10" fill="#fff" stroke="#e0453a" stroke-width="3"/>
+        <text x="270" y="52" text-anchor="middle" font-size="14" font-weight="800" fill="#e0453a">Stromstärke I</text>
+        <text id="pI" x="270" y="95" text-anchor="middle" font-size="26" font-weight="800" fill="#15212b">0 A</text>
+        <text x="270" y="116" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">stellst du ein</text>
+        <text x="360" y="86" text-anchor="middle" font-size="26" font-weight="800" fill="#15212b">=</text>
+        <rect x="380" y="26" width="120" height="100" rx="10" fill="#fff7e6" stroke="#b5651d" stroke-width="3"/>
+        <text x="440" y="52" text-anchor="middle" font-size="14" font-weight="800" fill="#b5651d">Leistung P</text>
+        <text id="pP" x="440" y="95" text-anchor="middle" font-size="24" font-weight="800" fill="#15212b">0 W</text>
+        <text x="440" y="116" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">Ergebnis</text>
+        <rect x="30" y="160" width="460" height="26" rx="6" fill="#fff" stroke="#566674" stroke-width="2"/>
+        <rect id="pBar" x="31" y="161" width="0" height="24" rx="5" fill="#e0803a"/>
+        <text x="30" y="208" font-size="12" font-weight="700" fill="#566674">0 W</text>
+        <text x="490" y="208" text-anchor="end" font-size="12" font-weight="700" fill="#566674">2300 W</text>
+        <text id="pForm" x="260" y="256" text-anchor="middle" font-size="17" font-weight="800" fill="#15212b">P = 230 V · 0 A = 0 W</text>
+      </svg>
+      <div class="sim-ctrl">
+        <div class="reglerzeile"><label for="iReg">Stromstärke:</label><input type="range" id="iReg" min="0" max="10" step="0.5" value="0" aria-label="Stromstärke in Ampere"><output id="iOut">0 A</output></div>
+      </div>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Ein Gerät an der Steckdose hat immer <button class="term" data-t="spannung">Spannung</button> 230 V. Die <button class="term" data-t="stromstaerke">Stromstärke</button> hängt vom Gerät ab.</p>
+      <p>Wie hängt die Leistung von der Stromstärke ab? Erforsche es am Regler links, nicht an der echten Steckdose.</p>
+      <div id="forscher3" style="margin-top:12px"></div>
+      <div class="merke" id="merke3"><h4>MERKE</h4>
+        <div class="formelbox">P = U · I</div>
+        <ul><li>Leistung = Spannung mal Stromstärke.</li><li>Einheiten: 1 W = 1 V · 1 A.</li><li>Bei gleicher Spannung gilt: je größer die Stromstärke, desto größer die Leistung.</li></ul></div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card reveal">
+      <span class="task-tag mittel">Rechnen · mittel</span>
+      <h3 style="margin-top:4px">Leistung ausrechnen</h3>
+      <div id="mc-s3"></div>
+      <div id="hilfe3"></div>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag leicht">Lückentext · leicht</span>
+      <div class="gaptext" id="gap3"></div>
+      <div data-zug="M" class="mehr-wissen-box">
+        <details class="mehr-wissen" open><summary>Mehr wissen (M8): Einheiten und Umstellen</summary><div>Auch kleine und große Leistungen haben eigene Vorsilben: <strong>1 W = 1000 mW</strong>, 1 kW = 1000 W, 1 MW = 1000 kW, <strong>1 GW = 1000 MW</strong>. Bei elektrischen Geräten schreibt man die Leistung manchmal in Voltampere: <strong>1 VA = 1 W</strong>. Kennst du P und U, rechnest du die Stromstärke aus: <strong>I = P : U</strong>.</div></details>
+      </div>
+    </div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag m8">M8 · für 8R freiwillig</span>
+    <h3 style="margin-top:4px">Umstellen und umrechnen</h3>
+    <div id="mc-s3m"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Anwenden</div><h2>Die Kilowattstunde und der Kosten-Rechner</h2></div></div>
+  <div class="grid2">
+    <div class="sim reveal" id="kostSim">
+      <svg viewBox="0 0 520 280" role="img" aria-label="Steckdose, Energiemessgerät im Zwischenstecker und angeschlossenes Gerät">
+        <rect width="520" height="280" fill="#f7fbfe"/>
+        <rect x="14" y="90" width="76" height="90" rx="10" fill="#fff" stroke="#566674" stroke-width="3"/>
+        <circle cx="42" cy="135" r="6" fill="#15212b"/><circle cx="62" cy="135" r="6" fill="#15212b"/>
+        <text x="52" y="204" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">Steckdose</text>
+        <line x1="90" y1="135" x2="130" y2="135" stroke="#5f6770" stroke-width="5"/>
+        <rect x="130" y="62" width="170" height="146" rx="12" fill="#e8edf1" stroke="#566674" stroke-width="3"/>
+        <rect x="146" y="84" width="138" height="56" rx="6" fill="#cfe9d5" stroke="#15212b" stroke-width="2"/>
+        <text id="mKwh" x="215" y="121" text-anchor="middle" font-size="24" font-weight="800" fill="#15212b" style="font-family:monospace">– kWh</text>
+        <text x="215" y="170" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">Energiemessgerät</text>
+        <text x="215" y="190" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">(Zwischenstecker)</text>
+        <line x1="300" y1="135" x2="350" y2="135" stroke="#5f6770" stroke-width="5"/>
+        <rect x="350" y="70" width="158" height="130" rx="12" fill="#fff" stroke="#b5651d" stroke-width="3"/>
+        <text id="mIcon" x="429" y="116" text-anchor="middle" font-size="34"> </text>
+        <text id="mGer" x="429" y="150" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">Gerät wählen</text>
+        <text id="mP" x="429" y="176" text-anchor="middle" font-size="14" font-weight="700" fill="#c0392b"> </text>
+        <text id="mKost" x="260" y="248" text-anchor="middle" font-size="18" font-weight="800" fill="#1b8a4b"> </text>
+      </svg>
+      <div class="sim-ctrl">
+        <div class="wahl" style="margin:0 0 8px">
+          <button type="button" data-kgeraet="0">💡 LED-Lampe</button>
+          <button type="button" data-kgeraet="1">📺 Fernseher</button>
+          <button type="button" data-kgeraet="2">💨 Föhn</button>
+          <button type="button" data-kgeraet="3">☕ Wasserkocher</button>
+        </div>
+        <div class="reglerzeile"><label for="tReg">Laufzeit:</label><input type="range" id="tReg" min="5" max="240" step="5" value="30" aria-label="Laufzeit in Minuten"><output id="tOut">30 min</output></div>
+      </div>
+      <p class="obs" id="kObs">Wähle ein Gerät und stelle die Laufzeit ein. Der Preis ist angenommen: 35 Cent je kWh.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Auf der Stromrechnung steht keine Leistung, sondern die <button class="term" data-t="kilowattstunde">Kilowattstunde</button> (kWh). Sie misst, wie viel Energie du genutzt hast.</p>
+      <p><strong>1 kWh</strong> ist die Energie, die ein Gerät mit 1 kW in 1 Stunde umwandelt. Ein Wasserkocher mit 2 kW braucht dafür nur eine halbe Stunde.</p>
+      <p>Wie viel Energie ein Gerät wirklich nutzt, misst ein <button class="term" data-t="energiemessgeraet">Energiemessgerät</button>. Es steckt als Zwischenstecker zwischen Steckdose und Gerät.</p>
+      <span class="versuch-art lehrer">LEHRERVERSUCH · nur die Lehrkraft</span>
+      <p class="hint">Messungen an der Steckdose macht die Lehrkraft. Du liest nur das Display ab.</p>
+      <div class="merke"><h4>MERKE</h4><ul><li>Energie in kWh = Leistung in kW mal Zeit in Stunden.</li><li>Kosten = Energie in kWh mal Preis je kWh.</li><li>Wir rechnen mit 35 Cent je kWh. Der Preis ändert sich im Lauf der Zeit.</li></ul></div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card reveal">
+      <span class="task-tag mittel">Rechnen · mittel</span>
+      <h3 style="margin-top:4px">Energie und Kosten</h3>
+      <div id="mc-s4"></div>
+      <div id="hilfe4"></div>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag m8">M8 · für 8R freiwillig</span>
+      <h3 style="margin-top:4px">Mit Formeln rechnen</h3>
+      <div class="formelbox" style="font-size:1rem">E = P · t &nbsp;&nbsp; E = U · I · t</div>
+      <div id="mc-s4m"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Bewerten</div><h2>Energie sparen: Was lohnt sich?</h2></div></div>
+  <div class="grid2">
+    <div class="sim reveal">
+      <svg viewBox="0 0 560 260" role="img" aria-label="Balkendiagramm: Energiebedarf im Stand-by pro Jahr. Receiver 105 kWh, Stereoanlage 44 kWh, Kaffeemaschine 18 kWh, Fernseher 9 kWh, Ladegerät 4 kWh">
+        <rect width="560" height="260" fill="#f7fbfe"/>
+        <text x="280" y="24" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Stand-by: Energiebedarf pro Jahr (rund um die Uhr)</text>
+        <g font-size="13" font-weight="700" fill="#15212b" text-anchor="end">
+          <text x="146" y="62">Receiver (12 W)</text><text x="146" y="100">Stereoanlage (5 W)</text><text x="146" y="138">Kaffeemaschine (2 W)</text><text x="146" y="176">Fernseher (1 W)</text><text x="146" y="214">Ladegerät (0,5 W)</text>
+        </g>
+        <line x1="152" y1="40" x2="152" y2="228" stroke="#566674" stroke-width="2"/>
+        <rect x="153" y="44" width="294" height="24" fill="#c0392b"/><rect x="153" y="82" width="123" height="24" fill="#e0803a"/><rect x="153" y="120" width="49" height="24" fill="#f2b632"/><rect x="153" y="158" width="25" height="24" fill="#9ccc3c"/><rect x="153" y="196" width="13" height="24" fill="#1b8a4b"/>
+        <g font-size="13" font-weight="800" fill="#15212b">
+          <text x="455" y="62">105 kWh</text><text x="284" y="100">44 kWh</text><text x="210" y="138">18 kWh</text><text x="186" y="176">9 kWh</text><text x="174" y="214">4 kWh</text>
+        </g>
+        <text x="280" y="250" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">Beispielwerte, gerundet · 1 W Dauerbetrieb sind etwa 8,8 kWh im Jahr</text>
+      </svg>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Selbst ausgeschaltet wirkende Geräte nutzen oft Energie: Im <button class="term" data-t="standby">Stand-by</button> warten sie auf die Fernbedienung oder zeigen eine Uhr an.</p>
+      <p>Jedes Gerät braucht nur wenig. Aber es läuft rund um die Uhr, 8760 Stunden im Jahr. Lies im Diagramm links ab, welche Geräte besonders viel brauchen.</p>
+      <p>Mit einer schaltbaren Steckerleiste trennst du alle angeschlossenen Geräte mit einem Klick vom Netz.</p>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Beim Kauf hilft das <button class="term" data-t="energielabel">Energielabel</button>: Die Buchstaben A bis G zeigen, wie sparsam ein Gerät ist.</p>
+      <p>Eine LED-Lampe mit 8 W leuchtet etwa so hell wie eine alte Glühlampe mit 60 W. In 1000 Betriebsstunden wandelt die Glühlampe 60 kWh um, die LED nur 8 kWh. Das spart 52 kWh – bei 35 Cent sind das 18,20 €.</p>
+    </div>
+    <div class="vergleich reveal" style="grid-template-columns:1fr">
+      <figure>
+        <svg viewBox="0 0 400 230" role="img" aria-label="Energielabel mit den Klassen A bis G von grün bis rot">
+          <rect width="400" height="230" fill="#f7fbfe"/>
+          <g font-size="16" font-weight="800">
+            <rect x="10" y="10" width="90" height="26" rx="4" fill="#1b8a4b"/><text x="22" y="29" fill="#fff">A</text>
+            <rect x="10" y="40" width="120" height="26" rx="4" fill="#4caf3a"/><text x="22" y="59" fill="#fff">B</text>
+            <rect x="10" y="70" width="150" height="26" rx="4" fill="#9ccc3c"/><text x="22" y="89" fill="#15212b">C</text>
+            <rect x="10" y="100" width="180" height="26" rx="4" fill="#f2d21e"/><text x="22" y="119" fill="#15212b">D</text>
+            <rect x="10" y="130" width="210" height="26" rx="4" fill="#f2a21e"/><text x="22" y="149" fill="#15212b">E</text>
+            <rect x="10" y="160" width="240" height="26" rx="4" fill="#e86a1e"/><text x="22" y="179" fill="#fff">F</text>
+            <rect x="10" y="190" width="270" height="26" rx="4" fill="#d6342a"/><text x="22" y="209" fill="#fff">G</text>
+          </g>
+          <text x="110" y="28" font-size="12" font-weight="700" fill="#1b8a4b">sehr sparsam</text>
+          <text x="290" y="208" font-size="12" font-weight="700" fill="#d6342a">hoher Bedarf</text>
+        </svg>
+        <figcaption>Energielabel: A bis G</figcaption>
+      </figure>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card reveal">
+      <span class="task-tag mittel">Diagramm lesen und bewerten · mittel</span>
+      <div id="mc-s5"></div>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag leicht">Zuordnen · leicht</span>
+      <p class="hint">Was spart Energie, was nicht?</p>
+      <div id="sort5"></div>
+      <div class="card" style="margin-top:14px;background:#f7fbfe">
+        <span class="task-tag m8">M8 · für 8R freiwillig</span>
+        <h3 style="margin-top:4px">Jahreskosten im Stand-by</h3>
+        <div id="mc-s5m"></div>
+        <div id="hilfe5"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="s6">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Üben</div><h2>Training für die Probe</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <span class="task-tag leicht">Richtig oder falsch · leicht</span>
+      <div id="tf6"></div>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag mittel">Reihenfolge · mittel</span>
+      <h3 style="margin-top:4px">So bestimmst du die Stromkosten</h3>
+      <p class="hint">Bringe die Schritte in die richtige Reihenfolge.</p>
+      <div id="order6"></div>
+    </div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Kreuzworträtsel</span>
+    <div id="cw6"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag schwer">Erklären und übertragen · schwer</span>
+    <h3 style="margin-top:4px">In eigenen Worten <span class="hint">✨ KI prüft</span></h3>
+    <p class="hint">Du bekommst zuerst nur einen Tipp. Überarbeite dann deine Antwort.</p>
+    <div id="open6"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag m8">M8 · für 8R freiwillig</span>
+    <h3 style="margin-top:4px">Rechnen und beurteilen <span class="hint">✨ KI prüft</span></h3>
+    <div id="open6m"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 7 ============ -->
+<section class="station" id="s7">
+  <div class="st-head reveal"><div class="st-num">7</div><div><div class="eyebrow">Sichern</div><h2>Profi-Check und Lernkarten</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <div class="card reveal">
+    <span class="task-tag">Lernkarten</span>
+    <p class="hint">Die Karten gehören zum Lernset für die Probe. Sie zählen nicht zum Abschluss des Moduls – sie helfen dir beim Wiederholen.</p>
+    <div id="lernkarten"></div>
+  </div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Du weißt jetzt, was ein Gerät leistet und was es kostet. Im nächsten Modul geht es darum, woher der Strom kommt: Kraftwerke machen ihn und schicken ihn zu dir nach Hause.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="index.html">🔬 Übersicht NT 8</a>
+      <a href="kraftwerke.html">➡️ Nächstes Modul: Kraftwerke und der Weg des Stroms</a>
+      <a href="#" data-lernset>🧠 Lernset zur Probe</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik 8 · Lernmodul „Elektrische Leistung und Stromkosten“ · Dein Fortschritt wird auf diesem Gerät gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="karten.js"></script>
+<script src="nt8.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, register, solve} = Modul;
+const fz = (x, d) => String(parseFloat(x.toFixed(d))).replace(".", ",");
+
+NT8M.start({
+  id: "leistung",
+  thema: "Elektrische Leistung und Stromkosten: Leistung als umgewandelte Energie je Sekunde, P = U · I, Watt und Kilowatt, Typenschilder, Energie in Kilowattstunden, Stromkosten berechnen, Stand-by und Energielabel, bei M8 E = P · t und E = U · I · t",
+  glossary: {
+    leistung: ["Leistung", "Sie sagt, wie viel Energie ein Gerät in jeder Sekunde umwandelt. Formelzeichen P, Einheit Watt (W).", "Im Alltag sagt man „Wer leistet viel?“. In der Physik zählt: Energie durch Zeit. Ein Gerät mit hoher Leistung wandelt in kurzer Zeit viel Energie um."],
+    watt: ["Watt", "Die Einheit der Leistung, Zeichen W. 1 kW = 1000 W.", "Benannt nach James Watt (1736–1819). 1 W = 1 V · 1 A. Weitere Stufen: mW, kW, MW, GW – jeweils das 1000-Fache."],
+    typenschild: ["Typenschild", "Ein Schild am Gerät mit Angaben wie Spannung und Leistung."],
+    spannung: ["Spannung", "Sie gibt an, wie stark der „Antrieb“ im Stromkreis ist. Einheit Volt (V). In der Steckdose sind es 230 V."],
+    stromstaerke: ["Stromstärke", "Sie gibt an, wie viele Elektronen in jeder Sekunde fließen. Einheit Ampere (A)."],
+    kilowattstunde: ["Kilowattstunde", "Eine Einheit der Energie, Zeichen kWh. 1 kWh wandelt ein Gerät mit 1 kW in 1 Stunde um.", "1 kWh sind 3,6 Millionen Joule. Auf der Stromrechnung wird die Energie in kWh abgerechnet."],
+    energiemessgeraet: ["Energiemessgerät", "Ein Zwischenstecker mit Display. Er zeigt, wie viel Energie ein angeschlossenes Gerät genutzt hat."],
+    standby: ["Stand-by", "Bereitschaftszustand: Das Gerät scheint aus zu sein, braucht aber trotzdem Energie."],
+    energielabel: ["Energielabel", "Ein Aufkleber mit den Klassen A bis G. A ist sehr sparsam, G hat einen hohen Energiebedarf.", "Das Label gilt in der EU. Es nennt außerdem den Energiebedarf, zum Beispiel in kWh. Beim Vergleich lohnt der Blick auf die Zahl."]
+  }
+});
+
+/* ---------- Station 1: Energie-Becher ---------- */
+(function(){
+  let timer = null, fertig = false;
+  register("becher", "#becherSim", "Energie je Sekunde: Wasserkocher und LED-Lampe im Vergleich");
+  function setze(s){
+    const f = s / 10;
+    $("#bWK").style.transform = "scaleY(" + f + ")";
+    $("#bLED").style.transform = "scaleY(" + (f * 0.012) + ")";
+    $("#bZeit").textContent = "Zeit: " + fz(s, 0) + " Sekunden";
+  }
+  function ende(){
+    if (timer) { clearInterval(timer); timer = null; }
+    setze(10); fertig = true;
+    $("#bObs").textContent = "Nach 10 Sekunden hat der Wasserkocher 250-mal so viel Energie umgewandelt wie die LED-Lampe (2000 W gegen 8 W). Beim Becher der LED siehst du kaum einen Strich.";
+    solve("becher");
+  }
+  $("#bStart").addEventListener("click", () => {
+    if (timer) return;
+    setze(0); let s = 0;
+    $("#bObs").textContent = "Die Geräte laufen …";
+    timer = setInterval(() => { s += 0.4; if (s >= 10) ende(); else setze(s); }, 100);
+  });
+  $("#bReset").addEventListener("click", () => {
+    if (timer) { clearInterval(timer); timer = null; }
+    setze(0); $("#bObs").textContent = "Starte den Versuch. Beide Geräte laufen gleich lang.";
+  });
+  Modul.loeser["becher"] = ende;
+  Modul.makeOrder($("#order1"), [
+    "Handy-Ladegerät",
+    "Fernseher",
+    "Staubsauger",
+    "Wasserkocher"
+  ], "order1");
+})();
+
+/* ---------- Station 2: Typenschilder ---------- */
+(function(){
+  const G = [
+    {n: "LED-Lampe", p: 8}, {n: "Fernseher", p: 100}, {n: "Föhn", p: 1800}, {n: "Wasserkocher", p: 2000}, {n: "Herdplatte (eine Platte)", p: 2000}
+  ];
+  const gesehen = new Set();
+  register("schild", "#schildSim", "Typenschilder lesen: fünf Geräte vergleichen");
+  $$("[data-geraet]").forEach(b => b.addEventListener("click", () => {
+    const i = +b.dataset.geraet, g = G[i];
+    $$("[data-geraet]").forEach(x => x.classList.toggle("sel", x === b));
+    $("#sName").textContent = g.n;
+    $("#sP").textContent = "P = " + g.p + " W";
+    $("#sKW").textContent = "das sind " + fz(g.p / 1000, 3) + " kW";
+    const led = g.p / 8;
+    $("#sLED").textContent = i === 0 ? "Vergleichsgerät: die kleinste Leistung hier" : "≈ " + fz(led, 1) + "-mal die Leistung einer LED-Lampe";
+    gesehen.add(i);
+    $("#sObs").textContent = gesehen.size < 5 ? "Schon " + gesehen.size + " von 5 Geräten angesehen. Je größer die Leistung, desto mehr Energie wandelt das Gerät pro Sekunde um." : "Alle Geräte gesehen: Geräte, die Wärme erzeugen, haben meist die größte Leistung (Kocher, Föhn, Herdplatte).";
+    if (gesehen.size === 5) solve("schild");
+  }));
+  Modul.makeMC($("#mc-s2"), [
+    {q: "Auf einem Gerät steht „1800 W“. Was bedeutet das?", o: ["Es wandelt in jeder Sekunde viel elektrische Energie um.", "Es läuft genau 1800 Sekunden.", "Es braucht 1800 Volt.", "Es wiegt 1800 Gramm."], a: 0, e: "Die Leistung gibt an, wie viel Energie ein Gerät in jeder Sekunde umwandelt."},
+    {q: "Ein Wasserkocher hat 2000 W. Wie viel Kilowatt sind das?", o: ["2 kW", "20 kW", "0,2 kW", "200 kW"], a: 0, e: "1 kW sind 1000 W. Also sind 2000 W genau 2 kW."}
+  ], "mc2", {t: "Kurz-Check"});
+  Modul.makeSort($("#sort2"), {buckets: ["klein (unter 50 W)", "mittel (50 bis 1000 W)", "groß (über 1000 W)"], cols: 150, items: [
+    {t: "LED-Lampe, 8 W", b: 0}, {t: "Handy-Ladegerät, 5 W", b: 0},
+    {t: "Fernseher, 100 W", b: 1}, {t: "Toaster, 800 W", b: 1},
+    {t: "Föhn, 1800 W", b: 2}, {t: "Wasserkocher, 2000 W", b: 2}
+  ]}, "sort2");
+})();
+
+/* ---------- Station 3: P = U · I ---------- */
+(function(){
+  const reg = $("#iReg"), werte = new Set(); let cb = null;
+  function zeige(){
+    const I = +reg.value, P = 230 * I;
+    $("#pI").textContent = fz(I, 1) + " A";
+    $("#iOut").textContent = fz(I, 1) + " A";
+    $("#pP").textContent = fz(P, 0) + " W";
+    $("#pBar").setAttribute("width", String(Math.max(0, P / 2300 * 458)));
+    $("#pForm").textContent = "P = 230 V · " + fz(I, 1) + " A = " + fz(P, 0) + " W";
+  }
+  function bei(){ werte.add(+reg.value); zeige(); if (cb) cb(); }
+  reg.addEventListener("input", bei); reg.addEventListener("change", bei);
+  const lab = {
+    entdeckt: () => ({n: werte.size}),
+    beiAenderung: f => { cb = f; },
+    loese: () => { [1, 2, 4].forEach(v => { reg.value = v; bei(); }); }
+  };
+  zeige();
+  NT8M.entdecke({
+    id: "forscher3", labor: lab, el: "#forscher3", sicherung: "#merke3",
+    auftrag: "Stelle die Stromstärke auf mindestens drei verschiedene Werte, zum Beispiel auf 1 A, 2 A und 4 A. Die Spannung bleibt bei 230 V. Beobachte, wie sich die Leistung verändert.",
+    ziel(e){
+      return {fertig: e.n >= 3, text: e.n >= 3 ? "Du hast genug Werte ausprobiert. Halte deine Beobachtung fest:" : "Ausprobierte Einstellungen: " + (e.n || 0) + " von 3."};
+    },
+    frage: {q: "Die Stromstärke wird verdoppelt, die Spannung bleibt bei 230 V. Was geschieht mit der Leistung?", o: ["Sie wird auch doppelt so groß.", "Sie bleibt gleich.", "Sie wird halb so groß.", "Sie wird viermal so groß."], a: 0,
+      e: "Bei gleicher Spannung ist P = U · I proportional zu I. Doppelte Stromstärke bedeutet doppelte Leistung."}
+  });
+  Modul.makeMC($("#mc-s3"), [
+    {q: "Ein Föhn liegt an 230 V, die Stromstärke beträgt 8 A. Welche Leistung hat er?", o: ["1840 W", "238 W", "28,75 W", "184 W"], a: 0, e: "P = U · I = 230 V · 8 A = 1840 W."},
+    {q: "Eine Taschenlampe arbeitet mit 6 V und 0,5 A. Welche Leistung hat sie?", o: ["3 W", "12 W", "6,5 W", "0,3 W"], a: 0, e: "P = 6 V · 0,5 A = 3 W."},
+    {q: "Ein Gerät an 230 V hat eine Stromstärke von 10 A. Welche Leistung hat es?", o: ["2300 W", "240 W", "23 W", "220 W"], a: 0, e: "P = 230 V · 10 A = 2300 W, also 2,3 kW."}
+  ], "mc3", {t: "Rechnen"});
+  NT8M.hilfen("#hilfe3", ["Schreibe zuerst die Formel auf: P = U · I.", "Setze die Zahlen ein. Achte darauf, dass du Volt mit Ampere malnimmst.", "Rechne das Ergebnis aus und schreibe die Einheit Watt dazu."]);
+  Modul.makeGap($("#gap3"), [
+    ["Die elektrische Leistung berechnet man mit P = ", {g: "U"}, " · ", {g: "I"}, "."],
+    ["Die Einheit der Leistung heißt ", {g: "Watt"}, ". Es gilt: 1 kW = ", {g: "1000"}, " W."]
+  ], "gap3", ["t", "Volt", "100"]);
+  NT8M.plus(() => {
+    Modul.makeMC($("#mc-s3m"), [
+      {q: "Ein Bügeleisen hat 1150 W und liegt an 230 V. Welche Stromstärke fließt?", o: ["5 A", "0,2 A", "50 A", "1380 A"], a: 0, e: "Aus P = U · I folgt I = P : U = 1150 W : 230 V = 5 A."},
+      {q: "Ein großes Kraftwerk leistet 1,2 GW. Wie viele Megawatt sind das?", o: ["1200 MW", "12 MW", "120 MW", "12 000 MW"], a: 0, e: "1 GW = 1000 MW. Also sind 1,2 GW gleich 1200 MW."}
+    ], "mc3m", {t: "M8-Check"});
+  });
+})();
+
+/* ---------- Station 4: Kosten-Rechner ---------- */
+(function(){
+  const G = [
+    {n: "LED-Lampe", e: "💡", p: 8}, {n: "Fernseher", e: "📺", p: 100}, {n: "Föhn", e: "💨", p: 1800}, {n: "Wasserkocher", e: "☕", p: 2000}
+  ];
+  const probiert = new Set(); let d = -1, bewegt = false;
+  const reg = $("#tReg");
+  register("rechner", "#kostSim", "Kosten-Rechner: Gerät und Laufzeit einstellen");
+  function ct(x){ const r = fz(x, 2); return x >= 100 ? r + " ct (" + fz(x / 100, 2) + " €)" : r + " ct"; }
+  function zeige(){
+    const min = +reg.value, h = min / 60;
+    $("#tOut").textContent = min + " min";
+    if (d < 0) return;
+    const g = G[d], kW = g.p / 1000, kwh = kW * h, kost = kwh * 35;
+    $("#mIcon").textContent = g.e; $("#mGer").textContent = g.n; $("#mP").textContent = g.p + " W = " + fz(kW, 3) + " kW";
+    $("#mKwh").textContent = fz(kwh, 3) + " kWh";
+    $("#mKost").textContent = "Kosten: " + ct(kost);
+    $("#kObs").textContent = fz(kW, 3) + " kW · " + fz(h, 2) + " h = " + fz(kwh, 3) + " kWh. Dann: " + fz(kwh, 3) + " kWh · 35 ct = " + ct(kost) + ". (Angenommener Preis: 35 ct je kWh.)";
+  }
+  function pruefe(){ if (probiert.size >= 3 && bewegt) solve("rechner"); }
+  $$("[data-kgeraet]").forEach(b => b.addEventListener("click", () => {
+    d = +b.dataset.kgeraet; probiert.add(d);
+    $$("[data-kgeraet]").forEach(x => x.classList.toggle("sel", x === b));
+    zeige(); pruefe();
+  }));
+  const bei = () => { bewegt = true; zeige(); pruefe(); };
+  reg.addEventListener("input", bei); reg.addEventListener("change", bei);
+  Modul.loeser["rechner"] = () => { [0, 2, 3].forEach(i => { $$("[data-kgeraet]")[i].click(); }); reg.value = 60; bei(); };
+  zeige();
+  Modul.makeMC($("#mc-s4"), [
+    {q: "Was bedeutet „1 kWh“?", o: ["Ein Gerät mit 1 kW läuft 1 Stunde.", "Ein Gerät mit 1 W läuft 1 Stunde.", "Ein Gerät mit 1 kW läuft 1 Sekunde.", "Ein Gerät wiegt 1 Kilogramm."], a: 0, e: "Die Kilowattstunde ist eine Einheit der Energie: 1 kW mal 1 Stunde."},
+    {q: "Ein Heizlüfter mit 2 kW läuft 3 Stunden. Wie viel Energie wandelt er um?", o: ["6 kWh", "5 kWh", "1,5 kWh", "0,67 kWh"], a: 0, e: "2 kW · 3 h = 6 kWh."},
+    {q: "Ein Wasserkocher (2000 W) läuft eine halbe Stunde. Was kostet das bei 35 Cent je kWh?", o: ["35 Cent", "70 Cent", "17,5 Cent", "3,5 Cent"], a: 0, e: "2 kW · 0,5 h = 1 kWh. Und 1 kWh · 35 Cent = 35 Cent."}
+  ], "mc4", {t: "Energie und Kosten"});
+  NT8M.hilfen("#hilfe4", ["Rechne die Leistung zuerst in Kilowatt um: 1000 W sind 1 kW.", "Energie in kWh = Leistung in kW mal Zeit in Stunden.", "Kosten = Energie in kWh mal 35 Cent."]);
+  NT8M.plus(() => {
+    Modul.makeMC($("#mc-s4m"), [
+      {q: "Ein Föhn (1800 W) läuft 10 Minuten. Wie viel Energie wandelt er um (E = P · t)?", o: ["0,3 kWh", "18 kWh", "3 kWh", "0,18 kWh"], a: 0, e: "1,8 kW · (10/60) h = 0,3 kWh. Bei 35 ct je kWh sind das 10,5 Cent."},
+      {q: "Ein Gerät liegt 2 Stunden an 230 V, die Stromstärke beträgt 4 A. Welche Energie wandelt es um (E = U · I · t)?", o: ["1,84 kWh", "18,4 kWh", "0,184 kWh", "184 kWh"], a: 0, e: "P = 230 V · 4 A = 920 W = 0,92 kW. Dann E = 0,92 kW · 2 h = 1,84 kWh."}
+    ], "mc4m", {t: "M8-Check"});
+  });
+})();
+
+/* ---------- Station 5: Energie sparen ---------- */
+Modul.makeMC($("#mc-s5"), [
+  {q: "Welches Gerät im Diagramm hat im Stand-by den größten Energiebedarf pro Jahr?", o: ["der Receiver", "das Handy-Ladegerät", "der Fernseher", "die Kaffeemaschine"], a: 0, e: "Der Receiver hat 12 W und damit rund 105 kWh im Jahr – am meisten im Diagramm."},
+  {q: "Wie kannst du den Stand-by-Bedarf am besten vermeiden?", o: ["Geräte mit einer schaltbaren Steckerleiste ganz vom Netz trennen.", "Geräte nur mit der Fernbedienung ausschalten.", "Das Display dunkler stellen.", "Das Gerät nie mehr benutzen."], a: 0, e: "Erst wenn der Stecker getrennt ist, nutzt das Gerät keine Energie mehr."},
+  {q: "Zwei Kühlschränke sind gleich groß. Einer hat Energielabel A, der andere G. Was gilt?", o: ["Der mit A braucht weniger Energie.", "Der mit G braucht weniger Energie.", "Beide brauchen gleich viel.", "Das Label sagt nur etwas über die Farbe."], a: 0, e: "A steht für sehr sparsam, G für einen hohen Energiebedarf."},
+  {q: "Eine Glühlampe (60 W) und eine ähnlich helle LED (8 W) leuchten je 1000 Stunden. Wie viel Energie spart die LED?", o: ["52 kWh", "68 kWh", "5,2 kWh", "8 kWh"], a: 0, e: "Glühlampe: 60 kWh. LED: 8 kWh. Differenz: 52 kWh – bei 35 Cent sind das 18,20 €."}
+], "mc5", {t: "Diagramm lesen und bewerten"});
+Modul.makeSort($("#sort5"), {buckets: ["spart Energie", "spart keine Energie"], cols: 160, items: [
+  {t: "Geräte über eine Steckerleiste ganz ausschalten", b: 0}, {t: "Licht im leeren Raum ausschalten", b: 0},
+  {t: "Beim Kauf auf ein gutes Energielabel achten", b: 0}, {t: "Den Fernseher über Nacht im Stand-by lassen", b: 1},
+  {t: "Die Kühlschranktür lange offen lassen", b: 1}, {t: "Den Wasserkocher immer ganz füllen", b: 1}
+]}, "sort5");
+NT8M.plus(() => {
+  Modul.makeMC($("#mc-s5m"), [
+    {q: "Ein Receiver braucht im Stand-by 12 W, ein ganzes Jahr lang (8760 h). Was kosten die Stand-by-Stunden bei 35 Cent je kWh?", o: ["etwa 36,80 €", "etwa 3,68 €", "etwa 105 €", "etwa 0,37 €"], a: 0, e: "12 W = 0,012 kW. Dann 0,012 kW · 8760 h = 105,12 kWh. Und 105,12 kWh · 0,35 € ≈ 36,80 €."}
+  ], "mc5m", {t: "Mehrschritt-Rechnung"});
+});
+NT8M.hilfen("#hilfe5", ["Schritt 1: Rechne die Leistung in kW um.", "Schritt 2: Energie = Leistung in kW mal Zeit in Stunden.", "Schritt 3: Kosten = Energie in kWh mal Preis je kWh (0,35 €)."]);
+
+/* ---------- Station 6: Training ---------- */
+Modul.makeTF($("#tf6"), [
+  ["Die Leistung gibt an, wie viel Energie ein Gerät in jeder Sekunde umwandelt.", true],
+  ["1 kW sind 100 W.", false],
+  ["Ein Wasserkocher hat eine größere Leistung als eine LED-Lampe.", true],
+  ["Im Stand-by braucht ein Gerät keine Energie.", false],
+  ["Die Kilowattstunde ist eine Einheit der Energie.", true],
+  ["Ein Gerät mit Energielabel G ist besonders sparsam.", false],
+  ["Bei 230 V wird die Leistung doppelt so groß, wenn die Stromstärke doppelt so groß wird.", true]
+], "tf6");
+Modul.makeOrder($("#order6"), [
+  "Leistung des Geräts vom Typenschild ablesen.",
+  "Leistung in Kilowatt umrechnen.",
+  "Laufzeit in Stunden bestimmen.",
+  "Energie in kWh berechnen (Leistung mal Zeit).",
+  "Kosten berechnen (kWh mal Preis je kWh)."
+], "order6");
+Modul.makeCrossword($("#cw6"), {
+  words: [
+    {w: "MESSGERAET", r: 2, c: 2, d: "a", q: "Ein Energie… steckt als Zwischenstecker zwischen Steckdose und Gerät"},
+    {w: "ENERGIE", r: 0, c: 10, d: "d", q: "Sie wird nicht verbraucht, sondern umgewandelt"},
+    {w: "SPANNUNG", r: 4, c: 3, d: "a", q: "In der Steckdose beträgt sie 230 V"},
+    {w: "STANDBY", r: 2, c: 5, d: "d", q: "Bereitschaft: Das Gerät scheint aus zu sein und braucht trotzdem Energie"},
+    {w: "STROM", r: 4, c: 3, d: "d", q: "Sein Preis wird in Cent je kWh angegeben"},
+    {w: "LABEL", r: 6, c: 7, d: "a", q: "Energie…: zeigt mit A bis G, wie sparsam ein Gerät ist"},
+    {w: "WATT", r: 5, c: 0, d: "a", q: "Einheit der Leistung"},
+    {w: "KILOWATT", r: 1, c: 0, d: "d", q: "1000 Watt sind ein …"}
+  ],
+  sol: [[6, 7], [2, 7], [5, 10], [2, 5], [3, 5], [4, 8], [4, 9], [4, 10]], solWord: "LEISTUNG"
+}, "cw");
+NT8M.offen($("#open6"), [
+  {q: "Erkläre, was die Angabe „1800 W“ auf dem Typenschild eines Föhns bedeutet.", m: "1800 W ist die Leistung des Föhns. Das heißt: Er wandelt in jeder Sekunde sehr viel elektrische Energie um.",
+    k: ["leistung|energie", "sekunde", "viel|hoch|groß|gross"], min: 2, satz: "1800 W ist die … des Föhns. Er wandelt in jeder …"},
+  {q: "Berechne die Kosten: Ein Fernseher mit 100 W läuft 5 Stunden. 1 kWh kostet 35 Cent. Schreibe den Rechenweg auf.", m: "100 W sind 0,1 kW. 0,1 kW mal 5 h sind 0,5 kWh. 0,5 kWh mal 35 Cent sind 17,5 Cent.",
+    k: ["0,1|kilowatt|kw", "0,5", "17,5|17,50|18"], min: 2, satz: "100 W sind … kW. Dann …"},
+  {q: "Transfer: Eine Familie will Stromkosten sparen. Nenne zwei Maßnahmen und begründe jede kurz.", m: "Man kann Geräte mit einer Steckerleiste ganz ausschalten, weil Stand-by dauernd Energie braucht. Außerdem kann man sparsame Geräte mit gutem Energielabel kaufen, weil sie weniger Energie brauchen.",
+    k: ["stand-by|standby|ausschalt|steckerleiste", "label|sparsam|effizient|led", "weniger|dauernd|rund um die uhr|energie"], min: 2, satz: "Man könnte … Das spart Energie, weil …"}
+], "open", "Denk an Station 4 (Rechenweg) und Station 5 (Stand-by und Label).");
+NT8M.plus(() => {
+  NT8M.offen($("#open6m"), [
+    {q: "Ein neuer Kühlschrank mit Energielabel A kostet 80 € mehr als ein alter, braucht aber 60 kWh weniger im Jahr. Rechne mit 35 Cent je kWh. Lohnt sich der Kauf? Begründe mit einer Rechnung.",
+      m: "60 kWh weniger sparen bei 35 Cent je kWh 21 Euro im Jahr. Der Mehrpreis von 80 Euro ist nach etwa 4 Jahren ausgeglichen. Bei einer langen Nutzungsdauer lohnt sich der Kauf, auch weil der Strompreis steigen kann.",
+      k: ["21", "4 jahre|vier jahre|jahren", "lohnt|rechnet sich|sinnvoll|ausgeglichen"], min: 3, satz: "60 kWh mal 0,35 € sind … Der Mehrpreis ist nach … Jahren …"}
+  ], "openm", "Rechne zuerst die jährliche Ersparnis aus. Teile dann den Mehrpreis durch diese Ersparnis.");
+});
+
+/* ---------- Station 7: Profi-Check ---------- */
+Modul.makeQuiz($("#quiz"), [
+  {q: "Was gibt die Leistung eines Geräts an?", o: ["wie viel Energie es in jeder Sekunde umwandelt", "wie lange es läuft", "wie schwer es ist", "wie teuer es war"], a: 0},
+  {q: "Mit welcher Formel berechnet man die elektrische Leistung?", o: ["P = U · I", "P = U : I", "P = U + I", "P = I : U"], a: 0},
+  {q: "Wie viel Watt sind 2,5 kW?", o: ["2500 W", "250 W", "25 W", "25 000 W"], a: 0},
+  {q: "Wie heißt die Einheit der Leistung?", o: ["Watt", "Volt", "Ampere", "Kilogramm"], a: 0},
+  {q: "Nach wem ist die Einheit Watt benannt?", o: ["James Watt", "Alessandro Volta", "André-Marie Ampère", "Isaac Newton"], a: 0},
+  {q: "Ein Gerät an 230 V hat 2 A. Welche Leistung hat es?", o: ["460 W", "232 W", "115 W", "4,6 W"], a: 0},
+  {q: "Was bedeutet 1 kWh?", o: ["Ein Gerät mit 1 kW läuft 1 Stunde.", "Ein Gerät mit 1 W läuft 1 Sekunde.", "Ein Gerät hat 1 Kilowatt Spannung.", "Ein Gerät kostet 1 Euro."], a: 0},
+  {q: "Ein Gerät mit 1 kW läuft 4 Stunden. Welche Energie wandelt es um?", o: ["4 kWh", "0,25 kWh", "1 kWh", "400 kWh"], a: 0},
+  {q: "Was kosten 2 kWh bei 35 Cent je kWh?", o: ["70 Cent", "35 Cent", "17,5 Cent", "7 Cent"], a: 0},
+  {q: "Wozu dient ein Energiemessgerät im Zwischenstecker?", o: ["Es zeigt, wie viel Energie ein Gerät nutzt.", "Es macht das Gerät sparsamer.", "Es lädt das Gerät auf.", "Es erhöht die Spannung."], a: 0},
+  {q: "Was ist Stand-by?", o: ["Das Gerät scheint aus zu sein, braucht aber Energie.", "Das Gerät ist ganz vom Netz getrennt.", "Das Gerät läuft mit doppelter Leistung.", "Das Gerät lädt sich selbst auf."], a: 0},
+  {q: "Was bedeutet Energielabel A?", o: ["Das Gerät ist sehr sparsam.", "Das Gerät hat einen hohen Energiebedarf.", "Das Gerät ist besonders groß.", "Das Gerät ist besonders teuer."], a: 0},
+  {q: "Welche Aussage über Energie ist physikalisch richtig?", o: ["Energie wird umgewandelt, nicht verbraucht.", "Energie verschwindet im Gerät.", "Energie entsteht in der Steckdose.", "Energie wird im Kabel verbraucht."], a: 0},
+  {q: "Welche Maßnahme spart Energie?", o: ["Geräte über eine Steckerleiste ganz ausschalten", "Den Fernseher im Stand-by lassen", "Das Licht im leeren Raum brennen lassen", "Den Kühlschrank offen lassen"], a: 0},
+  {q: "Ein Wasserkocher hat 2 kW und läuft 15 Minuten. Welche Energie ist das?", o: ["0,5 kWh", "30 kWh", "2 kWh", "5 kWh"], a: 0},
+  {q: "Wie rechnest du die Kosten eines Geräts aus?", o: ["Energie in kWh mal Preis je kWh", "Leistung in W mal Spannung in V", "Zeit in h durch Leistung in kW", "Stromstärke mal Zeit in Sekunden"], a: 0}
+], "quiz", "Leistungs-Profi");
+
+NT8M.fertig();
+})();
+</script>
+</body>
+</html>

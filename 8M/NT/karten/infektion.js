@@ -1,0 +1,27 @@
+/* Lernkarten zum Modul „Infektionen, Immunsystem und Impfung“ (NT 8). Kennungen k1 … nie neu vergeben – daran hängt der Lernstand. */
+NT8Karten.satz("infektion", [
+  { id: "k1", art: "begriff", v: "Nenne die vier Phasen einer Infektionskrankheit.", h: "Infektion (Ansteckung) – Inkubation (Inkubationszeit) – Krankheit (Ausbruch) – Gesundung (Genesung)." },
+  { id: "k2", art: "begriff", v: "Was ist die Inkubation (Inkubationszeit)?", h: "Die Zeit zwischen der Infektion (Ansteckung) und den ersten Symptomen (Krankheitszeichen). Die Erreger vermehren sich schon." },
+  { id: "k3", art: "transfer", v: "Du musst niesen. Wie schützt du die anderen im Raum?", h: "In die Armbeuge niesen, Abstand halten, danach die Hände waschen und den Raum lüften." },
+  { id: "k4", art: "ursache", v: "Wie kommen Erreger bei einer Schmierinfektion in den Körper?", h: "Über die Hände: Man fasst Verschmutztes an und berührt dann Mund, Nase oder Augen. Deshalb: Hände waschen." },
+  { id: "k5", art: "vergleich", v: "Borreliose, FSME, Fußpilz: Welcher Erreger steckt dahinter?", h: "Borreliose: Bakterien. FSME: Viren (beide durch Zecken). Fußpilz: ein Pilz." },
+  { id: "k6", art: "vergleich", v: "Bakterien und Viren: Wogegen helfen Antibiotika?", h: "Antibiotika wirken nur gegen Bakterien. Gegen Viren (z. B. Grippe) helfen sie nicht." },
+  { id: "k7", art: "bild", v: "Welche Linie der Körperabwehr zeigt das Bild?",
+    bild: '<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="50" fill="#eaf4fb"/><rect y="50" width="200" height="24" fill="#e8b79a"/><rect y="74" width="200" height="46" fill="#fdeceb"/><circle cx="100" cy="30" r="12" fill="#7a9a2e" stroke="#4b6416" stroke-width="2"/><path d="M100 44 v-4" stroke="#e0453a" stroke-width="3"/></svg>',
+    h: "Die Barriere Haut: Sie hält Erreger draußen. Dazu zählen auch Schleimhaut, Tränen und Magensäure." },
+  { id: "k8", art: "begriff", v: "Was tun Fresszellen?", h: "Sie umschließen Erreger und fressen sie auf – bei jedem Erreger gleich (unspezifische Abwehr)." },
+  { id: "k9", art: "ursache", v: "Warum bekommst du bei einer Infektion oft Fieber?", h: "Fieber ist eine Abwehrreaktion: Bei höherer Temperatur arbeiten die Abwehrzellen besser, viele Erreger vermehren sich schlechter." },
+  { id: "k10", art: "begriff", v: "Wie schützt eine Impfung?", h: "Der Körper lernt den Erreger kennen, ohne krank zu werden, und ist beim nächsten Mal vorbereitet." },
+  { id: "k11", art: "anwendung", v: "Wozu braucht man den Impfpass?", h: "Dort stehen alle Impfungen. Man sieht, was fehlt und wann aufgefrischt werden muss. Fragen beantwortet die Kinderärztin oder der Kinderarzt." },
+  { id: "k12", art: "fehler", v: "Finde den Fehler: „HIV bekommt man durch Händeschütteln.“", h: "Falsch. HIV geht über Blut, ungeschützten Geschlechtsverkehr und von der Mutter auf das Kind – nicht im Alltag. Kondome schützen." },
+  { id: "k13", art: "anwendung", v: "Wie schützt du dich vor Zecken?", h: "Lange Kleidung tragen, nach dem Ausflug den Körper absuchen und Zecken zügig entfernen. Gegen FSME gibt es eine Impfung, gegen Borreliose nicht." },
+  { id: "k14", art: "bild", v: "Was zeigt das Bild? Wie heißt das Prinzip?",
+    bild: '<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="60" r="34" fill="#7a9a2e"/><path d="M80 44 L100 60 L80 76Z" fill="#7a9a2e"/><rect x="104" y="30" width="80" height="60" rx="8" fill="#e0803a"/><path d="M104 44 L124 60 L104 76Z" fill="#fff"/></svg>',
+    h: "Das Schlüssel-Schloss-Prinzip: Ein Antikörper passt nur auf einen Erreger mit der passenden Oberfläche.", m: true },
+  { id: "k15", art: "begriff", v: "Was machen Antikörper und Gedächtniszellen?", h: "Antikörper heften sich an einen bestimmten Erreger. Gedächtniszellen merken sich ihn, sodass die Abwehr beim nächsten Mal schneller ist.", m: true },
+  { id: "k16", art: "vergleich", v: "Aktive und passive Immunisierung: Was ist der Unterschied?", h: "Aktiv: Der Körper bildet selbst Antikörper und Gedächtniszellen, Schutz hält lange. Passiv: fertige Antikörper, wirken sofort, aber nur kurz.", m: true },
+  { id: "k17", art: "transfer", v: "Warum steigt die Antikörper-Kurve nach der zweiten Impfung schneller und höher?", h: "Die Gedächtniszellen kennen den Erreger schon und bilden sofort viele Antikörper. Der Schutz hält länger.", m: true },
+  { id: "k18", art: "ursache", v: "Wie entsteht eine Antibiotika-Resistenz?", h: "Unempfindliche Bakterien überleben und vermehren sich. Darum Antibiotika nur bei Bakterien und zu Ende nehmen.", m: true },
+  { id: "k19", art: "begriff", v: "Was bedeutet Herdenschutz?", h: "Sind genug Menschen geimpft, reißen die Ansteckungsketten ab. Auch Ungeimpfte sind dann besser geschützt.", m: true },
+  { id: "k20", art: "ursache", v: "Wie verläuft eine HIV-Infektion, und was ist Aids?", h: "Kurze Beschwerden, dann oft Jahre ohne – aber ansteckend. Unbehandelt wird die Abwehr schwächer: Aids. Medikamente halten das Virus in Schach." }
+]);

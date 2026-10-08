@@ -8,17 +8,24 @@
  *   nur die Module offen, die es schon vor der Freischalt-Funktion gab (themen.js, offen: true).
  * - Lernfortschritt: aus dem Speicher des Geräts (wie bisher, je Kind mit Code), je Modul, je Themenbereich und gesamt.
  * - Proben: je Themenbereich; welche es gibt und ob sie offen sind, sagt der Server (/api/nt7/list).
+ *
+ * NT 8 (8M/NT, 8R/NT) nutzt dieses Skript mit: Die Kursliste (window.GRUMI_KURS = NT8) nennt STUFE ("8"), PFAD
+ * ("/api/nt8"), INTRO und KLEIN_GAST (Texte im Kopf). Zwei Einhängepunkte für Zusätze einer Kursliste:
+ *   kachel(thema, { zug, a, stand, proben, base, root, offen })  -> HTML unter den Modulen eines Themenbereichs
+ *   nachZeichnen(app, { zug, a, neu })                            nach jedem Zeichnen der Seite
+ * Nachschreibproben (proben: [{…}, { R, M, nach: true }]) stehen erst in der Kachel, wenn sie freigeschaltet sind.
  */
 (function () {
   "use strict";
 
-  const NT7 = window.NT7;
+  const NT7 = window.GRUMI_KURS || window.NT7;
+  const ST = NT7.STUFE || "7", PFAD = NT7.PFAD || "/api/nt7";
   const THEMEN = NT7.THEMEN;
   const body = document.body;
-  const klasse = body.dataset.klasse || "7M";
+  const klasse = body.dataset.klasse || ST + "M";
   const base = body.dataset.base || "";
   const root = body.dataset.root || "../../";
-  const andere = klasse === "7M" ? "7R" : "7M";
+  const andere = klasse === ST + "M" ? ST + "R" : ST + "M";
   const esc = s => String(s).replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"})[c]);
   const SITZUNG = "grumi-code-anmeldung";
 
@@ -52,13 +59,13 @@
     }
     return null;
   }
-  // Gültige Anmeldung eines Kindes der 7. Klasse (andere Stufen sehen die Seite wie Gäste).
+  // Gültige Anmeldung eines Kindes dieser Jahrgangsstufe (andere Stufen sehen die Seite wie Gäste).
   // Lehrercode (Klasse „Lehrkraft“): gilt auf jeder Übersicht und zählt dort zum Zug der Seite; alles ist offen.
   function anmeldung() {
     try {
       const a = anmeldungGueltig(JSON.parse(localStorage.getItem(SITZUNG) || "null"));
       if (a && a.klasse === "Lehrkraft") return Object.assign({}, a, {zug: klasse, lehrer: true});
-      return a && /^7[MR]$/.test(String(a.zug || "")) ? a : null;
+      return a && new RegExp("^" + ST + "[MR]$").test(String(a.zug || "")) ? a : null;
     } catch (_) { return null; }
   }
   function zugVon(k) { const m = /^(\d+)/.exec(String(k || "")); return m ? m[1] + (/M$/.test(k) ? "M" : "R") : ""; }
@@ -126,7 +133,8 @@
 
   // Proben des Themenbereichs für den Zug des Kindes (bzw. der Seite)
   function probenKachel(thema, zug) {
-    const ids = (thema.proben || []).map(p => p[zug]).filter(Boolean);
+    // Nachschreibproben (nach: true) zählen erst mit, wenn die Lehrkraft sie freigeschaltet hat
+    const ids = (thema.proben || []).filter(p => !p.nach || (PROBEN && PROBEN.some(t => t.id === p[zug] && t.unlocked))).map(p => p[zug]).filter(Boolean);
     if (!ids.length) return thema.probeHinweis ? `<p class="extras">📝 ${esc(thema.probeHinweis)}</p>` : "";
     // Solange der Server nicht geantwortet hat, steht die Kachel neutral da; danach nur Proben, die es wirklich gibt
     const da = PROBEN ? PROBEN.filter(t => ids.includes(t.id)) : null;
@@ -164,7 +172,7 @@
     const altFeld = document.getElementById("codeFeld"), getippt = altFeld ? altFeld.value : "", imFeld = altFeld && document.activeElement === altFeld;
     const a = anmeldung();
     const zug = a ? a.zug.slice(1) : klasse.slice(1);
-    try { sessionStorage.setItem("grumi-nt7-zug", zug); } catch (_e) {}
+    try { sessionStorage.setItem("grumi-nt" + ST + "-zug", zug); } catch (_e) {}
     const staende = THEMEN.map(t => themaStand(t, a));
     const offenGesamt = staende.reduce((s, x) => s + x.offen, 0), fertigGesamt = staende.reduce((s, x) => s + x.fertig, 0);
     const pctGesamt = offenGesamt ? Math.round(THEMEN.reduce((s, t, i) => s + staende[i].pct * staende[i].offen, 0) / offenGesamt) : 0;
@@ -180,23 +188,23 @@
       <nav class="navlinks" aria-label="Navigation">
         <a href="${root}index.html">🏠 Startseite Lernplattform</a>
         <a href="${root}index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
-        <a href="${root}${andere}/NT/index.html">${andere === "7M" ? "📘" : "📗"} Übersicht NT ${andere}</a>
+        <a href="${root}${andere}/NT/index.html">${andere === ST + "M" ? "📘" : "📗"} Übersicht NT ${andere}</a>
       </nav>
       <div class="hero-grid">
         <div>
           <div class="eyebrow">Klasse ${klasse} · Natur und Technik</div>
           <h1>Natur und Technik ${klasse}</h1>
-          <p>Hier findest du alle Lernmodule. Jedes Modul enthält Texte, Animationen, Versuche zum Ausprobieren und Übungen, die dich auf die Probe vorbereiten. Deine Lehrkraft schaltet die Themenbereiche nach und nach frei.</p>
+          <p>${esc(NT7.INTRO || "Hier findest du alle Lernmodule. Jedes Modul enthält Texte, Animationen, Versuche zum Ausprobieren und Übungen, die dich auf die Probe vorbereiten. Deine Lehrkraft schaltet die Themenbereiche nach und nach frei.")}</p>
         </div>
         <div class="hero-box">${kopf}
-          <p class="klein">${a && a.lehrer ? "Lehrercode: Alle Themen und Module sind offen – auch die, die für die Klassen noch gesperrt sind. Dein Lernstand wird nicht gemeldet." : a ? "Du siehst, was deine Lehrkraft für deine Klasse freigeschaltet hat." : "Mit deinem Code siehst du, was deine Lehrkraft für deine Klasse freigeschaltet hat. Ohne Code sind nur die ersten Module zum Thema Luft offen."}</p>
+          <p class="klein">${a && a.lehrer ? "Lehrercode: Alle Themen und Module sind offen – auch die, die für die Klassen noch gesperrt sind. Dein Lernstand wird nicht gemeldet." : a ? "Du siehst, was deine Lehrkraft für deine Klasse freigeschaltet hat." : esc(NT7.KLEIN_GAST || "Mit deinem Code siehst du, was deine Lehrkraft für deine Klasse freigeschaltet hat. Ohne Code sind nur die ersten Module zum Thema Luft offen.")}</p>
         </div>
       </div>
     </div>
   </header>
   <main class="wrap">
     <section class="gesamt" aria-label="Dein Lernfortschritt">
-      <div class="gesamt-kopf"><div><div class="eyebrow dark">NT 7 Lernfortschritt</div><div class="gesamt-zahl">${pctGesamt} %</div></div>
+      <div class="gesamt-kopf"><div><div class="eyebrow dark">NT ${ST} Lernfortschritt</div><div class="gesamt-zahl">${pctGesamt} %</div></div>
         <p>${offenGesamt ? `${fertigGesamt} von ${offenGesamt} Modulen abgeschlossen` : "Noch kein Modul freigeschaltet"}${a ? "" : " · auf diesem Gerät"}</p></div>
       <div class="bar gross"><div style="width:${pctGesamt}%"></div></div>
       <div class="gesamt-themen">${THEMEN.map((t, i) => staende[i].offen
@@ -210,7 +218,7 @@
       return `<section class="thema${s.offen ? "" : " gesperrt"}" id="thema-${t.id}">
       <div class="thema-head"><span class="thema-icon">${t.icon}</span><div><div class="eyebrow dark">Themenbereich ${t.nr}</div><h2>${esc(t.titel)}</h2><p>${esc(t.text)}</p><div class="thema-status">${status}</div></div></div>
       <div class="mods">${t.module.map((m, k) => modulKarte(m, k, t, a)).join("")}</div>
-      ${probenKachel(t, zug)}
+      ${probenKachel(t, zug)}${NT7.kachel ? NT7.kachel(t, {zug, a, stand: STAND, proben: PROBEN, base, root, offen: s.offen}) || "" : ""}
     </section>`; }).join("")}
   </main>
   <footer class="wrap">GRUMI · Natur und Technik ${klasse} · Dein Fortschritt wird auf diesem Gerät gespeichert${a && !a.lehrer ? " und mit deinem Code an deine Lehrkraft gemeldet" : ""}.</footer>`;
@@ -232,6 +240,7 @@
     }
     const ab = document.getElementById("abmelden");
     if (ab) ab.addEventListener("click", () => { try { localStorage.removeItem(SITZUNG); } catch (_e) {} grumiTab().ende(); STAND = null; QUELLE = "gast"; HINWEIS = ""; zeichnen(); });
+    if (NT7.nachZeichnen) NT7.nachZeichnen(app, {zug, a, base, root, neu: zeichnen});
     nurOffene();
   }
 
@@ -245,7 +254,7 @@
   }
   laden();
   // Welche Proben gibt es, welche sind offen? (öffentliche Liste, ohne Anmeldung)
-  fetch(NT7.API + "/api/nt7/list").then(r => r.json()).then(d => { if (d && d.ok && Array.isArray(d.tests)) { PROBEN = d.tests; zeichnen(); } }).catch(() => {});
+  fetch(NT7.API + PFAD + "/list").then(r => r.json()).then(d => { if (d && d.ok && Array.isArray(d.tests)) { PROBEN = d.tests; zeichnen(); } }).catch(() => {});
   // Zurück aus einem Modul (auch über den Zurück-Knopf): Fortschritt neu lesen
   window.addEventListener("pageshow", e => { if (e.persisted) zeichnen(); });
 })();

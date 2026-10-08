@@ -34,7 +34,7 @@
   var FACH_ICON = { nt: "🔬", d: "📖", e: "💬", i: "💻" };
   // Startseite des Fachs für die Kinder (je Zug, wenn es getrennte Seiten gibt)
   var FACHSEITE = {
-    nt7: { M: "7M/NT/index.html", R: "7R/NT/index.html" },
+    nt7: { M: "7M/NT/index.html", R: "7R/NT/index.html" }, nt8: { M: "8M/NT/index.html", R: "8R/NT/index.html" },
     nt9: { M: "9M/NT_9/übersicht_themen.html", R: "9R/NT_9/übersicht_themen.html" },
     d7: "7M/Deutsch/index.html", d8: "8/Deutsch/index.html", d9: "9/Deutsch/index.html",
     e7: "7/Englisch_7/index.html", e8: "8R/Englisch/index.html",
@@ -365,6 +365,14 @@
       teil.innerHTML = '<div id="vw-nt7-frei"></div><div id="vw-fach"></div>';
       global.NT7Verwaltung.freigabe($("vw-nt7-frei"), { api: API, pw: PW, klasse: KLASSE });
       fachLaden($("vw-fach"));
+    } else if (ANSICHT === "nt8" && global.NT7Verwaltung && global.NT8) {
+      // NT 8: Freischalten der Themenbereiche und Module wie bei NT 7 (Proben stehen unter ihren Modulen, R8/M8 und
+      // Nachschreibprobe), darunter die Lernstandsdiagnose (8M/NT/diagnose.js), dann der Lernstand je Kind und Modul
+      teil.innerHTML = '<div id="vw-nt8-frei"></div><div id="vw-nt8-diagnose"></div><div id="vw-fach"></div>';
+      global.NT7Verwaltung.freigabe($("vw-nt8-frei"), { api: API, pw: PW, klasse: KLASSE, liste: global.NT8, pfad: "/api/nt8", ordner: "8M/NT/",
+        worte: { titel: "Themen und Module", das: "das Modul", neu: "Alle Module", von: "Modulen", plan: "Module in Vorbereitung" } });
+      if (global.NT8Diagnose) global.NT8Diagnose.zeige($("vw-nt8-diagnose"), { api: API, pw: PW, klasse: KLASSE, name: nameVon });
+      fachLaden($("vw-fach"));
     } else if (ANSICHT === "i7" && global.NT7Verwaltung && global.INF7) {
       // Informatik 7: über dem Lernstand steht das Freischalten der Module und Einheiten (gleiche Ansicht wie NT 7)
       teil.innerHTML = '<div id="vw-i7-frei"></div><div id="vw-fach"></div>';
@@ -610,6 +618,8 @@
       vokabeltest: { results: "/api/vokabeltest/results", del: "/api/vokabeltest/delete-submission", override: "/api/vokabeltest/override", lrs: "/api/vokabeltest/lrs" },
       grammatik9r: std("/api/grammatik9r"),
       nt7: { results: "/api/nt7/teacher/results", del: "/api/nt7/teacher/delete", override: "/api/nt7/teacher/override", nurText: true },
+      // NT 8: Die Lehrkraft kann jede Aufgabe ändern (nicht nur freie Antworten); ausführlich auf 8M/NT/lehrer.html
+      nt8: { results: "/api/nt8/teacher/results", del: "/api/nt8/teacher/delete", override: "/api/nt8/teacher/override" },
       inf7: { results: "/api/inf7/teacher/results", del: "/api/inf7/teacher/delete", override: "/api/inf7/teacher/override", nurText: true },
       infoaustausch: std("/api/infoaustausch"),
       informatik8: std("/api/informatik8"),
@@ -846,7 +856,7 @@
   // kein Kind gearbeitet hat; die Spalten zeigen dann „–“. Extra-Module und Geplantes kommen nicht dazu.
   function kursModule() {
     var bekannt = DATEN.module.filter(function (m) { return m.kurs === ANSICHT; });
-    var L = { nt7: global.NT7, d7: global.D7, d8: global.D8, i7: global.INF7, i8: global.INF8 }[ANSICHT];
+    var L = { nt7: global.NT7, nt8: global.NT8, d7: global.D7, d8: global.D8, i7: global.INF7, i8: global.INF8 }[ANSICHT];
     if (!L || !L.THEMEN) return bekannt;
     var da = {}, alle = bekannt.slice();
     bekannt.forEach(function (m) { da[m.id] = 1; });
@@ -880,7 +890,7 @@
   // Festes Kürzel des Moduls aus der Modulliste des Fachs (themen.js: kz, z. B. „L3“). Übungen ohne Liste behalten
   // den Kurznamen, den ihre Seite meldet (z. B. „G2“ in Deutsch 8).
   function kuerzel(m) {
-    var L = { nt7: global.NT7, d7: global.D7, d8: global.D8, i7: global.INF7, i8: global.INF8 }[m.kurs];
+    var L = { nt7: global.NT7, nt8: global.NT8, d7: global.D7, d8: global.D8, i7: global.INF7, i8: global.INF8 }[m.kurs];
     var r = L && L.modulVon ? L.modulVon(String(m.id).slice(String(m.kurs).length + 1)) : null;
     // Englisch: Die Liste nennt bei jeder Seite ihre Kennung im Lernstand (ls)
     if (!r && /^e[789]$/.test(m.kurs) && englischListe()) r = englischListe().modulZumLernstand(m.id);
@@ -971,8 +981,9 @@
         '<div class="lf-werkzeug"><label for="lf-modul" style="margin:0">Übung</label><select id="lf-modul">' +
         M.map(function (m) { return '<option value="' + esc(m.id) + '"' + (m.id === AUSWERTUNG_MODUL ? " selected" : "") + ">" + esc(kurzName(m)) + ": " + esc(m.titel) + "</option>"; }).join("") +
         "</select></div>" + auswertung(liste, AUSWERTUNG_MODUL);
-      // Vokabeltrainer: Fehlerwörter der Klasse
-      var mitFehlern = M.filter(function (m) { return liste.some(function (k) { var p = k.module[m.id]; return p && p.f && Object.keys(p.f).length; }); });
+      // Vokabeltrainer: Fehlerwörter der Klasse. (NT 8 legt an derselben Stelle den Stand der Lernkarten ab – der steht
+      // in der Lernstandsdiagnose, nicht hier.)
+      var mitFehlern = ANSICHT === "nt8" ? [] : M.filter(function (m) { return liste.some(function (k) { var p = k.module[m.id]; return p && p.f && Object.keys(p.f).length; }); });
       if (mitFehlern.length) {
         if (!mitFehlern.some(function (m) { return m.id === FEHLER_MODUL; })) FEHLER_MODUL = mitFehlern[0].id;
         h += '<h3 class="lf-h3">Fehlerwörter: Was sitzt noch nicht?</h3>' +

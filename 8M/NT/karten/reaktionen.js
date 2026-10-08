@@ -1,0 +1,20 @@
+/* Lernkarten zum Modul „Chemische Reaktionen erkennen“ (NT 8). Kennungen k1 … nie neu vergeben – daran hängt der Lernstand. */
+NT8Karten.satz("reaktionen", [
+  { id: "k1", art: "begriff", v: "Was ist eine chemische Reaktion?", h: "Eine Stoffumwandlung: Aus Ausgangsstoffen entstehen neue Stoffe mit neuen Eigenschaften." },
+  { id: "k2", art: "anwendung", v: "Nenne vier Anzeichen, an denen du eine chemische Reaktion erkennen kannst.", h: "Gasentwicklung, Wärmeentwicklung, Farbänderung und Niederschlag. Sie sind Hinweise, aber noch kein sicherer Beweis." },
+  { id: "k3", art: "vergleich", v: "Chemische Reaktion oder physikalischer Vorgang: Was ist der Unterschied?", h: "Beim physikalischen Vorgang (Schmelzen, Verdampfen, Lösen) bleibt der Stoff derselbe. Bei der Reaktion entsteht ein neuer Stoff." },
+  { id: "k4", art: "fehler", v: "Finde den Fehler: „Es sprudelt, also ist es immer eine chemische Reaktion.“", h: "Falsch. Kochendes Wasser sprudelt auch – die Blasen sind Wasserdampf, also derselbe Stoff. Sicher ist nur: Es entsteht ein neuer Stoff." },
+  { id: "k5", art: "begriff", v: "Was ist eine Synthese?", h: "Aus zwei (oder mehr) Stoffen entsteht ein neuer Stoff, zum Beispiel Wasserstoff + Sauerstoff → Wasser." },
+  { id: "k6", art: "begriff", v: "Was ist eine Analyse?", h: "Ein Stoff wird in andere Stoffe zerlegt, zum Beispiel Wasser → Wasserstoff + Sauerstoff (mit elektrischem Strom)." },
+  { id: "k7", art: "formel", v: "Schreibe die Wortgleichung der Knallgasreaktion auf.", h: "Wasserstoff + Sauerstoff → Wasser. Links stehen die Ausgangsstoffe, rechts das Produkt, der Pfeil heißt „reagiert zu“." },
+  { id: "k8", art: "bild", v: "Zähle die Kugeln: Wie viele Wasserstoff- und Sauerstoff-Atome sind vorher und nachher da?",
+    bild: '<svg viewBox="0 0 330 100" xmlns="http://www.w3.org/2000/svg"><g stroke="#4a5a67" stroke-width="2"><circle cx="20" cy="30" r="11" fill="#fff"/><circle cx="42" cy="30" r="11" fill="#fff"/><circle cx="20" cy="70" r="11" fill="#fff"/><circle cx="42" cy="70" r="11" fill="#fff"/><circle cx="85" cy="50" r="17" fill="#e0453a"/><circle cx="118" cy="50" r="17" fill="#e0453a"/></g><text x="150" y="56" font-size="22" font-weight="800" fill="#15212b">→</text><g stroke="#4a5a67" stroke-width="2"><circle cx="215" cy="32" r="17" fill="#e0453a"/><circle cx="193" cy="49" r="11" fill="#fff"/><circle cx="237" cy="49" r="11" fill="#fff"/><circle cx="285" cy="62" r="17" fill="#e0453a"/><circle cx="263" cy="79" r="11" fill="#fff"/><circle cx="307" cy="79" r="11" fill="#fff"/></g></svg>',
+    h: "Vorher und nachher: 4 Wasserstoff-Atome (weiß) und 2 Sauerstoff-Atome (rot). Die Kugeln sind nur neu angeordnet." },
+  { id: "k9", art: "ursache", v: "Warum geht bei einer chemischen Reaktion kein Atom verloren?", h: "Im Kugelmodell werden die Atome nur umgruppiert: Es kommt keines dazu und keines geht verloren." },
+  { id: "k10", art: "versuch", v: "Wasser wird mit Strom zerlegt. Woran erkennt die Lehrkraft den Wasserstoff?", h: "An der Knallgasprobe: Das Gas gibt einen pfeifenden Knall. Das ist ein Lehrerversuch – nicht nachmachen." },
+  { id: "k11", art: "transfer", v: "Ein Eisennagel rostet. Woran erkennst du, dass ein neuer Stoff entstanden ist?", h: "Rost ist rotbraun und bröckelig, Eisen ist grau und fest. Die Eigenschaften haben sich verändert." },
+  { id: "k12", art: "anwendung", v: "Eine Brausetablette sprudelt im Wasser. Welches Anzeichen siehst du?", h: "Gasentwicklung: Beim Sprudeln entsteht ein Gas, also ein neuer Stoff." },
+  { id: "k13", art: "formel", v: "4 g Wasserstoff reagieren mit 32 g Sauerstoff. Wie viel Wasser entsteht?", h: "36 g. Die Masse der Produkte ist gleich der Masse der Ausgangsstoffe (Erhaltung der Masse).", m: true },
+  { id: "k14", art: "begriff", v: "Was ist eine Umsetzung?", h: "Zwei Stoffe tauschen ihre Partner: Silbernitrat + Natriumchlorid → Silberchlorid (weißer Niederschlag) + Natriumnitrat.", m: true },
+  { id: "k15", art: "ursache", v: "Welche weiteren Kennzeichen hat jede chemische Reaktion außer der Stoffumwandlung?", h: "Energieumwandlung (Energie wird abgegeben oder aufgenommen) und Erhaltung der Masse.", m: true }
+]);
