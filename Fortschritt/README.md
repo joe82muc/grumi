@@ -242,8 +242,44 @@ Wunsch der Lehrkraft: ein Code, mit dem alle Module aller Klassen offen sind. De
   (`nt9m-|nt9r-<bereich>`). Die bisherigen Proben bleiben als frühere Fassung: Ergebnisse einsehbar, kein
   Freischalten mehr. Prüfwerkzeug: `.codex-build/proben-werkzeug/pruefe-block.js`.
 
+## Stand 08.10.2026: Deutsch 8 vollständig ausgebaut (R8 und M8)
+
+- **Kein zweites System:** Deutsch 8 nutzt die Bausteine von Deutsch 7 mit. Die Skripte in `7M/Deutsch/` (`d7-kit.js`,
+  `uebersicht.js`, `probe.js`, `korrektur*.js`, `proben-lehrer.js`) fragen den Jahrgang ab (`GRUMI_KURS.NR` bzw.
+  `window.DEUTSCH_NR`) und bilden daraus Namen, Adressen (`/api/d8/…`) und Speicherschlüssel. Wer dort etwas ändert,
+  ändert beide Jahrgänge.
+- **`8/Deutsch/`:** Übersicht wie Deutsch 7, Liste `themen.js` (wird erzeugt: `.codex-build/deutsch8-werkzeug/bau-themen.js`),
+  sieben Themenbereiche mit 46 Modulen: S Lesen, Sachtexte und Medien (6) · A Argumentieren (5 + Duelle) · L Literatur (6) ·
+  W Schreiben und Aufsätze (6) · B Beruf, Kommunikation, Präsentation (5) · G Grammatik und Sprache (6 vorhandene + 2 +
+  Duelle) · R Rechtschreibung (6 vorhandene + Fehlertraining + Duelle). Inhalte in `inhalt/`, 90 Texte mit Metadaten in
+  `texte/` (Verzeichnis: `texte/VERZEICHNIS.md`), je Text eine eigene R8- und M8-Fassung; fünf Hörtexte.
+  Alles Neue ist zuerst gesperrt (Freischalten je Klasse in der Verwaltung → Klasse → Deutsch); die Grammatik- und
+  Rechtschreibseiten, die es schon gab, bleiben von sich aus offen.
+- **Schreibwerkstatt** (Baustein `aufsatz`, `8/Deutsch/d8-aufsatz.js`) mit dem **Aufsatzeditor**
+  (`7M/Deutsch/aufsatz-editor.js`): Planen → Schreiben → Überarbeiten → Abgeben; Planungswerkzeug je Schreibform,
+  Rückgängig/Wiederholen, Wörter/Zeichen, Vollbild, Speichern auf Gerät und Server („Gespeichert ✓“, bei Ausfall „Noch
+  nicht synchronisiert – Verbindung prüfen.“), Schreibcoach mit Schwerpunkt (schreibt keinen Satz für das Kind).
+  Entwurf, Planung und abgegebene Fassungen sieht die Lehrkraft in der Verwaltung.
+- **Acht Proben, je R8/M8 × A/B** (nur auf dem Server, `d8-proben/p1–p8.js`): Sachtext · Argumentieren · Literatur ·
+  Zusammenfassen · Aufsatz · Grammatik I · Grammatik II · Rechtschreibung. Ablauf wie Deutsch 7 (KI-Vorkorrektur nach
+  Erwartungshorizont → Lehrkraft prüft → Freigabe → Rückgabe, Druck/PDF). Neu nur für Deutsch 8: Zeit und Zwischenstand
+  liegen auf dem Server (Neuladen setzt die Zeit nicht zurück, zweites Gerät holt den Stand; ist die Zeit um, wird nichts
+  von selbst abgegeben oder bewertet), „Gerade in Arbeit“ mit Zeitverlängerung und „Zwischenstand übernehmen“,
+  Probenmodus je Probe einstellbar (sieben Schalter), Fehlermarkierungen als Bereiche im unveränderten Text (Vorschlag
+  der KI, die Lehrkraft setzt/ändert/entfernt), Planung zur Schreibaufgabe.
+- **Server:** `d7-proben.js` und `d7-texte.js` mit `stufe: 8` (dazu `sitzung: true`, `marken: true`),
+  `d8-proben-daten.js` (eine fehlerhafte Proben-Datei wird ausgelassen statt den Start zu verhindern), Freigabe `/api/d8`.
+- **Geprüft:** jedes Modul und jede Probe in Chrome (M8, R8) und im Safari-Testbrowser; Gesamtprüfung (Übersicht,
+  Freischalten, Lehrercode, Verwaltung, Startseite, Noten); Gegenprüfung Deutsch 7. Einzelheiten und offene Punkte
+  stehen lokal in `progress/deutsch8/` (README, MODULE, PROBEN, TESTS, OFFEN).
+
 ## Offen
 
+- Deutsch 8 (08.10.2026): jede Probe vor dem ersten Einsatz lesen („Probe mit Lösungen“), die echte KI-Vorkorrektur mit
+  Markierungen an einer Probeabgabe ansehen (lokal lief nur eine Attrappe), Hörtexte am echten iPad anhören,
+  Markieren mit dem Finger auf der Lehrkraftseite ausprobieren. Sachaussagen zum Gegenlesen und die getroffenen
+  Entscheidungen (Zeit ohne automatische Abgabe, Grammatik-/Rechtschreibseiten bleiben offen, Entwürfe sichtbar für die
+  Lehrkraft, Zwischenstände höchstens drei Tage) stehen lokal in `progress/deutsch8/OFFEN.md`.
 - NT 7 und NT 9: die neuen Block-Proben vor dem ersten Einsatz gegenlesen (Lehrercode 000 schreibt sie nicht;
   am einfachsten in der Verwaltung freischalten und mit einem Test-Code ansehen).
 - Fachliche Korrekturen vom 07.10.2026 (beim Schreiben der Proben aufgefallen, auf Wunsch behoben): NT 7 Luft

@@ -4,6 +4,8 @@
  *   überarbeiteten Fassungen mit der Rückmeldung der KI und ein Kommentar der Lehrkraft (den das Kind beim Auftrag sieht).
  * Aufruf aus lernfortschritt.js:  TexteVerwaltung.zeige(el, { api, pw, klasse, liste: window.D7, name: code => "…" })
  * Server: /api/d7/lehrer/texte, …/texte/kommentar, …/texte/loeschen (englisch_9, d7-texte.js).
+ * Deutsch 8: ctx.stufe = 8, ctx.ordner = "8/Deutsch/" – gleiche Ansicht, Server /api/d8; dazu aus der Schreibwerkstatt
+ * der laufende Entwurf mit der Planung und das Kennzeichen „abgegeben“.
  * Der Server kennt nur den Code des Kindes; den Namen dazu hält die Verwaltung im Browser der Lehrkraft (ctx.name).
  */
 (function (global) {
@@ -36,7 +38,7 @@
   }
   function post(ctx, route, body) {
     body = body || {}; body.password = ctx.pw; body.klasse = ctx.klasse;
-    return fetch(ctx.api + "/api/d7/lehrer/" + route, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+    return fetch(ctx.api + "/api/d" + (ctx.stufe || 7) + "/lehrer/" + route, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { if (!r.ok || !d.ok) throw new Error(d.error || "Der Server antwortet nicht (" + r.status + ")."); return d; }); });
   }
   function zeit(iso) {
@@ -52,24 +54,35 @@
 
   function zeige(el, ctx) {
     stil();
-    el.innerHTML = '<div class="tx-kasten tx-proben"><div><h3>📄 Proben Deutsch 7</h3><span class="tx-hinweis" style="margin:0">Die KI korrigiert vor, du prüfst, bestätigst und gibst die korrigierte Probe an das Kind zurück. Freischalten kannst du die Proben hier im Reiter „Proben“ oder auf der Korrekturseite.</span></div>' +
-      '<a href="7M/Deutsch/proben-lehrer.html">Proben korrigieren und zurückgeben →</a></div>' +
-      '<div class="tx-kasten"><h3>✍️ Schülertexte aus dem Schreibtrainer</h3><p class="tx-hinweis">In den Modulen schreiben die Kinder längere Texte. Jede Fassung wird aufbewahrt: der Originaltext, die Überarbeitungen und die Rückmeldung der KI dazu. Dein Kommentar erscheint beim Kind unter dem Schreibauftrag.</p><div id="tx-liste"><div class="skel">Texte werden geladen …</div></div></div>';
+    el.innerHTML = '<div class="tx-kasten tx-proben"><div><h3>📄 Proben Deutsch ' + (ctx.stufe || 7) + '</h3><span class="tx-hinweis" style="margin:0">Die KI korrigiert vor, du prüfst, bestätigst und gibst die korrigierte Probe an das Kind zurück. Freischalten kannst du die Proben hier im Reiter „Proben“ oder auf der Korrekturseite.</span></div>' +
+      '<a href="' + (ctx.ordner || "7M/Deutsch/") + 'proben-lehrer.html">Proben korrigieren und zurückgeben →</a></div>' +
+      '<div class="tx-kasten"><h3>✍️ Schülertexte aus dem Schreibtrainer' + (ctx.stufe === 8 ? " und der Schreibwerkstatt" : "") + '</h3><p class="tx-hinweis">In den Modulen schreiben die Kinder längere Texte. Jede Fassung wird aufbewahrt: der Originaltext, die Überarbeitungen und die Rückmeldung der KI dazu. ' + (ctx.stufe === 8 ? "Aus der Schreibwerkstatt siehst du außerdem den laufenden Entwurf mit der Planung und ob das Kind seinen Text abgegeben hat. " : "") + 'Dein Kommentar erscheint beim Kind unter dem Schreibauftrag.</p><div id="tx-liste"><div class="skel">Texte werden geladen …</div></div></div>';
     var liste = el.querySelector("#tx-liste"), eintraege = [];
     function zeichnen(offenId) {
       if (!eintraege.length) { liste.innerHTML = '<p class="tx-hinweis">Aus dieser Klasse gibt es noch keine Texte. Sie entstehen, sobald ein Kind – mit seinem Code angemeldet – im Schreibtrainer eine Rückmeldung holt.</p>'; return; }
       liste.innerHTML = eintraege.map(function (e) {
-        var letzte = e.fassungen[e.fassungen.length - 1] || {}, offen = e.id === offenId;
+        var letzte = e.fassungen[e.fassungen.length - 1] || e.entwurf || {}, offen = e.id === offenId;
         return '<div class="tx-eintrag" data-id="' + esc(e.id) + '"><div class="tx-kopf"><div><b>' + esc((ctx.name && ctx.name(e.code) ? ctx.name(e.code) + " (Code " + e.code + ")" : "Code " + e.code)) + "</b> · " + esc(e.titel || e.aufgabe) +
-          "<small>" + esc(modulTitel(ctx, e.modul)) + " · " + e.fassungen.length + (e.fassungen.length === 1 ? " Fassung" : " Fassungen") + " · zuletzt " + zeit(letzte.zeit) + " · " + (letzte.woerter || 0) + " Wörter" + (e.lehrerKommentar ? " · 💬 kommentiert" : "") + "</small></div>" +
+          "<small>" + esc(modulTitel(ctx, e.modul)) + " · " + e.fassungen.length + (e.fassungen.length === 1 ? " Fassung" : " Fassungen") + " · zuletzt " + zeit(letzte.zeit) + " · " + (letzte.woerter || 0) + " Wörter" + (e.abgegeben ? " · 📤 abgegeben (Fassung " + e.abgegeben.nr + ")" : e.entwurf && !e.fassungen.length ? " · Entwurf, noch nicht abgegeben" : "") + (e.lehrerKommentar ? " · 💬 kommentiert" : "") + "</small></div>" +
           '<button type="button" class="tx-knopf" data-tx="auf">' + (offen ? "schließen" : "ansehen") + "</button></div>" + (offen ? sicht(e) : "") + "</div>";
       }).join("");
     }
+    // Schreibwerkstatt (Deutsch 8): Planung und laufender Entwurf – der Entwurf nur, wenn er neuer ist als die letzte Fassung
+    function entwurf(e) {
+      var w = e.entwurf; if (!w) return "";
+      var plan = Object.keys(w.plan || {}), letzte = e.fassungen[e.fassungen.length - 1];
+      // Beschriftungen: die das Modul mitgeschickt hat (planNamen), sonst die der bekannten Schreibformen
+      var eigene = Object.keys(e.planNamen || {}).map(function (k) { return { id: k, label: e.planNamen[k] }; });
+      var namen = global.AufsatzEditor ? global.AufsatzEditor.planListe("", eigene, w.plan) : plan.map(function (k) { return { label: (e.planNamen || {})[k] || k, text: w.plan[k] }; });
+      return (plan.length ? '<div class="tx-fassung"><b>Planung des Kindes</b><div class="tx-text">' + namen.map(function (x) { return esc(x.label) + ": " + esc(x.text); }).join("\n") + "</div></div>" : "") +
+        (w.text && (!letzte || letzte.text !== w.text) ? '<div class="tx-fassung"><b>Laufender Entwurf · ' + zeit(w.zeit) + " · " + (w.woerter || 0) + ' Wörter (noch nicht abgegeben)</b><div class="tx-text">' + esc(w.text) + "</div></div>" : "");
+    }
     function sicht(e) {
       return '<div class="tx-sicht">' + (e.auftrag ? '<p class="tx-hinweis" style="margin:0 0 .6rem"><b>Auftrag:</b> ' + esc(e.auftrag) + "</p>" : "") +
+        entwurf(e) +
         e.fassungen.map(function (f, i) {
           var fb = f.feedback || {};
-          return '<div class="tx-fassung"><b>' + (i === 0 ? "Originaltext" : "Überarbeitung") + " (Fassung " + f.nr + ") · " + zeit(f.zeit) + " · " + (f.woerter || 0) + " Wörter</b>" +
+          return '<div class="tx-fassung"><b>' + (i === 0 ? "Originaltext" : "Überarbeitung") + " (Fassung " + f.nr + ") · " + zeit(f.zeit) + " · " + (f.woerter || 0) + " Wörter" + (f.abgegeben ? " · 📤 abgegeben" : "") + "</b>" +
             '<div class="tx-text">' + esc(f.text) + "</div>" +
             (fb.gelungen || fb.naechstes ? '<div class="tx-ki"><b style="display:inline;text-transform:none;letter-spacing:0;color:#5a3a9a">' + (fb.quelle === "ki" ? "Rückmeldung der KI: " : "Ohne KI: ") + "</b>" +
               esc([fb.gelungen, fb.naechstes && "Als Nächstes: " + fb.naechstes, fb.stelle && "Stelle: " + fb.stelle, fb.tipp && "Tipp: " + fb.tipp].filter(Boolean).join(" · ")) + "</div>" : "") + "</div>";

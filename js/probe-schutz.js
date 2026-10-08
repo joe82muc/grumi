@@ -27,6 +27,14 @@
  *                                 der Rückkehr ein deutlicher Hinweis mit „Weiter“ (1., 2., ab dem 3. Mal), auch der verlorene
  *                                 Fensterfokus zählt, und über den Aufgaben steht, was im Probenmodus festgehalten wird
  *   einfuegen: "protokollieren"   Einfügen ist erlaubt und wird protokolliert (Vorgabe: "sperren")
+ *   wechsel: false                Verlassen der Seite wird nicht festgehalten (Vorgabe: wird festgehalten)
+ *   warnen: false                 nach der Rückkehr nur der kurze Hinweis statt des Fensters mit „Weiter“
+ *   kopieren: "erlauben"          Kopieren ist erlaubt (Vorgabe: "sperren", mit Vermerk)
+ *   ausschneiden: "erlauben"      Ausschneiden ist erlaubt (Vorgabe: wie kopieren)
+ *   kontextmenue: "sperren"       Kontextmenü auch in den Antwortfeldern gesperrt; "erlauben": nirgends gesperrt
+ *                                 (Vorgabe: nur außerhalb der Antwortfelder gesperrt)
+ *   spruenge: false               große Texteingaben in kurzer Zeit werden nicht vermerkt
+ *   ProbeSchutz.gesetzt(feld)     Die Seite hat ein Feld selbst gefüllt (Rückgängig, Zwischenstand): kein Textsprung
  * Nichts davon gibt eine Probe ab oder bewertet sie: Was die Ereignisse bedeuten, entscheidet die Lehrkraft.
  * Gesichert werden Textfelder, Auswahllisten, Radio-Knöpfe und gewählte Antwortknöpfe (.opt mit .sel/.richtig),
  * jeweils in der Reihenfolge der Seite. Wiederherstellen löst dieselben Ereignisse aus wie eine Eingabe.
@@ -163,7 +171,7 @@
   // art: "verborgen" (Seite nicht mehr sichtbar), "fokus" (Fenster ohne Eingabefokus), "neuladen" (Seite wird gerade
   // neu geladen oder geschlossen – ein Wechsel ist das erst, wenn sie länger als NEULADEN_MAX_SEK weg bleibt)
   function geht(art) {
-    if (!aktiv) return;
+    if (!aktiv || !aktiv.wechsel) return;
     if (art === "verborgen" && Date.now() - entladen < 1500) art = "neuladen";
     if (weg) { if (art !== "fokus") weg.art = art; }
     else weg = { art: art, von: jetzt() };
@@ -179,7 +187,7 @@
     merke(prot.wechsel, { art: w.art === "neuladen" ? "geschlossen" : w.art, von: w.von, bis: bis, sekunden: sek });
     zahl = sockel + prot.wechsel.length;
     sichern();
-    if (aktiv.ueberwachung) warnung(zahl);
+    if (aktiv.ueberwachung && aktiv.warnen) warnung(zahl);
     else hinweis("Du hast die Probe verlassen (" + zahl + "×). Das sieht deine Lehrkraft bei der Abgabe.");
   }
   doc.addEventListener("visibilitychange", function () {
@@ -200,7 +208,7 @@
   });
 
   /* ---------- Nicht einfügen, nicht kopieren ---------- */
-  var STIL = "body.probe-laeuft *:not(input):not(textarea):not(select){-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}";
+  var STIL = "body.probe-laeuft:not(.probe-kopieren-frei) *:not(input):not(textarea):not(select){-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}";
   function istFeld(el) { return el && el.matches && el.matches(FELD); }
   var gemeldet = 0;
   function gesperrt(e, text) {
@@ -225,7 +233,7 @@
   }, true);
   ["copy", "cut"].forEach(function (art) {
     doc.addEventListener(art, function (e) {
-      if (!aktiv) return;
+      if (!aktiv || (art === "copy" ? aktiv.kopieren : aktiv.ausschneiden) === "erlauben") return;
       var el = e.target, n = 0;
       try { n = istFeld(el) && typeof el.selectionStart === "number" ? Math.abs(el.selectionEnd - el.selectionStart) : String(global.getSelection ? global.getSelection() : "").length; } catch (_e) {}
       merke(prot.kopieren, { zeit: jetzt(), art: art, zeichen: n });
@@ -238,7 +246,7 @@
   var verlauf = global.WeakMap ? new WeakMap() : null;
   doc.addEventListener("input", function (e) {
     var el = e.target;
-    if (!aktiv || stumm || !verlauf || !istFeld(el) || !aktiv.box.contains(el)) return;
+    if (!aktiv || stumm || !aktiv.spruenge || !verlauf || !istFeld(el) || !aktiv.box.contains(el)) return;
     var t = Date.now(), w = woerter(el.value), v = verlauf.get(el);
     if (!v) { v = []; verlauf.set(el, v); }
     while (v.length && t - v[0].t > SPRUNG_MS) v.shift();
@@ -250,7 +258,8 @@
     }
   }, true);
   doc.addEventListener("dragstart", function (e) { if (aktiv && !(e.target && e.target.closest && e.target.closest("input[type=file]"))) e.preventDefault(); }, true);
-  doc.addEventListener("contextmenu", function (e) { if (aktiv && !istFeld(e.target)) e.preventDefault(); }, true);
+  // Kontextmenü: außerhalb der Antwortfelder immer gesperrt; mit kontextmenue: "sperren" auch in den Feldern
+  doc.addEventListener("contextmenu", function (e) { if (aktiv && aktiv.menue !== "erlauben" && (aktiv.menue === "sperren" || !istFeld(e.target))) e.preventDefault(); }, true);
   function stilEinmal() {
     if (doc.getElementById("probe-schutz-stil")) return;
     var s = doc.createElement("style"); s.id = "probe-schutz-stil"; s.textContent = STIL; doc.head.appendChild(s);
@@ -260,10 +269,16 @@
   global.ProbeSchutz = {
     start: function (cfg) {
       aktiv = { testId: String(cfg.testId), code: String(cfg.code), box: cfg.box, extra: cfg.extra || null,
-        ueberwachung: cfg.ueberwachung !== false, einfuegen: cfg.einfuegen === "protokollieren" ? "protokollieren" : "sperren" };
+        ueberwachung: cfg.ueberwachung !== false, einfuegen: cfg.einfuegen === "protokollieren" ? "protokollieren" : "sperren",
+        // je Probe einstellbar (Deutsch 8); ohne Angabe gilt das bisherige Verhalten
+        wechsel: cfg.wechsel !== false, warnen: cfg.warnen !== false, spruenge: cfg.spruenge !== false,
+        kopieren: cfg.kopieren === "erlauben" ? "erlauben" : "sperren",
+        ausschneiden: cfg.ausschneiden === "erlauben" || (cfg.ausschneiden === undefined && cfg.kopieren === "erlauben") ? "erlauben" : "sperren",
+        menue: cfg.kontextmenue === "sperren" || cfg.kontextmenue === "erlauben" ? cfg.kontextmenue : "aussen" };
       zahl = 0; sockel = 0; draussen = false; prot = LEER(); weg = null;
       alleFelder(aktiv.box);
       stilEinmal(); doc.body.classList.add("probe-laeuft");
+      doc.body.classList.toggle("probe-kopieren-frei", aktiv.kopieren === "erlauben");
       // Offen sagen, was im Probenmodus festgehalten wird (eine Seite mit eigenem Hinweis – Kennung „schutz-hinweis“ – behält ihn)
       if (aktiv.ueberwachung && !doc.getElementById("schutz-hinweis") && aktiv.box.parentNode) {
         var sh = doc.createElement("p");
@@ -284,9 +299,16 @@
     },
     verlassen: function () { return zahl; },
     protokoll: function () { return JSON.parse(JSON.stringify(prot)); },
+    // Die Seite hat ein Feld selbst gefüllt (Rückgängig/Wiederholen, Zwischenstand vom Server): Das ist kein
+    // Textsprung. Der neue Inhalt wird wie eine Eingabe gesichert.
+    gesetzt: function (el) {
+      if (!aktiv || !el) return;
+      if (verlauf) verlauf.set(el, [{ t: Date.now(), w: woerter(el.value) }]);
+      bald();
+    },
     ende: function () {
       if (aktiv) loesch(schluessel());
-      aktiv = null; clearTimeout(timer); doc.body.classList.remove("probe-laeuft");
+      aktiv = null; clearTimeout(timer); doc.body.classList.remove("probe-laeuft", "probe-kopieren-frei");
       prot = LEER(); weg = null;
       var w = doc.getElementById("probe-schutz-warnung"); if (w) w.remove();
       var sh = doc.querySelector('#schutz-hinweis[data-von="probe-schutz"]'); if (sh) sh.remove();

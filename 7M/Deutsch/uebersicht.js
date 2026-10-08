@@ -17,7 +17,9 @@
  */
 (function () {
   "use strict";
-  const D7 = window.D7, THEMEN = D7.THEMEN;
+  // Kursliste: Deutsch 7 (window.D7) oder Deutsch 8 (window.D8) – die Seite bindet ihre themen.js ein, die GRUMI_KURS setzt
+  const D7 = window.GRUMI_KURS && window.GRUMI_KURS.NR ? window.GRUMI_KURS : window.D7, THEMEN = D7.THEMEN;
+  const DNR = D7.NR || 7, DNAME = "Deutsch " + DNR, DAPI = "/api/d" + DNR;
   const {$, esc, session} = Modul;
   const app = $("#d7-app");
   // In der Vorschau für Lehrkräfte führen die Karten ebenfalls in die Vorschau
@@ -31,7 +33,7 @@
   const LEHRER_TEXT = "Du bist mit dem Lehrercode angemeldet: Alle Module sind offen – auch die Extra-Module und alles, was für die Klassen noch gesperrt ist. Dein Lernstand wird nicht gemeldet.";
 
   // Was der Server vom Kind kennt: { "d7-gr-01": { g: [Aufgaben], t: Anzahl }, … }
-  function serverStand(m) { return (SERVER && SERVER["d7-" + m.id]) || null; }
+  function serverStand(m) { return (SERVER && SERVER["d" + DNR + "-" + m.id]) || null; }
 
   // Fortschritt eines Moduls: { solved, total, pct, einheit? } oder null (noch nie geöffnet)
   function fortschritt(m, a) {
@@ -73,19 +75,20 @@
 
   // Karte eines Moduls: Argumentieren und Grammatik als Zeile, Rechtschreibung als Kachel mit Beispiel
   function modulKarte(m, i, thema, a) {
-    const offen = D7.offen(m, thema, STAND), kachel = thema.id === "rechtschreibung";
+    // Module ohne Seite (in Vorbereitung) sind nie offen – auch nicht in der Vorschau oder mit dem Lehrercode
+    const offen = Boolean(m.href) && D7.offen(m, thema, STAND), kachel = thema.id === "rechtschreibung", gesperrt = m.href ? "noch nicht freigeschaltet" : "in Vorbereitung";
     const p = offen ? fortschritt(m, a) : null, z = zustand(p);
     const marken = (m.tab ? `<span class="tab ${m.grund ? "grund" : ""}">${esc(m.tab)}</span>` : "") + (m.basis && !kachel ? '<span class="plus">Basis + Plus</span>' : "");
     if (kachel) {
       const kopf = `<span class="kopf"><span class="ic" aria-hidden="true">${offen ? m.icon : "🔒"}</span><span><span class="nr">Thema ${i + 1}</span><h3>${esc(m.titel)}</h3></span></span>`;
-      if (!offen) return `<article class="skarte zu" data-modul="${esc(m.id)}">${kopf}<div class="mod-status"><span class="zu">noch nicht freigeschaltet</span></div></article>`;
+      if (!offen) return `<article class="skarte zu" data-modul="${esc(m.id)}">${kopf}<div class="mod-status"><span class="zu">${gesperrt}</span></div></article>`;
       return `<a class="skarte ${z[0]}" data-modul="${esc(m.id)}" href="${m.href}${VORSCHAU}">${kopf}<p class="bsp">${m.bsp}</p>
         <div class="mod-status"><span class="${z[0]}">${z[1]}</span></div>${balken(p)}</a>`;
     }
     const art = m.grund ? " grund" : thema.id === "grammatik" ? " gr" : "";
     if (!offen) {
       return `<article class="mod zu${art}" data-modul="${esc(m.id)}"><div class="mod-nr">🔒</div><div>
-        <div class="mod-status">${marken}<span class="zu">noch nicht freigeschaltet</span></div><h3>${esc(m.titel)}</h3><p>${esc(m.text)}</p></div></article>`;
+        <div class="mod-status">${marken}<span class="zu">${gesperrt}</span></div><h3>${esc(m.titel)}</h3><p>${esc(m.text)}</p></div></article>`;
     }
     return `<a class="mod${art} ${z[0]}" data-modul="${esc(m.id)}" href="${m.href}${VORSCHAU}"><div class="mod-nr">${z[0] === "fertig" ? "✓" : i + 1}</div><div>
       <div class="mod-status">${marken}<span class="${z[0]}">${z[1]}</span></div>
@@ -99,7 +102,7 @@
 
   // Kasten mit den Extra-Modulen eines Moduls – nur die, die für die Klasse offen sind
   function extraKasten(m, thema, a) {
-    const offene = thema.module.filter(x => x.extra === m.id && D7.offen(x, thema, STAND));
+    const offene = thema.module.filter(x => x.extra === m.id && x.href && D7.offen(x, thema, STAND));
     if (!offene.length) return "";
     return `<div class="extras" data-extras="${esc(m.id)}"><div class="extras-kopf"><b>🔁 ${esc(m.extraFrage || "Noch unsicher?")}</b>${m.extraText ? `<span>${esc(m.extraText)}</span>` : ""}</div>
       <div class="extras-liste">${offene.map(x => {
@@ -113,7 +116,7 @@
     const zug = D7.zug(a);
     return (thema.proben || []).map(nr => {
       const da = PROBEN ? PROBEN.filter(t => t.nr === nr && (!zug || t.zug === zug)) : null;
-      const name = da && da.length ? da[0].title.replace(/ – Variante B$/, "").replace(/ \((R7|M7)\)/, "") : "Probe " + nr;
+      const name = da && da.length ? da[0].title.replace(/ – Variante B$/, "").replace(/ \((R|M)\d\)/, "") : "Probe " + nr;
       if (da && !da.length) return `<p class="probe-plan">📝 Probe ${nr} zu diesem Bereich ist in Vorbereitung.</p>`;
       const meine = (MEINE || []).find(m => m.nr === nr);
       if (meine && meine.status === "korrigiert") {
@@ -139,7 +142,7 @@
 
   // Fortschritt eines Themenbereichs: nur Module, die für die Klasse offen sind (Extra-Module zählen nicht mit)
   function themaStand(thema, a) {
-    const offen = haupt(thema).filter(m => D7.offen(m, thema, STAND));
+    const offen = haupt(thema).filter(m => m.href && D7.offen(m, thema, STAND));
     const ps = offen.map(m => fortschritt(m, a));
     const pct = offen.length ? Math.round(ps.reduce((s, p) => s + (p ? p.pct : 0), 0) / offen.length) : 0;
     return {offen: offen.length, fertig: ps.filter(p => p && p.pct >= 100).length, pct};
@@ -179,7 +182,7 @@
 
     app.innerHTML = `
     <section class="gesamt" aria-label="Dein Lernfortschritt">
-      <div class="gesamt-kopf"><div><div class="eyebrow">Deutsch 7 Lernfortschritt</div><div class="gesamt-zahl">${pctGesamt} %</div></div>
+      <div class="gesamt-kopf"><div><div class="eyebrow">${DNAME} Lernfortschritt</div><div class="gesamt-zahl">${pctGesamt} %</div></div>
         <p>${offenGesamt ? `${fertigGesamt} von ${offenGesamt} Modulen abgeschlossen` : "Noch kein Modul freigeschaltet"}${a || !offenGesamt ? "" : " · auf diesem Gerät"}</p></div>
       <div class="bar gross"><div style="width:${pctGesamt}%"></div></div>
       <div class="gesamt-themen">${THEMEN.map((t, i) => staende[i].offen
@@ -192,7 +195,7 @@
     ${THEMEN.map((t, i) => {
       const s = staende[i];
       const status = s.offen ? `<span class="ok">${s.fertig} von ${s.offen} Modulen abgeschlossen</span>`
-        : haupt(t).length ? '<span class="zu">🔒 noch nicht freigeschaltet</span>' : '<span class="zu">Module in Vorbereitung</span>';
+        : haupt(t).some(m => m.href) ? '<span class="zu">🔒 noch nicht freigeschaltet</span>' : '<span class="zu">Module in Vorbereitung</span>';
       return `<section class="thema${s.offen ? "" : " gesperrt"}" id="${t.id}" aria-labelledby="t${i + 1}">
       <div class="thema-head"><span class="thema-icon" aria-hidden="true">${t.icon}</span>
         <div><div class="eyebrow">Themenbereich ${t.nr}</div><h2 id="t${i + 1}">${esc(t.titel)}</h2><p>${esc(t.text)}</p>
@@ -240,13 +243,13 @@
     STAND = null; HINWEIS = ""; SERVER = null; MEINE = null;
     zeichnen();
     // Welche Proben gibt es, welche sind offen? (öffentliche Liste, ohne Anmeldung)
-    fetch(D7.API + "/api/d7/proben/list").then(r => r.json()).then(d => { if (d && d.ok) { PROBEN = d.tests || []; zeichnen(); } }).catch(() => {});
+    fetch(D7.API + DAPI + "/proben/list").then(r => r.json()).then(d => { if (d && d.ok) { PROBEN = d.tests || []; zeichnen(); } }).catch(() => {});
     D7.freigabe(a, stand => { STAND = stand; HINWEIS = ""; zeichnen(); }, text => { if (text) { HINWEIS = text; zeichnen(); } });
     if (!a) return;
     fetch(D7.API + "/api/nt9/fortschritt/anmelden", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({code: a.code})})
       .then(r => r.json()).then(d => { if (d && d.ok && d.fortschritt) { SERVER = d.fortschritt; zeichnen(); } }).catch(() => {});
     // Eigene Proben: abgegeben oder korrigiert zurück (mit dem Lehrercode gibt es keine)
-    fetch(D7.API + "/api/d7/proben/meine", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({code: a.code})})
+    fetch(D7.API + DAPI + "/proben/meine", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({code: a.code})})
       .then(r => r.json()).then(d => { if (d && d.ok) { MEINE = d.abgaben || []; zeichnen(); } }).catch(() => {});
   }
 

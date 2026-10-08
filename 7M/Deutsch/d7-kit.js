@@ -19,6 +19,8 @@
  */
 (function () {
   "use strict";
+  // Jahrgang: 7 (Vorgabe) oder 8 – Deutsch 8 setzt window.DEUTSCH_NR vor diesem Skript (8/Deutsch/…html)
+  const DNR = window.DEUTSCH_NR || (window.GRUMI_KURS && window.GRUMI_KURS.NR) || 7, DNAME = "Deutsch " + DNR, DAPI = "/api/d" + DNR;
   const M = window.Modul, { $, $$, esc } = M;
   const SERVER = location.hostname.endsWith("onrender.com") ? "" : "https://englisch-9.onrender.com";
   const bauer = {}, teile = [];
@@ -29,7 +31,7 @@
   function textFuer(x) {
     const id = typeof x === "string" ? x : x ? x[ZUG] || x.M || x.R : "";
     const t = window.D7Texte.get(id);
-    if (!t) console.error("Deutsch 7: Text fehlt in der Textdatenbank: " + id);
+    if (!t) console.error(DNAME + ": Text fehlt in der Textdatenbank: " + id);
     return t || { id: id, titel: "Text fehlt", absaetze: ["Dieser Text konnte nicht geladen werden."] };
   }
   const klartext = html => { const d = document.createElement("div"); d.innerHTML = html; return d.textContent.replace(/\s+/g, " ").trim(); };
@@ -37,16 +39,16 @@
   /* ---------- Seite aufbauen ---------- */
   function seite(cfg) {
     CFG = cfg; MODUL_ID = cfg.id;
-    const D7 = window.D7, reg = D7.modulVon(cfg.id), thema = reg ? reg.thema : { id: "", titel: "Deutsch 7" };
-    const key = reg && reg.modul.key ? reg.modul.key : "grumi-d7-" + cfg.id + "-v1";
+    const D7 = window["D" + DNR], reg = D7.modulVon(cfg.id), thema = reg ? reg.thema : { id: "", titel: DNAME };
+    const key = reg && reg.modul.key ? reg.modul.key : "grumi-d" + DNR + "-" + cfg.id + "-v1";
     const root = $("#d7-seite"), st = cfg.stationen;
-    document.title = cfg.titel + " | Deutsch 7";
-    root.innerHTML = `<header class="top"><div class="wrap top-in"><a class="brand" href="index.html${thema.id ? "#" + thema.id : ""}">GRUMI<small>Deutsch 7</small></a>
+    document.title = cfg.titel + " | " + DNAME;
+    root.innerHTML = `<header class="top"><div class="wrap top-in"><a class="brand" href="index.html${thema.id ? "#" + thema.id : ""}">GRUMI<small>${DNAME}</small></a>
         <nav class="stations" id="stations">${st.map((s, i) => `<a href="#s${i + 1}"><b>${i + 1}</b>${esc(s.kurz)}</a>`).join("")}</nav>
         <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span></div><div class="readbar" id="readbar"></div></header>
       <div class="hero"><canvas id="heroCanvas" aria-hidden="true"></canvas><div class="wrap">
-        <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px"><a href="index.html${thema.id ? "#" + thema.id : ""}">📚 Übersicht Deutsch 7</a><a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a><a href="../../index.html">🏠 Startseite Lernplattform</a></nav>
-        <div class="eyebrow">Deutsch · Klasse 7M / 7R · ${esc(thema.titel)}${reg ? (reg.modul.extra ? " · Zusatz" : " · Modul " + reg.nr) : ""}</div>
+        <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px"><a href="index.html${thema.id ? "#" + thema.id : ""}">📚 Übersicht ${DNAME}</a><a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a><a href="../../index.html">🏠 Startseite Lernplattform</a></nav>
+        <div class="eyebrow">Deutsch · Klasse ${DNR}M / ${DNR}R · ${esc(thema.titel)}${reg ? (reg.modul.extra ? " · Zusatz" : " · Modul " + reg.nr) : ""}</div>
         <h1>${esc(cfg.titel)}</h1><p>${cfg.einleitung || ""}</p>
         <div class="zeit">⏱ ${esc(cfg.zeit || "etwa 40 Minuten")} · am Tablet oder am PC</div>
         <div class="hero-cta"><a class="btn light" href="#s1">Los geht's ↓</a></div>
@@ -54,17 +56,17 @@
       <main class="wrap"><div id="d7-fassung"></div><div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
         ${st.map((s, i) => `<section class="station" id="s${i + 1}"><div class="st-head"><div class="st-num">${i + 1}</div><div><div class="eyebrow">${esc(s.ober || "")}</div><h2>${esc(s.titel)}</h2></div></div></section>`).join("")}
         <div class="card" id="d7-weiter"></div></main>
-      <footer class="wrap">Deutsch 7 · Modul „${esc(cfg.titel)}“ · Dein Fortschritt wird auf diesem Gerät gespeichert${cfg.quellen ? " · " + cfg.quellen : ""}.</footer>
+      <footer class="wrap">${DNAME} · Modul „${esc(cfg.titel)}“ · Dein Fortschritt wird auf diesem Gerät gespeichert${cfg.quellen ? " · " + cfg.quellen : ""}.</footer>
       <div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div><div id="lb"><img alt=""></div><canvas id="confetti"></canvas>`;
 
-    M.init({ key, api: "/api/d7/uebung/feedback", thema: cfg.thema || thema.titel + ": " + cfg.titel, glossary: cfg.glossar || {}, hero: cfg.hero });
+    M.init({ key, api: DAPI + "/uebung/feedback", thema: cfg.thema || thema.titel + ": " + cfg.titel, glossary: cfg.glossar || {}, hero: cfg.hero });
 
-    // R7 oder M7? Aus der Anmeldung; sonst aus dem Link (?zug=R) – dann lässt sich die Fassung umschalten
-    const a = M.anmeldung(), fest = a && /^7[MR]$/.test(String(a.zug || ""));
+    // R oder M? Aus der Anmeldung; sonst aus dem Link (?zug=R) – dann lässt sich die Fassung umschalten
+    const a = M.anmeldung(), fest = a && new RegExp("^" + DNR + "[MR]$").test(String(a.zug || ""));
     ZUG = M.zug() || "M";
     if (!fest) {
       const mit = z => { const p = new URLSearchParams(location.search); p.set("zug", z); return "?" + p.toString(); };
-      $("#d7-fassung").innerHTML = `<p class="d7-fassung">Du siehst die Fassung für <a href="${mit("R")}" class="${ZUG === "R" ? "an" : ""}">R7</a><a href="${mit("M")}" class="${ZUG === "M" ? "an" : ""}">M7</a><span style="font-weight:600">Mit Code angemeldet bekommt jedes Kind automatisch die Fassung seiner Klasse.</span></p>`;
+      $("#d7-fassung").innerHTML = `<p class="d7-fassung">Du siehst die Fassung für <a href="${mit("R")}" class="${ZUG === "R" ? "an" : ""}">R${DNR}</a><a href="${mit("M")}" class="${ZUG === "M" ? "an" : ""}">M${DNR}</a><span style="font-weight:600">Mit Code angemeldet bekommt jedes Kind automatisch die Fassung seiner Klasse.</span></p>`;
     }
 
     const mc = [];
@@ -72,9 +74,9 @@
       const sec = $("#s" + (i + 1));
       (s.teile || []).forEach(teil => {
         if (teil.nur && teil.nur !== ZUG) return;
-        if (!bauer[teil.art]) { console.error("Deutsch 7: unbekannter Baustein „" + teil.art + "“"); return; }
+        if (!bauer[teil.art]) { console.error(DNAME + ": unbekannter Baustein „" + teil.art + "“"); return; }
         const card = document.createElement("div"); card.className = "card" + (teil.klasse ? " " + teil.klasse : "");
-        const tags = (teil.m7 ? '<span class="task-tag m7">M7 · für 7R freiwillig</span> ' : "") + (teil.tag ? `<span class="task-tag${teil.zusatz ? " zusatz-tag" : ""}">${esc(teil.tag)}</span>` : "");
+        const tags = (teil.m7 ? '<span class="task-tag m7">M' + DNR + ' · für ' + DNR + 'R freiwillig</span> ' : "") + (teil.tag ? `<span class="task-tag${teil.zusatz ? " zusatz-tag" : ""}">${esc(teil.tag)}</span>` : "");
         card.innerHTML = (tags ? `<div>${tags}</div>` : "") + (teil.titel ? `<h3>${esc(teil.titel)}</h3>` : "") + (teil.lead ? `<p class="lead">${teil.lead}</p>` : "") + '<div class="teil-box"></div>';
         sec.appendChild(card);
         const box = $(".teil-box", card), los = () => bauer[teil.art](box, teil, card);
@@ -99,7 +101,7 @@
     }
     const w = cfg.weiter;
     $("#d7-weiter").innerHTML = `<h3 style="margin-top:0">Wie geht es weiter?</h3><p>${w && w.text ? w.text : "Du hast das Ende dieses Moduls erreicht."}</p>
-      <nav class="navlinks light" aria-label="Weiter">${w && w.href ? `<a href="${esc(w.href)}">➜ ${esc(w.titel)}</a>` : ""}<a href="index.html${thema.id ? "#" + thema.id : ""}">📚 Zur Übersicht Deutsch 7</a></nav>`;
+      <nav class="navlinks light" aria-label="Weiter">${w && w.href ? `<a href="${esc(w.href)}">➜ ${esc(w.titel)}</a>` : ""}<a href="index.html${thema.id ? "#" + thema.id : ""}">📚 Zur Übersicht ${DNAME}</a></nav>`;
 
     // Haupttext der Seite (cfg.haupttext) lässt sich von jeder Station aus einblenden
     if (cfg.haupttext) {
@@ -315,7 +317,7 @@
       let fb = null;
       try {
         const ctl = new AbortController(), frist = setTimeout(() => ctl.abort(), 75000);
-        const r = await fetch(SERVER + "/api/d7/schreiben/feedback", { method: "POST", headers: { "Content-Type": "application/json" }, signal: ctl.signal,
+        const r = await fetch(SERVER + DAPI + "/schreiben/feedback", { method: "POST", headers: { "Content-Type": "application/json" }, signal: ctl.signal,
           body: JSON.stringify({ code: a ? a.code : "", modul: MODUL_ID, aufgabe: id, titel: teil.titel || "", auftrag: klartext(teil.auftrag), kriterien, text: ta.value.trim(), zug: ZUG }) });
         clearTimeout(frist);
         const d = await r.json().catch(() => null);
@@ -330,7 +332,7 @@
     // Mit Code: letzte Fassung von einem anderen Gerät holen und den Kommentar der Lehrkraft zeigen
     const a = M.anmeldung();
     if (a && a.code) {
-      fetch(SERVER + "/api/d7/texte/meine", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: a.code, modul: MODUL_ID, aufgabe: id }) })
+      fetch(SERVER + DAPI + "/texte/meine", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: a.code, modul: MODUL_ID, aufgabe: id }) })
         .then(r => r.json()).then(d => {
           if (!d || !d.ok) return;
           const letzte = d.fassungen[d.fassungen.length - 1];

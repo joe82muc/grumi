@@ -326,7 +326,7 @@
     }
 
     // Zurückbekommen: korrigierte Proben aller Fächer, die die Lehrkraft zurückgegeben hat (proben-rueckgabe.js auf dem
-    // Server; Deutsch 7 steht mit in der Liste). Als Kachel stehen sie da, solange sie ungeöffnet sind, und danach noch
+    // Server; Deutsch 7 und Deutsch 8 stehen mit in der Liste). Als Kachel stehen sie da, solange sie ungeöffnet sind, und danach noch
     // mindestens 3 Tage (rechnet der Server: aktuell); alle anderen hinter „Alle ansehen“.
     function korrekturen(s) {
       var box = doc.getElementById("kb-korrektur");
@@ -338,14 +338,15 @@
           var fach = function (a) { return a.fach === "NT" ? "Natur und Technik" : a.fach || "Probe"; };
           var link = function (a) {
             return a.modul === "d7proben" ? "7M/Deutsch/korrektur.html?test=" + encodeURIComponent(a.testId)
+              : a.modul === "d8proben" ? "8/Deutsch/korrektur.html?test=" + encodeURIComponent(a.testId)
               : "korrektur.html?modul=" + encodeURIComponent(a.modul) + "&id=" + encodeURIComponent(a.id);
           };
-          var titel = function (a) { var m = /-p(\d+)-/.exec(a.testId || ""); return a.modul === "d7proben" && m ? "Deutsch – Probe " + m[1] + " korrigiert" : fach(a) + " – korrigiert"; };
+          var titel = function (a) { var m = /-p(\d+)-/.exec(a.testId || ""); return /^d[78]proben$/.test(a.modul) && m ? "Deutsch – Probe " + m[1] + " korrigiert" : fach(a) + " – korrigiert"; };
           box.hidden = !alle.length;
           box.innerHTML = alle.length ? '<h3 class="kb-abschnitt">📄 Zurückbekommen</h3>' +
             (neu.length ? '<div class="kb-kacheln">' + neu.map(function (a) {
               return '<a class="kb-kachel kb-gross kb-probe" href="' + esc(link(a)) + '"><span class="kb-emoji" aria-hidden="true">📄</span><b>' + esc(titel(a)) + "</b><small>" +
-                (a.modul === "d7proben" ? "" : esc(a.titel) + " · ") + (a.neu ? "NEUE KORREKTUR · Korrektur öffnen" : "Korrektur noch einmal ansehen") + "</small></a>";
+                (/^d[78]proben$/.test(a.modul) ? "" : esc(a.titel) + " · ") + (a.neu ? "NEUE KORREKTUR · Korrektur öffnen" : "Korrektur noch einmal ansehen") + "</small></a>";
             }).join("") + "</div>" : "") +
             '<p style="margin:.4rem 0 0"><a href="korrektur.html" style="font-weight:800">📂 Alle zurückbekommenen Proben ansehen (' + alle.length + ")</a></p>" : "";
         }).catch(function () {});

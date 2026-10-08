@@ -386,7 +386,7 @@
     THEMEN: THEMEN, probeModule: probeModule, API: API, VORSCHAU: VORSCHAU, modulVon: modulVon, offen: offen, freigabe: freigabe, sperre: sperre, extrasVon: extrasVon,
     idAusKey: idAusKey, zug: zug, probeId: probeId,
     // Angaben für die Bausteine von NT 7 (Seiten mit ../NT/modul-basis.js)
-    KURS: "d7", PREFIX: PREFIX, WORT: "Modul", DAS: "das Modul", ES: "es",
+    KURS: "d7", NR: 7, NAME: "Deutsch 7", PREFIX: PREFIX, WORT: "Modul", DAS: "das Modul", ES: "es",
     SPERRE: "Dieses Modul ist noch nicht freigeschaltet", ZURUECK: "📚 Zur Übersicht Deutsch 7"
   };
   // Seiten, die die NT-7-Bausteine nutzen, finden die Kursliste hier (nicht in der Verwaltung: dort stehen mehrere Listen)

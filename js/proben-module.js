@@ -90,6 +90,14 @@
       schueler: function (t) { return "7M/Deutsch/probe.html?test=" + encodeURIComponent(t.id) + (t.zug ? "&zug=" + t.zug : ""); }
     },
     {
+      /* Deutsch 8: Proben 1 bis 8, je für 8R und 8M und in Variante A und B – derselbe Ablauf wie Deutsch 7
+         (KI-Vorkorrektur, Prüfung durch die Lehrkraft, Rückgabe), dazu Zeit und Zwischenstand auf dem Server. */
+      key: "d8proben", subject: "Deutsch", stufen: [8], liste: "D8",
+      listPath: "/api/d8/proben/list?alle=1", unlockPath: "/api/d8/proben/teacher/unlock",
+      klasse: function (t) { return "8" + (t.zug || ""); }, link: function (t) { return "8/Deutsch/proben-lehrer.html?nr=" + t.nr; },
+      schueler: function (t) { return "8/Deutsch/probe.html?test=" + encodeURIComponent(t.id) + (t.zug ? "&zug=" + t.zug : ""); }
+    },
+    {
       key: "infoaustausch", subject: "Informatik", stufen: [7],
       listPath: "/api/infoaustausch/list", unlockPath: "/api/infoaustausch/unlock",
       klasse: function () { return "7"; }, link: function () { return "7/Informatik_7/probe/lehrer.html"; },

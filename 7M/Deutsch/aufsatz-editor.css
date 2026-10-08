@@ -1,0 +1,65 @@
+/* Aufsatzeditor (aufsatz-editor.js): Schreibfläche für längere Texte – im Lernmodul und in der Probe.
+   Große Schrift (18 px), große Tippflächen (mindestens 44 px), Hoch- und Querformat, Bildschirm- und externe Tastatur. */
+.ae{--ae-pri:var(--pri,var(--sky,#b23a48));--ae-pri-d:var(--pri-d,var(--sky-d,#8a2434));--ae-pri-l:var(--pri-l,var(--sky-l,#fbecee));--ae-line:var(--line,#e6dcd9);--ae-muted:var(--muted,#62585b);
+  margin-top:10px;border:1.5px solid #cfc2bd;border-radius:16px;background:#fff;overflow:hidden}
+.ae *{box-sizing:border-box}
+.ae-leiste{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px 10px;border-bottom:1.5px solid var(--ae-line);background:#faf7f5}
+.ae-k{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:44px;min-height:44px;padding:6px 12px;border:1.5px solid var(--ae-line);border-radius:12px;background:#fff;color:#2b2226;
+  font:inherit;font-size:.92rem;font-weight:700;line-height:1.2;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.ae-k > span:first-child{font-size:1.2rem;line-height:1}
+.ae-k:hover:not(:disabled){border-color:var(--ae-pri)}
+.ae-k:focus-visible{outline:3px solid #f2b632;outline-offset:2px}
+.ae-k:disabled{opacity:.42;cursor:default}
+.ae-k.an{border-color:var(--ae-pri);background:var(--ae-pri-l);color:var(--ae-pri-d)}
+.ae-trenner{width:1px;align-self:stretch;margin:4px 2px;background:var(--ae-line)}
+.ae-voll{margin-left:auto}
+.ae-klappe{margin:10px;padding:12px 14px;border:1.5px dashed #e3b9bf;border-radius:14px;background:#fff9f4}
+.ae-klappe[hidden]{display:none}
+.ae-klappe h4{margin:0 0 8px;font-size:1rem}
+.ae-klappe[data-klappe="plan"]{border-color:#bcd9d4;background:#f3faf8}
+.ae-klappe[data-klappe="material"]{border-color:#cfdbe3;background:#f6fafc}
+.ae-auftrag > :first-child,.ae-material > :first-child{margin-top:0}
+.ae-auftrag > :last-child,.ae-material > :last-child{margin-bottom:0}
+.ae-plan-hinweis{margin:0 0 10px;color:var(--ae-muted);font-size:.9rem}
+.ae-feld{display:block;margin:0 0 10px}
+.ae-feld:last-child{margin-bottom:0}
+.ae-label{display:block;font-weight:800}
+.ae-hilfe{display:block;margin:1px 0 4px;color:var(--ae-muted);font-size:.88rem;line-height:1.35}
+.ae textarea{display:block;width:100%;border:1.5px solid #cfc2bd;border-radius:12px;background:#fff;color:#1f1a1c;font:inherit;-webkit-appearance:none;appearance:none}
+.ae-plan-feld{min-height:0;padding:8px 11px;font-size:1rem;line-height:1.5;resize:vertical}
+.ae-schreib{padding:10px}
+.ae textarea.ae-text{min-height:420px;padding:16px 18px;font-size:18px;line-height:1.75;resize:vertical;border-color:#d9cdc8}
+.ae textarea:focus{outline:none;border-color:var(--ae-pri);box-shadow:0 0 0 3px rgba(178,58,72,.14)}
+.ae-fuss{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;justify-content:space-between;padding:8px 14px;border-top:1.5px solid var(--ae-line);background:#faf7f5;font-size:.9rem;font-weight:700;color:var(--ae-muted)}
+.ae-zahl b{color:#2b2226;font-size:1.02rem}
+.ae-zahl.gut b{color:var(--ok,#1b8a4b)}
+.ae-zeichen{font-weight:600}
+.ae-stand{display:inline-flex;align-items:center;gap:6px;text-align:right}
+.ae-stand.ok,.ae-stand.lokal{color:var(--ok,#1b8a4b)}
+.ae-stand.laeuft{color:var(--ae-muted)}
+.ae-stand.offen{padding:3px 10px;border-radius:99px;background:#fff4dc;color:#7a5200}
+
+/* nur die Planung (Schritt „Planen“) */
+.ae.ae-nur-plan .ae-leiste,.ae.ae-nur-plan .ae-schreib{display:none}
+.ae.ae-nur-plan .ae-fuss .ae-zahl{visibility:hidden}
+
+/* Vollbild: die Schreibfläche füllt das Fenster; --ae-h folgt der sichtbaren Höhe (Bildschirmtastatur) */
+html.ae-vollbild,html.ae-vollbild body{overflow:hidden}
+.ae.ae-voll-an{position:fixed;left:0;right:0;top:var(--ae-top,0px);height:var(--ae-h,100vh);z-index:900;margin:0;border:0;border-radius:0;display:flex;flex-direction:column}
+.ae.ae-voll-an .ae-flaeche{flex:1;min-height:0;display:flex;flex-direction:column}
+.ae.ae-voll-an .ae-klappen{flex:none;max-height:38%;overflow:auto;-webkit-overflow-scrolling:touch}
+.ae.ae-voll-an .ae-schreib{flex:1;min-height:0;display:flex;padding:8px 10px}
+.ae.ae-voll-an textarea.ae-text{flex:1;min-height:0;height:auto;resize:none;max-width:980px;margin:0 auto}
+.ae.ae-voll-an .ae-klappe{margin:8px 10px}
+@media (min-width:900px) and (orientation:landscape){
+  .ae.ae-voll-an.ae-mit-klappe .ae-flaeche{flex-direction:row}
+  .ae.ae-voll-an.ae-mit-klappe .ae-klappen{flex:0 0 min(42%,520px);max-height:none;border-right:1.5px solid var(--ae-line)}
+}
+@media (max-width:640px){
+  .ae-k{padding:6px 10px}
+  .ae-leiste .ae-wort{display:none}
+  .ae-k.an .ae-wort,.ae-voll.an .ae-wort{display:inline}
+  .ae textarea.ae-text{min-height:320px;padding:13px 14px}
+  .ae-fuss{font-size:.85rem}
+}
+@media print{.ae-leiste,.ae-fuss{display:none}.ae{border:0}.ae textarea.ae-text{min-height:0;border:0;padding:0}}

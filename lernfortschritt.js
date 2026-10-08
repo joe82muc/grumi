@@ -380,6 +380,14 @@
         worte: { titel: "Themenbereiche und Module", das: "das Modul", neu: "Alle Module", von: "Modulen", plan: "Module in Vorbereitung" } });
       if (global.TexteVerwaltung) global.TexteVerwaltung.zeige($("vw-d7-texte"), { api: API, pw: PW, klasse: KLASSE, liste: global.D7, name: nameVon });
       fachLaden($("vw-fach"));
+    } else if (ANSICHT === "d8" && global.NT7Verwaltung && global.D8) {
+      // Deutsch 8: wie Deutsch 7 – Freischalten der Themenbereiche und Module, Weg zur Korrektur der Proben, Schülertexte
+      // aus Schreibtrainer und Schreibwerkstatt (Entwurf, Planung, abgegebene Fassungen)
+      teil.innerHTML = '<div id="vw-d8-frei"></div><div id="vw-d8-texte"></div><div id="vw-fach"></div>';
+      global.NT7Verwaltung.freigabe($("vw-d8-frei"), { api: API, pw: PW, klasse: KLASSE, liste: global.D8, pfad: "/api/d8", ordner: "8/Deutsch/",
+        worte: { titel: "Themenbereiche und Module", das: "das Modul", neu: "Alle Module", von: "Modulen", plan: "Module in Vorbereitung" } });
+      if (global.TexteVerwaltung) global.TexteVerwaltung.zeige($("vw-d8-texte"), { api: API, pw: PW, klasse: KLASSE, liste: global.D8, name: nameVon, stufe: 8, ordner: "8/Deutsch/" });
+      fachLaden($("vw-fach"));
     } else if (ANSICHT === "nt9" && global.NT7Verwaltung && nt9Liste()) {
       // NT 9: Themenbereiche und Seiten je Klasse sperren oder freischalten (gleiche Ansicht wie NT 7). Hier ist alles
       // von sich aus offen – die Lehrkraft sperrt, was eine Klasse nicht sehen soll. Je Zug eine Liste, Stand unter /api/n9.
@@ -502,7 +510,7 @@
           '<span class="lf-np">' + codes.length + " von " + liste.length + " abgegeben</span>" +
           (function () {
             var zur = codes.filter(function (c) { return p.noten[c].zurueck; }).length;
-            if (p.modul === "d7proben") return zur ? '<span class="lf-np">📤 ' + zur + " zurückgegeben</span>" : "";
+            if (/^d[78]proben$/.test(p.modul)) return zur ? '<span class="lf-np">📤 ' + zur + " zurückgegeben</span>" : "";
             return '<span class="lf-np">📤 ' + zur + " von " + codes.length + ' zurückgegeben</span><button type="button" class="btn btn-ghost btn-sm lf-zur-alle" data-zurueck-alle="' + esc(p.modul + "|" + p.testId) + '"' +
               (zur >= codes.length ? " disabled" : "") + ">📤 Alle zurückgeben</button>";
           })() + "</td>";
@@ -814,7 +822,7 @@
   // kein Kind gearbeitet hat; die Spalten zeigen dann „–“. Extra-Module und Geplantes kommen nicht dazu.
   function kursModule() {
     var bekannt = DATEN.module.filter(function (m) { return m.kurs === ANSICHT; });
-    var L = { nt7: global.NT7, d7: global.D7, i7: global.INF7, i8: global.INF8 }[ANSICHT];
+    var L = { nt7: global.NT7, d7: global.D7, d8: global.D8, i7: global.INF7, i8: global.INF8 }[ANSICHT];
     if (!L || !L.THEMEN) return bekannt;
     var da = {}, alle = bekannt.slice();
     bekannt.forEach(function (m) { da[m.id] = 1; });
@@ -848,7 +856,7 @@
   // Festes Kürzel des Moduls aus der Modulliste des Fachs (themen.js: kz, z. B. „L3“). Übungen ohne Liste behalten
   // den Kurznamen, den ihre Seite meldet (z. B. „G2“ in Deutsch 8).
   function kuerzel(m) {
-    var L = { nt7: global.NT7, d7: global.D7, i7: global.INF7, i8: global.INF8 }[m.kurs];
+    var L = { nt7: global.NT7, d7: global.D7, d8: global.D8, i7: global.INF7, i8: global.INF8 }[m.kurs];
     var r = L && L.modulVon ? L.modulVon(String(m.id).slice(String(m.kurs).length + 1)) : null;
     // Englisch: Die Liste nennt bei jeder Seite ihre Kennung im Lernstand (ls)
     if (!r && /^e[789]$/.test(m.kurs) && englischListe()) r = englischListe().modulZumLernstand(m.id);

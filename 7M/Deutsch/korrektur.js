@@ -7,6 +7,8 @@
  */
 (function () {
   "use strict";
+  // Jahrgang: 7 (Vorgabe) oder 8 – Deutsch 8 setzt window.DEUTSCH_NR vor diesem Skript (8/Deutsch/…html)
+  const DNR = window.DEUTSCH_NR || (window.GRUMI_KURS && window.GRUMI_KURS.NR) || 7, DNAME = "Deutsch " + DNR, DAPI = "/api/d" + DNR;
   const params = new URLSearchParams(location.search);
   const API = (params.get("api") || (location.hostname.endsWith("github.io") ? "https://englisch-9.onrender.com" : location.origin)).replace(/\/$/, "");
   const $ = id => document.getElementById(id);
@@ -22,7 +24,7 @@
   async function post(route, body) {
     const ctl = new AbortController(), frist = setTimeout(() => ctl.abort(), 75000);
     try {
-      const res = await fetch(API + "/api/d7/proben/" + route, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body), signal: ctl.signal});
+      const res = await fetch(API + DAPI + "/proben/" + route, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body), signal: ctl.signal});
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw Object.assign(new Error(data.message || "Das hat nicht geklappt."), {code: data.error, status: res.status});
       return data;
@@ -36,13 +38,13 @@
     const d = await post("meine", {code});
     $("anmelden").hidden = true; $("korrektur").hidden = true;
     $("liste").hidden = false;
-    $("liste").innerHTML = `<div class="eyebrow">Deutsch 7 · Klasse ${esc(d.klasse || "")}</div><h1>Meine Proben</h1>` +
+    $("liste").innerHTML = `<div class="eyebrow">${DNAME} · Klasse ${esc(d.klasse || "")}</div><h1>Meine Proben</h1>` +
       (d.abgaben.length ? `<div class="exam-list">${d.abgaben.map(a => `<article class="exam-tile"><div><h2>📄 ${esc(a.title)}</h2>
         <p>Geschrieben am ${D7Korrektur.datum(a.abgegebenAm)}${a.status === "korrigiert" ? " · korrigiert zurück am " + D7Korrektur.datum(a.freigegebenAm) : ""}</p></div>
         <div>${a.status === "korrigiert" ? `<span class="pill ${a.neu ? "open" : ""}">${a.neu ? "NEUE KORREKTUR" : "korrigiert"}</span><a class="btn" href="korrektur.html?test=${encodeURIComponent(a.testId)}">Korrektur öffnen</a>`
           : `<span class="pill">abgegeben</span><span style="color:var(--muted);font-size:.9rem">Deine Lehrkraft korrigiert noch.</span>`}</div></article>`).join("")}</div>`
         : `<p class="notice">Du hast noch keine Deutsch-Probe abgegeben.</p>`) +
-      `<p><a class="btn secondary" href="index.html">Zur Übersicht Deutsch 7</a></p>`;
+      `<p><a class="btn secondary" href="index.html">Zur Übersicht ${DNAME}</a></p>`;
   }
   async function zeigen() {
     const d = await post("korrektur", {code, testId: TEST});
@@ -54,7 +56,7 @@
     $("mit-text").closest("label").hidden = !texte.length;
     $("texte-inhalt").innerHTML = texte.map(D7Lesetext.html).join("");
     $("korrektur").hidden = false;
-    document.title = "Korrigierte Probe: " + k.title + " | Deutsch 7";
+    document.title = "Korrigierte Probe: " + k.title + " | " + DNAME;
     status("");
   }
   async function start() {

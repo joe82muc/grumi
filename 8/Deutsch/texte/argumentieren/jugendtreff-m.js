@@ -1,0 +1,23 @@
+/* Deutsch 8 · Argumentieren und Stellung nehmen · Modul 4 (M8): erfundener Zeitungsbericht als Anlass für einen Leserbrief
+   oder Kommentar. Eigene Fassung für M8 (dichter, mit indirekter Rede, Gutachten, laufenden Kosten und Gegenvorschlag) –
+   nicht die R8-Fassung mit Zusätzen. Stadt, Zeitung, Jugendtreff und alle Personen sind erfunden. Die Besucherzahlen sind
+   mit Absicht so gewählt, dass man sie prüfen kann: 220 Besuche an fünf Tagen, 120 an drei Tagen. */
+D7Texte.add({
+  id: "arg-jugendtreff-m", titel: "Stadt will den Jugendtreff schließen", autor: "Lerchenfurter Anzeiger vom 14. März (erfundene Zeitung)",
+  textsorte: "Zeitungsbericht", zug: "M8",
+  modul: "Argumentieren und Stellung nehmen", unterthema: "Leserbrief und Kommentar: Bezug auf einen Zeitungstext, Argumente prüfen und abwägen", woerter: 538,
+  schwierigkeit: "anspruchsvoll", lehrplan: "D8 3.2, 2.3", thema: "Schließung eines Jugendtreffs",
+  quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundener Bericht einer erfundenen Zeitung)",
+  zeilennummern: true, probe: false,
+  absaetze: [
+    "Lerchenfurt. Dem Jugendtreff „Alte Wache“ droht das Aus: Die Stadtverwaltung hat am Donnerstag vorgeschlagen, die Einrichtung zum Jahresende zu schließen. Als Gründe nennt sie den schlechten Zustand des Gebäudes, sinkende Besucherzahlen und die angespannte Haushaltslage. Das letzte Wort hat der Stadtrat, der am 28. April in öffentlicher Sitzung entscheidet.",
+    "Seit 19 Jahren nutzt der Treff das ehemalige Feuerwehrhaus in der Gerbergasse. Ein Gutachten, das die Stadt im Herbst in Auftrag gegeben hatte, bescheinigt dem Bau erhebliche Mängel: Das Dach sei undicht, die Heizung veraltet, die Elektrik entspreche nicht mehr den Vorschriften. Die Kosten einer Sanierung beziffert das Gutachten auf rund 480.000 Euro. „Eine solche Summe können wir derzeit nicht aufbringen, ohne an anderer Stelle zu kürzen“, sagte Bürgermeisterin Ingrid Sommerauer. Hinzu kämen jährlich etwa 95.000 Euro für Personal und Betrieb.",
+    "Die Verwaltung verweist außerdem auf die Statistik. Vor fünf Jahren seien im Treff noch rund 220 Besuche pro Woche gezählt worden, im vergangenen Jahr nur etwa 120. Das Angebot erreiche offenbar immer weniger junge Leute, heißt es in der Vorlage für den Stadtrat.",
+    "Der Treff-Rat, in dem die Jugendlichen selbst mitbestimmen, hält diese Rechnung für irreführend. „Seit die Stadt vor zwei Jahren eine Stelle gestrichen hat, ist nur noch an drei statt an fünf Tagen geöffnet“, sagt der 15-jährige Malik. Wer die Öffnungszeiten kürze, dürfe sich über weniger Besuche nicht wundern. An den verbliebenen Tagen sei das Haus so voll wie eh und je.",
+    "Für seine Besucherinnen und Besucher ist der Treff weit mehr als ein Aufenthaltsraum mit Kicker und Sofa. Zwei Bands proben im Keller, in der Küche wird gemeinsam gekocht, und zweimal wöchentlich gibt es Unterstützung bei den Hausaufgaben. „Es ist der einzige Ort in der Stadt, an dem wir uns treffen können, ohne etwas kaufen zu müssen“, sagt Lina (14). Treffleiter Bernd Kollmer, von Beruf Sozialpädagoge, beobachtet noch etwas anderes: Etliche Jugendliche kämen regelmäßig, weil ihnen zu Hause ein ruhiger Platz zum Lernen fehle oder weil sie jemanden zum Reden bräuchten.",
+    "Ganz ohne Angebot will die Stadt die Jugendlichen nicht lassen. Sie stellt ihnen an zwei Nachmittagen pro Woche einen Raum im Bürgerhaus in Aussicht, betreut von einer Fachkraft. Allerdings müsste dieser Raum um 18 Uhr geräumt sein, weil ihn abends Vereine belegen; einen Proberaum gibt es dort nicht. Kollmer bezweifelt, dass ein solcher Ersatz angenommen wird: „Ein Treff lebt davon, dass er den Jugendlichen gehört. Im Bürgerhaus wären sie nur zu Gast.“",
+    "In der Nachbarschaft ist das Echo geteilt. Einige Anwohner beschweren sich seit Jahren über Lärm in den Abendstunden und würden eine Schließung begrüßen. Andere geben zu bedenken, dass sich die Jugendlichen ohne festen Treffpunkt wieder am Bahnhof oder auf Spielplätzen aufhalten würden. „Dort ist dann niemand mehr, der ein Auge auf sie hat“, meint eine Nachbarin.",
+    "Der Treff-Rat hat inzwischen mehr als 600 Unterschriften gesammelt und einen Gegenvorschlag vorgelegt: Die Sanierung solle auf mehrere Jahre verteilt werden, und die Jugendlichen würden Maler- und Aufräumarbeiten selbst übernehmen. Zudem könne die Stadt Fördergeld beim Landkreis beantragen. Die Bürgermeisterin sagte zu, den Vorschlag prüfen zu lassen, dämpfte jedoch die Erwartungen: Auch in Abschnitten bleibe die Sanierung teuer.",
+    "Bis zur Entscheidung des Stadtrats bleiben gut sechs Wochen. Die Redaktion veröffentlicht in dieser Zeit Zuschriften zum Thema – schreiben Sie uns, wie Sie die Sache sehen."
+  ]
+});

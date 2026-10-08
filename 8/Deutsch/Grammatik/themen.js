@@ -3,7 +3,9 @@
  * Konjunktiv I und II, indirekte Rede, Satzreihe/Satzgefüge (M: Schachtelsatz), Finaladverbiale, Attribute und
  * Attributsätze. Plus = M-Zug, für R-Klassen freiwillig. */
 Grammatik.vorgaben({
-  kurs: "d8", bereich: "Grammatik", bnr: 1, prefix: "d8-gr-", fach: "Deutsch 8", kurzPrefix: "G",
+  kurs: "d8", bereich: "Grammatik und Sprache", bnr: 6, prefix: "d8-gr-", fach: "Deutsch 8", kurzPrefix: "G",
+  // Freischaltung durch die Lehrkraft je Klasse: Liste der Module in ../themen.js (window.D8); diese Themen sind von sich aus offen
+  liste: { name: "D8", src: "../themen.js" },
   fachHref: "../index.html", indexHref: "../index.html#grammatik", indexName: "Alle Grammatik-Themen",
   themen: [
     ["gr_01.html", "Wortarten und Modalverben"], ["gr_02.html", "Konjunktiv I und II"], ["gr_03.html", "Indirekte Rede"],

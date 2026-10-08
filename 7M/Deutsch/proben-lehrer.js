@@ -5,9 +5,16 @@
  * Erst dann sieht das Kind die Korrektur (korrektur.html). Die Liste zeigt danach, ob das Kind sie geöffnet hat.
  * Jede Änderung in einem Feld wird sofort gespeichert. Die Antwort des Kindes lässt sich hier nicht ändern.
  * Namen stehen nur in diesem Browser (Namensliste der Verwaltung), der Server kennt nur die Codes.
+ *
+ * Deutsch 8 (der Server meldet bei den Proben „schutz“): Fehlermarkierungen im Text setzen und ändern (Text auswählen,
+ * Art antippen, Hinweis schreiben – der Text des Kindes bleibt unverändert), Planung des Kindes ansehen,
+ * Bearbeitungszeit, Einstellungen des Probenmodus je Probe, laufende Bearbeitungen mit Zeitverlängerung und
+ * „Zwischenstand übernehmen“.
  */
 (function () {
   "use strict";
+  // Jahrgang: 7 (Vorgabe) oder 8 – Deutsch 8 setzt window.DEUTSCH_NR vor diesem Skript (8/Deutsch/…html)
+  const DNR = window.DEUTSCH_NR || (window.GRUMI_KURS && window.GRUMI_KURS.NR) || 7, DNAME = "Deutsch " + DNR, DAPI = "/api/d" + DNR;
   const params = new URLSearchParams(location.search);
   const API = (params.get("api") || (location.hostname.endsWith("github.io") ? "https://englisch-9.onrender.com" : location.origin)).replace(/\/$/, "");
   const $ = id => document.getElementById(id);
@@ -20,7 +27,7 @@
   let password = "", tests = [], rows = [], offenId = "", proben = {}, takt = null, kette = Promise.resolve();
 
   async function request(route, body = {}) {
-    const response = await fetch(API + "/api/d7/proben/teacher/" + route, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({...body, password})});
+    const response = await fetch(API + DAPI + "/proben/teacher/" + route, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({...body, password})});
     if (route === "export" && response.ok) return response.blob();
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.error === "bad_password" ? "Passwort nicht richtig." : data.message || data.error || "Serverfehler");
@@ -31,14 +38,14 @@
   const status = (text, art) => { $("teacher-status").textContent = text; $("teacher-status").className = "notice" + (art ? " " + art : ""); };
   const zeile = id => rows.find(r => r.id === id);
   function ersetze(row) { const i = rows.findIndex(r => r.id === row.id); if (i >= 0) rows[i] = row; else rows.push(row); }
-  const klasseVon = t => (t.zug === "M" ? "M7" : "R7");
+  const klasseVon = t => (t.zug === "M" ? "M" : "R") + DNR;
   const gefiltert = () => rows.filter(r => (!$("filter-klasse").value || r.className === $("filter-klasse").value) && (!$("filter-stand").value || r.status === $("filter-stand").value));
 
   /* ---------- Laden und Liste ---------- */
   async function load(leise) {
     try {
       const nr = Number($("filter-nr").value) || 0;
-      const [list, results] = await Promise.all([fetch(API + "/api/d7/proben/list?alle=1").then(r => r.json()), request("results", {nr})]);
+      const [list, results] = await Promise.all([fetch(API + DAPI + "/proben/list?alle=1").then(r => r.json()), request("results", {nr})]);
       tests = list.tests; rows = results.submissions;
       $("teacher-content").hidden = false; $("login").hidden = true;
       if (!$("filter-nr").options.length) {
@@ -48,7 +55,7 @@
       }
       const klassen = [...new Set(rows.map(r => r.className))].sort(), kl = $("filter-klasse").value;
       $("filter-klasse").innerHTML = `<option value="">alle</option>` + klassen.map(k => `<option>${esc(k)}</option>`).join(""); $("filter-klasse").value = klassen.includes(kl) ? kl : "";
-      zeichneFreischalten(); zeichneListe();
+      zeichneFreischalten(); zeichneListe(); ladeSitzungen();
       if (offenId && !leise) zeichneAbgabe();
       if (!leise) status(rows.length + (rows.length === 1 ? " Abgabe" : " Abgaben") + " geladen.");
       // Solange die KI noch korrigiert, alle 8 Sekunden nachsehen
@@ -66,6 +73,7 @@
       <div class="l-einfuegen">${[...new Set(liste.map(t => t.nr))].map(n => { const wert = (liste.find(t => t.nr === n) || {}).einfuegen || "sperren";
         return `<label>Probe ${n} – Text einfügen: <select data-einfuegen="${n}"><option value="sperren"${wert === "sperren" ? " selected" : ""}>gesperrt</option><option value="protokollieren"${wert === "protokollieren" ? " selected" : ""}>erlaubt, wird protokolliert</option></select></label>`; }).join("")}
         <span class="l-quelle">Im Probenmodus hält GRUMI fest, wann ein Kind die Seite verlässt und wie lange. Das steht bei jeder Abgabe unter „Probenüberwachung“.</span></div>
+      ${schutzZeilen(liste)}
       <p class="l-quelle" style="margin-top:6px">Eine freigeschaltete Probe schließt sich nach drei Stunden von selbst. Variante B sehen die Kinder erst, wenn sie offen ist. Wer Variante A abgegeben hat, kann Variante B nicht mehr beginnen.</p>`
       : `<p class="notice">Für diese Auswahl gibt es noch keine Probe.</p>`;
   }
@@ -107,7 +115,7 @@
     const lang = d.type === "schreiben";
     return `<div class="l-aufgabe${d.needsReview ? " pruefen" : ""}" data-nr="${d.nr}">${kopf}<div class="l-zwei"><div>
         <label class="t">${lang ? "Originaltext des Kindes" + (d.woerter ? " (" + d.woerter + " Wörter)" : "") : "Antwort des Kindes (Original)"}</label>
-        <div class="k-antwort${d.given ? "" : " leer"}">${d.given ? esc(d.given) : "Keine Antwort."}</div>
+        ${markenBox(d)}${planBox(d)}
         ${d.beispiel ? `<p class="l-quelle" style="margin:6px 0 0">Beispiellösung: ${esc(d.beispiel)}</p>` : ""}
         ${d.kategorie || (d.kategorien || []).length ? `<p class="l-quelle" style="margin:6px 0 0">Fehlerschwerpunkt: ${esc(d.kategorie || d.kategorien.join(", "))}</p>` : ""}
       </div><div>
@@ -149,7 +157,7 @@
     const liste = gefiltert(), i = liste.findIndex(x => x.id === r.id), probe = proben[r.testId];
     box.innerHTML = `<section class="l-abgabe" data-id="${r.id}">
       <div class="l-kopf"><div><div class="eyebrow">${esc(r.testTitle)} · Variante ${r.variante}</div><h2 style="margin:2px 0">${esc(wer(r))}</h2>
-        <span class="l-quelle">Klasse ${esc(r.className)} · abgegeben ${zeit(r.submittedAt)}${r.verlassen ? " · " + r.verlassen + "× die Probe verlassen" : ""}${r.nachSperre ? " · nach dem Sperren abgegeben" : ""}</span><br><span data-stand>${standText(r)}</span></div>
+        <span class="l-quelle">Klasse ${esc(r.className)} · abgegeben ${zeit(r.submittedAt)}${r.verlassen ? " · " + r.verlassen + "× die Probe verlassen" : ""}${r.nachSperre ? " · nach dem Sperren abgegeben" : ""}${zeitText(r)}</span><br><span data-stand>${standText(r)}</span></div>
         <div class="ergebnis" data-ergebnis>${kopfZahlen(r)}</div></div>
       <div class="l-schalter">${r.lrs ? "<span>🛡 <b>Notenschutz (LRS)</b> ist für diesen Code eingetragen: Rechtschreibung wird nicht gewertet.</span>" : ""}
         <label><input type="checkbox" data-ein="rsWerten" ${r.rsWerten ? "checked" : ""}> Rechtschreibung werten</label>
@@ -201,16 +209,152 @@
     else if (a.querySelector("[data-points]")) body.points = Number(String(a.querySelector("[data-points]").value).replace(",", "."));
     a.querySelectorAll("[data-liste]").forEach(t => { body[t.dataset.liste] = t.value.split("\n").map(s => s.trim()).filter(Boolean); });
     const begr = [...a.querySelectorAll("[data-begr]")]; if (begr.length) body.begruendung = begr.map(t => t.value.trim());
+    const marken = markenLesen(a, d); if (marken) body.marken = marken;
     nacheinander(async () => {
       try { const res = await request("bewerten", body); ersetze(res.submission); auffrischen(res.submission, nr); status(""); $("teacher-status").hidden = true; }
       catch (err) { $("teacher-status").hidden = false; status("Nicht gespeichert: " + (err.message === "invalid_points" ? "Die Punkte passen nicht (0 bis Höchstpunktzahl, halbe Punkte sind möglich)." : err.message), "bad"); }
     });
   }
 
+  /* ---------- Deutsch 8: Fehlermarkierungen setzen, Planung, Zeiten, laufende Bearbeitungen ---------- */
+  // Diese Teile erscheinen nur, wenn der Server sie kennt (Proben mit „schutz“ in der Liste = Deutsch 8).
+  const MK = D7Korrektur.MARKEN || {};
+  const d8 = () => tests.some(t => t.schutz);
+  let sitzungen = [], sitzTakt = null, sitzZeit = 0;
+  // Markierbarer Text einer offenen Antwort: Text mit der Maus oder dem Finger auswählen, dann eine Art antippen
+  function markenBox(d) {
+    if (!d8() || typeof d.given !== "string" || !d.given) return `<div class="k-antwort${d.given ? "" : " leer"}">${d.given ? esc(d.given) : "Keine Antwort."}</div>`;
+    const marken = D7Korrektur.markenGueltig(d.given, d.marken || []);
+    return `<div class="mk" data-mk="${d.nr}">
+      <div class="k-antwort mk-text" data-mk-text>${D7Korrektur.markiert(d.given, marken)}</div>
+      <div class="mk-leiste kein-druck" role="group" aria-label="Markierung setzen"><span class="mk-auswahl" data-mk-auswahl>Text auswählen, dann die Art antippen:</span>
+        ${Object.keys(MK).map(t => `<button type="button" class="mk-art km-${t}" data-mk-art="${t}" title="${esc(MK[t][1])}">${MK[t][0]}<small>${esc(MK[t][1])}</small></button>`).join("")}</div>
+      <ul class="mk-liste" data-mk-liste>${marken.map((m, i) => `<li class="km-${m.type}"><b>${i + 1} · ${MK[m.type][0]}</b><span class="mk-stelle">„${esc(d.given.slice(m.start, m.end).replace(/\s+/g, " ").slice(0, 60))}“${m.von === "ki" ? ' <small title="Vorschlag der KI">✨</small>' : ""}</span>
+        <input type="text" data-mk-komm="${i}" value="${esc(m.comment || "")}" maxlength="200" placeholder="Hinweis für das Kind" aria-label="Hinweis zur Markierung ${i + 1}">
+        <button type="button" class="btn klein secondary" data-mk-weg="${i}" aria-label="Markierung ${i + 1} entfernen">✕</button></li>`).join("")}</ul>
+      <p class="l-quelle" style="margin:4px 0 0">Der Text des Kindes bleibt unverändert – Markierungen liegen nur darüber. Das Kind sieht sie mit deinem Hinweis in der Korrektur.</p></div>`;
+  }
+  function planBox(d) {
+    if (!d.plan || !Object.keys(d.plan).length) return "";
+    const liste = window.AufsatzEditor ? AufsatzEditor.planListe(d.form, d.planFelder, d.plan) : Object.keys(d.plan).map(k => ({label: k, text: d.plan[k]}));
+    return `<details class="l-plan"><summary class="l-quelle" style="cursor:pointer;margin-top:8px">🗂 Planung des Kindes (${liste.length} ${liste.length === 1 ? "Feld" : "Felder"}) – wird nicht bewertet</summary><dl class="k-plan">${liste.map(x => `<dt>${esc(x.label)}</dt><dd>${esc(x.text)}</dd>`).join("")}</dl></details>`;
+  }
+  function zeitText(r) {
+    const z = r.zeit; if (!z) return "";
+    return ` · Bearbeitungszeit ${z.minuten} min (erlaubt ${z.erlaubt}${z.verlaengerung ? ", davon " + z.verlaengerung + " verlängert" : ""})${z.ueber ? ` · <b>${z.ueber} min über der Zeit</b>` : ""}${r.vonLehrkraftAbgegeben ? " · aus dem gesicherten Zwischenstand übernommen" : ""}`;
+  }
+  // Auswahl im Text -> Bereich im Originaltext (über data-ab an den Textstücken)
+  function auswahlIn(feld) {
+    const sel = window.getSelection ? window.getSelection() : null;
+    if (!sel || !sel.rangeCount || sel.isCollapsed) return null;
+    const r = sel.getRangeAt(0);
+    const stelle = (knoten, versatz) => {
+      const el = knoten.nodeType === 3 ? knoten.parentNode : knoten;
+      const stueck = el && el.closest ? el.closest("[data-ab]") : null;
+      if (!stueck || !feld.contains(stueck)) return null;
+      return Number(stueck.dataset.ab) + (knoten.nodeType === 3 ? versatz : versatz ? stueck.textContent.length : 0);
+    };
+    const a = stelle(r.startContainer, r.startOffset), b = stelle(r.endContainer, r.endOffset);
+    return a === null || b === null || b <= a ? null : [a, b];
+  }
+  let gemerkt = null;                                   // letzte Auswahl: { nr, von, bis }
+  document.addEventListener("selectionchange", () => {
+    const sel = window.getSelection ? window.getSelection() : null, knoten = sel && sel.anchorNode ? (sel.anchorNode.nodeType === 3 ? sel.anchorNode.parentNode : sel.anchorNode) : null;
+    const feld = knoten && knoten.closest ? knoten.closest("[data-mk-text]") : null;
+    // Auf dem iPad hebt das Antippen eines Knopfs die Auswahl auf: Sie gilt danach noch kurz weiter (siehe markenKlick)
+    if (!feld) { if (gemerkt && !gemerkt.weg) gemerkt.weg = Date.now(); return; }
+    const bereich = auswahlIn(feld), box = feld.closest("[data-mk]");
+    if (!bereich) { if (gemerkt && !gemerkt.weg) gemerkt.weg = Date.now(); return; }
+    gemerkt = {nr: Number(box.dataset.mk), von: bereich[0], bis: bereich[1]};
+    const r = zeile(offenId), d = r && r.details.find(x => x.nr === Number(box.dataset.mk));
+    box.querySelector("[data-mk-auswahl]").textContent = bereich && d ? "Ausgewählt: „" + d.given.slice(bereich[0], bereich[1]).replace(/\s+/g, " ").slice(0, 40) + "“ – Art antippen:" : "Text auswählen, dann die Art antippen:";
+  });
+  function markenSpeichern(a, d, marken) {
+    d.marken = marken;
+    const box = a.querySelector("[data-mk]"); if (box) box.outerHTML = markenBox(d);
+    gemerkt = null;
+    speichereAufgabe(a);
+  }
+  function markenKlick(e) {
+    const art = e.target.closest("[data-mk-art]"), weg = e.target.closest("[data-mk-weg]");
+    if (!art && !weg) return false;
+    const a = e.target.closest(".l-aufgabe"), r = zeile(offenId), d = r && r.details.find(x => x.nr === Number(a.dataset.nr));
+    if (!d) return true;
+    const marken = D7Korrektur.markenGueltig(d.given, d.marken || []).map(m => ({...m}));
+    if (weg) { marken.splice(Number(weg.dataset.mkWeg), 1); markenSpeichern(a, d, marken); return true; }
+    if (!gemerkt || gemerkt.nr !== d.nr || (gemerkt.weg && Date.now() - gemerkt.weg > 1500)) { status("Wähle zuerst im Text des Kindes die Stelle aus (mit der Maus ziehen oder das Wort antippen und die Griffe ziehen).", "bad"); $("teacher-status").hidden = false; return true; }
+    // überschneidet sich die neue Markierung mit einer alten, ersetzt sie diese
+    const neu = {start: gemerkt.von, end: gemerkt.bis, type: art.dataset.mkArt, comment: "", von: "lehrer"};
+    const rest = marken.filter(m => m.end <= neu.start || m.start >= neu.end);
+    markenSpeichern(a, d, rest.concat([neu]).sort((x, y) => x.start - y.start));
+    const feld = a.querySelector('[data-mk-komm="' + rest.filter(m => m.start < neu.start).length + '"]'); if (feld) feld.focus();
+    return true;
+  }
+  // Hinweise zu den Markierungen aus den Feldern lesen (beim Speichern der Aufgabe)
+  function markenLesen(a, d) {
+    if (!a.querySelector("[data-mk]")) return undefined;
+    const marken = D7Korrektur.markenGueltig(d.given, d.marken || []).map(m => ({...m}));
+    a.querySelectorAll("[data-mk-komm]").forEach(f => { const m = marken[Number(f.dataset.mkKomm)]; if (m) { if (m.comment !== f.value.trim()) m.von = "lehrer"; m.comment = f.value.trim(); } });
+    d.marken = marken;
+    return marken.map(m => ({start: m.start, end: m.end, type: m.type, comment: m.comment, von: m.von}));
+  }
+
+  // Einstellungen des Probenmodus je Probe (was GRUMI sperrt oder festhält, ob die Restzeit zu sehen ist)
+  const SCHALTER = [["wechsel", "Verlassen der Seite festhalten"], ["warnen", "Hinweisfenster nach der Rückkehr"], ["kopieren", "Kopieren sperren"], ["ausschneiden", "Ausschneiden sperren"],
+    ["kontextmenue", "Kontextmenü sperren"], ["spruenge", "große Texteingaben vermerken"], ["timer", "Restzeit anzeigen"]];
+  function schutzZeilen(liste) {
+    if (!d8()) return "";
+    return [...new Set(liste.map(t => t.nr))].map(n => { const s = (liste.find(t => t.nr === n) || {}).schutz || {};
+      return `<div class="l-schutz" data-schutz-nr="${n}"><b>Probe ${n} – Probenmodus:</b> ${SCHALTER.map(([k, name]) => { const an = typeof s[k] === "boolean" ? s[k] : s[k] !== "erlauben";
+        return `<label><input type="checkbox" data-schutz="${k}" ${an ? "checked" : ""}> ${name}</label>`; }).join("")}</div>`; }).join("") +
+      `<p class="l-quelle" style="margin-top:4px">Die Zeit misst immer der Server (Beginn, Dauer); „Restzeit anzeigen“ blendet nur die Uhr für die Kinder ein oder aus. Läuft die Zeit ab, wird nichts von selbst abgegeben oder bewertet.</p>`;
+  }
+  async function schutzGeaendert(e) {
+    const haken = e.target.closest("[data-schutz]"); if (!haken) return false;
+    const nr = Number(haken.closest("[data-schutz-nr]").dataset.schutzNr), k = haken.dataset.schutz;
+    const wert = ["kopieren", "ausschneiden", "kontextmenue"].includes(k) ? (haken.checked ? "sperren" : "erlauben") : haken.checked;
+    haken.disabled = true;
+    try { await request("probe-einstellung", {nr, schutz: {[k]: wert}}); await load(true); status("Gespeichert: Probe " + nr + " – " + (SCHALTER.find(x => x[0] === k) || [])[1] + (haken.checked ? " ist an." : " ist aus.")); }
+    catch (err) { haken.checked = !haken.checked; status(err.message, "bad"); }
+    finally { haken.disabled = false; }
+    return true;
+  }
+
+  // Laufende Bearbeitungen: wer schreibt gerade, wann zuletzt gesichert, wie viel Zeit bleibt
+  const minuten = ms => { const m = Math.round(ms / 60000); return m > 0 ? "noch " + m + " min" : m === 0 ? "Zeit ist um" : Math.abs(m) + " min über der Zeit"; };
+  function zeichneSitzungen() {
+    let box = $("sitzungen");
+    if (!box) { box = document.createElement("div"); box.id = "sitzungen"; $("results").parentNode.insertBefore(box, $("results").previousElementSibling.previousElementSibling); }
+    if (!d8()) { box.innerHTML = ""; return; }
+    const jetzt = Date.now() + sitzZeit;
+    box.innerHTML = `<h2 style="margin-top:22px">Gerade in Arbeit</h2>` + (sitzungen.length ? `<table class="l-uebersicht"><thead><tr><th>Kind</th><th>Klasse</th><th>Fassung</th><th>begonnen</th><th>zuletzt gesichert</th><th>Wörter</th><th>Zeit</th><th></th></tr></thead><tbody>${sitzungen.map(s => `<tr style="cursor:default" data-sitz="${esc(s.code)}" data-sitz-nr="${(tests.find(t => t.id === s.testId) || {}).nr || 0}">
+        <td><b>${esc(wer(s))}</b></td><td>${esc(s.klasse)}</td><td>${esc(s.variante)}</td><td>${uhr(s.begonnenAm).slice(0, 5)}</td><td>${s.gespeichertAm ? uhr(s.gespeichertAm).slice(0, 5) : "noch nichts"}</td><td>${s.woerter}</td>
+        <td>${minuten(Date.parse(s.endetAm) - jetzt)}${s.verlaengerung ? ` <small>(+${s.verlaengerung})</small>` : ""}</td>
+        <td><button class="btn klein secondary" type="button" data-sitz-zeit="5">+5 min</button> <button class="btn klein secondary" type="button" data-sitz-zeit="10">+10 min</button> <button class="btn klein secondary" type="button" data-sitz-ab ${s.gespeichertAm ? "" : "disabled"} title="Den gesicherten Zwischenstand als Abgabe übernehmen – z. B. wenn das Gerät ausgefallen ist">Zwischenstand übernehmen</button></td></tr>`).join("")}</tbody></table>
+      <p class="l-quelle">Die Antworten werden beim Schreiben alle paar Sekunden auf dem Server gesichert. „Zwischenstand übernehmen“ legt daraus eine Abgabe an – nur nötig, wenn ein Kind selbst nicht mehr abgeben kann.</p>` : `<p class="l-quelle">Im Moment schreibt niemand an ${$("filter-nr").value ? "dieser Probe" : "einer Probe"}.</p>`);
+  }
+  async function ladeSitzungen() {
+    clearTimeout(sitzTakt);
+    if (!d8()) return;
+    try { const res = await request("sitzungen", {nr: Number($("filter-nr").value) || 0}); sitzungen = res.sitzungen || []; sitzZeit = Date.parse(res.serverZeit) - Date.now(); zeichneSitzungen(); } catch (_e) {}
+    if (sitzungen.length) sitzTakt = setTimeout(async () => { const vorher = sitzungen.length; await ladeSitzungen(); if (sitzungen.length < vorher) load(true); }, 20000);
+  }
+  document.addEventListener("click", async e => {
+    const zeitKnopf = e.target.closest("[data-sitz-zeit]"), ab = e.target.closest("[data-sitz-ab]");
+    if (!zeitKnopf && !ab) return;
+    const tr = e.target.closest("[data-sitz]"), code = tr.dataset.sitz, nr = Number(tr.dataset.sitzNr), s = sitzungen.find(x => String(x.code) === code);
+    try {
+      if (zeitKnopf) { await request("sitzung-zeit", {nr, code, minuten: Math.min(120, (s ? s.verlaengerung : 0) + Number(zeitKnopf.dataset.sitzZeit))}); status("Zeit für " + wer({code}) + " verlängert."); }
+      else { if (!confirm("Den gesicherten Zwischenstand von " + wer({code}) + " als Abgabe übernehmen? Das Kind kann danach nicht mehr weiterschreiben.")) return; await request("sitzung-abgeben", {nr, code}); status("Zwischenstand von " + wer({code}) + " als Abgabe übernommen."); await load(true); }
+      await ladeSitzungen();
+    } catch (err) { status(err.message, "bad"); }
+  });
+
   $("login").addEventListener("submit", e => { e.preventDefault(); password = $("password").value; load(); });
   ["filter-nr", "filter-klasse", "filter-stand"].forEach(id => $(id).addEventListener("change", () => { if (id === "filter-nr") load(); else { zeichneListe(); } }));
   $("neu-laden").addEventListener("click", () => load());
   $("unlock-list").addEventListener("change", async e => {
+    if (await schutzGeaendert(e)) return;
     const wahl = e.target.closest("[data-einfuegen]");
     if (wahl) {
       wahl.disabled = true;
@@ -237,8 +381,11 @@
     if (e.target.matches("[data-kommentar]")) return void nacheinander(async () => { try { const res = await request("einstellung", {submissionId: r.id, lehrerKommentar: e.target.value}); ersetze(res.submission); } catch (err) { status(err.message, "bad"); } });
     const a = e.target.closest(".l-aufgabe"); if (a) speichereAufgabe(a);
   });
+  // Markierungsknöpfe: Die Auswahl im Text soll beim Antippen stehen bleiben
+  $("abgabe").addEventListener("mousedown", e => { if (e.target.closest("[data-mk-art]")) e.preventDefault(); });
   $("abgabe").addEventListener("click", e => {
     const r = zeile(offenId); if (!r) return;
+    if (markenKlick(e)) return;
     const neu = e.target.closest("[data-neu]"), zurueck = e.target.closest("[data-zurueck]"), tun = e.target.closest("[data-tun]");
     const lauf = (fn, knopf) => nacheinander(async () => { if (knopf) knopf.disabled = true; try { await fn(); } catch (err) { $("teacher-status").hidden = false; status(err.message, "bad"); $("teacher-status").scrollIntoView({block: "center"}); } finally { if (knopf && knopf.isConnected) knopf.disabled = false; } });
     if (neu) return void lauf(async () => { neu.textContent = "Die KI bewertet …"; const res = await request("neu-bewerten", {submissionId: r.id, nr: Number(neu.dataset.neu) || undefined}); ersetze(res.submission); zeichneListe(); zeichneAbgabe(); if (!res.bewertet) throw new Error("Die KI ist gerade nicht erreichbar. Bitte selbst bewerten oder später noch einmal versuchen."); }, neu);
@@ -258,7 +405,7 @@
     nacheinander(async () => { try { const res = await request("freigeben", {submissionIds: ids}); res.submissions.forEach(ersetze); zeichneListe(); if (offenId) zeichneAbgabe(); } catch (err) { status(err.message, "bad"); } });
   });
   $("export").addEventListener("click", async () => {
-    try { const blob = await request("export", {}); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "deutsch7-proben.csv"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
+    try { const blob = await request("export", {}); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "deutsch" + DNR + "-proben.csv"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
     catch (err) { status(err.message, "bad"); }
   });
 
