@@ -1,37 +1,18 @@
-/* Namensliste der Lehrkraft auf jedem ihrer Geräte – nur für die Lehrkraft, auf dem Server nur verschlüsselt.
- *
- * Die Liste { Code: Name } steht wie bisher im Browser der Lehrkraft (localStorage "lf-nt9-namen"; von dort lesen sie
- * alle Lehrerseiten). Neu: Die Lehrkraft legt einmal einen NAMENS-SCHLÜSSEL fest (ein eigenes Kennwort, nicht das
- * Lehrkraft-Passwort). Mit ihm verschlüsselt der Browser die Liste (AES-GCM, Schlüssel per PBKDF2) und hinterlegt nur
- * den Schlüsseltext beim Server. Auf einem anderen Gerät gibt die Lehrkraft den Namens-Schlüssel einmal ein – ab dann
- * stehen die Namen dort immer.
- *
- * Der Namens-Schlüssel verlässt die Geräte der Lehrkraft nie: Er wird nicht an den Server geschickt. Server, Datenbank
- * und Hosting-Anbieter sehen nur Schlüsseltext und können keinen Namen lesen. Abrufen und Ablegen des Schlüsseltexts
- * geht nur mit dem Lehrkraft-Passwort; die Seiten der Kinder laden dieses Skript nicht.
- *
- * Abgleich zwischen Geräten: Zu jedem Code merkt sich der Browser, wann der Name zuletzt geändert wurde (auch beim
- * Löschen). Beim Abgleich gewinnt je Code die jüngere Angabe – nichts geht verloren, wenn auf zwei Geräten
- * verschiedene Namen eingetragen wurden.
- *
- *   NamenSync.start(api, passwort)   -> Promise<{ namen, geaendert }>  Lage feststellen; mit Schlüssel: abgleichen
- *   NamenSync.einrichten(schluessel) erstes Gerät (oder neu anfangen): Schlüssel festlegen, Liste hinterlegen
- *   NamenSync.verbinden(schluessel)  weiteres Gerät: Schlüssel prüfen, Namen holen und mischen
- *   NamenSync.speichern(namen)       neue Liste dieses Geräts merken (mit Zeitstempeln) und bald hinterlegen
- *   NamenSync.trennen()              Schlüssel auf diesem Gerät vergessen (Namen bleiben hier stehen)
- *   NamenSync.abschalten()           Schlüsseltext auf dem Server löschen und Schlüssel hier vergessen
- *   NamenSync.status()               { zustand: "an" | "neu" | "eingabe" | "unmoeglich", text, fehler }
- *   NamenSync.wennGeaendert(fn)      fn(namen), wenn der Abgleich neue Namen auf dieses Gerät gebracht hat
+/* Automatischer Abgleich der Namenszuordnung nach der Lehrkraft-Anmeldung.
+ * Die bestehenden Codes werden nur als Schlüssel gelesen, nie angelegt oder geändert.
+ * AES-GCM und Zeitstempel bleiben erhalten; ein zusätzlicher Namens-Schlüssel ist nicht nötig.
+ * Ein gespeicherter früherer Schlüssel dient nur zur Übernahme einer alten Sicherung.
+ * Das Lehrkraft-Passwort bleibt im Arbeitsspeicher, nicht im localStorage.
  */
 (function (global) {
   "use strict";
   var NAMEN_KEY = "lf-nt9-namen", ZEIT_KEY = "lf-nt9-namen-zeit", GEHEIM_KEY = "lf-nt9-namen-schluessel";
-  var MIN = 8;
   var api = "", pw = "", version = 0, timer = null, laeuft = Promise.resolve(), hoerer = [];
   var lage = { zustand: "neu", text: "", fehler: false };
+  var ersatz = {};
 
-  function lies(k) { try { return JSON.parse(global.localStorage.getItem(k) || "{}") || {}; } catch (_e) { return {}; } }
-  function schreib(k, v) { try { global.localStorage.setItem(k, JSON.stringify(v)); } catch (_e) {} }
+  function lies(k) { try { return JSON.parse(global.localStorage.getItem(k) || "{}") || {}; } catch (_e) { return ersatz[k] || {}; } }
+  function schreib(k, v) { ersatz[k] = v; try { global.localStorage.setItem(k, JSON.stringify(v)); } catch (_e) {} }
   function geheim() { try { return global.localStorage.getItem(GEHEIM_KEY) || ""; } catch (_e) { return ""; } }
   function setzeGeheim(v) { try { if (v) global.localStorage.setItem(GEHEIM_KEY, v); else global.localStorage.removeItem(GEHEIM_KEY); } catch (_e) {} }
   function kann() { return !!(global.crypto && global.crypto.subtle && global.TextEncoder && global.fetch); }
@@ -93,9 +74,19 @@
   function namenVon(stand) { var n = {}; Object.keys(stand).forEach(function (c) { if (stand[c][0]) n[c] = stand[c][0]; }); return n; }
   function namenGleich(a, b) { var ka = Object.keys(a), kb = Object.keys(b); return ka.length === kb.length && ka.every(function (c) { return a[c] === b[c]; }); }
   function melden(erg) { if (erg.geaendert) hoerer.forEach(function (fn) { try { fn(erg.namen); } catch (_e) {} }); return erg; }
-  function an(namen) { lage = { zustand: "an", fehler: false, text: "🔒 Die Namensliste ist verschlüsselt gesichert (" + Object.keys(namen).length + " Namen). Auf einem anderen Gerät gibst du einmal deinen Namens-Schlüssel ein – dann stehen die Namen auch dort." }; }
+  function an(namen) { lage = { zustand: "an", fehler: false, text: Object.keys(namen).length + " Namen synchronisiert." }; }
 
-  /* ---------- Server (bekommt nur Schlüsseltext, nie den Namens-Schlüssel) ---------- */
+  function bestand(blob) {
+    if (!blob) return Promise.resolve({ stand: {}, alt: false });
+    return entschluesseln(pw, blob).then(function (stand) { return { stand: stand, alt: false }; }, function () {
+      var frueher = geheim();
+      var falsch = function () { var e = new Error("Die alte Namensliste braucht einmalig ihren bisherigen Schlüssel."); e.alterSchluessel = true; throw e; };
+      if (!frueher || frueher === pw) return falsch();
+      return entschluesseln(frueher, blob).then(function (stand) { return { stand: stand, alt: true }; }, falsch);
+    });
+  }
+
+  /* ---------- Server: verschlüsselte Namen, Anmeldung mit Lehrkraft-Passwort ---------- */
   function post(route, body) {
     body = body || {}; body.password = pw;
     return global.fetch(api + "/api/nt9/fortschritt/lehrer/" + route, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
@@ -108,38 +99,35 @@
       // inzwischen hat ein anderes Gerät gespeichert: dessen Stand dazunehmen und noch einmal
       if (d.status === 409 && (versuch || 0) < 3) {
         version = d.version || 0;
-        return entschluesseln(kennwort, d.blob).then(null, function () { return {}; }).then(function (fern) { var m = mische(stand, fern); setzeLokal(m); return hochladen(kennwort, m, (versuch || 0) + 1); });
+        return bestand(d.blob).then(function (fern) { var m = mische(mische(fern.stand, stand), lokal()); return hochladen(kennwort, m, (versuch || 0) + 1); });
       }
       throw new Error(d.error || "HTTP " + d.status);
     });
   }
-  // mit vorhandenem Schlüssel: holen, mischen, bei Bedarf hinterlegen
+  // Leere Geräte übernehmen die Liste; ältere lokale Angaben ersetzen keine neueren Namen.
   function abgleich() {
-    var kennwort = geheim(), vorher = lies(NAMEN_KEY);
+    var kennwort = pw, vorher = lies(NAMEN_KEY);
     if (!kennwort) return Promise.resolve({ namen: vorher, geaendert: false });
     return holen().then(function (blob) {
-      if (!blob) return {};
-      return entschluesseln(kennwort, blob).then(null, function () { return null; });
+      return bestand(blob);
     }).then(function (fern) {
-      if (fern === null) {
-        // Auf einem anderen Gerät wurde ein neuer Namens-Schlüssel festgelegt: hier neu eingeben
-        setzeGeheim("");
-        lage = { zustand: "eingabe", fehler: true, text: "Die gesicherte Namensliste passt nicht mehr zu dem Namens-Schlüssel dieses Geräts. Gib den aktuellen Namens-Schlüssel ein." };
-        return { namen: vorher, geaendert: false };
-      }
-      var m = mische(lokal(), fern), namen = setzeLokal(m);
-      var fertig = function () { an(namen); return { namen: namen, geaendert: !namenGleich(namen, vorher) }; };
-      return gleich(m, fern) ? fertig() : hochladen(kennwort, m).then(function (stand) { namen = namenVon(stand); return fertig(); });
+      var m = mische(fern.stand, lokal());
+      var fertig = function (stand) {
+        var namen = setzeLokal(mische(stand, lokal()));
+        an(namen);
+        return { namen: namen, geaendert: !namenGleich(namen, vorher) };
+      };
+      return !fern.alt && gleich(m, fern.stand) ? fertig(m) : hochladen(kennwort, m).then(fertig);
     }).catch(function (e) {
-      lage = { zustand: "an", fehler: true, text: "Die Namensliste konnte gerade nicht abgeglichen werden (" + e.message + "). Auf diesem Gerät bleibt sie erhalten." };
+      lage = { zustand: e.alterSchluessel ? "eingabe" : "an", fehler: true,
+        text: e.alterSchluessel ? e.message : "Abgleich fehlgeschlagen (" + e.message + "). Die Namen dieses Geräts bleiben erhalten." };
       return { namen: lies(NAMEN_KEY), geaendert: false };
     }).then(melden);
   }
   function reihe(fn) { laeuft = laeuft.then(fn, fn); return laeuft; } // immer nur ein Vorgang zur selben Zeit
   function pruefe(kennwort) {
     kennwort = String(kennwort || "").trim();
-    if (kennwort.length < MIN) throw new Error("Der Namens-Schlüssel braucht mindestens " + MIN + " Zeichen.");
-    if (kennwort === pw) throw new Error("Nimm nicht das Lehrkraft-Passwort – der Namens-Schlüssel ist ein eigenes Kennwort.");
+    if (!kennwort) throw new Error("Bitte den bisherigen Schlüssel eingeben.");
     return kennwort;
   }
 
@@ -147,30 +135,12 @@
     start: function (apiBasis, passwort) {
       api = apiBasis || ""; pw = String(passwort || "");
       var hier = { namen: lies(NAMEN_KEY), geaendert: false };
-      if (!kann()) { lage = { zustand: "unmoeglich", fehler: true, text: "Dieser Browser kann die Namensliste nicht verschlüsseln – sie steht nur auf diesem Gerät." }; return Promise.resolve(hier); }
+      if (!kann()) { lage = { zustand: "unmoeglich", fehler: true, text: "Der automatische Abgleich ist in diesem Browser nicht verfügbar." }; return Promise.resolve(hier); }
       if (!pw) return Promise.resolve(hier);
-      if (geheim()) return reihe(abgleich);
-      // noch kein Schlüssel auf diesem Gerät: Liegt schon eine gesicherte Liste beim Server?
-      return reihe(function () {
-        return holen().then(function (blob) {
-          lage = blob
-            ? { zustand: "eingabe", fehler: false, text: "Für dieses Gerät fehlt noch dein Namens-Schlüssel. Gib ihn einmal ein – dann stehen die Namen hier immer." }
-            : { zustand: "neu", fehler: false, text: "Die Namensliste steht bisher nur auf diesem Gerät." };
-          return hier;
-        }, function () { lage = { zustand: "neu", fehler: true, text: "Der Server ist gerade nicht erreichbar. Die Namensliste dieses Geräts bleibt erhalten." }; return hier; });
-      });
+      return reihe(abgleich);
     },
-    // erstes Gerät – oder neu anfangen (ersetzt, was auf dem Server liegt, durch die Namen dieses Geräts)
-    einrichten: function (kennwort) {
-      try { kennwort = pruefe(kennwort); } catch (e) { return Promise.reject(e); }
-      return reihe(function () {
-        return holen().then(function () { return hochladen(kennwort, lokal()); }).then(function (stand) {
-          setzeGeheim(kennwort); an(namenVon(stand));
-          return { namen: namenVon(stand), geaendert: false };
-        });
-      });
-    },
-    // weiteres Gerät: Der Schlüssel muss zur gesicherten Liste passen
+    einrichten: function () { return reihe(abgleich); },
+    // Nur für eine alte, mit einem separaten Schlüssel gesicherte Liste.
     verbinden: function (kennwort) {
       try { kennwort = pruefe(kennwort); } catch (e) { return Promise.reject(e); }
       var vorher = lies(NAMEN_KEY);
@@ -179,10 +149,13 @@
           if (!blob) throw new Error("Auf dem Server liegt noch keine gesicherte Namensliste.");
           return entschluesseln(kennwort, blob).then(null, function () { throw new Error("Der Namens-Schlüssel passt nicht."); });
         }).then(function (fern) {
-          var m = mische(lokal(), fern), namen = setzeLokal(m);
-          setzeGeheim(kennwort);
-          var fertig = function () { an(namen); return melden({ namen: namen, geaendert: !namenGleich(namen, vorher) }); };
-          return gleich(m, fern) ? fertig() : hochladen(kennwort, m).then(function (stand) { namen = namenVon(stand); return fertig(); });
+          var m = mische(fern, lokal());
+          if (kennwort !== pw) setzeGeheim(kennwort);
+          return hochladen(pw, m).then(function (stand) {
+            var namen = setzeLokal(mische(stand, lokal()));
+            an(namen);
+            return melden({ namen: namen, geaendert: !namenGleich(namen, vorher) });
+          });
         });
       });
     },
@@ -192,24 +165,23 @@
       Object.keys(neu).forEach(function (c) { if (alt[c] !== neu[c]) zeit[c] = jetzt; });
       Object.keys(alt).forEach(function (c) { if (!neu[c]) zeit[c] = jetzt; });   // gelöscht: Zeit bleibt als Merker stehen
       schreib(NAMEN_KEY, neu); schreib(ZEIT_KEY, zeit);
-      if (pw && kann() && geheim()) { clearTimeout(timer); timer = setTimeout(function () { reihe(abgleich); }, 1200); }
+      if (pw && kann()) { clearTimeout(timer); timer = setTimeout(function () { reihe(abgleich); }, 1200); }
     },
     trennen: function () {
       clearTimeout(timer); setzeGeheim("");
-      lage = { zustand: "eingabe", fehler: false, text: "Der Namens-Schlüssel ist auf diesem Gerät vergessen. Die Namen stehen hier weiter; abgeglichen wird erst wieder, wenn du ihn eingibst." };
+      return reihe(abgleich);
     },
     abschalten: function () {
-      clearTimeout(timer);
-      return reihe(function () {
-        return post("namen/loeschen").then(function (d) {
-          if (!d.ok) throw new Error(d.error || "HTTP " + d.status);
-          version = 0; setzeGeheim("");
-          lage = { zustand: "neu", fehler: false, text: "Die gesicherte Namensliste ist auf dem Server gelöscht. Die Namen stehen nur noch auf den Geräten, die sie schon haben." };
-        });
-      });
+      return Promise.reject(new Error("Der automatische Abgleich bleibt aktiv."));
     },
+    namen: function () { return namenVon(lokal()); },
     status: function () { return { zustand: lage.zustand, text: lage.text, fehler: lage.fehler }; },
     wennGeaendert: function (fn) { hoerer.push(fn); },
     fertig: function () { clearTimeout(timer); return reihe(abgleich); }   // sofort abgleichen (Tests)
   };
+  if (global.addEventListener) {
+    var erneuern = function () { if (pw && kann()) reihe(abgleich); };
+    global.addEventListener("focus", erneuern);
+    global.addEventListener("online", erneuern);
+  }
 })(window);
