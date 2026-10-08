@@ -288,6 +288,13 @@ Wunsch der Lehrkraft: ein Code, mit dem alle Module aller Klassen offen sind. De
   Stand zurück. Der Schalter beim Code („Codes & Namen“) gilt weiter für alle künftigen Proben.
 - **Einzelne Vokabel selbst werten:** In der Verwaltung lassen sich im Vokabeltest die Punkte je Wort ändern (0 oder 1,
   `/api/vokabeltest/override`); die Note rechnet sich neu, die Entscheidung der Lehrkraft bleibt auch bei LRS an/aus.
+- **Schreibweise im Vokabeltest strenger** (Wunsch vom selben Tag: „clear“ ist nicht „clean“, „cost“ nicht „coast“):
+  Vorher zählte ab 5 Buchstaben jeder einzelne Buchstabenfehler noch als richtig. Jetzt müssen Wörter bis 7 Buchstaben
+  genau stimmen; nur in einem langen Wort (ab 8 Buchstaben, `TIPPFEHLER_AB` in `vokabeltest.js`) darf ein Buchstabe
+  abweichen – nicht, wenn dabei ein Wort der deutschen Vorgabe oder ein anderes Wort aus den Tests herauskommt.
+  Leerzeichen/Bindestrich und britische/amerikanische Schreibweise (centre/center) sind kein Fehler. Die KI-Zweitmeinung
+  darf Schreibfehler nicht mehr durchwinken. Notenschutz LRS behält die bisherige Nachsicht. Die Testseiten nennen
+  die Regel vor dem Start („Die Schreibweise zählt“).
 - **Rückgabe und Elternausdruck:** Zählt ein Wort trotz kleinem Schreibfehler, steht die richtige Schreibung dabei.
 - **Geprüft:** Vokabeltest 3 der 7M als ganzer Ablauf in Chrome und im Safari-Testbrowser (schreiben, Seite verlassen,
   neu laden, abgeben, Noten, LRS, zurückgeben, „Zurückbekommen“, Elternausdruck, Lernliste); alle 81 Proben der zehn
