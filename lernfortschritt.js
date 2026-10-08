@@ -30,6 +30,8 @@
   var namenHoerer = false;
   var DATEN = null, NOTEN = null, BEREICH = "", SICHT = [], OFFEN = {}, AUSWERTUNG_MODUL = "", ALLE_AUFGABEN = false, FEHLER_MODUL = "";
   var KURZ = 12; // so viele Aufgaben zeigt die Klassenauswertung zuerst
+  var GRUMI_URL = "https://joe82muc.github.io/grumi";
+  var GRUMI_QR = "images/grumi-qr-code.svg";
   var FACH_ICON = { nt: "🔬", d: "📖", e: "💬", i: "💻" };
   // Startseite des Fachs für die Kinder (je Zug, wenn es getrennte Seiten gibt)
   var FACHSEITE = {
@@ -152,9 +154,12 @@
     "#lf-druck{display:none}" +
     "@media print{body.lf-drucken>*:not(#lf-druck){display:none!important}body.lf-drucken{background:#fff;padding:0}" +
     "body.lf-drucken #lf-druck{display:grid;grid-template-columns:1fr 1fr;gap:0}" +
-    ".lf-zettel{border:1px dashed #888;padding:12px 14px;break-inside:avoid;font-family:'Source Sans 3',sans-serif}" +
+    ".lf-zettel{border:1px dashed #888;padding:12px 14px;break-inside:avoid;font-family:'Source Sans 3',sans-serif;display:grid;grid-template-columns:minmax(0,1fr) 30mm;gap:8px 10px;align-items:center;min-height:39mm}" +
     ".lf-zettel small{display:block;font-size:10pt;color:#444}.lf-zettel b{display:block;font-size:13pt;margin:2px 0}" +
-    ".lf-zettel .lf-z-code{font-size:26pt;font-weight:900;letter-spacing:.2em}}";
+    ".lf-zettel .lf-z-code{font-size:26pt;font-weight:900;letter-spacing:.2em}" +
+    ".lf-zettel .lf-z-info{min-width:0}.lf-zettel .lf-z-qr{justify-self:end;text-align:center;width:30mm}" +
+    ".lf-zettel .lf-z-qr img{display:block;width:26mm;height:26mm;object-fit:contain;image-rendering:pixelated;margin:0 auto 1mm}" +
+    ".lf-zettel .lf-z-qr small{font-size:7pt;line-height:1.1;color:#111;overflow-wrap:anywhere}}";
 
   function stil() {
     if (doc.getElementById("lf-stil")) return;
@@ -1329,15 +1334,27 @@
     var d = $("lf-druck");
     if (!d) { d = doc.createElement("div"); d.id = "lf-druck"; doc.body.appendChild(d); }
     d.innerHTML = liste.map(function (k) {
-      return '<div class="lf-zettel"><small>Klasse ' + esc(klasse) + " · GRUMI-Lernplattform</small><b>" + esc(k.name || "") + "</b>" +
+      return '<div class="lf-zettel"><div class="lf-z-info"><small>Klasse ' + esc(klasse) + " · GRUMI-Lernplattform</small><b>" + esc(k.name || "") + "</b>" +
         '<div class="lf-z-code">' + esc(k.code) + "</div><small>Dein Code für die Lernmodule (NT, Deutsch, Englisch, Informatik). " +
-        "Gib ihn nicht weiter.</small></div>";
+        'Gib ihn nicht weiter.</small></div><div class="lf-z-qr"><img src="' + esc(GRUMI_QR) + '" alt="QR-Code zur GRUMI-Lernplattform"><small>' + esc(GRUMI_URL.replace(/^https?:\/\//, "")) + "</small></div></div>";
     }).join("");
-    doc.body.classList.add("lf-drucken");
-    var weg = function () { doc.body.classList.remove("lf-drucken"); global.removeEventListener("afterprint", weg); };
-    global.addEventListener("afterprint", weg);
-    global.print();
-    setTimeout(weg, 1000);
+    var starten = function () {
+      doc.body.classList.add("lf-drucken");
+      var weg = function () { doc.body.classList.remove("lf-drucken"); global.removeEventListener("afterprint", weg); };
+      global.addEventListener("afterprint", weg);
+      global.print();
+      setTimeout(weg, 1000);
+    };
+    var bilder = Array.prototype.slice.call(d.querySelectorAll("img")), offen = bilder.filter(function (img) { return !img.complete; }).length;
+    if (!offen) { starten(); return; }
+    var fertig = false;
+    var eins = function () { if (--offen <= 0 && !fertig) { fertig = true; starten(); } };
+    bilder.forEach(function (img) {
+      if (img.complete) return;
+      img.addEventListener("load", eins, { once: true });
+      img.addEventListener("error", eins, { once: true });
+    });
+    setTimeout(function () { if (!fertig) { fertig = true; starten(); } }, 1000);
   }
 
   function datei(zeilen, dateiname) {
