@@ -38,7 +38,8 @@ function selectMode(mode) {
     $('mode-' + name).setAttribute('aria-pressed', String(mode === name));
   }
   $('camera-flip').hidden = mode !== 'ar';
-  $('ar-size').hidden = mode !== 'ar';
+  // Keep the canvas size stable when switching modes, including on WebKit.
+  $('scale').disabled = mode !== 'ar';
 }
 
 function fitView() {
