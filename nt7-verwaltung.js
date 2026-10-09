@@ -18,6 +18,8 @@
 (function (global) {
   "use strict";
   var doc = global.document;
+  // Englisch: „Ton im Vokabeltrainer“ je Klasse – gespeichert wie ein Modul (js/vokabel-extras.js liest dieselbe Kennung)
+  var TON_OPTION = "opt-vokabel-ton";
 
   var CSS = "" +
     ".nt7f{border:1.5px solid var(--line);border-radius:14px;padding:.2rem 1rem .9rem;margin:0 0 1.2rem;background:#fafbfd}" +
@@ -39,6 +41,7 @@
     ".nt7f-probe .nr{font-size:1.05rem}.nt7f-probe a{font-size:.82rem;font-weight:800;color:var(--accent);white-space:nowrap}" +
     ".nt7f-probe small{display:block;color:var(--muted);font-weight:700;font-size:.78rem;line-height:1.4}" +
     ".nt7f-vorschau{font:inherit;font-weight:800;color:var(--accent);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}" +
+    ".nt7f-ton-text{padding:.5rem .9rem;border-top:1px solid var(--line);font-size:.84rem;color:var(--muted);font-weight:600;line-height:1.45}" +
     ".nt7f-schalter{border:1.5px solid var(--line);border-radius:999px;padding:.32rem .8rem;font:800 .82rem inherit;font-family:inherit;cursor:pointer;background:#eef1f5;color:#4b5563;min-width:7.4rem}" +
     ".nt7f-schalter.offen{background:#e9f8ee;border-color:#9bd3ae;color:#15803d}" +
     ".nt7f-schalter[disabled]{opacity:.6;cursor:wait}" +
@@ -127,6 +130,15 @@
         (W.offenVorgabe ? "Hier ist zuerst alles offen – du sperrst, was die Klasse (noch) nicht sehen soll." : esc(W.neu) + " sind zuerst gesperrt, damit du sie vorher ansehen kannst („Vorschau“).") + (W.ohneProben ? "" : " Die Proben (📝) stehen unter den Modulen, die sie enthalten – eine Probe gilt immer für alle Klassen ihres Zugs und schließt sich 3 Stunden nach dem Freischalten von selbst.") +
         " Das Kürzel vorn (z. B. " + esc(beispielKz()) + ") ist der feste Name des Moduls: Die Kinder sehen es nicht, bei jeder Probe steht damit, welche Module sie enthält.</p>" +
         '<div id="nt7f-msg">' + (meldung ? '<div class="note ' + meldung[1] + '" style="margin:.5rem 0 0">' + esc(meldung[0]) + "</div>" : "") + "</div>";
+      // Englisch (ctx.vokabelTon): Sprachausgabe der Vokabeltrainer für diese Klasse aus- oder anschalten. Gespeichert
+      // wie ein Modul unter der Kennung „opt-vokabel-ton“ (false = aus, kein Eintrag = an); js/vokabel-extras.js liest es.
+      if (ctx.vokabelTon) {
+        var tonAn = STAND.module[TON_OPTION] !== false;
+        h += '<div class="nt7f-thema"><div class="nt7f-kopf"><div><b>🔊 Ton im Vokabeltrainer</b><small>' +
+          (tonAn ? "an – die Vokabeltrainer sprechen die Wörter vor" : "aus – die Vokabeltrainer der " + esc(ctx.klasse) + " bleiben stumm") + "</small></div>" +
+          '<div class="nt7f-knoepfe"><button class="nt7f-schalter' + (tonAn ? " offen" : "") + '" type="button" data-ton="' + (tonAn ? "0" : "1") + '" aria-pressed="' + tonAn + '">' + (tonAn ? "🔊 Ton an" : "🔇 Ton aus") + "</button></div></div>" +
+          '<div class="nt7f-ton-text">Ein Klick schaltet die Sprachausgabe in allen Vokabeltrainern der ' + esc(ctx.klasse) + " aus oder wieder an – zum Beispiel, wenn im Klassenzimmer keine Kopfhörer da sind. Üben, Schreiben, Karteikarten und Tests gehen ohne Ton wie gewohnt. Bei den Kindern wirkt es nach spätestens einer Minute oder beim Neuladen der Seite.</div></div>";
+      }
       N.THEMEN.forEach(function (t) {
         var haupt = t.module.filter(function (m) { return !m.extra; });
         var fertig = haupt.filter(function (m) { return m.href; });
@@ -181,6 +193,14 @@
             .catch(function (x) { b.disabled = false; zeichnen(["Die Probe ließ sich nicht umschalten: " + x.message, "bad"]); });
         });
       });
+      Array.prototype.forEach.call(d.querySelectorAll("[data-ton]"), function (b) {
+        b.addEventListener("click", function () {
+          var an = b.getAttribute("data-ton") === "1";
+          // an = Eintrag entfernen (es gilt wieder: Ton an), aus = false
+          setzen(b, { art: "modul", id: TON_OPTION, offen: an ? null : false },
+            an ? "Der Ton ist wieder an: Die Vokabeltrainer der " + ctx.klasse + " sprechen die Wörter vor." : "Der Ton ist aus: Die Vokabeltrainer der " + ctx.klasse + " bleiben stumm – bei offenen Seiten nach spätestens einer Minute.");
+        });
+      });
       Array.prototype.forEach.call(d.querySelectorAll("[data-thema]"), function (b) {
         b.addEventListener("click", function () {
           var t = N.THEMEN.filter(function (x) { return x.id === b.getAttribute("data-thema"); })[0];
@@ -194,11 +214,11 @@
       for (var i = 0; i < N.THEMEN.length; i++) for (var j = 0; j < N.THEMEN[i].module.length; j++) if (N.THEMEN[i].module[j].kz) return N.THEMEN[i].module[Math.min(2, N.THEMEN[i].module.length - 1)].kz || N.THEMEN[i].module[j].kz;
       return "A3";
     }
-    function setzen(knopf, body) {
+    function setzen(knopf, body, meldung) {
       knopf.disabled = true;
       post(ctx, "/setzen", body).then(function (d) {
         STAND = { themen: d.themen || {}, module: d.module || {} };
-        zeichnen(["Gespeichert. Die Kinder der " + ctx.klasse + " sehen die Änderung, sobald sie ihre Übersicht öffnen oder neu laden.", "ok"]);
+        zeichnen([meldung || "Gespeichert. Die Kinder der " + ctx.klasse + " sehen die Änderung, sobald sie ihre Übersicht öffnen oder neu laden.", "ok"]);
       }).catch(function (x) { knopf.disabled = false; zeichnen(["Das Freischalten hat nicht geklappt: " + x.message, "bad"]); });
     }
 

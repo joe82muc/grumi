@@ -416,7 +416,8 @@
       // Für die 9. Klassen gibt es je Zug eine Liste (9M/Englisch_9, 9R/Englisch), der Stand liegt gemeinsam unter /api/e9.
       var EL = englischListe();
       teil.innerHTML = '<div id="vw-e-frei"></div><div id="vw-fach"></div>';
-      global.NT7Verwaltung.freigabe($("vw-e-frei"), { api: API, pw: PW, klasse: KLASSE, liste: EL, pfad: EL.PFAD, ordner: EL.ORDNER,
+      // vokabelTon: Schalter „Ton im Vokabeltrainer“ für diese Klasse (nt7-verwaltung.js, js/vokabel-extras.js)
+      global.NT7Verwaltung.freigabe($("vw-e-frei"), { api: API, pw: PW, klasse: KLASSE, liste: EL, pfad: EL.PFAD, ordner: EL.ORDNER, vokabelTon: true,
         worte: { titel: "Units und Seiten", das: "die Seite", neu: "Alle Seiten", von: "Seiten", plan: "Seiten in Vorbereitung" } });
       fachLaden($("vw-fach"));
     } else {

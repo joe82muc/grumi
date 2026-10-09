@@ -5,6 +5,10 @@
  *   ist auf jedem Gerät da; die Lehrkraft sieht die häufigsten Fehlerwörter der Klasse. Ohne Code nur auf dem Gerät.
  * - Stimme wählen: Azure-Stimmen vom Server (gleich auf allen Geräten) oder eine englische Stimme des Geräts
  *   (speechSynthesis.getVoices()). Antwortet der Server nicht schnell genug (er schläft), spricht sofort das Gerät.
+ *   Nur seriöse Stimmen: iPad, iPhone und Mac bringen Spaßstimmen (Bells, Boing, Zarvox, „Bad News“ …) und blecherne
+ *   Computerstimmen (Eddy, Grandma, Rocko …) mit – sie stehen nicht in der Auswahl und werden nie gesprochen.
+ * - Ton aus für eine Klasse: Die Lehrkraft schaltet in der Verwaltung (Klasse → Englisch → „Ton im Vokabeltrainer“)
+ *   die Sprachausgabe aus. Dann bleibt der Trainer stumm, die Knöpfe zum Anhören und die Stimmenwahl verschwinden.
  * - KI-Beispielsatz (für Trainer, die noch keinen haben): Niveau und Art wählen, Satz anhören.
  *
  * Trainer: VokabelExtras.init({ modul, vocab, ueben(liste), anker, stimme, vorAntwort(), beispiel: { box, frage, klasse } })
@@ -67,6 +71,10 @@
     ".vx-stimme{display:inline-flex;align-items:center;gap:.35rem;font-weight:700;font-size:.85rem;color:#40506a}" +
     ".vx-stimme select{max-width:230px;padding:.4rem .55rem;border:1.5px solid #d8e1e8;border-radius:999px;background:#fff;font:inherit;font-size:.82rem;font-weight:700;color:#15212b}" +
     ".vx-klein{border:1.5px solid #d8e1e8;background:#fff;border-radius:999px;padding:.35rem .6rem;font:inherit;font-size:.82rem;font-weight:800;cursor:pointer;color:#15212b}" +
+    // Ton aus für die Klasse: Hinweis statt Stimmenwahl, die Knöpfe zum Anhören verschwinden
+    ".vx-ton-hinweis{display:none;align-items:center;gap:.35rem;padding:.4rem .8rem;border-radius:999px;background:#eef1f5;color:#40506a;font-weight:800;font-size:.84rem}" +
+    "html.vx-ton-aus .vx-ton-hinweis{display:inline-flex}" +
+    "html.vx-ton-aus .vx-stimme,html.vx-ton-aus #vx-probe,html.vx-ton-aus #vx-ki-hoeren,html.vx-ton-aus #speak-btn{display:none!important}" +
     ".vx-panel{margin:.4rem auto 1rem;max-width:640px;background:#fff;border:1.5px solid #f3c98b;border-radius:16px;padding:1rem 1.1rem;box-shadow:0 6px 18px rgba(16,26,46,.06);text-align:left;color:#15212b}" +
     ".vx-panel h3{margin:0 0 .3rem;font-size:1.05rem}" +
     ".vx-panel p{margin:.2rem 0 .6rem;color:#5d6b84;font-size:.88rem}" +
@@ -158,15 +166,36 @@
   }
 
   /* ---------- Stimmen ---------- */
+  /* Nur seriöse Stimmen. Apple-Geräte (iPad, iPhone, Mac) melden neben natürlichen Stimmen auch Spaßstimmen und die
+     blechernen Computerstimmen der Reihe „Eloquence“ – jeweils als englische Stimme. Zum Vokabellernen taugen sie nicht.
+     1. Diese Namen sind überall gesperrt. 2. Auf Apple-Geräten bleiben nur bekannte natürliche Stimmen (so rutscht
+     auch eine neue Spaßstimme nicht hinein); kennt das Gerät keine davon, gilt nur Regel 1. */
+  var SPASS = /^(albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|jester|organ|pipe organ|princess|superstar|trinoids|whisper|wobble|zarvox|agnes|bruce|fred|junior|kathy|ralph|vicki|victoria|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley)\b/i;
+  // Namen, wie die Geräte sie melden – auch mit Zusatz wie „Daniel (Enhanced)“ oder „Ava (Premium)“
+  var APPLE_GUT = /^(daniel|kate|serena|oliver|arthur|martha|stephanie|malcolm|samantha|alex|allison|ava|evan|joelle|nathan|nicky|noelle|susan|tom|aaron|zoe|karen|lee|catherine|gordon|matilda|moira|rishi|sangeeta|veena|isha|tessa|fiona)\b/i;
+  var APPLE = /iPad|iPhone|iPod|Macintosh/.test((global.navigator && global.navigator.userAgent) || "");
+  function serioes(stimmen, apple) {
+    var name = function (v) { return String((v && v.name) || "").trim(); };
+    var ohne = stimmen.filter(function (v) { return !SPASS.test(name(v)); });
+    if (!(apple === undefined ? APPLE : apple)) return ohne;
+    var gut = ohne.filter(function (v) { return APPLE_GUT.test(name(v)) || /^(Google|Microsoft)\s/.test(name(v)); });
+    return gut.length ? gut : ohne;
+  }
   function gewaehlt() { return lies(STIMME_KEY) || "azure:" + (C && C.stimme || "en-GB-SoniaNeural"); }
-  function geraeteStimmen() {
+  function alleEnglischen() {
     if (!("speechSynthesis" in global)) return [];
     return (global.speechSynthesis.getVoices() || []).filter(function (v) { return /^en([-_]|$)/i.test(v.lang); });
   }
+  function geraeteStimmen() { return serioes(alleEnglischen()); }
   function stimmenFuellen() {
     var sel = doc.getElementById("vx-stimme");
     if (!sel) return;
     var wahl = gewaehlt(), g = geraeteStimmen();
+    // Früher gewählte Spaßstimme: Wahl vergessen (erst, wenn das Gerät seine Stimmen gemeldet hat)
+    if (/^geraet:/.test(wahl) && alleEnglischen().length && !g.some(function (v) { return v.voiceURI === wahl.slice(7); })) {
+      try { global.localStorage.removeItem(STIMME_KEY); } catch (_e) {}
+      wahl = gewaehlt();
+    }
     sel.innerHTML = '<optgroup label="Server (Azure)">' + AZURE.map(function (a) {
       return '<option value="azure:' + a[0] + '">' + esc(a[1]) + "</option>";
     }).join("") + "</optgroup>" + (g.length ? '<optgroup label="Dieses Gerät">' + g.map(function (v) {
@@ -209,9 +238,37 @@
       if (p && typeof p.catch === "function") p.catch(function (e) { if (!fertig) { fertig = true; clearTimeout(uhr); fehler(e); } });
     });
   }
+  /* ---------- Ton aus für die Klasse ----------
+     Gespeichert wird es beim Freischalten der Klasse (nt7-freigabe.js, /api/e7 … /api/e9) als Eintrag
+     module["opt-vokabel-ton"] = false. Der Server kennt nur Themen und Module; die Kennung beginnt mit „opt-“ und
+     gehört zu keinem Thema. Fehlt der Eintrag, ist der Ton an. Den Stand der Klasse holt die Kursliste der Seite
+     (js/kursliste.js, geladen von js/kurs-sperre.js). Mit dem Lehrercode bleibt der Ton an. */
+  var TON_OPTION = "opt-vokabel-ton", tonAus = false;
+  function tonSetzen(aus) {
+    tonAus = Boolean(aus);
+    doc.documentElement.classList.toggle("vx-ton-aus", tonAus);
+    if (tonAus) { try { if (audio) audio.pause(); if ("speechSynthesis" in global) global.speechSynthesis.cancel(); } catch (_e) {} }
+  }
+  // true = die Kursliste war da und der Stand ist angefragt
+  function tonPruefen() {
+    var L = global.GRUMI_KURSLISTE, K = global.GrumiKursliste;
+    if (!L || !K || typeof L.freigabe !== "function" || typeof K.anmeldung !== "function") return false;
+    var a = K.anmeldung();
+    if (!a) { tonSetzen(false); return true; }
+    L.freigabe(a, function (stand) { tonSetzen(Boolean(stand) && !stand.alles && (stand.module || {})[TON_OPTION] === false); }, function () {});
+    return true;
+  }
+  function tonBeobachten() {
+    // Die Kursliste lädt nach: bis zu 20 Sekunden darauf warten, danach jede Minute nachsehen (die Lehrkraft kann
+    // den Ton mitten in der Stunde umschalten)
+    var versuche = 0, uhr = setInterval(function () { if (tonPruefen() || ++versuche > 40) clearInterval(uhr); }, 500);
+    setInterval(function () { if (!doc.hidden) tonPruefen(); }, 60000);
+    doc.addEventListener("visibilitychange", function () { if (!doc.hidden) tonPruefen(); });
+  }
+
   function sprechen(text) {
     var t = String(text || "").trim();
-    if (!t) return Promise.resolve(false);
+    if (!t || tonAus) return Promise.resolve(false);
     var wahl = gewaehlt();
     if (/^geraet:/.test(wahl)) {
       return geraetSprechen(t, wahl.slice(7)).catch(function () { return azureSprechen(t, C && C.stimme || "en-GB-SoniaNeural"); });
@@ -270,7 +327,8 @@
       anker.insertAdjacentHTML("afterend",
         '<div class="vx-leiste"><button type="button" class="vx-btn" id="vx-fehler"></button>' +
         '<label class="vx-stimme">🔊 Stimme <select id="vx-stimme" aria-label="Stimme für die Aussprache"></select></label>' +
-        '<button type="button" class="vx-klein" id="vx-probe" title="Stimme anhören">▶ Probe</button></div>' +
+        '<button type="button" class="vx-klein" id="vx-probe" title="Stimme anhören">▶ Probe</button>' +
+        '<span class="vx-ton-hinweis" id="vx-ton-hinweis" role="status">🔇 Der Ton ist für deine Klasse ausgeschaltet.</span></div>' +
         '<div class="vx-panel" id="vx-panel" hidden></div>');
       doc.getElementById("vx-fehler").addEventListener("click", function () {
         var p = doc.getElementById("vx-panel");
@@ -295,10 +353,13 @@
       btn.vxUhr = setTimeout(function () { btn.textContent = btn.dataset.vxText; }, 1600);
     }, true);
     zeichnen();
+    tonBeobachten();
   }
 
   global.VokabelExtras = {
     init: init, falsch: falsch, richtig: richtig, vomServer: vomServer, sprechen: sprechen,
-    kiSatzAktiv: function () { return Boolean(KI.satz); }, offen: offen
+    kiSatzAktiv: function () { return Boolean(KI.satz); }, offen: offen,
+    // für Tests und andere Seiten: nur seriöse Stimmen aus einer Liste; ist der Ton für die Klasse aus?
+    serioes: serioes, tonAus: function () { return tonAus; }
   };
 })(window);
