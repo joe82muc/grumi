@@ -34,4 +34,5 @@ Local pinned assets, no runtime CDN:
 The corresponding dependency license texts are in vendor/.
 
 vendor/ and assets/ are also loaded by 8M/NT/ar-leiterschaukel (NT 8, module
-"Elektromotor"). Do not move or delete them without updating that page.
+"Elektromotor") and vendor/ by 7M/NT/ar-windrad (NT 7, module "Windkraft", the
+turbine in real size). Do not move or delete them without updating those pages.

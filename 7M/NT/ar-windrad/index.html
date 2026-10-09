@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4f7f9">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Windkraftanlage in echter Größe · AR | GRUMI NT 7</title>
+  <link rel="stylesheet" href="style.css?v=20261009-1">
+  <script type="importmap">{"imports":{"three":"../../../tests/windrad-ar/vendor/three.module.js"}}</script>
+</head>
+<body>
+  <main class="lab">
+    <header class="topbar">
+      <div class="brand"><i data-lucide="wind" aria-hidden="true"></i><div><span class="eyebrow">GRUMI · NT 7 · AUGMENTED REALITY</span><h1>Windkraftanlage</h1></div></div>
+      <div class="modes" role="group" aria-label="Ansicht">
+        <button id="mode-3d" class="mode selected" aria-pressed="true" type="button"><i data-lucide="box"></i><span>3D</span></button>
+        <button id="mode-ar" class="mode" aria-pressed="false" type="button" title="Draußen: die Anlage in echter Größe durch die Kamera sehen"><i data-lucide="scan-line"></i><span>AR</span></button>
+      </div>
+      <button class="icon-button" id="hilfe-open" type="button" title="So geht es draußen" aria-label="So geht es draußen"><i data-lucide="circle-help"></i></button>
+    </header>
+    <div class="workspace">
+      <section class="stage" id="stage" aria-label="Windkraftanlage in echter Größe">
+        <video id="camera" autoplay muted playsinline hidden></video>
+        <canvas id="scene" aria-label="Windkraftanlage mit Turm, Gondel und Rotor"></canvas>
+        <div class="scene-status" role="status"><span class="status-dot" id="status-dot"></span><span id="status">Modell wird geladen</span></div>
+        <div class="scene-tools">
+          <button class="icon-button" id="reset-view" type="button" title="Ganze Anlage zeigen" aria-label="Ganze Anlage zeigen"><i data-lucide="rotate-ccw"></i></button>
+          <button class="icon-button" id="gondel-view" type="button" title="Zur Gondel – hineinschauen" aria-label="Zur Gondel – hineinschauen"><i data-lucide="zoom-in"></i></button>
+          <button class="icon-button" id="aufstellen" type="button" title="Anlage dort aufstellen, wohin ich schaue" aria-label="Anlage dort aufstellen, wohin ich schaue" hidden><i data-lucide="locate-fixed"></i></button>
+          <button class="icon-button" id="snapshot" type="button" title="Bild herunterladen" aria-label="Bild herunterladen"><i data-lucide="camera"></i></button>
+          <button class="icon-button" id="fullscreen" type="button" title="Vollbild" aria-label="Vollbild"><i data-lucide="maximize"></i></button>
+        </div>
+        <div class="richtung" id="richtung" hidden></div>
+        <div class="loading" id="loading"><span class="spinner"></span></div>
+        <div class="error-view" id="fatal" hidden><i data-lucide="triangle-alert"></i><p id="fatal-text"></p><button type="button" id="reload">Erneut laden</button></div>
+        <noscript><p class="error-view">Für dieses Modell muss JavaScript eingeschaltet sein.</p></noscript>
+      </section>
+      <aside class="controls" aria-label="Anlage einstellen">
+        <div>
+          <p class="titel">Baujahr – Windräder werden immer größer</p>
+          <div class="jahre" id="jahre" role="group" aria-label="Baujahr der Anlage"></div>
+        </div>
+        <div class="steck" aria-live="polite"><span id="c-rotor"></span><span id="c-nabe"></span><span id="c-spitze"></span><span id="c-leistung" class="stark"></span></div>
+        <p class="satz" id="vergleich-satz"></p>
+        <div class="regler"><label for="wind">Wind <output id="wind-output" for="wind">8 m/s</output></label><input id="wind" type="range" min="0" max="30" step="0.5" value="8"></div>
+        <div class="beobachtung"><p id="beobachtung" aria-live="polite"></p></div>
+        <div class="switches" role="group" aria-label="Was soll gezeigt werden?">
+          <label><input id="innen" type="checkbox"><span>In die Gondel schauen</span></label>
+          <label><input id="labels" type="checkbox" checked><span>Beschriftung</span></label>
+          <label class="breit"><input id="vergleich" type="checkbox" checked><span>Vergleich: Frauenkirche und Olympiaturm</span></label>
+        </div>
+        <div class="nur-ar">
+          <div class="regler"><label for="abstand">Abstand zur Anlage <output id="abstand-output" for="abstand">250 m</output></label><input id="abstand" type="range" min="30" max="600" step="10" value="250" disabled></div>
+          <div class="regler"><label for="zoom">Fernglas <output id="zoom-output" for="zoom">1-fach</output></label><input id="zoom" type="range" min="1" max="12" step="0.5" value="1" disabled></div>
+        </div>
+        <div class="control-footer"><a href="../windkraft-strom.html#s4"><i data-lucide="arrow-left"></i><span>zum Modul</span></a><span class="klein">Maße wie im Modul, Station 4</span></div>
+      </aside>
+    </div>
+    <p class="toast" id="toast" role="alert" hidden></p>
+  </main>
+  <dialog id="hilfe-dialog" aria-labelledby="hilfe-titel">
+    <div class="dialog-heading"><h2 id="hilfe-titel">Die Anlage auf dem Schulhof</h2><button class="icon-button" id="hilfe-close" type="button" aria-label="Schließen" title="Schließen"><i data-lucide="x"></i></button></div>
+    <ol class="dialog-liste">
+      <li>Geh mit dem Tablet nach <strong>draußen</strong>, dorthin, wo du weit schauen kannst.</li>
+      <li>Tippe auf „Los geht's“ und <strong>erlaube</strong> Kamera und Bewegungssensor.</li>
+      <li>Halte das Tablet vor dich: Die Windkraftanlage steht in <strong>echter Größe</strong> 250 m vor dir. Schwenke nach oben bis zur Gondel.</li>
+      <li>Mit <strong>Fernglas</strong> holst du die Gondel heran, mit „In die Gondel schauen“ siehst du Getriebe, Bremse und Generator.</li>
+    </ol>
+    <p class="dialog-text warn">Bleib stehen, solange du durch das Tablet schaust – und pass auf andere auf.</p>
+    <div class="dialog-actions"><button class="command" id="hilfe-los" type="button"><i data-lucide="scan-line"></i>Los geht's</button></div>
+  </dialog>
+  <script src="../../../Kalender/vendor/lucide.min.js"></script>
+  <script type="module" src="app.js?v=20261009-1"></script>
+</body>
+</html>
