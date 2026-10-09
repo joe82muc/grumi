@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4f7f9">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Leiterschaukel · AR | GRUMI NT 8</title>
+  <link rel="stylesheet" href="style.css?v=20261009-1">
+  <script type="importmap">{"imports":{"three":"../../../tests/windrad-ar/vendor/three.module.js"}}</script>
+</head>
+<body>
+  <main class="lab">
+    <header class="topbar">
+      <div class="brand"><i data-lucide="magnet" aria-hidden="true"></i><div><span class="eyebrow">GRUMI · NT 8 · AUGMENTED REALITY</span><h1>Leiterschaukel</h1></div></div>
+      <div class="modes" role="group" aria-label="Ansicht">
+        <button id="mode-3d" class="mode selected" aria-pressed="true" type="button"><i data-lucide="box"></i><span>3D</span></button>
+        <button id="mode-ar" class="mode" aria-pressed="false" type="button"><i data-lucide="scan-line"></i><span>AR</span></button>
+      </div>
+      <button class="icon-button marker-button" id="marker-open" type="button" title="AR-Marker zeigen" aria-label="AR-Marker zeigen"><i data-lucide="qr-code"></i></button>
+    </header>
+    <div class="workspace">
+      <section class="stage" id="stage" aria-label="Leiterschaukel in 3D: Ein Draht hängt zwischen den Polen eines Hufeisenmagneten">
+        <video id="camera" autoplay muted playsinline hidden></video>
+        <canvas id="scene" aria-label="Versuch Leiterschaukel mit Hufeisenmagnet, Stativ und Netzgerät"></canvas>
+        <div class="scene-status" role="status"><span class="status-dot" id="status-dot"></span><span id="status">Modell wird geladen</span></div>
+        <div class="scene-tools">
+          <button class="icon-button" id="reset-view" type="button" title="Ansicht zurücksetzen" aria-label="Ansicht zurücksetzen"><i data-lucide="rotate-ccw"></i></button>
+          <button class="icon-button" id="front-view" type="button" title="Von vorn ansehen – wie im Bild des Moduls" aria-label="Von vorn ansehen"><i data-lucide="eye"></i></button>
+          <button class="icon-button" id="camera-flip" type="button" title="Kamera wechseln" aria-label="Kamera wechseln" hidden><i data-lucide="switch-camera"></i></button>
+          <button class="icon-button" id="snapshot" type="button" title="Bild herunterladen" aria-label="Bild herunterladen"><i data-lucide="camera"></i></button>
+          <button class="icon-button" id="fullscreen" type="button" title="Vollbild" aria-label="Vollbild"><i data-lucide="maximize"></i></button>
+        </div>
+        <div class="loading" id="loading"><span class="spinner"></span></div>
+        <div class="error-view" id="fatal" hidden><i data-lucide="triangle-alert"></i><p id="fatal-text"></p><button type="button" id="reload">Erneut laden</button></div>
+        <noscript><p class="error-view">Für diesen Versuch muss JavaScript eingeschaltet sein.</p></noscript>
+      </section>
+      <aside class="controls" aria-label="Versuch bedienen">
+        <div class="knoepfe" role="group" aria-label="Strom und Magnet">
+          <button class="knopf" type="button" id="strom-an" data-tu="an" aria-pressed="false" disabled>⚡ Strom AN</button>
+          <button class="knopf sel" type="button" id="strom-aus" data-tu="aus" aria-pressed="true" disabled>Strom AUS</button>
+          <button class="knopf" type="button" data-tu="kabel" title="Die Kabel an der Schaukel tauschen: Die Elektronen fließen andersherum" disabled>⇄ Kabel tauschen</button>
+          <button class="knopf" type="button" data-tu="magnet" disabled>🧲 Magnet umdrehen</button>
+        </div>
+        <div class="regler"><label for="staerke">Stromstärke <output id="staerke-output" for="staerke">mittel</output></label><input id="staerke" type="range" min="1" max="3" step="1" value="2"></div>
+        <div class="beobachtung"><p id="beobachtung" aria-live="polite">Strom aus: Es wirkt keine Kraft. Die Schaukel hängt ruhig.</p><p class="pole" id="pole">Südpol oben · Nordpol unten</p></div>
+        <div class="switches" role="group" aria-label="Was soll gezeigt werden?">
+          <label><input id="zeige-elektronen" type="checkbox" checked><span class="punkt" style="background:#f08a24"></span><span>Elektronen</span></label>
+          <label><input id="zeige-feld" type="checkbox" checked><span class="punkt" style="background:#2f6fdb"></span><span>Magnetfeld</span></label>
+          <label><input id="zeige-hand" type="checkbox" checked><span class="punkt" style="background:#e0453a"></span><span>Linke Hand</span></label>
+          <label><input id="labels" type="checkbox" checked><span>Beschriftung</span></label>
+        </div>
+        <div class="ar-size" id="ar-size"><label for="scale">Größe in AR <output id="scale-output">100 %</output></label><input id="scale" type="range" min="50" max="200" step="10" value="100" disabled></div>
+        <div class="control-footer"><a href="../elektromotor.html#s2"><i data-lucide="arrow-left"></i><span>zum Modul</span></a><a href="marker.html" target="_blank" rel="noopener"><i data-lucide="printer"></i><span>AR-Marker drucken</span></a></div>
+      </aside>
+    </div>
+    <p class="toast" id="toast" role="alert" hidden></p>
+  </main>
+  <dialog id="marker-dialog" aria-labelledby="marker-title">
+    <div class="dialog-heading"><h2 id="marker-title">AR-Marker</h2><button class="icon-button" id="marker-close" type="button" aria-label="Schließen" title="Schließen"><i data-lucide="x"></i></button></div>
+    <p class="dialog-text">Drucke den Marker aus oder zeige ihn auf einem zweiten Bildschirm. Tippe dann oben auf <strong>AR</strong> und halte die Kamera auf den Marker: Der Versuch steht darauf.</p>
+    <img src="../../../tests/windrad-ar/assets/hiro.png" width="400" height="400" alt="Schwarz-weißer Marker „Hiro“ für die AR-Erkennung">
+    <div class="dialog-actions"><a class="command" href="marker.html" target="_blank" rel="noopener"><i data-lucide="printer"></i>Drucken</a><a class="command secondary" href="../../../tests/windrad-ar/assets/hiro.png" download="grumi-ar-marker.png"><i data-lucide="download"></i>Bild</a></div>
+  </dialog>
+  <script src="../../../Kalender/vendor/lucide.min.js"></script>
+  <script type="module" src="app.js?v=20261009-1"></script>
+</body>
+</html>
