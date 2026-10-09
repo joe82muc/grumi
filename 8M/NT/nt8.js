@@ -210,6 +210,7 @@
   // Film aus einer Mediathek mit Stopp-Fragen. Geladen wird erst nach dem Antippen – vorher geht nichts an fremde Server.
   // cfg: { titel, quelle, dauer, seite (Adresse in der Mediathek), einbetten (Adresse des Einbett-Players; fehlt sie,
   //        öffnet der Knopf die Mediathek in einem neuen Tab), abschnitt (z. B. "von 0:40 bis 3:10"),
+  //        hinweis (ein Satz zum Film), mitschrift: [["0:42", "eigene Zusammenfassung der Stelle"], …],
   //        stops: [{ t: "1:20", q: "Frage", o: ["richtig oder falsch …"], a: Index der richtigen Antwort, e: "Erklärung" }] }
   // Ein Film kommt nur hinein, wenn seine Untertitel vollständig gelesen und geprüft sind (progress/nt8/12_videos).
   // Die Stopp-Fragen sind ein Zusatz und zählen nicht zu den Aufgaben des Moduls: In manchen Schulnetzen sind Filme
@@ -221,7 +222,14 @@
     el.innerHTML = '<div class="film"><button class="film-poster" type="button"><span class="play">▶</span><b>Film starten</b><small>' + esc(cfg.quelle || "") + ': „' + esc(cfg.titel || "Film") + "“" + (cfg.dauer ? " (" + esc(cfg.dauer) + ")" : "") +
       ". Erst mit diesem Klick wird der Film von " + woher + " geladen.</small></button></div>" +
       '<p class="hint nf-hinweis">' + (cfg.abschnitt ? "Sieh dir den Abschnitt " + esc(cfg.abschnitt) + " an. " : "") + (stops.length ? "Halte an den genannten Stellen an und beantworte die Frage. " : "") +
-      'Lädt der Film nicht? <a href="' + esc(cfg.seite) + '" target="_blank" rel="noopener">' + (yt ? "Auf YouTube öffnen" : "In der Mediathek öffnen") + '</a>.</p><div class="nf-fragen"></div>';
+      'Lädt der Film nicht? <a href="' + esc(cfg.seite) + '" target="_blank" rel="noopener">' + (yt ? "Auf YouTube öffnen" : "In der Mediathek öffnen") + "</a>.</p>" +
+      // hinweis: was man zu diesem Film wissen muss (Tonspur, Werbung, Versprecher)
+      (cfg.hinweis ? '<p class="hint nf-zusatz">ℹ️ ' + esc(cfg.hinweis) + "</p>" : "") +
+      // mitschrift: [["0:42", "eigene Zusammenfassung dieser Stelle"], …] – zum Nachlesen, auch wenn der Film nicht lädt.
+      // Eigene Worte mit Zeitmarken, kein Abdruck der Untertitel (die gehören dem Kanal).
+      (cfg.mitschrift && cfg.mitschrift.length ? '<details class="nf-text"><summary>📄 Mitschrift zum Film – zum Nachlesen</summary><p class="hint">Was im Film an welcher Stelle passiert, mit eigenen Worten zusammengefasst.</p><ol>' +
+        cfg.mitschrift.map(function (z) { return "<li><b>" + esc(z[0]) + "</b> " + esc(z[1]) + "</li>"; }).join("") + "</ol></details>" : "") +
+      '<div class="nf-fragen"></div>';
     var flaeche = $(".film", el);
     $(".film-poster", el).addEventListener("click", function () {
       if (!cfg.einbetten) { global.open(cfg.seite, "_blank", "noopener"); return; }
