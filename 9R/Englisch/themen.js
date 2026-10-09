@@ -14,6 +14,10 @@ GrumiKursliste.bauen({
   name: "E9R", kurs: "e9", stufe: 9, zuege: ["R"], fach: "Englisch", titel: "Englisch 9R", pfad: "/api/e9", ordner: "9R/Englisch/",
   intro: "Wortschatz und Grammatik passend zu den Units. Deine Lehrkraft schaltet frei, was ihr gerade im Unterricht behandelt.",
   andere: { zug: "M", titel: "Englisch 9M", href: "9M/Englisch_9/index.html" },
+  // Skill-Module (Listening, Reading, Speaking, Writing, Mediation, Quali-Fit …) nutzen die Bausteine von Deutsch 7/8
+  // (7M/Deutsch/d7-kit.js). Diese Angaben schalten dort das Fach um: Name, Adresse auf dem Server, Speicher, Sprache
+  // der Hörtexte. Englisch 9R hat nur einen Zug – freiwillige Zusatzaufgaben heißen „Challenge“.
+  bausteine: { name: "Englisch 9R", api: "/api/e9", speicher: "grumi-e9-", klasse: "Englisch · Klasse 9R", anker: "thema-", sprache: "en", zug: "R", plusTag: "Challenge · freiwillig" },
   themen: [
     {
       id: "u1", nr: "01", titel: "Unit 1: Around Australia", kurz: "Unit 1", icon: "🦘",
@@ -31,7 +35,10 @@ GrumiKursliste.bauen({
         { id: "u1-g3", kz: "A4", titel: "G3 · If-clauses Typ I", href: "unit1/grammatik/g3-if-clauses.html", art: "Grammatik", ls: "e9u1g3",
           text: "Bedingungssätze: Was passiert, wenn …?" },
         { id: "u1-g4", kz: "A5", titel: "G4 · Present progressive", href: "unit1/grammatik/g4-present-progressive.html", art: "Grammatik", ls: "e9u1g4",
-          text: "Die Verlaufsform der Gegenwart: Was passiert gerade?" }
+          text: "Die Verlaufsform der Gegenwart: Was passiert gerade?" },
+        // Skill-Module (seit 10.10.2026): Seiten u1_….html im Ordner der Liste, Inhalt in inhalt/, Texte in texte/u1/
+        { id: "u1-reading", kz: "A13", titel: "Reading · A beach day with a plan", href: "u1_reading.html", art: "Reading", ls: "e9-u1-reading",
+          text: "Einen Artikel über ein Umweltproblem verstehen: Thema, Einzelheiten mit Zeilenangabe, zwischen den Zeilen lesen." }
       ]
     }
   ]

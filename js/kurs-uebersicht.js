@@ -17,7 +17,9 @@
   if (!K || !L) return;
   const body = document.body, root = body.dataset.root || "../../", esc = K.esc, THEMEN = L.THEMEN;
   const app = document.getElementById("app");
-  const ART = { Wortschatz: "🔤", Grammatik: "🧩", Sprechen: "🗣️", Schreiben: "✍️", Mediation: "🔁", Bilder: "🖼️", Modul: "📘", Gruppenarbeit: "👥", Übung: "✏️" };
+  const ART = { Wortschatz: "🔤", Grammatik: "🧩", Sprechen: "🗣️", Schreiben: "✍️", Mediation: "🔁", Bilder: "🖼️", Modul: "📘", Gruppenarbeit: "👥", Übung: "✏️",
+    // Skill-Module (Englisch 9R)
+    Reading: "📖", Listening: "🎧", Speaking: "🗣️", Writing: "✍️", "Land und Leute": "🌏", "Quali-Fit": "🎯", Wiederholung: "🔄", Arbeitsblatt: "🖨️", Duell: "⚡" };
   let STAND = null, HINWEIS = "", PROBEN = null, SERVER = null;
   // Kurs, dessen Seiten von sich aus offen sind (NT 9): Auch ohne Code ist alles zu sehen, freigeschaltete Proben ebenso
   const VON_SICH_OFFEN = THEMEN.some(t => t.module.some(m => m.href && m.offen));

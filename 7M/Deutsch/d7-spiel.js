@@ -45,8 +45,17 @@
     const play = $(".play", box), lauf = $(".hoer-lauf i", box), status = $(".hoer-status", box), trans = $(".trans", box), ersatz = $(".hoer-ersatz", box);
     const transkript = () => (t.sprecher || []).map(s => `<p>${rollen.length > 1 ? "<b>" + esc(s.rolle) + ":</b> " : ""}${esc(s.text)}</p>`).join("");
     let i = 0, laeuft = false, gehoert = M.isSolved(id + "-hoeren");
-    // Stimmen: deutsche Stimmen des Geräts auf die Rollen verteilen
-    const stimmen = () => (synth ? synth.getVoices().filter(v => /^de/i.test(v.lang)) : []);
+    // Sprache des Hörtexts: Deutsch – oder Englisch, wenn der Text (sprache: "en") oder das Fach der Seite es angibt
+    const SPR = String(t.sprache || (window.GRUMI_KURS && window.GRUMI_KURS.BAUSTEINE && window.GRUMI_KURS.BAUSTEINE.sprache) || "de").slice(0, 2).toLowerCase(), EN = SPR === "en";
+    // Englisch: Die Tonspur kommt vom Server (/api/speech/speak, je Satz eine kleine Datei, die der Browser behält) –
+    // gleiche, deutliche Stimmen auf jedem Gerät. Jede Rolle bekommt ihre Stimme (im Text festlegbar: stimmen: { Rolle: "…" }).
+    // Antwortet der Server nicht, liest wie bisher das Gerät vor.
+    const STIMMEN_EN = ["en-GB-SoniaNeural", "en-GB-RyanNeural", "en-GB-LibbyNeural", "en-US-GuyNeural", "en-US-JennyNeural"];
+    const serverStimme = rolle => (t.stimmen && t.stimmen[rolle]) || STIMMEN_EN[Math.max(0, rollen.indexOf(rolle)) % STIMMEN_EN.length];
+    const tonAdresse = s => K.server + "/api/speech/speak?voice=" + encodeURIComponent(serverStimme(s.rolle)) + "&text=" + encodeURIComponent(s.text);
+    let ton = null, serverGeht = EN && typeof window.Audio === "function";
+    // Stimmen des Geräts in der Sprache des Texts auf die Rollen verteilen (Englisch: britische zuerst)
+    const stimmen = () => (synth ? synth.getVoices().filter(v => new RegExp("^" + SPR, "i").test(v.lang)).sort((a, b) => (/GB/i.test(b.lang) ? 1 : 0) - (/GB/i.test(a.lang) ? 1 : 0)) : []);
     function stimmeFuer(rolle) {
       const v = stimmen(), k = Math.max(0, rollen.indexOf(rolle));
       if (!v.length) return { voice: null, pitch: 1 };
@@ -63,15 +72,29 @@
     function sprich() {
       if (!laeuft) return;
       if (i >= stuecke.length) { fertig(); return; }
-      const s = stuecke[i], u = new SpeechSynthesisUtterance(s.text), st = stimmeFuer(s.rolle);
-      u.lang = "de-DE"; if (st.voice) u.voice = st.voice; u.pitch = st.pitch; u.rate = $(".langsam", box).checked ? 0.78 : 0.95;
+      const s = stuecke[i];
       zeigeRolle(s.rolle); lauf.style.width = Math.round(i / stuecke.length * 100) + "%";
       let weiter = false; const naechstes = () => { if (weiter) return; weiter = true; i++; sprich(); };
+      if (serverGeht) {
+        // ein einziges Audio-Element für alle Sätze (Safari spielt nur weiter, was einmal durch Antippen gestartet wurde)
+        if (!ton) { ton = new Audio(); ton.preload = "auto"; }
+        const langsam = $(".langsam", box).checked, wechsel = i > 0 && stuecke[i - 1].rolle !== s.rolle;
+        ton.onended = () => setTimeout(naechstes, wechsel || /[.!?]$/.test(s.text) ? (langsam ? 650 : 380) : 150);
+        // Server nicht erreichbar oder Sprachausgabe dort nicht eingerichtet: ab hier liest das Gerät vor
+        ton.onerror = () => { if (!laeuft || weiter) return; serverGeht = false; if (kannVorlesen()) sprich(); else { halt(); ohneStimme(); } };
+        ton.src = tonAdresse(s); ton.playbackRate = langsam ? 0.85 : 1;
+        const p = ton.play(); if (p && p.catch) p.catch(() => { if (ton.error) ton.onerror(); });
+        // den nächsten Satz schon holen, damit keine Lücke entsteht
+        if (stuecke[i + 1]) fetch(tonAdresse(stuecke[i + 1])).catch(() => {});
+        return;
+      }
+      const u = new SpeechSynthesisUtterance(s.text), st = stimmeFuer(s.rolle);
+      u.lang = EN ? "en-GB" : "de-DE"; if (st.voice) u.voice = st.voice; u.pitch = st.pitch; u.rate = $(".langsam", box).checked ? 0.78 : 0.95;
       u.onend = naechstes; u.onerror = e => { if (e.error === "interrupted" || e.error === "canceled") return; naechstes(); };
       synth.speak(u);
     }
-    function halt() { laeuft = false; if (synth) synth.cancel(); zeigeRolle(""); }
-    function kannVorlesen() { return Boolean(synth && window.SpeechSynthesisUtterance && stimmen().length); }
+    function halt() { laeuft = false; if (ton) { ton.onended = null; ton.onerror = null; ton.pause(); } if (synth) synth.cancel(); zeigeRolle(""); }
+    function kannVorlesen() { return serverGeht || Boolean(synth && window.SpeechSynthesisUtterance && stimmen().length); }
     function ohneStimme() {
       // Das Gerät kann nicht vorlesen: Text einmal lesen, dann zudecken
       play.hidden = true; $(".neu", box).hidden = true; $(".langsam", box).closest("label").hidden = true; $(".hoer-lauf", box).hidden = true;

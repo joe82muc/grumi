@@ -20,7 +20,10 @@
 (function () {
   "use strict";
   // Jahrgang: 7 (Vorgabe) oder 8 – Deutsch 8 setzt window.DEUTSCH_NR vor diesem Skript (8/Deutsch/…html)
-  const DNR = window.DEUTSCH_NR || (window.GRUMI_KURS && window.GRUMI_KURS.NR) || 7, DNAME = "Deutsch " + DNR, DAPI = "/api/d" + DNR;
+  // Anderes Fach mit denselben Bausteinen (Englisch 9R): Die Kursliste der Seite nennt Name, Adresse und Speicher
+  // (GRUMI_KURS.BAUSTEINE, siehe js/kursliste.js). Ohne diese Angabe gilt wie bisher Deutsch 7 oder 8.
+  const KF = (window.GRUMI_KURS && window.GRUMI_KURS.BAUSTEINE) || null;
+  const DNR = window.DEUTSCH_NR || (window.GRUMI_KURS && window.GRUMI_KURS.NR) || 7, DNAME = KF ? KF.name : "Deutsch " + DNR, DAPI = KF ? KF.api : "/api/d" + DNR;
   const M = window.Modul, { $, $$, esc } = M;
   const SERVER = location.hostname.endsWith("onrender.com") ? "" : "https://englisch-9.onrender.com";
   const bauer = {}, teile = [];
@@ -39,16 +42,19 @@
   /* ---------- Seite aufbauen ---------- */
   function seite(cfg) {
     CFG = cfg; MODUL_ID = cfg.id;
-    const D7 = window["D" + DNR], reg = D7.modulVon(cfg.id), thema = reg ? reg.thema : { id: "", titel: DNAME };
-    const key = reg && reg.modul.key ? reg.modul.key : "grumi-d" + DNR + "-" + cfg.id + "-v1";
+    const D7 = KF ? window.GRUMI_KURS : window["D" + DNR], reg = D7.modulVon(cfg.id), thema = reg ? reg.thema : { id: "", titel: DNAME };
+    const key = reg && reg.modul.key ? reg.modul.key : (KF ? KF.speicher : "grumi-d" + DNR + "-") + cfg.id + "-v1";
     const root = $("#d7-seite"), st = cfg.stationen;
+    // Sprungmarke des Themenbereichs in der Übersicht (Englisch: „thema-u1“) und Kopfzeile mit Fach und Klasse
+    const anker = thema.id ? "#" + ((KF && KF.anker) || "") + thema.id : "";
+    const fachZeile = KF ? esc(KF.klasse || DNAME) : "Deutsch · Klasse " + DNR + "M / " + DNR + "R";
     document.title = cfg.titel + " | " + DNAME;
-    root.innerHTML = `<header class="top"><div class="wrap top-in"><a class="brand" href="index.html${thema.id ? "#" + thema.id : ""}">GRUMI<small>${DNAME}</small></a>
+    root.innerHTML = `<header class="top"><div class="wrap top-in"><a class="brand" href="index.html${anker}">GRUMI<small>${DNAME}</small></a>
         <nav class="stations" id="stations">${st.map((s, i) => `<a href="#s${i + 1}"><b>${i + 1}</b>${esc(s.kurz)}</a>`).join("")}</nav>
         <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span></div><div class="readbar" id="readbar"></div></header>
       <div class="hero"><canvas id="heroCanvas" aria-hidden="true"></canvas><div class="wrap">
-        <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px"><a href="index.html${thema.id ? "#" + thema.id : ""}">📚 Übersicht ${DNAME}</a><a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a><a href="../../index.html">🏠 Startseite Lernplattform</a></nav>
-        <div class="eyebrow">Deutsch · Klasse ${DNR}M / ${DNR}R · ${esc(thema.titel)}${reg ? (reg.modul.extra ? " · Zusatz" : " · Modul " + reg.nr) : ""}</div>
+        <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px"><a href="index.html${anker}">📚 Übersicht ${DNAME}</a><a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a><a href="../../index.html">🏠 Startseite Lernplattform</a></nav>
+        <div class="eyebrow">${fachZeile} · ${esc(thema.titel)}${reg ? (reg.modul.extra ? " · Zusatz" : KF ? "" : " · Modul " + reg.nr) : ""}</div>
         <h1>${esc(cfg.titel)}</h1><p>${cfg.einleitung || ""}</p>
         <div class="zeit">⏱ ${esc(cfg.zeit || "etwa 40 Minuten")} · am Tablet oder am PC</div>
         <div class="hero-cta"><a class="btn light" href="#s1">Los geht's ↓</a></div>
@@ -64,7 +70,9 @@
     // R oder M? Aus der Anmeldung; sonst aus dem Link (?zug=R) – dann lässt sich die Fassung umschalten
     const a = M.anmeldung(), fest = a && new RegExp("^" + DNR + "[MR]$").test(String(a.zug || ""));
     ZUG = M.zug() || "M";
-    if (!fest) {
+    // Fach mit nur einem Zug (Englisch 9R): keine zweite Fassung, also auch kein Umschalter
+    if (KF && KF.zug) ZUG = KF.zug;
+    if (!fest && !(KF && KF.zug)) {
       const mit = z => { const p = new URLSearchParams(location.search); p.set("zug", z); return "?" + p.toString(); };
       $("#d7-fassung").innerHTML = `<p class="d7-fassung">Du siehst die Fassung für <a href="${mit("R")}" class="${ZUG === "R" ? "an" : ""}">R${DNR}</a><a href="${mit("M")}" class="${ZUG === "M" ? "an" : ""}">M${DNR}</a><span style="font-weight:600">Mit Code angemeldet bekommt jedes Kind automatisch die Fassung seiner Klasse.</span></p>`;
     }
@@ -76,7 +84,7 @@
         if (teil.nur && teil.nur !== ZUG) return;
         if (!bauer[teil.art]) { console.error(DNAME + ": unbekannter Baustein „" + teil.art + "“"); return; }
         const card = document.createElement("div"); card.className = "card" + (teil.klasse ? " " + teil.klasse : "");
-        const tags = (teil.m7 ? '<span class="task-tag m7">M' + DNR + ' · für ' + DNR + 'R freiwillig</span> ' : "") + (teil.tag ? `<span class="task-tag${teil.zusatz ? " zusatz-tag" : ""}">${esc(teil.tag)}</span>` : "");
+        const tags = (teil.m7 ? '<span class="task-tag m7">' + (KF && KF.plusTag ? esc(KF.plusTag) : "M" + DNR + " · für " + DNR + "R freiwillig") + "</span> " : "") + (teil.tag ? `<span class="task-tag${teil.zusatz ? " zusatz-tag" : ""}">${esc(teil.tag)}</span>` : "");
         card.innerHTML = (tags ? `<div>${tags}</div>` : "") + (teil.titel ? `<h3>${esc(teil.titel)}</h3>` : "") + (teil.lead ? `<p class="lead">${teil.lead}</p>` : "") + '<div class="teil-box"></div>';
         sec.appendChild(card);
         const box = $(".teil-box", card), los = () => bauer[teil.art](box, teil, card);
@@ -101,7 +109,7 @@
     }
     const w = cfg.weiter;
     $("#d7-weiter").innerHTML = `<h3 style="margin-top:0">Wie geht es weiter?</h3><p>${w && w.text ? w.text : "Du hast das Ende dieses Moduls erreicht."}</p>
-      <nav class="navlinks light" aria-label="Weiter">${w && w.href ? `<a href="${esc(w.href)}">➜ ${esc(w.titel)}</a>` : ""}<a href="index.html${thema.id ? "#" + thema.id : ""}">📚 Zur Übersicht ${DNAME}</a></nav>`;
+      <nav class="navlinks light" aria-label="Weiter">${w && w.href ? `<a href="${esc(w.href)}">➜ ${esc(w.titel)}</a>` : ""}<a href="index.html${anker}">📚 Zur Übersicht ${DNAME}</a></nav>`;
 
     // Haupttext der Seite (cfg.haupttext) lässt sich von jeder Station aus einblenden
     if (cfg.haupttext) {

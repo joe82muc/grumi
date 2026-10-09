@@ -23,7 +23,9 @@
 (function () {
   "use strict";
   const M = window.Modul, { $, $$, esc } = M, K = window.D7Kit, AE = window.AufsatzEditor;
-  const DNR = (window.GRUMI_KURS && window.GRUMI_KURS.NR) || 8, DAPI = "/api/d" + DNR;
+  // Anderes Fach mit denselben Bausteinen (Englisch 9R): Adresse des Servers aus der Kursliste (GRUMI_KURS.BAUSTEINE)
+  const KF = (window.GRUMI_KURS && window.GRUMI_KURS.BAUSTEINE) || null;
+  const DNR = (window.GRUMI_KURS && window.GRUMI_KURS.NR) || 8, DAPI = KF ? KF.api : "/api/d" + DNR;
   const SCHRITTE = [
     ["planen", "Planen", "Lies die Aufgabenstellung genau. Halte deine Gedanken in Stichpunkten fest – ein guter Plan ist der halbe Text."],
     ["schreiben", "Schreiben", "Schreibe jetzt deinen Text. Deine Planung und die Aufgabenstellung kannst du jederzeit einblenden."],

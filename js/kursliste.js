@@ -210,7 +210,21 @@
       return liste;
     }
 
+    // Für Seiten mit den Bausteinen von NT 7 und Deutsch (7M/NT/modul-basis.js, 7M/Deutsch/d7-kit.js): dieselben Angaben
+    // wie die Listen NT7 und D7. Eine solche Seite setzt window.GRUMI_KURS auf diese Liste (Englisch 9R: Skill-Module).
+    // cfg.bausteine: { name, api, speicher, klasse, anker, sprache, zug, plusTag } – Fach-Schalter für d7-kit.js (L.BAUSTEINE).
+    var PREFIX = "grumi-" + cfg.kurs + "-";
+    function idAusKey(key) { var s = String(key || ""); return (s.indexOf(PREFIX) === 0 ? s.slice(PREFIX.length) : s).replace(/-v\d+$/, ""); }
+    // Zug des Kindes (M oder R): Kurs mit nur einem Zug -> dieser; sonst aus der Anmeldung („9M“ / „9R“)
+    function zug(a) {
+      var zuege = cfg.zuege || ["M", "R"];
+      if (zuege.length === 1) return zuege[0];
+      return a && new RegExp("^" + STUFE + "[MR]$").test(String(a.zug || "")) ? String(a.zug).slice(-1) : "";
+    }
+
     var L = {
+      NR: Number(cfg.stufe), PREFIX: PREFIX, WORT: "Modul", DAS: "das Modul", ES: "es", SPERRE: "Dieses Modul ist noch nicht freigeschaltet",
+      ZURUECK: "📚 Zur Übersicht " + (cfg.titel || ""), idAusKey: idAusKey, zug: zug, BAUSTEINE: cfg.bausteine || null,
       THEMEN: THEMEN, API: API, VORSCHAU: VORSCHAU, NAME: cfg.name, KURS: cfg.kurs, STUFE: STUFE, ZUEGE: cfg.zuege || ["M", "R"], PFAD: PFAD,
       FACH: cfg.fach || "", TITEL: cfg.titel || "", ORDNER: cfg.ordner, UEBERSICHT: cfg.uebersicht || "index.html", INTRO: cfg.intro || "", ANDERE: cfg.andere || null, FARBE: cfg.farbe || "",
       modulVon: modulVon, modulZurSeite: modulZurSeite, modulZumLernstand: modulZumLernstand, offen: offen, freigabe: freigabe,
