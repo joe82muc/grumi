@@ -50,7 +50,8 @@
         <p>${esc(fach(r.fach))} · geschrieben am ${datum(r.datum)} · zurückbekommen am ${datum(r.freigegebenAm)}</p></div>
         <div><span class="pill ${r.neu ? "open" : ""}">${r.neu ? "NEUE KORREKTUR" : "korrigiert"}</span><a class="btn" href="${esc(linkZu(r))}">Korrektur öffnen</a></div></article>`).join("")}</div>`
         : `<p class="notice">Du hast noch keine korrigierte Probe zurückbekommen. Sobald deine Lehrkraft eine Probe zurückgibt, steht sie hier und auf der Startseite.</p>`) +
-      `<p><a class="btn secondary" href="index.html">Zur Startseite</a></p>`;
+      // Vokabeltests: Die falschen Wörter aller Tests sammelt die Merkliste (merkliste.html) – dort kann das Kind sie üben
+      `<p>${d.rueckgaben.some(r => r.modul === "vokabeltest") ? `<a class="btn" href="merkliste.html">📕 Meine Merkliste: falsche Wörter üben</a> ` : ""}<a class="btn secondary" href="index.html">Zur Startseite</a></p>`;
   }
 
   function teil(titel, inhalt, klasse) { return inhalt ? `<div class="k-teil"><span>${titel}</span><div class="${klasse || ""}">${inhalt}</div></div>` : ""; }
@@ -154,6 +155,9 @@
           teil("Korrektur", korrektur) + (nt8 ? teil("Dein nächster Lernschritt", lernschritt(a) ? `<p>${lernschritt(a)}</p>` : "") : "") + "</section>";
       }).join("") : `<p class="notice">Für diese Probe gibt es keine Einzelauflistung der Antworten.</p>`) + "</div>" +
       (nt8 ? fazit(k.aufgaben) : "") +
+      // Vokabeltest beim Kind (nicht in der Elternansicht der Lehrkraft): Hinweis auf die Merkliste
+      (k.modul === "vokabeltest" && !druck && k.aufgaben.some(a => a.points < a.max)
+        ? `<p class="notice kein-druck" id="k-merkliste" style="margin-top:14px">📕 Die Wörter, die du falsch hattest, stehen jetzt in deiner <b>Merkliste</b> – zusammen mit denen aus deinen anderen Vokabeltests. <a class="btn klein" href="merkliste.html" style="margin-left:6px">Merkliste üben</a></p>` : "") +
       `<p class="k-fuss" style="margin-top:12px;font-size:.85rem;color:var(--muted)">Die Probe wurde am Tablet geschrieben. Freie Antworten wurden mit KI-Unterstützung bewertet, maßgeblich ist die Bewertung der Lehrkraft.</p>` +
       `<div class="unterschrift"><div>Datum, Unterschrift einer/eines Erziehungsberechtigten</div><div>Das nehme ich mir für das nächste Mal vor:</div></div>`;
   }

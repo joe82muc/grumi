@@ -489,6 +489,8 @@
       "<b>Klick auf eine Note:</b> Antworten ansehen, Punkte je Aufgabe ändern (die Note rechnet sich neu), die Abgabe löschen, damit das Kind nachschreiben kann, " +
       "oder die Antworten für die Eltern drucken (einzeln oder für die ganze Klasse). Klick auf den Titel: Lehrerseite der Probe.</p></div>" +
       '<div class="spacer"></div><button class="btn btn-ghost btn-sm" id="lf-nreload" type="button">Neu laden</button>' +
+      '<button class="btn btn-ghost btn-sm" id="lf-nxlsx" type="button"' + (P.length && global.GrumiNotenExcel ? "" : " disabled") +
+      ' title="Excel-Mappe: Übersicht der Klasse und je Probe ein Blatt mit Thema, Klasse, Datum, Name und Note – Noten farbig, mit Notenspiegel">📊 Notenliste (Excel)</button>' +
       '<button class="btn btn-ghost btn-sm" id="lf-ncsv" type="button"' + (P.length ? "" : " disabled") + ">CSV-Export</button></div>";
     if (!P.length) {
       h += '<div class="note">Für Klasse ' + esc(KLASSE) + " gibt es noch keine Abgaben. Sobald ein Kind eine Probe mit seinem Code abgibt, steht die Note hier.</div>";
@@ -539,6 +541,7 @@
     teil.innerHTML = h;
     $("lf-nreload").addEventListener("click", function () { notenLaden(teil); });
     $("lf-ncsv").addEventListener("click", notenCsv);
+    $("lf-nxlsx").addEventListener("click", notenExcel);
     Array.prototype.forEach.call(teil.querySelectorAll("[data-zurueck-alle]"), function (b) {
       b.addEventListener("click", function () {
         var k = b.getAttribute("data-zurueck-alle").split("|"), modul = k[0], testId = k.slice(1).join("|");
@@ -804,6 +807,43 @@
       zeilen.push(z.concat([schnitt(noten)]));
     });
     datei(zeilen, "noten-" + KLASSE + "-" + new Date().toISOString().slice(0, 10) + ".csv");
+  }
+  // Notenliste als Excel-Mappe (js/noten-excel.js): Übersicht der Klasse, dann je Probe ein Blatt mit Thema, Modulen,
+  // Klasse, Datum, Name und Note – Noten farbig (1 dunkelgrün … 6 dunkelrot), Notenspiegel und Schnitt
+  function notenExcel() {
+    var E = global.GrumiNotenExcel;
+    if (!NOTEN || !E) return;
+    var P = notenProben(), kinder = notenKinder(P);
+    var G = global.GrumiProbenModule;
+    function module(p) {
+      var mod = G && G.MODULES.filter(function (x) { return x.key === p.modul; })[0];
+      var liste = mod && G.probeInhalt ? G.probeInhalt(mod, { id: p.testId }) : [];
+      return liste.map(function (x) { return x.kz + " " + x.titel; }).join(" · ");
+    }
+    function bemerkung(kind, n) {
+      return [(n ? n.lrs : kind.lrs) ? "Notenschutz LRS" : "", n && n.verlassen ? n.verlassen + "× verlassen" : "", n && n.nachpruefen ? "KI-Bewertung noch prüfen" : "",
+        kind.weg ? "Code gelöscht" : ""].filter(Boolean).join(" · ");
+    }
+    var blaetter = [E.uebersicht({
+      klasse: KLASSE,
+      kinder: kinder.map(function (k) { return { name: nameVon(k.code), code: k.code }; }),
+      proben: P.map(function (p) {
+        var noten = {};
+        Object.keys(p.noten).forEach(function (c) { noten[c] = p.noten[c].note; });
+        return { fach: p.fach, titel: p.titel, datum: p.datum, noten: noten };
+      })
+    })];
+    P.forEach(function (p) {
+      blaetter.push(E.probe({
+        fach: p.fach, titel: p.titel, inhalt: module(p), klasse: KLASSE, datum: p.datum,
+        zeilen: kinder.map(function (kind) {
+          var n = p.noten[kind.code], name = nameVon(kind.code);
+          return n ? { name: name, code: kind.code, note: n.note, punkte: n.punkte, max: n.max, prozent: n.prozent, bemerkung: bemerkung(kind, n) }
+            : { name: name, code: kind.code, fehlt: true, bemerkung: kind.weg ? "Code gelöscht" : "" };
+        }).filter(function (z) { return !z.fehlt || z.bemerkung !== "Code gelöscht"; })
+      }));
+    });
+    E.laden(blaetter, "Notenliste " + KLASSE + " " + new Date().toISOString().slice(0, 10) + ".xlsx");
   }
 
   /* ---------- Fach: Lernfortschritt ---------- */

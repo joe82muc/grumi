@@ -28,6 +28,8 @@
   var WERTEN_ROUTE = { vokabeltest: "/api/vokabeltest/override" };
   // Module, deren gespeicherte Abgaben der Server nach den aktuellen Regeln nachwertet (ohne KI, nur aufwerten)
   var NACHWERTEN_ROUTE = { vokabeltest: "/api/vokabeltest/nachwerten" };
+  // Module mit der Auswertung „Fehlerwörter“ (jede Aufgabe ist ein Wort: richtig oder falsch)
+  var FEHLERWOERTER = { vokabeltest: true };
 
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
@@ -78,7 +80,8 @@
       ".prl-z .wahl button{border:1.5px solid #cbd5e1;border-radius:999px;background:#fff;color:#475569;font-weight:700;font-size:.78rem;font-family:inherit;padding:.3rem .65rem;cursor:pointer;white-space:nowrap}" +
       ".prl-z .wahl button[aria-pressed=true]{color:#fff;cursor:default}.prl-z .wahl button[aria-pressed=true][data-p='1']{background:#15803d;border-color:#15803d}" +
       ".prl-z .wahl button[aria-pressed=true][data-p='0']{background:#b3261e;border-color:#b3261e}.prl-z .wahl button[disabled]{opacity:.6}" +
-      "#prl-wmsg{margin:.5rem 0 0;font-weight:700;font-size:.88rem;min-height:1.2em;color:#17633a}#prl-wmsg.bad{color:#b3261e}";
+      "#prl-wmsg{margin:.5rem 0 0;font-weight:700;font-size:.88rem;min-height:1.2em;color:#17633a}#prl-wmsg.bad{color:#b3261e}" +
+      ".prl-anteil{flex:none;width:118px;text-align:right;font-size:.84rem}.prl-anteil .balken{display:block;height:7px;margin-top:3px;border-radius:99px;background:#f1e4e1;overflow:hidden}.prl-anteil .balken i{display:block;height:100%;background:#b3261e}";
     doc.head.appendChild(s);
   }
   var schluessel = function (r) { return C.modul + "|" + r.id; };
@@ -296,6 +299,8 @@
     el.innerHTML = "<span><b>📤 " + zurueck + " von " + mitCode.length + "</b> an die Kinder zurückgegeben</span>" +
       '<label><input type="checkbox" id="prl-loesung"' + (haken ? " checked" : "") + '> mit Lösungen</label><span class="platz"></span>' +
       (NACHWERTEN_ROUTE[C.modul] ? '<button type="button" class="neben" id="prl-nachwerten" title="Die gespeicherten Antworten der angezeigten Abgaben nach den aktuellen Regeln noch einmal prüfen – es wird nur aufgewertet">🔁 Nachwerten</button>' : "") +
+      (FEHLERWOERTER[C.modul] ? '<button type="button" class="neben" id="prl-fehler" title="Welches Wort war wie oft falsch – und was haben die Kinder stattdessen geschrieben?">📕 Fehlerwörter</button>' : "") +
+      '<button type="button" class="neben" id="prl-excel" title="Excel-Datei: je Probe und Klasse ein Blatt mit Thema, Klasse, Datum, Name und Note – Noten farbig, mit Notenspiegel und Schnitt">📊 Notenliste (Excel)</button>' +
       '<button type="button" class="neben" id="prl-alle-druck">🖨 Alle für die Eltern drucken</button>' +
       '<button type="button" id="prl-alle"' + (offen.length ? "" : " disabled") + ">📤 Alle zurückgeben</button>" +
       "<p>Zurückgegebene Proben sehen die Kinder mit ihrem Code auf der Startseite unter „Zurückbekommen“: Antworten, Punkte, bei Fehlern die richtige Lösung – zum Ansehen und zum Drucken für die Eltern. " +
@@ -309,6 +314,12 @@
     doc.getElementById("prl-alle-druck").addEventListener("click", function () { drucken(rows); });
     var nach = doc.getElementById("prl-nachwerten");
     if (nach) nach.addEventListener("click", function () { nachwerten(rows, nach); });
+    var fw = doc.getElementById("prl-fehler");
+    if (fw) fw.addEventListener("click", function () { fehlerwoerter(rows); });
+    doc.getElementById("prl-excel").addEventListener("click", function () {
+      notenliste(rows).then(function (n) { meldung("Die Notenliste wurde als Excel-Datei gespeichert (" + n + (n === 1 ? " Blatt" : " Blätter") + ")."); })
+        .catch(function (x) { meldung("Die Excel-Datei konnte nicht erstellt werden: " + x.message, "bad"); });
+    });
     doc.getElementById("prl-alle").addEventListener("click", function () {
       if (!offen.length) return;
       if (!global.confirm(offen.length + (offen.length === 1 ? " Probe" : " Proben") + " der Liste an die Kinder zurückgeben?\n\nDie Kinder sehen dann ihre Antworten, die Punkte und " +
@@ -377,12 +388,81 @@
   // Export-Datei des Servers (CSV oder Excel) vor dem Speichern um die Namen ergänzen: Der Server kennt nur Codes, die
   // Namensliste liegt in diesem Browser. js/export-namen.js liegt neben diesem Skript und wird beim ersten Export geladen.
   function mitNamen(blob) {
+    return skript("export-namen.js", "GrumiExportNamen").then(function (E) { return E ? E.datei(blob, C && C.namen) : blob; });
+  }
+  // Ein Skript nachladen, das neben diesem liegt (einmal); liefert sein Objekt oder null
+  function skript(datei, name) {
     return new Promise(function (fertig) {
-      if (global.GrumiExportNamen || !EIGENES) return fertig();
-      var s = doc.createElement("script"); s.src = EIGENES.replace(/[^/]*$/, "") + "export-namen.js";
+      if (global[name] || !EIGENES) return fertig();
+      var s = doc.createElement("script"); s.src = EIGENES.replace(/[^/]*$/, "") + datei;
       s.onload = fertig; s.onerror = fertig;
       doc.head.appendChild(s);
-    }).then(function () { return global.GrumiExportNamen ? global.GrumiExportNamen.datei(blob, C && C.namen) : blob; });
+    }).then(function () { return global[name] || null; });
+  }
+
+  /* „Fehlerwörter“ (Vokabeltest): Auswertung der angezeigten Abgaben – welches Wort wie oft falsch war und was die
+     Kinder stattdessen geschrieben haben. Gerechnet wird hier im Browser aus den Antworten, die die Liste schon hat.
+     Jedes Kind findet seine eigenen falschen Wörter in seiner Merkliste (merkliste.html), sobald die Probe zurückgegeben ist. */
+  function fehlerwoerter(rows) {
+    var map = {}, reihe = [];
+    rows.forEach(function (r) {
+      (r.details || []).forEach(function (d) {
+        var k = String(d.prompt || "") + "|" + String(d.expected || "");
+        if (!map[k]) { map[k] = { prompt: d.prompt || "", expected: text(d.expected, d.labels), gesamt: 0, falsch: 0, leer: 0, antworten: {} }; reihe.push(map[k]); }
+        var w = map[k]; w.gesamt++;
+        if (d.correct) return;
+        w.falsch++;
+        var g = String(d.given || "").trim();
+        if (!g) w.leer++; else w.antworten[g] = (w.antworten[g] || 0) + 1;
+      });
+    });
+    var liste = reihe.filter(function (w) { return w.falsch; }).sort(function (a, b) { return b.falsch / b.gesamt - a.falsch / a.gesamt || b.falsch - a.falsch || a.prompt.localeCompare(b.prompt, "de"); });
+    var fehler = liste.reduce(function (n, w) { return n + w.falsch; }, 0);
+    var h = "<h3>📕 Fehlerwörter</h3>" + '<p class="unter">' + rows.length + (rows.length === 1 ? " Abgabe" : " Abgaben") + " · " + reihe.length + (reihe.length === 1 ? " Wort" : " Wörter") +
+      " · " + fehler + " falsche Antworten</p>" +
+      '<p class="hinw">Am häufigsten falsch steht oben. Jedes Kind findet seine eigenen falschen Wörter in seiner <b>Merkliste</b> (Startseite → Zurückbekommen → „Meine Merkliste“) und kann sie dort üben – sobald du die Probe zurückgegeben hast.</p>';
+    if (!liste.length) h += '<p class="hinw"><b>Kein Wort war falsch.</b></p>';
+    else h += '<div class="prl-liste">' + liste.map(function (w) {
+      var anteil = Math.round(w.falsch / w.gesamt * 100);
+      var haeufig = Object.keys(w.antworten).sort(function (a, b) { return w.antworten[b] - w.antworten[a] || a.localeCompare(b); }).slice(0, 4)
+        .map(function (a) { return "„" + esc(a) + "“" + (w.antworten[a] > 1 ? " " + w.antworten[a] + "×" : ""); });
+      if (w.leer) haeufig.push("leer " + w.leer + "×");
+      return '<div class="prl-z nein"><div class="was"><b>' + esc(w.prompt) + " → " + esc(w.expected) + "</b>" +
+        '<span class="neben">geschrieben: ' + haeufig.join(" · ") + "</span></div>" +
+        '<div class="prl-anteil" title="' + w.falsch + " von " + w.gesamt + ' falsch"><b>' + w.falsch + " von " + w.gesamt + '</b><span class="balken"><i style="width:' + anteil + '%"></i></span></div></div>';
+    }).join("") + "</div>";
+    dialog(h);
+  }
+
+  /* „Notenliste (Excel)“: die angezeigten Abgaben als Excel-Mappe – je Probe und Klasse ein Blatt mit Thema, Klasse,
+     Datum, Name und Note (Noten farbig), Notenspiegel und Schnitt. Gebaut im Browser (js/noten-excel.js), damit die
+     Namen aus der Namensliste dabeistehen. */
+  function notenliste(rows) {
+    return skript("noten-excel.js", "GrumiNotenExcel").then(function (E) {
+      if (!E) throw new Error("Die Datei noten-excel.js konnte nicht geladen werden.");
+      var gruppen = {}, reihe = [];
+      rows.forEach(function (r) {
+        var k = (r.testId || r.testTitle || "") + "|" + (r.className || "");
+        if (!gruppen[k]) { gruppen[k] = { r: r, rows: [] }; reihe.push(gruppen[k]); }
+        gruppen[k].rows.push(r);
+      });
+      reihe.sort(function (a, b) { return String(a.r.className || "").localeCompare(String(b.r.className || ""), "de") || String(a.r.testTitle || "").localeCompare(String(b.r.testTitle || ""), "de"); });
+      var tag = function (r) { return String(r.testDate || r.submittedAt || "").slice(0, 10); };
+      var blaetter = reihe.map(function (g) {
+        return E.probe({
+          fach: C.fach || "", titel: g.r.testTitle || g.r.testId || "", klasse: g.r.className || "",
+          datum: g.rows.map(tag).filter(Boolean).sort()[0] || "",
+          zeilen: g.rows.map(function (r) {
+            return { name: r.code ? (C.namen || {})[r.code] || "" : [r.firstName, r.lastName].filter(Boolean).join(" "), code: r.code || "",
+              note: r.grade, punkte: r.score, max: r.total, prozent: r.percent,
+              bemerkung: [r.lrs ? "Notenschutz LRS" : "", r.verlassen ? r.verlassen + "× verlassen" : "", r.needsReview ? "KI-Bewertung noch prüfen" : ""].filter(Boolean).join(" · ") };
+          })
+        });
+      });
+      var name = (reihe.length === 1 ? [reihe[0].r.className, reihe[0].r.testTitle || reihe[0].r.testId].filter(Boolean).join(" ") : C.fach || "Proben");
+      E.laden(blaetter, "Notenliste " + name.replace(/[\\/:*?"<>|]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 70) + " " + new Date().toISOString().slice(0, 10) + ".xlsx");
+      return blaetter.length;
+    });
   }
 
   global.ProbeRueckgabeLehrer = { start: start, zelle: zelle, blattDaten: blattDaten, mitNamen: mitNamen };
