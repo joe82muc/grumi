@@ -191,7 +191,12 @@ function render(time) {
 
 function disposeTracker(context = tracker, controls = markerControls) {
   if (typeof controls?.dispose === 'function') controls.dispose();
-  if (typeof context?.arController?.dispose === 'function') context.arController.dispose();
+  const controller = context?.arController;
+  // ARToolKit schedules its ready event after init resolves. Let that event
+  // finish before destroying a superseded controller and its listeners.
+  if (typeof controller?.dispose === 'function') setTimeout(() => {
+    if (controller.artoolkit) controller.dispose();
+  }, 50);
 }
 async function setupTracker(version) {
   const current = ++trackerVersion;
