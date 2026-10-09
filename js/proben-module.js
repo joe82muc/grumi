@@ -4,6 +4,11 @@
  * Jede Probenart hat auf dem Server ein eigenes Modul mit eigenen Endpunkten.
  *   listPath   Liste der Proben mit „unlocked“ (ohne Passwort lesbar)
  *   unlockPath Freischalten/Sperren (nur Verwaltung, mit Lehrkraft-Passwort); weicht bei nt7 ab
+ *   vorschauBasis Ordner der Bilder zu den Aufgaben (Text oder Funktion der Probe) – für „Vorschau · PDF“ in der
+ *              Verwaltung (js/probe-vorschau.js). Welche Probenarten eine Vorschau haben, meldet der Server
+ *              (/api/health: probenVorschau; Route /api/proben/vorschau). vorschauLabor = Ordner mit labor.js und
+ *              darstellung.js (NT 8), vorschauPath = eigene Route der Probenart, falls der Server die gemeinsame
+ *              noch nicht kennt
  *   klasse     "7" = alle 7. Klassen, "7M"/"7R" = nur dieser Zug
  *   stufen     Jahrgangsstufen, in denen das Modul Proben haben kann (die Startseite fragt nur diese ab)
  *   link       Lehrerseite (Ergebnisse), schueler = Seite für die Kinder
@@ -56,7 +61,7 @@
     },
     {
       key: "nt7", subject: "Natur und Technik", stufen: [7], liste: "NT7",
-      listPath: "/api/nt7/list", unlockPath: "/api/nt7/teacher/unlock",
+      listPath: "/api/nt7/list", unlockPath: "/api/nt7/teacher/unlock", vorschauBasis: "7M/NT/",
       /* Proben 1 bis 4 gibt es je Zug (t.zug = "R" oder "M"); die beiden ersten Luft-Proben sind für 7M */
       klasse: function (t) { return t.zug ? "7" + t.zug : "7M"; }, link: function () { return "7M/NT/lehrer.html"; },
       schueler: function (t) {
@@ -70,13 +75,14 @@
          gibt die korrigierte Probe zurück (Lehrerseite 8M/NT/lehrer.html). */
       key: "nt8", subject: "Natur und Technik", stufen: [8], liste: "NT8",
       listPath: "/api/nt8/list", unlockPath: "/api/nt8/teacher/unlock",
+      vorschauPath: "/api/nt8/teacher/vorschau", vorschauBasis: "8M/NT/", vorschauLabor: "8M/NT/",
       klasse: function (t) { return "8" + (t.zug || ""); }, link: function (t) { return "8M/NT/lehrer.html?test=" + encodeURIComponent(t.id); },
       schueler: function (t) { return "8M/NT/probe.html?test=" + encodeURIComponent(t.id) + (t.zug ? "&zug=" + t.zug : ""); }
     },
     {
       /* Informatik 7: je Modul eine Probe, in einer Fassung für 7R und für 7M (t.zug) */
       key: "inf7", subject: "Informatik", stufen: [7], liste: "INF7",
-      listPath: "/api/inf7/list", unlockPath: "/api/inf7/teacher/unlock",
+      listPath: "/api/inf7/list", unlockPath: "/api/inf7/teacher/unlock", vorschauBasis: "7M/Informatik/",
       klasse: function (t) { return "7" + (t.zug || ""); }, link: function () { return "7M/Informatik/lehrer.html"; },
       schueler: function (t) { return "7M/Informatik/probe.html?test=" + encodeURIComponent(t.id) + (t.zug ? "&zug=" + t.zug : ""); }
     },
@@ -115,7 +121,7 @@
     {
       /* Informatik 8, Version 2: je Modul eine Probe, in einer Fassung für 8R und für 8M (t.zug) */
       key: "inf8", subject: "Informatik", stufen: [8], liste: "INF8",
-      listPath: "/api/inf8/list", unlockPath: "/api/inf8/teacher/unlock",
+      listPath: "/api/inf8/list", unlockPath: "/api/inf8/teacher/unlock", vorschauBasis: "8M/Informatik/",
       klasse: function (t) { return "8" + (t.zug || ""); }, link: function () { return "8M/Informatik/lehrer.html"; },
       schueler: function (t) { return "8M/Informatik/probe.html?test=" + encodeURIComponent(t.id) + (t.zug ? "&zug=" + t.zug : ""); }
     },
@@ -124,13 +130,14 @@
       /* Modulliste je Zug (9M/NT_9/themen.js, 9R/NT_9/themen.js): Die Probe steht beim Freischalten unter den Modulen O1 bis O7 */
       key: "nt9probe", subject: "Natur und Technik", stufen: [9], liste: function (t) { return /^nt9r-/.test(t.id) ? "NT9R" : "NT9M"; },
       listPath: "/api/nt9probe/list", unlockPath: "/api/nt9probe/unlock",
+      vorschauBasis: function (t) { return nt9Zug(t) + "/NT_9/App12_Organische_Rohstoffe/"; },
       klasse: nt9Zug,
       link: function (t) { return nt9Zug(t) + "/NT_9/App12_Organische_Rohstoffe/lehrer.html"; },
       schueler: function (t) { return nt9Zug(t) + "/NT_9/App12_Organische_Rohstoffe/probe.html?test=" + encodeURIComponent(t.id); }
     },
     {
       key: "netzwerktest", subject: "Informatik", stufen: [9],
-      listPath: "/api/netzwerktest/list", unlockPath: "/api/netzwerktest/unlock",
+      listPath: "/api/netzwerktest/list", unlockPath: "/api/netzwerktest/unlock", vorschauBasis: "9/Informatik_9/Netzwerke/",
       klasse: function () { return "9"; }, link: function () { return "9/Informatik_9/Netzwerke/lehrer.html"; },
       schueler: function () { return "9/Informatik_9/Netzwerke/probe.html"; }
     },

@@ -38,6 +38,7 @@
     ".nt7f-probe{display:grid;grid-template-columns:3.1rem 1fr auto auto;gap:.5rem .8rem;align-items:center;padding:.55rem .9rem;border-top:1px solid var(--line);background:#f4f7ff}" +
     ".nt7f-probe .nr{font-size:1.05rem}.nt7f-probe a{font-size:.82rem;font-weight:800;color:var(--accent);white-space:nowrap}" +
     ".nt7f-probe small{display:block;color:var(--muted);font-weight:700;font-size:.78rem;line-height:1.4}" +
+    ".nt7f-vorschau{font:inherit;font-weight:800;color:var(--accent);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}" +
     ".nt7f-schalter{border:1.5px solid var(--line);border-radius:999px;padding:.32rem .8rem;font:800 .82rem inherit;font-family:inherit;cursor:pointer;background:#eef1f5;color:#4b5563;min-width:7.4rem}" +
     ".nt7f-schalter.offen{background:#e9f8ee;border-color:#9bd3ae;color:#15803d}" +
     ".nt7f-schalter[disabled]{opacity:.6;cursor:wait}" +
@@ -90,13 +91,15 @@
       var mods = G && N.probeModule ? G.MODULES.filter(function (m) {
         return m.liste && m.listPath && m.unlockPath && (!m.stufen || m.stufen.indexOf(STUFE) >= 0) && (typeof m.liste === "function" || global[m.liste] === N);
       }) : [];
-      return Promise.all(mods.map(function (mod) {
+      // Welche Probenarten der Server als Vorschau zeigen kann (einmal je Seitenaufruf, js/probe-vorschau.js)
+      var bereit = global.GrumiProbeVorschau ? global.GrumiProbeVorschau.verfuegbar(ctx.api) : Promise.resolve();
+      return bereit.then(function () { return Promise.all(mods.map(function (mod) {
         return fetch(ctx.api + mod.listPath).then(function (r) { return r.ok ? r.json() : { tests: [] }; }).then(function (d) {
           // frühere Fassungen einer Probe (alt) stehen nur noch hier, solange sie offen sind (damit man sie sperren kann)
           return (d.tests || []).filter(function (t) { if (t.alt && !t.unlocked) return false; var k = mod.klasse(t); return listeVon(mod, t) === N && (k === String(STUFE) || k === STUFE + ZUG); })
             .map(function (t) { return { mod: mod, id: t.id, titel: t.title || t.id, offen: !!t.unlocked, aufgaben: t.itemCount, punkte: t.maxPoints, klasse: mod.klasse(t), link: mod.link ? mod.link(t) : "", schueler: mod.schueler ? mod.schueler(t) : "" }; });
         }).catch(function () { return []; });
-      })).then(function (teile) { PROBEN = [].concat.apply([], teile); });
+      })); }).then(function (teile) { PROBEN = [].concat.apply([], teile); });
     }
     function fuerWen(p) { return /\d$/.test(p.klasse) ? "für alle " + p.klasse + ". Klassen" : "für alle " + p.klasse + "-Klassen"; }
     // Zeilen der Proben, die Module dieses Themenbereichs enthalten – sie stehen unter den Modulen
@@ -110,7 +113,9 @@
         if (p.punkte) teile.push(p.punkte + " Punkte");
         if (inhalt) teile.push("enthält " + inhalt);
         teile.push("gilt " + fuerWen(p));
-        return '<div class="nt7f-probe"><span class="nr" aria-hidden="true">📝</span><span><b>' + esc(p.titel) + "</b><small>" + esc(teile.join(" · ")) +
+        // Probe ansehen, drucken oder als PDF speichern (js/probe-vorschau.js) – so, wie das Kind sie bekommt, oder mit Lösungen
+        var vorschau = global.GrumiProbeVorschau && global.GrumiProbeVorschau.kann(p.mod) ? ' · <button class="nt7f-vorschau" type="button" data-vorschau="' + esc(p.id) + '">👁 Vorschau · PDF</button>' : "";
+        return '<div class="nt7f-probe"><span class="nr" aria-hidden="true">📝</span><span><b>' + esc(p.titel) + "</b><small>" + esc(teile.join(" · ")) + vorschau +
           (p.offen && p.schueler ? ' · <a href="' + esc(p.schueler) + '" target="_blank" rel="noopener">🔗 Seite für die Kinder ↗</a>' : "") + "</small></span>" +
           '<button class="nt7f-schalter' + (p.offen ? " offen" : "") + '" type="button" data-probe="' + esc(p.id) + '" data-offen="' + (p.offen ? "0" : "1") + '" aria-pressed="' + p.offen + '">' + (p.offen ? "✓ offen" : "🔒 gesperrt") + "</button>" +
           (p.link ? '<a href="' + esc(p.link) + '">Ergebnisse →</a>' : "<span></span>") + "</div>";
@@ -157,6 +162,12 @@
       d.addEventListener("toggle", function () { offenGeklappt = d.open; });
       Array.prototype.forEach.call(d.querySelectorAll("[data-modul]"), function (b) {
         b.addEventListener("click", function () { setzen(b, { art: "modul", id: b.getAttribute("data-modul"), offen: b.getAttribute("data-offen") === "1" }); });
+      });
+      Array.prototype.forEach.call(d.querySelectorAll("[data-vorschau]"), function (b) {
+        b.addEventListener("click", function () {
+          var p = PROBEN.filter(function (x) { return x.id === b.getAttribute("data-vorschau"); })[0];
+          if (p) global.GrumiProbeVorschau.oeffnen(p.mod, { id: p.id, fach: p.mod.subject + " · Klasse " + p.klasse }, { api: ctx.api, password: ctx.pw });
+        });
       });
       Array.prototype.forEach.call(d.querySelectorAll("[data-probe]"), function (b) {
         b.addEventListener("click", function () {

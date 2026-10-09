@@ -104,6 +104,8 @@
   .state.off{background:#e4e8ef;color:var(--muted)}
   .src{font-size:.78rem;color:var(--muted);font-weight:700;margin-top:.3rem;display:flex;flex-wrap:wrap;gap:.3rem .9rem}
   .src a{color:var(--accent)}
+  .vorschau-knopf{font:inherit;font-weight:800;color:var(--accent);background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:.2rem .6rem;cursor:pointer}
+  .vorschau-knopf:hover{background:#f3f5f9}
   .schuelerlink{flex:1 1 100%;display:flex;flex-wrap:wrap;align-items:center;gap:.4rem .6rem;
     background:#fff;border:1.5px dashed var(--ok-line);border-radius:10px;padding:.55rem .7rem;font-size:.88rem;font-weight:700}
   .schuelerlink a{color:var(--ok);overflow-wrap:anywhere;min-width:0}
@@ -144,7 +146,8 @@
 
 </div>
 
-<script src="js/proben-module.js"></script>
+<script src="js/proben-module.js?v=20261009-vorschau"></script>
+<script src="js/probe-vorschau.js?v=20261009-vorschau"></script>
 <script src="klasse-verwaltung.js?v=20261007-probentermine"></script>
 <script src="7M/NT/themen.js"></script>
 <script src="8M/NT/themen.js"></script>
@@ -249,7 +252,9 @@ const Proben = (() => {
 
   async function alleLaden(){
     const rows = [], fehlend = [];
-    await Promise.all(MODULES.map(async (mod) => {
+    // Welche Probenarten kann der Server als Vorschau zeigen? (einmal je Seitenaufruf)
+    const vorschauBereit = window.GrumiProbeVorschau ? window.GrumiProbeVorschau.verfuegbar(API_BASE) : Promise.resolve();
+    await Promise.all([vorschauBereit].concat(MODULES.map(async (mod) => {
       if(mod.noUnlock){
         // Kein Freischalten moeglich - nur als Hinweiszeile anzeigen.
         rows.push({ mod, subject: mod.subject, id: mod.key, title: mod.title, klasse: mod.klasse(),
@@ -266,7 +271,7 @@ const Proben = (() => {
           link: mod.link(t), schueler: mod.schueler(t)
         }));
       }catch(e){ fehlend.push(mod.key); }
-    }));
+    })));
     ROWS = rows; FEHLEND = fehlend;
   }
 
@@ -359,7 +364,8 @@ const Proben = (() => {
     el.innerHTML =
       '<div class="left"><div class="who"><span class="klasse">Klasse ' + esc(r.klasse) + '</span><h4>' + esc(r.title) + '</h4></div>' +
       '<div class="meta">' + esc(teile.join(' · ')) + '</div>' + inhaltHtml(r) +
-      '<div class="src">' + (r.link ? '<a href="' + esc(r.link) + '">Ergebnisse und Export →</a>' : '') +
+      '<div class="src">' + (!r.noUnlock && window.GrumiProbeVorschau && window.GrumiProbeVorschau.kann(r.mod) ? '<button class="vorschau-knopf" type="button" data-vorschau>👁 Vorschau · PDF</button>' : '') +
+      (r.link ? '<a href="' + esc(r.link) + '">Ergebnisse und Export →</a>' : '') +
       (r.schueler && !offenLink ? '<a href="' + esc(r.schueler) + '" target="_blank" rel="noopener">Schülerseite ansehen ↗</a>' : '') + '</div></div>' +
       '<div class="right"></div>' +
       (offenLink ? '<div class="schuelerlink"><span class="lbl">🔗 Link für die Kinder:</span><a href="' + esc(r.schueler) + '" target="_blank" rel="noopener">' + esc(voll(r.schueler)) + '</a>' +
@@ -378,6 +384,9 @@ const Proben = (() => {
     }
     const kop = el.querySelector('[data-kopieren]');
     if(kop) kop.addEventListener('click', () => kopieren(voll(r.schueler), kop));
+    // Probe ansehen, drucken oder als PDF speichern – so, wie das Kind sie bekommt, oder mit Lösungen
+    const vor = el.querySelector('[data-vorschau]');
+    if(vor) vor.addEventListener('click', () => window.GrumiProbeVorschau.oeffnen(r.mod, { id: r.id, fach: r.subject + ' · Klasse ' + r.klasse }, { api: API_BASE, password: PW }));
     return el;
   }
 
