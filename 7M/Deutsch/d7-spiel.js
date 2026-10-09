@@ -54,8 +54,15 @@
     const serverStimme = rolle => (t.stimmen && t.stimmen[rolle]) || STIMMEN_EN[Math.max(0, rollen.indexOf(rolle)) % STIMMEN_EN.length];
     const tonAdresse = s => K.server + "/api/speech/speak?voice=" + encodeURIComponent(serverStimme(s.rolle)) + "&text=" + encodeURIComponent(s.text);
     let ton = null, serverGeht = EN && typeof window.Audio === "function";
-    // Stimmen des Geräts in der Sprache des Texts auf die Rollen verteilen (Englisch: britische zuerst)
-    const stimmen = () => (synth ? synth.getVoices().filter(v => new RegExp("^" + SPR, "i").test(v.lang)).sort((a, b) => (/GB/i.test(b.lang) ? 1 : 0) - (/GB/i.test(a.lang) ? 1 : 0)) : []);
+    // Stimmen des Geräts in der Sprache des Texts auf die Rollen verteilen. Englisch: britische zuerst – und nie die
+    // Spaß- und Blechstimmen der Apple-Geräte (Zarvox, Bells, Whisper …; dieselbe Liste wie in js/vokabel-extras.js).
+    const SPASS = /^(albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|jester|organ|pipe organ|princess|superstar|trinoids|whisper|wobble|zarvox|agnes|bruce|fred|junior|kathy|ralph|vicki|victoria|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley)\b/i;
+    const stimmen = () => {
+      const alle = synth ? synth.getVoices().filter(v => new RegExp("^" + SPR, "i").test(v.lang)) : [];
+      if (!EN) return alle;
+      const ernst = alle.filter(v => !SPASS.test(String(v.name || "").trim()));
+      return (ernst.length ? ernst : alle).sort((a, b) => (/GB/i.test(b.lang) ? 1 : 0) - (/GB/i.test(a.lang) ? 1 : 0));
+    };
     function stimmeFuer(rolle) {
       const v = stimmen(), k = Math.max(0, rollen.indexOf(rolle));
       if (!v.length) return { voice: null, pitch: 1 };
