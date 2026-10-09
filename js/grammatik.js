@@ -18,6 +18,8 @@
  *   frei      items: [{ f, kriterien: [..], muster?: "RegExp", bsp }]   KI prüft, ohne Server das Muster
  *   genau: true (bei luecke/umformen): Groß-/Kleinschreibung und Buchstaben zählen, keine KI (Rechtschreibung)
  *   bauen     items: [{ f?, teile: [in richtiger Reihenfolge], l?: [weitere richtige Sätze] }]
+ *   paare     paare: [["links", "rechts"], …]            zusammengehörende Karten verbinden (z. B. Englisch – Deutsch)
+ * Seite: plusHinweis ersetzt den Hinweis über den Plus-Aufgaben (Kurse ohne M-Zug, z. B. Englisch 8R).
  * Jede Aufgabe ist eine Karte (Lernstand-Kennung <modul>-b1 … bzw. -p1 …). Plus-Aufgaben gehören für den
  * M-Zug dazu, für R-Klassen sind sie freiwillig. „Lösung zeigen“ zählt nie.
  */
@@ -35,7 +37,7 @@
     indexHref: "index.html", indexName: "Alle Themen", themaWort: "Thema", kurzPrefix: "G", ki: true };
   function vorgaben(v) { Object.keys(v || {}).forEach(function (k) { V[k] = v[k]; }); }
   var TYPEN = { wahl: "Ankreuzen", luecke: "Lückentext", markieren: "Markieren", zuordnen: "Zuordnen", komma: "Kommas setzen",
-    trennen: "Umstellprobe", analyse: "Satz-Detektiv", umformen: "Umformen", frei: "Selbst schreiben", bauen: "Satzbau" };
+    trennen: "Umstellprobe", analyse: "Satz-Detektiv", umformen: "Umformen", frei: "Selbst schreiben", bauen: "Satzbau", paare: "Paare finden" };
   var KI_API = (global.location.hostname.slice(-12) === "onrender.com" ? "" : "https://englisch-9.onrender.com") + "/api/d9-grammatik/pruefen";
   var WORT = /[A-Za-zÄÖÜäöüß0-9]+(?:[-'’][A-Za-zÄÖÜäöüß0-9]+)*/;
 
@@ -600,8 +602,64 @@
     };
   }
 
+  /* ---------- Paare finden: eine Karte links und eine rechts antippen ---------- */
+  function paare(K, box) {
+    var P = K.a.paare, gew = null, zu = {};          // zu[links] = rechts (jeweils der Index des Paars)
+    function karte(seite, i) { return $('.pa-spalte[data-s="' + seite + '"] .pa-karte[data-i="' + i + '"]', box); }
+    function zeigen() {
+      $$(".pa-karte", box).forEach(function (k) { k.classList.remove("paar", "r", "f"); $(".pa-nr", k).textContent = ""; });
+      Object.keys(zu).forEach(function (l) {
+        var nr = $$('.pa-spalte[data-s="l"] .pa-karte', box).indexOf(karte("l", l)) + 1;
+        [karte("l", l), karte("r", zu[l])].forEach(function (k) { k.classList.add("paar"); $(".pa-nr", k).textContent = nr; });
+      });
+    }
+    function loesen(seite, i) {
+      Object.keys(zu).forEach(function (l) { if ((seite === "l" && l === String(i)) || (seite === "r" && String(zu[l]) === String(i))) delete zu[l]; });
+    }
+    function bauen() {
+      gew = null; zu = {};
+      var rechts = mischen(P.map(function (_p, i) { return i; })), n = 0;
+      while (P.length > 2 && rechts.every(function (x, k) { return x === k; }) && n++ < 9) rechts = mischen(rechts);
+      box.innerHTML = '<div class="pa-feld"><div class="pa-spalte" data-s="l">' +
+        P.map(function (p, i) { return '<button type="button" class="pa-karte" data-i="' + i + '"><span>' + fmt(p[0]) + '</span><span class="pa-nr"></span></button>'; }).join("") +
+        '</div><div class="pa-spalte" data-s="r">' +
+        rechts.map(function (i) { return '<button type="button" class="pa-karte" data-i="' + i + '"><span>' + fmt(P[i][1]) + '</span><span class="pa-nr"></span></button>'; }).join("") + "</div></div>";
+      $$(".pa-karte", box).forEach(function (k) {
+        k.addEventListener("click", function () {
+          var seite = k.parentElement.dataset.s, i = k.dataset.i;
+          K.leise();
+          // verbundene Karte ohne Auswahl antippen: Verbindung lösen – die Karte ist gleich für ein neues Paar gewählt
+          if (!gew && k.classList.contains("paar")) { loesen(seite, i); zeigen(); }
+          if (gew && gew.seite === seite) { gew.el.classList.remove("gewaehlt"); if (gew.el === k) { gew = null; return; } gew = null; }
+          if (!gew) { gew = { seite: seite, i: i, el: k }; k.classList.add("gewaehlt"); return; }
+          var l = seite === "l" ? i : gew.i, r = seite === "r" ? i : gew.i;
+          loesen("l", l); loesen("r", r);
+          zu[l] = r; gew.el.classList.remove("gewaehlt"); gew = null; zeigen();
+        });
+      });
+    }
+    bauen();
+    return {
+      pruefen: function () {
+        var ok = 0, offen = 0;
+        P.forEach(function (_p, l) {
+          if (zu[l] === undefined) { offen++; return; }
+          var r = String(zu[l]) === String(l); if (r) ok++;
+          [karte("l", l), karte("r", zu[l])].forEach(function (k) { k.classList.remove("r", "f"); k.classList.add(r ? "r" : "f"); });
+        });
+        return { ok: ok, von: P.length, offen: offen === P.length ? offen : 0, fehlt: offen, einheit: "Paaren" };
+      },
+      loesung: function () {
+        if (gew) { gew.el.classList.remove("gewaehlt"); gew = null; }
+        zu = {}; P.forEach(function (_p, l) { zu[l] = String(l); }); zeigen();
+        $$(".pa-karte", box).forEach(function (k) { k.classList.add("r"); });
+      },
+      neu: bauen
+    };
+  }
+
   var BAU = { wahl: wahl, luecke: luecke, markieren: markieren, zuordnen: zuordnen, komma: komma, trennen: komma, analyse: analyse,
-    umformen: umformen, frei: umformen, bauen: bauenTyp };
+    umformen: umformen, frei: umformen, bauen: bauenTyp, paare: paare };
 
   /* ---------- Karte mit Prüfen, Tipp, Lösung und Neu ---------- */
   function karteBauen(a, i, plus) {
@@ -729,7 +787,7 @@
         "</section>" +
         '<section class="station" id="basis"><div class="st-head"><div class="st-num teal">2</div><div><div class="eyebrow">' + esc(cfg.basisEyebrow || "Für alle") + "</div><h2>" + esc(basisName) + '</h2></div></div><div class="liste"></div></section>' +
         (hatPlus ? '<section class="station plus" id="plus"><div class="st-head"><div class="st-num">3</div><div><div class="eyebrow">' + esc(cfg.plusEyebrow || "M-Zug · für R-Klassen freiwillig") + "</div><h2>" + esc(plusName) + "</h2></div></div>" +
-          '<p class="plus-hinweis">' + (mKlasse ? "🎯 <b>M-Zug:</b> Diese Aufgaben gehören für dich dazu." :
+          '<p class="plus-hinweis">' + (cfg.plusHinweis ? cfg.plusHinweis : mKlasse ? "🎯 <b>M-Zug:</b> Diese Aufgaben gehören für dich dazu." :
             rKlasse ? "⭐ <b>Freiwillig für dich:</b> Probier die Aufgaben ruhig aus. Sie zählen nicht zu deinem Stand, aber du siehst sie als Extra." :
             "🎯 Für den M-Zug Pflicht, für R-Klassen freiwillig.") + "</p>" +
           '<div class="liste"></div></section>' : "") +
