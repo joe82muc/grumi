@@ -437,7 +437,9 @@ $('btn-csv').addEventListener('click', async () => {
       body: JSON.stringify({ password: PW, testId: $('res-test').value })
     });
     if(!res.ok) throw new Error('Fehler');
-    const blob = await res.blob();
+    let blob = await res.blob();
+    // Namen aus der Namensliste dieses Browsers eintragen – der Server kennt nur Codes (js/export-namen.js)
+    if (window.ProbeRueckgabeLehrer && ProbeRueckgabeLehrer.mitNamen) blob = await ProbeRueckgabeLehrer.mitNamen(blob);
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = 'englisch9r_grammatik' + ($('res-test').value ? '_' + $('res-test').value : '') + '.csv';

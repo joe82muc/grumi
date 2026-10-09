@@ -485,7 +485,9 @@ async function exportLaden(format, btn){
       body: JSON.stringify({ password: PW, testId: $('res-test').value, format })
     });
     if(!res.ok) throw new Error('HTTP ' + res.status);
-    const blob = await res.blob();
+    let blob = await res.blob();
+    // Namen aus der Namensliste dieses Browsers eintragen – der Server kennt nur Codes (js/export-namen.js)
+    if (window.ProbeRueckgabeLehrer && ProbeRueckgabeLehrer.mitNamen) blob = await ProbeRueckgabeLehrer.mitNamen(blob);
     const heute = new Date().toISOString().slice(0, 10);
     const name = 'Probe_NT9_' + ($('res-test').value || 'alle') + '_' + heute + '.' + format;
     const a = document.createElement('a');

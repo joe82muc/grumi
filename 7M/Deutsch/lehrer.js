@@ -368,7 +368,9 @@ async function exportCsv() {
       body: JSON.stringify({ password: state.password })
     });
     if (!response.ok) throw Object.assign(new Error("Export nicht möglich."), { status: response.status });
-    const blob = await response.blob();
+    let blob = await response.blob();
+    // Namen aus der Namensliste dieses Browsers eintragen – der Server kennt nur Codes (js/export-namen.js)
+    if (window.GrumiExportNamen) blob = await GrumiExportNamen.datei(blob);
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;

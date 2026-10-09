@@ -348,7 +348,9 @@ $('b-csv').addEventListener('click', async () => {
     const r = await fetch(API+'/api/filiuspruefung/export', {method:'POST',
       headers:{'Content-Type':'application/json'}, body: JSON.stringify({password:PW,testId:$('sel').value})});
     if(!r.ok) throw new Error();
-    const blob = await r.blob();
+    let blob = await r.blob();
+    // Namen aus der Namensliste dieses Browsers eintragen – der Server kennt nur Codes (js/export-namen.js)
+    if (window.ProbeRueckgabeLehrer && ProbeRueckgabeLehrer.mitNamen) blob = await ProbeRueckgabeLehrer.mitNamen(blob);
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob); a.download = 'filiuspruefung.csv'; a.click();
     URL.revokeObjectURL(a.href);
