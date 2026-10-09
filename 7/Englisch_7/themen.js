@@ -21,6 +21,8 @@ GrumiKursliste.bauen({
           text: "Die einfache Vergangenheit: regelmäßige und unregelmäßige Verben." },
         { id: "u1-g2", kz: "A3", titel: "G2 · Simple present: Aussagen und Verneinung", href: "unit1/grammatik/g2-simple-present.html", art: "Grammatik", ls: "e7-u1-g2",
           text: "Die einfache Gegenwart: sagen, was jemand regelmäßig tut – und verneinen." },
+        { id: "u1-where-i-live", kz: "A7", titel: "Sprechen · Short talk: Where I live", href: "unit1/schreiben/where-i-live.html", art: "Sprechen", ls: "e7-u1-wil",
+          text: "Den eigenen Wohnort vorstellen: Text schreiben, von der KI korrigieren lassen, Blatt für den Vortrag drucken." },
         { id: "u1-g3", kz: "A4", titel: "G3 · Simple present: Fragen und Kurzantworten", href: "unit1/grammatik/g3-questions.html", art: "Grammatik", ls: "e7-u1-g3",
           text: "Fragen mit do und does bilden und kurz antworten." },
         { id: "u1-g4", kz: "A5", titel: "G4 · Possessivpronomen", href: "unit1/grammatik/g4-possessivpronomen.html", art: "Grammatik", ls: "e7-u1-g4",
