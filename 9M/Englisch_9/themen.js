@@ -24,6 +24,9 @@ GrumiKursliste.bauen({
           text: "Alle Wörter mit Aussprache, Karteikarten und KI-Beispielsätzen." },
         { id: "u1-g1", kz: "A2", titel: "G1 · Simple past", href: "unit1/grammatik/g1-simple-past.html", art: "Grammatik", ls: "e9u1g1",
           text: "Die einfache Vergangenheit: regelmäßige und unregelmäßige Verben." },
+        // Zusatz zu G1 (seit 09.10.2026): Die Seite liegt bei 9R und gehört beiden Zügen (wie der Vokabeltrainer der Unit 1)
+        { id: "u1-blog", kz: "A6", titel: "Schreiben · Blog post: My trip", href: "../../9R/Englisch/unit1/schreiben/blog-post.html", art: "Schreiben", ls: "e9-u1-blog",
+          text: "Das simple past anwenden: von einer Reise erzählen – die KI korrigiert und gibt Punkte." },
         { id: "u1-g2", kz: "A3", titel: "G2 · Will-future", href: "unit1/grammatik/g2-will-future.html", art: "Grammatik", ls: "e9u1g2",
           text: "Die Zukunft mit will: Vermutungen, Hoffnungen und Pläne, die noch nicht fest sind." },
         { id: "u1-g3", kz: "A4", titel: "G3 · If-clauses Typ I", href: "unit1/grammatik/g3-if-clauses.html", art: "Grammatik", ls: "e9u1g3",

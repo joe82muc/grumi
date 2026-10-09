@@ -7,8 +7,8 @@
  * Alles ist zuerst gesperrt. Vokabeltests, Kurztests und die Grammatikprobe sind Proben (js/proben-module.js)
  * und stehen beim Freischalten unter den Seiten ihrer Unit.
  *
- * Die 9M-Klassen (9M/Englisch_9/themen.js) nutzen den Vokabeltrainer der Unit 1 mit: gleiche Kennung „u1-vokabeln“,
- * gleicher Speicher auf dem Server (/api/e9, getrennt nach Klasse).
+ * Die 9M-Klassen (9M/Englisch_9/themen.js) nutzen den Vokabeltrainer der Unit 1 und den Blogpost (A6) mit: gleiche
+ * Kennungen „u1-vokabeln“ und „u1-blog“, gleicher Speicher auf dem Server (/api/e9, getrennt nach Klasse).
  */
 GrumiKursliste.bauen({
   name: "E9R", kurs: "e9", stufe: 9, zuege: ["R"], fach: "Englisch", titel: "Englisch 9R", pfad: "/api/e9", ordner: "9R/Englisch/",
@@ -23,6 +23,9 @@ GrumiKursliste.bauen({
           text: "Alle Wörter mit Aussprache, Karteikarten und KI-Beispielsätzen." },
         { id: "u1-g1", kz: "A2", titel: "G1 · Simple past", href: "unit1/grammatik/g1-simple-past.html", art: "Grammatik", ls: "e9u1g1",
           text: "Die einfache Vergangenheit: regelmäßige und unregelmäßige Verben." },
+        // Zusatz zu G1 (seit 09.10.2026): Die Seite gehört 9R und 9M gemeinsam – Umfang und Notenschlüssel richten sich nach dem Code
+        { id: "u1-blog", kz: "A6", titel: "Schreiben · Blog post: My trip", href: "unit1/schreiben/blog-post.html", art: "Schreiben", ls: "e9-u1-blog",
+          text: "Das simple past anwenden: von einer Reise erzählen – die KI korrigiert und gibt Punkte." },
         { id: "u1-g2", kz: "A3", titel: "G2 · Will-future", href: "unit1/grammatik/g2-will-future.html", art: "Grammatik", ls: "e9u1g2",
           text: "Die Zukunft mit will: Vermutungen, Hoffnungen und Pläne, die noch nicht fest sind." },
         { id: "u1-g3", kz: "A4", titel: "G3 · If-clauses Typ I", href: "unit1/grammatik/g3-if-clauses.html", art: "Grammatik", ls: "e9u1g3",
