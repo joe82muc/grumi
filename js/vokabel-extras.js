@@ -5,8 +5,9 @@
  *   ist auf jedem Gerät da; die Lehrkraft sieht die häufigsten Fehlerwörter der Klasse. Ohne Code nur auf dem Gerät.
  * - Stimme wählen: Azure-Stimmen vom Server (gleich auf allen Geräten) oder eine englische Stimme des Geräts
  *   (speechSynthesis.getVoices()). Antwortet der Server nicht schnell genug (er schläft), spricht sofort das Gerät.
- *   Nur seriöse Stimmen: iPad, iPhone und Mac bringen Spaßstimmen (Bells, Boing, Zarvox, „Bad News“ …) und blecherne
- *   Computerstimmen (Eddy, Grandma, Rocko …) mit – sie stehen nicht in der Auswahl und werden nie gesprochen.
+ *   Nur seriöse Stimmen (Vorgabe): iPad, iPhone und Mac bringen Spaßstimmen (Bells, Boing, Zarvox, „Bad News“ …) und
+ *   blecherne Computerstimmen (Eddy, Grandma, Rocko …) mit – sie stehen nicht in der Auswahl und werden nie gesprochen.
+ *   Die Lehrkraft kann einer Klasse in der Verwaltung alle Stimmen des Geräts erlauben.
  * - Ton aus für eine Klasse: Die Lehrkraft schaltet in der Verwaltung (Klasse → Englisch → „Ton im Vokabeltrainer“)
  *   die Sprachausgabe aus. Dann bleibt der Trainer stumm, die Knöpfe zum Anhören und die Stimmenwahl verschwinden.
  * - KI-Beispielsatz (für Trainer, die noch keinen haben): Niveau und Art wählen, Satz anhören.
@@ -186,12 +187,14 @@
     if (!("speechSynthesis" in global)) return [];
     return (global.speechSynthesis.getVoices() || []).filter(function (v) { return /^en([-_]|$)/i.test(v.lang); });
   }
-  function geraeteStimmen() { return serioes(alleEnglischen()); }
+  // Vorgabe: nur seriöse Stimmen. Die Lehrkraft kann einer Klasse alle Stimmen des Geräts erlauben (alleStimmen, siehe „Ton aus“).
+  var alleStimmen = false;
+  function geraeteStimmen() { return alleStimmen ? alleEnglischen() : serioes(alleEnglischen()); }
   function stimmenFuellen() {
     var sel = doc.getElementById("vx-stimme");
     if (!sel) return;
     var wahl = gewaehlt(), g = geraeteStimmen();
-    // Früher gewählte Spaßstimme: Wahl vergessen (erst, wenn das Gerät seine Stimmen gemeldet hat)
+    // Gewählte Stimme steht nicht (mehr) zur Wahl, z. B. eine Spaßstimme: Wahl vergessen (erst, wenn das Gerät seine Stimmen gemeldet hat)
     if (/^geraet:/.test(wahl) && alleEnglischen().length && !g.some(function (v) { return v.voiceURI === wahl.slice(7); })) {
       try { global.localStorage.removeItem(STIMME_KEY); } catch (_e) {}
       wahl = gewaehlt();
@@ -244,18 +247,25 @@
      gehört zu keinem Thema. Fehlt der Eintrag, ist der Ton an. Den Stand der Klasse holt die Kursliste der Seite
      (js/kursliste.js, geladen von js/kurs-sperre.js). Mit dem Lehrercode bleibt der Ton an. */
   var TON_OPTION = "opt-vokabel-ton", tonAus = false;
-  function tonSetzen(aus) {
+  // Zweite Einstellung der Klasse an derselben Stelle: module["opt-vokabel-alle-stimmen"] = true erlaubt alle englischen
+  // Stimmen des Geräts (auch Spaßstimmen). Fehlt der Eintrag, gilt die Vorgabe: nur seriöse Stimmen.
+  var STIMMEN_OPTION = "opt-vokabel-alle-stimmen";
+  function tonSetzen(aus, alle) {
     tonAus = Boolean(aus);
     doc.documentElement.classList.toggle("vx-ton-aus", tonAus);
     if (tonAus) { try { if (audio) audio.pause(); if ("speechSynthesis" in global) global.speechSynthesis.cancel(); } catch (_e) {} }
+    if (Boolean(alle) !== alleStimmen) { alleStimmen = Boolean(alle); stimmenFuellen(); }
   }
   // true = die Kursliste war da und der Stand ist angefragt
   function tonPruefen() {
     var L = global.GRUMI_KURSLISTE, K = global.GrumiKursliste;
     if (!L || !K || typeof L.freigabe !== "function" || typeof K.anmeldung !== "function") return false;
     var a = K.anmeldung();
-    if (!a) { tonSetzen(false); return true; }
-    L.freigabe(a, function (stand) { tonSetzen(Boolean(stand) && !stand.alles && (stand.module || {})[TON_OPTION] === false); }, function () {});
+    if (!a) { tonSetzen(false, false); return true; }
+    L.freigabe(a, function (stand) {
+      var m = (stand && !stand.alles && stand.module) || {};
+      tonSetzen(m[TON_OPTION] === false, m[STIMMEN_OPTION] === true);
+    }, function () {});
     return true;
   }
   function tonBeobachten() {

@@ -19,7 +19,7 @@
   "use strict";
   var doc = global.document;
   // Englisch: „Ton im Vokabeltrainer“ je Klasse – gespeichert wie ein Modul (js/vokabel-extras.js liest dieselbe Kennung)
-  var TON_OPTION = "opt-vokabel-ton";
+  var TON_OPTION = "opt-vokabel-ton", STIMMEN_OPTION = "opt-vokabel-alle-stimmen";
 
   var CSS = "" +
     ".nt7f{border:1.5px solid var(--line);border-radius:14px;padding:.2rem 1rem .9rem;margin:0 0 1.2rem;background:#fafbfd}" +
@@ -137,7 +137,12 @@
         h += '<div class="nt7f-thema"><div class="nt7f-kopf"><div><b>🔊 Ton im Vokabeltrainer</b><small>' +
           (tonAn ? "an – die Vokabeltrainer sprechen die Wörter vor" : "aus – die Vokabeltrainer der " + esc(ctx.klasse) + " bleiben stumm") + "</small></div>" +
           '<div class="nt7f-knoepfe"><button class="nt7f-schalter' + (tonAn ? " offen" : "") + '" type="button" data-ton="' + (tonAn ? "0" : "1") + '" aria-pressed="' + tonAn + '">' + (tonAn ? "🔊 Ton an" : "🔇 Ton aus") + "</button></div></div>" +
-          '<div class="nt7f-ton-text">Ein Klick schaltet die Sprachausgabe in allen Vokabeltrainern der ' + esc(ctx.klasse) + " aus oder wieder an – zum Beispiel, wenn im Klassenzimmer keine Kopfhörer da sind. Üben, Schreiben, Karteikarten und Tests gehen ohne Ton wie gewohnt. Bei den Kindern wirkt es nach spätestens einer Minute oder beim Neuladen der Seite.</div></div>";
+          '<div class="nt7f-ton-text">Ein Klick schaltet die Sprachausgabe in allen Vokabeltrainern der ' + esc(ctx.klasse) + " aus oder wieder an – zum Beispiel, wenn im Klassenzimmer keine Kopfhörer da sind. Üben, Schreiben, Karteikarten und Tests gehen ohne Ton wie gewohnt. Bei den Kindern wirkt es nach spätestens einer Minute oder beim Neuladen der Seite.</div>";
+        // Stimmenwahl der Kinder: Vorgabe sind nur seriöse Stimmen; „opt-vokabel-alle-stimmen“ = true erlaubt alle des Geräts
+        var alle = STAND.module[STIMMEN_OPTION] === true;
+        h += '<div class="nt7f-kopf" style="border-top:1px solid var(--line)"><div><b>🎙 Stimmen im Vokabeltrainer</b><small>' +
+          (alle ? "alle Stimmen des Geräts – auch Spaßstimmen (auf iPads z. B. Bells, Zarvox, Grandma)" : "nur seriöse Stimmen (Vorgabe) – Spaßstimmen der iPads stehen nicht zur Wahl") + "</small></div>" +
+          '<div class="nt7f-knoepfe"><button class="nt7f-schalter' + (alle ? "" : " offen") + '" type="button" data-stimmen="' + (alle ? "0" : "1") + '" aria-pressed="' + !alle + '">' + (alle ? "🎭 alle Stimmen" : "✓ nur seriöse") + "</button></div></div></div>";
       }
       N.THEMEN.forEach(function (t) {
         var haupt = t.module.filter(function (m) { return !m.extra; });
@@ -199,6 +204,14 @@
           // an = Eintrag entfernen (es gilt wieder: Ton an), aus = false
           setzen(b, { art: "modul", id: TON_OPTION, offen: an ? null : false },
             an ? "Der Ton ist wieder an: Die Vokabeltrainer der " + ctx.klasse + " sprechen die Wörter vor." : "Der Ton ist aus: Die Vokabeltrainer der " + ctx.klasse + " bleiben stumm – bei offenen Seiten nach spätestens einer Minute.");
+        });
+      });
+      Array.prototype.forEach.call(d.querySelectorAll("[data-stimmen]"), function (b) {
+        b.addEventListener("click", function () {
+          var alle = b.getAttribute("data-stimmen") === "1";
+          // alle = true setzen; zurück zur Vorgabe = Eintrag entfernen
+          setzen(b, { art: "modul", id: STIMMEN_OPTION, offen: alle ? true : null },
+            alle ? "Die Kinder der " + ctx.klasse + " dürfen jetzt jede englische Stimme ihres Geräts wählen – auch Spaßstimmen." : "Es gilt wieder die Vorgabe: In den Vokabeltrainern der " + ctx.klasse + " stehen nur seriöse Stimmen zur Wahl.");
         });
       });
       Array.prototype.forEach.call(d.querySelectorAll("[data-thema]"), function (b) {
