@@ -72,10 +72,19 @@ GrumiKursliste.bauen({
       id: "u2", nr: "02", titel: "Unit 2: Exploring India", kurz: "Unit 2", icon: "🐘",
       text: "Indien, Arbeiten in einer vernetzten Welt, nachhaltig leben, Berufe – mit Wortschatz, Grammatik und allen Fertigkeiten.",
       module: [
+        // Kürzel B1 bis B7 sind vergeben: B1 Vokabeltrainer, B2/B3 Grammatik (G5, G6), B4 bis B7 Wordbanks – sie folgen
         { id: "u2-land", kz: "B8", titel: "Land und Leute · India – one country, many worlds", href: "u2_land.html", art: "Land und Leute", ls: "e9-u2-land",
           text: "Indien: Land, Sprachen, Feste, Alltag – lesen, hören, vergleichen." },
         { id: "u2-listening", kz: "B9", titel: "Listening · Welcome to our company", href: "u2_listening.html", art: "Listening", ls: "e9-u2-listening",
-          text: "Gespräche aus der Arbeitswelt verstehen: eine Firma stellt sich vor – Thema, Einzelheiten, Notizen." }
+          text: "Gespräche aus der Arbeitswelt verstehen: eine Firma stellt sich vor – Thema, Einzelheiten, Notizen." },
+        { id: "u2-reading", kz: "B10", titel: "Reading · Small ideas, big change", href: "u2_reading.html", art: "Reading", ls: "e9-u2-reading",
+          text: "Einen Artikel über eine Idee für die Umwelt verstehen: Thema, Einzelheiten mit Zeilenangabe, zwischen den Zeilen lesen." },
+        { id: "u2-speaking", kz: "B11", titel: "Speaking · Present a company", href: "u2_speaking.html", art: "Speaking", ls: "e9-u2-speaking",
+          text: "Eine Firma oder ein Projekt vorstellen: Redemittel, Notizzettel, Vortragskarten – und Fragen dazu beantworten." },
+        { id: "u2-mediation", kz: "B12", titel: "Mediation · Which job is right for you?", href: "u2_mediation.html", art: "Mediation", ls: "e9-u2-mediation",
+          text: "Sprachmittlung: Informationen über Berufe weitergeben – das Wichtige auswählen, einfach sagen, an die Person denken." },
+        { id: "u2-writing", kz: "B13", titel: "Writing · A story in pictures", href: "u2_writing.html", art: "Writing", ls: "e9-u2-writing",
+          text: "Schreibwerkstatt: eine Geschichte zu Bildern planen, schreiben, prüfen und überarbeiten – mit Schreibcoach." }
       ]
     }
   ]
