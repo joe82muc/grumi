@@ -11,6 +11,11 @@
  *                                worte: { titel, das, neu, von, plan } })
  * und für Deutsch 7 (Themenbereiche und Module, 7M/Deutsch/themen.js, Server /api/d7; worte.ohneProben: kein Hinweis auf Proben).
  *
+ * „📓 Ins Heft“ bei jedem Modul (seit 10.10.2026, alle Fächer): schreibt das Modul als Aufgabe ins Hausaufgabenheft
+ * dieser Klasse – Termin und Text wählbar, mit Link zum Modul; ein gesperrtes Modul kann dabei gleich freigeschaltet
+ * werden. Der Eintrag läuft über /api/klasse/lehrer/heft/speichern (backend/api/klasse.js); ändern und löschen im Reiter
+ * „Hausaufgabenheft“ (klasse-verwaltung.js). Steht ein Modul schon im Heft, zeigt der Knopf den nächsten Termin.
+ *
  * Extra-Module (in der Liste mit extra: "<Kennung ihres Moduls>", z. B. „Zeitformen wiederholen“ in Deutsch 7) stehen
  * eingerückt unter ihrem Modul. Sie zählen bei „x von y offen“ nicht mit und folgen nicht „Alle freischalten“ –
  * jedes wird einzeln geschaltet.
@@ -46,7 +51,17 @@
     ".nt7f-schalter.offen{background:#e9f8ee;border-color:#9bd3ae;color:#15803d}" +
     ".nt7f-schalter[disabled]{opacity:.6;cursor:wait}" +
     ".nt7f-plan{font-size:.78rem;font-weight:800;color:var(--muted);white-space:nowrap}" +
-    "@media(max-width:640px){.nt7f-zeile,.nt7f-probe{grid-template-columns:2.9rem 1fr auto}.nt7f-zeile a,.nt7f-probe a{grid-column:2}}";
+    // „Ins Heft“: Modul als Aufgabe ins Hausaufgabenheft der Klasse schreiben
+    ".nt7f-aktion{display:flex;flex-wrap:wrap;gap:.3rem .7rem;align-items:center;justify-content:flex-end}" +
+    ".nt7f-heft{font:800 .8rem inherit;font-family:inherit;border:1.5px solid #f0c36d;background:#fff8e6;color:#7a5200;border-radius:999px;padding:.28rem .7rem;cursor:pointer;white-space:nowrap}" +
+    ".nt7f-heft.drin{background:#e9f8ee;border-color:#9bd3ae;color:#15803d}" +
+    ".nt7f-heftform{display:flex;flex-wrap:wrap;gap:.6rem .9rem;align-items:flex-end;padding:.75rem .9rem .85rem;border-top:1px dashed #f0c36d;background:#fffdf5}" +
+    ".nt7f-heftform label{display:block;font-size:.76rem;font-weight:800;color:var(--muted);margin:0 0 .2rem}" +
+    ".nt7f-heftform input[type=date],.nt7f-heftform input[type=text]{font:inherit;padding:.4rem .55rem;border:1.5px solid var(--line);border-radius:9px;background:#fff}" +
+    ".nt7f-heftform .breit{flex:1 1 18rem}.nt7f-heftform .breit input{width:100%}" +
+    ".nt7f-heftform .haken{flex:1 1 100%;display:flex;gap:.45rem;align-items:center;font-size:.84rem;font-weight:700;color:#7a5200}" +
+    ".nt7f-heftform .drin-liste{flex:1 1 100%;font-size:.82rem;color:var(--muted);font-weight:700}" +
+    "@media(max-width:640px){.nt7f-zeile,.nt7f-probe{grid-template-columns:2.9rem 1fr auto}.nt7f-zeile a,.nt7f-probe a{grid-column:2}.nt7f-zeile .nt7f-aktion{grid-column:2/-1;justify-content:flex-start}}";
 
   function stil() {
     if (doc.getElementById("nt7f-stil")) return;
@@ -105,6 +120,57 @@
       })); }).then(function (teile) { PROBEN = [].concat.apply([], teile); });
     }
     function fuerWen(p) { return /\d$/.test(p.klasse) ? "für alle " + p.klasse + ". Klassen" : "für alle " + p.klasse + "-Klassen"; }
+
+    /* ---------- „Ins Heft“: ein Modul als Aufgabe ins Hausaufgabenheft dieser Klasse schreiben ----------
+       Der Eintrag entsteht über das Hausaufgabenheft der Verwaltung (backend/api/klasse.js: lehrer/heft/speichern) –
+       mit Fach, Text, Termin und dem Link zum Modul. Dort (Reiter „Hausaufgabenheft“) lässt er sich ändern und löschen.
+       HEFT: Adresse des Moduls → kommende Einträge, damit bei jedem Modul steht, ob es schon im Heft ist. */
+    var HEFT = {}, HEFT_OFFEN = "", HEFT_KANN = true;
+    var TAGE = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+    function isoTag(d) { return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
+    function naechsterSchultag() { var d = new Date(); do { d.setDate(d.getDate() + 1); } while (d.getDay() === 0 || d.getDay() === 6); return isoTag(d); }
+    function datumText(tag) { var d = new Date(tag + "T12:00:00"); return TAGE[d.getDay()] + ", " + tag.slice(8, 10) + "." + tag.slice(5, 7) + "."; }
+    // Fach, unter dem der Eintrag im Heft steht (dieselben Namen wie in klasse-verwaltung.js)
+    function fachName() {
+      var p = String(ctx.pfad || "/api/nt7");
+      return ctx.fach || (/\/api\/inf/.test(p) ? "Informatik" : /\/api\/d\d/.test(p) ? "Deutsch" : /\/api\/e\d/.test(p) ? "Englisch" : "Natur und Technik");
+    }
+    function modulAdresse(m) { return new URL(ORDNER + m.href, doc.baseURI).href; }
+    function modulVon(id) {
+      for (var i = 0; i < N.THEMEN.length; i++) for (var j = 0; j < N.THEMEN[i].module.length; j++) if (N.THEMEN[i].module[j].id === id) return { m: N.THEMEN[i].module[j], t: N.THEMEN[i] };
+      return null;
+    }
+    function heftPost(route, body) {
+      body.password = ctx.pw;
+      return fetch(ctx.api + "/api/klasse/lehrer/heft/" + route, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { if (!r.ok || !d.ok) throw new Error(d.error || "HTTP " + r.status); return d; }); });
+    }
+    // Kennt der Server das Heft nicht (alter Stand) oder gehört die Klasse zu keiner Stufe mit Heft, gibt es den Knopf nicht
+    function heftLaden() {
+      return heftPost("liste", { klasse: ctx.klasse }).then(function (d) {
+        HEFT = {};
+        (d.eintraege || []).forEach(function (e) { if (e.link && e.faellig >= d.heute) (HEFT[e.link] = HEFT[e.link] || []).push(e); });
+        Object.keys(HEFT).forEach(function (k) { HEFT[k].sort(function (a, b) { return a.faellig.localeCompare(b.faellig); }); });
+      }).catch(function () { HEFT_KANN = false; });
+    }
+    // Knopf in der Zeile des Moduls und – aufgeklappt – das kleine Formular darunter
+    function heftKnopf(m) {
+      if (!HEFT_KANN) return "";
+      var drin = HEFT[modulAdresse(m)];
+      return '<button class="nt7f-heft' + (drin ? " drin" : "") + '" type="button" data-heft="' + esc(m.id) + '" aria-expanded="' + (HEFT_OFFEN === m.id) + '" title="Als Aufgabe ins Hausaufgabenheft der ' + esc(ctx.klasse) + ' schreiben">' +
+        (drin ? "📓 im Heft · " + esc(datumText(drin[0].faellig)) : "📓 Ins Heft") + "</button>";
+    }
+    function heftForm(m, t) {
+      if (HEFT_OFFEN !== m.id || !HEFT_KANN) return "";
+      var drin = HEFT[modulAdresse(m)] || [], gesperrt = !N.offen(m, t, STAND);
+      return '<div class="nt7f-heftform" data-heftform="' + esc(m.id) + '">' +
+        (drin.length ? '<div class="drin-liste">Steht schon im Hausaufgabenheft der ' + esc(ctx.klasse) + ": " + drin.map(function (e) { return esc(datumText(e.faellig)) + " – „" + esc(e.text) + "“"; }).join(" · ") + " (ändern oder löschen im Reiter „Hausaufgabenheft“). Du kannst einen weiteren Termin eintragen.</div>" : "") +
+        '<div><label for="nt7f-hf-faellig">Fällig am</label><input id="nt7f-hf-faellig" type="date" data-hf="faellig" value="' + naechsterSchultag() + '"></div>' +
+        '<div class="breit"><label for="nt7f-hf-text">Aufgabe (so steht sie im Heft der Kinder – mit Link zum Modul)</label><input id="nt7f-hf-text" type="text" maxlength="300" data-hf="text" value="' + esc("„" + m.titel + "“ in GRUMI bearbeiten") + '"></div>' +
+        '<div><button class="btn btn-sm btn-ok" type="button" data-heft-los="' + esc(m.id) + '">📓 Eintragen</button> <button class="btn btn-sm btn-ghost" type="button" data-heft-zu>Abbrechen</button></div>' +
+        (gesperrt ? '<label class="haken"><input type="checkbox" data-hf="frei" checked> ' + esc(W.das.charAt(0).toUpperCase() + W.das.slice(1)) + " ist für die " + esc(ctx.klasse) + " noch gesperrt – beim Eintragen gleich freischalten</label>" : "") +
+        "</div>";
+    }
     // Zeilen der Proben, die Module dieses Themenbereichs enthalten – sie stehen unter den Modulen
     function probenZeilen(t) {
       return PROBEN.filter(function (p) {
@@ -159,7 +225,7 @@
           var o = N.offen(m, t, STAND);
           h += '<div class="nt7f-zeile">' + nr(m, i + 1) + "<span>" + esc(m.titel) + "</span>" +
             '<button class="nt7f-schalter' + (o ? " offen" : "") + '" type="button" data-modul="' + esc(m.id) + '" data-offen="' + (o ? "0" : "1") + '" aria-pressed="' + o + '">' + (o ? "✓ offen" : "🔒 gesperrt") + "</button>" +
-            '<a href="' + esc(ORDNER) + esc(m.href) + '?vorschau=1" target="_blank" rel="noopener">Vorschau ↗</a></div>';
+            '<span class="nt7f-aktion">' + heftKnopf(m) + '<a href="' + esc(ORDNER) + esc(m.href) + '?vorschau=1" target="_blank" rel="noopener">Vorschau ↗</a></span></div>' + heftForm(m, t);
           // Extra-Module dieses Moduls: eingerückt, jedes einzeln schaltbar
           var extras = t.module.filter(function (x) { return x.extra === m.id && x.href; });
           if (extras.length) {
@@ -170,7 +236,7 @@
             var xo = N.offen(x, t, STAND);
             h += '<div class="nt7f-zeile extra">' + nr(x, "↳") + "<span>" + esc(x.titel) + "</span>" +
               '<button class="nt7f-schalter' + (xo ? " offen" : "") + '" type="button" data-modul="' + esc(x.id) + '" data-offen="' + (xo ? "0" : "1") + '" aria-pressed="' + xo + '">' + (xo ? "✓ offen" : "🔒 gesperrt") + "</button>" +
-              '<a href="' + esc(ORDNER) + esc(x.href) + '?vorschau=1" target="_blank" rel="noopener">Vorschau ↗</a></div>';
+              '<span class="nt7f-aktion">' + heftKnopf(x) + '<a href="' + esc(ORDNER) + esc(x.href) + '?vorschau=1" target="_blank" rel="noopener">Vorschau ↗</a></span></div>' + heftForm(x, t);
           });
         });
         h += probenZeilen(t) + "</div>";
@@ -181,6 +247,25 @@
       d.addEventListener("toggle", function () { offenGeklappt = d.open; });
       Array.prototype.forEach.call(d.querySelectorAll("[data-modul]"), function (b) {
         b.addEventListener("click", function () { setzen(b, { art: "modul", id: b.getAttribute("data-modul"), offen: b.getAttribute("data-offen") === "1" }); });
+      });
+      // „Ins Heft“: Formular unter dem Modul auf- und zuklappen, Eintrag speichern
+      Array.prototype.forEach.call(d.querySelectorAll("[data-heft]"), function (b) {
+        b.addEventListener("click", function () {
+          var id = b.getAttribute("data-heft");
+          HEFT_OFFEN = HEFT_OFFEN === id ? "" : id;
+          zeichnen();
+          var feld = el.querySelector('[data-heftform] [data-hf="text"]');
+          if (feld) { feld.focus(); feld.select(); }
+        });
+      });
+      Array.prototype.forEach.call(d.querySelectorAll("[data-heft-zu]"), function (b) {
+        b.addEventListener("click", function () { HEFT_OFFEN = ""; zeichnen(); });
+      });
+      Array.prototype.forEach.call(d.querySelectorAll("[data-heft-los]"), function (b) {
+        b.addEventListener("click", function () { heftEintragen(b); });
+      });
+      Array.prototype.forEach.call(d.querySelectorAll('[data-heftform] [data-hf="text"]'), function (f) {
+        f.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); var b = f.closest("[data-heftform]").querySelector("[data-heft-los]"); if (b) heftEintragen(b); } });
       });
       Array.prototype.forEach.call(d.querySelectorAll("[data-vorschau]"), function (b) {
         b.addEventListener("click", function () {
@@ -243,7 +328,37 @@
       }).catch(function (x) { knopf.disabled = false; zeichnen(["Das Freischalten hat nicht geklappt: " + x.message, "bad"]); });
     }
 
-    Promise.all([post(ctx, "", {}), probenLaden()]).then(function (teile) {
+    // Modul ins Hausaufgabenheft schreiben; ist es noch gesperrt und das Häkchen gesetzt, wird es gleich freigeschaltet
+    function heftEintragen(knopf) {
+      var treffer = modulVon(knopf.getAttribute("data-heft-los")), form = knopf.closest("[data-heftform]");
+      if (!treffer || !form) return;
+      var m = treffer.m, faellig = form.querySelector('[data-hf="faellig"]').value, text = form.querySelector('[data-hf="text"]').value.trim();
+      var frei = form.querySelector('[data-hf="frei"]'), freischalten = !!(frei && frei.checked);
+      if (!faellig) { zeichnenMitForm(["Bitte ein Datum wählen.", "bad"]); return; }
+      if (text.length < 2) { zeichnenMitForm(["Bitte die Aufgabe eintragen.", "bad"]); return; }
+      knopf.disabled = true;
+      heftPost("speichern", { klasse: ctx.klasse, fach: fachName(), typ: "aufgabe", faellig: faellig, text: text, link: modulAdresse(m) })
+        .then(heftLaden)
+        .then(function () {
+          HEFT_OFFEN = "";
+          var meldung = "„" + m.titel + "“ steht jetzt im Hausaufgabenheft der " + ctx.klasse + " – fällig am " + datumText(faellig) + ", mit Link zum Modul.";
+          if (!freischalten) { zeichnen([meldung + (N.offen(m, treffer.t, STAND) ? "" : " Achtung: Für die " + ctx.klasse + " ist es noch gesperrt."), "ok"]); return null; }
+          return post(ctx, "/setzen", { art: "modul", id: m.id, offen: true }).then(function (x) {
+            STAND = { themen: x.themen || {}, module: x.module || {} };
+            zeichnen([meldung + " Es ist jetzt auch freigeschaltet.", "ok"]);
+          });
+        })
+        .catch(function (x) { knopf.disabled = false; zeichnenMitForm(["Der Eintrag ins Hausaufgabenheft hat nicht geklappt: " + x.message, "bad"]); });
+    }
+    // Neu zeichnen, ohne die Eingaben im offenen Heft-Formular zu verlieren
+    function zeichnenMitForm(meldung) {
+      var alt = el.querySelector("[data-heftform]"), werte = alt ? { f: alt.querySelector('[data-hf="faellig"]').value, t: alt.querySelector('[data-hf="text"]').value } : null;
+      zeichnen(meldung);
+      var neu = el.querySelector("[data-heftform]");
+      if (neu && werte) { neu.querySelector('[data-hf="faellig"]').value = werte.f; neu.querySelector('[data-hf="text"]').value = werte.t; }
+    }
+
+    Promise.all([post(ctx, "", {}), probenLaden(), heftLaden()]).then(function (teile) {
       var d = teile[0];
       STAND = { themen: d.themen || {}, module: d.module || {} };
       zeichnen();
