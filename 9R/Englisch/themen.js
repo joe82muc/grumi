@@ -184,7 +184,15 @@ GrumiKursliste.bauen({
         { id: "u4-mediation", kz: "D12", titel: "Mediation · Join the club!", href: "u4_mediation.html", art: "Mediation", ls: "e9-u4-mediation",
           text: "Sprachmittlung: Informationen über einen Verein weitergeben – das Wichtige auswählen, einfach sagen, an die Person denken." },
         { id: "u4-writing", kz: "D13", titel: "Writing · My application", href: "u4_writing.html", art: "Writing", ls: "e9-u4-writing",
-          text: "Schreibwerkstatt: eine Bewerbung auf eine Anzeige planen, schreiben, prüfen und überarbeiten – mit Schreibcoach." }
+          text: "Schreibwerkstatt: eine Bewerbung auf eine Anzeige planen, schreiben, prüfen und überarbeiten – mit Schreibcoach." },
+        { id: "u4-qualifit", kz: "D14", titel: "Quali-Fit · Unit 4", href: "u4_qualifit.html", art: "Quali-Fit", ls: "e9-u4-qualifit",
+          text: "Prüfungsformate in klein: Hören, Sprachgebrauch, Lesen, Sprachmittlung, Text und Medien, Schreiben – prüfungsnah, mit Zeitangabe je Teil." },
+        { id: "u4-revision", kz: "D15", titel: "Wiederholung · Fit for the test: Unit 4", href: "u4_revision.html", art: "Wiederholung", ls: "e9-u4-revision",
+          text: "Gemischte Wiederholung vor der Probe: Wortschatz, die Grammatik der Unit, Lesen, Hören, Sprachmittlung, Schreiben." },
+        { id: "u4-duell", kz: "D16", titel: "Duelle · Unit 4", href: "u4_duell.html", art: "Duell", ls: "e9-u4-duell",
+          text: "Zusatz: Duell gegen die KI und Tischduell zu zweit – Wortschatz und Grammatik der Unit." },
+        { id: "u4-blaetter", kz: "D17", titel: "Arbeitsblätter · Unit 4", href: "u4_blaetter.html", art: "Arbeitsblatt",
+          text: "Sieben Blätter zum Drucken: Vocabulary, Grammar, Reading, Listening, Writing, Mediation, Mixed revision – aus den Aufgaben der Module." }
       ]
     },
     // Dolmetschen (seit 10.10.2026): die früheren Mediations-Seiten von Englisch 9M, neu gebaut mit den Bausteinen der
@@ -193,8 +201,18 @@ GrumiKursliste.bauen({
       id: "mediation", nr: "05", titel: "Interpreting: Dolmetschen üben", kurz: "Interpreting", icon: "🗣️",
       text: "Für die mündliche Prüfung: in einem Gespräch zwischen Deutsch und Englisch vermitteln – sinngemäß, höflich, in beide Richtungen.",
       module: [
+        { id: "med-park", kz: "M1", titel: "Interpreting · At the nature reserve", href: "med_park.html", art: "Mediation", ls: "e9-med-park",
+          text: "Im Besucherzentrum eines Naturparks dolmetschen: eine Führung buchen, Zeiten, Preise und Hinweise weitergeben." },
+        { id: "med-restaurant", kz: "M2", titel: "Interpreting · At the restaurant", href: "med_restaurant.html", art: "Mediation", ls: "e9-med-restaurant",
+          text: "Im Restaurant dolmetschen: bestellen, nachfragen, eine Unverträglichkeit erklären, bezahlen." },
+        { id: "med-accident", kz: "M3", titel: "Interpreting · Reporting an accident", href: "med_accident.html", art: "Mediation", ls: "e9-med-accident",
+          text: "Als Zeuge dolmetschen: der Polizei genau sagen, was passiert ist – Ort, Zeit, Farbe, Kennzeichen." },
         { id: "med-doctor", kz: "M4", titel: "Interpreting · At the doctor's", href: "med_doctor.html", art: "Mediation", ls: "e9-med-doctor",
-          text: "Beim Arzt dolmetschen: Beschwerden weitergeben, Rückfragen und Anweisungen verstehen und auf Deutsch erklären." }
+          text: "Beim Arzt dolmetschen: Beschwerden weitergeben, Rückfragen und Anweisungen verstehen und auf Deutsch erklären." },
+        { id: "med-hostel", kz: "M5", titel: "Interpreting · At the hostel", href: "med_hostel.html", art: "Mediation", ls: "e9-med-hostel",
+          text: "An der Rezeption dolmetschen: einchecken, ein Problem mit dem Zimmer klären, Zeiten und Regeln weitergeben." },
+        { id: "med-market", kz: "M6", titel: "Interpreting · At the craft market", href: "med_market.html", art: "Mediation", ls: "e9-med-market",
+          text: "Auf dem Markt dolmetschen: nach Preis, Material und Herstellung fragen, höflich handeln, bezahlen." }
       ]
     }
   ]
