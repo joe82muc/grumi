@@ -422,7 +422,7 @@
       // Englisch 9R: Die Skill-Module nutzen Schreibtrainer und Schreibwerkstatt von Deutsch mit (Liste mit BAUSTEINE) –
       // darunter stehen deshalb wie bei Deutsch 8 die Schülertexte: Fassungen, Entwurf, Planung, Kommentar der Lehrkraft
       if (global.TexteVerwaltung && EL.BAUSTEINE) global.TexteVerwaltung.zeige($("vw-e-texte"), { api: API, pw: PW, klasse: KLASSE, liste: EL, name: nameVon,
-        pfad: EL.BAUSTEINE.api, fach: EL.TITEL, ordner: EL.ORDNER, ohneProben: true });
+        pfad: EL.BAUSTEINE.api, fach: EL.TITEL, ordner: EL.ORDNER });
       fachLaden($("vw-fach"));
     } else {
       teil.innerHTML = '<div id="vw-fach"></div>';

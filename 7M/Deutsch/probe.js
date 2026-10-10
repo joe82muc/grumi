@@ -18,7 +18,11 @@
 (function () {
   "use strict";
   // Jahrgang: 7 (Vorgabe) oder 8 – Deutsch 8 setzt window.DEUTSCH_NR vor diesem Skript (8/Deutsch/…html)
-  const DNR = window.DEUTSCH_NR || (window.GRUMI_KURS && window.GRUMI_KURS.NR) || 7, DNAME = "Deutsch " + DNR, DAPI = "/api/d" + DNR;
+  // Anderes Fach mit denselben Proben (Englisch 9R): window.PROBEN_FACH = { kurz: "e", stufe: 9, name: "Englisch 9R",
+  // api: "/api/e9", sprache: "en" } vor diesem Skript (9R/Englisch/probe.html) – dann gibt es auch Hörtexte und Prüfungsteile.
+  const PF = window.PROBEN_FACH || null;
+  const DNR = PF ? PF.stufe : window.DEUTSCH_NR || (window.GRUMI_KURS && window.GRUMI_KURS.NR) || 7, DNAME = PF ? PF.name : "Deutsch " + DNR, DAPI = PF ? PF.api : "/api/d" + DNR;
+  const EN = Boolean(PF && PF.sprache === "en");
   const params = new URLSearchParams(location.search);
   const API = (params.get("api") || (location.hostname.endsWith("github.io") ? "https://englisch-9.onrender.com" : location.origin)).replace(/\/$/, "");
   const $ = id => document.getElementById(id);
@@ -28,6 +32,8 @@
   const editoren = {};
   let sitzung = null, versatz = 0, schmutzig = false, sendet = false, sichertakt = null, uhr = null, abgegeben = false;
   const beginnKey = () => "grumi-probe-beginn~" + exam.test.id + "~" + student.code;
+  // Hörtext: Zahl der Durchgänge je Probe, Kind und Text (bleibt beim Neuladen erhalten, nach der Abgabe gelöscht)
+  const hoerKey = id => "grumi-probe-hoer~" + exam.test.id + "~" + student.code + "~" + id;
   const merk = { lies(k) { try { return localStorage.getItem(k) || ""; } catch (_e) { return ""; } }, setz(k, v) { try { localStorage.setItem(k, v); } catch (_e) {} }, weg(k) { try { localStorage.removeItem(k); } catch (_e) {} } };
 
   const FEHLER = {locked: "Diese Probe ist gesperrt. Sag deiner Lehrkraft Bescheid.", already_submitted: "Diese Probe wurde mit diesem Code bereits abgegeben.", submission_in_progress: "Eine Abgabe läuft bereits.", test_not_found: "Diese Probe gibt es nicht."};
@@ -65,7 +71,8 @@
 
   // Zug (M oder R) kommt aus dem Link der Übersicht (?zug=R) oder aus dem Tab; die Nummer der Probe aus ?nr=
   let zug = /^[MR]$/i.test(params.get("zug") || "") ? params.get("zug").toUpperCase() : "";
-  try { if (zug) sessionStorage.setItem("grumi-d" + DNR + "-zug", zug); else zug = sessionStorage.getItem("grumi-d" + DNR + "-zug") || ""; } catch (_e) {}
+  const ZUGKEY = "grumi-" + (PF ? PF.kurz : "d") + DNR + "-zug";
+  try { if (zug) sessionStorage.setItem(ZUGKEY, zug); else zug = sessionStorage.getItem(ZUGKEY) || ""; } catch (_e) {}
   const nr = parseInt(params.get("nr"), 10) || 0;
   const passt = t => (!zug || t.zug === zug) && (!nr || t.nr === nr);
   const klasse = t => (t.zug === "M" ? "M" : "R") + DNR;
@@ -106,12 +113,15 @@
     if (item.type === "komma") controls = `<p class="zaehler">Tippe zwischen zwei Wörtern auf das Kästchen, um ein Komma zu setzen. Noch einmal tippen nimmt es wieder weg.</p>` +
       item.saetze.map((w, s) => `<div class="komma-satz" data-satz="${s}">${w.map((wort, k) => `<span>${esc(wort)}</span>` + (k < w.length - 1 ? `<label class="komma-luecke"><input type="checkbox" data-komma="${k}" aria-label="Komma nach ${esc(wort)}"><i>,</i></label>` : "")).join("")}</div>`).join("");
     if (item.type === "zeile") controls = `<div class="zeile-row"><span>Zeile</span><input type="text" inputmode="numeric" maxlength="3" data-von aria-label="von Zeile"><span>bis</span><input type="text" inputmode="numeric" maxlength="3" data-bis aria-label="bis Zeile"><span class="zaehler">Steht es in einer einzigen Zeile, lass das zweite Feld leer.</span></div>`;
-    if (item.type === "offen") controls = `<textarea aria-label="Antwort zu Aufgabe ${item.nr}" rows="5" maxlength="2500" placeholder="Schreibe deine Antwort in ganzen Sätzen."></textarea>`;
+    if (item.type === "offen") controls = `<textarea aria-label="Antwort zu Aufgabe ${item.nr}" rows="5" maxlength="2500" placeholder="${EN ? "Write your answer here." : "Schreibe deine Antwort in ganzen Sätzen."}"${EN ? ' lang="en" spellcheck="false" autocorrect="off" autocapitalize="sentences"' : ""}></textarea>`;
     if (item.type === "schreiben" && exam.sitzung && window.AufsatzEditor) controls = `<div class="ae-platz" data-ae="${item.nr}"></div>`;
     else if (item.type === "schreiben") controls = (item.material ? `<div class="material">${esc(item.material)}</div>` : "") +
       `<textarea class="lang" aria-label="Dein Text zu Aufgabe ${item.nr}" rows="16" maxlength="12000" placeholder="Schreibe hier deinen Text." data-min="${item.minWoerter || 0}"></textarea><div class="zaehler" data-zaehler>0 Wörter${item.minWoerter ? " · mindestens " + item.minWoerter : ""}</div>`;
-    return `<section class="frage" data-nr="${item.nr}" data-type="${item.type}"><div class="frage-kopf"><span class="pill">Aufgabe ${item.nr}</span><span>${String(item.points).replace(".", ",")} ${item.points === 1 ? "Punkt" : "Punkte"}</span></div>
-      ${item.text ? `<button type="button" class="bezug" data-zutext="${esc(item.text)}">📖 ${esc(textTitel(item.text))}</button><br>` : ""}<h3>${esc(item.prompt)}</h3>
+    // Prüfungsteil (Englisch: „A Listening“ …): Überschrift vor der ersten Aufgabe des Teils
+    const vorher = exam.items[item.nr - 2], teil = item.teil && (!vorher || vorher.teil !== item.teil) ? `<h2 class="teil-kopf" data-teil="${esc(item.teil)}">${esc(item.teil)}</h2>` : "";
+    const hoer = item.text && (exam.texte.find(x => x.id === item.text) || {}).typ === "hoertext";
+    return `${teil}<section class="frage" data-nr="${item.nr}" data-type="${item.type}"><div class="frage-kopf"><span class="pill">Aufgabe ${item.nr}</span><span>${String(item.points).replace(".", ",")} ${item.points === 1 ? "Punkt" : "Punkte"}</span></div>
+      ${item.text ? `<button type="button" class="bezug" data-zutext="${esc(item.text)}">${hoer ? "🎧" : "📖"} ${esc(textTitel(item.text))}</button><br>` : ""}<h3>${esc(item.prompt)}</h3>
       ${item.vorgabe ? `<div class="vorgabe">${esc(item.vorgabe)}</div>` : ""}${item.hilfe ? `<p class="hilfe">💡 ${esc(item.hilfe)}</p>` : ""}${controls}</section>`;
   }
   const woerter = s => D7Zeilen.woerter(s);
@@ -261,7 +271,14 @@
       $("exam-title").textContent = exam.test.title;
       $("exam-points").textContent = exam.test.maxPoints + " Punkte · etwa " + exam.test.minutes + " Minuten";
       if (exam.test.hinweis) $("exam-hinweis").textContent = exam.test.hinweis;
-      $("lesespalte").innerHTML = exam.texte.map(D7Lesetext.html).join("");
+      // Hörtexte (Englisch) stehen als Spieler in der Textspalte: abspielbar so oft, wie die Probe es erlaubt, nie als Text
+      const hoertexte = exam.texte.filter(t => t.typ === "hoertext");
+      $("lesespalte").innerHTML = exam.texte.map(t => t.typ === "hoertext" ? D7Lesetext.hoerHtml(t) : D7Lesetext.html(t)).join("");
+      if (hoertexte.length) {
+        D7Lesetext.hoeren($("lesespalte"), {server: API, texte: hoertexte, schluessel: id => hoerKey(id)});
+        $("text-auf").textContent = hoertexte.length === exam.texte.length ? "🎧 Listening" : "🎧 📖 Listening and texts";
+        $("text-zu").textContent = "✕ Back to the tasks";
+      }
       $("spalten").classList.toggle("ohne-text", !exam.texte.length);
       document.body.classList.toggle("ohne-text-seite", !exam.texte.length);
       $("questions").innerHTML = exam.items.map(itemMarkup).join("");
@@ -303,6 +320,7 @@
       await abgeben({testId: exam.test.id, ...student, answers, verlassen: ProbeSchutz.verlassen(), protokoll: ProbeSchutz.protokoll(), ...(sitzung ? {plan: planAlle()} : {})}, text => { examStatus(text); button.textContent = "Wird noch einmal gesendet ..."; });
       abgegeben = true; clearTimeout(sichertakt); clearInterval(uhr);
       if (sitzung) merk.weg(beginnKey());
+      exam.texte.forEach(t => { if (t.typ === "hoertext") merk.weg(hoerKey(t.id)); });
       ProbeSchutz.ende();
       document.body.classList.remove("text-offen");
       $("questions-section").hidden = true;

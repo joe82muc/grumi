@@ -243,10 +243,13 @@
   }
 
   /* ---------- Lesetexte mit Zeilennummern, Diagramme und Tabellen zum Text (Deutsch) ---------- */
-  function lesetexte(texte) {
+  function lesetexte(texte, mitLoesung) {
     return (texte || []).map(function (t) {
       var innen = "";
-      if (Array.isArray(t.zeilen)) innen = "<div>" + t.zeilen.map(function (z) { return z.kopf ? '<div class="pv-zk">' + esc(z.t) + "</div>" : '<div class="pv-z' + (z.neu ? " neu" : "") + '"><span class="n">' + (z.n === 1 || z.n % 5 === 0 ? z.n : "") + "</span><span>" + esc(z.t) + "</span></div>"; }).join("") + "</div>";
+      // Hörtext (Englisch 9): Die Kinder hören ihn in der Probe; die Mitschrift steht nur in der Fassung mit Lösungen
+      if (Array.isArray(t.sprecher)) innen = '<p class="pv-anw">🎧 Hörtext – wird in der Probe abgespielt (höchstens ' + (t.mal || 2) + "-mal) und nicht gezeigt." + (mitLoesung ? " Mitschrift:" : " Die Mitschrift steht in der Fassung mit Lösungen.") + "</p>" +
+        (mitLoesung ? "<div>" + t.sprecher.map(function (s) { return '<p style="margin:.25em 0"><b>' + esc(s.rolle) + ":</b> " + esc(s.text) + "</p>"; }).join("") + "</div>" : "");
+      else if (Array.isArray(t.zeilen)) innen = "<div>" + t.zeilen.map(function (z) { return z.kopf ? '<div class="pv-zk">' + esc(z.t) + "</div>" : '<div class="pv-z' + (z.neu ? " neu" : "") + '"><span class="n">' + (z.n === 1 || z.n % 5 === 0 ? z.n : "") + "</span><span>" + esc(z.t) + "</span></div>"; }).join("") + "</div>";
       else if (Array.isArray(t.werte)) { var max = Math.max.apply(null, t.werte.map(function (w) { return Number(w[1]) || 0; }).concat([1])); innen = '<div class="pv-balken">' + t.werte.map(function (w) { return "<span>" + esc(w[0]) + '</span><i style="width:' + Math.max(1, Math.round(100 * (Number(w[1]) || 0) / max)) + '%"></i><b>' + esc(komma(w[1])) + "</b>"; }).join("") + "</div>" + (t.einheit ? '<p class="pv-anw">Angaben in ' + esc(t.einheit) + "</p>" : ""); }
       else if (Array.isArray(t.reihen)) innen = '<table class="pv-tab" style="max-width:420px">' + (t.kopf ? "<thead><tr>" + t.kopf.map(function (k) { return "<th>" + esc(k) + "</th>"; }).join("") + "</tr></thead>" : "") + "<tbody>" + t.reihen.map(function (z) { return "<tr>" + z.map(function (c) { return "<td>" + esc(komma(c)) + "</td>"; }).join("") + "</tr>"; }).join("") + "</tbody></table>";
       return '<section class="pv-text"><div class="pv-fach">' + esc(t.art || "Text") + "</div><h2>" + esc(t.titel || "") + "</h2>" + innen + (t.hinweis ? '<p class="pv-anw">' + esc(t.hinweis) + "</p>" : "") + (t.quelle ? '<p class="pv-quelle">' + esc(t.quelle) + "</p>" : "") + "</section>";
@@ -280,7 +283,7 @@
         (a.hilfe ? '<p class="pv-hilfe"><b>Hilfe:</b> ' + esc(a.hilfe) + "</p>" : "") +
         (mitLoesung ? '<div class="pv-loesung">' + loesung(a, id + "|" + i) + "</div>" : feld(a, id + "|" + i)) + "</section>";
     }).join("");
-    return kopf + lesetexte(d.texte) + aufgaben + '<div class="pv-fuss">GRUMI' + (mitLoesung ? " · Fassung mit Lösungen – nicht an die Kinder ausgeben" : "") + "</div>";
+    return kopf + lesetexte(d.texte, mitLoesung) + aufgaben + '<div class="pv-fuss">GRUMI' + (mitLoesung ? " · Fassung mit Lösungen – nicht an die Kinder ausgeben" : "") + "</div>";
   }
 
   function zeigen(opts) {

@@ -8,7 +8,9 @@
 (function () {
   "use strict";
   // Jahrgang: 7 (Vorgabe) oder 8 – Deutsch 8 setzt window.DEUTSCH_NR vor diesem Skript (8/Deutsch/…html)
-  const DNR = window.DEUTSCH_NR || (window.GRUMI_KURS && window.GRUMI_KURS.NR) || 7, DNAME = "Deutsch " + DNR, DAPI = "/api/d" + DNR;
+  // Anderes Fach mit denselben Proben (Englisch 9R): window.PROBEN_FACH = { kurz, stufe, name, api } vor diesem Skript
+  const PF = window.PROBEN_FACH || null;
+  const DNR = PF ? PF.stufe : window.DEUTSCH_NR || (window.GRUMI_KURS && window.GRUMI_KURS.NR) || 7, DNAME = PF ? PF.name : "Deutsch " + DNR, DAPI = PF ? PF.api : "/api/d" + DNR;
   const params = new URLSearchParams(location.search);
   const API = (params.get("api") || (location.hostname.endsWith("github.io") ? "https://englisch-9.onrender.com" : location.origin)).replace(/\/$/, "");
   const $ = id => document.getElementById(id);
