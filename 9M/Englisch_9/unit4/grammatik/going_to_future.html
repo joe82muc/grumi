@@ -84,9 +84,9 @@
         <div class="cell"><b>Aussage</b>I am / You are / He is + going to + Verb (base form).<br>Example: We are going to apply for jobs.</div>
         <div class="cell"><b>Verneinung</b>am not / is not / are not + going to + Verb.<br>Example: She is not going to leave today.</div>
         <div class="cell"><b>Frage</b>Am / Is / Are + subject + going to + Verb?<br>Example: Are you going to visit Wellington?</div>
-        <div class="cell"><b>Kurzregel</b>Nutze going to fuer feste Plaene und Vorhersagen mit Hinweis (Look! ...).</div>
+        <div class="cell"><b>Kurzregel</b>Nutze going to für feste Pläne und Vorhersagen mit Hinweis (Look! ...).</div>
       </div>
-      <div class="signals"><b>Signalwoerter</b>
+      <div class="signals"><b>Signalwörter</b>
         <ul>
           <li>tonight</li><li>next week</li><li>next weekend</li><li>soon</li><li>in the future</li><li>Look!</li>
         </ul>
@@ -170,7 +170,7 @@
     function checkA(id,card,correct){
       if(ans[id]) return;
       const selected=getSelected(card);
-      if(!selected){ const fb=document.getElementById(id+'f'); fb.className='fb b'; fb.textContent='Bitte eine Antwort auswaehlen.'; return; }
+      if(!selected){ const fb=document.getElementById(id+'f'); fb.className='fb b'; fb.textContent='Bitte eine Antwort auswählen.'; return; }
       ans[id]=true;
       card.querySelectorAll('.mc').forEach(b=>{ b.disabled=true; if(nrm(b.dataset.val)===nrm(correct)) b.classList.add('ok'); });
       const ok=nrm(selected)===nrm(correct); if(!ok){ const sb=card.querySelector('.mc.sel'); if(sb) sb.classList.add('err'); }
@@ -212,11 +212,11 @@
     function checkC(id,t){
       if(ans[id]) return;
       const inp=document.getElementById(id+'i'); const v=nrm(inp.value);
-      // Einzelne Woerter nur als ganzes Wort werten ("not" darf nicht in "nothing" zaehlen).
+      // Einzelne Wörter nur als ganzes Wort werten ("not" darf nicht in "nothing" zählen).
       const hasTerm=(val,term)=>{const x=nrm(term);return x.includes(' ')?val.includes(x):(' '+val+' ').includes(' '+x+' ');};
       const okNeed=t.need.every(n=>hasTerm(v,n)); const okLen=v.length>=t.min; const ok=okNeed&&okLen;
       inp.classList.add(ok?'ok':'err'); inp.disabled=true; ans[id]=true;
-      const fb=document.getElementById(id+'f'); fb.className='fb '+(ok?'g':'b'); fb.textContent=ok?'Great.':'Bitte Struktur und Laenge verbessern.';
+      const fb=document.getElementById(id+'f'); fb.className='fb '+(ok?'g':'b'); fb.textContent=ok?'Great.':'Bitte Struktur und Länge verbessern.';
       if(ok&&window.Lernstand)Lernstand.geloest(id);if(ok)sc.c.r++; else sc.c.w++; upd('c');
     }
     function showC(id,m){ if(ans[id]) return; const inp=document.getElementById(id+'i'); inp.value=m; inp.classList.add('ok'); inp.disabled=true; ans[id]=true; const fb=document.getElementById(id+'f'); fb.className='fb g'; fb.textContent='-> Beispiel angezeigt'; sc.c.w++; upd('c'); }
@@ -224,15 +224,15 @@
     async function aiHelp(id,context,userText){
       const out=document.getElementById(id+'ai');
       const text=(userText||'').trim();
-      if(!text){ out.className='fb b'; out.textContent='Bitte erst eine Antwort schreiben/waehlen.'; return; }
+      if(!text){ out.className='fb b'; out.textContent='Bitte erst eine Antwort schreiben/wählen.'; return; }
       out.className='fb'; out.textContent='KI denkt...';
       try{
-        const prompt='Gib einen kurzen deutschen Tipp (2-3 Saetze) zur Grammatik. Thema: Going-to Future. Kontext: '+context+' Schuelerantwort: '+text;
+        const prompt='Gib einen kurzen deutschen Tipp (2-3 Sätze) zur Grammatik. Thema: Going-to Future. Kontext: '+context+' Schuelerantwort: '+text;
         const res=await fetch('https://englisch-9.onrender.com/api/role-model/help',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userText:prompt})});
         if(!res.ok) throw new Error('http');
         const data=await res.json();
-        out.className='fb g'; out.textContent='KI-Hilfe: '+(data.hint||'Kein Tipp verfuegbar.');
-      }catch(e){ out.className='fb b'; out.textContent='KI nicht erreichbar. Bitte spaeter erneut probieren.'; }
+        out.className='fb g'; out.textContent='KI-Hilfe: '+(data.hint||'Kein Tipp verfügbar.');
+      }catch(e){ out.className='fb b'; out.textContent='KI nicht erreichbar. Bitte später erneut probieren.'; }
     }
 
     function resetA(){ sc.a={r:0,w:0}; upd('a'); Object.keys(ans).filter(k=>k.startsWith('a')).forEach(k=>delete ans[k]); renderA(); if(window.Lernstand)Lernstand.markieren(); }
