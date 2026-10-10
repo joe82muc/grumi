@@ -6,6 +6,8 @@
  * Server: /api/d7/lehrer/texte, …/texte/kommentar, …/texte/loeschen (englisch_9, d7-texte.js).
  * Deutsch 8: ctx.stufe = 8, ctx.ordner = "8/Deutsch/" – gleiche Ansicht, Server /api/d8; dazu aus der Schreibwerkstatt
  * der laufende Entwurf mit der Planung und das Kennzeichen „abgegeben“.
+ * Englisch 9R (Skill-Module mit denselben Bausteinen): ctx.pfad = "/api/e9", ctx.fach = "Englisch 9R", ctx.ohneProben
+ * (noch keine Proben-Korrekturseite) – gleiche Ansicht, Datei e9-texte.json auf dem Server.
  * Der Server kennt nur den Code des Kindes; den Namen dazu hält die Verwaltung im Browser der Lehrkraft (ctx.name).
  */
 (function (global) {
@@ -38,7 +40,8 @@
   }
   function post(ctx, route, body) {
     body = body || {}; body.password = ctx.pw; body.klasse = ctx.klasse;
-    return fetch(ctx.api + "/api/d" + (ctx.stufe || 7) + "/lehrer/" + route, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+    // ctx.pfad: Adresse eines anderen Fachs mit demselben Schreibtrainer (Englisch 9: "/api/e9"), sonst Deutsch 7 oder 8
+    return fetch(ctx.api + (ctx.pfad || "/api/d" + (ctx.stufe || 7)) + "/lehrer/" + route, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { if (!r.ok || !d.ok) throw new Error(d.error || "Der Server antwortet nicht (" + r.status + ")."); return d; }); });
   }
   function zeit(iso) {
@@ -54,9 +57,12 @@
 
   function zeige(el, ctx) {
     stil();
-    el.innerHTML = '<div class="tx-kasten tx-proben"><div><h3>📄 Proben Deutsch ' + (ctx.stufe || 7) + '</h3><span class="tx-hinweis" style="margin:0">Die KI korrigiert vor, du prüfst, bestätigst und gibst die korrigierte Probe an das Kind zurück. Freischalten kannst du die Proben hier im Reiter „Proben“ oder auf der Korrekturseite.</span></div>' +
-      '<a href="' + (ctx.ordner || "7M/Deutsch/") + 'proben-lehrer.html">Proben korrigieren und zurückgeben →</a></div>' +
-      '<div class="tx-kasten"><h3>✍️ Schülertexte aus dem Schreibtrainer' + (ctx.stufe === 8 ? " und der Schreibwerkstatt" : "") + '</h3><p class="tx-hinweis">In den Modulen schreiben die Kinder längere Texte. Jede Fassung wird aufbewahrt: der Originaltext, die Überarbeitungen und die Rückmeldung der KI dazu. ' + (ctx.stufe === 8 ? "Aus der Schreibwerkstatt siehst du außerdem den laufenden Entwurf mit der Planung und ob das Kind seinen Text abgegeben hat. " : "") + 'Dein Kommentar erscheint beim Kind unter dem Schreibauftrag.</p><div id="tx-liste"><div class="skel">Texte werden geladen …</div></div></div>';
+    // werkstatt: Das Fach hat die Schreibwerkstatt (Entwurf, Planung, Abgabe) – Deutsch 8 und Fächer mit ctx.pfad.
+    // ctx.ohneProben: kein Verweis auf eine Proben-Korrekturseite (solange das Fach noch keine solchen Proben hat).
+    var werkstatt = ctx.stufe === 8 || !!ctx.pfad, fachName = ctx.fach || "Deutsch " + (ctx.stufe || 7);
+    el.innerHTML = (ctx.ohneProben ? "" : '<div class="tx-kasten tx-proben"><div><h3>📄 Proben ' + esc(fachName) + '</h3><span class="tx-hinweis" style="margin:0">Die KI korrigiert vor, du prüfst, bestätigst und gibst die korrigierte Probe an das Kind zurück. Freischalten kannst du die Proben hier im Reiter „Proben“ oder auf der Korrekturseite.</span></div>' +
+      '<a href="' + (ctx.ordner || "7M/Deutsch/") + 'proben-lehrer.html">Proben korrigieren und zurückgeben →</a></div>') +
+      '<div class="tx-kasten"><h3>✍️ Schülertexte aus dem Schreibtrainer' + (werkstatt ? " und der Schreibwerkstatt" : "") + '</h3><p class="tx-hinweis">In den Modulen schreiben die Kinder längere Texte. Jede Fassung wird aufbewahrt: der Originaltext, die Überarbeitungen und die Rückmeldung der KI dazu. ' + (werkstatt ? "Aus der Schreibwerkstatt siehst du außerdem den laufenden Entwurf mit der Planung und ob das Kind seinen Text abgegeben hat. " : "") + 'Dein Kommentar erscheint beim Kind unter dem Schreibauftrag.</p><div id="tx-liste"><div class="skel">Texte werden geladen …</div></div></div>';
     var liste = el.querySelector("#tx-liste"), eintraege = [];
     function zeichnen(offenId) {
       if (!eintraege.length) { liste.innerHTML = '<p class="tx-hinweis">Aus dieser Klasse gibt es noch keine Texte. Sie entstehen, sobald ein Kind – mit seinem Code angemeldet – im Schreibtrainer eine Rückmeldung holt.</p>'; return; }

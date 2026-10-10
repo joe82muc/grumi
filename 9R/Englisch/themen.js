@@ -61,7 +61,21 @@ GrumiKursliste.bauen({
         { id: "u1-writing", kz: "A16", titel: "Writing · An email from Down Under", href: "u1_writing.html", art: "Writing", ls: "e9-u1-writing",
           text: "Schreibwerkstatt: eine E-Mail von der Reise planen, schreiben, prüfen und überarbeiten – mit Schreibcoach." },
         { id: "u1-qualifit", kz: "A17", titel: "Quali-Fit · Unit 1", href: "u1_qualifit.html", art: "Quali-Fit", ls: "e9-u1-qualifit",
-          text: "Prüfungsformate in klein: Hören, Sprachgebrauch, Lesen, Sprachmittlung, Text und Medien, Schreiben – mit viel Rückmeldung." }
+          text: "Prüfungsformate in klein: Hören, Sprachgebrauch, Lesen, Sprachmittlung, Text und Medien, Schreiben – mit viel Rückmeldung." },
+        { id: "u1-revision", kz: "A18", titel: "Wiederholung · Fit for the test: Unit 1", href: "u1_revision.html", art: "Wiederholung", ls: "e9-u1-revision",
+          text: "Gemischte Wiederholung vor der Probe: Wortschatz, die Grammatik der Unit, Lesen, Hören, Sprachmittlung, Schreiben." },
+        { id: "u1-duell", kz: "A19", titel: "Duelle · Unit 1", href: "u1_duell.html", art: "Duell", ls: "e9-u1-duell",
+          text: "Zusatz: Duell gegen die KI und Tischduell zu zweit – Wortschatz und Grammatik der Unit." }
+      ]
+    },
+    {
+      id: "u2", nr: "02", titel: "Unit 2: Exploring India", kurz: "Unit 2", icon: "🐘",
+      text: "Indien, Arbeiten in einer vernetzten Welt, nachhaltig leben, Berufe – mit Wortschatz, Grammatik und allen Fertigkeiten.",
+      module: [
+        { id: "u2-land", kz: "B8", titel: "Land und Leute · India – one country, many worlds", href: "u2_land.html", art: "Land und Leute", ls: "e9-u2-land",
+          text: "Indien: Land, Sprachen, Feste, Alltag – lesen, hören, vergleichen." },
+        { id: "u2-listening", kz: "B9", titel: "Listening · Welcome to our company", href: "u2_listening.html", art: "Listening", ls: "e9-u2-listening",
+          text: "Gespräche aus der Arbeitswelt verstehen: eine Firma stellt sich vor – Thema, Einzelheiten, Notizen." }
       ]
     }
   ]

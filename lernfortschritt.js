@@ -415,10 +415,14 @@
       // Englisch 7, 8 und 9: über dem Lernstand steht das Freischalten der Units und Seiten (gleiche Ansicht wie NT 7).
       // Für die 9. Klassen gibt es je Zug eine Liste (9M/Englisch_9, 9R/Englisch), der Stand liegt gemeinsam unter /api/e9.
       var EL = englischListe();
-      teil.innerHTML = '<div id="vw-e-frei"></div><div id="vw-fach"></div>';
+      teil.innerHTML = '<div id="vw-e-frei"></div><div id="vw-e-texte"></div><div id="vw-fach"></div>';
       // vokabelTon: Schalter „Ton im Vokabeltrainer“ für diese Klasse (nt7-verwaltung.js, js/vokabel-extras.js)
       global.NT7Verwaltung.freigabe($("vw-e-frei"), { api: API, pw: PW, klasse: KLASSE, liste: EL, pfad: EL.PFAD, ordner: EL.ORDNER, vokabelTon: true,
         worte: { titel: "Units und Seiten", das: "die Seite", neu: "Alle Seiten", von: "Seiten", plan: "Seiten in Vorbereitung" } });
+      // Englisch 9R: Die Skill-Module nutzen Schreibtrainer und Schreibwerkstatt von Deutsch mit (Liste mit BAUSTEINE) –
+      // darunter stehen deshalb wie bei Deutsch 8 die Schülertexte: Fassungen, Entwurf, Planung, Kommentar der Lehrkraft
+      if (global.TexteVerwaltung && EL.BAUSTEINE) global.TexteVerwaltung.zeige($("vw-e-texte"), { api: API, pw: PW, klasse: KLASSE, liste: EL, name: nameVon,
+        pfad: EL.BAUSTEINE.api, fach: EL.TITEL, ordner: EL.ORDNER, ohneProben: true });
       fachLaden($("vw-fach"));
     } else {
       teil.innerHTML = '<div id="vw-fach"></div>';
