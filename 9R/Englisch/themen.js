@@ -17,7 +17,7 @@ GrumiKursliste.bauen({
   // Skill-Module (Listening, Reading, Speaking, Writing, Mediation, Quali-Fit …) nutzen die Bausteine von Deutsch 7/8
   // (7M/Deutsch/d7-kit.js). Diese Angaben schalten dort das Fach um: Name, Adresse auf dem Server, Speicher, Sprache
   // der Hörtexte. Englisch 9R hat nur einen Zug – freiwillige Zusatzaufgaben heißen „Challenge“.
-  bausteine: { name: "Englisch 9R", api: "/api/e9", speicher: "grumi-e9-", klasse: "Englisch · Klasse 9R", anker: "thema-", sprache: "en", zug: "R", plusTag: "Challenge · freiwillig" },
+  bausteine: { name: "Englisch 9R", api: "/api/e9", speicher: "grumi-e9-", klasse: "Englisch · Klasse 9R", anker: "thema-", sprache: "en", zug: "R", plusTag: "Challenge · freiwillig", proben: true },
   // Große Proben (js/proben-module.js: e9proben): eine je Unit, Variante A und Nachschreiber B. Die Verwaltung stellt
   // jede Probe beim Freischalten unter ihre Unit.
   proben: { "e9-p1-r-a": "u1", "e9-p1-r-b": "u1", "e9-p2-r-a": "u2", "e9-p2-r-b": "u2", "e9-p3-r-a": "u3", "e9-p3-r-b": "u3", "e9-p4-r-a": "u4", "e9-p4-r-b": "u4" },

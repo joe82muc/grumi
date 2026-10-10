@@ -420,9 +420,10 @@
       global.NT7Verwaltung.freigabe($("vw-e-frei"), { api: API, pw: PW, klasse: KLASSE, liste: EL, pfad: EL.PFAD, ordner: EL.ORDNER, vokabelTon: true,
         worte: { titel: "Units und Seiten", das: "die Seite", neu: "Alle Seiten", von: "Seiten", plan: "Seiten in Vorbereitung" } });
       // Englisch 9R: Die Skill-Module nutzen Schreibtrainer und Schreibwerkstatt von Deutsch mit (Liste mit BAUSTEINE) –
-      // darunter stehen deshalb wie bei Deutsch 8 die Schülertexte: Fassungen, Entwurf, Planung, Kommentar der Lehrkraft
+      // darunter stehen deshalb wie bei Deutsch 8 die Schülertexte: Fassungen, Entwurf, Planung, Kommentar der Lehrkraft.
+      // Den Kasten „Proben“ gibt es nur, wenn die Liste große Proben hat (bausteine.proben – Englisch 9R, nicht 9M).
       if (global.TexteVerwaltung && EL.BAUSTEINE) global.TexteVerwaltung.zeige($("vw-e-texte"), { api: API, pw: PW, klasse: KLASSE, liste: EL, name: nameVon,
-        pfad: EL.BAUSTEINE.api, fach: EL.TITEL, ordner: EL.ORDNER });
+        pfad: EL.BAUSTEINE.api, fach: EL.TITEL, ordner: EL.ORDNER, ohneProben: !EL.BAUSTEINE.proben });
       fachLaden($("vw-fach"));
     } else {
       teil.innerHTML = '<div id="vw-fach"></div>';

@@ -212,7 +212,8 @@
 
     // Für Seiten mit den Bausteinen von NT 7 und Deutsch (7M/NT/modul-basis.js, 7M/Deutsch/d7-kit.js): dieselben Angaben
     // wie die Listen NT7 und D7. Eine solche Seite setzt window.GRUMI_KURS auf diese Liste (Englisch 9R: Skill-Module).
-    // cfg.bausteine: { name, api, speicher, klasse, anker, sprache, zug, plusTag } – Fach-Schalter für d7-kit.js (L.BAUSTEINE).
+    // cfg.bausteine: { name, api, speicher, klasse, anker, sprache, zug, plusTag, proben } – Fach-Schalter für d7-kit.js
+    // (L.BAUSTEINE); proben: true = das Fach hat große Proben mit Korrekturseite (Kasten „Proben“ in der Verwaltung).
     var PREFIX = "grumi-" + cfg.kurs + "-";
     function idAusKey(key) { var s = String(key || ""); return (s.indexOf(PREFIX) === 0 ? s.slice(PREFIX.length) : s).replace(/-v\d+$/, ""); }
     // Zug des Kindes (M oder R): Kurs mit nur einem Zug -> dieser; sonst aus der Anmeldung („9M“ / „9R“)
