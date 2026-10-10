@@ -9,6 +9,8 @@
  *              (/api/health: probenVorschau; Route /api/proben/vorschau). vorschauLabor = Ordner mit labor.js und
  *              darstellung.js (NT 8), vorschauPath = eigene Route der Probenart, falls der Server die gemeinsame
  *              noch nicht kennt
+ *   hoertextPath Route für die Hörtexte einer Probe (Mitschrift; Aufnahme unter …-datei) – die Verwaltung zeigt dann
+ *              bei Proben mit Hörtext „🎧 Hörtext abspielen“ (js/probe-hoertext.js); die Liste nennt hoertexte: Anzahl
  *   klasse     "7" = alle 7. Klassen, "7M"/"7R" = nur dieser Zug
  *   stufen     Jahrgangsstufen, in denen das Modul Proben haben kann (die Startseite fragt nur diese ab)
  *   link       Lehrerseite (Ergebnisse), schueler = Seite für die Kinder
@@ -118,6 +120,8 @@
          Hörteil. Unter welcher Unit eine Probe steht, sagt die Liste (9R/Englisch/themen.js: proben). */
       key: "e9proben", subject: "Englisch", stufen: [9], liste: "E9R",
       listPath: "/api/e9/proben/list?alle=1", unlockPath: "/api/e9/proben/teacher/unlock",
+      // Den Hörtext spielt die Lehrkraft für alle ab (js/probe-hoertext.js) – die Kinder haben keinen Spieler
+      hoertextPath: "/api/e9/proben/teacher/hoertext",
       klasse: function () { return "9R"; }, link: function (t) { return "9R/Englisch/proben-lehrer.html?nr=" + t.nr; },
       schueler: function (t) { return "9R/Englisch/probe.html?test=" + encodeURIComponent(t.id) + "&zug=R"; }
     },

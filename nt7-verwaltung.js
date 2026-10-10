@@ -100,7 +100,7 @@
         return fetch(ctx.api + mod.listPath).then(function (r) { return r.ok ? r.json() : { tests: [] }; }).then(function (d) {
           // frühere Fassungen einer Probe (alt) stehen nur noch hier, solange sie offen sind (damit man sie sperren kann)
           return (d.tests || []).filter(function (t) { if (t.alt && !t.unlocked) return false; var k = mod.klasse(t); return listeVon(mod, t) === N && (k === String(STUFE) || k === STUFE + ZUG); })
-            .map(function (t) { return { mod: mod, id: t.id, titel: t.title || t.id, offen: !!t.unlocked, aufgaben: t.itemCount, punkte: t.maxPoints, klasse: mod.klasse(t), link: mod.link ? mod.link(t) : "", schueler: mod.schueler ? mod.schueler(t) : "" }; });
+            .map(function (t) { return { mod: mod, id: t.id, titel: t.title || t.id, offen: !!t.unlocked, aufgaben: t.itemCount, punkte: t.maxPoints, hoertexte: t.hoertexte || 0, klasse: mod.klasse(t), link: mod.link ? mod.link(t) : "", schueler: mod.schueler ? mod.schueler(t) : "" }; });
         }).catch(function () { return []; });
       })); }).then(function (teile) { PROBEN = [].concat.apply([], teile); });
     }
@@ -118,6 +118,8 @@
         teile.push("gilt " + fuerWen(p));
         // Probe ansehen, drucken oder als PDF speichern (js/probe-vorschau.js) – so, wie das Kind sie bekommt, oder mit Lösungen
         var vorschau = global.GrumiProbeVorschau && global.GrumiProbeVorschau.kann(p.mod) ? ' · <button class="nt7f-vorschau" type="button" data-vorschau="' + esc(p.id) + '">👁 Vorschau · PDF</button>' : "";
+        // Hörtext für die ganze Klasse abspielen (js/probe-hoertext.js) – die Kinder haben keinen eigenen Spieler
+        if (global.GrumiProbeHoertext && global.GrumiProbeHoertext.kann(p.mod, p)) vorschau += ' · <button class="nt7f-vorschau" type="button" data-hoertext="' + esc(p.id) + '">🎧 Hörtext abspielen</button>';
         return '<div class="nt7f-probe"><span class="nr" aria-hidden="true">📝</span><span><b>' + esc(p.titel) + "</b><small>" + esc(teile.join(" · ")) + vorschau +
           (p.offen && p.schueler ? ' · <a href="' + esc(p.schueler) + '" target="_blank" rel="noopener">🔗 Seite für die Kinder ↗</a>' : "") + "</small></span>" +
           '<button class="nt7f-schalter' + (p.offen ? " offen" : "") + '" type="button" data-probe="' + esc(p.id) + '" data-offen="' + (p.offen ? "0" : "1") + '" aria-pressed="' + p.offen + '">' + (p.offen ? "✓ offen" : "🔒 gesperrt") + "</button>" +
@@ -184,6 +186,12 @@
         b.addEventListener("click", function () {
           var p = PROBEN.filter(function (x) { return x.id === b.getAttribute("data-vorschau"); })[0];
           if (p) global.GrumiProbeVorschau.oeffnen(p.mod, { id: p.id, fach: p.mod.subject + " · Klasse " + p.klasse }, { api: ctx.api, password: ctx.pw });
+        });
+      });
+      Array.prototype.forEach.call(d.querySelectorAll("[data-hoertext]"), function (b) {
+        b.addEventListener("click", function () {
+          var p = PROBEN.filter(function (x) { return x.id === b.getAttribute("data-hoertext"); })[0];
+          if (p) global.GrumiProbeHoertext.oeffnen(p.mod, { id: p.id, titel: p.titel, fach: p.mod.subject + " · Klasse " + p.klasse }, { api: ctx.api, password: ctx.pw });
         });
       });
       Array.prototype.forEach.call(d.querySelectorAll("[data-probe]"), function (b) {

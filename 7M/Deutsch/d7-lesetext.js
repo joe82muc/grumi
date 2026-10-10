@@ -107,6 +107,8 @@
      Ein Durchgang zählt, sobald er beginnt; wird er unterbrochen (Seite neu geladen), geht er an der Stelle weiter.
      Die Tonspur kommt vom Server (/api/speech/speak, je Satz) – antwortet er nicht, liest das Gerät mit einer
      englischen Stimme vor. Kann das Gerät gar nicht vorlesen, steht der Text einmal zum Lesen da.
+     Hörtext mit zentral: true (Englisch-9-Proben): kein Spieler – die Lehrkraft spielt die Aufnahme in der Verwaltung
+     für alle ab (js/probe-hoertext.js); der Server schickt dann nur Titel, rollen und mal, nicht den Text.
      Die Lernmodule spielen ihre Hörtexte in d7-spiel.js ab (dort mit Pause, langsamer, Mitschrift nach den Aufgaben). */
   var STIMMEN_EN = ["en-GB-SoniaNeural", "en-GB-RyanNeural", "en-GB-LibbyNeural", "en-US-GuyNeural", "en-US-JennyNeural"];
   var SPASS = /^(albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|jester|organ|pipe organ|princess|superstar|trinoids|whisper|wobble|zarvox|agnes|bruce|fred|junior|kathy|ralph|vicki|victoria|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley)\b/i;
@@ -117,9 +119,13 @@
     return st;
   }
   function hoerHtml(t) {
-    var id = esc(t.id || ""), mal = t.mal || 2, rollen = hoerRollen(t);
-    return '<div class="lt hoertext" data-text="' + id + '" data-hoer="' + id + '">' + kopf(t, "<small>🎧 Listening · you can listen " + (mal === 1 ? "once" : mal === 2 ? "twice" : mal + " times") + "</small>") +
-      '<div class="lt-hoer">' + (rollen.length > 1 ? '<div class="lt-hoer-rollen">' + rollen.map(function (r) { return '<span data-r="' + esc(r) + '">' + esc(r) + "</span>"; }).join("") + "</div>" : "") +
+    var id = esc(t.id || ""), mal = t.mal || 2, rollen = t.rollen || hoerRollen(t), oft = mal === 1 ? "once" : mal === 2 ? "twice" : mal + " times";
+    var namen = rollen.length > 1 ? '<div class="lt-hoer-rollen">' + rollen.map(function (r) { return '<span data-r="' + esc(r) + '">' + esc(r) + "</span>"; }).join("") + "</div>" : "";
+    // zentral (Englisch-9-Proben): Die Lehrkraft spielt die Aufnahme für alle ab – das Kind hat weder Spieler noch Text
+    if (t.zentral) return '<div class="lt hoertext zentral" data-text="' + id + '">' + kopf(t, "<small>🎧 Listening · your teacher plays the recording " + oft + "</small>") +
+      '<div class="lt-hoer">' + namen + '<p class="lt-hoer-status">Read the tasks first. Your teacher plays the recording for the whole class – listen carefully. <span lang="de">Lies zuerst die Aufgaben. Deine Lehrkraft spielt den Hörtext für alle ab – höre genau zu.</span></p></div>' + fuss(t) + "</div>";
+    return '<div class="lt hoertext" data-text="' + id + '" data-hoer="' + id + '">' + kopf(t, "<small>🎧 Listening · you can listen " + oft + "</small>") +
+      '<div class="lt-hoer">' + namen +
       '<button type="button" class="btn lt-hoer-play">▶ Play</button><div class="lt-hoer-lauf" aria-hidden="true"><i></i></div>' +
       '<p class="lt-hoer-status" role="status">Read the tasks first. Then listen. <span lang="de">Lies zuerst die Aufgaben, dann höre zu.</span></p><div class="lt-hoer-ersatz" hidden></div></div>' + fuss(t) + "</div>";
   }
