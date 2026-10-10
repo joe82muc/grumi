@@ -68,14 +68,31 @@ GrumiKursliste.bauen({
         { id: "u1-revision", kz: "A18", titel: "Wiederholung · Fit for the test: Unit 1", href: "u1_revision.html", art: "Wiederholung", ls: "e9-u1-revision",
           text: "Gemischte Wiederholung vor der Probe: Wortschatz, die Grammatik der Unit, Lesen, Hören, Sprachmittlung, Schreiben." },
         { id: "u1-duell", kz: "A19", titel: "Duelle · Unit 1", href: "u1_duell.html", art: "Duell", ls: "e9-u1-duell",
-          text: "Zusatz: Duell gegen die KI und Tischduell zu zweit – Wortschatz und Grammatik der Unit." }
+          text: "Zusatz: Duell gegen die KI und Tischduell zu zweit – Wortschatz und Grammatik der Unit." },
+        { id: "u1-blaetter", kz: "A20", titel: "Arbeitsblätter · Unit 1", href: "u1_blaetter.html", art: "Arbeitsblatt",
+          text: "Sieben Blätter zum Drucken: Vocabulary, Grammar, Reading, Listening, Writing, Mediation, Mixed revision – aus den Aufgaben der Module." }
       ]
     },
     {
       id: "u2", nr: "02", titel: "Unit 2: Exploring India", kurz: "Unit 2", icon: "🐘",
       text: "Indien, Arbeiten in einer vernetzten Welt, nachhaltig leben, Berufe – mit Wortschatz, Grammatik und allen Fertigkeiten.",
       module: [
-        // Kürzel B1 bis B7 sind vergeben: B1 Vokabeltrainer, B2/B3 Grammatik (G5, G6), B4 bis B7 Wordbanks – sie folgen
+        // Vokabeltrainer der Units 2 bis 4: gebaut aus der Wortliste der Lehrkraft (.codex-build/englisch9r-werkzeug/bau-e9-vokabeltrainer.js).
+        // Grammatik und Wordbanks: Baukasten js/grammatik.js (seiten.js)
+        { id: "u2-vokabeln", kz: "B1", titel: "Vokabeltrainer Unit 2", href: "unit2/vokabular/vokabeltrainer.html", art: "Wortschatz", trainer: true, ls: "e9-u2-vokabeln",
+          text: "Alle Wörter der Unit mit Aussprache, Karteikarten und Beispielsätzen." },
+        { id: "u2-g5", kz: "B2", titel: "G5 · Simple present", href: "unit2/grammatik/g5-simple-present.html", art: "Grammatik", ls: "e9-u2-g5",
+          text: "Die einfache Gegenwart: Gewohnheiten und Tatsachen, he/she/it mit -s, Fragen und Verneinung mit do und does." },
+        { id: "u2-g6", kz: "B3", titel: "G6 · Word order", href: "unit2/grammatik/g6-word-order.html", art: "Grammatik", ls: "e9-u2-g6",
+          text: "Satzstellung: Subjekt – Verb – Objekt, danach Art und Weise, Ort, Zeit." },
+        { id: "u2-wb1", kz: "B4", titel: "Wordbank · Presenting a company: Trainer", href: "unit2/vokabular/wordbank-presenting-a-company.html", art: "Wortschatz", ls: "e9-u2-wb1",
+          text: "Wörter und Sätze der Wordbank lernen: Aussprache, Multiple Choice, Tippen, Karteikarten." },
+        { id: "u2-w1", kz: "B5", titel: "Wordbank · Presenting a company: Übungen", href: "unit2/wordbank/presenting-a-company.html", art: "Übung", ls: "e9-u2-w1",
+          text: "Eine Firma vorstellen: was sie macht, wer dort arbeitet, was besonders ist." },
+        { id: "u2-wb2", kz: "B6", titel: "Wordbank · Sustainable living: Trainer", href: "unit2/vokabular/wordbank-sustainable-living.html", art: "Wortschatz", ls: "e9-u2-wb2",
+          text: "Wörter und Sätze der Wordbank lernen: Aussprache, Multiple Choice, Tippen, Karteikarten." },
+        { id: "u2-w2", kz: "B7", titel: "Wordbank · Sustainable living: Übungen", href: "unit2/wordbank/sustainable-living.html", art: "Übung", ls: "e9-u2-w2",
+          text: "Nachhaltig leben: Müll vermeiden, Energie sparen, wiederverwenden – darüber sprechen und schreiben." },
         { id: "u2-land", kz: "B8", titel: "Land und Leute · India – one country, many worlds", href: "u2_land.html", art: "Land und Leute", ls: "e9-u2-land",
           text: "Indien: Land, Sprachen, Feste, Alltag – lesen, hören, vergleichen." },
         { id: "u2-listening", kz: "B9", titel: "Listening · Welcome to our company", href: "u2_listening.html", art: "Listening", ls: "e9-u2-listening",
@@ -90,15 +107,32 @@ GrumiKursliste.bauen({
           text: "Schreibwerkstatt: eine Geschichte zu Bildern planen, schreiben, prüfen und überarbeiten – mit Schreibcoach." },
         { id: "u2-qualifit", kz: "B14", titel: "Quali-Fit · Unit 2", href: "u2_qualifit.html", art: "Quali-Fit", ls: "e9-u2-qualifit",
           text: "Prüfungsformate in klein: Hören, Sprachgebrauch, Lesen, Sprachmittlung, Text und Medien, Schreiben – mit mehr Auswahl und längeren Texten." },
+        { id: "u2-revision", kz: "B15", titel: "Wiederholung · Fit for the test: Unit 2", href: "u2_revision.html", art: "Wiederholung", ls: "e9-u2-revision",
+          text: "Gemischte Wiederholung vor der Probe: Wortschatz, die Grammatik der Unit, Lesen, Hören, Sprachmittlung, Schreiben." },
         { id: "u2-duell", kz: "B16", titel: "Duelle · Unit 2", href: "u2_duell.html", art: "Duell", ls: "e9-u2-duell",
-          text: "Zusatz: Duell gegen die KI und Tischduell zu zweit – Wortschatz und Grammatik der Unit." }
+          text: "Zusatz: Duell gegen die KI und Tischduell zu zweit – Wortschatz und Grammatik der Unit." },
+        { id: "u2-blaetter", kz: "B17", titel: "Arbeitsblätter · Unit 2", href: "u2_blaetter.html", art: "Arbeitsblatt",
+          text: "Sieben Blätter zum Drucken: Vocabulary, Grammar, Reading, Listening, Writing, Mediation, Mixed revision – aus den Aufgaben der Module." }
       ]
     },
     {
       id: "u3", nr: "03", titel: "Unit 3: Discover South Africa", kurz: "Unit 3", icon: "🦁",
       text: "Südafrika, ein Unfall und die Polizei, Vorbilder, im Krankenhaus – mit Wortschatz, Grammatik und allen Fertigkeiten.",
       module: [
-        // Kürzel C1 bis C7 sind vergeben: C1 Vokabeltrainer, C2/C3 Grammatik (G7, G8), C4 bis C7 Wordbanks – sie folgen
+        { id: "u3-vokabeln", kz: "C1", titel: "Vokabeltrainer Unit 3", href: "unit3/vokabular/vokabeltrainer.html", art: "Wortschatz", trainer: true, ls: "e9-u3-vokabeln",
+          text: "Alle Wörter der Unit mit Aussprache, Karteikarten und Beispielsätzen." },
+        { id: "u3-g7", kz: "C2", titel: "G7 · Past progressive", href: "unit3/grammatik/g7-past-progressive.html", art: "Grammatik", ls: "e9-u3-g7",
+          text: "Die Verlaufsform der Vergangenheit: Was lief gerade, als etwas passierte? Mit while und when." },
+        { id: "u3-g8", kz: "C3", titel: "G8 · Present perfect with for and since", href: "unit3/grammatik/g8-present-perfect.html", art: "Grammatik", ls: "e9-u3-g8",
+          text: "Was bis heute gilt: have/has + Partizip, mit for (Zeitraum) und since (Zeitpunkt)." },
+        { id: "u3-wb1", kz: "C4", titel: "Wordbank · Talking about an accident: Trainer", href: "unit3/vokabular/wordbank-talking-about-an-accident.html", art: "Wortschatz", ls: "e9-u3-wb1",
+          text: "Wörter und Sätze der Wordbank lernen: Aussprache, Multiple Choice, Tippen, Karteikarten." },
+        { id: "u3-w1", kz: "C5", titel: "Wordbank · Talking about an accident: Übungen", href: "unit3/wordbank/talking-about-an-accident.html", art: "Übung", ls: "e9-u3-w1",
+          text: "Von einem Unfall berichten: was, wo, wann, wer ist verletzt – und Hilfe holen." },
+        { id: "u3-wb2", kz: "C6", titel: "Wordbank · Describing a role model: Trainer", href: "unit3/vokabular/wordbank-describing-a-role-model.html", art: "Wortschatz", ls: "e9-u3-wb2",
+          text: "Wörter und Sätze der Wordbank lernen: Aussprache, Multiple Choice, Tippen, Karteikarten." },
+        { id: "u3-w2", kz: "C7", titel: "Wordbank · Describing a role model: Übungen", href: "unit3/wordbank/describing-a-role-model.html", art: "Übung", ls: "e9-u3-w2",
+          text: "Ein Vorbild beschreiben: Eigenschaften, was die Person getan hat, warum du sie bewunderst." },
         { id: "u3-land", kz: "C8", titel: "Land und Leute · South Africa – the rainbow nation", href: "u3_land.html", art: "Land und Leute", ls: "e9-u3-land",
           text: "Südafrika: Land, Sprachen, Geschichte in Grundzügen, Natur, Alltag – lesen, hören, vergleichen." },
         { id: "u3-listening", kz: "C9", titel: "Listening · What happened?", href: "u3_listening.html", art: "Listening", ls: "e9-u3-listening",
@@ -113,19 +147,54 @@ GrumiKursliste.bauen({
           text: "Schreibwerkstatt: einen Text über ein Vorbild planen, schreiben, prüfen und überarbeiten – mit Schreibcoach." },
         { id: "u3-qualifit", kz: "C14", titel: "Quali-Fit · Unit 3", href: "u3_qualifit.html", art: "Quali-Fit", ls: "e9-u3-qualifit",
           text: "Prüfungsformate in klein: Hören, Sprachgebrauch, Lesen, Sprachmittlung, Text und Medien, Schreiben – kombiniert und mit weniger Hilfen." },
+        { id: "u3-revision", kz: "C15", titel: "Wiederholung · Fit for the test: Unit 3", href: "u3_revision.html", art: "Wiederholung", ls: "e9-u3-revision",
+          text: "Gemischte Wiederholung vor der Probe: Wortschatz, die Grammatik der Unit, Lesen, Hören, Sprachmittlung, Schreiben." },
         { id: "u3-duell", kz: "C16", titel: "Duelle · Unit 3", href: "u3_duell.html", art: "Duell", ls: "e9-u3-duell",
-          text: "Zusatz: Duell gegen die KI und Tischduell zu zweit – Wortschatz und Grammatik der Unit." }
+          text: "Zusatz: Duell gegen die KI und Tischduell zu zweit – Wortschatz und Grammatik der Unit." },
+        { id: "u3-blaetter", kz: "C17", titel: "Arbeitsblätter · Unit 3", href: "u3_blaetter.html", art: "Arbeitsblatt",
+          text: "Sieben Blätter zum Drucken: Vocabulary, Grammar, Reading, Listening, Writing, Mediation, Mixed revision – aus den Aufgaben der Module." }
       ]
     },
     {
       id: "u4", nr: "04", titel: "Unit 4: News from New Zealand", kurz: "Unit 4", icon: "🥝",
       text: "Neuseeland, Berufsberatung und Praktikum, Generationen, Verein, Bewerbung – mit Wortschatz, Grammatik und allen Fertigkeiten.",
       module: [
-        // Kürzel D1 bis D7 sind vergeben: D1 Vokabeltrainer, D2/D3 Grammatik (G9, G10), D4 bis D7 Wordbanks – sie folgen
+        { id: "u4-vokabeln", kz: "D1", titel: "Vokabeltrainer Unit 4", href: "unit4/vokabular/vokabeltrainer.html", art: "Wortschatz", trainer: true, ls: "e9-u4-vokabeln",
+          text: "Alle Wörter der Unit mit Aussprache, Karteikarten und Beispielsätzen." },
+        { id: "u4-g9", kz: "D2", titel: "G9 · Going to-future", href: "unit4/grammatik/g9-going-to-future.html", art: "Grammatik", ls: "e9-u4-g9",
+          text: "Pläne und Absichten: am/is/are going to – Aussage, Verneinung, Frage." },
+        { id: "u4-g10", kz: "D3", titel: "G10 · Passive", href: "unit4/grammatik/g10-passive.html", art: "Grammatik", ls: "e9-u4-g10",
+          text: "Das Passiv verstehen: Was wird gemacht – und von wem? (is made, was built, by …)" },
+        { id: "u4-wb1", kz: "D4", titel: "Wordbank · Jobs and qualities: Trainer", href: "unit4/vokabular/wordbank-jobs-and-qualities.html", art: "Wortschatz", ls: "e9-u4-wb1",
+          text: "Wörter und Sätze der Wordbank lernen: Aussprache, Multiple Choice, Tippen, Karteikarten." },
+        { id: "u4-w1", kz: "D5", titel: "Wordbank · Jobs and qualities: Übungen", href: "unit4/wordbank/jobs-and-qualities.html", art: "Übung", ls: "e9-u4-w1",
+          text: "Berufe und Eigenschaften: was man in einem Beruf macht und was man dafür können muss." },
+        { id: "u4-wb2", kz: "D6", titel: "Wordbank · Talking about an internship: Trainer", href: "unit4/vokabular/wordbank-talking-about-an-internship.html", art: "Wortschatz", ls: "e9-u4-wb2",
+          text: "Wörter und Sätze der Wordbank lernen: Aussprache, Multiple Choice, Tippen, Karteikarten." },
+        { id: "u4-w2", kz: "D7", titel: "Wordbank · Talking about an internship: Übungen", href: "unit4/wordbank/talking-about-an-internship.html", art: "Übung", ls: "e9-u4-w2",
+          text: "Über ein Praktikum sprechen: Aufgaben, Arbeitszeiten, was du gelernt hast." },
         { id: "u4-land", kz: "D8", titel: "Land und Leute · New Zealand – Aotearoa", href: "u4_land.html", art: "Land und Leute", ls: "e9-u4-land",
           text: "Neuseeland: Land, Natur, Māori-Kultur in Grundzügen, Freizeit und Vereine – lesen, hören, vergleichen." },
         { id: "u4-listening", kz: "D9", titel: "Listening · What are you going to do?", href: "u4_listening.html", art: "Listening", ls: "e9-u4-listening",
-          text: "Gespräche verstehen: Pläne nach der Schule, ein Anruf wegen eines Praktikums – Thema, Einzelheiten, Notizen." }
+          text: "Gespräche verstehen: Pläne nach der Schule, ein Anruf wegen eines Praktikums – Thema, Einzelheiten, Notizen." },
+        { id: "u4-reading", kz: "D10", titel: "Reading · Three generations, one story", href: "u4_reading.html", art: "Reading", ls: "e9-u4-reading",
+          text: "Einen Text über Jung und Alt verstehen: Thema, Einzelheiten mit Zeilenangabe, zwischen den Zeilen lesen." },
+        { id: "u4-speaking", kz: "D11", titel: "Speaking · A job interview", href: "u4_speaking.html", art: "Speaking", ls: "e9-u4-speaking",
+          text: "Ein Vorstellungsgespräch führen: sich vorstellen, Stärken nennen, Fragen beantworten und stellen – mit Rollenkarten." },
+        { id: "u4-mediation", kz: "D12", titel: "Mediation · Join the club!", href: "u4_mediation.html", art: "Mediation", ls: "e9-u4-mediation",
+          text: "Sprachmittlung: Informationen über einen Verein weitergeben – das Wichtige auswählen, einfach sagen, an die Person denken." },
+        { id: "u4-writing", kz: "D13", titel: "Writing · My application", href: "u4_writing.html", art: "Writing", ls: "e9-u4-writing",
+          text: "Schreibwerkstatt: eine Bewerbung auf eine Anzeige planen, schreiben, prüfen und überarbeiten – mit Schreibcoach." }
+      ]
+    },
+    // Dolmetschen (seit 10.10.2026): die früheren Mediations-Seiten von Englisch 9M, neu gebaut mit den Bausteinen der
+    // Skill-Module. Gleiche Kennungen und Kürzel wie in 9M/Englisch_9/themen.js. „At the hospital“ ist C12.
+    {
+      id: "mediation", nr: "05", titel: "Interpreting: Dolmetschen üben", kurz: "Interpreting", icon: "🗣️",
+      text: "Für die mündliche Prüfung: in einem Gespräch zwischen Deutsch und Englisch vermitteln – sinngemäß, höflich, in beide Richtungen.",
+      module: [
+        { id: "med-doctor", kz: "M4", titel: "Interpreting · At the doctor's", href: "med_doctor.html", art: "Mediation", ls: "e9-med-doctor",
+          text: "Beim Arzt dolmetschen: Beschwerden weitergeben, Rückfragen und Anweisungen verstehen und auf Deutsch erklären." }
       ]
     }
   ]
