@@ -7,6 +7,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundenes Schulradio, erfundener Markt, erfundene Personen)",
   zeilennummern: false, probe: false,
   stimmen: { Busisiwe: "en-GB-LibbyNeural", "Mr Radebe": "en-GB-RyanNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Busisiwe", text: "Welcome to Radio Bright Hill, the radio of our school. I am Busisiwe. Today I am talking to Mr Radebe, who sells fruit at the market on Oak Corner. Yesterday morning he saw an accident near his stall. Mr Radebe, what happened?" },
     { rolle: "Mr Radebe", text: "Good morning, Busisiwe. It was Tuesday, at about seven o'clock. I was putting out my oranges when I heard a loud noise. A small motorbike was turning the corner, and a dog was running across the road. The rider stopped quickly, but he fell." },

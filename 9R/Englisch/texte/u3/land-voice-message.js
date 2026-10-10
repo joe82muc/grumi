@@ -8,6 +8,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Schule und Personen)",
   zeilennummern: false, probe: false,
   stimmen: { "Mrs Dlamini": "en-GB-SoniaNeural", Thandi: "en-GB-LibbyNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Mrs Dlamini", text: "Hello, Class Nine in Germany! This is Mrs Dlamini from a school in a town near the coast of South Africa. One of my students, Thandi, has recorded a message for you." },
     { rolle: "Thandi", text: "Hello! My name is Thandi, and I am fifteen. We speak Zulu at home, but at school we learn English and Afrikaans, too." },

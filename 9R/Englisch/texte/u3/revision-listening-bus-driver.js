@@ -7,6 +7,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Personen)",
   zeilennummern: false, probe: false,
   stimmen: { "Mrs Sithole": "en-GB-SoniaNeural", Zinhle: "en-GB-LibbyNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Mrs Sithole", text: "Welcome to Young Voices. Today Zinhle tells us about her role model. Zinhle, who is it?" },
     { rolle: "Zinhle", text: "My bus driver. She has driven our school bus for twelve years, and I have known her since I was six." },

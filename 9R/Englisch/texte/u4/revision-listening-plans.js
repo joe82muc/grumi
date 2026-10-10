@@ -7,6 +7,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Personen)",
   zeilennummern: false, probe: false,
   stimmen: { Ari: "en-GB-RyanNeural", Lily: "en-GB-LibbyNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Ari", text: "Hi Lily! Only two weeks until the last exam. Are you excited?" },
     { rolle: "Lily", text: "Very! After the exams I am going to relax for a week. Then I am going to work in my uncle's café." },

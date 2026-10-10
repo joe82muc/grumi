@@ -7,6 +7,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundener Park, erfundene Personen; Preise gelten nur in dieser Geschichte)",
   zeilennummern: false, probe: false,
   stimmen: { "Sizakele": "en-GB-SoniaNeural", "You": "en-GB-LibbyNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Sizakele", text: "Good morning! I am Sizakele, a ranger here. We have two bird walks tomorrow." },
     { rolle: "Sizakele", text: "The Lake Walk is short and flat. It starts at half past six and takes two hours." },

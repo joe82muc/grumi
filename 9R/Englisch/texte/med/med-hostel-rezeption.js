@@ -7,6 +7,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundenes Hostel, erfundene Personen und Preise)",
   zeilennummern: false, probe: false,
   stimmen: { "Tebogo": "en-GB-RyanNeural", "You": "en-GB-LibbyNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Tebogo", text: "I am very sorry, but your room is not ready yet. A guest left late, and the cleaner is still working." },
     { rolle: "Tebogo", text: "The room will be ready at half past ten. Until then, you can wait in our lounge, and I will bring you a cup of tea." },

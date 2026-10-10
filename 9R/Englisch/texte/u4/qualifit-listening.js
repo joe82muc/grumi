@@ -7,6 +7,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundenes Schulradio, erfundenes Café, erfundene Personen)",
   zeilennummern: false, probe: false,
   stimmen: { Host: "en-GB-SoniaNeural", Maia: "en-GB-LibbyNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Host", text: "Hello and welcome to Hartwell School Radio. I am your host, and today I am talking to Maia. Maia is a trainee cook in the café of our school. Maia, how did you get this job?" },
     { rolle: "Maia", text: "Last year I did a work experience week in the café. I washed vegetables and made a big pot of soup. The chef, Mr Greene, told me that I was good with food. So I asked for a training place, and I started in September." },

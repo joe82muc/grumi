@@ -7,6 +7,7 @@ D7Texte.add({
   schwierigkeit: "leicht", lehrplan: "E9 1.2 Sprechen (zusammenhängend sprechen), E9 1.1 Hörverstehen, E9 2 (Redemittel)", thema: "Vier Freunde am Lagerfeuer",
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI",
   zeilennummern: false, probe: false,
+  aufnahme: true,
   sprecher: [
     { rolle: "Speaker", text: "This picture shows four friends at a campsite. I think it is evening." },
     { rolle: "Speaker", text: "In the foreground, four people are sitting around a small fire. They are holding long sticks, and on every stick there is a white marshmallow." },

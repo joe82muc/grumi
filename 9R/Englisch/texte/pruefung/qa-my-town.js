@@ -6,6 +6,7 @@ D7Texte.add({
   schwierigkeit: "leicht", lehrplan: "E9 1.2 Sprechen (zusammenhängend vortragen), E9 1.1 Hörverstehen", thema: "Mündliche Prüfung: Topic-based talk",
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Stadt, keine echten Orte)",
   zeilennummern: false, probe: false,
+  aufnahme: true,
   sprecher: [
     { rolle: "Student", text: "Hello. My topic is my town. I will talk about three things: the park, the market and the buses." },
     { rolle: "Student", text: "First, the park. It is in the middle of the town. On Sundays many families go there. For example, I often play football there with my friends." },

@@ -7,6 +7,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Personen; der Ablauf ist allgemein gehalten)",
   zeilennummern: false, probe: false,
   stimmen: { "Constable Hendricks": "en-GB-SoniaNeural", "You": "en-GB-LibbyNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Constable Hendricks", text: "A small red car reversed, knocked over a parked motorbike and drove away. Which way did it go at the end of the road, left or right?" },
     { rolle: "You", text: "She says it went towards the sea." },

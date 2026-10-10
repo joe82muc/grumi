@@ -7,6 +7,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Personen, erfundene Schule und erfundener Hof)",
   zeilennummern: false, probe: false,
   stimmen: { Sophie: "en-GB-SoniaNeural", Manaia: "en-GB-LibbyNeural", Hemi: "en-GB-RyanNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Sophie", text: "Hi, Manaia. Hi, Hemi. It is break time, and I need your help. Mrs Ngata asked me about my plans after school, and I do not know what to say." },
     { rolle: "Manaia", text: "I know exactly what I am going to do. I am going to be a cook. In January I am going to start an apprenticeship in a hotel kitchen." },

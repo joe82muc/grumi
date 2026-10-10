@@ -7,6 +7,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Firma und Personen)",
   zeilennummern: false, probe: false,
   stimmen: { "Mr Fernandes": "en-GB-RyanNeural", Nisha: "en-GB-LibbyNeural", Imran: "en-US-GuyNeural", Leela: "en-GB-SoniaNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Mr Fernandes", text: "Welcome to the Silver Leaf Tea Company, Oskar. I am Mr Fernandes, the manager. Every Monday I have a video call with our customers in other countries. Today you meet three people from my team." },
     { rolle: "Nisha", text: "Hello Oskar! I am Nisha. I work in the packing room. My machine fills the tea into small boxes, and I check every box. I never work on Sundays." },

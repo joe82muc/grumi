@@ -6,6 +6,7 @@ D7Texte.add({
   schwierigkeit: "leicht", lehrplan: "E9 1.2 Sprechen (zusammenhängend vortragen), E9 1.1 Hörverstehen, E9 3", thema: "Über ein Vorbild sprechen",
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Person, erfundene Schülerin)",
   zeilennummern: false, probe: false,
+  aufnahme: true,
   sprecher: [
     { rolle: "Ayanda", text: "Hello everyone. Today I want to talk about my role model. Her name is Coach Mbali." },
     { rolle: "Ayanda", text: "Coach Mbali is my running coach. I have known her for three years, and she has trained our school team since last September." },

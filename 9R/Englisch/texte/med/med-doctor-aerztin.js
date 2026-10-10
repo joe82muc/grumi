@@ -7,6 +7,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Praxis, erfundene Personen; kein medizinischer Rat)",
   zeilennummern: false, probe: false,
   stimmen: { "Dr Abrahams": "en-GB-SoniaNeural", "You": "en-GB-LibbyNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Dr Abrahams", text: "Stomach ache, feeling sick and no appetite: I think his stomach is just upset. It is not serious." },
     { rolle: "Dr Abrahams", text: "For the next two days, he should eat only light food, for example rice, bananas and toast. No fried food and nothing spicy." },

@@ -7,6 +7,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundenes Restaurant, erfundene Personen und Gerichte)",
   zeilennummern: false, probe: false,
   stimmen: { "Lwazi": "en-GB-RyanNeural", "You": "en-GB-LibbyNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Lwazi", text: "Good evening! I can recommend our house dish. It is a chicken curry with rice, and it is mild." },
     { rolle: "You", text: "Sorry, what does mild mean?" },

@@ -7,6 +7,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundener Markt, erfundene Personen; Preise nur Angaben dieses Stands)",
   zeilennummern: false, probe: false,
   stimmen: { "Nokuthula": "en-GB-SoniaNeural", "You": "en-GB-LibbyNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Nokuthula", text: "Hello, and welcome to my stall! Yes, I make the baskets myself, and my sister makes the bracelets." },
     { rolle: "Nokuthula", text: "The baskets are made of dry grass, and the bracelets are made of small glass beads." },

@@ -6,6 +6,7 @@ D7Texte.add({
   schwierigkeit: "leicht", lehrplan: "E9 1.2 Sprechen (Gespräche führen), E9 1.1 Hörverstehen, E9 3", thema: "Vorstellungsgespräch für einen Aushilfsjob",
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Personen, erfundener Ferienpark)",
   zeilennummern: false, probe: false,
+  aufnahme: true,
   sprecher: [
     { rolle: "Mr Fraser", text: "Good morning, Jordan. Please sit down." },
     { rolle: "Jordan", text: "Good morning, Mr Fraser. Thank you for seeing me." },

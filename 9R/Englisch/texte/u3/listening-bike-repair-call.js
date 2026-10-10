@@ -7,6 +7,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundener Laden, erfundene Straße)",
   zeilennummern: false, probe: false,
   stimmen: { Assistant: "en-GB-SoniaNeural", Kagiso: "en-US-GuyNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Assistant", text: "Good morning, Blue Gate Cycles. How can I help you?" },
     { rolle: "Kagiso", text: "Hello. My name is Kagiso. I had a small accident on my bike, and I need a repair." },

@@ -8,6 +8,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Schule und Personen)",
   zeilennummern: false, probe: false,
   stimmen: { "Mrs Walker": "en-GB-SoniaNeural", Tama: "en-GB-RyanNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Mrs Walker", text: "Hello, Class Nine in Germany! This is Mrs Walker from a school in a small town on the North Island of New Zealand. One of my students, Tama, has made a voice message for you." },
     { rolle: "Tama", text: "Kia ora! My name is Tama, and I am fifteen. At home we speak English, but at school we also learn Māori words and songs." },

@@ -766,6 +766,14 @@
     var hatPlus = Boolean(cfg.plus && cfg.plus.length);
     var basisName = cfg.basisName || "Basis", plusName = cfg.plusName || "Plus";
     var app = $("#app") || doc.body;
+    // Wordbank-Seiten (Merkkästen mit <ul class="wb-liste">): zwei breite Karten statt drei schmaler, und jede Wendung
+    // eines Beispielkastens (getrennt durch „ · “) steht in einer eigenen Zeile – so bleibt die Liste übersichtlich
+    var wortbank = (cfg.merk || []).some(function (m) { return /class="wb-liste"/.test(m.html || ""); });
+    var merkHtml = function (h) {
+      return !wortbank ? h : String(h).replace(/<div class="bsp">([\s\S]*?)<\/div>/g, function (_alles, inhalt) {
+        return '<ul class="wb-saetze">' + inhalt.split(/\s+·\s+/).map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
+      });
+    };
 
     app.innerHTML =
       '<header class="top"><div class="wrap top-in">' +
@@ -782,7 +790,7 @@
       "</div></div>" +
       '<main class="wrap">' +
         '<section class="station" id="verstehen"><div class="st-head"><div class="st-num">1</div><div><div class="eyebrow">Merkwissen</div><h2>Verstehen</h2></div></div>' +
-          '<div class="merk-grid">' + (cfg.merk || []).map(function (m) { return '<div class="card merk' + (m.breit || /<table/.test(m.html) ? " breit" : "") + '"><h3>' + esc(m.t) + "</h3>" + m.html + "</div>"; }).join("") + "</div>" +
+          '<div class="merk-grid' + (wortbank ? " wb" : "") + '">' + (cfg.merk || []).map(function (m) { return '<div class="card merk' + (m.breit || /<table/.test(m.html) ? " breit" : "") + '"><h3>' + esc(m.t) + "</h3>" + merkHtml(m.html) + "</div>"; }).join("") + "</div>" +
           (cfg.fallen && cfg.fallen.length ? '<div class="merke"><h4>⚠️ Achtung, typische Fehler</h4><ul>' + cfg.fallen.map(function (f) { return "<li>" + fmt(f) + "</li>"; }).join("") + "</ul></div>" : "") +
         "</section>" +
         '<section class="station" id="basis"><div class="st-head"><div class="st-num teal">2</div><div><div class="eyebrow">' + esc(cfg.basisEyebrow || "Für alle") + "</div><h2>" + esc(basisName) + '</h2></div></div><div class="liste"></div></section>' +

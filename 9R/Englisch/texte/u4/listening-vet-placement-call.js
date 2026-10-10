@@ -7,6 +7,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Praxis, erfundene Personen)",
   zeilennummern: false, probe: false,
   stimmen: { "Mr Collins": "en-GB-RyanNeural", Sophie: "en-GB-SoniaNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Mr Collins", text: "Good morning, Fernbank Vet Practice. Mr Collins speaking." },
     { rolle: "Sophie", text: "Good morning, Mr Collins. My name is Sophie. I would like to do a work placement at your practice. Is that possible?" },

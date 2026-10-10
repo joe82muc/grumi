@@ -7,6 +7,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Personen, erfundene Straße und Bäckerei)",
   zeilennummern: false, probe: false,
   stimmen: { "Officer Naidoo": "en-GB-RyanNeural", Lerato: "en-GB-LibbyNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Officer Naidoo", text: "Good afternoon. I am Officer Naidoo. Thank you for coming in, Lerato. Please tell me what you saw." },
     { rolle: "Lerato", text: "It was Tuesday, at a quarter past four. I was walking home along Protea Road. I have lived near there for six years, so I know the road well." },
