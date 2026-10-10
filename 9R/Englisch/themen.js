@@ -102,7 +102,15 @@ GrumiKursliste.bauen({
         { id: "u3-land", kz: "C8", titel: "Land und Leute · South Africa – the rainbow nation", href: "u3_land.html", art: "Land und Leute", ls: "e9-u3-land",
           text: "Südafrika: Land, Sprachen, Geschichte in Grundzügen, Natur, Alltag – lesen, hören, vergleichen." },
         { id: "u3-listening", kz: "C9", titel: "Listening · What happened?", href: "u3_listening.html", art: "Listening", ls: "e9-u3-listening",
-          text: "Gespräche verstehen: ein Unfall wird gemeldet, eine Aussage bei der Polizei – Thema, Einzelheiten, Notizen." }
+          text: "Gespräche verstehen: ein Unfall wird gemeldet, eine Aussage bei der Polizei – Thema, Einzelheiten, Notizen." },
+        { id: "u3-reading", kz: "C10", titel: "Reading · A day in a young life", href: "u3_reading.html", art: "Reading", ls: "e9-u3-reading",
+          text: "Einen Text über den Alltag eines Jugendlichen verstehen: Thema, Einzelheiten mit Zeilenangabe, zwischen den Zeilen lesen." },
+        { id: "u3-speaking", kz: "C11", titel: "Speaking · Report an accident, talk about a role model", href: "u3_speaking.html", art: "Speaking", ls: "e9-u3-speaking",
+          text: "Von einem Unfall berichten (Rollenspiel) und über ein Vorbild sprechen – mit Redemitteln, Rollenkarten und Notizzettel." },
+        { id: "u3-mediation", kz: "C12", titel: "Mediation · At the hospital", href: "u3_mediation.html", art: "Mediation", ls: "e9-u3-mediation",
+          text: "Sprachmittlung im Krankenhaus: Regeln, Besuchszeiten, Anmeldung – das Wichtige auswählen und einfach weitergeben." },
+        { id: "u3-writing", kz: "C13", titel: "Writing · My role model", href: "u3_writing.html", art: "Writing", ls: "e9-u3-writing",
+          text: "Schreibwerkstatt: einen Text über ein Vorbild planen, schreiben, prüfen und überarbeiten – mit Schreibcoach." }
       ]
     }
   ]
