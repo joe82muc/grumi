@@ -110,7 +110,22 @@ GrumiKursliste.bauen({
         { id: "u3-mediation", kz: "C12", titel: "Mediation · At the hospital", href: "u3_mediation.html", art: "Mediation", ls: "e9-u3-mediation",
           text: "Sprachmittlung im Krankenhaus: Regeln, Besuchszeiten, Anmeldung – das Wichtige auswählen und einfach weitergeben." },
         { id: "u3-writing", kz: "C13", titel: "Writing · My role model", href: "u3_writing.html", art: "Writing", ls: "e9-u3-writing",
-          text: "Schreibwerkstatt: einen Text über ein Vorbild planen, schreiben, prüfen und überarbeiten – mit Schreibcoach." }
+          text: "Schreibwerkstatt: einen Text über ein Vorbild planen, schreiben, prüfen und überarbeiten – mit Schreibcoach." },
+        { id: "u3-qualifit", kz: "C14", titel: "Quali-Fit · Unit 3", href: "u3_qualifit.html", art: "Quali-Fit", ls: "e9-u3-qualifit",
+          text: "Prüfungsformate in klein: Hören, Sprachgebrauch, Lesen, Sprachmittlung, Text und Medien, Schreiben – kombiniert und mit weniger Hilfen." },
+        { id: "u3-duell", kz: "C16", titel: "Duelle · Unit 3", href: "u3_duell.html", art: "Duell", ls: "e9-u3-duell",
+          text: "Zusatz: Duell gegen die KI und Tischduell zu zweit – Wortschatz und Grammatik der Unit." }
+      ]
+    },
+    {
+      id: "u4", nr: "04", titel: "Unit 4: News from New Zealand", kurz: "Unit 4", icon: "🥝",
+      text: "Neuseeland, Berufsberatung und Praktikum, Generationen, Verein, Bewerbung – mit Wortschatz, Grammatik und allen Fertigkeiten.",
+      module: [
+        // Kürzel D1 bis D7 sind vergeben: D1 Vokabeltrainer, D2/D3 Grammatik (G9, G10), D4 bis D7 Wordbanks – sie folgen
+        { id: "u4-land", kz: "D8", titel: "Land und Leute · New Zealand – Aotearoa", href: "u4_land.html", art: "Land und Leute", ls: "e9-u4-land",
+          text: "Neuseeland: Land, Natur, Māori-Kultur in Grundzügen, Freizeit und Vereine – lesen, hören, vergleichen." },
+        { id: "u4-listening", kz: "D9", titel: "Listening · What are you going to do?", href: "u4_listening.html", art: "Listening", ls: "e9-u4-listening",
+          text: "Gespräche verstehen: Pläne nach der Schule, ein Anruf wegen eines Praktikums – Thema, Einzelheiten, Notizen." }
       ]
     }
   ]
