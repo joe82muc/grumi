@@ -66,6 +66,13 @@
       <div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div><div id="lb"><img alt=""></div><canvas id="confetti"></canvas>`;
 
     M.init({ key, api: DAPI + "/uebung/feedback", thema: cfg.thema || thema.titel + ": " + cfg.titel, glossary: cfg.glossar || {}, hero: cfg.hero });
+    // Bilder mit class="zoomable": Großansicht beim Antippen. M.init bindet nur Bilder, die schon da sind – die Karten
+    // der Stationen entstehen aber erst danach. Deshalb hier einmal für die ganze Seite.
+    root.addEventListener("click", e => {
+      const bild = e.target && e.target.closest ? e.target.closest("img.zoomable") : null;
+      if (!bild || bild.closest("#lb")) return;
+      $("#lb img").src = bild.currentSrc || bild.src; $("#lb img").alt = bild.alt; $("#lb").classList.add("show");
+    });
 
     // R oder M? Aus der Anmeldung; sonst aus dem Link (?zug=R) – dann lässt sich die Fassung umschalten
     const a = M.anmeldung(), fest = a && new RegExp("^" + DNR + "[MR]$").test(String(a.zug || ""));

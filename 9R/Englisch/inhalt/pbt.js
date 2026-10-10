@@ -4,11 +4,12 @@
    zuletzt Sprechzettel schreiben, eine Minute frei sprechen und mit der Partnerin / dem Partner nach Kärtchen rückmelden.
    Das Gerät bewertet das Sprechen nicht.)
    LehrplanPLUS E9 1.2 Sprechen (zusammenhängend sprechen, Bilder beschreiben), E9 2 (Redemittel), E9 3.
-   Bilder: sechs eigene Bilder der Lehrkraft in ../../9R/Englisch/images/pbt/ (picnic, airport, camping, safari, stadium, interview); sie werden
+   Bilder: sechs eigene Bilder der Lehrkraft in ../../9R/Englisch/images/pbt/ (picnic, airport, camping, safari, stadium, interview) und eine
+   eigene Zeichnung (beach.svg, passt zum Vortrag in Station 1; erzeugt mit .codex-build/englisch9r-werkzeug/bau-pbt-bilder.js); sie werden
    unter der Bildzeile „Picture: GRUMI“ gezeigt und lassen sich antippen und vergrößern. Personen haben keine Namen.
    Text: Mustervortrag zum Bild „camping“ (texte/pruefung/pbt-camping.js). */
 var pbtBild = function (datei, alt, hinweis) {
-  return "<figure class=\"pbt-bild\" style=\"margin:0 0 14px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/pbt/" + datei + ".jpg\" alt=\"" + alt +
+  return "<figure class=\"pbt-bild\" style=\"margin:0 0 14px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/pbt/" + datei + (datei.indexOf(".") < 0 ? ".jpg" : "") + "\" alt=\"" + alt +
     "\" loading=\"lazy\" style=\"display:block;width:100%;max-width:760px;height:auto;border-radius:12px\">" +
     "<figcaption style=\"font-size:.78rem;opacity:.7;margin-top:4px\">Picture: GRUMI" + (hinweis ? " · " + hinweis : "") + "</figcaption></figure>";
 };
@@ -30,8 +31,10 @@ D7Kit.seite({
   stationen: [
     { kurz: "Steps", ober: "How a good talk works", titel: "The steps of a picture talk", teile: [
       { art: "text", html: "<p class=\"lead\">In the first part of the speaking test you get <b>one picture</b>. You describe it and you say what you think. A good talk has <b>steps</b> – like a path. <span class=\"de\">Wenn du die Schritte kennst, weißt du immer, was als Nächstes kommt.</span></p><p><b>Look at the steps:</b> You can use the words <button class=\"term\" data-t=\"foreground\">foreground</button>, <button class=\"term\" data-t=\"guess\">guess</button> and <button class=\"term\" data-t=\"opinion\">opinion</button> – tap them to see what they mean.</p>" },
-      { art: "ordnen", id: "schritte", tag: "Order", titel: "A talk about a beach picture", lead: "Put the sentences in the right order. <span class=\"de\">Dieses Bild gibt es nicht – du siehst nur den Vortrag. Welcher Satz kommt wann?</span>",
-        schritte: ["This picture shows a beach on a sunny day.", "I can see two children, a dog and a red umbrella.", "The children are in the foreground, and the umbrella is on the right.", "The children are building a sandcastle, and the dog is running.", "Maybe it is Saturday because there are many families.", "Everybody looks relaxed and happy.", "I like the picture because I love the sea."] },
+      { art: "text", html: "<p><b>Look at this picture of a beach.</b> A pupil talks about it – but the sentences are mixed up. <span class=\"de\">Schau dir das Bild an. Darunter bringst du den Vortrag in die richtige Reihenfolge.</span></p>" +
+        pbtBild("beach.svg", "A beach on a sunny day. In the foreground, two children build a sandcastle. In the middle, a dog runs with a ball. On the right, a woman reads and a man drinks under a big red and white umbrella. In the background, two young people play with a ball, a boy carries a surfboard, and there is a sailing boat on the sea.") },
+      { art: "ordnen", id: "schritte", tag: "Order", titel: "A talk about the beach picture", lead: "Put the sentences of the talk in the right order. <span class=\"de\">Welcher Satz kommt wann?</span>",
+        schritte: ["This picture shows a beach on a sunny day.", "I can see two children, a dog and a big umbrella.", "The children are in the foreground, and the umbrella is on the right.", "The children are building a sandcastle, and the dog is running.", "Maybe it is Saturday because many people are at the beach.", "Everybody looks relaxed and happy.", "I like the picture because I love the sea."] },
       { art: "merke", kopf: "THE 7 STEPS", html: "<ol><li><b>Overview:</b> This picture shows …</li><li><b>People and things:</b> I can see … / There are …</li><li><b>Where:</b> In the foreground … / In the background … / On the left … / On the right … / In the middle …</li><li><b>Actions:</b> A man <u>is waving</u>. Two girls <u>are laughing</u>. <span class=\"de\">(present progressive)</span></li><li><b>Guess:</b> Maybe … / I think … / It might be …</li><li><b>Mood:</b> They look happy. / It looks like a friendly place.</li><li><b>My opinion:</b> I like the picture because … / In my opinion …</li></ol><p class=\"de\">Du musst nicht alles sagen – aber sprich in ganzen Sätzen und bleib bei der Reihenfolge, dann verlierst du den Faden nicht.</p>" },
       { art: "tf", id: "schritte-tf", tag: "True or false?", titel: "Check the steps", lead: "True or false? <span class=\"de\">Stimmt die Aussage über einen guten Bildvortrag?</span>",
         aussagen: [

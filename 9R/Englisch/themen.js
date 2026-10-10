@@ -224,9 +224,14 @@ GrumiKursliste.bauen({
         { id: "qa-muendlich", kz: "P1", titel: "Mündliche Prüfung · The three parts", href: "qa_muendlich.html", art: "Sprechen", ls: "e9-qa-muendlich",
           text: "So läuft die mündliche Prüfung: Picture-based talk, Topic-based talk, Interpreting – Ablauf, Redemittel, Tipps." },
         { id: "pbt", kz: "P2", titel: "Speaking · Picture-based talk", href: "pbt.html", art: "Sprechen", ls: "e9-pbt",
-          text: "Ein Bild Schritt für Schritt beschreiben: Überblick, Einzelheiten, Vermutungen, Meinung – mit sechs Bildern zum Üben." },
+          text: "Ein Bild Schritt für Schritt beschreiben: Überblick, Einzelheiten, Vermutungen, Meinung – mit sieben Bildern zum Üben." },
         { id: "u3-email", kz: "P3", titel: "Writing · E-mails step by step", href: "u3_email.html", art: "Schreiben", ls: "e9-u3-email",
-          text: "E-Mails schreiben: persönlich und förmlich, Aufbau, Wendungen, eigene E-Mail mit Schreibcoach." }
+          text: "E-Mails schreiben: persönlich und förmlich, Aufbau, Wendungen, eigene E-Mail mit Schreibcoach." },
+        // Übungsbilder (seit 10.10.2026): eigene Zeichnungen, je vier Bilder mit Aufgaben und Prüferfragen
+        { id: "pbt-outdoors", kz: "P4", titel: "Speaking · Picture talks: Out and about", href: "pbt_outdoors.html", art: "Sprechen", ls: "e9-pbt-outdoors",
+          text: "Vier Bilder zum Üben: Markt, Bushaltestelle im Regen, Wanderung, Fußballspiel – genau hinsehen, vermuten, Prüferfragen beantworten." },
+        { id: "pbt-everyday", kz: "P5", titel: "Speaking · Picture talks: Home, school and work", href: "pbt_everyday.html", art: "Sprechen", ls: "e9-pbt-everyday",
+          text: "Vier Bilder aus dem Alltag: Küche, Referat im Klassenzimmer, Schulhof, Café – Tatsache oder Vermutung, Vortrag aufbauen, Prüferfragen." }
       ]
     }
   ]

@@ -12,8 +12,8 @@
  * Tense Trainer und Zeiten-Überblick gibt es unter zwei Adressen (zeiten_wiederholen/ und unit3/tense/) – „auch“.
  *
  * Seit 10.10.2026 überarbeitet und mit 9R geteilt: Dolmetschen (M1–M6), „At the hospital“ (M7 = Mediation der Unit 3),
- * E-Mails (C5), mündliche Prüfung (P1, P2). Der Inhalt liegt einmal bei 9R/Englisch/inhalt/; die Seiten hier
- * (med_….html, u3_….html, qa_muendlich.html, pbt.html) erzeugt .codex-build/englisch9r-werkzeug/bau-9m-seiten.js.
+ * E-Mails (C5), mündliche Prüfung (P1 bis P4). Der Inhalt liegt einmal bei 9R/Englisch/inhalt/; die Seiten hier
+ * (med_….html, u3_….html, qa_muendlich.html, pbt.html, pbt_….html) erzeugt .codex-build/englisch9r-werkzeug/bau-9m-seiten.js.
  * Die früheren Seiten leiten dorthin weiter. Gleiche Kennungen wie in 9R/Englisch/themen.js.
  */
 GrumiKursliste.bauen({
@@ -111,7 +111,11 @@ GrumiKursliste.bauen({
         { id: "qa-muendlich", kz: "P1", titel: "Mündliche Prüfung · The three parts", href: "qa_muendlich.html", auch: ["mündlich_prüfung/QA_muendlich.html"], art: "Sprechen", ls: "e9-qa-muendlich",
           text: "So läuft die mündliche Prüfung: Picture-based talk, Topic-based talk, Interpreting – Ablauf, Redemittel, Tipps." },
         { id: "pbt", kz: "P2", titel: "Speaking · Picture-based talk", href: "pbt.html", auch: ["mündlich_prüfung/picture_based_talk/picture-description.html"], art: "Sprechen", ls: "e9-pbt",
-          text: "Ein Bild Schritt für Schritt beschreiben: Überblick, Einzelheiten, Vermutungen, Meinung – mit sechs Bildern zum Üben." }
+          text: "Ein Bild Schritt für Schritt beschreiben: Überblick, Einzelheiten, Vermutungen, Meinung – mit sieben Bildern zum Üben." },
+        { id: "pbt-outdoors", kz: "P3", titel: "Speaking · Picture talks: Out and about", href: "pbt_outdoors.html", art: "Sprechen", ls: "e9-pbt-outdoors",
+          text: "Vier Bilder zum Üben: Markt, Bushaltestelle im Regen, Wanderung, Fußballspiel – genau hinsehen, vermuten, Prüferfragen beantworten." },
+        { id: "pbt-everyday", kz: "P4", titel: "Speaking · Picture talks: Home, school and work", href: "pbt_everyday.html", art: "Sprechen", ls: "e9-pbt-everyday",
+          text: "Vier Bilder aus dem Alltag: Küche, Referat im Klassenzimmer, Schulhof, Café – Tatsache oder Vermutung, Vortrag aufbauen, Prüferfragen." }
       ]
     }
   ]
