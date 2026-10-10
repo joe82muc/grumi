@@ -10,11 +10,19 @@
  * Der Vokabeltrainer der Unit 1 liegt bei 9R (../../9R/Englisch/…) und wird von beiden Zügen genutzt: gleiche
  * Kennung „u1-vokabeln“, gleicher Speicher auf dem Server (/api/e9, getrennt nach Klasse).
  * Tense Trainer und Zeiten-Überblick gibt es unter zwei Adressen (zeiten_wiederholen/ und unit3/tense/) – „auch“.
+ *
+ * Seit 10.10.2026 überarbeitet und mit 9R geteilt: Dolmetschen (M1–M6), „At the hospital“ (M7 = Mediation der Unit 3),
+ * E-Mails (C5), mündliche Prüfung (P1, P2). Der Inhalt liegt einmal bei 9R/Englisch/inhalt/; die Seiten hier
+ * (med_….html, u3_….html, qa_muendlich.html, pbt.html) erzeugt .codex-build/englisch9r-werkzeug/bau-9m-seiten.js.
+ * Die früheren Seiten leiten dorthin weiter. Gleiche Kennungen wie in 9R/Englisch/themen.js.
  */
 GrumiKursliste.bauen({
   name: "E9M", kurs: "e9", stufe: 9, zuege: ["M"], fach: "Englisch", titel: "Englisch 9M", pfad: "/api/e9", ordner: "9M/Englisch_9/",
   intro: "Wortschatz, Grammatik, Mediation und Training für die Prüfung. Deine Lehrkraft schaltet frei, was ihr gerade im Unterricht behandelt.",
   andere: { zug: "R", titel: "Englisch 9R", href: "9R/Englisch/index.html" },
+  // Die überarbeiteten Module nutzen die Bausteine von Deutsch 7/8 (7M/Deutsch/d7-kit.js) – wie Englisch 9R. Im M-Zug
+  // sind die Zusatzaufgaben Pflicht.
+  bausteine: { name: "Englisch 9M", api: "/api/e9", speicher: "grumi-e9-", klasse: "Englisch · Klasse 9M", anker: "thema-", sprache: "en", zug: "M", plusTag: "Plus · im M-Zug Pflicht" },
   themen: [
     {
       id: "u1", nr: "01", titel: "Unit 1: Around Australia", kurz: "Unit 1", icon: "🦘",
@@ -47,8 +55,8 @@ GrumiKursliste.bauen({
           text: "Einen Unfall genau und verständlich beschreiben." },
         { id: "u3-rolemodel", kz: "C4", titel: "Role Model Studio", href: "unit3/vokabulary/role_model2.html", art: "Sprechen", ls: "e9-u3-rolemodel",
           text: "Über Vorbilder sprechen und schreiben." },
-        { id: "u3-email", kz: "C5", titel: "E-Mail Training", href: "unit3/email/email.html", art: "Schreiben", ls: "e9-u3-email",
-          text: "E-Mails Schritt für Schritt aufbauen und formulieren." },
+        { id: "u3-email", kz: "C5", titel: "Writing · E-mails step by step", href: "u3_email.html", auch: ["unit3/email/email.html"], art: "Schreiben", ls: "e9-u3-email",
+          text: "E-Mails schreiben: persönlich und förmlich, Aufbau, Wendungen, eigene E-Mail mit Schreibcoach." },
         { id: "u3-holidays", kz: "C6", titel: "Holidays Mr. Mößner", href: "unit3/holidays_moessner.html", art: "Bilder",
           text: "Fotos aus Südafrika – zum Ansehen und Beschreiben." }
       ]
@@ -76,33 +84,34 @@ GrumiKursliste.bauen({
       ]
     },
     {
-      id: "mediation", nr: "06", titel: "Mediation", kurz: "Mediation", icon: "🗣️",
-      text: "Sprachmittlung in Alltagssituationen: zwischen Deutsch und Englisch vermitteln.",
+      id: "mediation", nr: "06", titel: "Mediation und Dolmetschen", kurz: "Mediation", icon: "🗣️",
+      text: "Für die mündliche Prüfung: in einem Gespräch zwischen Deutsch und Englisch vermitteln – sinngemäß, höflich, in beide Richtungen.",
       module: [
-        { id: "med-park", kz: "M1", titel: "Visiting a national park", href: "mediation/mediation_park_improved.html", art: "Mediation", ls: "e9-med-park",
-          text: "Ranger-Dialog und Regeln im Park vermitteln." },
-        { id: "med-restaurant", kz: "M2", titel: "At the restaurant", href: "mediation/mediation_restaurant.html", art: "Mediation", ls: "e9-med-restaurant",
-          text: "Bestellen, Nachfragen und freundlich vermitteln." },
-        { id: "med-accident", kz: "M3", titel: "Reporting an accident", href: "mediation/mediation_accident.html", art: "Mediation", ls: "e9-med-accident",
-          text: "Unfallbericht zwischen Zeuge und Polizei übermitteln." },
-        { id: "med-doctor", kz: "M4", titel: "At the doctor's", href: "mediation/mediation_doctor.html", art: "Mediation", ls: "e9-med-doctor",
-          text: "Symptome erklären und Rückfragen verstehen." },
-        { id: "med-hostel", kz: "M5", titel: "At the hostel", href: "mediation/mediation_hostel.html", art: "Mediation", ls: "e9-med-hostel",
-          text: "Check-in sowie Fragen zu WLAN und Frühstück klären." },
-        { id: "med-market", kz: "M6", titel: "At the craft market", href: "mediation/mediation_market.html", art: "Mediation", ls: "e9-med-market",
-          text: "Preise, Handeln und Bezahlmöglichkeiten besprechen." },
-        { id: "med-hospital", kz: "M7", titel: "At the hospital", href: "mediation/mediation hospital.html", art: "Mediation", ls: "e9-med-hospital",
-          text: "Broschüre vermitteln und Dialogaufgaben lösen." }
+        { id: "med-park", kz: "M1", titel: "Interpreting · At the nature reserve", href: "med_park.html", auch: ["mediation/mediation_park_improved.html"], art: "Mediation", ls: "e9-med-park",
+          text: "Im Besucherzentrum eines Naturparks dolmetschen: eine Führung buchen, Zeiten, Preise und Hinweise weitergeben." },
+        { id: "med-restaurant", kz: "M2", titel: "Interpreting · At the restaurant", href: "med_restaurant.html", auch: ["mediation/mediation_restaurant.html"], art: "Mediation", ls: "e9-med-restaurant",
+          text: "Im Restaurant dolmetschen: bestellen, nachfragen, eine Unverträglichkeit erklären, bezahlen." },
+        { id: "med-accident", kz: "M3", titel: "Interpreting · Reporting an accident", href: "med_accident.html", auch: ["mediation/mediation_accident.html"], art: "Mediation", ls: "e9-med-accident",
+          text: "Als Zeuge dolmetschen: der Polizei genau sagen, was passiert ist – Ort, Zeit, Farbe, Kennzeichen." },
+        { id: "med-doctor", kz: "M4", titel: "Interpreting · At the doctor's", href: "med_doctor.html", auch: ["mediation/mediation_doctor.html"], art: "Mediation", ls: "e9-med-doctor",
+          text: "Beim Arzt dolmetschen: Beschwerden weitergeben, Rückfragen und Anweisungen verstehen und auf Deutsch erklären." },
+        { id: "med-hostel", kz: "M5", titel: "Interpreting · At the hostel", href: "med_hostel.html", auch: ["mediation/mediation_hostel.html"], art: "Mediation", ls: "e9-med-hostel",
+          text: "An der Rezeption dolmetschen: einchecken, ein Problem mit dem Zimmer klären, Zeiten und Regeln weitergeben." },
+        { id: "med-market", kz: "M6", titel: "Interpreting · At the craft market", href: "med_market.html", auch: ["mediation/mediation_market.html"], art: "Mediation", ls: "e9-med-market",
+          text: "Auf dem Markt dolmetschen: nach Preis, Material und Herstellung fragen, höflich handeln, bezahlen." },
+        // M7 hieß bis 10.10.2026 „med-hospital“ (Broschüre aus einem Arbeitsblatt); jetzt die Mediation der Unit 3 von 9R
+        { id: "u3-mediation", kz: "M7", titel: "Mediation · At the hospital", href: "u3_mediation.html", auch: ["mediation/mediation hospital.html"], art: "Mediation", ls: "e9-u3-mediation",
+          text: "Sprachmittlung im Krankenhaus: Regeln, Besuchszeiten, Anmeldung – das Wichtige auswählen und einfach weitergeben." }
       ]
     },
     {
       id: "pruefung", nr: "07", titel: "Mündliche Prüfung", kurz: "Prüfung", icon: "🎤",
       text: "Fragen, Antworten und Bildbeschreibung für die mündliche Prüfung trainieren.",
       module: [
-        { id: "qa-muendlich", kz: "P1", titel: "Fragen und Antworten zur mündlichen Prüfung", href: "mündlich_prüfung/QA_muendlich.html", art: "Sprechen",
-          text: "Übersicht für alle drei Prüfungsteile – klar gegliedert und schnell lernbar." },
-        { id: "pbt", kz: "P2", titel: "Picture-based talk", href: "mündlich_prüfung/picture_based_talk/picture-description.html", art: "Sprechen", ls: "e9-pbt",
-          text: "Bilder Schritt für Schritt auf Englisch beschreiben." }
+        { id: "qa-muendlich", kz: "P1", titel: "Mündliche Prüfung · The three parts", href: "qa_muendlich.html", auch: ["mündlich_prüfung/QA_muendlich.html"], art: "Sprechen", ls: "e9-qa-muendlich",
+          text: "So läuft die mündliche Prüfung: Picture-based talk, Topic-based talk, Interpreting – Ablauf, Redemittel, Tipps." },
+        { id: "pbt", kz: "P2", titel: "Speaking · Picture-based talk", href: "pbt.html", auch: ["mündlich_prüfung/picture_based_talk/picture-description.html"], art: "Sprechen", ls: "e9-pbt",
+          text: "Ein Bild Schritt für Schritt beschreiben: Überblick, Einzelheiten, Vermutungen, Meinung – mit sechs Bildern zum Üben." }
       ]
     }
   ]

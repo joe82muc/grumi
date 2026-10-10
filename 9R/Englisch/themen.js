@@ -214,6 +214,20 @@ GrumiKursliste.bauen({
         { id: "med-market", kz: "M6", titel: "Interpreting · At the craft market", href: "med_market.html", art: "Mediation", ls: "e9-med-market",
           text: "Auf dem Markt dolmetschen: nach Preis, Material und Herstellung fragen, höflich handeln, bezahlen." }
       ]
+    },
+    // Prüfungstraining (seit 10.10.2026): die früheren Seiten „Mündliche Prüfung“ und „E-Mail Training“ von Englisch 9M,
+    // neu gebaut mit den Bausteinen der Skill-Module. Gleiche Kennungen wie in 9M/Englisch_9/themen.js.
+    {
+      id: "pruefung", nr: "06", titel: "Prüfungstraining: Sprechen und Schreiben", kurz: "Prüfung", icon: "🎤",
+      text: "Für den Quali: die drei Teile der mündlichen Prüfung, Bilder beschreiben, E-Mails schreiben.",
+      module: [
+        { id: "qa-muendlich", kz: "P1", titel: "Mündliche Prüfung · The three parts", href: "qa_muendlich.html", art: "Sprechen", ls: "e9-qa-muendlich",
+          text: "So läuft die mündliche Prüfung: Picture-based talk, Topic-based talk, Interpreting – Ablauf, Redemittel, Tipps." },
+        { id: "pbt", kz: "P2", titel: "Speaking · Picture-based talk", href: "pbt.html", art: "Sprechen", ls: "e9-pbt",
+          text: "Ein Bild Schritt für Schritt beschreiben: Überblick, Einzelheiten, Vermutungen, Meinung – mit sechs Bildern zum Üben." },
+        { id: "u3-email", kz: "P3", titel: "Writing · E-mails step by step", href: "u3_email.html", art: "Schreiben", ls: "e9-u3-email",
+          text: "E-Mails schreiben: persönlich und förmlich, Aufbau, Wendungen, eigene E-Mail mit Schreibcoach." }
+      ]
     }
   ]
 });
