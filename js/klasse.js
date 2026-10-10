@@ -396,6 +396,8 @@
   // Fächer zur Auswahl beim eigenen Eintrag (dieselben wie im Formular der Lehrkraft, klasse-verwaltung.js)
   var EIGEN_FAECHER = ["Deutsch", "Mathematik", "Englisch", "Natur und Technik", "GPG", "Wirtschaft und Beruf", "Informatik", "Ethik", "Religion", "Sport", "Musik", "Kunst", "Werken", "Soziales", "Technik", "Sonstiges"];
   var EIGEN_ARTEN = [["aufgabe", "✏️ Hausaufgabe"], ["probe", "📝 Probe"], ["termin", "📅 Termin"]];
+  // Modul als Hausaufgabe ohne Lernstand: Diese Kennung trägt nt7-verwaltung.js ein, wenn das Modul nichts meldet
+  var OHNE_LS = "ohne-lernstand";
 
   function heft(el) {
     if (!el) return;
@@ -431,7 +433,7 @@
         // Module als Hausaufgabe: Ob eines erledigt ist, sagt der Lernstand des Kindes (alle Aufgaben gelöst).
         // stand = null heißt: nicht bekannt – dann hakt das Kind wie bei jeder Hausaufgabe selbst ab.
         daten.stand = null;
-        if (!daten.eintraege.some(function (e) { return e.modul; })) return zeichnen();
+        if (!daten.eintraege.some(function (e) { return e.modul && e.modul !== OHNE_LS; })) return zeichnen();
         return post("/api/nt9/fortschritt/anmelden", { code: S.code }).then(function (f) {
           if (f && f.ok && f.fortschritt) daten.stand = f.fortschritt;
         }).catch(function () {}).then(zeichnen);
@@ -461,8 +463,9 @@
 
     // Lernstand eines Moduls: { g: gelöst, t: gesamt, fertig } – null, wenn der Lernstand nicht geladen werden konnte.
     // Eine Kennung mit Strich am Ende meint alle Module, die so beginnen (wie in js/kurs-uebersicht.js).
+    // OHNE_LS: Modul, das keinen Lernstand meldet – das Kind hakt selbst ab.
     function modulStand(e) {
-      if (!e.modul || !daten.stand) return null;
+      if (!e.modul || e.modul === OHNE_LS || !daten.stand) return null;
       var g = 0, t = 0, k = e.modul, anfang = k.slice(-1) === "-";
       Object.keys(daten.stand).forEach(function (id) {
         if (id === k || (anfang && id.indexOf(k) === 0)) { g += (daten.stand[id].g || []).length; t += daten.stand[id].t || 0; }
@@ -576,7 +579,9 @@
           (ansicht === "heute" ? "Für heute ist nichts eingetragen." : ansicht === "woche" ? "Diese Woche ist nichts eingetragen." : ansicht === "eigene" ? "Du hast noch nichts selbst eingetragen." : ansicht === "module" ? "Gerade ist kein Modul als Hausaufgabe eingetragen." : "Keine Proben und Termine eingetragen.") +
           "</b><span>" + (ansicht === "eigene" ? "Mit „Eigenen Eintrag schreiben“ notierst du dir selbst etwas – zum Beispiel für ein Fach, das hier nicht steht." : ansicht === "module" ? "Hier stehen Lernmodule, die du bis zu einem bestimmten Tag bearbeiten sollst." : ansicht === "heute" && g.woche.length ? "Schau bei „Diese Woche“ nach, was als Nächstes kommt." : "Frag im Zweifel deine Lehrkraft.") + "</span></div>";
       } else if (ansicht === "module") {
-        h += '<p class="kb-modul-hinweis">Diese Module sind Hausaufgabe. <b>Erledigt</b> ist ein Modul, wenn du alle Aufgaben darin gelöst hast – ' + (daten.stand ? "das Heft sieht das von selbst." : "hake es dann ab.") + "</p>" +
+        var selbst = liste.filter(function (e) { return !modulStand(e); }).length;
+        h += '<p class="kb-modul-hinweis">Diese Module sind Hausaufgabe. <b>Erledigt</b> ist ein Modul, wenn du alle Aufgaben darin gelöst hast – ' +
+          (!selbst ? "das Heft sieht das von selbst." : selbst === liste.length ? "hake es dann ab." : "das Heft sieht das von selbst. Steht ein Kästchen dabei, hakst du selbst ab.") + "</p>" +
           liste.map(function (e) { return karte(e, true); }).join("");
       } else if (ansicht === "heute") {
         h += liste.map(function (e) { return karte(e, false); }).join("");
@@ -605,6 +610,9 @@
           if (c.checked) e[id] = 1; else delete e[id];
           schreib(erledigtKey(), JSON.stringify(e));
           art.classList.toggle("kb-erledigt", c.checked);
+          // Modul ohne Lernstand abgehakt: Der Reiter „Module“ zählt neu
+          var zahl = el.querySelector('[data-ansicht="module"] span'), module = gruppen().module;
+          if (zahl && module.length) { var offen = module.filter(function (x) { return !modulFertig(x); }).length; zahl.textContent = offen ? offen + " offen" : "alle erledigt"; }
         });
       });
     }

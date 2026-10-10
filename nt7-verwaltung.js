@@ -143,7 +143,9 @@
     // Kennung des Moduls im Lernstand – damit das Heft des Kindes „erledigt“ von selbst zeigt (Reiter „Module“).
     // Listen mit ls (Englisch, NT 9) nennen sie selbst; sonst gilt Kurs + "-" + Kennung (wie 7M/NT/modul-basis.js).
     var MIT_LS = N.THEMEN.some(function (t) { return t.module.some(function (x) { return x.ls; }); });
-    function lernKennung(m) { return MIT_LS ? (m.ls || "") : (N.KURS || "nt7") + "-" + m.id; }
+    // Meldet ein Modul keinen Lernstand, steht OHNE_LS im Eintrag: Es gehört trotzdem in den Reiter „Module“, das Kind hakt selbst ab.
+    var OHNE_LS = "ohne-lernstand";
+    function lernKennung(m) { return (MIT_LS ? (m.ls || "") : (N.KURS || "nt7") + "-" + m.id) || OHNE_LS; }
     function modulVon(id) {
       for (var i = 0; i < N.THEMEN.length; i++) for (var j = 0; j < N.THEMEN[i].module.length; j++) if (N.THEMEN[i].module[j].id === id) return { m: N.THEMEN[i].module[j], t: N.THEMEN[i] };
       return null;
@@ -159,7 +161,26 @@
         HEFT = {};
         (d.eintraege || []).forEach(function (e) { if (e.link && e.faellig >= d.heute) (HEFT[e.link] = HEFT[e.link] || []).push(e); });
         Object.keys(HEFT).forEach(function (k) { HEFT[k].sort(function (a, b) { return a.faellig.localeCompare(b.faellig); }); });
+        return heftNachtragen(d.eintraege || []);
       }).catch(function () { HEFT_KANN = false; });
+    }
+    // Einträge aus der Zeit vor dem Reiter „Module“ (ohne Kennung): Die Kennung wird nachgetragen, damit sie im Heft der
+    // Kinder unter „Module“ stehen. Erkannt werden sie an der Adresse des Moduls; Text und Termin bleiben, wie sie sind.
+    function heftNachtragen(eintraege) {
+      var nach = [];
+      N.THEMEN.forEach(function (t) {
+        t.module.forEach(function (m) {
+          if (!m.href) return;
+          var adr = modulAdresse(m);
+          eintraege.forEach(function (e) { if (e.typ === "aufgabe" && !e.modul && e.link === adr) nach.push({ e: e, k: lernKennung(m) }); });
+        });
+      });
+      return nach.reduce(function (kette, x) {
+        return kette.then(function () {
+          return heftPost("speichern", { id: x.e.id, klasse: ctx.klasse, fach: x.e.fach, typ: "aufgabe", faellig: x.e.faellig, text: x.e.text, link: x.e.link, modul: x.k })
+            .then(function () { x.e.modul = x.k; }).catch(function () {});
+        });
+      }, Promise.resolve());
     }
     // Knopf in der Zeile des Moduls und – aufgeklappt – das kleine Formular darunter
     function heftKnopf(m) {
@@ -358,6 +379,8 @@
       var frei = form.querySelector('[data-hf="frei"]'), freischalten = !!(frei && frei.checked);
       if (!faellig) { zeichnenMitForm(["Bitte ein Datum wählen.", "bad"]); return; }
       if (text.length < 2) { zeichnenMitForm(["Bitte die Aufgabe eintragen.", "bad"]); return; }
+      // zweimal derselbe Tag wäre ein doppelter Eintrag im Heft der Kinder
+      if ((HEFT[modulAdresse(m)] || []).some(function (e) { return e.faellig === faellig; })) { zeichnenMitForm(["„" + m.titel + "“ steht für " + datumText(faellig) + " schon im Hausaufgabenheft der " + ctx.klasse + ". Wähle einen anderen Tag – oder trage den Eintrag oben aus.", "bad"]); return; }
       knopf.disabled = true;
       heftPost("speichern", { klasse: ctx.klasse, fach: fachName(), typ: "aufgabe", faellig: faellig, text: text, link: modulAdresse(m), modul: lernKennung(m) })
         .then(heftLaden)
