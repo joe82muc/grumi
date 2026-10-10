@@ -8,6 +8,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Stadt, Schule und Personen)",
   zeilennummern: false, probe: false,
   stimmen: { "Mrs Hartley": "en-GB-SoniaNeural", Ruby: "en-GB-LibbyNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Mrs Hartley", text: "Hello everybody in Germany! This is Ruby from Year Nine at Marlow Downs High School in Western Australia. She wants to tell you about a normal school day. Go ahead, Ruby." },
     { rolle: "Ruby", text: "G'day! My name is Ruby, and I am fourteen. I live on a farm outside Marlow Downs, so I take the school bus at a quarter past seven. The ride takes forty minutes." },

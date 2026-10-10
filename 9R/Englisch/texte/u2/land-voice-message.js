@@ -8,6 +8,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Stadt, Schule und Personen)",
   zeilennummern: false, probe: false,
   stimmen: { "Mr Rao": "en-GB-RyanNeural", Anaya: "en-GB-LibbyNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Mr Rao", text: "Hello everybody in Germany! This is Anaya from Class Nine at Hill View School in Marandur, a town in the south of India. She wants to tell you about the day before Diwali. Go ahead, Anaya." },
     { rolle: "Anaya", text: "Hello! My name is Anaya, and I am fifteen. At home we speak Kannada, but at school we learn Hindi and English, too. Today is a special day, because tomorrow is Diwali." },

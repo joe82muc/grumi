@@ -5,6 +5,8 @@
  *            bekommt jede Rolle ihre eigene; sonst unterscheiden sich die Rollen in der Stimmlage. Das Transkript
  *            erscheint erst, wenn die Aufgaben gelöst sind. Kann das Gerät nicht vorlesen, liest das Kind den Text
  *            einmal und deckt ihn dann zu. Hörtexte stehen in texte/hoertexte/ (sprecher: [{ rolle, text }]).
+ *            Hat der Text eine Aufnahme (aufnahme: true, MP3 neben der Textdatei – Englisch 9), spielt der Kasten
+ *            diese Tonspur ab: Pause, von vorn und „langsamer“ gehen weiter; fehlt die Datei, liest das Gerät vor.
  * duell      { art: "duell", id, runden: [{ material, q, o: […], a, ki, kiText, e, begruende: { q, m, k } }] }
  *            Kind und „KI“ beantworten dieselbe Frage. Die Antworten der KI sind vorbereitet (ki = ihre Wahl, sie
  *            irrt sich mit Absicht manchmal). Bei „begruende“ bewertet die echte KI einen Satz des Kindes (Bonus).
@@ -54,6 +56,20 @@
     const serverStimme = rolle => (t.stimmen && t.stimmen[rolle]) || STIMMEN_EN[Math.max(0, rollen.indexOf(rolle)) % STIMMEN_EN.length];
     const tonAdresse = s => K.server + "/api/speech/speak?voice=" + encodeURIComponent(serverStimme(s.rolle)) + "&text=" + encodeURIComponent(s.text);
     let ton = null, serverGeht = EN && typeof window.Audio === "function";
+    // Aufnahme (aufnahme im Text, siehe D7Texte.add): eine fertige Tonspur mit festen Stimmen statt der Sprachausgabe.
+    // Lässt sie sich nicht laden, geht es wie bisher weiter (Server, dann Gerät).
+    let aufnahme = typeof t.aufnahme === "string" && typeof window.Audio === "function" ? t.aufnahme : "", datei = null;
+    const tempo = () => ($(".langsam", box).checked ? 0.85 : 1);
+    function spieleDatei() {
+      if (!datei) {
+        datei = new Audio(aufnahme); datei.preload = "auto";
+        datei.addEventListener("timeupdate", () => { if (datei && datei.duration) lauf.style.width = Math.round(datei.currentTime / datei.duration * 100) + "%"; });
+        datei.addEventListener("ended", () => { if (laeuft) fertig(); });
+        datei.addEventListener("error", () => { const lief = laeuft; aufnahme = ""; datei = null; if (!lief) return; if (kannVorlesen()) sprich(); else { halt(); ohneStimme(); } });
+      }
+      datei.playbackRate = tempo();
+      const p = datei.play(); if (p && p.catch) p.catch(() => {});
+    }
     // Stimmen des Geräts in der Sprache des Texts auf die Rollen verteilen. Englisch: britische zuerst – und nie die
     // Spaß- und Blechstimmen der Apple-Geräte (Zarvox, Bells, Whisper …; dieselbe Liste wie in js/vokabel-extras.js).
     const SPASS = /^(albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|jester|organ|pipe organ|princess|superstar|trinoids|whisper|wobble|zarvox|agnes|bruce|fred|junior|kathy|ralph|vicki|victoria|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley)\b/i;
@@ -78,6 +94,7 @@
     }
     function sprich() {
       if (!laeuft) return;
+      if (aufnahme) { spieleDatei(); return; }
       if (i >= stuecke.length) { fertig(); return; }
       const s = stuecke[i];
       zeigeRolle(s.rolle); lauf.style.width = Math.round(i / stuecke.length * 100) + "%";
@@ -100,8 +117,8 @@
       u.onend = naechstes; u.onerror = e => { if (e.error === "interrupted" || e.error === "canceled") return; naechstes(); };
       synth.speak(u);
     }
-    function halt() { laeuft = false; if (ton) { ton.onended = null; ton.onerror = null; ton.pause(); } if (synth) synth.cancel(); zeigeRolle(""); }
-    function kannVorlesen() { return serverGeht || Boolean(synth && window.SpeechSynthesisUtterance && stimmen().length); }
+    function halt() { laeuft = false; if (datei) datei.pause(); if (ton) { ton.onended = null; ton.onerror = null; ton.pause(); } if (synth) synth.cancel(); zeigeRolle(""); }
+    function kannVorlesen() { return Boolean(aufnahme) || serverGeht || Boolean(synth && window.SpeechSynthesisUtterance && stimmen().length); }
     function ohneStimme() {
       // Das Gerät kann nicht vorlesen: Text einmal lesen, dann zudecken
       play.hidden = true; $(".neu", box).hidden = true; $(".langsam", box).closest("label").hidden = true; $(".hoer-lauf", box).hidden = true;
@@ -113,11 +130,14 @@
     play.addEventListener("click", () => {
       if (!kannVorlesen()) { ohneStimme(); return; }
       if (laeuft) { halt(); play.textContent = "▶ Weiter anhören"; status.textContent = "Pause."; return; }
-      laeuft = true; play.textContent = "⏸ Pause"; status.textContent = "Hör genau zu …"; synth.cancel(); sprich();
+      laeuft = true; play.textContent = "⏸ Pause"; status.textContent = "Hör genau zu …"; if (synth) synth.cancel(); sprich();
     });
-    $(".neu", box).addEventListener("click", () => { halt(); i = 0; lauf.style.width = "0"; play.textContent = "▶ Anhören"; status.textContent = "Von vorn."; });
+    $(".neu", box).addEventListener("click", () => { halt(); i = 0; if (datei) try { datei.currentTime = 0; } catch (_e) { /* noch nicht geladen */ } lauf.style.width = "0"; play.textContent = "▶ Anhören"; status.textContent = "Von vorn."; });
+    $(".langsam", box).addEventListener("change", () => { if (datei) datei.playbackRate = tempo(); });
     // Stimmen kommen in manchen Browsern erst nach einem Moment; fehlt die Sprachausgabe ganz, gleich den Ersatz zeigen
-    if (!synth || !window.SpeechSynthesisUtterance) ohneStimme();
+    // (mit einer Aufnahme braucht es die Sprachausgabe des Geräts nicht)
+    if (aufnahme) { /* Tonspur liegt bereit */ }
+    else if (!synth || !window.SpeechSynthesisUtterance) ohneStimme();
     else if (synth.addEventListener) synth.addEventListener("voiceschanged", () => {});
     window.addEventListener("pagehide", halt);
 
@@ -142,7 +162,7 @@
     trans.addEventListener("click", () => { const b = $(":scope > .hoer-text", box); b.hidden = !b.hidden; if (!b.innerHTML) b.innerHTML = transkript(); });
     pruefeTranskript();
     // für Tests: Zuhören abschließen, ohne die Sprachausgabe abzuwarten
-    box._hoerFertig = () => { laeuft = true; i = stuecke.length; if (synth) synth.cancel(); fertig(); };
+    box._hoerFertig = () => { laeuft = true; i = stuecke.length; if (datei) datei.pause(); if (synth) synth.cancel(); fertig(); };
   };
 
   /* ---------- Duell gegen die KI ---------- */

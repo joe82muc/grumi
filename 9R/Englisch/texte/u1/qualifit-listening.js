@@ -7,6 +7,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundenes Hostel, erfundener Park, erfundene Personen)",
   zeilennummern: false, probe: false,
   stimmen: { Tess: "en-GB-LibbyNeural", Hugo: "en-GB-RyanNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Tess", text: "Hi Hugo! Are you ready for tomorrow? Our day trip to Mount Wirra starts early." },
     { rolle: "Hugo", text: "I know. I checked the board at the reception. The minibus leaves at quarter past seven." },

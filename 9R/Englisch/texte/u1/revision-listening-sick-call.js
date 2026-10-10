@@ -7,6 +7,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Personen)",
   zeilennummern: false, probe: false,
   stimmen: { Nick: "en-GB-RyanNeural", Zoe: "en-GB-LibbyNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Nick", text: "Hi Zoe, it is Nick. Are you coming to the swimming pool today?" },
     { rolle: "Zoe", text: "I am sorry, Nick. I am staying at home. I have a sore throat and a temperature." },

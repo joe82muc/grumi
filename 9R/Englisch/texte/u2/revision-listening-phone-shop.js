@@ -7,6 +7,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Werkstatt, erfundene Personen)",
   zeilennummern: false, probe: false,
   stimmen: { Sameer: "en-GB-LibbyNeural", "Mr Pereira": "en-GB-RyanNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Sameer", text: "Good morning, Mr Pereira. Thank you for the interview. How many people work in your shop?" },
     { rolle: "Mr Pereira", text: "Good morning, Sameer. Four people work here: my sister, two young employees and me." },

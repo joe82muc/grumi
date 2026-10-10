@@ -6,6 +6,7 @@ D7Texte.add({
   schwierigkeit: "leicht", lehrplan: "E9 1.2 Sprechen (Gespräch in einer Alltagssituation), E9 1.1 Hörverstehen, E9 3, E9 5 (Gesundheit)", thema: "Blasen nach einer Wanderung – Rat der Ärztin",
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Praxis, erfundene Personen)",
   zeilennummern: false, probe: false,
+  aufnahme: true,
   sprecher: [
     { rolle: "Dr Nguyen", text: "Good morning, Leo. What's the problem?" },
     { rolle: "Leo", text: "Good morning, Dr Nguyen. I've got two big blisters on my feet. I went hiking on Saturday." },

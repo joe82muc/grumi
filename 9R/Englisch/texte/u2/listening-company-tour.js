@@ -7,6 +7,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Firma, erfundene Stadt, erfundene Personen)",
   zeilennummern: false, probe: false,
   stimmen: { "Mrs Verma": "en-GB-SoniaNeural", Sam: "en-GB-RyanNeural", Lena: "en-GB-LibbyNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Mrs Verma", text: "Welcome to Diya Solar Workshop, everyone. My name is Anjali Verma, and I show visitors around our company here in the city of Nilgram." },
     { rolle: "Sam", text: "Thank you, Mrs Verma. What does your company make?" },

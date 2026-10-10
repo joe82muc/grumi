@@ -8,6 +8,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundener See, erfundene Personen)",
   zeilennummern: false, probe: false,
   stimmen: { Nina: "en-GB-LibbyNeural", Declan: "en-GB-RyanNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Nina", text: "Hi Declan! Are you ready for the long weekend? It starts on Friday." },
     { rolle: "Declan", text: "Of course! I think it will be a great trip. Where shall we camp?" },

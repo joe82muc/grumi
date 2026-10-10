@@ -6,6 +6,7 @@ D7Texte.add({
   schwierigkeit: "leicht", lehrplan: "E9 1.2 Sprechen (zusammenhängend vortragen), E9 1.1 Hörverstehen, E9 3, E9 5 (Arbeitswelt)", thema: "Eine Firma oder ein Projekt vorstellen",
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundenes Projekt, erfundener Ort, erfundene Personen)",
   zeilennummern: false, probe: false,
+  aufnahme: true,
   sprecher: [
     { rolle: "Kiran", text: "Hello everyone. My name is Kiran, and today I want to tell you about Paper Wings." },
     { rolle: "Kiran", text: "Paper Wings is a small school project in Velapur. It makes notebooks from old paper." },

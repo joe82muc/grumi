@@ -7,6 +7,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Praxis, erfundene Personen)",
   zeilennummern: false, probe: false,
   stimmen: { Receptionist: "en-GB-SoniaNeural", Declan: "en-GB-RyanNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Receptionist", text: "Good morning, Greenfield Medical Practice. How can I help you?" },
     { rolle: "Declan", text: "Hello. My name is Declan Pryor. I hurt my ankle on a camping trip. It is swollen, and it hurts when I walk." },

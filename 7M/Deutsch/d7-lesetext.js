@@ -220,11 +220,20 @@
      Pflichtangaben (Metadaten): id, titel, textsorte, zug ("R7" | "M7" | "R7/M7"), modul, unterthema, woerter,
      schwierigkeit, lehrplan, thema, quelle, lizenz, erstellung, zeilennummern, probe – dazu der Text selbst:
      absaetze (Fließtext), verse (Gedicht) oder sprecher (Hörtext). Die Texte der Proben stehen nicht hier,
-     sondern nur auf dem Server. */
+     sondern nur auf dem Server.
+     Hörtext mit aufnahme: true: Neben der Textdatei liegt die fertige Tonspur (gleicher Name, Endung .mp3) – add merkt
+     sich ihre Adresse (t.aufnahme), d7-spiel.js spielt sie statt der Sprachausgabe ab. */
   var TEXTE = {};
   global.D7Texte = {
     alle: TEXTE,
-    add: function (t) { if (t && t.id) { if (!t.art) t.art = t.textsorte; if (!t.typ) t.typ = t.verse ? "gedicht" : t.sprecher ? "hoertext" : "text"; TEXTE[t.id] = t; } return t; },
+    add: function (t) {
+      if (t && t.id) {
+        if (!t.art) t.art = t.textsorte; if (!t.typ) t.typ = t.verse ? "gedicht" : t.sprecher ? "hoertext" : "text";
+        if (t.aufnahme === true) t.aufnahme = doc.currentScript && doc.currentScript.src ? doc.currentScript.src.replace(/\.js(\?.*)?$/, ".mp3") : "";
+        TEXTE[t.id] = t;
+      }
+      return t;
+    },
     get: function (id) { return TEXTE[id] || null; }
   };
 

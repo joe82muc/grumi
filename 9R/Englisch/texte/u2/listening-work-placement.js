@@ -7,6 +7,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Firma, erfundene Personen)",
   zeilennummern: false, probe: false,
   stimmen: { Receptionist: "en-GB-SoniaNeural", Priya: "en-GB-LibbyNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Receptionist", text: "Good afternoon, Green Wheels Cycle Workshop. How can I help you?" },
     { rolle: "Priya", text: "Hello. My name is Priya Menon. I am a student, and I would like to do a work placement with you." },
