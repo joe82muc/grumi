@@ -428,7 +428,13 @@
         schreib(erledigtKey(), JSON.stringify(neu));
         var unter = doc.getElementById("kb-held-text");
         if (unter) unter.textContent = "Klasse " + d.klasse + " · " + tagName(d.heute) + ", " + tagKurz(d.heute);
-        zeichnen();
+        // Module als Hausaufgabe: Ob eines erledigt ist, sagt der Lernstand des Kindes (alle Aufgaben gelöst).
+        // stand = null heißt: nicht bekannt – dann hakt das Kind wie bei jeder Hausaufgabe selbst ab.
+        daten.stand = null;
+        if (!daten.eintraege.some(function (e) { return e.modul; })) return zeichnen();
+        return post("/api/nt9/fortschritt/anmelden", { code: S.code }).then(function (f) {
+          if (f && f.ok && f.fortschritt) daten.stand = f.fortschritt;
+        }).catch(function () {}).then(zeichnen);
       }).catch(function () {
         el.innerHTML = '<div class="kb-karte kb-lade">Das Heft lässt sich gerade nicht öffnen. <button class="kb-knopf kb-klein" type="button">Noch einmal versuchen</button></div>';
         el.querySelector("button").addEventListener("click", laden);
@@ -443,21 +449,46 @@
         woche: kommend.filter(function (e) { return e.faellig <= bis; }),
         termine: kommend.filter(function (e) { return e.typ !== "aufgabe"; }),
         // alles, was das Kind selbst geschrieben hat – auch was erst nach dieser Woche fällig ist
-        eigene: kommend.filter(function (e) { return e.eigen; })
+        eigene: kommend.filter(function (e) { return e.eigen; }),
+        // Module als Hausaufgabe (aus der Verwaltung, „Ins Heft“): alle, auch was gestern fällig war –
+        // zuerst, was noch offen ist
+        module: alle().filter(function (e) { return e.modul; }).sort(function (a, b) {
+          var fa = modulFertig(a) ? 1 : 0, fb = modulFertig(b) ? 1 : 0;
+          return fa - fb || (a.faellig < b.faellig ? -1 : a.faellig > b.faellig ? 1 : 0);
+        })
       };
     }
 
+    // Lernstand eines Moduls: { g: gelöst, t: gesamt, fertig } – null, wenn der Lernstand nicht geladen werden konnte.
+    // Eine Kennung mit Strich am Ende meint alle Module, die so beginnen (wie in js/kurs-uebersicht.js).
+    function modulStand(e) {
+      if (!e.modul || !daten.stand) return null;
+      var g = 0, t = 0, k = e.modul, anfang = k.slice(-1) === "-";
+      Object.keys(daten.stand).forEach(function (id) {
+        if (id === k || (anfang && id.indexOf(k) === 0)) { g += (daten.stand[id].g || []).length; t += daten.stand[id].t || 0; }
+      });
+      return { g: g, t: t, fertig: t > 0 && g >= t };
+    }
+    function modulFertig(e) { var s = modulStand(e); return s ? s.fertig : !!erledigt()[e.id]; }
+    function modulStandHtml(s) {
+      if (s.fertig) return '<div class="kb-modul-stand kb-fertig">✅ Erledigt – alle ' + s.t + " Aufgaben gelöst</div>";
+      if (!s.t || !s.g) return '<div class="kb-modul-stand">⏳ Noch nicht begonnen' + (s.t ? " · " + s.t + " Aufgaben" : "") + "</div>";
+      return '<div class="kb-modul-stand"><span class="kb-balken" aria-hidden="true"><i style="width:' + Math.round(s.g / s.t * 100) + '%"></i></span>' + s.g + " von " + s.t + " Aufgaben gelöst</div>";
+    }
+
     function karte(e, mitTag) {
-      var i = fachInfo(e.fach), fertig = erledigt()[e.id];
+      var i = fachInfo(e.fach), stand = modulStand(e), fertig = stand ? stand.fertig : erledigt()[e.id];
       var marke = e.typ === "probe" ? '<span class="kb-marke kb-probe-m">📝 ' + (e.quelle === "kalender" ? "Probentermin" : "Probe") + '</span>' : e.typ === "termin" ? '<span class="kb-marke kb-termin-m">📅 Termin</span>' : '<span class="kb-marke">✏️ Hausaufgabe</span>';
       return '<article class="kb-eintrag kb-fach-' + i.art + (fertig ? " kb-erledigt" : "") + (e.eigen ? " kb-eigen" : "") + '" data-id="' + esc(e.id) + '">' +
         '<div class="kb-fach-bild" aria-hidden="true">' + i.bild + "</div>" +
         "<div><h3>" + esc(e.fach) + "</h3><p>" + esc(e.text) + "</p>" +
-        (mitTag ? '<div class="kb-wann">' + (e.typ === "aufgabe" ? "Fällig: " : "Am: ") + esc(wannText(e.faellig, daten.heute)) + "</div>" : "") +
-        (e.link ? '<a class="kb-link" href="' + esc(e.link) + '" target="_blank" rel="noopener">Material öffnen ↗</a>' : "") +
-        (e.typ === "aufgabe" ? '<label class="kb-haken"><input type="checkbox"' + (fertig ? " checked" : "") + "> Erledigt</label>" : "") +
+        (mitTag ? '<div class="kb-wann' + (e.modul && e.faellig < daten.heute && !fertig ? " kb-zuspaet" : "") + '">' + (e.modul ? "Bis: " : e.typ === "aufgabe" ? "Fällig: " : "Am: ") + esc(wannText(e.faellig, daten.heute)) +
+          (e.modul && /^(Heute|Morgen|Gestern)$/.test(wannText(e.faellig, daten.heute)) ? " <small>(" + esc(tagName(e.faellig) + ", " + tagKurz(e.faellig)) + ")</small>" : "") + "</div>" : "") +
+        (e.link ? '<a class="kb-link" href="' + esc(e.link) + '" target="_blank" rel="noopener">' + (e.modul ? "Modul öffnen ↗" : "Material öffnen ↗") + "</a>" : "") +
+        // Modul als Hausaufgabe: „erledigt“ kommt aus dem Lernstand; sonst hakt das Kind selbst ab
+        (stand ? modulStandHtml(stand) : e.typ === "aufgabe" ? '<label class="kb-haken"><input type="checkbox"' + (fertig ? " checked" : "") + "> Erledigt</label>" : "") +
         (e.eigen ? '<div class="kb-eigen-info">Nur du siehst diesen Eintrag. Er wird am ' + esc(tagKurz(e.bis)) + ' von selbst gelöscht. <button type="button" class="kb-eigen-weg" data-weg="' + esc(e.id) + '">Löschen</button></div>' : "") +
-        '</div><div class="kb-rechts">' + marke + (e.eigen ? '<span class="kb-marke kb-eigen-m">✍️ Von dir</span>' : "") + "</div></article>";
+        '</div><div class="kb-rechts">' + (e.modul ? '<span class="kb-marke kb-modul-m">📚 Modul</span>' : marke) + (e.eigen ? '<span class="kb-marke kb-eigen-m">✍️ Von dir</span>' : "") + "</div></article>";
     }
 
     // Formular „Eigener Eintrag“ (über den Reitern): Knopf zum Aufklappen oder die Felder
@@ -532,15 +563,21 @@
 
     function zeichnen() {
       var g = gruppen(), liste = g[ansicht], h = (daten.kalenderFehler ? '<p class="kb-fehler" role="status">' + esc(daten.kalenderFehler) + '</p>' : '') + formularHtml();
-      var reiter = [["heute", "Heute"], ["woche", "Diese Woche"], ["termine", "Proben & Termine"]];
+      // Reiter „Module“: Lernmodule, die die Lehrkraft als Hausaufgabe eingetragen hat – mit Termin und „erledigt“
+      var reiter = [["heute", "Heute"], ["woche", "Diese Woche"], ["module", "📚 Module"], ["termine", "Proben & Termine"]];
       if (daten.kann) reiter.push(["eigene", "✍️ Von mir"]);
-      h += '<div class="kb-reiter' + (daten.kann ? " kb-vier" : "") + '" role="tablist">' + reiter.map(function (r) {
-        return '<button type="button" role="tab" data-ansicht="' + r[0] + '" aria-selected="' + (ansicht === r[0]) + '" class="' + (ansicht === r[0] ? "kb-an" : "") + '">' + r[1] + "<span>" + g[r[0]].length + (g[r[0]].length === 1 ? " Eintrag" : " Einträge") + "</span></button>";
+      h += '<div class="kb-reiter ' + (reiter.length === 5 ? "kb-fuenf" : "kb-vier") + '" role="tablist">' + reiter.map(function (r) {
+        var n = g[r[0]].length, offen = r[0] === "module" ? g.module.filter(function (e) { return !modulFertig(e); }).length : 0;
+        return '<button type="button" role="tab" data-ansicht="' + r[0] + '" aria-selected="' + (ansicht === r[0]) + '" class="' + (ansicht === r[0] ? "kb-an" : "") + '">' + r[1] + "<span>" +
+          (r[0] === "module" && n ? (offen ? offen + " offen" : "alle erledigt") : n + (n === 1 ? " Eintrag" : " Einträge")) + "</span></button>";
       }).join("") + "</div>";
       if (!liste.length) {
-        h += '<div class="kb-leer"><span class="kb-emoji" aria-hidden="true">' + (ansicht === "termine" ? "🗓️" : ansicht === "eigene" ? "✍️" : "🎉") + "</span><b>" +
-          (ansicht === "heute" ? "Für heute ist nichts eingetragen." : ansicht === "woche" ? "Diese Woche ist nichts eingetragen." : ansicht === "eigene" ? "Du hast noch nichts selbst eingetragen." : "Keine Proben und Termine eingetragen.") +
-          "</b><span>" + (ansicht === "eigene" ? "Mit „Eigenen Eintrag schreiben“ notierst du dir selbst etwas – zum Beispiel für ein Fach, das hier nicht steht." : ansicht === "heute" && g.woche.length ? "Schau bei „Diese Woche“ nach, was als Nächstes kommt." : "Frag im Zweifel deine Lehrkraft.") + "</span></div>";
+        h += '<div class="kb-leer"><span class="kb-emoji" aria-hidden="true">' + (ansicht === "termine" ? "🗓️" : ansicht === "eigene" ? "✍️" : ansicht === "module" ? "📚" : "🎉") + "</span><b>" +
+          (ansicht === "heute" ? "Für heute ist nichts eingetragen." : ansicht === "woche" ? "Diese Woche ist nichts eingetragen." : ansicht === "eigene" ? "Du hast noch nichts selbst eingetragen." : ansicht === "module" ? "Gerade ist kein Modul als Hausaufgabe eingetragen." : "Keine Proben und Termine eingetragen.") +
+          "</b><span>" + (ansicht === "eigene" ? "Mit „Eigenen Eintrag schreiben“ notierst du dir selbst etwas – zum Beispiel für ein Fach, das hier nicht steht." : ansicht === "module" ? "Hier stehen Lernmodule, die du bis zu einem bestimmten Tag bearbeiten sollst." : ansicht === "heute" && g.woche.length ? "Schau bei „Diese Woche“ nach, was als Nächstes kommt." : "Frag im Zweifel deine Lehrkraft.") + "</span></div>";
+      } else if (ansicht === "module") {
+        h += '<p class="kb-modul-hinweis">Diese Module sind Hausaufgabe. <b>Erledigt</b> ist ein Modul, wenn du alle Aufgaben darin gelöst hast – ' + (daten.stand ? "das Heft sieht das von selbst." : "hake es dann ab.") + "</p>" +
+          liste.map(function (e) { return karte(e, true); }).join("");
       } else if (ansicht === "heute") {
         h += liste.map(function (e) { return karte(e, false); }).join("");
       } else {
