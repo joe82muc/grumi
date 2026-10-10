@@ -522,7 +522,10 @@
             '<span class="lf-note ' + notenFarbe(n.note) + '">' + esc(n.note) + "</span>" + (n.nachpruefen ? ' <span title="KI-Bewertung noch prüfen">⚠️</span>' : "") +
             (n.lrs ? '<span class="lf-lrs-b">LRS</span>' : "") +
             '<span class="lf-np">' + esc(n.punkte + "/" + n.max + " · " + datumText(n.datum)) + (n.verlassen ? ' · <span class="lf-weg">' + n.verlassen + "× verlassen</span>" : "") + "</span>" +
-            (n.zurueck ? '<span class="lf-np lf-zur" title="Zurückgegeben am ' + esc(datumText(n.zurueck, true)) + (n.geoeffnet ? ", vom Kind geöffnet am " + esc(datumText(n.geoeffnet, true)) : ", noch nicht geöffnet") + '">📤 ' + (n.geoeffnet ? "geöffnet" : "zurückgegeben") + "</span>" : "") + "</td>";
+            // 7 Tage nach der Rückgabe verschwindet die Probe beim Kind von selbst (vorbei) – die Note bleibt hier stehen
+            (n.zurueck ? '<span class="lf-np lf-zur" title="Zurückgegeben am ' + esc(datumText(n.zurueck, true)) + (n.geoeffnet ? ", vom Kind geöffnet am " + esc(datumText(n.geoeffnet, true)) : ", noch nicht geöffnet") +
+              (n.vorbei ? " – beim Kind nicht mehr zu sehen (7 Tage nach der Rückgabe)" : n.sichtbarBis ? " – beim Kind zu sehen bis " + esc(datumText(n.sichtbarBis)) : "") + '">📤 ' +
+              (n.vorbei ? (n.geoeffnet ? "geöffnet" : "nicht geöffnet") + " · beim Kind weg" : n.geoeffnet ? "geöffnet" : "zurückgegeben") + "</span>" : "") + "</td>";
         });
         h += '<td class="lf-schnitt">' + (schnitt(noten) || '<span class="lf-leer">–</span>') + "</td></tr>";
       });
@@ -533,15 +536,18 @@
           '<span class="lf-np">' + codes.length + " von " + liste.length + " abgegeben</span>" +
           (function () {
             var zur = codes.filter(function (c) { return p.noten[c].zurueck; }).length;
-            if (/^d[78]proben$/.test(p.modul)) return zur ? '<span class="lf-np">📤 ' + zur + " zurückgegeben</span>" : "";
-            return '<span class="lf-np">📤 ' + zur + " von " + codes.length + ' zurückgegeben</span><button type="button" class="btn btn-ghost btn-sm lf-zur-alle" data-zurueck-alle="' + esc(p.modul + "|" + p.testId) + '"' +
-              (zur >= codes.length ? " disabled" : "") + ">📤 Alle zurückgeben</button>";
+            // weg = zurückgegeben, aber die 7 Tage sind um: „Alle zurückgeben“ gibt auch diese noch einmal zurück
+            var weg = codes.filter(function (c) { return p.noten[c].zurueck && p.noten[c].vorbei; }).length;
+            var wegText = weg ? ", davon " + weg + " beim Kind schon weg" : "";
+            if (/^d[78]proben$/.test(p.modul)) return zur ? '<span class="lf-np">📤 ' + zur + " zurückgegeben" + wegText + "</span>" : "";
+            return '<span class="lf-np">📤 ' + zur + " von " + codes.length + " zurückgegeben" + wegText + '</span><button type="button" class="btn btn-ghost btn-sm lf-zur-alle" data-zurueck-alle="' + esc(p.modul + "|" + p.testId) + '"' +
+              (zur - weg >= codes.length ? " disabled" : "") + ">📤 Alle zurückgeben</button>";
           })() + "</td>";
       });
       h += "<td></td></tr></tfoot></table></div>" +
         '<p class="sub" style="margin:.5rem 0 0">⚠️ = Die KI war bei einer freien Antwort unsicher oder nicht erreichbar. Bitte in der Lehrerseite der Probe nachsehen. ' +
         "<b>LRS</b> = mit Notenschutz gewertet (Rechtschreibung zählt nicht). <b>× verlassen</b> = So oft hat das Kind während der Probe in einen anderen Tab oder eine andere App gewechselt. " +
-        "<b>📤 zurückgegeben</b> = Das Kind sieht die korrigierte Probe auf seiner Startseite unter „Zurückbekommen“ und kann sie für die Eltern drucken; „geöffnet“ heißt, es hat sie angesehen. Zurückgeben: auf eine Note klicken oder unten „Alle zurückgeben“. Deutsch-Proben gibst du auf ihrer Korrekturseite frei.</p>";
+        "<b>📤 zurückgegeben</b> = Das Kind sieht die korrigierte Probe auf seiner Startseite unter „Zurückbekommen“ und kann sie für die Eltern drucken; „geöffnet“ heißt, es hat sie angesehen. <b>7 Tage nach der Rückgabe verschwindet die Probe beim Kind von selbst</b> („beim Kind weg“) – Note und Abgabe bleiben hier; mit „Noch einmal zurückgeben“ sieht das Kind sie wieder 7 Tage. Zurückgeben: auf eine Note klicken oder unten „Alle zurückgeben“. Deutsch-Proben gibst du auf ihrer Korrekturseite frei.</p>";
     }
     teil.innerHTML = h;
     $("lf-nreload").addEventListener("click", function () { notenLaden(teil); });
@@ -550,9 +556,10 @@
     Array.prototype.forEach.call(teil.querySelectorAll("[data-zurueck-alle]"), function (b) {
       b.addEventListener("click", function () {
         var k = b.getAttribute("data-zurueck-alle").split("|"), modul = k[0], testId = k.slice(1).join("|");
-        var zeilen = NOTEN.noten.filter(function (x) { return x.modul === modul && x.testId === testId && !x.zurueck; });
+        // auch die, bei denen die 7 Tage schon um sind (für sie beginnt die Frist neu)
+        var zeilen = NOTEN.noten.filter(function (x) { return x.modul === modul && x.testId === testId && (!x.zurueck || x.vorbei); });
         if (!zeilen.length) return;
-        if (!global.confirm("„" + zeilen[0].titel + "“ an " + zeilen.length + (zeilen.length === 1 ? " Kind" : " Kinder") + " der Klasse " + KLASSE + " zurückgeben?\n\nDie Kinder sehen dann ihre Antworten, die Punkte, die Rückmeldungen und bei Fehlern die richtige Lösung – auf der Startseite unter „Zurückbekommen“. Sieh vorher die Abgaben mit ⚠️ an.")) return;
+        if (!global.confirm("„" + zeilen[0].titel + "“ an " + zeilen.length + (zeilen.length === 1 ? " Kind" : " Kinder") + " der Klasse " + KLASSE + " zurückgeben?\n\nDie Kinder sehen dann ihre Antworten, die Punkte, die Rückmeldungen und bei Fehlern die richtige Lösung – auf der Startseite unter „Zurückbekommen“, 7 Tage lang. Danach verschwindet die Probe bei ihnen von selbst. Sieh vorher die Abgaben mit ⚠️ an.")) return;
         b.disabled = true;
         apiPost("/api/proben/rueckgabe/freigeben", { eintraege: zeilen.map(function (x) { return { modul: x.modul, id: x.id }; }), offen: true, mitLoesung: true }).then(function (d) {
           hinweis(d.anzahl + (d.anzahl === 1 ? " Probe ist" : " Proben sind") + " zurückgegeben. Die Kinder finden sie auf ihrer Startseite unter „Zurückbekommen“.", "ok");
@@ -712,11 +719,12 @@
           (sub.lrs ? "✓ LRS: Rechtschreibung zählt nicht" : "LRS: Rechtschreibung nicht werten") + "</button>" : "") +
         '<label class="lf-mitl"><input type="checkbox" data-mitloesung checked> mit Lösungen</label>' +
         '<button type="button" class="btn btn-ghost btn-sm" data-druck>🖨️ Für die Eltern drucken</button>' +
-        (n.zurueck ? '<button type="button" class="btn btn-ghost btn-sm" data-zuruecknehmen>Rückgabe zurücknehmen</button>' : '<button type="button" class="btn btn-sm" data-zurueckgeben>📤 An das Kind zurückgeben</button>') +
+        (n.zurueck ? (n.vorbei ? '<button type="button" class="btn btn-sm" data-zurueckgeben>📤 Noch einmal zurückgeben (7 Tage)</button>' : "") + '<button type="button" class="btn btn-ghost btn-sm" data-zuruecknehmen>Rückgabe zurücknehmen</button>' : '<button type="button" class="btn btn-sm" data-zurueckgeben>📤 An das Kind zurückgeben</button>') +
         (anzahlKlasse > 1 ? '<button type="button" class="btn btn-ghost btn-sm" data-druck-alle>🖨️ Ganze Klasse drucken (' + anzahlKlasse + ")</button>" : "");
       var speichern = fuss.querySelector("[data-speichern]");
       fuss.querySelector("[data-loeschen]").addEventListener("click", loeschen);
-      if (n.zurueck) meldung("📤 Zurückgegeben am " + datumText(n.zurueck, true) + (n.geoeffnet ? " – vom Kind geöffnet am " + datumText(n.geoeffnet, true) + "." : " – das Kind hat die Korrektur noch nicht geöffnet.") + " Geänderte Punkte sieht das Kind sofort.");
+      if (n.zurueck) meldung("📤 Zurückgegeben am " + datumText(n.zurueck, true) + (n.geoeffnet ? " – vom Kind geöffnet am " + datumText(n.geoeffnet, true) + "." : n.vorbei ? " – das Kind hat die Korrektur nicht geöffnet." : " – das Kind hat die Korrektur noch nicht geöffnet.") +
+        (n.vorbei ? " Die 7 Tage sind um: Beim Kind ist die Probe nicht mehr zu sehen. Note und Abgabe bleiben hier." : (n.sichtbarBis ? " Beim Kind zu sehen bis " + datumText(n.sichtbarBis) + ", dann verschwindet sie dort von selbst." : "") + " Geänderte Punkte sieht das Kind sofort."));
       var zurueck = function (offen) {
         var kommentar;
         if (offen) {
@@ -727,7 +735,7 @@
         if (offen) body.kommentar = kommentar;
         apiPost("/api/proben/rueckgabe/freigeben", body).then(function () {
           geaendert = true; dlg.close();
-          hinweis(offen ? "„" + n.titel + "“ ist an " + (name || "Code " + n.code) + " zurückgegeben. Das Kind findet die Korrektur auf seiner Startseite unter „Zurückbekommen“."
+          hinweis(offen ? "„" + n.titel + "“ ist an " + (name || "Code " + n.code) + " zurückgegeben. Das Kind findet die Korrektur 7 Tage lang auf seiner Startseite unter „Zurückbekommen“; danach verschwindet sie dort von selbst."
             : "Die Rückgabe an " + (name || "Code " + n.code) + " ist zurückgenommen.", "ok");
         }).catch(function (e) { meldung("Das hat nicht geklappt: " + e.message, "bad"); });
       };

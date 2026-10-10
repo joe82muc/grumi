@@ -142,7 +142,10 @@
   function widget(z) {
     var r = z.r, e = eintrag(r), el = z.el;
     var h = "";
-    if (e) h += '<span class="stand" title="Das Kind findet die Probe auf seiner Startseite unter „Zurückbekommen“">📤 zurückgegeben am ' + esc(datum(e.freigegebenAm)) + (e.geoeffnetAm ? " · geöffnet am " + esc(datum(e.geoeffnetAm)) : " · noch nicht geöffnet") + "</span>";
+    // 7 Tage nach der Rückgabe verschwindet die Probe beim Kind von selbst (e.vorbei); Abgabe und Note bleiben
+    if (e) h += '<span class="stand" title="Das Kind findet die Probe 7 Tage lang auf seiner Startseite unter „Zurückbekommen“ – danach verschwindet sie dort von selbst">📤 zurückgegeben am ' + esc(datum(e.freigegebenAm)) +
+      (e.geoeffnetAm ? " · geöffnet am " + esc(datum(e.geoeffnetAm)) : e.vorbei ? " · nicht geöffnet" : " · noch nicht geöffnet") +
+      (e.vorbei ? " · beim Kind nicht mehr zu sehen (7 Tage um)" : e.sichtbarBis ? " · zu sehen bis " + esc(datum(e.sichtbarBis)) : "") + "</span>";
     // Jede Antwort selbst werten – auch dann noch, wenn die Probe schon zurückgegeben ist (das Kind sieht den neuen Stand)
     if (WERTEN_ROUTE[C.modul] && (r.details || []).length) h += '<button type="button" data-prl="werten" title="Jede Antwort selbst als richtig oder falsch werten – auch nach der Rückgabe. Punkte und Note rechnen sich neu.">✏️ Punkte ändern</button>';
     h += '<button type="button" data-prl="druck" title="Korrigierte Probe mit Unterschriftsfeld – zum Mitgeben für die Eltern">🖨 Elternansicht</button>';
@@ -154,7 +157,7 @@
       (r.lrs ? "Mit Notenschutz LRS gewertet: Rechtschreibung zählt nicht. Klicken schaltet ihn für diese Abgabe wieder aus." : "Notenschutz LRS für diese Abgabe einschalten: Die Rechtschreibung zählt dann nicht, Punkte und Note werden neu berechnet.") + '">' +
       (r.lrs ? "✓ LRS: Rechtschreibung zählt nicht" : "LRS: Rechtschreibung nicht werten") + "</button>";
     if (!r.code) h += '<button type="button" disabled title="Diese Abgabe wurde ohne Code geschrieben – zurückgeben geht nur mit Code">📤 Zurückgeben</button>';
-    else if (e) h += '<button type="button" data-prl="nehmen">Rückgabe zurücknehmen</button>';
+    else if (e) h += (e.vorbei ? '<button type="button" class="haupt" data-prl="geben" title="Das Kind sieht die Probe dann wieder 7 Tage lang">📤 Noch einmal zurückgeben</button>' : "") + '<button type="button" data-prl="nehmen">Rückgabe zurücknehmen</button>';
     else h += '<button type="button" class="haupt" data-prl="geben" title="Das Kind sieht dann Antworten, Punkte und bei Fehlern die Lösung">📤 Zurückgeben</button>';
     el.innerHTML = h;
     var druck = el.querySelector('[data-prl="druck"]'), geben = el.querySelector('[data-prl="geben"]'), nehmen = el.querySelector('[data-prl="nehmen"]');

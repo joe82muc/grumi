@@ -47,9 +47,11 @@
     $("liste").hidden = false;
     $("liste").innerHTML = `<div class="eyebrow">Klasse ${esc(d.klasse || "")}</div><h1>Zurückbekommen</h1>` +
       (d.rueckgaben.length ? `<div class="exam-list">${d.rueckgaben.map(r => `<article class="exam-tile"><div><h2>📄 ${esc(r.titel)}</h2>
-        <p>${esc(fach(r.fach))} · geschrieben am ${datum(r.datum)} · zurückbekommen am ${datum(r.freigegebenAm)}</p></div>
+        <p>${esc(fach(r.fach))} · geschrieben am ${datum(r.datum)} · zurückbekommen am ${datum(r.freigegebenAm)}${r.sichtbarBis ? ` · <b>zu sehen bis ${datum(r.sichtbarBis)}</b>` : ""}</p></div>
         <div><span class="pill ${r.neu ? "open" : ""}">${r.neu ? "NEUE KORREKTUR" : "korrigiert"}</span><a class="btn" href="${esc(linkZu(r))}">Korrektur öffnen</a></div></article>`).join("")}</div>`
-        : `<p class="notice">Du hast noch keine korrigierte Probe zurückbekommen. Sobald deine Lehrkraft eine Probe zurückgibt, steht sie hier und auf der Startseite.</p>`) +
+        : `<p class="notice">Hier steht gerade keine korrigierte Probe. Sobald deine Lehrkraft eine Probe zurückgibt, steht sie hier und auf der Startseite.</p>`) +
+      // Zurückgegebene Proben verschwinden nach einigen Tagen von selbst (der Server nennt die Zahl)
+      (d.tage ? `<p class="notice">Jede zurückgegebene Probe steht ${esc(d.tage)} Tage hier. Danach verschwindet sie von selbst – drucke sie vorher aus oder sichere sie als PDF, wenn du sie behalten möchtest.</p>` : "") +
       // Vokabeltests: Die falschen Wörter aller Tests sammelt die Merkliste (merkliste.html) – dort kann das Kind sie üben
       `<p>${d.rueckgaben.some(r => r.modul === "vokabeltest") ? `<a class="btn" href="merkliste.html">📕 Meine Merkliste: falsche Wörter üben</a> ` : ""}<a class="btn secondary" href="index.html">Zur Startseite</a></p>`;
   }
@@ -165,7 +167,8 @@
     const k = (await post("ansehen", { code, modul: MODUL, id: ID })).korrektur;
     $("anmelden").hidden = true; $("liste").hidden = true;
     if (nt8Noetig([k])) await nt8Laden();
-    $("blatt").innerHTML = blatt(k, 0);
+    // nur am Bildschirm: bis wann die Korrektur zu sehen ist (danach verschwindet sie von selbst)
+    $("blatt").innerHTML = (k.sichtbarBis ? `<p class="notice kein-druck" id="k-frist">Diese Korrektur siehst du noch <b>bis ${datum(k.sichtbarBis)}</b>. Danach verschwindet sie von selbst – drucke sie vorher aus oder sichere sie als PDF.</p>` : "") + blatt(k, 0);
     nt8Fuellen([k]);
     $("korrektur").hidden = false;
     document.title = "Korrigierte Probe: " + k.titel + " | GRUMI";

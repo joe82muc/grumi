@@ -121,7 +121,7 @@
       const meine = (MEINE || []).find(m => m.nr === nr);
       if (meine && meine.status === "korrigiert") {
         return `<a class="probe korrigiert${meine.neu ? " neu" : ""}" data-probe="${nr}" href="korrektur.html?test=${encodeURIComponent(meine.testId)}"><span>📄</span><div><strong>Deutsch – Probe ${nr} korrigiert</strong>
-          <span class="probe-marke">${meine.neu ? "NEUE KORREKTUR" : "korrigiert zurück am " + datum(meine.freigegebenAm)}</span><br>${esc(meine.title)} · Du kannst die Korrektur ansehen und ausdrucken.</div><span class="mod-go">Korrektur öffnen →</span></a>`;
+          <span class="probe-marke">${meine.neu ? "NEUE KORREKTUR" : "korrigiert zurück am " + datum(meine.freigegebenAm)}</span><br>${esc(meine.title)} · Du kannst die Korrektur ansehen und ausdrucken${meine.sichtbarBis ? " – zu sehen bis " + datum(meine.sichtbarBis) : ""}.</div><span class="mod-go">Korrektur öffnen →</span></a>`;
       }
       if (meine) {
         return `<div class="probe abgegeben" data-probe="${nr}"><span>✅</span><div><strong>${esc(meine.title)}: abgegeben am ${datum(meine.abgegebenAm)}</strong><br>Deine Lehrkraft prüft die Korrektur. Danach findest du sie hier.</div></div>`;

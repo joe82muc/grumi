@@ -327,7 +327,8 @@
 
     // Zurückbekommen: korrigierte Proben aller Fächer, die die Lehrkraft zurückgegeben hat (proben-rueckgabe.js auf dem
     // Server; Deutsch 7 und Deutsch 8 stehen mit in der Liste). Als Kachel stehen sie da, solange sie ungeöffnet sind, und danach noch
-    // mindestens 3 Tage (rechnet der Server: aktuell); alle anderen hinter „Alle ansehen“.
+    // mindestens 3 Tage (rechnet der Server: aktuell); alle anderen hinter „Alle ansehen“. 7 Tage nach der Rückgabe
+    // verschwindet eine Probe von selbst (der Server nennt sie dann nicht mehr; sichtbarBis = letzter Tag).
     function korrekturen(s) {
       var box = doc.getElementById("kb-korrektur");
       if (!box || !s.code) return;
@@ -347,9 +348,11 @@
           box.innerHTML = alle.length ? '<h3 class="kb-abschnitt">📄 Zurückbekommen</h3>' +
             (neu.length ? '<div class="kb-kacheln">' + neu.map(function (a) {
               return '<a class="kb-kachel kb-gross kb-probe" href="' + esc(link(a)) + '"><span class="kb-emoji" aria-hidden="true">📄</span><b>' + esc(titel(a)) + "</b><small>" +
-                (/^d[78]proben$/.test(a.modul) ? "" : esc(a.titel) + " · ") + (a.neu ? "NEUE KORREKTUR · Korrektur öffnen" : "Korrektur noch einmal ansehen") + "</small></a>";
+                (/^d[78]proben$/.test(a.modul) ? "" : esc(a.titel) + " · ") + (a.neu ? "NEUE KORREKTUR · Korrektur öffnen" : "Korrektur noch einmal ansehen") +
+                (/^\d{4}-\d\d-\d\d$/.test(a.sichtbarBis || "") ? " · zu sehen bis " + esc(tagKurz(a.sichtbarBis)) : "") + "</small></a>";
             }).join("") + "</div>" : "") +
-            '<p style="margin:.4rem 0 0"><a href="korrektur.html" style="font-weight:800">📂 Alle zurückbekommenen Proben ansehen (' + alle.length + ")</a></p>" : "";
+            '<p style="margin:.4rem 0 0"><a href="korrektur.html" style="font-weight:800">📂 Alle zurückbekommenen Proben ansehen (' + alle.length + ")</a>" +
+            (d.tage ? ' <small style="color:#64748b">· Jede Probe steht ' + esc(d.tage) + " Tage hier, dann verschwindet sie von selbst.</small>" : "") + "</p>" : "";
         }).catch(function () {});
     }
 
@@ -486,7 +489,9 @@
         '<div class="kb-fach-bild" aria-hidden="true">' + i.bild + "</div>" +
         "<div><h3>" + esc(e.fach) + "</h3><p>" + esc(e.text) + "</p>" +
         (mitTag ? '<div class="kb-wann' + (e.modul && e.faellig < daten.heute && !fertig ? " kb-zuspaet" : "") + '">' + (e.modul ? "Bis: " : e.typ === "aufgabe" ? "Fällig: " : "Am: ") + esc(wannText(e.faellig, daten.heute)) +
-          (e.modul && /^(Heute|Morgen|Gestern)$/.test(wannText(e.faellig, daten.heute)) ? " <small>(" + esc(tagName(e.faellig) + ", " + tagKurz(e.faellig)) + ")</small>" : "") + "</div>" : "") +
+          (e.modul && /^(Heute|Morgen|Gestern)$/.test(wannText(e.faellig, daten.heute)) ? " <small>(" + esc(tagName(e.faellig) + ", " + tagKurz(e.faellig)) + ")</small>" : "") +
+          // Termin vorbei: Das Modul steht noch MODUL-Tage zum Nachholen im Heft, dann verschwindet es
+          (e.modul && daten.modulTage && e.faellig < daten.heute ? " <small>· steht noch bis " + esc(tagKurz(tagPlus(e.faellig, daten.modulTage))) + " im Heft</small>" : "") + "</div>" : "") +
         (e.link ? '<a class="kb-link" href="' + esc(e.link) + '" target="_blank" rel="noopener">' + (e.modul ? "Modul öffnen ↗" : "Material öffnen ↗") + "</a>" : "") +
         // Modul als Hausaufgabe: „erledigt“ kommt aus dem Lernstand; sonst hakt das Kind selbst ab
         (stand ? modulStandHtml(stand) : e.typ === "aufgabe" ? '<label class="kb-haken"><input type="checkbox"' + (fertig ? " checked" : "") + "> Erledigt</label>" : "") +
@@ -581,7 +586,8 @@
       } else if (ansicht === "module") {
         var selbst = liste.filter(function (e) { return !modulStand(e); }).length;
         h += '<p class="kb-modul-hinweis">Diese Module sind Hausaufgabe. <b>Erledigt</b> ist ein Modul, wenn du alle Aufgaben darin gelöst hast – ' +
-          (!selbst ? "das Heft sieht das von selbst." : selbst === liste.length ? "hake es dann ab." : "das Heft sieht das von selbst. Steht ein Kästchen dabei, hakst du selbst ab.") + "</p>" +
+          (!selbst ? "das Heft sieht das von selbst." : selbst === liste.length ? "hake es dann ab." : "das Heft sieht das von selbst. Steht ein Kästchen dabei, hakst du selbst ab.") +
+          (daten.modulTage ? " " + daten.modulTage + " Tage nach dem Termin verschwindet ein Modul von selbst aus dem Heft." : "") + "</p>" +
           liste.map(function (e) { return karte(e, true); }).join("");
       } else if (ansicht === "heute") {
         h += liste.map(function (e) { return karte(e, false); }).join("");

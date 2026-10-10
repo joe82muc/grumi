@@ -80,7 +80,9 @@
       : `<p class="notice">Für diese Auswahl gibt es noch keine Probe.</p>`;
   }
   function standText(r) {
-    if (r.status === "freigegeben") return `<span class="stand freigegeben">FREIGEGEBEN</span> <small>${r.geoeffnetAm ? "vom Schüler geöffnet (" + zeit(r.geoeffnetAm) + ")" : "noch nicht geöffnet"}</small>`;
+    // 7 Tage nach der Freigabe verschwindet die Korrektur beim Kind von selbst (r.vorbei) – Abgabe und Note bleiben
+    if (r.status === "freigegeben") return `<span class="stand freigegeben">FREIGEGEBEN</span> <small>${r.geoeffnetAm ? "vom Schüler geöffnet (" + zeit(r.geoeffnetAm) + ")" : r.vorbei ? "nicht geöffnet" : "noch nicht geöffnet"}${
+      r.vorbei ? " · beim Kind nicht mehr zu sehen (7 Tage um)" : r.sichtbarBis ? " · zu sehen bis " + r.sichtbarBis.slice(8, 10) + "." + r.sichtbarBis.slice(5, 7) + "." : ""}</small>`;
     if (r.status === "bestaetigt") return `<span class="stand bestaetigt">bestätigt</span> <small>noch nicht freigegeben</small>`;
     if (r.status === "eingegangen") return `<span class="stand eingegangen">KI korrigiert gerade …</span>`;
     return `<span class="stand zu-pruefen">KORREKTUR ZU PRÜFEN</span>`;
@@ -174,7 +176,7 @@
       <textarea data-kommentar rows="2" style="width:100%;min-height:58px;padding:8px 10px;border:1.5px solid #cfc2bd;border-radius:10px">${esc(r.lehrerKommentar || "")}</textarea>
       <div class="l-ende">
         <button class="btn" type="button" data-tun="bestaetigen" ${r.status === "zu-pruefen" ? "" : "disabled"}>✓ Bewertung bestätigen</button>
-        <button class="btn gruen" type="button" data-tun="freigeben" ${r.status === "bestaetigt" ? "" : "disabled"} title="Erst prüfen und bestätigen, dann freigeben">📤 Korrigierte Probe freigeben</button>
+        <button class="btn gruen" type="button" data-tun="freigeben" ${r.status === "bestaetigt" || r.vorbei ? "" : "disabled"} title="${r.vorbei ? "Die 7 Tage sind um – das Kind sieht die Korrektur dann wieder 7 Tage lang" : "Erst prüfen und bestätigen, dann freigeben. Das Kind sieht die Korrektur 7 Tage lang."}">${r.vorbei ? "📤 Noch einmal freigeben (7 Tage)" : "📤 Korrigierte Probe freigeben"}</button>
         ${r.status === "freigegeben" ? `<button class="btn secondary" type="button" data-tun="zurueckziehen">Freigabe zurücknehmen</button>` : ""}
         ${r.status === "bestaetigt" ? `<button class="btn secondary" type="button" data-tun="oeffnen">Wieder bearbeiten</button>` : ""}
         <button class="btn secondary" type="button" data-tun="vorschau">👁 So sieht es das Kind · drucken</button>

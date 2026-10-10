@@ -129,7 +129,9 @@
        Der Eintrag entsteht über das Hausaufgabenheft der Verwaltung (backend/api/klasse.js: lehrer/heft/speichern) –
        mit Fach, Text, Termin und dem Link zum Modul. Dort (Reiter „Hausaufgabenheft“) lässt er sich ändern und löschen.
        HEFT: Adresse des Moduls → kommende Einträge, damit bei jedem Modul steht, ob es schon im Heft ist. */
-    var HEFT = {}, HEFT_OFFEN = "", HEFT_KANN = true;
+    // HEFT_VORBEI: Termin schon vorbei – die Kinder sehen das Modul aber noch HEFT_TAGE Tage zum Nachholen (Reiter „Module“)
+    var HEFT = {}, HEFT_VORBEI = {}, HEFT_TAGE = 0, HEFT_OFFEN = "", HEFT_KANN = true;
+    function tagDazu(tag, n) { var d = new Date(tag + "T12:00:00"); d.setDate(d.getDate() + n); return isoTag(d); }
     var TAGE = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
     function isoTag(d) { return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
     function naechsterSchultag() { var d = new Date(); do { d.setDate(d.getDate() + 1); } while (d.getDay() === 0 || d.getDay() === 6); return isoTag(d); }
@@ -158,8 +160,13 @@
     // Kennt der Server das Heft nicht (alter Stand) oder gehört die Klasse zu keiner Stufe mit Heft, gibt es den Knopf nicht
     function heftLaden() {
       return heftPost("liste", { klasse: ctx.klasse }).then(function (d) {
-        HEFT = {};
-        (d.eintraege || []).forEach(function (e) { if (e.link && e.faellig >= d.heute) (HEFT[e.link] = HEFT[e.link] || []).push(e); });
+        HEFT = {}; HEFT_VORBEI = {}; HEFT_TAGE = Number(d.modulTage) || 0;
+        var ab = HEFT_TAGE ? tagDazu(d.heute, -HEFT_TAGE) : d.heute;
+        (d.eintraege || []).forEach(function (e) {
+          if (!e.link) return;
+          if (e.faellig >= d.heute) (HEFT[e.link] = HEFT[e.link] || []).push(e);
+          else if (e.modul && e.faellig >= ab) (HEFT_VORBEI[e.link] = HEFT_VORBEI[e.link] || []).push(e);
+        });
         Object.keys(HEFT).forEach(function (k) { HEFT[k].sort(function (a, b) { return a.faellig.localeCompare(b.faellig); }); });
         return heftNachtragen(d.eintraege || []);
       }).catch(function () { HEFT_KANN = false; });
@@ -185,17 +192,20 @@
     // Knopf in der Zeile des Moduls und – aufgeklappt – das kleine Formular darunter
     function heftKnopf(m) {
       if (!HEFT_KANN) return "";
-      var drin = HEFT[modulAdresse(m)];
-      return '<button class="nt7f-heft' + (drin ? " drin" : "") + '" type="button" data-heft="' + esc(m.id) + '" aria-expanded="' + (HEFT_OFFEN === m.id) + '" title="Als Aufgabe ins Hausaufgabenheft der ' + esc(ctx.klasse) + ' schreiben">' +
-        (drin ? "📓 im Heft · " + esc(datumText(drin[0].faellig)) : "📓 Ins Heft") + "</button>";
+      var drin = HEFT[modulAdresse(m)], vorbei = HEFT_VORBEI[modulAdresse(m)];
+      return '<button class="nt7f-heft' + (drin || vorbei ? " drin" : "") + '" type="button" data-heft="' + esc(m.id) + '" aria-expanded="' + (HEFT_OFFEN === m.id) + '" title="Als Aufgabe ins Hausaufgabenheft der ' + esc(ctx.klasse) + ' schreiben">' +
+        (drin ? "📓 im Heft · " + esc(datumText(drin[0].faellig)) : vorbei ? "📓 im Heft · Termin vorbei" : "📓 Ins Heft") + "</button>";
     }
     function heftForm(m, t) {
       if (HEFT_OFFEN !== m.id || !HEFT_KANN) return "";
-      var drin = HEFT[modulAdresse(m)] || [], gesperrt = !N.offen(m, t, STAND);
+      var drin = HEFT[modulAdresse(m)] || [], vorbei = HEFT_VORBEI[modulAdresse(m)] || [], gesperrt = !N.offen(m, t, STAND);
+      var zeile = function (e, alt) {
+        return '<div class="drin"><span>' + (alt ? "war fällig am " + esc(datumText(e.faellig)) + " – steht bei den Kindern noch bis " + esc(datumText(tagDazu(e.faellig, HEFT_TAGE))) + " unter „Module“" : "bis " + esc(datumText(e.faellig))) + " – „" + esc(e.text) + '“</span><button class="btn btn-sm btn-bad" type="button" data-heft-weg="' + esc(e.id) + '" data-heft-modul="' + esc(m.id) + '">✖ Austragen</button></div>';
+      };
       return '<div class="nt7f-heftform" data-heftform="' + esc(m.id) + '">' +
-        (drin.length ? '<div class="drin-liste"><b>Steht im Hausaufgabenheft der ' + esc(ctx.klasse) + ":</b>" + drin.map(function (e) {
-          return '<div class="drin"><span>bis ' + esc(datumText(e.faellig)) + " – „" + esc(e.text) + '“</span><button class="btn btn-sm btn-bad" type="button" data-heft-weg="' + esc(e.id) + '" data-heft-modul="' + esc(m.id) + '">✖ Austragen</button></div>';
-        }).join("") + "Darunter kannst du einen weiteren Termin eintragen.</div>" : "") +
+        (drin.length || vorbei.length ? '<div class="drin-liste"><b>Steht im Hausaufgabenheft der ' + esc(ctx.klasse) + ":</b>" + vorbei.map(function (e) { return zeile(e, true); }).join("") + drin.map(function (e) { return zeile(e, false); }).join("") +
+          "Darunter kannst du einen weiteren Termin eintragen." + (HEFT_TAGE ? " " + HEFT_TAGE + " Tage nach dem Termin verschwindet ein Modul von selbst aus dem Heft der Kinder." : "") + "</div>"
+          : HEFT_TAGE ? '<div class="drin-liste">Das Modul steht bis zum Termin im Heft der Kinder und danach noch ' + HEFT_TAGE + " Tage zum Nachholen – dann verschwindet es von selbst.</div>" : "") +
         '<div><label for="nt7f-hf-faellig">Fällig am</label><input id="nt7f-hf-faellig" type="date" data-hf="faellig" value="' + naechsterSchultag() + '"></div>' +
         '<div class="breit"><label for="nt7f-hf-text">Aufgabe (so steht sie im Heft der Kinder – mit Link zum Modul)</label><input id="nt7f-hf-text" type="text" maxlength="300" data-hf="text" value="' + esc("„" + m.titel + "“ in GRUMI bearbeiten") + '"></div>' +
         '<div><button class="btn btn-sm btn-ok" type="button" data-heft-los="' + esc(m.id) + '">📓 Eintragen</button> <button class="btn btn-sm btn-ghost" type="button" data-heft-zu>Abbrechen</button></div>' +
@@ -302,7 +312,7 @@
           b.disabled = true;
           heftPost("loeschen", { id: b.getAttribute("data-heft-weg") }).then(heftLaden).then(function () {
             // sind noch weitere Termine eingetragen, bleibt das Formular offen
-            if (treffer && !HEFT[modulAdresse(treffer.m)]) HEFT_OFFEN = "";
+            if (treffer && !HEFT[modulAdresse(treffer.m)] && !HEFT_VORBEI[modulAdresse(treffer.m)]) HEFT_OFFEN = "";
             zeichnen(["„" + (treffer ? treffer.m.titel : "Das Modul") + "“ ist aus dem Hausaufgabenheft der " + ctx.klasse + " ausgetragen." + (treffer && N.offen(treffer.m, treffer.t, STAND) ? " Freigeschaltet bleibt es." : ""), "ok"]);
           }).catch(function (x) { b.disabled = false; zeichnenMitForm(["Das Austragen hat nicht geklappt: " + x.message, "bad"]); });
         });

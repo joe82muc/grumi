@@ -42,17 +42,20 @@
     $("liste").hidden = false;
     $("liste").innerHTML = `<div class="eyebrow">${DNAME} · Klasse ${esc(d.klasse || "")}</div><h1>Meine Proben</h1>` +
       (d.abgaben.length ? `<div class="exam-list">${d.abgaben.map(a => `<article class="exam-tile"><div><h2>📄 ${esc(a.title)}</h2>
-        <p>Geschrieben am ${D7Korrektur.datum(a.abgegebenAm)}${a.status === "korrigiert" ? " · korrigiert zurück am " + D7Korrektur.datum(a.freigegebenAm) : ""}</p></div>
+        <p>Geschrieben am ${D7Korrektur.datum(a.abgegebenAm)}${a.status === "korrigiert" ? " · korrigiert zurück am " + D7Korrektur.datum(a.freigegebenAm) + (a.sichtbarBis ? " · <b>zu sehen bis " + D7Korrektur.datum(a.sichtbarBis) + "</b>" : "") : ""}</p></div>
         <div>${a.status === "korrigiert" ? `<span class="pill ${a.neu ? "open" : ""}">${a.neu ? "NEUE KORREKTUR" : "korrigiert"}</span><a class="btn" href="korrektur.html?test=${encodeURIComponent(a.testId)}">Korrektur öffnen</a>`
           : `<span class="pill">abgegeben</span><span style="color:var(--muted);font-size:.9rem">Deine Lehrkraft korrigiert noch.</span>`}</div></article>`).join("")}</div>`
-        : `<p class="notice">Du hast noch keine Deutsch-Probe abgegeben.</p>`) +
+        : `<p class="notice">Hier steht gerade keine Probe.</p>`) +
+      // Korrigierte Proben verschwinden 7 Tage nach der Rückgabe von selbst (rechnet der Server)
+      `<p class="notice">Eine korrigierte Probe ist 7 Tage lang zu sehen. Danach verschwindet sie von selbst – drucke sie vorher aus oder sichere sie als PDF, wenn du sie behalten möchtest.</p>` +
       `<p><a class="btn secondary" href="index.html">Zur Übersicht ${DNAME}</a></p>`;
   }
   async function zeigen() {
     const d = await post("korrektur", {code, testId: TEST});
     const k = d.korrektur;
     $("anmelden").hidden = true; $("liste").hidden = true;
-    $("blatt").innerHTML = D7Korrektur.html(k);
+    // nur am Bildschirm: bis wann die Korrektur zu sehen ist (danach verschwindet sie von selbst)
+    $("blatt").innerHTML = (k.sichtbarBis ? `<p class="notice kein-druck" id="k-frist">Diese Korrektur siehst du noch <b>bis ${D7Korrektur.datum(k.sichtbarBis)}</b>. Danach verschwindet sie von selbst – drucke sie vorher aus oder sichere sie als PDF.</p>` : "") + D7Korrektur.html(k);
     const texte = (k.texte || []);
     $("texte").hidden = !texte.length;
     $("mit-text").closest("label").hidden = !texte.length;
