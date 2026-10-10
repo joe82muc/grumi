@@ -18,6 +18,9 @@ GrumiKursliste.bauen({
   // (7M/Deutsch/d7-kit.js). Diese Angaben schalten dort das Fach um: Name, Adresse auf dem Server, Speicher, Sprache
   // der Hörtexte. Englisch 9R hat nur einen Zug – freiwillige Zusatzaufgaben heißen „Challenge“.
   bausteine: { name: "Englisch 9R", api: "/api/e9", speicher: "grumi-e9-", klasse: "Englisch · Klasse 9R", anker: "thema-", sprache: "en", zug: "R", plusTag: "Challenge · freiwillig" },
+  // Große Proben (js/proben-module.js: e9proben): eine je Unit, Variante A und Nachschreiber B. Die Verwaltung stellt
+  // jede Probe beim Freischalten unter ihre Unit.
+  proben: { "e9-p1-r-a": "u1", "e9-p1-r-b": "u1", "e9-p2-r-a": "u2", "e9-p2-r-b": "u2", "e9-p3-r-a": "u3", "e9-p3-r-b": "u3", "e9-p4-r-a": "u4", "e9-p4-r-b": "u4" },
   themen: [
     {
       id: "u1", nr: "01", titel: "Unit 1: Around Australia", kurz: "Unit 1", icon: "🦘",
@@ -84,7 +87,22 @@ GrumiKursliste.bauen({
         { id: "u2-mediation", kz: "B12", titel: "Mediation · Which job is right for you?", href: "u2_mediation.html", art: "Mediation", ls: "e9-u2-mediation",
           text: "Sprachmittlung: Informationen über Berufe weitergeben – das Wichtige auswählen, einfach sagen, an die Person denken." },
         { id: "u2-writing", kz: "B13", titel: "Writing · A story in pictures", href: "u2_writing.html", art: "Writing", ls: "e9-u2-writing",
-          text: "Schreibwerkstatt: eine Geschichte zu Bildern planen, schreiben, prüfen und überarbeiten – mit Schreibcoach." }
+          text: "Schreibwerkstatt: eine Geschichte zu Bildern planen, schreiben, prüfen und überarbeiten – mit Schreibcoach." },
+        { id: "u2-qualifit", kz: "B14", titel: "Quali-Fit · Unit 2", href: "u2_qualifit.html", art: "Quali-Fit", ls: "e9-u2-qualifit",
+          text: "Prüfungsformate in klein: Hören, Sprachgebrauch, Lesen, Sprachmittlung, Text und Medien, Schreiben – mit mehr Auswahl und längeren Texten." },
+        { id: "u2-duell", kz: "B16", titel: "Duelle · Unit 2", href: "u2_duell.html", art: "Duell", ls: "e9-u2-duell",
+          text: "Zusatz: Duell gegen die KI und Tischduell zu zweit – Wortschatz und Grammatik der Unit." }
+      ]
+    },
+    {
+      id: "u3", nr: "03", titel: "Unit 3: Discover South Africa", kurz: "Unit 3", icon: "🦁",
+      text: "Südafrika, ein Unfall und die Polizei, Vorbilder, im Krankenhaus – mit Wortschatz, Grammatik und allen Fertigkeiten.",
+      module: [
+        // Kürzel C1 bis C7 sind vergeben: C1 Vokabeltrainer, C2/C3 Grammatik (G7, G8), C4 bis C7 Wordbanks – sie folgen
+        { id: "u3-land", kz: "C8", titel: "Land und Leute · South Africa – the rainbow nation", href: "u3_land.html", art: "Land und Leute", ls: "e9-u3-land",
+          text: "Südafrika: Land, Sprachen, Geschichte in Grundzügen, Natur, Alltag – lesen, hören, vergleichen." },
+        { id: "u3-listening", kz: "C9", titel: "Listening · What happened?", href: "u3_listening.html", art: "Listening", ls: "e9-u3-listening",
+          text: "Gespräche verstehen: ein Unfall wird gemeldet, eine Aussage bei der Polizei – Thema, Einzelheiten, Notizen." }
       ]
     }
   ]
