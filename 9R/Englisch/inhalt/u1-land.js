@@ -30,6 +30,7 @@ D7Kit.seite({
         { ic: "📚", titel: "Second language", text: "You learn English in addition to your own language and use it at work or at school, for example in India." },
         { ic: "🤝", titel: "Common language", text: "People with different first languages talk English to each other – on holiday, online or at work." }
       ] },
+      { art: "text", html: "<p class=\"lead\">Look at the map: In the blue countries English is an official language or widely used. <span class=\"de\">Tippe die Karte an, um sie zu vergrößern. Unten stehen die Länder nach Erdteilen.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u1-english-world.jpg\" alt=\"World map: countries where English is an official or widely used language, with lists for Europe, North America and the Caribbean, South America, Africa, Asia and Oceania\" loading=\"lazy\" width=\"1448\" height=\"1086\" style=\"display:block;width:100%;max-width:860px;height:auto;border-radius:12px;border:1px solid rgba(0,0,0,.12)\"><figcaption style=\"font-size:.78rem;opacity:.7;margin-top:4px\">Picture: GRUMI (made with AI) · a simple overview map – small countries and islands are not exact</figcaption></figure>" },
       { art: "sort", id: "laender", tag: "Sort", titel: "Where do people speak English?", lead: "Put the countries into the right box. <span class=\"de\">In welchen Ländern ist Englisch für viele Muttersprache, in welchen wichtige Zweitsprache?</span>",
         buckets: ["English is the first language of most people", "English is an important second language"],
         items: [{ t: "Australia", b: 0 }, { t: "New Zealand", b: 0 }, { t: "Ireland", b: 0 }, { t: "the USA", b: 0 },
@@ -39,7 +40,9 @@ D7Kit.seite({
           { q: "A student from Brazil and a student from Japan meet online. Which language do they probably use?", o: ["English as a common language", "Portuguese", "Japanese", "German"], a: 0,
             e: "Many people use English as a common language when they have different first languages." },
           { q: "What does \"common language\" mean?", o: ["People with different first languages use it to talk to each other.", "Everybody in the world speaks it as a first language.", "It is only used in school books.", "It is the oldest language in the world."], a: 0,
-            e: "A common language helps people from different countries to understand each other." }
+            e: "A common language helps people from different countries to understand each other." },
+          { q: "Look at the lists under the map. Which continent has the most countries where English is official or widely used?", o: ["Africa", "Europe", "Asia", "South America"], a: 0,
+            e: "The list for Africa is the longest: 23 countries. Europe has three, Asia four and South America one." }
         ] },
       { art: "offen", id: "englisch-alltag", tag: "Your words", titel: "English in your life", lead: "Where do you meet English? Write one sentence. <span class=\"de\">Zum Beispiel: Songs, Videos, Spiele, Urlaub, Beruf.</span>",
         fragen: [{ q: "Where do you meet English in your daily life?", m: "I meet English in songs, in videos and in computer games.", k: ["english|songs|music|videos|games|internet|holiday|school|film|films", "i|my"], min: 2 }],
