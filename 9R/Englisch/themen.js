@@ -69,6 +69,13 @@ GrumiKursliste.bauen({
           text: "Gemischte Wiederholung vor der Probe: Wortschatz, die Grammatik der Unit, Lesen, Hören, Sprachmittlung, Schreiben." },
         { id: "u1-duell", kz: "A19", titel: "Duelle · Unit 1", href: "u1_duell.html", art: "Duell", ls: "e9-u1-duell",
           text: "Zusatz: Duell gegen die KI und Tischduell zu zweit – Wortschatz und Grammatik der Unit." },
+        // Zusatzmodule (Wunsch der Lehrkraft, 10.10.2026): Riff, Gespräch und Sprachmittlung als Sprechblasen-Kette mit KI-Prüfung (e9-kit.js)
+        { id: "u1-reef", kz: "A21", titel: "Land und Leute · The Great Barrier Reef", href: "u1_reef.html", art: "Land und Leute", ls: "e9-u1-reef",
+          text: "Das größte Korallenriff der Welt und seine Probleme: lesen, Ursachen und Folgen ordnen, einen Kurzvortrag vorbereiten – mit KI-Rückmeldung." },
+        { id: "u1-dialogue", kz: "A22", titel: "Speaking · Feeling ill: a dialogue", href: "u1_dialogue.html", art: "Speaking", ls: "e9-u1-dialogue",
+          text: "Ein Gespräch führen, wenn jemand krank ist: sagen, was fehlt, nachfragen, Rat geben – die KI prüft jeden Beitrag." },
+        { id: "u1-pharmacy", kz: "A23", titel: "Mediation · At the pharmacy", href: "u1_pharmacy.html", art: "Mediation", ls: "e9-u1-pharmacy",
+          text: "Sprachmittlung im Gespräch: zwischen einem Touristen und der Apothekerin vermitteln, Deutsch und Englisch – die KI prüft jeden Beitrag." },
         { id: "u1-blaetter", kz: "A20", titel: "Arbeitsblätter · Unit 1", href: "u1_blaetter.html", art: "Arbeitsblatt",
           text: "Sieben Blätter zum Drucken: Vocabulary, Grammar, Reading, Listening, Writing, Mediation, Mixed revision – aus den Aufgaben der Module." }
       ]
