@@ -159,7 +159,10 @@ GrumiKursliste.bauen({
         { id: "u3-duell", kz: "C16", titel: "Duelle · Unit 3", href: "u3_duell.html", art: "Duell", ls: "e9-u3-duell",
           text: "Zusatz: Duell gegen die KI und Tischduell zu zweit – Wortschatz und Grammatik der Unit." },
         { id: "u3-blaetter", kz: "C17", titel: "Arbeitsblätter · Unit 3", href: "u3_blaetter.html", art: "Arbeitsblatt",
-          text: "Sieben Blätter zum Drucken: Vocabulary, Grammar, Reading, Listening, Writing, Mediation, Mixed revision – aus den Aufgaben der Module." }
+          text: "Sieben Blätter zum Drucken: Vocabulary, Grammar, Reading, Listening, Writing, Mediation, Mixed revision – aus den Aufgaben der Module." },
+        // Fotoseite der Lehrkraft, liegt bei 9M und gehört beiden Zügen (gleiche Kennung wie in der Liste E9M)
+        { id: "u3-holidays", kz: "C18", titel: "Holidays Mr. Mößner", href: "../../9M/Englisch_9/unit3/holidays_moessner.html", art: "Bilder",
+          text: "Fotos aus Südafrika – zum Ansehen und Beschreiben." }
       ]
     },
     {

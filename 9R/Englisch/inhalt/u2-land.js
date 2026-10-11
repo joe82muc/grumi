@@ -25,6 +25,7 @@ D7Kit.seite({
   haupttext: "u2-land-fact",
   stationen: [
     { kurz: "Words", ober: "Part 1", titel: "Words for the fact file", teile: [
+      { art: "text", html: "<div style=\"display:flex;align-items:center;gap:14px\"><img src=\"../../9R/Englisch/images/extra/badge-unit2.png\" alt=\"Round badge: a map of India with an elephant, a palace and a white building with a dome.\" width=\"88\" height=\"88\" style=\"flex:none;border-radius:50%\"><p class=\"lead\" style=\"margin:0\"><b>Unit 2 · Exploring India</b> <span class=\"de\">Land und Leute</span></p></div>" },
       { art: "text", html: "<p class=\"lead\">India is a big country in Asia. Before you read, learn some words from the text. <span class=\"de\">Erst die wichtigen Wörter, dann der Text.</span></p>" },
       { art: "paare", id: "vokabeln", tag: "Match", titel: "New words", lead: "Find the pairs. <span class=\"de\">Links das englische Wort, rechts die deutsche Bedeutung.</span>",
         paare: [["monsoon", "Monsun (Regenzeit)"], ["official language", "Amtssprache"], ["powder", "Pulver"], ["marble", "Marmor"], ["railway", "Eisenbahn"], ["lamp", "Lampe"]] },
@@ -106,6 +107,7 @@ D7Kit.seite({
       ] }
     ] },
     { kurz: "Language", ober: "Part 5", titel: "Language: simple present and word order", teile: [
+      { art: "text", html: "<div style=\"display:flex;flex-wrap:wrap;align-items:center;gap:14px\"><img src=\"../../9R/Englisch/images/extra/tense-present-simple.jpg\" alt=\"Symbol: a calendar page with the word today and an alarm clock – present simple.\" loading=\"lazy\" width=\"150\" height=\"150\" style=\"flex:none;width:150px;height:150px;object-fit:contain;border-radius:12px\"><p style=\"flex:1 1 240px;margin:0\"><b>Simple present</b> (present simple) – for things that happen again and again: every day, often, always, never.</p></div>" },
       { art: "merke", kopf: "SIMPLE PRESENT", html: "<p>He / she / it gets an <b>-s</b>: Anaya <b>speaks</b> Kannada. Negative and questions with <b>do / does</b>: Her cousins <b>do not</b> live in her town. <b>Does</b> Anaya wear a uniform? Word order: who – what – <b>how</b> – <b>where</b> – <b>when</b>. Adverbs like <i>often</i> and <i>always</i> stand before the verb: Dev <b>often</b> plays cricket.</p>" },
       { art: "luecke", id: "present", tag: "Complete", titel: "Simple present", lead: "Complete the sentences with words from the box. <span class=\"de\">Zwei Wörter bleiben übrig.</span>",
         absaetze: [

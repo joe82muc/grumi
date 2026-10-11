@@ -24,6 +24,7 @@ D7Kit.seite({
   haupttext: "u1-land-fact",
   stationen: [
     { kurz: "World English", ober: "Part 1", titel: "English as a world language", teile: [
+      { art: "text", html: "<div style=\"display:flex;align-items:center;gap:14px\"><img src=\"../../9R/Englisch/images/extra/badge-unit1.png\" alt=\"Round badge: a map of Australia with a kangaroo, the Sydney Opera House and a red rock.\" width=\"88\" height=\"88\" style=\"flex:none;border-radius:50%\"><p class=\"lead\" style=\"margin:0\"><b>Unit 1 · Around Australia</b> <span class=\"de\">Land und Leute</span></p></div>" },
       { art: "text", html: "<p class=\"lead\">More than a billion people speak English as a first or second language. But English is not the same in every country – and not everybody learns it in the same way.</p>" },
       { art: "karten", karten: [
         { ic: "🏠", titel: "First language", text: "English is the language you grow up with, for example in Australia or Ireland." },

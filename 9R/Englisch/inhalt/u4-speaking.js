@@ -65,6 +65,7 @@ D7Kit.seite({
       ] }
     ] },
     { kurz: "Language", ober: "Language", titel: "Past and plans", teile: [
+      { art: "text", html: "<div style=\"display:flex;flex-wrap:wrap;align-items:center;gap:14px\"><img src=\"../../9R/Englisch/images/extra/tense-past-simple.jpg\" alt=\"Symbol: an old calendar, a pocket watch and a magnifying glass – past simple.\" loading=\"lazy\" width=\"150\" height=\"150\" style=\"flex:none;width:150px;height:150px;object-fit:contain;border-radius:12px\"><p style=\"flex:1 1 240px;margin:0\"><b>Simple past</b> (past simple) – for things that are over: yesterday, last year, two weeks ago.</p></div>" },
       { art: "merke", kopf: "SIMPLE PAST AND GOING TO", html: "<p><b>Experience = simple past.</b> It is finished, and you often say when.</p><ul><li>Regular: work<u>ed</u>, help<u>ed</u>, carry – <u>carried</u>: Last summer I <u>helped</u> my aunt.</li><li>Irregular: do – <u>did</u>, sell – <u>sold</u>: I <u>did</u> an internship. I <u>sold</u> tickets.</li><li>Not <i>have</i> with <i>last summer</i>: <u>Last summer I worked</u> in a shop.</li></ul><p><b>Plans = going to.</b></p><ul><li><b>am / is / are + going to + verb</b>: I <u>am going to</u> save money. She <u>is going to</u> start on Monday. We <u>are going to</u> work together.</li></ul>" },
       { art: "luecke", id: "past", tag: "Gap text", titel: "What did you do?", lead: "Complete the sentences. <span class=\"de\">Ganze Formen stehen im Kasten. Zwei Formen bleiben übrig.</span>",
         absaetze: [

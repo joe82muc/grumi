@@ -47,6 +47,7 @@ D7Kit.seite({
           { q: "Which sentence tells you WHERE something is?", o: ["In the middle, there is a dog under a table.", "I like the dog because it is cute.", "It looks like the dog is tired.", "The dog is very old."], a: 0,
             e: "\"In the middle\" is a place word. The other sentences give an opinion, a guess or a fact without a place." }
         ] },
+      { art: "text", html: "<div style=\"display:flex;flex-wrap:wrap;align-items:center;gap:14px\"><img src=\"../../9R/Englisch/images/extra/tense-present-progressive.jpg\" alt=\"Symbol: a runner on a treadmill and a loading bar – present progressive.\" loading=\"lazy\" width=\"150\" height=\"150\" style=\"flex:none;width:150px;height:150px;object-fit:contain;border-radius:12px\"><p style=\"flex:1 1 240px;margin:0\"><b>Present progressive</b> – for what is happening right now, for example in a picture: <i>am / is / are</i> + verb + <i>-ing</i>.</p></div>" },
       { art: "luecke", id: "progressive", tag: "Gap text", titel: "What are the people doing?", lead: "Complete the sentences about the picture. <span class=\"de\">Zwei Wörter bleiben übrig. Ganze Formen wie „is selling“ stehen im Kasten.</span>",
         absaetze: [
           ["In the foreground, a woman ", { g: "is selling" }, " fruit."],
