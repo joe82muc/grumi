@@ -14,6 +14,7 @@ D7Kit.seite({
   ziele: ["🧩 I use the words and grammar of Unit 2 in quick questions.", "⚔️ I notice when an answer sounds good but is wrong.", "👥 I play fair with a partner on one device."],
   stationen: [
     { kurz: "Warm-up", ober: "Warm-up", titel: "True or false?", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>a quiz duel in class</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u2-duell.jpg\" alt=\"Two classmates play a quiz duel on one tablet; a third classmate cheers. A wooden elephant and two glasses of tea stand on the table.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>Who do you think is faster? Get ready – now it is your turn! <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "tf", id: "warm", tag: "Warm-up", titel: "Six quick statements", lead: "Tick true or false. <span class=\"de\">Stimmt die Aussage?</span>", aussagen: [
         ["In the simple present, he, she and it get an -s: She works in a factory.", true],
         ["In questions with \"does\" the verb also gets an -s: Does he works here?", false],

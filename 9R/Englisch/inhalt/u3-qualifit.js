@@ -22,6 +22,7 @@ D7Kit.seite({
   },
   stationen: [
     { kurz: "A Listening", ober: "Part A", titel: "A · Listening", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>on air: the school radio</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u3-school-radio.jpg\" alt=\"Two students with headphones interview a market seller in a small school radio studio.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>Who is the guest? What could the two students ask him? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "merke", kopf: "SO GEHT DIESER PRÜFUNGSTEIL", html: "<p>Bei einem Interview wird oft eine <b>falsche Angabe</b> gesucht. Lies zuerst alle Sätze. Beim Hören hakst du ab, was stimmt, und merkst dir die Stelle, die <b>nicht</b> zum Gehörten passt. Achte auf Zahlen, Körperteile und Zeitangaben – sie werden gern geändert.</p>" },
       { art: "text", html: "<p class=\"lead\">A student reporter from a school radio in an invented South African town talks to a witness. <span class=\"de\">Hör zu und löse die Aufgaben.</span></p>" },
       { art: "hoertext", id: "hoer-a", tag: "🎧 Listening", hoertext: "u3-qf-listen", fragen: [

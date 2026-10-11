@@ -57,6 +57,7 @@ D7Kit.seite({
       { art: "merke", kopf: "REMEMBER", html: "<p>There is no \"wrong\" English: British, American and Australian English are all <b>correct</b>. Just don't mix them in one text, and ask if you don't understand a word.</p>" }
     ] },
     { kurz: "Australia", ober: "Part 2", titel: "Australia: country and people", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>a wildlife park in Australia</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u1-wildlife.jpg\" alt=\"A ranger shows visitors a koala in a eucalyptus tree; kangaroos rest on the grass.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>Which animals can you see? Which Australian animal would you like to see in real life? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">Now a closer look at one country where English is the first language. Read the fact file. Don't stop at words you don't know. <span class=\"de\">Lies den Text einmal ganz durch. Bleib nicht an unbekannten Wörtern hängen.</span></p>" },
       { art: "lesetext", lesetext: "u1-land-fact" },
       { art: "mc", id: "global", tag: "Skimming", titel: "The main idea", lead: "Tick the correct answer.",

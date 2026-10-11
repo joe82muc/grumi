@@ -22,6 +22,7 @@ D7Kit.seite({
   haupttext: "u1-read-cleanup",
   stationen: [
     { kurz: "Warm-up", ober: "Before you read", titel: "Get ready", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>a Saturday morning on an Australian beach</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u1-beach-cleanup.jpg\" alt=\"Volunteers with gloves collect plastic bottles and nets on a beach and carry full bags.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>What are the people doing, and why? Would you join them? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">Australia has more than 10,000 beaches – and many of them have the same problem: <button class=\"term\" data-t=\"rubbish\">rubbish</button>. In this module you read how students in a small town did something about it.</p><p>The town <b>Wattle Bay</b>, the school and the people are invented. The problem is real.</p>" },
       { art: "paare", id: "woerter", tag: "Words you need", titel: "Match the words", lead: "Find the pairs. <span class=\"de\">Verbinde das englische Wort mit seiner Bedeutung.</span>",
         paare: [["rubbish", "Müll"], ["bin", "Mülleimer"], ["gloves", "Handschuhe"], ["to weigh", "wiegen"], ["tiny", "winzig"], ["jellyfish", "Qualle"], ["to pick up", "aufheben"]] },
@@ -78,10 +79,10 @@ D7Kit.seite({
             e: "Before the day he did not know his team – now they plan to go surfing together." }
         ] },
       { art: "offen", id: "erklaeren", tag: "Your words", titel: "Explain it", lead: "Answer in English. One or two sentences are enough. <span class=\"de\">Schreibe mit eigenen Worten – nicht abschreiben.</span>",
-        fragen: [{ q: "Why is plastic dangerous for sea animals?", m: "Plastic breaks into very small pieces. Animals think the pieces are food and eat them.", k: ["food|eat|eats|eating", "piece|pieces|small|tiny|bag|bags"], min: 8 }],
+        fragen: [{ q: "Why is plastic dangerous for sea animals?", m: "Plastic breaks into very small pieces. Animals think the pieces are food and eat them.", k: ["food|eat|eats|eating", "piece|pieces|small|tiny|bag|bags"], min: 2 }],
         tipp: "Read lines 17 to 21 again. Start like this: Plastic is dangerous because …" },
       { art: "offen", id: "eigene-ideen", m7: true, tag: "Your ideas", titel: "What about your school?", lead: "Write two ideas in English. Use <b>will</b> or an <b>if-sentence</b>. <span class=\"de\">Zum Beispiel: If we …, … will …</span>",
-        fragen: [{ q: "What could your school do against rubbish? Write two ideas.", m: "We will put more bins in the schoolyard. If every class cleans up once a month, our school will look better.", k: ["will|if", "bin|bins|rubbish|clean|plastic|bottle|bottles|poster|posters"], min: 12 }],
+        fragen: [{ q: "What could your school do against rubbish? Write two ideas.", m: "We will put more bins in the schoolyard. If every class cleans up once a month, our school will look better.", k: ["will|if", "bin|bins|rubbish|clean|plastic|bottle|bottles|poster|posters"], min: 2 }],
         tipp: "Think of bins, posters, a clean-up day or plastic bottles. Start with: We will … / If we …, …" }
     ] },
     { kurz: "Language", ober: "Grammar in the text", titel: "The grammar of Unit 1 – in a real text", teile: [

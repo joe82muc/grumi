@@ -26,6 +26,7 @@ D7Kit.seite({
   haupttext: "u4-write-farm-shop",
   stationen: [
     { kurz: "Model", ober: "1 · A model e-mail", titel: "An application e-mail", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>a Saturday job in a farm shop</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u4-shop.jpg\" alt=\"A young helper puts crates of fruit and vegetables on a shelf in a farm shop; the owner shows her what to do.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>What does the young woman do there? Would you like this job? Why (not)? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">You <button class=\"term\" data-t=\"apply\">apply</button> for a job with a <button class=\"term\" data-t=\"formal\">formal</button> e-mail. Read this model. It is about a job in a <button class=\"term\" data-t=\"farmshop\">farm shop</button>. <span class=\"de\">Lies den Mustertext. Tessa, Mr Sutherland und der Hofladen sind erfunden.</span></p>" },
       { art: "lesetext", lesetext: "u4-write-farm-shop" },
       { art: "mc", id: "wer", tag: "Understand", titel: "What is the e-mail about?", lead: "Tick the correct answer.",

@@ -24,6 +24,7 @@ D7Kit.seite({
   haupttext: "u1-reef-text",
   stationen: [
     { kurz: "Warm-up", ober: "Before you read", titel: "Get ready", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>under water at the Great Barrier Reef</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u1-reef.jpg\" alt=\"Two snorkellers float above a colourful coral reef with fish and a sea turtle; one part of the coral is pale and white.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>What can you see? Look at the coral on the right: what is different there? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">The Great Barrier Reef is home to thousands of animals – but it has a lot of problems. In this module you read a report, learn the facts and then give your own short presentation.</p><p>The school, the reporter and the scientist in the text are invented. The reef and its problems are real.</p>" },
       { art: "paare", id: "woerter", tag: "Words you need", titel: "Match the words", lead: "Find the pairs. <span class=\"de\">Verbinde das englische Wort mit seiner Bedeutung.</span>",
         paare: [["reef", "Riff"], ["coral", "Koralle"], ["algae", "Algen"], ["bleaching", "Korallenbleiche"], ["cyclone", "Wirbelsturm"], ["to recover", "sich erholen"], ["ranger", "Parkaufseher"]] },
@@ -108,7 +109,7 @@ D7Kit.seite({
             e: "In the other part there can also be a request. After if the verb is in the simple present." }
         ] },
       { art: "offen", id: "eigene-if-saetze", tag: "Your sentences", titel: "Write two if-sentences", lead: "Write two if-sentences about the reef. <span class=\"de\">Nach if kein will! Zum Beispiel: If … , … will …</span>",
-        fragen: [{ q: "Write two if-sentences about the reef and its problems.", m: "If the sea gets too warm, the corals will turn white. If we save energy, we will help the reef.", k: ["if", "will", "coral|corals|reef|sea|water|energy|plastic|starfish"], min: 12 }],
+        fragen: [{ q: "Write two if-sentences about the reef and its problems.", m: "If the sea gets too warm, the corals will turn white. If we save energy, we will help the reef.", k: ["if", "will", "coral|corals|reef|sea|water|energy|plastic|starfish"], min: 3 }],
         tipp: "Think of warm water, plastic or energy. Start with: If the sea … / If we …" }
     ] },
     { kurz: "Presentation", ober: "Your one-minute presentation", titel: "Prepare your talk", teile: [

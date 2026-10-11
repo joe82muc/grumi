@@ -89,6 +89,7 @@ D7Kit.seite({
         ] }
     ] },
     { kurz: "Read & listen", ober: "Skills", titel: "Read and listen", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>football training</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u3-football.jpg\" alt=\"Two young players run for the same ball and are about to bump into each other; the coach blows a whistle.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>What do you think will happen next? Has something like this ever happened to you? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">Mandla wrote a report for the school magazine. Read it first. Then listen to a radio talk. <span class=\"de\">Erst ein kurzer Bericht, dann ein Gespräch im Radio.</span></p>" },
       { art: "lesetext", lesetext: "u3-rev-training" },
       { art: "tf", id: "richtigfalsch", tag: "Reading", titel: "True or false?", lead: "Look for the information in the text. <span class=\"de\">Den Text holst du mit „📖 Text“.</span>",

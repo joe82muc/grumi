@@ -24,12 +24,14 @@ D7Kit.seite({
   haupttext: "u4-land-fact",
   stationen: [
     { kurz: "Words", ober: "Part 1", titel: "Words for the fact file", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>a very special place in New Zealand</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u4-geothermal.jpg\" alt=\"Visitors walk along a wooden boardwalk past steaming hot pools and bubbling mud; a geyser shoots water into the air.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>What is happening here? Why do the visitors have to stay on the wooden path? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">New Zealand is a country in the Pacific Ocean. Before you read, learn some words from the text. <span class=\"de\">Erst die wichtigen Wörter, dann der Text.</span></p>" },
       { art: "paare", id: "vokabeln", tag: "Match", titel: "New words", lead: "Find the pairs. <span class=\"de\">Links das englische Wort, rechts die deutsche Bedeutung.</span>",
         paare: [["island", "Insel"], ["volcano", "Vulkan"], ["hot spring", "heiße Quelle"], ["sheep", "Schaf"], ["official language", "Amtssprache"], ["greet", "begrüßen"]] },
       { art: "merke", kopf: "REMEMBER", html: "<p>A fact file gives <b>short facts</b>. Read it once to get the main idea (<i>skimming</i>). Then look for details (<i>scanning</i>). Be careful with big words like <i>all</i> and <i>only</i>: a text often says <i>many</i> or <i>some</i> instead.</p>" }
     ] },
     { kurz: "New Zealand", ober: "Part 2", titel: "New Zealand: land and people", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>somewhere in New Zealand</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u4-landscape.jpg\" alt=\"Green hills with sheep, a blue lake and snow-covered mountains; two hikers look at the view.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>What can you see? What can people do there in their free time? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">Read the fact file. Don't stop at words you don't know. <span class=\"de\">Lies den Text einmal ganz durch. Bleib nicht an unbekannten Wörtern hängen.</span></p>" },
       { art: "lesetext", lesetext: "u4-land-fact" },
       { art: "mc", id: "global", tag: "Skimming", titel: "The main idea", lead: "Tick the correct answer.",
@@ -122,7 +124,7 @@ D7Kit.seite({
                 { t: "Rugby is played in many schools and clubs.", b: 1 }, { t: "Many young people play football or cricket.", b: 0 },
                 { t: "People say kia ora to greet each other.", b: 0 }, { t: "Māori words are heard in daily life.", b: 1 }] },
       { art: "offen", id: "goingto-eigen", m7: true, tag: "Challenge", titel: "Your plans", lead: "Write two sentences about your plans for the holidays with <b>going to</b>. <span class=\"de\">Freiwillig: Was hast du vor?</span>",
-        fragen: [{ q: "Write two sentences about your plans with going to.", m: "I am going to visit my cousins. I am not going to stay at home.", k: ["going to", "am|are|is|'m"], min: 3 }],
+        fragen: [{ q: "Write two sentences about your plans with going to.", m: "I am going to visit my cousins. I am not going to stay at home.", k: ["going to", "am|are|is|'m"], min: 2 }],
         tipp: "Start like this: I am going to … / We are going to … / I am not going to …" }
     ] },
     { kurz: "Compare", ober: "Part 6", titel: "Compare and think", teile: [

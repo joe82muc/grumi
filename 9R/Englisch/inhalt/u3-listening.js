@@ -20,6 +20,7 @@ D7Kit.seite({
   },
   stationen: [
     { kurz: "Warm-up", ober: "Before you listen", titel: "Get ready", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>at a police station</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u3-police-station.jpg\" alt=\"A young woman describes something to a police officer at the front desk of a police station; a bicycle helmet lies on the counter.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>Why do you think the young woman is there? What does the police officer need to know? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">On a street in a small town, a boy on a bike has a little accident. Lerato saw it. She is a <button class=\"term\" data-t=\"witness\">witness</button>, so she goes to the police station and gives a <button class=\"term\" data-t=\"statement\">statement</button>. Later the boy phones a bike shop.</p><p>The street, the bakery, the shop and the people are invented.</p>" },
       { art: "paare", id: "woerter", tag: "Words you need", titel: "Match the words", lead: "Find the pairs. <span class=\"de\">Verbinde das englische Wort mit seiner Bedeutung.</span>",
         paare: [["bakery", "Bäckerei"], ["helmet", "Helm"], ["bent", "verbogen"], ["brake", "bremsen"], ["bleeding", "blutend"], ["statement", "Aussage"]] },

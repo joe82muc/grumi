@@ -23,6 +23,7 @@ D7Kit.seite({
   },
   stationen: [
     { kurz: "Model", ober: "1 · A personal email", titel: "Look at a good personal email", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>writing an e-mail</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u3-email-writing.jpg\" alt=\"A boy writes an e-mail on a laptop at his desk; photos of hills, a lake and a castle hang on the pinboard.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>Who do you think he is writing to? When do you write e-mails – and to whom? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">Jonas lives in Germany. He writes his first email to Freya, a new email friend in Scotland. Read the email. <span class=\"de\">Lies die E-Mail einmal ganz durch. Jonas und Freya sind erfunden.</span></p>" },
       { art: "lesetext", lesetext: "email-jonas-freya" },
       { art: "mc", id: "wer", tag: "Understand", titel: "Who writes and why?", lead: "Tick the correct answer.",

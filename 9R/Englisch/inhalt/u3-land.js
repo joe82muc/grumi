@@ -30,6 +30,7 @@ D7Kit.seite({
       { art: "merke", kopf: "REMEMBER", html: "<p>A fact file gives <b>short facts</b>. Read it once to get the main idea. Then look for details. Be careful with big words like <i>all</i> and <i>only</i>: a text often says <i>many</i> or <i>some</i> instead.</p>" }
     ] },
     { kurz: "South Africa", ober: "Part 2", titel: "South Africa: land and people", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>early morning in a national park</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u3-safari.jpg\" alt=\"Visitors in an open safari vehicle watch elephants at a waterhole; zebras stand in the tall grass.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>Which animals can you see? Why do the visitors stay in the car? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">Read the fact file. Don't stop at words you don't know. <span class=\"de\">Lies den Text einmal ganz durch. Bleib nicht an unbekannten Wörtern hängen.</span></p>" },
       { art: "lesetext", lesetext: "u3-land-fact" },
       { art: "mc", id: "global", tag: "Skimming", titel: "The main idea", lead: "Tick the correct answer.",
@@ -80,6 +81,7 @@ D7Kit.seite({
         ] }
     ] },
     { kurz: "Listening", ober: "Part 4", titel: "A voice message from the coast", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>a city on the coast of South Africa</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u3-coastal-city.jpg\" alt=\"A coastal city below a large flat-topped mountain; a harbour promenade with boats, people and a street musician.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>What can you see? Would you like to live in a city like this? Why (not)? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">Thandi is fifteen and lives in a town near the coast of South Africa. Her class sends a voice message to a partner class in Germany. Read the tasks first, then listen. <span class=\"de\">Erst die Aufgaben lesen, dann hören.</span></p><p>The town, the school and the people are invented.</p>" },
       { art: "hoertext", id: "hoer", tag: "🎧 Listening", hoertext: "u3-land-voice", fragen: [
         { art: "mc", id: "global2", titel: "What did you hear?", lead: "Listen and tick the correct answer.",
@@ -127,7 +129,7 @@ D7Kit.seite({
                 { t: "Gogo has cooked for us for many years.", b: 1 }, { t: "Thandi has played football since she was ten.", b: 1 },
                 { t: "Our neighbour came with a bag of oranges.", b: 2 }, { t: "Thandi got up at six.", b: 2 }] },
       { art: "offen", id: "perfect-eigen", m7: true, tag: "Challenge", titel: "For or since?", lead: "Write one sentence about yourself with <b>for</b> or <b>since</b>. <span class=\"de\">Freiwillig: Wie lange machst du schon etwas?</span>",
-        fragen: [{ q: "Write one sentence about yourself with for or since.", m: "I have played football for six years.", k: ["have|has", "for|since"], min: 3 }],
+        fragen: [{ q: "Write one sentence about yourself with for or since.", m: "I have played football for six years.", k: ["have|has", "for|since"], min: 2 }],
         tipp: "Start like this: I have lived here for … / I have played … since …" }
     ] },
     { kurz: "Compare", ober: "Part 6", titel: "Compare and think", teile: [

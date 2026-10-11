@@ -22,6 +22,7 @@ D7Kit.seite({
   haupttext: "u2-read-bagbox",
   stationen: [
     { kurz: "Warm-up", ober: "Before you read", titel: "Get ready", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>in front of a shop in an Indian town</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u2-bag-box.jpg\" alt=\"A wooden box full of colourful cloth bags stands at the entrance of a vegetable shop; a customer takes a bag.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>What is in the wooden box? Why could that be a good idea? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">Many people in the world use a plastic bag for only a few minutes. In this module you read how two students from a town called <b>Sonapet</b> try to change that – with a very small idea.</p><p>Sonapet, the project and the people are invented. The problem is real.</p>" },
       { art: "paare", id: "woerter", tag: "Words you need", titel: "Match the words", lead: "Find the pairs. <span class=\"de\">Verbinde das englische Wort mit seiner Bedeutung.</span>",
         paare: [["cloth bag", "Stoffbeutel"], ["tailor", "Schneider"], ["to sew", "nähen"], ["handle", "Henkel"], ["patient", "geduldig"], ["curtain", "Vorhang"], ["to disappear", "verschwinden"]] },
@@ -80,10 +81,10 @@ D7Kit.seite({
             e: "A stitch is a very small thing. He means that a small start can lead to a big change." }
         ] },
       { art: "offen", id: "erklaeren", tag: "Your words", titel: "Explain it", lead: "Answer in English. One or two sentences are enough. <span class=\"de\">Schreibe mit eigenen Worten – nicht abschreiben.</span>",
-        fragen: [{ q: "Why is the Bag Box a good idea for the environment?", m: "People can use a cloth bag again and again, so they need fewer plastic bags.", k: ["again|reuse|many times|every week|bring|back", "plastic|bags|bag|rubbish|street"], min: 8 }],
+        fragen: [{ q: "Why is the Bag Box a good idea for the environment?", m: "People can use a cloth bag again and again, so they need fewer plastic bags.", k: ["again|reuse|many times|every week|bring|back", "plastic|bags|bag|rubbish|street"], min: 2 }],
         tipp: "Think about the cloth bags and the plastic bags. Start like this: The Bag Box is a good idea because …" },
       { art: "offen", id: "eigene-ideen", m7: true, tag: "Your ideas", titel: "A small idea for your town", lead: "Write two sentences in English about a small idea. Use the <b>simple present</b>. <span class=\"de\">Zum Beispiel: Our class makes … We sell … every …</span>",
-        fragen: [{ q: "What small idea could help your school or your town? Write two sentences.", m: "Our class makes pencil cases from old bottles. We sell them at school every month.", k: ["make|makes|collect|collects|sell|sells|bring|brings|share|shares|repair|repairs|swap|swaps", "we|our|class|school|students|friends|every"], min: 10 }],
+        fragen: [{ q: "What small idea could help your school or your town? Write two sentences.", m: "Our class makes pencil cases from old bottles. We sell them at school every month.", k: ["make|makes|collect|collects|sell|sells|bring|brings|share|shares|repair|repairs|swap|swaps", "we|our|class|school|students|friends|every"], min: 2 }],
         tipp: "Think of old things you can use again. Start with: Our class … / We …" }
     ] },
     { kurz: "Language", ober: "Grammar in the text", titel: "The grammar of Unit 2 – in a real text", teile: [

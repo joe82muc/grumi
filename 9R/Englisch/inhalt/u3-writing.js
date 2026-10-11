@@ -24,6 +24,7 @@ D7Kit.seite({
   haupttext: "u3-write-role-model",
   stationen: [
     { kurz: "Model", ober: "1 · A model text", titel: "A text about a role model", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>a coach and her team</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u3-coach.jpg\" alt=\"A football coach kneels on the grass and explains a move to her young team with small cones.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>What is the coach doing? What makes a good coach – or a good role model? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">A <button class=\"term\" data-t=\"rolemodel\">role model</button> is a person you <button class=\"term\" data-t=\"admire\">admire</button>. Read the model text about one. <span class=\"de\">Lies den Mustertext über ein Vorbild. Riverside East ist ein erfundener Ortsteil, Coach Dube eine erfundene Person.</span></p>" },
       { art: "lesetext", lesetext: "u3-write-role-model" },
       { art: "mc", id: "wer", tag: "Understand", titel: "What is the text about?", lead: "Tick the correct answer.",
@@ -128,7 +129,7 @@ D7Kit.seite({
             e: "Two years is a period of time, so you use for." }
         ] },
       { art: "offen", id: "satz", m7: true, tag: "Challenge", titel: "Write about a person you admire", lead: "Write one or two sentences about a person you admire. Use <i>for</i> or <i>since</i>. <span class=\"de\">Schreibe ein bis zwei Sätze über eine Person, die du bewunderst. Benutze for oder since.</span>",
-        fragen: [{ q: "Your sentences: …", m: "My brother has played football for six years, and I admire him because he is very patient.", k: ["has|have", "for|since"], min: 6 }],
+        fragen: [{ q: "Your sentences: …", m: "My brother has played football for six years, and I admire him because he is very patient.", k: ["has|have", "for|since"], min: 2 }],
         tipp: "Start like this: My aunt has worked as a nurse for … years. " }
     ] },
     { kurz: "Check", ober: "6 · Kurz sichern", titel: "Sum it up", teile: [

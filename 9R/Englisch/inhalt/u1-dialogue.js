@@ -20,6 +20,7 @@ D7Kit.seite({
   },
   stationen: [
     { kurz: "Phrases", ober: "Station 1", titel: "Words and phrases", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>a visit to the doctor's</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u1-doctor.jpg\" alt=\"A doctor talks to a young man with a scarf and a tissue; a worried woman sits next to him.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>Who are the people? How does the young man feel? What do you think the doctor will ask him? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">It is Monday morning. Your friend looks pale and tired. A good friend asks – and gives <button class=\"term\" data-t=\"advice\">advice</button>. <span class=\"de\">Zuerst holst du dir die Wörter und Sätze, die du für so ein Gespräch brauchst.</span></p>" },
       { art: "paare", id: "woerter", tag: "Words you need", titel: "Match the words", lead: "Find the pairs. <span class=\"de\">Verbinde das englische Wort mit seiner Bedeutung.</span>",
         paare: [["a headache", "Kopfschmerzen"], ["a sore throat", "Halsschmerzen"], ["a stomach ache", "Bauchschmerzen"], ["a temperature", "Fieber"], ["a cold", "eine Erkältung"], ["dizzy", "schwindelig"], ["to lie down", "sich hinlegen"]] },

@@ -1,0 +1,17 @@
+/* Englisch 9M · Unit 2 Exploring India · Quali-Fit Teil C (M-Fassung): Infotext über einen erfundenen Dachgarten-Club einer Schule
+   (Überschriften zuordnen, Belegstellen, true / false / not in the text, Fehler in einer Zusammenfassung finden, Sätze in Lücken).
+   Schule, Stadt und Personen sind erfunden (wie im R-Text); die Fassung ist länger und lässt Gründe und Absichten offen. */
+D7Texte.add({
+  id: "u2-qf-read-m", titel: "The Green Roof Club", textsorte: "Infotext (Schülerprojekt)", zug: "M9", sprache: "en",
+  modul: "Unit 2 – Exploring India", unterthema: "Quali-Fit C: Überschriften zuordnen, Belegstellen, true / false / not in the text", woerter: 408,
+  schwierigkeit: "anspruchsvoll", lehrplan: "E9 1.1 Leseverstehen (längere Texte, Überschriften zuordnen, Informationen und Gründe im Text finden, Schlüsse ziehen), E9 5 (nachhaltig leben)", thema: "Schüler legen einen Garten auf dem Schuldach an: Regenwasser, Kompost, Rückschläge, Rat an andere Schulen",
+  quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Schule, erfundene Stadt, erfundene Personen)",
+  zeilennummern: true, probe: false,
+  absaetze: [
+    "Is there a garden on your school roof? At Palm Road School in the town of Karnagar there is one, and it is bigger than many people expect. Three years ago a small group of students started the Green Roof Club, because the school yard was too small for a garden. Although the teachers were doubtful at first, the head teacher agreed after an engineer had checked that the roof was strong enough. Today about twenty students meet there twice a week after lessons. The school and the town are invented, but many real schools have similar clubs.",
+    "The leader of the club is Divya, a student in year nine. She always begins a meeting in the same way: first the students check the plants, then they water them. They never use tap water, because the roof has big barrels that collect the rain. \"Rain is free, and plants like it better,\" Divya says. In the dry months, when the barrels are almost empty, the students use less water and grow only a few strong herbs, which need less water than pumpkins or beans.",
+    "The club also has a compost box. Every day the students collect fruit peel and vegetable waste in the canteen. After some months the waste becomes soil, which the students mix with the old soil so that the plants grow well. The cook, Mrs Rao, was not convinced at first. Now she keeps the peel in a special bucket for the club, and the canteen throws away much less rubbish than before.",
+    "Not everything is easy. On hot afternoons the roof is very warm, so the students often work early in the morning, before lessons. Some plants die every year. Last spring a strong wind destroyed the young bean plants, and the club had to start again. Now a low fence protects the beds. Still, the club has fun, and on Fridays the tomatoes go into the canteen soup. Kabir, who is in the club, says: \"I don't like soup, but I love my own tomatoes.\"",
+    "Every term other classes visit the roof, and they always ask the same question: can we start a green roof at our school, too? Divya's advice is simple. \"Start small, ask for help and don't give up when the first plants die,\" she says. The club has now written a short guide for other schools, and some members say that they now buy less packaged food at home."
+  ]
+});

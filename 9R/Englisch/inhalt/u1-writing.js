@@ -21,6 +21,7 @@ D7Kit.seite({
   haupttext: "u1-write-email",
   stationen: [
     { kurz: "Model", ober: "1 · What makes a good email?", titel: "Look at a good email", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>an exchange student in Australia writes home</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u1-exchange-email.jpg\" alt=\"A student writes an e-mail on a laptop on the veranda of a house in Australia; a garden with a gum tree, a surfboard and a dog.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>Where is he? What can you see around him? What do you think he writes about? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">Hana is an <button class=\"term\" data-t=\"host\">exchange</button> student in Australia. She writes to her friend Ben at home. Read her email. <span class=\"de\">Lies die E-Mail einmal ganz durch. Die Stadt Tarrawong und die Personen sind erfunden.</span></p>" },
       { art: "lesetext", lesetext: "u1-write-email" },
       { art: "mc", id: "wer", tag: "Who and why?", titel: "Who writes to whom?", lead: "Tick the correct answer.",
@@ -119,7 +120,7 @@ D7Kit.seite({
             e: "It happened last Sunday – a finished time in the past: ate (simple past)." }
         ] },
       { art: "offen", id: "ps", m7: true, tag: "Challenge", titel: "Write a PS", lead: "Write a PS for your email with one more plan. <span class=\"de\">Schreibe ein PS mit einem weiteren Plan.</span>",
-        fragen: [{ q: "PS: …", m: "PS: Next month I will go camping with my host brother. If we see a koala, I will send you a photo!", k: ["will", "PS|next|camping|photo|plan|visit|go"], min: 6 }],
+        fragen: [{ q: "PS: …", m: "PS: Next month I will go camping with my host brother. If we see a koala, I will send you a photo!", k: ["will", "PS|next|camping|photo|plan|visit|go"], min: 2 }],
         tipp: "Start like this: PS: Next month I will … " }
     ] },
     { kurz: "Check", ober: "6 · Kurz sichern", titel: "Sum it up", teile: [

@@ -99,6 +99,7 @@ D7Kit.seite({
         ] }
     ] },
     { kurz: "Read & listen", ober: "Skills", titel: "Read and listen", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>work experience in a hair salon</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u4-hair-salon.jpg\" alt=\"A work-experience student sweeps the floor in a hair salon and watches the hairdresser cut a customer's hair.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>What does the student do? What can he or she learn in a week like this? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">A student wrote a report about her work experience. Read it first. Then listen to two friends. <span class=\"de\">Erst ein kurzer Bericht, dann ein Gespräch über Pläne.</span></p>" },
       { art: "lesetext", lesetext: "u4-rev-salon" },
       { art: "tf", id: "richtigfalsch", tag: "Reading", titel: "True or false?", lead: "Look for the information in the text. <span class=\"de\">Den Text holst du mit „📖 Text“.</span>",

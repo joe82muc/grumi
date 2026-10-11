@@ -119,7 +119,7 @@
         return fetch(ctx.api + mod.listPath).then(function (r) { return r.ok ? r.json() : { tests: [] }; }).then(function (d) {
           // frühere Fassungen einer Probe (alt) stehen nur noch hier, solange sie offen sind (damit man sie sperren kann)
           return (d.tests || []).filter(function (t) { if (t.alt && !t.unlocked) return false; var k = mod.klasse(t); return listeVon(mod, t) === N && (k === String(STUFE) || k === STUFE + ZUG); })
-            .map(function (t) { return { mod: mod, id: t.id, titel: t.title || t.id, offen: !!t.unlocked, aufgaben: t.itemCount, punkte: t.maxPoints, hoertexte: t.hoertexte || 0, klasse: mod.klasse(t), link: mod.link ? mod.link(t) : "", schueler: mod.schueler ? mod.schueler(t) : "" }; });
+            .map(function (t) { return { mod: mod, id: t.id, titel: t.title || t.id, variante: t.variante || "", offen: !!t.unlocked, aufgaben: t.itemCount, punkte: t.maxPoints, hoertexte: t.hoertexte || 0, klasse: mod.klasse(t), link: mod.link ? mod.link(t) : "", schueler: mod.schueler ? mod.schueler(t) : "" }; });
         }).catch(function () { return []; });
       })); }).then(function (teile) { PROBEN = [].concat.apply([], teile); });
     }
@@ -219,6 +219,8 @@
         return N.probeThemen ? N.probeThemen(p.id).indexOf(t.id) >= 0 : N.probeModule(p.id).some(function (m) { return t.module.indexOf(m) >= 0; });
       }).map(function (p) {
         var teile = [], inhalt = N.probeModule(p.id).map(function (m) { return m.kz; }).join(" ");
+        // Proben mit zwei Fassungen (B = Nachschreibprobe) tragen denselben Titel – die Fassung steht deshalb vorn
+        if (p.variante) teile.push("Fassung " + p.variante + (p.variante === "B" ? " (Nachschreibprobe)" : ""));
         if (p.aufgaben) teile.push(p.aufgaben + " Aufgaben");
         if (p.punkte) teile.push(p.punkte + " Punkte");
         if (inhalt) teile.push("enthält " + inhalt);

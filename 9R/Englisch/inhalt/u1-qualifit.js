@@ -20,6 +20,7 @@ D7Kit.seite({
   },
   stationen: [
     { kurz: "A Listening", ober: "Part A", titel: "A · Listening", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>a day trip to a national park</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u1-daytrip.jpg\" alt=\"Two young hikers with backpacks stand at a lookout and look over a valley with red rocks and forest.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>What can you see? What do you need for a trip like this? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "merke", kopf: "SO GEHT DIESER PRÜFUNGSTEIL", html: "<p>In Teil A hörst du ein Gespräch. <b>Erst die Aufgaben lesen</b>, dann hören – so weißt du, auf welche Zahl, welchen Ort oder welchen Namen du achten musst. Bei Kurzantworten schreibst du <b>nur ein Wort oder eine Zahl</b>. Die Rechtschreibung zählt.</p>" },
       { art: "text", html: "<p class=\"lead\">Two young people stay in a hostel. Tomorrow they go on a day trip to a national park. The hostel, the park and the people are invented. <span class=\"de\">Lies die Aufgaben, dann hör zu.</span></p>" },
       { art: "hoertext", id: "hoer-a", tag: "🎧 Listening", hoertext: "u1-qf-listen", fragen: [

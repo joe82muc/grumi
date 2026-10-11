@@ -21,6 +21,7 @@ D7Kit.seite({
   haupttext: "u3-read-zanele",
   stationen: [
     { kurz: "Warm-up", ober: "Before you read", titel: "Get ready", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>an evening at home</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u3-zanele.jpg\" alt=\"A schoolgirl does her homework at the kitchen table while her grandmother cooks and her little brother lays the table.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>Who can you see? What is the girl doing? What does your evening look like? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">What does a normal day look like for a young person? In this module you read a <button class=\"term\" data-t=\"diary\">diary</button> entry by <b>Zanele</b>, a girl who lives in a city in South Africa. She writes about school, her family and her neighbour – and about a dream.</p><p>Zanele, her brother and her teacher are invented. Her day could be the day of many young people.</p>" },
       { art: "paare", id: "woerter", tag: "Words you need", titel: "Match the words", lead: "Find the pairs. <span class=\"de\">Verbinde das englische Wort mit seiner Bedeutung.</span>",
         paare: [["bridge", "Brücke"], ["engineer", "Ingenieur"], ["gate", "Tor"], ["timetable", "Fahrplan"], ["medicine", "Medikament"], ["grown up", "erwachsen"], ["shopping list", "Einkaufszettel"]] },
@@ -79,10 +80,10 @@ D7Kit.seite({
             e: "She talks about her dream. A long way means that she needs a lot of time and work to reach it." }
         ] },
       { art: "offen", id: "erklaeren", tag: "Your words", titel: "Explain it", lead: "Answer in English. One or two sentences are enough. <span class=\"de\">Schreibe mit eigenen Worten – nicht abschreiben.</span>",
-        fragen: [{ q: "Why does Zanele help Aunt Nomsa?", m: "Aunt Nomsa's eyes are tired, so she cannot read small letters. Zanele helps her with the shopping and the newspaper.", k: ["eyes|read|reading|see|tired|old|neighbour|neighbor|help", "shopping|newspaper|list|shop|timetable|medicine|next door"], min: 8 }],
+        fragen: [{ q: "Why does Zanele help Aunt Nomsa?", m: "Aunt Nomsa's eyes are tired, so she cannot read small letters. Zanele helps her with the shopping and the newspaper.", k: ["eyes|read|reading|see|tired|old|neighbour|neighbor|help", "shopping|newspaper|list|shop|timetable|medicine|next door"], min: 2 }],
         tipp: "Think about Aunt Nomsa's eyes and what Zanele does for her. Start like this: Zanele helps Aunt Nomsa because …" },
       { art: "offen", id: "eigene-saetze", m7: true, tag: "Your life", titel: "Yesterday at your place", lead: "Write two sentences in English about yesterday. Use <b>while</b> and <b>was / were + -ing</b>. <span class=\"de\">Zum Beispiel: While I was … , my brother was …</span>",
-        fragen: [{ q: "What were you and your family or friends doing at the same time yesterday? Write two sentences.", m: "Yesterday, while I was doing my homework, my brother was playing outside. While we were eating, the phone rang.", k: ["while", "was|were"], min: 10 }],
+        fragen: [{ q: "What were you and your family or friends doing at the same time yesterday? Write two sentences.", m: "Yesterday, while I was doing my homework, my brother was playing outside. While we were eating, the phone rang.", k: ["while", "was|were"], min: 2 }],
         tipp: "Think of two things that happened at the same time. Start with: While I was …" }
     ] },
     { kurz: "Language", ober: "Grammar in the text", titel: "The grammar of Unit 3 – in a real text", teile: [

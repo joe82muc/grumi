@@ -72,6 +72,7 @@ D7Kit.seite({
       ] }
     ] },
     { kurz: "Phone call", ober: "Listening 2", titel: "A call to a vet practice", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>at a vet practice</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u4-vet.jpg\" alt=\"A vet examines a sheepdog on a table; a young intern holds the dog and the owner watches.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>What are the people doing? Would you like to work with animals? Why (not)? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">Sophie phones a vet practice because she wants a work placement. Read the tasks, then listen. <span class=\"de\">Erst die Aufgaben lesen, dann hören.</span></p>" },
       { art: "hoertext", id: "hoer2", tag: "🎧 Listening 2", hoertext: "u4-listen-vet-call", fragen: [
         { art: "mc", id: "global2", titel: "What is the call about?", lead: "Tick the correct answer.",

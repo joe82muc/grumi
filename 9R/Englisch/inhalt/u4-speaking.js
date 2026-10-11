@@ -21,6 +21,7 @@ D7Kit.seite({
   },
   stationen: [
     { kurz: "Warm-up", ober: "Before you speak", titel: "Get ready", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>a job interview</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u4-interview.jpg\" alt=\"A young man in a neat shirt talks to a manager in the small office of a holiday park.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>How do you think the young man feels? What makes a good first impression? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">You want a Saturday job or a holiday job. First there is an interview. What do you say? <span class=\"de\">Du übst ein Vorstellungsgespräch für einen Ferien- oder Samstagsjob: höflich vorstellen, von Erfahrung erzählen, Stärken nennen, selbst nachfragen.</span></p><p>The people and places here are <b>invented</b>. <span class=\"de\">Alles ist erfunden – es sind keine echten Personen oder Firmen.</span></p>" },
       { art: "paare", id: "woerter", tag: "Words you need", titel: "Match the words", lead: "Find the pairs. <span class=\"de\">Verbinde das englische Wort mit seiner Bedeutung. Du hörst die Wörter später im Musterinterview.</span>",
         paare: [["interview", "Vorstellungsgespräch"], ["kiosk", "kleiner Verkaufsstand"], ["campsite", "Zeltplatz"], ["stall", "Marktstand"], ["customer", "Kunde / Kundin"], ["reliable", "zuverlässig"], ["shift", "Schicht"], ["to save", "sparen"]] },
@@ -89,16 +90,16 @@ D7Kit.seite({
     { kurz: "Note card", ober: "Prepare", titel: "Your note card", teile: [
       { art: "text", html: "<p class=\"lead\">Don't write your whole interview! Write <b>key words</b> on a note card. Then you make the sentences while you speak. <span class=\"de\">Ein Sprechzettel hat Stichpunkte. So klingst du frei und natürlich. Jetzt schreibst du einzelne Sätze, die du im Gespräch brauchst.</span></p>" },
       { art: "offen", id: "erfahrung", tag: "Experience", titel: "Say what you did", lead: "Use the key words to write 2 sentences. <span class=\"de\">Erfahrung steht im simple past.</span>",
-        fragen: [{ q: "Key words: in May | help | at a sports day | sell drinks", m: "In May I helped at a sports day. I sold drinks.", k: ["May|last", "helped|worked|help", "sold|sell|drinks"], min: 12 }],
+        fragen: [{ q: "Key words: in May | help | at a sports day | sell drinks", m: "In May I helped at a sports day. I sold drinks.", k: ["May|last", "helped|worked|help", "sold|sell|drinks"], min: 3 }],
         tipp: "Start like this: In May I helped … Use sold for sell." },
       { art: "offen", id: "staerke", tag: "Strength", titel: "Name a strength with an example", lead: "Write 2 sentences. <span class=\"de\">Eine Stärke wird mit einem Beispiel überzeugend.</span>",
-        fragen: [{ q: "Key words: strength – reliable | example – never late", m: "I am reliable. For example, I was never late for school last year.", k: ["reliable|friendly|helpful|honest", "for example|because", "never|always|every"], min: 12 }],
+        fragen: [{ q: "Key words: strength – reliable | example – never late", m: "I am reliable. For example, I was never late for school last year.", k: ["reliable|friendly|helpful|honest", "for example|because", "never|always|every"], min: 3 }],
         tipp: "Start like this: I am … For example, I … (simple past)." },
       { art: "offen", id: "plan", tag: "Plan", titel: "Say what you are going to do", lead: "Write 1 or 2 sentences. <span class=\"de\">Benutze am going to.</span>",
-        fragen: [{ q: "Key words: summer job | money | save | holiday", m: "I'm going to save the money for a holiday.", k: ["going to", "save|spend|buy", "money"], min: 10 }],
+        fragen: [{ q: "Key words: summer job | money | save | holiday", m: "I'm going to save the money for a holiday.", k: ["going to", "save|spend|buy", "money"], min: 3 }],
         tipp: "Start like this: I'm going to … the money for …" },
       { art: "offen", id: "eigene-frage", m7: true, tag: "Your question", titel: "Ask your own questions", lead: "Write two polite questions you can ask Ms Parata at the end. <span class=\"de\">Frage zum Beispiel nach Arbeitszeit, Kleidung oder erstem Tag.</span>",
-        fragen: [{ q: "Write two questions to the boss.", m: "What time does the first film start? Do I need to wear a uniform?", k: ["what|when|do|could|may|how", "uniform|wear|time|hours|start|first day|break"], min: 12 }],
+        fragen: [{ q: "Write two questions to the boss.", m: "What time does the first film start? Do I need to wear a uniform?", k: ["what|when|do|could|may|how", "uniform|wear|time|hours|start|first day|break"], min: 2 }],
         tipp: "Start with What / When / How / Do I … and put a question mark at the end." }
     ] },
     { kurz: "Now speak!", ober: "Role play", titel: "Now speak!", teile: [

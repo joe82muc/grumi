@@ -39,7 +39,7 @@
     } finally { clearTimeout(frist); }
   }
   // Deutsch 7 und 8 und die großen Englisch-Proben (9R) haben eine eigene Korrekturseite
-  const linkZu = r => (r.modul === "d7proben" ? "7M/Deutsch/korrektur.html?test=" + encodeURIComponent(r.testId) : r.modul === "d8proben" ? "8/Deutsch/korrektur.html?test=" + encodeURIComponent(r.testId) : r.modul === "e9proben" ? "9R/Englisch/korrektur.html?test=" + encodeURIComponent(r.testId) : "korrektur.html?modul=" + encodeURIComponent(r.modul) + "&id=" + encodeURIComponent(r.id));
+  const linkZu = r => (r.modul === "d7proben" ? "7M/Deutsch/korrektur.html?test=" + encodeURIComponent(r.testId) : r.modul === "d8proben" ? "8/Deutsch/korrektur.html?test=" + encodeURIComponent(r.testId) : r.modul === "e9proben" ? (/-m-[ab]$/.test(r.testId || "") ? "9M/Englisch_9/" : "9R/Englisch/") + "korrektur.html?test=" + encodeURIComponent(r.testId) : "korrektur.html?modul=" + encodeURIComponent(r.modul) + "&id=" + encodeURIComponent(r.id));
 
   async function liste() {
     const d = await post("meine", { code });

@@ -19,6 +19,7 @@ D7Kit.seite({
     loom: ["loom", "Ein Webstuhl ist eine Maschine, auf der man Stoff webt."]  },
   stationen: [
     { kurz: "Warm-up", ober: "Before you speak", titel: "Get ready", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>a short talk in class</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u2-presentation.jpg\" alt=\"A student gives a talk next to a poster with pictures; classmates listen and one raises a hand.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>What is the student talking about? What makes a good talk? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">Many people work in a company. Today <b>you</b> are the speaker: you tell your class about a company or a school project. <span class=\"de\">Du hältst einen Kurzvortrag von etwa einer Minute. Zuerst lernst du die Wörter und Wendungen.</span></p><p>The companies here are <b>invented</b>, and so is the town <b>Velapur</b>. <span class=\"de\">Alles ist erfunden – es gibt diese Firmen nicht wirklich.</span></p>" },
       { art: "paare", id: "woerter", tag: "Words you need", titel: "Match the words", lead: "Find the pairs. <span class=\"de\">Verbinde das englische Wort mit seiner Bedeutung.</span>",
         paare: [["company", "Firma"], ["employee", "Mitarbeiter(in)"], ["customer", "Kunde / Kundin"], ["product", "Produkt"], ["manager", "Leiter(in)"], ["to sell", "verkaufen"], ["to deliver", "liefern"], ["special", "besonders"]] },
@@ -61,7 +62,7 @@ D7Kit.seite({
             e: "The card helps your memory. A talk that you only read aloud is boring." }
         ] },
       { art: "offen", id: "notizen-zu-saetzen", tag: "Your sentences", titel: "From key words to sentences", lead: "Use the key words to write 3 or 4 sentences. <span class=\"de\">Aus Stichpunkten werden ganze Sätze mit he/she/it + -s.</span>",
-        fragen: [{ q: "Key words: Blue Loom | weave scarves | 12 people | sell to shops. Write sentences about the company.", m: "Blue Loom is a company in Velapur. It weaves scarves. Twelve people work there. The company sells the scarves to shops.", k: ["blue loom|company|firm", "weave|weaves|make|makes", "work|works|people|twelve|12", "sell|sells|shops"], min: 12 }],
+        fragen: [{ q: "Key words: Blue Loom | weave scarves | 12 people | sell to shops. Write sentences about the company.", m: "Blue Loom is a company in Velapur. It weaves scarves. Twelve people work there. The company sells the scarves to shops.", k: ["blue loom|company|firm", "weave|weaves|make|makes", "work|works|people|twelve|12", "sell|sells|shops"], min: 3 }],
         tipp: "Start like this: Blue Loom is a company in … / It weaves … / Twelve people work there. Remember: it weaves, she works (with -s)." }
     ] },
     { kurz: "Language", ober: "Language", titel: "Simple present and word order", teile: [
@@ -91,7 +92,7 @@ D7Kit.seite({
       { art: "text", html: "<h3>Card B · Mango Tree Juice</h3><div class=\"sprech-karten\"><div class=\"sprech-karte b\"><h4>Speaker B · key words</h4><ul><li><b>Name:</b> Mango Tree Juice</li><li><b>Place:</b> Velapur (invented town)</li><li><b>Work:</b> fruit juice from local fruit</li><li><b>People:</b> 8, owner = Mr Das, Tom drives the van</li><li><b>Day:</b> make juice in the morning, deliver to cafés + schools</li><li><b>Special:</b> bottles come back, used again</li><li><b>Opinion:</b> good for the environment</li></ul></div><div class=\"sprech-karte a\"><h4>Listener A · ask 2 questions</h4><ul><li>What does the company make?</li><li>Who owns it?</li><li>When do they make the juice?</li><li>Do they use plastic bottles?</li><li>Why is it good for the environment?</li></ul><p class=\"de\">Wähle zwei Fragen. Du darfst auch eine eigene Frage stellen.</p></div></div>" },
       { art: "merke", kopf: "ASKING QUESTIONS", html: "<p>Questions for the speaker:</p><div class=\"phrasen\"><span>Where is …?</span><span>How many people work there?</span><span>What does the company make?</span><span>Does it sell …?</span><span>Why is it special?</span></div><p>If you don't understand:</p><div class=\"phrasen\"><span>Sorry, could you say that again, please?</span><span>What does … mean?</span></div>" },
       { art: "offen", id: "eigene-frage", m7: true, tag: "Your question", titel: "Ask your own question", lead: "Write two questions you can ask after a talk about Mango Tree Juice. <span class=\"de\">Nutze do / does und achte auf kein -s nach does.</span>",
-        fragen: [{ q: "Write two questions about Mango Tree Juice.", m: "Where does the company sell its juice? How many people work there?", k: ["where|what|how|when|why|who|does|do", "company|juice|people|work|sell|bottles"], min: 8 }],
+        fragen: [{ q: "Write two questions about Mango Tree Juice.", m: "Where does the company sell its juice? How many people work there?", k: ["where|what|how|when|why|who|does|do", "company|juice|people|work|sell|bottles"], min: 2 }],
         tipp: "Start with Where / What / How many / When / Why / Does / Do … and put a question mark at the end." }
     ] },
     { kurz: "Model talk", ober: "A model talk", titel: "Listen and then make your own", teile: [
@@ -108,7 +109,7 @@ D7Kit.seite({
         ] }
       ] },
       { art: "offen", id: "eigener-zettel", m7: true, tag: "Your note card", titel: "Make your own note card", lead: "Think of a company or a school project (real or invented). Write 4 key words or short sentences. <span class=\"de\">Das ist dein Notizzettel für einen eigenen Vortrag – kein Mustertext, schreibe Stichpunkte.</span>",
-        fragen: [{ q: "Write your note card: name, place, work, one special thing.", m: "Name: Fresh Start Café. Place: our town. Work: sells sandwiches and juice. Special: students work there.", k: ["name|called|company|project|café|cafe", "place|town|city|in", "work|sells|makes|sell|make|bake|repair|grow", "special|students|people"], min: 8 }],
+        fragen: [{ q: "Write your note card: name, place, work, one special thing.", m: "Name: Fresh Start Café. Place: our town. Work: sells sandwiches and juice. Special: students work there.", k: ["name|called|company|project|café|cafe", "place|town|city|in", "work|sells|makes|sell|make|bake|repair|grow", "special|students|people"], min: 3 }],
         tipp: "Use the four headings: Name – Place – Work – Special. Short key words are fine." },
       { art: "text", html: "<p class=\"lead\"><b>Now speak!</b> Give your own talk to a partner. Use your note card and the phrases from station 2. Speak for about <b>one minute</b>. <span class=\"de\">Dein Partner stellt danach zwei Fragen. Das Gerät hört nicht zu – ihr beide gebt euch Rückmeldung.</span></p>" }
     ] },

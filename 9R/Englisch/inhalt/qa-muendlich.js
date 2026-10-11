@@ -22,6 +22,7 @@ D7Kit.seite({
   },
   stationen: [
     { kurz: "Overview", ober: "Station 1", titel: "The three parts", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>an oral exam</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/qa-exam.jpg\" alt=\"A student sits opposite two friendly teachers in an oral exam; a picture card lies on the table.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>How does the student feel? What helps you to stay calm in an exam? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">The oral exam has <b>three parts</b>. In every part you speak English – and in Part 3 you also use German. <span class=\"de\">Hier lernst du den Ablauf kennen. Danach übst du.</span></p><p><b>Your teacher tells you the exact rules for your exam.</b> This module shows you how to prepare. <span class=\"de\">Die genauen Regeln nennt dir deine Lehrerin oder dein Lehrer.</span></p>" },
       { art: "paare", id: "teile", tag: "Match", titel: "Which part is which?", lead: "Find the pairs. <span class=\"de\">Verbinde den Prüfungsteil mit dem, was du tust.</span>",
         paare: [["Part 1: Picture-based talk", "You describe a picture and give your opinion."], ["Part 2: Topic-based talk", "You choose three subtopics from a mind map and talk."], ["Part 3: Interpreting", "You pass on a conversation between English and German."]] },
@@ -63,7 +64,7 @@ D7Kit.seite({
                 { t: "For example, …", b: 2 }, { t: "For instance, …", b: 2 }, { t: "Last week, for example, I …", b: 2 },
                 { t: "To sum up, …", b: 3 }, { t: "In my opinion, …", b: 3 }, { t: "Thank you for listening.", b: 3 }] },
       { art: "offen", id: "notizzettel", tag: "Your note card", titel: "Notes for the mind map", lead: "Choose three subtopics from the mind map \"free time\". Write one key word for each. <span class=\"de\">Das ist dein Notizzettel in den etwa 90 Sekunden Vorbereitung – nur Stichwörter.</span>",
-        fragen: [{ q: "Write three subtopics and one key word for each.", m: "sports: football. music: guitar. friends: cinema.", k: ["sports|sport|music|friends|friend|clubs|club|media|money", "football|guitar|cinema|play|meet|listen|watch|train|sing|buy|save|phone|film|game|games|team|hobby|app|club|friends|sports|music"], min: 12 }],
+        fragen: [{ q: "Write three subtopics and one key word for each.", m: "sports: football. music: guitar. friends: cinema.", k: ["sports|sport|music|friends|friend|clubs|club|media|money", "football|guitar|cinema|play|meet|listen|watch|train|sing|buy|save|phone|film|game|games|team|hobby|app|club|friends|sports|music"], min: 2 }],
         tipp: "Write like this: sports: football. clubs: training on Tuesdays. friends: meet after school. Key words are enough." },
       { art: "hoertext", id: "hoer", tag: "🎧 Listening", titel: "A model talk", lead: "Listen to a student. The mind map has the main topic <b>my town</b>; the student chooses <b>three</b> subtopics. <span class=\"de\">Hör zu, wie der Vortrag aufgebaut ist: Start – Hauptteil – Ende.</span>", hoertext: "qa-my-town", fragen: [
         { art: "mc", id: "hoer-fragen", titel: "What do you hear?", fragen: [
@@ -119,7 +120,7 @@ D7Kit.seite({
             e: "Kurz verbessern, zum Beispiel \"Sorry, I mean …\", und weitersprechen." }
         ] },
       { art: "offen", id: "tipp-satz", m7: true, tag: "Challenge", titel: "Your own exam sentences", lead: "Write two sentences you can say in the exam when you do not understand a question. <span class=\"de\">Freiwillig: Schreibe zwei höfliche Sätze.</span>",
-        fragen: [{ q: "Write two polite sentences for the exam.", m: "Sorry, could you say that again, please? I am not sure I understand the question.", k: ["sorry|excuse|pardon|please", "again|repeat|understand|mean|slowly"], min: 12 }],
+        fragen: [{ q: "Write two polite sentences for the exam.", m: "Sorry, could you say that again, please? I am not sure I understand the question.", k: ["sorry|excuse|pardon|please", "again|repeat|understand|mean|slowly"], min: 2 }],
         tipp: "Start with Sorry, … or Excuse me, … and use please." }
     ] },
     { kurz: "Check", ober: "Kurz sichern", titel: "Sum it up", teile: [

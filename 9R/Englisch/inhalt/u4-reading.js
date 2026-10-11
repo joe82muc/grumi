@@ -22,6 +22,7 @@ D7Kit.seite({
   haupttext: "u4-read-anahera",
   stationen: [
     { kurz: "Warm-up", ober: "Before you read", titel: "Get ready", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>a family farm in New Zealand</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u4-apple-farm.jpg\" alt=\"Three generations pick apples in an orchard: a grandmother, her son with a crate and his daughter on a ladder.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>Who can you see? What are they doing together? Who do you think decides what happens on the farm? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">Who decides what you do after school – you, your parents, or everybody together? In this module you read a story by <b>Anahera</b>, a girl who lives with her family on an apple farm in New Zealand. She has a plan, and her grandad is not happy about it.</p><p>Anahera, her family and the place Kauri Bay are invented. The story could happen in many families.</p>" },
       { art: "paare", id: "woerter", tag: "Words you need", titel: "Match the words", lead: "Find the pairs. <span class=\"de\">Verbinde das englische Wort mit seiner Bedeutung.</span>",
         paare: [["orchard", "Obstgarten"], ["apprenticeship", "Ausbildung"], ["electrician", "Elektriker/in"], ["solar panel", "Solarmodul"], ["take over", "übernehmen"], ["electricity bill", "Stromrechnung"], ["shed", "Schuppen"]] },
@@ -80,10 +81,10 @@ D7Kit.seite({
             e: "The farm pays a lot for electricity. With solar panels on the roof it will pay less, and an electrician can build them. So Anahera's plan and the farm fit together." }
         ] },
       { art: "offen", id: "erklaeren", tag: "Your words", titel: "Explain it", lead: "Answer in English. One or two sentences are enough. <span class=\"de\">Schreibe mit eigenen Worten – nicht abschreiben.</span>",
-        fragen: [{ q: "Why does Grandad smile in the end?", m: "Grandad understands that Anahera's plan can help the farm. Solar panels make the electricity cheaper, and she will still help at the weekend.", k: ["solar|panel|electric|power|bill|cheaper|roof", "help|farm|weekend|stay|home|understand"], min: 8 }],
+        fragen: [{ q: "Why does Grandad smile in the end?", m: "Grandad understands that Anahera's plan can help the farm. Solar panels make the electricity cheaper, and she will still help at the weekend.", k: ["solar|panel|electric|power|bill|cheaper|roof", "help|farm|weekend|stay|home|understand"], min: 2 }],
         tipp: "Think about Dad's idea and about what Anahera is going to do at the weekend. Start like this: Grandad smiles because …" },
       { art: "offen", id: "eigene-saetze", m7: true, tag: "Your life", titel: "Your plans", lead: "Write two sentences in English about your own plans. Use <b>going to</b>. <span class=\"de\">Zum Beispiel: After school I am going to … , and my parents are going to …</span>",
-        fragen: [{ q: "What are you going to do after school? What is somebody in your family going to do? Write two sentences.", m: "After school I am going to start an apprenticeship. My brother is going to finish his exams next year.", k: ["going to", "am|is|are"], min: 10 }],
+        fragen: [{ q: "What are you going to do after school? What is somebody in your family going to do? Write two sentences.", m: "After school I am going to start an apprenticeship. My brother is going to finish his exams next year.", k: ["going to", "am|is|are"], min: 2 }],
         tipp: "Think of one plan for you and one plan for a person in your family. Start with: After school I am going to …" }
     ] },
     { kurz: "Language", ober: "Grammar in the text", titel: "The grammar of Unit 4 – in a real text", teile: [
@@ -114,7 +115,7 @@ D7Kit.seite({
           ["The old wooden shed ", { g: "was built" }, " by Grandad."]
         ], extra: ["are going to", "work"] },
       { art: "offen", id: "passiv-bilden", m7: true, tag: "Challenge", titel: "Make a passive sentence", lead: "Change the sentence. <span class=\"de\">Freiwillig: Das Passiv selbst zu bilden ist eine Zusatzaufgabe.</span> Nana makes the apple cake. → The apple cake …",
-        fragen: [{ q: "Complete: The apple cake … (use the passive with by).", m: "The apple cake is made by Nana.", k: ["is made", "by nana|by Nana"], min: 10 }],
+        fragen: [{ q: "Complete: The apple cake … (use the passive with by).", m: "The apple cake is made by Nana.", k: ["is made", "by nana|by Nana"], min: 2 }],
         tipp: "Passive: is / are + past participle. Who does it? Use by." }
     ] },
     { kurz: "Check", ober: "Kurz sichern", titel: "Sum it up", teile: [

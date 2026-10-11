@@ -20,6 +20,7 @@ D7Kit.seite({
   },
   stationen: [
     { kurz: "Warm-up", ober: "Before you listen", titel: "Get ready", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>a small company in India</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u2-solar-workshop.jpg\" alt=\"Workers put together small solar lamps at long tables; a woman shows two visitors a lamp.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>What do the people make here? Who are the two visitors, and what could they ask? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">In the city of Nilgram, a group of students visits a small company. A guide shows them around and answers their questions. Later you hear a phone call to a cycle workshop.</p><p>The companies, the city and the people are invented.</p>" },
       { art: "paare", id: "woerter", tag: "Words you need", titel: "Match the words", lead: "Find the pairs. <span class=\"de\">Verbinde das englische Wort mit seiner Bedeutung.</span>",
         paare: [["workshop", "Werkstatt"], ["canteen", "Kantine"], ["repair", "reparieren"], ["deliver", "liefern"], ["safety glasses", "Schutzbrille"], ["work placement", "Praktikum"]] },

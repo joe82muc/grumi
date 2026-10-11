@@ -85,6 +85,7 @@ D7Kit.seite({
         ] }
     ] },
     { kurz: "Read & listen", ober: "Skills", titel: "Read and listen", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>an interview in a repair shop</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u2-repair-shop.jpg\" alt=\"A man repairs a mobile phone at a workbench; a student with a notepad asks him questions.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>What is the man repairing? What could the student ask him about his job? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">Read the blog post first. Then listen to an interview. <span class=\"de\">Erst ein kurzer Blogeintrag, dann ein Interview.</span></p>" },
       { art: "lesetext", lesetext: "u2-rev-candles" },
       { art: "tf", id: "richtigfalsch", tag: "Reading", titel: "True or false?", lead: "Look for the information in the text. <span class=\"de\">Den Text holst du mit „📖 Text“.</span>",

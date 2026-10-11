@@ -340,7 +340,7 @@
           var link = function (a) {
             return a.modul === "d7proben" ? "7M/Deutsch/korrektur.html?test=" + encodeURIComponent(a.testId)
               : a.modul === "d8proben" ? "8/Deutsch/korrektur.html?test=" + encodeURIComponent(a.testId)
-              : a.modul === "e9proben" ? "9R/Englisch/korrektur.html?test=" + encodeURIComponent(a.testId)
+              : a.modul === "e9proben" ? (/-m-[ab]$/.test(a.testId || "") ? "9M/Englisch_9/" : "9R/Englisch/") + "korrektur.html?test=" + encodeURIComponent(a.testId)
               : "korrektur.html?modul=" + encodeURIComponent(a.modul) + "&id=" + encodeURIComponent(a.id);
           };
           var titel = function (a) { var m = /-p(\d+)-/.exec(a.testId || ""); return /^(d[78]|e9)proben$/.test(a.modul) && m ? (a.modul === "e9proben" ? "Englisch" : "Deutsch") + " – Probe " + m[1] + " korrigiert" : fach(a) + " – korrigiert"; };

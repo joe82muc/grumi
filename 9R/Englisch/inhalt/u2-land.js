@@ -31,6 +31,7 @@ D7Kit.seite({
       { art: "merke", kopf: "REMEMBER", html: "<p>A fact file gives <b>short facts</b>. Read it once to get the main idea. Then look for details. Facts are not the same as opinions: \"India is big\" is a fact, \"India is the best\" is an opinion.</p>" }
     ] },
     { kurz: "India", ober: "Part 2", titel: "India: country and people", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>a street in an Indian city</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u2-street.jpg\" alt=\"A lively street with auto rickshaws, a fruit cart, people and colourful fabrics.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>What can you see? What do you think you can hear and smell there? What is different from your street? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">Read the fact file. Don't stop at words you don't know. <span class=\"de\">Lies den Text einmal ganz durch. Bleib nicht an unbekannten Wörtern hängen.</span></p>" },
       { art: "lesetext", lesetext: "u2-land-fact" },
       { art: "mc", id: "global", tag: "Skimming", titel: "The main idea", lead: "Tick the correct answer.",
@@ -84,6 +85,7 @@ D7Kit.seite({
         tipp: "Start like this: English is useful for me because … / I use English when …" }
     ] },
     { kurz: "Listening", ober: "Part 4", titel: "The day before Diwali", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>the evening before a festival of lights</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u2-festival.jpg\" alt=\"A family puts small oil lamps in front of their house; a colourful pattern is on the ground and lights hang in the street.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>What are the people doing? Which festival in your country has many lights, too? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">Anaya is fifteen and lives in a town in the south of India. Her class sends a voice message to a partner class in Germany. Read the tasks first, then listen. <span class=\"de\">Erst die Aufgaben lesen, dann hören.</span></p><p>The town, the school and the people are invented.</p>" },
       { art: "hoertext", id: "hoer", tag: "🎧 Listening", hoertext: "u2-land-voice", fragen: [
         { art: "mc", id: "global2", titel: "What did you hear?", lead: "Listen and tick the correct answer.",

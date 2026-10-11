@@ -23,6 +23,7 @@ D7Kit.seite({
   },
   stationen: [
     { kurz: "A Listening", ober: "Part A", titel: "A · Listening", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>a trainee cook at work</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u4-trainee-cook.jpg\" alt=\"A young trainee cook arranges food on plates in a kitchen; the head chef watches and smiles.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>What is she doing? What do you need to be good at this job? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "merke", kopf: "SO GEHT DIESER PRÜFUNGSTEIL", html: "<p>In Teil A hörst du ein Gespräch und löst <b>zwei verschiedene Aufgabenarten</b> hintereinander. Lies die Aufgaben vor dem Hören. Bei der ersten Aufgabe suchst du den Satz, der <b>nicht</b> zum Gehörten passt. Bei der zweiten ergänzt du Notizen mit einem Wort. In der Prüfung teilst du dir die Zeit selbst ein. Zum Üben: Stelle dir einen Timer auf etwa 8 Minuten (das ist ein Übungsvorschlag von GRUMI, keine Prüfungsangabe).</p>" },
       { art: "text", html: "<p class=\"lead\">A student radio host talks to a trainee cook. The school and the people are invented. <span class=\"de\">Hör zu und löse die Aufgaben.</span></p>" },
       { art: "hoertext", id: "hoer-a", tag: "🎧 Listening", hoertext: "u4-qf-listen", fragen: [

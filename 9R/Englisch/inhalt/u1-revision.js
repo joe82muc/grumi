@@ -88,6 +88,7 @@ D7Kit.seite({
         tipp: "Start like this: In the picture a boy is … / Some people are …" }
     ] },
     { kurz: "Read & listen", ober: "Skills", titel: "Read and listen", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>a day on the river</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u1-kayak.jpg\" alt=\"Two brothers in life jackets paddle in kayaks on a calm river.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>What are the two brothers doing? How do they feel? Have you ever done something like this? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">Read the blog post first. Then listen to a phone call. <span class=\"de\">Erst ein kurzer Blogeintrag, dann ein Telefonat.</span></p>" },
       { art: "lesetext", lesetext: "u1-rev-river" },
       { art: "tf", id: "richtigfalsch", tag: "Reading", titel: "True or false?", lead: "Look for the information in the text. <span class=\"de\">Den Text holst du mit „📖 Text“.</span>",

@@ -20,6 +20,7 @@ D7Kit.seite({
   },
   stationen: [
     { kurz: "Warm-up", ober: "Before you listen", titel: "Get ready", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>two friends are planning a trip</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u1-camping-plan.jpg\" alt=\"Two friends look at a map at a garden table; a tent bag, backpacks, a cool box and sleeping bags are next to them.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>Where do they want to go? What will they take with them? What would you take? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">It is Wednesday. On Friday the long weekend starts, and two friends in a small Australian town have a plan. You will hear their conversation – and a phone call afterwards.</p><p>The town, the lake and the people are invented.</p>" },
       { art: "paare", id: "woerter", tag: "Words you need", titel: "Match the words", lead: "Find the pairs. <span class=\"de\">Verbinde das englische Wort mit seiner Bedeutung.</span>",
         paare: [["campsite", "Campingplatz"], ["torch", "Taschenlampe"], ["sleeping bag", "Schlafsack"], ["matches", "Streichhölzer"], ["forecast", "Wettervorhersage"], ["swollen", "geschwollen"], ["appointment", "Termin"]] },

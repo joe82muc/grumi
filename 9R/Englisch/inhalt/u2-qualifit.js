@@ -62,6 +62,7 @@ D7Kit.seite({
         schritte: ["Nisha", "packs", "the boxes", "carefully", "in the packing room", "every morning"] }
     ] },
     { kurz: "C Reading", ober: "Part C", titel: "C · Reading", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>a garden on a school roof</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u2-roof-garden.jpg\" alt=\"Students work in raised beds on a flat school roof; one fills a watering can from a rainwater barrel.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>What are the students doing? What does a garden like this need? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "merke", kopf: "SO GEHT DIESER PRÜFUNGSTEIL", html: "<p>In Teil C sind die Texte länger. Lies zuerst alles <b>einmal schnell</b>, nur für das Thema. Bei <b>Überschriften</b> zählt der ganze Absatz. Bei <b>Sätzen in Lücken</b> passt nur der Satz, dessen Inhalt zu dem Satz davor und danach passt – achte auf Wörter wie <i>he, she, then, so</i>.</p>" },
       { art: "lesetext", lesetext: "u2-qf-read" },
       { art: "paare", id: "ueberschriften", tag: "Match", titel: "Headings", lead: "Match each <button class=\"term\" data-t=\"heading\">heading</button> with the paragraph. <span class=\"de\">Welche Überschrift passt zu welchem Absatz?</span>",

@@ -22,6 +22,7 @@ D7Kit.seite({
   haupttext: "u2-write-story",
   stationen: [
     { kurz: "Model", ober: "1 · A model story", titel: "Pictures and story", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>a story in four pictures</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u2-story-cricket.jpg\" alt=\"A picture story in four panels: boys play cricket in a street, the ball flies into a fruit shop, a boy says sorry, the shop owner gives the boys sweets.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>What happens in each picture? Tell the story in four sentences before you read. <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">Look at the four pictures. Then read the story. <span class=\"de\">Schau dir die vier Bildkarten an und lies dann die Geschichte. Der Ort Kesarwadi und die Personen sind erfunden.</span></p><div class=\"sprech-karten\"><div class=\"sprech-karte a\"><h4>Picture 1 🏏🏘️</h4><p>Vikram and his friends play cricket in a <button class=\"term\" data-t=\"narrow\">narrow</button> street after school.</p></div><div class=\"sprech-karte a\"><h4>Picture 2 🏏💥🍊</h4><p>The ball flies into a shop. A box of oranges falls over.</p></div><div class=\"sprech-karte b\"><h4>Picture 3 😟🙏</h4><p>The boys are quiet. Vikram says sorry to the shop owner.</p></div><div class=\"sprech-karte b\"><h4>Picture 4 🍬😊</h4><p>The boys help with the oranges. Then everybody smiles.</p></div></div>" },
       { art: "lesetext", lesetext: "u2-write-story" },
       { art: "mc", id: "wer", tag: "Understand", titel: "What is the story about?", lead: "Tick the correct answer.",
@@ -86,6 +87,7 @@ D7Kit.seite({
         ] }
     ] },
     { kurz: "Write", ober: "4 · Plan and write", titel: "Your picture story", teile: [
+      { art: "text", html: "<p class=\"lead\">Look at the picture: <b>your story in five pictures</b>. <span class=\"de\">Tippe das Bild an, um es zu vergrößern.</span></p><figure style=\"margin:0 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"../../9R/Englisch/images/u2-story-train.jpg\" alt=\"A picture story in five panels: a girl with a blue backpack and her aunt at a station, the full train, the backpack left on the bench, a railway worker runs with it, the girl gets it back.\" loading=\"lazy\" style=\"width:100%;border-radius:14px\"></figure><p>Look at the pictures in order. Who are the people? What is the problem – and how does the story end? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich.</span></p>" },
       { art: "text", html: "<p class=\"lead\">Now it is your turn. Follow the steps: <b>PLAN – WRITE – CHECK – REVISE – SUBMIT</b>. <span class=\"de\">Du planst mit Stichpunkten, schreibst, prüfst mit der Checkliste, überarbeitest und gibst ab. Den Text schreibst du selbst – der Schreibcoach gibt nur Tipps. Kesarwadi ist ein erfundener Ort.</span></p><div class=\"sprech-karten\"><div class=\"sprech-karte a\"><h4>Picture 1 🌅🚉</h4><p>Early morning at the small station in Kesarwadi. Tara and her Aunt Sunita wait on the platform. Tara has a blue backpack.</p></div><div class=\"sprech-karte a\"><h4>Picture 2 🚆👥</h4><p>The train arrives. It is full of people. Tara and Aunt Sunita find two seats by the window.</p></div><div class=\"sprech-karte b\"><h4>Picture 3 😱🎒</h4><p>The train starts to move. Tara looks at the bench on the platform: her backpack is still there!</p></div><div class=\"sprech-karte b\"><h4>Picture 4 🏃‍♂️🎒</h4><p>A railway worker runs along the train. He has the backpack in his hand.</p></div><div class=\"sprech-karte b\"><h4>Picture 5 🤝😊</h4><p>Tara takes the backpack through the window and says thank you. Aunt Sunita laughs.</p></div></div>" },
       { art: "aufsatz", id: "aufsatz", tag: "Writing workshop", titel: "The backpack on the platform",
         plan: [
@@ -119,7 +121,7 @@ D7Kit.seite({
             e: "The story is in the past: started (regular verb with -ed)." }
         ] },
       { art: "offen", id: "rede", m7: true, tag: "Challenge", titel: "Write direct speech", lead: "Write one sentence with direct speech for your story. <span class=\"de\">Schreibe einen Satz mit direkter Rede für deine Geschichte.</span>",
-        fragen: [{ q: "Direct speech: …", m: "\"Stop the train!\" Tara shouted.", k: ["said|shouted|asked|cried|called", "stop|wait|help|thank|sorry|please"], min: 4 }],
+        fragen: [{ q: "Direct speech: …", m: "\"Stop the train!\" Tara shouted.", k: ["said|shouted|asked|cried|called", "stop|wait|help|thank|sorry|please"], min: 2 }],
         tipp: "Start like this: \"Wait!\" Tara shouted. " }
     ] },
     { kurz: "Check", ober: "6 · Kurz sichern", titel: "Sum it up", teile: [

@@ -1,0 +1,16 @@
+/* Englisch 9M · Unit 3 Discover South Africa · Quali-Fit Teil C (M-Fassung): Text über ein Vorbild aus der Nachbarschaft (Satzhälften, Belegstellen, true / false / not in the text, Fehler in einer Zusammenfassung).
+   Personen und Gruppe sind erfunden (wie im R-Text). */
+D7Texte.add({
+  id: "u3-qf-read-m", titel: "My role model", textsorte: "Persönlicher Text (Schülerbeitrag)", zug: "M9", sprache: "en",
+  modul: "Unit 3 – Discover South Africa", unterthema: "Quali-Fit C: Satzhälften, Belegstellen, true / false / not in the text, Fehler in einer Zusammenfassung", woerter: 413,
+  schwierigkeit: "anspruchsvoll", lehrplan: "E9 1.1 Leseverstehen (Informationen im Text finden, Aussagen prüfen, Schlüsse ziehen), E9 5 (Vorbilder)", thema: "Ein Jugendlicher beschreibt eine Nachbarin als Vorbild, die einen Strand sauber hält",
+  quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Personen und Gruppe)",
+  zeilennummern: true, probe: false,
+  absaetze: [
+    "Everybody needs a role model, but mine is not a singer or a football player. She is my neighbour, Mrs Fourie, who lives in the yellow house at the end of our street. I am writing about her for the school magazine because, in my opinion, she has done more for our neighbourhood than any famous person.",
+    "Mrs Fourie was a primary-school teacher for thirty years. When she retired, she did not want to sit at home and wait for the days to pass. One Saturday morning she was walking along the beach with her dog when she noticed plastic bottles, bags and old nets everywhere in the sand. Although it was early and nobody else was there, she went home, found some old gloves and a big sack, and cleaned the beach alone for three hours.",
+    "Her neighbours were doubtful at first. Some of them laughed and said that the sea would bring the rubbish back anyway. Mrs Fourie only smiled and came back the next Saturday. Soon a few people stopped to help, and then more joined. Now more than thirty volunteers meet every second Saturday, and she has led the group since the first day. They sort the rubbish: glass, plastic and metal go into different boxes, so that a recycling company can collect it. Last year the group even found a lost wallet and gave it back to its owner.",
+    "I joined two years ago. Honestly, I was only interested in the free sandwiches that the bakery gives to the volunteers after the work. But while I was picking up bottles next to Mrs Fourie, I began to understand something important. She never shouts at anybody and she never tells people what to do. She just starts, and the others follow. When I had to carry a heavy sack alone, she said, \"You do not have to be strong, only patient.\" I have never forgotten that.",
+    "That is why she is my role model. I have known her for ten years, and I have never seen her angry, not even when a storm brought a lot of new rubbish onto the beach just after we had cleaned it. She only laughed and said, \"Good, now we have something to do on Saturday.\" Last month I started something myself: I asked my teacher if we could clean the park next to our school. She said yes. I am a bit nervous, but I think Mrs Fourie would say, \"Just start.\""
+  ]
+});

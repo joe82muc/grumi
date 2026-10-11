@@ -118,12 +118,13 @@
       /* Englisch 9R: die großen Proben – eine je Unit, Variante A und Nachschreiber B. Derselbe Ablauf wie Deutsch 8
          (KI-Vorkorrektur, Prüfung durch die Lehrkraft, Rückgabe, Zeit und Zwischenstand auf dem Server), dazu ein
          Hörteil. Unter welcher Unit eine Probe steht, sagt die Liste (9R/Englisch/themen.js: proben). */
-      key: "e9proben", subject: "Englisch", stufen: [9], liste: "E9R",
+      key: "e9proben", subject: "Englisch", stufen: [9], liste: function (t) { return t.zug === "M" ? "E9M" : "E9R"; },
       listPath: "/api/e9/proben/list?alle=1", unlockPath: "/api/e9/proben/teacher/unlock",
       // Den Hörtext spielt die Lehrkraft für alle ab (js/probe-hoertext.js) – die Kinder haben keinen Spieler
       hoertextPath: "/api/e9/proben/teacher/hoertext",
-      klasse: function () { return "9R"; }, link: function (t) { return "9R/Englisch/proben-lehrer.html?nr=" + t.nr; },
-      schueler: function (t) { return "9R/Englisch/probe.html?test=" + encodeURIComponent(t.id) + "&zug=R"; }
+      // seit 11.10.2026 auch Proben für die Mittlere-Reife-Klasse (e9-p<nr>-m-…): eigene Seiten bei 9M/Englisch_9/
+      klasse: function (t) { return "9" + (t.zug || "R"); }, link: function (t) { return (t.zug === "M" ? "9M/Englisch_9/" : "9R/Englisch/") + "proben-lehrer.html?nr=" + t.nr; },
+      schueler: function (t) { return (t.zug === "M" ? "9M/Englisch_9/" : "9R/Englisch/") + "probe.html?test=" + encodeURIComponent(t.id) + "&zug=" + (t.zug || "R"); }
     },
     {
       key: "infoaustausch", subject: "Informatik", stufen: [7],
