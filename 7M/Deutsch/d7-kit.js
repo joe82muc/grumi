@@ -410,8 +410,9 @@
       const nimm = e.target.closest(".uebernehmen");
       if (nimm) { setze(nimm.dataset.text); nimm.disabled = true; status.textContent = "Die Überarbeitung steht jetzt in deinem Schreibfeld."; }
     });
+    // Falsches: durchgestrichen, daneben die Überarbeitung – streicht die KI etwas ersatzlos, steht daneben „weglassen“
     const marke = x => x.t !== undefined ? esc(x.t) : x.art === "rs" ? `<span class="kor-rs">${esc(x.neu)}</span>`
-      : (x.alt ? `<del>${esc(x.alt)}</del>` : "") + (x.alt && x.neu ? " " : "") + (x.neu ? `<ins>${esc(x.neu)}</ins>` : "");
+      : (x.alt ? `<del>${esc(x.alt)}</del> ` : "") + (x.neu ? `<ins>${esc(x.neu)}</ins>` : '<span class="kor-weg">weglassen</span>');
     function zeige(r) {
       const ki = r.quelle === "ki", rs = r.teile.filter(x => x.art === "rs"), falsch = r.teile.filter(x => x.art === "falsch");
       bau.forEach((b, k) => {
