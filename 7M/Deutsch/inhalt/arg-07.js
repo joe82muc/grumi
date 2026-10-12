@@ -1,4 +1,4 @@
-/* Deutsch 7 · Argumentieren und diskutieren · Modul 7: Stellungnahme und Leserbrief
+/* Deutsch 7 · Argumentieren und diskutieren · Modul 8 (bis 12.10.2026 Modul 7): Stellungnahme und Leserbrief
    (Bausteine eines Arguments – R7: Meinung, Begründung, Beispiel; M7: These, Argument, Begründung, Beispiel oder Beleg,
    Schlussfolgerung –, starke und schwache Argumente, Einwand entkräften, Aufbau eines Leserbriefs, Schreibtrainer)
    LehrplanPLUS D7 3.2 (argumentierende Texte verfassen: Standpunkt begründen, auf Gegenargumente eingehen;

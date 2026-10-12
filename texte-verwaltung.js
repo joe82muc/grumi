@@ -91,7 +91,11 @@
           return '<div class="tx-fassung"><b>' + (i === 0 ? "Originaltext" : "Überarbeitung") + " (Fassung " + f.nr + ") · " + zeit(f.zeit) + " · " + (f.woerter || 0) + " Wörter" + (f.abgegeben ? " · 📤 abgegeben" : "") + "</b>" +
             '<div class="tx-text">' + esc(f.text) + "</div>" +
             (fb.gelungen || fb.naechstes ? '<div class="tx-ki"><b style="display:inline;text-transform:none;letter-spacing:0;color:#5a3a9a">' + (fb.quelle === "ki" ? "Rückmeldung der KI: " : "Ohne KI: ") + "</b>" +
-              esc([fb.gelungen, fb.naechstes && "Als Nächstes: " + fb.naechstes, fb.stelle && "Stelle: " + fb.stelle, fb.tipp && "Tipp: " + fb.tipp].filter(Boolean).join(" · ")) + "</div>" : "") + "</div>";
+              esc([fb.gelungen, fb.naechstes && "Als Nächstes: " + fb.naechstes, fb.stelle && "Stelle: " + fb.stelle, fb.tipp && "Tipp: " + fb.tipp].filter(Boolean).join(" · ")) + "</div>" : "") +
+            // KI-Korrektur (Baustein „korrigieren“): welche Bausteine da sind und die Fassung, die das Kind zu sehen bekam
+            (fb.korrektur ? '<div class="tx-ki">' + esc("Bausteine: " + (fb.korrektur.bausteine || []).map(function (b) { return b.text + (b.ok ? " ✓" : " fehlt"); }).join(" · ") +
+              " · von der KI ausgebessert: " + (fb.korrektur.rs || 0) + "× Rechtschreibung, " + (fb.korrektur.falsch || 0) + "× überarbeitet") +
+              (fb.korrektur.korrigiert && fb.korrektur.korrigiert !== f.text ? '<details><summary style="cursor:pointer">Fassung der KI ansehen</summary><div class="tx-text">' + esc(fb.korrektur.korrigiert) + "</div></details>" : "") + "</div>" : "") + "</div>";
         }).join("") +
         '<label style="font-weight:800;font-size:.86rem">Dein Kommentar für das Kind<textarea data-tx="kommentar">' + esc(e.lehrerKommentar || "") + "</textarea></label>" +
         '<div style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:center"><button type="button" class="tx-knopf" data-tx="speichern">Kommentar speichern</button><button type="button" class="tx-knopf weg" data-tx="weg">Texte dieses Auftrags löschen</button><span class="tx-hinweis" data-tx="meldung" style="margin:0"></span></div></div>';

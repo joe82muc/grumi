@@ -7,6 +7,9 @@
  *   markieren   Schlüsselwörter in einem Satz oder Absatz antippen
  *   schreiben   Schreibtrainer: eigener Text, Rückmeldung der KI in fünf Teilen (schreibt den Text nicht neu),
  *               mit Code werden die Fassungen für die Lehrkraft aufbewahrt (Server /api/d7/schreiben/feedback)
+ *   korrigieren kurzer eigener Text, den die KI korrigiert: Rechtschreibung ausgebessert, Falsches durchgestrichen und
+ *               daneben die Überarbeitung, Bausteine abgehakt (Server /api/d7/schreiben/korrektur)
+ *   regelheft   Eintrag zum Abschreiben ins Regelheft;  zusammen  Texte mehrerer Schreibaufgaben am Stück
  *   hilfen      Hilfen in Stufen (bei jedem Baustein möglich: hilfen: ["Tipp", "genauer", "Schritt für Schritt"])
  *   hoertext, duell, tischduell – siehe d7-spiel.js
  *
@@ -344,20 +347,138 @@
       status.textContent = fb.gespeichert ? "Fassung " + fb.fassung + " ist für deine Lehrkraft gespeichert." : a ? "" : "Nicht gespeichert: Mit deinem Code angemeldet sieht auch deine Lehrkraft deinen Text.";
       M.solve(id);                       // eine echte Antwort ist abgegeben
     });
-    // Mit Code: letzte Fassung von einem anderen Gerät holen und den Kommentar der Lehrkraft zeigen
+    vomServer(box, id, ta, zaehle);
+  };
+  // Mit Code: letzte Fassung von einem anderen Gerät holen und den Kommentar der Lehrkraft zeigen
+  function vomServer(box, id, ta, zaehle) {
     const a = M.anmeldung();
-    if (a && a.code) {
-      fetch(SERVER + DAPI + "/texte/meine", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: a.code, modul: MODUL_ID, aufgabe: id }) })
-        .then(r => r.json()).then(d => {
-          if (!d || !d.ok) return;
-          // Modul neu begonnen (d.neuSeit): Fassungen von davor kommen nicht zurück ins Schreibfeld – das Kind fängt
-          // wirklich neu an. Die Lehrkraft sieht sie weiterhin.
-          const seit = d.neuSeit || 0, neuere = d.fassungen.filter(f => !seit || Date.parse(f.zeit) > seit);
-          const letzte = neuere[neuere.length - 1];
-          if (letzte && !ta.value.trim()) { ta.value = letzte.text; M.save("-" + id, ta.value); zaehle(); }
-          if (d.lehrerKommentar) { const k = $(".lehrer-kommentar", box); k.hidden = false; k.innerHTML = "<b>Kommentar deiner Lehrkraft</b>" + esc(d.lehrerKommentar); }
-        }).catch(() => {});
+    if (!a || !a.code) return;
+    fetch(SERVER + DAPI + "/texte/meine", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: a.code, modul: MODUL_ID, aufgabe: id }) })
+      .then(r => r.json()).then(d => {
+        if (!d || !d.ok) return;
+        // Modul neu begonnen (d.neuSeit): Fassungen von davor kommen nicht zurück ins Schreibfeld – das Kind fängt
+        // wirklich neu an. Die Lehrkraft sieht sie weiterhin.
+        const seit = d.neuSeit || 0, neuere = d.fassungen.filter(f => !seit || Date.parse(f.zeit) > seit);
+        const letzte = neuere[neuere.length - 1];
+        if (letzte && !ta.value.trim()) { ta.value = letzte.text; M.save("-" + id, ta.value); zaehle(); }
+        if (d.lehrerKommentar) { const k = $(".lehrer-kommentar", box); k.hidden = false; k.innerHTML = "<b>Kommentar deiner Lehrkraft</b>" + esc(d.lehrerKommentar); }
+      }).catch(() => {});
+  }
+
+  /* ---------- Regelheft-Eintrag zum Abschreiben ---------- */
+  // teil: { id, kopf: "Der Leserbrief", html: "Zeilen des Eintrags" } – das Kind schreibt den Eintrag in sein Regelheft
+  // und hakt ihn ab (zählt als Aufgabe, damit die Lehrkraft im Lernstand sieht, wer so weit ist)
+  bauer.regelheft = (box, teil) => {
+    M.register(teil.id, box, "Regelheft-Eintrag abschreiben: " + (teil.kopf || ""));
+    box.innerHTML = `<div class="regelheft"><div class="rh-kopf">📓 Regelheft · schreibe ab</div><div class="rh-blatt"><h4>${esc(teil.kopf || "")}</h4>${teil.html}</div></div>
+      <div class="row-btns"><button class="btn small check" type="button">✅ Ich habe den Eintrag in mein Regelheft geschrieben</button></div><div class="fb"></div>`;
+    const fb = $(".fb", box), knopf = $(".check", box);
+    const fertig = () => { knopf.disabled = true; fb.className = "fb show ok"; fb.textContent = "✅ Abgehakt – der Eintrag steht in deinem Regelheft."; };
+    if (M.isSolved(teil.id)) fertig();
+    knopf.addEventListener("click", () => { M.solve(teil.id); fertig(); });
+  };
+
+  /* ---------- KI korrigiert einen kurzen Text ---------- */
+  // teil: { id, titel, auftrag: "HTML", min: 12, zeilen: 4, starter: ["Ich finde, dass …"], muster: "Beispiel-Lösung",
+  //         bausteine: [{ name: "Behauptung", was: "Was meinst du?", ki: "genauer Maßstab nur für die KI" }] }
+  // Die KI gibt den Text korrigiert zurück (Server /api/d7/schreiben/korrektur): Rechtschreibfehler sind ausgebessert
+  // (grün, stehen gleich so im Schreibfeld), Falsches ist durchgestrichen, daneben steht die Überarbeitung. Dazu hakt
+  // sie die Bausteine ab – großzügig. Gelöst ist die Aufgabe, wenn alle Bausteine da sind. Fehlendes schreibt die KI
+  // nicht dazu. Ohne KI hakt das Kind die Bausteine selbst ab. Mit Code sieht die Lehrkraft jede Fassung.
+  bauer.korrigieren = (box, teil) => {
+    const id = teil.id, min = teil.min || 8, bau = teil.bausteine || [], starter = teil.starter || [];
+    M.register(id, box, "Schreiben mit KI-Korrektur: " + (teil.titel || klartext(teil.auftrag).slice(0, 80)));
+    box.innerHTML = `<div class="schreib kor"><div class="schreib-auftrag">${teil.auftrag}</div>
+      ${bau.length ? `<ul class="kor-bau" aria-label="Das gehört in deinen Text">${bau.map(b => `<li><span class="z">·</span><span><b>${esc(b.name)}</b>${b.was ? " – " + esc(b.was) : ""}</span></li>`).join("")}</ul>` : ""}
+      ${starter.length ? `<div class="schreib-starter" ${istR() ? "" : "hidden"} aria-label="Satzanfänge">${starter.map(s => `<button type="button">${esc(s)}</button>`).join("")}</div>${istR() ? "" : '<p style="margin:0 0 8px"><button class="btn small ghost starter-auf" type="button">💡 Satzanfänge anzeigen</button></p>'}` : ""}
+      <div class="lehrer-kommentar" hidden></div>
+      <textarea aria-label="Dein Text" placeholder="Schreibe hier." style="min-height:${((teil.zeilen || 4) * 1.65 + 1.6).toFixed(1)}em"></textarea>
+      <div class="schreib-fuss"><span class="schreib-zahl"></span><button class="btn teal go" type="button">✨ KI korrigiert meinen Text</button><span class="schreib-status" role="status"></span></div>
+      <div class="kor-aus" hidden aria-live="polite"></div>
+      ${teil.muster ? `<p class="kor-muster-knopf" hidden><button class="btn small ghost" type="button">💡 So könnte es aussehen</button></p><div class="beispiel kor-muster" hidden><b class="kopf">Beispiel – dein Text darf anders sein</b>${esc(teil.muster)}</div>` : ""}</div>`;
+    const ta = $("textarea", box), zahl = $(".schreib-zahl", box), status = $(".schreib-status", box), aus = $(".kor-aus", box), go = $(".go", box), liste = $$(".kor-bau li", box);
+    const zaehle = () => { const n = woerter(ta.value); zahl.textContent = n + (n === 1 ? " Wort" : " Wörter") + " · mindestens " + min; zahl.classList.toggle("gut", n >= min); return n; };
+    const setze = text => { ta.value = text; M.save("-" + id, text); zaehle(); document.dispatchEvent(new CustomEvent("d7-text")); };
+    const geloest = () => { M.solve(id); const k = $(".kor-muster-knopf", box); if (k) k.hidden = false; };
+    ta.value = M.load("-" + id, ""); zaehle();
+    ta.addEventListener("input", () => { M.save("-" + id, ta.value); zaehle(); });
+    box.addEventListener("click", e => {
+      const auf = e.target.closest(".starter-auf"); if (auf) { $(".schreib-starter", box).hidden = false; auf.parentNode.remove(); return; }
+      const s = e.target.closest(".schreib-starter button");
+      if (s) { setze(ta.value + (ta.value && !/\s$/.test(ta.value) ? " " : "") + s.textContent + " "); ta.focus(); return; }
+      if (e.target.closest(".kor-muster-knopf")) { const m = $(".kor-muster", box); m.hidden = !m.hidden; return; }
+      const nimm = e.target.closest(".uebernehmen");
+      if (nimm) { setze(nimm.dataset.text); nimm.disabled = true; status.textContent = "Die Überarbeitung steht jetzt in deinem Schreibfeld."; }
+    });
+    const marke = x => x.t !== undefined ? esc(x.t) : x.art === "rs" ? `<span class="kor-rs">${esc(x.neu)}</span>`
+      : (x.alt ? `<del>${esc(x.alt)}</del>` : "") + (x.alt && x.neu ? " " : "") + (x.neu ? `<ins>${esc(x.neu)}</ins>` : "");
+    function zeige(r) {
+      const ki = r.quelle === "ki", rs = r.teile.filter(x => x.art === "rs"), falsch = r.teile.filter(x => x.art === "falsch");
+      bau.forEach((b, k) => {
+        const li = liste[k], ok = r.bausteine[k], name = `<b>${esc(b.name)}</b>${b.was ? " – " + esc(b.was) : ""}`;
+        if (!ki) { li.className = ""; li.innerHTML = `<label><input type="checkbox"> <span>${name}</span></label>`; }
+        else { li.className = ok ? "ok" : "no"; li.innerHTML = `<span class="z">${ok ? "✓" : "○"}</span><span>${name}${ok ? "" : " <em>– fehlt noch</em>"}</span>`; }
+      });
+      const fertig = ki ? r.vollstaendig : !bau.length;
+      aus.hidden = false;
+      aus.innerHTML = ki ? `<h4>✨ So hat die KI deinen Text korrigiert</h4>
+        <div class="kor-text">${r.teile.map(x => marke(x) + esc(x.ws || "")).join("")}</div>
+        ${rs.length || falsch.length ? `<p class="kor-legende">${rs.length ? '<span class="kor-rs">grün</span> = Rechtschreibung, schon ausgebessert' : ""}${rs.length && falsch.length ? " · " : ""}${falsch.length ? "<del>durchgestrichen</del> = so passt es nicht, <ins>daneben</ins> steht die Überarbeitung" : ""}</p>` : '<p class="kor-legende">✅ Die KI hat nichts gefunden, was falsch geschrieben oder unpassend ist.</p>'}
+        ${rs.length ? `<details class="kor-liste"><summary>✏️ ${rs.length === 1 ? "1 Stelle" : rs.length + " Stellen"} ausgebessert – was war falsch?</summary><ul>${rs.map(x => `<li><del>${esc(x.alt)}</del> → <b>${esc(x.neu)}</b></li>`).join("")}</ul></details>` : ""}
+        ${r.lob ? `<p class="kor-lob">👍 ${esc(r.lob)}</p>` : ""}${r.hinweis ? `<p class="kor-hin">🎯 ${esc(r.hinweis)}</p>` : ""}
+        ${falsch.length ? `<div class="row-btns"><button class="btn small uebernehmen" type="button" data-text="${esc(r.korrigiert)}">✏️ Überarbeitung übernehmen</button></div>` : ""}
+        <p class="kor-ziel ${fertig ? "ok" : ""}">${fertig ? "✅ Geschafft – in deinem Text ist alles da, was hineingehört." : "✍️ Ergänze im Schreibfeld, was noch fehlt (○), und lass dann noch einmal korrigieren."}</p>`
+        : `<h4>Prüfe deinen Text selbst</h4><p>${esc(r.hinweis || "Die KI ist gerade nicht erreichbar.")}${bau.length ? " Hake oben ab, was in deinem Text vorkommt." : ""}</p>`;
+      if (fertig) geloest();
     }
+    // ohne KI: Sind alle Bausteine abgehakt, gilt die Aufgabe als gelöst
+    $(".schreib", box).addEventListener("change", e => {
+      if (!e.target.closest(".kor-bau")) return;
+      if ($$(".kor-bau input", box).length && $$(".kor-bau input", box).every(c => c.checked)) geloest();
+    });
+    go.addEventListener("click", async () => {
+      if (zaehle() < min) { status.textContent = "Schreibe erst mindestens " + min + " Wörter – dann lohnt sich die Korrektur."; return; }
+      const a = M.anmeldung(), text = ta.value.trim();
+      go.disabled = true; ta.readOnly = true; status.innerHTML = '<span class="dots">Die KI liest deinen Text</span>';
+      const langsam = setTimeout(() => { status.innerHTML = '<span class="dots">Der KI-Server wacht gerade auf – das kann bis zu einer Minute dauern</span>'; }, 7000);
+      let r = null;
+      try {
+        const ctl = new AbortController(), frist = setTimeout(() => ctl.abort(), 75000);
+        const antwort = await fetch(SERVER + DAPI + "/schreiben/korrektur", { method: "POST", headers: { "Content-Type": "application/json" }, signal: ctl.signal,
+          body: JSON.stringify({ code: a ? a.code : "", modul: MODUL_ID, aufgabe: id, titel: teil.titel || "", auftrag: klartext(teil.auftrag), bausteine: bau.map(b => b.name + (b.ki || b.was ? ": " + (b.ki || b.was) : "")), text, zug: ZUG }) });
+        clearTimeout(frist);
+        const d = await antwort.json().catch(() => null);
+        if (antwort.status === 429 && d) { status.textContent = d.error; return; }
+        if (antwort.ok && d && d.ok && Array.isArray(d.teile)) r = d;
+      } catch (_e) { r = null; } finally { clearTimeout(langsam); go.disabled = false; ta.readOnly = false; }
+      if (!r) r = { quelle: "lokal", teile: [{ t: text, ws: "" }], korrigiert: text, bereinigt: text, bausteine: bau.map(() => null), vollstaendig: false, lob: "", hinweis: "Die KI ist gerade nicht erreichbar.", gespeichert: false };
+      // Rechtschreibung ist gleich ausgebessert: Die bereinigte Fassung steht im Schreibfeld
+      const rs = r.quelle === "ki" ? r.teile.filter(x => x.art === "rs").length : 0;
+      if (rs && r.bereinigt) setze(r.bereinigt);
+      zeige(r);
+      M.save("-" + id + "-kor", JSON.stringify({ text: ta.value, r }));
+      status.textContent = (rs ? "✏️ " + (rs === 1 ? "1 Rechtschreibfehler ist" : rs + " Rechtschreibfehler sind") + " in deinem Text schon ausgebessert. " : "") +
+        (r.gespeichert ? "Fassung " + r.fassung + " ist für deine Lehrkraft gespeichert." : a ? "" : "Nicht gespeichert: Mit deinem Code angemeldet sieht auch deine Lehrkraft deinen Text.");
+    });
+    // letzte Korrektur wieder zeigen (nach dem Neuladen), solange der Text im Schreibfeld noch derselbe ist
+    try { const alt = JSON.parse(M.load("-" + id + "-kor", "null")); if (alt && alt.r && alt.text === ta.value && ta.value) zeige(alt.r); } catch (_e) {}
+    if (M.isSolved(id)) geloest();
+    vomServer(box, id, ta, zaehle);
+  };
+
+  /* ---------- Texte mehrerer Schreibaufgaben am Stück zeigen ---------- */
+  // teil: { aus: ["anrede", "arg1", "schluss"], leer: "Hinweis, solange noch nichts geschrieben ist" }
+  // z. B. der ganze Leserbrief aus Anrede, Argumenten und Schluss. Keine Aufgabe – nur zum Ansehen und Vorlesen.
+  bauer.zusammen = (box, teil) => {
+    box.innerHTML = '<div class="kor-blatt" aria-live="polite"></div>';
+    const blatt = $(".kor-blatt", box);
+    const zeichne = () => {
+      const texte = teil.aus.map(i => String(M.load("-" + i, "")).trim()).filter(Boolean);
+      blatt.textContent = texte.join("\n\n") || teil.leer || "Hier erscheint dein Text, sobald du oben geschrieben hast.";
+      blatt.classList.toggle("leer", !texte.length);
+    };
+    zeichne();
+    document.addEventListener("input", zeichne); document.addEventListener("d7-text", zeichne);
   };
 
   window.D7Kit = { seite, bauer, teile, hilfen, textFuer, zug: () => ZUG, modul: () => MODUL_ID, server: SERVER, woerter };

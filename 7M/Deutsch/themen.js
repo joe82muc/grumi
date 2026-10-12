@@ -99,6 +99,10 @@
         { id: "tisch-duell", kz: "A6", titel: "Tisch-Duell zu zweit", href: "tisch-duell.html", key: "grumi-de7-tisch-duell-v1", tab: "Partnerarbeit",
           text: "Zwei an einem Tisch, jeder am eigenen iPad: Einer ist dafür, einer dagegen. Ihr schickt euch abwechselnd Argumente – die KI prüft jeden Beitrag, bevor er beim Partner ankommt.",
           tags: ["👥 Zu zweit am Tisch", "✨ KI prüft jeden Beitrag", "⚔️ Pro gegen Kontra"] },
+        // Steht vor „Stellungnahme und Leserbrief“ (Wunsch vom 12.10.2026); das Kürzel A8 ist das nächste freie
+        { id: "arg-08", kz: "A8", titel: "Der Leserbrief – Schritt für Schritt", href: "arg_08.html", key: "grumi-d7-arg-08-v1", tab: "Schreiben",
+          text: "Was ist ein Leserbrief? Erst der Eintrag für dein Regelheft, dann ein Beispiel – und dein eigener Brief in kleinen Schritten: Anrede, Argumente für deine Seite, Schluss.",
+          tags: ["📓 Regelheft-Eintrag", "Behauptung · Begründung · Beispiel", "✨ KI korrigiert deinen Text"] },
         { id: "arg-07", kz: "A7", titel: "Stellungnahme und Leserbrief", href: "arg_07.html", key: "grumi-d7-arg-07-v1", tab: "Schreiben",
           text: "Schulhund – ja oder nein? Einen Leserbrief untersuchen, die Bausteine eines Arguments erkennen, einen Einwand entkräften und selbst Stellung nehmen.",
           tags: ["Bausteine eines Arguments", "Einwand entkräften", "✨ Schreibtrainer"] }
