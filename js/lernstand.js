@@ -34,8 +34,8 @@
   var OHNE_CODE = "grumi-ls-ohne-code";
   var WARTESCHLANGE = "grumi-ls-senden";
   var KATALOG_HASH = "grumi-ls-kh";
-  var FAECHER = { nt: "Natur und Technik", d: "Deutsch", e: "Englisch", i: "Informatik" };
-  var DYN = /^(nt|d|e|i)(\d+)-/;
+  var FAECHER = { nt: "Natur und Technik", gpg: "Geschichte/Politik/Geographie", d: "Deutsch", e: "Englisch", i: "Informatik" };
+  var DYN = /^(nt|gpg|d|e|i)(\d+)-/;
   var API = (global.location.hostname.slice(-12) === "onrender.com" ? "" : "https://englisch-9.onrender.com") + "/api/nt9/fortschritt";
 
   function lies(k) { try { return global.localStorage.getItem(k); } catch (_e) { return null; } }

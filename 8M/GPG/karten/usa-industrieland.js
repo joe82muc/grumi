@@ -1,0 +1,19 @@
+/* Lernkarten zum Modul „Die USA – eine Wirtschaftsmacht“ (GPG 8). Kennungen k1 … nie neu vergeben – daran hängt der Lernstand. */
+NT8Karten.satz("usa-industrieland", [
+  { id: "k1", art: "begriff", v: "Was ist ein Standortfaktor? Nenne ein Beispiel.", h: "Eine Eigenschaft eines Ortes, die Firmen anzieht. Beispiel: Kohle und Eisenerz in der Nähe, gute Verkehrswege." },
+  { id: "k2", art: "bild", foto: "usa-industrieland-ford-fliessband", v: "Was zeigt dieses Foto – und aus welchem Jahr stammt es?", h: "Ein Fließband in einer Autofabrik bei Detroit, 1913. Autos wurden Stück für Stück zusammengebaut." },
+  { id: "k3", art: "bild", foto: "usa-industrieland-packard", v: "Was zeigt dieses Foto – und was ist hier geschehen?", h: "Eine leere, verfallene Autofabrik in Detroit. Die Firma schloss, die Arbeitsplätze fielen weg." },
+  { id: "k4", art: "ursache", v: "Warum geriet der Manufacturing Belt in die Krise – obwohl Kohle und Erz da waren?", h: "Es wurde weniger Stahl gebraucht, und Autos aus dem Ausland waren stark. Fabriken schlossen, die Menschen zogen weg." },
+  { id: "k5", art: "begriff", v: "Was ist der Sunbelt? Nenne zwei Gründe, warum Firmen dorthin gehen.", h: "Der warme Süden der USA. Dort sind Steuern und Kosten niedrig, und es gibt viel Platz und mildes Klima." },
+  { id: "k6", art: "bild", foto: "usa-industrieland-google-campus", v: "Was zeigt dieses Luftbild – und in welcher Region liegt es?", h: "Ein Firmengelände von Google in Mountain View, im Silicon Valley (Kalifornien). Hightech und Forschung." },
+  { id: "k7", art: "vergleich", v: "Manufacturing Belt oder Silicon Valley: Welche Region lebte von Stahl und Autos, welche von Computertechnik?", h: "Manufacturing Belt: Stahl und Autos (Nordosten). Silicon Valley: Computer und Software (Kalifornien)." },
+  { id: "k8", art: "begriff", v: "Was bedeutet Produktivität in der Landwirtschaft?", h: "Wie viel Ernte oder Fleisch man mit einer bestimmten Menge Arbeit und Fläche erzeugt. In den USA ist sie hoch." },
+  { id: "k9", art: "bild", foto: "usa-industrieland-feedlot", v: "Was ist das für ein Betrieb – und wie nennt man ihn?", h: "Ein Mastbetrieb (Feedlot): Sehr viele Rinder stehen eng in Gattern und werden mit Futter dick gemacht." },
+  { id: "k10", art: "begriff", v: "Was ist Agribusiness? Beschreibe die Kette in einem Satz.", h: "Eine Firma oder Firmengruppe macht vieles selbst: Futter, Mast, Schlachtung, Verkauf. Es ist eine Kette vom Feld bis zum Laden." },
+  { id: "k11", art: "bild", foto: "usa-industrieland-kreisfelder", v: "Warum sind diese Felder rund?", h: "Eine Bewässerungsanlage dreht sich um einen Mittelpunkt und gießt einen Kreis. So werden trockene Gebiete bewirtschaftet." },
+  { id: "k12", art: "fehler", v: "Finde den Fehler: „Im Binnenmarkt der USA verkauft man nur ins Ausland.“", h: "Falsch. Der Binnenmarkt ist der Markt im eigenen Land. Dort leben sehr viele Käufer." },
+  { id: "k13", art: "anwendung", v: "Wie rechnet man das Bruttoinlandsprodukt je Einwohner aus?", h: "Bruttoinlandsprodukt geteilt durch die Zahl der Einwohner. Es zeigt grob, wie viel ein Land je Kopf erwirtschaftet." },
+  { id: "k14", art: "vergleich", v: "Wer ist größer: USA, Deutschland oder Kanada – bei Einwohnern und bei Wirtschaftskraft?", h: "Die USA bei beidem, mit großem Abstand. Je Einwohner liegen Deutschland und Kanada nah beieinander." },
+  { id: "k15", art: "transfer", v: "Warum sind viele Patente ein Zeichen für wirtschaftliche Stärke?", h: "Patente stehen für neue Erfindungen. Wer viele hat, forscht viel und verdient mit neuen Produkten Geld.", m: true },
+  { id: "k16", art: "transfer", v: "Nenne ein Argument für und eines gegen Gentechnik in der Landwirtschaft.", h: "Dafür: oft mehr Ertrag. Dagegen: teures Saatgut und Abhängigkeit der Farmer von wenigen Firmen.", m: true }
+]);

@@ -20,6 +20,8 @@
 
   const NT7 = window.GRUMI_KURS || window.NT7;
   const ST = NT7.STUFE || "7", PFAD = NT7.PFAD || "/api/nt7";
+  // Fachname, Kürzel und Ordner: Vorgabe ist NT; ein anderer Kurs (GPG 8) nennt sie in seiner Kursliste
+  const FACH = NT7.FACH || "Natur und Technik", KURZ = NT7.KURZ || "NT", ORDNER = NT7.ORDNER || "NT";
   const THEMEN = NT7.THEMEN;
   const body = document.body;
   const klasse = body.dataset.klasse || ST + "M";
@@ -172,7 +174,7 @@
     const altFeld = document.getElementById("codeFeld"), getippt = altFeld ? altFeld.value : "", imFeld = altFeld && document.activeElement === altFeld;
     const a = anmeldung();
     const zug = a ? a.zug.slice(1) : klasse.slice(1);
-    try { sessionStorage.setItem("grumi-nt" + ST + "-zug", zug); } catch (_e) {}
+    try { sessionStorage.setItem("grumi-" + (NT7.KURS || "nt" + ST) + "-zug", zug); } catch (_e) {}
     const staende = THEMEN.map(t => themaStand(t, a));
     const offenGesamt = staende.reduce((s, x) => s + x.offen, 0), fertigGesamt = staende.reduce((s, x) => s + x.fertig, 0);
     const pctGesamt = offenGesamt ? Math.round(THEMEN.reduce((s, t, i) => s + staende[i].pct * staende[i].offen, 0) / offenGesamt) : 0;
@@ -188,12 +190,12 @@
       <nav class="navlinks" aria-label="Navigation">
         <a href="${root}index.html">🏠 Startseite Lernplattform</a>
         <a href="${root}index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
-        <a href="${root}${andere}/NT/index.html">${andere === ST + "M" ? "📘" : "📗"} Übersicht NT ${andere}</a>
+        <a href="${root}${andere}/${ORDNER}/index.html">${andere === ST + "M" ? "📘" : "📗"} Übersicht ${esc(KURZ)} ${andere}</a>
       </nav>
       <div class="hero-grid">
         <div>
-          <div class="eyebrow">Klasse ${klasse} · Natur und Technik</div>
-          <h1>Natur und Technik ${klasse}</h1>
+          <div class="eyebrow">Klasse ${klasse} · ${esc(FACH)}</div>
+          <h1>${esc(NT7.TITEL || FACH)} ${klasse}</h1>
           <p>${esc(NT7.INTRO || "Hier findest du alle Lernmodule. Jedes Modul enthält Texte, Animationen, Versuche zum Ausprobieren und Übungen, die dich auf die Probe vorbereiten. Deine Lehrkraft schaltet die Themenbereiche nach und nach frei.")}</p>
         </div>
         <div class="hero-box">${kopf}
@@ -204,7 +206,7 @@
   </header>
   <main class="wrap">
     <section class="gesamt" aria-label="Dein Lernfortschritt">
-      <div class="gesamt-kopf"><div><div class="eyebrow dark">NT ${ST} Lernfortschritt</div><div class="gesamt-zahl">${pctGesamt} %</div></div>
+      <div class="gesamt-kopf"><div><div class="eyebrow dark">${esc(KURZ)} ${ST} Lernfortschritt</div><div class="gesamt-zahl">${pctGesamt} %</div></div>
         <p>${offenGesamt ? `${fertigGesamt} von ${offenGesamt} Modulen abgeschlossen` : "Noch kein Modul freigeschaltet"}${a ? "" : " · auf diesem Gerät"}</p></div>
       <div class="bar gross"><div style="width:${pctGesamt}%"></div></div>
       <div class="gesamt-themen">${THEMEN.map((t, i) => staende[i].offen
@@ -221,7 +223,7 @@
       ${probenKachel(t, zug)}${NT7.kachel ? NT7.kachel(t, {zug, a, stand: STAND, proben: PROBEN, base, root, offen: s.offen}) || "" : ""}
     </section>`; }).join("")}
   </main>
-  <footer class="wrap">GRUMI · Natur und Technik ${klasse} · Dein Fortschritt wird auf diesem Gerät gespeichert${a && !a.lehrer ? " und mit deinem Code an deine Lehrkraft gemeldet" : ""}.</footer>`;
+  <footer class="wrap">GRUMI · ${esc(FACH)} ${klasse} · Dein Fortschritt wird auf diesem Gerät gespeichert${a && !a.lehrer ? " und mit deinem Code an deine Lehrkraft gemeldet" : ""}.</footer>`;
 
     const form = document.getElementById("codeForm");
     if (form) {

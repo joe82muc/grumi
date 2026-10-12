@@ -1,0 +1,19 @@
+/* Lernkarten zum Modul „Der Generationenvertrag“ (GPG 8). Kennungen k1 … nie neu vergeben – daran hängt der Lernstand. */
+NT8Karten.satz("generationenvertrag", [
+  { id: "k1", art: "begriff", v: "Was bedeutet Umlage bei der Rente?", h: "Das Geld, das die Arbeitenden heute einzahlen, wird sofort an die heutigen Rentner weitergegeben. Es wird nicht angespart." },
+  { id: "k2", art: "begriff", v: "Was ist der Generationenvertrag?", h: "Die Abmachung: Die Jungen sorgen mit ihren Beiträgen für die Alten, und später sorgen die Nächsten für sie. Er steht nicht auf Papier." },
+  { id: "k3", art: "begriff", v: "Was bedeutet demographischer Wandel?", h: "Weniger Kinder werden geboren, und die Menschen werden älter. Es gibt immer mehr Ältere und weniger Junge." },
+  { id: "k4", art: "anwendung", v: "Der Rentenbeitrag beträgt 18,6 Prozent und wird je zur Hälfte gezahlt. Wie viel Prozent zahlt der Arbeitnehmer?", h: "9,3 Prozent vom Bruttolohn. Die andere Hälfte zahlt der Arbeitgeber (Stand 2026)." },
+  { id: "k5", art: "bild", foto: "sozialstaat-ki-generationen", v: "Was zeigt diese Zeichnung, und was hat sie mit der Rente zu tun?", h: "Drei Generationen: Wer arbeitet, zahlt Beiträge für die Älteren. Die Kinder sind die nächsten Einzahler. Es ist eine Zeichnung, kein Foto." },
+  { id: "k6", art: "ursache", v: "Warum leben die Menschen heute länger als um 1900?", h: "Es gibt bessere Medizin, Hygiene, Ernährung und Wohnen und weniger gefährliche Arbeit. Frauen werden etwa 84, Männer etwa 79 Jahre alt." },
+  { id: "k7", art: "bild", foto: "generationenvertrag-rentenversicherung", v: "Was zeigt dieses Foto, und was geschieht dort?", h: "Ein Gebäude der Deutschen Rentenversicherung Bayern Süd in München. Dort werden Renten berechnet und ausgezahlt." },
+  { id: "k8", art: "vergleich", v: "Wie viele Beitragszahler kamen 1965 und 2024 etwa auf einen Altersrentner?", h: "1965 etwa fünf bis sechs, 2024 nur noch etwa zwei." },
+  { id: "k9", art: "ursache", v: "Warum steht die Rente unter Druck?", h: "Weil immer weniger Beitragszahler immer mehr Rentner versorgen müssen. Es werden weniger Kinder geboren, und alle leben länger." },
+  { id: "k10", art: "begriff", v: "Nenne drei Stellschrauben, mit denen die Politik die Rente sichern kann.", h: "Zum Beispiel länger arbeiten, höhere Beiträge, niedrigere Renten, mehr Einzahler, Geld aus Steuern oder private Vorsorge." },
+  { id: "k11", art: "anwendung", v: "Nenne einen Vorteil und einen Nachteil von höheren Beiträgen.", h: "Vorteil: mehr Geld in der Rentenkasse. Nachteil: Es bleibt weniger Netto vom Lohn, und Arbeit wird für Betriebe teurer." },
+  { id: "k12", art: "begriff", v: "Wie hoch ist die Regelaltersgrenze für alle, die 1964 oder später geboren sind?", h: "67 Jahre. Seit 2012 wurde sie Schritt für Schritt von 65 auf 67 angehoben." },
+  { id: "k13", art: "bild", foto: "generationenvertrag-grosseltern-gemaelde", v: "Was zeigt dieses Gemälde, und wie wurden alte Menschen früher meist versorgt?", h: "Großeltern und ein Kind am Kamin (um 1850). Früher sorgte meist die Familie für die Alten. Eine Rentenversicherung für alle gab es noch nicht." },
+  { id: "k14", art: "fehler", v: "Finde den Fehler: „Meine Beiträge liegen auf einem Konto, bis ich in Rente gehe.“", h: "Falsch. Die Beiträge gehen sofort an die heutigen Rentner (Umlage). Meine Rente zahlen später die, die dann arbeiten." },
+  { id: "k15", art: "transfer", v: "Warum zeigt eine Karikatur mit einer Tragestange nicht alles?", h: "Sie übertreibt mit Absicht. Sie zeigt zum Beispiel nicht, dass auch Steuergeld in die Rente fließt und dass Löhne gestiegen sind.", m: true },
+  { id: "k16", art: "transfer", v: "Warum sollten Jugendliche schon heute über Vorsorge nachdenken?", h: "Die gesetzliche Rente reicht oft nicht für den gewohnten Lebensstandard. Je früher man vorsorgt, desto leichter geht es.", m: true }
+]);

@@ -21,7 +21,8 @@
  */
 (function (global) {
   "use strict";
-  var doc = global.document, M = global.Modul, L = global.NT8;
+  // Die Kursliste der Seite: NT 8 – oder ein Kurs, der diese Bausteine mitnutzt (GPG 8: 8M/GPG/themen.js, gpg8.js)
+  var doc = global.document, M = global.Modul, L = global.GRUMI_KURS || global.NT8;
   if (!M || !L) return;
   var $ = M.$, $$ = M.$$, esc = M.esc;
   var ZUG = "", GLOSSAR = {}, MODUL = "";
@@ -29,13 +30,13 @@
 
   function start(cfg) {
     var reg = L.modulVon(cfg.id);
-    if (!reg) throw new Error("NT 8: Modul „" + cfg.id + "“ steht nicht in themen.js");
+    if (!reg) throw new Error((L.FACH || "NT 8") + ": Modul „" + cfg.id + "“ steht nicht in themen.js");
     MODUL = cfg.id; GLOSSAR = cfg.glossary || {};
-    M.init({ key: reg.modul.key, hero: cfg.hero, thema: cfg.thema || reg.modul.titel, glossary: GLOSSAR, api: "/api/nt8/uebung/feedback", onProgress: cfg.onProgress });
+    M.init({ key: reg.modul.key, hero: cfg.hero, thema: cfg.thema || reg.modul.titel, glossary: GLOSSAR, api: (L.PFAD || "/api/nt8") + "/uebung/feedback", onProgress: cfg.onProgress });
     ZUG = M.zug();
     if (ZUG) doc.body.classList.add("zug-" + ZUG);
     // 8R: Alle Wege zur Übersicht führen zur Übersicht der eigenen Klasse
-    if (ZUG === "R") $$('a[href="index.html"]').forEach(function (a) { a.setAttribute("href", "../../8R/NT/index.html"); });
+    if (ZUG === "R") $$('a[href="index.html"]').forEach(function (a) { a.setAttribute("href", L.UEBERSICHT_R || "../../8R/NT/index.html"); });
     // „Mehr wissen“ im Fachbegriff-Fenster (dritter Eintrag im Glossar): für M8 und für alle, die mehr wollen
     doc.addEventListener("click", function (e) {
       var t = e.target.closest ? e.target.closest(".term") : null, pop = $("#pop");

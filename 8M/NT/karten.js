@@ -26,7 +26,11 @@
   var TAG = 86400000, FAELLIG = [0, 1, 3, 7, 14];   // Tage bis zur nächsten Wiederholung nach 0, 1, 2, 3, 4+ Mal „gewusst“
   var SICHER_AB = 2, RUNDE = 12;
   var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]; }); };
-  var NT8 = function () { return global.NT8; };
+  // Die Kursliste der Seite: NT 8 – oder ein Kurs, der diesen Trainer mitnutzt (GPG 8: KARTEN = Ordner seiner Kartensätze,
+  // von hier aus gesehen; kartenFoto = Foto aus seinem Bildverzeichnis für die Vorderseite einer Karte)
+  var NT8 = function () { return global.GRUMI_KURS || global.NT8; };
+  var KURS = function () { var L = NT8(); return (L && L.KURS) || "nt8"; };
+  var ORDNER = function () { var L = NT8(); return HIER + ((L && L.KARTEN) || ""); };
 
   /* ---------- Anmeldung (derselbe Block wie in allen Skripten, die die Code-Anmeldung lesen) ---------- */
   function grumiTab() {
@@ -73,7 +77,11 @@
 
   /* ---------- Kartensätze ---------- */
   function satz(modul, karten) {
-    SAETZE[modul] = (karten || []).filter(function (k) { return k && k.id && k.v && k.h; });
+    var L = NT8();
+    SAETZE[modul] = (karten || []).filter(function (k) { return k && k.id && k.v && k.h; }).map(function (k) {
+      if (k.foto && !k.bild && L && L.kartenFoto) k.bild = L.kartenFoto(k.foto) || "";
+      return k;
+    });
     delete LAEDT[modul];
     pruefeWartende();
   }
@@ -90,7 +98,7 @@
     fehlt.forEach(function (id) {
       LAEDT[id] = true;
       var s = doc.createElement("script");
-      s.src = HIER + "karten/" + encodeURIComponent(id) + ".js";
+      s.src = ORDNER() + "karten/" + encodeURIComponent(id) + ".js";
       s.onerror = function () { delete LAEDT[id]; SAETZE[id] = SAETZE[id] || []; pruefeWartende(); };
       doc.head.appendChild(s);
     });
@@ -103,7 +111,7 @@
   }
 
   /* ---------- Lernstand der Karten ---------- */
-  function schluessel() { var a = anmeldung(); return "grumi-nt8-karten~" + (a ? a.kennung : "gast"); }
+  function schluessel() { var a = anmeldung(); return "grumi-" + KURS() + "-karten~" + (a ? a.kennung : "gast"); }
   function alles() { try { return JSON.parse(localStorage.getItem(schluessel()) || "{}") || {}; } catch (_e) { return {}; } }
   function sichern(s) { try { localStorage.setItem(schluessel(), JSON.stringify(s)); } catch (_e) {} }
   function stand(modul) { return alles()[modul] || {}; }
@@ -145,7 +153,7 @@
       if (!d || !d.ok) throw new Error("kein Stand");
       var s = alles(), neu = false;
       ids.forEach(function (id) {
-        var f = ((d.fortschritt || {})["nt8-" + id] || {}).f || {}, m = s[id] = s[id] || {};
+        var f = ((d.fortschritt || {})[KURS() + "-" + id] || {}).f || {}, m = s[id] = s[id] || {};
         Object.keys(f).forEach(function (k) {
           var srv = f[k], lok = m[k];
           if (Array.isArray(srv) && (!lok || srv[0] > lok[0])) { m[k] = [srv[0], srv[1], lok ? lok[2] : Date.now() - TAG]; neu = true; }
@@ -168,7 +176,7 @@
       if (!reg) { delete geaendert[id]; return; }
       Object.keys(m).forEach(function (k) { if (m[k] && m[k][0]) f[k] = [m[k][0], m[k][1]]; });
       delete geaendert[id];
-      post("/melden", { code: a.code, klasse: a.klasse, modul: "nt8-" + id, geloest: [], gesamt: 0, fehler: f,
+      post("/melden", { code: a.code, klasse: a.klasse, modul: KURS() + "-" + id, geloest: [], gesamt: 0, fehler: f,
         meta: { bereich: reg.thema.titel, bnr: parseInt(reg.thema.nr, 10) || 1, titel: reg.modul.titel, kurz: "Modul " + reg.nr, nr: reg.nr } }, keepalive)
         .catch(function () { geaendert[id] = true; });
     });
@@ -268,13 +276,13 @@
 
   /* ---------- Drucken ---------- */
   function druckLink(cfg, art) {
-    var basis = HIER + "lernkarten.html?";
+    var basis = ORDNER() + "lernkarten.html?";
     return basis + (cfg.probe ? "probe=" + encodeURIComponent(cfg.probe) : "modul=" + encodeURIComponent((cfg.module || []).join(","))) + "&druck=" + art;
   }
   function druck(el, cfg) {
     var ids = cfg.module || [], z = cfg.zug || zug(), art = cfg.art === "karten" ? "karten" : "blatt";
     laden(ids, function () {
-      var h = '<div class="lk-druck-kopf"><h1>' + esc(cfg.titel || "Lernkarten") + "</h1><p>Natur und Technik 8" + (z ? " · " + (z === "M" ? "M8" : "R8") : "") + " · " +
+      var h = '<div class="lk-druck-kopf"><h1>' + esc(cfg.titel || "Lernkarten") + "</h1><p>" + esc((NT8() && NT8().FACH) || "Natur und Technik") + " 8" + (z ? " · " + (z === "M" ? "M8" : "R8") : "") + " · " +
         (art === "karten" ? "Karten zum Ausschneiden: an der gestrichelten Linie falten – vorn die Frage, hinten die Antwort." : "Lernblatt: rechte Spalte abdecken und dich selbst abfragen.") + "</p></div>";
       ids.forEach(function (id) {
         var liste = karten(id, z);
