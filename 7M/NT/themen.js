@@ -219,5 +219,9 @@
     return z === "R" ? "R" : z === "M" ? "M" : "";
   }
 
-  global.NT7 = { THEMEN: THEMEN, probeModule: probeModule, API: API, VORSCHAU: VORSCHAU, modulVon: modulVon, idAusKey: idAusKey, offen: offen, freigabe: freigabe, zug: zug };
+  // VERSUCHE: Die Module zählen Fehlversuche je Aufgabe (auf Anhieb richtig oder erst nach mehreren Versuchen) und
+  // melden sie der Lehrkraft. RESET: Kind und Lehrkraft können ein Modul neu beginnen lassen. Beides erst in NT 7
+  // (Erprobung seit 12.10.2026; Bausteine in modul-basis.js und js/lernstand.js, Server: RESET_KURSE).
+  global.NT7 = { THEMEN: THEMEN, probeModule: probeModule, API: API, VORSCHAU: VORSCHAU, modulVon: modulVon, idAusKey: idAusKey, offen: offen, freigabe: freigabe, zug: zug,
+    VERSUCHE: true, RESET: true };
 })(window);

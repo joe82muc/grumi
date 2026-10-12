@@ -47,6 +47,34 @@ function save(k, v){ try { localStorage.setItem(KEY + k, v); } catch (_) {} }
 const meta = {};
 function register(id, el, text, typ){ tasks.add(id); if (PLUS) plusTasks.add(id); if (el || text || typ) meta[id] = {el, text, typ}; updateStars(); }
 function solve(id){ if (!solved[id]) { solved[id] = 1; save("", JSON.stringify(solved)); } updateStars(); if (window.Lernstand) window.Lernstand.geloest(id); }
+// Fehlversuche je Aufgabe (Kursliste mit VERSUCHE: true – erst nur NT 7): wie oft eine Aufgabe falsch geprüft wurde,
+// bevor sie zum ersten Mal richtig war. 0 = auf Anhieb richtig. Nach dem Lösen zählt nichts mehr. Die Lehrkraft sieht
+// es in der Verwaltung (js/lernstand.js meldet es mit). Offene Fragen mit KI, Erkunden und Animationen zählen nicht.
+let versuche = {};
+const zaehlt = () => { const K = KL(); return !!(K && K.VERSUCHE); };
+function versuch(id, ok){
+  if (!zaehlt() || solved[id]) return;
+  if (ok) { if (versuche[id] !== undefined) return; versuche[id] = 0; }
+  else versuche[id] = Math.min(99, (versuche[id] || 0) + 1);
+  save("-v", JSON.stringify(versuche));
+  if (window.Lernstand && window.Lernstand.versucheMelden) window.Lernstand.versucheMelden(versuche);
+}
+// Stand von einem anderen Gerät: je Aufgabe gilt der größere Wert
+function mehrVersuche(v){
+  let neu = false;
+  Object.keys(v || {}).forEach(id => { const z = parseInt(v[id], 10); if (z >= 0 && (versuche[id] === undefined || z > versuche[id])) { versuche[id] = z; neu = true; } });
+  if (neu) save("-v", JSON.stringify(versuche));
+}
+// Modul neu beginnen: den Speicher dieses Moduls für dieses Kind leeren (gelöste Aufgaben, Eingaben, Fehlversuche).
+// Ohne Anmeldung nur die Einträge ohne Kennung – die Stände angemeldeter Kinder am selben Gerät bleiben.
+function speicherLeeren(){
+  const mitCode = !!lsKennung(), weg = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.indexOf(KEY) === 0 && (mitCode || k.charAt(KEY.length) !== "~")) weg.push(k); }
+    weg.forEach(k => localStorage.removeItem(k));
+  } catch (_) {}
+  solved = {}; versuche = {};
+}
 function updateStars(){
   // Freiwillige Aufgaben (M7-Niveau für R-Klassen) zählen nicht zur Gesamtzahl, gelöste stehen als „+1“ dabei
   const pflicht = [...tasks].filter(t => !freiwillig(t)), n = pflicht.filter(t => solved[t]).length;
@@ -115,6 +143,7 @@ function init(cfg){
   if (cfg.api) API = (location.hostname.endsWith("onrender.com") ? "" : "https://englisch-9.onrender.com") + cfg.api;
   onProgress = cfg.onProgress || null;
   try { solved = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (_) { solved = {}; }
+  try { versuche = JSON.parse(localStorage.getItem(KEY + "-v") || "{}") || {}; } catch (_) { versuche = {}; }
 
   const pop = $("#pop");
   function showTerm(btn){
@@ -263,7 +292,10 @@ function lernstand(basis){
   });
   const los = () => window.Lernstand.seite({kurs, modul: kurs + "-" + name, bereich, bnr, nr: info[0], kurz: (K.WORT || "Modul") + " " + info[0],
     titel: info[1], aufgaben, anker: $("section.station"), mehrGeloest: ids => mehrGeloest(ids),
-    freiwillig: a => ZUG === "R" && a.teil === "Plus"});
+    freiwillig: a => ZUG === "R" && a.teil === "Plus",
+    // Modul neu beginnen und Fehlversuche (Kursliste: RESET, VERSUCHE – erst nur NT 7)
+    reset: !!K.RESET, zurueckgesetzt: speicherLeeren, hatStand: () => Object.keys(solved).length > 0 || Object.keys(versuche).length > 0,
+    versuche: zaehlt() ? versuche : undefined, versucheGeladen: v => { if (zaehlt()) mehrVersuche(v); }});
   if (window.Lernstand) { los(); return; }
   const s = document.createElement("script");
   s.src = new URL("../../js/lernstand.js", LS_SKRIPT || location.href).href;
@@ -323,7 +355,7 @@ function makeMC(container, list, idPrefix, tag){
       <div class="opts">${order.map(o => `<button class="opt ${multi ? "" : "round"}" data-i="${o.i}"><span class="box"></span><span>${esc(o.t)}</span></button>`).join("")}</div>
       ${multi ? '<div class="row-btns"><button class="btn small check">Prüfen</button></div>' : ""}<div class="fb"></div>`;
     const fb = $(".fb", el), opts = $$(".opt", el);
-    const finish = ok => { fb.className = "fb show " + (ok ? "ok" : "bad"); fb.innerHTML = (ok ? "✅ Richtig! " : "❌ Noch nicht. ") + esc(q.e || ""); if (ok) solve(id); };
+    const finish = (ok, leer) => { fb.className = "fb show " + (ok ? "ok" : "bad"); fb.innerHTML = (ok ? "✅ Richtig! " : "❌ Noch nicht. ") + esc(q.e || ""); if (!leer) versuch(id, ok); if (ok) solve(id); };
     if (!multi) {
       opts.forEach(b => b.addEventListener("click", () => {
         const ok = +b.dataset.i === q.a;
@@ -336,7 +368,7 @@ function makeMC(container, list, idPrefix, tag){
       $(".check", el).addEventListener("click", () => {
         let ok = true;
         opts.forEach(o => { const should = q.a.includes(+o.dataset.i), sel = o.classList.contains("sel"); if (sel) o.classList.add(should ? "right" : "wrong"); if (should !== sel) ok = false; });
-        finish(ok);
+        finish(ok, !opts.some(o => o.classList.contains("sel")));
       });
     }
     container.appendChild(el);
@@ -368,6 +400,7 @@ function makeGap(box, paras, id, extra){
     let ok = 0; gaps.forEach((g, i) => { const r = g.dataset.v === answers[i]; g.classList.toggle("right", r); g.classList.toggle("wrong", !!g.dataset.v && !r); if (r) ok++; });
     fb.className = "fb show " + (ok === gaps.length ? "ok" : "bad");
     fb.textContent = ok === gaps.length ? "✅ Alles richtig!" : `${ok} von ${gaps.length} richtig. Tippe auf eine rote Lücke, um sie zu leeren.`;
+    if (gaps.some(g => g.dataset.v)) versuch(id, ok === gaps.length);
     if (ok === gaps.length) solve(id);
   });
   $(".reset", box).addEventListener("click", () => { gaps.forEach(clear); setActive(gaps[0]); fb.className = "fb"; });
@@ -412,6 +445,7 @@ function makeSort(container, cfg, id){
     const all = ok === toks.length;
     fb.className = "fb show " + (all ? "ok" : "bad");
     fb.textContent = all ? (cfg.done || "✅ Alles richtig zugeordnet!") : `${ok} von ${toks.length} richtig. Tippe falsche Karten an, um sie zurückzulegen.`;
+    if (toks.some(t => t.closest(".bucket"))) versuch(id, all);
     if (all) { solve(id); if (cfg.onDone) cfg.onDone(); }
   });
   $(".reset", container).addEventListener("click", () => { toks.forEach(t => { t.classList.remove("right", "wrong", "picked"); pool.appendChild(t); }); fb.className = "fb"; picked = null; markTargets(false); });
@@ -428,6 +462,7 @@ function makeTF(box, list, id){
     $$(".tf-row", box).forEach(row => { const s = $("button.sel", row); row.classList.remove("right", "wrong"); if (!s) { open++; return; } const r = (s.dataset.v === "1") === list[row.dataset.i][1]; row.classList.add(r ? "right" : "wrong"); if (r) ok++; });
     const fb = $(".fb", box); fb.className = "fb show " + (ok === list.length ? "ok" : "bad");
     fb.textContent = ok === list.length ? "✅ Perfekt – alle Aussagen richtig bewertet!" : `${ok} von ${list.length} richtig.${open ? ` ${open} noch offen.` : ""}`;
+    if (open < list.length) versuch(id, ok === list.length);
     if (ok === list.length) solve(id);
   });
 }
@@ -450,6 +485,7 @@ function makeOrder(box, steps, id){
     let ok = 0; $$(".order-item", list).forEach((row, i) => { const r = +row.dataset.k === i; row.classList.add(r ? "right" : "wrong"); if (r) ok++; });
     fb.className = "fb show " + (ok === steps.length ? "ok" : "bad");
     fb.textContent = ok === steps.length ? "✅ Richtige Reihenfolge!" : `${ok} von ${steps.length} stehen schon richtig. Verschiebe die roten Schritte.`;
+    versuch(id, ok === steps.length);
     if (ok === steps.length) solve(id);
   });
 }
@@ -484,6 +520,7 @@ function makeLabel(box, cfg, id){
     let ok = 0; slots.forEach(s => { const r = s.dataset.v === cfg.slots[s.dataset.i].a; s.classList.toggle("right", r); s.classList.toggle("wrong", !!s.dataset.v && !r); if (r) ok++; });
     fb.className = "fb show " + (ok === slots.length ? "ok" : "bad");
     fb.textContent = ok === slots.length ? "✅ Alles richtig beschriftet!" : `${ok} von ${slots.length} richtig. Tippe auf ein rotes Kästchen, um es zu leeren.`;
+    if (slots.some(s => s.dataset.v)) versuch(id, ok === slots.length);
     if (ok === slots.length) { solve(id); confetti(); }
   });
   $(".reset", box).addEventListener("click", () => { slots.forEach(empty); fb.className = "fb"; });
@@ -577,8 +614,8 @@ function makeCrossword(box, cfg, id){
   $(".check", box).addEventListener("click", () => {
     let emptyN = 0, wrong = 0;
     Object.values(cells).forEach(x => { x.div.classList.remove("wrong", "right"); if (!x.inp.value) emptyN++; else if (x.inp.value !== x.g.ch) { wrong++; x.div.classList.add("wrong"); } else if (!x.inp.readOnly) x.div.classList.add("right"); });
-    if (!emptyN && !wrong) { fb.className = "fb show ok"; fb.innerHTML = "🎉 Alles richtig!" + (cfg.solWord ? ` Das Lösungswort ist <strong>${esc(cfg.solWord)}</strong>.` : ""); const sw = $(".solword", box); if (sw) sw.classList.add("win"); solve(id); confetti(); }
-    else { fb.className = "fb show " + (wrong ? "bad" : "mid"); fb.textContent = (wrong ? `${wrong} Buchstabe(n) sind falsch (rot markiert). ` : "") + (emptyN ? `${emptyN} Kästchen sind noch leer.` : ""); }
+    if (!emptyN && !wrong) { fb.className = "fb show ok"; fb.innerHTML = "🎉 Alles richtig!" + (cfg.solWord ? ` Das Lösungswort ist <strong>${esc(cfg.solWord)}</strong>.` : ""); const sw = $(".solword", box); if (sw) sw.classList.add("win"); versuch(id, true); solve(id); confetti(); }
+    else { if (wrong) versuch(id, false); fb.className = "fb show " + (wrong ? "bad" : "mid"); fb.textContent = (wrong ? `${wrong} Buchstabe(n) sind falsch (rot markiert). ` : "") + (emptyN ? `${emptyN} Kästchen sind noch leer.` : ""); }
   });
   $(".hint1", box).addEventListener("click", () => {
     const open = Object.values(cells).filter(x => x.inp.value !== x.g.ch); if (!open.length) return;
@@ -667,6 +704,7 @@ function makeQuiz(box, pool, id, profi){
     const msg = score >= N - 1 ? `${profi}! Du bist bestens vorbereitet. 🏆` : score >= N - 3 ? "Sehr gut! Schau dir die Fehler noch einmal an." : score >= N / 2 ? "Ordentlich – wiederhole die Stationen, bei denen du unsicher warst." : "Geh die Stationen noch einmal durch und versuch es erneut.";
     box.innerHTML = `<div class="result-big">${score} / ${N}</div><p class="lead" style="text-align:center">${msg}</p><div class="row-btns" style="justify-content:center"><button class="btn again">Neue Runde</button></div>`;
     $(".again", box).addEventListener("click", start);
+    versuch(id, score >= N - 2);
     if (score >= N - 2) { solve(id); confetti(); }
   }
   start();
@@ -687,8 +725,9 @@ function makePaare(box, pairs, id){
     if (a.dataset.i === b.dataset.i) {
       [a, b].forEach(x => { x.classList.add("right"); x.disabled = true; }); fertig++;
       fb.className = "fb show ok"; fb.textContent = fertig === pairs.length ? "✅ Alle Paare gefunden!" : `✅ Richtig! Noch ${pairs.length - fertig}.`;
-      if (fertig === pairs.length) solve(id);
+      if (fertig === pairs.length) { versuch(id, true); solve(id); }
     } else {
+      versuch(id, false);
       [a, b].forEach(x => { x.classList.add("wrong"); setTimeout(() => x.classList.remove("wrong"), 700); });
       fb.className = "fb show bad"; fb.textContent = "❌ Das passt nicht zusammen. Versuch es noch einmal.";
     }
@@ -835,5 +874,5 @@ function confetti(){
 
 const Modul = window.Modul = {$, $$, esc, shuffle, clamp, fmt, norm, setText, reduced, onVisible, load, save, init, ready, register, solve,
   isSolved: id => !!solved[id], katalog, mehrGeloest, askKI, makeMC, makeGap, makeSort, makeTF, makeOrder, makeLabel, makeHotspots, makeCrossword, makeOpen, makeQuiz, confetti,
-  plus, zug: () => ZUG, makePaare, makeSchritte, makeFilm, anmeldung: lsAnmeldung};
+  plus, zug: () => ZUG, makePaare, makeSchritte, makeFilm, anmeldung: lsAnmeldung, versuch, versuche: () => Object.assign({}, versuche)};
 })();

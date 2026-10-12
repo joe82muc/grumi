@@ -19,8 +19,13 @@
  *                                 mehrGeloest: function (ids) {…}   (Stand von einem anderen Gerät übernehmen),
  *                                 dialog: false   (Seite meldet selbst an, z. B. Deutsch 7),
  *                                 fehlerGeladen: function (f) {…}   (Fehlerwörter vom Server, Vokabeltrainer),
- *                                 freiwillig: function (a) {…}   (true = zählt nicht zum Balken, z. B. Plus-Aufgaben für R-Klassen) })
+ *                                 freiwillig: function (a) {…}   (true = zählt nicht zum Balken, z. B. Plus-Aufgaben für R-Klassen),
+ *                                 reset: true   (Knopf „Modul neu beginnen“; erst nur NT 7 – der Server erlaubt es je Kurs),
+ *                                 zurueckgesetzt: function () {…}   (die Seite leert ihren eigenen Speicher, dann lädt sie neu),
+ *                                 hatStand: function () {…}   (true = die Seite hat zu dem Modul etwas gespeichert),
+ *                                 versucheGeladen: function (v) {…}   (Fehlversuche vom Server, anderes Gerät) })
  *               Lernstand.fehlerMelden({ wort: [falsch, richtig] })   Fehlerwörter mitschicken
+ *               Lernstand.versucheMelden({ aufgabe: Fehlversuche })   0 = auf Anhieb richtig; immer die ganze Liste
  *               Lernstand.geloest(id)   nach einer richtig gelösten Aufgabe
  *               Lernstand.markieren()   nach einem Neuaufbau der Aufgaben
  * Übersicht:    Lernstand.uebersicht({ kurs, module: [{ id, titel, href }], anker, kompakt?, freiwillig? })
@@ -169,7 +174,11 @@
     ".ls-ds ul{margin:0;padding-left:18px}" +
     ".ls-ds li+li{margin-top:3px}" +
     ".ls-toast{position:fixed;left:50%;bottom:22px;z-index:1000;max-width:calc(100vw - 32px);padding:12px 18px;border-radius:14px;background:#15212b;color:#fff;font:600 15px/1.4 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.25);transform:translate(-50%,0);transition:opacity .4s,transform .4s}" +
-    ".ls-toast.weg{opacity:0;transform:translate(-50%,16px)}";
+    ".ls-toast.weg{opacity:0;transform:translate(-50%,16px)}" +
+    ".ls-reset-zeile{margin:10px 0 0;text-align:right}" +
+    ".ls-reset{border:1.5px solid #dce4f0;background:#fff;border-radius:999px;padding:5px 13px;font:inherit;font-weight:700;font-size:.85rem;cursor:pointer;color:#5d6b84}" +
+    ".ls-reset:hover{border-color:#b23a48;color:#b23a48}" +
+    ".ls-dlg .ls-los.ls-rot{background:#b23a48}";
   function stil() {
     if (doc.getElementById("ls-stil")) return;
     var s = doc.createElement("style");
@@ -287,9 +296,79 @@
       : '<span class="ls-wer"><button type="button" data-ls="an">Anmelden</button></span>';
   }
   function knoepfe(box) {
-    var ab = box.querySelector('[data-ls="ab"]'), an = box.querySelector('[data-ls="an"]');
+    var ab = box.querySelector('[data-ls="ab"]'), an = box.querySelector('[data-ls="an"]'), neu = box.querySelector('[data-ls="reset"]');
     if (ab) ab.addEventListener("click", abmelden);
     if (an) an.addEventListener("click", function () { anmeldeDialog(); });
+    if (neu) neu.addEventListener("click", resetDialog);
+  }
+
+  /* ---------- Ein Modul neu beginnen (cfg.reset; erst nur NT 7) ----------
+     Der Server merkt sich je Modul den Zeitpunkt des letzten Zurücksetzens (r). Jedes Gerät merkt sich, bis zu welchem
+     r es seinen Stand geleert hat. Ist der Server weiter – das Kind hat an einem anderen Gerät neu begonnen oder die
+     Lehrkraft hat zurückgesetzt –, leert das Gerät den Stand des Moduls und lädt die Seite neu. */
+  function resetKey(modul) { return "grumi-reset~" + schueler.kennung + "~" + modul; }
+  function lokalR(modul) { return schueler ? parseInt(lies(resetKey(modul)), 10) || 0 : 0; }
+  function lokalLeeren(modul, r) {
+    var gemerkt = true;
+    if (schueler) {
+      loesch(key(modul));
+      gemerkt = schreib(resetKey(modul), String(r));
+      var q = warteschlange();
+      if (q[modul]) { delete q[modul]; warteschlangeSichern(q); }
+    }
+    if (S && S.modul === modul) {
+      S.geloest = {}; S.versuche = null;
+      // Die Seite leert ihren eigenen Speicher (gelöste Aufgaben, Eingaben, Fehlversuche)
+      if (typeof S.zurueckgesetzt === "function") { try { S.zurueckgesetzt(); } catch (_e) {} }
+      // Ohne Speicher (privater Modus) nicht neu laden: Die Seite käme sonst immer wieder hierher
+      if (gemerkt) { global.location.reload(); return true; }
+      zeichnenSeite(); markieren();
+    }
+    return false;
+  }
+  function resetDialog() {
+    if (!S || !S.reset) return;
+    stil();
+    var alt = doc.getElementById("ls-reset-dlg");
+    if (alt) alt.remove();
+    doc.body.insertAdjacentHTML("beforeend",
+      '<dialog class="ls-dlg" id="ls-reset-dlg" aria-labelledby="ls-reset-titel"><form method="dialog" novalidate>' +
+      '<div style="font-size:2.2rem;line-height:1" aria-hidden="true">↺</div>' +
+      '<h2 id="ls-reset-titel">Modul neu beginnen?</h2>' +
+      "<p>Alle Aufgaben in <strong>" + esc(S.titel || "diesem Modul") + "</strong> gelten dann wieder als nicht gelöst. Deine Antworten in diesem Modul werden gelöscht.</p>" +
+      "<p>Das lässt sich nicht rückgängig machen." + (schueler ? " Deine Lehrkraft sieht, dass du neu begonnen hast." : "") + "</p>" +
+      '<p class="ls-err" id="ls-reset-err" role="alert"></p>' +
+      '<button class="ls-los ls-rot" type="submit" id="ls-reset-ja">Ja, neu beginnen</button>' +
+      '<button class="ls-ohne" type="button" id="ls-reset-nein">Abbrechen</button>' +
+      "</form></dialog>");
+    var dlg = doc.getElementById("ls-reset-dlg"), err = doc.getElementById("ls-reset-err"), ja = doc.getElementById("ls-reset-ja");
+    doc.getElementById("ls-reset-nein").addEventListener("click", function () { dlg.close(); dlg.remove(); });
+    dlg.addEventListener("cancel", function () { setTimeout(function () { dlg.remove(); }, 0); });
+    dlg.querySelector("form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var modul = S.modul;
+      if (!schueler) { lokalLeeren(modul, Date.now()); return; }
+      ja.disabled = true; ja.textContent = "Einen Moment …"; err.className = "ls-err"; err.textContent = "";
+      clearTimeout(timer); timer = null;
+      anfrage("/zuruecksetzen", { code: schueler.code, klasse: schueler.klasse, modul: modul }, function () {
+        err.className = "ls-err info";
+        err.textContent = "Der Server wacht gerade auf. Das kann bis zu einer Minute dauern …";
+      }).then(function (data) {
+        if (data.status === 404) { dlg.close(); dlg.remove(); codeUngueltig(); return; }
+        if (!data.ok || !data.r) {
+          err.className = "ls-err";
+          err.textContent = data.error || "Das hat nicht geklappt. Versuch es gleich noch einmal.";
+          ja.disabled = false; ja.textContent = "Ja, neu beginnen";
+          return;
+        }
+        lokalLeeren(modul, data.r);
+      }).catch(function () {
+        err.className = "ls-err";
+        err.textContent = "Keine Verbindung zum Server. Ohne Internet lässt sich das Modul nicht neu beginnen.";
+        ja.disabled = false; ja.textContent = "Ja, neu beginnen";
+      });
+    });
+    if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
   }
 
   /* ---------- Meldungen an den Server ---------- */
@@ -312,6 +391,10 @@
     if (metaVon[modul]) e.meta = metaVon[modul];
     // Fehlerwörter der Vokabeltrainer: immer die ganze Liste des Moduls
     if (S && S.modul === modul && S.fehler) e.fehler = S.fehler;
+    // Fehlversuche je Aufgabe (versucheMelden) und der Stand des Geräts beim Zurücksetzen
+    if (S && S.modul === modul && S.versuche) e.versuche = S.versuche;
+    var r = lokalR(modul);
+    if (r) e.r = r;
     var kat = katalogFuerSenden(modul);
     if (kat) { e.katalog = kat.k; e.kh = kat.h; }
     q[modul] = e;
@@ -331,12 +414,18 @@
       if (eintrag.meta) body.meta = eintrag.meta;
       if (eintrag.katalog) body.katalog = eintrag.katalog;
       if (eintrag.fehler) body.fehler = eintrag.fehler;
+      if (eintrag.versuche) body.versuche = eintrag.versuche;
+      if (eintrag.r) body.r = eintrag.r;
       anfrage("/melden", body).then(function (data) {
         if (data.ok || data.status === 400 || data.status === 404 || data.status === 409) {
           var jetzt = warteschlange();
           if (jetzt[modul] && JSON.stringify(jetzt[modul]) === JSON.stringify(eintrag)) { delete jetzt[modul]; warteschlangeSichern(jetzt); }
           if (data.ok && eintrag.kh) { var kh = katalogHashes(); kh[modul] = eintrag.kh; schreib(KATALOG_HASH, JSON.stringify(kh)); katalogNoetig[modul] = false; }
           if (data.status === 404) { sendetGerade = false; codeUngueltig(); return; }
+          // Das Modul ist inzwischen zurückgesetzt worden (anderes Gerät oder Lehrkraft): Stand dieses Geräts leeren.
+          // Nur auf der Seite des Moduls selbst – sonst bliebe der Speicher der Modulseite stehen; sie holt es beim
+          // nächsten Öffnen nach (seite: Vergleich mit dem Server).
+          if (data.ok && data.zurueckgesetzt > lokalR(modul) && S && S.modul === modul) { sendetGerade = false; lokalLeeren(modul, data.zurueckgesetzt); return; }
         }
         naechstes(i + 1);
       }).catch(function () { sendetGerade = false; setTimeout(senden, 30000); });
@@ -405,7 +494,15 @@
       if (data.status === 404) { codeUngueltig(); return; }
       if (!data.ok) return;
       var f = (data.fortschritt && data.fortschritt[cfg.modul]) || { g: [], t: 0 }, neu = [];
+      // Seit dem letzten Besuch zurückgesetzt (anderes Gerät oder Lehrkraft): Stand dieses Geräts leeren, Seite neu laden
+      // Hat das Gerät zu dem Modul gar nichts gespeichert (neues Gerät), genügt es, sich den Zeitpunkt zu merken.
+      if (f.r && f.r > lokalR(cfg.modul)) {
+        var hatStand = Object.keys(S.geloest).length > 0 || (typeof cfg.hatStand === "function" && cfg.hatStand());
+        if (!hatStand) schreib(resetKey(cfg.modul), String(f.r));
+        else if (lokalLeeren(cfg.modul, f.r)) return;
+      }
       if (typeof cfg.fehlerGeladen === "function") { try { cfg.fehlerGeladen(f.f || {}); } catch (_e) {} }
+      if (f.v && typeof cfg.versucheGeladen === "function") { try { cfg.versucheGeladen(f.v); } catch (_e) {} }
       f.g.forEach(function (id) { if (!S.geloest[id] && ids().indexOf(id) >= 0) { S.geloest[id] = 1; neu.push(id); } });
       if (neu.length) {
         schreib(key(cfg.modul), JSON.stringify(S.geloest));
@@ -455,6 +552,7 @@
       h += offenListe(teil.pflicht, S.geloest, "", true) + freiZeile(teil.extra, S.geloest);
       if (S.hinweis) h += '<p class="ls-hinweis">' + esc(S.hinweis) + "</p>";
     }
+    if (S.reset) h += '<p class="ls-reset-zeile"><button type="button" class="ls-reset" data-ls="reset">↺ Modul neu beginnen</button></p>';
     S.box.innerHTML = h;
     knoepfe(S.box);
     Array.prototype.forEach.call(S.box.querySelectorAll("a.ls-chip"), function (a) {
@@ -603,9 +701,17 @@
     }, true);
   }
 
+  // Fehlversuche je Aufgabe (Modulseiten, 7M/NT/modul-basis.js): ganze Liste { aufgabe: Zahl }, 0 = auf Anhieb richtig.
+  // So sieht die Lehrkraft, ob ein Kind eine Aufgabe sofort richtig hatte oder erst nach mehreren Versuchen.
+  function versucheMelden(liste) {
+    if (!S || !schueler) return;
+    S.versuche = liste || {};
+    vormerken(S.modul, Object.keys(S.geloest), S.aufgaben.length);
+  }
+
   global.Lernstand = {
     get schueler() { return schueler; },
     seite: seite, geloest: geloest, markieren: markieren, uebersicht: uebersicht, anmelden: anmeldeDialog, abmelden: abmelden,
-    fehlerMelden: fehlerMelden
+    fehlerMelden: fehlerMelden, versucheMelden: versucheMelden
   };
 })(window);

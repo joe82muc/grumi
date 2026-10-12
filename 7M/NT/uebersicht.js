@@ -246,6 +246,36 @@
     nurOffene();
   }
 
+  // Modul neu beginnen (Kursliste mit RESET, erst nur NT 7): Hat das Kind an einem anderen Gerät neu begonnen oder
+  // die Lehrkraft das Modul zurückgesetzt, steht auf diesem Gerät noch der alte Stand. Der Server nennt je Modul den
+  // Zeitpunkt des letzten Zurücksetzens (r); ist er neuer als der des Geräts, wird der Stand des Moduls hier geleert
+  // (Speicher der Modulseite und von js/lernstand.js – dieselben Schlüssel wie dort).
+  function resetsAnwenden(a) {
+    if (!NT7.RESET || !a || a.lehrer || !a.code) return;
+    fetch(NT7.API + "/api/nt9/fortschritt/anmelden", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({code: a.code})})
+      .then(r => r.json()).then(d => {
+        if (!d || !d.ok || !d.fortschritt) return;
+        const kurs = NT7.KURS || "nt" + ST;
+        let geleert = false;
+        THEMEN.forEach(t => t.module.forEach(m => {
+          if (!m.key) return;
+          const id = kurs + "-" + (NT7.idAusKey ? NT7.idAusKey(m.key) : m.id), r = (d.fortschritt[id] || {}).r || 0, rKey = "grumi-reset~" + a.kennung + "~" + id;
+          try {
+            if (!r || r <= (parseInt(localStorage.getItem(rKey), 10) || 0)) return;
+            const vorn = m.key + "~" + a.kennung + "~", ls = "-" + id + "~" + a.kennung + "~", weg = [];
+            for (let i = 0; i < localStorage.length; i++) {
+              const k = localStorage.key(i);
+              if (k && (k.indexOf(vorn) === 0 || (k.indexOf("grumi-ls-") === 0 && k.slice(-ls.length) === ls))) weg.push(k);
+            }
+            weg.forEach(k => localStorage.removeItem(k));
+            localStorage.setItem(rKey, String(r));
+            geleert = true;
+          } catch (_e) {}
+        }));
+        if (geleert) zeichnen();
+      }).catch(() => {});
+  }
+
   // Stand der Freischaltung holen (erst vom Gerät, dann vom Server) und neu zeichnen
   function laden() {
     const a = anmeldung();
@@ -253,6 +283,7 @@
     zeichnen();
     NT7.freigabe(a, (stand, quelle) => { STAND = stand; QUELLE = quelle; HINWEIS = ""; zeichnen(); },
       text => { if (text) { HINWEIS = text; zeichnen(); } });
+    resetsAnwenden(a);
   }
   laden();
   // Welche Proben gibt es, welche sind offen? (öffentliche Liste, ohne Anmeldung)

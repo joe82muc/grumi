@@ -880,6 +880,32 @@ const tasks = new Set();
 const meta = {};
 function register(id, el, text, typ){ tasks.add(id); if (el || text || typ) meta[id] = {el, text, typ}; updateStars(); }
 function solve(id){ if (!solved[id]) { solved[id] = 1; try { localStorage.setItem(KEY, JSON.stringify(solved)); } catch (_) {} } updateStars(); if (window.Lernstand) window.Lernstand.geloest(id); }
+// Fehlversuche je Aufgabe (wie in modul-basis.js): wie oft eine Aufgabe falsch geprüft wurde, bevor sie zum ersten
+// Mal richtig war. 0 = auf Anhieb richtig. Die Lehrkraft sieht es in der Verwaltung.
+let versuche = {};
+try { versuche = JSON.parse(localStorage.getItem(KEY + "-v") || "{}") || {}; } catch (_) { versuche = {}; }
+function versucheSichern(){ try { localStorage.setItem(KEY + "-v", JSON.stringify(versuche)); } catch (_) {} }
+function versuch(id, ok){
+  if (solved[id]) return;
+  if (ok) { if (versuche[id] !== undefined) return; versuche[id] = 0; }
+  else versuche[id] = Math.min(99, (versuche[id] || 0) + 1);
+  versucheSichern();
+  if (window.Lernstand && window.Lernstand.versucheMelden) window.Lernstand.versucheMelden(versuche);
+}
+function mehrVersuche(v){
+  let neu = false;
+  Object.keys(v || {}).forEach(id => { const z = parseInt(v[id], 10); if (z >= 0 && (versuche[id] === undefined || z > versuche[id])) { versuche[id] = z; neu = true; } });
+  if (neu) versucheSichern();
+}
+// Modul neu beginnen: den Speicher dieses Moduls für dieses Kind leeren. Ohne Anmeldung nur die Einträge ohne Kennung.
+function speicherLeeren(){
+  const mitCode = !!lsKennung(), weg = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.indexOf(KEY) === 0 && (mitCode || k.charAt(KEY.length) !== "~")) weg.push(k); }
+    weg.forEach(k => localStorage.removeItem(k));
+  } catch (_) {}
+  solved = {}; versuche = {};
+}
 // Aufgabenkatalog für die Lehreransicht: { id: [Bezeichnung, Station] }
 function katalog(){
   const out = {};
@@ -958,7 +984,9 @@ function lernstand(basis){
     return {id, teil, kurz: String(zaehler[teil]), text: kat[id][0], label: kat[id][0], el: el || null};
   });
   const los = () => window.Lernstand.seite({kurs: "nt7", modul: "nt7-" + name, bereich: "Luft", bnr: 1, nr: info[0], kurz: "Modul " + info[0],
-    titel: info[1], aufgaben, anker: $("section.station"), mehrGeloest: ids => mehrGeloest(ids)});
+    titel: info[1], aufgaben, anker: $("section.station"), mehrGeloest: ids => mehrGeloest(ids),
+    reset: true, zurueckgesetzt: speicherLeeren, hatStand: () => Object.keys(solved).length > 0 || Object.keys(versuche).length > 0,
+    versuche, versucheGeladen: mehrVersuche});
   if (window.Lernstand) { los(); return; }
   const s = document.createElement("script");
   s.src = new URL("../../js/lernstand.js", LS_SKRIPT || location.href).href;
@@ -1092,6 +1120,7 @@ function makeMC(container, list, idPrefix){
     const finish = ok => {
       fb.className = "fb show " + (ok ? "ok" : "bad");
       fb.innerHTML = (ok ? "✅ Richtig! " : "❌ Noch nicht. ") + esc(q.e || "");
+      if (!multi || opts.some(o => o.classList.contains("sel"))) versuch(id, ok);
       if (ok) solve(id);
     };
     if (!multi) {
@@ -1646,8 +1675,8 @@ const HOTS = [
   $("#cwCheck").addEventListener("click", () => {
     let empty = 0, wrong = 0;
     Object.values(cells).forEach(x => { x.div.classList.remove("wrong", "right"); if (!x.inp.value) empty++; else if (x.inp.value !== x.g.ch) { wrong++; x.div.classList.add("wrong"); } else if (!x.inp.readOnly) x.div.classList.add("right"); });
-    if (!empty && !wrong) { fb.className = "fb show ok"; fb.innerHTML = "🎉 Alles richtig! Das Lösungswort ist <strong>LUFTBALLON</strong>."; $("#solword").classList.add("win"); solve("kreuz"); confetti(); }
-    else { fb.className = "fb show " + (wrong ? "bad" : "mid"); fb.textContent = (wrong ? `${wrong} Buchstabe(n) sind falsch (rot markiert). ` : "") + (empty ? `${empty} Kästchen sind noch leer.` : ""); }
+    if (!empty && !wrong) { fb.className = "fb show ok"; fb.innerHTML = "🎉 Alles richtig! Das Lösungswort ist <strong>LUFTBALLON</strong>."; $("#solword").classList.add("win"); versuch("kreuz", true); solve("kreuz"); confetti(); }
+    else { if (wrong) versuch("kreuz", false); fb.className = "fb show " + (wrong ? "bad" : "mid"); fb.textContent = (wrong ? `${wrong} Buchstabe(n) sind falsch (rot markiert). ` : "") + (empty ? `${empty} Kästchen sind noch leer.` : ""); }
   });
   $("#cwHint").addEventListener("click", () => {
     const open = Object.values(cells).filter(x => x.inp.value !== x.g.ch);
@@ -1683,6 +1712,7 @@ function makeGap(box, paras, id){
     let ok = 0; gaps.forEach((g, i) => { const r = g.dataset.v === answers[i]; g.classList.toggle("right", r); g.classList.toggle("wrong", !!g.dataset.v && !r); if (r) ok++; });
     fb.className = "fb show " + (ok === gaps.length ? "ok" : "bad");
     fb.textContent = ok === gaps.length ? "✅ Alles richtig!" : `${ok} von ${gaps.length} richtig. Tippe auf eine rote Lücke, um sie zu leeren.`;
+    if (gaps.some(g => g.dataset.v)) versuch(id, ok === gaps.length);
     if (ok === gaps.length) solve(id);
   });
   $(".reset", box).addEventListener("click", () => { gaps.forEach(clear); setActive(gaps[0]); fb.className = "fb"; });
@@ -1713,6 +1743,7 @@ makeGap($("#gaptext3"), [
     $$("input", box).forEach(inp => { const r = norm(inp.value.trim()) === norm(EL[inp.dataset.i][1]); inp.classList.toggle("right", r); inp.classList.toggle("wrong", !r); if (r) ok++; });
     const fb = $(".fb", box); fb.className = "fb show " + (ok === 4 ? "ok" : "bad");
     fb.textContent = ok === 4 ? "✅ Alle Symbole richtig erkannt!" : `${ok} von 4 richtig. Tipp: Schau dir die Tabelle „Chemische Zeichen“ in Station 5 an.`;
+    if ($$("input", box).some(inp => inp.value.trim())) versuch("symbole", ok === 4);
     if (ok === 4) solve("symbole");
   });
 })();
@@ -1756,6 +1787,7 @@ function makeSort(container, cfg, id){
     const all = ok === toks.length;
     fb.className = "fb show " + (all ? "ok" : "bad");
     fb.textContent = all ? "✅ Alles richtig zugeordnet!" : `${ok} von ${toks.length} richtig. Tippe falsche Karten an, um sie zurückzulegen.`;
+    if (toks.some(t => t.closest(".bucket"))) versuch(id, all);
     if (all) solve(id);
   });
   $(".reset", container).addEventListener("click", () => { toks.forEach(t => { t.classList.remove("right", "wrong", "picked"); pool.appendChild(t); }); fb.className = "fb"; picked = null; markTargets(false); });
@@ -1805,6 +1837,7 @@ makeSort($("#sortFormel"), {
     $$(".tf-row", box).forEach(row => { const s = $("button.sel", row); row.classList.remove("right", "wrong"); if (!s) { open++; return; } const r = (s.dataset.v === "1") === TF[row.dataset.i][1]; row.classList.add(r ? "right" : "wrong"); if (r) ok++; });
     const fb = $("#tfFb"); fb.className = "fb show " + (ok === TF.length ? "ok" : "bad");
     fb.textContent = ok === TF.length ? "✅ Perfekt – alle Aussagen richtig bewertet!" : `${ok} von ${TF.length} richtig.${open ? ` ${open} noch offen.` : ""}`;
+    if (open < TF.length) versuch("tf", ok === TF.length);
     if (ok === TF.length) solve("tf");
   });
 })();
@@ -1921,6 +1954,7 @@ const OPEN = [
     const msg = score >= 9 ? "Luft-Profi! Du bist bestens vorbereitet. 🏆" : score >= 7 ? "Sehr gut! Schau dir die Fehler noch einmal an." : score >= 5 ? "Ordentlich – wiederhole die Stationen, bei denen du unsicher warst." : "Geh die Stationen noch einmal durch und versuch es erneut.";
     box.innerHTML = `<div class="result-big">${score} / 10</div><p class="lead" style="text-align:center">${msg}</p><div class="row-btns" style="justify-content:center"><button class="btn" id="qAgain">Neue Runde</button></div>`;
     $("#qAgain").addEventListener("click", start);
+    versuch("quiz", score >= 8);
     if (score >= 8) { solve("quiz"); confetti(); }
   }
   start();

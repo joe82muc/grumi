@@ -29,6 +29,9 @@
   var namenHoerer = false;
   var DATEN = null, NOTEN = null, BEREICH = "", SICHT = [], OFFEN = {}, AUSWERTUNG_MODUL = "", ALLE_AUFGABEN = false, FEHLER_MODUL = "";
   var KURZ = 12; // so viele Aufgaben zeigt die Klassenauswertung zuerst
+  // Erprobung seit 12.10.2026, erst nur NT 7: Die Module zählen Fehlversuche je Aufgabe (VERSUCH_KURSE), und Kind wie
+  // Lehrkraft können ein Modul zurücksetzen (RESET_KURSE – der Server erlaubt es ebenfalls nur für diese Kurse).
+  var VERSUCH_KURSE = ["nt7"], RESET_KURSE = ["nt7"];
   var GRUMI_URL = "https://joe82muc.github.io/grumi";
   var GRUMI_QR = "images/grumi-qr-code.svg";
   var FACH_ICON = { nt: "🔬", gpg: "🌍", d: "📖", e: "💬", i: "💻" };
@@ -125,6 +128,14 @@
     ".lf-a{font-size:.8rem;font-weight:600;border-radius:8px;padding:.2rem .55rem;border:1px solid var(--line);background:#fff;max-width:100%}" +
     ".lf-a.ok{background:var(--ok-bg);border-color:var(--ok-line);color:#0f5b2c}" +
     ".lf-a.no{color:#7b8799}" +
+    ".lf-a.mehr{background:#fff7ed;border-color:#fdba74;color:#9a3412}" +
+    ".lf-a.fehl{border-color:#fca5a5;color:#b91c1c}" +
+    ".lf-vz{font-weight:800;white-space:nowrap}" +
+    ".lf-vers{display:block;margin-top:1px;font-size:.72rem;font-weight:700;color:#64748b;white-space:nowrap}" +
+    ".lf-vers b.w{color:#c2410c}.lf-vers b.f{color:#b91c1c}" +
+    ".lf-rinfo{font-size:.8rem;font-weight:600;color:var(--muted)}" +
+    "p.lf-rinfo{margin:0 0 .35rem}" +
+    ".lf-mod h4 .lf-reset{margin-left:.5rem;vertical-align:baseline}" +
     ".lf-werkzeug{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:.9rem}" +
     ".lf-werkzeug select{flex:1 1 220px;min-width:0;max-width:100%;padding:.45rem .6rem;border:1.5px solid var(--line);border-radius:10px;font:inherit;font-weight:700}" +
     ".lf-mehr{margin-top:.6rem}" +
@@ -891,12 +902,31 @@
   function stand(kind, m) {
     var p = kind.module[m];
     if (!p || !p.g) return null;
-    var ids = Object.keys(p.g);
-    if (!ids.length) return null;
+    var ids = Object.keys(p.g), v = p.v || null;
+    // Begonnen heißt: etwas gelöst – oder (wo Fehlversuche gezählt werden) schon etwas falsch geprüft
+    if (!ids.length && !(v && Object.keys(v).some(function (id) { return v[id] > 0; }))) return null;
     var auf = modulAufgaben(m), geloest, gesamt;
     if (auf) { geloest = auf.filter(function (a) { return p.g[a]; }).length; gesamt = auf.length; }
     else { geloest = ids.length; gesamt = Math.max(p.t || 0, ids.length); }
-    return { geloest: geloest, gesamt: gesamt, pct: gesamt ? Math.round(geloest / gesamt * 100) : 0, profi: Boolean(p.g.quiz), zeit: p.z || 0 };
+    return { geloest: geloest, gesamt: gesamt, pct: gesamt ? Math.round(geloest / gesamt * 100) : 0, profi: Boolean(p.g.quiz), zeit: p.z || 0,
+      versuche: versuchZahlen(p, auf || ids) };
+  }
+  // Fehlversuche (p.v, erst nur NT 7): wie viele Aufgaben auf Anhieb richtig waren, wie viele erst nach Fehlversuchen,
+  // wie viele Fehlversuche es insgesamt waren und wie viele Aufgaben mit Fehlversuchen noch offen sind. null = nicht gezählt.
+  function versuchZahlen(p, aufgaben) {
+    if (!p.v) return null;
+    var z = { anhieb: 0, mehrfach: 0, fehl: 0, offen: 0 };
+    aufgaben.forEach(function (id) {
+      var n = p.v[id];
+      if (n === undefined) return;
+      z.fehl += n;
+      if (p.g[id]) { if (n > 0) z.mehrfach++; else z.anhieb++; } else if (n > 0) z.offen++;
+    });
+    return z;
+  }
+  function versuchText(z) {
+    return z.anhieb + " auf Anhieb richtig" + (z.mehrfach ? ", " + z.mehrfach + " erst nach Fehlversuchen" : "") +
+      (z.offen ? ", " + z.offen + " mit Fehlversuchen noch offen" : "") + (z.fehl ? " (" + z.fehl + (z.fehl === 1 ? " Fehlversuch" : " Fehlversuche") + ")" : "");
   }
   function zuletzt(kind) {
     var z = 0;
@@ -1032,16 +1062,18 @@
         h += '<tr class="kind' + (auf ? " auf" : "") + '" data-code="' + esc(kind.code) + '" title="Klicken für alle Aufgaben">' +
           '<td class="lf-name">' + (kind.name ? esc(kind.name) : '<span class="lf-leer">ohne Namen</span>') + "</td>" +
           '<td class="lf-code">' + esc(kind.code) + "</td>";
-        M.forEach(function (m) { h += '<td class="lf-zelle">' + zelle(stand(kind, m.id)) + "</td>"; });
+        M.forEach(function (m) { h += '<td class="lf-zelle">' + zelle(stand(kind, m.id), kind.module[m.id]) + "</td>"; });
         h += '<td class="lf-zeit">' + zeitText(zuletzt(kind)) + "</td></tr>";
         if (auf) h += '<tr class="lf-detail"><td colspan="' + (M.length + 3) + '">' + detail(kind) + "</td></tr>";
       });
       h += "</tbody></table></div>" +
-        '<p class="sub" style="margin:.5rem 0 0">Farben: rot unter 40 %, gelb ab 40 %, grün ab 80 %.' + (ANSICHT === "nt9" ? " 🏆 = Profi-Check (Abschlussquiz) bestanden." : " Gezählt werden Aufgaben, die das Kind richtig gelöst hat (nicht „Lösung zeigen“).") + "</p>";
+        '<p class="sub" style="margin:.5rem 0 0">Farben: rot unter 40 %, gelb ab 40 %, grün ab 80 %.' + (ANSICHT === "nt9" ? " 🏆 = Profi-Check (Abschlussquiz) bestanden." : " Gezählt werden Aufgaben, die das Kind richtig gelöst hat (nicht „Lösung zeigen“).") +
+        (VERSUCH_KURSE.indexOf(ANSICHT) >= 0 ? " 🎯 = auf Anhieb richtig, 🔁 = erst nach Fehlversuchen gelöst, ✗ = falsch geprüft und noch offen. Viele 🔁 können heißen, dass ein Kind die Lösungen durchprobiert. Gezählt wird seit dem 12.10.2026; offene Fragen mit KI, Bilder zum Erkunden und Animationen zählen nicht mit." : "") + "</p>";
       h += '<h3 class="lf-h3">Klassenauswertung: Was sollte ich wiederholen?</h3>' +
         '<div class="lf-werkzeug"><label for="lf-modul" style="margin:0">Übung</label><select id="lf-modul">' +
         M.map(function (m) { return '<option value="' + esc(m.id) + '"' + (m.id === AUSWERTUNG_MODUL ? " selected" : "") + ">" + esc(kurzName(m)) + ": " + esc(m.titel) + "</option>"; }).join("") +
-        "</select></div>" + auswertung(liste, AUSWERTUNG_MODUL);
+        "</select>" + (RESET_KURSE.indexOf(ANSICHT) >= 0 ? '<button class="btn btn-ghost btn-sm" id="lf-reset-klasse" type="button">↺ Für die ganze Klasse zurücksetzen</button>' : "") +
+        "</div>" + auswertung(liste, AUSWERTUNG_MODUL);
       // Vokabeltrainer: Fehlerwörter der Klasse. (NT 8 legt an derselben Stelle den Stand der Lernkarten ab – der steht
       // in der Lernstandsdiagnose, nicht hier.)
       var mitFehlern = ANSICHT === "nt8" ? [] : M.filter(function (m) { return liste.some(function (k) { var p = k.module[m.id]; return p && p.f && Object.keys(p.f).length; }); });
@@ -1072,28 +1104,58 @@
     if (fWahl) fWahl.addEventListener("change", function (e) { FEHLER_MODUL = e.target.value; fachZeichnen(teil); });
     $("lf-reload").addEventListener("click", function () { fachLaden(teil); });
     $("lf-csv").addEventListener("click", csv);
+    Array.prototype.forEach.call(teil.querySelectorAll(".lf-reset"), function (b) {
+      b.addEventListener("click", function (e) { e.stopPropagation(); modulZuruecksetzen(teil, b.getAttribute("data-modul"), b.getAttribute("data-titel"), b.getAttribute("data-code")); });
+    });
+    var resetKlasse = $("lf-reset-klasse");
+    if (resetKlasse) resetKlasse.addEventListener("click", function () {
+      var m = SICHT.filter(function (x) { return x.id === AUSWERTUNG_MODUL; })[0];
+      if (m) modulZuruecksetzen(teil, m.id, kurzName(m) + ": " + m.titel, "");
+    });
   }
 
-  function zelle(st) {
-    if (!st) return '<span class="lf-pct lf-leer">–</span>';
+  // Ein Modul zurücksetzen: für ein Kind (code) oder für die ganze Klasse. Der Server löscht gelöste Aufgaben und
+  // Fehlversuche; die Geräte der Kinder leeren ihren eigenen Stand, sobald sie das Modul oder die Übersicht öffnen.
+  function modulZuruecksetzen(teil, modul, titel, code) {
+    var name = code ? nameVon(code) : "";
+    var wer = code ? "für Code " + code + (name ? " (" + name + ")" : "") : "für die ganze Klasse " + KLASSE;
+    if (!global.confirm("„" + titel + "“ " + wer + " zurücksetzen?\n\nAlle gelösten Aufgaben und Fehlversuche in diesem Modul werden gelöscht. " +
+      (code ? "Das Kind beginnt" : "Die Kinder beginnen") + " das Modul neu.\n\nDas lässt sich nicht rückgängig machen.")) return;
+    post("zuruecksetzen", code ? { modul: modul, code: code } : { modul: modul, klasse: KLASSE }).then(function (d) {
+      hinweis(code ? "„" + titel + "“ ist für Code " + code + " zurückgesetzt."
+        : "„" + titel + "“ ist für " + d.anzahl + (d.anzahl === 1 ? " Kind" : " Kinder") + " der Klasse " + KLASSE + " zurückgesetzt.", "ok");
+      fachLaden(teil);
+    }).catch(function (e) { hinweis("Das Zurücksetzen hat nicht geklappt: " + e.message, "bad"); });
+  }
+
+  function zelle(st, p) {
+    if (!st) return p && p.r ? '<span class="lf-pct lf-leer" title="zurückgesetzt ' + esc(zeitText(p.r)) + '">↺ neu</span>' : '<span class="lf-pct lf-leer">–</span>';
+    var z = st.versuche;
     return '<div class="lf-bar lf-g' + stufe(st.pct) + '"><i style="width:' + st.pct + '%"></i></div>' +
       '<span class="lf-pct" title="' + st.geloest + " von " + st.gesamt + ' Aufgaben">' + st.pct + " % <span class=\"lf-leer\">(" + st.geloest + "/" + st.gesamt + ")</span>" +
-      (st.profi ? '<span class="lf-profi" title="Profi-Check bestanden">🏆</span>' : "") + "</span>";
+      (st.profi ? '<span class="lf-profi" title="Profi-Check bestanden">🏆</span>' : "") + "</span>" +
+      (z ? '<span class="lf-vers" title="' + esc(versuchText(z)) + '">🎯 ' + z.anhieb + (z.mehrfach ? ' · <b class="w">🔁 ' + z.mehrfach + "</b>" : "") +
+        (z.offen ? ' · <b class="f">✗ ' + z.offen + "</b>" : "") + "</span>" : "");
   }
 
   // Alle Aufgaben eines Kindes, nach Übung und Station
   function detail(kind) {
-    var h = "";
+    var h = "", darfReset = RESET_KURSE.indexOf(ANSICHT) >= 0;
     SICHT.forEach(function (m) {
       var p = kind.module[m.id], k = DATEN.katalog[m.id], st = stand(kind, m.id);
-      h += '<div class="lf-mod"><h4>' + esc(kurzName(m)) + ": " + esc(m.titel) + (st ? " · " + st.geloest + " von " + st.gesamt + " gelöst" : " · noch nicht begonnen") + "</h4>";
+      h += '<div class="lf-mod"><h4>' + esc(kurzName(m)) + ": " + esc(m.titel) + (st ? " · " + st.geloest + " von " + st.gesamt + " gelöst" : " · noch nicht begonnen") +
+        (st && st.versuche ? ' <span class="lf-rinfo">· ' + esc(versuchText(st.versuche)) + "</span>" : "") +
+        (darfReset && st ? ' <button class="btn btn-ghost btn-sm lf-reset" type="button" data-code="' + esc(kind.code) + '" data-modul="' + esc(m.id) + '" data-titel="' + esc(kurzName(m) + ": " + m.titel) + '">↺ zurücksetzen</button>' : "") + "</h4>";
+      if (p && p.r) h += '<p class="lf-rinfo">↺ ' + (p.rw === "l" ? "Von der Lehrkraft zurückgesetzt" : "Das Kind hat das Modul neu begonnen") + " · " + esc(zeitText(p.r)) + (p.rn > 1 ? " (insgesamt " + p.rn + "-mal zurückgesetzt)" : "") + "</p>";
       if (st && k) {
         var stationen = {}, reihe = [];
         Object.keys(k).forEach(function (id) { var s = k[id][1] || "–"; reihe.push(s); (stationen[s] = stationen[s] || []).push(id); });
         Object.keys(stationen).sort(stationOrdnung(reihe)).forEach(function (s) {
           h += '<div class="lf-st">' + esc(stationText(s)) + (s === "Plus" && zugBuchstabe(KLASSE) === "R" ? " (freiwillig)" : "") + '</div><div class="lf-aufg">' + stationen[s].map(function (id) {
-            var ok = p && p.g && p.g[id];
-            return '<span class="lf-a ' + (ok ? "ok" : "no") + '"' + (ok ? ' title="gelöst ' + esc(zeitText(p.g[id])) + '"' : "") + ">" + (ok ? "✓ " : "○ ") + esc(k[id][0]) + "</span>";
+            var ok = p && p.g && p.g[id], vn = p && p.v ? p.v[id] : undefined, mehr = vn > 0;
+            var zusatz = ok ? (vn === 0 ? " · auf Anhieb" : mehr ? " · nach " + vn + (vn === 1 ? " Fehlversuch" : " Fehlversuchen") : "") : (mehr ? " · " + vn + "× falsch" : "");
+            return '<span class="lf-a ' + (ok ? "ok" : "no") + (mehr ? (ok ? " mehr" : " fehl") : "") + '"' + (ok ? ' title="gelöst ' + esc(zeitText(p.g[id])) + '"' : "") + ">" + (ok ? "✓ " : "○ ") + esc(k[id][0]) +
+              (zusatz ? '<span class="lf-vz">' + esc(zusatz) + "</span>" : "") + "</span>";
           }).join("") + "</div>";
         });
       } else if (st) {
@@ -1113,12 +1175,14 @@
     var ordnung = stationOrdnung(Object.keys(k).map(function (id) { return k[id][1] || ""; }));
     var zeilen = Object.keys(k).map(function (id) {
       var n = begonnen.filter(function (kind) { return kind.module[m].g[id]; }).length;
-      return { id: id, label: k[id][0], st: k[id][1], n: n, pct: Math.round(n / begonnen.length * 100) };
+      var mehr = begonnen.filter(function (kind) { return ((kind.module[m].v || {})[id] || 0) > 0; }).length;
+      return { id: id, label: k[id][0], st: k[id][1], n: n, mehr: mehr, pct: Math.round(n / begonnen.length * 100) };
     }).sort(function (a, b) { return a.pct - b.pct || ordnung(a.st || "", b.st || ""); });
     var sichtbar = ALLE_AUFGABEN ? zeilen : zeilen.slice(0, KURZ);
     return '<p class="sub" style="margin-top:.7rem">' + begonnen.length + " von " + liste.length + " Kindern haben diese Übung begonnen. Oben stehen die Aufgaben, die am wenigsten gelöst wurden – sie waren schwer oder wurden noch nicht bearbeitet.</p>" +
       '<div class="lf-rang">' + sichtbar.map(function (z) {
-        return '<div class="lf-rang-z"><span>' + (/^\d+$/.test(z.st || "") ? '<span class="lf-stn">' + esc(stationKurz(z.st)) + "</span> " : "") + esc(z.label) + "</span>" +
+        return '<div class="lf-rang-z"><span>' + (/^\d+$/.test(z.st || "") ? '<span class="lf-stn">' + esc(stationKurz(z.st)) + "</span> " : "") + esc(z.label) +
+          (z.mehr ? ' <span class="lf-leer">· ' + z.mehr + (z.mehr === 1 ? " Kind" : " Kinder") + " mit Fehlversuchen</span>" : "") + "</span>" +
           '<div class="lf-bar lf-g' + stufe(z.pct) + '"><i style="width:' + z.pct + '%"></i></div><b>' + z.n + "/" + begonnen.length + "</b></div>";
       }).join("") + "</div>" +
       (zeilen.length > KURZ ? '<button class="btn btn-ghost btn-sm lf-mehr" id="lf-mehr" type="button">' +
