@@ -853,7 +853,12 @@
 
     // Lernstand mit Code (js/lernstand.js): Stand oben, gelöste Aufgaben an die Lehrkraft
     if (global.Lernstand && !vorschau) {
+      // Modul neu beginnen: nur, wo die Kursliste es einschaltet (RESET – seit dem 12.10.2026 Deutsch 7)
+      var kursliste = cfg.liste ? global[cfg.liste.name] : null;
       global.Lernstand.seite({
+        reset: Boolean(kursliste && kursliste.RESET),
+        zurueckgesetzt: function () { try { global.localStorage.removeItem(KEY); } catch (_e) {} geloest = {}; },
+        hatStand: function () { return Object.keys(geloest).length > 0; },
         kurs: cfg.kurs, bereich: cfg.bereich, bnr: cfg.bnr, modul: MODUL, nr: cfg.lsNr || cfg.nr, kurz: cfg.kurz || cfg.kurzPrefix + cfg.nr, titel: cfg.titel,
         aufgaben: karten.map(function (k) { return { id: k.id, teil: k.plus ? "Plus" : "Basis", kurz: k.kurz, text: ohneFmt(k.a.t).slice(0, 100), el: k.el }; }),
         anker: $("#verstehen"), abzeichenIn: ".aufg-kopf h3",

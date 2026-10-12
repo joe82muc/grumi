@@ -237,6 +237,28 @@
     } catch (_) {}
   }
 
+  // Modul neu begonnen (themen.js: RESET, seit dem 12.10.2026 in Deutsch 7): Kennt der Server ein neueres Zurücksetzen
+  // als dieses Gerät – das Kind hat an einem anderen Gerät neu begonnen oder die Lehrkraft hat zurückgesetzt –, leert
+  // die Übersicht den alten Stand des Geräts für dieses Modul. Sonst zählte sie die früher gelösten Aufgaben weiter mit,
+  // bis das Kind das Modul öffnet. (Der Führerschein hat keinen Stand auf dem Gerät: Seine Stufen kommen vom Server.)
+  function resetsAnwenden(a, fortschritt) {
+    if (!D7.RESET || !a || !a.kennung || a.klasse === "Lehrkraft") return;
+    THEMEN.forEach(t => t.module.forEach(m => {
+      if (!m.key) return;
+      const id = "d" + DNR + "-" + m.id, r = (fortschritt[id] || {}).r || 0, rKey = "grumi-reset~" + a.kennung + "~" + id;
+      try {
+        if (!r || r <= (parseInt(localStorage.getItem(rKey), 10) || 0)) return;
+        const vorn = m.key + "~" + a.kennung + "~", ls = "-" + id + "~" + a.kennung + "~", weg = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && (k.indexOf(vorn) === 0 || (k.indexOf("grumi-ls-") === 0 && k.slice(-ls.length) === ls))) weg.push(k);
+        }
+        weg.forEach(k => localStorage.removeItem(k));
+        localStorage.setItem(rKey, String(r));
+      } catch (_e) {}
+    }));
+  }
+
   // Stand der Freischaltung holen (erst vom Gerät, dann vom Server), dazu den Lernstand des Kindes vom Server
   function laden() {
     const a = Modul.codeSitzung();
@@ -247,7 +269,7 @@
     D7.freigabe(a, stand => { STAND = stand; HINWEIS = ""; zeichnen(); }, text => { if (text) { HINWEIS = text; zeichnen(); } });
     if (!a) return;
     fetch(D7.API + "/api/nt9/fortschritt/anmelden", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({code: a.code})})
-      .then(r => r.json()).then(d => { if (d && d.ok && d.fortschritt) { SERVER = d.fortschritt; zeichnen(); } }).catch(() => {});
+      .then(r => r.json()).then(d => { if (d && d.ok && d.fortschritt) { SERVER = d.fortschritt; resetsAnwenden(a, d.fortschritt); zeichnen(); } }).catch(() => {});
     // Eigene Proben: abgegeben oder korrigiert zurück (mit dem Lehrercode gibt es keine)
     fetch(D7.API + DAPI + "/proben/meine", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({code: a.code})})
       .then(r => r.json()).then(d => { if (d && d.ok) { MEINE = d.abgaben || []; zeichnen(); } }).catch(() => {});

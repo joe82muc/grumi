@@ -29,9 +29,10 @@
   var namenHoerer = false;
   var DATEN = null, NOTEN = null, BEREICH = "", SICHT = [], OFFEN = {}, AUSWERTUNG_MODUL = "", ALLE_AUFGABEN = false, FEHLER_MODUL = "";
   var KURZ = 12; // so viele Aufgaben zeigt die Klassenauswertung zuerst
-  // Erprobung seit 12.10.2026, erst nur NT 7: Die Module zählen Fehlversuche je Aufgabe (VERSUCH_KURSE), und Kind wie
-  // Lehrkraft können ein Modul zurücksetzen (RESET_KURSE – der Server erlaubt es ebenfalls nur für diese Kurse).
-  var VERSUCH_KURSE = ["nt7"], RESET_KURSE = ["nt7"];
+  // Erprobung seit 12.10.2026: In NT 7 zählen die Module Fehlversuche je Aufgabe (VERSUCH_KURSE). In NT 7 und
+  // Deutsch 7 können Kind und Lehrkraft ein Modul zurücksetzen (RESET_KURSE – der Server erlaubt es ebenfalls nur für
+  // diese Kurse). Hatte das Kind das Modul vorher schon abgeschlossen, bleibt das hier vermerkt (abText).
+  var VERSUCH_KURSE = ["nt7"], RESET_KURSE = ["nt7", "d7"];
   var GRUMI_URL = "https://joe82muc.github.io/grumi";
   var GRUMI_QR = "images/grumi-qr-code.svg";
   var FACH_ICON = { nt: "🔬", gpg: "🌍", d: "📖", e: "💬", i: "💻" };
@@ -135,6 +136,8 @@
     ".lf-vers b.w{color:#c2410c}.lf-vers b.f{color:#b91c1c}" +
     ".lf-rinfo{font-size:.8rem;font-weight:600;color:var(--muted)}" +
     "p.lf-rinfo{margin:0 0 .35rem}" +
+    ".lf-ab{display:block;margin-top:1px;font-size:.72rem;font-weight:800;color:#0f5b2c;white-space:nowrap}" +
+    "p.lf-ab{display:inline-block;margin:0 0 .35rem;padding:.2rem .6rem;border:1px solid var(--ok-line);border-radius:8px;background:var(--ok-bg);font-size:.8rem;white-space:normal}" +
     ".lf-mod h4 .lf-reset{margin-left:.5rem;vertical-align:baseline}" +
     ".lf-werkzeug{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:.9rem}" +
     ".lf-werkzeug select{flex:1 1 220px;min-width:0;max-width:100%;padding:.45rem .6rem;border:1.5px solid var(--line);border-radius:10px;font:inherit;font-weight:700}" +
@@ -1068,7 +1071,8 @@
       });
       h += "</tbody></table></div>" +
         '<p class="sub" style="margin:.5rem 0 0">Farben: rot unter 40 %, gelb ab 40 %, grün ab 80 %.' + (ANSICHT === "nt9" ? " 🏆 = Profi-Check (Abschlussquiz) bestanden." : " Gezählt werden Aufgaben, die das Kind richtig gelöst hat (nicht „Lösung zeigen“).") +
-        (VERSUCH_KURSE.indexOf(ANSICHT) >= 0 ? " 🎯 = auf Anhieb richtig, 🔁 = erst nach Fehlversuchen gelöst, ✗ = falsch geprüft und noch offen. Viele 🔁 können heißen, dass ein Kind die Lösungen durchprobiert. Gezählt wird seit dem 12.10.2026; offene Fragen mit KI, Bilder zum Erkunden und Animationen zählen nicht mit." : "") + "</p>";
+        (VERSUCH_KURSE.indexOf(ANSICHT) >= 0 ? " 🎯 = auf Anhieb richtig, 🔁 = erst nach Fehlversuchen gelöst, ✗ = falsch geprüft und noch offen. Viele 🔁 können heißen, dass ein Kind die Lösungen durchprobiert. Gezählt wird seit dem 12.10.2026; offene Fragen mit KI, Bilder zum Erkunden und Animationen zählen nicht mit." : "") +
+        (RESET_KURSE.indexOf(ANSICHT) >= 0 ? " ↺ = Das Modul wurde neu begonnen (vom Kind oder von dir) – die Zahlen zeigen den neuen Durchgang. „✓ schon abgeschlossen“ = Das Kind hatte das Modul vor dem Neubeginn schon ganz gelöst." : "") + "</p>";
       h += '<h3 class="lf-h3">Klassenauswertung: Was sollte ich wiederholen?</h3>' +
         '<div class="lf-werkzeug"><label for="lf-modul" style="margin:0">Übung</label><select id="lf-modul">' +
         M.map(function (m) { return '<option value="' + esc(m.id) + '"' + (m.id === AUSWERTUNG_MODUL ? " selected" : "") + ">" + esc(kurzName(m)) + ": " + esc(m.titel) + "</option>"; }).join("") +
@@ -1128,14 +1132,32 @@
     }).catch(function (e) { hinweis("Das Zurücksetzen hat nicht geklappt: " + e.message, "bad"); });
   }
 
+  // Modul neu begonnen: Was war vorher? p.ab = das Kind hatte das Modul schon ganz gelöst (Zeitpunkt der letzten
+  // Aufgabe), p.abn = wie oft; p.rv = [gelöst, gesamt] vor dem letzten Zurücksetzen. So sieht ein neu begonnenes Modul
+  // nicht aus, als hätte das Kind nichts getan.
+  function abText(p) {
+    if (!p || !p.ab) return "";
+    return "Das Kind hatte dieses Modul schon vollständig abgeschlossen (" + zeitText(p.ab) + (p.abn > 1 ? ", insgesamt " + p.abn + "-mal" : "") + ") und danach neu begonnen.";
+  }
+  function vorherText(p) {
+    return p && p.rv && p.rv[1] ? "vorher " + p.rv[0] + " von " + p.rv[1] + " gelöst" : "";
+  }
+  function abMarke(p) {
+    return p && p.ab ? '<span class="lf-ab" title="' + esc(abText(p)) + '">✓ schon abgeschlossen' + (p.abn > 1 ? " (" + p.abn + "×)" : "") + "</span>" : "";
+  }
   function zelle(st, p) {
-    if (!st) return p && p.r ? '<span class="lf-pct lf-leer" title="zurückgesetzt ' + esc(zeitText(p.r)) + '">↺ neu</span>' : '<span class="lf-pct lf-leer">–</span>';
+    if (!st) {
+      if (!(p && p.r)) return '<span class="lf-pct lf-leer">–</span>';
+      var vorher = vorherText(p);
+      return abMarke(p) + '<span class="lf-pct lf-leer" title="zurückgesetzt ' + esc(zeitText(p.r)) + (vorher ? " · " + esc(vorher) : "") + '">↺ neu' +
+        (!p.ab && vorher ? " (vorher " + p.rv[0] + "/" + p.rv[1] + ")" : "") + "</span>";
+    }
     var z = st.versuche;
     return '<div class="lf-bar lf-g' + stufe(st.pct) + '"><i style="width:' + st.pct + '%"></i></div>' +
       '<span class="lf-pct" title="' + st.geloest + " von " + st.gesamt + ' Aufgaben">' + st.pct + " % <span class=\"lf-leer\">(" + st.geloest + "/" + st.gesamt + ")</span>" +
       (st.profi ? '<span class="lf-profi" title="Profi-Check bestanden">🏆</span>' : "") + "</span>" +
       (z ? '<span class="lf-vers" title="' + esc(versuchText(z)) + '">🎯 ' + z.anhieb + (z.mehrfach ? ' · <b class="w">🔁 ' + z.mehrfach + "</b>" : "") +
-        (z.offen ? ' · <b class="f">✗ ' + z.offen + "</b>" : "") + "</span>" : "");
+        (z.offen ? ' · <b class="f">✗ ' + z.offen + "</b>" : "") + "</span>" : "") + abMarke(p);
   }
 
   // Alle Aufgaben eines Kindes, nach Übung und Station
@@ -1146,7 +1168,9 @@
       h += '<div class="lf-mod"><h4>' + esc(kurzName(m)) + ": " + esc(m.titel) + (st ? " · " + st.geloest + " von " + st.gesamt + " gelöst" : " · noch nicht begonnen") +
         (st && st.versuche ? ' <span class="lf-rinfo">· ' + esc(versuchText(st.versuche)) + "</span>" : "") +
         (darfReset && st ? ' <button class="btn btn-ghost btn-sm lf-reset" type="button" data-code="' + esc(kind.code) + '" data-modul="' + esc(m.id) + '" data-titel="' + esc(kurzName(m) + ": " + m.titel) + '">↺ zurücksetzen</button>' : "") + "</h4>";
-      if (p && p.r) h += '<p class="lf-rinfo">↺ ' + (p.rw === "l" ? "Von der Lehrkraft zurückgesetzt" : "Das Kind hat das Modul neu begonnen") + " · " + esc(zeitText(p.r)) + (p.rn > 1 ? " (insgesamt " + p.rn + "-mal zurückgesetzt)" : "") + "</p>";
+      if (p && p.ab) h += '<p class="lf-ab">✓ ' + esc(abText(p)) + "</p><br>";
+      if (p && p.r) h += '<p class="lf-rinfo">↺ ' + (p.rw === "l" ? "Von der Lehrkraft zurückgesetzt" : "Das Kind hat das Modul neu begonnen") + " · " + esc(zeitText(p.r)) + (p.rn > 1 ? " (insgesamt " + p.rn + "-mal zurückgesetzt)" : "") +
+        (vorherText(p) ? " · " + esc(vorherText(p)) : "") + "</p>";
       if (st && k) {
         var stationen = {}, reihe = [];
         Object.keys(k).forEach(function (id) { var s = k[id][1] || "–"; reihe.push(s); (stationen[s] = stationen[s] || []).push(id); });
@@ -1216,7 +1240,11 @@
     kinder().forEach(function (k) {
       var st = M.map(function (m) { return stand(k, m.id); });
       zeilen.push([k.klasse, k.code, nameVon(k.code)]
-        .concat(st.map(function (s) { return s ? s.pct : ""; }), st.map(function (s) { return s ? s.geloest + "/" + s.gesamt : ""; }))
+        .concat(st.map(function (s) { return s ? s.pct : ""; }), st.map(function (s, i) {
+          // neu begonnenes Modul: dazuschreiben, wenn das Kind es vorher schon abgeschlossen hatte
+          var p = k.module[M[i].id], ab = p && p.ab ? "schon abgeschlossen, neu begonnen" : "";
+          return (s ? s.geloest + "/" + s.gesamt : "") + (ab ? (s ? " · " : "") + ab : "");
+        }))
         .concat(ANSICHT === "nt9" ? [st.filter(function (s) { return s && s.profi; }).length] : [], [zeitText(zuletzt(k))]));
     });
     datei(zeilen, "lernfortschritt-" + KLASSE + "-" + ANSICHT + "-" + String(BEREICH).toLowerCase().replace(/[^a-z0-9äöü]+/g, "-") + "-" + new Date().toISOString().slice(0, 10) + ".csv");

@@ -387,7 +387,12 @@
     idAusKey: idAusKey, zug: zug, probeId: probeId,
     // Angaben für die Bausteine von NT 7 (Seiten mit ../NT/modul-basis.js)
     KURS: "d7", NR: 7, NAME: "Deutsch 7", PREFIX: PREFIX, WORT: "Modul", DAS: "das Modul", ES: "es",
-    SPERRE: "Dieses Modul ist noch nicht freigeschaltet", ZURUECK: "📚 Zur Übersicht Deutsch 7"
+    SPERRE: "Dieses Modul ist noch nicht freigeschaltet", ZURUECK: "📚 Zur Übersicht Deutsch 7",
+    // Seit dem 12.10.2026 wie in NT 7: Kind und Lehrkraft können ein Modul neu beginnen (Knopf im Kasten „Dein Stand“
+    // jeder Modulseite, in der Verwaltung „↺ zurücksetzen“). Der Server erlaubt es je Kurs (RESET_KURSE). Die
+    // Verwaltung vermerkt, wenn das Kind das Modul vorher schon abgeschlossen hatte. Fehlversuche (VERSUCHE) zählt
+    // Deutsch 7 nicht.
+    RESET: true
   };
   // Seiten, die die NT-7-Bausteine nutzen, finden die Kursliste hier (nicht in der Verwaltung: dort stehen mehrere Listen)
   if (!global.GRUMI_KURS && !/proben-verwalten/.test(global.location.pathname)) global.GRUMI_KURS = global.D7;

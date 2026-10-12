@@ -20,7 +20,7 @@
  *                                 dialog: false   (Seite meldet selbst an, z. B. Deutsch 7),
  *                                 fehlerGeladen: function (f) {…}   (Fehlerwörter vom Server, Vokabeltrainer),
  *                                 freiwillig: function (a) {…}   (true = zählt nicht zum Balken, z. B. Plus-Aufgaben für R-Klassen),
- *                                 reset: true   (Knopf „Modul neu beginnen“; erst nur NT 7 – der Server erlaubt es je Kurs),
+ *                                 reset: true   (Knopf „Modul neu beginnen“; NT 7 und Deutsch 7 – der Server erlaubt es je Kurs),
  *                                 zurueckgesetzt: function () {…}   (die Seite leert ihren eigenen Speicher, dann lädt sie neu),
  *                                 hatStand: function () {…}   (true = die Seite hat zu dem Modul etwas gespeichert),
  *                                 versucheGeladen: function (v) {…}   (Fehlversuche vom Server, anderes Gerät) })
@@ -302,7 +302,7 @@
     if (neu) neu.addEventListener("click", resetDialog);
   }
 
-  /* ---------- Ein Modul neu beginnen (cfg.reset; erst nur NT 7) ----------
+  /* ---------- Ein Modul neu beginnen (cfg.reset; NT 7 und Deutsch 7) ----------
      Der Server merkt sich je Modul den Zeitpunkt des letzten Zurücksetzens (r). Jedes Gerät merkt sich, bis zu welchem
      r es seinen Stand geleert hat. Ist der Server weiter – das Kind hat an einem anderen Gerät neu begonnen oder die
      Lehrkraft hat zurückgesetzt –, leert das Gerät den Stand des Moduls und lädt die Seite neu. */

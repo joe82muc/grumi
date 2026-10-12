@@ -72,19 +72,129 @@ function reportStages() {
   const code = codeSession();
   if (PREVIEW || !code || !state.student || state.student.code !== code.code) return;
   const stages = state.config.stages.filter((stage) => state.progress.stages[String(stage.id)]?.passed);
-  const key = `grumi-de7-stufen~${code.kennung}~`; // so viele Stufen kennt der Lernstand schon (je Kind auf diesem Gerät)
+  // reset: Zeitpunkt, zu dem das Modul zuletzt neu begonnen wurde – der Lernstand nimmt nur Meldungen mit diesem Stand an
+  const reset = state.progress.reset || 0;
+  const key = stagesKey(code); // so viele Stufen kennt der Lernstand schon (je Kind auf diesem Gerät)
+  const stand = stages.length + (reset ? "@" + reset : "");
   let known = "";
   try { known = localStorage.getItem(key) || ""; } catch (_e) {}
-  if (!stages.length || known === String(stages.length)) return;
+  if (!stages.length || known === stand) return;
   const katalog = {};
   state.config.stages.forEach((stage) => { katalog[`${STAGE_MODULE}-s${stage.id}`] = [`Stufe ${stage.id}: ${stage.title}`, "Stufen"]; });
   fetch(`${API_BASE}/api/nt9/fortschritt/melden`, {
     method: "POST", headers: { "content-type": "application/json" },
     body: JSON.stringify({
       code: code.code, klasse: code.klasse, modul: STAGE_MODULE, geloest: stages.map((stage) => `${STAGE_MODULE}-s${stage.id}`), gesamt: state.config.stages.length, katalog,
-      meta: { bereich: "Argumentieren und diskutieren", bnr: 3, titel: "Argumentations-Führerschein", kurz: "Modul 1", nr: 1 }
+      meta: { bereich: "Argumentieren und diskutieren", bnr: 3, titel: "Argumentations-Führerschein", kurz: "Modul 1", nr: 1 },
+      ...(reset ? { r: reset } : {})
     })
-  }).then((response) => { if (response.ok) { try { localStorage.setItem(key, String(stages.length)); } catch (_e) {} } }).catch(() => {});
+  }).then((response) => (response.ok ? response.json() : null)).then((data) => {
+    if (!data || !data.ok) return;
+    // Inzwischen zurückgesetzt (Lehrkraft oder anderes Gerät): Der Lernstand hat nichts übernommen – Stand neu holen
+    if (data.zurueckgesetzt) { refreshProgress(); return; }
+    try { localStorage.setItem(key, stand); } catch (_e) {}
+  }).catch(() => {});
+}
+
+/* Modul neu beginnen (seit dem 12.10.2026, wie in den anderen Deutsch-7-Modulen; Schalter RESET in themen.js)
+   Der Lernstand der Klasse merkt sich, wann der Führerschein zuletzt zurückgesetzt wurde; der Server zählt für die
+   Stufen nur noch Fassungen danach (state.progress.reset). Die älteren Fassungen sieht die Lehrkraft weiterhin.
+   Auf dem Gerät werden die Entwürfe des Kindes gelöscht – auch dann, wenn die Lehrkraft zurückgesetzt hat oder das
+   Kind an einem anderen Gerät neu begonnen hat (applyReset). */
+const stagesKey = (code) => `grumi-de7-stufen~${code.kennung}~`;
+const resetKey = (code) => `grumi-reset~${code.kennung}~${STAGE_MODULE}`;
+function resetAllowed() {
+  const code = codeSession();
+  return Boolean(!PREVIEW && window.D7 && window.D7.RESET && code && code.klasse !== "Lehrkraft" && state.token && state.student && state.student.code === code.code);
+}
+function clearLocalWork(code) {
+  const mine = `${state.student.firstName}|${state.student.lastName}|${state.student.className}|`.toLocaleLowerCase("de");
+  try {
+    const drafts = readDrafts();
+    Object.keys(drafts).forEach((k) => { if (k.indexOf(mine) === 0) delete drafts[k]; });
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(drafts));
+    localStorage.removeItem(stagesKey(code));
+  } catch (_e) {}
+  state.exerciseIds = {};
+  state.feedback = null;
+  state.counterArgument = "";
+  if (dom.feedbackSection) dom.feedbackSection.hidden = true;
+  persistSession();
+}
+function applyReset() {
+  const code = codeSession(), reset = state.progress.reset || 0;
+  if (!reset || !code || !state.student || state.student.code !== code.code) return;
+  let known = 0;
+  try { known = parseInt(localStorage.getItem(resetKey(code)), 10) || 0; } catch (_e) {}
+  if (reset <= known) return;
+  clearLocalWork(code);
+  try { localStorage.setItem(resetKey(code), String(reset)); } catch (_e) {}
+}
+async function refreshProgress() {
+  try {
+    const result = await api("/api/de7-argument/progress", { method: "GET" });
+    state.progress = result.progress;
+    renderAll();
+  } catch (_error) { /* bleibt beim bekannten Stand */ }
+}
+function renderResetButton() {
+  let row = document.getElementById("resetRow");
+  if (!resetAllowed()) { if (row) row.remove(); return; }
+  if (row || !dom.licenceResult) return;
+  row = element("p", "reset-row");
+  row.id = "resetRow";
+  row.style.cssText = "margin:14px 0 0;text-align:right";
+  const button = element("button", "", "↺ Modul neu beginnen");
+  button.type = "button";
+  button.id = "resetButton";
+  button.style.cssText = "border:1.5px solid #dce4f0;background:#fff;border-radius:999px;padding:5px 13px;font:inherit;font-weight:700;font-size:.85rem;cursor:pointer;color:#5d6b84";
+  button.addEventListener("click", openResetDialog);
+  row.append(button);
+  dom.licenceResult.insertAdjacentElement("afterend", row);
+}
+function openResetDialog() {
+  if (!resetAllowed()) return;
+  document.getElementById("resetDialog")?.remove();
+  const dialog = element("dialog", "login-dialog");
+  dialog.id = "resetDialog";
+  dialog.innerHTML = `<form method="dialog" novalidate>
+      <div style="font-size:2.2rem;line-height:1" aria-hidden="true">↺</div>
+      <h2>Modul neu beginnen?</h2>
+      <p class="dialog-copy">Alle vier Stufen im <strong>Argumentations-Führerschein</strong> gelten dann wieder als nicht bestanden. Deine Entwürfe auf diesem Gerät werden gelöscht.</p>
+      <p class="dialog-copy">Das lässt sich nicht rückgängig machen. Deine Lehrkraft sieht, dass du neu begonnen hast.</p>
+      <p class="dialog-error" id="resetError" role="alert"></p>
+      <button class="primary-button full-width" id="resetYes" type="submit">Ja, neu beginnen</button>
+      <button class="secondary-button full-width" id="resetNo" type="button" style="margin-top:8px">Abbrechen</button>
+    </form>`;
+  document.body.append(dialog);
+  const close = () => { if (dialog.open) dialog.close(); dialog.remove(); };
+  const yes = dialog.querySelector("#resetYes"), error = dialog.querySelector("#resetError");
+  dialog.querySelector("#resetNo").addEventListener("click", close);
+  dialog.addEventListener("cancel", () => setTimeout(() => dialog.remove(), 0));
+  dialog.querySelector("form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const code = codeSession();
+    if (!code) { close(); return; }
+    yes.disabled = true; yes.textContent = "Einen Moment …"; error.textContent = "";
+    try {
+      const response = await fetch(`${API_BASE}/api/nt9/fortschritt/zuruecksetzen`, {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ code: code.code, klasse: code.klasse, modul: STAGE_MODULE })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok || !data.r) throw new Error(data.error || "Das hat nicht geklappt. Versuch es gleich noch einmal.");
+      clearLocalWork(code);
+      try { localStorage.setItem(resetKey(code), String(data.r)); } catch (_e) {}
+      state.stage = 1;
+      close();
+      await refreshProgress();
+      setConnection(true, "Neu begonnen");
+    } catch (failure) {
+      error.textContent = failure instanceof TypeError ? "Keine Verbindung zum Server. Ohne Internet lässt sich das Modul nicht neu beginnen." : failure.message;
+      yes.disabled = false; yes.textContent = "Ja, neu beginnen";
+    }
+  });
+  dialog.showModal();
 }
 const WORDS = {
   1: ["weil", "denn", "deshalb", "zum Beispiel", "vergleichbar ist"],
@@ -240,6 +350,7 @@ async function login(event) {
 }
 
 function renderAll() {
+  applyReset();
   syncTopicState();
   renderTopics();
   renderStageNavigation();
@@ -503,6 +614,7 @@ function renderProgress() {
     return item;
   }));
   dom.licenceResult.hidden = !state.progress.licenceReady;
+  renderResetButton();
   reportStages();
   refreshIcons();
 }

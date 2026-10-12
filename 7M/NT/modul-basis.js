@@ -293,7 +293,7 @@ function lernstand(basis){
   const los = () => window.Lernstand.seite({kurs, modul: kurs + "-" + name, bereich, bnr, nr: info[0], kurz: (K.WORT || "Modul") + " " + info[0],
     titel: info[1], aufgaben, anker: $("section.station"), mehrGeloest: ids => mehrGeloest(ids),
     freiwillig: a => ZUG === "R" && a.teil === "Plus",
-    // Modul neu beginnen und Fehlversuche (Kursliste: RESET, VERSUCHE – erst nur NT 7)
+    // Modul neu beginnen und Fehlversuche (Kursliste: RESET – NT 7 und Deutsch 7; VERSUCHE – erst nur NT 7)
     reset: !!K.RESET, zurueckgesetzt: speicherLeeren, hatStand: () => Object.keys(solved).length > 0 || Object.keys(versuche).length > 0,
     versuche: zaehlt() ? versuche : undefined, versucheGeladen: v => { if (zaehlt()) mehrVersuche(v); }});
   if (window.Lernstand) { los(); return; }

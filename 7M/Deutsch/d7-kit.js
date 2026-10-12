@@ -350,7 +350,10 @@
       fetch(SERVER + DAPI + "/texte/meine", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: a.code, modul: MODUL_ID, aufgabe: id }) })
         .then(r => r.json()).then(d => {
           if (!d || !d.ok) return;
-          const letzte = d.fassungen[d.fassungen.length - 1];
+          // Modul neu begonnen (d.neuSeit): Fassungen von davor kommen nicht zurück ins Schreibfeld – das Kind fängt
+          // wirklich neu an. Die Lehrkraft sieht sie weiterhin.
+          const seit = d.neuSeit || 0, neuere = d.fassungen.filter(f => !seit || Date.parse(f.zeit) > seit);
+          const letzte = neuere[neuere.length - 1];
           if (letzte && !ta.value.trim()) { ta.value = letzte.text; M.save("-" + id, ta.value); zaehle(); }
           if (d.lehrerKommentar) { const k = $(".lehrer-kommentar", box); k.hidden = false; k.innerHTML = "<b>Kommentar deiner Lehrkraft</b>" + esc(d.lehrerKommentar); }
         }).catch(() => {});

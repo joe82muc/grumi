@@ -102,6 +102,17 @@ function anmeldungGueltig(s) {
 function lsKennung(){
   try { const s = anmeldungGueltig(JSON.parse(localStorage.getItem("grumi-code-anmeldung") || "null")); return s && s.code && s.kennung ? s.kennung : ""; } catch (_) { return ""; }
 }
+// Modul neu beginnen (themen.js: RESET): den Speicher dieses Moduls für dieses Kind leeren – gelöste Aufgaben, Texte in
+// den Feldern, gesammelte Tipps, Lerntagebuch. Ohne Anmeldung nur die Einträge ohne Kennung: Die Stände angemeldeter
+// Kinder am selben Gerät bleiben. Was die KI schon geprüft hat, sieht die Lehrkraft weiterhin (lehrer.html).
+function speicherLeeren(){
+  const mitCode = !!lsKennung(), weg = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.indexOf(KEY) === 0 && (mitCode || k.charAt(KEY.length) !== "~")) weg.push(k); }
+    weg.forEach(k => localStorage.removeItem(k));
+  } catch (_) {}
+  solved = {};
+}
 function lernstand(){
   const name = MODUL || String(BASIS).replace(/^grumi-de7-/, "").replace(/-v\d+$/, "");
   const info = LS_MODULE[name] || [0, document.title.split("|")[0].trim()];
@@ -113,7 +124,9 @@ function lernstand(){
     return {id, teil, kurz: String(zaehler[teil]), text: kat[id][0], label: kat[id][0], el: (meta[id] || {}).el || null};
   });
   const los = () => window.Lernstand.seite({kurs: "d7", modul: "d7-" + name, bereich: "Argumentieren und diskutieren", bnr: 3,
-    nr: info[0], kurz: "Modul " + info[0], titel: info[1], aufgaben, anker: $("section.station"), mehrGeloest: ids => mehrGeloest(ids), dialog: false});
+    nr: info[0], kurz: "Modul " + info[0], titel: info[1], aufgaben, anker: $("section.station"), mehrGeloest: ids => mehrGeloest(ids), dialog: false,
+    // Knopf „Modul neu beginnen“ im Kasten „Dein Stand“ (seit dem 12.10.2026, Schalter in themen.js)
+    reset: !!(window.D7 && window.D7.RESET), zurueckgesetzt: speicherLeeren, hatStand: () => Object.keys(solved).length > 0});
   if (window.Lernstand) { los(); return; }
   const s = document.createElement("script");
   s.src = new URL("../../js/lernstand.js", LS_SKRIPT || location.href).href;
