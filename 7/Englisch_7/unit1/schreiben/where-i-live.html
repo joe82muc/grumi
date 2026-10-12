@@ -240,7 +240,7 @@
       </svg>
       <ol>
         <li><b>Oben</b> steht dein Text in großer Schrift.</li>
-        <li><b>Unten</b> schreibst du mit der Hand deine Stichpunkte: nur die wichtigsten Wörter, keine ganzen Sätze. Die Anfänge stehen schon da.</li>
+        <li><b>Unten</b> schreibst du deine Stichpunkte: nur die wichtigsten Wörter, keine ganzen Sätze. Die Anfänge stehen schon da. Du schreibst sie mit der Hand auf das gedruckte Blatt – oder du tippst sie in der Word-Datei und druckst danach.</li>
         <li><b>Falte</b> das Blatt an der gestrichelten Linie nach hinten.</li>
         <li>Beim Vortrag schaust du auf die <b>Stichpunkte</b> und sprichst frei. Weißt du nicht weiter, drehst du das Blatt um.</li>
       </ol>
@@ -248,8 +248,10 @@
     <div class="meldung" id="blatt-stand" role="status"></div>
     <div class="btn-row">
       <button class="btn haupt" id="drucken" type="button">🖨️ Blatt drucken (A4)</button>
+      <button class="btn" id="word" type="button">📝 Als Word-Datei herunterladen</button>
     </div>
     <p class="fein">Im Druckfenster: Hochformat, Größe 100 %, ohne Kopf- und Fußzeilen. Du kannst das Blatt dort auch als PDF speichern.</p>
+    <p class="fein"><b>Word-Datei:</b> Öffne sie in Word (auf dem iPad auch in Pages). Tippe deine Stichpunkte hinter die Anfänge und drucke das Blatt dann aus. Die Datei entsteht auf deinem Gerät – sie wird nirgends hochgeladen.</p>
   </section>
 </div>
 
@@ -293,10 +295,12 @@
 </div>
 
 <script src="../../../../js/lernstand.js"></script>
+<script src="../../../../js/word-datei.js"></script>
 <script>
 /* ============================================================
    Short talk: Where I live – Englisch 7R und 7M, Unit 1 (Sprechen und Schreiben)
-   Notizen -> Text -> KI-Korrektur mit Punkten -> verbessern -> Blatt für den Vortrag drucken.
+   Notizen -> Text -> KI-Korrektur mit Punkten -> verbessern -> Blatt für den Vortrag drucken
+   (oder als Word-Datei herunterladen und die Stichpunkte am Gerät tippen).
    Aufbau wie der Blogpost der 9. Klasse (9R/Englisch/unit1/schreiben/blog-post.html).
    Server: /api/englisch-schreiben/pruefen | natuerlich (e9-schreiben.js, Aufgabe „where-i-live“).
    Die Seite gehört beiden Zügen: Der Zug (Umfang, Notenschlüssel) kommt vom Code des Kindes.
@@ -564,6 +568,7 @@ function druckText() {
 function blattStand() {
   const d = druckText(), m = $("blatt-stand");
   $("drucken").disabled = d.art === "leer";
+  $("word").disabled = d.art === "leer" || !window.GrumiWord;
   m.className = "meldung" + (d.art === "korrigiert" ? " gut" : "");
   m.textContent = d.art === "leer" ? "Schreib zuerst deinen Text (Schritt 2)."
     : d.art === "korrigiert" ? "Auf dem Blatt steht die korrigierte Fassung deines Textes."
@@ -586,6 +591,56 @@ function drucken() {
   window.print();
 }
 
+/* ---------- Schritt 4, zweiter Weg: dasselbe Blatt als Word-Datei (js/word-datei.js) ----------
+   Für Kinder, die ihre Stichpunkte lieber tippen: Oben steht der Text, unten stehen die Anfänge – dahinter tippt das
+   Kind in Word (oder Pages) und druckt dann. Aufbau wie das gedruckte Blatt: Die Faltlinie liegt in der Blattmitte
+   (drei Tabellenzeilen mit fester Mindesthöhe). Word kann die Schrift nicht ausmessen wie der Browser – die Größe wird
+   deshalb vorsichtig geschätzt, damit der Text sicher in die obere Hälfte passt. */
+const WORD_RAND = { oben: 10, unten: 6, links: 16, rechts: 16 };   // mm
+function wordSchrift(text) {
+  const BREITE = 210 - WORD_RAND.links - WORD_RAND.rechts, HOEHE = 106, absaetze = text.split(/\n\s*\n/);   // mm
+  for (let pt = 26; pt > 11; pt--) {
+    const jeZeile = Math.floor(BREITE / (pt * 0.3528 * 0.56));         // mittlere Buchstabenbreite von Arial, mit Reserve
+    const zeilen = absaetze.reduce((s, a) => s + a.split("\n").reduce((z, t) => z + Math.max(1, Math.ceil(t.trim().length / jeZeile)), 0), 0);
+    if ((zeilen * 1.3 + (absaetze.length - 1) * 0.45) * pt * 0.3528 <= HOEHE) return pt;
+  }
+  return 11;
+}
+function wordBlatt() {
+  const W = window.GrumiWord, d = druckText(), B = W.breite(WORD_RAND), pt = wordSchrift(d.text), DE = "de-DE", EN = "en-GB";
+  const anfaenge = [...document.querySelectorAll("#druckblatt .b-zeilen li")].map(li => li.textContent.trim());
+  const kopf = (titel, rechts, vor) => W.absatz(W.lauf(titel, { fett: true, pt: 17, sprache: EN }) + W.tab() + W.lauf(rechts, { pt: 10.5, sprache: DE }),
+    { vor, nach: 8, tabRechts: B, linie: { pt: 1.5, abstand: 3 } });
+  const oben = kopf("Where I live", "Name: ______________________   Class: ______", 0) +
+    d.text.split(/\n\s*\n/).map(a => W.absatz(W.lauf(a.trim(), { pt, sprache: EN }), { zeile: 1.3, nach: pt * 0.45 })).join("");
+  const falz = W.absatz(W.lauf("– – – hier nach hinten falten – – –", { pt: 8, farbe: "444444", sprache: DE }), { mitte: true, nach: 2 });
+  const unten = kopf("My notes", "Stichpunkte für meinen Vortrag", 20) +
+    W.absatz(W.lauf("So geht's: ", { fett: true, pt: 10.5, sprache: DE }) +
+      W.lauf("Schreib zu jedem Punkt nur die wichtigsten Wörter aus deinem Text – keine ganzen Sätze. Tippe sie hinter die Anfänge.\nBeispiel: ", { pt: 10.5, sprache: DE }) +
+      W.lauf("„I live in a small town near Munich.“ → ", { pt: 10.5, sprache: EN }) + W.lauf("small town · near Munich", { fett: true, pt: 10.5, sprache: EN }), { zeile: 1.25 }) +
+    // Jede Zeile: Punkt, Anfang (fett, grau) und ein Leerzeichen in normaler Schrift – was das Kind dahinter tippt, wird schwarz und nicht fett
+    anfaenge.map(a => W.absatz(W.lauf("•  ", { pt: 13 }) + W.lauf(a, { fett: true, pt: 11, farbe: "444444", sprache: EN }) + W.lauf(" ", { pt: 12, sprache: EN }),
+      { vor: 9, linie: { pt: 0.5, farbe: "666666", abstand: 3, zwischen: true }, schrift: { pt: 12, sprache: EN } })).join("") +
+    W.absatz(W.lauf("Beim Vortrag: ", { fett: true, pt: 9.5, sprache: DE }) +
+      W.lauf("Schau deine Klasse an und sprich frei. Die Stichpunkte helfen dir – wenn du nicht weiterweißt, dreh das Blatt um.", { pt: 9.5, sprache: DE }), { vor: 12, zeile: 1.2 });
+  // Blattmitte bei 148,5 mm: oberer Rand 10 + Text 132,5 + Falz 6. Unten bleibt etwas Luft, damit kein zweites Blatt entsteht.
+  const koerper = W.tabelle([
+    W.zeile(oben, { hoehe: 132.5 }),
+    W.zeile(falz, { hoehe: 6, genau: true, unten: true, linieUnten: { pt: 0.75, farbe: "555555", art: "dashed" } }),
+    W.zeile(unten, { hoehe: 134 })
+  ], B);
+  return { koerper, pt, optionen: { raender: WORD_RAND, sprache: EN, schrift: "Arial", pt: 11 } };
+}
+function wordLaden() {
+  if (druckText().art === "leer" || !window.GrumiWord) return;
+  const blatt = wordBlatt();
+  window.GrumiWord.laden(window.GrumiWord.blob(blatt.koerper, blatt.optionen), "Where-I-live-Vortrag.docx");
+  if (window.Lernstand) Lernstand.geloest("blatt");
+  const m = $("blatt-stand");
+  m.className = "meldung gut";
+  m.textContent = "Die Word-Datei ist heruntergeladen (Where-I-live-Vortrag.docx). Öffne sie, tippe deine Stichpunkte hinter die Anfänge und drucke das Blatt aus.";
+}
+
 /* ---------- Start ---------- */
 function start() {
   laden();
@@ -596,6 +651,7 @@ function start() {
 $("text").addEventListener("input", () => { textGeaendert(); if (!laeuft && woerter($("text").value) >= MIN_WOERTER) melden(""); });
 $("pruefen").addEventListener("click", pruefen);
 $("drucken").addEventListener("click", drucken);
+$("word").addEventListener("click", wordLaden);
 window.addEventListener("beforeprint", () => { if (druckText().art !== "leer") blattZeichnen(); });
 $("leeren").addEventListener("click", () => {
   if (!confirm("Text, Notizen und Rückmeldung löschen und neu anfangen?")) return;
@@ -614,13 +670,13 @@ if (window.Lernstand) {
       { id: "text", teil: "Where I live", kurz: "Text prüfen lassen", text: "Text geschrieben und prüfen lassen" },
       { id: "haelfte", teil: "Where I live", kurz: "Hälfte der Punkte", text: "Mindestens die Hälfte der Punkte erreicht" },
       { id: "besser", teil: "Where I live", kurz: "Text verbessern", text: "Text verbessert: mehr Punkte als beim ersten Versuch" },
-      { id: "blatt", teil: "Where I live", kurz: "Blatt drucken", text: "Blatt für den Vortrag gedruckt" }
+      { id: "blatt", teil: "Where I live", kurz: "Blatt drucken", text: "Blatt für den Vortrag gedruckt oder als Word-Datei geladen" }
     ],
     anker: $("ls-anker")
   });
 }
 start();
-if (new URLSearchParams(location.search).has("test")) window.wilTest = { blattZeichnen, druckText };
+if (new URLSearchParams(location.search).has("test")) window.wilTest = { blattZeichnen, druckText, wordBlatt, wordSchrift };
 </script>
 </body>
 </html>
