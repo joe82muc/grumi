@@ -44,7 +44,7 @@
     d7: "7M/Deutsch/index.html", d8: "8/Deutsch/index.html", d9: "9/Deutsch/index.html",
     e7: "7/Englisch_7/index.html", e8: { M: "8M/Englisch/index.html", R: "8R/Englisch/index.html" },
     e9: { M: "9M/Englisch_9/index.html", R: "9R/Englisch/index.html" },
-    i7: { M: "7M/Informatik/index.html", R: "7R/Informatik/index.html" }, i8: { M: "8M/Informatik/index.html", R: "8R/Informatik/index.html" }, i9: "9/Informatik_9/index.html"
+    i7: { M: "7M/Informatik/index.html", R: "7R/Informatik/index.html" }, i8: { M: "8M/Informatik/index.html", R: "8R/Informatik/index.html" }, i9: { M: "9M/Informatik/index.html", R: "9R/Informatik/index.html" }
   };
   try {
     KLASSE = global.localStorage.getItem("lf-klasse") || "";
@@ -409,6 +409,15 @@
         worte: { titel: "Module und Einheiten", das: "die Einheit", neu: "Neue Einheiten", von: "Einheiten", plan: "Einheiten in Vorbereitung" } });
       if (global.AbgabenVerwaltung) global.AbgabenVerwaltung.zeige($("vw-i8-abgaben"), { api: API, pw: PW, klasse: KLASSE, pfad: "/api/inf8", liste: global.INF8, name: nameVon });
       fachLaden($("vw-fach"));
+    } else if (ANSICHT === "i9" && global.NT7Verwaltung && global.INF9) {
+      // Informatik 9 (9M/Informatik, seit 13.10.2026): 9R und 9M haben denselben Kurs – Freischalten je Klasse wie bei
+      // Informatik 8, darunter die hochgeladenen Excel- und Scratch-Dateien. Jede Einheit hat in der „Vorschau“ eine
+      // Lehreransicht mit Lernziel, Lösung und „Musterlösung vorführen“.
+      teil.innerHTML = '<div id="vw-i9-frei"></div><div id="vw-i9-abgaben"></div><div id="vw-fach"></div>';
+      global.NT7Verwaltung.freigabe($("vw-i9-frei"), { api: API, pw: PW, klasse: KLASSE, liste: global.INF9, pfad: "/api/inf9", ordner: "9M/Informatik/",
+        worte: { titel: "Module und Einheiten", das: "die Einheit", neu: "Neue Einheiten", von: "Einheiten", plan: "Einheiten in Vorbereitung" } });
+      if (global.AbgabenVerwaltung) global.AbgabenVerwaltung.zeige($("vw-i9-abgaben"), { api: API, pw: PW, klasse: KLASSE, pfad: "/api/inf9", liste: global.INF9, name: nameVon });
+      fachLaden($("vw-fach"));
     } else if (ANSICHT === "d7" && global.NT7Verwaltung && global.D7) {
       // Deutsch 7: über dem Lernstand steht das Freischalten der Themenbereiche und Module (gleiche Ansicht wie NT 7),
       // darunter der Weg zur Korrektur der Proben und die Schülertexte aus dem Schreibtrainer (texte-verwaltung.js)
@@ -662,6 +671,7 @@
       infoaustausch: std("/api/infoaustausch"),
       informatik8: std("/api/informatik8"),
       inf8: { results: "/api/inf8/teacher/results", del: "/api/inf8/teacher/delete", override: "/api/inf8/teacher/override", nurText: true },
+      inf9: { results: "/api/inf9/teacher/results", del: "/api/inf9/teacher/delete", override: "/api/inf9/teacher/override", nurText: true },
       nt9probe: std("/api/nt9probe"),
       netzwerktest: std("/api/netzwerktest"),
       filiuspruefung: { results: "/api/filiuspruefung/results", del: "/api/filiuspruefung/delete-submission" }
@@ -951,7 +961,7 @@
   // kein Kind gearbeitet hat; die Spalten zeigen dann „–“. Extra-Module und Geplantes kommen nicht dazu.
   function kursModule() {
     var bekannt = DATEN.module.filter(function (m) { return m.kurs === ANSICHT; });
-    var L = { nt7: global.NT7, nt8: global.NT8, gpg8: global.GPG8, d7: global.D7, d8: global.D8, i7: global.INF7, i8: global.INF8 }[ANSICHT];
+    var L = { nt7: global.NT7, nt8: global.NT8, gpg8: global.GPG8, d7: global.D7, d8: global.D8, i7: global.INF7, i8: global.INF8, i9: global.INF9 }[ANSICHT];
     if (!L || !L.THEMEN) return bekannt;
     var da = {}, alle = bekannt.slice();
     bekannt.forEach(function (m) { da[m.id] = 1; });
@@ -990,7 +1000,7 @@
   // Festes Kürzel des Moduls aus der Modulliste des Fachs (themen.js: kz, z. B. „L3“). Übungen ohne Liste behalten
   // den Kurznamen, den ihre Seite meldet (z. B. „G2“ in Deutsch 8).
   function kuerzel(m) {
-    var L = { nt7: global.NT7, nt8: global.NT8, gpg8: global.GPG8, d7: global.D7, d8: global.D8, i7: global.INF7, i8: global.INF8 }[m.kurs];
+    var L = { nt7: global.NT7, nt8: global.NT8, gpg8: global.GPG8, d7: global.D7, d8: global.D8, i7: global.INF7, i8: global.INF8, i9: global.INF9 }[m.kurs];
     var r = L && L.modulVon ? L.modulVon(String(m.id).slice(String(m.kurs).length + 1)) : null;
     // Englisch: Die Liste nennt bei jeder Seite ihre Kennung im Lernstand (ls)
     if (!r && /^e[789]$/.test(m.kurs) && englischListe()) r = englischListe().modulZumLernstand(m.id);

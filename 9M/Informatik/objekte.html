@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Objekte | Informatik 9</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="../../8M/Informatik/einheit8.css">
+<link rel="stylesheet" href="einheit9.css">
+<link rel="stylesheet" href="bloecke9.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 9</small></a>
+    <nav class="stations" id="stations"></nav>
+    <span class="stars" id="stars">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks">
+      <a href="index.html">Übersicht Informatik 9M</a>
+      <a href="../../9R/Informatik/index.html">Übersicht Informatik 9R</a>
+      <a href="../../index.html">Startseite</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 9 · Modul 5: Programmieren mit Scratch · Einheit 2</div>
+    <h1>Objekte</h1>
+    <p>Eine Figur kann klein oder groß sein, nach links oder nach unten schauen, woanders stehen oder anders aussehen. Das sind ihre Eigenschaften. Mit Anweisungen veränderst du sie.</p>
+    <div class="zeit">etwa 40 Minuten · Praxis am Windows-PC mit Scratch</div>
+    <div class="goals">
+      <div>Ich nenne die Eigenschaften einer Figur: Position, Richtung, Größe und Kostüm.</div>
+      <div>Ich lese und setze Koordinaten (x und y) auf der Bühne.</div>
+      <div>Ich erstelle ein zweites Objekt und gebe ihm ein eigenes Programm.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="modulStand"></div>
+  <div id="weg"></div>
+</main>
+
+<footer class="wrap">Informatik 9 · Dein Fortschritt wird mit deinem Code gespeichert. · Scratch ist ein Programm der Scratch Foundation; die Blöcke und die Bühne auf dieser Seite sind eine eigene Nachbildung (GRUMI-SCRATCH).</footer>
+
+<div id="pop" role="dialog"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info9.js"></script>
+<script src="bloecke9.js"></script>
+<script src="../../8M/Informatik/excel-datei.js"></script>
+<script src="scratch-aufgaben9.js"></script>
+<script>
+(function () {
+"use strict";
+const {$} = Modul;
+const p = (ok, gut, schlecht) => ({ok, text: ok ? gut : schlecht});
+
+Modul.start9({
+  key: "grumi-i9-objekte-v1",
+  thema: "Scratch, Objekte: jede Figur ist ein Objekt mit Eigenschaften (Position x und y, Richtung, Größe, Kostüm), Anweisungen ändern die Eigenschaften, Koordinatensystem der Bühne (Mitte 0/0, x von -240 bis 240, y von -180 bis 180), zweites Objekt mit eigenem Programm erstellen",
+  glossary: {
+    objekt: ["Objekt", "Eine Figur im Programm. Sie hat Eigenschaften und kann Anweisungen ausführen."],
+    eigenschaft: ["Eigenschaft", "Etwas, das ein Objekt hat: Position, Richtung, Größe oder Kostüm."],
+    kostuem: ["Kostüm", "Eines der Bilder einer Figur. Wechselt man das Kostüm, sieht die Figur anders aus."],
+    koordinaten: ["Koordinaten", "Zwei Zahlen, die die Position angeben: x (links oder rechts) und y (unten oder oben)."]
+  }
+});
+
+const W = Modul.lernweg("#weg");
+
+/* ============ Regelheft ============ */
+W.teil("Regelheft", "Schreiben");
+W.regelheft({
+  titel: "Objekte",
+  html: `<p>Jede Figur ist ein <span class="rot">Objekt</span>. Es hat <span class="rot">Eigenschaften</span>: Position (x und y), Richtung, Größe und Kostüm.</p>
+    <p>Anweisungen ändern die Eigenschaften, z. B. <span class="blau">gehe zu x: 100 y: 50</span>.</p>
+    <p class="leer"></p>
+    <p>Die Mitte der Bühne hat die Koordinaten <span class="blau">x: 0 y: 0</span>.</p>`,
+  lehrer: { ziel: "Die Kernaussagen zu Objekt, Eigenschaften und Koordinaten stehen im Heft.",
+    anleitung: "Etwa 5 Minuten. Die Klasse schreibt ab. Erst nach dem Abhaken erscheint die erste Aufgabe. Als Vergleich hilft ein Handy: Es hat Eigenschaften wie Farbe, Größe und Helligkeit.",
+    loesung: "Der Eintrag steht vollständig im Heft (zwei Aussagen, ein Beispiel, die Mitte der Bühne)." }
+});
+
+/* ============ Teil 2: Erst hier auf der Seite ============ */
+W.teil("Verstehen und üben", "Sehen · Ausprobieren");
+
+W.aufgabe({
+  titel: "Eigenschaften einer Figur",
+  bild: { src: "assets/bilder/objekte.jpg", alt: "Vier kleine Roboter nebeneinander auf einem glänzenden Boden vor hellblauem Hintergrund. Der erste ist klein, der zweite größer, der dritte steht seitlich gedreht, der vierte ist blau und zeigt mit dem Daumen nach oben.", text: "Dieselbe Figur kann anders aussehen: größer, gedreht oder in einem anderen Kostüm." },
+  auftrag: "Eine Figur in Scratch heißt Objekt. Sie hat Eigenschaften. Finde heraus, welche Eigenschaft zu welcher Erklärung passt. Tippe links einen Begriff an und dann rechts die Erklärung.",
+  vorwissen: "<p>Auch die Blöcke auf dieser Seite sind eine eigene Nachbildung. Im echten Scratch funktionieren sie gleich, sehen aber etwas anders aus. Unter der Bühne zeigt Scratch die Eigenschaften der Figur an: x, y, Größe und Richtung.</p>",
+  hinweise: ["Überlege bei jedem Begriff: Welche Frage beantwortet er? Wo? Wohin? Wie groß? Wie sieht sie aus?", "Position sagt, wo die Figur steht. Richtung sagt, wohin sie schaut. Größe und Kostüm sind leicht zu unterscheiden.", "Position: wo die Figur steht · Richtung: wohin sie schaut · Größe: wie groß sie ist · Kostüm: wie sie aussieht."],
+  lehrer: { ziel: "Die vier Eigenschaften einer Figur kennen: Position, Richtung, Größe, Kostüm. Begriffe: Objekt, Eigenschaft.",
+    anleitung: "Am Beamer ein Handy oder einen Stuhl als Beispiel nehmen: „Welche Eigenschaften hat er?“ Danach das Bild der vier Roboter zeigen: „Was ist bei jedem anders?“",
+    loesung: "Position – wo die Figur steht · Richtung – wohin sie schaut · Größe – wie groß sie ist · Kostüm – wie sie aussieht.",
+    fehler: ["Richtung und Position werden verwechselt."] },
+  bau(box) {
+    Modul.makePaare(box, [
+      ["Position", "wo die Figur steht (x und y)"],
+      ["Richtung", "wohin die Figur schaut"],
+      ["Größe", "wie groß die Figur ist"],
+      ["Kostüm", "wie die Figur aussieht"]
+    ], "paare-eigenschaften");
+  }
+});
+
+W.aufgabe({
+  titel: "Das Koordinatensystem der Bühne",
+  auftrag: "Auf der Bühne wird jede Stelle durch zwei Zahlen angegeben: <b>x</b> sagt, wie weit rechts oder links, <b>y</b>, wie weit oben oder unten. Beantworte die Fragen.",
+  vorwissen: "<p>Die Mitte der Bühne ist <b>x: 0, y: 0</b>. Nach rechts wird x größer (bis 240), nach links kleiner (bis −240). Nach oben wird y größer (bis 180), nach unten kleiner (bis −180).</p>",
+  hinweise: ["Denke an ein Gitter: x läuft von links nach rechts, y von unten nach oben.", "Positive Zahlen sind rechts (x) und oben (y). Negative Zahlen sind links (x) und unten (y).", "Frage 1: die Mitte. Frage 2: x = 100 ist rechts, y = −50 ist unten. Frage 3: Der Bereich von x ist von −240 bis 240."],
+  lehrer: { ziel: "Koordinaten auf der Bühne lesen: Mitte 0/0, x von −240 bis 240, y von −180 bis 180.",
+    anleitung: "An der Tafel ein Kreuz zeichnen (x waagrecht, y senkrecht) und die Zahlen eintragen. Einzelne Kinder zeigen Punkte: „Wo liegt x: −100 y: 50?“ Den Begriff Koordinaten einführen.",
+    loesung: "Frage 1: x: 0 und y: 0 · Frage 2: rechts und unten · Frage 3: von −240 bis 240.",
+    fehler: ["x und y werden vertauscht.", "Ein negatives y wird als „oben“ gelesen."] },
+  bau(box) {
+    Modul.makeMC(box, [
+      { q: "Welche Zahlen hat die Mitte der Bühne?", o: ["x: 0 und y: 0", "x: 240 und y: 180", "x: 100 und y: 100", "x: −240 und y: −180"], a: 0, e: "Die Mitte ist der Nullpunkt: x ist 0 und y ist 0." },
+      { q: "Eine Figur steht bei x: 100 und y: −50. Wo steht sie?", o: ["rechts von der Mitte und weiter unten", "links von der Mitte und weiter oben", "rechts von der Mitte und weiter oben", "links von der Mitte und weiter unten"], a: 0, e: "x = 100 ist positiv: rechts. y = −50 ist negativ: unten." },
+      { q: "Von welcher bis zu welcher Zahl geht x auf der Bühne?", o: ["von −240 bis 240", "von 0 bis 100", "von −180 bis 180", "von 0 bis 480"], a: 0, e: "x geht von −240 (ganz links) bis 240 (ganz rechts). Bei y sind es −180 bis 180." }
+    ], "mc-koordinaten");
+  }
+});
+
+W.aufgabe({
+  titel: "In die Ecke und doppelt so groß",
+  geheim: ["200"],
+  auftrag: "Bringe den Roboter ganz in die Ecke rechts oben und mach ihn doppelt so groß. Die Blöcke auf dieser Seite sind eine eigene Nachbildung von Scratch; dort funktioniert es genauso.",
+  vorwissen: "<p>Der Roboter ist anfangs 100 groß. „Doppelt so groß“ heißt: Größe 200. Mit „gehe zu x: y:“ setzt du die Position. Die Ecke rechts oben liegt bei etwa x: 240 und y: 180.</p>",
+  hinweise: ["Rechts ist x positiv, oben ist y positiv.", "Nimm „gehe zu x: y:“ und trage große positive Zahlen ein, zum Beispiel 220 und 160. Dazu „setze Größe auf …“.", "Start – gehe zu x: 220 y: 160 – setze Größe auf 200. Danach „Prüfen“."],
+  lehrer: { ziel: "Zwei Eigenschaften mit Anweisungen ändern: Position (x und y) und Größe.",
+    anleitung: "Die Klasse rät zuerst: „Welche Zahlen brauchen wir für rechts oben?“ Dann gemeinsam ausprobieren. Frage: „Was passiert bei x: 220 y: −160?“ (unten rechts).",
+    loesung: "Wenn Start · gehe zu x: 220 y: 160 · setze Größe auf 200. Jede Ecke-Zahl ab x 200 und y 140 zählt.",
+    fehler: ["Ein Vorzeichen stimmt nicht (y negativ) – dann steht der Roboter unten.", "Die Größe bleibt bei 100."],
+    bedienung: "Zahlen in den Blöcken anklicken und eintippen. „Programm starten“ zeigt das Ergebnis auf der Bühne." },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Ecke rechts oben, doppelt so groß.</p>",
+      palette: ["flagge", "geheZu", "groesse"], start: [["flagge"]], fest: 1,
+      pruefe: e => {
+        const l = e.lauf(), ecke = l.x >= 200 && l.y >= 140;
+        return [
+          p(ecke, "Der Roboter steht in der Ecke rechts oben.",
+            l.x < 0 ? "x ist " + l.x + ", also links von der Mitte. Für rechts brauchst du ein positives x."
+              : l.y < 0 ? "y ist " + l.y + ", also unterhalb der Mitte. Für oben brauchst du ein positives y."
+              : "Der Roboter steht bei x = " + l.x + " und y = " + l.y + ". Für die Ecke brauchst du x ab 200 und y ab 140 (höchstens 240 und 180)."),
+          p(l.groesse === 200, "Der Roboter ist doppelt so groß (200).", "Die Größe ist " + l.groesse + ". Doppelt so groß wie 100 ist 200.")
+        ];
+      },
+      loesung: [["flagge"], ["geheZu", 220, 160], ["groesse", 200]], erfolg: "Ecke rechts oben, doppelt so groß: zwei Eigenschaften geändert."
+    }, "bl-ecke");
+  }
+});
+
+W.aufgabe({
+  titel: "Nach unten schauen",
+  geheim: ["180"],
+  auftrag: "Der Roboter soll nach unten schauen und dann 50 Schritte gehen.",
+  vorwissen: "<p>Die Richtung wird in Grad angegeben: <b>0</b> = nach oben, <b>90</b> = nach rechts (so startet der Roboter), <b>180</b> = nach unten, <b>−90</b> = nach links. „gehe“ geht immer in die Richtung, in die die Figur schaut.</p>",
+  hinweise: ["Erst die Richtung ändern, dann gehen.", "Nach unten ist 180 Grad. Du kannst „setze Richtung auf 180“ nehmen.", "Start – setze Richtung auf 180 Grad – gehe 50 Schritte. Der Roboter steht danach bei y = −50."],
+  lehrer: { ziel: "Die Eigenschaft Richtung ändern und sehen, dass „gehe“ davon abhängt.",
+    anleitung: "Vorführen: erst „gehe 50“ ohne Drehen (nach rechts), dann mit Richtung 180 (nach unten). Frage: „Was hat sich geändert?“ (Die Eigenschaft Richtung.)",
+    loesung: "Wenn Start · setze Richtung auf 180 Grad · gehe 50 Schritte. Auch „drehe dich um 90 Grad“ führt zu 180 Grad.",
+    fehler: ["Es wird erst gegangen und dann gedreht.", "Es wird die Richtung 90 eingetragen (nach rechts)."] },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Schau nach unten und gehe 50 Schritte.</p>",
+      palette: ["flagge", "richtung", "drehe", "gehe"], start: [["flagge"]], fest: 1,
+      pruefe: e => {
+        const l = e.lauf();
+        return [
+          p(l.richtung === 180, "Der Roboter schaut nach unten (180 Grad).", "Die Richtung ist " + l.richtung + " Grad. Nach unten schaut der Roboter bei 180 Grad."),
+          p(Math.abs(l.x) < 0.01 && Math.abs(l.y + 50) < 0.01, "Der Roboter ist 50 Schritte nach unten gegangen.", "Der Roboter steht bei x = " + l.x + " und y = " + l.y + ". Er soll bei y = −50 stehen. Erst drehen, dann „gehe 50“.")
+        ];
+      },
+      loesung: [["flagge"], ["richtung", 180], ["gehe", 50]], erfolg: "Andere Richtung – anderer Weg."
+    }, "bl-richtung");
+  }
+});
+
+W.aufgabe({
+  titel: "Das Kostüm wechseln",
+  auftrag: "Der Roboter hat zwei Kostüme: „froh“ und „staunend“. Er soll staunend aussehen und „Oh!“ sagen.",
+  hinweise: ["Das Kostüm ist eine Eigenschaft. Der Block dafür steht in der Gruppe „Aussehen“.", "Du kannst „wechsle zu Kostüm …“ nehmen und im Menü ▾ „staunend“ wählen. Oder „wechsle zum nächsten Kostüm“.", "Start – wechsle zu Kostüm staunend – sage „Oh!“."],
+  lehrer: { ziel: "Die Eigenschaft Kostüm mit einer Anweisung ändern.",
+    anleitung: "Zeigen, dass „wechsle zum nächsten Kostüm“ nach dem letzten Kostüm wieder beim ersten landet. Wer es zweimal setzt, sieht wieder das erste Kostüm.",
+    loesung: "Wenn Start · wechsle zu Kostüm staunend · sage „Oh!“.",
+    fehler: ["„wechsle zum nächsten Kostüm“ steht zweimal – dann ist der Roboter wieder froh.", "Die Auswahl im Menü bleibt auf „froh“."] },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Staunendes Kostüm, dann „Oh!“ sagen.</p>",
+      palette: ["flagge", "kostuem", "naechstesKostuem", "sage"], start: [["flagge"]], fest: 1,
+      pruefe: e => {
+        const l = e.lauf(), n = Modul.blockAnzahl(e.programm(), "naechstesKostuem");
+        return [
+          p(l.kostuem === "staunend", "Der Roboter sieht staunend aus.", n >= 2 ? "Du wechselst " + n + "-mal zum nächsten Kostüm. Bei zwei Kostümen kommt der Roboter wieder bei „froh“ an." : "Das Kostüm ist noch „" + l.kostuem + "“. Der Roboter soll „staunend“ tragen."),
+          p(l.gesagt.join() === "Oh!", "Der Roboter sagt „Oh!“.", "Der Roboter soll „Oh!“ sagen.")
+        ];
+      },
+      loesung: [["flagge"], ["kostuem", "staunend"], ["sage", "Oh!"]], erfolg: "Neues Kostüm, gleiche Figur."
+    }, "bl-kostuem");
+  }
+});
+
+W.aufgabe({
+  titel: "Welche Eigenschaft ändert die Anweisung?",
+  auftrag: "Jede Anweisung ändert eine Eigenschaft. Sortiere die Anweisungen zu der Eigenschaft, die sie ändern.",
+  hinweise: ["Überlege bei jeder Anweisung: Was ändert sich an der Figur?", "„gehe“ und „ändere x“ verändern, wo die Figur steht. „drehe“ und „Richtung“ verändern, wohin sie schaut.", "Position: gehe zu, ändere x, gehe 10 · Richtung: setze Richtung, drehe dich · Größe: setze Größe, ändere Größe · Kostüm: beide Kostüm-Blöcke."],
+  lehrer: { ziel: "Anweisungen den Eigenschaften zuordnen, die sie verändern.",
+    anleitung: "Einzelarbeit, etwa 3 Minuten. Danach nachfragen: „Warum ändert ‚gehe 10 Schritte‘ die Position?“ (Die Figur steht danach woanders.)",
+    loesung: "Position: gehe zu x 100 y 20 · ändere x um 10 · gehe 10 Schritte. Richtung: setze Richtung auf 180 · drehe dich um 90 Grad. Größe: setze Größe auf 50 · ändere Größe um 10. Kostüm: wechsle zum nächsten Kostüm · wechsle zu Kostüm staunend.",
+    fehler: ["„gehe 10 Schritte“ wird zur Richtung sortiert – es ändert aber die Position."] },
+  bau(box) {
+    Modul.makeSort(box, {
+      buckets: ["📍 Position", "🧭 Richtung", "🔍 Größe", "🎭 Kostüm"], cols: 150,
+      items: [
+        { t: "gehe zu x: 100 y: 20", b: 0 }, { t: "ändere x um 10", b: 0 }, { t: "gehe 10 Schritte", b: 0 },
+        { t: "setze Richtung auf 180 Grad", b: 1 }, { t: "drehe dich um 90 Grad", b: 1 },
+        { t: "setze Größe auf 50", b: 2 }, { t: "ändere Größe um 10", b: 2 },
+        { t: "wechsle zum nächsten Kostüm", b: 3 }, { t: "wechsle zu Kostüm staunend", b: 3 }
+      ],
+      done: "✅ Jede Anweisung ändert eine Eigenschaft des Objekts."
+    }, "sort-eigenschaften");
+  }
+});
+
+/* ============ Teil 3: Am PC ============ */
+W.teil("Am PC: Scratch", "Anwenden");
+
+W.aufgabe({
+  titel: "Zwei Figuren",
+  geheim: ["200"],
+  auftrag: "Jetzt machst du es im echten Scratch: Du holst dir eine zweite Figur. Beide Figuren bekommen ein eigenes Programm. Figur 1 wird größer, Figur 2 wechselt das Kostüm und geht an eine andere Stelle.",
+  vorwissen: "<p>Jedes Objekt hat sein <b>eigenes</b> Skript. Wenn du eine andere Figur anklickst, ist der Skriptbereich leer oder zeigt ihre eigenen Blöcke. Beim Klick auf die grüne Fahne laufen die Skripte beider Figuren gleichzeitig los.</p>",
+  hinweise: ["Mit dem Knopf „Figur wählen“ unten rechts holst du die zweite Figur. Zwischen den Figuren wechselst du mit einem Klick in der Figurenliste.", "Beide Figuren brauchen einen Startblock „Wenn 🏁 angeklickt wird“ mit eigenen Blöcken darunter. Das Programm der ersten Figur gilt nicht für die zweite.", "Figur 1: Wenn 🏁 · gehe zu x: 150 y: 100 · setze Größe auf 200. Figur 2: Wenn 🏁 · gehe zu x: −150 y: −100 · wechsle zum nächsten Kostüm."],
+  lehrer: { ziel: "Ein zweites Objekt erstellen und jedem Objekt ein eigenes Programm geben; Größe, Position und Kostüm im echten Scratch ändern.",
+    anleitung: "Etwa 12 Minuten am Windows-PC. Wichtig: Das Programm der ersten Figur gilt nicht für die zweite. Jedes Kind muss auch bei der zweiten Figur einen eigenen Startblock bauen. Am Ende wird die .sb3-Datei gespeichert und hochgeladen; der Server prüft sie und die KI schreibt eine Rückmeldung. Am Tablet gibt es stattdessen eine Frage.",
+    loesung: "Figur 1: Wenn 🏁 angeklickt wird · gehe zu x: 150 y: 100 · setze Größe auf 200. Figur 2 (zum Beispiel „Abby“): Wenn 🏁 angeklickt wird · gehe zu x: −150 y: −100 · wechsle zum nächsten Kostüm. Figur 1 steht oben rechts und ist doppelt so groß, Figur 2 unten links in einem anderen Kostüm.",
+    fehler: ["Die zweite Figur hat kein eigenes Skript (die Blöcke liegen nur bei Figur 1).", "Das Kostüm scheint sich nicht zu ändern: Die gewählte Figur hat nur ein Kostüm. Dann eine andere Figur wählen (im Reiter „Kostüme“ sieht man ihre Kostüme).", "Es wurde keine zweite Figur hinzugefügt."],
+    bedienung: "„Datei hochladen“ → die gespeicherte .sb3-Datei (Scratch-Projekt.sb3, meist im Ordner Downloads). Die Rückmeldung nennt jeden Prüfpunkt einzeln." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Zwei Figuren", pc: "Scratch", zeit: "etwa 12 Minuten",
+      ziel: "Das Projekt hat zwei Figuren, und jede hat ein eigenes Programm unter der grünen Fahne: Figur 1 wird größer und geht zu einer Stelle, Figur 2 wechselt das Kostüm und geht zu einer anderen Stelle. Das Projekt ist gespeichert.",
+      schritte: [
+        "Öffne im Browser <b>scratch.mit.edu/projects/editor</b>. Die erste Figur heißt „Sprite1“ und ist schon angeklickt.",
+        "Baue für Figur 1: <span class=\"menue\">Wenn 🏁 angeklickt wird</span> (Ereignisse), darunter <span class=\"menue\">gehe zu x: y:</span> (Bewegung) mit <b>150</b> und <b>100</b> und <span class=\"menue\">setze Größe auf</span> (Aussehen) mit <b>200</b>.",
+        "Klicke unten rechts auf den runden Knopf <span class=\"menue\">Figur wählen</span>. Es öffnet sich ein Fenster mit vielen Figuren. Klicke eine an, zum Beispiel „Abby“. Sie ist jetzt das zweite Objekt und schon ausgewählt.",
+        "Der Skriptbereich ist jetzt für Figur 2 – dort ist noch nichts! Baue auch hier ein <b>eigenes</b> Programm: <span class=\"menue\">Wenn 🏁 angeklickt wird</span>, darunter <span class=\"menue\">gehe zu x: y:</span> mit <b>−150</b> und <b>−100</b> und <span class=\"menue\">wechsle zum nächsten Kostüm</span>.",
+        "Klicke auf die grüne Fahne. Figur 1 springt nach rechts oben und wird doppelt so groß. Figur 2 geht nach links unten und sieht anders aus. Klickst du eine Figur in der Liste an, zeigt das Feld <b>Größe</b> unter der Bühne ihre Größe.",
+        "Speichere dein Projekt: Menü <span class=\"menue\">Datei</span> → <span class=\"menue\">Auf deinem Computer speichern</span>. Die Datei heißt zuerst <b>Scratch-Projekt.sb3</b> und liegt im Ordner Downloads."
+      ],
+      loesung: "Figur 1: Wenn 🏁 angeklickt wird · gehe zu x: 150 y: 100 · setze Größe auf 200. Figur 2: Wenn 🏁 angeklickt wird · gehe zu x: −150 y: −100 · wechsle zum nächsten Kostüm.",
+      pruefung: {
+        art: "datei", accept: ".sb3", lies: Modul.liesScratch9, pruefe: (Modul.scratchPruefung9 || {})["objekte-auf1"], server: { pfad: "/api/inf9/scratch/pruefen", aufgabe: "objekte-auf1" },
+        text: "Wähle deine gespeicherte <b>.sb3</b>-Datei aus. Sie wird geprüft, und die KI schreibt dir eine Rückmeldung. Deine Lehrkraft kann die Datei danach ansehen.",
+        ersatz: { art: "zahl", frage: "Die erste Figur hat anfangs die Größe 100. Du machst sie doppelt so groß. Welche Zahl steht danach im Feld Größe?", wert: 200, tol: 0.001,
+          tipp: "Doppelt so groß wie 100: Rechne 2 mal 100." }
+      }
+    }, "auf1");
+  }
+});
+
+/* ============ Teil 4: Wiederholen ============ */
+W.teil("Wiederholen", "Andere Zahlen");
+
+W.aufgabe({
+  titel: "Wachsen und wandern",
+  geheim: ["120", "200"],
+  auftrag: "Der Roboter soll in vier Schritten wachsen. Bei jedem Schritt wird er 25 größer und geht 30 nach rechts. Benutze eine Wiederholung.",
+  hinweise: ["Ein Schritt besteht aus zwei Anweisungen. Er soll viermal passieren.", "In die Klammer von „wiederhole 4 mal“ kommen „ändere Größe um 25“ und „ändere x um 30“.", "Start – wiederhole 4 mal [ ändere Größe um 25 · ändere x um 30 ]. Danach ist die Größe 200 und x steht bei 120."],
+  lehrer: { ziel: "Eigenschaften (Größe, Position) in einer Wiederholung verändern; Rechnen: 100 + 4 mal 25 und 4 mal 30.",
+    anleitung: "Einzelarbeit, etwa 5 Minuten. Vor dem Starten schätzen lassen, wie groß und wie weit rechts der Roboter am Ende ist.",
+    loesung: "Wenn Start · wiederhole 4 mal [ ändere Größe um 25 · ändere x um 30 ]. Ergebnis: Größe 200, x = 120.",
+    fehler: ["Ohne Wiederholung wird nur ein Schritt gemacht (Größe 125, x 30).", "„setze Größe“ statt „ändere Größe“ – dann wird die Größe nicht addiert."] },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Viermal: 25 größer und 30 nach rechts.</p>",
+      palette: ["flagge", "mal", "aendereGroesse", "aendereX"], start: [["flagge"]], fest: 1,
+      pruefe: e => {
+        const l = e.lauf();
+        return [
+          p(Modul.blockHat(e.programm(), "mal"), "Du benutzt „wiederhole … mal“.", "Benutze „wiederhole … mal“: Der Schritt soll viermal passieren."),
+          p(l.groesse === 200, "Die Größe ist 200.", "Die Größe ist " + l.groesse + ". Viermal 25 dazu ergibt 200."),
+          p(l.x === 120, "Der Roboter steht bei x = 120.", "Der Roboter steht bei x = " + l.x + ". Viermal 30 nach rechts ergibt 120. Stehen beide Blöcke in der Klammer?")
+        ];
+      },
+      loesung: [["flagge"], ["mal", 4, [["aendereGroesse", 25], ["aendereX", 30]]]], erfolg: "Zwei Eigenschaften, vier Runden – drei Blöcke."
+    }, "bl-wachsen");
+  }
+});
+
+/* ============ Teil 5: Kontrollieren ============ */
+W.teil("Kontrollieren", "Lerncheck");
+
+W.aufgabe({
+  titel: "Lerncheck",
+  auftrag: "Richtig oder falsch? Entscheide bei jeder Aussage.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Denke an die Bühne: x ist links und rechts, y ist unten und oben. Die Mitte ist 0 und 0.", "Richtig sind die Aussagen zu Objekt, Mitte und eigenem Skript. Falsch sind die Aussagen zur Größe und zu x = −240."],
+  lehrer: { ziel: "Kernwissen der Einheit sichern.", anleitung: "Einzelarbeit, etwa 3 Minuten.", loesung: "richtig · richtig · falsch · richtig · falsch", fehler: ["Aussage 5: x = −240 liegt ganz links."] },
+  bau(box) {
+    Modul.makeTF(box, [
+      ["Jede Figur ist ein Objekt mit Eigenschaften.", true],
+      ["Die Mitte der Bühne hat die Koordinaten x: 0 und y: 0.", true],
+      ["Mit „setze Größe auf 200“ ändert man das Kostüm.", false],
+      ["Hat ein Projekt zwei Figuren, bekommt jede ihr eigenes Skript.", true],
+      ["x = −240 liegt ganz rechts auf der Bühne.", false]
+    ], "tf");
+  }
+});
+
+W.fertig();
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Anonymität im Internet | Informatik 9</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="../../8M/Informatik/einheit8.css">
+<link rel="stylesheet" href="einheit9.css">
+<style>
+.weg9 li .menue{white-space:normal}
+.weg9 li code{white-space:normal;overflow-wrap:anywhere}
+.tablet{margin:14px 0 0;border:2px dashed var(--line);border-radius:12px;padding:8px 12px;background:#fafcff}
+.tablet summary{cursor:pointer;font-weight:800}
+.tablet img{display:block;max-width:100%;height:auto;margin:10px 0;border:1px solid var(--line);border-radius:8px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 9</small></a>
+    <nav class="stations" id="stations"></nav>
+    <span class="stars" id="stars">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks">
+      <a href="index.html">Übersicht Informatik 9M</a>
+      <a href="../../9R/Informatik/index.html">Übersicht Informatik 9R</a>
+      <a href="../../index.html">Startseite</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 9 · Modul 2: Internet verstehen · Einheit 4</div>
+    <h1>Anonymität im Internet</h1>
+    <p>Du schreibst unter einem Fantasienamen, niemand kennt dich. Stimmt das? Du schaust nach, was ein Webserver über jeden Abruf erfährt – und entscheidest in echten Situationen, was du lieber lässt.</p>
+    <div class="zeit">etwa 40 Minuten · Praxis am Windows-PC mit Filius</div>
+    <div class="goals">
+      <div>Ich erkläre, dass jede Anfrage die IP-Adresse des Absenders trägt.</div>
+      <div>Ich zeige in Filius, dass ein Server die Adresse des Abrufers sieht.</div>
+      <div>Ich erkläre, warum man im Internet nur scheinbar anonym ist.</div>
+      <div>Ich entscheide, was ich online preisgebe und was nicht.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="modulStand"></div>
+  <div id="weg"></div>
+</main>
+
+<footer class="wrap">Informatik 9 · Dein Fortschritt wird mit deinem Code gespeichert.</footer>
+
+<div id="pop" role="dialog"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info9.js"></script>
+<script src="../../7M/Informatik/filius-datei.js"></script>
+<script src="filius9.js"></script>
+<script src="../../7M/Informatik/netz-bild.js"></script>
+<script>
+(function () {
+"use strict";
+const {$} = Modul;
+
+Modul.start9({
+  key: "grumi-i9-anonym-v1",
+  thema: "Anonymität im Internet: Jede Anfrage trägt die IP-Adresse des Absenders; der Webserver sieht sie und kann sie mitschreiben, dazu Uhrzeit und abgerufene Seite; der Internetanbieter weiß, welchem Anschluss die Adresse zu welcher Zeit gehörte; deshalb ist man nur scheinbar anonym (vermeintliche Anonymität); privates Fenster speichert nur den Verlauf auf dem eigenen Gerät; digitale Spuren; sicheres Verhalten: was man online preisgibt und was nicht; Filius-Versuch: das Fenster des Webservers zeigt die Adressen der Abrufer",
+  glossary: {
+    ip: ["IP-Adresse", "Die Zahlenadresse eines Geräts oder Anschlusses, zum Beispiel 192.168.0.10."],
+    anonym: ["anonym", "Unbekannt. Im Internet bist du es nur scheinbar, weil deine Adresse zugeordnet werden kann."],
+    spur: ["digitale Spur", "Alles, was du beim Surfen hinterlässt, zum Beispiel deine IP-Adresse in einem Protokoll."],
+    anbieter: ["Internetanbieter", "Die Firma, die deinen Anschluss ans Internet bereitstellt."],
+    protokoll: ["Protokoll (Mitschrift)", "Eine Liste, in die ein Server einträgt, wer wann was abgerufen hat."]
+  }
+});
+
+const W = Modul.lernweg("#weg");
+
+const tablet = bilder => `<details class="tablet"><summary>Du hast kein Filius? Sieh dir die Bildschirmfotos an.</summary>${bilder.map(b => `<img class="zoomable" src="${b[0]}" loading="lazy" alt="${b[1]}">`).join("")}</details>`;
+
+/* ============ Teil 1: Regelheft ============ */
+W.teil("Regelheft", "Schreiben");
+W.regelheft({
+  titel: "Anonym im Internet?",
+  html: `<p>Jede Anfrage trägt die <span class="rot">IP-Adresse</span> des Absenders.</p>
+    <p>Der Server sieht sie und kann sie mitschreiben. Der <span class="rot">Internetanbieter</span> weiß, welcher Anschluss die Adresse hatte.</p>
+    <p class="leer"></p>
+    <p>Ich bin nur <span class="rot">scheinbar anonym</span>. Ich hinterlasse eine <span class="rot">digitale Spur</span>.</p>`,
+  lehrer: { ziel: "Die Kernaussagen der Stunde stehen im Heft: Adresse in jeder Anfrage, Server und Anbieter können sie zuordnen, nur scheinbar anonym.",
+    anleitung: "Etwa 4 Minuten. Die Klasse schreibt ab. Erst nach dem Abhaken erscheint die erste Aufgabe.",
+    loesung: "Der Eintrag steht vollständig im Heft (vier kurze Absätze)." }
+});
+
+/* ============ Teil 2: Sehen und verstehen ============ */
+W.teil("Verstehen", "Sehen · Ausprobieren");
+
+W.aufgabe({
+  titel: "Spuren beim Surfen",
+  auftrag: "Sieh dir das Bild an: Ein Jugendlicher geht mit dem Handy durch die Stadt und hinterlässt leuchtende Fußspuren. Beantworte dann die zwei Fragen.",
+  vorwissen: "<p>Im Schnee siehst du deine Fußspuren. Im Internet gibt es auch Spuren – du siehst sie nur nicht. Bei dieser Aufgabe geht es um eine davon: deine IP-Adresse.</p>",
+  hinweise: ["Denke an einen Brief: Auf dem Umschlag steht nicht nur, wohin er soll, sondern auch ein Absender.", "Eine Anfrage im Internet trägt ebenfalls einen Absender: die Adresse deines Geräts oder Anschlusses.", "Frage 1: Die Anfrage trägt die IP-Adresse des Absenders. Frage 2: Das, was du beim Surfen hinterlässt, heißt digitale Spur."],
+  lehrer: { ziel: "Der Begriff der digitalen Spur an einem Bild; erster Hinweis auf die IP-Adresse als Absender.",
+    anleitung: "Bild am Beamer zeigen: „Was hinterlässt der Junge? Wer kann der Spur folgen?“ Dann die zwei Fragen in Einzelarbeit. Das Bild ist nur ein Einstieg, keine Aufgabe hängt an einer Einzelheit.",
+    loesung: "Frage 1: die IP-Adresse des Absenders. Frage 2: digitale Spur.",
+    fehler: ["Kinder meinen, die Spur entstehe nur durch Anmeldungen und Namen. Auch ohne Anmeldung trägt jede Anfrage eine Adresse."] },
+  bild: { src: "assets/bilder/anonym.jpg", alt: "Abendliche Straße in einer Stadt. Ein Jugendlicher mit Kapuze und Rucksack geht auf dem Gehweg und schaut auf sein Handy. Hinter ihm ziehen sich leuchtende blaue Fußabdrücke über das Pflaster. Im Hintergrund gehen Menschen, Autos fahren, Laternen brennen.", text: "Wer surft, hinterlässt Spuren – auch wenn man sie nicht sieht. (Bild mit KI erstellt)" },
+  bau(box) {
+    Modul.makeMC(box, [
+      { q: "Was verrät jede Anfrage an einen Webserver über den Absender?", o: ["die IP-Adresse", "das Passwort", "den Vornamen", "die Lieblingsfarbe"], a: 0,
+        e: "Ohne Absenderadresse wüsste der Server nicht, wohin er die Antwort schicken soll. Deshalb steht sie in jeder Anfrage." },
+      { q: "Wie nennt man das, was du beim Surfen hinterlässt?", o: ["digitale Spur", "Kabelknick", "Seitentitel", "Startbildschirm"], a: 0,
+        e: "Digitale Spuren sind zum Beispiel deine IP-Adresse in einem Protokoll oder deine Beiträge." }
+    ], "mc-bild");
+  }
+});
+
+W.aufgabe({
+  titel: "Wer sieht deine Adresse?",
+  auftrag: "Sieh dir an, wie deine Adresse mitwandert und wer sie erfährt. Gehe die vier Schritte durch.",
+  vorwissen: "<p>Der <b>Internetanbieter</b> ist die Firma, die deinen Anschluss ans Internet bereitstellt. Sie weiß, welcher Anschluss zu welcher Adresse gehört.</p>",
+  hinweise: ["Tippe auf „Start“ oder auf die Zahlen 1 bis 4.", "Achte auf die Schilder: Sie zeigen, wer die Adresse kennt.", "Der Webserver schreibt die Adresse mit. Der Internetanbieter weiß, welchem Anschluss die Adresse zu welcher Zeit gehört. So lässt sich ein Abruf einem Anschluss zuordnen."],
+  lehrer: { ziel: "Verstehen: Die Anfrage trägt die Absenderadresse; Server und Internetanbieter können sie zuordnen.",
+    anleitung: "Am Beamer gemeinsam durchklicken. Wichtige Vereinfachung: In Filius sieht der Server die Adresse des Laptops selbst (192.168.0.10). Zu Hause ist es anders: Dort sieht ein Server die Adresse des Anschlusses, also die Adresse, die der Router nach außen benutzt. Der Internetanbieter weiß, zu welchem Haushalt diese Adresse zu welcher Zeit gehörte. Das reicht, um einen Abruf einem Anschluss zuzuordnen. Keine Angstmache: Es geht um das Verstehen, nicht um Angst. Der Anbieter liest nicht gezielt mit. Bei HTTP könnte er den Inhalt technisch sehen, bei HTTPS nicht. Er kennt aber den Anschluss hinter der Adresse. Die Zeichnung ist vereinfacht: Der Switch Zuhause ist weggelassen.",
+    loesung: "Alle vier Schritte angesehen: (1) die Anfrage trägt den Absender, (2) der Server schreibt Adresse, Uhrzeit und Seite mit, (3) der Anbieter ordnet die Adresse einem Anschluss zu, (4) Ergebnis: nur scheinbar anonym.",
+    fehler: ["Kinder meinen, der Anbieter lese alle Seiten mit. Er weiß, welcher Anschluss die Adresse hatte – über den Inhalt sagt das noch nichts."],
+    bedienung: "„Start“ spielt alle Schritte ab, die Zahlen springen zu einem Schritt, ↺ beginnt neu." },
+  bau(box) {
+    box.innerHTML = '<div class="nb"></div><div class="sim"></div>';
+    const n = Modul.netzBild($(".nb", box), { b: 640, h: 270, alt: "Netzplan: Links der Laptop, dann der Router, in der Mitte der Internetanbieter, rechts der Webserver. Die Geräte sind der Reihe nach durch Kabel verbunden.",
+      geraete: [{ id: "l", art: "notebook", x: 65, y: 135, name: "Laptop", ip: "192.168.0.10" }, { id: "r", art: "router", x: 200, y: 135, name: "Router" }, { id: "a", art: "router", x: 365, y: 135, name: "Internetanbieter" },
+        { id: "ws", art: "server", x: 570, y: 135, name: "Webserver", ip: "203.0.113.10" }],
+      kabel: [["l", "r"], ["r", "a"], ["a", "ws"]] });
+    Modul.makeSchritte($(".sim", box), {
+      start: "Tippe auf „Start“ oder gehe Schritt für Schritt.",
+      steps: [
+        "Du rufst eine Seite ab. Deine Anfrage trägt wie ein Brief einen <b>Absender</b>: deine <b>IP-Adresse</b>.",
+        "Die Anfrage kommt beim <b>Webserver</b> an. Der Server <b>sieht die Adresse</b> und kann sie mitschreiben – dazu die Uhrzeit und die abgerufene Seite. (Zu Hause sieht er die Adresse deines Anschlusses, die der Router nach außen benutzt. In Filius ist es noch die Adresse des Laptops.)",
+        "Der <b>Internetanbieter</b> hat dir den Anschluss gegeben. Er weiß, <b>welchem Anschluss</b> die Adresse zu dieser Zeit gehörte.",
+        "Ergebnis: Auch ohne Namen kann man deinen Abruf zu einem Anschluss zurückverfolgen. Den Anschluss kennt nur der Anbieter. Du bist nur <b>scheinbar anonym</b>."
+      ],
+      zeige(i) {
+        n.neu();
+        const hin = (a, b) => n.kabel(a, b, "an");
+        if (i === 0) { n.schild("l", "Absender: 192.168.0.10"); hin("l", "r"); }
+        if (i >= 1) { hin("l", "r"); hin("r", "a"); hin("a", "ws"); }
+        if (i === 1) { n.paket("ws", { text: "Anfrage" }).an("ws", true); n.schild("ws", "Uhrzeit · Adresse · Seite"); }
+        if (i === 2) { n.an("a", true); n.schild("a", "Adresse → Anschluss"); }
+        if (i === 3) { n.schild("a", "Adresse → Anschluss"); n.schild("ws", "Uhrzeit · Adresse · Seite"); }
+      }
+    }, "anim-spur");
+  }
+});
+
+/* ============ Teil 3: Am PC ============ */
+W.teil("Am PC: Filius", "Anwenden");
+
+W.aufgabe({
+  titel: "Der Server schreibt mit",
+  geheim: ["192.168.0.11"],
+  auftrag: "Du arbeitest mit deinem Netz aus der letzten Stunde weiter. Zwei Rechner rufen dieselbe Seite ab. Du liest im Fenster des Webservers, wer abgerufen hat.",
+  vorwissen: "<p>Das Fenster des Webservers ist wie ein Gästebuch: Solange es <b>offen</b> ist, schreibt der Server auf, wer ihn besucht. Schließt du es, schreibt er nicht mit.</p>",
+  hinweise: ["Lass das Fenster „Webserver“ offen, während die beiden Rechner die Seite abrufen. Nur dann schreibt es mit.", "Der PC Wohnzimmer hat noch keinen Webbrowser. Installiere ihn dort zuerst über die Software-Installation.", "Reihenfolge: Netz laden → Aktionsmodus → Webserver öffnen und offen lassen → Laptop: Seite abrufen → PC Wohnzimmer: Webbrowser installieren, Seite abrufen → im Fenster des Webservers die Adresse 192.168.0.11 suchen."],
+  lehrer: { ziel: "Erleben: Der Webserver erfährt die Adresse des Abrufers und schreibt sie mit – ohne dass der Abrufer etwas tut.",
+    anleitung: "Filius 2.14.0 starten lassen. Die Kinder öffnen dns.fls (oder laden das fertige Netz herunter). Geladene Dienste laufen von selbst wieder. Das Fenster „Webserver“ muss offen bleiben (zur Seite schieben), sonst bleibt es leer. Danach ruft der Laptop und dann der PC Wohnzimmer die Seite ab. Im Textfeld des Webservers stehen beide Adressen: 192.168.0.10 (Laptop) und 192.168.0.11 (PC Wohnzimmer); die Zahl nach dem Doppelpunkt ist ein wechselnder Anschluss und unwichtig. Nichts wird hochgeladen: Die Kinder tippen die Adresse des zweiten Abrufers ein. Wer kein Filius hat (Tablet): aufklappbarer Bereich mit Bildschirmfotos. Vereinfachung: In Filius steht die Adresse des Laptops selbst; zu Hause sähe der Server die Adresse des Anschlusses (des Routers).",
+    loesung: "Im Fenster des Webservers steht beim zweiten Abruf die Adresse 192.168.0.11 (PC Wohnzimmer). Eingabe: 192.168.0.11.",
+    fehler: ["Das Fenster „Webserver“ wurde geschlossen: Das Textfeld bleibt leer. Fenster öffnen und die Seite noch einmal abrufen.", "Beim PC Wohnzimmer fehlt der Webbrowser: erst installieren.", "Das Kind nennt 192.168.0.10: Das ist der erste Abrufer (Laptop). Gefragt ist der zweite (PC Wohnzimmer).", "Im Fenster des Webservers steht der Knopf „Starten“: Der Server war nicht gestartet – „Starten“ anklicken und noch einmal abrufen."],
+    bedienung: "Das Kind tippt die Adresse in das Feld und klickt auf „Lösung überprüfen“." },
+  bau(box) {
+    box.innerHTML = '<div class="a"></div>' + tablet([
+      ["assets/filius/webserver-protokoll.png", "Filius, Fenster Webserver mit dem Knopf Anhalten. Im großen Textfeld steht: Verbindung zu 192.168.0.10:53042 hergestellt, dann die Anfrage GET / HTTP/1.1 mit Host www.klassenfest.example, die Antwort HTTP/1.1 200 OK und der Anfang des Seitentextes."],
+      ["assets/filius/webserver-protokoll2.png", "Dasselbe Fenster weiter unten im Text: Die letzte Zeile heißt Socket zu 192.168.0.11:63133 geschlossen. Darüber stehen Zeilen mit Bilddaten als wirre Zeichenfolge. Die Adresse des zweiten Abrufers, 192.168.0.11, ist zu lesen."]
+    ]);
+    Modul.makeAuftrag($(".a", box), {
+      titel: "Wer hat die Seite abgerufen?", pc: "Filius", zeit: "etwa 15 Minuten",
+      ziel: "Zwei Rechner rufen dieselbe Seite ab. Der Webserver schreibt ihre Adressen mit.",
+      material: [{ name: "Fertiges Netz aus der letzten Stunde (internet_fertig.fls)", href: "assets/filius/internet_fertig.fls" }],
+      schritte: [
+        "Öffne <b>Filius</b> und lade über den <span class=\"menue\">gelben Ordner</span> dein Netz aus der letzten Stunde (<b>dns.fls</b>). Du hast die Datei nicht mehr? Lade oben das fertige Netz herunter und öffne es.",
+        "Wechsle in den <b>Aktionsmodus</b> (<span class=\"menue\">grüner Pfeil</span>). Klicke auf den Rechner <b>Webserver</b> und öffne das Symbol <span class=\"menue\">Webserver</span>. Steht oben links der Knopf <span class=\"menue\">Anhalten</span>, läuft der Server. Steht dort <span class=\"menue\">Starten</span>, klicke darauf.",
+        { t: "<b>Lass dieses Fenster offen</b> – schiebe es zur Seite. Nur solange es offen ist, schreibt der Webserver mit.", bild: "assets/filius/webserver-fenster.png", alt: "Filius, Fenster Webserver: Oben links ein Knopf, daneben das Häkchen Verwende virtuelle Hosts, darunter ein leeres großes Textfeld, unten die Leiste Startbildschirm. Der Knopf zeigt noch Starten, nach dem Start steht dort Anhalten." },
+        "Klicke im Hauptfenster auf den <b>Laptop</b>, öffne den <span class=\"menue\">Webbrowser</span> und rufe <code>http://www.klassenfest.example</code> auf. Die Seite „FILIUS - Webserver“ erscheint.",
+        "Klicke jetzt auf den Rechner <b>PC Wohnzimmer</b>. Installiere dort über die <span class=\"menue\">Software-Installation</span> den <span class=\"menue\">Webbrowser</span> (wie beim Laptop) und rufe dieselbe Adresse auf.",
+        { t: "Sieh dir das Fenster des <b>Webservers</b> an. Dort steht für jeden Abruf, wer ihn gemacht hat: die Zeile <code>Verbindung zu 192.168.0.10:…</code> gehört zum Laptop. Scrolle im Textfeld weiter nach unten und suche die <b>Adresse des zweiten Abrufers</b>.", bild: "assets/filius/webserver-protokoll.png", alt: "Filius, Fenster Webserver mit dem Knopf Anhalten. Im Textfeld steht oben: Verbindung zu 192.168.0.10:53042 hergestellt, danach die Anfrage GET / HTTP/1.1, die Antwort HTTP/1.1 200 OK und der Anfang der Seite." }
+      ],
+      loesung: "Im Fenster des Webservers steht bei der zweiten Anfrage die Adresse 192.168.0.11 (PC Wohnzimmer), zum Beispiel in der Zeile „Socket zu 192.168.0.11:… geschlossen“.",
+      pruefung: { art: "wort", frage: "Welche Adresse steht im Fenster des Webservers beim zweiten Abruf (PC Wohnzimmer)?", antworten: ["192.168.0.11"],
+        tipp: "Die erste Adresse, 192.168.0.10, gehört dem Laptop. Suche weiter unten im Textfeld, zum Beispiel in der Zeile „Socket zu …“.",
+        erfolg: "Richtig: Der Webserver erfährt von jedem Abruf die Adresse des Absenders – ohne dass der Absender etwas tun muss." }
+    }, "auf1");
+  }
+});
+
+/* ============ Teil 4: Anwenden ============ */
+W.teil("Anwenden", "Entscheiden · Sortieren");
+
+W.aufgabe({
+  titel: "Wer sieht was?",
+  auftrag: "Ordne jedem Beteiligten zu, was er sieht oder weiß.",
+  hinweise: ["Denke an die Animation und an deinen Versuch: Wer kennt die Adresse?", "Der Webserver schreibt mit. Der Anbieter kennt den Anschluss. Dein Browser merkt sich nur etwas auf deinem eigenen Gerät.", "Webserver → Adresse, Uhrzeit, Seite · Internetanbieter → welcher Anschluss die Adresse zu welcher Zeit hatte · Browser → Verlauf auf deinem Gerät · Mitleser bei HTTP → Seitentext, bei HTTPS nicht."],
+  lehrer: { ziel: "Wer was weiß, auseinanderhalten: Server, Anbieter, eigener Browser, Mitleser.",
+    anleitung: "Einzelarbeit, etwa 3 Minuten. Der Mitleser knüpft an die letzte Einheit an: Bei HTTP kann er den Seitentext lesen, bei HTTPS nicht.",
+    loesung: "Webserver – Adresse, Uhrzeit und abgerufene Seite · Internetanbieter – welchem Anschluss die Adresse zu welcher Zeit gehörte · Browser – der Verlauf auf dem eigenen Gerät · Mitleser bei HTTP – der Seitentext, bei HTTPS nicht.",
+    fehler: ["Der Browser-Verlauf wird mit dem Protokoll des Servers verwechselt: Der Verlauf liegt nur auf dem eigenen Gerät."] },
+  bau(box) {
+    Modul.makePaare(box, [
+      ["Webserver der Seite", "schreibt Adresse, Uhrzeit und abgerufene Seite mit"],
+      ["Internetanbieter", "weiß, welchem Anschluss die Adresse zu welcher Zeit gehörte"],
+      ["Dein Browser", "merkt sich den Verlauf auf deinem Gerät"],
+      ["Mitleser bei HTTP", "kann den Text der Seite lesen – bei HTTPS nicht"]
+    ], "paare-wer");
+  }
+});
+
+W.aufgabe({
+  titel: "Schützt das meine Anonymität?",
+  auftrag: "Entscheide bei jedem Fall: Hilft das wirklich – oder bleibst du trotzdem erkennbar?",
+  vorwissen: "<p>Frage dich: Wer sieht die Anfrage trotzdem? Der Server sieht die Adresse. Der Anbieter kennt den Anschluss. Was du nie ins Netz stellst, kann dort auch niemand lesen.</p>",
+  hinweise: ["Überlege bei jedem Fall: Was ändert sich für den Webserver und den Anbieter?", "Ein Fantasiename ändert nichts an der Adresse. Ein privates Fenster ändert nur etwas auf deinem Gerät.", "Fantasiename → erkennbar · privates Fenster → erkennbar · Café-WLAN → erkennbar · gelöschter Beitrag → erkennbar · persönliche Angaben weglassen → hilft wirklich."],
+  lehrer: { ziel: "Typische Irrtümer über Anonymität erkennen (Lehrplan: vermeintliche Anonymität).",
+    anleitung: "Ein Fall nach dem anderen; falsch entschiedene Fälle kommen noch einmal. Hintergrund: Privates Fenster (Inkognito) bedeutet nur, dass der Browser den Verlauf nicht auf diesem Gerät speichert. Server und Anbieter sehen die Anfragen trotzdem. Beim fremden WLAN steht die Adresse des dortigen Anschlusses in der Anfrage; der Betreiber des WLANs kann oft nachvollziehen, welches Gerät wann verbunden war. Ein gelöschter Beitrag kann schon gelesen, kopiert oder als Bildschirmfoto gespeichert sein, und der Server hat die Anfrage bereits mitgeschrieben. Keine Rechtsberatung, keine Angstmache: Ziel ist ein ehrliches Bild.",
+    loesung: "Fantasiename: nein · privates Fenster: nein · Café-WLAN: nein · gelöschter Beitrag: nein · persönliche Angaben weglassen: ja, das hilft wirklich.",
+    fehler: ["Das private Fenster wird für „unsichtbar im Netz“ gehalten. Es betrifft nur den Verlauf auf dem eigenen Gerät.", "Beim letzten Fall wird „nein“ gewählt: Was ich nicht preisgebe, kann niemand aus meinem Beitrag lesen."] },
+  bau(box) {
+    Modul.makeEntscheiden(box, {
+      frage: "Hilft das wirklich?",
+      optionen: ["Ja, das hilft wirklich", "Nein, ich bleibe erkennbar"],
+      faelle: [
+        { html: "Du schreibst einen Kommentar unter einem <b>Fantasienamen</b>.", kurz: "Fantasiename", a: 1, e: "Der Name ist erfunden, die Adresse nicht. Der Server sieht sie, und der Anbieter kann sie einem Anschluss zuordnen." },
+        { html: "Du surfst in einem <b>privaten Fenster</b> (Inkognito-Fenster).", kurz: "privates Fenster", a: 1, e: "Das private Fenster speichert den Verlauf nicht auf deinem Gerät. Server und Anbieter sehen die Anfragen trotzdem." },
+        { html: "Du benutzt das <b>WLAN eines Cafés</b>, nicht das von zu Hause.", kurz: "Café-WLAN", a: 1, e: "In der Anfrage steht jetzt die Adresse des Cafés. Anonym bist du trotzdem nicht: Der Betreiber kann oft nachvollziehen, welches Gerät wann verbunden war." },
+        { html: "Du <b>löschst deinen Beitrag</b> wieder.", kurz: "gelöscht", a: 1, e: "Jemand kann ihn schon gelesen oder als Bildschirmfoto gespeichert haben. Und der Server hat die Anfrage schon mitgeschrieben." },
+        { html: "Du schreibst <b>keinen Nachnamen, keine Schule und keine Adresse</b> in dein Profil.", kurz: "Angaben weglassen", a: 0, e: "Was du nicht preisgibst, kann niemand aus deinem Beitrag lesen. Das ist der beste Schutz." }
+      ],
+      fertig: "Du erkennst, was Anonymität vortäuscht und was wirklich hilft."
+    }, "wirklich");
+  }
+});
+
+W.aufgabe({
+  titel: "Posten oder lieber nicht?",
+  auftrag: "Ordne jede Angabe zu: Das kann ich posten – oder das poste ich lieber nicht.",
+  vorwissen: "<p>Was einmal im Netz steht, kann kopiert werden. Frage dich vor dem Posten: Wäre es mir recht, wenn das auch Fremde lesen und lange aufbewahren?</p>",
+  hinweise: ["Frage dich bei jeder Angabe: Könnte ein Fremder damit etwas über mich herausfinden?", "Adresse, Handynummer, Passwörter und Abwesenheit von zu Hause gehören nicht ins Netz. Auch Fotos mit anderen Personen brauchen deren Erlaubnis.", "Posten: Foto vom selbst gebackenen Kuchen · eigene Meinung zu einem Film · Lieblingstier. Lieber nicht: Wohnadresse · Handynummer · Passwort · Urlaub mit Ort und Datum · Klassenfoto ohne Erlaubnis aller."],
+  lehrer: { ziel: "Sicheres Verhalten konkret machen: Was darf ins Netz, was besser nicht.",
+    anleitung: "Einzelarbeit, etwa 4 Minuten; danach im Gespräch Beispiele aus dem Alltag der Klasse sammeln. Es geht um klare Regeln, nicht um Angst: Posten ist nicht verboten, aber man sollte wissen, wer mitliest. Keine Rechtsberatung.",
+    loesung: "Posten: Foto vom selbst gebackenen Kuchen · eigene Meinung zu einem Film · Lieblingstier. Lieber nicht: Wohnadresse · Handynummer · Passwort · Urlaub mit Ort und Datum · Klassenfoto ohne Erlaubnis aller.",
+    fehler: ["Das Klassenfoto wird als harmlos eingestuft: Auf dem Foto sind andere Personen, die erst zustimmen müssen.", "„Urlaub mit Ort und Datum“ wird als Angeberei gesehen, nicht als Hinweis, dass die Wohnung leer ist."] },
+  bau(box) {
+    Modul.makeSort(box, {
+      buckets: ["✅ Das kann ich posten", "⛔ Das poste ich lieber nicht"],
+      items: [
+        { t: "Ein Foto von meinem selbst gebackenen Kuchen", b: 0 },
+        { t: "Meine Meinung zu einem Film", b: 0 },
+        { t: "Ein Bild von meinem Lieblingstier", b: 0 },
+        { t: "Meine Wohnadresse", b: 1 },
+        { t: "Meine Handynummer", b: 1 },
+        { t: "Mein Passwort", b: 1 },
+        { t: "Dass wir nächste Woche im Urlaub sind, mit Ort und Datum", b: 1 },
+        { t: "Ein Klassenfoto, ohne dass alle zugestimmt haben", b: 1 }
+      ],
+      done: "✅ Gut sortiert: Wer nichts Persönliches preisgibt, hinterlässt weniger Spuren."
+    }, "posten");
+  }
+});
+
+/* ============ Teil 5: Kontrollieren ============ */
+W.teil("Kontrollieren", "Lerncheck");
+
+W.aufgabe({
+  titel: "Lerncheck: Richtig oder falsch?",
+  auftrag: "Entscheide bei jeder Aussage.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Jede Anfrage trägt die Adresse des Absenders. Server und Anbieter können sie zuordnen.", "Richtig: Adresse in jeder Anfrage · Anbieter kennt den Anschluss · was ich nicht poste, kann niemand lesen. Falsch: privates Fenster versteckt die Adresse · Fantasiename macht anonym."],
+  lehrer: { ziel: "Kernwissen der Stunde sichern.", anleitung: "Einzelarbeit, etwa 3 Minuten.",
+    loesung: "richtig · falsch · richtig · falsch · richtig", fehler: ["Aussage 2: Das private Fenster versteckt die Adresse nicht – es betrifft nur den Verlauf auf dem eigenen Gerät."] },
+  bau(box) {
+    Modul.makeTF(box, [
+      ["Jede Anfrage im Internet trägt die IP-Adresse des Absenders.", true],
+      ["In einem privaten Fenster sieht der Webserver meine Adresse nicht.", false],
+      ["Der Internetanbieter weiß, welchem Anschluss eine Adresse zu welcher Zeit gehörte.", true],
+      ["Mit einem Fantasienamen bin ich im Internet wirklich anonym.", false],
+      ["Was ich nicht ins Internet stelle, kann dort auch niemand lesen.", true]
+    ], "tf");
+  }
+});
+
+W.aufgabe({
+  titel: "Erkläre es in zwei Sätzen",
+  auftrag: "Schreibe in zwei Sätzen auf, warum man im Internet nur scheinbar anonym ist.",
+  hinweise: ["Denke an die Animation: Wer kennt deine Adresse?", "Nenne die IP-Adresse, den Server und den Internetanbieter.", "Beispiel für den Aufbau: Satz 1: Jede Anfrage trägt meine IP-Adresse, die der Server mitschreiben kann. Satz 2: Der Anbieter weiß, welchem Anschluss die Adresse zu welcher Zeit gehörte."],
+  lehrer: { ziel: "Das Gelernte mit eigenen Worten erklären (vermeintliche Anonymität).",
+    anleitung: "Einzelarbeit, etwa 4 Minuten. Die KI gibt eine Rückmeldung; ohne Verbindung prüft die Seite nach Stichwörtern. Gut ist jede Antwort, die die Adresse nennt und sagt, dass Server oder Anbieter sie zuordnen können.",
+    loesung: "Beispiel: Jede Anfrage trägt die IP-Adresse des Absenders, und der Webserver kann sie mitschreiben. Der Internetanbieter weiß außerdem, welchem Anschluss die Adresse zu welcher Zeit gehörte – deshalb lässt sich das Surfen einem Anschluss zuordnen.",
+    fehler: ["Die Antwort nennt nur „Daten werden gespeichert“ ohne die Adresse. Nachfragen: Welche Angabe steht in jeder Anfrage?"] },
+  bau(box) {
+    Modul.makeOpen(box, [
+      { q: "Erkläre in zwei Sätzen, warum man im Internet nur scheinbar anonym ist.",
+        m: "Jede Anfrage trägt die IP-Adresse des Absenders, und der Webserver kann sie mitschreiben. Der Internetanbieter weiß außerdem, welchem Anschluss die Adresse zu welcher Zeit gehörte – deshalb lässt sich das Surfen einem Anschluss zuordnen.",
+        k: ["ip|adresse", "server|seite|anbieter|provider", "anschluss|zuordn|nachvollzieh|zurückverfolg|mitschreib|gespeichert|protokoll|spur"], min: 3 }
+    ], "open", "Welche Angabe trägt jede Anfrage? Und wer kann sie einem Anschluss zuordnen?");
+  }
+});
+
+/* ============ Teil 6: Wortspeicher ============ */
+W.teil("Wortspeicher", "Wiederholen");
+W.karten({
+  titel: "Wortspeicher Modul 2: Internet verstehen",
+  auftrag: "Kennst du den Begriff? Überlege zuerst, dann dreh die Karte um.",
+  karten: [
+    ["Internet", "Ein riesiges Netz aus vielen Netzen, die durch Router verbunden sind."],
+    ["Client", "Ein Gerät, das etwas anfragt, zum Beispiel dein Laptop mit dem Browser."],
+    ["Server", "Ein Rechner, der Anfragen beantwortet und etwas liefert."],
+    ["Webserver", "Ein Server, der Webseiten ausliefert."],
+    ["Browser", "Das Programm, mit dem du Webseiten abrufst und ansiehst."],
+    ["URL", "Die Adresse einer Webseite, zum Beispiel http://www.klassenfest.example."],
+    ["Domainname", "Der Name eines Servers, zum Beispiel www.klassenfest.example."],
+    ["DNS", "Das Telefonbuch des Internets: Es übersetzt Namen in IP-Adressen."],
+    ["HTTP", "Die Regeln, nach denen Browser und Webserver Seiten übertragen – ohne Verschlüsselung."],
+    ["Request (Anfrage)", "Die Frage des Browsers an den Webserver, zum Beispiel GET / HTTP/1.1."],
+    ["Response (Antwort)", "Die Antwort des Webservers: eine Statuszeile wie 200 OK und die Seite."],
+    ["HTTPS", "HTTP mit Verschlüsselung. Der Server weist sich außerdem aus."],
+    ["Verschlüsselung", "Daten werden so verändert, dass nur Absender und Empfänger sie lesen können."],
+    ["Zertifikat", "Der Ausweis eines Servers: Eine Prüfstelle bestätigt, zu wem er gehört."],
+    ["digitale Spur", "Alles, was du beim Surfen hinterlässt, zum Beispiel deine IP-Adresse in einer Mitschrift des Servers."],
+    ["anonym", "Unbekannt. Im Internet bist du es nur scheinbar, weil deine Adresse zugeordnet werden kann."]
+  ]
+});
+
+W.fertig();
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

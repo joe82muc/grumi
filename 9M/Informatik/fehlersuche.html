@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Fehlersuche | Informatik 9</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="../../8M/Informatik/einheit8.css">
+<link rel="stylesheet" href="einheit9.css">
+<link rel="stylesheet" href="bloecke9.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 9</small></a>
+    <nav class="stations" id="stations"></nav>
+    <span class="stars" id="stars">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks">
+      <a href="index.html">Übersicht Informatik 9M</a>
+      <a href="../../9R/Informatik/index.html">Übersicht Informatik 9R</a>
+      <a href="../../index.html">Startseite</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 9 · Modul 5: Programmieren mit Scratch · Einheit 7</div>
+    <h1>Fehlersuche</h1>
+    <p>Das Programm läuft, aber es tut nicht, was es soll? Dann steckt ein Fehler drin. Heute spielst du Detektiv: Du findest Fehler, reparierst sie und machst Programme kürzer.</p>
+    <div class="zeit">etwa 40 Minuten · GRUMI-Blöcke auf der Seite, dann Praxis am Windows-PC mit Scratch</div>
+    <div class="goals">
+      <div>Ich sage vorher, was ein Programm macht, und prüfe es dann nach.</div>
+      <div>Ich finde Fehler in einem Programm und repariere sie.</div>
+      <div>Ich mache ein Programm kürzer, ohne dass es etwas anderes tut (optimieren).</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="modulStand"></div>
+  <div id="weg"></div>
+</main>
+
+<footer class="wrap">Informatik 9 · Dein Fortschritt wird mit deinem Code gespeichert. · Scratch ist ein Projekt der Scratch Foundation (scratch.mit.edu). Die Blöcke und der Roboter auf dieser Seite sind eigene Nachbildungen (GRUMI-Blöcke).</footer>
+
+<div id="pop" role="dialog"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info9.js"></script>
+<script src="bloecke9.js"></script>
+<script src="../../8M/Informatik/excel-datei.js"></script>
+<script src="scratch-aufgaben9.js"></script>
+<script>
+(function () {
+"use strict";
+const {$} = Modul;
+const nah = (a, b) => typeof a === "number" && Math.abs(a - b) < 1e-6;
+
+Modul.start9({
+  key: "grumi-i9-fehlersuche-v1",
+  thema: "Scratch: Fehler in Programmen suchen und beheben (Zähler in der Schleife immer wieder auf 0 gesetzt, falsches Vergleichszeichen, Block steht außerhalb der Schleife), Programme vorhersagen und Schritt für Schritt durchspielen, Programme kürzer machen (optimieren)",
+  glossary: {
+    fehler: ["Fehler", "Eine Stelle im Programm, an der es etwas anderes tut, als du willst."],
+    optimieren: ["optimieren", "Ein Programm verbessern, zum Beispiel kürzer oder übersichtlicher machen, ohne dass es etwas anderes tut."],
+    zaehler: ["Zähler", "Eine Variable, die mitzählt, zum Beispiel die Punkte."],
+    vergleich: ["Vergleichszeichen", "Zeichen wie =, < oder >. Sie prüfen, ob zwei Werte gleich, kleiner oder größer sind."],
+    schleife: ["Wiederholung (Schleife)", "Blöcke, die mehrmals laufen. Alles in der Klammer wird wiederholt."]
+  }
+});
+
+const W = Modul.lernweg("#weg");
+
+/* ============ Regelheft ============ */
+W.teil("Regelheft", "Schreiben");
+W.regelheft({
+  titel: "Fehler finden",
+  html: `<p>Ein <span class="rot">Fehler</span> ist eine Stelle, an der das Programm etwas anderes tut, als du willst.</p>
+    <p>1. <span class="blau">Genau lesen:</span> Block für Block.</p>
+    <p>2. <span class="blau">Durchspielen:</span> Schritt für Schritt, wie der Computer.</p>
+    <p>3. <span class="blau">Eine Sache ändern,</span> dann wieder testen.</p>
+    <p class="leer"></p>
+    <p>Ein Programm <span class="rot">optimieren</span> = es verbessern, zum Beispiel kürzer machen.</p>`,
+  lehrer: { ziel: "Das Vorgehen beim Fehlersuchen steht im Heft: genau lesen, durchspielen, eine Sache ändern und wieder testen.",
+    anleitung: "Etwa 5 Minuten. Die Klasse schreibt ab. Erst nach dem Abhaken erscheint die erste Aufgabe.",
+    loesung: "Der Eintrag steht vollständig im Heft (Fehler, drei Schritte, optimieren)." }
+});
+
+/* ============ Teil 2: Vorhersagen und durchspielen ============ */
+W.teil("Verstehen", "Vorhersagen · Durchspielen");
+
+W.aufgabe({
+  titel: "Was macht das Programm wirklich?",
+  bild: { src: "assets/bilder/fehlersuche.jpg", alt: "Ein kleiner weißer Roboter mit blau leuchtenden Augen hält eine Lupe vor einen Turm aus bunten Bauklötzen. Auf einem roten Klotz sitzt ein Marienkäfer.", text: "Fehler sind wie kleine Käfer im Programm: Mit der Lupe findest du sie." },
+  auftrag: "Lies das Programm genau. Kreuze an, was passiert – <b>erst danach</b> startest du es und siehst nach. Die Blöcke hier sind eine Nachbildung: Im echten Scratch funktioniert alles gleich, es sieht nur etwas anders aus.",
+  geheim: ["25", "3"],
+  vorwissen: "<p>Eine <b>Variable</b> ist ein Speicherplatz mit Namen. „setze sterne auf 10“ legt den Wert 10 hinein, „ändere sterne um 5“ zählt 5 dazu.</p>",
+  hinweise: ["Gehe das Programm von oben nach unten durch wie der Computer: Eine Zeile nach der anderen.", "Schreibe dir nach jeder Zeile auf, was in „sterne“ steht. Die Klammer „wiederhole 3 mal“ läuft dreimal.", "Start: 10. Dann dreimal 5 dazu: 15, 20, 25. Der Roboter sagt am Ende das Ergebnis."],
+  lehrer: { ziel: "Vor dem Starten vorhersagen, was ein Programm tut (Programm lesen, Wiederholung und Variable nachvollziehen).",
+    anleitung: "Zuerst die Klasse raten lassen, erst dann auf „Programm starten“ drücken. Fragen: „Wer hatte es richtig im Kopf?“ Hinweis: Die Blöcke sind eine Nachbildung von Scratch, im echten Scratch läuft es gleich.",
+    loesung: "Frage 1: Sterne: 25 · Frage 2: dreimal.",
+    fehler: ["„Sterne: 15“ – die 10 vom Anfang wird vergessen oder nur ein Durchlauf gerechnet.", "Das Programm wird gleich gestartet statt zuerst geraten – dann lernt das Kind nichts."],
+    bedienung: "Fragen ankreuzen. Danach unten auf „Programm starten“ drücken und auf der Bühne zusehen." },
+  bau(box) {
+    const prog = [["flagge"], ["setze", "sterne", 10], ["mal", 3, [["aendere", "sterne", 5]]], ["sage", ["verbinde", "Sterne: ", ["var", "sterne"]]]];
+    box.innerHTML = '<div class="bb"></div><div class="mc"></div><p><b>Jetzt prüfen:</b> Drücke auf „Programm starten“ und sieh zu, ob du richtig gedacht hast.</p><div class="ed"></div>';
+    Modul.blockBild($(".bb", box), prog);
+    Modul.makeMC($(".mc", box), [
+      { q: "Was sagt der Roboter am Ende?", o: ["Sterne: 25", "Sterne: 15", "Sterne: 5", "Sterne: 10"], a: 0, e: "Start 10, dreimal 5 dazu: 10 + 5 + 5 + 5 = 25." },
+      { q: "Wie oft läuft der Block „ändere sterne um 5“?", o: ["dreimal", "einmal", "fünfmal", "zehnmal"], a: 0, e: "Er steht in der Klammer „wiederhole 3 mal“. Alles in der Klammer läuft dreimal." }
+    ], "mc-vorher");
+    Modul.blockEditor($(".ed", box), { palette: ["flagge", "setze", "aendere", "mal", "sage", "var", "verbinde"], variablen: ["sterne"], start: prog, fest: 1 });
+  }
+});
+
+W.aufgabe({
+  titel: "Schritt für Schritt durchspielen",
+  auftrag: "Spiele dieses Programm im Kopf durch. Schreibe dir nach jeder Runde auf, was in „versuche“ steht. Dann beantworte die zwei Fragen.",
+  geheim: ["2", "7"],
+  hinweise: ["Mache dir eine kleine Tabelle: Runde 1, Runde 2, Runde 3 – und daneben der Wert von „versuche“.", "Start: versuche = 1. In jeder Runde kommen 2 dazu, und <b>danach</b> wird verglichen: Ist versuche größer als 4?", "Runde 1: 3 (nicht größer als 4). Runde 2: 5 (größer, „Stopp!“). Runde 3: 7 (größer, „Stopp!“)."],
+  lehrer: { ziel: "Ein Programm mit Schleife und Bedingung von Hand durchspielen (Fehlersuche-Technik).",
+    anleitung: "Die Kinder dürfen eine Tabelle zeichnen. Wer fertig ist, kann das Programm in GRUMI-Blöcken nachbauen und starten – dann sieht er, ob die Rechnung stimmt.",
+    loesung: "„Stopp!“ wird zweimal gesagt (Runde 2 und 3) · versuche steht am Ende auf 7.",
+    fehler: ["„Dreimal Stopp“ – die erste Runde endet bei 3, das ist nicht größer als 4.", "Als Endstand wird 5 genannt: Die dritte Runde wird nicht mehr mitgezählt."] },
+  bau(box) {
+    box.innerHTML = '<div class="bb"></div><div class="e1"></div><div class="e2"></div>';
+    Modul.blockBild($(".bb", box), [["flagge"], ["setze", "versuche", 1], ["mal", 3, [["aendere", "versuche", 2], ["falls", [">", ["var", "versuche"], 4], [["sage", "Stopp!"]]]]]]);
+    Modul.makeEingabe($(".e1", box), { frage: "Wie oft sagt der Roboter „Stopp!“?", wert: 2, tol: 0, tipp: "Spiele jede Runde einzeln durch und vergleiche nach dem „ändere“ mit 4.", erfolg: "Genau: nur in Runde 2 und 3.", name: "Wie oft Stopp?" }, "ein-stopp");
+    Modul.makeEingabe($(".e2", box), { frage: "Welche Zahl steht am Ende in „versuche“?", wert: 7, tol: 0, tipp: "Start 1, dreimal um 2 erhöht.", erfolg: "1 + 2 + 2 + 2 = 7.", name: "Endstand versuche" }, "ein-versuche");
+  }
+});
+
+/* ============ Teil 3: Reparieren ============ */
+W.teil("Fehler reparieren", "Ausprobieren · Anwenden");
+
+W.aufgabe({
+  titel: "Reparatur 1: Das Tor zählt nicht",
+  auftrag: "Der Roboter schießt viermal aufs Tor. Jeder Treffer gibt einen Punkt, am Ende soll er „Tore: 4“ sagen. Starte das Programm und sieh, was er wirklich sagt. Finde den Fehler und repariere ihn.",
+  geheim: ["Tore: 4"],
+  hinweise: ["Starte das Programm und lies, was der Roboter sagt. Passt das zu vier Treffern?", "Spiele zwei Runden im Kopf durch: Was passiert in jeder Runde als Erstes mit „tore“?", "Der Block „setze tore auf 0“ steht in der Klammer, darum beginnt jede Runde wieder bei 0. Ziehe ihn <b>vor</b> die Wiederholung."],
+  lehrer: { ziel: "Den Klassiker erkennen: Ein Zähler wird in der Schleife immer wieder auf 0 gesetzt (Wertzuweisung am falschen Ort).",
+    anleitung: "Programm starten lassen: Der Roboter sagt „Tore: 1“. Fragen: „Wo geht das Zählen kaputt?“ Das Kind soll den Block „setze tore auf 0“ vor die Wiederholung verschieben (ziehen oder antippen).",
+    loesung: "flagge · setze tore auf 0 · wiederhole 4 mal: ändere tore um 1 · sage „Tore: “ und tore → „Tore: 4“.",
+    fehler: ["Der Block „setze tore auf 0“ wird gelöscht: Dann zählt es in dieser Nachbildung zwar, aber in Scratch bleibt der alte Wert vom letzten Start stehen – der Startwert gehört dazu.", "Die Wiederholung wird gelöscht und der Block „ändere“ viermal gebaut – das ist richtig, aber lang."],
+    bedienung: "Block antippen oder am Block ziehen. Dann „Programm starten“, zuletzt „Prüfen“." },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Der Roboter soll am Ende „Tore: 4“ sagen. Finde den Fehler.</p>",
+      palette: ["flagge", "setze", "aendere", "mal", "sage", "var", "verbinde"], variablen: ["tore"], fest: 1,
+      start: [["flagge"], ["mal", 4, [["setze", "tore", 0], ["aendere", "tore", 1]]], ["sage", ["verbinde", "Tore: ", ["var", "tore"]]]],
+      pruefe: e => {
+        const p = e.programm(), l = e.lauf(), liste = Modul.blockListe(p), imMal = liste.indexOf("mal");
+        const sagt = l.gesagt[l.gesagt.length - 1];
+        return [
+          { ok: Modul.blockHat(p, "mal"), text: Modul.blockHat(p, "mal") ? "Die Wiederholung „wiederhole … mal“ ist noch da." : "Die Wiederholung soll bleiben: Der Treffer wird viermal gezählt." },
+          { ok: imMal >= 0 && liste.slice(0, imMal).indexOf("setze") >= 0, text: imMal >= 0 && liste.slice(0, imMal).indexOf("setze") >= 0 ? "„setze tore auf 0“ steht vor der Wiederholung." : "„setze tore auf 0“ gehört an den Anfang, vor die Wiederholung. Dort stellst du den Zähler einmal auf 0." },
+          { ok: sagt === "Tore: 4", text: sagt === "Tore: 4" ? "Der Roboter sagt „Tore: 4“." : "Der Roboter sagt „" + (sagt || "…") + "“, soll aber „Tore: 4“ sagen. Beobachte: Was passiert mit „tore“ am Anfang jeder Runde?" }
+        ];
+      },
+      loesung: [["flagge"], ["setze", "tore", 0], ["mal", 4, [["aendere", "tore", 1]]], ["sage", ["verbinde", "Tore: ", ["var", "tore"]]]],
+      erfolg: "Gefunden! Der Zähler wird einmal vor der Wiederholung auf 0 gestellt – nicht in jeder Runde neu.", name: "Reparatur: Zähler"
+    }, "rep-zaehler");
+  }
+});
+
+W.aufgabe({
+  titel: "Reparatur 2: Die Spinne",
+  auftrag: "Der Roboter fragt: „Wie viele Beine hat eine Spinne?“ Bei der richtigen Antwort soll er „Stimmt!“ sagen, sonst „Leider nein.“ Probiere es aus – mit 8 und mit einer anderen Zahl. Was fällt dir auf?",
+  hinweise: ["Gib die richtige Antwort ein. Sagt der Roboter, was er sagen soll?", "Sieh dir die Bedingung hinter „falls“ an. Für „genau diese Zahl“ braucht man ein bestimmtes Zeichen.", "Das Zeichen „&lt;“ heißt „kleiner als“. Hier soll aber geprüft werden, ob die Antwort <b>gleich</b> 8 ist: Wähle im Menü das Zeichen „=“."],
+  lehrer: { ziel: "Ein falsches Vergleichszeichen erkennen: „gleich“ (=) prüft eine richtige Antwort, „kleiner“ (&lt;) und „größer“ (&gt;) nicht.",
+    anleitung: "Zuerst mit 8 testen lassen: Der Roboter sagt „Leider nein.“ Dann mit 5: „Stimmt!“ – das ist doppelt falsch. Die Kinder merken: Es muss mit mehreren Eingaben getestet werden, nicht nur mit einer.",
+    loesung: "falls Antwort = 8, dann „Stimmt!“, sonst „Leider nein.“",
+    fehler: ["Es wird „&gt;“ eingestellt: Mit 8 stimmt es dann immer noch nicht und mit 9 sagt der Roboter fälschlich „Stimmt!“.", "Die Zahl 8 wird geändert statt des Zeichens."],
+    bedienung: "Im Vergleichs-Block steht ein Auswahlfeld (<, =, >): antippen und „=“ wählen. Dann „Programm starten“, Zahl eintippen, „Prüfen“." },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Wer „8“ eingibt, soll „Stimmt!“ lesen. Alle anderen Zahlen sollen „Leider nein.“ ergeben. Teste mit mehr als einer Zahl.</p>",
+      palette: ["flagge", "frage", "fallsSonst", "sage", "antwort"], fest: 1,
+      start: [["flagge"], ["frage", "Wie viele Beine hat eine Spinne?"], ["fallsSonst", ["<", ["antwort"], 8], [["sage", "Stimmt!"]], [["sage", "Leider nein."]]]],
+      pruefe: e => {
+        const faelle = [["8", "Stimmt!"], ["5", "Leider nein."], ["9", "Leider nein."], ["0", "Leider nein."]];
+        const fehl = faelle.filter(([a, w]) => e.lauf({ antworten: [a] }).gesagt.join() !== w);
+        if (!fehl.length) return true;
+        const [a, w] = fehl[0], was = e.lauf({ antworten: [a] }).gesagt.join() || "nichts";
+        return "Bei der Antwort " + a + " sagt der Roboter „" + was + "“, soll aber „" + w + "“ sagen. Sieh dir das Vergleichszeichen hinter „falls“ an.";
+      },
+      loesung: [["flagge"], ["frage", "Wie viele Beine hat eine Spinne?"], ["fallsSonst", ["=", ["antwort"], 8], [["sage", "Stimmt!"]], [["sage", "Leider nein."]]]], loesungAntworten: ["8"],
+      erfolg: "Richtig: Für „genau diese Zahl“ braucht man das Zeichen „=“.", name: "Reparatur: Vergleichszeichen"
+    }, "rep-vergleich");
+  }
+});
+
+W.aufgabe({
+  titel: "Reparatur 3: Die Münzen",
+  auftrag: "Der Roboter geht fünfmal 10 Schritte. Bei jedem Schritt soll er eine Münze einsammeln und am Ende „Münzen: 5“ sagen. Starte das Programm und finde den Fehler.",
+  hinweise: ["Starte das Programm. Wie viele Münzen hat der Roboter am Ende wirklich?", "Wie oft läuft der Block „ändere muenzen um 1“? Sieh nach, ob er in der Klammer der Wiederholung steht oder darunter.", "Ziehe „ändere muenzen um 1“ in die Klammer „wiederhole 5 mal“, unter den Block „gehe 10 Schritte“."],
+  lehrer: { ziel: "Einen Block erkennen, der außerhalb der Schleife steht und darum nur einmal läuft.",
+    anleitung: "Programm laufen lassen: Der Roboter sagt „Münzen: 1“. Fragen: „Wie oft läuft der Block, der zählt?“ Dann das Ziehen in die Klammer üben.",
+    loesung: "flagge · setze muenzen auf 0 · wiederhole 5 mal: gehe 10 Schritte, ändere muenzen um 1 · sage „Münzen: 5“.",
+    fehler: ["Der Block wird <b>über</b> statt in die Klammer gesetzt (er läuft dann nicht fünfmal).", "Ein zweiter „ändere“-Block wird dazugebaut statt den vorhandenen zu verschieben."],
+    bedienung: "Block am Block ziehen und in die Klammer der Wiederholung legen. Oder: Block antippen, dann den leeren Platz in der Klammer antippen." },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Der Roboter soll bei x = 50 stehen und „Münzen: 5“ sagen.</p>",
+      palette: ["flagge", "setze", "aendere", "mal", "gehe", "sage", "var", "verbinde"], variablen: ["muenzen"], fest: 1,
+      start: [["flagge"], ["setze", "muenzen", 0], ["mal", 5, [["gehe", 10]]], ["aendere", "muenzen", 1], ["sage", ["verbinde", "Münzen: ", ["var", "muenzen"]]]],
+      pruefe: e => {
+        const p = e.programm(), l = e.lauf(), sagt = l.gesagt[l.gesagt.length - 1];
+        const aufbau = Modul.blockHat(p, "mal") && Modul.blockAnzahl(p, "gehe") === 1 && Modul.blockAnzahl(p, "aendere") === 1;
+        return [
+          { ok: nah(l.x, 50), text: nah(l.x, 50) ? "Der Roboter steht bei x = 50." : "Der Roboter steht bei x = " + l.x + ", soll aber bei 50 stehen. Fünfmal 10 Schritte, die Wiederholung soll bleiben." },
+          { ok: sagt === "Münzen: 5", text: sagt === "Münzen: 5" ? "Der Roboter sagt „Münzen: 5“." : "Der Roboter sagt „" + (sagt || "…") + "“, soll aber „Münzen: 5“ sagen. Wie oft läuft „ändere muenzen um 1“? Es soll bei jedem Schritt passieren." },
+          { ok: aufbau, text: aufbau ? "Du benutzt eine Wiederholung mit je einem Block „gehe“ und „ändere“." : "Baue es mit einer Wiederholung: je ein Block „gehe“ und „ändere“ in der Klammer, nicht fünfmal hintereinander." }
+        ];
+      },
+      loesung: [["flagge"], ["setze", "muenzen", 0], ["mal", 5, [["gehe", 10], ["aendere", "muenzen", 1]]], ["sage", ["verbinde", "Münzen: ", ["var", "muenzen"]]]],
+      erfolg: "Gut gesehen: Nur was in der Klammer steht, läuft in jeder Runde mit.", name: "Reparatur: Block an der falschen Stelle"
+    }, "rep-stelle");
+  }
+});
+
+W.aufgabe({
+  titel: "Kürzer machen: optimieren",
+  auftrag: "Dieses Programm läuft richtig: Der Roboter steigt eine Treppe hoch und sagt „Oben!“. Aber es hat zu viele Blöcke. Mache es kürzer – es soll dasselbe tun.",
+  vorwissen: "<p><b>Optimieren</b> heißt: verbessern. Ein Programm, das zehnmal denselben Block untereinander hat, kann man oft kürzer bauen.</p>",
+  hinweise: ["Sieh dir die Blöcke an: Was steht mehrmals genau gleich untereinander?", "Immer zwei Blöcke („ändere x“, „ändere y“) wiederholen sich, und zwar viermal. Dafür gibt es die Wiederholung.", "Baue „wiederhole 4 mal“ und lege „ändere x um 15“ und „ändere y um 15“ hinein. Lösche die übrigen Blöcke. „sage Oben!“ bleibt am Ende."],
+  lehrer: { ziel: "Optimieren: Ein Programm bekommt dasselbe Verhalten mit weniger Blöcken (Wiederholung statt Kopien).",
+    anleitung: "Zuerst starten und beobachten: Es wird richtig (x 60, y 60) und sagt „Oben!“. Dann: „Wer schafft es mit nur fünf Blöcken?“ Prüfen lässt sich beides: Verhalten und Zahl der Blöcke.",
+    loesung: "flagge · wiederhole 4 mal: ändere x um 15, ändere y um 15 · sage „Oben!“ (5 statt 10 Blöcke).",
+    fehler: ["Das Verhalten ändert sich beim Kürzen (zum Beispiel nur dreimal wiederholt).", "Das Programm ist gleich lang geblieben, weil nur ein Block in die Schleife kam."],
+    bedienung: "Blöcke löschen: Block auf die Palette ziehen oder markieren und Entf." },
+  bau(box) {
+    const start = [["flagge"], ["aendereX", 15], ["aendereY", 15], ["aendereX", 15], ["aendereY", 15], ["aendereX", 15], ["aendereY", 15], ["aendereX", 15], ["aendereY", 15], ["sage", "Oben!"]];
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Gleiches Verhalten, weniger Blöcke: Am Ende steht der Roboter bei x = 60 und y = 60 und sagt „Oben!“.</p>",
+      palette: ["flagge", "aendereX", "aendereY", "sage", "mal"], fest: 1, start,
+      pruefe: e => {
+        const p = e.programm(), l = e.lauf(), n = Modul.blockListe(p).length, vorher = Modul.blockListe(start).length;
+        const gleich = nah(l.x, 60) && nah(l.y, 60) && l.gesagt.join() === "Oben!";
+        return [
+          { ok: gleich, text: gleich ? "Das Verhalten ist gleich geblieben: x = 60, y = 60, „Oben!“." : "Das Verhalten hat sich geändert: Der Roboter steht bei x = " + l.x + ", y = " + l.y + " und sagt „" + (l.gesagt.join() || "nichts") + "“. Er soll bei 60 und 60 stehen und „Oben!“ sagen." },
+          { ok: n < vorher, text: n < vorher ? "Das Programm ist kürzer: " + n + " statt " + vorher + " Blöcke." : "Das Programm hat noch " + n + " Blöcke, gleich viele wie vorher. Was steht mehrmals genau gleich untereinander? Fasse es mit einer Wiederholung zusammen." },
+          { ok: Modul.blockHat(p, "mal"), text: Modul.blockHat(p, "mal") ? "Du benutzt eine Wiederholung." : "Benutze „wiederhole … mal“: Dort kannst du das Gleiche zusammenfassen." }
+        ];
+      },
+      loesung: [["flagge"], ["mal", 4, [["aendereX", 15], ["aendereY", 15]]], ["sage", "Oben!"]],
+      erfolg: "Optimiert: Fünf Blöcke statt zehn, und es tut genau dasselbe.", name: "Kürzer machen"
+    }, "kuerzer");
+  }
+});
+
+/* ============ Teil 4: Am PC ============ */
+W.teil("Am PC: Scratch", "Anwenden");
+
+W.aufgabe({
+  titel: "Fehler im Punkte-Quiz",
+  auftrag: "In echtem Scratch: Ein Quiz soll bei jeder richtigen Antwort einen Punkt zählen und am Ende die richtige Punktzahl nennen. Es macht aber nicht, was es soll. Finde die Fehler und repariere sie.",
+  geheim: ["3"],
+  hinweise: ["Starte das Quiz und beantworte alle drei Fragen richtig. Passt das, was die Figur sagt, zu deinen Antworten?", "Lies die Blöcke von oben nach unten und spiele eine Runde im Kopf durch. Es gibt drei Fehler: einen bei den Punkten, einen im „falls“ und einen beim Zählen. Ändere immer nur eine Sache und teste dann.", "(1) „setze Punkte auf 0“ steht in der Wiederholung – ziehe den Block <b>vor</b> die Wiederholung. (2) Im „falls“ steht „&gt;“ – hole aus <span class=\"menue\">Operatoren</span> den Block „… = …“ und prüfe: Antwort gleich der Summe. (3) „ändere Punkte um 1“ gehört in den „dann“-Teil, unter „sage Richtig!“."],
+  lehrer: { ziel: "Ein Programm im echten Scratch Schritt für Schritt testen, drei Fehler finden und einzeln reparieren (eine Sache ändern, wieder testen).",
+    anleitung: "Etwa 15 Minuten. Die Startdatei fehler_start.sb3 liegt im Auftrag zum Herunterladen. Das Kind öffnet sie in Scratch, startet mit der grünen Fahne und beantwortet alle Rechenaufgaben richtig. Es sieht dreimal „Leider falsch.“ (die Rückmeldungen sind vertauscht) und am Ende immer „Du hast 1 Punkte.“. Mit richtig, falsch, richtig sagt das reparierte Quiz am Ende „Du hast 2 Punkte.“. Danach repariert es die drei Fehler nacheinander – nach jeder Änderung neu testen. Am Ende lädt das Kind die gespeicherte Datei hoch; der Server prüft sie und die KI schreibt eine Rückmeldung. Am Tablet gibt es stattdessen eine Frage.",
+    loesung: "Drei Fehler: (1) „setze Punkte auf 0“ steht in der Wiederholung statt davor. (2) Im „falls“ steht „Antwort &gt; Summe“ statt „Antwort = Summe“. (3) „ändere Punkte um 1“ steht unter der Wiederholung statt im „dann“-Teil. Danach sagt das Quiz bei drei richtigen Antworten „Du hast 3 Punkte.“",
+    fehler: ["Es wird nur ein Fehler repariert und dann abgegeben – das Prüfprogramm nennt jeden offenen Punkt einzeln.", "„ändere Punkte um 1“ landet im „sonst“-Teil statt im „dann“-Teil: Dann gibt es Punkte für falsche Antworten.", "Die Datei wird nicht gespeichert, sondern nur das Fenster geschlossen."],
+    bedienung: "„Datei hochladen“ → die gespeicherte .sb3-Datei. Die Rückmeldung nennt jeden Prüfpunkt einzeln.",
+    test: "Startprojekt, Fehler und Musterlösung am 13.10.2026 im echten Scratch-Editor ausgeführt; Prüfprogramm und Ersatzprüfung geben dasselbe Ergebnis." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Das Punkte-Quiz reparieren", pc: "Scratch", zeit: "etwa 15 Minuten",
+      ziel: "Das Quiz zählt bei jeder richtigen Antwort einen Punkt und sagt am Ende die richtige Punktzahl. Dein repariertes Projekt ist gespeichert.",
+      material: [{ name: "Startprojekt fehler_start.sb3", href: "assets/scratch/fehler_start.sb3" }],
+      schritte: [
+        "Lade das Startprojekt herunter. Öffne Scratch im Browser (<code>scratch.mit.edu/projects/editor</code>) und wähle <span class=\"menue\">Datei</span> → <span class=\"menue\">Load from your computer</span> (das heißt: vom Computer laden). Wähle die Datei <b>fehler_start.sb3</b>.",
+        "Klicke über der Bühne auf die <b>grüne Fahne</b>. Das Quiz stellt drei Rechenfragen. Rechne im Kopf und tippe jedes Mal die <b>richtige</b> Antwort ein.",
+        "Beobachte: Was sagt die Figur nach jeder Antwort? Was sagt sie am Ende? Vergleiche mit dem, was sie sagen sollte: dreimal „Richtig!“ und „Du hast 3 Punkte.“ Wer einmal falsch antwortet, bekommt dort nur 2 Punkte.",
+        "Lies die Blöcke von oben nach unten und finde heraus, wo etwas nicht stimmt. Es gibt <b>drei</b> Fehler.",
+        "Repariere <b>einen</b> Fehler. Starte neu und teste. Dann der nächste Fehler – immer nur eine Sache auf einmal ändern.",
+        "Probiere zum Schluss: richtig, <b>falsch</b>, richtig. Dann soll die Figur „Richtig!“, „Leider falsch.“, „Richtig!“ sagen und am Ende „Du hast 2 Punkte.“",
+        "Speichere: <span class=\"menue\">Datei</span> → <span class=\"menue\">Auf deinem Computer speichern</span>. Die Datei heißt zuerst <b>Scratch-Projekt.sb3</b> und liegt danach im Ordner Downloads."
+      ],
+      loesung: "Das Quiz setzt die Punkte vor der Wiederholung auf 0, prüft die Antwort mit „=“ und erhöht die Punkte nur im „dann“-Teil. Bei drei richtigen Antworten sagt es „Du hast 3 Punkte.“",
+      pruefung: {
+        art: "datei", accept: ".sb3", lies: Modul.liesScratch9, pruefe: (Modul.scratchPruefung9 || {})["fehlersuche-auf1"], server: { pfad: "/api/inf9/scratch/pruefen", aufgabe: "fehlersuche-auf1" },
+        text: "Lade dein repariertes Projekt hoch (die Datei mit der Endung <b>.sb3</b> aus dem Ordner Downloads). Es wird geprüft, und die KI schreibt dir eine Rückmeldung. Deine Lehrkraft kann die Datei danach ansehen.",
+        ersatz: { art: "zahl", frage: "Im reparierten Quiz werden alle drei Fragen richtig beantwortet. Welche Zahl nennt die Figur am Ende bei „Du hast … Punkte.“?", wert: 3, tol: 0,
+          tipp: "Jede richtige Antwort zählt einen Punkt. Die Punkte werden vor der Wiederholung auf 0 gesetzt und danach nicht mehr zurückgestellt." }
+      }
+    }, "auf1");
+  }
+});
+
+/* ============ Teil 5: Kontrollieren ============ */
+W.teil("Kontrollieren", "Lerncheck");
+
+W.aufgabe({
+  titel: "Welcher Fehler ist das?",
+  auftrag: "Vier Kinder erzählen von ihrem Programm. Entscheide bei jedem Fall, welche Art von Fehler dahintersteckt.",
+  hinweise: ["Frage dich: Was ist der Fehler genau – ein falscher Startwert, ein falsches Zeichen oder ein Block am falschen Platz?", "„Zähler wird zurückgesetzt“ heißt: Der Startwert steht in der Wiederholung. „Vergleich“ heißt: Zeichen =, &lt;, &gt;. „Falsche Stelle“ heißt: Der Block steht nicht dort, wo er mehrmals laufen soll.", "Fall 1 → Zähler zurückgesetzt · Fall 2 → Vergleichszeichen · Fall 3 → Block an der falschen Stelle · Fall 4 → Vergleichszeichen"],
+  lehrer: { ziel: "Die drei typischen Fehlerarten voneinander unterscheiden.", anleitung: "Ein Fall nach dem anderen; falsch entschiedene Fälle kommen noch einmal.",
+    loesung: "Treffer zurückgesetzt · Passwort mit „&gt;“ · Winken nur einmal (Block außerhalb) · Prüfen mit „&lt;“ statt „=“.",
+    fehler: ["Fall 3 wird als Zähler-Fehler gelesen. Dort geht es nicht um eine Variable, sondern um die Stelle eines Blocks."] },
+  bau(box) {
+    Modul.makeEntscheiden(box, {
+      frage: "Welche Art Fehler ist das?",
+      optionen: ["Zähler wird zurückgesetzt", "falsches Vergleichszeichen", "Block an der falschen Stelle"],
+      faelle: [
+        { html: "<b>Lea:</b> „Mein Roboter zählt Treffer. Egal wie oft er trifft, am Ende sagt er „Treffer: 1“. Am Anfang jeder Runde steht der Block ‚setze treffer auf 0‘.“", kurz: "Lea", a: 0, e: "Der Startwert gehört <b>vor</b> die Wiederholung. Sonst fängt jede Runde wieder bei 0 an." },
+        { html: "<b>Ben:</b> „Mein Tür-Spiel soll aufgehen, wenn jemand 1234 eintippt. Mit 1234 bleibt die Tür zu. Im Programm steht: falls Antwort &gt; 1234.“", kurz: "Ben", a: 1, e: "Für „genau 1234“ braucht man „=“. Mit „&gt;“ öffnet die Tür erst bei höheren Zahlen." },
+        { html: "<b>Mara:</b> „Meine Figur soll zehnmal winken, aber sie winkt nur einmal. Der Block ‚wechsle zum nächsten Kostüm‘ steht unter der Wiederholung, nicht darin.“", kurz: "Mara", a: 2, e: "Nur was in der Klammer steht, läuft zehnmal. Der Block muss in die Wiederholung." },
+        { html: "<b>Tom:</b> „Mein Quiz sagt bei der richtigen Antwort 12 immer ‚Leider falsch‘. Hinter ‚falls‘ steht: Antwort &lt; 12.“", kurz: "Tom", a: 1, e: "„&lt;“ heißt „kleiner als“. Für die richtige Antwort soll „=“ stehen." }
+      ],
+      fertig: "Du erkennst die drei typischen Fehler."
+    }, "fehlerart");
+  }
+});
+
+W.aufgabe({
+  titel: "So suchst du Fehler: die Reihenfolge",
+  auftrag: "Die drei Schritte aus dem Heft, genauer: Bringe die Schritte der Fehlersuche in die richtige Reihenfolge. Verschiebe mit den Pfeilen.",
+  hinweise: ["Überlege: Was tust du zuerst, wenn ein Programm etwas Falsches macht?", "Erst ansehen, was passiert, dann vergleichen, dann die Stelle suchen. Geändert und getestet wird erst am Ende.", "Starten und beobachten → mit dem Plan vergleichen → Programm genau lesen → eine Sache ändern → wieder testen."],
+  lehrer: { ziel: "Das Vorgehen beim Fehlersuchen als Ablauf kennen (Regelheft).", anleitung: "Einzelarbeit, danach mit dem Heft vergleichen.", loesung: "1. Starten und beobachten · 2. Mit dem Plan vergleichen · 3. Programm genau lesen · 4. Eine Sache ändern · 5. Wieder testen.",
+    fehler: ["Es werden zuerst mehrere Änderungen auf einmal gemacht: Dann weiß man nicht, welche geholfen hat."] },
+  bau(box) {
+    Modul.makeOrder(box, [
+      "Das Programm starten und beobachten, was passiert",
+      "Vergleichen: Was sollte passieren?",
+      "Das Programm Block für Block genau lesen und die verdächtige Stelle suchen",
+      "Genau eine Sache ändern",
+      "Das Programm noch einmal testen"
+    ], "order-suche");
+  }
+});
+
+W.aufgabe({
+  titel: "Lerncheck",
+  auftrag: "Richtig oder falsch? Entscheide bei jeder Aussage.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Ändere beim Fehlersuchen immer nur eine Sache, dann testen.", "Richtig sind die Aussagen zum Zähler, zum Optimieren und zum Durchspielen. Falsch sind die Aussagen zur Fehlermeldung und zu mehreren Änderungen auf einmal."],
+  lehrer: { ziel: "Kernwissen der Stunde sichern.", anleitung: "Einzelarbeit, etwa 3 Minuten.", loesung: "richtig · falsch · richtig · falsch · richtig", fehler: ["Aussage 4: Ein Programm kann ohne jede Meldung laufen und trotzdem etwas Falsches tun."] },
+  bau(box) {
+    Modul.makeTF(box, [
+      ["Ein Zähler wird vor der Wiederholung auf 0 gesetzt, nicht in der Wiederholung.", true],
+      ["Beim Fehlersuchen ändert man am besten drei Dinge auf einmal.", false],
+      ["Optimieren heißt: Das Programm tut dasselbe, aber mit weniger oder übersichtlicheren Blöcken.", true],
+      ["Läuft ein Programm ohne Meldung, ist es auch richtig.", false],
+      ["Schritt für Schritt durchspielen hilft, einen Fehler zu finden.", true]
+    ], "tf");
+  }
+});
+
+W.fertig();
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

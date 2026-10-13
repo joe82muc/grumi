@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Wiederholung: Zellen, Formeln, Zellbezüge | Informatik 9</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="../../8M/Informatik/einheit8.css">
+<link rel="stylesheet" href="einheit9.css">
+<link rel="stylesheet" href="tabelle9.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 9</small></a>
+    <nav class="stations" id="stations"></nav>
+    <span class="stars" id="stars">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks">
+      <a href="index.html">Übersicht Informatik 9M</a>
+      <a href="../../9R/Informatik/index.html">Übersicht Informatik 9R</a>
+      <a href="../../index.html">Startseite</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 9 · Modul 3: Excel-Funktionen · Einheit 1</div>
+    <h1>Wiederholung: Zellen, Formeln, Zellbezüge</h1>
+    <p>Im Kiosk des Jugendzentrums wird jeden Tag verkauft. Mit einer Formel rechnet Excel für alle Artikel auf einmal aus, was sie zusammen kosten. Das kennst du schon – heute holst du es noch einmal hervor.</p>
+    <div class="zeit">etwa 40 Minuten · Praxis am Windows-PC mit Excel</div>
+    <div class="goals">
+      <div>Ich nenne die Adresse einer Zelle und schreibe eine Formel mit =.</div>
+      <div>Ich ziehe eine Formel nach unten und erkläre, warum der Zellbezug mitwandert.</div>
+      <div>Ich halte einen Zellbezug mit $ fest.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="modulStand"></div>
+  <div id="weg"></div>
+</main>
+
+<footer class="wrap">Informatik 9 · Dein Fortschritt wird mit deinem Code gespeichert. · Excel ist ein Programm von Microsoft; die Tabellen auf dieser Seite sind eigene Nachbildungen (GRUMI-EXCEL). Alle Zahlen sind erfunden.</footer>
+
+<div id="pop" role="dialog"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info9.js"></script>
+<script src="diagramm9.js"></script>
+<script src="tabelle9.js"></script>
+<script src="../../8M/Informatik/excel-datei.js"></script>
+<script src="excel-aufgaben9.js"></script>
+<script>
+(function () {
+"use strict";
+const {$} = Modul;
+const F = Modul.formelGleich;
+const gl = (x, y) => typeof x === "number" && Math.abs(x - y) < 1e-9;
+const ist = (t, a, s) => String(t.wert(a)).toLowerCase() === s;
+const p = (ok, gut, schlecht) => ({ok, text: ok ? gut : schlecht});
+
+Modul.start9({
+  key: "grumi-i9-excel-start-v1",
+  thema: "Excel, Wiederholung: Zelle, Spalte, Zeile, Zelladresse, Formel mit Gleichheitszeichen, Zellbezug, Formel nach unten ziehen (relativer Bezug), Dollarzeichen für einen absoluten Bezug (Kiosk im Jugendzentrum: Preis mal Menge, Pfand)",
+  glossary: {
+    zelle: ["Zelle", "Ein Kästchen in der Tabelle. Es hat eine Adresse aus Spalte und Zeile, zum Beispiel B3."],
+    formel: ["Formel", "Eine Rechenanweisung. Sie beginnt mit =, zum Beispiel =C5-D5."],
+    zellbezug: ["Zellbezug", "Die Adresse einer Zelle in einer Formel. Excel rechnet mit dem, was in dieser Zelle steht."],
+    relativ: ["relativer Bezug", "Ein Bezug, der beim Ziehen mitwandert: Aus C5 wird in der nächsten Zeile C6."],
+    absolut: ["absoluter Bezug", "Ein Bezug mit Dollarzeichen, zum Beispiel $A$1. Er bleibt beim Ziehen fest."]
+  }
+});
+
+const W = Modul.lernweg("#weg");
+
+/* ============ Regelheft ============ */
+W.teil("Regelheft", "Schreiben");
+W.regelheft({
+  titel: "Zelle – Formel – Zellbezug",
+  html: `<p>Jede <span class="rot">Zelle</span> hat eine Adresse aus Spalte und Zeile, z. B. <span class="blau">B3</span>.</p>
+    <p>Eine <span class="rot">Formel</span> beginnt mit <span class="blau">=</span>, z. B. <span class="blau">=C5-D5</span>. Excel rechnet mit dem Inhalt der Zellen.</p>
+    <p class="leer"></p>
+    <p>Ziehe ich die Formel nach unten, wandert der <span class="rot">Zellbezug</span> mit: aus <span class="blau">C5</span> wird <span class="blau">C6</span>.</p>
+    <p>Mit <span class="blau">$A$1</span> bleibt der Bezug fest (<span class="rot">absolut</span>).</p>`,
+  lehrer: { ziel: "Die Kernaussagen zu Zelle, Formel, relativem und absolutem Bezug stehen im Heft.",
+    anleitung: "Etwa 5 Minuten. Die Klasse schreibt ab. Erst nach dem Abhaken erscheint die erste Aufgabe.",
+    loesung: "Der Eintrag steht vollständig im Heft (fünf kurze Aussagen)." }
+});
+
+/* ============ Teil 2: Erst hier auf der Seite ============ */
+W.teil("Verstehen und üben", "Sehen · Ausprobieren");
+
+const KIOSK = { A1: "Artikel", B1: "Preis in €", C1: "Menge", D1: "Gesamt in €", A2: "Eistee", B2: "1,5", C2: "8", A3: "Waffel", B3: "1,2", C3: "12", A4: "Popcorn", B4: "0,8", C4: "15", A5: "Nuss-Mix", B5: "1", C5: "6" };
+
+W.aufgabe({
+  titel: "Die Zelladresse",
+  bild: { src: "assets/bilder/excel-start.jpg", alt: "Ein Schüler sitzt am Laptop. Auf dem Bildschirm ist ein Tabellenblatt mit Zeilen und Spalten zu sehen, einzelne Zellen sind farbig, eine Zelle ist dick umrahmt.", text: "Eine Tabelle besteht aus Zellen. Jede Zelle hat ihre Adresse." },
+  auftrag: "Der Kiosk im Jugendzentrum schreibt auf, was er verkauft. Sieh dir die Tabelle an und beantworte die Fragen.",
+  vorwissen: "<p>Die <b>Spalten</b> haben Buchstaben (A, B, C …), die <b>Zeilen</b> haben Zahlen (1, 2, 3 …). Zuerst kommt der Buchstabe, dann die Zahl: <b>C3</b> ist Spalte C, Zeile 3.</p>",
+  hinweise: ["Suche zuerst den Buchstaben über der Spalte, dann die Zahl neben der Zeile.", "Zeile 3 ist die Zeile mit der Waffel. Die Menge steht in Spalte C.", "Frage 1: Spalte C, Zeile von „Waffel“. Frage 2: Spalte B, Zeile von „Popcorn“. Frage 3: Spalte A, letzte Zeile."],
+  lehrer: { ziel: "Eine Zelle über ihre Adresse (Spalte, dann Zeile) finden und lesen.",
+    anleitung: "Die Tabelle am Beamer zeigen: „Wo steht die 12?“ Einzelne Kinder zeigen die Zelle. Erst Spalte nennen, dann Zeile.",
+    loesung: "Frage 1: C3 · Frage 2: 0,8 · Frage 3: A5.",
+    fehler: ["Die Adresse wird andersherum geschrieben (3C statt C3)."] },
+  bau(box) {
+    box.innerHTML = '<div class="tb"></div><div class="mc"></div>';
+    Modul.tabelle($(".tb", box), { spalten: 4, zeilen: 5, breit: { A: 110 }, zellen: KIOSK });
+    Modul.makeMC($(".mc", box), [
+      { q: "In welcher Zelle steht die Zahl 12?", o: ["C3", "B3", "C4", "A3"], a: 0, e: "Die 12 steht in Spalte C (Menge) und in Zeile 3 (Waffel): C3." },
+      { q: "Was steht in der Zelle B4?", o: ["0,8", "Popcorn", "15", "1,2"], a: 0, e: "B4 ist Spalte B (Preis) in Zeile 4 (Popcorn): 0,8." },
+      { q: "Welche Adresse hat die Zelle, in der „Nuss-Mix“ steht?", o: ["A5", "E1", "5A", "B5"], a: 0, e: "Nuss-Mix steht in Spalte A, Zeile 5: A5. Erst der Buchstabe, dann die Zahl." }
+    ], "mc-zellen");
+  }
+});
+
+W.aufgabe({
+  titel: "Excel rechnet: die erste Formel",
+  geheim: ["=B2*C2"],
+  auftrag: "Der Eistee kostet 1,5 € und wurde 8-mal verkauft. Schreibe in <b>D2</b> eine Formel, die ausrechnet, was alle Eistee zusammen kosten.",
+  vorwissen: "<p>Excel rechnet nur, wenn du mit <b>=</b> beginnst. Danach folgen Zelladressen und ein Rechenzeichen: <b>+</b> plus, <b>-</b> minus, <b>*</b> mal, <b>/</b> geteilt.</p>",
+  hinweise: ["Klicke auf D2. Oben in der Bearbeitungsleiste kannst du jetzt schreiben.", "Preis mal Menge: Der Preis steht in B2, die Menge in C2. Das Mal-Zeichen ist das Sternchen.", "Tippe ein Gleichheitszeichen, dann B2, dann das Sternchen, dann C2. Zum Schluss die Eingabetaste."],
+  lehrer: { ziel: "Eine Formel mit Zellbezügen und Gleichheitszeichen schreiben.",
+    anleitung: "Vorführen: D2 anklicken, oben in die Bearbeitungsleiste tippen, Eingabetaste. Dann in C2 die Menge ändern – D2 rechnet von selbst neu.",
+    loesung: "=B2*C2 (D2 zeigt 12).",
+    fehler: ["Das Gleichheitszeichen fehlt – dann steht nur Text in der Zelle.", "Die Zahl 12 wird einfach eingetippt statt gerechnet."],
+    bedienung: "Zelle anklicken, in die Zeile oben schreiben, Eingabetaste (oder Haken). Wird eine Formel nicht verstanden, steht ein Hinweis unter der Tabelle." },
+  bau(box) {
+    Modul.makeTabellenAufgabe(box, {
+      text: "Schreibe in <b>D2</b> die Formel für „Preis mal Menge“.",
+      tabelle: { spalten: 4, zeilen: 5, eingabe: ["D2"], start: "D2", breit: { A: 110 }, zellen: KIOSK },
+      pruefe: t => [
+        p(t.istFormel("D2"), "In D2 steht eine Formel, die mit = beginnt.", "In D2 fehlt eine Formel. Sie beginnt mit dem Gleichheitszeichen."),
+        p(F(t.formel("D2"), ["=B2*C2", "=C2*B2"]), "Die Formel rechnet mit den Zellen B2 und C2.", "Die Formel soll Preis mal Menge rechnen: B2 mal C2. Das Mal-Zeichen ist das Sternchen."),
+        p(gl(t.wert("D2"), 12), "D2 zeigt das richtige Ergebnis.", "D2 zeigt " + (t.text("D2") || "nichts") + ". Das passt noch nicht.")
+      ],
+      loesung: { setze: { D2: "=B2*C2" } },
+      erfolg: "Preis mal Menge – und Excel rechnet von selbst."
+    }, "tab-d2");
+  }
+});
+
+W.aufgabe({
+  titel: "Was passiert beim Ziehen?",
+  auftrag: "Du willst die Formel nicht für jeden Artikel neu schreiben. Sieh zu, was beim Ziehen mit dem Zellbezug passiert.",
+  hinweise: ["Tippe auf „Start“ oder auf die Zahlen 1 bis 4.", "Vergleiche die Formel in D2 mit der Formel in D3. Was hat sich geändert?", "Die Zeilennummer wandert mit: Aus B2*C2 wird B3*C3."],
+  lehrer: { ziel: "Verstehen: Beim Ziehen nach unten wandern die Zeilennummern der Bezüge mit (relativer Bezug).",
+    anleitung: "Am Beamer durchklicken und bei Schritt 3 anhalten: „Was ist aus B2 geworden?“",
+    loesung: "Alle vier Schritte angesehen. D3 enthält =B3*C3, D4 enthält =B4*C4.",
+    fehler: ["Kinder klicken nur auf „Start“ und lesen nicht – nach Schritt 3 kurz anhalten lassen."],
+    bedienung: "„Start“ spielt alle Schritte ab, die Zahlen springen zu einem Schritt." },
+  bau(box) {
+    box.innerHTML = '<div class="tb"></div><div class="sim"></div>';
+    const t = Modul.tabelle($(".tb", box), { spalten: 4, zeilen: 4, breit: { A: 110 }, zellen: { A1: "Artikel", B1: "Preis in €", C1: "Menge", D1: "Gesamt in €", A2: "Eistee", B2: "1,5", C2: "8", A3: "Waffel", B3: "1,2", C3: "12", A4: "Popcorn", B4: "0,8", C4: "15" } });
+    Modul.makeSchritte($(".sim", box), {
+      start: "Tippe auf „Start“ oder gehe Schritt für Schritt.",
+      steps: [
+        "In D2 steht die Formel <code>=B2*C2</code>. Sie rechnet mit Zeile 2.",
+        "Du fasst das <b>Ausfüllkästchen</b> (das kleine Quadrat unten rechts an D2) und ziehst es nach unten bis D4.",
+        "Excel kopiert die Formel. In D3 steht jetzt <code>=B3*C3</code> – die Zeilennummer ist <b>mitgewandert</b>.",
+        "In D4 steht <code>=B4*C4</code>. Das nennt man einen <b>relativen Zellbezug</b>: Er wandert beim Ziehen mit."
+      ],
+      zeige(i) {
+        t.setze("D2", "=B2*C2", true);
+        t.setze("D3", i >= 2 ? "=B3*C3" : "", true); t.setze("D4", i >= 3 ? "=B4*C4" : "", true);
+        t.formelnZeigen(i >= 2);
+        t.markiere(i === 1 ? ["D3", "D4"] : [], "hell");
+        t.markiere(i >= 2 ? ["D3", "D4"].slice(0, i === 2 ? 1 : 2) : [], "gut");
+        t.waehle("D2", true);
+      }
+    }, "anim-ziehen");
+  }
+});
+
+W.aufgabe({
+  titel: "Die Formel nach unten ziehen",
+  geheim: ["=B3*C3", "=B4*C4", "=B5*C5"],
+  auftrag: "In <b>D2</b> steht die Formel schon. Ziehe sie bis <b>D5</b>, damit alle vier Artikel ausgerechnet sind.",
+  hinweise: ["Klicke auf D2. Unten rechts an der Zelle erscheint ein kleines Quadrat.", "Fasse das Quadrat mit gedrückter Maustaste (am Tablet: mit dem Finger) und ziehe es nach unten.", "Ziehe bis die Zelle D5 mit markiert ist, dann lass los. Danach klickst du auf „Lösung überprüfen“."],
+  lehrer: { ziel: "Das Ausfüllkästchen benutzen, um eine Formel nach unten zu kopieren.",
+    anleitung: "Vorführen: D2 anklicken, Quadrat unten rechts zeigen, bis D5 ziehen. Danach D4 anklicken und die Formel in der Bearbeitungsleiste lesen.",
+    loesung: "D3 =B3*C3, D4 =B4*C4, D5 =B5*C5. Die Ergebnisse sind 14,4 · 12 · 6.",
+    fehler: ["Das Kind greift die Zelle selbst statt des kleinen Quadrats unten rechts.", "Es wird zu weit oder zu kurz gezogen."],
+    bedienung: "Das Quadrat erscheint nur an der angeklickten Zelle D2." },
+  bau(box) {
+    Modul.makeTabellenAufgabe(box, {
+      text: "Ziehe das Ausfüllkästchen von D2 bis D5.",
+      tabelle: { spalten: 4, zeilen: 5, griff: true, eingabe: ["D3", "D4", "D5"], start: "D2", breit: { A: 110 }, zellen: Object.assign({}, KIOSK, { D2: "=B2*C2" }) },
+      pruefe: t => [
+        p(["D3", "D4", "D5"].every((a, i) => F(t.formel(a), ["=B" + (i + 3) + "*C" + (i + 3), "=C" + (i + 3) + "*B" + (i + 3)])), "D3 bis D5 rechnen mit der eigenen Zeile.", "In D3 bis D5 fehlt noch die Formel. Ziehe das Quadrat unten rechts an D2 bis D5."),
+        p(gl(t.wert("D3"), 14.4) && gl(t.wert("D4"), 12) && gl(t.wert("D5"), 6), "Alle Ergebnisse stimmen.", "Noch nicht alle Ergebnisse stimmen.")
+      ],
+      loesung: { fuelle: [["D2", "D5"]] },
+      erfolg: "Eine Formel geschrieben, viermal gerechnet."
+    }, "tab-ziehen");
+  }
+});
+
+W.aufgabe({
+  titel: "Wenn der Pfand mitwandert",
+  auftrag: "Die Becher haben Pfand. Der Pfand je Becher steht in <b>D2</b>. Jemand hat die Formel in C2 geschrieben und nach unten gezogen. Sieh dir die Tabelle mit den Formeln an.",
+  hinweise: ["Sieh dir die Formeln in C3 und C4 an. Welche Zelle steht hinter dem Sternchen?", "In C2 steht <code>=B2*D2</code>. Beim Ziehen wandert auch D2 nach unten mit.", "In C3 steht D3, in C4 steht D4 – und dort steht kein Pfand. Mit <code>$D$2</code> bleibt der Bezug fest."],
+  lehrer: { ziel: "Erkennen, warum ein Bezug, der mitwandert, manchmal falsch ist – und dass das Dollarzeichen ihn festhält.",
+    anleitung: "Die Tabelle zeigt die Formeln. Fragen: „In C3 steht D3 – was steht dort?“ (nichts, also 0).",
+    loesung: "Frage 1: Der Bezug D2 ist mitgewandert, D3 und D4 sind leer. Frage 2: $D$2.",
+    fehler: ["„Die Menge ist 0“ – die Menge in B3 und B4 ist aber in Ordnung."] },
+  bau(box) {
+    box.innerHTML = '<div class="tb"></div><div class="mc"></div>';
+    const t = Modul.tabelle($(".tb", box), { spalten: 4, zeilen: 4, breit: { A: 100, D: 130 }, zellen: { A1: "Getränk", B1: "Becher", C1: "Pfand in €", D1: "Pfand je Becher", A2: "Tee", B2: "20", C2: "=B2*D2", D2: "0,5", A3: "Kakao", B3: "14", C3: "=B3*D3", A4: "Saft", B4: "9", C4: "=B4*D4" } });
+    t.formelnZeigen(true);
+    Modul.makeMC($(".mc", box), [
+      { q: "In C3 und C4 steht eine 0. Woran liegt das?", o: ["Der Bezug D2 ist beim Ziehen mitgewandert. D3 und D4 sind leer.", "Excel kann nur eine Zeile rechnen.", "Die Anzahl der Becher ist 0.", "Das Ausfüllkästchen ist kaputt."], a: 0, e: "Aus D2 wurde D3 und D4. Dort steht kein Pfand, und Excel rechnet mit 0." },
+      { q: "Wie sagst du Excel, dass D2 beim Ziehen festbleiben soll?", o: ["Du schreibst $D$2.", "Du färbst D2 rot.", "Du löschst die Zeile 2.", "Du schreibst D2 fett."], a: 0, e: "Die Dollarzeichen halten Spalte und Zeile fest. Das ist ein absoluter Bezug." }
+    ], "mc-pfand");
+  }
+});
+
+W.aufgabe({
+  titel: "Den Bezug festhalten: $",
+  geheim: ["=B2*$D$2", "$D$2"],
+  auftrag: "Repariere die Tabelle: Schreibe in <b>C2</b> eine Formel mit <b>$D$2</b> und ziehe sie bis <b>C4</b>.",
+  hinweise: ["Rechne wie vorher Becher mal Pfand, aber der Pfand soll festbleiben.", "Die Becher stehen in B2, der Pfand in D2. Nur der Pfand bekommt Dollarzeichen.", "Die Formel in C2 heißt Gleichheitszeichen, B2, Sternchen, <code>$D$2</code>. Ziehe sie dann bis C4."],
+  lehrer: { ziel: "Einen absoluten Bezug mit $ schreiben und die Formel nach unten ziehen.",
+    anleitung: "Vorführen: Formel in C2 mit $D$2, ziehen, dann C4 anklicken: Dort steht =B4*$D$2 – D2 ist festgeblieben.",
+    loesung: "C2 =B2*$D$2, gezogen bis C4: 10 · 7 · 4,5.",
+    fehler: ["$ steht vor der falschen Zelle (B2 statt D2).", "Nur ein Dollarzeichen ($D2) – das hält nur die Spalte fest.", "Die Formel wurde nicht nach unten gezogen."],
+    bedienung: "Das Dollarzeichen tippt man wie jedes andere Zeichen." },
+  bau(box) {
+    Modul.makeTabellenAufgabe(box, {
+      text: "Pfand je Becher steht in D2 und gilt für alle Zeilen. Schreibe in C2 die Formel und ziehe sie bis C4.",
+      tabelle: { spalten: 4, zeilen: 4, griff: true, eingabe: ["C2", "C3", "C4"], start: "C2", breit: { A: 100, D: 130 }, zellen: { A1: "Getränk", B1: "Becher", C1: "Pfand in €", D1: "Pfand je Becher", A2: "Tee", B2: "20", D2: "0,5", A3: "Kakao", B3: "14", A4: "Saft", B4: "9" } },
+      pruefe: t => [
+        p(["C2", "C3", "C4"].every((a, i) => F(t.formel(a), ["=B" + (i + 2) + "*$D$2", "=$D$2*B" + (i + 2)])), "In C2 bis C4 steht $D$2 – die Becher wandern mit, der Pfand bleibt fest.", "In C2 bis C4 soll stehen: Becher der eigenen Zeile mal $D$2. Prüfe die Dollarzeichen und ziehe bis C4."),
+        p(gl(t.wert("C2"), 10) && gl(t.wert("C3"), 7) && gl(t.wert("C4"), 4.5), "Alle Pfandbeträge stimmen.", "Noch nicht alle Pfandbeträge stimmen. Zeigt eine Zelle 0, ist der Bezug zum Pfand nicht fest.")
+      ],
+      loesung: { setze: { C2: "=B2*$D$2" }, fuelle: [["C2", "C4"]] },
+      erfolg: "Der Pfand bleibt fest – die Becher wandern mit."
+    }, "tab-pfand");
+  }
+});
+
+/* ============ Teil 3: Am PC ============ */
+W.teil("Am PC: Excel", "Anwenden");
+
+W.aufgabe({
+  titel: "Kiosk-Kasse in Excel",
+  geheim: ["19,8", "19,80", "=B2*C2", "=C2*$G$1"],
+  auftrag: "Jetzt machst du es im echten Excel: Du berechnest, was jeder Artikel kostet und wie viel Pfand dazukommt.",
+  vorwissen: "<p>Das kennst du schon aus Informatik 8: Formel tippen, mit dem Ausfüllkästchen nach unten ziehen. Neu ist nur, dass du das <b>$</b> selbst schreibst.</p>",
+  hinweise: ["Die Startdatei hat die Spalten D und E schon als Überschrift. Du füllst die Zellen darunter.", "Spalte D: Preis mal Menge. Spalte E: Menge mal Pfand. Den Pfand findest du in G1.", "D2 <code>=B2*C2</code>, bis D6 ziehen. E2 <code>=C2*$G$1</code>, bis E6 ziehen. Dann speichern."],
+  lehrer: { ziel: "Formeln mit relativem und absolutem Bezug im echten Excel schreiben, ziehen und speichern.",
+    anleitung: "Etwa 12 Minuten. Die Startdatei kiosk_start.xlsx liegt im Auftrag zum Herunterladen. Am Ende lädt jedes Kind seine gespeicherte Datei hoch; der Server prüft sie und die KI schreibt eine Rückmeldung. Am Tablet gibt es stattdessen eine Frage.",
+    loesung: "D2 bis D6: 16,8 · 19,8 · 7,2 · 9 · 12,6. E2 bis E6: 3,5 · 5,5 · 2,25 · 1,5 · 4,5. Gespeichert als kiosk.xlsx.",
+    fehler: ["In E2 steht G1 ohne Dollarzeichen – dann zeigen die unteren Zeilen 0.", "Die Formel wurde nicht bis Zeile 6 gezogen.", "Es wurde nicht unter dem Namen kiosk gespeichert."],
+    bedienung: "„Datei auswählen“ → die gespeicherte .xlsx-Datei. Die Rückmeldung nennt jeden Prüfpunkt einzeln." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Kiosk-Kasse", pc: "Excel", zeit: "etwa 12 Minuten",
+      ziel: "Spalte D zeigt, was jeder Artikel zusammen kostet. Spalte E zeigt den Pfand. Beide Spalten sind mit Formeln gefüllt und die Datei ist gespeichert.",
+      material: [{ name: "Startdatei kiosk_start.xlsx", href: "assets/excel/kiosk_start.xlsx" }],
+      schritte: [
+        "Lade die Startdatei herunter und öffne sie in Excel. Erscheint oben ein gelber Balken, klicke auf <span class=\"menue\">Bearbeitung aktivieren</span>.",
+        "Klicke auf <b>D2</b>. Tippe <code>=B2*C2</code> und drücke die Eingabetaste.",
+        "Klicke wieder auf D2. Unten rechts an der Zelle sitzt das kleine Quadrat, das <b>Ausfüllkästchen</b>. Ziehe es mit gedrückter Maustaste bis <b>D6</b>.",
+        "Der Pfand je Artikel steht in <b>G1</b> und gilt für alle. Klicke auf <b>E2</b>, tippe <code>=C2*$G$1</code> und drücke die Eingabetaste. Die Dollarzeichen tippst du selbst.",
+        "Ziehe das Ausfüllkästchen von E2 bis <b>E6</b>.",
+        "Klicke auf E4 und sieh in die Bearbeitungsleiste: Dort steht <code>=C4*$G$1</code>. Das C hat sich der Zeile angepasst, das $G$1 ist festgeblieben.",
+        "Speichere die Datei unter einem neuen Namen: Drücke die Taste <kbd>F12</kbd>. Es öffnet sich das Fenster „Speichern unter“. Wähle deinen Ordner, tippe den Namen <b>kiosk</b> ein und klicke auf <span class=\"menue\">Speichern</span>."
+      ],
+      loesung: "D2 bis D6 zeigen 16,8 · 19,8 · 7,2 · 9 · 12,6. E2 bis E6 zeigen 3,5 · 5,5 · 2,25 · 1,5 · 4,5.",
+      pruefung: {
+        art: "datei", accept: ".xlsx", lies: Modul.liesExcel, pruefe: (Modul.excelPruefung || {})["excel-start-auf1"], server: { pfad: "/api/inf9/excel/pruefen", aufgabe: "excel-start-auf1" },
+        text: "Wähle deine gespeicherte Datei <b>kiosk.xlsx</b> aus. Sie wird geprüft, und die KI schreibt dir eine Rückmeldung. Deine Lehrkraft kann die Datei danach ansehen.",
+        ersatz: { art: "zahl", frage: "Was zeigt die Zelle D3 (Brezel) in deiner Tabelle?", wert: 19.8, tol: 0.001, einheit: "€",
+          tipp: "D3 rechnet Preis mal Menge der Brezel: B3 mal C3." }
+      }
+    }, "auf1");
+  }
+});
+
+/* ============ Teil 4: Wiederholen ============ */
+W.teil("Wiederholen", "Andere Zahlen");
+
+W.aufgabe({
+  titel: "Spende vom Verkauf",
+  geheim: ["=B2*C2", "=D2*$B$6"],
+  auftrag: "Das Jugendzentrum spendet einen Teil der Einnahmen. Berechne in Spalte D, was jeder Artikel einbringt, und in Spalte E die Spende.",
+  hinweise: ["Spalte D: Preis mal Menge, dann nach unten ziehen. Spalte E: Einnahmen mal Spendenanteil.", "Der Spendenanteil steht nur in B6 und gilt für alle Zeilen. Der Bezug dazu muss fest sein.", "D2 <code>=B2*C2</code>, E2 <code>=D2*$B$6</code>. Ziehe beide Formeln bis zur Zeile 4."],
+  lehrer: { ziel: "Relativen und absoluten Bezug in einer Aufgabe verbinden (andere Zahlen als im Excel-Auftrag).",
+    anleitung: "Einzelarbeit. Nach dem Lösen fragen: „Welcher Bezug wandert mit, welcher bleibt fest – und warum?“",
+    loesung: "D2 =B2*C2 bis D4: 18 · 27,5 · 21. E2 =D2*$B$6 bis E4: 1,8 · 2,75 · 2,1.",
+    fehler: ["B6 ohne Dollarzeichen – in E3 steht dann B7 (leer) und die Spende ist 0.", "E2 rechnet mit B2*C2 statt mit D2 – das geht auch, wenn der Wert stimmt."],
+    bedienung: "Beide Formeln nacheinander ziehen: zuerst D2 bis D4, dann E2 bis E4." },
+  bau(box) {
+    Modul.makeTabellenAufgabe(box, {
+      text: "Schreibe die Formel in D2 und in E2. Ziehe beide Formeln bis Zeile 4.",
+      tabelle: { spalten: 5, zeilen: 6, griff: true, eingabe: ["D2", "D3", "D4", "E2", "E3", "E4"], start: "D2", format: { B6: "prozent" }, breit: { A: 110, D: 100, E: 100 },
+        zellen: { A1: "Artikel", B1: "Preis in €", C1: "Menge", D1: "Einnahmen in €", E1: "Spende in €", A2: "Muffin", B2: "1,8", C2: "10", A3: "Saft", B3: "1,1", C3: "25", A4: "Brötchen", B4: "0,7", C4: "30", A6: "Spendenanteil", B6: "0,1" } },
+      pruefe: t => [
+        p(["D2", "D3", "D4"].every((a, i) => F(t.formel(a), ["=B" + (i + 2) + "*C" + (i + 2), "=C" + (i + 2) + "*B" + (i + 2)])), "Spalte D rechnet Preis mal Menge in jeder Zeile.", "In D2 bis D4 soll stehen: Preis mal Menge der eigenen Zeile."),
+        p(gl(t.wert("D2"), 18) && gl(t.wert("D3"), 27.5) && gl(t.wert("D4"), 21), "Die Einnahmen in D stimmen.", "Die Einnahmen in Spalte D stimmen noch nicht."),
+        p(["E2", "E3", "E4"].every(a => /\$B\$6/.test(t.formel(a))), "Die Spende rechnet mit $B$6 (fester Bezug).", "In E2 bis E4 soll $B$6 stehen, damit der Spendenanteil beim Ziehen festbleibt."),
+        p(gl(t.wert("E2"), 1.8) && gl(t.wert("E3"), 2.75) && gl(t.wert("E4"), 2.1), "Die Spenden in E stimmen.", "Die Spenden in Spalte E stimmen noch nicht. Zeigt eine Zelle 0, ist der Bezug zum Spendenanteil nicht fest.")
+      ],
+      loesung: { setze: { D2: "=B2*C2", E2: "=D2*$B$6" }, fuelle: [["D2", "D4"], ["E2", "E4"]] },
+      erfolg: "Preis mal Menge wandert mit, der Spendenanteil bleibt fest."
+    }, "tab-wdh");
+  }
+});
+
+/* ============ Teil 5: Kontrollieren ============ */
+W.teil("Kontrollieren", "Lerncheck");
+
+W.aufgabe({
+  titel: "Wandert der Bezug mit?",
+  auftrag: "Entscheide bei jedem Fall: Soll der Bezug beim Ziehen mitwandern (relativ) oder festbleiben (absolut, mit $)?",
+  hinweise: ["Frage dich: Steht der Wert in jeder Zeile woanders, oder gilt eine Zahl für alle Zeilen?", "Eine Zahl, die für alle Zeilen gilt (Pfand, Rabatt), steht nur in einer Zelle.", "Fall 1 und 3: jede Zeile hat ihren eigenen Wert → relativ. Fall 2 und 4: eine Zahl für alle → absolut."],
+  lehrer: { ziel: "Entscheiden, ob ein Bezug relativ oder absolut sein muss.", anleitung: "Ein Fall nach dem anderen; falsch entschiedene Fälle kommen noch einmal.",
+    loesung: "Preis je Zeile: relativ · Pfand in G1: absolut · Menge je Zeile: relativ · Rabatt in F1: absolut.",
+    fehler: ["Bei Fall 2 und 4 wird „relativ“ gewählt, weil Kinder das Ziehen nicht mitdenken."] },
+  bau(box) {
+    Modul.makeEntscheiden(box, {
+      frage: "Welcher Bezug passt?",
+      optionen: ["relativ (wandert mit)", "absolut (mit $)"],
+      faelle: [
+        { html: "<b>Fall 1:</b> Der Preis steht in jeder Zeile in einer anderen Zelle: B2, B3, B4 …", kurz: "Preis je Zeile", a: 0, e: "Jede Zeile hat ihren eigenen Preis. Der Bezug muss beim Ziehen mitwandern." },
+        { html: "<b>Fall 2:</b> Der Pfand von 0,25 € steht nur in G1 und gilt für alle Artikel.", kurz: "Pfand in G1", a: 1, e: "Eine Zahl für alle Zeilen: $G$1 bleibt beim Ziehen fest." },
+        { html: "<b>Fall 3:</b> Die Menge steht in C2, C3, C4 … – für jeden Artikel eine andere.", kurz: "Menge je Zeile", a: 0, e: "Jeder Artikel hat seine eigene Menge. Der Bezug wandert mit." },
+        { html: "<b>Fall 4:</b> Ein Rabatt in Zelle F1 soll für jede Zeile gelten.", kurz: "Rabatt in F1", a: 1, e: "Der Rabatt gilt überall gleich: $F$1." }
+      ],
+      fertig: "Du erkennst, wann ein Bezug festbleiben muss."
+    }, "ent-bezug");
+  }
+});
+
+W.aufgabe({
+  titel: "Lerncheck",
+  auftrag: "Richtig oder falsch? Entscheide bei jeder Aussage.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Das Dollarzeichen hält einen Bezug fest, es verschiebt ihn nicht.", "Richtig sind die Aussagen zur Adresse, zum Ziehen und zu $G$1. Falsch sind die Aussagen zum Doppelpunkt und zum Dollarzeichen, das mitwandert."],
+  lehrer: { ziel: "Kernwissen der Stunde sichern.", anleitung: "Einzelarbeit, etwa 3 Minuten.", loesung: "richtig · falsch · richtig · richtig · falsch", fehler: ["Aussage 5: Ein Bezug mit Dollarzeichen wandert nicht mit."] },
+  bau(box) {
+    Modul.makeTF(box, [
+      ["Die Adresse C4 bedeutet: Spalte C, Zeile 4.", true],
+      ["Eine Formel beginnt mit einem Doppelpunkt.", false],
+      ["Zieht man =B2*C2 nach unten, steht in der nächsten Zeile =B3*C3.", true],
+      ["Mit $G$1 bleibt der Bezug beim Ziehen immer bei G1.", true],
+      ["Ein Bezug mit Dollarzeichen wandert beim Ziehen nach unten mit.", false]
+    ], "tf");
+  }
+});
+
+W.fertig();
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Projekt: Abschlussfahrt planen | Informatik 9</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="../../8M/Informatik/einheit8.css">
+<link rel="stylesheet" href="einheit9.css">
+<link rel="stylesheet" href="tabelle9.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 9</small></a>
+    <nav class="stations" id="stations"></nav>
+    <span class="stars" id="stars">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks">
+      <a href="index.html">Übersicht Informatik 9M</a>
+      <a href="../../9R/Informatik/index.html">Übersicht Informatik 9R</a>
+      <a href="../../index.html">Startseite</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 9 · Modul 3: Excel-Funktionen · Einheit 5</div>
+    <h1>Projekt: Abschlussfahrt planen</h1>
+    <p>Die Klasse plant die Abschlussfahrt. Du rechnest die Kosten aus, teilst sie auf alle Personen auf, prüfst das Budget und wertest eine Umfrage in Prozent aus. Alles aus diesem Modul kommt vor.</p>
+    <div class="zeit">etwa 40 Minuten · Praxis am Windows-PC mit Excel</div>
+    <div class="goals">
+      <div>Ich plane Kosten mit Formeln, SUMME, RUNDEN und WENN.</div>
+      <div>Ich berechne die relative Häufigkeit in Prozent.</div>
+      <div>Ich kenne die Fachbegriffe des Moduls und kann sie erklären.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="modulStand"></div>
+  <div id="weg"></div>
+</main>
+
+<footer class="wrap">Informatik 9 · Dein Fortschritt wird mit deinem Code gespeichert. · Excel ist ein Programm von Microsoft; die Tabellen auf dieser Seite sind eigene Nachbildungen (GRUMI-EXCEL). Alle Zahlen sind erfunden.</footer>
+
+<div id="pop" role="dialog"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info9.js"></script>
+<script src="diagramm9.js"></script>
+<script src="tabelle9.js"></script>
+<script src="../../8M/Informatik/excel-datei.js"></script>
+<script src="excel-aufgaben9.js"></script>
+<script>
+(function () {
+"use strict";
+const {$} = Modul;
+const F = Modul.formelGleich;
+const gl = (x, y) => typeof x === "number" && Math.abs(x - y) < 1e-9;
+const ist = (t, a, s) => String(t.wert(a)).toLowerCase() === s;
+const p = (ok, gut, schlecht) => ({ok, text: ok ? gut : schlecht});
+
+Modul.start9({
+  key: "grumi-i9-excel-projekt-v1",
+  thema: "Excel, Projekt Abschlussfahrt: Kosten je Posten (Preis mal Personen), SUMME, Kosten je Person mit RUNDEN, Budget-Check mit WENN, Umfrage auswerten mit relativer Häufigkeit in Prozent (Teil durch Ganzes mal 100, fester Bezug auf die Summe)",
+  glossary: {
+    haeufigkeit: ["relative Häufigkeit", "Der Anteil einer Antwort an allen Antworten, oft in Prozent. Teil geteilt durch Ganzes mal 100."],
+    budget: ["Budget", "Das Geld, das für etwas zur Verfügung steht."],
+    summe: ["SUMME", "Zählt die Zahlen eines Bereichs zusammen."]
+  }
+});
+
+const W = Modul.lernweg("#weg");
+
+/* ============ Regelheft ============ */
+W.teil("Regelheft", "Schreiben");
+W.regelheft({
+  titel: "Anteil in Prozent",
+  html: `<p>Die <span class="rot">relative Häufigkeit</span> sagt, wie groß ein Anteil ist.</p>
+    <p>Anteil = Teil geteilt durch Ganzes mal 100</p>
+    <p>In Excel: <span class="blau">=G2/$G$6*100</span></p>
+    <p>Das Ganze (G6) bleibt mit <span class="blau">$</span> fest.</p>
+    <p class="leer"></p>
+    <p>Beispiel: 6 von 24 Stimmen → 6 : 24 · 100 = 25 %</p>
+    <p>Kosten je Person: <span class="blau">=RUNDEN(B9/B2;2)</span></p>`,
+  lehrer: { ziel: "Die Formel für die relative Häufigkeit mit festem Bezug auf das Ganze steht im Heft, dazu das Zahlenbeispiel.",
+    anleitung: "Etwa 5 Minuten. Die Klasse schreibt ab. Erst nach dem Abhaken erscheint die erste Aufgabe.",
+    loesung: "Der Eintrag steht vollständig im Heft (Formel, Beispiel, Kosten je Person)." }
+});
+
+/* ============ Teil 2: Erst hier auf der Seite ============ */
+W.teil("Planen und rechnen", "Sehen · Ausprobieren");
+
+W.aufgabe({
+  titel: "Wie plant man mit Excel?",
+  bild: { src: "assets/bilder/excel-projekt.jpg", alt: "Vier Jugendliche planen an einem Tisch eine Fahrt. Auf dem Tisch liegen eine Landkarte, ein kleiner Modellbus, Münzen und ein Taschenrechner, daneben steht ein Laptop mit einer Tabelle.", text: "Eine Fahrt planen heißt: Kosten zusammenstellen und rechnen." },
+  auftrag: "Bring die Planung eines Ausflugs in die richtige Reihenfolge. Verschiebe mit den Pfeilen.",
+  hinweise: ["Überlege: Was brauchst du zuerst, damit du rechnen kannst?", "Erst die einzelnen Posten, dann das Ganze, am Schluss die Entscheidung.", "Reihenfolge: eintragen → Gesamt je Posten → Summe → Kosten je Person → Budget prüfen."],
+  lehrer: { ziel: "Den Ablauf eines Kostenplans in Excel überblicken.", anleitung: "Zu zweit besprechen lassen, dann ordnen. Bei jedem Schritt fragen, welche Funktion dazu passt.",
+    loesung: "1. Posten und Preise eintragen · 2. Gesamtkosten je Posten · 3. Summe aller Posten · 4. Kosten je Person · 5. Budget prüfen.", fehler: ["„Budget prüfen“ steht vor den Kosten je Person – dann fehlt die Zahl zum Vergleichen."] },
+  bau(box) {
+    Modul.makeOrder(box, [
+      "Posten und Preise in die Tabelle eintragen",
+      "Die Kosten jedes Postens berechnen: Preis mal Personen",
+      "Alle Kosten mit SUMME zusammenzählen",
+      "Die Kosten je Person mit RUNDEN berechnen",
+      "Mit WENN prüfen, ob das Budget reicht"
+    ], "order-plan");
+  }
+});
+
+W.aufgabe({
+  titel: "Gesamtkosten und Preis je Person",
+  geheim: ["=SUMME(B2:B4)", "=RUNDEN(B5/B6;2)", "1195", "44,26"],
+  auftrag: "Die Klasse macht einen Tagesausflug mit 27 Personen. Berechne in <b>B5</b> alle Kosten zusammen und in <b>B7</b> die Kosten je Person, auf Cent gerundet.",
+  hinweise: ["B5 zählt die drei Posten zusammen, B7 teilt durch die Personen.", "Für B7: Kosten durch Personen, das Ergebnis mit RUNDEN auf zwei Stellen.", "B5 <code>=SUMME(B2:B4)</code>, B7 <code>=RUNDEN(B5/B6;2)</code>."],
+  lehrer: { ziel: "SUMME, Teilen und RUNDEN in einem Kostenplan verbinden.", anleitung: "Einzelarbeit. Danach fragen: „Warum muss man runden?“ (1195 : 27 geht nicht auf.)",
+    loesung: "B5 =SUMME(B2:B4) zeigt 1195, B7 =RUNDEN(B5/B6;2) zeigt 44,26.", fehler: ["RUNDEN fehlt: B7 zeigt viele Nachkommastellen.", "B6 (die 27) wird nicht benutzt, sondern fest eingetippt."],
+    bedienung: "Zwei Formeln nacheinander tippen." },
+  bau(box) {
+    Modul.makeTabellenAufgabe(box, {
+      text: "Berechne <b>B5</b> (Summe) und <b>B7</b> (Kosten je Person, gerundet).",
+      tabelle: { spalten: 2, zeilen: 7, eingabe: ["B5", "B7"], start: "B5", breit: { A: 190, B: 90 }, zellen: { A1: "Posten", B1: "Kosten in €", A2: "Gruppenticket Zug", B2: "395", A3: "Eintritt Museum", B3: "187,5", A4: "Mittagessen", B4: "612,5", A5: "Summe", A6: "Personen", B6: "27", A7: "Kosten je Person in €" } },
+      pruefe: t => [
+        p(F(t.formel("B5"), ["=SUMME(B2:B4)", "=SUMME($B$2:$B$4)"]) && gl(t.wert("B5"), 1195), "B5 zählt die drei Posten zusammen.", "B5 soll mit SUMME alle drei Posten (B2 bis B4) zusammenzählen."),
+        p(/^=RUNDEN\(/.test(t.formel("B7")), "B7 nutzt RUNDEN.", "B7 soll mit RUNDEN auf Cent genau sein."),
+        p(gl(t.wert("B7"), 44.26) && /B6/.test(t.formel("B7")), "B7 zeigt die Kosten je Person und rechnet mit B6.", "B7 zeigt " + (t.text("B7") || "nichts") + ". Teile die Summe aus B5 durch die Personen in B6.")
+      ],
+      loesung: { setze: { B5: "=SUMME(B2:B4)", B7: "=RUNDEN(B5/B6;2)" } },
+      erfolg: "Summe, Teilen und Runden – der Kostenplan steht."
+    }, "tab-kosten");
+  }
+});
+
+W.aufgabe({
+  titel: "Reicht das Budget?",
+  geheim: ["=WENN(B2<=$B$5;\"passt\";\"zu teuer\")"],
+  auftrag: "Pro Person stehen 85 € zur Verfügung (B5). Drei Ausflüge stehen zur Wahl. Schreibe in <b>C2</b> eine WENN-Formel: „passt“, wenn die Kosten nicht über dem Budget liegen, sonst „zu teuer“. Ziehe sie bis <b>C4</b>.",
+  vorwissen: "<p>Das Budget steht nur in B5 und gilt für alle drei Zeilen. Darum muss der Bezug auf B5 beim Ziehen <b>festbleiben</b> – mit Dollarzeichen.</p>",
+  hinweise: ["Die Bedingung vergleicht die Kosten in B2 mit dem Budget in B5. „Nicht über“ heißt: kleiner oder gleich.", "Das Zeichen für „kleiner oder gleich“ ist &lt;=. Der Bezug auf das Budget braucht Dollarzeichen.", "Bedingung: B2, dann das Zeichen, dann <code>$B$5</code>. Danach der Text für „stimmt“ und der Text für „stimmt nicht“, beide in Anführungszeichen. Ziehe bis C4."],
+  lehrer: { ziel: "WENN mit festem Bezug und dem Zeichen <= in einem Budget-Check.", anleitung: "Einzelarbeit. Beim Kletterpark (genau 85,00 €) fragen: „Passt das?“",
+    loesung: "=WENN(B2<=$B$5;\"passt\";\"zu teuer\"), bis C4: passt · zu teuer · passt.", fehler: ["B5 ohne Dollarzeichen: C3 vergleicht dann mit einer leeren Zelle.", "< statt <=: Der Kletterpark mit genau 85,00 € wird abgelehnt."],
+    bedienung: "C2 anklicken, Formel tippen, Eingabetaste, Ausfüllkästchen bis C4 ziehen." },
+  bau(box) {
+    Modul.makeTabellenAufgabe(box, {
+      text: "Schreibe die Budget-Prüfung in <b>C2</b> und ziehe sie bis <b>C4</b>.",
+      tabelle: { spalten: 3, zeilen: 5, griff: true, eingabe: ["C2", "C3", "C4"], start: "C2", breit: { A: 160, B: 110, C: 110 }, zellen: { A1: "Ausflug", B1: "Kosten je Person", C1: "Ergebnis", A2: "Tagesausflug", B2: "44,26", A3: "Wochenende", B3: "96,4", A4: "Kletterpark", B4: "85", A5: "Budget je Person", B5: "85" } },
+      pruefe: t => [
+        p(["C2", "C3", "C4"].every(a => /^=WENN\(/.test(t.formel(a))), "In C2 bis C4 steht eine WENN-Formel.", "In C2 bis C4 soll eine WENN-Formel stehen. Ziehe sie bis C4."),
+        p(["C2", "C3", "C4"].every(a => /\$B\$5/.test(t.formel(a))), "Das Budget ist mit $B$5 festgehalten.", "Der Bezug auf das Budget soll beim Ziehen festbleiben: $B$5."),
+        p(ist(t, "C2", "passt") && ist(t, "C3", "zu teuer") && ist(t, "C4", "passt"), "Die Ergebnisse stimmen – auch beim Kletterpark mit genau 85 €.", "Noch nicht alle Ergebnisse stimmen. Der Kletterpark kostet genau so viel wie das Budget.")
+      ],
+      loesung: { setze: { C2: '=WENN(B2<=$B$5;"passt";"zu teuer")' }, fuelle: [["C2", "C4"]] },
+      erfolg: "Excel prüft das Budget für jeden Ausflug."
+    }, "tab-budget");
+  }
+});
+
+W.aufgabe({
+  titel: "Umfrage in Prozent",
+  geheim: ["=RUNDEN(B2/$B$6*100;1)", "=SUMME(B2:B5)", "33,3", "25", "16,7"],
+  auftrag: "Die Klasse hat abgestimmt, wohin der Ausflug gehen soll. Zähle in <b>B6</b> alle Stimmen zusammen und berechne in <b>C2</b> bis <b>C5</b> den Anteil jeder Antwort in Prozent, auf <b>eine Nachkommastelle</b> gerundet.",
+  vorwissen: "<p>Der Anteil heißt in der Mathematik <b>relative Häufigkeit</b>: Teil geteilt durch Ganzes. Mal 100 ergibt Prozent. Das Ganze ist hier die Summe aller Stimmen.</p>",
+  hinweise: ["Zuerst die Summe in B6. Dann rechnest du Stimmen geteilt durch Summe, mal 100.", "Die Summe in B6 gilt für alle Zeilen: Sie braucht Dollarzeichen. Das Ergebnis rundest du mit RUNDEN auf eine Stelle.", "B6 <code>=SUMME(B2:B5)</code>, C2 <code>=RUNDEN(B2/$B$6*100;1)</code>. Ziehe C2 bis C5."],
+  lehrer: { ziel: "Die relative Häufigkeit in Prozent berechnen (Lehrplan) – mit festem Bezug auf das Ganze.", anleitung: "Vorher an der Tafel rechnen lassen: 6 von 24 sind wie viel Prozent? Dann in Excel. Die vier Prozentwerte müssen zusammen etwa 100 ergeben.",
+    loesung: "B6 =SUMME(B2:B5) zeigt 24. C2 =RUNDEN(B2/$B$6*100;1) bis C5: 33,3 · 25 · 16,7 · 25.", fehler: ["$B$6 ohne Dollarzeichen: C3 teilt dann durch eine leere Zelle (Fehler #DIV/0!).", "Mal 100 vergessen: Es steht 0,333 statt 33,3.", "Die Summe wird fest eingetippt (24)."],
+    bedienung: "B6 tippen, dann C2 tippen und das Ausfüllkästchen bis C5 ziehen." },
+  bau(box) {
+    Modul.makeTabellenAufgabe(box, {
+      text: "Berechne <b>B6</b> (alle Stimmen) und <b>C2</b> bis <b>C5</b> (Anteil in Prozent).",
+      tabelle: { spalten: 3, zeilen: 6, griff: true, eingabe: ["B6", "C2", "C3", "C4", "C5"], start: "B6", breit: { A: 110, B: 80, C: 120 }, zellen: { A1: "Ziel", B1: "Stimmen", C1: "Anteil in %", A2: "Zoo", B2: "8", A3: "Klettern", B3: "6", A4: "Kino", B4: "4", A5: "Schwimmbad", B5: "6", A6: "Summe" } },
+      pruefe: t => [
+        p(/^=SUMME\(/.test(t.formel("B6")) && gl(t.wert("B6"), 24), "B6 zählt alle Stimmen zusammen.", "B6 soll mit SUMME alle vier Stimmenzahlen zusammenzählen."),
+        p(["C2", "C3", "C4", "C5"].every(a => /\$B\$6/.test(t.formel(a))), "Die Formeln rechnen mit $B$6 – das Ganze bleibt fest.", "Das Ganze (B6) soll beim Ziehen festbleiben: $B$6. Ziehe die Formel von C2 bis C5."),
+        p(gl(t.wert("C2"), 33.3) && gl(t.wert("C3"), 25) && gl(t.wert("C4"), 16.7) && gl(t.wert("C5"), 25), "Alle Prozentwerte stimmen.", "Noch nicht alle Prozentwerte stimmen. Rechne Stimmen durch Summe mal 100 und runde auf eine Stelle.")
+      ],
+      loesung: { setze: { B6: "=SUMME(B2:B5)", C2: "=RUNDEN(B2/$B$6*100;1)" }, fuelle: [["C2", "C5"]] },
+      erfolg: "So wertest du jede Umfrage aus."
+    }, "tab-prozent");
+  }
+});
+
+W.aufgabe({
+  titel: "Anteile verstehen",
+  auftrag: "Drei Fragen zur relativen Häufigkeit.",
+  hinweise: ["Teil geteilt durch Ganzes, dann mal 100.", "Das Dollarzeichen hält einen Bezug fest, wenn du die Formel nach unten ziehst.", "Frage 1: 6 : 30 = 0,2 und das mal 100. Frage 3: Alle Teile zusammen sind das ganze Ganze."],
+  lehrer: { ziel: "Die relative Häufigkeit und die Rolle des Dollarzeichens erklären.", anleitung: "Einzelarbeit, wenige Minuten.",
+    loesung: "Frage 1: 20 % · Frage 2: Das Ganze bleibt beim Ziehen fest. · Frage 3: 100 %.", fehler: ["Frage 1: 6 % wird gewählt, weil 6 Stimmen abgegeben wurden."] },
+  bau(box) {
+    Modul.makeMC(box, [
+      { q: "6 von 30 Kindern wollen ins Kino. Wie groß ist die relative Häufigkeit?", o: ["20 %", "6 %", "30 %", "5 %"], a: 0, e: "6 geteilt durch 30 ist 0,2. Mal 100 ergibt 20 %." },
+      { q: "In der Formel =B2/$B$6*100 steht ein Dollarzeichen. Warum?", o: ["Damit das Ganze beim Ziehen festbleibt.", "Damit die Zahl in Euro angezeigt wird.", "Damit Excel schneller rechnet.", "Damit die Zelle fett wird."], a: 0, e: "Ohne Dollarzeichen würde B6 beim Ziehen zu B7, B8 … wandern." },
+      { q: "Wie viel Prozent ergeben alle Anteile einer Umfrage zusammen?", o: ["100 %", "50 %", "10 %", "so viel wie die Stimmen"], a: 0, e: "Alle Teile zusammen sind das ganze Ganze: 100 %." }
+    ], "mc-anteil");
+  }
+});
+
+/* ============ Teil 3: Am PC ============ */
+W.teil("Am PC: Excel", "Anwenden");
+
+W.aufgabe({
+  titel: "Abschlussfahrt in Excel",
+  geheim: ["3012", "125,5", "=B2*C2", "=SUMME(D2:D5)", "=RUNDEN(D6/C2;2)", "=SUMME(G2:G5)", "=RUNDEN(G2/$G$6*100;1)"],
+  auftrag: "Jetzt planst du im echten Excel die Abschlussfahrt der Klasse: Kosten, Preis je Person, Budget und eine Umfrage zum Ziel.",
+  hinweise: ["Die Tabelle hat zwei Teile: links die Kosten (Spalten A bis D), rechts die Umfrage (Spalten F bis H).", "Links: Gesamt je Posten, Summe, Kosten je Person, Budget-Check mit WENN. Rechts: Summe der Stimmen und Anteile in Prozent.", "D2 <code>=B2*C2</code> (bis D5 ziehen) · D6 <code>=SUMME(D2:D5)</code> · D7 <code>=RUNDEN(D6/C2;2)</code> · D9 <code>=WENN(D7&lt;=D8;\"passt\";\"zu teuer\")</code> · G6 <code>=SUMME(G2:G5)</code> · H2 <code>=RUNDEN(G2/$G$6*100;1)</code> (bis H5 ziehen)"],
+  lehrer: { ziel: "Das Modul als Projekt abschließen: Formeln, Ziehen, SUMME, RUNDEN, WENN und relative Häufigkeit in einer Tabelle.",
+    anleitung: "Etwa 15 Minuten. Die Startdatei abschlussfahrt_start.xlsx liegt im Auftrag zum Herunterladen. Am Ende lädt jedes Kind seine gespeicherte Datei hoch; der Server prüft sie und die KI schreibt eine Rückmeldung. Am Tablet gibt es stattdessen eine Frage.",
+    loesung: "D2 bis D5: 912 · 1536 · 420 · 144. D6 3012. D7 125,5. D9 passt. G6 24. H2 bis H5: 37,5 · 29,2 · 20,8 · 12,5. Gespeichert als abschlussfahrt.xlsx.",
+    fehler: ["In H2 fehlen die Dollarzeichen: H3 teilt dann durch eine leere Zelle und zeigt #DIV/0!.", "In D9 fehlen die Anführungszeichen.", "RUNDEN fehlt in D7: Bei diesen Zahlen sieht das Ergebnis gleich aus (125,5). Die Prüfung verlangt die Funktion trotzdem – bei anderen Zahlen kämen Bruchteile von Cent heraus."],
+    bedienung: "„Datei auswählen“ → die gespeicherte .xlsx-Datei. Die Rückmeldung nennt jeden Prüfpunkt einzeln." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Abschlussfahrt planen", pc: "Excel", zeit: "etwa 15 Minuten",
+      ziel: "Die Tabelle zeigt die Kosten je Posten, die Summe, die Kosten je Person, das Ergebnis des Budget-Checks und die Anteile der Umfrage in Prozent. Die Datei ist gespeichert.",
+      material: [{ name: "Startdatei abschlussfahrt_start.xlsx", href: "assets/excel/abschlussfahrt_start.xlsx" }],
+      schritte: [
+        "Lade die Startdatei herunter und öffne sie in Excel. Erscheint oben ein gelber Balken, klicke auf <span class=\"menue\">Bearbeitung aktivieren</span>.",
+        "<b>Gesamt je Posten:</b> Klicke auf <b>D2</b>, tippe <code>=B2*C2</code> und drücke die Eingabetaste. Ziehe das <b>Ausfüllkästchen</b> bis <b>D5</b>.",
+        "<b>Summe:</b> Klicke auf <b>D6</b>, tippe <code>=SUMME(D2:D5)</code> und drücke die Eingabetaste.",
+        "<b>Kosten je Person:</b> Klicke auf <b>D7</b>, tippe <code>=RUNDEN(D6/C2;2)</code> und drücke die Eingabetaste. Bei diesen Zahlen sieht man RUNDEN nicht (125,5 geht glatt auf) – die Prüfung verlangt die Funktion trotzdem, denn bei anderen Zahlen kämen Bruchteile von Cent heraus.",
+        "<b>Budget-Check:</b> Das Budget je Person steht in D8. Klicke auf <b>D9</b>, tippe <code>=WENN(D7&lt;=D8;\"passt\";\"zu teuer\")</code> und drücke die Eingabetaste.",
+        "<b>Umfrage:</b> Klicke auf <b>G6</b>, tippe <code>=SUMME(G2:G5)</code> und drücke die Eingabetaste.",
+        "Klicke auf <b>H2</b>, tippe <code>=RUNDEN(G2/$G$6*100;1)</code> und drücke die Eingabetaste. Ziehe das Ausfüllkästchen bis <b>H5</b>.",
+        "Speichere die Datei unter einem neuen Namen: Drücke die Taste <kbd>F12</kbd>. Es öffnet sich das Fenster „Speichern unter“. Wähle deinen Ordner, tippe den Namen <b>abschlussfahrt</b> ein und klicke auf <span class=\"menue\">Speichern</span>."
+      ],
+      loesung: "D2 bis D5 zeigen 912 · 1536 · 420 · 144, D6 zeigt 3012, D7 zeigt 125,5, D9 zeigt „passt“, G6 zeigt 24 und H2 bis H5 zeigen 37,5 · 29,2 · 20,8 · 12,5.",
+      pruefung: {
+        art: "datei", accept: ".xlsx", lies: Modul.liesExcel, pruefe: (Modul.excelPruefung || {})["excel-projekt-auf1"], server: { pfad: "/api/inf9/excel/pruefen", aufgabe: "excel-projekt-auf1" },
+        text: "Wähle deine gespeicherte Datei <b>abschlussfahrt.xlsx</b> aus. Sie wird geprüft, und die KI schreibt dir eine Rückmeldung. Deine Lehrkraft kann die Datei danach ansehen.",
+        ersatz: { art: "zahl", frage: "Wie viel kostet die Fahrt je Person (Zelle D7)?", wert: 125.5, tol: 0.001, einheit: "€",
+          tipp: "D7 teilt die Summe aus D6 durch die Zahl der Personen in C2 und rundet auf Cent." }
+      }
+    }, "auf1");
+  }
+});
+
+/* ============ Teil 4: Wiederholen ============ */
+W.teil("Wiederholen", "Andere Zahlen");
+
+W.aufgabe({
+  titel: "Tagesfahrt mit Budget",
+  geheim: ["=B2*C2", "=SUMME(D2:D4)", "=RUNDEN(D5/C2;2)", "=WENN(D6<=D7;\"passt\";\"zu teuer\")", "29"],
+  auftrag: "Eine Klasse mit 18 Personen plant eine Tagesfahrt. Berechne die Kosten je Posten, die Summe, die Kosten je Person und prüfe mit WENN das Budget.",
+  hinweise: ["Fünf Schritte: Gesamt je Posten (D2 bis D4), Summe (D5), Kosten je Person (D6), Ergebnis (D8).", "Gesamt je Posten ist Preis mal Personen. Die Kosten je Person teilst du und rundest du. Das Ergebnis vergleicht D6 mit dem Budget in D7.", "D2 <code>=B2*C2</code> bis D4 · D5 <code>=SUMME(D2:D4)</code> · D6 <code>=RUNDEN(D5/C2;2)</code> · D8 <code>=WENN(D6&lt;=D7;\"passt\";\"zu teuer\")</code>"],
+  lehrer: { ziel: "Das Modul mit neuen Zahlen wiederholen: Ziehen, SUMME, RUNDEN, WENN.", anleitung: "Einzelarbeit, etwa 8 Minuten. Das Ergebnis „zu teuer“ ist gewollt: 29 € je Person bei 28 € Budget.",
+    loesung: "D2 bis D4: 162 · 225 · 135. D5 522. D6 29. D8 zu teuer.", fehler: ["C3 und C4 werden in der Formel nicht benutzt, sondern fest 18 eingetippt.", "In D8 wird >= statt <= gewählt."],
+    bedienung: "Formeln nacheinander tippen; D2 bis D4 ziehen." },
+  bau(box) {
+    Modul.makeTabellenAufgabe(box, {
+      text: "Schreibe die Formeln in <b>D2</b> (bis D4), <b>D5</b>, <b>D6</b> und <b>D8</b>.",
+      tabelle: { spalten: 4, zeilen: 8, griff: true, eingabe: ["D2", "D3", "D4", "D5", "D6", "D8"], start: "D2", breit: { A: 160, B: 80, C: 80, D: 100 },
+        zellen: { A1: "Posten", B1: "Preis je Person in €", C1: "Personen", D1: "Gesamt in €", A2: "Busfahrt", B2: "9", C2: "18", A3: "Eintritt", B3: "12,5", C3: "18", A4: "Verpflegung", B4: "7,5", C4: "18", A5: "Summe", A6: "Kosten je Person in €", A7: "Budget je Person in €", D7: "28", A8: "Ergebnis" } },
+      pruefe: t => [
+        p(["D2", "D3", "D4"].every((a, i) => F(t.formel(a), ["=B" + (i + 2) + "*C" + (i + 2), "=C" + (i + 2) + "*B" + (i + 2)])) && gl(t.wert("D2"), 162) && gl(t.wert("D3"), 225) && gl(t.wert("D4"), 135), "D2 bis D4 rechnen Preis mal Personen.", "D2 bis D4 sollen Preis mal Personen der eigenen Zeile rechnen. Ziehe von D2 bis D4."),
+        p(/^=SUMME\(/.test(t.formel("D5")) && gl(t.wert("D5"), 522), "D5 zählt die Posten zusammen.", "D5 soll mit SUMME die drei Posten zusammenzählen."),
+        p(/^=RUNDEN\(/.test(t.formel("D6")) && gl(t.wert("D6"), 29), "D6: Kosten je Person, gerundet.", "D6 soll die Summe durch die Personen teilen und mit RUNDEN auf Cent runden."),
+        p(/^=WENN\(/.test(t.formel("D8")) && ist(t, "D8", "zu teuer"), "D8 prüft das Budget richtig.", "D8 soll mit WENN die Kosten je Person (D6) mit dem Budget (D7) vergleichen. Reicht das Budget?")
+      ],
+      loesung: { setze: { D2: "=B2*C2", D5: "=SUMME(D2:D4)", D6: "=RUNDEN(D5/C2;2)", D8: '=WENN(D6<=D7;"passt";"zu teuer")' }, fuelle: [["D2", "D4"]] },
+      erfolg: "Kosten, Summe, Preis je Person und Budget – alles in einer Tabelle."
+    }, "tab-wdh");
+  }
+});
+
+W.aufgabe({
+  titel: "Die Anteile sind falsch",
+  geheim: ["=RUNDEN(B2/$B$6*100;1)", "41,8", "28,2", "10", "20"],
+  auftrag: "Eine Umfrage der Jahrgangsstufe zum Verkehrsmittel: Die Anteile in Spalte C sind falsch, in manchen Zeilen steht sogar eine Fehlermeldung. Finde den Fehler in <b>C2</b>, repariere die Formel und ziehe sie bis <b>C5</b>.",
+  hinweise: ["Sieh dir die Formeln in C3 bis C5 an: Welche Zelle steht unter dem Bruchstrich?", "Das Ganze steht in B6. In C3 ist daraus B7 geworden, in C4 B8 – dort steht nichts.", "Schreibe in C2: <code>=RUNDEN(B2/$B$6*100;1)</code>. Die Dollarzeichen halten B6 fest. Ziehe die Formel bis C5."],
+  lehrer: { ziel: "Den häufigsten Fehler bei der relativen Häufigkeit finden: Das Ganze ist nicht fest.", anleitung: "Zuerst die Fehlermeldung #DIV/0! zeigen und fragen: „Wodurch wird geteilt?“ Dann die Formeln lesen.",
+    loesung: "C2 =RUNDEN(B2/$B$6*100;1) bis C5: 41,8 · 28,2 · 10 · 20.", fehler: ["Nur C2 wird repariert, C3 bis C5 bleiben alt.", "Nur ein Dollarzeichen ($B6) – dann wandert die Zeile mit."],
+    bedienung: "C2 anklicken, neue Formel tippen, Eingabetaste, Ausfüllkästchen bis C5 ziehen." },
+  bau(box) {
+    const alt = r => "=RUNDEN(B" + r + "/B" + (r + 4) + "*100;1)";
+    Modul.makeTabellenAufgabe(box, {
+      text: "Repariere <b>C2</b> und ziehe die Formel bis <b>C5</b>.",
+      tabelle: { spalten: 3, zeilen: 8, griff: true, eingabe: ["C2", "C3", "C4", "C5"], start: "C2", breit: { A: 110, B: 80, C: 120 },
+        zellen: { A1: "Verkehrsmittel", B1: "Stimmen", C1: "Anteil in %", A2: "Bus", B2: "46", C2: alt(2), A3: "Zug", B3: "31", C3: alt(3), A4: "Fahrrad", B4: "11", C4: alt(4), A5: "Auto", B5: "22", C5: alt(5), A6: "Summe", B6: "=SUMME(B2:B5)" } },
+      pruefe: t => [
+        p(["C2", "C3", "C4", "C5"].every(a => /\$B\$6/.test(t.formel(a))), "In C2 bis C5 steht $B$6 – das Ganze bleibt fest.", "In C2 bis C5 soll $B$6 stehen, damit das Ganze beim Ziehen festbleibt. Ziehe die neue Formel bis C5."),
+        p(gl(t.wert("C2"), 41.8) && gl(t.wert("C3"), 28.2) && gl(t.wert("C4"), 10) && gl(t.wert("C5"), 20), "Alle Anteile stimmen.", "Noch nicht alle Anteile stimmen. Eine Fehlermeldung zeigt: Es wird durch eine leere Zelle geteilt.")
+      ],
+      loesung: { setze: { C2: "=RUNDEN(B2/$B$6*100;1)" }, fuelle: [["C2", "C5"]] },
+      erfolg: "Mit dem festen Bezug stimmen alle Anteile."
+    }, "tab-anteile");
+  }
+});
+
+/* ============ Teil 5: Kontrollieren ============ */
+W.teil("Kontrollieren", "Lerncheck");
+
+W.aufgabe({
+  titel: "Welche Funktion passt?",
+  auftrag: "Entscheide bei jedem Fall, welche Funktion du brauchst.",
+  hinweise: ["Überlege, was am Ende herauskommen soll: eine Summe, eine gerundete Zahl, eine Entscheidung oder ein Durchschnitt?", "SUMME zählt zusammen, RUNDEN legt Nachkommastellen fest, WENN entscheidet, MITTELWERT ist der Durchschnitt.", "Fall 1 → SUMME · Fall 2 → RUNDEN · Fall 3 → WENN · Fall 4 → MITTELWERT"],
+  lehrer: { ziel: "Aufgaben der richtigen Funktion zuordnen (Wiederholung des Moduls).", anleitung: "Ein Fall nach dem anderen; falsch entschiedene Fälle kommen noch einmal.",
+    loesung: "SUMME · RUNDEN · WENN · MITTELWERT.", fehler: ["Fall 2: „Auf Cent genau“ wird mit QUOTIENT verwechselt."] },
+  bau(box) {
+    Modul.makeEntscheiden(box, {
+      frage: "Welche Funktion passt?",
+      optionen: ["SUMME", "RUNDEN", "WENN", "MITTELWERT"],
+      faelle: [
+        { html: "<b>Fall 1:</b> Alle Kosten der Fahrt sollen zusammengezählt werden.", kurz: "Kosten zusammen", a: 0, e: "Zusammenzählen ist die Aufgabe von SUMME." },
+        { html: "<b>Fall 2:</b> Der Preis je Person soll auf Cent genau sein.", kurz: "auf Cent genau", a: 1, e: "RUNDEN legt die Nachkommastellen fest." },
+        { html: "<b>Fall 3:</b> Excel soll selbst schreiben, ob das Budget reicht.", kurz: "Budget prüfen", a: 2, e: "Eine Entscheidung nach einer Bedingung trifft WENN." },
+        { html: "<b>Fall 4:</b> Wie viele Schritte läuft ein Kind an einem durchschnittlichen Tag?", kurz: "Durchschnitt", a: 3, e: "Der Durchschnitt heißt in Excel MITTELWERT." }
+      ],
+      fertig: "Du wählst für jede Aufgabe die passende Funktion."
+    }, "ent-funktion");
+  }
+});
+
+W.aufgabe({
+  titel: "Lerncheck",
+  auftrag: "Richtig oder falsch? Entscheide bei jeder Aussage.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Alle Anteile einer Umfrage zusammen ergeben 100 %.", "Richtig sind die Aussagen zur Formel, zum Dollarzeichen und zu den 100 %. Falsch sind die Aussagen zu Teil und Ganzem vertauscht und zu den Stimmen als Anteil."],
+  lehrer: { ziel: "Kernwissen der Stunde sichern.", anleitung: "Einzelarbeit, etwa 3 Minuten.", loesung: "richtig · richtig · falsch · richtig · falsch", fehler: ["Aussage 3: Das Ganze steht unter dem Bruchstrich, nicht der Teil."] },
+  bau(box) {
+    Modul.makeTF(box, [
+      ["Anteil in Prozent = Teil geteilt durch Ganzes mal 100.", true],
+      ["In =G2/$G$6*100 bleibt G6 beim Ziehen fest.", true],
+      ["Bei der relativen Häufigkeit teilt man das Ganze durch den Teil.", false],
+      ["Alle Anteile einer Umfrage ergeben zusammen 100 %.", true],
+      ["Die Zahl der Stimmen ist schon die relative Häufigkeit.", false]
+    ], "tf");
+  }
+});
+
+/* ============ Teil 6: Wortspeicher ============ */
+W.teil("Wortspeicher", "Wiederholen");
+W.karten({
+  titel: "Wortspeicher Modul 3: Excel-Funktionen",
+  auftrag: "Kennst du den Begriff? Überlege zuerst, dann dreh die Karte um.",
+  karten: [
+    ["Zelle", "Ein Kästchen in der Tabelle."],
+    ["Zelladresse", "Spalte und Zeile einer Zelle, zum Beispiel B3."],
+    ["Formel", "Eine Rechenanweisung. Sie beginnt mit =."],
+    ["Zellbezug", "Die Adresse einer Zelle, mit der eine Formel rechnet."],
+    ["relativer Bezug", "Ein Bezug, der beim Ziehen mitwandert."],
+    ["absoluter Bezug", "Ein Bezug mit $, der beim Ziehen festbleibt."],
+    ["Bereich", "Mehrere Zellen auf einmal, zum Beispiel B2:B8."],
+    ["Funktion", "Ein fertiges Werkzeug von Excel, zum Beispiel SUMME."],
+    ["SUMME", "Zählt die Zahlen eines Bereichs zusammen."],
+    ["MITTELWERT", "Berechnet den Durchschnitt."],
+    ["PRODUKT", "Multipliziert Zahlen miteinander."],
+    ["QUOTIENT", "Teilt und zeigt nur die ganze Zahl."],
+    ["RUNDEN", "Rundet auf eine bestimmte Zahl von Nachkommastellen."],
+    ["WURZEL", "Sucht die Zahl, die mal sich selbst das Ergebnis ergibt."],
+    ["WENN", "Entscheidet nach einer Bedingung zwischen zwei Werten."],
+    ["Bedingung", "Ein Vergleich, der stimmt oder nicht stimmt."],
+    ["relative Häufigkeit", "Der Anteil an allen Antworten, oft in Prozent."]
+  ]
+});
+
+W.fertig();
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

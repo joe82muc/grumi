@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Eigene Blöcke | Informatik 9</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="../../8M/Informatik/einheit8.css">
+<link rel="stylesheet" href="einheit9.css">
+<link rel="stylesheet" href="bloecke9.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 9</small></a>
+    <nav class="stations" id="stations"></nav>
+    <span class="stars" id="stars">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks">
+      <a href="index.html">Übersicht Informatik 9M</a>
+      <a href="../../9R/Informatik/index.html">Übersicht Informatik 9R</a>
+      <a href="../../index.html">Startseite</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 9 · Modul 5: Programmieren mit Scratch · Einheit 6</div>
+    <h1>Eigene Blöcke</h1>
+    <p>Wer vier Bausteine in eine Kiste packt, trägt nur noch die Kiste. Mit eigenen Blöcken macht ein Programm dasselbe: Viele Befehle bekommen einen Namen, und du benutzt sie, so oft du willst.</p>
+    <div class="zeit">etwa 40 Minuten · erst mit GRUMI-Blöcken, dann Praxis am Windows-PC mit Scratch</div>
+    <div class="goals">
+      <div>Ich erkläre, was ein eigener Block (eine Teilmethode) ist.</div>
+      <div>Ich baue einen eigenen Block und rufe ihn mehrmals auf.</div>
+      <div>Ich kürze ein langes Programm mit einem eigenen Block.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="modulStand"></div>
+  <div id="weg"></div>
+</main>
+
+<footer class="wrap">Informatik 9 · Dein Fortschritt wird mit deinem Code gespeichert. · Scratch ist ein Projekt der Scratch Foundation (scratch.mit.edu). Die Blöcke, die Figur und die Bühne auf dieser Seite sind eigene Nachbildungen (GRUMI-Blöcke). Bildschirmfoto aus Scratch: Scratch is a project of the Scratch Foundation. It is available for free at https://scratch.mit.edu – Scratch ist ein Projekt der Scratch Foundation und kostenlos unter scratch.mit.edu verfügbar. Die Bildschirmfotos stehen unter der Lizenz CC BY-SA.</footer>
+
+<div id="pop" role="dialog"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info9.js"></script>
+<script src="bloecke9.js"></script>
+<script src="../../8M/Informatik/excel-datei.js"></script>
+<script src="scratch-aufgaben9.js"></script>
+<script>
+(function () {
+"use strict";
+const {$} = Modul;
+
+Modul.start9({
+  key: "grumi-i9-eigene-bloecke-v1",
+  thema: "Scratch, eigene Blöcke (Teilmethoden): mehrere Befehle unter einem Namen zusammenfassen, Definiere und Aufruf, einmal bauen und mehrmals benutzen, ein langes Programm kürzen (Quadrat, Stufe, Dreieck, Springen)",
+  glossary: {
+    eigenerblock: ["eigener Block", "Ein Block, den du selbst baust. Er fasst mehrere Befehle unter einem Namen zusammen."],
+    teilmethode: ["Teilmethode", "Fachwort für einen eigenen Block: ein kleines Programmstück mit Namen, das du aufrufen kannst."],
+    aufruf: ["Aufruf", "Der Befehl, der einen eigenen Block ausführt. In den GRUMI-Blöcken heißt er „führe … aus“."],
+    definition: ["Definition", "Hier steht, was der eigene Block tut. In den GRUMI-Blöcken und in Scratch beginnt sie mit „Definiere“."]
+  }
+});
+
+const W = Modul.lernweg("#weg");
+
+/* ---------- Hilfen für die Prüfungen ---------- */
+const alle = (p, typ, aus = []) => { (p || []).forEach(b => { if (!Array.isArray(b)) return; if (b[0] === typ) aus.push(b); b.forEach(x => { if (Array.isArray(x) && Array.isArray(x[0])) alle(x, typ, aus); }); }); return aus; };
+const istKopf = b => Array.isArray(b) && (b[0] === "flagge" || b[0] === "definiere");
+// die Blöcke unter der Fahne (bis zum nächsten Kopfblock)
+function unterFlagge(p) {
+  const i = p.findIndex(b => b[0] === "flagge");
+  if (i < 0) return [];
+  const aus = [];
+  for (let k = i + 1; k < p.length && !istKopf(p[k]); k++) aus.push(p[k]);
+  return aus;
+}
+const defi = (p, name) => p.find(b => b[0] === "definiere" && b[1] === name);
+// wie oft läuft der eigene Block, wenn man die Liste ausführt (Wiederholungen mitgezählt)
+const aufrufe = (liste, name) => (liste || []).reduce((n, b) => n + (b[0] === "rufe" && b[1] === name ? 1 : b[0] === "mal" ? Number(b[1]) * aufrufe(b[2], name) : 0), 0);
+const zaehle = l => (l || []).reduce((n, b) => n + 1 + (b[0] === "mal" ? zaehle(b[2]) : 0), 0);
+
+/* ============ Regelheft ============ */
+W.teil("Regelheft", "Schreiben");
+W.regelheft({
+  titel: "Eigene Blöcke",
+  html: `<p>Ein <span class="rot">eigener Block</span> fasst mehrere Befehle unter einem <span class="rot">Namen</span> zusammen. Fachwort: <span class="rot">Teilmethode</span>.</p>
+    <p>Unter <span class="blau">Definiere springe</span> steht, was er tut.</p>
+    <p>Mit dem Block <span class="blau">springe</span> rufe ich ihn auf.</p>
+    <p class="leer"></p>
+    <p>Einmal bauen, oft benutzen: Das Programm wird kürzer und übersichtlicher.</p>`,
+  lehrer: { ziel: "Die Kernaussagen zu eigenem Block (Teilmethode), Definition, Aufruf und Nutzen stehen im Heft.",
+    anleitung: "Etwa 5 Minuten. Die Klasse schreibt ab. Erst nach dem Abhaken erscheint die erste Aufgabe. Zum Einstieg: „Wenn ich sage: Räumt auf! – wie viele einzelne Handgriffe stecken in diesem einen Wort?“",
+    loesung: "Der Eintrag steht vollständig im Heft (vier kurze Aussagen)." }
+});
+
+/* ============ Teil 2: GRUMI-Blöcke ============ */
+W.teil("Verstehen und ausprobieren", "Sehen · Ausprobieren");
+
+W.aufgabe({
+  titel: "Aus vielen Bausteinen wird einer",
+  bild: { src: "assets/bilder/eigene-bloecke.jpg", alt: "Oben vier kleine Bilder hintereinander mit Pfeilen: Ein kleiner weißer Roboter legt bunte Würfel nach und nach in eine durchsichtige Kiste. Unten sitzt der Roboter am Tisch und packt einen gelben Würfel in die Kiste; rechts steht die fertige, volle Kiste als ein einziger großer Baustein.", text: "Viele kleine Teile in einer Kiste: Das ist ein eigener Block. (Bild mit KI erstellt)" },
+  auftrag: "Der Roboter packt viele Würfel in eine Kiste und trägt dann nur noch die Kiste. So ähnlich ist es mit eigenen Blöcken. Beantworte die Fragen.",
+  vorwissen: "<p>Ein <b>eigener Block</b> (eine <b>Teilmethode</b>) fasst mehrere Befehle zusammen und bekommt einen Namen. Wenn du ihn brauchst, rufst du nur den Namen auf.</p>",
+  hinweise: ["Frage 1: Was steckt in der Kiste? Frage 2: Wie oft musst du den Block bauen?", "Du sparst Arbeit, wenn du denselben Ablauf oft brauchst. Der eigene Block wird nur einmal gebaut.", "Frage 1: mehrere Befehle unter einem Namen. Frage 2: einmal bauen und dann immer wieder aufrufen."],
+  lehrer: { ziel: "Verstehen: Ein eigener Block bündelt mehrere Befehle unter einem Namen; man baut ihn einmal und benutzt ihn oft.",
+    anleitung: "Bild am Beamer: „Was ist die Kiste im Programm?“ Alltagsbeispiele sammeln: Mit „Zähneputzen“ ist eine ganze Folge von Handgriffen gemeint.",
+    loesung: "Frage 1: Er fasst mehrere Befehle unter einem Namen zusammen. Frage 2: Man baut ihn einmal und ruft ihn immer wieder auf.",
+    fehler: ["Der eigene Block wird für eine neue Figur gehalten – er ist ein Programmstück, keine Figur."] },
+  bau(box) {
+    Modul.makeMC(box, [
+      { q: "Was macht ein eigener Block?", o: ["Er fasst mehrere Befehle unter einem Namen zusammen.", "Er erzeugt eine neue Figur.", "Er löscht das Programm.", "Er ändert die Farbe der Bühne."], a: 0, e: "Wie die Kiste im Bild: Viele Teile sind unter einem Namen zusammengepackt." },
+      { q: "Du brauchst dieselben vier Blöcke an zehn Stellen. Was ist klug?", o: ["Einen eigenen Block bauen und zehnmal aufrufen.", "Die vier Blöcke zehnmal einzeln bauen.", "Die Blöcke weglassen.", "Eine neue Figur anlegen."], a: 0, e: "Einmal bauen, oft benutzen. Das spart Arbeit und das Programm bleibt übersichtlich." }
+    ], "mc-kiste");
+  }
+});
+
+W.aufgabe({
+  titel: "Wo steht der Roboter am Ende?",
+  auftrag: "Hier ist ein Programm mit einem eigenen Block „quadrat“. Starte es, sieh zu und sage voraus, wo der Roboter am Ende steht. Im echten Scratch funktioniert es gleich, es sieht nur etwas anders aus.",
+  vorwissen: "<p>Links steht die <b>Definition</b> („Definiere quadrat“): Dort steht, was der Block tut. Rechts unter der Fahne wird der Block aufgerufen: „führe quadrat aus“. Beim Aufruf läuft der ganze Inhalt der Definition ab.</p>",
+  hinweise: ["Nach einem ganzen Quadrat steht der Roboter wieder am Start.", "Der Roboter ruft quadrat auf, geht dann 50 Schritte und ruft quadrat noch einmal auf.", "Das erste Quadrat endet am Start (x = 0). Dann geht er 50 Schritte nach rechts: x = 50. Das zweite Quadrat endet wieder an seinem eigenen Start, also bei x = 50."],
+  geheim: ["50"],
+  lehrer: { ziel: "Ablauf eines Programms mit eigenem Block nachvollziehen: Beim Aufruf läuft der Inhalt der Definition.",
+    anleitung: "Zuerst vorhersagen lassen, dann starten. Fragen: „Wie oft wird gegangen, wie oft gedreht?“",
+    loesung: "x = 50. Das Quadrat endet jedes Mal am Startpunkt; nur das „gehe 50“ dazwischen verschiebt den Roboter.",
+    fehler: ["Es wird x = 0 genannt, weil das Quadrat zum Start zurückführt – das gilt nur für ein Quadrat, nicht für das „gehe 50“ dazwischen."],
+    bedienung: "„▶ Programm starten“ lässt den Roboter laufen, mit „↺ Bühne zurücksetzen“ beginnt man neu." },
+  bau(box) {
+    box.innerHTML = '<div class="ed"></div><div class="ein" style="margin-top:12px"></div>';
+    Modul.blockEditor($(".ed", box), {
+      palette: ["flagge", "gehe", "drehe", "mal", "rufe"], eigene: ["quadrat"],
+      start: [["definiere", "quadrat", [["mal", 4, [["gehe", 30], ["drehe", 90]]]]], ["flagge"], ["rufe", "quadrat"], ["gehe", 50], ["rufe", "quadrat"]], fest: 5
+    });
+    Modul.makeEingabe($(".ein", box), { frage: "Welche x-Position hat der Roboter am Ende?", wert: 50, platz: "Zahl", tipp: "Das Quadrat führt zum Start zurück. Nur das „gehe 50“ dazwischen verschiebt den Roboter.", erfolg: "Du hast den Ablauf richtig verfolgt." }, "ein-x");
+  }
+});
+
+W.aufgabe({
+  titel: "Definition oder Aufruf?",
+  auftrag: "Ordne die Wörter den Erklärungen zu. Tippe erst links, dann rechts.",
+  hinweise: ["Denke an die Kiste: Einpacken ist etwas anderes als die Kiste benutzen.", "Die Definition beginnt mit dem Wort „Definiere“. Der Aufruf beginnt in den GRUMI-Blöcken mit „führe“.", "„Definiere quadrat“: hier wird gebaut. „führe quadrat aus“: hier wird benutzt. „quadrat“: der Name. Die Blöcke in der Klammer: das, was zusammengefasst wird."],
+  lehrer: { ziel: "Die Begriffe Definition, Aufruf, Name und Inhalt eines eigenen Blocks auseinanderhalten.", anleitung: "Einzelarbeit. Danach am Programm der letzten Aufgabe auf die einzelnen Stellen zeigen lassen.",
+    loesung: "Definiere quadrat – hier wird der Block gebaut · führe quadrat aus – hier wird er benutzt · quadrat – der Name · die Blöcke unter Definiere – das fasst er zusammen",
+    fehler: ["Definition und Aufruf werden verwechselt. Im echten Scratch heißt der Aufruf einfach so wie der Block (zum Beispiel „springe“)."] },
+  bau(box) {
+    Modul.makePaare(box, [
+      ["Definiere quadrat", "Hier wird der eigene Block gebaut."],
+      ["führe quadrat aus", "Hier wird der eigene Block benutzt."],
+      ["quadrat", "Das ist der Name des Blocks."],
+      ["Blöcke unter Definiere", "Das fasst der Block zusammen."]
+    ], "paare-teile");
+  }
+});
+
+W.aufgabe({
+  titel: "Den eigenen Block benutzen",
+  auftrag: "Der Block „quadrat“ ist schon gebaut. Rufe ihn zweimal auf: Der Roboter läuft ein Quadrat, geht dann 80 Schritte und läuft noch ein Quadrat.",
+  vorwissen: "<p>Du findest „führe quadrat aus“ in der Gruppe <b>Meine Blöcke</b>. Tippe ihn an, dann hängt er sich unter die Fahne.</p>",
+  hinweise: ["Du brauchst „führe quadrat aus“ zweimal und dazwischen „gehe“.", "Reihenfolge unter der Fahne: führe quadrat aus · gehe 80 · führe quadrat aus.", "Tippe zuerst „führe quadrat aus“ an. Tippe dann „gehe“ an und stelle 80 ein. Tippe zum Schluss noch einmal „führe quadrat aus“ an."],
+  lehrer: { ziel: "Einen vorhandenen eigenen Block mehrmals aufrufen.", anleitung: "Vorführen: Der Block lässt sich beliebig oft aufrufen, ohne dass die Definition neu gebaut wird.",
+    loesung: "Wenn flagge · führe quadrat aus · gehe 80 · führe quadrat aus. Der Roboter endet bei x = 80.",
+    fehler: ["Nur ein Aufruf.", "Das „gehe“ steht vor oder nach beiden Aufrufen statt dazwischen."],
+    bedienung: "Die Gruppe „Meine Blöcke“ enthält „führe … aus“. Die Definition links ist fest und bleibt stehen." },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Rufe „quadrat“ zweimal auf. Dazwischen geht der Roboter <b>80</b> Schritte.</p>",
+      palette: ["flagge", "gehe", "rufe"], eigene: ["quadrat"],
+      start: [["definiere", "quadrat", [["mal", 4, [["gehe", 40], ["drehe", 90]]]]], ["flagge"]], fest: 2,
+      pruefe: e => {
+        const p = e.programm(), n = aufrufe(unterFlagge(p), "quadrat");
+        if (n === 0) return "Der Block „quadrat“ wird noch nicht benutzt. Tippe „führe quadrat aus“ an.";
+        if (n === 1) return "Du rufst „quadrat“ erst einmal auf. Der Roboter soll zwei Quadrate laufen.";
+        const l = e.lauf();
+        if (l.x !== 80 || Math.abs(l.y) > 0.01) return "Der Roboter steht bei x = " + l.x + ". Zwischen den Quadraten soll er 80 Schritte gehen, am Ende also bei x = 80 stehen.";
+        return true;
+      },
+      loesung: [["definiere", "quadrat", [["mal", 4, [["gehe", 40], ["drehe", 90]]]]], ["flagge"], ["rufe", "quadrat"], ["gehe", 80], ["rufe", "quadrat"]],
+      erfolg: "Einmal gebaut, zweimal benutzt."
+    }, "bl-benutzen");
+  }
+});
+
+W.aufgabe({
+  titel: "Einen eigenen Block bauen",
+  auftrag: "Baue den Block „stufe“: Er geht 30 nach rechts und 20 nach oben. Rufe ihn viermal auf – es entsteht eine Treppe.",
+  vorwissen: "<p>Der Kopf „Definiere stufe“ steht schon da. Tippe seine leere Klammer an und füge dort die Blöcke ein, die „stufe“ tun soll. Danach rufst du „stufe“ unter der Fahne auf.</p>",
+  hinweise: ["In die Definition gehören zwei Blöcke: „ändere x um“ und „ändere y um“.", "Stelle bei „ändere x um“ die Zahl 30 ein, bei „ändere y um“ die Zahl 20. Unter der Fahne steht nur „führe stufe aus“, viermal.", "Tippe die leere Klammer von „Definiere stufe“ an, füge „ändere x um“ (30) und „ändere y um“ (20) ein. Tippe dann den Block „Wenn Start“ an und füge viermal „führe stufe aus“ ein."],
+  lehrer: { ziel: "Einen eigenen Block selbst definieren und mehrfach aufrufen.", anleitung: "Einzelarbeit. Danach die Idee besprechen: Ohne eigenen Block stünden acht Blöcke unter der Fahne, jetzt vier und die Definition.",
+    loesung: "Definiere stufe: ändere x um 30, ändere y um 20. Wenn flagge: führe stufe aus (viermal). Ergebnis x = 120, y = 80.",
+    fehler: ["Die zwei Bewegungsblöcke stehen direkt unter der Fahne statt in der Definition.", "Der Block wird nur einmal aufgerufen."],
+    bedienung: "Leere Klammer antippen, dann Block aus der Palette antippen. Die Gruppe „Meine Blöcke“ enthält „führe stufe aus“." },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Baue den eigenen Block <b>stufe</b> (ändere x um 30, ändere y um 20) und rufe ihn <b>viermal</b> auf.</p>",
+      palette: ["flagge", "aendereX", "aendereY", "rufe"], eigene: ["stufe"],
+      start: [["definiere", "stufe", []], ["flagge"]], fest: 2,
+      pruefe: e => {
+        const p = e.programm(), d = defi(p, "stufe"), u = unterFlagge(p);
+        if (!d || (d[2] || []).length < 2) return "In „Definiere stufe“ gehören zwei Blöcke: „ändere x um“ und „ändere y um“. Tippe die leere Klammer an.";
+        if (alle(u, "aendereX").length || alle(u, "aendereY").length) return "Die Bewegungsblöcke stehen unter der Fahne. Sie gehören in „Definiere stufe“. Unter der Fahne steht nur „führe stufe aus“.";
+        const n = aufrufe(u, "stufe");
+        if (n < 4) return "Du rufst „stufe“ " + n + "-mal auf. Es sollen vier Stufen werden.";
+        const l = e.lauf();
+        return (l.x === 120 && l.y === 80) || "Nach vier Stufen soll der Roboter bei x = 120 und y = 80 stehen. Er steht bei x = " + l.x + ", y = " + l.y + ". Prüfe die Zahlen in der Definition.";
+      },
+      loesung: [["definiere", "stufe", [["aendereX", 30], ["aendereY", 20]]], ["flagge"], ["rufe", "stufe"], ["rufe", "stufe"], ["rufe", "stufe"], ["rufe", "stufe"]],
+      erfolg: "Ein eigener Block, viermal benutzt: eine Treppe."
+    }, "bl-stufe");
+  }
+});
+
+W.aufgabe({
+  titel: "Ein langes Programm kürzen",
+  auftrag: "Das Programm unter der Fahne ist lang: Die Folge „drehe 20, drehe −40, drehe 20“ steht zweimal darin. Der Block „wackeln“ ist schon definiert. Ersetze die beiden Folgen durch ihn. Das Ergebnis soll gleich bleiben.",
+  vorwissen: "<p>Einen Block löschst du so: Tippe ihn an und klicke in der Leiste auf <b>✕</b>. Tippe dann einen Block in der Palette an, damit er sich einfügt. Nach dem Kürzen soll das Programm dasselbe tun wie vorher: x = 40, die gleiche Richtung und „Fertig!“.</p>",
+  hinweise: ["Ersetze jede Dreier-Folge „drehe 20, drehe −40, drehe 20“ durch einen einzigen Aufruf von „wackeln“.", "Am Ende sollen unter der Fahne nur vier Blöcke stehen: wackeln · gehe 40 · wackeln · sage Fertig!", "Lösche die sechs „drehe“-Blöcke. Füge „führe wackeln aus“ vor und nach „gehe 40“ ein, das „sage“ bleibt am Ende."],
+  lehrer: { ziel: "Ein langes Programm mit einem eigenen Block kürzen, ohne dass sich sein Verhalten ändert (optimieren).",
+    anleitung: "Zuerst das lange Programm starten und das Ergebnis merken lassen. Nach dem Kürzen noch einmal starten und vergleichen. Das Verhalten (x, Richtung, gesagter Satz) wird verglichen.",
+    loesung: "Wenn flagge · führe wackeln aus · gehe 40 · führe wackeln aus · sage Fertig!",
+    fehler: ["Es werden nur die ersten Blöcke ersetzt, die zweite Folge bleibt.", "Das „gehe 40“ oder das „sage“ wurde mitgelöscht."],
+    bedienung: "Block antippen, in der Leiste ✕. Die Definition links ist fest und bleibt stehen." },
+  bau(box) {
+    const lang = [["definiere", "wackeln", [["drehe", 20], ["drehe", -40], ["drehe", 20]]], ["flagge"], ["drehe", 20], ["drehe", -40], ["drehe", 20], ["gehe", 40], ["drehe", 20], ["drehe", -40], ["drehe", 20], ["sage", "Fertig!"]];
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Kürze das Programm mit dem Block <b>wackeln</b>. Am Ende soll alles wie vorher ablaufen.</p>",
+      palette: ["flagge", "gehe", "drehe", "sage", "rufe"], eigene: ["wackeln"],
+      start: lang, fest: 2,
+      pruefe: e => {
+        const p = e.programm(), u = unterFlagge(p), n = aufrufe(u, "wackeln");
+        if (n < 2) return "Der Block „wackeln“ wird erst " + n + "-mal benutzt. Ersetze beide Dreier-Folgen durch „führe wackeln aus“.";
+        if (zaehle(u) > 4) return "Das Programm ist noch zu lang: Unter der Fahne stehen " + zaehle(u) + " Blöcke. Es sollen nur vier sein: wackeln, gehe 40, wackeln, sage Fertig!";
+        const a = Modul.blockLauf(lang), b = e.lauf();
+        if (a.x !== b.x || a.richtung !== b.richtung || a.gesagt.join() !== b.gesagt.join()) return "Das Programm tut etwas anderes als vorher: Vorher x = " + a.x + " und sagte „Fertig!“. Jetzt x = " + b.x + (b.gesagt.length ? ", sagt „" + b.gesagt.join("“, „") + "“" : ", sagt nichts") + ". Hast du ein „gehe“ oder das „sage“ gelöscht?";
+        return true;
+      },
+      loesung: [["definiere", "wackeln", [["drehe", 20], ["drehe", -40], ["drehe", 20]]], ["flagge"], ["rufe", "wackeln"], ["gehe", 40], ["rufe", "wackeln"], ["sage", "Fertig!"]],
+      erfolg: "Kürzer, übersichtlicher und genau das gleiche Ergebnis."
+    }, "bl-kuerzen");
+  }
+});
+
+/* ============ Teil 3: Scratch am PC ============ */
+W.teil("Am PC: Scratch", "Anwenden");
+
+W.aufgabe({
+  titel: "Springen in Scratch",
+  auftrag: "Jetzt baust du einen eigenen Block im echten Scratch: Der Block „springe“ lässt die Figur hoch springen, kurz warten und wieder herunterkommen. Du benutzt ihn mehrmals.",
+  vorwissen: "<p>In Scratch heißt die Gruppe für eigene Blöcke <b>Meine Blöcke</b>. Das Bild unten zeigt, wo du den Knopf findest. Der Rest funktioniert wie in den GRUMI-Blöcken: erst Definition, dann Aufruf.</p>",
+  hinweise: ["Baue zuerst den Block selbst: Unter „Definiere springe“ hängen drei Blöcke. Danach ziehst du „springe“ unter die Fahne.", "Unter „Definiere springe“ hängen drei Blöcke: hoch, warten, runter.", "Wenn 🏁 angeklickt wird · springe · gehe 50 · springe · gehe 50 · springe. Der Inhalt von „Definiere springe“ ist: ändere y um 60, warte 1 Sekunden, ändere y um -60."],
+  lehrer: { ziel: "Einen eigenen Block (Teilmethode) in Scratch bauen und mehrfach benutzen.",
+    anleitung: "Etwa 15 Minuten am Windows-PC (Scratch im Browser: scratch.mit.edu). Der Block „springe“ wird einmal gebaut und dreimal benutzt, dazwischen geht die Figur ein Stück. Die Prüfung verlangt mindestens zwei Aufrufe unter der Fahne. Danach laden die Kinder die .sb3-Datei hoch. Am Tablet gibt es stattdessen eine Frage.",
+    loesung: "Definiere springe: ändere y um 60 · warte 1 Sekunden · ändere y um -60. Wenn 🏁 angeklickt wird: springe · gehe 50er Schritt · springe · gehe 50er Schritt · springe. Am Ende steht die Figur bei x = 100, y = 0.",
+    fehler: ["Der Block „springe“ wird gebaut, aber nie unter die Fahne gehängt – dann tut er nichts.", "Unter „Definiere springe“ hängt nur ein Block.", "Der Block wird nur einmal aufgerufen.", "Die Blöcke für den Sprung hängen unter der Fahne statt unter „Definiere springe“."],
+    bedienung: "Meine Blöcke → Neuer Block → Name tippen → OK. Danach erscheint „Definiere springe“ im Skriptbereich. Gespeichert wird über Datei → Auf deinem Computer speichern." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Springen", pc: "Scratch", zeit: "etwa 15 Minuten",
+      ziel: "Du hast den eigenen Block „springe“ gebaut. Unter „Definiere springe“ hängen mindestens zwei Blöcke. Unter der Fahne wird „springe“ mindestens zweimal benutzt. Das Projekt ist gespeichert.",
+      schritte: [
+        "Öffne Scratch im Browser (scratch.mit.edu) und beginne mit <span class=\"menue\">Datei</span> → <span class=\"menue\">Neu</span> ein neues Projekt.",
+        { t: "Klicke in der Blockliste links auf die Gruppe <span class=\"menue\">Meine Blöcke</span> und dort auf den Knopf <span class=\"menue\">Neuer Block</span>.", bild: "assets/scratch/meine-bloecke.png", alt: "Bildschirmfoto: Der Bereich Meine Blöcke in Scratch mit dem Knopf Neuer Block. Darunter steht schon ein rosa Block mit dem Namen springe.", quelle: "Bildschirmfoto aus Scratch" },
+        { t: "Es öffnet sich das Fenster <b>Neuer Block</b>. Im rosa Feld steht „Blockname“. Schreibe dort <code>springe</code> hinein und klicke auf <span class=\"menue\">OK</span>.", bild: "assets/scratch/neuer-block-dialog.png", alt: "Bildschirmfoto: Das Fenster Neuer Block mit einem rosa Block, in dessen Feld der Name springe steht. Darunter drei Kacheln für Eingabefelder und Beschriftung, ein Kästchen Ohne Bildschirmaktualisierung laufen lassen und die Knöpfe Abbrechen und OK.", quelle: "Bildschirmfoto aus Scratch" },
+        "Im Skriptbereich liegt jetzt der rosa Block <b>Definiere springe</b>. Hänge darunter drei Blöcke: aus <span class=\"menue\">Bewegung</span> <b>ändere y um (10)</b> mit der Zahl <code>60</code>, aus <span class=\"menue\">Steuerung</span> <b>warte (1) Sekunden</b>, und noch einmal <b>ändere y um</b> mit <code>-60</code>.",
+        "Ziehe <b>Wenn 🏁 angeklickt wird</b> aus <span class=\"menue\">Ereignisse</span> in den Skriptbereich. Ziehe aus <span class=\"menue\">Meine Blöcke</span> den neuen Block <b>springe</b> darunter.",
+        "Hänge danach <b>gehe (10) er Schritt</b> mit <code>50</code> an, dann noch einmal <b>springe</b>, wieder <b>gehe 50</b> und zum Schluss ein drittes Mal <b>springe</b>.",
+        "Klicke auf die grüne Fahne. Die Figur springt dreimal und geht dazwischen ein Stück nach rechts.",
+        { t: "Speichere mit <span class=\"menue\">Datei</span> → <span class=\"menue\">Auf deinem Computer speichern</span>. Die Datei heißt zuerst <code>Scratch-Projekt.sb3</code> und liegt meist im Ordner Downloads.", bild: "../../8M/Informatik/assets/scratch/datei-menue.png", alt: "Bildschirmfoto: Das geöffnete Menü Datei mit den drei Einträgen Neu, Load from your computer und Auf deinem Computer speichern.", quelle: "Bildschirmfoto aus Scratch" }
+      ],
+      loesung: "Definiere springe: ändere y um 60 · warte 1 Sekunden · ändere y um -60. Wenn 🏁 angeklickt wird: springe · gehe 50 · springe · gehe 50 · springe.",
+      pruefung: {
+        art: "datei", accept: ".sb3", lies: Modul.liesScratch9, pruefe: Modul.scratchPruefung9["eigene-bloecke-auf1"], server: { pfad: "/api/inf9/scratch/pruefen", aufgabe: "eigene-bloecke-auf1" },
+        text: "Lade dein gespeichertes Projekt hoch (die Datei mit der Endung <b>.sb3</b>). Es wird geprüft, und die KI schreibt dir eine Rückmeldung. Deine Lehrkraft kann die Datei danach ansehen.",
+        ersatz: { art: "zahl", frage: "Der Block springe besteht aus: ändere y um 60, warte 1 Sekunden, ändere y um -60. Die Figur startet bei y = 0 und benutzt springe dreimal. Welchen y-Wert hat sie danach?", wert: 0, tol: 0, tipp: "Jeder Sprung geht 60 nach oben und dann 60 nach unten. Wo steht die Figur nach einem Sprung?" }
+      }
+    }, "auf1");
+  }
+});
+
+/* ============ Teil 4: Wiederholen ============ */
+W.teil("Wiederholen", "Andere Zahlen");
+
+W.aufgabe({
+  titel: "Das Dreieck mit eigenem Block",
+  auftrag: "Baue den Block „seite“: Er geht 50 Schritte und dreht sich um 120 Grad. Ein Dreieck besteht aus drei solchen Seiten.",
+  vorwissen: "<p>Der Kopf „Definiere seite“ steht schon da. Fülle seine Klammer und rufe „seite“ unter der Fahne so oft auf, dass ein geschlossenes Dreieck entsteht. Du darfst auch „wiederhole … mal“ mit „führe seite aus“ in der Klammer benutzen.</p>",
+  hinweise: ["Eine Seite besteht aus zwei Blöcken: „gehe“ und „drehe“. Wie viele Seiten hat ein Dreieck?", "Das Dreieck hat drei Seiten. In die Definition kommen „gehe 50“ und „drehe 120“. Unter der Fahne wird „seite“ dreimal aufgerufen.", "Tippe die leere Klammer von „Definiere seite“ an und füge „gehe“ (50) und „drehe“ (120) ein. Füge dann unter der Fahne dreimal „führe seite aus“ ein."],
+  lehrer: { ziel: "Einen eigenen Block mit anderen Zahlen bauen und die benötigte Zahl der Aufrufe selbst bestimmen.", anleitung: "Einzelarbeit. Wer fertig ist, baut mit demselben Block ein Sechseck (Winkel 60, sechs Aufrufe).",
+    loesung: "Definiere seite: gehe 50, drehe 120. Wenn flagge: führe seite aus (dreimal) oder wiederhole 3 mal: führe seite aus.",
+    fehler: ["Nur zwei Aufrufe: Das Dreieck bleibt offen.", "Drehwinkel 60 statt 120."],
+    bedienung: "Wie in den Aufgaben davor." },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Baue den Block <b>seite</b> (gehe 50, drehe 120) und laufe damit ein <b>Dreieck</b>. Der Roboter soll am Start ankommen.</p>",
+      palette: ["flagge", "gehe", "drehe", "mal", "rufe"], eigene: ["seite"],
+      start: [["definiere", "seite", []], ["flagge"]], fest: 2,
+      pruefe: e => {
+        const p = e.programm(), d = defi(p, "seite"), u = unterFlagge(p);
+        if (!d || (d[2] || []).length < 2) return "In „Definiere seite“ gehören „gehe“ und „drehe“. Tippe die leere Klammer an und füge beide ein.";
+        const n = aufrufe(u, "seite");
+        if (n === 0) return "Der Block „seite“ wird noch nicht benutzt. Rufe ihn unter der Fahne auf.";
+        if (n !== 3) return "Du läufst " + n + " Seiten. Ein Dreieck hat drei Seiten.";
+        const l = e.lauf();
+        return (Math.abs(l.x) < 0.01 && Math.abs(l.y) < 0.01) || "Der Roboter kommt nicht am Start an. Prüfe die Zahlen: Bei drei Ecken dreht sich der Roboter an jeder um 360 geteilt durch 3 Grad.";
+      },
+      loesung: [["definiere", "seite", [["gehe", 50], ["drehe", 120]]], ["flagge"], ["rufe", "seite"], ["rufe", "seite"], ["rufe", "seite"]],
+      erfolg: "Ein eigener Block, dreimal benutzt: Das Dreieck ist geschlossen."
+    }, "bl-dreieck");
+  }
+});
+
+/* ============ Teil 5: Kontrollieren ============ */
+W.teil("Kontrollieren", "Lerncheck");
+
+W.aufgabe({
+  titel: "Lerncheck",
+  auftrag: "Richtig oder falsch? Entscheide bei jeder Aussage.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Ein eigener Block wird einmal gebaut und dann aufgerufen. Ohne Aufruf tut er nichts.", "Richtig sind die Aussagen 1, 3 und 5. Falsch sind Aussage 2 (man baut ihn nur einmal) und Aussage 4 (ohne Aufruf passiert nichts)."],
+  lehrer: { ziel: "Kernwissen sichern: eigener Block, Definition, Aufruf, Nutzen.", anleitung: "Einzelarbeit, etwa 3 Minuten.", loesung: "richtig · falsch · richtig · falsch · richtig", fehler: ["Aussage 4: Ein nie aufgerufener Block tut nichts."] },
+  bau(box) {
+    Modul.makeTF(box, [
+      ["Ein eigener Block fasst mehrere Blöcke unter einem Namen zusammen.", true],
+      ["Ein eigener Block muss jedes Mal neu gebaut werden, wenn man ihn braucht.", false],
+      ["Unter „Definiere“ steht, was der eigene Block tut.", true],
+      ["Ein eigener Block, der nie aufgerufen wird, tut trotzdem etwas.", false],
+      ["Mit eigenen Blöcken wird ein langes Programm übersichtlicher.", true]
+    ], "tf");
+  }
+});
+
+W.fertig();
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

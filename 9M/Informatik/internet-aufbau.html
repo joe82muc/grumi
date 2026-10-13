@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Wie ist das Internet aufgebaut? | Informatik 9</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="../../8M/Informatik/einheit8.css">
+<link rel="stylesheet" href="einheit9.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 9</small></a>
+    <nav class="stations" id="stations"></nav>
+    <span class="stars" id="stars">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks">
+      <a href="index.html">Übersicht Informatik 9M</a>
+      <a href="../../9R/Informatik/index.html">Übersicht Informatik 9R</a>
+      <a href="../../index.html">Startseite</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 9 · Modul 2: Internet verstehen · Einheit 1</div>
+    <h1>Wie ist das Internet aufgebaut?</h1>
+    <p>Du schaust ein Video, schickst eine Nachricht, rufst eine Seite auf. Doch was liegt eigentlich zwischen deinem Handy und der Seite? Heute baust du das Internet im Kleinen nach.</p>
+    <div class="zeit">etwa 40 Minuten · Praxis am Windows-PC mit Filius</div>
+    <div class="goals">
+      <div>Ich erkläre, dass das Internet aus vielen Netzen besteht, die Router verbinden.</div>
+      <div>Ich unterscheide Client und Server.</div>
+      <div>Ich rufe in Filius eine Webseite ab und verfolge den Weg mit traceroute.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="modulStand"></div>
+  <div id="weg"></div>
+</main>
+
+<footer class="wrap">Informatik 9 · Dein Fortschritt wird mit deinem Code gespeichert.</footer>
+
+<div id="pop" role="dialog"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info9.js"></script>
+<script src="../../7M/Informatik/filius-datei.js"></script>
+<script src="filius9.js"></script>
+<script src="../../7M/Informatik/netz-bild.js"></script>
+<script>
+(function () {
+"use strict";
+const {$} = Modul;
+
+Modul.start9({
+  key: "grumi-i9-internet-aufbau-v1",
+  thema: "Aufbau des Internets: viele Netze, durch Router verbunden; Client und Server (Browser fragt an, Webserver antwortet); Weg einer Anfrage über Switch und Router; Webseite in Filius abrufen und den Weg mit traceroute verfolgen",
+  glossary: {
+    internet: ["Internet", "Ein riesiges Netz aus vielen einzelnen Netzen, die durch Router verbunden sind."],
+    client: ["Client", "Das Gerät oder Programm, das etwas anfragt, zum Beispiel dein Browser."],
+    server: ["Server", "Das Programm (oder der Rechner), das auf Anfragen antwortet und etwas liefert."],
+    webserver: ["Webserver", "Ein Server, der Webseiten ausliefert."],
+    browser: ["Browser", "Das Programm, mit dem du Webseiten abrufst und anzeigst."],
+    router: ["Router", "Verbindet verschiedene Netze, zum Beispiel dein Netz zu Hause mit dem Internet."],
+    traceroute: ["traceroute", "Ein Befehl, der die Stationen auf dem Weg zu einem anderen Rechner anzeigt."]
+  }
+});
+
+const W = Modul.lernweg("#weg");
+
+/* ============ Teil 1: Regelheft ============ */
+W.teil("Regelheft", "Schreiben");
+W.regelheft({
+  titel: "Das Internet",
+  html: `<p>Das <span class="rot">Internet</span> besteht aus vielen Netzen. <span class="rot">Router</span> verbinden sie.</p>
+    <p><span class="rot">Client</span>: fragt an, z. B. der Browser.</p>
+    <p><span class="rot">Server</span>: antwortet, z. B. der Webserver.</p>
+    <p class="leer"></p>
+    <p><span class="blau">Weg:</span> Computer – Switch – Router – … – Server</p>`,
+  lehrer: { ziel: "Die Kernaussagen der Stunde stehen im Heft: Internet als Netz aus Netzen, Client und Server, Weg einer Anfrage.",
+    anleitung: "Etwa 4 Minuten. Die Klasse schreibt ab. Erst nach dem Abhaken erscheint die erste Aufgabe.",
+    loesung: "Der Eintrag steht vollständig im Heft (fünf kurze Zeilen)." }
+});
+
+/* ============ Teil 2: Sehen und verstehen ============ */
+W.teil("Verstehen", "Sehen · Ausprobieren");
+
+W.aufgabe({
+  titel: "Vom Laptop in die Welt",
+  auftrag: "Sieh dir das Bild an: Eine helle Linie führt vom Laptop über viele Punkte bis zu einem Raum voller Rechner. Beantworte dann die zwei Fragen.",
+  vorwissen: "<p>Aus Modul 1 kennst du schon Netzwerke, Switch und Router. Das Internet ist nichts völlig Neues: Es besteht aus ganz vielen solchen Netzen.</p>",
+  hinweise: ["Denke an Modul 1: Welches Gerät verbindet verschiedene Netze?", "Das Internet ist kein einzelner Computer. Jeder Punkt im Bild steht für ein Netz oder ein Gerät, das Daten weiterreicht.", "Frage 1: viele Netze, die miteinander verbunden sind. Frage 2: der Router – er kennt den Weg in ein anderes Netz."],
+  lehrer: { ziel: "Das Internet als Netz aus vielen Netzen verstehen (Lehrplan LB 1).",
+    anleitung: "Bild am Beamer zeigen und fragen: „Was liegt zwischen dem Laptop und dem Serverraum?“ Danach die zwei Fragen in Einzelarbeit. Das Bild ist nur ein Einstieg, keine Aufgabe hängt an einer Einzelheit.",
+    loesung: "Frage 1: viele Netze, die durch Router miteinander verbunden sind. Frage 2: der Router.",
+    fehler: ["Das Internet wird als ein einzelner Computer oder als „das WLAN“ verstanden – es ist ein Netz aus Netzen.", "Switch und Router werden verwechselt: Der Switch verbindet Geräte innerhalb eines Netzes, der Router verbindet Netze."] },
+  bau(box) {
+    box.innerHTML = `<figure class="bild9"><img class="zoomable" src="assets/bilder/internet-aufbau.jpg" width="1280" height="853" loading="lazy" alt="Links ein Jugendlicher mit Kapuzenpulli am Laptop, auf dem Tisch steht ein weißer WLAN-Router mit zwei Antennen. In der Mitte eine Landschaft mit Dörfern, Hügeln und einem Fluss, über der viele leuchtende Punkte durch dünne Linien verbunden sind. Rechts ein Serverraum mit Schränken voller Rechner. Eine helle blaue Linie führt vom Laptop über mehrere Punkte bis zu den Servern.">
+      <figcaption>Der Weg einer Anfrage: Vom Laptop über viele Stationen bis zum Serverraum. (Bild mit KI erstellt)</figcaption></figure><div class="mc"></div>`;
+    Modul.makeMC($(".mc", box), [
+      { q: "Was ist das Internet?", o: ["viele Netze, die durch Router miteinander verbunden sind", "ein einzelner sehr großer Computer", "ein Programm, das man installiert", "das WLAN bei dir zu Hause"], a: 0,
+        e: "Dein Heimnetz ist ein Netz, die Schule ein anderes. Router verbinden sie – und ganz viele weitere – zum Internet." },
+      { q: "Welches Gerät verbindet dein Netz zu Hause mit anderen Netzen?", o: ["der Router", "der Switch", "das Netzwerkkabel", "der Drucker"], a: 0,
+        e: "Der Router kennt den Weg in andere Netze. Der Switch arbeitet nur innerhalb eines Netzes." }
+    ], "mc-bild");
+  }
+});
+
+W.aufgabe({
+  titel: "Der Weg einer Anfrage",
+  auftrag: "Sieh dir an, wie eine Anfrage vom Laptop zum Webserver wandert – und wie die Antwort zurückkommt. Achte darauf, wo der Router liegt.",
+  vorwissen: "<p>In unserem kleinen Internet gibt es zwei Netze: dein Heimnetz (192.168.0.x) und das „Internet“-Netz (203.0.113.x). Der Router steht zwischen beiden.</p>",
+  hinweise: ["Tippe auf „Start“ oder auf die Zahlen 1 bis 7.", "Zähle mit: Wie viele Geräte liegen zwischen dem Laptop und dem Webserver?", "Die Anfrage geht über Switch Zuhause, Router und Switch Internet zum Webserver. Die Antwort nimmt denselben Weg zurück."],
+  lehrer: { ziel: "Den Weg einer Anfrage durch zwei Netze verstehen.",
+    anleitung: "Am Beamer gemeinsam durchklicken. Bei Schritt 4 anhalten und fragen: „Warum braucht es hier einen Router?“ Vereinfachung: Im echten Internet liegen viele Router und Netze dazwischen. Unser „Internet“ ist ein einziges Netz hinter einem Router. Die Adressen 203.0.113.x sind eigens für Beispiele reserviert.",
+    loesung: "Alle sieben Schritte angesehen: Laptop → Switch Zuhause → Router → Switch Internet → Webserver, die Antwort kommt auf demselben Weg zurück.",
+    fehler: ["Kinder klicken nur auf „Start“ und sehen nicht hin – bei Schritt 4 kurz anhalten lassen."],
+    bedienung: "„Start“ spielt alle Schritte ab, die Zahlen springen zu einem Schritt, ↺ beginnt neu." },
+  bau(box) {
+    box.innerHTML = '<div class="nb"></div><div class="sim"></div>';
+    const weg = ["l", "sz", "r", "si", "ws"];
+    const n = Modul.netzBild($(".nb", box), { b: 640, h: 220, alt: "Netzplan: Links der Laptop, daneben Switch Zuhause, in der Mitte der Router, rechts davon Switch Internet und ganz rechts der Webserver. Die fünf Geräte sind hintereinander mit Kabeln verbunden.",
+      geraete: [{ id: "l", art: "notebook", x: 60, y: 95, name: "Laptop", ip: "192.168.0.10" }, { id: "sz", art: "switch", x: 190, y: 95, name: "Switch Zuhause" },
+        { id: "r", art: "router", x: 320, y: 95, name: "Router" }, { id: "si", art: "switch", x: 450, y: 95, name: "Switch Internet" }, { id: "ws", art: "server", x: 580, y: 95, name: "Webserver", ip: "203.0.113.10" }],
+      kabel: [["l", "sz"], ["sz", "r"], ["r", "si"], ["si", "ws"]] });
+    Modul.makeSchritte($(".sim", box), {
+      start: "Tippe auf „Start“ oder gehe Schritt für Schritt.",
+      steps: [
+        "Du willst eine Seite vom <b>Webserver</b> sehen. Dein Laptop ist der <b>Client</b>: Er fragt an. Dazwischen liegen drei Geräte.",
+        "Der Browser auf dem Laptop schickt eine <b>Anfrage</b> los.",
+        "Der <b>Switch Zuhause</b> reicht sie weiter. Er kennt nur die Geräte im Heimnetz.",
+        "Der <b>Router</b> verbindet das Heimnetz mit dem Netz „Internet“. Er schickt die Anfrage in das andere Netz.",
+        "Der <b>Switch Internet</b> reicht sie an den Webserver weiter.",
+        "Der Webserver hat die Anfrage bekommen. Der <b>Server</b> antwortet.",
+        "Die Antwort mit der Webseite nimmt <b>denselben Weg zurück</b>. Der Browser zeigt die Seite an."
+      ],
+      zeige(i) {
+        n.neu();
+        const bis = Math.min(i, 5);
+        for (let k = 0; k < bis - 1; k++) n.kabel(weg[k], weg[k + 1], "an");
+        if (i === 0) n.schild("l", "Seite, bitte!");
+        if (i >= 1 && i <= 5) n.paket(weg[i - 1], { text: "Anfrage" }).an(weg[i - 1], true);
+        if (i === 6) { weg.slice(0, -1).forEach((a, k) => n.kabel(a, weg[k + 1], "an")); n.paket("l", { farbe: "#1b8a4b", text: "Seite" }).an("l", true); }
+      }
+    }, "anim-weg");
+  }
+});
+
+W.aufgabe({
+  titel: "Video: Client und Server",
+  auftrag: "Im Video siehst du, wie zwei Rechner miteinander „sprechen“: einer fragt, einer antwortet. Der Film hält dreimal an und stellt dir eine Frage. Schau bis zum dritten Stopp (bei 1:36). Danach musst du nicht mehr weiterschauen.",
+  hinweise: ["Du kannst den Film jederzeit anhalten und zurückspulen.", "Stopp 1 und 3: Wer fragt, wer antwortet? Stopp 2: Wie findet der eine Rechner den anderen?", "Stopp 1: der Rechner, der anfragt, heißt Client. Stopp 2: Er braucht die IP-Adresse des Servers. Stopp 3: Der Server schickt eine Antwort."],
+  lehrer: { ziel: "Das Zusammenspiel von Client und Server an einem einfachen Beispiel sehen (Echo-Server).",
+    anleitung: "Der Film (Kanal „Herr Sauer“, 6:14 Minuten) wird erst nach dem Antippen von YouTube geladen. Gebraucht wird nur der Anfang bis etwa 1:38: Auf einem Rechner wird ein „Echo-Server“ gestartet, auf einem zweiten ein „einfacher Client“ mit der Adresse des Servers, dann sendet der Client „hallo echo“. Der Echo-Server ist ein Lehrbeispiel ohne praktischen Nutzen. Die Erklärung des Client-Server-Prinzips ab etwa 3:47 kann zusätzlich am Beamer gezeigt werden. Der Film gehört zu einer anderen Schule: Der Film benutzt andere Gerätenamen. Im Auftrag gelten die Namen und Adressen der Aufgabe. Lädt YouTube im Schulnetz nicht, erscheinen die Fragen ohne Film.",
+    loesung: "Stopp 1: Client · Stopp 2: die IP-Adresse des Servers · Stopp 3: Er antwortet.",
+    fehler: ["Kinder meinen, „Server“ sei immer ein besonderer Rechner. Genauer: Server ist das Programm, das antwortet – oft läuft es auf einem eigenen Rechner."],
+    test: "Transkript am 13.10.2026 vollständig gelesen (automatische Untertitel). Bei eingebetteten YouTube-Filmen kann Werbung erscheinen." },
+  bau(box) {
+    Modul.makeFilm(box, { vid: "8THLsQDjHxE", titel: "05 Client Server Modell", quelle: "Herr Sauer (YouTube)", dauer: "gesehen werden die ersten 1:36 Minuten",
+      stops: [
+        { t: 56, q: { q: "Auf dem Server wartet ein Programm auf Anfragen. Wie heißt in der Fachsprache der Rechner, der später anfragt?", o: ["Client", "Router", "Switch", "Kabel"], a: 0, e: "Der Client fragt an, der Server antwortet." } },
+        { t: 79, q: { q: "Was muss der Client wissen, um den Server zu erreichen?", o: ["die IP-Adresse des Servers", "die Farbe des Kabels", "den Namen des Lehrers", "die Länge des Videos"], a: 0, e: "Ohne Adresse weiß das Netz nicht, an welchen Rechner die Anfrage soll." } },
+        { t: 96, q: { q: "Der Client schickt gleich die Nachricht „hallo echo“. Was macht der Server?", o: ["Er antwortet.", "Er schaltet sich aus.", "Er löscht die Nachricht.", "Er ruft den Router an."], a: 0, e: "Ein Server wartet auf Anfragen und schickt eine Antwort zurück." } }
+      ] }, "film5-");
+  }
+});
+
+W.aufgabe({
+  titel: "Client oder Server?",
+  auftrag: "Ordne jede Karte zu: Fragt sie an (Client) oder antwortet sie (Server)? Tippe zuerst eine Karte an, dann den passenden Kasten.",
+  vorwissen: "<p>Client und Server sind <b>Rollen</b>. Dasselbe Gerät kann in einem Fall fragen und in einem anderen antworten.</p>",
+  hinweise: ["Frage dich bei jeder Karte: Wer fragt hier nach etwas – und wer liefert es?", "Der Browser auf dem Handy fragt eine Seite an. Der Rechner, der die Seite hat, antwortet.", "Clients: Browser am Handy · Spielkonsole · Laptop in Filius · Handy beim Videoschauen. Server: Webserver der Schule · Spieleserver · Videoserver · Rechner „Webserver“ in Filius."],
+  lehrer: { ziel: "Client und Server als Rollen unterscheiden (Lehrplan: Client-Server-Prinzip).",
+    anleitung: "Einzelarbeit, etwa 3 Minuten. Danach fragen: „Kann dein Handy auch Server sein?“ (Ja, wenn darauf ein Programm Anfragen beantwortet.)",
+    loesung: "Client: Browser am Handy, Spielkonsole beim Online-Spiel, Laptop in Filius, Handy beim Videoschauen · Server: Webserver der Schule, Spieleserver, Videoserver, Rechner „Webserver“ in Filius.",
+    fehler: ["Die Spielkonsole wird als Server eingeordnet, weil sie ein „großes“ Gerät ist – sie fragt an, also Client."] },
+  bau(box) {
+    Modul.makeSort(box, { buckets: ["💻 Client – fragt an", "🖥️ Server – antwortet"], cols: 240,
+      items: [
+        { t: "Browser auf dem Handy", b: 0 }, { t: "Spielkonsole beim Online-Spiel", b: 0 }, { t: "Laptop in Filius, der eine Seite abruft", b: 0 }, { t: "Handy beim Videoschauen", b: 0 },
+        { t: "Webserver der Schule", b: 1 }, { t: "Spieleserver, der die Spieler verbindet", b: 1 }, { t: "Videoserver, der den Film liefert", b: 1 }, { t: "Rechner „Webserver“ in Filius", b: 1 }
+      ], done: "✅ Richtig! Wer anfragt, ist Client. Wer antwortet, ist Server." }, "sort-rollen");
+  }
+});
+
+/* ============ Teil 3: Am PC ============ */
+W.teil("Am PC: Filius", "Anwenden");
+
+// Hilfen für die Prüfung
+const finde = (n, name) => n.geraete.find(g => g.name === name) || null;
+const DIENST = (n, g, d) => (g && g.dienste && g.dienste[d]) || null;
+
+function pruefeWeb(n) {
+  const lap = finde(n, "Laptop"), ws = finde(n, "Webserver");
+  const router = n.router && n.router[0];
+  const dienst = DIENST(n, ws, "WebServer");
+  const netzGanz = !!(lap && ws && router && n.gatewayStimmt(lap) && n.gatewayStimmt(ws));
+  return [
+    { ok: !!dienst, text: dienst ? "Auf dem Rechner „Webserver“ ist das Programm Webserver installiert." : "Auf dem Rechner „Webserver“ fehlt das Programm Webserver. Öffne ihn im Aktionsmodus, klicke auf Software-Installation und installiere „Webserver“." },
+    { ok: !!(dienst && dienst.aktiv), text: dienst && dienst.aktiv ? "Der Webserver ist gestartet." : (dienst ? "Der Webserver ist installiert, aber nicht gestartet. Öffne sein Symbol und klicke auf „Starten“ – danach muss der Knopf „Anhalten“ heißen. Dann im Entwurfsmodus erneut speichern." : "Der Webserver ist noch nicht gestartet (er ist ja noch nicht einmal installiert).") },
+    { ok: !!(lap && lap.software.includes("WebBrowser")), text: lap && lap.software.includes("WebBrowser") ? "Auf dem „Laptop“ ist der Webbrowser installiert." : "Auf dem „Laptop“ fehlt der Webbrowser. Installiere ihn über die Software-Installation." },
+    { ok: netzGanz, text: netzGanz ? "Das Netz ist noch ganz: Laptop, Router und Webserver sind da, die Gateways stimmen." : "Am Netz stimmt etwas nicht: Laptop, Router und Webserver müssen da sein und das Gateway bei Laptop (192.168.0.1) und Webserver (203.0.113.1) muss stimmen. Öffne am besten die Startdatei noch einmal." }
+  ];
+}
+
+W.aufgabe({
+  titel: "Eine Webseite abrufen",
+  auftrag: "Jetzt machst du den Webserver selbst startklar und rufst mit dem Laptop eine Seite von ihm ab – im kleinen Internet aus Heimnetz, Router und Webserver.",
+  vorwissen: "<p>Der <b>Webserver</b> ist ein Programm. Erst wenn es installiert <b>und gestartet</b> ist, antwortet der Rechner auf Anfragen. Der <b>Webbrowser</b> auf dem Laptop ist der Client.</p>",
+  hinweise: ["Im Aktionsmodus (grüner Pfeil) klickst du auf einen Rechner, dann öffnet sich sein Bildschirm. Programme installierst du dort über „Software-Installation“.", "Zwei Dinge gehören auf den Webserver: das Programm installieren und auf „Starten“ klicken. Auf den Laptop gehören der Webbrowser und die Befehlszeile.", "Webserver-Rechner: Software-Installation → „Webserver“ → oberer Pfeil → „Änderungen annehmen“ → Symbol „Webserver“ → „Starten“. Laptop: ebenso „Webbrowser“ und „Befehlszeile“. Im Browser tippst du <code>203.0.113.10</code> und klickst auf „Start“."],
+  lehrer: { ziel: "Ein Server wird eingerichtet und gestartet, ein Client ruft eine Seite ab – über den Router in ein anderes Netz.",
+    anleitung: "Filius 2.14.0 starten lassen. Die Kinder laden die Startdatei herunter und öffnen sie über den gelben Ordner. Die Schritte stehen zum Abhaken im Auftrag. Am Ende lädt jedes Kind seine gespeicherte Datei hoch – sie wird nur im Browser geprüft, nichts verlässt das Gerät. Am Tablet gibt es stattdessen eine Frage. Das Laden der Seite dauert etwa 5 Sekunden.",
+    loesung: "Auf dem Rechner „Webserver“ ist das Programm Webserver installiert und gestartet (Knopf „Anhalten“). Auf dem „Laptop“ sind Webbrowser und Befehlszeile installiert. Der Browser zeigt unter http://203.0.113.10 die Seite „FILIUS - Webserver“. Gespeichert als internet.fls.",
+    fehler: ["Der Webserver wird installiert, aber nicht gestartet: Der Browser meldet nur „Server konnte nicht erreicht werden!“ – er sagt nicht, woran es liegt.", "Das Programm wird auf dem falschen Rechner installiert (zum Beispiel auf dem Laptop).", "Gespeichert wird im Aktionsmodus nicht: zurück in den Entwurfsmodus (Hammer)."],
+    bedienung: "„Datei auswählen“ → die gespeicherte .fls-Datei. Die Rückmeldung nennt jeden Prüfpunkt einzeln und sagt bei einem Fehler, was fehlt. Vereinfachung: In Filius steht der Webserver direkt hinter einem Router – im echten Internet liegen viele Router und Netze dazwischen." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Webserver starten und Seite abrufen", pc: "Filius", zeit: "etwa 15 Minuten",
+      ziel: "Der Rechner „Webserver“ läuft, der „Laptop“ ruft seine Seite ab. Dein Netz ist als internet.fls gespeichert.",
+      material: [{ name: "Startdatei internet_start.fls", href: "assets/filius/internet_start.fls" }],
+      schritte: [
+        "Lade die Startdatei herunter. Öffne <b>Filius</b>. Klicke im Entwurfsmodus oben auf den <span class=\"menue\">gelben Ordner</span> und wähle die Datei <b>internet_start.fls</b>.",
+        { t: "Du siehst zwei Netze: Links das Heimnetz mit „Switch Zuhause“, „Laptop“ und „PC Wohnzimmer“, in der Mitte den „Router“, rechts das Netz „Internet“ mit „Switch Internet“ und dem Rechner „Webserver“.", bild: "assets/filius/netz-internet.png", alt: "Filius im Entwurfsmodus: Oben links Switch Zuhause mit den Geräten Laptop und PC Wohnzimmer, in der Mitte der Router, oben rechts Switch Internet mit dem Rechner Webserver." },
+        "Wechsle in den <b>Aktionsmodus</b>: Klicke oben auf den <span class=\"menue\">grünen Pfeil</span>. Klicke dann auf den Rechner <b>Webserver</b>. Sein Bildschirm geht auf. Klicke dort auf <span class=\"menue\">Software-Installation</span>.",
+        { t: "Klicke rechts in der Liste auf <span class=\"menue\">Webserver</span>, dann auf den <b>oberen Pfeil</b> (er zeigt nach links). Klicke zum Schluss auf <span class=\"menue\">Änderungen annehmen</span>.", bild: "../../7M/Informatik/assets/filius/software-installation.png", alt: "Filius: Fenster Software-Installation mit der Liste Verfügbar und den Pfeilen in der Mitte" },
+        { t: "Auf dem Bildschirm des Webservers liegt jetzt das Symbol <span class=\"menue\">Webserver</span>. Klicke es an und dann auf <span class=\"menue\">Starten</span>. Im großen Feld steht „Annahme von Verbindungsanfragen gestartet“, der Knopf heißt jetzt <span class=\"menue\">Anhalten</span>.", bild: "assets/filius/webserver-gestartet.png", alt: "Filius, Fenster Webserver: Oben der Knopf Anhalten und das Häkchen Verwende virtuelle Hosts, im großen Feld der Satz Annahme von Verbindungsanfragen gestartet." },
+        "Klicke unten auf <span class=\"menue\">Startbildschirm</span>. Klicke nun auf den <b>Laptop</b>, öffne dort die <span class=\"menue\">Software-Installation</span> und installiere genauso <span class=\"menue\">Webbrowser</span> und <span class=\"menue\">Befehlszeile</span>. Zum Schluss: <span class=\"menue\">Änderungen annehmen</span>.",
+        { t: "Öffne auf dem Laptop das Symbol <span class=\"menue\">Webbrowser</span>. Tippe in die Adresszeile <code>203.0.113.10</code> und klicke auf <span class=\"menue\">Start</span>. Nach wenigen Sekunden erscheint die Seite „FILIUS - Webserver“.", bild: "assets/filius/browser-ip.png", alt: "Filius, Webbrowser: In der Adresszeile steht http://203.0.113.10/, darunter die Seite mit der Überschrift FILIUS - Webserver und dem Satz Herzlich Willkommen auf dem Webserver der Anwendung FILIUS." },
+        "Speichere: Wechsle zurück in den <b>Entwurfsmodus</b> (<span class=\"menue\">Hammer</span>). Klicke oben auf die <span class=\"menue\">Diskette</span>, gib der Datei den Namen <b>internet</b> und klicke auf <span class=\"menue\">Speichern</span>."
+      ],
+      loesung: "Der Rechner „Webserver“ hat das Programm Webserver (gestartet), der „Laptop“ hat Webbrowser und Befehlszeile. Die Seite „FILIUS - Webserver“ erscheint unter 203.0.113.10. Die Datei heißt internet.fls.",
+      pruefung: {
+        art: "datei", accept: ".fls", lies: Modul.liesFilius9, pruefe: pruefeWeb,
+        text: "Wähle deine gespeicherte Datei <b>internet.fls</b> aus. Sie wird nur hier auf dem Gerät geprüft und nicht hochgeladen.",
+        ersatz: { art: "wort", frage: "Wie heißt der Knopf im Fenster „Webserver“, den du klicken musst, damit der Webserver Anfragen annimmt?", antworten: ["Starten"],
+          tipp: "Öffne das Symbol Webserver auf dem Bildschirm des Rechners „Webserver“. Der Knopf links oben heißt zuerst so – danach „Anhalten“." }
+      }
+    }, "auf1");
+  }
+});
+
+W.aufgabe({
+  titel: "Den Weg verfolgen: traceroute",
+  geheim: ["192.168.0.1"],
+  auftrag: "Du hast die Antwort gesehen – aber welchen Weg hat die Anfrage genommen? Der Befehl <code>traceroute</code> zeigt dir die Stationen.",
+  vorwissen: "<p>Eine <b>Station</b> ist ein Gerät auf dem Weg, das die Daten weiterreicht. Ein Switch zählt nicht mit, er reicht nur innerhalb eines Netzes weiter. Der Router schon.</p>",
+  hinweise: ["Die Befehlszeile hast du schon auf dem Laptop installiert. Du findest sie im Aktionsmodus auf dem Bildschirm des Laptops.", "Hinter <code>/&gt;</code> tippst du <code>traceroute</code>, ein Leerzeichen und die Adresse des Webservers. Dann die Eingabetaste.", "Der ganze Befehl heißt <code>traceroute 203.0.113.10</code>. Unten stehen die Zeilen mit „1“ und „2“. Gesucht ist die Adresse in Zeile 1."],
+  lehrer: { ziel: "Mit traceroute den Weg einer Anfrage sichtbar machen: Station 1 ist der Router, Station 2 das Ziel.",
+    anleitung: "Die Kinder bleiben im selben Filius wie in der letzten Aufgabe (zurück in den Aktionsmodus). Die Ausgabe braucht einige Sekunden. Auch dies ist eine Vereinfachung: Im echten Internet zeigt traceroute oft zehn und mehr Stationen.",
+    loesung: "Zeile 1: 192.168.0.1 (der Router), Zeile 2: 203.0.113.10 (der Webserver). Antwort: 192.168.0.1.",
+    fehler: ["Die Adresse aus Zeile 2 wird eingetragen – gefragt ist die erste Station.", "Tippfehler im Befehl: Dann kommt keine Ausgabe oder eine Fehlermeldung – Befehl noch einmal genau eintippen."],
+    bedienung: "Das Kind trägt die Adresse der ersten Station ein und tippt auf „Lösung überprüfen“." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Mit traceroute den Weg zeigen", pc: "Filius", zeit: "etwa 5 Minuten",
+      ziel: "Du kennst die erste Station auf dem Weg vom Laptop zum Webserver.",
+      schritte: [
+        "Wechsle wieder in den <b>Aktionsmodus</b> (<span class=\"menue\">grüner Pfeil</span>) und klicke auf den <b>Laptop</b>.",
+        "Öffne das Symbol <span class=\"menue\">Befehlszeile</span>.",
+        "Tippe hinter <code>/&gt;</code> den Befehl <code>traceroute 203.0.113.10</code> und drücke die Eingabetaste. Warte, bis die Ausgabe fertig ist.",
+        "Lies die Zeilen: Hinter der Zahl 1 steht die erste Station, hinter der Zahl 2 die zweite. Welches Gerät aus deinem Netzplan hat die Adresse aus Zeile 1?"
+      ],
+      loesung: "Zeile 1 heißt „1    192.168.0.1“ – das ist der Router. Zeile 2 ist das Ziel, der Webserver mit 203.0.113.10.",
+      pruefung: { art: "wort", frage: "Welche Adresse steht in Zeile 1 – bei der ersten Station?", antworten: ["192.168.0.1"],
+        tipp: "Zeile 1 ist das Gerät, das die Anfrage zuerst weiterreicht: der Router. Seine Adresse im Heimnetz endet auf .1.",
+        erfolg: "Richtig: Station 1 ist der Router. Erst danach kommt der Webserver." }
+    }, "auf2");
+  }
+});
+
+/* ============ Teil 4: Kontrollieren ============ */
+W.teil("Kontrollieren", "Lerncheck");
+
+W.aufgabe({
+  titel: "Den Weg in die richtige Reihenfolge bringen",
+  auftrag: "Bringe die Schritte in die Reihenfolge, wie die Anfrage vom Laptop zum Webserver wandert. Mit ▲ und ▼ verschiebst du einen Schritt.",
+  hinweise: ["Denke an die Animation und an traceroute.", "Der Weg beginnt beim Laptop und endet beim Webserver. Dazwischen liegen zwei Switches und ein Router.", "Reihenfolge: Laptop → Switch Zuhause → Router → Switch Internet → Webserver."],
+  lehrer: { ziel: "Den Weg einer Anfrage durch zwei Netze in der Reihenfolge wiedergeben.",
+    anleitung: "Einzelarbeit, etwa 2 Minuten.", loesung: "Laptop schickt ab · Switch Zuhause · Router · Switch Internet · Webserver antwortet.",
+    fehler: ["Router und Switch Internet werden vertauscht – der Router steht zwischen den beiden Netzen, also vor dem Switch Internet."] },
+  bau(box) {
+    Modul.makeOrder(box, [
+      "Der Laptop schickt die Anfrage ab.",
+      "Der Switch Zuhause reicht sie weiter.",
+      "Der Router leitet sie in das andere Netz.",
+      "Der Switch Internet reicht sie weiter.",
+      "Der Webserver nimmt sie an und antwortet."
+    ], "order-weg");
+  }
+});
+
+W.aufgabe({
+  titel: "Warum kommt keine Seite?",
+  auftrag: "Drei Kinder rufen eine Seite ab und sehen im Browser nur „Server konnte nicht erreicht werden!“. Entscheide bei jedem, woran es liegt.",
+  hinweise: ["Der Browser sagt nie, was los ist. Lies bei jedem Kind genau, was schon eingerichtet ist.", "Zwei Dinge braucht der Webserver: das Programm und den Start. Der Client braucht einen Browser.", "Kein Programm auf dem Webserver → „Webserver nicht installiert“ · Programm da, Knopf heißt noch „Starten“ → „Webserver nicht gestartet“ · Browser und Webserver laufen, die Adresse im Browser ist falsch → „Falsche Adresse getippt“."],
+  lehrer: { ziel: "Typische Fehler beim Abrufen einer Seite erkennen und benennen.",
+    anleitung: "Ein Fall nach dem anderen; falsch entschiedene Fälle kommen noch einmal.",
+    loesung: "Lena: Webserver nicht installiert · Tom: Webserver nicht gestartet · Ayla: Falsche Adresse getippt.",
+    fehler: ["Bei Ayla wird „Webserver nicht gestartet“ gewählt – im Text steht aber, dass der Knopf „Anhalten“ heißt, also läuft er. Der Fehler liegt in der Adresse, die sie getippt hat.", "Der Browser in Filius meldet bei allen Fehlern denselben Satz. Das ist kein Fehler der Kinder, sondern eine Eigenart des Programms."] },
+  bau(box) {
+    Modul.makeEntscheiden(box, {
+      frage: "Woran liegt es?",
+      optionen: ["Webserver nicht installiert", "Webserver nicht gestartet", "Falsche Adresse getippt"],
+      faelle: [
+        { html: "<b>Lena:</b> „Auf dem Laptop läuft der Webbrowser. Auf dem Rechner ‚Webserver‘ habe ich nie die Software-Installation geöffnet. Ein ping an 203.0.113.10 klappt. Im Browser: ‚Server konnte nicht erreicht werden!‘“", kurz: "Lena", a: 0, e: "Der Rechner ist erreichbar (ping klappt), aber es läuft kein Programm, das Webseiten ausliefert." },
+        { html: "<b>Tom:</b> „Auf dem Rechner ‚Webserver‘ habe ich das Programm Webserver installiert. Im Fenster steht oben links der Knopf ‚Starten‘. Der Browser auf dem Laptop meldet: ‚Server konnte nicht erreicht werden!‘“", kurz: "Tom", a: 1, e: "Das Programm ist da, aber noch nicht gestartet. Erst nach „Starten“ nimmt es Anfragen an – dann heißt der Knopf „Anhalten“." },
+        { html: "<b>Ayla:</b> „Auf dem Webserver läuft alles, der Knopf heißt ‚Anhalten‘. Auf dem Laptop läuft der Webbrowser. Ich habe in die Adresszeile 203.0.113.100 getippt.“", kurz: "Ayla", a: 2, e: "Der Webserver hat die Adresse 203.0.113.10. Unter 203.0.113.100 gibt es keinen Rechner, also antwortet niemand." }
+      ],
+      fertig: "Du erkennst die drei häufigsten Fehler: Server fehlt, Server läuft nicht, falsche Adresse."
+    }, "fehler");
+  }
+});
+
+W.aufgabe({
+  titel: "Lerncheck",
+  auftrag: "Richtig oder falsch? Entscheide bei jeder Aussage.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Der Client fragt an, der Server antwortet. Ein Switch arbeitet in einem Netz, ein Router zwischen Netzen.", "Richtig sind die Aussagen zum Internet und zum Webserver. Falsch sind: Der Client antwortet, der Router verbindet Geräte in einem Netz, Installieren reicht."],
+  lehrer: { ziel: "Kernwissen der Stunde sichern.", anleitung: "Einzelarbeit, etwa 3 Minuten.",
+    loesung: "richtig · falsch · richtig · falsch · falsch", fehler: ["Aussage 5: Das Programm muss auch gestartet sein."] },
+  bau(box) {
+    Modul.makeTF(box, [
+      ["Das Internet besteht aus vielen Netzen, die durch Router verbunden sind.", true],
+      ["Der Client wartet auf Anfragen und schickt die Antwort.", false],
+      ["Ein Webserver ist ein Programm, das Webseiten ausliefert. Es läuft oft auf einem eigenen Rechner.", true],
+      ["Ein Router verbindet die Geräte innerhalb eines Netzes, ein Switch verbindet verschiedene Netze.", false],
+      ["Damit ein Webserver antwortet, reicht es, das Programm zu installieren.", false]
+    ], "tf");
+  }
+});
+
+W.fertig();
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

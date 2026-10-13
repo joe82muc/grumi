@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Wiederholung: So arbeitet ein Programm | Informatik 9</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="../../8M/Informatik/einheit8.css">
+<link rel="stylesheet" href="einheit9.css">
+<link rel="stylesheet" href="bloecke9.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 9</small></a>
+    <nav class="stations" id="stations"></nav>
+    <span class="stars" id="stars">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks">
+      <a href="index.html">Übersicht Informatik 9M</a>
+      <a href="../../9R/Informatik/index.html">Übersicht Informatik 9R</a>
+      <a href="../../index.html">Startseite</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 9 · Modul 5: Programmieren mit Scratch · Einheit 1</div>
+    <h1>Wiederholung: So arbeitet ein Programm</h1>
+    <p>Ein Roboter baut einen Turm: Baustein für Baustein, immer der Reihe nach. Ein Programm funktioniert genauso. Das kennst du aus der 8. Klasse – heute holst du es noch einmal hervor.</p>
+    <div class="zeit">etwa 40 Minuten · Praxis am Windows-PC mit Scratch</div>
+    <div class="goals">
+      <div>Ich bringe Anweisungen in die richtige Reihenfolge (Sequenz).</div>
+      <div>Ich erkläre, was ein Ereignis ist und was es tut.</div>
+      <div>Ich spare Blöcke mit einer Wiederholung.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="modulStand"></div>
+  <div id="weg"></div>
+</main>
+
+<footer class="wrap">Informatik 9 · Dein Fortschritt wird mit deinem Code gespeichert. · Scratch ist ein Programm der Scratch Foundation; die Blöcke und die Bühne auf dieser Seite sind eine eigene Nachbildung (GRUMI-SCRATCH).</footer>
+
+<div id="pop" role="dialog"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info9.js"></script>
+<script src="bloecke9.js"></script>
+<script src="../../8M/Informatik/excel-datei.js"></script>
+<script src="scratch-aufgaben9.js"></script>
+<script>
+(function () {
+"use strict";
+const {$} = Modul;
+const p = (ok, gut, schlecht) => ({ok, text: ok ? gut : schlecht});
+
+Modul.start9({
+  key: "grumi-i9-scratch-start-v1",
+  thema: "Scratch, Wiederholung: Programm als Folge von Anweisungen (Sequenz), Ereignis startet das Programm, Wiederholung (wiederhole mal) spart Blöcke, Überblick über Bedingung und Variable (nur wiedererkennen); eigene Blockbühne mit Roboter",
+  glossary: {
+    programm: ["Programm", "Eine Folge von Anweisungen, die der Computer der Reihe nach ausführt."],
+    anweisung: ["Anweisung", "Ein einzelner Befehl, zum Beispiel „gehe 10 Schritte“. In Scratch ist jede Anweisung ein Block."],
+    sequenz: ["Sequenz", "Die Anweisungen laufen der Reihe nach ab, von oben nach unten."],
+    ereignis: ["Ereignis", "Etwas, das ein Programm startet, zum Beispiel ein Klick auf die grüne Fahne."],
+    wiederholung: ["Wiederholung", "Ein Block, der Anweisungen mehrmals ausführt. Man sagt auch Schleife."]
+  }
+});
+
+const W = Modul.lernweg("#weg");
+
+/* ============ Regelheft ============ */
+W.teil("Regelheft", "Schreiben");
+W.regelheft({
+  titel: "Ein Programm",
+  html: `<p>Ein <span class="rot">Programm</span> ist eine Folge von <span class="rot">Anweisungen</span>. Der Computer führt sie der Reihe nach aus, von oben nach unten (<span class="rot">Sequenz</span>).</p>
+    <p>Ein <span class="rot">Ereignis</span> startet das Programm, z. B. <span class="blau">Wenn 🏁 angeklickt wird</span>.</p>
+    <p class="leer"></p>
+    <p>Eine <span class="rot">Wiederholung</span> spart Blöcke: <span class="blau">wiederhole 5 mal: gehe 10</span>.</p>`,
+  lehrer: { ziel: "Die Kernaussagen zu Programm, Anweisung, Sequenz, Ereignis und Wiederholung stehen im Heft.",
+    anleitung: "Etwa 5 Minuten. Die Klasse schreibt ab. Die Kinder kennen das aus Klasse 8; hier wird es nur aufgefrischt. Erst nach dem Abhaken erscheint die erste Aufgabe.",
+    loesung: "Der Eintrag steht vollständig im Heft (drei kurze Aussagen und ein Beispiel)." }
+});
+
+/* ============ Teil 2: Erst hier auf der Seite ============ */
+W.teil("Verstehen und üben", "Sehen · Ausprobieren");
+
+W.aufgabe({
+  titel: "Was ist ein Programm?",
+  bild: { src: "assets/bilder/scratch-start.jpg", alt: "Ein kleiner weißer Roboter stapelt bunte Bausteine zu einem Turm: unten ein orangefarbener, dann ein lila und ein blauer, ganz oben ein gelber mit runder Kappe. Weitere bunte Bausteine liegen auf dem Tisch.", text: "Ein Programm ist wie ein Turm: Baustein für Baustein, von unten nach oben." },
+  auftrag: "Unten siehst du ein kleines Programm aus Blöcken. Lies es von oben nach unten und beantworte die Fragen. Die Blöcke auf dieser Seite sind eine eigene Nachbildung. Im echten Scratch funktionieren sie genauso, sehen aber etwas anders aus.",
+  hinweise: ["Lies die Blöcke von oben nach unten, so wie der Roboter sie ausführt.", "Der oberste Block ist der Startblock. Danach folgen die Anweisungen in der Reihenfolge, in der sie untereinander stehen.", "Frage 1: Was ganz oben steht, startet das Programm. Frage 2: Der zweite Block unter dem Startblock. Frage 3: Eine Folge von Anweisungen, der Reihe nach."],
+  lehrer: { ziel: "Ein einfaches Programm von oben nach unten lesen. Begriffe: Ereignis, Anweisung, Sequenz, Programm.",
+    anleitung: "Das Programm am Beamer zeigen und mit dem Finger Zeile für Zeile mitfahren. Fragen: „Womit beginnt es? Was kommt danach?“ Der Startblock ist das Ereignis. Alle Blöcke darunter sind Anweisungen.",
+    loesung: "Frage 1: Der Klick auf Start (das Ereignis). Frage 2: drehe dich um 90 Grad. Frage 3: eine Folge von Anweisungen, die der Computer der Reihe nach ausführt.",
+    fehler: ["Das Kind liest die Blöcke von unten nach oben.", "Der Startblock wird nicht als Teil des Programms gesehen – er sagt, wann es losgeht."],
+    bedienung: "Hier muss nichts gebaut werden. Die Blöcke sind nur zum Lesen." },
+  bau(box) {
+    box.innerHTML = '<div class="bild"></div><div class="mc"></div>';
+    Modul.blockBild($(".bild", box), [["flagge"], ["gehe", 30], ["drehe", 90], ["gehe", 30]]);
+    Modul.makeMC($(".mc", box), [
+      { q: "Was startet dieses Programm?", o: ["Der Klick auf Start (ein Ereignis)", "Der Block „gehe 30 Schritte“", "Der Block „drehe dich um 90 Grad“", "Es startet von allein"], a: 0, e: "Der Startblock ganz oben ist das Ereignis. Erst wenn es passiert, laufen die Anweisungen darunter ab." },
+      { q: "Welche Anweisung führt der Roboter als zweite aus?", o: ["drehe dich um 90 Grad", "gehe 30 Schritte", "Wenn Start angeklickt wird", "keine"], a: 0, e: "Erst „gehe 30“, dann „drehe dich um 90 Grad“, dann wieder „gehe 30“. Die Reihenfolge von oben nach unten zählt." },
+      { q: "Was ist ein Programm?", o: ["Eine Folge von Anweisungen, die der Reihe nach ausgeführt wird", "Ein einzelner Befehl", "Ein Bild auf dem Bildschirm", "Eine Taste auf der Tastatur"], a: 0, e: "Ein Programm besteht aus mehreren Anweisungen. Sie laufen nacheinander ab. Das nennt man Sequenz." }
+    ], "mc-programm");
+  }
+});
+
+W.aufgabe({
+  titel: "Drei Blöcke in die richtige Reihenfolge",
+  geheim: ["60"],
+  auftrag: "Der Roboter soll erst 60 Schritte gehen und danach „Ich bin da!“ sagen. Die Blöcke liegen durcheinander. Ordne sie und klicke auf „Prüfen“.",
+  vorwissen: "<p>Tippe einen Block an oder ziehe ihn mit der Maus. Die gestrichelte Marke zeigt, wo der nächste Block eingefügt wird. Mit „Programm starten“ siehst du auf der Bühne, was der Roboter tut.</p>",
+  hinweise: ["Lies dir die Aufgabe noch einmal durch: Was soll zuerst passieren, was danach?", "Der Startblock bleibt ganz oben. Direkt darunter muss der Block stehen, der als Erstes passieren soll.", "Von oben nach unten: Start – gehe 60 Schritte – sage „Ich bin da!“. Verschiebe die Blöcke so, dass diese Reihenfolge entsteht."],
+  lehrer: { ziel: "Anweisungen in die richtige Reihenfolge bringen (Sequenz).",
+    anleitung: "Vorführen: Programm starten, solange die Reihenfolge falsch ist – der Roboter sagt erst etwas und geht danach. Dann umordnen und noch einmal starten. Frage: „Was hat sich geändert, obwohl es dieselben Blöcke sind?“",
+    loesung: "Wenn Start angeklickt wird · gehe 60 Schritte · sage „Ich bin da!“.",
+    fehler: ["Der Block „sage“ steht vor „gehe“.", "Ein Block wurde versehentlich gelöscht (auf die Palette gezogen)."],
+    bedienung: "Antippen setzt einen Block an die Marke. Ziehen geht mit Maus oder Stift; am Tablet am Griff ⋮ links im Block. „Zurücksetzen“ stellt die Aufgabe neu." },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Bringe die Blöcke in die richtige Reihenfolge: erst gehen, dann sagen.</p>",
+      palette: ["flagge", "gehe", "sage"], start: [["flagge"], ["sage", "Ich bin da!"], ["gehe", 60]], fest: 1,
+      pruefe: e => {
+        const l = e.lauf(), liste = Modul.blockListe(e.programm()).join();
+        const reihe = p(liste === "flagge,gehe,sage", "Die Reihenfolge stimmt: erst gehen, dann sagen.",
+          liste === "flagge,sage,gehe" ? "Der Roboter sagt erst „Ich bin da!“ und geht danach. Er soll erst gehen. Schiebe „gehe“ nach oben." : "Unter dem Startblock sollen genau zwei Blöcke stehen: „gehe“ und „sage“.");
+        return liste === "flagge,gehe,sage" ? [reihe, p(l.x === 60 && l.gesagt.join() === "Ich bin da!", "Der Roboter geht 60 Schritte und sagt „Ich bin da!“.", "Der Roboter soll 60 Schritte gehen und „Ich bin da!“ sagen.")] : [reihe];
+      },
+      loesung: [["flagge"], ["gehe", 60], ["sage", "Ich bin da!"]], erfolg: "Richtig geordnet: erst gehen, dann sagen."
+    }, "bl-reihe");
+  }
+});
+
+W.aufgabe({
+  titel: "Fünfmal bewegen: mit fünf Blöcken",
+  geheim: ["50"],
+  auftrag: "Der Roboter soll fünfmal 10 Schritte gehen. Baue es zuerst mit <b>fünf</b> „gehe“-Blöcken.",
+  hinweise: ["Tippe fünfmal auf den Block „gehe“. Er wird jedes Mal unter den letzten Block gesetzt.", "In jedem Block muss die Zahl 10 stehen. Ändere die Zahl, wenn eine andere dasteht.", "Startblock, dann fünfmal „gehe 10 Schritte“ untereinander. Starte das Programm: Der Roboter steht danach bei x = 50."],
+  lehrer: { ziel: "Dieselbe Anweisung mehrfach hintereinander setzen und merken: Das ist viel Arbeit. (Vorbereitung auf die Wiederholung.)",
+    anleitung: "Die Klasse baut es selbst. Danach fragen: „Was wäre, wenn der Roboter hundertmal gehen soll?“ So entsteht der Wunsch nach einer Abkürzung.",
+    loesung: "Start · fünfmal gehe 10 Schritte. Der Roboter endet bei x = 50.",
+    fehler: ["Es werden nur vier Blöcke gesetzt.", "In einem Block steht nicht 10, sondern eine andere Zahl."] },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Setze fünf „gehe“-Blöcke untereinander, jeder mit 10 Schritten.</p>",
+      palette: ["flagge", "gehe"], start: [["flagge"]], fest: 1,
+      pruefe: e => {
+        const l = e.lauf(), n = Modul.blockAnzahl(e.programm(), "gehe");
+        return [
+          p(n === 5, "Es sind fünf „gehe“-Blöcke.", n < 5 ? "Es sind erst " + n + " „gehe“-Blöcke. Du brauchst fünf." : "Es sind " + n + " „gehe“-Blöcke. Fünf reichen."),
+          p(l.x === 50, "Der Roboter steht bei x = 50.", "Der Roboter steht bei x = " + l.x + ". Jeder Block soll 10 Schritte gehen: 5 mal 10 sind 50.")
+        ];
+      },
+      loesung: [["flagge"], ["gehe", 10], ["gehe", 10], ["gehe", 10], ["gehe", 10], ["gehe", 10]], erfolg: "Fünf Blöcke, fünf Schritte à 10."
+    }, "bl-fuenf");
+  }
+});
+
+W.aufgabe({
+  titel: "Fünfmal bewegen: mit „wiederhole“",
+  geheim: ["50"],
+  auftrag: "Das geht kürzer! Ersetze die fünf „gehe“-Blöcke durch einen Block „wiederhole 5 mal“ mit nur einem „gehe“-Block darin.",
+  vorwissen: "<p>Den Block „wiederhole … mal“ findest du in der Palette. Er hat eine Klammer: Alles, was darin steht, läuft so oft ab, wie die Zahl sagt.</p>",
+  hinweise: ["Tippe „wiederhole … mal“ an. Die Marke springt in die Klammer des Blocks.", "In die Klammer gehört ein einziger Block „gehe 10 Schritte“. Die anderen vier löschst du: Ziehe sie auf die Palette.", "Von oben nach unten: Start – wiederhole 5 mal – darin gehe 10 Schritte. Der Roboter steht danach wieder bei x = 50."],
+  lehrer: { ziel: "Eine Wiederholung (Schleife) einsetzen, um gleiche Anweisungen zu sparen.",
+    anleitung: "Beide Programme nebeneinander am Beamer starten: Das Ergebnis ist gleich, das zweite Programm ist kürzer. Fragen: „Wo steht die Zahl 5? Wo die Zahl 10?“ Die erste sagt, wie oft, die zweite, wie weit.",
+    loesung: "Start · wiederhole 5 mal [ gehe 10 Schritte ]. Ergebnis: x = 50.",
+    fehler: ["Der Block „gehe“ steht unter der Wiederholung statt in der Klammer – dann geht der Roboter nur einmal.", "In der Klammer stehen noch mehrere „gehe“-Blöcke – dann geht der Roboter zu weit."],
+    bedienung: "Löschen: Block auf die Palette ziehen oder in der Leiste über dem Block das ✕ antippen." },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Baue das Programm mit „wiederhole 5 mal“ und nur einem „gehe“-Block.</p>",
+      palette: ["flagge", "gehe", "mal"], start: [["flagge"], ["gehe", 10], ["gehe", 10], ["gehe", 10], ["gehe", 10], ["gehe", 10]], fest: 1,
+      pruefe: e => {
+        const pr = e.programm(), l = e.lauf(), m = pr.find(b => b[0] === "mal"), n = Modul.blockAnzahl(pr, "gehe");
+        return [
+          p(!!m, "Du benutzt „wiederhole … mal“.", "Es fehlt der Block „wiederhole … mal“. Er steht in der Palette."),
+          p(!!m && m[2].some(b => b[0] === "gehe"), "Der Block „gehe“ steht in der Klammer.", "In der Klammer von „wiederhole“ steht noch kein „gehe“. Setze ihn hinein."),
+          p(n === 1, "In der Klammer steht nur ein „gehe“-Block.", "Es sind " + n + " „gehe“-Blöcke. Mit „wiederhole“ brauchst du nur einen."),
+          p(l.x === 50, "Der Roboter steht bei x = 50.", "Der Roboter steht bei x = " + l.x + ". Er soll fünfmal 10 Schritte gehen und bei 50 ankommen.")
+        ];
+      },
+      loesung: [["flagge"], ["mal", 5, [["gehe", 10]]]], erfolg: "Gleiches Ergebnis mit viel weniger Blöcken."
+    }, "bl-mal");
+  }
+});
+
+W.aufgabe({
+  titel: "Begriffe zuordnen",
+  auftrag: "Was gehört zusammen? Tippe links einen Begriff an und dann rechts die passende Erklärung.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Das Ereignis ist der Startschuss. Die Sequenz sagt etwas über die Reihenfolge.", "Anweisung: ein einzelner Befehl · Sequenz: der Reihe nach · Ereignis: startet das Programm · Wiederholung: mehrmals ausführen."],
+  lehrer: { ziel: "Die Fachbegriffe Anweisung, Sequenz, Ereignis und Wiederholung den Erklärungen zuordnen.",
+    anleitung: "Einzelarbeit, etwa 3 Minuten. Danach ein Kind je Begriff ein eigenes Beispiel aus dem Alltag nennen lassen (zum Beispiel Rezept = Sequenz).",
+    loesung: "Anweisung – ein einzelner Befehl · Sequenz – der Reihe nach · Ereignis – startet das Programm · Wiederholung – mehrmals ausführen.",
+    fehler: ["Sequenz und Wiederholung werden verwechselt."] },
+  bau(box) {
+    Modul.makePaare(box, [
+      ["Anweisung", "ein einzelner Befehl, zum Beispiel „gehe 10 Schritte“"],
+      ["Sequenz", "die Anweisungen laufen der Reihe nach ab"],
+      ["Ereignis", "etwas, das das Programm startet"],
+      ["Wiederholung", "Anweisungen laufen mehrmals ab"]
+    ], "paare-begriffe");
+  }
+});
+
+W.aufgabe({
+  titel: "Wiederholung, Bedingung oder Variable?",
+  auftrag: "In Scratch gibt es noch mehr Bausteine. Hier erkennst du sie nur wieder – gebaut werden sie in den nächsten Einheiten. Sortiere jede Beschreibung.",
+  hinweise: ["Wiederholung: etwas passiert mehrmals. Bedingung: etwas passiert nur, wenn etwas stimmt. Variable: ein Wert mit Namen wird gemerkt.", "Achte auf Wörter wie „zehnmal“ (Wiederholung), „falls“ (Bedingung) und „merkt sich“ (Variable).", "Wiederholung: Nr. 1 und 4. Bedingung: Nr. 2 und 5. Variable: Nr. 3 und 6."],
+  lehrer: { ziel: "Drei weitere Bausteine im Überblick wiedererkennen: Wiederholung, Bedingung, Variable. Noch nicht selbst bauen.",
+    anleitung: "Einzelarbeit, etwa 3 Minuten. Erklären: „Bedingung heißt: nur wenn etwas stimmt.“ „Variable heißt: ein Speicherplatz mit Namen.“ Beides lernen die Kinder in den nächsten Einheiten genauer kennen.",
+    loesung: "Wiederholung: Der Roboter geht zehnmal einen Schritt · Der Roboter dreht sich fünfmal um 10 Grad. Bedingung: Falls die Antwort 7 ist, sagt er „Richtig!“ · Falls es dunkel ist, schaltet er das Licht ein. Variable: Er merkt sich die Zahl der Treffer in einem Speicherplatz „treffer“ · Er merkt sich deinen Namen.",
+    fehler: ["Beim Lesen von „merkt sich“ wird nicht an die Variable gedacht."] },
+  bau(box) {
+    Modul.makeSort(box, {
+      buckets: ["🔁 Wiederholung", "❓ Bedingung (falls …)", "📦 Variable"],
+      items: [
+        { t: "Der Roboter geht zehnmal einen Schritt.", b: 0 },
+        { t: "Falls die Antwort 7 ist, sagt er „Richtig!“.", b: 1 },
+        { t: "Er merkt sich die Zahl der Treffer in einem Speicherplatz „treffer“.", b: 2 },
+        { t: "Der Roboter dreht sich fünfmal um 10 Grad.", b: 0 },
+        { t: "Falls es dunkel ist, schaltet er das Licht ein.", b: 1 },
+        { t: "Er merkt sich deinen Namen.", b: 2 }
+      ],
+      done: "✅ Gut sortiert. Alle drei Bausteine baust du in den nächsten Einheiten selbst."
+    }, "sort-bausteine");
+  }
+});
+
+/* ============ Teil 3: Am PC ============ */
+W.teil("Am PC: Scratch", "Anwenden");
+
+W.aufgabe({
+  titel: "Begrüßung in Scratch",
+  geheim: ["100"],
+  auftrag: "Jetzt machst du es im echten Scratch: Die Figur sagt Hallo, geht mit einer Wiederholung ein Stück und sagt am Ende „Fertig!“.",
+  vorwissen: "<p>Das kennst du aus der 8. Klasse: Blöcke aus der Palette in den Skriptbereich ziehen und untereinander einrasten lassen. Zahlen und Texte änderst du, indem du in das Feld des Blocks klickst.</p>",
+  hinweise: ["Das Skript beginnt mit dem Block „Wenn 🏁 angeklickt wird“ aus dem Bereich „Ereignisse“. Alle anderen Blöcke hängen darunter.", "Reihenfolge: sage Hallo – wiederhole mit „gehe“ in der Klammer – sage Fertig. Die Klammer „wiederhole … mal“ findest du im Bereich „Steuerung“.", "Ereignisse: Wenn 🏁 angeklickt wird · Aussehen: sage Hallo! für 2 Sekunden · Steuerung: wiederhole 5 mal · Bewegung: gehe 20 er Schritt (in die Klammer) · Aussehen: sage Fertig! für 2 Sekunden."],
+  lehrer: { ziel: "Ein Programm mit Ereignis, Sequenz und Wiederholung im echten Scratch bauen, ausführen und speichern.",
+    anleitung: "Etwa 12 Minuten am Windows-PC. Die Kinder öffnen scratch.mit.edu/projects/editor im Browser. Am Ende speichert jedes Kind das Projekt und lädt die .sb3-Datei hoch. Der Server prüft sie und die KI schreibt eine Rückmeldung. Am Tablet gibt es stattdessen eine Frage.",
+    loesung: "Wenn 🏁 angeklickt wird · sage Hallo! für 2 Sekunden · wiederhole 5 mal [ gehe 20 er Schritt ] · sage Fertig! für 2 Sekunden. Die Figur steht danach bei x = 100.",
+    fehler: ["Der Block „gehe“ liegt unter der Wiederholung statt in der Klammer.", "Der Startblock mit der Fahne fehlt – dann passiert beim Klick auf die Fahne nichts.", "In „wiederhole“ steht noch 10 – das geht auch, ist aber nicht falsch.", "Die Datei wurde nicht gespeichert."],
+    bedienung: "„Datei hochladen“ → die gespeicherte .sb3-Datei (meist im Ordner Downloads). Die Rückmeldung nennt jeden Prüfpunkt einzeln." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Begrüßung", pc: "Scratch", zeit: "etwa 12 Minuten",
+      ziel: "Ein Programm unter der grünen Fahne: Die Figur sagt „Hallo!“, geht mit einer Wiederholung ein Stück und sagt „Fertig!“. Das Projekt ist gespeichert.",
+      schritte: [
+        "Öffne im Browser <b>scratch.mit.edu/projects/editor</b>. Es erscheint ein neues Projekt mit einer Figur.",
+        "Bereich <span class=\"menue\">Ereignisse</span>: Ziehe <span class=\"menue\">Wenn 🏁 angeklickt wird</span> in den Skriptbereich.",
+        "Bereich <span class=\"menue\">Aussehen</span>: Ziehe <span class=\"menue\">sage Hallo! für 2 Sekunden</span> darunter.",
+        "Bereich <span class=\"menue\">Steuerung</span>: Ziehe <span class=\"menue\">wiederhole 10 mal</span> darunter. Ändere die 10 in <b>5</b>.",
+        "Bereich <span class=\"menue\">Bewegung</span>: Ziehe <span class=\"menue\">gehe 10 er Schritt</span> in die Klammer. Ändere die 10 in <b>20</b>.",
+        "Bereich <span class=\"menue\">Aussehen</span>: Hänge <span class=\"menue\">sage Hallo! für 2 Sekunden</span> unter die Klammer, <b>außerhalb</b>. Ändere den Text in <b>Fertig!</b>.",
+        "Klicke auf die grüne Fahne über der Bühne. Die Figur sagt Hallo, geht fünfmal ein Stück und sagt Fertig! Unter der Bühne zeigt das Feld <b>x</b> jetzt 100.",
+        "Speichere dein Projekt: Menü <span class=\"menue\">Datei</span> → <span class=\"menue\">Auf deinem Computer speichern</span>. Die Datei heißt zuerst <b>Scratch-Projekt.sb3</b> und liegt im Ordner Downloads."
+      ],
+      loesung: "Wenn 🏁 angeklickt wird · sage Hallo! für 2 Sekunden · wiederhole 5 mal [ gehe 20 er Schritt ] · sage Fertig! für 2 Sekunden.",
+      pruefung: {
+        art: "datei", accept: ".sb3", lies: Modul.liesScratch9, pruefe: (Modul.scratchPruefung9 || {})["scratch-start-auf1"], server: { pfad: "/api/inf9/scratch/pruefen", aufgabe: "scratch-start-auf1" },
+        text: "Wähle deine gespeicherte <b>.sb3</b>-Datei aus. Sie wird geprüft, und die KI schreibt dir eine Rückmeldung. Deine Lehrkraft kann die Datei danach ansehen.",
+        ersatz: { art: "zahl", frage: "Die Figur beginnt bei x = 0 und geht fünfmal 20 Schritte nach rechts. Welche Zahl zeigt das Feld x danach?", wert: 100, tol: 0.001,
+          tipp: "Fünfmal 20: Rechne 5 mal 20." }
+      }
+    }, "auf1");
+  }
+});
+
+/* ============ Teil 4: Wiederholen ============ */
+W.teil("Wiederholen", "Andere Zahlen");
+
+W.aufgabe({
+  titel: "Die Treppe",
+  geheim: ["80"],
+  auftrag: "Der Roboter soll eine Treppe hinaufsteigen: viermal 20 nach rechts und viermal 20 nach oben. Oben angekommen sagt er „Oben!“. Benutze eine Wiederholung.",
+  hinweise: ["Eine Stufe besteht aus zwei Anweisungen: 20 nach rechts und 20 nach oben. Die Stufe soll viermal passieren.", "Setze „ändere x um 20“ und „ändere y um 20“ in die Klammer von „wiederhole 4 mal“. Das Sagen gehört dahinter, nicht in die Klammer.", "Start – wiederhole 4 mal [ ändere x um 20, ändere y um 20 ] – sage „Oben!“. Der Roboter steht danach bei x = 80 und y = 80."],
+  lehrer: { ziel: "Eine Wiederholung mit zwei Anweisungen in der Klammer anwenden (andere Zahlen als zuvor).",
+    anleitung: "Einzelarbeit, etwa 5 Minuten. Nach dem Lösen fragen: „Wie viele Blöcke wären es ohne Wiederholung?“ (acht plus ein sage).",
+    loesung: "Start · wiederhole 4 mal [ ändere x um 20 · ändere y um 20 ] · sage „Oben!“ – der Roboter steht bei x = 80, y = 80.",
+    fehler: ["„sage“ steht in der Klammer – dann sagt der Roboter viermal „Oben!“.", "Nur ein Block (ändere x) steht in der Klammer – dann geht der Roboter nicht nach oben."] },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Baue die Treppe: viermal 20 nach rechts und 20 nach oben, dann „Oben!“ sagen.</p>",
+      palette: ["flagge", "mal", "aendereX", "aendereY", "sage"], start: [["flagge"]], fest: 1,
+      pruefe: e => {
+        const pr = e.programm(), l = e.lauf();
+        return [
+          p(Modul.blockHat(pr, "mal"), "Du benutzt „wiederhole … mal“.", "Benutze „wiederhole … mal“: Die Stufe soll viermal passieren."),
+          p(l.x === 80 && l.y === 80, "Der Roboter steht bei x = 80 und y = 80.", "Der Roboter steht bei x = " + l.x + " und y = " + l.y + ". Er soll bei x = 80 und y = 80 ankommen: viermal 20 nach rechts und viermal 20 nach oben."),
+          p(l.gesagt.join() === "Oben!", "Der Roboter sagt am Ende „Oben!“.", l.gesagt.length > 1 ? "Der Roboter sagt " + l.gesagt.length + "-mal etwas. „sage“ gehört hinter die Klammer, dann sagt er es nur einmal am Ende." : "Der Roboter soll am Ende „Oben!“ sagen.")
+        ];
+      },
+      loesung: [["flagge"], ["mal", 4, [["aendereX", 20], ["aendereY", 20]]], ["sage", "Oben!"]], erfolg: "Stufe für Stufe nach oben – mit nur drei Blöcken."
+    }, "bl-treppe");
+  }
+});
+
+/* ============ Teil 5: Kontrollieren ============ */
+W.teil("Kontrollieren", "Lerncheck");
+
+W.aufgabe({
+  titel: "Lerncheck",
+  auftrag: "Richtig oder falsch? Entscheide bei jeder Aussage.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Ein Programm läuft von oben nach unten. Ein Ereignis startet es, eine Wiederholung spart Blöcke.", "Richtig sind die Aussagen zur Reihenfolge, zum Ereignis und zur Wiederholung. Falsch sind die Aussagen zur Richtung (von unten nach oben) und zum Startblock am Ende."],
+  lehrer: { ziel: "Kernwissen der Einheit sichern.", anleitung: "Einzelarbeit, etwa 3 Minuten.", loesung: "richtig · falsch · richtig · richtig · falsch", fehler: ["Aussage 5: Der Startblock steht immer ganz oben, nie am Ende."] },
+  bau(box) {
+    Modul.makeTF(box, [
+      ["Ein Programm ist eine Folge von Anweisungen, die der Reihe nach ausgeführt wird.", true],
+      ["Der Computer führt die Blöcke von unten nach oben aus.", false],
+      ["Ein Ereignis wie der Klick auf die grüne Fahne startet ein Programm.", true],
+      ["Mit „wiederhole 5 mal“ spart man vier gleiche Blöcke.", true],
+      ["Der Startblock steht am Ende des Programms.", false]
+    ], "tf");
+  }
+});
+
+W.fertig();
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

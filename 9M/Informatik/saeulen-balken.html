@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Säulen- und Balkendiagramme | Informatik 9</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="../../8M/Informatik/einheit8.css">
+<link rel="stylesheet" href="einheit9.css">
+<link rel="stylesheet" href="tabelle9.css">
+<style>.menue{white-space:normal}</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 9</small></a>
+    <nav class="stations" id="stations"></nav>
+    <span class="stars" id="stars">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks">
+      <a href="index.html">Übersicht Informatik 9M</a>
+      <a href="../../9R/Informatik/index.html">Übersicht Informatik 9R</a>
+      <a href="../../index.html">Startseite</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 9 · Modul 4: Excel-Diagramme · Einheit 1</div>
+    <h1>Säulen- und Balkendiagramme</h1>
+    <p>Wer hat die meisten Stimmen, wer die wenigsten? Eine Zahlenliste sagt das nicht auf einen Blick. Ein Diagramm schon. Heute lernst du, Werte mit Säulen und Balken zu vergleichen.</p>
+    <div class="zeit">etwa 40 Minuten · Praxis am Windows-PC mit Excel</div>
+    <div class="goals">
+      <div>Ich lese in einem Säulen- oder Balkendiagramm Werte ab und vergleiche sie.</div>
+      <div>Ich erkläre den Unterschied zwischen Säulen und Balken.</div>
+      <div>Ich erstelle in Excel ein Säulendiagramm und gebe ihm einen Titel.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="modulStand"></div>
+  <div id="weg"></div>
+</main>
+
+<footer class="wrap">Informatik 9 · Dein Fortschritt wird mit deinem Code gespeichert. · Excel ist ein Programm von Microsoft; die Tabellen und Diagramme auf dieser Seite sind eigene Nachbildungen (GRUMI-EXCEL). Alle Zahlen sind erfunden.</footer>
+
+<div id="pop" role="dialog"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info9.js"></script>
+<script src="diagramm9.js"></script>
+<script src="tabelle9.js"></script>
+<script src="../../8M/Informatik/excel-datei.js"></script>
+<script src="excel-aufgaben9.js"></script>
+<script>
+(function () {
+"use strict";
+const {$} = Modul;
+const G = Modul.bereichGleich;
+const p = (ok, gut, schlecht) => ({ok, text: ok ? gut : schlecht});
+
+Modul.start9({
+  key: "grumi-i9-saeulen-balken-v1",
+  thema: "Excel-Diagramme: Säulen- und Balkendiagramm lesen und erstellen (Umfrage Lieblingssport der 9. Klassen), Säulen stehen und Balken liegen, Werte vergleichen, Diagrammtitel, Datenbereich markieren",
+  glossary: {
+    diagramm: ["Diagramm", "Ein Bild aus Zahlen. Es zeigt auf einen Blick, wie groß die Werte sind."],
+    saeule: ["Säulendiagramm", "Ein Diagramm mit aufrechten Säulen. Je höher die Säule, desto größer der Wert."],
+    balken: ["Balkendiagramm", "Ein Diagramm mit liegenden Balken. Je länger der Balken, desto größer der Wert."],
+    datenbereich: ["Datenbereich", "Die Zellen, aus denen ein Diagramm gezeichnet wird, zum Beispiel A1 bis B6."],
+    titel: ["Diagrammtitel", "Die Überschrift über dem Diagramm. Sie sagt, worum es geht."],
+    achse: ["Achse", "Die Linie am Rand eines Diagramms mit den Zahlen oder Namen zum Ablesen."]
+  }
+});
+
+const W = Modul.lernweg("#weg");
+
+const SPORT = { A1: "Sportart", B1: "Stimmen", A2: "Fußball", B2: "14", A3: "Basketball", B3: "9", A4: "Schwimmen", B4: "7", A5: "Tanzen", B5: "11", A6: "Klettern", B6: "5" };
+const SPORT_DG = { typ: "saeule", titel: "Lieblingssport der 9. Klassen", kategorien: ["Fußball", "Basketball", "Schwimmen", "Tanzen", "Klettern"], reihen: [{ name: "Stimmen", werte: [14, 9, 7, 11, 5] }], achseX: "Sportart", achseY: "Stimmen" };
+
+/* ============ Regelheft ============ */
+W.teil("Regelheft", "Schreiben");
+W.regelheft({
+  titel: "Säulen- und Balkendiagramm",
+  html: `<p>Ein <span class="rot">Säulendiagramm</span> vergleicht Werte. Die Säulen stehen aufrecht.</p>
+    <p>Ein <span class="rot">Balkendiagramm</span> vergleicht auch. Die Balken liegen. Es passt gut zu langen Namen.</p>
+    <p class="leer"></p>
+    <p>Je höher die Säule (je länger der Balken), desto größer der Wert.</p>
+    <p>Jedes Diagramm bekommt einen <span class="rot">Titel</span>.</p>`,
+  lehrer: { ziel: "Die Kernaussagen zu Säulen- und Balkendiagramm stehen im Heft.",
+    anleitung: "Etwa 5 Minuten. Die Klasse schreibt ab. Erst nach dem Abhaken erscheint die erste Aufgabe.",
+    loesung: "Der Eintrag steht vollständig im Heft (vier kurze Aussagen)." }
+});
+
+/* ============ Teil 2 ============ */
+W.teil("Verstehen und üben", "Sehen · Ausprobieren");
+
+W.aufgabe({
+  titel: "Was zeigt ein Säulendiagramm?",
+  auftrag: "Sieh dir das Bild an: Ein Schüler zeigt in der Klasse auf ein Säulendiagramm. Beantworte dann die Fragen.",
+  vorwissen: "<p>Ein <b>Diagramm</b> macht Zahlen sichtbar. Statt einer langen Liste siehst du auf einen Blick, was groß und was klein ist.</p>",
+  hinweise: ["Vergleiche die Säulen: Welche sind höher, welche niedriger?", "Eine hohe Säule bedeutet: Der Wert ist groß. Eine niedrige Säule bedeutet: Der Wert ist klein.", "Frage 1: Die höchste Säule gehört zum größten Wert. Frage 2: Säulen helfen beim Vergleichen."],
+  lehrer: { ziel: "Verstehen: Die Höhe einer Säule zeigt die Größe eines Wertes; Säulen helfen beim Vergleichen.",
+    anleitung: "Bild am Beamer zeigen und fragen: „Was würdet ihr gern in so einem Diagramm vergleichen?“ Danach die zwei Fragen in Einzelarbeit.",
+    loesung: "Frage 1: Ihr Wert ist der größte. Frage 2: Werte miteinander vergleichen.",
+    fehler: ["Kinder meinen, die Säule ganz links sei die wichtigste. Die Reihenfolge der Säulen sagt nichts über die Größe."] },
+  bau(box) {
+    box.innerHTML = `<figure class="bild9"><img class="zoomable" src="assets/bilder/saeulen-balken.jpg" width="1280" height="853" loading="lazy" alt="Klassenzimmer: Ein lächelnder Schüler im blauen Pullover zeigt an der Tafel auf ein Diagramm mit fünf bunten Säulen in verschiedenen Höhen. Zwei Mitschüler sehen von hinten zu.">
+      <figcaption>Fünf Säulen, fünf Werte: Welche ist am größten? (Bild mit KI erstellt)</figcaption></figure><div class="mc"></div>`;
+    Modul.makeMC($(".mc", box), [
+      { q: "Eine Säule ist höher als alle anderen. Was sagt das aus?", o: ["Ihr Wert ist der größte.", "Sie steht am weitesten links.", "Ihr Wert ist der kleinste.", "Sie hat die schönste Farbe."], a: 0, e: "Je höher die Säule, desto größer der Wert." },
+      { q: "Wozu benutzt man ein Säulendiagramm?", o: ["um Werte miteinander zu vergleichen", "um einen Text zu schreiben", "um die Uhrzeit abzulesen", "um ein Foto zu bearbeiten"], a: 0, e: "Säulen machen sichtbar, welcher Wert größer oder kleiner ist." }
+    ], "mc-bild");
+  }
+});
+
+W.aufgabe({
+  titel: "Ein Säulendiagramm lesen",
+  auftrag: "Die 9. Klassen wurden gefragt: „Welchen Sport magst du am liebsten?“ Jedes Kind hatte genau eine Stimme. Sieh dir das Diagramm an und beantworte die Fragen.",
+  vorwissen: "<p>An der <b>senkrechten Achse</b> liest du die Zahl der Stimmen ab. Unter jeder Säule steht die Sportart.</p>",
+  hinweise: ["Suche die höchste und die niedrigste Säule. Dann liest du die Zahlen ab.", "Bei „Wie viele mehr“ rechnest du: größerer Wert minus kleinerer Wert.", "Frage 4: Zähle alle fünf Säulen zusammen: 14 + 9 + 7 + 11 + 5."],
+  lehrer: { ziel: "Werte in einem Säulendiagramm ablesen und einfach verrechnen.",
+    anleitung: "Am Beamer zeigen. Ein Kind fährt mit dem Finger von der Säule zur Achse und liest die Zahl vor.",
+    loesung: "Fußball · Klettern · 7 (14 − 7) · 46 (14 + 9 + 7 + 11 + 5).",
+    fehler: ["Bei „Wie viele mehr“ wird addiert statt subtrahiert.", "Bei der Gesamtzahl wird nur die höchste Säule genommen."] },
+  bau(box) {
+    box.innerHTML = '<div class="dg"></div><div class="mc"></div>';
+    Modul.diagramm($(".dg", box), SPORT_DG);
+    Modul.makeMC($(".mc", box), [
+      { q: "Welche Sportart hat die höchste Säule?", o: ["Fußball", "Tanzen", "Basketball", "Klettern"], a: 0, e: "Fußball hat 14 Stimmen, das ist der größte Wert." },
+      { q: "Welche Sportart wurde am seltensten gewählt?", o: ["Klettern", "Schwimmen", "Tanzen", "Basketball"], a: 0, e: "Klettern hat nur 5 Stimmen, die kleinste Säule." },
+      { q: "Wie viele Stimmen mehr hat Fußball als Schwimmen?", o: ["7", "5", "9", "21"], a: 0, e: "Fußball hat 14, Schwimmen hat 7. Der Unterschied ist 14 − 7 = 7." },
+      { q: "Wie viele Kinder haben insgesamt abgestimmt?", o: ["46", "14", "26", "36"], a: 0, e: "Jedes Kind hatte eine Stimme: 14 + 9 + 7 + 11 + 5 = 46." }
+    ], "mc-lesen");
+  }
+});
+
+W.aufgabe({
+  titel: "Säulen stehen, Balken liegen",
+  auftrag: "Dieselben Zahlen kannst du auch als Balkendiagramm zeigen. Sieh zu, was sich ändert.",
+  hinweise: ["Tippe auf „Start“ oder auf die Zahlen 1 bis 4.", "Achte darauf, wo die Namen stehen: unten oder links.", "Schritt 3: Lange Namen haben im Balkendiagramm links viel Platz. Unter Säulen würden sie sich drängeln."],
+  lehrer: { ziel: "Verstehen: Säulen stehen, Balken liegen; beide vergleichen Werte; für lange Namen sind Balken besser.",
+    anleitung: "Am Beamer durchklicken und bei Schritt 2 anhalten: „Was ist aus der Säule geworden?“ (ein Balken, er liegt).",
+    loesung: "Alle vier Schritte angesehen.",
+    fehler: ["Kinder klicken nur auf „Start“ und lesen nicht – nach Schritt 2 kurz anhalten lassen."],
+    bedienung: "„Start“ spielt alle Schritte ab, die Zahlen springen zu einem Schritt, ↺ beginnt neu." },
+  bau(box) {
+    box.innerHTML = '<div class="dg"></div><div class="sim"></div>';
+    const d = Modul.diagramm($(".dg", box), Object.assign({}, SPORT_DG));
+    const lang = ["Fußball im Verein", "Basketball in der Halle", "Schwimmen im Hallenbad", "Tanzen im Tanzstudio", "Klettern an der Boulderwand"];
+    Modul.makeSchritte($(".sim", box), {
+      start: "Tippe auf „Start“ oder gehe Schritt für Schritt.",
+      steps: [
+        "Das ist ein <b>Säulendiagramm</b>. Die Säulen <b>stehen</b>. Die Höhe zeigt den Wert, du liest ihn an der senkrechten Achse ab.",
+        "Dieselben Zahlen als <b>Balkendiagramm</b>: Die Balken <b>liegen</b>. Die Länge zeigt den Wert, du liest ihn an der waagerechten Achse ab.",
+        "Gleiche Zahlen, anderes Bild – aber du erkennst wieder sofort: <b>Fußball</b> ist am größten, <b>Klettern</b> am kleinsten.",
+        "Bei <b>langen Namen</b> sind Balken besser: Die Namen stehen links und haben viel Platz. Unter Säulen wären sie gequetscht."
+      ],
+      zeige(i) {
+        d.setze(i === 0 ? SPORT_DG : i === 3 ? { typ: "balken", kategorien: lang } : { typ: "balken", kategorien: SPORT_DG.kategorien });
+      }
+    }, "anim-balken");
+  }
+});
+
+W.aufgabe({
+  titel: "Säule oder Balken?",
+  auftrag: "Wähle bei jedem Fall das Diagramm, das sich besser lesen lässt.",
+  hinweise: ["Frage dich: Sind die Namen kurz oder lang?", "Kurze Namen passen gut zu Säulen. Lange Namen brauchen viel Platz: Das ist ein Fall für Balken.", "Fall 1 und 4: Säule. Fall 2 und 3: Balken (lange Namen)."],
+  lehrer: { ziel: "Entscheiden, ob Säulen oder Balken besser lesbar sind (kurze Namen: Säule; lange Namen: Balken).",
+    anleitung: "Ein Fall nach dem anderen; falsch entschiedene Fälle kommen noch einmal. Betonen: Beide Diagramme vergleichen Werte – es geht nur um die Lesbarkeit.",
+    loesung: "Vier Kinder: Säule · Berufe mit langen Namen: Balken · Gerichte mit langen Namen: Balken · Türme: Säule.",
+    fehler: ["Bei Fall 4 wird Balken gewählt. Die Namen sind kurz (Turm A, B und C) – dafür passen Säulen."] },
+  bau(box) {
+    Modul.makeEntscheiden(box, {
+      frage: "Was passt besser?",
+      optionen: ["Säulendiagramm", "Balkendiagramm"],
+      faelle: [
+        { html: "<b>Fall 1:</b> Vier Kinder (Ali, Bea, Cem, Dina) und ihre Körpergröße. Die Namen sind kurz.", kurz: "vier Kinder", a: 0, e: "Die Namen sind kurz. Für kurze Namen passen Säulen gut." },
+        { html: "<b>Fall 2:</b> Drei Ausbildungsberufe mit langen Namen: „Kraftfahrzeugmechatroniker/in“, „Fachverkäufer/in im Lebensmittelhandwerk“, „Elektroniker/in für Betriebstechnik“. Gezeigt wird, wie viele sich dafür interessieren.", kurz: "lange Berufsnamen", a: 1, e: "Lange Namen haben bei liegenden Balken links viel Platz." },
+        { html: "<b>Fall 3:</b> Vier Lieblingsgerichte: „Spaghetti mit Tomatensoße“, „Kartoffelsuppe mit Würstchen“, „Gemüsepfanne mit Reis“, „Pfannkuchen mit Apfelmus“.", kurz: "lange Gerichte", a: 1, e: "Lange Namen werden unter Säulen eng. Balken sind besser lesbar." },
+        { html: "<b>Fall 4:</b> Die Höhe von drei Türmen in Metern. Die Namen sind kurz: Turm A, B und C.", kurz: "drei Türme", a: 0, e: "Die Namen sind kurz. Für kurze Namen passen Säulen gut." }
+      ],
+      fertig: "Du wählst Säule oder Balken nach der Länge der Namen."
+    }, "ent-typ");
+  }
+});
+
+W.aufgabe({
+  titel: "Dein erstes Diagramm in GRUMI-EXCEL",
+  auftrag: "Jetzt machst du das Diagramm selbst. Zeige die Stimmen der Umfrage als Säulendiagramm.",
+  vorwissen: "<p>Ein Diagramm braucht drei Dinge: den <b>Datenbereich</b> (welche Zellen), den <b>Typ</b> (Säule, Balken …) und einen <b>Titel</b>.</p>",
+  hinweise: ["Tippe zuerst auf die erste Zelle des Bereichs und dann auf die letzte. Die Überschriften nimmst du mit.", "Der Bereich geht von A1 (Überschrift „Sportart“) bis B6 (die Zahl 5). Danach wählst du den Typ und schreibst einen Titel.", "Bereich <code>A1:B6</code> markieren, den Typ „Säule“ antippen, in das Feld „Titel“ zum Beispiel „Lieblingssport“ schreiben. Dann „Prüfen“."],
+  lehrer: { ziel: "Einen Datenbereich markieren, den Diagrammtyp Säule wählen und einen Titel schreiben.",
+    anleitung: "Vorführen: A1 antippen, B6 antippen, Typ wählen, Titel eintippen. Das Diagramm ändert sich sofort mit jeder Eingabe. Die Auswahl kann auch von Hand ins Feld „Bereich“ geschrieben werden.",
+    loesung: "Bereich A1:B6 (oder A2:B6), Typ Säule, eigener Titel, zum Beispiel „Lieblingssport der 9. Klassen“.",
+    fehler: ["Nur die Zahlen ohne die Namen werden markiert – dann fehlen die Beschriftungen.", "Der Titel fehlt. Jedes Diagramm braucht einen.", "Der Typ „Balken“ wird gewählt – gefragt sind Säulen."],
+    bedienung: "Zelle antippen, letzte Zelle antippen (oder mit der Maus ziehen). Das Diagramm erscheint, sobald Bereich und Typ gewählt sind." },
+  bau(box) {
+    Modul.makeDiagrammAufgabe(box, {
+      text: "Zeige die Stimmen der Umfrage als <b>Säulendiagramm</b>: Markiere die Daten, wähle den Typ und schreibe einen Titel.",
+      tabelle: { spalten: 2, zeilen: 6, breit: { A: 120 }, zellen: SPORT },
+      pruefe: z => [
+        p(G(z.bereich, "A1:B6") || G(z.bereich, "A2:B6"), "Der Datenbereich stimmt: alle fünf Sportarten mit ihren Stimmen.", "Markiere alle fünf Sportarten mit ihren Zahlen, am besten von A1 bis B6."),
+        p(z.typ === "saeule", "Der Typ stimmt: Säulen stehen aufrecht.", z.typ === "balken" ? "Das ist ein Balkendiagramm – gefragt sind Säulen, sie stehen aufrecht." : "Wähle den Typ „Säule“."),
+        p(z.titel.trim().length >= 3, "Das Diagramm hat einen Titel.", "Schreibe einen Titel über das Diagramm, zum Beispiel „Lieblingssport“.")
+      ],
+      loesung: { bereich: "A1:B6", typ: "saeule", titel: "Lieblingssport der 9. Klassen" },
+      erfolg: "Bereich, Typ und Titel: So entsteht ein Diagramm."
+    }, "dg-saeule");
+  }
+});
+
+W.aufgabe({
+  titel: "Dieselben Daten als Balken",
+  auftrag: "Ändere nur den Typ: Zeige die Umfrage jetzt als Balkendiagramm.",
+  hinweise: ["Du brauchst dieselben Daten wie vorher. Was ändert sich?", "Nur der Typ ändert sich. Bereich und Titel bleiben.", "Bereich <code>A1:B6</code>, Typ „Balken“, ein Titel. Bei Balken liegen die Namen links."],
+  lehrer: { ziel: "Merken: Die Daten bleiben gleich, nur der Diagrammtyp wechselt.",
+    anleitung: "Zeigen, dass man den Typ jederzeit wechseln kann, ohne die Daten neu zu markieren.",
+    loesung: "Bereich A1:B6, Typ Balken, eigener Titel.",
+    fehler: ["Der Typ „Säule“ bleibt stehen.", "Der Titel wird vergessen."] },
+  bau(box) {
+    Modul.makeDiagrammAufgabe(box, {
+      text: "Zeige dieselben Zahlen als <b>Balkendiagramm</b> mit einem Titel.",
+      tabelle: { spalten: 2, zeilen: 6, breit: { A: 120 }, zellen: SPORT },
+      pruefe: z => [
+        p(G(z.bereich, "A1:B6") || G(z.bereich, "A2:B6"), "Der Datenbereich stimmt.", "Markiere alle fünf Sportarten mit ihren Zahlen, am besten von A1 bis B6."),
+        p(z.typ === "balken", "Der Typ stimmt: Balken liegen.", z.typ === "saeule" ? "Das ist ein Säulendiagramm – gefragt sind liegende Balken." : "Wähle den Typ „Balken“."),
+        p(z.titel.trim().length >= 3, "Das Diagramm hat einen Titel.", "Schreibe einen Titel über das Diagramm.")
+      ],
+      loesung: { bereich: "A1:B6", typ: "balken", titel: "Lieblingssport der 9. Klassen" },
+      erfolg: "Gleiche Zahlen, anderes Bild."
+    }, "dg-balken");
+  }
+});
+
+/* ============ Teil 3: Am PC ============ */
+W.teil("Am PC: Excel", "Anwenden");
+
+W.aufgabe({
+  titel: "Lieblingssport in Excel",
+  geheim: ["Lieblingssport der 9. Klassen"],
+  auftrag: "Jetzt machst du es im echten Excel: Du erstellst aus der Umfrage ein Säulendiagramm mit Titel.",
+  vorwissen: "<p>Das Diagramm entsteht aus den markierten Zellen. Excel zeichnet es neben die Tabelle. Den Titel schreibst du selbst.</p>",
+  hinweise: ["Markiere die ganze Tabelle mit den Überschriften, dann geh in den Reiter „Einfügen“.", "In der Gruppe „Diagramme“ gibt es die Schaltfläche „Säulen- oder Balkendiagramm einfügen“. Wähle ein einfaches Säulendiagramm.", "Markiere A1 bis B6, füge die Säulen ein, ändere den Titel oben im Diagramm und speichere die Datei."],
+  lehrer: { ziel: "Im echten Excel eine Tabelle markieren, ein Säulendiagramm einfügen, den Titel ändern und speichern.",
+    anleitung: "Etwa 12 Minuten. Die Startdatei sport_start.xlsx liegt im Auftrag zum Herunterladen. Am Ende lädt jedes Kind seine gespeicherte Datei hoch; der Server prüft sie (Diagramm vorhanden, Typ Säule, alle fünf Sportarten, eigener Titel) und die KI schreibt eine Rückmeldung. Am Tablet gibt es stattdessen eine Frage.",
+    loesung: "Ein Säulendiagramm über A1:B6 mit eigenem Titel, zum Beispiel „Lieblingssport der 9. Klassen“. Gespeichert als sport.xlsx.",
+    fehler: ["Der Titel zeigt noch „Stimmen“ (der Name der Spalte). Das ist der automatische Titel und zählt nicht als eigener Titel.", "Ein Balkendiagramm statt Säulen gewählt – dann meldet die Prüfung, dass Säulen gefragt sind.", "Nur die Zahlen markiert (B1 bis B6): Dann fehlen unter den Säulen die Namen.", "Die Datei wurde nicht unter dem Namen sport gespeichert."],
+    bedienung: "„Datei auswählen“ → die gespeicherte .xlsx-Datei. Die Rückmeldung nennt jeden Prüfpunkt einzeln.",
+    test: "Aufgabe, Musterlösung und Dateiprüfung automatisch geprüft (Chrome und Safari-Testbrowser). Die Namen Reiter „Einfügen“, Gruppe „Diagramme“ und „Säulen- oder Balkendiagramm einfügen“ stammen aus Excel 16 (deutsch). Wortlaut an einem Schul-PC prüfen: der Eintrag in der aufgeklappten Liste (einfache Säule) und das Ändern des Titels per Klick." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Lieblingssport in Excel", pc: "Excel", zeit: "etwa 12 Minuten",
+      ziel: "Excel zeigt ein Säulendiagramm der fünf Sportarten. Es hat einen eigenen Titel und die Datei ist gespeichert.",
+      material: [{ name: "Startdatei sport_start.xlsx", href: "assets/excel/sport_start.xlsx" }],
+      schritte: [
+        `Lade die Startdatei herunter und öffne sie in Excel. Erscheint oben ein gelber Balken, klicke auf <span class="menue">Bearbeitung aktivieren</span>.`,
+        "Markiere die ganze Tabelle mit den Überschriften: Klicke auf <b>A1</b>, halte die Maustaste gedrückt und ziehe bis <b>B6</b>. Die Zellen von A1 bis B6 sind markiert.",
+        `Klicke oben auf den Reiter <span class="menue">Einfügen</span>. In der Gruppe <span class="menue">Diagramme</span> klickst du auf <span class="menue">Säulen- oder Balkendiagramm einfügen</span>.`,
+        "Wähle in der Liste ein einfaches <b>Säulendiagramm</b>. Säulen stehen aufrecht, Balken liegen – nimm die aufrechten.",
+        "Das Diagramm erscheint auf dem Blatt. Oben steht schon ein Titel. Das ist nur der Name der Spalte, nicht dein eigener Titel.",
+        "Ändere den Titel: Klicke auf den Titel im Diagramm, markiere den Text und schreibe deinen eigenen Titel, zum Beispiel <b>Lieblingssport der 9. Klassen</b>. Klicke danach auf eine freie Stelle neben dem Diagramm.",
+        `Speichere die Datei unter einem neuen Namen: Klicke auf <span class="menue">Datei</span> und dann auf <span class="menue">Speichern unter</span>. Wähle deinen Ordner, tippe den Namen <b>sport</b> ein und klicke auf <span class="menue">Speichern</span>.`
+      ],
+      loesung: "Ein Säulendiagramm über A1:B6 mit eigenem Titel. Die Datei heißt sport.xlsx.",
+      pruefung: {
+        art: "datei", accept: ".xlsx", lies: Modul.liesExcel, pruefe: (Modul.excelPruefung || {})["saeulen-balken-auf1"], server: { pfad: "/api/inf9/excel/pruefen", aufgabe: "saeulen-balken-auf1" },
+        text: "Wähle deine gespeicherte Datei <b>sport.xlsx</b> aus. Sie wird geprüft, und die KI schreibt dir eine Rückmeldung. Deine Lehrkraft kann die Datei danach ansehen.",
+        ersatz: { art: "wort", frage: "Welche Sportart hat in deinem Diagramm die höchste Säule?", antworten: ["Fußball", "Fussball"],
+          tipp: "Sieh dir in deinem Diagramm an, welche Säule am höchsten ist. Der Wert steht in der Tabelle." }
+      }
+    }, "auf1");
+  }
+});
+
+/* ============ Teil 4: Wiederholen ============ */
+W.teil("Wiederholen", "Andere Zahlen");
+
+W.aufgabe({
+  titel: "Ausleihen in der Schulbücherei",
+  auftrag: "Die Schulbücherei zählt, wie oft in einer Woche jede Buchart ausgeliehen wurde. Zeige den Vergleich in einem Diagramm.",
+  hinweise: ["Es geht um einen Vergleich von Werten. Welche Typen vergleichen Werte?", "Säule oder Balken passen beide. Markiere die Überschriften mit.", "Bereich <code>A1:B6</code>, Typ Säule oder Balken, ein Titel."],
+  lehrer: { ziel: "Den ganzen Ablauf mit anderen Zahlen allein wiederholen: Bereich, Typ, Titel.",
+    anleitung: "Einzelarbeit. Danach fragen: „Welche Buchart wurde am häufigsten ausgeliehen?“ (Comics, 25).",
+    loesung: "Bereich A1:B6, Typ Säule oder Balken, eigener Titel.",
+    fehler: ["Ein Kreis oder eine Linie wird gewählt – hier werden Werte verglichen.", "Der Titel fehlt."] },
+  bau(box) {
+    Modul.makeDiagrammAufgabe(box, {
+      text: "Zeige, welche Buchart wie oft ausgeliehen wurde. Wähle einen passenden Typ und gib dem Diagramm einen Titel.",
+      tabelle: { spalten: 2, zeilen: 6, breit: { A: 120 }, zellen: { A1: "Buchart", B1: "Ausleihen", A2: "Krimi", B2: "18", A3: "Comics", B3: "25", A4: "Sachbuch", B4: "9", A5: "Fantasy", B5: "21", A6: "Sport", B6: "7" } },
+      pruefe: z => [
+        p(G(z.bereich, "A1:B6") || G(z.bereich, "A2:B6"), "Der Datenbereich stimmt: alle fünf Buchsorten.", "Markiere alle fünf Buchsorten mit ihren Zahlen, am besten von A1 bis B6."),
+        p(z.typ === "saeule" || z.typ === "balken", "Der Typ passt: Säulen oder Balken vergleichen Werte.", z.typ ? "Zum Vergleichen von Werten passen Säulen oder Balken." : "Wähle einen Typ: Säule oder Balken."),
+        p(z.titel.trim().length >= 3, "Das Diagramm hat einen Titel.", "Schreibe einen Titel über das Diagramm.")
+      ],
+      loesung: { bereich: "A1:B6", typ: "saeule", titel: "Ausleihen in einer Woche" },
+      erfolg: "Du erstellst ein Diagramm ganz allein."
+    }, "dg-wdh");
+  }
+});
+
+/* ============ Teil 5: Kontrollieren ============ */
+W.teil("Kontrollieren", "Lerncheck");
+
+W.aufgabe({
+  titel: "Lerncheck",
+  auftrag: "Richtig oder falsch? Entscheide bei jeder Aussage.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Säulen stehen aufrecht, Balken liegen.", "Richtig sind die Aussagen zum Vergleichen, zur Höhe und zu langen Namen. Falsch sind die Aussagen zu Säulen und Balken vertauscht und zum Titel."],
+  lehrer: { ziel: "Kernwissen der Stunde sichern.", anleitung: "Einzelarbeit, etwa 3 Minuten.", loesung: "richtig · falsch · richtig · falsch · richtig", fehler: ["Aussage 2: Säulen stehen, Balken liegen – nicht umgekehrt.", "Aussage 4: Ein Diagramm braucht immer einen Titel."] },
+  bau(box) {
+    Modul.makeTF(box, [
+      ["Ein Säulendiagramm vergleicht Werte.", true],
+      ["Balken stehen aufrecht, Säulen liegen.", false],
+      ["Je höher die Säule, desto größer der Wert.", true],
+      ["Ein Diagramm braucht keinen Titel.", false],
+      ["Für lange Namen passt ein Balkendiagramm gut.", true]
+    ], "tf");
+  }
+});
+
+W.fertig();
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

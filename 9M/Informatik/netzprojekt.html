@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Eigenes Netzwerkprojekt | Informatik 9</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="../../8M/Informatik/einheit8.css">
+<link rel="stylesheet" href="einheit9.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 9</small></a>
+    <nav class="stations" id="stations"></nav>
+    <span class="stars" id="stars">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks">
+      <a href="index.html">Übersicht Informatik 9M</a>
+      <a href="../../9R/Informatik/index.html">Übersicht Informatik 9R</a>
+      <a href="../../index.html">Startseite</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 9 · Modul 1: Netzwerke mit Filius · Einheit 5</div>
+    <h1>Eigenes Netzwerkprojekt</h1>
+    <p>Jetzt wendest du alles an: Du bekommst den Netzplan für das Netz einer kleinen Schule und baust es in Filius nach. Danach zeichnest du den Plan selbst in dein Heft und suchst Fehler in einem fremden Plan.</p>
+    <div class="zeit">etwa 40 Minuten · Praxis am Windows-PC mit Filius</div>
+    <div class="goals">
+      <div>Ich lese einen Netzplan und baue das Netz in Filius nach.</div>
+      <div>Ich teste das Netz mit ping.</div>
+      <div>Ich zeichne einen Netzplan mit Geräten, Kabeln und Adressen.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="modulStand"></div>
+  <div id="weg"></div>
+</main>
+
+<footer class="wrap">Informatik 9 · Dein Fortschritt wird mit deinem Code gespeichert.</footer>
+
+<div id="pop" role="dialog"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info9.js"></script>
+<script src="../../7M/Informatik/filius-datei.js"></script>
+<script src="filius9.js"></script>
+<script src="../../7M/Informatik/netz-bild.js"></script>
+<script>
+(function () {
+"use strict";
+const {$} = Modul;
+
+Modul.start9({
+  key: "grumi-i9-netzprojekt-v1",
+  thema: "Eigenes Netzwerkprojekt: Netzplan lesen, planen und zeichnen, Schulnetz mit zwei Netzen (Computerraum 192.168.1.x und Verwaltung 192.168.2.x) und einem Router in Filius bauen, Adressen und Gateways eintragen, mit ping testen, Fehler in einem Netzplan finden; Wortspeicher zum Modul Netzwerke (Simulationsprogramm Filius)",
+  glossary: {
+    netzplan: ["Netzplan", "Eine Zeichnung, die zeigt, welche Geräte es gibt, wie sie mit Kabeln verbunden sind und welche Adressen sie haben."],
+    router: ["Router", "Ein Gerät, das verschiedene Netze miteinander verbindet. In Filius heißt es „Vermittlungsrechner“."],
+    gateway: ["Gateway", "Die Adresse des Routers im eigenen Netz. Daran schickt ein Computer alles, was in ein anderes Netz soll."],
+    switch: ["Switch", "Ein Gerät mit vielen Anschlüssen. Es verbindet mehrere Geräte in einem Netz."],
+    ping: ["ping", "Ein Befehl, der kleine Pakete an eine Adresse schickt und zählt, wie viele Antworten zurückkommen."],
+    entwurfsmodus: ["Entwurfsmodus", "In diesem Modus von Filius (Hammer) baust und änderst du dein Netz. Nur hier kannst du speichern."],
+    aktionsmodus: ["Aktionsmodus", "In diesem Modus von Filius (grüner Pfeil) probierst du dein Netz aus, zum Beispiel mit ping."]
+  }
+});
+
+const W = Modul.lernweg("#weg");
+
+/* ============ Teil 1: Regelheft ============ */
+W.teil("Regelheft", "Schreiben");
+W.regelheft({
+  titel: "Ein Netz planen",
+  html: `<p>Ein <span class="rot">Netzplan</span> zeigt Geräte, Kabel und Adressen.</p>
+    <p class="leer"></p>
+    <p>So gehst du vor: <span class="blau">Plan lesen</span> – <span class="blau">Geräte aufstellen und benennen</span> – <span class="blau">Kabel ziehen, Adressen und Gateways eintragen</span> – <span class="blau">speichern</span> – <span class="blau">mit ping testen</span>.</p>
+    <p class="leer"></p>
+    <p>Beispiel: Ein Router hat in jedem Netz eine Adresse, zum Beispiel <span class="blau">192.168.1.1</span> und <span class="blau">192.168.2.1</span>.</p>`,
+  lehrer: { ziel: "Die Kernaussagen der Stunde stehen im Heft: Was ein Netzplan zeigt und in welcher Reihenfolge man ein Netz baut.",
+    anleitung: "Etwa 4 Minuten. Die Klasse schreibt ab. Erst nach dem Abhaken erscheint die erste Aufgabe.",
+    loesung: "Der Eintrag steht vollständig im Heft." }
+});
+
+/* ============ Teil 2: Planen ============ */
+W.teil("Planen", "Sehen · Lesen · Ordnen");
+
+W.aufgabe({
+  titel: "Das Netz einer Schule",
+  auftrag: "Sieh dir das Bild an: Ein Schulflur von oben, mit Computerraum, Büro und einem Schrank in der Mitte. Leuchtende Linien führen von den Räumen zum Schrank. Beantworte die zwei Fragen.",
+  vorwissen: "<p>In vielen Schulen steht in einem Schrank im Flur das „Herz“ des Netzes: Switches und Router. Von dort laufen Kabel in die Räume.</p>",
+  hinweise: ["Folge den leuchtenden Linien mit dem Finger.", "Die Linien kommen aus dem Computerraum und aus dem Büro und laufen in dem Schrank in der Flurmitte zusammen.", "Frage 1: im Netzwerkschrank. Frage 2: Der Computerraum und das Büro sind getrennte Netze. Ein Router verbindet sie."],
+  lehrer: { ziel: "Ein Schulnetz aus mehreren Räumen als Beispiel für zwei verbundene Netze kennenlernen.",
+    anleitung: "Bild am Beamer zeigen und fragen: „Wo steht bei uns der Netzwerkschrank?“ Wenn möglich, den echten Verteiler im Flur zeigen. Das Bild ist Vorbild für das Schulnetz im Auftrag.",
+    loesung: "Frage 1: im Netzwerkschrank (Verteilerschrank). Frage 2: ein Router.",
+    fehler: ["Es wird gemeint, jeder Raum brauche eine eigene Verbindung ins Internet – hier geht es um Netze innerhalb der Schule."] },
+  bau(box) {
+    box.innerHTML = `<figure class="bild9"><img class="zoomable" src="assets/bilder/netzprojekt.jpg" width="1280" height="853" loading="lazy" alt="Ein Schulgebäude von schräg oben ohne Dach. Links ein Computerraum mit zwölf Jugendlichen an Computern in zwei Reihen und einer Lehrkraft an der Tafel. Rechts oben ein Büro mit zwei Personen an Schreibtischen. In der Mitte, im Flur, steht ein Netzwerkschrank mit Geräten und Lämpchen. Leuchtende blaue Linien führen vom Computerraum und vom Büro zu diesem Schrank.">
+      <figcaption>Computerraum, Büro und ein Netzwerkschrank im Flur. (Bild mit KI erstellt)</figcaption></figure><div class="mc"></div>`;
+    Modul.makeMC($(".mc", box), [
+      { q: "Wo laufen die leuchtenden Linien (die Kabel) zusammen?", o: ["im Netzwerkschrank im Flur", "im Lehrerzimmer", "auf der Tafel", "im Treppenhaus"], a: 0,
+        e: "Vom Computerraum und vom Büro führen Kabel zum Netzwerkschrank. Dort stehen Switches und Router." },
+      { q: "Computerraum und Büro sind zwei getrennte Netze. Was verbindet sie?", o: ["ein Router", "ein Bildschirm", "ein Drucker", "ein Mikrofon"], a: 0,
+        e: "Ein Router verbindet verschiedene Netze. Jedes Netz hat dort eine eigene Adresse." }
+    ], "mc-schule");
+  }
+});
+
+W.aufgabe({
+  titel: "Den Netzplan lesen",
+  auftrag: "Das ist der Netzplan des Schulnetzes, das du gleich in Filius baust. Lies ihn und beantworte die Fragen.",
+  vorwissen: "<p>Im Netzplan ist jedes Gerät ein Symbol mit Namen. Eine Linie ist ein Kabel. Unter dem Namen steht die Adresse.</p>",
+  hinweise: ["Zähle die Computer, die am Switch Computerraum hängen.", "Der Router steht in der Mitte. Er hat zwei Adressen: eine für jedes Netz.", "Frage 1: drei (CR 1, CR 2, CR 3). Frage 2: 192.168.2.11. Frage 3: 192.168.2.1 – die Adresse, die zum Netz der Verwaltung gehört. Frage 4: Zähle jede Linie: 3 + 2 + 2."],
+  lehrer: { ziel: "Einen Netzplan lesen: Geräte, Kabel, Adressen und die zwei Adressen des Routers.",
+    anleitung: "Vorher klären: Symbol = Gerät, Linie = Kabel, darunter Name und Adresse. Der Plan ist die Vorlage für das Filius-Projekt – ein Kind kann ihn gern abschreiben oder den Bildschirm daneben legen.",
+    loesung: "Frage 1: drei · Frage 2: 192.168.2.11 · Frage 3: 192.168.2.1 · Frage 4: 7.",
+    fehler: ["Frage 3: 192.168.1.1 wird gewählt – die gehört zum Netz des Computerraums.", "Frage 4: Es werden die Geräte (8) statt der Linien gezählt."] },
+  bau(box) {
+    box.innerHTML = '<div class="nb"></div><div class="mc"></div>';
+    Modul.netzBild($(".nb", box), { b: 680, h: 340, alt: "Netzplan des Schulnetzes. Links der Switch Computerraum mit drei Computern: CR 1 mit 192.168.1.10, CR 2 mit 192.168.1.11 und CR 3 mit 192.168.1.12. Rechts der Switch Verwaltung mit zwei Computern: Sekretariat mit 192.168.2.10 und Schulleitung mit 192.168.2.11. In der Mitte der Schulrouter mit den zwei Adressen 192.168.1.1 und 192.168.2.1. Beide Switches sind mit je einem Kabel an den Router angeschlossen.",
+      geraete: [{ id: "s1", art: "switch", x: 160, y: 100, name: "Switch Computerraum" }, { id: "r", art: "router", x: 340, y: 100, name: "Schulrouter", ip: "192.168.1.1 / 192.168.2.1" }, { id: "s2", art: "switch", x: 540, y: 100, name: "Switch Verwaltung" },
+        { id: "c1", art: "pc", x: 60, y: 250, name: "CR 1", ip: "192.168.1.10" }, { id: "c2", art: "pc", x: 170, y: 270, name: "CR 2", ip: "192.168.1.11" }, { id: "c3", art: "pc", x: 280, y: 250, name: "CR 3", ip: "192.168.1.12" },
+        { id: "k", art: "pc", x: 470, y: 250, name: "Sekretariat", ip: "192.168.2.10" }, { id: "l", art: "pc", x: 610, y: 250, name: "Schulleitung", ip: "192.168.2.11" }],
+      kabel: [["c1", "s1"], ["c2", "s1"], ["c3", "s1"], ["k", "s2"], ["l", "s2"], ["s1", "r"], ["s2", "r"]] });
+    Modul.makeMC($(".mc", box), [
+      { q: "Wie viele Computer hängen am Switch Computerraum?", o: ["drei", "zwei", "vier", "fünf"], a: 0, e: "CR 1, CR 2 und CR 3 hängen am Switch Computerraum." },
+      { q: "Welche Adresse hat die Schulleitung?", o: ["192.168.2.11", "192.168.1.11", "192.168.2.10", "192.168.2.1"], a: 0, e: "Die Schulleitung hat 192.168.2.11. Das Sekretariat hat 192.168.2.10." },
+      { q: "Welche Adresse hat der Schulrouter im Netz der Verwaltung?", o: ["192.168.2.1", "192.168.1.1", "192.168.2.10", "192.168.1.10"], a: 0, e: "Der Router hat in jedem Netz eine Adresse. Im Netz der Verwaltung (192.168.2.x) ist es 192.168.2.1." },
+      { q: "Wie viele Kabel (Linien) zeichnet der Plan insgesamt?", o: ["7", "8", "5", "6"], a: 0, e: "Drei Kabel im Computerraum, zwei in der Verwaltung und zwei vom Router zu den Switches: 3 + 2 + 2 = 7." }
+    ], "mc-plan");
+  }
+});
+
+W.aufgabe({
+  titel: "In welcher Reihenfolge baust du ein Netz?",
+  auftrag: "Bringe die fünf Schritte in die richtige Reihenfolge. Nutze die Pfeile.",
+  hinweise: ["Denke an dein Regelheft: Plan lesen – Geräte aufstellen und benennen – Kabel ziehen, Adressen und Gateways eintragen – speichern – mit ping testen.", "Erst müssen die Geräte stehen, dann kommen Kabel und Adressen. Gespeichert wird, wenn alles eingestellt ist. Getestet wird zuletzt.", "1. Plan lesen · 2. Geräte aufstellen und benennen · 3. Kabel ziehen, Adressen und Gateways eintragen · 4. speichern · 5. mit ping testen."],
+  lehrer: { ziel: "Den Ablauf einer Netzwerkplanung in der richtigen Reihenfolge nennen.",
+    anleitung: "Einzelarbeit, etwa 3 Minuten. Die Seite nimmt die Reihenfolge aus dem Heft. Andere Vorschläge im Gespräch würdigen: Ob erst Kabel oder erst Adressen, ist gleich. Gespeichert wird in Filius nur im Entwurfsmodus.",
+    loesung: "Plan lesen · Geräte aufstellen und benennen · Kabel ziehen, Adressen und Gateways eintragen · speichern · mit ping testen.",
+    fehler: ["Der Test steht ganz vorn – ohne Kabel und Adressen kann es nichts zu testen geben."] },
+  bau(box) {
+    Modul.makeOrder(box, [
+      "Den Netzplan lesen.",
+      "Die Geräte aufstellen und benennen.",
+      "Kabel ziehen, Adressen und Gateways eintragen.",
+      "Das Netz speichern.",
+      "Mit ping testen."
+    ], "order-bau");
+  }
+});
+
+W.aufgabe({
+  titel: "Den Adressplan ergänzen",
+  auftrag: "Hier ist der Adressplan des Schulnetzes als Tabelle. Beim Gateway von CR 2 ist ein Fragezeichen. Beantworte die Fragen.",
+  hinweise: ["Das Gateway ist die Adresse des Routers im Netz des Computers.", "CR 2 steht im Computerraum, genau wie CR 1 und CR 3. Schau, welches Gateway sie haben.", "Frage 1: 192.168.1.1. Frage 2: Im Computerraum sind .10, .11 und .12 vergeben, frei ist .13. Frage 3: Im Netz der Verwaltung sind .10 und .11 vergeben und .1 gehört dem Router – frei ist .12."],
+  lehrer: { ziel: "Den Adressplan mit neuen Zahlen ergänzen: Gateway nach Netz, freie Adresse im richtigen Netz.",
+    anleitung: "Die Kinder brauchen kein Filius. Wer schnell ist, überlegt, welche Adresse ein Drucker im Computerraum bekommen könnte (192.168.1.14 oder höher).",
+    loesung: "Frage 1: 192.168.1.1 · Frage 2: 192.168.1.13 · Frage 3: 192.168.2.12.",
+    fehler: ["Frage 2: 192.168.1.1 wird gewählt, weil „.1“ noch frei aussieht – sie gehört dem Router.", "Frage 3: 192.168.1.14 – frei, aber im falschen Netz."] },
+  bau(box) {
+    box.innerHTML = `<table class="tab9" style="border-collapse:collapse;margin:0 0 12px"><thead><tr><th style="text-align:left;padding:4px 14px 4px 0">Gerät</th><th style="text-align:left;padding:4px 14px 4px 0">IP-Adresse</th><th style="text-align:left;padding:4px 0">Gateway</th></tr></thead><tbody>
+      <tr><td style="padding:3px 14px 3px 0">CR 1</td><td style="padding-right:14px"><code>192.168.1.10</code></td><td><code>192.168.1.1</code></td></tr>
+      <tr><td style="padding:3px 14px 3px 0">CR 2</td><td style="padding-right:14px"><code>192.168.1.11</code></td><td><b>?</b></td></tr>
+      <tr><td style="padding:3px 14px 3px 0">CR 3</td><td style="padding-right:14px"><code>192.168.1.12</code></td><td><code>192.168.1.1</code></td></tr>
+      <tr><td style="padding:3px 14px 3px 0">Sekretariat</td><td style="padding-right:14px"><code>192.168.2.10</code></td><td><code>192.168.2.1</code></td></tr>
+      <tr><td style="padding:3px 14px 3px 0">Schulleitung</td><td style="padding-right:14px"><code>192.168.2.11</code></td><td><code>192.168.2.1</code></td></tr>
+      <tr><td style="padding:3px 14px 3px 0">Schulrouter</td><td style="padding-right:14px"><code>192.168.1.1</code> und <code>192.168.2.1</code></td><td>–</td></tr></tbody></table><div class="mc"></div>`;
+    Modul.makeMC($(".mc", box), [
+      { q: "Welches Gateway bekommt CR 2?", o: ["192.168.1.1", "192.168.2.1", "192.168.1.11", "192.168.1.12"], a: 0,
+        e: "CR 2 steht im Computerraum (Netz 192.168.1.x). Sein Gateway ist die Adresse des Routers in diesem Netz: 192.168.1.1." },
+      { q: "Ein vierter PC kommt in den Computerraum. Welche Adresse ist frei und passt?", o: ["192.168.1.13", "192.168.1.12", "192.168.2.13", "192.168.1.1"], a: 0,
+        e: "Im Computerraum sind .10, .11 und .12 vergeben und .1 gehört dem Router. 192.168.1.13 ist frei und im richtigen Netz." },
+      { q: "Ein Drucker kommt in die Verwaltung. Welche Adresse passt?", o: ["192.168.2.12", "192.168.2.11", "192.168.1.14", "192.168.2.1"], a: 0,
+        e: "Im Netz der Verwaltung (192.168.2.x) sind .10 und .11 vergeben und .1 gehört dem Router. Frei ist zum Beispiel 192.168.2.12." }
+    ], "mc-adressen");
+  }
+});
+
+/* ============ Teil 3: Am PC ============ */
+W.teil("Am PC: Filius", "Bauen · Testen");
+
+const PLAN = [["CR 1", "192.168.1.10"], ["CR 2", "192.168.1.11"], ["CR 3", "192.168.1.12"], ["Sekretariat", "192.168.2.10"], ["Schulleitung", "192.168.2.11"]];
+
+function pruefeSchulnetz(n) {
+  // Namen großzügig vergleichen: „CR1“, „cr 1“ und „CR 1“ sind derselbe Computer
+  const glattN = s => String(s || "").toLowerCase().replace(/\s+/g, "");
+  const find = nm => n.rechner.find(g => glattN(g.name) === glattN(nm));
+  const cr = ["CR 1", "CR 2", "CR 3"].map(find), vw = ["Sekretariat", "Schulleitung"].map(find);
+  const fehlend = PLAN.map(p => p[0]).filter(nm => !find(nm));
+  const r = n.router[0], an = r && r.anschluesse ? r.anschluesse : [];
+  const swCR = cr[0] ? n.switchVon(cr[0].id)[0] : null, swV = vw[0] ? n.switchVon(vw[0].id)[0] : null;
+  const geraeteOk = fehlend.length === 0 && n.switches.length === 2 && n.router.length === 1;
+  // Adressen
+  const falsch = PLAN.map(p => { const g = find(p[0]); return g && !g.ips.includes(p[1]) ? p[0] + " hat " + (g.ips[0] || "keine Adresse") + ", im Plan steht " + p[1] : ""; }).filter(Boolean);
+  // Kabel
+  const kab = [];
+  cr.forEach((g, i) => { if (g && (!swCR || !n.switchVon(g.id).includes(swCR))) kab.push(PLAN[i][0] + " hängt nicht am Switch Computerraum"); });
+  vw.forEach((g, i) => { if (g && (!swV || !n.switchVon(g.id).includes(swV))) kab.push(PLAN[3 + i][0] + " hängt nicht am Switch Verwaltung"); });
+  const getrennt = !!swCR && !!swV && swCR !== swV;
+  // Gateways
+  const gw = (g, nm, soll) => !g ? "" : !g.gateway ? "Bei " + nm + " fehlt das Gateway. Trage " + soll + " ein." : g.gateway !== soll ? "Bei " + nm + " steht das Gateway " + g.gateway + ". Es muss " + soll + " sein." : "";
+  const gwCR = cr.map((g, i) => gw(g, PLAN[i][0], "192.168.1.1")).filter(Boolean), gwV = vw.map((g, i) => gw(g, PLAN[3 + i][0], "192.168.2.1")).filter(Boolean);
+  const amCR = !!r && !!swCR && an.some(a => a.ip === "192.168.1.1" && a.switch === swCR), amV = !!r && !!swV && an.some(a => a.ip === "192.168.2.1" && a.switch === swV);
+  return [
+    { ok: geraeteOk, text: geraeteOk ? "Fünf Computer, zwei Switches und ein Router stehen auf der Fläche." : (fehlend.length ? "Es fehlt oder heißt anders: " + fehlend.join(", ") + ". Schreibe die Namen wie im Plan (zum Beispiel „CR 1“). " : "") + (n.switches.length !== 2 ? "Es sollen zwei Switches sein, gefunden: " + n.switches.length + ". " : "") + (n.router.length !== 1 ? "Es soll ein Router (Vermittlungsrechner) sein, gefunden: " + n.router.length + "." : "") },
+    { ok: falsch.length === 0 && fehlend.length === 0, text: falsch.length === 0 && fehlend.length === 0 ? "Alle fünf Computer haben die Adresse aus dem Plan." : falsch.length ? falsch.join(". ") + "." : "Ohne alle fünf Computer lassen sich die Adressen nicht prüfen." },
+    { ok: kab.length === 0 && getrennt && fehlend.length === 0, text: kab.length === 0 && getrennt && fehlend.length === 0 ? "Die drei Computer des Computerraums hängen am einen Switch, Sekretariat und Schulleitung am anderen." : kab.length ? kab.join(". ") + "." : "Die zwei Switches sollen getrennte Netze verbinden: CR 1 bis CR 3 an den einen, Sekretariat und Schulleitung an den anderen." },
+    { ok: amCR, text: amCR ? "Der Router hat am Switch Computerraum die Adresse 192.168.1.1." : "Der Anschluss des Routers zum Switch Computerraum soll die Adresse 192.168.1.1 haben. Er muss mit diesem Switch verbunden sein („Verbunden mit …“ im Reiter)." },
+    { ok: amV, text: amV ? "Der Router hat am Switch Verwaltung die Adresse 192.168.2.1." : "Der Anschluss des Routers zum Switch Verwaltung soll die Adresse 192.168.2.1 haben. Er muss mit diesem Switch verbunden sein („Verbunden mit …“ im Reiter)." },
+    { ok: gwCR.length === 0 && fehlend.length === 0, text: gwCR.length === 0 && fehlend.length === 0 ? "CR 1, CR 2 und CR 3 haben das Gateway 192.168.1.1." : gwCR.length ? gwCR.join(" ") : "Das Gateway der Computerraum-PCs lässt sich ohne alle Computer nicht prüfen." },
+    { ok: gwV.length === 0 && fehlend.length === 0, text: gwV.length === 0 && fehlend.length === 0 ? "Sekretariat und Schulleitung haben das Gateway 192.168.2.1." : gwV.length ? gwV.join(" ") : "Das Gateway der Verwaltung lässt sich ohne beide Computer nicht prüfen." }
+  ];
+}
+
+W.aufgabe({
+  titel: "Das Schulnetz bauen",
+  geheim: ["192.168.1.1", "192.168.2.1"],
+  auftrag: "Baue das Schulnetz nach dem Netzplan in Filius: drei Computer am Switch Computerraum, zwei am Switch Verwaltung und dazwischen der Schulrouter. Trage alle Adressen und Gateways ein.",
+  vorwissen: "<p>Du hast alles schon einmal gemacht: Geräte aufstellen (Einheit 3), Adressen vergeben (Einheit 2), Router und Gateway (letzte Einheit). Der Netzplan aus den vorigen Aufgaben ist deine Vorlage.</p>",
+  hinweise: ["Gehe in der Reihenfolge aus dem Regelheft vor: erst alle Geräte und Namen, dann die Kabel, dann Adressen und Gateways. Namen genau wie im Plan, zum Beispiel „CR 1“ mit Leerzeichen.", "Ziehe zuerst die Kabel vom Router: erst zum Switch Computerraum, dann zum Switch Verwaltung. Beim Router steht in jedem Reiter, mit welchem Switch er verbunden ist. Die Computer im Computerraum bekommen das Gateway des Routers im Netz 1, die in der Verwaltung das im Netz 2.", "Router: im Reiter mit „Verbunden mit Switch Computerraum“ → <code>192.168.1.1</code>, im Reiter mit „Verbunden mit Switch Verwaltung“ → <code>192.168.2.1</code>. Gateway bei CR 1, CR 2 und CR 3: <code>192.168.1.1</code>. Gateway bei Sekretariat und Schulleitung: <code>192.168.2.1</code>. Dann <kbd>Esc</kbd> und speichern als schulnetz."],
+  lehrer: { ziel: "Ein Netz mit zwei Teilnetzen nach einem Netzplan selbstständig in Filius bauen und einstellen.",
+    anleitung: "Filius 2.14.0 starten lassen. Es gibt keine Startdatei: Die Kinder bauen das Netz nach dem Plan aus der Aufgabe „Den Netzplan lesen“ (Plan notfalls an die Tafel schreiben). Am Ende lädt jedes Kind seine gespeicherte Datei hoch – sie wird nur im Browser geprüft, nichts verlässt das Gerät. Am Tablet gibt es stattdessen eine Frage. Sind unten Einstellungen offen, verdecken sie die Geräteleiste: kurz auf eine leere Stelle der Fläche klicken. Etwa 20 Minuten.",
+    loesung: "Acht Geräte: Switch Computerraum mit CR 1 (192.168.1.10), CR 2 (192.168.1.11), CR 3 (192.168.1.12); Switch Verwaltung mit Sekretariat (192.168.2.10) und Schulleitung (192.168.2.11); Schulrouter mit 192.168.1.1 (Anschluss zum Switch Computerraum) und 192.168.2.1 (Anschluss zum Switch Verwaltung). Gateway bei CR 1 bis CR 3: 192.168.1.1, bei Sekretariat und Schulleitung: 192.168.2.1. Sieben Kabel. Gespeichert als schulnetz.fls.<figure style=\"margin:8px 0 0\"><img class=\"zoomable\" src=\"assets/filius/netz-schulnetz.png\" loading=\"lazy\" alt=\"Filius im Entwurfsmodus, so sieht das fertige Netz aus: Links der Switch Computerraum mit CR 1, CR 2 und CR 3, rechts der Switch Verwaltung mit Sekretariat und Schulleitung, in der Mitte der Schulrouter mit je einem Kabel zu den beiden Switches.\" style=\"max-width:100%\"><figcaption>So sieht das fertige Netz in Filius aus (nur für die Lehrkraft).</figcaption></figure>",
+    fehler: ["Ein Computer wird am falschen Switch angeschlossen oder bekommt die Adresse aus dem anderen Netz – die Rückmeldung nennt Computer und Adresse.", "Ein Gateway fehlt oder gehört zum anderen Netz: Der ping bekommt später nur „Timeout!“ oder „Zieladresse nicht erreichbar“.", "Namen werden anders geschrieben („CR1“ statt „CR 1“) – die Rückmeldung nennt das, was fehlt.", "Die Eingabetaste wird vergessen: Das Feld sieht geändert aus, Filius hat es aber noch nicht übernommen.", "Gespeichert wird im Aktionsmodus nicht: zurück in den Entwurfsmodus (Hammer)."],
+    bedienung: "„Datei auswählen“ → die gespeicherte .fls-Datei. Die Rückmeldung nennt jeden Prüfpunkt einzeln, auch den Computer und die Einstellung, bei der noch etwas fehlt." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Netz für Computerraum und Verwaltung", pc: "Filius", zeit: "etwa 20 Minuten",
+      ziel: "Ein Netz mit zwei Switches, fünf Computern und einem Router, genau wie im Netzplan. Alle Adressen und Gateways stimmen. Dein Netz ist als schulnetz.fls gespeichert.",
+      schritte: [
+        `Öffne <b>Filius</b>. Steht noch etwas auf der Fläche, klicke oben links auf das <span class="menue">weiße Blatt</span> (neues Projekt) und antworte auf die Frage „Fortfahren?“ mit „Ja“.`,
+        `Ziehe links aus der Leiste fünf <span class="menue">Rechner</span> mit <b>gedrückter</b> Maustaste auf die Fläche: links drei, rechts zwei. Dazwischen und darüber ist Platz für die Switches und den Router.`,
+        `Ziehe zwei <span class="menue">Switch / WLAN</span> auf die Fläche: einen über die drei linken Rechner, einen über die zwei rechten.`,
+        { t: `Ziehe den <span class="menue">Vermittlungsrechner</span> in die Mitte. Im Fenster <span class="menue">Anzahl Schnittstellen</span> lässt du die <b>2</b> stehen und klickst auf <span class="menue">OK</span>.`, bild: "assets/filius/router-schnittstellen-dialog.png", alt: "Ein kleines Fenster mit der Frage nach der Anzahl der Schnittstellen des Vermittlungsrechners. Im Auswahlfeld steht 2, darunter die Knöpfe OK und Abbrechen." },
+        `Mache einen <b>Doppelklick</b> auf jedes Gerät und gib den Namen ein. Rechner: <b>CR 1</b>, <b>CR 2</b>, <b>CR 3</b> (links) und <b>Sekretariat</b>, <b>Schulleitung</b> (rechts). Switches: <b>Switch Computerraum</b> (links) und <b>Switch Verwaltung</b> (rechts). Router: <b>Schulrouter</b>. Nach jeder Eingabe die Eingabetaste.`,
+        `Bei den Rechnern schreibst du noch die Adresse bei <span class="menue">IP-Adresse</span>: CR 1 <b>192.168.1.10</b>, CR 2 <b>192.168.1.11</b>, CR 3 <b>192.168.1.12</b>, Sekretariat <b>192.168.2.10</b>, Schulleitung <b>192.168.2.11</b>. Switches brauchen keine.`,
+        `Klicke oben links auf <span class="menue">Verbindung</span>, dann auf einen Rechner und dann auf seinen Switch. So bekommt jeder der fünf Rechner ein Kabel zu seinem Switch: CR 1 bis CR 3 zum Switch Computerraum, Sekretariat und Schulleitung zum Switch Verwaltung.`,
+        `Ziehe zwei Kabel vom Router: zuerst Verbindung, Router, <b>Switch Computerraum</b>. Dann Verbindung, Router, <b>Switch Verwaltung</b>. Das <b>erste</b> Kabel gehört zum ersten Anschluss des Routers. Drücke zum Schluss <kbd>Esc</kbd>.`,
+        { t: `Doppelklick auf den Router. Öffne die Reiter nacheinander. In einem Reiter steht <b>Verbunden mit Switch Computerraum</b>: Schreibe dort bei <span class="menue">IP-Adresse</span> <b>192.168.1.1</b>. Im anderen Reiter steht <b>Verbunden mit Switch Verwaltung</b>: Dort schreibst du <b>192.168.2.1</b>. Jedes Mal die Eingabetaste.`, bild: "assets/filius/router-anschluss.png", alt: "Beispiel aus der letzten Einheit: Filius, Entwurfsmodus, ein Router mit angeklicktem Reiter 192.168.0.1. Darunter: Verbunden mit Switch A, IP-Adresse, Netzmaske 255.255.255.0 und MAC-Adresse. Bei dir heißen die Switches Computerraum und Verwaltung und die Adressen sind andere." },
+        `Doppelklick auf <b>CR 1</b>, <b>CR 2</b> und <b>CR 3</b>: Bei <span class="menue">Gateway</span> schreibst du jedes Mal <b>192.168.1.1</b> (Eingabetaste).`,
+        `Doppelklick auf <b>Sekretariat</b> und <b>Schulleitung</b>: Bei <span class="menue">Gateway</span> schreibst du jedes Mal <b>192.168.2.1</b> (Eingabetaste).`,
+        `Speichere: Klicke oben auf die <span class="menue">Diskette</span>, gib der Datei den Namen <b>schulnetz</b> und klicke auf <span class="menue">Speichern</span>.`
+      ],
+      loesung: "Acht Geräte: Switch Computerraum mit CR 1 bis CR 3, Switch Verwaltung mit Sekretariat und Schulleitung, dazwischen der Schulrouter (192.168.1.1 und 192.168.2.1). Gateways 192.168.1.1 im Computerraum und 192.168.2.1 in der Verwaltung. Die Datei heißt schulnetz.fls.",
+      pruefung: {
+        art: "datei", accept: ".fls", lies: Modul.liesFilius9, pruefe: pruefeSchulnetz,
+        text: "Wähle deine gespeicherte Datei <b>schulnetz.fls</b> aus. Sie wird nur hier auf dem Gerät geprüft und nicht hochgeladen.",
+        ersatz: { art: "zahl", frage: "Wie viele Kabel hat das Schulnetz insgesamt? Zähle: Jeder Computer hat eines zu seinem Switch, dazu je ein Kabel vom Router zu den zwei Switches.", wert: 7, tol: 0, einheit: "Kabel",
+          tipp: "Fünf Computer, also fünf Kabel zu den Switches. Dazu zwei Kabel vom Router: 5 + 2." }
+      }
+    }, "auf1");
+  }
+});
+
+W.aufgabe({
+  titel: "Das Schulnetz testen",
+  geheim: ["4"],
+  auftrag: "Jetzt prüfst du das Netz: Schicke von CR 1 aus einen ping an die Schulleitung – quer über den Router.",
+  vorwissen: "<p>Wechsle für den Test in den <b>Aktionsmodus</b> (grüner Pfeil). Zum Speichern musst du danach wieder in den <b>Entwurfsmodus</b> (Hammer).</p>",
+  hinweise: ["Die Befehlszeile musst du auf CR 1 erst installieren: Software-Installation → rechts „Befehlszeile“ anklicken → oberer Pfeil → „Änderungen annehmen“.", "Hinter <code>/&gt;</code> tippst du <code>ping</code>, ein Leerzeichen und die Adresse der Schulleitung. Dann die Eingabetaste.", "Der ganze Befehl heißt <code>ping 192.168.2.11</code>. Zähle in der letzten Zeile: „… Paket(e) gesendet, … Paket(e) empfangen“."],
+  lehrer: { ziel: "Das selbst gebaute Netz mit ping testen: Das Paket läuft über Switch, Router und zweiten Switch.",
+    anleitung: "Die Kinder bleiben im selben Filius wie in der letzten Aufgabe. Die Antwort braucht zwei bis drei Sekunden. Erscheint viermal „Timeout!“ (dauert etwa 30 Sekunden), fehlt bei einem Computer das Gateway oder es ist falsch – im Entwurfsmodus nachsehen. Erscheint sofort „Zieladresse nicht erreichbar“, fehlt das Gateway bei CR 1.",
+    loesung: "4 Pakete gesendet, 4 empfangen, 0 % Paketverlust → Antwort: 4.",
+    fehler: ["ping an CR 2 statt an die Schulleitung: Das klappt auch ohne Router und beweist nichts über die Verbindung der Netze.", "Viermal „Timeout!“: Bei der Schulleitung fehlt das Gateway 192.168.2.1 – die Anfrage kommt an, die Antwort findet den Rückweg nicht.", "Tippfehler in der Adresse: ebenfalls „Timeout!“."],
+    bedienung: "Das Kind trägt die Zahl der empfangenen Pakete ein und tippt auf „Lösung überprüfen“." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Ping von CR 1 an die Schulleitung", pc: "Filius", zeit: "etwa 6 Minuten",
+      ziel: "CR 1 schickt einen ping an die Schulleitung in das andere Netz – und bekommt Antwort.",
+      schritte: [
+        `Wechsle in den <b>Aktionsmodus</b>: Klicke oben auf den <span class="menue">grünen Pfeil</span>.`,
+        `Klicke auf <b>CR 1</b>. Sein Bildschirm geht auf. Klicke dort auf <span class="menue">Software-Installation</span>.`,
+        { t: `Klicke rechts in der Liste auf <span class="menue">Befehlszeile</span>, dann auf den <b>oberen Pfeil</b>. Klicke zum Schluss auf <span class="menue">Änderungen annehmen</span>.`, bild: "../../7M/Informatik/assets/filius/software-installation.png", alt: "Filius: Fenster Software-Installation mit der Liste Verfügbar und den Pfeilen in der Mitte" },
+        `Klicke auf dem Bildschirm von CR 1 das Symbol <span class="menue">Befehlszeile</span> an.`,
+        `Tippe hinter <code>/&gt;</code> den Befehl <code>ping 192.168.2.11</code> und drücke die Eingabetaste. Warte, bis die letzte Zeile erscheint.`,
+        `Lies die letzte Zeile: Wie viele Pakete wurden gesendet, wie viele empfangen?`
+      ],
+      loesung: "Die letzte Zeile heißt: 4 Paket(e) gesendet, 4 Paket(e) empfangen, 0% Paketverlust.",
+      pruefung: { art: "zahl", frage: "Wie viele Pakete hat CR 1 <b>empfangen</b>?", wert: 4, tol: 0, einheit: "Pakete",
+        tipp: "Die Zahl steht in der letzten Zeile nach dem ping: „… Paket(e) empfangen“. Steht dort 0, prüfe im Entwurfsmodus alle Gateways und die Adresse der Schulleitung.",
+        erfolg: "Alle vier Pakete sind über den Router in die Verwaltung gekommen und zurück – dein Schulnetz funktioniert." }
+    }, "auf2");
+  }
+});
+
+/* ============ Teil 4: Zeichnen und Fehler suchen ============ */
+W.teil("Zeichnen und kontrollieren", "Netzplan · Fehlersuche · Wortspeicher");
+
+W.aufgabe({
+  titel: "Zeichne den Netzplan in dein Heft",
+  auftrag: "Zeichne den Netzplan des Schulnetzes in dein Heft: mit allen Geräten, Kabeln, Namen und Adressen. Hake danach ab, was du gezeichnet hast.",
+  vorwissen: "<p>Du darfst einfache Symbole benutzen: ein Rechteck für einen Computer, ein flaches Rechteck für einen Switch, ein Rechteck mit Pfeilen für den Router. Wichtig ist, dass man dein Bild lesen kann.</p>",
+  hinweise: ["Fange mit dem Router in der Mitte an, links und rechts davon je ein Switch.", "Unter jeden Switch zeichnest du seine Computer. Jede Linie ist ein Kabel: jeder Computer zu seinem Switch, jeder Switch zum Router.", "Insgesamt 8 Geräte (5 Computer, 2 Switches, 1 Router) und 7 Linien. Schreibe unter jeden Computer Namen und Adresse, unter den Router seine beiden Adressen."],
+  lehrer: { ziel: "Einen Netzplan selbst zeichnen (Lehrplan: lokale Netzwerke bildlich darstellen) – mit Geräten, Kabeln, Namen und Adressen.",
+    anleitung: "Etwa 8 Minuten im Heft, ohne Computer. Kinder, die fertig sind, können ihren Plan mit der Zeichnung auf dem Bildschirm vergleichen oder ihrem Nachbarn zeigen. Das Abhaken ist eine Selbstkontrolle; schauen Sie in einige Hefte. Bewertet wird, ob der Plan lesbar ist – nicht, wie schön die Symbole sind.",
+    loesung: "Router in der Mitte (192.168.1.1 und 192.168.2.1), links Switch Computerraum mit CR 1, CR 2, CR 3 (192.168.1.10 bis .12), rechts Switch Verwaltung mit Sekretariat (192.168.2.10) und Schulleitung (192.168.2.11). Sieben Linien. Beide Netze unterscheidbar (zum Beispiel zwei Farben oder ein Rahmen um jedes Netz).",
+    fehler: ["Computer werden untereinander verbunden statt mit dem Switch.", "Der Router bekommt nur eine Adresse.", "Namen oder Adressen fehlen – dann ist der Plan nicht zum Nachbauen geeignet."] },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Netzplan zeichnen", zeit: "etwa 8 Minuten",
+      ziel: "Dein Heft enthält einen Netzplan des Schulnetzes, den jemand anderes nachbauen könnte.",
+      schritte: [
+        `Zeichne in der Mitte des Blattes den <b>Router</b> und schreibe <b>Schulrouter</b> daneben.`,
+        `Zeichne links vom Router den <b>Switch Computerraum</b> und rechts den <b>Switch Verwaltung</b>. Verbinde jeden Switch mit einer Linie mit dem Router.`,
+        `Zeichne unter den linken Switch drei Computer (<b>CR 1</b>, <b>CR 2</b>, <b>CR 3</b>) und unter den rechten zwei (<b>Sekretariat</b>, <b>Schulleitung</b>). Jeder Computer bekommt eine Linie zu seinem Switch.`,
+        `Schreibe unter jeden Computer die Adresse und unter den Router seine beiden Adressen.`,
+        `Mache die zwei Netze sichtbar: Umrande das linke Netz in einer Farbe und das rechte in einer anderen.`
+      ],
+      loesung: "Ein Plan mit 8 Geräten, 7 Linien, allen Namen und Adressen und zwei erkennbaren Netzen.",
+      pruefung: { art: "liste", punkte: [
+        "Ich habe alle acht Geräte gezeichnet: drei Computer im Computerraum, zwei in der Verwaltung, zwei Switches und den Router.",
+        "Bei jedem Gerät steht sein Name.",
+        "Bei jedem Computer und beim Router stehen die Adressen (der Router hat zwei).",
+        "Jeder Computer hat eine Linie zu seinem Switch, jeder Switch eine Linie zum Router.",
+        "Die zwei Netze kann man unterscheiden (zum Beispiel zwei Farben)."
+      ] }
+    }, "auf3");
+  }
+});
+
+W.aufgabe({
+  titel: "Fehler im Netzplan finden",
+  auftrag: "Das ist der Plan eines anderen Schulnetzes: Computerraum im Netz 192.168.3.x und Bibliothek im Netz 192.168.4.x. Zwei Fehler haben sich eingeschlichen. Tippe sie an.",
+  hinweise: ["Prüfe bei jedem Computer zwei Dinge: Gehört seine Adresse zum Netz seines Raumes? Ist sein Gateway die Adresse des Routers in diesem Netz?", "Vergleiche die dritte Zahl: Im Computerraum muss sie 3 sein, in der Bibliothek 4. Das Gateway hat dieselbe dritte Zahl wie der Computer.", "PC 2 im Computerraum hat das Gateway 192.168.4.1 – das gehört zur Bibliothek. PC 3 im Computerraum hat 192.168.4.12 – die gehört zum Netz der Bibliothek."],
+  lehrer: { ziel: "Fehler in einem Netzplan erkennen: Gateway aus dem falschen Netz, Adresse aus dem falschen Netz.",
+    anleitung: "Einzelarbeit, etwa 4 Minuten. Die Fehler entsprechen zwei typischen Problemen beim Filius-Projekt. Wer fertig ist, schreibt auf, was bei jedem Fehler beim ping passieren würde (Timeout).",
+    loesung: "Fehler 1: PC 2 hat das Gateway 192.168.4.1 (gehört zum Netz 4, im Computerraum muss es 192.168.3.1 sein). Fehler 2: PC 3 hat die Adresse 192.168.4.12 (gehört zum Netz 4, im Computerraum muss sie mit 192.168.3 beginnen).",
+    fehler: ["Der Router mit zwei verschiedenen Adressen wird für einen Fehler gehalten – genau so soll er sein.", "Es werden nur die Adressen geprüft und die Gateways übersehen."] },
+  bau(box) {
+    Modul.makeMarkieren(box, {
+      kopf: "<b>Netzplan als Liste</b> – Router: 192.168.3.1 (zum Computerraum) und 192.168.4.1 (zur Bibliothek)",
+      finde: "Fehler",
+      fertig: "Du hast beide Fehler gefunden.",
+      teile: [
+        "Computerraum (Netz 3)\n",
+        "PC 1: ", { t: "192.168.3.10", w: false, e: "Die ersten drei Zahlen sind 192.168.3, wie im Computerraum." }, " · Gateway ", { t: "192.168.3.1", w: false, e: "Das ist die Adresse des Routers im Netz des Computerraums. Richtig." }, "\n",
+        "PC 2: ", { t: "192.168.3.11", w: false, e: "Die Adresse passt zum Computerraum." }, " · Gateway ", { t: "192.168.4.1", w: true, e: "Fehler: 192.168.4.1 ist die Adresse des Routers in der Bibliothek. Im Computerraum muss das Gateway 192.168.3.1 sein." }, "\n",
+        "PC 3: ", { t: "192.168.4.12", w: true, e: "Fehler: 192.168.4.12 gehört zum Netz der Bibliothek. Im Computerraum muss die Adresse mit 192.168.3 beginnen." }, " · Gateway ", { t: "192.168.3.1", w: false, e: "Das Gateway stimmt für den Computerraum." }, "\n",
+        "Bibliothek (Netz 4)\n",
+        "Katalog-PC: ", { t: "192.168.4.10", w: false, e: "Die ersten drei Zahlen sind 192.168.4, wie in der Bibliothek." }, " · Gateway ", { t: "192.168.4.1", w: false, e: "Das ist die Adresse des Routers im Netz der Bibliothek. Richtig." }, "\n"
+      ]
+    }, "mark-plan");
+    // der Baustein spricht sonst von Stellen, „die dich misstrauisch machen“ (er stammt aus der Einheit zu Betrugs-Mails)
+    const tipp = $(".mark-fuss .hint", box); if (tipp) tipp.textContent = "Tippe die zwei Stellen an, die nicht zum Netz passen.";
+  }
+});
+
+W.aufgabe({
+  titel: "Lerncheck",
+  auftrag: "Richtig oder falsch? Entscheide bei jeder Aussage.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Ein Netzplan zeigt Geräte, Kabel und Adressen. Gebaut wird zuerst, getestet zuletzt.", "Richtig sind die Aussagen zum Netzplan, zum Router, zur Reihenfolge und zum ping. Falsch: Die Adresse des Routers im anderen Netz als Gateway und das Speichern im Aktionsmodus."],
+  lehrer: { ziel: "Kernwissen der Stunde sichern.", anleitung: "Einzelarbeit, etwa 3 Minuten.",
+    loesung: "richtig · falsch · richtig · richtig · falsch · richtig", fehler: ["Aussage 5: Gespeichert wird in Filius nur im Entwurfsmodus (Hammer)."] },
+  bau(box) {
+    Modul.makeTF(box, [
+      ["Ein Netzplan zeigt Geräte, Kabel und Adressen.", true],
+      ["Als Gateway trägt man die Adresse des Routers im anderen Netz ein.", false],
+      ["Der Router hat in jedem seiner Netze eine eigene Adresse.", true],
+      ["Zuerst werden die Geräte aufgestellt und verbunden, danach wird getestet.", true],
+      ["In Filius kannst du im Aktionsmodus speichern.", false],
+      ["Mit ping prüfst du, ob ein Gerät in einem anderen Netz antwortet.", true]
+    ], "tf");
+  }
+});
+
+/* ============ Wortspeicher ============ */
+W.teil("Wortspeicher", "Alle Begriffe des Moduls");
+W.karten({ karten: [
+  ["Netzwerk", "Ein Netzwerk verbindet Computer und andere Geräte, damit sie Daten austauschen."],
+  ["IP-Adresse", "Eine Adresse aus vier Zahlen, an der man ein Gerät im Netz findet."],
+  ["Netzwerkkabel", "Das Kabel, das ein Gerät mit einem Switch oder Router verbindet."],
+  ["Switch", "Ein Kasten mit vielen Anschlüssen, der Geräte in einem Netz verbindet."],
+  ["Accesspoint", "Ein Gerät, das Computer und Handys per Funk ins Netz holt."],
+  ["WLAN", "Ein Netz ohne Kabel: Die Daten reisen per Funk."],
+  ["Router", "Ein Gerät, das verschiedene Netze miteinander verbindet."],
+  ["Gateway", "Die Adresse des Routers im eigenen Netz."],
+  ["Paket", "Ein kleines Stück Daten, auf dem die Adresse des Empfängers steht."],
+  ["ping", "Ein Befehl, der prüft, ob ein anderes Gerät antwortet."],
+  ["Netzplan", "Eine Zeichnung mit Geräten, Kabeln und Adressen eines Netzes."],
+  ["Simulationsprogramm", "Ein Programm, das etwas Echtes nachahmt, zum Beispiel Filius ein Netzwerk."],
+  ["Entwurfsmodus", "In diesem Modus von Filius baust und änderst du dein Netz."],
+  ["Aktionsmodus", "In diesem Modus von Filius probierst du dein Netz aus."]
+] });
+
+W.fertig();
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

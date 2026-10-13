@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Die WENN-Funktion | Informatik 9</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="../../8M/Informatik/einheit8.css">
+<link rel="stylesheet" href="einheit9.css">
+<link rel="stylesheet" href="tabelle9.css"><style>.rh9-blatt code,.weg9-hinweis code,.weg9-auftrag code,.weg9-inhalt code{white-space:normal;overflow-wrap:anywhere}
+.pruef-liste li{overflow-wrap:anywhere}</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 9</small></a>
+    <nav class="stations" id="stations"></nav>
+    <span class="stars" id="stars">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks">
+      <a href="index.html">Übersicht Informatik 9M</a>
+      <a href="../../9R/Informatik/index.html">Übersicht Informatik 9R</a>
+      <a href="../../index.html">Startseite</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 9 · Modul 3: Excel-Funktionen · Einheit 4</div>
+    <h1>Die WENN-Funktion</h1>
+    <p>Die Schülerzeitung veranstaltet ein Quiz. Wer genug Punkte hat, hat bestanden – wer nicht, hat nicht bestanden. Mit der WENN-Funktion trifft Excel diese Entscheidung für jede Zeile selbst.</p>
+    <div class="zeit">etwa 40 Minuten · Praxis am Windows-PC mit Excel</div>
+    <div class="goals">
+      <div>Ich schreibe eine WENN-Formel mit Bedingung, Dann-Wert und Sonst-Wert.</div>
+      <div>Ich benutze die Vergleichszeichen >, <, >=, <= und =.</div>
+      <div>Ich finde Fehler in einer WENN-Formel und repariere sie.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="modulStand"></div>
+  <div id="weg"></div>
+</main>
+
+<footer class="wrap">Informatik 9 · Dein Fortschritt wird mit deinem Code gespeichert. · Excel ist ein Programm von Microsoft; die Tabellen auf dieser Seite sind eigene Nachbildungen (GRUMI-EXCEL). Alle Zahlen sind erfunden.</footer>
+
+<div id="pop" role="dialog"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info9.js"></script>
+<script src="diagramm9.js"></script>
+<script src="tabelle9.js"></script>
+<script src="../../8M/Informatik/excel-datei.js"></script>
+<script src="excel-aufgaben9.js"></script>
+<script>
+(function () {
+"use strict";
+const {$} = Modul;
+const F = Modul.formelGleich;
+const gl = (x, y) => typeof x === "number" && Math.abs(x - y) < 1e-9;
+const ist = (t, a, s) => String(t.wert(a)).toLowerCase() === s;
+const p = (ok, gut, schlecht) => ({ok, text: ok ? gut : schlecht});
+
+Modul.start9({
+  key: "grumi-i9-wenn-v1",
+  thema: "Excel: Funktion WENN(Bedingung;Dann;Sonst) mit Text in Anführungszeichen und mit Zahlen als Ergebnis, Vergleichszeichen > < >= <= =, typische Fehler (>= statt >, Anführungszeichen fehlen) (Quiz der Schülerzeitung, Versand im Schülerladen)",
+  glossary: {
+    wenn: ["WENN", "Eine Funktion, die entscheidet: Stimmt die Bedingung, nimmt Excel den Dann-Wert, sonst den Sonst-Wert."],
+    bedingung: ["Bedingung", "Ein Vergleich, der stimmt oder nicht stimmt, zum Beispiel A2>=18."],
+    vergleich: ["Vergleichszeichen", "Zeichen für einen Vergleich: > größer, < kleiner, >= mindestens, <= höchstens, = gleich."]
+  }
+});
+
+const W = Modul.lernweg("#weg");
+
+/* ============ Regelheft ============ */
+W.teil("Regelheft", "Schreiben");
+W.regelheft({
+  titel: "Die WENN-Funktion",
+  html: `<p><span class="rot">WENN</span> lässt Excel entscheiden:</p>
+    <p><span class="blau">=WENN(Bedingung;Dann;Sonst)</span></p>
+    <p>Beispiel: <code>=WENN(A2&gt;=18;"ja";"nein")</code></p>
+    <p>Ab 18 Jahren steht dort ja, sonst nein.</p>
+    <p class="leer"></p>
+    <p>Text steht in Anführungszeichen, Zahlen nicht.</p>
+    <p>Vergleiche: <span class="blau">&gt;</span> größer · <span class="blau">&lt;</span> kleiner · <span class="blau">&gt;=</span> mindestens · <span class="blau">&lt;=</span> höchstens · <span class="blau">=</span> gleich</p>`,
+  lehrer: { ziel: "Aufbau der WENN-Funktion, die Regel zu Anführungszeichen und die Vergleichszeichen stehen im Heft.",
+    anleitung: "Etwa 5 Minuten. Die Klasse schreibt ab. Erst nach dem Abhaken erscheint die erste Aufgabe.",
+    loesung: "Der Eintrag steht vollständig im Heft (Aufbau, Beispiel, Anführungszeichen-Regel, Vergleichszeichen)." }
+});
+
+/* ============ Teil 2: Erst hier auf der Seite ============ */
+W.teil("Verstehen und üben", "Sehen · Ausprobieren");
+
+W.aufgabe({
+  titel: "Wie entscheidet WENN?",
+  bild: { src: "assets/bilder/wenn.jpg", alt: "Ein Wanderer mit Rucksack steht an einer Weggabelung vor einem Wegweiser mit zwei leeren Schildern. Ein Schild zeigt nach links, eines nach rechts.", text: "Eine Bedingung, zwei Wege: So entscheidet auch WENN." },
+  auftrag: "Beim Quiz der Schülerzeitung gilt: Wer mindestens 10 Punkte hat, hat bestanden. Sieh zu, wie Excel das für Ali und Bea entscheidet.",
+  hinweise: ["Tippe auf „Start“ oder auf die Zahlen 1 bis 4.", "Excel prüft zuerst die Bedingung. Danach nimmt es entweder den ersten oder den zweiten Wert.", "Schritt 2 und 3: Stimmt die Bedingung, kommt der erste Wert. Stimmt sie nicht, kommt der zweite."],
+  lehrer: { ziel: "Verstehen: WENN prüft eine Bedingung und wählt danach einen von zwei Werten.",
+    anleitung: "Am Beamer durchklicken. Bei Schritt 2 fragen: „Stimmt die Bedingung?“ Bei Schritt 4 den Gegenfall herausstellen.",
+    loesung: "Alle vier Schritte angesehen. Ali (12) hat bestanden, Bea (7) nicht.",
+    fehler: ["Kinder lesen „>=“ als „größer“ und vergessen das „gleich“."],
+    bedienung: "„Start“ spielt alle Schritte ab, die Zahlen springen zu einem Schritt." },
+  bau(box) {
+    box.innerHTML = '<div class="tb"></div><div class="sim"></div>';
+    const t = Modul.tabelle($(".tb", box), { spalten: 3, zeilen: 3, breit: { A: 80, C: 150 }, zellen: { A1: "Name", B1: "Punkte", C1: "Ergebnis", A2: "Ali", B2: "12", A3: "Bea", B3: "7" } });
+    const f = r => '=WENN(B' + r + '>=10;"bestanden";"nicht bestanden")';
+    Modul.makeSchritte($(".sim", box), {
+      start: "Tippe auf „Start“ oder gehe Schritt für Schritt.",
+      steps: [
+        "In C2 steht die WENN-Funktion. Sie hat drei Teile: die <b>Bedingung</b> (B2&gt;=10), den <b>Dann-Wert</b> und den <b>Sonst-Wert</b>.",
+        "Excel prüft die Bedingung: Ist B2 mindestens 10? Ali hat 12 Punkte – ja, die Bedingung <b>stimmt</b>.",
+        "Weil die Bedingung stimmt, nimmt Excel den <b>Dann-Wert</b>, den ersten Text: bestanden.",
+        "Bei Bea steht in B3 die 7. 7 ist nicht mindestens 10 – die Bedingung <b>stimmt nicht</b>. Excel nimmt den <b>Sonst-Wert</b>: nicht bestanden."
+      ],
+      zeige(i) {
+        t.setze("C2", f(2), true); t.setze("C3", i >= 3 ? f(3) : "", true);
+        t.formelnZeigen(i === 0);
+        t.markiere(i === 1 ? ["B2"] : i === 3 ? ["B3"] : [], "hell");
+        t.markiere(i === 2 ? ["C2"] : i === 3 ? ["C3"] : [], "gut");
+        t.waehle("C2", true);
+      }
+    }, "anim-wenn");
+  }
+});
+
+W.aufgabe({
+  titel: "Bestanden oder nicht?",
+  geheim: ["=WENN(B2>=10;\"bestanden\";\"nicht bestanden\")"],
+  auftrag: "Wer mindestens 10 Punkte hat, hat <b>bestanden</b>, sonst <b>nicht bestanden</b>. Schreibe in <b>C2</b> die WENN-Formel und ziehe sie bis <b>C5</b>.",
+  vorwissen: "<p>Texte schreibst du in Formeln in <b>Anführungszeichen</b>: <code>\"bestanden\"</code>. Die Anführungszeichen tippst du mit der Umschalttaste und der 2. Zwischen die drei Teile der Formel gehört jeweils ein <b>Semikolon</b>.</p>",
+  hinweise: ["Die Formel hat drei Teile, getrennt durch Semikolons: Bedingung, Dann-Wert, Sonst-Wert.", "Die Bedingung vergleicht die Punkte in B2 mit 10. Wer mindestens 10 hat, besteht. Dann-Wert und Sonst-Wert sind Texte in Anführungszeichen.", "Der erste Teil heißt B2, dann das Zeichen für „größer oder gleich“, dann 10. Danach der Text für „stimmt“, danach der Text für „stimmt nicht“. Ziehe die Formel bis C5."],
+  lehrer: { ziel: "Eine WENN-Funktion mit Text als Ergebnis schreiben und nach unten ziehen (Beispiel des Lehrplans: ab 10 Punkten bestanden).",
+    anleitung: "Vorführen: Formel in C2, bis C5 ziehen. Dann bei Cem (genau 10 Punkte) innehalten und fragen: „Warum bestanden?“",
+    loesung: "=WENN(B2>=10;\"bestanden\";\"nicht bestanden\"), bis C5 gezogen: bestanden · nicht bestanden · bestanden · nicht bestanden.",
+    fehler: ["Die Anführungszeichen um den Text fehlen – dann versteht Excel die Formel nicht.", "Statt >= steht >: Dann besteht Cem mit genau 10 Punkten nicht.", "Statt eines Semikolons steht ein Komma."],
+    bedienung: "C2 anklicken, Formel tippen, Eingabetaste. Dann das Ausfüllkästchen von C2 bis C5 ziehen." },
+  bau(box) {
+    Modul.makeTabellenAufgabe(box, {
+      text: "Schreibe in <b>C2</b> die WENN-Formel und ziehe sie bis <b>C5</b>.",
+      tabelle: { spalten: 3, zeilen: 5, griff: true, eingabe: ["C2", "C3", "C4", "C5"], start: "C2", breit: { A: 80, C: 150 }, zellen: { A1: "Name", B1: "Punkte", C1: "Ergebnis", A2: "Ali", B2: "12", A3: "Bea", B3: "7", A4: "Cem", B4: "10", A5: "Dora", B5: "9" } },
+      pruefe: t => [
+        p(["C2", "C3", "C4", "C5"].every(a => /^=WENN\(/.test(t.formel(a))), "In C2 bis C5 steht eine WENN-Formel.", "In C2 bis C5 soll eine WENN-Formel stehen. Ziehe sie bis C5."),
+        p(ist(t, "C2", "bestanden") && ist(t, "C3", "nicht bestanden") && ist(t, "C5", "nicht bestanden"), "Ali besteht, Bea und Dora nicht.", /^#NAME/.test(t.text("C2")) ? "C2 zeigt #NAME?. Stehen die Texte in Anführungszeichen?" : "Ali, Bea oder Dora zeigen noch das falsche Ergebnis."),
+        p(ist(t, "C4", "bestanden"), "Cem hat genau 10 Punkte und besteht.", "Cem hat genau 10 Punkte. Mindestens 10 heißt: 10 gehört dazu.")
+      ],
+      loesung: { setze: { C2: '=WENN(B2>=10;"bestanden";"nicht bestanden")' }, fuelle: [["C2", "C5"]] },
+      erfolg: "Excel entscheidet für jede Zeile selbst."
+    }, "tab-bestanden");
+  }
+});
+
+W.aufgabe({
+  titel: "Größer, kleiner, gleich",
+  auftrag: "Ordne jedem Vergleichszeichen zu, was es bedeutet.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Ein Gleichheitszeichen hinter dem Zeichen heißt: „oder gleich“.", "&gt; → größer · &lt; → kleiner · &gt;= → größer oder gleich (mindestens) · &lt;= → kleiner oder gleich (höchstens) · = → gleich"],
+  lehrer: { ziel: "Die Vergleichszeichen lesen und zuordnen.", anleitung: "Einzelarbeit. Wer unsicher ist, denkt an Mathe: Das Zeichen öffnet sich zur größeren Zahl hin.",
+    loesung: "> größer als · < kleiner als · >= größer oder gleich · <= kleiner oder gleich · = gleich.", fehler: ["> und >= werden verwechselt."] },
+  bau(box) {
+    Modul.makePaare(box, [
+      [">", "größer als"],
+      ["<", "kleiner als"],
+      [">=", "größer oder gleich (mindestens)"],
+      ["<=", "kleiner oder gleich (höchstens)"],
+      ["=", "gleich"]
+    ], "paare-vergleich");
+  }
+});
+
+W.aufgabe({
+  titel: "Eintritt zur Lesenacht",
+  geheim: ["=WENN(B2<12;3;5)"],
+  auftrag: "Zur Lesenacht der Schülerzeitung zahlen Kinder <b>unter 12</b> Jahren 3 €, ab 12 Jahren 5 €. Schreibe in <b>C2</b> die Formel (mit Zahlen als Ergebnis) und ziehe sie bis <b>C5</b>.",
+  vorwissen: "<p>Als Ergebnis darf in einer WENN-Formel auch eine <b>Zahl</b> stehen. Zahlen schreibst du <b>ohne</b> Anführungszeichen.</p>",
+  hinweise: ["Dann-Wert und Sonst-Wert sind hier Zahlen. Zahlen brauchen keine Anführungszeichen.", "Die Bedingung heißt: Alter in B2 ist kleiner als 12. Dann zahlt das Kind 3, sonst 5.", "Das Zeichen für „kleiner als“, dann 12. Danach 3 für „stimmt“ und 5 für „stimmt nicht“. Ziehe bis C5."],
+  lehrer: { ziel: "WENN mit Zahlen als Ergebnis und dem Vergleichszeichen < anwenden.", anleitung: "Einzelarbeit. Beim 12-jährigen Max nachfragen: „Wie viel zahlt er, und warum?“",
+    loesung: "=WENN(B2<12;3;5), bis C5: 3 · 5 · 5 · 3.", fehler: ["Die Zahlen werden in Anführungszeichen gesetzt – dann sind es Texte.", "Statt < steht <=: Dann zahlt Max (12) nur 3 €."],
+    bedienung: "C2 anklicken, Formel tippen, Eingabetaste. Dann das Ausfüllkästchen von C2 bis C5 ziehen." },
+  bau(box) {
+    Modul.makeTabellenAufgabe(box, {
+      text: "Schreibe in <b>C2</b> die Formel für den Eintritt und ziehe sie bis <b>C5</b>.",
+      tabelle: { spalten: 3, zeilen: 5, griff: true, eingabe: ["C2", "C3", "C4", "C5"], start: "C2", breit: { A: 80, C: 130 }, zellen: { A1: "Name", B1: "Alter", C1: "Eintritt in €", A2: "Tim", B2: "9", A3: "Lena", B3: "14", A4: "Max", B4: "12", A5: "Ida", B5: "11" } },
+      pruefe: t => [
+        p(["C2", "C3", "C4", "C5"].every(a => /^=WENN\(/.test(t.formel(a))), "In C2 bis C5 steht eine WENN-Formel.", "In C2 bis C5 soll eine WENN-Formel stehen. Ziehe sie bis C5."),
+        p(gl(t.wert("C2"), 3) && gl(t.wert("C5"), 3), "Tim und Ida (unter 12) zahlen 3 €.", "Tim oder Ida zahlen noch nicht 3 €. Die Ergebnisse sind Zahlen, keine Texte."),
+        p(gl(t.wert("C3"), 5) && gl(t.wert("C4"), 5), "Lena und Max (ab 12) zahlen 5 €.", "Lena oder Max zahlen noch nicht 5 €. Max ist genau 12 – gehört er zu „unter 12“?")
+      ],
+      loesung: { setze: { C2: "=WENN(B2<12;3;5)" }, fuelle: [["C2", "C5"]] },
+      erfolg: "Auch Zahlen können das Ergebnis einer WENN-Entscheidung sein."
+    }, "tab-eintritt");
+  }
+});
+
+W.aufgabe({
+  titel: "Was zeigt die Zelle?",
+  auftrag: "Lies jede WENN-Formel genau und entscheide, was die Zelle zeigt.",
+  hinweise: ["Setze zuerst die Zahl in die Bedingung ein. Stimmt sie?", "Stimmt die Bedingung, gilt der erste Text. Stimmt sie nicht, gilt der zweite.", "Fall 3: 10 ist <b>nicht</b> größer als 10. Fall 4: 10 ist nicht kleiner als 10, also gilt der Sonst-Wert."],
+  lehrer: { ziel: "Eine WENN-Formel lesen und ihr Ergebnis bestimmen, auch an der Grenze (genau 10).", anleitung: "Ein Fall nach dem anderen; falsch entschiedene Fälle kommen noch einmal.",
+    loesung: "bestanden · nicht bestanden · nicht bestanden · bestanden.", fehler: ["Fall 3: Das Kind liest > als „mindestens“."] },
+  bau(box) {
+    Modul.makeEntscheiden(box, {
+      frage: "Was zeigt die Zelle?",
+      optionen: ["bestanden", "nicht bestanden"],
+      faelle: [
+        { html: '<b>Fall 1:</b> <code>=WENN(B2&gt;=10;"bestanden";"nicht bestanden")</code> · in B2 steht 10.', kurz: "mindestens 10, B2 = 10", a: 0, e: "10 ist mindestens 10. Die Bedingung stimmt: bestanden." },
+        { html: '<b>Fall 2:</b> <code>=WENN(B2&gt;=10;"bestanden";"nicht bestanden")</code> · in B2 steht 9.', kurz: "mindestens 10, B2 = 9", a: 1, e: "9 ist nicht mindestens 10. Die Bedingung stimmt nicht: nicht bestanden." },
+        { html: '<b>Fall 3:</b> <code>=WENN(B2&gt;10;"bestanden";"nicht bestanden")</code> · in B2 steht 10.', kurz: "mehr als 10, B2 = 10", a: 1, e: "10 ist nicht größer als 10. Die Bedingung stimmt nicht: nicht bestanden." },
+        { html: '<b>Fall 4:</b> <code>=WENN(B2&lt;10;"nicht bestanden";"bestanden")</code> · in B2 steht 10.', kurz: "weniger als 10, B2 = 10", a: 0, e: "10 ist nicht kleiner als 10. Die Bedingung stimmt nicht, es gilt der Sonst-Wert: bestanden." }
+      ],
+      fertig: "Du liest WENN-Formeln sicher – auch an der Grenze."
+    }, "ent-lesen");
+  }
+});
+
+W.aufgabe({
+  titel: "Lea hat genau 10 Punkte",
+  geheim: ["=WENN(B2>=10;\"bestanden\";\"nicht bestanden\")"],
+  auftrag: "Beim zweiten Quiz zeigt Lea (10 Punkte) „nicht bestanden“ – dabei gilt wieder: mindestens 10 Punkte. Finde den Fehler in <b>C2</b>, repariere die Formel und ziehe sie bis <b>C5</b>.",
+  hinweise: ["Vergleiche die Bedingung mit der Regel „mindestens 10“.", "Das Zeichen > heißt „größer als“. Bei genau 10 Punkten stimmt das nicht.", "Statt > brauchst du das Zeichen für „größer oder gleich“. Ändere es in C2 und ziehe die Formel bis C5."],
+  lehrer: { ziel: "Den häufigsten WENN-Fehler finden: > statt >= an der Grenze.", anleitung: "Zuerst Leas Zeile zeigen und fragen: „Was müsste da stehen?“ Dann die Formel lesen lassen.",
+    loesung: "=WENN(B2>=10;\"bestanden\";\"nicht bestanden\") bis C5: bestanden · bestanden · nicht bestanden · bestanden.", fehler: ["Nur C2 wird repariert, C3 bis C5 behalten die alte Formel.", "Die Bedingung wird auf >9 geändert – das geht auch."],
+    bedienung: "C2 anklicken, Formel neu tippen, Eingabetaste. Dann das Ausfüllkästchen ziehen." },
+  bau(box) {
+    const alt = r => '=WENN(B' + r + '>10;"bestanden";"nicht bestanden")';
+    Modul.makeTabellenAufgabe(box, {
+      text: "Repariere <b>C2</b> und ziehe die Formel bis <b>C5</b>.",
+      tabelle: { spalten: 3, zeilen: 5, griff: true, eingabe: ["C2", "C3", "C4", "C5"], start: "C2", breit: { A: 80, C: 150 },
+        zellen: { A1: "Name", B1: "Punkte", C1: "Ergebnis", A2: "Ben", B2: "15", C2: alt(2), A3: "Lea", B3: "10", C3: alt(3), A4: "Ole", B4: "9", C4: alt(4), A5: "Eva", B5: "11", C5: alt(5) } },
+      pruefe: t => [
+        p(["C2", "C3", "C4", "C5"].every(a => /^=WENN\(/.test(t.formel(a))), "In C2 bis C5 steht eine WENN-Formel.", "In C2 bis C5 soll eine WENN-Formel stehen."),
+        p(ist(t, "C3", "bestanden"), "Lea hat genau 10 Punkte und besteht.", "Lea zeigt noch „nicht bestanden“. Prüfe das Vergleichszeichen und ziehe die Formel bis C5."),
+        p(ist(t, "C2", "bestanden") && ist(t, "C4", "nicht bestanden") && ist(t, "C5", "bestanden"), "Ben und Eva bestehen, Ole nicht.", /^#NAME/.test(t.text("C2")) ? "C2 zeigt #NAME?. Stehen die Texte in Anführungszeichen?" : "Ben, Ole oder Eva zeigen noch das falsche Ergebnis.")
+      ],
+      loesung: { setze: { C2: '=WENN(B2>=10;"bestanden";"nicht bestanden")' }, fuelle: [["C2", "C5"]] },
+      erfolg: "Das richtige Vergleichszeichen macht den Unterschied."
+    }, "tab-lea");
+  }
+});
+
+/* ============ Teil 3: Am PC ============ */
+W.teil("Am PC: Excel", "Anwenden");
+
+W.aufgabe({
+  titel: "Versand im Schülerladen",
+  geheim: ["=WENN(B2>=$G$1;0;$G$2)", "=WENN(C2=0;\"kostenlos\";\"mit Versand\")", "3"],
+  auftrag: "Jetzt entscheidet Excel im echten Programm: Der Schülerladen verschickt Bestellungen. Ab 50 € Bestellwert ist der Versand kostenlos, sonst kostet er 4,90 €.",
+  hinweise: ["Die Grenze (50) und der Preis (4,90) stehen schon in der Startdatei, in G1 und G2. Beide gelten für alle Zeilen.", "In Spalte C steht eine Zahl als Ergebnis, in Spalte D ein Text. Genau 50 Euro sind schon kostenlos.", "C2 <code>=WENN(B2&gt;=$G$1;0;$G$2)</code> · D2 <code>=WENN(C2=0;\"kostenlos\";\"mit Versand\")</code>. Beide bis Zeile 7 ziehen."],
+  lehrer: { ziel: "WENN im echten Excel mit festen Bezügen, Zahl und Text als Ergebnis.",
+    anleitung: "Etwa 12 Minuten. Die Startdatei versand_start.xlsx liegt im Auftrag zum Herunterladen. Am Ende lädt jedes Kind seine gespeicherte Datei hoch; der Server prüft sie und die KI schreibt eine Rückmeldung. Am Tablet gibt es stattdessen eine Frage.",
+    loesung: "C2 bis C7: 4,90 · 0 · 0 · 4,90 · 0 · 4,90. D2 bis D7: mit Versand · kostenlos · kostenlos · mit Versand · kostenlos · mit Versand. Gespeichert als versand.xlsx.",
+    fehler: ["Statt >= steht >: Bestellung 2 (genau 50,00 €) zahlt dann Versand.", "Die Anführungszeichen fehlen oder sind falsch getippt.", "G1 und G2 ohne Dollarzeichen: Beim Ziehen wandern die Bezüge mit, unten steht 0."],
+    bedienung: "„Datei auswählen“ → die gespeicherte .xlsx-Datei. Die Rückmeldung nennt jeden Prüfpunkt einzeln." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Versand im Schülerladen", pc: "Excel", zeit: "etwa 12 Minuten",
+      ziel: "Spalte C zeigt die Versandkosten, Spalte D einen Hinweis. Beide Spalten sind mit WENN-Formeln gefüllt und die Datei ist gespeichert.",
+      material: [{ name: "Startdatei versand_start.xlsx", href: "assets/excel/versand_start.xlsx" }],
+      schritte: [
+        "Lade die Startdatei herunter und öffne sie in Excel. Erscheint oben ein gelber Balken, klicke auf <span class=\"menue\">Bearbeitung aktivieren</span>.",
+        "Klicke auf <b>C2</b>. Tippe <code>=WENN(B2&gt;=$G$1;0;$G$2)</code> und drücke die Eingabetaste. Die Dollarzeichen tippst du selbst.",
+        "Ziehe das <b>Ausfüllkästchen</b> von C2 nach unten bis <b>C7</b>.",
+        "Klicke auf <b>D2</b> und tippe <code>=WENN(C2=0;\"kostenlos\";\"mit Versand\")</code>. Die Anführungszeichen tippst du mit <kbd>Umschalt</kbd> und <kbd>2</kbd>. Drücke die Eingabetaste.",
+        "Ziehe das Ausfüllkästchen von D2 nach unten bis <b>D7</b>.",
+        "Sieh dir Bestellung 2 an: Sie kostet genau 50,00 €. Weil in der Formel &gt;= steht, ist der Versand kostenlos.",
+        "Speichere die Datei unter einem neuen Namen: Drücke die Taste <kbd>F12</kbd>. Es öffnet sich das Fenster „Speichern unter“. Wähle deinen Ordner, tippe den Namen <b>versand</b> ein und klicke auf <span class=\"menue\">Speichern</span>."
+      ],
+      loesung: "C2 bis C7 zeigen 4,9 · 0 · 0 · 4,9 · 0 · 4,9. D2 bis D7 zeigen mit Versand · kostenlos · kostenlos · mit Versand · kostenlos · mit Versand.",
+      pruefung: {
+        art: "datei", accept: ".xlsx", lies: Modul.liesExcel, pruefe: (Modul.excelPruefung || {})["wenn-auf1"], server: { pfad: "/api/inf9/excel/pruefen", aufgabe: "wenn-auf1" },
+        text: "Wähle deine gespeicherte Datei <b>versand.xlsx</b> aus. Sie wird geprüft, und die KI schreibt dir eine Rückmeldung. Deine Lehrkraft kann die Datei danach ansehen.",
+        ersatz: { art: "zahl", frage: "Bei wie vielen der sechs Bestellungen ist der Versand kostenlos?", wert: 3, tol: 0.001, einheit: "Bestellungen",
+          tipp: "Zähle in Spalte D, wie oft „kostenlos“ steht. Denke an die Bestellung mit genau 50,00 €." }
+      }
+    }, "auf1");
+  }
+});
+
+/* ============ Teil 4: Wiederholen ============ */
+W.teil("Wiederholen", "Andere Zahlen");
+
+W.aufgabe({
+  titel: "Bonus für die Zeitungsverkäufer",
+  geheim: ["=WENN(B2>=20;5;0)", "=WENN(C2>0;\"ja\";\"nein\")"],
+  auftrag: "Wer mindestens 20 Zeitungen verkauft hat, bekommt einen Bonus von 5 €, sonst 0 €. Berechne den Bonus in Spalte C und schreibe in Spalte D, ob es einen Bonus gibt (ja oder nein).",
+  hinweise: ["Spalte C: Zahl als Ergebnis. Spalte D: Text als Ergebnis, die Bedingung schaut auf Spalte C.", "In C zählt „ab 20“ als mindestens 20. In D ist die Bedingung: Bonus größer als 0.", "C2 <code>=WENN(B2&gt;=20;5;0)</code> · D2 <code>=WENN(C2&gt;0;\"ja\";\"nein\")</code>. Beide bis Zeile 5 ziehen."],
+  lehrer: { ziel: "WENN mit Zahl und mit Text anwenden, auch auf das Ergebnis einer anderen WENN-Zelle.", anleitung: "Einzelarbeit, etwa 6 Minuten. Zum Schluss Vera (genau 20) zeigen: Warum bekommt sie den Bonus?",
+    loesung: "C2 bis C5: 5 · 0 · 5 · 0. D2 bis D5: ja · nein · ja · nein.", fehler: ["In C steht > statt >=: Vera (genau 20) bekommt keinen Bonus.", "In D werden die Anführungszeichen vergessen."],
+    bedienung: "Zwei Formeln nacheinander tippen und jeweils bis Zeile 5 ziehen." },
+  bau(box) {
+    Modul.makeTabellenAufgabe(box, {
+      text: "Schreibe die Formeln in <b>C2</b> und <b>D2</b> und ziehe sie bis Zeile 5.",
+      tabelle: { spalten: 4, zeilen: 5, griff: true, eingabe: ["C2", "C3", "C4", "C5", "D2", "D3", "D4", "D5"], start: "C2", breit: { A: 70, B: 90, C: 100, D: 110 },
+        zellen: { A1: "Name", B1: "Zeitungen", C1: "Bonus in €", D1: "Bonus?", A2: "Tim", B2: "25", A3: "Uli", B3: "18", A4: "Vera", B4: "20", A5: "Wim", B5: "12" } },
+      pruefe: t => [
+        p(["C2", "C3", "C4", "C5"].every(a => /^=WENN\(/.test(t.formel(a))), "Spalte C enthält WENN-Formeln.", "In C2 bis C5 soll eine WENN-Formel stehen."),
+        p(gl(t.wert("C2"), 5) && gl(t.wert("C3"), 0) && gl(t.wert("C4"), 5) && gl(t.wert("C5"), 0), "Die Boni in Spalte C stimmen.", "Die Boni in Spalte C stimmen noch nicht. Vera hat genau 20 Zeitungen."),
+        p(["D2", "D3", "D4", "D5"].every(a => /^=WENN\(/.test(t.formel(a))), "Spalte D enthält WENN-Formeln.", "In D2 bis D5 soll eine WENN-Formel stehen."),
+        p(ist(t, "D2", "ja") && ist(t, "D3", "nein") && ist(t, "D4", "ja") && ist(t, "D5", "nein"), "Die Hinweise in Spalte D stimmen.", "Die Hinweise in Spalte D stimmen noch nicht. Sie hängen von Spalte C ab.")
+      ],
+      loesung: { setze: { C2: "=WENN(B2>=20;5;0)", D2: '=WENN(C2>0;"ja";"nein")' }, fuelle: [["C2", "C5"], ["D2", "D5"]] },
+      erfolg: "Zahlen und Texte – WENN kann beides."
+    }, "tab-wdh");
+  }
+});
+
+/* ============ Teil 5: Kontrollieren ============ */
+W.teil("Kontrollieren", "Lerncheck");
+
+W.aufgabe({
+  titel: "Lerncheck",
+  auftrag: "Richtig oder falsch? Entscheide bei jeder Aussage.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "WENN hat immer drei Teile.", "Richtig sind die Aussagen zu den drei Teilen, zu >= und zu den Anführungszeichen. Falsch sind die Aussagen zu > und zu Zahlen in Anführungszeichen."],
+  lehrer: { ziel: "Kernwissen der Stunde sichern.", anleitung: "Einzelarbeit, etwa 3 Minuten.", loesung: "richtig · richtig · falsch · richtig · falsch", fehler: ["Aussage 3: Bei > gehört 10 nicht dazu."] },
+  bau(box) {
+    Modul.makeTF(box, [
+      ["WENN hat drei Teile: Bedingung, Dann-Wert und Sonst-Wert.", true],
+      ["Text als Ergebnis steht in Anführungszeichen.", true],
+      ["B2>10 ist auch dann wahr, wenn in B2 genau 10 steht.", false],
+      ["B2>=10 ist wahr, wenn in B2 genau 10 steht.", true],
+      ["Eine Zahl als Ergebnis muss in Anführungszeichen stehen.", false]
+    ], "tf");
+  }
+});
+
+W.fertig();
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

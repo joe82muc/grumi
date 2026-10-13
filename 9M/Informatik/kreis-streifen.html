@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Kreis- und Streifendiagramme | Informatik 9</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="../../8M/Informatik/einheit8.css">
+<link rel="stylesheet" href="einheit9.css">
+<link rel="stylesheet" href="tabelle9.css">
+<style>.menue{white-space:normal}</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 9</small></a>
+    <nav class="stations" id="stations"></nav>
+    <span class="stars" id="stars">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks">
+      <a href="index.html">Übersicht Informatik 9M</a>
+      <a href="../../9R/Informatik/index.html">Übersicht Informatik 9R</a>
+      <a href="../../index.html">Startseite</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 9 · Modul 4: Excel-Diagramme · Einheit 2</div>
+    <h1>Kreis- und Streifendiagramme</h1>
+    <p>Ein Kuchen wird geteilt: Wer bekommt wie viel? Genau das zeigt ein Kreisdiagramm. Heute berechnest du Anteile in Prozent und zeichnest sie als Kreis und als Streifen.</p>
+    <div class="zeit">etwa 40 Minuten · Praxis am Windows-PC mit Excel</div>
+    <div class="goals">
+      <div>Ich erkläre, wofür ein Kreis- und ein Streifendiagramm gut sind.</div>
+      <div>Ich berechne einen Anteil in Prozent: Teil : Ganzes · 100.</div>
+      <div>Ich erstelle in Excel ein Kreisdiagramm und lasse die Summe weg.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="modulStand"></div>
+  <div id="weg"></div>
+</main>
+
+<footer class="wrap">Informatik 9 · Dein Fortschritt wird mit deinem Code gespeichert. · Excel ist ein Programm von Microsoft; die Tabellen und Diagramme auf dieser Seite sind eigene Nachbildungen (GRUMI-EXCEL). Alle Zahlen sind erfunden.</footer>
+
+<div id="pop" role="dialog"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info9.js"></script>
+<script src="diagramm9.js"></script>
+<script src="tabelle9.js"></script>
+<script src="../../8M/Informatik/excel-datei.js"></script>
+<script src="excel-aufgaben9.js"></script>
+<script>
+(function () {
+"use strict";
+const {$} = Modul;
+const G = Modul.bereichGleich;
+const F = Modul.formelGleich;
+const gl = (x, y) => typeof x === "number" && Math.abs(x - y) < 1e-9;
+const p = (ok, gut, schlecht) => ({ok, text: ok ? gut : schlecht});
+// letzte Zeile eines Bereichs wie "A1:B6" -> 6
+const unten = b => { const m = /(\d+)$/.exec(String(b || "")); return m ? +m[1] : 0; };
+
+Modul.start9({
+  key: "grumi-i9-kreis-streifen-v1",
+  thema: "Excel-Diagramme: Kreis- und Streifendiagramm zeigen Anteile am Ganzen (100 %), Anteil und relative Häufigkeit in Prozent berechnen (Teil : Ganzes · 100, Formel mit festem Bezug), Kreisdiagramm und Streifendiagramm erstellen (Schulweg der Klasse 9)",
+  glossary: {
+    kreis: ["Kreisdiagramm", "Ein runder Kuchen, in Stücke geteilt. Jedes Stück zeigt den Anteil eines Teils am Ganzen."],
+    streifen: ["Streifendiagramm", "Ein langer Streifen, in Stücke geteilt. Er zeigt wie der Kreis die Anteile am Ganzen."],
+    anteil: ["Anteil", "Wie viel ein Teil vom Ganzen ist. Du gibst ihn oft in Prozent an."],
+    haeufigkeit: ["relative Häufigkeit", "Der Anteil eines Teils am Ganzen: Teil : Ganzes. Mal 100 ergibt Prozent."],
+    prozent: ["Prozent", "Hundertstel. 40 % sind 40 von 100. Das Ganze sind 100 %."],
+    summe: ["Summe", "Das Ergebnis, wenn du Zahlen zusammenzählst. Hier ist es das Ganze: alle Kinder zusammen."]
+  }
+});
+
+const W = Modul.lernweg("#weg");
+
+const WEG = { A1: "Schulweg", B1: "Kinder", A2: "Bus", B2: "12", A3: "Fahrrad", B3: "9", A4: "zu Fuß", B4: "6", A5: "Auto", B5: "3" };
+const WEG_DG = { typ: "kreis", titel: "Schulweg der Klasse 9", kategorien: ["Bus", "Fahrrad", "zu Fuß", "Auto"], reihen: [{ name: "Kinder", werte: [12, 9, 6, 3] }] };
+
+/* ============ Regelheft ============ */
+W.teil("Regelheft", "Schreiben");
+W.regelheft({
+  titel: "Kreis- und Streifendiagramm",
+  html: `<p>Ein <span class="rot">Kreisdiagramm</span> und ein <span class="rot">Streifendiagramm</span> zeigen Anteile am Ganzen. Alle Teile zusammen sind 100 %.</p>
+    <p class="leer"></p>
+    <p><span class="rot">Anteil</span> (relative Häufigkeit) = Teil : Ganzes · 100</p>
+    <p>Beispiel: <span class="blau">5 : 20 · 100 = 25 %</span></p>
+    <p>Die Summe gehört nicht ins Diagramm.</p>`,
+  lehrer: { ziel: "Die Kernaussagen zu Kreis- und Streifendiagramm und zur Berechnung eines Anteils stehen im Heft.",
+    anleitung: "Etwa 5 Minuten. Die Klasse schreibt ab. Erst nach dem Abhaken erscheint die erste Aufgabe.",
+    loesung: "Der Eintrag steht vollständig im Heft (vier kurze Aussagen und ein Beispiel)." }
+});
+
+/* ============ Teil 2 ============ */
+W.teil("Verstehen und üben", "Sehen · Ausprobieren");
+
+W.aufgabe({
+  titel: "Das Ganze und seine Teile",
+  auftrag: "Sieh dir das Bild an: Eine Pizza ist in Stücke geteilt, daneben zeigt ein Tablet ein Kreisdiagramm. Beantworte die Fragen.",
+  vorwissen: "<p>Ein <b>Kreisdiagramm</b> sieht aus wie eine geteilte Pizza. Die ganze Pizza ist das <b>Ganze</b>, jedes Stück ist ein <b>Teil</b>.</p>",
+  hinweise: ["Denke an eine Pizza: Was passiert mit der Pizza, wenn alle ihr Stück genommen haben?", "Ein größeres Stück ist ein größerer Teil vom Ganzen.", "Frage 1: Die ganze Pizza sind alle Stücke zusammen. Frage 2: Ein größeres Stück heißt: größerer Anteil."],
+  lehrer: { ziel: "Verstehen: Der ganze Kreis ist das Ganze (100 %), jedes Stück ein Anteil.",
+    anleitung: "Bild am Beamer zeigen und fragen: „Wie viel Prozent ist die ganze Pizza?“ (100 %). Danach die zwei Fragen in Einzelarbeit.",
+    loesung: "Frage 1: das Ganze, also 100 %. Frage 2: Der Teil hat einen größeren Anteil.",
+    fehler: ["Kinder meinen, das größte Stück sei „die Pizza“. Die ganze Pizza ist immer alles zusammen."] },
+  bau(box) {
+    box.innerHTML = `<figure class="bild9"><img class="zoomable" src="assets/bilder/kreis-streifen.jpg" width="1280" height="853" loading="lazy" alt="Ein Tisch mit einer in vier ungleich große Stücke geteilten Pizza auf einem runden Brett. Eine Hand zeigt auf ein Stück. Daneben steht ein Tablet mit einem Kreisdiagramm aus vier farbigen Teilen. Jugendliche sitzen rund um den Tisch.">
+      <figcaption>Die Pizza und das Kreisdiagramm: Beide zeigen, wie ein Ganzes in Teile geteilt ist. (Bild mit KI erstellt)</figcaption></figure><div class="mc"></div>`;
+    Modul.makeMC($(".mc", box), [
+      { q: "Was zeigt die ganze Pizza, also der ganze Kreis im Kreisdiagramm?", o: ["das Ganze, also 100 %", "nur den größten Wert", "nur den kleinsten Wert", "die Uhrzeit"], a: 0, e: "Der ganze Kreis ist das Ganze. Alle Stücke zusammen sind 100 %." },
+      { q: "Ein Stück ist größer als die anderen. Was bedeutet das?", o: ["Dieser Teil hat den größeren Anteil.", "Dieser Teil ist falsch.", "Dieser Teil kommt zuerst.", "Dieser Teil hat keinen Wert."], a: 0, e: "Je größer das Stück, desto größer der Anteil am Ganzen." }
+    ], "mc-pizza");
+  }
+});
+
+W.aufgabe({
+  titel: "Ein Kreisdiagramm lesen",
+  auftrag: "Die Klasse 9 wurde gefragt, wie sie zur Schule kommt. Jedes Kind nannte einen Weg. Sieh dir das Diagramm an und beantworte die Fragen.",
+  vorwissen: "<p>Neben dem Kreis steht eine Legende: Dort siehst du zu jeder Farbe den Namen, den Anteil in Prozent und die Zahl der Kinder.</p>",
+  hinweise: ["Das größte Stück gehört zum häufigsten Weg.", "Die Zahl der Kinder aller Stücke zusammen ist das Ganze.", "Frage 2: 12 + 9 + 6 + 3. Frage 3: Lies den Prozentwert beim Fahrrad in der Legende ab. Frage 4: Alle Stücke sind zusammen der ganze Kreis."],
+  lehrer: { ziel: "Anteile in einem Kreisdiagramm ablesen.",
+    anleitung: "Am Beamer zeigen. Ein Kind liest die Legende vor, ein anderes erklärt, warum die Prozentwerte zusammen 100 ergeben.",
+    loesung: "Bus · 30 (12 + 9 + 6 + 3) · 30 % · 100 %.",
+    fehler: ["Die Zahl 12 (Kinder) wird mit 12 % verwechselt: Der Bus hat 40 %."] },
+  bau(box) {
+    box.innerHTML = '<div class="dg"></div><div class="mc"></div>';
+    Modul.diagramm($(".dg", box), WEG_DG);
+    Modul.makeMC($(".mc", box), [
+      { q: "Welcher Schulweg ist am häufigsten?", o: ["Bus", "Fahrrad", "zu Fuß", "Auto"], a: 0, e: "Der Bus hat das größte Stück: 12 Kinder." },
+      { q: "Wie viele Kinder sind in der Klasse?", o: ["30", "12", "4", "100"], a: 0, e: "Alle Kinder zusammen sind das Ganze: 12 + 9 + 6 + 3 = 30." },
+      { q: "Wie viel Prozent der Kinder kommen mit dem Fahrrad?", o: ["30 %", "9 %", "12 %", "40 %"], a: 0, e: "9 von 30 Kindern: 9 : 30 · 100 = 30 %." },
+      { q: "Was ergeben alle Prozentwerte zusammen?", o: ["100 %", "30 %", "50 %", "4 %"], a: 0, e: "Alle Teile zusammen sind das Ganze: 100 %." }
+    ], "mc-lesen");
+  }
+});
+
+W.aufgabe({
+  titel: "Wie rechnet man einen Anteil aus?",
+  auftrag: "Sieh zu, wie Excel aus der Zahl der Kinder den Anteil in Prozent macht.",
+  hinweise: ["Tippe auf „Start“ oder auf die Zahlen 1 bis 4.", "Das Ganze (die Summe) steht in B6. Jeder Anteil rechnet: Teil geteilt durch Ganzes, mal 100.", "Schritt 3: Das $B$6 bleibt beim Ziehen fest, denn das Ganze ist für alle Zeilen gleich."],
+  lehrer: { ziel: "Verstehen: Anteil = Teil : Ganzes · 100; das Ganze wird mit $ festgehalten.",
+    anleitung: "Am Beamer durchklicken und bei Schritt 2 anhalten: „Was ist 12 von 30?“ (0,4, also 40 %). Den festen Bezug kennen die Kinder aus Modul 3.",
+    loesung: "Alle vier Schritte angesehen: B6 = 30, C2 = 40, C3 bis C5 = 30 · 20 · 10, Probe 100.",
+    fehler: ["Kinder klicken nur auf „Start“ und lesen nicht – nach Schritt 2 kurz anhalten lassen.", "„: Ganzes“ und „· 100“ werden vertauscht."],
+    bedienung: "„Start“ spielt alle Schritte ab, die Zahlen springen zu einem Schritt, ↺ beginnt neu." },
+  bau(box) {
+    box.innerHTML = '<div class="tb"></div><div class="sim"></div>';
+    const t = Modul.tabelle($(".tb", box), { spalten: 3, zeilen: 6, breit: { A: 100, C: 110 }, zellen: { A1: "Schulweg", B1: "Kinder", C1: "Anteil in %", A2: "Bus", B2: "12", A3: "Fahrrad", B3: "9", A4: "zu Fuß", B4: "6", A5: "Auto", B5: "3", A6: "Summe" } });
+    Modul.makeSchritte($(".sim", box), {
+      start: "Tippe auf „Start“ oder gehe Schritt für Schritt.",
+      steps: [
+        "Zuerst das <b>Ganze</b>: In B6 steht <code>=SUMME(B2:B5)</code>. Alle Kinder zusammen sind <b>30</b>.",
+        "Der Anteil vom Bus: 12 von 30 Kindern. <b>Teil : Ganzes</b> ist 12 : 30 = 0,4. Mal 100 sind das <b>40 %</b>. In C2 steht <code>=B2/$B$6*100</code>.",
+        "Du ziehst die Formel nach unten. Das <code>$B$6</code> bleibt fest, das B2 wandert mit. So kommen 30 %, 20 % und 10 % heraus.",
+        "<b>Probe:</b> 40 + 30 + 20 + 10 = 100. Alle Anteile zusammen ergeben immer 100 %."
+      ],
+      zeige(i) {
+        t.setze("B6", "=SUMME(B2:B5)", true);
+        t.setze("C2", i >= 1 ? "=B2/$B$6*100" : "", true);
+        ["C3", "C4", "C5"].forEach((a, k) => t.setze(a, i >= 2 ? "=B" + (k + 3) + "/$B$6*100" : "", true));
+        t.formelnZeigen(i < 3);
+        t.markiere(i === 0 ? ["B2", "B3", "B4", "B5", "B6"] : [], "hell");
+        t.markiere(i === 1 ? ["C2"] : i === 2 ? ["C3", "C4", "C5"] : i === 3 ? ["C2", "C3", "C4", "C5"] : [], "gut");
+      }
+    }, "anim-anteil");
+  }
+});
+
+W.aufgabe({
+  titel: "Anteile in GRUMI-EXCEL berechnen",
+  geheim: ["=SUMME(B2:B5)", "=B2/$B$6*100"],
+  auftrag: "Jetzt rechnest du selbst: Berechne in <b>B6</b> das Ganze und in <b>C2</b> bis <b>C5</b> den Anteil jedes Schulwegs in Prozent.",
+  vorwissen: "<p>Anteil in Prozent = <b>Teil : Ganzes · 100</b>. Das Ganze steht nur einmal, in B6. Darum braucht es in der Formel <b>$</b>.</p>",
+  hinweise: ["Zuerst B6: Zähle die Kinder von B2 bis B5 zusammen. Dann C2.", "C2 rechnet: Kinder (B2) geteilt durch das Ganze (B6), mal 100. B6 muss beim Ziehen festbleiben.", "B6 <code>=SUMME(B2:B5)</code>, C2 <code>=B2/$B$6*100</code>. Dann das Ausfüllkästchen von C2 bis C5 ziehen."],
+  lehrer: { ziel: "Das Ganze mit SUMME berechnen und Anteile mit einem festen Bezug nach unten ziehen.",
+    anleitung: "Vorführen: B6 mit SUMME, C2 mit der Anteilsformel, Quadrat unten rechts bis C5 ziehen. Dann C4 anklicken: Dort steht =B4/$B$6*100.",
+    loesung: "B6 =SUMME(B2:B5) (30). C2 =B2/$B$6*100, gezogen bis C5: 40 · 30 · 20 · 10.",
+    fehler: ["Das $ fehlt: In C3 steht dann B7 (leer) und es erscheint ein Fehlerwert.", "Statt der Zellbezüge werden feste Zahlen getippt (=12/30*100). Das stimmt nur heute: Ändert sich eine Zahl, rechnet die Formel falsch weiter.", "Die Formel wird nicht bis C5 gezogen."],
+    bedienung: "Zelle anklicken, in die Zeile oben schreiben, Eingabetaste. Das Ausfüllkästchen ist das kleine Quadrat unten rechts an der angeklickten Zelle." },
+  bau(box) {
+    Modul.makeTabellenAufgabe(box, {
+      text: "Schreibe in <b>B6</b> die Summe und in <b>C2</b> den Anteil. Ziehe die Anteilsformel bis C5.",
+      tabelle: { spalten: 3, zeilen: 6, griff: true, eingabe: ["B6", "C2", "C3", "C4", "C5"], start: "B6", breit: { A: 100, C: 110 }, zellen: { A1: "Schulweg", B1: "Kinder", C1: "Anteil in %", A2: "Bus", B2: "12", A3: "Fahrrad", B3: "9", A4: "zu Fuß", B4: "6", A5: "Auto", B5: "3", A6: "Summe" } },
+      pruefe: t => [
+        p(F(t.formel("B6"), ["=SUMME(B2:B5)", "=B2+B3+B4+B5"]) && gl(t.wert("B6"), 30), "B6 zeigt die Summe 30.", "In B6 soll die Summe der Kinder stehen, berechnet mit einer Formel: B2 bis B5."),
+        p(["C2", "C3", "C4", "C5"].every((a, i) => F(t.formel(a), ["=B" + (i + 2) + "/$B$6*100", "=B" + (i + 2) + "*100/$B$6", "=100*B" + (i + 2) + "/$B$6", "=100/$B$6*B" + (i + 2)])), "C2 bis C5 rechnen Teil : Ganzes · 100 mit festem $B$6.", "In C2 bis C5 soll stehen: Kinder der eigenen Zeile geteilt durch $B$6, mal 100. Ziehe das Quadrat unten rechts an C2 bis C5."),
+        p(gl(t.wert("C2"), 40) && gl(t.wert("C3"), 30) && gl(t.wert("C4"), 20) && gl(t.wert("C5"), 10), "Alle Anteile stimmen: 40 · 30 · 20 · 10.", "Noch nicht alle Anteile stimmen. Zeigt eine Zelle einen Fehler, ist $B$6 nicht fest.")
+      ],
+      loesung: { setze: { B6: "=SUMME(B2:B5)", C2: "=B2/$B$6*100" }, fuelle: [["C2", "C5"]] },
+      erfolg: "Teil : Ganzes · 100 – und die Summe bleibt fest."
+    }, "tab-anteil");
+  }
+});
+
+W.aufgabe({
+  titel: "Dein Kreisdiagramm in GRUMI-EXCEL",
+  auftrag: "Zeige den Schulweg der Klasse als Kreisdiagramm. Achtung: In Zeile 6 steht die Summe.",
+  vorwissen: "<p>Im Kreis ist jede Zeile ein Stück. Die <b>Summe</b> ist schon das ganze Rund – sie wäre ein zusätzliches Stück und würde alles falsch zeigen.</p>",
+  hinweise: ["Überlege: Welche Zeilen sind Teile des Ganzen? Welche Zeile ist das Ganze?", "Die vier Schulwege stehen in Zeile 2 bis 5. Zeile 6 gehört nicht ins Diagramm.", "Bereich <code>A1:B5</code>, Typ „Kreis“, ein Titel. Dann „Prüfen“."],
+  lehrer: { ziel: "Ein Kreisdiagramm erstellen und die Summenzeile nicht mit markieren.",
+    anleitung: "Zeigen: Wird A1 bis B6 markiert, bekommt die Summe ein eigenes Stück und das Bild stimmt nicht mehr.",
+    loesung: "Bereich A1:B5 (oder A2:B5), Typ Kreis, eigener Titel.",
+    fehler: ["Die Summe (Zeile 6) wird mitmarkiert.", "Ein anderer Typ wird gewählt, etwa Säule.", "Der Titel fehlt."],
+    bedienung: "Zelle antippen, letzte Zelle antippen (oder ziehen). Das Diagramm erscheint, sobald Bereich und Typ gewählt sind." },
+  bau(box) {
+    Modul.makeDiagrammAufgabe(box, {
+      text: "Zeige den Schulweg als <b>Kreisdiagramm</b>. Markiere nur die vier Schulwege, nicht die Summe.",
+      tabelle: { spalten: 2, zeilen: 6, breit: { A: 120 }, zellen: Object.assign({}, WEG, { A6: "Summe", B6: "30" }) },
+      pruefe: z => [
+        p(G(z.bereich, "A1:B5") || G(z.bereich, "A2:B5"), "Der Datenbereich stimmt: die vier Schulwege.", unten(z.bereich) >= 6 ? "Die Summe gehört nicht ins Kreisdiagramm: Sie wäre ein fünftes Stück. Markiere nur A1 bis B5." : "Markiere die vier Schulwege mit den Zahlen, am besten von A1 bis B5."),
+        p(z.typ === "kreis", "Der Typ stimmt: Der Kreis zeigt Anteile am Ganzen.", z.typ === "streifen" ? "Der Streifen zeigt auch Anteile. Gefragt ist hier aber der Kreis." : "Anteile am Ganzen zeigt der Kreis. Wähle den Typ „Kreis“."),
+        p(z.titel.trim().length >= 3, "Das Diagramm hat einen Titel.", "Schreibe einen Titel über das Diagramm.")
+      ],
+      loesung: { bereich: "A1:B5", typ: "kreis", titel: "Schulweg der Klasse 9" },
+      erfolg: "Vier Teile, ein Ganzes."
+    }, "dg-kreis");
+  }
+});
+
+W.aufgabe({
+  titel: "Dasselbe als Streifen",
+  auftrag: "Ein Streifendiagramm zeigt die Anteile in einem langen Streifen statt in einem Kreis. Zeige den Schulweg als Streifen.",
+  hinweise: ["Die Daten sind dieselben. Nur der Typ ist ein anderer.", "Wieder gehört die Summe nicht dazu.", "Bereich <code>A1:B5</code>, Typ „Streifen“, ein Titel."],
+  lehrer: { ziel: "Merken: Streifen und Kreis zeigen beide Anteile am Ganzen – nur die Form ist anders.",
+    anleitung: "Danach fragen: „Wo erkennt man den größten Teil leichter?“ (Im Streifen lassen sich Längen gut vergleichen.)",
+    loesung: "Bereich A1:B5 (oder A2:B5), Typ Streifen, eigener Titel.",
+    fehler: ["Der Typ „Kreis“ bleibt stehen.", "Die Summe wird mitmarkiert."] },
+  bau(box) {
+    Modul.makeDiagrammAufgabe(box, {
+      text: "Zeige dieselben Anteile als <b>Streifendiagramm</b> mit einem Titel.",
+      tabelle: { spalten: 2, zeilen: 6, breit: { A: 120 }, zellen: Object.assign({}, WEG, { A6: "Summe", B6: "30" }) },
+      pruefe: z => [
+        p(G(z.bereich, "A1:B5") || G(z.bereich, "A2:B5"), "Der Datenbereich stimmt: die vier Schulwege.", unten(z.bereich) >= 6 ? "Die Summe gehört nicht ins Diagramm. Markiere nur A1 bis B5." : "Markiere die vier Schulwege mit den Zahlen, am besten von A1 bis B5."),
+        p(z.typ === "streifen", "Der Typ stimmt: ein langer Streifen, in Stücke geteilt.", z.typ === "kreis" ? "Das ist der Kreis. Gefragt ist der Streifen: ein einziger langer Balken in Stücken." : "Wähle den Typ „Streifen“."),
+        p(z.titel.trim().length >= 3, "Das Diagramm hat einen Titel.", "Schreibe einen Titel über das Diagramm.")
+      ],
+      loesung: { bereich: "A1:B5", typ: "streifen", titel: "Schulweg der Klasse 9" },
+      erfolg: "Kreis oder Streifen: beide zeigen Anteile."
+    }, "dg-streifen");
+  }
+});
+
+W.aufgabe({
+  titel: "Wann passt kein Kreis?",
+  auftrag: "Ein Kreis passt nur, wenn die Teile zusammen ein Ganzes ergeben. Entscheide bei jedem Fall.",
+  hinweise: ["Frage dich: Gehören alle Werte zu einem Ganzen? Sind es nur wenige Teile?", "Zwölf Monatswerte sind zu viele Stücke und kein Ganzes. Auch Trainingsstunden einzelner Kinder bilden kein Ganzes.", "Fall 1 und 3: passt (Stimmen und Zutaten ergeben ein Ganzes). Fall 2 und 4: passt nicht."],
+  lehrer: { ziel: "Entscheiden, wann ein Kreisdiagramm sinnvoll ist: wenige Teile, die zusammen ein Ganzes sind.",
+    anleitung: "Ein Fall nach dem anderen. Bei „passt nicht“ fragen: „Was wäre besser?“ (Säulen oder Linie).",
+    loesung: "Stimmen für ein Motto: passt · Temperaturen von zwölf Monaten: passt nicht · Zutaten im Glas: passt · Trainingsstunden einzelner Kinder: passt nicht.",
+    fehler: ["Bei Fall 4 wird „passt“ gewählt: Die Stunden der Kinder sind kein Ganzes."] },
+  bau(box) {
+    Modul.makeEntscheiden(box, {
+      frage: "Passt ein Kreisdiagramm?",
+      optionen: ["Kreisdiagramm passt", "Kreisdiagramm passt nicht"],
+      faelle: [
+        { html: "<b>Fall 1:</b> Die Klasse stimmt über das Motto ihres Festes ab. Es gibt drei Vorschläge. Die Stimmen zusammen sind alle 28 Stimmen der Klasse.", kurz: "Stimmen für ein Motto", a: 0, e: "Wenige Teile, die zusammen alle Stimmen ergeben: ein Ganzes. Das zeigt der Kreis gut." },
+        { html: "<b>Fall 2:</b> Die Temperatur um 12 Uhr in jedem der zwölf Monate eines Jahres.", kurz: "zwölf Monate", a: 1, e: "Zwölf Stücke sind zu viele, und die Temperaturen ergeben kein Ganzes. Hier passt eine Linie." },
+        { html: "<b>Fall 3:</b> Ein Smoothie besteht aus Banane, Erdbeere, Milch und Hafer. Die Zutaten zusammen füllen genau ein Glas.", kurz: "Zutaten im Glas", a: 0, e: "Vier Teile, die zusammen das ganze Glas sind: Das ist ein Ganzes." },
+        { html: "<b>Fall 4:</b> Wie viele Stunden in der Woche trainieren fünf Kinder? Jedes Kind trainiert für sich.", kurz: "Trainingsstunden", a: 1, e: "Die Stunden einzelner Kinder sind kein Ganzes. Zum Vergleichen passen Säulen." }
+      ],
+      fertig: "Du erkennst, wann Teile ein Ganzes ergeben."
+    }, "ent-kreis");
+  }
+});
+
+/* ============ Teil 3: Am PC ============ */
+W.teil("Am PC: Excel", "Anwenden");
+
+W.aufgabe({
+  titel: "Schulweg in Excel",
+  geheim: ["40", "=B2/$B$6*100", "=SUMME(B2:B5)"],
+  auftrag: "Jetzt machst du es im echten Excel: Du berechnest die Anteile und zeichnest den Schulweg als Kreisdiagramm.",
+  vorwissen: "<p>Die Anteile kennst du aus der letzten Aufgabe. Neu ist: Du markierst für das Diagramm nur die vier Schulwege und lässt die Summe weg.</p>",
+  hinweise: ["Erst die Tabelle fertig rechnen: Summe in B6, Anteile in C2 bis C5. Dann das Diagramm.", "Für das Diagramm markierst du A1 bis B5. Den Befehl findest du im Reiter „Einfügen“ in der Gruppe „Diagramme“: „Kreis- oder Ringdiagramm einfügen“.", "B6 <code>=SUMME(B2:B5)</code>, C2 <code>=B2/$B$6*100</code> bis C5 ziehen. Dann A1 bis B5 markieren, den Kreis einfügen, den Titel ändern und speichern."],
+  lehrer: { ziel: "Im echten Excel Anteile berechnen (SUMME, fester Bezug) und ein Kreisdiagramm ohne die Summe erstellen.",
+    anleitung: "Etwa 15 Minuten. Die Startdatei schulweg_start.xlsx liegt im Auftrag zum Herunterladen. Am Ende lädt jedes Kind seine gespeicherte Datei hoch; der Server prüft Summe, Anteile, Kreisdiagramm, Daten ohne die Summe und eigenen Titel. Am Tablet gibt es stattdessen eine Frage.",
+    loesung: "B6 = 30. C2 bis C5: 40 · 30 · 20 · 10. Ein Kreisdiagramm über A1:B5 mit eigenem Titel. Gespeichert als schulweg.xlsx.",
+    fehler: ["Das $ fehlt – in C3 steht dann ein Fehlerwert (#DIV/0!).", "Die Summe wurde mitmarkiert (A1 bis B6): Dann hat der Kreis ein fünftes Stück.", "Der Titel zeigt noch „Kinder“ (der Spaltenname). Das ist nicht der eigene Titel.", "Die Datei wurde nicht unter dem Namen schulweg gespeichert."],
+    bedienung: "„Datei auswählen“ → die gespeicherte .xlsx-Datei. Die Rückmeldung nennt jeden Prüfpunkt einzeln.",
+    test: "Aufgabe, Musterlösung und Dateiprüfung automatisch geprüft (Chrome und Safari-Testbrowser). Die Namen Reiter „Einfügen“, Gruppe „Diagramme“ und „Kreis- oder Ringdiagramm einfügen“ stammen aus Excel 16 (deutsch). Wortlaut an einem Schul-PC prüfen: der Eintrag in der aufgeklappten Liste (einfacher Kreis) und das Ändern des Titels per Klick." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Schulweg in Excel", pc: "Excel", zeit: "etwa 15 Minuten",
+      ziel: "Excel zeigt in Spalte C den Anteil jedes Schulwegs in Prozent und ein Kreisdiagramm mit eigenem Titel. Die Datei ist gespeichert.",
+      material: [{ name: "Startdatei schulweg_start.xlsx", href: "assets/excel/schulweg_start.xlsx" }],
+      schritte: [
+        `Lade die Startdatei herunter und öffne sie in Excel. Erscheint oben ein gelber Balken, klicke auf <span class="menue">Bearbeitung aktivieren</span>.`,
+        "Klicke auf <b>B6</b>, tippe <code>=SUMME(B2:B5)</code> und drücke die Eingabetaste. Das Ganze ist <b>30</b> Kinder.",
+        "Klicke auf <b>C2</b>, tippe <code>=B2/$B$6*100</code> und drücke die Eingabetaste. Die Dollarzeichen tippst du selbst. C2 zeigt <b>40</b>.",
+        "Klicke wieder auf C2 und ziehe das <b>Ausfüllkästchen</b> (das kleine Quadrat unten rechts) bis <b>C5</b>. Es erscheinen 40, 30, 20 und 10.",
+        "Markiere die vier Schulwege mit den Überschriften: Klicke auf <b>A1</b> und ziehe bis <b>B5</b>. Die Summe in Zeile 6 bleibt <b>nicht</b> markiert.",
+        `Klicke oben auf den Reiter <span class="menue">Einfügen</span>. In der Gruppe <span class="menue">Diagramme</span> klickst du auf <span class="menue">Kreis- oder Ringdiagramm einfügen</span> und wählst einen einfachen <b>Kreis</b>.`,
+        "Ändere den Titel: Klicke auf den Titel im Diagramm, markiere den Text und schreibe deinen eigenen Titel, zum Beispiel <b>Schulweg der Klasse 9</b>. Klicke danach auf eine freie Stelle neben dem Diagramm.",
+        `Speichere die Datei unter einem neuen Namen: Klicke auf <span class="menue">Datei</span> und dann auf <span class="menue">Speichern unter</span>. Wähle deinen Ordner, tippe den Namen <b>schulweg</b> ein und klicke auf <span class="menue">Speichern</span>.`
+      ],
+      loesung: "B6 zeigt 30, C2 bis C5 zeigen 40 · 30 · 20 · 10. Der Kreis zeigt die vier Schulwege mit eigenem Titel. Die Datei heißt schulweg.xlsx.",
+      pruefung: {
+        art: "datei", accept: ".xlsx", lies: Modul.liesExcel, pruefe: (Modul.excelPruefung || {})["kreis-streifen-auf1"], server: { pfad: "/api/inf9/excel/pruefen", aufgabe: "kreis-streifen-auf1" },
+        text: "Wähle deine gespeicherte Datei <b>schulweg.xlsx</b> aus. Sie wird geprüft, und die KI schreibt dir eine Rückmeldung. Deine Lehrkraft kann die Datei danach ansehen.",
+        ersatz: { art: "zahl", frage: "Wie viel Prozent der Kinder kommen mit dem Bus? (Zelle C2 in deiner Tabelle)", wert: 40, tol: 0.001, einheit: "%",
+          tipp: "C2 rechnet 12 geteilt durch 30, mal 100." }
+      }
+    }, "auf1");
+  }
+});
+
+/* ============ Teil 4: Wiederholen ============ */
+W.teil("Wiederholen", "Andere Zahlen");
+
+W.aufgabe({
+  titel: "Wohin soll die Klassenfahrt gehen?",
+  geheim: ["=SUMME(B2:B5)", "=B2/$B$6*100"],
+  auftrag: "Die Klasse hat über das Ziel der Klassenfahrt abgestimmt. Berechne das Ganze in <b>B6</b> und den Anteil jedes Ziels in <b>C2</b> bis <b>C5</b>.",
+  hinweise: ["Gleicher Weg wie beim Schulweg: erst das Ganze, dann die Anteile.", "Das Ganze steht in B6. In der Anteilsformel muss B6 fest sein.", "B6 <code>=SUMME(B2:B5)</code>, C2 <code>=B2/$B$6*100</code>, dann bis C5 ziehen."],
+  lehrer: { ziel: "Anteile in Prozent mit anderen Zahlen allein berechnen.",
+    anleitung: "Einzelarbeit. Danach fragen: „Welches Ziel hat fast ein Drittel der Stimmen?“ (See, 32 %).",
+    loesung: "B6 = 25. C2 bis C5: 40 · 32 · 20 · 8 (Summe 100).",
+    fehler: ["$B$6 ohne Dollarzeichen – es erscheint ein Fehlerwert.", "Die Formel wird nur in C2 geschrieben und nicht gezogen."] },
+  bau(box) {
+    Modul.makeTabellenAufgabe(box, {
+      text: "Schreibe in <b>B6</b> die Summe und in <b>C2</b> den Anteil. Ziehe die Anteilsformel bis C5.",
+      tabelle: { spalten: 3, zeilen: 6, griff: true, eingabe: ["B6", "C2", "C3", "C4", "C5"], start: "B6", breit: { A: 100, C: 110 }, zellen: { A1: "Reiseziel", B1: "Stimmen", C1: "Anteil in %", A2: "Berge", B2: "10", A3: "See", B3: "8", A4: "Stadt", B4: "5", A5: "Meer", B5: "2", A6: "Summe" } },
+      pruefe: t => [
+        p(F(t.formel("B6"), ["=SUMME(B2:B5)", "=B2+B3+B4+B5"]) && gl(t.wert("B6"), 25), "B6 zeigt die Summe 25.", "In B6 soll die Summe aller Stimmen stehen, berechnet mit einer Formel."),
+        p(["C2", "C3", "C4", "C5"].every((a, i) => F(t.formel(a), ["=B" + (i + 2) + "/$B$6*100", "=B" + (i + 2) + "*100/$B$6", "=100*B" + (i + 2) + "/$B$6", "=100/$B$6*B" + (i + 2)])), "C2 bis C5 rechnen Teil : Ganzes · 100 mit festem $B$6.", "In C2 bis C5 soll stehen: Stimmen der eigenen Zeile geteilt durch $B$6, mal 100."),
+        p(gl(t.wert("C2"), 40) && gl(t.wert("C3"), 32) && gl(t.wert("C4"), 20) && gl(t.wert("C5"), 8), "Alle Anteile stimmen: 40 · 32 · 20 · 8.", "Noch nicht alle Anteile stimmen. Zeigt eine Zelle einen Fehler, ist $B$6 nicht fest.")
+      ],
+      loesung: { setze: { B6: "=SUMME(B2:B5)", C2: "=B2/$B$6*100" }, fuelle: [["C2", "C5"]] },
+      erfolg: "Andere Zahlen, derselbe Weg."
+    }, "tab-wdh");
+  }
+});
+
+/* ============ Teil 5: Kontrollieren ============ */
+W.teil("Kontrollieren", "Lerncheck");
+
+W.aufgabe({
+  titel: "Lerncheck",
+  auftrag: "Richtig oder falsch? Entscheide bei jeder Aussage.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Der Anteil ist Teil durch Ganzes, nicht umgekehrt.", "Richtig sind die Aussagen zum Ganzen, zu 100 % und zum Streifen. Falsch sind die Aussage zur Formel und die zu den zwölf Monaten."],
+  lehrer: { ziel: "Kernwissen der Stunde sichern.", anleitung: "Einzelarbeit, etwa 3 Minuten.", loesung: "richtig · richtig · falsch · falsch · richtig", fehler: ["Aussage 3: Der Anteil ist Teil : Ganzes · 100.", "Aussage 4: Zwölf Monatswerte sind zu viele Stücke und kein Ganzes."] },
+  bau(box) {
+    Modul.makeTF(box, [
+      ["Ein Kreisdiagramm zeigt Anteile am Ganzen.", true],
+      ["Alle Anteile zusammen sind 100 %.", true],
+      ["Den Anteil berechnest du mit Ganzes : Teil · 100.", false],
+      ["Für die Temperatur in zwölf Monaten ist ein Kreisdiagramm gut geeignet.", false],
+      ["Ein Streifendiagramm zeigt wie der Kreis Anteile.", true]
+    ], "tf");
+  }
+});
+
+W.fertig();
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

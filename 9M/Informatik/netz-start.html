@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Netzwerke kennenlernen | Informatik 9</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="../../8M/Informatik/einheit8.css">
+<link rel="stylesheet" href="einheit9.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 9</small></a>
+    <nav class="stations" id="stations"></nav>
+    <span class="stars" id="stars">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks">
+      <a href="index.html">Übersicht Informatik 9M</a>
+      <a href="../../9R/Informatik/index.html">Übersicht Informatik 9R</a>
+      <a href="../../index.html">Startseite</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 9 · Modul 1: Netzwerke mit Filius · Einheit 1</div>
+    <h1>Netzwerke kennenlernen</h1>
+    <p>Dein Handy, der Drucker im Lehrerzimmer, die Spielkonsole: Fast jedes Gerät hängt heute in einem Netzwerk. Heute verbindest du selbst zwei Computer.</p>
+    <div class="zeit">etwa 40 Minuten · Praxis am Windows-PC mit Filius</div>
+    <div class="goals">
+      <div>Ich erkläre, was ein Netzwerk ist.</div>
+      <div>Ich kenne Switch, Router und Accesspoint und finde sie in einem Netzplan.</div>
+      <div>Ich verbinde in Filius zwei Computer und teste die Verbindung.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="modulStand"></div>
+  <div id="weg"></div>
+</main>
+
+<footer class="wrap">Informatik 9 · Dein Fortschritt wird mit deinem Code gespeichert.</footer>
+
+<div id="pop" role="dialog"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info9.js"></script>
+<script src="../../7M/Informatik/filius-datei.js"></script>
+<script src="../../7M/Informatik/netz-bild.js"></script>
+<script>
+(function () {
+"use strict";
+const {$} = Modul;
+
+Modul.start9({
+  key: "grumi-i9-netz-start-v1",
+  thema: "Netzwerke: Computer verbinden, Netzwerkkomponenten (Switch, Router, Accesspoint), IP-Adresse, Verbindung mit ping testen (Simulationsprogramm Filius)",
+  glossary: {
+    netzwerk: ["Netzwerk", "Mehrere Geräte, die miteinander verbunden sind und Daten austauschen."],
+    ip: ["IP-Adresse", "Die Adresse eines Geräts in einem Netzwerk, zum Beispiel 192.168.0.10."],
+    switch: ["Switch", "Verbindet mehrere Geräte innerhalb eines Netzwerks."],
+    router: ["Router", "Verbindet unterschiedliche Netzwerke, zum Beispiel dein Netz zu Hause mit dem Internet."],
+    accesspoint: ["Accesspoint", "Bringt Geräte per Funk (WLAN) in ein Netzwerk."],
+    ping: ["ping", "Ein Befehl, der prüft, ob ein anderes Gerät im Netz antwortet."]
+  }
+});
+
+const W = Modul.lernweg("#weg");
+
+/* ============ Teil 1: Regelheft ============ */
+W.teil("Regelheft", "Schreiben");
+W.regelheft({
+  titel: "Das Netzwerk",
+  html: `<p>Ein <span class="rot">Netzwerk</span> verbindet Geräte. So können sie Daten austauschen.</p>
+    <p>Jedes Gerät braucht eine eigene <span class="rot">IP-Adresse</span>, z. B. 192.168.0.10.</p>
+    <p class="leer"></p>
+    <p><span class="blau">Switch:</span> verbindet mehrere Geräte in einem Netz.</p>
+    <p><span class="blau">Router:</span> verbindet verschiedene Netze.</p>
+    <p><span class="blau">Accesspoint:</span> bringt Geräte per Funk (WLAN) ins Netz.</p>
+    <p class="leer"></p>
+    <p>Mit <span class="rot">ping</span> teste ich, ob ein Gerät antwortet.</p>`,
+  lehrer: { ziel: "Die Kernaussagen der Stunde stehen im Heft: Netzwerk, IP-Adresse, drei Netzwerkgeräte, ping.",
+    anleitung: "Etwa 5 Minuten. Die Klasse schreibt ab. Erst nach dem Abhaken erscheint die erste Aufgabe – so beginnt niemand ohne Eintrag.",
+    loesung: "Der Eintrag steht vollständig im Heft (acht kurze Zeilen)." }
+});
+
+/* ============ Teil 2: Sehen und verstehen ============ */
+W.teil("Verstehen", "Sehen · Ausprobieren");
+
+W.aufgabe({
+  titel: "Ein Netzwerk zu Hause",
+  auftrag: "Sieh dir das Bild an: Laptop, Handy, Spielkonsole und Drucker hängen an einem Gerät mit zwei Antennen. Die blauen Linien zeigen die Verbindungen.",
+  vorwissen: "<p>Du kennst das von zu Hause: Dein Handy ist mit dem WLAN verbunden. Auch das ist ein Netzwerk – nur ohne Kabel.</p>",
+  hinweise: ["Zähle die Geräte, die mit einer blauen Linie verbunden sind.", "Ein einzelnes Gerät ist noch kein Netzwerk – erst die Verbindung macht es dazu.", "Frage 1: Achte auf die Wörter „verbunden“ und „Daten austauschen“. Frage 2: Das Netz ohne Kabel hat vier Buchstaben und beginnt mit W."],
+  lehrer: { ziel: "Den Begriff Netzwerk aus einer Alltagssituation ableiten.",
+    anleitung: "Bild am Beamer zeigen und fragen: „Welche Geräte hängen bei euch zu Hause im Netz?“ Danach die zwei Fragen in Einzelarbeit.",
+    loesung: "Frage 1: Geräte, die miteinander verbunden sind und Daten austauschen. Frage 2: WLAN.",
+    fehler: ["Netzwerk wird mit „Internet“ gleichgesetzt – das Internet ist ein sehr großes Netzwerk aus vielen Netzen."] },
+  bau(box) {
+    box.innerHTML = `<figure class="bild9"><img class="zoomable" src="assets/bilder/netz-start.jpg" width="1280" height="853" loading="lazy" alt="Wohnzimmer: Ein Junge arbeitet am Laptop, ein Mädchen hält ein Handy. Unter dem Fernseher steht eine Spielkonsole, im Regal ein Drucker. Leuchtende blaue Linien verbinden alle vier Geräte mit einem kleinen weißen Kasten mit zwei Antennen auf dem Sideboard.">
+      <figcaption>Ein Heimnetz: Vier Geräte sind mit dem WLAN-Router verbunden. (Bild mit KI erstellt)</figcaption></figure><div class="mc"></div>`;
+    Modul.makeMC($(".mc", box), [
+      { q: "Was ist ein Netzwerk?", o: ["Geräte, die miteinander verbunden sind und Daten austauschen", "ein besonders schneller Computer", "ein Programm zum Schreiben von Texten", "ein Kabel mit zwei Steckern"], a: 0,
+        e: "Ein Netzwerk besteht aus mindestens zwei verbundenen Geräten." },
+      { q: "Im Bild führt kein Kabel zu Laptop und Handy. Wie heißt ein Netz, das Geräte per Funk verbindet?", o: ["WLAN", "USB", "HDMI", "LAN-Kabel"], a: 0,
+        e: "WLAN heißt: Die Daten reisen per Funk statt durch ein Kabel." }
+    ], "mc-netz");
+  }
+});
+
+W.aufgabe({
+  titel: "Wie kommen Daten von einem Computer zum anderen?",
+  auftrag: "Sieh dir die Schritte an. Achte auf das Kabel und auf das Paket.",
+  vorwissen: "<p>Daten reisen im Netz in kleinen Portionen. Sie heißen <b>Pakete</b> – wie Briefe, die einzeln verschickt werden.</p>",
+  hinweise: ["Tippe auf „Start“ oder auf die Zahlen 1 bis 4.", "Im ersten Bild fehlt etwas zwischen den beiden Laptops.", "Schritt 3 und 4: Auf dem Paket steht die Adresse des Empfängers. Die Antwort nimmt denselben Weg zurück."],
+  lehrer: { ziel: "Verstehen: Ohne Verbindung kein Datenaustausch; Daten reisen als Pakete an eine Adresse.",
+    anleitung: "Am Beamer gemeinsam durchklicken und bei Schritt 2 fragen: „Was hat gefehlt?“",
+    loesung: "Alle vier Schritte angesehen: (1) kein Kabel – kein Weg, (2) Kabel verbindet, (3) Paket an 192.168.0.11, (4) Antwort zurück.",
+    fehler: ["Kinder klicken nur auf „Start“ und sehen nicht hin – nach Schritt 2 kurz anhalten lassen."],
+    bedienung: "„Start“ spielt alle Schritte ab, die Zahlen springen zu einem Schritt, ↺ beginnt neu." },
+  bau(box) {
+    box.innerHTML = '<div class="nb"></div><div class="sim"></div>';
+    const n = Modul.netzBild($(".nb", box), { b: 600, h: 230, alt: "Zwei Laptops: links Laptop A mit der Adresse 192.168.0.10, rechts Laptop B mit der Adresse 192.168.0.11",
+      geraete: [{ id: "a", art: "notebook", x: 120, y: 105, name: "Laptop A", ip: "192.168.0.10" }, { id: "b", art: "notebook", x: 480, y: 105, name: "Laptop B", ip: "192.168.0.11" }],
+      kabel: [["a", "b"]] });
+    Modul.makeSchritte($(".sim", box), {
+      start: "Tippe auf „Start“ oder gehe Schritt für Schritt.",
+      steps: [
+        "Zwei Laptops stehen nebeneinander. Es gibt <b>kein Kabel</b> und kein WLAN: Sie können nichts austauschen.",
+        "Jetzt verbindet ein <b>Netzwerkkabel</b> die beiden. Das ist schon ein kleines Netzwerk.",
+        "Laptop A schickt ein Paket. Darauf steht die <b>Adresse</b> des Empfängers: 192.168.0.11.",
+        "Laptop B hat das Paket bekommen und <b>antwortet</b>. Die Antwort geht an 192.168.0.10 zurück."
+      ],
+      zeige(i) {
+        n.neu();
+        if (i <= 0) n.kabel("a", "b", "weg");
+        if (i === 0) n.schild("a", "Wohin damit?");
+        if (i === 2) n.paket("a", { text: "an 192.168.0.11" }).kabel("a", "b", "an").an("a", true);
+        if (i === 3) n.paket("a", { farbe: "#1b8a4b", text: "Antwort" }).kabel("a", "b", "an").an("b", true);
+      }
+    }, "anim-netz");
+  }
+});
+
+W.aufgabe({
+  titel: "Was muss auf dem Paket stehen?",
+  auftrag: "Du hast gesehen, wie das Paket von Laptop A zu Laptop B wandert. Kreuze an.",
+  hinweise: ["Sieh dir Schritt 3 der Animation noch einmal an.", "Vergleiche mit einem Brief: Was braucht die Post, damit er ankommt?", "Gesucht ist die Angabe, die sagt, <b>für wen</b> das Paket ist."],
+  lehrer: { ziel: "Daten werden als Pakete an eine Adresse geschickt.", anleitung: "Einzelarbeit. Bei Bedarf noch einmal eine Aufgabe zurückgehen und die Animation ansehen.",
+    loesung: "die Adresse des Empfängers", fehler: ["„Uhrzeit“ oder „Name der Schule“ – beides hilft dem Netz nicht, das richtige Gerät zu finden."] },
+  bau(box) {
+    Modul.makeMC(box, [
+      { q: "Was muss auf einem Datenpaket stehen, damit es ankommt?", o: ["die Adresse des Empfängers", "der Name der Schule", "die Uhrzeit", "die Länge des Kabels"], a: 0,
+        e: "Wie bei einem Brief: Ohne Adresse weiß niemand, wohin das Paket soll." }
+    ], "mc-paket");
+  }
+});
+
+W.aufgabe({
+  titel: "Drei Geräte, drei Aufgaben",
+  auftrag: "Tippe zuerst ein Gerät an, dann seine Aufgabe.",
+  vorwissen: "<p>Zu Hause steckt oft alles in <b>einem</b> Kasten: Der „WLAN-Router“ ist Router, Switch und Accesspoint zugleich. In einer Schule sind es meist getrennte Geräte.</p>",
+  hinweise: ["Die Erklärungen stehen in deinem Regelhefteintrag.", "„Access“ ist Englisch und heißt Zugang. Der Accesspoint ist der Zugang per Funk.", "Switch → mehrere Geräte in <b>einem</b> Netz · Router → verbindet <b>verschiedene</b> Netze · Accesspoint → Funk (WLAN) · Kabel → leitet die Daten."],
+  lehrer: { ziel: "Netzwerkkomponenten und ihre Aufgabe unterscheiden (Lehrplan: Router, Accesspoint, Switch).",
+    anleitung: "Wenn möglich echte Geräte zeigen: Wo hängt im Klassenzimmer der Accesspoint? Wo steht der Switch?",
+    loesung: "Switch – verbindet mehrere Geräte in einem Netz · Router – verbindet verschiedene Netze · Accesspoint – bringt Geräte per Funk ins Netz · Netzwerkkabel – leitet die Daten von Gerät zu Gerät.",
+    fehler: ["Switch und Router werden verwechselt. Merkhilfe: Der Router kennt die Route in ein anderes Netz."] },
+  bau(box) {
+    Modul.makePaare(box, [
+      ["Switch", "verbindet mehrere Geräte in einem Netz"],
+      ["Router", "verbindet verschiedene Netze"],
+      ["Accesspoint", "bringt Geräte per Funk (WLAN) ins Netz"],
+      ["Netzwerkkabel", "leitet die Daten von Gerät zu Gerät"]
+    ], "paare-geraete");
+  }
+});
+
+W.aufgabe({
+  titel: "Einen Netzplan lesen",
+  auftrag: "Das ist der Netzplan einer kleinen Schreinerei. Sieh ihn dir genau an und beantworte die Fragen.",
+  hinweise: ["Zähle die Linien: Jede Linie ist ein Kabel.", "Der Switch sitzt in der Mitte – an ihm hängen alle Geräte der Werkstatt.", "Vom Switch führt ein Kabel zum Router. Erst der Router verbindet die Werkstatt mit einem anderen Netz."],
+  lehrer: { ziel: "Ein lokales Netzwerk in einer bildlichen Darstellung lesen (Lehrplan LB 1).",
+    anleitung: "Vorher klären: Kästchen = Gerät, Linie = Kabel, darunter Name und Adresse.",
+    loesung: "Frage 1: der Switch · Frage 2: drei · Frage 3: der Router.",
+    fehler: ["Der Router wird als viertes Gerät am Switch mitgezählt – gefragt sind nur die Computer."] },
+  bau(box) {
+    box.innerHTML = '<div class="nb"></div><div class="mc"></div>';
+    Modul.netzBild($(".nb", box), { b: 640, h: 300, alt: "Netzplan: In der Mitte ein Switch. Daran hängen ein PC im Büro, ein Laptop in der Werkstatt und ein PC im Lager. Vom Switch führt ein Kabel zu einem Router.",
+      geraete: [{ id: "s", art: "switch", x: 300, y: 130, name: "Switch" }, { id: "r", art: "router", x: 545, y: 130, name: "Router" },
+        { id: "a", art: "pc", x: 90, y: 60, name: "PC Büro", ip: "192.168.0.10" }, { id: "b", art: "notebook", x: 90, y: 215, name: "Laptop Werkstatt", ip: "192.168.0.11" }, { id: "c", art: "pc", x: 300, y: 235, name: "PC Lager", ip: "192.168.0.12" }],
+      kabel: [["a", "s"], ["b", "s"], ["c", "s"], ["s", "r"]] });
+    Modul.makeMC($(".mc", box), [
+      { q: "Welches Gerät verbindet die drei Computer miteinander?", o: ["der Switch", "der Router", "der PC im Büro", "das längste Kabel"], a: 0, e: "Am Switch hängen alle Computer der Werkstatt." },
+      { q: "Wie viele Computer gehören zu diesem Netz?", o: ["drei", "zwei", "vier", "fünf"], a: 0, e: "PC Büro, Laptop Werkstatt und PC Lager. Switch und Router sind keine Computer zum Arbeiten." },
+      { q: "Die Schreinerei will ins Internet. Welches Gerät verbindet ihr Netz mit einem anderen Netz?", o: ["der Router", "der Switch", "der Laptop", "der PC im Lager"], a: 0, e: "Der Router verbindet verschiedene Netze." }
+    ], "mc-plan");
+  }
+});
+
+W.aufgabe({
+  titel: "Video: Zwei Rechner direkt verbinden",
+  auftrag: "Im Video siehst du, wie das in Filius geht. Der Film hält zweimal an und stellt dir eine Frage. Gleich danach machst du es selbst.",
+  hinweise: ["Du kannst den Film jederzeit anhalten und zurückspulen.", "Stopp 1: Was liegt zwischen den beiden Rechnern? Stopp 2: Denke an Hausnummern in einer Straße.", "Stopp 1: ein Kabel. Stopp 2: Zwei Geräte mit derselben Adresse könnte niemand unterscheiden."],
+  lehrer: { ziel: "Den Ablauf in Filius einmal sehen, bevor die Klasse ihn selbst ausführt.",
+    anleitung: "Der Film (Kanal „Herr Sauer“, 2 Minuten) wird erst nach dem Antippen von YouTube geladen. Die letzten 45 Sekunden betreffen Dateinamen einer anderen Schule – sie können übersprungen werden. Lädt YouTube im Schulnetz nicht, erscheinen die Fragen ohne Film.",
+    loesung: "Stopp 1: ein Kabel · Stopp 2: damit man die Rechner unterscheiden kann.",
+    fehler: ["Im Film heißen die Geräte „Rechner 10“ und „Rechner 11“, in unserem Auftrag „Laptop A“ und „Laptop B“ – das ist nur der Name."],
+    test: "Transkript am 13.10.2026 vollständig gelesen (automatische Untertitel). Bei eingebetteten YouTube-Filmen kann Werbung erscheinen." },
+  bau(box) {
+    Modul.makeFilm(box, { vid: "nlFXxrVOMGQ", titel: "01 Peer to peer", quelle: "Herr Sauer (YouTube)", dauer: "2 Minuten",
+      stops: [
+        { t: 21, q: { q: "Was brauchen zwei Rechner, damit sie Daten austauschen können?", o: ["eine Verbindung, zum Beispiel ein Kabel", "denselben Hintergrund", "zwei Mäuse", "einen Drucker"], a: 0, e: "Ohne Verbindung gibt es keinen Weg für die Daten." } },
+        { t: 42, q: { q: "Warum bekommen die beiden Rechner unterschiedliche IP-Adressen?", o: ["damit man sie unterscheiden kann", "damit sie schneller starten", "weil das Kabel zwei Enden hat", "damit sie gleich heißen"], a: 0, e: "Wie Hausnummern in einer Straße: Jede Adresse gibt es nur einmal." } }
+      ] }, "film1-");
+  }
+});
+
+/* ============ Teil 3: Am PC ============ */
+W.teil("Am PC: Filius", "Anwenden");
+
+function pruefeZwei(n) {
+  const r = n.rechner;
+  let paar = null;
+  r.forEach(a => r.forEach(b => { if (!paar && a !== b && n.verbunden(a.id, b.id)) paar = [a, b]; }));
+  const adressen = r.every(g => g.ips.length > 0), netz = adressen && r.every(g => g.ips.every(ip => ip.indexOf("192.168.0.") === 0));
+  return [
+    { ok: r.length === 2, text: r.length === 2 ? "Zwei Computer stehen auf der Fläche." : "Auf der Fläche sollen genau zwei Computer stehen. Gefunden: " + r.length + "." },
+    { ok: !!paar, text: paar ? "Die beiden sind mit einem Kabel verbunden." : "Die Computer sind noch nicht mit einem Kabel verbunden." },
+    { ok: r.length >= 2 && adressen && !n.doppelt.length, text: n.doppelt.length ? "Zwei Computer haben dieselbe Adresse: " + n.doppelt[0] + ". Ändere eine davon." : "Jeder Computer hat eine eigene IP-Adresse." },
+    { ok: r.length >= 2 && netz, text: netz ? "Beide Adressen beginnen mit 192.168.0." : "Beide Adressen sollen mit 192.168.0. beginnen." }
+  ];
+}
+
+W.aufgabe({
+  titel: "Zwei Laptops verbinden",
+  auftrag: "Jetzt bist du dran: Baue das kleinste Netzwerk der Welt – zwei Laptops und ein Kabel.",
+  vorwissen: "<p>Filius ist ein <b>Simulationsprogramm</b>: Du baust ein Netzwerk am Bildschirm, ohne echte Kabel zu stecken. Fehler kosten hier nichts.</p>",
+  hinweise: ["Ein Gerät kommt nur auf die Fläche, wenn du es mit <b>gedrückter</b> Maustaste aus der Leiste ziehst.",
+    "Name und IP-Adresse stehen unten im Fenster – aber erst nach einem <b>Doppelklick</b> auf das Gerät. Drücke nach jeder Eingabe die Eingabetaste.",
+    "Jedes neue Gerät hat zuerst die Adresse 192.168.0.10. Laptop A behält sie. Bei Laptop B änderst du die letzte Zahl: <code>192.168.0.11</code>. Dann: „Verbindung“ anklicken, Laptop A anklicken, Laptop B anklicken, <kbd>Esc</kbd> drücken, speichern."],
+  lehrer: { ziel: "In einer Simulation zwei Computer verbinden und passend adressieren.",
+    anleitung: "Filius 2.14.0 starten lassen (Sprache „Deutsch“ bestätigen). Die Schritte stehen zum Abhaken im Auftrag. Am Ende lädt jedes Kind seine gespeicherte Datei hoch – sie wird nur im Browser geprüft, nichts verlässt das Gerät. Am Tablet gibt es stattdessen eine Frage.",
+    loesung: "Zwei Notebooks mit einer Linie dazwischen: Laptop A 192.168.0.10, Laptop B 192.168.0.11, gespeichert als netz1.fls.",
+    fehler: ["Beide Laptops behalten 192.168.0.10 (Adresse doppelt).", "Das Kabel „klebt“ am Mauszeiger – Esc drücken.", "Gespeichert wird im Aktionsmodus nicht: zurück in den Entwurfsmodus (Hammer)."],
+    bedienung: "„Datei auswählen“ → die gespeicherte .fls-Datei. Die Rückmeldung nennt jeden Prüfpunkt einzeln." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Zwei Laptops verbinden", pc: "Filius", zeit: "etwa 10 Minuten",
+      ziel: "Zwei Notebooks sind mit einem Kabel verbunden. Jedes hat einen Namen und eine eigene IP-Adresse. Dein Netzwerk ist gespeichert.",
+      schritte: [
+        "Öffne das Programm <b>Filius</b>. Fragt es nach der Sprache, lass „Deutsch“ stehen und klicke auf <span class=\"menue\">Bestätigen</span>.",
+        { t: "Ziehe links aus der Leiste ein <span class=\"menue\">Notebook</span> mit <b>gedrückter</b> Maustaste auf die weiße Fläche. Hole dir genauso ein zweites.", bild: "../../7M/Informatik/assets/filius/fenster-entwurf.png", alt: "Filius im Entwurfsmodus: links die Leiste mit Verbindung, Rechner, Notebook, Switch und Vermittlungsrechner, rechts die leere weiße Fläche" },
+        "Mache einen <b>Doppelklick</b> auf das erste Notebook. Unten erscheinen seine Einstellungen. Schreibe bei <span class=\"menue\">Name</span>: <b>Laptop A</b> und drücke die Eingabetaste. Die IP-Adresse 192.168.0.10 bleibt.",
+        { t: "Doppelklick auf das zweite Notebook. Name: <b>Laptop B</b>. Ändere die <span class=\"menue\">IP-Adresse</span> in <b>192.168.0.11</b>. Drücke nach jeder Eingabe die Eingabetaste.", bild: "../../7M/Informatik/assets/filius/einstellungen.png", alt: "Filius: Unten stehen die Einstellungen eines Notebooks mit Name, IP-Adresse und Netzmaske" },
+        "Klicke in der Leiste links ganz oben auf <span class=\"menue\">Verbindung</span> (das rote Kabel). Klicke dann zuerst auf Laptop A und danach auf Laptop B. Eine Linie verbindet die beiden.",
+        "Am Mauszeiger hängt noch ein Kabel. Drücke die Taste <kbd>Esc</kbd>, dann ist es weg.",
+        "Speichere: Klicke oben auf die <span class=\"menue\">Diskette</span>. Wähle deinen Ordner, gib der Datei den Namen <b>netz1</b> und klicke auf <span class=\"menue\">Speichern</span>."
+      ],
+      loesung: "Auf der Fläche stehen zwei Notebooks mit einer Linie dazwischen. Laptop A hat 192.168.0.10, Laptop B hat 192.168.0.11. Die Datei heißt netz1.fls.",
+      pruefung: {
+        art: "datei", accept: ".fls", lies: Modul.liesFilius, pruefe: pruefeZwei,
+        text: "Wähle deine gespeicherte Datei <b>netz1.fls</b> aus. Sie wird nur hier auf dem Gerät geprüft und nicht hochgeladen.",
+        ersatz: { art: "wort", frage: "Welche IP-Adresse hat ein neues Gerät in Filius, bevor du sie änderst?", antworten: ["192.168.0.10"],
+          tipp: "Stelle ein neues Notebook auf die Fläche und sieh nach einem Doppelklick in seinen Einstellungen nach." }
+      }
+    }, "auf1");
+  }
+});
+
+W.aufgabe({
+  titel: "Die Verbindung testen: ping",
+  geheim: ["4"],
+  auftrag: "Ein Kabel allein beweist noch nichts. Mit dem Befehl <code>ping</code> fragst du Laptop B: „Bist du da?“",
+  vorwissen: "<p>In Filius gibt es zwei Arbeitsweisen: Im <b>Entwurfsmodus</b> (Hammer) baust du. Im <b>Aktionsmodus</b> (grüner Pfeil) probierst du aus, was die Computer tun.</p>",
+  hinweise: ["Die Befehlszeile musst du auf Laptop A erst installieren: Software-Installation → rechts „Befehlszeile“ anklicken → oberer Pfeil → „Änderungen annehmen“.",
+    "Hinter <code>/&gt;</code> tippst du <code>ping</code>, ein Leerzeichen und die Adresse von Laptop B. Dann die Eingabetaste.",
+    "Der ganze Befehl heißt <code>ping 192.168.0.11</code>. Zähle in der letzten Zeile: „… Paket(e) gesendet, … Paket(e) empfangen“."],
+  lehrer: { ziel: "Die Erreichbarkeit eines Geräts mit ping prüfen und das Ergebnis lesen.",
+    anleitung: "Darauf hinweisen: Im Aktionsmodus verschwindet die Geräteleiste. Die Antwort braucht zwei bis drei Sekunden.",
+    loesung: "4 Pakete gesendet, 4 empfangen, 0 % Paketverlust → Antwort: 4.",
+    fehler: ["ping an die eigene Adresse 192.168.0.10 statt an Laptop B: Das klappt immer (der Rechner antwortet sich selbst) und beweist nichts – auf die Adresse im Befehl achten.", "Tippfehler in der Adresse: Dann meldet Filius viermal „Timeout!“ (dauert etwa 20 Sekunden)."],
+    bedienung: "Das Kind trägt die Zahl der empfangenen Pakete ein und tippt auf „Lösung überprüfen“." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Mit ping testen", pc: "Filius", zeit: "etwa 8 Minuten",
+      ziel: "Laptop A schickt einen Ping an Laptop B – und bekommt Antwort.",
+      schritte: [
+        "Wechsle in den <b>Aktionsmodus</b>: Klicke oben auf den <span class=\"menue\">grünen Pfeil</span>. Die Leiste links verschwindet.",
+        "Klicke auf <b>Laptop A</b>. Sein Bildschirm geht auf. Klicke dort auf <span class=\"menue\">Software-Installation</span>.",
+        { t: "Klicke rechts in der Liste auf <span class=\"menue\">Befehlszeile</span>, dann auf den <b>oberen Pfeil</b> (er zeigt nach links). Klicke zum Schluss auf <span class=\"menue\">Änderungen annehmen</span>.", bild: "../../7M/Informatik/assets/filius/software-installation.png", alt: "Filius: Fenster Software-Installation mit der Liste Verfügbar und den Pfeilen in der Mitte" },
+        "Auf dem Bildschirm von Laptop A liegt jetzt das Symbol <span class=\"menue\">Befehlszeile</span>. Klicke es an.",
+        "Tippe hinter <code>/&gt;</code> den Befehl <code>ping 192.168.0.11</code> und drücke die Eingabetaste. Warte, bis die letzte Zeile erscheint.",
+        "Lies die letzte Zeile: Wie viele Pakete wurden gesendet, wie viele empfangen?"
+      ],
+      loesung: "Die letzte Zeile heißt: 4 Paket(e) gesendet, 4 Paket(e) empfangen, 0% Paketverlust.",
+      pruefung: { art: "zahl", frage: "Wie viele Pakete hat Laptop A <b>empfangen</b>?", wert: 4, tol: 0, einheit: "Pakete",
+        tipp: "Die Zahl steht in der letzten Zeile nach dem ping: „… Paket(e) empfangen“. Steht dort 0, stimmt die Adresse nicht oder das Kabel fehlt.",
+        erfolg: "Alle vier Pakete sind angekommen – die Verbindung steht." }
+    }, "auf2");
+  }
+});
+
+/* ============ Teil 4: Kontrollieren ============ */
+W.teil("Kontrollieren", "Lerncheck");
+
+W.aufgabe({
+  titel: "Wo steckt der Fehler?",
+  auftrag: "Drei Kinder kommen mit dem ping nicht weiter. Entscheide bei jedem Fall, woran es liegt.",
+  hinweise: ["Vergleiche in jedem Fall die beiden Adressen und achte darauf, ob ein Kabel erwähnt wird.", "Zwei Geräte mit derselben Adresse kann das Netz nicht unterscheiden.", "Fall mit zwei gleichen Adressen → „Adresse doppelt“ · kein Kabel gezogen → „Kabel fehlt“ · alles verschieden und verbunden → der Tippfehler steckt im Befehl."],
+  lehrer: { ziel: "Einfache Netzwerkfehler erkennen und benennen (Probenstoff).",
+    anleitung: "Ein Fall nach dem anderen; falsch entschiedene Fälle kommen noch einmal.",
+    loesung: "Mia: Adresse doppelt · Jonas: Kabel fehlt · Elif: falsche Adresse im Befehl.",
+    fehler: ["Bei Elif wird „Kabel fehlt“ gewählt – im Text steht aber, dass die Linie da ist.", "Gut zu wissen: Ein ping an die eigene Adresse klappt in Filius immer (der Rechner antwortet sich selbst). Deshalb kommt bei Mia eine Antwort, obwohl Laptop B nie erreicht wird."] },
+  bau(box) {
+    Modul.makeEntscheiden(box, {
+      frage: "Woran liegt es?",
+      optionen: ["Kabel fehlt", "Adresse doppelt", "falsche Adresse im Befehl"],
+      faelle: [
+        { html: "<b>Mia:</b> „Meine zwei Laptops sind mit einer Linie verbunden. Beide haben noch die Adresse 192.168.0.10. Ich will Laptop B erreichen und tippe auf Laptop A: ping 192.168.0.10. Es kommt eine Antwort, aber ich weiß nicht, ob sie von Laptop B kommt.“", kurz: "Mia", a: 1, e: "Beide Laptops haben dieselbe Adresse. Ein ping an die eigene Adresse klappt immer, also antwortet Laptop A sich selbst. Laptop B wird so nie erreicht – er braucht eine eigene Adresse, zum Beispiel 192.168.0.11." },
+        { html: "<b>Jonas:</b> „Laptop A hat 192.168.0.10, Laptop B hat 192.168.0.11. Ich habe die Geräte nur nebeneinandergestellt. Der ping meldet Timeout.“", kurz: "Jonas", a: 0, e: "Ohne Kabel gibt es keinen Weg für die Daten." },
+        { html: "<b>Elif:</b> „Laptop A hat 192.168.0.10, Laptop B hat 192.168.0.11, die Linie ist da. Ich tippe: ping 192.168.0.12 – Timeout.“", kurz: "Elif", a: 2, e: "Die Adresse 192.168.0.12 hat kein Gerät. Richtig wäre ping 192.168.0.11." }
+      ],
+      fertig: "Du findest die drei häufigsten Fehler."
+    }, "fehler");
+  }
+});
+
+W.aufgabe({
+  titel: "Lerncheck",
+  auftrag: "Richtig oder falsch? Entscheide bei jeder Aussage.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Ein Switch arbeitet <b>in</b> einem Netz, ein Router <b>zwischen</b> Netzen.", "Richtig sind die Aussagen zum Netzwerk, zum Accesspoint und zu ping. Falsch: gleiche Adresse und Router."],
+  lehrer: { ziel: "Kernwissen der Stunde sichern.", anleitung: "Einzelarbeit, etwa 3 Minuten.",
+    loesung: "richtig · falsch · richtig · falsch · richtig", fehler: ["Aussage 4: Der Router verbindet verschiedene Netze, nicht die Geräte eines Netzes."] },
+  bau(box) {
+    Modul.makeTF(box, [
+      ["Ein Netzwerk besteht aus mindestens zwei verbundenen Geräten.", true],
+      ["Zwei Geräte im selben Netz dürfen dieselbe IP-Adresse haben.", false],
+      ["Ein Accesspoint bringt Geräte per Funk ins Netz.", true],
+      ["Ein Router verbindet die Geräte innerhalb eines Netzes, ein Switch verbindet verschiedene Netze.", false],
+      ["Mit ping prüfe ich, ob ein anderes Gerät antwortet.", true]
+    ], "tf");
+  }
+});
+
+W.fertig();
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

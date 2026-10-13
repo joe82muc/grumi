@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Bedingungen | Informatik 9</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="../../8M/Informatik/einheit8.css">
+<link rel="stylesheet" href="einheit9.css">
+<link rel="stylesheet" href="bloecke9.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 9</small></a>
+    <nav class="stations" id="stations"></nav>
+    <span class="stars" id="stars">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks">
+      <a href="index.html">Übersicht Informatik 9M</a>
+      <a href="../../9R/Informatik/index.html">Übersicht Informatik 9R</a>
+      <a href="../../index.html">Startseite</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 9 · Modul 5: Programmieren mit Scratch · Einheit 4</div>
+    <h1>Bedingungen</h1>
+    <p>An der Kinokasse hängt die Antwort vom Alter ab: Wer alt genug ist, bekommt eine Karte, wer zu jung ist, nicht. Auch ein Programm kann so entscheiden. Heute bringst du ihm das bei.</p>
+    <div class="zeit">etwa 40 Minuten · erst mit GRUMI-Blöcken, dann Praxis am Windows-PC mit Scratch</div>
+    <div class="goals">
+      <div>Ich erkläre, dass eine Bedingung wahr oder falsch ist.</div>
+      <div>Ich baue „falls … dann“ und „falls … dann … sonst“.</div>
+      <div>Ich vergleiche eine Antwort mit einer Zahl und teste die Grenze.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="modulStand"></div>
+  <div id="weg"></div>
+</main>
+
+<footer class="wrap">Informatik 9 · Dein Fortschritt wird mit deinem Code gespeichert. · Scratch ist ein Projekt der Scratch Foundation (scratch.mit.edu). Die Blöcke, die Figur und die Bühne auf dieser Seite sind eigene Nachbildungen (GRUMI-Blöcke). Bildschirmfoto aus Scratch: Scratch is a project of the Scratch Foundation. It is available for free at https://scratch.mit.edu – Scratch ist ein Projekt der Scratch Foundation und kostenlos unter scratch.mit.edu verfügbar. Die Bildschirmfotos stehen unter der Lizenz CC BY-SA.</footer>
+
+<div id="pop" role="dialog"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info9.js"></script>
+<script src="bloecke9.js"></script>
+<script src="../../8M/Informatik/excel-datei.js"></script>
+<script src="scratch-aufgaben9.js"></script>
+<script>
+(function () {
+"use strict";
+const {$} = Modul;
+
+Modul.start9({
+  key: "grumi-i9-bedingungen-v1",
+  thema: "Scratch, Bedingung und Alternative: falls dann, falls dann sonst, Bedingung ist wahr oder falsch, Vergleiche mit gleich, kleiner, größer, Grenzfälle testen (Kino-Kasse ab 12, Zahl erraten, Temperatur)",
+  glossary: {
+    bedingung: ["Bedingung", "Eine Aussage, die wahr oder falsch ist, zum Beispiel: Die Antwort ist größer als 11."],
+    alternative: ["Alternative", "Das Programm hat zwei Wege. Je nach Bedingung läuft der „dann“-Teil oder der „sonst“-Teil."],
+    vergleich: ["Vergleich", "Zwei Werte werden verglichen: gleich (=), kleiner (&lt;) oder größer (&gt;). Das Ergebnis ist wahr oder falsch."],
+    grenze: ["Grenzfall", "Der Wert genau an der Grenze, zum Beispiel 12 bei „ab 12 Jahren“. Hier passieren die meisten Fehler."]
+  }
+});
+
+const W = Modul.lernweg("#weg");
+
+/* ---------- Hilfen für die Prüfungen der Block-Aufgaben ---------- */
+// vergleicht Gesagtes ohne Groß-/Kleinschreibung und ohne Satzzeichen am Ende
+const norm = s => String(s).toLowerCase().replace(/[\s.!?]+$/g, "").replace(/\s+/g, " ").trim();
+const wort = l => l.length ? "„" + l.join("“ und „") + "“" : "nichts";
+// faelle: [[Antwort, [soll …], Zusatzhinweis]] – liefert den ersten falschen Fall als Hinweistext, sonst null
+function teste(e, faelle) {
+  for (const [a, soll, zusatz] of faelle) {
+    const ist = e.lauf({antworten: [a]}).gesagt;
+    if (ist.map(norm).join("|") !== soll.map(norm).join("|"))
+      return "Bei der Antwort " + a + " sagt der Roboter " + wort(ist) + ". Er soll " + wort(soll) + " sagen." + (zusatz ? " " + zusatz : "");
+  }
+  return null;
+}
+
+/* ============ Regelheft ============ */
+W.teil("Regelheft", "Schreiben");
+W.regelheft({
+  titel: "Bedingung und Alternative",
+  html: `<p>Eine <span class="rot">Bedingung</span> ist entweder <span class="rot">wahr</span> oder <span class="rot">falsch</span>, z. B. <span class="blau">Antwort &gt; 11</span>.</p>
+    <p><span class="blau">falls</span> Bedingung <span class="blau">dann</span> …: Der Teil läuft nur, wenn sie wahr ist.</p>
+    <p class="leer"></p>
+    <p><span class="blau">falls … dann … sonst</span> ist die <span class="rot">Alternative</span>: Es läuft entweder der „dann“-Teil oder der „sonst“-Teil.</p>
+    <p>Vergleiche: <span class="blau">=</span> gleich · <span class="blau">&lt;</span> kleiner · <span class="blau">&gt;</span> größer</p>
+    <p>„Ab 12“ heißt „größer als 11“. Ein Zeichen für „größer oder gleich“ gibt es in Scratch nicht.</p>`,
+  lehrer: { ziel: "Die Kernaussagen zu Bedingung, „falls … dann“, Alternative („sonst“) und den drei Vergleichszeichen stehen im Heft.",
+    anleitung: "Etwa 5 Minuten. Die Klasse schreibt ab. Erst nach dem Abhaken erscheint die erste Aufgabe. Zum Einstieg passt eine Frage: „Was passiert, wenn ich sage: Wenn es regnet, nehme ich den Schirm?“",
+    loesung: "Der Eintrag steht vollständig im Heft (vier kurze Aussagen)." }
+});
+
+/* ============ Teil 2: GRUMI-Blöcke ============ */
+W.teil("Verstehen und ausprobieren", "Sehen · Ausprobieren");
+
+W.aufgabe({
+  titel: "Der Roboter muss sich entscheiden",
+  bild: { src: "assets/bilder/bedingungen.jpg", alt: "Ein kleiner weißer Roboter steht auf einem Feldweg an einer Gabelung und überlegt, eine Hand am Kinn. Links weht eine grüne Fahne, rechts eine rote. Über seinem Kopf schwebt eine gelbe Raute mit zwei Pfeilen, einem grünen nach links und einem roten nach rechts.", text: "Ein Weg, zwei Möglichkeiten: Eine Bedingung entscheidet, wohin es geht. (Bild mit KI erstellt)" },
+  auftrag: "Der Roboter steht an einer Gabelung. Ein Programm muss sich genauso entscheiden. Beantworte die Fragen.",
+  vorwissen: "<p>Du kennst das aus dem Alltag: <b>Wenn</b> es regnet, <b>dann</b> nehme ich einen Schirm, <b>sonst</b> nicht. Im Programm heißt das <b>falls … dann … sonst</b>. Die Aussage „es regnet“ ist die <b>Bedingung</b>. Sie ist entweder wahr oder falsch.</p>",
+  hinweise: ["Frage 1: Überlege, was bei einer Ja-Nein-Entscheidung herauskommen kann. Frage 2: Setze die Zahl in die Bedingung ein.", "Eine Bedingung hat nur zwei mögliche Ergebnisse. Bei Frage 2 ersetzt du „Antwort“ durch 8 und fragst: Ist 8 größer als 10?", "Frage 1: wahr oder falsch. Frage 2: 8 ist nicht größer als 10, also ist die Bedingung falsch."],
+  lehrer: { ziel: "Verstehen: Eine Bedingung ist eine Aussage, die wahr oder falsch ist; davon hängt ab, welcher Weg im Programm läuft.",
+    anleitung: "Bild am Beamer zeigen: „Welche Entscheidung muss der Roboter treffen?“ Dann Beispiele aus dem Alltag sammeln (Wenn die Ampel rot ist …). Danach die zwei Fragen in Einzelarbeit.",
+    loesung: "Frage 1: wahr oder falsch. Frage 2: falsch (8 ist nicht größer als 10).",
+    fehler: ["„Ja oder nein“ statt „wahr oder falsch“ – das ist inhaltlich dasselbe und darf gelten, der Fachbegriff ist aber wahr/falsch.", "Bei Frage 2 wird nur auf das Wort „größer“ geachtet und nicht gerechnet."] },
+  bau(box) {
+    Modul.makeMC(box, [
+      { q: "Der Roboter prüft eine Bedingung. Welche Ergebnisse sind möglich?", o: ["wahr oder falsch", "nur wahr", "eine beliebige Zahl", "ein Wort"], a: 0, e: "Eine Bedingung ist wie eine Frage, die man nur mit Ja oder Nein beantworten kann: wahr oder falsch." },
+      { q: "Die Antwort ist 8. Ist die Bedingung „Antwort > 10“ wahr oder falsch?", o: ["falsch", "wahr"], a: 0, e: "8 ist nicht größer als 10. Die Bedingung ist falsch." }
+    ], "mc-weg");
+  }
+});
+
+W.aufgabe({
+  titel: "Probiere das Programm aus",
+  auftrag: "Hier ist ein fertiges Programm. Das Kästchen unten zeigt die Bühne mit dem Roboter. Im echten Scratch funktioniert es gleich, es sieht nur etwas anders aus. Starte das Programm mehrmals mit verschiedenen Zahlen und finde die Grenze.",
+  vorwissen: "<p>Klicke auf <b>▶ Programm starten</b>. Der Roboter stellt eine Frage. Tippe unten auf der Bühne deine Zahl ein und bestätige. Danach kannst du neu starten.</p>",
+  hinweise: ["Probiere erst 5, dann 50. Was ändert sich?", "Die Grenze liegt irgendwo zwischen den beiden Zahlen. Probiere 20, 21 und 22.", "Mit 20 sagt der Roboter noch den „sonst“-Satz, mit 21 den „dann“-Satz. Die Bedingung heißt Antwort &gt; 20: 21 ist größer, 20 nicht."],
+  geheim: ["21"],
+  lehrer: { ziel: "Ausprobieren: Das Programm verzweigt abhängig von der Eingabe; die Grenze liegt bei „größer als 20“ – 20 selbst gehört nicht dazu.",
+    anleitung: "Am Beamer vorführen: erst 5, dann 50, dann gemeinsam eingrenzen (20, 21). Die Klasse soll vorhersagen, bevor gestartet wird.",
+    loesung: "21. Mit 21 ist „Antwort > 20“ wahr; mit 20 ist sie falsch.",
+    fehler: ["Es wird 20 genannt: „größer als 20“ schließt 20 selbst aus.", "Die Eingabe wird nicht bestätigt (Eingabetaste oder Haken), dann läuft das Programm nicht weiter."],
+    bedienung: "„▶ Programm starten“, Zahl auf der Bühne eintippen und mit der Eingabetaste bestätigen. Mit „↺ Bühne zurücksetzen“ beginnt man neu." },
+  bau(box) {
+    box.innerHTML = '<div class="ed"></div><div class="ein" style="margin-top:12px"></div>';
+    Modul.blockEditor($(".ed", box), {
+      palette: ["flagge", "frage", "fallsSonst", "sage", "antwort"],
+      start: [["flagge"], ["frage", "Wie viele Gäste kommen?"], ["fallsSonst", [">", ["antwort"], 20], [["sage", "Wir brauchen mehr Stühle!"]], [["sage", "Es reicht."]]]],
+      fest: 3
+    });
+    Modul.makeEingabe($(".ein", box), { frage: "Mit welcher kleinsten ganzen Zahl sagt der Roboter „Wir brauchen mehr Stühle!“?", wert: 21, platz: "Zahl", tipp: "Probiere 20, 21 und 22 aus. Bei welcher Zahl wechselt der Satz?", erfolg: "Die Grenze liegt zwischen 20 und 21." }, "ein-grenze");
+  }
+});
+
+W.aufgabe({
+  titel: "Falls … dann",
+  auftrag: "Der Roboter fragt nach einer Zahl. Ist die Antwort 7, soll er „Richtig!“ sagen. Bei jeder anderen Zahl soll er schweigen.",
+  vorwissen: "<p>Tippe einen Block in der Palette an, dann setzt er sich an die gestrichelte Marke. In der Bedingung stellst du das Vergleichszeichen (=, &lt;, &gt;) und die Zahl ein. Alles, was innerhalb von „falls“ steht, läuft nur bei „wahr“.</p>",
+  hinweise: ["Du brauchst den Block „falls … dann“ aus der Gruppe Steuerung und einen „sage“-Block.", "Der „sage“-Block gehört in die Klammer des „falls“-Blocks. Tippe zuerst auf die leere Klammer, dann auf „sage“.", "Setze „falls … dann“ unter die Frage. Stelle die Bedingung auf Antwort = 7. Tippe in die Klammer und füge „sage“ ein. Schreibe dort Richtig!"],
+  lehrer: { ziel: "Einen Block „falls … dann“ mit einem Vergleich bauen. Der Inhalt läuft nur, wenn die Bedingung wahr ist.",
+    anleitung: "Vorführen: Block anklicken, Bedingung einstellen, sage in die Klammer. Dann mit 7 und mit 3 starten. Die Prüfung testet das Verhalten mit mehreren Zahlen.",
+    loesung: "Wenn flagge · frage · falls Antwort = 7 dann: sage Richtig!. Bei 7 kommt „Richtig!“, bei 3, 8 und 70 kommt nichts.",
+    fehler: ["Der „sage“-Block steht unter dem „falls“ statt darin – dann sagt der Roboter „Richtig!“ immer.", "Das Vergleichszeichen steht noch auf „=“, aber die Zahl ist nicht 7."],
+    bedienung: "Block antippen = einfügen. Die Klammer des „falls“ antippen, dann kommt der nächste Block hinein. Prüfen mit „Lösung überprüfen“." },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Frage nach einer Zahl. Ist die Antwort <b>7</b>, sagt der Roboter <b>Richtig!</b> Sonst sagt er nichts.</p>",
+      palette: ["flagge", "frage", "falls", "sage", "antwort"],
+      start: [["flagge"], ["frage", "Welche Zahl denke ich mir?"]], fest: 2,
+      pruefe: e => {
+        if (!Modul.blockHat(e.programm(), "falls")) return "Es fehlt der Block „falls … dann“. Du findest ihn in der Gruppe Steuerung.";
+        return teste(e, [["7", ["Richtig!"], "Prüfe die Zahl in der Bedingung und den Text im „sage“-Block."], ["3", [], "Der „sage“-Block muss in der Klammer des „falls“ stehen."], ["8", []], ["70", []]]) || true;
+      },
+      loesung: [["flagge"], ["frage", "Welche Zahl denke ich mir?"], ["falls", ["=", ["antwort"], 7], [["sage", "Richtig!"]]]], loesungAntworten: ["7"],
+      erfolg: "Richtig gebaut: Nur bei der Antwort 7 läuft der „dann“-Teil."
+    }, "bl-falls");
+  }
+});
+
+W.aufgabe({
+  titel: "Falls … dann … sonst",
+  auftrag: "Jetzt bekommt jede Zahl eine Antwort: Bei 7 sagt der Roboter „Richtig!“, bei jeder anderen Zahl „Leider nein“.",
+  vorwissen: "<p>Der Block <b>falls … dann … sonst</b> hat zwei Klammern. Die obere läuft, wenn die Bedingung <b>wahr</b> ist, die untere, wenn sie <b>falsch</b> ist. Das ist die <b>Alternative</b>: Es läuft immer genau eine der beiden.</p>",
+  hinweise: ["Nimm statt „falls … dann“ den Block „falls … dann … sonst“.", "Die Bedingung bleibt Antwort = 7. In die obere Klammer kommt „Richtig!“, in die untere „Leider nein“.", "Setze den Block unter die Frage. Stelle Antwort = 7 ein. Oben: sage Richtig! Unten (nach „sonst“): sage Leider nein"],
+  lehrer: { ziel: "Die Alternative „falls … dann … sonst“ bauen: Genau einer der zwei Teile läuft.",
+    anleitung: "Zuerst die Frage stellen: „Was soll bei 3 passieren?“ Dann den „sonst“-Teil zeigen. Mit 7 und mit einer anderen Zahl starten.",
+    loesung: "Wenn flagge · frage · falls Antwort = 7 dann sage Richtig! sonst sage Leider nein.",
+    fehler: ["Beide Sätze stehen im „dann“-Teil: Der Roboter sagt bei 7 beide Sätze.", "Der „sonst“-Teil bleibt leer: Bei einer falschen Zahl bleibt der Roboter stumm."],
+    bedienung: "Die untere Klammer (nach „sonst“) antippen, dann den „sage“-Block einfügen." },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Frage nach einer Zahl. Bei der Antwort <b>7</b> sagt der Roboter <b>Richtig!</b>, bei jeder anderen Zahl <b>Leider nein</b>.</p>",
+      palette: ["flagge", "frage", "fallsSonst", "sage", "antwort"],
+      start: [["flagge"], ["frage", "Welche Zahl denke ich mir?"]], fest: 2,
+      pruefe: e => {
+        if (!Modul.blockHat(e.programm(), "fallsSonst")) return "Es fehlt der Block „falls … dann … sonst“ aus der Gruppe Steuerung.";
+        return teste(e, [["7", ["Richtig!"], "Der Satz „Richtig!“ gehört in den oberen Teil."], ["3", ["Leider nein"], "Der Satz „Leider nein“ gehört in den „sonst“-Teil."], ["8", ["Leider nein"]], ["70", ["Leider nein"]]]) || true;
+      },
+      loesung: [["flagge"], ["frage", "Welche Zahl denke ich mir?"], ["fallsSonst", ["=", ["antwort"], 7], [["sage", "Richtig!"]], [["sage", "Leider nein"]]]], loesungAntworten: ["7"],
+      erfolg: "Eine Alternative: Immer läuft genau ein Teil."
+    }, "bl-sonst");
+  }
+});
+
+W.aufgabe({
+  titel: "Wahr oder falsch?",
+  auftrag: "Die Antwort ist 12. Entscheide bei jeder Bedingung, ob sie wahr oder falsch ist.",
+  hinweise: ["Setze 12 für „Antwort“ ein und frage dich bei jeder Zeile: Stimmt das?", "Achtung bei den Grenzen: 12 ist nicht größer als 12 und nicht kleiner als 12, aber gleich 12.", "Wahr sind: Antwort &gt; 11, Antwort = 12 und Antwort &lt; 13. Falsch sind: Antwort &gt; 12 und Antwort &lt; 12."],
+  lehrer: { ziel: "Bedingungen mit =, &lt; und &gt; für einen Wert auswerten, besonders am Grenzfall.",
+    anleitung: "Einzelarbeit. Danach an der Tafel eine Zahlengerade zeichnen und 11, 12, 13 markieren: Wo ist „größer als 11“ wahr?",
+    loesung: "Antwort > 11: wahr · Antwort > 12: falsch · Antwort = 12: wahr · Antwort < 12: falsch · Antwort < 13: wahr.",
+    fehler: ["„Antwort > 12“ wird als wahr gewertet, weil 12 „dabei“ ist – größer als 12 heißt aber 13 und mehr."] },
+  bau(box) {
+    Modul.makeEntscheiden(box, {
+      frage: "Die Antwort ist 12. Ist die Bedingung wahr oder falsch?",
+      optionen: ["wahr", "falsch"],
+      faelle: [
+        { html: "<code>Antwort &gt; 11</code>", kurz: "größer als 11", a: 0, e: "12 ist größer als 11. Wahr." },
+        { html: "<code>Antwort &gt; 12</code>", kurz: "größer als 12", a: 1, e: "12 ist nicht größer als 12. Falsch." },
+        { html: "<code>Antwort = 12</code>", kurz: "gleich 12", a: 0, e: "Die Antwort ist genau 12. Wahr." },
+        { html: "<code>Antwort &lt; 12</code>", kurz: "kleiner als 12", a: 1, e: "12 ist nicht kleiner als 12. Falsch." },
+        { html: "<code>Antwort &lt; 13</code>", kurz: "kleiner als 13", a: 0, e: "12 ist kleiner als 13. Wahr." }
+      ],
+      fertig: "Du wertest Bedingungen richtig aus – auch an der Grenze."
+    }, "ent-wahr");
+  }
+});
+
+W.aufgabe({
+  titel: "Zu klein, zu groß, richtig",
+  auftrag: "Der Roboter denkt sich die Zahl 7 aus. Er soll bei einem Tipp antworten: „Zu klein!“, „Zu groß!“ oder „Richtig!“. Dafür brauchst du mehrere Bedingungen.",
+  vorwissen: "<p>Du darfst mehrere „falls“-Blöcke hintereinander setzen. Jeder prüft seine eigene Bedingung. Probiere die Grenzen aus: Was sagt der Roboter bei 6, 7 und 8?</p>",
+  hinweise: ["Es gibt drei Fälle: kleiner als 7, größer als 7 und genau 7. Jeder Fall braucht einen eigenen „falls“-Block.", "Setze drei „falls … dann“-Blöcke hintereinander: Antwort &lt; 7, Antwort &gt; 7 und Antwort = 7. In jeden kommt ein „sage“-Block.", "Block 1: falls Antwort &lt; 7, sage Zu klein! · Block 2: falls Antwort &gt; 7, sage Zu groß! · Block 3: falls Antwort = 7, sage Richtig!"],
+  lehrer: { ziel: "Zwei oder drei Bedingungen hintereinander benutzen und mit Grenzwerten (6, 7, 8) testen.",
+    anleitung: "Die Klasse sagt zuerst laut, was bei 3, 7 und 9 passieren soll. Dann bauen. Die Prüfung testet 3, 6, 7, 8 und 12. Auch eine Lösung mit verschachteltem „falls … sonst“ wird akzeptiert.",
+    loesung: "frage · falls Antwort < 7: sage Zu klein! · falls Antwort > 7: sage Zu groß! · falls Antwort = 7: sage Richtig!",
+    fehler: ["Die Zeichen < und > sind vertauscht: Bei 3 kommt „Zu groß!“.", "Der Fall „genau 7“ fehlt: Bei 7 sagt der Roboter nichts.", "Falls-Blöcke stehen ineinander statt hintereinander, dann läuft der innere nie."],
+    bedienung: "Nach dem ersten „falls“ den Block antippen, damit die Marke dahinter springt, dann den nächsten „falls“ einfügen." },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Die Geheimzahl ist <b>7</b>. Der Roboter fragt nach einem Tipp und sagt <b>Zu klein!</b>, <b>Zu groß!</b> oder <b>Richtig!</b></p>",
+      palette: ["flagge", "frage", "falls", "fallsSonst", "sage", "antwort"],
+      start: [["flagge"], ["frage", "Welche Zahl habe ich im Kopf?"]], fest: 2,
+      pruefe: e => teste(e, [
+        ["3", ["Zu klein!"], "Kleiner als 7 braucht das Zeichen <."],
+        ["6", ["Zu klein!"], "Auch 6 ist noch kleiner als 7."],
+        ["7", ["Richtig!"], "Genau 7 ist weder kleiner noch größer: Dafür braucht es das Zeichen =."],
+        ["8", ["Zu groß!"], "Schon 8 ist größer als 7."],
+        ["12", ["Zu groß!"]]
+      ]) || true,
+      loesung: [["flagge"], ["frage", "Welche Zahl habe ich im Kopf?"], ["falls", ["<", ["antwort"], 7], [["sage", "Zu klein!"]]], ["falls", [">", ["antwort"], 7], [["sage", "Zu groß!"]]], ["falls", ["=", ["antwort"], 7], [["sage", "Richtig!"]]]], loesungAntworten: ["9"],
+      erfolg: "Drei Fälle, drei Bedingungen – und die Grenze stimmt."
+    }, "bl-klein-gross");
+  }
+});
+
+/* ============ Teil 3: Scratch am PC ============ */
+W.teil("Am PC: Scratch", "Anwenden");
+
+W.aufgabe({
+  titel: "Kino-Kasse in Scratch",
+  auftrag: "Jetzt machst du es im echten Scratch: Die Figur fragt nach dem Alter. Ab 12 Jahren sagt sie „Viel Spaß im Film!“, sonst „Du bist leider zu jung.“",
+  vorwissen: "<p>Das Programm hat dieselbe Form wie in der Aufgabe „Falls … dann … sonst“: falls … dann … sonst. Neu ist nur, dass du die Blöcke in Scratch ziehst: den Vergleich aus <b>Operatoren</b>, den Block „Antwort“ aus <b>Fühlen</b>.</p>",
+  hinweise: ["Baue erst das Gerüst: Fahne, frage, falls … dann … sonst. Fülle die Bedingung und die Sätze danach aus.", "„Ab 12“ heißt: größer als welche Zahl? Teste 11, 12 und 13.", "Wenn Fahne angeklickt wird · frage Wie alt bist du? und warte · falls Antwort &gt; 11, dann sage Viel Spaß im Film! sonst sage Du bist leider zu jung. Speichere über Datei → Auf deinem Computer speichern."],
+  geheim: ["> 11", "Antwort > 11"],
+  lehrer: { ziel: "Eine Alternative („falls … dann … sonst“) mit einem Vergleich der Antwort mit einer Zahl in Scratch bauen und an der Grenze (11 und 12) testen.",
+    anleitung: "Etwa 15 Minuten am Windows-PC (Scratch im Browser: scratch.mit.edu). Kinder bauen allein. Am Ende laden sie die gespeicherte .sb3-Datei hoch; ein Prüfprogramm testet das Verhalten mit mehreren Alterswerten, die KI schreibt eine Rückmeldung. Am Tablet gibt es stattdessen eine Frage.",
+    loesung: "Wenn Fahne angeklickt wird · frage Wie alt bist du? und warte · falls Antwort > 11, dann sage Viel Spaß im Film! sonst sage Du bist leider zu jung. (Auch richtig: Antwort < 12 mit vertauschten Sätzen.)",
+    fehler: ["Antwort > 12 statt > 11: Ein 12-jähriges Kind darf nicht ins Kino.", "Antwort = 12: Nur genau 12 Jahre passt, 13 nicht.", "Der Vergleich steht außerhalb des falls-Blocks oder der Block „Antwort“ fehlt im Vergleich.", "Die Sätze sind vertauscht.", "Der falls-Block hängt vor der Frage: Dann gibt es noch keine Antwort."],
+    bedienung: "Scratch im Browser öffnen. Die grüne Fahne über der Bühne startet das Programm. Gespeichert wird über Datei → Auf deinem Computer speichern (Ordner Downloads). Danach hier die .sb3-Datei hochladen." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Kino-Kasse", pc: "Scratch", zeit: "etwa 15 Minuten",
+      ziel: "Die Figur fragt nach dem Alter. Mit „falls … dann … sonst“ und einem Vergleich der Antwort mit einer Zahl sagt sie ab 12 Jahren „Viel Spaß im Film!“, sonst „Du bist leider zu jung.“ Das Projekt ist gespeichert.",
+      schritte: [
+        "Öffne Scratch im Browser (scratch.mit.edu) und beginne mit <span class=\"menue\">Datei</span> → <span class=\"menue\">Neu</span> ein neues Projekt.",
+        "Ziehe aus <span class=\"menue\">Ereignisse</span> den Block <b>Wenn 🏁 angeklickt wird</b> (die grüne Fahne) in den Skriptbereich.",
+        "Hänge aus <span class=\"menue\">Fühlen</span> den Block <b>frage … und warte</b> an. Schreibe in das Feld: <code>Wie alt bist du?</code>",
+        "Hänge aus <span class=\"menue\">Steuerung</span> den Block <b>falls &lt; &gt;, dann … sonst</b> unter die Frage.",
+        "Ziehe aus <span class=\"menue\">Operatoren</span> den Vergleich <b>( ) &gt; (50)</b> in das sechseckige Feld. Ziehe aus <span class=\"menue\">Fühlen</span> den runden Block <b>Antwort</b> in die linke Lücke und schreibe rechts die Zahl <code>11</code>.",
+        "Hänge in den oberen Teil („dann“) aus <span class=\"menue\">Aussehen</span> den Block <b>sage …</b> mit dem Text <code>Viel Spaß im Film!</code>. In den unteren Teil („sonst“) kommt <b>sage …</b> mit <code>Du bist leider zu jung.</code>",
+        "Teste mit der grünen Fahne: Antworte nacheinander mit 8, 11, 12 und 13. Wer 11 eintippt, soll abgewiesen werden, wer 12 sagt, darf hinein.",
+        { t: "Speichere mit <span class=\"menue\">Datei</span> → <span class=\"menue\">Auf deinem Computer speichern</span>. Die Datei heißt zuerst <code>Scratch-Projekt.sb3</code> (Endung .sb3) und liegt meist im Ordner Downloads.", bild: "../../8M/Informatik/assets/scratch/datei-menue.png", alt: "Bildschirmfoto: Das geöffnete Menü Datei mit den drei Einträgen Neu, Load from your computer und Auf deinem Computer speichern.", quelle: "Bildschirmfoto aus Scratch" }
+      ],
+      loesung: "Wenn Fahne angeklickt wird · frage Wie alt bist du? und warte · falls Antwort > 11, dann sage Viel Spaß im Film!, sonst sage Du bist leider zu jung.",
+      pruefung: {
+        art: "datei", accept: ".sb3", lies: Modul.liesScratch9, pruefe: Modul.scratchPruefung9["bedingungen-auf1"], server: { pfad: "/api/inf9/scratch/pruefen", aufgabe: "bedingungen-auf1" },
+        text: "Lade dein gespeichertes Projekt hoch (die Datei mit der Endung <b>.sb3</b>). Es wird geprüft, und die KI schreibt dir eine Rückmeldung. Deine Lehrkraft kann die Datei danach ansehen.",
+        ersatz: { art: "wort", frage: "Im fertigen Programm antwortet ein Kind auf die Frage nach dem Alter mit 12. Was sagt die Figur?", antworten: ["Viel Spaß im Film", "Viel Spass im Film"], tipp: "Ab 12 Jahren darf man hinein. Ist die Bedingung Antwort > 11 für die Zahl 12 wahr oder falsch?" }
+      }
+    }, "auf1");
+  }
+});
+
+/* ============ Teil 4: Wiederholen ============ */
+W.teil("Wiederholen", "Andere Zahlen");
+
+W.aufgabe({
+  titel: "Wie warm ist es?",
+  auftrag: "Der Roboter fragt nach der Temperatur. Ab 25 Grad sagt er „Heiß!“, sonst „Pulli mitnehmen.“ Achte genau auf die Grenze.",
+  vorwissen: "<p>„Ab 25“ heißt: 25 gehört schon dazu. Überlege, welches Zeichen und welche Zahl dazu passen: größer als 24 oder größer als 25? Der Roboter versteht hier nur ganze Zahlen.</p>",
+  hinweise: ["Teste nach dem Bauen mit 24 und mit 25. Bei 25 soll „Heiß!“ kommen.", "Mit „größer als 25“ wäre 25 selbst nicht dabei. Welche ganze Zahl liegt direkt davor?", "Nimm den Block „falls … dann … sonst“. Bedingung: Antwort &gt; 24. Oben: sage Heiß! Unten: sage Pulli mitnehmen."],
+  lehrer: { ziel: "Eine Alternative mit anderen Zahlen bauen und den Grenzfall „ab 25“ richtig behandeln (größer als 24).",
+    anleitung: "Einzelarbeit. Wer bei 25 den falschen Satz bekommt, soll die Rückmeldung lesen und die Zahl in der Bedingung ändern. Danach fragen: „Warum 24 und nicht 25?“",
+    loesung: "frage · falls Antwort > 24 dann sage Heiß! sonst sage Pulli mitnehmen.",
+    fehler: ["Antwort > 25: Bei genau 25 Grad kommt der falsche Satz.", "Die Sätze sind vertauscht.", "Die Schreibweise der Sätze weicht ab (die Prüfung vergleicht den Text)."],
+    bedienung: "Wie in den Aufgaben davor. „Lösung überprüfen“ testet 0, 10, 24, 25, 26 und 30." },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Frage <b>Wie viele Grad sind es?</b> Ab <b>25</b> Grad sagt der Roboter <b>Heiß!</b>, sonst <b>Pulli mitnehmen.</b></p>",
+      palette: ["flagge", "frage", "fallsSonst", "sage", "antwort"],
+      start: [["flagge"], ["frage", "Wie viele Grad sind es?"]], fest: 2,
+      pruefe: e => {
+        if (!Modul.blockHat(e.programm(), "fallsSonst")) return "Es fehlt der Block „falls … dann … sonst“ aus der Gruppe Steuerung.";
+        const grenze = "Ab 25 gehört die 25 dazu: Welche Zahl muss in der Bedingung stehen?";
+        return teste(e, [
+          ["30", ["Heiß!"], "Prüfe, ob der Satz im richtigen Teil steht."],
+          ["25", ["Heiß!"], grenze],
+          ["26", ["Heiß!"]],
+          ["24", ["Pulli mitnehmen"], grenze],
+          ["10", ["Pulli mitnehmen"], "Prüfe, ob der Satz im richtigen Teil steht und wie er geschrieben ist."],
+          ["0", ["Pulli mitnehmen"]]
+        ]) || true;
+      },
+      loesung: [["flagge"], ["frage", "Wie viele Grad sind es?"], ["fallsSonst", [">", ["antwort"], 24], [["sage", "Heiß!"]], [["sage", "Pulli mitnehmen"]]]], loesungAntworten: ["30"],
+      erfolg: "Auch an der Grenze stimmt dein Programm."
+    }, "bl-grad");
+  }
+});
+
+/* ============ Teil 5: Kontrollieren ============ */
+W.teil("Kontrollieren", "Lerncheck");
+
+W.aufgabe({
+  titel: "Lerncheck",
+  auftrag: "Richtig oder falsch? Entscheide bei jeder Aussage.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Eine Bedingung hat nur zwei Ergebnisse. Bei „falls … dann … sonst“ läuft immer nur ein Teil.", "Richtig sind die Aussagen 1, 4 und 5. Falsch sind Aussage 2 (nur ein Teil läuft) und Aussage 3 (11 ist nicht größer als 11)."],
+  lehrer: { ziel: "Kernwissen der Einheit sichern: wahr/falsch, Alternative, Grenzfall.", anleitung: "Einzelarbeit, etwa 3 Minuten. Bei Aussage 3 an der Zahlengerade zeigen.", loesung: "richtig · falsch · falsch · richtig · richtig", fehler: ["Aussage 3: „größer als 11“ gilt erst ab 12."] },
+  bau(box) {
+    Modul.makeTF(box, [
+      ["Eine Bedingung ist entweder wahr oder falsch.", true],
+      ["Bei „falls … dann … sonst“ laufen immer beide Teile.", false],
+      ["Antwort > 11 ist bei der Antwort 11 wahr.", false],
+      ["Antwort > 11 ist bei der Antwort 12 wahr.", true],
+      ["Der „sonst“-Teil läuft, wenn die Bedingung falsch ist.", true]
+    ], "tf");
+  }
+});
+
+W.fertig();
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

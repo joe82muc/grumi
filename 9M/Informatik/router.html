@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Der Router | Informatik 9</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="../../8M/Informatik/einheit8.css">
+<link rel="stylesheet" href="einheit9.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 9</small></a>
+    <nav class="stations" id="stations"></nav>
+    <span class="stars" id="stars">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks">
+      <a href="index.html">Übersicht Informatik 9M</a>
+      <a href="../../9R/Informatik/index.html">Übersicht Informatik 9R</a>
+      <a href="../../index.html">Startseite</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 9 · Modul 1: Netzwerke mit Filius · Einheit 4</div>
+    <h1>Der Router</h1>
+    <p>Ein Switch verbindet Geräte in einem Netz. Aber was, wenn zwei verschiedene Netze miteinander reden sollen? Dann kommt der Router ins Spiel. Heute verbindest du in Filius zwei Netze und trägst das Gateway ein.</p>
+    <div class="zeit">etwa 40 Minuten · Praxis am Windows-PC mit Filius</div>
+    <div class="goals">
+      <div>Ich erkläre, was ein Router macht.</div>
+      <div>Ich verbinde in Filius zwei Netze mit einem Router.</div>
+      <div>Ich trage bei jedem Computer das richtige Gateway ein.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="modulStand"></div>
+  <div id="weg"></div>
+</main>
+
+<footer class="wrap">Informatik 9 · Dein Fortschritt wird mit deinem Code gespeichert.</footer>
+
+<div id="pop" role="dialog"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info9.js"></script>
+<script src="../../7M/Informatik/filius-datei.js"></script>
+<script src="filius9.js"></script>
+<script src="../../7M/Informatik/netz-bild.js"></script>
+<script>
+(function () {
+"use strict";
+const {$} = Modul;
+
+Modul.start9({
+  key: "grumi-i9-router-v1",
+  thema: "Router: verbindet verschiedene Netze und hat in jedem Netz eine eigene Adresse, das Gateway ist die Adresse des Routers im eigenen Netz, ohne Gateway findet ein Rechner den Weg in das andere Netz nicht, zwei Netze in Filius mit einem Vermittlungsrechner verbinden und mit ping testen (Simulationsprogramm Filius)",
+  glossary: {
+    router: ["Router", "Ein Gerät, das verschiedene Netze miteinander verbindet. In Filius heißt es „Vermittlungsrechner“."],
+    gateway: ["Gateway", "Die Adresse des Routers im eigenen Netz. Daran schickt ein Computer alles, was in ein anderes Netz soll."],
+    netz: ["Netz", "Alle Geräte, deren Adressen mit denselben drei Zahlen beginnen, zum Beispiel 192.168.0.x."],
+    schnittstelle: ["Schnittstelle", "Ein Anschluss des Routers. Jede Schnittstelle hängt an einem Netz und hat dort eine eigene Adresse."],
+    paket: ["Paket", "Ein kleines Stück Daten, das durch das Netzwerk geschickt wird. Darauf steht die Adresse des Empfängers."],
+    switch: ["Switch", "Ein Gerät mit vielen Anschlüssen. Es verbindet mehrere Geräte in einem Netz."]
+  }
+});
+
+const W = Modul.lernweg("#weg");
+
+/* ============ Teil 1: Regelheft ============ */
+W.teil("Regelheft", "Schreiben");
+W.regelheft({
+  titel: "Der Router",
+  html: `<p>Ein <span class="rot">Router</span> verbindet verschiedene Netze.</p>
+    <p>Er hat in jedem Netz eine eigene Adresse, zum Beispiel <span class="blau">192.168.0.1</span> und <span class="blau">192.168.1.1</span>.</p>
+    <p class="leer"></p>
+    <p>Das <span class="rot">Gateway</span> ist die Adresse des Routers im eigenen Netz.</p>
+    <p>Ohne Gateway findet ein Rechner den Weg in das andere Netz nicht.</p>
+    <p class="leer"></p>
+    <p>Beispiel: Rechner <span class="blau">192.168.0.10</span> hat das Gateway <span class="blau">192.168.0.1</span>.</p>`,
+  lehrer: { ziel: "Die Kernaussagen der Stunde stehen im Heft: Aufgabe des Routers, zwei Adressen, Gateway, Folge eines fehlenden Gateways.",
+    anleitung: "Etwa 5 Minuten. Die Klasse schreibt ab. Erst nach dem Abhaken erscheint die erste Aufgabe. Bild für die Tafel: zwei Häuser (zwei Netze) mit einer Tür zwischen ihnen – die Tür ist der Router, der Weg zur Tür ist das Gateway.",
+    loesung: "Der Eintrag steht vollständig im Heft (vier Sätze und ein Beispiel)." }
+});
+
+/* ============ Teil 2: Sehen und verstehen ============ */
+W.teil("Verstehen", "Sehen · Ausprobieren");
+
+W.aufgabe({
+  titel: "Zwei Räume, ein Router",
+  auftrag: "Sieh dir das Bild an: Zwei Räume, jeder hat seinen eigenen Switch. In der Wand dazwischen sitzt ein Gerät mit zwei Antennen. Beantworte dann die zwei Fragen.",
+  vorwissen: "<p>Jeder Raum ist ein eigenes <b>Netz</b>. Innerhalb eines Raumes sorgt der Switch dafür, dass alle miteinander reden können.</p>",
+  hinweise: ["Schau, wohin die orangen und die blauen Kabel laufen.", "Das Gerät in der Wand hat ein orangefarbenes Kabel in den linken Raum und ein blaues in den rechten.", "Frage 1: Das Gerät in der Wand verbindet die beiden Räume – es ist der Router. Frage 2: Ohne die zwei Kabel zum Router sind die Räume getrennt. Innerhalb eines Raumes läuft alles weiter."],
+  lehrer: { ziel: "Den Router als Verbindung zwischen zwei Netzen kennenlernen.",
+    anleitung: "Bild am Beamer zeigen und fragen: „Wo könnte bei uns ein Router stehen?“ (zum Beispiel zwischen Computerraum und Verwaltung). Danach die zwei Fragen in Einzelarbeit.",
+    loesung: "Frage 1: der Router. Frage 2: Die beiden Räume können sich nicht mehr erreichen, in jedem Raum läuft das eigene Netz weiter.",
+    fehler: ["Es wird gemeint, ohne Router falle das ganze Netz aus – innerhalb eines Raumes bleibt alles beim Alten."] },
+  bau(box) {
+    box.innerHTML = `<figure class="bild9"><img class="zoomable" src="assets/bilder/router.jpg" width="1280" height="853" loading="lazy" alt="Ein Gebäude im Querschnitt mit zwei Räumen nebeneinander. Links ein orange gestrichener Raum, rechts ein blauer. In jedem Raum sitzen drei Jugendliche an Computern, vor ihnen auf dem Boden steht ein flacher Switch. In der Wand zwischen den Räumen hängt ein weißer Router mit zwei Antennen. Ein orangefarbenes Kabel führt von ihm zum Switch im linken Raum, ein blaues zum Switch im rechten Raum.">
+      <figcaption>Zwei Netze und ein Router in der Wand dazwischen. (Bild mit KI erstellt)</figcaption></figure><div class="mc"></div>`;
+    Modul.makeMC($(".mc", box), [
+      { q: "Wie heißt das Gerät in der Wand, das die beiden Räume verbindet?", o: ["Router", "Drucker", "Bildschirm", "Switch"], a: 0,
+        e: "Der Router verbindet verschiedene Netze. Jeder Raum hat sein eigenes Netz mit eigenem Switch." },
+      { q: "Beide Kabel des Routers werden herausgezogen. Was bedeutet das?", o: ["Die zwei Räume können nicht mehr miteinander reden, in jedem Raum läuft das Netz weiter.", "Alle Computer sind aus dem Netz.", "Alle Computer bekommen neue Adressen.", "Die Switches schalten sich aus."], a: 0,
+        e: "Der Router ist nur die Verbindung zwischen den Netzen. Innerhalb eines Netzes sorgt der Switch für den Verkehr." }
+    ], "mc-raeume");
+  }
+});
+
+W.aufgabe({
+  titel: "Gleiches Netz oder anderes Netz?",
+  auftrag: "Vergleiche die Adressen. Gehören die beiden Geräte zum selben Netz oder zu verschiedenen Netzen?",
+  vorwissen: "<p>Du weißt schon: Im selben Netz sind die ersten drei Zahlen gleich, nur die letzte Zahl ist anders.</p>",
+  hinweise: ["Vergleiche die ersten drei Zahlen der beiden Adressen.", "Sind die ersten drei Zahlen gleich, ist es dasselbe Netz. Ist auch nur eine davon anders, sind es zwei Netze – dann ist ein Router nötig.", "Bei 192.168.0.10 und 192.168.1.10 ist die dritte Zahl verschieden (0 und 1): anderes Netz. Bei 192.168.1.11 und 192.168.1.20 ist alles bis auf die letzte Zahl gleich: gleiches Netz."],
+  lehrer: { ziel: "Mit Hilfe der Adressen erkennen, ob zwei Geräte im selben Netz sind oder ob ein Router gebraucht wird.",
+    anleitung: "Ein Fall nach dem anderen; falsch entschiedene Fälle kommen noch einmal. Wiederholung aus der Einheit „IP-Adressen“. Subnetze und Netzmasken werden nicht behandelt.",
+    loesung: "192.168.0.10/.11: gleich · 192.168.0.10 und 192.168.1.10: anders · 192.168.1.11 und .20: gleich · 192.168.2.5 und 192.168.0.5: anders · 192.168.7.31 und 192.168.7.32: gleich.",
+    fehler: ["Es wird nur die letzte Zahl verglichen. Gerade die dritte Zahl entscheidet hier."] },
+  bau(box) {
+    Modul.makeEntscheiden(box, {
+      frage: "Dasselbe Netz oder ein anderes?",
+      optionen: ["Gleiches Netz", "Anderes Netz"],
+      faelle: [
+        { html: "Gerät 1: <code>192.168.0.10</code> · Gerät 2: <code>192.168.0.11</code>", kurz: "0.10 und 0.11", a: 0, e: "Die ersten drei Zahlen sind gleich (192.168.0). Die Geräte sind im selben Netz, ein Switch genügt." },
+        { html: "Gerät 1: <code>192.168.0.10</code> · Gerät 2: <code>192.168.1.10</code>", kurz: "0.10 und 1.10", a: 1, e: "Die dritte Zahl ist verschieden (0 und 1). Das sind zwei Netze – ein Router muss vermitteln." },
+        { html: "Gerät 1: <code>192.168.1.11</code> · Gerät 2: <code>192.168.1.20</code>", kurz: "1.11 und 1.20", a: 0, e: "Alles bis auf die letzte Zahl ist gleich: dasselbe Netz." },
+        { html: "Gerät 1: <code>192.168.2.5</code> · Gerät 2: <code>192.168.0.5</code>", kurz: "2.5 und 0.5", a: 1, e: "Die letzte Zahl ist zwar gleich, aber die dritte nicht (2 und 0): zwei verschiedene Netze." },
+        { html: "Gerät 1: <code>192.168.7.31</code> · Gerät 2: <code>192.168.7.32</code>", kurz: "7.31 und 7.32", a: 0, e: "Die ersten drei Zahlen sind 192.168.7: dasselbe Netz." }
+      ],
+      fertig: "Du erkennst, wann ein Router gebraucht wird."
+    }, "entsch-netz");
+  }
+});
+
+W.aufgabe({
+  titel: "Wie läuft ein Paket über den Router?",
+  auftrag: "Sieh dir die Schritte an: A1 schickt ein Paket an B2 – in ein anderes Netz. Achte darauf, wohin A1 das Paket zuerst schickt.",
+  vorwissen: "<p>Daten reisen als <b>Pakete</b>. Auf jedem Paket steht die Adresse des Empfängers.</p>",
+  hinweise: ["Tippe auf „Start“ oder auf die Zahlen 1 bis 5.", "Sieh dir Schritt 3 genau an: An welche Adresse schickt A1 das Paket? Es ist nicht die Adresse von B2.", "A1 weiß: B2 liegt in einem anderen Netz. Deshalb schickt es das Paket an sein Gateway 192.168.0.1 – das ist der Router. Der Router leitet es an das Netz 192.168.1.x weiter."],
+  lehrer: { ziel: "Verstehen: Ein Computer schickt alles für ein anderes Netz an sein Gateway – den Router, der es weiterleitet.",
+    anleitung: "Am Beamer gemeinsam durchklicken und bei Schritt 3 fragen: „Wohin schickt A1 das Paket?“ Vereinfachung: Wie der Router seinen Weg findet, ist nicht Thema. Die Antwort läuft denselben Weg zurück.",
+    loesung: "Alle fünf Schritte angesehen: Anderes Netz erkannt, Paket an das Gateway 192.168.0.1, der Router schickt es in das Netz 192.168.1.x, B2 bekommt es, die Antwort läuft zurück.",
+    fehler: ["Kinder meinen, A1 schicke das Paket direkt an B2 – nach Schritt 3 nachfragen: „An wen schickt A1 es wirklich?“"],
+    bedienung: "„Start“ spielt alle Schritte ab, die Zahlen springen zu einem Schritt, ↺ beginnt neu." },
+  bau(box) {
+    box.innerHTML = '<div class="nb"></div><div class="sim"></div>';
+    const n = Modul.netzBild($(".nb", box), { b: 640, h: 330, alt: "Zwei Netze mit einem Router. Links Switch A mit A1 (192.168.0.10) und A2 (192.168.0.11), rechts Switch B mit B1 (192.168.1.10) und B2 (192.168.1.11). In der Mitte der Router mit den zwei Adressen 192.168.0.1 und 192.168.1.1. Switch A und Switch B sind je mit dem Router verbunden.",
+      geraete: [{ id: "sa", art: "switch", x: 120, y: 100, name: "Switch A" }, { id: "r", art: "router", x: 320, y: 100, name: "Router", ip: "192.168.0.1 / 192.168.1.1" }, { id: "sb", art: "switch", x: 520, y: 100, name: "Switch B" },
+        { id: "a1", art: "pc", x: 55, y: 240, name: "A1", ip: "192.168.0.10" }, { id: "a2", art: "pc", x: 195, y: 240, name: "A2", ip: "192.168.0.11" },
+        { id: "b1", art: "pc", x: 445, y: 240, name: "B1", ip: "192.168.1.10" }, { id: "b2", art: "pc", x: 585, y: 240, name: "B2", ip: "192.168.1.11" }],
+      kabel: [["a1", "sa"], ["a2", "sa"], ["b1", "sb"], ["b2", "sb"], ["sa", "r"], ["sb", "r"]] });
+    Modul.makeSchritte($(".sim", box), {
+      start: "Tippe auf „Start“ oder gehe Schritt für Schritt. Achte auf das Paket.",
+      steps: [
+        "A1 will B2 etwas schicken. Auf dem Paket steht die Adresse <b>192.168.1.11</b>.",
+        "A1 vergleicht die Adressen: A1 hat <b>192.168.0</b>…, B2 hat <b>192.168.1</b>… – das ist ein <b>anderes Netz</b>. Direkt geht es nicht.",
+        "A1 schickt das Paket an sein <b>Gateway</b>, die Adresse des Routers im eigenen Netz: <b>192.168.0.1</b>. Es läuft über Switch A zum Router.",
+        "Der Router liest die Zieladresse. Er weiß: Das Netz 192.168.1.x hängt an seinem zweiten Anschluss <b>192.168.1.1</b>. Er schickt das Paket über Switch B weiter.",
+        "B2 bekommt das Paket und antwortet. Die Antwort geht an das Gateway von B2 (<b>192.168.1.1</b>) und läuft denselben Weg zurück."
+      ],
+      zeige(i) {
+        n.neu();
+        if (i === 0) n.paket("a1", { text: "an 192.168.1.11" }).an("a1", true);
+        if (i === 1) { n.paket("a1", { text: "an 192.168.1.11" }).an("a1", true); n.schild("a1", "Anderes Netz!"); }
+        if (i === 2) { n.paket("r", { text: "an 192.168.1.11" }).kabel("a1", "sa", "an").kabel("sa", "r", "an").an("r", true); n.schild("a1", "Gateway 192.168.0.1"); }
+        if (i === 3) { n.paket("sb", { text: "an 192.168.1.11" }).kabel("sb", "r", "an").an("r", true); n.schild("r", "Weiter in Netz 1"); }
+        if (i === 4) { n.paket("b2", { farbe: "#1b8a4b", text: "Antwort" }).kabel("b2", "sb", "an").kabel("sb", "r", "an").an("b2", true); n.schild("b2", "Gateway 192.168.1.1"); }
+      }
+    }, "anim-router");
+  }
+});
+
+W.aufgabe({
+  titel: "Video: Der Vermittlungsrechner",
+  auftrag: "Im Video siehst du, wie in Filius zwei Netze aufgebaut und mit einem Router verbunden werden. Der Film hält zweimal an und stellt dir eine Frage. Am Ende klappt der ping absichtlich nicht – gleich danach löst du, woran das liegt.",
+  hinweise: ["Du kannst den Film jederzeit anhalten und zurückspulen.", "Stopp 1: Ein Gerät verbindet zwei Netze. Stopp 2: Der ping scheitert – wie kommt ein Computer überhaupt aus seinem Netz hinaus?", "Stopp 1: Router (in Filius „Vermittlungsrechner“). Stopp 2: Dem Computer fehlt der Weg aus dem eigenen Netz hinaus, das Gateway."],
+  lehrer: { ziel: "Den Aufbau von zwei Netzen und das Einsetzen des Routers einmal sehen, bevor die Klasse es selbst tut.",
+    anleitung: "Der Film (Kanal „Herr Sauer“, 5 Minuten 23 Sekunden) wird erst nach dem Antippen von YouTube geladen. Der Bau der Rechner im zweiten Netz (etwa 0:36–1:43) kann übersprungen werden. Der Film lässt den ping am Ende (ab 4:33) <b>absichtlich scheitern</b> – das ist kein Fehler im Film, die Auflösung (Gateway) kommt in der nächsten Aufgabe. Wer mehr zum Gateway hören möchte, findet beim selben Kanal den Film „Gateway IP“ (11 Minuten; gebraucht werden nur die Minuten 0:00–4:48, dort steht das Bild von der Haustür) – für die Klasse nicht nötig. Lädt YouTube im Schulnetz nicht, erscheinen die Fragen ohne Film.",
+    loesung: "Stopp 1: Router (Vermittlungsrechner). Stopp 2: Das Gateway fehlt, der Computer kennt den Weg in das andere Netz nicht.",
+    fehler: ["Im Film heißen die Netze „Netzwerk 0“ und „Netzwerk 1“ und der Router „Router (Vermittlungsrechner)“ – in unserem Auftrag heißen sie Netz A und B und der Router „Router“.", "Das Scheitern des pings wird für einen Fehler im Video gehalten – es ist Absicht."],
+    test: "Transkript am 13.10.2026 vollständig gelesen (automatische Untertitel). Bei eingebetteten YouTube-Filmen kann Werbung erscheinen." },
+  bau(box) {
+    Modul.makeFilm(box, { vid: "pWO_fSIt6Ag", titel: "06 Vermittlungsrechner Router", quelle: "Herr Sauer (YouTube)", dauer: "5 Minuten",
+      stops: [
+        { t: 103, q: { q: "Wie heißt das Gerät, das zwei Netze miteinander verbindet?", o: ["Router (in Filius: Vermittlungsrechner)", "Switch", "Drucker", "Bildschirm"], a: 0, e: "Der Router hängt an beiden Netzen und gibt Pakete von einem Netz in das andere weiter." } },
+        { t: 273, q: { q: "Der ping in das andere Netz klappt nicht. Was könnte fehlen?", o: ["Der Weg aus dem eigenen Netz hinaus (das Gateway)", "Ein dritter Switch", "Ein längeres Kabel", "Ein größerer Bildschirm"], a: 0, e: "Der Computer weiß noch nicht, dass er solche Pakete an den Router schicken soll. Dafür gibt es das Gateway." } }
+      ] }, "film-router-");
+  }
+});
+
+/* ============ Teil 3: Am PC ============ */
+W.teil("Am PC: Filius", "Anwenden");
+
+function pruefeZwei(n) {
+  const find = nm => n.rechner.find(g => g.name === nm);
+  const a1 = find("A1"), b1 = find("B1"), r = n.router[0];
+  const swA = a1 ? n.switchVon(a1.id) : [], swB = b1 ? n.switchVon(b1.id) : [];
+  const an = r && r.anschluesse ? r.anschluesse : [];
+  const amSwitch = (ip, sw) => an.some(a => a.ip === ip && a.switch && sw.includes(a.switch));
+  const gw = (nm, soll) => {
+    const g = find(nm);
+    if (!g) return { ok: false, text: "Der Computer " + nm + " fehlt oder heißt anders. Lass die Namen A1, A2, B1 und B2 stehen." };
+    if (!g.gateway) return { ok: false, text: "Bei " + nm + " fehlt das Gateway. Trage " + soll + " ein." };
+    if (g.gateway !== soll) return { ok: false, text: "Bei " + nm + " steht das Gateway " + g.gateway + ". Im Netz dieses Computers muss es " + soll + " sein – die Adresse des Routers in seinem Netz." };
+    return { ok: true, text: nm + " hat das Gateway " + soll + "." };
+  };
+  return [
+    { ok: n.router.length === 1, text: n.router.length === 1 ? "Ein Vermittlungsrechner („Router“) steht auf der Fläche." : n.router.length ? "Es soll nur ein Router sein. Gefunden: " + n.router.length + "." : "Es fehlt der Router: Ziehe den „Vermittlungsrechner“ aus der Leiste auf die Fläche (Schnittstellen: 2)." },
+    { ok: !!r && an.filter(a => a.switch).length >= 2 && !!a1 && !!b1 && swA.length > 0 && swB.length > 0 && !swA.some(s => swB.includes(s)),
+      text: !r ? "Der Router fehlt noch, deshalb hängt er an keinem Switch." : an.filter(a => a.switch).length >= 2 ? "Der Router hängt mit je einem Kabel an Switch A und an Switch B." : "Der Router soll mit je einem Kabel an Switch A und an Switch B hängen. Es fehlt ein Kabel." },
+    { ok: !!r && amSwitch("192.168.0.1", swA), text: r && amSwitch("192.168.0.1", swA) ? "Der Router hat am Switch A die Adresse 192.168.0.1." : "Der Anschluss des Routers zum Switch A soll die Adresse 192.168.0.1 haben. Öffne beim Router die Reiter nacheinander. Im Reiter steht „Verbunden mit Switch A“." },
+    { ok: !!r && amSwitch("192.168.1.1", swB), text: r && amSwitch("192.168.1.1", swB) ? "Der Router hat am Switch B die Adresse 192.168.1.1." : "Der Anschluss des Routers zum Switch B soll die Adresse 192.168.1.1 haben. Öffne beim Router die Reiter nacheinander. Im Reiter steht „Verbunden mit Switch B“." },
+    gw("A1", "192.168.0.1"), gw("A2", "192.168.0.1"), gw("B1", "192.168.1.1"), gw("B2", "192.168.1.1")
+  ];
+}
+
+W.aufgabe({
+  titel: "Zwei Netze verbinden",
+  geheim: ["192.168.0.1", "192.168.1.1"],
+  auftrag: "Du bekommst eine Filius-Datei mit zwei getrennten Netzen. Baue den Router ein, gib ihm in jedem Netz eine Adresse und trage bei allen vier Computern das Gateway ein.",
+  vorwissen: "<p>Das <b>Gateway</b> ist die Adresse des Routers im eigenen Netz. Der Router bekommt also zwei Adressen: <b>192.168.0.1</b> für das Netz A und <b>192.168.1.1</b> für das Netz B.</p>",
+  hinweise: ["Der Router heißt in Filius „Vermittlungsrechner“. Das Feld „Gateway“ steht bei jedem Computer unter der IP-Adresse. Nach jeder Eingabe die Eingabetaste drücken.", "Das erste Kabel des Routers belegt seinen ersten Anschluss. Ziehe darum zuerst das Kabel zum Switch A, dann zum Switch B. Beim Router steht in jedem Reiter, mit welchem Switch er verbunden ist: Dort trägst du die Adresse ein. A1 und A2 bekommen als Gateway die Adresse des Routers im Netz A, B1 und B2 die im Netz B.", "Router: im Reiter mit „Verbunden mit Switch A“ → <code>192.168.0.1</code>, im Reiter mit „Verbunden mit Switch B“ → <code>192.168.1.1</code>. Gateway bei A1 und A2: <code>192.168.0.1</code>. Gateway bei B1 und B2: <code>192.168.1.1</code>. Danach <kbd>Esc</kbd> und speichern als zwei_netze."],
+  lehrer: { ziel: "In Filius zwei Netze mit einem Router verbinden: Router mit zwei Adressen, bei jedem Computer das passende Gateway.",
+    anleitung: "Filius 2.14.0 starten lassen. Die Kinder laden die Startdatei herunter und öffnen sie über den gelben Ordner. Die Schritte stehen zum Abhaken im Auftrag. Am Ende lädt jedes Kind seine gespeicherte Datei hoch – sie wird nur im Browser geprüft, nichts verlässt das Gerät. Am Tablet gibt es stattdessen eine Frage. Sind unten Einstellungen offen, verdecken sie die Geräteleiste: kurz auf eine leere Stelle der Fläche klicken.",
+    loesung: "Der Router („Router“) hängt mit je einem Kabel an Switch A und Switch B. Anschluss zu Switch A: 192.168.0.1, Anschluss zu Switch B: 192.168.1.1 (Netzmaske bleibt 255.255.255.0). Gateway bei A1 und A2: 192.168.0.1, bei B1 und B2: 192.168.1.1. Gespeichert als zwei_netze.fls.",
+    fehler: ["Das Gateway wird nur bei einem Teil der Computer eingetragen – dann klappt der ping in nur eine Richtung nicht.", "Das Gateway aus dem anderen Netz wird eingetragen (A1 bekommt 192.168.1.1): Die Rückmeldung nennt den Computer und die richtige Adresse.", "Der Router bekommt beide Male dieselbe Adresse oder die voreingestellte 192.168.0.10 bleibt stehen.", "Die Eingabetaste wird vergessen: Das Feld sieht geändert aus, Filius hat es aber noch nicht übernommen.", "Gespeichert wird im Aktionsmodus nicht: zurück in den Entwurfsmodus (Hammer)."],
+    bedienung: "„Datei auswählen“ → die gespeicherte .fls-Datei. Die Rückmeldung nennt jeden Prüfpunkt einzeln, auch den Computer und die Einstellung, bei der noch etwas fehlt." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Zwei Netze mit einem Router", pc: "Filius", zeit: "etwa 15 Minuten",
+      ziel: "Der Router hängt an Switch A (192.168.0.1) und an Switch B (192.168.1.1). A1 und A2 haben das Gateway 192.168.0.1, B1 und B2 das Gateway 192.168.1.1. Dein Netz ist als zwei_netze.fls gespeichert.",
+      material: [{ name: "Startdatei zwei_netze_start.fls", href: "assets/filius/zwei_netze_start.fls" }],
+      schritte: [
+        { t: `Lade die Startdatei herunter. Öffne <b>Filius</b>. Klicke im Entwurfsmodus oben auf den <span class="menue">gelben Ordner</span> und wähle die Datei <b>zwei_netze_start.fls</b>. Du siehst zwei getrennte Netze: Switch A mit A1 und A2, Switch B mit B1 und B2.`, bild: "assets/filius/netz-zwei-netze-start.png", alt: "Filius im Entwurfsmodus: Links der Switch A mit den zwei Computern A1 und A2, rechts der Switch B mit B1 und B2. Zwischen den beiden Netzen gibt es kein Kabel." },
+        `Fahre mit der Maus über A1 und über B1: Ein Kästchen zeigt die Adressen. In Netz A beginnen sie mit 192.168.0, in Netz B mit 192.168.1.`,
+        { t: `Ziehe links aus der Leiste den <span class="menue">Vermittlungsrechner</span> mit <b>gedrückter</b> Maustaste in die Mitte zwischen die beiden Switches. Es erscheint ein Fenster <span class="menue">Anzahl Schnittstellen</span>. Lass die <b>2</b> stehen und klicke auf <span class="menue">OK</span>.`, bild: "assets/filius/router-schnittstellen-dialog.png", alt: "Ein kleines Fenster mit der Frage nach der Anzahl der Schnittstellen des Vermittlungsrechners. Im Auswahlfeld steht 2, darunter die Knöpfe OK und Abbrechen." },
+        { t: `Klicke ganz oben links auf <span class="menue">Verbindung</span>, dann auf den Router und dann auf <b>Switch A</b>. Mache dasselbe noch einmal: Verbindung, Router, <b>Switch B</b>. Das <b>erste</b> Kabel gehört zum ersten Anschluss des Routers. Drücke zum Schluss <kbd>Esc</kbd>.`, bild: "assets/filius/netz-zwei-netze-router.png", alt: "Filius im Entwurfsmodus: Der Router steht in der Mitte zwischen Switch A und Switch B. Von ihm führt je ein Kabel zu den beiden Switches." },
+        `Mache einen <b>Doppelklick</b> auf den Router. Schreibe bei <span class="menue">Name</span>: <b>Router</b> und drücke die Eingabetaste.`,
+        { t: `Oben im Einstellungsfenster siehst du zwei Reiter mit Adressen. Öffne die Reiter nacheinander. In einem Reiter steht <b>Verbunden mit Switch A</b>: Schreibe dort bei <span class="menue">IP-Adresse</span> <b>192.168.0.1</b> und drücke die Eingabetaste. Im anderen Reiter steht <b>Verbunden mit Switch B</b>: Dort schreibst du <b>192.168.1.1</b>.`, bild: "assets/filius/router-anschluss.png", alt: "Filius, Entwurfsmodus: Der Router ist angeklickt, sein Kabel zu Switch A leuchtet grün. Unten stehen die Einstellungen im Reiter 192.168.0.1: Verbunden mit Switch A, IP-Adresse 192.168.0.1, Netzmaske 255.255.255.0 und die MAC-Adresse." },
+        `Mache einen Doppelklick auf <b>A1</b>. Schreibe bei <span class="menue">Gateway</span>: <b>192.168.0.1</b> und drücke die Eingabetaste. Mache dasselbe bei <b>A2</b>.`,
+        `Mache einen Doppelklick auf <b>B1</b>. Schreibe bei <span class="menue">Gateway</span>: <b>192.168.1.1</b> und drücke die Eingabetaste. Mache dasselbe bei <b>B2</b>.`,
+        `Speichere: Klicke oben auf die <span class="menue">Diskette</span>, gib der Datei den Namen <b>zwei_netze</b> und klicke auf <span class="menue">Speichern</span>.`
+      ],
+      loesung: "Der Router hängt an Switch A (192.168.0.1) und Switch B (192.168.1.1). A1 und A2 haben das Gateway 192.168.0.1, B1 und B2 haben das Gateway 192.168.1.1. Die Datei heißt zwei_netze.fls.",
+      pruefung: {
+        art: "datei", accept: ".fls", lies: Modul.liesFilius9, pruefe: pruefeZwei,
+        text: "Wähle deine gespeicherte Datei <b>zwei_netze.fls</b> aus. Sie wird nur hier auf dem Gerät geprüft und nicht hochgeladen.",
+        ersatz: { art: "wort", frage: "Welche Adresse bekommt der Router in Netz B (die Computer dort beginnen mit 192.168.1)? Das ist auch das Gateway von B1.", antworten: ["192.168.1.1"],
+          tipp: "Der Router bekommt in jedem Netz die Adresse mit der Endzahl 1. Im Netz A ist es 192.168.0.1." }
+      }
+    }, "auf1");
+  }
+});
+
+W.aufgabe({
+  titel: "Ping über den Router",
+  geheim: ["4"],
+  auftrag: "Jetzt prüfst du, ob die zwei Netze miteinander reden: Schicke von A1 aus einen ping an B2 – quer über den Router.",
+  vorwissen: "<p>Im <b>Aktionsmodus</b> (grüner Pfeil) probierst du aus, was die Computer tun. Der Befehl <code>ping</code> schickt vier kleine Pakete und zählt, wie viele zurückkommen.</p>",
+  hinweise: ["Die Befehlszeile musst du auf A1 erst installieren: Software-Installation → rechts „Befehlszeile“ anklicken → oberer Pfeil → „Änderungen annehmen“.", "Hinter <code>/&gt;</code> tippst du <code>ping</code>, ein Leerzeichen und die Adresse von B2. Dann die Eingabetaste.", "Der ganze Befehl heißt <code>ping 192.168.1.11</code>. Zähle in der letzten Zeile: „… Paket(e) gesendet, … Paket(e) empfangen“."],
+  lehrer: { ziel: "Prüfen, ob zwei Netze über den Router erreichbar sind: Das Paket läuft von A1 über Switch A, Router und Switch B zu B2.",
+    anleitung: "Die Kinder bleiben im selben Filius wie in der letzten Aufgabe. Im Aktionsmodus verschwindet die Geräteleiste. Die Antwort braucht zwei bis drei Sekunden. In den Antwortzeilen steht <code>ttl=63</code>; im eigenen Netz war es 64 – das ist ein Zeichen, dass das Paket über den Router gelaufen ist (nur als Hinweis, kein Prüfstoff).",
+    loesung: "4 Pakete gesendet, 4 empfangen, 0 % Paketverlust → Antwort: 4.",
+    fehler: ["Der ping geht an einen Computer im eigenen Netz (192.168.0.11) – das klappt immer und beweist nichts über den Router.", "Sofort die Meldung „Zieladresse nicht erreichbar“: Bei A1 fehlt das Gateway.", "Viermal „Timeout!“ (dauert etwa 30 Sekunden): Bei B2 fehlt das Gateway oder es steht ein falsches."],
+    bedienung: "Das Kind trägt die Zahl der empfangenen Pakete ein und tippt auf „Lösung überprüfen“." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Ping von A1 an B2", pc: "Filius", zeit: "etwa 6 Minuten",
+      ziel: "A1 schickt einen ping an B2 in das andere Netz – und bekommt Antwort.",
+      schritte: [
+        `Wechsle in den <b>Aktionsmodus</b>: Klicke oben auf den <span class="menue">grünen Pfeil</span>.`,
+        `Klicke auf <b>A1</b>. Sein Bildschirm geht auf. Klicke dort auf <span class="menue">Software-Installation</span>.`,
+        { t: `Klicke rechts in der Liste auf <span class="menue">Befehlszeile</span>, dann auf den <b>oberen Pfeil</b> (er zeigt nach links). Klicke zum Schluss auf <span class="menue">Änderungen annehmen</span>.`, bild: "../../7M/Informatik/assets/filius/software-installation.png", alt: "Filius: Fenster Software-Installation mit der Liste Verfügbar und den Pfeilen in der Mitte" },
+        `Auf dem Bildschirm von A1 liegt jetzt das Symbol <span class="menue">Befehlszeile</span>. Klicke es an.`,
+        `Tippe hinter <code>/&gt;</code> den Befehl <code>ping 192.168.1.11</code> und drücke die Eingabetaste. Warte, bis die letzte Zeile erscheint.`,
+        `Lies die letzte Zeile: Wie viele Pakete wurden gesendet, wie viele empfangen? Sieh dir auch eine Antwortzeile an: Dort steht <code>ttl=63</code>.`
+      ],
+      loesung: "Die letzte Zeile heißt: 4 Paket(e) gesendet, 4 Paket(e) empfangen, 0% Paketverlust.",
+      pruefung: { art: "zahl", frage: "Wie viele Pakete hat A1 <b>empfangen</b>?", wert: 4, tol: 0, einheit: "Pakete",
+        tipp: "Die Zahl steht in der letzten Zeile nach dem ping: „… Paket(e) empfangen“. Steht dort 0, prüfe im Entwurfsmodus Kabel, Adressen und Gateways.",
+        erfolg: "Alle vier Pakete sind über den Router in das andere Netz gekommen und zurück." }
+    }, "auf2");
+  }
+});
+
+W.aufgabe({
+  titel: "Was passiert, wenn das Gateway fehlt?",
+  auftrag: "Im Video hat der ping nicht geklappt. Hier siehst du vier Fälle. Entscheide, was Filius jeweils meldet oder ob der ping klappt.",
+  vorwissen: "<p>Filius meldet zwei verschiedene Dinge: <b>„Zieladresse nicht erreichbar“</b> kommt sofort, <b>„Timeout!“</b> kommt viermal nacheinander (das dauert etwa 30 Sekunden).</p>",
+  hinweise: ["Frage dich: Hat der Absender ein Gateway? Hat der Empfänger eines?", "Fehlt das Gateway beim Absender, weiß er nicht, wohin mit dem Paket – das merkt Filius sofort. Hat der Absender eins, der Empfänger nicht, kommt das Paket an, aber die Antwort findet den Rückweg nicht.", "Fall 1: Absender ohne Gateway → sofort „Zieladresse nicht erreichbar“. Fall 2: Empfänger ohne Gateway → „Timeout!“. Fall 3: alle Gateways aus dem falschen Netz → „Timeout!“. Fall 4: im eigenen Netz braucht man kein Gateway → klappt."],
+  lehrer: { ziel: "Fehlerbilder bei fehlendem oder falschem Gateway unterscheiden: sofortige Meldung, Timeout, kein Problem im eigenen Netz.",
+    anleitung: "Ein Fall nach dem anderen. Die Fälle stammen aus Versuchen in Filius 2.14.0.",
+    loesung: "Fall 1: „Zieladresse nicht erreichbar“ (sofort) · Fall 2: „Timeout!“ · Fall 3: „Timeout!“ · Fall 4: ping klappt.",
+    fehler: ["Fall 2: „Zieladresse nicht erreichbar“ wird gewählt, weil der Fehler „beim Gateway“ liegt – bei fehlendem Gateway des Empfängers kommt aber ein Timeout.", "Fall 4: Es wird gemeint, ohne Gateway gehe gar nichts – im eigenen Netz geht alles."] },
+  bau(box) {
+    Modul.makeEntscheiden(box, {
+      frage: "Was passiert beim ping?",
+      optionen: ["Sofort „Zieladresse nicht erreichbar“", "Viermal „Timeout!“", "Der ping klappt"],
+      faelle: [
+        { html: "A1 hat <b>kein Gateway</b>. Alles andere ist richtig eingestellt. A1 schickt einen ping an B2 (192.168.1.11).", kurz: "A1 ohne Gateway", a: 0, e: "A1 weiß nicht, wohin mit Paketen für ein anderes Netz. Filius meldet das sofort: „Zieladresse nicht erreichbar“." },
+        { html: "A1 hat das Gateway 192.168.0.1. <b>B2 hat kein Gateway.</b> A1 schickt einen ping an B2.", kurz: "B2 ohne Gateway", a: 1, e: "Die Anfrage kommt bei B2 an, aber B2 weiß nicht, wie die Antwort zurückkommt. Der ping bekommt keine Antwort: viermal „Timeout!“." },
+        { html: "<b>Alle vier Computer</b> haben das Gateway aus dem <b>anderen</b> Netz (A1 und A2 haben 192.168.1.1, B1 und B2 haben 192.168.0.1). A1 schickt einen ping an B2.", kurz: "Gateways vertauscht", a: 1, e: "Das Gateway muss im eigenen Netz liegen. Mit dem falschen findet kein Paket den Weg: viermal „Timeout!“." },
+        { html: "A1 und A2 haben <b>kein Gateway</b>. A1 schickt einen ping an A2, einen Computer im <b>eigenen</b> Netz.", kurz: "ping im eigenen Netz", a: 2, e: "Im eigenen Netz braucht ein Computer kein Gateway. Das Paket geht über den Switch direkt zum Ziel." }
+      ],
+      fertig: "Du erkennst am ping, wo ein Gateway fehlt."
+    }, "entsch-gw");
+  }
+});
+
+/* ============ Teil 4: Kontrollieren ============ */
+W.teil("Kontrollieren", "Lerncheck");
+
+W.aufgabe({
+  titel: "Noch einmal mit anderen Zahlen",
+  auftrag: "Zwei andere Netze: 192.168.5.x und 192.168.9.x. Der Router hat die Adressen 192.168.5.1 und 192.168.9.1. Beantworte die Fragen.",
+  hinweise: ["Das Gateway ist die Adresse des Routers im Netz des Computers.", "Schau auf die dritte Zahl des Computers: Sie sagt dir, in welchem Netz er ist. Der Router hat in jedem Netz eine Adresse mit dieser dritten Zahl.", "Ein Computer mit 192.168.9.20 ist im Netz 9, sein Gateway ist 192.168.9.1. Ein Computer mit 192.168.5.14 schickt Pakete für das Netz 9 zuerst an 192.168.5.1."],
+  lehrer: { ziel: "Das Gateway-Prinzip mit neuen Zahlen anwenden.",
+    anleitung: "Einzelarbeit, etwa 3 Minuten. Die Zahlen sind bewusst anders als in Filius.",
+    loesung: "Frage 1: 192.168.9.1 · Frage 2: an das Gateway 192.168.5.1 · Frage 3: Er hängt an zwei Netzen und braucht in jedem eine Adresse.",
+    fehler: ["Frage 1: 192.168.5.1 wird gewählt, weil es die „erste“ Adresse ist – gefragt ist das Gateway im Netz des Computers.", "Frage 2: Es wird die Adresse des Ziels gewählt – das Paket geht zuerst an das Gateway."] },
+  bau(box) {
+    Modul.makeMC(box, [
+      { q: "Welches Gateway bekommt ein Computer mit der Adresse 192.168.9.20?", o: ["192.168.9.1", "192.168.5.1", "192.168.9.20", "192.168.5.20"], a: 0,
+        e: "Der Computer ist im Netz 192.168.9.x. Sein Gateway ist die Adresse des Routers in diesem Netz: 192.168.9.1." },
+      { q: "Ein Computer mit 192.168.5.14 will ein Paket an 192.168.9.20 schicken. Wohin schickt er es zuerst?", o: ["an sein Gateway 192.168.5.1", "direkt an 192.168.9.20", "an 192.168.9.1", "an alle Computer im Netz 5"], a: 0,
+        e: "Das Ziel liegt in einem anderen Netz. Darum geht das Paket zuerst an das Gateway im eigenen Netz, den Router." },
+      { q: "Warum hat der Router die zwei Adressen 192.168.5.1 und 192.168.9.1?", o: ["Er hängt an beiden Netzen und braucht in jedem eine Adresse.", "Eine Adresse ist die Reserve.", "Er ist doppelt so schnell.", "Jede Adresse gehört einem Computer."], a: 0,
+        e: "Der Router ist in jedem der beiden Netze ein Gerät mit einer eigenen Adresse. Diese Adresse ist dort das Gateway." }
+    ], "mc-neu");
+  }
+});
+
+W.aufgabe({
+  titel: "Lückentext",
+  auftrag: "Setze die Wörter ein.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Zwei Wörter bleiben übrig. Sie passen in keine Lücke.", "Router · Netze · Adresse · Gateway. „Switch“ und „Kabel“ bleiben übrig."],
+  lehrer: { ziel: "Kernwissen zu Router und Gateway in einem Lückentext sichern.", anleitung: "Einzelarbeit, etwa 3 Minuten.",
+    loesung: "Router · Netze · Adresse · Gateway (übrig: Switch, Kabel).",
+    fehler: ["„Switch“ wird in die erste Lücke gesetzt – der Switch verbindet Geräte innerhalb eines Netzes, nicht verschiedene Netze."] },
+  bau(box) {
+    box.innerHTML = '<div class="gaptext"></div>';
+    Modul.makeGap($(".gaptext", box), [
+      ["Ein ", { g: "Router" }, " verbindet verschiedene ", { g: "Netze" }, "."],
+      ["Er hat in jedem Netz eine eigene ", { g: "Adresse" }, "."],
+      ["Die Adresse des Routers im eigenen Netz heißt ", { g: "Gateway" }, "."]
+    ], "gap-router", ["Switch", "Kabel"]);
+  }
+});
+
+W.aufgabe({
+  titel: "Lerncheck",
+  auftrag: "Richtig oder falsch? Entscheide bei jeder Aussage.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Ein Router verbindet Netze, ein Switch verbindet Geräte in einem Netz.", "Richtig sind die Aussagen zum Router, zu seinen zwei Adressen und zum Gateway. Falsch: das Gateway aus dem anderen Netz, der ping im eigenen Netz ohne Gateway und ein Router ohne Adresse."],
+  lehrer: { ziel: "Kernwissen der Stunde sichern.", anleitung: "Einzelarbeit, etwa 3 Minuten.",
+    loesung: "richtig · richtig · falsch · richtig · falsch · falsch", fehler: ["Aussage 5: Im eigenen Netz geht der ping auch ohne Gateway – es wird erst für andere Netze gebraucht."] },
+  bau(box) {
+    Modul.makeTF(box, [
+      ["Ein Router verbindet verschiedene Netze.", true],
+      ["Ein Router hat in jedem seiner Netze eine eigene Adresse.", true],
+      ["Als Gateway trägst du die Adresse des Routers aus dem anderen Netz ein.", false],
+      ["Das Gateway ist die Adresse des Routers im eigenen Netz.", true],
+      ["Ohne Gateway klappt auch der ping zu einem Computer im eigenen Netz nicht.", false],
+      ["Ein Router braucht keine IP-Adresse.", false]
+    ], "tf");
+  }
+});
+
+W.fertig();
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

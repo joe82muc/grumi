@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Der Switch | Informatik 9</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="../../8M/Informatik/einheit8.css">
+<link rel="stylesheet" href="einheit9.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 9</small></a>
+    <nav class="stations" id="stations"></nav>
+    <span class="stars" id="stars">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks">
+      <a href="index.html">Übersicht Informatik 9M</a>
+      <a href="../../9R/Informatik/index.html">Übersicht Informatik 9R</a>
+      <a href="../../index.html">Startseite</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 9 · Modul 1: Netzwerke mit Filius · Einheit 3</div>
+    <h1>Der Switch</h1>
+    <p>Zwei Computer verbindest du mit einem Kabel. Aber was, wenn ein ganzer Computerraum ins Netz soll? Dafür gibt es den Switch. Heute baust du einen Computerraum mit vier PCs – und holst am Ende noch einen Laptop ohne Kabel dazu.</p>
+    <div class="zeit">etwa 40 Minuten · Praxis am Windows-PC mit Filius</div>
+    <div class="goals">
+      <div>Ich erkläre, warum man einen Switch braucht.</div>
+      <div>Ich baue in Filius ein Sternnetz mit vier PCs und teste es.</div>
+      <div>Ich sage, was ein Accesspoint anders macht als ein Switch.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="modulStand"></div>
+  <div id="weg"></div>
+</main>
+
+<footer class="wrap">Informatik 9 · Dein Fortschritt wird mit deinem Code gespeichert.</footer>
+
+<div id="pop" role="dialog"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info9.js"></script>
+<script src="../../7M/Informatik/filius-datei.js"></script>
+<script src="filius9.js"></script>
+<script src="../../7M/Informatik/netz-bild.js"></script>
+<script>
+(function () {
+"use strict";
+const {$} = Modul;
+
+Modul.start9({
+  key: "grumi-i9-switch-v1",
+  thema: "Switch: mehrere Geräte in einem Netz verbinden, Sternnetz, ein Rechner hat nur einen Anschluss, der Switch leitet ein Paket nur an das Zielgerät, Accesspoint und WLAN, Sternnetz in Filius bauen und mit ping testen (Simulationsprogramm Filius)",
+  glossary: {
+    switch: ["Switch", "Ein Gerät mit vielen Anschlüssen. Es verbindet mehrere Geräte in einem Netz und leitet Pakete an das richtige Gerät weiter."],
+    sternnetz: ["Sternnetz", "Ein Netz, in dem jedes Gerät mit einem eigenen Kabel an einem Gerät in der Mitte hängt, meist an einem Switch."],
+    anschluss: ["Anschluss", "Die Buchse, in die ein Netzwerkkabel gesteckt wird. Ein Rechner oder Notebook hat in Filius genau einen."],
+    accesspoint: ["Accesspoint", "Bringt Geräte per Funk (WLAN) in ein Netzwerk."],
+    wlan: ["WLAN", "Ein Netz ohne Kabel: Die Daten reisen per Funk."],
+    paket: ["Paket", "Ein kleines Stück Daten, das durch das Netzwerk geschickt wird. Darauf steht die Adresse des Empfängers."]
+  }
+});
+
+const W = Modul.lernweg("#weg");
+
+/* ============ Teil 1: Regelheft ============ */
+W.teil("Regelheft", "Schreiben");
+W.regelheft({
+  titel: "Der Switch",
+  html: `<p>Ein <span class="rot">Switch</span> verbindet mehrere Geräte in einem Netz.</p>
+    <p>Jedes Gerät hat ein eigenes Kabel zum Switch. So entsteht ein <span class="rot">Sternnetz</span>.</p>
+    <p class="leer"></p>
+    <p>Der Switch schickt ein Paket nur an das Gerät, für das es bestimmt ist.</p>
+    <p class="leer"></p>
+    <p>Ein <span class="rot">Accesspoint</span> macht dasselbe per Funk (WLAN).</p>`,
+  lehrer: { ziel: "Die Kernaussagen der Stunde stehen im Heft: Aufgabe des Switches, Sternnetz, gezielte Weitergabe, Accesspoint.",
+    anleitung: "Etwa 5 Minuten. Die Klasse schreibt ab. Erst nach dem Abhaken erscheint die erste Aufgabe.",
+    loesung: "Der Eintrag steht vollständig im Heft (sechs kurze Zeilen)." }
+});
+
+/* ============ Teil 2: Sehen und verstehen ============ */
+W.teil("Verstehen", "Sehen · Ausprobieren");
+
+W.aufgabe({
+  titel: "Ein Computerraum am Switch",
+  auftrag: "Sieh dir das Bild an: Vier Computer sind mit blauen Kabeln mit einem Gerät in der Mitte des Tisches verbunden. Beantworte dann die zwei Fragen.",
+  vorwissen: "<p>Auch eure Schule hat irgendwo Switches: kleine Kästen mit vielen Buchsen, oft in einem Schrank im Flur.</p>",
+  hinweise: ["Schau dir an, wohin die blauen Kabel laufen.", "Alle Computer hängen an demselben Gerät. Zähle, wie viele Kabel zu jedem Computer führen.", "Frage 1: Das Gerät in der Mitte heißt Switch. Frage 2: Ein Kabel pro Gerät – fehlt eines, ist nur dieser eine Computer nicht mehr im Netz."],
+  lehrer: { ziel: "Den Switch als Verteiler in der Mitte eines Netzes kennenlernen.",
+    anleitung: "Bild am Beamer zeigen und fragen: „Wo steht bei uns der Switch?“ Wenn möglich, den echten Schrank oder Verteiler zeigen. Danach die zwei Fragen in Einzelarbeit.",
+    loesung: "Frage 1: der Switch. Frage 2: Nur dieser eine Rechner ist nicht mehr erreichbar, die anderen bleiben im Netz.",
+    fehler: ["Es wird gemeint, ohne Kabel zu einem Rechner falle das ganze Netz aus – jedes Gerät hat sein eigenes Kabel."] },
+  bau(box) {
+    box.innerHTML = `<figure class="bild9"><img class="zoomable" src="assets/bilder/switch.jpg" width="1280" height="853" loading="lazy" alt="Ein Computerraum: Vier Jugendliche sitzen an einem langen Holztisch vor Bildschirmen. In der Mitte des Tisches steht ein flacher schwarzer Kasten mit einer Reihe Buchsen und grünen Lämpchen. Vier blaue Netzwerkkabel führen von ihm zu den vier Computern.">
+      <figcaption>Ein Switch in der Tischmitte: Von ihm führt ein Kabel zu jedem Computer. (Bild mit KI erstellt)</figcaption></figure><div class="mc"></div>`;
+    Modul.makeMC($(".mc", box), [
+      { q: "Wie heißt das Gerät in der Mitte, an dem alle Kabel zusammenlaufen?", o: ["Switch", "Drucker", "Bildschirm", "Router"], a: 0,
+        e: "Der Switch verbindet mehrere Geräte in einem Netz." },
+      { q: "Das Kabel zu einem der Computer wird herausgezogen. Was bedeutet das?", o: ["Nur dieser eine Computer ist nicht mehr im Netz.", "Alle Computer sind nicht mehr im Netz.", "Alle Computer bekommen eine neue Adresse.", "Der Switch schaltet sich aus."], a: 0,
+        e: "Jeder Computer hat sein eigenes Kabel zum Switch. Fällt eines aus, betrifft das nur dieses Gerät." }
+    ], "mc-raum");
+  }
+});
+
+W.aufgabe({
+  titel: "Warum nicht einfach aneinanderstecken?",
+  auftrag: "Rechner und Notebooks haben in Filius nur einen Anschluss. Sieh dir die Zeichnung an und beantworte die Fragen.",
+  vorwissen: "<p>Die meisten Computer haben auch in echt nur eine Buchse für das Netzwerkkabel.</p>",
+  hinweise: ["Zähle in der Zeichnung die Kabel am mittleren Rechner.", "Ein Rechner mit nur einem Anschluss kann nur ein Kabel haben.", "Frage 1: Filius zeigt die Meldung „Maximale Anzahl angeschlossener Geräte überschritten“. Frage 2: Rechne 3 + 2 + 1 – so viele Kabel braucht „jeder mit jedem“."],
+  lehrer: { ziel: "Begründen, warum ein Switch nötig ist: Ein Rechner hat nur einen Anschluss, „jeder mit jedem“ braucht zu viele Kabel.",
+    anleitung: "Zeichnung kurz erklären: Der mittlere Rechner soll zwei Kabel haben – das geht nicht. Danach die Fragen in Einzelarbeit. In Filius lässt sich das später ausprobieren: Ein zweites Kabel an einen Rechner ergibt die Meldung „Maximale Anzahl angeschlossener Geräte überschritten“.",
+    loesung: "Frage 1: Filius zeigt die Meldung „Maximale Anzahl angeschlossener Geräte überschritten“. Frage 2: 6 Kabel (3 + 2 + 1).",
+    fehler: ["Frage 2: 4 wird genannt (ein Kabel je Rechner) – das gilt erst mit Switch. Ohne Switch muss jeder Rechner mit jedem verbunden sein."] },
+  bau(box) {
+    box.innerHTML = '<div class="nb"></div><div class="mc"></div>';
+    Modul.netzBild($(".nb", box), { b: 600, h: 230, alt: "Zeichnung: Drei Rechner nebeneinander. Rechner 1 ist mit Rechner 2 verbunden, Rechner 2 mit Rechner 3. Über Rechner 2 steht ein Schild: Zwei Kabel?",
+      geraete: [{ id: "a", art: "pc", x: 100, y: 110, name: "Rechner 1" }, { id: "b", art: "pc", x: 300, y: 110, name: "Rechner 2" }, { id: "c", art: "pc", x: 500, y: 110, name: "Rechner 3" }],
+      kabel: [["a", "b"], ["b", "c"]] }).schild("b", "Zwei Kabel?");
+    Modul.makeMC($(".mc", box), [
+      { q: "Du ziehst in Filius ein zweites Kabel an einen Rechner, der schon eines hat. Was passiert?", o: ["Filius zeigt die Meldung „Maximale Anzahl angeschlossener Geräte überschritten“.", "Der Rechner bekommt von selbst einen zweiten Anschluss.", "Das alte Kabel verschwindet ohne Meldung.", "Der Rechner schaltet auf WLAN um."], a: 0,
+        e: "Rechner und Notebooks haben in Filius nur einen Anschluss. Er ist mit dem ersten Kabel schon belegt." },
+      { q: "Vier Rechner ohne Switch: Jeder soll mit jedem verbunden sein. Wie viele Kabel wären das?", o: ["6", "4", "8", "3"], a: 0,
+        e: "3 + 2 + 1 = 6 Kabel, und jeder Rechner bräuchte drei Anschlüsse. Mit einem Switch genügen vier Kabel – eines je Rechner." }
+    ], "mc-eins");
+  }
+});
+
+W.aufgabe({
+  titel: "Wie läuft ein Paket über den Switch?",
+  auftrag: "Sieh dir die Schritte an: PC 1 schickt ein Paket an PC 4. Achte darauf, was die anderen PCs davon mitbekommen.",
+  vorwissen: "<p>Daten reisen als <b>Pakete</b>. Auf jedem Paket steht die Adresse des Empfängers.</p>",
+  hinweise: ["Tippe auf „Start“ oder auf die Zahlen 1 bis 5.", "Sieh dir Schritt 4 genau an: In welches Kabel schickt der Switch das Paket?", "Der Switch kennt die Geräte an seinen Anschlüssen. Er schickt das Paket nur zu PC 4. PC 2 und PC 3 bekommen nichts. Die Antwort nimmt denselben Weg zurück."],
+  lehrer: { ziel: "Verstehen: Der Switch leitet ein Paket gezielt nur an das Zielgerät weiter.",
+    anleitung: "Am Beamer gemeinsam durchklicken und bei Schritt 3 fragen: „Was macht der Switch jetzt?“ Vereinfachung: Wie der Switch die Zuordnung lernt, ist nicht Thema.",
+    loesung: "Alle fünf Schritte angesehen: Paket zum Switch, Switch wählt das Kabel zu PC 4, PC 2 und PC 3 bekommen nichts, die Antwort geht zurück.",
+    fehler: ["Kinder meinen, der Switch schicke jedes Paket an alle Geräte – nach Schritt 4 nachfragen: „Wer hat das Paket bekommen?“"],
+    bedienung: "„Start“ spielt alle Schritte ab, die Zahlen springen zu einem Schritt, ↺ beginnt neu." },
+  bau(box) {
+    box.innerHTML = '<div class="nb"></div><div class="sim"></div>';
+    const n = Modul.netzBild($(".nb", box), { b: 640, h: 310, alt: "Sternnetz: In der Mitte oben ein Switch. Daran hängen vier PCs in einer Reihe: PC 1 mit 192.168.0.10, PC 2 mit 192.168.0.11, PC 3 mit 192.168.0.12 und PC 4 mit 192.168.0.13.",
+      geraete: [{ id: "s", art: "switch", x: 320, y: 95, name: "Switch" },
+        { id: "a", art: "pc", x: 70, y: 225, name: "PC 1", ip: "192.168.0.10" }, { id: "b", art: "pc", x: 225, y: 245, name: "PC 2", ip: "192.168.0.11" },
+        { id: "c", art: "pc", x: 415, y: 245, name: "PC 3", ip: "192.168.0.12" }, { id: "d", art: "pc", x: 570, y: 225, name: "PC 4", ip: "192.168.0.13" }],
+      kabel: [["a", "s"], ["b", "s"], ["c", "s"], ["d", "s"]] });
+    Modul.makeSchritte($(".sim", box), {
+      start: "Tippe auf „Start“ oder gehe Schritt für Schritt. Achte auf das Paket.",
+      steps: [
+        "PC 1 will PC 4 etwas schicken. Auf dem Paket steht die Adresse <b>192.168.0.13</b>.",
+        "Das Paket läuft durch das Kabel zum Switch.",
+        "Der Switch weiß, an welchem Anschluss welches Gerät hängt. Er liest die Adresse auf dem Paket.",
+        "Er schickt das Paket <b>nur</b> in das Kabel zu PC 4. PC 2 und PC 3 bekommen davon nichts mit.",
+        "PC 4 antwortet. Die Antwort nimmt denselben Weg zurück – wieder über den Switch."
+      ],
+      zeige(i) {
+        n.neu();
+        if (i === 0) n.paket("a", { text: "an 192.168.0.13" }).an("a", true);
+        if (i === 1) n.paket("s", { text: "an 192.168.0.13", dx: -125, dy: 125 }).kabel("a", "s", "an");
+        if (i === 2) n.paket("s", { text: "an 192.168.0.13", dx: -125, dy: 125 }).an("s", true).schild("s", "Wohin damit?");
+        if (i === 3) { n.paket("d", { text: "an 192.168.0.13" }).kabel("d", "s", "an").an("d", true); n.schild("b", "Nichts für mich").schild("c", "Nichts für mich"); }
+        if (i === 4) n.paket("a", { farbe: "#1b8a4b", text: "Antwort" }).kabel("d", "s", "an").kabel("a", "s", "an").an("a", true);
+      }
+    }, "anim-switch");
+  }
+});
+
+W.aufgabe({
+  titel: "Video: Mit Switch",
+  auftrag: "Im Video siehst du, was in Filius passiert, wenn ein dritter Rechner ins Netz soll. Der Film hält zweimal an und stellt dir eine Frage. Gleich danach baust du selbst ein Netz.",
+  hinweise: ["Du kannst den Film jederzeit anhalten und zurückspulen.", "Stopp 1: Zwei Rechner gehen mit einem Kabel. Was braucht man für mehr?", "Stopp 2: Wie findest du heraus, ob ein Rechner antwortet? Du kennst den Befehl aus der letzten Einheit."],
+  lehrer: { ziel: "Den Ablauf in Filius einmal sehen, bevor die Klasse ihn selbst ausführt.",
+    anleitung: "Der Film (Kanal „Herr Sauer“, 2 Minuten) wird erst nach dem Antippen von YouTube geladen und kann ganz angesehen werden. Der Schluss (ab etwa 1:58) betrifft das Speichern mit Dateinamen einer anderen Schule – das gilt für uns nicht. Lädt YouTube im Schulnetz nicht, erscheinen die Fragen ohne Film.",
+    loesung: "Stopp 1: ein Switch (eine „Mehrfachsteckdose“ für das Netz). Stopp 2: mit ping.",
+    fehler: ["Im Film heißt der dritte Rechner „Server“ und bekommt die Adresse .12 – in unserem Auftrag heißen alle PCs „PC 1“ bis „PC 4“."],
+    test: "Transkript am 13.10.2026 vollständig gelesen (automatische Untertitel). Bei eingebetteten YouTube-Filmen kann Werbung erscheinen." },
+  bau(box) {
+    Modul.makeFilm(box, { vid: "_LSYWZRcfM4", titel: "04 Mit Switch", quelle: "Herr Sauer (YouTube)", dauer: "2 Minuten",
+      stops: [
+        { t: 18, q: { q: "Was braucht man, wenn mehr als zwei Geräte miteinander verbunden werden sollen?", o: ["einen Switch", "einen Drucker", "ein längeres Kabel", "einen zweiten Bildschirm"], a: 0, e: "Ein Rechner hat nur einen Anschluss. Der Switch hat viele und verbindet alle Geräte miteinander." } },
+        { t: 90, q: { q: "Wie testet man, ob ein dritter Rechner im Netz erreichbar ist?", o: ["mit dem Befehl ping", "mit dem Befehl speichern", "mit einem neuen Kabel", "mit einem Neustart von Filius"], a: 0, e: "ping schickt Pakete an die Adresse und zeigt, ob Antwort kommt." } }
+      ] }, "film-switch-");
+  }
+});
+
+/* ============ Teil 3: Am PC ============ */
+W.teil("Am PC: Filius", "Anwenden");
+
+function pruefeStern(n) {
+  const r = n.rechner, sw = n.switches;
+  const amSwitch = r.filter(g => n.switchVon(g.id).length > 0);
+  const einNetz = r.length > 1 && r.every(g => g === r[0] || n.erreichbar(r[0].id, g.id));
+  const adressen = r.length > 0 && r.every(g => g.ips.length > 0 && g.ips.every(ip => ip.indexOf("192.168.0.") === 0));
+  return [
+    { ok: r.length === 4, text: r.length === 4 ? "Vier Computer stehen auf der Fläche." : "Auf der Fläche sollen vier Computer stehen (PC 1 bis PC 4). Gefunden: " + r.length + "." },
+    { ok: sw.length === 1, text: sw.length === 1 ? "Ein Switch ist da." : sw.length ? "Es soll nur ein Switch sein. Gefunden: " + sw.length + "." : "Es fehlt noch ein Switch („Switch / WLAN“ aus der Leiste)." },
+    { ok: sw.length >= 1 && r.length > 0 && amSwitch.length === r.length && einNetz, text: amSwitch.length === r.length && r.length > 0 && einNetz ? "Jeder Computer hängt mit einem eigenen Kabel am Switch." : "Nicht jeder Computer hängt am Switch. Es fehlt bei: " + (r.filter(g => !amSwitch.includes(g)).map(g => g.name).join(", ") || "einer Verbindung") + "." },
+    { ok: adressen && !n.doppelt.length, text: n.doppelt.length ? "Zwei Computer haben dieselbe Adresse: " + n.doppelt[0] + ". Jeder Computer braucht eine eigene." : adressen ? "Jeder Computer hat eine eigene Adresse aus dem Netz 192.168.0." : "Alle Adressen sollen mit 192.168.0. beginnen." }
+  ];
+}
+
+W.aufgabe({
+  titel: "Das Sternnetz bauen",
+  geheim: ["192.168.0.11", "192.168.0.12", "192.168.0.13"],
+  auftrag: "Baue in Filius den Computerraum: vier PCs, ein Switch in der Mitte, von jedem PC ein Kabel zum Switch.",
+  vorwissen: "<p>Der Switch braucht keine IP-Adresse. Nur die vier PCs bekommen eine: 192.168.0.10, .11, .12 und .13.</p>",
+  hinweise: ["Ein Gerät kommt nur auf die Fläche, wenn du es mit <b>gedrückter</b> Maustaste aus der Leiste ziehst. Name und Adresse stehen nach einem <b>Doppelklick</b> unten im Fenster.", "Jeder neue Rechner hat zuerst die Adresse 192.168.0.10. PC 1 behält sie, bei den anderen änderst du sie. Für jedes Kabel: „Verbindung“ anklicken, den PC anklicken, den Switch anklicken.", "Adressen: PC 1 <code>192.168.0.10</code>, PC 2 <code>192.168.0.11</code>, PC 3 <code>192.168.0.12</code>, PC 4 <code>192.168.0.13</code>. Vier Kabel, jedes vom PC zum Switch. Zum Schluss <kbd>Esc</kbd> und speichern."],
+  lehrer: { ziel: "In Filius ein Sternnetz mit einem Switch und vier Rechnern aufbauen und passend adressieren.",
+    anleitung: "Filius 2.14.0 starten lassen. Die Schritte stehen zum Abhaken im Auftrag. Am Ende lädt jedes Kind seine gespeicherte Datei hoch – sie wird nur im Browser geprüft, nichts verlässt das Gerät. Am Tablet gibt es stattdessen eine Frage.",
+    loesung: "Der Switch steht in der Mitte, von PC 1 bis PC 4 führt je ein Kabel zu ihm. Adressen 192.168.0.10 bis 192.168.0.13, alle verschieden. Gespeichert als stern.fls.",
+    fehler: ["Alle PCs behalten 192.168.0.10 (Adresse doppelt) – Filius meldet das nicht, die Rückmeldung der Seite schon.", "Ein PC wird mit einem anderen PC verbunden statt mit dem Switch – dann fehlt ein Anschluss am Switch.", "Das Kabel „klebt“ am Mauszeiger – Esc drücken.", "Gespeichert wird im Aktionsmodus nicht: zurück in den Entwurfsmodus (Hammer)."],
+    bedienung: "„Datei auswählen“ → die gespeicherte .fls-Datei. Die Rückmeldung nennt jeden Prüfpunkt einzeln und sagt, bei welchem Computer das Kabel zum Switch fehlt." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Sternnetz mit vier PCs", pc: "Filius", zeit: "etwa 12 Minuten",
+      ziel: "Ein Switch und vier PCs: PC 1 bis PC 4 haben die Adressen 192.168.0.10 bis 192.168.0.13, jeder hängt mit einem Kabel am Switch. Dein Netz ist als stern.fls gespeichert.",
+      schritte: [
+        "Öffne <b>Filius</b>. Steht noch etwas auf der Fläche, klicke oben links auf das <span class=\"menue\">weiße Blatt</span> (neues Projekt) und antworte auf die Frage „Fortfahren?“ mit „Ja“.",
+        "Ziehe links aus der Leiste vier <span class=\"menue\">Rechner</span> mit <b>gedrückter</b> Maustaste auf die Fläche, nebeneinander in eine Reihe. Lass oben in der Mitte Platz.",
+        "Mache einen <b>Doppelklick</b> auf den ersten Rechner. Schreibe bei <span class=\"menue\">Name</span>: <b>PC 1</b> und drücke die Eingabetaste. Die Adresse 192.168.0.10 bleibt.",
+        "Benenne die anderen drei genauso: <b>PC 2</b> mit <b>192.168.0.11</b>, <b>PC 3</b> mit <b>192.168.0.12</b>, <b>PC 4</b> mit <b>192.168.0.13</b>. Die Adresse schreibst du bei <span class=\"menue\">IP-Adresse</span>, danach jedes Mal die Eingabetaste.",
+        "Ziehe aus der Leiste einen <span class=\"menue\">Switch / WLAN</span> oben in die Mitte. Doppelklick darauf: Name <b>Switch</b>. Eine Adresse braucht er nicht.",
+        { t: "Klicke ganz oben links auf <span class=\"menue\">Verbindung</span>, dann auf PC 1 und dann auf den Switch. Mache dasselbe für PC 2, PC 3 und PC 4. Zum Schluss ist von jedem PC ein Kabel zum Switch geführt.", bild: "assets/filius/netz-stern.png", alt: "Filius im Entwurfsmodus: Oben der Switch, darunter in einer Reihe PC 1, PC 2, PC 3 und PC 4. Von jedem PC führt ein Kabel zum Switch." },
+        "Am Mauszeiger hängt noch ein Kabel. Drücke die Taste <kbd>Esc</kbd>.",
+        "Speichere: Klicke oben auf die <span class=\"menue\">Diskette</span>, gib der Datei den Namen <b>stern</b> und klicke auf <span class=\"menue\">Speichern</span>."
+      ],
+      loesung: "Ein Switch in der Mitte, vier PCs mit den Adressen 192.168.0.10 bis 192.168.0.13, vier Kabel (je eines von jedem PC zum Switch). Die Datei heißt stern.fls.",
+      pruefung: {
+        art: "datei", accept: ".fls", lies: Modul.liesFilius9, pruefe: pruefeStern,
+        text: "Wähle deine gespeicherte Datei <b>stern.fls</b> aus. Sie wird nur hier auf dem Gerät geprüft und nicht hochgeladen.",
+        ersatz: { art: "zahl", frage: "Wie viele Kabel führen in deinen Switch, wenn vier PCs daran hängen?", wert: 4, tol: 0, einheit: "Kabel",
+          tipp: "Jeder PC hat genau ein eigenes Kabel zum Switch." }
+      }
+    }, "auf1");
+  }
+});
+
+W.aufgabe({
+  titel: "Das Sternnetz testen",
+  geheim: ["4"],
+  auftrag: "Jetzt prüfst du, ob dein Netz funktioniert: Schicke von PC 1 aus einen ping an PC 4 – quer über den Switch.",
+  vorwissen: "<p>Im <b>Aktionsmodus</b> (grüner Pfeil) probierst du aus, was die Computer tun. Der Befehl <code>ping</code> schickt vier kleine Pakete und zählt, wie viele zurückkommen.</p>",
+  hinweise: ["Die Befehlszeile musst du auf PC 1 erst installieren: Software-Installation → rechts „Befehlszeile“ anklicken → oberer Pfeil → „Änderungen annehmen“.", "Hinter <code>/&gt;</code> tippst du <code>ping</code>, ein Leerzeichen und die Adresse von PC 4. Dann die Eingabetaste.", "Der ganze Befehl heißt <code>ping 192.168.0.13</code>. Zähle in der letzten Zeile: „… Paket(e) gesendet, … Paket(e) empfangen“."],
+  lehrer: { ziel: "Die Erreichbarkeit im Sternnetz mit ping prüfen: Das Paket läuft über den Switch.",
+    anleitung: "Darauf hinweisen: Im Aktionsmodus verschwindet die Geräteleiste. Die Antwort braucht zwei bis drei Sekunden. Die Kinder bleiben im selben Filius wie in der letzten Aufgabe.",
+    loesung: "4 Pakete gesendet, 4 empfangen, 0 % Paketverlust → Antwort: 4.",
+    fehler: ["ping an die eigene Adresse 192.168.0.10 statt an PC 4: Das klappt immer und beweist nichts.", "Tippfehler in der Adresse: Dann meldet Filius viermal „Timeout!“ (dauert etwa 30 Sekunden).", "Ein PC wurde nicht mit dem Switch verbunden: auch dann viermal „Timeout!“."],
+    bedienung: "Das Kind trägt die Zahl der empfangenen Pakete ein und tippt auf „Lösung überprüfen“." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Ping von PC 1 an PC 4", pc: "Filius", zeit: "etwa 6 Minuten",
+      ziel: "PC 1 schickt einen Ping an PC 4 – und bekommt Antwort.",
+      schritte: [
+        "Wechsle in den <b>Aktionsmodus</b>: Klicke oben auf den <span class=\"menue\">grünen Pfeil</span>.",
+        "Klicke auf <b>PC 1</b>. Sein Bildschirm geht auf. Klicke dort auf <span class=\"menue\">Software-Installation</span>.",
+        { t: "Klicke rechts in der Liste auf <span class=\"menue\">Befehlszeile</span>, dann auf den <b>oberen Pfeil</b> (er zeigt nach links). Klicke zum Schluss auf <span class=\"menue\">Änderungen annehmen</span>.", bild: "../../7M/Informatik/assets/filius/software-installation.png", alt: "Filius: Fenster Software-Installation mit der Liste Verfügbar und den Pfeilen in der Mitte" },
+        "Auf dem Bildschirm von PC 1 liegt jetzt das Symbol <span class=\"menue\">Befehlszeile</span>. Klicke es an.",
+        "Tippe hinter <code>/&gt;</code> den Befehl <code>ping 192.168.0.13</code> und drücke die Eingabetaste. Warte, bis die letzte Zeile erscheint.",
+        "Lies die letzte Zeile: Wie viele Pakete wurden gesendet, wie viele empfangen?"
+      ],
+      loesung: "Die letzte Zeile heißt: 4 Paket(e) gesendet, 4 Paket(e) empfangen, 0% Paketverlust.",
+      pruefung: { art: "zahl", frage: "Wie viele Pakete hat PC 1 <b>empfangen</b>?", wert: 4, tol: 0, einheit: "Pakete",
+        tipp: "Die Zahl steht in der letzten Zeile nach dem ping: „… Paket(e) empfangen“. Steht dort 0, prüfe im Entwurfsmodus Kabel und Adressen.",
+        erfolg: "Alle vier Pakete sind über den Switch angekommen." }
+    }, "auf2");
+  }
+});
+
+function pruefeWlan(n) {
+  const r = n.rechner, sw = n.switches[0];
+  const lap = r.find(g => g.funk);
+  const verkabelt = r.filter(g => !g.funk && n.switchVon(g.id).length > 0);
+  const adressen = r.length > 0 && r.every(g => g.ips.length > 0 && g.ips.every(ip => ip.indexOf("192.168.0.") === 0));
+  return [
+    { ok: verkabelt.length >= 4, text: verkabelt.length >= 4 ? "Vier Computer hängen mit einem Kabel am Switch." : "Vier Computer sollen mit einem Kabel am Switch hängen. Gefunden: " + verkabelt.length + "." },
+    { ok: !!lap, text: lap ? "Ein Notebook ist per WLAN (Funk) verbunden." : "Kein Gerät ist per Funk verbunden. Stelle bei einem Notebook „Drahtlos (WLAN)“ ein." },
+    { ok: !!(lap && sw && sw.ssid && sw.ssid === lap.ssid), text: lap && sw && sw.ssid && sw.ssid === lap.ssid ? "Notebook und Switch haben dasselbe WLAN." : "Das Notebook ist noch nicht im WLAN des Switches. Wähle bei „Drahtloses Netzwerk (SSID)“ den Namen aus, der beim Switch steht." },
+    { ok: adressen && !n.doppelt.length, text: n.doppelt.length ? "Zwei Geräte haben dieselbe Adresse: " + n.doppelt[0] + ". Das Notebook braucht eine eigene, zum Beispiel 192.168.0.20." : adressen ? "Alle Geräte haben eine eigene Adresse aus dem Netz 192.168.0." : "Alle Adressen sollen mit 192.168.0. beginnen." }
+  ];
+}
+
+W.aufgabe({
+  titel: "Ein Laptop ohne Kabel",
+  geheim: ["192.168.0.20"],
+  auftrag: "Zum Computerraum kommt ein Laptop dazu – aber ohne Kabel, per WLAN. Ergänze ihn in deinem Netz.",
+  vorwissen: "<p>In Filius ist <b>Switch / WLAN</b> beides in einem: Switch für Kabel und Accesspoint für Funk. Jeder dieser Kästen hat einen WLAN-Namen, die <b>SSID</b>. Ein Notebook meldet sich in diesem WLAN an.</p>",
+  hinweise: ["Du brauchst für den Laptop kein Kabel. Das Gerät kommt aus der Leiste, wie ein normales Notebook.", "Beim Notebook gibt es zwei Auswahlpunkte: „Kabelgebunden (LAN)“ und „Drahtlos (WLAN)“. Wähle den zweiten. Danach erscheint eine Auswahlliste für das Netzwerk.", "Notebook auf die Fläche ziehen, Doppelklick: Name <code>Laptop</code>, IP-Adresse <code>192.168.0.20</code>, „Drahtlos (WLAN)“ anklicken, bei „Drahtloses Netzwerk (SSID)“ den Namen des Switches wählen. Eine gestrichelte Linie zeigt die Funkverbindung. Speichern als <b>stern_wlan</b>."],
+  lehrer: { ziel: "Verstehen: Ein Accesspoint bringt Geräte per Funk ins Netz, ohne Kabel. In Filius übernimmt das der Eintrag „Switch / WLAN“.",
+    anleitung: "Die Kinder arbeiten in ihrem Netz aus der letzten Aufgabe weiter. Der WLAN-Name (SSID) des Switches ist schon vorbelegt – sie müssen ihn nicht ändern, nur beim Notebook auswählen. Die Funkverbindung ist im Bild eine grau gestrichelte Linie. Zum Schluss kann ein Ping von PC 1 an 192.168.0.20 getestet werden (4 von 4 Paketen). Auch diese Datei lädt das Kind hoch (nur im Browser geprüft); am Tablet gibt es eine Ersatzfrage.",
+    loesung: "Notebook „Laptop“ mit 192.168.0.20, Einstellung „Drahtlos (WLAN)“, SSID des Switches ausgewählt, die vier PCs weiter per Kabel am Switch. Gespeichert als stern_wlan.fls.",
+    fehler: ["„Bitte auswählen“ bleibt in der Auswahlliste stehen: Das Notebook ist dann in keinem WLAN.", "Der Laptop wird zusätzlich mit einem Kabel verbunden – nicht nötig, das Funknetz ersetzt das Kabel.", "Die Adresse 192.168.0.10 bleibt stehen (Voreinstellung) und ist damit doppelt."],
+    bedienung: "„Datei auswählen“ → die gespeicherte .fls-Datei. Die Rückmeldung nennt jeden Prüfpunkt einzeln." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Laptop per WLAN", pc: "Filius", zeit: "etwa 8 Minuten",
+      ziel: "Der Laptop (192.168.0.20) ist ohne Kabel im Netz. Deine Datei ist als stern_wlan.fls gespeichert.",
+      schritte: [
+        "Wechsle in den <b>Entwurfsmodus</b>: Klicke oben auf den <span class=\"menue\">Hammer</span>. Dein Sternnetz ist noch da.",
+        { t: "Mache einen <b>Doppelklick</b> auf den <b>Switch</b> und sieh dir unten sein Feld <span class=\"menue\">Name WLAN (SSID)</span> an. Dort steht der WLAN-Name des Switches. Du musst nichts ändern.", bild: "assets/filius/wlan-switch.png", alt: "Filius, Entwurfsmodus: Oben der Switch mit vier Kabeln zu PC 1 bis PC 4. Unten stehen die Einstellungen des Switches: Name, Name WLAN (SSID) mit einem kurzen Zahlen-Buchstaben-Wert, Gültigkeitsdauer SAT-Einträge und das Häkchen als Wolke darstellen." },
+        "Ziehe ein <span class=\"menue\">Notebook</span> auf die Fläche, ein Stück neben den Switch. Verbinde es <b>nicht</b> mit einem Kabel.",
+        "Doppelklick auf das Notebook. Name: <b>Laptop</b>. IP-Adresse: <b>192.168.0.20</b>. Eingabetaste nach jeder Eingabe.",
+        { t: "Klicke bei dem Notebook auf <span class=\"menue\">Drahtlos (WLAN)</span>. Wähle dann bei <span class=\"menue\">Drahtloses Netzwerk (SSID)</span> in der Auswahlliste den Namen deines Switches. Zwischen Notebook und Switch erscheint eine gestrichelte Linie.", bild: "assets/filius/wlan-notebook.png", alt: "Filius, Entwurfsmodus: Der Laptop steht neben dem Switch und ist durch eine grau gestrichelte Linie mit ihm verbunden. Unten die Einstellungen des Laptops: Name Laptop, IP-Adresse 192.168.0.20, Drahtlos (WLAN) ist angeklickt, im Feld Drahtloses Netzwerk (SSID) ist der Name des Switches gewählt." },
+        "Speichere: Klicke auf die <span class=\"menue\">Diskette</span>, gib der Datei den Namen <b>stern_wlan</b> und klicke auf <span class=\"menue\">Speichern</span>.",
+        "Zum Ausprobieren: Wechsle in den Aktionsmodus, öffne die Befehlszeile auf PC 1 und tippe <code>ping 192.168.0.20</code>. Der Laptop antwortet – ganz ohne Kabel."
+      ],
+      loesung: "Das Notebook „Laptop“ hat 192.168.0.20 und ist auf „Drahtlos (WLAN)“ gestellt, mit dem WLAN-Namen des Switches. Die vier PCs hängen weiter mit Kabel am Switch. Die Datei heißt stern_wlan.fls.",
+      pruefung: {
+        art: "datei", accept: ".fls", lies: Modul.liesFilius9, pruefe: pruefeWlan,
+        text: "Wähle deine gespeicherte Datei <b>stern_wlan.fls</b> aus. Sie wird nur hier auf dem Gerät geprüft und nicht hochgeladen.",
+        ersatz: { art: "wort", frage: "Welche der zwei Einstellungen wählst du beim Notebook, wenn es ohne Kabel ins Netz soll? Schreibe die Einstellung ohne Klammer.", antworten: ["Drahtlos", "Drahtlos (WLAN)"],
+          tipp: "Neben „Kabelgebunden (LAN)“ steht eine zweite Einstellung. Sie beginnt mit „Draht…“." }
+      }
+    }, "aufWlan");
+  }
+});
+
+/* ============ Teil 4: Kontrollieren ============ */
+W.teil("Kontrollieren", "Lerncheck");
+
+W.aufgabe({
+  titel: "Den Netzplan ergänzen",
+  auftrag: "Das ist der Netzplan eines kleinen Computerraums. Beantworte die Fragen.",
+  hinweise: ["Jede Linie im Plan ist ein Kabel. Der Laptop hat keine Linie.", "Der Laptop hängt per Funk im Netz. Das Gerät, das ihn anbindet, heißt Accesspoint.", "Drei Kabel hängen am Switch. Der Laptop kommt per WLAN dazu. Ein neuer PC bekommt ein Kabel zum Switch und eine Adresse aus 192.168.0.x, die noch frei ist: zum Beispiel .13 oder .14."],
+  lehrer: { ziel: "Einen Netzplan lesen und mit neuen Zahlen erweitern: Kabel, Funk, freie Adresse.",
+    anleitung: "Vorher klären: Kästchen = Gerät, Linie = Kabel, darunter Name und Adresse. Das Schild „per Funk“ steht beim Laptop.",
+    loesung: "Frage 1: drei · Frage 2: per Funk über einen Accesspoint (in Filius der Switch / WLAN) · Frage 3: ein eigenes Kabel zum Switch und eine freie Adresse, zum Beispiel 192.168.0.13.",
+    fehler: ["Frage 1: Vier wird gewählt, weil der Laptop mitgezählt wird – er hat aber kein Kabel.", "Frage 3: 192.168.0.11 wird gewählt, weil sie „in der Mitte“ liegt – sie ist aber schon vergeben."] },
+  bau(box) {
+    box.innerHTML = '<div class="nb"></div><div class="mc"></div>';
+    Modul.netzBild($(".nb", box), { b: 640, h: 330, alt: "Netzplan: In der Mitte oben ein Switch. Daran hängen mit je einem Kabel PC 1 mit 192.168.0.10, PC 2 mit 192.168.0.11 und PC 3 mit 192.168.0.12. Rechts daneben steht ein Laptop mit 192.168.0.20 ohne Kabel, darüber das Schild per Funk.",
+      geraete: [{ id: "s", art: "switch", x: 300, y: 100, name: "Switch" },
+        { id: "a", art: "pc", x: 90, y: 235, name: "PC 1", ip: "192.168.0.10" }, { id: "b", art: "pc", x: 250, y: 255, name: "PC 2", ip: "192.168.0.11" }, { id: "c", art: "pc", x: 410, y: 235, name: "PC 3", ip: "192.168.0.12" },
+        { id: "l", art: "notebook", x: 560, y: 120, name: "Laptop", ip: "192.168.0.20" }],
+      kabel: [["a", "s"], ["b", "s"], ["c", "s"]] }).schild("l", "per Funk");
+    Modul.makeMC($(".mc", box), [
+      { q: "Wie viele Kabel hängen am Switch?", o: ["drei", "vier", "zwei", "fünf"], a: 0, e: "PC 1, PC 2 und PC 3 haben je ein Kabel. Der Laptop kommt ohne Kabel ins Netz." },
+      { q: "Wie kommt der Laptop ins Netz?", o: ["per Funk (WLAN) über einen Accesspoint", "über das Kabel von PC 3", "gar nicht", "mit einem zweiten Switch"], a: 0, e: "Der Accesspoint bringt Geräte per Funk ins Netz. In Filius übernimmt das der Eintrag „Switch / WLAN“." },
+      { q: "Ein vierter PC soll mit Kabel in den Raum. Was braucht er?", o: ["ein eigenes Kabel zum Switch und eine freie Adresse, zum Beispiel 192.168.0.13", "ein Kabel zu PC 3 und die Adresse 192.168.0.12", "kein Kabel und die Adresse 192.168.1.13", "ein Kabel zum Laptop und die Adresse 192.168.0.11"], a: 0,
+        e: "Jeder PC bekommt ein eigenes Kabel zum Switch und eine Adresse, die kein anderes Gerät hat. Dazu muss sie mit 192.168.0 beginnen." }
+    ], "mc-plan");
+  }
+});
+
+W.aufgabe({
+  titel: "Switch oder Accesspoint?",
+  auftrag: "Entscheide bei jedem Fall, welches Gerät gebraucht wird.",
+  hinweise: ["Frage dich: Hängt das Gerät mit einem Kabel im Netz oder ohne?", "Switch → Kabel. Accesspoint → Funk (WLAN).", "Fünf Rechner mit Kabel und der Drucker mit Kabel → Switch. Tablet, Handys und Notebook ohne Kabel → Accesspoint."],
+  lehrer: { ziel: "Switch (Kabel) und Accesspoint (Funk) unterscheiden.",
+    anleitung: "Ein Fall nach dem anderen; falsch entschiedene Fälle kommen noch einmal.",
+    loesung: "Rechner mit Kabel: Switch · Tablet ohne Anschluss: Accesspoint · Drucker mit Kabel: Switch · Handys: Accesspoint · Notebook im WLAN: Accesspoint.",
+    fehler: ["Der Router wird genannt – der verbindet verschiedene Netze (nächste Einheit)."] },
+  bau(box) {
+    Modul.makeEntscheiden(box, {
+      frage: "Welches Gerät wird gebraucht?",
+      optionen: ["Switch", "Accesspoint"],
+      faelle: [
+        { html: "Fünf Rechner im Computerraum hängen jeder mit einem Netzwerkkabel im Netz.", kurz: "Rechner mit Kabel", a: 0, e: "Kabel führen zum Switch: Jeder Rechner bekommt dort einen eigenen Anschluss." },
+        { html: "Ein Tablet hat keine Buchse für ein Netzwerkkabel. Es soll trotzdem ins Netz.", kurz: "Tablet", a: 1, e: "Ohne Kabel geht es nur per Funk. Dafür gibt es den Accesspoint." },
+        { html: "Ein Drucker mit Netzwerkkabel soll ins Netz des Raumes.", kurz: "Drucker", a: 0, e: "Ein Kabel vom Drucker wird in den Switch gesteckt." },
+        { html: "Mehrere Handys in der Klasse sollen ins Schul-WLAN.", kurz: "Handys", a: 1, e: "Handys melden sich per Funk an. Das Funk-Netz kommt vom Accesspoint." },
+        { html: "In Filius soll ein Notebook ohne Kabel mitmachen. Es wählt „Drahtlos (WLAN)“.", kurz: "Notebook im WLAN", a: 1, e: "Per Funk: Der Switch / WLAN arbeitet hier als Accesspoint." }
+      ],
+      fertig: "Du kannst Switch und Accesspoint auseinanderhalten."
+    }, "entsch-geraet");
+  }
+});
+
+W.aufgabe({
+  titel: "Lerncheck",
+  auftrag: "Richtig oder falsch? Entscheide bei jeder Aussage.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Ein Switch verteilt Pakete gezielt. Er schickt sie nicht an alle.", "Richtig sind die Aussagen zu Switch, Sternnetz und Accesspoint. Falsch: mehrere Kabel am Rechner, Adresse für den Switch und „Paket an alle“."],
+  lehrer: { ziel: "Kernwissen der Stunde sichern.", anleitung: "Einzelarbeit, etwa 3 Minuten.",
+    loesung: "richtig · falsch · richtig · falsch · richtig · falsch", fehler: ["Aussage 4: Der Switch braucht in Filius keine IP-Adresse. Nur die Computer brauchen eine."] },
+  bau(box) {
+    Modul.makeTF(box, [
+      ["Ein Switch verbindet mehrere Geräte in einem Netz.", true],
+      ["An einen Rechner kannst du in Filius beliebig viele Kabel stecken.", false],
+      ["In einem Sternnetz hängt jedes Gerät mit einem eigenen Kabel am Switch.", true],
+      ["Ein Switch braucht in Filius eine IP-Adresse.", false],
+      ["Ein Accesspoint bringt Geräte per Funk ins Netz.", true],
+      ["Der Switch schickt jedes Paket an alle Geräte.", false]
+    ], "tf");
+  }
+});
+
+W.fertig();
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

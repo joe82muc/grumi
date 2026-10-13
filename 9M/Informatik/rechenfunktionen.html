@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>PRODUKT, QUOTIENT, RUNDEN, WURZEL | Informatik 9</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="../../8M/Informatik/einheit8.css">
+<link rel="stylesheet" href="einheit9.css">
+<link rel="stylesheet" href="tabelle9.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 9</small></a>
+    <nav class="stations" id="stations"></nav>
+    <span class="stars" id="stars">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks">
+      <a href="index.html">Übersicht Informatik 9M</a>
+      <a href="../../9R/Informatik/index.html">Übersicht Informatik 9R</a>
+      <a href="../../index.html">Startseite</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 9 · Modul 3: Excel-Funktionen · Einheit 3</div>
+    <h1>PRODUKT, QUOTIENT, RUNDEN, WURZEL</h1>
+    <p>Der Jugendraum wird renoviert. Dafür musst du Flächen berechnen, Kartons zählen, Preise runden und Rabatte ausrechnen. Vier Funktionen helfen dir dabei.</p>
+    <div class="zeit">etwa 40 Minuten · Praxis am Windows-PC mit Excel</div>
+    <div class="goals">
+      <div>Ich rechne mit PRODUKT, QUOTIENT, RUNDEN und WURZEL.</div>
+      <div>Ich berechne eine Fläche und einen Prozentwert in Excel.</div>
+      <div>Ich entscheide, wann QUOTIENT und wann der Schrägstrich passt.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="modulStand"></div>
+  <div id="weg"></div>
+</main>
+
+<footer class="wrap">Informatik 9 · Dein Fortschritt wird mit deinem Code gespeichert. · Excel ist ein Programm von Microsoft; die Tabellen auf dieser Seite sind eigene Nachbildungen (GRUMI-EXCEL). Alle Zahlen sind erfunden.</footer>
+
+<div id="pop" role="dialog"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info9.js"></script>
+<script src="diagramm9.js"></script>
+<script src="tabelle9.js"></script>
+<script src="../../8M/Informatik/excel-datei.js"></script>
+<script src="excel-aufgaben9.js"></script>
+<script>
+(function () {
+"use strict";
+const {$} = Modul;
+const F = Modul.formelGleich;
+const gl = (x, y) => typeof x === "number" && Math.abs(x - y) < 1e-9;
+const ist = (t, a, s) => String(t.wert(a)).toLowerCase() === s;
+const p = (ok, gut, schlecht) => ({ok, text: ok ? gut : schlecht});
+
+Modul.start9({
+  key: "grumi-i9-rechenfunktionen-v1",
+  thema: "Excel: Funktionen PRODUKT, QUOTIENT (nur ganze Zahl), RUNDEN(Zahl;Stellen) und WURZEL, Prozentrechnung (Prozentwert mit %), Fläche eines Rechtecks und Seitenlänge eines Quadrats (Jugendraum renovieren)",
+  glossary: {
+    produkt: ["PRODUKT", "Multipliziert Zahlen miteinander, zum Beispiel =PRODUKT(B1;B2). Das ist dasselbe wie =B1*B2."],
+    quotient: ["QUOTIENT", "Teilt zwei Zahlen, zeigt aber nur den ganzen Teil. QUOTIENT(23;5) ergibt 4."],
+    runden: ["RUNDEN", "Rundet eine Zahl auf eine bestimmte Anzahl Nachkommastellen: =RUNDEN(3,14159;2) ergibt 3,14."],
+    wurzel: ["WURZEL", "Sucht die Zahl, die mit sich selbst mal genommen das Ergebnis ergibt. WURZEL(81) ist 9."],
+    prozent: ["Prozent", "Ein Hundertstel. 19 % von B1 rechnest du mit =B1*19%."]
+  }
+});
+
+const W = Modul.lernweg("#weg");
+
+/* ============ Regelheft ============ */
+W.teil("Regelheft", "Schreiben");
+W.regelheft({
+  titel: "Vier Rechenfunktionen",
+  html: `<p><span class="blau">PRODUKT(B1;B2)</span> multipliziert (mal).</p>
+    <p><span class="blau">QUOTIENT(B1;B2)</span> teilt, zeigt aber nur die <span class="rot">ganze Zahl</span>.</p>
+    <p><span class="blau">RUNDEN(Zahl;Stellen)</span> rundet: <span class="blau">RUNDEN(3,14159;2)</span> ergibt 3,14.</p>
+    <p><span class="blau">WURZEL(81)</span> ergibt 9.</p>
+    <p class="leer"></p>
+    <p>Prozent: 19 % von B1 rechnest du mit <span class="blau">=B1*19%</span>.</p>
+    <p>Fläche eines Rechtecks: Länge mal Breite.</p>`,
+  lehrer: { ziel: "Die vier Funktionen, die Prozentschreibweise und die Rechteckfläche stehen im Heft.",
+    anleitung: "Etwa 5 Minuten. Die Klasse schreibt ab. Erst nach dem Abhaken erscheint die erste Aufgabe.",
+    loesung: "Der Eintrag steht vollständig im Heft (vier Funktionen, Prozent, Fläche)." }
+});
+
+/* ============ Teil 2: Erst hier auf der Seite ============ */
+W.teil("Verstehen und üben", "Sehen · Ausprobieren");
+
+W.aufgabe({
+  titel: "Die Fläche mit PRODUKT",
+  bild: { src: "assets/bilder/rechenfunktionen.jpg", alt: "Zwei Jugendliche renovieren ein Zimmer: Einer legt ein Maßband auf den Boden, die andere kniet über einem Grundriss auf Papier. Daneben stehen Farbeimer.", text: "Wer renoviert, muss rechnen: Flächen, Mengen und Preise." },
+  geheim: ["=PRODUKT(B1;B2)", "16"],
+  auftrag: "Die Küche im Jugendhaus ist 5 m lang und 3,2 m breit. Berechne in <b>B3</b> mit der Funktion <b>PRODUKT</b> die Bodenfläche.",
+  vorwissen: "<p>Die Fläche eines Rechtecks ist <b>Länge mal Breite</b>. Die Funktion <b>PRODUKT</b> multipliziert die Zahlen, die du in die Klammer schreibst. Zwischen die Zahlen setzt du ein Semikolon.</p>",
+  hinweise: ["PRODUKT(…) steht für „mal“. In die Klammer kommen die beiden Zellen.", "Länge steht in B1, Breite in B2. Zwischen den beiden Zellen steht ein Semikolon.", "Gleichheitszeichen, PRODUKT, Klammer auf, B1, Semikolon, B2, Klammer zu."],
+  lehrer: { ziel: "Eine Fläche berechnen und die Funktion PRODUKT mit Semikolon schreiben.",
+    anleitung: "Zeigen: =PRODUKT(B1;B2) und =B1*B2 geben dasselbe. PRODUKT lohnt sich vor allem bei vielen Zahlen.",
+    loesung: "=PRODUKT(B1;B2), B3 zeigt 16.",
+    fehler: ["Statt des Semikolons steht ein Komma – das ist für Excel ein Dezimalkomma.", "Das Ergebnis ist richtig, aber mit dem Sternchen gerechnet – die Aufgabe will PRODUKT üben."],
+    bedienung: "B3 anklicken, Formel tippen, Eingabetaste." },
+  bau(box) {
+    Modul.makeTabellenAufgabe(box, {
+      text: "Berechne in <b>B3</b> die Fläche mit PRODUKT.",
+      tabelle: { spalten: 2, zeilen: 3, eingabe: ["B3"], start: "B3", breit: { A: 130, B: 90 }, zellen: { A1: "Länge in m", B1: "5", A2: "Breite in m", B2: "3,2", A3: "Fläche in m²" } },
+      pruefe: t => [
+        p(t.istFormel("B3"), "In B3 steht eine Formel.", "In B3 fehlt eine Formel. Sie beginnt mit =."),
+        p(/^=PRODUKT\(/.test(t.formel("B3")), "Die Formel nutzt PRODUKT.", gl(t.wert("B3"), 16) ? "Das Ergebnis stimmt, aber hier sollst du die Funktion PRODUKT üben." : "Nutze die Funktion PRODUKT mit den beiden Zellen B1 und B2."),
+        p(gl(t.wert("B3"), 16), "B3 zeigt die richtige Fläche.", "B3 zeigt " + (t.text("B3") || "nichts") + ". Das ist nicht Länge mal Breite.")
+      ],
+      loesung: { setze: { B3: "=PRODUKT(B1;B2)" } },
+      erfolg: "PRODUKT multipliziert – und Länge mal Breite ist die Fläche."
+    }, "tab-produkt");
+  }
+});
+
+W.aufgabe({
+  titel: "Ganze Tische mit QUOTIENT",
+  geheim: ["=QUOTIENT(B1;B2)", "7"],
+  auftrag: "Für ein Fest gibt es 30 Stühle. An jeden Tisch passen 4. Wie viele Tische sind <b>ganz voll</b>? Rechne in <b>B3</b> mit QUOTIENT und in <b>B4</b> zum Vergleich mit dem Schrägstrich.",
+  vorwissen: "<p><b>QUOTIENT</b> teilt zwei Zahlen und zeigt nur den <b>ganzen Teil</b> des Ergebnisses. Der Rest wird abgeschnitten. 30 geteilt durch 4 ist 7,5 – QUOTIENT zeigt nur 7.</p>",
+  hinweise: ["QUOTIENT hat zwei Zahlen in der Klammer: erst die Zahl, die geteilt wird, dann die Zahl, durch die geteilt wird.", "Stühle stehen in B1, Stühle je Tisch in B2. In B4 rechnest du mit dem Schrägstrich.", "B3 <code>=QUOTIENT(B1;B2)</code>, B4 <code>=B1/B2</code>."],
+  lehrer: { ziel: "QUOTIENT anwenden und vom normalen Teilen unterscheiden.",
+    anleitung: "Die beiden Ergebnisse (7 und 7,5) nebeneinander zeigen und fragen: „Welche Zahl sagt, wie viele Tische ganz voll sind?“",
+    loesung: "B3 =QUOTIENT(B1;B2) zeigt 7, B4 =B1/B2 zeigt 7,5.",
+    fehler: ["Die Reihenfolge der Zahlen wird vertauscht (B2;B1).", "Das Ergebnis 7,5 wird als Ergebnis von QUOTIENT erwartet."],
+    bedienung: "Zwei Formeln nacheinander tippen, jeweils mit der Eingabetaste." },
+  bau(box) {
+    Modul.makeTabellenAufgabe(box, {
+      text: "Schreibe in <b>B3</b> die Formel mit QUOTIENT und in <b>B4</b> die Formel mit dem Schrägstrich.",
+      tabelle: { spalten: 2, zeilen: 4, eingabe: ["B3", "B4"], start: "B3", breit: { A: 190, B: 80 }, zellen: { A1: "Stühle", B1: "30", A2: "Stühle je Tisch", B2: "4", A3: "Volle Tische (QUOTIENT)", A4: "Zum Vergleich (geteilt mit /)" } },
+      pruefe: t => [
+        p(/^=QUOTIENT\(/.test(t.formel("B3")), "B3 nutzt QUOTIENT.", "Nutze in B3 die Funktion QUOTIENT mit B1 und B2."),
+        p(gl(t.wert("B3"), 7), "B3 zeigt die ganzen Tische.", "B3 zeigt " + (t.text("B3") || "nichts") + ". Es sollen nur die ganzen Tische gezählt werden."),
+        p(F(t.formel("B4"), ["=B1/B2"]), "B4 teilt mit dem Schrägstrich.", "B4 soll B1 geteilt durch B2 rechnen."),
+        p(gl(t.wert("B4"), 7.5), "B4 zeigt 7,5 – mit Komma, mit Rest.", "B4 zeigt " + (t.text("B4") || "nichts") + ".")
+      ],
+      loesung: { setze: { B3: "=QUOTIENT(B1;B2)", B4: "=B1/B2" } },
+      erfolg: "QUOTIENT zeigt nur die ganze Zahl – der Schrägstrich zeigt auch den Rest."
+    }, "tab-quotient");
+  }
+});
+
+W.aufgabe({
+  titel: "QUOTIENT oder Schrägstrich?",
+  auftrag: "Entscheide bei jedem Fall, ob du QUOTIENT oder den normalen Schrägstrich brauchst.",
+  hinweise: ["Frage dich: Soll am Ende eine ganze Zahl stehen – oder darf ein Komma dabei sein?", "„Wie viele ganze …?“ passt zu QUOTIENT. „Was kostet ein …?“ oder „wie lang ist ein …?“ passt zum Schrägstrich.", "Fall 1 und 3 fragen nach ganzen Paketen und ganzen Stunden → QUOTIENT. Fall 2 und 4 fragen nach einem Preis und einer Länge → Schrägstrich."],
+  lehrer: { ziel: "Entscheiden, wann nur der ganze Teil gesucht ist.", anleitung: "Ein Fall nach dem anderen; falsch entschiedene Fälle kommen noch einmal.",
+    loesung: "QUOTIENT · Schrägstrich · QUOTIENT · Schrägstrich.", fehler: ["Fall 3 (ganze Stunden): Die Minuten-Rechnung 2,5 wird als Antwort erwartet."] },
+  bau(box) {
+    Modul.makeEntscheiden(box, {
+      frage: "Was passt?",
+      optionen: ["QUOTIENT (nur ganze Zahl)", "/ (mit Komma)"],
+      faelle: [
+        { html: "<b>Fall 1:</b> Wie viele <b>volle</b> Pakete mit je 10 Blatt kannst du aus 85 Blatt packen?", kurz: "volle Pakete", a: 0, e: "Gesucht sind ganze Pakete: 85 geteilt durch 10 ist 8,5 – QUOTIENT zeigt 8." },
+        { html: "<b>Fall 2:</b> Drei Stifte kosten zusammen 7,50 €. Was kostet ein Stift?", kurz: "Preis eines Stifts", a: 1, e: "Ein Preis darf ein Komma haben: 7,50 geteilt durch 3 ist 2,50." },
+        { html: "<b>Fall 3:</b> Wie viele <b>ganze</b> Stunden sind 150 Minuten?", kurz: "ganze Stunden", a: 0, e: "150 geteilt durch 60 ist 2,5 – ganze Stunden sind 2: QUOTIENT." },
+        { html: "<b>Fall 4:</b> Ein Brett ist 12 m lang und wird in 5 gleich lange Stücke gesägt. Wie lang ist ein Stück?", kurz: "Länge eines Stücks", a: 1, e: "Eine Länge darf ein Komma haben: 12 geteilt durch 5 ist 2,4 m." }
+      ],
+      fertig: "Du weißt, wann nur die ganze Zahl gefragt ist."
+    }, "ent-quotient");
+  }
+});
+
+W.aufgabe({
+  titel: "Runden mit RUNDEN",
+  geheim: ["=RUNDEN(B1;1)", "=RUNDEN(B1;0)"],
+  auftrag: "Ein Messgerät zeigt 7,846. Runde die Zahl in <b>B2</b> auf eine Nachkommastelle und in <b>B3</b> auf eine ganze Zahl.",
+  vorwissen: "<p><b>RUNDEN(Zahl;Stellen)</b> hat zwei Teile in der Klammer: die Zahl (oder Zelle) und die Anzahl der Nachkommastellen, die bleiben sollen. Bei 0 Stellen bleibt eine ganze Zahl.</p>",
+  hinweise: ["Nach dem Semikolon steht, wie viele Stellen nach dem Komma bleiben.", "Die Zahl steht in B1. Für B2 bleibt 1 Stelle, für B3 bleiben 0 Stellen.", "B2 <code>=RUNDEN(B1;1)</code> und B3 <code>=RUNDEN(B1;0)</code>."],
+  lehrer: { ziel: "RUNDEN mit der Stellenzahl anwenden.", anleitung: "Vorher an der Tafel runden lassen: 7,846 auf eine Stelle (7,8) und ganz (8).",
+    loesung: "B2 =RUNDEN(B1;1) zeigt 7,8, B3 =RUNDEN(B1;0) zeigt 8.", fehler: ["Die Stellenzahl wird mit einem Komma statt Semikolon abgetrennt.", "Die Zahl wird abgeschnitten statt gerundet."],
+    bedienung: "Zwei Formeln nacheinander tippen." },
+  bau(box) {
+    Modul.makeTabellenAufgabe(box, {
+      text: "Runde die Zahl aus B1 in <b>B2</b> und <b>B3</b>.",
+      tabelle: { spalten: 2, zeilen: 3, eingabe: ["B2", "B3"], start: "B2", breit: { A: 180, B: 80 }, zellen: { A1: "Messwert", B1: "7,846", A2: "auf 1 Stelle gerundet", A3: "auf ganze Zahl gerundet" } },
+      pruefe: t => [
+        p(/^=RUNDEN\(/.test(t.formel("B2")) && /^=RUNDEN\(/.test(t.formel("B3")), "B2 und B3 nutzen RUNDEN.", "Nutze in B2 und B3 die Funktion RUNDEN mit dem Messwert aus B1."),
+        p(gl(t.wert("B2"), 7.8), "B2 zeigt die auf eine Stelle gerundete Zahl.", "B2 zeigt " + (t.text("B2") || "nichts") + ". Es soll eine Nachkommastelle bleiben."),
+        p(gl(t.wert("B3"), 8), "B3 zeigt die ganze Zahl.", "B3 zeigt " + (t.text("B3") || "nichts") + ". Es sollen keine Nachkommastellen bleiben.")
+      ],
+      loesung: { setze: { B2: "=RUNDEN(B1;1)", B3: "=RUNDEN(B1;0)" } },
+      erfolg: "Die Stellenzahl hinter dem Semikolon bestimmt, wie genau gerundet wird."
+    }, "tab-runden");
+  }
+});
+
+W.aufgabe({
+  titel: "Die Seite eines Quadrats mit WURZEL",
+  geheim: ["=WURZEL(B1)", "6", "24"],
+  auftrag: "Ein quadratischer Teppich ist 36 m² groß. Berechne in <b>B2</b> mit WURZEL die Seitenlänge und in <b>B3</b> den Umfang (alle vier Seiten zusammen).",
+  vorwissen: "<p>Die Fläche eines Quadrats ist Seite mal Seite. Die <b>Wurzel</b> kehrt das um: <b>WURZEL(36)</b> ergibt 6, weil 6 mal 6 gleich 36 ist. Der <b>Umfang</b> ist die Länge rund um die Fläche: vier gleich lange Seiten.</p>",
+  hinweise: ["Die Wurzel aus der Fläche ist die Seitenlänge.", "Die Fläche steht in B1. Für den Umfang brauchst du die Seitenlänge aus B2 viermal.", "B2 <code>=WURZEL(B1)</code>, B3 <code>=4*B2</code>."],
+  lehrer: { ziel: "WURZEL anwenden und eine geometrische Größe (Umfang) berechnen.", anleitung: "Vorher an der Tafel klären: Fläche des Quadrats = Seite mal Seite, Umfang = vier Seiten.",
+    loesung: "B2 =WURZEL(B1) zeigt 6, B3 =4*B2 zeigt 24.", fehler: ["Der Umfang wird mit der Fläche gerechnet (4*B1).", "Die Fläche wird durch 4 geteilt statt die Wurzel zu ziehen."],
+    bedienung: "Zwei Formeln nacheinander tippen." },
+  bau(box) {
+    Modul.makeTabellenAufgabe(box, {
+      text: "Berechne die Seitenlänge in <b>B2</b> und den Umfang in <b>B3</b>.",
+      tabelle: { spalten: 2, zeilen: 3, eingabe: ["B2", "B3"], start: "B2", breit: { A: 150, B: 80 }, zellen: { A1: "Fläche in m²", B1: "36", A2: "Seitenlänge in m", A3: "Umfang in m" } },
+      pruefe: t => [
+        p(/^=WURZEL\(/.test(t.formel("B2")), "B2 nutzt WURZEL.", "Nutze in B2 die Funktion WURZEL mit der Fläche aus B1."),
+        p(gl(t.wert("B2"), 6), "B2 zeigt die richtige Seitenlänge.", "B2 zeigt " + (t.text("B2") || "nichts") + ". Gesucht ist die Zahl, die mal sich selbst 36 ergibt."),
+        p(t.istFormel("B3") && gl(t.wert("B3"), 24), "B3 zeigt den richtigen Umfang.", "B3 zeigt " + (t.text("B3") || "nichts") + ". Der Umfang sind vier Seiten, gerechnet mit einer Formel.")
+      ],
+      loesung: { setze: { B2: "=WURZEL(B1)", B3: "=4*B2" } },
+      erfolg: "Aus der Fläche zur Seite – und von der Seite zum Umfang."
+    }, "tab-wurzel");
+  }
+});
+
+W.aufgabe({
+  titel: "Prozent und Runden",
+  geheim: ["=RUNDEN(B1*19%;2)", "9,48", "59,38"],
+  auftrag: "Ein Eimer Wandfarbe kostet 49,90 € ohne Steuer. Die Steuer beträgt 19 %. Berechne in <b>B2</b> die Steuer, <b>auf Cent gerundet</b>, und in <b>B3</b> den Preis mit Steuer.",
+  vorwissen: "<p>Ein Prozentwert ist ein Hundertstel: <b>19 %</b> von B1 rechnest du mit <b>=B1*19%</b>. Das Prozentzeichen darfst du in Excel direkt hinter die Zahl schreiben. Das Ergebnis hat oft viele Nachkommastellen – mit RUNDEN rundest du auf zwei Nachkommastellen, also auf Cent.</p>",
+  hinweise: ["Die Steuer ist 19 % vom Preis. Rechne das erst ohne RUNDEN – dann packst du RUNDEN außen herum.", "RUNDEN(Zahl;Stellen): Die Zahl ist hier die ganze Rechnung B1*19%. Für Cent brauchst du 2 Stellen.", "B2 <code>=RUNDEN(B1*19%;2)</code>, B3 ist Preis plus Steuer: B1 plus B2."],
+  lehrer: { ziel: "Prozentrechnung (Prozentwert) in Excel und Runden auf Cent.", anleitung: "Vorher rechnen lassen: „Was ist 1 % von 49,90?“ Dann 19-mal. Dass Excel genauer rechnet als das Portemonnaie, ist der Grund für RUNDEN.",
+    loesung: "B2 =RUNDEN(B1*19%;2) zeigt 9,48 · B3 =B1+B2 zeigt 59,38.", fehler: ["19 statt 19 % – das ergibt 948,1.", "RUNDEN steht um die falsche Zahl (nur um B1)."],
+    bedienung: "Zwei Formeln nacheinander tippen." },
+  bau(box) {
+    Modul.makeTabellenAufgabe(box, {
+      text: "Berechne die Steuer in <b>B2</b> (gerundet) und den Preis mit Steuer in <b>B3</b>.",
+      tabelle: { spalten: 2, zeilen: 3, eingabe: ["B2", "B3"], start: "B2", breit: { A: 190, B: 80 }, zellen: { A1: "Preis ohne Steuer in €", B1: "49,9", A2: "Steuer 19 % in €, gerundet", A3: "Preis mit Steuer in €" } },
+      pruefe: t => [
+        p(/^=RUNDEN\(/.test(t.formel("B2")), "B2 nutzt RUNDEN.", "Nutze in B2 die Funktion RUNDEN, damit die Steuer auf Cent genau ist."),
+        p(gl(t.wert("B2"), 9.48), "B2 zeigt die richtige Steuer.", "B2 zeigt " + (t.text("B2") || "nichts") + ". Die Steuer sind 19 % vom Preis, gerundet auf zwei Stellen."),
+        p(t.istFormel("B3") && gl(t.wert("B3"), 59.38), "B3 zeigt den richtigen Preis mit Steuer.", "B3 zeigt " + (t.text("B3") || "nichts") + ". Preis und Steuer zusammen, mit einer Formel gerechnet.")
+      ],
+      loesung: { setze: { B2: "=RUNDEN(B1*19%;2)", B3: "=B1+B2" } },
+      erfolg: "Prozent berechnet und auf Cent gerundet."
+    }, "tab-prozent");
+  }
+});
+
+/* ============ Teil 3: Am PC ============ */
+W.teil("Am PC: Excel", "Anwenden");
+
+W.aufgabe({
+  titel: "Jugendraum renovieren in Excel",
+  geheim: ["26", "10", "362,45", "10,87", "=PRODUKT(B1;B2)", "=QUOTIENT(B3;B4)", "=PRODUKT(B6;B7)", "=RUNDEN(B8*3%;2)", "=WURZEL(B11)"],
+  auftrag: "Jetzt rechnest du im echten Excel: Der Boden des Jugendraums wird erneuert, und für die Tanzfläche suchst du die Seitenlänge.",
+  hinweise: ["In der Startdatei stehen die Zahlen schon. Du schreibst nur in die Zellen B3, B5, B8, B9 und B12.", "Fläche: PRODUKT. Ganze Kartons: QUOTIENT mit der Fläche und der Fläche pro Karton. Rabatt: RUNDEN um die Prozentrechnung.", "B3 <code>=PRODUKT(B1;B2)</code> · B5 <code>=QUOTIENT(B3;B4)</code> · B8 <code>=PRODUKT(B6;B7)</code> · B9 <code>=RUNDEN(B8*3%;2)</code> · B12 <code>=WURZEL(B11)</code>"],
+  lehrer: { ziel: "Alle vier Funktionen und eine Prozentrechnung im echten Excel anwenden.",
+    anleitung: "Etwa 12 Minuten. Die Startdatei renovieren_start.xlsx liegt im Auftrag zum Herunterladen. Am Ende lädt jedes Kind seine gespeicherte Datei hoch; der Server prüft sie und die KI schreibt eine Rückmeldung. Am Tablet gibt es stattdessen eine Frage.",
+    loesung: "B3 zeigt 26 · B5 zeigt 10 · B8 zeigt 362,45 · B9 zeigt 10,87 · B12 zeigt 3. Gespeichert als renovieren.xlsx.",
+    fehler: ["Statt PRODUKT wird mit dem Sternchen gerechnet: Das Ergebnis stimmt, die Prüfung weist aber auf PRODUKT hin.", "B5 wird mit einem Schrägstrich berechnet und zeigt 10,4 statt 10.", "Beim Rabatt fehlt RUNDEN oder das Prozentzeichen."],
+    bedienung: "„Datei auswählen“ → die gespeicherte .xlsx-Datei. Die Rückmeldung nennt jeden Prüfpunkt einzeln." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Jugendraum renovieren", pc: "Excel", zeit: "etwa 12 Minuten",
+      ziel: "In fünf Zellen stehen Formeln mit PRODUKT, QUOTIENT, RUNDEN und WURZEL. Die Datei ist gespeichert.",
+      material: [{ name: "Startdatei renovieren_start.xlsx", href: "assets/excel/renovieren_start.xlsx" }],
+      schritte: [
+        "Lade die Startdatei herunter und öffne sie in Excel. Erscheint oben ein gelber Balken, klicke auf <span class=\"menue\">Bearbeitung aktivieren</span>.",
+        "<b>Bodenfläche:</b> Klicke auf <b>B3</b>. Tippe <code>=PRODUKT(B1;B2)</code> (Länge mal Breite) und drücke die Eingabetaste.",
+        "<b>Ganze Kartons:</b> Ein Karton Laminat reicht für 2,5 m². Klicke auf <b>B5</b>, tippe <code>=QUOTIENT(B3;B4)</code> und drücke die Eingabetaste. QUOTIENT zeigt nur die ganzen Kartons. Für den Rest braucht man noch einen elften Karton.",
+        "<b>Preis ohne Rabatt:</b> Es werden 11 Kartons gekauft. Klicke auf <b>B8</b>, tippe <code>=PRODUKT(B6;B7)</code> und drücke die Eingabetaste.",
+        "<b>Rabatt:</b> Es gibt 3 % Rabatt, auf Cent gerundet. Klicke auf <b>B9</b>, tippe <code>=RUNDEN(B8*3%;2)</code> und drücke die Eingabetaste.",
+        "<b>Tanzfläche:</b> Sie ist quadratisch und 9 m² groß. Klicke auf <b>B12</b>, tippe <code>=WURZEL(B11)</code> und drücke die Eingabetaste.",
+        "Speichere die Datei unter einem neuen Namen: Drücke die Taste <kbd>F12</kbd>. Es öffnet sich das Fenster „Speichern unter“. Wähle deinen Ordner, tippe den Namen <b>renovieren</b> ein und klicke auf <span class=\"menue\">Speichern</span>."
+      ],
+      loesung: "B3 zeigt 26, B5 zeigt 10, B8 zeigt 362,45, B9 zeigt 10,87 und B12 zeigt 3.",
+      pruefung: {
+        art: "datei", accept: ".xlsx", lies: Modul.liesExcel, pruefe: (Modul.excelPruefung || {})["rechenfunktionen-auf1"], server: { pfad: "/api/inf9/excel/pruefen", aufgabe: "rechenfunktionen-auf1" },
+        text: "Wähle deine gespeicherte Datei <b>renovieren.xlsx</b> aus. Sie wird geprüft, und die KI schreibt dir eine Rückmeldung. Deine Lehrkraft kann die Datei danach ansehen.",
+        ersatz: { art: "zahl", frage: "Was zeigt die Zelle B5 („Ganze Kartons“) in deiner Tabelle?", wert: 10, tol: 0.001, einheit: "Kartons",
+          tipp: "B5 teilt die Bodenfläche aus B3 durch die Fläche eines Kartons – aber nur die ganze Zahl." }
+      }
+    }, "auf1");
+  }
+});
+
+/* ============ Teil 4: Wiederholen ============ */
+W.teil("Wiederholen", "Andere Zahlen");
+
+W.aufgabe({
+  titel: "Der neue Rasenplatz",
+  geheim: ["=PRODUKT(B1;B2)", "=RUNDEN(WURZEL(B3);2)", "=RUNDEN(PRODUKT(B3;B5);2)", "=RUNDEN(B6*5%;2)", "=QUOTIENT(B3;10)", "93,75", "9,68", "323,44", "16,17"],
+  auftrag: "Auf dem Schulhof wird ein Rasenplatz angelegt: 12,5 m lang und 7,5 m breit. Rechne alles mit Formeln aus. Die Zahlen aus B1, B2 und B5 stehen schon da.",
+  hinweise: ["Fünf Formeln: Fläche, Seite eines gleich großen Quadrats, Kosten, Rabatt, volle Pakete.", "Die Seite eines Quadrats mit gleicher Fläche ist die Wurzel der Fläche. Runde sie auf zwei Stellen. Kosten und Rabatt rundest du auf Cent.", "B3 <code>=PRODUKT(B1;B2)</code> · B4 <code>=RUNDEN(WURZEL(B3);2)</code> · B6 <code>=RUNDEN(PRODUKT(B3;B5);2)</code> · B7 <code>=RUNDEN(B6*5%;2)</code> · B8 <code>=QUOTIENT(B3;10)</code>"],
+  lehrer: { ziel: "Alle vier Funktionen und Prozent mit neuen Zahlen verbinden.", anleitung: "Einzelarbeit, etwa 8 Minuten. Zwischendurch zeigen, wie man RUNDEN um eine andere Funktion legt.",
+    loesung: "B3 93,75 · B4 9,68 · B6 323,44 · B7 16,17 · B8 9.",
+    fehler: ["RUNDEN wird vergessen: B4 zeigt dann viele Nachkommastellen.", "B8 wird mit dem Schrägstrich gerechnet und zeigt 9,375.", "Der Rabatt wird von B5 statt von B6 berechnet."],
+    bedienung: "Die Formeln nacheinander tippen; Zwischenergebnisse in anderen Zellen werden von Excel automatisch weiterverwendet." },
+  bau(box) {
+    Modul.makeTabellenAufgabe(box, {
+      text: "Schreibe die Formeln in <b>B3</b>, <b>B4</b>, <b>B6</b>, <b>B7</b> und <b>B8</b>.",
+      tabelle: { spalten: 2, zeilen: 8, eingabe: ["B3", "B4", "B6", "B7", "B8"], start: "B3", breit: { A: 250, B: 90 },
+        zellen: { A1: "Länge in m", B1: "12,5", A2: "Breite in m", B2: "7,5", A3: "Fläche in m²", A4: "Seite eines gleich großen Quadrats, 2 Stellen", A5: "Rasen je m² in €", B5: "3,45", A6: "Kosten in €, auf Cent gerundet", A7: "5 % Rabatt in €, auf Cent gerundet", A8: "Volle Pakete zu 10 m²" } },
+      pruefe: t => [
+        p(/^=PRODUKT\(/.test(t.formel("B3")) && gl(t.wert("B3"), 93.75), "B3: Fläche mit PRODUKT.", "B3 soll die Fläche mit PRODUKT berechnen."),
+        p(/RUNDEN/.test(t.formel("B4")) && /WURZEL/.test(t.formel("B4")) && gl(t.wert("B4"), 9.68), "B4: Seitenlänge mit WURZEL, gerundet.", "B4 soll WURZEL aus der Fläche ziehen und mit RUNDEN auf zwei Stellen runden."),
+        p(/RUNDEN/.test(t.formel("B6")) && gl(t.wert("B6"), 323.44), "B6: Kosten auf Cent gerundet.", "B6 soll Fläche mal Preis je m² rechnen und mit RUNDEN auf Cent runden."),
+        p(/RUNDEN/.test(t.formel("B7")) && gl(t.wert("B7"), 16.17), "B7: Rabatt auf Cent gerundet.", "B7 soll 5 % von den Kosten in B6 rechnen und mit RUNDEN auf Cent runden."),
+        p(/^=QUOTIENT\(/.test(t.formel("B8")) && gl(t.wert("B8"), 9), "B8: volle Pakete mit QUOTIENT.", "B8 soll mit QUOTIENT zählen, wie oft 10 m² in die Fläche passen.")
+      ],
+      loesung: { setze: { B3: "=PRODUKT(B1;B2)", B4: "=RUNDEN(WURZEL(B3);2)", B6: "=RUNDEN(PRODUKT(B3;B5);2)", B7: "=RUNDEN(B6*5%;2)", B8: "=QUOTIENT(B3;10)" } },
+      erfolg: "Vier Funktionen, ineinander gesetzt – gut gerechnet."
+    }, "tab-wdh");
+  }
+});
+
+W.aufgabe({
+  titel: "Der Rabatt stimmt nicht",
+  geheim: ["=RUNDEN(B1*15%;2)", "9,74", "55,16"],
+  auftrag: "Ein Regal kostet 64,90 €. Es gibt 15 % Rabatt. Der Rabatt in <b>B2</b> ist viel zu groß. Finde den Fehler und repariere die Formel.",
+  hinweise: ["Sieh dir die Zahl in B2 an: Ist der Rabatt wirklich größer als das ganze Regal?", "In der Formel steht 15, nicht 15 %. Das Prozentzeichen fehlt. Außerdem soll auf Cent gerundet werden.", "Schreibe in B2: Gleichheitszeichen, RUNDEN, Klammer, B1 mal 15 %, Semikolon, 2, Klammer zu."],
+  lehrer: { ziel: "Einen typischen Prozent-Fehler finden: das Prozentzeichen fehlt.", anleitung: "Zuerst schätzen lassen: „Kann der Rabatt größer sein als der Preis?“ Dann gemeinsam die Formel lesen.",
+    loesung: "B2 =RUNDEN(B1*15%;2) zeigt 9,74, B3 zeigt dann 55,16.", fehler: ["Das Prozentzeichen wird vergessen.", "Nur das Prozentzeichen wird ergänzt, RUNDEN fehlt – der Rabatt hat dann drei Nachkommastellen."],
+    bedienung: "B2 anklicken, neue Formel tippen, Eingabetaste." },
+  bau(box) {
+    Modul.makeTabellenAufgabe(box, {
+      text: "Repariere die Formel in <b>B2</b>. Der Rabatt soll auf Cent gerundet sein.",
+      tabelle: { spalten: 2, zeilen: 3, eingabe: ["B2"], start: "B2", breit: { A: 190, B: 90 }, zellen: { A1: "Preis in €", B1: "64,9", A2: "15 % Rabatt in €, gerundet", B2: "=B1*15", A3: "Neuer Preis in €", B3: "=B1-B2" } },
+      pruefe: t => [
+        p(/^=RUNDEN\(/.test(t.formel("B2")), "B2 nutzt RUNDEN.", "Der Rabatt soll mit RUNDEN auf Cent gerundet werden."),
+        p(gl(t.wert("B2"), 9.74), "B2 zeigt den richtigen Rabatt.", "B2 zeigt " + (t.text("B2") || "nichts") + ". 15 Prozent schreibst du mit dem Prozentzeichen: 15%."),
+        p(gl(t.wert("B3"), 55.16), "B3 zeigt den richtigen neuen Preis.", "B3 zeigt " + (t.text("B3") || "nichts") + ". Der neue Preis stimmt erst, wenn der Rabatt stimmt.")
+      ],
+      loesung: { setze: { B2: "=RUNDEN(B1*15%;2)" } },
+      erfolg: "Mit dem Prozentzeichen rechnet Excel richtig."
+    }, "tab-fehler");
+  }
+});
+
+/* ============ Teil 5: Kontrollieren ============ */
+W.teil("Kontrollieren", "Lerncheck");
+
+W.aufgabe({
+  titel: "Welche Funktion macht was?",
+  auftrag: "Ordne jeder Funktion zu, was sie tut.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Tippe zuerst die Funktion links an, dann ihre Aufgabe rechts.", "PRODUKT → mal · QUOTIENT → ganze Zahl beim Teilen · RUNDEN → Nachkommastellen festlegen · WURZEL → Seite aus der Fläche."],
+  lehrer: { ziel: "Die vier Funktionen ihrer Aufgabe zuordnen.", anleitung: "Einzelarbeit, wenige Minuten.",
+    loesung: "PRODUKT – multipliziert · QUOTIENT – nur ganze Zahl · RUNDEN – Nachkommastellen festlegen · WURZEL – Seite eines Quadrats.", fehler: ["QUOTIENT und RUNDEN werden verwechselt: Beide haben mit „ganzen Zahlen“ zu tun."] },
+  bau(box) {
+    Modul.makePaare(box, [
+      ["PRODUKT", "multipliziert Zahlen"],
+      ["QUOTIENT", "teilt und zeigt nur die ganze Zahl"],
+      ["RUNDEN", "legt die Nachkommastellen fest"],
+      ["WURZEL", "findet die Seite eines Quadrats zur Fläche"]
+    ], "paare-fkt");
+  }
+});
+
+W.aufgabe({
+  titel: "Lerncheck",
+  auftrag: "Richtig oder falsch? Entscheide bei jeder Aussage.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "QUOTIENT zeigt nie ein Komma.", "Richtig sind die Aussagen zu QUOTIENT, RUNDEN und 19 %. Falsch sind die Aussagen zu PRODUKT und zur Wurzel."],
+  lehrer: { ziel: "Kernwissen der Stunde sichern.", anleitung: "Einzelarbeit, etwa 3 Minuten.", loesung: "richtig · falsch · richtig · richtig · falsch", fehler: ["Aussage 5: WURZEL(49) ist 7, nicht 24,5."] },
+  bau(box) {
+    Modul.makeTF(box, [
+      ["QUOTIENT(23;5) zeigt 4, nicht 4,6.", true],
+      ["PRODUKT(B1;B2) zählt B1 und B2 zusammen.", false],
+      ["=RUNDEN(3,14159;2) ergibt 3,14.", true],
+      ["19 % von B1 schreibst du als =B1*19%.", true],
+      ["WURZEL(49) ergibt 24,5.", false]
+    ], "tf");
+  }
+});
+
+W.fertig();
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

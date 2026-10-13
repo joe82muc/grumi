@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Liniendiagramme | Informatik 9</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="../../8M/Informatik/einheit8.css">
+<link rel="stylesheet" href="einheit9.css">
+<link rel="stylesheet" href="tabelle9.css">
+<style>.menue{white-space:normal}</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 9</small></a>
+    <nav class="stations" id="stations"></nav>
+    <span class="stars" id="stars">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks">
+      <a href="index.html">Übersicht Informatik 9M</a>
+      <a href="../../9R/Informatik/index.html">Übersicht Informatik 9R</a>
+      <a href="../../index.html">Startseite</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 9 · Modul 4: Excel-Diagramme · Einheit 3</div>
+    <h1>Liniendiagramme</h1>
+    <p>Die Wetterstation im Schulgarten misst jeden Tag die Temperatur. Wird es wärmer oder kälter? Eine Linie zeigt das auf einen Blick. Heute liest du Linien und zeichnest selbst eine.</p>
+    <div class="zeit">etwa 40 Minuten · Praxis am Windows-PC mit Excel</div>
+    <div class="goals">
+      <div>Ich lese in einem Liniendiagramm ab, wo etwas steigt, fällt oder gleich bleibt.</div>
+      <div>Ich entscheide, ob eine Linie oder Säulen besser passen.</div>
+      <div>Ich erstelle in Excel ein Liniendiagramm mit Titel.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="modulStand"></div>
+  <div id="weg"></div>
+</main>
+
+<footer class="wrap">Informatik 9 · Dein Fortschritt wird mit deinem Code gespeichert. · Excel ist ein Programm von Microsoft; die Tabellen und Diagramme auf dieser Seite sind eigene Nachbildungen (GRUMI-EXCEL). Alle Zahlen sind erfunden.</footer>
+
+<div id="pop" role="dialog"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info9.js"></script>
+<script src="diagramm9.js"></script>
+<script src="tabelle9.js"></script>
+<script src="../../8M/Informatik/excel-datei.js"></script>
+<script src="excel-aufgaben9.js"></script>
+<script>
+(function () {
+"use strict";
+const {$} = Modul;
+const G = Modul.bereichGleich;
+const p = (ok, gut, schlecht) => ({ok, text: ok ? gut : schlecht});
+
+Modul.start9({
+  key: "grumi-i9-linien-v1",
+  thema: "Excel-Diagramme: Liniendiagramm lesen und erstellen (Temperatur an der Wetterstation der Schule, Montag bis Sonntag), Entwicklung über die Zeit, steigt, fällt, bleibt gleich, Linie oder Säule wählen, Diagrammtitel",
+  glossary: {
+    linie: ["Liniendiagramm", "Ein Diagramm mit einer Linie durch Punkte. Es zeigt, wie sich ein Wert über die Zeit verändert."],
+    entwicklung: ["Entwicklung", "Wie sich etwas im Lauf der Zeit verändert: Es steigt, fällt oder bleibt gleich."],
+    verlauf: ["Verlauf", "Der Weg der Linie von links nach rechts. Er zeigt, wie die Werte nacheinander aussehen."],
+    achse: ["Achse", "Die Linie am Rand eines Diagramms mit den Zahlen oder Namen zum Ablesen. Bei einer Linie steht auf der waagerechten Achse oft die Zeit."],
+    titel: ["Diagrammtitel", "Die Überschrift über dem Diagramm. Sie sagt, worum es geht."]
+  }
+});
+
+const W = Modul.lernweg("#weg");
+
+const TAGE = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"], TEMP = [14, 16, 19, 17, 12, 11, 15];
+const WETTER = { A1: "Tag", B1: "Temperatur in °C", A2: "Mo", B2: "14", A3: "Di", B3: "16", A4: "Mi", B4: "19", A5: "Do", B5: "17", A6: "Fr", B6: "12", A7: "Sa", B7: "11", A8: "So", B8: "15" };
+const WETTER_DG = { typ: "linie", titel: "Temperatur an der Wetterstation", kategorien: TAGE, reihen: [{ name: "Temperatur", werte: TEMP }], einheit: "°C", achseX: "Tag", achseY: "Temperatur in °C" };
+
+/* ============ Regelheft ============ */
+W.teil("Regelheft", "Schreiben");
+W.regelheft({
+  titel: "Liniendiagramm",
+  html: `<p>Ein <span class="rot">Liniendiagramm</span> zeigt eine <span class="rot">Entwicklung</span> über die Zeit. Die Zeit liegt auf der waagerechten Achse.</p>
+    <p class="leer"></p>
+    <p><span class="blau">Linie steigt:</span> Der Wert wird größer.</p>
+    <p><span class="blau">Linie fällt:</span> Der Wert wird kleiner.</p>
+    <p><span class="blau">Linie waagerecht:</span> Der Wert bleibt gleich.</p>`,
+  lehrer: { ziel: "Die Kernaussagen zum Liniendiagramm stehen im Heft.",
+    anleitung: "Etwa 5 Minuten. Die Klasse schreibt ab. Erst nach dem Abhaken erscheint die erste Aufgabe.",
+    loesung: "Der Eintrag steht vollständig im Heft (fünf kurze Zeilen)." }
+});
+
+/* ============ Teil 2 ============ */
+W.teil("Verstehen und üben", "Sehen · Ausprobieren");
+
+W.aufgabe({
+  titel: "Was zeigt eine Linie?",
+  auftrag: "Sieh dir das Bild an: Eine Schülerin im Schulgarten hält ein Tablet mit einer Linie aus Punkten. Daneben steht eine kleine Wetterstation. Beantworte die Fragen.",
+  vorwissen: "<p>Eine Wetterstation misst zum Beispiel jeden Tag die Temperatur. Schreibt man die Werte nacheinander auf, kann man sie als Linie zeichnen.</p>",
+  hinweise: ["Die Linie läuft von links nach rechts. Denke an einen Kalender.", "Wenn die Linie nach oben geht, wird der Wert größer.", "Frage 1: Links ist früher, rechts ist später. Frage 2: Eine Linie, die nach oben geht, steigt."],
+  lehrer: { ziel: "Verstehen: Bei einer Linie läuft die Zeit von links nach rechts; steigt die Linie, wird der Wert größer.",
+    anleitung: "Bild am Beamer zeigen und fragen: „Was würde man in so einem Garten täglich messen?“ (Temperatur, Regen, Wachstum). Danach die zwei Fragen.",
+    loesung: "Frage 1: Die Zeit vergeht. Frage 2: Der Wert wird größer.",
+    fehler: ["Kinder lesen die Linie wie eine Landschaft („ein Berg“). Die Höhe ist der Wert, die Richtung die Zeit."] },
+  bau(box) {
+    box.innerHTML = `<figure class="bild9"><img class="zoomable" src="assets/bilder/linien.jpg" width="1280" height="853" loading="lazy" alt="Ein Schulgarten mit Hochbeeten und Sonnenblumen. Links steht auf einem Holzpfosten eine kleine Wetterstation mit Thermometer und Regenmesser. Rechts im Bild hält eine Schülerin ein Tablet, auf dem eine blaue Linie mit sieben Punkten zu sehen ist, die erst steigt, dann fällt und wieder steigt.">
+      <figcaption>Die Wetterstation misst, das Tablet zeigt den Verlauf als Linie. (Bild mit KI erstellt)</figcaption></figure><div class="mc"></div>`;
+    Modul.makeMC($(".mc", box), [
+      { q: "Die Linie geht von links nach rechts. Wofür steht diese Richtung?", o: ["Die Zeit vergeht.", "Die Werte werden kleiner.", "Das Gerät schaltet sich aus.", "Es ist Nacht."], a: 0, e: "Links ist früher, rechts ist später. Die Linie zeigt, wie sich etwas im Lauf der Zeit verändert." },
+      { q: "Ein Stück der Linie geht nach oben. Was heißt das?", o: ["Der Wert wird größer.", "Der Wert wird kleiner.", "Der Wert bleibt gleich.", "Die Messung ist falsch."], a: 0, e: "Steigt die Linie, wird der Wert größer." }
+    ], "mc-bild");
+  }
+});
+
+W.aufgabe({
+  titel: "Einen Verlauf lesen",
+  auftrag: "Die Wetterstation der Schule hat eine Woche lang um 12 Uhr die Temperatur gemessen. Sieh dir die Linie an und beantworte die Fragen.",
+  vorwissen: "<p>Jeder <b>Punkt</b> ist ein Messwert. Die <b>Linie</b> verbindet die Punkte, damit du siehst, wie es von Tag zu Tag weitergeht.</p>",
+  hinweise: ["Der höchste Punkt zeigt den größten Wert. Lies darunter den Tag ab.", "Ein starker Fall ist ein steiles Stück nach unten. Suche das steilste.", "Frage 3: Von Donnerstag (17) auf Freitag (12) sind es 5 Grad weniger. Frage 4: Von Samstag (11) auf Sonntag (15) wird es 4 Grad mehr."],
+  lehrer: { ziel: "Höchsten Wert, einzelne Werte und den größten Sprung in einer Linie finden.",
+    anleitung: "Am Beamer zeigen. Ein Kind fährt mit dem Finger der Linie nach und sagt „steigt“ oder „fällt“.",
+    loesung: "Mittwoch (19 °C) · 11 °C · Donnerstag auf Freitag (17 auf 12, also 5 Grad weniger) · gestiegen um 4 °C (11 auf 15).",
+    fehler: ["Bei der dritten Frage wird das Stück Dienstag–Mittwoch gewählt. Es steigt – gefragt ist, wo es am stärksten fällt."] },
+  bau(box) {
+    box.innerHTML = '<div class="dg"></div><div class="mc"></div>';
+    Modul.diagramm($(".dg", box), WETTER_DG);
+    Modul.makeMC($(".mc", box), [
+      { q: "An welchem Tag war es am wärmsten?", o: ["Mittwoch", "Montag", "Donnerstag", "Sonntag"], a: 0, e: "Der höchste Punkt gehört zum Mittwoch: 19 °C." },
+      { q: "Wie warm war es am Samstag?", o: ["11 °C", "12 °C", "15 °C", "19 °C"], a: 0, e: "Am Samstag war der tiefste Punkt der Woche: 11 °C." },
+      { q: "Zwischen welchen Tagen ist die Temperatur am stärksten gefallen?", o: ["Donnerstag und Freitag", "Montag und Dienstag", "Dienstag und Mittwoch", "Samstag und Sonntag"], a: 0, e: "Von 17 °C auf 12 °C: 5 Grad weniger. Das ist das steilste Stück nach unten." },
+      { q: "Was ist von Samstag auf Sonntag passiert?", o: ["Die Temperatur ist um 4 °C gestiegen.", "Die Temperatur ist um 4 °C gefallen.", "Die Temperatur ist gleich geblieben.", "Die Temperatur ist um 11 °C gestiegen."], a: 0, e: "Von 11 °C auf 15 °C: Die Linie steigt um 4 Grad." }
+    ], "mc-lesen");
+  }
+});
+
+W.aufgabe({
+  titel: "Wie entsteht die Linie?",
+  auftrag: "Sieh zu, wie aus den Messwerten Punkt für Punkt eine Linie wird.",
+  hinweise: ["Tippe auf „Start“ oder auf die Zahlen 1 bis 4.", "Jeder Messwert wird ein Punkt über seinem Tag. Die Höhe des Punktes ist der Wert.", "Schritt 2 und 3: Geht ein Stück nach oben, wurde es wärmer. Geht es nach unten, wurde es kälter."],
+  lehrer: { ziel: "Verstehen: Jeder Messwert ist ein Punkt, die Linie verbindet die Punkte; steigt sie, wächst der Wert.",
+    anleitung: "Am Beamer durchklicken und nach Schritt 2 anhalten: „Was bedeutet, dass die Linie hier nach oben geht?“",
+    loesung: "Alle vier Schritte angesehen.",
+    fehler: ["Kinder klicken nur auf „Start“ und lesen nicht – nach Schritt 2 kurz anhalten lassen."],
+    bedienung: "„Start“ spielt alle Schritte ab, die Zahlen springen zu einem Schritt, ↺ beginnt neu." },
+  bau(box) {
+    box.innerHTML = '<div class="dg"></div><div class="sim"></div>';
+    const d = Modul.diagramm($(".dg", box), Object.assign({}, WETTER_DG, { kategorien: TAGE.slice(0, 2), reihen: [{ name: "Temperatur", werte: TEMP.slice(0, 2) }] }));
+    const zahl = [2, 3, 5, 7];
+    Modul.makeSchritte($(".sim", box), {
+      start: "Tippe auf „Start“ oder gehe Schritt für Schritt.",
+      steps: [
+        "Jeder Messwert wird ein <b>Punkt</b> über seinem Tag: Montag 14 °C, Dienstag 16 °C. Ein <b>Strich</b> verbindet die beiden Punkte.",
+        "Mittwoch: 19 °C. Die Linie geht weiter nach oben. Sie <b>steigt</b> – es wird wärmer.",
+        "Donnerstag 17 °C und Freitag 12 °C. Jetzt <b>fällt</b> die Linie – es wird kälter.",
+        "Alle sieben Tage sind eingetragen. Du siehst auf einen Blick: Am <b>Mittwoch</b> war der Höhepunkt, am <b>Samstag</b> der tiefste Punkt."
+      ],
+      zeige(i) {
+        const n = zahl[i];
+        d.setze({ kategorien: TAGE.slice(0, n), reihen: [{ name: "Temperatur", werte: TEMP.slice(0, n) }] });
+      }
+    }, "anim-linie");
+  }
+});
+
+W.aufgabe({
+  titel: "Was erzählt die Linie?",
+  auftrag: "Im Schulgarten steht ein Regenfass. Die Linie zeigt, wie viel Wasser darin war. Lies aus der Linie, was passiert ist.",
+  vorwissen: "<p>Eine Linie erzählt eine kleine Geschichte: Wo sie fällt, ist etwas weniger geworden. Wo sie steigt, ist etwas dazugekommen.</p>",
+  hinweise: ["Sieh dir an, wo die Linie steil nach oben geht.", "Zwischen Mittwoch und Donnerstag springt die Linie nach oben: Es kam viel Wasser dazu.", "Frage 1: Wasser kam dazu, wahrscheinlich durch Regen. Frage 2: Der höchste Punkt ist am Freitag. Frage 3: Von Montag bis Mittwoch fällt die Linie."],
+  lehrer: { ziel: "Aus dem Verlauf einer Linie eine Aussage über die Wirklichkeit ableiten.",
+    anleitung: "Nach den Fragen eine eigene Geschichte erzählen lassen: „Was ist am Wochenende passiert?“ (es wird wieder weniger, die Pflanzen werden gegossen).",
+    loesung: "Es kam Wasser dazu (Regen) · Freitag (150 Liter) · Sie fällt: Es wird weniger Wasser.",
+    fehler: ["Die Linie wird als Weg des Wassers verstanden. Sie zeigt nur, wie viel im Fass ist."] },
+  bau(box) {
+    box.innerHTML = '<div class="dg"></div><div class="mc"></div>';
+    Modul.diagramm($(".dg", box), { typ: "linie", titel: "Wasser im Regenfass im Schulgarten", kategorien: TAGE, reihen: [{ name: "Wasser", werte: [80, 60, 45, 120, 150, 140, 110] }], einheit: "Liter", achseX: "Tag", achseY: "Wasser in Litern" });
+    Modul.makeMC($(".mc", box), [
+      { q: "Zwischen Mittwoch und Donnerstag springt die Linie steil nach oben. Was ist wahrscheinlich passiert?", o: ["Es ist Wasser dazugekommen, zum Beispiel durch Regen.", "Es wurde viel Wasser entnommen.", "Nichts hat sich verändert.", "Das Fass ist kaputtgegangen."], a: 0, e: "Von 45 Litern auf 120 Liter: Es sind 75 Liter dazugekommen." },
+      { q: "An welchem Tag war am meisten Wasser im Fass?", o: ["Freitag", "Montag", "Mittwoch", "Sonntag"], a: 0, e: "Der höchste Punkt gehört zum Freitag: 150 Liter." },
+      { q: "Wie verläuft die Linie von Montag bis Mittwoch?", o: ["Sie fällt: Es wird weniger Wasser.", "Sie steigt: Es wird mehr Wasser.", "Sie bleibt waagerecht.", "Sie springt hin und her."], a: 0, e: "Von 80 über 60 auf 45 Liter: Die Linie fällt." }
+    ], "mc-fass");
+  }
+});
+
+W.aufgabe({
+  titel: "Linie oder Säule?",
+  auftrag: "Wähle bei jedem Fall das Diagramm, das zur Frage passt.",
+  hinweise: ["Achte auf Wörter wie „jeden Tag“, „jede Woche“ oder „Monat für Monat“: Dann geht es um die Zeit.", "Eine Entwicklung über die Zeit zeigt die Linie. Einen Vergleich zwischen verschiedenen Dingen zeigen Säulen.", "Fall 1 und 4: Es geht um die Zeit → Linie. Fall 2 und 3: Es werden Dinge verglichen → Säule."],
+  lehrer: { ziel: "Entscheiden: Entwicklung über die Zeit → Linie; Vergleich verschiedener Dinge → Säulen.",
+    anleitung: "Ein Fall nach dem anderen. Nach jedem Fall die Signalwörter („jede Woche“, „Monat für Monat“) benennen lassen.",
+    loesung: "Wasserverbrauch Monat für Monat: Linie · Getränke in der Pause: Säule · Größe von vier Kindern: Säule · Sparschwein Woche für Woche: Linie.",
+    fehler: ["Bei Fall 3 wird Linie gewählt, weil die Kinder in einer Reihe stehen. Die Reihenfolge ist keine Zeit."] },
+  bau(box) {
+    Modul.makeEntscheiden(box, {
+      frage: "Was passt besser?",
+      optionen: ["Liniendiagramm", "Säulendiagramm"],
+      faelle: [
+        { html: "<b>Fall 1:</b> Wie viel Wasser verbraucht der Schulgarten Monat für Monat von Januar bis Dezember?", kurz: "Wasser Monat für Monat", a: 0, e: "Monat für Monat ist eine Entwicklung über die Zeit. Das zeigt die Linie." },
+        { html: "<b>Fall 2:</b> Wie viele Kinder trinken in der Pause Wasser, Tee, Saft oder Milch?", kurz: "Getränke in der Pause", a: 1, e: "Vier verschiedene Getränke werden verglichen. Dafür passen Säulen." },
+        { html: "<b>Fall 3:</b> Wie groß sind vier Kinder einer Gruppe?", kurz: "Größe von vier Kindern", a: 1, e: "Die Kinder werden miteinander verglichen. Es gibt keine Zeit: Säulen." },
+        { html: "<b>Fall 4:</b> Wie viel Geld ist in einem Sparschwein, wenn es Woche für Woche gezählt wird?", kurz: "Sparschwein", a: 0, e: "Woche für Woche ist eine Entwicklung über die Zeit: Linie." }
+      ],
+      fertig: "Du erkennst: Zeit → Linie, Vergleich → Säulen."
+    }, "ent-linie");
+  }
+});
+
+W.aufgabe({
+  titel: "Deine erste Linie in GRUMI-EXCEL",
+  auftrag: "Zeige die Temperaturen der Woche als Liniendiagramm.",
+  vorwissen: "<p>Der Ablauf ist wie bei den Säulen: <b>Datenbereich</b> markieren, <b>Typ</b> wählen, <b>Titel</b> schreiben.</p>",
+  hinweise: ["Tippe auf die erste Zelle und dann auf die letzte. Die Überschriften nimmst du mit.", "Der Bereich geht von A1 („Tag“) bis B8 (die Temperatur am Sonntag). Wähle dann „Linie“.", "Bereich <code>A1:B8</code>, Typ „Linie“, ein Titel zum Beispiel „Temperatur der Woche“. Dann „Prüfen“."],
+  lehrer: { ziel: "Einen Datenbereich markieren, den Diagrammtyp Linie wählen und einen Titel schreiben.",
+    anleitung: "Vorführen wie bei den Säulen. Danach den Typ auf „Säule“ stellen und fragen: „Was ist besser zu erkennen – der Verlauf oder die einzelnen Werte?“",
+    loesung: "Bereich A1:B8 (oder A2:B8), Typ Linie, eigener Titel.",
+    fehler: ["Der Bereich endet zu früh, etwa bei Freitag – dann fehlt das Wochenende.", "Der Typ „Säule“ wird gewählt – gefragt ist der Verlauf.", "Der Titel fehlt."],
+    bedienung: "Zelle antippen, letzte Zelle antippen (oder ziehen). Das Diagramm erscheint, sobald Bereich und Typ gewählt sind." },
+  bau(box) {
+    Modul.makeDiagrammAufgabe(box, {
+      text: "Zeige die Temperaturen der Woche als <b>Liniendiagramm</b>: Markiere die Daten, wähle den Typ und schreibe einen Titel.",
+      tabelle: { spalten: 2, zeilen: 8, breit: { A: 80, B: 140 }, zellen: WETTER },
+      pruefe: z => [
+        p(G(z.bereich, "A1:B8") || G(z.bereich, "A2:B8"), "Der Datenbereich stimmt: alle sieben Tage.", "Markiere alle sieben Tage mit ihren Temperaturen, am besten von A1 bis B8."),
+        p(z.typ === "linie", "Der Typ stimmt: Die Linie zeigt den Verlauf.", z.typ ? "Für den Verlauf über die Woche passt die Linie. Wähle den Typ „Linie“." : "Wähle den Typ „Linie“."),
+        p(z.titel.trim().length >= 3, "Das Diagramm hat einen Titel.", "Schreibe einen Titel über das Diagramm, zum Beispiel „Temperatur der Woche“.")
+      ],
+      loesung: { bereich: "A1:B8", typ: "linie", titel: "Temperatur der Woche" },
+      erfolg: "Eine Woche auf einen Blick."
+    }, "dg-linie");
+  }
+});
+
+/* ============ Teil 3: Am PC ============ */
+W.teil("Am PC: Excel", "Anwenden");
+
+W.aufgabe({
+  titel: "Wetterstation in Excel",
+  geheim: ["Mittwoch", "Mi"],
+  auftrag: "Jetzt machst du es im echten Excel: Du zeichnest die Temperaturen der Wetterstation als Liniendiagramm mit Titel.",
+  vorwissen: "<p>Du kennst den Weg von den Säulen: markieren, Diagramm einfügen, Titel ändern, speichern. Neu ist nur der Typ: die Linie.</p>",
+  hinweise: ["Markiere die ganze Tabelle mit den Überschriften, dann geh in den Reiter „Einfügen“.", "In der Gruppe „Diagramme“ gibt es „Linien- oder Flächendiagramm einfügen“. Wähle eine einfache Linie.", "Markiere A1 bis B8, füge die Linie ein, ändere den Titel und speichere die Datei."],
+  lehrer: { ziel: "Im echten Excel ein Liniendiagramm einfügen, den Titel ändern und speichern.",
+    anleitung: "Etwa 12 Minuten. Die Startdatei wetter_start.xlsx liegt im Auftrag zum Herunterladen. Am Ende lädt jedes Kind seine gespeicherte Datei hoch; der Server prüft Diagramm, Typ Linie, alle sieben Tage und eigenen Titel. Am Tablet gibt es stattdessen eine Frage.",
+    loesung: "Ein Liniendiagramm über A1:B8 mit eigenem Titel, zum Beispiel „Temperatur an der Wetterstation“. Gespeichert als wetter.xlsx. (Linie mit oder ohne Datenpunkte ist richtig.)",
+    fehler: ["Der Titel zeigt noch „Temperatur in °C“ (der Name der Spalte). Das ist der automatische Titel und zählt nicht.", "Es wurde ein Säulendiagramm gewählt – die Prüfung meldet, dass eine Linie gefragt ist.", "Der Bereich endet bei Freitag – dann fehlen zwei Tage.", "Die Datei wurde nicht unter dem Namen wetter gespeichert."],
+    bedienung: "„Datei auswählen“ → die gespeicherte .xlsx-Datei. Die Rückmeldung nennt jeden Prüfpunkt einzeln.",
+    test: "Aufgabe, Musterlösung und Dateiprüfung automatisch geprüft (Chrome und Safari-Testbrowser). Die Namen Reiter „Einfügen“, Gruppe „Diagramme“ und „Linien- oder Flächendiagramm einfügen“ stammen aus Excel 16 (deutsch). Wortlaut an einem Schul-PC prüfen: der Eintrag in der aufgeklappten Liste (einfache Linie) und das Ändern des Titels per Klick." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Wetterstation in Excel", pc: "Excel", zeit: "etwa 12 Minuten",
+      ziel: "Excel zeigt die Temperaturen der sieben Tage als Linie. Das Diagramm hat einen eigenen Titel und die Datei ist gespeichert.",
+      material: [{ name: "Startdatei wetter_start.xlsx", href: "assets/excel/wetter_start.xlsx" }],
+      schritte: [
+        `Lade die Startdatei herunter und öffne sie in Excel. Erscheint oben ein gelber Balken, klicke auf <span class="menue">Bearbeitung aktivieren</span>.`,
+        "Markiere die ganze Tabelle mit den Überschriften: Klicke auf <b>A1</b>, halte die Maustaste gedrückt und ziehe bis <b>B8</b>.",
+        `Klicke oben auf den Reiter <span class="menue">Einfügen</span>. In der Gruppe <span class="menue">Diagramme</span> klickst du auf <span class="menue">Linien- oder Flächendiagramm einfügen</span>.`,
+        "Wähle in der Liste eine einfache <b>Linie</b> (mit oder ohne Punkte).",
+        "Das Diagramm erscheint auf dem Blatt. Der Titel oben ist noch der Name der Spalte, nicht dein eigener.",
+        "Ändere den Titel: Klicke auf den Titel im Diagramm, markiere den Text und schreibe deinen eigenen Titel, zum Beispiel <b>Temperatur an der Wetterstation</b>. Klicke danach auf eine freie Stelle neben dem Diagramm.",
+        "Sieh dir die Linie an: Wann steigt sie, wann fällt sie? Der höchste Punkt zeigt den wärmsten Tag.",
+        `Speichere die Datei unter einem neuen Namen: Klicke auf <span class="menue">Datei</span> und dann auf <span class="menue">Speichern unter</span>. Wähle deinen Ordner, tippe den Namen <b>wetter</b> ein und klicke auf <span class="menue">Speichern</span>.`
+      ],
+      loesung: "Eine Linie über A1:B8 mit eigenem Titel. Der höchste Punkt liegt beim Mittwoch (19 °C). Die Datei heißt wetter.xlsx.",
+      pruefung: {
+        art: "datei", accept: ".xlsx", lies: Modul.liesExcel, pruefe: (Modul.excelPruefung || {})["linien-auf1"], server: { pfad: "/api/inf9/excel/pruefen", aufgabe: "linien-auf1" },
+        text: "Wähle deine gespeicherte Datei <b>wetter.xlsx</b> aus. Sie wird geprüft, und die KI schreibt dir eine Rückmeldung. Deine Lehrkraft kann die Datei danach ansehen.",
+        ersatz: { art: "wort", frage: "An welchem Tag war es am wärmsten? (Tippe den Tag ein.)", antworten: ["Mittwoch", "Mi"],
+          tipp: "Suche in der Tabelle die größte Temperatur. Der Tag steht in der Zelle links daneben." }
+      }
+    }, "auf1");
+  }
+});
+
+/* ============ Teil 4: Wiederholen ============ */
+W.teil("Wiederholen", "Andere Zahlen");
+
+W.aufgabe({
+  titel: "Die Sonnenblume wächst",
+  auftrag: "Im Schulgarten wird eine Sonnenblume jede Woche gemessen. Zeige im Diagramm, wie sie wächst.",
+  hinweise: ["Die Höhe wird Woche für Woche gemessen. Welcher Typ zeigt eine Entwicklung über die Zeit?", "Die Linie passt. Markiere die Überschriften mit.", "Bereich <code>A1:B7</code>, Typ „Linie“, ein Titel."],
+  lehrer: { ziel: "Den ganzen Ablauf mit anderen Zahlen allein wiederholen und den passenden Typ selbst wählen.",
+    anleitung: "Einzelarbeit. Danach fragen: „In welcher Woche ist die Sonnenblume am meisten gewachsen?“ (Woche 4 auf 5: 22 cm).",
+    loesung: "Bereich A1:B7, Typ Linie, eigener Titel.",
+    fehler: ["Der Typ „Kreis“ wird gewählt – die Höhen ergeben kein Ganzes.", "Es werden Säulen gewählt: Sie vergleichen nur. Die Rückmeldung verlangt hier die Linie, weil es um die Entwicklung über die Zeit geht."] },
+  bau(box) {
+    Modul.makeDiagrammAufgabe(box, {
+      text: "Zeige, wie die Sonnenblume Woche für Woche wächst. Wähle den passenden Typ und gib dem Diagramm einen Titel.",
+      tabelle: { spalten: 2, zeilen: 7, breit: { A: 90, B: 130 }, zellen: { A1: "Woche", B1: "Höhe in cm", A2: "Woche 1", B2: "12", A3: "Woche 2", B3: "25", A4: "Woche 3", B4: "41", A5: "Woche 4", B5: "60", A6: "Woche 5", B6: "82", A7: "Woche 6", B7: "95" } },
+      pruefe: z => [
+        p(G(z.bereich, "A1:B7") || G(z.bereich, "A2:B7"), "Der Datenbereich stimmt: alle sechs Wochen.", "Markiere alle sechs Wochen mit ihren Höhen, am besten von A1 bis B7."),
+        p(z.typ === "linie", "Der Typ passt: Die Linie zeigt das Wachstum über die Zeit.", z.typ ? "Die Höhe wird Woche für Woche gemessen: Das ist eine Entwicklung über die Zeit. Dafür passt die Linie." : "Wähle einen Typ. Für eine Entwicklung über die Zeit passt die Linie."),
+        p(z.titel.trim().length >= 3, "Das Diagramm hat einen Titel.", "Schreibe einen Titel über das Diagramm.")
+      ],
+      loesung: { bereich: "A1:B7", typ: "linie", titel: "Wachstum der Sonnenblume" },
+      erfolg: "Du wählst den Typ selbst: Entwicklung über die Zeit, also Linie."
+    }, "dg-wdh");
+  }
+});
+
+/* ============ Teil 5: Kontrollieren ============ */
+W.teil("Kontrollieren", "Lerncheck");
+
+W.aufgabe({
+  titel: "Lerncheck",
+  auftrag: "Richtig oder falsch? Entscheide bei jeder Aussage.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Eine Linie, die nach oben geht, steigt. Der Wert wird dann größer.", "Richtig sind die Aussagen zur Entwicklung, zur Zeit auf der waagerechten Achse und zur waagerechten Linie. Falsch sind die Aussagen zu steigender Linie und zu „Wer hat am meisten?“."],
+  lehrer: { ziel: "Kernwissen der Stunde sichern.", anleitung: "Einzelarbeit, etwa 3 Minuten.", loesung: "richtig · falsch · richtig · falsch · richtig", fehler: ["Aussage 2: Steigt die Linie, wird der Wert größer.", "Aussage 4: Für „Wer hat am meisten?“ passen Säulen oder Balken."] },
+  bau(box) {
+    Modul.makeTF(box, [
+      ["Ein Liniendiagramm zeigt eine Entwicklung über die Zeit.", true],
+      ["Steigt die Linie, wird der Wert kleiner.", false],
+      ["Auf der waagerechten Achse steht bei einer Linie oft die Zeit.", true],
+      ["Für die Frage „Wer hat am meisten?“ ist die Linie am besten.", false],
+      ["Eine waagerechte Linie bedeutet: Der Wert bleibt gleich.", true]
+    ], "tf");
+  }
+});
+
+W.fertig();
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Internetadressen und DNS | Informatik 9</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="../../8M/Informatik/einheit8.css">
+<link rel="stylesheet" href="einheit9.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 9</small></a>
+    <nav class="stations" id="stations"></nav>
+    <span class="stars" id="stars">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks">
+      <a href="index.html">Übersicht Informatik 9M</a>
+      <a href="../../9R/Informatik/index.html">Übersicht Informatik 9R</a>
+      <a href="../../index.html">Startseite</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 9 · Modul 2: Internet verstehen · Einheit 2</div>
+    <h1>Internetadressen und DNS</h1>
+    <p>Du tippst einen Namen in den Browser – und die Seite erscheint. Dabei arbeiten Computer gar nicht mit Namen, sondern mit Zahlen. Wer übersetzt? Heute richtest du diesen Übersetzer selbst ein.</p>
+    <div class="zeit">etwa 45 Minuten · Praxis am Windows-PC mit Filius</div>
+    <div class="goals">
+      <div>Ich zerlege eine URL und erkläre ihre Teile.</div>
+      <div>Ich erkläre, was ein DNS-Server tut.</div>
+      <div>Ich beschreibe den Ablauf von der Eingabe einer URL bis zur Anzeige der Seite.</div>
+      <div>Ich richte in Filius einen DNS-Server ein und finde Fehler.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="modulStand"></div>
+  <div id="weg"></div>
+</main>
+
+<footer class="wrap">Informatik 9 · Dein Fortschritt wird mit deinem Code gespeichert.</footer>
+
+<div id="pop" role="dialog"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info9.js"></script>
+<script src="../../7M/Informatik/filius-datei.js"></script>
+<script src="filius9.js"></script>
+<script src="../../7M/Informatik/netz-bild.js"></script>
+<script>
+(function () {
+"use strict";
+const {$} = Modul;
+
+Modul.start9({
+  key: "grumi-i9-dns-v1",
+  thema: "URL und DNS: Aufbau einer URL (http://www.klassenfest.example), IP-Adresse statt Name, der DNS-Server übersetzt Namen in IP-Adressen; Ablauf von der Eingabe einer URL bis zur Anzeige der Webseite; DNS-Server in Filius einrichten, Domain Name Server eintragen, mit dem Befehl host prüfen",
+  glossary: {
+    url: ["URL", "Die Adresse einer Webseite, zum Beispiel http://www.klassenfest.example."],
+    domainname: ["Domainname", "Der Name eines Servers im Internet, zum Beispiel www.klassenfest.example."],
+    dns: ["DNS", "Das „Telefonbuch“ des Internets: Es übersetzt Namen in IP-Adressen."],
+    dnsserver: ["DNS-Server", "Ein Server, der zu einem Namen die passende IP-Adresse kennt."],
+    ip: ["IP-Adresse", "Die Zahlenadresse eines Geräts, zum Beispiel 203.0.113.10."],
+    host: ["host", "Ein Befehl, der zu einem Namen die IP-Adresse zeigt."]
+  }
+});
+
+const W = Modul.lernweg("#weg");
+
+/* ============ Teil 1: Regelheft ============ */
+W.teil("Regelheft", "Schreiben");
+W.regelheft({
+  titel: "URL und DNS",
+  html: `<p>Die <span class="rot">URL</span> ist die Adresse einer Webseite, z. B. <span class="blau">http://www.klassenfest.example</span></p>
+    <p>Computer brauchen eine <span class="rot">IP-Adresse</span>. Der <span class="rot">DNS-Server</span> übersetzt den Namen in die IP-Adresse.</p>
+    <p class="leer"></p>
+    <p>Erst dann fragt der Browser den Webserver.</p>`,
+  lehrer: { ziel: "Die Kernaussagen der Stunde stehen im Heft: URL, IP-Adresse, DNS-Server und die Reihenfolge der Fragen.",
+    anleitung: "Etwa 4 Minuten. Die Klasse schreibt ab. Erst nach dem Abhaken erscheint die erste Aufgabe.",
+    loesung: "Der Eintrag steht vollständig im Heft (vier kurze Absätze)." }
+});
+
+/* ============ Teil 2: Sehen und verstehen ============ */
+W.teil("Verstehen", "Sehen · Ausprobieren");
+
+W.aufgabe({
+  titel: "Die Auskunft für das Internet",
+  auftrag: "Sieh dir das Bild an: Eine Frau am Schalter schlägt in einem riesigen Verzeichnis nach und gibt einem Jungen eine Nummer. Beantworte dann die zwei Fragen.",
+  vorwissen: "<p>Du merkst dir die Namen deiner Freunde, nicht ihre Handynummern. Dein Handy schlägt die Nummer zum Namen nach. Im Internet ist es ganz ähnlich.</p>",
+  hinweise: ["Denke an das Adressbuch im Handy: Du tippst einen Namen, und das Handy wählt eine Nummer.", "Computer finden einander nur über Zahlen. Wir Menschen merken uns lieber Namen.", "Frage 1: Der DNS-Server schlägt zu einem Namen die passende Adresse nach. Frage 2: Gesucht ist die Zahlenadresse eines Geräts."],
+  lehrer: { ziel: "Das Prinzip „Name → Nummer nachschlagen“ an einem Alltagsbild verstehen.",
+    anleitung: "Bild am Beamer zeigen: „Was tut die Frau? Was bekommt der Junge?“ Dann die zwei Fragen in Einzelarbeit. Das Bild ist nur ein Einstieg, keine Aufgabe hängt an einer Einzelheit.",
+    loesung: "Frage 1: Er übersetzt Namen in IP-Adressen. Frage 2: die IP-Adresse.",
+    fehler: ["Der DNS-Server wird für den Server gehalten, der die Webseite liefert – er liefert nur die Adresse, nicht die Seite."] },
+  bau(box) {
+    box.innerHTML = `<figure class="bild9"><img class="zoomable" src="assets/bilder/dns.jpg" width="1280" height="853" loading="lazy" alt="Ein heller Auskunftsschalter in einer Eingangshalle. Hinter dem Tresen sitzt eine lächelnde Frau und tippt mit dem Finger in ein riesiges aufgeschlagenes Verzeichnis. Sie reicht einem Jugendlichen mit Rucksack ein weißes Kärtchen. Im Hintergrund stehen volle Regale mit blauen Ordnern.">
+      <figcaption>Wie eine Auskunft: Du nennst einen Namen und bekommst die passende Nummer. (Bild mit KI erstellt)</figcaption></figure><div class="mc"></div>`;
+    Modul.makeMC($(".mc", box), [
+      { q: "Was tut ein DNS-Server im Internet?", o: ["Er übersetzt einen Namen in die passende IP-Adresse.", "Er liefert die Webseite selbst aus.", "Er verbindet zwei Netze miteinander.", "Er speichert alle Passwörter."], a: 0,
+        e: "Der DNS-Server kennt zu einem Namen die IP-Adresse. Die Seite selbst liefert der Webserver." },
+      { q: "Wie heißt die „Telefonnummer“ eines Geräts im Netz?", o: ["IP-Adresse", "Dateiname", "Kabelnummer", "Seitentitel"], a: 0,
+        e: "Mit der IP-Adresse findet das Netz ein Gerät – so wie du mit der Nummer einen Menschen anrufst." }
+    ], "mc-bild");
+  }
+});
+
+W.aufgabe({
+  titel: "Eine URL zerlegen",
+  auftrag: "Eine URL besteht aus Teilen. Ordne jedem Teil seine Aufgabe zu.",
+  vorwissen: "<p>Beispiel: <code>http://www.klassenfest.example</code> – das ist die Adresse der Seite für das Klassenfest in unserem kleinen Internet. Die Endung <code>.example</code> gibt es eigens für Beispiele.</p>",
+  hinweise: ["Lies die URL von links nach rechts: erst kommt eine Art Verabredung, dann ein Name.", "„http“ sagt, nach welchen Regeln die Seite übertragen wird. Der Name danach gehört dem Server.", "URL → die ganze Adresse der Seite · http:// → so wird übertragen · www.klassenfest.example → Name des Servers · 203.0.113.10 → die IP-Adresse, mit der Computer wirklich arbeiten."],
+  lehrer: { ziel: "Aufbau einer URL: Übertragungsart und Domainname (Lehrplan: URL, HTTP).",
+    anleitung: "Zuerst die URL an die Tafel schreiben und die Teile gemeinsam einkreisen, dann Einzelarbeit, etwa 3 Minuten. Die Beispieladressen sind erfunden: .example und 203.0.113.x sind eigens für Beispiele reserviert, es gibt dahinter keine echte Seite.",
+    loesung: "URL – die ganze Adresse einer Webseite · http:// – so wird die Seite übertragen · www.klassenfest.example – der Name des Servers · 203.0.113.10 – die IP-Adresse des Servers.",
+    fehler: ["„http://“ wird für einen Teil des Namens gehalten – es sagt, wie übertragen wird."] },
+  bau(box) {
+    Modul.makePaare(box, [
+      ["URL", "die ganze Adresse einer Webseite"],
+      ["http://", "so wird die Seite übertragen"],
+      ["www.klassenfest.example", "der Name des Servers (Domainname)"],
+      ["203.0.113.10", "die IP-Adresse, mit der die Computer arbeiten"]
+    ], "paare-url");
+  }
+});
+
+W.aufgabe({
+  titel: "Wer wird zuerst gefragt?",
+  auftrag: "Sieh dir an, was passiert, wenn du eine URL eingibst. Achte darauf, wen der Laptop zuerst fragt.",
+  vorwissen: "<p>Der Browser kennt nur den Namen <code>www.klassenfest.example</code>. Zum Abrufen braucht er aber eine IP-Adresse.</p>",
+  hinweise: ["Tippe auf „Start“ oder auf die Zahlen 1 bis 5.", "Der Laptop schickt zwei Anfragen. Die erste geht nicht an den Webserver.", "Erst fragt der Laptop den DNS-Server nach der Adresse. Mit der Adresse fragt er dann den Webserver nach der Seite."],
+  lehrer: { ziel: "Verstehen: Der Browser fragt zuerst den DNS-Server, dann den Webserver.",
+    anleitung: "Am Beamer gemeinsam durchklicken. Bei Schritt 2 anhalten und fragen: „Wen fragt der Laptop jetzt?“ Die Zeichnung ist vereinfacht: Der Switch Zuhause ist weggelassen. Vereinfachung: Im echten Internet wird der DNS-Server oft vom Internetanbieter betrieben und liegt nicht im selben Netz wie der Webserver.",
+    loesung: "Alle fünf Schritte angesehen: (1) URL eingetippt, (2) Frage an den DNS-Server, (3) Antwort 203.0.113.10, (4) Anfrage an den Webserver, (5) die Seite kommt.",
+    fehler: ["Kinder meinen, der Laptop frage sofort den Webserver. Er kennt aber dessen Adresse noch gar nicht."],
+    bedienung: "„Start“ spielt alle Schritte ab, die Zahlen springen zu einem Schritt, ↺ beginnt neu." },
+  bau(box) {
+    box.innerHTML = '<div class="nb"></div><div class="sim"></div>';
+    const n = Modul.netzBild($(".nb", box), { b: 640, h: 270, alt: "Netzplan: Links der Laptop, daneben der Router, dann Switch Internet. Von diesem Switch führen zwei Kabel zu zwei Servern: oben der DNS-Server, unten der Webserver.",
+      geraete: [{ id: "l", art: "notebook", x: 70, y: 125, name: "Laptop", ip: "192.168.0.10" }, { id: "r", art: "router", x: 200, y: 125, name: "Router" }, { id: "si", art: "switch", x: 340, y: 125, name: "Switch Internet" },
+        { id: "dns", art: "server", x: 540, y: 50, name: "DNS-Server", ip: "203.0.113.20" }, { id: "ws", art: "server", x: 540, y: 190, name: "Webserver", ip: "203.0.113.10" }],
+      kabel: [["l", "r"], ["r", "si"], ["si", "dns"], ["si", "ws"]] });
+    Modul.makeSchritte($(".sim", box), {
+      start: "Tippe auf „Start“ oder gehe Schritt für Schritt.",
+      steps: [
+        "Du tippst <code>http://www.klassenfest.example</code> in den Browser. Der Browser kennt nur den <b>Namen</b>, keine IP-Adresse.",
+        "Der Laptop fragt den <b>DNS-Server</b>: „Welche IP-Adresse gehört zu www.klassenfest.example?“",
+        "Der DNS-Server schlägt nach und antwortet: <b>203.0.113.10</b>.",
+        "Jetzt kennt der Browser die Adresse. Er schickt die <b>Anfrage an den Webserver</b> 203.0.113.10.",
+        "Der Webserver antwortet mit der <b>Webseite</b>. Der Browser zeigt sie an."
+      ],
+      zeige(i) {
+        n.neu();
+        const hin = (a, b) => n.kabel(a, b, "an");
+        if (i === 0) n.schild("l", "www.klassenfest.example");
+        if (i === 1 || i === 2) { hin("l", "r"); hin("r", "si"); hin("si", "dns"); }
+        if (i === 1) n.paket("dns", { text: "Name?" }).an("dns", true);
+        if (i === 2) n.paket("l", { farbe: "#1b8a4b", text: "203.0.113.10" }).an("dns", true);
+        if (i === 3 || i === 4) { hin("l", "r"); hin("r", "si"); hin("si", "ws"); }
+        if (i === 3) n.paket("ws", { text: "Anfrage" }).an("ws", true);
+        if (i === 4) n.paket("l", { farbe: "#1b8a4b", text: "Seite" }).an("ws", true);
+      }
+    }, "anim-dns");
+  }
+});
+
+W.aufgabe({
+  titel: "Von der URL zur Webseite",
+  auftrag: "Bringe die fünf Schritte in die richtige Reihenfolge. Mit ▲ und ▼ verschiebst du einen Schritt.",
+  hinweise: ["Denke an die Animation: Wer wird zuerst gefragt?", "Ohne IP-Adresse kann der Browser den Webserver nicht fragen. Also muss die Adresse zuerst her.", "Reihenfolge: URL eingeben → DNS-Server fragen → Adresse bekommen → Webserver fragen → Seite anzeigen."],
+  lehrer: { ziel: "Den Ablauf von der Eingabe einer URL bis zur Anzeige der Webseite beschreiben (Lehrplan LB 1, Probenstoff).",
+    anleitung: "Einzelarbeit, etwa 3 Minuten. Den Ablauf später mündlich wiederholen lassen: „Erzähle mir, was nach dem Druck auf die Eingabetaste passiert.“",
+    loesung: "1. URL eingeben · 2. Browser fragt den DNS-Server · 3. DNS-Server antwortet mit der IP-Adresse · 4. Browser fragt den Webserver · 5. Webserver schickt die Seite, der Browser zeigt sie an.",
+    fehler: ["Schritt 4 wird vor Schritt 2 gestellt – ohne IP-Adresse kann der Browser den Webserver nicht fragen."] },
+  bau(box) {
+    Modul.makeOrder(box, [
+      "Du gibst die URL in den Browser ein.",
+      "Der Browser fragt den DNS-Server nach der IP-Adresse.",
+      "Der DNS-Server antwortet mit der IP-Adresse.",
+      "Der Browser schickt die Anfrage an den Webserver.",
+      "Der Webserver schickt die Seite, der Browser zeigt sie an."
+    ], "order-ablauf");
+  }
+});
+
+W.aufgabe({
+  titel: "Video: DNS-Server einrichten",
+  auftrag: "Im Video siehst du, wie ein DNS-Server in Filius eingerichtet wird. Der Film hält dreimal an und stellt dir eine Frage. Schau bis 3:37. Danach musst du nicht mehr weiterschauen. Gleich danach machst du es selbst.",
+  hinweise: ["Du kannst den Film jederzeit anhalten und zurückspulen.", "Stopp 1: Der Browser kennt nur den Namen. Was fehlt ihm noch? Stopp 2: Wen fragt der Rechner zuerst? Stopp 3: Der Befehl fragt nach der IP.", "Stopp 1: die IP-Adresse des Webservers. Stopp 2: den DNS-Server. Stopp 3: Der Befehl host zeigt die IP-Adresse zu einem Namen."],
+  lehrer: { ziel: "Den Ablauf in Filius einmal sehen, bevor die Klasse ihn selbst ausführt.",
+    anleitung: "Der Film (Kanal „Herr Sauer“, 4:26 Minuten) wird erst nach dem Antippen von YouTube geladen. Gebraucht wird der Teil bis etwa 3:37; danach zeigt der Lehrer ein Terminal außerhalb von Filius, das für uns entfällt. Im Film sagt der Lehrer einmal „Mailserver“ – gemeint ist der Webserver. Der Film benutzt andere Namen und Adressen (zum Beispiel einen echten Domainnamen aus dem Schulnetz des Lehrers): In unserem Auftrag heißt der Name www.klassenfest.example und die Adresse 203.0.113.10. Lädt YouTube im Schulnetz nicht, erscheinen die Fragen ohne Film.",
+    loesung: "Stopp 1: die IP-Adresse des Webservers · Stopp 2: den DNS-Server · Stopp 3: die IP-Adresse zum Namen.",
+    fehler: ["Kinder übernehmen Namen und Adressen aus dem Film – im Auftrag gelten die der Aufgabe."],
+    test: "Transkript am 13.10.2026 vollständig gelesen (automatische Untertitel). Bei eingebetteten YouTube-Filmen kann Werbung erscheinen." },
+  bau(box) {
+    Modul.makeFilm(box, { vid: "FtsSm5zSL-c", titel: "12 DNS Server aktivieren", quelle: "Herr Sauer (YouTube)", dauer: "gesehen werden die ersten 3:37 Minuten",
+      stops: [
+        { t: 108, q: { q: "Der Eintrag im DNS-Server ist fertig. Gleich ruft der Browser die Seite über den Namen auf. Der Browser kennt dann nur den Namen. Was fehlt ihm noch, um den Webserver zu erreichen?", o: ["die IP-Adresse des Webservers", "das Passwort des Webservers", "die Länge des Namens", "die Uhrzeit"], a: 0, e: "Mit dem Namen allein findet das Netz den Webserver nicht. Der DNS-Server liefert die IP-Adresse dazu." } },
+        { t: 154, q: { q: "In der Zeitlupe sieht man: Wen fragt der Rechner zuerst, wenn er nur den Namen kennt?", o: ["den DNS-Server", "den Webserver", "den Drucker", "niemanden"], a: 0, e: "Erst der DNS-Server: Er kennt die Adresse. Danach geht die Anfrage an den Webserver." } },
+        { t: 196, q: { q: "Der Lehrer gibt gleich in der Befehlszeile den Befehl host und einen Namen ein. Was zeigt der Befehl an?", o: ["die IP-Adresse zu dem Namen", "die Uhrzeit", "die Größe der Webseite", "den Namen des Lehrers"], a: 0, e: "host fragt den DNS-Server und zeigt die IP-Adresse zum Namen." } }
+      ] }, "film12-");
+  }
+});
+
+/* ============ Teil 3: Am PC ============ */
+W.teil("Am PC: Filius", "Anwenden");
+
+const finde = (n, name) => n.geraete.find(g => g.name === name) || null;
+const DIENST = (g, d) => (g && g.dienste && g.dienste[d]) || null;
+const NAME = "www.klassenfest.example", WEBIP = "203.0.113.10", DNSIP = "203.0.113.20";
+
+function pruefeDns(n) {
+  const lap = finde(n, "Laptop"), pc = finde(n, "PC Wohnzimmer");
+  const dg = finde(n, "DNS-Server") || n.geraete.find(g => DIENST(g, "DNSServer")) || null;
+  const dns = DIENST(dg, "DNSServer"), ws = finde(n, "Webserver"), web = DIENST(ws, "WebServer");
+  const eintrag = dns ? dns.eintraege.find(e => e.name === NAME) : null;
+  return [
+    { ok: !!dns, text: dns ? "Auf dem Rechner „DNS-Server“ ist das Programm DNS-Server installiert." : "Auf dem Rechner „DNS-Server“ fehlt das Programm DNS-Server. Öffne ihn im Aktionsmodus und installiere es über die Software-Installation." },
+    { ok: !!(eintrag && eintrag.ip === WEBIP),
+      text: eintrag && eintrag.ip === WEBIP ? "Der Eintrag " + NAME + " → " + WEBIP + " steht in der Tabelle."
+        : eintrag ? "Der Eintrag für " + NAME + " zeigt auf " + eintrag.ip + ". Die Adresse muss die des Webservers sein: " + WEBIP + ". (Das Feld „IP-Adresse“ ist am Anfang mit der Adresse des DNS-Rechners gefüllt!) Wähle den Eintrag, klicke auf „Auswahl entfernen“ und lege ihn neu an."
+        : dns && dns.eintraege.length ? "In der Tabelle des DNS-Servers steht „" + dns.eintraege[0].name + "“. Der Name muss genau " + NAME + " heißen (Tippfehler?). Wähle den Eintrag, klicke auf „Auswahl entfernen“ und lege ihn neu an – mit der Adresse " + WEBIP + "."
+        : "In der Tabelle des DNS-Servers fehlt der Eintrag für " + NAME + ". Trage im Reiter „Adressen (A)“ den Namen und die Adresse " + WEBIP + " ein und klicke auf „Hinzufügen“." },
+    { ok: !!(dns && dns.aktiv), text: dns && dns.aktiv ? "Der DNS-Server ist gestartet." : "Der DNS-Server ist nicht gestartet. Öffne sein Symbol auf dem Rechner „DNS-Server“ und klicke auf „Starten“ – danach heißt der Knopf „Beenden“. Dann im Entwurfsmodus erneut speichern." },
+    { ok: !!(lap && lap.dns === DNSIP), text: lap && lap.dns === DNSIP ? "Beim „Laptop“ ist als Domain Name Server " + DNSIP + " eingetragen." : "Beim „Laptop“ steht im Feld „Domain Name Server“ " + (lap && lap.dns ? lap.dns : "noch nichts") + ", nötig ist " + DNSIP + ". Im Entwurfsmodus: Doppelklick auf den Laptop, Feld „Domain Name Server“ ausfüllen, Eingabetaste." },
+    { ok: !!(pc && pc.dns === DNSIP), text: pc && pc.dns === DNSIP ? "Beim „PC Wohnzimmer“ ist als Domain Name Server " + DNSIP + " eingetragen." : "Beim „PC Wohnzimmer“ ist noch nicht " + DNSIP + " als Domain Name Server eingetragen. Im Entwurfsmodus: Doppelklick auf den PC, Feld „Domain Name Server“." },
+    { ok: !!(web && web.aktiv), text: web && web.aktiv ? "Der Webserver ist installiert und gestartet." : (web ? "Der Webserver ist installiert, aber nicht gestartet. Öffne sein Symbol und klicke auf „Starten“." : "Auf dem Rechner „Webserver“ fehlt das Programm Webserver. Installiere und starte es wie in der letzten Einheit.") },
+    { ok: !!(lap && lap.software.includes("WebBrowser")), text: lap && lap.software.includes("WebBrowser") ? "Auf dem „Laptop“ ist der Webbrowser installiert." : "Auf dem „Laptop“ fehlt der Webbrowser. Installiere ihn über die Software-Installation." }
+  ];
+}
+
+W.aufgabe({
+  titel: "Den DNS-Server einrichten",
+  geheim: ["203.0.113.10"],
+  auftrag: "Jetzt baust du den Übersetzer selbst: Der DNS-Server lernt, dass www.klassenfest.example zum Webserver gehört. Danach rufst du die Seite mit dem Namen ab.",
+  vorwissen: "<p>In dieser Datei ist der Rechner „DNS-Server“ schon da, aber ohne Programme. Auch Webserver und Browser musst du wie in der letzten Einheit wieder einrichten. Danach trägst du bei den Rechnern ein, <b>wo der DNS-Server steht</b>: im Feld „Domain Name Server“.</p>",
+  hinweise: ["Das Feld „Domain Name Server“ trägst du im Entwurfsmodus ein (Doppelklick auf das Gerät, es steht unter „Gateway“). Im Aktionsmodus geht das nicht.", "Im DNS-Server steht im Feld „IP-Adresse:“ schon eine Zahl: die Adresse des DNS-Rechners selbst. Die ist falsch – der Name soll auf den Webserver zeigen.", "Reihenfolge: Entwurfsmodus: Laptop und PC Wohnzimmer → Domain Name Server <code>203.0.113.20</code>. Aktionsmodus: Webserver installieren und starten; Laptop: Webbrowser und Befehlszeile; DNS-Server: installieren, Eintrag <code>www.klassenfest.example</code> → <code>203.0.113.10</code>, „Hinzufügen“, „Starten“. Dann den Browser testen und speichern."],
+  lehrer: { ziel: "Einen DNS-Server einrichten, den Domain Name Server bei den Clients eintragen und eine Seite über den Namen abrufen.",
+    anleitung: "Filius 2.14.0 starten lassen. Die Kinder laden die Startdatei herunter und öffnen sie über den gelben Ordner. Die Schritte stehen zum Abhaken im Auftrag. Am Ende lädt jedes Kind seine gespeicherte Datei hoch – sie wird nur im Browser geprüft, nichts verlässt das Gerät. Am Tablet gibt es stattdessen eine Frage. Wichtigste Falle: Das Feld „IP-Adresse:“ im DNS-Server ist schon mit der Adresse des DNS-Rechners (203.0.113.20) gefüllt. Eingetragen werden muss aber die Adresse des Webservers (203.0.113.10). Vereinfachung: Im echten Internet liegen viele Router und Netze dazwischen; unser „Internet“ ist ein einziges Netz hinter einem Router. Der Name www.klassenfest.example und die Adressen 203.0.113.x sind eigens für Beispiele reserviert.",
+    loesung: "Auf „DNS-Server“: Programm DNS-Server installiert, Eintrag www.klassenfest.example → 203.0.113.10 in der Tabelle, „Starten“ gedrückt (Knopf heißt „Beenden“). Bei „Laptop“ und „PC Wohnzimmer“: Domain Name Server 203.0.113.20. Auf „Webserver“: Programm Webserver gestartet. Auf „Laptop“: Webbrowser und Befehlszeile; http://www.klassenfest.example zeigt die Seite. Gespeichert als dns.fls.",
+    fehler: ["Im Feld „IP-Adresse“ bleibt die vorausgefüllte Adresse 203.0.113.20 stehen: Der Name zeigt dann auf den DNS-Rechner selbst, die Seite kommt nicht.", "Der Eintrag ist da, aber „Starten“ wurde vergessen: Der Browser meldet nur „Server konnte nicht erreicht werden!“ – nach etwa 15 Sekunden.", "Der Domain Name Server wird nur beim Laptop eingetragen, aber nicht beim PC Wohnzimmer (oder umgekehrt).", "Das Feld „Domain Name Server“ lässt sich im Aktionsmodus nicht ändern – zuerst in den Entwurfsmodus (Hammer).", "Gespeichert wird im Aktionsmodus nicht."],
+    bedienung: "„Datei auswählen“ → die gespeicherte .fls-Datei. Die Rückmeldung nennt jeden Prüfpunkt einzeln und sagt bei einem Fehler, was fehlt." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "DNS-Server einrichten und Seite über den Namen abrufen", pc: "Filius", zeit: "etwa 18 Minuten",
+      ziel: "Der DNS-Server kennt www.klassenfest.example. Der Laptop ruft die Seite über den Namen ab. Dein Netz ist als dns.fls gespeichert.",
+      material: [{ name: "Startdatei dns_start.fls", href: "assets/filius/dns_start.fls" }],
+      schritte: [
+        "Lade die Startdatei herunter. Öffne <b>Filius</b>. Klicke im Entwurfsmodus oben auf den <span class=\"menue\">gelben Ordner</span> und wähle die Datei <b>dns_start.fls</b>.",
+        { t: "Du siehst das Netz aus der letzten Einheit. Neu ist der Rechner <b>DNS-Server</b> am „Switch Internet“, neben dem „Webserver“.", bild: "assets/filius/netz-dns.png", alt: "Filius im Entwurfsmodus: Links Switch Zuhause mit Laptop und PC Wohnzimmer, in der Mitte der Router, rechts Switch Internet mit den zwei Rechnern Webserver und DNS-Server." },
+        "Du bist im <b>Entwurfsmodus</b> (Hammer). Mache einen <b>Doppelklick</b> auf den <b>Laptop</b>. Unten steht unter „Gateway“ das Feld <span class=\"menue\">Domain Name Server</span>. Trage dort <b>203.0.113.20</b> ein und drücke die Eingabetaste.",
+        "Mache dasselbe beim <b>PC Wohnzimmer</b>: Doppelklick, Feld <span class=\"menue\">Domain Name Server</span> → <b>203.0.113.20</b>, Eingabetaste.",
+        "Wechsle in den <b>Aktionsmodus</b> (<span class=\"menue\">grüner Pfeil</span>). Richte den <b>Webserver</b> ein wie in der letzten Einheit: Rechner „Webserver“ anklicken, <span class=\"menue\">Software-Installation</span>, „Webserver“ installieren, Symbol „Webserver“ öffnen, <span class=\"menue\">Starten</span>. Installiere auf dem <b>Laptop</b> den <span class=\"menue\">Webbrowser</span> und die <span class=\"menue\">Befehlszeile</span>.",
+        { t: "Klicke auf den Rechner <b>DNS-Server</b>, öffne die <span class=\"menue\">Software-Installation</span> und installiere <span class=\"menue\">DNS-Server</span> (er steht in der Liste zwischen „Datei-Explorer“ und „E-Mail-Programm“). Öffne dann das Symbol <span class=\"menue\">DNS-Server</span>. <b>Achtung:</b> Im Feld „IP-Adresse:“ steht schon <b>203.0.113.20</b> – das ist die Adresse des DNS-Rechners selbst!", bild: "assets/filius/dns-server-fenster.png", alt: "Filius, Fenster DNS-Server: Oben der Knopf Starten, darunter die drei Reiter Adressen (A), Mailaustausch (MX) und Nameserver (NS). Im Feld Host-/Domainname: ist nichts eingetragen, im Feld IP-Adresse: steht 203.0.113.20. Darunter die leere Tabelle." },
+        { t: "Im Reiter <span class=\"menue\">Adressen (A)</span>: Schreibe bei <span class=\"menue\">Host-/Domainname:</span> den Namen <b>www.klassenfest.example</b>. Ersetze im Feld <span class=\"menue\">IP-Adresse:</span> die vorgegebene Zahl durch die Adresse des <b>Webservers</b>: <b>203.0.113.10</b>. Klicke auf <span class=\"menue\">Hinzufügen</span>. Der Eintrag erscheint in der Tabelle.", bild: "assets/filius/dns-server-eintrag.png", alt: "Filius, Fenster DNS-Server: Die Eingabefelder sind wieder leer. In der Tabelle steht eine Zeile: www.klassenfest.example. und daneben 203.0.113.10." },
+        "Klicke oben links auf <span class=\"menue\">Starten</span>. Der Knopf heißt jetzt <span class=\"menue\">Beenden</span>. Ohne diesen Klick antwortet der DNS-Server nicht. Klicke unten auf <span class=\"menue\">Startbildschirm</span>.",
+        { t: "Klicke auf den <b>Laptop</b>, öffne den <span class=\"menue\">Webbrowser</span>. Tippe in die Adresszeile den <b>Namen</b> <code>www.klassenfest.example</code> und klicke auf <span class=\"menue\">Start</span>. Es kann einige Sekunden dauern, dann erscheint die Seite „FILIUS - Webserver“.", bild: "assets/filius/browser-name.png", alt: "Filius, Webbrowser: In der Adresszeile steht http://www.klassenfest.example/, darunter die Seite mit der Überschrift FILIUS - Webserver." },
+        "Speichere: Wechsle zurück in den <b>Entwurfsmodus</b> (<span class=\"menue\">Hammer</span>). Klicke oben auf die <span class=\"menue\">Diskette</span>, gib der Datei den Namen <b>dns</b> und klicke auf <span class=\"menue\">Speichern</span>."
+      ],
+      loesung: "DNS-Server: Programm installiert, Eintrag www.klassenfest.example → 203.0.113.10, gestartet. Laptop und PC Wohnzimmer: Domain Name Server 203.0.113.20. Webserver gestartet, Laptop mit Webbrowser. Die Datei heißt dns.fls.",
+      pruefung: {
+        art: "datei", accept: ".fls", lies: Modul.liesFilius9, pruefe: pruefeDns,
+        text: "Wähle deine gespeicherte Datei <b>dns.fls</b> aus. Sie wird nur hier auf dem Gerät geprüft und nicht hochgeladen.",
+        ersatz: { art: "wort", frage: "Wie heißt das Feld bei einem Rechner, in das du die Adresse des DNS-Servers einträgst?", antworten: ["Domain Name Server"],
+          tipp: "Doppelklick auf den Laptop im Entwurfsmodus. Das Feld steht unter „Gateway“." }
+      }
+    }, "auf1");
+  }
+});
+
+W.aufgabe({
+  titel: "Mit host nachfragen",
+  geheim: ["203.0.113.10"],
+  auftrag: "Der Browser sagt dir nur „geklappt“ oder „Server konnte nicht erreicht werden!“. Der Befehl <code>host</code> fragt den DNS-Server direkt und zeigt dir die Antwort.",
+  vorwissen: "<p>Der Befehl <code>host</code> hat nur eine Aufgabe: Er löst einen Namen in eine IP-Adresse auf – genau das, was der Browser zuerst tut.</p>",
+  hinweise: ["Die Befehlszeile hast du auf dem Laptop schon installiert.", "Hinter <code>/&gt;</code> tippst du <code>host</code>, ein Leerzeichen und den Namen. Dann die Eingabetaste.", "Der ganze Befehl heißt <code>host www.klassenfest.example</code>. Die Antwort sagt, welche IP-Adresse zum Namen gehört."],
+  lehrer: { ziel: "Mit host die Antwort des DNS-Servers sichtbar machen und von einem Fehler unterscheiden.",
+    anleitung: "Die Kinder bleiben im selben Filius wie in der letzten Aufgabe (Aktionsmodus). Der zweite Versuch mit einem Namen, den es nicht gibt, zeigt die Fehlermeldung des Befehls. Ein Browser meldet bei jedem Fehler denselben Satz; host unterscheidet immerhin „Namen kennt der DNS-Server nicht“ von „Namen gefunden“.",
+    loesung: "host www.klassenfest.example → „www.klassenfest.example. hat die IP-Adresse 203.0.113.10“. Antwort: 203.0.113.10. Bei www.unbekannt.example: „Hostname konnte nicht aufgelöst werden!“ und „Eventuell ist kein DNS-Server verfügbar.“",
+    fehler: ["Der Name wird mit Tippfehler eingegeben: Dann meldet host „Hostname konnte nicht aufgelöst werden!“, obwohl alles richtig eingerichtet ist.", "Der Punkt am Ende des Namens in der Antwort („www.klassenfest.example.“) wird für einen Fehler gehalten – er gehört zur Schreibweise von Filius."],
+    bedienung: "Das Kind trägt die IP-Adresse aus der Antwort ein und tippt auf „Lösung überprüfen“." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Den DNS-Server mit host fragen", pc: "Filius", zeit: "etwa 5 Minuten",
+      ziel: "Du liest die Antwort des DNS-Servers in der Befehlszeile ab.",
+      schritte: [
+        "Wechsle in den <b>Aktionsmodus</b> (<span class=\"menue\">grüner Pfeil</span>) und klicke auf den <b>Laptop</b>. Öffne das Symbol <span class=\"menue\">Befehlszeile</span>.",
+        { t: "Tippe hinter <code>/&gt;</code> den Befehl <code>host www.klassenfest.example</code> und drücke die Eingabetaste. Lies die Antwort: „… hat die IP-Adresse …“.", bild: "assets/filius/befehlszeile-host.png", alt: "Filius, Befehlszeile: Unter dem Startbild stehen zwei Befehle. Zu host www.klassenfest.example antwortet das Programm: www.klassenfest.example. hat die IP-Adresse 203.0.113.10. Zu host www.unbekannt.example kommt: Hostname konnte nicht aufgelöst werden! Eventuell ist kein DNS-Server verfügbar." },
+        "Probiere noch einen Namen, den es nicht gibt: <code>host www.unbekannt.example</code>. Was meldet Filius jetzt?"
+      ],
+      loesung: "Die Antwort heißt: „www.klassenfest.example. hat die IP-Adresse 203.0.113.10“. Bei www.unbekannt.example meldet Filius: „Hostname konnte nicht aufgelöst werden!“",
+      pruefung: { art: "wort", frage: "Welche IP-Adresse nennt <code>host</code> zu www.klassenfest.example?", antworten: ["203.0.113.10"],
+        tipp: "Die Adresse steht am Ende der Antwortzeile hinter „hat die IP-Adresse“. Es ist die Adresse des Webservers.",
+        erfolg: "Richtig: Der DNS-Server hat den Namen in die Adresse des Webservers übersetzt." }
+    }, "auf2");
+  }
+});
+
+/* ============ Teil 4: Kontrollieren ============ */
+W.teil("Kontrollieren", "Lerncheck");
+
+W.aufgabe({
+  titel: "Warum klappt der Abruf nicht?",
+  auftrag: "Vier Kinder rufen <code>http://www.klassenfest.example</code> auf. Der Browser meldet bei allen nur „Server konnte nicht erreicht werden!“. Entscheide bei jedem Kind, woran es liegt.",
+  vorwissen: "<p>Der Browser in Filius sagt immer denselben Satz, egal was fehlt. Die Ursache findest du, indem du genau liest, was eingerichtet ist – und mit <code>host</code>.</p>",
+  hinweise: ["Lies bei jedem Kind genau, was schon eingerichtet ist und was <code>host</code> meldet.", "Wenn host die Adresse nennt, hat der DNS-Server gearbeitet – dann liegt es woanders. Wenn host „nicht aufgelöst“ meldet, hakt es beim DNS.", "Tabelle leer → Name nicht im DNS-Server · Eintrag da, Knopf heißt „Starten“ → DNS-Server nicht gestartet · Feld „Domain Name Server“ leer → beim Laptop nicht eingestellt · host nennt die Adresse, die Seite fehlt → Webserver nicht gestartet."],
+  lehrer: { ziel: "Fehler in der Namensauflösung eingrenzen: Eintrag, Dienststart, Einstellung beim Client, Webserver.",
+    anleitung: "Ein Fall nach dem anderen; falsch entschiedene Fälle kommen noch einmal. Ergebnis: Man muss die Teile nacheinander prüfen – so geht auch die Fehlersuche in echten Netzen.",
+    loesung: "Mia: Name nicht im DNS-Server · Jonas: DNS-Server nicht gestartet · Elif: beim Laptop nicht eingestellt · Ben: Webserver nicht gestartet.",
+    fehler: ["Bei Ben wird „Name nicht im DNS-Server“ gewählt – im Text steht aber, dass host die Adresse nennt. Dann kennt der DNS-Server den Namen."] },
+  bau(box) {
+    Modul.makeEntscheiden(box, {
+      frage: "Woran liegt es?",
+      optionen: ["Name nicht im DNS-Server", "DNS-Server nicht gestartet", "Domain Name Server beim Laptop fehlt", "Webserver nicht gestartet"],
+      faelle: [
+        { html: "<b>Mia:</b> „Beim Laptop steht im Feld ‚Domain Name Server‘ die 203.0.113.20. Der DNS-Server läuft, der Knopf heißt ‚Beenden‘. Aber die Tabelle ist leer. host meldet: ‚Hostname konnte nicht aufgelöst werden!‘“", kurz: "Mia", a: 0, e: "Der DNS-Server läuft und wird gefragt, kennt den Namen aber nicht – es fehlt der Eintrag." },
+        { html: "<b>Jonas:</b> „In der Tabelle des DNS-Servers steht der Eintrag richtig, beim Laptop ist der Domain Name Server eingetragen. Aber der Knopf im DNS-Fenster heißt ‚Starten‘. Der Browser meldet nach etwa 15 Sekunden den Fehler.“", kurz: "Jonas", a: 1, e: "Ohne „Starten“ antwortet der DNS-Server nicht. Erst danach heißt der Knopf „Beenden“." },
+        { html: "<b>Elif:</b> „Der DNS-Server läuft, der Eintrag stimmt. Beim PC Wohnzimmer klappt alles. Aber auf dem Laptop meldet host: ‚Hostname konnte nicht aufgelöst werden!‘ – und das Feld ‚Domain Name Server‘ beim Laptop ist leer.“", kurz: "Elif", a: 2, e: "Der Laptop weiß nicht, wo er nachfragen soll. Das Feld „Domain Name Server“ muss die Adresse des DNS-Servers enthalten." },
+        { html: "<b>Ben:</b> „host www.klassenfest.example meldet: ‚… hat die IP-Adresse 203.0.113.10‘. Trotzdem zeigt der Browser keine Seite. Im Fenster ‚Webserver‘ steht der Knopf ‚Starten‘.“", kurz: "Ben", a: 3, e: "Der DNS-Server hat seine Arbeit getan. Aber der Webserver läuft nicht – auch er muss gestartet sein." }
+      ],
+      fertig: "Du findest die vier häufigsten Fehler bei der Namensauflösung."
+    }, "fehler");
+  }
+});
+
+W.aufgabe({
+  titel: "Lerncheck",
+  auftrag: "Richtig oder falsch? Entscheide bei jeder Aussage.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Der DNS-Server übersetzt Namen in IP-Adressen. Erst danach kann der Browser den Webserver fragen.", "Richtig sind die Aussagen zum DNS-Server und zu host. Falsch: Webserver zuerst, http:// als Name, vorausgefüllte Adresse."],
+  lehrer: { ziel: "Kernwissen der Stunde sichern.", anleitung: "Einzelarbeit, etwa 3 Minuten.",
+    loesung: "richtig · falsch · falsch · richtig · falsch", fehler: ["Aussage 5: Das vorausgefüllte Feld enthält die Adresse des DNS-Rechners, nicht die des Webservers."] },
+  bau(box) {
+    Modul.makeTF(box, [
+      ["Der DNS-Server übersetzt einen Namen in eine IP-Adresse.", true],
+      ["Der Browser fragt zuerst den Webserver und dann den DNS-Server.", false],
+      ["http:// am Anfang einer URL ist der Name des Servers.", false],
+      ["Mit dem Befehl host kann man prüfen, ob der DNS-Server einen Namen kennt.", true],
+      ["Im Feld „IP-Adresse“ des DNS-Servers steht schon die Adresse des Webservers.", false]
+    ], "tf");
+  }
+});
+
+W.fertig();
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

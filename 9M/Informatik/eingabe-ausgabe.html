@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Eingaben und Ausgaben | Informatik 9</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="../../8M/Informatik/einheit8.css">
+<link rel="stylesheet" href="einheit9.css">
+<link rel="stylesheet" href="bloecke9.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 9</small></a>
+    <nav class="stations" id="stations"></nav>
+    <span class="stars" id="stars">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks">
+      <a href="index.html">Übersicht Informatik 9M</a>
+      <a href="../../9R/Informatik/index.html">Übersicht Informatik 9R</a>
+      <a href="../../index.html">Startseite</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 9 · Modul 5: Programmieren mit Scratch · Einheit 3</div>
+    <h1>Eingaben und Ausgaben</h1>
+    <p>Das Programm fragt, du antwortest – und es merkt sich, was du gesagt hast. Dafür braucht es eine Eingabe, eine Ausgabe und einen Speicherplatz mit Namen: die Variable.</p>
+    <div class="zeit">etwa 40 Minuten · Praxis am Windows-PC mit Scratch</div>
+    <div class="goals">
+      <div>Ich stelle mit „frage … und warte“ eine Eingabe und gebe mit „sage“ etwas aus.</div>
+      <div>Ich lege eine Variable an, setze sie auf einen Wert und ändere sie.</div>
+      <div>Ich unterscheide Zahl und Text.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="modulStand"></div>
+  <div id="weg"></div>
+</main>
+
+<footer class="wrap">Informatik 9 · Dein Fortschritt wird mit deinem Code gespeichert. · Scratch ist ein Programm der Scratch Foundation; die Blöcke und die Bühne auf dieser Seite sind eine eigene Nachbildung (GRUMI-SCRATCH).</footer>
+
+<div id="pop" role="dialog"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info9.js"></script>
+<script src="bloecke9.js"></script>
+<script src="../../8M/Informatik/excel-datei.js"></script>
+<script src="scratch-aufgaben9.js"></script>
+<script>
+(function () {
+"use strict";
+const {$} = Modul;
+const p = (ok, gut, schlecht) => ({ok, text: ok ? gut : schlecht});
+const letzte = l => l.gesagt.length ? l.gesagt[l.gesagt.length - 1] : "";
+
+Modul.start9({
+  key: "grumi-i9-eingabe-ausgabe-v1",
+  thema: "Scratch, Eingabe und Ausgabe: frage und warte (Eingabe, Block Antwort), sage (Ausgabe), Variable mit Namen (Bezeichner), Wertzuweisung (setze auf, ändere um), Wert als Zahl oder Text (Datentyp), verbinde; Beispiele Vorname, Treffer-Zähler, Steckbrief",
+  glossary: {
+    eingabe: ["Eingabe", "Das Programm fragt etwas, und du tippst die Antwort. In Scratch: „frage … und warte“."],
+    ausgabe: ["Ausgabe", "Das Programm zeigt oder sagt etwas. In Scratch: „sage …“."],
+    variable: ["Variable", "Ein Speicherplatz mit einem Namen. Darin steckt ein Wert, der sich ändern kann."],
+    bezeichner: ["Bezeichner", "Der Name einer Variablen, zum Beispiel treffer."],
+    wertzuweisung: ["Wertzuweisung", "Man gibt der Variablen einen Wert: „setze treffer auf 0“."],
+    datentyp: ["Datentyp", "Die Art des Wertes: eine Zahl (damit kann man rechnen) oder ein Text."]
+  }
+});
+
+const W = Modul.lernweg("#weg");
+
+/* ============ Regelheft ============ */
+W.teil("Regelheft", "Schreiben");
+W.regelheft({
+  titel: "Eingabe, Ausgabe, Variable",
+  html: `<p><span class="rot">Eingabe</span>: <span class="blau">frage … und warte</span>, die Antwort steht in <span class="blau">Antwort</span>. <span class="rot">Ausgabe</span>: <span class="blau">sage …</span></p>
+    <p>Eine <span class="rot">Variable</span> ist ein Speicherplatz mit einem Namen, z. B. <span class="blau">treffer</span>.</p>
+    <p class="leer"></p>
+    <p><span class="blau">setze treffer auf 0</span> (<span class="rot">Wertzuweisung</span>). Der Wert ist eine Zahl oder ein Text.</p>`,
+  lehrer: { ziel: "Die Kernaussagen zu Eingabe, Ausgabe, Variable, Wertzuweisung und Datentyp stehen im Heft.",
+    anleitung: "Etwa 5 Minuten. Die Klasse schreibt ab. Als Bild hilft eine Kiste mit Namensschild: Das Schild ist der Name der Variablen, der Inhalt der Wert. Erst nach dem Abhaken erscheint die erste Aufgabe.",
+    loesung: "Der Eintrag steht vollständig im Heft (Eingabe, Ausgabe, Variable, Wertzuweisung, Zahl oder Text)." }
+});
+
+/* ============ Teil 2: Erst hier auf der Seite ============ */
+W.teil("Verstehen und üben", "Sehen · Ausprobieren");
+
+W.aufgabe({
+  titel: "Eingabe oder Ausgabe?",
+  bild: { src: "assets/bilder/eingabe-ausgabe.jpg", alt: "Ein Jugendlicher sitzt am Tisch und tippt auf einer Tastatur. Vor ihm schwebt eine durchscheinende Bildschirmfläche mit einem kleinen Roboter. Der Roboter hat eine Sprechblase mit einem Fragezeichen und eine zweite Blase mit einer geöffneten Kiste.", text: "Der Roboter fragt, du tippst die Antwort. Die Kiste steht für einen Speicherplatz." },
+  auftrag: "Bei einem Programm geht etwas hinein (Eingabe) und etwas heraus (Ausgabe). Sortiere die Beschreibungen.",
+  vorwissen: "<p>Die Blöcke auf dieser Seite sind eine eigene Nachbildung von Scratch. Im echten Scratch funktionieren sie gleich, sehen aber etwas anders aus. Der Block „frage … und warte“ stellt eine Frage. Die Antwort liegt danach im runden Wert „Antwort“.</p>",
+  hinweise: ["Eingabe: Der Mensch gibt etwas ein. Ausgabe: Das Programm zeigt oder sagt etwas.", "„frage … und warte“ ist die Eingabe, „sage …“ die Ausgabe.", "Eingabe: Du tippst deinen Namen · Du beantwortest die Frage des Roboters · Du tippst eine Zahl und drückst die Eingabetaste. Ausgabe: Der Roboter sagt Hallo · Die Sprechblase zeigt eine Zahl · Der Roboter sagt dir dein Ergebnis."],
+  lehrer: { ziel: "Eingabe (Mensch → Programm) und Ausgabe (Programm → Mensch) unterscheiden.",
+    anleitung: "Beispiel aus dem Alltag: Beim Geldautomaten gibst du die PIN ein (Eingabe), der Automat zeigt den Betrag (Ausgabe). Dann sortieren lassen. Den Block „frage … und warte“ am Beamer zeigen.",
+    loesung: "Eingabe: Du tippst deinen Namen · Du beantwortest die Frage des Roboters · Du tippst eine Zahl und drückst die Eingabetaste. Ausgabe: Der Roboter sagt Hallo · Die Sprechblase zeigt eine Zahl · Der Roboter sagt dir dein Ergebnis.",
+    fehler: ["„Der Roboter stellt eine Frage“ wird als Eingabe gesehen – die Frage ist eine Ausgabe, die Antwort die Eingabe."] },
+  bau(box) {
+    Modul.makeSort(box, {
+      buckets: ["⌨️ Eingabe (kommt ins Programm)", "💬 Ausgabe (kommt aus dem Programm)"], cols: 220,
+      items: [
+        { t: "Du tippst deinen Namen.", b: 0 },
+        { t: "Du beantwortest die Frage des Roboters.", b: 0 },
+        { t: "Du tippst eine Zahl und drückst die Eingabetaste.", b: 0 },
+        { t: "Der Roboter sagt Hallo.", b: 1 },
+        { t: "Die Sprechblase zeigt eine Zahl.", b: 1 },
+        { t: "Der Roboter sagt dir dein Ergebnis.", b: 1 }
+      ],
+      done: "✅ Eingabe: etwas geht hinein. Ausgabe: etwas kommt heraus."
+    }, "sort-ein-aus");
+  }
+});
+
+W.aufgabe({
+  titel: "Den Namen erfragen und begrüßen",
+  auftrag: "Der Roboter soll nach dem Vornamen fragen und dann einen Gruß mit dem Namen sagen, zum Beispiel „Schön, dich zu treffen, Mia“.",
+  vorwissen: "<p>Mit „verbinde … und …“ klebst du zwei Teile zusammen – <b>ohne</b> Leerzeichen dazwischen. Das Leerzeichen musst du selbst ans Ende des Grußes schreiben, zum Beispiel „Hallo “ (mit Leerzeichen). Den Wert „Antwort“ wählst du im Menü ▾ eines Feldes.</p>",
+  hinweise: ["Erst fragen, dann sagen. Der Gruß und die Antwort werden mit „verbinde“ zusammengesetzt.", "Setze „frage“, dann „sage“. Wähle im Feld von „sage“ im Menü ▾ „verbinde“. In das erste Feld kommt der Gruß, in das zweite „Antwort“.", "Start – frage „Wie ist dein Vorname?“ – sage verbinde „Schön, dich zu treffen, “ und Antwort. Achte auf das Leerzeichen nach dem Komma."],
+  lehrer: { ziel: "Eine Eingabe stellen, die Antwort nutzen und mit „verbinde“ in eine Ausgabe einbauen.",
+    anleitung: "Vorführen und mit zwei verschiedenen Namen testen. Frage: „Was passiert, wenn das Leerzeichen fehlt?“ (Der Name klebt am Gruß: „…treffenMia“.) Die Seite prüft mit zwei Namen, ob die Antwort wirklich benutzt wird.",
+    loesung: "Wenn Start · frage „Wie ist dein Vorname?“ · sage verbinde „Schön, dich zu treffen, “ und Antwort. Bei Mia sagt der Roboter: Schön, dich zu treffen, Mia.",
+    fehler: ["Das Leerzeichen fehlt – dann klebt der Name am Gruß („…treffenMia“).", "Der Name wird fest eingetippt statt „Antwort“ zu nehmen.", "„sage“ steht vor „frage“ – dann ist die Antwort noch leer."],
+    bedienung: "Die Antwort tippt man beim Starten in das Feld unter der Bühne. Im Block Wertmenü ▾ → Antwort." },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Frage nach dem Vornamen und begrüße mit dem Namen.</p>",
+      palette: ["flagge", "frage", "sage", "verbinde", "antwort"], start: [["flagge"]], fest: 1,
+      pruefe: e => {
+        const g1 = e.lauf({ antworten: ["Mia"] }), g2 = e.lauf({ antworten: ["Jonas"] }), a = letzte(g1), b = letzte(g2);
+        const gut = (s, n) => s.length > n.length && new RegExp("(^|[^\\p{L}])" + n + "$", "u").test(s);
+        const ok = gut(a, "Mia") && gut(b, "Jonas");
+        return [
+          p(g1.fragen.length >= 1, "Der Roboter stellt eine Frage.", "Der Roboter soll eine Frage stellen: „frage … und warte“."),
+          p(ok, "Der Roboter begrüßt mit dem Namen: „" + a + "“.",
+            !a ? "Der Roboter sagt noch nichts. Nimm „sage“."
+              : gut(a, "Mia") ? "Bei der Antwort „Jonas“ klappt es nicht. Der Name muss aus „Antwort“ kommen, nicht fest eingetippt sein."
+              : a === "Mia" ? "Der Roboter sagt nur den Namen. Setze mit „verbinde“ einen Gruß davor."
+              : /\p{L}Mia$/u.test(a) ? "Zwischen Gruß und Name fehlt ein Leerzeichen. Schreibe es ans Ende des Grußes."
+              : !a.includes("Mia") ? "Der Name fehlt. Setze den Wert „Antwort“ in „verbinde“ ein."
+              : "Der Name soll am Ende stehen: erst der Gruß, dann der Name.")
+        ];
+      },
+      loesung: [["flagge"], ["frage", "Wie ist dein Vorname?"], ["sage", ["verbinde", "Schön, dich zu treffen, ", ["antwort"]]]], loesungAntworten: ["Mia"], erfolg: "Eingabe und Ausgabe zusammen – mit dem Namen des Kindes."
+    }, "bl-name");
+  }
+});
+
+W.aufgabe({
+  titel: "Der Zähler: Variable treffer",
+  geheim: ["20"],
+  auftrag: "Der Roboter zählt Punkte in der Variable <code>treffer</code>: Er beginnt bei 0, bekommt zweimal 5 Punkte und einmal 10 Punkte. Am Ende sagt er den Stand.",
+  vorwissen: "<p>Eine <b>Variable</b> ist ein Speicherplatz mit Namen. „setze treffer auf 0“ gibt ihr den Startwert (Wertzuweisung). „ändere treffer um 5“ zählt 5 dazu. Den Wert sagst du mit dem runden Wert „treffer“ (Menü ▾ → Variable).</p>",
+  hinweise: ["Zuerst der Startwert, dann dreimal erhöhen, dann sagen.", "„setze treffer auf 0“, dann „ändere treffer um …“ mit 5, 5 und 10. Zum Sagen wählst du im Feld von „sage“ im Menü ▾ die Variable treffer.", "Start – setze treffer auf 0 – ändere treffer um 5 – ändere treffer um 5 – ändere treffer um 10 – sage treffer. Am Ende sagt der Roboter 20."],
+  lehrer: { ziel: "Eine Variable setzen (Wertzuweisung), ändern und ausgeben.",
+    anleitung: "Die Kiste mit Namensschild zeichnen: „treffer“, darin eine Zahl. Nach jedem „ändere“ den Inhalt der Kiste neu aufschreiben (0, 5, 10, 20). Betonen: „setze auf 0“ gehört an den Anfang, denn Scratch behält den Wert vom letzten Start.",
+    loesung: "Wenn Start · setze treffer auf 0 · ändere treffer um 5 · ändere treffer um 5 · ändere treffer um 10 · sage treffer. Der Roboter sagt 20.",
+    fehler: ["„setze treffer auf 0“ fehlt – im echten Scratch zählt der Zähler dann beim zweiten Start weiter.", "Statt „ändere“ wird „setze“ benutzt – dann gilt nur der letzte Wert (10).", "Statt der Variablen wird der Text „treffer“ gesagt."],
+    bedienung: "Wertfeld bei „sage“ anklicken, im Menü ▾ „Variable …“ wählen und treffer einstellen." },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Setze <code>treffer</code> auf 0, zähle 5, 5 und 10 dazu und sage den Stand.</p>",
+      palette: ["flagge", "setze", "aendere", "sage", "var"], variablen: ["treffer"], start: [["flagge"]], fest: 1,
+      pruefe: e => {
+        const pr = e.programm(), l = e.lauf(), v = l.variablen.treffer;
+        return [
+          p(pr.some(b => b[0] === "setze" && b[1] === "treffer"), "treffer bekommt am Anfang den Wert 0.", "Setze treffer zuerst auf 0. Im echten Scratch würde der Zähler sonst beim nächsten Start mit dem alten Wert weiterzählen."),
+          p(v === 20, "treffer steht auf 20.", v === 0 ? "treffer steht noch auf 0. Erhöhe mit „ändere treffer um …“." : "treffer steht auf " + v + ". Zweimal 5 und einmal 10 ergibt 20."),
+          p(letzte(l) === "20", "Der Roboter sagt den Stand: 20.", "Der Roboter soll am Ende den Wert von treffer sagen (nicht den Text „treffer“).")
+        ];
+      },
+      loesung: [["flagge"], ["setze", "treffer", 0], ["aendere", "treffer", 5], ["aendere", "treffer", 5], ["aendere", "treffer", 10], ["sage", ["var", "treffer"]]], erfolg: "Eine Variable gesetzt, geändert und ausgegeben."
+    }, "bl-treffer");
+  }
+});
+
+W.aufgabe({
+  titel: "Zahl oder Text?",
+  auftrag: "Der Wert einer Variablen ist eine Zahl oder ein Text. Mit Zahlen kann man rechnen. Sortiere die Werte.",
+  hinweise: ["Eine Zahl besteht nur aus Ziffern (eventuell mit Minus). Alles andere ist Text.", "„7a“ enthält einen Buchstaben, „Hallo!“ auch. Das sind Texte.", "Zahl: 13 · 100 · −3. Text: Mia · 7a · Hallo! · Dein Name."],
+  lehrer: { ziel: "Den Datentyp eines Wertes erkennen: Zahl oder Text.",
+    anleitung: "Einzelarbeit, etwa 2 Minuten. Nachfragen: „Kann man mit ‚7a‘ rechnen?“ (Nein.) Hinweis: Scratch unterscheidet beides meist von selbst.",
+    loesung: "Zahl: 13 · 100 · −3. Text: Mia · 7a · Hallo! · Dein Name.",
+    fehler: ["„7a“ wird als Zahl gesehen, weil eine 7 darin steht."] },
+  bau(box) {
+    Modul.makeSort(box, {
+      buckets: ["🔢 Zahl", "🔤 Text"],
+      items: [
+        { t: "13", b: 0 }, { t: "100", b: 0 }, { t: "−3", b: 0 },
+        { t: "Mia", b: 1 }, { t: "7a", b: 1 }, { t: "Hallo!", b: 1 }, { t: "Dein Name", b: 1 }
+      ],
+      done: "✅ Zahlen darfst du rechnen, Texte nicht."
+    }, "sort-datentyp");
+  }
+});
+
+W.aufgabe({
+  titel: "Warum eine Variable?",
+  auftrag: "Der Roboter fragt zuerst nach deiner Lieblingsfarbe, dann nach deinem Lieblingstier. Am Ende sagt er beides, zum Beispiel „blau und Hund“. Merke dir die Farbe in der Variable <code>farbe</code>.",
+  vorwissen: "<p><b>Antwort</b> enthält immer nur die <b>letzte</b> Eingabe. Nach der zweiten Frage ist die erste Antwort weg – außer du hast sie vorher in einer Variablen gespeichert.</p>",
+  hinweise: ["Überlege: Was passiert mit der ersten Antwort, wenn die zweite Frage kommt?", "Nach der ersten Frage: „setze farbe auf Antwort“. Dann die zweite Frage. Am Ende „sage“ mit „verbinde“.", "Start – frage Farbe – setze farbe auf Antwort – frage Tier – sage verbinde (Variable farbe) und (verbinde „ und “ und Antwort)."],
+  lehrer: { ziel: "Verstehen, warum man eine Variable braucht: „Antwort“ wird bei jeder Frage überschrieben.",
+    anleitung: "Zuerst ohne Variable ausprobieren lassen: Der Roboter sagt zweimal die zweite Antwort. Dann die Variable einbauen. Merksatz: „Was ich später noch brauche, speichere ich in einer Variablen.“",
+    loesung: "Wenn Start · frage „Lieblingsfarbe?“ · setze farbe auf Antwort · frage „Lieblingstier?“ · sage verbinde (farbe) und (verbinde „ und “ und Antwort). Bei blau und Hund: „blau und Hund“.",
+    fehler: ["Die Farbe wird erst nach der zweiten Frage gespeichert – dann steckt dort das Tier.", "Der Roboter sagt zweimal dasselbe, weil beide Teile „Antwort“ sind."],
+    bedienung: "Der Roboter fragt zweimal; unter der Bühne tippt man jede Antwort mit der Eingabetaste ab." },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Zwei Fragen, am Ende beide Antworten sagen. Nutze die Variable <code>farbe</code>.</p>",
+      palette: ["flagge", "frage", "setze", "sage", "verbinde", "antwort", "var"], variablen: ["farbe"], start: [["flagge"]], fest: 1,
+      pruefe: e => {
+        const g1 = e.lauf({ antworten: ["blau", "Hund"] }), g2 = e.lauf({ antworten: ["rot", "Katze"] }), a = letzte(g1), b = letzte(g2);
+        const ok = a.includes("blau") && a.includes("Hund") && b.includes("rot") && b.includes("Katze");
+        return [
+          p(g1.fragen.length >= 2, "Der Roboter stellt zwei Fragen.", "Der Roboter soll zwei Fragen stellen."),
+          p(String(g1.variablen.farbe) === "blau", "farbe merkt sich die erste Antwort.", "In farbe steckt nicht die erste Antwort. Setze farbe direkt nach der ersten Frage auf „Antwort“."),
+          p(ok, "Der Roboter sagt beide Antworten: „" + a + "“.",
+            a.includes("Hund") && !a.includes("blau") ? "Die erste Antwort ist verloren: „Antwort“ enthält immer nur die letzte Eingabe. Nimm für die Farbe die Variable."
+              : "Der Roboter soll beide Antworten sagen, zum Beispiel „blau und Hund“. Er sagt: „" + a + "“.")
+        ];
+      },
+      loesung: [["flagge"], ["frage", "Lieblingsfarbe?"], ["setze", "farbe", ["antwort"]], ["frage", "Lieblingstier?"], ["sage", ["verbinde", ["var", "farbe"], ["verbinde", " und ", ["antwort"]]]]], loesungAntworten: ["blau", "Hund"], erfolg: "Die Variable hat sich die erste Antwort gemerkt."
+    }, "bl-farbe");
+  }
+});
+
+/* ============ Teil 3: Am PC ============ */
+W.teil("Am PC: Scratch", "Anwenden");
+
+W.aufgabe({
+  titel: "Steckbrief in Scratch",
+  geheim: ["Mia ist 13"],
+  auftrag: "Jetzt machst du es im echten Scratch: Die Figur fragt nach Name und Alter, merkt sich beides in Variablen und sagt dann einen Satz mit beiden.",
+  vorwissen: "<p>Das kennst du aus der 8. Klasse. Zur Erinnerung: „Antwort“ enthält nur die letzte Eingabe. Deshalb speicherst du jede Antwort sofort nach ihrer Frage in einer eigenen Variablen.</p>",
+  hinweise: ["Lege zuerst zwei Variablen an: name und alter. Dann: frage – speichern – frage – speichern – sagen.", "Die Reihenfolge ist wichtig: Direkt nach jeder Frage kommt „setze … auf Antwort“. Der runde Block „Antwort“ steckt im Bereich „Fühlen“.", "Wenn 🏁 · frage Wie heißt du? · setze name auf Antwort · frage Wie alt bist du? · setze alter auf Antwort · sage verbinde (name) und (verbinde „ ist “ und alter)."],
+  lehrer: { ziel: "Eingabe, Variablen und Ausgabe in einem Programm im echten Scratch verbinden und speichern.",
+    anleitung: "Etwa 12 Minuten am Windows-PC. Die Kinder öffnen scratch.mit.edu/projects/editor. Wichtig: Erst die beiden Variablen anlegen, dann bauen. Am Ende wird die .sb3-Datei gespeichert und hochgeladen; der Server prüft sie und die KI schreibt eine Rückmeldung. Am Tablet gibt es stattdessen eine Frage.",
+    loesung: "Wenn 🏁 angeklickt wird · frage „Wie heißt du?“ und warte · setze name auf Antwort · frage „Wie alt bist du?“ und warte · setze alter auf Antwort · sage verbinde (name) und (verbinde „ ist “ und (alter)). Bei Mia und 13 sagt die Figur: Mia ist 13.",
+    fehler: ["Beide Fragen stehen vor den beiden „setze“-Blöcken – dann steckt in beiden Variablen die zweite Antwort.", "Es wird nur eine Variable benutzt.", "„sage“ ohne „verbinde“ – es wird nur eine Variable gesagt.", "Der Startblock mit der Fahne fehlt."],
+    bedienung: "„Datei hochladen“ → die gespeicherte .sb3-Datei (Scratch-Projekt.sb3, meist im Ordner Downloads). Die Rückmeldung nennt jeden Prüfpunkt einzeln." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Steckbrief", pc: "Scratch", zeit: "etwa 12 Minuten",
+      ziel: "Unter der grünen Fahne stellt die Figur zwei Fragen (Name und Alter), speichert jede Antwort in einer eigenen Variablen und sagt einen Satz mit beiden Werten. Das Projekt ist gespeichert.",
+      schritte: [
+        "Öffne im Browser <b>scratch.mit.edu/projects/editor</b>.",
+        "Klicke links im Bereich <span class=\"menue\">Variablen</span> auf <span class=\"menue\">Neue Variable</span>. Tippe bei „Neuer Variablenname:“ <b>name</b> und klicke auf <span class=\"menue\">OK</span>. Lege genauso die Variable <b>alter</b> an.",
+        "Baue: <span class=\"menue\">Wenn 🏁 angeklickt wird</span> (Ereignisse), darunter <span class=\"menue\">frage Wie heißt du? und warte</span> (Fühlen).",
+        "Hänge <span class=\"menue\">setze … auf …</span> (Variablen) darunter. Wähle im Menü die Variable <b>name</b>. Ziehe in das Feld den runden Block <span class=\"menue\">Antwort</span> aus dem Bereich Fühlen.",
+        "Wiederhole das für das Alter: <span class=\"menue\">frage … und warte</span> mit <b>Wie alt bist du?</b>, darunter <span class=\"menue\">setze alter auf Antwort</span>. Tipp: Rechtsklick auf den ersten „frage“-Block → <span class=\"menue\">Duplizieren</span> kopiert diesen Block und alle darunter. Ändere dann Text und Variable.",
+        "Hänge <span class=\"menue\">sage Hallo!</span> (Aussehen) darunter. Ziehe <span class=\"menue\">verbinde</span> (Operatoren) in das Feld. In das erste Feld von verbinde kommt der runde Block <b>name</b> (Variablen). In das zweite Feld kommt ein weiterer <span class=\"menue\">verbinde</span>-Block: links der Text <b> ist </b> (mit Leerzeichen davor und danach), rechts der Block <b>alter</b>.",
+        "Klicke auf die grüne Fahne, tippe unten auf der Bühne Name und Alter ein und bestätige jede Eingabe mit der Eingabetaste. Die Figur sagt zum Beispiel „Mia ist 13“.",
+        "Speichere dein Projekt: Menü <span class=\"menue\">Datei</span> → <span class=\"menue\">Auf deinem Computer speichern</span>. Die Datei heißt zuerst <b>Scratch-Projekt.sb3</b> und liegt im Ordner Downloads."
+      ],
+      loesung: "Wenn 🏁 angeklickt wird · frage Wie heißt du? · setze name auf Antwort · frage Wie alt bist du? · setze alter auf Antwort · sage verbinde (name) und (verbinde „ ist “ und (alter)).",
+      pruefung: {
+        art: "datei", accept: ".sb3", lies: Modul.liesScratch9, pruefe: (Modul.scratchPruefung9 || {})["eingabe-ausgabe-auf1"], server: { pfad: "/api/inf9/scratch/pruefen", aufgabe: "eingabe-ausgabe-auf1" },
+        text: "Wähle deine gespeicherte <b>.sb3</b>-Datei aus. Sie wird geprüft, und die KI schreibt dir eine Rückmeldung. Deine Lehrkraft kann die Datei danach ansehen.",
+        ersatz: { art: "wort", frage: "Du gibst als Name Mia und als Alter 13 ein. Was sagt die Figur?", antworten: ["Mia ist 13"],
+          tipp: "Name, dann „ ist “, dann das Alter – mit Leerzeichen." }
+      }
+    }, "auf1");
+  }
+});
+
+/* ============ Teil 4: Wiederholen ============ */
+W.teil("Wiederholen", "Andere Beispiele");
+
+W.aufgabe({
+  titel: "Wochen in Tage",
+  geheim: ["21", "35"],
+  auftrag: "Der Roboter fragt „Wie viele Wochen?“, merkt sich die Antwort in der Variable <code>wochen</code> und sagt, wie viele Tage das sind, zum Beispiel „21 Tage“.",
+  vorwissen: "<p>Mit Zahlen kannst du rechnen. Im Menü ▾ eines Feldes gibt es „Rechnung“. Dort stellst du das Zeichen auf <b>·</b> (mal) ein. Eine Woche hat 7 Tage. Ein Wert und ein Text lassen sich mit „verbinde“ zusammensetzen.</p>",
+  hinweise: ["Erst fragen, dann die Antwort in der Variable speichern, dann rechnen und sagen.", "Rechne: wochen mal 7. Setze das Ergebnis mit „verbinde“ und dem Text „ Tage“ zusammen – das Leerzeichen vor „Tage“ nicht vergessen.", "Start – frage „Wie viele Wochen?“ – setze wochen auf Antwort – sage verbinde (Rechnung: wochen · 7) und „ Tage“."],
+  lehrer: { ziel: "Eingabe, Variable, Rechnung und Ausgabe mit anderen Zahlen und Namen anwenden.",
+    anleitung: "Einzelarbeit, etwa 6 Minuten. Die Seite prüft mit 3 und 5 Wochen. Nachfragen: „Ist die Antwort eine Zahl oder ein Text?“ (Scratch rechnet mit ihr, wenn es eine Zahl ist.)",
+    loesung: "Wenn Start · frage „Wie viele Wochen?“ · setze wochen auf Antwort · sage verbinde (wochen · 7) und „ Tage“. Bei 3: „21 Tage“, bei 5: „35 Tage“.",
+    fehler: ["Es wird nur die Zahl der Wochen gesagt (nicht gerechnet).", "Die Zahlen werden verbunden statt multipliziert – 3 und 7 ergeben dann „37“.", "Das Leerzeichen vor „Tage“ fehlt: „21Tage“."] },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Wochen in Tage umrechnen: Eingabe, Variable <code>wochen</code>, Rechnung, Ausgabe.</p>",
+      palette: ["flagge", "frage", "setze", "sage", "verbinde", "rechne", "antwort", "var"], variablen: ["wochen"], start: [["flagge"]], fest: 1,
+      pruefe: e => {
+        const pr = e.programm(), g1 = e.lauf({ antworten: ["3"] }), g2 = e.lauf({ antworten: ["5"] }), a = letzte(g1), b = letzte(g2);
+        const hat = (s, n) => new RegExp("(^|\\D)" + n + "(\\D|$)").test(s);
+        return [
+          p(g1.fragen.length >= 1 && pr.some(x => x[0] === "setze" && x[1] === "wochen"), "Die Antwort wird in wochen gespeichert.", "Frage nach den Wochen und speichere die Antwort mit „setze wochen auf Antwort“."),
+          p(hat(a, "21") && hat(b, "35"), "Der Roboter rechnet: „" + a + "“ und „" + b + "“.",
+            a === "" ? "Der Roboter sagt noch nichts."
+              : /^37/.test(a) ? "Aus 3 und 7 wird „37“: Die Zahlen werden nur zusammengeklebt. Nimm eine Rechnung mit dem Zeichen · (mal)."
+              : /^3(\D|$)/.test(a) ? "Der Roboter sagt nur die Zahl der Wochen. Rechne wochen mal 7."
+              : "Bei 3 Wochen sind es 21 Tage, bei 5 Wochen 35 Tage. Der Roboter sagt bei 3: „" + a + "“."),
+          p(/\sTage$/.test(a), "Hinter der Zahl steht das Wort „Tage“.", "Ergänze das Wort „Tage“ (mit Leerzeichen davor) mit „verbinde“.")
+        ];
+      },
+      loesung: [["flagge"], ["frage", "Wie viele Wochen?"], ["setze", "wochen", ["antwort"]], ["sage", ["verbinde", ["*", ["var", "wochen"], 7], " Tage"]]], loesungAntworten: ["3"], erfolg: "Eingabe, Variable, Rechnung und Ausgabe in einem Programm."
+    }, "bl-wochen");
+  }
+});
+
+/* ============ Teil 5: Kontrollieren ============ */
+W.teil("Kontrollieren", "Lerncheck");
+
+W.aufgabe({
+  titel: "Lerncheck",
+  auftrag: "Richtig oder falsch? Entscheide bei jeder Aussage.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Eine Variable ist ein Speicherplatz mit Namen. „frage“ ist die Eingabe, „sage“ die Ausgabe.", "Richtig sind die Aussagen zur Eingabe, zur Variable und zu „setze“. Falsch sind die Aussagen zu „sage“ und zu „Antwort“ (sie merkt sich nur die letzte Eingabe)."],
+  lehrer: { ziel: "Kernwissen der Einheit sichern.", anleitung: "Einzelarbeit, etwa 3 Minuten.", loesung: "richtig · falsch · richtig · richtig · falsch", fehler: ["Aussage 2: „sage“ ist eine Ausgabe.", "Aussage 5: „Antwort“ enthält nur die letzte Eingabe."] },
+  bau(box) {
+    Modul.makeTF(box, [
+      ["Mit „frage … und warte“ liest das Programm eine Eingabe.", true],
+      ["Mit „sage“ gibt der Benutzer etwas in das Programm ein.", false],
+      ["Eine Variable ist ein Speicherplatz mit einem Namen.", true],
+      ["„setze treffer auf 0“ gibt der Variablen treffer den Wert 0.", true],
+      ["„Antwort“ merkt sich alle Eingaben, nicht nur die letzte.", false]
+    ], "tf");
+  }
+});
+
+W.fertig();
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

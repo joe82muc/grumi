@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Eigene Auswertung | Informatik 9</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="../../8M/Informatik/einheit8.css">
+<link rel="stylesheet" href="einheit9.css">
+<link rel="stylesheet" href="tabelle9.css">
+<style>.menue{white-space:normal}</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 9</small></a>
+    <nav class="stations" id="stations"></nav>
+    <span class="stars" id="stars">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks">
+      <a href="index.html">Übersicht Informatik 9M</a>
+      <a href="../../9R/Informatik/index.html">Übersicht Informatik 9R</a>
+      <a href="../../index.html">Startseite</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 9 · Modul 4: Excel-Diagramme · Einheit 4</div>
+    <h1>Eigene Auswertung</h1>
+    <p>Du hast jetzt Säulen, Balken, Kreise, Streifen und Linien kennengelernt. Aber welches Diagramm passt zu welchen Daten? Heute entscheidest du selbst – und begründest, warum.</p>
+    <div class="zeit">etwa 40 Minuten · Praxis am Windows-PC mit Excel</div>
+    <div class="goals">
+      <div>Ich überlege zuerst, was ein Diagramm zeigen soll: Vergleich, Anteile oder Verlauf.</div>
+      <div>Ich wähle zu den Daten den passenden Diagrammtyp und begründe es.</div>
+      <div>Ich erstelle in Excel allein ein passendes Diagramm mit Titel.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="modulStand"></div>
+  <div id="weg"></div>
+</main>
+
+<footer class="wrap">Informatik 9 · Dein Fortschritt wird mit deinem Code gespeichert. · Excel ist ein Programm von Microsoft; die Tabellen und Diagramme auf dieser Seite sind eigene Nachbildungen (GRUMI-EXCEL). Alle Zahlen sind erfunden.</footer>
+
+<div id="pop" role="dialog"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info9.js"></script>
+<script src="diagramm9.js"></script>
+<script src="tabelle9.js"></script>
+<script src="../../8M/Informatik/excel-datei.js"></script>
+<script src="excel-aufgaben9.js"></script>
+<script>
+(function () {
+"use strict";
+const {$} = Modul;
+const G = Modul.bereichGleich;
+const p = (ok, gut, schlecht) => ({ok, text: ok ? gut : schlecht});
+
+Modul.start9({
+  key: "grumi-i9-auswertung-v1",
+  thema: "Excel-Diagramme: zu Daten den passenden Diagrammtyp wählen und begründen (Vergleich: Säule oder Balken, Anteile: Kreis oder Streifen, Verlauf über die Zeit: Linie), Beispiele Taschengeld eines Monats, Besucher des Schulfests je Jahr, Stimmen für ein Festmotto; Wortspeicher des Moduls Excel-Diagramme",
+  glossary: {
+    diagramm: ["Diagramm", "Ein Bild aus Zahlen. Es zeigt auf einen Blick, wie groß die Werte sind."],
+    vergleich: ["Vergleich", "Du zeigst, welcher Wert größer oder kleiner ist. Dafür passen Säulen und Balken."],
+    anteile: ["Anteile", "Du zeigst, wie sich ein Ganzes aufteilt. Dafür passen Kreis und Streifen."],
+    verlauf: ["Verlauf", "Du zeigst, wie sich etwas über die Zeit verändert. Dafür passt die Linie."],
+    titel: ["Diagrammtitel", "Die Überschrift über dem Diagramm. Sie sagt, worum es geht."]
+  }
+});
+
+const W = Modul.lernweg("#weg");
+
+const GELD = { A1: "Ausgaben im Monat", B1: "Betrag in €", A2: "Essen und Trinken", B2: "18", A3: "Handy", B3: "10", A4: "Kleidung", B4: "12", A5: "Freizeit", B5: "14", A6: "Sparen", B6: "6" };
+const POSTEN = ["Essen und Trinken", "Handy", "Kleidung", "Freizeit", "Sparen"];
+
+/* ============ Regelheft ============ */
+W.teil("Regelheft", "Schreiben");
+W.regelheft({
+  titel: "Welches Diagramm passt?",
+  html: `<p>Zuerst die <span class="rot">Frage</span>, dann das Diagramm:</p>
+    <p><span class="blau">Vergleich</span> (Wer hat mehr?) → Säule oder Balken</p>
+    <p><span class="blau">Anteile</span> (Wie teilt sich das Ganze auf?) → Kreis oder Streifen</p>
+    <p><span class="blau">Verlauf</span> (Wie ändert es sich mit der Zeit?) → Linie</p>
+    <p class="leer"></p>
+    <p>Jedes Diagramm hat einen Titel.</p>`,
+  lehrer: { ziel: "Die Entscheidungsregel steht im Heft: Vergleich, Anteile, Verlauf.",
+    anleitung: "Etwa 5 Minuten. Die Klasse schreibt ab. Erst nach dem Abhaken erscheint die erste Aufgabe.",
+    loesung: "Der Eintrag steht vollständig im Heft (drei Zuordnungen und der Satz zum Titel)." }
+});
+
+/* ============ Teil 2 ============ */
+W.teil("Verstehen und üben", "Sehen · Entscheiden");
+
+W.aufgabe({
+  titel: "Erst die Frage, dann das Diagramm",
+  auftrag: "Sieh dir das Bild an: Auf dem Pausenhof macht eine Gruppe eine Umfrage. Beantworte die Fragen.",
+  vorwissen: "<p>Eine <b>Strichliste</b> zählt Antworten. Erst ein Diagramm macht daraus ein Bild, das jeder auf einen Blick versteht.</p>",
+  hinweise: ["Denke an das, was du in den letzten Stunden gelernt hast.", "Das Diagramm soll eine Frage beantworten. Darum überlegst du zuerst, was du zeigen willst.", "Frage 1: Zuerst überlegen, was gezeigt werden soll. Frage 2: Ein Diagramm macht die Zahlen auf einen Blick sichtbar."],
+  lehrer: { ziel: "Einsicht: Der Diagrammtyp folgt der Frage – nicht dem Geschmack.",
+    anleitung: "Bild am Beamer zeigen und fragen: „Was könnte man hier befragen?“ Danach die zwei Fragen in Einzelarbeit.",
+    loesung: "Frage 1: Zuerst überlege ich, was ich zeigen will. Frage 2: Damit man die Ergebnisse auf einen Blick sieht.",
+    fehler: ["Kinder wählen den Typ nach der Farbe oder danach, was „cool aussieht“."] },
+  bau(box) {
+    box.innerHTML = `<figure class="bild9"><img class="zoomable" src="assets/bilder/auswertung.jpg" width="1280" height="853" loading="lazy" alt="Pausenhof vor einem Schulgebäude: Eine Gruppe Jugendlicher steht im Kreis. Im Vordergrund hält ein Mädchen ein Klemmbrett mit einer Strichliste, ein Junge hält ein Tablet mit einem bunten Kreisdiagramm. Die anderen schauen zu und lächeln.">
+      <figcaption>Umfrage auf dem Pausenhof: Aus der Strichliste wird ein Diagramm. (Bild mit KI erstellt)</figcaption></figure><div class="mc"></div>`;
+    Modul.makeMC($(".mc", box), [
+      { q: "Was überlegst du zuerst, bevor du ein Diagramm auswählst?", o: ["Was das Diagramm zeigen soll.", "Welche Farbe am schönsten ist.", "Wie groß das Blatt ist.", "Wie viele Kinder zusehen."], a: 0, e: "Die Frage bestimmt den Typ: Vergleich, Anteile oder Verlauf." },
+      { q: "Warum macht man aus einer Strichliste ein Diagramm?", o: ["Damit man die Ergebnisse auf einen Blick sieht.", "Damit die Liste länger wird.", "Damit man nichts mehr zählen muss.", "Damit niemand die Zahlen versteht."], a: 0, e: "Ein Diagramm macht Zahlen sichtbar." }
+    ], "mc-bild");
+  }
+});
+
+W.aufgabe({
+  titel: "Drei Arten von Fragen",
+  auftrag: "Ordne jede Frage der Art zu, die sie stellt: Vergleich, Anteile oder Verlauf.",
+  hinweise: ["Lies den Regelhefteintrag: Zu jeder Art gehört ein Diagrammtyp.", "„Wer hat mehr?“ ist ein Vergleich. „Wie teilt sich etwas auf?“ ist eine Frage nach Anteilen. „Wie ändert sich etwas?“ ist ein Verlauf.", "Vergleich: meiste Stimmen, größte Klasse. Anteile: Taschengeld aufteilen, Prozent mit dem Bus. Verlauf: Besucher über die Jahre, Temperatur im Lauf des Tages."],
+  lehrer: { ziel: "Fragen der Art Vergleich, Anteile oder Verlauf zuordnen – das ist der Kern der Typwahl.",
+    anleitung: "Tippen oder ziehen. Nach dem Lösen jede Gruppe laut vorlesen und den Diagrammtyp dazu nennen.",
+    loesung: "Vergleich: Wer hat die meisten Stimmen? · Welche Klasse ist am größten? Anteile: Wie teilt sich das Taschengeld auf? · Wie viel Prozent kommen mit dem Bus? Verlauf: Besucher über die Jahre · Temperatur im Lauf des Tages.",
+    fehler: ["„Wie viel Prozent kommen mit dem Bus?“ wird als Vergleich eingeordnet. Prozent sind Anteile am Ganzen."] },
+  bau(box) {
+    Modul.makeSort(box, { buckets: ["📊 Vergleich (Säule oder Balken)", "🥧 Anteile (Kreis oder Streifen)", "📈 Verlauf (Linie)"], cols: 240,
+      items: [
+        { t: "Wer hat die meisten Stimmen?", b: 0 }, { t: "Welche Klasse ist am größten?", b: 0 },
+        { t: "Wie teilt sich das Taschengeld auf?", b: 1 }, { t: "Wie viel Prozent kommen mit dem Bus?", b: 1 },
+        { t: "Wie hat sich die Zahl der Besucher über die Jahre verändert?", b: 2 }, { t: "Wie ändert sich die Temperatur im Lauf des Tages?", b: 2 }
+      ], done: "✅ Richtig! Die Frage sagt dir, welcher Diagrammtyp passt." }, "sort-fragen");
+  }
+});
+
+W.aufgabe({
+  titel: "Welches Diagramm passt?",
+  auftrag: "Lies jeden Fall und wähle den passenden Diagrammtyp.",
+  hinweise: ["Stelle dir bei jedem Fall die Frage: Vergleiche ich? Teile ich ein Ganzes auf? Oder geht es um die Zeit?", "Achte auf Signalwörter: „aufteilen“, „Prozent“ (Anteile) · „jedes Jahr“, „im Lauf“ (Verlauf) · „wer hat mehr“ (Vergleich).", "Fall 1: Anteile. Fall 2: Verlauf. Fall 3 und 4: Vergleich. Fall 5: Anteile."],
+  lehrer: { ziel: "Zu kurzen Datenbeschreibungen den passenden Diagrammtyp wählen (Lehrplan: geeigneten Diagrammtyp auswählen).",
+    anleitung: "Ein Fall nach dem anderen; falsch entschiedene Fälle kommen noch einmal. Nach jedem Fall das Signalwort nennen lassen.",
+    loesung: "Taschengeld: Kreis oder Streifen · Besucher je Jahr: Linie · Stimmen für ein Motto: Säule oder Balken · Weitsprung von fünf Kindern: Säule oder Balken · Flächen auf dem Schulhof: Kreis oder Streifen.",
+    fehler: ["Fall 2: „Besucher“ wird als Vergleich gesehen. Die Jahre sind aber eine Zeit – gefragt ist die Veränderung.", "Fall 5: Die drei Flächen ergeben zusammen den ganzen Schulhof: Anteile."] },
+  bau(box) {
+    Modul.makeEntscheiden(box, {
+      frage: "Welches Diagramm passt?",
+      optionen: ["Säule oder Balken", "Kreis oder Streifen", "Linie"],
+      faelle: [
+        { html: "<b>Fall 1:</b> Du willst zeigen, wie sich das Taschengeld eines Monats auf fünf Posten aufteilt.", kurz: "Taschengeld", a: 1, e: "Ein Ganzes (das Taschengeld) wird aufgeteilt: Anteile. Dafür passen Kreis oder Streifen." },
+        { html: "<b>Fall 2:</b> Du willst zeigen, wie viele Besucher das Schulfest in den Jahren 2021 bis 2026 hatte.", kurz: "Besucher je Jahr", a: 2, e: "Die Jahre laufen nacheinander. Gefragt ist, wie sich die Zahl verändert: ein Verlauf, also eine Linie." },
+        { html: "<b>Fall 3:</b> Du willst zeigen, welches von vier Mottos für das Schulfest die meisten Stimmen bekam.", kurz: "Stimmen für ein Motto", a: 0, e: "Vier Mottos werden verglichen: Säulen oder Balken." },
+        { html: "<b>Fall 4:</b> Du willst zeigen, wie weit fünf Kinder beim Weitsprung gesprungen sind.", kurz: "Weitsprung", a: 0, e: "Fünf Kinder werden verglichen. Es geht um „wer weiter“: Säulen oder Balken." },
+        { html: "<b>Fall 5:</b> Du willst zeigen, wie viel vom Schulhof aus Rasen, Beton und Sand besteht. Die drei Flächen sind zusammen der ganze Schulhof.", kurz: "Flächen auf dem Schulhof", a: 1, e: "Die Teile ergeben zusammen das Ganze: Anteile. Dafür passen Kreis oder Streifen." }
+      ],
+      fertig: "Du wählst den Typ nach der Frage."
+    }, "ent-typ");
+  }
+});
+
+W.aufgabe({
+  titel: "Was stimmt hier nicht?",
+  auftrag: "Jemand hat das Taschengeld als Linie gezeichnet. Sieh dir das Diagramm an und beantworte die Fragen.",
+  vorwissen: "<p>Eine Linie verbindet die Punkte nacheinander. Sie sagt: „Von hier nach dort verändert sich etwas.“</p>",
+  hinweise: ["Die Linie geht von „Essen und Trinken“ zu „Handy“ und weiter. Verändert sich da etwas im Lauf der Zeit?", "Hier gibt es keine Zeit. Die Posten stehen nebeneinander, nichts folgt aufeinander.", "Frage 1: keine Zeit, nur Anteile. Frage 2: der Kreis. Frage 3: Das Stück zwischen zwei Posten sagt nichts."],
+  lehrer: { ziel: "Erkennen, dass die Linie nur zu Daten über die Zeit passt, und einen passenden Typ nennen.",
+    anleitung: "Am Beamer zeigen: „Was passiert zwischen Handy und Kleidung?“ (nichts – das Stück ist nur ein Strich). So wird der Fehler greifbar.",
+    loesung: "Die Linie zeigt eine Entwicklung über die Zeit, hier gibt es keine Zeit · Kreis (oder Streifen) · Das Linienstück zwischen zwei Posten bedeutet nichts.",
+    fehler: ["Kinder meinen, die Linie sei falsch, weil sie „nicht schön“ ist. Der Grund ist: Es gibt keine Zeit."] },
+  bau(box) {
+    box.innerHTML = '<div class="dg"></div><div class="mc"></div>';
+    Modul.diagramm($(".dg", box), { typ: "linie", titel: "Taschengeld im Monat", kategorien: POSTEN, reihen: [{ name: "Betrag", werte: [18, 10, 12, 14, 6] }], einheit: "€", achseX: "Posten", achseY: "Betrag in €" });
+    Modul.makeMC($(".mc", box), [
+      { q: "Warum passt die Linie hier nicht?", o: ["Eine Linie zeigt eine Entwicklung über die Zeit. Hier gibt es keine Zeit.", "Die Zahlen sind zu klein.", "Linien kann man in Excel nicht zeichnen.", "Die Linie ist zu bunt."], a: 0, e: "Die Posten folgen nicht zeitlich aufeinander. Es geht um Anteile am Taschengeld." },
+      { q: "Welcher Typ zeigt besser, wie sich das Taschengeld aufteilt?", o: ["der Kreis", "die Linie", "die Säule mit nur einem Wert", "kein Diagramm"], a: 0, e: "Ein Kreis oder Streifen zeigt, wie ein Ganzes in Anteile geteilt ist." },
+      { q: "Das Stück der Linie zwischen „Handy“ und „Kleidung“ steigt an. Was sagt es aus?", o: ["Nichts. Zwischen zwei Posten gibt es keine Entwicklung.", "Das Taschengeld wird mehr.", "Man gibt immer mehr für Kleidung aus.", "Das Handy wird teurer."], a: 0, e: "Zwischen verschiedenen Dingen verändert sich nichts. Die Linie täuscht eine Entwicklung nur vor." }
+    ], "mc-falsch");
+  }
+});
+
+W.aufgabe({
+  titel: "Begründe deine Wahl",
+  auftrag: "Wähle ein Diagramm und erkläre, warum es passt. Das Schulfest hatte in den Jahren 2021 bis 2026 diese Besucherzahlen: 180 · 240 · 310 · 290 · 350 · 420.",
+  vorwissen: "<p>Eine gute Begründung nennt <b>den Typ</b> und <b>den Grund</b> aus den Daten: Was zeigen die Zahlen?</p>",
+  hinweise: ["Was zeigen die Jahre 2021 bis 2026? Denke an die Frage: Vergleich, Anteile oder Verlauf?", "Die Jahre folgen nacheinander. Du willst sehen, wie sich die Besucherzahl verändert.", "Schreibe: „Ich wähle ein … , weil …“. Der Typ ist die Linie. Der Grund ist die Zeit."],
+  lehrer: { ziel: "Die Typwahl in eigenen Worten begründen (Fachbegriffe Verlauf, Zeit, Linie).",
+    anleitung: "Die KI liest die Antwort und gibt eine freundliche Rückmeldung. Sie bewertet den Inhalt, nicht die Rechtschreibung. Wer nur „Linie“ schreibt, bekommt den Hinweis, den Grund zu ergänzen.",
+    loesung: "Ein Liniendiagramm, weil die Jahre eine Zeit sind und die Linie zeigt, wie sich die Besucherzahl verändert (steigt oder fällt).",
+    fehler: ["Nur der Typ steht da, der Grund fehlt.", "Säule wird gewählt mit der Begründung „man kann die Zahlen vergleichen“. Das geht, aber gefragt ist hier die Entwicklung."],
+    bedienung: "Antwort tippen, „Antwort prüfen“. Die Musterlösung erscheint danach auf Wunsch." },
+  bau(box) {
+    Modul.makeOpen(box, [
+      { q: "Welches Diagramm wählst du, um die Besucherzahlen des Schulfests 2021 bis 2026 zu zeigen? Begründe in zwei bis drei Sätzen.",
+        m: "Ich wähle ein Liniendiagramm. Die Jahre folgen nacheinander, es geht um eine Zeit. Die Linie zeigt, wie die Besucherzahl von Jahr zu Jahr steigt oder fällt.",
+        k: ["linie|liniendiagramm", "zeit|jahr|jahre|verlauf|entwicklung|verändert|veraendert|steigt|fällt|faellt|nacheinander"], min: 2 }
+    ], "ki-", "Überlege: Welche Art von Frage ist das – Vergleich, Anteile oder Verlauf?");
+  }
+});
+
+W.aufgabe({
+  titel: "Das Schulfest in GRUMI-EXCEL",
+  auftrag: "Jetzt erstellst du das Diagramm selbst. Wähle den Typ, den du eben begründet hast.",
+  hinweise: ["Bereich, Typ und Titel – wie in den letzten Stunden.", "Der Bereich geht von A1 („Jahr“) bis B7 (420 Besucher). Der Typ folgt der Frage: Verlauf über die Jahre.", "Bereich <code>A1:B7</code>, Typ „Linie“, ein Titel zum Beispiel „Besucher beim Schulfest“."],
+  lehrer: { ziel: "Zu einer Frage (Entwicklung über die Jahre) den passenden Typ wählen und das Diagramm vollständig erstellen.",
+    anleitung: "Einzelarbeit. Hier kommt kein Typ vor – die Kinder wählen selbst. Bei falscher Wahl gibt die Rückmeldung den Grund an, nicht die Lösung.",
+    loesung: "Bereich A1:B7 (oder A2:B7), Typ Linie, eigener Titel.",
+    fehler: ["Säule gewählt: Das vergleicht die Jahre, zeigt aber den Verlauf schlecht.", "Kreis gewählt: Die Jahre sind keine Teile eines Ganzen."],
+    bedienung: "Zelle antippen, letzte Zelle antippen (oder ziehen). Das Diagramm erscheint, sobald Bereich und Typ gewählt sind." },
+  bau(box) {
+    Modul.makeDiagrammAufgabe(box, {
+      text: "Zeige, wie sich die Besucherzahl des Schulfests entwickelt hat. <b>Wähle den Typ selbst</b> und schreibe einen Titel.",
+      tabelle: { spalten: 2, zeilen: 7, breit: { A: 80, B: 110 }, zellen: { A1: "Jahr", B1: "Besucher", A2: "2021", B2: "180", A3: "2022", B3: "240", A4: "2023", B4: "310", A5: "2024", B5: "290", A6: "2025", B6: "350", A7: "2026", B7: "420" } },
+      pruefe: z => [
+        p(G(z.bereich, "A1:B7") || G(z.bereich, "A2:B7"), "Der Datenbereich stimmt: alle sechs Jahre.", "Markiere alle sechs Jahre mit ihren Besucherzahlen, am besten von A1 bis B7."),
+        p(z.typ === "linie", "Der Typ passt: Die Linie zeigt, wie sich die Besucherzahl über die Jahre verändert.", z.typ === "kreis" || z.typ === "streifen" ? "Die Jahre sind keine Teile eines Ganzen. Kreis und Streifen zeigen Anteile. Hier geht es um die Zeit." : z.typ ? "Hier geht es um eine Entwicklung über die Zeit. Säulen und Balken vergleichen nur. Überlege, welcher Typ den Verlauf zeigt." : "Wähle einen Typ. Überlege: Vergleich, Anteile oder Verlauf?"),
+        p(z.titel.trim().length >= 3, "Das Diagramm hat einen Titel.", "Schreibe einen Titel über das Diagramm.")
+      ],
+      loesung: { bereich: "A1:B7", typ: "linie", titel: "Besucher beim Schulfest" },
+      erfolg: "Zeit gefragt, Linie gewählt."
+    }, "dg-fest");
+  }
+});
+
+W.aufgabe({
+  titel: "Das Festmotto",
+  auftrag: "Die Schule hat über das Motto des Schulfests abgestimmt. Zeige das Ergebnis in einem Diagramm. Die Namen sind unterschiedlich lang – überlege, was dann besser lesbar ist.",
+  hinweise: ["Es werden vier Mottos verglichen. Welche Typen vergleichen?", "Säule oder Balken passen. Bei langen Namen sind Balken besser lesbar.", "Bereich <code>A1:B5</code>, Typ „Balken“ (oder „Säule“), ein Titel."],
+  lehrer: { ziel: "Bei einem Vergleich mit langen Namen Säule oder Balken wählen und das Diagramm erstellen.",
+    anleitung: "Einzelarbeit. Beide Typen sind richtig. Nachfragen: „Warum Balken?“ (Manche Namen sind lang.)",
+    loesung: "Bereich A1:B5, Typ Balken oder Säule, eigener Titel. (Gewinner: „Zirkus der Klassen“ mit 15 Stimmen.)",
+    fehler: ["Kreis gewählt – die Stimmen verschiedener Mottos sollen verglichen werden, hier ist keine Aufteilung gefragt.", "Der Titel fehlt."] },
+  bau(box) {
+    Modul.makeDiagrammAufgabe(box, {
+      text: "Zeige, welches Motto wie viele Stimmen bekam. Wähle einen passenden Typ und schreibe einen Titel.",
+      tabelle: { spalten: 2, zeilen: 5, breit: { A: 150 }, zellen: { A1: "Motto", B1: "Stimmen", A2: "Zirkus der Klassen", B2: "15", A3: "Piratenfest", B3: "12", A4: "Märchenwald", B4: "9", A5: "Weltraum-Mission", B5: "14" } },
+      pruefe: z => [
+        p(G(z.bereich, "A1:B5") || G(z.bereich, "A2:B5"), "Der Datenbereich stimmt: alle vier Mottos.", "Markiere alle vier Mottos mit ihren Stimmen, am besten von A1 bis B5."),
+        p(z.typ === "balken" || z.typ === "saeule", "Der Typ passt: Säulen oder Balken vergleichen Werte.", z.typ ? "Hier werden Mottos verglichen. Dafür passen Säulen oder Balken." : "Wähle einen Typ. Überlege: Vergleich, Anteile oder Verlauf?"),
+        p(z.titel.trim().length >= 3, "Das Diagramm hat einen Titel.", "Schreibe einen Titel über das Diagramm.")
+      ],
+      loesung: { bereich: "A1:B5", typ: "balken", titel: "Stimmen für das Festmotto" },
+      erfolg: "Ein Vergleich mit langen Namen: Balken sind eine gute Wahl."
+    }, "dg-motto");
+  }
+});
+
+/* ============ Teil 3: Am PC ============ */
+W.teil("Am PC: Excel", "Anwenden");
+
+W.aufgabe({
+  titel: "Taschengeld in Excel",
+  geheim: ["Kreisdiagramm", "Kreis", "Streifendiagramm", "Streifen"],
+  auftrag: "Zeige im echten Excel, wie sich das Taschengeld eines Monats aufteilt. Den Diagrammtyp wählst du selbst.",
+  vorwissen: "<p>Du kennst alle Schritte: markieren, Diagramm einfügen, Titel ändern, speichern. Neu ist nur: <b>Du</b> entscheidest, welcher Typ zur Frage passt.</p>",
+  hinweise: ["Überlege zuerst: Ist es ein Vergleich, eine Aufteilung oder ein Verlauf?", "Das Taschengeld ist ein Ganzes, das sich aufteilt. Dafür passen Kreis oder Streifen. Den Kreis findest du in der Gruppe „Diagramme“ im Reiter „Einfügen“.", "Markiere A1 bis B6, füge den Kreis ein („Kreis- oder Ringdiagramm einfügen“), ändere den Titel und speichere die Datei."],
+  lehrer: { ziel: "Zu einer Frage den passenden Diagrammtyp wählen und im echten Excel umsetzen (Anteile: Kreis oder Streifen).",
+    anleitung: "Etwa 15 Minuten. Die Startdatei auswertung_start.xlsx liegt im Auftrag zum Herunterladen. Wer will, macht statt des Kreises einen Streifen (Zusatzschritt). Am Ende lädt jedes Kind seine gespeicherte Datei hoch; der Server prüft, ob das Diagramm Anteile zeigt (Kreis, Ring oder 100-%-Streifen), alle fünf Posten enthält und einen eigenen Titel hat. Am Tablet gibt es stattdessen eine Frage.",
+    loesung: "Ein Kreisdiagramm über A1:B6 (alle fünf Posten, Summe 60 €) mit eigenem Titel. Auch ein Ring oder ein 100-%-Streifen ist richtig. Gespeichert als taschengeld.xlsx.",
+    fehler: ["Säule oder Balken gewählt: Die Prüfung meldet, dass die Beträge verglichen werden, gefragt sind aber Anteile.", "Linie gewählt: Es gibt keine Zeit.", "Beim 100-%-Streifen entstehen zuerst fünf volle Balken. Erst nach „Zeile/Spalte tauschen“ liegen alle Posten in einem Streifen.", "Ein Posten fehlt (Sparen).", "Der Titel zeigt noch „Betrag in €“ oder „Diagrammtitel“. Das zählt nicht als eigener Titel."],
+    bedienung: "„Datei auswählen“ → die gespeicherte .xlsx-Datei. Die Rückmeldung nennt jeden Prüfpunkt einzeln.",
+    test: "Aufgabe, Musterlösung und Dateiprüfung automatisch geprüft (Chrome und Safari-Testbrowser; auch Ring und 100-%-Streifen bestehen). Die Namen Reiter „Einfügen“, Gruppe „Diagramme“, „Kreis- oder Ringdiagramm einfügen“, „Säulen- oder Balkendiagramm einfügen“, Reiter „Entwurf“ und „Zeile/Spalte tauschen“ stammen aus Excel 16 (deutsch). Wortlaut an einem Schul-PC prüfen: die Einträge in den aufgeklappten Listen (einfacher Kreis; der 100-%-gestapelte Balken) und das Ändern des Titels per Klick." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Taschengeld in Excel", pc: "Excel", zeit: "etwa 15 Minuten",
+      ziel: "Excel zeigt, wie sich das Taschengeld aufteilt: mit einem Diagramm, das Anteile zeigt, mit allen fünf Posten und einem eigenen Titel. Die Datei ist gespeichert.",
+      material: [{ name: "Startdatei auswertung_start.xlsx", href: "assets/excel/auswertung_start.xlsx" }],
+      schritte: [
+        `Lade die Startdatei herunter und öffne sie in Excel. Erscheint oben ein gelber Balken, klicke auf <span class="menue">Bearbeitung aktivieren</span>.`,
+        "Überlege zuerst: <b>Wie teilt sich das Taschengeld auf?</b> Das ist eine Frage nach Anteilen. Welcher Diagrammtyp passt dazu?",
+        "Markiere die ganze Tabelle mit den Überschriften: Klicke auf <b>A1</b> und ziehe bis <b>B6</b>. Alle fünf Posten sind dabei.",
+        `Klicke oben auf den Reiter <span class="menue">Einfügen</span>. In der Gruppe <span class="menue">Diagramme</span> klickst du auf <span class="menue">Kreis- oder Ringdiagramm einfügen</span> und wählst einen einfachen <b>Kreis</b>.`,
+        "Ändere den Titel: Klicke auf den Titel im Diagramm, markiere den Text und schreibe einen Titel, der sagt, worum es geht.",
+        `<b>Zusatz für Mutige:</b> Statt des Kreises geht auch ein Streifen. Wähle dafür über <span class="menue">Säulen- oder Balkendiagramm einfügen</span> den Balken, der auf 100 % gestapelt ist. Excel zeichnet zuerst fünf volle Balken. Klicke dann im Reiter <span class="menue">Entwurf</span> auf <span class="menue">Zeile/Spalte tauschen</span>. Jetzt liegen alle fünf Posten in einem Streifen.`,
+        `Speichere die Datei unter einem neuen Namen: Klicke auf <span class="menue">Datei</span> und dann auf <span class="menue">Speichern unter</span>. Wähle deinen Ordner, tippe den Namen <b>taschengeld</b> ein und klicke auf <span class="menue">Speichern</span>.`
+      ],
+      loesung: "Ein Kreisdiagramm (oder ein Streifen) über A1:B6 mit allen fünf Posten und eigenem Titel. Die Datei heißt taschengeld.xlsx.",
+      pruefung: {
+        art: "datei", accept: ".xlsx", lies: Modul.liesExcel, pruefe: (Modul.excelPruefung || {})["auswertung-auf1"], server: { pfad: "/api/inf9/excel/pruefen", aufgabe: "auswertung-auf1" },
+        text: "Wähle deine gespeicherte Datei <b>taschengeld.xlsx</b> aus. Sie wird geprüft, und die KI schreibt dir eine Rückmeldung. Deine Lehrkraft kann die Datei danach ansehen.",
+        ersatz: { art: "wort", frage: "Welcher Diagrammtyp passt zu der Frage, wie sich etwas aufteilt?", antworten: ["Kreisdiagramm", "Kreis", "Streifendiagramm", "Streifen", "Kreis- oder Streifendiagramm", "Kreis oder Streifen"],
+          tipp: "Es geht um Anteile am Ganzen. Der Typ ist rund oder ein langer Streifen." }
+      }
+    }, "auf1");
+  }
+});
+
+/* ============ Teil 4: Kontrollieren ============ */
+W.teil("Kontrollieren", "Lerncheck");
+
+W.aufgabe({
+  titel: "Lerncheck",
+  auftrag: "Richtig oder falsch? Entscheide bei jeder Aussage.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Zuerst kommt die Frage, dann der Typ.", "Richtig sind die Aussagen zur Frage, zum Vergleich, zu den Anteilen und zum Titel. Falsch ist die Aussage zur Linie bei Anteilen."],
+  lehrer: { ziel: "Kernwissen der Stunde sichern.", anleitung: "Einzelarbeit, etwa 3 Minuten.", loesung: "richtig · richtig · richtig · falsch · richtig", fehler: ["Aussage 4: Eine Linie passt nur zu Daten über die Zeit, nicht zu Anteilen."] },
+  bau(box) {
+    Modul.makeTF(box, [
+      ["Zuerst überlege ich, was das Diagramm zeigen soll.", true],
+      ["Für einen Vergleich passen Säulen oder Balken.", true],
+      ["Für Anteile am Ganzen passen Kreis oder Streifen.", true],
+      ["Für Anteile am Ganzen ist die Linie am besten.", false],
+      ["Jedes Diagramm bekommt einen Titel.", true]
+    ], "tf");
+  }
+});
+
+/* ============ Wortspeicher ============ */
+W.teil("Wortspeicher", "Wiederholen");
+W.karten({
+  titel: "Wortspeicher Modul 4: Excel-Diagramme",
+  auftrag: "Kennst du den Begriff? Überlege zuerst, dann dreh die Karte um.",
+  karten: [
+    ["Diagramm", "Ein Bild aus Zahlen. Man sieht auf einen Blick, wie groß die Werte sind."],
+    ["Säulendiagramm", "Aufrechte Säulen vergleichen Werte. Je höher, desto größer."],
+    ["Balkendiagramm", "Liegende Balken vergleichen Werte. Gut bei langen Namen."],
+    ["Kreisdiagramm", "Ein Kreis, in Stücke geteilt. Er zeigt Anteile am Ganzen."],
+    ["Streifendiagramm", "Ein Streifen, in Stücke geteilt. Er zeigt wie der Kreis Anteile."],
+    ["Liniendiagramm", "Eine Linie durch Punkte. Sie zeigt eine Entwicklung über die Zeit."],
+    ["Datenbereich", "Die Zellen, aus denen das Diagramm gezeichnet wird, zum Beispiel A1 bis B6."],
+    ["Diagrammtitel", "Die Überschrift über dem Diagramm. Sie sagt, worum es geht."],
+    ["Achse", "Die Linie am Rand eines Diagramms. An ihr liest du Zahlen oder Namen ab."],
+    ["Legende", "Der Kasten, der sagt, welche Farbe wofür steht."],
+    ["Anteil", "Wie viel ein Teil vom Ganzen ist, zum Beispiel 40 %."],
+    ["relative Häufigkeit", "Der Anteil eines Teils am Ganzen: Teil : Ganzes. Mal 100 sind das Prozent."]
+  ]
+});
+
+W.fertig();
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

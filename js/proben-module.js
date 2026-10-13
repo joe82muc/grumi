@@ -142,6 +142,14 @@
       schueler: function (t) { return "8M/Informatik/probe.html?test=" + encodeURIComponent(t.id) + (t.zug ? "&zug=" + t.zug : ""); }
     },
     {
+      /* Informatik 9 (seit 13.10.2026): je Modul eine Probe. 9R und 9M schreiben DIESELBE Probe nach dem R-Schlüssel
+         (50 % = Note 3); die zwei Kennungen (t.zug) gibt es nur, damit je Klasse getrennt freigeschaltet werden kann */
+      key: "inf9", subject: "Informatik", stufen: [9], liste: "INF9",
+      listPath: "/api/inf9/list", unlockPath: "/api/inf9/teacher/unlock", vorschauBasis: "9M/Informatik/",
+      klasse: function (t) { return "9" + (t.zug || ""); }, link: function () { return "9M/Informatik/lehrer.html"; },
+      schueler: function (t) { return "9M/Informatik/probe.html?test=" + encodeURIComponent(t.id) + (t.zug ? "&zug=" + t.zug : ""); }
+    },
+    {
       /* NT 9M/9R: Probe Organische Rohstoffe (Module 1-7), je eine Fassung pro Zug */
       /* Modulliste je Zug (9M/NT_9/themen.js, 9R/NT_9/themen.js): Die Probe steht beim Freischalten unter den Modulen O1 bis O7 */
       key: "nt9probe", subject: "Natur und Technik", stufen: [9], liste: function (t) { return /^nt9r-/.test(t.id) ? "NT9R" : "NT9M"; },

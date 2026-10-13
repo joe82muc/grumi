@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Wiederholungen | Informatik 9</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="../../8M/Informatik/einheit8.css">
+<link rel="stylesheet" href="einheit9.css">
+<link rel="stylesheet" href="bloecke9.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 9</small></a>
+    <nav class="stations" id="stations"></nav>
+    <span class="stars" id="stars">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks">
+      <a href="index.html">Übersicht Informatik 9M</a>
+      <a href="../../9R/Informatik/index.html">Übersicht Informatik 9R</a>
+      <a href="../../index.html">Startseite</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 9 · Modul 5: Programmieren mit Scratch · Einheit 5</div>
+    <h1>Wiederholungen</h1>
+    <p>Ein Quadrat hat vier gleiche Seiten. Warum sollte ein Programm dieselben Blöcke viermal einzeln aufschreiben? Mit einer Wiederholung sparst du Arbeit – und mit einer Bedingung darin baust du sogar ein Ratespiel.</p>
+    <div class="zeit">etwa 40 Minuten · erst mit GRUMI-Blöcken, dann Praxis am Windows-PC mit Scratch</div>
+    <div class="goals">
+      <div>Ich benutze „wiederhole … mal“ und „wiederhole bis“.</div>
+      <div>Ich erkläre, wann welche Wiederholung passt.</div>
+      <div>Ich setze eine Bedingung in eine Wiederholung (Schachtelung).</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="modulStand"></div>
+  <div id="weg"></div>
+</main>
+
+<footer class="wrap">Informatik 9 · Dein Fortschritt wird mit deinem Code gespeichert. · Scratch ist ein Projekt der Scratch Foundation (scratch.mit.edu). Die Blöcke, die Figur und die Bühne auf dieser Seite sind eigene Nachbildungen (GRUMI-Blöcke). Bildschirmfoto aus Scratch: Scratch is a project of the Scratch Foundation. It is available for free at https://scratch.mit.edu – Scratch ist ein Projekt der Scratch Foundation und kostenlos unter scratch.mit.edu verfügbar. Die Bildschirmfotos stehen unter der Lizenz CC BY-SA.</footer>
+
+<div id="pop" role="dialog"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info9.js"></script>
+<script src="bloecke9.js"></script>
+<script src="../../8M/Informatik/excel-datei.js"></script>
+<script src="scratch-aufgaben9.js"></script>
+<script>
+(function () {
+"use strict";
+const {$} = Modul;
+
+Modul.start9({
+  key: "grumi-i9-wiederholungen-v1",
+  thema: "Scratch, Wiederholung: wiederhole n mal, wiederhole bis Bedingung, Schachtelung (Bedingung in der Wiederholung), Quadrat und Sechseck laufen, Treffer zählen, Zahlenraten mit Geheimzahl in einer Variablen",
+  glossary: {
+    wiederholung: ["Wiederholung", "Ein Teil des Programms läuft mehrmals. Das spart Blöcke. Man sagt auch Schleife."],
+    schleife: ["Schleife", "Anderes Wort für Wiederholung."],
+    schachtelung: ["Schachtelung", "Ein Block steht in einem anderen, zum Beispiel ein „falls“ in einer Wiederholung."],
+    bedingung: ["Bedingung", "Eine Aussage, die wahr oder falsch ist, zum Beispiel: Die Antwort ist gleich der Geheimzahl."]
+  }
+});
+
+const W = Modul.lernweg("#weg");
+
+/* ---------- Hilfen für die Prüfungen ---------- */
+const norm = s => String(s).toLowerCase().replace(/[\s.!?]+$/g, "").replace(/\s+/g, " ").trim();
+const wort = l => l.length ? "„" + l.join("“, „") + "“" : "nichts";
+const alle = (p, typ, aus = []) => { (p || []).forEach(b => { if (!Array.isArray(b)) return; if (b[0] === typ) aus.push(b); b.forEach(x => { if (Array.isArray(x) && Array.isArray(x[0])) alle(x, typ, aus); }); }); return aus; };
+// fälle: [[[Antworten], [soll …], Zusatz]] – erster falscher Fall als Text, sonst null
+function teste(e, faelle) {
+  for (const [a, soll, zusatz] of faelle) {
+    const l = e.lauf({antworten: a});
+    if (l.ende === "grenze") return "Das Programm hört bei den Antworten " + a.join(", ") + " nie auf. Bei „wiederhole bis“ endet die Schleife erst, wenn die Bedingung wahr wird. Prüfe die Bedingung und ob in der Schleife neu gefragt wird.";
+    if (l.gesagt.map(norm).join("|") !== soll.map(norm).join("|"))
+      return "Bei den Antworten " + a.join(", ") + " sagt der Roboter " + wort(l.gesagt) + ". Er soll " + wort(soll) + " sagen." + (zusatz ? " " + zusatz : "");
+  }
+  return null;
+}
+
+/* ============ Regelheft ============ */
+W.teil("Regelheft", "Schreiben");
+W.regelheft({
+  titel: "Wiederholung",
+  html: `<p><span class="blau">wiederhole 10 mal</span>: Der Inhalt läuft genau 10-mal. Das spart Blöcke.</p>
+    <p><span class="blau">wiederhole bis</span> Bedingung: Der Inhalt läuft so lange, bis die Bedingung wahr ist. Ist sie schon am Anfang wahr, läuft der Inhalt gar nicht.</p>
+    <p class="leer"></p>
+    <p>Eine Wiederholung heißt auch <span class="rot">Schleife</span>.</p>
+    <p>In einer Wiederholung darf eine Bedingung stehen (<span class="rot">Schachtelung</span>), z. B. ein <span class="blau">falls</span>.</p>`,
+  lehrer: { ziel: "Die Kernaussagen zu „wiederhole n mal“, „wiederhole bis“, Schleife und Schachtelung stehen im Heft.",
+    anleitung: "Etwa 5 Minuten. Die Klasse schreibt ab. Erst nach dem Abhaken erscheint die erste Aufgabe. Zum Einstieg: „Wie oft geht ihr im Sportunterricht eine Runde?“ – bis zu einer Zahl oder bis der Lehrer pfeift.",
+    loesung: "Der Eintrag steht vollständig im Heft (vier kurze Aussagen)." }
+});
+
+/* ============ Teil 2: GRUMI-Blöcke ============ */
+W.teil("Verstehen und ausprobieren", "Sehen · Ausprobieren");
+
+W.aufgabe({
+  titel: "Runde um Runde",
+  bild: { src: "assets/bilder/wiederholungen.jpg", alt: "Von oben gesehen: Ein kleiner weißer Roboter rennt auf einer roten Laufbahn, die eine Wiese umschließt. Leuchtende gelbe Pfeile laufen im Kreis um die Bahn. Neben der Bahn stehen drei Fahnen: grün, gelb und rot.", text: "Dieselbe Runde immer wieder: Das ist eine Wiederholung. (Bild mit KI erstellt)" },
+  auftrag: "Der Roboter läuft mehrere Runden auf einer Bahn. Ein Programm kann dasselbe mit einer Wiederholung tun. Beantworte die Fragen.",
+  vorwissen: "<p>Es gibt zwei Arten: <b>wiederhole … mal</b> (die Zahl der Durchläufe steht fest) und <b>wiederhole bis …</b> (es geht weiter, bis eine Bedingung wahr wird). Eine Wiederholung heißt auch Schleife.</p>",
+  hinweise: ["Frage 1: Überlege, was du beim Bauen sparst. Frage 2: Läuft der Roboter eine feste Zahl Runden oder bis etwas passiert?", "Bei Frage 1 geht es um die Blöcke, die du bauen musst. Bei Frage 2 sagt das Wort „bis“ schon viel.", "Frage 1: Der Block muss nur einmal gebaut werden. Frage 2: „wiederhole bis“."],
+  lehrer: { ziel: "Verstehen: Eine Wiederholung führt Blöcke mehrfach aus, ohne sie mehrfach zu bauen; es gibt feste und bedingte Wiederholung.",
+    anleitung: "Bild am Beamer: „Wie oft läuft der Roboter?“ Dann nachfragen: „Und wenn er laufen soll, bis die Zeit um ist?“ Danach die zwei Fragen.",
+    loesung: "Frage 1: Der Block muss nur einmal gebaut werden. Frage 2: wiederhole bis.",
+    fehler: ["„Der Roboter läuft schneller“ – die Wiederholung ändert nichts an der Geschwindigkeit, sie spart Arbeit beim Bauen."] },
+  bau(box) {
+    Modul.makeMC(box, [
+      { q: "Der Roboter soll viermal dasselbe tun. Was ist der Vorteil einer Wiederholung?", o: ["Die Blöcke müssen nur einmal gebaut werden.", "Der Roboter läuft schneller.", "Der Roboter braucht keine Bedingung mehr.", "Das Programm hat keinen Startblock."], a: 0, e: "Statt vier gleiche Blöcke zu bauen, baust du einen und lässt ihn viermal laufen." },
+      { q: "Der Roboter soll so lange laufen, bis er die Ziellinie erreicht. Welche Wiederholung passt?", o: ["wiederhole bis …", "wiederhole 10 mal", "falls … dann"], a: 0, e: "Du weißt nicht, wie oft. Es geht weiter, bis die Bedingung „Ziellinie erreicht“ wahr wird." }
+    ], "mc-runde");
+  }
+});
+
+W.aufgabe({
+  titel: "Das Quadrat laufen",
+  auftrag: "Der Roboter soll ein Quadrat laufen. Oben siehst du das Programm ohne Wiederholung: acht Blöcke. Mit „wiederhole 4 mal“ geht es mit zwei. Im echten Scratch funktioniert es gleich, es sieht nur etwas anders aus.",
+  vorwissen: "<p>Eine Seite des Quadrats: <b>gehe 60 Schritte</b>, dann an der Ecke <b>drehe dich um 90 Grad</b>. Das passiert viermal. Der Block „wiederhole … mal“ hat eine Klammer. Alles in der Klammer läuft so oft, wie du einstellst.</p>",
+  hinweise: ["Wie oft wiederholt sich „gehe, drehe“? Zähle die Seiten.", "Ein Quadrat hat vier Seiten. In die Klammer kommt ein „gehe“-Block und ein „drehe“-Block, nicht mehr.", "Tippe die leere Klammer an, füge „gehe“ ein und stelle 60 ein. Füge dann „drehe“ ein und stelle 90 ein. Die Zahl der Wiederholungen ist 4."],
+  lehrer: { ziel: "Eine Folge von Anweisungen, die sich wiederholt, durch „wiederhole n mal“ ersetzen.",
+    anleitung: "Zuerst am Beamer das lange Programm starten, dann gemeinsam fragen: „Was steht da viermal?“ Danach bauen lassen. Die Prüfung testet, ob der Roboter am Start ankommt.",
+    loesung: "Wenn flagge · wiederhole 4 mal: gehe 60, drehe 90.",
+    fehler: ["Die Wiederholung steht auf 3 oder 5: Der Roboter kommt nicht am Start an.", "Drehwinkel 45 statt 90.", "Die Blöcke „gehe“ und „drehe“ stehen unter statt in der Klammer: Dann läuft nur ein Stück."],
+    bedienung: "Die leere Klammer des „wiederhole“-Blocks antippen, dann kommt der nächste Block hinein." },
+  bau(box) {
+    box.innerHTML = '<p><b>Ohne Wiederholung (zum Vergleich):</b></p><div class="bi"></div><div class="auf" style="margin-top:12px"></div>';
+    Modul.blockBild($(".bi", box), [["flagge"], ["gehe", 60], ["drehe", 90], ["gehe", 60], ["drehe", 90], ["gehe", 60], ["drehe", 90], ["gehe", 60], ["drehe", 90]]);
+    Modul.makeBlockAufgabe($(".auf", box), {
+      text: "<p>Baue das Quadrat mit <b>einer</b> Wiederholung. Der Roboter soll am Ende wieder am Start stehen.</p>",
+      palette: ["flagge", "gehe", "drehe", "mal"],
+      start: [["flagge"], ["mal", 2, []]], fest: 1,
+      pruefe: e => {
+        const p = e.programm(), m = alle(p, "mal")[0];
+        if (!m) return "Es fehlt der Block „wiederhole … mal“.";
+        const g = alle(m[2], "gehe"), d = alle(m[2], "drehe");
+        if (!g.length || !d.length) return "In die Klammer gehören ein „gehe“- und ein „drehe“-Block. Tippe die leere Klammer an und füge sie ein.";
+        if (Number(g[0][1]) <= 0) return "Der Roboter muss sich bewegen: Stelle bei „gehe“ eine Zahl größer als 0 ein, zum Beispiel 60.";
+        if (Number(m[1]) !== 4) return "Ein Quadrat hat vier Seiten. Du hast " + m[1] + " Wiederholungen eingestellt.";
+        if (Number(d[0][1]) !== 90) return "An jeder Ecke dreht sich der Roboter um 90 Grad. Bei dir sind es " + d[0][1] + ".";
+        const l = e.lauf();
+        return Math.abs(l.x) < 0.01 && Math.abs(l.y) < 0.01 || "Der Roboter kommt nicht am Start an. Prüfe die Zahlen.";
+      },
+      loesung: [["flagge"], ["mal", 4, [["gehe", 60], ["drehe", 90]]]],
+      erfolg: "Zwei Blöcke statt acht: Das Quadrat steht."
+    }, "bl-quadrat");
+  }
+});
+
+W.aufgabe({
+  titel: "Wiederhole bis …",
+  auftrag: "Der Roboter soll in Schritten von 20 nach rechts gehen, bis seine x-Position größer als 90 ist. Er startet bei x = 0.",
+  vorwissen: "<p>Bei <b>wiederhole bis …</b> prüft das Programm die Bedingung <b>vor jedem Durchlauf</b>. Ist sie schon wahr, läuft der Inhalt <b>gar nicht</b>. Ist sie falsch, läuft er einmal und die Bedingung wird wieder geprüft. Die x-Position wählst du im Pfeilmenü ▾ der Bedingung.</p>",
+  hinweise: ["Die Bedingung muss am Anfang falsch sein, sonst läuft nichts. Wann ist x größer als 90?", "Stelle die Bedingung auf x-Position &gt; 90. In die Klammer kommt „gehe 20“.", "Tippe „wiederhole bis“ an. Wähle links im Pfeilmenü ▾ „x-Position“, stelle &gt; ein und schreibe rechts 90. Tippe die Klammer an und füge „gehe“ mit 20 ein."],
+  lehrer: { ziel: "„wiederhole bis“ mit einer Bedingung über die x-Position benutzen; verstehen, dass die Bedingung vor jedem Durchlauf geprüft wird.",
+    anleitung: "Vorher raten lassen: „Wo bleibt der Roboter stehen?“ (bei 100). Typischer Fehler: Die Bedingung ist falsch herum – dann tut der Roboter nichts. Das ist ein guter Anlass, die Regel „bis = so lange, bis wahr“ zu klären.",
+    loesung: "Wenn flagge · wiederhole bis x-Position > 90: gehe 20. Der Roboter endet bei x = 100.",
+    fehler: ["Bedingung x-Position < 90: Sie ist am Anfang schon wahr, der Roboter bleibt stehen.", "Bedingung x-Position = 90: Der Roboter springt über 90 (80, 100) und hört nie auf.", "Die x-Position wird nicht gewählt, links steht eine feste Zahl."],
+    bedienung: "Das Pfeilmenü ▾ am linken Feld der Bedingung öffnet die Auswahl (x-Position). Das Zeichen = < > ist ebenfalls ein kleines Auswahlfeld." },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Der Roboter geht in Schritten von <b>20</b>, <b>bis</b> seine x-Position größer als <b>90</b> ist.</p>",
+      palette: ["flagge", "gehe", "mal", "bis", "xPos"],
+      start: [["flagge"]], fest: 1,
+      pruefe: e => {
+        const p = e.programm();
+        if (!Modul.blockHat(p, "bis")) return "Benutze „wiederhole bis …“ (Gruppe Steuerung). Der Roboter soll nicht eine feste Zahl von Malen gehen.";
+        const l = e.lauf();
+        if (l.ende === "grenze") return "Das Programm hört nie auf. Die Bedingung wird nie wahr. Prüfe das Zeichen und die Zahl.";
+        if (l.x === 0) return "Der Roboter bleibt stehen. Bei „wiederhole bis“ ist die Bedingung am Anfang schon wahr, dann läuft der Inhalt nie. Sie muss am Anfang falsch sein: x-Position > 90.";
+        return l.x === 100 || "Der Roboter steht bei x = " + l.x + ". Er soll mit „gehe 20“ so lange gehen, bis x größer als 90 ist, also bei 100 stehen bleiben.";
+      },
+      loesung: [["flagge"], ["bis", [">", ["xPos"], 90], [["gehe", 20]]]],
+      erfolg: "Der Roboter geht, bis x größer als 90 ist."
+    }, "bl-bis");
+  }
+});
+
+W.aufgabe({
+  titel: "Welche Wiederholung passt?",
+  auftrag: "Entscheide bei jedem Fall: „wiederhole … mal“ oder „wiederhole bis“?",
+  hinweise: ["Frage dich: Weiß ich vorher, wie oft? Dann „… mal“. Hängt es von etwas ab? Dann „bis“.", "Wenn eine Zahl im Satz steht (viermal, zehnmal), passt „… mal“. Steht dort „so lange, bis“, passt „bis“.", "Fall 1 und 3: „wiederhole … mal“. Fall 2 und 4: „wiederhole bis“."],
+  lehrer: { ziel: "Entscheiden, ob die Zahl der Durchläufe feststeht oder von einer Bedingung abhängt.", anleitung: "Ein Fall nach dem anderen; falsch entschiedene Fälle kommen noch einmal. Kinder können ihre Wahl begründen.",
+    loesung: "Seiten eines Dreiecks: … mal · weiterfragen, bis die Antwort stimmt: bis · dreimal winken: … mal · gehen, bis die Wand erreicht ist (x größer als 200): bis",
+    fehler: ["Der Fall „weiterfragen“ wird mit einer festen Zahl gelöst – aber das Kind kann vorher nicht wissen, wie oft es dauert."] },
+  bau(box) {
+    Modul.makeEntscheiden(box, {
+      frage: "Welche Wiederholung passt?",
+      optionen: ["wiederhole … mal", "wiederhole bis"],
+      faelle: [
+        { html: "<b>Fall 1:</b> Der Roboter läuft die drei Seiten eines Dreiecks.", kurz: "Dreieck", a: 0, e: "Ein Dreieck hat genau drei Seiten. Die Zahl steht fest." },
+        { html: "<b>Fall 2:</b> Der Roboter fragt so lange nach dem Passwort, bis es stimmt.", kurz: "Passwort", a: 1, e: "Niemand weiß vorher, wie oft es dauert. Es endet, wenn die Bedingung „Passwort stimmt“ wahr wird." },
+        { html: "<b>Fall 3:</b> Der Roboter winkt genau dreimal.", kurz: "dreimal winken", a: 0, e: "Die Zahl ist vorgegeben: dreimal." },
+        { html: "<b>Fall 4:</b> Der Roboter geht, bis seine x-Position größer als 200 ist.", kurz: "bis zur Wand", a: 1, e: "Er geht so lange, bis die Bedingung wahr wird." }
+      ],
+      fertig: "Du erkennst, wann welche Wiederholung passt."
+    }, "ent-schleife");
+  }
+});
+
+W.aufgabe({
+  titel: "Treffer zählen",
+  auftrag: "Der Roboter fragt dreimal: „Wie viel ist 3 mal 4?“ Jede richtige Antwort ist ein Treffer. Die Variable treffer soll nur bei richtigen Antworten größer werden.",
+  vorwissen: "<p>Das ist eine <b>Schachtelung</b>: In der Wiederholung steht ein „falls“. Die Variable <b>treffer</b> merkt sich die Zahl der richtigen Antworten. Mit „ändere treffer um 1“ zählst du hoch.</p>",
+  hinweise: ["Das „falls“ prüft die Antwort. Der Zähler darf nur im „dann“-Teil hochzählen.", "Das „falls“ steht schon in der Wiederholung. Stelle die Zahl in der Bedingung ein. Füge dann „ändere treffer um 1“ in seine Klammer ein.", "Ändere in der Bedingung die 1 in 12. Tippe die leere Klammer des „falls“ an und füge „ändere … um“ ein. Wähle dort treffer und 1."],
+  lehrer: { ziel: "Eine Bedingung in eine Wiederholung schachteln: Der Zähler wächst nur bei richtiger Antwort.",
+    anleitung: "Zuerst das Programm im Kopf spielen: „Die Antworten sind 12, 5, 12 – wie viel steht in treffer?“ (2). Dann bauen. Die Prüfung testet mehrere Antwortreihen.",
+    loesung: "setze treffer auf 0 · wiederhole 3 mal: frage …, falls Antwort = 12 dann ändere treffer um 1 · sage treffer.",
+    fehler: ["„ändere treffer“ steht neben dem „falls“ statt darin: Auch falsche Antworten zählen.", "Die Zahl in der Bedingung ist noch 1 statt 12."],
+    bedienung: "Die Klammer des „falls“ ist leer. Antippen, dann „ändere … um“ aus der Palette antippen. Im Block lassen sich Variable und Zahl einstellen." },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Drei Fragen, jede richtige Antwort (12) zählt einen Treffer. Zum Schluss sagt der Roboter den Stand.</p>",
+      palette: ["flagge", "setze", "mal", "frage", "falls", "aendere", "sage", "antwort", "var"],
+      variablen: ["treffer"],
+      start: [["flagge"], ["setze", "treffer", 0], ["mal", 3, [["frage", "Wie viel ist 3 mal 4?"], ["falls", ["=", ["antwort"], 1], []]]], ["sage", ["var", "treffer"]]], fest: 4,
+      pruefe: e => {
+        const l0 = e.lauf({antworten: ["12", "12", "12"]});
+        if (l0.fragen.length !== 3) return "Der Roboter soll dreimal fragen. Lass die Wiederholung mit der Frage stehen.";
+        for (const [a, soll, t] of [[["12", "12", "12"], 3, "Bei drei richtigen Antworten muss treffer 3 sein."], [["12", "5", "12"], 2, "Bei den Antworten 12, 5, 12 muss treffer 2 sein. Zählt die falsche Antwort mit?"], [["7", "7", "7"], 0, "Bei lauter falschen Antworten muss treffer 0 bleiben. Der Zähler darf nur im „dann“-Teil des „falls“ erhöht werden."]]) {
+          const v = e.lauf({antworten: a}).variablen.treffer;
+          if (v !== soll) return t + " Bei dir steht " + v + ".";
+        }
+        return true;
+      },
+      loesung: [["flagge"], ["setze", "treffer", 0], ["mal", 3, [["frage", "Wie viel ist 3 mal 4?"], ["falls", ["=", ["antwort"], 12], [["aendere", "treffer", 1]]]]], ["sage", ["var", "treffer"]]], loesungAntworten: ["12", "5", "12"],
+      erfolg: "Eine Bedingung in der Wiederholung: Nur richtige Antworten zählen."
+    }, "bl-treffer");
+  }
+});
+
+W.aufgabe({
+  titel: "Zahlen raten mit Schleife",
+  auftrag: "Der Roboter denkt sich die Zahl 7 aus. Er fragt so lange, bis du sie triffst, und sagt dabei „Zu groß!“ oder „Zu klein!“. Das Programm steht fast; es fehlen Zahlen und ein Satz.",
+  vorwissen: "<p>Die erste Frage steht <b>vor</b> der Schleife, die zweite <b>in</b> der Schleife. Ohne neue Frage in der Schleife ändert sich die Antwort nie, und das Programm hört nie auf.</p>",
+  hinweise: ["Es fehlen: die Geheimzahl an zwei Stellen und der Satz für „sonst“.", "Setze überall 7 ein: in der Bedingung der Wiederholung und im Vergleich im „falls“. Fülle den leeren „sonst“-Teil mit „sage Zu klein!“.", "Wiederhole bis Antwort = 7. Im „falls“: Antwort &gt; 7, dann Zu groß! (steht schon da), sonst: sage Zu klein! (tippe den leeren Teil an und füge „sage“ ein)."],
+  lehrer: { ziel: "Wiederholung mit Bedingung und geschachteltem „falls … sonst“ vervollständigen und testen.",
+    anleitung: "Vorher raten: „Was sagt der Roboter bei 3, 9, 7?“ Dann ergänzen. Die Prüfung spielt mehrere Antwortfolgen durch.",
+    loesung: "frage · wiederhole bis Antwort = 7: [falls Antwort > 7 dann sage Zu groß! sonst sage Zu klein!; frage Noch einmal!] · sage Richtig!",
+    fehler: ["Nur eine der beiden 1 wurde auf 7 gesetzt.", "Der „sonst“-Teil bleibt leer.", "Zeichen vertauscht: Bei 3 kommt „Zu groß!“."],
+    bedienung: "Zahlen direkt in die Felder tippen. Leeren „sonst“-Teil antippen, dann „sage“ einfügen und den Text schreiben." },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Geheimzahl <b>7</b>. Der Roboter sagt <b>Zu groß!</b> oder <b>Zu klein!</b> und fragt so lange neu, bis du richtig rätst. Dann sagt er <b>Richtig!</b></p>",
+      palette: ["flagge", "frage", "bis", "falls", "fallsSonst", "sage", "antwort"],
+      start: [["flagge"], ["frage", "Welche Zahl habe ich im Kopf?"], ["bis", ["=", ["antwort"], 1], [["fallsSonst", [">", ["antwort"], 1], [["sage", "Zu groß!"]], []], ["frage", "Noch einmal!"]]], ["sage", "Richtig!"]], fest: 4,
+      pruefe: e => {
+        if (!Modul.blockHat(e.programm(), "bis")) return "Die Wiederholung „wiederhole bis“ muss bleiben.";
+        return teste(e, [
+          [["3", "9", "7"], ["Zu klein!", "Zu groß!", "Richtig!"], "Prüfe die Zahl in der Bedingung und das Zeichen im „falls“."],
+          [["7"], ["Richtig!"], "Wer sofort 7 sagt, kommt gar nicht in die Schleife. Die Bedingung der Wiederholung muss Antwort = 7 heißen."],
+          [["8", "7"], ["Zu groß!", "Richtig!"], "8 ist größer als 7."],
+          [["6", "5", "7"], ["Zu klein!", "Zu klein!", "Richtig!"], "Der Satz „Zu klein!“ gehört in den „sonst“-Teil."]
+        ]) || true;
+      },
+      loesung: [["flagge"], ["frage", "Welche Zahl habe ich im Kopf?"], ["bis", ["=", ["antwort"], 7], [["fallsSonst", [">", ["antwort"], 7], [["sage", "Zu groß!"]], [["sage", "Zu klein!"]]], ["frage", "Noch einmal!"]]], ["sage", "Richtig!"]], loesungAntworten: ["3", "9", "7"],
+      erfolg: "Eine Wiederholung mit Bedingung und ein „falls“ darin: das Ratespiel läuft."
+    }, "bl-raten");
+  }
+});
+
+/* ============ Teil 3: Scratch am PC ============ */
+W.teil("Am PC: Scratch", "Anwenden");
+
+W.aufgabe({
+  titel: "Zahlenraten in Scratch",
+  auftrag: "Jetzt baust du das Ratespiel im echten Scratch: Die Figur merkt sich eine Geheimzahl, fragt, bis du sie triffst, sagt „Zu groß!“ oder „Zu klein!“ und am Ende „Richtig!“.",
+  vorwissen: "<p>Das Programm ist wie das Ratespiel mit den GRUMI-Blöcken. Achte auf diese Falle: Falle: „wiederhole bis“ prüft die Bedingung schon <b>vor</b> dem ersten Durchlauf. Darum fragt die Figur einmal vor der Schleife – sonst wäre „Antwort“ noch leer.</p>",
+  hinweise: ["Baue zuerst das Gerüst: Fahne, setze geheimzahl, frage, wiederhole bis. Die Hinweise kommen danach in die Schleife.", "In die Schleife gehören zwei Dinge: ein „falls … dann … sonst“ für den Hinweis und eine neue Frage. Ohne neue Frage hört das Spiel nie auf.", "Wenn 🏁 angeklickt wird · setze geheimzahl auf 14 · frage Welche Zahl habe ich im Kopf? und warte · wiederhole bis Antwort = geheimzahl: [falls Antwort > geheimzahl, dann sage Zu groß! für 1 Sekunden sonst sage Zu klein! für 1 Sekunden · frage Noch einmal! und warte] · sage Richtig!"],
+  geheim: ["14"],
+  lehrer: { ziel: "Wiederholung mit „wiederhole bis“ und eine Bedingung in der Wiederholung (Schachtelung) in Scratch bauen, mit einer Variablen für die Geheimzahl.",
+    anleitung: "Etwa 20 Minuten am Windows-PC (Scratch im Browser: scratch.mit.edu). Danach laden die Kinder die gespeicherte .sb3-Datei hoch; ein Prüfprogramm prüft den Aufbau, die KI schreibt eine Rückmeldung. Am Tablet gibt es stattdessen eine Frage. Tipp: Lassen Sie die Kinder erst zu zweit raten, welche Zahl die Figur im Kopf hat.",
+    loesung: "Wenn 🏁 angeklickt wird · setze geheimzahl auf 14 · frage … und warte · wiederhole bis Antwort = geheimzahl: [falls Antwort > geheimzahl dann sage Zu groß! sonst sage Zu klein!; frage Noch einmal! und warte] · sage Richtig!",
+    fehler: ["Die Frage in der Schleife fehlt: Die Figur sagt immer wieder „Zu groß!“ und hört nie auf (das rote Zeichen neben der grünen Fahne drücken).", "„wiederhole 10 mal“ statt „wiederhole bis“: Auch ein richtiger Tipp stoppt die Schleife nicht.", "In der Bedingung steht eine feste Zahl statt der Variablen geheimzahl.", "Die Variable wurde nicht vor der Schleife gesetzt.", "Der Block „sage Richtig!“ steht in der Schleife statt darunter."],
+    bedienung: "Der Bereich Variablen hat den Knopf „Neue Variable“. Die Vergleichsblöcke liegen unter Operatoren, „Antwort“ unter Fühlen. Gespeichert wird über Datei → Auf deinem Computer speichern." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Zahlenraten", pc: "Scratch", zeit: "etwa 20 Minuten",
+      ziel: "Eine Variable merkt sich die Geheimzahl. Die Figur fragt und wiederholt mit „wiederhole bis“, bis die Antwort stimmt. In der Wiederholung steht ein „falls“ mit „Zu groß!“ oder „Zu klein!“ und die Frage wird neu gestellt. Am Ende sagt sie „Richtig!“. Das Projekt ist gespeichert.",
+      schritte: [
+        "Öffne Scratch im Browser (scratch.mit.edu) und beginne mit <span class=\"menue\">Datei</span> → <span class=\"menue\">Neu</span> ein neues Projekt.",
+        "Klicke im Bereich <span class=\"menue\">Variablen</span> auf <span class=\"menue\">Neue Variable</span>, gib den Namen <code>geheimzahl</code> ein und klicke auf <span class=\"menue\">OK</span>. Entferne das Häkchen vor ihrem Namen, damit die Zahl nicht auf der Bühne steht.",
+        "Ziehe <b>Wenn 🏁 angeklickt wird</b> in den Skriptbereich. Hänge <b>setze … auf …</b> an: Wähle geheimzahl und schreibe eine Zahl zwischen 1 und 20, zum Beispiel <code>14</code>.",
+        "Hänge aus <span class=\"menue\">Fühlen</span> den Block <b>frage … und warte</b> an: <code>Welche Zahl habe ich im Kopf?</code>",
+        "Hänge aus <span class=\"menue\">Steuerung</span> den Block <b>wiederhole bis &lt; &gt;</b> an. In das eckige Feld im Block kommt aus <span class=\"menue\">Operatoren</span> der Vergleich <b>( ) = (50)</b>: links der Block <b>Antwort</b>, rechts die Variable <b>geheimzahl</b>.",
+        "Ziehe in die Schleife den Block <b>falls &lt; &gt;, dann … sonst</b>. Seine Bedingung: <b>Antwort &gt; geheimzahl</b>. Bei „dann“: <b>sage … für … Sekunden</b> mit <code>Zu groß!</code> und 1 Sekunde. Bei „sonst“: dasselbe mit <code>Zu klein!</code>.",
+        "Hänge unter den falls-Block, aber noch in der Schleife, einen zweiten Block <b>frage … und warte</b>: <code>Noch einmal!</code>",
+        "Hänge unter die Schleife (nicht hinein!) den Block <b>sage …</b> mit <code>Richtig!</code>",
+        "Teste mit der grünen Fahne: Rate zu klein, zu groß und richtig. Hört das Spiel nie auf, klicke auf das rote Zeichen neben der grünen Fahne und prüfe, ob in der Schleife neu gefragt wird.",
+        { t: "Speichere mit <span class=\"menue\">Datei</span> → <span class=\"menue\">Auf deinem Computer speichern</span>. Die Datei heißt zuerst <code>Scratch-Projekt.sb3</code> und liegt meist im Ordner Downloads.", bild: "../../8M/Informatik/assets/scratch/datei-menue.png", alt: "Bildschirmfoto: Das geöffnete Menü Datei mit den drei Einträgen Neu, Load from your computer und Auf deinem Computer speichern.", quelle: "Bildschirmfoto aus Scratch" }
+      ],
+      loesung: "Wenn 🏁 angeklickt wird · setze geheimzahl auf 14 · frage … und warte · wiederhole bis Antwort = geheimzahl: [falls Antwort > geheimzahl dann sage Zu groß! sonst sage Zu klein!; frage Noch einmal! und warte] · sage Richtig!",
+      pruefung: {
+        art: "datei", accept: ".sb3", lies: Modul.liesScratch9, pruefe: Modul.scratchPruefung9["wiederholungen-auf1"], server: { pfad: "/api/inf9/scratch/pruefen", aufgabe: "wiederholungen-auf1" },
+        text: "Lade dein gespeichertes Projekt hoch (die Datei mit der Endung <b>.sb3</b>). Es wird geprüft, und die KI schreibt dir eine Rückmeldung. Deine Lehrkraft kann die Datei danach ansehen.",
+        ersatz: { art: "wort", frage: "Die Geheimzahl ist 14. Du tippst 9. Was sagt die Figur?", antworten: ["Zu klein", "Zu klein!"], tipp: "9 ist kleiner als 14. Welcher Teil des „falls … dann … sonst“ läuft, wenn die Antwort nicht größer als die Geheimzahl ist?" }
+      }
+    }, "auf1");
+  }
+});
+
+/* ============ Teil 4: Wiederholen ============ */
+W.teil("Wiederholen", "Andere Zahlen");
+
+W.aufgabe({
+  titel: "Das Sechseck",
+  auftrag: "Der Roboter soll ein Sechseck mit Seiten von 40 Schritten laufen und am Ende wieder am Start stehen.",
+  vorwissen: "<p>Wie beim Quadrat: eine Seite laufen, an der Ecke drehen, das Ganze wiederholen. Ein Sechseck hat sechs Ecken. Der Roboter dreht sich dabei einmal ganz herum, das sind 360 Grad.</p>",
+  hinweise: ["Wie oft wiederholt sich „gehe, drehe“? Und wie viel Grad pro Ecke ergeben zusammen 360?", "Sechs Seiten, also sechs Wiederholungen. Der Drehwinkel ist 360 geteilt durch 6.", "Wiederhole 6 mal: gehe 40, drehe 60."],
+  lehrer: { ziel: "Eine Wiederholung mit anderen Zahlen anwenden: Anzahl der Ecken und Drehwinkel hängen zusammen (360 : n).",
+    anleitung: "Einzelarbeit. Wer fertig ist, kann ein Dreieck (3 mal, 120 Grad) ausprobieren.",
+    loesung: "Wenn flagge · wiederhole 6 mal: gehe 40, drehe 60.",
+    fehler: ["Drehwinkel 90: Das ergibt kein geschlossenes Sechseck.", "Nur 5 Wiederholungen: Das Sechseck bleibt offen."],
+    bedienung: "Wie beim Quadrat. Fehlermeldungen nennen die Zahl, die nicht passt." },
+  bau(box) {
+    Modul.makeBlockAufgabe(box, {
+      text: "<p>Laufe ein Sechseck mit Seiten von <b>40</b> Schritten. Benutze nur <b>eine</b> Wiederholung.</p>",
+      palette: ["flagge", "gehe", "drehe", "mal"],
+      start: [["flagge"]], fest: 1,
+      pruefe: e => {
+        const m = alle(e.programm(), "mal")[0];
+        if (!m) return "Benutze „wiederhole … mal“ mit „gehe“ und „drehe“ in der Klammer.";
+        const g = alle(m[2], "gehe")[0], d = alle(m[2], "drehe")[0];
+        if (!g || !d) return "In die Klammer gehören ein „gehe“- und ein „drehe“-Block.";
+        if (Number(g[1]) !== 40) return "Die Seiten sollen 40 Schritte lang sein. Bei dir sind es " + g[1] + ".";
+        if (Number(m[1]) !== 6) return "Ein Sechseck hat sechs Seiten. Du wiederholst " + m[1] + "-mal.";
+        if (Number(d[1]) !== 60) return "Bei sechs Ecken dreht sich der Roboter an jeder Ecke um 360 geteilt durch 6, also um 60 Grad. Bei dir sind es " + d[1] + ".";
+        const l = e.lauf();
+        return Math.abs(l.x) < 0.01 && Math.abs(l.y) < 0.01 || "Der Roboter kommt nicht am Start an. Prüfe die Zahlen.";
+      },
+      loesung: [["flagge"], ["mal", 6, [["gehe", 40], ["drehe", 60]]]],
+      erfolg: "Sechs Seiten, sechsmal 60 Grad – das Sechseck ist geschlossen."
+    }, "bl-sechseck");
+  }
+});
+
+/* ============ Teil 5: Kontrollieren ============ */
+W.teil("Kontrollieren", "Lerncheck");
+
+W.aufgabe({
+  titel: "Lerncheck",
+  auftrag: "Richtig oder falsch? Entscheide bei jeder Aussage.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "„wiederhole bis“ prüft die Bedingung vor jedem Durchlauf. Ohne neue Frage ändert sich die Antwort nicht.", "Richtig sind die Aussagen 1, 2 und 4. Falsch sind Aussage 3 (der Inhalt läuft dann gar nicht) und Aussage 5 (ohne neue Frage hört die Schleife nicht auf)."],
+  lehrer: { ziel: "Kernwissen sichern: feste und bedingte Wiederholung, Schachtelung.", anleitung: "Einzelarbeit, etwa 3 Minuten.", loesung: "richtig · richtig · falsch · richtig · falsch", fehler: ["Aussage 3: Ist die Bedingung schon am Anfang wahr, läuft „wiederhole bis“ nie."] },
+  bau(box) {
+    Modul.makeTF(box, [
+      ["Bei „wiederhole 4 mal“ läuft der Inhalt der Klammer viermal.", true],
+      ["„wiederhole bis“ hört auf, sobald die Bedingung wahr ist.", true],
+      ["Ist die Bedingung bei „wiederhole bis“ schon am Anfang wahr, läuft der Inhalt trotzdem einmal.", false],
+      ["Ein „falls“ in einer Wiederholung nennt man Schachtelung.", true],
+      ["Wird nur vor der Schleife gefragt, hört „wiederhole bis Antwort = Geheimzahl“ bei einem falschen Tipp von selbst auf.", false]
+    ], "tf");
+  }
+});
+
+W.fertig();
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>HTTP und HTTPS | Informatik 9</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="../../8M/Informatik/einheit8.css">
+<link rel="stylesheet" href="einheit9.css">
+<style>
+.adr{display:inline-flex;align-items:center;gap:8px;max-width:100%;padding:8px 14px;border:2px solid #9aa7b4;border-radius:99px;background:#fff;font-family:Consolas,"Courier New",monospace;font-weight:700;font-size:.95rem;overflow-wrap:anywhere}
+.adr .sl{display:inline-flex;flex:none;width:18px;height:18px}
+.adr .kein{flex:none;font-family:inherit;font-size:.72rem;font-weight:800;color:#8a4b00;background:#ffe9c2;border-radius:99px;padding:2px 8px;white-space:nowrap}
+.adr-fall{margin:8px 0 2px}
+.weg9 li .menue{white-space:normal}
+.weg9 li code,.weg9 .hx code{white-space:normal;overflow-wrap:anywhere}
+.hx{display:grid;grid-template-columns:1fr minmax(150px,1.1fr) 1fr;gap:10px;align-items:stretch;margin:6px 0 12px}
+.hx-seite,.hx-mitte{border:2px solid var(--line);border-radius:14px;padding:10px 12px;background:#fff;line-height:1.4;font-size:.92rem;min-height:130px}
+.hx-seite b{display:block;margin-bottom:6px}
+.hx-mitte{background:#f4f7fb;text-align:center;display:flex;flex-direction:column;justify-content:center;gap:8px}
+.hx-blase{padding:8px 10px;border-radius:12px;font-family:Consolas,"Courier New",monospace;font-weight:700;overflow-wrap:anywhere}
+.hx-klar{background:#fff3c4;border:2px solid #f1c84b}
+.hx-salat{background:#dfe3ea;border:2px solid #8793a3;color:#33404f;letter-spacing:.04em}
+.hx-ausweis{background:#e6f6ec;border:2px solid #1b8a4b;font-family:inherit;font-weight:600}
+.hx-mit{font-size:.84rem;color:#5a2e00;background:#ffe9c2;border-radius:10px;padding:6px 8px}
+.hx-klein{font-size:.84rem;color:var(--muted);margin-top:6px}
+.hx .adr{font-size:.78rem;padding:5px 10px}
+@media (max-width:420px){.adr{font-size:.78rem;padding:6px 10px}}
+@media (max-width:620px){.hx{grid-template-columns:1fr}.hx-seite,.hx-mitte{min-height:0}}
+.tablet{margin:14px 0 0;border:2px dashed var(--line);border-radius:12px;padding:8px 12px;background:#fafcff}
+.tablet summary{cursor:pointer;font-weight:800}
+.tablet img{display:block;max-width:100%;height:auto;margin:10px 0;border:1px solid var(--line);border-radius:8px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 9</small></a>
+    <nav class="stations" id="stations"></nav>
+    <span class="stars" id="stars">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks">
+      <a href="index.html">Übersicht Informatik 9M</a>
+      <a href="../../9R/Informatik/index.html">Übersicht Informatik 9R</a>
+      <a href="../../index.html">Startseite</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 9 · Modul 2: Internet verstehen · Einheit 3</div>
+    <h1>HTTP und HTTPS</h1>
+    <p>Dein Browser fragt, der Webserver antwortet. Aber wer kann dabei mitlesen? Du schaust in Filius dem Datenaustausch zu und erfährst, was das Schloss in der Adresszeile bedeutet – und was nicht.</p>
+    <div class="zeit">etwa 40 Minuten · Praxis am Windows-PC mit Filius</div>
+    <div class="goals">
+      <div>Ich beschreibe Anfrage und Antwort bei HTTP.</div>
+      <div>Ich zeige in Filius, dass HTTP unverschlüsselt ist.</div>
+      <div>Ich erkläre, was HTTPS leistet: Verschlüsselung und Ausweis des Servers.</div>
+      <div>Ich lese eine Adresszeile und weiß, was das Schloss nicht verspricht.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="modulStand"></div>
+  <div id="weg"></div>
+</main>
+
+<footer class="wrap">Informatik 9 · Dein Fortschritt wird mit deinem Code gespeichert.</footer>
+
+<div id="pop" role="dialog"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info9.js"></script>
+<script src="../../7M/Informatik/filius-datei.js"></script>
+<script src="filius9.js"></script>
+<script src="../../7M/Informatik/netz-bild.js"></script>
+<script>
+(function () {
+"use strict";
+const {$} = Modul;
+
+Modul.start9({
+  key: "grumi-i9-http-https-v1",
+  thema: "HTTP und HTTPS: Anfrage (Request, GET / HTTP/1.1) und Antwort (Response, HTTP/1.1 200 OK mit der Seite); HTTP ist unverschlüsselt und kann unterwegs mitgelesen werden, im Filius-Datenaustausch steht der Seitentext lesbar; HTTPS verschlüsselt und der Server weist sich mit einem Zertifikat aus; Schloss und https:// in der Adresszeile; das Schloss sagt nichts darüber, ob der Inhalt stimmt oder der Anbieter ehrlich ist",
+  glossary: {
+    http: ["HTTP", "Die Regeln, nach denen Browser und Webserver Seiten übertragen – ohne Verschlüsselung."],
+    https: ["HTTPS", "HTTP mit Verschlüsselung. Der Server weist sich außerdem aus."],
+    request: ["Request", "Die Anfrage des Browsers an den Webserver, zum Beispiel GET / HTTP/1.1."],
+    response: ["Response", "Die Antwort des Webservers: eine Statuszeile wie 200 OK und die Seite."],
+    verschluesselung: ["Verschlüsselung", "Daten werden so verändert, dass nur Absender und Empfänger sie lesen können."],
+    zertifikat: ["Zertifikat", "Der Ausweis eines Servers: Eine Prüfstelle bestätigt, zu wem er gehört."]
+  }
+});
+
+const W = Modul.lernweg("#weg");
+
+// selbst gezeichnete Adressleiste (kein Bild eines echten Browsers)
+const SCHLOSS = `<svg class="sl" viewBox="0 0 18 18" aria-hidden="true"><rect x="3" y="8" width="12" height="9" rx="2" fill="#1b8a4b"/><path d="M6 8V5.5a3 3 0 0 1 6 0V8" fill="none" stroke="#1b8a4b" stroke-width="2"/></svg>`;
+const adr = (url, schloss) => `<span class="adr" role="img" aria-label="Adressleiste: ${url}, ${schloss ? "mit Schloss" : "ohne Schloss"}">${schloss ? SCHLOSS : '<span class="kein">kein Schloss</span>'}<span>${url}</span></span>`;
+// Aufklappbarer Bereich mit Bildschirmfotos für alle ohne Filius (z. B. am Tablet)
+const tablet = bilder => `<details class="tablet"><summary>Du hast kein Filius? Sieh dir die Bildschirmfotos an.</summary>${bilder.map(b => `<img class="zoomable" src="${b[0]}" loading="lazy" alt="${b[1]}">`).join("")}</details>`;
+
+/* ============ Teil 1: Regelheft ============ */
+W.teil("Regelheft", "Schreiben");
+W.regelheft({
+  titel: "HTTP und HTTPS",
+  html: `<p>Browser und Webserver sprechen <span class="rot">HTTP</span>: Anfrage (<span class="rot">Request</span>) und Antwort (<span class="rot">Response</span>).</p>
+    <p>HTTP ist unverschlüsselt. Wer unterwegs mitliest, sieht alles.</p>
+    <p class="leer"></p>
+    <p><span class="rot">HTTPS</span> verschlüsselt, und der Server weist sich aus. Erkennbar an <span class="blau">https://</span> und am Schloss.</p>
+    <p>Das Schloss sagt nicht, ob der Inhalt stimmt.</p>`,
+  lehrer: { ziel: "Die Kernaussagen der Stunde stehen im Heft: Request und Response, HTTP unverschlüsselt, HTTPS verschlüsselt und mit Ausweis, Grenze des Schlosses.",
+    anleitung: "Etwa 4 Minuten. Die Klasse schreibt ab. Erst nach dem Abhaken erscheint die erste Aufgabe.",
+    loesung: "Der Eintrag steht vollständig im Heft (fünf kurze Absätze)." }
+});
+
+/* ============ Teil 2: Sehen und verstehen ============ */
+W.teil("Verstehen", "Sehen · Ausprobieren");
+
+W.aufgabe({
+  titel: "Postkarte oder verschlossener Brief?",
+  auftrag: "Sieh dir das Bild an: eine offene Postkarte und ein Brief mit Schloss. Beantworte dann die zwei Fragen.",
+  vorwissen: "<p>Eine Postkarte kann jeder lesen, der sie in die Hand nimmt – der Briefträger, der Nachbar, jeder auf dem Weg. Einen verschlossenen Brief kann nur lesen, wer ihn öffnen darf. Im Internet gibt es beides.</p>",
+  hinweise: ["Überlege: Wer könnte den Text auf der Postkarte lesen, während sie unterwegs ist?", "Auf der Postkarte steht alles offen. Der Brief ist zu – nur der Empfänger kann ihn öffnen.", "Frage 1: Die Postkarte entspricht einer Übertragung ohne Verschlüsselung. Frage 2: Verschlüsselung macht aus der Postkarte den verschlossenen Brief."],
+  lehrer: { ziel: "Das Bild „offen oder verschlossen“ als Einstieg: HTTP ist wie eine Postkarte, HTTPS wie ein verschlossener Brief.",
+    anleitung: "Bild am Beamer zeigen: „Was ist der Unterschied zwischen den beiden Sendungen?“ Dann die zwei Fragen in Einzelarbeit. Das Bild ist nur ein Einstieg, keine Aufgabe hängt an einer Einzelheit. Hinweis: Das Handy mit Schloss auf dem Bild deutet das Schloss in der Adresszeile an, das später vorkommt.",
+    loesung: "Frage 1: Eine Postkarte kann jeder lesen, der sie unterwegs in die Hand bekommt. Frage 2: HTTPS verschlüsselt die Übertragung.",
+    fehler: ["Kinder meinen, „nur die Post“ könne mitlesen. Im Netz liegen aber viele Geräte auf dem Weg."] },
+  bild: { src: "assets/bilder/http-https.jpg", alt: "Auf einem Holztisch liegt links eine offene Postkarte mit einem Strandbild, rechts ein weißer Briefumschlag, der mit einem goldenen Vorhängeschloss verschlossen ist. Über dem Tisch hält eine Hand ein Handy, auf dessen Bildschirm ein Schloss leuchtet.", text: "Offen wie eine Postkarte – oder verschlossen wie ein Brief. (Bild mit KI erstellt)" },
+  bau(box) {
+    Modul.makeMC(box, [
+      { q: "Welche Sendung kann unterwegs jeder lesen?", o: ["die Postkarte", "der Brief mit Schloss", "beide gleich gut", "keine von beiden"], a: 0,
+        e: "Auf der Postkarte steht alles offen. Das entspricht einer Übertragung ohne Verschlüsselung." },
+      { q: "Was macht aus der „Postkarte“ im Internet einen „verschlossenen Brief“?", o: ["die Verschlüsselung", "ein schnellerer Router", "ein längeres Kabel", "ein größerer Bildschirm"], a: 0,
+        e: "Verschlüsselung verändert die Daten so, dass nur Absender und Empfänger sie lesen können." }
+    ], "mc-bild");
+  }
+});
+
+W.aufgabe({
+  titel: "Anfrage und Antwort",
+  auftrag: "Sieh dir an, was dein Browser mit dem Webserver bespricht. Gehe die vier Schritte durch.",
+  vorwissen: "<p>Browser und Webserver halten sich an feste Regeln: das <b>HTTP</b>. Es gibt immer zwei Teile: eine <b>Anfrage</b> (englisch Request) und eine <b>Antwort</b> (englisch Response).</p>",
+  hinweise: ["Tippe auf „Start“ oder auf die Zahlen 1 bis 4.", "Die Anfrage beginnt mit dem Wort GET. Die Antwort beginnt mit HTTP/1.1 und einer Zahl.", "GET heißt „hole mir“. 200 OK heißt „alles in Ordnung, hier ist die Seite“. Beides ist ganz normaler, lesbarer Text."],
+  lehrer: { ziel: "Verstehen: HTTP besteht aus Anfrage (Request) und Antwort (Response); beide sind Text.",
+    anleitung: "Am Beamer gemeinsam durchklicken. Bei Schritt 4 anhalten und fragen: „Was glaubt ihr, wer unterwegs mitlesen könnte?“ Die Zeichnung ist vereinfacht: Der Switch Zuhause ist weggelassen. Die Antwort liefert die Filius-Aufgabe gleich danach. Vereinfachung: Im echten Internet liegen viele Router dazwischen. Es gibt außer 200 OK noch andere Antworten, zum Beispiel 404 für „Seite nicht gefunden“ – für diese Stunde nicht nötig.",
+    loesung: "Alle vier Schritte angesehen: (1) Adresse bekannt, (2) Anfrage GET / HTTP/1.1, (3) Antwort HTTP/1.1 200 OK mit der Seite, (4) alles ist lesbarer Text.",
+    fehler: ["„GET“ wird für den Namen der Seite gehalten – es ist die Aufforderung „hole“."],
+    bedienung: "„Start“ spielt alle Schritte ab, die Zahlen springen zu einem Schritt, ↺ beginnt neu." },
+  bau(box) {
+    box.innerHTML = '<div class="nb"></div><div class="sim"></div>';
+    const n = Modul.netzBild($(".nb", box), { b: 640, h: 270, alt: "Netzplan: Links der Laptop, daneben der Router, dann Switch Internet. Von diesem Switch führt ein Kabel zum Webserver ganz rechts.",
+      geraete: [{ id: "l", art: "notebook", x: 70, y: 135, name: "Laptop", ip: "192.168.0.10" }, { id: "r", art: "router", x: 210, y: 135, name: "Router" }, { id: "si", art: "switch", x: 360, y: 135, name: "Switch Internet" },
+        { id: "ws", art: "server", x: 560, y: 135, name: "Webserver", ip: "203.0.113.10" }],
+      kabel: [["l", "r"], ["r", "si"], ["si", "ws"]] });
+    Modul.makeSchritte($(".sim", box), {
+      start: "Tippe auf „Start“ oder gehe Schritt für Schritt.",
+      steps: [
+        "Der Browser kennt dank DNS die Adresse des Webservers: <b>203.0.113.10</b>. Du hast <code>http://www.klassenfest.example</code> eingetippt.",
+        "Der Browser schickt die <b>Anfrage (Request)</b>: <code>GET / HTTP/1.1</code>. Das heißt: „Hole mir die Startseite.“",
+        "Der Webserver schickt die <b>Antwort (Response)</b>. Die erste Zeile heißt <code>HTTP/1.1 200 OK</code>: „Alles in Ordnung.“ Danach folgt die Seite selbst.",
+        "Anfrage und Antwort sind <b>ganz normaler Text</b>. Wer unterwegs mitliest, könnte ihn lesen. Genau das schaust du dir gleich in Filius an."
+      ],
+      zeige(i) {
+        n.neu();
+        const hin = (a, b) => n.kabel(a, b, "an");
+        if (i === 0) n.schild("l", "www.klassenfest.example");
+        if (i >= 1) { hin("l", "r"); hin("r", "si"); hin("si", "ws"); }
+        if (i === 1) n.paket("ws", { text: "GET /" }).an("ws", true);
+        if (i === 2) n.paket("l", { farbe: "#1b8a4b", text: "200 OK" }).an("ws", true);
+        if (i === 3) { n.schild("r", "Liest hier jemand mit?"); n.paket("si", { farbe: "#1b8a4b", text: "Text" }); }
+      }
+    }, "anim-http");
+  }
+});
+
+W.aufgabe({
+  titel: "Begriffe zuordnen",
+  auftrag: "Ordne jedem Begriff seine Bedeutung zu.",
+  hinweise: ["Denke an die Animation: Wer fragt, wer antwortet?", "Request und Response sind englische Wörter. Eines heißt „Anfrage“, das andere „Antwort“.", "GET → die Anfrage „hole mir die Seite“ · 200 OK → die Antwort „alles in Ordnung“ · Request → Anfrage des Browsers · Response → Antwort des Servers · Browser → stellt die Anfrage · Webserver → liefert die Seite."],
+  lehrer: { ziel: "Die Begriffe der HTTP-Kommunikation sicher zuordnen können.",
+    anleitung: "Einzelarbeit, etwa 3 Minuten. Bei Unsicherheit zur Animation zurückblättern.",
+    loesung: "GET – Anfrage „hole mir die Seite“ · 200 OK – Antwort „alles in Ordnung“ · Request – Anfrage · Response – Antwort · Browser – stellt die Anfrage · Webserver – liefert die Seite.",
+    fehler: ["Request und Response werden vertauscht."] },
+  bau(box) {
+    Modul.makePaare(box, [
+      ["GET", "die Aufforderung „hole mir die Seite“"],
+      ["200 OK", "die Meldung „alles in Ordnung“"],
+      ["Request", "die Anfrage des Browsers"],
+      ["Response", "die Antwort des Webservers"],
+      ["Browser", "stellt die Anfrage"],
+      ["Webserver", "liefert die Seite"]
+    ], "paare-begriffe");
+  }
+});
+
+/* ============ Teil 3: Am PC ============ */
+W.teil("Am PC: Filius", "Anwenden");
+
+W.aufgabe({
+  titel: "Dem Datenaustausch zuschauen",
+  geheim: ["FILIUS - Webserver"],
+  auftrag: "Du arbeitest mit deinem Netz aus der letzten Stunde weiter. Du rufst die Seite ab und liest dann in Filius mit, was zwischen Laptop und Webserver wandert.",
+  vorwissen: "<p>Filius kann jedes Datenpaket anzeigen, das ein Gerät schickt oder empfängt. Das Fenster heißt <b>Datenaustausch</b>. So siehst du, was ein Mithörer sehen würde.</p>",
+  hinweise: ["Das Fenster „Datenaustausch“ öffnest du mit einem Rechtsklick auf den Laptop – im Aktionsmodus.", "Schau in die Spalte „Protokoll“: Die Zeilen mit HTTP sind gelb. Klicke auf die erste Zeile mit „HTTP/1.1 200 OK“, dann steht unten der Inhalt.", "Reihenfolge: Netz laden → Aktionsmodus → Laptop → Webbrowser → Seite abrufen → Hauptfenster → Rechtsklick auf Laptop → Datenaustausch anzeigen → erste HTTP-Zeile mit 200 OK anklicken → die große Überschrift in der Seite lesen."],
+  lehrer: { ziel: "In Filius den Seitenabruf mitlesen und erkennen: HTTP ist Klartext – jeder auf dem Weg könnte den Inhalt lesen.",
+    anleitung: "Filius 2.14.0 starten lassen. Die Kinder öffnen ihre Datei dns.fls aus der letzten Stunde (oder laden das fertige Netz herunter). Geladene Dienste laufen von selbst wieder. Nichts wird hochgeladen: Die Kinder tippen am Ende die Überschrift ein, die sie im Datenaustausch gelesen haben. Wer kein Filius hat (Tablet), öffnet den aufklappbaren Bereich mit den Bildschirmfotos und beantwortet die Frage daran. Vorführen: Datenaustausch öffnen, auf die erste Zeile „HTTP/1.1 200 OK“ klicken – das ist die Antwort mit dem Text der Seite, die zweite gehört zu einem Bild. Unten steht die ganze Seite als Text. Das ist der Beleg: Wer mitliest, sieht alles. Wichtig: Im Datenaustausch können ältere Zeilen von früheren Versuchen stehen; die neuesten stehen unten.",
+    loesung: "Im unteren Bereich des Datenaustauschs steht die Überschrift der Seite: FILIUS - Webserver (im Text als h2). Eingabe: FILIUS - Webserver.",
+    fehler: ["Das Fenster „Datenaustausch“ wird über das Gerät im Entwurfsmodus gesucht – es gibt es nur im Aktionsmodus.", "Es wird eine alte Zeile aus einem früheren Versuch angeklickt: Die neuesten Zeilen stehen ganz unten in der Tabelle.", "Die Zeile mit GET wird angeklickt statt der Antwort: Der Seitentext steht in der ersten Antwort „HTTP/1.1 200 OK“; die zweite gehört zu einem Bild.", "Der Webserver wurde nach dem Laden angehalten: Dann gibt es keine Antwort. Im Fenster „Webserver“ muss der Knopf „Anhalten“ stehen."],
+    bedienung: "Das Kind tippt die Überschrift in das Feld und klickt auf „Lösung überprüfen“." },
+  bau(box) {
+    box.innerHTML = '<div class="a"></div>' + tablet([
+      ["assets/filius/datenaustausch-http.png", "Filius, Fenster Datenaustausch für den Laptop 192.168.0.10: Eine Tabelle mit den Spalten Nr., Zeit, Quelle, Ziel, Protokoll, Schicht und Bemerkungen. Gelbe Zeilen mit DNS und HTTP wechseln sich mit orangen TCP-Zeilen ab. In einer Zeile steht GET / HTTP/1.1 Host: www.klassenfest.example, zwei Zeilen darunter HTTP/1.1 200 OK."],
+      ["assets/filius/datenaustausch-http-klartext.png", "Dasselbe Fenster, die erste Zeile HTTP/1.1 200 OK (die Antwort mit dem Text der Seite) ist angeklickt. Unten im Detailbereich steht der lesbare Text der Seite: Content-type text/html, dann der HTML-Text mit der Überschrift FILIUS - Webserver und dem Satz Herzlich Willkommen auf dem Webserver der Anwendung FILIUS."]
+    ]);
+    Modul.makeAuftrag($(".a", box), {
+      titel: "Mitlesen im Datenaustausch", pc: "Filius", zeit: "etwa 12 Minuten",
+      ziel: "Du rufst die Seite ab und liest im Datenaustausch, was zwischen Laptop und Webserver wandert.",
+      material: [{ name: "Fertiges Netz aus der letzten Stunde (internet_fertig.fls)", href: "assets/filius/internet_fertig.fls" }],
+      schritte: [
+        "Öffne <b>Filius</b> und lade im Entwurfsmodus über den <span class=\"menue\">gelben Ordner</span> dein Netz aus der letzten Stunde (<b>dns.fls</b>). Du hast die Datei nicht mehr? Lade oben das fertige Netz herunter und öffne es.",
+        "Wechsle in den <b>Aktionsmodus</b> (<span class=\"menue\">grüner Pfeil</span>). Klicke auf den <b>Laptop</b>, öffne den <span class=\"menue\">Webbrowser</span>, tippe <code>http://www.klassenfest.example</code> in die Adresszeile und klicke auf <span class=\"menue\">Start</span>. Die Seite „FILIUS - Webserver“ erscheint.",
+        { t: "Schließe den Browser mit <span class=\"menue\">Startbildschirm</span>. Mache im Hauptfenster einen <b>Rechtsklick auf den Laptop</b> und wähle <span class=\"menue\">Datenaustausch anzeigen (192.168.0.10)</span>.", bild: "assets/filius/datenaustausch-http.png", alt: "Filius, Fenster Datenaustausch für den Laptop 192.168.0.10: Eine Tabelle mit gelben Zeilen für DNS und HTTP und orangen Zeilen für TCP. Die Zeile GET / HTTP/1.1 Host: www.klassenfest.example steht über der Zeile HTTP/1.1 200 OK." },
+        "Lies die Tabelle: <b>DNS</b> ist die Frage nach der Adresse, <b>TCP</b> baut die Verbindung auf, <b>HTTP</b> sind Anfrage und Antwort. Ganz unten stehen deine neuesten Zeilen – darüber können ältere Zeilen aus früheren Versuchen stehen. Suche die HTTP-Zeile <code>GET / HTTP/1.1</code>.",
+        { t: "Klicke auf die <b>erste</b> Zeile mit <code>HTTP/1.1 200 OK</code> – das ist die Antwort mit dem Text der Seite. Die zweite gehört zu einem Bild. Unten erscheint der Inhalt der Antwort. <b>Lies ihn:</b> Die ganze Seite steht dort als Text. Jeder, der unterwegs mitliest, sähe genau das.", bild: "assets/filius/datenaustausch-http-klartext.png", alt: "Dasselbe Fenster mit angeklickter Antwortzeile. Im Detailbereich unten steht lesbarer Text: Content-type text/html, dann der Seitencode mit der Überschrift FILIUS - Webserver und dem Willkommenssatz." }
+      ],
+      loesung: "Unten im Datenaustausch steht im Text der Antwort die Überschrift: FILIUS - Webserver.",
+      pruefung: { art: "wort", frage: "Welche Überschrift der Seite kannst du im Datenaustausch lesen?", antworten: ["FILIUS - Webserver", "FILIUS Webserver"],
+        tipp: "Klicke auf die erste Zeile „HTTP/1.1 200 OK“ (die zweite gehört zu einem Bild). Die Überschrift steht im Text der Seite – und groß im Browser.",
+        erfolg: "Richtig. Die Seite wandert als lesbarer Text durchs Netz: HTTP ist unverschlüsselt." }
+    }, "auf1");
+  }
+});
+
+W.aufgabe({
+  titel: "Welches Protokoll ist das?",
+  auftrag: "Du bleibst im Datenaustausch. Schau noch einmal auf die Zeile mit der Anfrage <code>GET / HTTP/1.1</code>.",
+  vorwissen: "<p>Ein <b>Protokoll</b> ist eine Verabredung, wie Geräte miteinander sprechen. In der Tabelle steht für jede Zeile, welches Protokoll gerade benutzt wird.</p>",
+  hinweise: ["Die Spalte heißt „Protokoll“. Sie steht in der Mitte der Tabelle.", "Die Zeile mit GET ist gelb. In der gleichen Zeile steht ein großes Wort.", "Gelbe Zeilen zeigen die Schicht „Anwendung“. Bei der Zeile mit GET steht in der Spalte „Protokoll“ das Wort HTTP."],
+  lehrer: { ziel: "Anfrage und Antwort im Datenaustausch dem Protokoll HTTP zuordnen.",
+    anleitung: "Etwa 3 Minuten. Die Kinder bleiben im Fenster des Datenaustauschs. Wer das Fenster geschlossen hat: Rechtsklick auf den Laptop, „Datenaustausch anzeigen (192.168.0.10)“. Tablet: Bildschirmfoto im aufklappbaren Bereich der letzten Aufgabe.",
+    loesung: "Bei der Zeile mit GET / HTTP/1.1 steht in der Spalte „Protokoll“: HTTP.",
+    fehler: ["Das Kind liest in der Spalte „Schicht“ (Anwendung) statt in der Spalte „Protokoll“.", "Es wird TCP genannt: Die orangen Zeilen sind der Verbindungsaufbau, nicht die Anfrage."] },
+  bau(box) {
+    box.innerHTML = '<div class="a"></div>' + tablet([
+      ["assets/filius/datenaustausch-http.png", "Filius, Datenaustausch des Laptops: In der Spalte Protokoll stehen DNS, TCP und HTTP. Die Zeile mit der Anfrage GET / HTTP/1.1 ist gelb und hat in der Spalte Protokoll den Eintrag HTTP."]
+    ]);
+    Modul.makeAuftrag($(".a", box), {
+      titel: "Die Anfrage finden", pc: "Filius", zeit: "etwa 3 Minuten",
+      ziel: "Du liest in der Tabelle des Datenaustauschs ab, zu welchem Protokoll die Anfrage gehört.",
+      schritte: [
+        "Öffne, falls nötig, wieder den <span class=\"menue\">Datenaustausch</span> des Laptops (Rechtsklick auf den Laptop im Aktionsmodus).",
+        "Suche die Zeile mit <code>GET / HTTP/1.1</code> und lies in der Spalte <b>Protokoll</b> ab, welches Wort dort steht."
+      ],
+      loesung: "In der Spalte „Protokoll“ steht bei der Zeile mit GET: HTTP.",
+      pruefung: { art: "wort", frage: "Welches Protokoll steht bei der Zeile mit <code>GET / HTTP/1.1</code> in der Spalte „Protokoll“?", antworten: ["HTTP"],
+        tipp: "Die Zeile ist gelb. Das Wort in der Spalte „Protokoll“ hat vier Buchstaben.",
+        erfolg: "Richtig: Anfrage und Antwort gehören zum Protokoll HTTP." }
+    }, "auf2");
+  }
+});
+
+/* ============ Teil 4: HTTPS ============ */
+W.teil("HTTPS", "Verstehen · Anwenden");
+
+W.aufgabe({
+  titel: "Derselbe Abruf mit HTTPS",
+  auftrag: "Filius kann kein HTTPS. Deshalb zeigt dir diese Animation, wie derselbe Abruf mit HTTPS abläuft. Gehe alle sechs Schritte durch und achte auf den Mithörer.",
+  vorwissen: "<p><b>HTTPS</b> ist HTTP mit zwei Zusätzen: Die Verbindung wird <b>verschlüsselt</b>, und der Server <b>weist sich aus</b>. Seinen Ausweis nennt man <b>Zertifikat</b>.</p>",
+  hinweise: ["Tippe auf „Start“ oder auf die Zahlen 1 bis 6. Der gelbe Kasten zeigt, was ein Mithörer unterwegs sieht.", "Achte darauf, was der Mithörer in Schritt 1 sieht und was in Schritt 5.", "Ohne Verschlüsselung (Schritt 1) liest der Mithörer den Text. Mit Verschlüsselung (Schritt 5) sieht er nur Zeichensalat. Der Ausweis (Schritt 3) zeigt, mit wem du wirklich sprichst."],
+  lehrer: { ziel: "Verstehen: HTTPS = Verschlüsselung + Ausweis (Zertifikat); ein Mithörer sieht nur noch Zeichensalat.",
+    anleitung: "Am Beamer gemeinsam durchklicken, bei Schritt 3 und 5 anhalten. Vereinfachung: Wie sich Browser und Server auf den Schlüssel einigen, ist hier nicht Stoff – wichtig ist nur, dass danach alles verschlüsselt ist. Das Zertifikat stellt eine Prüfstelle aus; der Browser prüft den Ausweis automatisch. Ein Mithörer sieht auch bei HTTPS noch, dass eine Verbindung zu diesem Server besteht – nur den Inhalt (Seite, Passwörter) sieht er nicht. Filius kann HTTPS nicht, deshalb ist die Animation selbst gezeichnet.",
+    loesung: "Alle sechs Schritte angesehen: (1) Rückblick HTTP: Mithörer liest, (2) Frage „Wer bist du?“, (3) Ausweis (Zertifikat), (4) geheimer Schlüssel, (5) Anfrage als Zeichensalat, (6) Antwort ebenfalls Zeichensalat, der Browser entschlüsselt.",
+    fehler: ["Kinder meinen, der Ausweis sei geheim. Er ist öffentlich – er soll ja jeder prüfen können.", "„Verschlüsselt“ wird mit „sicher vor Betrug“ gleichgesetzt: Das klärt die Aufgabe „Was verspricht das Schloss?“."],
+    bedienung: "„Start“ spielt alle Schritte ab, die Zahlen springen zu einem Schritt, ↺ beginnt neu." },
+  bau(box) {
+    box.innerHTML = '<div class="vis"></div><div class="sim"></div>';
+    const vis = $(".vis", box);
+    const SALAT_A = "q7#Lx9!vP2$kZ8&mWe4%Tn", SALAT_B = "Hd3@Yb6*Rj1^Uc0+Fs5?Ga";
+    const Z = [
+      { l: `${adr("http://www.klassenfest.example", false)}<div class="hx-klein">Rückblick: HTTP</div>`, m: `<div class="hx-blase hx-klar">GET / HTTP/1.1</div>`, r: "Webserver bekommt die Anfrage.", mit: "👀 Mithörer: Ich lese alles mit: <code>GET / HTTP/1.1</code>" },
+      { l: `${adr("https://www.klassenfest.example", false)}<div class="hx-klein">Browser fragt zuerst: Wer bist du?</div>`, m: `<div class="hx-blase hx-klar">Wer bist du?</div>`, r: "Webserver", mit: "👀 Mithörer: Ich sehe nur eine Frage." },
+      { l: `<div class="hx-klein">Browser prüft: Stimmt der Name? Kennt er die Prüfstelle?</div>`, m: `<div class="hx-blase hx-ausweis">Ausweis (Zertifikat): Dieser Server gehört zu www.klassenfest.example. Bestätigt von einer Prüfstelle.</div>`, r: "Webserver zeigt seinen Ausweis.", mit: "👀 Mithörer: Den Ausweis darf jeder sehen – er ist nicht geheim." },
+      { l: `${adr("https://www.klassenfest.example", true)}<div class="hx-klein">Schloss erscheint.</div>`, m: `<div class="hx-blase hx-ausweis">Beide einigen sich auf einen geheimen Schlüssel.</div>`, r: "Nur Browser und Webserver kennen den Schlüssel.", mit: "👀 Mithörer: Den Schlüssel kenne ich nicht." },
+      { l: `${adr("https://www.klassenfest.example", true)}<div class="hx-klein">Die Anfrage wird verschlüsselt.</div>`, m: `<div class="hx-blase hx-salat">${SALAT_A}</div>`, r: "Der Webserver entschlüsselt die Anfrage.", mit: "👀 Mithörer: Nur Zeichensalat. Ich kann nichts lesen." },
+      { l: `${adr("https://www.klassenfest.example", true)}<div class="hx-klein">Der Browser entschlüsselt die Antwort und zeigt die Seite.</div>`, m: `<div class="hx-blase hx-salat">${SALAT_B}</div>`, r: "Der Webserver schickt die Antwort verschlüsselt.", mit: "👀 Mithörer: Wieder nur Zeichensalat." }
+    ];
+    Modul.makeSchritte($(".sim", box), {
+      start: "Tippe auf „Start“ oder gehe Schritt für Schritt.",
+      steps: [
+        "Zuerst zur Erinnerung: Bei <b>HTTP</b> wandert die Anfrage als Text. Ein Mithörer unterwegs liest sie.",
+        "Bei <b>HTTPS</b> fragt der Browser zuerst: „Wer bist du?“",
+        "Der Webserver zeigt seinen <b>Ausweis (Zertifikat)</b>. Der Browser prüft ihn.",
+        "Der Ausweis stimmt. Browser und Server einigen sich auf einen <b>geheimen Schlüssel</b>. Im Browser erscheint das <b>Schloss</b>.",
+        "Jetzt wird die Anfrage <b>verschlüsselt</b> verschickt. Unterwegs ist sie nur Zeichensalat.",
+        "Die Antwort mit der Seite kommt ebenfalls verschlüsselt zurück. Erst der Browser macht wieder Text daraus."
+      ],
+      zeige(i) {
+        const z = Z[i];
+        vis.innerHTML = `<div class="hx"><div class="hx-seite"><b>Dein Browser</b>${z.l}</div>
+          <div class="hx-mitte">${z.m}<div class="hx-mit">${z.mit}</div></div>
+          <div class="hx-seite"><b>Webserver</b>${z.r}</div></div>`;
+      }
+    }, "anim-https");
+  }
+});
+
+W.aufgabe({
+  titel: "Hier nur mit HTTPS?",
+  auftrag: "Entscheide bei jedem Fall: Wie wichtig ist die Verschlüsselung?",
+  vorwissen: "<p>Frage dich: Was passiert, wenn jemand unterwegs mitliest? Geht es um etwas Geheimes, ist HTTPS unbedingt nötig.</p>",
+  hinweise: ["Stelle dir vor, ein Fremder liest mit. Wäre es schlimm?", "Passwörter, Konto- und Kartendaten, private Nachrichten sind geheim. Ein Wetterbericht oder Öffnungszeiten sind es nicht.", "Passwort → unbedingt · Bezahlen → unbedingt · private Nachricht → unbedingt · Wetterbericht lesen → weniger schlimm · Öffnungszeiten nachlesen → weniger schlimm."],
+  lehrer: { ziel: "Entscheiden, wann Verschlüsselung besonders wichtig ist: bei geheimen Daten.",
+    anleitung: "Ein Fall nach dem anderen; falsch entschiedene Fälle kommen noch einmal. Hinweis für das Gespräch: Auch beim Wetterbericht ist HTTPS gut – dann sieht niemand, was man liest, und niemand kann die Seite unterwegs verändern. Wirklich geheim sind die Fälle mit Passwort, Zahlung und privater Nachricht.",
+    loesung: "Passwort · Bezahlen · private Nachricht: unbedingt mit HTTPS. Wetterbericht · Öffnungszeiten: Mitlesen wäre weniger schlimm.",
+    fehler: ["Kinder meinen, HTTPS brauche man nur beim Bezahlen. Auch ein Passwort oder eine private Nachricht ist geheim."] },
+  bau(box) {
+    Modul.makeEntscheiden(box, {
+      frage: "Wie wichtig ist HTTPS hier?",
+      optionen: ["Unbedingt nötig – es geht um Geheimes", "Mitlesen wäre weniger schlimm"],
+      faelle: [
+        { html: "Du meldest dich mit deinem <b>Passwort</b> im Schulportal an.", kurz: "Passwort", a: 0, e: "Ein Passwort ist geheim. Wer unterwegs mitliest, könnte es bei HTTP lesen." },
+        { html: "Du liest den <b>Wetterbericht</b> für das Wochenende.", kurz: "Wetterbericht", a: 1, e: "Hier ist nichts geheim. HTTPS ist trotzdem gut, aber Mitlesen wäre nicht schlimm." },
+        { html: "Du gibst bei einem Online-Einkauf deine <b>Kontodaten</b> ein.", kurz: "Bezahlen", a: 0, e: "Kontodaten sind geheim und könnten missbraucht werden. Hier ist HTTPS ein Muss." },
+        { html: "Du suchst die <b>Öffnungszeiten</b> des Schwimmbads heraus.", kurz: "Öffnungszeiten", a: 1, e: "Öffnungszeiten darf jeder wissen. Mitlesen wäre nicht schlimm." },
+        { html: "Du schickst einem Freund eine <b>private Nachricht</b> über eine Webseite.", kurz: "Nachricht", a: 0, e: "Private Nachrichten gehen nur zwei Personen etwas an. Ohne Verschlüsselung könnte jeder auf dem Weg mitlesen." }
+      ],
+      fertig: "Du erkennst, wann Verschlüsselung besonders wichtig ist."
+    }, "hier-https");
+  }
+});
+
+W.aufgabe({
+  titel: "Adresszeilen lesen",
+  auftrag: "Hier siehst du vier nachgezeichnete Adresszeilen. Entscheide: Ist die Verbindung verschlüsselt?",
+  vorwissen: "<p>HTTPS erkennst du an <code>https://</code> am Anfang der Adresse und am <b>Schloss</b> in der Adresszeile. Steht dort <code>http://</code> ohne s, ist die Verbindung nicht verschlüsselt. Die Adresszeilen hier sind selbst gezeichnet.</p>",
+  hinweise: ["Schau auf den Anfang der Adresse und auf das Schloss.", "https:// mit Schloss: verschlüsselt. http:// ohne Schloss: nicht verschlüsselt.", "Fall 1: verschlüsselt · Fall 2: nicht verschlüsselt · Fall 3: verschlüsselt (auch wenn der Name verdächtig wirkt) · Fall 4: nicht verschlüsselt."],
+  lehrer: { ziel: "Adresszeilen lesen: https:// und Schloss bedeuten Verschlüsselung, http:// ohne Schloss nicht.",
+    anleitung: "Ein Fall nach dem anderen. Die Adresszeilen sind mit HTML gezeichnet und zeigen kein Bild eines echten Browsers; echte Browser sehen etwas anders aus und zeigen die Warnung für fehlende Verschlüsselung unterschiedlich. Manche Browser zeigen statt des Schlosses inzwischen ein anderes kleines Symbol oder blenden https:// aus, bis man in die Adresszeile klickt – am besten einmal am eigenen Browser zeigen. Verlässlich ist immer: https:// am Anfang der vollständigen Adresse. Fall 3 bereitet die nächste Aufgabe vor: Auch ein Name wie „klassenfest-gewinnspiel“ kann ein Schloss haben.",
+    loesung: "1: verschlüsselt · 2: nicht verschlüsselt · 3: verschlüsselt · 4: nicht verschlüsselt.",
+    fehler: ["Das Kind schaut nur auf den Namen und nicht auf https:// und das Schloss.", "Eine Adresse nur aus Zahlen (Fall 4) wird als „sicher“ gehalten – sie ist nicht verschlüsselt."] },
+  bau(box) {
+    Modul.makeEntscheiden(box, {
+      frage: "Ist die Verbindung verschlüsselt?",
+      optionen: ["Ja, verschlüsselt", "Nein, nicht verschlüsselt"],
+      faelle: [
+        { html: `Adresszeile 1:<div class="adr-fall">${adr("https://www.klassenfest.example", true)}</div>`, kurz: "Zeile 1", a: 0, e: "https:// und das Schloss: Die Verbindung ist verschlüsselt." },
+        { html: `Adresszeile 2:<div class="adr-fall">${adr("http://www.klassenfest.example", false)}</div>`, kurz: "Zeile 2", a: 1, e: "http:// und kein Schloss: Wer unterwegs mitliest, sieht alles." },
+        { html: `Adresszeile 3:<div class="adr-fall">${adr("https://klassenfest-gewinnspiel.example", true)}</div>`, kurz: "Zeile 3", a: 0, e: "Die Verbindung ist verschlüsselt – das sagt das Schloss. Ob die Seite ehrlich ist, sagt es nicht. Dazu gleich mehr." },
+        { html: `Adresszeile 4:<div class="adr-fall">${adr("http://203.0.113.10", false)}</div>`, kurz: "Zeile 4", a: 1, e: "http:// ohne Schloss: nicht verschlüsselt – auch wenn nur Zahlen dastehen." }
+      ],
+      fertig: "Du liest Adresszeilen richtig."
+    }, "adresszeilen");
+  }
+});
+
+W.aufgabe({
+  titel: "Was verspricht das Schloss – und was nicht?",
+  auftrag: "Ordne jede Aussage zu: Das verspricht das Schloss – oder das verspricht es nicht.",
+  vorwissen: "<p>Das Schloss sagt dir zwei Dinge: Die Verbindung ist verschlüsselt, und der Server hat sich als der ausgewiesen, dessen Name in der Adresszeile steht. Über den <b>Inhalt</b> und den <b>Anbieter</b> sagt es nichts. Auch Betrugsseiten können ein Schloss haben.</p>",
+  hinweise: ["Frage dich bei jeder Aussage: Geht es um den Weg der Daten – oder um die Seite selbst?", "Der Weg ist verschlüsselt und der Name geprüft. Ob die Seite wahr, ehrlich oder harmlos ist, prüft das Schloss nicht.", "Das Schloss verspricht: Unterwegs kann niemand mitlesen · Ich spreche mit dem Server, dessen Name oben steht. Es verspricht nicht: Der Inhalt stimmt · Der Anbieter ist ehrlich · Die Seite ist kein Betrug · Der Anbieter geht mit meinen Daten sorgsam um."],
+  lehrer: { ziel: "Die Grenze von HTTPS kennen: Es schützt den Übertragungsweg, nicht die Wahrheit des Inhalts. Zentrale Aussage der Stunde (Probenstoff).",
+    anleitung: "Etwa 4 Minuten, Einzelarbeit; danach im Gespräch ein Beispiel: Eine Seite „Gewinne ein Handy – gib hier deine Daten ein“ kann HTTPS haben. Das Schloss sagt nur: Niemand liest unterwegs mit, und die Seite gehört zu dem Namen in der Adresszeile. Ob die Seite ehrlich ist, muss man selbst prüfen (Absender, Rechtschreibung, zu gute Angebote, Name genau lesen).",
+    loesung: "Das verspricht das Schloss: Unterwegs kann niemand mitlesen · Ich spreche mit dem Server, dessen Name oben steht. Das verspricht es nicht: Der Inhalt der Seite stimmt · Der Anbieter ist ehrlich · Die Seite ist kein Betrug · Der Anbieter geht sorgsam mit meinen Daten um.",
+    fehler: ["Das Schloss wird als „Gütesiegel“ gelesen: Seite mit Schloss = Seite ist seriös. Das ist der häufigste Denkfehler."] },
+  bau(box) {
+    Modul.makeSort(box, {
+      buckets: ["🔒 Das verspricht das Schloss", "❌ Das verspricht es nicht"],
+      items: [
+        { t: "Unterwegs kann niemand mitlesen.", b: 0 },
+        { t: "Ich spreche mit dem Server, dessen Name in der Adresszeile steht.", b: 0 },
+        { t: "Der Inhalt der Seite stimmt.", b: 1 },
+        { t: "Der Anbieter ist ehrlich.", b: 1 },
+        { t: "Die Seite ist kein Betrug.", b: 1 },
+        { t: "Der Anbieter geht sorgsam mit meinen Daten um.", b: 1 }
+      ],
+      done: "✅ Das Schloss schützt den Weg der Daten – nicht die Wahrheit der Seite."
+    }, "schloss");
+  }
+});
+
+/* ============ Teil 5: Kontrollieren ============ */
+W.teil("Kontrollieren", "Lerncheck");
+
+W.aufgabe({
+  titel: "Lerncheck: Lückentext",
+  auftrag: "Setze die Wörter in den Text ein. Zwei Wörter passen nicht.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Browser und Server schicken sich Anfrage und Antwort. Bei HTTP ist nichts verschlüsselt, bei HTTPS schon.", "Anfrage · Antwort · HTTP · verschlüsselt · HTTPS · Ausweis · Inhalt. „Passwort“ und „Drucker“ bleiben übrig."],
+  lehrer: { ziel: "Kernwissen der Stunde sichern.", anleitung: "Einzelarbeit, etwa 3 Minuten.",
+    loesung: "Anfrage · Antwort · HTTP · verschlüsselt · HTTPS · Ausweis · Inhalt", fehler: ["„Antwort“ und „Anfrage“ werden vertauscht."] },
+  bau(box) {
+    Modul.makeGap(box, [
+      ["Der Browser schickt eine ", {g: "Anfrage"}, " (Request). Der Webserver schickt eine ", {g: "Antwort"}, " (Response)."],
+      ["Bei ", {g: "HTTP"}, " kann jeder auf dem Weg mitlesen, denn nichts ist ", {g: "verschlüsselt"}, "."],
+      ["Bei ", {g: "HTTPS"}, " ist die Verbindung verschlüsselt, und der Server zeigt seinen ", {g: "Ausweis"}, " (das Zertifikat)."],
+      ["Das Schloss sagt nichts darüber, ob der ", {g: "Inhalt"}, " der Seite stimmt."]
+    ], "gap", ["Passwort", "Drucker"]);
+  }
+});
+
+W.fertig();
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

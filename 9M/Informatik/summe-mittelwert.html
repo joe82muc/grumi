@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>SUMME und MITTELWERT | Informatik 9</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="../../8M/Informatik/einheit8.css">
+<link rel="stylesheet" href="einheit9.css">
+<link rel="stylesheet" href="tabelle9.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 9</small></a>
+    <nav class="stations" id="stations"></nav>
+    <span class="stars" id="stars">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks">
+      <a href="index.html">Übersicht Informatik 9M</a>
+      <a href="../../9R/Informatik/index.html">Übersicht Informatik 9R</a>
+      <a href="../../index.html">Startseite</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 9 · Modul 3: Excel-Funktionen · Einheit 2</div>
+    <h1>SUMME und MITTELWERT</h1>
+    <p>Die Klasse macht einen Schritte-Wettbewerb: zwei Teams, sieben Tage. Wer alle Tage einzeln mit Plus verbindet, hat viel zu tippen. Mit einer Funktion rechnest du Summe und Durchschnitt in Sekunden aus.</p>
+    <div class="zeit">etwa 40 Minuten · Praxis am Windows-PC mit Excel</div>
+    <div class="goals">
+      <div>Ich zähle viele Zahlen mit SUMME zusammen.</div>
+      <div>Ich berechne den Durchschnitt mit MITTELWERT.</div>
+      <div>Ich schreibe einen Bereich mit Doppelpunkt, zum Beispiel B2:B8.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="modulStand"></div>
+  <div id="weg"></div>
+</main>
+
+<footer class="wrap">Informatik 9 · Dein Fortschritt wird mit deinem Code gespeichert. · Excel ist ein Programm von Microsoft; die Tabellen auf dieser Seite sind eigene Nachbildungen (GRUMI-EXCEL). Alle Zahlen sind erfunden.</footer>
+
+<div id="pop" role="dialog"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info9.js"></script>
+<script src="diagramm9.js"></script>
+<script src="tabelle9.js"></script>
+<script src="../../8M/Informatik/excel-datei.js"></script>
+<script src="excel-aufgaben9.js"></script>
+<script>
+(function () {
+"use strict";
+const {$} = Modul;
+const F = Modul.formelGleich;
+const gl = (x, y) => typeof x === "number" && Math.abs(x - y) < 1e-9;
+const ist = (t, a, s) => String(t.wert(a)).toLowerCase() === s;
+const p = (ok, gut, schlecht) => ({ok, text: ok ? gut : schlecht});
+
+Modul.start9({
+  key: "grumi-i9-summe-mittelwert-v1",
+  thema: "Excel: Funktionen SUMME und MITTELWERT, Bereich mit Doppelpunkt (zum Beispiel B2:B8), Summe und Durchschnitt berechnen (Schritte-Wettbewerb der Klasse, Temperaturen einer Woche)",
+  glossary: {
+    funktion: ["Funktion", "Ein fertiges Werkzeug von Excel, zum Beispiel SUMME. Du gibst in Klammern an, womit es rechnen soll."],
+    bereich: ["Bereich", "Mehrere Zellen auf einmal. B2:B8 heißt: von B2 bis B8."],
+    summe: ["SUMME", "Zählt die Zahlen eines Bereichs zusammen, zum Beispiel =SUMME(B2:B8)."],
+    mittelwert: ["MITTELWERT", "Berechnet den Durchschnitt: alle Zahlen zusammenzählen und durch die Anzahl teilen."]
+  }
+});
+
+const W = Modul.lernweg("#weg");
+
+/* ============ Regelheft ============ */
+W.teil("Regelheft", "Schreiben");
+W.regelheft({
+  titel: "SUMME und MITTELWERT",
+  html: `<p>Eine <span class="rot">Funktion</span> ist ein fertiges Werkzeug von Excel.</p>
+    <p><span class="blau">=SUMME(B2:B8)</span> zählt die Zahlen zusammen.</p>
+    <p><span class="blau">=MITTELWERT(B2:B8)</span> berechnet den Durchschnitt.</p>
+    <p><span class="blau">B2:B8</span> ist ein <span class="rot">Bereich</span>: von B2 bis B8.</p>
+    <p class="leer"></p>
+    <p>Beispiel: C1 bis C3 enthalten 4, 6 und 8. <span class="blau">=SUMME(C1:C3)</span> ergibt 18, <span class="blau">=MITTELWERT(C1:C3)</span> ergibt 6.</p>`,
+  lehrer: { ziel: "Die Kernaussagen zu den Funktionen SUMME und MITTELWERT und zum Bereich stehen im Heft.",
+    anleitung: "Etwa 5 Minuten. Die Klasse schreibt ab. Erst nach dem Abhaken erscheint die erste Aufgabe.",
+    loesung: "Der Eintrag steht vollständig im Heft (fünf kurze Aussagen und ein Beispiel)." }
+});
+
+/* ============ Teil 2: Erst hier auf der Seite ============ */
+W.teil("Verstehen und üben", "Sehen · Ausprobieren");
+
+W.aufgabe({
+  titel: "Drei Zahlen zusammenzählen",
+  bild: { src: "assets/bilder/summe-mittelwert.jpg", alt: "Kuchenstand bei einem Schulfest mit Kuchen, einer Kasse und einer Strichliste. Ein Schüler rechnet mit dem Taschenrechner zusammen.", text: "Viele Zahlen zusammenzählen – das nimmt dir Excel ab." },
+  geheim: ["=A1+A2+A3", "=SUMME(A1:A3)", "45"],
+  auftrag: "In <b>A1</b> bis <b>A3</b> stehen die Zahlen 10, 15 und 20. Schreibe in <b>A4</b> eine Formel, die die drei Zahlen zusammenzählt.",
+  vorwissen: "<p>Du kennst schon Formeln mit <b>+</b>. Heute lernst du eine kürzere Möglichkeit kennen – die Funktion <b>SUMME</b>.</p>",
+  hinweise: ["Die Formel beginnt mit =. Die drei Zellen kannst du mit + verbinden.", "Die Zellen heißen A1, A2 und A3. Es gibt zwei richtige Wege: mit Plus oder mit SUMME.", "Mit Plus: <code>=A1+A2+A3</code>. Kürzer mit SUMME: <code>=SUMME(A1:A3)</code>."],
+  lehrer: { ziel: "Mehrere Zellen zusammenzählen – erst mit Plus, dann mit SUMME.",
+    anleitung: "Beide Wege zeigen und fragen: „Was ist bei 100 Zahlen einfacher?“ Der Doppelpunkt kommt in der nächsten Aufgabe.",
+    loesung: "=A1+A2+A3 oder =SUMME(A1:A3). A4 zeigt 45.",
+    fehler: ["Das Gleichheitszeichen fehlt.", "Die Zahl 45 wird einfach eingetippt."],
+    bedienung: "Zelle A4 anklicken, Formel oben in die Bearbeitungsleiste tippen, Eingabetaste." },
+  bau(box) {
+    Modul.makeTabellenAufgabe(box, {
+      text: "Zähle A1 bis A3 in <b>A4</b> zusammen.",
+      tabelle: { spalten: 2, zeilen: 4, eingabe: ["A4"], start: "A4", zellen: { A1: "10", A2: "15", A3: "20" } },
+      pruefe: t => [
+        p(t.istFormel("A4"), "In A4 steht eine Formel, die mit = beginnt.", "In A4 fehlt eine Formel. Sie beginnt mit dem Gleichheitszeichen."),
+        p(gl(t.wert("A4"), 45), "Das Ergebnis in A4 stimmt.", "A4 zeigt " + (t.text("A4") || "nichts") + ". Das passt noch nicht."),
+        p(F(t.formel("A4"), ["=SUMME(A1:A3)", "=A1+A2+A3", "=SUMME(A1;A2;A3)", "=A3+A2+A1"]), "Die Formel rechnet mit den Zellen A1 bis A3.", "Die Formel soll mit den Zellen A1, A2 und A3 rechnen.")
+      ],
+      loesung: { setze: { A4: "=SUMME(A1:A3)" } },
+      erfolg: "Richtig gerechnet! Beide Wege führen zum Ziel – SUMME ist nur kürzer."
+    }, "tab-drei");
+  }
+});
+
+W.aufgabe({
+  titel: "SUMME und der Bereich",
+  auftrag: "Das Team Rot hat sieben Tage lang Schritte gezählt. Sieh zu, wie SUMME alle Tage auf einmal zusammenzählt.",
+  hinweise: ["Tippe auf „Start“ oder auf die Zahlen 1 bis 4.", "Der Doppelpunkt in B2:B8 ist ein „von … bis“.", "Schritt 3: Die markierten Zellen B2 bis B8 sind der Bereich, den SUMME zusammenzählt."],
+  lehrer: { ziel: "Verstehen: Eine Funktion arbeitet mit einem Bereich. Der Doppelpunkt heißt „von … bis“.",
+    anleitung: "Am Beamer gemeinsam durchklicken und bei Schritt 3 fragen: „Welche Zellen sind markiert?“",
+    loesung: "Alle vier Schritte angesehen. B9 enthält =SUMME(B2:B8) und zeigt 61500.",
+    fehler: ["Der Doppelpunkt wird als Geteilt-Zeichen gelesen."],
+    bedienung: "„Start“ spielt alle Schritte ab, die Zahlen springen zu einem Schritt." },
+  bau(box) {
+    box.innerHTML = '<div class="tb"></div><div class="sim"></div>';
+    const t = Modul.tabelle($(".tb", box), { spalten: 2, zeilen: 9, breit: { A: 100, B: 120 }, zellen: { A1: "Tag", B1: "Schritte", A2: "Mo", B2: "8200", A3: "Di", B3: "9100", A4: "Mi", B4: "7600", A5: "Do", B5: "10400", A6: "Fr", B6: "8800", A7: "Sa", B7: "12100", A8: "So", B8: "5300", A9: "Summe" } });
+    Modul.makeSchritte($(".sim", box), {
+      start: "Tippe auf „Start“ oder gehe Schritt für Schritt.",
+      steps: [
+        "Sieben Tageswerte stehen in B2 bis B8. Alle einzeln mit Plus zu verbinden wäre lang: <code>=B2+B3+B4+B5+B6+B7+B8</code>.",
+        "Kürzer geht es mit der Funktion <b>SUMME</b>: In B9 steht <code>=SUMME(B2:B8)</code>.",
+        "In der Klammer steht ein <b>Bereich</b>. Der Doppelpunkt heißt „von … bis“: <b>B2:B8</b> ist von B2 bis B8. Die Zellen sind markiert.",
+        "SUMME zählt alle sieben Zahlen zusammen. B9 zeigt das Ergebnis: 61500 Schritte."
+      ],
+      zeige(i) {
+        t.setze("B9", i >= 1 ? "=SUMME(B2:B8)" : "", true);
+        t.formelnZeigen(i === 1 || i === 2);
+        t.markiere(i === 2 ? ["B2", "B3", "B4", "B5", "B6", "B7", "B8"] : [], "hell");
+        t.markiere(i === 3 ? ["B9"] : [], "gut");
+        t.waehle("B9", true);
+      }
+    }, "anim-bereich");
+  }
+});
+
+W.aufgabe({
+  titel: "Schritte der Woche zusammenzählen",
+  geheim: ["=SUMME(B2:B6)", "42000"],
+  auftrag: "Das Team Gelb war von Montag bis Freitag unterwegs. Berechne in <b>B7</b> mit der Funktion <b>SUMME</b>, wie viele Schritte das Team insgesamt gemacht hat.",
+  hinweise: ["Die Formel beginnt mit =SUMME( und endet mit einer Klammer.", "Die Schritte stehen in den Zellen B2 bis B6. Dazwischen steht ein Doppelpunkt.", "In der Klammer steht der Bereich von der ersten bis zur letzten Zahl: von B2 bis B6."],
+  lehrer: { ziel: "SUMME mit einem Bereich anwenden.",
+    anleitung: "Einzelarbeit. Wer fertig ist, ändert eine Zahl und beobachtet B7.",
+    loesung: "=SUMME(B2:B6), B7 zeigt 42000.",
+    fehler: ["Der Bereich ist zu kurz (B2:B5) – die letzte Zahl fehlt.", "Statt des Doppelpunkts steht ein Semikolon – das zählt nur die beiden Zellen."],
+    bedienung: "B7 anklicken, Formel tippen, Eingabetaste." },
+  bau(box) {
+    Modul.makeTabellenAufgabe(box, {
+      text: "Berechne in <b>B7</b> die Summe der Schritte mit SUMME.",
+      tabelle: { spalten: 2, zeilen: 7, eingabe: ["B7"], start: "B7", breit: { A: 100, B: 120 }, zellen: { A1: "Tag", B1: "Schritte", A2: "Mo", B2: "8100", A3: "Di", B3: "9500", A4: "Mi", B4: "7400", A5: "Do", B5: "10200", A6: "Fr", B6: "6800", A7: "Summe" } },
+      pruefe: t => [
+        p(t.istFormel("B7"), "In B7 steht eine Formel.", "In B7 fehlt eine Formel. Sie beginnt mit =."),
+        p(F(t.formel("B7"), ["=SUMME(B2:B6)", "=SUMME($B$2:$B$6)"]), "Die Formel nutzt SUMME mit dem Bereich B2:B6.", "Nutze die Funktion SUMME mit dem Bereich von B2 bis B6."),
+        p(gl(t.wert("B7"), 42000), "B7 zeigt das richtige Ergebnis.", "B7 zeigt " + (t.text("B7") || "nichts") + ". Prüfe, ob alle fünf Tage im Bereich liegen.")
+      ],
+      loesung: { setze: { B7: "=SUMME(B2:B6)" } },
+      erfolg: "SUMME zählt den ganzen Bereich zusammen."
+    }, "tab-summe");
+  }
+});
+
+W.aufgabe({
+  titel: "Der Durchschnitt der Woche",
+  geheim: ["=MITTELWERT(B2:B6)", "15"],
+  auftrag: "Fünf Tage lang wurde die Temperatur gemessen. Berechne in <b>B7</b> mit der Funktion <b>MITTELWERT</b> die Durchschnittstemperatur.",
+  vorwissen: "<p>Den <b>Durchschnitt</b> kennst du aus Mathe: Alle Werte zusammenzählen und durch ihre Anzahl teilen. Excel macht beides in einem Schritt: <b>MITTELWERT</b>.</p>",
+  hinweise: ["Die Funktion heißt MITTELWERT. Sie arbeitet genau wie SUMME mit einem Bereich.", "Die Temperaturen stehen in B2 bis B6. Der Bereich ist derselbe wie bei SUMME.", "Die Formel heißt: Gleichheitszeichen, MITTELWERT, Klammer auf, Bereich von B2 bis B6, Klammer zu."],
+  lehrer: { ziel: "MITTELWERT mit einem Bereich anwenden und vom Summieren unterscheiden.",
+    anleitung: "Vorher kurz klären: „Wie berechnet man einen Durchschnitt?“ Dann einzeln arbeiten lassen.",
+    loesung: "=MITTELWERT(B2:B6), B7 zeigt 15.",
+    fehler: ["SUMME statt MITTELWERT – das Ergebnis 75 ist die Summe.", "Der Bereich reicht bis B7 – dann steht die Formel in ihrem eigenen Bereich."],
+    bedienung: "B7 anklicken, Formel tippen, Eingabetaste." },
+  bau(box) {
+    Modul.makeTabellenAufgabe(box, {
+      text: "Berechne in <b>B7</b> die Durchschnittstemperatur der fünf Tage.",
+      tabelle: { spalten: 2, zeilen: 7, eingabe: ["B7"], start: "B7", breit: { A: 110, B: 120 }, zellen: { A1: "Tag", B1: "Temperatur in °C", A2: "Mo", B2: "13", A3: "Di", B3: "17", A4: "Mi", B4: "9", A5: "Do", B5: "15", A6: "Fr", B6: "21", A7: "Durchschnitt" } },
+      pruefe: t => [
+        p(t.istFormel("B7"), "In B7 steht eine Formel.", "In B7 fehlt eine Formel. Sie beginnt mit =."),
+        p(F(t.formel("B7"), ["=MITTELWERT(B2:B6)", "=MITTELWERT($B$2:$B$6)"]), "Die Formel nutzt MITTELWERT mit dem Bereich B2:B6.", "Nutze die Funktion MITTELWERT mit dem Bereich von B2 bis B6."),
+        p(gl(t.wert("B7"), 15), "B7 zeigt den richtigen Durchschnitt.", "B7 zeigt " + (t.text("B7") || "nichts") + ". Das ist nicht der Durchschnitt der fünf Tage.")
+      ],
+      loesung: { setze: { B7: "=MITTELWERT(B2:B6)" } },
+      erfolg: "Der Durchschnitt in einem Schritt."
+    }, "tab-mittel");
+  }
+});
+
+W.aufgabe({
+  titel: "Bereich und Durchschnitt",
+  auftrag: "Zwei Fragen zu dem, was du gerade gerechnet hast.",
+  hinweise: ["Rechne die erste Aufgabe im Kopf: erst zusammenzählen, dann durch die Anzahl teilen.", "Der Doppelpunkt in einem Bereich steht für „von … bis“.", "Frage 1: 10 + 12 + 14 + 16 + 18 = 70, geteilt durch 5. Frage 2: von B2 bis B8."],
+  lehrer: { ziel: "Durchschnitt nachrechnen und die Schreibweise des Bereichs sichern.", anleitung: "Einzelarbeit, wenige Minuten.",
+    loesung: "Frage 1: 14 · Frage 2: von B2 bis B8.", fehler: ["Frage 1: Die Summe 70 wird als Durchschnitt angegeben."] },
+  bau(box) {
+    Modul.makeMC(box, [
+      { q: "Fünf Temperaturen: 10, 12, 14, 16 und 18 Grad. Was ergibt MITTELWERT?", o: ["14", "70", "5", "18"], a: 0, e: "Zusammen sind es 70. Geteilt durch 5 Werte ergibt das 14." },
+      { q: "Was bedeutet B2:B8 in einer Formel?", o: ["von B2 bis B8", "B2 geteilt durch B8", "nur die Zelle B8", "B2 und B8, aber nichts dazwischen"], a: 0, e: "Der Doppelpunkt heißt „von … bis“. Alle Zellen dazwischen gehören dazu." }
+    ], "mc-bereich");
+  }
+});
+
+W.aufgabe({
+  titel: "Zwei Fehler finden",
+  geheim: ["=SUMME(B2:B8)", "=MITTELWERT(B2:B8)", "44100", "6300"],
+  auftrag: "Team Grün hat sich verrechnet. Die Summe in <b>B9</b> sieht zu klein aus, und der Durchschnitt in <b>B10</b> stimmt auch nicht. Finde und repariere beide Fehler.",
+  hinweise: ["Sieh dir bei beiden Formeln den Bereich an: Welche Zellen sind drin, welche fehlen oder sind zu viel?", "Die Tage stehen in B2 bis B8. In B9 fehlt ein Tag, in B10 ist etwas im Bereich, das nicht hineingehört.", "B9 soll alle sieben Tage zusammenzählen (B2 bis B8). B10 soll nur die sieben Tage mitteln (auch B2 bis B8), nicht die Summe."],
+  lehrer: { ziel: "Typische Bereichsfehler erkennen: Bereich zu kurz, Bereich enthält die Summe.",
+    anleitung: "Die Klasse vermutet zuerst: „Welcher Tag fehlt?“ Dann die Formeln anklicken und die Bereiche vergleichen.",
+    loesung: "B9 =SUMME(B2:B8) zeigt 44100. B10 =MITTELWERT(B2:B8) zeigt 6300.",
+    fehler: ["Nur B9 wird repariert, B10 nicht.", "B10 bekommt den Bereich B2:B9 – dann ist die Summe selbst im Durchschnitt."],
+    bedienung: "B9 anklicken, neue Formel tippen, Eingabetaste. Dann dasselbe bei B10." },
+  bau(box) {
+    Modul.makeTabellenAufgabe(box, {
+      text: "Repariere die Formeln in <b>B9</b> (Summe) und <b>B10</b> (Durchschnitt der sieben Tage).",
+      tabelle: { spalten: 2, zeilen: 10, eingabe: ["B9", "B10"], start: "B9", breit: { A: 110, B: 120 },
+        zellen: { A1: "Tag", B1: "Schritte", A2: "Mo", B2: "5400", A3: "Di", B3: "6100", A4: "Mi", B4: "4800", A5: "Do", B5: "7300", A6: "Fr", B6: "6600", A7: "Sa", B7: "10200", A8: "So", B8: "3700", A9: "Summe", B9: "=SUMME(B2:B7)", A10: "Durchschnitt", B10: "=MITTELWERT(B2:B9)" } },
+      pruefe: t => [
+        p(F(t.formel("B9"), ["=SUMME(B2:B8)", "=SUMME($B$2:$B$8)"]) && gl(t.wert("B9"), 44100), "B9 zählt alle sieben Tage zusammen.", "B9 zeigt " + t.text("B9") + ". Es fehlt noch ein Tag im Bereich."),
+        p(F(t.formel("B10"), ["=MITTELWERT(B2:B8)", "=MITTELWERT($B$2:$B$8)"]) && gl(t.wert("B10"), 6300), "B10 berechnet den Durchschnitt der sieben Tage.", "B10 zeigt " + t.text("B10") + ". Gehört die Summe in B9 zum Durchschnitt der Tage dazu?")
+      ],
+      loesung: { setze: { B9: "=SUMME(B2:B8)", B10: "=MITTELWERT(B2:B8)" } },
+      erfolg: "Beide Bereiche stimmen jetzt."
+    }, "tab-fehler");
+  }
+});
+
+/* ============ Teil 3: Am PC ============ */
+W.teil("Am PC: Excel", "Anwenden");
+
+W.aufgabe({
+  titel: "Schritte-Wettbewerb in Excel",
+  geheim: ["53000", "52500", "7571", "7500", "=SUMME(B2:B8)", "=MITTELWERT(B2:B8)"],
+  auftrag: "Jetzt rechnest du im echten Excel: Zwei Teams haben sieben Tage lang Schritte gezählt. Wer hat mehr – und wie viel macht ein Team im Durchschnitt pro Tag?",
+  hinweise: ["Unter den Zahlen sind zwei Zeilen vorbereitet: „Summe“ und „Durchschnitt“. Du füllst die Zellen daneben.", "Die Zahlen stehen in B2 bis B8 (Team Blau) und C2 bis C8 (Team Grün). Schreibe nur die Formeln für Team Blau, die für Team Grün zieht Excel nach rechts.", "B9 <code>=SUMME(B2:B8)</code>, B10 <code>=MITTELWERT(B2:B8)</code>. Markiere B9 und B10 und ziehe das Ausfüllkästchen nach rechts bis C. Dann speichern."],
+  lehrer: { ziel: "SUMME und MITTELWERT im echten Excel anwenden und nach rechts ziehen.",
+    anleitung: "Etwa 12 Minuten. Die Startdatei schritte_start.xlsx liegt im Auftrag zum Herunterladen. Am Ende lädt jedes Kind seine gespeicherte Datei hoch; der Server prüft sie und die KI schreibt eine Rückmeldung. Am Tablet gibt es stattdessen eine Frage.",
+    loesung: "B9 53000 · C9 52500 · B10 etwa 7571,43 · C10 7500. Gespeichert als schritte.xlsx.",
+    fehler: ["Der Durchschnitt wird über B2:B9 gebildet – dann ist die Summe mit im Bereich.", "Statt SUMME steht eine lange Plus-Kette: Das Ergebnis stimmt, die Prüfung weist aber auf SUMME hin.", "Team Grün wurde nicht berechnet (nicht nach rechts gezogen)."],
+    bedienung: "„Datei auswählen“ → die gespeicherte .xlsx-Datei. Die Rückmeldung nennt jeden Prüfpunkt einzeln." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Schritte-Wettbewerb", pc: "Excel", zeit: "etwa 12 Minuten",
+      ziel: "Für beide Teams stehen die Summe und der Durchschnitt der Schritte in der Tabelle. Beide rechnen mit Funktionen. Die Datei ist gespeichert.",
+      material: [{ name: "Startdatei schritte_start.xlsx", href: "assets/excel/schritte_start.xlsx" }],
+      schritte: [
+        "Lade die Startdatei herunter und öffne sie in Excel. Erscheint oben ein gelber Balken, klicke auf <span class=\"menue\">Bearbeitung aktivieren</span>.",
+        "Klicke auf <b>B9</b> (neben „Summe“). Tippe <code>=SUMME(B2:B8)</code> und drücke die Eingabetaste.",
+        "Klicke auf <b>B10</b> (neben „Durchschnitt“). Tippe <code>=MITTELWERT(B2:B8)</code> und drücke die Eingabetaste.",
+        "Markiere B9 und B10 zusammen, indem du von B9 nach B10 ziehst. Ziehe dann das <b>Ausfüllkästchen</b> (das kleine Quadrat unten rechts an der Markierung) nach rechts bis <b>C</b>.",
+        "Klicke auf C9 und sieh in die Bearbeitungsleiste: Dort steht <code>=SUMME(C2:C8)</code>. Der Bereich ist mit nach rechts gewandert.",
+        "Sieh dir den Durchschnitt von Team Blau an: Excel zeigt 7571,43. Die Zahl geht nicht glatt auf – die Anzeige ist auf zwei Stellen gerundet.",
+        "Speichere die Datei unter einem neuen Namen: Drücke die Taste <kbd>F12</kbd>. Es öffnet sich das Fenster „Speichern unter“. Wähle deinen Ordner, tippe den Namen <b>schritte</b> ein und klicke auf <span class=\"menue\">Speichern</span>."
+      ],
+      loesung: "B9 zeigt 53000, C9 zeigt 52500, B10 zeigt etwa 7571,43 und C10 zeigt 7500.",
+      pruefung: {
+        art: "datei", accept: ".xlsx", lies: Modul.liesExcel, pruefe: (Modul.excelPruefung || {})["summe-mittelwert-auf1"], server: { pfad: "/api/inf9/excel/pruefen", aufgabe: "summe-mittelwert-auf1" },
+        text: "Wähle deine gespeicherte Datei <b>schritte.xlsx</b> aus. Sie wird geprüft, und die KI schreibt dir eine Rückmeldung. Deine Lehrkraft kann die Datei danach ansehen.",
+        ersatz: { art: "wort", frage: "Welches Team hat insgesamt mehr Schritte gemacht? Schreibe den Namen des Teams.", antworten: ["Team Blau", "Blau"],
+          tipp: "Vergleiche die beiden Summen in B9 und C9." }
+      }
+    }, "auf1");
+  }
+});
+
+/* ============ Teil 4: Wiederholen ============ */
+W.teil("Wiederholen", "Andere Zahlen");
+
+W.aufgabe({
+  titel: "Schulradeln",
+  geheim: ["=SUMME(B2:B7)", "=MITTELWERT(B2:B7)", "675", "112,5"],
+  auftrag: "Sechs Klassen sind beim Schulradeln Kilometer gefahren. Berechne in <b>B8</b> die Summe und in <b>B9</b> den Durchschnitt pro Klasse.",
+  hinweise: ["Zwei Formeln: SUMME für B8, MITTELWERT für B9.", "Die Kilometer stehen in B2 bis B7. B8 gehört nicht zum Bereich für den Durchschnitt.", "B8 <code>=SUMME(B2:B7)</code> und B9 <code>=MITTELWERT(B2:B7)</code>."],
+  lehrer: { ziel: "SUMME und MITTELWERT mit neuen Zahlen sicher anwenden.", anleitung: "Einzelarbeit. Danach fragen: „Warum darf B8 nicht im Bereich von B9 stehen?“",
+    loesung: "B8 =SUMME(B2:B7) zeigt 675. B9 =MITTELWERT(B2:B7) zeigt 112,5.",
+    fehler: ["B9 rechnet über B2:B8 – dann ist die Summe mitgemittelt.", "Der Bereich beginnt bei B1 (Überschrift) – das stört Excel nicht, ist aber unsauber."],
+    bedienung: "Zwei Formeln nacheinander tippen, jeweils mit der Eingabetaste." },
+  bau(box) {
+    Modul.makeTabellenAufgabe(box, {
+      text: "Schreibe die Formel für die Summe in <b>B8</b> und für den Durchschnitt in <b>B9</b>.",
+      tabelle: { spalten: 2, zeilen: 9, eingabe: ["B8", "B9"], start: "B8", breit: { A: 110, B: 120 },
+        zellen: { A1: "Klasse", B1: "Kilometer", A2: "8a", B2: "124", A3: "8b", B3: "98", A4: "9a", B4: "143", A5: "9b", B5: "117", A6: "9c", B6: "88", A7: "7b", B7: "105", A8: "Summe", A9: "Durchschnitt" } },
+      pruefe: t => [
+        p(F(t.formel("B8"), ["=SUMME(B2:B7)", "=SUMME($B$2:$B$7)"]), "B8 nutzt SUMME mit dem Bereich B2:B7.", "B8 soll mit SUMME alle sechs Klassen zusammenzählen (B2 bis B7)."),
+        p(gl(t.wert("B8"), 675), "Die Summe stimmt.", "B8 zeigt " + (t.text("B8") || "nichts") + ". Das ist nicht die Summe der sechs Klassen."),
+        p(F(t.formel("B9"), ["=MITTELWERT(B2:B7)", "=MITTELWERT($B$2:$B$7)"]), "B9 nutzt MITTELWERT mit dem Bereich B2:B7.", /B8|B9/.test(t.formel("B9")) ? "Im Bereich von B9 steht die Summe aus B8 mit drin. Der Bereich soll nur B2 bis B7 sein." : "B9 soll mit MITTELWERT den Durchschnitt der sechs Klassen berechnen (B2 bis B7)."),
+        p(gl(t.wert("B9"), 112.5), "Der Durchschnitt stimmt.", "B9 zeigt " + (t.text("B9") || "nichts") + ". Das ist nicht der Durchschnitt der sechs Klassen.")
+      ],
+      loesung: { setze: { B8: "=SUMME(B2:B7)", B9: "=MITTELWERT(B2:B7)" } },
+      erfolg: "Summe und Durchschnitt – beide mit Funktionen."
+    }, "tab-wdh");
+  }
+});
+
+/* ============ Teil 5: Kontrollieren ============ */
+W.teil("Kontrollieren", "Lerncheck");
+
+W.aufgabe({
+  titel: "SUMME oder MITTELWERT?",
+  auftrag: "Entscheide bei jedem Fall, welche Funktion du brauchst.",
+  hinweise: ["Frage dich: Ist das Ergebnis eine Gesamtmenge oder ein typischer Wert pro Tag oder Kind?", "SUMME: alles zusammen. MITTELWERT: der Durchschnitt.", "Fall 1 und 3 fragen nach „insgesamt“ → SUMME. Fall 2 und 4 fragen nach „durchschnittlich“ → MITTELWERT."],
+  lehrer: { ziel: "Entscheiden, ob eine Frage SUMME oder MITTELWERT braucht.", anleitung: "Ein Fall nach dem anderen; falsch entschiedene Fälle kommen noch einmal.",
+    loesung: "SUMME · MITTELWERT · SUMME · MITTELWERT.", fehler: ["„Durchschnittlich“ wird überlesen."] },
+  bau(box) {
+    Modul.makeEntscheiden(box, {
+      frage: "Welche Funktion passt?",
+      optionen: ["SUMME", "MITTELWERT"],
+      faelle: [
+        { html: "<b>Fall 1:</b> Wie viele Schritte hat das ganze Team in der Woche gemacht?", kurz: "Schritte im Ganzen", a: 0, e: "„Im Ganzen“ heißt zusammenzählen: SUMME." },
+        { html: "<b>Fall 2:</b> Wie viele Schritte macht das Team an einem durchschnittlichen Tag?", kurz: "Schritte pro Tag", a: 1, e: "„Durchschnittlich“ heißt: MITTELWERT." },
+        { html: "<b>Fall 3:</b> Was kosten alle Getränke für das Fest zusammen?", kurz: "Kosten zusammen", a: 0, e: "„Zusammen“ heißt: SUMME." },
+        { html: "<b>Fall 4:</b> Wie warm war es in der Woche im Mittel?", kurz: "Mittlere Temperatur", a: 1, e: "„Im Mittel“ ist der Durchschnitt: MITTELWERT." }
+      ],
+      fertig: "Du erkennst, wann du zusammenzählst und wann du den Durchschnitt brauchst."
+    }, "ent-funktion");
+  }
+});
+
+W.aufgabe({
+  titel: "Lerncheck",
+  auftrag: "Richtig oder falsch? Entscheide bei jeder Aussage.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Der Doppelpunkt heißt „von … bis“.", "Richtig sind die Aussagen zu SUMME, zum Bereich und zu MITTELWERT. Falsch sind die Aussagen zum Mittelwert als Summe und zur Formel ohne Gleichheitszeichen."],
+  lehrer: { ziel: "Kernwissen der Stunde sichern.", anleitung: "Einzelarbeit, etwa 3 Minuten.", loesung: "richtig · richtig · falsch · richtig · falsch", fehler: ["Aussage 3: Der Mittelwert ist nicht die Summe."] },
+  bau(box) {
+    Modul.makeTF(box, [
+      ["=SUMME(A1:A3) zählt die Zellen A1, A2 und A3 zusammen.", true],
+      ["B2:B8 bedeutet: von B2 bis B8.", true],
+      ["MITTELWERT zählt alle Zahlen nur zusammen, ohne zu teilen.", false],
+      ["Mit MITTELWERT berechnet Excel den Durchschnitt.", true],
+      ["SUMME(A1:A3) funktioniert auch ohne Gleichheitszeichen am Anfang.", false]
+    ], "tf");
+  }
+});
+
+W.fertig();
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

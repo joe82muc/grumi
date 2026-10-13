@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>IP-Adressen | Informatik 9</title>
+<link rel="stylesheet" href="../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="../../7M/Informatik/einheit.css">
+<link rel="stylesheet" href="../../8M/Informatik/einheit8.css">
+<link rel="stylesheet" href="einheit9.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 9</small></a>
+    <nav class="stations" id="stations"></nav>
+    <span class="stars" id="stars">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks">
+      <a href="index.html">Übersicht Informatik 9M</a>
+      <a href="../../9R/Informatik/index.html">Übersicht Informatik 9R</a>
+      <a href="../../index.html">Startseite</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 9 · Modul 1: Netzwerke mit Filius · Einheit 2</div>
+    <h1>IP-Adressen</h1>
+    <p>Ein Paket kommt nur an, wenn die Adresse stimmt. Im Netz ist das nicht anders als bei der Post. Heute bringst du ein Büro-Netz in Ordnung, in dem sich zwei Adressen verirrt haben.</p>
+    <div class="zeit">etwa 40 Minuten · Praxis am Windows-PC mit Filius</div>
+    <div class="goals">
+      <div>Ich lese eine IP-Adresse und sage, was „Netz“ und was „Gerät“ ist.</div>
+      <div>Ich erkenne, ob eine Adresse in ein Netz passt.</div>
+      <div>Ich finde in Filius falsche und doppelte Adressen und bessere sie aus.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="modulStand"></div>
+  <div id="weg"></div>
+</main>
+
+<footer class="wrap">Informatik 9 · Dein Fortschritt wird mit deinem Code gespeichert.</footer>
+
+<div id="pop" role="dialog"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../../7M/NT/modul-basis.js"></script>
+<script src="../../7M/Informatik/praxis.js"></script>
+<script src="info9.js"></script>
+<script src="../../7M/Informatik/filius-datei.js"></script>
+<script src="filius9.js"></script>
+<script src="../../7M/Informatik/netz-bild.js"></script>
+<script>
+(function () {
+"use strict";
+const {$} = Modul;
+
+Modul.start9({
+  key: "grumi-i9-ip-adressen-v1",
+  thema: "IP-Adressen: vier Zahlen mit Punkten, im selben Netz sind die ersten drei Zahlen gleich, jedes Gerät braucht eine eigene Adresse, Fehler durch doppelte oder falsche Adressen finden und beheben, eigene Adresse mit ipconfig ablesen (Simulationsprogramm Filius)",
+  glossary: {
+    ip: ["IP-Adresse", "Die Adresse eines Geräts im Netzwerk: vier Zahlen mit Punkten, zum Beispiel 192.168.0.10."],
+    netz: ["Netz", "Alle Geräte, deren IP-Adressen mit denselben drei Zahlen beginnen, gehören zum selben Netz."],
+    doppelt: ["doppelte Adresse", "Zwei Geräte haben dieselbe IP-Adresse. Das stört das Netz."],
+    ipconfig: ["ipconfig", "Ein Befehl, der die Netzwerk-Angaben des eigenen Geräts anzeigt, zum Beispiel die IP-Adresse."],
+    ping: ["ping", "Ein Befehl, der prüft, ob ein anderes Gerät im Netz antwortet."]
+  }
+});
+
+const W = Modul.lernweg("#weg");
+
+/* ============ Teil 1: Regelheft ============ */
+W.teil("Regelheft", "Schreiben");
+W.regelheft({
+  titel: "Die IP-Adresse",
+  html: `<p>Jedes Gerät im Netz hat eine eigene <span class="rot">IP-Adresse</span>.</p>
+    <p>Sie besteht aus vier Zahlen mit Punkten, z. B. <span class="blau">192.168.0.10</span>.</p>
+    <p class="leer"></p>
+    <p>Im selben Netz sind die <span class="rot">ersten drei Zahlen gleich</span>: 192.168.0 ist das Netz.</p>
+    <p>Die letzte Zahl ist bei jedem Gerät anders: .10 ist das Gerät.</p>
+    <p class="leer"></p>
+    <p>Zwei Geräte mit derselben Adresse stören sich.</p>`,
+  lehrer: { ziel: "Die Kernaussagen der Stunde stehen im Heft: Aufbau der IP-Adresse, Netz und Gerät, keine doppelten Adressen.",
+    anleitung: "Etwa 5 Minuten. Die Klasse schreibt ab. Erst nach dem Abhaken erscheint die erste Aufgabe. Subnetze und Netzmasken werden bewusst nicht behandelt: Es genügt, dass die ersten drei Zahlen im selben Netz gleich sind.",
+    loesung: "Der Eintrag steht vollständig im Heft (sieben kurze Zeilen)." }
+});
+
+/* ============ Teil 2: Sehen und verstehen ============ */
+W.teil("Verstehen", "Sehen · Ausprobieren");
+
+W.aufgabe({
+  titel: "Adressen wie bei der Post",
+  auftrag: "Sieh dir das Bild an: Die Paketbotin sucht ein bestimmtes Haus. Beantworte dann die zwei Fragen.",
+  vorwissen: "<p>Eine Postadresse hat zwei Teile: die <b>Straße</b> und die <b>Hausnummer</b>. Eine IP-Adresse hat auch zwei Teile – dazu gleich mehr.</p>",
+  hinweise: ["Überlege, was die Paketbotin auf dem Paket lesen muss.", "Alle Häuser stehen in <b>einer</b> Straße. Was unterscheidet sie dann voneinander?", "Frage 1: Straße und Hausnummer. Frage 2: Die Straße ist bei allen Häusern gleich, also bei allen Geräten eines Netzes – das sind die ersten drei Zahlen."],
+  lehrer: { ziel: "Die IP-Adresse über den Vergleich mit einer Postadresse einführen: Straße = Netz, Hausnummer = Gerät.",
+    anleitung: "Bild am Beamer zeigen und fragen: „Wie findet die Paketbotin das richtige Haus?“ Danach die zwei Fragen in Einzelarbeit. Der Vergleich ist bewusst vereinfacht: Er genügt, um die Aufteilung der Adresse zu verstehen.",
+    loesung: "Frage 1: Straße und Hausnummer. Frage 2: die ersten drei Zahlen, die im ganzen Netz gleich sind.",
+    fehler: ["Die Hausnummer wird mit der ganzen IP-Adresse gleichgesetzt – die ganze Adresse ist Straße plus Hausnummer."] },
+  bau(box) {
+    box.innerHTML = `<figure class="bild9"><img class="zoomable" src="assets/bilder/ip-adressen.jpg" width="1280" height="853" loading="lazy" alt="Eine Paketbotin in dunkelblauer Jacke und Mütze steht auf dem Gehweg und hält ein Paket. Vor ihr steht eine Reihe Reihenhäuser mit bunten Haustüren in Blau, Rot, Grün und Gelb, daneben jeweils ein Briefkasten.">
+      <figcaption>Welche Tür ist die richtige? Ohne Adresse weiß die Paketbotin es nicht. (Bild mit KI erstellt)</figcaption></figure><div class="mc"></div>`;
+    Modul.makeMC($(".mc", box), [
+      { q: "Was braucht die Paketbotin, um das richtige Haus zu finden?", o: ["die Straße und die Hausnummer", "nur die Farbe der Tür", "den Namen des Briefkastens", "die Uhrzeit"], a: 0,
+        e: "Erst Straße und Hausnummer zusammen sagen genau, wohin das Paket muss." },
+      { q: "Was entspricht in einer IP-Adresse der Straße?", o: ["die ersten drei Zahlen, die bei allen Geräten im Netz gleich sind", "die letzte Zahl", "der Name des Geräts", "das Kabel"], a: 0,
+        e: "Alle Geräte eines Netzes stehen in derselben „Straße“. Die letzte Zahl ist die „Hausnummer“." }
+    ], "mc-post");
+  }
+});
+
+W.aufgabe({
+  titel: "Eine Adresse zerlegen",
+  auftrag: "Die Adresse 192.168.0.10 hat zwei Teile. Ordne zu, was zur „Straße“ (Netz) und was zur „Hausnummer“ (Gerät) gehört.",
+  hinweise: ["Schau in deinen Regelhefteintrag: Welche Zahlen sind im Netz bei allen gleich?", "Die ersten drei Zahlen sind gleich, die letzte ist bei jedem Gerät anders.", "Straße (Netz): die ersten drei Zahlen, 192.168.0, bei allen gleich. Hausnummer (Gerät): die letzte Zahl, .10, bei jedem anders."],
+  lehrer: { ziel: "Eine IP-Adresse in den Netz-Teil (erste drei Zahlen) und den Geräte-Teil (letzte Zahl) zerlegen.",
+    anleitung: "Einzelarbeit, etwa 3 Minuten. Tippen und Ziehen gehen beide. Falsche Zuordnungen werden nach „Prüfen“ rot.",
+    loesung: "Straße (Netz): die ersten drei Zahlen · 192.168.0 · bei allen Geräten im Netz gleich. Hausnummer (Gerät): die letzte Zahl · 10 · bei jedem Gerät anders.",
+    fehler: ["„192.168.0“ wird der Hausnummer zugeordnet, weil die Zahl so lang aussieht – lang heißt nicht Gerät."] },
+  bau(box) {
+    Modul.makeSort(box, { buckets: ["🛣️ Straße = das Netz", "🏠 Hausnummer = das Gerät"], cols: 240,
+      items: [
+        { t: "die ersten drei Zahlen", b: 0 }, { t: "192.168.0", b: 0 }, { t: "bei allen Geräten im Netz gleich", b: 0 },
+        { t: "die letzte Zahl", b: 1 }, { t: ".10", b: 1 }, { t: "bei jedem Gerät anders", b: 1 }
+      ], done: "✅ Richtig! Die Straße sagt, in welches Netz es geht, die Hausnummer, zu welchem Gerät." }, "sort-teile");
+  }
+});
+
+W.aufgabe({
+  titel: "Zwei Geräte, dieselbe Adresse",
+  auftrag: "Sieh dir die Schritte an: PC 2 und PC 3 haben beide die Adresse 192.168.0.11. Achte darauf, wohin das Paket soll.",
+  vorwissen: "<p>Die Geräte hängen an einem <b>Switch</b>. Er verteilt die Pakete an die Geräte. Mehr dazu in der nächsten Einheit.</p>",
+  hinweise: ["Tippe auf „Start“ oder auf die Zahlen 1 bis 5.", "Sieh dir an, welche Geräte in Schritt 3 „Das bin ich!“ sagen.", "Schritt 4: Das Paket kann nur zu einem der beiden. Bei welchem es ankommt, weiß vorher niemand."],
+  lehrer: { ziel: "Verstehen, warum eine Adresse nur einmal vergeben werden darf.",
+    anleitung: "Gemeinsam am Beamer durchklicken und bei Schritt 3 fragen: „Was soll der Switch jetzt tun?“ Danach das Bildschirmfoto aus Filius zeigen. Wichtig: Filius meldet bei doppelten Adressen keinen Fehler. Der ping klappt sogar. Die vier Pakete eines Pings landen aber nicht alle bei demselben Rechner – sichtbar nur im Datenaustausch.",
+    loesung: "Alle fünf Schritte angesehen: Zwei Geräte melden sich mit 192.168.0.11, das Paket kann nur bei einem ankommen, Filius meldet trotzdem keinen Fehler.",
+    fehler: ["Kinder meinen, der Computer zeige bei doppelten Adressen immer eine Warnung. In Filius ist das nicht so: Doppelte Adressen muss man selbst finden."],
+    bedienung: "„Start“ spielt alle Schritte ab, die Zahlen springen zu einem Schritt, ↺ beginnt neu." },
+  bau(box) {
+    box.innerHTML = `<div class="nb"></div><div class="sim"></div><figure class="bild9"><img class="zoomable" src="assets/filius/datenaustausch-doppelte-adresse.png" width="1200" height="720" loading="lazy" alt="Filius, Fenster Datenaustausch von PC 3 mit der Adresse 192.168.0.11: In den ersten beiden Zeilen steht die Suche nach 192.168.0.11 und die Antwort von PC 3, danach Zeilen für Anfragen und Antworten von ping und weitere Suchanfragen.">
+      <figcaption>In Filius: PC 3 antwortet auf die Suche nach 192.168.0.11, obwohl auch PC 2 diese Adresse hat. (Bildschirmfoto aus Filius)</figcaption></figure>`;
+    const n = Modul.netzBild($(".nb", box), { b: 600, h: 300, alt: "Netzplan: In der Mitte oben ein Switch. Daran hängen PC 1 mit 192.168.0.10, PC 2 mit 192.168.0.11 und PC 3 ebenfalls mit 192.168.0.11.",
+      geraete: [{ id: "s", art: "switch", x: 300, y: 60, name: "Switch" }, { id: "a", art: "pc", x: 90, y: 200, name: "PC 1", ip: "192.168.0.10" },
+        { id: "b", art: "pc", x: 300, y: 225, name: "PC 2", ip: "192.168.0.11" }, { id: "c", art: "pc", x: 510, y: 200, name: "PC 3", ip: "192.168.0.11" }],
+      kabel: [["a", "s"], ["b", "s"], ["c", "s"]] });
+    Modul.makeSchritte($(".sim", box), {
+      start: "Tippe auf „Start“ oder gehe Schritt für Schritt.",
+      steps: [
+        "PC 1 will ein Paket an die Adresse <b>192.168.0.11</b> schicken.",
+        "Das Paket läuft zum Switch. Der Switch fragt: Wer hat die Adresse 192.168.0.11?",
+        "Es melden sich <b>zwei</b> Geräte: PC 2 und PC 3. Beide haben dieselbe Adresse.",
+        "Das Paket kann nur zu einem der beiden. Bei welchem es ankommt, weiß vorher niemand.",
+        "In Filius gibt es dazu <b>keine Fehlermeldung</b>. Der ping klappt sogar – aber die Pakete landen nicht alle beim selben Rechner. Den Fehler musst du selbst finden."
+      ],
+      zeige(i) {
+        n.neu();
+        if (i === 0) n.paket("a", { text: "an 192.168.0.11" }).an("a", true);
+        if (i === 1) { n.paket("s", { text: "an 192.168.0.11", dx: -90, dy: 44 }).kabel("a", "s", "an"); n.schild("s", "Wer ist .11?"); }
+        if (i >= 2) { n.schild("b", "Das bin ich!").schild("c", "Das bin ich!").an("b", true).an("c", true); }
+        if (i === 3) n.schild("b", "Hier?").schild("c", "Oder hier?").kabel("b", "s", "aus").kabel("c", "s", "aus");
+        if (i === 4) n.schild("b", "").schild("c", "");
+      }
+    }, "anim-doppelt");
+  }
+});
+
+W.aufgabe({
+  titel: "Passt die Adresse ins Netz?",
+  auftrag: "Das Büro-Netz hat die Adressen 192.168.0.x. Schon vergeben sind 192.168.0.10 und 192.168.0.11. Entscheide bei jeder neuen Adresse.",
+  vorwissen: "<p>Eine Adresse passt, wenn die ersten drei Zahlen stimmen, die letzte Zahl noch frei ist und alle vier Zahlen da sind.</p>",
+  hinweise: ["Vergleiche zuerst die ersten drei Zahlen mit 192.168.0.", "Stimmen sie? Dann sieh nach, ob die letzte Zahl schon vergeben ist: .10 und .11 sind es.", "Nur 192.168.0.12 und 192.168.0.14 passen. 192.168.2.12 ist ein anderes Netz, 192.168.0.11 ist vergeben, 192.168.0 hat nur drei Zahlen."],
+  lehrer: { ziel: "Adressen mit dem Netz vergleichen und vier Gründe unterscheiden, warum eine Adresse nicht passt.",
+    anleitung: "Ein Fall nach dem anderen; falsch entschiedene Fälle kommen später noch einmal. Danach kurz besprechen: Welche Fehler passieren in Filius leicht?",
+    loesung: "192.168.0.12 passt · 192.168.2.12 anderes Netz · 192.168.0.11 schon vergeben · 192.168.0 unvollständig · 192.168.0.14 passt.",
+    fehler: ["192.168.2.12 wird für „passt“ gehalten, weil die letzte Zahl frei ist – entscheidend sind aber zuerst die ersten drei Zahlen."] },
+  bau(box) {
+    Modul.makeEntscheiden(box, {
+      frage: "Was ist mit dieser Adresse?",
+      optionen: ["passt", "anderes Netz", "schon vergeben", "unvollständig"],
+      faelle: [
+        { html: "Neues Gerät: <code>192.168.0.12</code>", kurz: "192.168.0.12", a: 0, e: "Erste drei Zahlen 192.168.0 stimmen, und .12 ist noch frei." },
+        { html: "Neues Gerät: <code>192.168.2.12</code>", kurz: "192.168.2.12", a: 1, e: "Die ersten drei Zahlen sind 192.168.2 – das ist ein anderes Netz als 192.168.0." },
+        { html: "Neues Gerät: <code>192.168.0.11</code>", kurz: "192.168.0.11", a: 2, e: "Das Netz stimmt, aber die Adresse .11 hat schon ein Gerät." },
+        { html: "Neues Gerät: <code>192.168.0</code>", kurz: "192.168.0", a: 3, e: "Hier fehlt die vierte Zahl. Eine IP-Adresse hat immer vier Zahlen." },
+        { html: "Neues Gerät: <code>192.168.0.14</code>", kurz: "192.168.0.14", a: 0, e: "Netz stimmt, .14 ist frei. Die Adressen müssen nicht lückenlos vergeben werden." }
+      ],
+      fertig: "Du erkennst die vier häufigsten Adressfehler."
+    }, "entsch-passt");
+  }
+});
+
+/* ============ Teil 3: Am PC ============ */
+W.teil("Am PC: Filius", "Anwenden");
+
+function pruefeAdressen(n) {
+  const r = n.rechner;
+  const amSwitch = r.filter(g => n.switchVon(g.id).length > 0);
+  const nichtImNetz = r.filter(g => g.ips.length && !g.ips.every(ip => ip.indexOf("192.168.0.") === 0));
+  const dop = n.doppelt;
+  const wer = ip => r.filter(g => g.ips.includes(ip)).map(g => g.name).join(" und ");
+  return [
+    { ok: r.length === 4, text: r.length === 4 ? "Vier Computer stehen auf der Fläche." : "Auf der Fläche sollen vier Computer stehen (PC 1 bis PC 4). Gefunden: " + r.length + "." },
+    { ok: n.switches.length >= 1 && r.length > 0 && amSwitch.length === r.length, text: n.switches.length >= 1 && amSwitch.length === r.length ? "Alle Computer hängen mit einem Kabel am Switch." : "Nicht jeder Computer hängt am Switch. Es fehlt bei: " + (r.filter(g => !amSwitch.includes(g)).map(g => g.name).join(", ") || "dem Switch") + "." },
+    { ok: r.length > 0 && !nichtImNetz.length && r.every(g => g.ips.length > 0), text: !nichtImNetz.length ? "Alle Adressen beginnen mit 192.168.0." : "„" + nichtImNetz[0].name + "“ hat " + nichtImNetz[0].ips[0] + ". Die ersten drei Zahlen müssen 192.168.0 sein – ändere die dritte Zahl." },
+    { ok: r.length > 0 && !dop.length, text: dop.length ? "Zwei Computer haben dieselbe Adresse: " + dop[0] + " (" + wer(dop[0]) + "). Gib einem der beiden eine freie Adresse." : "Jeder Computer hat eine eigene Adresse." }
+  ];
+}
+
+W.aufgabe({
+  titel: "Zwei falsche Adressen reparieren",
+  geheim: ["192.168.0.12", "192.168.0.13"],
+  auftrag: "Im Büro-Netz stimmt etwas nicht: Zwei Computer haben eine falsche Adresse. Finde sie in Filius und bessere sie aus.",
+  vorwissen: "<p>Eine Adresse änderst du so: <b>Doppelklick</b> auf das Gerät, unten das Feld <b>IP-Adresse</b> ändern, danach die <b>Eingabetaste</b> drücken. Das geht nur im <b>Entwurfsmodus</b> (Hammer).</p>",
+  hinweise: ["Fahre mit der Maus über einen Computer: Ein Kästchen zeigt seine Adresse. Oder mache einen Doppelklick und lies unten nach.", "Vergleiche alle vier Adressen: Zwei Computer haben dieselbe Adresse, und bei einem Computer beginnt die Adresse anders als bei den übrigen.", "PC 2 und PC 3 haben beide 192.168.0.11 – ändere PC 3 auf <code>192.168.0.12</code>. PC 4 hat 192.168.1.14 – ändere ihn auf <code>192.168.0.13</code>. Danach speichern."],
+  lehrer: { ziel: "In einem fertigen Netz eine doppelte Adresse und eine Adresse aus dem falschen Netz finden und beheben.",
+    anleitung: "Filius 2.14.0 starten lassen. Die Kinder laden die Startdatei herunter und öffnen sie über den gelben Ordner. Die zwei Fehler sollen sie selbst suchen: Ein Blick auf die vier Adressen genügt. Am Ende lädt jedes Kind seine gespeicherte Datei hoch – sie wird nur im Browser geprüft, nichts verlässt das Gerät. Am Tablet gibt es stattdessen eine Frage.",
+    loesung: "Switch Büro mit vier PCs: PC 1 192.168.0.10, PC 2 192.168.0.11, PC 3 192.168.0.12 (vorher doppelt), PC 4 192.168.0.13 (vorher 192.168.1.14). Gespeichert als adressen.fls. Andere freie Adressen aus 192.168.0.x sind ebenfalls richtig.",
+    fehler: ["Nur der PC mit der falschen dritten Zahl wird geändert, die doppelte Adresse bleibt (oder umgekehrt) – die Rückmeldung nennt dann den Punkt, der noch fehlt.", "Die Eingabetaste wird vergessen: Das Feld sieht geändert aus, Filius hat es aber noch nicht übernommen.", "Gespeichert wird im Aktionsmodus nicht: zurück in den Entwurfsmodus (Hammer)."],
+    bedienung: "„Datei auswählen“ → die gespeicherte .fls-Datei. Die Rückmeldung nennt jeden Prüfpunkt einzeln und sagt bei einem Fehler, welcher Computer betroffen ist." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Büro-Netz reparieren", pc: "Filius", zeit: "etwa 12 Minuten",
+      ziel: "Vier PCs hängen an einem Switch. Jeder hat eine eigene Adresse aus dem Netz 192.168.0.x. Dein Netz ist als adressen.fls gespeichert.",
+      material: [{ name: "Startdatei adressen_start.fls", href: "assets/filius/adressen_start.fls" }],
+      schritte: [
+        "Lade die Startdatei herunter. Öffne <b>Filius</b>. Klicke im Entwurfsmodus oben auf den <span class=\"menue\">gelben Ordner</span> und wähle die Datei <b>adressen_start.fls</b>.",
+        { t: "Du siehst den <b>Switch Büro</b> und vier Computer, PC 1 bis PC 4. Jeder hängt mit einem Kabel am Switch. Fahre mit der Maus über einen Computer: Ein Kästchen zeigt seine Adresse.", bild: "assets/filius/netz-adressen-fehler.png", alt: "Filius im Entwurfsmodus: Oben der Switch Büro, darunter in einer Reihe PC 1, PC 2, PC 3 und PC 4, jeder mit einem Kabel zum Switch. Die Adressen sind in dieser Ansicht nicht zu lesen." },
+        "Lies die Adressen aller vier Computer. Zwei davon stimmen nicht: Bei einem Computer ist die Adresse <b>doppelt</b>, bei einem anderen gehört sie zu einem <b>anderen Netz</b>.",
+        { t: "Mache einen <b>Doppelklick</b> auf den Computer, dessen Adresse doppelt ist. Gib ihm im Feld <span class=\"menue\">IP-Adresse</span> eine freie Adresse aus 192.168.0.x und drücke die Eingabetaste.", bild: "../../7M/Informatik/assets/filius/einstellungen.png", alt: "Filius: Unten stehen die Einstellungen eines Notebooks mit Name, MAC-Adresse, IP-Adresse und Netzmaske. Im Feld IP-Adresse steht 192.168.0.11." },
+        "Ändere genauso die Adresse des Computers aus dem anderen Netz, sodass sie mit 192.168.0 beginnt. Auch hier: Eingabetaste.",
+        "Speichere: Klicke oben auf die <span class=\"menue\">Diskette</span>, gib der Datei den Namen <b>adressen</b> und klicke auf <span class=\"menue\">Speichern</span>."
+      ],
+      loesung: "PC 3 bekommt 192.168.0.12, PC 4 bekommt 192.168.0.13. PC 1 (192.168.0.10) und PC 2 (192.168.0.11) bleiben. Die Datei heißt adressen.fls.",
+      pruefung: {
+        art: "datei", accept: ".fls", lies: Modul.liesFilius9, pruefe: pruefeAdressen,
+        text: "Wähle deine gespeicherte Datei <b>adressen.fls</b> aus. Sie wird nur hier auf dem Gerät geprüft und nicht hochgeladen.",
+        ersatz: { art: "zahl", frage: "In der Adresse 192.168.1.14 stimmt eine der vier Zahlen nicht zum Büro-Netz 192.168.0.x. Die wievielte Zahl (1 bis 4) ist es?", wert: 3, tol: 0, einheit: "",
+          tipp: "Die ersten drei Zahlen müssen 192.168.0 lauten. Vergleiche Zahl für Zahl von links." }
+      }
+    }, "auf1");
+  }
+});
+
+W.aufgabe({
+  titel: "Mit ping testen",
+  geheim: ["12"],
+  auftrag: "Jetzt prüfst du dein Netz: Schicke von PC 1 aus je einen ping an PC 2, PC 3 und PC 4.",
+  vorwissen: "<p>Im <b>Aktionsmodus</b> (grüner Pfeil) probierst du aus, was die Computer tun. Der Befehl <code>ping</code> schickt vier kleine Pakete und zählt, wie viele zurückkommen.</p>",
+  hinweise: ["Die Befehlszeile musst du auf PC 1 erst installieren: Software-Installation → rechts „Befehlszeile“ anklicken → oberer Pfeil → „Änderungen annehmen“.", "Hinter <code>/&gt;</code> tippst du <code>ping</code>, ein Leerzeichen und die Adresse des Ziels, dann die Eingabetaste. Drei Pings: an PC 2, PC 3 und PC 4.", "Zum Beispiel <code>ping 192.168.0.11</code>, <code>ping 192.168.0.12</code>, <code>ping 192.168.0.13</code>. Jeder Ping endet mit „4 Paket(e) gesendet, 4 Paket(e) empfangen“. Zähle die empfangenen Pakete aller drei Pings zusammen."],
+  lehrer: { ziel: "Mit ping prüfen, ob ein repariertes Netz funktioniert.",
+    anleitung: "Die Kinder bleiben im selben Filius wie in der letzten Aufgabe. Im Aktionsmodus verschwindet die Geräteleiste. Jeder Ping braucht zwei bis drei Sekunden, bei falscher Adresse bis zu 30 Sekunden.",
+    loesung: "Drei Pings mit je 4 empfangenen Paketen: 12.",
+    fehler: ["Ein ping an die eigene Adresse (PC 1 = 192.168.0.10) klappt immer und beweist nichts – auf die Adresse im Befehl achten.", "Tippfehler in der Adresse: Dann meldet Filius viermal „Timeout!“ (dauert etwa 30 Sekunden).", "Wurde die doppelte Adresse nicht behoben, meldet Filius trotzdem keinen Fehler – ein Ping an die doppelte Adresse klappt dann sogar. Deshalb vorher die Adressen kontrollieren."],
+    bedienung: "Das Kind trägt die Zahl der empfangenen Pakete ein und tippt auf „Lösung überprüfen“." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "Drei Pings von PC 1", pc: "Filius", zeit: "etwa 6 Minuten",
+      ziel: "PC 1 bekommt von PC 2, PC 3 und PC 4 Antwort.",
+      schritte: [
+        "Wechsle in den <b>Aktionsmodus</b>: Klicke oben auf den <span class=\"menue\">grünen Pfeil</span>.",
+        "Klicke auf <b>PC 1</b>. Sein Bildschirm geht auf. Klicke dort auf <span class=\"menue\">Software-Installation</span>.",
+        { t: "Klicke rechts in der Liste auf <span class=\"menue\">Befehlszeile</span>, dann auf den <b>oberen Pfeil</b> (er zeigt nach links). Klicke zum Schluss auf <span class=\"menue\">Änderungen annehmen</span>.", bild: "../../7M/Informatik/assets/filius/software-installation.png", alt: "Filius: Fenster Software-Installation mit der Liste Verfügbar und den Pfeilen in der Mitte" },
+        "Auf dem Bildschirm von PC 1 liegt jetzt das Symbol <span class=\"menue\">Befehlszeile</span>. Klicke es an.",
+        "Tippe hinter <code>/&gt;</code> den Befehl <code>ping</code> und die Adresse von PC 2. Warte, bis die letzte Zeile erscheint.",
+        "Mache dasselbe mit der Adresse von PC 3 und mit der Adresse von PC 4.",
+        "Lies bei jedem Ping die letzte Zeile und zähle die empfangenen Pakete zusammen."
+      ],
+      loesung: "Jeder der drei Pings endet mit „4 Paket(e) gesendet, 4 Paket(e) empfangen, 0% Paketverlust“. Zusammen sind das 12 empfangene Pakete.",
+      pruefung: { art: "zahl", frage: "Wie viele Pakete hat PC 1 bei den drei Pings <b>zusammen</b> empfangen?", wert: 12, tol: 0, einheit: "Pakete",
+        tipp: "Jeder Ping schickt vier Pakete. Kommen weniger zurück, stimmt eine Adresse im Befehl oder im Netz nicht.",
+        erfolg: "Alle zwölf Pakete sind angekommen – dein Netz ist in Ordnung." }
+    }, "auf2");
+  }
+});
+
+W.aufgabe({
+  titel: "Die eigene Adresse ablesen",
+  geheim: ["192.168.0.10"],
+  auftrag: "Mit dem Befehl <code>ipconfig</code> zeigt dir ein Computer seine eigenen Netzwerk-Angaben. Lies die Adresse von PC 1 ab.",
+  vorwissen: "<p><code>ipconfig</code> zeigt auch eine „Netzmaske“. Die brauchst du in diesem Kurs nicht zu verstehen. Wichtig ist nur die Zeile mit der IP-Adresse.</p>",
+  hinweise: ["Du bist noch in der Befehlszeile von PC 1 – oder du öffnest sie wieder.", "Tippe hinter <code>/&gt;</code> das Wort <code>ipconfig</code> und drücke die Eingabetaste.", "Gesucht ist die Zeile, die mit „IP Adresse“ beginnt. Dahinter steht die Adresse von PC 1."],
+  lehrer: { ziel: "Mit ipconfig die eigene IP-Adresse eines Computers ablesen.",
+    anleitung: "Etwa 3 Minuten. Die Ausgabe hat fünf Zeilen: IP Adresse, Netzmaske, Physische Adresse, Standardgateway und DNS-Server. Die letzten beiden sind noch leer – sie werden erst in den nächsten Einheiten gebraucht. Die Netzmaske nicht erklären.",
+    loesung: "Die Zeile „IP Adresse . . . : 192.168.0.10“ – Antwort 192.168.0.10.",
+    fehler: ["Die Befehlszeile ist zu: Das Symbol auf dem Bildschirm von PC 1 anklicken.", "Die „Physische Adresse“ (eine Folge aus Zahlen und Buchstaben mit Doppelpunkten) wird mit der IP-Adresse verwechselt."],
+    bedienung: "Das Kind tippt die Adresse ein und tippt auf „Lösung überprüfen“." },
+  bau(box) {
+    Modul.makeAuftrag(box, {
+      titel: "ipconfig auf PC 1", pc: "Filius", zeit: "etwa 3 Minuten",
+      ziel: "Du kennst den Befehl ipconfig und liest damit die Adresse von PC 1 ab.",
+      schritte: [
+        "Öffne auf PC 1 die <span class=\"menue\">Befehlszeile</span>.",
+        "Tippe hinter <code>/&gt;</code> den Befehl <code>ipconfig</code> und drücke die Eingabetaste.",
+        "Suche die Zeile <b>IP Adresse</b> und lies die Adresse dahinter ab."
+      ],
+      loesung: "Die Zeile heißt „IP Adresse . . . : 192.168.0.10“.",
+      pruefung: { art: "wort", frage: "Welche Adresse steht hinter „IP Adresse“?", antworten: ["192.168.0.10"],
+        tipp: "Das ist die Adresse, die PC 1 im Entwurfsmodus bekommen hat. Sie steht in der Zeile direkt unter dem Befehl." }
+    }, "auf3");
+  }
+});
+
+/* ============ Teil 4: Kontrollieren ============ */
+W.teil("Kontrollieren", "Lerncheck");
+
+W.aufgabe({
+  titel: "Fehler in der Adressliste",
+  auftrag: "Im Netz 192.168.8.x sind vier Geräte eingetragen. Finde die Fehler in der Liste.",
+  hinweise: ["Vergleiche zuerst die ersten drei Zahlen aller vier Adressen.", "Suche dann zwei Adressen, die ganz gleich sind.", "PC 1 und PC 2 haben beide 192.168.8.21 – das ist die doppelte Adresse. Bei PC 3 steht 192.168.5.22: Die dritte Zahl ist eine 5, keine 8."],
+  lehrer: { ziel: "Das Gelernte mit neuen Zahlen anwenden: doppelte Adresse und falsches Netz in einer Liste erkennen.",
+    anleitung: "Einzelarbeit, etwa 3 Minuten. Die Liste ist bewusst kurz. Wer fertig ist, kann überlegen, welche Adresse PC 3 bekommen müsste (zum Beispiel 192.168.8.22).",
+    loesung: "Frage 1: 192.168.8.21 · Frage 2: PC 3.",
+    fehler: ["Frage 1: Der Drucker (.20) wird genannt, weil er als Erster in der Liste steht – er hat aber keine doppelte Adresse."] },
+  bau(box) {
+    box.innerHTML = `<table class="tab9" style="border-collapse:collapse;margin:0 0 12px"><thead><tr><th style="text-align:left;padding:4px 14px 4px 0">Gerät</th><th style="text-align:left;padding:4px 0">IP-Adresse</th></tr></thead><tbody>
+      <tr><td style="padding:3px 14px 3px 0">Drucker</td><td><code>192.168.8.20</code></td></tr>
+      <tr><td style="padding:3px 14px 3px 0">PC 1</td><td><code>192.168.8.21</code></td></tr>
+      <tr><td style="padding:3px 14px 3px 0">PC 2</td><td><code>192.168.8.21</code></td></tr>
+      <tr><td style="padding:3px 14px 3px 0">PC 3</td><td><code>192.168.5.22</code></td></tr></tbody></table><div class="mc"></div>`;
+    Modul.makeMC($(".mc", box), [
+      { q: "Welche Adresse kommt in der Liste doppelt vor?", o: ["192.168.8.21", "192.168.8.20", "192.168.5.22", "keine"], a: 0,
+        e: "PC 1 und PC 2 haben beide 192.168.8.21." },
+      { q: "Welches Gerät gehört mit seiner Adresse nicht in das Netz 192.168.8.x?", o: ["PC 3", "der Drucker", "PC 1", "PC 2"], a: 0,
+        e: "Bei PC 3 lautet die dritte Zahl 5. Die ersten drei Zahlen müssen 192.168.8 sein." }
+    ], "mc-liste");
+  }
+});
+
+W.aufgabe({
+  titel: "Lückentext mit neuen Zahlen",
+  auftrag: "Setze die Wörter ein. Diesmal sind es andere Zahlen als im Büro.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach, was bei Adressen im selben Netz gleich ist.", "Zwei Wörter bleiben übrig. Sie passen in keine Lücke.", "Netz · drei · letzte · anderen. „vier“ und „Kabel“ bleiben übrig."],
+  lehrer: { ziel: "Kernwissen zu Netz und Gerät in einem Lückentext sichern.",
+    anleitung: "Einzelarbeit, etwa 3 Minuten.",
+    loesung: "Netz · drei · letzte · anderen (übrig: vier, Kabel).",
+    fehler: ["„vier“ wird in die erste Lücke gesetzt – die vier Zahlen hat jede Adresse, gleich sind aber nur die ersten drei."] },
+  bau(box) {
+    box.innerHTML = '<div class="gaptext"></div>';
+    Modul.makeGap($(".gaptext", box), [
+      ["Die Adressen 192.168.7.31 und 192.168.7.44 gehören zum selben ", { g: "Netz" }, ", weil die ersten ", { g: "drei" }, " Zahlen gleich sind."],
+      ["Bei jedem Gerät im Netz ist die ", { g: "letzte" }, " Zahl anders."],
+      ["Ein Gerät mit der Adresse 192.168.9.31 gehört zu einem ", { g: "anderen" }, " Netz."]
+    ], "gap-netz", ["vier", "Kabel"]);
+  }
+});
+
+W.aufgabe({
+  titel: "Lerncheck",
+  auftrag: "Richtig oder falsch? Entscheide bei jeder Aussage.",
+  hinweise: ["Lies in deinem Regelhefteintrag nach.", "Denke an die Paketbotin: Zwei Häuser mit derselben Adresse – das geht nicht gut.", "Richtig sind die Aussagen zu den vier Zahlen, zu den ersten drei Zahlen und zu ipconfig. Falsch sind die zwei Aussagen zu gleichen Adressen und zur Fehlermeldung."],
+  lehrer: { ziel: "Kernwissen der Stunde sichern.", anleitung: "Einzelarbeit, etwa 3 Minuten.",
+    loesung: "richtig · falsch · richtig · falsch · richtig", fehler: ["Aussage 4: In Filius gibt es bei doppelten Adressen keine Fehlermeldung. Das heißt nicht, dass alles in Ordnung ist."] },
+  bau(box) {
+    Modul.makeTF(box, [
+      ["Eine IP-Adresse besteht aus vier Zahlen, die durch Punkte getrennt sind.", true],
+      ["Im selben Netz dürfen zwei Geräte dieselbe IP-Adresse haben.", false],
+      ["Geräte im selben Netz haben dieselben ersten drei Zahlen.", true],
+      ["Bei doppelten Adressen zeigt Filius immer eine Fehlermeldung.", false],
+      ["Mit ipconfig liest du die eigene IP-Adresse eines Computers ab.", true]
+    ], "tf");
+  }
+});
+
+W.fertig();
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>
