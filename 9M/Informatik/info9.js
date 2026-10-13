@@ -299,7 +299,8 @@ function lernweg(ziel, opt) {
             geheim: c.geheim || [] }) });
         const d = await r.json();
         if (!d.ok) { aus.className = "weg9-kiantwort mid"; aus.textContent = d.error || "Das hat gerade nicht geklappt."; }
-        else { aus.className = "weg9-kiantwort ok"; aus.textContent = "🤖 " + d.antwort; n++; save("-ki-" + s.key, String(n)); zeigStufe(); }
+        // die KI setzt manchmal Zeichen für Fettdruck (**so**) – hier steht reiner Text, also ohne die Zeichen zeigen
+        else { aus.className = "weg9-kiantwort ok"; aus.textContent = "🤖 " + String(d.antwort || "").replace(/\*\*([^*]+)\*\*/g, "$1").replace(/`([^`]+)`/g, "$1").replace(/^#{1,4}\s+/gm, ""); n++; save("-ki-" + s.key, String(n)); zeigStufe(); }
       } catch (_e) { aus.className = "weg9-kiantwort mid"; aus.textContent = "Die KI ist gerade nicht erreichbar. Nutze die Hinweise unter der Aufgabe."; }
       clearTimeout(langsam); clearTimeout(ende); senden.disabled = false;
     }
