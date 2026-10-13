@@ -1,0 +1,1353 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 1 Vokabeltrainer &ndash; Welcome to New York! | Englisch 8M</title>
+<link rel="stylesheet" href="../../../../css/schriften.css">
+<link rel="stylesheet" href="../../../../css/exercise-shell.css">
+<style>
+  :root{
+    --uk-blue:#00649b; --uk-blue-2:#0082c3; --uk-red:#e30613;
+    --accent:#0098da; --accent-soft:#e1f3fb;
+    --ink:#101a2e; --muted:#5d6b84; --line:#dce4f0;
+    --card:#ffffff; --bg-1:#f3f6fc; --bg-2:#eef3fb;
+    --ok:#15803d; --ok-bg:#e9f8ee; --ok-line:#8fd6a8;
+    --bad:#c2340f; --bad-bg:#fdeeeb; --bad-line:#f3b5a6;
+    --gold:#f29100;
+    --shadow-s:0 2px 8px rgba(16,26,46,.06);
+    --shadow-m:0 10px 28px rgba(16,26,46,.10);
+    --shadow-l:0 18px 46px rgba(0,100,155,.16);
+    --r-s:10px; --r-m:14px; --r-l:20px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Source Sans 3",system-ui,"Segoe UI",sans-serif;
+    min-height:100vh;color:var(--ink);
+    background:
+      radial-gradient(circle at 10% 0%, #dcf0fa 0%, transparent 45%),
+      radial-gradient(circle at 92% 8%, #fdefdc 0%, transparent 38%),
+      linear-gradient(180deg,var(--bg-1),var(--bg-2));
+  }
+  .wrap{max-width:1000px;margin:0 auto;padding:1rem 1rem 3rem}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative;overflow:hidden;color:#fff;border-radius:var(--r-l);
+    padding:1.4rem 1.4rem 1.5rem;box-shadow:var(--shadow-l);
+    background:linear-gradient(125deg,var(--uk-blue) 0%,var(--uk-blue-2) 55%,#0098da 100%);
+  }
+  .hero::after{
+    content:"";position:absolute;right:-60px;top:-70px;width:280px;height:280px;border-radius:50%;
+    background:radial-gradient(circle,rgba(242,145,0,.34) 0%,transparent 68%);pointer-events:none;
+  }
+  .hero-flag{display:inline-flex;gap:5px;margin-bottom:.55rem}
+  .hero-flag span{width:28px;height:7px;border-radius:99px}
+  .hero-flag .f1{background:#fff}.hero-flag .f2{background:var(--uk-red)}.hero-flag .f3{background:#fff}
+  .hero-badge{position:absolute;right:1.1rem;top:1.1rem;width:64px;height:64px;border-radius:50%;box-shadow:0 4px 14px rgba(0,0,0,.28);z-index:2}
+  .hero-head{padding-right:76px}
+  @media(max-width:520px){.hero-badge{width:48px;height:48px;right:.8rem;top:.8rem}.hero-head{padding-right:58px}}
+  .hero h1{font-size:clamp(1.5rem,4.8vw,2.3rem);line-height:1.1;letter-spacing:-.01em;font-weight:800}
+  .hero .sub{opacity:.92;margin-top:.45rem;font-size:.97rem;font-weight:500}
+  .hero-stats{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.95rem;position:relative;z-index:1}
+  .hero-chip{
+    background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);
+    border-radius:999px;padding:.3rem .8rem;font-size:.79rem;font-weight:700;
+  }
+
+  /* ---------- Sections ---------- */
+  .panel{
+    margin-top:.95rem;background:var(--card);border:1px solid var(--line);
+    border-radius:var(--r-l);padding:1.05rem;box-shadow:var(--shadow-m);
+  }
+  .sec-label{
+    display:flex;align-items:center;gap:.5rem;
+    font-size:.71rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 .55rem;
+  }
+  .sec-label::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  /* ---------- Filter chips ---------- */
+  .filter-row{display:flex;flex-wrap:wrap;gap:.4rem}
+  .filter-btn{
+    display:inline-flex;align-items:center;gap:.4rem;
+    padding:.4rem .5rem .4rem .85rem;border:1.5px solid var(--line);border-radius:999px;
+    background:#fff;color:#2b3f63;font-size:.81rem;font-weight:700;cursor:pointer;
+    transition:border-color .15s,background .15s,color .15s,box-shadow .15s;
+    font-family:inherit;
+  }
+  .filter-btn:hover{border-color:var(--accent);background:var(--accent-soft)}
+  .filter-btn.active{background:var(--uk-blue);border-color:var(--uk-blue);color:#fff;box-shadow:0 4px 12px rgba(1,33,105,.28)}
+  .filter-btn .cnt{
+    background:#eef2f9;color:#4a5a77;border-radius:999px;padding:.05rem .48rem;
+    font-size:.72rem;font-weight:800;min-width:1.55rem;text-align:center;
+  }
+  .filter-btn.active .cnt{background:rgba(255,255,255,.22);color:#fff}
+
+  /* ---------- Controls ---------- */
+  .controls{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:center;margin-top:.9rem}
+  .ctl{display:flex;flex-direction:column;gap:.3rem;align-items:center}
+  .ctl-cap{font-size:.67rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+  .pill-group{display:flex;background:#eef2f9;border-radius:999px;padding:3px;gap:2px}
+  .pill{
+    padding:.42rem .9rem;border:none;border-radius:999px;background:transparent;color:#415272;font-weight:700;cursor:pointer;font-size:.81rem;transition:all .15s;font-family:inherit;white-space:nowrap;
+  }
+  .pill:hover{color:var(--uk-blue)}
+  .pill.active{background:#fff;color:var(--uk-blue);box-shadow:var(--shadow-s)}
+
+  /* ---------- Score ---------- */
+  .scorebar{display:flex;justify-content:center;gap:.6rem;margin:1rem auto .55rem;max-width:520px}
+  .score-box{
+    flex:1;background:#f7f9fd;border:1px solid var(--line);border-radius:var(--r-m);
+    padding:.55rem .35rem;text-align:center;
+  }
+  .score-box b{display:block;font-size:1.45rem;font-weight:800;line-height:1.1}
+  .score-box span{font-size:.72rem;font-weight:700;color:var(--muted);letter-spacing:.03em}
+  .score-box.ok b{color:var(--ok)} .score-box.bad b{color:var(--bad)}
+  .progress-wrap{
+    max-width:520px;margin:0 auto 1.1rem;height:9px;background:#dcebf3;
+    border-radius:99px;overflow:hidden;
+  }
+  .progress-bar{height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,var(--uk-blue),var(--accent));transition:width .35s ease}
+
+  /* ---------- Quiz card ---------- */
+  .card{
+    max-width:640px;margin:0 auto;background:#fff;border:1px solid var(--line);
+    border-radius:var(--r-l);padding:1.15rem;box-shadow:var(--shadow-m);animation:cardIn .28s ease;
+  }
+  @keyframes cardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .card-top{display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap}
+  .unit-tag{
+    background:var(--accent-soft);color:var(--uk-blue);font-size:.71rem;padding:.25rem .65rem;
+    border-radius:999px;font-weight:800;letter-spacing:.02em;
+  }
+  .dir-label{color:var(--muted);font-size:.76rem;font-weight:700;letter-spacing:.03em}
+
+  .question-word{
+    text-align:center;color:var(--uk-blue);font-weight:800;line-height:1.18;
+    font-size:clamp(1.5rem,5.2vw,2.3rem);margin-top:.9rem;overflow-wrap:break-word;
+  }
+  .phonetic{text-align:center;color:var(--muted);font-size:.9rem;margin-top:.25rem;min-height:1.25rem;font-weight:500}
+  .speak-btn{
+    display:block;margin:.75rem auto .4rem;padding:.42rem 1.1rem;border:1.5px solid var(--line);
+    background:#fff;border-radius:999px;color:var(--uk-blue);font-weight:700;cursor:pointer;
+    font-family:inherit;font-size:.86rem;transition:all .15s;
+  }
+  .speak-btn:hover{background:var(--accent-soft);border-color:var(--accent)}
+
+  .example-box{
+    max-width:560px;margin:.75rem auto .25rem;padding:.7rem .85rem;border-left:3px solid var(--gold);
+    border-radius:var(--r-s);background:#fffaf0;color:#5c4415;font-size:.93rem;min-height:2.5rem;
+    display:flex;align-items:center;justify-content:center;text-align:center;font-weight:500;
+  }
+  .example-box.empty{color:#9a8664;font-style:italic}
+
+  .choices{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:1rem}
+  .choice{
+    padding:.85rem .6rem;background:#f7f9fd;border:1.5px solid var(--line);border-radius:var(--r-m);
+    text-align:center;cursor:pointer;font-weight:700;color:#24344f;transition:all .15s;
+    font-family:inherit;font-size:.93rem;
+  }
+  .choice:hover:not(:disabled){border-color:var(--accent);background:var(--accent-soft);transform:translateY(-1px)}
+  .choice:disabled{cursor:default}
+  .choice.correct{background:var(--ok-bg);border-color:var(--ok-line);color:var(--ok)}
+  .choice.wrong{background:var(--bad-bg);border-color:var(--bad-line);color:var(--bad)}
+
+  .type-area{display:flex;flex-direction:column;gap:.6rem;margin-top:1rem}
+  .type-area input{
+    padding:.9rem 1rem;border:1.5px solid var(--line);border-radius:var(--r-m);
+    font-size:1.02rem;font-weight:700;color:var(--ink);font-family:inherit;width:100%;
+  }
+  .type-area input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+  .type-area input.correct{background:var(--ok-bg);border-color:var(--ok-line)}
+  .type-area input.wrong{background:var(--bad-bg);border-color:var(--bad-line)}
+  .type-btns{display:flex;gap:.5rem}
+  .type-btns .btn-secondary,.type-btns .btn-primary{flex:1}
+
+  /* ---------- Flashcard mode ---------- */
+  .flash{perspective:1200px;margin-top:1rem}
+  .flash-inner{
+    position:relative;min-height:170px;transition:transform .5s cubic-bezier(.4,.1,.3,1);
+    transform-style:preserve-3d;cursor:pointer;
+  }
+  .flash.flipped .flash-inner{transform:rotateY(180deg)}
+  .flash-face{
+    position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;
+    border-radius:var(--r-m);padding:1rem;text-align:center;
+  }
+  .flash-front{background:#f7f9fd;border:1.5px solid var(--line)}
+  .flash-back{background:var(--accent-soft);border:1.5px solid #aedcf2;transform:rotateY(180deg)}
+  .flash-word{font-size:clamp(1.25rem,4.6vw,1.85rem);font-weight:800;color:var(--uk-blue);line-height:1.2}
+  .flash-hint{font-size:.76rem;color:var(--muted);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+  .flash-rate{display:flex;gap:.5rem;margin-top:.9rem}
+  .flash-rate button{flex:1}
+
+  .btn-primary{
+    padding:.7rem 1.4rem;border:none;border-radius:999px;background:var(--uk-blue);color:#fff;
+    font-weight:700;cursor:pointer;box-shadow:0 5px 14px rgba(1,33,105,.28);transition:all .15s;
+    font-family:inherit;font-size:.9rem;
+  }
+  .btn-primary:hover{background:var(--uk-blue-2);transform:translateY(-1px)}
+  .btn-secondary{
+    padding:.65rem 1.1rem;border:1.5px solid var(--line);border-radius:999px;background:#fff;
+    color:var(--uk-blue);font-weight:700;cursor:pointer;transition:all .15s;font-family:inherit;font-size:.88rem;
+  }
+  .btn-secondary:hover{background:var(--accent-soft);border-color:var(--accent)}
+  .btn-secondary:disabled{opacity:.5;cursor:default}
+  .btn-good{border-color:var(--ok-line);color:var(--ok);background:var(--ok-bg)}
+  .btn-good:hover{background:#d9f2e2;border-color:var(--ok)}
+  .btn-again{border-color:var(--bad-line);color:var(--bad);background:var(--bad-bg)}
+  .btn-again:hover{background:#fbdfd8;border-color:var(--bad)}
+
+  .feedback{text-align:center;min-height:1.5rem;margin-top:.9rem;font-weight:700;font-size:.95rem}
+  .feedback.good{color:var(--ok)} .feedback.bad{color:var(--bad)}
+  .feedback.warn{color:#8a5a00}
+  #type-input.warn{border-color:#e0a300;background:#fff8e6}
+  .pill-group.dim{opacity:.45}
+  .btn-row{display:flex;justify-content:center;gap:.55rem;margin-top:.85rem;flex-wrap:wrap}
+
+  /* ---------- Result ---------- */
+  #result{display:none;text-align:center;padding:1.3rem .8rem}
+  #result h2{font-size:1.75rem;color:var(--uk-blue);font-weight:800}
+  .pct-ring{
+    width:152px;height:152px;border-radius:50%;margin:1.1rem auto;display:flex;align-items:center;justify-content:center;
+    background:conic-gradient(var(--accent) calc(var(--pct)*1%), #dcebf3 0);
+  }
+  .pct-inner{
+    width:118px;height:118px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;
+    font-size:1.85rem;font-weight:900;color:var(--uk-blue);
+  }
+  .result-msg{color:var(--muted);margin-bottom:1.1rem;font-weight:600}
+  .hard-list{
+    max-width:520px;margin:0 auto 1.2rem;text-align:left;background:#fff8f6;border:1px solid var(--bad-line);
+    border-radius:var(--r-m);padding:.8rem .95rem;
+  }
+  .hard-list h3{font-size:.8rem;text-transform:uppercase;letter-spacing:.07em;color:var(--bad);margin-bottom:.5rem}
+  .hard-list li{list-style:none;padding:.3rem 0;border-bottom:1px dashed #f0cfc6;font-size:.92rem}
+  .hard-list li:last-child{border-bottom:none}
+  .hard-list b{color:var(--uk-blue)}
+
+  /* ---------- Word list ---------- */
+  .list-toggle{display:block;margin:1rem auto 0}
+  #wordlist{display:none;margin-top:.9rem}
+  .wl-group{margin-bottom:1.1rem}
+  .wl-group h3{
+    font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;
+    color:var(--uk-blue);padding-bottom:.35rem;border-bottom:2px solid var(--accent-soft);margin-bottom:.4rem;
+  }
+  .wl-row{
+    display:grid;grid-template-columns:1fr 1fr auto;gap:.6rem;align-items:center;
+    padding:.45rem .3rem;border-bottom:1px solid #eef2f8;font-size:.9rem;
+  }
+  .wl-row:last-child{border-bottom:none}
+  .wl-en{font-weight:700;color:var(--ink)}
+  .wl-pr{display:block;font-weight:400;color:var(--muted);font-size:.78rem}
+  .wl-de{color:#3b4a66}
+  .wl-row button{
+    border:1px solid var(--line);background:#fff;border-radius:8px;cursor:pointer;
+    padding:.2rem .45rem;font-size:.85rem;line-height:1;
+  }
+  .wl-row button:hover{background:var(--accent-soft);border-color:var(--accent)}
+
+  @media(max-width:640px){
+    .choices{grid-template-columns:1fr}
+    .wl-row{grid-template-columns:1fr auto;row-gap:.15rem}
+    .wl-de{grid-column:1/2}
+    .wrap{padding:.7rem .7rem 2.5rem}
+  }
+</style>
+  <script src="../../../../js/kurs-sperre.js" data-liste="../../themen.js"></script>
+</head>
+<body>
+<header class="ex-shell-header" aria-label="Seitennavigation">
+  <div class="ex-inner">
+    <a class="ex-brand" href="../../../../index.html" aria-label="Zur Startseite">
+      <img src="../../../../images_school/logo.png" alt="Logo der Grund- und Mittelschule">
+      <span class="ex-brand-text">
+        <span class="ex-brand-name">Grund- und Mittelschule am Sportpark</span>
+        <span class="ex-brand-sub">GRUMI Lernplattform &middot; Englisch 8M</span>
+      </span>
+    </a>
+    <a class="ex-back" href="../../index.html#thema-u1">Zur&uuml;ck zur &Uuml;bersicht</a>
+  </div>
+</header>
+
+<nav class="ex-crumbs" aria-label="Pfad">
+  <a href="../../../../index.html">Start</a>
+  <a href="../../index.html">Englisch 8M</a>
+  <a href="../../index.html#thema-u1">Unit 1</a>
+  <span>Vokabeltrainer Unit 1</span>
+</nav>
+
+<div class="wrap">
+  <section class="hero">
+    <img class="hero-badge" src="../../images/unit1.jpg" alt="" width="64" height="64" decoding="async">
+    <div class="hero-head">
+    <div class="hero-flag"><span class="f1"></span><span class="f2"></span><span class="f3"></span></div>
+    <h1>Vokabeltrainer Unit 1</h1>
+    <p class="sub">Welcome to New York! &middot; Englisch 8. Klasse (M)</p>
+    </div>
+    <div class="hero-stats">
+      <span class="hero-chip" id="stat-words">0 Vokabeln</span>
+      <span class="hero-chip">🔊 Aussprache</span>
+      <span class="hero-chip">🗂️ Karteikarten</span>
+      <span class="hero-chip">📖 Wortliste</span>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="sec-label">Kategorie w&auml;hlen</div>
+    <div class="filter-row" id="filter-row"></div>
+
+    <div class="controls">
+      <div class="ctl">
+        <span class="ctl-cap">&Uuml;bungsart</span>
+        <div class="pill-group" id="mode-group">
+          <button class="pill active" data-mode="mc">Multiple Choice</button>
+          <button class="pill" data-mode="type">Tippen</button>
+          <button class="pill" data-mode="flash">Karteikarten</button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-cap">Bedeutungen</span>
+        <div class="pill-group" id="need-group">
+          <button class="pill active" data-need="1">1 reicht</button>
+          <button class="pill" data-need="2">2 n&ouml;tig</button>
+          <button class="pill" data-need="3">3 n&ouml;tig</button>
+          <button class="pill" data-need="99">alle</button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-cap">Richtung</span>
+        <div class="pill-group" id="dir-group">
+          <button class="pill" data-dir="random">Zuf&auml;llig</button>
+          <button class="pill" data-dir="en-de">EN &rarr; DE</button>
+          <button class="pill active" data-dir="de-en">DE &rarr; EN</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="scorebar">
+      <div class="score-box ok"><b id="sc-right">0</b><span>Richtig</span></div>
+      <div class="score-box bad"><b id="sc-wrong">0</b><span>Falsch</span></div>
+      <div class="score-box"><b id="sc-left">0</b><span>&Uuml;brig</span></div>
+    </div>
+
+    <div class="progress-wrap"><div class="progress-bar" id="pbar"></div></div>
+
+    <div class="card" id="quiz-card">
+      <div class="card-top">
+        <span class="unit-tag" id="unit-tag">Unit 1</span>
+        <span class="dir-label" id="dir-label">Englisch &rarr; Deutsch</span>
+      </div>
+
+      <!-- Quiz-Ansicht (MC / Tippen) -->
+      <div id="quiz-view">
+        <div class="question-word" id="qword">&ndash;</div>
+        <div class="phonetic" id="phonetic"></div>
+        <button class="speak-btn" id="speak-btn" type="button">🔊 anh&ouml;ren</button>
+        <div class="example-box empty" id="example-box">Beispielsatz erscheint nach der Antwort.</div>
+
+        <div id="mc-area"><div class="choices" id="choices"></div></div>
+
+        <div id="type-area" style="display:none">
+          <div class="type-area">
+            <input type="text" id="type-input" placeholder="Deine Antwort &hellip;" autocomplete="off" autocapitalize="off" spellcheck="false">
+            <div class="type-btns">
+              <button class="btn-secondary" id="hint-btn" type="button">💡 Tipp</button>
+              <button class="btn-primary" id="check-btn" type="button">Pr&uuml;fen</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+        <div class="btn-row">
+          <button class="btn-secondary" id="skip-btn" type="button">&Uuml;berspringen</button>
+          <button class="btn-primary" id="next-btn" type="button" style="display:none">Weiter</button>
+        </div>
+      </div>
+
+      <!-- Karteikarten-Ansicht -->
+      <div id="flash-view" style="display:none">
+        <div class="flash" id="flash">
+          <div class="flash-inner" id="flash-inner">
+            <div class="flash-face flash-front">
+              <div class="flash-word" id="flash-q">&ndash;</div>
+              <div class="phonetic" id="flash-pron"></div>
+              <div class="flash-hint">Zum Umdrehen tippen</div>
+            </div>
+            <div class="flash-face flash-back">
+              <div class="flash-word" id="flash-a">&ndash;</div>
+              <div class="flash-hint">L&ouml;sung</div>
+            </div>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="speak-btn" id="flash-speak" type="button" style="margin:0">🔊 anh&ouml;ren</button>
+        </div>
+        <div class="flash-rate">
+          <button class="btn-secondary btn-again" id="flash-again" type="button">↺ Nochmal &uuml;ben</button>
+          <button class="btn-secondary btn-good" id="flash-known" type="button">✓ Gewusst</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="result">
+      <h2>Runde beendet 🗽</h2>
+      <div class="pct-ring" id="pct-ring" style="--pct:0"><div class="pct-inner" id="pct-display">0%</div></div>
+      <p class="result-msg" id="result-msg"></p>
+      <div class="hard-list" id="hard-list" style="display:none">
+        <h3>Diese W&ouml;rter nochmal anschauen</h3>
+        <ul id="hard-items"></ul>
+      </div>
+      <div class="btn-row">
+        <button class="btn-primary" id="restart-btn" type="button">Nochmal &uuml;ben</button>
+        <button class="btn-secondary" id="retry-hard-btn" type="button" style="display:none">Nur die schweren W&ouml;rter</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="sec-label">Alle Vokabeln</div>
+    <button class="btn-secondary list-toggle" id="list-toggle" type="button">📖 Wortliste anzeigen</button>
+    <div id="wordlist"></div>
+  </section>
+</div>
+
+<footer class="ex-shell-footer">
+  <div class="ex-inner">
+    <div>
+      <div class="ex-footer-name">Grund- und Mittelschule Unterhaching am Sportpark</div>
+      <div class="ex-footer-sub">GRUMI Lernplattform &middot; Klasse 8M</div>
+    </div>
+    <div class="ex-footer-links">
+      <a href="../../index.html">Englisch 8M</a>
+      <a href="../../../../datenschutz.html">Datenschutz</a>
+      <a href="../../../../impressum.html">Impressum</a>
+      <a href="../../../../rechtliches.html">Rechtliches</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   Vokabeln – Englisch 8M / Unit 1 "Welcome to New York!"
+   Erzeugt von .codex-build/englisch8m-werkzeug/bau-e8m-vokabeltrainer.js aus der Wortliste der Lehrkraft
+   (progress/englisch8m/vokabeln/unit1.txt) – dort ändern, dann neu bauen. Technik: wie der Vokabeltrainer der 7. Klasse.
+   ============================================================ */
+const vocab = [
+  // ---------- Intro ----------
+  {en:"borough",de:"Stadtteil; Bezirk",pron:"ˈbʌrə",topic:"g1",ex:"Brooklyn is a famous borough of New York."},
+  {en:"immigrant",de:"Einwanderer; Einwanderin; Immigrant; Immigrantin",pron:"ˈɪmɪɡrənt",topic:"g1",ex:"Her grandfather was an immigrant from Poland."},
+  {en:"boat",de:"Boot; Schiff",pron:"bəʊt",topic:"g1",ex:"We crossed the lake in a small boat."},
+  {en:"statue",de:"Statue",pron:"ˈstætʃuː",topic:"g1",ex:"There is a big statue in the park."},
+  {en:"New Yorker",de:"New Yorker; New Yorkerin",pron:"ˌnjuː ˈjɔːkə",topic:"g1",ex:"My aunt is a New Yorker."},
+  {en:"multicultural",de:"multikulturell",pron:"ˌmʌltiˈkʌltʃərəl",topic:"g1",ex:"Our school is very multicultural."},
+  {en:"population (no pl)",de:"Bevölkerung; Einwohner; Einwohnerzahl",pron:"ˌpɒpjuˈleɪʃn",topic:"g1",ex:"The population of the town is growing."},
+  {en:"Asia",de:"Asien",pron:"ˈeɪʒə",topic:"g1",ex:"Japan is a country in Asia."},
+  {en:"Italy",de:"Italien",pron:"ˈɪtəli",topic:"g1",ex:"Mia spent her summer holidays in Italy."},
+  {en:"Italian",de:"italienisch; Italiener; Italienerin",pron:"ɪˈtæliən",topic:"g1",ex:"I love Italian food, especially pizza."},
+  {en:"messenger",de:"Kurier; Kurierin; Bote; Botin",pron:"ˈmesɪndʒə",topic:"g1",ex:"The messenger brought the letter to our office."},
+  {en:"through",de:"durch",pron:"θruː",topic:"g1",ex:"The train goes through a long tunnel."},
+  {en:"lake",de:"See",pron:"leɪk",topic:"g1",ex:"Ben likes swimming in the lake."},
+  // ---------- Topic 1 ----------
+  {en:"interviewer",de:"Interviewer; Interviewerin; Befrager; Befragerin",pron:"ˈɪntəvjuːə",topic:"g2",ex:"The interviewer asked me three easy questions."},
+  {en:"magazine",de:"Zeitschrift",pron:"ˌmæɡəˈziːn",topic:"g2",ex:"My mother reads a fashion magazine every week."},
+  {en:"Cuba",de:"Kuba",pron:"ˈkjuːbə",topic:"g2",ex:"Cuba is an island in the Caribbean."},
+  {en:"for",de:"seit",pron:"fɔː",topic:"g2",ex:"We have lived here for three years."},
+  {en:"to immigrate",de:"einwandern; immigrieren",pron:"ˈɪmɪɡreɪt",topic:"g2",ex:"Many people immigrate to Canada every year."},
+  {en:"decision",de:"Entscheidung",pron:"dɪˈsɪʒn",topic:"g2",ex:"It was a hard decision for my parents."},
+  {en:"to emigrate",de:"auswandern",pron:"ˈemɪɡreɪt",topic:"g2",ex:"Her family wants to emigrate to Australia."},
+  {en:"home country",de:"Heimat; Heimatland",pron:"ˌhəʊm ˈkʌntri",topic:"g2",ex:"Omar often thinks about his home country."},
+  {en:"poor",de:"arm",pron:"pɔː",topic:"g2",ex:"The family was very poor, but happy."},
+  {en:"opportunity",de:"Chance; Möglichkeit; Gelegenheit",pron:"ˌɒpəˈtjuːnəti",topic:"g2",ex:"This job is a great opportunity for Lena."},
+  {en:"papers (pl only)",de:"Papiere; Unterlagen",pron:"ˈpeɪpəz",topic:"g2",ex:"Please bring your papers to the office."},
+  {en:"store (AE)",de:"Laden; Geschäft",pron:"stɔː",topic:"g2",ex:"My uncle owns a small store in Chicago."},
+  {en:"to be homesick",de:"Heimweh haben",pron:"bi ˈhəʊmsɪk",topic:"g2",ex:"Omar is homesick at the camp."},
+  {en:"knew",de:"simple past von to know (wissen, kennen)",alt:["wusste","kannte","wissen","kennen"],pron:"njuː",topic:"g2",ex:"She knew the answer to every question."},
+  {en:"future",de:"Zukunft; zukünftig; Zukunfts-",pron:"ˈfjuːtʃə",topic:"g2",ex:"What do you want to do in the future?"},
+  {en:"to get used to (sth)",de:"sich gewöhnen an (etw.)",alt:["to get used to (something)","to get used to ( )","sich gewöhnen an (etwas)","sich gewöhnen an"],pron:"ɡet ˈjuːst tə",topic:"g2",ex:"It is hard to get used to the cold weather."},
+  {en:"arrival",de:"Ankömmling",pron:"əˈraɪvl",topic:"g2",ex:"The new arrival in our class is called Elif."},
+  {en:"successful",de:"erfolgreich",pron:"səkˈsesfl",topic:"g2",ex:"My cousin is a successful football player."},
+  {en:"career",de:"Laufbahn; Karriere; Beruf",pron:"kəˈrɪə",topic:"g2",ex:"Dana wants a career in medicine."},
+  {en:"citizen",de:"Staatsbürger; Staatsbürgerin; Staatsangehöriger; Staatsangehörige",pron:"ˈsɪtɪzn",topic:"g2",ex:"Her father became an American citizen last year."},
+  {en:"only",de:"einzige",pron:"ˈəʊnli",topic:"g2",ex:"She is the only girl in our team."},
+  {en:"to plan",de:"planen",pron:"plæn",topic:"g2",ex:"We are planning a trip to the mountains."},
+  {en:"Good luck!",de:"Alles Gute!; Viel Glück!",pron:"ɡʊd ˈlʌk",topic:"g2",ex:"Good luck! I hope you win the game."},
+  // ---------- Das kenne ich schon: going to a new country ----------
+  {en:"to be a long way away",de:"weit weg sein",pron:"bi ə lɒŋ weɪ əˈweɪ",topic:"g3",ex:"My grandparents' house is a long way away."},
+  {en:"different",de:"verschieden; unterschiedlich; anders",pron:"ˈdɪfrənt",topic:"g3",ex:"The two brothers are very different."},
+  {en:"culture",de:"Kultur",pron:"ˈkʌltʃə",topic:"g3",ex:"Noah wants to learn about Turkish culture."},
+  {en:"country",de:"Land; ländliche Gegend",pron:"ˈkʌntri",topic:"g3",ex:"Which country would you like to visit?"},
+  {en:"back home",de:"zu Hause; daheim",pron:"bæk ˈhəʊm",topic:"g3",ex:"Back home we always eat dinner together."},
+  {en:"to miss",de:"vermissen",pron:"mɪs",topic:"g3",ex:"Aylin misses her friends in Istanbul."},
+  {en:"to move",de:"umziehen",pron:"muːv",topic:"g3",ex:"Jonas wants to move to a bigger flat."},
+  {en:"to leave",de:"verlassen; weggehen",pron:"liːv",topic:"g3",ex:"We leave the house at seven o'clock."},
+  // ---------- Topic 2 ----------
+  {en:"nationality",de:"Nationalität; Staatsangehörigkeit",pron:"ˌnæʃəˈnæləti",topic:"g4",ex:"My nationality is German, but my mum is Greek."},
+  {en:"language",de:"Sprache",pron:"ˈlæŋɡwɪdʒ",topic:"g4",ex:"Emre speaks three languages."},
+  {en:"to be born",de:"geboren werden",pron:"bi bɔːn",topic:"g4",ex:"My little sister was born in May."},
+  {en:"to move to",de:"ziehen nach",pron:"muːv tuː",topic:"g4",ex:"Sofia's family moved to Munich last summer."},
+  {en:"parade",de:"Parade; Umzug; Prozession",pron:"pəˈreɪd",topic:"g4",ex:"We watched the parade from our window."},
+  {en:"Caribbean",de:"karibisch; Karibe; Karibin",pron:"ˌkærɪˈbiːən",topic:"g4",ex:"I like Caribbean music very much."},
+  {en:"apartment (AE)",de:"Wohnung; Apartment",pron:"əˈpɑːtmənt",topic:"g4",ex:"Luca lives in a small apartment downtown."},
+  {en:"along",de:"entlang",pron:"əˈlɒŋ",topic:"g4",ex:"We walked along the river after lunch."},
+  {en:"sidewalk (AE)",de:"Gehweg; Bürgersteig",pron:"ˈsaɪdwɔːk",topic:"g4",ex:"Children must not ride bikes on the sidewalk."},
+  {en:"quick",de:"schnell",pron:"kwɪk",topic:"g4",ex:"Hannah took a quick shower before school."},
+  {en:"Turkish",de:"türkisch; Türkisch; aus der Türkei",pron:"ˈtɜːkɪʃ",topic:"g4",ex:"My neighbour makes delicious Turkish tea."},
+  {en:"Japanese",de:"japanisch; Japanisch; aus Japan; Japaner; Japanerin",pron:"ˌdʒæpəˈniːz",topic:"g4",ex:"We ate Japanese noodles at Yusuf's party."},
+  {en:"Indian",de:"indisch; Indisch; Inder; Inderin",pron:"ˈɪndiən",topic:"g4",ex:"Nora likes Indian food with lots of spices."},
+  {en:"Spanish",de:"spanisch; Spanisch; aus Spanien",pron:"ˈspænɪʃ",topic:"g4",ex:"Leo learns Spanish at school."},
+  {en:"mom (AE)",de:"Mama",pron:"mɒm",topic:"g4",ex:"My mom works in a hospital."},
+  {en:"neighborhood (AE)",de:"Nachbarschaft",pron:"ˈneɪbəhʊd",topic:"g4",ex:"Milan likes the quiet neighborhood he lives in."},
+  {en:"slow",de:"langsam",pron:"sləʊ",topic:"g4",ex:"The old bus is very slow."},
+  {en:"at night",de:"nachts",pron:"ət ˈnaɪt",topic:"g4",ex:"Owls look for food at night."},
+  {en:"Hispanic",de:"Hispanoamerikaner; Hispanoamerikanerin; hispanisch",pron:"hɪˈspænɪk",topic:"g4",ex:"Many Hispanic families live in this part of the city."},
+  {en:"zoo",de:"Zoo; Tierpark",pron:"zuː",topic:"g4",ex:"We saw lions and monkeys at the zoo."},
+  // ---------- Das kenne ich schon: city words ----------
+  {en:"building",de:"Gebäude; Bauwerk",pron:"ˈbɪldɪŋ",topic:"g5",ex:"The school is a very old building."},
+  {en:"traffic",de:"Verkehr",pron:"ˈtræfɪk",topic:"g5",ex:"There is a lot of traffic in the morning."},
+  {en:"capital (city)",de:"Hauptstadt",pron:"ˈkæpɪtl",topic:"g5",ex:"Berlin is the capital of Germany."},
+  {en:"city centre",de:"Stadtzentrum; Stadtmitte",pron:"ˌsɪti ˈsentə",topic:"g5",ex:"The shops are in the city centre."},
+  {en:"noisy",de:"laut",pron:"ˈnɔɪzi",topic:"g5",ex:"The street is too noisy at night."},
+  {en:"university",de:"Universität",pron:"ˌjuːnɪˈvɜːsəti",topic:"g5",ex:"Carla's sister studies at a university in Vienna."},
+  {en:"park",de:"Park",pron:"pɑːk",topic:"g5",ex:"Ben plays football in the park."},
+  {en:"tower",de:"Turm",pron:"ˈtaʊə",topic:"g5",ex:"You can see the whole city from the tower."},
+  // ---------- Text ----------
+  {en:"witness",de:"Zeuge; Zeugin",pron:"ˈwɪtnəs",topic:"g6",ex:"A witness saw the accident on the corner."},
+  {en:"to get",de:"hier: holen; bringen",pron:"ɡet",topic:"g6",ex:"Can you get me a glass of water, please?"},
+  {en:"package",de:"Paket",pron:"ˈpækɪdʒ",topic:"g6",ex:"The package is for my brother."},
+  {en:"to deliver",de:"liefern",pron:"dɪˈlɪvə",topic:"g6",ex:"The shop will deliver the sofa on Monday."},
+  {en:"letter",de:"Brief; Schreiben; Buchstabe",pron:"ˈletə",topic:"g6",ex:"Mia wrote a long letter to her grandma."},
+  {en:"Christmas tree",de:"Weihnachtsbaum",pron:"ˈkrɪsməs triː",topic:"g6",ex:"Our Christmas tree is very tall this year."},
+  {en:"avenue",de:"Allee; Boulevard",pron:"ˈævənjuː",topic:"g6",ex:"Fifth Avenue is a famous avenue in New York."},
+  {en:"van",de:"Lieferwagen; Transporter",pron:"væn",topic:"g6",ex:"A white van stopped in front of the shop."},
+  {en:"corner",de:"Ecke",pron:"ˈkɔːnə",topic:"g6",ex:"The bakery is on the corner."},
+  {en:"to get out",de:"aussteigen; herauskommen",pron:"ɡet ˈaʊt",topic:"g6",ex:"Everyone must get out of the bus here."},
+  {en:"scratch",de:"Kratzer",pron:"skrætʃ",topic:"g6",ex:"There is a deep scratch on my phone."},
+  {en:"to signal",de:"hier: blinken",pron:"ˈsɪɡnəl",topic:"g6",ex:"The driver forgot to signal before turning left."},
+  {en:"police",de:"Polizei",pron:"pəˈliːs",topic:"g6",ex:"The police came quickly and helped us."},
+  {en:"wrecked",de:"demoliert; zerstört; zertrümmert",pron:"rekt",topic:"g6",ex:"The old car was completely wrecked after the storm."},
+  {en:"agency",de:"Agentur",pron:"ˈeɪdʒənsi",topic:"g6",ex:"My aunt works for a travel agency."},
+  {en:"driver",de:"Fahrer; Fahrerin",pron:"ˈdraɪvə",topic:"g6",ex:"The bus driver was very friendly."},
+  {en:"to get in",de:"einsteigen",pron:"ɡet ˈɪn",topic:"g6",ex:"Please get in and close the door."},
+  {en:"to drive off",de:"wegfahren",pron:"draɪv ˈɒf",topic:"g6",ex:"The taxi drove off very fast."},
+  {en:"just",de:"hier: genau",pron:"dʒʌst",topic:"g6",ex:"That is just what I need."},
+  {en:"outside",de:"hier: vor",pron:"ˌaʊtˈsaɪd",topic:"g6",ex:"We waited outside the cinema."},
+  {en:"to knock sb off sth",de:"jmdn. von etw. stoßen",alt:["to knock somebody off something","to knock someone off something","to knock off","jemanden von etwas stoßen","von stoßen"],pron:"nɒk ˈɒf",topic:"g6",ex:"The boy almost knocked his sister off the chair."},
+  {en:"lady",de:"Frau; Dame",pron:"ˈleɪdi",topic:"g6",ex:"An old lady helped us find the way."},
+  {en:"to lie",de:"lügen",pron:"laɪ",topic:"g6",ex:"It is wrong to lie to your friends."},
+  {en:"to prove",de:"beweisen",pron:"pruːv",topic:"g6",ex:"Can you prove that you are right?"},
+  {en:"truth",de:"Wahrheit",pron:"truːθ",topic:"g6",ex:"Please tell me the truth."},
+  // ---------- Film ----------
+  {en:"marathon",de:"Marathon",pron:"ˈmærəθən",topic:"g7",ex:"My uncle ran a marathon in Berlin."},
+  {en:"elephant",de:"Elefant",pron:"ˈelɪfənt",topic:"g7",ex:"The elephant drank water from the river."},
+  {en:"honor (AE)",de:"Ehre",pron:"ˈɒnə",topic:"g7",ex:"It is an honor to meet you."},
+  {en:"great-",de:"Ur-",pron:"ɡreɪt",topic:"g7",ex:"My great-grandmother is ninety years old."},
+  {en:"elevator (AE)",de:"Aufzug; Lift",pron:"ˈelɪveɪtə",topic:"g7",ex:"We took the elevator to the tenth floor."},
+  {en:"inside",de:"drinnen; innen in; im Innern; in",pron:"ˌɪnˈsaɪd",topic:"g7",ex:"It is raining, so we stay inside."},
+  // ---------- More about ----------
+  {en:"symbol",de:"Symbol",pron:"ˈsɪmbl",topic:"g8",ex:"A heart is a symbol of love."},
+  {en:"immigration",de:"Immigration; Zuwanderung",pron:"ˌɪmɪˈɡreɪʃn",topic:"g8",ex:"Immigration has changed the city a lot."},
+  {en:"US",de:"Vereinigte Staaten",alt:["USA","die USA","die Vereinigten Staaten","the US","the USA","United States"],pron:"ˌjuː ˈes",topic:"g8",ex:"My uncle lives in the US."},
+  {en:"to learn about sth",de:"etw. über etw. erfahren",alt:["to learn about something","to learn about","etwas über etwas erfahren","über erfahren"],pron:"lɜːn əˈbaʊt",topic:"g8",ex:"We learn about the history of New York today."},
+  {en:"son",de:"Sohn",pron:"sʌn",topic:"g8",ex:"Their son is five years old."},
+  {en:"space",de:"Raum; Platz; Stelle; Fläche",pron:"speɪs",topic:"g8",ex:"There is not much space in my room."},
+  {en:"fresh",de:"frisch",pron:"freʃ",topic:"g8",ex:"I buy fresh bread every morning."},
+  {en:"sick",de:"krank",pron:"sɪk",topic:"g8",ex:"Lena stayed at home because she was sick."},
+  {en:"disease",de:"Krankheit",pron:"dɪˈziːz",topic:"g8",ex:"Washing your hands helps against disease."},
+  {en:"a few",de:"ein paar; wenige; einige",pron:"ə ˈfjuː",topic:"g8",ex:"I have a few friends in Berlin."},
+  // ---------- Internet research skills ----------
+  {en:"peninsula",de:"Halbinsel",pron:"pəˈnɪnsjələ",topic:"g9",ex:"Florida is a large peninsula in the south-east of the USA."},
+  {en:"seafood",de:"Meeresfrüchte",pron:"ˈsiːfuːd",topic:"g9",ex:"Dana never eats seafood because she does not like it."},
+  {en:"whale",de:"Wal",pron:"weɪl",topic:"g9",ex:"The blue whale is the biggest animal in the world."},
+  {en:"whale-watching",de:"Walbeobachtungs-",pron:"ˈweɪl wɒtʃɪŋ",topic:"g9",ex:"We booked a whale-watching trip for Saturday."},
+  {en:"kayaking",de:"Kajakfahren",pron:"ˈkaɪækɪŋ",topic:"g9",ex:"Kayaking on the lake is great fun."},
+  {en:"kayak",de:"Kajak",pron:"ˈkaɪæk",topic:"g9",ex:"Jonas paddled his kayak across the bay."},
+  {en:"class",de:"Unterricht; Unterrichtsstunde; Kurs",pron:"klɑːs",topic:"g9",ex:"Our English class starts at eight o'clock."},
+  {en:"guide",de:"Führer; Führerin",pron:"ɡaɪd",topic:"g9",ex:"The guide showed us the old castle."},
+  {en:"to contact",de:"sich in Verbindung setzen; kontaktieren",pron:"ˈkɒntækt",topic:"g9",ex:"You can contact me by email."},
+  // ---------- Das kenne ich schon: water transport ----------
+  {en:"ship",de:"Schiff",pron:"ʃɪp",topic:"g10",ex:"The big ship left the harbour at noon."},
+  {en:"raft",de:"Raft; Floß",pron:"rɑːft",topic:"g10",ex:"They built a raft from old wood."},
+  {en:"to go rafting",de:"raften gehen",pron:"ɡəʊ ˈrɑːftɪŋ",topic:"g10",ex:"We want to go rafting on the river."},
+  {en:"to paddle",de:"paddeln",pron:"ˈpædl",topic:"g10",ex:"Yusuf paddles slowly across the pond."},
+  {en:"water",de:"Wasser",pron:"ˈwɔːtə",topic:"g10",ex:"Please drink more water."},
+  {en:"river",de:"Fluss",pron:"ˈrɪvə",topic:"g10",ex:"The river is very wide here."},
+  {en:"wave",de:"Welle",pron:"weɪv",topic:"g10",ex:"A big wave hit the boat."},
+  {en:"canoeing",de:"Kanufahren",pron:"kəˈnuːɪŋ",topic:"g10",ex:"Canoeing is Nora's favourite summer sport."}
+];
+
+// Abschnitte der Wortliste
+const topicLabels = {
+  all:"Alle",
+  g1:"Intro",
+  g2:"Topic 1",
+  g3:"Das kenne ich schon: going to a new country",
+  g4:"Topic 2",
+  g5:"Das kenne ich schon: city words",
+  g6:"Text",
+  g7:"Film",
+  g8:"More about",
+  g9:"Internet research skills",
+  g10:"Das kenne ich schon: water transport"
+};
+const topicShort = {
+  g1:"Intro",
+  g2:"Topic 1",
+  g3:"going to a new country",
+  g4:"Topic 2",
+  g5:"city words",
+  g6:"Text",
+  g7:"Film",
+  g8:"More about",
+  g9:"Internet research skills",
+  g10:"water transport"
+};
+const TOPIC_KEYS = ["g1","g2","g3","g4","g5","g6","g7","g8","g9","g10"];
+
+/* ---------- Zustand ---------- */
+let mode = 'mc', dirSetting = 'de-en', filterTopic = 'all';
+let needSetting = 1;      // wie viele Bedeutungen verlangt werden (R5)
+let retryGiven = false;   // zweiter Versuch bei zu wenigen Bedeutungen
+let queue = [], current = null, right = 0, wrong = 0, direction = 'en-de', answered = false;
+let mistakes = [];
+let ttsUnlocked = false, fallbackAudio = null;
+
+const $ = id => document.getElementById(id);
+const shuffle = a => { const c = [...a]; for(let i=c.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [c[i],c[j]]=[c[j],c[i]]; } return c; };
+const filteredVocab = () => filterTopic === 'all' ? vocab : vocab.filter(v => v.topic === filterTopic);
+
+/* Entities (&uuml; usw.) aus den Datenstrings in echte Zeichen wandeln */
+const decoder = document.createElement('textarea');
+function decode(s){ decoder.innerHTML = s; return decoder.value; }
+vocab.forEach(v => { v.en = decode(v.en); v.de = decode(v.de); if(v.ex) v.ex = decode(v.ex); if(Array.isArray(v.alt)) v.alt = v.alt.map(decode); });
+
+/* ---------- Fortschritt an Backend (optional, wie Klasse 9) ---------- */
+const API_BASE = (location.hostname.includes('github.io') || location.protocol === 'file:') ? 'https://englisch-9.onrender.com' : '';
+const E8M_TOKEN = (function(){ try { return localStorage.getItem('e9_token') || ''; } catch(e){ return ''; } })();
+
+async function sendVocabProgress(percent, total){
+  if(!E8M_TOKEN) return;
+  try{
+    await fetch(API_BASE + '/api/progress/record', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer ' + E8M_TOKEN},
+      body: JSON.stringify({
+        exerciseId:'e8m-unit1-vokabeltrainer',
+        exerciseName:'Unit 1 Vokabeltrainer (Englisch 8M)',
+        unit:'unit1', category:'vocabulary',
+        percent, score:right, total, completed:true,
+        meta:{ mode, direction:dirSetting, topic:filterTopic }
+      })
+    });
+  }catch(e){ /* offline: still ok */ }
+}
+
+/* ---------- Filter-Buttons ---------- */
+function buildFilterButtons(){
+  const row = $('filter-row');
+  row.innerHTML = '';
+  ['all', ...TOPIC_KEYS].forEach(key => {
+    const count = key === 'all' ? vocab.length : vocab.filter(v => v.topic === key).length;
+    if(!count) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'filter-btn' + (key === filterTopic ? ' active' : '');
+    btn.innerHTML = '<span>' + topicLabels[key] + '</span><span class="cnt">' + count + '</span>';
+    btn.addEventListener('click', () => {
+      filterTopic = key;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      restart();
+    });
+    row.appendChild(btn);
+  });
+  $('stat-words').textContent = vocab.length + ' Vokabeln';
+}
+
+/* ---------- Modus / Richtung ---------- */
+$('mode-group').addEventListener('click', e => {
+  const btn = e.target.closest('.pill'); if(!btn) return;
+  mode = btn.dataset.mode;
+  document.querySelectorAll('#mode-group .pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  /* Bedeutungs-Zahl gilt nur beim Tippen */
+  syncNeedUI();
+  restart();
+});
+
+/* Zeigt die Bedeutungs-Auswahl nur im Tipp-Modus als aktiv an */
+function syncNeedUI(){
+  const grp = $('need-group');
+  if(!grp) return;
+  const off = mode !== 'type';
+  grp.classList.toggle('dim', off);
+  grp.title = off ? 'Gilt nur beim Tippen' : '';
+  if(off && needSetting !== 1){
+    needSetting = 1;
+    document.querySelectorAll('#need-group .pill').forEach(b => {
+      b.classList.toggle('active', b.dataset.need === '1');
+    });
+  }
+}
+$('need-group').addEventListener('click', e => {
+  const btn = e.target.closest('.pill'); if(!btn) return;
+  needSetting = Number(btn.dataset.need);
+  document.querySelectorAll('#need-group .pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  /* Mehrere Bedeutungen kann man nur beim Tippen abfragen */
+  if(needSetting !== 1 && mode !== 'type'){
+    mode = 'type';
+    document.querySelectorAll('#mode-group .pill').forEach(b => {
+      b.classList.toggle('active', b.dataset.mode === 'type');
+    });
+    restart();
+    return;
+  }
+  updateNeedHint();
+});
+
+function updateNeedHint(){
+  const inp = $('type-input');
+  if(!inp) return;
+  inp.placeholder = needSetting === 1
+    ? 'Antwort eingeben …'
+    : (needSetting === 99 ? 'Alle Bedeutungen, mit Komma getrennt …'
+                          : needSetting + ' Bedeutungen, mit Komma getrennt …');
+}
+
+$('dir-group').addEventListener('click', e => {
+  const btn = e.target.closest('.pill'); if(!btn) return;
+  dirSetting = btn.dataset.dir;
+  document.querySelectorAll('#dir-group .pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  restart();
+});
+
+/* ---------- Runde ---------- */
+function restart(onlyWords){
+  right = 0; wrong = 0; mistakes = [];
+  const source = (onlyWords && onlyWords.length) ? onlyWords : filteredVocab();
+  queue = shuffle(source);
+  $('result').style.display = 'none';
+  $('quiz-card').style.display = 'block';
+  document.querySelector('.progress-wrap').style.display = 'block';
+  document.querySelector('.scorebar').style.display = 'flex';
+  const isFlash = mode === 'flash';
+  $('quiz-view').style.display  = isFlash ? 'none' : 'block';
+  $('flash-view').style.display = isFlash ? 'block' : 'none';
+  $('mc-area').style.display    = mode === 'mc' ? 'block' : 'none';
+  $('type-area').style.display  = mode === 'type' ? 'block' : 'none';
+  updateScore();
+  nextCard();
+}
+
+function pickDirection(){
+  return dirSetting === 'random' ? (Math.random() > 0.5 ? 'en-de' : 'de-en') : dirSetting;
+}
+
+function nextCard(){
+  if(queue.length === 0){ showResult(); return; }
+  current = queue.pop();
+  answered = false;
+  retryGiven = false;
+
+  const card = $('quiz-card');
+  card.style.animation = 'none'; void card.offsetWidth; card.style.animation = '';
+
+  direction = pickDirection();
+  const isEnDe = direction === 'en-de';
+  const qWord = isEnDe ? current.en : current.de;
+  const aWord = isEnDe ? current.de : current.en;
+
+  $('dir-label').textContent = isEnDe ? 'Englisch → Deutsch' : 'Deutsch → Englisch';
+  $('unit-tag').textContent = topicShort[current.topic] || 'Unit 1';
+  updateProgress();
+
+  if(mode === 'flash'){
+    $('flash').classList.remove('flipped');
+    $('flash-q').textContent = qWord;
+    $('flash-a').textContent = aWord;
+    $('flash-pron').textContent = (isEnDe && current.pron) ? '[' + current.pron + ']' : '';
+    return;
+  }
+
+  $('qword').textContent = qWord;
+  $('phonetic').textContent = (isEnDe && current.pron) ? '[' + current.pron + ']' : '';
+  $('feedback').textContent = '';
+  $('feedback').className = 'feedback';
+  $('skip-btn').style.display = '';
+  $('next-btn').style.display = 'none';
+  const exBox = $('example-box');
+  exBox.textContent = 'Beispielsatz erscheint nach der Antwort.';
+  exBox.classList.add('empty');
+
+  if(mode === 'mc') buildChoices(aWord, isEnDe);
+  else {
+    const inp = $('type-input');
+    inp.value = ''; inp.className = ''; inp.disabled = false;
+    updateNeedHint();
+    $('hint-btn').disabled = false;
+    setTimeout(() => inp.focus(), 80);
+  }
+}
+
+function buildChoices(correct, isEnDe){
+  // Ablenker bevorzugt aus derselben Kategorie, sonst aus dem ganzen Wortschatz
+  const answerOf = v => isEnDe ? v.de : v.en;
+  const seen = new Set([correct]);
+  const sameTopic = shuffle(vocab.filter(v => v !== current && v.topic === current.topic));
+  const others    = shuffle(vocab.filter(v => v !== current && v.topic !== current.topic));
+  const distractors = [];
+  const teileVon = s => String(s).split(';').map(normalize).filter(Boolean);
+  const gleicht = (a, b) => { const A = teileVon(a); return teileVon(b).some(x => A.includes(x)); };
+  [...sameTopic, ...others].forEach(v => {
+    const a = answerOf(v);
+    if(distractors.length < 3 && !seen.has(a) && !gleicht(v.de, current.de) && !gleicht(v.en, current.en)){ seen.add(a); distractors.push(a); }
+  });
+
+  const opts = shuffle([correct, ...distractors]);
+  const cont = $('choices'); cont.innerHTML = '';
+  opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'choice'; btn.textContent = opt;
+    btn.addEventListener('click', () => checkChoice(btn, opt, correct));
+    cont.appendChild(btn);
+  });
+}
+
+function checkChoice(btn, chosen, correct){
+  if(answered) return;
+  answered = true;
+  document.querySelectorAll('.choice').forEach(b => {
+    b.disabled = true;
+    if(b.textContent === correct) b.classList.add('correct');
+  });
+  if(chosen === correct){ btn.classList.add('correct'); registerRight(); }
+  else { btn.classList.add('wrong'); registerWrong(correct); }
+}
+
+/* ---------- Tippen ---------- */
+$('type-input').addEventListener('keydown', e => { if(e.key === 'Enter') checkType(); });
+$('check-btn').addEventListener('click', checkType);
+$('hint-btn').addEventListener('click', showHint);
+
+/* ---------- Antwortpruefung (Regeln R1-R8) ---------- */
+/* R1 Form egal, R6 "hier:" ist Kontext, nicht Bedeutung */
+function normalize(s){
+  return String(s || '').trim().toLowerCase()
+    .replace(/^hier:\s*/,'')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/\u00df/g,'ss')
+    .replace(/\(.*?\)/g,' ')
+    .replace(/^(to|the|a|an|der|die|das|ein|eine)\s+/,'')
+    .replace(/[.,;:!?"'`\u00b4\u2018\u2019\u2026-]/g,'')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+
+/* R2: Klammern optional -> auch die Fassung MIT Klammerinhalt zulassen */
+function withBrackets(s){
+  return String(s || '').trim().toLowerCase()
+    .replace(/^hier:\s*/,'')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/\u00df/g,'ss')
+    .replace(/[()]/g,' ')
+    .replace(/^(to|the|a|an|der|die|das|ein|eine)\s+/,'')
+    .replace(/[.,;:!?"'`\u00b4\u2018\u2019\u2026-]/g,'')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+
+/* R7: Verbketten "to go, went, gone" -> auch "go" allein gilt */
+function verbForms(s){
+  const out = [];
+  const raw = String(s || '').trim();
+  if(/,/.test(raw) && /^(to\s+)?[a-z]/i.test(raw)){
+    raw.split(',').forEach(p => { if(p.trim()) out.push(p.trim()); });
+  }
+  return out;
+}
+
+/* R8: deutsche Umschreibung (Kueste = Küste) als eigene Variante */
+function umlautExpand(s){
+  return String(s || '')
+    .replace(/\u00e4/g,'ae').replace(/\u00f6/g,'oe').replace(/\u00fc/g,'ue')
+    .replace(/\u00c4/g,'Ae').replace(/\u00d6/g,'Oe').replace(/\u00dc/g,'Ue');
+}
+
+/* "&" und "and" gelten als gleich (bed & breakfast) */
+function ampVariants(s){
+  const t = String(s || '');
+  const out = [t];
+  if(/&/.test(t))      out.push(t.replace(/\s*&\s*/g, ' and '));
+  if(/\band\b/.test(t)) out.push(t.replace(/\band\b/g, '&'));
+  return out;
+}
+
+/* Slash-Alternativen aufloesen, auch innerhalb von Klammern und
+   an Teilwoertern:  "to catch (bus/train)" -> catch bus / catch train
+                     "must never/not"       -> must never / must not   */
+function slashVariants(part){
+  const out = [];
+  const raw = String(part || '');
+
+  /* (a) Slash in Klammern: Klammerinhalt einzeln anhaengen */
+  const mBr = raw.match(/^([^()]*)\(([^()]*)\)(.*)$/);
+  if(mBr && mBr[2].indexOf('/') >= 0){
+    const head = mBr[1], tail = mBr[3];
+    mBr[2].split('/').forEach(opt => out.push((head + opt + tail).trim()));
+    out.push((head + tail).trim());
+  }
+
+  /* (b) Slash ausserhalb von Klammern */
+  const noBr = raw.replace(/\([^()]*\)/g, '').trim();
+  if(noBr.indexOf('/') >= 0){
+    const words = noBr.split(/\s+/);
+    const idx = words.findIndex(w => w.indexOf('/') >= 0);
+    if(idx >= 0){
+      const before = words.slice(0, idx).join(' ');
+      const after  = words.slice(idx + 1).join(' ');
+      words[idx].split('/').forEach(opt => {
+        out.push([before, opt, after].filter(Boolean).join(' ').trim());
+      });
+    }
+    /* ganze Alternativen nur bei " / " mit Leerzeichen (centre (BE) / center (AE)) */
+    if(/\s\/\s/.test(raw.replace(/\([^()]*\)/g,''))){
+      noBr.split('/').forEach(p => out.push(p.trim()));
+    }
+  }
+  return out.filter(Boolean);
+}
+
+/* Alle zugelassenen Schreibweisen einer einzelnen Bedeutung */
+function variantsOf(part){
+  const set = new Set();
+  const add = v => {
+    if(!v) return;
+    ampVariants(v).forEach(x => {
+      const a = normalize(x);       if(a) set.add(a);
+      const b = withBrackets(x);    if(b) set.add(b);
+      const c = normalize(umlautExpand(x));    if(c) set.add(c);
+      const d = withBrackets(umlautExpand(x)); if(d) set.add(d);
+    });
+  };
+  add(part);
+  slashVariants(part).forEach(add);
+  verbForms(part).forEach(f => { add(f); slashVariants(f).forEach(add); });
+  /* Abkuerzung in Klammern gilt auch allein: bed & breakfast (B&B) -> B&B */
+  const abbr = String(part).match(/\(([^()]{1,12})\)\s*$/);
+  if(abbr && !/^[a-z\s]+$/.test(abbr[1])) add(abbr[1]);
+  return [...set].filter(Boolean);
+}
+
+/* Eine Bedeutung = ein ";"-Abschnitt. Rueckgabe: Array von Varianten-Arrays. */
+function meaningsOf(correct, alt){
+  const list = String(correct).split(';').map(s => s.trim()).filter(Boolean)
+    .map(part => ({ raw: part.replace(/^hier:\s*/,'').trim(), variants: variantsOf(part) }));
+  if(Array.isArray(alt)) alt.forEach(a => {
+    if(list.length) list[0].variants = list[0].variants.concat(variantsOf(a));
+  });
+  return list;
+}
+
+/* R4/R8: ein Tippfehler ab 5 Zeichen zaehlt noch als richtig */
+function editDistance(a, b, max){
+  if(a === b) return 0;
+  if(Math.abs(a.length - b.length) > max) return max + 1;
+  let prev = Array.from({length: b.length + 1}, (_, i) => i);
+  for(let i = 1; i <= a.length; i++){
+    const cur = [i]; let rowMin = i;
+    for(let j = 1; j <= b.length; j++){
+      const cost = a[i-1] === b[j-1] ? 0 : 1;
+      cur[j] = Math.min(prev[j] + 1, cur[j-1] + 1, prev[j-1] + cost);
+      if(cur[j] < rowMin) rowMin = cur[j];
+    }
+    if(rowMin > max) return max + 1;
+    prev = cur;
+  }
+  return prev[b.length];
+}
+
+/* Prueft EINE Eingabe gegen EINE Bedeutung -> 'exact' | 'typo' | null */
+function matchMeaning(input, meaning){
+  const g = normalize(input);
+  if(!g) return null;
+  for(const v of meaning.variants){ if(g === v) return 'exact'; }
+  for(const v of meaning.variants){
+    if(v.length >= 5 && editDistance(g, v, 1) <= 1) return 'typo';
+  }
+  return null;
+}
+
+/* Wie viele Bedeutungen verlangt sind: Vokabel-Feld "need" schlaegt
+   die globale Einstellung; nie mehr als es Bedeutungen gibt. (R5) */
+function requiredCount(item, meanings){
+  let want = Number(item && item.need) || needSetting || 1;
+  if(want === 99) want = meanings.length;
+  return Math.max(1, Math.min(want, meanings.length));
+}
+
+/* Gesamtpruefung: mehrere Eingaben (Komma/Semikolon getrennt) gegen
+   alle Bedeutungen. Jede Bedeutung zaehlt nur einmal. */
+function checkAnswerFull(input, item, correct){
+  const meanings = meaningsOf(correct, item && item.alt);
+  const need = requiredCount(item, meanings);
+  const parts = String(input).split(/[;,]/).map(s => s.trim()).filter(Boolean);
+  const hitIdx = new Set();
+  let typo = false;
+  parts.forEach(p => {
+    for(let i = 0; i < meanings.length; i++){
+      if(hitIdx.has(i)) continue;
+      const m = matchMeaning(p, meanings[i]);
+      if(m){ hitIdx.add(i); if(m === 'typo') typo = true; return; }
+    }
+  });
+  const hits = hitIdx.size;
+  return {
+    ok: hits >= need,
+    partial: hits > 0 && hits < need,
+    hits, need, typo,
+    total: meanings.length,
+    missing: meanings.filter((_, i) => !hitIdx.has(i)).map(m => m.raw)
+  };
+}
+
+function checkType(){
+  if(answered) return;
+  const inp = $('type-input');
+  const val = inp.value.trim();
+  if(!val) return;
+  const correct = direction === 'en-de' ? current.de : current.en;
+  const res = checkAnswerFull(val, current, correct);
+  if(res.partial && !retryGiven){
+    // R5: zu wenige Bedeutungen -> ein zweiter Versuch statt sofort falsch
+    retryGiven = true;
+    const fb = $('feedback');
+    fb.className = 'feedback warn';
+    fb.textContent = '⚠️ Fast! ' + res.hits + ' von ' + res.need
+      + ' Bedeutungen. Ergänze noch ' + (res.need - res.hits) + '.';
+    inp.classList.add('warn');
+    inp.focus();
+    inp.setSelectionRange(inp.value.length, inp.value.length);
+    return;
+  }
+  answered = true;
+  inp.disabled = true; $('hint-btn').disabled = true;
+  if(res.ok){
+    inp.classList.add('correct');
+    registerRight(res.typo ? correct : null);
+  } else {
+    inp.classList.add('wrong');
+    registerWrong(correct);
+  }
+}
+
+function showHint(){
+  if(answered) return;
+  const correct = direction === 'en-de' ? current.de : current.en;
+  const first = correct.split(';')[0].trim();
+  const inp = $('type-input');
+  const nextLen = inp.value.length + 1;
+  inp.value = first.substring(0, nextLen);
+  if(nextLen >= first.length) $('hint-btn').disabled = true;
+  inp.focus();
+}
+
+/* ---------- Auswertung einer Karte ---------- */
+function registerRight(typoOf){
+  right++; lsWort(current); vxRichtig(current);
+  showFeedback(true, null, typoOf);
+  showExample();
+  speak();
+  finishCard();
+}
+function registerWrong(correct){
+  wrong++; vxFalsch(current);
+  if(!mistakes.includes(current)) mistakes.push(current);
+  showFeedback(false, correct);
+  showExample();
+  finishCard();
+}
+function finishCard(){
+  updateScore();
+  $('skip-btn').style.display = 'none';
+  $('next-btn').style.display = '';
+  $('next-btn').focus();
+}
+function showFeedback(ok, correct, typoOf){
+  const el = $('feedback');
+  el.className = 'feedback ' + (ok ? 'good' : 'bad');
+  if(ok){
+    el.textContent = typoOf
+      ? '✅ Richtig – achte auf die Schreibweise: ' + typoOf
+      : '✅ Richtig!';
+  } else {
+    el.textContent = '❌ Richtig wäre: ' + correct;
+  }
+}
+function showExample(){
+  const box = $('example-box');
+  if(current && current.ex){ box.textContent = '„' + current.ex + '“'; box.classList.remove('empty'); }
+  else { box.textContent = 'Kein Beispielsatz vorhanden.'; box.classList.add('empty'); }
+}
+
+$('skip-btn').addEventListener('click', () => {
+  if(answered) return;
+  answered = true;
+  registerWrong(direction === 'en-de' ? current.de : current.en);
+});
+$('next-btn').addEventListener('click', nextCard);
+$('restart-btn').addEventListener('click', () => restart());
+$('retry-hard-btn').addEventListener('click', () => {
+  const hard = mistakes.slice();
+  if(hard.length) restart(hard);
+});
+
+/* ---------- Karteikarten ---------- */
+$('flash-inner').addEventListener('click', () => $('flash').classList.toggle('flipped'));
+$('flash-known').addEventListener('click', () => { right++; updateScore(); nextCard(); });
+$('flash-again').addEventListener('click', () => {
+  wrong++; vxFalsch(current);
+  if(!mistakes.includes(current)) mistakes.push(current);
+  // Wort kommt später in der Runde nochmal
+  queue.splice(Math.max(0, queue.length - 3), 0, current);
+  updateScore();
+  nextCard();
+});
+$('flash-speak').addEventListener('click', speak);
+
+/* ---------- Anzeige ---------- */
+function updateScore(){
+  $('sc-right').textContent = right;
+  $('sc-wrong').textContent = wrong;
+  $('sc-left').textContent  = queue.length;
+}
+function updateProgress(){
+  const total = (right + wrong + queue.length + 1) || 1;
+  $('pbar').style.width = ((right + wrong) / total * 100) + '%';
+}
+
+function showResult(){
+  $('quiz-card').style.display = 'none';
+  document.querySelector('.progress-wrap').style.display = 'none';
+  document.querySelector('.scorebar').style.display = 'none';
+  const total = (right + wrong) || 1;
+  const pct = Math.round(right / total * 100);
+  $('pct-display').textContent = pct + '%';
+  $('pct-ring').style.setProperty('--pct', pct);
+  const msg = pct >= 90 ? 'Excellent! Fast alles richtig!'
+            : pct >= 70 ? 'Well done! Das war schon sehr gut.'
+            : pct >= 50 ? 'Gut geübt – wiederhole die schweren Wörter noch einmal.'
+            : 'Bleib dran – Übung macht den Meister!';
+  $('result-msg').textContent = msg + ' (' + right + ' von ' + total + ' richtig)';
+
+  const hardBox = $('hard-list'), hardItems = $('hard-items');
+  hardItems.innerHTML = '';
+  if(mistakes.length){
+    mistakes.slice(0, 12).forEach(v => {
+      const li = document.createElement('li');
+      li.innerHTML = '<b>' + v.en + '</b> – ' + v.de;
+      hardItems.appendChild(li);
+    });
+    hardBox.style.display = 'block';
+    $('retry-hard-btn').style.display = '';
+  } else {
+    hardBox.style.display = 'none';
+    $('retry-hard-btn').style.display = 'none';
+  }
+
+  $('result').style.display = 'block';
+  sendVocabProgress(pct, total);
+}
+
+/* ---------- Wortliste ---------- */
+let listBuilt = false;
+$('list-toggle').addEventListener('click', () => {
+  const wl = $('wordlist');
+  const open = wl.style.display === 'block';
+  if(!open && !listBuilt){ buildWordList(); listBuilt = true; }
+  wl.style.display = open ? 'none' : 'block';
+  $('list-toggle').textContent = open ? '📖 Wortliste anzeigen' : '✕ Wortliste ausblenden';
+});
+
+function buildWordList(){
+  const wl = $('wordlist');
+  wl.innerHTML = '';
+  TOPIC_KEYS.forEach(key => {
+    const words = vocab.filter(v => v.topic === key);
+    if(!words.length) return;
+    const group = document.createElement('div');
+    group.className = 'wl-group';
+    const h = document.createElement('h3');
+    h.textContent = topicLabels[key];
+    group.appendChild(h);
+    words.forEach(v => {
+      const row = document.createElement('div');
+      row.className = 'wl-row';
+      const en = document.createElement('div');
+      en.className = 'wl-en';
+      en.textContent = v.en;
+      if(v.pron){
+        const pr = document.createElement('span');
+        pr.className = 'wl-pr';
+        pr.textContent = '[' + v.pron + ']';
+        en.appendChild(pr);
+      }
+      const de = document.createElement('div');
+      de.className = 'wl-de';
+      de.textContent = v.de;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = '🔊';
+      btn.title = v.en + ' anhören';
+      btn.addEventListener('click', () => speakText(v.en));
+      row.append(en, de, btn);
+      group.appendChild(row);
+    });
+    wl.appendChild(group);
+  });
+}
+
+/* ---------- Aussprache ---------- */
+function unlockTTS(){
+  if(ttsUnlocked || !('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') return;
+  try{
+    const warmup = new SpeechSynthesisUtterance(' ');
+    warmup.volume = 0;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(warmup);
+    ttsUnlocked = true;
+  }catch(e){}
+}
+
+function getEnglishVoice(){
+  if(!('speechSynthesis' in window)) return null;
+  const voices = window.speechSynthesis.getVoices() || [];
+  if(!voices.length) return null;
+  return voices.find(v => /en-GB/i.test(v.lang))
+      || voices.find(v => /en-US/i.test(v.lang))
+      || voices.find(v => /^en/i.test(v.lang))
+      || null;
+}
+
+async function speakViaAzure(text){
+  const res = await fetch(API_BASE + '/api/speech/speak', {
+    method:'POST',
+    headers:{ 'Content-Type':'application/json', ...(E8M_TOKEN ? { 'Authorization':'Bearer ' + E8M_TOKEN } : {}) },
+    body: JSON.stringify({ text, voice:'en-GB-SoniaNeural' })
+  });
+  if(!res.ok) throw new Error('HTTP ' + res.status);
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  await new Promise((resolve, reject) => {
+    const audio = new Audio(url);
+    audio.onended = () => { URL.revokeObjectURL(url); resolve(true); };
+    audio.onerror = () => { URL.revokeObjectURL(url); reject(new Error('audio-error')); };
+    const p = audio.play();
+    if(p && typeof p.then === 'function') p.catch(reject);
+  });
+}
+
+
+function speakBrowser(text){
+  return new Promise((resolve, reject) => {
+    if(!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined'){
+      reject(new Error('no-tts')); return;
+    }
+    unlockTTS();
+    const u = new SpeechSynthesisUtterance(text);
+    const voice = getEnglishVoice();
+    u.lang = voice ? voice.lang : 'en-GB';
+    if(voice) u.voice = voice;
+    u.rate = 0.9;
+    let started = false;
+    u.onstart = () => { started = true; };
+    u.onend = () => resolve(true);
+    u.onerror = () => reject(new Error('tts-error'));
+    try{
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(u);
+      setTimeout(() => { if(!started) reject(new Error('tts-timeout')); }, 1200);
+    }catch(e){ reject(e); }
+  });
+}
+
+/* Klammer-Zusätze wie "(bus/train)" nicht mitsprechen */
+function speakableText(word){
+  return word.replace(/\([^)]*\)/g, ' ').replace(/\s*\+\s*-ing\b/g, ' ').replace(/\.\.\.|\u2026/g, ' ').replace(/\bsth\b/g, 'something').replace(/\bsb\b/g, 'somebody')
+    .replace(/-\s*$/, ' ').replace(/\s+/g, ' ').trim() || word;
+}
+
+async function speakText(text){
+  const clean = speakableText(text);
+  try{
+    if(window.VokabelExtras){ await VokabelExtras.sprechen(clean); return; }
+    await speakBrowser(clean);
+  }catch(e){
+    const fb = $('feedback');
+    if(fb && mode !== 'flash'){ fb.className = 'feedback bad'; fb.textContent = 'Audio ist hier leider nicht verfügbar.'; }
+  }
+}
+
+async function speak(){
+  if(!current) return;
+  const btn = mode === 'flash' ? $('flash-speak') : $('speak-btn');
+  const label = btn.textContent;
+  btn.textContent = '🔊 lädt …';
+  await speakText(current.en);
+  btn.textContent = label;
+}
+$('speak-btn').addEventListener('click', speak);
+
+/* ---------- Tastatur ---------- */
+document.addEventListener('keydown', e => {
+  if(e.target.tagName === 'INPUT') return;
+  if(e.key === 'Enter' && answered && mode !== 'flash' && $('next-btn').style.display !== 'none'){ nextCard(); }
+  if(e.key === ' ' && mode === 'flash'){ e.preventDefault(); $('flash').classList.toggle('flipped'); }
+});
+
+window.addEventListener('pointerdown', unlockTTS, { once:true });
+if('speechSynthesis' in window){ window.speechSynthesis.onvoiceschanged = () => {}; }
+
+buildFilterButtons();
+syncNeedUI();
+restart();
+</script>
+<script src="../../../../js/vokabel-extras.js"></script>
+<script src="../../../../js/lernstand.js"></script>
+<script>
+/* Lernstand mit Code: Anmeldung, Meldung richtig gelöster Aufgaben, „Das fehlt dir noch“ (js/lernstand.js) */
+function lsWort(w) { if (window.Lernstand && w) Lernstand.geloest("w" + vocab.indexOf(w)); }
+/* Fehlerwörter, Stimmenwahl und Sprachausgabe (js/vokabel-extras.js) */
+function vxFalsch(w) { if (window.VokabelExtras && w) VokabelExtras.falsch(w); }
+function vxRichtig(w) { if (window.VokabelExtras && w) VokabelExtras.richtig(w); }
+if (window.VokabelExtras) VokabelExtras.init({
+  modul: "e8-m-u1-vokabeln", vocab: vocab, stimme: "en-GB-SoniaNeural",
+  ueben: function (liste) { restart(liste); },
+  vorAntwort: function () { return direction === "de-en" && !answered; },
+  anker: document.getElementById("filter-row"),
+  beispiel: { box: "#example-box", frage: "#qword", klasse: "grade8", wort: function () { return current; } }
+});
+(function () {
+  var dek = document.createElement("textarea");
+  function text(t) { dek.innerHTML = String(t || ""); return dek.value; }
+  var themen = typeof topicLabels !== "undefined" ? topicLabels : {};
+  if (window.Lernstand) Lernstand.seite({
+    kurs: "e8", bereich: "Unit 1 · Vokabeln", bnr: 10, modul: "e8-m-u1-vokabeln", nr: 1, kurz: "Vokabeln",
+    titel: "Vokabeltrainer Unit 1", einheit: "Wörtern",
+    hinweis: "Ein Wort zählt, wenn du es beim Ankreuzen oder Schreiben richtig beantwortest.",
+    aufgaben: vocab.map(function (w, i) { return { id: "w" + i, teil: themen[w.topic] || "Wörter", kurz: text(w.en).slice(0, 24), text: text(w.en) + " – " + text(w.de) }; }),
+    anker: document.getElementById("filter-row"), reset: true,
+    fehlerGeladen: function (f) { if (window.VokabelExtras) VokabelExtras.vomServer(f); }
+  });
+})();
+if (window.VokabelExtras && typeof showExample === "function") {
+  var vxBuchBeispiel = showExample;
+  showExample = function () { if (!VokabelExtras.kiSatzAktiv()) vxBuchBeispiel(); };
+}
+</script>
+</body>
+</html>

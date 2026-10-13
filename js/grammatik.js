@@ -18,7 +18,15 @@
  *   frei      items: [{ f, kriterien: [..], muster?: "RegExp", bsp }]   KI prüft, ohne Server das Muster
  *   genau: true (bei luecke/umformen): Groß-/Kleinschreibung und Buchstaben zählen, keine KI (Rechtschreibung)
  *   bauen     items: [{ f?, teile: [in richtiger Reihenfolge], l?: [weitere richtige Sätze] }]
- *   paare     paare: [["links", "rechts"], …]            zusammengehörende Karten verbinden (z. B. Englisch – Deutsch)
+ *   paare     paare: [["links", "rechts"], …]            zusammengehörende Karten verbinden (z. B. Englisch – Deutsch);
+ *             eine Seite, die mit „img:“ beginnt, ist ein Bild („img:wb/nurse.jpg“ – Bildwörter der Wordbanks)
+ *   regelheft kopf: "Überschrift", html: "<p>…</p>"     Eintrag zum Abschreiben ins Regelheft (liniertes Blatt, <span class="rot">
+ *             für farbige Wörter); gilt als gelöst, wenn das Kind „Ich habe den Eintrag abgeschrieben“ antippt
+ * Bilder (Englisch 8M): Vorgabe bildBasis = Ordner der Bilder („../../images/“). Seite: bild: { src, alt, satz, de } zeigt
+ *   ein Bild mit Beispielsatz über dem Merkwissen. wahl: Eintrag mit bild (und alt) zeigt ein Bild über der Frage;
+ *   luecke: Eintrag als { s, bild } ebenso.
+ * KI-Hilfe (Englisch 8M, Vorgabe kiHilfe: true; je Aufgabe mit hilfe: false abschaltbar): Stimmt bei einer Lückenaufgabe
+ *   nach dem Prüfen etwas nicht, erklärt die KI auf Wunsch, was falsch ist – erst ein Denkanstoß, beim zweiten Mal die Lösung.
  * Seite: plusHinweis ersetzt den Hinweis über den Plus-Aufgaben (Kurse ohne M-Zug, z. B. Englisch 8R).
  *   basisHinweis (HTML): Hinweis über den Basis-Aufgaben; basisEyebrow: Zeile über der Überschrift.
  * Tipps und Hinweise (Training zu einer Probe, Deutsch 7):
@@ -44,8 +52,10 @@
     indexHref: "index.html", indexName: "Alle Themen", themaWort: "Thema", kurzPrefix: "G", ki: true };
   function vorgaben(v) { Object.keys(v || {}).forEach(function (k) { V[k] = v[k]; }); }
   var TYPEN = { wahl: "Ankreuzen", luecke: "Lückentext", markieren: "Markieren", zuordnen: "Zuordnen", komma: "Kommas setzen",
-    trennen: "Umstellprobe", analyse: "Satz-Detektiv", umformen: "Umformen", frei: "Selbst schreiben", bauen: "Satzbau", paare: "Paare finden" };
+    trennen: "Umstellprobe", analyse: "Satz-Detektiv", umformen: "Umformen", frei: "Selbst schreiben", bauen: "Satzbau", paare: "Paare finden",
+    regelheft: "Regelheft" };
   var KI_API = (global.location.hostname.slice(-12) === "onrender.com" ? "" : "https://englisch-9.onrender.com") + "/api/d9-grammatik/pruefen";
+  var KI_HILFE_API = KI_API.replace(/pruefen$/, "hilfe");
   var WORT = /[A-Za-zÄÖÜäöüß0-9]+(?:[-'’][A-Za-zÄÖÜäöüß0-9]+)*/;
 
   function $(s, r) { return (r || doc).querySelector(s); }
@@ -104,10 +114,15 @@
   var CFG, MODUL, KEY, geloest = {}, karten = [];
 
   /* ---------- Kopfteil jedes Items (Nummer, Frage, Satz) ---------- */
+  // Bilder: Namen ohne Pfad („wb/nurse.jpg“) liegen im Bilderordner des Kurses (Vorgabe bildBasis)
+  function bildSrc(s) { return /^(\.|\/|https?:)/.test(s) ? s : ((CFG && CFG.bildBasis) || "") + s; }
+  function bildHtml(it) {
+    return it && it.bild ? '<img class="item-bild" src="' + esc(bildSrc(it.bild)) + '" alt="' + esc(it.alt || "") + '" loading="lazy">' : "";
+  }
   function kopf(it, i, n) {
-    var nr = '<span class="marke">' + (n > 1 ? (i + 1) + "." : "") + "</span>";
-    if (it.f) return '<div class="frage">' + nr + fmt(it.f) + "</div>" + (it.s ? '<div class="satz">' + fmt(it.s) + "</div>" : "");
-    return it.s ? '<div class="satz">' + nr + fmt(it.s) + "</div>" : nr;
+    var nr = '<span class="marke">' + (n > 1 ? (i + 1) + "." : "") + "</span>", b = bildHtml(it);
+    if (it.f) return b + '<div class="frage">' + nr + fmt(it.f) + "</div>" + (it.s ? '<div class="satz">' + fmt(it.s) + "</div>" : "");
+    return b + (it.s ? '<div class="satz">' + nr + fmt(it.s) + "</div>" : nr);
   }
   function itemStatus(el, ok) { el.classList.toggle("richtig", ok === true); el.classList.toggle("falsch", ok === false); }
 
@@ -178,7 +193,7 @@
           }
           return fmt(t);
         }).join("");
-        return '<div class="item"><div class="luecke-satz">' + '<span class="marke">' + (items.length > 1 ? (i + 1) + "." : "") + "</span>" + h + "</div>" +
+        return '<div class="item">' + (it && typeof it === "object" ? bildHtml(it) : "") + '<div class="luecke-satz">' + '<span class="marke">' + (items.length > 1 ? (i + 1) + "." : "") + "</span>" + h + "</div>" +
           (hinweis ? '<div class="erkl">' + fmt(hinweis) + "</div>" : "") + "</div>";
       }).join("");
       $$("input,select", box).forEach(function (f) {
@@ -209,6 +224,18 @@
       loesung: function () {
         $$("input,select", box).forEach(function (f) { f.value = loesungen[+f.dataset.g][0]; f.classList.add("r"); f.classList.remove("f"); });
         $$(".item", box).forEach(function (el) { itemStatus(el, true); });
+      },
+      // Für die KI-Hilfe: die Sätze, in denen nach dem Prüfen noch etwas falsch ist (Lücken als ___)
+      falsche: function () {
+        var aus = [];
+        $$(".item", box).forEach(function (el, i) {
+          var felder = $$("input,select", el);
+          if (!felder.some(function (f) { return f.classList.contains("f"); })) return;
+          var text = items[i] && typeof items[i] === "object" ? items[i].s : items[i];
+          aus.push({ nr: i + 1, satz: ohneFmt(String(text).replace(/\[\[.*?\]\]|\{\{.*?\}\}/g, "___")),
+            antworten: felder.map(function (f) { return f.value.trim(); }), loesungen: felder.map(function (f) { return loesungen[+f.dataset.g][0]; }) });
+        });
+        return aus;
       },
       neu: bauen
     };
@@ -631,10 +658,13 @@
       gew = null; zu = {};
       var rechts = mischen(P.map(function (_p, i) { return i; })), n = 0;
       while (P.length > 2 && rechts.every(function (x, k) { return x === k; }) && n++ < 9) rechts = mischen(rechts);
-      box.innerHTML = '<div class="pa-feld"><div class="pa-spalte" data-s="l">' +
-        P.map(function (p, i) { return '<button type="button" class="pa-karte" data-i="' + i + '"><span>' + fmt(p[0]) + '</span><span class="pa-nr"></span></button>'; }).join("") +
+      // „img:wb/nurse.jpg“ = Bildkarte (Bildwörter der Wordbanks)
+      var seiteHtml = function (t) { return /^img:/.test(t) ? '<img class="pa-bild" src="' + esc(bildSrc(t.slice(4))) + '" alt="" loading="lazy">' : fmt(t); };
+      var mitBild = P.some(function (p) { return /^img:/.test(p[0]) || /^img:/.test(p[1]); });
+      box.innerHTML = '<div class="pa-feld' + (mitBild ? " bilder" : "") + '"><div class="pa-spalte" data-s="l">' +
+        P.map(function (p, i) { return '<button type="button" class="pa-karte" data-i="' + i + '"><span>' + seiteHtml(p[0]) + '</span><span class="pa-nr"></span></button>'; }).join("") +
         '</div><div class="pa-spalte" data-s="r">' +
-        rechts.map(function (i) { return '<button type="button" class="pa-karte" data-i="' + i + '"><span>' + fmt(P[i][1]) + '</span><span class="pa-nr"></span></button>'; }).join("") + "</div></div>";
+        rechts.map(function (i) { return '<button type="button" class="pa-karte" data-i="' + i + '"><span>' + seiteHtml(P[i][1]) + '</span><span class="pa-nr"></span></button>'; }).join("") + "</div></div>";
       $$(".pa-karte", box).forEach(function (k) {
         k.addEventListener("click", function () {
           var seite = k.parentElement.dataset.s, i = k.dataset.i;
@@ -669,15 +699,52 @@
     };
   }
 
+  /* ---------- Regelheft-Eintrag zum Abschreiben (liniertes Blatt; gilt als gelöst, wenn das Kind es abhakt) ---------- */
+  function regelheft(K, box) {
+    box.innerHTML = '<div class="regelheft"><div class="rh-kopf">📓 Regelheft · schreibe ab</div><div class="rh-blatt"><h4>' + esc(K.a.kopf || "") + "</h4>" + (K.a.html || "") + "</div></div>" +
+      '<div class="aufg-aktionen"><button type="button" class="knopf rh-fertig">✅ Ich habe den Eintrag in mein Regelheft geschrieben</button></div><div class="fb" role="status"></div>';
+    var knopf = $(".rh-fertig", box), fb = $(".fb", box);
+    function fertig() { knopf.disabled = true; fb.className = "fb zeigen ok"; fb.textContent = "✅ Abgehakt – der Eintrag steht in deinem Regelheft."; }
+    knopf.addEventListener("click", function () { K.fertig(); fertig(); });
+    if (K.istGeloest()) fertig();
+    return { pruefen: function () { return { ok: 0, von: 1, offen: 1 }; }, loesung: function () {}, neu: function () {}, abgehakt: fertig };
+  }
+
   var BAU = { wahl: wahl, luecke: luecke, markieren: markieren, zuordnen: zuordnen, komma: komma, trennen: komma, analyse: analyse,
-    umformen: umformen, frei: umformen, bauen: bauenTyp, paare: paare };
+    umformen: umformen, frei: umformen, bauen: bauenTyp, paare: paare, regelheft: regelheft };
+
+  /* ---------- KI-Hilfe bei Lückenaufgaben (Englisch 8M): erklärt, was nach dem Prüfen noch falsch ist ---------- */
+  function kiHilfe(K, kasten, knopf) {
+    var s = global.Lernstand && global.Lernstand.schueler;
+    var falsche = K.impl.falsche ? K.impl.falsche().slice(0, 4) : [];
+    kasten.className = "ki-hilfe zeigen";
+    if (!falsche.length) { kasten.textContent = "Prüfe zuerst deine Antworten – dann hilft dir die KI bei dem, was noch nicht stimmt."; return; }
+    if (!s || !s.code) { kasten.textContent = "🤖 Melde dich mit deinem Code an – dann erklärt dir die KI, was noch nicht stimmt. Bis dahin hilft dir der Tipp."; return; }
+    K.hilfeStufe = Math.min(2, (K.hilfeStufe || 0) + 1);
+    knopf.disabled = true;
+    kasten.innerHTML = '<span class="punkte">🤖 Die KI schaut sich deine Antworten an</span>';
+    var ctl = global.AbortController ? new AbortController() : null, abbruch = setTimeout(function () { if (ctl) ctl.abort(); }, 45000);
+    fetch(KI_HILFE_API, {
+      method: "POST", headers: { "Content-Type": "application/json" }, signal: ctl ? ctl.signal : undefined,
+      body: JSON.stringify({ code: s.code, modul: MODUL, aufgabe: K.id, auftrag: ohneFmt(K.a.t), stufe: K.hilfeStufe,
+        saetze: falsche.map(function (f) { return { satz: f.satz, antworten: f.antworten, loesungen: f.loesungen }; }) })
+    }).then(function (r) { return r.json().catch(function () { return null; }); }).then(function (d) {
+      if (!d || !d.ok || !d.hinweise) { K.hilfeStufe--; kasten.textContent = "🤖 " + ((d && d.error) || "Die KI ist gerade nicht erreichbar. Der Tipp und das Merkwissen oben helfen dir weiter."); return; }
+      kasten.innerHTML = "<b>🤖 Hilfe von der KI</b><ul>" + d.hinweise.map(function (h, i) {
+        return "<li>" + (falsche.length > 1 || K.a.items.length > 1 ? "<i>Satz " + falsche[i].nr + ":</i> " : "") + esc(h) + "</li>";
+      }).join("") + "</ul>" + (K.hilfeStufe < 2 ? "<small>Verbessere und prüfe noch einmal. Kommst du nicht weiter, frag die KI ein zweites Mal.</small>" : "");
+    }).catch(function () { K.hilfeStufe--; kasten.textContent = "🤖 Keine Verbindung zur KI. Der Tipp und das Merkwissen oben helfen dir weiter."; })
+      .then(function () { clearTimeout(abbruch); knopf.disabled = false; knopf.textContent = K.hilfeStufe >= 1 ? "🤖 Noch einmal Hilfe" : "🤖 KI-Hilfe"; });
+  }
 
   /* ---------- Karte mit Prüfen, Tipp, Lösung und Neu ---------- */
   function karteBauen(a, i, plus) {
     var kurz = (plus ? "P" : "B") + (i + 1), id = MODUL + "-" + (plus ? "p" : "b") + (i + 1);
     var el = doc.createElement("article");
     el.className = "card aufg" + (plus ? " plus" : ""); el.id = id;
-    var eigen = a.typ === "analyse";
+    var eigen = a.typ === "analyse" || a.typ === "regelheft";
+    // KI-Hilfe: nur bei Lückenaufgaben und nur, wo die Vorgaben des Kurses sie einschalten (Englisch 8M)
+    var mitHilfe = a.typ === "luecke" && Boolean(CFG.kiHilfe) && a.hilfe !== false;
     // Tipps in Stufen: tipp als Liste – jeder Klick auf „💡 Tipp“ zeigt den nächsten (erst allgemein, dann genauer)
     var stufen = Array.isArray(a.tipp) ? a.tipp : null;
     var tippKnopf = !a.tipp ? "" : '<button type="button" class="knopf zweit tipp" aria-expanded="false">💡 Tipp' + (stufen && stufen.length > 1 ? " (1 von " + stufen.length + ")" : "") + "</button>";
@@ -689,9 +756,10 @@
       (a.info ? '<p class="info">' + fmt(a.info) + "</p>" : "") + '<div class="koerper"></div>' +
       (eigen ? (a.tipp ? '<div class="aufg-aktionen">' + tippKnopf + "</div>" : "") :
       '<div class="aufg-aktionen"><button type="button" class="knopf pruefen">Prüfen</button>' + tippKnopf +
+      (mitHilfe ? '<button type="button" class="knopf zweit ki-knopf" hidden>🤖 KI-Hilfe</button>' : "") +
       '<button type="button" class="knopf zweit loes-knopf" hidden>Lösung zeigen</button>' +
       '<button type="button" class="knopf zweit neu" title="Aufgabe neu beginnen">↺ Neu</button></div>') +
-      tippBox + (eigen ? "" : '<div class="fb" role="status"></div>');
+      tippBox + (eigen ? "" : '<div class="fb" role="status"></div>') + (mitHilfe ? '<div class="ki-hilfe" aria-live="polite"></div>' : "");
     var K = { id: id, kurz: kurz, plus: plus, el: el, a: a, verraten: false, fehlversuche: 0 };
     K.istGeloest = function () { return Boolean(geloest[id]); };
     K.fertig = function () { loesen(K); };
@@ -714,7 +782,8 @@
       karten.push(K);
       return el;
     }
-    var fb = $(".fb", el), knopf = $(".pruefen", el), zeigen = $(".loes-knopf", el);
+    var fb = $(".fb", el), knopf = $(".pruefen", el), zeigen = $(".loes-knopf", el), kiKnopf = $(".ki-knopf", el), kiKasten = $(".ki-hilfe", el);
+    if (kiKnopf) kiKnopf.addEventListener("click", function () { kiHilfe(K, kiKasten, kiKnopf); });
     K.leise = function () { fb.className = "fb"; };
     function melden(art, html) { fb.className = "fb zeigen " + art; fb.innerHTML = html; }
     K.pruefen = function () {
@@ -726,11 +795,13 @@
         if (e.ok === e.von) {
           if (K.verraten) { melden("mid", "✅ Stimmt – aber mit der Lösung zählt die Aufgabe noch nicht. Übe sie später noch einmal ohne Hilfe (Seite neu laden)."); return; }
           melden("ok", "✅ " + (K.a.richtig ? fmt(K.a.richtig) : "Alles richtig!"));
+          if (kiKasten) kiKasten.className = "ki-hilfe";
           loesen(K);
           return;
         }
         K.fehlversuche++;
         if (K.fehlversuche >= 1) zeigen.hidden = false;
+        if (kiKnopf) kiKnopf.hidden = false;
         melden("bad", "❌ " + (e.von > 1 ? e.ok + " von " + e.von + (e.einheit ? " " + e.einheit : "") + " richtig." : "Noch nicht richtig.") +
           (e.fehlt ? " " + e.fehlt + " noch offen." : "") + " Rot markiert ist, was noch nicht stimmt." + (K.a.tipp && K.fehlversuche === 1 ? " Der Tipp hilft dir." : ""));
       }).catch(function () { knopf.disabled = false; melden("bad", "Das Prüfen hat nicht geklappt. Versuch es noch einmal."); });
@@ -740,7 +811,7 @@
       K.impl.loesung(); K.verraten = true;
       melden("mid", "Hier ist die Lösung. Lies sie dir genau durch. Mit der Lösung zählt die Aufgabe nicht – übe sie später noch einmal ohne Hilfe.");
     });
-    $(".neu", el).addEventListener("click", function () { K.impl.neu(); K.leise(); });
+    $(".neu", el).addEventListener("click", function () { K.impl.neu(); K.leise(); if (kiKasten) kiKasten.className = "ki-hilfe"; });
     K.impl = BAU[a.typ](K, $(".koerper", el));
     karten.push(K);
     return el;
@@ -751,7 +822,11 @@
   function sterne() {
     var n = karten.filter(function (k) { return geloest[k.id]; }).length, s = $("#g-sterne");
     if (s) s.textContent = "⭐ " + n + " / " + karten.length;
-    karten.forEach(function (k) { k.el.classList.toggle("fertig", Boolean(geloest[k.id])); });
+    karten.forEach(function (k) {
+      k.el.classList.toggle("fertig", Boolean(geloest[k.id]));
+      // Regelheft-Eintrag, der auf einem anderen Gerät abgehakt wurde
+      if (geloest[k.id] && k.impl && k.impl.abgehakt) k.impl.abgehakt();
+    });
   }
   function loesen(K) {
     var neu = !geloest[K.id];
@@ -816,6 +891,9 @@
       "</div></div>" +
       '<main class="wrap">' +
         '<section class="station" id="verstehen"><div class="st-head"><div class="st-num">1</div><div><div class="eyebrow">Merkwissen</div><h2>Verstehen</h2></div></div>' +
+          // Bild mit Beispielsatz (Englisch 8M): führt in das Thema ein, bevor die Regeln kommen
+          (cfg.bild ? '<figure class="g-bild"><img src="' + esc(bildSrc(cfg.bild.src)) + '" alt="' + esc(cfg.bild.alt || "") + '" loading="lazy"><figcaption>' +
+            (cfg.bild.satz ? "<b>" + fmt(cfg.bild.satz) + "</b>" : "") + (cfg.bild.de ? "<span>" + fmt(cfg.bild.de) + "</span>" : "") + "</figcaption></figure>" : "") +
           '<div class="merk-grid' + (wortbank ? " wb" : "") + '">' + (cfg.merk || []).map(function (m) { return '<div class="card merk' + (m.breit || /<table/.test(m.html) ? " breit" : "") + '"><h3>' + esc(m.t) + "</h3>" + merkHtml(m.html) + "</div>"; }).join("") + "</div>" +
           (cfg.fallen && cfg.fallen.length ? '<div class="merke"><h4>⚠️ Achtung, typische Fehler</h4><ul>' + cfg.fallen.map(function (f) { return "<li>" + fmt(f) + "</li>"; }).join("") + "</ul></div>" : "") +
         "</section>" +
@@ -885,10 +963,11 @@
 
     // Lernstand mit Code (js/lernstand.js): Stand oben, gelöste Aufgaben an die Lehrkraft
     if (global.Lernstand && !vorschau) {
-      // Modul neu beginnen: nur, wo die Kursliste es einschaltet (RESET – seit dem 12.10.2026 Deutsch 7)
+      // Modul neu beginnen: nur, wo die Kursliste es einschaltet (RESET – seit dem 12.10.2026 Deutsch 7) oder die
+      // Vorgaben des Ordners (reset: true – Englisch 8M, dort lädt die Sperre die Kursliste erst später)
       var kursliste = cfg.liste ? global[cfg.liste.name] : null;
       global.Lernstand.seite({
-        reset: Boolean(kursliste && kursliste.RESET),
+        reset: Boolean((kursliste && kursliste.RESET) || cfg.reset),
         zurueckgesetzt: function () { try { global.localStorage.removeItem(KEY); } catch (_e) {} geloest = {}; },
         hatStand: function () { return Object.keys(geloest).length > 0; },
         kurs: cfg.kurs, bereich: cfg.bereich, bnr: cfg.bnr, modul: MODUL, nr: cfg.lsNr || cfg.nr, kurz: cfg.kurz || cfg.kurzPrefix + cfg.nr, titel: cfg.titel,

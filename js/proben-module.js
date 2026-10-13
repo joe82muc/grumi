@@ -24,7 +24,7 @@
   "use strict";
 
   /* Englisch-Tests: Stufe, Zug und Unit stecken in der Test-ID
-     (e7-u1-…, e7m-u1-…, e8r-u2-…, e9r-u1-…, e9m-u1-…) */
+     (e7-u1-…, e7m-u1-…, e8r-u2-…, e8m-u2-…, e9r-u1-…, e9m-u1-…) */
   function idKlasse(t) {
     var m = String(t.id || "").match(/^e(\d+)([mr]?)-/i);
     if (m) return m[1] + m[2].toUpperCase();
@@ -35,15 +35,16 @@
     if (!m) return "";
     var st = m[1], zug = m[2].toLowerCase(), unit = "unit" + m[3] + "/";
     if (st === "7") return "7/Englisch_7/" + unit + datei;
-    if (st === "8") return "8R/Englisch/" + unit + datei;
+    if (st === "8") return (zug === "m" ? "8M/Englisch/" : "8R/Englisch/") + unit + datei;
     if (st === "9") return (zug === "m" ? "9M/Englisch_9/" : "9R/Englisch/") + unit + datei;
     return "";
   }
   function nt9Zug(t) { return /^nt9r-/.test(t.id) ? "9R" : "9M"; }
-  /* Modulliste (themen.js) zu einem Englisch-Test – aus der Test-ID: E7, E8, E9M oder E9R */
+  /* Modulliste (themen.js) zu einem Englisch-Test – aus der Test-ID: E7, E8 (8R), E8M, E9M oder E9R */
   function englischListe(t) {
     var m = String(t.id || "").match(/^e(\d+)([mr]?)-/i);
     if (!m) return "";
+    if (m[1] === "8") return m[2].toLowerCase() === "m" ? "E8M" : "E8";
     return m[1] === "9" ? (m[2].toLowerCase() === "m" ? "E9M" : "E9R") : "E" + m[1];
   }
 
@@ -55,8 +56,9 @@
       schueler: function (t) { return englischSeite(t, "test/vokabeltest.html") + "?test=" + encodeURIComponent(t.id); }
     },
     {
-      /* Englisch 9R, 9M, 7M und 7R: Grammatikprobe und Grammatiktests G1-G4 (Unit 1) */
-      key: "grammatik9r", subject: "Englisch", stufen: [7, 9], liste: englischListe,
+      /* Englisch 9R, 9M, 7M und 7R: Grammatikprobe und Grammatiktests G1-G4 (Unit 1); Englisch 8M: je Unit zwei
+         kleine Grammatikproben (e8m-u<N>-gp1, -gp2) */
+      key: "grammatik9r", subject: "Englisch", stufen: [7, 8, 9], liste: englischListe,
       listPath: "/api/grammatik9r/list", unlockPath: "/api/grammatik9r/unlock",
       klasse: idKlasse, link: function (t) { return englischSeite(t, "probe/lehrer.html"); },
       schueler: function (t) { return englischSeite(t, "probe/grammatikprobe.html") + "?test=" + encodeURIComponent(t.id); }

@@ -1,6 +1,6 @@
 /* Kursliste – gemeinsames Gerüst für Fächer, deren Lernseiten die Lehrkraft je Klasse freischaltet.
  * Zuerst für Englisch 7 bis 9: Die Listen stehen in 7/Englisch_7/themen.js (E7), 8R/Englisch/themen.js (E8),
- * 9M/Englisch_9/themen.js (E9M) und 9R/Englisch/themen.js (E9R). NT 7, Informatik 7/8 und Deutsch 7 haben
+ * 8M/Englisch/themen.js (E8M), 9M/Englisch_9/themen.js (E9M) und 9R/Englisch/themen.js (E9R). NT 7, Informatik 7/8 und Deutsch 7 haben
  * dieselben Funktionen noch in ihrer eigenen themen.js – die Verwaltung spricht alle Listen gleich an.
  *
  *   GrumiKursliste.bauen({
@@ -10,6 +10,7 @@
  *     pfad: "/api/e7",         Freischaltung auf dem Server (nt7-freigabe.js)
  *     ordner: "7/Englisch_7/", Ordner der Liste, vom Wurzelordner der Website aus; uebersicht: Datei der Übersicht dort (index.html)
  *     themen: [{ id, nr, titel, kurz, icon, text, module: [{ id, kz, titel, href, text, art, ls, auch }] }],
+ *     reset: true              Module dürfen neu begonnen werden (Englisch 8M; Knopf im Kasten „Dein Stand“)
  *     probeInhalt: { "<test>": ["<modul>", …] }    Proben, die nicht nach der Regel unten zugeordnet werden
  *     proben: { "<test>": "<themenbereich>" }      Proben, die einen ganzen Themenbereich abdecken (z. B. NT 9)
  *   })
@@ -228,6 +229,8 @@
       ZURUECK: "📚 Zur Übersicht " + (cfg.titel || ""), idAusKey: idAusKey, zug: zug, BAUSTEINE: cfg.bausteine || null,
       THEMEN: THEMEN, API: API, VORSCHAU: VORSCHAU, NAME: cfg.name, KURS: cfg.kurs, STUFE: STUFE, ZUEGE: cfg.zuege || ["M", "R"], PFAD: PFAD,
       FACH: cfg.fach || "", TITEL: cfg.titel || "", ORDNER: cfg.ordner, UEBERSICHT: cfg.uebersicht || "index.html", INTRO: cfg.intro || "", ANDERE: cfg.andere || null, FARBE: cfg.farbe || "",
+      // reset: true = Kind und Lehrkraft dürfen ein Modul neu beginnen (js/lernstand.js; der Server erlaubt es je Kurs)
+      RESET: Boolean(cfg.reset),
       modulVon: modulVon, modulZurSeite: modulZurSeite, modulZumLernstand: modulZumLernstand, offen: offen, freigabe: freigabe,
       probeModule: probeModule, probeThemen: probeThemen
     };

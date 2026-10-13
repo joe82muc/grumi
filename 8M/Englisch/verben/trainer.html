@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verben-Trainer: unregelm&auml;&szlig;ige Verben | Englisch 8M</title>
+<link rel="stylesheet" href="../../../css/schriften.css">
+<link rel="stylesheet" href="../../../css/exercise-shell.css">
+<style>
+  :root{
+    --uk-blue:#00649b; --uk-blue-2:#0082c3; --uk-red:#e30613;
+    --accent:#0098da; --accent-soft:#e1f3fb;
+    --ink:#101a2e; --muted:#5d6b84; --line:#dce4f0;
+    --card:#ffffff; --bg-1:#f3f6fc; --bg-2:#eef3fb;
+    --ok:#15803d; --ok-bg:#e9f8ee; --ok-line:#8fd6a8;
+    --bad:#c2340f; --bad-bg:#fdeeeb; --bad-line:#f3b5a6;
+    --gold:#f29100;
+    --shadow-s:0 2px 8px rgba(16,26,46,.06);
+    --shadow-m:0 10px 28px rgba(16,26,46,.10);
+    --shadow-l:0 18px 46px rgba(0,100,155,.16);
+    --r-s:10px; --r-m:14px; --r-l:20px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Source Sans 3",system-ui,"Segoe UI",sans-serif;
+    min-height:100vh;color:var(--ink);
+    background:
+      radial-gradient(circle at 10% 0%, #dcf0fa 0%, transparent 45%),
+      radial-gradient(circle at 92% 8%, #fdefdc 0%, transparent 38%),
+      linear-gradient(180deg,var(--bg-1),var(--bg-2));
+  }
+  .wrap{max-width:1000px;margin:0 auto;padding:1rem 1rem 3rem}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative;overflow:hidden;color:#fff;border-radius:var(--r-l);
+    padding:1.4rem 1.4rem 1.5rem;box-shadow:var(--shadow-l);
+    background:linear-gradient(125deg,var(--uk-blue) 0%,var(--uk-blue-2) 55%,#0098da 100%);
+  }
+  .hero::after{
+    content:"";position:absolute;right:-60px;top:-70px;width:280px;height:280px;border-radius:50%;
+    background:radial-gradient(circle,rgba(242,145,0,.34) 0%,transparent 68%);pointer-events:none;
+  }
+  .hero-flag{display:inline-flex;gap:5px;margin-bottom:.55rem}
+  .hero-flag span{width:28px;height:7px;border-radius:99px}
+  .hero-flag .f1{background:#fff}.hero-flag .f2{background:var(--uk-red)}.hero-flag .f3{background:#fff}
+  .hero-badge{position:absolute;right:1.1rem;top:1.1rem;width:64px;height:64px;border-radius:50%;box-shadow:0 4px 14px rgba(0,0,0,.28);z-index:2}
+  .hero-head{padding-right:76px}
+  @media(max-width:520px){.hero-badge{width:48px;height:48px;right:.8rem;top:.8rem}.hero-head{padding-right:58px}}
+  .hero h1{font-size:clamp(1.5rem,4.8vw,2.3rem);line-height:1.1;letter-spacing:-.01em;font-weight:800}
+  .hero .sub{opacity:.92;margin-top:.45rem;font-size:.97rem;font-weight:500}
+  .hero-stats{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.95rem;position:relative;z-index:1}
+  .hero-chip{
+    background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);
+    border-radius:999px;padding:.3rem .8rem;font-size:.79rem;font-weight:700;
+  }
+
+  /* ---------- Sections ---------- */
+  .panel{
+    margin-top:.95rem;background:var(--card);border:1px solid var(--line);
+    border-radius:var(--r-l);padding:1.05rem;box-shadow:var(--shadow-m);
+  }
+  .sec-label{
+    display:flex;align-items:center;gap:.5rem;
+    font-size:.71rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 .55rem;
+  }
+  .sec-label::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  /* ---------- Filter chips ---------- */
+  .filter-row{display:flex;flex-wrap:wrap;gap:.4rem}
+  .filter-btn{
+    display:inline-flex;align-items:center;gap:.4rem;
+    padding:.4rem .5rem .4rem .85rem;border:1.5px solid var(--line);border-radius:999px;
+    background:#fff;color:#2b3f63;font-size:.81rem;font-weight:700;cursor:pointer;
+    transition:border-color .15s,background .15s,color .15s,box-shadow .15s;
+    font-family:inherit;
+  }
+  .filter-btn:hover{border-color:var(--accent);background:var(--accent-soft)}
+  .filter-btn.active{background:var(--uk-blue);border-color:var(--uk-blue);color:#fff;box-shadow:0 4px 12px rgba(1,33,105,.28)}
+  .filter-btn .cnt{
+    background:#eef2f9;color:#4a5a77;border-radius:999px;padding:.05rem .48rem;
+    font-size:.72rem;font-weight:800;min-width:1.55rem;text-align:center;
+  }
+  .filter-btn.active .cnt{background:rgba(255,255,255,.22);color:#fff}
+
+  /* ---------- Controls ---------- */
+  .controls{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:center;margin-top:.9rem}
+  .ctl{display:flex;flex-direction:column;gap:.3rem;align-items:center}
+  .ctl-cap{font-size:.67rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+  .pill-group{display:flex;background:#eef2f9;border-radius:999px;padding:3px;gap:2px}
+  .pill{
+    padding:.42rem .9rem;border:none;border-radius:999px;background:transparent;color:#415272;font-weight:700;cursor:pointer;font-size:.81rem;transition:all .15s;font-family:inherit;white-space:nowrap;
+  }
+  .pill:hover{color:var(--uk-blue)}
+  .pill.active{background:#fff;color:var(--uk-blue);box-shadow:var(--shadow-s)}
+
+  /* ---------- Score ---------- */
+  .scorebar{display:flex;justify-content:center;gap:.6rem;margin:1rem auto .55rem;max-width:520px}
+  .score-box{
+    flex:1;background:#f7f9fd;border:1px solid var(--line);border-radius:var(--r-m);
+    padding:.55rem .35rem;text-align:center;
+  }
+  .score-box b{display:block;font-size:1.45rem;font-weight:800;line-height:1.1}
+  .score-box span{font-size:.72rem;font-weight:700;color:var(--muted);letter-spacing:.03em}
+  .score-box.ok b{color:var(--ok)} .score-box.bad b{color:var(--bad)}
+  .progress-wrap{
+    max-width:520px;margin:0 auto 1.1rem;height:9px;background:#dcebf3;
+    border-radius:99px;overflow:hidden;
+  }
+  .progress-bar{height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,var(--uk-blue),var(--accent));transition:width .35s ease}
+
+  /* ---------- Quiz card ---------- */
+  .card{
+    max-width:640px;margin:0 auto;background:#fff;border:1px solid var(--line);
+    border-radius:var(--r-l);padding:1.15rem;box-shadow:var(--shadow-m);animation:cardIn .28s ease;
+  }
+  @keyframes cardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .card-top{display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap}
+  .unit-tag{
+    background:var(--accent-soft);color:var(--uk-blue);font-size:.71rem;padding:.25rem .65rem;
+    border-radius:999px;font-weight:800;letter-spacing:.02em;
+  }
+  .dir-label{color:var(--muted);font-size:.76rem;font-weight:700;letter-spacing:.03em}
+
+  .question-word{
+    text-align:center;color:var(--uk-blue);font-weight:800;line-height:1.18;
+    font-size:clamp(1.5rem,5.2vw,2.3rem);margin-top:.9rem;overflow-wrap:break-word;
+  }
+  .phonetic{text-align:center;color:var(--muted);font-size:.9rem;margin-top:.25rem;min-height:1.25rem;font-weight:500}
+  .speak-btn{
+    display:block;margin:.75rem auto .4rem;padding:.42rem 1.1rem;border:1.5px solid var(--line);
+    background:#fff;border-radius:999px;color:var(--uk-blue);font-weight:700;cursor:pointer;
+    font-family:inherit;font-size:.86rem;transition:all .15s;
+  }
+  .speak-btn:hover{background:var(--accent-soft);border-color:var(--accent)}
+
+  .example-box{
+    max-width:560px;margin:.75rem auto .25rem;padding:.7rem .85rem;border-left:3px solid var(--gold);
+    border-radius:var(--r-s);background:#fffaf0;color:#5c4415;font-size:.93rem;min-height:2.5rem;
+    display:flex;align-items:center;justify-content:center;text-align:center;font-weight:500;
+  }
+  .example-box.empty{color:#9a8664;font-style:italic}
+
+  .choices{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:1rem}
+  .choice{
+    padding:.85rem .6rem;background:#f7f9fd;border:1.5px solid var(--line);border-radius:var(--r-m);
+    text-align:center;cursor:pointer;font-weight:700;color:#24344f;transition:all .15s;
+    font-family:inherit;font-size:.93rem;
+  }
+  .choice:hover:not(:disabled){border-color:var(--accent);background:var(--accent-soft);transform:translateY(-1px)}
+  .choice:disabled{cursor:default}
+  .choice.correct{background:var(--ok-bg);border-color:var(--ok-line);color:var(--ok)}
+  .choice.wrong{background:var(--bad-bg);border-color:var(--bad-line);color:var(--bad)}
+
+  .type-area{display:flex;flex-direction:column;gap:.6rem;margin-top:1rem}
+  .type-area input{
+    padding:.9rem 1rem;border:1.5px solid var(--line);border-radius:var(--r-m);
+    font-size:1.02rem;font-weight:700;color:var(--ink);font-family:inherit;width:100%;
+  }
+  .type-area input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+  .type-area input.correct{background:var(--ok-bg);border-color:var(--ok-line)}
+  .type-area input.wrong{background:var(--bad-bg);border-color:var(--bad-line)}
+  .type-btns{display:flex;gap:.5rem}
+  .type-btns .btn-secondary,.type-btns .btn-primary{flex:1}
+
+  /* ---------- Flashcard mode ---------- */
+  .flash{perspective:1200px;margin-top:1rem}
+  .flash-inner{
+    position:relative;min-height:170px;transition:transform .5s cubic-bezier(.4,.1,.3,1);
+    transform-style:preserve-3d;cursor:pointer;
+  }
+  .flash.flipped .flash-inner{transform:rotateY(180deg)}
+  .flash-face{
+    position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;
+    border-radius:var(--r-m);padding:1rem;text-align:center;
+  }
+  .flash-front{background:#f7f9fd;border:1.5px solid var(--line)}
+  .flash-back{background:var(--accent-soft);border:1.5px solid #aedcf2;transform:rotateY(180deg)}
+  .flash-word{font-size:clamp(1.25rem,4.6vw,1.85rem);font-weight:800;color:var(--uk-blue);line-height:1.2}
+  .flash-hint{font-size:.76rem;color:var(--muted);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+  .flash-rate{display:flex;gap:.5rem;margin-top:.9rem}
+  .flash-rate button{flex:1}
+
+  .btn-primary{
+    padding:.7rem 1.4rem;border:none;border-radius:999px;background:var(--uk-blue);color:#fff;
+    font-weight:700;cursor:pointer;box-shadow:0 5px 14px rgba(1,33,105,.28);transition:all .15s;
+    font-family:inherit;font-size:.9rem;
+  }
+  .btn-primary:hover{background:var(--uk-blue-2);transform:translateY(-1px)}
+  .btn-secondary{
+    padding:.65rem 1.1rem;border:1.5px solid var(--line);border-radius:999px;background:#fff;
+    color:var(--uk-blue);font-weight:700;cursor:pointer;transition:all .15s;font-family:inherit;font-size:.88rem;
+  }
+  .btn-secondary:hover{background:var(--accent-soft);border-color:var(--accent)}
+  .btn-secondary:disabled{opacity:.5;cursor:default}
+  .btn-good{border-color:var(--ok-line);color:var(--ok);background:var(--ok-bg)}
+  .btn-good:hover{background:#d9f2e2;border-color:var(--ok)}
+  .btn-again{border-color:var(--bad-line);color:var(--bad);background:var(--bad-bg)}
+  .btn-again:hover{background:#fbdfd8;border-color:var(--bad)}
+
+  .feedback{text-align:center;min-height:1.5rem;margin-top:.9rem;font-weight:700;font-size:.95rem}
+  .feedback.good{color:var(--ok)} .feedback.bad{color:var(--bad)}
+  .feedback.warn{color:#8a5a00}
+  #type-input.warn{border-color:#e0a300;background:#fff8e6}
+  .pill-group.dim{opacity:.45}
+  .btn-row{display:flex;justify-content:center;gap:.55rem;margin-top:.85rem;flex-wrap:wrap}
+
+  /* ---------- Result ---------- */
+  #result{display:none;text-align:center;padding:1.3rem .8rem}
+  #result h2{font-size:1.75rem;color:var(--uk-blue);font-weight:800}
+  .pct-ring{
+    width:152px;height:152px;border-radius:50%;margin:1.1rem auto;display:flex;align-items:center;justify-content:center;
+    background:conic-gradient(var(--accent) calc(var(--pct)*1%), #dcebf3 0);
+  }
+  .pct-inner{
+    width:118px;height:118px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;
+    font-size:1.85rem;font-weight:900;color:var(--uk-blue);
+  }
+  .result-msg{color:var(--muted);margin-bottom:1.1rem;font-weight:600}
+  .hard-list{
+    max-width:520px;margin:0 auto 1.2rem;text-align:left;background:#fff8f6;border:1px solid var(--bad-line);
+    border-radius:var(--r-m);padding:.8rem .95rem;
+  }
+  .hard-list h3{font-size:.8rem;text-transform:uppercase;letter-spacing:.07em;color:var(--bad);margin-bottom:.5rem}
+  .hard-list li{list-style:none;padding:.3rem 0;border-bottom:1px dashed #f0cfc6;font-size:.92rem}
+  .hard-list li:last-child{border-bottom:none}
+  .hard-list b{color:var(--uk-blue)}
+
+  /* ---------- Word list ---------- */
+  .list-toggle{display:block;margin:1rem auto 0}
+  #wordlist{display:none;margin-top:.9rem}
+  .wl-group{margin-bottom:1.1rem}
+  .wl-group h3{
+    font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;
+    color:var(--uk-blue);padding-bottom:.35rem;border-bottom:2px solid var(--accent-soft);margin-bottom:.4rem;
+  }
+  .wl-row{
+    display:grid;grid-template-columns:1fr 1fr auto;gap:.6rem;align-items:center;
+    padding:.45rem .3rem;border-bottom:1px solid #eef2f8;font-size:.9rem;
+  }
+  .wl-row:last-child{border-bottom:none}
+  .wl-en{font-weight:700;color:var(--ink)}
+  .wl-pr{display:block;font-weight:400;color:var(--muted);font-size:.78rem}
+  .wl-de{color:#3b4a66}
+  .wl-row button{
+    border:1px solid var(--line);background:#fff;border-radius:8px;cursor:pointer;
+    padding:.2rem .45rem;font-size:.85rem;line-height:1;
+  }
+  .wl-row button:hover{background:var(--accent-soft);border-color:var(--accent)}
+
+  @media(max-width:640px){
+    .choices{grid-template-columns:1fr}
+    .wl-row{grid-template-columns:1fr auto;row-gap:.15rem}
+    .wl-de{grid-column:1/2}
+    .wrap{padding:.7rem .7rem 2.5rem}
+  }
+  /* Verben-Trainer */
+  .formen{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem;margin:1rem 0 .4rem}
+  .form{border:1.5px solid var(--line);border-radius:var(--r-m);padding:.7rem .5rem;text-align:center;background:#fff}
+  .form small{display:block;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.25rem}
+  .form b{display:block;font-size:1.35rem;color:var(--uk-blue);word-break:break-word}
+  .form i{display:block;font-style:normal;font-size:.86rem;color:var(--muted);min-height:1.2em}
+  .form input{width:100%;padding:.55rem .5rem;border:1.5px solid var(--line);border-radius:10px;font:inherit;font-size:1.1rem;font-weight:700;text-align:center}
+  .form input:focus{outline:3px solid var(--accent-soft);border-color:var(--accent)}
+  .form input.correct{border-color:var(--ok-line);background:var(--ok-bg)}
+  .form input.wrong{border-color:var(--bad-line);background:var(--bad-bg)}
+  .form.luecke{border-style:dashed;border-color:var(--accent)}
+  .verb-de{text-align:center;color:var(--muted);font-weight:600;margin:.2rem 0 .2rem}
+  .verb-frage{text-align:center;font-weight:800;margin:.7rem 0 .2rem}
+  .saetze{margin:.8rem 0 0;padding:.7rem .9rem;border-left:4px solid var(--gold);background:#fffaf0;border-radius:0 10px 10px 0;font-size:.98rem}
+  .saetze div + div{margin-top:.25rem}
+  .saetze b{color:var(--uk-blue)}
+  .stufen-info{margin:.2rem 0 0;color:var(--muted);font-size:.9rem}
+  #stufe-group{flex-wrap:wrap}
+  @media(max-width:520px){ .form b{font-size:1.1rem} .formen{gap:.35rem} .form{padding:.55rem .3rem} #stufe-group .pill{flex:1 1 40%} }
+</style>
+  <script src="../../../js/kurs-sperre.js" data-liste="../themen.js"></script>
+</head>
+<body>
+<header class="ex-shell-header" aria-label="Seitennavigation">
+  <div class="ex-inner">
+    <a class="ex-brand" href="../../../index.html" aria-label="Zur Startseite">
+      <img src="../../../images_school/logo.png" alt="Logo der Grund- und Mittelschule">
+      <span class="ex-brand-text">
+        <span class="ex-brand-name">Grund- und Mittelschule am Sportpark</span>
+        <span class="ex-brand-sub">GRUMI Lernplattform &middot; Englisch 8M</span>
+      </span>
+    </a>
+    <a class="ex-back" href="../index.html#thema-verben">Zur&uuml;ck zur &Uuml;bersicht</a>
+  </div>
+</header>
+
+<nav class="ex-crumbs" aria-label="Pfad">
+  <a href="../../../index.html">Start</a>
+  <a href="../index.html">Englisch 8M</a>
+  <a href="../index.html#thema-verben">Unregelm&auml;&szlig;ige Verben</a>
+  <span>Verben-Trainer</span>
+</nav>
+
+<div class="wrap">
+  <section class="hero">
+    <div class="hero-head">
+    <div class="hero-flag"><span class="f1"></span><span class="f2"></span><span class="f3"></span></div>
+    <h1>Verben-Trainer</h1>
+    <p class="sub">Unregelm&auml;&szlig;ige Verben: go &ndash; went &ndash; gone &middot; Englisch 8. Klasse (M)</p>
+    </div>
+    <div class="hero-stats">
+      <span class="hero-chip">66 Verben</span>
+      <span class="hero-chip">🔊 Aussprache</span>
+      <span class="hero-chip">4 Stufen</span>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="sec-label">Paket w&auml;hlen</div>
+    <div class="filter-row" id="filter-row"></div>
+
+    <div class="controls">
+      <div class="ctl">
+        <span class="ctl-cap">Stufe</span>
+        <div class="pill-group" id="stufe-group">
+          <button class="pill active" data-stufe="1">1 &middot; Ansehen</button>
+          <button class="pill" data-stufe="2">2 &middot; Ausw&auml;hlen</button>
+          <button class="pill" data-stufe="3">3 &middot; Eine Form</button>
+          <button class="pill" data-stufe="4">4 &middot; Alle drei</button>
+        </div>
+      </div>
+    </div>
+    <p class="stufen-info" id="stufen-info"></p>
+
+    <div class="scorebar">
+      <div class="score-box ok"><b id="sc-right">0</b><span>Richtig</span></div>
+      <div class="score-box bad"><b id="sc-wrong">0</b><span>Falsch</span></div>
+      <div class="score-box"><b id="sc-left">0</b><span>&Uuml;brig</span></div>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar" id="pbar"></div></div>
+
+    <div class="card" id="quiz-card">
+      <div class="card-top">
+        <span class="unit-tag" id="unit-tag">Verb</span>
+        <span class="dir-label" id="dir-label"></span>
+      </div>
+      <div class="verb-de" id="verb-de"></div>
+      <div class="formen" id="formen"></div>
+      <div class="verb-frage" id="verb-frage"></div>
+      <div id="mc-area"><div class="choices" id="choices"></div></div>
+      <button class="speak-btn" id="speak-btn" type="button">🔊 anh&ouml;ren</button>
+      <div class="saetze" id="saetze" hidden></div>
+      <div class="feedback" id="feedback"></div>
+      <div class="btn-row">
+        <button class="btn-secondary" id="hint-btn" type="button">💡 Tipp</button>
+        <button class="btn-primary" id="check-btn" type="button">Pr&uuml;fen</button>
+        <button class="btn-secondary" id="skip-btn" type="button">&Uuml;berspringen</button>
+        <button class="btn-primary" id="next-btn" type="button" style="display:none">Weiter</button>
+      </div>
+    </div>
+
+    <div id="result">
+      <h2>Runde beendet 🔁</h2>
+      <div class="pct-ring" id="pct-ring" style="--pct:0"><div class="pct-inner" id="pct-display">0%</div></div>
+      <p class="result-msg" id="result-msg"></p>
+      <div class="hard-list" id="hard-list" style="display:none">
+        <h3>Diese Verben nochmal anschauen</h3>
+        <ul id="hard-items"></ul>
+      </div>
+      <div class="btn-row">
+        <button class="btn-primary" id="restart-btn" type="button">Nochmal &uuml;ben</button>
+        <button class="btn-secondary" id="retry-hard-btn" type="button" style="display:none">Nur die schweren Verben</button>
+        <button class="btn-secondary" id="stufe-hoch-btn" type="button" style="display:none">N&auml;chste Stufe</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer class="ex-shell-footer">
+  <div class="ex-inner">
+    <div>
+      <div class="ex-footer-name">Grund- und Mittelschule Unterhaching am Sportpark</div>
+      <div class="ex-footer-sub">GRUMI Lernplattform &middot; Klasse 8M</div>
+    </div>
+    <div class="ex-footer-links">
+      <a href="../index.html">Englisch 8M</a>
+      <a href="../../../datenschutz.html">Datenschutz</a>
+      <a href="../../../impressum.html">Impressum</a>
+      <a href="../../../rechtliches.html">Rechtliches</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   Verben-Trainer – Englisch 8M: die unregelmäßigen Verben mit ihren drei Formen
+   Erzeugt von .codex-build/englisch8m-werkzeug/bau-e8m-verben.js aus verben.js – dort ändern, dann neu bauen.
+   Die Reihenfolge der Verben nicht ändern: Der Lernstand zählt sie nach ihrem Platz (v0, v1 …).
+   ============================================================ */
+const VERBEN = [
+  {inf:"be",past:"was, were",pp:"been",de:"sein",ipa:["biː","wɒz, wɜː","biːn"],ex:["We were at home last night.","I have never been to London."],m:"abc"},
+  {inf:"become",past:"became",pp:"become",de:"werden",ipa:["bɪˈkʌm","bɪˈkeɪm","bɪˈkʌm"],ex:["My cousin became a nurse.","She has become a good friend."],m:"aba"},
+  {inf:"begin",past:"began",pp:"begun",de:"beginnen; anfangen",ipa:["bɪˈɡɪn","bɪˈɡæn","bɪˈɡʌn"],ex:["The film began at eight.","The lesson has already begun."],m:"abc"},
+  {inf:"bring",past:"brought",pp:"brought",de:"bringen; mitbringen",ipa:["brɪŋ","brɔːt","brɔːt"],ex:["Mia brought a cake to the party.","Have you brought your book?"],m:"abb"},
+  {inf:"build",past:"built",pp:"built",de:"bauen",ipa:["bɪld","bɪlt","bɪlt"],ex:["They built a tree house.","The bridge was built in 1990."],m:"abb"},
+  {inf:"buy",past:"bought",pp:"bought",de:"kaufen",ipa:["baɪ","bɔːt","bɔːt"],ex:["I bought new trainers yesterday.","He has bought a ticket."],m:"abb"},
+  {inf:"catch",past:"caught",pp:"caught",de:"fangen; einfangen; nehmen",ipa:["kætʃ","kɔːt","kɔːt"],ex:["Ben caught the ball.","We have caught the last bus."],m:"abb"},
+  {inf:"choose",past:"chose",pp:"chosen",de:"wählen; auswählen",ipa:["tʃuːz","tʃəʊz","ˈtʃəʊzn"],ex:["Lena chose the red bike.","Have you chosen a film?"],m:"abc"},
+  {inf:"come",past:"came",pp:"come",de:"kommen",ipa:["kʌm","keɪm","kʌm"],ex:["My aunt came by train.","Spring has come at last."],m:"aba"},
+  {inf:"cost",past:"cost",pp:"cost",de:"kosten",ipa:["kɒst","kɒst","kɒst"],ex:["The ticket cost ten euros.","It has cost a lot of money."],m:"aaa"},
+  {inf:"deal (with)",past:"dealt (with)",pp:"dealt (with)",de:"umgehen (mit); sich befassen (mit)",ipa:["diːl","delt","delt"],ex:["She dealt with the problem quickly.","He has dealt with customers before."],m:"abb"},
+  {inf:"do",past:"did",pp:"done",de:"machen; tun",ipa:["duː","dɪd","dʌn"],ex:["I did my homework after lunch.","Have you done the dishes?"],m:"abc"},
+  {inf:"drink",past:"drank",pp:"drunk",de:"trinken",ipa:["drɪŋk","dræŋk","drʌŋk"],ex:["We drank hot chocolate.","The cat has drunk all the milk."],m:"abc"},
+  {inf:"drive",past:"drove",pp:"driven",de:"fahren; treiben",ipa:["draɪv","drəʊv","ˈdrɪvn"],ex:["Dad drove us to school.","She has never driven a car."],m:"abc"},
+  {inf:"eat",past:"ate",pp:"eaten",de:"essen",ipa:["iːt","eɪt","ˈiːtn"],ex:["We ate pizza on Friday.","Someone has eaten my sandwich!"],m:"abc"},
+  {inf:"fall",past:"fell",pp:"fallen",de:"fallen",ipa:["fɔːl","fel","ˈfɔːlən"],ex:["Omar fell off his bike.","A lot of snow has fallen."],m:"abc"},
+  {inf:"feed",past:"fed",pp:"fed",de:"füttern",ipa:["fiːd","fed","fed"],ex:["I fed the dog this morning.","Have you fed the cat?"],m:"abb"},
+  {inf:"feel",past:"felt",pp:"felt",de:"fühlen; sich fühlen; sich anfühlen; empfinden; glauben",ipa:["fiːl","felt","felt"],ex:["I felt tired after the match.","She has never felt so happy."],m:"abb"},
+  {inf:"fight",past:"fought",pp:"fought",de:"kämpfen; streiten; sich streiten",ipa:["faɪt","fɔːt","fɔːt"],ex:["The two cats fought in the garden.","They have fought about the remote again."],m:"abb"},
+  {inf:"find",past:"found",pp:"found",de:"finden",ipa:["faɪnd","faʊnd","faʊnd"],ex:["I found my keys under the sofa.","Have you found your phone?"],m:"abb"},
+  {inf:"fly",past:"flew",pp:"flown",de:"fliegen",ipa:["flaɪ","fluː","fləʊn"],ex:["We flew to Spain last summer.","I have never flown in a plane."],m:"abc"},
+  {inf:"forget",past:"forgot",pp:"forgotten",de:"vergessen",ipa:["fəˈɡet","fəˈɡɒt","fəˈɡɒtn"],ex:["Sorry, I forgot your birthday.","He has forgotten his lunch."],m:"abc"},
+  {inf:"get",past:"got",pp:"got",de:"bekommen; werden; kommen; holen; bringen",ipa:["ɡet","ɡɒt","ɡɒt"],ex:["Aylin got a new phone.","I have got a message from Leo."],m:"abb"},
+  {inf:"give",past:"gave",pp:"given",de:"geben; schenken; halten",ipa:["ɡɪv","ɡeɪv","ˈɡɪvn"],ex:["Grandma gave me a book.","The teacher has given us homework."],m:"abc"},
+  {inf:"go",past:"went",pp:"gone",de:"gehen; fahren",ipa:["ɡəʊ","went","ɡɒn"],ex:["We went to the cinema.","Nora has gone home."],m:"abc"},
+  {inf:"have",past:"had",pp:"had",de:"haben; besitzen",ipa:["hæv","hæd","hæd"],ex:["We had a great time.","I have had this bike for years."],m:"abb"},
+  {inf:"hear",past:"heard",pp:"heard",de:"hören",ipa:["hɪə","hɜːd","hɜːd"],ex:["I heard a strange noise.","Have you heard the news?"],m:"abb"},
+  {inf:"hit",past:"hit",pp:"hit",de:"treffen; schlagen",ipa:["hɪt","hɪt","hɪt"],ex:["The ball hit the window.","A storm has hit the coast."],m:"aaa"},
+  {inf:"hold",past:"held",pp:"held",de:"halten; festhalten",ipa:["həʊld","held","held"],ex:["She held the baby carefully.","The school has held a sports day."],m:"abb"},
+  {inf:"hurt",past:"hurt",pp:"hurt",de:"verletzen; wehtun",ipa:["hɜːt","hɜːt","hɜːt"],ex:["I hurt my knee yesterday.","Luca has hurt his hand."],m:"aaa"},
+  {inf:"keep",past:"kept",pp:"kept",de:"halten; behalten; aufbewahren; belassen",ipa:["kiːp","kept","kept"],ex:["He kept the secret.","I have kept all your letters."],m:"abb"},
+  {inf:"know",past:"knew",pp:"known",de:"kennen; wissen",ipa:["nəʊ","njuː","nəʊn"],ex:["She knew the answer.","We have known each other for years."],m:"abc"},
+  {inf:"leave",past:"left",pp:"left",de:"lassen; verlassen; abfahren; weggehen; vergessen; hinterlassen",ipa:["liːv","left","left"],ex:["The bus left at seven.","I have left my bag at school."],m:"abb"},
+  {inf:"lose",past:"lost",pp:"lost",de:"verlieren",ipa:["luːz","lɒst","lɒst"],ex:["Our team lost the match.","I have lost my keys."],m:"abb"},
+  {inf:"make",past:"made",pp:"made",de:"machen; tun; erstellen; basteln; bilden",ipa:["meɪk","meɪd","meɪd"],ex:["Dad made pancakes for breakfast.","This bag was made in Italy."],m:"abb"},
+  {inf:"mean",past:"meant",pp:"meant",de:"bedeuten; meinen",ipa:["miːn","ment","ment"],ex:["I meant the other book.","What has he meant by that?"],m:"abb"},
+  {inf:"meet",past:"met",pp:"met",de:"kennenlernen; treffen; sich treffen",ipa:["miːt","met","met"],ex:["We met at the station.","Have you met my sister?"],m:"abb"},
+  {inf:"pay",past:"paid",pp:"paid",de:"bezahlen",ipa:["peɪ","peɪd","peɪd"],ex:["Mum paid for the tickets.","I have already paid."],m:"abb"},
+  {inf:"put",past:"put",pp:"put",de:"setzen; legen; stellen; bringen; stecken",ipa:["pʊt","pʊt","pʊt"],ex:["He put the keys on the table.","Where have you put my phone?"],m:"aaa"},
+  {inf:"read",past:"read",pp:"read",de:"lesen; vorlesen",ipa:["riːd","red","red"],ex:["I read a comic last night.","Have you read this story?"],m:"aaa"},
+  {inf:"ride",past:"rode",pp:"ridden",de:"fahren; reiten",ipa:["raɪd","rəʊd","ˈrɪdn"],ex:["Elif rode her bike to school.","I have never ridden a horse."],m:"abc"},
+  {inf:"ring",past:"rang",pp:"rung",de:"klingeln; läuten",ipa:["rɪŋ","ræŋ","rʌŋ"],ex:["The phone rang twice.","The bell has just rung."],m:"abc"},
+  {inf:"run",past:"ran",pp:"run",de:"laufen; rennen",ipa:["rʌn","ræn","rʌn"],ex:["We ran to the bus stop.","She has run five kilometres."],m:"aba"},
+  {inf:"say",past:"said",pp:"said",de:"sagen; sprechen; nennen; nachsprechen; aussprechen",ipa:["seɪ","sed","sed"],ex:["He said hello.","What has she said?"],m:"abb"},
+  {inf:"see",past:"saw",pp:"seen",de:"sehen",ipa:["siː","sɔː","siːn"],ex:["I saw a fox in the garden.","Have you seen my jacket?"],m:"abc"},
+  {inf:"sell",past:"sold",pp:"sold",de:"verkaufen",ipa:["sel","səʊld","səʊld"],ex:["They sold their old car.","All the tickets were sold."],m:"abb"},
+  {inf:"send",past:"sent",pp:"sent",de:"schicken; senden",ipa:["send","sent","sent"],ex:["Jonas sent me a photo.","The email was sent yesterday."],m:"abb"},
+  {inf:"shake",past:"shook",pp:"shaken",de:"beben; zittern; schütteln",ipa:["ʃeɪk","ʃʊk","ˈʃeɪkən"],ex:["The ground shook for a minute.","He has shaken the bottle."],m:"abc"},
+  {inf:"sing",past:"sang",pp:"sung",de:"singen",ipa:["sɪŋ","sæŋ","sʌŋ"],ex:["We sang a song for Dana.","She has sung in a choir."],m:"abc"},
+  {inf:"sit",past:"sat",pp:"sat",de:"setzen; hinsetzen; sich hinsetzen; sitzen",ipa:["sɪt","sæt","sæt"],ex:["We sat in the garden.","I have sat here for an hour."],m:"abb"},
+  {inf:"sleep",past:"slept",pp:"slept",de:"schlafen",ipa:["sliːp","slept","slept"],ex:["I slept until ten on Sunday.","The baby has slept all night."],m:"abb"},
+  {inf:"speak",past:"spoke",pp:"spoken",de:"sprechen",ipa:["spiːk","spəʊk","ˈspəʊkən"],ex:["I spoke to our teacher.","English is spoken in Canada."],m:"abc"},
+  {inf:"spend",past:"spent",pp:"spent",de:"verbringen; ausgeben",ipa:["spend","spent","spent"],ex:["We spent a week in Italy.","I have spent all my money."],m:"abb"},
+  {inf:"stand",past:"stood",pp:"stood",de:"stehen",ipa:["stænd","stʊd","stʊd"],ex:["We stood in the rain.","The tower has stood here for 200 years."],m:"abb"},
+  {inf:"swim",past:"swam",pp:"swum",de:"schwimmen",ipa:["swɪm","swæm","swʌm"],ex:["Sofia swam across the lake.","I have never swum in the sea."],m:"abc"},
+  {inf:"swing",past:"swung",pp:"swung",de:"schwingen; schwenken",ipa:["swɪŋ","swʌŋ","swʌŋ"],ex:["The monkey swung from the tree.","The door has swung open."],m:"abb"},
+  {inf:"take",past:"took",pp:"taken",de:"nehmen; mitnehmen; bringen; hinbringen; dauern; brauchen",ipa:["teɪk","tʊk","ˈteɪkən"],ex:["We took the bus to town.","Who has taken my pen?"],m:"abc"},
+  {inf:"teach",past:"taught",pp:"taught",de:"lehren; beibringen; unterrichten",ipa:["tiːtʃ","tɔːt","tɔːt"],ex:["My uncle taught me to swim.","She has taught English for ten years."],m:"abb"},
+  {inf:"tell",past:"told",pp:"told",de:"erzählen; sagen",ipa:["tel","təʊld","təʊld"],ex:["Grandpa told us a story.","I have told you the truth."],m:"abb"},
+  {inf:"think",past:"thought",pp:"thought",de:"denken; glauben",ipa:["θɪŋk","θɔːt","θɔːt"],ex:["I thought the test was easy.","Have you thought about it?"],m:"abb"},
+  {inf:"throw",past:"threw",pp:"thrown",de:"werfen",ipa:["θrəʊ","θruː","θrəʊn"],ex:["Milan threw the ball to me.","Someone has thrown a stone."],m:"abc"},
+  {inf:"understand",past:"understood",pp:"understood",de:"verstehen",ipa:["ˌʌndəˈstænd","ˌʌndəˈstʊd","ˌʌndəˈstʊd"],ex:["I understood every word.","Have you understood the task?"],m:"abb"},
+  {inf:"wake up",past:"woke up",pp:"woken up",de:"aufwachen; erwachen; aufwecken",ipa:["weɪk ˈʌp","wəʊk ˈʌp","ˌwəʊkən ˈʌp"],ex:["I woke up at six.","The baby has just woken up."],m:"abc"},
+  {inf:"wear",past:"wore",pp:"worn",de:"anhaben; tragen",ipa:["weə","wɔː","wɔːn"],ex:["She wore a blue dress.","I have never worn a tie."],m:"abc"},
+  {inf:"win",past:"won",pp:"won",de:"gewinnen",ipa:["wɪn","wʌn","wʌn"],ex:["Our team won the cup.","Hannah has won a prize."],m:"abb"},
+  {inf:"write",past:"wrote",pp:"written",de:"schreiben",ipa:["raɪt","rəʊt","ˈrɪtn"],ex:["I wrote a long email.","The book was written in 2015."],m:"abc"}
+];
+const PAKET = 11;
+const STUFEN = {
+  1: 'Stufe 1 · Sieh dir die drei Formen an, hör sie dir an und sprich sie nach. Hier wird nichts gewertet.',
+  2: 'Stufe 2 · Tippe die richtige Form an.',
+  3: 'Stufe 3 · Eine Form fehlt. Schreibe sie in die Lücke.',
+  4: 'Stufe 4 · Du siehst nur die deutsche Bedeutung. Schreibe alle drei Formen.'
+};
+
+const $ = id => document.getElementById(id);
+const shuffle = a => { const c = [...a]; for(let i=c.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [c[i],c[j]]=[c[j],c[i]]; } return c; };
+// Zusätze wie „(with)“ gehören nicht zur Form
+const kern = s => String(s).replace(/\s*\(.*?\)/g, '').trim();
+const gleich = s => String(s || '').toLowerCase().replace(/[\u2018\u2019`\u00b4]/g, "'").replace(/[.,;:!?\/\-]/g, ' ').replace(/\bto\s+/g, '').replace(/\s+/g, ' ').trim();
+// Eine Form stimmt, wenn sie genau so dasteht. Sonderfälle: was/were (beide gehören dazu), got/gotten, Zusatz „up“
+function stimmt(eingabe, form, welche, verb){
+  const g = gleich(eingabe), soll = gleich(kern(form));
+  if(!g) return false;
+  if(g === soll) return true;
+  if(kern(verb.inf) === 'be' && welche === 'past') return /\bwas\b/.test(g) && /\bwere\b/.test(g);
+  if(kern(verb.inf) === 'get' && welche === 'pp') return g === 'gotten';
+  return false;
+}
+// falsche Formen zum Ankreuzen: regelmäßig gebildet, die andere Form, die Grundform
+function regelmaessig(inf){
+  const teile = kern(inf).split(' '), w = teile[0];
+  const ed = /e$/.test(w) ? w + 'd' : /[^aeiou]y$/.test(w) ? w.slice(0, -1) + 'ied' : w + 'ed';
+  return [ed].concat(teile.slice(1)).join(' ');
+}
+function falsche(v, welche){
+  const richtig = kern(v[welche]), andere = kern(v[welche === 'past' ? 'pp' : 'past']), inf = kern(v.inf);
+  const kandidaten = [regelmaessig(v.inf), andere, inf, inf.split(' ')[0] + 'en' + (inf.includes(' ') ? ' ' + inf.split(' ').slice(1).join(' ') : '')];
+  const aus = [];
+  kandidaten.forEach(k => { if(k && k !== richtig && !aus.includes(k) && aus.length < 2) aus.push(k); });
+  return aus;
+}
+
+let stufe = 1, paket = 'alle', queue = [], current = null, right = 0, wrong = 0, answered = false, mistakes = [], frageForm = 'past', tippStand = 0;
+const imPaket = () => paket === 'alle' ? VERBEN : VERBEN.slice(paket * PAKET, paket * PAKET + PAKET);
+
+function buildFilter(){
+  const row = $('filter-row'); row.innerHTML = '';
+  const knopf = (key, text, n) => {
+    const btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'filter-btn' + (key === paket ? ' active' : '');
+    btn.innerHTML = '<span>' + text + '</span><span class="cnt">' + n + '</span>';
+    btn.addEventListener('click', () => { paket = key; document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); restart(); });
+    row.appendChild(btn);
+  };
+  knopf('alle', 'Alle Verben', VERBEN.length);
+  for(let p = 0; p * PAKET < VERBEN.length; p++){
+    const teil = VERBEN.slice(p * PAKET, p * PAKET + PAKET);
+    knopf(p, 'Paket ' + (p + 1) + ' · ' + kern(teil[0].inf) + ' – ' + kern(teil[teil.length - 1].inf), teil.length);
+  }
+}
+$('stufe-group').addEventListener('click', e => {
+  const btn = e.target.closest('.pill'); if(!btn) return;
+  stufe = Number(btn.dataset.stufe);
+  document.querySelectorAll('#stufe-group .pill').forEach(b => b.classList.toggle('active', b === btn));
+  restart();
+});
+
+function restart(nur){
+  right = 0; wrong = 0; mistakes = [];
+  queue = shuffle(nur && nur.length ? nur : imPaket());
+  $('result').style.display = 'none';
+  $('quiz-card').style.display = 'block';
+  document.querySelector('.progress-wrap').style.display = 'block';
+  document.querySelector('.scorebar').style.display = stufe === 1 ? 'none' : 'flex';
+  $('stufen-info').textContent = STUFEN[stufe];
+  updateScore();
+  nextCard();
+}
+function formFeld(titel, inhalt, klasse){ return '<div class="form' + (klasse ? ' ' + klasse : '') + '"><small>' + titel + '</small>' + inhalt + '</div>'; }
+function zeigeForm(v, welche, ipaAuch){ return '<b>' + (welche === 'inf' ? 'to ' : '') + v[welche] + '</b>' + (ipaAuch ? '<i>[' + v.ipa[{inf:0,past:1,pp:2}[welche]] + ']</i>' : '<i></i>'); }
+function eingabe(welche){ return '<input type="text" data-form="' + welche + '" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="' + ({inf:'Grundform',past:'simple past',pp:'3. Form'})[welche] + '">'; }
+const TITEL = { inf:'Grundform', past:'simple past', pp:'3. Form' };
+
+function nextCard(){
+  if(queue.length === 0){ showResult(); return; }
+  current = queue.pop(); answered = false; tippStand = 0;
+  const card = $('quiz-card'); card.style.animation = 'none'; void card.offsetWidth; card.style.animation = '';
+  const v = current, nr = VERBEN.indexOf(v);
+  $('unit-tag').textContent = 'Verb ' + (nr + 1) + ' von ' + VERBEN.length;
+  $('dir-label').textContent = ({1:'Ansehen und anhören',2:'Form auswählen',3:'Eine Form ergänzen',4:'Alle drei Formen'})[stufe];
+  $('verb-de').textContent = v.de;
+  $('feedback').textContent = ''; $('feedback').className = 'feedback';
+  $('saetze').hidden = true; $('choices').innerHTML = ''; $('verb-frage').textContent = '';
+  $('next-btn').style.display = 'none'; $('skip-btn').style.display = stufe === 1 ? 'none' : '';
+  $('check-btn').style.display = stufe >= 3 ? '' : 'none'; $('hint-btn').style.display = stufe >= 3 ? '' : 'none'; $('hint-btn').disabled = false;
+  updateProgress();
+  frageForm = Math.random() < 0.5 ? 'past' : 'pp';
+  let h = '';
+  if(stufe === 1){
+    h = ['inf','past','pp'].map(w => formFeld(TITEL[w], zeigeForm(v, w, true))).join('');
+    zeigeSaetze(); $('next-btn').style.display = ''; $('next-btn').textContent = 'Weiter';
+  } else if(stufe === 2){
+    h = ['inf','past','pp'].map(w => w === 'inf' ? formFeld(TITEL[w], zeigeForm(v, w, false)) : w === frageForm ? formFeld(TITEL[w], '<b>?</b><i></i>', 'luecke') : formFeld(TITEL[w], '<b>…</b><i></i>')).join('');
+    $('verb-frage').textContent = 'Wie heißt ' + (frageForm === 'past' ? 'das simple past' : 'die 3. Form') + '?';
+    const richtig = kern(v[frageForm]);
+    shuffle([richtig, ...falsche(v, frageForm)]).forEach(opt => {
+      const btn = document.createElement('button');
+      btn.type = 'button'; btn.className = 'choice'; btn.textContent = opt;
+      btn.addEventListener('click', () => {
+        if(answered) return; answered = true;
+        document.querySelectorAll('.choice').forEach(b => { b.disabled = true; if(b.textContent === richtig) b.classList.add('correct'); });
+        if(opt === richtig){ btn.classList.add('correct'); registerRight(false); } else { btn.classList.add('wrong'); registerWrong(); }
+      });
+      $('choices').appendChild(btn);
+    });
+  } else if(stufe === 3){
+    h = ['inf','past','pp'].map(w => w === frageForm ? formFeld(TITEL[w], eingabe(w), 'luecke') : formFeld(TITEL[w], zeigeForm(v, w, false))).join('');
+  } else {
+    h = ['inf','past','pp'].map(w => formFeld(TITEL[w], eingabe(w), 'luecke')).join('');
+    $('verb-frage').textContent = 'Das Verb beginnt mit „' + kern(v.inf).charAt(0) + '“.';
+  }
+  $('formen').innerHTML = h;
+  document.querySelectorAll('#formen input').forEach(inp => inp.addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); checkType(); } }));
+  const erstes = document.querySelector('#formen input'); if(erstes) setTimeout(() => erstes.focus(), 80);
+}
+function zeigeSaetze(){
+  const v = current, fett = (satz, form) => { const w = kern(form).split(',')[0].trim().split(' ')[0]; return satz.replace(new RegExp('\\b(' + (kern(current.inf) === 'be' && form === v.past ? 'was|were' : w) + ')\\b', 'i'), '<b>$1</b>'); };
+  $('saetze').innerHTML = '<div>' + fett(v.ex[0], v.past) + '</div><div>' + fett(v.ex[1], v.pp) + '</div>';
+  $('saetze').hidden = false;
+}
+function aufdecken(){
+  $('formen').innerHTML = ['inf','past','pp'].map(w => formFeld(TITEL[w], zeigeForm(current, w, true))).join('');
+  $('verb-frage').textContent = '';
+  zeigeSaetze();
+}
+function checkType(){
+  if(answered || stufe < 3) return;
+  const felder = [...document.querySelectorAll('#formen input')];
+  if(felder.some(f => !f.value.trim())){ const fb = $('feedback'); fb.className = 'feedback warn'; fb.textContent = stufe === 4 ? 'Schreibe alle drei Formen.' : 'Schreibe die fehlende Form in die Lücke.'; return; }
+  let alle = true;
+  felder.forEach(f => { const ok = stimmt(f.value, current[f.dataset.form], f.dataset.form, current); f.classList.add(ok ? 'correct' : 'wrong'); if(!ok) alle = false; f.disabled = true; });
+  answered = true;
+  if(alle) registerRight(true); else registerWrong();
+}
+$('check-btn').addEventListener('click', checkType);
+// Tipp: Buchstabe für Buchstabe in das erste noch falsche oder leere Feld
+$('hint-btn').addEventListener('click', () => {
+  if(answered || stufe < 3) return;
+  const feld = [...document.querySelectorAll('#formen input')].find(f => !stimmt(f.value, current[f.dataset.form], f.dataset.form, current));
+  if(!feld) return;
+  const soll = kern(current[feld.dataset.form]);
+  let n = 0; while(n < feld.value.length && feld.value[n].toLowerCase() === soll[n]) n++;
+  feld.value = soll.slice(0, n + 1); tippStand++; feld.focus();
+});
+function registerRight(getippt){
+  right++;
+  if(getippt && tippStand === 0) lsVerb(current);
+  vxRichtig(current);
+  const fb = $('feedback'); fb.className = 'feedback good';
+  fb.textContent = getippt && tippStand > 0 ? '✅ Richtig – mit Tipp. Ohne Tipp zählt das Verb für deinen Stand.' : '✅ Richtig!';
+  fertig();
+}
+function registerWrong(){
+  wrong++; vxFalsch(current);
+  if(!mistakes.includes(current)) mistakes.push(current);
+  const fb = $('feedback'); fb.className = 'feedback bad';
+  fb.textContent = '❌ Richtig ist: ' + kern(current.inf) + ' – ' + kern(current.past) + ' – ' + kern(current.pp);
+  fertig();
+}
+function fertig(){
+  aufdecken(); speak(); updateScore();
+  $('skip-btn').style.display = 'none'; $('check-btn').style.display = 'none'; $('hint-btn').style.display = 'none';
+  $('next-btn').style.display = ''; $('next-btn').focus();
+}
+$('skip-btn').addEventListener('click', () => { if(answered) return; answered = true; registerWrong(); });
+$('next-btn').addEventListener('click', () => { if(stufe === 1) right++; nextCard(); });
+$('restart-btn').addEventListener('click', () => restart());
+$('retry-hard-btn').addEventListener('click', () => { const hard = mistakes.slice(); if(hard.length) restart(hard); });
+$('stufe-hoch-btn').addEventListener('click', () => { const b = document.querySelector('#stufe-group .pill[data-stufe="' + Math.min(4, stufe + 1) + '"]'); if(b) b.click(); });
+
+function updateScore(){ $('sc-right').textContent = right; $('sc-wrong').textContent = wrong; $('sc-left').textContent = queue.length; }
+function updateProgress(){ const total = (right + wrong + queue.length + 1) || 1; $('pbar').style.width = ((right + wrong) / total * 100) + '%'; }
+function showResult(){
+  $('quiz-card').style.display = 'none';
+  document.querySelector('.progress-wrap').style.display = 'none';
+  document.querySelector('.scorebar').style.display = 'none';
+  const total = (right + wrong) || 1, pct = stufe === 1 ? 100 : Math.round(right / total * 100);
+  $('pct-display').textContent = pct + '%'; $('pct-ring').style.setProperty('--pct', pct);
+  $('result-msg').textContent = stufe === 1 ? 'Du hast dir ' + right + ' Verben angesehen. Jetzt bist du bereit für Stufe 2.'
+    : (pct >= 90 ? 'Excellent! Fast alles richtig!' : pct >= 70 ? 'Well done! Das war schon sehr gut.' : pct >= 50 ? 'Gut geübt – wiederhole die schweren Verben noch einmal.' : 'Bleib dran – Übung macht den Meister!') + ' (' + right + ' von ' + total + ' richtig)';
+  const hardItems = $('hard-items'); hardItems.innerHTML = '';
+  mistakes.forEach(v => { const li = document.createElement('li'); li.innerHTML = '<b>' + kern(v.inf) + ' – ' + kern(v.past) + ' – ' + kern(v.pp) + '</b> – ' + v.de; hardItems.appendChild(li); });
+  $('hard-list').style.display = mistakes.length ? 'block' : 'none';
+  $('retry-hard-btn').style.display = mistakes.length ? '' : 'none';
+  $('stufe-hoch-btn').style.display = stufe < 4 && pct >= 70 ? '' : 'none';
+  $('result').style.display = 'block';
+}
+
+/* ---------- Aussprache (js/vokabel-extras.js: Stimmenwahl, Ton aus für die Klasse) ---------- */
+async function speak(){
+  if(!current || !window.VokabelExtras) return;
+  try { await VokabelExtras.sprechen(kern(current.inf) + ', ' + kern(current.past) + ', ' + kern(current.pp)); } catch(e){}
+}
+$('speak-btn').addEventListener('click', () => { if(stufe > 1 && !answered){ const b = $('speak-btn'), t = b.textContent; b.textContent = 'Erst antworten 🙂'; setTimeout(() => { b.textContent = t; }, 1600); return; } speak(); });
+document.addEventListener('keydown', e => { if(e.target.tagName === 'INPUT') return; if(e.key === 'Enter' && $('next-btn').style.display !== 'none') $('next-btn').click(); });
+
+buildFilter();
+restart();
+</script>
+<script src="../../../js/vokabel-extras.js"></script>
+<script src="../../../js/lernstand.js"></script>
+<script>
+/* Lernstand mit Code: Ein Verb zählt, wenn du in Stufe 3 oder 4 die Formen ohne Tipp richtig schreibst (js/lernstand.js) */
+function lsVerb(v) { if (window.Lernstand && v) Lernstand.geloest("v" + VERBEN.indexOf(v)); }
+/* Fehlerwörter und Sprachausgabe (js/vokabel-extras.js) – die Verben als Wortliste: Grundform und Bedeutung */
+var vxListe = VERBEN.map(function (v) { return { en: kern(v.inf) + " – " + kern(v.past) + " – " + kern(v.pp), de: v.de, verb: v }; });
+function vxEintrag(v) { return vxListe[VERBEN.indexOf(v)]; }
+function vxFalsch(v) { if (window.VokabelExtras && v) VokabelExtras.falsch(vxEintrag(v)); }
+function vxRichtig(v) { if (window.VokabelExtras && v) VokabelExtras.richtig(vxEintrag(v)); }
+if (window.VokabelExtras) VokabelExtras.init({
+  modul: "e8-m-v-trainer", vocab: vxListe, stimme: "en-GB-SoniaNeural",
+  ueben: function (liste) { restart(liste.map(function (w) { return w.verb; }).filter(Boolean)); },
+  anker: document.getElementById("filter-row")
+});
+if (window.Lernstand) Lernstand.seite({
+  kurs: "e8", bereich: "Unregelmäßige Verben", bnr: 50, modul: "e8-m-v-trainer", nr: 0, kurz: "Trainer",
+  titel: "Verben-Trainer", einheit: "Verben",
+  hinweis: "Ein Verb zählt, wenn du in Stufe 3 oder 4 die fehlenden Formen ohne Tipp richtig schreibst.",
+  aufgaben: VERBEN.map(function (v, i) { return { id: "v" + i, teil: "Paket " + (Math.floor(i / PAKET) + 1), kurz: kern(v.inf), text: kern(v.inf) + " – " + kern(v.past) + " – " + kern(v.pp) + " (" + v.de + ")" }; }),
+  anker: document.getElementById("filter-row"), reset: true,
+  fehlerGeladen: function (f) { if (window.VokabelExtras) VokabelExtras.vomServer(f); }
+});
+</script>
+</body>
+</html>

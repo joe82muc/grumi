@@ -42,7 +42,7 @@
     gpg8: { M: "8M/GPG/index.html", R: "8R/GPG/index.html" },
     nt9: { M: "9M/NT_9/übersicht_themen.html", R: "9R/NT_9/übersicht_themen.html" },
     d7: "7M/Deutsch/index.html", d8: "8/Deutsch/index.html", d9: "9/Deutsch/index.html",
-    e7: "7/Englisch_7/index.html", e8: "8R/Englisch/index.html",
+    e7: "7/Englisch_7/index.html", e8: { M: "8M/Englisch/index.html", R: "8R/Englisch/index.html" },
     e9: { M: "9M/Englisch_9/index.html", R: "9R/Englisch/index.html" },
     i7: { M: "7M/Informatik/index.html", R: "7R/Informatik/index.html" }, i8: { M: "8M/Informatik/index.html", R: "8R/Informatik/index.html" }, i9: "9/Informatik_9/index.html"
   };
@@ -137,6 +137,7 @@
     ".lf-rinfo{font-size:.8rem;font-weight:600;color:var(--muted)}" +
     "p.lf-rinfo{margin:0 0 .35rem}" +
     ".lf-ab{display:block;margin-top:1px;font-size:.72rem;font-weight:800;color:#0f5b2c;white-space:nowrap}" +
+    ".lf-max{display:block;margin-top:1px;font-size:.72rem;font-weight:700;color:#7a5200;white-space:nowrap}" +
     "p.lf-ab{display:inline-block;margin:0 0 .35rem;padding:.2rem .6rem;border:1px solid var(--ok-line);border-radius:8px;background:var(--ok-bg);font-size:.8rem;white-space:normal}" +
     ".lf-mod h4 .lf-reset{margin-left:.5rem;vertical-align:baseline}" +
     ".lf-werkzeug{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:.9rem}" +
@@ -966,20 +967,25 @@
       return (a[0].bnr || 99) - (b[0].bnr || 99) || (a[0].nr || 999) - (b[0].nr || 999) || a[1] - b[1];
     }).map(function (x) { return x[0]; });
   }
-  function bereichListe() {
-    var b = [];
-    kursModule().forEach(function (m) { var x = m.bereich || "Module"; if (b.indexOf(x) < 0) b.push(x); });
+  // Übung, die in diesem Zug vorkommt (feste Module immer) oder die schon ein Kind der Klasse hat
+  function imZug(m, liste) {
+    var zug = stufeVon(KLASSE) + zugBuchstabe(KLASSE);
+    if (!m.klassen || !m.klassen.length || m.klassen.indexOf(zug) >= 0) return true;
+    return liste.some(function (kind) { return kind.module[m.id]; });
+  }
+  // Englisch 8: 8M und 8R haben eigene Seiten. Bereiche, in denen nur der andere Zug arbeitet, stehen nicht in der Auswahl.
+  function bereichListe(liste) {
+    var b = [], nurEigene = ANSICHT === "e8" && liste && liste.length;
+    kursModule().forEach(function (m) {
+      var x = m.bereich || "Module";
+      if (b.indexOf(x) < 0 && (!nurEigene || imZug(m, liste))) b.push(x);
+    });
     return b;
   }
   function gemerkterBereich() { try { return global.localStorage.getItem("lf-bereich-" + ANSICHT) || ""; } catch (_e) { return ""; } }
-  // Übungen des Bereichs, die in diesem Zug vorkommen (feste Module immer) oder schon ein Kind der Klasse hat
+  // Übungen des Bereichs für diese Klasse
   function sichtModule(liste) {
-    var zug = stufeVon(KLASSE) + zugBuchstabe(KLASSE);
-    return kursModule().filter(function (m) {
-      if ((m.bereich || "Module") !== BEREICH) return false;
-      if (!m.klassen || !m.klassen.length || m.klassen.indexOf(zug) >= 0) return true;
-      return liste.some(function (kind) { return kind.module[m.id]; });
-    });
+    return kursModule().filter(function (m) { return (m.bereich || "Module") === BEREICH && imZug(m, liste); });
   }
   // Festes Kürzel des Moduls aus der Modulliste des Fachs (themen.js: kz, z. B. „L3“). Übungen ohne Liste behalten
   // den Kurznamen, den ihre Seite meldet (z. B. „G2“ in Deutsch 8).
@@ -993,10 +999,10 @@
   }
   // NT-9-Liste zur gewählten Klasse (9M/NT_9/themen.js oder 9R/NT_9/themen.js)
   function nt9Liste() { return stufeVon(KLASSE) === 9 ? (zugBuchstabe(KLASSE) === "M" ? global.NT9M : global.NT9R) : null; }
-  // Englisch-Liste (themen.js) zur gewählten Klasse: 7 -> E7, 8 -> E8, 9 -> E9M oder E9R
+  // Englisch-Liste (themen.js) zur gewählten Klasse: 7 -> E7, 8 -> E8M oder E8 (8R), 9 -> E9M oder E9R
   function englischListe() {
-    var st = stufeVon(KLASSE);
-    return st === 9 ? (zugBuchstabe(KLASSE) === "M" ? global.E9M : global.E9R) : st === 8 ? global.E8 : st === 7 ? global.E7 : null;
+    var st = stufeVon(KLASSE), m = zugBuchstabe(KLASSE) === "M";
+    return st === 9 ? (m ? global.E9M : global.E9R) : st === 8 ? (m ? global.E8M : global.E8) : st === 7 ? global.E7 : null;
   }
   function kurzName(m) { return kuerzel(m) || m.kurz || m.titel || "Modul " + m.nr; }
   // Notenübersicht: Module, die eine Probe enthält (Kürzel; der Titel steht beim Darüberfahren) – js/proben-module.js
@@ -1029,7 +1035,7 @@
   function fachZeichnen(teil) {
     var kurs = kursVon(ANSICHT) || { titel: ANSICHT, fachName: "", fach: "" };
     var liste = kinder(), h = "";
-    var bereiche = bereichListe();
+    var bereiche = bereichListe(liste);
     if (bereiche.indexOf(BEREICH) < 0) BEREICH = gemerkterBereich();
     if (bereiche.indexOf(BEREICH) < 0) BEREICH = bereiche[0] || "";
     var M = SICHT = sichtModule(liste);
@@ -1072,11 +1078,12 @@
       h += "</tbody></table></div>" +
         '<p class="sub" style="margin:.5rem 0 0">Farben: rot unter 40 %, gelb ab 40 %, grün ab 80 %.' + (ANSICHT === "nt9" ? " 🏆 = Profi-Check (Abschlussquiz) bestanden." : " Gezählt werden Aufgaben, die das Kind richtig gelöst hat (nicht „Lösung zeigen“).") +
         (VERSUCH_KURSE.indexOf(ANSICHT) >= 0 ? " 🎯 = auf Anhieb richtig, 🔁 = erst nach Fehlversuchen gelöst, ✗ = falsch geprüft und noch offen. Viele 🔁 können heißen, dass ein Kind die Lösungen durchprobiert. Gezählt wird seit dem 12.10.2026; offene Fragen mit KI, Bilder zum Erkunden und Animationen zählen nicht mit." : "") +
-        (RESET_KURSE.indexOf(ANSICHT) >= 0 ? " ↺ = Das Modul wurde neu begonnen (vom Kind oder von dir) – die Zahlen zeigen den neuen Durchgang. „✓ schon abgeschlossen“ = Das Kind hatte das Modul vor dem Neubeginn schon ganz gelöst." : "") + "</p>";
+        (maxKurs() ? " ↺ = Das Modul wurde neu begonnen (vom Kind oder von dir). Dann zeigt der Balken weiter den höchsten Stand, den das Kind in dem Modul je erreicht hat („🏅 Bestwert“); dahinter steht, wie weit es im neuen Durchgang ist. „✓ schon abgeschlossen“ = Das Kind hatte das Modul vor dem Neubeginn schon ganz gelöst."
+          : RESET_KURSE.indexOf(ANSICHT) >= 0 ? " ↺ = Das Modul wurde neu begonnen (vom Kind oder von dir) – die Zahlen zeigen den neuen Durchgang. „✓ schon abgeschlossen“ = Das Kind hatte das Modul vor dem Neubeginn schon ganz gelöst." : "") + "</p>";
       h += '<h3 class="lf-h3">Klassenauswertung: Was sollte ich wiederholen?</h3>' +
         '<div class="lf-werkzeug"><label for="lf-modul" style="margin:0">Übung</label><select id="lf-modul">' +
         M.map(function (m) { return '<option value="' + esc(m.id) + '"' + (m.id === AUSWERTUNG_MODUL ? " selected" : "") + ">" + esc(kurzName(m)) + ": " + esc(m.titel) + "</option>"; }).join("") +
-        "</select>" + (RESET_KURSE.indexOf(ANSICHT) >= 0 ? '<button class="btn btn-ghost btn-sm" id="lf-reset-klasse" type="button">↺ Für die ganze Klasse zurücksetzen</button>' : "") +
+        "</select>" + (resetKurs() ? '<button class="btn btn-ghost btn-sm" id="lf-reset-klasse" type="button">↺ Für die ganze Klasse zurücksetzen</button>' : "") +
         "</div>" + auswertung(liste, AUSWERTUNG_MODUL);
       // Vokabeltrainer: Fehlerwörter der Klasse. (NT 8 legt an derselben Stelle den Stand der Lernkarten ab – der steht
       // in der Lernstandsdiagnose, nicht hier.)
@@ -1142,10 +1149,33 @@
   function vorherText(p) {
     return p && p.rv && p.rv[1] ? "vorher " + p.rv[0] + " von " + p.rv[1] + " gelöst" : "";
   }
+  // Zurücksetzen gibt es in den Kursen aus RESET_KURSE – und in Englisch 8M: Die 8M-Seiten liegen im Kurs „e8“ neben
+  // denen der 8R; nur sie (Kennung e8-m-…) dürfen neu begonnen werden, der Server prüft das ebenfalls.
+  function resetKurs() { return RESET_KURSE.indexOf(ANSICHT) >= 0 || maxKurs(); }
+  // Englisch 8M (Wunsch vom 13.10.2026): „Wenn ein Modul schon einmal gemacht wurde, in der Verwaltung den maximal
+  // erreichten Fortschritt anzeigen.“ Nach einem Neubeginn zeigt der Balken deshalb weiter den höchsten Stand, den das
+  // Kind in dem Modul je hatte; daneben steht der Stand im neuen Durchgang.
+  // Server: rv = [gelöst, gesamt] vor dem letzten Zurücksetzen, rm = bester Stand vor irgendeinem Zurücksetzen.
+  function maxKurs() { return ANSICHT === "e8" && zugBuchstabe(KLASSE) === "M"; }
+  function besterStand(p) {
+    if (!p || !p.r) return null;
+    var k = [p.rm, p.rv].filter(function (s) { return s && s[1] > 0; }).map(function (s) {
+      return { geloest: s[0], gesamt: s[1], pct: Math.min(100, Math.round(s[0] / s[1] * 100)) };
+    }).sort(function (a, b) { return b.pct - a.pct; });
+    return k[0] || null;
+  }
   function abMarke(p) {
     return p && p.ab ? '<span class="lf-ab" title="' + esc(abText(p)) + '">✓ schon abgeschlossen' + (p.abn > 1 ? " (" + p.abn + "×)" : "") + "</span>" : "";
   }
   function zelle(st, p) {
+    // Englisch 8M: höchster Stand vor dem Neubeginn, solange der neue Durchgang darunter liegt
+    var best = maxKurs() ? besterStand(p) : null;
+    if (best && best.pct > (st ? st.pct : 0)) {
+      var jetzt = st ? st.geloest + "/" + st.gesamt : "0/" + best.gesamt;
+      return '<div class="lf-bar lf-g' + stufe(best.pct) + '"><i style="width:' + best.pct + '%"></i></div>' +
+        '<span class="lf-pct" title="Höchster Stand in diesem Modul: ' + best.geloest + " von " + best.gesamt + ' Aufgaben">' + best.pct + ' % <span class="lf-leer">(' + best.geloest + "/" + best.gesamt + ")</span></span>" +
+        '<span class="lf-max" title="Das Modul wurde neu begonnen (' + esc(zeitText(p.r)) + "). Der Balken zeigt den höchsten Stand davor; im neuen Durchgang sind " + esc(jetzt.replace("/", " von ")) + ' gelöst.">🏅 Bestwert · ↺ jetzt ' + esc(jetzt) + "</span>" + abMarke(p);
+    }
     if (!st) {
       if (!(p && p.r)) return '<span class="lf-pct lf-leer">–</span>';
       var vorher = vorherText(p);
@@ -1162,7 +1192,7 @@
 
   // Alle Aufgaben eines Kindes, nach Übung und Station
   function detail(kind) {
-    var h = "", darfReset = RESET_KURSE.indexOf(ANSICHT) >= 0;
+    var h = "", darfReset = resetKurs();
     SICHT.forEach(function (m) {
       var p = kind.module[m.id], k = DATEN.katalog[m.id], st = stand(kind, m.id);
       h += '<div class="lf-mod"><h4>' + esc(kurzName(m)) + ": " + esc(m.titel) + (st ? " · " + st.geloest + " von " + st.gesamt + " gelöst" : " · noch nicht begonnen") +
@@ -1170,7 +1200,8 @@
         (darfReset && st ? ' <button class="btn btn-ghost btn-sm lf-reset" type="button" data-code="' + esc(kind.code) + '" data-modul="' + esc(m.id) + '" data-titel="' + esc(kurzName(m) + ": " + m.titel) + '">↺ zurücksetzen</button>' : "") + "</h4>";
       if (p && p.ab) h += '<p class="lf-ab">✓ ' + esc(abText(p)) + "</p><br>";
       if (p && p.r) h += '<p class="lf-rinfo">↺ ' + (p.rw === "l" ? "Von der Lehrkraft zurückgesetzt" : "Das Kind hat das Modul neu begonnen") + " · " + esc(zeitText(p.r)) + (p.rn > 1 ? " (insgesamt " + p.rn + "-mal zurückgesetzt)" : "") +
-        (vorherText(p) ? " · " + esc(vorherText(p)) : "") + "</p>";
+        (vorherText(p) ? " · " + esc(vorherText(p)) : "") +
+        (maxKurs() && besterStand(p) ? " · höchster Stand bisher: " + besterStand(p).geloest + " von " + besterStand(p).gesamt + " (" + besterStand(p).pct + " %)" : "") + "</p>";
       if (st && k) {
         var stationen = {}, reihe = [];
         Object.keys(k).forEach(function (id) { var s = k[id][1] || "–"; reihe.push(s); (stationen[s] = stationen[s] || []).push(id); });
@@ -1240,9 +1271,15 @@
     kinder().forEach(function (k) {
       var st = M.map(function (m) { return stand(k, m.id); });
       zeilen.push([k.klasse, k.code, nameVon(k.code)]
-        .concat(st.map(function (s) { return s ? s.pct : ""; }), st.map(function (s, i) {
+        .concat(st.map(function (s, i) {
+          // Englisch 8M: Nach einem Neubeginn zählt der höchste Stand, den das Kind je hatte
+          var best = maxKurs() ? besterStand(k.module[M[i].id]) : null;
+          return best && best.pct > (s ? s.pct : 0) ? best.pct : s ? s.pct : "";
+        }), st.map(function (s, i) {
           // neu begonnenes Modul: dazuschreiben, wenn das Kind es vorher schon abgeschlossen hatte
           var p = k.module[M[i].id], ab = p && p.ab ? "schon abgeschlossen, neu begonnen" : "";
+          var best = maxKurs() ? besterStand(p) : null;
+          if (best && best.pct > (s ? s.pct : 0)) ab = "Bestwert " + best.geloest + "/" + best.gesamt + (ab ? ", " + ab : ", neu begonnen");
           return (s ? s.geloest + "/" + s.gesamt : "") + (ab ? (s ? " · " : "") + ab : "");
         }))
         .concat(ANSICHT === "nt9" ? [st.filter(function (s) { return s && s.profi; }).length] : [], [zeitText(zuletzt(k))]));

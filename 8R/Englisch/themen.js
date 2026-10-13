@@ -14,6 +14,8 @@
  */
 GrumiKursliste.bauen({
   name: "E8", kurs: "e8", stufe: 8, zuege: ["R"], fach: "Englisch", titel: "Englisch 8R", pfad: "/api/e8", ordner: "8R/Englisch/",
+  // Ein Kind der 8M (M-Klasse), das diese Übersicht öffnet, kommt zu seiner eigenen (seit 13.10.2026: 8M/Englisch)
+  andere: { zug: "M", titel: "Englisch 8M", href: "8M/Englisch/index.html" },
   intro: "Wortschatz, Grammatik und Wordbanks passend zu den Units. Deine Lehrkraft schaltet frei, was ihr gerade im Unterricht behandelt.",
   themen: [
     {
