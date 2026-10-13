@@ -161,11 +161,12 @@
         // Zusatz zur Grammatik: Duelle (einzeln freischaltbar, zählt nicht zum Lernfortschritt)
         { id: "gr-duell", kz: "G8", extra: "gr-07", kurz: "Duelle", titel: "Grammatik-Duelle", href: "gr_duell.html", key: "grumi-d7-gr-duell-v1",
           text: "Fehler finden, KI-Duell, Tischduell." },
-        // Extra zu Modul 3: Training zur Probe 6 (M7) – genau die elf Aufgaben der M7-Probe „Grammatik I“ mit Tipps, etwa
-        // 60 Minuten (Wunsch vom 13.10.2026). Nur einzeln freischaltbar, nur für M-Klassen gedacht. Die Kennung gr-16 hat
-        // zwei Ziffern, damit die KI-Prüfung der Grammatikseiten (Server: d7-gr-NN) sie annimmt.
-        { id: "gr-16", kz: "G14", extra: "gr-03", kurz: "Training Probe 6", titel: "Training zur Probe 6: Grammatik I (M7)", href: "Grammatik/training_probe6.html", key: "grumi-d7-gr-16", basis: 11,
-          text: "Die elf Aufgaben der Probe – mit Tipps, etwa 60 Minuten." },
+        // Extra zu Modul 3: Training zur Probe 6 (M7) – Runde 1: genau die elf Aufgaben der M7-Probe „Grammatik I“ mit Tipps
+        // (etwa 60 Minuten), Runde 2: dieselben elf Aufgabenarten mit neuen Sätzen (etwa 45 Minuten; Wünsche vom 13.10.2026).
+        // Nur einzeln freischaltbar, nur für M-Klassen gedacht. Die Kennung gr-16 hat zwei Ziffern, damit die KI-Prüfung der
+        // Grammatikseiten (Server: d7-gr-NN) sie annimmt.
+        { id: "gr-16", kz: "G14", extra: "gr-03", kurz: "Training Probe 6", titel: "Training zur Probe 6: Grammatik I (M7)", href: "Grammatik/training_probe6.html", key: "grumi-d7-gr-16", basis: 11, plus: 11,
+          text: "Runde 1: die elf Aufgaben der Probe. Runde 2: viele neue Sätze. Mit Tipps." },
         // Extra zu Modul 2: Zeitformen wiederholen (für 7M und 7R gleich, ohne Plus-Teil)
         { id: "zf-praesens", kz: "G9", extra: "gr-02", kurz: "Präsens", titel: "Präsens (Gegenwart)", href: "Grammatik/zf_praesens.html", key: "grumi-d7-zf-praesens", basis: 4,
           text: "Was jetzt passiert oder immer so ist." },
