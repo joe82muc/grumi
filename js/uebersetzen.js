@@ -1,4 +1,4 @@
-/* Sprachfahnen: Lernseiten in einer anderen Sprache lesen – zuerst für Informatik 8.
+/* Sprachfahnen: Lernseiten in einer anderen Sprache lesen – Informatik 8 und (seit 13.10.2026) Informatik 7.
  * Einbinden am Ende der Seite:  <script src="../../js/uebersetzen.js"></script>
  *
  * Oben auf der Seite erscheint eine Leiste mit fünf Fahnen: Deutsch (Original), Englisch, Ukrainisch, Ungarisch,
@@ -38,6 +38,15 @@
     hu: { hinweis: "Automatikus fordítás – az Excel és a Scratch gombjai és menüi németül maradnak. A válaszaidat kérlek németül írd.", laeuft: "Fordítás …", anmelden: "Előbb jelentkezz be a kódoddal – utána lefordítható ez az oldal.", fehler: "A fordítás most nem érhető el. Az oldal német marad.", teil: "Néhány szöveget nem sikerült lefordítani – ezek németül maradnak." },
     hr: { hinweis: "Automatski prijevod – gumbi i izbornici u Excelu i Scratchu ostaju na njemačkom. Odgovore, molim te, piši na njemačkom.", laeuft: "Prevodim …", anmelden: "Prvo se prijavi svojim kodom – tada se ova stranica može prevesti.", fehler: "Prijevod trenutačno nije dostupan. Stranica ostaje na njemačkom.", teil: "Neke tekstove nije bilo moguće prevesti – ostaju na njemačkom." }
   };
+
+  // Informatik 7 arbeitet mit anderen Programmen (Filius, später GIMP, Inkscape, Scratch): eigener Hinweis in der Leiste
+  var HINWEIS_7 = {
+    en: "Automatic translation – buttons and menus in the programs (for example Filius) stay German. Please write your answers in German.",
+    uk: "Автоматичний переклад – кнопки та меню в програмах (наприклад, Filius) залишаються німецькою. Відповіді пиши, будь ласка, німецькою.",
+    hu: "Automatikus fordítás – a programok (például a Filius) gombjai és menüi németül maradnak. A válaszaidat kérlek németül írd.",
+    hr: "Automatski prijevod – gumbi i izbornici u programima (na primjer Filius) ostaju na njemačkom. Odgovore, molim te, piši na njemačkom."
+  };
+  function hinweisText(id) { return (global.GRUMI_KURS && global.GRUMI_KURS.KURS === "i7" && HINWEIS_7[id]) || WORTE[id].hinweis; }
 
   // Bausteine in einem Satz, die mit übersetzt werden (ihr Text gehört zum Satz) …
   var FORMAT = { B: 1, STRONG: 1, I: 1, EM: 1, U: 1, MARK: 1, SMALL: 1, SUB: 1, SUP: 1, SPAN: 1, A: 1, ABBR: 1, Q: 1, S: 1 };
@@ -196,7 +205,8 @@
   function uebersetzen() {
     if (sprache === "de") return;
     var nr = lauf, W = WORTE[sprache], liste = sammeln(), fehlt = [];
-    var schluss = function () { meldung(lage.anmelden ? W.anmelden : lage.fehler ? W.fehler : lage.teil ? W.hinweis + " " + W.teil : W.hinweis, lage.anmelden || lage.fehler ? "warn" : ""); };
+    var hinweis = hinweisText(sprache);
+    var schluss = function () { meldung(lage.anmelden ? W.anmelden : lage.fehler ? W.fehler : lage.teil ? hinweis + " " + W.teil : hinweis, lage.anmelden || lage.fehler ? "warn" : ""); };
     if (!liste.length) return;
     amWerk = true;
     liste.forEach(function (e) {
