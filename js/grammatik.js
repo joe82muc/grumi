@@ -20,6 +20,13 @@
  *   bauen     items: [{ f?, teile: [in richtiger Reihenfolge], l?: [weitere richtige Sätze] }]
  *   paare     paare: [["links", "rechts"], …]            zusammengehörende Karten verbinden (z. B. Englisch – Deutsch)
  * Seite: plusHinweis ersetzt den Hinweis über den Plus-Aufgaben (Kurse ohne M-Zug, z. B. Englisch 8R).
+ *   basisHinweis (HTML): Hinweis über den Basis-Aufgaben; basisEyebrow: Zeile über der Überschrift.
+ * Tipps und Hinweise (Training zu einer Probe, Deutsch 7):
+ *   tipp als Liste ["allgemein", "genauer", "fast die Lösung"]: Der Knopf „💡 Tipp“ zeigt einen Tipp nach dem anderen.
+ *   luecke: Eintrag auch als { s: "Text mit [[Lücke]]", e: "Hinweis" }; umformen/frei: e beim Eintrag –
+ *           der Hinweis erscheint (wie e bei wahl), solange der Satz nicht stimmt.
+ *   luecke: auswahl: [..] legt für alle {{…}}-Auswahlfelder dieselbe feste Liste fest (richtig ist der Eintrag in {{…}}).
+ *   tag: eigener Text statt des Aufgabentyps über dem Auftrag; davor: Zwischenüberschrift vor der Karte.
  * Jede Aufgabe ist eine Karte (Lernstand-Kennung <modul>-b1 … bzw. -p1 …). Plus-Aufgaben gehören für den
  * M-Zug dazu, für R-Klassen sind sie freiwillig. „Lösung zeigen“ zählt nie.
  */
@@ -152,7 +159,9 @@
     var items = K.a.items, loesungen = [];
     function bauen() {
       loesungen = [];
-      box.innerHTML = items.map(function (text, i) {
+      box.innerHTML = items.map(function (it, i) {
+        // Eintrag als Text – oder als { s: "Text mit [[Lücke]]", e: "Hinweis, solange die Zeile nicht stimmt" }
+        var text = it && typeof it === "object" ? it.s : it, hinweis = it && typeof it === "object" ? it.e : "";
         var teile = String(text).split(/(\[\[.*?\]\]|\{\{.*?\}\})/);
         var h = teile.map(function (t) {
           var m = /^\[\[(.*)\]\]$/.exec(t), w = /^\{\{(.*)\}\}$/.exec(t);
@@ -165,11 +174,12 @@
             var opt = w[1].split("|");
             loesungen.push([opt[0]]);
             return '<select data-g="' + (loesungen.length - 1) + '" aria-label="Lücke ' + loesungen.length + '"><option value="">…</option>' +
-              mischen(opt).map(function (o) { return '<option value="' + esc(o) + '">' + esc(o) + "</option>"; }).join("") + "</select>";
+              (K.a.auswahl || mischen(opt)).map(function (o) { return '<option value="' + esc(o) + '">' + esc(o) + "</option>"; }).join("") + "</select>";
           }
           return fmt(t);
         }).join("");
-        return '<div class="item"><div class="luecke-satz">' + '<span class="marke">' + (items.length > 1 ? (i + 1) + "." : "") + "</span>" + h + "</div></div>";
+        return '<div class="item"><div class="luecke-satz">' + '<span class="marke">' + (items.length > 1 ? (i + 1) + "." : "") + "</span>" + h + "</div>" +
+          (hinweis ? '<div class="erkl">' + fmt(hinweis) + "</div>" : "") + "</div>";
       }).join("");
       $$("input,select", box).forEach(function (f) {
         f.addEventListener(f.tagName === "SELECT" ? "change" : "input", function () { f.classList.remove("r", "f"); itemStatus(f.closest(".item"), null); K.leise(); });
@@ -514,7 +524,8 @@
       box.innerHTML = items.map(function (it, i) {
         return '<div class="item">' + kopf(it, i, items.length) +
           '<textarea class="uf-feld" rows="' + (it.zeilen || 2) + '" spellcheck="false" placeholder="' + esc(it.ph || K.a.ph || (frei ? "Dein Satz …" : "Schreibe den ganzen Satz …")) + '" aria-label="Antwort ' + (i + 1) + '"></textarea>' +
-          '<div class="ki" aria-live="polite"></div><div class="loesung">' + (frei ? "So könnte es aussehen: " : "Lösung: ") + fmt((it.l && it.l[0]) || it.bsp || "") + "</div></div>";
+          '<div class="ki" aria-live="polite"></div>' + (it.e ? '<div class="erkl">' + fmt(it.e) + "</div>" : "") +
+          '<div class="loesung">' + (frei ? "So könnte es aussehen: " : "Lösung: ") + fmt((it.l && it.l[0]) || it.bsp || "") + "</div></div>";
       }).join("");
       $$(".uf-feld", box).forEach(function (f) {
         f.addEventListener("input", function () { var el = f.closest(".item"); itemStatus(el, null); $(".ki", el).textContent = ""; K.leise(); });
@@ -667,20 +678,35 @@
     var el = doc.createElement("article");
     el.className = "card aufg" + (plus ? " plus" : ""); el.id = id;
     var eigen = a.typ === "analyse";
-    el.innerHTML = '<div class="aufg-kopf"><span class="nr">' + kurz + '</span><div><span class="task-tag">' + esc(TYPEN[a.typ] || "Aufgabe") + "</span>" +
+    // Tipps in Stufen: tipp als Liste – jeder Klick auf „💡 Tipp“ zeigt den nächsten (erst allgemein, dann genauer)
+    var stufen = Array.isArray(a.tipp) ? a.tipp : null;
+    var tippKnopf = !a.tipp ? "" : '<button type="button" class="knopf zweit tipp" aria-expanded="false">💡 Tipp' + (stufen && stufen.length > 1 ? " (1 von " + stufen.length + ")" : "") + "</button>";
+    var tippBox = !a.tipp ? "" : '<div class="tippbox' + (stufen ? " stufen" : "") + '">' + (stufen ? stufen.map(function (t, k) {
+      return '<div class="tipp-stufe" hidden><b>💡 Tipp ' + (k + 1) + ":</b> " + fmt(t) + "</div>";
+    }).join("") : "💡 " + fmt(a.tipp)) + "</div>";
+    el.innerHTML = '<div class="aufg-kopf"><span class="nr">' + kurz + '</span><div><span class="task-tag">' + esc(a.tag || TYPEN[a.typ] || "Aufgabe") + "</span>" +
       (a.quali ? ' <span class="task-tag quali">wie im Quali</span>' : "") + "<h3>" + fmt(a.t) + "</h3></div></div>" +
       (a.info ? '<p class="info">' + fmt(a.info) + "</p>" : "") + '<div class="koerper"></div>' +
-      (eigen ? (a.tipp ? '<div class="aufg-aktionen"><button type="button" class="knopf zweit tipp" aria-expanded="false">💡 Tipp</button></div>' : "") :
-      '<div class="aufg-aktionen"><button type="button" class="knopf pruefen">Prüfen</button>' +
-      (a.tipp ? '<button type="button" class="knopf zweit tipp" aria-expanded="false">💡 Tipp</button>' : "") +
+      (eigen ? (a.tipp ? '<div class="aufg-aktionen">' + tippKnopf + "</div>" : "") :
+      '<div class="aufg-aktionen"><button type="button" class="knopf pruefen">Prüfen</button>' + tippKnopf +
       '<button type="button" class="knopf zweit loes-knopf" hidden>Lösung zeigen</button>' +
       '<button type="button" class="knopf zweit neu" title="Aufgabe neu beginnen">↺ Neu</button></div>') +
-      (a.tipp ? '<div class="tippbox">💡 ' + fmt(a.tipp) + "</div>" : "") + (eigen ? "" : '<div class="fb" role="status"></div>');
+      tippBox + (eigen ? "" : '<div class="fb" role="status"></div>');
     var K = { id: id, kurz: kurz, plus: plus, el: el, a: a, verraten: false, fehlversuche: 0 };
     K.istGeloest = function () { return Boolean(geloest[id]); };
     K.fertig = function () { loesen(K); };
     var tipp = $(".tipp", el);
-    if (tipp) tipp.addEventListener("click", function () { var t = $(".tippbox", el), an = !t.classList.contains("zeigen"); t.classList.toggle("zeigen", an); tipp.setAttribute("aria-expanded", an); });
+    if (tipp) tipp.addEventListener("click", function () {
+      var t = $(".tippbox", el), zu = $$(".tipp-stufe[hidden]", t);
+      if (zu.length) {
+        // nächste Stufe aufdecken; sind alle offen, blendet der Knopf die Tipps aus und wieder ein
+        zu[0].hidden = false; t.classList.add("zeigen"); tipp.setAttribute("aria-expanded", "true");
+        tipp.textContent = zu.length > 1 ? "💡 Noch ein Tipp (" + (stufen.length - zu.length + 2) + " von " + stufen.length + ")" : "💡 Tipps ausblenden";
+        return;
+      }
+      var an = !t.classList.contains("zeigen"); t.classList.toggle("zeigen", an); tipp.setAttribute("aria-expanded", an);
+      if (stufen) tipp.textContent = an ? "💡 Tipps ausblenden" : "💡 Tipps zeigen";
+    });
     if (eigen) {
       K.leise = function () {};
       K.pruefen = function () {};
@@ -793,7 +819,8 @@
           '<div class="merk-grid' + (wortbank ? " wb" : "") + '">' + (cfg.merk || []).map(function (m) { return '<div class="card merk' + (m.breit || /<table/.test(m.html) ? " breit" : "") + '"><h3>' + esc(m.t) + "</h3>" + merkHtml(m.html) + "</div>"; }).join("") + "</div>" +
           (cfg.fallen && cfg.fallen.length ? '<div class="merke"><h4>⚠️ Achtung, typische Fehler</h4><ul>' + cfg.fallen.map(function (f) { return "<li>" + fmt(f) + "</li>"; }).join("") + "</ul></div>" : "") +
         "</section>" +
-        '<section class="station" id="basis"><div class="st-head"><div class="st-num teal">2</div><div><div class="eyebrow">' + esc(cfg.basisEyebrow || "Für alle") + "</div><h2>" + esc(basisName) + '</h2></div></div><div class="liste"></div></section>' +
+        '<section class="station" id="basis"><div class="st-head"><div class="st-num teal">2</div><div><div class="eyebrow">' + esc(cfg.basisEyebrow || "Für alle") + "</div><h2>" + esc(basisName) + "</h2></div></div>" +
+          (cfg.basisHinweis ? '<p class="plus-hinweis">' + cfg.basisHinweis + "</p>" : "") + '<div class="liste"></div></section>' +
         (hatPlus ? '<section class="station plus" id="plus"><div class="st-head"><div class="st-num">3</div><div><div class="eyebrow">' + esc(cfg.plusEyebrow || "M-Zug · für R-Klassen freiwillig") + "</div><h2>" + esc(plusName) + "</h2></div></div>" +
           '<p class="plus-hinweis">' + (cfg.plusHinweis ? cfg.plusHinweis : mKlasse ? "🎯 <b>M-Zug:</b> Diese Aufgaben gehören für dich dazu." :
             rKlasse ? "⭐ <b>Freiwillig für dich:</b> Probier die Aufgaben ruhig aus. Sie zählen nicht zu deinem Stand, aber du siehst sie als Extra." :
@@ -809,8 +836,13 @@
     doc.title = cfg.titel + " | " + cfg.fach + " " + cfg.bereich;
 
     var basisListe = $("#basis .liste"), plusListe = $("#plus .liste");
-    (cfg.basis || []).forEach(function (a, i) { basisListe.appendChild(karteBauen(a, i, false)); });
-    (cfg.plus || []).forEach(function (a, i) { plusListe.appendChild(karteBauen(a, i, true)); });
+    // davor: Zwischenüberschrift vor einer Karte („Teil 2 · Zeitformen“) – gliedert lange Seiten, zählt nicht als Aufgabe
+    function einhaengen(liste, a, i, plus) {
+      if (a.davor) { var z = doc.createElement("h3"); z.className = "teil-kopf"; z.innerHTML = fmt(a.davor); liste.appendChild(z); }
+      liste.appendChild(karteBauen(a, i, plus));
+    }
+    (cfg.basis || []).forEach(function (a, i) { einhaengen(basisListe, a, i, false); });
+    (cfg.plus || []).forEach(function (a, i) { einhaengen(plusListe, a, i, true); });
     sterne();
 
     // Abschnitt in der Kopfzeile hervorheben, Lesebalken

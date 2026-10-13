@@ -145,7 +145,9 @@
           extraFrage: "Du kennst dich noch nicht so gut mit Zeitformen aus?",
           extraText: "Dann wiederhole zuerst – jede Zeitform einzeln, mit kurzer Erklärung und vier Übungen." },
         { id: "gr-03", kz: "G3", titel: "Aktiv und Passiv", href: "Grammatik/gr_03.html", key: "grumi-d7-gr-03", basis: 6, plus: 4,
-          text: "Wer handelt, was passiert? Das Passiv bilden und Sätze umformen." },
+          text: "Wer handelt, was passiert? Das Passiv bilden und Sätze umformen.",
+          extraFrage: "Training zur Probe 6",
+          extraText: "Die Aufgaben der Probe „Grammatik I“ zum Trainieren – mit Tipps bei jeder Aufgabe." },
         { id: "gr-04", kz: "G4", titel: "Konjunktiv", href: "Grammatik/gr_04.html", key: "grumi-d7-gr-04", basis: 6, plus: 4,
           text: "Konjunktiv I für die indirekte Rede – im M-Zug auch Konjunktiv II." },
         { id: "gr-05", kz: "G5", titel: "Satzglieder und Kausaladverbiale", href: "Grammatik/gr_05.html", key: "grumi-d7-gr-05", basis: 6, plus: 3,
@@ -159,6 +161,11 @@
         // Zusatz zur Grammatik: Duelle (einzeln freischaltbar, zählt nicht zum Lernfortschritt)
         { id: "gr-duell", kz: "G8", extra: "gr-07", kurz: "Duelle", titel: "Grammatik-Duelle", href: "gr_duell.html", key: "grumi-d7-gr-duell-v1",
           text: "Fehler finden, KI-Duell, Tischduell." },
+        // Extra zu Modul 3: Training zur Probe 6 (M7) – genau die elf Aufgaben der M7-Probe „Grammatik I“ mit Tipps, etwa
+        // 60 Minuten (Wunsch vom 13.10.2026). Nur einzeln freischaltbar, nur für M-Klassen gedacht. Die Kennung gr-16 hat
+        // zwei Ziffern, damit die KI-Prüfung der Grammatikseiten (Server: d7-gr-NN) sie annimmt.
+        { id: "gr-16", kz: "G14", extra: "gr-03", kurz: "Training Probe 6", titel: "Training zur Probe 6: Grammatik I (M7)", href: "Grammatik/training_probe6.html", key: "grumi-d7-gr-16", basis: 11,
+          text: "Die elf Aufgaben der Probe – mit Tipps, etwa 60 Minuten." },
         // Extra zu Modul 2: Zeitformen wiederholen (für 7M und 7R gleich, ohne Plus-Teil)
         { id: "zf-praesens", kz: "G9", extra: "gr-02", kurz: "Präsens", titel: "Präsens (Gegenwart)", href: "Grammatik/zf_praesens.html", key: "grumi-d7-zf-praesens", basis: 4,
           text: "Was jetzt passiert oder immer so ist." },
