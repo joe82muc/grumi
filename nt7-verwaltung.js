@@ -119,7 +119,7 @@
         return fetch(ctx.api + mod.listPath).then(function (r) { return r.ok ? r.json() : { tests: [] }; }).then(function (d) {
           // frühere Fassungen einer Probe (alt) stehen nur noch hier, solange sie offen sind (damit man sie sperren kann)
           return (d.tests || []).filter(function (t) { if (t.alt && !t.unlocked) return false; var k = mod.klasse(t); return listeVon(mod, t) === N && (k === String(STUFE) || k === STUFE + ZUG); })
-            .map(function (t) { return { mod: mod, id: t.id, titel: t.title || t.id, variante: t.variante || "", offen: !!t.unlocked, aufgaben: t.itemCount, punkte: t.maxPoints, hoertexte: t.hoertexte || 0, klasse: mod.klasse(t), link: mod.link ? mod.link(t) : "", schueler: mod.schueler ? mod.schueler(t) : "" }; });
+            .map(function (t) { return { mod: mod, id: t.id, titel: t.title || t.id, variante: t.variante || "", notenzug: t.notenzug || "", offen: !!t.unlocked, aufgaben: t.itemCount, punkte: t.maxPoints, hoertexte: t.hoertexte || 0, klasse: mod.klasse(t), link: mod.link ? mod.link(t) : "", schueler: mod.schueler ? mod.schueler(t) : "" }; });
         }).catch(function () { return []; });
       })); }).then(function (teile) { PROBEN = [].concat.apply([], teile); });
     }
@@ -223,6 +223,8 @@
         if (p.variante) teile.push("Fassung " + p.variante + (p.variante === "B" ? " (Nachschreibprobe)" : ""));
         if (p.aufgaben) teile.push(p.aufgaben + " Aufgaben");
         if (p.punkte) teile.push(p.punkte + " Punkte");
+        // Probe mit festem Notenschlüssel (z. B. Nachholprobe der M7 mit R-Schlüssel)
+        if (p.notenzug) teile.push("Notenschlüssel " + p.notenzug + " (50 % = Note " + (p.notenzug === "R" ? 3 : 4) + ")");
         if (inhalt) teile.push("enthält " + inhalt);
         teile.push("gilt " + fuerWen(p));
         // Probe ansehen, drucken oder als PDF speichern (js/probe-vorschau.js) – so, wie das Kind sie bekommt, oder mit Lösungen

@@ -116,7 +116,7 @@
     const zug = D7.zug(a);
     return (thema.proben || []).map(nr => {
       const da = PROBEN ? PROBEN.filter(t => t.nr === nr && (!zug || t.zug === zug)) : null;
-      const name = da && da.length ? da[0].title.replace(/ – Variante B$/, "").replace(/ \((R|M)\d\)/, "") : "Probe " + nr;
+      const name = da && da.length ? da[0].title.replace(/ – (Variante B|Nachholprobe)$/, "").replace(/ \((R|M)\d\)/, "") : "Probe " + nr;
       if (da && !da.length) return `<p class="probe-plan">📝 Probe ${nr} zu diesem Bereich ist in Vorbereitung.</p>`;
       const meine = (MEINE || []).find(m => m.nr === nr);
       if (meine && meine.status === "korrigiert") {

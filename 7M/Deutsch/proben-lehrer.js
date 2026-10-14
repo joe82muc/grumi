@@ -69,7 +69,7 @@
     const nr = Number($("filter-nr").value) || 0;
     const liste = tests.filter(t => !nr || t.nr === nr).sort((a, b) => a.nr - b.nr || a.zug.localeCompare(b.zug) || a.variante.localeCompare(b.variante));
     $("unlock-list").innerHTML = liste.length ? `<table class="l-uebersicht"><thead><tr><th>Probe</th><th>Klasse</th><th>Variante</th><th>Umfang</th><th>Für die Kinder</th><th></th></tr></thead><tbody>${liste.map(t => `<tr style="cursor:default">
-      <td><b>${esc(t.title)}</b></td><td>${klasseVon(t)}</td><td>${t.variante}${t.variante === "B" ? " · Nachschreiber" : ""}</td><td>${t.itemCount} Aufgaben · ${t.maxPoints} Punkte · ${t.minutes} min</td>
+      <td><b>${esc(t.title)}</b></td><td>${klasseVon(t)}</td><td>${t.variante}${t.variante === "B" ? " · Nachschreiber" : ""}</td><td>${t.itemCount} Aufgaben · ${t.maxPoints} Punkte · ${t.minutes} min${t.notenzug ? ` · <b>Notenschlüssel ${t.notenzug}</b> (50 % = Note ${t.notenzug === "R" ? 3 : 4})` : ""}</td>
       <td><label style="display:inline-flex;gap:8px;align-items:center;font-weight:700"><input type="checkbox" data-unlock="${esc(t.id)}" ${t.unlocked ? "checked" : ""}> <span class="stand ${t.unlocked ? "offen" : "zu"}">${t.unlocked ? "offen" : "gesperrt"}</span></label></td>
       <td><button class="btn klein secondary" type="button" data-ansehen="${esc(t.id)}">👁 Probe mit Lösungen</button></td></tr>`).join("")}</tbody></table>
       <div class="l-einfuegen">${[...new Set(liste.map(t => t.nr))].map(n => { const wert = (liste.find(t => t.nr === n) || {}).einfuegen || "sperren";
@@ -101,8 +101,10 @@
   /* ---------- Eine Abgabe korrigieren ---------- */
   function punktFeld(wert, max, attr) { return `<input type="number" inputmode="decimal" min="0" max="${max}" step="0.5" value="${wert}" ${attr} aria-label="Punkte (höchstens ${max})"> <span>/ ${zahl(max)}</span>`; }
   const marke = t => (t.rs ? ' <span class="pill" title="zählt als Rechtschreibung">RS</span>' : "") + (t.zs ? ' <span class="pill" title="zählt als Zeichensetzung">ZS</span>' : "");
+  // Warum ein Feld zum Ansehen markiert ist: fast richtig (Tippfehler?), halber Punkt vorgeschlagen, falsch mit möglichen Teilpunkten
+  const PRUEFEN = {halb: "halber Punkt vorgeschlagen – bitte ansehen", teil: "falsch – halbe Punkte möglich, bitte ansehen"};
   function antwortListe(d) {
-    if (d.felder) return `<ul class="l-horizont">${d.felder.map((f, i) => `<li><div>${esc(f.label)}: <b>${f.given ? esc(f.given) : "–"}</b>${marke(f)}${f.pruefen ? ' <span class="stand zu-pruefen">fast richtig – bitte ansehen</span>' : ""}<small>Lösung: ${esc(f.expected)}</small></div><div>${punktFeld(f.punkte, f.max, `data-teil="${i}"`)}</div></li>`).join("")}</ul>`;
+    if (d.felder) return `<ul class="l-horizont">${d.felder.map((f, i) => `<li><div>${esc(f.label)}: <b>${f.given ? esc(f.given) : "–"}</b>${marke(f)}${f.pruefen ? ` <span class="stand zu-pruefen">${PRUEFEN[f.warum] || "fast richtig – bitte ansehen"}</span>` : ""}<small>Lösung: ${esc(f.expected)}</small></div><div>${punktFeld(f.punkte, f.max, `data-teil="${i}"`)}</div></li>`).join("")}</ul>`;
     return `<ul class="k-zeilen">${d.given.map((g, i) => `<li class="${g === d.expected[i] ? "r" : "f"}"><span>${esc((d.labels || [])[i] || "")}</span><b>${g ? esc(g) : "–"}</b><small>${g === d.expected[i] ? "✓" : "Lösung: " + esc(d.expected[i])}</small></li>`).join("")}</ul>`;
   }
   function aufgabe(d) {
@@ -427,7 +429,8 @@
     if (it.type === "choice") return `<ul class="k-liste">${it.options.map((o, i) => `<li>${i === it.answer ? "<b>✓ " + esc(o) + "</b>" : esc(o)}</li>`).join("")}</ul>`;
     if (it.type === "match") return `<ul class="k-liste">${it.pairs.map(p => `<li>${esc(p[0])} → <b>${esc(p[1])}</b></li>`).join("")}</ul>`;
     if (it.type === "order") return `<ol class="k-liste">${it.steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol>`;
-    if (it.type === "felder") return `<ul class="k-liste">${it.felder.map(f => `<li>${esc(f.label)}: <b>${f.loesungen.map(esc).join(" / ")}</b>${f.genau ? " (genaue Schreibung)" : ""}${marke(f)} · ${f.punkte || 1} P.</li>`).join("")}</ul>`;
+    if (it.type === "felder") return `<ul class="k-liste">${it.felder.map(f => `<li>${esc(f.label)}: <b>${f.loesungen.map(esc).join(" / ")}</b>${f.genau ? " (genaue Schreibung)" : ""}${marke(f)} · ${f.punkte || 1} P.${f.halb && f.halb.length ? `<br><small>halbe Punktzahl: ${f.halb.map(esc).join(" / ")}</small>` : ""}</li>`).join("")}</ul>` +
+      (it.teilpunkte ? `<p class="l-quelle">Halbe Punkte: Fast richtige Antworten (z. B. ein Tippfehler) bekommen vorläufig die Hälfte, jede andere falsche Antwort ist zum Ansehen markiert.</p>` : "");
     if (it.type === "komma") return `<ul class="k-liste">${it.saetze.map(s => `<li>${esc(s)}</li>`).join("")}</ul>`;
     if (it.type === "zeile") return `<p>Zeilen: <b>${it.bereiche.map(b => b[0] + (b[1] > b[0] ? "–" + b[1] : "")).join(" oder ")}</b></p>`;
     const teile = it.type === "schreiben" ? it.raster.map(k => ({text: k.name, erwartet: k.text, punkte: k.punkte, rs: k.rs, zs: k.zs})) : it.kriterien;
