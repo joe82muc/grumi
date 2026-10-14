@@ -16,6 +16,8 @@
  *                    „Zeitformen bis Futur II“). Extras hängen in der Übersicht unter ihrem Modul, zählen nicht zum
  *                    Lernfortschritt und werden nur einzeln freigeschaltet – „Alle freischalten“ öffnet sie nicht mit.
  *            extraFrage, extraText = Überschrift und Satz über den Extras eines Moduls
+ *            teil  = bei einem Extra ohne eigene Seite (ohne href): Kennung des Teils der Modulseite, den der Schalter
+ *                    freigibt (z. B. die Musterlösungen in arg_08.html, Baustein „loesungen“ in d7-kit.js)
  *
  * Freischalten: Die Lehrkraft schaltet je Klasse Themenbereiche oder einzelne Module frei (Verwaltung → Klasse →
  * Deutsch, Server /api/d7/freigabe). Ein Eintrag für das Modul geht vor dem Eintrag seines Themenbereichs; ohne
@@ -105,7 +107,11 @@
           tags: ["📓 Regelheft-Eintrag", "Behauptung · Begründung · Beispiel", "✨ KI korrigiert deinen Text"] },
         { id: "arg-07", kz: "A7", titel: "Stellungnahme und Leserbrief", href: "arg_07.html", key: "grumi-d7-arg-07-v1", tab: "Schreiben",
           text: "Schulhund – ja oder nein? Einen Leserbrief untersuchen, die Bausteine eines Arguments erkennen, einen Einwand entkräften und selbst Stellung nehmen.",
-          tags: ["Bausteine eines Arguments", "Einwand entkräften", "✨ Schreibtrainer"] }
+          tags: ["Bausteine eines Arguments", "Einwand entkräften", "✨ Schreibtrainer"] },
+        // Zusatz zu „Der Leserbrief – Schritt für Schritt“ ohne eigene Seite: zwei Musterlösungen (Dafür / Dagegen) in
+        // arg_08.html, Station 3 – die Lehrkraft schaltet sie je Klasse einzeln frei (Wunsch vom 14.10.2026)
+        { id: "arg-08-loesung", kz: "A9", extra: "arg-08", teil: "loesungen", titel: "Musterlösungen zum Leserbrief (Dafür / Dagegen)",
+          text: "Zwei fertige Leserbriefe zum Schulhof am Nachmittag – einer dafür, einer dagegen." }
       ]
     },
     {

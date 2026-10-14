@@ -271,17 +271,24 @@
           h += '<div class="nt7f-zeile">' + nr(m, i + 1) + "<span>" + esc(m.titel) + "</span>" +
             '<button class="nt7f-schalter' + (o ? " offen" : "") + '" type="button" data-modul="' + esc(m.id) + '" data-offen="' + (o ? "0" : "1") + '" aria-pressed="' + o + '">' + (o ? "✓ offen" : "🔒 gesperrt") + "</button>" +
             '<span class="nt7f-aktion">' + heftKnopf(m) + '<a href="' + esc(ORDNER) + esc(m.href) + '?vorschau=1" target="_blank" rel="noopener">Vorschau ↗</a></span></div>' + heftForm(m, t);
-          // Extra-Module dieses Moduls: eingerückt, jedes einzeln schaltbar
-          var extras = t.module.filter(function (x) { return x.extra === m.id && x.href; });
-          if (extras.length) {
+          // Extra-Module dieses Moduls: eingerückt, jedes einzeln schaltbar. Ein Zusatz ohne eigene Seite (teil, z. B. die
+          // Musterlösungen in Deutsch 7 arg_08.html) gibt nur einen Teil der Modulseite frei – ohne „Ins Heft“, die
+          // Vorschau führt zur Modulseite.
+          var extras = t.module.filter(function (x) { return x.extra === m.id && (x.href || x.teil); });
+          var seiten = extras.filter(function (x) { return x.href; }).length;
+          if (seiten) {
             h += '<div class="nt7f-extra-kopf"><b>＋ Extra zu „' + esc(m.titel) + "“ – einzeln freischalten</b>" +
               (m.extraFrage ? "Die Kinder sehen sie unter diesem Modul: „" + esc(m.extraFrage) + "“ Sie zählen nicht zum Lernfortschritt." : "") + "</div>";
+          } else if (extras.length) {
+            h += '<div class="nt7f-extra-kopf"><b>＋ Zusatz zu „' + esc(m.titel) + "“ – einzeln freischalten</b>" +
+              "Die Kinder sehen ihn auf der Seite dieses Moduls, sobald er offen ist.</div>";
           }
           extras.forEach(function (x) {
             var xo = N.offen(x, t, STAND);
             h += '<div class="nt7f-zeile extra">' + nr(x, "↳") + "<span>" + esc(x.titel) + "</span>" +
               '<button class="nt7f-schalter' + (xo ? " offen" : "") + '" type="button" data-modul="' + esc(x.id) + '" data-offen="' + (xo ? "0" : "1") + '" aria-pressed="' + xo + '">' + (xo ? "✓ offen" : "🔒 gesperrt") + "</button>" +
-              '<span class="nt7f-aktion">' + heftKnopf(x) + '<a href="' + esc(ORDNER) + esc(x.href) + '?vorschau=1" target="_blank" rel="noopener">Vorschau ↗</a></span></div>' + heftForm(x, t);
+              (x.href ? '<span class="nt7f-aktion">' + heftKnopf(x) + '<a href="' + esc(ORDNER) + esc(x.href) + '?vorschau=1" target="_blank" rel="noopener">Vorschau ↗</a></span></div>' + heftForm(x, t)
+                : '<span class="nt7f-aktion"><a href="' + esc(ORDNER) + esc(m.href) + "?vorschau=1#" + esc(x.teil) + '" target="_blank" rel="noopener">Vorschau ↗</a></span></div>');
           });
         });
         h += probenZeilen(t) + "</div>";

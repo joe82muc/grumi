@@ -10,6 +10,7 @@
  *   korrigieren kurzer eigener Text, den die KI korrigiert: Rechtschreibung ausgebessert, Falsches durchgestrichen und
  *               daneben die Überarbeitung, Bausteine abgehakt (Server /api/d7/schreiben/korrektur)
  *   regelheft   Eintrag zum Abschreiben ins Regelheft;  zusammen  Texte mehrerer Schreibaufgaben am Stück
+ *   loesungen   Musterlösungen zum Aufklappen, die die Lehrkraft je Klasse freischaltet (Zusatz in themen.js)
  *   hilfen      Hilfen in Stufen (bei jedem Baustein möglich: hilfen: ["Tipp", "genauer", "Schritt für Schritt"])
  *   hoertext, duell, tischduell – siehe d7-spiel.js
  *
@@ -480,6 +481,36 @@
     };
     zeichne();
     document.addEventListener("input", zeichne); document.addEventListener("d7-text", zeichne);
+  };
+
+  /* ---------- Musterlösungen, die die Lehrkraft freischaltet ---------- */
+  // teil: { id, freigabe: "arg-08-loesung", loesungen: [{ knopf: "👍 Dafür", kopf: "Musterlösung · Dafür", html: "<p>…</p>" }] }
+  // freigabe = Kennung eines Zusatzes in themen.js (extra + teil, ohne eigene Seite): Offen ist der Kasten erst, wenn die
+  // Lehrkraft ihn für die Klasse einzeln freischaltet (Verwaltung → Deutsch); in der Vorschau und mit dem Lehrercode
+  // immer. Jeder Knopf klappt eine Lösung auf. Lernsteuerung, kein Geheimnisschutz – die Texte stehen in der Seite.
+  bauer.loesungen = (box, teil, card) => {
+    if (teil.id) card.id = teil.id;
+    const D7 = KF ? window.GRUMI_KURS : window["D" + DNR], reg = D7.modulVon(teil.freigabe), liste = teil.loesungen || [];
+    const a = M.anmeldung();
+    let stand = "";
+    const zeige = offen => {
+      if (stand === (offen ? "auf" : "zu")) return;
+      stand = offen ? "auf" : "zu";
+      box.innerHTML = offen
+        ? `<div class="ml-knoepfe">${liste.map((l, i) => `<button class="btn small ghost" type="button" data-ml="${i}" aria-expanded="false">${esc(l.knopf)}</button>`).join("")}</div>` +
+          liste.map((l, i) => `<div class="beispiel ml-brief" data-brief="${i}" hidden><b class="kopf">${esc(l.kopf || "Musterlösung")}</b>${l.html}</div>`).join("")
+        : `<p class="ml-zu">🔒 ${a && a.code ? "Die Musterlösungen schaltet deine Lehrkraft frei – meist, wenn alle ihren Brief fertig haben." : "Die Musterlösungen schaltet deine Lehrkraft frei. Melde dich mit deinem Code an, dann siehst du sie, sobald sie offen sind."}</p>`;
+    };
+    box.addEventListener("click", e => {
+      const b = e.target.closest("[data-ml]"); if (!b) return;
+      const war = b.getAttribute("aria-expanded") === "true";
+      $$("[data-ml]", box).forEach(x => { x.setAttribute("aria-expanded", "false"); x.classList.remove("an"); });
+      $$("[data-brief]", box).forEach(x => { x.hidden = true; });
+      if (!war) { b.setAttribute("aria-expanded", "true"); b.classList.add("an"); $(`[data-brief="${b.dataset.ml}"]`, box).hidden = false; }
+    });
+    if (!reg) { zeige(true); return; }
+    zeige(D7.offen(reg.modul, reg.thema, null));   // ohne Anmeldung: nur in der Vorschau offen
+    if (a && a.code && D7.freigabe) D7.freigabe(a, s => zeige(D7.offen(reg.modul, reg.thema, s)), () => {});
   };
 
   window.D7Kit = { seite, bauer, teile, hilfen, textFuer, zug: () => ZUG, modul: () => MODUL_ID, server: SERVER, woerter };

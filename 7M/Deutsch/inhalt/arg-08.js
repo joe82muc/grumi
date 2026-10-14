@@ -103,7 +103,27 @@
           starter: ["Deshalb bitte ich den Stadtrat: …", "Ich hoffe, dass …", "Mit freundlichen Grüßen", "Eine Schülerin der 7. Klasse", "Ein Schüler der 7. Klasse"],
           muster: "Deshalb bitte ich den Stadtrat: Öffnen Sie den Schulhof am Nachmittag!\n\nMit freundlichen Grüßen\nEine Schülerin der 7. Klasse" },
         { art: "zusammen", tag: "Dein Ergebnis", titel: "Dein Leserbrief am Stück", lead: "Hier setzt die Seite deine Schritte zusammen. Lies deinen Brief einmal halblaut: Klingt er <button class=\"term\" data-t=\"sachlich\">sachlich</button> und höflich? Würde er dich <button class=\"term\" data-t=\"ueberzeugen\">überzeugen</button>?",
-          aus: ["anrede", "arg1", "arg2", "schluss"], leer: "Hier erscheint dein Leserbrief, sobald du oben geschrieben hast." }
+          aus: ["anrede", "arg1", "arg2", "schluss"], leer: "Hier erscheint dein Leserbrief, sobald du oben geschrieben hast." },
+        // Zwei Musterlösungen (Text der Lehrkraft, 14.10.2026) – erst sichtbar, wenn die Lehrkraft „arg-08-loesung“ freischaltet
+        { art: "loesungen", id: "loesungen", tag: "Musterlösungen", titel: "Zwei Musterlösungen: Dafür und Dagegen", freigabe: "arg-08-loesung",
+          lead: "Tippe auf eine Lösung und vergleiche sie mit deinem Brief: Hat jedes Argument Behauptung, Begründung und Beispiel?",
+          loesungen: [
+            { knopf: "👍 Musterlösung: Dafür", kopf: "Musterlösung · Dafür",
+              html: "<p><strong>Sehr geehrte Redaktion,</strong></p>" +
+                "<p>in Ihrem Artikel „Schulhof am Nachmittag offen?“ geht es darum, ob der Schulhof nachmittags geöffnet werden soll.</p>" +
+                "<p>Ich bin <strong>dafür</strong>. Dafür habe ich zwei Gründe.</p>" +
+                "<p><strong>Zum einen</strong> haben Kinder mehr Platz zum Spielen. Das ist wichtig, weil sie sich bewegen sollen. Zum Beispiel können sie auf dem Schulhof Basketball spielen.</p>" +
+                "<p><strong>Zum anderen</strong> können Kinder dort sicher spielen. Denn auf dem Schulhof fahren keine Autos. Zum Beispiel können sie dort mit ihren Freunden Tischtennis spielen, ohne auf Autos achten zu müssen.</p>" +
+                "<p><strong>Deshalb</strong> finde ich, dass der Schulhof geöffnet werden sollte.</p>" +
+                "<p>Mit freundlichen Grüßen<br>JM</p>" },
+            { knopf: "👎 Musterlösung: Dagegen", kopf: "Musterlösung · Dagegen",
+              html: "<p><strong>Sehr geehrte Redaktion,</strong></p>" +
+                "<p>in Ihrem Artikel „Schulhof am Nachmittag offen?“ geht es darum, ob der Schulhof nachmittags geöffnet werden soll.</p>" +
+                "<p>Ich bin <strong>dagegen</strong>. Dafür habe ich zwei Gründe.</p>" +
+                "<p><strong>Zum einen</strong> könnte es auf dem Schulhof sehr laut werden. Das würde die Nachbarn stören, weil sie sich nicht mehr ausruhen können. Zum Beispiel könnten Jugendliche bis zum Abend laut Basketball spielen.</p>" +
+                "<p><strong>Zum anderen</strong> könnte viel Müll entstehen. Denn manche Jugendliche werfen ihren Abfall auf den Boden. Zum Beispiel könnten am Montag leere Flaschen und Verpackungen auf dem Schulhof liegen.</p>" +
+                "<p><strong>Deshalb</strong> finde ich, dass der Schulhof geschlossen bleiben sollte.</p>" +
+                "<p>Mit freundlichen Grüßen<br>JM</p>" }] }
       ] },
       { kurz: "Sichern", ober: "Kurz sichern", titel: "Das nimmst du mit", teile: [
         { art: "luecke", id: "merk", tag: "Lückentext", absaetze: [
