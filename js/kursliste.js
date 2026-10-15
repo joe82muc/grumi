@@ -147,7 +147,8 @@
       if (VORSCHAU) return true;
       if (stand && stand.alles) return true;      // Lehrercode
       var s = stand || {}, m = (s.module || {})[modul.id], t = (s.themen || {})[thema.id];
-      if (modul.extra) return m === true;
+      // Extra-Module sind zuerst gesperrt – außer sie tragen selbst offen: true (NT 9: Training für die Probe)
+      if (modul.extra && !modul.offen) return m === true;
       if (m === true || m === false) return m;
       if (t === true || t === false) return t;
       return Boolean(modul.offen);

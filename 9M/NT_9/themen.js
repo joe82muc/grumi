@@ -37,7 +37,10 @@ GrumiKursliste.bauen({
         { id: "m6", kz: "O6", titel: "Erdöl – Rohstoff mit Zukunft?", href: "App12_Organische_Rohstoffe/modul-6.html", art: "Modul", offen: true, ls: "m07",
           text: "Verwendung, Nachhaltigkeit und wahrer Preis." },
         { id: "m7", kz: "O7", titel: "Ohne Erdöl – geht das?", href: "App12_Organische_Rohstoffe/modul-7.html", art: "Modul", offen: true, ls: "m08",
-          text: "Ersatzstoffe, fünf Stimmen und Diskussionsrunde." }
+          text: "Ersatzstoffe, fünf Stimmen und Diskussionsrunde." },
+        // Zusatzmodul (extra): gehört nicht zum Probeninhalt, ist aber wie alles in NT 9 von sich aus offen (offen: true)
+        { id: "training", kz: "O8", extra: "m7", titel: "Training für die Probe", href: "App12_Organische_Rohstoffe/training-probe.html", art: "Fragenkatalog", offen: true, ls: "nt9-training-rohstoffe-m",
+          text: "Alle Fragen der Probe und weitere wichtige Fragen aus den Modulen 1 bis 7 – deine Antworten werden gespeichert." }
       ]
     },
     {

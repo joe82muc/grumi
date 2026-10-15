@@ -19,7 +19,9 @@
   const app = document.getElementById("app");
   const ART = { Wortschatz: "🔤", Grammatik: "🧩", Sprechen: "🗣️", Schreiben: "✍️", Mediation: "🔁", Bilder: "🖼️", Modul: "📘", Gruppenarbeit: "👥", Übung: "✏️",
     // Skill-Module (Englisch 9R)
-    Reading: "📖", Listening: "🎧", Speaking: "🗣️", Writing: "✍️", "Land und Leute": "🌏", "Quali-Fit": "🎯", Wiederholung: "🔄", Arbeitsblatt: "🖨️", Duell: "⚡" };
+    Reading: "📖", Listening: "🎧", Speaking: "🗣️", Writing: "✍️", "Land und Leute": "🌏", "Quali-Fit": "🎯", Wiederholung: "🔄", Arbeitsblatt: "🖨️", Duell: "⚡",
+    // Zusatzmodule (NT 9)
+    Fragenkatalog: "📋" };
   let STAND = null, HINWEIS = "", PROBEN = null, SERVER = null;
   // Kurs, dessen Seiten von sich aus offen sind (NT 9): Auch ohne Code ist alles zu sehen, freigeschaltete Proben ebenso
   const VON_SICH_OFFEN = THEMEN.some(t => t.module.some(m => m.href && m.offen));
@@ -72,7 +74,8 @@
   // Stand eines Bereichs: nur Seiten, die für die Klasse offen sind
   function themaStand(thema) {
     const offen = thema.module.filter(m => m.href && L.offen(m, thema, STAND));
-    const mitStand = offen.filter(m => m.ls), ps = mitStand.map(fortschritt);
+    // Zusatzmodule (extra, z. B. Training für die Probe) zählen nicht zum Lernstand des Bereichs
+    const mitStand = offen.filter(m => m.ls && !m.extra), ps = mitStand.map(fortschritt);
     const pct = mitStand.length ? Math.round(ps.reduce((s, p) => s + (p ? p.pct : 0), 0) / mitStand.length) : 0;
     return { offen: offen.length, mitStand: mitStand.length, fertig: ps.filter(p => p && p.pct >= 100).length, pct };
   }
