@@ -83,7 +83,7 @@
       const tests = data.tests.filter(passt);
       if (!tests.length) { $("exam-list").innerHTML = ""; status(nr ? "Diese Probe ist noch nicht freigeschaltet oder noch in Vorbereitung." : "Im Moment gibt es hier keine Probe."); return; }
       $("exam-list").innerHTML = tests.map(t => `<article class="exam-tile"><div><div class="eyebrow">${esc(t.scope)}</div><h2>${esc(t.title)}</h2>
-        <p>${t.itemCount} Aufgaben · ${t.maxPoints} Punkte · etwa ${t.minutes} Minuten · ${klasse(t)}${t.variante === "B" ? " · Nachschreiber" : ""}</p></div>
+        <p>${t.itemCount} Aufgaben · ${t.maxPoints} Punkte · etwa ${t.minutes} Minuten · ${klasse(t)}${t.variante === "B" && !t.eigen ? " · Nachschreiber" : ""}</p></div>
         <div><span class="pill ${t.unlocked ? "open" : ""}">${t.unlocked ? "Freigeschaltet" : "Gesperrt"}</span><button class="btn" data-test="${esc(t.id)}" data-title="${esc(t.title)}" ${t.unlocked ? "" : "disabled"}>Auswählen</button></div></article>`).join("");
       status("Wähle eine freigeschaltete Probe.");
       const offen = tests.filter(t => t.unlocked);
@@ -267,7 +267,7 @@
       exam = await request("start", {testId: selected.id, ...student, begonnenAm: merk.lies("grumi-probe-beginn~" + selected.id + "~" + student.code) || undefined});
       $("wahl").hidden = true;
       $("questions-section").hidden = false;
-      $("exam-kicker").textContent = ((exam.test.zug === "M" ? "M" : "R") + DNR) + (exam.test.variante === "B" ? " · Nachschreiber" : "") + (exam.test.scope ? " · " + exam.test.scope : "");
+      $("exam-kicker").textContent = ((exam.test.zug === "M" ? "M" : "R") + DNR) + (exam.test.variante === "B" && !exam.test.eigen ? " · Nachschreiber" : "") + (exam.test.scope ? " · " + exam.test.scope : "");
       $("exam-title").textContent = exam.test.title;
       $("exam-points").textContent = exam.test.maxPoints + " Punkte · etwa " + exam.test.minutes + " Minuten";
       if (exam.test.hinweis) $("exam-hinweis").textContent = exam.test.hinweis;

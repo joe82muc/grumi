@@ -111,26 +111,32 @@
       }).join("")}</div></div>`;
   }
 
-  // Proben eines Themenbereichs für den Zug des Kindes (ohne Anmeldung: neutral, ohne Zug)
+  // Proben eines Themenbereichs für den Zug des Kindes (ohne Anmeldung: neutral, ohne Zug). Eine eigenständige Fassung
+  // (eigen, z. B. die Nachholprobe der M7, die alle schreiben) bekommt eine eigene Kachel – auch wenn das Kind die Probe
+  // mit derselben Nummer schon geschrieben hat.
   function probenKacheln(thema, a) {
     const zug = D7.zug(a);
     return (thema.proben || []).map(nr => {
-      const da = PROBEN ? PROBEN.filter(t => t.nr === nr && (!zug || t.zug === zug)) : null;
+      const alle = PROBEN ? PROBEN.filter(t => t.nr === nr && (!zug || t.zug === zug)) : null;
+      const eigene = (alle || []).filter(t => t.eigen), da = alle && alle.filter(t => !t.eigen);
+      if (alle && !alle.length) return `<p class="probe-plan">📝 Probe ${nr} zu diesem Bereich ist in Vorbereitung.</p>`;
       const name = da && da.length ? da[0].title.replace(/ – (Variante B|Nachholprobe)$/, "").replace(/ \((R|M)\d\)/, "") : "Probe " + nr;
-      if (da && !da.length) return `<p class="probe-plan">📝 Probe ${nr} zu diesem Bereich ist in Vorbereitung.</p>`;
-      const meine = (MEINE || []).find(m => m.nr === nr);
-      if (meine && meine.status === "korrigiert") {
-        return `<a class="probe korrigiert${meine.neu ? " neu" : ""}" data-probe="${nr}" href="korrektur.html?test=${encodeURIComponent(meine.testId)}"><span>📄</span><div><strong>Deutsch – Probe ${nr} korrigiert</strong>
-          <span class="probe-marke">${meine.neu ? "NEUE KORREKTUR" : "korrigiert zurück am " + datum(meine.freigegebenAm)}</span><br>${esc(meine.title)} · Du kannst die Korrektur ansehen und ausdrucken${meine.sichtbarBis ? " – zu sehen bis " + datum(meine.sichtbarBis) : ""}.</div><span class="mod-go">Korrektur öffnen →</span></a>`;
-      }
-      if (meine) {
-        return `<div class="probe abgegeben" data-probe="${nr}"><span>✅</span><div><strong>${esc(meine.title)}: abgegeben am ${datum(meine.abgegebenAm)}</strong><br>Deine Lehrkraft prüft die Korrektur. Danach findest du sie hier.</div></div>`;
-      }
-      const offen = (da || []).filter(t => t.unlocked);
-      const ziel = offen.length === 1 ? "probe.html?test=" + encodeURIComponent(offen[0].id) + "&zug=" + offen[0].zug : "probe.html?nr=" + nr + (zug ? "&zug=" + zug : "");
-      return `<a class="probe${offen.length ? " offen" : ""}" data-probe="${nr}" href="${ziel}"><span>📝</span><div><strong>${offen.length ? "Jetzt offen: " + esc(offen.map(t => t.title).join(" · ")) : esc(name)}</strong><br>${
-        offen.length ? "Deine Lehrkraft hat die Probe freigeschaltet." : "Die Lehrkraft schaltet die Probe frei. Dann kannst du sie hier schreiben."}</div><span class="mod-go">Öffnen →</span></a>`;
+      return (da && !da.length ? "" : probeKachel(nr, da, (MEINE || []).find(m => m.nr === nr && !eigene.some(t => t.id === m.testId)), zug, name)) +
+        eigene.map(t => probeKachel(nr, [t], (MEINE || []).find(m => m.testId === t.id), zug, t.title)).join("");
     }).join("");
+  }
+  function probeKachel(nr, da, meine, zug, name) {
+    if (meine && meine.status === "korrigiert") {
+      return `<a class="probe korrigiert${meine.neu ? " neu" : ""}" data-probe="${nr}" href="korrektur.html?test=${encodeURIComponent(meine.testId)}"><span>📄</span><div><strong>Deutsch – Probe ${nr} korrigiert</strong>
+        <span class="probe-marke">${meine.neu ? "NEUE KORREKTUR" : "korrigiert zurück am " + datum(meine.freigegebenAm)}</span><br>${esc(meine.title)} · Du kannst die Korrektur ansehen und ausdrucken${meine.sichtbarBis ? " – zu sehen bis " + datum(meine.sichtbarBis) : ""}.</div><span class="mod-go">Korrektur öffnen →</span></a>`;
+    }
+    if (meine) {
+      return `<div class="probe abgegeben" data-probe="${nr}"><span>✅</span><div><strong>${esc(meine.title)}: abgegeben am ${datum(meine.abgegebenAm)}</strong><br>Deine Lehrkraft prüft die Korrektur. Danach findest du sie hier.</div></div>`;
+    }
+    const offen = (da || []).filter(t => t.unlocked);
+    const ziel = offen.length === 1 ? "probe.html?test=" + encodeURIComponent(offen[0].id) + "&zug=" + offen[0].zug : "probe.html?nr=" + nr + (zug ? "&zug=" + zug : "");
+    return `<a class="probe${offen.length ? " offen" : ""}" data-probe="${nr}" href="${ziel}"><span>📝</span><div><strong>${offen.length ? "Jetzt offen: " + esc(offen.map(t => t.title).join(" · ")) : esc(name)}</strong><br>${
+      offen.length ? "Deine Lehrkraft hat die Probe freigeschaltet." : "Die Lehrkraft schaltet die Probe frei. Dann kannst du sie hier schreiben."}</div><span class="mod-go">Öffnen →</span></a>`;
   }
   // Oben auf der Seite: neue Korrekturen, damit sie niemand übersieht
   function neueKorrekturen() {
