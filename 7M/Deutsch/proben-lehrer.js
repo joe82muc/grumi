@@ -39,7 +39,7 @@
   const nacheinander = fn => (kette = kette.then(fn, fn));
   // Testregeln (17.10.2026): Probe beendet (2. Kopierversuch, mehr als 1 Minute weg) = Note 6 – die Lehrkraft kann sie aufheben
   const AUTOMATISCH = {ruhe: "5 Minuten nichts eingegeben", gesperrt: "länger als 1 Minute weg, nachdem 2 Minuten nichts mehr eingegeben wurde (Bildschirm gesperrt?)", server: "Seite war nicht mehr offen"};
-  const abbruchGrund = ab => ab.grund === "kopieren" ? ab.kopierversuche + ". Kopierversuch" : ab.grund === "weg" ? (ab.sekunden ? ab.sekunden + " Sekunden" : "länger als 1 Minute") + " am Stück weg" : ab.verlassen + "× verlassen";
+  const abbruchGrund = ab => ab.grund === "kopieren" ? ab.kopierversuche + ". Kopierversuch" : ab.grund === "weg" ? "insgesamt " + (ab.sekunden ? ab.sekunden + " Sekunden" : "länger als 1 Minute") + " weg" : ab.verlassen + "× verlassen";
   function abbruchBox(r) {
     const ab = r.abbruch;
     return (r.automatisch && AUTOMATISCH[r.automatisch] ? `<p class="notice">⏱ Automatisch abgegeben: ${esc(AUTOMATISCH[r.automatisch])}</p>` : "") +

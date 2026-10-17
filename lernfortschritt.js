@@ -167,6 +167,7 @@
     ".lf-lrs-knopf.an{background:#6d28d9;border-color:#6d28d9;color:#fff}" +
     ".lf-lrs-b{display:inline-block;margin-left:.35rem;padding:0 .4rem;border-radius:99px;background:#ede9fe;color:#5b21b6;font-size:.7rem;font-weight:900;vertical-align:middle}" +
     ".lf-weg{color:#b45309;font-weight:800}" +
+    ".lf-ende{color:#b91c1c;font-weight:800}.lf-ende.auf{color:#64748b}" +
     ".lf-namen{width:100%;min-height:120px;padding:.6rem .7rem;border:1.5px solid var(--line);border-radius:10px;font:inherit;font-size:.95rem;resize:vertical}" +
     "#lf-druck{display:none}" +
     "@media print{body.lf-drucken>*:not(#lf-druck){display:none!important}body.lf-drucken{background:#fff;padding:0}" +
@@ -514,6 +515,23 @@
     return m ? m[3] + "." + m[2] + "." + (mitJahr ? m[1] : "") : "";
   }
   function notenFarbe(n) { return n <= 2 ? "g" : n <= 4 ? "m" : "s"; }
+  /* Testregeln (17.10.2026): Vermerk zu einer Abgabe – Probe beendet (insgesamt mehr als 1 Minute weg, 2. Kopierversuch, beim
+     Vokabeltest 5× verlassen) = Note 6, solange die Lehrkraft sie nicht aufhebt; automatisch abgegeben ohne Note 6 */
+  var AUTO_TEXT = { ruhe: "automatisch abgegeben (5 Minuten nichts eingegeben)", gesperrt: "automatisch abgegeben (Bildschirm gesperrt)",
+    server: "automatisch abgegeben (Seite war nicht mehr offen)" };
+  function abbruchKurz(a) {
+    return a.grund === "kopieren" ? (a.kopierversuche || 2) + ". Kopierversuch" : a.grund === "weg" ? "insgesamt " + (a.sekunden ? a.sekunden + " s" : "über 1 Minute") + " weg" : a.verlassen + "× verlassen";
+  }
+  function vermerkText(n) {
+    if (n.abbruch) return (n.abbruch.aufgehoben ? "Note 6 aufgehoben – Probe beendet: " : "Probe beendet (Note 6): ") + abbruchKurz(n.abbruch);
+    return n.automatisch && AUTO_TEXT[n.automatisch] ? AUTO_TEXT[n.automatisch] : "";
+  }
+  function vermerk(n) {
+    if (n.abbruch) return '<span class="lf-np lf-ende' + (n.abbruch.aufgehoben ? " auf" : "") + '" title="' + esc((n.abbruch.text || "") + (n.abbruch.aufgehoben ? " – Die Note 6 ist aufgehoben." : "")) + '">⛔ ' +
+      esc(n.abbruch.aufgehoben ? "Note 6 aufgehoben" : "Probe beendet") + " · " + esc(abbruchKurz(n.abbruch)) + "</span>";
+    return n.automatisch && AUTO_TEXT[n.automatisch] ? '<span class="lf-np lf-weg">⏱ ' + esc(AUTO_TEXT[n.automatisch]) + "</span>" : "";
+  }
+  function verlassenText(n) { return n.verlassen + "× verlassen" + (n.wegSekunden ? ", " + n.wegSekunden + " s" : ""); }
   function schnitt(noten) {
     var z = noten.filter(function (x) { return typeof x === "number"; });
     return z.length ? (z.reduce(function (a, b) { return a + b; }, 0) / z.length).toFixed(2).replace(".", ",") : "";
@@ -549,10 +567,11 @@
           if (!n) { h += '<td><span class="lf-leer">–</span></td>'; return; }
           noten.push(n.note);
           h += '<td class="lf-klick" data-abgabe="' + esc(n.modul + "|" + n.id) + '" title="' + esc(n.punkte + " von " + n.max + " Punkten (" + n.prozent + " %)" + (n.lrs ? " · mit Notenschutz LRS gewertet" : "") +
-              (n.verlassen ? " · " + n.verlassen + "× die Probe verlassen (anderer Tab oder andere App)" : "") + (n.nachpruefen ? " · KI-Bewertung noch prüfen" : "") + " · Klicken zum Bearbeiten oder Löschen") + '">' +
+              (n.verlassen ? " · " + n.verlassen + "× die Probe verlassen (anderer Tab oder andere App)" + (n.wegSekunden ? ", insgesamt " + n.wegSekunden + " Sekunden" : "") : "") +
+              (vermerkText(n) ? " · " + vermerkText(n) : "") + (n.nachpruefen ? " · KI-Bewertung noch prüfen" : "") + " · Klicken zum Bearbeiten oder Löschen") + '">' +
             '<span class="lf-note ' + notenFarbe(n.note) + '">' + esc(n.note) + "</span>" + (n.nachpruefen ? ' <span title="KI-Bewertung noch prüfen">⚠️</span>' : "") +
             (n.lrs ? '<span class="lf-lrs-b">LRS</span>' : "") +
-            '<span class="lf-np">' + esc(n.punkte + "/" + n.max + " · " + datumText(n.datum)) + (n.verlassen ? ' · <span class="lf-weg">' + n.verlassen + "× verlassen</span>" : "") + "</span>" +
+            '<span class="lf-np">' + esc(n.punkte + "/" + n.max + " · " + datumText(n.datum)) + (n.verlassen ? ' · <span class="lf-weg">' + esc(verlassenText(n)) + "</span>" : "") + "</span>" + vermerk(n) +
             // 7 Tage nach der Rückgabe verschwindet die Probe beim Kind von selbst (vorbei) – die Note bleibt hier stehen
             (n.zurueck ? '<span class="lf-np lf-zur" title="Zurückgegeben am ' + esc(datumText(n.zurueck, true)) + (n.geoeffnet ? ", vom Kind geöffnet am " + esc(datumText(n.geoeffnet, true)) : ", noch nicht geöffnet") +
               (n.vorbei ? " – beim Kind nicht mehr zu sehen (7 Tage nach der Rückgabe)" : n.sichtbarBis ? " – beim Kind zu sehen bis " + esc(datumText(n.sichtbarBis)) : "") + '">📤 ' +
@@ -577,7 +596,8 @@
       });
       h += "<td></td></tr></tfoot></table></div>" +
         '<p class="sub" style="margin:.5rem 0 0">⚠️ = Die KI war bei einer freien Antwort unsicher oder nicht erreichbar. Bitte in der Lehrerseite der Probe nachsehen. ' +
-        "<b>LRS</b> = mit Notenschutz gewertet (Rechtschreibung zählt nicht). <b>× verlassen</b> = So oft hat das Kind während der Probe in einen anderen Tab oder eine andere App gewechselt. " +
+        "<b>LRS</b> = mit Notenschutz gewertet (Rechtschreibung zählt nicht). <b>× verlassen</b> = So oft hat das Kind während der Probe in einen anderen Tab oder eine andere App gewechselt (mit Sekunden insgesamt; Wechsel unter 5 Sekunden zählen nicht). " +
+        "<b>⛔ Probe beendet</b> = Testregeln: insgesamt mehr als 1 Minute weg oder 2. Kopierversuch (Vokabeltest auch 5× verlassen) – Note 6; auf die Note klicken, um sie aufzuheben. <b>⏱</b> = automatisch abgegeben, ohne Note 6. " +
         "<b>📤 zurückgegeben</b> = Das Kind sieht die korrigierte Probe auf seiner Startseite unter „Zurückbekommen“ und kann sie für die Eltern drucken; „geöffnet“ heißt, es hat sie angesehen. <b>7 Tage nach der Rückgabe verschwindet die Probe beim Kind von selbst</b> („beim Kind weg“) – Note und Abgabe bleiben hier; mit „Noch einmal zurückgeben“ sieht das Kind sie wieder 7 Tage. Zurückgeben: auf eine Note klicken oder unten „Alle zurückgeben“. Deutsch-Proben gibst du auf ihrer Korrekturseite frei.</p>";
     }
     teil.innerHTML = h;
@@ -695,7 +715,8 @@
     var geaendert = Boolean(schonGeaendert), name = nameVon(n.code), link = PROBEN && PROBEN.link ? PROBEN.link(n.modul, n.testId) : "";
     function stand(note, punkte, max, prozent) {
       return '<span class="lf-note ' + notenFarbe(note) + '">' + esc(note) + "</span> <b>" + esc(punkte + " von " + max + " Punkten") + "</b> (" + esc(prozent) + " %)" +
-        (n.lrs ? ' <span class="lf-lrs-b" title="Notenschutz LRS">LRS</span>' : "") + (n.verlassen ? ' · <span class="lf-weg">' + n.verlassen + "× verlassen</span>" : "");
+        (n.lrs ? ' <span class="lf-lrs-b" title="Notenschutz LRS">LRS</span>' : "") + (n.verlassen ? ' · <span class="lf-weg">' + esc(verlassenText(n)) + "</span>" : "") +
+        (vermerkText(n) ? '<br><span class="' + (n.abbruch ? "lf-ende" : "lf-weg") + '">' + (n.abbruch ? "⛔ " : "⏱ ") + esc(vermerkText(n)) + "</span>" : "");
     }
     dlg.innerHTML = '<div class="lf-dlg-kopf"><div><h3>' + esc(n.titel) + '</h3><p class="sub" style="margin:0">' + (name ? esc(name) + " · " : "") + "Code " + esc(n.code) +
       " · abgegeben am " + esc(datumText(n.datum, true)) + '</p></div><button type="button" class="btn btn-ghost btn-sm" data-zu>Schließen</button></div>' +
@@ -752,7 +773,9 @@
         '<label class="lf-mitl"><input type="checkbox" data-mitloesung checked> mit Lösungen</label>' +
         '<button type="button" class="btn btn-ghost btn-sm" data-druck>🖨️ Für die Eltern drucken</button>' +
         (n.zurueck ? (n.vorbei ? '<button type="button" class="btn btn-sm" data-zurueckgeben>📤 Noch einmal zurückgeben (7 Tage)</button>' : "") + '<button type="button" class="btn btn-ghost btn-sm" data-zuruecknehmen>Rückgabe zurücknehmen</button>' : '<button type="button" class="btn btn-sm" data-zurueckgeben>📤 An das Kind zurückgeben</button>') +
-        (anzahlKlasse > 1 ? '<button type="button" class="btn btn-ghost btn-sm" data-druck-alle>🖨️ Ganze Klasse drucken (' + anzahlKlasse + ")</button>" : "");
+        (anzahlKlasse > 1 ? '<button type="button" class="btn btn-ghost btn-sm" data-druck-alle>🖨️ Ganze Klasse drucken (' + anzahlKlasse + ")</button>" : "") +
+        (n.abbruch ? '<button type="button" class="btn btn-ghost btn-sm" data-abbruch title="' + (n.abbruch.aufgehoben ? "Wieder Note 6 geben" : "Note 6 aufheben: Die Note richtet sich dann nach den Punkten") + '">' +
+          (n.abbruch.aufgehoben ? "⛔ Note 6 wieder setzen" : "⛔ Note 6 aufheben") + "</button>" : "");
       var speichern = fuss.querySelector("[data-speichern]");
       fuss.querySelector("[data-loeschen]").addEventListener("click", loeschen);
       if (n.zurueck) meldung("📤 Zurückgegeben am " + datumText(n.zurueck, true) + (n.geoeffnet ? " – vom Kind geöffnet am " + datumText(n.geoeffnet, true) + "." : n.vorbei ? " – das Kind hat die Korrektur nicht geöffnet." : " – das Kind hat die Korrektur noch nicht geöffnet.") +
@@ -800,6 +823,20 @@
         }).catch(function (e) { w.document.body.innerHTML = '<p style="font-family:Arial;padding:20px">Die Abgaben konnten nicht geladen werden: ' + esc(e.message) + "</p>"; });
       }
       fuss.querySelector("[data-druck]").addEventListener("click", function () { drucken(true); });
+      // Testregeln: Note 6 einer beendeten Probe aufheben oder wieder setzen (die Lehrkraft entscheidet)
+      var abb = fuss.querySelector("[data-abbruch]");
+      if (abb) abb.addEventListener("click", function () {
+        var aufheben = !n.abbruch.aufgehoben, wer = name || "Code " + n.code;
+        if (!global.confirm(aufheben ? "Note 6 für " + wer + " aufheben?\n\nDie Probe bleibt als „beendet“ vermerkt, die Note richtet sich dann nach den Punkten."
+          : "Für " + wer + " wieder Note 6 geben (Probe nach den Testregeln beendet)?")) return;
+        abb.disabled = true;
+        apiPost(n.modul === "vokabeltest" ? "/api/vokabeltest/abbruch" : "/api/probe-regel/aufheben", { modul: n.modul, submissionId: n.id, aufheben: aufheben }).then(function (r) {
+          n.abbruch.aufgehoben = aufheben; n.note = r.grade;
+          if (r.score !== undefined) { n.punkte = r.score; n.prozent = r.percent; }
+          abgabeDialog(n, teil, true);
+          hinweis(wer + ": " + (aufheben ? "Note 6 aufgehoben – neue Note " + r.grade + "." : "wieder Note 6."), "ok");
+        }).catch(function (e) { abb.disabled = false; meldung("Das hat nicht geklappt: " + e.message, "bad"); });
+      });
       if (anzahlKlasse > 1) fuss.querySelector("[data-druck-alle]").addEventListener("click", function () { drucken(false); });
       felder.forEach(function (f) {
         f.addEventListener("input", function () {
@@ -847,7 +884,8 @@
         var n = p.noten[kind.code];
         if (n) noten.push(n.note);
         // „von“ statt „/“, sonst macht Excel aus 5/10 ein Datum
-        z.push(n ? n.note : "", n ? n.punkte + " von " + n.max : "", n ? datumText(n.datum, true) : "", n && n.verlassen ? n.verlassen + "x" : "");
+        z.push(n ? n.note : "", n ? n.punkte + " von " + n.max : "", n ? datumText(n.datum, true) : "",
+          [n && n.verlassen ? n.verlassen + "x" + (n.wegSekunden ? " (" + n.wegSekunden + " s)" : "") : "", n ? vermerkText(n) : ""].filter(Boolean).join(" · "));
       });
       zeilen.push(z.concat([schnitt(noten)]));
     });
@@ -866,7 +904,7 @@
       return liste.map(function (x) { return x.kz + " " + x.titel; }).join(" · ");
     }
     function bemerkung(kind, n) {
-      return [(n ? n.lrs : kind.lrs) ? "Notenschutz LRS" : "", n && n.verlassen ? n.verlassen + "× verlassen" : "", n && n.nachpruefen ? "KI-Bewertung noch prüfen" : "",
+      return [(n ? n.lrs : kind.lrs) ? "Notenschutz LRS" : "", n && n.verlassen ? verlassenText(n) : "", n ? vermerkText(n) : "", n && n.nachpruefen ? "KI-Bewertung noch prüfen" : "",
         kind.weg ? "Code gelöscht" : ""].filter(Boolean).join(" · ");
     }
     var blaetter = [E.uebersicht({

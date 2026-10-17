@@ -42,10 +42,11 @@
  *                                 Testregeln. Vokabeltests seit 16.10.2026, alle Proben seit 17.10.2026 (Wunsch der Lehrkraft:
  *                                 „mehr als 1 minute verlassen automatisch note 6, kopierversuch einmal dann automatisch note 6
  *                                 mit vorwarnungen“):
- *                                 - Länger als wegSekunden am Stück weg (anderer Tab, andere App, Fenster ohne Fokus, Seite zu):
- *                                   Probe beendet – Note 6. Ausnahme: Davor 2 Minuten lang nichts eingegeben oder angetippt
- *                                   (fertig, Bildschirm hat sich gesperrt): Die Probe wird nur abgegeben, ohne Note 6.
- *                                 - Kürzer weg: Warnung beim Zurückkommen. verlassen > 0 (nur Vokabeltests: 5): beim 5. Mal beendet.
+ *                                 - Insgesamt länger als wegSekunden weg (anderer Tab, andere App, Fenster ohne Fokus, Seite zu;
+ *                                   alle Wechsel zusammengezählt, Wechsel unter 5 Sekunden zählen nicht): Probe beendet – Note 6.
+ *                                   Ausnahme: Vor dem letzten Verlassen 2 Minuten lang nichts eingegeben oder angetippt (fertig,
+ *                                   Bildschirm hat sich gesperrt): Die Probe wird nur abgegeben, ohne Note 6.
+ *                                 - Sonst Warnung beim Zurückkommen. verlassen > 0 (nur Vokabeltests: 5): beim 5. Mal beendet.
  *                                 - Kopieren oder Einfügen: eine Warnung, beim 2. Versuch beendet – Note 6.
  *                                 - ruheMinuten (nur Vokabeltests): so lange nichts eingegeben = automatisch abgegeben (eine Minute
  *                                   vorher ein Hinweis mit „Ich bin noch nicht fertig“).
@@ -78,6 +79,9 @@
   // Letzte Eingabe oder Berührung auf der Seite; wer davor so lange nichts gemacht hat, war fertig oder das Gerät hat sich
   // gesperrt (iPad: frühestens nach 2 Minuten) – dann gibt es beim Verlassen keine Note 6
   var aktivZeit = Date.now(), RUHIG_MS = 110 * 1000, ruheTakt = null, pulsTakt = null;
+  // Testregeln: Sekunden, die das Kind die Seite insgesamt verlassen hat (Wunsch der Lehrkraft 17.10.2026: „in summe länger als
+  // eine minute = note 6 … alles unter 5 sekunden zählt nicht“) – Wechsel unter MIN_SEK zählen weder hier noch als Verlassen
+  var wegSumme = 0, MIN_SEK = 5;
   var NOTE6 = { verlassen: true, kopieren: true, weg: true };
   function jetzt() { return new Date().toISOString(); }
   function woerter(t) { var m = String(t || "").trim().match(/\S+/g); return m ? m.length : 0; }
@@ -126,7 +130,7 @@
   function knoepfe() { return aktiv.box.querySelectorAll(".opt"); }
   function haken() { return aktiv.box.querySelectorAll("input[type=radio], input[type=checkbox]"); }
   function stand() {
-    var s = { zeit: Date.now(), verlassen: zahl, f: [], k: [], r: [], p: prot, o: weg, sk: sockel, kv: kopierZahl, ab: beendet, az: aktivZeit };
+    var s = { zeit: Date.now(), verlassen: zahl, f: [], k: [], r: [], p: prot, o: weg, sk: sockel, kv: kopierZahl, ab: beendet, az: aktivZeit, ws: wegSumme };
     Array.prototype.forEach.call(felder(), function (el) { s.f.push(el.value); });
     Array.prototype.forEach.call(knoepfe(), function (b, i) {
       if (b.classList.contains("sel") || b.classList.contains("richtig") || b.getAttribute("aria-pressed") === "true") s.k.push(i);
@@ -157,6 +161,7 @@
     if (s.p && s.p.wechsel) { prot = LEER(); ["wechsel", "einfuegen", "kopieren", "spruenge", "verbindung"].forEach(function (k) { if (Array.isArray(s.p[k])) prot[k] = s.p[k].slice(0, MAX_EINTRAEGE); }); }
     zahl = sockel + prot.wechsel.length;
     kopierZahl = s.kv || 0;
+    wegSumme = s.ws || 0;
     if (s.az > 0) aktivZeit = s.az;
     if (s.ab && s.ab.grund) beendet = s.ab;
     // Die Seite wurde neu geladen, während sie verlassen war: Die Rückkehr ist jetzt
@@ -220,11 +225,18 @@
   function regelText() {
     var r = aktiv.regel, kw = kopierWort();
     return "🔒 Testregeln: Bleib auf dieser Seite, bis du abgegeben hast. " +
-      (r.wegSekunden ? "Verlässt du sie (anderer Tab, andere App) länger als " + dauerText(r.wegSekunden) + ", ist die Probe sofort beendet: Note 6. " : "") +
-      (r.verlassen ? "Jedes kürzere Verlassen bringt eine Warnung – beim " + r.verlassen + ". Mal ist der Test beendet: Note 6. " : "Jedes kürzere Verlassen bringt eine Warnung und wird festgehalten. ") +
+      (r.wegSekunden ? "Verlässt du sie (anderer Tab, andere App) insgesamt länger als " + dauerText(r.wegSekunden) + ", ist die Probe sofort beendet: Note 6. " +
+        "Kurze Wechsel unter " + MIN_SEK + " Sekunden zählen nicht. " : "") +
+      (r.verlassen ? "Jedes Verlassen bringt eine Warnung – beim " + r.verlassen + ". Mal ist der Test beendet: Note 6. " : "Jedes Verlassen bringt eine Warnung und wird festgehalten. ") +
       (kw ? kw + ": " + (r.kopieren - 1 === 1 ? "eine Warnung" : (r.kopieren - 1) + " Warnungen") + ", beim " + r.kopieren + ". Versuch Note 6. " : "") +
       (r.ruheMinuten ? "Gibst du " + r.ruheMinuten + " Minuten nichts ein, wird dein Test automatisch abgegeben. " : "") +
-      "Bisher: " + zahl + "× verlassen" + (kw ? ", " + kopierZahl + " Kopierversuch" + (kopierZahl === 1 ? "" : "e") : "") + ".";
+      "Bisher: " + bisherText() + ".";
+  }
+  // „2× verlassen (14 von 60 Sekunden), 1 Kopierversuch“
+  function bisherText() {
+    var r = aktiv.regel, kw = kopierWort();
+    return zahl + "× verlassen" + (r.wegSekunden ? " (" + wegSumme + " von " + r.wegSekunden + " Sekunden)" : "") +
+      (kw ? ", " + kopierZahl + " Kopierversuch" + (kopierZahl === 1 ? "" : "e") : "");
   }
   function regelHinweis() {
     var sh = doc.querySelector('#schutz-hinweis[data-von="probe-schutz"]');
@@ -234,34 +246,36 @@
   // Die Antwort nennt, was der Server schon gezählt hat – ist das mehr (anderes Gerät), zählt es hier weiter.
   function melden() {
     if (!aktiv || !aktiv.regel || beendet) return;
-    var r = aktiv.regel, z = { verlassen: zahl, kopieren: kopierZahl, sichtbar: !weg, weg: weg ? weg.von : null, aktiv: new Date(aktivZeit).toISOString() };
+    var r = aktiv.regel, z = { verlassen: zahl, kopieren: kopierZahl, wegSumme: wegSumme, sichtbar: !weg, weg: weg ? weg.von : null, aktiv: new Date(aktivZeit).toISOString() };
     if (typeof r.melden === "function") { setTimeout(function () { try { r.melden(z); } catch (_e) {} }, 0); return; }
     if (!r.api || !r.modul || !global.fetch) return;
     var ich = aktiv;
     try {
       global.fetch(r.api + "/api/probe-regel/vorfall", { method: "POST", headers: { "Content-Type": "application/json" }, keepalive: true,
-        body: JSON.stringify({ modul: r.modul, testId: ich.testId, code: ich.code, verlassen: z.verlassen, kopieren: z.kopieren }) })
+        body: JSON.stringify({ modul: r.modul, testId: ich.testId, code: ich.code, verlassen: z.verlassen, kopieren: z.kopieren, wegSumme: z.wegSumme }) })
         .then(function (a) { return a.ok ? a.json() : null; })
-        .then(function (d) { if (d && d.ok && aktiv === ich) serverZahlen(d.verlassen, d.kopieren); })
+        .then(function (d) { if (d && d.ok && aktiv === ich) serverZahlen(d.verlassen, d.kopieren, d.wegSumme); })
         .catch(function () {});
     } catch (_e) {}
   }
   // Was der Server gezählt hat, zählt weiter (auch nach einem Gerätewechsel)
-  function serverZahlen(v, k) {
+  function serverZahlen(v, k, s) {
     if (!aktiv || !aktiv.regel || beendet) return;
-    v = Math.round(Number(v)) || 0; k = Math.round(Number(k)) || 0;
+    v = Math.round(Number(v)) || 0; k = Math.round(Number(k)) || 0; s = Math.round(Number(s)) || 0;
     var mehr = false;
     if (v > zahl) { sockel += v - zahl; zahl = v; mehr = true; }
     if (k > kopierZahl) { kopierZahl = k; mehr = true; }
+    if (s > wegSumme) { wegSumme = s; mehr = true; }
     if (!mehr) return;
     sichern(); regelHinweis();
-    if (aktiv.regel.verlassen && zahl >= aktiv.regel.verlassen) beenden("verlassen");
+    if (aktiv.regel.wegSekunden && wegSumme > aktiv.regel.wegSekunden) beenden("weg", { sekunden: wegSumme });
+    else if (aktiv.regel.verlassen && zahl >= aktiv.regel.verlassen) beenden("verlassen");
     else if (kopierZahl >= aktiv.regel.kopieren) beenden("kopieren");
   }
   function regelWarnung(art, sek) {
     var r = aktiv.regel, kopie = art === "kopieren", n = kopie ? kopierZahl : zahl, max = kopie ? r.kopieren : r.verlassen;
     var letzte = max > 0 && n >= max - 1, kw = kopierWort();
-    var minute = r.wegSekunden ? "Bleibst du länger als " + dauerText(r.wegSekunden) + " weg, ist die Probe sofort beendet: Note 6." : "";
+    var minute = r.wegSekunden ? "Insgesamt warst du bisher " + wegSumme + " Sekunden weg. Bei mehr als " + r.wegSekunden + " Sekunden insgesamt ist die Probe sofort beendet: Note 6." : "";
     fenster({
       id: "probe-schutz-warnung", farbe: letzte ? "#b91c1c" : n >= 2 ? "#d97706" : "#2563eb",
       titel: kopie ? (letzte ? "⛔ Letzte Warnung: " : "⚠️ Warnung: ") + kw + " ist in der Probe verboten."
@@ -270,7 +284,7 @@
         : letzte ? "Verlässt du den Test noch einmal, dann ist er sofort beendet und wird mit Note 6 bewertet. " + minute
         : max ? "Bleib im Test! Beim " + max + ". Verlassen ist der Test beendet und wird mit Note 6 bewertet. " + minute
         : "Bleib in der Probe! Das Verlassen wurde mit Uhrzeit festgehalten. " + minute,
-      klein: "Bisher: " + zahl + "× verlassen" + (kw ? ", " + kopierZahl + " Kopierversuch" + (kopierZahl === 1 ? "" : "e") : "") + ". Deine Antworten sind noch da.",
+      klein: "Bisher: " + bisherText() + ". Deine Antworten sind noch da.",
       knopf: "Verstanden"
     });
   }
@@ -287,9 +301,9 @@
   // Warum die Probe zu Ende ist – für das Fenster und die Bestätigung nach der Abgabe
   function grundText(b) {
     if (b.grund === "kopieren") return "Du hast zum " + b.kopieren + ". Mal versucht zu kopieren oder einzufügen.";
-    if (b.grund === "weg") return "Du warst " + (b.sekunden ? dauerText(b.sekunden) : "länger als 1 Minute") + " am Stück nicht auf der Probenseite.";
+    if (b.grund === "weg") return "Du warst insgesamt " + (b.sekunden ? b.sekunden + " Sekunden" : "länger als 1 Minute") + " nicht auf der Probenseite (erlaubt ist höchstens 1 Minute).";
     if (b.grund === "ruhe") return "Du hast " + (b.minuten || 5) + " Minuten lang nichts mehr eingegeben.";
-    if (b.grund === "gesperrt") return "Du warst länger als 1 Minute weg, nachdem du 2 Minuten lang nichts mehr eingegeben hattest (zum Beispiel hat sich der Bildschirm gesperrt).";
+    if (b.grund === "gesperrt") return "Du warst insgesamt länger als 1 Minute weg, nachdem du 2 Minuten lang nichts mehr eingegeben hattest (zum Beispiel hat sich der Bildschirm gesperrt).";
     return "Du hast die Probe " + b.verlassen + "-mal verlassen.";
   }
   // grund: verlassen, kopieren, weg (Note 6) – ruhe, gesperrt (nur abgeben); mehr: { sekunden } usw.
@@ -345,7 +359,8 @@
     if (art === "verborgen" && Date.now() - entladen < 1500) art = "neuladen";
     if (weg) { if (art !== "fokus") weg.art = art; }
     else weg = { art: art, von: jetzt(), aktiv: new Date(aktivZeit).toISOString() };
-    if (weg.art === "verborgen" && !draussen) { draussen = true; zahl++; }
+    // Mit Testregeln zählt ein Wechsel erst beim Zurückkommen (unter MIN_SEK zählt er nicht)
+    if (weg.art === "verborgen" && !draussen && !aktiv.regel) { draussen = true; zahl++; }
     sichern();
     if (aktiv.regel && aktiv.regel.puls && art !== "fokus") melden();   // der Server erfährt, seit wann die Seite weg ist
   }
@@ -353,23 +368,25 @@
     if (!aktiv || !weg) return;
     var w = weg, bis = jetzt(), sek = Math.max(0, Math.round((Date.parse(bis) - Date.parse(w.von)) / 1000));
     weg = null; draussen = false;
-    // kein Wechsel: Fenster nur kurz ohne Fokus (Adresszeile, Systemmeldung) oder Seite nur neu geladen
-    if ((w.art === "fokus" && sek < FOKUS_MIN_SEK) || (w.art === "neuladen" && sek < NEULADEN_MAX_SEK)) {
+    // kein Wechsel: Fenster nur kurz ohne Fokus (Adresszeile, Systemmeldung) oder Seite nur neu geladen; mit Testregeln zählt
+    // alles unter MIN_SEK nicht
+    if ((w.art === "fokus" && sek < FOKUS_MIN_SEK) || (w.art === "neuladen" && sek < NEULADEN_MAX_SEK) || (aktiv.regel && sek < MIN_SEK)) {
       zahl = sockel + prot.wechsel.length; sichern();
       if (aktiv.regel && aktiv.regel.puls) melden();
       return;
     }
     merke(prot.wechsel, { art: w.art === "neuladen" ? "geschlossen" : w.art, von: w.von, bis: bis, sekunden: sek });
     zahl = sockel + prot.wechsel.length;
+    if (aktiv.regel) wegSumme += sek;
     sichern();
     if (aktiv.regel) {
       if (beendet) return;
-      // Länger als erlaubt weg: Probe beendet. Hatte das Kind davor schon 2 Minuten nichts mehr gemacht (fertig, Bildschirm
-      // gesperrt), wird nur abgegeben – es konnte draußen nichts nachschlagen und dann noch eintragen.
-      if (aktiv.regel.wegSekunden && sek > aktiv.regel.wegSekunden) {
+      // Insgesamt länger als erlaubt weg: Probe beendet. Hatte das Kind vor diesem Verlassen schon 2 Minuten nichts mehr
+      // gemacht (fertig, Bildschirm gesperrt), wird nur abgegeben – es konnte draußen nichts nachschlagen und dann noch eintragen.
+      if (aktiv.regel.wegSekunden && wegSumme > aktiv.regel.wegSekunden) {
         var vorher = Date.parse(w.von) - Date.parse(w.aktiv || w.von);
         melden(); regelHinweis();
-        if (vorher >= RUHIG_MS) beenden("gesperrt", { sekunden: sek }); else beenden("weg", { sekunden: sek });
+        if (vorher >= RUHIG_MS) beenden("gesperrt", { sekunden: wegSumme }); else beenden("weg", { sekunden: wegSumme });
         return;
       }
       regelVerlassen(sek);
@@ -479,7 +496,7 @@
           api: cfg.regel.api ? String(cfg.regel.api).replace(/\/$/, "") : "", modul: cfg.regel.modul ? String(cfg.regel.modul) : "",
           puls: cfg.regel.puls === true, beenden: cfg.regel.beenden, melden: cfg.regel.melden || null } : null };
       zahl = 0; sockel = 0; draussen = false; prot = LEER(); weg = null;
-      kopierZahl = 0; letzterVersuch = 0; beendet = null; letztesEnde = null; aktivZeit = Date.now();
+      kopierZahl = 0; letzterVersuch = 0; beendet = null; letztesEnde = null; aktivZeit = Date.now(); wegSumme = 0;
       clearInterval(ruheTakt); clearInterval(pulsTakt);
       alleFelder(aktiv.box);
       stilEinmal(); doc.body.classList.add("probe-laeuft");
@@ -500,10 +517,13 @@
         var bisher = cfg.regel.bisher || {}, v = Math.round(Number(bisher.verlassen)) || 0, k = Math.round(Number(bisher.kopieren)) || 0;
         if (v > zahl) { sockel += v - zahl; zahl = v; }
         if (k > kopierZahl) kopierZahl = k;
+        var ws = Math.round(Number(bisher.wegSumme)) || 0;
+        if (ws > wegSumme) wegSumme = ws;
         regelHinweis();
         // Der Test war schon beendet, aber noch nicht abgegeben (neu geladen): gleich wieder abgeben. War er es beim
         // Zurückholen eben erst geworden (kommt), hat beenden() das schon angestoßen.
         if (beendet && s && s.ab && s.ab.grund) { endeZeigen(); var cb = aktiv.regel.beenden, b = JSON.parse(JSON.stringify(beendet)); setTimeout(function () { cb(b); }, 0); }
+        else if (!beendet && aktiv.regel.wegSekunden && wegSumme > aktiv.regel.wegSekunden) beenden("weg", { sekunden: wegSumme });
         else if (!beendet && aktiv.regel.verlassen && zahl >= aktiv.regel.verlassen) beenden("verlassen");
         else if (!beendet && kopierZahl >= aktiv.regel.kopieren) beenden("kopieren");
         // Anderes Gerät: Laut Server ist die Probe seit bisher.weg verlassen (hier liegt kein eigener Stand) – die Rückkehr ist jetzt
@@ -533,7 +553,7 @@
     // Mit jeder Abgabe schicken: Der Server erkennt daran, dass die Seite die Testregeln kennt (sonst keine Note 6)
     regelFelder: function () {
       if (!aktiv || !aktiv.regel) return {};
-      return { regel: true, kopierversuche: kopierZahl, abbruch: this.abbruch(), automatisch: beendet && !NOTE6[beendet.grund] ? beendet.grund : "" };
+      return { regel: true, kopierversuche: kopierZahl, wegSumme: wegSumme, abbruch: this.abbruch(), automatisch: beendet && !NOTE6[beendet.grund] ? beendet.grund : "" };
     },
     endeStatus: function (text) { var el = doc.getElementById("probe-schutz-ende-status"); if (el) el.textContent = text || ""; },
     protokoll: function () { return JSON.parse(JSON.stringify(prot)); },

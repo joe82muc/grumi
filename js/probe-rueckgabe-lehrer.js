@@ -40,7 +40,7 @@
   function abbruchRoute(modul) { return ABBRUCH_ROUTE[modul] || "/api/probe-regel/aufheben"; }
   function abbruchGrund(ab) {
     if (ab.grund === "kopieren") return ab.kopierversuche + ". Kopierversuch";
-    if (ab.grund === "weg") return (ab.sekunden ? ab.sekunden + " Sekunden" : "länger als 1 Minute") + " am Stück weg";
+    if (ab.grund === "weg") return "insgesamt " + (ab.sekunden ? ab.sekunden + " Sekunden" : "länger als 1 Minute") + " weg";
     return ab.verlassen + "× verlassen";
   }
   var AUTOMATISCH = { ruhe: "5 Minuten nichts eingegeben", gesperrt: "länger als 1 Minute weg, nachdem 2 Minuten nichts mehr eingegeben wurde (Bildschirm gesperrt?)",
