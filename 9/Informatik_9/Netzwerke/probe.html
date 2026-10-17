@@ -290,7 +290,7 @@
   </div>
 </footer>
 
-<script src="../../../js/probe-schutz.js?v=20261008"></script>
+<script src="../../../js/probe-schutz.js?v=20261017"></script>
 <script>
 /* ============================================================
    Probe Netzwerke - Informatik 9
@@ -389,7 +389,8 @@ $('btn-start').addEventListener('click', async () => {
       + ' · ' + TEST.maxPoints + ' Punkte';
 
     buildQuestions();
-    ProbeSchutz.start({ testId, code, box: $('q-list') });
+    // Testregeln (17.10.2026): länger als 1 Minute weg oder 2. Kopierversuch = Probe beendet, sofort abgegeben, Note 6
+    ProbeSchutz.start({ testId, code, box: $('q-list'), regel: { api: API_BASE, modul: 'netzwerktest', beenden: () => einreichen(true) } });
     $('view-start').hidden = true;
     $('view-test').hidden  = false;
     window.scrollTo({ top:0 });
@@ -475,7 +476,9 @@ function updateProgress(){
 }
 
 /* ---------- Abgeben ---------- */
-$('btn-submit').addEventListener('click', async () => {
+$('btn-submit').addEventListener('click', () => einreichen(false));
+/* automatisch: nach den Testregeln beendet – ohne Rückfrage; klappt es nicht, alle 15 Sekunden neu versuchen */
+async function einreichen(automatisch){
   if(sending) return;
 
   const offen = ANSWERS.filter((a,i) =>
@@ -483,11 +486,11 @@ $('btn-submit').addEventListener('click', async () => {
   ).length;
 
   if(offen > 0){
-    const ok = confirm('Es sind noch ' + offen + ' Aufgaben offen.\n\n'
+    const ok = automatisch || confirm('Es sind noch ' + offen + ' Aufgaben offen.\n\n'
       + 'Wirklich jetzt abgeben? Danach kannst du nichts mehr ändern.');
     if(!ok) return;
   }else{
-    const ok = confirm('Probe jetzt abgeben?\n\nDanach kannst du nichts mehr ändern.');
+    const ok = automatisch || confirm('Probe jetzt abgeben?\n\nDanach kannst du nichts mehr ändern.');
     if(!ok) return;
   }
 
@@ -505,7 +508,7 @@ $('btn-submit').addEventListener('click', async () => {
         code: STUDENT.code,
         testDate: new Date().toISOString().slice(0,10),
         answers: ANSWERS,
-        verlassen: ProbeSchutz.verlassen(), protokoll: ProbeSchutz.protokoll()
+        verlassen: ProbeSchutz.verlassen(), protokoll: ProbeSchutz.protokoll(), ...ProbeSchutz.regelFelder()
       })
     });
     const data = await res.json();
@@ -526,8 +529,9 @@ $('btn-submit').addEventListener('click', async () => {
     btn.textContent = 'Probe abgeben';
     msg('submit-msg','Die Abgabe hat nicht geklappt. Bitte noch einmal auf '
       + '&bdquo;Probe abgeben&ldquo; tippen. Deine Antworten sind noch da.','bad');
+    if(automatisch){ ProbeSchutz.endeStatus('Die Abgabe hat nicht geklappt – neuer Versuch in 15 Sekunden. Lass die Seite offen.'); setTimeout(() => einreichen(true), 15000); }
   }
-});
+}
 
 /* ---------- Ergebnis ---------- */
 function showResult(r){

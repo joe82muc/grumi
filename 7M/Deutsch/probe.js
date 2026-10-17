@@ -286,11 +286,14 @@
       if (exam.sitzung && window.AufsatzEditor) editorenBauen();
       // Was der Probenmodus sperrt und festhält: Vorgabe (Deutsch 7) oder die Einstellung der Lehrkraft (Deutsch 8)
       const schutz = exam.test.schutz || {};
+      // Testregeln für alle Proben (17.10.2026): länger als 1 Minute weg oder 2. Kopierversuch = Probe beendet, sofort
+      // abgegeben, Note 6 (die Lehrkraft kann sie aufheben). Den Hinweis über den Aufgaben schreibt dann ProbeSchutz.
       const zurueck = ProbeSchutz.start({testId: exam.test.id, code: student.code, box: $("questions"), ueberwachung: true, einfuegen: exam.test.einfuegen,
-        wechsel: schutz.wechsel, warnen: schutz.warnen, kopieren: schutz.kopieren, ausschneiden: schutz.ausschneiden, kontextmenue: schutz.kontextmenue, spruenge: schutz.spruenge});
+        wechsel: schutz.wechsel, warnen: schutz.warnen, kopieren: schutz.kopieren, ausschneiden: schutz.ausschneiden, kontextmenue: schutz.kontextmenue, spruenge: schutz.spruenge,
+        regel: {api: API, modul: DAPI.replace(/^\/api\//, "") + "proben", beenden: () => einreichen(true)}});
       // offen sagen, was im Probenmodus festgehalten wird
       if (!$("schutz-hinweis")) $("questions").insertAdjacentHTML("beforebegin", '<p class="schutz-hinweis" id="schutz-hinweis"></p>');
-      $("schutz-hinweis").textContent = "🔒 Probenmodus" + (exam.sitzung ? " – ohne Hilfe der KI" : "") + ": " +
+      if ($("schutz-hinweis").dataset.von !== "probe-schutz") $("schutz-hinweis").textContent = "🔒 Probenmodus" + (exam.sitzung ? " – ohne Hilfe der KI" : "") + ": " +
         (schutz.wechsel === false ? "" : "Verlässt du diese Seite (anderer Tab, andere App), wird das mit Uhrzeit und Dauer für deine Lehrkraft festgehalten. ") +
         (exam.test.einfuegen === "protokollieren" ? "Eingefügter Text wird mit Uhrzeit und Länge vermerkt." : schutz.kopieren === "erlauben" ? "Einfügen ist gesperrt." : "Einfügen und Kopieren sind gesperrt.");
       if (exam.sitzung) sitzungStarten(zurueck);
@@ -309,27 +312,38 @@
   $("text-auf").addEventListener("click", () => { document.body.classList.add("text-offen"); D7Lesetext.einpassen($("lesespalte")); });
   $("text-zu").addEventListener("click", () => document.body.classList.remove("text-offen"));
 
-  $("exam-form").addEventListener("submit", async e => {
-    e.preventDefault();
+  $("exam-form").addEventListener("submit", e => { e.preventDefault(); einreichen(false); });
+  // automatisch: nach den Testregeln beendet – ohne Rückfrage; klappt es nicht, alle 15 Sekunden neu versuchen
+  let laeuft = false;
+  async function einreichen(automatisch) {
+    if (laeuft || abgegeben || !exam) return;
     const answers = collect(), offen = leere(answers);
-    if (!confirm((offen.length ? (offen.length === 1 ? "Aufgabe " + offen[0] + " ist" : "Die Aufgaben " + offen.join(", ") + " sind") + " noch leer.\n\n" : "") + "Probe wirklich abgeben? Danach kannst du nichts mehr ändern.")) return;
+    if (!automatisch && !confirm((offen.length ? (offen.length === 1 ? "Aufgabe " + offen[0] + " ist" : "Die Aufgaben " + offen.join(", ") + " sind") + " noch leer.\n\n" : "") + "Probe wirklich abgeben? Danach kannst du nichts mehr ändern.")) return;
+    laeuft = true;
     const button = $("submit-exam"); button.disabled = true; button.textContent = "Wird gesendet ...";
     examStatus("");
     try {
       Object.keys(editoren).forEach(nr => editoren[nr].vollbild(false));
-      await abgeben({testId: exam.test.id, ...student, answers, verlassen: ProbeSchutz.verlassen(), protokoll: ProbeSchutz.protokoll(), ...(sitzung ? {plan: planAlle()} : {})}, text => { examStatus(text); button.textContent = "Wird noch einmal gesendet ..."; });
+      await abgeben({testId: exam.test.id, ...student, answers, verlassen: ProbeSchutz.verlassen(), protokoll: ProbeSchutz.protokoll(), ...(sitzung ? {plan: planAlle()} : {}), ...ProbeSchutz.regelFelder()}, text => { examStatus(text); ProbeSchutz.endeStatus(text); button.textContent = "Wird noch einmal gesendet ..."; });
       abgegeben = true; clearTimeout(sichertakt); clearInterval(uhr);
       if (sitzung) merk.weg(beginnKey());
       exam.texte.forEach(t => { if (t.typ === "hoertext") merk.weg(hoerKey(t.id)); });
-      ProbeSchutz.ende();
+      ProbeSchutz.ende(); laeuft = false;
       document.body.classList.remove("text-offen");
       $("questions-section").hidden = true;
+      // nach den Testregeln beendet oder automatisch abgegeben: die Bestätigung mit dem Grund (Note 6) von ProbeSchutz
+      if (automatisch && ProbeSchutz.abgegeben({abgegeben: true, submittedAt: new Date().toISOString()}, {box: $("result-section"), weg: $("questions-section"), titel: exam.test.title})) return;
       $("result-section").innerHTML = `<div class="eyebrow">Abgegeben · ${esc(exam.test.title)}</div><h1>Deine Probe ist angekommen ✅</h1>
         <p class="notice gut">Alle deine Antworten sind gespeichert.</p>
         <p class="intro">So geht es weiter: Zuerst korrigiert die KI, dann prüft deine Lehrkraft jede Aufgabe. Danach bekommst du die korrigierte Probe zurück – du findest sie in der Übersicht ${DNAME} unter „Meine Proben“. Dort kannst du sie ansehen und ausdrucken.</p>
         <p><a class="btn" href="index.html">Zur Übersicht ${DNAME}</a></p>`;
       $("result-section").hidden = false; window.scrollTo({top: 0});
-    } catch (err) { button.disabled = false; button.textContent = "Probe abgeben"; examStatus(err.message); $("exam-status").scrollIntoView({behavior: "smooth", block: "center"}); }
-  });
+    } catch (err) {
+      button.disabled = false; button.textContent = "Probe abgeben"; examStatus(err.message); $("exam-status").scrollIntoView({behavior: "smooth", block: "center"});
+      if (automatisch && err.endgueltig) { ProbeSchutz.endeStatus(err.message + " Bitte sag deiner Lehrkraft Bescheid."); return; }
+      if (automatisch) { ProbeSchutz.endeStatus(err.message + " Neuer Versuch in 15 Sekunden – lass die Seite offen."); setTimeout(() => { laeuft = false; einreichen(true); }, 15000); return; }
+      laeuft = false;
+    }
+  }
   load();
 })();

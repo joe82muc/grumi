@@ -37,6 +37,14 @@
   }
   // Änderungen der Reihe nach senden (ein Feld verlassen und gleich „Bestätigen“ tippen: erst speichern, dann bestätigen)
   const nacheinander = fn => (kette = kette.then(fn, fn));
+  // Testregeln (17.10.2026): Probe beendet (2. Kopierversuch, mehr als 1 Minute weg) = Note 6 – die Lehrkraft kann sie aufheben
+  const AUTOMATISCH = {ruhe: "5 Minuten nichts eingegeben", gesperrt: "länger als 1 Minute weg, nachdem 2 Minuten nichts mehr eingegeben wurde (Bildschirm gesperrt?)", server: "Seite war nicht mehr offen"};
+  const abbruchGrund = ab => ab.grund === "kopieren" ? ab.kopierversuche + ". Kopierversuch" : ab.grund === "weg" ? (ab.sekunden ? ab.sekunden + " Sekunden" : "länger als 1 Minute") + " am Stück weg" : ab.verlassen + "× verlassen";
+  function abbruchBox(r) {
+    const ab = r.abbruch;
+    return (r.automatisch && AUTOMATISCH[r.automatisch] ? `<p class="notice">⏱ Automatisch abgegeben: ${esc(AUTOMATISCH[r.automatisch])}</p>` : "") +
+      (ab ? `<p class="notice${ab.aufgehoben ? "" : " bad"}">⛔ <b>Probe nach den Testregeln beendet:</b> ${esc(abbruchGrund(ab))} – ${ab.aufgehoben ? "Note 6 aufgehoben, es zählen die Punkte." : "Note 6."} <button class="btn klein secondary" type="button" data-tun="abbruch">${ab.aufgehoben ? "Note 6 wieder setzen" : "Note 6 aufheben"}</button></p>` : "");
+  }
   const status = (text, art) => { $("teacher-status").textContent = text; $("teacher-status").className = "notice" + (art ? " " + art : ""); };
   const zeile = id => rows.find(r => r.id === id);
   function ersetze(row) { const i = rows.findIndex(r => r.id === row.id); if (i >= 0) rows[i] = row; else rows.push(row); }
@@ -170,6 +178,7 @@
         <label><input type="checkbox" data-ein="zsWerten" ${r.zsWerten ? "checked" : ""}> Zeichensetzung werten</label>
         <label><input type="checkbox" data-ein="ohneNote" ${r.ohneNote ? "checked" : ""}> ohne Note</label></div>
       ${ueberwachung(r)}
+      ${abbruchBox(r)}
       ${r.status === "eingegangen" ? `<p class="notice">Die KI korrigiert diese Abgabe gerade. Die Seite lädt in wenigen Sekunden neu.</p>` : ""}
       ${r.ki && r.ki.stand === "unvollstaendig" ? `<p class="notice bad">Die KI war nicht erreichbar: Offene Antworten sind nur vorläufig oder noch gar nicht bewertet. <button class="btn klein" type="button" data-neu="0">↻ KI für alle offenen Antworten noch einmal versuchen</button></p>` : ""}
       ${probe && probe.texte.length ? `<details><summary class="btn klein secondary" style="display:inline-flex">📖 Texte der Probe</summary><div style="margin-top:10px;max-width:760px" data-texte>${probe.texte.map(D7Lesetext.html).join("")}</div></details>` : ""}
@@ -402,6 +411,17 @@
     if (art === "vor" || art === "weiter") { const z = liste[i + (art === "vor" ? -1 : 1)]; if (z) { offenId = z.id; zeichneListe(); zeichneAbgabe(); $("abgabe").scrollIntoView({block: "start"}); } return; }
     if (art === "bestaetigen" || art === "oeffnen") return void lauf(async () => { const res = await request("bestaetigen", {submissionId: r.id, bestaetigt: art === "bestaetigen"}); ersetze(res.submission); zeichneListe(); zeichneAbgabe(); }, tun);
     if (art === "freigeben" || art === "zurueckziehen") return void lauf(async () => { const res = await request("freigeben", {submissionId: r.id, frei: art === "freigeben"}); res.submissions.forEach(ersetze); zeichneListe(); zeichneAbgabe(); }, tun);
+    if (art === "abbruch") {
+      const aufheben = !(r.abbruch && r.abbruch.aufgehoben);
+      if (!confirm(aufheben ? "Note 6 aufheben? Die Probe bleibt als „beendet“ vermerkt, die Note richtet sich dann nach den Punkten." : "Wieder Note 6 geben (Probe nach den Testregeln beendet)?")) return;
+      return void lauf(async () => {
+        const res = await fetch(API + "/api/probe-regel/aufheben", {method: "POST", headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({password, modul: DAPI.replace(/^\/api\//, "") + "proben", submissionId: r.id, aufheben})});
+        const d = await res.json().catch(() => ({}));
+        if (!res.ok || !d.ok) throw new Error(d.message || d.error || "Das hat nicht geklappt.");
+        await load(true); zeichneAbgabe();
+      }, tun);
+    }
     if (art === "vorschau") return void lauf(async () => { const res = await request("vorschau", {submissionId: r.id}); zeigeDruck(res.korrektur); }, tun);
     if (art === "loeschen") { if (!confirm("Diese Abgabe wirklich löschen? Danach kann das Kind die Probe noch einmal schreiben (auch Variante B).")) return; lauf(async () => { await request("delete", {submissionId: r.id}); rows = rows.filter(x => x.id !== r.id); offenId = ""; zeichneListe(); zeichneAbgabe(); }, tun); }
   });

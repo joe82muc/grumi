@@ -18,21 +18,25 @@
     {
       id: "luft", nr: "01", titel: "Luft", icon: "🌬️",
       text: "Unsichtbar, aber lebenswichtig: was Luft kann, woraus sie besteht, wie wir Wind nutzen, warum Feuer Luft braucht und wie man Brände löscht.",
-      proben: [{ R: "nt7-luft-r", M: "nt7-luft-m" }],
+      // Zweite Probe (17.10.2026): die Module 1 bis 5, überwiegend wie auf den Arbeitsblättern (blatt, siehe unten)
+      proben: [{ R: "nt7-luft-r", M: "nt7-luft-m" }, { R: "nt7-luft2-r", M: "nt7-luft2-m" }],
+      // Lernmaterial zum Ausdrucken (seit 17.10.2026): blatt = Anfang der Dateinamen in 7M/NT/arbeitsblaetter/
+      // (<blatt>-arbeitsblatt.pdf, -loesung.pdf, -regelheft.pdf); dazu alle auf einmal (lernmaterial).
+      lernmaterial: { titel: "Lernen für die Probe: Arbeitsblätter und Regelheft", alle: "L1-L5" },
       module: [
-        { id: "luft-modul", kz: "L1", titel: "Luft – unsichtbar, aber lebenswichtig", href: "luft-modul.html", key: "grumi-nt7-luft-modul-v1", offen: true,
+        { id: "luft-modul", kz: "L1", blatt: "L1", titel: "Luft – unsichtbar, aber lebenswichtig", href: "luft-modul.html", key: "grumi-nt7-luft-modul-v1", offen: true,
           text: "Luft zum Leben, bewegte Luft, Luft und Feuer, Zusammensetzung, Eigenschaften der Luft, chemische Symbole und Formeln.",
           tags: ["Versuche", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "windkraft-strom", kz: "L2", titel: "Windkraft: Strom aus bewegter Luft", href: "windkraft-strom.html", key: "grumi-nt7-windkraft-strom-v1", offen: true,
+        { id: "windkraft-strom", kz: "L2", blatt: "L2", titel: "Windkraft: Strom aus bewegter Luft", href: "windkraft-strom.html", key: "grumi-nt7-windkraft-strom-v1", offen: true,
           text: "Windmühle und Windkraftanlage, Aufbau mit Rotorblatt, Getriebe, Generator und Bremse, vom Wind zum Strom, warum Windräder immer größer werden.",
           tags: ["Animationen", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "windkraft-procontra", kz: "L3", titel: "Windkraft – pro und contra", href: "windkraft-pro-contra.html", key: "grumi-nt7-windkraft-procontra-v1", offen: true,
+        { id: "windkraft-procontra", kz: "L3", blatt: "L3", titel: "Windkraft – pro und contra", href: "windkraft-pro-contra.html", key: "grumi-nt7-windkraft-procontra-v1", offen: true,
           text: "Argumente für und gegen Windräder sortieren, Standort-Planer für einen Kompromiss und ein Wortgefecht gegen die KI.",
           tags: ["Standort-Planer", "Probenstoff", "Duell gegen die KI"] },
-        { id: "luft-verbrennung", kz: "L4", titel: "Luft und Verbrennung", href: "luft-verbrennung.html", key: "grumi-nt7-luft-verbrennung-v1", offen: true,
+        { id: "luft-verbrennung", kz: "L4", blatt: "L4", titel: "Luft und Verbrennung", href: "luft-verbrennung.html", key: "grumi-nt7-luft-verbrennung-v1", offen: true,
           text: "Brennbare Stoffe, das Feuerdreieck, die Zündtemperatur, warum Feuer Sauerstoff braucht und warum fein zerteilte Stoffe besser brennen.",
           tags: ["Versuche", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "achtung-explosiv", kz: "L5", titel: "Achtung, explosiv!", href: "achtung-explosiv.html", key: "grumi-nt7-achtung-explosiv-v1", offen: true,
+        { id: "achtung-explosiv", kz: "L5", blatt: "L5", titel: "Achtung, explosiv!", href: "achtung-explosiv.html", key: "grumi-nt7-achtung-explosiv-v1", offen: true,
           text: "Mehlstaub-Explosion, explosive Gasgemische, Druckwelle, kontrollierte Explosionen im Automotor und Vorsicht beim Grillen.",
           tags: ["Lehrerversuche", "Probenstoff", "KI-Rückmeldung"] },
         { id: "brand-schutz", kz: "L6", titel: "Brände verhindern und löschen", href: "brand-schutz.html", key: "grumi-nt7-brand-schutz-v1",
@@ -150,7 +154,9 @@
     "nt7-p2-r": ["atommodelle", "atombau-pse", "wirbeltiere", "fortbewegung"],
     "nt7-p2-m": ["atommodelle", "atombau-pse", "wirbeltiere", "fortbewegung"],
     "nt7-p3-r": MENSCH_ALLE, "nt7-p3-m": MENSCH_ALLE,
-    "nt7-p4-r": STROM_ALLE, "nt7-p4-m": STROM_ALLE
+    "nt7-p4-r": STROM_ALLE, "nt7-p4-m": STROM_ALLE,
+    // zweite Luft-Probe (17.10.2026): nur die Module 1 bis 5, Aufgaben überwiegend wie auf den Arbeitsblättern
+    "nt7-luft2-r": LUFT_ALLE.slice(0, 5), "nt7-luft2-m": LUFT_ALLE.slice(0, 5)
   };
   function probeModule(testId) {
     var ids = PROBE_INHALT[testId], liste = [];

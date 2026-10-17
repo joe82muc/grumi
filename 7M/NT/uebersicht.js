@@ -133,6 +133,18 @@
     return {offen: offen.length, fertig: ps.filter(p => p && p.pct >= 100).length, pct, gebaut: thema.module.filter(m => m.href).length};
   }
 
+  // Lernmaterial zum Ausdrucken (themen.js: lernmaterial beim Themenbereich, blatt beim Modul): je Modul Arbeitsblatt,
+  // Regelhefteintrag und Lösung als PDF, dazu alle auf einmal. Nur für Module, die für die Klasse offen sind.
+  function lernmaterialKachel(thema) {
+    const lm = thema.lernmaterial, mods = thema.module.filter(m => m.blatt && m.href && NT7.offen(m, thema, STAND));
+    if (!lm || !mods.length) return "";
+    const ordner = base + "arbeitsblaetter/", pdf = (datei, text) => `<a href="${ordner}${datei}.pdf" target="_blank" rel="noopener">${text}</a>`;
+    return `<div class="lernmaterial"><h3>📄 ${esc(lm.titel)}</h3>
+      <p>Zu jedem Modul ein einfaches Arbeitsblatt, ein kurzer Regelhefteintrag zum Abschreiben und die Lösung zum Selbst-Kontrollieren.</p>
+      <ul>${mods.map(m => `<li><b>${thema.module.indexOf(m) + 1} · ${esc(m.titel)}</b><span>${pdf(m.blatt + "-arbeitsblatt", "📝 Arbeitsblatt")}${pdf(m.blatt + "-regelheft", "📘 Regelheft")}${pdf(m.blatt + "-loesung", "✅ Lösung")}</span></li>`).join("")}</ul>
+      ${lm.alle && mods.length > 1 ? `<p class="alle">Alles auf einmal: ${pdf(lm.alle + "-arbeitsblaetter", "📝 alle Arbeitsblätter")} ${pdf(lm.alle + "-regelheft", "📘 alle Regelhefteinträge")}</p>` : ""}</div>`;
+  }
+
   // Proben des Themenbereichs für den Zug des Kindes (bzw. der Seite)
   function probenKachel(thema, zug) {
     // Nachschreibproben (nach: true) zählen erst mit, wenn die Lehrkraft sie freigeschaltet hat
@@ -220,7 +232,7 @@
       return `<section class="thema${s.offen ? "" : " gesperrt"}" id="thema-${t.id}">
       <div class="thema-head"><span class="thema-icon">${t.icon}</span><div><div class="eyebrow dark">Themenbereich ${t.nr}</div><h2>${esc(t.titel)}</h2><p>${esc(t.text)}</p><div class="thema-status">${status}</div></div></div>
       <div class="mods">${t.module.map((m, k) => modulKarte(m, k, t, a)).join("")}</div>
-      ${probenKachel(t, zug)}${NT7.kachel ? NT7.kachel(t, {zug, a, stand: STAND, proben: PROBEN, base, root, offen: s.offen}) || "" : ""}
+      ${lernmaterialKachel(t)}${probenKachel(t, zug)}${NT7.kachel ? NT7.kachel(t, {zug, a, stand: STAND, proben: PROBEN, base, root, offen: s.offen}) || "" : ""}
     </section>`; }).join("")}
   </main>
   <footer class="wrap">GRUMI · ${esc(FACH)} ${klasse} · Dein Fortschritt wird auf diesem Gerät gespeichert${a && !a.lehrer ? " und mit deinem Code an deine Lehrkraft gemeldet" : ""}.</footer>`;

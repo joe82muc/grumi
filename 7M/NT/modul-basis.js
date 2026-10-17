@@ -331,11 +331,25 @@ function sperre(){
   N.freigabe(a, stand => { bekannt = true; zeig(!N.offen(reg.modul, reg.thema, stand), "Deine Lehrkraft schaltet " + es + " frei, wenn ihr im Unterricht so weit seid. Frag sie, wenn du schon weiterlernen möchtest."); },
     (text, wachtAuf) => { if (!bekannt && !reg.modul.offen) zeig(true, text || "Der Server antwortet gerade nicht. Versuche es gleich noch einmal.", wachtAuf ? "warten" : "fehler"); });
 }
+/* ---------- Lernmaterial zum Ausdrucken (themen.js: blatt beim Modul, seit 17.10.2026) ----------
+   Unten im Modul: Arbeitsblatt, Regelhefteintrag und Lösung als PDF aus dem Ordner arbeitsblaetter/. */
+function lernmaterial(){
+  const N = KL(), reg = N ? N.modulVon(N.idAusKey(BASIS)) : null;
+  const main = $("main");
+  if (!reg || !reg.modul.blatt || !main || $("#nt7Lernmaterial")) return;
+  const b = "arbeitsblaetter/" + reg.modul.blatt, a = (datei, text) => `<a class="btn small" href="${b}-${datei}.pdf" target="_blank" rel="noopener">${text}</a>`;
+  const box = document.createElement("section");
+  box.id = "nt7Lernmaterial"; box.className = "card";
+  box.style.cssText = "margin:28px 0 8px;border:1.5px solid #c9def0;background:#f2f8fd";
+  box.innerHTML = `<h3 style="margin-top:0">📄 Lernen für die Probe</h3><p>Zu diesem Modul gibt es ein einfaches Arbeitsblatt, einen kurzen Regelhefteintrag zum Abschreiben und die Lösung zum Selbst-Kontrollieren – zum Ausdrucken oder am Bildschirm.</p>` +
+    `<div style="display:flex;flex-wrap:wrap;gap:8px">${a("arbeitsblatt", "📝 Arbeitsblatt")}${a("regelheft", "📘 Regelheft")}${a("loesung", "✅ Lösung")}</div>`;
+  main.appendChild(box);
+}
 function ready(){
   if (Modul._onScroll) Modul._onScroll(); updateStars();
   // Ältere Module binden themen.js nicht selbst ein: nachladen, dann Lernstand und Freischaltung
   // In der Vorschau für Lehrkräfte (?vorschau=1) gibt es keine Anmeldung und keinen Lernstand
-  const weiter = () => { ZUG = ZUG || (KL() ? KL().zug(lsAnmeldung()) : ""); if (!(KL() && KL().VORSCHAU)) lernstand(BASIS); sperre(); };
+  const weiter = () => { ZUG = ZUG || (KL() ? KL().zug(lsAnmeldung()) : ""); if (!(KL() && KL().VORSCHAU)) lernstand(BASIS); sperre(); lernmaterial(); };
   if (KL()) { weiter(); return; }
   const s = document.createElement("script");
   s.src = new URL("themen.js", LS_SKRIPT || location.href).href;

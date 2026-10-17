@@ -205,7 +205,7 @@
     <div class="card reveal">
       <p class="lead">Kein Stoff fängt einfach so Feuer. Er muss erst heiß genug werden – bis zu seiner <strong>Zündtemperatur</strong>.</p>
       <p>Diese Temperatur ist bei jedem Stoff anders. Der Kopf eines Streichholzes braucht nur etwa <strong>60–80 °C</strong>. So viel Wärme entsteht schon durch <button class="term" data-t="reibungswaerme">Reibungswärme</button>, wenn du ihn kräftig über die raue Fläche an der Schachtel ziehst.</p>
-      <p class="hint">Wähle einen Stoff und heize ihn mit dem Regler auf. Finde heraus, ab welcher Temperatur er sich entzündet. Entdecke mindestens vier Stoffe.</p>
+      <p class="hint">Wähle einen Stoff und heize ihn mit dem Regler auf. Finde heraus, ab welcher Temperatur er sich entzündet. Entdecke mindestens vier Stoffe. Manche Stoffe haben keinen festen Wert, sondern einen Bereich: Holzkohle zum Beispiel entzündet sich je nach Sorte zwischen 150 und 250 °C.</p>
       <div class="pick" id="ztPick"></div>
     </div>
     <div class="sim reveal">
@@ -216,6 +216,7 @@
         <circle cx="53" cy="248" r="22" fill="#e0453a" stroke="#9aa5ad" stroke-width="2"/>
         <rect id="ztMerc" x="47" y="230" width="12" height="10" fill="#e0453a"/>
         <g id="ztScale" font-size="10" fill="#566674"></g>
+        <rect id="ztBand" x="30" y="0" width="50" height="0" rx="3" fill="#1b8a4b" opacity="0"/>
         <line id="ztMark" x1="30" x2="80" y1="0" y2="0" stroke="#1b8a4b" stroke-width="3" opacity="0"/>
         <!-- Heizplatte -->
         <rect x="200" y="226" width="220" height="30" rx="6" fill="#4a5a68"/>
@@ -668,22 +669,28 @@ Modul.makeMC($("#mc-train"), MC.train, "mct");
   }
 })();
 
-/* ---------- Station 3: Zündtemperatur ---------- */
+/* ---------- Station 3: Zündtemperatur ----------
+   Werte wie in der Abbildung darunter (assets/verbrennung/zuendtemperatur.jpg, seit 17.10.2026 genau abgeglichen). Steht dort
+   eine Spanne (Holzkohle 150–250 °C), entzündet sich der Stoff je nach Sorte und Größe der Stücke irgendwo darin: Die Simulation
+   wählt bei jedem Versuch einen Wert in der Spanne. „etwa“-Werte zünden genau dort. Nach dem Entzünden zeigt ein grünes Band am
+   Thermometer den ganzen Bereich aus der Abbildung, der Strich den Wert dieses Versuchs. */
 (function(){
   const STOFFE = [
-    {n: "Streichholzkopf", i: "🔴", z: 60, s: "60–80 °C"}, {n: "Papier", i: "📄", z: 250, s: "etwa 250 °C"}, {n: "Holzkohle", i: "⚫", z: 150, s: "150–250 °C"},
-    {n: "Benzin", i: "⛽", z: 220, s: "220–300 °C"}, {n: "Kerzenwachs", i: "🕯️", z: 250, s: "etwa 250 °C"}, {n: "trockenes Holz", i: "🌲", z: 250, s: "250–300 °C"},
-    {n: "Butan (Feuerzeug)", i: "💨", z: 400, s: "etwa 400 °C"}, {n: "Spiritus", i: "🧴", z: 425, s: "etwa 425 °C"}, {n: "Erdgas", i: "🔵", z: 600, s: "etwa 600 °C"}, {n: "Steinkohle", i: "⬛", z: 350, s: "350–600 °C"}
-  ];
-  const pick = $("#ztPick"), range = $("#ztRange"), merc = $("#ztMerc"), mark = $("#ztMark"), fire = $("#ztFire"), chip = $("#ztChip"), obs = $("#ztObs"), plate = $("#ztPlate"), heat = $("#ztHeat");
+    {n: "Streichholzkopf", i: "🔴", z: 60, o: 80}, {n: "Papier", i: "📄", z: 250}, {n: "Holzkohle", i: "⚫", z: 150, o: 250},
+    {n: "Benzin", i: "⛽", z: 220, o: 300}, {n: "Kerzenwachs", i: "🕯️", z: 250}, {n: "trockenes Holz", i: "🌲", z: 250, o: 300},
+    {n: "Butan (Feuerzeug)", i: "💨", z: 400}, {n: "Spiritus", i: "🧴", z: 425}, {n: "Erdgas", i: "🔵", z: 600}, {n: "Steinkohle", i: "⬛", z: 350, o: 600}
+  ].map(s => ({...s, s: s.o ? s.z + "–" + s.o + " °C" : "etwa " + s.z + " °C"}));
+  const pick = $("#ztPick"), range = $("#ztRange"), merc = $("#ztMerc"), mark = $("#ztMark"), band = $("#ztBand"), fire = $("#ztFire"), chip = $("#ztChip"), obs = $("#ztObs"), plate = $("#ztPlate"), heat = $("#ztHeat");
   const Y = T => 230 - (T - 0) / 700 * 196;   // Thermometerskala 0–700 °C
   const sc = $("#ztScale"); for (let T = 0; T <= 700; T += 100) { svgEl("line", {x1: 66, x2: 74, y1: Y(T), y2: Y(T), stroke: "#9aa5ad"}, sc); svgEl("text", {x: 78, y: Y(T) + 4}, sc).textContent = T + " °C"; }
-  const found = new Set(); let cur = STOFFE[1], lit = false;
+  const found = new Set(); let cur = STOFFE[1], lit = false, zuend = cur.z;
+  // Zündpunkt dieses Versuchs: in der Spanne aus der Abbildung (auf 5 °C gerundet, wie der Regler)
+  const neuerVersuch = () => { zuend = cur.o ? cur.z + Math.round(Math.random() * (cur.o - cur.z) / 5) * 5 : cur.z; };
   register("zuendtemp");
   pick.innerHTML = STOFFE.map((s, i) => `<button data-i="${i}" class="${i === 1 ? "sel" : ""}">${s.i} ${s.n}</button>`).join("");
   $$("button", pick).forEach(b => b.addEventListener("click", () => {
     $$("button", pick).forEach(x => x.classList.toggle("sel", x === b));
-    cur = STOFFE[+b.dataset.i]; range.value = 20; lit = false; update();
+    cur = STOFFE[+b.dataset.i]; range.value = 20; lit = false; neuerVersuch(); update();
     obs.textContent = "Schiebe den Regler langsam nach rechts.";
   }));
   function update(){
@@ -692,18 +699,24 @@ Modul.makeMC($("#mc-train"), MC.train, "mct");
     setText($("#ztTemp"), T + " °C"); setText($("#ztName"), cur.n); setText($("#ztIcon"), cur.i);
     plate.setAttribute("fill", T > 300 ? "#e0453a" : T > 150 ? "#b86a52" : "#8a949c");
     heat.setAttribute("opacity", clamp((T - 60) / 200, 0, 1).toFixed(2));
-    if (T >= cur.z && !lit) {
+    if (T >= zuend && !lit) {
       lit = true; found.add(cur.n);
       $$("button", pick)[STOFFE.indexOf(cur)].classList.add("done");
-      obs.innerHTML = `<b>${cur.n}</b> entzündet sich! Die Zündtemperatur liegt bei <b>${cur.s}</b>. ${found.size < 4 ? `Noch ${4 - found.size} Stoff(e) entdecken.` : "Vergleiche mit der Tabelle unten."}`;
+      obs.innerHTML = `<b>${cur.n}</b> entzündet sich bei <b>${zuend} °C</b>! ` +
+        (cur.o ? `Die Zündtemperatur von ${cur.n} liegt zwischen <b>${cur.z} und ${cur.o} °C</b> – je nach Sorte und Größe der Stücke (grünes Band).`
+          : `Die Zündtemperatur von ${cur.n} liegt bei <b>etwa ${cur.z} °C</b>.`) +
+        ` ${found.size < 4 ? `Noch ${4 - found.size} Stoff(e) entdecken.` : "Vergleiche mit der Abbildung unten."}`;
       if (found.size >= 4) solve("zuendtemp");
     }
-    if (T < cur.z) lit = false;
+    if (T < zuend) lit = false;
     fire.setAttribute("opacity", lit ? 1 : 0);
-    mark.setAttribute("opacity", found.has(cur.n) ? 1 : 0); mark.setAttribute("y1", Y(cur.z)); mark.setAttribute("y2", Y(cur.z));
-    chip.textContent = lit ? `🔥 brennt (ab ${cur.s})` : found.has(cur.n) ? `Zündtemperatur: ${cur.s}` : "noch nicht entzündet";
+    const zeigen = found.has(cur.n), unten = cur.z, oben = cur.o || cur.z;
+    mark.setAttribute("opacity", zeigen ? 1 : 0); mark.setAttribute("y1", Y(zuend)); mark.setAttribute("y2", Y(zuend));
+    band.setAttribute("opacity", zeigen ? .28 : 0); band.setAttribute("y", Y(oben) - 2); band.setAttribute("height", Y(unten) - Y(oben) + 4);
+    chip.textContent = lit ? `🔥 brennt (entzündet bei ${zuend} °C)` : zeigen ? `Zündtemperatur: ${cur.s}` : "noch nicht entzündet";
     chip.className = "chip " + (lit ? "warn" : "");
   }
+  neuerVersuch();
   range.addEventListener("input", update); update();
 })();
 

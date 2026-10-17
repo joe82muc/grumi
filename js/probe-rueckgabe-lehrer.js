@@ -13,6 +13,10 @@
  *   Rechtschreibung zählt dann nicht. Für künftige Proben steht LRS in der Verwaltung beim Code.
  * - Punkte ändern (Vokabeltest): jede Antwort selbst als richtig oder falsch werten – vor und nach der Rückgabe.
  *   Nachwerten: Der Server prüft die gespeicherten Antworten nach den aktuellen Regeln und wertet nur auf.
+ * - Testregeln (Vokabeltest seit 16.10.2026, alle Proben seit 17.10.2026): Eine Probe, die nach dem 2. Kopierversuch,
+ *   nach mehr als 1 Minute weg oder (nur Vokabeltest) nach 5× Verlassen beendet wurde, steht mit „⛔ Probe beendet …
+ *   – Note 6“ da; die Lehrkraft kann die Note 6 aufheben und wieder setzen. Automatisch abgegeben (5 Minuten nichts
+ *   eingegeben, Bildschirm gesperrt, Seite nicht mehr offen) steht als Hinweis ohne Folgen für die Note da.
  * - ProbeRueckgabeLehrer.mitNamen(blob): trägt in die Export-Datei des Servers (CSV, Excel) die Namen aus der
  *   Namensliste dieses Browsers ein (js/export-namen.js) – der Server kennt nur Codes.
  * - Speicher-Hinweis: Die Abgaben liegen dauerhaft in der Datenbank der Proben (proben-speicher.js). Nur wenn der
@@ -30,6 +34,17 @@
   var NACHWERTEN_ROUTE = { vokabeltest: "/api/vokabeltest/nachwerten" };
   // Module mit der Auswertung „Fehlerwörter“ (jede Aufgabe ist ein Wort: richtig oder falsch)
   var FEHLERWOERTER = { vokabeltest: true };
+  // Testregeln (Probe beendet = Note 6): Die Lehrkraft hebt die Note 6 auf – Vokabeltest über seine eigene Route, alle
+  // anderen Proben über /api/probe-regel/aufheben (mit dem Namen des Moduls)
+  var ABBRUCH_ROUTE = { vokabeltest: "/api/vokabeltest/abbruch" };
+  function abbruchRoute(modul) { return ABBRUCH_ROUTE[modul] || "/api/probe-regel/aufheben"; }
+  function abbruchGrund(ab) {
+    if (ab.grund === "kopieren") return ab.kopierversuche + ". Kopierversuch";
+    if (ab.grund === "weg") return (ab.sekunden ? ab.sekunden + " Sekunden" : "länger als 1 Minute") + " am Stück weg";
+    return ab.verlassen + "× verlassen";
+  }
+  var AUTOMATISCH = { ruhe: "5 Minuten nichts eingegeben", gesperrt: "länger als 1 Minute weg, nachdem 2 Minuten nichts mehr eingegeben wurde (Bildschirm gesperrt?)",
+    server: "Seite war nicht mehr offen – der Server hat den letzten Stand abgegeben" };
 
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
@@ -100,7 +115,7 @@
     var e = eintrag(r), name = (C.namen || {})[r.code] || [r.firstName, r.lastName].filter(Boolean).join(" ");
     return {
       fach: C.fach || "", titel: r.testTitle || r.testId || "", klasse: r.className || "", code: r.code || "", name: name || "",
-      datum: r.testDate || r.submittedAt || "", freigegebenAm: e ? e.freigegebenAm : "", kommentar: e && e.kommentar ? e.kommentar : "",
+      datum: r.testDate || r.submittedAt || "", freigegebenAm: e ? e.freigegebenAm : "", kommentar: (e && e.kommentar) || r.kommentar || "",
       score: r.score, total: r.total, percent: r.percent, grade: r.grade,
       aufgaben: (r.details || []).map(function (d, i) {
         var max = typeof d.maxPoints === "number" ? d.maxPoints : 1, punkte = typeof d.points === "number" ? d.points : d.correct ? 1 : 0;
@@ -142,6 +157,13 @@
   function widget(z) {
     var r = z.r, e = eintrag(r), el = z.el;
     var h = "";
+    // Testregeln: Der Test wurde nach den Warnungen beendet – Note 6, solange die Lehrkraft sie nicht aufhebt
+    var ab = r.abbruch || null;
+    if (r.automatisch && AUTOMATISCH[r.automatisch]) h += '<span class="stand" style="color:#92400e">⏱ Automatisch abgegeben: ' + esc(AUTOMATISCH[r.automatisch]) + "</span>";
+    if (ab) h += '<span class="stand" style="color:#b3261e">⛔ Probe beendet: ' + esc(abbruchGrund(ab)) +
+      (ab.aufgehoben ? " – Note 6 aufgehoben, es zählen die Punkte" : " – Note 6") + "</span>" +
+      '<button type="button" data-prl="abbruch" title="' + (ab.aufgehoben ? "Wieder Note 6 geben" : "Note 6 aufheben: Die Note richtet sich dann nach den Punkten") + '">' +
+      (ab.aufgehoben ? "Note 6 wieder setzen" : "Note 6 aufheben") + "</button>";
     // 7 Tage nach der Rückgabe verschwindet die Probe beim Kind von selbst (e.vorbei); Abgabe und Note bleiben
     if (e) h += '<span class="stand" title="Das Kind findet die Probe 7 Tage lang auf seiner Startseite unter „Zurückbekommen“ – danach verschwindet sie dort von selbst">📤 zurückgegeben am ' + esc(datum(e.freigegebenAm)) +
       (e.geoeffnetAm ? " · geöffnet am " + esc(datum(e.geoeffnetAm)) : e.vorbei ? " · nicht geöffnet" : " · noch nicht geöffnet") +
@@ -166,6 +188,24 @@
     if (prot) prot.addEventListener("click", function () { protokollZeigen(r); });
     var werten = el.querySelector('[data-prl="werten"]');
     if (werten) werten.addEventListener("click", function () { wertenZeigen(r); });
+    var abbruch = el.querySelector('[data-prl="abbruch"]');
+    if (abbruch) abbruch.addEventListener("click", function () {
+      var aufheben = !ab.aufgehoben;
+      if (!global.confirm(aufheben ? "Note 6 für " + C.wer(r) + " aufheben?\n\nDer Test bleibt als „beendet“ vermerkt, die Note richtet sich dann nach den Punkten."
+        : "Für " + C.wer(r) + " wieder Note 6 geben (Test nach den Testregeln beendet)?")) return;
+      abbruch.disabled = true;
+      modulPost(abbruchRoute(C.modul), { modul: C.modul, submissionId: r.id, aufheben: aufheben })
+        .then(function (d) {
+          meldung(C.wer(r) + ": " + (aufheben ? "Note 6 aufgehoben – " + d.score + " von " + d.total + " Punkten, Note " + d.grade + "." : "wieder Note 6."));
+          // Seiten ohne eigenes Neuladen zeichnen mit dem gespeicherten Satz: den neuen Stand gleich eintragen
+          if (d.abbruch) r.abbruch = d.abbruch;
+          if (d.grade !== undefined) r.grade = d.grade;
+          if (!aufheben && !r.kommentar && r.abbruch) r.kommentar = r.abbruch.text;
+          if (aufheben && r.abbruch && r.kommentar === r.abbruch.text) delete r.kommentar;
+          listeNeu();
+        })
+        .catch(function (x) { abbruch.disabled = false; meldung("Das hat nicht geklappt: " + x.message, "bad"); });
+    });
     var lrs = el.querySelector('[data-prl="lrs"]');
     if (lrs) lrs.addEventListener("click", function () {
       var an = !r.lrs;

@@ -356,7 +356,7 @@
   </div>
 </footer>
 
-<script src="../../../js/probe-schutz.js?v=20261008"></script>
+<script src="../../../js/probe-schutz.js?v=20261017"></script>
 <script>
 /* ============================================================
    Probe Organische Rohstoffe - NT 9 (9M und 9R)
@@ -461,7 +461,8 @@ $('btn-start').addEventListener('click', async () => {
       + ' · ' + TEST.maxPoints + ' Punkte';
 
     buildQuestions();
-    ProbeSchutz.start({ testId, code, box: $('q-list') });
+    // Testregeln (17.10.2026): länger als 1 Minute weg oder 2. Kopierversuch = Probe beendet, sofort abgegeben, Note 6
+    ProbeSchutz.start({ testId, code, box: $('q-list'), regel: { api: API_BASE, modul: 'nt9probe', beenden: () => abgeben(true) } });
     $('view-start').hidden = true;
     $('view-test').hidden  = false;
     window.scrollTo({ top:0 });
@@ -650,10 +651,12 @@ $('confirm').addEventListener('click', e => { if(e.target === $('confirm')) nach
 document.addEventListener('keydown', e => {
   if(e.key === 'Escape' && !$('confirm').hidden) nachfrageSchliessen();
 });
-$('c-send').addEventListener('click', () => { $('confirm').hidden = true; abgeben(); });
+$('c-send').addEventListener('click', () => { $('confirm').hidden = true; abgeben(false); });
 
-async function abgeben(){
+/* automatisch: nach den Testregeln beendet – ohne Rückfrage; klappt es nicht, alle 15 Sekunden neu versuchen */
+async function abgeben(automatisch){
   if(sending) return;
+  if(automatisch) $('confirm').hidden = true;
   sending = true;
   const btn = $('btn-submit');
   btn.disabled = true;
@@ -668,7 +671,7 @@ async function abgeben(){
         code: STUDENT.code,
         testDate: new Date().toISOString().slice(0,10),
         answers: ANSWERS,
-        verlassen: ProbeSchutz.verlassen(), protokoll: ProbeSchutz.protokoll()
+        verlassen: ProbeSchutz.verlassen(), protokoll: ProbeSchutz.protokoll(), ...ProbeSchutz.regelFelder()
       })
     });
     const data = await res.json();
@@ -684,6 +687,7 @@ async function abgeben(){
       btn.textContent = 'Probe abgeben';
       msg('submit-msg','Die Probe ist gerade gesperrt. Melde dich bei deiner Lehrkraft &ndash; '
         + 'deine Antworten sind noch da. Lass diese Seite offen.','bad');
+      if(automatisch) ProbeSchutz.endeStatus('Die Probe ist gerade gesperrt. Melde dich bei deiner Lehrkraft und lass diese Seite offen.');
       return;
     }
     if(!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
@@ -697,6 +701,7 @@ async function abgeben(){
     btn.textContent = 'Probe abgeben';
     msg('submit-msg','Die Abgabe hat nicht geklappt. Bitte noch einmal auf '
       + '&bdquo;Probe abgeben&ldquo; tippen. Deine Antworten sind noch da.','bad');
+    if(automatisch){ ProbeSchutz.endeStatus('Die Abgabe hat nicht geklappt – neuer Versuch in 15 Sekunden. Lass die Seite offen.'); setTimeout(() => abgeben(true), 15000); }
   }
 }
 

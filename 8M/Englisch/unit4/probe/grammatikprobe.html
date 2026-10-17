@@ -296,7 +296,7 @@
   </div>
 </footer>
 
-<script src="../../../../js/probe-schutz.js?v=20261008"></script>
+<script src="../../../../js/probe-schutz.js?v=20261017"></script>
 <script>
 /* ============================================================
    Grammatikproben - Englisch 8M, Unit 4 (erzeugt von bau-e8m-seiten.js aus der Seite der 9. Klasse)
@@ -398,7 +398,8 @@ $('btn-start').addEventListener('click', async () => {
     $('t-person').textContent = 'Code ' + code + ' · ' + TEST.maxPoints + ' Punkte';
 
     buildQuestions();
-    ProbeSchutz.start({ testId, code, box: $('q-list') });
+    // Testregeln (17.10.2026): länger als 1 Minute weg oder 2. Kopierversuch = Probe beendet, sofort abgegeben, Note 6
+    ProbeSchutz.start({ testId, code, box: $('q-list'), regel: { api: API_BASE, modul: 'grammatik9r', beenden: () => einreichen(true) } });
     $('view-start').hidden = true;
     $('view-test').hidden  = false;
     window.scrollTo({ top:0 });
@@ -513,11 +514,13 @@ function updateProgress(){
 }
 
 /* ---------- Abgeben ---------- */
-$('btn-submit').addEventListener('click', async () => {
+$('btn-submit').addEventListener('click', () => einreichen(false));
+/* automatisch: nach den Testregeln beendet – ohne Rückfrage; klappt es nicht, alle 15 Sekunden neu versuchen */
+async function einreichen(automatisch){
   if(sending) return;
 
   const offen = ITEMS.filter((_, i) => !isDone(i)).length;
-  const ok = confirm((offen > 0 ? 'Es sind noch ' + offen + ' Aufgaben offen.\n\n' : '')
+  const ok = automatisch || confirm((offen > 0 ? 'Es sind noch ' + offen + ' Aufgaben offen.\n\n' : '')
     + 'Test jetzt abgeben? Danach kannst du nichts mehr ändern.');
   if(!ok) return;
 
@@ -535,12 +538,13 @@ $('btn-submit').addEventListener('click', async () => {
         code: STUDENT.code,
         testDate: new Date().toISOString().slice(0,10),
         answers: ANSWERS,
-        verlassen: ProbeSchutz.verlassen(), protokoll: ProbeSchutz.protokoll()
+        verlassen: ProbeSchutz.verlassen(), protokoll: ProbeSchutz.protokoll(), ...ProbeSchutz.regelFelder()
       })
     });
     const data = await res.json();
 
     if(res.status === 409){
+      ProbeSchutz.endeStatus('Dieser Test wurde bereits abgegeben.');
       msg('submit-msg','Dieser Test wurde bereits abgegeben.','bad');
       btn.textContent = 'Bereits abgegeben';
       return;
@@ -554,8 +558,9 @@ $('btn-submit').addEventListener('click', async () => {
     btn.disabled = false;
     btn.textContent = 'Test abgeben';
     msg('submit-msg','Die Abgabe hat nicht geklappt. Bitte noch einmal auf &bdquo;Test abgeben&ldquo; tippen. Deine Antworten sind noch da.','bad');
+    if(automatisch){ ProbeSchutz.endeStatus('Die Abgabe hat nicht geklappt – neuer Versuch in 15 Sekunden. Lass die Seite offen.'); setTimeout(() => einreichen(true), 15000); }
   }
-});
+}
 
 /* ---------- Ergebnis ---------- */
 function showResult(r){

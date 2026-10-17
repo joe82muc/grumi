@@ -118,17 +118,24 @@
       $("exam-title").textContent = data.test.title;
       $("exam-points").textContent = data.test.maxPoints + " Punkte";
       $("questions").innerHTML = data.items.map(itemMarkup).join("");
-      ProbeSchutz.start({ testId: data.test.id, code: student.code, box: $("questions") });
+      // Testregeln (17.10.2026): länger als 1 Minute weg oder 2. Kopierversuch = Probe beendet, sofort abgegeben, Note 6
+      ProbeSchutz.start({ testId: data.test.id, code: student.code, box: $("questions"),
+        regel: { api: API, modul: "nt7", beenden: () => einreichen(true) } });
       window.scrollTo({top:0,behavior:"smooth"});
     } catch (err) { status(err.message,true); window.scrollTo({top:0,behavior:"smooth"}); }
     finally { button.disabled = false; }
   });
-  $("exam-form").addEventListener("submit", async e => {
-    e.preventDefault();
-    if (!confirm("Probe wirklich abgeben? Danach kannst du nichts mehr ändern.")) return;
+  $("exam-form").addEventListener("submit", e => { e.preventDefault(); einreichen(false); });
+  // automatisch: nach den Testregeln beendet – ohne Rückfrage; klappt es nicht, alle 15 Sekunden neu versuchen
+  let laeuft = false, fertig = false;
+  async function einreichen(automatisch) {
+    if (laeuft || fertig) return;
+    if (!automatisch && !confirm("Probe wirklich abgeben? Danach kannst du nichts mehr ändern.")) return;
+    laeuft = true;
     const button = $("submit-exam"); button.disabled = true; button.textContent = "Wird ausgewertet ...";
     try {
-      const data = await abgeben({testId:exam.test.id,...student,answers:collect(),verlassen:ProbeSchutz.verlassen(),protokoll:ProbeSchutz.protokoll()}, text => { status(text,true); button.textContent = "Wird noch einmal gesendet ..."; });
+      const data = await abgeben({testId:exam.test.id,...student,answers:collect(),verlassen:ProbeSchutz.verlassen(),protokoll:ProbeSchutz.protokoll(),...ProbeSchutz.regelFelder()}, text => { status(text,true); ProbeSchutz.endeStatus(text); button.textContent = "Wird noch einmal gesendet ..."; });
+      fertig = true;
       if (data.angekommen) {
         ProbeSchutz.ende();
         $("questions-section").hidden = true; $("status").hidden = true;
@@ -143,7 +150,11 @@
       const r = data.result;
       $("result-section").innerHTML = `<div class="eyebrow">Abgegeben · ${esc(exam.test.title)}</div><h1>Dein Ergebnis</h1><div class="score-line"><strong>${r.score} / ${r.total}</strong><span>${r.percent} % · Note ${r.grade}</span></div>${r.needsReview ? `<p class="notice">Einige freie Antworten wurden nur vorläufig mit Stichwörtern bewertet, weil die KI nicht erreichbar war. Die Lehrkraft kann die Punkte korrigieren.</p>` : ""}<h2>Lösungsschlüssel und Rückmeldung</h2>${r.details.map(resultMarkup).join("")}<p class="nextbar"><a class="btn secondary" href="index.html">Zurück zur Lernreihe</a></p>`;
       $("result-section").hidden = false; window.scrollTo({top:0,behavior:"smooth"});
-    } catch (err) { button.disabled = false; button.textContent = "Probe abgeben und auswerten"; status(err.message,true); window.scrollTo({top:0,behavior:"smooth"}); }
-  });
+    } catch (err) {
+      button.disabled = false; button.textContent = "Probe abgeben und auswerten"; status(err.message,true); window.scrollTo({top:0,behavior:"smooth"});
+      if (automatisch && err.endgueltig) { ProbeSchutz.endeStatus(err.message + " Bitte sag deiner Lehrkraft Bescheid."); return; }
+      if (automatisch) { ProbeSchutz.endeStatus(err.message + " Neuer Versuch in 15 Sekunden – lass die Seite offen."); setTimeout(() => { laeuft = false; einreichen(true); }, 15000); return; }
+    } finally { if (!automatisch || fertig) laeuft = false; }
+  }
   load();
 })();

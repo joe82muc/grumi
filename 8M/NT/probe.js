@@ -169,7 +169,9 @@
         const el = document.querySelector(`#questions [data-labor="${item.nr}"]`), lab = window.NT8Darstellung.labor(el, item);
         if (lab && item.type === "labor") { labore[item.nr] = lab; lab.beiAenderung(() => { beruehrt[item.nr] = true; geaendert(); }); }
       });
-      const lokal = ProbeSchutz.start({ testId: data.test.id, code: student.code, box: $("questions"), extra: { holen: laborStaende, setzen: laborSetzen } });
+      // Testregeln (17.10.2026): länger als 1 Minute weg oder 2. Kopierversuch = Probe beendet, sofort abgegeben, Note 6
+      const lokal = ProbeSchutz.start({ testId: data.test.id, code: student.code, box: $("questions"), extra: { holen: laborStaende, setzen: laborSetzen },
+        regel: { api: API, modul: "nt8", beenden: () => einreichen(true) } });
       // Kein Stand auf diesem Gerät, aber einer auf dem Server (anderes Gerät, neuer Browser): übernehmen
       if (!lokal && data.zwischenstand && Array.isArray(data.zwischenstand.answers)) { setze(data.zwischenstand.answers); status("Deine Antworten vom letzten Mal sind wieder da. Mach einfach weiter."); }
       ["input", "change"].forEach(art => $("questions").addEventListener(art, geaendert));
@@ -205,16 +207,20 @@
     }
     throw new Error("Die Abgabe ist noch nicht angekommen (" + letzter + "). Deine Antworten bleiben hier stehen und sind gesichert. Sag deiner Lehrkraft Bescheid und tippe dann noch einmal auf „Probe abgeben“.");
   }
-  $("exam-form").addEventListener("submit", async e => {
-    e.preventDefault();
+  $("exam-form").addEventListener("submit", e => { e.preventDefault(); einreichen(false); });
+  // automatisch: nach den Testregeln beendet – ohne Rückfrage; klappt es nicht, alle 15 Sekunden neu versuchen
+  let laeuft = false;
+  async function einreichen(automatisch) {
+    if (laeuft || !exam) return;
     const answers = collect(), offen = exam.items.filter((item, i) => leer(item, answers[i])).map(item => item.nr);
     const hinweis = $("leer-hinweis");
     hinweis.hidden = !offen.length;
     hinweis.textContent = offen.length ? (offen.length === 1 ? "Aufgabe " + offen[0] + " ist noch leer." : "Diese Aufgaben sind noch leer: " + offen.join(", ") + ".") : "";
-    if (!confirm((offen.length ? hinweis.textContent + "\n\n" : "") + "Probe wirklich abgeben? Danach kannst du nichts mehr ändern.")) return;
+    if (!automatisch && !confirm((offen.length ? hinweis.textContent + "\n\n" : "") + "Probe wirklich abgeben? Danach kannst du nichts mehr ändern.")) return;
+    laeuft = true;
     const button = $("submit-exam"); button.disabled = true; button.textContent = "Wird abgegeben ...";
     try {
-      const data = await abgeben({ testId: exam.test.id, ...student, answers, verlassen: ProbeSchutz.verlassen(), protokoll: ProbeSchutz.protokoll() }, text => { status(text, true); button.textContent = "Wird noch einmal gesendet ..."; });
+      const data = await abgeben({ testId: exam.test.id, ...student, answers, verlassen: ProbeSchutz.verlassen(), protokoll: ProbeSchutz.protokoll(), ...ProbeSchutz.regelFelder() }, text => { status(text, true); ProbeSchutz.endeStatus(text); button.textContent = "Wird noch einmal gesendet ..."; });
       clearInterval(takt); clearInterval(uhr); clearTimeout(geaendert.t);
       // für die Übersicht: „abgegeben – wartet auf die Korrektur“
       try { const k = "grumi-nt8-abgegeben~code-" + student.code, m = JSON.parse(localStorage.getItem(k) || "{}") || {}; m[exam.test.id] = new Date().toISOString(); localStorage.setItem(k, JSON.stringify(m)); } catch (_e) {}
@@ -223,7 +229,13 @@
       // Punkte und Korrektur gibt es erst mit der Rückgabe durch die Lehrkraft – auch wenn ein Server sie mitschickt
       const result = data.angekommen ? { abgegeben: true, submittedAt: new Date().toISOString() } : { abgegeben: true, submittedAt: (data.result && data.result.submittedAt) || new Date().toISOString() };
       ProbeSchutz.abgegeben(result, { box: $("result-section"), weg: [$("questions-section"), $("status")], titel });
-    } catch (err) { button.disabled = false; button.textContent = "Probe abgeben"; status(err.message, true); window.scrollTo({ top: 0, behavior: "smooth" }); }
-  });
+      laeuft = false;
+    } catch (err) {
+      button.disabled = false; button.textContent = "Probe abgeben"; status(err.message, true); window.scrollTo({ top: 0, behavior: "smooth" });
+      if (automatisch && err.endgueltig) { ProbeSchutz.endeStatus(err.message + " Bitte sag deiner Lehrkraft Bescheid."); return; }
+      if (automatisch) { ProbeSchutz.endeStatus(err.message + " Neuer Versuch in 15 Sekunden – lass die Seite offen."); setTimeout(() => { laeuft = false; einreichen(true); }, 15000); return; }
+      laeuft = false;
+    }
+  }
   load();
 })();

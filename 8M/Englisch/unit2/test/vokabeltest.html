@@ -159,6 +159,10 @@
         <li><strong>Die Schreibweise z&auml;hlt:</strong> Schreib jedes Wort genau richtig. Schon ein falscher oder fehlender Buchstabe macht das Wort falsch.</li>
         <li>Jedes Feld darfst du <strong>2&times; korrigieren</strong>, danach ist es fest.</li>
         <li>Lade die Seite <strong>nicht neu</strong> und schlie&szlig;e den Tab nicht.</li>
+        <li><strong>Bleib im Test:</strong> Verl&auml;sst du die Seite (anderer Tab, andere App), bekommst du eine Warnung. Nach 4 Warnungen ist der Test beim <strong>5. Mal beendet &ndash; Note&nbsp;6</strong>.</li>
+        <li><strong>Kopieren und Einf&uuml;gen sind verboten:</strong> Beim 1. Versuch gibt es eine Warnung, beim <strong>2. Versuch ist der Test beendet &ndash; Note&nbsp;6</strong>.</li>
+        <li><strong>Nie l&auml;nger als 1 Minute weg:</strong> Bist du l&auml;nger als 1 Minute am St&uuml;ck nicht auf der Testseite, ist der Test sofort beendet &ndash; <strong>Note&nbsp;6</strong>.</li>
+        <li><strong>Abgeben nicht vergessen:</strong> Gibst du 5 Minuten lang nichts mehr ein, wird dein Test automatisch abgegeben.</li>
       </ul>
     </div>
 
@@ -201,7 +205,7 @@
 
 </div>
 
-<script src="../../../../js/probe-schutz.js?v=20261008"></script>
+<script src="../../../../js/probe-schutz.js?v=20261017"></script>
 <script>
 /* ============================================================
    Vokabeltest - Schueleransicht
@@ -319,7 +323,15 @@ $('btn-start').addEventListener('click', async () => {
         if (locked[i]) { inp.readOnly = true; info.textContent = 'Festgelegt – keine Korrektur mehr möglich'; info.classList.add('none'); }
         else info.textContent = 'Noch ' + (MAX_EDITS - n) + '× korrigierbar';
       })
-    }});
+    },
+      // Testregeln (16.10.2026): Verlassen – 4 Warnungen, beim 5. Mal ist der Test beendet; Kopieren/Einfügen – 1 Warnung,
+      // beim 2. Versuch beendet. Beendet = sofort abgeben, der Server gibt Note 6. Die Zahlen nennt der Server, er zählt mit.
+      // Seit 17.10.2026: länger als 1 Minute weg = beendet, 5 Minuten nichts eingegeben = automatisch abgegeben; die Seite
+      // meldet ihren Stand jede Minute (puls) – ist sie zu, gibt der Server mit dem letzten Stand ab.
+      regel: { verlassen: (data.regel && data.regel.verlassen) || 5, kopieren: (data.regel && data.regel.kopieren) || 2,
+        wegSekunden: (data.regel && data.regel.wegSekunden) || 60, ruheMinuten: (data.regel && data.regel.ruheMinuten) || 5, puls: true,
+        bisher: data.vorfaelle, beenden: () => abgeben(true), melden: vorfallMelden }
+    });
   }catch(e){
     msg('login-msg','Keine Verbindung zum Server. Bitte melde dich bei deiner Lehrkraft.','bad');
     $('btn-start').disabled = false;
@@ -404,28 +416,42 @@ function updateBar(){
   $('pbar').style.width = (items.length ? done / items.length * 100 : 0) + '%';
 }
 
-/* ---------- Abgeben ---------- */
-$('btn-submit').addEventListener('click', async () => {
-  const offen = answers.filter(a => !a || !a.trim()).length;
-  const frage = offen
-    ? 'Es sind noch ' + offen + ' Felder leer. Trotzdem abgeben?\n\nNach dem Abgeben kannst du nichts mehr ändern.'
-    : 'Test wirklich abgeben?\n\nNach dem Abgeben kannst du nichts mehr ändern.';
-  if(!confirm(frage)) return;
+/* ---------- Abgeben ----------
+   automatisch: Der Test ist nach den Testregeln beendet (js/probe-schutz.js) – ohne Rückfrage abgeben; fehlt die
+   Verbindung, alle 5 Sekunden neu versuchen. */
+let abgabeLaeuft = false;
+async function abgeben(automatisch){
+  if(submitted || abgabeLaeuft) return;
+  if(!automatisch){
+    const offen = answers.filter(a => !a || !a.trim()).length;
+    const frage = offen
+      ? 'Es sind noch ' + offen + ' Felder leer. Trotzdem abgeben?\n\nNach dem Abgeben kannst du nichts mehr ändern.'
+      : 'Test wirklich abgeben?\n\nNach dem Abgeben kannst du nichts mehr ändern.';
+    if(!confirm(frage)) return;
+  }
 
+  abgabeLaeuft = true;
   $('btn-submit').disabled = true;
   $('btn-submit').textContent = 'Wird abgegeben …';
 
   try{
     const res = await fetch(API_BASE + '/api/vokabeltest/submit', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ ...student, answers, verlassen: ProbeSchutz.verlassen(), protokoll: ProbeSchutz.protokoll() })
+      body: JSON.stringify({ ...student, answers, verlassen: ProbeSchutz.verlassen(), protokoll: ProbeSchutz.protokoll(),
+        ...ProbeSchutz.regelFelder() })
     });
     const data = await res.json();
+    abgabeLaeuft = false;
 
     if(!data.ok){
       if(data.error === 'already_submitted'){
-        submitted = true;
+        submitted = true; testRunning = false;
+        ProbeSchutz.ende();
         showLockedScreen('Dieser Test wurde bereits abgegeben.');
+        return;
+      }
+      if(automatisch){
+        ProbeSchutz.endeStatus((data.message || 'Die Abgabe hat nicht geklappt.') + ' Bitte sofort bei deiner Lehrkraft melden.');
         return;
       }
       $('btn-submit').disabled = false;
@@ -439,11 +465,36 @@ $('btn-submit').addEventListener('click', async () => {
     if (ProbeSchutz.abgegeben && ProbeSchutz.abgegeben(data.result, { box: $('view-result'), weg: $('view-test'), titel: testMeta && testMeta.title })) return;   // Note erst nach der Rückgabe
     showResult(data.result);
   }catch(e){
+    abgabeLaeuft = false;
+    if(automatisch){
+      ProbeSchutz.endeStatus('Keine Verbindung zum Server – neuer Versuch in 5 Sekunden. Bitte schließe diese Seite nicht.');
+      setTimeout(() => abgeben(true), 5000);
+      return;
+    }
     $('btn-submit').disabled = false;
     $('btn-submit').textContent = 'Test abgeben';
     alert('Keine Verbindung zum Server. Bitte sofort bei der Lehrkraft melden – gib den Tab NICHT zu.');
   }
-});
+}
+$('btn-submit').addEventListener('click', () => abgeben(false));
+
+/* Testregeln: jedes gezählte Verlassen und jeden Kopierversuch dem Server melden (er zählt mit, auch auf einem anderen Gerät).
+   Dazu der Stand: Antworten, ob die Seite sichtbar ist, seit wann sie verlassen ist, letzte Eingabe. Kommt nichts mehr
+   (Seite zu, Gerät gesperrt), gibt der Server den Test mit diesem Stand ab. */
+function vorfallMelden(z){
+  if(!student || submitted) return;
+  fetch(API_BASE + '/api/vokabeltest/vorfall', {
+    method:'POST', headers:{'Content-Type':'application/json'}, keepalive: true,
+    body: JSON.stringify({ testId: student.testId, code: student.code, testDate: student.testDate, verlassen: z.verlassen, kopieren: z.kopieren,
+      sichtbar: z.sichtbar, weg: z.weg, aktiv: z.aktiv, answers })
+  }).then(r => r.json().catch(() => ({}))).then(d => {
+    // Der Server hat den Test schon abgegeben (Seite war zu lange zu): nicht weiterschreiben lassen
+    if (d && d.error === 'already_submitted' && !submitted && !abgabeLaeuft) {
+      submitted = true; testRunning = false; ProbeSchutz.ende();
+      showLockedScreen('Dein Test wurde schon abgegeben – automatisch, weil die Seite länger nicht offen war.');
+    }
+  }).catch(() => {});
+}
 
 /* ---------- Ergebnis ---------- */
 function showResult(r){
