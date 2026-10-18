@@ -158,7 +158,7 @@
       return '<p class="pv-anw">' + (a.type === "multi" ? "Kreuze alle richtigen Antworten an." : "Kreuze die richtige Antwort an.") + '</p><ul class="pv-kreuz">' +
         r.map(function (i) { return '<li><span class="pv-box"></span><span>' + esc(a.options[i]) + "</span></li>"; }).join("") + "</ul>";
     }
-    if (a.type === "tf") return kreuztabelle(["richtig", "falsch"], (a.statements || []).map(function (s) { return [s[0], s[1] ? 0 : 1]; }), false, true);
+    if (a.type === "tf") return kreuztabelle(a.wahl || ["richtig", "falsch"], (a.statements || []).map(function (s) { return [s[0], s[1] ? 0 : 1]; }), false, true);
     if (a.type === "kreuz") return kreuztabelle(a.spalten || [], a.zeilen || [], false);
     if (a.type === "match") {
       k = alsKreuz(a);
@@ -206,7 +206,7 @@
       var richtig = function (i) { return a.type === "multi" ? (a.answers || []).indexOf(i) >= 0 : i === a.answer; };
       return liste(r.map(function (i) { return '<li class="' + (richtig(i) ? "ok" : "") + '">' + (richtig(i) ? "✅ " : "") + esc(a.options[i]) + "</li>"; })) + (a.type === "multi" ? "<p>Für jedes falsche Kreuz wird 1 Punkt abgezogen.</p>" : "");
     }
-    if (a.type === "tf") return kreuztabelle(["richtig", "falsch"], (a.statements || []).map(function (s) { return [s[0], s[1] ? 0 : 1]; }), true);
+    if (a.type === "tf") return kreuztabelle(a.wahl || ["richtig", "falsch"], (a.statements || []).map(function (s) { return [s[0], s[1] ? 0 : 1]; }), true);
     if (a.type === "kreuz") return kreuztabelle(a.spalten || [], a.zeilen || [], true);
     if (a.type === "match") {
       k = alsKreuz(a);

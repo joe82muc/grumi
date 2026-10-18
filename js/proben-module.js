@@ -138,6 +138,7 @@
       /* Informatik 8, Version 2: je Modul eine Probe, in einer Fassung für 8R und für 8M (t.zug) */
       key: "inf8", subject: "Informatik", stufen: [8], liste: "INF8",
       listPath: "/api/inf8/list", unlockPath: "/api/inf8/teacher/unlock", vorschauBasis: "8M/Informatik/",
+      vorschauLabor: "8M/NT/",   // Tabellen in der Vorschau (Probe 1b) zeichnet 8M/NT/darstellung.js
       klasse: function (t) { return "8" + (t.zug || ""); }, link: function () { return "8M/Informatik/lehrer.html"; },
       schueler: function (t) { return "8M/Informatik/probe.html?test=" + encodeURIComponent(t.id) + (t.zug ? "&zug=" + t.zug : ""); }
     },

@@ -20,18 +20,20 @@
     {
       id: "infosys", nr: "01", titel: "Digitale Informationssysteme", kurz: "Informationssysteme", icon: "🔎", zeit: "September bis Oktober",
       text: "Suchmaschine, Fahrplan, Lernplattform, Berufsportal: Du findest heraus, wie solche Systeme arbeiten, und nutzt sie für kluge Entscheidungen.",
-      proben: [{ R: "inf8-p1-r", M: "inf8-p1-m" }],
+      // Probe 1b (18.10.2026): nach den Hefteinträgen, nur Anklicken plus eine Aufgabe für die KI, R-Schlüssel für 8R und 8M.
+      // blatt: Hefteintrag und Arbeitsblatt (Lösung auf Seite 2) in 8M/Informatik/arbeitsblaetter/ – Text: LERNMATERIAL unten
+      proben: [{ R: "inf8-p1-r", M: "inf8-p1-m" }, { R: "inf8-p1b-r", M: "inf8-p1b-m" }],
       module: [
-        { id: "eva", kz: "I1", titel: "Was ist ein Informationssystem?", href: "eva.html", key: "grumi-i8-eva-v1",
+        { id: "eva", kz: "I1", blatt: "I1", titel: "Was ist ein Informationssystem?", href: "eva.html", key: "grumi-i8-eva-v1",
           text: "Du fragst, das System antwortet: Eingabe, Verarbeitung, Ausgabe – an einer Fahrplanauskunft zum Ausprobieren.",
           tags: ["Fahrplan ausprobieren", "Animation", "Tablet geeignet"] },
-        { id: "aufbau", kz: "I2", titel: "Aufbau eines Informationssystems", href: "aufbau.html", key: "grumi-i8-aufbau-v1",
+        { id: "aufbau", kz: "I2", blatt: "I2", titel: "Aufbau eines Informationssystems", href: "aufbau.html", key: "grumi-i8-aufbau-v1",
           text: "Nutzer, Anwendung, Server, Daten: Du verfolgst eine Anfrage auf ihrem Weg und findest heraus, wo es klemmt.",
           tags: ["Anfrage verfolgen", "Fehler finden", "Tablet geeignet"] },
-        { id: "entscheiden", kz: "I3", titel: "Informationen gezielt nutzen", href: "entscheiden.html", key: "grumi-i8-entscheiden-v1",
+        { id: "entscheiden", kz: "I3", blatt: "I3", titel: "Informationen gezielt nutzen", href: "entscheiden.html", key: "grumi-i8-entscheiden-v1",
           text: "Welcher Praktikumsplatz passt? Du filterst, vergleichst und triffst eine Entscheidung, die du begründen kannst.",
           tags: ["Berufsportal", "Filtern und sortieren", "Tablet geeignet"] },
-        { id: "vergleichen", kz: "I4", titel: "Informationssysteme vergleichen", href: "vergleichen.html", key: "grumi-i8-vergleichen-v1",
+        { id: "vergleichen", kz: "I4", blatt: "I4", titel: "Informationssysteme vergleichen", href: "vergleichen.html", key: "grumi-i8-vergleichen-v1",
           text: "Für jede Aufgabe das passende System: Du wählst aus, bewertest und zeigst im Profi-Check, was du kannst.",
           tags: ["Fälle entscheiden", "Kreuzworträtsel", "Probenstoff"] }
       ]
@@ -39,18 +41,18 @@
     {
       id: "daten", nr: "02", titel: "Datenschutz und Big Data", kurz: "Datenschutz", icon: "🛡️", zeit: "November bis Dezember",
       text: "Welche Daten gibst du preis, was machen Unternehmen damit – und wie behältst du die Kontrolle?",
-      proben: [{ R: "inf8-p2-r", M: "inf8-p2-m" }],
+      proben: [{ R: "inf8-p2-r", M: "inf8-p2-m" }, { R: "inf8-p2b-r", M: "inf8-p2b-m" }],
       module: [
-        { id: "spuren", kz: "D1", titel: "Welche Daten gebe ich preis?", href: "spuren.html", key: "grumi-i8-spuren-v1",
+        { id: "spuren", kz: "D1", blatt: "D1", titel: "Welche Daten gebe ich preis?", href: "spuren.html", key: "grumi-i8-spuren-v1",
           text: "Name, Standort, Fotos, Suchverlauf: Ein ganz normaler Tag – und wie viele Daten dabei zusammenkommen.",
           tags: ["Datenspuren sammeln", "Anmeldung ausfüllen", "Tablet geeignet"] },
-        { id: "bedingungen", kz: "D2", titel: "Datenschutzbedingungen", href: "bedingungen.html", key: "grumi-i8-bedingungen-v1",
+        { id: "bedingungen", kz: "D2", blatt: "D2", titel: "Datenschutzbedingungen", href: "bedingungen.html", key: "grumi-i8-bedingungen-v1",
           text: "Niemand liest sie – du schon: kurze Ausschnitte prüfen. Was wird gesammelt, wozu, und wem nützt es?",
           tags: ["Texte prüfen", "Stellen finden", "Tablet geeignet"] },
-        { id: "bigdata", kz: "D3", titel: "Big Data", href: "bigdata.html", key: "grumi-i8-bigdata-v1",
+        { id: "bigdata", kz: "D3", blatt: "D3", titel: "Big Data", href: "bigdata.html", key: "grumi-i8-bigdata-v1",
           text: "Viele kleine Daten ergeben ein genaues Bild von dir. Du siehst zu, wie ein Profil entsteht.",
           tags: ["Animation", "Empfehlungs-Maschine", "Tablet geeignet"] },
-        { id: "schuetzen", kz: "D4", titel: "Wie schütze ich meine Daten?", href: "schuetzen.html", key: "grumi-i8-schuetzen-v1",
+        { id: "schuetzen", kz: "D4", blatt: "D4", titel: "Wie schütze ich meine Daten?", href: "schuetzen.html", key: "grumi-i8-schuetzen-v1",
           text: "Berechtigungen, Standort, Cookies, Privatsphäre: Du stellst ein Handy so ein, dass es weniger verrät.",
           tags: ["Einstellungen üben", "Kreuzworträtsel", "Probenstoff"] }
       ]
@@ -220,6 +222,9 @@
     THEMEN: THEMEN, probeModule: probeModule, API: API, VORSCHAU: VORSCHAU, modulVon: modulVon, idAusKey: idAusKey, offen: offen, freigabe: freigabe, zug: zug,
     // Angaben für die gemeinsamen Bausteine (7M/NT/modul-basis.js) und die Übersicht (7M/Informatik/uebersicht.js)
     KURS: "i8", PREFIX: PREFIX, WORT: "Einheit", DAS: "die Einheit", ES: "sie", STUFE: "8", PFAD: "/api/inf8",
+    // Kasten „Lernen für die Probe“ unten in der Einheit (7M/NT/modul-basis.js, lernmaterial; Einheiten mit blatt)
+    LERNMATERIAL: { text: "Zu dieser Einheit gibt es einen ganz einfachen Hefteintrag zum Lernen und ein kurzes Arbeitsblatt zum Ausfüllen. Die Lösung steht auf der Rückseite (Seite 2) – erst selbst lösen, dann umdrehen. Zum Ausdrucken oder am Bildschirm.",
+      dateien: [["hefteintrag", "📘 Hefteintrag"], ["arbeitsblatt", "📝 Arbeitsblatt (Lösung auf der Rückseite)"]] },
     SPERRE: "Diese Einheit ist noch nicht freigeschaltet", ZURUECK: "💻 Zur Übersicht Informatik 8",
     ALT: null,          // die bisherigen Module (8/Informatik_8) sind seit dem 06.10.2026 entfernt
     INTRO: "Fünf Module mit kurzen Einheiten: ausprobieren, anwenden, verstehen, sichern. Bei Excel und Scratch arbeitest du am Windows-PC. Deine Lehrkraft schaltet die Einheiten nach und nach frei.",

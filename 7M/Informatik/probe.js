@@ -87,13 +87,17 @@
     if (item.type === "order") controls = `<div class="order-box" data-order>${item.steps.map(o => `<div class="order-row" data-step="${esc(o)}"><span class="order-nr"></span><span class="order-text">${esc(o)}</span><span class="order-move"><button type="button" data-move="-1" aria-label="nach oben">▲</button><button type="button" data-move="1" aria-label="nach unten">▼</button></span></div>`).join("")}</div><p class="order-hint">Bringe die Schritte mit den Pfeilen in die richtige Reihenfolge. Oben steht, was zuerst kommt.</p>`;
     if (item.type === "text") controls = `<textarea aria-label="Antwort zu Aufgabe ${item.nr}" rows="4" maxlength="1500" placeholder="Schreibe deine Antwort in eigenen Worten."></textarea>`;
     // Informatik 7, Probe 1b (18.10.2026): Richtig/falsch, mehrere richtige Antworten, E-Mail schreiben
-    if (item.type === "tf") controls = `<div class="tf-liste">${item.statements.map((s,j) => `<div class="tf-zeile"><span>${esc(s)}</span><span class="tf-wahl"><label><input type="radio" name="item-${item.nr}-${j}" value="1"> richtig</label><label><input type="radio" name="item-${item.nr}-${j}" value="0"> falsch</label></span></div>`).join("")}</div>`;
+    // wahl (Informatik 8): eigene Beschriftung der beiden Knöpfe, z. B. „erlauben“ / „ablehnen“
+    const [ja, nein] = item.wahl || ["richtig", "falsch"];
+    if (item.type === "tf") controls = `<div class="tf-liste">${item.statements.map((s,j) => `<div class="tf-zeile"><span>${esc(s)}</span><span class="tf-wahl"><label><input type="radio" name="item-${item.nr}-${j}" value="1"> ${esc(ja)}</label><label><input type="radio" name="item-${item.nr}-${j}" value="0"> ${esc(nein)}</label></span></div>`).join("")}</div>`;
     if (item.type === "multi") controls = `<p class="order-hint">Mehrere Antworten sind richtig. Kreuze alle richtigen an.</p><div class="options">${item.options.map((o,j) => `<label class="option"><input type="checkbox" value="${j}"><span>${esc(o)}</span></label>`).join("")}</div>`;
     if (item.type === "email") controls = emailMarkup(item);
     // Erste Zeile = Frage; was danach kommt (z. B. eine Nachricht zum Prüfen), steht in einem eigenen Kasten
     const [frage, ...rest] = String(item.prompt || "").split("\n");
     const herkunft = item.modulTitel ? `<span class="pill herkunft" title="Diese Aufgabe gehört zu dieser Einheit">📘 ${esc(item.modulTitel)}</span>` : "";
-    return `<section class="check exam-question" data-nr="${item.nr}"><div class="question-head"><span class="pill">Aufgabe ${item.nr}</span>${herkunft}<span>${item.points} ${item.points === 1 ? "Punkt" : "Punkte"}</span></div><h3>${esc(frage)}</h3>${rest.length ? `<p class="zitat">${esc(rest.join("\n"))}</p>` : ""}${image}${controls}</section>`;
+    // Tabelle zur Aufgabe (Informatik 8, Probe 1b: Trefferliste einer Praktikumsbörse)
+    const tab = item.tabelle ? `<div class="probe-tab-rahmen"><table class="probe-tab"><thead><tr>${(item.tabelle.kopf || []).map(k => `<th>${esc(k)}</th>`).join("")}</tr></thead><tbody>${(item.tabelle.zeilen || []).map(z => `<tr>${z.map(x => `<td>${esc(x)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>` : "";
+    return `<section class="check exam-question" data-nr="${item.nr}"><div class="question-head"><span class="pill">Aufgabe ${item.nr}</span>${herkunft}<span>${item.points} ${item.points === 1 ? "Punkt" : "Punkte"}</span></div><h3>${esc(frage)}</h3>${rest.length ? `<p class="zitat">${esc(rest.join("\n"))}</p>` : ""}${image}${tab}${controls}</section>`;
   }
   // E-Mail-Fenster wie in der Einheit „Kommunikation im Alltag“ (email-uebung.js), vereinfacht für die Probe: alle Felder
   // offen, der Anhang kommt aus einer kleinen Dateiliste (Büroklammer). Es wird nichts verschickt.
