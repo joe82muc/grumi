@@ -747,9 +747,9 @@
         details.forEach(function (x) {
           var max = typeof x.maxPoints === "number" ? x.maxPoints : 1;
           var pkt = typeof x.points === "number" ? x.points : (x.correct ? 1 : 0);
-          var aenderbar = Boolean(api.override) && (!api.nurText || x.type === "text");
+          var aenderbar = Boolean(api.override) && (!api.nurText || x.type === "text" || x.type === "email");   // E-Mail (Informatik 7): wie eine freie Antwort
           h += '<tr><td class="lf-code">' + esc(x.nr) + '</td><td><div class="lf-aufg">' + esc(x.prompt || "") + "</div>" +
-            (x.given ? '<div class="lf-antw">„' + esc(x.given) + "“</div>" : '<div class="lf-antw lf-leer">keine Antwort</div>') +
+            (x.given ? '<div class="lf-antw"' + (x.type === "email" ? ' style="white-space:pre-wrap"' : "") + '>„' + esc(x.given) + "“</div>" : '<div class="lf-antw lf-leer">keine Antwort</div>') +
             (x.comment ? '<div class="lf-kom">Rückmeldung: ' + esc(x.comment) + "</div>" : "") +
             (pkt < max && typeof x.expected === "string" && x.expected ? '<div class="lf-kom">Lösung: ' + esc(x.expected) + "</div>" : "") + '</td><td class="lf-pkt">' +
             (aenderbar ? '<input type="number" inputmode="numeric" min="0" max="' + max + '" step="1" value="' + pkt + '" data-nr="' + esc(x.nr) + '" data-alt="' + pkt +

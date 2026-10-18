@@ -86,7 +86,36 @@
     if (item.type === "match") controls = item.labels.map((label,j) => `<label class="match-row"><strong>${esc(label)}</strong><select data-match="${j}"><option value="">Bitte zuordnen</option>${item.targets.map(o => `<option value="${esc(o)}">${esc(o)}</option>`).join("")}</select></label>`).join("");
     if (item.type === "order") controls = `<div class="order-box" data-order>${item.steps.map(o => `<div class="order-row" data-step="${esc(o)}"><span class="order-nr"></span><span class="order-text">${esc(o)}</span><span class="order-move"><button type="button" data-move="-1" aria-label="nach oben">▲</button><button type="button" data-move="1" aria-label="nach unten">▼</button></span></div>`).join("")}</div><p class="order-hint">Bringe die Schritte mit den Pfeilen in die richtige Reihenfolge. Oben steht, was zuerst kommt.</p>`;
     if (item.type === "text") controls = `<textarea aria-label="Antwort zu Aufgabe ${item.nr}" rows="4" maxlength="1500" placeholder="Schreibe deine Antwort in eigenen Worten."></textarea>`;
-    return `<section class="check exam-question" data-nr="${item.nr}"><div class="question-head"><span class="pill">Aufgabe ${item.nr}</span><span>${item.points} ${item.points === 1 ? "Punkt" : "Punkte"}</span></div><h3>${esc(item.prompt)}</h3>${image}${controls}</section>`;
+    // Informatik 7, Probe 1b (18.10.2026): Richtig/falsch, mehrere richtige Antworten, E-Mail schreiben
+    if (item.type === "tf") controls = `<div class="tf-liste">${item.statements.map((s,j) => `<div class="tf-zeile"><span>${esc(s)}</span><span class="tf-wahl"><label><input type="radio" name="item-${item.nr}-${j}" value="1"> richtig</label><label><input type="radio" name="item-${item.nr}-${j}" value="0"> falsch</label></span></div>`).join("")}</div>`;
+    if (item.type === "multi") controls = `<p class="order-hint">Mehrere Antworten sind richtig. Kreuze alle richtigen an.</p><div class="options">${item.options.map((o,j) => `<label class="option"><input type="checkbox" value="${j}"><span>${esc(o)}</span></label>`).join("")}</div>`;
+    if (item.type === "email") controls = emailMarkup(item);
+    // Erste Zeile = Frage; was danach kommt (z. B. eine Nachricht zum Prüfen), steht in einem eigenen Kasten
+    const [frage, ...rest] = String(item.prompt || "").split("\n");
+    const herkunft = item.modulTitel ? `<span class="pill herkunft" title="Diese Aufgabe gehört zu dieser Einheit">📘 ${esc(item.modulTitel)}</span>` : "";
+    return `<section class="check exam-question" data-nr="${item.nr}"><div class="question-head"><span class="pill">Aufgabe ${item.nr}</span>${herkunft}<span>${item.points} ${item.points === 1 ? "Punkt" : "Punkte"}</span></div><h3>${esc(frage)}</h3>${rest.length ? `<p class="zitat">${esc(rest.join("\n"))}</p>` : ""}${image}${controls}</section>`;
+  }
+  // E-Mail-Fenster wie in der Einheit „Kommunikation im Alltag“ (email-uebung.js), vereinfacht für die Probe: alle Felder
+  // offen, der Anhang kommt aus einer kleinen Dateiliste (Büroklammer). Es wird nichts verschickt.
+  const DATEI_ZEICHEN = {pdf: "📄", jpg: "🖼️", jpeg: "🖼️", png: "🖼️", mp3: "🎵", docx: "📝", txt: "📝"};
+  function emailMarkup(item) {
+    const feld = (k, name) => `<label class="pm-zeile"><span>${name}</span><input type="text" data-mail="${k}" inputmode="email" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="${name}"></label>`;
+    // Knöpfe An/Cc/Bcc je Kontakt setzen die Adresse ein: Kopieren zählt in der Probe als Kopierversuch (Testregeln),
+    // und Tippfehler in Adressen sollen keine Punkte kosten. Wer wohin gehört, entscheidet das Kind weiter selbst.
+    const rein = k => ["an", "cc", "bcc"].map(f => `<button type="button" data-rein="${f}" data-adresse="${esc(k.adresse)}" aria-label="${esc(k.name)} ins Feld ${f === "an" ? "An" : f === "cc" ? "Cc" : "Bcc"}">${f === "an" ? "An" : f === "cc" ? "Cc" : "Bcc"}</button>`).join("");
+    return `<div class="pm" data-email><div class="pm-kontakte"><b>Deine Kontakte</b> <span class="pm-tipp">Tippe beim Kontakt auf An, Cc oder Bcc – dann steht die Adresse in diesem Feld. Kopieren geht in der Probe nicht.</span><ul>${item.kontakte.map(k => `<li><span class="pm-name">${esc(k.name)}</span><code>${esc(k.adresse)}</code><span class="pm-rein">${rein(k)}</span></li>`).join("")}</ul></div>
+      <div class="pm-fenster"><div class="pm-titel">Neue Nachricht</div>${feld("an", "An")}${feld("cc", "Cc")}${feld("bcc", "Bcc")}
+        <label class="pm-zeile"><span>Betreff</span><input type="text" data-mail="betreff" maxlength="150" aria-label="Betreff"></label>
+        <textarea data-mail="text" rows="7" maxlength="1500" aria-label="Text der E-Mail" placeholder="Anrede, ein bis zwei Sätze, Gruß und Name"></textarea>
+        <div class="pm-anhang" data-anhang-zeige></div>
+        <div class="pm-leiste"><button type="button" class="pm-klammer" data-klammer aria-expanded="false">📎 Datei anhängen</button></div>
+        <div class="pm-dateien" data-dateien hidden><b>Datei auswählen</b>${item.dateien.map(d => `<label class="pm-datei"><input type="radio" name="anhang-${item.nr}" value="${esc(d)}"><span>${DATEI_ZEICHEN[(d.split(".").pop() || "").toLowerCase()] || "📄"} ${esc(d)}</span></label>`).join("")}</div>
+      </div><p class="order-hint">In jedes Feld gehört genau eine Adresse. Eine falsche Adresse löschst du im Feld. Es wird nichts verschickt – die E-Mail wird mit „Probe abgeben“ gespeichert.</p></div>`;
+  }
+  // Gewählten Anhang als Kärtchen unter dem Text zeigen (auch wenn ein gesicherter Stand wiederhergestellt wird)
+  function anhangZeigen(box) {
+    const r = box.querySelector("[data-dateien] input:checked"), ziel = box.querySelector("[data-anhang-zeige]");
+    ziel.innerHTML = r ? `<span class="pm-chip">📎 ${esc(r.value)} <button type="button" data-anhang-weg aria-label="Anhang entfernen">✕</button></span>` : "";
   }
   function collect() {
     return exam.items.map(item => {
@@ -94,6 +123,12 @@
       if (item.type === "choice") { const radio = el.querySelector("input:checked"); return radio ? Number(radio.value) : null; }
       if (item.type === "match") return [...el.querySelectorAll("select")].map(select => select.value);
       if (item.type === "order") return [...el.querySelectorAll(".order-row")].map(row => row.dataset.step);
+      if (item.type === "tf") return item.statements.map((_,j) => { const r = el.querySelector(`input[name="item-${item.nr}-${j}"]:checked`); return r ? r.value === "1" : null; });
+      if (item.type === "multi") return [...el.querySelectorAll("input[type=checkbox]:checked")].map(x => Number(x.value));
+      if (item.type === "email") {
+        const v = k => el.querySelector(`[data-mail="${k}"]`).value, r = el.querySelector("[data-dateien] input:checked");
+        return {an:v("an"),cc:v("cc"),bcc:v("bcc"),betreff:v("betreff").trim(),text:v("text").trim(),anhang:r ? r.value : ""};
+      }
       return el.querySelector("textarea").value.trim();
     });
   }
@@ -102,7 +137,32 @@
     const expected = Array.isArray(detail.expected) ? detail.expected.map((v,j) => `${esc(detail.labels[j])}: ${esc(v)}`).join("<br>") : esc(detail.expected);
     return `<div class="result-row"><div class="question-head"><strong>Aufgabe ${detail.nr}</strong><strong>${detail.points} / ${detail.maxPoints}</strong></div><p>${esc(detail.prompt)}</p><p><b>Deine Antwort:</b><br>${given}</p><p><b>Lösung:</b><br>${expected}</p>${detail.comment ? `<p class="video-note">${esc(detail.comment)}</p>` : ""}</div>`;
   }
+  // E-Mail: Büroklammer öffnet die Dateiliste, eine Datei wählen hängt sie an, ✕ nimmt sie wieder weg
+  $("questions").addEventListener("change", e => {
+    const box = e.target.closest("[data-email]");
+    if (!box || !e.target.closest("[data-dateien]")) return;
+    anhangZeigen(box);
+    box.querySelector("[data-dateien]").hidden = true; box.querySelector("[data-klammer]").setAttribute("aria-expanded", "false");
+  });
   $("questions").addEventListener("click", e => {
+    const mail = e.target.closest("[data-email]");
+    if (mail && e.target.closest("[data-klammer]")) {
+      const liste = mail.querySelector("[data-dateien]"); liste.hidden = !liste.hidden;
+      e.target.closest("[data-klammer]").setAttribute("aria-expanded", String(!liste.hidden)); return;
+    }
+    if (mail && e.target.closest("[data-anhang-weg]")) { mail.querySelectorAll("[data-dateien] input").forEach(r => { r.checked = false; }); anhangZeigen(mail); return; }
+    const rein = mail && e.target.closest("[data-rein]");
+    if (rein) {
+      // Adresse anhängen (steht sie schon im Feld, bleibt alles, wie es ist); input-Ereignis = Zwischenstand sichern
+      const feld = mail.querySelector(`[data-mail="${rein.dataset.rein}"]`), adr = rein.dataset.adresse;
+      const da = feld.value.split(/[\s,;]+/).filter(Boolean);
+      if (!da.some(a => a.toLowerCase() === adr.toLowerCase())) {
+        feld.value = da.concat(adr).join(", ");
+        if (window.ProbeSchutz && ProbeSchutz.gesetzt) ProbeSchutz.gesetzt(feld);
+        feld.dispatchEvent(new Event("input", {bubbles:true}));
+      }
+      return;
+    }
     const knopf = e.target.closest("[data-move]"); if (!knopf) return;
     const zeile = knopf.closest(".order-row"), box = zeile.parentElement, zeilen = [...box.children], i = zeilen.indexOf(zeile), j = i + Number(knopf.dataset.move);
     if (j < 0 || j >= zeilen.length) return;

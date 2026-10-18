@@ -23,7 +23,8 @@
       text: "Computer verbinden, Adressen vergeben, Netze koppeln: Du baust Netzwerke im Simulationsprogramm Filius und findest Fehler.",
       proben: [{ R: "inf9-p1-r", M: "inf9-p1-m" }],
       module: [
-        { id: "netz-start", kz: "N1", titel: "Netzwerke kennenlernen", href: "netz-start.html", key: "grumi-i9-netz-start-v1", pc: "Filius",
+        // blatt (seit 18.10.2026): Regelhefteintrag und Arbeitsblatt (Lösung auf Seite 2) in 9M/Informatik/arbeitsblaetter/
+        { id: "netz-start", kz: "N1", blatt: "N1", titel: "Netzwerke kennenlernen", href: "netz-start.html", key: "grumi-i9-netz-start-v1", pc: "Filius",
           text: "Computer, Kabel, Switch, Router, Accesspoint: Du liest einen Netzplan und verbindest zwei Computer.",
           tags: ["Filius", "Netzplan", "Regelheft"] },
         { id: "ip-adressen", kz: "N2", titel: "IP-Adressen", href: "ip-adressen.html", key: "grumi-i9-ip-adressen-v1", pc: "Filius",
@@ -218,6 +219,9 @@
     THEMEN: THEMEN, probeModule: probeModule, API: API, VORSCHAU: VORSCHAU, modulVon: modulVon, idAusKey: idAusKey, offen: offen, freigabe: freigabe, zug: zug,
     // Angaben für die gemeinsamen Bausteine (7M/NT/modul-basis.js) und die Übersicht (7M/Informatik/uebersicht.js)
     KURS: "i9", PREFIX: PREFIX, WORT: "Einheit", DAS: "die Einheit", ES: "sie", STUFE: "9", PFAD: "/api/inf9",
+    // Kasten „Lernen für die Probe“ unten in der Einheit (7M/NT/modul-basis.js, lernmaterial; Einheiten mit blatt)
+    LERNMATERIAL: { text: "Zu dieser Einheit gibt es den Regelhefteintrag als PDF und ein kurzes Arbeitsblatt zum Ausfüllen. Die Lösung steht auf der Rückseite (Seite 2) – erst selbst lösen, dann umdrehen. Zum Ausdrucken oder am Bildschirm.",
+      dateien: [["hefteintrag", "📘 Regelhefteintrag"], ["arbeitsblatt", "📝 Arbeitsblatt (Lösung auf der Rückseite)"]] },
     SPERRE: "Diese Einheit ist noch nicht freigeschaltet", ZURUECK: "💻 Zur Übersicht Informatik 9",
     ALT: { href: "9/Informatik_9/index.html", text: "Bisheriger Filius-Kurs" },   // der Selbstlernkurs von 2025/26 bleibt erreichbar
     INTRO: "Fünf Module mit kurzen Einheiten: sehen, ausprobieren, verstehen, anwenden, kontrollieren. Vieles übst du direkt hier auf der Seite; für Filius, Excel und Scratch arbeitest du am Windows-PC. Deine Lehrkraft schaltet die Einheiten nach und nach frei.",

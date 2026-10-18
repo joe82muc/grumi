@@ -20,15 +20,19 @@
     {
       id: "sicher", nr: "01", titel: "Internet und Sicherheit", kurz: "Internet & Sicherheit", icon: "🔐", zeit: "September bis Oktober",
       text: "Nachrichten schreiben, Gefahren erkennen, Rechte kennen: So tauschst du dich im Netz sicher und fair aus.",
-      proben: [{ R: "inf7-p1-r", M: "inf7-p1-m" }],
+      // Zweite Probe (18.10.2026): nach den Hefteinträgen der Einheiten 1 bis 3, nur Ankreuzen und Zuordnen und eine E-Mail
+      // (KI prüft Betreff und Text), Notenschlüssel R für 7R und 7M (siehe PROBE_INHALT unten)
+      proben: [{ R: "inf7-p1-r", M: "inf7-p1-m" }, { R: "inf7-p1b-r", M: "inf7-p1b-m" }],
+      // Lernmaterial zum Ausdrucken (seit 18.10.2026): blatt = Anfang der Dateinamen in 7M/Informatik/arbeitsblaetter/
+      // (<blatt>-hefteintrag.pdf, <blatt>-arbeitsblatt.pdf mit der Lösung auf Seite 2); Text und Knöpfe: LERNMATERIAL unten
       module: [
-        { id: "alltag", kz: "I1", titel: "Kommunikation im Alltag", href: "alltag.html", key: "grumi-i7-alltag-v1",
+        { id: "alltag", kz: "I1", blatt: "I1", titel: "Kommunikation im Alltag", href: "alltag.html", key: "grumi-i7-alltag-v1",
           text: "Messenger, E-Mail, Videokonferenz oder soziales Netzwerk? Du wählst den passenden Weg, schreibst eine E-Mail und siehst, wie eine Nachricht ankommt.",
           tags: ["E-Mail üben", "Animation", "Tablet geeignet"] },
-        { id: "sicher-gefaehrlich", kz: "I2", titel: "Sicher oder gefährlich?", href: "sicher-gefaehrlich.html", key: "grumi-i7-sicher-gefaehrlich-v1",
+        { id: "sicher-gefaehrlich", kz: "I2", blatt: "I2", titel: "Sicher oder gefährlich?", href: "sicher-gefaehrlich.html", key: "grumi-i7-sicher-gefaehrlich-v1",
           text: "Spam, Phishing und falsche Links erkennen, Apps nicht alles erlauben und ein sicheres Passwort bauen.",
           tags: ["Posteingang prüfen", "Passwort-Check", "Tablet geeignet"] },
-        { id: "rechte", kz: "I3", titel: "Rechte im Internet", href: "rechte.html", key: "grumi-i7-rechte-v1",
+        { id: "rechte", kz: "I3", blatt: "I3", titel: "Rechte im Internet", href: "rechte.html", key: "grumi-i7-rechte-v1",
           text: "Darf ich das posten? Recht am eigenen Bild, Urheberrecht, Quellen angeben – und fair bleiben im Netz.",
           tags: ["Fälle entscheiden", "Quellen", "Tablet geeignet"] },
         { id: "anwenden", kz: "I4", titel: "Wiederholen und anwenden", href: "anwenden.html", key: "grumi-i7-anwenden-v1",
@@ -148,7 +152,7 @@
   // PROBE_INHALT: Proben, die nicht genau die Module ihres Themenbereichs abdecken. Fehlt eine Probe hier, enthält sie
   // alle Module des Themenbereichs, bei dem sie steht (ohne Extra-Module). So steht in der Verwaltung bei jeder Probe,
   // welche Module die Kinder dafür brauchen.
-  var PROBE_INHALT = {};
+  var PROBE_INHALT = { "inf7-p1b-r": ["alltag", "sicher-gefaehrlich", "rechte"], "inf7-p1b-m": ["alltag", "sicher-gefaehrlich", "rechte"] };
   function probeModule(testId) {
     var ids = PROBE_INHALT[testId], liste = [];
     THEMEN.forEach(function (t) {
@@ -220,6 +224,9 @@
     THEMEN: THEMEN, probeModule: probeModule, API: API, VORSCHAU: VORSCHAU, modulVon: modulVon, idAusKey: idAusKey, offen: offen, freigabe: freigabe, zug: zug,
     // Angaben für die gemeinsamen Bausteine (7M/NT/modul-basis.js)
     KURS: "i7", PREFIX: PREFIX, WORT: "Einheit", DAS: "die Einheit", ES: "sie",
+    // Kasten „Lernen für die Probe“ unten in der Einheit (modul-basis.js, lernmaterial)
+    LERNMATERIAL: { text: "Zu dieser Einheit gibt es einen ganz einfachen Hefteintrag zum Lernen und ein kurzes Arbeitsblatt zum Ausfüllen. Die Lösung steht auf der Rückseite (Seite 2) – erst selbst lösen, dann umdrehen. Zum Ausdrucken oder am Bildschirm.",
+      dateien: [["hefteintrag", "📘 Hefteintrag"], ["arbeitsblatt", "📝 Arbeitsblatt (Lösung auf der Rückseite)"]] },
     SPERRE: "Diese Einheit ist noch nicht freigeschaltet", ZURUECK: "💻 Zur Übersicht Informatik 7"
   };
   // Auf den Seiten von Informatik 7 arbeiten die Bausteine mit dieser Liste. Die Verwaltung der Lehrkraft lädt
