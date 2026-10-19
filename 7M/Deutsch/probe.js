@@ -288,9 +288,10 @@
       const schutz = exam.test.schutz || {};
       // Testregeln für alle Proben (17.10.2026): länger als 1 Minute weg oder 2. Kopierversuch = Probe beendet, sofort
       // abgegeben, Note 6 (die Lehrkraft kann sie aufheben). Den Hinweis über den Aufgaben schreibt dann ProbeSchutz.
+      // wegSekunden 0 vom Server (z. B. Nachholprobe 2 der M7): ohne die 1-Minuten-Regel – Verlassen wird nur festgehalten.
       const zurueck = ProbeSchutz.start({testId: exam.test.id, code: student.code, box: $("questions"), ueberwachung: true, einfuegen: exam.test.einfuegen,
         wechsel: schutz.wechsel, warnen: schutz.warnen, kopieren: schutz.kopieren, ausschneiden: schutz.ausschneiden, kontextmenue: schutz.kontextmenue, spruenge: schutz.spruenge,
-        regel: {api: API, modul: DAPI.replace(/^\/api\//, "") + "proben", beenden: () => einreichen(true)}});
+        regel: {api: API, modul: DAPI.replace(/^\/api\//, "") + "proben", beenden: () => einreichen(true), ...(exam.test.wegSekunden === 0 ? {wegSekunden: 0} : {})}});
       // offen sagen, was im Probenmodus festgehalten wird
       if (!$("schutz-hinweis")) $("questions").insertAdjacentHTML("beforebegin", '<p class="schutz-hinweis" id="schutz-hinweis"></p>');
       if ($("schutz-hinweis").dataset.von !== "probe-schutz") $("schutz-hinweis").textContent = "🔒 Probenmodus" + (exam.sitzung ? " – ohne Hilfe der KI" : "") + ": " +

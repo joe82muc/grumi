@@ -77,7 +77,7 @@
     const nr = Number($("filter-nr").value) || 0;
     const liste = tests.filter(t => !nr || t.nr === nr).sort((a, b) => a.nr - b.nr || a.zug.localeCompare(b.zug) || a.variante.localeCompare(b.variante));
     $("unlock-list").innerHTML = liste.length ? `<table class="l-uebersicht"><thead><tr><th>Probe</th><th>Klasse</th><th>Variante</th><th>Umfang</th><th>Für die Kinder</th><th></th></tr></thead><tbody>${liste.map(t => `<tr style="cursor:default">
-      <td><b>${esc(t.title)}</b></td><td>${klasseVon(t)}</td><td>${t.variante}${t.eigen ? " · für alle (auch wer Probe " + t.nr + " schon geschrieben hat)" : t.variante === "B" ? " · Nachschreiber" : ""}</td><td>${t.itemCount} Aufgaben · ${t.maxPoints} Punkte · ${t.minutes} min${t.notenzug ? ` · <b>Notenschlüssel ${t.notenzug}</b> (50 % = Note ${t.notenzug === "R" ? 3 : 4})` : ""}</td>
+      <td><b>${esc(t.title)}</b></td><td>${klasseVon(t)}</td><td>${t.variante}${t.eigen ? " · für alle (auch wer Probe " + t.nr + " schon geschrieben hat)" : t.variante === "B" ? " · Nachschreiber" : ""}</td><td>${t.itemCount} Aufgaben · ${t.maxPoints} Punkte · ${t.minutes} min${t.notenzug ? ` · <b>Notenschlüssel ${t.notenzug}</b> (50 % = Note ${t.notenzug === "R" ? 3 : 4})` : ""}${t.wegSekunden === 0 ? " · ohne 1-Minuten-Regel (Verlassen wird nur festgehalten)" : ""}</td>
       <td><label style="display:inline-flex;gap:8px;align-items:center;font-weight:700"><input type="checkbox" data-unlock="${esc(t.id)}" ${t.unlocked ? "checked" : ""}> <span class="stand ${t.unlocked ? "offen" : "zu"}">${t.unlocked ? "offen" : "gesperrt"}</span></label></td>
       <td><button class="btn klein secondary" type="button" data-ansehen="${esc(t.id)}">👁 Probe mit Lösungen</button></td></tr>`).join("")}</tbody></table>
       <div class="l-einfuegen">${[...new Set(liste.map(t => t.nr))].map(n => { const wert = (liste.find(t => t.nr === n) || {}).einfuegen || "sperren";
@@ -102,7 +102,7 @@
     $("zaehlung").textContent = liste.length ? `${liste.filter(r => r.status === "zu-pruefen").length} zu prüfen · ${frei} bestätigt · ${liste.filter(r => r.status === "freigegeben").length} freigegeben, davon ${liste.filter(r => r.geoeffnetAm).length} geöffnet` : "";
     $("results").innerHTML = liste.length ? `<table class="l-uebersicht"><thead><tr><th>Kind</th><th>Klasse</th><th>Probe</th><th>Punkte</th><th>Note</th><th>Stand</th></tr></thead><tbody>${liste.map(r => `<tr data-id="${r.id}" class="${r.id === offenId ? "an" : ""}">
       <td><b>${esc(wer(r))}</b>${r.lrs ? ' <span class="pill" title="Notenschutz ist beim Code eingetragen">🛡 LRS</span>' : ""}${r.verlassen ? ` <small>${r.verlassen}× verlassen</small>` : ""}${r.protokoll && (r.protokoll.einfuegen || []).length ? ` <small>· ${r.protokoll.einfuegen.length}× einfügen</small>` : ""}</td>
-      <td>${esc(r.className)}</td><td>${esc(r.testTitle)}${r.variante === "B" ? ' <span class="pill b">B</span>' : ""}</td>
+      <td>${esc(r.className)}</td><td>${esc(r.testTitle)}${r.variante === "B" || r.variante === "C" ? ` <span class="pill b">${r.variante}</span>` : ""}</td>
       <td>${zahl(r.score)} / ${zahl(r.total)}</td><td>${r.grade === "" ? "–" : r.grade}</td><td>${standText(r)}</td></tr>`).join("")}</tbody></table>` : `<p>Noch keine Abgaben.</p>`;
   }
 
