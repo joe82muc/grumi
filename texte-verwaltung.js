@@ -95,7 +95,11 @@
             // KI-Korrektur (Baustein „korrigieren“): welche Bausteine da sind und die Fassung, die das Kind zu sehen bekam
             (fb.korrektur ? '<div class="tx-ki">' + esc("Bausteine: " + (fb.korrektur.bausteine || []).map(function (b) { return b.text + (b.ok ? " ✓" : " fehlt"); }).join(" · ") +
               " · von der KI ausgebessert: " + (fb.korrektur.rs || 0) + "× Rechtschreibung, " + (fb.korrektur.falsch || 0) + "× überarbeitet") +
-              (fb.korrektur.korrigiert && fb.korrektur.korrigiert !== f.text ? '<details><summary style="cursor:pointer">Fassung der KI ansehen</summary><div class="tx-text">' + esc(fb.korrektur.korrigiert) + "</div></details>" : "") + "</div>" : "") + "</div>";
+              (fb.korrektur.korrigiert && fb.korrektur.korrigiert !== f.text ? '<details><summary style="cursor:pointer">Fassung der KI ansehen</summary><div class="tx-text">' + esc(fb.korrektur.korrigiert) + "</div></details>" : "") + "</div>" : "") +
+            // Leserbrief-Werkstatt (Baustein „werkstatt“): in welchem Schritt das Kind prüfen ließ und was die KI abgehakt hat
+            (fb.werkstatt ? '<div class="tx-ki">' + esc("Werkstatt, Schritt „" + fb.werkstatt.schritt + "“: " + (fb.werkstatt.art === "rs"
+              ? (fb.werkstatt.fehler === undefined ? "ohne KI" : fb.werkstatt.fehler + " Rechtschreibstelle" + (fb.werkstatt.fehler === 1 ? "" : "n") + " markiert (das Kind verbessert selbst)")
+              : (fb.werkstatt.punkte || []).map(function (p) { return p.text + (p.ok ? " ✓" : p.ok === false ? " fehlt" : " ?"); }).join(" · "))) + "</div>" : "") + "</div>";
         }).join("") +
         '<label style="font-weight:800;font-size:.86rem">Dein Kommentar für das Kind<textarea data-tx="kommentar">' + esc(e.lehrerKommentar || "") + "</textarea></label>" +
         '<div style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:center"><button type="button" class="tx-knopf" data-tx="speichern">Kommentar speichern</button><button type="button" class="tx-knopf weg" data-tx="weg">Texte dieses Auftrags löschen</button><span class="tx-hinweis" data-tx="meldung" style="margin:0"></span></div></div>';

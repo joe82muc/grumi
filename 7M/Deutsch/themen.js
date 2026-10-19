@@ -108,6 +108,15 @@
         { id: "arg-07", kz: "A7", titel: "Stellungnahme und Leserbrief", href: "arg_07.html", key: "grumi-d7-arg-07-v1", tab: "Schreiben",
           text: "Schulhund – ja oder nein? Einen Leserbrief untersuchen, die Bausteine eines Arguments erkennen, einen Einwand entkräften und selbst Stellung nehmen.",
           tags: ["Bausteine eines Arguments", "Einwand entkräften", "✨ Schreibtrainer"] },
+        // Leserbrief-Werkstatt (Wunsch vom 19.10.2026): eigenen Leserbrief zu den vier Arbeitsblättern selbst überarbeiten, die
+        // KI prüft Schritt für Schritt. Steht am Ende, damit sich die Nummern der anderen Module nicht verschieben (Kürzel A10).
+        { id: "arg-09", kz: "A10", titel: "Leserbrief-Werkstatt: Ich verbessere meinen Brief", href: "arg_09.html", key: "grumi-d7-arg-09-v1", tab: "Überarbeiten",
+          text: "Dein Leserbrief zu einem der vier Arbeitsblätter ist fertig? Tippe ihn ab und verbessere ihn in fünf Schritten selbst: Aufbau, zwei Argumente, Verknüpfungen, Rechtschreibung.",
+          tags: ["📄 Vier Arbeitsblätter", "✨ KI zeigt, was fehlt", "✏️ Du verbesserst selbst"] },
+        // Einen Aufruf schreiben (Wunsch vom 19.10.2026, Ablauf wie im Deutschbuch, eigene Texte; Kürzel A11)
+        { id: "arg-10", kz: "A11", titel: "Einen Aufruf schreiben", href: "arg_10.html", key: "grumi-d7-arg-10-v1", tab: "Schreiben",
+          text: "Jeder Tropfen zählt! Einen Aufruf untersuchen, Ideen zum Papiersparen in einer Mindmap ordnen, Aufforderungssätze formulieren und einen eigenen Aufruf schreiben – mit Regelheft-Eintrag und Hausaufgabe.",
+          tags: ["📓 Regelheft-Eintrag", "✨ KI-Rückmeldung und Tipps", "🏠 Hausaufgabe"] },
         // Zusatz zu „Der Leserbrief – Schritt für Schritt“ ohne eigene Seite: zwei Musterlösungen (Dafür / Dagegen) in
         // arg_08.html, Station 3 – die Lehrkraft schaltet sie je Klasse einzeln frei (Wunsch vom 14.10.2026)
         { id: "arg-08-loesung", kz: "A9", extra: "arg-08", teil: "loesungen", titel: "Musterlösungen zum Leserbrief (Dafür / Dagegen)",
