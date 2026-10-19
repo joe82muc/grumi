@@ -22,7 +22,8 @@
       text: "Suchmaschine, Fahrplan, Lernplattform, Berufsportal: Du findest heraus, wie solche Systeme arbeiten, und nutzt sie für kluge Entscheidungen.",
       // Probe 1b (18.10.2026): nach den Hefteinträgen, nur Anklicken plus eine Aufgabe für die KI, R-Schlüssel für 8R und 8M.
       // blatt: Hefteintrag und Arbeitsblatt (Lösung auf Seite 2) in 8M/Informatik/arbeitsblaetter/ – Text: LERNMATERIAL unten
-      proben: [{ R: "inf8-p1-r", M: "inf8-p1-m" }, { R: "inf8-p1b-r", M: "inf8-p1b-m" }],
+      // Probe 1c (19.10.2026): nur Einheiten 1 und 2, einfach, mit Animationen, R-Schlüssel, ohne Note-6-Regel (PROBE_INHALT unten)
+      proben: [{ R: "inf8-p1-r", M: "inf8-p1-m" }, { R: "inf8-p1b-r", M: "inf8-p1b-m" }, { R: "inf8-p1c-r", M: "inf8-p1c-m" }],
       module: [
         { id: "eva", kz: "I1", blatt: "I1", titel: "Was ist ein Informationssystem?", href: "eva.html", key: "grumi-i8-eva-v1",
           text: "Du fragst, das System antwortet: Eingabe, Verarbeitung, Ausgabe – an einer Fahrplanauskunft zum Ausprobieren.",
@@ -41,7 +42,8 @@
     {
       id: "daten", nr: "02", titel: "Datenschutz und Big Data", kurz: "Datenschutz", icon: "🛡️", zeit: "November bis Dezember",
       text: "Welche Daten gibst du preis, was machen Unternehmen damit – und wie behältst du die Kontrolle?",
-      proben: [{ R: "inf8-p2-r", M: "inf8-p2-m" }, { R: "inf8-p2b-r", M: "inf8-p2b-m" }],
+      // Probe 2c (19.10.2026): Module 1 und 2 zusammen mit einer E-Mail, einfach, mit Animationen, R-Schlüssel, ohne Note-6-Regel
+      proben: [{ R: "inf8-p2-r", M: "inf8-p2-m" }, { R: "inf8-p2b-r", M: "inf8-p2b-m" }, { R: "inf8-p2c-r", M: "inf8-p2c-m" }],
       module: [
         { id: "spuren", kz: "D1", blatt: "D1", titel: "Welche Daten gebe ich preis?", href: "spuren.html", key: "grumi-i8-spuren-v1",
           text: "Name, Standort, Fotos, Suchverlauf: Ein ganz normaler Tag – und wie viele Daten dabei zusammenkommen.",
@@ -150,7 +152,11 @@
   // PROBE_INHALT: Proben, die nicht genau die Module ihres Themenbereichs abdecken. Fehlt eine Probe hier, enthält sie
   // alle Module des Themenbereichs, bei dem sie steht (ohne Extra-Module). So steht in der Verwaltung bei jeder Probe,
   // welche Module die Kinder dafür brauchen.
-  var PROBE_INHALT = {};
+  var MODUL_1_2 = ["eva", "aufbau", "entscheiden", "vergleichen", "spuren", "bedingungen", "bigdata", "schuetzen"];
+  var PROBE_INHALT = {
+    "inf8-p1c-r": ["eva", "aufbau"], "inf8-p1c-m": ["eva", "aufbau"],
+    "inf8-p2c-r": MODUL_1_2, "inf8-p2c-m": MODUL_1_2
+  };
   function probeModule(testId) {
     var ids = PROBE_INHALT[testId], liste = [];
     THEMEN.forEach(function (t) {

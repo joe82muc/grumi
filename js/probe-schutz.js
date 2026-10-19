@@ -37,7 +37,7 @@
  *                                 (Vorgabe: nur außerhalb der Antwortfelder gesperrt)
  *   spruenge: false               große Texteingaben in kurzer Zeit werden nicht vermerkt
  *   ProbeSchutz.gesetzt(feld)     Die Seite hat ein Feld selbst gefüllt (Rückgängig, Zwischenstand): kein Textsprung
- *   regel: { verlassen: 5|0, kopieren: 2, wegSekunden: 60, ruheMinuten?: 5, bisher?: { verlassen, kopieren, weg, aktiv },
+ *   regel: { verlassen: 5|0, kopieren: 2|0, wegSekunden: 60|0, ruheMinuten?: 5, bisher?: { verlassen, kopieren, weg, aktiv },
  *            beenden(info), melden?(stand), api?, modul?, puls? }
  *                                 Testregeln. Vokabeltests seit 16.10.2026, alle Proben seit 17.10.2026 (Wunsch der Lehrkraft:
  *                                 „mehr als 1 minute verlassen automatisch note 6, kopierversuch einmal dann automatisch note 6
@@ -228,7 +228,8 @@
       (r.wegSekunden ? "Verlässt du sie (anderer Tab, andere App) insgesamt länger als " + dauerText(r.wegSekunden) + ", ist die Probe sofort beendet: Note 6. " +
         "Kurze Wechsel unter " + MIN_SEK + " Sekunden zählen nicht. " : "") +
       (r.verlassen ? "Jedes Verlassen bringt eine Warnung – beim " + r.verlassen + ". Mal ist der Test beendet: Note 6. " : "Jedes Verlassen bringt eine Warnung und wird festgehalten. ") +
-      (kw ? kw + ": " + (r.kopieren - 1 === 1 ? "eine Warnung" : (r.kopieren - 1) + " Warnungen") + ", beim " + r.kopieren + ". Versuch Note 6. " : "") +
+      (kw && !r.kopieren ? kw + " geht in der Probe nicht – jeder Versuch wird festgehalten. " : "") +
+      (kw && r.kopieren ? kw + ": " + (r.kopieren - 1 === 1 ? "eine Warnung" : (r.kopieren - 1) + " Warnungen") + ", beim " + r.kopieren + ". Versuch Note 6. " : "") +
       (r.ruheMinuten ? "Gibst du " + r.ruheMinuten + " Minuten nichts ein, wird dein Test automatisch abgegeben. " : "") +
       "Bisher: " + bisherText() + ".";
   }
@@ -270,7 +271,7 @@
     sichern(); regelHinweis();
     if (aktiv.regel.wegSekunden && wegSumme > aktiv.regel.wegSekunden) beenden("weg", { sekunden: wegSumme });
     else if (aktiv.regel.verlassen && zahl >= aktiv.regel.verlassen) beenden("verlassen");
-    else if (kopierZahl >= aktiv.regel.kopieren) beenden("kopieren");
+    else if (aktiv.regel.kopieren && kopierZahl >= aktiv.regel.kopieren) beenden("kopieren");
   }
   function regelWarnung(art, sek) {
     var r = aktiv.regel, kopie = art === "kopieren", n = kopie ? kopierZahl : zahl, max = kopie ? r.kopieren : r.verlassen;
@@ -280,7 +281,8 @@
       id: "probe-schutz-warnung", farbe: letzte ? "#b91c1c" : n >= 2 ? "#d97706" : "#2563eb",
       titel: kopie ? (letzte ? "⛔ Letzte Warnung: " : "⚠️ Warnung: ") + kw + " ist in der Probe verboten."
         : letzte ? "⛔ " + n + ". und letzte Warnung!" : "⚠️ " + (max ? n + ". Warnung: " : "Warnung: ") + "Du hast " + (max ? "den Test" : "die Probe") + " verlassen" + (sek ? " (" + dauerText(sek) + ")" : "") + ".",
-      text: kopie ? (letzte ? "Beim nächsten Versuch ist die Probe sofort beendet und wird mit Note 6 bewertet." : "Beim " + max + ". Versuch ist die Probe beendet und wird mit Note 6 bewertet.")
+      text: kopie ? (!max ? "Der Versuch wurde mit Uhrzeit festgehalten. Deine Lehrkraft kann ihn sehen."
+        : letzte ? "Beim nächsten Versuch ist die Probe sofort beendet und wird mit Note 6 bewertet." : "Beim " + max + ". Versuch ist die Probe beendet und wird mit Note 6 bewertet.")
         : letzte ? "Verlässt du den Test noch einmal, dann ist er sofort beendet und wird mit Note 6 bewertet. " + minute
         : max ? "Bleib im Test! Beim " + max + ". Verlassen ist der Test beendet und wird mit Note 6 bewertet. " + minute
         : "Bleib in der Probe! Das Verlassen wurde mit Uhrzeit festgehalten. " + minute,
@@ -349,7 +351,7 @@
     if (Date.now() - letzterVersuch < 1500) return true;   // ein Vorgang löst oft mehrere Ereignisse aus (paste + beforeinput)
     letzterVersuch = Date.now(); kopierZahl++;
     sichern(); melden(); regelHinweis();
-    if (kopierZahl >= aktiv.regel.kopieren) beenden("kopieren"); else regelWarnung("kopieren");
+    if (aktiv.regel.kopieren && kopierZahl >= aktiv.regel.kopieren) beenden("kopieren"); else regelWarnung("kopieren");
     return true;
   }
   // art: "verborgen" (Seite nicht mehr sichtbar), "fokus" (Fenster ohne Eingabefokus), "neuladen" (Seite wird gerade
@@ -488,9 +490,11 @@
         kopieren: cfg.kopieren === "erlauben" ? "erlauben" : "sperren",
         ausschneiden: cfg.ausschneiden === "erlauben" || (cfg.ausschneiden === undefined && cfg.kopieren === "erlauben") ? "erlauben" : "sperren",
         menue: cfg.kontextmenue === "sperren" || cfg.kontextmenue === "erlauben" ? cfg.kontextmenue : "aussen",
-        // verlassen: 0 = keine Höchstzahl (nur die Vokabeltests beenden beim 5. Verlassen); wegSekunden: 60 (0 = aus)
+        // verlassen: 0 = keine Höchstzahl (nur die Vokabeltests beenden beim 5. Verlassen); wegSekunden: 60 (0 = aus);
+        // kopieren: 2 (0 = aus – Kopierversuche werden nur gewarnt und gezählt, z. B. Informatik 8 Probe 1c/2c)
         regel: cfg.regel && typeof cfg.regel.beenden === "function" ? {
-          verlassen: Number(cfg.regel.verlassen) > 0 ? Math.round(Number(cfg.regel.verlassen)) : 0, kopieren: Math.max(1, Number(cfg.regel.kopieren) || 2),
+          verlassen: Number(cfg.regel.verlassen) > 0 ? Math.round(Number(cfg.regel.verlassen)) : 0,
+          kopieren: cfg.regel.kopieren === 0 ? 0 : Math.max(1, Number(cfg.regel.kopieren) || 2),
           wegSekunden: cfg.regel.wegSekunden === 0 ? 0 : Math.max(10, Number(cfg.regel.wegSekunden) || 60),
           ruheMinuten: Math.max(0, Number(cfg.regel.ruheMinuten) || 0),
           api: cfg.regel.api ? String(cfg.regel.api).replace(/\/$/, "") : "", modul: cfg.regel.modul ? String(cfg.regel.modul) : "",
@@ -525,7 +529,7 @@
         if (beendet && s && s.ab && s.ab.grund) { endeZeigen(); var cb = aktiv.regel.beenden, b = JSON.parse(JSON.stringify(beendet)); setTimeout(function () { cb(b); }, 0); }
         else if (!beendet && aktiv.regel.wegSekunden && wegSumme > aktiv.regel.wegSekunden) beenden("weg", { sekunden: wegSumme });
         else if (!beendet && aktiv.regel.verlassen && zahl >= aktiv.regel.verlassen) beenden("verlassen");
-        else if (!beendet && kopierZahl >= aktiv.regel.kopieren) beenden("kopieren");
+        else if (!beendet && aktiv.regel.kopieren && kopierZahl >= aktiv.regel.kopieren) beenden("kopieren");
         // Anderes Gerät: Laut Server ist die Probe seit bisher.weg verlassen (hier liegt kein eigener Stand) – die Rückkehr ist jetzt
         if (!beendet && !s && typeof bisher.weg === "string" && !isNaN(Date.parse(bisher.weg))) {
           weg = { art: "verborgen", von: bisher.weg, aktiv: typeof bisher.aktiv === "string" && !isNaN(Date.parse(bisher.aktiv)) ? bisher.aktiv : bisher.weg };
