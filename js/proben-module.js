@@ -40,6 +40,10 @@
     return "";
   }
   function nt9Zug(t) { return /^nt9r-/.test(t.id) ? "9R" : "9M"; }
+  /* Deutsch 7/8, Englisch 9 (d7-p6-m-c …): Nummer und Zug – aus der Liste oder aus der Kennung (die Notenübersicht kennt
+     nur die Kennung) */
+  function probeNr(t) { return t.nr || Number((/-p(\d+)-/.exec(String(t.id || "")) || [])[1]) || ""; }
+  function probeZug(t) { return t.zug || ((/-p\d+-([rm])-/.exec(String(t.id || "")) || [])[1] || "").toUpperCase(); }
   /* Modulliste (themen.js) zu einem Englisch-Test – aus der Test-ID: E7, E8 (8R), E8M, E9M oder E9R */
   function englischListe(t) {
     var m = String(t.id || "").match(/^e(\d+)([mr]?)-/i);
@@ -105,7 +109,7 @@
          vor, die Lehrkraft prüft und gibt die korrigierte Probe zurück (Lehrerseite proben-lehrer.html). */
       key: "d7proben", subject: "Deutsch", stufen: [7], liste: "D7",
       listPath: "/api/d7/proben/list?alle=1", unlockPath: "/api/d7/proben/teacher/unlock",
-      klasse: function (t) { return "7" + (t.zug || ""); }, link: function (t) { return "7M/Deutsch/proben-lehrer.html?nr=" + t.nr; },
+      klasse: function (t) { return "7" + (t.zug || ""); }, link: function (t) { return "7M/Deutsch/proben-lehrer.html?nr=" + probeNr(t); },
       schueler: function (t) { return "7M/Deutsch/probe.html?test=" + encodeURIComponent(t.id) + (t.zug ? "&zug=" + t.zug : ""); }
     },
     {
@@ -113,7 +117,7 @@
          (KI-Vorkorrektur, Prüfung durch die Lehrkraft, Rückgabe), dazu Zeit und Zwischenstand auf dem Server. */
       key: "d8proben", subject: "Deutsch", stufen: [8], liste: "D8",
       listPath: "/api/d8/proben/list?alle=1", unlockPath: "/api/d8/proben/teacher/unlock",
-      klasse: function (t) { return "8" + (t.zug || ""); }, link: function (t) { return "8/Deutsch/proben-lehrer.html?nr=" + t.nr; },
+      klasse: function (t) { return "8" + (t.zug || ""); }, link: function (t) { return "8/Deutsch/proben-lehrer.html?nr=" + probeNr(t); },
       schueler: function (t) { return "8/Deutsch/probe.html?test=" + encodeURIComponent(t.id) + (t.zug ? "&zug=" + t.zug : ""); }
     },
     {
@@ -125,7 +129,7 @@
       // Den Hörtext spielt die Lehrkraft für alle ab (js/probe-hoertext.js) – die Kinder haben keinen Spieler
       hoertextPath: "/api/e9/proben/teacher/hoertext",
       // seit 11.10.2026 auch Proben für die Mittlere-Reife-Klasse (e9-p<nr>-m-…): eigene Seiten bei 9M/Englisch_9/
-      klasse: function (t) { return "9" + (t.zug || "R"); }, link: function (t) { return (t.zug === "M" ? "9M/Englisch_9/" : "9R/Englisch/") + "proben-lehrer.html?nr=" + t.nr; },
+      klasse: function (t) { return "9" + (t.zug || "R"); }, link: function (t) { return (probeZug(t) === "M" ? "9M/Englisch_9/" : "9R/Englisch/") + "proben-lehrer.html?nr=" + probeNr(t); },
       schueler: function (t) { return (t.zug === "M" ? "9M/Englisch_9/" : "9R/Englisch/") + "probe.html?test=" + encodeURIComponent(t.id) + "&zug=" + (t.zug || "R"); }
     },
     {

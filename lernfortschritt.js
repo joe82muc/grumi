@@ -694,7 +694,12 @@
       inf9: { results: "/api/inf9/teacher/results", del: "/api/inf9/teacher/delete", override: "/api/inf9/teacher/override", nurText: true },
       nt9probe: std("/api/nt9probe"),
       netzwerktest: std("/api/netzwerktest"),
-      filiuspruefung: { results: "/api/filiuspruefung/results", del: "/api/filiuspruefung/delete-submission" }
+      filiuspruefung: { results: "/api/filiuspruefung/results", del: "/api/filiuspruefung/delete-submission" },
+      // Deutsch 7/8 und Englisch 9 (große Proben): Antworten, Punkte, Druck und Rückgabe laufen über die Lehrerseite der
+      // Probe (lehrerseite) – hier: Abgabe löschen (Nachschreiben), Note 6 aufheben, Protokoll des Probenmodus
+      d7proben: { results: "/api/d7/proben/teacher/results", del: "/api/d7/proben/teacher/delete", lehrerseite: true },
+      d8proben: { results: "/api/d8/proben/teacher/results", del: "/api/d8/proben/teacher/delete", lehrerseite: true },
+      e9proben: { results: "/api/e9/proben/teacher/results", del: "/api/e9/proben/teacher/delete", lehrerseite: true }
     };
   })();
   function apiPost(pfad, body) {
@@ -738,7 +743,7 @@
 
     apiPost(api.results, { testId: n.testId }).then(function (d) {
       var sub = (d.submissions || []).filter(function (s) { return s.id === n.id; })[0];
-      var details = sub && Array.isArray(sub.details) ? sub.details : null;
+      var details = sub && Array.isArray(sub.details) && !api.lehrerseite ? sub.details : null;
       if (!sub) { inhalt.innerHTML = '<div class="note warn">Diese Abgabe gibt es nicht mehr. Bitte die Noten neu laden.</div>'; geaendert = true; return; }
       if (!details || !details.length) {
         inhalt.innerHTML = '<div class="note">Bei dieser Probe lassen sich die Punkte hier nicht einzeln ändern. Antworten und Bewertung stehen auf der Lehrerseite der Probe.</div>';
@@ -768,12 +773,12 @@
       fuss.innerHTML = (felder.length ? '<button type="button" class="btn btn-ok btn-sm" data-speichern disabled>Punkte speichern</button>' : "") +
         '<button type="button" class="btn btn-bad btn-sm" data-loeschen>Abgabe löschen (Nachschreiben)</button>' +
         (link ? '<a class="btn btn-ghost btn-sm" href="' + esc(link) + '" target="_blank" rel="noopener">Lehrerseite der Probe ↗</a>' : "") +
-        (api.lrs ? '<button type="button" class="btn btn-ghost btn-sm lf-lrs-knopf' + (sub.lrs ? " an" : "") + '" data-lrs-abgabe aria-pressed="' + Boolean(sub.lrs) + '" title="Notenschutz LRS für diese Abgabe: Die Rechtschreibung zählt nicht, Punkte und Note werden neu berechnet">' +
+        (api.lehrerseite ? "" : (api.lrs ? '<button type="button" class="btn btn-ghost btn-sm lf-lrs-knopf' + (sub.lrs ? " an" : "") + '" data-lrs-abgabe aria-pressed="' + Boolean(sub.lrs) + '" title="Notenschutz LRS für diese Abgabe: Die Rechtschreibung zählt nicht, Punkte und Note werden neu berechnet">' +
           (sub.lrs ? "✓ LRS: Rechtschreibung zählt nicht" : "LRS: Rechtschreibung nicht werten") + "</button>" : "") +
         '<label class="lf-mitl"><input type="checkbox" data-mitloesung checked> mit Lösungen</label>' +
         '<button type="button" class="btn btn-ghost btn-sm" data-druck>🖨️ Für die Eltern drucken</button>' +
         (n.zurueck ? (n.vorbei ? '<button type="button" class="btn btn-sm" data-zurueckgeben>📤 Noch einmal zurückgeben (7 Tage)</button>' : "") + '<button type="button" class="btn btn-ghost btn-sm" data-zuruecknehmen>Rückgabe zurücknehmen</button>' : '<button type="button" class="btn btn-sm" data-zurueckgeben>📤 An das Kind zurückgeben</button>') +
-        (anzahlKlasse > 1 ? '<button type="button" class="btn btn-ghost btn-sm" data-druck-alle>🖨️ Ganze Klasse drucken (' + anzahlKlasse + ")</button>" : "") +
+        (anzahlKlasse > 1 ? '<button type="button" class="btn btn-ghost btn-sm" data-druck-alle>🖨️ Ganze Klasse drucken (' + anzahlKlasse + ")</button>" : "")) +
         (n.abbruch ? '<button type="button" class="btn btn-ghost btn-sm" data-abbruch title="' + (n.abbruch.aufgehoben ? "Wieder Note 6 geben" : "Note 6 aufheben: Die Note richtet sich dann nach den Punkten") + '">' +
           (n.abbruch.aufgehoben ? "⛔ Note 6 wieder setzen" : "⛔ Note 6 aufheben") + "</button>" : "");
       var speichern = fuss.querySelector("[data-speichern]");
@@ -822,7 +827,9 @@
           elternDruck(w, subs, { titel: n.titel, fach: n.fach, klasse: KLASSE }, mitLoesung);
         }).catch(function (e) { w.document.body.innerHTML = '<p style="font-family:Arial;padding:20px">Die Abgaben konnten nicht geladen werden: ' + esc(e.message) + "</p>"; });
       }
-      fuss.querySelector("[data-druck]").addEventListener("click", function () { drucken(true); });
+      var druckKnopf = fuss.querySelector("[data-druck]"), druckAlle = fuss.querySelector("[data-druck-alle]");
+      if (druckKnopf) druckKnopf.addEventListener("click", function () { drucken(true); });
+      if (druckAlle) druckAlle.addEventListener("click", function () { drucken(false); });
       // Testregeln: Note 6 einer beendeten Probe aufheben oder wieder setzen (die Lehrkraft entscheidet)
       var abb = fuss.querySelector("[data-abbruch]");
       if (abb) abb.addEventListener("click", function () {
@@ -837,7 +844,6 @@
           hinweis(wer + ": " + (aufheben ? "Note 6 aufgehoben – neue Note " + r.grade + "." : "wieder Note 6."), "ok");
         }).catch(function (e) { abb.disabled = false; meldung("Das hat nicht geklappt: " + e.message, "bad"); });
       });
-      if (anzahlKlasse > 1) fuss.querySelector("[data-druck-alle]").addEventListener("click", function () { drucken(false); });
       felder.forEach(function (f) {
         f.addEventListener("input", function () {
           f.classList.toggle("geaendert", f.value !== f.getAttribute("data-alt"));
