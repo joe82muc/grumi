@@ -518,7 +518,7 @@
   /* Testregeln (17.10.2026): Vermerk zu einer Abgabe – Probe beendet (insgesamt mehr als 1 Minute weg, 2. Kopierversuch, beim
      Vokabeltest 5× verlassen) = Note 6, solange die Lehrkraft sie nicht aufhebt; automatisch abgegeben ohne Note 6 */
   var AUTO_TEXT = { ruhe: "automatisch abgegeben (5 Minuten nichts eingegeben)", gesperrt: "automatisch abgegeben (Bildschirm gesperrt)",
-    server: "automatisch abgegeben (Seite war nicht mehr offen)" };
+    server: "automatisch abgegeben (Seite war nicht mehr offen)", zeit: "automatisch abgegeben (Bearbeitungszeit abgelaufen)" };
   function abbruchKurz(a) {
     return a.grund === "kopieren" ? (a.kopierversuche || 2) + ". Kopierversuch" : a.grund === "weg" ? "insgesamt " + (a.sekunden ? a.sekunden + " s" : "über 1 Minute") + " weg" : a.verlassen + "× verlassen";
   }

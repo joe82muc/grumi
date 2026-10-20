@@ -44,7 +44,8 @@
     return ab.verlassen + "× verlassen";
   }
   var AUTOMATISCH = { ruhe: "5 Minuten nichts eingegeben", gesperrt: "länger als 1 Minute weg, nachdem 2 Minuten nichts mehr eingegeben wurde (Bildschirm gesperrt?)",
-    server: "Seite war nicht mehr offen – der Server hat den letzten Stand abgegeben" };
+    server: "Seite war nicht mehr offen – der Server hat den letzten Stand abgegeben",
+    zeit: "Bearbeitungszeit abgelaufen – die Seite hat abgegeben" };
 
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {

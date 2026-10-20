@@ -18,7 +18,9 @@ GrumiKursliste.bauen({
   andere: { zug: "R", titel: "Natur und Technik 9R", href: "9R/NT_9/übersicht_themen.html" },
   uebersicht: "übersicht_themen.html",
   // je Themenbereich eine Probe über alle seine Seiten (Server: nt9-probe-daten.js); nt9m-probe1 ist die frühere, lange Fassung
-  proben: { "nt9m-rohstoffe": "rohstoffe", "nt9m-radioaktivitaet": "radioaktivitaet", "nt9m-kernenergie": "kernenergie", "nt9m-probe1": "rohstoffe" },
+  proben: { "nt9m-rohstoffe": "rohstoffe", "nt9m-radioaktivitaet": "radioaktivitaet", "nt9m-kernenergie": "kernenergie", "nt9m-probe1": "rohstoffe",
+    // Probe 2 (seit 20.10.2026): nur Ankreuzen und Zuordnen, 50 Punkte, M-Schlüssel, 30 Minuten, ohne Note-6-Regel
+    "nt9m-rohstoffe2": "rohstoffe" },
   themen: [
     {
       id: "rohstoffe", nr: "01", titel: "Organische Rohstoffe", kurz: "Organische Rohstoffe", icon: "🛢️",

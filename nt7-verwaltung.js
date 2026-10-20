@@ -119,7 +119,7 @@
         return fetch(ctx.api + mod.listPath).then(function (r) { return r.ok ? r.json() : { tests: [] }; }).then(function (d) {
           // frühere Fassungen einer Probe (alt) stehen nur noch hier, solange sie offen sind (damit man sie sperren kann)
           return (d.tests || []).filter(function (t) { if (t.alt && !t.unlocked) return false; var k = mod.klasse(t); return listeVon(mod, t) === N && (k === String(STUFE) || k === STUFE + ZUG); })
-            .map(function (t) { return { mod: mod, id: t.id, titel: t.title || t.id, variante: t.variante || "", notenzug: t.notenzug || "", ohneMinute: t.wegSekunden === 0, ohneNote6: t.wegSekunden === 0 && t.kopieren === 0, offen: !!t.unlocked, aufgaben: t.itemCount, punkte: t.maxPoints, hoertexte: t.hoertexte || 0, klasse: mod.klasse(t), link: mod.link ? mod.link(t) : "", schueler: mod.schueler ? mod.schueler(t) : "" }; });
+            .map(function (t) { return { mod: mod, id: t.id, titel: t.title || t.id, variante: t.variante || "", notenzug: t.notenzug || "", ohneMinute: t.wegSekunden === 0, ohneNote6: t.wegSekunden === 0 && t.kopieren === 0, abgabeMinuten: t.abgabeMinuten || 0, offen: !!t.unlocked, aufgaben: t.itemCount, punkte: t.maxPoints, hoertexte: t.hoertexte || 0, klasse: mod.klasse(t), link: mod.link ? mod.link(t) : "", schueler: mod.schueler ? mod.schueler(t) : "" }; });
         }).catch(function () { return []; });
       })); }).then(function (teile) { PROBEN = [].concat.apply([], teile); });
     }
@@ -229,6 +229,8 @@
         // ganz ohne Note-6-Regel (Informatik 8, Probe 1c und 2c): Verlassen und Kopierversuche werden nur vermerkt
         if (p.ohneNote6) teile.push("ohne Note-6-Regel (Verlassen und Kopieren nur vermerkt)");
         else if (p.ohneMinute) teile.push("ohne 1-Minuten-Regel");
+        // feste Bearbeitungszeit (NT 9, Probe 2 Organische Rohstoffe): danach gibt die Seite ab, ist sie zu, der Server
+        if (p.abgabeMinuten) teile.push("automatische Abgabe nach " + p.abgabeMinuten + " Minuten");
         if (inhalt) teile.push("enthält " + inhalt);
         teile.push("gilt " + fuerWen(p));
         // Probe ansehen, drucken oder als PDF speichern (js/probe-vorschau.js) – so, wie das Kind sie bekommt, oder mit Lösungen

@@ -96,6 +96,10 @@
   .bar-text b{color:var(--ink)}
   .bar-track{flex:1 1 180px;height:10px;border-radius:999px;background:#e5ecf3;overflow:hidden;min-width:120px}
   .bar-track span{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--teal),var(--blue));transition:width .3s}
+  /* Restzeit (Proben mit Bearbeitungszeit) */
+  .uhr{border-radius:999px;background:var(--blue-soft);color:var(--net-1);padding:4px 12px;font-size:.95rem;font-weight:800;white-space:nowrap}
+  .uhr.knapp{background:#fff3d6;color:#8a5a00}
+  .uhr.ende{background:#fde2dc;color:#9a2b12}
 
   /* Aufgaben */
   .q{
@@ -252,8 +256,8 @@
       <h1>Probe Natur und Technik</h1>
       <p>
         Trage deinen Code ein und w&auml;hle die Probe aus. Die Probe hat einen Teil
-        zu jedem Modul des Themenbereichs und am Schluss Transferaufgaben. Bei jeder Aufgabe steht,
-        zu welchem Modul sie geh&ouml;rt. Du hast <strong id="t-min">etwa 45 Minuten</strong> Zeit
+        zu jedem Modul des Themenbereichs, manche Proben am Schluss auch Transferaufgaben. Bei jeder Aufgabe steht,
+        zu welchem Modul sie geh&ouml;rt. Du hast <strong id="t-min">etwa 45 Minuten</strong> Zeit<span id="t-auto"></span>
         und kannst sie <strong>nur einmal</strong> abgeben.
         Mit 🔊 kannst du dir jede Aufgabe vorlesen lassen. Rechtschreibung z&auml;hlt nicht.
       </p>
@@ -293,6 +297,7 @@
       <span class="bar-text">Bearbeitet: <b id="p-done">0</b> von <b id="p-total">0</b></span>
       <span class="bar-track"><span id="p-fill"></span></span>
       <span class="bar-text" id="p-pts">&nbsp;</span>
+      <span class="uhr" id="p-uhr" hidden aria-live="polite"></span>
     </div>
 
     <div class="panel">
@@ -356,7 +361,7 @@
   </div>
 </footer>
 
-<script src="../../../js/probe-schutz.js?v=20261017b"></script>
+<script src="../../../js/probe-schutz.js?v=20261020-zeit"></script>
 <script>
 /* ============================================================
    Probe Organische Rohstoffe - NT 9 (9M und 9R)
@@ -406,7 +411,12 @@ async function loadTests(){
     // Vorauswahl über ?test=<Kennung> (Kachel der Übersicht); die Zeit richtet sich nach der gewählten Probe
     const wunsch = new URLSearchParams(location.search).get('test');
     if(wunsch && open.some(t => t.id === wunsch)) sel.value = wunsch;
-    const zeit = () => { const t = open.find(x => x.id === sel.value); $('t-min').textContent = 'etwa ' + ((t && t.minutes) || 45) + ' Minuten'; };
+    // Probe mit Bearbeitungszeit (abgabeMinuten): feste Zeit, danach wird automatisch abgegeben
+    const zeit = () => {
+      const t = open.find(x => x.id === sel.value);
+      $('t-min').textContent = t && t.abgabeMinuten ? t.abgabeMinuten + ' Minuten' : 'etwa ' + ((t && t.minutes) || 45) + ' Minuten';
+      $('t-auto').textContent = t && t.abgabeMinuten ? ' – danach wird deine Probe automatisch abgegeben –' : '';
+    };
     sel.addEventListener('change', zeit); zeit();
     msg('start-msg','');
   }catch(e){
@@ -436,7 +446,7 @@ $('btn-start').addEventListener('click', async () => {
     const data = await res.json();
 
     if(res.status === 409){
-      msg('start-msg','Mit diesem Code wurde die Probe bereits abgegeben. '
+      msg('start-msg', data.zeitUm ? esc(data.message) : 'Mit diesem Code wurde die Probe bereits abgegeben. '
         + 'Wenn das ein Fehler ist, melde dich bei deiner Lehrkraft.','bad');
       $('btn-start').disabled = false; return;
     }
@@ -461,8 +471,14 @@ $('btn-start').addEventListener('click', async () => {
       + ' · ' + TEST.maxPoints + ' Punkte';
 
     buildQuestions();
-    // Testregeln (17.10.2026): länger als 1 Minute weg oder 2. Kopierversuch = Probe beendet, sofort abgegeben, Note 6
-    ProbeSchutz.start({ testId, code, box: $('q-list'), regel: { api: API_BASE, modul: 'nt9probe', beenden: () => abgeben(true) } });
+    // Testregeln (17.10.2026): länger als 1 Minute weg oder 2. Kopierversuch = Probe beendet, sofort abgegeben, Note 6.
+    // wegSekunden / kopieren 0 vom Server (Probe 2 Organische Rohstoffe): ohne Note-6-Regel – nur Warnung und Vermerk
+    const eigeneRegel = { ...(TEST.wegSekunden === 0 ? { wegSekunden: 0 } : {}), ...(TEST.kopieren === 0 ? { kopieren: 0 } : {}) };
+    const zurueck = ProbeSchutz.start({ testId, code, box: $('q-list'),
+      regel: { api: API_BASE, modul: 'nt9probe', beenden: () => abgeben(true), ...eigeneRegel } });
+    // Anderes Gerät (hier ist nichts gespeichert): den Zwischenstand vom Server übernehmen
+    if(!zurueck && data.zwischenstand) antwortenSetzen(data.zwischenstand.answers);
+    if(data.sitzung) uhrStarten(data.sitzung);
     $('view-start').hidden = true;
     $('view-test').hidden  = false;
     window.scrollTo({ top:0 });
@@ -605,7 +621,79 @@ function isAnswered(i){
   return String(a || '').trim().length > 2;
 }
 
+/* ---------- Bearbeitungszeit (Probe mit abgabeMinuten) ----------
+   Die Uhr kommt vom Server (Beginn beim ersten Start, läuft beim Neuladen weiter). Bei 0 gibt die Seite automatisch ab.
+   Der Zwischenstand geht bei jeder Änderung (gebündelt) und jede Minute an den Server: Ist die Seite zu, wenn die Zeit
+   abläuft, gibt der Server mit diesem Stand ab. */
+let UHR = null, ZEIT_UM = false, zsTimer = null, zsLetzt = '';
+function uhrStarten(s){
+  const versatz = Date.parse(s.serverZeit) - Date.now();   // falls die Uhr des Geräts falsch geht
+  UHR = { ende: Date.parse(s.endetAm) - versatz, minuten: s.minuten, takt: setInterval(uhrTick, 1000), puls: setInterval(zwischenstandSenden, 60000) };
+  $('p-uhr').hidden = false;
+  uhrTick();
+}
+function uhrStoppen(){
+  if(!UHR) return;
+  clearInterval(UHR.takt); clearInterval(UHR.puls); clearTimeout(zsTimer);
+}
+function uhrTick(){
+  if(!UHR || ZEIT_UM) return;
+  const rest = Math.max(0, Math.ceil((UHR.ende - Date.now()) / 1000));
+  const el = $('p-uhr');
+  el.textContent = '⏱ noch ' + Math.floor(rest / 60) + ':' + String(rest % 60).padStart(2, '0') + ' Min.';
+  el.classList.toggle('knapp', rest <= 300 && rest > 60);
+  el.classList.toggle('ende', rest <= 60);
+  if(rest === 0) zeitUm();
+}
+function zeitUm(){
+  ZEIT_UM = true;
+  uhrStoppen();
+  $('p-uhr').textContent = '⏱ Die Zeit ist um';
+  if(sending) return;
+  $('confirm').hidden = true;
+  document.querySelectorAll('#q-list button.opt, #q-list select, #q-list textarea').forEach(el => { el.disabled = true; });
+  abgeben(true);
+  msg('submit-msg', 'Die ' + UHR.minuten + ' Minuten sind um. Deine Probe wird jetzt automatisch abgegeben.', 'warn');
+  $('submit-msg').scrollIntoView({ behavior:'smooth', block:'center' });
+}
+function zwischenstandMerken(){
+  if(!UHR || ZEIT_UM) return;
+  clearTimeout(zsTimer);
+  zsTimer = setTimeout(zwischenstandSenden, 3000);
+}
+async function zwischenstandSenden(){
+  if(!UHR || ZEIT_UM || sending) return;
+  const rf = ProbeSchutz.regelFelder();
+  const body = JSON.stringify({ testId: STUDENT.testId, code: STUDENT.code, answers: ANSWERS,
+    verlassen: ProbeSchutz.verlassen(), kopierversuche: rf.kopierversuche, wegSumme: rf.wegSumme });
+  if(body === zsLetzt) return;
+  try{
+    const r = await fetch(API_BASE + '/api/nt9probe/zwischenstand', { method:'POST', headers:{'Content-Type':'application/json'}, body });
+    if(r.ok) zsLetzt = body;
+  }catch(e){ /* nächster Versuch bei der nächsten Änderung oder in einer Minute */ }
+}
+// Zwischenstand vom Server in die Seite übernehmen (löst dieselben Ereignisse aus wie eine Eingabe)
+function antwortenSetzen(liste){
+  (liste || []).forEach((a, i) => {
+    const card = document.querySelector('.q[data-i="' + i + '"]');
+    if(!card || !ITEMS[i]) return;
+    if(ITEMS[i].type === 'choice' && Number.isInteger(a)){
+      const b = card.querySelector('.opt[data-k="' + a + '"]');
+      if(b) b.click();
+    }else if(ITEMS[i].type === 'match' && Array.isArray(a)){
+      card.querySelectorAll('select').forEach(sel => {
+        const v = a[+sel.dataset.r];
+        if(Number.isInteger(v)){ sel.value = String(v); sel.dispatchEvent(new Event('change', { bubbles:true })); }
+      });
+    }else if(ITEMS[i].type === 'text' && typeof a === 'string' && a){
+      const ta = card.querySelector('textarea');
+      if(ta){ ta.value = a; if(ProbeSchutz.gesetzt) ProbeSchutz.gesetzt(ta); ta.dispatchEvent(new Event('input', { bubbles:true })); }
+    }
+  });
+}
+
 function updateProgress(){
+  zwischenstandMerken();
   const done = ITEMS.filter((_, i) => isAnswered(i)).length;
   $('p-done').textContent = done;
   $('p-fill').style.width = ITEMS.length ? (done / ITEMS.length * 100) + '%' : '0%';
@@ -653,7 +741,14 @@ document.addEventListener('keydown', e => {
 });
 $('c-send').addEventListener('click', () => { $('confirm').hidden = true; abgeben(false); });
 
-/* automatisch: nach den Testregeln beendet – ohne Rückfrage; klappt es nicht, alle 15 Sekunden neu versuchen */
+// Angaben zu den Testregeln für die Abgabe; ist die Bearbeitungszeit abgelaufen, steht das als Vermerk dabei (ohne Note 6)
+function regelFelderMitZeit(){
+  const rf = ProbeSchutz.regelFelder();
+  if(ZEIT_UM && !rf.abbruch && !rf.automatisch) rf.automatisch = 'zeit';
+  return rf;
+}
+
+/* automatisch: nach den Testregeln beendet oder Zeit um – ohne Rückfrage; klappt es nicht, alle 15 Sekunden neu versuchen */
 async function abgeben(automatisch){
   if(sending) return;
   if(automatisch) $('confirm').hidden = true;
@@ -671,12 +766,13 @@ async function abgeben(automatisch){
         code: STUDENT.code,
         testDate: new Date().toISOString().slice(0,10),
         answers: ANSWERS,
-        verlassen: ProbeSchutz.verlassen(), protokoll: ProbeSchutz.protokoll(), ...ProbeSchutz.regelFelder()
+        verlassen: ProbeSchutz.verlassen(), protokoll: ProbeSchutz.protokoll(), ...regelFelderMitZeit()
       })
     });
     const data = await res.json();
 
     if(res.status === 409){
+      uhrStoppen();
       msg('submit-msg','Diese Probe wurde bereits abgegeben.','bad');
       btn.textContent = 'Bereits abgegeben';
       return;
@@ -692,6 +788,7 @@ async function abgeben(automatisch){
     }
     if(!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
 
+    uhrStoppen();
     ProbeSchutz.ende();
     if (ProbeSchutz.abgegeben && ProbeSchutz.abgegeben(data.result, { box: $('view-result'), weg: $('view-test') })) return;   // Note erst nach der Rückgabe
     showResult(data.result);
