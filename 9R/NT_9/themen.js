@@ -20,7 +20,9 @@ GrumiKursliste.bauen({
   // je Themenbereich eine Probe über alle seine Seiten (Server: nt9-probe-daten.js); nt9r-probe1 ist die frühere, lange Fassung
   proben: { "nt9r-rohstoffe": "rohstoffe", "nt9r-radioaktivitaet": "radioaktivitaet", "nt9r-kernenergie": "kernenergie", "nt9r-probe1": "rohstoffe",
     // Probe 2 (seit 20.10.2026): nur Ankreuzen und Zuordnen, 50 Punkte, M-Schlüssel, 30 Minuten, ohne Note-6-Regel
-    "nt9r-rohstoffe2": "rohstoffe" },
+    "nt9r-rohstoffe2": "rohstoffe",
+    // Probe 3 (seit 20.10.2026): nach Themen sortiert, mit Transfer, 80 Punkte, nur Ankreuzen und Zuordnen, 45 Minuten
+    "nt9r-rohstoffe3": "rohstoffe" },
   themen: [
     {
       id: "rohstoffe", nr: "01", titel: "Organische Rohstoffe", kurz: "Organische Rohstoffe", icon: "🛢️",

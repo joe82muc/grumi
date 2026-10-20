@@ -507,6 +507,12 @@ document.addEventListener('click', e => {
   if(b && ITEMS[+b.dataset.i]) vorlesen(ITEMS[+b.dataset.i]);
 });
 
+// Modul der Aufgabe: bei Transferaufgaben und wenn die Probe nach Themen statt nach Modulen sortiert ist (Probe 3)
+function modulZeile(it){
+  if(!it.modulTitel || (!it.transfer && it.modulTitel === it.teil)) return '';
+  return '<small class="q-modul" title="' + (it.transfer ? 'Diese Aufgabe baut auf diesem Modul auf' : 'Aus diesem Modul') + '">📘 ' + esc(it.modulTitel) + '</small>';
+}
+
 function buildQuestions(){
   const box = $('q-list');
   box.innerHTML = '';
@@ -529,7 +535,9 @@ function buildQuestions(){
       if(/^Transfer/i.test(name)){
         const hint = document.createElement('p');
         hint.className = 'teil-hint';
-        hint.textContent = 'Hier geht es um neue Situationen. Nutze, was du in den Modulen gelernt hast, und begründe deine Antwort.';
+        // „begründe“ nur, wenn im Transferteil auch etwas zu schreiben ist (Probe 3: nur Ankreuzen und Zuordnen)
+        const schreiben = ITEMS.some(x => x.teil === it.teil && x.type === 'text');
+        hint.textContent = 'Hier geht es um neue Situationen. Nutze, was du in den Modulen gelernt hast' + (schreiben ? ', und begründe deine Antwort.' : '.');
         box.appendChild(hint);
       }
     }
@@ -542,7 +550,7 @@ function buildQuestions(){
       '<div class="q-head">' +
         '<span class="q-no">' + it.nr + '</span>' +
         '<span class="q-text">' + esc(it.prompt) +
-          (it.transfer && it.modulTitel ? '<small class="q-modul" title="Diese Aufgabe baut auf diesem Modul auf">📘 ' + esc(it.modulTitel) + '</small>' : '') + '</span>' +
+          modulZeile(it) + '</span>' +
         '<span class="q-pts">' + it.points + (it.points === 1 ? ' Punkt' : ' Punkte') + '</span>' +
         '<button type="button" class="vorlesen" data-i="' + i + '" aria-label="Aufgabe vorlesen" title="Aufgabe vorlesen">🔊</button>' +
       '</div>';
@@ -833,7 +841,7 @@ function showResult(r){
       h += '<div class="res-teil">' + esc(d.teil) + '</div>';
     }
     h += '<div class="res-q ' + cls + '">' +
-      '<div class="rq-top"><div><b>' + d.nr + '.</b> ' + esc(d.prompt) + (d.transfer && d.modulTitel ? '<small class="q-modul">📘 ' + esc(d.modulTitel) + '</small>' : '') + '</div>' +
+      '<div class="rq-top"><div><b>' + d.nr + '.</b> ' + esc(d.prompt) + modulZeile(d) + '</div>' +
       '<div class="rq-p">' + d.points + '/' + d.maxPoints + '</div></div>' +
       '<div class="rq-given"><span>Deine Antwort:</span> ' +
         (d.given ? esc(d.given) : '<i>keine Antwort</i>') + '</div>';
