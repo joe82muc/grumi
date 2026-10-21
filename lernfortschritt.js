@@ -168,6 +168,7 @@
     ".lf-lrs-b{display:inline-block;margin-left:.35rem;padding:0 .4rem;border-radius:99px;background:#ede9fe;color:#5b21b6;font-size:.7rem;font-weight:900;vertical-align:middle}" +
     ".lf-weg{color:#b45309;font-weight:800}" +
     ".lf-ende{color:#b91c1c;font-weight:800}.lf-ende.auf{color:#64748b}" +
+    ".lf-weiter{color:#15803d;font-weight:800}" +
     ".lf-namen{width:100%;min-height:120px;padding:.6rem .7rem;border:1.5px solid var(--line);border-radius:10px;font:inherit;font-size:.95rem;resize:vertical}" +
     "#lf-druck{display:none}" +
     "@media print{body.lf-drucken>*:not(#lf-druck){display:none!important}body.lf-drucken{background:#fff;padding:0}" +
@@ -515,8 +516,8 @@
     return m ? m[3] + "." + m[2] + "." + (mitJahr ? m[1] : "") : "";
   }
   function notenFarbe(n) { return n <= 2 ? "g" : n <= 4 ? "m" : "s"; }
-  /* Testregeln (17.10.2026): Vermerk zu einer Abgabe – Probe beendet (insgesamt mehr als 1 Minute weg, 2. Kopierversuch, beim
-     Vokabeltest 5× verlassen) = Note 6, solange die Lehrkraft sie nicht aufhebt; automatisch abgegeben ohne Note 6 */
+  /* Testregeln (17.10.2026): Vermerk zu einer Abgabe – Probe beendet (insgesamt mehr als 1 Minute weg, 2. Kopierversuch; Englisch
+     seit 21.10.2026 nur der 1. Kopierversuch) = Note 6, solange die Lehrkraft sie nicht aufhebt; automatisch abgegeben ohne Note 6 */
   var AUTO_TEXT = { ruhe: "automatisch abgegeben (5 Minuten nichts eingegeben)", gesperrt: "automatisch abgegeben (Bildschirm gesperrt)",
     server: "automatisch abgegeben (Seite war nicht mehr offen)", zeit: "automatisch abgegeben (Bearbeitungszeit abgelaufen)" };
   function abbruchKurz(a) {
@@ -532,6 +533,15 @@
     return n.automatisch && AUTO_TEXT[n.automatisch] ? '<span class="lf-np lf-weg">⏱ ' + esc(AUTO_TEXT[n.automatisch]) + "</span>" : "";
   }
   function verlassenText(n) { return n.verlassen + "× verlassen" + (n.wegSekunden ? ", " + n.wegSekunden + " s" : ""); }
+  /* Weiterbearbeiten nach der Abgabe (21.10.2026): weiter = die Lehrkraft hat es erlaubt (bis das Kind neu abgibt oder sie es
+     zurücknimmt); fassungen/vorher = so oft wurde schon weiterbearbeitet, die Fassung davor */
+  function weiterText(n) {
+    if (n.weiter) return "darf weiterarbeiten (erlaubt am " + datumText(n.weiter.erlaubtAm, true) + ")";
+    return n.fassungen ? "weiterbearbeitet" + (n.vorher ? " – vorher Note " + n.vorher.grade + " (" + n.vorher.score + " von " + n.vorher.total + " Punkten)" : "") : "";
+  }
+  function weiterVermerk(n) {
+    return weiterText(n) ? '<span class="lf-np lf-weiter" title="' + esc(weiterText(n)) + '">✏️ ' + (n.weiter ? "darf weiterarbeiten" : "weiterbearbeitet") + "</span>" : "";
+  }
   function schnitt(noten) {
     var z = noten.filter(function (x) { return typeof x === "number"; });
     return z.length ? (z.reduce(function (a, b) { return a + b; }, 0) / z.length).toFixed(2).replace(".", ",") : "";
@@ -568,10 +578,10 @@
           noten.push(n.note);
           h += '<td class="lf-klick" data-abgabe="' + esc(n.modul + "|" + n.id) + '" title="' + esc(n.punkte + " von " + n.max + " Punkten (" + n.prozent + " %)" + (n.lrs ? " · mit Notenschutz LRS gewertet" : "") +
               (n.verlassen ? " · " + n.verlassen + "× die Probe verlassen (anderer Tab oder andere App)" + (n.wegSekunden ? ", insgesamt " + n.wegSekunden + " Sekunden" : "") : "") +
-              (vermerkText(n) ? " · " + vermerkText(n) : "") + (n.nachpruefen ? " · KI-Bewertung noch prüfen" : "") + " · Klicken zum Bearbeiten oder Löschen") + '">' +
+              (vermerkText(n) ? " · " + vermerkText(n) : "") + (weiterText(n) ? " · " + weiterText(n) : "") + (n.nachpruefen ? " · KI-Bewertung noch prüfen" : "") + " · Klicken zum Bearbeiten, Weiterbearbeiten erlauben oder Löschen") + '">' +
             '<span class="lf-note ' + notenFarbe(n.note) + '">' + esc(n.note) + "</span>" + (n.nachpruefen ? ' <span title="KI-Bewertung noch prüfen">⚠️</span>' : "") +
             (n.lrs ? '<span class="lf-lrs-b">LRS</span>' : "") +
-            '<span class="lf-np">' + esc(n.punkte + "/" + n.max + " · " + datumText(n.datum)) + (n.verlassen ? ' · <span class="lf-weg">' + esc(verlassenText(n)) + "</span>" : "") + "</span>" + vermerk(n) +
+            '<span class="lf-np">' + esc(n.punkte + "/" + n.max + " · " + datumText(n.datum)) + (n.verlassen ? ' · <span class="lf-weg">' + esc(verlassenText(n)) + "</span>" : "") + "</span>" + vermerk(n) + weiterVermerk(n) +
             // 7 Tage nach der Rückgabe verschwindet die Probe beim Kind von selbst (vorbei) – die Note bleibt hier stehen
             (n.zurueck ? '<span class="lf-np lf-zur" title="Zurückgegeben am ' + esc(datumText(n.zurueck, true)) + (n.geoeffnet ? ", vom Kind geöffnet am " + esc(datumText(n.geoeffnet, true)) : ", noch nicht geöffnet") +
               (n.vorbei ? " – beim Kind nicht mehr zu sehen (7 Tage nach der Rückgabe)" : n.sichtbarBis ? " – beim Kind zu sehen bis " + esc(datumText(n.sichtbarBis)) : "") + '">📤 ' +
@@ -597,7 +607,8 @@
       h += "<td></td></tr></tfoot></table></div>" +
         '<p class="sub" style="margin:.5rem 0 0">⚠️ = Die KI war bei einer freien Antwort unsicher oder nicht erreichbar. Bitte in der Lehrerseite der Probe nachsehen. ' +
         "<b>LRS</b> = mit Notenschutz gewertet (Rechtschreibung zählt nicht). <b>× verlassen</b> = So oft hat das Kind während der Probe in einen anderen Tab oder eine andere App gewechselt (mit Sekunden insgesamt; Wechsel unter 5 Sekunden zählen nicht). " +
-        "<b>⛔ Probe beendet</b> = Testregeln: insgesamt mehr als 1 Minute weg oder 2. Kopierversuch (Vokabeltest auch 5× verlassen) – Note 6; auf die Note klicken, um sie aufzuheben. <b>⏱</b> = automatisch abgegeben, ohne Note 6. " +
+        "<b>⛔ Probe beendet</b> = Testregeln: insgesamt mehr als 1 Minute weg oder 2. Kopierversuch – Note 6 (Englisch seit 21.10.2026: Verlassen nur Warnung und Vermerk, schon der 1. Kopierversuch = Note 6); auf die Note klicken, um sie aufzuheben. <b>⏱</b> = automatisch abgegeben, ohne Note 6. " +
+        "<b>✏️ darf weiterarbeiten</b> = Du hast erlaubt, dass das Kind die Probe noch einmal öffnet (solange sie freigeschaltet ist) – seine Antworten sind dann wieder da, die neue Abgabe ersetzt die alte; <b>✏️ weiterbearbeitet</b> = so ist es geschehen (die Fassung davor steht im Hinweis). Erlauben: auf die Note klicken. " +
         "<b>📤 zurückgegeben</b> = Das Kind sieht die korrigierte Probe auf seiner Startseite unter „Zurückbekommen“ und kann sie für die Eltern drucken; „geöffnet“ heißt, es hat sie angesehen. <b>7 Tage nach der Rückgabe verschwindet die Probe beim Kind von selbst</b> („beim Kind weg“) – Note und Abgabe bleiben hier; mit „Noch einmal zurückgeben“ sieht das Kind sie wieder 7 Tage. Zurückgeben: auf eine Note klicken oder unten „Alle zurückgeben“. Deutsch-Proben gibst du auf ihrer Korrekturseite frei.</p>";
     }
     teil.innerHTML = h;
@@ -721,7 +732,8 @@
     function stand(note, punkte, max, prozent) {
       return '<span class="lf-note ' + notenFarbe(note) + '">' + esc(note) + "</span> <b>" + esc(punkte + " von " + max + " Punkten") + "</b> (" + esc(prozent) + " %)" +
         (n.lrs ? ' <span class="lf-lrs-b" title="Notenschutz LRS">LRS</span>' : "") + (n.verlassen ? ' · <span class="lf-weg">' + esc(verlassenText(n)) + "</span>" : "") +
-        (vermerkText(n) ? '<br><span class="' + (n.abbruch ? "lf-ende" : "lf-weg") + '">' + (n.abbruch ? "⛔ " : "⏱ ") + esc(vermerkText(n)) + "</span>" : "");
+        (vermerkText(n) ? '<br><span class="' + (n.abbruch ? "lf-ende" : "lf-weg") + '">' + (n.abbruch ? "⛔ " : "⏱ ") + esc(vermerkText(n)) + "</span>" : "") +
+        (weiterText(n) ? '<br><span class="lf-weiter">✏️ ' + esc(weiterText(n)) + "</span>" : "");
     }
     dlg.innerHTML = '<div class="lf-dlg-kopf"><div><h3>' + esc(n.titel) + '</h3><p class="sub" style="margin:0">' + (name ? esc(name) + " · " : "") + "Code " + esc(n.code) +
       " · abgegeben am " + esc(datumText(n.datum, true)) + '</p></div><button type="button" class="btn btn-ghost btn-sm" data-zu>Schließen</button></div>' +
@@ -739,6 +751,22 @@
         geaendert = true; dlg.close();
         hinweis("Die Abgabe von " + (name || "Code " + n.code) + " für „" + n.titel + "“ ist gelöscht.", "ok");
       }).catch(function (e) { meldung("Löschen hat nicht geklappt: " + e.message, "bad"); });
+    }
+    // Weiterbearbeiten nach der Abgabe erlauben oder zurücknehmen (alle Fächer, /api/probe-weiter/erlauben)
+    function weiterbearbeiten() {
+      var an = !n.weiter, wer = name || "Code " + n.code;
+      if (!global.confirm(an ? wer + " darf „" + n.titel + "“ weiterbearbeiten?\n\nSobald die Probe freigeschaltet ist, öffnet das Kind sie mit seinem Code noch einmal – seine Antworten von der Abgabe sind dann wieder da. " +
+          "Gibt es neu ab, ersetzt die neue Abgabe diese hier: Punkte und Note werden neu berechnet, die Testregeln zählen von vorn." +
+          (n.zurueck ? "\n\nAchtung: Diese Probe ist schon zurückgegeben – das Kind hat die Korrektur vielleicht schon gesehen." : "")
+        : "Weiterbearbeiten für " + wer + " zurücknehmen?\n\nDas Kind kann die Probe dann nicht mehr öffnen. Diese Abgabe bleibt, wie sie ist.")) return;
+      apiPost("/api/probe-weiter/erlauben", { modul: n.modul, submissionId: n.id, erlauben: an }).then(function (r) {
+        n.weiter = r.weiter || undefined;
+        geaendert = true;
+        abgabeDialog(n, teil, true);
+        hinweis(an ? wer + " darf „" + n.titel + "“ weiterbearbeiten. " + (r.weiter && r.weiter.seite ? "Die Antworten der Abgabe kommen beim Öffnen zurück." :
+          "Achtung: Zu dieser Abgabe ist kein Stand der Antworten gespeichert (abgegeben vor dem 21.10.2026) – das Kind beginnt mit leeren Feldern.") + " Die Probe muss freigeschaltet sein."
+          : "Weiterbearbeiten für " + wer + " ist zurückgenommen.", an && !(r.weiter && r.weiter.seite) ? "warn" : "ok");
+      }).catch(function (e) { meldung("Das hat nicht geklappt: " + e.message, "bad"); });
     }
 
     apiPost(api.results, { testId: n.testId }).then(function (d) {
@@ -772,6 +800,8 @@
       var anzahlKlasse = (d.submissions || []).filter(function (s) { return klassenIds[s.id]; }).length;
       fuss.innerHTML = (felder.length ? '<button type="button" class="btn btn-ok btn-sm" data-speichern disabled>Punkte speichern</button>' : "") +
         '<button type="button" class="btn btn-bad btn-sm" data-loeschen>Abgabe löschen (Nachschreiben)</button>' +
+        '<button type="button" class="btn btn-ghost btn-sm" data-weiter title="' + (n.weiter ? "Das Kind darf die Probe dann nicht mehr öffnen" : "Das Kind öffnet die Probe noch einmal, seine Antworten sind wieder da, die neue Abgabe ersetzt diese") + '">' +
+          (n.weiter ? "✏️ Weiterbearbeiten zurücknehmen" : "✏️ Weiterbearbeiten erlauben") + "</button>" +
         (link ? '<a class="btn btn-ghost btn-sm" href="' + esc(link) + '" target="_blank" rel="noopener">Lehrerseite der Probe ↗</a>' : "") +
         (api.lehrerseite ? "" : (api.lrs ? '<button type="button" class="btn btn-ghost btn-sm lf-lrs-knopf' + (sub.lrs ? " an" : "") + '" data-lrs-abgabe aria-pressed="' + Boolean(sub.lrs) + '" title="Notenschutz LRS für diese Abgabe: Die Rechtschreibung zählt nicht, Punkte und Note werden neu berechnet">' +
           (sub.lrs ? "✓ LRS: Rechtschreibung zählt nicht" : "LRS: Rechtschreibung nicht werten") + "</button>" : "") +
@@ -783,6 +813,7 @@
           (n.abbruch.aufgehoben ? "⛔ Note 6 wieder setzen" : "⛔ Note 6 aufheben") + "</button>" : "");
       var speichern = fuss.querySelector("[data-speichern]");
       fuss.querySelector("[data-loeschen]").addEventListener("click", loeschen);
+      fuss.querySelector("[data-weiter]").addEventListener("click", weiterbearbeiten);
       if (n.zurueck) meldung("📤 Zurückgegeben am " + datumText(n.zurueck, true) + (n.geoeffnet ? " – vom Kind geöffnet am " + datumText(n.geoeffnet, true) + "." : n.vorbei ? " – das Kind hat die Korrektur nicht geöffnet." : " – das Kind hat die Korrektur noch nicht geöffnet.") +
         (n.vorbei ? " Die 7 Tage sind um: Beim Kind ist die Probe nicht mehr zu sehen. Note und Abgabe bleiben hier." : (n.sichtbarBis ? " Beim Kind zu sehen bis " + datumText(n.sichtbarBis) + ", dann verschwindet sie dort von selbst." : "") + " Geänderte Punkte sieht das Kind sofort."));
       var zurueck = function (offen) {
@@ -875,8 +906,10 @@
       });
     }).catch(function (e) {
       inhalt.innerHTML = '<div class="note bad">Die Abgabe konnte nicht geladen werden: ' + esc(e.message) + "</div>";
-      fuss.innerHTML = '<button type="button" class="btn btn-bad btn-sm" data-loeschen>Abgabe löschen (Nachschreiben)</button>';
+      fuss.innerHTML = '<button type="button" class="btn btn-bad btn-sm" data-loeschen>Abgabe löschen (Nachschreiben)</button>' +
+        '<button type="button" class="btn btn-ghost btn-sm" data-weiter>' + (n.weiter ? "✏️ Weiterbearbeiten zurücknehmen" : "✏️ Weiterbearbeiten erlauben") + "</button>";
       fuss.querySelector("[data-loeschen]").addEventListener("click", loeschen);
+      fuss.querySelector("[data-weiter]").addEventListener("click", weiterbearbeiten);
     });
   }
   function notenCsv() {
@@ -891,7 +924,7 @@
         if (n) noten.push(n.note);
         // „von“ statt „/“, sonst macht Excel aus 5/10 ein Datum
         z.push(n ? n.note : "", n ? n.punkte + " von " + n.max : "", n ? datumText(n.datum, true) : "",
-          [n && n.verlassen ? n.verlassen + "x" + (n.wegSekunden ? " (" + n.wegSekunden + " s)" : "") : "", n ? vermerkText(n) : ""].filter(Boolean).join(" · "));
+          [n && n.verlassen ? n.verlassen + "x" + (n.wegSekunden ? " (" + n.wegSekunden + " s)" : "") : "", n ? vermerkText(n) : "", n ? weiterText(n) : ""].filter(Boolean).join(" · "));
       });
       zeilen.push(z.concat([schnitt(noten)]));
     });
@@ -910,7 +943,7 @@
       return liste.map(function (x) { return x.kz + " " + x.titel; }).join(" · ");
     }
     function bemerkung(kind, n) {
-      return [(n ? n.lrs : kind.lrs) ? "Notenschutz LRS" : "", n && n.verlassen ? verlassenText(n) : "", n ? vermerkText(n) : "", n && n.nachpruefen ? "KI-Bewertung noch prüfen" : "",
+      return [(n ? n.lrs : kind.lrs) ? "Notenschutz LRS" : "", n && n.verlassen ? verlassenText(n) : "", n ? vermerkText(n) : "", n ? weiterText(n) : "", n && n.nachpruefen ? "KI-Bewertung noch prüfen" : "",
         kind.weg ? "Code gelöscht" : ""].filter(Boolean).join(" · ");
     }
     var blaetter = [E.uebersicht({

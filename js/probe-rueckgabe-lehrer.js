@@ -17,6 +17,7 @@
  *   nach mehr als 1 Minute weg oder (nur Vokabeltest) nach 5× Verlassen beendet wurde, steht mit „⛔ Probe beendet …
  *   – Note 6“ da; die Lehrkraft kann die Note 6 aufheben und wieder setzen. Automatisch abgegeben (5 Minuten nichts
  *   eingegeben, Bildschirm gesperrt, Seite nicht mehr offen) steht als Hinweis ohne Folgen für die Note da.
+ *   Englisch seit 21.10.2026: Verlassen gibt keine Note 6 mehr (nur Warnung und Vermerk), schon der 1. Kopierversuch beendet.
  * - ProbeRueckgabeLehrer.mitNamen(blob): trägt in die Export-Datei des Servers (CSV, Excel) die Namen aus der
  *   Namensliste dieses Browsers ein (js/export-namen.js) – der Server kennt nur Codes.
  * - Speicher-Hinweis: Die Abgaben liegen dauerhaft in der Datenbank der Proben (proben-speicher.js). Nur wenn der

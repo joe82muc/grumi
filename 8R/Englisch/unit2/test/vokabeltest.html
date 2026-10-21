@@ -156,9 +156,8 @@
         <li><strong>Die Schreibweise z&auml;hlt:</strong> Schreib jedes Wort genau richtig. Schon ein falscher oder fehlender Buchstabe macht das Wort falsch.</li>
         <li>Jedes Feld darfst du <strong>2&times; korrigieren</strong>, danach ist es fest.</li>
         <li>Lade die Seite <strong>nicht neu</strong> und schlie&szlig;e den Tab nicht.</li>
-        <li><strong>Bleib im Test:</strong> Verl&auml;sst du die Seite (anderer Tab, andere App), bekommst du eine Warnung. Nach 4 Warnungen ist der Test beim <strong>5. Mal beendet &ndash; Note&nbsp;6</strong>.</li>
-        <li><strong>Kopieren und Einf&uuml;gen sind verboten:</strong> Beim 1. Versuch gibt es eine Warnung, beim <strong>2. Versuch ist der Test beendet &ndash; Note&nbsp;6</strong>.</li>
-        <li><strong>Insgesamt nie l&auml;nger als 1 Minute weg:</strong> Alle Wechsel zusammen d&uuml;rfen h&ouml;chstens 1 Minute dauern (kurze Wechsel unter 5 Sekunden z&auml;hlen nicht). Sonst ist der Test sofort beendet &ndash; <strong>Note&nbsp;6</strong>.</li>
+        <li><strong>Bleib im Test:</strong> Verl&auml;sst du die Seite (anderer Tab, andere App), bekommst du jedes Mal eine Warnung. Deine Lehrkraft sieht, wann und wie lange du weg warst.</li>
+        <li><strong>Kopieren und Einf&uuml;gen sind verboten:</strong> Schon beim <strong>1. Versuch ist der Test sofort beendet &ndash; Note&nbsp;6</strong>, ohne Warnung.</li>
         <li><strong>Abgeben nicht vergessen:</strong> Gibst du 5 Minuten lang nichts mehr ein, wird dein Test automatisch abgegeben.</li>
       </ul>
     </div>
@@ -317,13 +316,14 @@ $('btn-start').addEventListener('click', async () => {
         else info.textContent = 'Noch ' + (MAX_EDITS - n) + '× korrigierbar';
       })
     },
-      // Testregeln (16.10.2026): Verlassen – 4 Warnungen, beim 5. Mal ist der Test beendet; Kopieren/Einfügen – 1 Warnung,
-      // beim 2. Versuch beendet. Beendet = sofort abgeben, der Server gibt Note 6. Die Zahlen nennt der Server, er zählt mit.
-      // Seit 17.10.2026: länger als 1 Minute weg = beendet, 5 Minuten nichts eingegeben = automatisch abgegeben; die Seite
-      // meldet ihren Stand jede Minute (puls) – ist sie zu, gibt der Server mit dem letzten Stand ab.
-      regel: { verlassen: (data.regel && data.regel.verlassen) || 5, kopieren: (data.regel && data.regel.kopieren) || 2,
-        wegSekunden: (data.regel && data.regel.wegSekunden) || 60, ruheMinuten: (data.regel && data.regel.ruheMinuten) || 5, puls: true,
-        bisher: data.vorfaelle, beenden: () => abgeben(true), melden: vorfallMelden }
+      // Testregeln: Die Zahlen nennt der Server (data.regel), er zählt mit. 0 heißt: dafür keine Note 6. Seit 21.10.2026 (Englisch):
+      // Verlassen bringt nur eine Warnung (keine Note 6), schon der erste Versuch zu kopieren oder einzufügen beendet den Test – Note 6.
+      // 5 Minuten nichts eingegeben = automatisch abgegeben; die Seite meldet ihren Stand jede Minute (puls) – ist sie zu, gibt der
+      // Server mit dem letzten Stand ab.
+      regel: Object.assign({ verlassen: 5, kopieren: 2, wegSekunden: 60, ruheMinuten: 5 }, data.regel || {}, { puls: true,
+        bisher: data.vorfaelle, beenden: () => abgeben(true), melden: vorfallMelden }),
+      // Weiterbearbeiten nach der Abgabe (die Lehrkraft erlaubt es in der Verwaltung): Die Antworten der Abgabe kommen zurück
+      weiter: data.weiter
     });
   }catch(e){
     msg('login-msg','Keine Verbindung zum Server. Bitte melde dich bei deiner Lehrkraft.','bad');

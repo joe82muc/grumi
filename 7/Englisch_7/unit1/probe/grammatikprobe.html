@@ -401,8 +401,9 @@ $('btn-start').addEventListener('click', async () => {
     $('t-person').textContent = 'Code ' + code + ' · ' + TEST.maxPoints + ' Punkte';
 
     buildQuestions();
-    // Testregeln (17.10.2026): länger als 1 Minute weg oder 2. Kopierversuch = Probe beendet, sofort abgegeben, Note 6
-    ProbeSchutz.start({ testId, code, box: $('q-list'), regel: { api: API_BASE, modul: 'grammatik9r', beenden: () => einreichen(true) } });
+    // Testregeln vom Server (Englisch seit 21.10.2026: Verlassen bringt nur eine Warnung, schon der erste Kopierversuch beendet
+    // die Probe – Note 6). weiter: Die Lehrkraft hat das Weiterbearbeiten erlaubt (Verwaltung) – die Antworten der Abgabe kommen zurück
+    ProbeSchutz.start({ testId, code, box: $('q-list'), regel: Object.assign({}, data.regel || {}, { api: API_BASE, modul: 'grammatik9r', beenden: () => einreichen(true) }), weiter: data.weiter });
     $('view-start').hidden = true;
     $('view-test').hidden  = false;
     window.scrollTo({ top:0 });

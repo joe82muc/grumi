@@ -246,7 +246,8 @@ $('b-start').addEventListener('click', async () => {
     $('p-pts').textContent = 'Teil A ' + TEST.maxA + ' + Teil B ' + TEST.maxB + ' Punkte';
 
     bauen();
-    ProbeSchutz.start({ testId, code, box: $('fragen') });
+    // weiter: Die Lehrkraft hat das Weiterbearbeiten erlaubt – die Antworten von Teil A kommen zurück, die Datei lädst du neu hoch
+    ProbeSchutz.start({ testId, code, box: $('fragen'), weiter: d.weiter });
     $('v-start').hidden = true; $('v-test').hidden = false;
     window.scrollTo({ top:0 });
   }catch(e){ msg('m-start', OFFLINE, 'bad'); $('b-start').disabled = false; }
@@ -321,7 +322,8 @@ $('b-submit').addEventListener('click', async () => {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
         testId: ICH.testId, code: ICH.code, testDate: new Date().toISOString().slice(0,10),
-        answers: ANS, verlassen: ProbeSchutz.verlassen(), protokoll: ProbeSchutz.protokoll(), datei: DATEI ? DATEI.b64 : '', dateiName: DATEI ? DATEI.name : ''
+        answers: ANS, verlassen: ProbeSchutz.verlassen(), protokoll: ProbeSchutz.protokoll(), datei: DATEI ? DATEI.b64 : '', dateiName: DATEI ? DATEI.name : '',
+        ...ProbeSchutz.regelFelder()   // nur der Stand der Antworten (seite) – diese Prüfung hat keine Testregeln
       })
     });
     const d = await r.json();

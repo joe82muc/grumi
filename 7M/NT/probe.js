@@ -120,7 +120,9 @@
       $("questions").innerHTML = data.items.map(itemMarkup).join("");
       // Testregeln (17.10.2026): länger als 1 Minute weg oder 2. Kopierversuch = Probe beendet, sofort abgegeben, Note 6
       ProbeSchutz.start({ testId: data.test.id, code: student.code, box: $("questions"),
-        regel: { api: API, modul: "nt7", beenden: () => einreichen(true) } });
+        regel: { api: API, modul: "nt7", beenden: () => einreichen(true) },
+        // Die Lehrkraft hat das Weiterbearbeiten erlaubt (Verwaltung): die Antworten der Abgabe kommen zurück
+        weiter: data.weiter });
       window.scrollTo({top:0,behavior:"smooth"});
     } catch (err) { status(err.message,true); window.scrollTo({top:0,behavior:"smooth"}); }
     finally { button.disabled = false; }

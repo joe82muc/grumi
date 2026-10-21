@@ -83,7 +83,7 @@
       const tests = data.tests.filter(passt);
       if (!tests.length) { $("exam-list").innerHTML = ""; status(nr ? "Diese Probe ist noch nicht freigeschaltet oder noch in Vorbereitung." : "Im Moment gibt es hier keine Probe."); return; }
       $("exam-list").innerHTML = tests.map(t => `<article class="exam-tile"><div><div class="eyebrow">${esc(t.scope)}</div><h2>${esc(t.title)}</h2>
-        <p>${t.itemCount} Aufgaben · ${t.maxPoints} Punkte · etwa ${t.minutes} Minuten · ${klasse(t)}${t.variante === "B" && !t.eigen ? " · Nachschreiber" : ""}</p></div>
+        <p>${t.itemCount} Aufgaben · ${t.maxPoints} Punkte · ${t.ohneZeit ? "ohne Zeitbegrenzung" : "etwa " + t.minutes + " Minuten"} · ${klasse(t)}${t.variante === "B" && !t.eigen ? " · Nachschreiber" : ""}</p></div>
         <div><span class="pill ${t.unlocked ? "open" : ""}">${t.unlocked ? "Freigeschaltet" : "Gesperrt"}</span><button class="btn" data-test="${esc(t.id)}" data-title="${esc(t.title)}" ${t.unlocked ? "" : "disabled"}>Auswählen</button></div></article>`).join("");
       status("Wähle eine freigeschaltete Probe.");
       const offen = tests.filter(t => t.unlocked);
@@ -269,7 +269,8 @@
       $("questions-section").hidden = false;
       $("exam-kicker").textContent = ((exam.test.zug === "M" ? "M" : "R") + DNR) + (exam.test.variante === "B" && !exam.test.eigen ? " · Nachschreiber" : "") + (exam.test.scope ? " · " + exam.test.scope : "");
       $("exam-title").textContent = exam.test.title;
-      $("exam-points").textContent = exam.test.maxPoints + " Punkte · etwa " + exam.test.minutes + " Minuten";
+      // Englisch (seit 21.10.2026): keine Zeitbegrenzung – der Server zeigt auch keine Restzeit (sitzung.timer false)
+      $("exam-points").textContent = exam.test.maxPoints + " Punkte · " + (exam.test.ohneZeit ? "ohne Zeitbegrenzung" : "etwa " + exam.test.minutes + " Minuten");
       if (exam.test.hinweis) $("exam-hinweis").textContent = exam.test.hinweis;
       // Hörtexte (Englisch) stehen als Spieler in der Textspalte: abspielbar so oft, wie die Probe es erlaubt, nie als Text
       const hoertexte = exam.texte.filter(t => t.typ === "hoertext");
@@ -289,9 +290,13 @@
       // Testregeln für alle Proben (17.10.2026): länger als 1 Minute weg oder 2. Kopierversuch = Probe beendet, sofort
       // abgegeben, Note 6 (die Lehrkraft kann sie aufheben). Den Hinweis über den Aufgaben schreibt dann ProbeSchutz.
       // wegSekunden 0 vom Server (z. B. Nachholprobe 2 der M7): ohne die 1-Minuten-Regel – Verlassen wird nur festgehalten.
+      // Englisch (seit 21.10.2026): wegSekunden 0 und kopieren 1 – Verlassen nur Warnung, schon der erste Kopierversuch beendet.
+      // weiter: Die Lehrkraft hat das Weiterbearbeiten erlaubt (Verwaltung) – die Antworten der Abgabe kommen zurück.
       const zurueck = ProbeSchutz.start({testId: exam.test.id, code: student.code, box: $("questions"), ueberwachung: true, einfuegen: exam.test.einfuegen,
         wechsel: schutz.wechsel, warnen: schutz.warnen, kopieren: schutz.kopieren, ausschneiden: schutz.ausschneiden, kontextmenue: schutz.kontextmenue, spruenge: schutz.spruenge,
-        regel: {api: API, modul: DAPI.replace(/^\/api\//, "") + "proben", beenden: () => einreichen(true), ...(exam.test.wegSekunden === 0 ? {wegSekunden: 0} : {})}});
+        regel: {api: API, modul: DAPI.replace(/^\/api\//, "") + "proben", beenden: () => einreichen(true), ...(exam.test.wegSekunden === 0 ? {wegSekunden: 0} : {}),
+          ...(Number.isInteger(exam.test.kopieren) ? {kopieren: exam.test.kopieren} : {})},
+        weiter: exam.weiter});
       // offen sagen, was im Probenmodus festgehalten wird
       if (!$("schutz-hinweis")) $("questions").insertAdjacentHTML("beforebegin", '<p class="schutz-hinweis" id="schutz-hinweis"></p>');
       if ($("schutz-hinweis").dataset.von !== "probe-schutz") $("schutz-hinweis").textContent = "🔒 Probenmodus" + (exam.sitzung ? " – ohne Hilfe der KI" : "") + ": " +

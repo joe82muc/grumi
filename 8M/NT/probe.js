@@ -171,7 +171,10 @@
       });
       // Testregeln (17.10.2026): länger als 1 Minute weg oder 2. Kopierversuch = Probe beendet, sofort abgegeben, Note 6
       const lokal = ProbeSchutz.start({ testId: data.test.id, code: student.code, box: $("questions"), extra: { holen: laborStaende, setzen: laborSetzen },
-        regel: { api: API, modul: "nt8", beenden: () => einreichen(true) } });
+        regel: { api: API, modul: "nt8", beenden: () => einreichen(true) },
+        // Die Lehrkraft hat das Weiterbearbeiten erlaubt (Verwaltung): die Antworten der Abgabe kommen zurück (der Server schickt
+        // sie nur, wenn er keinen neueren Zwischenstand hat)
+        weiter: data.weiter });
       // Kein Stand auf diesem Gerät, aber einer auf dem Server (anderes Gerät, neuer Browser): übernehmen
       if (!lokal && data.zwischenstand && Array.isArray(data.zwischenstand.answers)) { setze(data.zwischenstand.answers); status("Deine Antworten vom letzten Mal sind wieder da. Mach einfach weiter."); }
       ["input", "change"].forEach(art => $("questions").addEventListener(art, geaendert));

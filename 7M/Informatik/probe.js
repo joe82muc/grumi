@@ -195,7 +195,9 @@
       // wegSekunden / kopieren 0 vom Server (Informatik 8, Probe 1c und 2c): ohne Note-6-Regel – nur Warnung und Vermerk
       const eigeneRegel = {...(data.test.wegSekunden === 0 ? {wegSekunden: 0} : {}), ...(data.test.kopieren === 0 ? {kopieren: 0} : {})};
       ProbeSchutz.start({ testId: data.test.id, code: student.code, box: $("questions"),
-        regel: { api: API, modul: String(PFAD).replace(/^\/api\//, ""), beenden: () => einreichen(true), ...eigeneRegel } });
+        regel: { api: API, modul: String(PFAD).replace(/^\/api\//, ""), beenden: () => einreichen(true), ...eigeneRegel },
+        // Die Lehrkraft hat das Weiterbearbeiten erlaubt (Verwaltung): die Antworten der Abgabe kommen zurück
+        weiter: data.weiter });
       window.scrollTo({top:0,behavior:"smooth"});
     } catch (err) { status(err.message,true); window.scrollTo({top:0,behavior:"smooth"}); }
     finally { button.disabled = false; }

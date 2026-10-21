@@ -256,6 +256,8 @@
   }
   function zeitText(r) {
     const z = r.zeit; if (!z) return "";
+    // Englisch (seit 21.10.2026): ohne Zeitbegrenzung – nur die Dauer
+    if (z.ohneZeit) return ` · Bearbeitungszeit ${z.minuten} min (ohne Zeitbegrenzung)${r.vonLehrkraftAbgegeben ? " · aus dem gesicherten Zwischenstand übernommen" : ""}`;
     return ` · Bearbeitungszeit ${z.minuten} min (erlaubt ${z.erlaubt}${z.verlaengerung ? ", davon " + z.verlaengerung + " verlängert" : ""})${z.ueber ? ` · <b>${z.ueber} min über der Zeit</b>` : ""}${r.vonLehrkraftAbgegeben ? " · aus dem gesicherten Zwischenstand übernommen" : ""}`;
   }
   // Auswahl im Text -> Bereich im Originaltext (über data-ab an den Textstücken)
@@ -319,10 +321,13 @@
     ["kontextmenue", "Kontextmenü sperren"], ["spruenge", "große Texteingaben vermerken"], ["timer", "Restzeit anzeigen"]];
   function schutzZeilen(liste) {
     if (!d8()) return "";
+    // Englisch (ohneZeit): keine Zeitbegrenzung, also auch kein Schalter für die Restzeit
+    const ohneZeit = liste.some(t => t.ohneZeit);
     return [...new Set(liste.map(t => t.nr))].map(n => { const s = (liste.find(t => t.nr === n) || {}).schutz || {};
-      return `<div class="l-schutz" data-schutz-nr="${n}"><b>Probe ${n} – Probenmodus:</b> ${SCHALTER.map(([k, name]) => { const an = typeof s[k] === "boolean" ? s[k] : s[k] !== "erlauben";
+      return `<div class="l-schutz" data-schutz-nr="${n}"><b>Probe ${n} – Probenmodus:</b> ${SCHALTER.filter(([k]) => !(ohneZeit && k === "timer")).map(([k, name]) => { const an = typeof s[k] === "boolean" ? s[k] : s[k] !== "erlauben";
         return `<label><input type="checkbox" data-schutz="${k}" ${an ? "checked" : ""}> ${name}</label>`; }).join("")}</div>`; }).join("") +
-      `<p class="l-quelle" style="margin-top:4px">Die Zeit misst immer der Server (Beginn, Dauer); „Restzeit anzeigen“ blendet nur die Uhr für die Kinder ein oder aus. Läuft die Zeit ab, wird nichts von selbst abgegeben oder bewertet.</p>`;
+      (ohneZeit ? `<p class="l-quelle" style="margin-top:4px">Die Proben laufen ohne Zeitbegrenzung; der Server hält nur Beginn und Dauer fest. Testregeln Englisch: Verlassen bringt nur eine Warnung (wird vermerkt), schon der erste Kopierversuch beendet die Probe mit Note 6.</p>`
+        : `<p class="l-quelle" style="margin-top:4px">Die Zeit misst immer der Server (Beginn, Dauer); „Restzeit anzeigen“ blendet nur die Uhr für die Kinder ein oder aus. Läuft die Zeit ab, wird nichts von selbst abgegeben oder bewertet.</p>`);
   }
   async function schutzGeaendert(e) {
     const haken = e.target.closest("[data-schutz]"); if (!haken) return false;
@@ -337,6 +342,8 @@
 
   // Laufende Bearbeitungen: wer schreibt gerade, wann zuletzt gesichert, wie viel Zeit bleibt
   const minuten = ms => { const m = Math.round(ms / 60000); return m > 0 ? "noch " + m + " min" : m === 0 ? "Zeit ist um" : Math.abs(m) + " min über der Zeit"; };
+  // Probe ohne Zeitbegrenzung (Englisch seit 21.10.2026): keine Restzeit, kein Verlängern
+  const ohneZeitVon = s => Boolean((tests.find(t => t.id === s.testId) || {}).ohneZeit);
   function zeichneSitzungen() {
     let box = $("sitzungen");
     if (!box) { box = document.createElement("div"); box.id = "sitzungen"; $("results").parentNode.insertBefore(box, $("results").previousElementSibling.previousElementSibling); }
@@ -344,8 +351,8 @@
     const jetzt = Date.now() + sitzZeit;
     box.innerHTML = `<h2 style="margin-top:22px">Gerade in Arbeit</h2>` + (sitzungen.length ? `<table class="l-uebersicht"><thead><tr><th>Kind</th><th>Klasse</th><th>Fassung</th><th>begonnen</th><th>zuletzt gesichert</th><th>Wörter</th><th>Zeit</th><th></th></tr></thead><tbody>${sitzungen.map(s => `<tr style="cursor:default" data-sitz="${esc(s.code)}" data-sitz-nr="${(tests.find(t => t.id === s.testId) || {}).nr || 0}">
         <td><b>${esc(wer(s))}</b></td><td>${esc(s.klasse)}</td><td>${esc(s.variante)}</td><td>${uhr(s.begonnenAm).slice(0, 5)}</td><td>${s.gespeichertAm ? uhr(s.gespeichertAm).slice(0, 5) : "noch nichts"}</td><td>${s.woerter}</td>
-        <td>${minuten(Date.parse(s.endetAm) - jetzt)}${s.verlaengerung ? ` <small>(+${s.verlaengerung})</small>` : ""}</td>
-        <td><button class="btn klein secondary" type="button" data-sitz-zeit="5">+5 min</button> <button class="btn klein secondary" type="button" data-sitz-zeit="10">+10 min</button> <button class="btn klein secondary" type="button" data-sitz-ab ${s.gespeichertAm ? "" : "disabled"} title="Den gesicherten Zwischenstand als Abgabe übernehmen – z. B. wenn das Gerät ausgefallen ist">Zwischenstand übernehmen</button></td></tr>`).join("")}</tbody></table>
+        <td>${ohneZeitVon(s) ? "seit " + Math.max(0, Math.round((jetzt - Date.parse(s.begonnenAm)) / 60000)) + " min · ohne Zeitbegrenzung" : minuten(Date.parse(s.endetAm) - jetzt) + (s.verlaengerung ? ` <small>(+${s.verlaengerung})</small>` : "")}</td>
+        <td>${ohneZeitVon(s) ? "" : `<button class="btn klein secondary" type="button" data-sitz-zeit="5">+5 min</button> <button class="btn klein secondary" type="button" data-sitz-zeit="10">+10 min</button> `}<button class="btn klein secondary" type="button" data-sitz-ab ${s.gespeichertAm ? "" : "disabled"} title="Den gesicherten Zwischenstand als Abgabe übernehmen – z. B. wenn das Gerät ausgefallen ist">Zwischenstand übernehmen</button></td></tr>`).join("")}</tbody></table>
       <p class="l-quelle">Die Antworten werden beim Schreiben alle paar Sekunden auf dem Server gesichert. „Zwischenstand übernehmen“ legt daraus eine Abgabe an – nur nötig, wenn ein Kind selbst nicht mehr abgeben kann.</p>` : `<p class="l-quelle">Im Moment schreibt niemand an ${$("filter-nr").value ? "dieser Probe" : "einer Probe"}.</p>`);
   }
   async function ladeSitzungen() {

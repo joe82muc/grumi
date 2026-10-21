@@ -57,7 +57,12 @@
  *                                 auch beim Verlassen, beim Zurückkommen und jede Minute melden (Vokabeltest: Server gibt ab).
  *   ProbeSchutz.kopierversuche()  Zahl der gezählten Kopierversuche (mit der Abgabe schicken)
  *   ProbeSchutz.abbruch()         { grund: "verlassen" | "kopieren" | "weg", zeit, verlassen, kopieren, sekunden? } oder null
- *   ProbeSchutz.regelFelder()     { regel: true, kopierversuche, abbruch, automatisch } – mit jeder Abgabe schicken
+ *   ProbeSchutz.regelFelder()     { regel: true, kopierversuche, abbruch, automatisch, seite } – mit jeder Abgabe schicken
+ *                                 (seite: Stand der Antworten, auch ohne regel – für das Weiterbearbeiten)
+ *   weiter: { seite, abgegebenAm } Weiterbearbeiten nach der Abgabe (seit 21.10.2026, die Lehrkraft erlaubt es in der
+ *                                 Verwaltung; der Server schickt es beim Start mit): Liegt auf dem Gerät kein eigener Stand,
+ *                                 kommen die Antworten der Abgabe (seite) zurück. Die Zählung der Testregeln beginnt neu.
+ *   Englisch (seit 21.10.2026): regel { wegSekunden: 0, kopieren: 1 } – Verlassen nur Warnung, der erste Kopierversuch beendet.
  *   ProbeSchutz.endeStatus(text)  Zeile im Fenster „Test beendet“ (z. B. „Keine Verbindung – neuer Versuch …“)
  * Ohne regel gibt nichts davon eine Probe ab oder bewertet sie: Was die Ereignisse bedeuten, entscheidet die Lehrkraft.
  * Gesichert werden Textfelder, Auswahllisten, Radio-Knöpfe und gewählte Antwortknöpfe (.opt mit .sel/.richtig),
@@ -139,6 +144,8 @@
     if (aktiv.extra) { try { s.x = aktiv.extra.holen(); } catch (_e) {} }
     return s;
   }
+  // Nur die Antworten (für das Weiterbearbeiten nach der Abgabe, geht mit der Abgabe an den Server)
+  function antwortStand() { var s = stand(), a = { f: s.f, k: s.k, r: s.r }; if (s.x !== undefined) a.x = s.x; return a; }
   function sichern() { if (aktiv) schreib(schluessel(), stand()); }
   function bald() { clearTimeout(timer); timer = setTimeout(sichern, 300); }
   function ausloesen(el, art) { el.dispatchEvent(new Event(art, { bubbles: true })); }
@@ -229,7 +236,8 @@
         "Kurze Wechsel unter " + MIN_SEK + " Sekunden zählen nicht. " : "") +
       (r.verlassen ? "Jedes Verlassen bringt eine Warnung – beim " + r.verlassen + ". Mal ist der Test beendet: Note 6. " : "Jedes Verlassen bringt eine Warnung und wird festgehalten. ") +
       (kw && !r.kopieren ? kw + " geht in der Probe nicht – jeder Versuch wird festgehalten. " : "") +
-      (kw && r.kopieren ? kw + ": " + (r.kopieren - 1 === 1 ? "eine Warnung" : (r.kopieren - 1) + " Warnungen") + ", beim " + r.kopieren + ". Versuch Note 6. " : "") +
+      (kw && r.kopieren === 1 ? kw + " ist verboten: Schon beim ersten Versuch ist die Probe sofort beendet – Note 6, ohne Warnung. " : "") +
+      (kw && r.kopieren > 1 ? kw + ": " + (r.kopieren - 1 === 1 ? "eine Warnung" : (r.kopieren - 1) + " Warnungen") + ", beim " + r.kopieren + ". Versuch Note 6. " : "") +
       (r.ruheMinuten ? "Gibst du " + r.ruheMinuten + " Minuten nichts ein, wird dein Test automatisch abgegeben. " : "") +
       "Bisher: " + bisherText() + ".";
   }
@@ -302,7 +310,7 @@
   }
   // Warum die Probe zu Ende ist – für das Fenster und die Bestätigung nach der Abgabe
   function grundText(b) {
-    if (b.grund === "kopieren") return "Du hast zum " + b.kopieren + ". Mal versucht zu kopieren oder einzufügen.";
+    if (b.grund === "kopieren") return b.kopieren > 1 ? "Du hast zum " + b.kopieren + ". Mal versucht zu kopieren oder einzufügen." : "Du hast versucht zu kopieren oder einzufügen.";
     if (b.grund === "weg") return "Du warst insgesamt " + (b.sekunden ? b.sekunden + " Sekunden" : "länger als 1 Minute") + " nicht auf der Probenseite (erlaubt ist höchstens 1 Minute).";
     if (b.grund === "ruhe") return "Du hast " + (b.minuten || 5) + " Minuten lang nichts mehr eingegeben.";
     if (b.grund === "gesperrt") return "Du warst insgesamt länger als 1 Minute weg, nachdem du 2 Minuten lang nichts mehr eingegeben hattest (zum Beispiel hat sich der Bildschirm gesperrt).";
@@ -516,6 +524,20 @@
       }
       var s = lies(schluessel()), zurueck = false;
       if (s && Date.now() - (s.zeit || 0) < MAX_ALTER) { wiederherstellen(s); zurueck = true; }
+      // Weiterbearbeiten (die Lehrkraft hat es erlaubt): Ohne eigenen Stand auf dem Gerät kommen die Antworten der Abgabe
+      // zurück – nur die Antworten, die Testregeln zählen neu
+      var weiter = cfg.weiter && typeof cfg.weiter === "object" ? cfg.weiter : null, ws0 = weiter && weiter.seite;
+      var weiterZurueck = !zurueck && Boolean(ws0 && typeof ws0 === "object");
+      if (weiterZurueck) { wiederherstellen({ f: ws0.f, k: ws0.k, r: ws0.r, x: ws0.x }); zurueck = true; }
+      if (weiter && aktiv.box.parentNode) {
+        var alt = doc.getElementById("weiter-hinweis"); if (alt) alt.remove();
+        var wh = doc.createElement("p");
+        wh.id = "weiter-hinweis"; wh.setAttribute("role", "status");
+        wh.style.cssText = "margin:0 0 12px;padding:10px 12px;border-radius:10px;background:#ecfdf3;border:1px solid #86d3a4;color:#14532d;font-size:.95rem;font-weight:700;line-height:1.4";
+        wh.textContent = "✏️ Deine Lehrkraft hat erlaubt, dass du an deiner Probe weiterarbeitest. " +
+          (weiterZurueck ? "Deine Antworten von der Abgabe sind wieder da. " : "") + "Wenn du fertig bist, gib die Probe wieder ab – die neue Abgabe ersetzt die alte.";
+        aktiv.box.parentNode.insertBefore(wh, aktiv.box);
+      }
       if (aktiv.regel) {
         // Was der Server schon gezählt hat (z. B. auf einem anderen Gerät), zählt weiter
         var bisher = cfg.regel.bisher || {}, v = Math.round(Number(bisher.verlassen)) || 0, k = Math.round(Number(bisher.kopieren)) || 0;
@@ -547,7 +569,7 @@
       if (verlauf) Array.prototype.forEach.call(aktiv.box.querySelectorAll(FELD), function (el) { verlauf.set(el, [{ t: Date.now(), w: woerter(el.value) }]); });
       ["input", "change", "click", "focusout"].forEach(function (art) { aktiv.box.addEventListener(art, bald); });
       sichern();
-      if (zurueck) hinweis("Deine Antworten von vorhin sind wieder da. Mach einfach weiter.");
+      if (zurueck && !weiterZurueck) hinweis("Deine Antworten von vorhin sind wieder da. Mach einfach weiter.");
       return zurueck;
     },
     verlassen: function () { return zahl; },
@@ -555,9 +577,14 @@
     // Abbruch nach den Testregeln (Note 6); automatisch abgegeben ohne Note 6 (ruhe, gesperrt) ist kein Abbruch
     abbruch: function () { return beendet && NOTE6[beendet.grund] ? JSON.parse(JSON.stringify(beendet)) : null; },
     // Mit jeder Abgabe schicken: Der Server erkennt daran, dass die Seite die Testregeln kennt (sonst keine Note 6)
+    // seite: Stand der Antworten – erlaubt die Lehrkraft das Weiterbearbeiten, kommen sie damit zurück (auch ohne Testregeln)
     regelFelder: function () {
-      if (!aktiv || !aktiv.regel) return {};
-      return { regel: true, kopierversuche: kopierZahl, wegSumme: wegSumme, abbruch: this.abbruch(), automatisch: beendet && !NOTE6[beendet.grund] ? beendet.grund : "" };
+      if (!aktiv) return {};
+      var seite = antwortStand();
+      if (!aktiv.regel) return { seite: seite };
+      // regelKopieren: ab welchem Versuch diese Seite beendet hat – eine ältere Seite (ohne Angabe) hat beim ersten nur gewarnt
+      return { regel: true, kopierversuche: kopierZahl, wegSumme: wegSumme, abbruch: this.abbruch(), automatisch: beendet && !NOTE6[beendet.grund] ? beendet.grund : "", seite: seite,
+        regelKopieren: aktiv.regel.kopieren };
     },
     endeStatus: function (text) { var el = doc.getElementById("probe-schutz-ende-status"); if (el) el.textContent = text || ""; },
     protokoll: function () { return JSON.parse(JSON.stringify(prot)); },
@@ -578,6 +605,7 @@
       var rw = doc.getElementById("probe-schutz-ruhe"); if (rw) rw.remove();
       var fe = doc.getElementById("probe-schutz-ende"); if (fe) fe.remove();
       var sh = doc.querySelector('#schutz-hinweis[data-von="probe-schutz"]'); if (sh) sh.remove();
+      var wh = doc.getElementById("weiter-hinweis"); if (wh) wh.remove();
     },
     // Note erst nach der Rückgabe: Der Server nennt nach der Abgabe weder Punkte noch Note noch Lösungen
     // (result.abgegeben). Dann zeigt die Seite statt des Ergebnisses diese Bestätigung – überall derselbe Wortlaut.
