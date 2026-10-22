@@ -60,13 +60,14 @@
     }
     return null;
   }
-  // Angemeldetes Kind der 8. Klasse (oder Lehrercode) – sonst null: Dann lernt man als Gast, nur auf diesem Gerät
+  // Angemeldetes Kind der Jahrgangsstufe der Kursliste (STUFE, sonst 8; NT 9 Kunststoffe nutzt den Trainer mit, seit
+  // 22.10.2026) oder Lehrercode – sonst null: Dann lernt man als Gast, nur auf diesem Gerät
   function anmeldung() {
     try {
       var a = anmeldungGueltig(JSON.parse(localStorage.getItem("grumi-code-anmeldung") || "null"));
       if (!a) return null;
       if (a.klasse === "Lehrkraft") return Object.assign({}, a, { lehrer: true });
-      return /^8[MR]$/.test(String(a.zug || "")) ? a : null;
+      return new RegExp("^" + ((NT8() && NT8().STUFE) || "8") + "[MR]$").test(String(a.zug || "")) ? a : null;
     } catch (_e) { return null; }
   }
   function zug() {
@@ -243,7 +244,7 @@
     function zeige() {
       var k = runde[pos];
       el.innerHTML = kopf() + '<div class="lk-buehne"><div class="lk-lauf"><span>Karte ' + (pos + 1) + " von " + runde.length + '</span><button type="button" class="lk-ende-knopf">Runde beenden</button></div>' +
-        '<div class="lk-karte" data-karte="' + esc(k.id) + '"><div class="lk-art">' + esc(ARTEN[k.art] || "Karte") + (ids.length > 1 ? " · " + esc(modulTitel(k.modul)) : "") + (k.m ? ' · <span class="lk-m">M8</span>' : "") + "</div>" +
+        '<div class="lk-karte" data-karte="' + esc(k.id) + '"><div class="lk-art">' + esc(ARTEN[k.art] || "Karte") + (ids.length > 1 ? " · " + esc(modulTitel(k.modul)) : "") + (k.m ? ' · <span class="lk-m">M' + esc((NT8() && NT8().STUFE) || "8") + "</span>" : "") + "</div>" +
         '<div class="lk-v">' + esc(k.v) + "</div>" + (k.bild ? '<div class="lk-bild">' + k.bild + "</div>" : "") +
         '<div class="lk-h" hidden><div class="lk-art">Antwort</div><div>' + esc(k.h) + "</div></div>" +
         '<div class="lk-knoepfe"><button type="button" class="btn lk-zeig">Antwort zeigen</button>' +

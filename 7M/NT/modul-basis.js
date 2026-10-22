@@ -564,8 +564,11 @@ function makeHotspots(box, info, countEl, list, id){
 }
 
 /* ---------- Kreuzworträtsel ---------- */
-// cfg: {words:[{w,r,c,d:"a"|"d",q,num}], sol:[[r,c],...], solWord, pre:["r,c"], umlaut}
+// cfg: {words:[{w,r,c,d:"a"|"d",q,num,tip,zeig}], sol:[[r,c],...], solWord, pre:["r,c"], umlaut, tipps}
 // num: feste Nummer wie auf dem Arbeitsblatt; umlaut: Ä, Ö, Ü stehen in einem eigenen Kästchen
+// tipps: true (oder ein Wort mit tip) = mehr Hilfe (NT 9 Kunststoffe, seit 22.10.2026): 💡 bei jeder Frage zeigt erst den
+// Zusatztipp (tip, sonst Länge und Anfangsbuchstabe), dann trägt es den Anfangsbuchstaben ein; „Wörter zeigen“ blendet
+// alle Lösungswörter ungeordnet ein (zeig = Schreibweise in dieser Liste, sonst das Wort klein mit großem Anfang)
 function makeCrossword(box, cfg, id){
   register(id, box, null, "Kreuzworträtsel");
   const W = cfg.words.slice().sort((a, b) => a.r - b.r || a.c - b.c);
@@ -575,11 +578,14 @@ function makeCrossword(box, cfg, id){
   const grid = {};
   W.forEach(w => [...w.w].forEach((ch, i) => { const k = (w.r + (w.d === "d" ? i : 0)) + "," + (w.c + (w.d === "a" ? i : 0)); (grid[k] = grid[k] || {ch, words: []}).words.push(w); }));
   const pre = new Set(cfg.pre || []);
-  const byDir = d => W.filter(w => w.d === d).sort((a, b) => a.n - b.n).map(w => `<li value="${w.n}" data-id="${W.indexOf(w)}">${esc(w.q)} <span class="hint">(${w.w.length})</span></li>`).join("");
+  const tipps = !!(cfg.tipps || cfg.words.some(w => w.tip));
+  const zeigWort = w => w.zeig || w.w.charAt(0) + w.w.slice(1).toLowerCase();
+  const byDir = d => W.filter(w => w.d === d).sort((a, b) => a.n - b.n).map(w => `<li value="${w.n}" data-id="${W.indexOf(w)}">${esc(w.q)} <span class="hint">(${w.w.length})</span>${tipps ? ` <button type="button" class="cw-tipp" aria-label="Tipp zu Nummer ${w.n}">💡 Tipp</button><span class="cw-tipptext" hidden></span>` : ""}</li>`).join("");
   box.innerHTML = `<div class="cw-wrap"><div><div class="cw" style="--cols:${COLS}"></div></div><div class="clues">
     <strong>Waagrecht →</strong><ol>${byDir("a")}</ol><strong style="display:block;margin-top:10px">Senkrecht ↓</strong><ol>${byDir("d")}</ol>
     ${cfg.sol ? `<p style="margin:14px 0 0"><strong>Lösungswort</strong> (graue Kästchen der Reihe nach):</p><div class="solword">${cfg.sol.map(() => "<span></span>").join("")}</div>` : ""}
-    <div class="row-btns"><button class="btn small check">Prüfen</button><button class="btn small ghost hint1">Tipp: ein Buchstabe</button><button class="btn small ghost clear">Leeren</button></div><div class="fb"></div></div></div>`;
+    ${tipps ? `<div class="cw-bank" hidden><strong>Diese Wörter kommen vor:</strong> ${shuffle(W).map(w => `<span data-id="${W.indexOf(w)}">${esc(zeigWort(w))}</span>`).join("")}</div>` : ""}
+    <div class="row-btns"><button class="btn small check">Prüfen</button><button class="btn small ghost hint1">Tipp: ein Buchstabe</button>${tipps ? '<button class="btn small ghost cw-woerter" type="button">📋 Wörter zeigen</button>' : ""}<button class="btn small ghost clear">Leeren</button></div><div class="fb"></div></div></div>`;
   const cw = $(".cw", box), cells = {};
   for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
     const k = r + "," + c, g = grid[k], div = document.createElement("div");
@@ -608,6 +614,7 @@ function makeCrossword(box, cfg, id){
   function update(){
     if (cfg.sol) { const sp = $$(".solword span", box); cfg.sol.forEach(([r, c], i) => sp[i].textContent = cells[r + "," + c].inp.value); }
     $$(".clues li", box).forEach(li => li.classList.toggle("done", cellsOf(W[li.dataset.id]).every(x => x.inp.value === x.g.ch)));
+    $$(".cw-bank span", box).forEach(s => s.classList.toggle("done", cellsOf(W[s.dataset.id]).every(x => x.inp.value === x.g.ch)));
   }
   Object.values(cells).forEach(cell => {
     cell.inp.addEventListener("focus", () => highlight(wordAt(cell, dir)));
@@ -629,6 +636,21 @@ function makeCrossword(box, cfg, id){
     });
   });
   $$(".clues li", box).forEach(li => li.addEventListener("click", () => { const w = W[li.dataset.id]; dir = w.d; highlight(w); (cellsOf(w).find(x => !x.inp.value && !x.inp.readOnly) || cellsOf(w)[0]).inp.focus(); }));
+  // Mehr Tipps: 1. Klick Zusatztipp, 2. Klick Anfangsbuchstabe ins Gitter
+  $$(".cw-tipp", box).forEach(b => b.addEventListener("click", e => {
+    e.stopPropagation();
+    const li = b.closest("li"), w = W[li.dataset.id], t = $(".cw-tipptext", li), stufe = +(b.dataset.stufe || 0);
+    if (stufe === 0) {
+      t.textContent = w.tip || `Das Wort hat ${w.w.length} Buchstaben und beginnt mit „${w.w.charAt(0)}“.`;
+      t.hidden = false; b.dataset.stufe = 1; b.textContent = "🔤 1. Buchstabe";
+    } else {
+      const x = cellsOf(w)[0];
+      if (!x.inp.readOnly) { x.inp.value = x.g.ch; x.div.classList.remove("wrong"); x.div.animate && x.div.animate([{background: "#fff3c4"}, {background: ""}], {duration: 900}); }
+      b.disabled = true; b.textContent = "✓ Anfang steht da"; update();
+    }
+  }));
+  const woerter = $(".cw-woerter", box);
+  if (woerter) woerter.addEventListener("click", () => { const bank = $(".cw-bank", box); bank.hidden = !bank.hidden; woerter.textContent = bank.hidden ? "📋 Wörter zeigen" : "📋 Wörter verbergen"; });
   const fb = $(".fb", box);
   $(".check", box).addEventListener("click", () => {
     let emptyN = 0, wrong = 0;
@@ -788,12 +810,13 @@ function makeSchritte(box, cfg, id){
 }
 
 /* ---------- Film mit Stopp-Fragen (YouTube) ---------- */
-// cfg: {vid: "YouTube-Kennung", titel, quelle, dauer: "etwa 4 Minuten", stops: [{t: Sekunde, q: {q, o, a, e}}]}
+// cfg: {vid: "YouTube-Kennung", titel, quelle, dauer: "etwa 4 Minuten", stops: [{t: Sekunde, q: {q, o, a, e}}],
+//       start, ende: nur einen Ausschnitt zeigen (Sekunden, beide freiwillig; seit 22.10.2026)}
 // Der Film wird erst nach dem Antippen von YouTube geladen (youtube-nocookie). An jedem Stopp hält er an, bis die
 // Frage richtig beantwortet ist. Lädt er nicht, stehen der Link zu YouTube und alle Fragen offen da.
 // Jede Stopp-Frage ist eine Aufgabe (prefix + Nummer); der Film gilt als bearbeitet, wenn alle beantwortet sind.
 function makeFilm(box, cfg, prefix){
-  const VID = cfg.vid, STOPS = cfg.stops, pid = prefix + "-yt";
+  const VID = cfg.vid, STOPS = cfg.stops, pid = prefix + "-yt", AB = cfg.start ? "&t=" + Math.floor(cfg.start) + "s" : "";
   box.innerHTML = `<div class="film"><div id="${pid}"></div>
       <button class="film-poster" type="button"><span class="play">▶</span><b>Film starten</b><small>${esc(cfg.quelle || "")}${cfg.quelle ? ": " : ""}„${esc(cfg.titel || "Film")}“${cfg.dauer ? " (" + esc(cfg.dauer) + ")" : ""}. Erst mit diesem Klick wird der Film von YouTube geladen.</small></button>
       <div class="film-stop">⏸ Film-Stopp!<br>Beantworte die Frage unter dem Film.</div></div>
@@ -845,15 +868,15 @@ function makeFilm(box, cfg, prefix){
     failed = true; cur = -1; stopEl.classList.remove("show");
     if (!bereit) {
       startBtn.disabled = false; $("b", startBtn).textContent = "Film auf YouTube öffnen";
-      startBtn.onclick = () => window.open("https://www.youtube.com/watch?v=" + VID, "_blank", "noopener");
+      startBtn.onclick = () => window.open("https://www.youtube.com/watch?v=" + VID + AB, "_blank", "noopener");
     }
-    hint.innerHTML = `Der Film lässt sich hier nicht abspielen. <a href="https://www.youtube.com/watch?v=${esc(VID)}" target="_blank" rel="noopener">Öffne ihn auf YouTube</a> und beantworte danach die Fragen hier.`;
+    hint.innerHTML = `Der Film lässt sich hier nicht abspielen. <a href="https://www.youtube.com/watch?v=${esc(VID)}${AB}" target="_blank" rel="noopener">Öffne ihn auf YouTube</a> und beantworte danach die Fragen hier.`;
     STOPS.forEach(s => { s.wrap.hidden = false; s.go.hidden = true; });
   }
   function make(){
     player = new YT.Player(pid, {
       host: "https://www.youtube-nocookie.com", videoId: VID,
-      playerVars: {rel: 0, playsinline: 1, modestbranding: 1},
+      playerVars: Object.assign({rel: 0, playsinline: 1, modestbranding: 1}, cfg.start ? {start: Math.floor(cfg.start)} : {}, cfg.ende ? {end: Math.ceil(cfg.ende)} : {}),
       events: {
         onReady: e => { bereit = true; startBtn.remove(); setInterval(poll, 250); e.target.playVideo(); },
         onStateChange: e => {

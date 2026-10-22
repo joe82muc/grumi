@@ -1,0 +1,18 @@
+/* Lernkarten zum Modul „Kunststoffmüll und Recycling“ (NT 9M, Kunststoffe 4). Trainer: 8M/NT/karten.js.
+   Kennungen k1 … nie neu vergeben – daran hängt der Lernstand. */
+NT8Karten.satz("ku4", [
+  { id: "k1", art: "ursache", v: "Wie gelangt Plastikmüll ins Meer?", h: "Vor allem vom Land: Müll wird weggeworfen oder weggeweht und über Flüsse ins Meer gespült. Dazu kommen Abfälle von Schiffen und Bohrinseln und Reste von Fischernetzen." },
+  { id: "k2", art: "begriff", v: "Wie viel Kunststoff wird jährlich hergestellt und wie viel gelangt ins Meer?", h: "Weltweit etwa 400 Millionen Tonnen hergestellt, etwa 8 bis 10 Millionen Tonnen gelangen ins Meer." },
+  { id: "k3", art: "vergleich", v: "Nenne direkte und indirekte Gefahren von Plastik im Meer.", h: "Direkt: Tiere verfangen sich oder verwechseln Plastik mit Nahrung (Tüte wie Qualle). Indirekt: Zusatzstoffe wie Weichmacher gehen in Tiere und über die Nahrung auf den Menschen über." },
+  { id: "k4", art: "begriff", v: "Was ist Mikroplastik?", h: "Kunststoffteilchen, die kleiner als 5 Millimeter sind." },
+  { id: "k5", art: "ursache", v: "Woher kommt Mikroplastik?", h: "Aus zerfallenden größeren Plastikteilen (Wind, Wellen, Sonne), aus Fasern von Kunststoffkleidung beim Waschen, aus Abrieb von Reifen und Straßenbelag und früher aus Kügelchen in Kosmetik." },
+  { id: "k6", art: "begriff", v: "Wo wurde Mikroplastik nachgewiesen?", h: "In Wasser, Luft, Boden, Lebensmitteln und im menschlichen Körper. Die Folgen für die Gesundheit sind noch wenig erforscht." },
+  { id: "k7", art: "begriff", v: "Nenne die drei Stufen im Umgang mit Müll und erkläre sie.", h: "Vermeiden: möglichst wenig Abfall erzeugen. Verwerten: aus Abfall wieder einen Rohstoff oder ein neues Produkt machen. Entsorgen: der Rest wird meist verbrannt oder deponiert." },
+  { id: "k8", art: "anwendung", v: "Was gehört in den gelben Sack – und was nicht?", h: "Nur Verpackungen, vor allem aus Kunststoff und Metall (auch Getränkekartons). Glas und Papier haben eigene Container, Gegenstände wie eine Zahnbürste gehören in den Restmüll." },
+  { id: "k9", art: "begriff", v: "Was bedeutet werkstoffliche Verwertung?", h: "Thermoplaste werden zerkleinert, umgeschmolzen und zu neuen Produkten geformt. Gut nur mit sortenreinem Abfall, aus Gemischen entstehen schlechtere Produkte (Parkbank, Blumenkübel)." },
+  { id: "k10", art: "begriff", v: "Was bedeutet rohstoffliche Verwertung?", h: "Pyrolyse: Kunststoff wird ohne Luft erhitzt und chemisch zerlegt. Es entsteht ein erdölähnliches Gemisch. Teuer, viel Energie, giftige Stoffe – spielt mengenmäßig kaum eine Rolle." },
+  { id: "k11", art: "begriff", v: "Was bedeutet thermische Verwertung?", h: "Verbrennen in Müllverbrennungsanlage oder Zementwerk. Nur die Energie wird genutzt (Wärme, Strom). Die Abgase müssen aufwändig gefiltert werden." },
+  { id: "k12", art: "vergleich", v: "Wie verteilt sich der Kunststoffabfall in Deutschland (6,3 Mio. t)?", h: "Thermisch 52,8 %, werkstofflich 46,4 %, rohstofflich 0,2 %, Deponie 0,6 %." },
+  { id: "k13", art: "ursache", v: "Warum sind Joghurtbecher mit Alu-Deckel, schwarze Teile und Getränkekartons ein Problem für die Sortieranlage?", h: "Zwei Stoffe in einem Teil erkennt der Scanner nicht eindeutig (Deckel abziehen!). Durch schwarzen Kunststoff kommt das Scannerlicht nicht. Der Getränkekarton ist ein Verbund: Nur die Papierfasern werden echt wiederverwertet." },
+  { id: "k14", art: "anwendung", v: "Nenne drei Tipps, Plastikmüll zu vermeiden.", h: "Mehrweg statt Einweg, Leitungswasser statt Plastikflasche, Brotzeitdose statt Plastiktüte, Einkaufstasche, eigener Becher, plastikfrei einkaufen." }
+]);

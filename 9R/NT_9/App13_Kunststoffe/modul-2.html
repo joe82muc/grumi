@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b3b46">
+<title>Bau und Einteilung der Kunststoffe | NT 9</title>
+<link rel="stylesheet" href="../../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="kunststoffe.css">
+<style>
+/* Zoom in den Eimer */
+#zoomSvg .zs{opacity:0;transform:scale(.92);transform-box:view-box;transform-origin:260px 140px;transition:opacity .7s,transform .7s;pointer-events:none}
+#zoomSvg .zs.on{opacity:1;transform:none}
+#zoomSvg .clip{opacity:0;transition:opacity .5s}
+#zoomSvg .zs.on .clip{opacity:1}
+#zoomSvg .perle{opacity:0;transform:scale(.4);transform-box:fill-box;transform-origin:50% 50%;transition:opacity .4s,transform .4s}
+#zoomSvg .zs.on .perle{opacity:1;transform:none}
+/* Polymerisation */
+#polySvg .mol{transition:transform 1.3s cubic-bezier(.4,0,.3,1)}
+#polySvg .dbl line{transition:stroke .5s,opacity .6s}
+#polySvg .sgl{transition:opacity .6s}
+#polySvg .stubs{transition:opacity .6s}
+#polySvg .kat{transition:opacity .6s}
+#polySvg #polyLinks.on{transition-delay:1.2s}
+/* Drei Gruppen */
+#gruppenSvg .ch{transition:transform .55s ease-in-out}
+#gruppenSvg .netz{transform-box:fill-box;transform-origin:50% 50%;transition:transform .55s ease-in-out}
+#gruppenSvg .netz.snap{transition:transform .7s cubic-bezier(.3,1.8,.5,1)}
+#gruppenSvg .hot,#gruppenSvg .brand{transition:opacity 1s}
+#gruppenSvg .riss{opacity:0;transition:opacity .15s}
+#gruppenSvg .riss.on{opacity:1}
+.regelheft .rh-tab td,.regelheft .rh-tab th{overflow-wrap:anywhere;hyphens:auto}
+.drei{display:grid;gap:10px;margin:0}
+.drei > div{border-left:5px solid var(--c);background:#fbfdff;border-radius:8px;padding:8px 12px;font-size:.97rem;line-height:1.45}
+.drei b{color:var(--c)}
+</style>
+<script src="../../../js/kursliste.js"></script>
+<script src="../themen.js"></script>
+<!-- 9M und 9R nutzen dieselben Seiten: die Kursliste kommt aus dem Ordner (../themen.js = NT9M oder NT9R) -->
+<script>window.GRUMI_KURS = window.NT9M || window.NT9R; window.GRUMI_KURS.KARTEN = "../../" + window.GRUMI_KURS.ORDNER + "App13_Kunststoffe/";</script>
+<script src="kunststoffe.js"></script>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="../%C3%BCbersicht_themen.html">GRUMI<small>NT <span class="ku-zug">9M</span> · Kunststoffe 2</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Riesenmoleküle</a>
+      <a href="#s2"><b>2</b>Polymerisation</a>
+      <a href="#s3"><b>3</b>Drei Gruppen</a>
+      <a href="#s4"><b>4</b>Training</a>
+      <a href="#abschluss"><b>5</b>Abschluss</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse <span class="ku-zug">9M</span> · Kunststoffe · Modul 2</div>
+    <h1>Bau und Einteilung der Kunststoffe</h1>
+    <p>Ein Fahrradschlauch federt zurück, eine Steckdose bleibt hart, ein kaputter Eimer lässt sich einschmelzen – und alle drei sind Kunststoff. In fünf Stationen zoomst du in einen Kunststoff hinein, siehst, wie aus einem Gas lange Ketten entstehen, und lernst die drei Gruppen kennen.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s4">Direkt zum Training</a>
+    </div>
+    <div class="goals">
+      <div>🔬 Ich erkläre, woraus ein Kunststoff im Kleinen besteht.</div>
+      <div>🔗 Ich beschreibe die Polymerisation von Ethen zu Polyethen (9M).</div>
+      <div>🧩 Ich unterscheide Thermoplaste, Elastomere und Duroplaste.</div>
+      <div>📎 Ich begründe die Eigenschaften mit dem Bau der Ketten.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Im Kleinen</div><h2>Riesenmoleküle</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Eine einzelne Büroklammer ist winzig. Hängst du aber Hunderte aneinander, wird daraus eine lange Kette. Genau so sind Kunststoffe gebaut.</p>
+      <p style="margin:0">Ein Kunststoff besteht aus <button class="term" data-t="makromolekuel">Makromolekülen</button>: riesig langen, kettenartigen Molekülen („makros“ heißt „groß“). Jede Kette setzt sich aus vielen, meist gleichen Bausteinen zusammen.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Glatt von außen, Gewirr von innen.</strong> Ein Eimer wirkt wie aus einem Guss. Schaust du aber immer genauer hin, siehst du ein dichtes Gewirr aus Fäden – und jeder Faden ist eine Kette.</p>
+      <p style="margin:0">Mit dem Zoom unten kannst du hineinschauen. Das Modell mit den Büroklammern hilft dir, dir die Kette vorzustellen.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="zoomSim">
+    <svg viewBox="0 0 520 270" id="zoomSvg" role="img" aria-label="Animation: Zoom in einen Kunststoffeimer. Zuerst der ganze Eimer, dann die Eimerwand stark vergrößert als Gewirr aus Fäden, dann ein einzelner Faden als lange Kette aus gleichen Bausteinen und zum Vergleich eine Kette aus Büroklammern."></svg>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Kunststoffe bestehen aus Makromolekülen: sehr langen, kettenartigen Molekülen.</li><li>Jede Kette ist aus vielen, meist gleichen Bausteinen aufgebaut, ähnlich wie eine Kette aus Büroklammern.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag">Lückentext</span>
+    <h3 style="margin-top:4px">Aus Bausteinen wird eine Kette</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Ein Wort bleibt übrig.</p>
+    <div class="gaptext" id="gapKette"></div>
+  </div>
+  <div class="card reveal" id="mc-s1"></div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2" data-nur-m="Die Polymerisation">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff · nur M</div><h2>Vom Gas zum Kunststoff: Polymerisation</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Wie wird aus winzigen Gasteilchen eine feste Kette? Nehmen wir den Kunststoff Polyethen, aus dem Eimer, Tüten und Folien sind. Sein Baustein ist das Gas <button class="term" data-t="ethen">Ethen</button>.</p>
+      <p style="margin:0">Ein Ethen-Molekül hat zwei <button class="term" data-t="kohlenstoff">Kohlenstoff</button>-Atome (C) und vier <button class="term" data-t="wasserstoff">Wasserstoff</button>-Atome (H), die Formel ist C₂H₄. Zwischen den beiden C-Atomen steckt eine <button class="term" data-t="doppelbindung">Doppelbindung</button> (C=C).</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Die Doppelbindung ist der Schlüssel.</strong> Ein <button class="term" data-t="katalysator">Katalysator</button> spaltet sie auf. Dann hat jedes C-Atom einen freien „Haken“ und greift nach dem nächsten Molekül.</p>
+      <p style="margin:0">So reihen sich zehntausende bis hunderttausende Ethen-Moleküle aneinander. Die Kette hat nur noch <button class="term" data-t="einfachbindung">Einfachbindungen</button> (C–C). Dieser Vorgang heißt <button class="term" data-t="polymerisation">Polymerisation</button> („poly“ = viel, „meros“ = Teil).</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="polySim">
+    <svg viewBox="0 0 520 270" id="polySvg" role="img" aria-label="Animation mit Strukturformeln: Drei Ethen-Moleküle mit C=C-Doppelbindung, ein Katalysator spaltet die Doppelbindung auf, die Moleküle rücken zusammen und verbinden sich zu einer langen Kette mit C–C-Einfachbindungen, dem Polyethen."></svg>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Polyethen entsteht aus dem Gas Ethen (C₂H₄). Bei dieser Polymerisation brauchen die Moleküle eine C=C-Doppelbindung.</li><li>Mit einem Katalysator wird die Doppelbindung aufgespalten. Viele Ethen-Moleküle verbinden sich zu einer langen Kette mit C–C-Einfachbindungen.</li><li>Das heißt Polymerisation. Der einzelne Baustein ist das <button class="term" data-t="monomer">Monomer</button>, die Kette das <button class="term" data-t="polymer">Polymer</button>. Ein Makromolekül hat zehntausende bis hunderttausende Monomere.</li><li>Die Eigenschaften hängen davon ab, welche und wie viele Monomere benutzt werden und wie sie verknüpft sind.</li></ul></div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Reihenfolge · Probenstoff</span>
+    <h3 style="margin-top:4px">Die Polymerisation in der richtigen Reihenfolge</h3>
+    <p class="hint">Verschiebe die Schritte mit ▲ und ▼.</p>
+    <div id="orderPoly"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Paare finden</span>
+    <h3 style="margin-top:4px">Begriff und Erklärung</h3>
+    <p class="hint">Tippe links einen Begriff an und dann rechts die passende Erklärung.</p>
+    <div id="paarePoly"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Lückentext · Probenstoff</span>
+    <h3 style="margin-top:4px">Vom Ethen zum Polyethen</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Ein Wort bleibt übrig.</p>
+    <div class="gaptext" id="gapPoly"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Nachdenken · Probenstoff</span>
+    <h3 style="margin-top:4px">Beschreibe die Polymerisation <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung.</p>
+    <div id="openPoly"></div>
+  </div>
+  <div class="card reveal" id="mc-s2"></div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>Drei Gruppen: Thermoplaste, Elastomere, Duroplaste</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Eimer, Fahrradschlauch, Steckdose: drei Kunststoffe, drei ganz verschiedene Eigenschaften. Der Grund liegt im Kleinen. Es kommt darauf an, wie die Ketten angeordnet und verbunden sind.</p>
+      <p style="margin:0">Danach teilt man Kunststoffe in drei Gruppen ein. Auch Polyethen gehört dazu: Es ist ein <button class="term" data-t="thermoplast">Thermoplast</button>.</p>
+    </div>
+    <div class="card reveal">
+      <div class="drei">
+        <div style="--c:#1c8a9b"><b>Thermoplaste</b>: Die Ketten liegen nebeneinander, ohne Verbindung. In der Wärme gleiten sie aneinander vorbei, der Kunststoff wird weich und zäh wie Honig. Das geht beliebig oft. Beispiele: Eimer, Folie, Flasche, Abwasserrohr.</div>
+        <div style="--c:#1b8a4b"><b>Elastomere</b> (<button class="term" data-t="elastisch">elastisch</button>): Die Ketten sind weitmaschig <button class="term" data-t="vernetzt">vernetzt</button>. Sie lassen sich dehnen, das Netz zieht sie zurück. Beispiele: Schwamm, Gummiring, Fitnessband.</div>
+        <div style="--c:#6a3fb0"><b>Duroplaste</b>: Die Ketten sind engmaschig vernetzt und können nicht aneinander vorbeigleiten. Hart und stabil, nicht umformbar. Bei sehr großer Hitze <button class="term" data-t="zersetzen">zersetzen</button> sie sich. Beispiele: Schutzhelm, Lichtschalter, Steckdose.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <svg viewBox="0 0 520 310" id="gruppenSvg" role="img" aria-label="Simulation mit drei Kästen: Thermoplast mit Ketten ohne Verbindung, Elastomer mit weitmaschig vernetzten Ketten, Duroplast mit engmaschig vernetzten Ketten. Mit den Knöpfen kann man erwärmen, noch stärker erhitzen, abkühlen oder ziehen und sieht, was mit den Ketten passiert."></svg>
+    <div class="sim-ctrl"><button class="btn small teal" id="tWarm">🔥 Erwärmen</button><button class="btn small teal" id="tHeiss">🌋 Sehr heiß</button><button class="btn small teal" id="tKalt">❄️ Abkühlen</button><button class="btn small teal" id="tZieh">↔ Ziehen</button></div>
+    <p class="obs" id="gruppenObs">Probiere die vier Knöpfe aus und sieh dir an, was mit den Ketten passiert. „Sehr heiß“ wirkt nur beim Duroplast.</p>
+  </div>
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag">Film · Drei Gruppen im Vergleich</span>
+    <p class="hint" style="margin-top:0">Im Film vergleichen zwei Chemiker einen Helm, eine Flasche und ein Gummiband und erklären, wie die Ketten darin verknüpft sind. Der Film hält an drei Stellen an.</p>
+    <div id="film"></div>
+  </div>
+
+  <div class="merke reveal"><h4>MERKE</h4><ul><li><strong>Thermoplast:</strong> Ketten nebeneinander ohne Verbindung. In der Wärme verformbar, beliebig oft. Beispiele: Eimer, Folie, Flasche, Plastiktüte, Abwasserrohr.</li><li><strong>Elastomer:</strong> Ketten weitmaschig vernetzt. Elastisch: leicht verformbar und danach wieder in der Ausgangsform. Beispiele: Schwamm, Matratze, Gummiring, Dichtung, Fitnessband.</li><li><strong>Duroplast:</strong> Ketten engmaschig vernetzt. Hart und stabil, nicht umformbar, bricht bei zu großer Kraft, zersetzt sich bei sehr großer Hitze. Beispiele: Schutzhelm, Lichtschalter, Steckdose.</li></ul></div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Zuordnen · Probenstoff</span>
+    <h3 style="margin-top:4px">Zu welcher Gruppe gehört der Gegenstand?</h3>
+    <div id="sortBeispiele"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Zuordnen · Probenstoff</span>
+    <h3 style="margin-top:4px">Welche Eigenschaft passt zu welcher Gruppe?</h3>
+    <div id="sortEigenschaft"></div>
+  </div>
+  <div class="card reveal" id="mc-s3"></div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Wiederholung · so kommt es in der Probe</div><h2>Training</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Kreuzworträtsel</span>
+    <h3 style="margin-top:4px">Löse das Kreuzworträtsel</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Ü schreibst du als UE. Hängst du fest? Bei jeder Frage hilft <strong>💡 Tipp</strong> – erst ein Hinweis, dann der Anfangsbuchstabe. Mit <strong>📋 Wörter zeigen</strong> siehst du alle Lösungswörter.</p>
+    <div id="cw"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Ankreuzen</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="abschluss">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Abschluss</div><h2>Profi-Check, Lernkarten und Regelheft</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <div class="card reveal">
+    <span class="task-tag">Lernkarten</span>
+    <div id="lernkarten"></div>
+  </div>
+  <div class="regelheft reveal" id="regelheft">
+    <h3>Bau und Einteilung der Kunststoffe</h3>
+    <p>Kunststoffe bestehen aus <strong>Makromolekülen</strong>: sehr langen, kettenartigen Molekülen aus vielen, meist gleichen Bausteinen.</p>
+    <p><strong>Polymerisation (9M):</strong> Ethen (C₂H₄) hat eine C=C-Doppelbindung. Mit einem Katalysator wird sie aufgespalten, viele Ethen-Moleküle verbinden sich zu einer langen Kette mit C–C-Einfachbindungen: Polyethen. Monomer = Baustein, Polymer = Kette (zehntausende bis hunderttausende Monomere).</p>
+    <p><strong>Drei Gruppen:</strong></p>
+    <table class="rh-tab">
+      <tr><th>Gruppe</th><th>Bau und Verhalten</th><th>Beispiele</th></tr>
+      <tr><td>Thermoplast</td><td>Ketten ohne Verbindung; in Wärme weich, beliebig oft verformbar</td><td>Eimer, Folie, Flasche</td></tr>
+      <tr><td>Elastomer</td><td>weitmaschig vernetzt; elastisch, springt zurück</td><td>Gummiring, Schwamm</td></tr>
+      <tr><td>Duroplast</td><td>engmaschig vernetzt; hart, nicht umformbar, bricht, zersetzt sich</td><td>Schutzhelm, Steckdose</td></tr>
+    </table>
+    <div id="rhSkizze"></div>
+  </div>
+  <div class="rh-knoepfe reveal"><button class="btn small ghost" type="button" onclick="window.print()">🖨️ Regelheft drucken</button></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Du weißt jetzt, wie Kunststoffe gebaut sind. Wie macht man daraus einen Eimer, ein Rohr oder eine Folie? In Modul 3 lernst du Strangpressen, Spritzgießen und Folienblasen kennen.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="modul-1.html">⬅️ Modul 1</a>
+      <a href="modul-3.html">➡️ Modul 3</a>
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik <span class="ku-zug">9M</span> · Kunststoffe · Modul 2 · Texte, Zeichnungen und Animationen sind eigenständig erstellt. Mit deinem Code wird dein Lernstand gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="../../../7M/NT/modul-basis.js"></script>
+<script src="../../../8M/NT/karten.js"></script>
+<script src="karten/ku2.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, esc, clamp, reduced, register, solve} = Modul;
+const NS = "http://www.w3.org/2000/svg";
+const svgEl = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const wait = ms => new Promise(r => setTimeout(r, reduced ? Math.min(ms, 60) : ms));
+
+Modul.init({
+  key: "grumi-nt9-ku2-v1",
+  hero: "funken",
+  api: "/api/nt9/uebung/feedback",
+  thema: "Kunststoffe, Klasse 9: Bau und Einteilung der Kunststoffe – Makromoleküle (lange kettenartige Moleküle aus vielen, meist gleichen Bausteinen), Polymerisation von Ethen zu Polyethen (C=C-Doppelbindung, Katalysator spaltet sie auf, viele Moleküle verbinden sich zu Ketten mit C–C-Einfachbindungen, Monomer, Polymer), die drei Gruppen Thermoplaste (Ketten ohne Verbindung, in Wärme beliebig oft verformbar), Elastomere (weitmaschig vernetzt, elastisch) und Duroplaste (engmaschig vernetzt, hart, nicht umformbar, zersetzen sich bei großer Hitze) mit Beispielen",
+  glossary: {
+    makromolekuel: ["Makromolekül", "Riesiges, kettenartiges Molekül aus sehr vielen Bausteinen. „makros“ heißt „groß“. Alle Kunststoffe bestehen aus Makromolekülen."],
+    monomer: ["Monomer", "Einzelner Baustein, aus dem sich ein Makromolekül aufbaut, z. B. ein Ethen-Molekül. „mono“ heißt „ein“."],
+    polymer: ["Polymer", "Das fertige Makromolekül: eine lange Kette aus vielen Monomeren. „poly“ heißt „viel“."],
+    polymerisation: ["Polymerisation", "Vorgang, bei dem sich viele Monomere zu einem Polymer, also einer langen Kette, verbinden. „poly“ = viel, „meros“ = Teil."],
+    ethen: ["Ethen", "Farbloses Gas mit der Formel C₂H₄. Es ist der Baustein (das Monomer) von Polyethen."],
+    kohlenstoff: ["Kohlenstoff (C)", "Chemisches Element mit dem Zeichen C. Es bildet das „Rückgrat“ der Ketten in Kunststoffen."],
+    wasserstoff: ["Wasserstoff (H)", "Chemisches Element mit dem Zeichen H, das kleinste und leichteste Atom."],
+    doppelbindung: ["Doppelbindung", "Zwei Striche zwischen zwei Atomen (C=C). Sie lässt sich aufspalten – das macht die Polymerisation möglich."],
+    einfachbindung: ["Einfachbindung", "Ein Strich zwischen zwei Atomen (C–C). Die fertige Kette aus Polyethen hat nur noch solche Bindungen."],
+    katalysator: ["Katalysator", "Hilfsstoff, der eine chemische Reaktion in Gang bringt und beschleunigt, ohne selbst verbraucht zu werden."],
+    polyethen: ["Polyethen (PE)", "Kunststoff, der aus vielen Ethen-Molekülen entsteht, z. B. für Tüten, Folien und Eimer."],
+    thermoplast: ["Thermoplast", "Kunststoff, der in der Wärme weich und verformbar wird. Er lässt sich beliebig oft einschmelzen und neu formen."],
+    elastomer: ["Elastomer", "Kunststoff, der sich leicht dehnen lässt und danach in die Ausgangsform zurückkehrt, z. B. Gummi."],
+    duroplast: ["Duroplast", "Harter, stabiler Kunststoff, der sich beim Erwärmen nicht mehr umformen lässt."],
+    vernetzt: ["vernetzt", "Die Ketten sind durch Querverbindungen verknüpft wie die Fäden eines Netzes."],
+    elastisch: ["elastisch", "Verformbar und danach wieder in der alten Form, wie ein Gummiband."],
+    zersetzen: ["sich zersetzen", "Zerfallen, wenn die Moleküle bei zu großer Hitze kaputtgehen. Der Stoff verkohlt und qualmt."]
+  }
+});
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Was bedeutet „makros“ im Wort Makromolekül?", o: ["groß", "klein", "viel", "Kette"], a: 0, e: "Makromoleküle sind „große“ Moleküle."},
+    {q: "Woraus bestehen Kunststoffe im Kleinen?", o: ["aus sehr langen, kettenartigen Molekülen", "aus kleinen, einzelnen Kugeln ohne Verbindung", "aus Fasern wie Watte", "aus Metallatomen"], a: 0, e: "Die Ketten bestehen aus vielen, meist gleichen Bausteinen."},
+    {q: "Welche Aussagen über Makromoleküle stimmen?", o: ["Sie sind kettenförmig.", "Sie bestehen aus sehr vielen Bausteinen.", "Sie sind viel größer als ein Wassermolekül.", "Sie sind kleiner als ein einzelnes Atom.", "Sie bestehen immer nur aus zwei Atomen."], a: [0, 1, 2], e: "Ein Makromolekül hat zehntausende bis hunderttausende Bausteine."}
+  ],
+  s2: [
+    {q: "Was muss ein Molekül haben, damit es wie Ethen polymerisieren kann?", o: ["eine C=C-Doppelbindung", "mindestens zehn Wasserstoff-Atome", "einen festen Zustand", "schon eine lange Kette"], a: 0, e: "Die Doppelbindung wird aufgespalten, so können sich die Moleküle verbinden."},
+    {q: "Was bedeutet „poly“ in Polymerisation?", o: ["viel", "ein", "Kette", "Hitze"], a: 0, e: "„poly“ = viel, „meros“ = Teil."},
+    {q: "Was geschieht bei der Polymerisation mit der Doppelbindung?", o: ["Sie wird aufgespalten, es entstehen Einfachbindungen.", "Sie bleibt in der Kette unverändert erhalten.", "Sie wird zu einer Dreifachbindung.", "Sie wird zu Wasser."], a: 0, e: "Aus C=C wird C–C, und die Moleküle hängen sich aneinander."}
+  ],
+  s3: [
+    {q: "Ein Fahrradschlauch lässt sich aufpumpen (dehnen) und zieht sich wieder zusammen. Warum?", o: ["Es ist ein Elastomer: weitmaschig vernetzte Ketten ziehen es zurück.", "Es ist ein Duroplast: engmaschig vernetzte Ketten halten es hart.", "Es ist ein Thermoplast: Ketten gleiten ohne Verbindung vorbei.", "Es ist ein Elastomer: Ketten liegen lose nebeneinander."], a: 0, e: "Das lockere Netz holt die Ketten wieder in die Ausgangsform."},
+    {q: "Das Gehäuse einer Steckdose bleibt hart und stabil. Warum?", o: ["Es ist ein Duroplast: Die Ketten sind engmaschig vernetzt.", "Es ist ein Thermoplast: Er wird in Wärme beliebig oft weich.", "Es ist ein Elastomer: Er springt nach dem Dehnen zurück.", "Seine Ketten gleiten leicht aneinander vorbei."], a: 0, e: "Engmaschig vernetzte Ketten können nicht aneinander vorbeigleiten."},
+    {q: "Warum lässt sich ein kaputter Eimer aus Thermoplast gut wiederverwerten?", o: ["Man kann ihn einschmelzen und neu formen, weil die Ketten nicht verbunden sind.", "Er ist engmaschig vernetzt und deshalb nicht kaputtzukriegen.", "Er zersetzt sich beim Erwärmen.", "Er federt nach jedem Verformen zurück."], a: 0, e: "Thermoplaste werden weich, wenn man sie erwärmt – das geht beliebig oft."}
+  ],
+  train: [
+    {q: "Welche Gegenstände bestehen meist aus Thermoplast?", o: ["Eimer", "Plastiktüte", "Abwasserrohr", "Schwamm", "Steckdose"], a: [0, 1, 2], e: "Schwamm: Elastomer. Steckdose: Duroplast."},
+    {q: "Wie sind die Ketten bei einem Duroplast angeordnet?", o: ["engmaschig vernetzt", "weitmaschig vernetzt", "ohne Verbindung nebeneinander", "zu einem Ring geschlossen"], a: 0, e: "Darum können sie nicht aneinander vorbeigleiten."},
+    {q: "Welche Gruppe ist engmaschig vernetzt, hart und bricht bei zu großer Kraft?", o: ["Duroplaste", "Elastomere", "Thermoplaste", "keine Gruppe"], a: 0, e: "Duroplaste bleiben hart und zersetzen sich erst bei sehr großer Hitze."},
+    {q: "Welche Gruppe lässt sich in der Wärme weich machen und beliebig oft neu verformen?", o: ["Thermoplaste", "Elastomere", "Duroplaste", "keine Gruppe"], a: 0, e: "Ihre Ketten haben keine Verbindung und gleiten in der Wärme aneinander vorbei."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Kurz-Check"});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check: Begründe · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Kettenskizzen (Regelheft) ---------- */
+// Drei Kästchen: Ketten ohne Verbindung, wenige Querverbindungen, viele Querverbindungen
+function kettenSkizze(art){
+  const FARBE = {t: "#1c8a9b", e: "#1b8a4b", d: "#6a3fb0"}[art];
+  const Y = [18, 40, 62, 84];
+  const LINKS = {t: [], e: [[3, 8], [5], [2, 7]], d: [[1, 2, 3, 4, 5, 6, 7, 8], [1, 2, 3, 4, 5, 6, 7, 8], [1, 2, 3, 4, 5, 6, 7, 8]]}[art];
+  let s = `<rect x="1.5" y="1.5" width="157" height="97" rx="8" fill="#fff" stroke="${FARBE}" stroke-width="3"/>`;
+  Y.forEach(y => { let d = `M8 ${y} q 8 -6 16 0`; for (let i = 0; i < 8; i++) d += " t 16 0"; s += `<path d="${d}" fill="none" stroke="${FARBE}" stroke-width="3" stroke-linecap="round"/>`; });
+  LINKS.forEach((xs, g) => xs.forEach(n => { const x = 8 + 16 * n; s += `<line x1="${x}" y1="${Y[g]}" x2="${x}" y2="${Y[g + 1]}" stroke="#e8731c" stroke-width="2.6" stroke-linecap="round"/>`; }));
+  return s;
+}
+$("#rhSkizze").innerHTML = `<svg class="rh-skizze" viewBox="0 0 520 150" role="img" aria-label="Drei Kettenskizzen: Thermoplast ohne Verbindungen, Elastomer mit wenigen, Duroplast mit vielen Querverbindungen" font-family="inherit" style="max-width:520px">
+  ${[["t", "Thermoplast"], ["e", "Elastomer"], ["d", "Duroplast"]].map(([a, n], i) => `<g transform="translate(${i * 175} 0) scale(1)"><svg x="0" y="0" width="160" height="100" viewBox="0 0 160 100">${kettenSkizze(a)}</svg><text x="80" y="122" text-anchor="middle" font-size="15" font-weight="700" fill="#15212b">${n}</text><text x="80" y="140" text-anchor="middle" font-size="11" fill="#566674">${["keine Verbindung", "wenige Brücken", "viele Brücken"][i]}</text></g>`).join("")}
+</svg>`;
+
+/* ---------- Station 1: Zoom in den Eimer ---------- */
+(function(){
+  const svg = $("#zoomSvg");
+  svg.innerHTML = `<rect width="520" height="270" fill="#f7fbfe"/>
+    <text id="zTitel" x="260" y="24" text-anchor="middle" font-size="16" font-weight="800" fill="#0a5a66">Eimer aus Kunststoff</text>
+    <defs><clipPath id="zKreis"><circle cx="260" cy="148" r="100"/></clipPath></defs>
+    <!-- Szene 1: Eimer -->
+    <g class="zs" id="zs0">
+      <path d="M205 82 L315 82 L300 208 L220 208 Z" fill="#e8453c" stroke="#a52a23" stroke-width="3"/>
+      <ellipse cx="260" cy="82" rx="55" ry="8" fill="#f37a72" stroke="#a52a23" stroke-width="3"/>
+      <path d="M210 84 Q260 32 310 84" fill="none" stroke="#1f2a33" stroke-width="4"/>
+      <circle cx="288" cy="150" r="20" fill="none" stroke="#f2b632" stroke-width="4" stroke-dasharray="7 5" class="flow"/>
+      <text x="340" y="146" font-size="13" font-weight="800" fill="#15212b">hier zoomen</text><text x="340" y="162" font-size="13" font-weight="800" fill="#15212b">wir hinein</text>
+      <path d="M338 154 H312" stroke="#15212b" stroke-width="2"/>
+      <text x="260" y="238" text-anchor="middle" font-size="13" font-weight="700" fill="#566674">glatt, fest und bunt</text>
+    </g>
+    <!-- Szene 2: Gewirr -->
+    <g class="zs" id="zs1">
+      <circle cx="260" cy="148" r="100" fill="#fff" stroke="#0a5a66" stroke-width="4"/>
+      <g clip-path="url(#zKreis)" id="zGewirr"></g>
+      <circle cx="260" cy="148" r="100" fill="none" stroke="#0a5a66" stroke-width="4"/>
+      <text x="260" y="262" text-anchor="middle" font-size="13" font-weight="700" fill="#566674">stark vergrößert: ein dichtes Gewirr aus Fäden</text>
+    </g>
+    <!-- Szene 3: Kette aus Bausteinen -->
+    <g class="zs" id="zs2">
+      <path id="zKetteLinie" fill="none" stroke="#0a5a66" stroke-width="3"/>
+      <g id="zPerlen"></g>
+      <text x="26" y="150" font-size="22" font-weight="800" fill="#566674" text-anchor="middle">…</text><text x="494" y="150" font-size="22" font-weight="800" fill="#566674" text-anchor="middle">…</text>
+      <path d="M163 96 V120" stroke="#15212b" stroke-width="2"/><text x="163" y="88" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Baustein</text>
+      <path d="M52 204 V214 H468 V204" fill="none" stroke="#15212b" stroke-width="2.5"/><text x="260" y="238" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">eine Kette = ein Makromolekül</text>
+    </g>
+    <!-- Szene 4: Büroklammern -->
+    <g class="zs" id="zs3">
+      <g id="zKlammern"></g>
+      <path d="M118 96 V118" stroke="#15212b" stroke-width="2"/><text x="118" y="88" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Baustein = 1 Büroklammer</text>
+      <path d="M44 198 V208 H476 V198" fill="none" stroke="#15212b" stroke-width="2.5"/><text x="260" y="232" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Kette aus Büroklammern – Modell für ein Makromolekül</text>
+      <text x="260" y="254" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">(ein echtes Makromolekül hat viel mehr Bausteine)</text>
+    </g>`;
+  // Gewirr aus Fäden (feste Zufallszahlen, damit es immer gleich aussieht)
+  let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const gew = $("#zGewirr", svg), FARBEN = ["#2f9fb0", "#1c8a9b", "#5fc9c4", "#0f7f8f", "#7fb8d6"];
+  const faden = (farbe, breite) => {
+    let d = `M${(150 + rnd() * 40).toFixed(0)} ${(60 + rnd() * 200).toFixed(0)}`;
+    for (let i = 0; i < 5; i++) d += ` C${(150 + rnd() * 220).toFixed(0)} ${(40 + rnd() * 220).toFixed(0)} ${(150 + rnd() * 220).toFixed(0)} ${(40 + rnd() * 220).toFixed(0)} ${(160 + i * 50 + rnd() * 40).toFixed(0)} ${(50 + rnd() * 200).toFixed(0)}`;
+    svgEl("path", {d, fill: "none", stroke: farbe, "stroke-width": breite, "stroke-linecap": "round", opacity: .85}, gew);
+  };
+  for (let i = 0; i < 16; i++) faden(FARBEN[i % 5], 5);
+  // der eine Faden, den wir herausziehen, in Orange
+  faden("#e8731c", 7);
+  // Perlenkette: 14 gleiche Bausteine
+  const perlen = $("#zPerlen", svg), pts = [];
+  for (let i = 0; i < 14; i++) pts.push([62 + i * 30.5, 150 + 16 * Math.sin(i * .95)]);
+  $("#zKetteLinie", svg).setAttribute("d", "M" + pts.map(p => p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" L"));
+  pts.forEach((p, i) => { const g = svgEl("g", {class: "perle", style: `transition-delay:${(i * .07).toFixed(2)}s`}, perlen); svgEl("circle", {cx: p[0].toFixed(1), cy: p[1].toFixed(1), r: 13, fill: "#e8731c", stroke: "#a8480b", "stroke-width": 2.5}, g); svgEl("circle", {cx: (p[0] - 4).toFixed(1), cy: (p[1] - 4).toFixed(1), r: 3.5, fill: "#fff", opacity: .55}, g); });
+  // Büroklammern
+  const kl = $("#zKlammern", svg);
+  for (let i = 0; i < 6; i++) svgEl("rect", {class: "clip", x: 40 + i * 70, y: 124 + (i % 2) * 6, width: 100, height: 46, rx: 23, fill: "none", stroke: i % 2 ? "#e8731c" : "#3a7fa8", "stroke-width": 6, style: `transition-delay:${(i * .35).toFixed(2)}s`}, kl);
+  // Pfeilspitzen für die Beschriftung
+  svgEl("polygon", {points: "158,122 168,122 163,132", fill: "#15212b"}, $("#zs2", svg)); svgEl("polygon", {points: "113,120 123,120 118,130", fill: "#15212b"}, $("#zs3", svg));
+  const TITEL = ["Eimer aus Kunststoff", "Die Eimerwand, stark vergrößert", "Ein einzelner Faden", "Modell: eine Kette aus Büroklammern"];
+  Modul.makeSchritte($("#zoomSim"), {
+    start: "Wir zoomen in einen Kunststoffeimer hinein – tippe auf „Start“.",
+    steps: [
+      "Ein <strong>Kunststoffeimer</strong>: fest, glatt und bunt. Wie sieht er im Inneren aus?",
+      "Wir zoomen in die Eimerwand. Das glatte Material ist in Wirklichkeit ein dichtes <strong>Gewirr aus Fäden</strong>.",
+      "Wir ziehen einen Faden heraus: Es ist eine lange <strong>Kette</strong> aus vielen, meist gleichen Bausteinen – ein <strong>Makromolekül</strong>.",
+      "Zum Vergleich: Jede <strong>Büroklammer</strong> ist ein Baustein. Hängen sie aneinander, entsteht eine Kette. Ein Makromolekül ist ähnlich, nur viel, viel länger."
+    ],
+    ms: 3200,
+    zeige(i){
+      const k = Math.max(0, i);
+      $$(".zs", svg).forEach((g, j) => g.classList.toggle("on", j === k));
+      $("#zTitel", svg).textContent = TITEL[k];
+    }
+  }, "zoomSchritte");
+})();
+
+/* ---------- Station 1: Lückentext ---------- */
+Modul.makeGap($("#gapKette"), [
+  ["Ein Kunststoff besteht aus sehr langen ", {g: "Ketten"}, ". Jede Kette ist aus vielen, meist ", {g: "gleichen"}, " Bausteinen zusammengesetzt."],
+  ["Solche riesigen Moleküle heißen ", {g: "Makromoleküle"}, ". „makros“ bedeutet ", {g: "groß"}, "."]
+], "gapKette", ["klein"]);
+
+/* Station 2 ist im Schulbuch Stoff nur für 9M: Aufgaben mit Modul.plus (9M Pflicht, 9R freiwillig) */
+Modul.plus(() => {
+/* ---------- Station 2: Polymerisation ---------- */
+(function(){
+  const svg = $("#polySvg");
+  const ORG = [40, 222.5, 405], END = [72.5, 222.5, 372.5], Y0 = 112;
+  const atom = (cx, cy, r, fill, txt, fs, tc) => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" stroke="#15212b" stroke-width="2"/><text x="${cx}" y="${cy + fs * .36}" text-anchor="middle" font-size="${fs}" font-weight="800" fill="${tc}">${txt}</text>`;
+  const mol = o => `<g class="mol" style="transform:translate(${o}px,${Y0}px)">
+      ${[0, 75].map(x => [-1, 1].map(s => `<line x1="${x}" y1="${s * 15}" x2="${x}" y2="${s * 33}" stroke="#566674" stroke-width="3"/>${atom(x, s * 43, 10, "#e6eef3", "H", 12, "#15212b")}`).join("")).join("")}
+      <g class="dbl"><line x1="15" y1="-4" x2="60" y2="-4" stroke="#15212b" stroke-width="4"/><line x1="15" y1="4" x2="60" y2="4" stroke="#15212b" stroke-width="4"/></g>
+      <line class="sgl" x1="15" y1="0" x2="60" y2="0" stroke="#15212b" stroke-width="4" opacity="0"/>
+      <g class="stubs" opacity="0" stroke="#e8731c" stroke-width="5" stroke-linecap="round"><line x1="-26" y1="0" x2="-14" y2="0"/><line x1="89" y1="0" x2="101" y2="0"/></g>
+      ${atom(0, 0, 15, "#3b4650", "C", 15, "#fff")}${atom(75, 0, 15, "#3b4650", "C", 15, "#fff")}
+      <g class="kat" opacity="0"><rect x="-8" y="-100" width="91" height="24" rx="12" fill="#f2b632" stroke="#a87808" stroke-width="2"/><text x="37.5" y="-83.5" text-anchor="middle" font-size="12" font-weight="800" fill="#15212b">Katalysator</text><line class="flow" x1="37.5" y1="-76" x2="37.5" y2="-10" stroke="#a87808" stroke-width="3"/></g>
+    </g>`;
+  svg.innerHTML = `<rect width="520" height="270" fill="#f7fbfe"/>
+    <g id="polyEnds" class="stage" stroke="#15212b" stroke-width="4" stroke-dasharray="6 6"><line x1="57.5" y1="${Y0}" x2="22" y2="${Y0}"/><line x1="462.5" y1="${Y0}" x2="498" y2="${Y0}"/></g>
+    <g id="polyLinks" class="stage" stroke="#15212b" stroke-width="4"><line x1="162.5" y1="${Y0}" x2="207.5" y2="${Y0}"/><line x1="312.5" y1="${Y0}" x2="357.5" y2="${Y0}"/></g>
+    ${ORG.map(mol).join("")}
+    <text id="polyLbl" x="260" y="214" text-anchor="middle" font-size="14" font-weight="800" fill="#0a5a66"></text>
+    <text id="polyLbl2" class="stage" x="260" y="236" text-anchor="middle" font-size="13" font-weight="700" fill="#15212b">… und so weiter: zehntausende bis hunderttausende Bausteine</text>
+    <text x="14" y="262" font-size="11" font-weight="700" fill="#566674">C = Kohlenstoff, H = Wasserstoff</text>`;
+  const mols = $$(".mol", svg);
+  const LBL = [
+    "Ethen-Moleküle (C₂H₄): einzelne Bausteine eines Gases",
+    "Zwischen den C-Atomen steckt eine C=C-Doppelbindung",
+    "Doppelbindung aufgespalten: jedes C hat einen freien Haken",
+    "Die Moleküle rücken zusammen und verbinden sich",
+    "Polyethen: lange Kette mit C–C-Einfachbindungen"
+  ];
+  Modul.makeSchritte($("#polySim"), {
+    start: "Aus Ethen wird Polyethen – tippe auf „Start“.",
+    steps: [
+      "Viele <strong>Ethen-Moleküle</strong> schweben einzeln herum. Jedes besteht aus zwei C- und vier H-Atomen.",
+      "Zwischen den beiden C-Atomen stecken zwei Striche: eine <strong>C=C-Doppelbindung</strong>. Ein <strong>Katalysator</strong> setzt genau dort an.",
+      "Der Katalysator <strong>spaltet</strong> die Doppelbindung auf. Aus zwei Strichen wird einer, und jedes C-Atom hat einen <strong>freien Haken</strong>.",
+      "Die Moleküle rücken zusammen und hängen sich mit den freien Haken aneinander.",
+      "Es entsteht eine lange Kette mit <strong>C–C-Einfachbindungen</strong>: <strong>Polyethen</strong>. In Wirklichkeit sind es zehntausende bis hunderttausende Ethen-Moleküle."
+    ],
+    ms: 3300,
+    zeige(i){
+      const s = Math.max(0, i);
+      mols.forEach((m, j) => {
+        m.style.transform = `translate(${(s >= 3 ? END : ORG)[j]}px,${Y0}px)`;
+        $(".dbl", m).setAttribute("opacity", s < 2 ? 1 : 0);
+        $$(".dbl line", m).forEach(l => l.setAttribute("stroke", s === 1 ? "#d8352a" : "#15212b"));
+        $(".sgl", m).setAttribute("opacity", s >= 2 ? 1 : 0);
+        $(".stubs", m).setAttribute("opacity", s === 2 ? 1 : 0);
+        $(".kat", m).setAttribute("opacity", s === 1 || s === 2 ? 1 : 0);
+      });
+      $("#polyLinks", svg).classList.toggle("on", s >= 3);
+      $("#polyEnds", svg).classList.toggle("on", s >= 4);
+      $("#polyLbl2", svg).classList.toggle("on", s >= 4);
+      $("#polyLbl", svg).textContent = LBL[s];
+    }
+  }, "polySchritte");
+})();
+Modul.makeOrder($("#orderPoly"), [
+  "Viele Ethen-Moleküle liegen einzeln nebeneinander.",
+  "Ein Katalysator spaltet die C=C-Doppelbindungen auf.",
+  "Jedes C-Atom hat einen freien Haken und greift nach dem nächsten Molekül.",
+  "Es entsteht eine lange Kette mit C–C-Einfachbindungen: Polyethen."
+], "orderPoly");
+Modul.makePaare($("#paarePoly"), [
+  ["Monomer", "einzelner Baustein, z. B. ein Ethen-Molekül"],
+  ["Polymer", "lange Kette aus sehr vielen Bausteinen"],
+  ["Polymerisation", "Vorgang: Viele Monomere verbinden sich zur Kette"],
+  ["Katalysator", "Hilfsstoff, der die Doppelbindung aufspaltet"],
+  ["Ethen", "Gas mit der Formel C₂H₄ und einer C=C-Doppelbindung"]
+], "paarePoly");
+Modul.makeGap($("#gapPoly"), [
+  ["Ethen ist ein ", {g: "Gas"}, " mit der Formel C₂H₄. Zwischen den beiden C-Atomen steckt eine ", {g: "Doppelbindung"}, "."],
+  ["Ein ", {g: "Katalysator"}, " spaltet sie auf. Dann verbinden sich viele Ethen-Moleküle zu langen ", {g: "Ketten"}, " mit ", {g: "Einfachbindungen"}, "."],
+  ["Der fertige Kunststoff heißt ", {g: "Polyethen"}, "."]
+], "gapPoly", ["Salz"]);
+Modul.makeOpen($("#openPoly"), [
+  {q: "Beschreibe, wie aus Ethen Polyethen entsteht.",
+   m: "Ethen-Moleküle haben eine C=C-Doppelbindung. Mit einem Katalysator wird diese Doppelbindung aufgespalten. Dann verbinden sich viele Ethen-Moleküle zu einem langen, kettenartigen Makromolekül, in dem nur noch C–C-Einfachbindungen vorkommen. Das ist die Polymerisation.",
+   k: ["doppelbindung|c=c|doppelt", "katalysator", "kette|lang|makromolek|polymer", "verbind|aneinander|reih|hängen|haeng|zusammen"], min: 3}
+], "openPoly-", "Denke an die Reihenfolge der Animation: Doppelbindung, Katalysator, Verbindung zur Kette.");
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+
+});
+
+/* ---------- Station 3: Simulation der drei Gruppen ---------- */
+(function(){
+  const svg = $("#gruppenSvg"), obs = $("#gruppenObs");
+  const PX = [10, 182, 354], FARBE = ["#1c8a9b", "#1b8a4b", "#6a3fb0"];
+  const NAMEN = [["Thermoplast", "Ketten ohne Verbindung"], ["Elastomer", "weitmaschig vernetzt"], ["Duroplast", "engmaschig vernetzt"]];
+  const Y = [28, 56.5, 85, 113.5, 142];
+  const LINKS = [[], [[4, 10], [7], [5, 11], [9]], [0, 1, 2, 3].map(() => [3, 4, 5, 6, 7, 8, 9, 10, 11, 12])];
+  const welle = y => { let d = `M-30 ${y} q 7 -6 14 0`; for (let i = 0; i < 14; i++) d += " t 14 0"; return d; };
+  const panel = p => {
+    let netz = Y.map(y => `<g class="ch"><path d="${welle(y)}" fill="none" stroke="${FARBE[p]}" stroke-width="2.5" stroke-linecap="round"/><path d="${welle(y)}" fill="none" stroke="${FARBE[p]}" stroke-width="9" stroke-linecap="round" stroke-dasharray="0 16"/></g>`).join("");
+    LINKS[p].forEach((ns, g) => ns.forEach(n => { const x = -30 + 14 * n; netz += `<line x1="${x}" y1="${Y[g]}" x2="${x}" y2="${Y[g + 1]}" stroke="#e8731c" stroke-width="3.2" stroke-linecap="round"/>`; }));
+    return `<g transform="translate(${PX[p]} 0)">
+      <text x="78" y="20" text-anchor="middle" font-size="16" font-weight="800" fill="${FARBE[p]}">${NAMEN[p][0]}</text>
+      <text x="78" y="37" text-anchor="middle" font-size="11.5" font-weight="700" fill="#566674">${NAMEN[p][1]}</text>
+      <g transform="translate(0 46)">
+        <rect width="156" height="170" rx="10" fill="#fff"/>
+        <g clip-path="url(#gsClip)">
+          <rect class="hot" width="156" height="170" fill="#ff8a3d" opacity="0"/>
+          <g class="netz" id="netz${p}">${netz}</g>
+          ${p === 2 ? `<rect class="brand" width="156" height="170" fill="#2b2420" opacity="0"/><g id="rauch" class="stage">${[40, 78, 116].map((x, j) => `<path class="rise" d="M${x} 150 q 8 -10 0 -20 q -8 -10 0 -20" fill="none" stroke="#9aa3aa" stroke-width="4" style="animation-delay:${j * .6}s"/>`).join("")}</g><path class="riss" id="riss" d="M70 4 L84 40 L64 74 L86 108 L68 138 L80 166" fill="none" stroke="#15212b" stroke-width="3.5" stroke-linejoin="round"/>` : ""}
+          <g class="stage" id="pfeile${p}"><path d="M26 85 H8 M16 76 L6 85 L16 94 M130 85 H148 M140 76 L150 85 L140 94" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><path d="M26 85 H8 M16 76 L6 85 L16 94 M130 85 H148 M140 76 L150 85 L140 94" fill="none" stroke="#e8731c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        </g>
+        <rect width="156" height="170" rx="10" fill="none" stroke="${FARBE[p]}" stroke-width="3.5"/>
+      </g>
+      <g class="stage" id="flam${p}">${[40, 78, 116].map((x, j) => `<g transform="translate(${x} 246)"><path class="flick" style="animation-delay:${j * .1}s" d="M0 0 C-10 -9 -6 -19 0 -30 C6 -19 10 -9 0 0Z" fill="#f2701c"/><path d="M0 0 C-5 -5 -3 -10 0 -15 C3 -10 5 -5 0 0Z" fill="#f6c343"/></g>`).join("")}</g>
+      ${[0, 1, 2].map(l => `<text id="cap${p}_${l}" x="78" y="${266 + l * 16}" text-anchor="middle" font-size="12.5" font-weight="800" fill="#15212b"></text>`).join("")}
+    </g>`;
+  };
+  svg.innerHTML = `<defs><clipPath id="gsClip"><rect x="3" y="3" width="150" height="164" rx="8"/></clipPath></defs><rect width="520" height="310" fill="#f7fbfe"/>${[0, 1, 2].map(panel).join("")}`;
+  const CAP0 = [["fest und hart", "Ketten liegen lose", "nebeneinander"], ["weich und elastisch", "Ketten weitmaschig", "vernetzt"], ["hart und stabil", "Ketten engmaschig", "vernetzt"]];
+  const cap = (p, z) => [0, 1, 2].forEach(l => { $("#cap" + p + "_" + l, svg).textContent = z[l] || ""; });
+  const ketten = $$("#netz0 .ch", svg), netz1 = $("#netz1", svg), netz2 = $("#netz2", svg);
+  const shift = a => ketten.forEach((k, i) => { k.style.transform = a ? `translateX(${a[i]}px)` : ""; });
+  const flammen = (...ps) => [0, 1, 2].forEach(p => $("#flam" + p, svg).classList.toggle("on", ps.includes(p)));
+  const pfeile = on => [0, 1, 2].forEach(p => $("#pfeile" + p, svg).classList.toggle("on", on));
+  const heiss = (...a) => $$(".hot", svg).forEach((h, p) => h.setAttribute("opacity", a[p] || 0));
+  let warm = false;
+  function ruhe(){
+    flammen(); pfeile(false); heiss(); shift(null);
+    netz1.style.transform = ""; netz2.style.transform = "";
+    $(".brand", svg).setAttribute("opacity", 0); $("#rauch", svg).classList.remove("on"); $("#riss", svg).classList.remove("on");
+    CAP0.forEach((z, p) => cap(p, z)); warm = false;
+  }
+  ruhe();
+  register("gruppen", "#gruppenSvg", "Simulation: Thermoplast, Elastomer und Duroplast erwärmen und ziehen");
+  const fertig = new Set(); let laeuft = false;
+  const TEXT = {
+    warm: "Der Thermoplast wird weich und zäh wie Honig: Seine Ketten haben keine Verbindung und gleiten aneinander vorbei. Elastomer und Duroplast behalten ihre Form, denn ihre Ketten hängen zusammen.",
+    heiss: "Der Duroplast wird nicht weich. Seine Ketten sind fest vernetzt und können nicht gleiten. Bei sehr großer Hitze zersetzt er sich: Er verkohlt und qualmt.",
+    kalt: "Beim Abkühlen wird der Thermoplast wieder fest. Das lässt sich beliebig oft wiederholen – darum kann man Thermoplaste einschmelzen und neu formen.",
+    zieh: "Thermoplast: Die Ketten rutschen aneinander vorbei, er bleibt verformt. Elastomer: Das lockere Netz dehnt sich und zieht die Ketten wieder zurück. Duroplast: Er gibt nicht nach und bricht bei zu großer Kraft."
+  };
+  function eintragen(art){
+    obs.textContent = TEXT[art]; fertig.add(art);
+    if (["warm", "heiss", "zieh"].every(a => fertig.has(a))) { solve("gruppen"); obs.textContent += " ✅ Alle drei Versuche erledigt."; }
+  }
+  const knopf = (id, art, fn) => $("#" + id).addEventListener("click", async () => {
+    if (laeuft) return; laeuft = true; $$(".sim-ctrl button", svg.parentNode).forEach(b => b.disabled = true);
+    try { const warmVorher = warm; if (!(art === "kalt" && warmVorher)) ruhe(); await wait(120); await fn(warmVorher); eintragen(art); } finally { laeuft = false; $$(".sim-ctrl button", svg.parentNode).forEach(b => b.disabled = false); }
+  });
+  knopf("tWarm", "warm", async () => {
+    flammen(0, 1, 2); heiss(.38, .3, .3); warm = true;
+    cap(0, ["weich wie Honig:", "Ketten gleiten", "aneinander vorbei"]);
+    cap(1, ["bleibt elastisch", "Netz hält die", "Ketten zusammen"]);
+    cap(2, ["bleibt hart –", "lässt sich nicht", "umformen"]);
+    const MUSTER = [[-16, 12, -10, 18, -12], [14, -14, 16, -12, 10], [-10, 16, -18, 10, -14], [12, -8, 14, -16, 18]];
+    for (let r = 0; r < 4; r++) { shift(MUSTER[r]); netz1.style.transform = `translate(${r % 2 ? 2 : -2}px,0)`; await wait(650); }
+    netz1.style.transform = "";
+  });
+  knopf("tHeiss", "heiss", async () => {
+    flammen(2); heiss(0, 0, .55);
+    cap(2, ["bleibt hart und", "zersetzt sich:", "verkohlt, Rauch"]);
+    await wait(900); $("#rauch", svg).classList.add("on"); $(".brand", svg).setAttribute("opacity", .6);
+    await wait(2000);
+  });
+  knopf("tKalt", "kalt", async wasWarm => {
+    if (!wasWarm) { obs.textContent = "Erwärme zuerst – dann kannst du abkühlen."; await wait(300); return; }
+    flammen(); heiss(); shift([5, -6, 7, -4, 6]); warm = false;
+    cap(0, ["wieder fest – das", "geht beliebig oft", "mit einem Thermoplast"]);
+    await wait(1500);
+  });
+  knopf("tZieh", "zieh", async () => {
+    pfeile(true);
+    cap(0, ["Ketten rutschen", "aneinander vorbei:", "bleibt verformt"]);
+    cap(1, ["das Netz dehnt sich", "und zieht die Ketten", "wieder zurück"]);
+    cap(2, ["gibt nicht nach –", "bricht bei zu", "großer Kraft"]);
+    shift([-36, -18, 0, 18, 36]); netz1.style.transform = "scaleX(1.4)";
+    for (let i = 0; i < 6; i++) { netz2.style.transform = `translateX(${i % 2 ? 3 : -3}px)`; await wait(160); }
+    netz2.style.transform = "";
+    await wait(400);
+    pfeile(false); $("#riss", svg).classList.add("on");
+    netz1.classList.add("snap"); netz1.style.transform = ""; await wait(900); netz1.classList.remove("snap");
+    await wait(500);
+  });
+})();
+Modul.makeSort($("#sortBeispiele"), {
+  buckets: ["Thermoplast", "Elastomer", "Duroplast"], cols: 170,
+  items: [
+    {t: "Eimer", b: 0}, {t: "Folie", b: 0}, {t: "Wasserflasche", b: 0}, {t: "Abwasserrohr", b: 0},
+    {t: "Schwamm", b: 1}, {t: "Matratze", b: 1}, {t: "Gummiring", b: 1}, {t: "Fitnessband", b: 1},
+    {t: "Schutzhelm", b: 2}, {t: "Lichtschalter", b: 2}, {t: "Steckdose", b: 2}
+  ]
+}, "sortBeispiele");
+Modul.makeSort($("#sortEigenschaft"), {
+  buckets: ["Thermoplast", "Elastomer", "Duroplast"], cols: 170,
+  items: [
+    {t: "in Wärme beliebig oft verformbar", b: 0}, {t: "Ketten ohne Verbindung", b: 0}, {t: "weich wie Honig bei Wärme", b: 0},
+    {t: "federt nach dem Dehnen zurück", b: 1}, {t: "Ketten weitmaschig vernetzt", b: 1}, {t: "lässt sich bei Zimmertemperatur dehnen und springt zurück", b: 1},
+    {t: "Ketten engmaschig vernetzt", b: 2}, {t: "bricht bei zu großer Kraft", b: 2}, {t: "zersetzt sich bei sehr großer Hitze", b: 2}
+  ]
+}, "sortEigenschaft");
+
+/* ---------- Station 3: Film mit Stopps (planet schule, SWR/ARD – Transkript vollständig gelesen, geprüft 22.10.2026) ---------- */
+Modul.makeFilm($("#film"), { vid: "OW5gZsJ_lNs", titel: "Überall Plastik? (Ausschnitt: Duroplaste, Thermoplaste, Elastomere)", quelle: "planet schule (SWR/ARD) auf YouTube", dauer: "knapp 4 Minuten", start: 449, ende: 676,
+  stops: [
+    {t: 540, q: {q: "Warum lassen sich Duroplaste nicht mehr verformen oder einschmelzen?", o: ["Ihre Ketten sind eng miteinander vernetzt.", "Sie bestehen nur aus sehr kurzen Molekülen.", "Sie enthalten keinen Kohlenstoff.", "Sie sind besonders weich."], a: 0, e: "Die engmaschige Vernetzung hält die Form – auch bei großer Hitze."}},
+    {t: 620, q: {q: "Warum lassen sich Thermoplaste immer wieder einschmelzen und neu formen?", o: ["Ihre Ketten sind nicht vernetzt und gleiten beim Erwärmen.", "Ihre Ketten sind eng vernetzt.", "Sie sind besonders hart.", "Sie bestehen aus Metall."], a: 0, e: "Ohne Vernetzung werden Thermoplaste beim Erwärmen weich und formbar."}},
+    {t: 670, q: {q: "Was passiert beim Dehnen eines Gummibands (Elastomer)?", o: ["Die Ketten werden gestreckt und gehen beim Loslassen zurück.", "Die Ketten schmelzen.", "Die Ketten reißen für immer.", "Das Band wird zum Duroplast."], a: 0, e: "Die wenigen Verknüpfungen holen die Ketten in die Ausgangsform zurück."}}
+  ]}, "film");
+
+/* ---------- Training: Kreuzworträtsel mit Tipps ---------- */
+Modul.makeCrossword($("#cw"), {
+  tipps: true,
+  words: [
+    {w: "MAKROMOLEKUEL", r: 0, c: 5, d: "d", q: "Riesiges, kettenartiges Molekül, aus dem Kunststoffe bestehen", tip: "„makros“ heißt „groß“. Ü wird zu UE.", zeig: "Makromolekül"},
+    {w: "BUEROKLAMMER", r: 2, c: 0, d: "a", q: "Eine Kette aus diesen Dingen ist unser Modell für ein Makromolekül.", tip: "Sie hält Papierblätter zusammen. Ü wird zu UE.", zeig: "Büroklammer"},
+    {w: "THERMOPLAST", r: 5, c: 1, d: "a", q: "Kunststoffgruppe, die in der Wärme beliebig oft weich und verformbar wird", tip: "Beginnt mit „Thermo-“ (Wärme). Beispiele: Eimer, Folie, Flasche."},
+    {w: "GUMMIRING", r: 0, c: 2, d: "a", q: "Ein Beispiel für ein Elastomer, das sich dehnen lässt", tip: "Man legt ihn um Einmachgläser oder Zöpfe."},
+    {w: "ELASTOMER", r: 2, c: 10, d: "d", q: "Kunststoffgruppe, die sich dehnen lässt und zurückschnellt", tip: "Die Ketten sind weitmaschig vernetzt. Beispiele: Matratze, Fitnessband."},
+    {w: "DUROPLAST", r: 12, c: 0, d: "a", q: "Kunststoffgruppe, die hart und stabil ist und bei zu großer Kraft bricht", tip: "Die Ketten sind engmaschig vernetzt. Beispiele: Lichtschalter, Steckdose."},
+    {w: "STECKDOSE", r: 7, c: 0, d: "d", q: "Ein Beispiel für einen Duroplast an der Wand", tip: "Hier steckst du das Ladekabel deines Handys ein."},
+    {w: "VERNETZT", r: 7, c: 8, d: "d", q: "So hängen die Ketten bei Elastomeren und Duroplasten zusammen", tip: "Wie bei einem Fischernetz: Brücken verbinden die Ketten."},
+    {w: "SCHWAMM", r: 14, c: 0, d: "a", q: "Ein Beispiel für ein Elastomer in der Küche", tip: "Du drückst ihn zusammen, und er springt wieder auf."},
+    {w: "KETTE", r: 8, c: 4, d: "a", q: "Ein Makromolekül sieht aus wie eine lange …", tip: "Auch ein Fahrrad hat so etwas aus Metallgliedern."},
+    {w: "HONIG", r: 5, c: 2, d: "d", q: "Ein erwärmter Thermoplast wird weich und zäh wie …", tip: "Süßer, zähflüssiger Brotaufstrich von den Bienen."}
+  ],
+  sol: [[8, 4], [5, 3], [6, 10], [5, 11], [15, 0], [7, 2]], solWord: "KETTEN"
+}, "cw");
+
+/* ---------- Profi-Check, Lernkarten ---------- */
+const einfach = l => l.filter(q => !Array.isArray(q.a));
+const nurR = !!(window.Kunststoffe && Kunststoffe.R); // 9R: Polymerisation ist freiwillig, kommt nicht in den Profi-Check
+Modul.makeQuiz($("#quiz"), [...einfach(MC.s1), ...(nurR ? [] : einfach(MC.s2)), ...einfach(MC.s3), ...einfach(MC.train),
+  ...(nurR ? [] : [{q: "Wie viele Monomere verbinden sich ungefähr zu einem Makromolekül?", o: ["zehntausende bis hunderttausende", "zwei bis drei", "etwa zehn", "genau hundert"], a: 0, e: "Darum sind die Ketten so lang."},
+  {q: "Was bedeutet „meros“ im Wort Polymerisation?", o: ["Teil", "Wärme", "Gas", "Kette"], a: 0, e: "„poly“ = viel, „meros“ = Teil: aus vielen Teilen wird eine Kette."}]),
+  {q: "Welche Aussage über Thermoplaste stimmt?", o: ["Sie lassen sich beliebig oft erwärmen und neu verformen.", "Sie sind engmaschig vernetzt und bleiben immer hart.", "Sie springen nach dem Verformen immer zurück.", "Sie zersetzen sich schon bei Zimmertemperatur."], a: 0, e: "Ihre Ketten sind nicht verbunden und gleiten in der Wärme aneinander vorbei."}
+], "quiz", "Kunststoff-Profi");
+if (window.NT8Karten) NT8Karten.trainer($("#lernkarten"), {module: ["ku2"], titel: "Lernkarten zu diesem Modul", zug: (window.Kunststoffe && Kunststoffe.zug) || "M", druck: false});
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

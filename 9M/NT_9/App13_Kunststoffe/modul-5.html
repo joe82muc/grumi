@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b3b46">
+<title>Die PET-Flasche: Kreislauf und Ökobilanz | NT 9</title>
+<link rel="stylesheet" href="../../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="kunststoffe.css">
+<style>
+/* Kreislauf der PET-Flasche */
+#kreisSvg .seg{fill:none;stroke:#cfdde4;stroke-width:5;stroke-linecap:round;transition:stroke .6s}
+#kreisSvg .seg.an{stroke:#0f7f8f}
+#kreisSvg .seg.rueck.an{stroke:#1b8a4b}
+#kreisSvg .pfeil{fill:#9fb3bf;transition:fill .6s}
+#kreisSvg .pfeil.an{fill:#0f7f8f}
+#kreisSvg .pfeil.rueck.an{fill:#1b8a4b}
+#kreisSvg .kn circle.rund{fill:#fff;stroke:#9ccbee;stroke-width:3;transition:fill .5s,stroke .5s}
+#kreisSvg .kn.war circle.rund{fill:#e2f4f6;stroke:#6fb7c0}
+#kreisSvg .kn.jetzt circle.rund{fill:#fff3c4;stroke:#e0a100;stroke-width:4.5}
+#kreisSvg .tok{transition:transform 1.1s cubic-bezier(.4,0,.3,1),opacity .5s}
+#kreisSvg .tok g.f{opacity:0;transition:opacity .4s}
+#kreisSvg .tok g.f.on{opacity:1}
+/* Anteil-Grafik */
+#anteilSvg .pt{transition:fill .7s,stroke .7s}
+/* Füllungen */
+#fuellSvg .sl{transition:fill .25s}
+/* Ökobilanz-Tafel */
+table.oeko{width:100%;border-collapse:collapse;font-size:.88rem;table-layout:fixed}
+table.oeko th,table.oeko td{border:1px solid var(--line);padding:6px 5px;text-align:center;vertical-align:middle}
+table.oeko thead th{background:var(--sky-l);color:var(--sky-d);font-size:.84rem;line-height:1.2}
+table.oeko tbody th{text-align:left;width:27%;background:#fff;padding:0}
+table.oeko tbody th button{all:unset;box-sizing:border-box;display:block;width:100%;padding:8px 7px;cursor:pointer;font-weight:700;line-height:1.25;color:var(--sky-d)}
+table.oeko tbody th button:focus-visible{outline:3px solid var(--sky);outline-offset:-3px}
+table.oeko tr.sel th{background:#fff3c4}
+table.oeko tr.sel td{background:#fffbe9}
+table.oeko tr.gesehen th button::after{content:" ✓";color:#1b8a4b}
+.sym{display:inline-block;min-width:34px;padding:1px 6px;border-radius:99px;font-weight:800;font-size:.9rem;color:#fff}
+.sym.pp{background:#137a3e}.sym.p{background:#4fa564}.sym.m{background:#d98a1f}.sym.mm{background:#c0392b}.sym.n{background:#6b7a86}
+table.oeko td small{display:block;font-size:.74rem;line-height:1.2;color:var(--muted);margin-top:2px}
+.thermo{margin:8px 0 2px}
+.thermo div{display:flex;align-items:center;gap:8px;margin:4px 0}
+.thermo span{flex:none;width:130px;font-weight:700;font-size:.88rem}
+.thermo i{display:block;height:16px;border-radius:8px;width:0;transition:width 1.3s ease}
+.thermo i.pet{background:#4fa5d8}.thermo i.glas{background:#d9541e}
+.thermo.on i{width:var(--w)}
+@media (prefers-reduced-motion:reduce){.thermo i{transition:none}}
+.lebensweg{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0}
+.lebensweg b{background:var(--sky-l);color:var(--sky-d);border-radius:10px;padding:5px 10px;font-size:.92rem}
+.lebensweg span{color:var(--muted);font-weight:800}
+@media (max-width:520px){table.oeko{font-size:.8rem}table.oeko thead th{font-size:.76rem}.sym{min-width:28px;padding:1px 4px}.thermo span{width:100px}}
+</style>
+<script src="../../../js/kursliste.js"></script>
+<script src="../themen.js"></script>
+<!-- 9M und 9R nutzen dieselben Seiten: die Kursliste kommt aus dem Ordner (../themen.js = NT9M oder NT9R) -->
+<script>window.GRUMI_KURS = window.NT9M || window.NT9R; window.GRUMI_KURS.KARTEN = "../../" + window.GRUMI_KURS.ORDNER + "App13_Kunststoffe/";</script>
+<script src="kunststoffe.js"></script>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="../%C3%BCbersicht_themen.html">GRUMI<small>NT <span class="ku-zug">9M</span> · Kunststoffe 5</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Weg der Flasche</a>
+      <a href="#s2"><b>2</b>Echter Kreislauf?</a>
+      <a href="#s3"><b>3</b>Ökobilanz</a>
+      <a href="#s4"><b>4</b>Training</a>
+      <a href="#abschluss"><b>5</b>Abschluss</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse <span class="ku-zug">9M</span> · Kunststoffe · Modul 5</div>
+    <h1>Die PET-Flasche: Kreislauf und Ökobilanz</h1>
+    <p>Du kaufst eine Flasche Wasser, trinkst sie leer und gibst sie zurück. Was passiert dann mit ihr? In fünf Stationen verfolgst du den Weg einer PET-Flasche, prüfst, ob daraus wirklich ein Kreislauf wird, und lernst, wie man die Umweltwirkung eines Produkts bewertet.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s4">Direkt zum Training</a>
+    </div>
+    <div class="goals">
+      <div>♻️ Ich beschreibe den Weg einer PET-Flasche vom Erdöl bis zum Recyclingstoff.</div>
+      <div>🔄 Ich erkläre, warum das Pfandsystem kein echter Kreislauf ist.</div>
+      <div>🥤 Ich vergleiche Einweg und Mehrweg.</div>
+      <div>⚖️ Ich sage, was eine Ökobilanz untersucht, und bewerte Flaschen damit (9M).</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Vom Erdöl zur Flasche und zurück</div><h2>Der Weg einer PET-Flasche</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Die Flasche Mineralwasser in deiner Tasche besteht meist aus <button class="term" data-t="pet">PET</button> (Recycling-Code 01, du kennst ihn aus Modul 1). Der Rohstoff dafür ist <button class="term" data-t="erdoel">Erdöl</button> oder Erdgas.</p>
+      <p style="margin:0">Bis die Flasche im Regal steht, durchläuft sie viele Stationen. Und wenn sie leer ist, beginnt eine neue Reise.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Das Pfand.</strong> Beim Kauf zahlst du einen Betrag extra, bei der Rückgabe bekommst du ihn zurück. Das ist ein <button class="term" data-t="pfand">Pfandsystem</button>.</p>
+      <p style="margin:0">Es wirkt: Nur etwa 2 bis 4 von 100 Flaschen gehen verloren. Alle anderen kommen zurück und werden verwertet.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="kreisSim">
+    <svg viewBox="0 0 520 305" id="kreisSvg" role="img" aria-label="Animation: Acht Stationen liegen auf einem Ring: Erdöl, Raffinerie, Fabrik für PET-Granulat, Rohling, Abfüllbetrieb, Geschäft mit Lkw, Pfandautomat und Schredder-Anlage. Eine kleine Flasche wandert Schritt für Schritt von Station zu Station. Am Ende entstehen Flakes, die wieder Rohstoff sind."></svg>
+  </div>
+
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>PET wird aus Erdöl oder Erdgas hergestellt: Raffinerie, chemische Fabrik (PET-Granulat), Rohlinge, Flasche.</li><li>Der Abfüller bläst die Rohlinge zu Flaschen auf und füllt sie. Lkw bringen sie in die Geschäfte.</li><li>Zurück im Pfandautomat wird die Einwegflasche zusammengepresst. Die Schredder-Anlage zerkleinert und wäscht sie zu Flakes (Rohstoff).</li></ul></div>
+
+  <div class="card reveal">
+    <span class="task-tag">Reihenfolge</span>
+    <h3 style="margin-top:4px">Bringe den Weg in die richtige Reihenfolge</h3>
+    <p class="hint">Verschiebe die Schritte mit ▲ und ▼. Oben steht der erste Schritt.</p>
+    <div id="orderWeg"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Lückentext · Probenstoff</span>
+    <h3 style="margin-top:4px">Der Weg der PET-Flasche</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Ein Wort bleibt übrig.</p>
+    <div class="gaptext" id="gapWeg"></div>
+  </div>
+  <div class="card reveal" id="mc-s1"></div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Ein echter Kreislauf? Einweg und Mehrweg</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead"><strong>Schön wäre es:</strong> Aus jeder Flasche wird wieder eine Flasche – der Kreis schließt sich. In Wirklichkeit wird nur ein Teil der gesammelten PET-Flaschen wieder zu neuen Getränkeflaschen. Das ist <strong>weniger als die Hälfte</strong> (je nach Jahr etwa ein Drittel bis knapp die Hälfte).</p>
+      <p style="margin:0">Der größere Teil wird zu Produkten geringerer Qualität: <button class="term" data-t="faser">Fasern</button> für Kleidung, Folien oder Behälter für Dinge, die nicht zum Essen oder Trinken sind. Ein Teil wird auch ins Ausland <button class="term" data-t="export">exportiert</button>.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Warum nicht alles wieder eine Flasche?</strong></p>
+      <ul style="margin:0;padding-left:20px">
+        <li>Neue Getränkeflaschen brauchen <button class="term" data-t="reinheit">99,9 % reines</button> Material. Von 1000 Flaschen darf nur eine falsch sortiert sein.</li>
+        <li>Eingeschmolzenes PET ist oft leicht verfärbt.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="anteilSim">
+    <svg viewBox="0 0 520 250" id="anteilSvg" role="img" aria-label="Animation: Hundert gesammelte PET-Flaschen als Punkte (ein Beispiel). Ein kleinerer Teil wird wieder zu Getränkeflaschen, der größere wird zu Fasern, Folien und Behältern. Dann erscheinen drei Gründe dafür."></svg>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag">Film · Der Weg der Pfandflasche</span>
+    <p class="hint" style="margin-top:0">Im Film verfolgst du eine Flasche vom Pfandautomaten über Flakes und Rohlinge bis zur neuen Flasche – und erfährst, wo der Kreislauf Lücken hat. Der Film hält an vier Stellen an.</p>
+    <div id="film"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Richtig oder falsch? · Probenstoff</span>
+    <h3 style="margin-top:4px">Wie geschlossen ist der Kreislauf?</h3>
+    <div id="tfKreis"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Erkläre mit eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung.</p>
+    <div id="open1"></div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="card reveal">
+      <h3 style="margin-top:0">🥤 Einweg</h3>
+      <p style="margin:0">Die <button class="term" data-t="einweg">Einwegflasche</button> wird <strong>einmal</strong> gefüllt. Bei der Rückgabe presst der Automat sie zusammen. Das ist das Ende der Flasche – nur der Kunststoff lebt als Flakes weiter.</p>
+    </div>
+    <div class="card reveal">
+      <h3 style="margin-top:0">🔁 Mehrweg</h3>
+      <p style="margin:0">Die <button class="term" data-t="mehrweg">Mehrwegflasche</button> hat auch Pfand, wird aber <strong>nicht zerstört</strong>. Man reinigt sie und füllt sie neu: PET-Mehrweg bis zu 20-mal, Glas-Mehrweg bis zu 50-mal.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <svg viewBox="0 0 520 262" id="fuellSvg" role="img" aria-label="Simulation: Mit einem Schieberegler stellst du ein, wie oft du Wasser trinkst. Drei Balken zeigen, wie viele neue Flaschen du dafür brauchst: bei Einweg eine pro Füllung, bei PET-Mehrweg eine pro 20 Füllungen, bei Glas-Mehrweg eine pro 50 Füllungen."></svg>
+    <div class="sim-ctrl"><label for="fuellRange">Wie viele Füllungen?</label><input type="range" id="fuellRange" min="1" max="50" value="1"><output id="fuellOut" style="font-weight:800;min-width:2.2em">1</output></div>
+    <p class="obs" id="fuellObs">Schiebe den Regler und beobachte die drei Balken.</p>
+  </div>
+
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Nur ein Teil – weniger als die Hälfte – wird wieder zu neuen Getränkeflaschen, also kein echter Kreislauf. Der Rest wird zu Fasern, Folien und Behältern geringerer Qualität.</li><li>Einweg: einmal füllen, dann zerstört. Mehrweg: reinigen und neu befüllen (PET bis zu 20-mal, Glas bis zu 50-mal).</li><li>Ein Wertstoffkreislauf schont Rohstoffe, verringert die Umweltbelastung und spart Energie und Kosten.</li></ul></div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Zuordnen · Probenstoff</span>
+    <h3 style="margin-top:4px">Einweg oder Mehrweg?</h3>
+    <div id="sortEinMehr"></div>
+  </div>
+  <div class="card reveal" id="mc-s2"></div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3" data-nur-m="Die Ökobilanz">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>Die Ökobilanz</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Welche Flasche ist besser für die Umwelt: aus Plastik oder aus Glas, Einweg oder Mehrweg? Das lässt sich nicht mit einem Blick sagen. Dafür gibt es die <button class="term" data-t="oekobilanz">Ökobilanz</button>.</p>
+      <p style="margin:0">Sie untersucht die Umweltwirkungen eines Produkts über seinen ganzen <button class="term" data-t="lebensweg">Lebensweg</button>:</p>
+      <div class="lebensweg"><b>⛏️ Rohstoffe</b><span>→</span><b>🏭 Herstellung</b><span>→</span><b>🚚 Transport</b><span>→</span><b>🛒 Nutzung</b><span>→</span><b>♻️ Entsorgung</b></div>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Was wird verglichen?</strong></p>
+      <ul style="margin:0;padding-left:20px">
+        <li>Rohstoffe und <button class="term" data-t="energie">Energiebedarf</button></li>
+        <li>Transport, Verkauf und Nutzung</li>
+        <li>Recycling (Wiederverwertung)</li>
+        <li>Wasserverbrauch und Schadstoffe</li>
+      </ul>
+      <p class="hint" style="margin:8px 0 0">Beispiel-Zahl: Für 1 kg PET braucht man etwa 2 kg Erdöl.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="oekoSim">
+    <div style="padding:14px 14px 4px"><span class="task-tag">Ökobilanz-Tafel</span><h3 style="margin:4px 0 2px">Vier Wege, an Wasser zu kommen</h3><p class="hint" style="margin:0 0 8px">Tippe links auf ein Kriterium. Unten steht, warum die Symbole so verteilt sind. Sieh dir alle vier Kriterien an.</p></div>
+    <div class="tab-wrap" style="padding:0 14px 6px"><table class="oeko" id="oekoTab"></table></div>
+    <p class="hint" style="margin:0;padding:0 14px 8px"><span class="sym pp">++</span> sehr günstig · <span class="sym p">+</span> günstig · <span class="sym m">−</span> ungünstig · <span class="sym mm">−−</span> sehr ungünstig</p>
+    <div class="obs" id="oekoObs" style="min-height:7em">Tippe ein Kriterium an, zum Beispiel „Energie für das Material“.</div>
+  </div>
+
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Eine Ökobilanz untersucht die Umweltwirkungen eines Produkts über den ganzen Lebensweg: Rohstoffe, Energie, Transport, Nutzung, Recycling, Wasserverbrauch, Schadstoffe.</li><li>Mehrweg belastet die Umwelt weniger, weil die Flasche oft genutzt wird. Glas braucht bei der Herstellung viel mehr Energie als PET (etwa 1600 °C gegen etwa 250 °C) und ist schwerer beim Transport. Kurze Transportwege sind besser.</li><li>Am umweltfreundlichsten ist Leitungswasser. Einwegbehälter aus Glas, Aluminium und <button class="term" data-t="weissblech">Weißblech</button> sind ungünstig.</li></ul></div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Zuordnen · Probenstoff</span>
+    <h3 style="margin-top:4px">Trifft zu oder trifft nicht zu?</h3>
+    <div id="sortOeko"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Begründe <span class="ki-badge">✨ KI prüft</span></h3>
+    <div id="open2"></div>
+  </div>
+  <div class="card reveal" id="mc-s3"></div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Wiederholung · so kommt es in der Probe</div><h2>Training</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Kreuzworträtsel</span>
+    <h3 style="margin-top:4px">Löse das Kreuzworträtsel</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Ö schreibst du als OE. Hängst du fest? Bei jeder Frage hilft <strong>💡 Tipp</strong> – erst ein Hinweis, dann der Anfangsbuchstabe. Mit <strong>📋 Wörter zeigen</strong> siehst du alle Lösungswörter.</p>
+    <div id="cw"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Ankreuzen</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="abschluss">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Abschluss</div><h2>Profi-Check, Lernkarten und Regelheft</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <div class="card reveal">
+    <span class="task-tag">Lernkarten</span>
+    <div id="lernkarten"></div>
+  </div>
+  <div class="regelheft reveal" id="regelheft">
+    <h3>Die PET-Flasche: Kreislauf und Ökobilanz</h3>
+    <p><strong>Weg der PET-Flasche:</strong> Erdöl/Erdgas → Raffinerie → chemische Fabrik (PET-Granulat) → Rohlinge → Abfüller bläst auf und füllt → Lkw → Geschäft → Pfandrückgabe → Automat presst zusammen → Schredder-Anlage → Flakes = Rohstoff</p>
+    <p><strong>Kein echter Kreislauf:</strong> nur ein Teil, weniger als die Hälfte, wird wieder zu neuen Getränkeflaschen. Der größere Teil wird zu Produkten geringerer Qualität (Fasern, Folien, Behälter). Grund: Getränkeflaschen brauchen 99,9 % reines Material; PET ist oft verfärbt.</p>
+    <table class="rh-tab">
+      <tr><th></th><th>Einweg</th><th>Mehrweg</th></tr>
+      <tr><td>Rückgabe</td><td>zusammengepresst, zerstört</td><td>gereinigt, neu befüllt</td></tr>
+      <tr><td>Nutzung</td><td>1 Füllung</td><td>PET bis 20-mal, Glas bis 50-mal</td></tr>
+    </table>
+    <p><strong>Wertstoffkreislauf:</strong> schont Rohstoffe · weniger Umweltbelastung · spart Energie und Kosten</p>
+    <p><strong>Ökobilanz (9M):</strong> Umweltwirkungen eines Produkts über den ganzen Lebensweg (Rohstoffe, Energie, Transport, Nutzung, Recycling, Wasser, Schadstoffe)</p>
+    <p>(9M) Glas: etwa 1600 °C, PET: etwa 250 °C → Glas braucht mehr Energie; PET ist leichter → weniger Belastung beim Transport. Am besten: Leitungswasser.</p>
+  </div>
+  <div class="rh-knoepfe reveal"><button class="btn small ghost" type="button" onclick="window.print()">🖨️ Regelheft drucken</button></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Das war das letzte Modul zu den Kunststoffen. Zu den fünf Modulen gibt es eine Probe – deine Lehrkraft schaltet sie frei.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="modul-4.html">⬅️ Modul 4</a>
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik <span class="ku-zug">9M</span> · Kunststoffe · Modul 5 · Texte, Zeichnungen und Animationen sind eigenständig erstellt. Mit deinem Code wird dein Lernstand gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="../../../7M/NT/modul-basis.js"></script>
+<script src="../../../8M/NT/karten.js"></script>
+<script src="karten/ku5.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, esc, clamp, reduced, register, solve} = Modul;
+const NS = "http://www.w3.org/2000/svg";
+const svgEl = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+
+Modul.init({
+  key: "grumi-nt9-ku5-v1",
+  hero: "funken",
+  api: "/api/nt9/uebung/feedback",
+  thema: "Kunststoffe, Klasse 9: Die PET-Flasche – Weg vom Erdöl über Raffinerie, PET-Granulat, Rohlinge, Abfüller, Geschäft, Pfandautomat und Schredder zu Flakes; kein echter Kreislauf (nur weniger als die Hälfte wird wieder Flasche, 99,9 % Reinheit, Fasern und Folien), Einweg und Mehrweg (PET bis 20-mal, Glas bis 50-mal), Vorteile eines Wertstoffkreislaufs, Ökobilanz (Lebensweg, Energie, Transport, Wasser, Schadstoffe), Leitungswasser am umweltfreundlichsten",
+  glossary: {
+    pet: ["PET", "Polyethylenterephthalat: der Kunststoff der meisten Getränkeflaschen, Recycling-Code 01."],
+    erdoel: ["Erdöl", "Fossiler Rohstoff, aus dem man Kraftstoffe und viele Kunststoffe herstellt."],
+    pfand: ["Pfandsystem", "Beim Kauf zahlt man einen Betrag extra und bekommt ihn bei der Rückgabe der leeren Flasche zurück. So kommen viele Flaschen zurück."],
+    raffinerie: ["Raffinerie", "Fabrik, in der Erdöl in seine Bestandteile getrennt und aufbereitet wird."],
+    granulat: ["Granulat", "Kunststoff in Form kleiner Körnchen. Es lässt sich gut transportieren und schmelzen."],
+    rohling: ["Rohling", "Kleines Vorstück aus PET, etwa so groß wie ein Reagenzglas. Es sieht aus wie ein kleines, dickes Röhrchen mit Schraubgewinde. Daraus wird später die Flasche aufgeblasen."],
+    abfueller: ["Abfüller", "Betrieb, der Getränke in Flaschen füllt. Hier werden auch die Rohlinge zu Flaschen aufgeblasen."],
+    flakes: ["Flakes", "Kleine, gewaschene Kunststoffschnipsel aus zerkleinerten Flaschen. Sie sind der Rohstoff für neues PET."],
+    schredder: ["Schredder", "Maschine, die Material in kleine Stücke zerreißt."],
+    faser: ["Faser", "Sehr dünner Faden. Aus PET-Fasern macht man z. B. Fleece und andere Kleidung."],
+    export: ["Export", "Waren werden ins Ausland verkauft und dorthin gebracht."],
+    reinheit: ["Reinheit 99,9 %", "Fast nur PET und sonst nichts: Von 1000 Teilen darf nur eines etwas anderes sein."],
+    einweg: ["Einwegflasche", "Wird nur einmal gefüllt. Bei der Rückgabe presst der Automat sie zusammen."],
+    mehrweg: ["Mehrwegflasche", "Wird gereinigt und immer wieder neu befüllt. Sie bleibt dafür ganz."],
+    wertstoff: ["Wertstoffkreislauf", "Stoffe werden nach der Nutzung wieder zu Rohstoffen für neue Produkte. So braucht man weniger neue Rohstoffe."],
+    oekobilanz: ["Ökobilanz", "Vergleich der Umweltwirkungen eines Produkts über seinen ganzen Lebensweg, von den Rohstoffen bis zur Entsorgung."],
+    lebensweg: ["Lebensweg", "Alle Stationen eines Produkts: Rohstoffe, Herstellung, Transport, Nutzung und Entsorgung oder Recycling."],
+    energie: ["Energiebedarf", "Wie viel Strom, Wärme oder Kraftstoff man braucht, z. B. zum Schmelzen oder Transportieren."],
+    weissblech: ["Weißblech", "Dünnes Eisenblech mit einer Schicht Zinn, z. B. für Konservendosen."],
+    recycling: ["Recycling", "Wiederverwertung: Aus Abfall werden wieder Rohstoffe oder neue Produkte."]
+  }
+});
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Woraus wird PET hergestellt?", o: ["aus Erdöl oder Erdgas", "aus Sand und Soda", "aus Baumwolle", "aus Eisenerz"], a: 0, e: "PET entsteht aus Erdöl oder Erdgas, nach der Raffinerie in der chemischen Fabrik."},
+    {q: "Was ist ein Rohling?", o: ["Ein kleines Vorstück, aus dem die Flasche aufgeblasen wird", "Eine fertig gefüllte Flasche im Regal", "Ein Pfandbon aus dem Automaten", "Ein Ballen aus zusammengepressten Flaschen"], a: 0, e: "Rohlinge sehen aus wie kleine, dicke Röhrchen mit Schraubgewinde, etwa so groß wie ein Reagenzglas."},
+    {q: "Was passiert mit einer Einwegflasche im Rückgabeautomaten?", o: ["Sie wird zusammengepresst und damit zerstört.", "Sie wird gespült und neu befüllt.", "Sie wird sofort wieder verkauft.", "Sie wird in der Mitte durchgeschnitten und gefüllt."], a: 0, e: "Zusammengepresst spart sie Platz beim Transport. Danach geht sie als Ballen zur Schredder-Anlage."}
+  ],
+  s2: [
+    {q: "Wie viel des gesammelten PET wird etwa wieder zu neuen Getränkeflaschen?", o: ["weniger als die Hälfte", "fast alles", "gar nichts", "mehr als 90 Prozent"], a: 0, e: "Je nach Jahr sind es etwa ein Drittel bis knapp die Hälfte. Der größere Teil wird zu Fasern, Folien und Behältern."},
+    {q: "Welche Vorteile hat ein Wertstoffkreislauf?", o: ["Er schont Rohstoffe.", "Er verringert die Umweltbelastung.", "Er spart Energie und Kosten.", "Er macht mehr Müll.", "Er braucht immer mehr Erdöl."], a: [0, 1, 2], e: "Je mehr Stoff wiederverwertet wird, desto weniger neue Rohstoffe und Energie braucht man."}
+  ],
+  s3: [
+    {q: "Was untersucht eine Ökobilanz?", o: ["Die Umweltwirkungen eines Produkts über seinen ganzen Lebensweg", "Den Preis eines Produkts im Laden", "Wie schön eine Verpackung aussieht", "Wie lange ein Produkt im Regal liegt"], a: 0, e: "Vom Rohstoff über Herstellung, Transport und Nutzung bis zur Entsorgung."},
+    {q: "Warum braucht Glas bei der Herstellung mehr Energie als PET?", o: ["Glas muss bei etwa 1600 °C geschmolzen werden, PET bei etwa 250 °C.", "Glas ist billiger als PET.", "Glas wird aus Erdöl gemacht.", "PET muss heißer geschmolzen werden."], a: 0, e: "Je höher die Temperatur, desto mehr Energie braucht man."},
+    {q: "Welche Bereiche kann eine Ökobilanz untersuchen?", o: ["Rohstoffe", "Energiebedarf", "Transport", "Wasserverbrauch", "Lieblingsfarbe der Kunden"], a: [0, 1, 2, 3], e: "Auch Verkauf, Nutzung, Recycling und Schadstoffe gehören dazu – die Lieblingsfarbe nicht."}
+  ],
+  train: [
+    {q: "Wozu dient das Pfandsystem?", o: ["Leere Flaschen kommen zurück und werden wiederverwertet oder neu befüllt.", "Getränke werden teurer.", "Flaschen werden schwerer.", "Der Handel verkauft mehr Flaschen."], a: 0, e: "Der Pfandbetrag ist ein Anreiz, die Flasche zurückzugeben."},
+    {q: "Was passiert mit einer Mehrwegflasche nach der Rückgabe?", o: ["Sie wird gereinigt und neu befüllt.", "Sie wird zusammengepresst.", "Sie wird geschreddert.", "Sie wird zu Fasern."], a: 0, e: "Mehrwegflaschen werden nicht zerstört."},
+    {q: "Warum werden aus alten PET-Flaschen nicht nur neue Flaschen?", o: ["Neue Getränkeflaschen brauchen extrem reines Material (99,9 %).", "PET lässt sich nicht schmelzen.", "Alte Flaschen sind immer zu schwer.", "Daraus darf nur Glas entstehen."], a: 0, e: "Schon wenige falsch sortierte Flaschen oder Verfärbungen reichen, damit es nicht mehr für eine Getränkeflasche taugt."},
+    {q: "Wie oft kann eine Glas-Mehrwegflasche höchstens gefüllt werden?", o: ["bis zu 50-mal", "bis zu 20-mal", "nur einmal", "genau fünfmal"], a: 0, e: "PET-Mehrweg schafft bis zu 20 Füllungen, Glas bis zu 50."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Kurz-Check"});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.plus(() => Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true}));
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Station 1: Kreislauf-Animation ---------- */
+(function(){
+  const svg = $("#kreisSvg");
+  const CX = 260, CY = 148, RX = 155, RY = 93;
+  const P = i => { const a = (-90 + i * 45) * Math.PI / 180; return [CX + RX * Math.cos(a), CY + RY * Math.sin(a)]; };
+  const IN = i => { const [x, y] = P(i); return [CX + (x - CX) * .56, CY + (y - CY) * .56]; };
+  svg.innerHTML = `<rect width="520" height="305" fill="#f7fbfe"/>`;
+  const segs = [], pfeile = [], nodes = [];
+  // Ringstücke und Pfeilspitzen
+  for (let k = 0; k < 8; k++) {
+    const [x1, y1] = P(k), [x2, y2] = P(k + 1);
+    const rueck = k === 7;
+    segs.push(svgEl("path", {class: "seg" + (rueck ? " rueck" : ""), d: `M${x1.toFixed(1)} ${y1.toFixed(1)} A${RX} ${RY} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)}`}, svg));
+  }
+  for (let k = 0; k < 8; k++) {
+    const th = (-90 + k * 45 + 22.5) * Math.PI / 180;
+    const x = CX + RX * Math.cos(th), y = CY + RY * Math.sin(th), w = Math.atan2(RY * Math.cos(th), -RX * Math.sin(th)) * 180 / Math.PI;
+    pfeile.push(svgEl("path", {class: "pfeil" + (k === 7 ? " rueck" : ""), d: "M7 0 L-5 -6 L-5 6 Z", transform: `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${w.toFixed(1)})`}, svg));
+  }
+  const ICONS = [
+    `<path d="M0 -13 C9 -2 10 5 0 12 C-10 5 -9 -2 0 -13Z" fill="#2f2a2a"/>`,
+    `<rect x="-12" y="-3" width="24" height="13" fill="#7d8a94"/><rect x="-9" y="-13" width="5" height="11" fill="#566674"/><rect x="2" y="-9" width="5" height="7" fill="#566674"/><path d="M5 -10 q3 -4 0 -7 q-3 3 0 7Z" fill="#f08a24"/>`,
+    `<rect x="-13" y="-1" width="26" height="12" fill="#8aa0ad"/><rect x="5" y="-13" width="6" height="13" fill="#566674"/><circle cx="-7" cy="-6" r="2" fill="#d8c79a"/><circle cx="-2" cy="-8" r="2" fill="#d8c79a"/><circle cx="-9" cy="-10" r="2" fill="#d8c79a"/>`,
+    `<rect x="-4" y="-12" width="8" height="24" rx="4" fill="#cfe8f7" stroke="#3a7fa8" stroke-width="2"/><rect x="-7" y="-8" width="14" height="3" rx="1" fill="#3a7fa8"/>`,
+    `<path d="M-3 -14 H3 V-8 C9 -5 10 -2 10 4 V13 H-10 V4 C-10 -2 -9 -5 -3 -8 Z" fill="#8fd0f5" stroke="#3a7fa8" stroke-width="2"/><rect x="-4" y="-17" width="8" height="4" fill="#1d5f8e"/>`,
+    `<rect x="-14" y="-8" width="16" height="14" fill="#e8453c"/><path d="M2 -4 H9 L14 1 V6 H2Z" fill="#a52a23"/><circle cx="-8" cy="8" r="3.6" fill="#33414d"/><circle cx="8" cy="8" r="3.6" fill="#33414d"/>`,
+    `<rect x="-11" y="-13" width="22" height="26" rx="3" fill="#6b7a86"/><rect x="-7" y="-8" width="14" height="4" fill="#15212b"/><rect x="-6" y="3" width="12" height="3" fill="#8fd0f5"/>`,
+    `<circle cx="-6" cy="-3" r="6" fill="none" stroke="#33414d" stroke-width="3" stroke-dasharray="3 2"/><circle cx="6" cy="-3" r="6" fill="none" stroke="#33414d" stroke-width="3" stroke-dasharray="3 2"/><rect x="-8" y="7" width="4" height="4" fill="#8fd0f5"/><rect x="-1" y="9" width="4" height="4" fill="#8fd0f5"/><rect x="5" y="7" width="4" height="4" fill="#8fd0f5"/>`
+  ];
+  const LABEL = [
+    {x: 260, y: 22, a: "middle", t: ["Erdöl oder Erdgas"]},
+    {x: 0, y: 0, a: "start", t: ["Raffinerie"]},
+    {x: 0, y: 0, a: "start", t: ["Fabrik:", "Granulat"]},
+    {x: 0, y: 0, a: "start", t: ["Rohling", "geformt"]},
+    {x: 260, y: 283, a: "middle", t: ["Abfüllbetrieb: aufblasen, füllen"]},
+    {x: 0, y: 0, a: "end", t: ["Geschäft", "(Lkw)"]},
+    {x: 0, y: 0, a: "end", t: ["Pfand-", "automat"]},
+    {x: 0, y: 0, a: "end", t: ["Schredder", "→ Flakes"]}
+  ];
+  for (let i = 0; i < 8; i++) {
+    const [x, y] = P(i), g = svgEl("g", {class: "kn", transform: `translate(${x.toFixed(1)} ${y.toFixed(1)})`}, svg);
+    svgEl("circle", {class: "rund", r: 24}, g);
+    const ic = svgEl("g", {}, g); ic.innerHTML = ICONS[i];
+    nodes.push(g);
+    const L = LABEL[i], tx = L.a === "middle" ? L.x : x + (L.a === "start" ? 30 : -30), ty0 = L.a === "middle" ? L.y : y - (L.t.length > 1 ? 2 : -4);
+    const tt = svgEl("text", {x: tx.toFixed(1), y: ty0.toFixed(1), "text-anchor": L.a, "font-size": 12.5, "font-weight": 800, fill: "#15212b"}, svg);
+    L.t.forEach((s, k) => { const ts = svgEl("tspan", {x: tx.toFixed(1), dy: k ? 14 : 0}, tt); ts.textContent = s; });
+  }
+  // Mitte: Text zum aktuellen Schritt
+  const mitte = svgEl("text", {x: CX, y: 138, "text-anchor": "middle", "font-size": 13, "font-weight": 800, fill: "#0a5a66"}, svg);
+  const m1 = svgEl("tspan", {x: CX}, mitte), m2 = svgEl("tspan", {x: CX, dy: 17}, mitte), m3 = svgEl("tspan", {x: CX, dy: 17, fill: "#566674", "font-weight": 600}, mitte);
+  // wandernde Flasche
+  const tok = svgEl("g", {class: "tok", opacity: 0}, svg);
+  svgEl("circle", {r: 19, fill: "#fff", stroke: "#e0a100", "stroke-width": 3}, tok);
+  const FORM = {
+    tropfen: `<path d="M0 -11 C8 -2 9 4 0 9 C-9 4 -8 -2 0 -11Z" fill="#2f2a2a"/>`,
+    oel: `<path d="M0 -11 C8 -2 9 4 0 9 C-9 4 -8 -2 0 -11Z" fill="#c98a12"/>`,
+    koerner: `<circle cx="-6" cy="-3" r="3.2" fill="#d8c79a" stroke="#a89560"/><circle cx="3" cy="-6" r="3.2" fill="#d8c79a" stroke="#a89560"/><circle cx="6" cy="3" r="3.2" fill="#d8c79a" stroke="#a89560"/><circle cx="-3" cy="5" r="3.2" fill="#d8c79a" stroke="#a89560"/>`,
+    rohling: `<rect x="-3.5" y="-11" width="7" height="22" rx="3.5" fill="#cfe8f7" stroke="#3a7fa8" stroke-width="2"/><rect x="-6" y="-7" width="12" height="3" rx="1" fill="#3a7fa8"/>`,
+    flasche: `<path d="M-2.5 -12 H2.5 V-7 C8 -4 9 -1 9 4 V11 H-9 V4 C-9 -1 -8 -4 -2.5 -7 Z" fill="#8fd0f5" stroke="#3a7fa8" stroke-width="2"/><rect x="-3.5" y="-15" width="7" height="3.5" fill="#1d5f8e"/>`,
+    flach: `<rect x="-12" y="-3" width="24" height="7" rx="2" fill="#8fd0f5" stroke="#3a7fa8" stroke-width="2"/>`,
+    flocken: `<rect x="-10" y="-8" width="6" height="6" fill="#8fd0f5" stroke="#3a7fa8" transform="rotate(15 -7 -5)"/><rect x="2" y="-9" width="6" height="6" fill="#8fd0f5" stroke="#3a7fa8" transform="rotate(-10 5 -6)"/><rect x="-3" y="1" width="6" height="6" fill="#8fd0f5" stroke="#3a7fa8" transform="rotate(25 0 4)"/><rect x="5" y="3" width="5" height="5" fill="#8fd0f5" stroke="#3a7fa8"/>`
+  };
+  const formG = {};
+  Object.keys(FORM).forEach(k => { const g = svgEl("g", {class: "f"}, tok); g.innerHTML = FORM[k]; formG[k] = g; });
+  const STEPS = [
+    {t: "Am Anfang steht <strong>Erdöl</strong> (oder Erdgas). Daraus wird später PET. Die Flasche gibt es noch nicht.", n: 0, f: "tropfen", m: ["Rohstoff", "Erdöl oder Erdgas"]},
+    {t: "In der <strong>Raffinerie</strong> wird das Erdöl aufbereitet und in seine Bestandteile getrennt.", n: 1, f: "oel", m: ["Aufbereiten", "in der Raffinerie"]},
+    {t: "In einer <strong>chemischen Fabrik</strong> entsteht daraus <strong>PET-Granulat</strong>: kleine Körnchen aus Kunststoff.", n: 2, f: "koerner", m: ["PET-Granulat", "Körnchen aus Kunststoff"]},
+    {t: "Das Granulat wird geschmolzen und zu <strong>Rohlingen</strong> geformt. Sie sehen aus wie kleine, dicke Röhrchen mit Schraubgewinde, etwa so groß wie ein Reagenzglas. So sind sie leicht zu transportieren.", n: 3, f: "rohling", m: ["Rohling", "wie ein Reagenzglas"]},
+    {t: "Der <strong>Getränkeabfüller</strong> bläst die Rohlinge zu Flaschen in der richtigen Größe auf und füllt sie.", n: 4, f: "flasche", m: ["Aufblasen und füllen", "fertige Flasche"]},
+    {t: "<strong>Lkw</strong> bringen die gefüllten Flaschen in die Geschäfte. Du kaufst die Flasche und zahlst Pfand.", n: 5, f: "flasche", m: ["Im Geschäft", "Pfand wird bezahlt"]},
+    {t: "Du gibst die leere Flasche zurück und bekommst das Pfand wieder. Der <strong>Automat presst</strong> die Einwegflasche <strong>zusammen</strong> – sie ist damit zerstört.", n: 6, f: "flach", m: ["Rückgabe", "zusammengepresst"]},
+    {t: "Die Flaschen gehen als Ballen zur <strong>Schredder-Anlage</strong>. Dort werden sie stark zerkleinert und mehrfach gewaschen.", n: 7, f: "flocken", m: ["Schreddern, waschen", "kleine Schnipsel"]},
+    {t: "Es entstehen <strong>Flakes</strong>. Sie sind ein neuer Rohstoff und gehen zurück zur Herstellung – der Kreis schließt sich. (Wie vollständig er wirklich ist, klärst du in Station 2.)", n: 0, f: "flocken", m: ["Flakes = Rohstoff", "zurück zur Herstellung"], end: true}
+  ];
+  Modul.makeSchritte($("#kreisSim"), {
+    start: "Eine PET-Flasche auf ihrer Reise – tippe auf „Start“.",
+    ms: 3400,
+    steps: STEPS.map(s => s.t),
+    zeige(i){
+      const s = STEPS[Math.max(0, i)];
+      segs.forEach((e, k) => e.classList.toggle("an", i >= 0 && k < i));
+      pfeile.forEach((e, k) => e.classList.toggle("an", i >= 0 && k < i));
+      nodes.forEach((e, k) => { e.classList.toggle("jetzt", i >= 0 && k === s.n && !s.end); e.classList.toggle("war", i >= 0 && (k < s.n || s.end)); });
+      const [tx, ty] = IN(i < 0 ? 0 : s.n);
+      tok.style.transform = `translate(${tx.toFixed(1)}px,${ty.toFixed(1)}px)`;
+      tok.setAttribute("opacity", i < 0 ? 0 : 1);
+      Object.keys(formG).forEach(k => formG[k].classList.toggle("on", i >= 0 && k === s.f));
+      m1.textContent = i < 0 ? "Der Weg einer" : s.m[0]; m2.textContent = i < 0 ? "PET-Flasche" : s.m[1]; m3.textContent = i < 0 ? "" : "Schritt " + (i + 1) + " von 9";
+    }
+  }, "kreisSchritte");
+})();
+
+/* ---------- Station 1: Übungen ---------- */
+Modul.makeOrder($("#orderWeg"), [
+  "In einer chemischen Fabrik entsteht aus Erdöl oder Erdgas PET-Granulat.",
+  "Das Granulat wird geschmolzen und zu Rohlingen geformt.",
+  "Der Abfüller bläst die Rohlinge zu Flaschen auf und füllt sie.",
+  "Lkw bringen die gefüllten Flaschen ins Geschäft.",
+  "Im Pfandautomat wird die leere Einwegflasche zusammengepresst.",
+  "Die Schredder-Anlage zerkleinert und wäscht die Ballen.",
+  "Es entstehen Flakes, ein neuer Rohstoff."
+], "orderWeg");
+Modul.makeGap($("#gapWeg"), [
+  ["PET wird aus ", {g: "Erdöl"}, " oder Erdgas hergestellt. In einer chemischen Fabrik entsteht daraus ", {g: "Kunststoffgranulat"}, ". Es wird geschmolzen, und es entstehen ", {g: "Rohlinge"}, " – kleine, dicke Röhrchen mit Schraubgewinde."],
+  ["In den ", {g: "Abfüllbetrieben"}, " werden die Rohlinge zu Flaschen ", {g: "aufgeblasen"}, " und mit Getränk gefüllt."],
+  ["Gibt man eine Einwegflasche zurück, wird sie im Automaten ", {g: "zusammengepresst"}, ", sodass sie flach ist. In der ", {g: "Schredder-Anlage"}, " wird sie in viele kleine Stücke ", {g: "zerkleinert"}, " und gewaschen. Die Flakes sind ein neuer ", {g: "Rohstoff"}, "."]
+], "gapWeg", ["verbrannt"]);
+
+/* ---------- Station 2: Anteil recycelter Flaschen ---------- */
+(function(){
+  const svg = $("#anteilSvg");
+  svg.innerHTML = `<rect width="520" height="250" fill="#f7fbfe"/>
+    <text x="125" y="30" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">100 gesammelte PET-Flaschen</text>
+    <g id="anPunkte"></g>
+    <g class="stage" id="anA"><circle cx="270" cy="62" r="9" fill="#0f7f8f"/><text x="288" y="58" font-size="13.5" font-weight="800" fill="#0a5a66">weniger als die Hälfte:</text><text x="288" y="75" font-size="13.5" font-weight="800" fill="#0a5a66">wieder Getränkeflaschen</text></g>
+    <g class="stage" id="anB"><circle cx="270" cy="112" r="9" fill="#e0861f"/><text x="288" y="108" font-size="13.5" font-weight="800" fill="#8a4b07">der größere Teil:</text><text x="288" y="125" font-size="13.5" font-weight="800" fill="#8a4b07">Produkte geringerer Qualität</text>
+      <text x="288" y="144" font-size="12.5" font-weight="600" fill="#33414d">Fasern für Kleidung · Folien ·</text><text x="288" y="160" font-size="12.5" font-weight="600" fill="#33414d">Behälter für Nicht-Lebensmittel</text></g>
+    <g class="stage" id="anC"><rect x="248" y="178" width="258" height="58" rx="10" fill="#fff" stroke="#c0392b" stroke-width="2"/>
+      <text x="262" y="198" font-size="13" font-weight="800" fill="#c0392b">Warum so wenig neue Flaschen?</text>
+      <text x="262" y="215" font-size="12.5" font-weight="700" fill="#15212b">99,9 % rein nötig · oft verfärbt ·</text><text x="262" y="230" font-size="12.5" font-weight="700" fill="#15212b">ein Teil geht ins Ausland</text></g>`;
+  const g = $("#anPunkte", svg), pts = [];
+  for (let k = 0; k < 100; k++) pts.push(svgEl("circle", {class: "pt", cx: 28 + (k % 10) * 21, cy: 56 + Math.floor(k / 10) * 19, r: 7.5, fill: "#8fd0f5", stroke: "#3a7fa8", "stroke-width": 1.5}, g));
+  Modul.makeSchritte($("#anteilSim"), {
+    start: "Was wird aus 100 gesammelten PET-Flaschen? Tippe auf „Start“.",
+    ms: 3400,
+    steps: [
+      "Stell dir <strong>100 gesammelte PET-Flaschen</strong> vor – jeder Punkt ist eine Flasche.",
+      "Nur ein Teil, <strong>weniger als die Hälfte</strong>, wird wieder zu neuen Getränkeflaschen (je nach Jahr etwa ein Drittel bis knapp die Hälfte). Das Bild zeigt ein Beispiel.",
+      "Der <strong>größere Teil</strong> wird zu Produkten geringerer Qualität: Fasern für Kleidung, Folien, Behälter für Nicht-Lebensmittel.",
+      "Gründe: Eine Getränkeflasche braucht <strong>99,9 % reines</strong> Material (von 1000 Flaschen darf nur eine falsch sortiert sein), eingeschmolzenes PET ist oft <strong>leicht verfärbt</strong>, und ein Teil wird <strong>ins Ausland exportiert</strong>."
+    ],
+    zeige(i){
+      pts.forEach((p, k) => {
+        const neu = i >= 1 && k < 40, rest = i >= 2 && k >= 40;
+        p.setAttribute("fill", neu ? "#0f7f8f" : rest ? "#e0861f" : "#8fd0f5");
+        p.setAttribute("stroke", neu ? "#0a5a66" : rest ? "#9a5208" : "#3a7fa8");
+      });
+      $("#anA", svg).classList.toggle("on", i >= 1);
+      $("#anB", svg).classList.toggle("on", i >= 2);
+      $("#anC", svg).classList.toggle("on", i >= 3);
+    }
+  }, "anteilSchritte");
+})();
+
+/* ---------- Station 2: Film mit Stopps (Quarks, WDR – Transkript vollständig gelesen, geprüft 22.10.2026) ---------- */
+Modul.makeFilm($("#film"), { vid: "dyGq6RMjA8c", titel: "Wie gut funktioniert das Pfandsystem? (Ausschnitt)", quelle: "Quarks (WDR) auf YouTube", dauer: "knapp 3 Minuten", start: 172, ende: 338,
+  stops: [
+    {t: 202, q: {q: "Wie viele der Pfandflaschen werden laut Film zurückgebracht?", o: ["etwa 98 Prozent", "etwa die Hälfte", "etwa 20 Prozent", "nur jede zehnte"], a: 0, e: "Das Pfandsystem hat eine sehr hohe Rücklaufquote."}},
+    {t: 222, q: {q: "Was entsteht, wenn die Flaschenballen sortiert, gemahlen, gewaschen und getrocknet werden?", o: ["Flakes", "Rohlinge", "Erdöl", "Glasscherben"], a: 0, e: "Die Flakes sind der Rohstoff für das Recycling-Material."}},
+    {t: 258, q: {q: "Was wird geformt, bevor die Getränkefirma die Flasche aufbläst?", o: ["Rohlinge, die wie Reagenzgläser aussehen", "fertige Flaschen mit Etikett", "lange Folien", "Fasern für Fleece"], a: 0, e: "Die Rohlinge werden erst beim Abfüller zur Flasche aufgeblasen."}},
+    {t: 336, q: {q: "Was wird aus den Flakes, die nicht wieder zur Flasche werden?", o: ["Folien, Fasern für Kleidung und andere Behälter", "neues Erdöl", "Glasflaschen", "nichts – sie werden vergraben"], a: 0, e: "Meist Produkte mit geringerer Qualität – darum ist es kein echter Kreislauf."}}
+  ]}, "film");
+
+Modul.makeTF($("#tfKreis"), [
+  ["Aus den gesammelten PET-Flaschen wird weniger als die Hälfte wieder zu neuen Getränkeflaschen.", true],
+  ["Neue Getränkeflaschen dürfen auch stark verschmutztes, falsch sortiertes Material enthalten.", false],
+  ["Aus dem Rest entstehen zum Beispiel Fasern für Kleidung, Folien oder Behälter für Nicht-Lebensmittel.", true],
+  ["Eine Mehrwegflasche wird nach der Rückgabe zusammengepresst.", false],
+  ["Beim Pfandsystem geht keine einzige Flasche verloren.", false],
+  ["Ein Teil der gesammelten Kunststoffe wird ins Ausland exportiert.", true]
+], "tfKreis");
+Modul.makeOpen($("#open1"), [
+  {q: "Erkläre, warum aus alten PET-Flaschen nur weniger als die Hälfte wieder neue Getränkeflaschen wird. Nenne mindestens zwei Gründe.",
+   m: "Für neue Getränkeflaschen muss das PET extrem rein sein (99,9 %). Schon wenige falsch sortierte Flaschen stören. Außerdem ist eingeschmolzenes PET oft leicht verfärbt. Deshalb wird der größere Teil zu Fasern, Folien oder Behältern für Nicht-Lebensmittel, ein Teil geht auch ins Ausland.",
+   k: ["rein|99|sauber|sortier|fremd", "verfärb|farbe|qualität", "ausland|export|asien", "faser|folie|behälter|nicht-lebensmittel|nicht lebensmittel"], min: 2}
+], "open1-", "Schau dir die Animation „100 gesammelte PET-Flaschen“ noch einmal an.");
+
+/* ---------- Station 2: Simulation Füllungen ---------- */
+(function(){
+  const svg = $("#fuellSvg"), sl = $("#fuellRange"), out = $("#fuellOut"), obs = $("#fuellObs");
+  const ROWS = [
+    {n: "Einweg-Flasche", sub: "PET, 1 Füllung", f: 1, c: "#d63a30"},
+    {n: "PET-Mehrweg", sub: "bis zu 20 Füllungen", f: 20, c: "#0f7f8f"},
+    {n: "Glas-Mehrweg", sub: "bis zu 50 Füllungen", f: 50, c: "#1b8a4b"}
+  ];
+  svg.innerHTML = `<rect width="520" height="262" fill="#f7fbfe"/><text id="fuTitel" x="260" y="26" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b"></text>`;
+  const zeilen = ROWS.map((r, k) => {
+    const y = 50 + k * 62;
+    svgEl("text", {x: 12, y: y + 12, "font-size": 13, "font-weight": 800, fill: "#15212b"}, svg).textContent = r.n;
+    svgEl("text", {x: 12, y: y + 27, "font-size": 11, "font-weight": 600, fill: "#566674"}, svg).textContent = r.sub;
+    const z = svgEl("text", {x: 12, y: y + 46, "font-size": 14, "font-weight": 800, fill: r.c}, svg);
+    const sl_ = []; for (let j = 0; j < 50; j++) sl_.push(svgEl("rect", {class: "sl", x: 160 + j * 6.8, y: y, width: 5.6, height: 40, rx: 1.5, fill: "#dfe8ee"}, svg));
+    return {r, z, sl: sl_};
+  });
+  svgEl("text", {x: 260, y: 247, "text-anchor": "middle", "font-size": 11.5, "font-weight": 600, fill: "#566674"}, svg).textContent = "Ein Kästchen = eine neue Flasche (Rechnung mit den Höchstwerten der Mehrwegflaschen)";
+  let max = 1;
+  function zeige(){
+    const n = +sl.value; out.textContent = n; max = Math.max(max, n);
+    $("#fuTitel", svg).textContent = `${n} ${n === 1 ? "Füllung" : "Füllungen"} Wasser – wie viele neue Flaschen?`;
+    const zahl = zeilen.map(z => Math.ceil(n / z.r.f));
+    zeilen.forEach((z, k) => { z.z.textContent = zahl[k] + (zahl[k] === 1 ? " neue Flasche" : " neue Flaschen"); z.sl.forEach((e, j) => e.setAttribute("fill", j < zahl[k] ? z.r.c : "#dfe8ee")); });
+    let t = `Bei ${n} ${n === 1 ? "Füllung" : "Füllungen"}: Einweg braucht ${zahl[0]} ${zahl[0] === 1 ? "Flasche" : "Flaschen"}, PET-Mehrweg im besten Fall ${zahl[1]}, Glas-Mehrweg im besten Fall ${zahl[2]}.`;
+    if (n === 1) t += " Bei nur einer Füllung gibt es keinen Unterschied. Schiebe weiter!";
+    else if (n <= 20) t += " Eine PET-Mehrwegflasche und eine Glas-Mehrwegflasche reichen bis hierher aus – bei Einweg muss jedes Mal eine neue Flasche hergestellt werden.";
+    else if (n <= 50) t += " Jetzt hat sich eine PET-Mehrwegflasche verbraucht (etwa 20 Füllungen). Die Glasflasche hält bis zu 50 Füllungen durch.";
+    obs.textContent = t;
+    if (max >= 45) solve("fuell");
+  }
+  register("fuell", "#fuellSvg", "Simulation: Füllungen und neue Flaschen (bis 45 Füllungen)");
+  sl.addEventListener("input", zeige); zeige();
+})();
+
+Modul.makeSort($("#sortEinMehr"), {
+  buckets: ["🥤 Einweg", "🔁 Mehrweg"], cols: 220,
+  items: [
+    {t: "wird im Automaten zusammengepresst", b: 0}, {t: "wird nur ein einziges Mal gefüllt", b: 0},
+    {t: "für jede Füllung entsteht eine neue Flasche", b: 0}, {t: "endet nach der Rückgabe als Flakes", b: 0},
+    {t: "wird gereinigt und neu befüllt", b: 1}, {t: "Glas: bis zu 50 Füllungen", b: 1},
+    {t: "PET: bis zu 20 Füllungen", b: 1}, {t: "bleibt bei der Rückgabe ganz", b: 1}
+  ]
+}, "sortEinMehr");
+
+/* ---------- Station 3: Ökobilanz-Tafel (9M Pflicht, 9R freiwillig) ---------- */
+Modul.plus(() => {
+(function(){
+  const SPALTEN = ["PET-Einweg", "PET-Mehrweg", "Glas-Mehrweg", "Leitungs&shy;wasser"];
+  const Z = [
+    {k: "Wie oft wird die Flasche gefüllt?", c: [["mm", "1×"], ["p", "bis 20×"], ["pp", "bis 50×"], ["pp", "keine Flasche nötig"]],
+     e: "Die Einwegflasche wird nach einer Füllung zerstört. PET-Mehrweg schafft bis zu 20 Füllungen, Glas-Mehrweg bis zu 50. Wer Leitungswasser trinkt, braucht gar keine Flasche. Je öfter genutzt wird, desto weniger Rohstoffe und Energie gehen auf eine Füllung."},
+    {k: "Energie für das Material", c: [["p", "≈ 250 °C"], ["p", "≈ 250 °C"], ["m", "≈ 1600 °C"], ["pp", "kein Flaschenmaterial"]], thermo: true,
+     e: "PET wird bei etwa 250 °C verarbeitet, Glas muss bei etwa 1600 °C geschmolzen werden. Das kostet viel mehr Energie. Darum ist Glas bei der Herstellung ungünstiger."},
+    {k: "Gewicht beim Transport", c: [["pp", "leicht"], ["p", "leicht"], ["m", "schwer"], ["pp", "kommt durch Rohre"]],
+     e: "PET-Flaschen sind leicht, deshalb belasten ihre Transporte die Umwelt weniger als die von schweren Glasflaschen. Auch die Länge des Weges spielt eine große Rolle: je kürzer, desto besser. Leitungswasser kommt durch die Rohre."},
+    {k: "Neue Flaschen für 20 Füllungen", c: [["mm", "20"], ["p", "1"], ["p", "1"], ["pp", "0"]],
+     e: "Für 20 Füllungen braucht man bei Einweg 20 Flaschen, bei PET-Mehrweg im besten Fall eine, bei Glas-Mehrweg ebenfalls eine. Jede neue PET-Flasche braucht wieder Erdöl (etwa 2 kg Erdöl für 1 kg PET)."}
+  ];
+  const tab = $("#oekoTab"), obs = $("#oekoObs");
+  tab.innerHTML = `<thead><tr><th scope="col">Kriterium</th>${SPALTEN.map(s => `<th scope="col">${s}</th>`).join("")}</tr></thead><tbody>${Z.map((z, i) => `<tr data-i="${i}"><th scope="row"><button type="button">${z.k}</button></th>${z.c.map(c => `<td><span class="sym ${c[0]}">${{pp: "++", p: "+", m: "−", mm: "−−", n: "–"}[c[0]]}</span><small>${c[1]}</small></td>`).join("")}</tr>`).join("")}</tbody>`;
+  const gesehen = new Set();
+  register("oekoTafel", "#oekoSim", "Ökobilanz-Tafel: alle vier Kriterien ansehen");
+  $$("tbody tr", tab).forEach(tr => $("button", tr).addEventListener("click", () => {
+    const z = Z[+tr.dataset.i];
+    $$("tbody tr", tab).forEach(r => r.classList.toggle("sel", r === tr));
+    tr.classList.add("gesehen"); gesehen.add(+tr.dataset.i);
+    obs.innerHTML = `<strong>${z.k}</strong><br>${z.e}` + (z.thermo ? `<div class="thermo" id="thermo"><div><span>PET ≈ 250 °C</span><i class="pet" style="--w:15.6%"></i></div><div><span>Glas ≈ 1600 °C</span><i class="glas" style="--w:100%"></i></div></div>` : "") +
+      (gesehen.size === Z.length ? "<br>✅ Alle Kriterien angesehen. Am besten schneidet insgesamt das Leitungswasser ab." : "");
+    const th = $("#thermo", obs); if (th) requestAnimationFrame(() => requestAnimationFrame(() => th.classList.add("on")));
+    if (gesehen.size === Z.length) solve("oekoTafel");
+  }));
+})();
+
+
+
+Modul.makeSort($("#sortOeko"), {
+  buckets: ["✅ trifft zu", "❌ trifft nicht zu"], cols: 220,
+  items: [
+    {t: "Je kürzer der Transportweg, desto besser für die Umwelt.", b: 0},
+    {t: "Eine Einwegflasche aus Glas braucht viel Energie beim Schmelzen.", b: 0},
+    {t: "Für Leitungswasser braucht man keine Flasche.", b: 0},
+    {t: "Eine Glas-Mehrwegflasche kann bis zu 50-mal gefüllt werden.", b: 0},
+    {t: "Für 1 kg PET braucht man weniger als 1 kg Erdöl.", b: 1},
+    {t: "Eine Einwegflasche wird 20-mal gefüllt.", b: 1},
+    {t: "Bei einer Ökobilanz zählt nur, wie die Flasche aussieht.", b: 1},
+    {t: "Glas wird bei etwa 250 °C geschmolzen.", b: 1}
+  ]
+}, "sortOeko");
+Modul.makeOpen($("#open2"), [
+  {q: "Begründe, warum Mehrwegflaschen umweltfreundlicher sind als Einwegflaschen.",
+   m: "Eine Mehrwegflasche wird nicht zerstört, sondern gereinigt und immer wieder neu befüllt (PET bis zu 20-mal, Glas bis zu 50-mal). Dadurch müssen viel weniger neue Flaschen hergestellt werden. Das spart Rohstoffe und Energie und belastet die Umwelt weniger.",
+   k: ["mehrfach|oft|wieder|immer wieder|20|50|neu befüllt|gereinigt", "rohstoff|erdöl|material|weniger neue|weniger flaschen", "energie", "umwelt|müll|abfall|belast|schon"], min: 3}
+], "open2-", "Denke an die Simulation mit den Füllungen und an das Wort „Wertstoffkreislauf“.");
+});
+
+/* ---------- Training: Kreuzworträtsel mit Tipps ---------- */
+Modul.makeCrossword($("#cw"), {
+  tipps: true,
+  words: [
+    {w: "TRANSPORT", r: 0, c: 8, d: "d", q: "Lkw bringen die gefüllten Flaschen in die Geschäfte. Wie nennt man das Fahren der Waren?", tip: "Das Fahren von Waren von A nach B."},
+    {w: "ABFUELLER", r: 1, c: 0, d: "a", q: "Dieser Betrieb bläst die Rohlinge auf und füllt die Flaschen.", tip: "Er füllt Getränke ab. Ü wird zu UE.", zeig: "Abfüller"},
+    {w: "SCHREDDER", r: 7, c: 0, d: "a", q: "Diese Anlage zerkleinert die gepressten Flaschen und wäscht sie.", tip: "Eine Maschine, die Material zerreißt – wie ein Aktenvernichter, nur größer."},
+    {w: "WERTSTOFF", r: 3, c: 0, d: "d", q: "Altes PET ist kein Müll, sondern ein …, den man wiederverwerten kann.", tip: "Ein Stoff, der noch etwas wert ist. Man spricht auch vom …-Kreislauf."},
+    {w: "KREISLAUF", r: 5, c: 4, d: "d", q: "Beim PET ist er leider nicht ganz geschlossen.", tip: "Ein Weg, der immer wieder am Anfang ankommt."},
+    {w: "GRANULAT", r: 11, c: 2, d: "a", q: "Kunststoff in Form kleiner Körnchen", tip: "Die chemische Fabrik liefert den Kunststoff so an."},
+    {w: "MEHRWEG", r: 5, c: 2, d: "d", q: "Diese Flaschen werden gereinigt und neu gefüllt.", tip: "Das Gegenteil von Einweg."},
+    {w: "ROHLINGE", r: 3, c: 3, d: "a", q: "Kleine, dicke Vorstücke, etwa so groß wie ein Reagenzglas", tip: "Daraus bläst der Abfüller die Flaschen auf. Mehrzahl!"},
+    {w: "EINWEG", r: 3, c: 10, d: "d", q: "Flaschen, die nur ein einziges Mal gefüllt werden", tip: "Das Gegenteil von Mehrweg."},
+    {w: "FLAKES", r: 13, c: 4, d: "a", q: "Gewaschene Schnipsel aus Altflaschen: der neue Rohstoff", tip: "Englisches Wort, es heißt „Flocken“."},
+    {w: "PET", r: 9, c: 9, d: "d", q: "Kunststoff der meisten Getränkeflaschen (Code 01)", tip: "Drei Buchstaben, du kennst die Abkürzung aus Modul 1."}
+  ],
+  sol: [[9, 9], [11, 0], [13, 6], [5, 10], [7, 5]], solWord: "PFAND"
+}, "cw");
+
+/* ---------- Profi-Check, Lernkarten ---------- */
+const nurR = !!(window.Kunststoffe && window.Kunststoffe.R);
+const OEKO_FRAGEN = [
+  {q: "Warum belasten Transporte von PET-Flaschen die Umwelt weniger als die von Glasflaschen?", o: ["PET ist viel leichter.", "PET ist viel schwerer.", "PET fährt ohne Lkw.", "PET wird nur lokal verkauft."], a: 0, e: "Weniger Gewicht bedeutet weniger Energie beim Transport."},
+  {q: "Was ist laut Ökobilanz meist am umweltfreundlichsten?", o: ["Wasser aus der Leitung", "Wasser in der Einweg-Plastikflasche", "Wasser in der Einweg-Glasflasche", "Wasser in der Dose"], a: 0, e: "Es braucht keine Flasche und keinen Flaschentransport."}
+];
+Modul.makeQuiz($("#quiz"), [...MC.s1, ...MC.s2, ...(nurR ? [] : MC.s3), ...(nurR ? [] : OEKO_FRAGEN), ...MC.train,
+  {q: "Was sind Flakes?", o: ["Gewaschene Kunststoffschnipsel aus zerkleinerten Flaschen", "Ein Zusatz im Getränk", "Ein anderes Wort für Pfand", "Ein Teil der Abfüllanlage"], a: 0, e: "Flakes sind der Rohstoff, der aus Altflaschen entsteht."},
+  {q: "Wie viel Erdöl braucht man etwa für 1 kg PET?", o: ["etwa 2 kg", "etwa 20 g", "etwa 200 kg", "gar keines"], a: 0, e: "Für ein kurzlebiges Einwegprodukt wie die PET-Flasche ist das viel Erdöl."},
+  {q: "Wie viel Pfand-Verlust gibt es etwa (Flaschen, die nicht zurückkommen)?", o: ["etwa 2 bis 4 %", "etwa 50 %", "etwa 90 %", "gar keinen"], a: 0, e: "Das Pfand funktioniert gut, aber ganz ohne Verlust geht es nicht."}
+], "quiz", "PET-Profi");
+if (window.NT8Karten) NT8Karten.trainer($("#lernkarten"), {module: ["ku5"], titel: "Lernkarten zu diesem Modul", zug: "M", druck: false});
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

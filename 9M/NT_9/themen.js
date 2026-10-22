@@ -2,7 +2,8 @@
  * (übersicht_themen.html), die Sperre auf jeder Seite (js/kurs-sperre.js) und das Freischalten in der Verwaltung
  * (Klasse → Natur und Technik). Gerüst und Erklärung der Felder: js/kursliste.js (vor dieser Datei einbinden).
  *
- * Kürzel (kz): Buchstabe des Themenbereichs + Nummer – O = Organische Rohstoffe, R = Radioaktivität, K = Kernenergie.
+ * Kürzel (kz): Buchstabe des Themenbereichs + Nummer – O = Organische Rohstoffe, R = Radioaktivität, K = Kernenergie,
+ * P = Kunststoffe (nur 9M).
  * Ein vergebenes Kürzel bleibt für immer bei seiner Seite; Neues bekommt die nächste freie Nummer.
  *
  * Anders als bei Englisch ist hier alles von sich aus offen (offen: true) – die 9. Klassen arbeiten schon damit.
@@ -22,7 +23,9 @@ GrumiKursliste.bauen({
     // Probe 2 (seit 20.10.2026): nur Ankreuzen und Zuordnen, 50 Punkte, M-Schlüssel, 30 Minuten, ohne Note-6-Regel
     "nt9m-rohstoffe2": "rohstoffe",
     // Probe 3 (seit 20.10.2026): nach Themen sortiert, mit Transfer, 80 Punkte, nur Ankreuzen und Zuordnen, 45 Minuten
-    "nt9m-rohstoffe3": "rohstoffe" },
+    "nt9m-rohstoffe3": "rohstoffe",
+    // Kunststoffe (seit 22.10.2026, nur 9M): Block-Probe über die Module P1 bis P5, übliche Testregeln
+    "nt9m-kunststoffe": "kunststoffe" },
   themen: [
     {
       id: "rohstoffe", nr: "01", titel: "Organische Rohstoffe", kurz: "Organische Rohstoffe", icon: "🛢️",
@@ -86,19 +89,37 @@ GrumiKursliste.bauen({
           text: "Tschernobyl, Fukushima und radioaktiver Abfall – Gruppenarbeit mit Quiz." }
       ]
     },
+    // Kunststoffe (seit 22.10.2026, nur 9M): eigene Lernseiten im Ordner App13_Kunststoffe auf den gemeinsamen Bausteinen
+    // von NT 7 (7M/NT/modul-basis.js, Lernstand mit Code als Modul „nt9-ku1“ …), blatt = Arbeitsblatt, Regelheft und
+    // Lösung als PDF in App13_Kunststoffe/arbeitsblaetter/. Kürzel P = Plastik/Kunststoff.
+    {
+      id: "kunststoffe", nr: "04", titel: "Kunststoffe", kurz: "Kunststoffe", icon: "🧴",
+      text: "Woraus Kunststoffe bestehen, wie sie hergestellt und verarbeitet werden – und was mit dem Plastikmüll passiert.",
+      module: [
+        { id: "ku1", kz: "P1", titel: "Vielfalt der Kunststoffe", href: "App13_Kunststoffe/modul-1.html", art: "Modul", offen: true, ls: "nt9-ku1", blatt: "P1",
+          text: "Kunststoffe im Alltag, Vor- und Nachteile, Recycling-Code und Eigenschaften im Test." },
+        { id: "ku2", kz: "P2", titel: "Bau und Einteilung der Kunststoffe", href: "App13_Kunststoffe/modul-2.html", art: "Modul", offen: true, ls: "nt9-ku2", blatt: "P2",
+          text: "Makromoleküle, Polymerisation vom Ethen zum Polyethen, Thermoplaste, Elastomere und Duroplaste." },
+        { id: "ku3", kz: "P3", titel: "Kunststoffe verarbeiten", href: "App13_Kunststoffe/modul-3.html", art: "Modul", offen: true, ls: "nt9-ku3", blatt: "P3",
+          text: "Granulat, Schmelzpresse, Strangpressen, Spritzgießen und Folienblasen – mit Steckbriefen zu PE und PS." },
+        { id: "ku4", kz: "P4", titel: "Kunststoffmüll und Recycling", href: "App13_Kunststoffe/modul-4.html", art: "Modul", offen: true, ls: "nt9-ku4", blatt: "P4",
+          text: "Plastik im Meer, Mikroplastik, gelber Sack und die drei Wege der Verwertung." },
+        { id: "ku5", kz: "P5", titel: "Die PET-Flasche: Kreislauf und Ökobilanz", href: "App13_Kunststoffe/modul-5.html", art: "Modul", offen: true, ls: "nt9-ku5", blatt: "P5",
+          text: "Vom Erdöl zur Flasche und zurück, Einweg oder Mehrweg und was eine Ökobilanz vergleicht." }
+      ]
+    },
     // In Vorbereitung (ohne href): Die Kinder sehen diese Bereiche nicht, in der Verwaltung stehen sie als Ausblick.
     // Ein Kürzel bekommt eine Seite erst, wenn es sie gibt.
     {
-      id: "kohlenstoff", nr: "04", titel: "Kohlenwasserstoffe, Kunststoffe und Biomoleküle", kurz: "Kohlenstoff-Chemie", icon: "🧪",
+      id: "kohlenstoff", nr: "05", titel: "Kohlenwasserstoffe, Alkohol und Kohlenhydrate", kurz: "Kohlenstoff-Chemie", icon: "🧪",
       text: "Wie Kohlenstoff Ketten bildet – und was daraus alles entsteht.",
       module: [
         { id: "kw-kohlenwasserstoffe", titel: "Kohlenwasserstoffe" },
-        { id: "kw-kunststoffe", titel: "Kunststoffe" },
         { id: "kw-biomolekuele", titel: "Alkohol und Kohlenhydrate" }
       ]
     },
     {
-      id: "mensch", nr: "05", titel: "Mensch und Gesundheit", kurz: "Mensch und Gesundheit", icon: "🧬",
+      id: "mensch", nr: "06", titel: "Mensch und Gesundheit", kurz: "Mensch und Gesundheit", icon: "🧬",
       text: "Zellen, Erbinformation und angewandte Genetik.",
       module: [
         { id: "mg-zellen", titel: "Zellen – Bausteine des Lebens" },
@@ -106,7 +127,7 @@ GrumiKursliste.bauen({
       ]
     },
     {
-      id: "kommunikation", nr: "06", titel: "Kommunikation und Informationstechnik", kurz: "Kommunikation", icon: "📡",
+      id: "kommunikation", nr: "07", titel: "Kommunikation und Informationstechnik", kurz: "Kommunikation", icon: "📡",
       text: "Wie Informationen übertragen werden.",
       module: [
         { id: "ko-grundlagen", titel: "Grundlagen der Kommunikation" },
