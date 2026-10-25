@@ -123,6 +123,14 @@
   const DATEIEN = {};
   const flsSchluessel = nr => "grumi-fls-" + (exam ? exam.test.id : "") + "-" + (student ? student.code : "") + "-" + nr;
   function filiusMarkup(item) {
+    // ausModul: abgegeben und bewertet wurde in der Einheit – hier nur der Stand, die Punkte übernimmt der Server
+    if (item.ausModul) {
+      const s = item.modulStand || {};
+      const zeit = s.zeit ? new Date(s.zeit).toLocaleString("de-DE", {day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit"}) : "";
+      return `<div class="fls-modul ${s.abgegeben ? "ok" : "offen"}">${s.abgegeben
+        ? `✓ Abgegeben in der Einheit ${esc(item.einheit || "")}${zeit ? " (" + esc(zeit) + " Uhr)" : ""}: ${s.punkte} von ${s.max} Punkten. Diese Punkte zählen hier – du musst nichts tun.`
+        : `Noch keine Abgabe in der Einheit ${esc(item.einheit || "")}. Du musst hier nichts tun – bleib in der Probe und sag deiner Lehrkraft Bescheid.`}</div>`;
+    }
     return `<ol class="fls-schritte">${(item.aufgabe || []).map(s => `<li>${esc(String(s).replace(/^\d+\.\s*/, ""))}</li>`).join("")}</ol>
       <div class="fls-wahl"><label class="btn secondary fls-knopf">📂 Filius-Datei auswählen<input type="file" accept=".fls" data-fls hidden></label>
       <p class="fls-status" data-fls-status aria-live="polite">Noch keine Datei ausgewählt.</p></div>
@@ -135,7 +143,7 @@
     box.classList.toggle("ok", Boolean(d) && !fehler); box.classList.toggle("bad", Boolean(fehler));
   }
   function dateienZurueck() {
-    exam.items.filter(i => i.type === "filius").forEach(i => {
+    exam.items.filter(i => i.type === "filius" && !i.ausModul).forEach(i => {
       try { const d = JSON.parse(sessionStorage.getItem(flsSchluessel(i.nr)) || "null"); if (d && d.name && d.data) DATEIEN[i.nr] = d; } catch (_e) {}
       dateiZeigen(i.nr);
     });

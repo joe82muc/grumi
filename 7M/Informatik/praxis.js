@@ -209,14 +209,15 @@ function makeAuftrag(box, cfg, id) {
     // p.ersatz: Frage zum Ergebnis (art "zahl" oder "wort") für alle, die ihre Datei hier nicht auswählen können
     // (Tablet, anderes Gerät, Browser ohne Entpacken)
     inhalt.innerHTML = `<p class="pruef-frage">${p.text || (p.server ? "Lade deine gespeicherte Datei hoch. Sie wird geprüft, und die KI schreibt dir eine Rückmeldung." : "Wähle deine gespeicherte Datei aus. Sie wird nur hier auf dem Gerät geprüft und nicht hochgeladen.")}</p>
-      <label class="btn small ghost pruef-datei">${p.server ? "📤 Datei hochladen" : "📂 Datei auswählen"}<input type="file" ${p.accept ? `accept="${esc(p.accept)}"` : ""} hidden></label><ul class="pruef-liste"></ul><div class="pruef-ki" hidden></div><p class="pruef-gemerkt" hidden></p><div class="fb"></div>
+      <label class="btn small ghost pruef-datei">${p.server ? "📤 Datei hochladen" : "📂 Datei auswählen"}<input type="file" ${p.accept ? `accept="${esc(p.accept)}"` : ""} hidden></label><ul class="pruef-liste"></ul><div class="pruef-ki" hidden></div><p class="pruef-wertung" hidden></p><p class="pruef-gemerkt" hidden></p><div class="fb"></div>
       ${p.ersatz ? `<details class="pruef-ersatz"><summary>${esc(p.ersatzTitel || "Du hast die Datei nicht auf diesem Gerät?")}</summary><div class="pruef-ersatz-inhalt"></div></details>` : ""}`;
     const eingabe = $("input[type=file]", inhalt), liste = $(".pruef-liste", inhalt), fb = $(".fb", inhalt), ki = $(".pruef-ki", inhalt), gemerkt = $(".pruef-gemerkt", inhalt);
+    const wertung = $(".pruef-wertung", inhalt);
     let laeuft = false;
     eingabe.addEventListener("change", async () => {
       const datei = eingabe.files && eingabe.files[0]; if (!datei || laeuft) return;
       laeuft = true; inhalt.classList.add("prueft");
-      liste.innerHTML = ""; ki.hidden = true; gemerkt.hidden = true; fb.className = "fb show mid"; fb.textContent = p.server ? "Datei wird hochgeladen und geprüft …" : "Datei wird geprüft …";
+      liste.innerHTML = ""; ki.hidden = true; gemerkt.hidden = true; wertung.hidden = true; fb.className = "fb show mid"; fb.textContent = p.server ? "Datei wird hochgeladen und geprüft …" : "Datei wird geprüft …";
       try {
         let punkte, ok;
         const antwort = p.server ? await hochladen(datei, p.server, text => { fb.textContent = text; }) : null;
@@ -225,6 +226,13 @@ function makeAuftrag(box, cfg, id) {
           punkte = antwort.punkte; ok = !!antwort.erfuellt;
           if (antwort.gespeichert) { gemerkt.hidden = false; gemerkt.textContent = "📁 Deine Lehrkraft kann diese Datei ansehen."; }
           if (antwort.rueckmeldung && antwort.quelle === "ki") { ki.hidden = false; ki.innerHTML = `<b>🤖 Rückmeldung der KI:</b> ${esc(antwort.rueckmeldung)}`; }
+          // Aufträge mit Punkten (Informatik 9, Filius für Probe 1b): Punkte sofort; es zählt die beste Abgabe
+          if (antwort.wertung) {
+            const w = antwort.wertung, besser = w.beste > w.punkte;
+            wertung.hidden = false; wertung.className = "pruef-wertung" + (antwort.hinweis ? " warn" : "");
+            wertung.textContent = "🏅 " + w.punkte + " von " + w.max + " Punkten" + (antwort.hinweis ? "" : besser ? " – für die Probe zählt deine beste Abgabe: " + w.beste + " von " + w.max + " Punkten." : " – zählen für die Probe.");
+          }
+          if (antwort.hinweis) { gemerkt.hidden = false; gemerkt.textContent = "⚠️ " + antwort.hinweis; }
         } else {
           if (p.server && !p.pruefe) throw new Error("Der Server ist gerade nicht erreichbar. Versuche es in einer Minute noch einmal.");
           punkte = p.pruefe(await (p.lies || liesBild)(datei)) || []; ok = punkte.length > 0 && punkte.every(x => x.ok);

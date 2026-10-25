@@ -85,6 +85,11 @@
       html += '</table><p class="abg-hinweis">Blau unter dem Wert steht die Formel der Zelle.</p>';
     } else if (v && v.art === "programm") {
       html += "<pre>" + esc(v.text) + "</pre>" + '<p class="abg-hinweis">Figuren: ' + esc((v.figuren || []).join(", ") || "–") + " · Variablen: " + esc((v.variablen || []).join(", ") || "–") + "</p>";
+    } else if (v && v.art === "netz") {
+      // Filius (Informatik 9): Geräte und Kabel als Text, Punkte, Urteil der KI – die Datei selbst öffnet man in Filius
+      html += "<p><b>" + esc(v.punkte) + " von " + esc(v.max) + " Punkten</b> (zählen für die Probe)</p><pre>" + esc(String(v.text || "").replace(" · Kabel:", "\nKabel:")) + "</pre>" +
+        (v.ki && v.ki.text ? '<p class="abg-hinweis">' + (v.ki.quelle === "ki" ? "🤖 KI: " : "") + esc(v.ki.text) + "</p>" : "") +
+        '<p class="abg-hinweis">Zum Ansehen in Filius: „Herunterladen“ und die Datei in Filius öffnen.</p>';
     } else html += '<p class="abg-hinweis">Für diese Datei gibt es keine Vorschau. Lade sie herunter und öffne sie im Programm.</p>';
     if (d.punkte && d.punkte.length) {
       html += '<ul class="abg-punkte">' + d.punkte.map(function (p) { return '<li class="' + (p.ok ? "ok" : "bad") + '">' + (p.ok ? "✓ " : "✗ ") + esc(p.text) + "</li>"; }).join("") + "</ul>";
@@ -109,7 +114,7 @@
       var codes = Object.keys(kinder).sort();
       var html = '<details class="nt7f"' + (offenGeklappt ? " open" : "") + '><summary>📁 Abgegebene Dateien für Klasse ' + esc(ctx.klasse) +
         " <small>" + (ABGABEN.length ? ABGABEN.length + (ABGABEN.length === 1 ? " Datei von " : " Dateien von ") + codes.length + (codes.length === 1 ? " Kind" : " Kindern") : "noch keine") + "</small></summary>" +
-        '<p class="hint">Hier liegen die Excel-Mappen und Scratch-Projekte, die die Kinder in den Einheiten hochgeladen haben: je Kind und Auftrag die neueste Fassung. ' +
+        '<p class="hint">Hier liegen die Excel-Mappen, Scratch-Projekte und Filius-Netze, die die Kinder in den Einheiten hochgeladen haben: je Kind und Auftrag die neueste Fassung (bei Filius mit Punkten: die beste). ' +
         "Der Server speichert dazu nur den Code des Kindes, keinen Namen. Ohne Löschen verfällt eine Datei nach 400 Tagen.</p>" +
         (meldung ? '<p class="status ' + meldung[1] + '">' + esc(meldung[0]) + "</p>" : "") +
         '<div class="abg-leiste"><button type="button" class="abg-knopf" data-abg="neu">↻ Aktualisieren</button>' +
@@ -121,8 +126,10 @@
         kinder[code].forEach(function (a) {
           var einheit = einheitVon(ctx, a.aufgabe);
           html += '<div class="abg-zeile" data-code="' + esc(code) + '" data-aufgabe="' + esc(a.aufgabe) + '"><div><b>' + esc(a.titel) + "</b><small>" +
-            esc((einheit ? einheit + " · " : "") + (a.art === "sb3" ? "Scratch-Projekt" : "Excel-Mappe") + " · " + zeit(a.zeit) + " · " + Math.max(1, Math.round(a.groesse / 1024)) + " KB") + "</small></div>" +
-            '<span class="abg-stand ' + (a.erfuellt ? "ok" : "offen") + '">' + (a.erfuellt ? "✓ erfüllt" : "✗ " + a.offen + " von " + a.anzahl + " offen") + "</span>" +
+            esc((einheit ? einheit + " · " : "") + (a.art === "sb3" ? "Scratch-Projekt" : a.art === "fls" ? "Filius-Netz" : "Excel-Mappe") + " · " + zeit(a.zeit) + " · " + Math.max(1, Math.round(a.groesse / 1024)) + " KB") + "</small></div>" +
+            // mit Punkten (Filius): beste Abgabe, zählt für die Probe
+            '<span class="abg-stand ' + (a.erfuellt ? "ok" : "offen") + '">' + (typeof a.punkte === "number" ? (a.erfuellt ? "✓ " : "") + a.punkte + " von " + a.max + " Punkten"
+              : a.erfuellt ? "✓ erfüllt" : "✗ " + a.offen + " von " + a.anzahl + " offen") + "</span>" +
             '<button type="button" class="abg-knopf" data-abg="sehen">Ansehen</button><button type="button" class="abg-knopf" data-abg="laden">Herunterladen</button></div>';
         });
         html += "</div>";
