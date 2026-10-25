@@ -63,6 +63,9 @@
  *                                 Verwaltung; der Server schickt es beim Start mit): Liegt auf dem Gerät kein eigener Stand,
  *                                 kommen die Antworten der Abgabe (seite) zurück. Die Zählung der Testregeln beginnt neu.
  *   Englisch (seit 21.10.2026): regel { wegSekunden: 0, kopieren: 1 } – Verlassen nur Warnung, der erste Kopierversuch beendet.
+ *   regel.programm: "Filius" (Informatik 9, Probe 1b, seit 25.10.2026): Praxisteil in einem Programm am PC. Nur zusammen mit
+ *                                 wegSekunden 0 (und ohne verlassen): Der Hinweis erlaubt den Wechsel zu diesem Programm, beim
+ *                                 Zurückkommen erscheint kein Warnfenster – jeder Wechsel wird weiter gezählt und festgehalten.
  *   ProbeSchutz.endeStatus(text)  Zeile im Fenster „Test beendet“ (z. B. „Keine Verbindung – neuer Versuch …“)
  * Ohne regel gibt nichts davon eine Probe ab oder bewertet sie: Was die Ereignisse bedeuten, entscheidet die Lehrkraft.
  * Gesichert werden Textfelder, Auswahllisten, Radio-Knöpfe und gewählte Antwortknöpfe (.opt mit .sel/.richtig),
@@ -229,12 +232,16 @@
     return k && e ? "Kopieren oder Einfügen" : k ? "Kopieren" : e ? "Einfügen" : "";
   }
   function dauerText(sek) { return sek >= 120 && sek % 60 === 0 ? sek / 60 + " Minuten" : sek === 60 ? "1 Minute" : sek + " Sekunden"; }
+  // regel.programm (Informatik 9, Probe 1b): Für einen Praxisteil darf das Kind in dieses Programm wechseln – nur ohne
+  // Note-6-Regel fürs Verlassen. Dann kein Warnfenster beim Zurückkommen; jeder Wechsel wird weiter festgehalten.
+  function programmErlaubt() { var r = aktiv && aktiv.regel; return Boolean(r && r.programm && !r.wegSekunden && !r.verlassen); }
   function regelText() {
     var r = aktiv.regel, kw = kopierWort();
-    return "🔒 Testregeln: Bleib auf dieser Seite, bis du abgegeben hast. " +
+    return (programmErlaubt() ? "🔒 Testregeln: Für den Praxisteil darfst du zu " + r.programm + " wechseln – das wird nur festgehalten. Sonst bleib auf dieser Seite. "
+      : "🔒 Testregeln: Bleib auf dieser Seite, bis du abgegeben hast. ") +
       (r.wegSekunden ? "Verlässt du sie (anderer Tab, andere App) insgesamt länger als " + dauerText(r.wegSekunden) + ", ist die Probe sofort beendet: Note 6. " +
         "Kurze Wechsel unter " + MIN_SEK + " Sekunden zählen nicht. " : "") +
-      (r.verlassen ? "Jedes Verlassen bringt eine Warnung – beim " + r.verlassen + ". Mal ist der Test beendet: Note 6. " : "Jedes Verlassen bringt eine Warnung und wird festgehalten. ") +
+      (r.verlassen ? "Jedes Verlassen bringt eine Warnung – beim " + r.verlassen + ". Mal ist der Test beendet: Note 6. " : programmErlaubt() ? "" : "Jedes Verlassen bringt eine Warnung und wird festgehalten. ") +
       (kw && !r.kopieren ? kw + " geht in der Probe nicht – jeder Versuch wird festgehalten. " : "") +
       (kw && r.kopieren === 1 ? kw + " ist verboten: Schon beim ersten Versuch ist die Probe sofort beendet – Note 6, ohne Warnung. " : "") +
       (kw && r.kopieren > 1 ? kw + ": " + (r.kopieren - 1 === 1 ? "eine Warnung" : (r.kopieren - 1) + " Warnungen") + ", beim " + r.kopieren + ". Versuch Note 6. " : "") +
@@ -329,7 +336,7 @@
   function regelVerlassen(sek) {
     if (beendet) return;
     melden(); regelHinweis();
-    if (aktiv.regel.verlassen && zahl >= aktiv.regel.verlassen) beenden("verlassen"); else regelWarnung("verlassen", sek);
+    if (aktiv.regel.verlassen && zahl >= aktiv.regel.verlassen) beenden("verlassen"); else if (!programmErlaubt()) regelWarnung("verlassen", sek);
   }
   /* 5 Minuten nichts eingegeben (ruheMinuten): eine Minute vorher ein Hinweis, dann automatisch abgeben */
   function ruhePruefen() {
@@ -506,7 +513,8 @@
           wegSekunden: cfg.regel.wegSekunden === 0 ? 0 : Math.max(10, Number(cfg.regel.wegSekunden) || 60),
           ruheMinuten: Math.max(0, Number(cfg.regel.ruheMinuten) || 0),
           api: cfg.regel.api ? String(cfg.regel.api).replace(/\/$/, "") : "", modul: cfg.regel.modul ? String(cfg.regel.modul) : "",
-          puls: cfg.regel.puls === true, beenden: cfg.regel.beenden, melden: cfg.regel.melden || null } : null };
+          puls: cfg.regel.puls === true, beenden: cfg.regel.beenden, melden: cfg.regel.melden || null,
+          programm: cfg.regel.programm ? String(cfg.regel.programm).slice(0, 30) : "" } : null };
       zahl = 0; sockel = 0; draussen = false; prot = LEER(); weg = null;
       kopierZahl = 0; letzterVersuch = 0; beendet = null; letztesEnde = null; aktivZeit = Date.now(); wegSumme = 0;
       clearInterval(ruheTakt); clearInterval(pulsTakt);

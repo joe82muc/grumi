@@ -780,9 +780,13 @@
         details.forEach(function (x) {
           var max = typeof x.maxPoints === "number" ? x.maxPoints : 1;
           var pkt = typeof x.points === "number" ? x.points : (x.correct ? 1 : 0);
-          var aenderbar = Boolean(api.override) && (!api.nurText || x.type === "text" || x.type === "email");   // E-Mail (Informatik 7): wie eine freie Antwort
+          // E-Mail (Informatik 7) und Filius-Datei (Informatik 9, Probe 1b): Punkte änderbar wie bei einer freien Antwort
+          var aenderbar = Boolean(api.override) && (!api.nurText || x.type === "text" || x.type === "email" || x.type === "filius");
+          // Filius-Datei des Kindes zum Öffnen in Filius (steht in der Abgabe)
+          var fls = x.type === "filius" && x.dateiDaten && /^[A-Za-z0-9+/=]+$/.test(x.dateiDaten) ? '<div class="lf-kom"><a download="' + esc(x.datei || "abgabe.fls") +
+            '" href="data:application/octet-stream;base64,' + x.dateiDaten + '">📥 Filius-Datei herunterladen (' + esc(x.datei || "abgabe.fls") + ")</a></div>" : "";
           h += '<tr><td class="lf-code">' + esc(x.nr) + '</td><td><div class="lf-aufg">' + esc(x.prompt || "") + "</div>" +
-            (x.given ? '<div class="lf-antw"' + (x.type === "email" ? ' style="white-space:pre-wrap"' : "") + '>„' + esc(x.given) + "“</div>" : '<div class="lf-antw lf-leer">keine Antwort</div>') +
+            (x.given ? '<div class="lf-antw"' + (x.type === "email" ? ' style="white-space:pre-wrap"' : "") + '>„' + esc(x.given) + "“</div>" : '<div class="lf-antw lf-leer">keine Antwort</div>') + fls +
             (x.comment ? '<div class="lf-kom">Rückmeldung: ' + esc(x.comment) + "</div>" : "") +
             (pkt < max && typeof x.expected === "string" && x.expected ? '<div class="lf-kom">Lösung: ' + esc(x.expected) + "</div>" : "") + '</td><td class="lf-pkt">' +
             (aenderbar ? '<input type="number" inputmode="numeric" min="0" max="' + max + '" step="1" value="' + pkt + '" data-nr="' + esc(x.nr) + '" data-alt="' + pkt +

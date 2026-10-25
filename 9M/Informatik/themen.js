@@ -21,7 +21,8 @@
     {
       id: "netzwerke", nr: "01", titel: "Netzwerke mit Filius", kurz: "Netzwerke", icon: "🖧", zeit: "September bis November", pc: "Filius",
       text: "Computer verbinden, Adressen vergeben, Netze koppeln: Du baust Netzwerke im Simulationsprogramm Filius und findest Fehler.",
-      proben: [{ R: "inf9-p1-r", M: "inf9-p1-m" }],
+      // Probe 1b (25.10.2026): nur Einheit N1, mit Praxisteil in Filius (Datei abgeben) – siehe PROBE_INHALT
+      proben: [{ R: "inf9-p1-r", M: "inf9-p1-m" }, { R: "inf9-p1b-r", M: "inf9-p1b-m" }],
       module: [
         // blatt (seit 18.10.2026): Regelhefteintrag und Arbeitsblatt (Lösung auf Seite 2) in 9M/Informatik/arbeitsblaetter/
         { id: "netz-start", kz: "N1", blatt: "N1", titel: "Netzwerke kennenlernen", href: "netz-start.html", key: "grumi-i9-netz-start-v1", pc: "Filius",
@@ -147,7 +148,7 @@
   // Zu sehen nur in der Verwaltung. Ein Kürzel bleibt für immer bei seiner Einheit; neue bekommen die nächste freie Nummer.
   //
   // PROBE_INHALT: Proben, die nicht genau die Einheiten ihres Moduls abdecken (sonst: alle Einheiten des Moduls).
-  var PROBE_INHALT = {};
+  var PROBE_INHALT = { "inf9-p1b-r": ["netz-start"], "inf9-p1b-m": ["netz-start"] };
   function probeModule(testId) {
     var ids = PROBE_INHALT[testId], liste = [];
     THEMEN.forEach(function (t) {

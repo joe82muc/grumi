@@ -236,7 +236,10 @@
         (a.minWoerter ? "<p>Verlangt sind mindestens " + a.minWoerter + " Wörter.</p>" : "");
     }
     if (a.type === "datei") return "<p>Ein Prüfprogramm prüft die abgegebene Datei:</p>" + liste((a.checks || []).map(function (c) { return "<li>" + esc(c.text) + " <small>(" + punktwort(c.punkte) + ")</small></li>"; })) +
-      (a.kiPunkte ? "<p>Dazu bis zu " + punktwort(a.kiPunkte) + " für die Gesamtlösung (KI-Vorschlag).</p>" : "");
+      // kiKriterien (Informatik 9, Probe 1b): wofür die KI ihre Punkte vergibt; ohne Angabe: Gesamtlösung (Filius-Prüfung)
+      (a.kiPunkte ? "<p>Dazu bis zu " + punktwort(a.kiPunkte) + (a.kiKriterien && a.kiKriterien.length ? " von der KI (wohlwollend): " + esc(a.kiKriterien.join(" ")) + "</p>"
+        : " für die Gesamtlösung (KI-Vorschlag).</p>") : "") +
+      (a.expected ? "<p><b>Musterlösung:</b> " + esc(a.expected) + "</p>" : "");
     return (a.expected ? "<p><b>Erwartungshorizont (Beispiel):</b> " + esc(a.expected) + "</p>" : "") +
       ((a.criteria || []).length ? "<p>Kriterien (eigene Worte zählen):</p>" + liste(a.criteria.map(function (c) { return "<li>" + esc(c) + "</li>"; })) : "") +
       (Array.isArray(a.zeilenBezug) ? "<p><small>Textstelle: " + bereich(a.zeilenBezug) + "</small></p>" : "");

@@ -92,6 +92,7 @@
     if (item.type === "tf") controls = `<div class="tf-liste">${item.statements.map((s,j) => `<div class="tf-zeile"><span>${esc(s)}</span><span class="tf-wahl"><label><input type="radio" name="item-${item.nr}-${j}" value="1"> ${esc(ja)}</label><label><input type="radio" name="item-${item.nr}-${j}" value="0"> ${esc(nein)}</label></span></div>`).join("")}</div>`;
     if (item.type === "multi") controls = `<p class="order-hint">Mehrere Antworten sind richtig. Kreuze alle richtigen an.</p><div class="options">${item.options.map((o,j) => `<label class="option"><input type="checkbox" value="${j}"><span>${esc(o)}</span></label>`).join("")}</div>`;
     if (item.type === "email") controls = emailMarkup(item);
+    if (item.type === "filius") controls = filiusMarkup(item);
     // Erste Zeile = Frage; was danach kommt (z. B. eine Nachricht zum Prüfen), steht in einem eigenen Kasten
     const [frage, ...rest] = String(item.prompt || "").split("\n");
     const herkunft = item.modulTitel ? `<span class="pill herkunft" title="Diese Aufgabe gehört zu dieser Einheit">📘 ${esc(item.modulTitel)}</span>` : "";
@@ -116,6 +117,48 @@
         <div class="pm-dateien" data-dateien hidden><b>Datei auswählen</b>${item.dateien.map(d => `<label class="pm-datei"><input type="radio" name="anhang-${item.nr}" value="${esc(d)}"><span>${DATEI_ZEICHEN[(d.split(".").pop() || "").toLowerCase()] || "📄"} ${esc(d)}</span></label>`).join("")}</div>
       </div><p class="order-hint">In jedes Feld gehört genau eine Adresse. Eine falsche Adresse löschst du im Feld. Es wird nichts verschickt – die E-Mail wird mit „Probe abgeben“ gespeichert.</p></div>`;
   }
+  // Informatik 9, Probe 1b (25.10.2026): Praxisteil in Filius. Die Seite liest die gewählte .fls nur ein und schickt sie
+  // mit der Abgabe – geprüft wird auf dem Server (die Prüfpunkte kennt die Seite nicht). Die gewählte Datei merkt sich der
+  // Tab, damit sie nach einem Neuladen nicht fehlt.
+  const DATEIEN = {};
+  const flsSchluessel = nr => "grumi-fls-" + (exam ? exam.test.id : "") + "-" + (student ? student.code : "") + "-" + nr;
+  function filiusMarkup(item) {
+    return `<ol class="fls-schritte">${(item.aufgabe || []).map(s => `<li>${esc(String(s).replace(/^\d+\.\s*/, ""))}</li>`).join("")}</ol>
+      <div class="fls-wahl"><label class="btn secondary fls-knopf">📂 Filius-Datei auswählen<input type="file" accept=".fls" data-fls hidden></label>
+      <p class="fls-status" data-fls-status aria-live="polite">Noch keine Datei ausgewählt.</p></div>
+      <p class="order-hint">Speichere in Filius im Entwurfsmodus (Hammer) und wähle dann die .fls-Datei. Hast du danach noch etwas geändert: neu speichern und die Datei noch einmal wählen. Abgegeben wird die zuletzt gewählte Datei.</p>`;
+  }
+  function dateiZeigen(nr, fehler) {
+    const box = document.querySelector(`[data-nr="${nr}"] [data-fls-status]`), d = DATEIEN[nr];
+    if (!box) return;
+    box.textContent = fehler || (d ? "✓ Ausgewählt: " + d.name + " (" + Math.max(1, Math.round(d.data.length * 0.75 / 1024)) + " kB)" : "Noch keine Datei ausgewählt.");
+    box.classList.toggle("ok", Boolean(d) && !fehler); box.classList.toggle("bad", Boolean(fehler));
+  }
+  function dateienZurueck() {
+    exam.items.filter(i => i.type === "filius").forEach(i => {
+      try { const d = JSON.parse(sessionStorage.getItem(flsSchluessel(i.nr)) || "null"); if (d && d.name && d.data) DATEIEN[i.nr] = d; } catch (_e) {}
+      dateiZeigen(i.nr);
+    });
+  }
+  $("questions").addEventListener("change", e => {
+    const feld = e.target.closest("[data-fls]");
+    if (!feld) return;
+    const nr = Number(feld.closest("[data-nr]").dataset.nr), f = feld.files && feld.files[0];
+    feld.value = "";   // dieselbe Datei lässt sich so später noch einmal wählen
+    if (!f) return;
+    if (!/\.fls$/i.test(f.name)) return dateiZeigen(nr, "Das ist keine Filius-Datei. Wähle die Datei mit der Endung .fls, die du in Filius gespeichert hast.");
+    if (f.size > 250000) return dateiZeigen(nr, "Diese Datei ist zu groß für eine Filius-Datei aus der Probe. Wähle die richtige .fls-Datei.");
+    const leser = new FileReader();
+    leser.onload = () => {
+      const data = String(leser.result || "").replace(/^data:[^,]*,/, "");
+      if (data.slice(0, 4) !== "UEsD") return dateiZeigen(nr, "Diese Datei lässt sich nicht als Filius-Datei lesen. Speichere in Filius noch einmal und wähle die neue Datei.");
+      DATEIEN[nr] = {name: f.name, data};
+      try { sessionStorage.setItem(flsSchluessel(nr), JSON.stringify(DATEIEN[nr])); } catch (_e) {}
+      dateiZeigen(nr);
+    };
+    leser.onerror = () => dateiZeigen(nr, "Die Datei ließ sich nicht lesen. Versuche es noch einmal.");
+    leser.readAsDataURL(f);
+  });
   // Gewählten Anhang als Kärtchen unter dem Text zeigen (auch wenn ein gesicherter Stand wiederhergestellt wird)
   function anhangZeigen(box) {
     const r = box.querySelector("[data-dateien] input:checked"), ziel = box.querySelector("[data-anhang-zeige]");
@@ -129,6 +172,7 @@
       if (item.type === "order") return [...el.querySelectorAll(".order-row")].map(row => row.dataset.step);
       if (item.type === "tf") return item.statements.map((_,j) => { const r = el.querySelector(`input[name="item-${item.nr}-${j}"]:checked`); return r ? r.value === "1" : null; });
       if (item.type === "multi") return [...el.querySelectorAll("input[type=checkbox]:checked")].map(x => Number(x.value));
+      if (item.type === "filius") return DATEIEN[item.nr] || null;
       if (item.type === "email") {
         const v = k => el.querySelector(`[data-mail="${k}"]`).value, r = el.querySelector("[data-dateien] input:checked");
         return {an:v("an"),cc:v("cc"),bcc:v("bcc"),betreff:v("betreff").trim(),text:v("text").trim(),anhang:r ? r.value : ""};
@@ -193,7 +237,10 @@
       $("questions").innerHTML = data.items.map(itemMarkup).join("");
       // Testregeln (17.10.2026): länger als 1 Minute weg oder 2. Kopierversuch = Probe beendet, sofort abgegeben, Note 6
       // wegSekunden / kopieren 0 vom Server (Informatik 8, Probe 1c und 2c): ohne Note-6-Regel – nur Warnung und Vermerk
-      const eigeneRegel = {...(data.test.wegSekunden === 0 ? {wegSekunden: 0} : {}), ...(data.test.kopieren === 0 ? {kopieren: 0} : {})};
+      const eigeneRegel = {...(data.test.wegSekunden === 0 ? {wegSekunden: 0} : {}), ...(data.test.kopieren === 0 ? {kopieren: 0} : {}),
+        // Praxisteil in Filius (Informatik 9, Probe 1b): der Wechsel zu Filius ist erlaubt und wird nur festgehalten
+        ...(data.test.wegSekunden === 0 && data.items.some(i => i.type === "filius") ? {programm: "Filius"} : {})};
+      dateienZurueck();
       ProbeSchutz.start({ testId: data.test.id, code: student.code, box: $("questions"),
         regel: { api: API, modul: String(PFAD).replace(/^\/api\//, ""), beenden: () => einreichen(true), ...eigeneRegel },
         // Die Lehrkraft hat das Weiterbearbeiten erlaubt (Verwaltung): die Antworten der Abgabe kommen zurück
