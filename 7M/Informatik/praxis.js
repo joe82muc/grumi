@@ -226,11 +226,11 @@ function makeAuftrag(box, cfg, id) {
           punkte = antwort.punkte; ok = !!antwort.erfuellt;
           if (antwort.gespeichert) { gemerkt.hidden = false; gemerkt.textContent = "📁 Deine Lehrkraft kann diese Datei ansehen."; }
           if (antwort.rueckmeldung && antwort.quelle === "ki") { ki.hidden = false; ki.innerHTML = `<b>🤖 Rückmeldung der KI:</b> ${esc(antwort.rueckmeldung)}`; }
-          // Aufträge mit Punkten (Informatik 9, Filius für Probe 1b): Punkte sofort; es zählt die beste Abgabe
+          // Aufträge mit Punkten (Informatik 9, Filius-Übung für Probe 1b): Punkte sofort; aufbewahrt wird die beste Abgabe
           if (antwort.wertung) {
             const w = antwort.wertung, besser = w.beste > w.punkte;
             wertung.hidden = false; wertung.className = "pruef-wertung" + (antwort.hinweis ? " warn" : "");
-            wertung.textContent = "🏅 " + w.punkte + " von " + w.max + " Punkten" + (antwort.hinweis ? "" : besser ? " – für die Probe zählt deine beste Abgabe: " + w.beste + " von " + w.max + " Punkten." : " – zählen für die Probe.");
+            wertung.textContent = "🏅 " + w.punkte + " von " + w.max + " Punkten" + (antwort.hinweis ? "" : besser ? " – deine beste Abgabe bisher: " + w.beste + " von " + w.max + " Punkten." : ".");
           }
           if (antwort.hinweis) { gemerkt.hidden = false; gemerkt.textContent = "⚠️ " + antwort.hinweis; }
         } else {

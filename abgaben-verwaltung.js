@@ -87,7 +87,7 @@
       html += "<pre>" + esc(v.text) + "</pre>" + '<p class="abg-hinweis">Figuren: ' + esc((v.figuren || []).join(", ") || "–") + " · Variablen: " + esc((v.variablen || []).join(", ") || "–") + "</p>";
     } else if (v && v.art === "netz") {
       // Filius (Informatik 9): Geräte und Kabel als Text, Punkte, Urteil der KI – die Datei selbst öffnet man in Filius
-      html += "<p><b>" + esc(v.punkte) + " von " + esc(v.max) + " Punkten</b> (zählen für die Probe)</p><pre>" + esc(String(v.text || "").replace(" · Kabel:", "\nKabel:")) + "</pre>" +
+      html += "<p><b>" + esc(v.punkte) + " von " + esc(v.max) + " Punkten</b> (beste Abgabe, Übung)</p><pre>" + esc(String(v.text || "").replace(" · Kabel:", "\nKabel:")) + "</pre>" +
         (v.ki && v.ki.text ? '<p class="abg-hinweis">' + (v.ki.quelle === "ki" ? "🤖 KI: " : "") + esc(v.ki.text) + "</p>" : "") +
         '<p class="abg-hinweis">Zum Ansehen in Filius: „Herunterladen“ und die Datei in Filius öffnen.</p>';
     } else html += '<p class="abg-hinweis">Für diese Datei gibt es keine Vorschau. Lade sie herunter und öffne sie im Programm.</p>';
@@ -127,7 +127,7 @@
           var einheit = einheitVon(ctx, a.aufgabe);
           html += '<div class="abg-zeile" data-code="' + esc(code) + '" data-aufgabe="' + esc(a.aufgabe) + '"><div><b>' + esc(a.titel) + "</b><small>" +
             esc((einheit ? einheit + " · " : "") + (a.art === "sb3" ? "Scratch-Projekt" : a.art === "fls" ? "Filius-Netz" : "Excel-Mappe") + " · " + zeit(a.zeit) + " · " + Math.max(1, Math.round(a.groesse / 1024)) + " KB") + "</small></div>" +
-            // mit Punkten (Filius): beste Abgabe, zählt für die Probe
+            // mit Punkten (Filius-Übung): die beste Abgabe
             '<span class="abg-stand ' + (a.erfuellt ? "ok" : "offen") + '">' + (typeof a.punkte === "number" ? (a.erfuellt ? "✓ " : "") + a.punkte + " von " + a.max + " Punkten"
               : a.erfuellt ? "✓ erfüllt" : "✗ " + a.offen + " von " + a.anzahl + " offen") + "</span>" +
             '<button type="button" class="abg-knopf" data-abg="sehen">Ansehen</button><button type="button" class="abg-knopf" data-abg="laden">Herunterladen</button></div>';
