@@ -117,6 +117,11 @@
         { id: "arg-10", kz: "A11", titel: "Einen Aufruf schreiben", href: "arg_10.html", key: "grumi-d7-arg-10-v1", tab: "Schreiben",
           text: "Jeder Tropfen zählt! Einen Aufruf untersuchen, Ideen zum Papiersparen in einer Mindmap ordnen, Aufforderungssätze formulieren und einen eigenen Aufruf schreiben – mit Regelheft-Eintrag und Hausaufgabe.",
           tags: ["📓 Regelheft-Eintrag", "✨ KI-Rückmeldung und Tipps", "🏠 Hausaufgabe"] },
+        // Probentraining zum Aufruf (Wunsch vom 27.10.2026 für die M7: Ablauf wie im Deutschbuch, eigener Artikel, Tabellen nach
+        // den Lösungen der Lehrkraft, Tipps in Stufen und Musterlösungen; Kürzel A12)
+        { id: "arg-11", kz: "A12", titel: "Probentraining: Ein Aufruf gegen Müll", href: "arg_11.html", key: "grumi-d7-arg-11-v1", tab: "Probe üben",
+          text: "Für die M7: die Aufgabe verstehen, einen Internetartikel über Müll auswerten, Informationen in einer Tabelle ordnen und einen Aufruf für die Schülerzeitung schreiben – mit Tipps Schritt für Schritt und Musterlösungen.",
+          tags: ["📋 Tabelle mit Musterlösung", "💡 Tipps Schritt für Schritt", "✨ Schreibtrainer"] },
         // Zusatz zu „Der Leserbrief – Schritt für Schritt“ ohne eigene Seite: zwei Musterlösungen (Dafür / Dagegen) in
         // arg_08.html, Station 3 – die Lehrkraft schaltet sie je Klasse einzeln frei (Wunsch vom 14.10.2026)
         { id: "arg-08-loesung", kz: "A9", extra: "arg-08", teil: "loesungen", titel: "Musterlösungen zum Leserbrief (Dafür / Dagegen)",
