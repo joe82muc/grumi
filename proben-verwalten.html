@@ -109,6 +109,23 @@
   .schuelerlink a{color:var(--ok);overflow-wrap:anywhere;min-width:0}
   .schuelerlink .lbl{color:var(--ok);white-space:nowrap}
 
+  /* Alle Proben: Leiste mit Stand und Suche, Fächer zum Zuklappen, kompakte Karten je Klasse */
+  .pr-leiste{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .7rem;margin-bottom:.7rem;padding:.6rem .8rem;
+    border:1.5px solid var(--line);border-radius:14px;background:#f8fafc}
+  .pr-leiste input[type=search]{flex:1 1 220px;max-width:340px;padding:.45rem .7rem;border:1.5px solid var(--line);
+    border-radius:10px;font:inherit;font-weight:600;color:var(--ink)}
+  .pr-zahl{font-size:.82rem;font-weight:800;color:var(--muted)}
+  details.group>summary{list-style:none;cursor:pointer}
+  details.group>summary::-webkit-details-marker{display:none}
+  details.group>summary h3::before{content:"▾ "}
+  details.group:not([open])>summary h3::before{content:"▸ "}
+  details.group:not([open])>summary{margin-bottom:0}
+  .pr-kl{font-size:.74rem;font-weight:900;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:.8rem 0 .35rem}
+  .kompakt .test-card{padding:.55rem .8rem;margin-bottom:.4rem;border-radius:10px}
+  .kompakt .test-card h4{font-size:.94rem}
+  .kompakt .test-card .klasse{display:none}
+  .kompakt .src{margin-top:.15rem}
+
   .toolbar{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-bottom:.9rem}
   .spacer{flex:1}
   .hidden{display:none}
@@ -180,7 +197,7 @@
 <script src="Kalender/kalender-import.js"></script>
 <script src="Kalender/kalender.js?v=20261007-druck"></script>
 <script src="js/noten-excel.js?v=20261009-excel"></script>
-<script src="lernfortschritt.js?v=20261020-zeit"></script>
+<script src="lernfortschritt.js?v=20261028-filter"></script>
 <script src="js/grumi-qr-druck.js?v=20261008-qr"></script>
 <script>
 /* ============================================================
@@ -252,6 +269,9 @@ async function login(){
 /* ============ Proben ============ */
 const Proben = (() => {
   let ROWS = [], FEHLEND = [], laden = null, ziel = null, filter = null;
+  // Nur „Alle Proben“ (filter.liste): Stand (''/offen/zu) und Suchtext, bleiben beim Neuzeichnen erhalten
+  let STAND = '', SUCHE = '';
+  const ZU = new Set();   // zugeklappte Fächer in „Alle Proben“
 
   async function alleLaden(){
     const rows = [], fehlend = [];
@@ -281,8 +301,18 @@ const Proben = (() => {
   // f: { stufe, zug } oder null (alle). Probe „7“ gilt für alle 7. Klassen, „7M“ nur für den M-Zug.
   // f.zuege: weitere Züge derselben Stufe, die mit angezeigt werden (z. B. 9R, solange es keine 9R-Klasse gibt)
   // f.fach: nur die Proben dieses Fachs, die nicht schon unter Modulen der Freischalt-Liste stehen (Reiter eines Fachs)
+  // f.liste: „Alle Proben“ mit dem Filter der Verwaltung – f.faecher (Namen des Fachs), f.ziele ([{ stufe, zug }]),
+  // dazu Stand und Suche aus der Leiste über der Liste
   function passt(r){
     if(!filter) return true;
+    if(filter.liste){
+      if(filter.faecher && filter.faecher.indexOf(r.subject) < 0) return false;
+      if(filter.ziele && !filter.ziele.some(z => r.klasse === String(z.stufe) || r.klasse === z.stufe + z.zug)) return false;
+      if(STAND === 'offen' && !(r.unlocked && !r.noUnlock)) return false;
+      if(STAND === 'zu' && (r.unlocked || r.noUnlock)) return false;
+      if(SUCHE && (r.title + ' ' + r.klasse + ' ' + r.subject).toLowerCase().indexOf(SUCHE) < 0) return false;
+      return true;
+    }
     if(filter.fach && (r.subject !== filter.fach || r.beiModulen || r.noUnlock)) return false;
     return r.klasse === String(filter.stufe) || r.klasse === filter.stufe + filter.zug ||
       (filter.zuege || []).some(z => r.klasse === filter.stufe + z);
@@ -293,6 +323,29 @@ const Proben = (() => {
     if(f && f.fach){
       // Im Reiter eines Fachs: ohne Werkzeugleiste, und nur wenn es dort Proben gibt (sonst bleibt der Platz leer)
       container.innerHTML = '<div id="pr-msg"></div><div id="pr-groups"></div>';
+      await neuLaden();
+      return;
+    }
+    if(f && f.liste){
+      // Alle Proben: Leiste mit Stand und Suche, darunter kompakte Karten je Fach und Klasse
+      container.innerHTML =
+        '<div class="pr-leiste"><div class="vw-fg" role="group" aria-label="Stand"><span class="vw-fl">Stand</span>' +
+          [['', 'Alle'], ['offen', '🔓 Offen'], ['zu', '🔒 Gesperrt']].map(([v, t]) =>
+            '<button type="button" class="vw-fk' + (STAND === v ? ' on' : '') + '" data-stand="' + v + '" aria-pressed="' + (STAND === v) + '">' + t + '</button>').join('') + '</div>' +
+          '<input type="search" id="pr-suche" placeholder="Probe suchen, z. B. Vokabeltest" aria-label="Probe suchen" value="' + esc(SUCHE) + '">' +
+          '<span class="spacer"></span><span class="pr-zahl" id="pr-zahl"></span>' +
+          '<button class="btn btn-ghost btn-sm" id="pr-reload" type="button">Neu laden</button>' +
+          '<button class="btn btn-bad btn-sm" id="pr-lock-all" type="button">Offene sperren</button></div>' +
+        '<div id="pr-msg"></div><div id="pr-groups" class="kompakt"><div class="skel">Proben werden geladen …</div></div>' +
+        '<div class="note">Ergebnisse ansehen, nachkorrigieren und als CSV exportieren geht auf der jeweiligen Fachseite – der Link „Ergebnisse“ steht bei jeder Probe.</div>';
+      container.querySelectorAll('[data-stand]').forEach(b => b.addEventListener('click', () => {
+        STAND = b.getAttribute('data-stand');
+        container.querySelectorAll('[data-stand]').forEach(x => { const an = x === b; x.classList.toggle('on', an); x.setAttribute('aria-pressed', an); });
+        render();
+      }));
+      $('pr-suche').addEventListener('input', e => { SUCHE = e.target.value.trim().toLowerCase(); render(); });
+      $('pr-reload').addEventListener('click', () => neuLaden());
+      $('pr-lock-all').addEventListener('click', allesSperren);
       await neuLaden();
       return;
     }
@@ -323,8 +376,15 @@ const Proben = (() => {
       box.innerHTML = '<p class="sub" style="margin:0 0 .5rem">📝 Proben in ' + esc(filter.fach) + ': Freischalten gilt für die Probe selbst – also für alle Klassen, die sie schreiben. ' +
         'Ist eine Probe offen, steht der Link für die Kinder direkt dabei. Offene Proben schließen sich 3 Stunden nach dem Freischalten von selbst (Abgeben geht noch 1 Stunde länger).</p>';
     }
+    const liste = Boolean(filter && filter.liste);
     if(!sichtbar.length){
-      box.innerHTML = '<div class="skel">' + (ROWS.length ? 'Für diese Klasse gibt es (noch) keine Proben.' : 'Es konnten keine Proben geladen werden.') + '</div>';
+      box.innerHTML = '<div class="skel">' + (!ROWS.length ? 'Es konnten keine Proben geladen werden.' : liste ? 'Keine Probe passt zum Filter.' : 'Für diese Klasse gibt es (noch) keine Proben.') + '</div>';
+    }
+    if(liste){
+      const offenAlle = sichtbar.filter(r => r.unlocked && !r.noUnlock).length, lock = $('pr-lock-all');
+      $('pr-zahl').textContent = sichtbar.length + (sichtbar.length === 1 ? ' Probe' : ' Proben') + (offenAlle ? ' · ' + offenAlle + ' offen' : '');
+      lock.disabled = !offenAlle; lock.hidden = !offenAlle;
+      lock.textContent = offenAlle === 1 ? '1 offene sperren' : 'Alle ' + offenAlle + ' offenen sperren';
     }
     const subjects = [...new Set(sichtbar.map(r => r.subject))];
     subjects.sort((a,b) => {
@@ -334,12 +394,27 @@ const Proben = (() => {
     subjects.forEach(sub => {
       const rows = sichtbar.filter(r => r.subject === sub);
       rows.sort((a,b) => a.klasse.localeCompare(b.klasse, 'de', {numeric:true}) || a.title.localeCompare(b.title, 'de'));
-      const g = document.createElement('div');
+      // Alle Proben: je Fach zum Zuklappen, darin Zwischenüberschriften je Klasse
+      const g = document.createElement(liste ? 'details' : 'div');
       g.className = 'group';
-      const offen = rows.filter(r => r.unlocked && !r.noUnlock).length;
-      g.innerHTML = '<div class="group-head"><h3>' + esc(sub) + '</h3><span class="cnt">' + rows.length +
-        (rows.length === 1 ? ' Probe' : ' Proben') + (offen ? ' · ' + offen + ' offen' : '') + '</span></div>';
-      rows.forEach(r => g.appendChild(card(r)));
+      const offen = rows.filter(r => r.unlocked && !r.noUnlock).length, kopf = liste ? 'summary' : 'div';
+      g.innerHTML = '<' + kopf + ' class="group-head"><h3>' + esc(sub) + '</h3><span class="cnt">' + rows.length +
+        (rows.length === 1 ? ' Probe' : ' Proben') + (offen ? ' · ' + offen + ' offen' : '') + '</span></' + kopf + '>';
+      if(liste){
+        g.open = !ZU.has(sub);
+        g.addEventListener('toggle', () => { if(g.open) ZU.delete(sub); else ZU.add(sub); });
+      }
+      let vorher = null;
+      rows.forEach(r => {
+        if(liste && r.klasse !== vorher){
+          vorher = r.klasse;
+          const k = document.createElement('div');
+          k.className = 'pr-kl';
+          k.textContent = 'Klasse ' + r.klasse + ' · ' + rows.filter(x => x.klasse === r.klasse).length;
+          g.appendChild(k);
+        }
+        g.appendChild(card(r));
+      });
       box.appendChild(g);
     });
     note($('pr-msg'), FEHLEND.length ? 'Diese Bereiche antworten gerade nicht: ' + FEHLEND.join(', ')

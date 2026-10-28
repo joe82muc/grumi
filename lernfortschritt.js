@@ -46,9 +46,22 @@
     e9: { M: "9M/Englisch_9/index.html", R: "9R/Englisch/index.html" },
     i7: { M: "7M/Informatik/index.html", R: "7R/Informatik/index.html" }, i8: { M: "8M/Informatik/index.html", R: "8R/Informatik/index.html" }, i9: { M: "9M/Informatik/index.html", R: "9R/Informatik/index.html" }
   };
+  /* Filter oben (28.10.2026): Jahrgang, Klasse (Buchstabe a, b, c, d) und Fach. Jahrgang und Buchstabe grenzen die
+     Klassen ein, das Fach die Reiter der Klasse, die Noten und die Liste „Alle Proben“. Gespeichert in diesem Browser. */
+  var FILTER = { stufe: "", bst: "", fach: "" };
+  // Fächer des Filters: Schlüssel wie beim Kurs (k.fach), dazu die Namen, unter denen Noten (fach) und Proben (subject) das Fach führen
+  var FAECHER = [
+    { k: "d", name: "Deutsch", namen: ["Deutsch"] },
+    { k: "e", name: "Englisch", namen: ["Englisch"] },
+    { k: "nt", name: "NT", namen: ["NT", "Natur und Technik"] },
+    { k: "i", name: "Informatik", namen: ["Informatik"] },
+    { k: "gpg", name: "GPG", namen: ["GPG", "Geschichte/Politik/Geographie"] }
+  ];
   try {
     KLASSE = global.localStorage.getItem("lf-klasse") || "";
     ANSICHT = global.localStorage.getItem("lf-ansicht") || "noten";
+    var gemerkt = JSON.parse(global.localStorage.getItem("lf-filter") || "{}") || {};
+    Object.keys(FILTER).forEach(function (k) { if (typeof gemerkt[k] === "string") FILTER[k] = gemerkt[k]; });
   } catch (_e) {}
   // Getrennte Namensliste { code: name }; js/namen-sync.js gleicht sie nach der Anmeldung automatisch ab.
   var NAMEN_KEY = "lf-nt9-namen", NAMEN = {};
@@ -79,7 +92,22 @@
     ".vw-kl-kopf{display:flex;flex-wrap:wrap;align-items:baseline;gap:.4rem .8rem;margin-bottom:.8rem}" +
     ".vw-kl-kopf h2{font-size:1.35rem;margin:0}" +
     ".vw-badge{font-size:.8rem;font-weight:800;color:var(--muted)}" +
-    ".vw-tabs{display:flex;flex-wrap:wrap;gap:.4rem;border-bottom:2px solid var(--line);padding-bottom:.7rem;margin-bottom:1rem}" +
+    // Filter oben: Jahrgang, Klasse (a, b, c, d), Fach
+    ".vw-filter{display:grid;gap:.4rem;margin:.1rem 0 .8rem;padding:.65rem .8rem;border:1.5px solid var(--line);border-radius:14px;background:#f8fafc}" +
+    ".vw-fg{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem}" +
+    ".vw-fl,.vw-tl{font-size:.72rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:5.2rem}" +
+    ".vw-fk{padding:.3rem .75rem;border:1.5px solid var(--line);border-radius:999px;background:#fff;font:inherit;font-weight:800;font-size:.86rem;cursor:pointer;color:var(--dark)}" +
+    ".vw-fk:hover{background:#eef2f7}.vw-fk.on{background:var(--accent);border-color:var(--accent);color:#fff}" +
+    ".vw-fweg{justify-self:start;border:0;background:none;color:var(--accent);font:inherit;font-weight:800;font-size:.84rem;cursor:pointer;padding:.1rem 0}" +
+    ".vw-fweg:hover{text-decoration:underline}" +
+    // Reiter der Klasse in zwei Reihen: „Klasse“ und „Fächer“
+    ".vw-tabs{display:grid;gap:.45rem;border-bottom:2px solid var(--line);padding-bottom:.7rem;margin-bottom:1rem}" +
+    ".vw-tg{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem}.vw-tleer{font-size:.88rem;font-weight:700;color:var(--muted)}" +
+    // Noten: Namensspalte bleibt beim seitlichen Scrollen stehen; Erklärung zum Aufklappen
+    ".lf-noten tbody td:first-child,.lf-noten thead th:first-child,.lf-noten tfoot td:first-child{position:sticky;left:0;z-index:1;box-shadow:inset -1px 0 0 var(--line)}" +
+    ".lf-noten tbody td:first-child{background:#fff}.lf-noten thead th:first-child{background:#f4f6fa}" +
+    ".lf-legende{margin-top:.6rem;font-size:.86rem;color:var(--muted)}.lf-legende summary{cursor:pointer;font-weight:800;color:var(--dark)}" +
+    ".lf-legende p{margin:.4rem 0 0;line-height:1.45}" +
     ".vw-tabs button{padding:.5rem 1rem;border:1.5px solid var(--line);border-radius:12px;background:#fff;font:inherit;font-weight:800;font-size:.92rem;cursor:pointer;color:var(--dark)}" +
     ".vw-tabs button:hover{background:#f3f5f9}" +
     ".vw-tabs button.on{background:var(--accent);border-color:var(--accent);color:#fff}" +
@@ -149,7 +177,7 @@
     ".lf-rang-z b{font-variant-numeric:tabular-nums;text-align:right}" +
     ".lf-rang-z span{min-width:0;overflow-wrap:anywhere}" +
     ".lf-rang-z .lf-stn{display:inline-block;min-width:1.5rem;color:var(--muted);font-weight:800}" +
-    "@media (max-width:640px){.lf-rang-z{grid-template-columns:1fr 90px 54px}.vw-stufe{min-width:100%}}" +
+    "@media (max-width:640px){.lf-rang-z{grid-template-columns:1fr 90px 54px}.vw-stufe,.vw-fl,.vw-tl{min-width:100%}}" +
     ".lf-codes{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:.5rem;margin-top:.7rem}" +
     ".lf-ck{display:flex;align-items:center;gap:.5rem;border:1.5px solid var(--line);border-radius:10px;padding:.45rem .6rem}" +
     ".lf-ck .lf-code{font-size:1.1rem}" +
@@ -236,6 +264,57 @@
     if (!f) return "";
     return encodeURI(typeof f === "string" ? f : f[zugBuchstabe(klasse)] || "");
   }
+  function buchstabe(k) { var m = /^\d+([a-z])/.exec(k || ""); return m ? m[1] : ""; }
+  function klassePasst(k) { return (!FILTER.stufe || String(stufeVon(k)) === FILTER.stufe) && (!FILTER.bst || buchstabe(k) === FILTER.bst); }
+  function fachFilter() { return FAECHER.filter(function (f) { return f.k === FILTER.fach; })[0] || null; }
+  function fachPasst(name) { var f = fachFilter(); return !f || f.namen.indexOf(name) >= 0; }
+  function filterAn() { return Boolean(FILTER.stufe || FILTER.bst || FILTER.fach); }
+  // Was der Filter anbieten kann – gespeicherte Werte, die es nicht mehr gibt, gelten nicht
+  function filterWerte() {
+    var w = { stufe: [], bst: [], fach: [] };
+    KLASSEN.forEach(function (k) {
+      var st = String(stufeVon(k.klasse)), b = buchstabe(k.klasse);
+      if (st !== "0" && w.stufe.indexOf(st) < 0) w.stufe.push(st);
+      if (b && w.bst.indexOf(b) < 0) w.bst.push(b);
+    });
+    w.stufe.sort(function (a, b) { return a - b; }); w.bst.sort();
+    w.fach = FAECHER.filter(function (f) { return KURSE.some(function (k) { return k.fach === f.k; }); }).map(function (f) { return f.k; });
+    return w;
+  }
+  function filterPruefen() {
+    if (!KLASSEN.length) return;
+    var w = filterWerte();
+    Object.keys(FILTER).forEach(function (k) { if (FILTER[k] && w[k].indexOf(FILTER[k]) < 0) FILTER[k] = ""; });
+    // Passt die gewählte Klasse nicht zum Filter, gilt die erste passende
+    if (KLASSE && !klassePasst(KLASSE)) {
+      var erste = KLASSEN.filter(function (k) { return klassePasst(k.klasse); })[0];
+      if (erste) { KLASSE = erste.klasse; merken("lf-klasse", KLASSE); OFFEN = {}; ALLE_AUFGABEN = false; DATEN = null; }
+    }
+  }
+  function filterSetzen(art, wert) {
+    if (art === "weg") FILTER = { stufe: "", bst: "", fach: "" };
+    else FILTER[art] = FILTER[art] === wert ? "" : wert;
+    merken("lf-filter", JSON.stringify(FILTER));
+    zeichnen();
+  }
+  function filterLeiste() {
+    var w = filterWerte();
+    function gruppe(titel, art, werte) {
+      return '<div class="vw-fg" role="group" aria-label="' + titel + '"><span class="vw-fl">' + titel + "</span>" +
+        [{ v: "", t: "Alle" }].concat(werte).map(function (x) {
+          var an = FILTER[art] === x.v;
+          return '<button type="button" class="vw-fk' + (an ? " on" : "") + '" data-f="' + art + '" data-v="' + esc(x.v) + '" aria-pressed="' + an + '">' + x.t + "</button>";
+        }).join("") + "</div>";
+    }
+    return '<div class="vw-filter">' +
+      gruppe("Jahrgang", "stufe", w.stufe.map(function (s) { return { v: s, t: esc(s) }; })) +
+      gruppe("Klasse", "bst", w.bst.map(function (b) { return { v: b, t: esc(b) }; })) +
+      gruppe("Fach", "fach", w.fach.map(function (k) {
+        var f = FAECHER.filter(function (x) { return x.k === k; })[0];
+        return { v: k, t: (FACH_ICON[k] ? FACH_ICON[k] + " " : "") + esc(f.name) };
+      })) +
+      (filterAn() ? '<button type="button" class="vw-fweg" data-f="weg">✕ Filter aus – alles zeigen</button>' : "") + "</div>";
+  }
   function codesDerKlasse(k) {
     return CODES.filter(function (s) { return s.klasse === k; })
       .map(function (s) { return { code: s.code, klasse: s.klasse, name: nameVon(s.code), lrs: Boolean(s.lrs) }; })
@@ -246,7 +325,7 @@
   function rahmen() {
     box.innerHTML =
       '<div class="toolbar"><div><h2>Klasse wählen</h2>' +
-      '<p class="sub" style="margin:0">Proben, Lernfortschritt und Codes gibt es je Klasse. Neue Klasse = Klassenliste aus dem Schulmanager hochladen.</p></div>' +
+      '<p class="sub" style="margin:0">Mit dem Filter grenzt du Jahrgang, Klasse und Fach ein – er bleibt auf diesem Gerät gespeichert.</p></div>' +
       '<div class="spacer"></div><a class="btn btn-ghost btn-sm" href="kalender-verwalten.html">Probenkalender 2026/2027</a><button class="btn btn-ghost btn-sm" id="vw-reload" type="button">Neu laden</button></div>' +
       '<div id="vw-klassen"><div class="skel">Klassen werden geladen … Wenn der Server schläft, dauert das bis zu einer Minute.</div></div>' +
       '<div id="vw-msg"></div>' +
@@ -281,11 +360,11 @@
   }
 
   function klassenLeiste() {
-    var stufen = {}, h = "";
-    KLASSEN.forEach(function (k) { (stufen[k.stufe] = stufen[k.stufe] || []).push(k); });
+    var stufen = {}, h = KLASSEN.length ? filterLeiste() : "";
+    KLASSEN.forEach(function (k) { if (klassePasst(k.klasse)) (stufen[k.stufe] = stufen[k.stufe] || []).push(k); });
     Object.keys(stufen).sort(function (a, b) { return a - b; }).forEach(function (st) {
       // Züge dieser Stufe mit Inhalten, für die es noch keine Klasse mit Codes gibt (z. B. 9R): eigener Reiter für die Proben
-      var fehlend = fehlendeZuege(st);
+      var fehlend = FILTER.bst ? [] : fehlendeZuege(st);
       h += '<div class="vw-gruppe"><span class="vw-stufe">Klasse ' + esc(st) + "</span>" + stufen[st].map(function (k) {
         var an = k.klasse === KLASSE && ANSICHT !== "neu" && ANSICHT !== "alle" && ANSICHT !== "zug";
         return '<button type="button" class="vw-chip' + (an ? " on" : "") + '" data-klasse="' + esc(k.klasse) + '">' + esc(k.klasse) +
@@ -297,9 +376,13 @@
       }).join("") + "</div>";
     });
     if (!KLASSEN.length) h += '<p class="sub" style="margin:.2rem 0">Noch keine Klasse angelegt.</p>';
+    else if (!Object.keys(stufen).length) h += '<p class="sub" style="margin:.2rem 0">Keine Klasse passt zu diesem Filter.</p>';
     h += '<div class="vw-sonder"><button type="button" class="vw-chip neu' + (ANSICHT === "neu" ? " on" : "") + '" data-sonder="neu">＋ Neue Klasse (Klassenliste hochladen)</button>' +
-      '<button type="button" class="vw-chip' + (ANSICHT === "alle" ? " on" : "") + '" data-sonder="alle">🔓 Alle Proben aller Klassen</button></div>';
+      '<button type="button" class="vw-chip' + (ANSICHT === "alle" ? " on" : "") + '" data-sonder="alle">🔓 Alle Proben ' + (filterAn() ? "(nach Filter)" : "aller Klassen") + "</button></div>";
     $("vw-klassen").innerHTML = h;
+    Array.prototype.forEach.call($("vw-klassen").querySelectorAll("[data-f]"), function (b) {
+      b.addEventListener("click", function () { filterSetzen(b.getAttribute("data-f"), b.getAttribute("data-v") || ""); });
+    });
     Array.prototype.forEach.call($("vw-klassen").querySelectorAll("[data-klasse]"), function (b) {
       b.addEventListener("click", function () {
         KLASSE = b.getAttribute("data-klasse"); merken("lf-klasse", KLASSE);
@@ -327,12 +410,18 @@
   }
 
   function zeichnen() {
+    filterPruefen();
     klassenLeiste();
     var el = $("vw-inhalt");
     if (ANSICHT === "neu") { neueKlasseZeichnen(el); return; }
     if (ANSICHT === "alle") {
-      el.innerHTML = '<div class="vw-kl-kopf"><h2>Alle Proben</h2><span class="vw-badge">alle Klassen und Fächer</span></div><div id="vw-proben"></div>';
-      if (PROBEN) PROBEN.zeigen($("vw-proben"), null);
+      // Alle Proben nach dem Filter: Fach; Jahrgang bzw. Buchstabe -> Stufe und Zug der passenden Klassen
+      var ff = fachFilter(), ziele = null;
+      if (FILTER.bst) ziele = KLASSEN.filter(function (k) { return klassePasst(k.klasse); }).map(function (k) { return { stufe: stufeVon(k.klasse), zug: zugBuchstabe(k.klasse) }; });
+      else if (FILTER.stufe) ziele = [{ stufe: Number(FILTER.stufe), zug: "M" }, { stufe: Number(FILTER.stufe), zug: "R" }];
+      var was = [FILTER.stufe ? "Jahrgang " + FILTER.stufe : "", FILTER.bst ? "Klassen " + FILTER.bst : "", ff ? ff.name : ""].filter(Boolean).join(" · ");
+      el.innerHTML = '<div class="vw-kl-kopf"><h2>Alle Proben</h2><span class="vw-badge">' + (was ? "Filter: " + esc(was) : "alle Klassen und Fächer") + '</span></div><div id="vw-proben"></div>';
+      if (PROBEN) PROBEN.zeigen($("vw-proben"), { liste: true, faecher: ff ? ff.namen : null, ziele: ziele });
       return;
     }
     if (ANSICHT === "zug" && ZUG_LEER) {
@@ -346,7 +435,16 @@
     }
     if (ANSICHT === "zug") ANSICHT = "noten";
     if (!KLASSE) { el.innerHTML = ""; return; }
-    var kurse = klassenKurse(KLASSE);
+    if (!klassePasst(KLASSE)) {
+      el.innerHTML = '<div class="note">Keine Klasse passt zu diesem Filter. Wähle oben einen anderen Jahrgang oder Buchstaben – oder „Filter aus“.</div>';
+      return;
+    }
+    var kurse = klassenKurse(KLASSE), kursAlt = kursVon(ANSICHT), ff2 = fachFilter();
+    // Beim Wechsel der Klasse oder des Fach-Filters im selben Fach bleiben (z. B. Informatik 7 -> Informatik 8)
+    if (kursAlt && (kurse.indexOf(kursAlt) < 0 || (ff2 && kursAlt.fach !== ff2.k))) {
+      var gleich = kurse.filter(function (k) { return k.fach === (ff2 ? ff2.k : kursAlt.fach); })[0];
+      ANSICHT = gleich ? gleich.id : "noten";
+    }
     // Einen eigenen Reiter „Proben“ gibt es nicht mehr (06.10.2026): Proben werden beim Fach freigeschaltet – unter den
     // Modulen, die sie enthalten (nt7-verwaltung.js), sonst als Karten über dem Lernstand des Fachs (fachProben).
     // Alle Proben aller Klassen stehen weiter hinter dem Knopf oben.
@@ -356,11 +454,16 @@
     var h = '<div class="vw-kl-kopf"><h2>Klasse ' + esc(KLASSE) + '</h2><span class="vw-badge">Jahrgangsstufe ' + stufeVon(KLASSE) + " · " + zugText(KLASSE) +
       " · " + info.anzahl + (info.anzahl === 1 ? " Code" : " Codes") + "</span></div>";
     if (nurZug(KLASSE)) h += '<div class="note warn" style="margin:0 0 .9rem">Diese Codes stammen aus der ersten Fassung und kennen nur den Zug. Unter „Codes &amp; Namen“ kannst du die Klasse umbenennen, z. B. in ' + (zugBuchstabe(KLASSE) === "M" ? stufeVon(KLASSE) + "aM" : stufeVon(KLASSE) + "d") + ". Codes und Lernstand bleiben erhalten.</div>";
-    h += '<nav class="vw-tabs" aria-label="Bereiche der Klasse">' +
-      '<button type="button" data-ansicht="noten">📝 Noten</button>' +
-      '<button type="button" data-ansicht="heft">📚 Hausaufgaben</button><button type="button" data-ansicht="kalender">Probenkalender</button><button type="button" data-ansicht="rat">📮 Klassenrat</button>' +
-      kurse.map(function (k) { return '<button type="button" data-ansicht="' + esc(k.id) + '">' + (FACH_ICON[k.fach] || "📈") + " " + esc(k.fachName) + "</button>"; }).join("") +
-      '<button type="button" data-ansicht="codes">👥 Codes &amp; Namen</button></nav><div id="vw-teil"></div>';
+    // Reiter in zwei Reihen: was die ganze Klasse betrifft – und die Fächer (beim Fach-Filter nur dieses Fach)
+    var sichtbar = kurse.filter(function (k) { return !ff2 || k.fach === ff2.k; });
+    h += '<nav class="vw-tabs" aria-label="Bereiche der Klasse"><div class="vw-tg"><span class="vw-tl">Klasse</span>' +
+      '<button type="button" data-ansicht="noten">📝 Noten' + (ff2 ? " · " + esc(ff2.name) : "") + "</button>" +
+      '<button type="button" data-ansicht="heft">📚 Hausaufgaben</button><button type="button" data-ansicht="kalender">📅 Probenkalender</button><button type="button" data-ansicht="rat">📮 Klassenrat</button>' +
+      '<button type="button" data-ansicht="codes">👥 Codes &amp; Namen</button></div>' +
+      '<div class="vw-tg"><span class="vw-tl">Fächer</span>' + (sichtbar.length ? sichtbar.map(function (k) {
+        return '<button type="button" data-ansicht="' + esc(k.id) + '">' + (FACH_ICON[k.fach] || "📈") + " " + esc(k.fachName) + "</button>";
+      }).join("") : '<span class="vw-tleer">' + (ff2 ? esc(ff2.name) + " gibt es in dieser Klasse (noch) nicht." : "Für diese Klasse gibt es noch keine Fächer.") + "</span>") +
+      '</div></nav><div id="vw-teil"></div>';
     el.innerHTML = h;
     Array.prototype.forEach.call(el.querySelectorAll("[data-ansicht]"), function (b) {
       b.classList.toggle("on", b.getAttribute("data-ansicht") === ANSICHT);
@@ -492,9 +595,11 @@
     });
   }
   // Je Probe eine Spalte, nach dem ersten Abgabedatum
+  // Proben der Klasse als Spalten – beim Fach-Filter nur die dieses Fachs (auch für CSV und Excel)
   function notenProben() {
     var reihe = [], je = {};
     NOTEN.noten.forEach(function (n) {
+      if (!fachPasst(n.fach)) return;
       var k = n.modul + "|" + n.testId;
       if (!je[k]) { je[k] = { modul: n.modul, testId: n.testId, titel: n.titel, fach: n.fach, datum: n.datum, noten: {} }; reihe.push(je[k]); }
       if (String(n.datum) < String(je[k].datum)) je[k].datum = n.datum;
@@ -547,17 +652,17 @@
     return z.length ? (z.reduce(function (a, b) { return a + b; }, 0) / z.length).toFixed(2).replace(".", ",") : "";
   }
   function notenZeichnen(teil) {
-    var P = notenProben(), liste = notenKinder(P), h = "";
-    h += '<div class="toolbar" style="margin-bottom:.6rem"><div><h2>Noten · Klasse ' + esc(KLASSE) + "</h2>" +
-      '<p class="sub" style="margin:0">Alle Proben, die Kinder dieser Klasse mit ihrem Code abgegeben haben. Unter jeder Note stehen Punkte und Datum. ' +
-      "<b>Klick auf eine Note:</b> Antworten ansehen, Punkte je Aufgabe ändern (die Note rechnet sich neu), die Abgabe löschen, damit das Kind nachschreiben kann, " +
-      "oder die Antworten für die Eltern drucken (einzeln oder für die ganze Klasse). Klick auf den Titel: Lehrerseite der Probe.</p></div>" +
+    var P = notenProben(), liste = notenKinder(P), h = "", ff = fachFilter();
+    h += '<div class="toolbar" style="margin-bottom:.6rem"><div><h2>Noten · Klasse ' + esc(KLASSE) + (ff ? " · " + esc(ff.name) : "") + "</h2>" +
+      '<p class="sub" style="margin:0"><b>Klick auf eine Note:</b> Antworten ansehen, Punkte ändern, zurückgeben oder für die Eltern drucken. Klick auf den Titel: Lehrerseite der Probe.' +
+      (ff ? " Es stehen nur Proben in " + esc(ff.name) + " da (Filter oben)." : "") + "</p></div>" +
       '<div class="spacer"></div><button class="btn btn-ghost btn-sm" id="lf-nreload" type="button">Neu laden</button>' +
       '<button class="btn btn-ghost btn-sm" id="lf-nxlsx" type="button"' + (P.length && global.GrumiNotenExcel ? "" : " disabled") +
       ' title="Excel-Mappe: Übersicht der Klasse und je Probe ein Blatt mit Thema, Klasse, Datum, Name und Note – Noten farbig, mit Notenspiegel">📊 Notenliste (Excel)</button>' +
       '<button class="btn btn-ghost btn-sm" id="lf-ncsv" type="button"' + (P.length ? "" : " disabled") + ">CSV-Export</button></div>";
     if (!P.length) {
-      h += '<div class="note">Für Klasse ' + esc(KLASSE) + " gibt es noch keine Abgaben. Sobald ein Kind eine Probe mit seinem Code abgibt, steht die Note hier.</div>";
+      h += '<div class="note">Für Klasse ' + esc(KLASSE) + (ff ? " gibt es in " + esc(ff.name) + " noch keine Abgaben" + (NOTEN.noten.length ? " – in anderen Fächern schon (Filter oben: „Alle“)" : "") + "."
+        : " gibt es noch keine Abgaben. Sobald ein Kind eine Probe mit seinem Code abgibt, steht die Note hier.") + "</div>";
     } else {
       h += '<div class="lf-scroll"><table class="lf-tab lf-noten"><thead><tr><th>Name</th><th>Code</th>';
       P.forEach(function (p) {
@@ -605,11 +710,14 @@
           })() + "</td>";
       });
       h += "<td></td></tr></tfoot></table></div>" +
-        '<p class="sub" style="margin:.5rem 0 0">⚠️ = Die KI war bei einer freien Antwort unsicher oder nicht erreichbar. Bitte in der Lehrerseite der Probe nachsehen. ' +
+        '<details class="lf-legende"><summary>ℹ️ Zeichen und Knöpfe erklärt (⚠️ LRS × verlassen ⛔ ⏱ ✏️ 📤)</summary>' +
+        "<p>Unter jeder Note stehen Punkte und Datum. Klick auf eine Note: Antworten ansehen, Punkte je Aufgabe ändern (die Note rechnet sich neu), die Abgabe löschen, damit das Kind nachschreiben kann, " +
+        "Weiterbearbeiten erlauben oder die Antworten für die Eltern drucken (einzeln oder für die ganze Klasse). CSV und Excel enthalten die Proben, die gerade angezeigt sind.</p>" +
+        "<p>⚠️ = Die KI war bei einer freien Antwort unsicher oder nicht erreichbar. Bitte in der Lehrerseite der Probe nachsehen. " +
         "<b>LRS</b> = mit Notenschutz gewertet (Rechtschreibung zählt nicht). <b>× verlassen</b> = So oft hat das Kind während der Probe in einen anderen Tab oder eine andere App gewechselt (mit Sekunden insgesamt; Wechsel unter 5 Sekunden zählen nicht). " +
         "<b>⛔ Probe beendet</b> = Testregeln: insgesamt mehr als 1 Minute weg oder 2. Kopierversuch – Note 6 (Englisch seit 21.10.2026: Verlassen nur Warnung und Vermerk, schon der 1. Kopierversuch = Note 6); auf die Note klicken, um sie aufzuheben. <b>⏱</b> = automatisch abgegeben, ohne Note 6. " +
         "<b>✏️ darf weiterarbeiten</b> = Du hast erlaubt, dass das Kind die Probe noch einmal öffnet (solange sie freigeschaltet ist) – seine Antworten sind dann wieder da, die neue Abgabe ersetzt die alte; <b>✏️ weiterbearbeitet</b> = so ist es geschehen (die Fassung davor steht im Hinweis). Erlauben: auf die Note klicken. " +
-        "<b>📤 zurückgegeben</b> = Das Kind sieht die korrigierte Probe auf seiner Startseite unter „Zurückbekommen“ und kann sie für die Eltern drucken; „geöffnet“ heißt, es hat sie angesehen. <b>7 Tage nach der Rückgabe verschwindet die Probe beim Kind von selbst</b> („beim Kind weg“) – Note und Abgabe bleiben hier; mit „Noch einmal zurückgeben“ sieht das Kind sie wieder 7 Tage. Zurückgeben: auf eine Note klicken oder unten „Alle zurückgeben“. Deutsch-Proben gibst du auf ihrer Korrekturseite frei.</p>";
+        "<b>📤 zurückgegeben</b> = Das Kind sieht die korrigierte Probe auf seiner Startseite unter „Zurückbekommen“ und kann sie für die Eltern drucken; „geöffnet“ heißt, es hat sie angesehen. <b>7 Tage nach der Rückgabe verschwindet die Probe beim Kind von selbst</b> („beim Kind weg“) – Note und Abgabe bleiben hier; mit „Noch einmal zurückgeben“ sieht das Kind sie wieder 7 Tage. Zurückgeben: auf eine Note klicken oder unten „Alle zurückgeben“. Deutsch-Proben gibst du auf ihrer Korrekturseite frei.</p></details>";
     }
     teil.innerHTML = h;
     $("lf-nreload").addEventListener("click", function () { notenLaden(teil); });
@@ -932,7 +1040,7 @@
       });
       zeilen.push(z.concat([schnitt(noten)]));
     });
-    datei(zeilen, "noten-" + KLASSE + "-" + new Date().toISOString().slice(0, 10) + ".csv");
+    datei(zeilen, "noten-" + KLASSE + (fachFilter() ? "-" + fachFilter().name : "") + "-" + new Date().toISOString().slice(0, 10) + ".csv");
   }
   // Notenliste als Excel-Mappe (js/noten-excel.js): Übersicht der Klasse, dann je Probe ein Blatt mit Thema, Modulen,
   // Klasse, Datum, Name und Note – Noten farbig (1 dunkelgrün … 6 dunkelrot), Notenspiegel und Schnitt
@@ -969,7 +1077,7 @@
         }).filter(function (z) { return !z.fehlt || z.bemerkung !== "Code gelöscht"; })
       }));
     });
-    E.laden(blaetter, "Notenliste " + KLASSE + " " + new Date().toISOString().slice(0, 10) + ".xlsx");
+    E.laden(blaetter, "Notenliste " + KLASSE + (fachFilter() ? " " + fachFilter().name : "") + " " + new Date().toISOString().slice(0, 10) + ".xlsx");
   }
 
   /* ---------- Fach: Lernfortschritt ---------- */
