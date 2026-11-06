@@ -4,8 +4,9 @@
  * und der Verwaltung (nt7-verwaltung.js in proben-verwalten.html).
  * Aufbau und Logik wie 7M/NT/themen.js:
  *   Thema  = Themenbereich (Erzählen, Sachtexte, Argumentieren, Literatur und Medien, Grammatik, Rechtschreibung)
- *            proben = Nummern der Proben dieses Bereichs (1 bis 8). Jede Probe gibt es auf dem Server viermal:
- *                     d7-p<nr>-r-a, -r-b, -m-a, -m-b (R7/M7, Variante A und Nachschreiber-Variante B)
+ *            proben = Nummern der Proben dieses Bereichs (1 bis 9). Jede Probe gibt es auf dem Server viermal:
+ *                     d7-p<nr>-r-a, -r-b, -m-a, -m-b (R7/M7, Variante A und Nachschreiber-Variante B) – außer
+ *                     Probe 9 „Einen Aufruf schreiben“ (seit 06.11.2026): nur M7, nur d7-p9-m-a, zählt doppelt
  *            lp     = Lernbereiche des LehrplanPLUS, zu denen der Themenbereich gehört
  *   Modul  = eine Seite in diesem Ordner
  *            id    = Kennung in der Freischaltung; der Lernstand heißt „d7-<id>“
@@ -79,7 +80,7 @@
       ]
     },
     {
-      id: "argumentieren", nr: "03", titel: "Argumentieren und diskutieren", kurz: "Argumentieren", icon: "🗣️", proben: [4],
+      id: "argumentieren", nr: "03", titel: "Argumentieren und diskutieren", kurz: "Argumentieren", icon: "🗣️", proben: [4, 9],
       lp: "Sprechen und Zuhören (D7 1.2, 1.3) · Schreiben (D7 3.2)",
       text: "Meinungen begründen, auf andere eingehen, fair streiten und überzeugen – vom einzelnen Argument bis zur ganzen Diskussion.",
       module: [
@@ -251,7 +252,9 @@
     5: ["lit-01", "lit-02"],
     6: ["gr-01", "gr-02", "gr-03"],
     7: ["gr-04", "gr-05", "gr-06", "gr-07"],
-    8: ["rs-01", "rs-02", "rs-03", "rs-04", "rs-05", "rs-06"]
+    8: ["rs-01", "rs-02", "rs-03", "rs-04", "rs-05", "rs-06"],
+    // Probe 9 (M7): Einen Aufruf schreiben – Krötenzaun, Schritt für Schritt (A11 Aufruf, A12 Probentraining Aufruf)
+    9: ["arg-10", "arg-11"]
   };
   // testId: „d7-p3-m-a“ oder die Nummer der Probe
   function probeModule(testId) {

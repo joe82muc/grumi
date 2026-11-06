@@ -151,8 +151,18 @@
   var bereich = function (b) { return b[0] === b[1] ? "Z. " + b[0] : "Z. " + b[0] + "–" + b[1]; };
 
   /* ---------- Fassung für das Kind: Platz zum Ankreuzen und Schreiben ---------- */
+  // Antwort in Teilen (teile, Deutsch 7 Probe 9): je Teil ein beschriftetes Feld mit Linien, Gruppen mit Überschrift
+  function teileFeld(a) {
+    var gruppe = "", lang = a.type === "schreiben";
+    return (a.teile || []).map(function (t) {
+      var kopf = t.gruppe && t.gruppe !== gruppe ? '<p style="margin:12px 0 2px"><b>' + esc(t.gruppe) + "</b>" + (t.zusatz ? ' <small style="color:#566674">(' + esc(t.zusatz) + ")</small>" : "") + "</p>" : "";
+      gruppe = t.gruppe || "";
+      return kopf + '<div style="margin:4px 0 6px"><span>' + esc(t.label) + (t.hilfe ? ' <small style="color:#566674">(' + esc(t.hilfe) + ")</small>" : "") + "</span>" + linien(lang ? 2 : 1) + "</div>";
+    }).join("");
+  }
   function feld(a, id) {
     var r, k;
+    if (Array.isArray(a.teile) && a.teile.length) return teileFeld(a);
     if (a.type === "choice" || a.type === "multi") {
       r = mische((a.options || []).length, id + "|c");
       return '<p class="pv-anw">' + (a.type === "multi" ? "Kreuze alle richtigen Antworten an." : "Kreuze die richtige Antwort an.") + '</p><ul class="pv-kreuz">' +

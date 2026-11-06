@@ -98,6 +98,43 @@
     $("identity-section").scrollIntoView({behavior: "smooth", block: "center"});
   }
 
+  /* ---------- Antwort in Teilen (teile vom Server, seit 06.11.2026: Probe 9 M7 „Einen Aufruf schreiben“) ----------
+     Statt eines großen Textfeldes hat jeder Teil ein eigenes Feld (z. B. Behauptung · Begründung · Beispiel); Teile mit
+     gruppe stehen in einem Rahmen („Argument 1“). Abgegeben wird weiter ein Text: je Teil eine Zeile „Name: …“ (bei nur
+     einem Teil der Text allein). Freiwillige Teile (frei) fehlen in der Abgabe, solange sie leer sind. */
+  const teilName = t => typeof t === "string" ? t : (t.gruppe ? t.gruppe + " – " : "") + t.label;
+  const teilVorn = n => n + (/[.:]$/.test(n) ? " " : ": ");
+  function teileMarkup(item) {
+    const max = item.type === "schreiben" ? 1000 : 500, einzeln = item.teile.length === 1;
+    let h = "", gruppe = "";
+    item.teile.forEach((t, j) => {
+      const g = typeof t === "string" ? "" : t.gruppe || "", label = typeof t === "string" ? t : t.label, hilfe = typeof t === "string" ? "" : t.hilfe || "";
+      if (g !== gruppe) {
+        if (gruppe) h += "</fieldset>";
+        if (g) h += `<fieldset class="teil-gruppe${t.frei ? " frei" : ""}"><legend>${esc(g)}</legend>${t.zusatz ? `<p class="teil-zusatz">${esc(t.zusatz)}</p>` : ""}`;
+        gruppe = g;
+      }
+      h += `<label class="teil-feld${einzeln ? " einzeln" : ""}"><span>${esc(label)}${hilfe ? `<small>${esc(hilfe)}</small>` : ""}</span><textarea data-teil="${j}" rows="2" maxlength="${max}" aria-label="${esc(teilName(t))} (Aufgabe ${item.nr})"></textarea></label>`;
+    });
+    if (gruppe) h += "</fieldset>";
+    return `<div class="teile">${h}</div>`;
+  }
+  function teileText(item, el) {
+    const werte = [...el.querySelectorAll("textarea[data-teil]")].map(t => t.value.trim());
+    if (!werte.some(Boolean)) return "";
+    if (item.teile.length === 1) return werte[0];
+    return item.teile.map((t, j) => [t, werte[j] || ""]).filter(([t, w]) => w || !t.frei).map(([t, w]) => teilVorn(teilName(t)) + w).join("\n");
+  }
+  function teileSetzen(item, el, text, feuer) {
+    const s = String(text || ""), werte = item.teile.map(() => ""), vorn = item.teile.map(t => teilVorn(teilName(t)));
+    if (vorn.length === 1) werte[0] = s;
+    else {
+      let j = -1;
+      s.split("\n").forEach(z => { const k = vorn.findIndex(v => z.startsWith(v) || z === v.trim()); if (k >= 0) { j = k; werte[k] = z.slice(vorn[k].length).trim(); } else if (j >= 0) werte[j] += "\n" + z; });
+    }
+    el.querySelectorAll("textarea[data-teil]").forEach((ta, k) => { if (werte[k]) { ta.value = werte[k]; ProbeSchutz.gesetzt(ta); feuer(ta, "input"); } });
+  }
+
   /* ---------- Aufgaben zeichnen ---------- */
   const textTitel = id => { const t = exam.texte.find(x => x.id === id); return t ? t.titel || t.art || "Text" : ""; };
   function itemMarkup(item) {
@@ -117,6 +154,8 @@
     if (item.type === "schreiben" && exam.sitzung && window.AufsatzEditor) controls = `<div class="ae-platz" data-ae="${item.nr}"></div>`;
     else if (item.type === "schreiben") controls = (item.material ? `<div class="material">${esc(item.material)}</div>` : "") +
       `<textarea class="lang" aria-label="Dein Text zu Aufgabe ${item.nr}" rows="16" maxlength="12000" placeholder="Schreibe hier deinen Text." data-min="${item.minWoerter || 0}"></textarea><div class="zaehler" data-zaehler>0 Wörter${item.minWoerter ? " · mindestens " + item.minWoerter : ""}</div>`;
+    // Antwort in Teilen: je Teil ein eigenes Feld statt eines großen Textfeldes
+    if (Array.isArray(item.teile) && item.teile.length) controls = (item.type === "schreiben" && item.material ? `<div class="material">${esc(item.material)}</div>` : "") + teileMarkup(item);
     // Prüfungsteil (Englisch: „A Listening“ …): Überschrift vor der ersten Aufgabe des Teils
     const vorher = exam.items[item.nr - 2], teil = item.teil && (!vorher || vorher.teil !== item.teil) ? `<h2 class="teil-kopf" data-teil="${esc(item.teil)}">${esc(item.teil)}</h2>` : "";
     const hoer = item.text && (exam.texte.find(x => x.id === item.text) || {}).typ === "hoertext";
@@ -138,6 +177,7 @@
       if (item.type === "felder") return [...el.querySelectorAll("input[data-feld]")].map(i => i.value.trim());
       if (item.type === "komma") return [...el.querySelectorAll(".komma-satz")].map(s => [...s.querySelectorAll("input:checked")].map(i => Number(i.dataset.komma)));
       if (item.type === "zeile") return {von: el.querySelector("[data-von]").value.trim(), bis: el.querySelector("[data-bis]").value.trim()};
+      if (Array.isArray(item.teile) && item.teile.length) return teileText(item, el);
       return (el.querySelector("textarea.lang") || el.querySelector("textarea")).value.trim();
     });
   }
@@ -159,6 +199,7 @@
       else if (item.type === "felder") [...el.querySelectorAll("input[data-feld]")].forEach((f, j) => { if (a[j]) { f.value = a[j]; feuer(f, "input"); } });
       else if (item.type === "komma") [...el.querySelectorAll(".komma-satz")].forEach((s, j) => (a[j] || []).forEach(k => { const h = s.querySelector(`input[data-komma="${k}"]`); if (h) { h.checked = true; feuer(h, "change"); } }));
       else if (item.type === "zeile") { el.querySelector("[data-von]").value = a.von || ""; el.querySelector("[data-bis]").value = a.bis || ""; }
+      else if (Array.isArray(item.teile) && item.teile.length) teileSetzen(item, el, a, feuer);
       else if (editoren[item.nr]) editoren[item.nr].setze({text: String(a), plan: (z.plan || {})[item.nr] || {}});
       else if (a) { const ta = el.querySelector("textarea"); ta.value = String(a); ProbeSchutz.gesetzt(ta); feuer(ta, "input"); }
     });
@@ -314,6 +355,9 @@
     z.classList.toggle("gut", min > 0 && n >= min);
   }
   $("questions").addEventListener("input", e => { const z = e.target.matches && e.target.matches("textarea.lang") ? e.target.nextElementSibling : null; if (z && z.hasAttribute("data-zaehler")) zaehle(e.target, z); });
+  // Felder je Teil wachsen mit dem Text mit (sonst verschwindet eine längere Antwort oben im Feld)
+  const wachse = ta => { ta.style.height = "auto"; ta.style.height = Math.max(64, ta.scrollHeight + 3) + "px"; };
+  $("questions").addEventListener("input", e => { if (e.target.matches && e.target.matches("textarea[data-teil]")) wachse(e.target); });
   $("questions").addEventListener("click", e => { const b = e.target.closest("[data-zutext]"); if (b) zeigeText(b.dataset.zutext); });
   $("text-auf").addEventListener("click", () => { document.body.classList.add("text-offen"); D7Lesetext.einpassen($("lesespalte")); });
   $("text-zu").addEventListener("click", () => document.body.classList.remove("text-offen"));
