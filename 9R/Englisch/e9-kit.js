@@ -15,6 +15,10 @@
  *   Stichwörter k (Gruppen mit |). Jeder Beitrag ist eine Aufgabe (id + "-" + Nummer) und gelöst, wenn alle Punkte da
  *   sind. Nach zwei Versuchen gibt es ein Beispiel, und das Gespräch geht auch ohne volle Punktzahl weiter.
  *   sprache: "de" oder "en" – in dieser Sprache muss der Beitrag stehen (sagt die Aufgabe der KI).
+ *   tipps: ["…", "…"] (freiwillig, seit Englisch 7) – Tipps in Stufen: Der Knopf „💡 Tipp“ zeigt bei jedem Antippen den
+ *     nächsten (HTML erlaubt). ueber: "She" | "He" | "They" (freiwillig) – der Beitrag spricht ÜBER die Person a (dritte
+ *     Person, wie beim Dolmetschen für einen Touristen). Steht nur „I / my / we …“ darin und kein „she / he / they …“,
+ *     kommt ein Hinweis statt der KI-Prüfung.
  */
 (function () {
   "use strict";
@@ -29,6 +33,13 @@
   function falscheSprache(text, sprache) {
     const t = " " + String(text).toLowerCase().replace(/’/g, "'") + " ", de = (t.match(WORT_DE) || []).length, en = (t.match(WORT_EN) || []).length;
     return sprache === "de" ? en >= 2 && en > de : de >= 2 && de > en;
+  }
+  // Spricht der Beitrag in der ersten Person („I would like …“), obwohl es um die andere Person geht („She would like …“)?
+  const ICH = /(^|[^a-z'])(i|i'm|i'd|i'll|i've|me|my|mine|we|we're|we'd|our|us)(?=$|[^a-z'])/;
+  const ER = /(^|[^a-z'])(she|he|her|his|him|they|them|their|she's|he's|she'd|he'd|they're|they'd)(?=$|[^a-z'])/;
+  function ichStattEr(text) {
+    const t = " " + String(text).toLowerCase().replace(/’/g, "'") + " ";
+    return ICH.test(t) && !ER.test(t);
   }
 
   K.bauer.kette = (box, teil) => {
@@ -50,8 +61,8 @@
         el.className = "blase du ki an-" + ziel; el.dataset.nr = n; el.dataset.id = id;
         el.innerHTML = `<b class="wer">${esc(name("du"))} → ${esc(name(ziel))} <small>in ${spr[0]}</small></b>${s.auftrag ? `<p class="auftrag">${s.auftrag}</p>` : ""}
           <textarea rows="2" maxlength="500" lang="${s.sprache === "de" ? "de" : "en"}" spellcheck="false" autocapitalize="sentences" placeholder="${esc(s.start ? s.start + " …" : "…")}" aria-label="Dein Beitrag ${n}"></textarea>
-          <div class="row-btns">${s.start ? `<button class="btn small ghost start" type="button">💡 Start: ${esc(s.start)} …</button>` : ""}<button class="btn small teal go" type="button">✨ Check</button><button class="btn small ghost show-model" type="button" hidden>Zum Beispiel …</button></div>
-          <div class="status"></div><div class="fb"></div><div class="model"><strong>Zum Beispiel:</strong> <span>${esc(s.m)}</span></div>`;
+          <div class="row-btns">${s.start ? `<button class="btn small ghost start" type="button">💡 Start: ${esc(s.start)} …</button>` : ""}${s.tipps && s.tipps.length ? `<button class="btn small ghost tipp" type="button">💡 Tipp</button>` : ""}<button class="btn small teal go" type="button">✨ Check</button><button class="btn small ghost show-model" type="button" hidden>Zum Beispiel …</button></div>
+          <div class="hilfen-texte kette-tipps"></div><div class="status"></div><div class="fb"></div><div class="model"><strong>Zum Beispiel:</strong> <span>${esc(s.m)}</span></div>`;
       }
       el.hidden = true; lauf.appendChild(el);
       return el;
@@ -73,11 +84,19 @@
     teil.schritte.forEach((s, i) => {
       if (s.von) return;
       const el = blasen[i], id = el.dataset.id, ta = $("textarea", el), go = $(".go", el), st = $(".status", el), fb = $(".fb", el), sm = $(".show-model", el), model = $(".model", el), start = $(".start", el);
-      const spr = SPRACHE[s.sprache] || SPRACHE.en;
-      let versuche = 0;
+      const spr = SPRACHE[s.sprache] || SPRACHE.en, tippKnopf = $(".tipp", el), tippBox = $(".kette-tipps", el);
+      let versuche = 0, tippNr = 0;
       ta.value = M.load("-" + id, "");
       ta.addEventListener("input", () => M.save("-" + id, ta.value));
       if (start) start.addEventListener("click", () => { if (!ta.value.trim()) { ta.value = s.start + " "; M.save("-" + id, ta.value); } ta.focus(); });
+      // Tipps in Stufen: jedes Antippen zeigt den nächsten
+      if (tippKnopf) tippKnopf.addEventListener("click", () => {
+        if (tippNr >= s.tipps.length) return;
+        tippBox.insertAdjacentHTML("beforeend", `<div class="hilfe-text"><b>Tipp ${tippNr + 1}</b>${s.tipps[tippNr]}</div>`);
+        tippNr++;
+        if (tippNr >= s.tipps.length) { tippKnopf.disabled = true; tippKnopf.textContent = "💡 Alle Tipps offen"; }
+        else tippKnopf.textContent = "💡 Noch ein Tipp";
+      });
       sm.addEventListener("click", () => model.classList.toggle("show"));
       const weiter = () => { if (i + 1 > weit) { weit = i + 1; zeige(weit); } };
       if (M.isSolved(id)) { weit = Math.max(weit, i + 1); sm.hidden = false; }
@@ -87,6 +106,11 @@
         if (falscheSprache(antwort, s.sprache === "de" ? "de" : "en")) {
           st.textContent = ""; fb.className = "fb show mid";
           fb.textContent = "🟡 " + name(s.an === "b" ? "b" : "a") + " versteht nur " + (s.sprache === "de" ? "Deutsch" : "Englisch") + ". Schreibe deinen Beitrag " + spr[1] + ".";
+          return;
+        }
+        if (s.ueber && ichStattEr(antwort)) {
+          st.textContent = ""; fb.className = "fb show mid";
+          fb.textContent = "🟡 Du sprichst über " + name("a") + ". Schreib „" + s.ueber + " …“ statt „I …“ oder „we …“ – sonst denkt " + name(s.an === "b" ? "b" : "a") + ", du selbst möchtest das.";
           return;
         }
         go.disabled = true; fb.className = "fb"; st.innerHTML = '<span class="dots">Die KI liest deinen Beitrag</span>';

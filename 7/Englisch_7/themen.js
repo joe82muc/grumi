@@ -13,7 +13,7 @@ GrumiKursliste.bauen({
   themen: [
     {
       id: "u1", nr: "01", titel: "Unit 1: Out and about in England", kurz: "Unit 1", icon: "🏰",
-      text: "Wortschatz der Unit, vier Grammatikthemen und eine Lernliste zum Abfragen.",
+      text: "Wortschatz der Unit, vier Grammatikthemen, Sprechen, Mediation und eine Lernliste zum Abfragen.",
       module: [
         { id: "u1-vokabeln", kz: "A1", titel: "Vokabeltrainer Unit 1", href: "unit1/vokabular/vokabeltrainer.html", art: "Wortschatz", trainer: true, ls: "e7-u1-vokabeln",
           text: "Alle Wörter mit Aussprache, Multiple Choice, Tippen und Karteikarten." },
@@ -23,6 +23,8 @@ GrumiKursliste.bauen({
           text: "Die einfache Gegenwart: sagen, was jemand regelmäßig tut – und verneinen." },
         { id: "u1-where-i-live", kz: "A7", titel: "Sprechen · Short talk: Where I live", href: "unit1/schreiben/where-i-live.html", art: "Sprechen", ls: "e7-u1-wil",
           text: "Den eigenen Wohnort vorstellen: Text schreiben, von der KI korrigieren lassen, Blatt für den Vortrag drucken." },
+        { id: "u1-mediation", kz: "A8", titel: "Mediation · Helping tourists", href: "u1-mediation.html", art: "Mediation", ls: "e7-u1-mediation",
+          text: "Deutschen Touristen in England helfen – an der Theaterkasse, am Bahnhof, im Imbiss und in der Touristeninformation. Die KI prüft jeden Beitrag, Tipps helfen." },
         { id: "u1-g3", kz: "A4", titel: "G3 · Simple present: Fragen und Kurzantworten", href: "unit1/grammatik/g3-questions.html", art: "Grammatik", ls: "e7-u1-g3",
           text: "Fragen mit do und does bilden und kurz antworten." },
         { id: "u1-g4", kz: "A5", titel: "G4 · Possessivpronomen", href: "unit1/grammatik/g4-possessivpronomen.html", art: "Grammatik", ls: "e7-u1-g4",
