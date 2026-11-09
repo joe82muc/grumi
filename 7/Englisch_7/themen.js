@@ -10,6 +10,8 @@
 GrumiKursliste.bauen({
   name: "E7", kurs: "e7", stufe: 7, zuege: ["M", "R"], fach: "Englisch", titel: "Englisch 7", pfad: "/api/e7", ordner: "7/Englisch_7/",
   intro: "Wortschatz und Grammatik passend zu den Units. Deine Lehrkraft schaltet frei, was ihr gerade im Unterricht behandelt.",
+  // große Proben (js/proben-module.js: e7proben) – beim Freischalten unter ihrer Unit
+  proben: { "e7-p1-r-a": "u1", "e7-p1-m-a": "u1" },
   themen: [
     {
       id: "u1", nr: "01", titel: "Unit 1: Out and about in England", kurz: "Unit 1", icon: "🏰",

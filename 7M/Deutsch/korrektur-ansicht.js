@@ -11,6 +11,9 @@
 (function (global) {
   "use strict";
   var esc = global.D7Lesetext.esc;
+  // Ausbessern (Englisch 7, k.ausbessern vom Server oder PROBEN_FACH.ausbessern): Falsches durchgestrichen, Verbesserung daneben
+  var AUSB = false;
+  function ausbessern(k) { return Boolean((k && k.ausbessern) || (global.PROBEN_FACH && global.PROBEN_FACH.ausbessern)); }
   function zahl(n) { return String(Math.round(Number(n) * 2) / 2).replace(".", ","); }
   function datum(iso) { var d = new Date(iso); return isNaN(d) ? "" : d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" }); }
   function teil(titel, inhalt, klasse) { return inhalt ? '<div class="k-teil"><span>' + titel + '</span><div class="' + (klasse || "") + '">' + inhalt + "</div></div>" : ""; }
@@ -33,7 +36,10 @@
     text = String(text || "");
     markenGueltig(text, marken).forEach(function (m, i) {
       if (m.start > pos) aus += '<span data-ab="' + pos + '">' + esc(text.slice(pos, m.start)) + "</span>";
-      aus += '<mark class="km km-' + m.type + '" data-ab="' + m.start + '" title="' + esc(MARKEN[m.type][1] + (m.comment ? ": " + m.comment : "")) + '">' + esc(text.slice(m.start, m.end)) + '</mark><sup class="km-nr">' + (i + 1) + "</sup>";
+      // mit Verbesserung (m.besser): die Stelle durchgestrichen, die Verbesserung gleich dahinter
+      var stueck = m.besser ? "<del>" + esc(text.slice(m.start, m.end)) + "</del>" : esc(text.slice(m.start, m.end));
+      aus += '<mark class="km km-' + m.type + '" data-ab="' + m.start + '" title="' + esc(MARKEN[m.type][1] + (m.comment ? ": " + m.comment : "")) + '">' + stueck + "</mark>" +
+        (m.besser ? ' <ins class="km-besser">' + esc(m.besser) + "</ins>" : "") + '<sup class="km-nr">' + (i + 1) + "</sup>";
       pos = m.end;
     });
     if (pos < text.length) aus += '<span data-ab="' + pos + '">' + esc(text.slice(pos)) + "</span>";
@@ -44,7 +50,9 @@
     if (!liste.length) return "";
     return '<ol class="km-liste">' + liste.map(function (m) {
       var stelle = text.slice(m.start, m.end).replace(/\s+/g, " ");
-      return '<li class="km-' + m.type + '"><b>' + MARKEN[m.type][0] + "</b> <span>" + esc(MARKEN[m.type][1]) + " – „" + esc(stelle.length > 50 ? stelle.slice(0, 48) + "…" : stelle) + "“" + (m.comment ? ": " + esc(m.comment) : "") + "</span></li>";
+      var kurz = esc(stelle.length > 50 ? stelle.slice(0, 48) + "…" : stelle);
+      return '<li class="km-' + m.type + '"><b>' + MARKEN[m.type][0] + "</b> <span>" + esc(MARKEN[m.type][1]) + " – " +
+        (m.besser ? "<del>" + kurz + '</del> → <ins class="km-besser">' + esc(m.besser) + "</ins>" : "„" + kurz + "“") + (m.comment ? ": " + esc(m.comment) : "") + "</span></li>";
     }).join("") + "</ol>";
   }
   // Planung des Kindes zu einer Schreibaufgabe (wird gezeigt, nicht bewertet)
@@ -58,6 +66,9 @@
     if (a.felder) {
       return '<ul class="k-zeilen">' + a.felder.map(function (f) {
         var r = f.punkte >= f.max;
+        // Notenschutz: nur die Schreibweise war falsch – zählt; die richtige Schreibweise steht zur Information dabei
+        if (f.gewertet && r && f.nurSchreibweise) return '<li class="r"><span>' + esc(f.label) + "</span><b>" + esc(f.given) + "</b><small>✓ zählt – so schreibt man es: " + esc(f.loesung) + "</small></li>";
+        if (AUSB && f.gewertet && !r) return '<li class="f"><span>' + esc(f.label) + "</span><b>" + (f.given ? "<del>" + esc(f.given) + "</del> " : "– ") + '<ins class="km-besser">' + esc(f.loesung) + "</ins></b><small>✗</small></li>";
         return '<li class="' + (!f.gewertet ? "aus" : r ? "r" : "f") + '"><span>' + esc(f.label) + "</span><b>" + (f.given ? esc(f.given) : "–") + "</b><small>" +
           (!f.gewertet ? "nicht bewertet" : r ? "✓ richtig" : "richtig: " + esc(f.loesung)) + "</small></li>";
       }).join("") + "</ul>";
@@ -65,9 +76,14 @@
     if (Array.isArray(a.given)) {
       return '<ul class="k-zeilen">' + a.given.map(function (g, i) {
         var soll = Array.isArray(a.loesung) ? a.loesung[i] : "", r = g === soll;
+        if (AUSB && !r && !a.nichtBewertet) return '<li class="f"><span>' + esc((a.labels || [])[i] || "") + "</span><b>" + (g ? "<del>" + esc(g) + "</del> " : "– ") + '<ins class="km-besser">' + esc(soll) + "</ins></b><small>✗</small></li>";
         return '<li class="' + (a.nichtBewertet ? "aus" : r ? "r" : "f") + '"><span>' + esc((a.labels || [])[i] || "") + "</span><b>" + (g ? esc(g) : "–") + "</b><small>" +
           (r ? "✓ richtig" : "richtig: " + esc(soll)) + "</small></li>";
       }).join("") + "</ul>";
+    }
+    // Ankreuzen, Zeilenangabe (ausbessern): falsche Antwort durchgestrichen, die richtige daneben
+    if (AUSB && a.type !== "offen" && a.type !== "schreiben" && a.loesung && a.points < a.max && !a.nichtBewertet) {
+      return '<div class="k-antwort' + (a.given ? "" : " leer") + '">' + (a.given ? "<del>" + esc(a.given) + "</del> " : "Keine Antwort. ") + '<ins class="km-besser">' + esc(a.loesung) + "</ins></div>";
     }
     var mit = a.given && a.marken && a.marken.length;
     return '<div class="k-antwort' + (a.given ? "" : " leer") + '">' + (a.given ? (mit ? markiert(a.given, a.marken) : esc(a.given)) : "Keine Antwort.") + "</div>" +
@@ -99,7 +115,7 @@
         teil("Deine Planung", planung(a)) + "</section>";
     }
     var korrektur = a.comment ? p(a.comment) : "";
-    if (a.type !== "offen" && !a.felder && !Array.isArray(a.given) && a.loesung && a.points < a.max) korrektur += p("Richtig ist: " + a.loesung);
+    if (!AUSB && a.type !== "offen" && !a.felder && !Array.isArray(a.given) && a.loesung && a.points < a.max) korrektur += p("Richtig ist: " + a.loesung);
     return '<section class="k-aufgabe">' + kopf +
       teil("Deine Antwort", antwort(a)) +
       (a.type === "offen" && a.kriterien && a.kriterien.length > 1 ? teil("Punkte im Einzelnen", raster(a, false)) : "") +
@@ -110,6 +126,7 @@
   function html(k) {
     // Jahrgang: aus der Korrektur (k.stufe, Deutsch 8), sonst von der Seite (DEUTSCH_NR), sonst 7
     var stufe = k.stufe || window.DEUTSCH_NR || 7, klasse = (k.zug === "M" ? "M" : "R") + stufe;
+    AUSB = ausbessern(k);
     return '<div class="kopfkarte"><div><div class="eyebrow">Korrigierte Probe · ' + esc(k.fach || "Deutsch " + stufe) + "</div><h1>" + esc(k.title) + "</h1>" +
       "<dl><dt>Klasse</dt><dd>" + esc(k.klasse || "") + " (" + klasse + ")</dd><dt>Variante</dt><dd>" + esc(k.variante) + (k.variante === "B" ? " (Nachschreiber)" : "") + "</dd>" +
       "<dt>Geschrieben am</dt><dd>" + datum(k.datum) + "</dd><dt>Schülerkennung</dt><dd>Code " + esc(k.code) + '</dd><dt class="nur-druck">Name</dt><dd class="nur-druck">________________________________</dd></dl></div>' +

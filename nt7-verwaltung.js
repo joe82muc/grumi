@@ -121,7 +121,7 @@
           return (d.tests || []).filter(function (t) { if (t.alt && !t.unlocked) return false; var k = mod.klasse(t); return listeVon(mod, t) === N && (k === String(STUFE) || k === STUFE + ZUG); })
             .map(function (t) { return { mod: mod, id: t.id, titel: t.title || t.id, variante: t.variante || "", notenzug: t.notenzug || "", ohneMinute: t.wegSekunden === 0, ohneNote6: t.wegSekunden === 0 && t.kopieren === 0,
               // Englisch (seit 21.10.2026): Verlassen nur Warnung, 1. Kopierversuch = Note 6; große Englisch-Proben ohne Zeitbegrenzung
-              englisch: t.kopieren === 1 || /^(vokabeltest|grammatik9r|e9proben)$/.test(mod.key || ""), ohneZeit: Boolean(t.ohneZeit),
+              englisch: t.kopieren === 1 || /^(vokabeltest|grammatik9r|e9proben|e7proben)$/.test(mod.key || ""), ohneZeit: Boolean(t.ohneZeit),
               abgabeMinuten: t.abgabeMinuten || 0, offen: !!t.unlocked, aufgaben: t.itemCount, punkte: t.maxPoints, hoertexte: t.hoertexte || 0, klasse: mod.klasse(t), link: mod.link ? mod.link(t) : "", schueler: mod.schueler ? mod.schueler(t) : "" }; });
         }).catch(function () { return []; });
       })); }).then(function (teile) { PROBEN = [].concat.apply([], teile); });

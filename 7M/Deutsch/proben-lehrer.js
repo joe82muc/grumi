@@ -16,6 +16,8 @@
   // Jahrgang: 7 (Vorgabe) oder 8 – Deutsch 8 setzt window.DEUTSCH_NR vor diesem Skript (8/Deutsch/…html)
   // Anderes Fach mit denselben Proben (Englisch 9R): window.PROBEN_FACH = { kurz, stufe, name, api } vor diesem Skript
   const PF = window.PROBEN_FACH || null;
+  // Englisch 7 (PROBEN_FACH.ausbessern): Zu jeder Markierung gibt es eine Verbesserung, die das Kind neben der durchgestrichenen Stelle sieht
+  const AUSB = Boolean(PF && PF.ausbessern);
   const DNR = PF ? PF.stufe : window.DEUTSCH_NR || (window.GRUMI_KURS && window.GRUMI_KURS.NR) || 7, DNAME = PF ? PF.name : "Deutsch " + DNR, DAPI = PF ? PF.api : "/api/d" + DNR;
   const params = new URLSearchParams(location.search);
   const API = (params.get("api") || (location.hostname.endsWith("github.io") ? "https://englisch-9.onrender.com" : location.origin)).replace(/\/$/, "");
@@ -112,7 +114,7 @@
   // Warum ein Feld zum Ansehen markiert ist: fast richtig (Tippfehler?), halber Punkt vorgeschlagen, falsch mit möglichen Teilpunkten
   const PRUEFEN = {halb: "halber Punkt vorgeschlagen – bitte ansehen", teil: "falsch – halbe Punkte möglich, bitte ansehen"};
   function antwortListe(d) {
-    if (d.felder) return `<ul class="l-horizont">${d.felder.map((f, i) => `<li><div>${esc(f.label)}: <b>${f.given ? esc(f.given) : "–"}</b>${marke(f)}${f.pruefen ? ` <span class="stand zu-pruefen">${PRUEFEN[f.warum] || "fast richtig – bitte ansehen"}</span>` : ""}<small>Lösung: ${esc(f.expected)}</small></div><div>${punktFeld(f.punkte, f.max, `data-teil="${i}"`)}</div></li>`).join("")}</ul>`;
+    if (d.felder) return `<ul class="l-horizont">${d.felder.map((f, i) => `<li><div>${esc(f.label)}: <b>${f.given ? esc(f.given) : "–"}</b>${marke(f)}${f.pruefen ? ` <span class="stand zu-pruefen">${PRUEFEN[f.warum] || "fast richtig – bitte ansehen"}</span>` : ""}${f.lrsOk ? ` <span class="pill" title="Notenschutz (LRS): Die KI sieht nur die Schreibweise falsch – deshalb volle Punkte${f.lrsGrund ? ". " + esc(f.lrsGrund) : ""}">LRS ✓ nur Schreibweise (KI)</span>` : ""}<small>Lösung: ${esc(f.expected)}</small></div><div>${punktFeld(f.punkte, f.max, `data-teil="${i}"`)}</div></li>`).join("")}</ul>`;
     return `<ul class="k-zeilen">${d.given.map((g, i) => `<li class="${g === d.expected[i] ? "r" : "f"}"><span>${esc((d.labels || [])[i] || "")}</span><b>${g ? esc(g) : "–"}</b><small>${g === d.expected[i] ? "✓" : "Lösung: " + esc(d.expected[i])}</small></li>`).join("")}</ul>`;
   }
   function aufgabe(d) {
@@ -246,6 +248,7 @@
         ${Object.keys(MK).map(t => `<button type="button" class="mk-art km-${t}" data-mk-art="${t}" title="${esc(MK[t][1])}">${MK[t][0]}<small>${esc(MK[t][1])}</small></button>`).join("")}</div>
       <ul class="mk-liste" data-mk-liste>${marken.map((m, i) => `<li class="km-${m.type}"><b>${i + 1} · ${MK[m.type][0]}</b><span class="mk-stelle">„${esc(d.given.slice(m.start, m.end).replace(/\s+/g, " ").slice(0, 60))}“${m.von === "ki" ? ' <small title="Vorschlag der KI">✨</small>' : ""}</span>
         <input type="text" data-mk-komm="${i}" value="${esc(m.comment || "")}" maxlength="200" placeholder="Hinweis für das Kind" aria-label="Hinweis zur Markierung ${i + 1}">
+        ${(AUSB || m.besser) && m.type !== "positive" ? `<input type="text" data-mk-bess="${i}" value="${esc(m.besser || "")}" maxlength="120" placeholder="Verbesserung (steht neben der durchgestrichenen Stelle)" aria-label="Verbesserung zur Markierung ${i + 1}">` : ""}
         <button type="button" class="btn klein secondary" data-mk-weg="${i}" aria-label="Markierung ${i + 1} entfernen">✕</button></li>`).join("")}</ul>
       <p class="l-quelle" style="margin:4px 0 0">Der Text des Kindes bleibt unverändert – Markierungen liegen nur darüber. Das Kind sieht sie mit deinem Hinweis in der Korrektur.</p></div>`;
   }
@@ -312,8 +315,10 @@
     if (!a.querySelector("[data-mk]")) return undefined;
     const marken = D7Korrektur.markenGueltig(d.given, d.marken || []).map(m => ({...m}));
     a.querySelectorAll("[data-mk-komm]").forEach(f => { const m = marken[Number(f.dataset.mkKomm)]; if (m) { if (m.comment !== f.value.trim()) m.von = "lehrer"; m.comment = f.value.trim(); } });
+    // Verbesserung (Englisch 7): leer = die Stelle wird nur markiert, nicht durchgestrichen
+    a.querySelectorAll("[data-mk-bess]").forEach(f => { const m = marken[Number(f.dataset.mkBess)]; if (m) { const v = f.value.trim(); if ((m.besser || "") !== v) m.von = "lehrer"; if (v) m.besser = v; else delete m.besser; } });
     d.marken = marken;
-    return marken.map(m => ({start: m.start, end: m.end, type: m.type, comment: m.comment, von: m.von}));
+    return marken.map(m => ({start: m.start, end: m.end, type: m.type, comment: m.comment, von: m.von, ...(m.besser ? {besser: m.besser} : {})}));
   }
 
   // Einstellungen des Probenmodus je Probe (was GRUMI sperrt oder festhält, ob die Restzeit zu sehen ist)

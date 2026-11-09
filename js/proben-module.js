@@ -133,6 +133,16 @@
       schueler: function (t) { return (t.zug === "M" ? "9M/Englisch_9/" : "9R/Englisch/") + "probe.html?test=" + encodeURIComponent(t.id) + "&zug=" + (t.zug || "R"); }
     },
     {
+      /* Englisch 7 (seit 09.11.2026): die großen Proben – eine je Unit, für 7M und 7R mit denselben Aufgaben (Kennungen
+         e7-p<nr>-m-a / e7-p<nr>-r-a: freigeschaltet wird je Klasse, die Note folgt dem M- bzw. R-Schlüssel). Ablauf wie
+         Englisch 9 (KI-Vorkorrektur, Prüfung durch die Lehrkraft, Rückgabe); den Hörtext spielt die Lehrkraft ab. */
+      key: "e7proben", subject: "Englisch", stufen: [7], liste: "E7",
+      listPath: "/api/e7/proben/list?alle=1", unlockPath: "/api/e7/proben/teacher/unlock",
+      hoertextPath: "/api/e7/proben/teacher/hoertext",
+      klasse: function (t) { return "7" + (t.zug || ""); }, link: function (t) { return "7/Englisch_7/proben-lehrer.html?nr=" + probeNr(t); },
+      schueler: function (t) { return "7/Englisch_7/probe.html?test=" + encodeURIComponent(t.id) + "&zug=" + (t.zug || "R"); }
+    },
+    {
       key: "infoaustausch", subject: "Informatik", stufen: [7],
       listPath: "/api/infoaustausch/list", unlockPath: "/api/infoaustausch/unlock",
       klasse: function () { return "7"; }, link: function () { return "7/Informatik_7/probe/lehrer.html"; },

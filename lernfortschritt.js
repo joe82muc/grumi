@@ -818,7 +818,8 @@
       // Probe (lehrerseite) – hier: Abgabe löschen (Nachschreiben), Note 6 aufheben, Protokoll des Probenmodus
       d7proben: { results: "/api/d7/proben/teacher/results", del: "/api/d7/proben/teacher/delete", lehrerseite: true },
       d8proben: { results: "/api/d8/proben/teacher/results", del: "/api/d8/proben/teacher/delete", lehrerseite: true },
-      e9proben: { results: "/api/e9/proben/teacher/results", del: "/api/e9/proben/teacher/delete", lehrerseite: true }
+      e9proben: { results: "/api/e9/proben/teacher/results", del: "/api/e9/proben/teacher/delete", lehrerseite: true },
+      e7proben: { results: "/api/e7/proben/teacher/results", del: "/api/e7/proben/teacher/delete", lehrerseite: true }
     };
   })();
   function apiPost(pfad, body) {
