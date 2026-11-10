@@ -249,11 +249,15 @@
       }).join("");
     }
     function zeichnen(meldung) {
+      // Fortbildungsklasse (7zM, 7z, 8zM, 8z, 9zM, 9z – feste Codes 010 bis 069 für Lehrkräfte): Der Server öffnet alles
+      var fortbildung = STAND.fortbildung ? '<div class="note ok" style="margin:.5rem 0 0">🎓 <b>Fortbildungsklasse:</b> Für die Codes der ' + esc(ctx.klasse) +
+        " ist immer alles offen – die Schalter ändern daran nichts. Der Lernstand wird wie bei einer echten Klasse gespeichert; „Klasse löschen“ setzt die Codes zurück." +
+        " Proben gelten dagegen für alle Klassen des Zugs – auch für die echten. Zum Zeigen also besser „Vorschau · PDF“ nehmen.</div>" : "";
       var h = '<summary>🔓 ' + esc(W.titel) + ' freischalten <small>für Klasse ' + esc(ctx.klasse) + "</small></summary>" +
         '<p class="sub" style="margin:0 0 .2rem">Offen heißt: Die Kinder der ' + esc(ctx.klasse) + " sehen " + esc(W.das) + " nach der Anmeldung mit ihrem Code in ihrer Übersicht. " +
         (W.offenVorgabe ? "Hier ist zuerst alles offen – du sperrst, was die Klasse (noch) nicht sehen soll." : esc(W.neu) + " sind zuerst gesperrt, damit du sie vorher ansehen kannst („Vorschau“).") + (W.ohneProben ? "" : " Die Proben (📝) stehen unter den Modulen, die sie enthalten – eine Probe gilt immer für alle Klassen ihres Zugs und schließt sich 3 Stunden nach dem Freischalten von selbst.") +
         " Das Kürzel vorn (z. B. " + esc(beispielKz()) + ") ist der feste Name des Moduls: Die Kinder sehen es nicht, bei jeder Probe steht damit, welche Module sie enthält.</p>" +
-        '<div id="nt7f-msg">' + (meldung ? '<div class="note ' + meldung[1] + '" style="margin:.5rem 0 0">' + esc(meldung[0]) + "</div>" : "") + "</div>";
+        fortbildung + '<div id="nt7f-msg">' + (meldung ? '<div class="note ' + meldung[1] + '" style="margin:.5rem 0 0">' + esc(meldung[0]) + "</div>" : "") + "</div>";
       // Englisch (ctx.vokabelTon): Sprachausgabe der Vokabeltrainer für diese Klasse aus- oder anschalten. Gespeichert
       // wie ein Modul unter der Kennung „opt-vokabel-ton“ (false = aus, kein Eintrag = an); js/vokabel-extras.js liest es.
       if (ctx.vokabelTon) {
@@ -395,10 +399,14 @@
       for (var i = 0; i < N.THEMEN.length; i++) for (var j = 0; j < N.THEMEN[i].module.length; j++) if (N.THEMEN[i].module[j].kz) return N.THEMEN[i].module[Math.min(2, N.THEMEN[i].module.length - 1)].kz || N.THEMEN[i].module[j].kz;
       return "A3";
     }
+    // Stand aus der Antwort des Servers; alles = Fortbildungsklasse (dann zeigt N.offen jedes Modul offen)
+    function standVon(d) {
+      return { themen: d.themen || {}, module: d.module || {}, alles: Boolean(d.alles), fortbildung: Boolean(d.fortbildung) };
+    }
     function setzen(knopf, body, meldung) {
       knopf.disabled = true;
       post(ctx, "/setzen", body).then(function (d) {
-        STAND = { themen: d.themen || {}, module: d.module || {} };
+        STAND = standVon(d);
         zeichnen([meldung || "Gespeichert. Die Kinder der " + ctx.klasse + " sehen die Änderung, sobald sie ihre Übersicht öffnen oder neu laden.", "ok"]);
       }).catch(function (x) { knopf.disabled = false; zeichnen(["Das Freischalten hat nicht geklappt: " + x.message, "bad"]); });
     }
@@ -421,7 +429,7 @@
           var meldung = "„" + m.titel + "“ steht jetzt im Hausaufgabenheft der " + ctx.klasse + " – fällig am " + datumText(faellig) + ", mit Link zum Modul.";
           if (!freischalten) { zeichnen([meldung + (N.offen(m, treffer.t, STAND) ? "" : " Achtung: Für die " + ctx.klasse + " ist es noch gesperrt."), "ok"]); return null; }
           return post(ctx, "/setzen", { art: "modul", id: m.id, offen: true }).then(function (x) {
-            STAND = { themen: x.themen || {}, module: x.module || {} };
+            STAND = standVon(x);
             zeichnen([meldung + " Es ist jetzt auch freigeschaltet.", "ok"]);
           });
         })
@@ -436,8 +444,7 @@
     }
 
     Promise.all([post(ctx, "", {}), probenLaden(), heftLaden()]).then(function (teile) {
-      var d = teile[0];
-      STAND = { themen: d.themen || {}, module: d.module || {} };
+      STAND = standVon(teile[0]);
       zeichnen();
     }).catch(function (x) {
       el.querySelector("details").innerHTML = "<summary>🔓 " + esc(W.titel) + " freischalten</summary>" +

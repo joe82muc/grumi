@@ -223,6 +223,26 @@ Wunsch der Lehrkraft: ein Code, mit dem alle Module aller Klassen offen sind. De
   zwischen 100 und 999, ein Kind kann 000 nie bekommen. Ändern oder abschalten: beim Server (Render) die
   Umgebungsvariable `LEHRER_CODE` setzen – drei Ziffern mit führender 0 (z. B. `042`) oder `aus`.
 
+### Nachtrag 10.11.2026: Fortbildungs-Codes für Lehrkräfte
+
+Wunsch der Lehrkraft: Musterzugänge für eine Lehrerfortbildung (10 Personen), mit denen jede Lehrkraft in jeder
+Jahrgangsstufe selbst alle Module ausprobieren kann. Anders als 000 sind es echte Codes einer Klasse – so erleben die
+Lehrkräfte GRUMI wie ein Kind, und die Verwaltung zeigt ihren Lernstand.
+
+- **Klassen und Codes:** 7zM, 7z, 8zM, 8z, 9zM, 9z mit je zehn festen Codes „0KT“ – K = Klasse (1 = 7zM, 2 = 7z,
+  3 = 8zM, 4 = 8z, 5 = 9zM, 6 = 9z), T = Teilnehmer (1 bis 9, 0 = Nummer 10). Teilnehmer 3 hat also 013, 023, 033,
+  043, 053 und 063. Codes mit 0 vorn bekommt nie ein Kind.
+- **Was sie können:** In jedem Fach mit Freischaltung ist alles offen (die Routen `…/freigabe` melden `alles: true` und
+  `fortbildung: true`), der Lernstand wird gespeichert, Hausaufgabenheft und Klassenrat gehen wie in einer echten
+  Klasse. Informatik 9 zeigt ihnen die Schüleransicht (die Lehreransicht nur mit 000). In der Verwaltung steht bei
+  diesen Klassen „Fortbildungsklasse“, alle Schalter stehen auf offen.
+- **Proben:** Eine Probe gilt immer für alle Klassen ihres Zugs. Für die Fortbildung also nicht freischalten (sonst ist
+  sie auch für die echten Klassen offen) – zum Zeigen „Vorschau · PDF“ nehmen.
+- **Anlegen, zurücksetzen, abschalten:** Der Server legt alle 60 Codes an, sobald sich jemand mit einem davon anmeldet.
+  „Klasse löschen“ in der Verwaltung setzt eine Fortbildungsklasse zurück (beim nächsten Anmelden ist sie leer wieder
+  da). Abschalten: beim Server (Render) `FORTBILDUNG_CODES=aus`; `/api/health` meldet `fortbildungCodes`.
+- **Prüfung:** `.codex-build/informatik7-werkzeug/test-fortbildung.js <website> <server> <bilder> chromium|webkit`.
+
 ## Stand 07.10.2026: NT 9 wie NT 7, eigene Hausaufgaben-Einträge, Sprachfahnen, Block-Proben
 
 - **NT 9 wie NT 7:** `9M/NT_9/themen.js` (NT9M) und `9R/NT_9/themen.js` (NT9R) mit dem Kursliste-Gerüst

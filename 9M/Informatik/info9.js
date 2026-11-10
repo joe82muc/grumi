@@ -406,8 +406,9 @@ function lernweg(ziel, opt) {
     })).observe(host, {attributes: true, attributeFilter: ["class"], subtree: true});
     hoerer.push(aktualisiere);
     zeige(parseInt(load("-weg", "0"), 10) || 0, false);
-    // Lehrercode: Der Server meldet „alles“ – dann die Lehreransicht zeigen und nichts sperren
-    if (!lehrer && !lehrerFest && K.freigabe && M.anmeldung) { try { K.freigabe(M.anmeldung(), st => { if (st && st.alles && !lehrer) { lehrer = true; zeige(akt, false); } }); } catch (_e) {} }
+    // Lehrercode: Der Server meldet „alles“ – dann die Lehreransicht zeigen und nichts sperren. Die Fortbildungsklassen
+    // (9zM, 9z) haben auch „alles“, sehen aber die Schüleransicht – darum zählt nur die Klasse „Lehrkraft“.
+    if (!lehrer && !lehrerFest && K.freigabe && M.anmeldung) { try { K.freigabe(M.anmeldung(), st => { if (st && st.alles && st.klasse === "Lehrkraft" && !lehrer) { lehrer = true; zeige(akt, false); } }); } catch (_e) {} }
     return api;
   }
 
