@@ -342,14 +342,16 @@
               : a.modul === "d8proben" ? "8/Deutsch/korrektur.html?test=" + encodeURIComponent(a.testId)
               : a.modul === "e9proben" ? (/-m-[ab]$/.test(a.testId || "") ? "9M/Englisch_9/" : "9R/Englisch/") + "korrektur.html?test=" + encodeURIComponent(a.testId)
               : a.modul === "e7proben" ? "7/Englisch_7/korrektur.html?test=" + encodeURIComponent(a.testId)
+              // Papierprobe: Korrekturblatt als PDF (papierproben.js auf dem Server)
+              : a.modul === "papier" ? "korrektur.html?papier=" + encodeURIComponent(a.id)
               : "korrektur.html?modul=" + encodeURIComponent(a.modul) + "&id=" + encodeURIComponent(a.id);
           };
-          var titel = function (a) { var m = /-p(\d+)-/.exec(a.testId || ""); return /^(d[78]|e[79])proben$/.test(a.modul) && m ? (/^e/.test(a.modul) ? "Englisch" : "Deutsch") + " – Probe " + m[1] + " korrigiert" : fach(a) + " – korrigiert"; };
+          var titel = function (a) { var m = /-p(\d+)-/.exec(a.testId || ""); return a.modul === "papier" ? a.titel || fach(a) + " – korrigiert" : /^(d[78]|e[79])proben$/.test(a.modul) && m ? (/^e/.test(a.modul) ? "Englisch" : "Deutsch") + " – Probe " + m[1] + " korrigiert" : fach(a) + " – korrigiert"; };
           box.hidden = !alle.length;
           box.innerHTML = alle.length ? '<h3 class="kb-abschnitt">📄 Zurückbekommen</h3>' +
             (neu.length ? '<div class="kb-kacheln">' + neu.map(function (a) {
               return '<a class="kb-kachel kb-gross kb-probe" href="' + esc(link(a)) + '"><span class="kb-emoji" aria-hidden="true">📄</span><b>' + esc(titel(a)) + "</b><small>" +
-                (/^d[78]proben$/.test(a.modul) ? "" : esc(a.titel) + " · ") + (a.neu ? "NEUE KORREKTUR · Korrektur öffnen" : "Korrektur noch einmal ansehen") +
+                (/^d[78]proben$/.test(a.modul) ? "" : a.modul === "papier" ? "Korrekturblatt (PDF) · " : esc(a.titel) + " · ") + (a.neu ? "NEUE KORREKTUR · Korrektur öffnen" : "Korrektur noch einmal ansehen") +
                 (/^\d{4}-\d\d-\d\d$/.test(a.sichtbarBis || "") ? " · zu sehen bis " + esc(tagKurz(a.sichtbarBis)) : "") + "</small></a>";
             }).join("") + "</div>" : "") +
             '<p style="margin:.4rem 0 0"><a href="korrektur.html" style="font-weight:800">📂 Alle zurückbekommenen Proben ansehen (' + alle.length + ")</a>" +

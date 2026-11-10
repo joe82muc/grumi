@@ -651,6 +651,168 @@
     var z = noten.filter(function (x) { return typeof x === "number"; });
     return z.length ? (z.reduce(function (a, b) { return a + b; }, 0) / z.length).toFixed(2).replace(".", ",") : "";
   }
+  /* ---------- Papierproben: Korrekturblatt als PDF je Kind zurückgeben (Server: papierproben.js) ----------
+     Wunsch 10.11.2026: korrigierte Papierproben „den Schülern auf GRUMI hochladen … für die Eltern“. Die PDFs sind ohne
+     Namen erzeugt; die Zuordnung Datei → Kind macht dieser Browser über die Namensliste (Dateiname wie
+     „GRUMI_Nachname_Vorname.pdf“). Zum Server gehen nur Code und PDF, nie der Dateiname. Das Kind sieht sein Blatt
+     unter „Zurückbekommen“ (korrektur.html?papier=…), 7 Tage lang wie jede Rückgabe. */
+  var PAPIER_FAECHER = ["Deutsch", "Englisch", "Mathematik", "NT", "Informatik", "GPG", "WiB", "Religion", "Ethik", "Musik", "Kunst", "Sport", "Sonstiges"];
+  var PAPIER_CSS = ".lf-papier{margin:0 0 1rem;padding:.75rem .9rem;border:1.5px solid var(--line);border-radius:14px;background:#fffdf7}" +
+    ".lf-papier>summary{cursor:pointer;font-weight:900;color:var(--dark)}.lf-papier h3{font-size:1rem;margin:.8rem 0 .35rem}" +
+    ".lf-pp-probe{margin:.45rem 0;padding:.55rem .7rem;border:1px solid var(--line);border-radius:10px;background:#fff}" +
+    ".lf-pp-probe .lf-np{display:inline}.lf-pp-knoepfe{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.4rem}" +
+    ".lf-pp-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.5rem;align-items:end}" +
+    ".lf-pp-form label{display:grid;gap:.2rem;font-size:.82rem;font-weight:800;color:var(--muted)}" +
+    ".lf-pp-form input,.lf-pp-form select{font:inherit;padding:.35rem .5rem;border:1.5px solid var(--line);border-radius:8px}" +
+    ".lf-pp-tab td,.lf-pp-tab th{padding:.25rem .5rem;font-size:.86rem;text-align:left;border-bottom:1px solid var(--line)}" +
+    ".lf-pp-tab select{font:inherit;font-size:.86rem}.lf-pp-doppelt{color:#b3261e;font-weight:800}.lf-pp-ok{color:#17633a;font-weight:800}";
+  function papierNorm(s) {
+    return String(s || "").toLowerCase().replace(/ß/g, "ss").normalize("NFD").replace(/[̀-ͯ]/g, "").split(/[^a-z0-9]+/).filter(Boolean);
+  }
+  var PAPIER_WEG = { grumi: 1, korrektur: 1, korrekturblatt: 1, pdf: 1, ohne: 1, name: 1, namen: 1 };
+  // Datei -> Code: alle Namensteile des Kindes stehen im Dateinamen; eindeutig oder gar nicht
+  function papierZuordnen(datei, kinder) {
+    var teile = papierNorm(datei.replace(/\.pdf$/i, "")).filter(function (t) { return !PAPIER_WEG[t]; });
+    var codeImNamen = teile.filter(function (t) { return /^\d{3}$/.test(t); });
+    if (codeImNamen.length === 1 && kinder.some(function (k) { return k.code === codeImNamen[0]; })) return codeImNamen[0];
+    var voll = kinder.filter(function (k) { var n = papierNorm(k.name); return n.length && n.every(function (t) { return teile.indexOf(t) >= 0; }); });
+    if (voll.length === 1) return voll[0].code;
+    var teil = kinder.filter(function (k) { var n = papierNorm(k.name); return teile.length && teile.every(function (t) { return n.indexOf(t) >= 0; }); });
+    return teil.length === 1 ? teil[0].code : "";
+  }
+  function papierKennung(fach, titel, datum) {
+    var s = (fach + "-" + (datum || "") + "-" + titel).toLowerCase().replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
+      .normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    return s.slice(0, 60).replace(/-+$/, "") || "papierprobe";
+  }
+  function papierStand(k) {
+    if (!k.freigegebenAm) return '<span class="lf-leer">zurückgenommen</span>';
+    if (k.vorbei) return '<span class="lf-leer">' + (k.geoeffnetAm ? "geöffnet" : "nicht geöffnet") + " · beim Kind weg</span>";
+    return '<span class="lf-zur">' + (k.geoeffnetAm ? "📤 geöffnet am " + esc(datumText(k.geoeffnetAm, true)) : "📤 zu sehen, noch nicht geöffnet") + "</span>" +
+      (k.sichtbarBis ? ' <span class="lf-np">bis ' + esc(datumText(k.sichtbarBis, true)) + "</span>" : "");
+  }
+  function papierLaden(el) {
+    if (!el) return;
+    var klasse = KLASSE;
+    if (!$("lf-papier-stil")) { var st = doc.createElement("style"); st.id = "lf-papier-stil"; st.textContent = PAPIER_CSS; doc.head.appendChild(st); }
+    apiPost("/api/proben/papier/stand", { klasse: klasse }).then(function (d) {
+      if (KLASSE !== klasse || !doc.body.contains(el)) return;
+      papierZeichnen(el, d.proben || [], d.tage || 7);
+    }).catch(function (e) {
+      el.innerHTML = '<div class="note warn">Papierproben konnten nicht geladen werden: ' + esc(e.message) + "</div>";
+    });
+  }
+  function papierZeichnen(el, proben, tage) {
+    var kinder = codesDerKlasse(KLASSE), alt = el.querySelector(".lf-papier"), offenBleiben = Boolean(alt && alt.open);
+    var nameZu = function (c) { var k = kinder.filter(function (x) { return x.code === c; })[0]; return (k && k.name) || nameVon(c) || "ohne Namen"; };
+    var h = '<details class="lf-papier"><summary>📄 Papierproben zurückgeben – Korrekturblatt als PDF je Kind' +
+      (proben.length ? " · " + proben.length + " in dieser Klasse" : "") + "</summary>";
+    proben.forEach(function (p) {
+      var codes = Object.keys(p.kinder), zu = codes.filter(function (c) { return p.kinder[c].freigegebenAm && !p.kinder[c].vorbei; }).length,
+        auf = codes.filter(function (c) { return p.kinder[c].geoeffnetAm; }).length;
+      h += '<div class="lf-pp-probe"><b>' + esc(p.titel) + '</b> <span class="lf-np">' + esc(p.fach) + (p.datum ? " · geschrieben am " + esc(datumText(p.datum, true)) : "") +
+        " · " + codes.length + (codes.length === 1 ? " Kind" : " Kinder") + " · " + zu + " gerade zu sehen · " + auf + " geöffnet</span>" +
+        '<details><summary class="lf-np" style="cursor:pointer">Kinder anzeigen</summary><table class="lf-pp-tab"><thead><tr><th>Name</th><th>Code</th><th>Stand</th><th></th></tr></thead><tbody>' +
+        codes.sort(function (a, b) { return nameZu(a).localeCompare(nameZu(b), "de"); }).map(function (c) {
+          var k = p.kinder[c], sichtbar = k.freigegebenAm && !k.vorbei;
+          return "<tr><td>" + esc(nameZu(c)) + "</td><td>" + esc(c) + "</td><td>" + papierStand(k) + "</td><td>" +
+            '<button type="button" class="btn btn-ghost btn-sm" data-pp="' + (sichtbar ? "zu" : "auf") + '" data-id="' + esc(p.id) + '" data-code="' + esc(c) + '">' +
+            (sichtbar ? "zurücknehmen" : "wieder zeigen") + "</button></td></tr>";
+        }).join("") + "</tbody></table></details>" +
+        '<div class="lf-pp-knoepfe"><button type="button" class="btn btn-ghost btn-sm" data-pp="auf" data-id="' + esc(p.id) + '">📤 Allen noch einmal ' + tage + " Tage zeigen</button>" +
+        '<button type="button" class="btn btn-ghost btn-sm" data-pp="zu" data-id="' + esc(p.id) + '">Bei allen zurücknehmen</button>' +
+        '<button type="button" class="btn btn-ghost btn-sm" data-pp="weg" data-id="' + esc(p.id) + '">🗑 Löschen</button></div></div>';
+    });
+    h += "<h3>Neue Papierprobe hochladen</h3>" +
+      '<p class="sub" style="margin:0 0 .5rem">PDFs <b>ohne Namen</b> wählen, eine Datei je Kind; der Dateiname muss den Namen enthalten (z. B. „GRUMI_Nachname_Vorname.pdf“). ' +
+      "Dein Browser ordnet sie über deine Namensliste den Codes zu – der Dateiname geht nicht an den Server. Die Kinder sehen ihr Blatt sofort unter „Zurückbekommen“, " + tage + " Tage lang.</p>" +
+      '<div class="lf-pp-form"><label>Titel<input id="lf-pp-titel" value="Deutschprobe: Aufruf schreiben (korrigiert)" maxlength="120"></label>' +
+      '<label>Fach<select id="lf-pp-fach">' + PAPIER_FAECHER.map(function (f) { return "<option" + (f === "Deutsch" ? " selected" : "") + ">" + f + "</option>"; }).join("") + "</select></label>" +
+      '<label>Geschrieben am<input id="lf-pp-datum" type="date"></label>' +
+      '<label>PDF-Dateien<input id="lf-pp-dateien" type="file" accept="application/pdf,.pdf" multiple></label></div>' +
+      '<div id="lf-pp-liste"></div></details>';
+    el.innerHTML = h;
+    var det = el.querySelector(".lf-papier");
+    if (offenBleiben) det.open = true;
+    var gewaehlt = [];
+    function liste() {
+      var ziel = $("lf-pp-liste");
+      if (!gewaehlt.length) { ziel.innerHTML = ""; return; }
+      var zaehl = {};
+      gewaehlt.forEach(function (g) { if (g.code) zaehl[g.code] = (zaehl[g.code] || 0) + 1; });
+      var fehlt = gewaehlt.filter(function (g) { return !g.code; }).length, doppelt = Object.keys(zaehl).filter(function (c) { return zaehl[c] > 1; }).length;
+      var ohne = kinder.filter(function (k) { return !zaehl[k.code]; });
+      ziel.innerHTML = '<table class="lf-pp-tab" style="margin-top:.6rem"><thead><tr><th>Datei</th><th>Kind</th><th></th></tr></thead><tbody>' +
+        gewaehlt.map(function (g, i) {
+          return "<tr><td>" + esc(g.datei.name) + ' <span class="lf-np">(' + Math.round(g.datei.size / 1024) + ' KB)</span></td><td><select data-pp-i="' + i + '"><option value="">– bitte wählen –</option>' +
+            kinder.map(function (k) { return '<option value="' + esc(k.code) + '"' + (k.code === g.code ? " selected" : "") + ">" + esc((k.name || "ohne Namen") + " · " + k.code) + "</option>"; }).join("") +
+            "</select></td><td>" + (!g.code ? '<span class="lf-pp-doppelt">nicht zugeordnet</span>' : zaehl[g.code] > 1 ? '<span class="lf-pp-doppelt">doppelt</span>' : '<span class="lf-pp-ok">✓</span>') + "</td></tr>";
+        }).join("") + "</tbody></table>" +
+        (ohne.length ? '<p class="lf-np" style="margin:.3rem 0">Ohne Datei: ' + esc(ohne.map(function (k) { return k.name || k.code; }).join(", ")) + "</p>" : "") +
+        '<p style="margin:.6rem 0 0"><button type="button" class="btn" id="lf-pp-los"' + (fehlt || doppelt ? " disabled" : "") + ">📤 " + gewaehlt.length + " Korrekturblätter hochladen und zurückgeben</button>" +
+        (fehlt || doppelt ? ' <span class="lf-pp-doppelt">Erst jede Datei genau einem Kind zuordnen.</span>' : "") + ' <span id="lf-pp-fortschritt" class="lf-np"></span></p>';
+      Array.prototype.forEach.call(ziel.querySelectorAll("[data-pp-i]"), function (s) {
+        s.addEventListener("change", function () { gewaehlt[Number(s.getAttribute("data-pp-i"))].code = s.value; liste(); });
+      });
+      var los = $("lf-pp-los");
+      if (los) los.addEventListener("click", hochladen);
+    }
+    function lesen(datei) {
+      return new Promise(function (ok, nein) {
+        var r = new FileReader();
+        r.onload = function () { ok(String(r.result).replace(/^data:[^,]*,/, "")); };
+        r.onerror = function () { nein(new Error("Datei nicht lesbar: " + datei.name)); };
+        r.readAsDataURL(datei);
+      });
+    }
+    function hochladen() {
+      var titel = $("lf-pp-titel").value.trim(), fach = $("lf-pp-fach").value, datum = $("lf-pp-datum").value;
+      if (!titel) { hinweis("Bitte einen Titel angeben.", "warn"); return; }
+      var gross = gewaehlt.filter(function (g) { return g.datei.size > 700 * 1024; });
+      if (gross.length) { hinweis("Zu groß (höchstens 700 KB je PDF): " + gross.map(function (g) { return g.datei.name; }).join(", "), "bad"); return; }
+      if (!global.confirm("„" + titel + "“ an " + gewaehlt.length + (gewaehlt.length === 1 ? " Kind" : " Kinder") + " der Klasse " + KLASSE + " zurückgeben?\n\n" +
+        "Jedes Kind sieht sein Korrekturblatt sofort auf der Startseite unter „Zurückbekommen“, " + tage + " Tage lang, und kann es mit den Eltern öffnen, herunterladen und drucken.\n\n" +
+        "Bitte prüfen: Auf den PDFs darf kein Name stehen (der Server soll keine Namen speichern).")) return;
+      var id = papierKennung(fach, titel, datum), los = $("lf-pp-los"), fertig = 0, fehler = [];
+      los.disabled = true;
+      (function naechste(i) {
+        if (i >= gewaehlt.length) {
+          if (fehler.length) hinweis(fertig + " hochgeladen, " + fehler.length + " nicht: " + fehler.join(" · "), "bad");
+          else hinweis(fertig + " Korrekturblätter sind hochgeladen. Die Kinder finden sie auf ihrer Startseite unter „Zurückbekommen“.", "ok");
+          det.open = true; papierLaden(el);
+          return;
+        }
+        var g = gewaehlt[i];
+        $("lf-pp-fortschritt").textContent = "Lade " + (i + 1) + " von " + gewaehlt.length + " …";
+        lesen(g.datei).then(function (pdf) {
+          return apiPost("/api/proben/papier/hochladen", { id: id, titel: titel, fach: fach, klasse: KLASSE, datum: datum, code: g.code, pdf: pdf });
+        }).then(function () { fertig++; }).catch(function (e) { fehler.push((nameVon(g.code) || g.code) + ": " + e.message); })
+          .then(function () { naechste(i + 1); });
+      })(0);
+    }
+    $("lf-pp-dateien").addEventListener("change", function (e) {
+      gewaehlt = Array.prototype.slice.call(e.target.files || []).filter(function (f) { return /\.pdf$/i.test(f.name) || f.type === "application/pdf"; })
+        .sort(function (a, b) { return a.name.localeCompare(b.name, "de"); })
+        .map(function (f) { return { datei: f, code: papierZuordnen(f.name, kinder) }; });
+      liste();
+    });
+    Array.prototype.forEach.call(el.querySelectorAll("[data-pp]"), function (b) {
+      b.addEventListener("click", function () {
+        var art = b.getAttribute("data-pp"), id = b.getAttribute("data-id"), code = b.getAttribute("data-code");
+        var p = proben.filter(function (x) { return x.id === id; })[0], wer = code ? (nameVon(code) || "Code " + code) : "alle Kinder";
+        if (art === "weg" && !global.confirm("„" + (p ? p.titel : id) + "“ für " + wer + " löschen? Die Kinder sehen das Korrekturblatt dann nicht mehr; die PDFs sind auf dem Server weg.")) return;
+        if (art === "zu" && !code && !global.confirm("„" + (p ? p.titel : id) + "“ bei allen Kindern zurücknehmen?")) return;
+        b.disabled = true;
+        var body = { id: id }; if (code) body.codes = [code];
+        (art === "weg" ? apiPost("/api/proben/papier/loeschen", body) : apiPost("/api/proben/papier/freigeben", Object.assign(body, { offen: art === "auf" })))
+          .then(function (d) {
+            hinweis(art === "weg" ? d.anzahl + " gelöscht." : art === "auf" ? (d.anzahl ? d.anzahl + (d.anzahl === 1 ? " Kind sieht" : " Kinder sehen") + " das Blatt wieder " + tage + " Tage." : "Alle sehen das Blatt schon.") : d.anzahl + " zurückgenommen.", "ok");
+            papierLaden(el);
+          }).catch(function (e) { b.disabled = false; hinweis("Das hat nicht geklappt: " + e.message, "bad"); });
+      });
+    });
+  }
+
   function notenZeichnen(teil) {
     var P = notenProben(), liste = notenKinder(P), h = "", ff = fachFilter();
     h += '<div class="toolbar" style="margin-bottom:.6rem"><div><h2>Noten · Klasse ' + esc(KLASSE) + (ff ? " · " + esc(ff.name) : "") + "</h2>" +
@@ -660,6 +822,7 @@
       '<button class="btn btn-ghost btn-sm" id="lf-nxlsx" type="button"' + (P.length && global.GrumiNotenExcel ? "" : " disabled") +
       ' title="Excel-Mappe: Übersicht der Klasse und je Probe ein Blatt mit Thema, Klasse, Datum, Name und Note – Noten farbig, mit Notenspiegel">📊 Notenliste (Excel)</button>' +
       '<button class="btn btn-ghost btn-sm" id="lf-ncsv" type="button"' + (P.length ? "" : " disabled") + ">CSV-Export</button></div>";
+    h += '<div id="lf-papier"></div>';
     if (!P.length) {
       h += '<div class="note">Für Klasse ' + esc(KLASSE) + (ff ? " gibt es in " + esc(ff.name) + " noch keine Abgaben" + (NOTEN.noten.length ? " – in anderen Fächern schon (Filter oben: „Alle“)" : "") + "."
         : " gibt es noch keine Abgaben. Sobald ein Kind eine Probe mit seinem Code abgibt, steht die Note hier.") + "</div>";
@@ -720,6 +883,7 @@
         "<b>📤 zurückgegeben</b> = Das Kind sieht die korrigierte Probe auf seiner Startseite unter „Zurückbekommen“ und kann sie für die Eltern drucken; „geöffnet“ heißt, es hat sie angesehen. <b>7 Tage nach der Rückgabe verschwindet die Probe beim Kind von selbst</b> („beim Kind weg“) – Note und Abgabe bleiben hier; mit „Noch einmal zurückgeben“ sieht das Kind sie wieder 7 Tage. Zurückgeben: auf eine Note klicken oder unten „Alle zurückgeben“. Deutsch-Proben gibst du auf ihrer Korrekturseite frei.</p></details>";
     }
     teil.innerHTML = h;
+    papierLaden($("lf-papier"));
     $("lf-nreload").addEventListener("click", function () { notenLaden(teil); });
     $("lf-ncsv").addEventListener("click", notenCsv);
     $("lf-nxlsx").addEventListener("click", notenExcel);

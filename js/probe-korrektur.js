@@ -1,6 +1,8 @@
 /* Zurückbekommene Proben aller Fächer ansehen und drucken (korrektur.html im Hauptordner).
  *   korrektur.html                       -> Liste „Zurückbekommen“ des Kindes (alle Fächer)
  *   korrektur.html?modul=<m>&id=<abgabe> -> die korrigierte Probe: Aufgabe · Deine Antwort · Punkte · Rückmeldung
+ *   korrektur.html?papier=<id>           -> Papierprobe: das Korrekturblatt der Lehrkraft als PDF (ohne Namen) zum
+ *                                           Öffnen, Herunterladen und Drucken (Server: papierproben.js)
  * Zugang nur mit dem Code des Kindes – kein Link mit Daten. Ist das Kind in diesem Tab schon mit seinem Code
  * angemeldet, muss es ihn nicht noch einmal eintippen. Dieselbe Seite ist die Ansicht für die Eltern: drucken oder
  * als PDF speichern (im Druck stehen Namenszeile und Unterschriftsfeld).
@@ -13,7 +15,7 @@
   const API = (params.get("api") || (location.hostname.endsWith("github.io") ? "https://englisch-9.onrender.com" : location.origin)).replace(/\/$/, "");
   const $ = id => document.getElementById(id);
   const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  const MODUL = params.get("modul") || "", ID = params.get("id") || "";
+  const MODUL = params.get("modul") || "", ID = params.get("id") || "", PAPIER = params.get("papier") || "";
   const FACH = { NT: "Natur und Technik" };
   let code = "";
 
@@ -29,7 +31,7 @@
   async function post(route, body) {
     const ctl = new AbortController(), frist = setTimeout(() => ctl.abort(), 75000);
     try {
-      const res = await fetch(API + "/api/proben/rueckgabe/" + route, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal: ctl.signal });
+      const res = await fetch(API + (route.charAt(0) === "/" ? route : "/api/proben/rueckgabe/" + route), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal: ctl.signal });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw Object.assign(new Error(data.message || "Das hat nicht geklappt."), { code: data.error, status: res.status });
       return data;
@@ -39,7 +41,7 @@
     } finally { clearTimeout(frist); }
   }
   // Deutsch 7 und 8 und die großen Englisch-Proben (9R/9M, 7) haben eine eigene Korrekturseite
-  const linkZu = r => (r.modul === "d7proben" ? "7M/Deutsch/korrektur.html?test=" + encodeURIComponent(r.testId) : r.modul === "d8proben" ? "8/Deutsch/korrektur.html?test=" + encodeURIComponent(r.testId) : r.modul === "e9proben" ? (/-m-[ab]$/.test(r.testId || "") ? "9M/Englisch_9/" : "9R/Englisch/") + "korrektur.html?test=" + encodeURIComponent(r.testId) : r.modul === "e7proben" ? "7/Englisch_7/korrektur.html?test=" + encodeURIComponent(r.testId) : "korrektur.html?modul=" + encodeURIComponent(r.modul) + "&id=" + encodeURIComponent(r.id));
+  const linkZu = r => (r.modul === "papier" ? "korrektur.html?papier=" + encodeURIComponent(r.id) : r.modul === "d7proben" ? "7M/Deutsch/korrektur.html?test=" + encodeURIComponent(r.testId) : r.modul === "d8proben" ? "8/Deutsch/korrektur.html?test=" + encodeURIComponent(r.testId) : r.modul === "e9proben" ? (/-m-[ab]$/.test(r.testId || "") ? "9M/Englisch_9/" : "9R/Englisch/") + "korrektur.html?test=" + encodeURIComponent(r.testId) : r.modul === "e7proben" ? "7/Englisch_7/korrektur.html?test=" + encodeURIComponent(r.testId) : "korrektur.html?modul=" + encodeURIComponent(r.modul) + "&id=" + encodeURIComponent(r.id));
 
   async function liste() {
     const d = await post("meine", { code });
@@ -174,9 +176,32 @@
     document.title = "Korrigierte Probe: " + k.titel + " | GRUMI";
     status("");
   }
+  // Papierprobe: Das PDF kommt als Text (base64) und wird im Browser zu einer Datei – kein Link mit Daten, nur mit Code
+  let papierUrl = "";
+  async function papierZeigen() {
+    const p = (await post("/api/proben/papier/ansehen", { code, id: PAPIER })).papier;
+    $("anmelden").hidden = true; $("liste").hidden = true;
+    const roh = atob(p.pdf), bytes = new Uint8Array(roh.length);
+    for (let i = 0; i < roh.length; i++) bytes[i] = roh.charCodeAt(i);
+    if (papierUrl) URL.revokeObjectURL(papierUrl);
+    papierUrl = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }));
+    const dateiname = (String(p.titel || "Korrektur").replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "") || "Korrektur") + ".pdf";
+    // Die Knöpfe „drucken“ und „Als PDF speichern“ drucken die Seite – hier gibt es das PDF selbst
+    $("drucken").hidden = true; $("pdf").hidden = true;
+    $("blatt").innerHTML = `<div class="eyebrow">${esc(fach(p.fach))}${p.klasse ? " · Klasse " + esc(p.klasse) : ""}</div><h1>${esc(p.titel)}</h1>
+      <p>${p.datum ? "geschrieben am " + datum(p.datum) + " · " : ""}zurückbekommen am ${datum(p.freigegebenAm)}</p>
+      ${p.sichtbarBis ? `<p class="notice" id="k-frist">Dieses Korrekturblatt siehst du noch <b>bis ${datum(p.sichtbarBis)}</b>. Danach verschwindet es von selbst – lade es vorher herunter oder drucke es aus.</p>` : ""}
+      <p id="papier-knoepfe" style="display:flex;flex-wrap:wrap;gap:8px;margin:14px 0"><a class="btn" id="papier-oeffnen" href="${papierUrl}" target="_blank" rel="noopener">📄 Korrekturblatt öffnen</a>
+        <a class="btn secondary" id="papier-laden" href="${papierUrl}" download="${esc(dateiname)}">⬇ Herunterladen</a></p>
+      <p class="notice" id="papier-eltern"><b>Für die Eltern:</b> Öffnen Sie das Korrekturblatt und drucken Sie es bei Bedarf aus (im PDF-Fenster über das Drucker- oder Teilen-Zeichen). Oben auf dem Blatt ist Platz für den Namen Ihres Kindes. Rot durchgestrichen ist, was falsch war, grün daneben steht, wie es richtig ist.</p>
+      <iframe id="papier-pdf" src="${papierUrl}" title="Korrekturblatt" style="width:100%;height:80vh;min-height:420px;border:1px solid #e5d9db;border-radius:12px;background:#fff"></iframe>`;
+    $("korrektur").hidden = false;
+    document.title = "Korrekturblatt: " + p.titel + " | GRUMI";
+    status("");
+  }
   async function start() {
     status("Einen Moment …");
-    try { await (MODUL && ID ? zeigen() : liste()); status(""); }
+    try { await (PAPIER ? papierZeigen() : MODUL && ID ? zeigen() : liste()); status(""); }
     catch (e) {
       if (e.code === "nicht_freigegeben" || e.code === "not_found") { try { await liste(); } catch (_e) {} status(e.message, ""); return; }
       $("anmelden").hidden = false; status(e.message, "bad");
