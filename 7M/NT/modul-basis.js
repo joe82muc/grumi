@@ -334,14 +334,15 @@ function sperre(){
 /* ---------- Lernmaterial zum Ausdrucken (themen.js: blatt beim Modul, seit 17.10.2026) ----------
    Unten im Modul: Arbeitsblatt, Regelhefteintrag und Lösung als PDF aus dem Ordner arbeitsblaetter/.
    Eine Kursliste kann Text und Dateien selbst festlegen (Informatik 7 und 9, seit 18.10.2026):
-   LERNMATERIAL: { text, dateien: [[Endung des Dateinamens, Beschriftung], …] } */
+   LERNMATERIAL: { text, dateien: [[Endung des Dateinamens, Beschriftung], …] }
+   Eine einzelne Einheit kann das mit lernmaterial (gleicher Aufbau) ersetzen (Informatik 9 N2–N4: nur der Hefteintrag). */
 const LERNMATERIAL_NT = { text: "Zu diesem Modul gibt es ein einfaches Arbeitsblatt, einen kurzen Regelhefteintrag zum Abschreiben und die Lösung zum Selbst-Kontrollieren – zum Ausdrucken oder am Bildschirm.",
   dateien: [["arbeitsblatt", "📝 Arbeitsblatt"], ["regelheft", "📘 Regelheft"], ["loesung", "✅ Lösung"]] };
 function lernmaterial(){
   const N = KL(), reg = N ? N.modulVon(N.idAusKey(BASIS)) : null;
   const main = $("main");
   if (!reg || !reg.modul.blatt || !main || $("#nt7Lernmaterial")) return;
-  const L = N.LERNMATERIAL || LERNMATERIAL_NT;
+  const L = reg.modul.lernmaterial || N.LERNMATERIAL || LERNMATERIAL_NT;
   const b = "arbeitsblaetter/" + reg.modul.blatt, a = (datei, text) => `<a class="btn small" href="${b}-${datei}.pdf" target="_blank" rel="noopener">${text}</a>`;
   const box = document.createElement("section");
   box.id = "nt7Lernmaterial"; box.className = "card";

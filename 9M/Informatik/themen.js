@@ -17,6 +17,10 @@
 (function (global) {
   "use strict";
 
+  // Kasten „Lernen für die Probe“ bei Einheiten, die nur den Regelhefteintrag als PDF haben (N2–N4)
+  var NUR_HEFT = { text: "Zu dieser Einheit gibt es den Regelhefteintrag als PDF – zum Ausdrucken, zum Nachschauen oder wenn dir im Heft etwas fehlt.",
+    dateien: [["hefteintrag", "📘 Regelhefteintrag"]] };
+
   var THEMEN = [
     {
       id: "netzwerke", nr: "01", titel: "Netzwerke mit Filius", kurz: "Netzwerke", icon: "🖧", zeit: "September bis November", pc: "Filius",
@@ -25,16 +29,17 @@
       proben: [{ R: "inf9-p1-r", M: "inf9-p1-m" }, { R: "inf9-p1b-r", M: "inf9-p1b-m" }],
       module: [
         // blatt (seit 18.10.2026): Regelhefteintrag und Arbeitsblatt (Lösung auf Seite 2) in 9M/Informatik/arbeitsblaetter/
+        // N2–N4 (seit 11.11.2026): nur der Regelhefteintrag – lernmaterial: NUR_HEFT ersetzt dort den Kasten LERNMATERIAL
         { id: "netz-start", kz: "N1", blatt: "N1", titel: "Netzwerke kennenlernen", href: "netz-start.html", key: "grumi-i9-netz-start-v1", pc: "Filius",
           text: "Computer, Kabel, Switch, Router, Accesspoint: Du liest einen Netzplan und verbindest zwei Computer.",
           tags: ["Filius", "Netzplan", "Regelheft"] },
-        { id: "ip-adressen", kz: "N2", titel: "IP-Adressen", href: "ip-adressen.html", key: "grumi-i9-ip-adressen-v1", pc: "Filius",
+        { id: "ip-adressen", kz: "N2", blatt: "N2", lernmaterial: NUR_HEFT, titel: "IP-Adressen", href: "ip-adressen.html", key: "grumi-i9-ip-adressen-v1", pc: "Filius",
           text: "Jedes Gerät braucht eine eigene, passende Adresse. Du findest falsche Adressen und reparierst ein Netz.",
           tags: ["Filius", "Fehler finden", "Startdatei"] },
-        { id: "switch", kz: "N3", titel: "Der Switch", href: "switch.html", key: "grumi-i9-switch-v1", pc: "Filius",
+        { id: "switch", kz: "N3", blatt: "N3", lernmaterial: NUR_HEFT, titel: "Der Switch", href: "switch.html", key: "grumi-i9-switch-v1", pc: "Filius",
           text: "Mehr als zwei Computer: Der Switch verteilt die Daten. Du baust ein Sternnetz.",
           tags: ["Filius", "Video", "Animation"] },
-        { id: "router", kz: "N4", titel: "Der Router", href: "router.html", key: "grumi-i9-router-v1", pc: "Filius",
+        { id: "router", kz: "N4", blatt: "N4", lernmaterial: NUR_HEFT, titel: "Der Router", href: "router.html", key: "grumi-i9-router-v1", pc: "Filius",
           text: "Zwei Netze, ein Router dazwischen: Mit dem richtigen Gateway erreichen sich alle.",
           tags: ["Filius", "Video", "Startdatei"] },
         { id: "netzprojekt", kz: "N5", titel: "Eigenes Netzwerkprojekt", href: "netzprojekt.html", key: "grumi-i9-netzprojekt-v1", pc: "Filius",
