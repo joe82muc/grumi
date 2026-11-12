@@ -14,6 +14,11 @@
 (function (global) {
   "use strict";
 
+  // Lernmaterial eines Moduls, das nur den Regelhefteintrag hat (ohne Arbeitsblatt und Lösung): ersetzt unten im Modul
+  // den Kasten „Lernen für die Probe“ (modul-basis.js) und in der Übersicht die Knöpfe des Moduls (uebersicht.js)
+  var NUR_HEFT = { text: "Zu diesem Modul gibt es einen kurzen Regelhefteintrag zum Abschreiben und Lernen für die Probe – zum Ausdrucken oder am Bildschirm.",
+    dateien: [["regelheft", "📘 Regelheft"]] };
+
   var THEMEN = [
     {
       id: "luft", nr: "01", titel: "Luft", icon: "🌬️",
@@ -22,7 +27,11 @@
       proben: [{ R: "nt7-luft-r", M: "nt7-luft-m" }, { R: "nt7-luft2-r", M: "nt7-luft2-m" }],
       // Lernmaterial zum Ausdrucken (seit 17.10.2026): blatt = Anfang der Dateinamen in 7M/NT/arbeitsblaetter/
       // (<blatt>-arbeitsblatt.pdf, -loesung.pdf, -regelheft.pdf); dazu alle auf einmal (lernmaterial).
-      lernmaterial: { titel: "Lernen für die Probe: Arbeitsblätter und Regelheft", alle: "L1-L5" },
+      // Module 6–9 (seit 12.11.2026): nur der Regelhefteintrag (lernmaterial: NUR_HEFT am Modul).
+      // alle = Sammeldatei der Arbeitsblätter (L1-L5-arbeitsblaetter.pdf), alleHeft = alle Regelhefteinträge: L1-L9-regelheft.pdf,
+      // solange 6–9 noch nicht für die Klasse offen sind L1-L5-regelheft.pdf (uebersicht.js nimmt die erste, die ganz offen ist)
+      lernmaterial: { titel: "Lernen für die Probe: Arbeitsblätter und Regelheft", alle: "L1-L5", alleHeft: ["L1-L9", "L1-L5"],
+        text: "Zu jedem Modul ein kurzer Regelhefteintrag zum Abschreiben, zu den Modulen 1 bis 5 auch ein einfaches Arbeitsblatt und die Lösung zum Selbst-Kontrollieren." },
       module: [
         { id: "luft-modul", kz: "L1", blatt: "L1", titel: "Luft – unsichtbar, aber lebenswichtig", href: "luft-modul.html", key: "grumi-nt7-luft-modul-v1", offen: true,
           text: "Luft zum Leben, bewegte Luft, Luft und Feuer, Zusammensetzung, Eigenschaften der Luft, chemische Symbole und Formeln.",
@@ -39,16 +48,16 @@
         { id: "achtung-explosiv", kz: "L5", blatt: "L5", titel: "Achtung, explosiv!", href: "achtung-explosiv.html", key: "grumi-nt7-achtung-explosiv-v1", offen: true,
           text: "Mehlstaub-Explosion, explosive Gasgemische, Druckwelle, kontrollierte Explosionen im Automotor und Vorsicht beim Grillen.",
           tags: ["Lehrerversuche", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "brand-schutz", kz: "L6", titel: "Brände verhindern und löschen", href: "brand-schutz.html", key: "grumi-nt7-brand-schutz-v1",
+        { id: "brand-schutz", kz: "L6", blatt: "L6", lernmaterial: NUR_HEFT, titel: "Brände verhindern und löschen", href: "brand-schutz.html", key: "grumi-nt7-brand-schutz-v1",
           text: "Brandschutz im Gebäude, Rauchmelder und Sprinkler, richtig handeln im Notfall und drei Wege, ein Feuer zu löschen.",
           tags: ["Animationen", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "oxidation", kz: "L7", titel: "Oxidation: Rost, Glut und braune Äpfel", href: "oxidation.html", key: "grumi-nt7-oxidation-v1",
+        { id: "oxidation", kz: "L7", blatt: "L7", lernmaterial: NUR_HEFT, titel: "Oxidation: Rost, Glut und braune Äpfel", href: "oxidation.html", key: "grumi-nt7-oxidation-v1",
           text: "Wenn Stoffe mit Sauerstoff reagieren: Eisenwolle auf der Waage, Wortgleichungen, Oxide, Rost und wie man davor schützt.",
           tags: ["Versuche", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "luftdruck", kz: "L8", titel: "Der Luftdruck", href: "luftdruck.html", key: "grumi-nt7-luftdruck-v1",
+        { id: "luftdruck", kz: "L8", blatt: "L8", lernmaterial: NUR_HEFT, titel: "Der Luftdruck", href: "luftdruck.html", key: "grumi-nt7-luftdruck-v1",
           text: "Luft hat Gewicht und drückt von allen Seiten: Luftsäule, Luftdruck in Tal und Gebirge, Saugnapf und die berühmten Halbkugeln.",
           tags: ["Animationen", "Probenstoff", "KI-Rückmeldung"] },
-        { id: "forschen", kz: "L9", titel: "Forschen wie die Profis", href: "forschen.html", key: "grumi-nt7-forschen-v1",
+        { id: "forschen", kz: "L9", blatt: "L9", lernmaterial: NUR_HEFT, titel: "Forschen wie die Profis", href: "forschen.html", key: "grumi-nt7-forschen-v1",
           text: "Von der Frage über die Vermutung zum Versuch: planen, beobachten, messen, Diagramme lesen und sicher experimentieren.",
           tags: ["Versuchsprotokoll", "Diagramme", "KI-Rückmeldung"] }
       ]

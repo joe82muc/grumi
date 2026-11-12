@@ -135,14 +135,29 @@
 
   // Lernmaterial zum Ausdrucken (themen.js: lernmaterial beim Themenbereich, blatt beim Modul): je Modul Arbeitsblatt,
   // Regelhefteintrag und Lösung als PDF, dazu alle auf einmal. Nur für Module, die für die Klasse offen sind.
+  // Ein Modul mit eigenem lernmaterial (Luft 6–9: nur der Regelhefteintrag) zeigt nur dessen Dateien.
+  // Sammeldateien: lm.alle = Arbeitsblätter, lm.alleHeft (sonst lm.alle) = Regelhefteinträge, je ein Name „La-Lb“ oder
+  // eine Liste davon. „L1-L5“ enthält die Module mit blatt von L1 bis L5. Angeboten wird die erste Sammeldatei, deren
+  // Module alle für die Klasse offen sind – sonst stünde Stoff gesperrter Module darin.
+  const LM_DATEIEN = [["arbeitsblatt", "📝 Arbeitsblatt"], ["regelheft", "📘 Regelheft"], ["loesung", "✅ Lösung"]];
   function lernmaterialKachel(thema) {
-    const lm = thema.lernmaterial, mods = thema.module.filter(m => m.blatt && m.href && NT7.offen(m, thema, STAND));
+    const lm = thema.lernmaterial, mitBlatt = thema.module.filter(m => m.blatt && m.href), mods = mitBlatt.filter(m => NT7.offen(m, thema, STAND));
     if (!lm || !mods.length) return "";
     const ordner = base + "arbeitsblaetter/", pdf = (datei, text) => `<a href="${ordner}${datei}.pdf" target="_blank" rel="noopener">${text}</a>`;
+    const dateien = m => (m.lernmaterial && m.lernmaterial.dateien) || LM_DATEIEN;
+    const sammel = (namen, liste) => [].concat(namen || []).find(n => {
+      const [von, bis] = n.split("-"), i = liste.findIndex(m => m.blatt === von), j = liste.findIndex(m => m.blatt === bis);
+      const teil = i < 0 || j < i ? [] : liste.slice(i, j + 1);
+      return teil.length > 1 && teil.every(m => mods.includes(m));
+    });
+    const blaetter = sammel(lm.alle, mitBlatt.filter(m => dateien(m).some(d => d[0] === "arbeitsblatt"))), hefte = sammel(lm.alleHeft || lm.alle, mitBlatt);
+    const alle = [];
+    if (blaetter) alle.push(pdf(blaetter + "-arbeitsblaetter", "📝 alle Arbeitsblätter"));
+    if (hefte) alle.push(pdf(hefte + "-regelheft", "📘 alle Regelhefteinträge"));
     return `<div class="lernmaterial"><h3>📄 ${esc(lm.titel)}</h3>
-      <p>Zu jedem Modul ein einfaches Arbeitsblatt, ein kurzer Regelhefteintrag zum Abschreiben und die Lösung zum Selbst-Kontrollieren.</p>
-      <ul>${mods.map(m => `<li><b>${thema.module.indexOf(m) + 1} · ${esc(m.titel)}</b><span>${pdf(m.blatt + "-arbeitsblatt", "📝 Arbeitsblatt")}${pdf(m.blatt + "-regelheft", "📘 Regelheft")}${pdf(m.blatt + "-loesung", "✅ Lösung")}</span></li>`).join("")}</ul>
-      ${lm.alle && mods.length > 1 ? `<p class="alle">Alles auf einmal: ${pdf(lm.alle + "-arbeitsblaetter", "📝 alle Arbeitsblätter")} ${pdf(lm.alle + "-regelheft", "📘 alle Regelhefteinträge")}</p>` : ""}</div>`;
+      <p>${esc(lm.text || "Zu jedem Modul ein einfaches Arbeitsblatt, ein kurzer Regelhefteintrag zum Abschreiben und die Lösung zum Selbst-Kontrollieren.")}</p>
+      <ul>${mods.map(m => `<li><b>${thema.module.indexOf(m) + 1} · ${esc(m.titel)}</b><span>${dateien(m).map(d => pdf(m.blatt + "-" + d[0], d[1])).join("")}</span></li>`).join("")}</ul>
+      ${alle.length ? `<p class="alle">Alles auf einmal: ${alle.join(" ")}</p>` : ""}</div>`;
   }
 
   // Proben des Themenbereichs für den Zug des Kindes (bzw. der Seite)
