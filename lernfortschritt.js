@@ -874,7 +874,15 @@
             // weg = zurückgegeben, aber die 7 Tage sind um: „Alle zurückgeben“ gibt auch diese noch einmal zurück
             var weg = codes.filter(function (c) { return p.noten[c].zurueck && p.noten[c].vorbei; }).length;
             var wegText = weg ? ", davon " + weg + " beim Kind schon weg" : "";
-            if (/^d[78]proben$/.test(p.modul)) return zur ? '<span class="lf-np">📤 ' + zur + " zurückgegeben" + wegText + "</span>" : "";
+            // Große Proben (Deutsch 7/8, Englisch 7/9): KI-Vorkorrektur, Bestätigen und Zurückgeben laufen über ihre
+            // Lehrerseite – die Rückgabe der Verwaltung (/api/proben/rueckgabe/freigeben) übergeht sie. Darum hier statt
+            // „Alle zurückgeben“ der Link dorthin, mit dieser Klasse vorausgewählt (seit 12.11.2026; vorher stand bei
+            // Englisch 7 und 9 ein Knopf, der nichts zurückgab).
+            if ((ABGABE_API[p.modul] || {}).lehrerseite) {
+              var seite = PROBEN && PROBEN.link ? mitKlasse(PROBEN.link(p.modul, p.testId), KLASSE) : "";
+              return '<span class="lf-np">📤 ' + zur + " von " + codes.length + " zurückgegeben" + wegText + "</span>" +
+                (seite && zur - weg < codes.length ? '<a class="btn btn-ghost btn-sm lf-zur-alle lf-zur-seite" href="' + esc(seite) + '" target="_blank" rel="noopener" title="Große Proben gibst du auf ihrer Lehrerseite zurück: prüfen, bestätigen, dann „Alle zurückgeben“ – diese Klasse ist dort schon ausgewählt. Danach hier „Neu laden“.">📤 Zurückgeben auf der Lehrerseite ↗</a>' : "");
+            }
             return '<span class="lf-np">📤 ' + zur + " von " + codes.length + " zurückgegeben" + wegText + '</span><button type="button" class="btn btn-ghost btn-sm lf-zur-alle" data-zurueck-alle="' + esc(p.modul + "|" + p.testId) + '"' +
               (zur - weg >= codes.length ? " disabled" : "") + ">📤 Alle zurückgeben</button>";
           })() + "</td>";
