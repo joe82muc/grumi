@@ -62,7 +62,7 @@
     } catch (err) { status(err.message,true); }
   });
   $("export").addEventListener("click", async () => {
-    try { const blob = await request("export",{testId:$("filter-test").value}); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "nt7-proben.csv"; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); }
+    try { let blob = await request("export",{testId:$("filter-test").value}); if (window.ProbeRueckgabeLehrer && window.ProbeRueckgabeLehrer.mitNamen) blob = await window.ProbeRueckgabeLehrer.mitNamen(blob); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "nt7-proben.csv"; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); }
     catch (err) { status(err.message,true); }
   });
 })();

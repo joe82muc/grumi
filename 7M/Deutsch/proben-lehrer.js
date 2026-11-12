@@ -51,6 +51,29 @@
   const zeile = id => rows.find(r => r.id === id);
   function ersetze(row) { const i = rows.findIndex(r => r.id === row.id); if (i >= 0) rows[i] = row; else rows.push(row); }
   const klasseVon = t => (t.zug === "M" ? "M" : "R") + DNR;
+  /* Klassenfilter (seit 12.11.2026): Die Seite startet mit der Klasse aus der Adresse (?klasse=7aM, Links aus der
+     Verwaltung; „alle“ = alle Klassen) oder mit der in der Verwaltung gewählten Klasse (localStorage „lf-klasse“), wenn
+     sie hier Abgaben hat. Liste, „Alle zurückgeben“ und der CSV-Export folgen der Auswahl „Klasse“. */
+  let klasseStart = params.get("klasse"), klasseFertig = false;
+  function startKlasse(klassen) {
+    klasseFertig = true;
+    if (klasseStart !== null) return klasseStart === "alle" ? "" : klasseStart;
+    let v = ""; try { v = localStorage.getItem("lf-klasse") || ""; } catch (_e) {}
+    return klassen.includes(v) ? v : "";
+  }
+  function klasseMerken() {
+    try { const u = new URL(location.href); u.searchParams.set("klasse", $("filter-klasse").value || "alle"); history.replaceState(history.state, "", u.toString()); } catch (_e) {}
+  }
+  // CSV des Servers: nur die Zeilen der gewählten Klasse (js/export-namen.js, wird beim ersten Export geladen)
+  const SKRIPT = document.currentScript ? document.currentScript.src : "";
+  function nurKlasse(blob) {
+    const kl = $("filter-klasse").value;
+    if (!kl) return Promise.resolve(blob);
+    return new Promise(fertig => {
+      if (window.GrumiExportNamen || !SKRIPT) return fertig();
+      const s = document.createElement("script"); s.src = SKRIPT.replace(/7M\/Deutsch\/[^/]*$/, "js/export-namen.js"); s.onload = fertig; s.onerror = fertig; document.head.appendChild(s);
+    }).then(() => window.GrumiExportNamen ? window.GrumiExportNamen.datei(blob, NAMEN, { klasse: kl }) : blob);
+  }
   const gefiltert = () => rows.filter(r => (!$("filter-klasse").value || r.className === $("filter-klasse").value) && (!$("filter-stand").value || r.status === $("filter-stand").value));
 
   /* ---------- Laden und Liste ---------- */
@@ -65,7 +88,8 @@
         $("filter-nr").innerHTML = `<option value="">alle Proben</option>` + nummern.map(n => `<option value="${n}">Probe ${n}: ${esc((tests.find(t => t.nr === n) || {}).kurz || "")}</option>`).join("");
         if (params.get("nr")) { $("filter-nr").value = params.get("nr"); return load(leise); }
       }
-      const klassen = [...new Set(rows.map(r => r.className))].sort(), kl = $("filter-klasse").value;
+      const klassen = [...new Set(rows.map(r => r.className))].sort(), kl = klasseFertig ? $("filter-klasse").value : startKlasse(klassen);
+      if (kl && !klassen.includes(kl)) klassen.push(kl);       // aus der Verwaltung gewählt, aber (noch) ohne Abgaben
       $("filter-klasse").innerHTML = `<option value="">alle</option>` + klassen.map(k => `<option>${esc(k)}</option>`).join(""); $("filter-klasse").value = klassen.includes(kl) ? kl : "";
       zeichneFreischalten(); zeichneListe(); ladeSitzungen();
       if (offenId && !leise) zeichneAbgabe();
@@ -378,7 +402,7 @@
   });
 
   $("login").addEventListener("submit", e => { e.preventDefault(); password = $("password").value; load(); });
-  ["filter-nr", "filter-klasse", "filter-stand"].forEach(id => $(id).addEventListener("change", () => { if (id === "filter-nr") load(); else { zeichneListe(); } }));
+  ["filter-nr", "filter-klasse", "filter-stand"].forEach(id => $(id).addEventListener("change", () => { if (id === "filter-nr") load(); else { if (id === "filter-klasse") klasseMerken(); zeichneListe(); } }));
   $("neu-laden").addEventListener("click", () => load());
   $("unlock-list").addEventListener("change", async e => {
     if (await schutzGeaendert(e)) return;
@@ -443,7 +467,7 @@
     nacheinander(async () => { try { const res = await request("freigeben", {submissionIds: ids}); res.submissions.forEach(ersetze); zeichneListe(); if (offenId) zeichneAbgabe(); } catch (err) { status(err.message, "bad"); } });
   });
   $("export").addEventListener("click", async () => {
-    try { const blob = await request("export", {}); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = (PF ? PF.name.toLowerCase().replace(/[^a-z0-9]+/g, "") : "deutsch" + DNR) + "-proben.csv"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
+    try { const blob = await nurKlasse(await request("export", {})); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = (PF ? PF.name.toLowerCase().replace(/[^a-z0-9]+/g, "") : "deutsch" + DNR) + "-proben" + ($("filter-klasse").value ? "-" + $("filter-klasse").value : "") + ".csv"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
     catch (err) { status(err.message, "bad"); }
   });
 

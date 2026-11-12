@@ -281,6 +281,13 @@
     w.fach = FAECHER.filter(function (f) { return KURSE.some(function (k) { return k.fach === f.k; }); }).map(function (f) { return f.k; });
     return w;
   }
+  // Link auf die Lehrerseite einer Probe mit der Klasse (?klasse=7aM): Die Seite zeigt dann nur deren Abgaben,
+  // Zählung, Excel und Export (js/probe-rueckgabe-lehrer.js, 7M/Deutsch/proben-lehrer.js; seit 12.11.2026)
+  function mitKlasse(link, klasse) {
+    if (!link || !klasse) return link;
+    var teile = String(link).split("#");
+    return teile[0] + (teile[0].indexOf("?") >= 0 ? "&" : "?") + "klasse=" + encodeURIComponent(klasse) + (teile.length > 1 ? "#" + teile.slice(1).join("#") : "");
+  }
   function filterPruefen() {
     if (!KLASSEN.length) return;
     var w = filterWerte();
@@ -829,7 +836,7 @@
     } else {
       h += '<div class="lf-scroll"><table class="lf-tab lf-noten"><thead><tr><th>Name</th><th>Code</th>';
       P.forEach(function (p) {
-        var link = PROBEN && PROBEN.link ? PROBEN.link(p.modul, p.testId) : "";
+        var link = PROBEN && PROBEN.link ? mitKlasse(PROBEN.link(p.modul, p.testId), KLASSE) : "";
         h += "<th>" + (link ? '<a href="' + esc(link) + '" title="Antworten und Korrektur">' + esc(p.titel) + "</a>" : esc(p.titel)) +
           "<small>" + esc(p.fach) + " · " + esc(datumText(p.datum)) + "</small>" + probeInhalt(p) + "</th>";
       });
@@ -1001,7 +1008,7 @@
     if (!api) { hinweis("Diese Probe lässt sich hier nicht bearbeiten. Bitte die Lehrerseite der Probe öffnen.", "warn"); return; }
     var dlg = $("lf-abgabe");
     if (!dlg) { dlg = doc.createElement("dialog"); dlg.id = "lf-abgabe"; dlg.className = "lf-dlg"; doc.body.appendChild(dlg); }
-    var geaendert = Boolean(schonGeaendert), name = nameVon(n.code), link = PROBEN && PROBEN.link ? PROBEN.link(n.modul, n.testId) : "";
+    var geaendert = Boolean(schonGeaendert), name = nameVon(n.code), link = PROBEN && PROBEN.link ? mitKlasse(PROBEN.link(n.modul, n.testId), KLASSE) : "";
     function stand(note, punkte, max, prozent) {
       return '<span class="lf-note ' + notenFarbe(note) + '">' + esc(note) + "</span> <b>" + esc(punkte + " von " + max + " Punkten") + "</b> (" + esc(prozent) + " %)" +
         (n.lrs ? ' <span class="lf-lrs-b" title="Notenschutz LRS">LRS</span>' : "") + (n.verlassen ? ' · <span class="lf-weg">' + esc(verlassenText(n)) + "</span>" : "") +

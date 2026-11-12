@@ -4,7 +4,8 @@
  * Die Namensliste liegt nur in diesem Browser (localStorage „lf-nt9-namen“, siehe js/namen-sync.js). Deshalb trägt
  * der Browser die Namen ein, nachdem er die Datei geladen hat und bevor er sie speichert – kein Name geht zum Server.
  *
- *   GrumiExportNamen.datei(blob[, namen])   -> Promise<Blob>      namen: { "326": "Alea" }, sonst die Liste des Browsers
+ *   GrumiExportNamen.datei(blob[, namen][, { klasse }])   -> Promise<Blob>      namen: { "326": "Alea" }, sonst die Liste des Browsers
+ *   klasse (seit 12.11.2026): nur die Zeilen dieser Klasse (Spalte „Klasse“), z. B. „7aM“ – leer = alle
  *
  * Aus den Spalten „Nachname“ | „Vorname“ werden „Name“ | „Code“:
  *   Abgabe mit Code    Name aus der Liste (leer, wenn zum Code keiner eingetragen ist) | Code
@@ -45,18 +46,27 @@
     if (feld !== "" || zeile.length) { zeile.push(feld); zeilen.push(zeile); }
     return zeilen;
   }
-  function csvMitNamen(text, namen) {
+  function csvMitNamen(text, namen, klasse) {
     var zeilen = csvLesen(text);
     if (!zeilen.length) return text;
-    var kopf = zeilen[0].map(function (s) { return s.trim().toLowerCase(); }), n = kopf.indexOf("nachname"), v = kopf.indexOf("vorname");
-    if (n < 0 || v < 0) return text;
-    zeilen[0][n] = "Name"; zeilen[0][v] = "Code";
-    zeilen.slice(1).forEach(function (z) {
-      if (z.length <= Math.max(n, v)) return;
-      var p = paar(z[n], z[v], namen);
-      // Text, der mit = + - @ beginnt, würde Excel als Formel lesen
-      z[n] = /^[=+\-@]/.test(p[0]) ? "'" + p[0] : p[0]; z[v] = p[1];
-    });
+    var kopf = zeilen[0].map(function (s) { return s.trim().toLowerCase(); }), n = kopf.indexOf("nachname"), v = kopf.indexOf("vorname"), k = kopf.indexOf("klasse");
+    var geaendert = false;
+    // Klassenfilter: nur die Zeilen der gewählten Klasse (Spalte „Klasse“)
+    if (klasse && k >= 0) {
+      zeilen = [zeilen[0]].concat(zeilen.slice(1).filter(function (z) { return String(z[k] || "").trim() === klasse; }));
+      geaendert = true;
+    }
+    if (n >= 0 && v >= 0) {
+      zeilen[0][n] = "Name"; zeilen[0][v] = "Code";
+      zeilen.slice(1).forEach(function (z) {
+        if (z.length <= Math.max(n, v)) return;
+        var p = paar(z[n], z[v], namen);
+        // Text, der mit = + - @ beginnt, würde Excel als Formel lesen
+        z[n] = /^[=+\-@]/.test(p[0]) ? "'" + p[0] : p[0]; z[v] = p[1];
+      });
+      geaendert = true;
+    }
+    if (!geaendert) return text;
     return zeilen.map(function (z) { return z.map(function (f) { return '"' + String(f).replace(/"/g, '""') + '"'; }).join(";"); }).join("\r\n");
   }
 
@@ -83,6 +93,23 @@
       function bau(sp, text) { return text ? '<c r="' + sp + nr + '" t="inlineStr"><is><t xml:space="preserve">' + xmlText(text) + "</t></is></c>" : ""; }
       var neu = bau(N, p[0]) + bau(V, p[1]), rest = mn && mv ? zeile.replace(mv[0], "") : zeile;
       return rest.replace((mn || mv)[0], function () { return neu; });
+    });
+  }
+
+  // Klassenfilter: Hat ein Blatt in Zeile 1 die Spalte „Klasse“, bleiben nur die Zeilen der gewählten Klasse – lückenlos
+  // neu durchnummeriert (Zeilen und Zellbezüge). Blätter ohne diese Spalte (z. B. der Lösungsschlüssel) bleiben, wie sie sind.
+  function blattNurKlasse(xml, klasse) {
+    var kopf = /<row r="1"[^>]*>[\s\S]*?<\/row>/.exec(xml);
+    if (!kopf) return xml;
+    var m = /<c r="([A-Z]+)1"[^>]*><is><t[^>]*>Klasse<\/t><\/is><\/c>/.exec(kopf[0]);
+    if (!m) return xml;
+    var reK = new RegExp('<c r="' + m[1] + '\\d+"[^>]*><is><t[^>]*>([^<]*)</t></is></c>'), nr = 1;
+    return xml.replace(/<row r="(\d+)"([^>]*)>([\s\S]*?)<\/row>/g, function (zeile, alt, attr, inhalt) {
+      if (alt === "1") return zeile;
+      var mk = reK.exec(inhalt);
+      if (!mk || klartext(mk[1]).trim() !== klasse) return "";
+      nr++;
+      return '<row r="' + nr + '"' + attr + ">" + inhalt.replace(/(<c r="[A-Z]+)\d+"/g, "$1" + nr + '"') + "</row>";
     });
   }
 
@@ -129,30 +156,32 @@
     ende.setUint32(12, verzeichnis.reduce(function (s, b) { return s + b.length; }, 0), true); ende.setUint32(16, versatz, true);
     return teile.concat(verzeichnis, [new Uint8Array(ende.buffer)]);
   }
-  // -> Teile der neuen Datei oder null, wenn kein Blatt die Namensspalten hat
-  function xlsxMitNamen(bytes, namen) {
+  // -> Teile der neuen Datei oder null, wenn kein Blatt die Namensspalten (oder bei klasse die Spalte „Klasse“) hat
+  function xlsxMitNamen(bytes, namen, klasse) {
     return entpacken(bytes).then(function (dateien) {
       var dec = new global.TextDecoder("utf-8"), enc = new global.TextEncoder(), geaendert = false;
       dateien.forEach(function (d) {
         if (!/^xl\/worksheets\/sheet\d+\.xml$/.test(d.name)) return;
         var alt = dec.decode(d.data), neu = blattMitNamen(alt, namen);
+        if (klasse) neu = blattNurKlasse(neu, klasse);
         if (neu !== alt) { d.data = enc.encode(neu); geaendert = true; }
       });
       return geaendert ? packen(dateien) : null;
     });
   }
 
-  function datei(blob, namen) {
+  function datei(blob, namen, opt) {
     namen = namen || gespeichert();
+    var klasse = String((opt && opt.klasse) || "").trim();
     if (!blob || typeof blob.arrayBuffer !== "function") return Promise.resolve(blob);
     return blob.arrayBuffer().then(function (puffer) {
       var bytes = new Uint8Array(puffer);
       if (bytes[0] === 0x50 && bytes[1] === 0x4b) {            // „PK“: ZIP, also Excel
-        return xlsxMitNamen(bytes, namen).then(function (teile) {
+        return xlsxMitNamen(bytes, namen, klasse).then(function (teile) {
           return teile ? new global.Blob(teile, { type: blob.type || "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }) : blob;
         });
       }
-      var text = new global.TextDecoder("utf-8").decode(bytes), neu = csvMitNamen(text, namen);
+      var text = new global.TextDecoder("utf-8").decode(bytes), neu = csvMitNamen(text, namen, klasse);
       // mit Kennung für UTF-8 am Anfang, sonst zeigt Excel die Umlaute falsch
       return neu === text ? blob : new global.Blob(["\uFEFF" + neu], { type: blob.type || "text/csv;charset=utf-8" });
     }).catch(function () { return blob; });

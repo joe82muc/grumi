@@ -22,6 +22,11 @@
  *   Namensliste dieses Browsers ein (js/export-namen.js) – der Server kennt nur Codes.
  * - Speicher-Hinweis: Die Abgaben liegen dauerhaft in der Datenbank der Proben (proben-speicher.js). Nur wenn der
  *   Server meldet, dass sie nicht verbunden ist, erscheint die Warnung, die CSV-Datei zu sichern.
+ * - Klassenfilter (seit 12.11.2026, Wunsch der Lehrkraft: „nur von der jeweiligen Klasse die Ergebnisse“): Die Seite
+ *   zeigt nur die Abgaben einer Klasse – Liste, Zählung (#stats), Notenliste (Excel), Drucken, Zurückgeben und der
+ *   Export des Servers (CSV/Excel über mitNamen). Welche Klasse: ?klasse=7aM in der Adresse (Links aus der Verwaltung,
+ *   „alle“ = alle Klassen), sonst die in der Verwaltung gewählte Klasse (localStorage „lf-klasse“), wenn sie hier
+ *   Abgaben hat, sonst alle. Die Auswahl „Klasse“ in der Leiste wechselt sie und schreibt sie in die Adresse.
  */
 (function (global) {
   "use strict";
@@ -80,6 +85,7 @@
       ".prl .stand{flex-basis:100%;font-size:.76rem;font-weight:800;color:#17633a}" +
       ".prl-leiste{display:flex;flex-wrap:wrap;gap:.5rem .8rem;align-items:center;margin:.9rem 0 .6rem;padding:.7rem .9rem;border:1.5px solid #cfe8d6;border-radius:12px;background:#f3fbf5;font-size:.88rem}" +
       ".prl-leiste b{color:#17633a}.prl-leiste label{display:inline-flex;gap:.35rem;align-items:center;font-weight:700;margin:0}" +
+      ".prl-leiste select{width:auto;font:inherit;font-weight:700;color:#17633a;padding:.3rem .5rem;border:1.5px solid #15803d;border-radius:8px;background:#fff;margin:0}" +
       ".prl-leiste .platz{flex:1}.prl-leiste p{flex-basis:100%;margin:0;color:#475569;font-size:.82rem}" +
       ".prl-leiste button{border:1.5px solid #15803d;border-radius:999px;background:#15803d;color:#fff;font:800 .82rem inherit;font-family:inherit;padding:.4rem .9rem;cursor:pointer}" +
       ".prl-leiste button.neben{background:#fff;color:#17633a}.prl-leiste button[disabled]{opacity:.5;cursor:default}" +
@@ -104,6 +110,63 @@
   var schluessel = function (r) { return C.modul + "|" + r.id; };
   var eintrag = function (r) { return (STAND || {})[schluessel(r)] || null; };
   var mitLoesung = function () { var h = doc.getElementById("prl-loesung"); return !h || h.checked; };
+
+  /* ---------- Klassenfilter: nur die Abgaben einer Klasse ---------- */
+  var KLASSE_WAHL = null;                               // null = noch nicht gewählt, "" = alle Klassen, sonst z. B. „7aM“
+  function klasseAusAdresse() {
+    try { var k = new global.URLSearchParams(global.location.search).get("klasse"); return k == null ? null : k === "alle" ? "" : k; } catch (_e) { return null; }
+  }
+  function verwaltungsKlasse() { try { return global.localStorage.getItem("lf-klasse") || ""; } catch (_e) { return ""; } }
+  function klassenDerListe() {
+    var k = [];
+    ZELLEN.forEach(function (z) { var c = String(z.r.className || ""); if (c && k.indexOf(c) < 0) k.push(c); });
+    return k.sort(function (a, b) { return a.localeCompare(b, "de", { numeric: true }); });
+  }
+  function aktiveKlasse() {
+    if (KLASSE_WAHL !== null) return KLASSE_WAHL;
+    var v = verwaltungsKlasse();
+    return v && klassenDerListe().indexOf(v) >= 0 ? v : "";
+  }
+  function passt(r, k) { if (k === undefined) k = aktiveKlasse(); return !k || String(r.className || "") === k; }
+  // Das Element einer Abgabe: Tabellenzeile (Englisch, Informatik, NT 9), Karte (NT 7, Informatik 7/8, NT 8)
+  function abgabeElement(td) { return td.closest("tr, article, [data-abgabe]") || td; }
+  function adresseMerken(k) {
+    try { var u = new global.URL(global.location.href); u.searchParams.set("klasse", k || "alle"); global.history.replaceState(global.history.state, "", u.toString()); } catch (_e) {}
+  }
+  function filtern() {
+    var k = aktiveKlasse(), sichtbar = [];
+    ZELLEN.forEach(function (z) {
+      var el = abgabeElement(z.td), ja = passt(z.r, k);
+      el.style.display = ja ? "" : "none";
+      if (ja) sichtbar.push(z.r);
+    });
+    statistik(k, sichtbar);
+  }
+  // Zählung der Seite (#stats: Abgaben, Schnitt, Notenspiegel) für die gewählte Klasse neu; bei „alle“ wieder die der Seite
+  function statistik(k, rows) {
+    var box = doc.getElementById("stats");
+    if (!box) return;
+    var unsere = box.querySelector("[data-prl-stats]");
+    if (!k) { if (unsere && box.prlOriginal != null) box.innerHTML = box.prlOriginal; return; }
+    if (!unsere) box.prlOriginal = box.innerHTML;
+    var noten = rows.map(function (r) { return Number(r.grade); }).filter(function (n) { return n >= 1 && n <= 6; });
+    var stat = function (wert, text) { return '<div class="stat"><b>' + esc(wert) + "</b><span>" + esc(text) + "</span></div>"; };
+    var h = "<span hidden data-prl-stats></span>" + stat(k, "Klasse") + stat(rows.length, "Abgaben") +
+      stat(noten.length ? (noten.reduce(function (s, n) { return s + n; }, 0) / noten.length).toFixed(2) : "–", "Schnitt");
+    [1, 2, 3, 4, 5, 6].forEach(function (g) { var n = noten.filter(function (x) { return x === g; }).length; if (n) h += stat(n, "Note " + g); });
+    box.innerHTML = h;
+  }
+  // Auswahl „Klasse“ in der Leiste: alle Klassen der Liste mit Anzahl der Abgaben
+  function klassenWahl() {
+    var klassen = klassenDerListe(), k = aktiveKlasse();
+    if (!klassen.length && !k) return "";
+    if (k && klassen.indexOf(k) < 0) klassen.push(k);
+    var anzahl = function (c) { return ZELLEN.filter(function (z) { return String(z.r.className || "") === c; }).length; };
+    return '<label title="Nur die Abgaben dieser Klasse anzeigen, zählen, drucken, zurückgeben und herunterladen">Klasse <select id="prl-klasse">' +
+      '<option value="alle"' + (k ? "" : " selected") + ">alle Klassen (" + ZELLEN.length + ")</option>" +
+      klassen.map(function (c) { return '<option value="' + esc(c) + '"' + (c === k ? " selected" : "") + ">" + esc(c) + " (" + anzahl(c) + ")</option>"; }).join("") +
+      "</select></label>";
+  }
 
   // Antwort oder Lösung als Text. Zuordnen und Reihenfolge (Liste mit labels): „links → rechts“ je Paar – wie auf dem
   // Server (proben-rueckgabe.js), damit Kind, Eltern und Lehrkraft dasselbe lesen.
@@ -336,12 +399,14 @@
     var tabelle = ZELLEN.length ? (ZELLEN[0].td.closest("table") || (C.liste && C.liste()) || null) : null;
     var alt = doc.getElementById("prl-leiste");
     if (!tabelle) { if (alt) alt.remove(); return; }
-    var rows = ZELLEN.map(function (z) { return z.r; }), mitCode = rows.filter(function (r) { return r.code; });
+    // Nur die Abgaben der gewählten Klasse (Klassenfilter): Zählen, Excel, Drucken, Zurückgeben, Nachwerten
+    var kl = aktiveKlasse(), rows = ZELLEN.filter(function (z) { return passt(z.r, kl); }).map(function (z) { return z.r; }), mitCode = rows.filter(function (r) { return r.code; });
     var zurueck = mitCode.filter(eintrag).length, offen = mitCode.filter(function (r) { return !eintrag(r); });
     var haken = alt ? mitLoesung() : true, letzte = Date.now() - LETZTE.zeit < 30000 ? LETZTE : { text: "", art: "" };
     if (alt) alt.remove();
     var el = doc.createElement("div"); el.id = "prl-leiste"; el.className = "prl-leiste";
-    el.innerHTML = "<span><b>📤 " + zurueck + " von " + mitCode.length + "</b> an die Kinder zurückgegeben</span>" +
+    el.innerHTML = klassenWahl() + (kl && !rows.length ? "<span><b>Aus Klasse " + esc(kl) + " gibt es hier keine Abgaben.</b></span>" : "") +
+      "<span><b>📤 " + zurueck + " von " + mitCode.length + "</b> an die Kinder zurückgegeben" + (kl ? " (Klasse " + esc(kl) + ")" : "") + "</span>" +
       '<label><input type="checkbox" id="prl-loesung"' + (haken ? " checked" : "") + '> mit Lösungen</label><span class="platz"></span>' +
       (NACHWERTEN_ROUTE[C.modul] ? '<button type="button" class="neben" id="prl-nachwerten" title="Die gespeicherten Antworten der angezeigten Abgaben nach den aktuellen Regeln noch einmal prüfen – es wird nur aufgewertet">🔁 Nachwerten</button>' : "") +
       (FEHLERWOERTER[C.modul] ? '<button type="button" class="neben" id="prl-fehler" title="Welches Wort war wie oft falsch – und was haben die Kinder stattdessen geschrieben?">📕 Fehlerwörter</button>' : "") +
@@ -356,12 +421,20 @@
       '<span id="prl-msg" role="status"></span>';
     tabelle.parentNode.insertBefore(el, tabelle);
     if (letzte.text) { var m = doc.getElementById("prl-msg"); m.textContent = letzte.text; m.style.color = letzte.art === "bad" ? "#b3261e" : "#17633a"; }
-    doc.getElementById("prl-alle-druck").addEventListener("click", function () { drucken(rows); });
+    var wahl = doc.getElementById("prl-klasse");
+    if (wahl) wahl.addEventListener("change", function () {
+      KLASSE_WAHL = wahl.value === "alle" ? "" : wahl.value;
+      adresseMerken(KLASSE_WAHL);
+      filtern(); leiste();
+      var neu = doc.getElementById("prl-klasse"); if (neu) neu.focus();
+    });
+    doc.getElementById("prl-alle-druck").addEventListener("click", function () { if (rows.length) drucken(rows); });
     var nach = doc.getElementById("prl-nachwerten");
     if (nach) nach.addEventListener("click", function () { nachwerten(rows, nach); });
     var fw = doc.getElementById("prl-fehler");
     if (fw) fw.addEventListener("click", function () { fehlerwoerter(rows); });
     doc.getElementById("prl-excel").addEventListener("click", function () {
+      if (!rows.length) { meldung("In der Liste stehen keine Abgaben.", "bad"); return; }
       notenliste(rows).then(function (n) { meldung("Die Notenliste wurde als Excel-Datei gespeichert (" + n + (n === 1 ? " Blatt" : " Blätter") + ")."); })
         .catch(function (x) { meldung("Die Excel-Datei konnte nicht erstellt werden: " + x.message, "bad"); });
     });
@@ -378,6 +451,7 @@
     geplant = false;
     ZELLEN = ZELLEN.filter(function (z) { return doc.body.contains(z.td); });
     ZELLEN.forEach(widget);
+    filtern();
     leiste();
   }
 
@@ -418,7 +492,7 @@
   }
 
   function start(cfg) {
-    C = cfg; STAND = null; ZELLEN = [];
+    C = cfg; STAND = null; ZELLEN = []; KLASSE_WAHL = klasseAusAdresse();
     stil();
     speicherHinweis();
     // Anzeige des Probenmodus (js/probe-protokoll.js) nachladen – liegt neben diesem Skript
@@ -432,8 +506,10 @@
 
   // Export-Datei des Servers (CSV oder Excel) vor dem Speichern um die Namen ergänzen: Der Server kennt nur Codes, die
   // Namensliste liegt in diesem Browser. js/export-namen.js liegt neben diesem Skript und wird beim ersten Export geladen.
+  // Ist eine Klasse gewählt (Klassenfilter), enthält die Datei nur deren Abgaben.
   function mitNamen(blob) {
-    return skript("export-namen.js", "GrumiExportNamen").then(function (E) { return E ? E.datei(blob, C && C.namen) : blob; });
+    var kl = C ? aktiveKlasse() : "";
+    return skript("export-namen.js", "GrumiExportNamen").then(function (E) { return E ? E.datei(blob, C && C.namen, { klasse: kl }) : blob; });
   }
   // Ein Skript nachladen, das neben diesem liegt (einmal); liefert sein Objekt oder null
   function skript(datei, name) {
