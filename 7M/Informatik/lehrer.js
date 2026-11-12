@@ -12,6 +12,9 @@
   const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[c]);
   let password = "", tests = [];
   const PFAD = window.GRUMI_PROBEN_PFAD || "/api/inf7";
+  // Name der Probenart auf dem Server (inf7, inf8, inf9) – fürs Zurückgeben, Note 6 aufheben und den Dateinamen.
+  // Bis 12.11.2026 stand hier nur inf7/inf8: Informatik 9 meldete „inf7“, der Server fand die Abgaben nicht, nichts ging zurück.
+  const MODUL = PFAD.split("/").pop();
   async function request(route, body = {}) {
     const response = await fetch(API + PFAD + "/teacher/" + route,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...body,password})});
     if (route === "export" && response.ok) return response.blob();
@@ -39,7 +42,7 @@
   }
   $("login").addEventListener("submit", e => {
     e.preventDefault(); password = $("password").value;
-    if (window.ProbeRueckgabeLehrer) window.ProbeRueckgabeLehrer.start({ api: API, modul: PFAD === "/api/inf8" ? "inf8" : "inf7", passwort: () => password, namen: NAMEN, fach: "Informatik", wurzel: "../../", liste: () => $("results"),
+    if (window.ProbeRueckgabeLehrer) window.ProbeRueckgabeLehrer.start({ api: API, modul: MODUL, passwort: () => password, namen: NAMEN, fach: "Informatik", wurzel: "../../", liste: () => $("results"),
       wer: r => (r.code ? (NAMEN[r.code] ? NAMEN[r.code] + " (Code " + r.code + ")" : "Code " + r.code) : [r.firstName, r.lastName].filter(Boolean).join(" ")) });
     load();
   });
@@ -65,7 +68,7 @@
     } catch (err) { status(err.message,true); }
   });
   $("export").addEventListener("click", async () => {
-    try { let blob = await request("export",{testId:$("filter-test").value}); if (window.ProbeRueckgabeLehrer && window.ProbeRueckgabeLehrer.mitNamen) blob = await window.ProbeRueckgabeLehrer.mitNamen(blob); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "informatik7-proben.csv"; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); }
+    try { let blob = await request("export",{testId:$("filter-test").value}); if (window.ProbeRueckgabeLehrer && window.ProbeRueckgabeLehrer.mitNamen) blob = await window.ProbeRueckgabeLehrer.mitNamen(blob); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "informatik" + MODUL.slice(3) + "-proben.csv"; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); }
     catch (err) { status(err.message,true); }
   });
 })();
