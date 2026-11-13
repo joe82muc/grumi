@@ -480,11 +480,13 @@ async function pruefen() {
   try {
     // vorher: die schon bewertete Fassung mit dem Beleg des Servers – die KI ändert nur Punkte, wo du wirklich etwas geändert hast
     const d = await post("pruefen", { code: k.code, aufgabe: AUFGABE, text: t, zug: lehrer ? zug : undefined,
-      vorher: passt && letzte.beleg ? { text: letzte.original, beleg: letzte.beleg } : undefined });
+      vorher: passt && letzte.beleg ? { text: letzte.original, beleg: letzte.beleg, korrigiert: letzte.korrigiert } : undefined });
     letzte = { original: t, korrigiert: d.korrigiert, aenderungen: d.aenderungen, punkte: d.punkte, summe: d.summe, max: d.max, jeBereich: d.jeBereich || 5, prozent: d.prozent, note: d.note, zug: d.zug, naechste: d.naechste, lob: d.lob, tipps: d.tipps, natuerlich: "", beleg: d.beleg || "" };
     versuche.push({ summe: d.summe, note: d.note, zeit: Date.now() });
     if (versuche.length > 12) versuche = versuche.slice(-12);
-    speichern(); melden("");
+    speichern();
+    // nur ein, zwei Wörter ausgetauscht (z. B. ein Name): Der Server lässt die Punkte, wie sie waren – das sagen wir dazu
+    melden(d.kleinerWortwechsel ? "Du hast nur ein oder zwei Wörter ausgetauscht – das ändert deine Punkte nicht. Verbessere Fehler oder erzähl mehr, dann steigt deine Note." : "");
     ergebnisZeichnen(true); blattStand();
     if (window.Lernstand) {
       Lernstand.geloest("text");
