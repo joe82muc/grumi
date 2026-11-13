@@ -295,6 +295,9 @@ function laden() {
   } catch (_e) {}
 }
 const woerter = t => (String(t).match(/[A-Za-zÀ-ÿ0-9'’]+/g) || []).length;
+// Gleicher Text = gleiche Note (wie gleicherText() in e9-schreiben.js): Leerzeichen, Zeilenumbrüche und die Form von
+// Apostroph und Anführungszeichen zählen nicht als Änderung
+const gleicherText = s => String(s == null ? "" : s).normalize("NFC").replace(/[’‘`´]/g, "'").replace(/[“”„«»]/g, '"').replace(/\s+/g, " ").trim();
 
 /* ---------- Schritt 1: Notizen ---------- */
 function notizenZeichnen() {
@@ -374,11 +377,19 @@ async function pruefen() {
   const k = kind(), t = $("text").value.trim();
   if (!k || !k.code) { melden("Zum Prüfen meldest du dich mit deinem Code an.", true); if (window.Lernstand && Lernstand.anmelden) Lernstand.anmelden(); return; }
   if (woerter(t) < MIN_WOERTER) { melden("Schreib erst ein paar Sätze – mindestens " + MIN_WOERTER + " Wörter. Die Satzanfänge helfen dir beim Start.", true); return; }
+  // Nichts geändert seit der letzten Prüfung? Dann bleibt die Bewertung – die KI wird gar nicht erst gefragt.
+  const passt = Boolean(letzte) && (!lehrer || letzte.zug === zug);
+  if (passt && gleicherText(t) === gleicherText(letzte.original)) {
+    melden("Dein Text ist seit der letzten Prüfung gleich geblieben – deshalb bleibt es bei Note " + letzte.note + " (" + letzte.summe + " von " + letzte.max + " Punkten). Verbessere etwas, dann prüft die KI neu.");
+    return;
+  }
   laeuft = true; $("pruefen").disabled = true; $("pruefen").textContent = "Die KI liest deinen Text …";
   melden("Einen Moment – das dauert ein paar Sekunden.");
   try {
-    const d = await post("pruefen", { code: k.code, aufgabe: AUFGABE, text: t, zug: lehrer ? zug : undefined });
-    letzte = { original: t, korrigiert: d.korrigiert, aenderungen: d.aenderungen, punkte: d.punkte, summe: d.summe, max: d.max, jeBereich: d.jeBereich || 5, prozent: d.prozent, note: d.note, zug: d.zug, naechste: d.naechste, lob: d.lob, tipps: d.tipps, natuerlich: "" };
+    // vorher: die schon bewertete Fassung mit dem Beleg des Servers – die KI ändert nur Punkte, wo du wirklich etwas geändert hast
+    const d = await post("pruefen", { code: k.code, aufgabe: AUFGABE, text: t, zug: lehrer ? zug : undefined,
+      vorher: passt && letzte.beleg ? { text: letzte.original, beleg: letzte.beleg } : undefined });
+    letzte = { original: t, korrigiert: d.korrigiert, aenderungen: d.aenderungen, punkte: d.punkte, summe: d.summe, max: d.max, jeBereich: d.jeBereich || 5, prozent: d.prozent, note: d.note, zug: d.zug, naechste: d.naechste, lob: d.lob, tipps: d.tipps, natuerlich: "", beleg: d.beleg || "" };
     versuche.push({ summe: d.summe, note: d.note, zeit: Date.now() });
     if (versuche.length > 12) versuche = versuche.slice(-12);
     speichern(); melden("");
@@ -435,7 +446,7 @@ function ergebnisZeichnen(hin) {
     `<div class="nativ" id="nativ"${d.natuerlich ? "" : " hidden"}><h3>So klingt dein Text bei jemandem aus England</h3><p class="text" id="nativ-text">${esc(d.natuerlich || "")}</p>` +
     `<p class="fein">Gleicher Inhalt, natürliches einfaches Englisch – zum Vergleichen und Abschauen einzelner Wendungen. Deine Punkte bekommst du für deinen eigenen Text.</p></div>` +
     `<div class="meldung" id="meldung2" role="status" hidden></div>` +
-    `<p class="fein">Die Punkte orientieren sich an der Textproduktion im Quali (Inhalt, Aufbau, Wortschatz und Stil, Sprachrichtigkeit; Notenschlüssel 9${esc(d.zug)}). Sie sind eine Übungshilfe der KI – keine Note deiner Lehrkraft.</p>`;
+    `<p class="fein">Die Punkte orientieren sich an der Textproduktion im Quali (Inhalt, Aufbau, Wortschatz und Stil, Sprachrichtigkeit; Notenschlüssel 9${esc(d.zug)}). Sie sind eine Übungshilfe der KI – keine Note deiner Lehrkraft. Derselbe Text bekommt immer dieselben Punkte – neu bewertet wird erst, wenn du etwas änderst.</p>`;
   box.hidden = false;
   $("farbig").addEventListener("change", e => $("korr").classList.toggle("ohne", !e.target.checked));
   $("weiter").addEventListener("click", () => { $("p-schreiben").scrollIntoView({ behavior: "smooth", block: "start" }); $("text").focus({ preventScroll: true }); });
