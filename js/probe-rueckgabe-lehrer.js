@@ -18,6 +18,8 @@
  *   – Note 6“ da; die Lehrkraft kann die Note 6 aufheben und wieder setzen. Automatisch abgegeben (5 Minuten nichts
  *   eingegeben, Bildschirm gesperrt, Seite nicht mehr offen) steht als Hinweis ohne Folgen für die Note da.
  *   Englisch seit 21.10.2026: Verlassen gibt keine Note 6 mehr (nur Warnung und Vermerk), schon der 1. Kopierversuch beendet.
+ * - Weiterschreiben erlauben (seit 13.11.2026): je Abgabe ein Knopf – das Kind öffnet die Probe noch einmal, seine Antworten
+ *   sind wieder da (/api/probe-weiter/erlauben, wie in der Verwaltung). Zurücknehmen geht ebenso.
  * - ProbeRueckgabeLehrer.mitNamen(blob): trägt in die Export-Datei des Servers (CSV, Excel) die Namen aus der
  *   Namensliste dieses Browsers ein (js/export-namen.js) – der Server kennt nur Codes.
  * - Speicher-Hinweis: Die Abgaben liegen dauerhaft in der Datenbank der Proben (proben-speicher.js). Nur wenn der
@@ -92,6 +94,7 @@
       "#prl-msg{flex-basis:100%;font-weight:700}" +
       ".prl button.auffaellig{border-color:#d97706;background:#fffbeb;color:#92400e}" +
       ".prl button.lrs-an{border-color:#6d28d9;background:#6d28d9;color:#fff}" +
+      ".prl button[data-prl=weiter]{border-color:#93c5fd;color:#1d4ed8}.prl button.weiter-an{border-color:#1d4ed8;background:#eff6ff}" +
       "#prl-dlg{width:min(640px,calc(100vw - 24px));border:0;border-radius:16px;padding:16px 18px;box-shadow:0 20px 60px rgba(0,0,0,.3);font:16px/1.45 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}" +
       "#prl-dlg::backdrop{background:rgba(15,23,42,.45)}#prl-dlg h3{margin:0 0 2px;font-size:1.1rem}#prl-dlg .zu{float:right;border:1.5px solid #cbd5e1;border-radius:999px;background:#fff;font:700 .85rem inherit;font-family:inherit;padding:.3rem .8rem;cursor:pointer}" +
       // Dialoge „Punkte ändern“ und „Nachgewertet“
@@ -246,7 +249,14 @@
     if (!r.code) h += '<button type="button" disabled title="Diese Abgabe wurde ohne Code geschrieben – zurückgeben geht nur mit Code">📤 Zurückgeben</button>';
     else if (e) h += (e.vorbei ? '<button type="button" class="haupt" data-prl="geben" title="Das Kind sieht die Probe dann wieder 7 Tage lang">📤 Noch einmal zurückgeben</button>' : "") + '<button type="button" data-prl="nehmen">Rückgabe zurücknehmen</button>';
     else h += '<button type="button" class="haupt" data-prl="geben" title="Das Kind sieht dann Antworten, Punkte und bei Fehlern die Lösung">📤 Zurückgeben</button>';
+    // Weiterschreiben nach der Abgabe (z. B. versehentlich abgegeben): /api/probe-weiter/erlauben, wie in der Verwaltung
+    h += weiterStand(r);
+    if (r.code) h += '<button type="button" data-prl="weiter"' + (r.weiter ? ' class="weiter-an"' : "") + ' title="' +
+      (r.weiter ? "Das Kind darf die Probe dann nicht mehr öffnen – es bleibt bei dieser Abgabe" : "Das Kind öffnet die Probe mit seinem Code noch einmal, seine Antworten sind wieder da, die neue Abgabe ersetzt diese") + '">' +
+      (r.weiter ? "✏️ Weiterschreiben zurücknehmen" : "✏️ Weiterschreiben erlauben") + "</button>";
     el.innerHTML = h;
+    var weiter = el.querySelector('[data-prl="weiter"]');
+    if (weiter) weiter.addEventListener("click", function () { weiterSchalten(r, weiter); });
     var druck = el.querySelector('[data-prl="druck"]'), geben = el.querySelector('[data-prl="geben"]'), nehmen = el.querySelector('[data-prl="nehmen"]');
     if (druck) druck.addEventListener("click", function () { drucken([r]); });
     var prot = el.querySelector('[data-prl="prot"]');
@@ -299,6 +309,35 @@
       if (!global.confirm("Rückgabe an " + C.wer(r) + " zurücknehmen?\n\nDas Kind sieht die korrigierte Probe dann nicht mehr.")) return;
       nehmen.disabled = true;
       freigeben([r], false).then(function () { meldung("Die Rückgabe an " + C.wer(r) + " ist zurückgenommen."); }).catch(function (x) { nehmen.disabled = false; meldung("Das hat nicht geklappt: " + x.message, "bad"); });
+    });
+  }
+
+  /* Weiterschreiben nach der Abgabe (13.11.2026, Wunsch der Lehrkraft: „einen button machen, dass der lehrer
+     weiterschreiben erlauben kann“ – ein Kind hatte versehentlich abgegeben). Dieselbe Route wie die Verwaltung
+     (Noten → Note anklicken): Das Kind öffnet die Probe mit seinem Code noch einmal, solange sie freigeschaltet ist; seine
+     Antworten der Abgabe sind wieder da, die neue Abgabe ersetzt diese (Punkte, Note, Testregeln und Rückgabe neu). */
+  function weiterStand(r) {
+    if (r.weiter && r.weiter.erlaubtAm) return '<span class="stand" style="color:#1d4ed8">✏️ darf weiterschreiben (erlaubt am ' + esc(datum(r.weiter.erlaubtAm)) +
+      ") – öffnet die Probe mit seinem Code, solange sie freigeschaltet ist</span>";
+    var f = Array.isArray(r.fassungen) ? r.fassungen : [], v = f[f.length - 1];
+    return v ? '<span class="stand" style="color:#1d4ed8">✏️ weitergeschrieben' + (v.grade !== undefined && v.grade !== "" ? " – vorher Note " + esc(v.grade) + " (" + esc(v.score) + " von " + esc(v.total) + " Punkten)" : "") + "</span>" : "";
+  }
+  function weiterSchalten(r, knopf) {
+    var an = !(r.weiter && r.weiter.erlaubtAm);
+    if (!global.confirm(an ? C.wer(r) + " darf „" + (r.testTitle || r.testId || "die Probe") + "“ weiterschreiben?\n\n" +
+        "Das Kind öffnet die Probe mit seinem Code noch einmal – seine Antworten von der Abgabe sind dann wieder da. Die neue Abgabe ersetzt diese (Punkte, Note und Rückgabe beginnen neu).\n\n" +
+        "Wichtig: Die Probe muss dafür freigeschaltet sein. Ist sie inzwischen gesperrt (auch von selbst nach 3 Stunden), schalte sie wieder frei."
+      : "Weiterschreiben für " + C.wer(r) + " zurücknehmen?\n\nDas Kind kann die Probe dann nicht mehr öffnen, es bleibt bei dieser Abgabe.")) return;
+    knopf.disabled = true;
+    modulPost("/api/probe-weiter/erlauben", { modul: C.modul, submissionId: r.id, erlauben: an }).then(function (d) {
+      r.weiter = d.weiter || undefined;
+      meldung(an ? C.wer(r) + " darf weiterschreiben. " + (d.weiter && d.weiter.seite ? "Die Antworten der Abgabe sind beim Öffnen wieder da." :
+        "Achtung: Bei dieser Abgabe sind die Antworten nicht gespeichert – das Kind beginnt mit leeren Feldern.") + " Die Probe muss freigeschaltet sein."
+        : "Weiterschreiben für " + C.wer(r) + " ist zurückgenommen.", an && !(d.weiter && d.weiter.seite) ? "bad" : "");
+      zeichnen();
+    }).catch(function (x) {
+      knopf.disabled = false;
+      meldung("Weiterschreiben hat nicht geklappt: " + (x.message === "unbekannt" ? "Diese Probe kennt das Weiterschreiben noch nicht." : x.message), "bad");
     });
   }
 
@@ -415,7 +454,8 @@
       '<button type="button" id="prl-alle"' + (offen.length ? "" : " disabled") + ">📤 Alle zurückgeben</button>" +
       "<p>Zurückgegebene Proben sehen die Kinder mit ihrem Code auf der Startseite unter „Zurückbekommen“: Antworten, Punkte, bei Fehlern die richtige Lösung – zum Ansehen und zum Drucken für die Eltern. " +
       "Die Elternansicht kannst du auch selbst drucken, einzeln oder für alle Abgaben der Liste (je Kind ein Blatt mit Unterschriftsfeld). " +
-      "🔎 Probenmodus: Hat ein Kind die Probe verlassen oder etwas einfügen wollen, steht das mit Uhrzeit und Dauer bei seiner Abgabe." +
+      "🔎 Probenmodus: Hat ein Kind die Probe verlassen oder etwas einfügen wollen, steht das mit Uhrzeit und Dauer bei seiner Abgabe. " +
+      "✏️ Weiterschreiben erlauben: Hat ein Kind zu früh abgegeben, öffnet es die Probe mit seinem Code noch einmal (solange sie freigeschaltet ist) – seine Antworten sind wieder da." +
       (WERTEN_ROUTE[C.modul] ? " ✏️ Punkte ändern: jede Antwort selbst als richtig oder falsch werten – auch wenn die Probe schon zurückgegeben ist; das Kind sieht dann den neuen Stand." : "") +
       (NACHWERTEN_ROUTE[C.modul] ? " 🔁 Nachwerten: prüft die gespeicherten Antworten nach den aktuellen Regeln und wertet nur auf." : "") + "</p>" +
       '<span id="prl-msg" role="status"></span>';

@@ -47,6 +47,19 @@
     return (r.automatisch && AUTOMATISCH[r.automatisch] ? `<p class="notice">⏱ Automatisch abgegeben: ${esc(AUTOMATISCH[r.automatisch])}</p>` : "") +
       (ab ? `<p class="notice${ab.aufgehoben ? "" : " bad"}">⛔ <b>Probe nach den Testregeln beendet:</b> ${esc(abbruchGrund(ab))} – ${ab.aufgehoben ? "Note 6 aufgehoben, es zählen die Punkte." : "Note 6."} <button class="btn klein secondary" type="button" data-tun="abbruch">${ab.aufgehoben ? "Note 6 wieder setzen" : "Note 6 aufheben"}</button></p>` : "");
   }
+  /* Weiterschreiben nach der Abgabe (13.11.2026, Wunsch der Lehrkraft: „einen button machen, dass der lehrer
+     weiterschreiben erlauben kann“ – ein Kind hatte versehentlich abgegeben). Route wie in der Verwaltung
+     (/api/probe-weiter/erlauben): Das Kind öffnet die Probe mit seinem Code noch einmal, solange sie freigeschaltet ist,
+     seine Antworten sind wieder da; die neue Abgabe ersetzt diese. */
+  const MODUL = DAPI.replace(/^\/api\//, "") + "proben";
+  const darfWeiter = r => Boolean(r.weiter && r.weiter.erlaubtAm);
+  const probeOffen = r => { const t = tests.find(x => x.id === r.testId); return !t || t.unlocked; };
+  function weiterBox(r) {
+    if (darfWeiter(r)) return `<p class="notice">✏️ <b>Darf weiterschreiben</b> (erlaubt ${zeit(r.weiter.erlaubtAm)}): Das Kind öffnet die Probe mit seinem Code noch einmal, seine Antworten sind wieder da. Die neue Abgabe ersetzt diese.${
+      probeOffen(r) ? "" : " <b>Die Probe ist gerade gesperrt – schalte sie oben unter „Freischalten“ frei, sonst kann das Kind sie nicht öffnen.</b>"}</p>`;
+    const f = Array.isArray(r.fassungen) ? r.fassungen : [], v = f[f.length - 1];
+    return v ? `<p class="notice">✏️ Weitergeschrieben – vorher ${zahl(v.score)} / ${zahl(v.total)} Punkte${v.grade !== undefined && v.grade !== "" ? ", Note " + esc(v.grade) : ""} (abgegeben ${zeit(v.submittedAt)}).</p>` : "";
+  }
   const status = (text, art) => { $("teacher-status").textContent = text; $("teacher-status").className = "notice" + (art ? " " + art : ""); };
   const zeile = id => rows.find(r => r.id === id);
   function ersetze(row) { const i = rows.findIndex(r => r.id === row.id); if (i >= 0) rows[i] = row; else rows.push(row); }
@@ -127,7 +140,7 @@
     $("alle-frei").disabled = !frei; $("alle-frei").textContent = frei ? `📤 ${frei} bestätigte ${frei === 1 ? "Probe" : "Proben"} freigeben` : "📤 Alle bestätigten Proben freigeben";
     $("zaehlung").textContent = liste.length ? `${liste.filter(r => r.status === "zu-pruefen").length} zu prüfen · ${frei} bestätigt · ${liste.filter(r => r.status === "freigegeben").length} freigegeben, davon ${liste.filter(r => r.geoeffnetAm).length} geöffnet` : "";
     $("results").innerHTML = liste.length ? `<table class="l-uebersicht"><thead><tr><th>Kind</th><th>Klasse</th><th>Probe</th><th>Punkte</th><th>Note</th><th>Stand</th></tr></thead><tbody>${liste.map(r => `<tr data-id="${r.id}" class="${r.id === offenId ? "an" : ""}">
-      <td><b>${esc(wer(r))}</b>${r.lrs ? ' <span class="pill" title="Notenschutz ist beim Code eingetragen">🛡 LRS</span>' : ""}${r.verlassen ? ` <small>${r.verlassen}× verlassen</small>` : ""}${r.protokoll && (r.protokoll.einfuegen || []).length ? ` <small>· ${r.protokoll.einfuegen.length}× einfügen</small>` : ""}</td>
+      <td><b>${esc(wer(r))}</b>${r.lrs ? ' <span class="pill" title="Notenschutz ist beim Code eingetragen">🛡 LRS</span>' : ""}${r.verlassen ? ` <small>${r.verlassen}× verlassen</small>` : ""}${r.protokoll && (r.protokoll.einfuegen || []).length ? ` <small>· ${r.protokoll.einfuegen.length}× einfügen</small>` : ""}${darfWeiter(r) ? ' <span class="pill" title="Das Kind darf die Probe noch einmal öffnen und weiterschreiben">✏️ darf weiterschreiben</span>' : (r.fassungen || []).length ? ' <span class="pill" title="Nach der Abgabe weitergeschrieben">✏️ weitergeschrieben</span>' : ""}</td>
       <td>${esc(r.className)}</td><td>${esc(r.testTitle)}${r.variante === "B" || r.variante === "C" ? ` <span class="pill b">${r.variante}</span>` : ""}</td>
       <td>${zahl(r.score)} / ${zahl(r.total)}</td><td>${r.grade === "" ? "–" : r.grade}</td><td>${standText(r)}</td></tr>`).join("")}</tbody></table>` : `<p>Noch keine Abgaben.</p>`;
   }
@@ -204,6 +217,7 @@
         <label><input type="checkbox" data-ein="zsWerten" ${r.zsWerten ? "checked" : ""}> Zeichensetzung werten</label>
         <label><input type="checkbox" data-ein="ohneNote" ${r.ohneNote ? "checked" : ""}> ohne Note</label></div>
       ${ueberwachung(r)}
+      ${weiterBox(r)}
       ${abbruchBox(r)}
       ${r.status === "eingegangen" ? `<p class="notice">Die KI korrigiert diese Abgabe gerade. Die Seite lädt in wenigen Sekunden neu.</p>` : ""}
       ${r.ki && r.ki.stand === "unvollstaendig" ? `<p class="notice bad">Die KI war nicht erreichbar: Offene Antworten sind nur vorläufig oder noch gar nicht bewertet. <button class="btn klein" type="button" data-neu="0">↻ KI für alle offenen Antworten noch einmal versuchen</button></p>` : ""}
@@ -217,6 +231,7 @@
         ${r.status === "freigegeben" ? `<button class="btn secondary" type="button" data-tun="zurueckziehen">Freigabe zurücknehmen</button>` : ""}
         ${r.status === "bestaetigt" ? `<button class="btn secondary" type="button" data-tun="oeffnen">Wieder bearbeiten</button>` : ""}
         <button class="btn secondary" type="button" data-tun="vorschau">👁 So sieht es das Kind · drucken</button>
+        <button class="btn secondary" type="button" data-tun="weiterschreiben" title="${darfWeiter(r) ? "Das Kind darf die Probe dann nicht mehr öffnen – es bleibt bei dieser Abgabe" : "Zu früh abgegeben? Das Kind öffnet die Probe mit seinem Code noch einmal, seine Antworten sind wieder da, die neue Abgabe ersetzt diese"}">${darfWeiter(r) ? "✏️ Weiterschreiben zurücknehmen" : "✏️ Weiterschreiben erlauben"}</button>
         <span style="flex:1"></span>
         <button class="btn klein secondary" type="button" data-tun="vor" ${i > 0 ? "" : "disabled"}>← vorige</button>
         <button class="btn klein secondary" type="button" data-tun="weiter" ${i >= 0 && i < liste.length - 1 ? "" : "disabled"}>nächste →</button>
@@ -456,6 +471,22 @@
         const d = await res.json().catch(() => ({}));
         if (!res.ok || !d.ok) throw new Error(d.message || d.error || "Das hat nicht geklappt.");
         await load(true); zeichneAbgabe();
+      }, tun);
+    }
+    if (art === "weiterschreiben") {
+      const an = !darfWeiter(r);
+      if (!confirm(an ? wer(r) + " darf „" + r.testTitle + "“ weiterschreiben?\n\nDas Kind öffnet die Probe mit seinem Code noch einmal – seine Antworten von der Abgabe sind dann wieder da. Die neue Abgabe ersetzt diese (KI-Korrektur, Punkte, Note und Freigabe beginnen neu).\n\n" +
+          (probeOffen(r) ? "Wichtig: Die Probe muss freigeschaltet bleiben (sie schließt sich nach drei Stunden von selbst)." : "Die Probe ist gerade gesperrt – schalte sie danach oben unter „Freischalten“ frei, sonst kann das Kind sie nicht öffnen.")
+        : "Weiterschreiben für " + wer(r) + " zurücknehmen?\n\nDas Kind kann die Probe dann nicht mehr öffnen, es bleibt bei dieser Abgabe.")) return;
+      return void lauf(async () => {
+        const res = await fetch(API + "/api/probe-weiter/erlauben", {method: "POST", headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({password, modul: MODUL, submissionId: r.id, erlauben: an})});
+        const d = await res.json().catch(() => ({}));
+        if (!res.ok || !d.ok) throw new Error(d.message || (d.error === "bad_password" ? "Passwort nicht richtig." : d.error === "unbekannt" ? "Der Server kennt das Weiterschreiben für diese Proben noch nicht." : d.error) || "Das hat nicht geklappt.");
+        await load(true); zeichneAbgabe();
+        $("teacher-status").hidden = false;
+        status(an ? wer(r) + " darf weiterschreiben. " + (d.weiter && d.weiter.seite ? "Die Antworten der Abgabe sind beim Öffnen wieder da." : "Achtung: Bei dieser Abgabe sind die Antworten nicht gespeichert – das Kind beginnt mit leeren Feldern.") +
+          (probeOffen(r) ? "" : " Die Probe ist gesperrt – bitte freischalten.") : "Weiterschreiben für " + wer(r) + " ist zurückgenommen.", an && (!(d.weiter && d.weiter.seite) || !probeOffen(r)) ? "bad" : "");
       }, tun);
     }
     if (art === "vorschau") return void lauf(async () => { const res = await request("vorschau", {submissionId: r.id}); zeigeDruck(res.korrektur); }, tun);
