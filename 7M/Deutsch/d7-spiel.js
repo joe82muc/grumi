@@ -36,7 +36,7 @@
     const wortzahl = K.woerter((t.sprecher || []).map(s => s.text).join(" ")), minuten = Math.max(1, Math.round(wortzahl / 130));
     M.register(id + "-hoeren", box, "Hörtext anhören: " + t.titel);
     const fragen = (teil.fragen || []).filter(f => !f.nur || f.nur === K.zug());
-    box.innerHTML = `<div class="hoer"><div class="hoer-kopf"><span class="big" aria-hidden="true">🎧</span><div><b>${esc(t.titel)}</b><br><span class="hint">${esc(t.textsorte || "Hörtext")} · etwa ${minuten} ${minuten === 1 ? "Minute" : "Minuten"}${rollen.length > 1 ? " · " + rollen.length + " Stimmen" : ""}</span></div></div>
+    box.innerHTML = `<div class="hoer" data-hoer="${esc(t.id || "")}"><div class="hoer-kopf"><span class="big" aria-hidden="true">🎧</span><div><b>${esc(t.titel)}</b><br><span class="hint">${esc(t.textsorte || "Hörtext")} · etwa ${minuten} ${minuten === 1 ? "Minute" : "Minuten"}${rollen.length > 1 ? " · " + rollen.length + " Stimmen" : ""}</span></div></div>
         <div class="hoer-rollen">${rollen.map(r => `<span data-r="${esc(r)}">${esc(r)}</span>`).join("")}</div>
         <div class="row-btns"><button class="btn play" type="button">▶ Anhören</button><button class="btn ghost small neu" type="button">↺ Von vorn</button>
           <label class="hint" style="display:inline-flex;gap:6px;align-items:center"><input type="checkbox" class="langsam"> langsamer</label></div>
@@ -148,7 +148,9 @@
       div.innerHTML = (f.titel ? `<h4 style="margin:0 0 6px">${esc(f.titel)}</h4>` : "") + (f.lead ? `<p>${f.lead}</p>` : "") + '<div class="teil-box"></div>';
       liste.appendChild(div);
       const los = () => K.bauer[f.art]($(".teil-box", div), f, div);
+      const vorher = f.foerder && K.foerderMerken && M.aufgabenIds ? new Set(M.aufgabenIds()) : null;
       if (f.m7) M.plus(los); else los();
+      if (vorher) K.foerderMerken(div, f.foerder, vorher);
       K.teile.push({ art: f.art, id: f.id, teil: f, box: $(".teil-box", div), card: div });
     });
     const alleIds = fragen.reduce((a, f) => a.concat(aufgabenIds(f)), []);

@@ -19,6 +19,10 @@
  * Jeder Teil: { art, id, titel, tag, lead, m7, nur, hilfen, … }
  *   m7: true       M7-Aufgabe – für M-Klassen Pflicht, für R-Klassen freiwillig (Modul.plus)
  *   nur: "R"|"M"   nur für diesen Zug (z. B. kürzerer Text und mehr Hilfen für R7, längerer Text für M7)
+ *   foerder: { href, text, ab? }   Förder-Link (Englisch 7, seit 14.11.2026): Ist eine Aufgabe dieses Teils ab-mal (Vorgabe 2)
+ *                  falsch geprüft, erscheint darunter „Das ist noch schwer?“ mit dem Link zu einer kleinen Extra-Übung
+ *                  (href vom Ordner der Seite aus). Freiwillig – zählt nicht zum Lernstand. Ohne foerder ändert sich nichts.
+ *                  Geht auch an einer Aufgabe in den fragen eines hoertext (d7-spiel.js, seit 14.11.2026).
  * R7 oder M7 kommt aus der Anmeldung mit Code; ohne Anmeldung (Vorschau, Lehrercode) lässt sich die Fassung umschalten.
  */
 (function () {
@@ -32,6 +36,20 @@
   const SERVER = location.hostname.endsWith("onrender.com") ? "" : "https://englisch-9.onrender.com";
   const bauer = {}, teile = [];
   let CFG = null, ZUG = "M", MODUL_ID = "";
+  // Förder-Links: Aufgabe (Kennung) -> { card, f }; erscheint nach f.ab Fehlversuchen (Ereignis aus modul-basis.js)
+  const FOERDER = {};
+  document.addEventListener("grumi-versuch", e => {
+    const d = e.detail || {}, x = FOERDER[d.id];
+    if (!x || d.ok || d.fehler < (x.f.ab || 2) || x.card.querySelector(".foerder")) return;
+    const box = document.createElement("div"); box.className = "foerder"; box.setAttribute("role", "note");
+    box.innerHTML = `<span class="foerder-i" aria-hidden="true">🧩</span><div><b>Das ist noch schwer?</b> Kein Problem – übe es zuerst in einer kleinen Extra-Übung und komm dann hierher zurück.<br>` +
+      `<a class="btn" href="${esc(x.f.href)}">${esc(x.f.text || "Extra-Übung")} →</a></div>`;
+    x.card.appendChild(box);
+  });
+  // Neue Aufgaben seit vorher (Menge der Kennungen vor dem Bauen) dem Förder-Link f zuordnen
+  const foerderMerken = (card, f, vorher) => {
+    if (f && vorher && M.aufgabenIds) M.aufgabenIds().filter(id => !vorher.has(id)).forEach(id => { FOERDER[id] = { card, f }; });
+  };
   const istR = () => ZUG === "R";
   const woerter = s => window.D7Zeilen.woerter(String(s || ""));
   // Text für den Zug des Kindes: "id" oder { R: "id", M: "id" }
@@ -99,7 +117,9 @@
         card.innerHTML = (tags ? `<div>${tags}</div>` : "") + (teil.titel ? `<h3>${esc(teil.titel)}</h3>` : "") + (teil.lead ? `<p class="lead">${teil.lead}</p>` : "") + '<div class="teil-box"></div>';
         sec.appendChild(card);
         const box = $(".teil-box", card), los = () => bauer[teil.art](box, teil, card);
+        const vorher = teil.foerder && M.aufgabenIds ? new Set(M.aufgabenIds()) : null;
         if (teil.m7) M.plus(los); else los();
+        if (vorher) foerderMerken(card, teil.foerder, vorher);
         if (teil.art === "mc") teil.fragen.forEach(q => { if (!Array.isArray(q.a)) mc.push(q); });
         if (teil.hilfen) hilfen(card, teil.hilfen, teil.loesung);
         teile.push({ art: teil.art, id: teil.id, teil, box, card });
@@ -513,5 +533,5 @@
     if (a && a.code && D7.freigabe) D7.freigabe(a, s => zeige(D7.offen(reg.modul, reg.thema, s)), () => {});
   };
 
-  window.D7Kit = { seite, bauer, teile, hilfen, textFuer, zug: () => ZUG, modul: () => MODUL_ID, server: SERVER, woerter };
+  window.D7Kit = { seite, bauer, teile, hilfen, textFuer, zug: () => ZUG, modul: () => MODUL_ID, server: SERVER, woerter, foerderMerken };
 })();

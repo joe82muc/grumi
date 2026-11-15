@@ -218,11 +218,18 @@
     // (L.BAUSTEINE); proben: true = das Fach hat große Proben mit Korrekturseite (Kasten „Proben“ in der Verwaltung).
     var PREFIX = "grumi-" + cfg.kurs + "-";
     function idAusKey(key) { var s = String(key || ""); return (s.indexOf(PREFIX) === 0 ? s.slice(PREFIX.length) : s).replace(/-v\d+$/, ""); }
-    // Zug des Kindes (M oder R): Kurs mit nur einem Zug -> dieser; sonst aus der Anmeldung („9M“ / „9R“)
+    // Zug des Kindes (M oder R): Kurs mit nur einem Zug -> dieser; sonst aus der Anmeldung („7M“ / „7R“), ohne Anmeldung
+    // (Vorschau der Lehrkraft, Lehrercode) aus dem Link (?zug=R) oder dem Tab – wie die Liste von Deutsch 7 (Englisch 7 seit 14.11.2026)
     function zug(a) {
       var zuege = cfg.zuege || ["M", "R"];
       if (zuege.length === 1) return zuege[0];
-      return a && new RegExp("^" + STUFE + "[MR]$").test(String(a.zug || "")) ? String(a.zug).slice(-1) : "";
+      var z = a && new RegExp("^" + STUFE + "[MR]$").test(String(a.zug || "")) ? String(a.zug).slice(-1) : "";
+      if (!z) { var m = /[?&]zug=([MR])\b/i.exec(suche); if (m) z = m[1].toUpperCase(); }
+      try {
+        if (z) global.sessionStorage.setItem("grumi-" + cfg.kurs + "-zug", z);
+        else z = global.sessionStorage.getItem("grumi-" + cfg.kurs + "-zug") || "";
+      } catch (_e) {}
+      return z;
     }
 
     var L = {

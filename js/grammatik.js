@@ -27,6 +27,8 @@
  *   luecke: Eintrag als { s, bild } ebenso.
  * KI-Hilfe (Englisch 8M, Vorgabe kiHilfe: true; je Aufgabe mit hilfe: false abschaltbar): Stimmt bei einer Lückenaufgabe
  *   nach dem Prüfen etwas nicht, erklärt die KI auf Wunsch, was falsch ist – erst ein Denkanstoß, beim zweiten Mal die Lösung.
+ * Förder-Link (Englisch 7): foerder: { href, text, ab? } an der Seite oder an einer Aufgabe – nach ab (2) Fehlversuchen
+ *   erscheint „Das ist noch schwer?“ mit dem Link zu einer kleinen Extra-Übung; foerder: false schaltet ihn je Aufgabe ab.
  * Seite: plusHinweis ersetzt den Hinweis über den Plus-Aufgaben (Kurse ohne M-Zug, z. B. Englisch 8R).
  *   basisHinweis (HTML): Hinweis über den Basis-Aufgaben; basisEyebrow: Zeile über der Überschrift.
  * Tipps und Hinweise (Training zu einer Probe, Deutsch 7):
@@ -713,6 +715,19 @@
   var BAU = { wahl: wahl, luecke: luecke, markieren: markieren, zuordnen: zuordnen, komma: komma, trennen: komma, analyse: analyse,
     umformen: umformen, frei: umformen, bauen: bauenTyp, paare: paare, regelheft: regelheft };
 
+  /* ---------- Förder-Link (Englisch 7, seit 14.11.2026): nach wiederholten Fehlern eine kleine Extra-Übung anbieten ----------
+     Aufgabe: foerder: { href, text, ab? } (ab = Zahl der Fehlversuche, Vorgabe 2) oder foerder: false; sonst gilt
+     foerder der Seite (Grammatik.seite({ foerder })). Freiwillig – zählt nicht zum Lernstand. Eine schon gelöste Aufgabe
+     (z. B. nach „↺ Neu“ noch einmal geübt) bekommt keinen Kasten mehr – wie in d7-kit.js. */
+  function foerderZeigen(K) {
+    var f = K.a.foerder === false ? null : K.a.foerder || (CFG && CFG.foerder);
+    if (!f || !f.href || K.istGeloest() || K.fehlversuche < (f.ab || 2) || $(".foerder", K.el)) return;
+    var box = doc.createElement("div"); box.className = "foerder"; box.setAttribute("role", "note");
+    box.innerHTML = '<span class="foerder-i" aria-hidden="true">🧩</span><div><b>Das ist noch schwer?</b> Kein Problem – übe es zuerst in einer kleinen ' +
+      'Extra-Übung und komm dann hierher zurück.<br><a class="knopf" href="' + esc(f.href) + '">' + esc(f.text || "Extra-Übung") + " →</a></div>";
+    K.el.appendChild(box);
+  }
+
   /* ---------- KI-Hilfe bei Lückenaufgaben (Englisch 8M): erklärt, was nach dem Prüfen noch falsch ist ---------- */
   function kiHilfe(K, kasten, knopf) {
     var s = global.Lernstand && global.Lernstand.schueler;
@@ -804,6 +819,7 @@
         if (kiKnopf) kiKnopf.hidden = false;
         melden("bad", "❌ " + (e.von > 1 ? e.ok + " von " + e.von + (e.einheit ? " " + e.einheit : "") + " richtig." : "Noch nicht richtig.") +
           (e.fehlt ? " " + e.fehlt + " noch offen." : "") + " Rot markiert ist, was noch nicht stimmt." + (K.a.tipp && K.fehlversuche === 1 ? " Der Tipp hilft dir." : ""));
+        foerderZeigen(K);
       }).catch(function () { knopf.disabled = false; melden("bad", "Das Prüfen hat nicht geklappt. Versuch es noch einmal."); });
     };
     knopf.addEventListener("click", K.pruefen);

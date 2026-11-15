@@ -52,7 +52,14 @@ function solve(id){ if (!solved[id]) { solved[id] = 1; save("", JSON.stringify(s
 // es in der Verwaltung (js/lernstand.js meldet es mit). Offene Fragen mit KI, Erkunden und Animationen zählen nicht.
 let versuche = {};
 const zaehlt = () => { const K = KL(); return !!(K && K.VERSUCHE); };
+// Fehler je Aufgabe auf dieser Seite (alle Fächer, nicht gespeichert): Ereignis „grumi-versuch“ { id, ok, fehler } –
+// Englisch 7 zeigt damit nach wiederholten Fehlern einen Link zu einer kleinen Extra-Übung (d7-kit.js, Angabe „foerder“).
+const fehlerHier = {};
 function versuch(id, ok){
+  if (!solved[id]) {
+    if (!ok) fehlerHier[id] = (fehlerHier[id] || 0) + 1;
+    try { document.dispatchEvent(new CustomEvent("grumi-versuch", { detail: { id, ok: !!ok, fehler: fehlerHier[id] || 0 } })); } catch (_) {}
+  }
   if (!zaehlt() || solved[id]) return;
   if (ok) { if (versuche[id] !== undefined) return; versuche[id] = 0; }
   else versuche[id] = Math.min(99, (versuche[id] || 0) + 1);
@@ -917,5 +924,6 @@ function confetti(){
 
 const Modul = window.Modul = {$, $$, esc, shuffle, clamp, fmt, norm, setText, reduced, onVisible, load, save, init, ready, register, solve,
   isSolved: id => !!solved[id], katalog, mehrGeloest, askKI, makeMC, makeGap, makeSort, makeTF, makeOrder, makeLabel, makeHotspots, makeCrossword, makeOpen, makeQuiz, confetti,
-  plus, zug: () => ZUG, makePaare, makeSchritte, makeFilm, anmeldung: lsAnmeldung, versuch, versuche: () => Object.assign({}, versuche)};
+  plus, zug: () => ZUG, makePaare, makeSchritte, makeFilm, anmeldung: lsAnmeldung, versuch, versuche: () => Object.assign({}, versuche),
+  aufgabenIds: () => [...tasks]};
 })();
