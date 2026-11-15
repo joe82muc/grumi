@@ -3,15 +3,19 @@
    laufen als Sprechblasen-Kette (Baustein „kette“ aus 9R/Englisch/e9-kit.js); die KI prüft je Beitrag, ob die wichtigen
    Angaben ankommen – nicht, ob Wort für Wort übersetzt wurde. Tipps in Stufen je Beitrag; „ueber“ achtet darauf, dass das
    Kind gegenüber dem Verkäufer ÜBER die Touristin spricht (She would like …), wie beim Dolmetschen üblich.)
-   Wunsch der Lehrkraft (09.11.2026): die Kartenkauf-Mediation aus dem Buch „und 3 weitere ähnliche mediations. mit ki kontrolle
-   und tipps“. Thema und Format wie im Buch (Theaterkasse, halber Preis, Anzahl, bezahlen), Show, Namen, Preise und Texte
-   eigen – die Seite ist öffentlich. Alle Personen und Shows sind erfunden; das Science Museum (Eintritt frei, 10–18 Uhr) gibt es.
+   Wunsch der Lehrkraft (09.11.2026): eine Kartenkauf-Mediation „und 3 weitere ähnliche mediations. mit ki kontrolle und tipps“.
+   15.11.2026 (Entscheidung der Lehrkraft): Station 2 hat eine eigene Situation – Familienkarte an der Kasse eines
+   Freilichttheaters auf den Klippen im erfundenen Küstenort Saltcliff (eigene Shows, Preise, Zeiten) statt Halbpreiskarten an
+   einer Londoner Theaterkasse; Küstenort und Londoner Museum des Buchs ersetzt durch Southend-on-Sea (Pier) und das British
+   Museum (U-Bahn Russell Square). Kennungen der Teile (theater, bahnhof, imbiss, touristinfo …) und die Zahl der Beiträge sind gleich geblieben – der
+   Lernstand hängt an „id-Nummer“. Alle Personen, Shows und Saltcliff sind erfunden; das British Museum (Eintritt frei,
+   10–17 Uhr, U-Bahn Russell Square) und der Pier von Southend gibt es. Das Bild in Station 1 zeigt noch eine Theaterkasse in London.
    LehrplanPLUS E7 Sprachmittlung: in einfachen Alltagssituationen Informationen sinngemäß in der jeweils anderen Sprache
    weitergeben. Gespräch 4 ohne Satzanfänge ist die M7-Aufgabe (für 7R freiwillig). */
 D7Kit.seite({
   id: "u1-mediation",
   titel: "Mediation: Helping tourists",
-  einleitung: "Tourists from Germany are on holiday in England, but they don't speak much English. <b>You help them</b> – at a theatre, at a station, at a fish and chips shop and at the tourist information. Du vermittelst zwischen Deutsch und Englisch, die KI prüft jeden Beitrag, und Tipps helfen dir.",
+  einleitung: "Tourists from Germany are on holiday in England, but they don't speak much English. <b>You help them</b> – at an open-air theatre, at a station, at a fish and chips shop and at the tourist information. Du vermittelst zwischen Deutsch und Englisch, die KI prüft jeden Beitrag, und Tipps helfen dir.",
   zeit: "etwa 60 Minuten – du kannst auch in zwei Teilen arbeiten",
   ziele: ["🌉 I help people who don't understand each other.", "🗣️ I talk about the tourist: She would like …", "🔢 I get prices, numbers and times right.", "💡 I pass on the message – not every word."],
   thema: "Unit 1 Out and about in England: Sprachmittlung (deutsche Touristen in England)",
@@ -19,7 +23,8 @@ D7Kit.seite({
   glossar: {
     mediation: ["mediation", "Sprachmittlung: Du gibst weiter, was jemand gesagt hat – in der anderen Sprache. Nicht Wort für Wort, sondern das Wichtige."],
     boxoffice: ["box office", "Theaterkasse: Hier kauft man Karten für eine Show."],
-    halfprice: ["half price", "halber Preis: Die Karte kostet nur die Hälfte."],
+    openair: ["open-air theatre", "Freilichttheater: Theater unter freiem Himmel, ohne Dach."],
+    familyticket: ["family ticket", "Familienkarte: eine Karte für Eltern und Kinder zusammen – meistens billiger als einzelne Karten."],
     each: ["each", "jeweils, pro Stück: „£18 each“ heißt, jede Karte kostet 18 Pfund."],
     altogether: ["altogether", "zusammen, insgesamt."],
     single: ["single (ticket)", "Fahrkarte nur für die Hinfahrt (einfache Fahrt)."],
@@ -27,7 +32,7 @@ D7Kit.seite({
     platform: ["platform", "Gleis, Bahnsteig."],
     takeaway: ["take away", "zum Mitnehmen: Man isst das Essen nicht im Laden."],
     eatin: ["eat in", "im Laden oder Restaurant essen."],
-    pier: ["pier", "Seebrücke: ein langer Steg, der ins Meer hinausgeht. Brighton hat einen berühmten Pier."],
+    pier: ["pier", "Seebrücke: ein langer Steg, der ins Meer hinausgeht. Der Pier von Southend ist über zwei Kilometer lang."],
     touristinfo: ["tourist information", "Touristeninformation: Hier bekommen Touristen Stadtpläne und Tipps."],
     underground: ["the Underground", "die Londoner U-Bahn. Viele sagen auch „the Tube“."],
     ampm: ["am / pm", "am = vormittags (vor 12 Uhr), pm = nachmittags und abends: 6 pm = 18 Uhr."],
@@ -35,10 +40,10 @@ D7Kit.seite({
   },
   stationen: [
     { kurz: "Get ready", ober: "Station 1", titel: "You are the helper", teile: [
-      { art: "text", html: "<p class=\"lead\">You are on a trip in England. Many tourists from Germany don't speak much English. <b>You can help them!</b> <span class=\"de\">Du kannst Deutsch und Englisch. Also sagst du dem Verkäufer auf Englisch, was die Touristin möchte – und der Touristin auf Deutsch, was der Verkäufer sagt. Das heißt <button class=\"term\" data-t=\"mediation\">Mediation</button> (Sprachmittlung). Die Personen in diesem Modul sind erfunden.</span></p><figure style=\"margin:12px 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"images/u1-box-office.jpg\" width=\"1280\" height=\"853\" alt=\"At a theatre box office in London: a girl helps a mother with two children. The assistant behind the counter holds up three tickets, the mother holds a bank card.\" loading=\"lazy\" style=\"width:100%;height:auto;border-radius:14px\"></figure><p>Look at the picture. Who needs help? How does the girl help? What does the assistant hold in his hand? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich. Tippe das Bild an, um es zu vergrößern.</span></p>" },
+      { art: "text", html: "<p class=\"lead\">You are on a trip in England. Many tourists from Germany don't speak much English. <b>You can help them!</b> <span class=\"de\">Du kannst Deutsch und Englisch. Also sagst du dem Verkäufer auf Englisch, was die Touristin möchte – und der Touristin auf Deutsch, was der Verkäufer sagt. Das heißt <button class=\"term\" data-t=\"mediation\">Mediation</button> (Sprachmittlung). Die Personen in diesem Modul sind erfunden.</span></p><figure style=\"margin:12px 0 6px;max-width:100%\"><img class=\"zoomable\" src=\"images/u1/u1-med-freilicht.jpg\" width=\"1280\" height=\"853\" alt=\"At the box office of an open-air theatre on the cliffs by the sea: a girl helps a mother with two children; the assistant behind the window listens.\" loading=\"lazy\" style=\"width:100%;height:auto;border-radius:14px\"></figure><p>Look at the picture. Who needs help? How does the girl help? What does the assistant hold in his hand? <span class=\"de\">Sprich mit einer Partnerin oder einem Partner – oder überlege für dich. Tippe das Bild an, um es zu vergrößern.</span></p>" },
       { art: "merke", kopf: "MEDIATION – SO HILFST DU", html: "<ul><li><b>Pass on the message – not every word.</b><br>Gib das Wichtige weiter, nicht Wort für Wort.</li><li><b>To the assistant you talk ABOUT the tourist:</b> <i>She would like … · He wants … · They need …</i><br>Die Touristin sagt „Ich möchte …“ – du sagst: „<i>She</i> would like …“.</li><li><b>To the tourist you speak German:</b> <i>Die Karten kosten … · Der Zug fährt um …</i></li><li><b>Numbers, prices and times must be right.</b><br>Zahlen, Preise und Uhrzeiten genau weitergeben!</li><li><b>You don't know a word?</b> Use easy words.<br>Umschreibe es mit einfachen Wörtern.</li></ul>" },
       { art: "paare", id: "woerter", tag: "Words you need", titel: "Match the words", lead: "Find the pairs. <span class=\"de\">Diese Wörter brauchst du gleich in den Gesprächen.</span>",
-        paare: [["ticket", "Karte, Fahrkarte"], ["tonight", "heute Abend"], ["half price", "halber Preis"], ["each", "jeweils, pro Stück"], ["altogether", "zusammen, insgesamt"], ["seat", "Sitzplatz"], ["to pay by card", "mit Karte bezahlen"], ["How many …?", "Wie viele …?"]] },
+        paare: [["ticket", "Karte, Fahrkarte"], ["this afternoon", "heute Nachmittag"], ["family ticket", "Familienkarte"], ["each", "jeweils, pro Stück"], ["altogether", "zusammen, insgesamt"], ["seat", "Sitzplatz"], ["to pay by card", "mit Karte bezahlen"], ["How many …?", "Wie viele …?"]] },
       { art: "mc", id: "ich-oder-sie", tag: "I or she?", titel: "What do you say?", lead: "Tick the best sentence. <span class=\"de\">Was sagst du?</span>",
         fragen: [
           { q: "Frau Lehner sagt: „Ich möchte zwei Karten.“ What do you tell the assistant?", o: ["She would like two tickets.", "I would like two tickets.", "You would like two tickets.", "She likes two tickets."], a: 0,
@@ -57,67 +62,68 @@ D7Kit.seite({
           ["If you don't know a word, you stop talking.", false]
         ] }
     ] },
-    { kurz: "Theatre", ober: "Station 2", titel: "At the box office in London", teile: [
-      { art: "text", html: "<p class=\"lead\">You are in London. You are waiting at a theatre <button class=\"term\" data-t=\"boxoffice\">box office</button>. In front of you is <b>Frau Lehner</b> from Germany. She wants to see a show tonight with her two children, but she doesn't speak much English. <span class=\"de\">Schau dir zuerst an, was es heute Abend gibt.</span></p>" },
-      { art: "material", daten: { typ: "tabelle", titel: "What's on tonight?", kopf: ["Show", "Price", "Half price tonight"],
-        reihen: [["Moonlight Circus (musical)", "£36", "£18"], ["The Haunted Hotel (comedy)", "£28", "–"], ["Robin of the Forest (musical)", "£24", "£12"], ["Space Pirates (family show)", "£20", "£10"]] } },
+    { kurz: "Theatre", ober: "Station 2", titel: "At an open-air theatre by the sea", teile: [
+      { art: "text", html: "<p class=\"lead\">You are on holiday in <b>Saltcliff</b>, a small town by the sea. On the cliffs above the beach there is an <button class=\"term\" data-t=\"openair\">open-air theatre</button>. At the <button class=\"term\" data-t=\"boxoffice\">box office</button> you meet <b>Frau Lehner</b> from Germany. She wants to see a show this afternoon with her two children, but she doesn't speak much English. <span class=\"de\">Schau dir zuerst an, was es heute gibt und was die Karten kosten.</span></p>" },
+      { art: "material", daten: { typ: "tabelle", titel: "Saltcliff Open-Air Theatre · Today", kopf: ["Show", "Time", "Adult", "Child", "Family"],
+        reihen: [["Seal Island (puppet show)", "11:00 am", "£8", "£5", "£15"], ["The Pirate's Treasure (family show)", "2:30 pm", "£16", "£9", "£28"], ["A Storm at Sea (drama)", "7:45 pm", "£22", "£12", "–"]],
+        hinweis: "Child = 5 to 15 years old · Family = 1 adult + 2 children · There are no seats – you sit on the grass." } },
       { art: "text", html: "<p class=\"lead\"><b>Now it's your turn.</b> Read each speech bubble and write what <b>you</b> say. <span class=\"de\">Nach Frau Lehner schreibst du auf Englisch für den Verkäufer – und sprichst dabei über sie: „She …“. Nach dem Verkäufer schreibst du auf Deutsch für Frau Lehner. Brauchst du Hilfe? Tippe auf „💡 Tipp“. Die nächste Sprechblase kommt, wenn dein Beitrag geprüft ist.</span></p>" },
-      { art: "kette", id: "theater", tag: "Mediation · AI check", titel: "Help Frau Lehner at the box office", lead: "Write your part. <span class=\"de\">Gib das Wichtige weiter – nicht Wort für Wort. Der Satzanfang hilft dir.</span>",
-        thema: "Sprachmittlung an einer Theaterkasse in London (Englisch 7, Mittelschule): Eine deutsche Touristin kauft Karten",
+      { art: "kette", id: "theater", tag: "Mediation · AI check", titel: "Help Frau Lehner at the open-air theatre", lead: "Write your part. <span class=\"de\">Gib das Wichtige weiter – nicht Wort für Wort. Der Satzanfang hilft dir.</span>",
+        thema: "Sprachmittlung an der Kasse eines Freilichttheaters an der englischen Küste (Englisch 7, Mittelschule): Eine deutsche Touristin kauft eine Familienkarte",
         rollen: { a: { name: "Frau Lehner", ic: "🧳" }, b: { name: "Assistant", ic: "🎭" }, du: { name: "You" } },
         schritte: [
-          { von: "a", text: "Hallo! Ich möchte gern Karten für „Moonlight Circus“ – für heute Abend." },
+          { von: "a", text: "Hallo! Ich möchte gern Karten für „The Pirate's Treasure“ – für die Vorstellung heute Nachmittag." },
           { an: "b", sprache: "en", ueber: "She", auftrag: "Tell the assistant what Frau Lehner wants. <span class=\"de\">Sprich über sie: „She …“</span>", start: "She would like",
-            kriterien: ["Sie möchte Karten", "für die Show Moonlight Circus", "für heute Abend"],
-            m: "She would like tickets for Moonlight Circus for this evening.", k: ["ticket", "moonlight|circus", "tonight|this evening|today"],
-            tipps: ["Drei Angaben: <b>was</b> sie möchte, für <b>welche Show</b> und <b>wann</b>.", "Karten = <i>tickets</i> · heute Abend = <i>this evening</i> oder <i>tonight</i>"] },
-          { von: "b", text: "Moonlight Circus tonight? OK. The tickets are £36 each." },
+            kriterien: ["Sie möchte Karten", "für die Show The Pirate's Treasure", "für heute Nachmittag"],
+            m: "She would like tickets for The Pirate's Treasure this afternoon.", k: ["ticket", "pirate|treasure", "afternoon|today|2:30|half past two"],
+            tipps: ["Drei Angaben: <b>was</b> sie möchte, für <b>welche Show</b> und <b>wann</b>.", "Karten = <i>tickets</i> · heute Nachmittag = <i>this afternoon</i>"] },
+          { von: "b", text: "The Pirate's Treasure at half past two? OK. Tickets are £16 for adults and £9 for children." },
           { an: "a", sprache: "de", auftrag: "Tell Frau Lehner in German what the assistant says.", start: "Die Karten kosten",
-            kriterien: ["Preis: 36 Pfund", "pro Karte (jeweils, pro Stück, je Karte)"],
-            m: "Die Karten kosten jeweils 36 Pfund.", k: ["36", "jeweils|pro|je |stueck|jede"],
-            tipps: ["Wie viel kostet <b>eine</b> Karte? Das Wort <i>each</i> ist wichtig.", "<i>each</i> = jeweils, pro Karte · <i>£36</i> = 36 Pfund (nicht Euro!)"] },
-          { von: "a", text: "Oh, das ist teuer! Auf dem Plakat steht, dass es heute Karten zum halben Preis gibt. Stimmt das?" },
+            kriterien: ["Erwachsene: 16 Pfund pro Karte", "Kinder: 9 Pfund pro Karte"],
+            m: "Die Karten kosten 16 Pfund für Erwachsene und 9 Pfund für Kinder.", k: ["16", "9|neun"],
+            tipps: ["Es gibt <b>zwei</b> Preise: einen für Erwachsene und einen für Kinder.", "<i>adults</i> = Erwachsene · <i>children</i> = Kinder · <i>£16</i> = 16 Pfund (nicht Euro!)"] },
+          { von: "a", text: "Hm, für uns drei sind das zusammen 34 Pfund. Auf dem Schild steht etwas von einer Familienkarte. Ist die billiger?" },
           { an: "b", sprache: "en", ueber: "She", auftrag: "Ask the assistant. <span class=\"de\">Was möchte Frau Lehner wissen?</span>", start: "She asks:",
-            kriterien: ["fragt nach Karten zum halben Preis", "für heute (Abend)"],
-            m: "She asks: Are there half-price tickets for tonight? She saw it on the poster.", k: ["half", "tonight|this evening|today"],
-            tipps: ["Sie möchte <b>billigere</b> Karten. Wie viel billiger? Für <b>wann</b>?", "zum halben Preis = <i>half-price</i> · Gibt es …? = <i>Are there …?</i>"] },
-          { von: "b", text: "Yes, that's right. We have some half-price tickets for tonight – they're £18 each. How many would she like?" },
-          { an: "a", sprache: "de", auftrag: "Tell Frau Lehner in German. Then ask her the assistant's question.", start: "Ja, das stimmt.",
-            kriterien: ["Ja, es gibt heute Karten zum halben Preis", "18 Pfund pro Karte", "fragt, wie viele Karten sie möchte"],
-            m: "Ja, das stimmt. Es gibt heute Abend Karten zum halben Preis – jeweils 18 Pfund. Wie viele Karten möchten Sie?", k: ["ja|stimmt|richtig|gibt", "18", "wie viele"],
-            tipps: ["Drei Teile: <b>Ja</b> – der <b>neue Preis</b> – die <b>Frage</b> des Verkäufers.", "<i>How many would she like?</i> = Wie viele (Karten) möchten Sie?"] },
-          { von: "a", text: "Super! Dann nehme ich drei Karten – für mich und meine zwei Kinder." },
+            kriterien: ["fragt nach der Familienkarte", "fragt, ob sie billiger ist"],
+            m: "She asks: Is the family ticket cheaper? She saw it on the sign.", k: ["family", "cheap|less|price|cost|how much"],
+            tipps: ["Sie möchte wissen, ob die <b><button class=\"term\" data-t=\"familyticket\">Familienkarte</button></b> <b>billiger</b> ist. Die 34 Pfund musst du nicht weitergeben.", "Familienkarte = <i>family ticket</i> · billiger = <i>cheaper</i> · Ist …? = <i>Is …?</i>"] },
+          { von: "b", text: "Yes, it is. The family ticket is for one adult and two children, and it's only £28. How many children are with her?" },
+          { an: "a", sprache: "de", auftrag: "Tell Frau Lehner in German. Then ask her the assistant's question.", start: "Ja, die Familienkarte",
+            kriterien: ["Ja, die Familienkarte ist billiger", "für einen Erwachsenen und zwei Kinder: 28 Pfund", "fragt, wie viele Kinder dabei sind"],
+            m: "Ja, die Familienkarte ist billiger: Ein Erwachsener und zwei Kinder zahlen zusammen nur 28 Pfund. Wie viele Kinder sind bei Ihnen?", k: ["ja|billiger|guenstiger|stimmt", "28", "wie viele"],
+            tipps: ["Drei Teile: <b>Ja</b> – für <b>wen</b> die Familienkarte gilt und was sie <b>kostet</b> – die <b>Frage</b> des Verkäufers.", "<i>one adult and two children</i> = ein Erwachsener und zwei Kinder · <i>How many children …?</i> = Wie viele Kinder …?"] },
+          { von: "a", text: "Super! Ich habe genau zwei Kinder dabei, sie sind sieben und zehn. Dann nehme ich die Familienkarte." },
           { an: "b", sprache: "en", ueber: "She", auftrag: "Tell the assistant. <span class=\"de\">Sprich über sie – aus „meine Kinder“ wird „her children“.</span>", start: "She would like",
-            kriterien: ["drei Karten", "nennt, für wen die Karten sind: für sie und ihre (zwei) Kinder"],
-            m: "She would like three tickets – for her and her two children.", k: ["three|3", "children|child|kids|son|daughter"],
-            tipps: ["Zwei Angaben: <b>wie viele</b> Karten und <b>für wen</b>.", "drei = <i>three</i> · ihre Kinder = <i>her children</i>"] },
-          { von: "b", text: "Great. Three tickets – that's £54 altogether. Your seats are in row F, next to each other." },
+            kriterien: ["eine Familienkarte", "Sie hat zwei Kinder dabei (sieben und zehn Jahre alt)"],
+            m: "She would like a family ticket. She has got two children – they are seven and ten.", k: ["family", "children|child|kids|son|daughter|two|2"],
+            tipps: ["Zwei Angaben: <b>welche Karte</b> sie nimmt und <b>wer</b> mitkommt.", "Familienkarte = <i>family ticket</i> · ihre zwei Kinder = <i>her two children</i> · sieben und zehn = <i>seven and ten</i>"] },
+          { von: "b", text: "Great. That's £28, please. There are no seats – people sit on the grass, so take a blanket. The show starts at half past two." },
           { an: "a", sprache: "de", auftrag: "Tell Frau Lehner in German.", start: "Das macht",
-            kriterien: ["zusammen 54 Pfund", "Plätze in Reihe F", "nebeneinander"],
-            m: "Das macht zusammen 54 Pfund. Ihre Plätze sind in Reihe F, nebeneinander.", k: ["54", "reihe", "neben"],
-            tipps: ["Zwei Infos: der <b>Preis</b> für alle drei Karten und <b>wo</b> die Plätze sind.", "<i>altogether</i> = zusammen · <i>row</i> = Reihe · <i>next to each other</i> = nebeneinander"] },
+            kriterien: ["28 Pfund", "keine Sitzplätze: man sitzt auf der Wiese – eine Decke mitnehmen", "Beginn um halb drei (14.30 Uhr)"],
+            m: "Das macht 28 Pfund. Es gibt keine Sitzplätze, man sitzt auf der Wiese – nehmen Sie eine Decke mit. Die Show beginnt um halb drei.", k: ["28", "wiese|gras|rasen|boden|decke", "halb drei|14.30|14:30|2.30|2:30|14 uhr"],
+            tipps: ["Drei Infos: der <b>Preis</b>, <b>wo</b> man sitzt und <b>wann</b> die Show beginnt.", "<i>seats</i> = Sitzplätze · <i>grass</i> = Gras, Wiese · <i>blanket</i> = Decke · <i>half past two</i> = halb drei (14.30 Uhr) – nicht halb zwei!"] },
           { von: "a", text: "Perfekt. Ich bezahle mit Karte. Und sag ihm bitte vielen Dank!" },
           { an: "b", sprache: "en", ueber: "She", auftrag: "Tell the assistant. <span class=\"de\">Sprich über sie: „She …“</span>", start: "She will pay",
             kriterien: ["Sie bezahlt mit Karte", "Sie bedankt sich"],
             m: "She will pay by card. And she says thank you very much!", k: ["card", "thank"],
             tipps: ["<b>Wie</b> bezahlt sie? Und was sagt sie noch?", "mit Karte bezahlen = <i>pay by card</i> · Sie bedankt sich = <i>She says thank you.</i>"] },
-          { von: "b", text: "You're welcome. Here are the tickets. Enjoy the show!" },
-          { an: "a", sprache: "de", auftrag: "Tell Frau Lehner in German.", start: "Hier sind",
-            kriterien: ["Hier sind die Karten", "Viel Spaß bei der Show"],
-            m: "Gern geschehen. Hier sind die Karten. Viel Spaß bei der Show!", k: ["karte", "spass|vergnuegen|freude"],
-            tipps: ["Was gibt der Verkäufer ihr? Und was wünscht er ihr?", "<i>Here are the tickets.</i> = Hier sind die Karten. · <i>Enjoy the show!</i> = Viel Spaß bei der Show!"] }
+          { von: "b", text: "You're welcome. Here's your family ticket. Enjoy the show – and the view of the sea!" },
+          { an: "a", sprache: "de", auftrag: "Tell Frau Lehner in German.", start: "Hier ist",
+            kriterien: ["Hier ist die (Familien-)Karte", "Viel Spaß bei der Show (und beim Blick aufs Meer)"],
+            m: "Gern geschehen. Hier ist Ihre Familienkarte. Viel Spaß bei der Show – und beim Blick aufs Meer!", k: ["karte", "spass|vergnuegen|freude"],
+            tipps: ["Was gibt der Verkäufer ihr? Und was wünscht er ihr?", "<i>Here's your ticket.</i> = Hier ist Ihre Karte. · <i>Enjoy the show!</i> = Viel Spaß bei der Show! · <i>the view of the sea</i> = der Blick aufs Meer"] }
         ] }
     ] },
-    { kurz: "Train", ober: "Station 3", titel: "At the station: a trip to Brighton", teile: [
-      { art: "text", html: "<p class=\"lead\">The next day you are at a big railway station in London. <b>Herr Aydin</b> wants to go to Brighton by the sea with his little son. You help him at the ticket office. <span class=\"de\">Jetzt sprichst du über einen Mann: „He …“.</span></p>" },
+    { kurz: "Train", ober: "Station 3", titel: "At the station: a trip to Southend", teile: [
+      { art: "text", html: "<p class=\"lead\">A few days later you are at a big railway station in London. <b>Herr Aydin</b> wants to go to Southend-on-Sea for a day by the sea with his little son. You help him at the ticket office. <span class=\"de\">Jetzt sprichst du über einen Mann: „He …“.</span></p>" },
       { art: "kette", id: "bahnhof", tag: "Mediation · AI check", titel: "Help Herr Aydin at the ticket office", lead: "Write your part. <span class=\"de\">Englisch für den Verkäufer, Deutsch für Herrn Aydin.</span>",
-        thema: "Sprachmittlung am Fahrkartenschalter in London (Englisch 7, Mittelschule): ein deutscher Tourist kauft eine Fahrkarte nach Brighton",
+        thema: "Sprachmittlung am Fahrkartenschalter in London (Englisch 7, Mittelschule): ein deutscher Tourist kauft eine Fahrkarte nach Southend-on-Sea",
         rollen: { a: { name: "Herr Aydin", ic: "🧳" }, b: { name: "Ticket seller", ic: "🚆" }, du: { name: "You" } },
         schritte: [
-          { von: "a", text: "Entschuldigung, kannst du mir helfen? Ich möchte morgen nach Brighton fahren. Was kostet eine Fahrkarte?" },
+          { von: "a", text: "Entschuldigung, kannst du mir helfen? Ich möchte morgen nach Southend fahren. Was kostet eine Fahrkarte?" },
           { an: "b", sprache: "en", ueber: "He", auftrag: "Tell the ticket seller what Herr Aydin wants. <span class=\"de\">Sprich über ihn: „He …“</span>", start: "He wants to go to",
-            kriterien: ["Er möchte nach Brighton fahren", "morgen", "fragt, was eine Fahrkarte kostet"],
-            m: "He wants to go to Brighton tomorrow. How much is a ticket?", k: ["brighton", "tomorrow", "how much|price|cost"],
+            kriterien: ["Er möchte nach Southend fahren", "morgen", "fragt, was eine Fahrkarte kostet"],
+            m: "He wants to go to Southend tomorrow. How much is a ticket?", k: ["southend|south end", "tomorrow", "how much|price|cost"],
             tipps: ["Drei Angaben: <b>wohin</b>, <b>wann</b> und was er <b>wissen</b> möchte.", "morgen = <i>tomorrow</i> · Was kostet …? = <i>How much is …?</i>"] },
           { von: "b", text: "Single or return? A single ticket is £19. A return ticket is £28." },
           { an: "a", sprache: "de", auftrag: "Ask Herr Aydin in German and tell him both prices.", start: "Möchten Sie",
@@ -139,10 +145,10 @@ D7Kit.seite({
             kriterien: ["fragt, ob sein Sohn auch bezahlen muss (eine Fahrkarte braucht)", "Der Sohn ist vier Jahre alt"],
             m: "Does his son need a ticket too? He is four years old.", k: ["son|boy|child", "four|4"],
             tipps: ["Wer fährt noch mit? Wie alt ist er? Was möchte Herr Aydin wissen?", "Muss er bezahlen? = <i>Does he need a ticket?</i> · vier = <i>four</i>"] },
-          { von: "b", text: "No, he doesn't. Children under five travel free. Have a nice trip to Brighton!" },
+          { von: "b", text: "No, he doesn't. Children under five travel free. Have a nice trip to Southend!" },
           { an: "a", sprache: "de", auftrag: "Tell Herr Aydin in German.", start: "Nein,",
-            kriterien: ["Der Sohn muss nicht bezahlen: Kinder unter fünf fahren kostenlos", "Gute Reise (nach Brighton)"],
-            m: "Nein, Ihr Sohn muss nicht bezahlen. Kinder unter fünf Jahren fahren kostenlos. Gute Reise nach Brighton!", k: ["kostenlos|umsonst|gratis|frei|nicht bezahlen|nichts", "reise|fahrt"],
+            kriterien: ["Der Sohn muss nicht bezahlen: Kinder unter fünf fahren kostenlos", "Gute Reise (nach Southend)"],
+            m: "Nein, Ihr Sohn muss nicht bezahlen. Kinder unter fünf Jahren fahren kostenlos. Gute Reise nach Southend!", k: ["kostenlos|umsonst|gratis|frei|nicht bezahlen|nichts", "reise|fahrt"],
             tipps: ["<i>under five</i> = unter fünf · <i>free</i> = kostenlos, umsonst", "<i>Have a nice trip!</i> = Gute Reise!"] }
         ] }
     ] },
@@ -170,9 +176,9 @@ D7Kit.seite({
         ], extra: ["likes", "Bahn"] }
     ] },
     { kurz: "Fish & chips", ober: "Station 5", titel: "At a fish and chips shop", teile: [
-      { art: "text", html: "<p class=\"lead\">In Brighton you meet <b>Frau Sommer</b> and her husband at a fish and chips shop by the sea. Mr Patel works there. Frau Sommer says „wir“ – so you say <b>„They …“</b>. <span class=\"de\">Sie spricht für sich und ihren Mann. Gegenüber Mr Patel sagst du deshalb „They would like …“.</span></p>" },
+      { art: "text", html: "<p class=\"lead\">In Southend you meet <b>Frau Sommer</b> and her husband at a fish and chips shop by the sea. Mr Patel works there. Frau Sommer says „wir“ – so you say <b>„They …“</b>. <span class=\"de\">Sie spricht für sich und ihren Mann. Gegenüber Mr Patel sagst du deshalb „They would like …“.</span></p>" },
       { art: "kette", id: "imbiss", tag: "Mediation · AI check", titel: "Help Frau Sommer and Mr Patel", lead: "Write your part. <span class=\"de\">Englisch für Mr Patel, Deutsch für Frau Sommer.</span>",
-        thema: "Sprachmittlung in einem Fish-and-Chips-Laden in Brighton (Englisch 7, Mittelschule): deutsche Touristen bestellen Essen",
+        thema: "Sprachmittlung in einem Fish-and-Chips-Laden in Southend-on-Sea (Englisch 7, Mittelschule): deutsche Touristen bestellen Essen",
         rollen: { a: { name: "Frau Sommer", ic: "🧳" }, b: { name: "Mr Patel", ic: "🍟" }, du: { name: "You" } },
         schritte: [
           { von: "a", text: "Hallo! Wir hätten gern zweimal Fish and Chips und zwei Flaschen Wasser, bitte." },
@@ -218,20 +224,20 @@ D7Kit.seite({
             kriterien: ["Sie (und ihre Tochter) möchten heute ein Museum besuchen", "fragt, welches Museum Ms Green empfiehlt"],
             m: "She and her daughter want to visit a museum today. Which museum can you recommend?", k: ["museum", "recommend|which|good|best"],
             tipps: ["Was haben die beiden <b>vor</b> – und was möchte Frau Brandt <b>wissen</b>? (Dass sie zum ersten Mal in London ist, kannst du weglassen.)", "empfehlen = <i><button class=\"term\" data-t=\"recommend\">recommend</button></i> · Tochter = <i>daughter</i> · Welches …? = <i>Which …?</i>"] },
-          { von: "b", text: "The Science Museum is great for children. It's open from 10 am to 6 pm, and it's free!" },
+          { von: "b", text: "The British Museum is great for children. It's open from 10 am to 5 pm, and it's free!" },
           { an: "a", sprache: "de", auftrag: "Tell Frau Brandt in German.",
-            kriterien: ["Empfehlung: das Science Museum (toll für Kinder)", "geöffnet von 10 bis 18 Uhr", "Eintritt kostenlos"],
-            m: "Das Science Museum ist toll für Kinder. Es hat von 10 bis 18 Uhr geöffnet, und der Eintritt ist kostenlos!", k: ["science", "10", "kostenlos|umsonst|gratis|frei|nichts"],
-            tipps: ["Drei Infos: <b>welches</b> Museum, <b>wann</b> es offen hat und was es <b>kostet</b>.", "<i>6 pm</i> = 18 Uhr · <i>free</i> = kostenlos"] },
+            kriterien: ["Empfehlung: das British Museum (toll für Kinder)", "geöffnet von 10 bis 17 Uhr", "Eintritt kostenlos"],
+            m: "Das British Museum ist toll für Kinder. Es hat von 10 bis 17 Uhr geöffnet, und der Eintritt ist kostenlos!", k: ["british|britisch", "10", "kostenlos|umsonst|gratis|frei|nichts"],
+            tipps: ["Drei Infos: <b>welches</b> Museum, <b>wann</b> es offen hat und was es <b>kostet</b>.", "<i>5 pm</i> = 17 Uhr · <i>free</i> = kostenlos"] },
           { von: "a", text: "Toll! Und wie kommen wir dahin? Können wir zu Fuß gehen?" },
           { an: "b", sprache: "en", ueber: "They", auftrag: "Ask Ms Green both questions.",
             kriterien: ["fragt, wie sie zum Museum kommen", "fragt, ob sie zu Fuß gehen können"],
             m: "How can they get there? Can they walk?", k: ["get there|how|way", "walk|on foot"],
             tipps: ["Zwei Fragen: <b>wie</b> sie hinkommen und ob sie <b>laufen</b> können.", "zu Fuß gehen = <i>walk</i> · Wie kommen sie dahin? = <i>How can they get there?</i>"] },
-          { von: "b", text: "No, it's too far to walk. Take the Underground to South Kensington. That's only four stops from here." },
+          { von: "b", text: "No, it's too far to walk. Take the Underground to Russell Square. That's only four stops from here." },
           { an: "a", sprache: "de", auftrag: "Tell Frau Brandt in German.",
-            kriterien: ["Zu Fuß ist es zu weit", "mit der U-Bahn bis South Kensington fahren", "nur vier Stationen"],
-            m: "Nein, zu Fuß ist es zu weit. Fahren Sie mit der U-Bahn bis South Kensington – das sind nur vier Stationen.", k: ["weit", "bahn|tube", "vier|4"],
+            kriterien: ["Zu Fuß ist es zu weit", "mit der U-Bahn bis Russell Square fahren", "nur vier Stationen"],
+            m: "Nein, zu Fuß ist es zu weit. Fahren Sie mit der U-Bahn bis Russell Square – das sind nur vier Stationen.", k: ["weit", "bahn|tube", "vier|4"],
             tipps: ["Drei Infos: zu Fuß? – <b>womit</b> fahren? – <b>wie viele</b> Stationen?", "<i>too far</i> = zu weit · <i><button class=\"term\" data-t=\"underground\">the Underground</button></i> = die U-Bahn · <i>stops</i> = Stationen, Haltestellen"] },
           { von: "a", text: "Super, vielen Dank! Haben Sie vielleicht auch einen Stadtplan für uns?" },
           { an: "b", sprache: "en", ueber: "She", auftrag: "Tell Ms Green and ask the question.",
@@ -259,7 +265,7 @@ D7Kit.seite({
           ["If I don't know a word, I use ", { g: "easy" }, " words."],
           ["If I don't understand, I ", { g: "ask" }, " again politely."]
         ], extra: ["I", "quickly"] },
-      { art: "text", html: "<p class=\"lead\"><b>Extra · Speaking in class:</b> Act out the box office conversation in groups of three: tourist – you – assistant. Choose another show from „What's on tonight?“ and change the price and the number of tickets. Then swap roles. <span class=\"de\">Zu dritt im Unterricht: andere Show aus der Tabelle, anderer Preis, andere Anzahl. Danach Rollen tauschen.</span></p>" }
+      { art: "text", html: "<p class=\"lead\"><b>Extra · Speaking in class:</b> Act out one of the conversations in groups of three: tourist – you – assistant. Then change one thing – for example another show and time at the open-air theatre, a family with three children or another museum. Then swap roles. <span class=\"de\">Zu dritt im Unterricht: ein Gespräch nachspielen, dann eine Sache ändern (andere Show und Uhrzeit, eine Familie mit drei Kindern, ein anderes Museum). Danach Rollen tauschen.</span></p>" }
     ] }
   ],
   weiter: { text: "Well done! You can help tourists – in English and in German. Du hast zwischen zwei Sprachen vermittelt: das Wichtige weitergeben, über die Person sprechen, Zahlen genau." }

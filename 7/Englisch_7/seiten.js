@@ -1,15 +1,23 @@
-/* Englisch 7: Vorgaben für die Grammatik-, Wordbank- und Extra-Seiten der Units 2–4 (Baukasten js/grammatik.js, Aussehen wie
+/* Englisch 7: Vorgaben für die Grammatik-, Wordbank- und Extra-Seiten der Units 1–4 (Baukasten js/grammatik.js, Aussehen wie
  * Englisch 8M). Jede Seite ruft zuerst E7Seite(unit, art) auf – art "g" = Grammatik (unitN/grammatik/), "w" = Wordbank-Übungen
  * (unitN/wordbank/), "x" = Extra-Übung zum Fördern (unitN/extra/, erreichbar über die Förder-Links „Das ist noch schwer?“) –
  * und danach Grammatik.seite({ nr, modul, kurz, titel, … }) mit ihren Inhalten.
  * nr = Platz in der Liste unten (für „Thema 2 von 4“ und die Pfeile unten), modul = Kennung im Lernstand (wie ls in themen.js).
  * Welche Seite zu welcher Unit gehört, steht hier und in themen.js – beides zusammen ändern.
  * „Üben“ (basis) gilt für 7R und 7M, „Sicher werden“ (plus) ist für 7M Pflicht und für 7R freiwillig.
- * Unit 1 hat noch die älteren Einzelseiten (unit1/grammatik/), die diese Datei nicht nutzen.
+ * Unit 1: Wordbanks (unit1/wordbank/) und Extra-Übungen (unit1/extra/) kommen aus dem Baukasten; die Grammatikseiten G1–G4
+ * sind ältere Einzelseiten (unit1/grammatik/), die diese Datei nicht nutzen – deshalb ist die Liste „g“ von Unit 1 leer.
  */
 (function () {
   "use strict";
   var UNITS = {
+    1: {
+      g: [],
+      w: [["where-i-live.html", "Where I live"], ["school-day.html", "School day"], ["city-guide.html", "City guide"]],
+      x: [["simple-past.html", "Extra: simple past Schritt für Schritt"], ["he-she-it.html", "Extra: he, she, it – das s muss mit"],
+          ["do-does-questions.html", "Extra: Fragen mit do und does"], ["possessive-pronouns.html", "Extra: mine, yours, his, hers"],
+          ["places.html", "Extra: Wörter für Orte"], ["school-day-times.html", "Extra: Uhrzeiten und Schultag"]]
+    },
     2: {
       g: [["g5-going-to-future.html", "G5 · going to-future"], ["g6-present-perfect.html", "G6 · Present perfect: Aussagen und Verneinung"],
           ["g7-present-perfect-questions.html", "G7 · Present perfect: Fragen und Kurzantworten"],
