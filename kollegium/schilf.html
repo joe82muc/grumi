@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0c5f66">
+  <title>SCHILF: GRUMI selbst bauen | Kollegium</title>
+  <link rel="stylesheet" href="../css/schriften.css">
+  <!--
+    SCHILF „GRUMI selbst bauen“ (16.11.2026): Umfrage für das Kollegium + Einblick in GRUMI.
+    Kinder haben keinen Zugang: Inhalt und Anmeldung gibt es nur mit dem Schlüssel aus dem QR-Code des Aushangs
+    (?k=…, der Server prüft ihn, siehe englisch_9 backend/api/schilf.js). Die Seite ist nirgends verlinkt.
+    Lehrercode und Probe-Codes kommen vom Server, nicht aus dieser Datei.
+  -->
+  <style>
+    :root { --tief: #0c5f66; --tief2: #0a4a50; --hell: #e7f4f2; --akzent: #f2a93b; --rot: #c8463d; --text: #15212b;
+      --leise: #566375; --rand: #d9e3ea; --karte: #fff; --grund: #f5f8fa; }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { margin: 0; background: var(--grund); color: var(--text); font: 16px/1.55 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+    a { color: var(--tief); }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 0 16px; }
+    h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; line-height: 1.15; margin: 0; }
+    .zu, .lade { max-width: 560px; margin: 12vh auto; padding: 28px 22px; background: #fff; border-radius: 18px;
+      border: 1px solid var(--rand); text-align: center; box-shadow: 0 10px 30px rgba(12, 45, 60, .08); }
+    .zu h1, .lade h1 { font-size: 1.5rem; margin-bottom: 10px; }
+    .zu p, .lade p { color: var(--leise); margin: 8px 0 0; }
+    [hidden] { display: none !important; }
+
+    /* Kopf */
+    .kopf { background: radial-gradient(1200px 400px at 85% -20%, #1a8a8f 0%, transparent 60%), linear-gradient(135deg, var(--tief2), var(--tief));
+      color: #fff; padding: 34px 0 40px; }
+    .kicker { display: inline-block; font-weight: 700; font-size: .82rem; letter-spacing: .06em; text-transform: uppercase;
+      background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25); padding: 4px 12px; border-radius: 999px; }
+    .kopf h1 { font-size: clamp(1.8rem, 5.2vw, 3rem); margin: 16px 0 12px; max-width: 18ch; }
+    .kopf .lead { font-size: 1.12rem; max-width: 58ch; color: #e6f3f2; margin: 0; }
+    .kopf .lead strong { color: #fff; }
+    .plaetze { margin-top: 22px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+    .platz-pille { background: var(--akzent); color: #2b1d05; font-weight: 800; border-radius: 999px; padding: 8px 16px; }
+    .platz-pille.voll { background: #f3d0cc; color: #6a1f19; }
+    .knopf { display: inline-block; border: 0; border-radius: 12px; padding: 12px 18px; font: inherit; font-weight: 700; cursor: pointer;
+      background: #fff; color: var(--tief2); text-decoration: none; }
+    .knopf.voll { background: var(--tief); color: #fff; }
+    .knopf:disabled { opacity: .5; cursor: default; }
+    .werkzeuge { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .werkzeuge span { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.28); border-radius: 10px; padding: 5px 10px; font-weight: 600; font-size: .92rem; }
+
+    section { padding: 34px 0 6px; }
+    section > .wrap > h2 { font-size: 1.6rem; margin-bottom: 6px; }
+    .unter { color: var(--leise); margin: 0 0 18px; }
+    .raster { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+    .karte { background: var(--karte); border: 1px solid var(--rand); border-radius: 16px; padding: 18px; box-shadow: 0 4px 14px rgba(12,45,60,.05); }
+    .bedarf { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+    .bedarf .karte { display: flex; gap: 12px; align-items: flex-start; }
+    .bedarf .ico { font-size: 1.7rem; line-height: 1; }
+    .bedarf strong { display: block; font-size: 1.05rem; }
+    .bedarf small { color: var(--leise); font-size: .93rem; }
+    .einheiten { counter-reset: e; display: grid; gap: 12px; }
+    .einheit { display: grid; grid-template-columns: 46px 1fr; gap: 14px; align-items: start; }
+    .einheit .nr { width: 46px; height: 46px; border-radius: 14px; background: var(--hell); color: var(--tief2); display: grid; place-items: center;
+      font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: 1.35rem; }
+    .einheit h3 { font-size: 1.15rem; margin: 2px 0 4px; }
+    .einheit p { margin: 0; color: var(--leise); }
+    .termin { margin-top: 14px; background: #fff7e8; border: 1px solid #f3dcae; border-radius: 14px; padding: 12px 16px; }
+
+    /* Umfrage */
+    .umfrage { background: #fff; border: 2px solid var(--tief); border-radius: 18px; padding: 20px; }
+    .umfrage h2 { font-size: 1.5rem; }
+    .umfrage label.feld { display: block; font-weight: 700; margin: 16px 0 6px; }
+    .umfrage input[type=text] { width: 100%; font: inherit; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--rand); }
+    .umfrage input[type=text]:focus { outline: 3px solid #bfe3e0; border-color: var(--tief); }
+    .tage { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tage label { display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid var(--rand); border-radius: 999px; padding: 7px 14px; cursor: pointer; font-weight: 600; }
+    .tage input { width: 18px; height: 18px; accent-color: var(--tief); }
+    .umfrage .knopf { margin-top: 18px; width: 100%; font-size: 1.05rem; padding: 14px; }
+    .meldung { margin-top: 14px; padding: 12px 14px; border-radius: 12px; font-weight: 600; }
+    .meldung.gut { background: #e3f5ea; color: #134d2c; }
+    .meldung.schlecht { background: #fbe7e5; color: #6a1f19; }
+
+    /* Einblick */
+    .code-hinweis { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; background: var(--hell); border-radius: 14px; padding: 12px 16px; margin-bottom: 16px; }
+    .code { font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 700; font-size: 1.4rem; background: #fff; border: 2px dashed var(--tief);
+      border-radius: 10px; padding: 2px 12px; letter-spacing: .12em; }
+    .modul { display: flex; flex-direction: column; gap: 6px; }
+    .modul .fach { font-size: .78rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--tief); }
+    .modul h3 { font-size: 1.12rem; }
+    .modul p { margin: 0; color: var(--leise); font-size: .95rem; flex: 1; }
+    .modul .ico { font-size: 1.8rem; }
+    .modul a.los { margin-top: 8px; align-self: flex-start; font-weight: 700; text-decoration: none; border-bottom: 2px solid var(--akzent); }
+    .probe { margin-top: 14px; border: 2px solid var(--akzent); background: #fffaf0; }
+    .probe .zeile { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin-top: 10px; }
+    .status { font-size: .82rem; font-weight: 800; border-radius: 999px; padding: 3px 10px; background: #e3f5ea; color: #134d2c; }
+    .status.zu { background: #fbe7e5; color: #6a1f19; }
+
+    /* Kursleitung */
+    details.leitung { margin: 34px 0; background: #fff; border: 1px solid var(--rand); border-radius: 14px; padding: 12px 16px; }
+    details.leitung summary { cursor: pointer; font-weight: 700; color: var(--leise); }
+    .leitung .reihe { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .leitung input { font: inherit; padding: 9px 12px; border-radius: 10px; border: 1.5px solid var(--rand); min-width: 0; flex: 1 1 180px; }
+    .leitung table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: .95rem; }
+    .leitung th, .leitung td { text-align: left; border-bottom: 1px solid var(--rand); padding: 7px 6px; vertical-align: top; }
+    .leitung td button { font: inherit; font-size: .85rem; border: 1px solid #e8b4ae; color: var(--rot); background: #fff; border-radius: 8px; padding: 3px 8px; cursor: pointer; }
+    .leitung .link { word-break: break-all; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .85rem; background: var(--grund); padding: 8px; border-radius: 8px; margin-top: 10px; }
+    footer { color: var(--leise); font-size: .88rem; padding: 10px 0 34px; }
+    @media (max-width: 520px) { .kopf { padding-top: 24px; } section > .wrap > h2 { font-size: 1.35rem; } }
+  </style>
+</head>
+<body>
+  <div class="lade" id="lade">
+    <h1>Einen Moment …</h1>
+    <p id="ladeText">Die Seite prüft den Zugang.</p>
+  </div>
+
+  <div class="zu" id="zu" hidden>
+    <h1>🔒 Nur für das Kollegium</h1>
+    <p id="zuText">Diese Seite öffnet sich nur über den QR-Code vom Aushang im Lehrerzimmer.</p>
+    <p><a href="../index.html">Zur Startseite von GRUMI</a></p>
+  </div>
+
+  <main id="inhalt" hidden>
+    <header class="kopf">
+      <div class="wrap">
+        <span class="kicker">SCHILF · 5 Einheiten · höchstens 5 Plätze</span>
+        <h1>Hast du Lust, Projekte wie GRUMI selbst zu gestalten?</h1>
+        <p class="lead">Dann mach mit bei der <strong>SCHILF in 5 Einheiten</strong>. Du baust mit KI eigene Lernseiten für deinen Unterricht
+          und stellst sie online – so, wie GRUMI entstanden ist. Vorkenntnisse brauchst du keine.</p>
+        <div class="werkzeuge" aria-label="Werkzeuge">
+          <span>GitHub</span><span>VS Code</span><span>Anthropic · Claude Code</span><span>ChatGPT Codex</span><span>Render</span><span>und Co.</span>
+        </div>
+        <div class="plaetze">
+          <span class="platz-pille" id="pille">5 von 5 Plätzen frei</span>
+          <a class="knopf" href="#umfrage">Ich hätte Interesse →</a>
+        </div>
+      </div>
+    </header>
+
+    <section>
+      <div class="wrap">
+        <h2>Das brauchst du</h2>
+        <p class="unter">Bring es zur ersten Einheit mit – den Rest richten wir gemeinsam ein.</p>
+        <div class="bedarf">
+          <div class="karte"><span class="ico">💻</span><div><strong>Einen Windows-Laptop</strong><small>Mit dem iPad geht es nicht – VS Code und die KI-Werkzeuge laufen nur am Computer.</small></div></div>
+          <div class="karte"><span class="ico">⭐</span><div><strong>Plus-Mitgliedschaft bei ChatGPT</strong><small>ChatGPT Plus – darin ist Codex enthalten, die KI, die für dich programmiert.</small></div></div>
+          <div class="karte"><span class="ico">✉️</span><div><strong>Am besten ein Google-Konto</strong><small>Eine Gmail-Adresse – damit meldest du dich bei den meisten Diensten mit einem Klick an.</small></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2>Die 5 Einheiten</h2>
+        <p class="unter">Jede Einheit ist ein Nachmittag. Am Ende hast du ein eigenes Projekt online.</p>
+        <div class="einheiten karte">
+          <div class="einheit"><span class="nr">1</span><div><h3>Die Werkzeugkiste</h3><p>Konten anlegen (GitHub, Google), VS Code und Git installieren, Codex und Claude Code starten – deine erste Seite entsteht.</p></div></div>
+          <div class="einheit"><span class="nr">2</span><div><h3>Mit KI programmieren</h3><p>Du beschreibst eine Übung für dein Fach, die KI baut sie. Prüfen, verbessern, nachfragen – so arbeitet man mit Codex und Claude Code.</p></div></div>
+          <div class="einheit"><span class="nr">3</span><div><h3>Online stellen</h3><p>Mit GitHub und GitHub Pages geht deine Seite ins Netz – mit QR-Code für die Klasse.</p></div></div>
+          <div class="einheit"><span class="nr">4</span><div><h3>KI-Rückmeldung für die Kinder</h3><p>Ein eigener Server bei Render und ein Schlüssel von Anthropic: Die KI gibt Rückmeldung auf Antworten. Kosten und Datenschutz im Blick.</p></div></div>
+          <div class="einheit"><span class="nr">5</span><div><h3>Dein Projekt</h3><p>Du machst ein Modul für deinen Unterricht fertig und stellst es den anderen vor.</p></div></div>
+        </div>
+        <div class="termin">📅 <strong>Termine nach Absprache</strong> – kreuz in der Umfrage an, welche Nachmittage dir passen.</div>
+      </div>
+    </section>
+
+    <section id="umfrage">
+      <div class="wrap">
+        <form class="umfrage" id="form" novalidate>
+          <h2>Umfrage: Ich hätte Interesse</h2>
+          <p class="unter" id="formUnter">Höchstens 5 Plätze. Mit dem Eintragen meldest du dein Interesse an – die Termine sprechen wir danach ab.</p>
+          <label class="feld" for="name">Dein Name</label>
+          <input type="text" id="name" name="name" autocomplete="name" maxlength="60" placeholder="Vor- und Nachname" required>
+          <div class="feld" style="font-weight:700;margin:16px 0 6px">Diese Nachmittage passen mir</div>
+          <div class="tage" id="tage">
+            <label><input type="checkbox" value="Mo"> Mo</label>
+            <label><input type="checkbox" value="Di"> Di</label>
+            <label><input type="checkbox" value="Mi"> Mi</label>
+            <label><input type="checkbox" value="Do"> Do</label>
+          </div>
+          <button class="knopf voll" type="submit" id="senden">Ich hätte Interesse – eintragen</button>
+          <div class="meldung" id="meldung" hidden role="status"></div>
+        </form>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2>Schau dir GRUMI an</h2>
+        <p class="unter">So erleben die Kinder GRUMI – fünf Module aus vier Fächern und eine echte Probe.</p>
+        <div class="code-hinweis" id="codeHinweis">
+          <span>Die Seiten fragen nach einem Code. Tippe den Lehrercode ein:</span>
+          <span class="code" id="lehrerCode">···</span>
+          <span style="color:var(--leise);font-size:.92rem">Er gilt in diesem Tab weiter – mit „Zurück“ kommst du hierher.</span>
+        </div>
+        <div class="raster">
+          <div class="karte modul"><span class="ico">🗣️</span><span class="fach">Englisch 7</span><h3>Mediation · Helping tourists</h3>
+            <p>Die Kinder helfen deutschen Touristen in England. Die KI prüft jeden Gesprächsbeitrag und gibt Tipps.</p>
+            <a class="los" href="../7/Englisch_7/u1-mediation.html">Ausprobieren →</a></div>
+          <div class="karte modul"><span class="ico">🎧</span><span class="fach">Englisch 7</span><h3>Story · Fries or chips?</h3>
+            <p>Eine Geschichte zum Hören mit echt klingenden KI-Stimmen – in einer R- und einer M-Fassung, mit Quiz.</p>
+            <a class="los" href="../7/Englisch_7/u4_story.html">Ausprobieren →</a></div>
+          <div class="karte modul"><span class="ico">✍️</span><span class="fach">Deutsch 7</span><h3>Der Leserbrief – Schritt für Schritt</h3>
+            <p>Die Kinder schreiben ihren Leserbrief in Schritten; nach jedem Schritt gibt die KI eine Rückmeldung.</p>
+            <a class="los" href="../7M/Deutsch/arg_08.html">Ausprobieren →</a></div>
+          <div class="karte modul"><span class="ico">🌬️</span><span class="fach">Natur und Technik 7</span><h3>Windkraft: Strom aus bewegter Luft</h3>
+            <p>Mit einem Windrad in 3D und in echter Größe auf dem Schulhof (AR am Tablet).</p>
+            <a class="los" href="../7M/NT/windkraft-strom.html">Ausprobieren →</a></div>
+          <div class="karte modul"><span class="ico">🖧</span><span class="fach">Informatik 7</span><h3>Zwei Computer verbinden</h3>
+            <p>Die Kinder bauen ein Netz in Filius und laden die Datei hoch – GRUMI prüft ihr Netz sofort.</p>
+            <a class="los" href="../7M/Informatik/zwei-computer.html">Ausprobieren →</a></div>
+        </div>
+        <div class="karte probe">
+          <span class="fach" style="font-size:.78rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#9a5b00">Englisch 7 · echte Probe</span>
+          <h3 style="font-size:1.2rem;margin-top:4px">Probe 1 (M) · Out and about in England <span class="status" id="probeStatus" hidden></span></h3>
+          <p style="margin:6px 0 0;color:var(--leise)">Hörtext, Lesen, Grammatik, Mediation und Schreiben – die KI korrigiert die offenen Antworten vor.
+            Mit dem Lehrercode geht keine Probe. Hol dir deshalb einen Probe-Code: Deine Abgabe landet dann in der Fortbildungsklasse 7zM, nicht bei den Kindern.</p>
+          <div class="zeile">
+            <button class="knopf voll" type="button" id="probeCodeKnopf">Probe-Code holen</button>
+            <span class="code" id="probeCode" hidden></span>
+            <a class="los" id="probeLink" href="../7/Englisch_7/probe.html" style="font-weight:700">Zur Probe →</a>
+          </div>
+          <p id="probeHinweis" style="margin:8px 0 0;color:var(--leise);font-size:.92rem" hidden></p>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap">
+      <details class="leitung" id="leitung">
+        <summary>Für die Kursleitung</summary>
+        <p style="color:var(--leise);margin:10px 0 0">Mit dem Passwort der Verwaltung siehst du die Anmeldungen und den Link für den QR-Code.</p>
+        <div class="reihe">
+          <input type="password" id="pw" autocomplete="current-password" placeholder="Passwort der Verwaltung">
+          <button class="knopf voll" type="button" id="pwLos">Anmeldungen zeigen</button>
+        </div>
+        <div id="leitungInhalt"></div>
+      </details>
+      <footer>GRUMI · Grund- und Mittelschule am Sportpark · Diese Seite ist nur für das Kollegium und nirgends verlinkt.</footer>
+    </div>
+  </main>
+
+  <script>
+  (function () {
+    "use strict";
+    var API = (location.hostname.slice(-12) === "onrender.com" ? "" : "https://englisch-9.onrender.com") + "/api/schilf";
+    var E7_LISTE = (location.hostname.slice(-12) === "onrender.com" ? "" : "https://englisch-9.onrender.com") + "/api/e7/proben/list";
+    var PROBE_ID = "e7-p1-m-a", K_SPEICHER = "grumi-schilf-k", ICH = "grumi-schilf-ich", CODE_SPEICHER = "grumi-schilf-probecode";
+    var $ = function (id) { return document.getElementById(id); };
+    function lies(k) { try { return localStorage.getItem(k); } catch (_e) { return null; } }
+    function schreib(k, v) { try { localStorage.setItem(k, v); } catch (_e) {} }
+    function loesch(k) { try { localStorage.removeItem(k); } catch (_e) {} }
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c]; }); }
+    function post(route, body) {
+      return fetch(API + route, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { d.status = r.status; return d; }); });
+    }
+
+    // Schlüssel aus dem QR-Code (bleibt in der Adresse und auf diesem Gerät gemerkt)
+    var k = new URL(location.href).searchParams.get("k") || lies(K_SPEICHER) || "";
+    var geweckt = setTimeout(function () { $("ladeText").textContent = "Der GRUMI-Server wacht gerade auf – das dauert beim ersten Aufruf bis zu einer Minute."; }, 5000);
+
+    function zeigeStand(d) {
+      var pille = $("pille");
+      pille.textContent = d.frei > 0 ? (d.frei === 1 ? "Nur noch 1 Platz frei" : "Noch " + d.frei + " von " + d.plaetze + " Plätzen frei") : "Alle " + d.plaetze + " Plätze vergeben";
+      pille.classList.toggle("voll", d.frei <= 0);
+      var ich = null; try { ich = JSON.parse(lies(ICH) || "null"); } catch (_e) {}
+      if (ich && ich.name) {
+        $("name").value = ich.name;
+        melde("gut", "Du bist eingetragen, " + ich.name + ". Danke! Du kannst deine Nachmittage hier noch ändern.");
+        $("senden").textContent = "Nachmittage aktualisieren";
+      } else if (d.frei <= 0) {
+        $("senden").disabled = true;
+        melde("schlecht", "Alle " + d.plaetze + " Plätze sind vergeben. Sprich die Kursleitung gern direkt an – vielleicht gibt es eine zweite Runde.");
+      }
+    }
+    function melde(art, text) { var m = $("meldung"); m.hidden = false; m.className = "meldung " + art; m.textContent = text; }
+
+    post("/stand", { k: k }).then(function (d) {
+      clearTimeout(geweckt);
+      $("lade").hidden = true;
+      if (!d.ok) { loesch(K_SPEICHER); $("zu").hidden = false; if (d.status === 429) $("zuText").textContent = d.error; return; }
+      schreib(K_SPEICHER, k);
+      $("inhalt").hidden = false;
+      $("lehrerCode").textContent = d.lehrerCode || "–";
+      if (!d.lehrerCode) $("codeHinweis").hidden = true;
+      if (!d.probeCodes) { $("probeCodeKnopf").hidden = true; $("probeHinweis").hidden = false; $("probeHinweis").textContent = "Die Probe-Codes sind gerade abgeschaltet."; }
+      var alt = lies(CODE_SPEICHER); if (alt && d.probeCodes) zeigeProbeCode(alt);
+      zeigeStand(d);
+    }).catch(function () {
+      clearTimeout(geweckt);
+      $("lade").hidden = true; $("zu").hidden = false;
+      $("zuText").textContent = "Der GRUMI-Server antwortet gerade nicht. Bitte lade die Seite in einer Minute neu.";
+    });
+
+    // Freigabe der Probe anzeigen (öffentliche Liste)
+    fetch(E7_LISTE).then(function (r) { return r.json(); }).then(function (d) {
+      var t = (d.tests || []).filter(function (x) { return x.id === PROBE_ID; })[0], s = $("probeStatus");
+      if (!t) return;
+      s.hidden = false; s.textContent = t.unlocked ? "freigeschaltet" : "gerade gesperrt"; s.classList.toggle("zu", !t.unlocked);
+    }).catch(function () {});
+
+    $("form").addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      var name = $("name").value.trim();
+      if (name.length < 2) { melde("schlecht", "Bitte gib deinen Namen ein."); $("name").focus(); return; }
+      var tage = Array.prototype.map.call(document.querySelectorAll("#tage input:checked"), function (i) { return i.value; });
+      $("senden").disabled = true;
+      post("/anmelden", { k: k, name: name, tage: tage }).then(function (d) {
+        $("senden").disabled = false;
+        if (d.ok) {
+          schreib(ICH, JSON.stringify({ name: name }));
+          zeigeStand(d);
+          melde("gut", d.schon ? "Danke, " + name + " – deine Nachmittage sind aktualisiert." : "Danke, " + name + "! Du bist eingetragen (Platz " + d.platz + " von " + d.plaetze + "). Die Termine sprechen wir ab.");
+        } else if (d.error === "voll") { zeigeStand(d); $("senden").disabled = true; melde("schlecht", d.message || "Alle Plätze sind vergeben."); }
+        else melde("schlecht", d.message || d.error || "Das hat nicht geklappt. Bitte versuch es noch einmal.");
+      }).catch(function () { $("senden").disabled = false; melde("schlecht", "Keine Verbindung zum GRUMI-Server. Bitte versuch es noch einmal."); });
+    });
+
+    function zeigeProbeCode(code) {
+      $("probeCode").hidden = false; $("probeCode").textContent = code;
+      $("probeCodeKnopf").textContent = "Dein Probe-Code:";
+      $("probeCodeKnopf").disabled = true;
+      $("probeHinweis").hidden = false;
+      $("probeHinweis").textContent = "Auf der Probenseite diesen Code eintippen und „Test 1 (M7)“ wählen. 90 Minuten Zeit – du kannst jederzeit aufhören.";
+    }
+    $("probeCodeKnopf").addEventListener("click", function () {
+      $("probeCodeKnopf").disabled = true;
+      post("/probecode", { k: k }).then(function (d) {
+        if (d.ok) { schreib(CODE_SPEICHER, d.code); zeigeProbeCode(d.code); }
+        else { $("probeCodeKnopf").disabled = false; $("probeHinweis").hidden = false; $("probeHinweis").textContent = d.message || "Gerade gibt es keinen Probe-Code."; }
+      }).catch(function () { $("probeCodeKnopf").disabled = false; });
+    });
+
+    // Kursleitung: Anmeldungen und Link für den QR-Code (Passwort bleibt nur im Arbeitsspeicher)
+    function leitung() {
+      var pw = $("pw").value, ziel = $("leitungInhalt");
+      if (!pw) return;
+      ziel.innerHTML = "<p>Lädt …</p>";
+      Promise.all([post("/lehrer/liste", { password: pw }), post("/lehrer/schluessel", { password: pw })]).then(function (r) {
+        var l = r[0], s = r[1];
+        if (!l.ok) { ziel.innerHTML = "<p class='meldung schlecht'>" + esc(l.error || "Das hat nicht geklappt.") + "</p>"; return; }
+        var link = location.origin + location.pathname + "?k=" + encodeURIComponent(s.schluessel || "");
+        var zeilen = l.anmeldungen.map(function (a, i) {
+          return "<tr><td>" + (i + 1) + "</td><td>" + esc(a.name) + "</td><td>" + esc((a.tage || []).join(", ") || "–") + "</td><td>" + esc(a.am) +
+            "</td><td><button type='button' data-id='" + esc(a.id) + "'>Löschen</button></td></tr>";
+        }).join("");
+        ziel.innerHTML = "<p style='margin:14px 0 0'><strong>" + l.anmeldungen.length + " von " + l.plaetze + " Plätzen belegt</strong></p>" +
+          (zeilen ? "<table><thead><tr><th>#</th><th>Name</th><th>Nachmittage</th><th>Eingetragen</th><th></th></tr></thead><tbody>" + zeilen + "</tbody></table>" : "<p>Noch keine Anmeldung.</p>") +
+          "<p style='margin:16px 0 0'><strong>Link für den QR-Code</strong> (nur im Lehrerzimmer aushängen):</p><div class='link'>" + esc(link) + "</div>";
+        Array.prototype.forEach.call(ziel.querySelectorAll("button[data-id]"), function (b) {
+          b.addEventListener("click", function () {
+            if (!confirm("Diese Anmeldung löschen?")) return;
+            post("/lehrer/loeschen", { password: pw, id: b.getAttribute("data-id") }).then(leitung);
+          });
+        });
+      }).catch(function () { ziel.innerHTML = "<p class='meldung schlecht'>Keine Verbindung zum GRUMI-Server.</p>"; });
+    }
+    $("pwLos").addEventListener("click", leitung);
+    $("pw").addEventListener("keydown", function (e) { if (e.key === "Enter") leitung(); });
+  })();
+  </script>
+</body>
+</html>
