@@ -9,6 +9,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Personen)",
   zeilennummern: false, probe: false,
   stimmen: { Grace: "en-GB-LibbyNeural", Jayden: "en-GB-RyanNeural", Kian: "en-US-GuyNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Grace", text: "Hello and welcome to Year Eight Voices, our school podcast. I'm Grace, and today we're talking about our home towns – the good things and the bad things. With me are Jayden and Kian." },
     { rolle: "Jayden", text: "Hi, Grace!" },

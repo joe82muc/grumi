@@ -9,6 +9,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundener Hof, erfundene Personen)",
   zeilennummern: false, probe: false,
   stimmen: { Toby: "en-GB-RyanNeural", Lola: "en-GB-LibbyNeural", Wilf: "en-US-GuyNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Wilf", text: "Good morning! Welcome to Meadowbank City Farm." },
     { rolle: "Lola", text: "Hello. Do we have to pay?" },

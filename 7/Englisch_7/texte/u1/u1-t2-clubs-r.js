@@ -9,6 +9,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Personen)",
   zeilennummern: false, probe: false,
   stimmen: { Esme: "en-GB-LibbyNeural", Yasmin: "en-GB-SoniaNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Esme", text: "Hi, Yasmin! Do you want to come to the choir with me today?" },
     { rolle: "Yasmin", text: "The choir? When is it?" },

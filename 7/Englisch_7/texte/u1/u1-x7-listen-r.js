@@ -9,6 +9,7 @@ D7Texte.add({
   quelle: "Eigenständig für GRUMI erstellt.", lizenz: "eigener Text", erstellung: "eigener Text für GRUMI (erfundene Personen)",
   zeilennummern: false, probe: false,
   stimmen: { Barney: "en-GB-RyanNeural", Hattie: "en-GB-LibbyNeural" },
+  aufnahme: true,
   sprecher: [
     { rolle: "Barney", text: "Hi Hattie! Where are you?" },
     { rolle: "Hattie", text: "Hi Barney! I'm at the seaside with my family." },
