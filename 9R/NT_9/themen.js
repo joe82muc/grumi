@@ -25,7 +25,10 @@ GrumiKursliste.bauen({
     // Probe 3 (seit 20.10.2026): nach Themen sortiert, mit Transfer, 80 Punkte, nur Ankreuzen und Zuordnen, 45 Minuten
     "nt9r-rohstoffe3": "rohstoffe",
     // Kunststoffe (seit 22.10.2026): Block-Probe über P1, P2, P4, P5 (P3 ist für 9R ein Zusatzmodul), übliche Testregeln
-    "nt9r-kunststoffe": "kunststoffe" },
+    "nt9r-kunststoffe": "kunststoffe",
+    // Probe 2 Kunststoffe (seit 18.11.2026): dieselben Aufgaben wie in 9M (P1 bis P5, also auch P3 und der 9M-Stoff
+    // Polymerisation und Ökobilanz), 58 Punkte, 45 Minuten, übliche Testregeln, R-Schlüssel
+    "nt9r-kunststoffe2": "kunststoffe" },
   themen: [
     {
       id: "rohstoffe", nr: "01", titel: "Organische Rohstoffe", kurz: "Organische Rohstoffe", icon: "🛢️",
