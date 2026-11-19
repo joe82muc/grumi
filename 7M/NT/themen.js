@@ -24,7 +24,8 @@
       id: "luft", nr: "01", titel: "Luft", icon: "🌬️",
       text: "Unsichtbar, aber lebenswichtig: was Luft kann, woraus sie besteht, wie wir Wind nutzen, warum Feuer Luft braucht und wie man Brände löscht.",
       // Zweite Probe (17.10.2026): die Module 1 bis 5, überwiegend wie auf den Arbeitsblättern (blatt, siehe unten)
-      proben: [{ R: "nt7-luft-r", M: "nt7-luft-m" }, { R: "nt7-luft2-r", M: "nt7-luft2-m" }],
+      // Dritte Probe (19.11.2026): L1 bis L6 und L8, gleiche Aufgaben für R und M (R-Klassen R-Schlüssel, M-Klassen M-Schlüssel)
+      proben: [{ R: "nt7-luft-r", M: "nt7-luft-m" }, { R: "nt7-luft2-r", M: "nt7-luft2-m" }, { R: "nt7-luft3-r", M: "nt7-luft3-m" }],
       // Lernmaterial zum Ausdrucken (seit 17.10.2026): blatt = Anfang der Dateinamen in 7M/NT/arbeitsblaetter/
       // (<blatt>-arbeitsblatt.pdf, -loesung.pdf, -regelheft.pdf); dazu alle auf einmal (lernmaterial).
       // Module 6–9 (seit 12.11.2026): nur der Regelhefteintrag (lernmaterial: NUR_HEFT am Modul).
@@ -165,7 +166,9 @@
     "nt7-p3-r": MENSCH_ALLE, "nt7-p3-m": MENSCH_ALLE,
     "nt7-p4-r": STROM_ALLE, "nt7-p4-m": STROM_ALLE,
     // zweite Luft-Probe (17.10.2026): nur die Module 1 bis 5, Aufgaben überwiegend wie auf den Arbeitsblättern
-    "nt7-luft2-r": LUFT_ALLE.slice(0, 5), "nt7-luft2-m": LUFT_ALLE.slice(0, 5)
+    "nt7-luft2-r": LUFT_ALLE.slice(0, 5), "nt7-luft2-m": LUFT_ALLE.slice(0, 5),
+    // dritte Luft-Probe (19.11.2026): L1 bis L6 und L8 (ohne Oxidation und Forschen)
+    "nt7-luft3-r": LUFT_ALLE.slice(0, 6).concat(["luftdruck"]), "nt7-luft3-m": LUFT_ALLE.slice(0, 6).concat(["luftdruck"])
   };
   function probeModule(testId) {
     var ids = PROBE_INHALT[testId], liste = [];
