@@ -28,7 +28,10 @@ GrumiKursliste.bauen({
     "nt9m-kunststoffe": "kunststoffe",
     // Probe 2 Kunststoffe (seit 18.11.2026): nach den Regelhefteinträgen P1 bis P5, Animationen, 6 offene Fragen, 58 Punkte,
     // 45 Minuten, übliche Testregeln, M-Schlüssel (dieselben Aufgaben gibt es für 9R mit R-Schlüssel)
-    "nt9m-kunststoffe2": "kunststoffe" },
+    "nt9m-kunststoffe2": "kunststoffe",
+    // Probe 3 Kunststoffe P1–P3 (seit 19.11.2026, nur 9M): wie Probe 2, aber nur Module P1 bis P3, 53 Punkte,
+    // 9 Animationen, 6 offene Fragen, 45 Minuten, übliche Testregeln, M-Schlüssel
+    "nt9m-kunststoffe3": "kunststoffe" },
   themen: [
     {
       id: "rohstoffe", nr: "01", titel: "Organische Rohstoffe", kurz: "Organische Rohstoffe", icon: "🛢️",
