@@ -3,7 +3,9 @@
  * lernfortschritt.js) und von den Lehrerseiten der Proben (js/probe-rueckgabe-lehrer.js).
  *
  *   GrumiNotenExcel.probe({ fach, titel, inhalt, klasse, datum,
- *                           zeilen: [{ name, code, note, punkte, max, prozent, bemerkung, fehlt }] })      -> Blatt
+ *                           zeilen: [{ name, code, note, punkte, max, prozent, kopierversuche?, bemerkung, fehlt }] })      -> Blatt
+ *                           (kopierversuche seit 24.11.2026: Hat ein Kind der Probe etwas kopieren oder einfügen wollen, steht vor
+ *                           „Bemerkung“ die Spalte „Kopierversuche“ mit der Zahl; ohne Versuche bleibt das Blatt wie bisher)
  *   GrumiNotenExcel.uebersicht({ klasse, proben: [{ fach, titel, datum, inhalt, noten: { "<code>": note } }],
  *                                kinder: [{ name, code, bemerkung }] })                                    -> Blatt
  *   GrumiNotenExcel.mappe([Blatt, …])              -> Blob
@@ -173,25 +175,28 @@
     var liste = (p.zeilen || []).slice().sort(nachNamen), da = liste.filter(function (z) { return !z.fehlt; });
     var mitCode = liste.some(function (z) { return z.code; }), noten = da.map(function (z) { return z.note; }), mittel = schnitt(noten);
     var thema = [p.fach, p.titel].filter(Boolean).join(" · ");
+    // Spalte „Kopierversuche“ nur, wenn es in dieser Probe welche gab
+    var mitKopier = da.some(function (z) { return Number(z.kopierversuche) > 0; }), letzte = mitKopier ? "H" : "G";
     var Z = [], verbunden = [];
     function info(label, wert, hoehe) {
       Z.push({ hoehe: hoehe || 20, zellen: [{ v: label, s: "label" }, { v: wert, s: "wert" }] });
-      verbunden.push("B" + Z.length + ":G" + Z.length);
+      verbunden.push("B" + Z.length + ":" + letzte + Z.length);
     }
-    Z.push({ hoehe: 28, zellen: [{ v: "Notenliste", s: "titel" }] }); verbunden.push("A1:G1");
+    Z.push({ hoehe: 28, zellen: [{ v: "Notenliste", s: "titel" }] }); verbunden.push("A1:" + letzte + "1");
     info("Thema", thema || "Probe");
     if (p.inhalt) info("Module", p.inhalt, 20 * Math.min(4, Math.ceil(String(p.inhalt).length / 70)));
     info("Klasse", p.klasse || "");
     info("Datum", datumText(p.datum));
     info("Abgaben", da.length + (liste.length > da.length ? " von " + liste.length : "") + (mittel == null ? "" : "   ·   Schnitt " + mittel.toFixed(2).replace(".", ",")));
     Z.push([]);
-    Z.push(KOPF_ZEILE(["Nr.", "Name", "Note", "Punkte", "von", "%", "Bemerkung"]));
+    Z.push(KOPF_ZEILE(["Nr.", "Name", "Note", "Punkte", "von", "%"].concat(mitKopier ? ["Kopierversuche"] : [], ["Bemerkung"])));
     var fest = Z.length;
     liste.forEach(function (z, i) {
       var name = z.name || (z.code ? "Code " + z.code : "");
-      if (z.fehlt) { Z.push([{ v: i + 1, s: "mitte" }, { v: name, s: "text" }, { v: "–", s: "grauMitte" }, { s: "mitte" }, { s: "mitte" }, { s: "mitte" }, { v: z.bemerkung || "nicht abgegeben", s: "text" }]); return; }
-      Z.push([{ v: i + 1, s: "mitte" }, { v: name, s: "fett" }, noteZelle(z.note), { v: zahl(z.punkte), s: "mitte" }, { v: zahl(z.max), s: "mitte" }, { v: zahl(z.prozent), s: "mitte" },
-        { v: [z.name && z.code && mitCode ? "Code " + z.code : "", z.bemerkung || ""].filter(Boolean).join(" · "), s: "text" }]);
+      var kopier = mitKopier ? [{ v: z.fehlt || !Number(z.kopierversuche) ? "" : Number(z.kopierversuche), s: "mitte" }] : [];
+      if (z.fehlt) { Z.push([{ v: i + 1, s: "mitte" }, { v: name, s: "text" }, { v: "–", s: "grauMitte" }, { s: "mitte" }, { s: "mitte" }, { s: "mitte" }].concat(kopier, [{ v: z.bemerkung || "nicht abgegeben", s: "text" }])); return; }
+      Z.push([{ v: i + 1, s: "mitte" }, { v: name, s: "fett" }, noteZelle(z.note), { v: zahl(z.punkte), s: "mitte" }, { v: zahl(z.max), s: "mitte" }, { v: zahl(z.prozent), s: "mitte" }].concat(kopier,
+        [{ v: [z.name && z.code && mitCode ? "Code " + z.code : "", z.bemerkung || ""].filter(Boolean).join(" · "), s: "text" }]));
     });
     Z.push([]);
     Z.push([null, { v: "Notenspiegel", s: "label" }]);
@@ -199,7 +204,7 @@
       Z.push([null, { v: "Note " + n, s: "text" }, { v: noten.filter(function (x) { return noteZahl(x) === n; }).length, s: "n" + n }]);
     });
     Z.push([null, { v: "Schnitt", s: "fett" }, mittel == null ? { v: "–", s: "grauMitte" } : { v: mittel, s: "schnitt" }]);
-    return { name: [p.klasse, p.titel].filter(Boolean).join(" ") || "Probe", breiten: [6, 28, 9, 9, 7, 7, 34], zeilen: Z, verbunden: verbunden, fest: fest };
+    return { name: [p.klasse, p.titel].filter(Boolean).join(" ") || "Probe", breiten: mitKopier ? [6, 28, 9, 9, 7, 7, 14, 40] : [6, 28, 9, 9, 7, 7, 34], zeilen: Z, verbunden: verbunden, fest: fest };
   }
 
   function uebersicht(u) {

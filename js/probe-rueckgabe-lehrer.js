@@ -18,6 +18,9 @@
  *   – Note 6“ da; die Lehrkraft kann die Note 6 aufheben und wieder setzen. Automatisch abgegeben (5 Minuten nichts
  *   eingegeben, Bildschirm gesperrt, Seite nicht mehr offen) steht als Hinweis ohne Folgen für die Note da.
  *   Englisch seit 21.10.2026: Verlassen gibt keine Note 6 mehr (nur Warnung und Vermerk), schon der 1. Kopierversuch beendet.
+ *   Deutsch und Englisch seit 24.11.2026: keine automatische Note 6, kein automatisches Abgeben mehr – ältere Abgaben mit Note 6
+ *   behalten ihren Vermerk und „Note 6 aufheben“. Kopierversuche stehen als rotes „⚠️ 2 Kopierversuche“ bei der Abgabe, ein Klick
+ *   zeigt die Liste mit Uhrzeit, Art, Aufgabe und dem Text (js/probe-protokoll.js) – das gilt für alle Fächer, die den Text schicken.
  * - Weiterschreiben erlauben (seit 13.11.2026): je Abgabe ein Knopf – das Kind öffnet die Probe noch einmal, seine Antworten
  *   sind wieder da (/api/probe-weiter/erlauben, wie in der Verwaltung). Zurücknehmen geht ebenso.
  * - ProbeRueckgabeLehrer.mitNamen(blob): trägt in die Export-Datei des Servers (CSV, Excel) die Namen aus der
@@ -93,6 +96,7 @@
       ".prl-leiste button.neben{background:#fff;color:#17633a}.prl-leiste button[disabled]{opacity:.5;cursor:default}" +
       "#prl-msg{flex-basis:100%;font-weight:700}" +
       ".prl button.auffaellig{border-color:#d97706;background:#fffbeb;color:#92400e}" +
+      ".prl button.kopier{border:2px solid #dc2626;background:#fef2f2;color:#b91c1c;font-weight:900}" +
       ".prl button.lrs-an{border-color:#6d28d9;background:#6d28d9;color:#fff}" +
       ".prl button[data-prl=weiter]{border-color:#93c5fd;color:#1d4ed8}.prl button.weiter-an{border-color:#1d4ed8;background:#eff6ff}" +
       "#prl-dlg{width:min(640px,calc(100vw - 24px));border:0;border-radius:16px;padding:16px 18px;box-shadow:0 20px 60px rgba(0,0,0,.3);font:16px/1.45 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}" +
@@ -240,7 +244,11 @@
     if (WERTEN_ROUTE[C.modul] && (r.details || []).length) h += '<button type="button" data-prl="werten" title="Jede Antwort selbst als richtig oder falsch werten – auch nach der Rückgabe. Punkte und Note rechnen sich neu.">✏️ Punkte ändern</button>';
     h += '<button type="button" data-prl="druck" title="Korrigierte Probe mit Unterschriftsfeld – zum Mitgeben für die Eltern">🖨 Elternansicht</button>';
     // Probenmodus: Hat der Browser des Kindes etwas festgehalten (Verlassen mit Uhrzeit und Dauer, Einfügen, Kopieren)?
-    var auffaellig = global.ProbeProtokoll ? global.ProbeProtokoll.kurz(r) : "";
+    // Kopierversuche stehen auffällig rot davor (seit 24.11.2026 mit dem Text, der kopiert oder eingefügt werden sollte)
+    var PP = global.ProbeProtokoll, kz = PP && PP.kopierZahl ? PP.kopierZahl(r) : Number(r.kopierversuche) || 0;
+    var auffaellig = PP ? PP.kurz(r).replace(/^⚠️ [^·]*(· )?/, "") : "";
+    if (kz) h += '<button type="button" class="kopier" data-prl="prot" title="' + esc(PP && PP.kopierListe ? PP.kopierListe(r).map(PP.kopierZeile).join("\n") || "Kopierversuche ansehen" : "Kopierversuche ansehen") + '">⚠️ ' +
+      kz + (kz === 1 ? " Kopierversuch" : " Kopierversuche") + "</button>";
     if (auffaellig || r.verlassen) h += '<button type="button" class="auffaellig" data-prl="prot" title="Probenüberwachung ansehen">🔎 ' + esc(auffaellig || r.verlassen + "× verlassen") + "</button>";
     // Notenschutz LRS für diese eine Abgabe an/aus: Der Server wertet die gespeicherten Antworten neu (ohne Rechtschreibung)
     if (LRS_ROUTE[C.modul]) h += '<button type="button" data-prl="lrs"' + (r.lrs ? ' class="lrs-an"' : "") + ' aria-pressed="' + Boolean(r.lrs) + '" title="' +
@@ -259,8 +267,7 @@
     if (weiter) weiter.addEventListener("click", function () { weiterSchalten(r, weiter); });
     var druck = el.querySelector('[data-prl="druck"]'), geben = el.querySelector('[data-prl="geben"]'), nehmen = el.querySelector('[data-prl="nehmen"]');
     if (druck) druck.addEventListener("click", function () { drucken([r]); });
-    var prot = el.querySelector('[data-prl="prot"]');
-    if (prot) prot.addEventListener("click", function () { protokollZeigen(r); });
+    Array.prototype.forEach.call(el.querySelectorAll('[data-prl="prot"]'), function (prot) { prot.addEventListener("click", function () { protokollZeigen(r); }); });
     var werten = el.querySelector('[data-prl="werten"]');
     if (werten) werten.addEventListener("click", function () { wertenZeigen(r); });
     var abbruch = el.querySelector('[data-prl="abbruch"]');
@@ -537,7 +544,7 @@
     speicherHinweis();
     // Anzeige des Probenmodus (js/probe-protokoll.js) nachladen – liegt neben diesem Skript
     if (!global.ProbeProtokoll && EIGENES && !doc.getElementById("prl-protokoll-skript")) {
-      var ps = doc.createElement("script"); ps.id = "prl-protokoll-skript"; ps.src = EIGENES.replace(/[^/]*$/, "") + "probe-protokoll.js";
+      var ps = doc.createElement("script"); ps.id = "prl-protokoll-skript"; ps.src = EIGENES.replace(/[^/]*$/, "") + "probe-protokoll.js?v=20261124";
       ps.onload = function () { if (STAND) zeichnen(); };
       doc.head.appendChild(ps);
     }
@@ -614,9 +621,13 @@
           fach: C.fach || "", titel: g.r.testTitle || g.r.testId || "", klasse: g.r.className || "",
           datum: g.rows.map(tag).filter(Boolean).sort()[0] || "",
           zeilen: g.rows.map(function (r) {
+            // Kopierversuche (seit 24.11.2026): eigene Spalte mit der Zahl, der Text steht in der Bemerkung
+            var PP = global.ProbeProtokoll, kz = PP && PP.kopierZahl ? PP.kopierZahl(r) : Number(r.kopierversuche) || 0;
+            var texte = PP && PP.kopierListe ? PP.kopierListe(r).filter(function (e) { return e.text; }).map(PP.kopierZeile).join(" | ") : "";
             return { name: r.code ? (C.namen || {})[r.code] || "" : [r.firstName, r.lastName].filter(Boolean).join(" "), code: r.code || "",
-              note: r.grade, punkte: r.score, max: r.total, prozent: r.percent,
-              bemerkung: [r.lrs ? "Notenschutz LRS" : "", r.verlassen ? r.verlassen + "× verlassen" : "", r.needsReview ? "KI-Bewertung noch prüfen" : ""].filter(Boolean).join(" · ") };
+              note: r.grade, punkte: r.score, max: r.total, prozent: r.percent, kopierversuche: kz,
+              bemerkung: [r.lrs ? "Notenschutz LRS" : "", r.verlassen ? r.verlassen + "× verlassen" : "", kz ? kz + (kz === 1 ? " Kopierversuch" : " Kopierversuche") + (texte ? ": " + texte : "") : "",
+                r.needsReview ? "KI-Bewertung noch prüfen" : ""].filter(Boolean).join(" · ") };
           })
         });
       });

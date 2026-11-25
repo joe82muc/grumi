@@ -331,12 +331,15 @@
       // Testregeln für alle Proben (17.10.2026): länger als 1 Minute weg oder 2. Kopierversuch = Probe beendet, sofort
       // abgegeben, Note 6 (die Lehrkraft kann sie aufheben). Den Hinweis über den Aufgaben schreibt dann ProbeSchutz.
       // wegSekunden 0 vom Server (z. B. Nachholprobe 2 der M7): ohne die 1-Minuten-Regel – Verlassen wird nur festgehalten.
-      // Englisch (seit 21.10.2026): wegSekunden 0 und kopieren 1 – Verlassen nur Warnung, schon der erste Kopierversuch beendet.
+      // Englisch (21.10. bis 23.11.2026): wegSekunden 0 und kopieren 1 – Verlassen nur Warnung, schon der erste Kopierversuch beendete.
+      // Seit 24.11.2026 für alle Deutsch- und Englisch-Proben (Server: wegSekunden 0, kopieren 0, verlassen 0, ruheMinuten 0, vermerk):
+      // nichts beendet die Probe, nichts gibt sie von selbst ab, keine Note 6 – Warnungen, Kopierversuche mit Text werden festgehalten.
       // weiter: Die Lehrkraft hat das Weiterbearbeiten erlaubt (Verwaltung) – die Antworten der Abgabe kommen zurück.
       const zurueck = ProbeSchutz.start({testId: exam.test.id, code: student.code, box: $("questions"), ueberwachung: true, einfuegen: exam.test.einfuegen,
         wechsel: schutz.wechsel, warnen: schutz.warnen, kopieren: schutz.kopieren, ausschneiden: schutz.ausschneiden, kontextmenue: schutz.kontextmenue, spruenge: schutz.spruenge,
         regel: {api: API, modul: DAPI.replace(/^\/api\//, "") + "proben", beenden: () => einreichen(true), ...(exam.test.wegSekunden === 0 ? {wegSekunden: 0} : {}),
-          ...(Number.isInteger(exam.test.kopieren) ? {kopieren: exam.test.kopieren} : {})},
+          ...(Number.isInteger(exam.test.kopieren) ? {kopieren: exam.test.kopieren} : {}), ...(exam.test.verlassen === 0 ? {verlassen: 0} : {}),
+          ...(exam.test.ruheMinuten === 0 ? {ruheMinuten: 0} : {}), ...(exam.test.vermerk === true ? {vermerk: true} : {})},
         weiter: exam.weiter});
       // offen sagen, was im Probenmodus festgehalten wird
       if (!$("schutz-hinweis")) $("questions").insertAdjacentHTML("beforebegin", '<p class="schutz-hinweis" id="schutz-hinweis"></p>');

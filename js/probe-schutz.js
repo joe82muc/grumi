@@ -20,8 +20,11 @@
  *   wechsel   [{ art: "verborgen" | "fokus" | "geschlossen", von, bis, sekunden }]  Seite war nicht sichtbar, das Fenster hatte
  *             den Fokus verloren (nicht mit ueberwachung: false; ab 2 Sekunden). Welche Seite oder App stattdessen offen
  *             war, kann ein Browser nicht erkennen – das steht deshalb nirgends.
- *   einfuegen [{ zeit, zeichen, woerter, erlaubt }]   Der eingefügte Text selbst wird nie gespeichert.
- *   kopieren  [{ zeit, art: "copy" | "cut", zeichen }]
+ *   einfuegen [{ zeit, art: "paste" | "drop", zeichen, woerter, erlaubt, text?, feld? }]
+ *   kopieren  [{ zeit, art: "copy" | "cut", zeichen, text?, feld? }]
+ *             text und feld nur mit regel.vermerk (Deutsch und Englisch seit 24.11.2026, Wunsch der Lehrkraft: „vermerke
+ *             kopierversuche deutlich und auch was kopiert wurde“): der markierte bzw. eingefügte Text (höchstens 300 Zeichen)
+ *             und wo es war („Aufgabe 3 (Hund)“, „Aufgabe 2 · Lücke 1“). Sonst – andere Fächer – nur Zeiten und Mengen.
  *   spruenge  [{ zeit, woerter, sekunden, vorher, nachher }]   sehr viel neuer Text in sehr kurzer Zeit
  *   verbindung [{ zeit, art: "weg" | "da" }]   Das Gerät hat die Verbindung verloren bzw. wieder bekommen
  * Zusätzliche Angaben für start():
@@ -62,7 +65,15 @@
  *   weiter: { seite, abgegebenAm } Weiterbearbeiten nach der Abgabe (seit 21.10.2026, die Lehrkraft erlaubt es in der
  *                                 Verwaltung; der Server schickt es beim Start mit): Liegt auf dem Gerät kein eigener Stand,
  *                                 kommen die Antworten der Abgabe (seite) zurück. Die Zählung der Testregeln beginnt neu.
- *   Englisch (seit 21.10.2026): regel { wegSekunden: 0, kopieren: 1 } – Verlassen nur Warnung, der erste Kopierversuch beendet.
+ *   Englisch (21.10. bis 23.11.2026): regel { wegSekunden: 0, kopieren: 1 } – Verlassen nur Warnung, der erste Kopierversuch beendet.
+ *   regel.vermerk: true – Deutsch und Englisch seit 24.11.2026 (der Server schickt { verlassen: 0, kopieren: 0, wegSekunden: 0,
+ *                                 ruheMinuten: 0, vermerk: true }; Wunsch der Lehrkraft: „mach bei den deutschproben und englichproben
+ *                                 so dass die schüler nicht aus irgendwelchen gründen automatisch abgeben und mit 6 bewertet werden.
+ *                                 vermerke kopierversuche deutlich und auch was kopiert wurde“): Nichts beendet die Probe, nichts gibt
+ *                                 sie von selbst ab, keine Note 6. Kopieren und Einfügen bleiben gesperrt – jeder Versuch bringt eine
+ *                                 Warnung und wird mit Uhrzeit, Art, Aufgabe und Text festgehalten; Verlassen wird gewarnt und mit der
+ *                                 Summe in Sekunden gezählt. Die Kopierversuche gehen mit jeder Meldung an den Server (kopierLog) und
+ *                                 mit der Abgabe (protokoll), die Lehrkraft sieht sie bei der Abgabe.
  *   regel.programm: "Filius" (Informatik 9, Probe 1b, seit 25.10.2026): Praxisteil in einem Programm am PC. Nur zusammen mit
  *                                 wegSekunden 0 (und ohne verlassen): Der Hinweis erlaubt den Wechsel zu diesem Programm, beim
  *                                 Zurückkommen erscheint kein Warnfenster – jeder Wechsel wird weiter gezählt und festgehalten.
@@ -235,14 +246,22 @@
   // regel.programm (Informatik 9, Probe 1b): Für einen Praxisteil darf das Kind in dieses Programm wechseln – nur ohne
   // Note-6-Regel fürs Verlassen. Dann kein Warnfenster beim Zurückkommen; jeder Wechsel wird weiter festgehalten.
   function programmErlaubt() { var r = aktiv && aktiv.regel; return Boolean(r && r.programm && !r.wegSekunden && !r.verlassen); }
+  // Deutsch und Englisch seit 24.11.2026: nur Warnungen und Vermerke, Kopierversuche mit Text (regel.vermerk)
+  function nurVermerk() { var r = aktiv && aktiv.regel; return Boolean(r && r.vermerk && !r.kopieren && !r.wegSekunden && !r.verlassen && !r.ruheMinuten); }
+  function textMerken() { return Boolean(aktiv && aktiv.regel && aktiv.regel.vermerk); }
   function regelText() {
     var r = aktiv.regel, kw = kopierWort();
+    if (nurVermerk()) {
+      return "🔒 Testregeln: Bleib auf dieser Seite, bis du abgegeben hast. Jedes Verlassen (anderer Tab, andere App) bringt eine Warnung und wird mit Uhrzeit und Dauer festgehalten. " +
+        (kw ? kw + " ist verboten und gesperrt – jeder Versuch bringt eine Warnung und wird mit dem Text festgehalten und deiner Lehrkraft gezeigt. " : "") +
+        "Abgeben musst du selbst, wenn du fertig bist. Bisher: " + bisherText() + ".";
+    }
     return (programmErlaubt() ? "🔒 Testregeln: Für den Praxisteil darfst du zu " + r.programm + " wechseln – das wird nur festgehalten. Sonst bleib auf dieser Seite. "
       : "🔒 Testregeln: Bleib auf dieser Seite, bis du abgegeben hast. ") +
       (r.wegSekunden ? "Verlässt du sie (anderer Tab, andere App) insgesamt länger als " + dauerText(r.wegSekunden) + ", ist die Probe sofort beendet: Note 6. " +
         "Kurze Wechsel unter " + MIN_SEK + " Sekunden zählen nicht. " : "") +
       (r.verlassen ? "Jedes Verlassen bringt eine Warnung – beim " + r.verlassen + ". Mal ist der Test beendet: Note 6. " : programmErlaubt() ? "" : "Jedes Verlassen bringt eine Warnung und wird festgehalten. ") +
-      (kw && !r.kopieren ? kw + " geht in der Probe nicht – jeder Versuch wird festgehalten. " : "") +
+      (kw && !r.kopieren ? kw + " geht in der Probe nicht – jeder Versuch wird festgehalten" + (r.vermerk ? " (mit dem Text) und deiner Lehrkraft gezeigt" : "") + ". " : "") +
       (kw && r.kopieren === 1 ? kw + " ist verboten: Schon beim ersten Versuch ist die Probe sofort beendet – Note 6, ohne Warnung. " : "") +
       (kw && r.kopieren > 1 ? kw + ": " + (r.kopieren - 1 === 1 ? "eine Warnung" : (r.kopieren - 1) + " Warnungen") + ", beim " + r.kopieren + ". Versuch Note 6. " : "") +
       (r.ruheMinuten ? "Gibst du " + r.ruheMinuten + " Minuten nichts ein, wird dein Test automatisch abgegeben. " : "") +
@@ -251,7 +270,7 @@
   // „2× verlassen (14 von 60 Sekunden), 1 Kopierversuch“
   function bisherText() {
     var r = aktiv.regel, kw = kopierWort();
-    return zahl + "× verlassen" + (r.wegSekunden ? " (" + wegSumme + " von " + r.wegSekunden + " Sekunden)" : "") +
+    return zahl + "× verlassen" + (r.wegSekunden ? " (" + wegSumme + " von " + r.wegSekunden + " Sekunden)" : r.vermerk && wegSumme ? " (insgesamt " + wegSumme + " Sekunden)" : "") +
       (kw ? ", " + kopierZahl + " Kopierversuch" + (kopierZahl === 1 ? "" : "e") : "");
   }
   function regelHinweis() {
@@ -263,12 +282,17 @@
   function melden() {
     if (!aktiv || !aktiv.regel || beendet) return;
     var r = aktiv.regel, z = { verlassen: zahl, kopieren: kopierZahl, wegSumme: wegSumme, sichtbar: !weg, weg: weg ? weg.von : null, aktiv: new Date(aktivZeit).toISOString() };
+    // Kopier- und Einfügeversuche mit Text (regel.vermerk): gehen mit jeder Meldung an den Server – so kommen sie bei der
+    // Lehrkraft an, auch wenn das Kind auf einem anderen Gerät weiterschreibt oder sie einen Zwischenstand übernimmt
+    if (textMerken()) z.kopierLog = kopierLog();
     if (typeof r.melden === "function") { setTimeout(function () { try { r.melden(z); } catch (_e) {} }, 0); return; }
     if (!r.api || !r.modul || !global.fetch) return;
     var ich = aktiv;
     try {
+      var b = { modul: r.modul, testId: ich.testId, code: ich.code, verlassen: z.verlassen, kopieren: z.kopieren, wegSumme: z.wegSumme };
+      if (z.kopierLog && z.kopierLog.length) b.kopierLog = z.kopierLog;
       global.fetch(r.api + "/api/probe-regel/vorfall", { method: "POST", headers: { "Content-Type": "application/json" }, keepalive: true,
-        body: JSON.stringify({ modul: r.modul, testId: ich.testId, code: ich.code, verlassen: z.verlassen, kopieren: z.kopieren, wegSumme: z.wegSumme }) })
+        body: JSON.stringify(b) })
         .then(function (a) { return a.ok ? a.json() : null; })
         .then(function (d) { if (d && d.ok && aktiv === ich) serverZahlen(d.verlassen, d.kopieren, d.wegSumme); })
         .catch(function () {});
@@ -292,6 +316,19 @@
     var r = aktiv.regel, kopie = art === "kopieren", n = kopie ? kopierZahl : zahl, max = kopie ? r.kopieren : r.verlassen;
     var letzte = max > 0 && n >= max - 1, kw = kopierWort();
     var minute = r.wegSekunden ? "Insgesamt warst du bisher " + wegSumme + " Sekunden weg. Bei mehr als " + r.wegSekunden + " Sekunden insgesamt ist die Probe sofort beendet: Note 6." : "";
+    // Deutsch und Englisch seit 24.11.2026: deutliche Warnung bei jedem Versuch – kein Ende, keine Note 6
+    if (nurVermerk()) {
+      fenster({
+        id: "probe-schutz-warnung", farbe: kopie ? (n >= 2 ? "#b91c1c" : "#d97706") : n >= 3 ? "#b91c1c" : n === 2 ? "#d97706" : "#2563eb",
+        titel: kopie ? "⚠️ " + (n > 1 ? n + ". Kopierversuch: " : "") + kw + " ist in der Probe verboten!"
+          : "⚠️ " + n + ". Warnung: Du hast die Probe verlassen" + (sek ? " (" + dauerText(sek) + ")" : "") + ".",
+        text: kopie ? "Dein Versuch wurde festgehalten und wird deiner Lehrkraft gezeigt – mit Uhrzeit und dem Text, den du kopieren oder einfügen wolltest. Schreib deine Antworten selbst."
+          : "Bleib in der Probe! Das Verlassen wurde mit Uhrzeit und Dauer festgehalten und wird deiner Lehrkraft gezeigt." + (wegSumme ? " Insgesamt warst du bisher " + wegSumme + " Sekunden weg." : ""),
+        klein: "Bisher: " + bisherText() + ". Deine Probe läuft weiter – deine Antworten sind noch da.",
+        knopf: "Verstanden"
+      });
+      return;
+    }
     fenster({
       id: "probe-schutz-warnung", farbe: letzte ? "#b91c1c" : n >= 2 ? "#d97706" : "#2563eb",
       titel: kopie ? (letzte ? "⛔ Letzte Warnung: " : "⚠️ Warnung: ") + kw + " ist in der Probe verboten."
@@ -447,26 +484,72 @@
   }
   function einfuegenErlaubt() { return aktiv && aktiv.einfuegen === "protokollieren"; }
   function einfuegeText() { return aktiv && aktiv.ueberwachung ? "Das Einfügen von kopiertem Text ist im Probenmodus nicht erlaubt. Bitte schreibe deinen Text selbst." : "Einfügen ist in der Probe gesperrt. Schreib deine Antwort selbst."; }
+  /* Kopierversuche mit Text (regel.vermerk, Deutsch und Englisch seit 24.11.2026): was kopiert oder eingefügt werden sollte
+     (höchstens TEXT_MAX Zeichen) und wo – „Aufgabe 3 (Hund)“, „Aufgabe 2 · Lücke 1“, „Text neben den Aufgaben“ */
+  var TEXT_MAX = 300, LOG_MAX = 50;
+  function wo(el) {
+    try {
+      if (el && el.nodeType !== 1) el = el.parentElement;
+      if (!el || !aktiv || !el.closest) return "";
+      var box = aktiv.box;
+      if (!box.contains(el)) return el.closest("#lesespalte, .lesespalte, [data-text], .text, .lesetext") ? "Text neben den Aufgaben" : "außerhalb der Aufgaben";
+      var nr = "", wort = "";
+      for (var a = el; a && a !== box; a = a.parentElement) {
+        if (a.getAttribute("data-nr")) { nr = a.getAttribute("data-nr"); break; }
+        var k = a !== el && a.querySelector(".q-nr, .q-no");
+        if (k) { nr = String(k.textContent || "").trim(); var w = a.querySelector(".q-word"); wort = w ? String(w.textContent || "").trim() : ""; break; }
+      }
+      var name = istFeld(el) || (el.matches && el.matches("select")) ? String(el.getAttribute("aria-label") || "").replace(/\s*(zu|in) Aufgabe \d+\s*$/i, "").trim() : "";
+      if (/^(Antwort|Dein Text)$/i.test(name)) name = "";
+      return [nr ? "Aufgabe " + nr + (wort ? " (" + wort.slice(0, 40) + ")" : "") : "", name.slice(0, 50)].filter(Boolean).join(" · ");
+    } catch (_e) { return ""; }
+  }
+  function mitText(eintrag, text, el) {
+    if (!textMerken()) return eintrag;
+    if (text) eintrag.text = String(text).slice(0, TEXT_MAX);
+    var f = wo(el); if (f) eintrag.feld = f;
+    return eintrag;
+  }
+  // Für die Meldung an den Server: die letzten Kopier- und Einfügeversuche (mit Text), der Zeit nach
+  function kopierLog() {
+    return prot.kopieren.map(function (x) { return x; }).concat(prot.einfuegen.map(function (x) { var y = {}; Object.keys(x).forEach(function (k) { y[k] = x[k]; }); y.art = x.art || "paste"; return y; }))
+      .sort(function (a, b) { return String(a.zeit).localeCompare(String(b.zeit)); }).slice(-LOG_MAX);
+  }
+  var letzterEintrag = 0;
   ["paste", "drop"].forEach(function (art) {
     doc.addEventListener(art, function (e) {
       if (!aktiv || !istFeld(e.target)) return;
-      // nur die Menge festhalten – der Text der Zwischenablage wird nicht gespeichert
+      // Menge festhalten – mit regel.vermerk (Deutsch, Englisch) auch den Text der Zwischenablage und die Aufgabe
       var quelle = e.clipboardData || e.dataTransfer, text = "", lesbar = false;
       try { text = quelle ? quelle.getData("text") || "" : ""; lesbar = Boolean(quelle); } catch (_e) {}
-      merke(prot.einfuegen, { zeit: jetzt(), zeichen: text.length, woerter: woerter(text), erlaubt: einfuegenErlaubt() });
-      if (einfuegenErlaubt()) { ebenEingefuegt = Date.now(); bald(); return; }
+      merke(prot.einfuegen, mitText({ zeit: jetzt(), art: art, zeichen: text.length, woerter: woerter(text), erlaubt: einfuegenErlaubt() }, text, e.target));
+      letzterEintrag = Date.now();
+      if (einfuegenErlaubt()) { ebenEingefuegt = Date.now(); bald(); if (textMerken()) melden(); return; }
       gesperrt(e, einfuegeText(), text.length > 0 || !lesbar);
     }, true);
   });
   doc.addEventListener("beforeinput", function (e) {
-    if (aktiv && !einfuegenErlaubt() && istFeld(e.target) && /^insertFrom(Paste|Drop|Yank)/.test(e.inputType || "")) gesperrt(e, einfuegeText(), true);
+    if (aktiv && !einfuegenErlaubt() && istFeld(e.target) && /^insertFrom(Paste|Drop|Yank)/.test(e.inputType || "")) {
+      // Kam kein paste-Ereignis vorher (manche Tastaturen), hier festhalten – mit dem Text, falls der Browser ihn nennt
+      if (Date.now() - letzterEintrag > 1500) {
+        var text = "";
+        try { text = e.dataTransfer ? e.dataTransfer.getData("text") || "" : e.data || ""; } catch (_e) {}
+        merke(prot.einfuegen, mitText({ zeit: jetzt(), art: /Drop/.test(e.inputType) ? "drop" : "paste", zeichen: text.length, woerter: woerter(text), erlaubt: false }, text, e.target));
+        letzterEintrag = Date.now();
+      }
+      gesperrt(e, einfuegeText(), true);
+    }
   }, true);
   ["copy", "cut"].forEach(function (art) {
     doc.addEventListener(art, function (e) {
       if (!aktiv || (art === "copy" ? aktiv.kopieren : aktiv.ausschneiden) === "erlauben") return;
-      var el = e.target, n = 0;
-      try { n = istFeld(el) && typeof el.selectionStart === "number" ? Math.abs(el.selectionEnd - el.selectionStart) : String(global.getSelection ? global.getSelection() : "").length; } catch (_e) {}
-      merke(prot.kopieren, { zeit: jetzt(), art: art, zeichen: n });
+      var el = e.target, n = 0, text = "", ort = el;
+      try {
+        if (istFeld(el) && typeof el.selectionStart === "number") { text = String(el.value || "").slice(Math.min(el.selectionStart, el.selectionEnd), Math.max(el.selectionStart, el.selectionEnd)); }
+        else { var s = global.getSelection ? global.getSelection() : null; text = String(s || ""); if (s && s.anchorNode) ort = s.anchorNode; }
+        n = text.length;
+      } catch (_e) {}
+      merke(prot.kopieren, mitText({ zeit: jetzt(), art: art, zeichen: n }, text, ort));
       gesperrt(e, "Kopieren ist in der Probe gesperrt.", n > 0);
     }, true);
   });
@@ -514,6 +597,8 @@
           ruheMinuten: Math.max(0, Number(cfg.regel.ruheMinuten) || 0),
           api: cfg.regel.api ? String(cfg.regel.api).replace(/\/$/, "") : "", modul: cfg.regel.modul ? String(cfg.regel.modul) : "",
           puls: cfg.regel.puls === true, beenden: cfg.regel.beenden, melden: cfg.regel.melden || null,
+          // Deutsch und Englisch seit 24.11.2026: Kopierversuche mit Text festhalten, nur Warnungen (vom Server: vermerk: true)
+          vermerk: cfg.regel.vermerk === true,
           programm: cfg.regel.programm ? String(cfg.regel.programm).slice(0, 30) : "" } : null };
       zahl = 0; sockel = 0; draussen = false; prot = LEER(); weg = null;
       kopierZahl = 0; letzterVersuch = 0; beendet = null; letztesEnde = null; aktivZeit = Date.now(); wegSumme = 0;

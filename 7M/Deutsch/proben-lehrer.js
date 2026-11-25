@@ -39,9 +39,35 @@
   }
   // Änderungen der Reihe nach senden (ein Feld verlassen und gleich „Bestätigen“ tippen: erst speichern, dann bestätigen)
   const nacheinander = fn => (kette = kette.then(fn, fn));
-  // Testregeln (17.10.2026): Probe beendet (2. Kopierversuch, mehr als 1 Minute weg) = Note 6 – die Lehrkraft kann sie aufheben
+  // Testregeln (17.10.2026): Probe beendet (2. Kopierversuch, mehr als 1 Minute weg) = Note 6 – die Lehrkraft kann sie aufheben.
+  // Seit 24.11.2026 gibt es bei Deutsch und Englisch keine automatische Note 6 und kein automatisches Abgeben mehr – ältere Abgaben
+  // behalten den Vermerk. Kopierversuche stehen rot bei der Abgabe (Liste und Abgabe), mit Uhrzeit, Art, Aufgabe und Text.
   const AUTOMATISCH = {ruhe: "5 Minuten nichts eingegeben", gesperrt: "länger als 1 Minute weg, nachdem 2 Minuten nichts mehr eingegeben wurde (Bildschirm gesperrt?)", server: "Seite war nicht mehr offen"};
   const abbruchGrund = ab => ab.grund === "kopieren" ? ab.kopierversuche + ". Kopierversuch" : ab.grund === "weg" ? "insgesamt " + (ab.sekunden ? ab.sekunden + " Sekunden" : "länger als 1 Minute") + " weg" : ab.verlassen + "× verlassen";
+  /* Kopierversuche (24.11.2026, Wunsch der Lehrkraft: „vermerke kopierversuche deutlich und auch was kopiert wurde“) */
+  const KOPIER_ART = {copy: "kopiert", cut: "ausgeschnitten", paste: "einfügen versucht", drop: "hineingezogen"};
+  function kopierListe(r) {
+    const p = r.protokoll || {};
+    return [...(p.kopieren || []).map(x => ({...x, art: x.art === "cut" ? "cut" : "copy"})), ...(p.einfuegen || []).map(x => ({...x, art: x.art === "drop" ? "drop" : "paste"}))]
+      .sort((a, b) => String(a.zeit).localeCompare(String(b.zeit)));
+  }
+  const kopierZahl = r => Math.max(Number(r.kopierversuche) || 0, kopierListe(r).filter(e => !e.erlaubt && (e.zeichen > 0 || e.text)).length);
+  const kopierWort = n => n + (n === 1 ? " Kopierversuch" : " Kopierversuche");
+  const kurzUhr = iso => { const d = new Date(iso); return isNaN(d) ? "" : d.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"}) + " Uhr"; };
+  const kopierZeile = e => kurzUhr(e.zeit) + " – " + (e.erlaubt ? "eingefügt (erlaubt)" : KOPIER_ART[e.art] || "kopiert") +
+    (e.text ? ": „" + String(e.text).replace(/\s+/g, " ").trim() + "“" : e.zeichen ? " (" + e.zeichen + " Zeichen, Text nicht bekannt)" : " (nichts markiert)") + (e.feld ? " (" + e.feld + ")" : "");
+  const KOPIER_STIL = "background:#fef2f2;border:1.5px solid #dc2626;color:#b91c1c;font-weight:900";
+  function kopierPill(r) {
+    const n = kopierZahl(r);
+    return n ? ` <span class="pill" style="${KOPIER_STIL}" title="${esc(kopierListe(r).map(kopierZeile).join("\n") || kopierWort(n))}">⚠️ ${kopierWort(n)}</span>` : "";
+  }
+  function kopierBox(r) {
+    const n = kopierZahl(r), liste = kopierListe(r);
+    if (!n && !liste.length) return "";
+    return `<div class="l-kopier" role="note" style="margin:10px 0;padding:8px 12px;border:2px solid #dc2626;border-radius:10px;background:#fef2f2;color:#7f1d1d">
+      <b>⚠️ ${kopierWort(n)}</b>${n ? " – gesperrt, das Kind wurde jedes Mal gewarnt (keine automatische Note 6)" : ""}
+      ${liste.length ? `<ul style="margin:4px 0 0;padding-left:20px">${liste.map(e => `<li style="overflow-wrap:anywhere">${esc(kopierZeile(e))}</li>`).join("")}</ul>` : ""}</div>`;
+  }
   function abbruchBox(r) {
     const ab = r.abbruch;
     return (r.automatisch && AUTOMATISCH[r.automatisch] ? `<p class="notice">⏱ Automatisch abgegeben: ${esc(AUTOMATISCH[r.automatisch])}</p>` : "") +
@@ -140,7 +166,7 @@
     $("alle-frei").disabled = !frei; $("alle-frei").textContent = frei ? `📤 ${frei} bestätigte ${frei === 1 ? "Probe" : "Proben"} freigeben` : "📤 Alle bestätigten Proben freigeben";
     $("zaehlung").textContent = liste.length ? `${liste.filter(r => r.status === "zu-pruefen").length} zu prüfen · ${frei} bestätigt · ${liste.filter(r => r.status === "freigegeben").length} freigegeben, davon ${liste.filter(r => r.geoeffnetAm).length} geöffnet` : "";
     $("results").innerHTML = liste.length ? `<table class="l-uebersicht"><thead><tr><th>Kind</th><th>Klasse</th><th>Probe</th><th>Punkte</th><th>Note</th><th>Stand</th></tr></thead><tbody>${liste.map(r => `<tr data-id="${r.id}" class="${r.id === offenId ? "an" : ""}">
-      <td><b>${esc(wer(r))}</b>${r.lrs ? ' <span class="pill" title="Notenschutz ist beim Code eingetragen">🛡 LRS</span>' : ""}${r.verlassen ? ` <small>${r.verlassen}× verlassen</small>` : ""}${r.protokoll && (r.protokoll.einfuegen || []).length ? ` <small>· ${r.protokoll.einfuegen.length}× einfügen</small>` : ""}${darfWeiter(r) ? ' <span class="pill" title="Das Kind darf die Probe noch einmal öffnen und weiterschreiben">✏️ darf weiterschreiben</span>' : (r.fassungen || []).length ? ' <span class="pill" title="Nach der Abgabe weitergeschrieben">✏️ weitergeschrieben</span>' : ""}</td>
+      <td><b>${esc(wer(r))}</b>${r.lrs ? ' <span class="pill" title="Notenschutz ist beim Code eingetragen">🛡 LRS</span>' : ""}${r.verlassen ? ` <small>${r.verlassen}× verlassen</small>` : ""}${kopierPill(r)}${r.protokoll && (r.protokoll.einfuegen || []).some(x => x.erlaubt) ? ` <small>· ${r.protokoll.einfuegen.filter(x => x.erlaubt).length}× eingefügt (erlaubt)</small>` : ""}${darfWeiter(r) ? ' <span class="pill" title="Das Kind darf die Probe noch einmal öffnen und weiterschreiben">✏️ darf weiterschreiben</span>' : (r.fassungen || []).length ? ' <span class="pill" title="Nach der Abgabe weitergeschrieben">✏️ weitergeschrieben</span>' : ""}</td>
       <td>${esc(r.className)}</td><td>${esc(r.testTitle)}${r.variante === "B" || r.variante === "C" ? ` <span class="pill b">${r.variante}</span>` : ""}</td>
       <td>${zahl(r.score)} / ${zahl(r.total)}</td><td>${r.grade === "" ? "–" : r.grade}</td><td>${standText(r)}</td></tr>`).join("")}</tbody></table>` : `<p>Noch keine Abgaben.</p>`;
   }
@@ -183,7 +209,9 @@
   }
   const uhr = iso => { const d = new Date(iso); return isNaN(d) ? "" : d.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit", second: "2-digit"}); };
   const dauer = sek => { const m = Math.floor(sek / 60), s = sek % 60; return (m ? m + (m === 1 ? " Minute" : " Minuten") : "") + (m && s ? " " : "") + (s || !m ? s + (s === 1 ? " Sekunde" : " Sekunden") : ""); };
-  // Probenmodus: was der Browser des Kindes technisch festgehalten hat (js/probe-schutz.js) – nur Zeiten und Mengen
+  // Probenmodus: was der Browser des Kindes technisch festgehalten hat (js/probe-schutz.js) – Zeiten und Mengen, seit 24.11.2026 bei
+  // Kopier- und Einfügeversuchen auch der Text und die Aufgabe
+  const mitText = x => (x.text ? ": „" + String(x.text).replace(/\s+/g, " ").trim() + "“" : "") + (x.feld ? " (" + x.feld + ")" : "");
   function ueberwachung(r) {
     const p = r.protokoll || {}, w = p.wechsel || [], e = p.einfuegen || [], k = p.kopieren || [], s = p.spruenge || [];
     if (!w.length && !e.length && !k.length && !s.length) {
@@ -196,10 +224,10 @@
     return `<details class="l-ueberwachung" open><summary>🔎 Probenüberwachung: ${kurz}</summary>
       ${w.length ? `<h4>Tab/App-Wechsel: ${w.length}</h4><ol>${w.map(x => `<li>${uhr(x.von)} – ${uhr(x.bis)} → <b>${dauer(x.sekunden || 0)}</b>${x.art === "fokus" ? " <small>(Fenster ohne Eingabefokus)</small>" : x.art === "geschlossen" ? " <small>(Seite war geschlossen oder wurde neu geladen)</small>" : ""}</li>`).join("")}</ol>
         <p>Gesamtdauer außerhalb von GRUMI: <b>${dauer(gesamt)}</b></p>` : "<h4>Tab/App-Wechsel: 0</h4>"}
-      ${e.length ? `<h4>Einfügeversuche: ${e.length}</h4><ul>${e.map(x => `<li>${uhr(x.zeit)} – ${x.woerter} ${x.woerter === 1 ? "Wort" : "Wörter"} (${x.zeichen} Zeichen) · ${x.erlaubt ? "eingefügt" : "verhindert"}</li>`).join("")}</ul>` : ""}
-      ${k.length ? `<h4>Kopieren / Ausschneiden: ${k.length}</h4><ul>${k.map(x => `<li>${uhr(x.zeit)} – ${x.art === "cut" ? "ausschneiden" : "kopieren"}, ${x.zeichen} Zeichen markiert · verhindert</li>`).join("")}</ul>` : ""}
+      ${e.length ? `<h4>Einfügeversuche: ${e.length}</h4><ul>${e.map(x => `<li>${uhr(x.zeit)} – ${x.art === "drop" ? "hineingezogen, " : ""}${x.woerter} ${x.woerter === 1 ? "Wort" : "Wörter"} (${x.zeichen} Zeichen) · ${x.erlaubt ? "eingefügt" : "verhindert"}${esc(mitText(x))}</li>`).join("")}</ul>` : ""}
+      ${k.length ? `<h4>Kopieren / Ausschneiden: ${k.length}</h4><ul>${k.map(x => `<li>${uhr(x.zeit)} – ${x.art === "cut" ? "ausschneiden" : "kopieren"}, ${x.zeichen} Zeichen markiert · verhindert${esc(mitText(x))}</li>`).join("")}</ul>` : ""}
       ${s.length ? `<h4>Auffällig große Texteingaben: ${s.length}</h4><ul>${s.map(x => `<li>${uhr(x.zeit)} – ${x.woerter} neue Wörter in höchstens ${x.sekunden} Sekunden (${x.vorher} → ${x.nachher} Wörter)</li>`).join("")}</ul>` : ""}
-      <p class="l-quelle">Festgehalten werden nur technische Ereignisse des Browsers. Welche Seite oder App geöffnet war, lässt sich nicht erkennen; eingefügter Text wird nicht gespeichert. Nichts davon ändert Punkte oder Note – was die Vorgänge bedeuten, entscheidest du.</p></details>`;
+      <p class="l-quelle">Festgehalten werden nur technische Ereignisse des Browsers. Welche Seite oder App geöffnet war, lässt sich nicht erkennen. Seit 24.11.2026 steht bei Kopier- und Einfügeversuchen auch der Text da (höchstens 300 Zeichen). Nichts davon ändert Punkte oder Note – was die Vorgänge bedeuten, entscheidest du.</p></details>`;
   }
   function kopfZahlen(r) {
     return `<strong>${zahl(r.score)} / ${zahl(r.total)}</strong><span>${r.percent} %${r.grade === "" ? "" : " · Note " + r.grade}</span>` + (r.total < r.gesamtOhneSchutz ? `<span style="font-size:.8rem">gewertet: ${zahl(r.total)} von ${zahl(r.gesamtOhneSchutz)} Punkten</span>` : "");
@@ -216,6 +244,7 @@
         <label><input type="checkbox" data-ein="rsWerten" ${r.rsWerten ? "checked" : ""}> Rechtschreibung werten</label>
         <label><input type="checkbox" data-ein="zsWerten" ${r.zsWerten ? "checked" : ""}> Zeichensetzung werten</label>
         <label><input type="checkbox" data-ein="ohneNote" ${r.ohneNote ? "checked" : ""}> ohne Note</label></div>
+      ${kopierBox(r)}
       ${ueberwachung(r)}
       ${weiterBox(r)}
       ${abbruchBox(r)}
@@ -370,8 +399,8 @@
     return [...new Set(liste.map(t => t.nr))].map(n => { const s = (liste.find(t => t.nr === n) || {}).schutz || {};
       return `<div class="l-schutz" data-schutz-nr="${n}"><b>Probe ${n} – Probenmodus:</b> ${SCHALTER.filter(([k]) => !(ohneZeit && k === "timer")).map(([k, name]) => { const an = typeof s[k] === "boolean" ? s[k] : s[k] !== "erlauben";
         return `<label><input type="checkbox" data-schutz="${k}" ${an ? "checked" : ""}> ${name}</label>`; }).join("")}</div>`; }).join("") +
-      (ohneZeit ? `<p class="l-quelle" style="margin-top:4px">Die Proben laufen ohne Zeitbegrenzung; der Server hält nur Beginn und Dauer fest. Testregeln Englisch: Verlassen bringt nur eine Warnung (wird vermerkt), schon der erste Kopierversuch beendet die Probe mit Note 6.</p>`
-        : `<p class="l-quelle" style="margin-top:4px">Die Zeit misst immer der Server (Beginn, Dauer); „Restzeit anzeigen“ blendet nur die Uhr für die Kinder ein oder aus. Läuft die Zeit ab, wird nichts von selbst abgegeben oder bewertet.</p>`);
+      (ohneZeit ? `<p class="l-quelle" style="margin-top:4px">Die Proben laufen ohne Zeitbegrenzung; der Server hält nur Beginn und Dauer fest. Testregeln (seit 24.11.2026): Verlassen und Kopierversuche bringen eine Warnung und werden vermerkt (Kopierversuche mit Text) – nichts wird von selbst abgegeben, keine automatische Note 6.</p>`
+        : `<p class="l-quelle" style="margin-top:4px">Die Zeit misst immer der Server (Beginn, Dauer); „Restzeit anzeigen“ blendet nur die Uhr für die Kinder ein oder aus. Läuft die Zeit ab, wird nichts von selbst abgegeben oder bewertet. Testregeln (seit 24.11.2026): Verlassen und Kopierversuche bringen eine Warnung und werden vermerkt (Kopierversuche mit Text) – keine automatische Note 6.</p>`);
   }
   async function schutzGeaendert(e) {
     const haken = e.target.closest("[data-schutz]"); if (!haken) return false;

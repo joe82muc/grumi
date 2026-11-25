@@ -196,6 +196,10 @@
     ".lf-lrs-b{display:inline-block;margin-left:.35rem;padding:0 .4rem;border-radius:99px;background:#ede9fe;color:#5b21b6;font-size:.7rem;font-weight:900;vertical-align:middle}" +
     ".lf-weg{color:#b45309;font-weight:800}" +
     ".lf-ende{color:#b91c1c;font-weight:800}.lf-ende.auf{color:#64748b}" +
+    // Kopierversuche (seit 24.11.2026): rotes Zeichen in der Notenzelle, Liste mit Text im Abgabe-Fenster
+    ".lf-kopier{display:inline-block;margin-top:2px;padding:1px 6px;border:1.5px solid #dc2626;border-radius:999px;background:#fef2f2;color:#b91c1c;font-weight:900;font-size:.72rem;white-space:nowrap}" +
+    ".lf-kopier-box{margin:6px 0 0;padding:6px 10px;border:2px solid #dc2626;border-radius:10px;background:#fef2f2;color:#7f1d1d;font-size:.88rem}" +
+    ".lf-kopier-box ul{margin:3px 0 0;padding-left:18px}.lf-kopier-box li{overflow-wrap:anywhere}" +
     ".lf-weiter{color:#15803d;font-weight:800}" +
     ".lf-namen{width:100%;min-height:120px;padding:.6rem .7rem;border:1.5px solid var(--line);border-radius:10px;font:inherit;font-size:.95rem;resize:vertical}" +
     "#lf-druck{display:none}" +
@@ -636,6 +640,12 @@
     return a.grund === "kopieren" ? (a.kopierversuche || 2) + ". Kopierversuch" : a.grund === "weg" ? "insgesamt " + (a.sekunden ? a.sekunden + " s" : "über 1 Minute") + " weg" : a.verlassen + "× verlassen";
   }
   function vermerkText(n) {
+    var k = kopierZahl(n) ? kopierWort(kopierZahl(n)) + (kopierTexte(n) ? " (" + kopierTexte(n) + ")" : "") : "";
+    if (n.abbruch) return [(n.abbruch.aufgehoben ? "Note 6 aufgehoben – Probe beendet: " : "Probe beendet (Note 6): ") + abbruchKurz(n.abbruch), k].filter(Boolean).join(" · ");
+    return [n.automatisch && AUTO_TEXT[n.automatisch] ? AUTO_TEXT[n.automatisch] : "", k].filter(Boolean).join(" · ");
+  }
+  // ohne die Kopierversuche (die stehen in der Zelle und im Abgabe-Fenster als eigenes Zeichen)
+  function regelVermerkText(n) {
     if (n.abbruch) return (n.abbruch.aufgehoben ? "Note 6 aufgehoben – Probe beendet: " : "Probe beendet (Note 6): ") + abbruchKurz(n.abbruch);
     return n.automatisch && AUTO_TEXT[n.automatisch] ? AUTO_TEXT[n.automatisch] : "";
   }
@@ -645,6 +655,27 @@
     return n.automatisch && AUTO_TEXT[n.automatisch] ? '<span class="lf-np lf-weg">⏱ ' + esc(AUTO_TEXT[n.automatisch]) + "</span>" : "";
   }
   function verlassenText(n) { return n.verlassen + "× verlassen" + (n.wegSekunden ? ", " + n.wegSekunden + " s" : ""); }
+  /* Kopierversuche (24.11.2026, Wunsch der Lehrkraft: „vermerke kopierversuche deutlich und auch was kopiert wurde“): Der Server
+     nennt je Abgabe kopierversuche (Zahl) und kopiert [{ zeit, art, text, feld, erlaubt }] – bei Deutsch und Englisch mit dem Text */
+  var KOPIER_ART = { copy: "kopiert", cut: "ausgeschnitten", paste: "einfügen versucht", drop: "hineingezogen" };
+  function kopierZahl(n) { return Number(n && n.kopierversuche) || 0; }
+  function kopierWort(z) { return z + (z === 1 ? " Kopierversuch" : " Kopierversuche"); }
+  function kopierZeile(e) {
+    var d = new Date(e.zeit), uhr = isNaN(d) ? "" : d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) + " Uhr – ";
+    return uhr + (e.erlaubt ? "eingefügt (erlaubt)" : KOPIER_ART[e.art] || "kopiert") +
+      (e.text ? ": „" + String(e.text).replace(/\s+/g, " ").trim() + "“" : e.zeichen ? " (" + e.zeichen + " Zeichen)" : " (nichts markiert)") + (e.feld ? " (" + e.feld + ")" : "");
+  }
+  function kopierTexte(n) { return (n.kopiert || []).filter(function (e) { return e.text; }).map(function (e) { return (KOPIER_ART[e.art] || "kopiert") + ": „" + String(e.text).replace(/\s+/g, " ").trim() + "“"; }).join(" | "); }
+  function kopierVermerk(n) {
+    var z = kopierZahl(n);
+    return z ? '<span class="lf-np lf-kopier" title="' + esc((n.kopiert || []).map(kopierZeile).join("\n") || kopierWort(z)) + '">⚠️ ' + esc(kopierWort(z)) + "</span>" : "";
+  }
+  function kopierBox(n) {
+    var z = kopierZahl(n), liste = n.kopiert || [];
+    if (!z && !liste.length) return "";
+    return '<div class="lf-kopier-box"><b>⚠️ ' + esc(kopierWort(z)) + "</b> – gesperrt, das Kind wurde jedes Mal gewarnt" +
+      (liste.length ? "<ul>" + liste.map(function (e) { return "<li>" + esc(kopierZeile(e)) + "</li>"; }).join("") + "</ul>" : "") + "</div>";
+  }
   /* Weiterbearbeiten nach der Abgabe (21.10.2026): weiter = die Lehrkraft hat es erlaubt (bis das Kind neu abgibt oder sie es
      zurücknimmt); fassungen/vorher = so oft wurde schon weiterbearbeitet, die Fassung davor */
   function weiterText(n) {
@@ -856,7 +887,7 @@
               (vermerkText(n) ? " · " + vermerkText(n) : "") + (weiterText(n) ? " · " + weiterText(n) : "") + (n.nachpruefen ? " · KI-Bewertung noch prüfen" : "") + " · Klicken zum Bearbeiten, Weiterbearbeiten erlauben oder Löschen") + '">' +
             '<span class="lf-note ' + notenFarbe(n.note) + '">' + esc(n.note) + "</span>" + (n.nachpruefen ? ' <span title="KI-Bewertung noch prüfen">⚠️</span>' : "") +
             (n.lrs ? '<span class="lf-lrs-b">LRS</span>' : "") +
-            '<span class="lf-np">' + esc(n.punkte + "/" + n.max + " · " + datumText(n.datum)) + (n.verlassen ? ' · <span class="lf-weg">' + esc(verlassenText(n)) + "</span>" : "") + "</span>" + vermerk(n) + weiterVermerk(n) +
+            '<span class="lf-np">' + esc(n.punkte + "/" + n.max + " · " + datumText(n.datum)) + (n.verlassen ? ' · <span class="lf-weg">' + esc(verlassenText(n)) + "</span>" : "") + "</span>" + kopierVermerk(n) + vermerk(n) + weiterVermerk(n) +
             // 7 Tage nach der Rückgabe verschwindet die Probe beim Kind von selbst (vorbei) – die Note bleibt hier stehen
             (n.zurueck ? '<span class="lf-np lf-zur" title="Zurückgegeben am ' + esc(datumText(n.zurueck, true)) + (n.geoeffnet ? ", vom Kind geöffnet am " + esc(datumText(n.geoeffnet, true)) : ", noch nicht geöffnet") +
               (n.vorbei ? " – beim Kind nicht mehr zu sehen (7 Tage nach der Rückgabe)" : n.sichtbarBis ? " – beim Kind zu sehen bis " + esc(datumText(n.sichtbarBis)) : "") + '">📤 ' +
@@ -888,12 +919,13 @@
           })() + "</td>";
       });
       h += "<td></td></tr></tfoot></table></div>" +
-        '<details class="lf-legende"><summary>ℹ️ Zeichen und Knöpfe erklärt (⚠️ LRS × verlassen ⛔ ⏱ ✏️ 📤)</summary>' +
+        '<details class="lf-legende"><summary>ℹ️ Zeichen und Knöpfe erklärt (⚠️ Kopierversuche LRS × verlassen ⛔ ⏱ ✏️ 📤)</summary>' +
         "<p>Unter jeder Note stehen Punkte und Datum. Klick auf eine Note: Antworten ansehen, Punkte je Aufgabe ändern (die Note rechnet sich neu), die Abgabe löschen, damit das Kind nachschreiben kann, " +
         "Weiterbearbeiten erlauben oder die Antworten für die Eltern drucken (einzeln oder für die ganze Klasse). CSV und Excel enthalten die Proben, die gerade angezeigt sind.</p>" +
         "<p>⚠️ = Die KI war bei einer freien Antwort unsicher oder nicht erreichbar. Bitte in der Lehrerseite der Probe nachsehen. " +
         "<b>LRS</b> = mit Notenschutz gewertet (Rechtschreibung zählt nicht). <b>× verlassen</b> = So oft hat das Kind während der Probe in einen anderen Tab oder eine andere App gewechselt (mit Sekunden insgesamt; Wechsel unter 5 Sekunden zählen nicht). " +
-        "<b>⛔ Probe beendet</b> = Testregeln: insgesamt mehr als 1 Minute weg oder 2. Kopierversuch – Note 6 (Englisch seit 21.10.2026: Verlassen nur Warnung und Vermerk, schon der 1. Kopierversuch = Note 6); auf die Note klicken, um sie aufzuheben. <b>⏱</b> = automatisch abgegeben, ohne Note 6. " +
+        "<b>⚠️ Kopierversuche</b> (rot) = So oft wollte das Kind etwas kopieren, ausschneiden oder einfügen – gesperrt, das Kind wurde jedes Mal gewarnt. Auf die Note klicken: Liste mit Uhrzeit, Aufgabe und dem Text (bei Deutsch und Englisch seit 24.11.2026). " +
+        "<b>⛔ Probe beendet</b> = Testregeln: insgesamt mehr als 1 Minute weg oder 2. Kopierversuch – Note 6; auf die Note klicken, um sie aufzuheben. Seit 24.11.2026 gibt es das bei Deutsch und Englisch nicht mehr (kein automatisches Abgeben, keine automatische Note 6) – ältere Abgaben behalten den Vermerk. <b>⏱</b> = automatisch abgegeben, ohne Note 6. " +
         "<b>✏️ darf weiterarbeiten</b> = Du hast erlaubt, dass das Kind die Probe noch einmal öffnet (solange sie freigeschaltet ist) – seine Antworten sind dann wieder da, die neue Abgabe ersetzt die alte; <b>✏️ weiterbearbeitet</b> = so ist es geschehen (die Fassung davor steht im Hinweis). Erlauben: auf die Note klicken. " +
         "<b>📤 zurückgegeben</b> = Das Kind sieht die korrigierte Probe auf seiner Startseite unter „Zurückbekommen“ und kann sie für die Eltern drucken; „geöffnet“ heißt, es hat sie angesehen. <b>7 Tage nach der Rückgabe verschwindet die Probe beim Kind von selbst</b> („beim Kind weg“) – Note und Abgabe bleiben hier; mit „Noch einmal zurückgeben“ sieht das Kind sie wieder 7 Tage. Zurückgeben: auf eine Note klicken oder unten „Alle zurückgeben“. Deutsch-Proben gibst du auf ihrer Korrekturseite frei.</p></details>";
     }
@@ -1020,8 +1052,8 @@
     function stand(note, punkte, max, prozent) {
       return '<span class="lf-note ' + notenFarbe(note) + '">' + esc(note) + "</span> <b>" + esc(punkte + " von " + max + " Punkten") + "</b> (" + esc(prozent) + " %)" +
         (n.lrs ? ' <span class="lf-lrs-b" title="Notenschutz LRS">LRS</span>' : "") + (n.verlassen ? ' · <span class="lf-weg">' + esc(verlassenText(n)) + "</span>" : "") +
-        (vermerkText(n) ? '<br><span class="' + (n.abbruch ? "lf-ende" : "lf-weg") + '">' + (n.abbruch ? "⛔ " : "⏱ ") + esc(vermerkText(n)) + "</span>" : "") +
-        (weiterText(n) ? '<br><span class="lf-weiter">✏️ ' + esc(weiterText(n)) + "</span>" : "");
+        (regelVermerkText(n) ? '<br><span class="' + (n.abbruch ? "lf-ende" : "lf-weg") + '">' + (n.abbruch ? "⛔ " : "⏱ ") + esc(regelVermerkText(n)) + "</span>" : "") +
+        (weiterText(n) ? '<br><span class="lf-weiter">✏️ ' + esc(weiterText(n)) + "</span>" : "") + kopierBox(n);
     }
     dlg.innerHTML = '<div class="lf-dlg-kopf"><div><h3>' + esc(n.titel) + '</h3><p class="sub" style="margin:0">' + (name ? esc(name) + " · " : "") + "Code " + esc(n.code) +
       " · abgegeben am " + esc(datumText(n.datum, true)) + '</p></div><button type="button" class="btn btn-ghost btn-sm" data-zu>Schließen</button></div>' +
@@ -1207,7 +1239,7 @@
   function notenCsv() {
     if (!NOTEN) return;
     var P = notenProben(), kopf = ["Klasse", "Code", "Name", "Notenschutz LRS"];
-    P.forEach(function (p) { kopf.push(p.titel + " Note", p.titel + " Punkte", p.titel + " Datum", p.titel + " verlassen"); });
+    P.forEach(function (p) { kopf.push(p.titel + " Note", p.titel + " Punkte", p.titel + " Datum", p.titel + " verlassen", p.titel + " Kopierversuche", p.titel + " Kopiert (Text)"); });
     var zeilen = [kopf.concat(["Schnitt"])];
     notenKinder(P).forEach(function (kind) {
       var z = [KLASSE, kind.code, nameVon(kind.code), kind.lrs ? "ja" : ""], noten = [];
@@ -1216,7 +1248,8 @@
         if (n) noten.push(n.note);
         // „von“ statt „/“, sonst macht Excel aus 5/10 ein Datum
         z.push(n ? n.note : "", n ? n.punkte + " von " + n.max : "", n ? datumText(n.datum, true) : "",
-          [n && n.verlassen ? n.verlassen + "x" + (n.wegSekunden ? " (" + n.wegSekunden + " s)" : "") : "", n ? vermerkText(n) : "", n ? weiterText(n) : ""].filter(Boolean).join(" · "));
+          [n && n.verlassen ? n.verlassen + "x" + (n.wegSekunden ? " (" + n.wegSekunden + " s)" : "") : "", n ? regelVermerkText(n) : "", n ? weiterText(n) : ""].filter(Boolean).join(" · "),
+          n ? kopierZahl(n) : "", n ? (n.kopiert || []).filter(function (e) { return e.text; }).map(kopierZeile).join(" | ") : "");
       });
       zeilen.push(z.concat([schnitt(noten)]));
     });
@@ -1252,7 +1285,7 @@
         fach: p.fach, titel: p.titel, inhalt: module(p), klasse: KLASSE, datum: p.datum,
         zeilen: kinder.map(function (kind) {
           var n = p.noten[kind.code], name = nameVon(kind.code);
-          return n ? { name: name, code: kind.code, note: n.note, punkte: n.punkte, max: n.max, prozent: n.prozent, bemerkung: bemerkung(kind, n) }
+          return n ? { name: name, code: kind.code, note: n.note, punkte: n.punkte, max: n.max, prozent: n.prozent, kopierversuche: kopierZahl(n), bemerkung: bemerkung(kind, n) }
             : { name: name, code: kind.code, fehlt: true, bemerkung: kind.weg ? "Code gelöscht" : "" };
         }).filter(function (z) { return !z.fehlt || z.bemerkung !== "Code gelöscht"; })
       }));
