@@ -1,0 +1,1206 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#144a74">
+<title>Transistoren – Schalter und Verstärker | NT 9</title>
+<link rel="stylesheet" href="../../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="materie.css">
+<style>
+/* Klappen, Hahn: drehen um die eigene Mitte */
+.kt4-dreh{transform-box:fill-box;transform-origin:center;transition:transform .9s ease-in-out}
+.kt4-fade{transition:opacity .4s}
+/* Schallwellen am Lautsprecher und Summer */
+.kt4-welle{animation:kt4Welle 1.2s ease-out infinite;opacity:0}
+.kt4-welle.w1{animation-delay:.3s}.kt4-welle.w2{animation-delay:.6s}
+@keyframes kt4Welle{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
+/* Regler (Lichtschranke, Wechselblinker) */
+.kt4-regler{display:grid;grid-template-columns:auto minmax(110px,1fr) auto;gap:6px 10px;align-items:center;width:100%}
+.kt4-regler input[type=range]{width:100%;min-width:0;accent-color:var(--sky);height:28px}
+/* Schaltplan-Bauer: Tippen statt Ziehen */
+.pb-bank{display:flex;flex-wrap:wrap;gap:8px;padding:12px 14px;border-top:1px solid var(--line);background:#fbfdff}
+.pb-tok{display:inline-flex;align-items:center;gap:6px;border:2px solid #b9cbd8;background:#fff;border-radius:10px;padding:4px 10px 4px 6px;font:inherit;font-weight:700;font-size:.93rem;min-height:46px;color:var(--ink);cursor:pointer;touch-action:manipulation}
+.pb-tok svg{width:44px;height:30px;flex:none}
+.pb-tok.picked{border-color:var(--sky);background:var(--sky-l);box-shadow:0 4px 10px rgba(13,119,194,.25);transform:translateY(-2px)}
+.pb-tok[disabled]{opacity:.3;cursor:default}
+.pb-luecke{cursor:pointer}
+.pb-luecke .rahmen{fill:#fff;stroke:#1f6aa5;stroke-width:2;stroke-dasharray:6 4}
+.pb-luecke.ziel .rahmen{fill:#e3eef8;stroke-dasharray:none}
+.pb-luecke.voll .rahmen{fill:#fff;stroke:#c9d4de;stroke-dasharray:none}
+.pb-luecke.richtig .rahmen{fill:#e3f6ea;stroke:#1b8a4b;stroke-dasharray:none}
+.pb-luecke.falsch .rahmen{fill:#fdecec;stroke:#c93b3b;stroke-dasharray:none}
+.pb-luecke:focus{outline:none}.pb-luecke:focus-visible .rahmen{stroke-width:4}
+/* Regelheft */
+#regelheft .rh-skizze{max-width:540px}
+#regelheft .rh-tab{table-layout:fixed}
+#regelheft .rh-tab tr:first-child th:first-child{width:22%}
+#regelheft .rh-tab th,#regelheft .rh-tab td{-webkit-hyphens:auto;hyphens:auto;overflow-wrap:anywhere}
+@media (prefers-reduced-motion:reduce){.kt4-welle{animation:none!important;opacity:1}.kt4-dreh,.kt4-fade{transition:none}}
+</style>
+<script src="../../../js/kursliste.js"></script>
+<script src="../themen.js"></script>
+<!-- 9M und 9R nutzen dieselben Seiten: die Kursliste kommt aus dem Ordner (../themen.js = NT9M oder NT9R) -->
+<script>window.GRUMI_KURS = window.NT9M || window.NT9R; window.GRUMI_KURS.KARTEN = "../../" + window.GRUMI_KURS.ORDNER + "App14_Materie/";</script>
+<script src="materie.js"></script>
+</head>
+<body data-bereich="kt">
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="../%C3%BCbersicht_themen.html">GRUMI<small>NT <span class="mt-zug">9M</span> · Kommunikationstechnik 4</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Bauteil</a>
+      <a href="#s2"><b>2</b>Wassermodell</a>
+      <a href="#s3"><b>3</b>Stromkreise</a>
+      <a href="#s4"><b>4</b>Schaltungen</a>
+      <a href="#s5"><b>5</b>Training</a>
+      <a href="#abschluss"><b>6</b>Abschluss</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse <span class="mt-zug">9M</span> · Kommunikationstechnik · Modul 4</div>
+    <h1>Transistoren – Schalter und Verstärker</h1>
+    <p>In fast jedem elektronischen Gerät stecken Transistoren – in einem Smartphone sind es sogar Milliarden winzige. Ein Transistor steuert mit einem kleinen Strom einen großen. So wird er zum Schalter oder zum Verstärker. In sechs Stationen öffnest du ein Wassermodell, machst eine leise Stimme laut, baust eine Lichtschranke und eine Alarmanlage und lässt zwei LEDs abwechselnd blinken.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s5">Direkt zum Training</a>
+    </div>
+    <div class="goals">
+      <div>🔌 Ich nenne die drei Anschlüsse eines Transistors: Kollektor, Basis und Emitter.</div>
+      <div>💧 Ich erkläre mit dem Wassermodell, wie ein kleiner Strom einen großen steuert.</div>
+      <div>💡 Ich unterscheide Steuerstromkreis und Arbeitsstromkreis und erkläre eine Lichtschranke.</div>
+      <div>🚨 Ich lese und ergänze Schaltpläne, zum Beispiel für eine Alarmanlage.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg · Probenstoff</div><h2>Ein Bauteil mit drei Anschlüssen</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <figure style="margin:0 0 12px"><img class="zoomable" src="bilder/kt-4.jpg" width="1280" height="853" loading="lazy" decoding="async" alt="Zwei Hände bauen auf einer weißen Steckplatine eine Schaltung. Darauf stecken ein kleiner schwarzer Transistor mit drei Beinen, eine rote und eine grüne LED, Widerstände mit Farbringen und ein runder Fotowiderstand. Links steht eine Blockbatterie mit roten und schwarzen Kabeln. Oben liegen eine Rolle Lötzinn und ein Lötkolben in seinem Ständer, daneben Kästen mit Kabeln und Bauteilen." style="width:100%;height:auto"><figcaption class="hint" style="margin:4px 0 0">Bild: GRUMI (mit KI erstellt)</figcaption></figure>
+      <p class="hint" style="margin:0 0 10px"><strong>Denk mal nach:</strong> Jonas baut eine Schaltung auf einer Steckplatine (einem Brett mit vielen Steckkontakten). Gerade steckt er ein kleines schwarzes Bauteil mit drei Beinen ein. Was kann dieses Bauteil?</p>
+      <p class="lead" style="margin:0">Es ist ein <button class="term" data-t="transistor">Transistor</button>. Heute gibt es kaum ein elektronisches Gerät ohne Transistoren: Sie stecken im Radio, im Fernseher, im Computer und im Smartphone.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Ein Transistor ist ein elektronisches Bauteil mit <strong>drei Anschlüssen</strong>. Sie heißen <button class="term" data-t="kollektor">Kollektor</button> (C), <button class="term" data-t="basis">Basis</button> (B) und <button class="term" data-t="emitter">Emitter</button> (E).</p>
+      <p>Ein Transistor hat zwei Aufgaben: Er arbeitet als <strong>Schalter</strong> oder als <button class="term" data-t="verstaerker">Verstärker</button>.</p>
+      <p>Transistoren gibt es in vielen Bauformen: im Metallgehäuse, im Plastikgehäuse mit drei Beinen oder als winzige <button class="term" data-t="smd">SMD-Bauteile</button> auf einer <button class="term" data-t="platine">Platine</button>.</p>
+      <p style="margin:0">Der Transistor war eine so wichtige Erfindung, dass drei Forscher aus den USA dafür 1956 den <button class="term" data-t="nobelpreis">Nobelpreis</button> für Physik bekamen.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="trSim">
+    <svg viewBox="0 0 520 290" id="trSvg" role="img" aria-label="Animation in fünf Schritten: drei Bauformen von Transistoren (Plastikgehäuse mit drei Beinen, Metallgehäuse, winziges SMD-Bauteil auf einer grünen Platine unter einer Lupe), dann ein großer Transistor mit den Beinen Kollektor, Basis und Emitter und daneben sein Schaltzeichen, zum Schluss die zwei Aufgaben: als Schalter schaltet ein kleiner Strom eine Lampe ein, als Verstärker wird aus einer kleinen Welle eine große."></svg>
+  </div>
+
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Ein Transistor ist ein elektronisches Bauteil mit drei Anschlüssen: Kollektor (C), Basis (B) und Emitter (E).</li><li>Ein Transistor kann als Schalter oder als Verstärker arbeiten.</li><li>Es gibt viele Bauformen: Metallgehäuse, Plastikgehäuse mit drei Beinen, winzige SMD-Bauteile. Heute gibt es kaum ein elektronisches Gerät ohne Transistoren.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Beschriften · Probenstoff</span>
+    <h3 style="margin-top:4px">Das Schaltzeichen des Transistors</h3>
+    <div id="labelTrans"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Lückentext · Probenstoff</span>
+    <h3 style="margin-top:4px">Was ist ein Transistor?</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapTrans"></div>
+  </div>
+  <div class="card reveal" id="mc-s1"></div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Das Wassermodell</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead"><strong>Denk an einen Wasserhahn:</strong> Mit einer kleinen Drehung am Griff steuerst du einen kräftigen Wasserstrahl.</p>
+      <p style="margin:0">Beim Transistor ist die <strong>Basis der Griff</strong>. Ein kleiner Strom an der Basis gibt einen großen Strom zwischen Kollektor und Emitter frei – oder er sperrt ihn.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Noch genauer zeigt es ein Wassermodell mit zwei Kanälen. In jedem Kanal sitzt eine <button class="term" data-t="klappe">Strömungsklappe</button>.</p>
+      <p style="margin:0">Die kleine Klappe sitzt im schmalen Kanal von B nach E. Die große Klappe sitzt im breiten Kanal von C nach E. Beide Klappen sind <strong>fest miteinander verbunden</strong>.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="wmSim">
+    <svg viewBox="0 0 520 290" id="wmSvg" role="img" aria-label="Animation Wassermodell: Oben ein Wasserbehälter C mit einem breiten Kanal nach unten zum Abfluss E. Links ein Behälter B mit einem schmalen Kanal und einem Hahn, er mündet in den breiten Kanal. In beiden Kanälen sitzt eine Klappe, beide Klappen sind durch eine Stange verbunden. Öffnet der kleine Wasserstrom die kleine Klappe, dreht sich die große mit, und viel Wasser fließt von C nach E. Rechts zeigen zwei Balken, wie viel Wasser fließt."></svg>
+  </div>
+
+  <h3 class="reveal" style="margin-top:22px">Der Transistor als Verstärker</h3>
+  <div class="card reveal">
+    <p class="lead">Ein Mikrofon liefert nur ein sehr schwaches elektrisches Signal. Damit kann man keinen Lautsprecher betreiben. Deshalb liegt das Mikrofon im <button class="term" data-t="steuerstromkreis">Steuerstromkreis</button> eines Transistors. Sein schwacher Strom steuert einen viel stärkeren Strom im <button class="term" data-t="arbeitsstromkreis">Arbeitsstromkreis</button> – mit genau derselben Form.</p>
+    <p style="margin:0">Je Transistor ist dieser Strom etwa <strong>100-mal so groß</strong>. Verstärker haben meist mehrere solche Stufen hintereinander. Dann reicht es sogar für eine Konzerthalle. Probiere es im Labor aus (mA heißt Milliampere, ein Tausendstel Ampere).</p>
+  </div>
+  <div class="sim reveal">
+    <svg viewBox="0 0 520 290" id="vsSvg" role="img" aria-label="Verstärker-Labor: Unten links ein Mikrofon mit kleiner Batterie im blauen Steuerstromkreis, es ist mit der Basis eines Transistors verbunden. Rechts ein Lautsprecher mit großer Batterie im roten Arbeitsstromkreis über Kollektor und Emitter. Oben zwei Messgeräte zeigen den Strom: links klein, rechts groß, mit derselben Kurvenform."></svg>
+    <div class="sim-ctrl"><button class="btn small teal" id="tStill" type="button">🤐 Niemand spricht</button><button class="btn small teal" id="tLeise" type="button">🎤 Leise sprechen</button><button class="btn small teal" id="tLaut" type="button">📣 Laut sprechen</button><button class="btn small teal" id="tStufen" type="button">⏩ Zwei Transistorstufen</button><label><input type="checkbox" id="vsTon" checked> 🔈 Ton</label></div>
+    <p class="obs" id="vsObs">Wähle einen Versuch. Beobachte beide Messgeräte. Die Ergebnisse erscheinen in der Tabelle.</p>
+    <div class="tab-wrap" style="padding:0 14px 14px"><table class="beob" id="vsTab">
+      <thead><tr><th>Versuch</th><th>Strom im Steuerstromkreis (Mikrofon)</th><th>Strom im Arbeitsstromkreis (Lautsprecher)</th><th>Was hörst du?</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </div>
+
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Wassermodell: Die kleine Klappe steuert einen kleinen Wasserstrom von B nach E. Sie ist fest mit der großen Klappe verbunden. Öffnet sich die kleine Klappe, öffnet sich auch die große: Viel Wasser fließt von C nach E.</li><li>Beim Transistor ist es genauso: Ein kleiner Strom über Basis und Emitter (Steuerstromkreis) steuert einen großen Strom über Kollektor und Emitter (Arbeitsstromkreis).</li><li>Als Verstärker macht der Transistor aus einem schwachen Signal ein starkes. Je Stufe wird der Strom etwa 100-mal so groß.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Paare finden · Probenstoff</span>
+    <h3 style="margin-top:4px">Wassermodell und Transistor</h3>
+    <p class="hint">Tippe links einen Teil des Wassermodells an und rechts das, was ihm beim Transistor entspricht.</p>
+    <div id="paareWasser"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung.</p>
+    <div id="open1"></div>
+  </div>
+  <div class="card reveal" id="mc-s2"></div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>Steuerstromkreis und Arbeitsstromkreis</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">In jeder Transistorschaltung gibt es <strong>zwei Stromkreise</strong>:</p>
+      <ul style="margin:0 0 8px;padding-left:20px">
+        <li><strong style="color:#1f6aa5">Steuerstromkreis</strong> über Basis und Emitter: Hier fließt ein kleiner Strom. Er steuert.</li>
+        <li><strong style="color:#c0392b">Arbeitsstromkreis</strong> über Kollektor und Emitter: Hier fließt der große Strom. Er bringt eine Lampe, einen Summer oder einen Lautsprecher zum Arbeiten.</li>
+      </ul>
+      <p style="margin:0">Am Emitter treffen sich beide Stromkreise.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Der Transistor als Schalter:</strong> Erinnerst du dich an den <button class="term" data-t="ldr">Fotowiderstand (LDR)</button> aus Modul 2? Je heller es ist, desto kleiner ist sein <button class="term" data-t="widerstand">Widerstand</button>. Im Dunkeln ist er groß.</p>
+      <p style="margin:0">In einer <button class="term" data-t="lichtschranke">Lichtschranke</button> liegt der LDR im Steuerstromkreis. Wird es am LDR dunkel, steigt die <button class="term" data-t="spannung">Spannung</button> zwischen Basis und Emitter. Erst wenn sie <strong>mehr als 0,6 V</strong> beträgt, fließt genug Strom durch die Basis. Dann schaltet der Transistor den Arbeitsstromkreis ein.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <svg viewBox="0 0 520 346" id="lsSvg" role="img" aria-label="Lichtschranke mit Transistor: Links der blaue Steuerstromkreis mit kleiner Batterie, einem Widerstand und einem Fotowiderstand (LDR). Ein Lichtsender leuchtet auf den LDR. Die Mitte zwischen Widerstand und LDR ist mit der Basis des Transistors verbunden. Rechts der rote Arbeitsstromkreis mit großer Batterie und Lampe über Kollektor und Emitter. Unten zeigt ein Balken die Spannung zwischen Basis und Emitter mit einer Marke bei 0,6 Volt."></svg>
+    <div class="sim-ctrl">
+      <div class="kt4-regler"><label for="lsRegler">☀️ hell</label><input type="range" id="lsRegler" min="0" max="100" value="0" aria-label="Wie dunkel ist es am LDR?"><span>dunkel 🌑</span></div>
+      <button class="btn small teal" id="tHell" type="button">☀️ Strahl trifft den LDR</button><button class="btn small teal" id="tHalb" type="button">🌥️ Strahl halb verdeckt</button><button class="btn small teal" id="tDunkel" type="button">🚶 Jemand läuft durch den Strahl</button>
+    </div>
+    <p class="obs" id="lsObs">Schiebe den Regler oder tippe auf die Knöpfe. Beobachte die Spannung zwischen Basis und Emitter – und die Lampe.</p>
+    <div class="tab-wrap" style="padding:0 14px 14px"><table class="beob" id="lsTab">
+      <thead><tr><th>Licht am LDR</th><th>Widerstand des LDR</th><th>Spannung zwischen Basis und Emitter</th><th>Transistor</th><th>Lampe</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </div>
+
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Eine Transistorschaltung hat zwei Stromkreise: den <strong>Steuerstromkreis</strong> über Basis und Emitter und den <strong>Arbeitsstromkreis</strong> über Kollektor und Emitter.</li><li>Als Schalter: Erst wenn die Spannung zwischen Basis und Emitter mehr als 0,6 V beträgt, schaltet der Transistor den Arbeitsstromkreis ein.</li><li>Lichtschranke: Wird der Lichtstrahl unterbrochen, wird es am LDR dunkel. Sein Widerstand wird groß, die Spannung an der Basis steigt über 0,6 V – die Lampe geht an.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Reihenfolge · Probenstoff</span>
+    <h3 style="margin-top:4px">Was passiert in der Lichtschranke?</h3>
+    <p class="hint">Bringe die Schritte mit den Pfeilen in die richtige Reihenfolge.</p>
+    <div id="orderLicht"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Zuordnen · Probenstoff</span>
+    <h3 style="margin-top:4px">Welcher Stromkreis?</h3>
+    <p class="hint">Tippe eine Karte an und dann den passenden Bereich.</p>
+    <div id="sortKreise"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung.</p>
+    <div id="open2"></div>
+  </div>
+  <div class="card reveal" id="mc-s3"></div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Ausprobieren · Probenstoff</div><h2>Schaltungen entwerfen</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">In einem <button class="term" data-t="schaltplan">Schaltplan</button> steht für jedes Bauteil ein <button class="term" data-t="schaltzeichen">Schaltzeichen</button>. Dabei gelten Regeln:</p>
+      <ul style="margin:0;padding-left:20px">
+        <li>Leitungen sind gerade – nur waagerecht oder senkrecht.</li>
+        <li>Ein dicker Punkt heißt: Hier sind Leitungen verbunden.</li>
+        <li>Kreuzen sich zwei Leitungen ohne Punkt, sind sie nicht verbunden.</li>
+        <li>Die Spannungsquelle (z. B. eine Batterie) hat zwei Pole. Ihre Spannung muss zu den Bauteilen passen.</li>
+        <li>Nur ein geschlossener Stromkreis funktioniert.</li>
+      </ul>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Vom Plan zur Schaltung:</strong> Als Grundplatte nimmst du zwei bis drei Lagen Pappe, fest verklebt, oder Sperrholz. Ordne die Bauteile so an wie im Plan und halte die Drähte mit Reißnägeln fest. Statt zu löten, kannst du <button class="term" data-t="luesterklemme">Lüsterklemmen</button> nehmen.</p>
+      <p style="margin:0"><strong>Schaltungen abwandeln:</strong> Ein <button class="term" data-t="summer">Summer</button> statt der Lampe macht aus der Lichtschranke eine Alarmanlage. Eine LED mit Schutzwiderstand geht auch. Mit einem Heißleiter statt des LDR geht die Lampe an, wenn es kalt wird.</p>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag probe">Zuordnen · Probenstoff</span>
+    <h3 style="margin-top:4px">Schaltzeichen erkennen</h3>
+    <div id="labelSymbole"></div>
+  </div>
+
+  <h3 class="reveal" style="margin-top:22px">Schaltplan-Bauer: eine Alarmanlage mit Lichtschranke</h3>
+  <div class="card reveal">
+    <p class="lead" style="margin:0 0 6px">Die Alarmanlage soll piepen, sobald jemand durch den Lichtstrahl läuft. Setze die Bauteile in die Lücken des Schaltplans: Tippe zuerst auf ein Bauteil unter dem Plan, dann auf die passende Lücke. Zwei Bauteile bleiben übrig.</p>
+    <p class="hint" style="margin:0">Tipp: Der Lichtstrahl zeigt dir, wo der LDR hingehört. Was piepen soll, liegt im Arbeitsstromkreis über dem Kollektor. Hier versorgt eine einzige Batterie beide Stromkreise – so ist es bei fertigen Schaltungen oft.</p>
+  </div>
+  <div class="sim reveal" id="pbSim">
+    <svg viewBox="0 0 520 300" id="pbSvg" role="img" aria-label="Schaltplan einer Alarmanlage mit fünf leeren Lücken: links eine Lücke zwischen der oberen und der unteren Leitung, in der Mitte zwei Lücken übereinander mit einem Verbindungspunkt dazwischen, von dem eine Leitung nach rechts zu einer großen Lücke mit drei Anschlüssen führt, und darüber eine Lücke unter der oberen Leitung. Ein Lichtsender leuchtet auf die untere mittlere Lücke."></svg>
+    <div class="pb-bank" id="pbBank" aria-label="Bauteile"></div>
+    <div class="sim-ctrl"><button class="btn small" id="pbPruefen" type="button">Prüfen</button><button class="btn small ghost" id="pbReset" type="button">Zurücksetzen</button><button class="btn small teal" id="pbTest" type="button" disabled>▶ Alarmanlage testen</button><label><input type="checkbox" id="pbTon" checked> 🔈 Ton</label></div>
+    <p class="obs" id="pbObs">Tippe auf ein Bauteil und dann auf eine Lücke. Eine falsch belegte Lücke leerst du durch Antippen.</p>
+  </div>
+
+  <h3 class="reveal" style="margin-top:22px">Der Wechselblinker</h3>
+  <div class="card reveal">
+    <p class="lead" style="margin:0">Zwei LEDs blinken abwechselnd – wie bei einer Warnleuchte an der Baustelle. Dazu braucht man zwei Transistoren und ein neues Bauteil: den <button class="term" data-t="kondensator">Kondensator</button>. Er speichert elektrische Energie. Verfolge in der Animation, wie die Schaltung immer wieder umschaltet.</p>
+  </div>
+  <div class="sim reveal" id="wbSim">
+    <svg viewBox="0 0 520 300" id="wbSvg" role="img" aria-label="Schaltplan eines Wechselblinkers: links und rechts je ein Widerstand, eine LED und ein Transistor. Zwei Widerstände in der Mitte führen zu den Basen. Zwei Kondensatoren K1 und K2 verbinden die beiden Hälften über Kreuz. Unten zeigen zwei Balken die Spannung an den Basen der Transistoren mit einer roten Marke bei 0,6 Volt. Die LEDs leuchten abwechselnd."></svg>
+    <div class="sim-ctrl"><div class="kt4-regler"><label for="wbKond">klein</label><input type="range" id="wbKond" min="0" max="2" step="1" value="1" aria-label="Größe der Kondensatoren"><span>groß</span></div><span class="chip" id="wbChip">Größe der Kondensatoren: mittel</span></div>
+  </div>
+
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Im Schaltplan hat jedes Bauteil ein Schaltzeichen. Leitungen sind gerade, ein dicker Punkt zeigt eine Verbindung.</li><li>Alarmanlage mit LDR: Wird der Lichtstrahl unterbrochen, schaltet der Transistor den Summer ein. Vertauscht man LDR und Widerstand, piept der Summer, sobald Licht auf den LDR fällt – zum Beispiel, wenn jemand eine dunkle Schublade öffnet.</li><li>Wechselblinker: zwei Transistoren und zwei Kondensatoren. Ein Kondensator speichert elektrische Energie. Mit größeren Kondensatoren blinken die LEDs langsamer.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Richtig oder falsch? · Probenstoff</span>
+    <h3 style="margin-top:4px">Schaltpläne und Schaltungen</h3>
+    <div id="tfSchalt"></div>
+  </div>
+  <div class="card reveal" id="mc-s4"></div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Wiederholung · so kommt es in der Probe</div><h2>Training</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Kreuzworträtsel</span>
+    <h3 style="margin-top:4px">Löse das Kreuzworträtsel</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Ä schreibst du als AE. Hängst du fest? Bei jeder Frage hilft <strong>💡 Tipp</strong> – erst ein Hinweis, dann der Anfangsbuchstabe. Mit <strong>📋 Wörter zeigen</strong> siehst du alle Lösungswörter.</p>
+    <div id="cw"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Ankreuzen</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="abschluss">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Abschluss</div><h2>Profi-Check, Lernkarten und Regelheft</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <div class="card reveal">
+    <span class="task-tag">Lernkarten</span>
+    <div id="lernkarten"></div>
+  </div>
+  <div class="regelheft reveal" id="regelheft">
+    <h3>Transistoren – Schalter und Verstärker</h3>
+    <p>Ein <strong>Transistor</strong> ist ein elektronisches Bauteil mit drei Anschlüssen: <strong>Kollektor (C)</strong>, <strong>Basis (B)</strong> und <strong>Emitter (E)</strong>. Er arbeitet als <strong>Schalter</strong> oder als <strong>Verstärker</strong>.</p>
+    <svg class="rh-skizze" id="rhSkizze" viewBox="0 0 520 200" role="img" aria-label="Skizze der Grundschaltung: links der blaue Steuerstromkreis mit kleiner Batterie, Widerstand und Fotowiderstand (LDR), verbunden mit der Basis des Transistors. Rechts der rote Arbeitsstromkreis mit großer Batterie und Lampe über Kollektor und Emitter. Beide treffen sich am Emitter."></svg>
+    <table class="rh-tab"><tr><th></th><th>Steuerstromkreis</th><th>Arbeitsstromkreis</th></tr>
+      <tr><th>läuft über</th><td>Basis und Emitter</td><td>Kollektor und Emitter</td></tr>
+      <tr><th>Strom</th><td>klein</td><td>groß (je Stufe etwa 100-mal so groß)</td></tr>
+      <tr><th>Beispiele</th><td>Mikrofon, Fotowiderstand (LDR)</td><td>Lautsprecher, Lampe, Summer</td></tr></table>
+    <p><strong>Wassermodell:</strong> Die kleine Klappe (B → E) ist fest mit der großen Klappe (C → E) verbunden. Ein kleiner Wasserstrom öffnet beide → ein großer Wasserstrom fließt.</p>
+    <p><strong>Schalter:</strong> Erst ab 0,6 V zwischen Basis und Emitter schaltet der Transistor den Arbeitsstromkreis ein. <strong>Lichtschranke, Alarmanlage:</strong> Lichtstrahl unterbrochen → LDR dunkel → Widerstand groß → Spannung an der Basis über 0,6 V → Lampe oder Summer an.</p>
+    <p><strong>Wechselblinker:</strong> zwei Transistoren und zwei Kondensatoren (speichern elektrische Energie) → zwei LEDs blinken abwechselnd.</p>
+  </div>
+  <div class="rh-knoepfe reveal"><button class="btn small ghost" type="button" onclick="window.print()">🖨️ Regelheft drucken</button><a class="btn small ghost" href="arbeitsblaetter/T4-regelheft.pdf" download="NT9-T4-Regelheft.pdf">📥 Regelheft als PDF</a></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Das war das letzte Modul zur Kommunikationstechnik. Wiederhole mit den Lernkarten und den Regelhefteinträgen aller vier Module – vom Mikrofon über Sensoren und Dioden bis zum Transistor. Dann bist du gut vorbereitet für die Probe zur Kommunikationstechnik, sobald deine Lehrkraft sie freischaltet.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="kt-3.html">⬅️ Modul 3: Diode und Leuchtdiode</a>
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik <span class="mt-zug">9M</span> · Kommunikationstechnik · Modul 4 · Texte, Zeichnungen und Animationen sind eigenständig erstellt. Die Personen sind ausgedacht, die Werte in den Simulationen vereinfacht. Mit deinem Code wird dein Lernstand gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="../../../7M/NT/modul-basis.js"></script>
+<script src="../../../8M/NT/karten.js"></script>
+<script src="karten/kt4.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, reduced, register, solve, onVisible, fmt} = Modul;
+const wait = ms => new Promise(r => setTimeout(r, reduced ? Math.min(ms, 60) : ms));
+const jetzt = () => (window.performance && performance.now) ? performance.now() : Date.now();
+
+Modul.init({
+  key: "grumi-nt9-kt-4-v1",
+  hero: "funken",
+  api: "/api/nt9/uebung/feedback",
+  thema: "Kommunikationstechnik, Klasse 9: Transistoren – Schalter und Verstärker. Ein Transistor ist ein elektronisches Bauteil mit drei Anschlüssen: Kollektor (C), Basis (B), Emitter (E); er arbeitet als Schalter oder als Verstärker; Bauformen: Metallgehäuse, Plastikgehäuse mit drei Beinen, winzige SMD-Bauteile; 1956 Nobelpreis für Physik an drei Forscher aus den USA für die Erfindung; heute kaum ein elektronisches Gerät ohne Transistoren. Zwei Stromkreise: Steuerstromkreis über Basis und Emitter (kleiner Strom), Arbeitsstromkreis über Kollektor und Emitter (großer Strom), gemeinsamer Punkt am Emitter. Wasserhahn-Vergleich: die Basis ist der Griff. Wassermodell: zwei Kanäle mit Strömungsklappen, die kleine Klappe steuert einen kleinen Wasserstrom von B nach E (Steuerstromkreis), sie ist fest mit der großen Klappe verbunden; öffnet sich die kleine, öffnet sich auch die große, viel Wasser fließt von C nach E (Arbeitsstromkreis) = Verstärkung; schließt die kleine, schließt die große = Schalter. Verstärker: das schwache Signal eines Mikrofons im Steuerstromkreis steuert einen etwa 100-mal stärkeren Strom im Arbeitsstromkreis mit gleicher Form (Lautsprecher), Verstärker haben mehrere Stufen. Schalter: erst wenn die Spannung zwischen Basis und Emitter mehr als 0,6 V beträgt, fließt genug Strom, und der Transistor schaltet den Arbeitsstromkreis ein. Lichtschranke: Fotowiderstand (LDR, im Dunkeln großer Widerstand) im Steuerstromkreis, Lichtstrahl unterbrochen → LDR dunkel → Widerstand groß → Spannung an der Basis über 0,6 V → Lampe an. Alarmanlage: Summer statt Lampe; LDR und Widerstand vertauscht → Alarm, wenn Licht auf den LDR fällt (Schublade); Heißleiter statt LDR → Lampe an, wenn es kalt wird. Schaltpläne: Schaltzeichen, Leitungen gerade waagerecht oder senkrecht, dicker Punkt = Verbindung, Kreuzung ohne Punkt = keine Verbindung, nur geschlossener Stromkreis funktioniert; Aufbau auf Pappe oder Sperrholz mit Reißnägeln oder Lüsterklemmen. Wechselblinker: zwei Transistoren, zwei Kondensatoren (speichern elektrische Energie), zwei LEDs blinken abwechselnd, größere Kondensatoren → langsameres Blinken",
+  glossary: {
+    transistor: ["Transistor", "Elektronisches Bauteil mit drei Anschlüssen: Kollektor, Basis und Emitter. Mit einem kleinen Strom steuert er einen großen – als Schalter oder als Verstärker."],
+    kollektor: ["Kollektor (C)", "Anschluss des Transistors, über den der große Strom hineinfließt. Das Wort heißt „Sammler“. Das C kommt vom englischen Wort collector."],
+    basis: ["Basis (B)", "Der Steuer-Anschluss des Transistors. Ein kleiner Strom an der Basis entscheidet, ob ein großer Strom fließen darf – wie der Griff an einem Wasserhahn."],
+    emitter: ["Emitter (E)", "Anschluss des Transistors, über den der kleine und der große Strom wieder hinausfließen. Das Wort heißt „Aussender“. Im Schaltzeichen trägt er den Pfeil."],
+    verstaerker: ["Verstärker", "Schaltung, die ein schwaches elektrisches Signal stärker macht – zum Beispiel das Signal eines Mikrofons, damit der Lautsprecher laut tönt."],
+    smd: ["SMD-Bauteil", "Winzig kleines Bauteil ohne lange Beine. Es wird direkt auf die Platine gelötet. SMD ist englisch und heißt „auf die Oberfläche gesetztes Bauteil“."],
+    platine: ["Platine", "Platte aus Kunststoff mit aufgedruckten Leiterbahnen aus Kupfer. Darauf sitzen die Bauteile eines elektronischen Geräts."],
+    nobelpreis: ["Nobelpreis", "Einer der berühmtesten Preise der Welt. Er wird jedes Jahr für besonders wichtige Entdeckungen und Erfindungen vergeben, zum Beispiel in Physik, Chemie und Medizin."],
+    klappe: ["Strömungsklappe", "Drehbare Platte in einem Rohr oder Kanal. Steht sie quer, sperrt sie das Wasser. Ist sie gedreht, kann das Wasser fließen."],
+    steuerstromkreis: ["Steuerstromkreis", "Der Stromkreis über Basis und Emitter. Hier fließt nur ein kleiner Strom. Er steuert den Transistor."],
+    arbeitsstromkreis: ["Arbeitsstromkreis", "Der Stromkreis über Kollektor und Emitter. Hier fließt der große Strom, der die Arbeit macht: Er bringt zum Beispiel eine Lampe zum Leuchten."],
+    ldr: ["Fotowiderstand (LDR)", "Lichtsensor. Je heller es ist, desto kleiner ist sein Widerstand. Im Dunkeln ist sein Widerstand groß. LDR ist englisch und heißt „lichtabhängiger Widerstand“."],
+    widerstand: ["Widerstand", "Gibt an, wie stark ein Bauteil den Strom bremst. Ein Bauteil, das den Strom gezielt bremst, heißt ebenfalls Widerstand. Im Schaltplan ist es ein Rechteck."],
+    lichtschranke: ["Lichtschranke", "Ein Lichtstrahl fällt auf einen Lichtsensor. Läuft jemand hindurch, wird es am Sensor dunkel. Die Schaltung bemerkt das und schaltet etwas ein, zum Beispiel einen Alarm."],
+    spannung: ["Spannung", "Sie treibt den Strom durch die Leitungen – ähnlich wie der Wasserdruck das Wasser. Man misst sie in Volt (V). Eine Batterie hat zum Beispiel 1,5 V oder 4,5 V."],
+    schaltplan: ["Schaltplan", "Zeichnung einer elektrischen Schaltung. Jedes Bauteil wird mit seinem Schaltzeichen gezeichnet, die Leitungen als gerade Linien."],
+    schaltzeichen: ["Schaltzeichen", "Einfaches Zeichen für ein Bauteil im Schaltplan. Fachleute auf der ganzen Welt verstehen es."],
+    luesterklemme: ["Lüsterklemme", "Kleine Klemme aus Kunststoff mit Schrauben. Damit verbindet man Drähte fest miteinander – ganz ohne Löten."],
+    summer: ["Summer", "Kleines elektrisches Bauteil, das einen lauten Piepton macht, sobald Strom hindurchfließt – zum Beispiel in einer Alarmanlage."],
+    kondensator: ["Kondensator", "Bauteil, das elektrische Energie speichert. Er lädt sich auf und gibt die Energie wieder ab. Im Schaltplan: zwei dicke Striche nebeneinander."]
+  }
+});
+
+/* ---------- Zeichenhilfen ---------- */
+const ST = "#15212b", BLAU = "#1f6aa5", ROT = "#c0392b", LILA = "#6b3fa0";
+// Text in einer Zeichnung
+const tx = (x, y, t, f, g, a, id) => `<text${id ? ` id="${id}"` : ""} x="${x}" y="${y}" text-anchor="${a || "middle"}" font-size="${g || 13}" font-weight="800" fill="${f || ST}">${t}</text>`;
+// Schaltzeichen des Transistors (NPN): Mitte x|y, Maßstab s; Anschlüsse bei s = 1: Basis (x − 36|y), Kollektor (x + 10|y − 36), Emitter (x + 10|y + 36).
+// spiegel: Basis rechts, Kollektor und Emitter links
+function symTrans(x, y, s, f, spiegel){
+  f = f || ST;
+  return `<g transform="translate(${x} ${y}) scale(${spiegel ? -s : s} ${s})" fill="none" stroke="${f}" stroke-width="${(2.4 / s).toFixed(2)}" stroke-linecap="round">
+    <circle r="22" fill="#fff"/><line x1="-36" y1="0" x2="-8" y2="0"/><line x1="-8" y1="-13" x2="-8" y2="13" stroke-width="${(4.4 / s).toFixed(2)}" stroke-linecap="butt"/>
+    <line x1="-8" y1="-6" x2="10" y2="-17"/><line x1="10" y1="-17" x2="10" y2="-36"/><line x1="-8" y1="6" x2="10" y2="17"/><line x1="10" y1="17" x2="10" y2="36"/>
+    <path d="M8.6 16.1 L0.3 15.3 L4 9.1 Z" fill="${f}" stroke="none"/></g>`;
+}
+// Pfeil von (x1|y1) nach (x2|y2)
+function pfeil(x1, y1, x2, y2, f, w){
+  const a = Math.atan2(y2 - y1, x2 - x1), L = 7 + (w || 2), B = 3 + (w || 2) * .6;
+  const bx = x2 - L * Math.cos(a), by = y2 - L * Math.sin(a), px = -Math.sin(a) * B, py = Math.cos(a) * B;
+  return `<line x1="${x1}" y1="${y1}" x2="${bx.toFixed(1)}" y2="${by.toFixed(1)}" stroke="${f || ST}" stroke-width="${w || 2}"/><path d="M${x2} ${y2} L${(bx + px).toFixed(1)} ${(by + py).toFixed(1)} L${(bx - px).toFixed(1)} ${(by - py).toFixed(1)} Z" fill="${f || ST}"/>`;
+}
+// Sinuswelle von x0 bis x1 um die Mittellinie yc
+function welle(x0, x1, yc, a, n){
+  let d = "";
+  for (let k = 0; k <= 64; k++) { const x = x0 + (x1 - x0) * k / 64, y = yc - a * Math.sin(2 * Math.PI * n * k / 64); d += (k ? " L" : "M") + x.toFixed(1) + " " + y.toFixed(1); }
+  return d;
+}
+// Batterie: x|y = Mitte, waagerechte Platten (Leitung senkrecht); langer dünner Strich = Pluspol
+const batterie = (x, y, f) => `<line x1="${x - 14}" y1="${y - 5}" x2="${x + 14}" y2="${y - 5}" stroke="${f || ST}" stroke-width="2.5"/><line x1="${x - 8}" y1="${y + 5}" x2="${x + 8}" y2="${y + 5}" stroke="${f || ST}" stroke-width="5.5"/>`;
+// Lampe: Kreis mit Kreuz
+const lampe = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#fff" stroke="${ST}" stroke-width="2.4"/><path d="M${x - r * .7} ${y - r * .7} L${x + r * .7} ${y + r * .7} M${x + r * .7} ${y - r * .7} L${x - r * .7} ${y + r * .7}" stroke="${ST}" stroke-width="2"/>`;
+// Bogen einer Schallwelle (nach rechts offen)
+const bogen = (cx, cy, r, cls) => `<path class="kt4-welle ${cls || ""}" d="M${(cx + r * Math.cos(-.62)).toFixed(1)} ${(cy + r * Math.sin(-.62)).toFixed(1)} A${r} ${r} 0 0 1 ${(cx + r * Math.cos(.62)).toFixed(1)} ${(cy + r * Math.sin(.62)).toFixed(1)}"/>`;
+
+/* ---------- Ton: ein gemeinsamer AudioContext (Safari/iPad: nur direkt nach einem Antippen) ---------- */
+const AC = window.AudioContext || window.webkitAudioContext;
+let actx = null;
+function audio(){
+  if (!AC) return null;
+  if (!actx) { try { actx = new AC(); } catch (_) { actx = null; return null; } }
+  if (actx.state !== "running") { try { const p = actx.resume(); if (p && p.catch) p.catch(() => {}); } catch (_) {} }
+  return actx;
+}
+// Stimme (Silben) mit Lautstärke laut
+function stimme(c, laut){
+  if (!c || !laut) return;
+  try {
+    [[190, 0], [230, .42], [205, .84], [250, 1.26], [180, 1.68]].forEach(([f, s]) => {
+      const o = c.createOscillator(), g = c.createGain(), fl = c.createBiquadFilter(), t = c.currentTime + .1 + s;
+      o.type = "sawtooth"; o.frequency.setValueAtTime(f, t); o.frequency.linearRampToValueAtTime(f * .92, t + .32);
+      fl.type = "lowpass"; fl.frequency.value = 1100;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(laut, t + .05); g.gain.setValueAtTime(laut, t + .24); g.gain.linearRampToValueAtTime(0, t + .34);
+      o.connect(fl); fl.connect(g); g.connect(c.destination); o.start(t); o.stop(t + .4);
+    });
+  } catch (_) {}
+}
+// Pieptöne des Summers
+function piep(c, n){
+  if (!c) return;
+  try {
+    for (let i = 0; i < n; i++) {
+      const o = c.createOscillator(), g = c.createGain(), t = c.currentTime + .05 + i * .32;
+      o.type = "triangle"; o.frequency.value = 1500;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.14, t + .02); g.gain.setValueAtTime(.14, t + .17); g.gain.linearRampToValueAtTime(0, t + .2);
+      o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + .25);
+    }
+  } catch (_) {}
+}
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Wie viele Anschlüsse hat ein Transistor?", o: ["drei", "zwei", "vier", "einen"], a: 0, e: "Kollektor (C), Basis (B) und Emitter (E)."},
+    {q: "Welche zwei Aufgaben kann ein Transistor übernehmen?", o: ["schalten und verstärken", "leuchten und blinken", "messen und anzeigen", "speichern und löschen"], a: 0, e: "Als Schalter schaltet er zum Beispiel eine Lampe ein. Als Verstärker macht er ein schwaches Signal stark."}
+  ],
+  s2: [
+    {q: "Was passiert im Wassermodell, wenn sich die kleine Klappe öffnet?", o: ["Die große Klappe öffnet sich mit – viel Wasser fließt von C nach E.", "Die große Klappe schließt sich – nun fließt gar kein Wasser mehr.", "Das Wasser fließt rückwärts von E zurück in den Behälter B.", "Nur der schmale Kanal läuft voll, sonst passiert gar nichts."], a: 0, e: "Die beiden Klappen sind fest miteinander verbunden. Ein kleiner Wasserstrom gibt einen großen frei."},
+    {q: "Wie viel stärker ist der Strom im Arbeitsstromkreis bei einer Transistorstufe ungefähr?", o: ["etwa 100-mal so stark", "etwa doppelt so stark", "genau gleich stark", "etwa halb so stark"], a: 0, e: "Mit zwei Stufen wird er sogar 100 × 100 = 10 000-mal so stark."}
+  ],
+  s3: [
+    {q: "Über welche Anschlüsse läuft der Steuerstromkreis?", o: ["über Basis und Emitter", "über Kollektor und Emitter", "über Kollektor und Basis", "nur über den Kollektor"], a: 0, e: "Der Arbeitsstromkreis läuft über Kollektor und Emitter. Am Emitter treffen sich beide."},
+    {q: "Ab welcher Spannung zwischen Basis und Emitter schaltet der Transistor ein?", o: ["ab etwa 0,6 V", "ab etwa 6 V", "ab etwa 60 V", "schon bei 0 V"], a: 0, e: "Erst wenn mehr als 0,6 V anliegen, fließt genug Strom durch die Basis."}
+  ],
+  s4: [
+    {q: "Was macht ein Kondensator?", o: ["Er speichert elektrische Energie.", "Er wandelt Licht in Strom um.", "Er misst die Temperatur genau.", "Er lässt Strom nur in eine Richtung."], a: 0, e: "Im Wechselblinker lädt er sich langsam auf – das bestimmt, wie schnell die LEDs blinken."},
+    {q: "Wann piept die Alarmanlage mit Lichtschranke?", o: ["wenn jemand den Lichtstrahl unterbricht", "wenn besonders viel Licht auf den LDR fällt", "wenn die Batterie fast ganz leer ist", "wenn sich der Summer zu stark erwärmt"], a: 0, e: "Ohne Licht wird der Widerstand des LDR groß. Die Spannung an der Basis steigt über 0,6 V, und der Transistor schaltet den Summer ein."}
+  ],
+  train: [
+    {q: "Wofür steht der Buchstabe E am Transistor?", o: ["Emitter", "Elektron", "Energie", "Erde"], a: 0, e: "C steht für Kollektor, B für Basis, E für Emitter."},
+    {q: "Welches Bauteil liegt bei der Lichtschranke im Steuerstromkreis?", o: ["der Fotowiderstand (LDR)", "die Lampe", "der Lautsprecher", "der Summer"], a: 0, e: "Lampe, Lautsprecher und Summer liegen im Arbeitsstromkreis."},
+    {q: "Warum braucht man zwischen Mikrofon und Lautsprecher einen Verstärker?", o: ["Das Signal des Mikrofons ist zu schwach für den Lautsprecher.", "Der Lautsprecher braucht Gleichstrom statt Wechselstrom.", "Das Mikrofon würde ohne ihn viel zu heiß werden.", "Der Verstärker macht die Töne höher und heller."], a: 0, e: "Transistoren machen aus dem schwachen Strom des Mikrofons einen starken Strom mit derselben Form."},
+    {q: "Welche Aussagen stimmen?", o: ["Der Arbeitsstromkreis läuft über Kollektor und Emitter.", "Im Wassermodell sind die beiden Klappen fest verbunden.", "Ein Transistor hat drei Anschlüsse.", "Der Steuerstromkreis läuft über den Kollektor.", "Ein Kondensator lässt Strom nur in einer Richtung durch."], a: [0, 1, 2], e: "Der Steuerstromkreis läuft über Basis und Emitter. Strom nur in einer Richtung – das macht die Diode."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Station 1: Ein Transistor von nahem ---------- */
+(function(){
+  const svg = $("#trSvg");
+  const bein = (d, f) => `<path d="${d}" fill="none" stroke="${f || "#9aa5ae"}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`;
+  svg.innerHTML = `<defs><linearGradient id="trMet" x1="0" x2="1"><stop offset="0" stop-color="#8a959e"/><stop offset=".45" stop-color="#e9eef2"/><stop offset="1" stop-color="#7f8a93"/></linearGradient></defs>
+    <rect width="520" height="290" fill="#f7fbfe"/>
+    <text id="trKopf" x="16" y="26" font-size="15" font-weight="800" fill="#144a74">Ein Transistor von nahem</text>
+    <g id="trBau" class="stage">
+      <g id="trPlastik">
+        ${bein("M82 150 V230")}${bein("M97 150 V230")}${bein("M112 150 V230")}
+        <path d="M72 152 V96 A25 25 0 0 1 122 96 V152 Z" fill="#2b2f33" stroke="#111" stroke-width="2"/>
+        <path d="M79 100 V146" stroke="#4a5158" stroke-width="3" stroke-linecap="round"/>
+        ${tx(97, 256, "Plastikgehäuse")}${tx(97, 273, "mit drei Beinen")}
+      </g>
+      <g id="trMetall" class="kt4-fade">
+        ${bein("M248 160 V230")}${bein("M260 160 V230")}${bein("M272 160 V230")}
+        <rect x="235" y="152" width="50" height="9" rx="2" fill="#aab4bd" stroke="#6b7680" stroke-width="1.5"/>
+        <rect x="283" y="147" width="8" height="7" fill="#aab4bd" stroke="#6b7680" stroke-width="1.2"/>
+        <path d="M240 152 V104 H280 V152 Z" fill="url(#trMet)" stroke="#6b7680" stroke-width="2"/>
+        <ellipse cx="260" cy="104" rx="20" ry="6" fill="#dfe5ea" stroke="#6b7680" stroke-width="2"/>
+        ${tx(260, 256, "Metallgehäuse")}
+      </g>
+      <g id="trSmd" class="kt4-fade">
+        <rect x="372" y="152" width="120" height="78" rx="6" fill="#2e7d4f" stroke="#1d5a37" stroke-width="2"/>
+        <path d="M384 213 H421 M437 213 H482 M429 203 V176 H478" fill="none" stroke="#d4a14a" stroke-width="3"/>
+        <circle cx="478" cy="176" r="4.5" fill="#d4a14a"/><circle cx="384" cy="213" r="4.5" fill="#d4a14a"/>
+        <rect x="422" y="205" width="14" height="10" rx="1.5" fill="#1d1d1d"/>
+        <path d="M432 141 L429 203" stroke="#566674" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <path d="M457 130 L471 146" stroke="#566674" stroke-width="7" stroke-linecap="round"/>
+        <circle cx="432" cy="104" r="36" fill="#fff" stroke="#566674" stroke-width="3"/>
+        <path d="M418 118 V128 M446 118 V128 M432 92 V80" stroke="#b9c2c9" stroke-width="5"/>
+        <rect x="412" y="92" width="40" height="26" rx="3" fill="#1d1d1d"/>
+        ${tx(432, 256, "SMD-Bauteil")}${tx(432, 273, "auf einer Platine")}
+      </g>
+    </g>
+    <g id="trAn" class="stage">
+      ${tx(120, 48, "Bauteil", "#566674", 12)}
+      ${bein("M100 150 V176 L64 212 V228", ROT)}${bein("M120 150 V228", BLAU)}${bein("M140 150 V176 L176 212 V228", LILA)}
+      <path d="M85 152 V95 A35 35 0 0 1 155 95 V152 Z" fill="#2b2f33" stroke="#111" stroke-width="2"/>
+      <path d="M93 100 V146" stroke="#4a5158" stroke-width="3" stroke-linecap="round"/>
+      ${tx(64, 247, "C", ROT, 15)}${tx(120, 247, "B", BLAU, 15)}${tx(176, 247, "E", LILA, 15)}
+      ${tx(64, 265, "Kollektor", ROT, 12)}${tx(120, 265, "Basis", BLAU, 12)}${tx(176, 265, "Emitter", LILA, 12)}
+      ${tx(120, 284, "(flache Seite vorn)", "#566674", 11)}
+      <g id="trZeichen" class="stage">
+        ${tx(380, 48, "Schaltzeichen", "#566674", 12)}
+        ${symTrans(380, 150, 1.6)}
+        ${tx(396, 84, "Kollektor (C)", ROT)}${tx(316, 155, "Basis (B)", BLAU, 13, "end")}${tx(396, 230, "Emitter (E)", LILA)}
+      </g>
+    </g>
+    <g id="trJob" class="stage">
+      <rect x="16" y="40" width="238" height="242" rx="14" fill="#fff" stroke="#d9e1e8" stroke-width="2"/>
+      <rect x="266" y="40" width="238" height="242" rx="14" fill="#fff" stroke="#d9e1e8" stroke-width="2"/>
+      ${tx(135, 66, "als Schalter", "#144a74", 14)}${tx(385, 66, "als Verstärker", "#144a74", 14)}
+      <circle cx="140" cy="104" r="24" fill="#ffd23f" opacity=".55"/>
+      <path d="M140 116 V134 M140 206 V228" stroke="${ROT}" stroke-width="3"/>
+      ${lampe(140, 104, 12)}
+      ${symTrans(130, 170, 1)}
+      ${pfeil(36, 170, 92, 170, BLAU, 2.5)}${tx(62, 158, "kleiner Strom", BLAU, 12)}
+      ${pfeil(176, 112, 176, 226, ROT, 4)}${tx(186, 166, "großer", ROT, 12, "start")}${tx(186, 181, "Strom", ROT, 12, "start")}
+      ${tx(135, 252, "Ein kleiner Strom schaltet", ST, 12.5)}${tx(135, 269, "einen großen Strom ein.", ST, 12.5)}
+      <path d="${welle(282, 336, 170, 5, 3)} L344 170" fill="none" stroke="${BLAU}" stroke-width="2.5"/>
+      ${tx(309, 140, "kleines", BLAU, 12)}${tx(309, 154, "Signal", BLAU, 12)}
+      ${symTrans(380, 170, 1)}
+      <path d="M390 134 V118 H404" fill="none" stroke="${ROT}" stroke-width="2.5"/>
+      <path d="${welle(404, 494, 118, 24, 3)}" fill="none" stroke="${ROT}" stroke-width="3"/>
+      ${tx(449, 164, "großes Signal", ROT, 12)}
+      ${tx(385, 252, "Aus einem kleinen Signal", ST, 12.5)}${tx(385, 269, "wird ein großes.", ST, 12.5)}
+    </g>`;
+  const KOPF = ["Ein Transistor von nahem", "1 Klein, schwarz, drei Beine", "2 Viele Bauformen", "3 Kollektor, Basis, Emitter", "4 Das Schaltzeichen", "5 Schalter und Verstärker"];
+  const an = (id, ja) => $("#" + id, svg).classList.toggle("on", ja);
+  Modul.makeSchritte($("#trSim"), {
+    start: "Wie sieht ein Transistor aus – und was kann er? Tippe auf „Start“.",
+    ms: 3600,
+    steps: [
+      "<strong>Klein, schwarz, drei Beine:</strong> So sieht ein Transistor oft aus. Sein Gehäuse ist aus Kunststoff. Die drei Beine sind seine Anschlüsse.",
+      "<strong>Viele Bauformen:</strong> Manche Transistoren stecken in einem Metallgehäuse. In Smartphones und Computern sind sie winzig klein: <strong>SMD-Bauteile</strong>, die direkt auf die Platine gelötet werden.",
+      "<strong>Drei Anschlüsse:</strong> Sie heißen <strong>Kollektor (C)</strong>, <strong>Basis (B)</strong> und <strong>Emitter (E)</strong>. Bei diesem Transistor liegen sie so nebeneinander, wenn die flache Seite zu dir zeigt.",
+      "<strong>Das Schaltzeichen:</strong> Im Schaltplan ist der Transistor ein Kreis mit drei Anschlüssen. Die Basis kommt von der Seite. Der Emitter trägt einen kleinen Pfeil.",
+      "<strong>Zwei Aufgaben:</strong> Ein kleiner Strom an der Basis steuert einen großen Strom zwischen Kollektor und Emitter. So arbeitet der Transistor als <strong>Schalter</strong> – oder als <strong>Verstärker</strong>."
+    ],
+    zeige(i){
+      $("#trKopf", svg).textContent = KOPF[i + 1];
+      an("trBau", i <= 1); an("trAn", i === 2 || i === 3); an("trZeichen", i === 3); an("trJob", i === 4);
+      $("#trMetall", svg).style.opacity = $("#trSmd", svg).style.opacity = i === 0 ? ".15" : "1";
+    }
+  }, "trSchritte");
+})();
+
+/* ---------- Station 1: Übungen ---------- */
+(function(){
+  const bild = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260" font-family="Arial, sans-serif"><rect width="400" height="260" fill="#f7fbfe"/>
+    <path d="M34 130 H125 M221 54 V16 M221 206 V246" fill="none" stroke="${ST}" stroke-width="2.4"/>${symTrans(200, 130, 2.1)}</svg>`;
+  Modul.makeLabel($("#labelTrans"), {
+    img: "data:image/svg+xml;charset=utf-8," + encodeURIComponent(bild), w: 400, h: 260,
+    alt: "Großes Schaltzeichen eines Transistors: ein Kreis, von links kommt eine Leitung zu einem dicken senkrechten Strich, davon gehen zwei schräge Linien nach oben und nach unten. Die untere trägt einen Pfeil. Drei Kästchen sind leer.",
+    hint: "Tippe zuerst auf einen Begriff und dann auf das passende Kästchen im Bild. Zwei Begriffe bleiben übrig.",
+    slots: [
+      {x: 78, y: 12, px: 55.3, py: 20.8, a: "Kollektor"},
+      {x: 17, y: 36, px: 31, py: 50, a: "Basis"},
+      {x: 78, y: 88, px: 55.3, py: 79.2, a: "Emitter"}
+    ],
+    extra: ["Anode", "Kathode"]
+  }, "labelTrans");
+})();
+Modul.makeGap($("#gapTrans"), [
+  ["Ein Transistor ist ein elektronisches ", {g: "Bauteil"}, " mit drei Anschlüssen."],
+  ["Die Anschlüsse heißen Kollektor, ", {g: "Basis"}, " und Emitter."],
+  ["Ein Transistor kann als ", {g: "Schalter"}, " oder als ", {g: "Verstärker"}, " arbeiten."],
+  ["Für die Erfindung des Transistors gab es 1956 den ", {g: "Nobelpreis"}, " für Physik."]
+], "gapTrans", ["Diode", "Batterie"]);
+
+/* ---------- Station 2: Wassermodell ---------- */
+(function(){
+  const svg = $("#wmSvg");
+  const W = "#5dade2", R = "#2c3e50";
+  const kreis = (x, y, t, f) => `<circle cx="${x}" cy="${y}" r="12" fill="#fff" stroke="${f}" stroke-width="2.5"/>${tx(x, y + 5, t, f, 15)}`;
+  svg.innerHTML = `<rect width="520" height="290" fill="#f7fbfe"/>
+    <text id="wmKopf" x="16" y="24" font-size="15" font-weight="800" fill="#144a74">Das Wassermodell</text>
+    <!-- leere Kanäle -->
+    <rect x="262" y="66" width="36" height="178" fill="#e8eef3"/><rect x="76" y="176" width="186" height="14" fill="#e8eef3"/>
+    <!-- Wasser -->
+    <rect x="262" y="66" width="36" height="54" fill="${W}"/>
+    <rect id="wmWG" class="stage" x="262" y="120" width="36" height="124" fill="${W}"/>
+    <rect id="wmWE" class="stage" x="262" y="176" width="36" height="68" fill="${W}"/>
+    <rect x="76" y="176" width="24" height="14" fill="${W}"/>
+    <rect id="wmWB" class="stage" x="100" y="176" width="162" height="14" fill="${W}"/>
+    <rect id="wmWF" class="stage" x="264" y="244" width="32" height="16" fill="${W}"/>
+    <!-- Becken E -->
+    <rect x="234" y="258" width="92" height="16" rx="3" fill="#aed6f1"/>
+    <path d="M232 250 V270 Q232 276 238 276 H322 Q328 276 328 270 V250" fill="none" stroke="${R}" stroke-width="2.5"/>
+    <!-- Behälter C und B -->
+    <rect x="236" y="38" width="88" height="28" rx="4" fill="${W}" stroke="${R}" stroke-width="2"/><rect x="263.5" y="64" width="33" height="4" fill="${W}"/>
+    <rect x="24" y="150" width="52" height="66" rx="4" fill="${W}" stroke="${R}" stroke-width="2"/><rect x="74" y="177.5" width="4" height="11" fill="${W}"/>
+    <!-- Wände -->
+    <path d="M262 66 V176 M262 190 V244 M298 66 V244 M76 176 H262 M76 190 H262" fill="none" stroke="${R}" stroke-width="3" stroke-linecap="round"/>
+    <g id="wmRand" class="stage" fill="none" stroke-width="4" stroke-linecap="round">
+      <path d="M76 176 H262 M76 190 H262" stroke="${BLAU}"/><path d="M262 66 V176 M262 190 V244 M298 66 V244" stroke="${ROT}"/>
+    </g>
+    <!-- Strömung -->
+    <path id="wmFK" class="stage flow" d="M80 183 H280 V262" fill="none" stroke="#fff" stroke-width="2.5"/>
+    <path id="wmFG" class="stage flow" d="M280 44 V262" fill="none" stroke="#fff" stroke-width="4"/>
+    <!-- Gestänge und Klappen -->
+    <path id="wmStange" d="M180 183 V134 H262 L280 120" fill="none" stroke="#7f8c8d" stroke-width="3" stroke-linejoin="round"/>
+    <rect id="wmKlK" class="kt4-dreh" x="178" y="177" width="4" height="12" rx="1" fill="#f39c12" stroke="#8e5a06" stroke-width="1"/>
+    <rect id="wmKlG" class="kt4-dreh" x="263" y="117.5" width="34" height="5" rx="1.5" fill="#f39c12" stroke="#8e5a06" stroke-width="1"/>
+    <circle cx="180" cy="183" r="2.6" fill="#5d6d7e"/><circle cx="280" cy="120" r="3.2" fill="#5d6d7e"/>
+    <!-- Hahn bei B -->
+    <circle cx="100" cy="183" r="9" fill="#8a99a6" stroke="${R}" stroke-width="2"/>
+    <rect id="wmHahn" class="kt4-dreh" x="97" y="163" width="6" height="40" rx="3" fill="${ROT}"/>
+    <!-- Beschriftung -->
+    ${kreis(50, 136, "B", BLAU)}${kreis(346, 52, "C", ROT)}${kreis(346, 263, "E", LILA)}
+    ${tx(100, 220, "Hahn", "#566674", 12)}${tx(180, 216, "kleine Klappe", ST, 12)}${tx(218, 127, "fest verbunden", "#5d6d7e", 11.5)}${tx(306, 124, "große Klappe", ST, 12, "start")}
+    <g id="wmUeb" class="stage">
+      ${tx(68, 141, "Basis", BLAU, 12.5, "start")}${tx(364, 57, "Kollektor", ROT, 12.5, "start")}${tx(364, 268, "Emitter", LILA, 12.5, "start")}
+      ${tx(170, 236, "Steuerstromkreis", BLAU, 12.5)}${tx(306, 100, "Arbeitsstromkreis", ROT, 12.5, "start")}
+    </g>
+    <!-- Anzeige -->
+    ${tx(372, 146, "Wasserstrom", "#566674", 12, "start", "wmPK")}
+    ${tx(372, 168, "B → E", BLAU, 12.5, "start", "wmPL1")}
+    <rect x="372" y="174" width="138" height="10" rx="5" fill="#e8eef3"/><rect id="wmBar1" x="372" y="174" width="0" height="10" rx="3" fill="${BLAU}" style="transition:width .8s"/>
+    ${tx(372, 199, "", ST, 12, "start", "wmV1")}
+    ${tx(372, 222, "C → E", ROT, 12.5, "start", "wmPL2")}
+    <rect x="372" y="228" width="138" height="10" rx="5" fill="#e8eef3"/><rect id="wmBar2" x="372" y="228" width="0" height="10" rx="3" fill="${ROT}" style="transition:width .8s"/>
+    ${tx(372, 253, "", ST, 12, "start", "wmV2")}`;
+  const KOPF = ["Das Wassermodell", "1 Alles zu", "2 Ein kleiner Wasserstrom", "3 Fest verbunden", "4 Klein steuert groß", "5 Wieder zu: der Schalter", "6 Vom Wasser zum Transistor"];
+  const an = (id, ja) => $("#" + id, svg).classList.toggle("on", ja);
+  const dreh = (id, ja) => { $("#" + id, svg).style.transform = ja ? "rotate(90deg)" : "none"; };
+  const setz = (id, t) => { $("#" + id, svg).textContent = t; };
+  Modul.makeSchritte($("#wmSim"), {
+    start: "Im Wassermodell fließt Wasser statt Strom. Tippe auf „Start“ und beobachte die beiden Klappen.",
+    ms: 3800,
+    steps: [
+      "<strong>Alles zu:</strong> Oben im Behälter C wartet viel Wasser. Es drückt auf die große Klappe – aber die ist geschlossen. Auch der Hahn bei B ist zu. Es fließt nichts.",
+      "<strong>Ein kleiner Wasserstrom:</strong> Jetzt wird der Hahn bei B geöffnet. Ein kleiner Wasserstrom drückt die kleine Klappe auf und fließt durch den schmalen Kanal von B nach E.",
+      "<strong>Fest verbunden:</strong> Die kleine Klappe ist fest mit der großen Klappe verbunden. Dreht sich die kleine, dreht sich die große mit – das Wasser aus C kann fließen.",
+      "<strong>Klein steuert groß:</strong> Durch den breiten Kanal fließt viel Wasser von C nach E – viel mehr als von B nach E. Ein kleiner Wasserstrom hat einen großen freigegeben. Genau das ist <strong>Verstärkung</strong>.",
+      "<strong>Wieder zu:</strong> Der Hahn bei B wird geschlossen. Die kleine Klappe fällt zu – und mit ihr die große. Auch der große Wasserstrom hört auf. So arbeitet der Transistor als <strong>Schalter</strong>: an – aus.",
+      "<strong>Vom Wasser zum Transistor:</strong> Statt Wasser fließt elektrischer Strom. B ist die Basis, C der Kollektor, E der Emitter. Der kleine Strom von B nach E gehört zum <strong>Steuerstromkreis</strong>, der große von C nach E zum <strong>Arbeitsstromkreis</strong>."
+    ],
+    zeige(i){
+      setz("wmKopf", KOPF[i + 1]);
+      const klein = i >= 1 && i !== 4, gross = i >= 2 && i !== 4, ueb = i === 5;
+      dreh("wmHahn", klein); dreh("wmKlK", klein); dreh("wmKlG", gross);
+      an("wmWB", klein); an("wmWE", klein); an("wmFK", klein); an("wmWF", klein || gross);
+      an("wmWG", gross); an("wmFG", gross);
+      const st = $("#wmStange", svg); st.setAttribute("stroke", i === 2 ? "#f39c12" : "#7f8c8d"); st.setAttribute("stroke-width", i === 2 ? "5" : "3");
+      $("#wmBar1", svg).setAttribute("width", klein ? "3" : "0");
+      $("#wmBar2", svg).setAttribute("width", gross ? "138" : "0");
+      setz("wmPK", ueb ? "Strom im Transistor" : "Wasserstrom (Beispiel)");
+      setz("wmPL1", ueb ? "Steuerstrom B → E" : "B → E");
+      setz("wmPL2", ueb ? "Arbeitsstrom C → E" : "C → E");
+      setz("wmV1", !klein ? "fließt nicht" : ueb ? "klein" : "1 Liter pro Minute");
+      setz("wmV2", !gross ? "fließt nicht" : ueb ? "etwa 100-mal so groß" : i === 3 ? "100 Liter pro Minute!" : "100 Liter pro Minute");
+      an("wmRand", ueb); an("wmUeb", ueb);
+    }
+  }, "wmSchritte");
+})();
+
+/* ---------- Station 2: Verstärker-Labor ---------- */
+(function(){
+  const svg = $("#vsSvg"), obs = $("#vsObs"), tb = $("#vsTab tbody"), tonKnopf = $("#vsTon");
+  const V = {
+    tStill: {name: "Niemand spricht", s: "kein Strom", a: "kein Strom", h: "nichts", aS: 0, aA: 0, laut: 0, wS: "0 mA", wA: "0 mA", f: "× 100",
+      text: "Niemand spricht: Das Mikrofon liefert kein Signal. Im Steuerstromkreis fließt kein Signalstrom – also auch keiner im Arbeitsstromkreis. Der Lautsprecher bleibt still."},
+    tLeise: {name: "Leise sprechen", s: "0,01 mA", a: "1 mA – 100-mal so viel", h: "eine leise Stimme", aS: 5, aA: 14, laut: .05, wS: "0,01 mA", wA: "1 mA (100-mal so viel)", f: "× 100",
+      text: "Das Mikrofon liefert einen winzigen Strom: 0,01 mA. Der Transistor macht daraus im Arbeitsstromkreis 1 mA – 100-mal so viel. Die Kurve hat dieselbe Form, nur größer. Du hörst die Stimme leise."},
+    tLaut: {name: "Laut sprechen", s: "0,03 mA", a: "3 mA – 100-mal so viel", h: "eine lautere Stimme", aS: 13, aA: 28, laut: .12, wS: "0,03 mA", wA: "3 mA (100-mal so viel)", f: "× 100",
+      text: "Lauter gesprochen, wird auch der Strom des Mikrofons größer: 0,03 mA. Im Arbeitsstromkreis fließen jetzt 3 mA. Wieder 100-mal so viel und wieder dieselbe Form – der Lautsprecher klingt lauter."},
+    tStufen: {name: "Zwei Transistorstufen (leise sprechen)", s: "0,01 mA", a: "100 mA – 10 000-mal so viel", h: "sehr laut – genug für eine Halle", aS: 5, aA: 31, laut: .24, wS: "0,01 mA", wA: "100 mA (10 000-mal so viel)", f: "× 100 × 100", stufe: true,
+      text: "Jetzt kommt eine zweite Transistorstufe dazu: Die erste macht aus 0,01 mA 1 mA, die zweite aus 1 mA 100 mA. Das ist 100 × 100 = 10 000-mal so viel. So arbeiten große Verstärker – mit mehreren Stufen."}
+  };
+  const IDS = Object.keys(V);
+  tb.innerHTML = IDS.map(k => `<tr><th>${V[k].name}</th><td></td><td></td><td></td></tr>`).join("");
+  let wellen = "";
+  [16, 28, 40].forEach((r, k) => { wellen += bogen(458, 196, r, "w" + k); });
+  svg.innerHTML = `<rect width="520" height="290" fill="#f7fbfe"/>
+    <text x="16" y="24" font-size="15" font-weight="800" fill="#144a74">Verstärker-Labor</text>
+    <rect x="16" y="34" width="170" height="76" rx="8" fill="#10303d"/><line x1="22" y1="72" x2="180" y2="72" stroke="#2c5566" stroke-width="1.5"/>
+    <polyline id="vsKS" points="22,72 180,72" fill="none" stroke="#7fc4ff" stroke-width="2.5" stroke-linejoin="round"/>
+    <rect x="334" y="34" width="170" height="76" rx="8" fill="#10303d"/><line x1="340" y1="72" x2="498" y2="72" stroke="#2c5566" stroke-width="1.5"/>
+    <polyline id="vsKA" points="340,72 498,72" fill="none" stroke="#ff8a7a" stroke-width="2.5" stroke-linejoin="round"/>
+    ${tx(101, 126, "Steuerstrom (Mikrofon)", BLAU, 12.5)}${tx(101, 143, "0 mA", ST, 12.5, "middle", "vsWS")}
+    ${tx(419, 126, "Arbeitsstrom (Lautsprecher)", ROT, 12.5)}${tx(419, 143, "0 mA", ST, 12.5, "middle", "vsWA")}
+    ${pfeil(204, 80, 318, 80, "#8a99a6", 3)}${tx(260, 68, "× 100", "#566674", 15, "middle", "vsFaktor")}
+    <!-- Steuerstromkreis -->
+    <path d="M60 239 V220 H107 M133 220 H210 M261 280 H60 V251" fill="none" stroke="${BLAU}" stroke-width="3"/>
+    ${batterie(60, 244, BLAU)}${tx(82, 258, "kleine Batterie", BLAU, 11.5, "start")}
+    <circle cx="120" cy="220" r="13" fill="#fff" stroke="${ST}" stroke-width="2.4"/><line x1="107" y1="206" x2="107" y2="234" stroke="${ST}" stroke-width="3"/>
+    ${tx(120, 200, "Mikrofon", ST, 12)}
+    <!-- Arbeitsstromkreis -->
+    <path d="M261 180 V166 H440 V186 M440 206 V239 M440 251 V280 H261" fill="none" stroke="${ROT}" stroke-width="4"/>
+    <path d="M261 260 V280" stroke="${ST}" stroke-width="3"/><circle cx="261" cy="280" r="4" fill="${ST}"/>
+    ${batterie(440, 244, ROT)}${tx(418, 258, "große Batterie", ROT, 11.5, "end")}
+    <rect x="432" y="186" width="12" height="20" fill="#fff" stroke="${ST}" stroke-width="2.2"/><path d="M444 186 L458 174 V218 L444 206 Z" fill="#fff" stroke="${ST}" stroke-width="2.2" stroke-linejoin="round"/>
+    <g id="vsWellen" class="stage" fill="none" stroke="${ROT}" stroke-width="2.5" stroke-linecap="round">${wellen}</g>
+    ${tx(470, 158, "Lautsprecher", ST, 12)}
+    ${symTrans(250, 220, 1.1)}
+    ${tx(222, 212, "B", "#566674", 11.5)}${tx(274, 190, "C", "#566674", 11.5)}${tx(274, 258, "E", "#566674", 11.5)}
+    <g id="vsStufe" class="stage"><rect x="314" y="154" width="96" height="24" rx="6" fill="#fff" stroke="${ROT}" stroke-width="2"/>${tx(362, 170, "2. Stufe: × 100", ROT, 11.5)}</g>
+    <!-- Strom fließt -->
+    <path id="vsFS" class="stage flow" d="M60 239 V220 H107 M133 220 H210 M261 262 V280 H60 V251" fill="none" stroke="#fff" stroke-width="1.6"/>
+    <path id="vsFA" class="stage flow" d="M440 239 V206 M440 186 V166 H261 V181 M261 262 V280 H440 V251" fill="none" stroke="#fff" stroke-width="2"/>`;
+  const kS = $("#vsKS", svg), kA = $("#vsKA", svg);
+  // dieselbe „Sprach“-Kurve auf beiden Bildschirmen, nur verschieden groß
+  const sig = t => (.35 + .65 * Math.abs(Math.sin(Math.PI * 1.2 * t))) * (.6 * Math.sin(2 * Math.PI * 3.1 * t) + .3 * Math.sin(2 * Math.PI * 7.3 * t + 1) + .1 * Math.sin(2 * Math.PI * 12.1 * t + 2));
+  function kurven(t, aS, aA){
+    let pS = "", pA = "";
+    for (let k = 0; k <= 79; k++) {
+      const v = sig(t - (79 - k) * .012);
+      pS += `${(22 + k * 2).toFixed(0)},${(72 - aS * v).toFixed(1)} `;
+      pA += `${(340 + k * 2).toFixed(0)},${(72 - aA * v).toFixed(1)} `;
+    }
+    kS.setAttribute("points", pS); kA.setAttribute("points", pA);
+  }
+  const an = (id, ja) => $("#" + id, svg).classList.toggle("on", ja);
+  function lauf(v, ms){
+    return new Promise(fertig => {
+      if (reduced || !v.aS) { kurven(1.3, v.aS, v.aA); setTimeout(fertig, reduced ? 60 : 900); return; }
+      const s = jetzt();
+      (function f(){ const t = (jetzt() - s) / 1000; kurven(t, v.aS, v.aA); if (t < ms / 1000) requestAnimationFrame(f); else fertig(); })();
+    });
+  }
+  const fertig = new Set();
+  let laeuft = false;
+  register("verstaerker", "#vsSvg", "Verstärker-Labor: alle vier Versuche");
+  const knoepfe = IDS.map(k => $("#" + k));
+  knoepfe.forEach(b => b.addEventListener("click", async () => {
+    if (laeuft) return;
+    const v = V[b.id];
+    laeuft = true; knoepfe.forEach(x => x.disabled = true);
+    const c = tonKnopf.checked ? audio() : null;
+    $("#vsWS", svg).textContent = v.wS; $("#vsWA", svg).textContent = v.wA; $("#vsFaktor", svg).textContent = v.f;
+    an("vsStufe", !!v.stufe); an("vsFS", v.aS > 0); an("vsFA", v.aA > 0); an("vsWellen", v.aA > 0);
+    $("#vsWellen", svg).setAttribute("stroke-width", v.stufe ? "4" : v.aA > 20 ? "3" : "2");
+    obs.textContent = "Der Versuch läuft … Beobachte die beiden Messgeräte.";
+    stimme(c, v.laut);
+    try {
+      await lauf(v, 2300);
+      const tr = $$("tr", tb)[IDS.indexOf(b.id)];
+      [v.s, v.a, v.h].forEach((t, i) => { const td = tr.children[i + 1]; td.textContent = t; td.classList.remove("neu"); void td.offsetWidth; td.classList.add("neu"); });
+      fertig.add(b.id); obs.textContent = v.text;
+      if (fertig.size === IDS.length) { solve("verstaerker"); obs.textContent += " ✅ Alle vier Versuche gemacht – die Tabelle ist voll."; }
+    } finally { laeuft = false; knoepfe.forEach(x => x.disabled = false); an("vsFS", false); an("vsFA", false); an("vsWellen", false); }
+  }));
+})();
+
+/* ---------- Station 2: Übungen ---------- */
+Modul.makePaare($("#paareWasser"), [
+  ["Wasser", "elektrischer Strom"],
+  ["kleine Klappe im schmalen Kanal", "Basis"],
+  ["Behälter C oben am breiten Kanal", "Kollektor"],
+  ["Abfluss E unten", "Emitter"],
+  ["kleiner Wasserstrom von B nach E", "Steuerstromkreis"],
+  ["großer Wasserstrom von C nach E", "Arbeitsstromkreis"]
+], "paareWasser");
+Modul.makeOpen($("#open1"), [
+  {q: "Erkläre mit dem Wassermodell, wie ein Transistor mit einem kleinen Strom einen großen Strom steuert.",
+   m: "Im Wassermodell öffnet ein kleiner Wasserstrom von B nach E die kleine Klappe. Sie ist fest mit der großen Klappe verbunden. Deshalb öffnet sich auch die große Klappe, und viel Wasser fließt von C nach E. Beim Transistor ist es genauso: Ein kleiner Strom über Basis und Emitter (Steuerstromkreis) lässt einen großen Strom über Kollektor und Emitter (Arbeitsstromkreis) fließen. Hört der kleine Strom auf, hört auch der große auf.",
+   k: ["klein", "groß|gross|viel", "klappe", "verbunden|dreht|mit", "basis|steuer", "kollektor|arbeit"], min: 4}
+], "open1-", "Schau dir die Schritte des Wassermodells noch einmal an: kleine Klappe, große Klappe, fest verbunden.");
+
+/* ---------- Station 3: Lichtschranke mit Transistor ---------- */
+(function(){
+  const svg = $("#lsSvg"), regler = $("#lsRegler"), obs = $("#lsObs"), tb = $("#lsTab tbody");
+  svg.innerHTML = `<rect width="520" height="346" fill="#f7fbfe"/>
+    <text x="16" y="24" font-size="15" font-weight="800" fill="#144a74">Lichtschranke mit Transistor</text>
+    <!-- Lichtsender und Strahl -->
+    <polygon id="lsStrahl" points="218,177 218,205 161,214 161,166" fill="#ffe066" opacity=".85"/>
+    <path d="M228 180 L218 174 V208 L228 202 Z" fill="#566674"/><rect x="228" y="180" width="48" height="22" rx="4" fill="#566674"/>
+    ${tx(248, 222, "Lichtsender", "#566674", 11.5)}
+    <g id="lsPerson" class="stage" fill="#34495e"><circle cx="190" cy="166" r="7"/><rect x="182" y="175" width="16" height="34" rx="7"/><path d="M185 208 L182 232 M195 208 L198 232" stroke="#34495e" stroke-width="4.5" stroke-linecap="round"/></g>
+    <!-- Steuerstromkreis -->
+    <path d="M46 155 V66 H150 V86 M150 126 V170 M150 210 V270 H312 M46 165 V270 H150" fill="none" stroke="${BLAU}" stroke-width="3.5" stroke-linejoin="round"/>
+    <path id="lsBasisDraht" d="M150 146 H257" fill="none" stroke="${BLAU}" stroke-width="3.5"/>
+    ${batterie(46, 160, BLAU)}${tx(26, 156, "+", BLAU, 14)}${tx(26, 178, "−", BLAU, 14)}
+    ${tx(58, 232, "kleine", BLAU, 12, "start")}${tx(58, 247, "Batterie", BLAU, 12, "start")}
+    <rect x="142" y="86" width="16" height="40" fill="#fff" stroke="${ST}" stroke-width="2.4"/>${tx(136, 111, "Widerstand", ST, 12, "end")}
+    <rect id="lsLdr" x="142" y="170" width="16" height="40" fill="#fff" stroke="${ST}" stroke-width="2.4"/>${tx(136, 194, "LDR", ST, 12.5, "end")}
+    ${pfeil(184, 164, 161, 178, ST, 1.8)}${pfeil(184, 180, 161, 194, ST, 1.8)}
+    <circle cx="150" cy="146" r="4.5" fill="${ST}"/>
+    <!-- Arbeitsstromkreis -->
+    <path d="M312 103 V66 H452 V92 M452 120 V180 M452 190 V270 H312" fill="none" stroke="${ROT}" stroke-width="4.5"/>
+    <path d="M312 189 V270" stroke="${ST}" stroke-width="3.5"/><circle cx="312" cy="270" r="4.5" fill="${ST}"/>
+    ${batterie(452, 185, ROT)}${tx(474, 184, "+", ROT, 14, "start")}${tx(474, 202, "−", ROT, 14, "start")}${tx(436, 207, "große Batterie", ROT, 12, "end")}
+    <circle id="lsGlow" cx="452" cy="106" r="30" fill="#ffd23f" opacity="0" style="transition:opacity .3s"/>
+    ${lampe(452, 106, 14)}${tx(472, 98, "Lampe", ST, 12.5, "start")}
+    ${symTrans(300, 146, 1.2)}
+    ${tx(266, 137, "B", "#566674", 12)}${tx(324, 100, "C", "#566674", 12)}${tx(324, 198, "E", "#566674", 12)}
+    ${tx(380, 128, "Transistor:", "#566674", 12)}${tx(380, 148, "sperrt", "#566674", 15, "middle", "lsStatus")}
+    <!-- Anzeige Basis–Emitter -->
+    <line x1="16" y1="302" x2="504" y2="302" stroke="#d9e1e8" stroke-width="1.5"/>
+    ${tx(16, 322, "Spannung zwischen Basis und Emitter:", "#566674", 12.5, "start")}${tx(510, 324, "0,08 V", ST, 17, "end", "lsU")}
+    <rect x="258" y="312" width="180" height="13" rx="6.5" fill="#e8eef3"/><rect id="lsBar" x="258" y="312" width="0" height="13" rx="6.5" fill="${BLAU}"/>
+    <line x1="393" y1="307" x2="393" y2="330" stroke="${ROT}" stroke-width="2.5"/>${tx(393, 341, "0,6 V", ROT, 10.5)}${tx(258, 341, "0 V", "#566674", 10.5, "start")}
+    ${tx(150, 290, "Steuerstromkreis", BLAU, 12.5)}${tx(382, 290, "Arbeitsstromkreis", ROT, 12.5)}
+    <!-- Strom fließt -->
+    <path id="lsFS" class="flow" d="M46 155 V66 H150 V86 M150 126 V170 M150 210 V270 H46 V165" fill="none" stroke="#fff" stroke-width="1.6"/>
+    <path id="lsFB" class="stage flow" d="M150 146 H257 M312 189 V270 H150" fill="none" stroke="#fff" stroke-width="1.6"/>
+    <path id="lsFA" class="stage flow" d="M452 180 V120 M452 92 V66 H312 V103 M312 189 V270 H452 V190" fill="none" stroke="#fff" stroke-width="2"/>`;
+  // Modell (vereinfacht): kleine Batterie 1,5 V, Spannungsteiler aus Widerstand und LDR (hell 0,5 kΩ … dunkel 50 kΩ);
+  // ab 0,6 V leitet die Basis-Emitter-Strecke, darüber steigt die Spannung kaum noch (höchstens etwa 0,7 V).
+  const rLdr = d => .5 * Math.pow(100, d);
+  function ube(d){ const r = rLdr(d), u = 1.5 * r / (9.45 + r); return u < .6 ? u : .6 + .1 * (1 - Math.exp(-(u - .6) / .25)); }
+  const ZEILEN = [
+    {k: "hell", name: "viel Licht (Strahl trifft den LDR)"},
+    {k: "halb", name: "wenig Licht (Strahl halb verdeckt)"},
+    {k: "dunkel", name: "kein Licht (Strahl unterbrochen)"}
+  ];
+  tb.innerHTML = ZEILEN.map(z => `<tr><th>${z.name}</th><td></td><td></td><td></td><td></td></tr>`).join("");
+  const gemacht = new Set();
+  register("lichtschranke", "#lsSvg", "Lichtschranke: hell, halb verdeckt und dunkel ausprobiert");
+  const V = u => fmt(u, 2) + " V";
+  function eintragen(k, d){
+    const u = ube(d), r = rLdr(d), tr = $$("tr", tb)[ZEILEN.findIndex(z => z.k === k)];
+    const werte = [r < 2 ? "klein" : r < 15 ? "mittel" : "groß", V(u) + (u >= .6 ? " – über 0,6 V" : " – unter 0,6 V"), u >= .6 ? "leitet" : "sperrt", u >= .6 ? "an" : "aus"];
+    werte.forEach((t, i) => { const td = tr.children[i + 1]; if (td.textContent === t) return; td.textContent = t; td.classList.remove("neu"); void td.offsetWidth; td.classList.add("neu"); });
+    gemacht.add(k);
+    if (gemacht.size === 3 && !Modul.isSolved("lichtschranke")) { solve("lichtschranke"); }
+  }
+  function zeige(d, knopf){
+    const u = ube(d), ein = u >= .6;
+    $("#lsStrahl", svg).setAttribute("opacity", (.85 * (1 - d)).toFixed(2));
+    $("#lsPerson", svg).classList.toggle("on", d >= .97);
+    $("#lsLdr", svg).setAttribute("fill", d > .5 ? "#c9d1d8" : "#fff");
+    $("#lsU", svg).textContent = V(u);
+    const bar = $("#lsBar", svg); bar.setAttribute("width", (Math.min(u / .8, 1) * 180).toFixed(1)); bar.setAttribute("fill", ein ? "#1b8a4b" : BLAU);
+    const st = $("#lsStatus", svg); st.textContent = ein ? "leitet ✓" : "sperrt"; st.setAttribute("fill", ein ? "#1b8a4b" : "#566674");
+    $("#lsGlow", svg).setAttribute("opacity", ein ? ".8" : "0");
+    $("#lsFB", svg).classList.toggle("on", ein); $("#lsFA", svg).classList.toggle("on", ein);
+    const k = knopf || (d <= .15 ? "hell" : d >= .3 && d <= .5 ? "halb" : d >= .8 ? "dunkel" : "");
+    const r = rLdr(d), wid = r < 2 ? "klein" : r < 15 ? "mittel" : "groß";
+    if (k === "hell") obs.textContent = `Viel Licht trifft den LDR. Sein Widerstand ist klein. Die Spannung zwischen Basis und Emitter beträgt nur ${V(u)} – weniger als 0,6 V. Der Transistor sperrt, die Lampe bleibt aus.`;
+    else if (k === "halb") obs.textContent = `Weniger Licht: Der Widerstand des LDR wird größer, die Spannung zwischen Basis und Emitter steigt auf ${V(u)}. Das ist immer noch weniger als 0,6 V – der Transistor sperrt noch, die Lampe bleibt aus.`;
+    else if (k === "dunkel") obs.textContent = `Jemand unterbricht den Lichtstrahl: Am LDR ist es dunkel, sein Widerstand ist groß. Die Spannung zwischen Basis und Emitter steigt über 0,6 V (${V(u)}). Jetzt fließt Strom durch die Basis – der Transistor schaltet den Arbeitsstromkreis ein. Die Lampe leuchtet!`;
+    else obs.textContent = `Widerstand des LDR: ${wid}. Spannung zwischen Basis und Emitter: ${V(u)} – ${ein ? "mehr als 0,6 V: Der Transistor leitet, die Lampe leuchtet." : "weniger als 0,6 V: Der Transistor sperrt, die Lampe ist aus."}`;
+    if (k) eintragen(k, d);
+    if (gemacht.size === 3 && k) obs.textContent += " ✅ Alle drei Fälle ausprobiert.";
+  }
+  regler.addEventListener("input", () => zeige(+regler.value / 100));
+  [["tHell", "hell", 0], ["tHalb", "halb", .4], ["tDunkel", "dunkel", 1]].forEach(([id, k, d]) => $("#" + id).addEventListener("click", () => { regler.value = Math.round(d * 100); zeige(d, k); }));
+  // Anfangszustand ohne Eintrag in die Tabelle
+  (function(){ const u = ube(0); $("#lsU", svg).textContent = V(u); $("#lsBar", svg).setAttribute("width", (u / .8 * 180).toFixed(1)); })();
+})();
+
+/* ---------- Station 3: Übungen ---------- */
+Modul.makeOrder($("#orderLicht"), [
+  "Eine Person läuft durch den Lichtstrahl.",
+  "Am Fotowiderstand (LDR) wird es dunkel.",
+  "Der Widerstand des LDR wird groß.",
+  "Die Spannung zwischen Basis und Emitter steigt über 0,6 V.",
+  "Der Transistor schaltet den Arbeitsstromkreis ein.",
+  "Die Lampe leuchtet."
+], "orderLicht");
+Modul.makeSort($("#sortKreise"), {
+  buckets: ["🔵 Steuerstromkreis", "🔴 Arbeitsstromkreis", "🔵🔴 beide"], cols: 190,
+  items: [
+    {t: "Basis", b: 0}, {t: "Fotowiderstand der Lichtschranke", b: 0}, {t: "Mikrofon im Verstärker", b: 0}, {t: "kleiner Strom", b: 0},
+    {t: "Kollektor", b: 1}, {t: "Lampe der Lichtschranke", b: 1}, {t: "Lautsprecher im Verstärker", b: 1}, {t: "großer Strom", b: 1},
+    {t: "Emitter", b: 2}, {t: "Transistor", b: 2}
+  ]
+}, "sortKreise");
+Modul.makeOpen($("#open2"), [
+  {q: "Bei einer Lichtschranke geht die Lampe an, wenn jemand durch den Lichtstrahl läuft. Erkläre, warum. Verwende die Begriffe LDR, Widerstand, Basis und 0,6 V.",
+   m: "Läuft jemand durch den Lichtstrahl, wird es am LDR dunkel. Dann wird sein Widerstand groß. Dadurch steigt die Spannung zwischen Basis und Emitter. Sobald sie mehr als 0,6 V beträgt, fließt genug Strom durch die Basis, und der Transistor schaltet den Arbeitsstromkreis ein. Die Lampe leuchtet.",
+   k: ["dunkel|kein licht|unterbroch", "ldr|fotowiderstand", "widerstand", "basis|steuer", "0,6|0.6|spannung", "lampe|arbeit|schaltet|leucht"], min: 4}
+], "open2-", "Schau dir die Lichtschranke noch einmal an: Was passiert mit dem Widerstand des LDR und mit der Spannung an der Basis, wenn es dunkel wird?");
+
+/* ---------- Station 4: Schaltzeichen erkennen ---------- */
+(function(){
+  const s = 'stroke="#15212b" stroke-width="2.4" fill="none"';
+  const bild = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260" font-family="Arial, sans-serif"><rect width="400" height="260" fill="#f7fbfe"/>
+    <path d="M133 8 V252 M267 8 V252 M8 130 H392" stroke="#d9e1e8" stroke-width="1.5"/>
+    <path d="M28 52 H31 M76.5 14 V8 M76.5 90 V96" ${s}/>${symTrans(66, 52, 1.05)}
+    <path d="M160 52 H178 M222 52 H240" ${s}/><rect x="178" y="44" width="44" height="16" fill="#fff" stroke="#15212b" stroke-width="2.4"/>
+    <path d="M293 60 H311 M355 60 H373" ${s}/><rect x="311" y="52" width="44" height="16" fill="#fff" stroke="#15212b" stroke-width="2.4"/>
+    ${pfeil(302, 18, 318, 46, ST, 2)}${pfeil(320, 18, 336, 46, ST, 2)}
+    <path d="M26 188 H55 M75 188 H106" ${s}/><path d="M55 176 L55 200 L75 188 Z" fill="#fff" stroke="#15212b" stroke-width="2.4" stroke-linejoin="round"/><line x1="75" y1="176" x2="75" y2="200" stroke="#15212b" stroke-width="3"/>
+    ${pfeil(68, 172, 80, 158, ST, 1.8)}${pfeil(76, 176, 88, 162, ST, 1.8)}
+    <path d="M160 188 H195 M206 188 H240" ${s}/><line x1="195" y1="172" x2="195" y2="204" stroke="#15212b" stroke-width="2.5"/><line x1="206" y1="180" x2="206" y2="196" stroke="#15212b" stroke-width="5.5"/>
+    <path d="M293 188 H319 M347 188 H373" ${s}/>${lampe(333, 188, 14)}
+  </svg>`;
+  Modul.makeLabel($("#labelSymbole"), {
+    img: "data:image/svg+xml;charset=utf-8," + encodeURIComponent(bild), w: 400, h: 260,
+    alt: "Sechs Schaltzeichen in zwei Reihen. Oben: ein Kreis mit drei Anschlüssen und einem Pfeil; ein leeres Rechteck; ein Rechteck, auf das zwei Pfeile zeigen. Unten: ein Dreieck mit Strich und zwei Pfeilen nach außen; ein langer dünner und ein kurzer dicker Strich; ein Kreis mit einem Kreuz. Unter jedem Zeichen ist ein leeres Kästchen.",
+    hint: "Welches Bauteil ist das? Tippe zuerst auf einen Namen und dann auf das Kästchen unter dem passenden Schaltzeichen. Zwei Namen bleiben übrig.",
+    slots: [
+      {x: 16.5, y: 43, px: 16.5, py: 30, a: "Transistor"},
+      {x: 50, y: 43, px: 50, py: 23.5, a: "Widerstand"},
+      {x: 83.3, y: 43, px: 83.3, py: 26.5, a: "LDR"},
+      {x: 16.5, y: 91.5, px: 16.5, py: 77, a: "LED"},
+      {x: 50, y: 91.5, px: 50, py: 78.5, a: "Batterie"},
+      {x: 83.3, y: 91.5, px: 83.3, py: 78, a: "Lampe"}
+    ],
+    extra: ["Diode", "Kondensator"]
+  }, "labelSymbole");
+})();
+
+/* ---------- Station 4: Schaltplan-Bauer (Tippen statt Ziehen) ---------- */
+(function(){
+  const svg = $("#pbSvg"), bank = $("#pbBank"), obs = $("#pbObs"), testB = $("#pbTest");
+  const LUECKEN = [
+    {id: "batt", soll: "batterie", x: 32, y: 142, w: 48, h: 56, wo: "links zwischen oberer und unterer Leitung"},
+    {id: "wid", soll: "widerstand", x: 150, y: 84, w: 40, h: 52, wo: "Mitte oben"},
+    {id: "ldr", soll: "ldr", x: 144, y: 194, w: 52, h: 52, wo: "Mitte unten, im Lichtstrahl"},
+    {id: "tr", soll: "transistor", x: 262, y: 134, w: 72, h: 72, wo: "rechts, mit drei Anschlüssen"},
+    {id: "sum", soll: "summer", x: 284, y: 77, w: 48, h: 40, wo: "rechts oben unter der oberen Leitung"}
+  ];
+  const TEILE = [
+    {k: "batterie", n: "Batterie"}, {k: "widerstand", n: "Widerstand"}, {k: "ldr", n: "Fotowiderstand (LDR)"}, {k: "transistor", n: "Transistor"},
+    {k: "summer", n: "Summer"}, {k: "led", n: "Leuchtdiode (LED)"}, {k: "kondensator", n: "Kondensator"}
+  ];
+  const S = 'stroke="#15212b" stroke-width="2.4" fill="none"';
+  // kleines Bild für den Knopf (waagerecht, 44 × 30)
+  const MINI = {
+    batterie: `<path d="M2 15 H18 M26 15 H42" ${S}/><line x1="18" y1="4" x2="18" y2="26" stroke="#15212b" stroke-width="2.4"/><line x1="25" y1="9" x2="25" y2="21" stroke="#15212b" stroke-width="5"/>`,
+    widerstand: `<path d="M2 15 H10 M34 15 H42" ${S}/><rect x="10" y="9" width="24" height="12" fill="#fff" stroke="#15212b" stroke-width="2.2"/>`,
+    ldr: `<path d="M2 19 H10 M34 19 H42" ${S}/><rect x="10" y="13" width="24" height="12" fill="#fff" stroke="#15212b" stroke-width="2.2"/>${pfeil(8, 1, 15, 11, ST, 1.4)}${pfeil(17, 1, 24, 11, ST, 1.4)}`,
+    transistor: symTrans(25, 15, .38),
+    summer: `<path d="M2 23 H12 M32 23 H42" ${S}/><path d="M12 23 A10 10 0 0 1 32 23 Z" fill="#fff" stroke="#15212b" stroke-width="2.2"/>`,
+    led: `<path d="M2 19 H14 M28 19 H42" ${S}/><path d="M14 11 V27 L28 19 Z" fill="#fff" stroke="#15212b" stroke-width="2"/><line x1="28" y1="11" x2="28" y2="27" stroke="#15212b" stroke-width="2.6"/>${pfeil(24, 9, 31, 2, ST, 1.3)}${pfeil(29, 11, 36, 4, ST, 1.3)}`,
+    kondensator: `<path d="M2 15 H19 M25 15 H42" ${S}/><line x1="19" y1="5" x2="19" y2="25" stroke="#15212b" stroke-width="3.4"/><line x1="25" y1="5" x2="25" y2="25" stroke="#15212b" stroke-width="3.4"/>`
+  };
+  // großes Bild in der Lücke (senkrecht, Anschlüsse oben und unten an den Rand der Lücke)
+  function teil(k, L){
+    const cx = L.id === "tr" ? 308 : L.x + L.w / 2, cy = L.y + L.h / 2, y0 = L.y, y1 = L.y + L.h;
+    const ln = (a, b) => `<line x1="${cx}" y1="${a}" x2="${cx}" y2="${b}" stroke="#15212b" stroke-width="2.5"/>`;
+    if (k === "transistor") return L.id === "tr" ? symTrans(298, 170, 1) : symTrans(L.x + L.w / 2 - 3, cy, Math.min(.62, (L.h / 2 - 3) / 36));
+    if (k === "batterie") return ln(y0, cy - 5) + ln(cy + 5, y1) + batterie(cx, cy) + tx(cx + 19, cy - 3, "+", ST, 12);
+    if (k === "widerstand") return ln(y0, cy - 16) + ln(cy + 16, y1) + `<rect x="${cx - 8}" y="${cy - 16}" width="16" height="32" fill="#fff" stroke="#15212b" stroke-width="2.4"/>`;
+    if (k === "ldr") return ln(y0, cy - 16) + ln(cy + 16, y1) + `<rect x="${cx - 8}" y="${cy - 16}" width="16" height="32" fill="#fff" stroke="#15212b" stroke-width="2.4"/>` + pfeil(cx + 23, cy - 17, cx + 10, cy - 6, ST, 1.6) + pfeil(cx + 23, cy - 2, cx + 10, cy + 9, ST, 1.6);
+    if (k === "summer") return ln(y0, cy - 6) + ln(cy + 7, y1) + `<path d="M${cx - 13} ${cy + 7} A13 13 0 0 1 ${cx + 13} ${cy + 7} Z" fill="#fff" stroke="#15212b" stroke-width="2.4"/>`;
+    if (k === "led") return ln(y0, cy - 8) + ln(cy + 8, y1) + `<path d="M${cx - 10} ${cy - 8} H${cx + 10} L${cx} ${cy + 8} Z" fill="#fff" stroke="#15212b" stroke-width="2.2"/><line x1="${cx - 10}" y1="${cy + 8}" x2="${cx + 10}" y2="${cy + 8}" stroke="#15212b" stroke-width="3"/>` + pfeil(cx + 8, cy - 2, cx + 18, cy - 12, ST, 1.4) + pfeil(cx + 9, cy + 5, cx + 19, cy - 5, ST, 1.4);
+    if (k === "kondensator") return ln(y0, cy - 4) + ln(cy + 4, y1) + `<line x1="${cx - 13}" y1="${cy - 4}" x2="${cx + 13}" y2="${cy - 4}" stroke="#15212b" stroke-width="3.5"/><line x1="${cx - 13}" y1="${cy + 4}" x2="${cx + 13}" y2="${cy + 4}" stroke="#15212b" stroke-width="3.5"/>`;
+    return "";
+  }
+  let wellen = "";
+  [10, 20].forEach((r, k) => { wellen += bogen(336, 97, r, "w" + k); });
+  svg.innerHTML = `<rect width="520" height="300" fill="#f7fbfe"/>
+    <text x="16" y="24" font-size="15" font-weight="800" fill="#144a74">Schaltplan: Alarmanlage mit Lichtschranke</text>
+    <polygon id="pbStrahl" points="226,206 226,232 198,242 198,196" fill="#ffe066" opacity=".85"/>
+    <path d="M236 209 L226 203 V235 L236 229 Z" fill="#566674"/><rect x="236" y="209" width="44" height="20" rx="4" fill="#566674"/>
+    ${tx(258, 252, "Lichtsender", "#566674", 11.5)}
+    <g id="pbPerson" class="stage" fill="#34495e"><circle cx="211" cy="196" r="6"/><rect x="204" y="204" width="14" height="28" rx="6"/><path d="M207 230 L204 250 M215 230 L219 250" stroke="#34495e" stroke-width="4" stroke-linecap="round"/></g>
+    <path d="M56 142 V60 H308 V77 M308 117 V134 M308 206 V280 H56 V198 M170 60 V84 M170 136 V194 M170 246 V280 M170 170 H262" fill="none" stroke="#15212b" stroke-width="2.5" stroke-linejoin="round"/>
+    <g fill="#15212b"><circle cx="170" cy="60" r="4"/><circle cx="170" cy="280" r="4"/><circle cx="170" cy="170" r="4"/></g>
+    <path id="pbFA" class="stage flow" d="M56 142 V60 H308 V77 M308 117 V134 M308 206 V280 H56 V198" fill="none" stroke="${ROT}" stroke-width="2.6"/>
+    <path id="pbFB" class="stage flow" d="M170 170 H262" fill="none" stroke="${BLAU}" stroke-width="2.6"/>
+    ${LUECKEN.map((L, i) => `<g class="pb-luecke" id="pbL-${L.id}" role="button" tabindex="0" aria-label="Lücke ${i + 1}: ${L.wo}"><rect class="rahmen" x="${L.x}" y="${L.y}" width="${L.w}" height="${L.h}" rx="8"/><g class="inhalt"></g><text class="frage" x="${L.x + L.w / 2}" y="${L.y + L.h / 2 + 6}" text-anchor="middle" font-size="18" font-weight="800" fill="${BLAU}">?</text></g>`).join("")}
+    <g id="pbWellen" class="stage" fill="none" stroke="${ROT}" stroke-width="2.5" stroke-linecap="round">${wellen}</g>
+    <g id="pbAnz" class="stage">
+      ${tx(436, 92, "Lichtstrahl", "#566674", 12)}${tx(436, 112, "", ST, 14, "middle", "pbA1")}
+      ${tx(436, 150, "Transistor", "#566674", 12)}${tx(436, 170, "", ST, 14, "middle", "pbA2")}
+      ${tx(436, 208, "Summer", "#566674", 12)}${tx(436, 228, "", ST, 14, "middle", "pbA3")}
+    </g>`;
+  bank.innerHTML = Modul.shuffle(TEILE).map(t => `<button type="button" class="pb-tok" data-k="${t.k}"><svg viewBox="0 0 44 30" aria-hidden="true">${MINI[t.k]}</svg>${t.n}</button>`).join("");
+  const toks = $$(".pb-tok", bank), belegt = {};
+  let gewaehlt = null, laeuft = false;
+  register("planbauer", "#pbSvg", "Schaltplan-Bauer: Alarmanlage mit Lichtschranke");
+  const gruppe = L => $("#pbL-" + L.id, svg);
+  const markiere = ja => LUECKEN.forEach(L => gruppe(L).classList.toggle("ziel", ja && !belegt[L.id]));
+  function leere(L){
+    const k = belegt[L.id]; if (!k) return;
+    const t = toks.find(b => b.dataset.k === k); if (t) t.disabled = false;
+    delete belegt[L.id];
+    const g = gruppe(L); $(".inhalt", g).innerHTML = ""; $(".frage", g).style.display = ""; g.classList.remove("voll", "richtig", "falsch");
+    testB.disabled = true;
+  }
+  function setze(L, k){
+    belegt[L.id] = k;
+    const g = gruppe(L); $(".inhalt", g).innerHTML = teil(k, L); $(".frage", g).style.display = "none"; g.classList.remove("richtig", "falsch"); g.classList.add("voll");
+  }
+  toks.forEach(b => b.addEventListener("click", () => {
+    if (laeuft) return;
+    if (gewaehlt === b) { b.classList.remove("picked"); gewaehlt = null; markiere(false); return; }
+    if (gewaehlt) gewaehlt.classList.remove("picked");
+    gewaehlt = b; b.classList.add("picked"); markiere(true);
+    obs.textContent = `„${b.textContent.trim()}“ ausgewählt – tippe jetzt auf eine Lücke im Schaltplan.`;
+  }));
+  LUECKEN.forEach(L => {
+    const g = gruppe(L);
+    const tippe = () => {
+      if (laeuft) return;
+      if (gewaehlt) {
+        leere(L); setze(L, gewaehlt.dataset.k);
+        gewaehlt.disabled = true; gewaehlt.classList.remove("picked"); gewaehlt = null; markiere(false);
+        obs.textContent = Object.keys(belegt).length === LUECKEN.length ? "Alle Lücken sind belegt. Tippe auf „Prüfen“." : "Gut. Wähle das nächste Bauteil.";
+      } else if (belegt[L.id]) { leere(L); obs.textContent = "Die Lücke ist wieder frei."; }
+      else obs.textContent = "Tippe zuerst unten auf ein Bauteil.";
+    };
+    g.addEventListener("click", tippe);
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); tippe(); } });
+  });
+  $("#pbPruefen").addEventListener("click", () => {
+    if (laeuft) return;
+    if (Object.keys(belegt).length < LUECKEN.length) { obs.textContent = "Setze zuerst in alle fünf Lücken ein Bauteil."; return; }
+    let ok = 0;
+    LUECKEN.forEach(L => { const r = belegt[L.id] === L.soll; gruppe(L).classList.toggle("richtig", r); gruppe(L).classList.toggle("falsch", !r); if (r) ok++; });
+    const alle = ok === LUECKEN.length;
+    if (Modul.versuch) Modul.versuch("planbauer", alle);
+    if (alle) {
+      solve("planbauer"); Modul.confetti(); testB.disabled = false;
+      obs.textContent = "✅ Richtig! Batterie, Widerstand, LDR, Transistor und Summer sitzen am richtigen Platz. Teste jetzt deine Alarmanlage.";
+    } else obs.textContent = `${ok} von ${LUECKEN.length} richtig. Tippe auf eine rote Lücke, um sie zu leeren, und versuche es noch einmal.`;
+  });
+  $("#pbReset").addEventListener("click", () => {
+    if (laeuft) return;
+    LUECKEN.forEach(leere); if (gewaehlt) gewaehlt.classList.remove("picked"); gewaehlt = null; markiere(false);
+    obs.textContent = "Alles zurückgesetzt. Tippe auf ein Bauteil und dann auf eine Lücke.";
+  });
+  const an = (id, ja) => $("#" + id, svg).classList.toggle("on", ja);
+  const anzeige = (a, b, c, alarm) => {
+    $("#pbA1", svg).textContent = a; $("#pbA2", svg).textContent = b; $("#pbA3", svg).textContent = c;
+    $("#pbA3", svg).setAttribute("fill", alarm ? ROT : ST); $("#pbA2", svg).setAttribute("fill", alarm ? "#1b8a4b" : ST);
+  };
+  testB.addEventListener("click", async () => {
+    if (laeuft) return;
+    laeuft = true; testB.disabled = true;
+    const c = $("#pbTon").checked ? audio() : null;
+    try {
+      an("pbAnz", true); anzeige("trifft den LDR", "sperrt", "still", false);
+      obs.textContent = "Test: Der Lichtstrahl trifft den LDR. Sein Widerstand ist klein, an der Basis liegen weniger als 0,6 V. Der Transistor sperrt – der Summer ist still.";
+      await wait(2200);
+      an("pbPerson", true); $("#pbStrahl", svg).setAttribute("opacity", ".12");
+      anzeige("unterbrochen", "leitet", "piept!", true); an("pbFA", true); an("pbFB", true); an("pbWellen", true);
+      obs.textContent = "Jemand läuft durch den Lichtstrahl! Am LDR wird es dunkel, sein Widerstand wird groß. Die Spannung an der Basis steigt über 0,6 V, der Transistor schaltet den Arbeitsstromkreis ein – der Summer piept.";
+      piep(c, 6);
+      await wait(2600);
+      an("pbPerson", false); $("#pbStrahl", svg).setAttribute("opacity", ".85");
+      anzeige("trifft den LDR", "sperrt", "still", false); an("pbFA", false); an("pbFB", false); an("pbWellen", false);
+      obs.textContent = "Die Person ist weg, das Licht trifft wieder den LDR: Der Summer ist still. Deine Alarmanlage funktioniert! (Echte Alarmanlagen piepen weiter, bis jemand sie ausschaltet.)";
+    } finally { laeuft = false; testB.disabled = false; }
+  });
+})();
+
+/* ---------- Station 4: Wechselblinker ---------- */
+(function(){
+  const svg = $("#wbSvg"), regler = $("#wbKond"), chip = $("#wbChip");
+  const T = [.5, 1, 2], NAME = ["klein", "mittel", "groß"], SEK = ["eine halbe Sekunde", "eine Sekunde", "zwei Sekunden"];
+  const W = 46, MARKE = W * .6 / .7;
+  svg.innerHTML = `<rect width="520" height="300" fill="#f7fbfe"/>
+    <text id="wbKopf" x="16" y="24" font-size="15" font-weight="800" fill="#144a74">Wechselblinker</text>
+    <circle id="wbG1" cx="140" cy="109" r="20" fill="#ff5a4f" opacity="0" style="transition:opacity .15s"/>
+    <circle id="wbG2" cx="380" cy="109" r="20" fill="#3ddc84" opacity="0" style="transition:opacity .15s"/>
+    <g fill="none" stroke="#15212b" stroke-width="2.5" stroke-linejoin="round">
+      <path d="M44 155 V46 H380 M44 165 V280 H380"/>
+      <path d="M140 46 V58 M140 88 V100 M140 118 V166 M380 46 V58 M380 88 V100 M380 118 V166 M140 244 V280 M380 244 V280"/>
+      <path d="M230 46 V58 M230 88 V205 H191 M290 46 V58 M290 88 V205 H329"/>
+      <path d="M140 136 H181 M189 136 H290 M380 150 H339 M331 150 H230"/>
+    </g>
+    ${batterie(44, 160)}${tx(22, 158, "+", ST, 14)}
+    <g fill="#fff" stroke="#15212b" stroke-width="2.4"><rect x="132" y="58" width="16" height="30"/><rect x="372" y="58" width="16" height="30"/><rect x="222" y="58" width="16" height="30"/><rect x="282" y="58" width="16" height="30"/></g>
+    <g id="wbK1" stroke="#15212b" stroke-width="3.5"><line x1="181" y1="124" x2="181" y2="148"/><line x1="189" y1="124" x2="189" y2="148"/></g>
+    <g id="wbK2" stroke="#15212b" stroke-width="3.5"><line x1="339" y1="138" x2="339" y2="162"/><line x1="331" y1="138" x2="331" y2="162"/></g>
+    <g fill="#15212b"><circle cx="140" cy="46" r="3.6"/><circle cx="230" cy="46" r="3.6"/><circle cx="290" cy="46" r="3.6"/><circle cx="140" cy="280" r="3.6"/><circle cx="140" cy="136" r="3.6"/><circle cx="290" cy="136" r="3.6"/><circle cx="380" cy="150" r="3.6"/><circle cx="230" cy="150" r="3.6"/></g>
+    <path id="wbL1" d="M130 100 H150 L140 118 Z" fill="#fff" stroke="#15212b" stroke-width="2.2" stroke-linejoin="round"/><line x1="130" y1="118" x2="150" y2="118" stroke="#15212b" stroke-width="3"/>
+    ${pfeil(129, 105, 117, 95, ST, 1.6)}${pfeil(129, 113, 117, 103, ST, 1.6)}
+    <path id="wbL2" d="M370 100 H390 L380 118 Z" fill="#fff" stroke="#15212b" stroke-width="2.2" stroke-linejoin="round"/><line x1="370" y1="118" x2="390" y2="118" stroke="#15212b" stroke-width="3"/>
+    ${pfeil(391, 105, 403, 95, ST, 1.6)}${pfeil(391, 113, 403, 103, ST, 1.6)}
+    ${symTrans(151, 205, 1.1, ST, true)}${symTrans(369, 205, 1.1)}
+    ${tx(110, 112, "LED 1", ST, 12, "end")}${tx(410, 112, "LED 2", ST, 12, "start")}
+    ${tx(118, 210, "T1", ST, 13, "end")}${tx(402, 210, "T2", ST, 13, "start")}
+    ${tx(185, 117, "K1", "#566674", 12)}${tx(335, 178, "K2", "#566674", 12)}
+    <!-- Strom durch die leuchtende LED -->
+    <path id="wbF1" class="stage flow" d="M140 46 V58 M140 88 V100 M140 118 V166 M140 244 V280" fill="none" stroke="#e74c3c" stroke-width="2.4"/>
+    <path id="wbF2" class="stage flow" d="M380 46 V58 M380 88 V100 M380 118 V166 M380 244 V280" fill="none" stroke="#e74c3c" stroke-width="2.4"/>
+    <!-- Spannung an den Basen -->
+    <rect x="180" y="222" width="${W}" height="10" rx="5" fill="#e8eef3"/><rect id="wbB1" x="180" y="222" width="0" height="10" rx="5" fill="${BLAU}"/>
+    <rect x="294" y="222" width="${W}" height="10" rx="5" fill="#e8eef3"/><rect id="wbB2" x="294" y="222" width="0" height="10" rx="5" fill="${BLAU}"/>
+    <path d="M${180 + MARKE} 217 V237 M${294 + MARKE} 217 V237" stroke="${ROT}" stroke-width="2.2"/>
+    ${tx(203, 251, "Basis T1", "#566674", 11.5)}${tx(317, 251, "Basis T2", "#566674", 11.5)}${tx(260, 268, "rote Marke = 0,6 V", ROT, 11)}`;
+  let an = 0, lade = 0, modus = "fest", ziel = 0, sichtbar = false, raf = 0, letzt = 0, schritt = -1;
+  function male(){
+    const g = (id, o) => $("#" + id, svg).setAttribute("opacity", o);
+    g("wbG1", an === 1 ? ".75" : "0"); g("wbG2", an === 2 ? ".75" : "0");
+    $("#wbL1", svg).setAttribute("fill", an === 1 ? "#ff5a4f" : "#fff"); $("#wbL2", svg).setAttribute("fill", an === 2 ? "#3ddc84" : "#fff");
+    $("#wbF1", svg).classList.toggle("on", an === 1); $("#wbF2", svg).classList.toggle("on", an === 2);
+    const b1 = an === 1 ? W : an === 2 ? lade * MARKE : 0, b2 = an === 2 ? W : an === 1 ? lade * MARKE : 0;
+    $("#wbB1", svg).setAttribute("width", b1.toFixed(1)); $("#wbB2", svg).setAttribute("width", b2.toFixed(1));
+    $("#wbB1", svg).setAttribute("fill", an === 1 ? "#1b8a4b" : BLAU); $("#wbB2", svg).setAttribute("fill", an === 2 ? "#1b8a4b" : BLAU);
+    $("#wbK1", svg).setAttribute("stroke", an === 1 ? "#f39c12" : ST); $("#wbK2", svg).setAttribute("stroke", an === 2 ? "#f39c12" : ST);
+  }
+  // Schleife: lädt den Kondensator auf; bei 0,6 V an der Basis schaltet die Schaltung um
+  function tick(t){
+    raf = 0;
+    if (!sichtbar || modus === "fest") return;
+    const dt = letzt ? Math.min((t - letzt) / 1000, .1) : 0; letzt = t;
+    lade += dt / (modus === "lauf" ? T[+regler.value] : 2.2);
+    if (modus === "lade1" && lade >= ziel) { lade = ziel; modus = "fest"; male(); return; }
+    if (lade >= 1) {
+      an = 3 - an; lade = 0;
+      if (modus === "lade2") { modus = "fest"; male(); return; }
+    }
+    male(); raf = requestAnimationFrame(tick);
+  }
+  function starte(m){ modus = m; letzt = 0; if (sichtbar && !raf && m !== "fest") raf = requestAnimationFrame(tick); }
+  onVisible(svg, v => { sichtbar = v; if (v) starte(modus); });
+  function chipText(){ const i = +regler.value; chip.textContent = `Größe der Kondensatoren: ${NAME[i]} – jede LED leuchtet etwa ${SEK[i]}.`; }
+  regler.addEventListener("input", () => { chipText(); if (modus !== "lauf") { if (!an) an = 1; starte("lauf"); } });
+  chipText();
+  const KOPF = ["Wechselblinker", "1 Der Aufbau", "2 T1 leitet, K1 lädt sich auf", "3 Umschalten bei 0,6 V", "4 Und wieder zurück", "5 Immer abwechselnd"];
+  Modul.makeSchritte($("#wbSim"), {
+    start: "Warum blinken die beiden LEDs abwechselnd? Tippe auf „Start“ und schau dir die Spannung an den Basen an.",
+    ms: 3600,
+    steps: [
+      "<strong>Der Aufbau:</strong> Der Wechselblinker hat zwei Hälften. Jede hat eine LED mit Widerstand und einen Transistor (T1, T2). Über Kreuz verbunden sind sie durch zwei <strong>Kondensatoren</strong> (K1, K2). Wo sich zwei Leitungen ohne Punkt kreuzen, sind sie nicht verbunden.",
+      "<strong>T1 leitet:</strong> Im Arbeitsstromkreis von T1 fließt Strom – LED 1 leuchtet. Gleichzeitig lädt sich K1 langsam auf. Dabei steigt die Spannung an der Basis von T2 (Balken rechts unten).",
+      "<strong>Umschalten:</strong> Erreicht die Basis von T2 etwa 0,6 V, schaltet T2 ein – LED 2 leuchtet. Im selben Moment sperrt T1: LED 1 geht aus.",
+      "<strong>Und wieder zurück:</strong> Jetzt lädt sich K2 auf, und die Spannung an der Basis von T1 steigt. Bei 0,6 V schaltet T1 wieder ein und T2 aus.",
+      "<strong>Immer abwechselnd:</strong> So geht es immer weiter – die LEDs blinken abwechselnd wie eine Warnleuchte. Stell mit dem Regler größere Kondensatoren ein: Das Aufladen dauert länger, die LEDs blinken langsamer."
+    ],
+    zeige(i){
+      schritt = i;
+      $("#wbKopf", svg).textContent = KOPF[i + 1];
+      if (i <= 0) { an = 0; lade = 0; starte("fest"); }
+      else if (i === 1) { an = 1; lade = 0; ziel = .93; starte(reduced ? "fest" : "lade1"); if (reduced) lade = .93; }
+      else if (i === 2) { an = 2; lade = 0; starte("fest"); }
+      else if (i === 3) { an = 2; lade = 0; if (reduced) { an = 1; starte("fest"); } else starte("lade2"); }
+      else { if (!an) an = 1; starte("lauf"); }
+      male();
+    }
+  }, "wbSchritte");
+})();
+
+/* ---------- Station 4: Übungen ---------- */
+Modul.makeTF($("#tfSchalt"), [
+  ["Im Schaltplan zeichnet man Leitungen nur waagerecht oder senkrecht.", true],
+  ["Ein dicker Punkt im Schaltplan zeigt, dass Leitungen verbunden sind.", true],
+  ["Kreuzen sich zwei Leitungen ohne Punkt, sind sie miteinander verbunden.", false],
+  ["Mit einem Heißleiter statt des LDR reagiert die Schaltung auf Temperatur.", true],
+  ["Ein Kondensator lässt den Strom nur in einer Richtung durch.", false],
+  ["Mit größeren Kondensatoren blinkt der Wechselblinker schneller.", false]
+], "tfSchalt");
+
+/* ---------- Training: Kreuzworträtsel mit Tipps ---------- */
+Modul.makeCrossword($("#cw"), {
+  tipps: true,
+  words: [
+    {w: "STEUERSTROMKREIS", r: 0, c: 12, d: "d", q: "Stromkreis über Basis und Emitter – hier fließt nur ein kleiner Strom.", tip: "Er steuert den Transistor."},
+    {w: "LICHTSCHRANKE", r: 2, c: 0, d: "a", q: "Läuft jemand durch ihren Lichtstrahl, geht die Lampe an.", tip: "Es gibt sie zum Beispiel an Aufzugtüren."},
+    {w: "VERSTAERKER", r: 5, c: 2, d: "a", q: "Er macht das schwache Signal eines Mikrofons stark.", tip: "Ä wird zu AE. Er hat oft mehrere Transistorstufen.", zeig: "Verstärker"},
+    {w: "SCHALTPLAN", r: 5, c: 5, d: "d", q: "Zeichnung einer Schaltung mit Schaltzeichen.", tip: "Zusammengesetzt aus „Schalt…“ und „Plan“."},
+    {w: "TRANSISTOR", r: 8, c: 3, d: "a", q: "Elektronisches Bauteil mit drei Anschlüssen.", tip: "Für seine Erfindung gab es 1956 den Nobelpreis."},
+    {w: "KONDENSATOR", r: 14, c: 0, d: "a", q: "Er speichert elektrische Energie – zum Beispiel im Wechselblinker.", tip: "Beginnt mit K und hat elf Buchstaben."},
+    {w: "KOLLEKTOR", r: 7, c: 1, d: "d", q: "Anschluss C des Transistors.", tip: "Das Wort heißt „Sammler“."},
+    {w: "NOBELPREIS", r: 0, c: 3, d: "a", q: "Berühmter Preis, den es 1956 für die Erfindung des Transistors gab.", tip: "Beginnt mit N und hat zehn Buchstaben."},
+    {w: "EMITTER", r: 5, c: 3, d: "d", q: "Anschluss E des Transistors – im Schaltzeichen mit Pfeil.", tip: "Das Wort heißt „Aussender“."},
+    {w: "SUMMER", r: 12, c: 7, d: "a", q: "Er piept in der Alarmanlage, wenn der Lichtstrahl unterbrochen wird.", tip: "Er summt oder piept."},
+    {w: "KLAPPE", r: 1, c: 0, d: "d", q: "Im Wassermodell öffnet die kleine … die große.", tip: "Auch ein Briefkasten hat eine."},
+    {w: "BASIS", r: 4, c: 7, d: "d", q: "Anschluss B – hier fließt der kleine Steuerstrom hinein.", tip: "Wie der Griff am Wasserhahn."}
+  ],
+  sol: [[0, 12], [2, 2], [7, 5], [2, 9], [9, 5], [7, 12], [13, 12], [5, 9]], solWord: "SCHALTER"
+}, "cw");
+
+/* ---------- Profi-Check, Lernkarten ---------- */
+Modul.makeQuiz($("#quiz"), [...MC.s1, ...MC.s2, ...MC.s3, ...MC.s4, ...MC.train,
+  {q: "Wofür bekamen drei Forscher aus den USA 1956 den Nobelpreis für Physik?", o: ["für die Erfindung des Transistors", "für die Erfindung des Telefons", "für die Entdeckung der Radioaktivität", "für die Erfindung der Glühlampe"], a: 0, e: "Heute steckt der Transistor in fast jedem elektronischen Gerät."},
+  {q: "Wie sieht ein SMD-Transistor aus?", o: ["winzig klein, direkt auf die Platine gelötet", "groß, mit Metallgehäuse und langen Beinen", "rund und durchsichtig wie eine LED", "wie eine kleine Batterie mit zwei Polen"], a: 0, e: "SMD-Bauteile stecken zum Beispiel in Smartphones und Computern."},
+  {q: "Wie groß ist der Widerstand eines LDR im Dunkeln?", o: ["groß", "klein", "genau null", "immer gleich"], a: 0, e: "Je heller, desto kleiner der Widerstand – im Dunkeln ist er groß."},
+  {q: "Was passiert in der Lichtschranke, wenn wieder Licht auf den LDR fällt?", o: ["Die Spannung an der Basis sinkt unter 0,6 V – die Lampe geht aus.", "Die Spannung an der Basis steigt über 0,6 V – die Lampe geht an.", "Der Transistor bleibt für immer eingeschaltet, auch ohne Strom.", "Die kleine Batterie im Steuerstromkreis lädt sich wieder auf."], a: 0, e: "Mit Licht ist der Widerstand des LDR klein – der Transistor sperrt."},
+  {q: "Was zeigt ein dicker Punkt im Schaltplan?", o: ["Hier sind Leitungen verbunden.", "Hier kreuzen sich Leitungen ohne Verbindung.", "Hier sitzt eine kleine Lampe.", "Hier ist der Pluspol der Batterie."], a: 0, e: "Kreuzen sich Leitungen ohne Punkt, sind sie nicht verbunden."}
+], "quiz", "Transistor-Profi");
+if (window.NT8Karten) NT8Karten.trainer($("#lernkarten"), {module: ["kt-transistor"], titel: "Lernkarten zu diesem Modul", zug: "M", druck: false});
+
+/* ---------- Skizze im Regelheft ---------- */
+(function(){
+  const svg = $("#rhSkizze");
+  svg.innerHTML = `<path d="M40 95 V30 H130 V42 M130 72 V108 M130 138 V175 H260 M40 105 V175" fill="none" stroke="${BLAU}" stroke-width="3"/>
+    <path d="M130 90 H214" fill="none" stroke="${BLAU}" stroke-width="3"/>
+    <path d="M260 54 V30 H400 V46 M400 70 V97 M400 107 V175 H260" fill="none" stroke="${ROT}" stroke-width="4"/>
+    <path d="M260 126 V175" stroke="${ST}" stroke-width="3"/><circle cx="260" cy="175" r="4.5" fill="${ST}"/><circle cx="130" cy="90" r="4" fill="${ST}"/>
+    ${batterie(40, 100, BLAU)}${batterie(400, 102, ROT)}
+    <rect x="123" y="42" width="14" height="30" fill="#fff" stroke="${ST}" stroke-width="2.2"/><rect x="123" y="108" width="14" height="30" fill="#fff" stroke="${ST}" stroke-width="2.2"/>
+    ${pfeil(162, 104, 142, 116, ST, 1.6)}${pfeil(162, 120, 142, 132, ST, 1.6)}
+    ${lampe(400, 58, 12)}${symTrans(250, 90, 1)}
+    ${tx(116, 62, "Widerstand", ST, 12, "end")}${tx(116, 128, "LDR", ST, 12, "end")}${tx(418, 62, "Lampe", ST, 12, "start")}
+    ${tx(222, 82, "B", BLAU, 13)}${tx(272, 52, "C", ROT, 13)}${tx(272, 134, "E", LILA, 13)}
+    ${tx(54, 92, "+", BLAU, 13, "start")}${tx(414, 96, "+", ROT, 13, "start")}
+    ${tx(150, 194, "Steuerstromkreis (über B und E)", BLAU, 12.5)}${tx(372, 194, "Arbeitsstromkreis (über C und E)", ROT, 12.5)}
+    ${tx(336, 112, "ab 0,6 V", ST, 12)}${tx(336, 127, "zwischen B und E:", ST, 12)}${tx(336, 142, "Lampe an", ST, 12)}`;
+})();
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

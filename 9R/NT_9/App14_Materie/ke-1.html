@@ -1,0 +1,739 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#6b1f3d">
+<title>Die Entdeckung der Kernspaltung | NT 9</title>
+<link rel="stylesheet" href="../../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="materie.css">
+<style>
+/* Labor 1938 */
+#laborSvg .fliegt{transition:transform 1.3s cubic-bezier(.3,.6,.3,1),opacity .5s}
+#laborSvg .brief{transition:transform 1.4s ease-in-out,opacity .6s}
+/* Protonen-Bilanz */
+#bilanzSvg .balken{transition:fill .5s}
+/* Spaltung */
+#spaltSvg .mv{transition:transform 1.3s cubic-bezier(.3,.7,.3,1),opacity .5s}
+#spaltSvg .kern{transform-box:fill-box;transform-origin:center;transition:opacity .3s}
+#spaltSvg .kern.wobble{animation:spWobble .45s ease-in-out infinite alternate}
+#spaltSvg .nuk{transition:transform .9s cubic-bezier(.3,.7,.3,1)}
+@keyframes spWobble{from{transform:scale(1.08,.93)}to{transform:scale(.93,1.08)}}
+#spaltSvg .glow{transform-box:fill-box;transform-origin:center;transition:transform 1.2s,opacity .8s;transform:scale(.15);opacity:0}
+#spaltSvg .glow.on{opacity:.9;transform:scale(1)}
+#spaltSvg .glow.gross{transform:scale(1.6)}
+#spaltSvg .zitter{animation:spZitter .13s linear infinite alternate}
+@keyframes spZitter{from{transform:translate(-1.6px,1.2px)}to{transform:translate(1.6px,-1.2px)}}
+/* Uran gegen Kohle */
+#kohleSvg .wagen rect.kohle,#kohleSvg #kuGrossK{transition:width .4s}
+.el-tab{border-collapse:collapse;font-size:.93rem;margin:6px 0}
+.el-tab th,.el-tab td{border:1px solid var(--line);padding:4px 12px;text-align:left}
+.el-tab th{background:var(--sky-l);color:var(--sky-d)}
+.el-wrap{display:flex;flex-wrap:wrap;gap:6px 24px}
+@media (prefers-reduced-motion:reduce){#laborSvg *,#bilanzSvg *,#spaltSvg *,#kohleSvg *{transition:none!important;animation:none!important}}
+</style>
+<script src="../../../js/kursliste.js"></script>
+<script src="../themen.js"></script>
+<!-- 9M und 9R nutzen dieselben Seiten: die Kursliste kommt aus dem Ordner (../themen.js = NT9M oder NT9R) -->
+<script>window.GRUMI_KURS = window.NT9M || window.NT9R; window.GRUMI_KURS.KARTEN = "../../" + window.GRUMI_KURS.ORDNER + "App14_Materie/";</script>
+<script src="materie.js"></script>
+</head>
+<body data-bereich="ke">
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="../%C3%BCbersicht_themen.html">GRUMI<small>NT <span class="mt-zug">9M</span> · Kernenergie 1</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Beschuss</a>
+      <a href="#s2"><b>2</b>Meitner</a>
+      <a href="#s3"><b>3</b>Spaltung</a>
+      <a href="#s4"><b>4</b>Energie</a>
+      <a href="#s5"><b>5</b>Training</a>
+      <a href="#abschluss"><b>6</b>Abschluss</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse <span class="mt-zug">9M</span> · Kernenergie · Modul 1</div>
+    <h1>Die Entdeckung der Kernspaltung</h1>
+    <p>Berlin, 1938: Zwei Chemiker bestrahlen Uran mit Neutronen – und finden etwas, das es eigentlich nicht geben dürfte. Eine Physikerin, die aus Deutschland fliehen musste, liefert die Erklärung: Der Atomkern ist zerbrochen. In sechs Stationen erfährst du, wie die Kernspaltung entdeckt wurde, wie sie abläuft und warum dabei so gewaltig viel Energie frei wird.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s5">Direkt zum Training</a>
+    </div>
+    <div class="goals">
+      <div>🔬 Ich erzähle, wie Hahn, Strassmann und Meitner 1938 die Kernspaltung entdeckten.</div>
+      <div>🧮 Ich rechne wie Lise Meitner mit den Protonen: 92 − 56 = 36.</div>
+      <div>⚛️ Ich beschreibe, wie ein Urankern gespalten wird und was dabei entsteht.</div>
+      <div>⚡ Ich vergleiche die Energie aus 1 g Uran mit der aus 1 g Kohle.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg · Probenstoff</div><h2>Kerne unter Beschuss</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <figure style="margin:0 0 12px"><img class="zoomable" src="bilder/ke-1.jpg" width="1280" height="853" loading="lazy" decoding="async" alt="Drei Forschende in einem Labor von früher beugen sich über einen Holztisch. Aus einem Metallkasten tritt ein feiner Strahl und trifft durch zwei Plättchen auf einen Schirm. Daneben stehen ein Messgerät mit Röhren und Reagenzgläser, auf dem Tisch liegen Hefte mit Skizzen von Strahlen und einem Atomkern." style="width:100%;height:auto"><figcaption class="hint" style="margin:4px 0 0">Bild: GRUMI (mit KI erstellt)</figcaption></figure>
+      <p class="hint" style="margin:0 0 10px"><strong>Denk mal nach:</strong> Aus dem Metallkasten kommt ein Strahl und trifft auf eine Probe. Was wollen die drei wohl herausfinden?</p>
+      <p class="lead">In den 1930er-Jahren hatten <button class="term" data-t="kernphysiker">Kernphysiker</button> eine neue Idee: Sie lenkten Teilchen auf alle möglichen Stoffe und schauten, was mit den <button class="term" data-t="atomkern">Atomkernen</button> passiert. So hofften sie, bisher unbekannte Atomsorten zu finden.</p>
+      <p style="margin:0">Besonders gut eignen sich <button class="term" data-t="neutron">Neutronen</button> dafür. Sie tragen keine elektrische Ladung, werden also vom Kern nicht abgestoßen – und können deshalb bis in den Kern hineinfliegen.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Berlin, 1938.</strong> Die beiden <button class="term" data-t="chemiker">Chemiker</button> Otto Hahn und Fritz Strassmann bestrahlen <button class="term" data-t="uran">Uran</button> mit Neutronen. Uran ist das schwerste <button class="term" data-t="element">Element</button>, das in der Natur vorkommt: 92 <button class="term" data-t="proton">Protonen</button> stecken in jedem Kern.</p>
+      <p style="margin:0">Ihr Plan: Ein Urankern fängt ein Neutron ein und wird dadurch noch schwerer. So müsste ein ganz neues Element entstehen – schwerer als Uran. Doch als sie die Probe untersuchen, finden sie etwas völlig anderes: <button class="term" data-t="barium">Barium</button>. Das ist viel leichter als Uran. Wie kann das sein?</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="laborSim">
+    <svg viewBox="0 0 520 290" id="laborSvg" role="img" aria-label="Animation: Hahn und Strassmann im Labor 1938. Neutronen fliegen aus einer Quelle auf eine Uranprobe. Sie erwarten ein schwereres Element, finden aber Barium. Hahn schickt einen Brief an Lise Meitner nach Schweden."></svg>
+  </div>
+
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>1938 bestrahlten Otto Hahn und Fritz Strassmann Uran mit Neutronen.</li><li>Sie wollten schwerere Kerne erzeugen – fanden aber Barium, ein viel leichteres Element.</li><li>Das konnte niemand erklären. Aber es musste aus dem Uran entstanden sein.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag">Paare finden</span>
+    <h3 style="margin-top:4px">Wer oder was ist das?</h3>
+    <p class="hint">Tippe links einen Namen oder Begriff an und dann rechts die passende Erklärung.</p>
+    <div id="paareWer"></div>
+  </div>
+  <div class="card reveal" id="mc-s1"></div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Lise Meitner erklärt es</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Lise Meitner war <button class="term" data-t="physikerin">Physikerin</button>. Rund 30 Jahre lang hatte sie in Berlin mit Otto Hahn zusammen geforscht. Doch 1938 musste sie aus Deutschland fliehen: Sie stammte aus einer jüdischen Familie, deshalb verfolgten die Nationalsozialisten sie. Sie fand Zuflucht in Schweden.</p>
+      <p style="margin:0">Dorthin schrieb ihr Hahn einen Brief: Barium im Uran – was ist da passiert? Meitner dachte scharf nach. Ihr Grundsatz: <strong>Kein Teilchen kann einfach verschwinden.</strong></p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Ihre Rechnung:</strong> Uran hat 92 Protonen, Barium nur 56. Wo sind die übrigen 92 − 56 = <strong>36 Protonen</strong>? Sie müssen in einem zweiten Kern stecken. Das Element mit 36 Protonen ist <button class="term" data-t="krypton">Krypton</button> – ein Gas. Deshalb war es im Versuch nicht aufgefallen.</p>
+      <p style="margin:0">Der Urankern ist also in <strong>zwei Teile zerbrochen</strong>: Barium und Krypton. Meitner gab dem Vorgang seinen Namen: <button class="term" data-t="kernspaltung">Kernspaltung</button>.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <svg viewBox="0 0 520 250" id="bilanzSvg" role="img" aria-label="Rechner: Ein Balken zeigt die 92 Protonen des Urans. Wählt man das gefundene Element, zerbricht der Balken in zwei Teile. Der zweite Teil zeigt, welches Element noch entstanden sein muss."></svg>
+    <div class="sim-ctrl"><label>Gefundenes Element:</label><button class="btn small teal" id="tBarium">Barium (56)</button><button class="btn small teal" id="tLanthan">Lanthan (57)</button><button class="btn small teal" id="tCaesium">Cäsium (55)</button></div>
+    <p class="obs" id="bilanzObs">Rechne wie Lise Meitner: Wähle das Element, das im Versuch gefunden wurde. Der Rechner zeigt, welches zweite Element dazugehören muss. Probiere alle drei aus.</p>
+    <div class="tab-wrap" style="padding:0 14px 14px"><table class="beob" id="bilanzTab">
+      <thead><tr><th>Gefundenes Element</th><th>Protonen</th><th>Rechnung</th><th>Zweiter Trümmerkern</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <h3 style="margin-top:0">Extra: Lise Meitner – die Frau hinter der Erklärung</h3>
+    <p>Meitner besprach Hahns Brief in den Weihnachtsferien 1938 mit ihrem Neffen Otto Frisch, auch er Physiker. Gemeinsam erklärten sie, wie der Kern zerbricht, und schätzten ab, wie viel Energie dabei frei wird. Den <button class="term" data-t="nobelpreis">Nobelpreis</button> für die Entdeckung bekam 1944 allein Otto Hahn. Lise Meitner ging leer aus – heute gilt das als große Ungerechtigkeit. Seit 1997 trägt das Element 109 ihren Namen: <strong>Meitnerium</strong>.</p>
+  </div>
+
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Lise Meitner erklärte den Versuch: Der Urankern ist in zwei Teile zerbrochen.</li><li>Kein Teilchen verschwindet: Uran hat 92 Protonen, Barium 56 → der zweite Kern hat 92 − 56 = 36 Protonen. Das ist Krypton, ein Gas.</li><li>Meitner prägte den Begriff <strong>Kernspaltung</strong>.</li></ul></div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Reihenfolge · Probenstoff</span>
+    <h3 style="margin-top:4px">So wurde die Kernspaltung entdeckt</h3>
+    <p class="hint">Bringe die Schritte mit den Pfeilen in die richtige Reihenfolge.</p>
+    <div id="orderEntdeckung"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Lückentext · Probenstoff</span>
+    <h3 style="margin-top:4px">Der Brief nach Schweden</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapMeitner"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Rechnen</span>
+    <h3 style="margin-top:4px">Rechne wie Lise Meitner</h3>
+    <p class="hint">Bei einer anderen Spaltung entsteht Lanthan-147. Rechne mit den Protonen und mit den <button class="term" data-t="massenzahl">Massenzahlen</button>. Die Tabelle hilft dir.</p>
+    <div class="el-wrap">
+      <table class="el-tab"><tr><th>Element</th><th>Protonen</th></tr><tr><td>Cäsium</td><td>55</td></tr><tr><td>Barium</td><td>56</td></tr><tr><td>Lanthan</td><td>57</td></tr></table>
+      <table class="el-tab"><tr><th>Element</th><th>Protonen</th></tr><tr><td>Selen</td><td>34</td></tr><tr><td>Brom</td><td>35</td></tr><tr><td>Krypton</td><td>36</td></tr><tr><td>Rubidium</td><td>37</td></tr></table>
+    </div>
+    <div class="gaptext" id="gapRechnen"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung.</p>
+    <div id="open2"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>So läuft die Spaltung ab</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Nicht jedes Uran lässt sich spalten. Uran gibt es als verschiedene <button class="term" data-t="isotop">Isotope</button>: Uran-238 ist das häufigste, aber nur <strong>Uran-235</strong> zerbricht leicht, wenn es ein Neutron einfängt. Die Zahl ist die Massenzahl: 92 Protonen + 143 Neutronen = 235 Kernbausteine.</p>
+      <p style="margin:0">Fängt ein Uran-235-Kern ein Neutron ein, ist er für einen winzigen Augenblick ein Uran-236-Kern. Dieser Kern ist sehr unruhig: Er schwingt, verformt sich wie eine Hantel – und zerbricht.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Was entsteht?</strong> Zwei etwa gleich große <button class="term" data-t="truemmerkerne">Trümmerkerne</button>, zum Beispiel Barium-144 und Krypton-89. Es gibt etwa 200 verschiedene Spaltprodukte – welche beiden entstehen, ist Zufall.</p>
+      <p style="margin:0">Außerdem fliegen bei <strong>jeder</strong> Spaltung 2 oder 3 neue Neutronen heraus, es entsteht <button class="term" data-t="gamma">γ-Strahlung</button>, und eine riesige Menge Energie wird frei. Rechne nach: 235 + 1 = 236 = 144 + 89 + 3. Kein Kernbaustein geht verloren.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="spaltSim">
+    <svg viewBox="0 0 520 290" id="spaltSvg" role="img" aria-label="Animation: Ein Neutron fliegt auf einen Uran-235-Kern zu. Der Kern fängt es ein, schwingt, verformt sich und zerbricht in Barium-144 und Krypton-89. Drei Neutronen und Gammastrahlung fliegen heraus, Energie wird frei, Nachbarkerne beginnen zu zittern."></svg>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Ein Neutron trifft einen Uran-235-Kern → kurz Uran-236 → der Kern schwingt, verformt sich und zerbricht in zwei Trümmerkerne (z. B. Barium-144 und Krypton-89).</li><li>Dabei entstehen immer 2 oder 3 neue Neutronen, γ-Strahlung und sehr viel Energie.</li><li>Etwa 200 verschiedene Spaltprodukte sind bekannt.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Reihenfolge · Probenstoff</span>
+    <h3 style="margin-top:4px">Die Spaltung Schritt für Schritt</h3>
+    <div id="orderSpaltung"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Richtig oder falsch? · Probenstoff</span>
+    <h3 style="margin-top:4px">Was stimmt?</h3>
+    <div id="tfSpaltung"></div>
+  </div>
+  <div class="card reveal" id="mc-s3"></div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Probenstoff</div><h2>Gewaltige Energie</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Die beiden Trümmerkerne rasen mit hoher Geschwindigkeit auseinander. Sie haben also sehr viel <button class="term" data-t="bewegungsenergie">Bewegungsenergie</button>. Schon nach kurzer Strecke stoßen sie mit anderen Atomkernen zusammen und geben die Energie an sie weiter.</p>
+      <p style="margin:0">Die angestoßenen Kerne schwingen heftiger – und je heftiger die Teilchen eines Stoffes schwingen, desto heißer ist er. Die <button class="term" data-t="kernenergie">Kernenergie</button> wird also zu <strong>Wärme</strong>. Genau diese Wärme nutzt man im Kernkraftwerk, um Strom zu erzeugen.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Wie viel Energie ist das?</strong> 1 g reines Uran-235 liefert etwa <strong>100 Millionen <button class="term" data-t="kilojoule">kJ</button></strong>. Verbrennt man 1 g Kohle, bekommt man nur etwa <strong>29 kJ</strong>. Ein winziges Stück Uran ersetzt also ganze Berge von Kohle.</p>
+      <p style="margin:0">Mit der Entdeckung begann das <button class="term" data-t="atomzeitalter">Atomzeitalter</button>. Die gewaltige Energie wurde aber nicht nur in Kraftwerken genutzt: Nur sieben Jahre später, 1945, brachte die Atombombe unsägliches Leid über die Menschen in Hiroshima und Nagasaki.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <svg viewBox="0 0 520 250" id="kohleSvg" role="img" aria-label="Rechenwerkzeug: Ein Stück Uran-235 links, rechts die Kohle, die dieselbe Energie liefert – als Güterwagen zu je 60 Tonnen. Mit dem Regler stellt man die Masse des Urans von 1 Gramm bis 1 Kilogramm ein."></svg>
+    <div class="sim-ctrl"><label for="kuRange">Masse Uran-235:</label><input type="range" id="kuRange" min="1" max="1000" step="1" value="1" aria-label="Masse des Urans in Gramm"><span class="chip" id="kuChip">1 g</span><button class="btn small ghost" id="kuB1">1 g</button><button class="btn small ghost" id="kuB100">100 g</button><button class="btn small ghost" id="kuB1000">1 kg</button></div>
+    <p class="obs" id="kuObs">Schiebe den Regler oder tippe auf einen Knopf: Wie viel Kohle liefert dieselbe Energie wie dein Stück Uran-235? Probiere 1 g und 1 kg aus.</p>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Die Trümmerkerne fliegen sehr schnell auseinander und stoßen Nachbarkerne an → die Kerne schwingen heftiger → die Materie wird heiß. So wird Kernenergie zu Wärme.</li><li>1 g Uran-235 liefert etwa 100 Millionen kJ, 1 g Kohle nur etwa 29 kJ.</li><li>Diese Energie nutzt man im Kernkraftwerk – sie wurde aber auch für die Atombombe missbraucht.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Lückentext · Probenstoff</span>
+    <h3 style="margin-top:4px">Woher die Wärme kommt</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapEnergie"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Zuordnen</span>
+    <h3 style="margin-top:4px">Kernspaltung oder Kohlefeuer?</h3>
+    <p class="hint">Tippe eine Karte an und dann den passenden Bereich.</p>
+    <div id="sortEnergie"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung.</p>
+    <div id="open4"></div>
+  </div>
+  <div class="card reveal" id="mc-s4"></div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Wiederholung · so kommt es in der Probe</div><h2>Training</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Kreuzworträtsel</span>
+    <h3 style="margin-top:4px">Löse das Kreuzworträtsel</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Ä schreibst du als AE. Hängst du fest? Bei jeder Frage hilft <strong>💡 Tipp</strong> – erst ein Hinweis, dann der Anfangsbuchstabe. Mit <strong>📋 Wörter zeigen</strong> siehst du alle Lösungswörter.</p>
+    <div id="cw"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Ankreuzen</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="abschluss">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Abschluss</div><h2>Profi-Check, Lernkarten und Regelheft</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <div class="card reveal">
+    <span class="task-tag">Lernkarten</span>
+    <div id="lernkarten"></div>
+  </div>
+  <div class="regelheft reveal" id="regelheft">
+    <h3>Die Entdeckung der Kernspaltung</h3>
+    <p><strong>1938</strong> bestrahlten <strong>Otto Hahn</strong> und <strong>Fritz Strassmann</strong> Uran mit Neutronen. Sie wollten schwerere Kerne erzeugen – fanden aber <strong>Barium</strong>, ein viel leichteres Element.</p>
+    <p><strong>Lise Meitner</strong> erklärte es: Der Urankern ist zerbrochen. Uran hat 92 Protonen, Barium 56 → der zweite Kern hat 92 − 56 = 36 Protonen: <strong>Krypton</strong> (ein Gas). Sie nannte den Vorgang <strong>Kernspaltung</strong>.</p>
+    <p><strong>Ablauf:</strong> Neutron trifft Uran-235 → kurz Uran-236 → der Kern schwingt, verformt sich und zerbricht in zwei <strong>Trümmerkerne</strong> (z. B. Barium-144 + Krypton-89) + <strong>2 oder 3 neue Neutronen</strong> + γ-Strahlung + sehr viel <strong>Energie</strong>.</p>
+    <svg class="rh-skizze" viewBox="0 0 420 110" role="img" aria-label="Skizze: Neutron trifft Uran-235, es entstehen Barium-144, Krypton-89, drei Neutronen und Energie.">
+      <circle cx="22" cy="55" r="7" fill="#4a6fa5"/><text x="22" y="80" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">n</text>
+      <path d="M34 55 H66" stroke="#15212b" stroke-width="2" marker-end="url(#rhPf)"/>
+      <circle cx="105" cy="55" r="30" fill="#f2c1c1" stroke="#c0392b" stroke-width="2"/><text x="105" y="59" text-anchor="middle" font-size="12" font-weight="800" fill="#15212b">U-235</text>
+      <path d="M142 55 H176" stroke="#15212b" stroke-width="2" marker-end="url(#rhPf)"/>
+      <circle cx="222" cy="30" r="22" fill="#f6d9a8" stroke="#b8720a" stroke-width="2"/><text x="222" y="34" text-anchor="middle" font-size="11" font-weight="800" fill="#15212b">Ba-144</text>
+      <circle cx="222" cy="84" r="19" fill="#cfe3f5" stroke="#1f6aa5" stroke-width="2"/><text x="222" y="88" text-anchor="middle" font-size="11" font-weight="800" fill="#15212b">Kr-89</text>
+      <g fill="#4a6fa5"><circle cx="275" cy="22" r="6"/><circle cx="283" cy="55" r="6"/><circle cx="275" cy="90" r="6"/></g>
+      <text x="300" y="59" font-size="12" font-weight="700" fill="#15212b">3 Neutronen</text>
+      <text x="300" y="30" font-size="12" font-weight="700" fill="#c0392b">+ Energie</text>
+      <text x="300" y="88" font-size="12" font-weight="700" fill="#8e55c7">+ γ-Strahlung</text>
+      <defs><marker id="rhPf" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#15212b"/></marker></defs>
+    </svg>
+    <p><strong>Kernenergie:</strong> Die Trümmerkerne rasen auseinander, stoßen Nachbarkerne an → die Kerne schwingen heftiger → die Materie wird <strong>heiß</strong>. Diese Wärme nutzt das Kernkraftwerk; sie wurde auch für die Atombombe eingesetzt.</p>
+    <table class="rh-tab"><tr><th>1 g Uran-235</th><td>etwa 100 000 000 kJ (100 Millionen)</td></tr><tr><th>1 g Kohle</th><td>etwa 29 kJ</td></tr></table>
+  </div>
+  <div class="rh-knoepfe reveal"><button class="btn small ghost" type="button" onclick="window.print()">🖨️ Regelheft drucken</button><a class="btn small ghost" href="arbeitsblaetter/K1-regelheft.pdf" download="NT9-K1-Regelheft.pdf">📥 Regelheft als PDF</a></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Bei jeder Spaltung fliegen 2 oder 3 neue Neutronen heraus. Was passiert, wenn jedes davon wieder einen Urankern trifft – und dann wieder? In Modul 2 startest du eine Kettenreaktion und lernst, wie man sie steuert.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="ke-2.html">➡️ Modul 2: Die Kettenreaktion</a>
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik <span class="mt-zug">9M</span> · Kernenergie · Modul 1 · Texte, Zeichnungen und Animationen sind eigenständig erstellt. Mit deinem Code wird dein Lernstand gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="../../../7M/NT/modul-basis.js"></script>
+<script src="../../../8M/NT/karten.js"></script>
+<script src="karten/ke1.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, esc, clamp, reduced, register, solve} = Modul;
+const NS = "http://www.w3.org/2000/svg";
+const svgEl = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const wait = ms => new Promise(r => setTimeout(r, reduced ? Math.min(ms, 60) : ms));
+const de = n => Number(n).toLocaleString("de-DE");
+
+Modul.init({
+  key: "grumi-nt9-ke-1-v1",
+  hero: "funken",
+  api: "/api/nt9/uebung/feedback",
+  thema: "Kernenergie, Klasse 9: Die Entdeckung der Kernspaltung – Otto Hahn und Fritz Strassmann bestrahlen 1938 Uran mit Neutronen und finden Barium; Lise Meitner erklärt es (Uran 92 Protonen, Barium 56, 92 − 56 = 36 = Krypton, ein Gas) und prägt den Begriff Kernspaltung; Ablauf: Neutron trifft Uran-235, kurz Uran-236, der Kern schwingt, verformt sich und zerbricht in zwei Trümmerkerne (z. B. Barium-144 und Krypton-89), dabei 2 oder 3 neue Neutronen, Gammastrahlung und sehr viel Energie; Kernenergie: Trümmerkerne stoßen Nachbarkerne an, die Kerne schwingen heftiger, die Materie wird heiß; 1 g Uran-235 etwa 100 Millionen kJ, 1 g Kohle 29 kJ; Nutzung im Kernkraftwerk, Missbrauch in der Atombombe",
+  glossary: {
+    kernphysiker: ["Kernphysiker", "Forscherinnen und Forscher, die den Atomkern untersuchen – also das winzige Innere eines Atoms."],
+    atomkern: ["Atomkern", "Der winzige, schwere Mittelpunkt eines Atoms. Er besteht aus Protonen und Neutronen."],
+    neutron: ["Neutron", "Teilchen im Atomkern ohne elektrische Ladung. Weil es ungeladen ist, wird es vom Kern nicht abgestoßen und kann in ihn eindringen."],
+    proton: ["Proton", "Positiv geladenes Teilchen im Atomkern. Die Zahl der Protonen legt fest, welches Element es ist."],
+    chemiker: ["Chemiker", "Wissenschaftler, der Stoffe untersucht: woraus sie bestehen und wie sie sich verwandeln."],
+    physikerin: ["Physikerin", "Wissenschaftlerin, die erforscht, wie die Natur funktioniert – zum Beispiel Kräfte, Energie und Atome."],
+    uran: ["Uran", "Sehr schweres Metall mit 92 Protonen im Kern. Das Isotop Uran-235 lässt sich spalten."],
+    element: ["Element", "Grundstoff, dessen Atome alle gleich viele Protonen haben, z. B. Uran (92), Barium (56) oder Krypton (36)."],
+    barium: ["Barium", "Metall mit 56 Protonen im Kern – viel leichter als Uran."],
+    krypton: ["Krypton", "Gas mit 36 Protonen im Kern. Weil es ein Gas ist, entwich es aus der Probe und fiel nicht auf."],
+    kernspaltung: ["Kernspaltung", "Ein schwerer Atomkern zerbricht in zwei etwa gleich große Teile. Dabei wird sehr viel Energie frei."],
+    nobelpreis: ["Nobelpreis", "Die bekannteste Auszeichnung für Forschung. Sie wird seit 1901 jedes Jahr vergeben."],
+    isotop: ["Isotop", "Atome desselben Elements mit verschiedener Neutronenzahl, z. B. Uran-235 und Uran-238. Die Zahl ist die Massenzahl."],
+    massenzahl: ["Massenzahl", "Anzahl der Kernbausteine (Protonen + Neutronen). Uran-235 hat 92 Protonen und 143 Neutronen."],
+    truemmerkerne: ["Trümmerkerne", "Die beiden Bruchstücke, in die ein Urankern bei der Spaltung zerbricht. Man nennt sie auch Spaltprodukte."],
+    gamma: ["γ-Strahlung (Gammastrahlung)", "Sehr energiereiche Strahlung aus dem Atomkern – ähnlich wie Licht, aber viel durchdringender."],
+    bewegungsenergie: ["Bewegungsenergie", "Energie, die ein Körper hat, weil er sich bewegt. Je schneller er ist, desto mehr Bewegungsenergie hat er."],
+    kernenergie: ["Kernenergie", "Energie, die im Atomkern steckt. Bei der Kernspaltung wird sie frei und wird zu Wärme."],
+    kilojoule: ["Kilojoule (kJ)", "Einheit der Energie. 1 kJ = 1 000 Joule. Um 1 Liter Wasser um 1 °C zu erwärmen, braucht man etwa 4 kJ."],
+    atomzeitalter: ["Atomzeitalter", "Die Zeit seit der Entdeckung der Kernspaltung: Kernkraftwerke und Atombomben wurden möglich."]
+  }
+});
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Was wollten Hahn und Strassmann 1938 mit ihrem Versuch erreichen?", o: ["Urankerne sollten ein Neutron einfangen und schwerer werden.", "Urankerne sollten in zwei kleinere Teile zerbrechen.", "Aus dem Uran sollte durch Bestrahlung Gold werden.", "Das Uran sollte durch die Neutronen hell leuchten."], a: 0, e: "Sie suchten neue Elemente, die schwerer sind als Uran. Die Spaltung kam völlig unerwartet."},
+    {q: "Was fanden die beiden in der bestrahlten Uranprobe?", o: ["Barium – viel leichter als Uran", "ein Element, schwerer als Uran", "Radium – fast so schwer wie Uran", "nur unverändertes Uran"], a: 0, e: "Barium hat nur 56 Protonen, Uran 92. Das konnte sich zuerst niemand erklären."}
+  ],
+  s3: [
+    {q: "Was passiert, wenn ein Uran-235-Kern ein Neutron einfängt?", o: ["Er wird unruhig, verformt sich und zerbricht in zwei Teile.", "Er wird schwerer und bleibt danach für immer stabil.", "Das Neutron prallt am Kern ab, und nichts passiert.", "Er sendet nur ein Elektron aus und bleibt sonst ganz."], a: 0, e: "Für einen Augenblick ist er Uran-236 – dann zerbricht er."},
+    {q: "Was entsteht bei jeder Kernspaltung außer den beiden Trümmerkernen?", o: ["2 oder 3 neue Neutronen, γ-Strahlung und viel Energie", "ein neuer, noch schwererer Urankern", "Sauerstoff, Kohlenstoffdioxid und Rauch", "genau ein Elektron und sonst nichts"], a: 0, e: "Die neuen Neutronen sind wichtig: Sie können weitere Kerne spalten (Modul 2)."},
+    {q: "Welche Aussagen über die Trümmerkerne stimmen?", o: ["Sie sind etwa gleich groß.", "Etwa 200 verschiedene Spaltprodukte sind bekannt.", "Barium-144 und Krypton-89 sind ein Beispiel.", "Sie sind schwerer als der Urankern.", "Es sind immer zwei neue Urankerne."], a: [0, 1, 2], e: "Die Trümmer sind leichter als Uran, und welche beiden entstehen, ist Zufall."}
+  ],
+  s4: [
+    {q: "Wie viel Energie liefert 1 g Uran-235 ungefähr?", o: ["etwa 100 Millionen kJ", "etwa 29 kJ", "etwa 100 kJ", "etwa 1 000 kJ"], a: 0, e: "1 g Kohle liefert nur etwa 29 kJ – ein riesiger Unterschied."},
+    {q: "Woher kommt die Wärme bei der Kernspaltung?", o: ["Die Trümmer stoßen Nachbarkerne an, die heftiger schwingen.", "Das Uran verbrennt mit dem Sauerstoff der Luft.", "Das Neutron war schon vorher sehr heiß.", "Die Kerne reiben sich an der Wand des Gefäßes."], a: 0, e: "Bewegungsenergie der Trümmerkerne wird zu Wärme der Materie."}
+  ],
+  train: [
+    {q: "Wer lieferte 1938 die Erklärung für den Versuch von Hahn und Strassmann?", o: ["Lise Meitner", "Marie Curie", "Henri Becquerel", "Albert Einstein"], a: 0, e: "Lise Meitner erklärte in Schweden, dass der Urankern zerbrochen war."},
+    {q: "Uran hat 92 Protonen, Barium 56. Wie viele Protonen hat der zweite Trümmerkern?", o: ["36", "148", "56", "92"], a: 0, e: "92 − 56 = 36 – das Element mit 36 Protonen ist Krypton."},
+    {q: "Welches Teilchen löst die Kernspaltung aus?", o: ["ein Neutron", "ein Proton", "ein Elektron", "ein Lichtstrahl"], a: 0, e: "Neutronen sind ungeladen und kommen deshalb bis in den Kern."},
+    {q: "Bei einer Spaltung entstehen Lanthan-147 und zwei Neutronen. Lanthan hat 57 Protonen. Welches ist der zweite Trümmerkern?", o: ["Brom-87", "Krypton-89", "Barium-144", "Uran-236"], a: 0, e: "92 − 57 = 35 Protonen → Brom. Massenzahl: 236 − 147 − 2 = 87."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Zeichenhilfe: Atomkern als Haufen aus Protonen (rot) und Neutronen (blau) ---------- */
+function kernHaufen(parent, cx, cy, n, radius, r){
+  for (let k = 0; k < n; k++) {
+    const d = radius * Math.sqrt((k + .5) / n), a = k * 2.3999;
+    svgEl("circle", {cx: (cx + d * Math.cos(a)).toFixed(1), cy: (cy + d * Math.sin(a)).toFixed(1), r, fill: k % 2 ? "#4a6fa5" : "#e05252", stroke: "#fff", "stroke-width": 1}, parent);
+  }
+}
+
+/* ---------- Station 1: Labor 1938 ---------- */
+(function(){
+  const svg = $("#laborSvg");
+  svg.innerHTML = `<rect width="520" height="290" fill="#f7fbfe"/>
+    <text x="260" y="24" text-anchor="middle" font-size="16" font-weight="800" fill="#6b1f3d">Berlin, 1938</text>
+    <!-- Hahn und Strassmann -->
+    <g id="lbHahn"><circle cx="52" cy="104" r="16" fill="#f1cfa8" stroke="#8a6d4b" stroke-width="2"/><path d="M30 168 Q30 126 52 126 Q74 126 74 168 Z" fill="#e8eef2" stroke="#7d8a94" stroke-width="2"/><text x="52" y="186" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">Hahn</text></g>
+    <g id="lbStr"><circle cx="468" cy="104" r="16" fill="#f1cfa8" stroke="#8a6d4b" stroke-width="2"/><path d="M446 168 Q446 126 468 126 Q490 126 490 168 Z" fill="#e8eef2" stroke="#7d8a94" stroke-width="2"/><text x="468" y="186" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">Strassmann</text></g>
+    <!-- Labortisch -->
+    <rect x="100" y="170" width="320" height="12" rx="3" fill="#8a6d4b"/><rect x="112" y="182" width="10" height="60" fill="#6e4a26"/><rect x="398" y="182" width="10" height="60" fill="#6e4a26"/>
+    <!-- Neutronenquelle -->
+    <rect x="118" y="124" width="62" height="46" rx="5" fill="#6b7a86" stroke="#3c474f" stroke-width="2"/><rect x="180" y="140" width="8" height="14" fill="#3c474f"/>
+    <text x="149" y="116" text-anchor="middle" font-size="11" font-weight="700" fill="#15212b">Neutronenquelle</text>
+    <!-- Uranprobe -->
+    <path d="M252 148 L258 170 H302 L308 148 Z" fill="#dfe9f1" stroke="#7d9bb0" stroke-width="2"/><ellipse cx="280" cy="162" rx="18" ry="5" fill="#d9b84a"/>
+    <text x="280" y="138" text-anchor="middle" font-size="12" font-weight="800" fill="#15212b">Uran</text>
+    <!-- Neutronen: Strahl von der Quelle zur Probe -->
+    <path id="lbStrom" class="stage flow" d="M192 147 H250" fill="none" stroke="#4a6fa5" stroke-width="2.5"/>
+    <g id="lbNeutr" class="fliegt"><circle cx="192" cy="141" r="4.5" fill="#4a6fa5"/><circle cx="199" cy="148" r="4.5" fill="#4a6fa5"/><circle cx="192" cy="155" r="4.5" fill="#4a6fa5"/></g>
+    <!-- Erwartung (Gedankenblase von Hahn) -->
+    <g id="lbPlan" class="stage"><circle cx="77" cy="112" r="3" fill="#fff" stroke="#9c2f5a" stroke-width="2"/><circle cx="87" cy="102" r="5" fill="#fff" stroke="#9c2f5a" stroke-width="2"/><rect x="96" y="36" width="180" height="62" rx="14" fill="#fff" stroke="#9c2f5a" stroke-width="2"/><text x="186" y="55" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">Erwartung:</text><text x="186" y="72" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">neues Element,</text><text x="186" y="89" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">schwerer als Uran</text></g>
+    <g id="lbPlanX" class="stage" stroke="#c0392b" stroke-width="5" stroke-linecap="round"><line x1="112" y1="44" x2="260" y2="92"/><line x1="260" y1="44" x2="112" y2="92"/></g>
+    <!-- Ergebnis der Analyse: Reagenzglas mit Barium -->
+    <g id="lbBa" class="stage"><rect x="290" y="36" width="150" height="84" rx="12" fill="#fff" stroke="#c0392b" stroke-width="2"/><path d="M302 48 V98 Q302 110 312 110 Q322 110 322 98 V48 Z" fill="#fff" stroke="#7d9bb0" stroke-width="2"/><rect x="304" y="80" width="16" height="27" rx="6" fill="#f6d9a8"/><text x="332" y="58" font-size="14" font-weight="800" fill="#c0392b">Barium!</text><text x="332" y="77" font-size="11" font-weight="700" fill="#15212b">56 Protonen –</text><text x="332" y="93" font-size="11" font-weight="700" fill="#15212b">viel leichter</text><text x="332" y="109" font-size="11" font-weight="700" fill="#15212b">als Uran (92)</text></g>
+    <g id="lbZiel" class="stage"><rect x="412" y="196" width="104" height="90" rx="10" fill="#eaf3fb" stroke="#7d9bb0" stroke-width="1.5" stroke-dasharray="5 4"/><text x="464" y="212" text-anchor="middle" font-size="12" font-weight="800" fill="#1f6aa5">Schweden</text><circle cx="494" cy="236" r="10" fill="#f1cfa8" stroke="#8a6d4b" stroke-width="2"/><path d="M480 266 Q480 248 494 248 Q508 248 508 266 Z" fill="#5d4a66" stroke="#3c2f44" stroke-width="1.5"/><text x="464" y="281" text-anchor="middle" font-size="11" font-weight="700" fill="#15212b">Lise Meitner</text></g>
+    <!-- Brief nach Schweden -->
+    <g id="lbBrief" class="stage brief"><rect x="24" y="236" width="44" height="30" rx="3" fill="#fff" stroke="#6b1f3d" stroke-width="2"/><path d="M24 236 L46 253 L68 236" fill="none" stroke="#6b1f3d" stroke-width="2"/></g>`;
+  const neutr = $("#lbNeutr", svg), brief = $("#lbBrief", svg);
+  Modul.makeSchritte($("#laborSim"), {
+    start: "Otto Hahn und Fritz Strassmann wollen neue Atomsorten finden. Tippe auf „Start“.",
+    steps: [
+      "Sie beschießen eine Probe aus <strong>Uran</strong> mit <strong>Neutronen</strong>. Die Neutronen fliegen bis in die Urankerne hinein.",
+      "Ihr Plan: Der Urankern fängt ein Neutron ein und wird <strong>schwerer</strong>. So müsste ein neues Element entstehen, das schwerer ist als Uran.",
+      "Dann untersuchen sie die Probe chemisch. Überraschung: Sie finden <strong>Barium</strong> – ein Element, das viel <strong>leichter</strong> ist als Uran!",
+      "Das kann sich niemand erklären. Hahn schreibt einen Brief an die Physikerin <strong>Lise Meitner</strong>, die nach Schweden fliehen musste: „Was ist da passiert?“"
+    ],
+    zeige(i){
+      neutr.style.transform = i >= 0 ? "translate(80px,10px)" : "";
+      neutr.style.opacity = i >= 2 ? 0 : 1;
+      $("#lbStrom", svg).classList.toggle("on", i === 0);
+      $("#lbPlan", svg).classList.toggle("on", i >= 1);
+      $("#lbPlanX", svg).classList.toggle("on", i >= 2);
+      $("#lbBa", svg).classList.toggle("on", i >= 2);
+      brief.classList.toggle("on", i >= 3);
+      brief.style.transform = i >= 3 ? "translate(396px,-4px)" : "";
+      $("#lbZiel", svg).classList.toggle("on", i >= 3);
+    }
+  }, "laborSchritte");
+})();
+
+/* ---------- Station 1: Paare ---------- */
+Modul.makePaare($("#paareWer"), [
+  ["Otto Hahn", "leitete den Versuch in Berlin und schrieb an Lise Meitner"],
+  ["Fritz Strassmann", "Chemiker, machte den Versuch gemeinsam mit Hahn"],
+  ["Neutron", "ungeladenes Teilchen, mit dem die Kerne beschossen wurden"],
+  ["Uran", "schwerstes Element in der Natur, 92 Protonen"],
+  ["Barium", "tauchte überraschend in der Probe auf, viel leichter als Uran"],
+  ["1938", "Jahr der Entdeckung"]
+], "paareWer");
+
+/* ---------- Station 2: Protonen-Bilanz ---------- */
+(function(){
+  const svg = $("#bilanzSvg"), obs = $("#bilanzObs"), tb = $("#bilanzTab tbody");
+  const ELEM = {
+    tBarium: {name: "Barium", p: 56, partner: "Krypton", pp: 36, note: "Krypton ist ein Gas. Es entwich aus der Probe – deshalb fiel es Hahn und Strassmann nicht auf.", kurz: "Krypton ist ein Gas – deshalb fiel es im Versuch nicht auf.", bsp: "Barium-144 + Krypton-89 + 3 Neutronen"},
+    tLanthan: {name: "Lanthan", p: 57, partner: "Brom", pp: 35, note: "Brom hat 35 Protonen. Bei dieser Spaltung entstehen Lanthan-147 und Brom-87.", kurz: "Auch so kann ein Urankern zerbrechen.", bsp: "Lanthan-147 + Brom-87 + 2 Neutronen"},
+    tCaesium: {name: "Cäsium", p: 55, partner: "Rubidium", pp: 37, note: "Rubidium hat 37 Protonen. Etwa 200 verschiedene Spaltprodukte sind bekannt.", kurz: "Etwa 200 verschiedene Spaltprodukte sind bekannt.", bsp: "Cäsium-137 + Rubidium-96 + 3 Neutronen"}
+  };
+  const X0 = 60, W = 400, px = W / 92;
+  svg.innerHTML = `<rect width="520" height="250" fill="#f7fbfe"/>
+    <text x="260" y="26" text-anchor="middle" font-size="14" font-weight="800" fill="#6b1f3d">Kein Proton verschwindet: 92 bleiben 92</text>
+    <rect x="${X0}" y="44" width="${W}" height="34" rx="8" fill="#e05252" stroke="#a52a23" stroke-width="2"/>
+    <text x="260" y="67" text-anchor="middle" font-size="15" font-weight="800" fill="#fff">Uran: 92 Protonen</text>
+    <path d="M260 82 V98" stroke="#15212b" stroke-width="2.5" marker-end="url(#bzPf)"/><text x="272" y="98" font-size="12" font-weight="700" fill="#15212b">zerbricht in</text>
+    <rect id="bzLeer" x="${X0}" y="112" width="${W}" height="34" rx="8" fill="#fff" stroke="#b9c3cb" stroke-width="2" stroke-dasharray="6 5"/>
+    <rect id="bzA" class="balken" x="${X0}" y="112" width="0" height="34" rx="8" fill="#f2b632" stroke="#a87808" stroke-width="2"/>
+    <rect id="bzB" class="balken" x="${X0 + W}" y="112" width="0" height="34" rx="8" fill="#b9c3cb" stroke="#7d8a94" stroke-width="2"/>
+    <text id="bzTA" x="0" y="135" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b"></text>
+    <text id="bzTB" x="0" y="135" text-anchor="middle" font-size="13" font-weight="800" fill="#fff"></text>
+    <text id="bzEq" x="260" y="180" text-anchor="middle" font-size="20" font-weight="800" fill="#15212b">Wähle unten das gefundene Element.</text>
+    <text id="bzNote" x="260" y="210" text-anchor="middle" font-size="12" font-weight="700" fill="#566674"></text>
+    <text id="bzBsp" x="260" y="232" text-anchor="middle" font-size="12" font-weight="700" fill="#6b1f3d"></text>
+    <defs><marker id="bzPf" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#15212b"/></marker></defs>`;
+  const A = $("#bzA", svg), B = $("#bzB", svg), TA = $("#bzTA", svg), TB = $("#bzTB", svg);
+  tb.innerHTML = Object.keys(ELEM).map(k => `<tr><th>${ELEM[k].name}</th><td></td><td></td><td></td></tr>`).join("");
+  const fertig = new Set();
+  let laeuft = false;
+  register("bilanz", "#bilanzSvg", "Rechner: Protonen-Bilanz (alle drei Elemente)");
+  // Balken weich wachsen lassen (ohne CSS-Übergang auf width, damit es überall gleich aussieht)
+  function tween(fn, ms){
+    return new Promise(res => {
+      if (reduced) { fn(1); res(); return; }
+      const t0 = performance.now();
+      (function f(t){ const k = clamp((t - t0) / ms, 0, 1), e = 1 - Math.pow(1 - k, 3); fn(e); if (k < 1) requestAnimationFrame(f); else res(); })(t0);
+    });
+  }
+  async function zeige(key){
+    const e = ELEM[key], wA = e.p * px, wB = e.pp * px, gap = 6;
+    if (laeuft) return; laeuft = true; $$(".sim-ctrl button", svg.parentNode).forEach(b => b.disabled = true);
+    try {
+      B.setAttribute("fill", "#b9c3cb"); TB.textContent = "?"; TB.setAttribute("fill", "#15212b");
+      $("#bzEq", svg).textContent = `92 − ${e.p} = ?`; $("#bzNote", svg).textContent = ""; $("#bzBsp", svg).textContent = "";
+      await tween(k => {
+        A.setAttribute("width", (wA * k).toFixed(1)); TA.setAttribute("x", (X0 + wA * k / 2).toFixed(1)); TA.textContent = k > .3 ? `${e.name}: ${e.p}` : "";
+        B.setAttribute("x", (X0 + W - (wB - gap) * k).toFixed(1)); B.setAttribute("width", ((wB - gap) * k).toFixed(1)); TB.setAttribute("x", (X0 + W - (wB - gap) * k / 2).toFixed(1));
+      }, 900);
+      await wait(500);
+      B.setAttribute("fill", "#4a6fa5"); TB.setAttribute("fill", "#fff"); TB.textContent = `${e.partner}: ${e.pp}`;
+      $("#bzEq", svg).textContent = `92 − ${e.p} = ${e.pp} → ${e.partner}`;
+      $("#bzNote", svg).textContent = e.kurz; $("#bzBsp", svg).textContent = "Beispiel: " + e.bsp;
+      const tr = $$("tr", tb)[Object.keys(ELEM).indexOf(key)];
+      [String(e.p), `92 − ${e.p} = ${e.pp}`, e.partner].forEach((t, i) => { const td = tr.children[i + 1]; td.textContent = t; td.classList.remove("neu"); void td.offsetWidth; td.classList.add("neu"); });
+      fertig.add(key);
+      obs.textContent = `${e.name} hat ${e.p} Protonen. Die übrigen 92 − ${e.p} = ${e.pp} Protonen stecken im zweiten Trümmerkern: ${e.partner}. ${e.note}`;
+      if (fertig.size === 3) { solve("bilanz"); obs.textContent += " ✅ Alle drei Rechnungen gehen auf – so hat Lise Meitner gedacht."; }
+    } finally { laeuft = false; $$(".sim-ctrl button", svg.parentNode).forEach(b => b.disabled = false); }
+  }
+  Object.keys(ELEM).forEach(k => $("#" + k).addEventListener("click", () => zeige(k)));
+})();
+
+/* ---------- Station 2: Übungen ---------- */
+Modul.makeOrder($("#orderEntdeckung"), [
+  "Hahn und Strassmann wollen Urankerne mit Neutronen schwerer machen.",
+  "Sie bestrahlen Uran mit Neutronen.",
+  "In der Probe finden sie Barium – ein viel leichteres Element.",
+  "Hahn schreibt an Lise Meitner nach Schweden.",
+  "Meitner rechnet: 92 − 56 = 36 – der Kern ist in Barium und Krypton zerbrochen.",
+  "Sie nennt den Vorgang Kernspaltung."
+], "orderEntdeckung");
+Modul.makeGap($("#gapMeitner"), [
+  ["Lise Meitner war Physikerin und hatte lange mit Otto Hahn zusammengearbeitet. 1938 musste sie nach ", {g: "Schweden"}, " fliehen. Dorthin schrieb ihr Hahn einen Brief."],
+  ["Meitner wusste: Kein Teilchen kann einfach ", {g: "verschwinden"}, ". Uran hat ", {g: "92"}, " Protonen, Barium nur 56. Also muss es einen zweiten Kern mit 92 − 56 = ", {g: "36"}, " Protonen geben: ", {g: "Krypton"}, "."],
+  ["Krypton ist ein ", {g: "Gas"}, " – deshalb war es im Versuch nicht aufgefallen. Meitner nannte den Vorgang ", {g: "Kernspaltung"}, "."]
+], "gapMeitner", ["Metall", "Frankreich"]);
+Modul.makeGap($("#gapRechnen"), [
+  ["Ein Uran-235-Kern fängt ein Neutron ein. Seine Massenzahl ist jetzt 235 + 1 = ", {g: "236"}, "."],
+  ["Der Kern zerbricht in Lanthan-147, einen zweiten Trümmerkern und 2 Neutronen. Lanthan hat 57 Protonen. Für den zweiten Kern bleiben 92 − 57 = ", {g: "35"}, " Protonen. Das Element mit 35 Protonen ist ", {g: "Brom"}, "."],
+  ["Massenzahl des zweiten Kerns: 236 − 147 − 2 = ", {g: "87"}, "."]
+], "gapRechnen", ["37", "Rubidium"]);
+Modul.makeOpen($("#open2"), [
+  {q: "Erkläre, wie Lise Meitner herausfand, dass bei dem Versuch auch Krypton entstanden sein muss.",
+   m: "Kein Teilchen kann verschwinden. Uran hat 92 Protonen, Barium nur 56. Die übrigen 92 − 56 = 36 Protonen müssen in einem zweiten Kern stecken. Das Element mit 36 Protonen ist Krypton. Krypton ist ein Gas, deshalb hatten Hahn und Strassmann es nicht bemerkt.",
+   k: ["92", "56", "36|sechsunddreißig", "krypton", "proton", "gas|nicht bemerkt|nicht aufgefallen|entwich"], min: 4}
+], "open2-", "Schau dir Meitners Rechnung in der Station noch einmal an: 92 − 56 = ?");
+
+/* ---------- Station 3: Spaltung ---------- */
+(function(){
+  const svg = $("#spaltSvg");
+  // Kern in der Mitte, die Hantel-Hälften links (LA) und rechts (LB); Ziele der Trümmer und Neutronen so, dass keine
+  // Beschriftung etwas überdeckt: Barium nach links oben, Krypton nach rechts unten, Neutronen nach rechts oben,
+  // γ-Strahlung nach links unten, Nachbarkerne in drei Ecken.
+  const CX = 260, CY = 150, LA = [CX - 22, CY], LB = [CX + 22, CY];
+  const ZIEL_A = [150, 100], ZIEL_B = [385, 200];
+  svg.innerHTML = `<rect width="520" height="290" fill="#f7fbfe"/>
+    <defs><radialGradient id="spGl"><stop offset="0" stop-color="#ffd84d" stop-opacity=".95"/><stop offset=".6" stop-color="#ffb02e" stop-opacity=".45"/><stop offset="1" stop-color="#ffb02e" stop-opacity="0"/></radialGradient></defs>
+    <circle id="spGlow" class="glow" cx="${CX}" cy="${CY}" r="95" fill="url(#spGl)"/>
+    <text id="spState" x="260" y="24" text-anchor="middle" font-size="15" font-weight="800" fill="#6b1f3d">Uran-235 und ein freies Neutron</text>
+    <g id="spNachbarn"></g>
+    <g id="spGamma" class="stage"><g transform="translate(244 170) rotate(137)"><path d="M0 0 q6 -8 12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0" fill="none" stroke="#8e55c7" stroke-width="3" stroke-linecap="round"/><path d="M84 -7 L98 0 L84 7 Z" fill="#8e55c7"/></g><text x="168" y="210" text-anchor="end" font-size="13" font-weight="800" fill="#8e55c7">γ-Strahlung</text></g>
+    <g id="spFragA" class="mv" opacity="0"></g><g id="spFragB" class="mv" opacity="0"></g>
+    <g id="spKern" class="kern"></g>
+    <circle id="spN0" class="mv" cx="60" cy="${CY}" r="7" fill="#4a6fa5" stroke="#fff" stroke-width="1.5"/>
+    <text id="spN0T" class="mv" x="60" y="${CY + 26}" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">Neutron</text>
+    <g id="spNeu"><circle class="mv" cx="${CX}" cy="${CY}" r="7" fill="#4a6fa5" stroke="#fff" stroke-width="1.5" opacity="0"/><circle class="mv" cx="${CX}" cy="${CY}" r="7" fill="#4a6fa5" stroke="#fff" stroke-width="1.5" opacity="0"/><circle class="mv" cx="${CX}" cy="${CY}" r="7" fill="#4a6fa5" stroke="#fff" stroke-width="1.5" opacity="0"/></g>
+    <text id="spLblU" x="${CX}" y="${CY + 62}" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">Uran-235</text>
+    <text id="spLblA" class="stage" x="${ZIEL_A[0]}" y="${ZIEL_A[1] + 52}" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">Barium-144</text>
+    <text id="spLblB" class="stage" x="${ZIEL_B[0]}" y="${ZIEL_B[1] + 48}" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">Krypton-89</text>
+    <text id="spLblN" class="stage" x="362" y="50" font-size="13" font-weight="800" fill="#4a6fa5">3 neue Neutronen</text>
+    <text id="spLblE" class="stage" x="${CX}" y="${CY + 6}" text-anchor="middle" font-size="16" font-weight="900" fill="#c0392b">Energie!</text>
+    <text id="spLblW" class="stage" x="260" y="280" text-anchor="middle" font-size="14" font-weight="800" fill="#c0392b">Nachbarkerne zittern stärker → die Materie wird heiß</text>`;
+  const kern = $("#spKern", svg), fragA = $("#spFragA", svg), fragB = $("#spFragB", svg), n0 = $("#spN0", svg), n0t = $("#spN0T", svg), neu = $$("#spNeu circle", svg);
+  kernHaufen(kern, CX, CY, 34, 30, 6.5);
+  // das eingefangene Neutron sitzt links am Kern, wo es hineingeflogen ist
+  svgEl("circle", {id: "spExtra", cx: CX - 33, cy: CY + 4, r: 6.5, fill: "#4a6fa5", stroke: "#fff", "stroke-width": 1, opacity: 0}, kern);
+  // Hantel: jeder Kernbaustein bekommt einen Platz in der linken (20) oder rechten (15) Hälfte
+  const spirale = (cx, cy, n, rad) => Array.from({length: n}, (_, k) => { const d = rad * Math.sqrt((k + .5) / n), a = k * 2.3999; return [cx + d * Math.cos(a), cy + d * Math.sin(a)]; });
+  const nuk = $$("circle", kern).map(c => ({c, x: +c.getAttribute("cx"), y: +c.getAttribute("cy")})).sort((a, b) => a.x - b.x);
+  const ziele = [...spirale(LA[0], LA[1], 20, 21).sort((a, b) => a[0] - b[0]), ...spirale(LB[0], LB[1], nuk.length - 20, 18).sort((a, b) => a[0] - b[0])];
+  nuk.forEach((n, k) => { n.c.classList.add("nuk"); n.hantel = `translate(${(ziele[k][0] - n.x).toFixed(1)}px,${(ziele[k][1] - n.y).toFixed(1)}px)`; });
+  kernHaufen(fragA, LA[0], LA[1], 21, 23, 6); kernHaufen(fragB, LB[0], LB[1], 13, 18, 6);
+  const nb = $("#spNachbarn", svg);
+  [[58, 62], [466, 238], [58, 232]].forEach(([x, y]) => { const g = svgEl("g", {class: "nachbar"}, nb); for (let k = 0; k < 9; k++) { const d = 12 * Math.sqrt((k + .5) / 9), a = k * 2.3999; svgEl("circle", {cx: (x + d * Math.cos(a)).toFixed(1), cy: (y + d * Math.sin(a)).toFixed(1), r: 5, fill: "#9aa5ad", stroke: "#fff", "stroke-width": 1}, g); } });
+  svgEl("text", {x: 58, y: 96, "text-anchor": "middle", "font-size": 11, "font-weight": 700, fill: "#566674"}, nb).textContent = "Nachbarkerne";
+  const STATE = ["Uran-235 und ein freies Neutron", "Das Neutron fliegt auf den Kern zu", "Einfang: Uran-235 + Neutron = Uran-236", "Der Kern schwingt und verformt sich", "Der Kern zerbricht: Barium-144 + Krypton-89", "Massenzahlen: 235 + 1 = 236 = 144 + 89 + 3", "Bewegungsenergie der Trümmer wird zu Wärme"];
+  const ZIEL_N = [[112, -76], [170, -52], [208, -18]];
+  Modul.makeSchritte($("#spaltSim"), {
+    start: "Ein Uran-235-Kern und ein freies Neutron. Tippe auf „Start“.",
+    steps: [
+      "Ein freies <strong>Neutron</strong> fliegt auf einen <strong>Uran-235</strong>-Kern zu. Weil es keine Ladung hat, wird es nicht abgestoßen.",
+      "Der Kern fängt das Neutron ein. Für einen winzigen Augenblick ist er ein <strong>Uran-236</strong>-Kern – und sehr unruhig.",
+      "Der Kern <strong>schwingt</strong>, verformt sich und wird lang wie eine Hantel. So kann er nicht bleiben.",
+      "Er <strong>zerbricht</strong> in zwei etwa gleich große Trümmerkerne – hier Barium-144 und Krypton-89. Dabei wird sehr viel Energie frei.",
+      "Außerdem fliegen <strong>3 neue Neutronen</strong> heraus, und <strong>γ-Strahlung</strong> wird ausgesandt. Kein Kernbaustein geht verloren: 235 + 1 = 144 + 89 + 3.",
+      "Die Trümmerkerne rasen auseinander und <strong>stoßen Nachbarkerne an</strong>. Die Kerne schwingen heftiger – die Materie wird <strong>heiß</strong>. Diese Wärme ist die nutzbare Kernenergie."
+    ],
+    zeige(i){
+      $("#spState", svg).textContent = STATE[i + 1];
+      // Neutron
+      n0.style.transform = i >= 0 ? "translate(150px,0)" : "";
+      n0.style.opacity = i >= 1 ? 0 : 1; n0t.style.opacity = i >= 0 ? 0 : 1;
+      $("#spExtra", svg).setAttribute("opacity", i >= 1 ? 1 : 0);
+      // Kern: schwingt (Schritt 2), wird zur Hantel (Schritt 3), zerbricht (ab Schritt 4)
+      kern.classList.toggle("wobble", i === 1 || i === 2);
+      nuk.forEach(n => { n.c.style.transform = i === 2 ? n.hantel : ""; });
+      kern.style.opacity = i >= 3 ? 0 : 1;
+      $("#spLblU", svg).textContent = i >= 1 ? "Uran-236 (angeregt)" : "Uran-235"; $("#spLblU", svg).style.opacity = i >= 3 ? 0 : 1;
+      // Trümmer: starten an den Hälften der Hantel und fliegen auseinander
+      fragA.setAttribute("opacity", i >= 3 ? 1 : 0); fragB.setAttribute("opacity", i >= 3 ? 1 : 0);
+      fragA.style.transform = i >= 3 ? `translate(${ZIEL_A[0] - LA[0]}px,${ZIEL_A[1] - LA[1]}px)` : "";
+      fragB.style.transform = i >= 3 ? `translate(${ZIEL_B[0] - LB[0]}px,${ZIEL_B[1] - LB[1]}px)` : "";
+      $("#spLblA", svg).classList.toggle("on", i >= 3); $("#spLblB", svg).classList.toggle("on", i >= 3);
+      $("#spLblE", svg).classList.toggle("on", i >= 3);
+      const glow = $("#spGlow", svg); glow.classList.toggle("on", i >= 3); glow.classList.toggle("gross", i >= 5);
+      // Neutronen und γ
+      neu.forEach((c, k) => { c.setAttribute("opacity", i >= 4 ? 1 : 0); c.style.transform = i >= 4 ? `translate(${ZIEL_N[k][0]}px,${ZIEL_N[k][1]}px)` : ""; });
+      $("#spLblN", svg).classList.toggle("on", i >= 4); $("#spGamma", svg).classList.toggle("on", i >= 4);
+      // Wärme
+      $$(".nachbar", nb).forEach(g => g.classList.toggle("zitter", i >= 5));
+      $("#spLblW", svg).classList.toggle("on", i >= 5);
+    }
+  }, "spaltSchritte");
+})();
+
+/* ---------- Station 3: Übungen ---------- */
+Modul.makeOrder($("#orderSpaltung"), [
+  "Ein Neutron fliegt auf einen Uran-235-Kern zu.",
+  "Der Kern fängt das Neutron ein und ist kurz Uran-236.",
+  "Der Kern schwingt und verformt sich wie eine Hantel.",
+  "Der Kern zerbricht in zwei Trümmerkerne, z. B. Barium-144 und Krypton-89.",
+  "2 oder 3 neue Neutronen und γ-Strahlung fliegen heraus.",
+  "Die Trümmerkerne stoßen Nachbarkerne an – die Materie wird heiß."
+], "orderSpaltung");
+Modul.makeTF($("#tfSpaltung"), [
+  ["Die Kernspaltung wird von einem Neutron ausgelöst.", true],
+  ["Der Urankern zerbricht in zwei etwa gleich große Trümmerkerne.", true],
+  ["Bei der Spaltung verschwinden einige Protonen.", false],
+  ["Bei jeder Spaltung entstehen 2 oder 3 neue Neutronen.", true],
+  ["Die Trümmerkerne sind schwerer als der Urankern.", false],
+  ["Barium-144 und Krypton-89 sind ein Beispiel für Trümmerkerne.", true]
+], "tfSpaltung");
+
+/* ---------- Station 4: Uran gegen Kohle ---------- */
+(function(){
+  const svg = $("#kohleSvg"), obs = $("#kuObs"), range = $("#kuRange"), chip = $("#kuChip");
+  const KJ_URAN = 1e8, KJ_KOHLE = 29, WAGEN_T = 60, ZUG_WAGEN = 40;
+  svg.innerHTML = `<rect width="520" height="250" fill="#f7fbfe"/>
+    <defs><linearGradient id="kuMet" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c9d2d8"/><stop offset="1" stop-color="#6b7a86"/></linearGradient></defs>
+    <rect x="40" y="96" width="56" height="56" rx="8" fill="url(#kuMet)" stroke="#3c474f" stroke-width="2"/>
+    <text x="68" y="170" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">Uran-235</text>
+    <text id="kuMasse" x="68" y="192" text-anchor="middle" font-size="18" font-weight="900" fill="#6b1f3d">1 g</text>
+    <text x="124" y="134" text-anchor="middle" font-size="28" font-weight="900" fill="#15212b">=</text>
+    <text x="325" y="36" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">gleiche Energie aus Kohle:</text>
+    <text id="kuKohleT" x="325" y="62" text-anchor="middle" font-size="20" font-weight="900" fill="#15212b">3,4 t</text>
+    <g id="kuWagen"></g>
+    <g id="kuGross" opacity="0"><rect x="245" y="88" width="160" height="58" rx="6" fill="#fff" stroke="#566674" stroke-width="2.5"/><rect id="kuGrossK" x="250" y="93" width="0" height="48" rx="2" fill="#2b2b2b"/><circle cx="275" cy="156" r="10" fill="#566674"/><circle cx="375" cy="156" r="10" fill="#566674"/><text x="325" y="184" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">1 Güterwagen fasst 60 t Kohle</text></g>
+    <text id="kuWagenT" x="325" y="208" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b"></text>
+    <text id="kuEnergieT" x="325" y="232" text-anchor="middle" font-size="13" font-weight="800" fill="#c0392b"></text>`;
+  const wg = $("#kuWagen", svg), gross = $("#kuGross", svg), grossK = $("#kuGrossK", svg);
+  // bis zu 60 Güterwagen (4 Reihen à 15), jeder fasst 60 t Kohle
+  const wagen = [];
+  for (let k = 0; k < 60; k++) {
+    const x = 160 + (k % 15) * 22, y = 80 + Math.floor(k / 15) * 28;
+    const g = svgEl("g", {class: "wagen", opacity: 0}, wg);
+    svgEl("rect", {x, y, width: 19, height: 12, rx: 1.5, fill: "#fff", stroke: "#566674", "stroke-width": 1.2}, g);
+    svgEl("rect", {class: "kohle", x: x + 1.5, y: y + 1.5, width: 0, height: 9, fill: "#2b2b2b"}, g);
+    svgEl("circle", {cx: x + 5, cy: y + 14.5, r: 2.2, fill: "#566674"}, g); svgEl("circle", {cx: x + 14, cy: y + 14.5, r: 2.2, fill: "#566674"}, g);
+    wagen.push(g);
+  }
+  const gesehen = new Set();
+  register("kohle", "#kohleSvg", "Rechenwerkzeug: Uran gegen Kohle (1 g und 1 kg ausprobiert)");
+  const energieText = kj => kj >= 1e9 ? `${de(Math.round(kj / 1e9 * 10) / 10)} Milliarden kJ` : `${de(Math.round(kj / 1e6))} Millionen kJ`;
+  const masseText = g => g >= 1000 ? `${de(g / 1000)} kg` : `${de(g)} g`;
+  function update(){
+    const m = +range.value, kj = m * KJ_URAN, kohleKg = kj / KJ_KOHLE / 1000, kohleT = kohleKg / 1000, w = kohleT / WAGEN_T;
+    chip.textContent = masseText(m); $("#kuMasse", svg).textContent = masseText(m);
+    $("#kuKohleT", svg).textContent = kohleT >= 10 ? `${de(Math.round(kohleT))} t` : `${de(Math.round(kohleT * 10) / 10)} t`;
+    // unter einer Wagenladung: ein großer Wagen, der sich füllt; sonst die Reihen kleiner Wagen
+    const klein = w < 1, pct = Math.max(1, Math.round(w * 100));
+    gross.setAttribute("opacity", klein ? 1 : 0); grossK.setAttribute("width", klein ? (150 * w).toFixed(1) : 0);
+    wagen.forEach((g, k) => { const anteil = clamp(w - k, 0, 1); g.setAttribute("opacity", !klein && k < Math.ceil(w) ? 1 : 0); $(".kohle", g).setAttribute("width", (16 * anteil).toFixed(1)); });
+    const voll = Math.floor(w), zuege = w / ZUG_WAGEN, w1 = de(Math.round(w * 10) / 10), z1 = de(Math.round(zuege * 10) / 10);
+    $("#kuWagenT", svg).textContent = klein ? `Das füllt ${pct} % eines Güterwagens.` : zuege < 1 ? `${w1} Güterwagen zu je 60 t Kohle` : `${w1} Güterwagen ≈ ${z1} Kohlezüge (je 40 Wagen zu 60 t)`;
+    $("#kuEnergieT", svg).textContent = `Energie: ${energieText(kj)}`;
+    obs.textContent = `${masseText(m)} Uran-235 liefert etwa ${energieText(kj)}. Dieselbe Energie steckt in ${de(Math.round(kohleKg))} kg Kohle` +
+      (klein ? ` – damit füllst du ${pct} % eines Güterwagens.` : ` – das sind ${voll === 1 ? "1 voller Güterwagen" : voll + " volle Güterwagen"}${zuege >= 1 ? ` oder ${z1} ganze Kohlezüge` : ""}.`);
+    gesehen.add(m === 1 ? "min" : m === 1000 ? "max" : "x");
+    if (gesehen.has("min") && gesehen.has("max")) { solve("kohle"); obs.textContent += " ✅ 1 g und 1 kg ausprobiert – ein kleines Stück Uran ersetzt ganze Züge voll Kohle."; }
+  }
+  range.addEventListener("input", update);
+  [["kuB1", 1], ["kuB100", 100], ["kuB1000", 1000]].forEach(([id, v]) => $("#" + id).addEventListener("click", () => { range.value = v; update(); }));
+  update();
+})();
+
+/* ---------- Station 4: Übungen ---------- */
+Modul.makeGap($("#gapEnergie"), [
+  ["Die Trümmerkerne fliegen mit hoher ", {g: "Geschwindigkeit"}, " auseinander und stoßen mit anderen Atomkernen zusammen."],
+  ["Die angestoßenen Kerne schwingen heftiger – die Materie wird ", {g: "heißer"}, "."],
+  ["1 g Uran-235 liefert etwa ", {g: "100 Millionen"}, " kJ, 1 g Kohle nur etwa ", {g: "29"}, " kJ."],
+  ["Diese Wärme nutzt man im ", {g: "Kernkraftwerk"}, " – sie wurde aber auch für die ", {g: "Atombombe"}, " eingesetzt."]
+], "gapEnergie", ["290", "kälter"]);
+Modul.makeSort($("#sortEnergie"), {
+  buckets: ["⚛️ Kernspaltung von Uran", "🔥 Verbrennung von Kohle"], cols: 220,
+  items: [
+    {t: "1 g liefert etwa 100 Millionen kJ", b: 0}, {t: "ein Neutron zerbricht einen Atomkern", b: 0}, {t: "es entstehen neue Elemente wie Barium und Krypton", b: 0}, {t: "es entstehen neue Neutronen und γ-Strahlung", b: 0},
+    {t: "1 g liefert etwa 29 kJ", b: 1}, {t: "Kohlenstoff verbindet sich mit Sauerstoff", b: 1}, {t: "es entsteht Kohlenstoffdioxid", b: 1}, {t: "braucht Sauerstoff aus der Luft", b: 1}
+  ]
+}, "sortEnergie");
+Modul.makeOpen($("#open4"), [
+  {q: "Erkläre, warum bei der Kernspaltung die Materie heiß wird.",
+   m: "Die Trümmerkerne fliegen mit hoher Geschwindigkeit auseinander. Sie stoßen mit anderen Atomkernen zusammen und geben ihre Bewegungsenergie an sie ab. Die Kerne schwingen heftiger – und je heftiger die Teilchen schwingen, desto heißer ist der Stoff. Diese Wärme nutzt man im Kernkraftwerk.",
+   k: ["trümmer|spaltprodukt|bruchstück", "geschwindigkeit|schnell|rasen|fliegen", "zusammenstoß|stoßen|stoß|anstoß", "bewegungsenergie|energie", "schwing|zitter|bewegen", "wärme|heiß|warm"], min: 4}
+], "open4-", "Lies noch einmal, was die Trümmerkerne mit den Nachbarkernen machen.");
+
+/* ---------- Training: Kreuzworträtsel mit Tipps ---------- */
+Modul.makeCrossword($("#cw"), {
+  tipps: true,
+  words: [
+    {w: "KERNSPALTUNG", r: 0, c: 0, d: "a", q: "So nannte Lise Meitner das Zerbrechen des Urankerns.", tip: "Der Kern wird in zwei Teile ge…"},
+    {w: "PROTONEN", r: 0, c: 5, d: "d", q: "Uran hat 92 davon im Kern, Barium 56.", tip: "Positiv geladene Kernteilchen (Mehrzahl)."},
+    {w: "NEUTRON", r: 5, c: 5, d: "a", q: "Dieses Teilchen löst die Spaltung aus.", tip: "Ungeladenes Kernteilchen – es kann in den Kern eindringen."},
+    {w: "WAERME", r: 6, c: 0, d: "a", q: "Das wird aus der Bewegungsenergie der Trümmerkerne.", tip: "Ä wird zu AE. Davon spürst du etwas, wenn du die Hand an die Heizung hältst.", zeig: "Wärme"},
+    {w: "ISOTOP", r: 2, c: 3, d: "a", q: "Uran-235 und Uran-238 sind zwei … des Urans.", tip: "Gleiches Element, andere Neutronenzahl (Einzahl)."},
+    {w: "KOHLE", r: 0, c: 0, d: "d", q: "1 g davon liefert nur etwa 29 kJ.", tip: "Schwarzer Brennstoff aus dem Bergwerk."},
+    {w: "BARIUM", r: 3, c: 9, d: "d", q: "Dieses Element, viel leichter als Uran, fanden Hahn und Strassmann in der Probe.", tip: "Beginnt mit B und hat 56 Protonen."},
+    {w: "KRYPTON", r: 5, c: 3, d: "d", q: "Das zweite Element mit 36 Protonen – ein Gas.", tip: "Fängt mit K an und endet auf -on."},
+    {w: "MEITNER", r: 9, c: 0, d: "a", q: "Diese Physikerin erklärte die Kernspaltung.", tip: "Ihr Vorname ist Lise."},
+    {w: "GAMMA", r: 8, c: 7, d: "a", q: "Diese Strahlung wird bei der Spaltung frei (griechischer Buchstabe).", tip: "Der dritte griechische Buchstabe: Alpha, Beta, …"},
+    {w: "HAHN", r: 7, c: 11, d: "d", q: "Chemiker, der 1938 mit Strassmann die Kernspaltung entdeckte.", tip: "Sein Nachname ist auch ein Tier auf dem Bauernhof."},
+    {w: "URAN", r: 10, c: 8, d: "a", q: "Schweres Element mit 92 Protonen.", tip: "Fängt mit U an – das Metall, das gespalten wird."}
+  ],
+  sol: [[6, 5], [0, 10], [9, 1], [5, 9], [0, 11], [2, 3], [5, 6]], solWord: "ENERGIE"
+}, "cw");
+
+/* ---------- Profi-Check, Lernkarten ---------- */
+Modul.makeQuiz($("#quiz"), [...MC.s1, ...MC.s3, ...MC.s4, ...MC.train,
+  {q: "In welchem Jahr entdeckten Hahn und Strassmann die Kernspaltung?", o: ["1938", "1896", "1945", "1986"], a: 0, e: "1938 in Berlin – 1896 entdeckte Becquerel die Radioaktivität."},
+  {q: "Warum hatten Hahn und Strassmann das Krypton nicht bemerkt?", o: ["Krypton ist ein Gas und war aus der Probe entwichen.", "Krypton ist so winzig, dass es niemand sehen kann.", "Krypton sieht genauso aus wie das Uran selbst.", "Krypton wurde aus Versehen mit weggeworfen."], a: 0, e: "Barium ist ein Metall und blieb in der Probe – das Gas Krypton nicht."},
+  {q: "Ein Uran-235-Kern fängt ein Neutron ein. Welche Massenzahl hat er dann?", o: ["236", "234", "235", "237"], a: 0, e: "235 Kernbausteine + 1 Neutron = 236."},
+  {q: "Wer prägte den Begriff „Kernspaltung“?", o: ["Lise Meitner", "Otto Hahn", "Fritz Strassmann", "Marie Curie"], a: 0, e: "Meitner fand die Erklärung und gab dem Vorgang seinen Namen."},
+  {q: "Wozu wird die Energie der Kernspaltung heute genutzt?", o: ["im Kernkraftwerk zur Stromerzeugung", "im Kohlekraftwerk zum Anzünden der Kohle", "in Handyakkus als kleine Uranbatterie", "im Backofen zum Schmelzen von Glas"], a: 0, e: "Die Wärme aus der Spaltung erzeugt Dampf, der eine Turbine und einen Generator antreibt (Modul 3)."}
+], "quiz", "Kernspaltungs-Profi");
+if (window.NT8Karten) NT8Karten.trainer($("#lernkarten"), {module: ["ke-kernspaltung"], titel: "Lernkarten zu diesem Modul", zug: "M", druck: false});
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

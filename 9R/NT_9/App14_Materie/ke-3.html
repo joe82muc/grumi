@@ -1,0 +1,1028 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#6b1f3d">
+<title>So arbeitet ein Kernkraftwerk | NT 9</title>
+<link rel="stylesheet" href="../../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="materie.css">
+<style>
+/* Drehende Teile (Turbine, Generator, Pumpe) */
+.ke-dreh{transform-box:fill-box;transform-origin:center}
+.ke-dreh.on{animation:keDreh .9s linear infinite}
+@keyframes keDreh{to{transform:rotate(360deg)}}
+.ke-funk{animation:keFunk 1.1s ease-in-out infinite}
+@keyframes keFunk{0%,100%{opacity:0}50%{opacity:1}}
+/* Energiekette */
+#ketteSvg .quelle{transition:opacity .7s}
+#ketteSvg .kbox rect,#ketteSvg .kbox text{transition:fill .5s,stroke .5s}
+#ketteSvg #kFenster{transition:fill .6s}
+/* Druckwasserreaktor */
+#dwrSvg .teil{transition:filter .4s}
+#dwrSvg .hl{filter:drop-shadow(0 0 4px #f2b632) drop-shadow(0 0 2px #f2b632)}
+#dwrSvg #dSB.puls{animation:kePuls 1.1s ease-in-out infinite alternate}
+@keyframes kePuls{from{stroke:#7d8f9b}to{stroke:#9c2f5a}}
+.ke-leg{display:flex;flex-wrap:wrap;gap:4px 14px;padding:10px 14px;border-top:1px solid var(--line);background:#fbfdff;font-size:.9rem;font-weight:600}
+.ke-leg i{display:inline-block;width:18px;height:6px;border-radius:3px;vertical-align:middle;margin-right:5px}
+/* Reaktor-Simulation */
+#reaktorSvg .stab{transition:transform .9s cubic-bezier(.4,0,.3,1)}
+#reaktorSvg .stab.schnell{transition:transform .35s cubic-bezier(.7,0,1,1)}
+#reaktorSvg .blink{animation:keBlink .7s steps(2) infinite}
+@keyframes keBlink{50%{opacity:.4}}
+.ke-sim2{border-top:0}
+/* Karte */
+#karteSvg .akw{cursor:pointer}
+#karteSvg .akw circle{transition:fill .5s}
+#karteSvg .blk{transition:fill .5s}
+/* AR-Karte */
+.ar-karte{border:2px solid var(--sky);background:linear-gradient(160deg,#fff,var(--sky-l))}
+.ar-karte ul{margin:6px 0 12px;padding-left:20px}
+.ar-karte li{margin:0 0 6px}
+.ke-link{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
+.ke-link p{flex:1;min-width:220px;margin:0}
+@media (prefers-reduced-motion:reduce){#ketteSvg *,#dwrSvg *,#reaktorSvg *,#karteSvg *{transition:none!important;animation:none!important}}
+</style>
+<script src="../../../js/kursliste.js"></script>
+<script src="../themen.js"></script>
+<!-- 9M und 9R nutzen dieselben Seiten: die Kursliste kommt aus dem Ordner (../themen.js = NT9M oder NT9R) -->
+<script>window.GRUMI_KURS = window.NT9M || window.NT9R; window.GRUMI_KURS.KARTEN = "../../" + window.GRUMI_KURS.ORDNER + "App14_Materie/";</script>
+<script src="materie.js"></script>
+</head>
+<body data-bereich="ke">
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="../%C3%BCbersicht_themen.html">GRUMI<small>NT <span class="mt-zug">9M</span> · Kernenergie 3</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Energiekette</a>
+      <a href="#s2"><b>2</b>Reaktor</a>
+      <a href="#s3"><b>3</b>Regelstäbe</a>
+      <a href="#s4"><b>4</b>Deutschland</a>
+      <a href="#s5"><b>5</b>Training</a>
+      <a href="#abschluss"><b>6</b>Abschluss</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse <span class="mt-zug">9M</span> · Kernenergie · Modul 3</div>
+    <h1>So arbeitet ein Kernkraftwerk</h1>
+    <p>Am Ufer eines Flusses ragt ein Kühlturm in den Himmel, daneben steht ein Gebäude mit einer runden Kuppel. Was passiert dort drinnen? In sechs Stationen verfolgst du die Energie vom Urankern bis zur Steckdose, steuerst selbst einen Reaktor mit Regelstäben (man sagt auch Steuerstäbe) und erfährst, warum in Deutschland seit April 2023 kein Kernkraftwerk mehr Strom liefert. Und du stellst ein Kraftwerk in echter Größe auf den Schulhof.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s5">Direkt zum Training</a>
+    </div>
+    <div class="goals">
+      <div>⚡ Ich beschreibe die Energiekette vom Urankern bis zum Strom.</div>
+      <div>🏭 Ich erkläre den Aufbau eines Druckwasserreaktors mit seinen drei Wasserkreisläufen.</div>
+      <div>🎚️ Ich erkläre, wie Regelstäbe die Leistung des Reaktors steuern.</div>
+      <div>🗺️ Ich kenne das Kraftwerk Isar 2 und weiß, wann Deutschland aus der Kernenergie ausgestiegen ist.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg · Probenstoff</div><h2>Wie ein Heizkraftwerk – die Energiekette</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Von Weitem sieht man zuerst den riesigen <button class="term" data-t="kuehlturm">Kühlturm</button> mit seiner weißen Wolke. Daneben steht ein Gebäude mit einer runden Kuppel. Darin arbeitet der <button class="term" data-t="reaktor">Reaktor</button>. So ähnlich sah es bis 2023 an der Isar bei Landshut aus.</p>
+      <figure style="margin:12px 0 0"><img class="zoomable" src="bilder/ke-3.jpg" width="1280" height="853" loading="lazy" decoding="async" alt="Zwei Jugendliche fahren mit dem Fahrrad an einem Fluss entlang. Auf der anderen Seite steht ein Kernkraftwerk: ein hoher Kühlturm mit weißer Wolke, ein Gebäude mit runder Kuppel, Hallen, ein Kamin und Strommasten. Vorne ein Getreidefeld." style="width:100%;height:auto"><figcaption class="hint" style="margin:4px 0 0">Bild: GRUMI (mit KI erstellt)</figcaption></figure>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Ein <button class="term" data-t="kernkraftwerk">Kernkraftwerk</button> arbeitet im Grunde wie ein herkömmliches Heizkraftwerk, zum Beispiel ein Kohlekraftwerk: Eine Wärmequelle macht aus Wasser heißen Dampf. Der Dampf treibt eine <button class="term" data-t="turbine">Turbine</button> an, die Turbine einen <button class="term" data-t="generator">Generator</button> – und der erzeugt elektrischen Strom.</p>
+      <p style="margin:0">Der Unterschied steckt nur in der <strong>Wärmequelle</strong>. Im Kohlekraftwerk brennt Kohle. Im Kernkraftwerk werden im Reaktor Urankerne gespalten – kontrolliert, also gesteuert. Aus Modul 1 weißt du: Die Energie aus der Kernspaltung wird zu Wärme. Danach wechselt die Energie Schritt für Schritt ihre Form, bis Strom aus der Steckdose kommt.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="ketteSim">
+    <svg viewBox="0 0 520 280" id="ketteSvg" role="img" aria-label="Animation: Im Reaktor werden Urankerne gespalten. Die Wärme macht Wasser zu Dampf. Der Dampf dreht eine Turbine, die Turbine einen Generator, und Strom fließt zu den Häusern. Darunter die Energiekette von der Kernenergie bis zur elektrischen Energie. Am Schluss der Vergleich mit einem Kohlekraftwerk."></svg>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Ein Kernkraftwerk arbeitet wie ein Heizkraftwerk: Wärme macht Wasser zu Dampf, der Dampf treibt die Turbine, die Turbine treibt den Generator.</li><li>Die Wärmequelle ist der Reaktor. Dort läuft eine kontrollierte Kernspaltung.</li><li>Energiekette: Kernenergie → Wärme → Energie des Dampfes → Bewegungsenergie (Turbine) → elektrische Energie (Generator).</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Reihenfolge · Probenstoff</span>
+    <h3 style="margin-top:4px">Vom Urankern zur Steckdose</h3>
+    <p class="hint">Bringe die Schritte mit den Pfeilen in die richtige Reihenfolge.</p>
+    <div id="orderKette"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Zuordnen</span>
+    <h3 style="margin-top:4px">Kohlekraftwerk, Kernkraftwerk – oder beide?</h3>
+    <p class="hint">Tippe eine Karte an und dann den passenden Bereich.</p>
+    <div id="sortKraftwerk"></div>
+  </div>
+  <div class="card reveal" id="mc-s1"></div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Der Druckwasserreaktor</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <figure style="margin:0 0 12px"><img class="zoomable" src="bilder/ke-3b.jpg" width="1280" height="853" loading="lazy" decoding="async" alt="Zwei Fachleute in weißen Schutzanzügen und Helmen stehen an einem gelben Geländer. Ein Kran hält ein langes Bündel aus Metallstäben über ein rundes Becken mit klarem, blauem Wasser, unter dem der Reaktor liegt."><figcaption class="hint" style="margin:4px 0 0">Bild: GRUMI (mit KI erstellt)</figcaption></figure>
+      <p class="hint" style="margin:0 0 10px"><strong>Denk mal nach:</strong> Am Kran hängt ein Brennelement. Warum liegt der Reaktor beim Beladen tief unter Wasser?</p>
+      <p class="lead">Die meisten deutschen Kernkraftwerke hatten einen <button class="term" data-t="druckwasserreaktor">Druckwasserreaktor</button> – auch Isar 2. Sein Herz ist das <button class="term" data-t="reaktordruckgefaess">Reaktordruckgefäß</button> (auch Reaktordruckbehälter genannt): ein Behälter aus 20 bis 25 cm dickem Stahl. Darin liegt der Reaktorkern aus etwa 200 <button class="term" data-t="brennelement">Brennelementen</button>. Sie enthalten <button class="term" data-t="angereichert">angereichertes Uran</button>. Dazwischen stecken die <button class="term" data-t="regelstab">Regelstäbe</button> (auch Steuerstäbe genannt) – mehr dazu in Station 3.</p>
+      <p style="margin:0">Zwischen den Brennelementen fließt Wasser. Es hat zwei Aufgaben: Es bremst die schnellen Neutronen ab – es ist der <button class="term" data-t="moderator">Moderator</button> – und es nimmt die Wärme der Kernspaltung auf.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Drei Wasserkreisläufe.</strong> Der erste heißt <button class="term" data-t="primaer">Primärkreislauf</button>. Sein Wasser fließt durch den Reaktor und wird bis zu 300 °C heiß. Trotzdem verdampft es nicht, denn es steht unter sehr hohem Druck – daher der Name. Dieses Wasser ist <strong>radioaktiv</strong>. Im <button class="term" data-t="dampferzeuger">Dampferzeuger</button> gibt es nur seine <strong>Wärme</strong> ab. Das Wasser selbst bleibt im <button class="term" data-t="sicherheitsbehaelter">Sicherheitsbehälter</button> im Reaktorgebäude. So kommt kein radioaktives Wasser zur Turbine oder in den Fluss.</p>
+      <p style="margin:0">Im Dampferzeuger verdampft das Wasser des zweiten Kreislaufs, des <button class="term" data-t="sekundaer">Sekundärkreislaufs</button>. Der Dampf treibt Turbine und Generator an. Im <button class="term" data-t="kondensator">Kondensator</button> kühlt ihn der dritte Kreislauf ab, der <button class="term" data-t="kuehlkreislauf">Kühlwasserkreislauf</button>. Der Dampf wird wieder zu Wasser. Das Kühlwasser bringt die Wärme zum Kühlturm. Reaktor und Dampferzeuger stehen im Sicherheitsbehälter.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="dwrSim">
+    <svg viewBox="0 0 520 320" id="dwrSvg" role="img" aria-label="Schnittzeichnung eines Kernkraftwerks mit Druckwasserreaktor: links das Reaktorgebäude mit Sicherheitsbehälter, Reaktordruckgefäß, Brennelementen, Regelstäben und Dampferzeuger. Die drei Wasserkreisläufe sind farbig: der Primärkreislauf orange, der Sekundärkreislauf blau, der Kühlwasserkreislauf dunkelblau. Rechts Turbine, Generator, Kondensator und Kühlturm, unten ein Fluss. Die Teile sind mit Nummern 1 bis 9 gekennzeichnet."></svg>
+    <div class="ke-leg" aria-label="Legende">
+      <span>① Reaktordruckgefäß</span><span>② Brennelemente</span><span>③ Regelstäbe (Steuerstäbe)</span><span>④ Sicherheitsbehälter</span><span>⑤ Dampferzeuger</span><span>⑥ Turbine</span><span>⑦ Generator</span><span>⑧ Kondensator</span><span>⑨ Kühlturm</span>
+      <span><i style="background:#e8731c"></i>1. Primärkreislauf (radioaktiv)</span><span><i style="background:#2f8fd8"></i>2. Sekundärkreislauf</span><span><i style="background:#1d5f8a"></i>3. Kühlwasserkreislauf</span>
+    </div>
+  </div>
+
+  <div class="card reveal ke-link" style="margin-top:18px">
+    <p>🔭 <strong>Selbst hineinschauen:</strong> Auf der AR-Seite kannst du ein Kraftwerk mit den Maßen von Isar 2 drehen und zoomen. Mit „In den Reaktor schauen“ wird der Sicherheitsbehälter durchsichtig: Reaktordruckgefäß, Brennelemente, Regelstäbe und Dampferzeuger – in denselben Farben wie hier.</p>
+    <a class="btn small" href="ar-kernkraftwerk/">📱 Kraftwerk in 3D öffnen</a>
+  </div>
+
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Im Reaktordruckgefäß (auch Reaktordruckbehälter; Stahl, 20 bis 25 cm dick) stecken etwa 200 Brennelemente mit angereichertem Uran. Dazwischen stecken die Regelstäbe (Steuerstäbe).</li><li>Wasser bremst die Neutronen (Moderator) und nimmt die Wärme auf. Es wird bis 300 °C heiß, verdampft aber wegen des hohen Drucks nicht.</li><li>Drei getrennte Wasserkreisläufe: <strong>1. Primärkreislauf</strong> – das Wasser fließt durch den Reaktor und ist radioaktiv. Im Dampferzeuger gibt es nur seine Wärme ab, es bleibt im Sicherheitsbehälter. <strong>2. Sekundärkreislauf:</strong> Dampf → Turbine → Generator → Kondensator → zurück. <strong>3. Kühlwasserkreislauf:</strong> kühlt den Kondensator und bringt die Wärme zum Kühlturm.</li><li>Reaktor und Dampferzeuger stehen im Sicherheitsbehälter.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Beschriften · Probenstoff</span>
+    <h3 style="margin-top:4px">Blick in das Reaktorgebäude</h3>
+    <div id="labelReaktor"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Lückentext · Probenstoff</span>
+    <h3 style="margin-top:4px">Der Druckwasserreaktor</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapReaktor"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung.</p>
+    <div id="open2"></div>
+  </div>
+  <div class="card reveal" id="mc-s2"></div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Simulation · Probenstoff</div><h2>Regelstäbe steuern die Leistung</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Aus Modul 2 kennst du die <strong>gesteuerte Kettenreaktion</strong>. Im Reaktor muss sie genau im Gleichgewicht bleiben: Soll die <button class="term" data-t="leistung">Leistung</button> gleich bleiben, muss auch die Zahl der Kernspaltungen pro Sekunde gleich bleiben.</p>
+      <p style="margin:0">Bei jeder Spaltung entstehen 2 oder 3 neue Neutronen. Davon darf nur <strong>genau eines</strong> eine neue Spaltung auslösen. Die anderen müssen eingefangen werden.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Dafür gibt es die <button class="term" data-t="regelstab">Regelstäbe</button>, auch Steuerstäbe genannt. Sie stecken zwischen den Brennelementen und enthalten <strong>Bor</strong> und <strong>Cadmium</strong>. Diese Stoffe fangen Neutronen ein.</p>
+      <ul style="margin:0;padding-left:20px">
+        <li>Tiefer <strong>einfahren</strong> → mehr Neutronen werden eingefangen → weniger Spaltungen → weniger Leistung.</li>
+        <li><strong>Herausziehen</strong> → mehr Spaltungen → mehr Leistung.</li>
+        <li><strong>Ganz eingefahren</strong> → die Kettenreaktion kommt zum Erliegen. Der Reaktor ist abgeschaltet.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <svg viewBox="0 0 520 300" id="reaktorSvg" role="img" aria-label="Simulation eines Reaktorkerns: Zwischen sechs gelben Brennelementen hängen fünf dunkle Regelstäbe, die man mit dem Schieberegler ein- und ausfährt. Blaue Punkte sind Neutronen, gelbe Blitze Kernspaltungen. Rechts zeigen Anzeigen die Spaltungen pro Sekunde, die Wassertemperatur und die Leistung in Megawatt."></svg>
+    <div class="sim-ctrl"><label for="rRange">Regelstäbe eingefahren:</label><input type="range" id="rRange" min="0" max="100" step="5" value="100" aria-label="Wie weit die Regelstäbe eingefahren sind, in Prozent"><span class="chip" id="rChip">100 %</span></div>
+    <div class="sim-ctrl ke-sim2"><button class="btn small teal" id="tRein">⬇️ ganz einfahren</button><button class="btn small teal" id="tHalb">↕️ halb einfahren</button><button class="btn small teal" id="tRaus">⬆️ ganz herausziehen</button><button class="btn small" id="tKuehl" style="background:#c0392b">💧 Kühlung fällt aus</button></div>
+    <p class="obs" id="rObs">Der Reaktor ist abgeschaltet: Die Regelstäbe sind ganz eingefahren. Zieh sie mit dem Schieberegler heraus oder probiere die Knöpfe aus. Am Ende ist die Tabelle voll.</p>
+    <div class="tab-wrap" style="padding:0 14px 14px"><table class="beob" id="rTab">
+      <thead><tr><th>Regelstäbe</th><th>Spaltungen pro Sekunde</th><th>Wassertemperatur</th><th>Leistung</th><th>Zustand</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </div>
+  <div class="card reveal" style="margin-top:18px">
+    <p style="margin:0">⚠️ <strong>Gut zu wissen:</strong> Bei Gefahr gibt es eine <button class="term" data-t="notabschaltung">Notabschaltung</button>. Dann fahren alle Regelstäbe in Sekunden ganz in den Reaktorkern. Aber auch ein abgeschalteter Reaktor ist noch heiß: Die Brennelemente geben weiter Wärme ab und müssen gekühlt werden. Fällt die Kühlung lange aus, können sie schmelzen – mehr dazu in Modul 4. Die Zahlen der Simulation sind gerundet; die Temperaturen sind vereinfacht.</p>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Regelstäbe (Steuerstäbe) enthalten Bor und Cadmium. Diese Stoffe fangen Neutronen ein.</li><li>Einfahren → weniger Spaltungen pro Sekunde → weniger Leistung. Herausziehen → mehr Leistung. Ganz eingefahren → Reaktor abgeschaltet.</li><li>Gleichbleibende Leistung: Von den 2 oder 3 neuen Neutronen jeder Spaltung löst genau eines eine neue Spaltung aus.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Zuordnen · Probenstoff</span>
+    <h3 style="margin-top:4px">Mehr oder weniger Leistung?</h3>
+    <p class="hint">Tippe eine Karte an und dann den passenden Bereich.</p>
+    <div id="sortLeistung"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Richtig oder falsch? · Probenstoff</span>
+    <h3 style="margin-top:4px">Was stimmt?</h3>
+    <div id="tfRegel"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung.</p>
+    <div id="open3"></div>
+  </div>
+  <div class="card reveal" id="mc-s3"></div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Probenstoff</div><h2>Kernkraftwerke in Deutschland</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead"><strong>Isar 2</strong> stand bei Essenbach, ganz in der Nähe von Landshut in Niederbayern, direkt an der Isar. Sein Kühlturm ist 165 m hoch – höher als die Frauenkirche in München (99 m).</p>
+      <p style="margin:0">Am <strong>15. April 2023</strong> wurde Isar 2 abgeschaltet – zusammen mit Emsland (Niedersachsen) und Neckarwestheim 2 (Baden-Württemberg). Das waren die letzten drei Kernkraftwerke in Deutschland, die noch Strom lieferten.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Warum? Nach dem schweren Unfall im japanischen Fukushima 2011 beschloss Deutschland den <button class="term" data-t="atomausstieg">Atomausstieg</button>: Nach und nach sollten alle Kernkraftwerke vom Netz gehen. Seit dem 15. April 2023 liefert in Deutschland <strong>kein Kernkraftwerk mehr Strom</strong>.</p>
+      <p style="margin:0">Die Kraftwerke werden jetzt Stück für Stück abgebaut. Das dauert viele Jahre. In anderen Ländern, zum Beispiel in Frankreich, laufen weiterhin Kernkraftwerke.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <svg viewBox="0 0 520 340" id="karteSvg" role="img" aria-label="Vereinfachte Deutschlandkarte mit den zwölf Standorten der Kernkraftwerke, die Anfang 2011 noch in Betrieb waren. Mit dem Jahresregler sieht man, wie sie bis April 2023 nach und nach abgeschaltet wurden. Rechts stehen das Jahr und die Zahl der Kraftwerksblöcke in Betrieb."></svg>
+    <div class="sim-ctrl"><label for="kRange">Jahr:</label><input type="range" id="kRange" min="2010" max="2024" step="1" value="2010" aria-label="Jahr"><span class="chip" id="kChip">Anfang 2011</span><button class="btn small teal" id="kPlay">▶ Abspielen</button></div>
+    <p class="obs" id="kObs">Schiebe den Regler bis 2024 oder tippe auf „Abspielen“. Tippe auf einen Punkt in der Karte: Dann erfährst du, welches Kraftwerk dort stand.</p>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Isar 2 bei Essenbach nahe Landshut (Bayern) lieferte bis 2023 Strom. Sein Kühlturm ist 165 m hoch.</li><li>Am 15. April 2023 wurden die letzten drei deutschen Kernkraftwerke abgeschaltet: Isar 2, Emsland und Neckarwestheim 2.</li><li>Seitdem liefert in Deutschland kein Kernkraftwerk mehr Strom (Atomausstieg).</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Lückentext · Probenstoff</span>
+    <h3 style="margin-top:4px">Das Ende der Kernkraftwerke in Deutschland</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapIsar"></div>
+  </div>
+  <div class="card reveal" id="mc-s4"></div>
+
+  <div class="card reveal ar-karte" id="arKarte" style="margin-top:18px">
+    <span class="task-tag">AR · Erkunden</span>
+    <h3 style="margin-top:4px">📱 Das Kraftwerk in echter Größe</h3>
+    <p style="margin:0">Wie groß ist so ein Kraftwerk wirklich? Auf der <button class="term" data-t="ar">AR</button>-Seite steht ein Kernkraftwerk mit den Maßen von Isar 2 vor dir: der Kühlturm (165 m) – höher als die Frauenkirche (99 m), aber niedriger als der Olympiaturm (291 m) –, daneben das Reaktorgebäude mit der Kuppel (etwa 60 m) und das Maschinenhaus.</p>
+    <ul>
+      <li><strong>Hineinschauen:</strong> Mit „In den Reaktor schauen“ werden die Wände durchsichtig. Du siehst Reaktordruckgefäß, Brennelemente, Regelstäbe, Dampferzeuger, Turbine und Generator. Die Regelstäbe kannst du selbst verschieben – es gelten dieselben Regeln wie in der Simulation in Station 3.</li>
+      <li><strong>Draußen mit AR:</strong> Geh mit dem Tablet nach draußen, tippe auf „AR“ und erlaube Kamera und Bewegungssensor. Dann steht das Kraftwerk in echter Größe 250 m vor dir. Bleib stehen, solange du durch das Tablet schaust, und pass auf andere auf.</li>
+      <li><strong>Ohne Kamera:</strong> Drinnen oder am Computer läuft die Seite als 3D-Modell zum Drehen und Zoomen.</li>
+    </ul>
+    <a class="btn" href="ar-kernkraftwerk/">📱 Kraftwerk in echter Größe öffnen</a>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Wiederholung · so kommt es in der Probe</div><h2>Training</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Kreuzworträtsel</span>
+    <h3 style="margin-top:4px">Löse das Kreuzworträtsel</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Ü schreibst du als UE. Hängst du fest? Bei jeder Frage hilft <strong>💡 Tipp</strong> – erst ein Hinweis, dann der Anfangsbuchstabe. Mit <strong>📋 Wörter zeigen</strong> siehst du alle Lösungswörter.</p>
+    <div id="cw"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Ankreuzen</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="abschluss">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Abschluss</div><h2>Profi-Check, Lernkarten und Regelheft</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <div class="card reveal">
+    <span class="task-tag">Lernkarten</span>
+    <div id="lernkarten"></div>
+  </div>
+  <div class="regelheft reveal" id="regelheft">
+    <h3>So arbeitet ein Kernkraftwerk</h3>
+    <p>Ein Kernkraftwerk (AKW) arbeitet wie ein Heizkraftwerk. Die <strong>Wärmequelle</strong> ist der <strong>Reaktor</strong>: Dort läuft eine kontrollierte Kernspaltung.</p>
+    <p><strong>Energiekette:</strong> Kernenergie → Wärme → Energie des Dampfes → Bewegungsenergie (Turbine) → elektrische Energie (Generator)</p>
+    <svg class="rh-skizze" id="rhSkizze" viewBox="0 0 530 250" style="max-width:560px" role="img" aria-label="Skizze: Kernkraftwerk mit Druckwasserreaktor. Im Sicherheitsbehälter stehen Reaktordruckgefäß mit Regelstäben und Dampferzeuger, verbunden durch den radioaktiven Primärkreislauf. Der Sekundärkreislauf führt Dampf zu Turbine und Generator und vom Kondensator zurück. Der Kühlwasserkreislauf führt die Wärme zum Kühlturm."></svg>
+    <p><strong>Druckwasserreaktor:</strong> Im Reaktordruckgefäß (auch Reaktordruckbehälter; Stahl, 20–25 cm dick) stecken etwa 200 Brennelemente mit angereichertem Uran. Wasser bremst die Neutronen (Moderator) und nimmt die Wärme auf. Es wird bis 300 °C heiß, verdampft aber wegen des hohen Drucks nicht.</p>
+    <p><strong>Drei getrennte Wasserkreisläufe:</strong> 1. <strong>Primärkreislauf</strong>: Das Wasser fließt durch den Reaktor und ist radioaktiv. Im Dampferzeuger gibt es nur seine Wärme ab – es bleibt im Sicherheitsbehälter. 2. <strong>Sekundärkreislauf</strong>: Dampf treibt die Turbine an und wird im Kondensator wieder zu Wasser. 3. <strong>Kühlwasserkreislauf</strong>: kühlt den Kondensator, bringt die Wärme zum Kühlturm.</p>
+    <p><strong>Regelstäbe</strong> (Steuerstäbe; Bor, Cadmium) fangen Neutronen ein: einfahren → weniger Spaltungen → weniger Leistung; ganz eingefahren → abgeschaltet. Gleichbleibende Leistung: Je Spaltung löst genau ein Neutron eine neue Spaltung aus.</p>
+    <table class="rh-tab"><tr><th>Isar 2</th><td>bei Landshut an der Isar, Kühlturm 165 m, abgeschaltet am 15. April 2023</td></tr><tr><th>seit April 2023</th><td>liefert in Deutschland kein Kernkraftwerk mehr Strom (Atomausstieg)</td></tr></table>
+  </div>
+  <div class="rh-knoepfe reveal"><button class="btn small ghost" type="button" onclick="window.print()">🖨️ Regelheft drucken</button><a class="btn small ghost" href="arbeitsblaetter/K3-regelheft.pdf" download="NT9-K3-Regelheft.pdf">📥 Regelheft als PDF</a></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Ein Kernkraftwerk hat viele Sicherungen – trotzdem kam es zu schweren Unfällen. Und wohin mit dem radioaktiven Abfall, der noch Jahrtausende strahlt? In Modul 4 geht es um die Risiken und Folgen der Kernenergie.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="ke-2.html">⬅️ Modul 2: Die Kettenreaktion</a>
+      <a href="ke-4.html">➡️ Modul 4: Risiken und Folgen der Kernenergie</a>
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik <span class="mt-zug">9M</span> · Kernenergie · Modul 3 · Texte, Zeichnungen und Animationen sind eigenständig erstellt. Mit deinem Code wird dein Lernstand gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="../../../7M/NT/modul-basis.js"></script>
+<script src="../../../8M/NT/karten.js"></script>
+<script src="karten/ke3.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, clamp, reduced, register, solve} = Modul;
+const NS = "http://www.w3.org/2000/svg";
+const svgEl = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const wait = ms => new Promise(r => setTimeout(r, reduced ? Math.min(ms, 60) : ms));
+const an = (el, on) => el.classList.toggle("on", !!on);
+
+Modul.init({
+  key: "grumi-nt9-ke-3-v1",
+  hero: "funken",
+  api: "/api/nt9/uebung/feedback",
+  thema: "Kernenergie, Klasse 9: So arbeitet ein Kernkraftwerk – arbeitet wie ein Heizkraftwerk, Wärmequelle ist der Reaktor mit kontrollierter Kernspaltung; Energiekette Kernenergie → Wärme → Energie des Dampfes → Bewegungsenergie (Turbine) → elektrische Energie (Generator); Druckwasserreaktor: Reaktordruckgefäß (auch Reaktordruckbehälter) aus 20 bis 25 cm dickem Stahl mit etwa 200 Brennelementen aus angereichertem Uran, Wasser als Moderator bremst Neutronen und nimmt die Wärme auf; drei getrennte Wasserkreisläufe: Primärkreislauf bis 300 °C unter hohem Druck ohne zu verdampfen, sein Wasser fließt durch den Reaktor und ist radioaktiv, gibt im Dampferzeuger nur die Wärme ab und bleibt im Sicherheitsbehälter, kommt nicht zu Turbine und Fluss; Sekundärkreislauf mit Dampf, Turbine, Generator und Kondensator; Kühlwasserkreislauf kühlt den Kondensator und bringt die Wärme zum Kühlturm; Sicherheitsbehälter; Regelstäbe (Steuerstäbe) mit Bor und Cadmium fangen Neutronen ein: einfahren weniger Spaltungen und weniger Leistung, herausziehen mehr Leistung, ganz eingefahren abgeschaltet; gleichbleibende Leistung, wenn je Spaltung genau ein Neutron eine neue Spaltung auslöst; Kraftwerk Isar 2 bei Landshut, Kühlturm 165 m, am 15. April 2023 mit Emsland und Neckarwestheim 2 abgeschaltet, seitdem kein Strom aus Kernkraftwerken in Deutschland (Atomausstieg nach Fukushima 2011)",
+  glossary: {
+    kuehlturm: ["Kühlturm", "Hoher Turm, in dem erwärmtes Kühlwasser seine Wärme an die Luft abgibt. Die weiße Wolke darüber ist Wasserdampf, kein Rauch."],
+    reaktor: ["Reaktor", "Das Herzstück des Kernkraftwerks: Hier werden Urankerne kontrolliert gespalten. Dabei entsteht Wärme."],
+    kernkraftwerk: ["Kernkraftwerk (AKW)", "Kraftwerk, das mit der Wärme aus der Kernspaltung Strom erzeugt. Man sagt auch Atomkraftwerk, kurz AKW."],
+    turbine: ["Turbine", "Rad mit vielen schrägen Schaufeln. Strömender Dampf dreht es sehr schnell – ähnlich wie Wind ein Windrad."],
+    generator: ["Generator", "Maschine, die Bewegungsenergie in elektrische Energie umwandelt – wie ein Fahrraddynamo, nur riesig."],
+    druckwasserreaktor: ["Druckwasserreaktor", "Reaktor, in dem das Wasser unter sehr hohem Druck steht. Deshalb verdampft es auch bei 300 °C nicht."],
+    reaktordruckgefaess: ["Reaktordruckgefäß (Reaktordruckbehälter)", "Behälter aus 20 bis 25 cm dickem Stahl. Darin liegt der Reaktorkern mit den Brennelementen. Man sagt auch Reaktordruckbehälter."],
+    brennelement: ["Brennelement (Brennstab)", "Langer Stab, der mit Uran gefüllt ist. Etwa 200 davon bilden zusammen den Reaktorkern. Es „brennt“ nicht wie Feuer – die Wärme kommt aus der Kernspaltung."],
+    angereichert: ["angereichertes Uran", "Uran, in dem mehr spaltbares Uran-235 steckt als in Uran aus der Natur. Erst damit läuft die Kettenreaktion im Reaktor."],
+    moderator: ["Moderator", "Stoff, der schnelle Neutronen abbremst. Langsame Neutronen spalten Uran-235 besser. Im Druckwasserreaktor ist das Wasser der Moderator."],
+    primaer: ["Primärkreislauf", "Erster Wasserkreislauf: Sein Wasser fließt durch den Reaktorkern und bringt die Wärme zum Dampferzeuger. Es bleibt flüssig. Es ist radioaktiv – darum bleibt es im Sicherheitsbehälter."],
+    sekundaer: ["Sekundärkreislauf", "Zweiter Wasserkreislauf: Hier wird Wasser zu Dampf, treibt die Turbine an und wird im Kondensator wieder zu Wasser."],
+    kuehlkreislauf: ["Kühlwasserkreislauf", "Dritter Wasserkreislauf: Kühlwasser kühlt im Kondensator den Dampf ab. Die Wärme gibt es im Kühlturm an die Luft ab. Was dabei verdunstet, wird mit Wasser aus dem Fluss ersetzt."],
+    dampferzeuger: ["Dampferzeuger", "Großer Behälter, in dem das heiße Wasser des Primärkreislaufs seine Wärme abgibt. Dabei verdampft das Wasser des Sekundärkreislaufs."],
+    kondensator: ["Kondensator", "Hier wird der Dampf hinter der Turbine mit Kühlwasser abgekühlt. Er wird wieder flüssig – er kondensiert."],
+    sicherheitsbehaelter: ["Sicherheitsbehälter", "Dichte, dicke Hülle aus Stahl um Reaktor und Dampferzeuger. Sie soll bei einem Unfall radioaktive Stoffe zurückhalten."],
+    leistung: ["Leistung (Megawatt, MW)", "Wie viel Energie ein Kraftwerk in jeder Sekunde liefert. 1 Megawatt sind 1 Million Watt. Isar 2 lieferte etwa 1 400 MW."],
+    regelstab: ["Regelstab (Steuerstab)", "Stab mit Bor und Cadmium zwischen den Brennelementen. Er fängt Neutronen ein. So steuert man, wie viele Spaltungen pro Sekunde ablaufen. Man sagt auch Steuerstab."],
+    notabschaltung: ["Notabschaltung", "Bei Gefahr fahren alle Regelstäbe in Sekunden ganz in den Reaktorkern. Die Kettenreaktion bricht ab."],
+    atomausstieg: ["Atomausstieg", "Beschluss, keine Kernkraftwerke mehr zu betreiben. In Deutschland lieferten die letzten drei bis zum 15. April 2023 Strom."],
+    ar: ["AR (erweiterte Realität)", "Kurz für englisch „Augmented Reality“: Das Gerät blendet ein Modell so ins Kamerabild ein, als stünde es wirklich vor dir."]
+  }
+});
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Was ist im Kernkraftwerk die Wärmequelle?", o: ["der Reaktor, in dem Urankerne kontrolliert gespalten werden", "ein Kohlefeuer, in dem Kohle mit Sauerstoff verbrennt", "die Turbine, die vom heißen Dampf gedreht wird", "der Kühlturm, in dem Luft das Kühlwasser abkühlt"], a: 0, e: "Die Wärme kommt aus der Kernspaltung im Reaktor. Alles danach ist wie in einem Kohlekraftwerk."},
+    {q: "Welche Energieumwandlung findet im Generator statt?", o: ["Bewegungsenergie → elektrische Energie", "Kernenergie → Wärme", "Wärme → Energie des Dampfes", "elektrische Energie → Licht"], a: 0, e: "Die Turbine dreht den Generator, und er erzeugt Strom."}
+  ],
+  s2: [
+    {q: "Warum verdampft das Wasser im Reaktor nicht, obwohl es bis 300 °C heiß wird?", o: ["Es steht unter sehr hohem Druck.", "Es ist mit Salz gemischt.", "Es fließt zu schnell.", "Das Uran kühlt das Wasser."], a: 0, e: "Daher kommt der Name Druckwasserreaktor."},
+    {q: "Wozu dient der Dampferzeuger?", o: ["Das heiße Wasser des Primärkreislaufs gibt dort seine Wärme ab – im Sekundärkreislauf entsteht Dampf.", "Dort werden die Urankerne gespalten, die Wärme bleibt im Reaktor.", "Dort wird aus der Drehung der Turbine elektrischer Strom erzeugt.", "Dort wird der Dampf hinter der Turbine wieder zu flüssigem Wasser."], a: 0, e: "Der Dampf aus dem Sekundärkreislauf treibt die Turbine an."},
+    {q: "Was steht im Sicherheitsbehälter?", o: ["das Reaktordruckgefäß", "die Brennelemente", "der Dampferzeuger", "der Generator", "der Kühlturm"], a: [0, 1, 2], e: "Generator und Turbine stehen im Maschinenhaus, der Kühlturm steht draußen."},
+    {q: "In welchem der drei Wasserkreisläufe ist das Wasser radioaktiv?", o: ["im Primärkreislauf, der durch den Reaktor fließt", "im Sekundärkreislauf, der die Turbine antreibt", "im Kühlwasserkreislauf, der zum Kühlturm führt", "in allen drei Kreisläufen gleich stark"], a: 0, e: "Nur dieses Wasser fließt durch den Reaktor. Im Dampferzeuger gibt es nur seine Wärme ab – so bleibt das radioaktive Wasser im Sicherheitsbehälter."}
+  ],
+  s3: [
+    {q: "Was passiert, wenn man die Regelstäbe tiefer einfährt?", o: ["Sie fangen mehr Neutronen ein – es gibt weniger Spaltungen und weniger Leistung.", "Sie geben Neutronen ab – es gibt mehr Spaltungen und mehr Leistung.", "Das Wasser im Reaktor beginnt sofort zu verdampfen.", "Die Turbine dreht schneller, weil mehr Dampf entsteht."], a: 0, e: "Bor und Cadmium in den Regelstäben fangen Neutronen ein."},
+    {q: "Welche Stoffe stecken in den Regelstäben?", o: ["Bor und Cadmium", "Uran und Barium", "Kohle und Sauerstoff", "Eisen und Kupfer"], a: 0, e: "Beide Stoffe fangen Neutronen ein."},
+    {q: "Die Leistung soll gleich bleiben. Wie viele der 2 oder 3 neuen Neutronen einer Spaltung dürfen eine neue Spaltung auslösen?", o: ["genau eines", "alle", "keines", "mindestens zwei"], a: 0, e: "Dann bleibt die Zahl der Spaltungen pro Sekunde gleich."}
+  ],
+  s4: [
+    {q: "Seit wann liefert in Deutschland kein Kernkraftwerk mehr Strom?", o: ["seit dem 15. April 2023", "seit 1986", "seit 2011", "seit 1938"], a: 0, e: "An diesem Tag wurden Isar 2, Emsland und Neckarwestheim 2 abgeschaltet."},
+    {q: "Wo stand das Kernkraftwerk Isar 2?", o: ["bei Landshut in Niederbayern", "bei Hamburg an der Elbe", "bei Würzburg am Main", "bei Berlin an der Spree"], a: 0, e: "Genauer: in Essenbach an der Isar, nahe Landshut."}
+  ],
+  train: [
+    {q: "Welche Reihenfolge der Energieformen stimmt?", o: ["Kernenergie → Wärme → Energie des Dampfes → Bewegungsenergie → elektrische Energie", "Wärme → Kernenergie → elektrische Energie → Bewegungsenergie", "elektrische Energie → Bewegungsenergie → Wärme → Kernenergie", "Kernenergie → elektrische Energie → Wärme → Energie des Dampfes"], a: 0, e: "Vom Urankern über Wärme, Dampf und Turbine bis zum Generator."},
+    {q: "Die Regelstäbe sind ganz eingefahren. Was bedeutet das?", o: ["Der Reaktor ist abgeschaltet – die Kettenreaktion kommt zum Erliegen.", "Der Reaktor läuft mit voller Leistung – es gibt mehr Spaltungen.", "Die Kettenreaktion wird schneller, weil mehr Neutronen frei sind.", "Das Wasser im Reaktor kühlt so stark ab, dass es gefriert."], a: 0, e: "Die Regelstäbe fangen dann so viele Neutronen ein, dass keine neuen Spaltungen mehr folgen."},
+    {q: "Wie hoch ist der Kühlturm von Isar 2?", o: ["etwa 165 m", "etwa 16 m", "etwa 60 m", "etwa 1 650 m"], a: 0, e: "Etwa 60 m hoch ist das Reaktorgebäude mit der Kuppel."},
+    {q: "Welche Aussagen über den Druckwasserreaktor stimmen?", o: ["Im Reaktordruckgefäß stecken etwa 200 Brennelemente.", "Das Wasser zwischen den Brennelementen bremst die Neutronen.", "Das Reaktordruckgefäß ist aus 20 bis 25 cm dickem Stahl.", "Das Wasser im Primärkreislauf verdampft und treibt direkt die Turbine an.", "Die Regelstäbe bestehen aus Uran."], a: [0, 1, 2], e: "Das Wasser im Primärkreislauf bleibt flüssig. Die Regelstäbe enthalten Bor und Cadmium."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Station 1: Energiekette ---------- */
+(function(){
+  const svg = $("#ketteSvg");
+  const KETTE = [
+    {t: ["Kernenergie"], f: "#fde2e2", s: "#c0392b"},
+    {t: ["Wärme"], f: "#fde5cf", s: "#d35400"},
+    {t: ["Energie des", "Dampfes"], f: "#dcecfa", s: "#2f8fd8"},
+    {t: ["Bewegungs-", "energie"], f: "#e6e9ec", s: "#566674"},
+    {t: ["elektrische", "Energie"], f: "#fff3c4", s: "#b8860b"}
+  ];
+  const blades = (cx, cy, r, n, col, w) => Array.from({length: n}, (_, k) => { const a = k * 2 * Math.PI / n; return `<line x1="${cx}" y1="${cy}" x2="${(cx + r * Math.cos(a)).toFixed(1)}" y2="${(cy + r * Math.sin(a)).toFixed(1)}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`; }).join("");
+  svg.innerHTML = `<rect width="520" height="280" fill="#f7fbfe"/>
+    <defs><radialGradient id="kGl"><stop offset="0" stop-color="#ffd84d" stop-opacity=".95"/><stop offset=".6" stop-color="#ffb02e" stop-opacity=".45"/><stop offset="1" stop-color="#ffb02e" stop-opacity="0"/></radialGradient></defs>
+    <text id="kTitel" x="260" y="26" text-anchor="middle" font-size="15" font-weight="800" fill="#6b1f3d">Kernkraftwerk: vom Urankern zum Strom</text>
+    <!-- Wärmequelle Reaktor -->
+    <g id="kReaktor" class="quelle">
+      <circle id="kGlow" class="stage" cx="63" cy="126" r="46" fill="url(#kGl)"/>
+      <rect x="28" y="72" width="70" height="102" rx="16" fill="none" stroke="#d84a3a" stroke-width="4"/>
+      <g fill="#f2b632" stroke="#b9860b" stroke-width="1.2"><rect x="39" y="96" width="8" height="66" rx="2"/><rect x="52" y="96" width="8" height="66" rx="2"/><rect x="65" y="96" width="8" height="66" rx="2"/><rect x="78" y="96" width="8" height="66" rx="2"/></g>
+      <g id="kFunken" class="stage" fill="#fff" stroke="#f39c12" stroke-width="1.5"><circle class="ke-funk" cx="49" cy="112" r="3.5"/><circle class="ke-funk" cx="75" cy="128" r="3.5" style="animation-delay:.35s"/><circle class="ke-funk" cx="62" cy="148" r="3.5" style="animation-delay:.7s"/><circle class="ke-funk" cx="83" cy="104" r="3" style="animation-delay:.5s"/><circle class="ke-funk" cx="44" cy="152" r="3" style="animation-delay:.9s"/></g>
+    </g>
+    <!-- Wärmequelle Kohle (Vergleich) -->
+    <g id="kKohle" class="quelle" opacity="0">
+      <rect x="28" y="72" width="70" height="102" rx="10" fill="#4a3b30" stroke="#2b211a" stroke-width="3"/>
+      <path class="flick" d="M63 96 C82 116 86 134 75 152 C71 140 67 136 63 129 C59 137 55 141 51 152 C40 134 44 116 63 96 Z" fill="#f39c12"/>
+      <path class="flick" d="M63 118 C72 130 72 142 67 152 H59 C54 142 54 130 63 118 Z" fill="#e74c3c"/>
+      <g fill="#1d1d1d"><circle cx="43" cy="162" r="7"/><circle cx="57" cy="164" r="7"/><circle cx="71" cy="162" r="7"/><circle cx="84" cy="164" r="6"/></g>
+    </g>
+    <!-- Wärme -->
+    <g id="kWaerme" class="stage" fill="none" stroke="#e05252" stroke-width="3" stroke-linecap="round">
+      <path d="M104 112 q4 -6 8 0 t8 0 t8 0"/><path d="M104 126 q4 -6 8 0 t8 0 t8 0"/><path d="M104 140 q4 -6 8 0 t8 0 t8 0"/>
+      <path d="M130 106 l8 6 l-8 6 M130 120 l8 6 l-8 6 M130 134 l8 6 l-8 6"/>
+      <text x="120" y="160" text-anchor="middle" font-size="11" font-weight="800" fill="#c0392b" stroke="none">Wärme</text>
+    </g>
+    <!-- Kessel: Wasser wird zu Dampf -->
+    <rect x="142" y="80" width="56" height="90" rx="10" fill="#fff" stroke="#1f6aa5" stroke-width="3"/>
+    <rect x="145" y="122" width="50" height="45" rx="7" fill="#8fc3ea"/>
+    <g id="kBlasen" class="stage" fill="#fff"><circle class="rise" cx="156" cy="160" r="3"/><circle class="rise" cx="170" cy="152" r="3.5" style="animation-delay:.8s"/><circle class="rise" cx="185" cy="160" r="3" style="animation-delay:1.5s"/></g>
+    <g id="kDampfIn" class="stage" fill="#e3edf5"><ellipse cx="160" cy="104" rx="10" ry="7"/><ellipse cx="178" cy="98" rx="11" ry="8"/><ellipse cx="170" cy="110" rx="9" ry="6"/></g>
+    <!-- Dampfrohr -->
+    <path d="M170 80 V56 H222 V120 H236" fill="none" stroke="#cfd6dc" stroke-width="9" stroke-linejoin="round"/>
+    <path id="kDampf" class="stage flow" d="M170 80 V56 H222 V120 H236" fill="none" stroke="#2f8fd8" stroke-width="4" stroke-linejoin="round"/>
+    <!-- Turbine -->
+    <polygon points="236,100 306,84 306,156 236,140" fill="#e8eef2" stroke="#8e98a1" stroke-width="3" stroke-linejoin="round"/>
+    <g id="kRotor" class="ke-dreh"><circle cx="271" cy="120" r="21" fill="#fff" stroke="#8e98a1" stroke-width="2"/>${blades(271, 120, 18, 6, "#566674", 4)}<circle cx="271" cy="120" r="4" fill="#33414d"/></g>
+    <!-- Welle und Generator -->
+    <line x1="306" y1="120" x2="336" y2="120" stroke="#566674" stroke-width="6"/>
+    <rect x="336" y="92" width="64" height="56" rx="10" fill="#dbe6f7" stroke="#2f6fdb" stroke-width="3"/>
+    <g id="kGen" class="ke-dreh"><circle cx="368" cy="120" r="19" fill="none" stroke="#2f6fdb" stroke-width="1.5" stroke-dasharray="3 3"/><rect x="352" y="114" width="16" height="12" rx="3" fill="#e05252"/><rect x="368" y="114" width="16" height="12" rx="3" fill="#4a6fa5"/></g>
+    <!-- Leitung und Haus -->
+    <path d="M400 112 H462" fill="none" stroke="#566674" stroke-width="2"/>
+    <path id="kStrom" class="stage flow" d="M400 112 H462" fill="none" stroke="#f2b632" stroke-width="4"/>
+    <polygon points="456,114 482,92 508,114" fill="#c0392b"/>
+    <rect x="462" y="114" width="40" height="40" fill="#fff" stroke="#566674" stroke-width="2"/>
+    <rect id="kFenster" x="474" y="124" width="16" height="14" fill="#cfd6dc" stroke="#566674" stroke-width="1.5"/>
+    <!-- Beschriftung -->
+    <g font-size="12" font-weight="800" fill="#15212b" text-anchor="middle">
+      <text id="kQuelleT" x="63" y="192">Reaktor</text>
+      <text x="170" y="188">Wasser wird</text><text x="170" y="202">zu Dampf</text>
+      <text x="271" y="192">Turbine</text>
+      <text x="368" y="192">Generator</text>
+      <text x="482" y="192">Haushalte</text>
+    </g>
+    <g id="kKette"></g>`;
+  const kk = $("#kKette", svg), boxen = [];
+  KETTE.forEach((k, i) => {
+    const x = 8 + i * 103, g = svgEl("g", {class: "kbox"}, kk);
+    svgEl("rect", {x, y: 216, width: 94, height: 48, rx: 10, fill: "#fff", stroke: "#cfd6dc", "stroke-width": 2}, g);
+    const t = svgEl("text", {x: x + 47, y: 0, "text-anchor": "middle", "font-size": 12, "font-weight": 800, fill: "#9aa5ad"}, g);
+    boxen.push({g, rect: g.firstChild, t, x});
+    if (i < 4) svgEl("path", {d: `M${x + 96} 234 l7 6 l-7 6 Z`, fill: "#9aa5ad"}, kk);
+  });
+  const setzeText = (b, zeilen) => {
+    b.t.textContent = "";
+    zeilen.forEach((z, j) => { const ts = svgEl("tspan", {x: b.x + 47, y: zeilen.length === 1 ? 245 : 237 + j * 15}, b.t); ts.textContent = z; });
+  };
+  boxen.forEach((b, i) => setzeText(b, KETTE[i].t));
+  Modul.makeSchritte($("#ketteSim"), {
+    start: "Wie wird aus der Energie im Urankern Strom aus der Steckdose? Tippe auf „Start“.",
+    steps: [
+      "Im <strong>Reaktor</strong> werden Urankerne gespalten – kontrolliert, Schritt für Schritt. Die Energie steckt zuerst in den Atomkernen: <strong>Kernenergie</strong>.",
+      "Bei jeder Spaltung wird Kernenergie zu <strong>Wärme</strong>. Der Reaktor ist die Wärmequelle des Kraftwerks.",
+      "Die Wärme bringt Wasser zum Verdampfen. Der heiße <strong>Dampf</strong> steht unter Druck und strömt durch ein Rohr – jetzt steckt die Energie im Dampf.",
+      "Der Dampf strömt gegen die Schaufeln der <strong>Turbine</strong> und dreht sie sehr schnell: <strong>Bewegungsenergie</strong>.",
+      "Die Turbine treibt über eine Welle den <strong>Generator</strong> an. Er wandelt die Bewegungsenergie in <strong>elektrische Energie</strong> um. Über Leitungen fließt der Strom zu uns.",
+      "Zum Vergleich ein <strong>Kohlekraftwerk</strong>: Hier ist die Wärmequelle ein Kohlefeuer. Alles danach – Dampf, Turbine, Generator – ist genauso. Darum sagt man: Ein Kernkraftwerk arbeitet wie ein Heizkraftwerk."
+    ],
+    zeige(i){
+      const kohle = i === 5;
+      $("#kReaktor", svg).setAttribute("opacity", kohle ? 0 : 1);
+      $("#kKohle", svg).setAttribute("opacity", kohle ? 1 : 0);
+      $("#kQuelleT", svg).textContent = kohle ? "Kohlefeuer" : "Reaktor";
+      $("#kTitel", svg).textContent = kohle ? "Kohlekraftwerk: andere Wärmequelle, gleiche Kette" : "Kernkraftwerk: vom Urankern zum Strom";
+      an($("#kGlow", svg), i >= 0 && !kohle); an($("#kFunken", svg), i >= 0 && !kohle);
+      an($("#kWaerme", svg), i >= 1);
+      an($("#kBlasen", svg), i >= 2); an($("#kDampfIn", svg), i >= 2); an($("#kDampf", svg), i >= 2);
+      an($("#kRotor", svg), i >= 3);
+      an($("#kGen", svg), i >= 4); an($("#kStrom", svg), i >= 4);
+      $("#kFenster", svg).setAttribute("fill", i >= 4 ? "#ffd84d" : "#cfd6dc");
+      boxen.forEach((b, j) => {
+        const aktiv = i >= 0 && j <= Math.min(i, 4);
+        b.rect.setAttribute("fill", aktiv ? KETTE[j].f : "#fff"); b.rect.setAttribute("stroke", aktiv ? KETTE[j].s : "#cfd6dc");
+        b.t.setAttribute("fill", aktiv ? "#15212b" : "#9aa5ad");
+      });
+      setzeText(boxen[0], kohle ? ["chemische", "Energie"] : KETTE[0].t);
+    }
+  }, "ketteSchritte");
+})();
+
+/* ---------- Station 1: Übungen ---------- */
+Modul.makeOrder($("#orderKette"), [
+  "Im Reaktor werden Urankerne kontrolliert gespalten.",
+  "Die Kernenergie wird zu Wärme.",
+  "Die Wärme bringt Wasser zum Verdampfen.",
+  "Der Dampf strömt gegen die Schaufeln der Turbine und dreht sie.",
+  "Die Turbine treibt den Generator an.",
+  "Der Generator erzeugt elektrischen Strom."
+], "orderKette");
+Modul.makeSort($("#sortKraftwerk"), {
+  buckets: ["🔥 nur Kohlekraftwerk", "⚛️ nur Kernkraftwerk", "🔁 bei beiden"], cols: 200,
+  items: [
+    {t: "Kohle wird verbrannt", b: 0}, {t: "beim Betrieb entsteht viel Kohlenstoffdioxid", b: 0},
+    {t: "Urankerne werden gespalten", b: 1}, {t: "Regelstäbe steuern die Leistung", b: 1}, {t: "es entsteht radioaktiver Abfall", b: 1},
+    {t: "Wasser wird zu Dampf", b: 2}, {t: "Dampf treibt eine Turbine an", b: 2}, {t: "ein Generator erzeugt Strom", b: 2}, {t: "ein Kühlturm gibt Wärme an die Luft ab", b: 2}
+  ]
+}, "sortKraftwerk");
+
+/* ---------- Station 2: Druckwasserreaktor (Schnitt) ---------- */
+(function(){
+  const svg = $("#dwrSvg");
+  const badge = (n, x, y, lx, ly) => `${lx !== undefined ? `<line x1="${x}" y1="${y}" x2="${lx}" y2="${ly}" stroke="#6b1f3d" stroke-width="1.5"/>` : ""}<circle cx="${x}" cy="${y}" r="9" fill="#6b1f3d" stroke="#fff" stroke-width="1.5"/><text x="${x}" y="${y + 4}" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">${n}</text>`;
+  const blades = (cx, cy, r, n, col, w) => Array.from({length: n}, (_, k) => { const a = k * 2 * Math.PI / n; return `<line x1="${cx}" y1="${cy}" x2="${(cx + r * Math.cos(a)).toFixed(1)}" y2="${(cy + r * Math.sin(a)).toFixed(1)}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`; }).join("");
+  const PRIM = "M108 124 H126 V222 H148 V128 Q159 110 170 128 V234 H83 V226";
+  const DAMPF = "M159 92 V62 H246 V112 H262";
+  const SPEISE = "M290 230 V262 H192 V180 H176";
+  const KUEHL = "M332 198 H444 M448 252 H346 V218 H332";
+  svg.innerHTML = `<rect width="520" height="320" fill="#f7fbfe"/>
+    <defs><radialGradient id="dGl"><stop offset="0" stop-color="#ffd84d" stop-opacity=".95"/><stop offset=".6" stop-color="#ffb02e" stop-opacity=".45"/><stop offset="1" stop-color="#ffb02e" stop-opacity="0"/></radialGradient></defs>
+    <!-- Boden und Fluss -->
+    <rect y="280" width="520" height="10" fill="#cdbf9f"/><rect y="290" width="520" height="30" fill="#9fcbe8"/>
+    <path d="M20 303 q10 -5 20 0 t20 0 M210 309 q10 -5 20 0 t20 0 M390 303 q10 -5 20 0 t20 0" fill="none" stroke="#e8f4fb" stroke-width="2"/>
+    <text x="110" y="311" font-size="12" font-weight="800" fill="#1d5f8a">Fluss</text>
+    <!-- Reaktorgebäude mit Kuppel -->
+    <path d="M20 280 V128 A100 100 0 0 1 220 128 V280 Z" fill="#e6e3dc" stroke="#b9bfc2" stroke-width="3"/>
+    <text x="120" y="45" text-anchor="middle" font-size="11" font-weight="800" fill="#7d8a94">Reaktorgebäude</text>
+    <!-- Maschinenhaus -->
+    <rect x="236" y="66" width="178" height="212" rx="4" fill="#eef1f4" stroke="#d5dde3" stroke-width="2"/>
+    <text x="325" y="274" text-anchor="middle" font-size="11" font-weight="800" fill="#7d8a94">Maschinenhaus</text>
+    <!-- Sicherheitsbehälter -->
+    <circle id="dSB" class="teil" cx="120" cy="164" r="90" fill="#f3f5f7" stroke="#7d8f9b" stroke-width="5"/>
+    <!-- Leitungen (Grund) -->
+    <path d="${PRIM}" fill="none" stroke="#f4c49c" stroke-width="5" stroke-linejoin="round"/>
+    <path d="${DAMPF}" fill="none" stroke="#b9d9f2" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M300 132 V186" fill="none" stroke="#b9d9f2" stroke-width="5"/>
+    <path d="${SPEISE}" fill="none" stroke="#c9e2f3" stroke-width="4" stroke-linejoin="round"/>
+    <path d="${KUEHL}" fill="none" stroke="#a9c8dd" stroke-width="4" stroke-linejoin="round"/>
+    <!-- Reaktordruckgefäß -->
+    <g id="dRDG" class="teil">
+      <rect x="58" y="108" width="50" height="118" rx="20" fill="#fde3c9" stroke="#d84a3a" stroke-width="4"/>
+      <circle id="dGlow" class="stage" cx="83" cy="182" r="34" fill="url(#dGl)"/>
+      <g fill="#f2b632" stroke="#b9860b" stroke-width="1"><rect x="64" y="150" width="6" height="62" rx="1.5"/><rect x="75" y="150" width="6" height="62" rx="1.5"/><rect x="86" y="150" width="6" height="62" rx="1.5"/><rect x="97" y="150" width="6" height="62" rx="1.5"/></g>
+      <g fill="#33414d"><rect x="71" y="96" width="3.5" height="78"/><rect x="82" y="96" width="3.5" height="78"/><rect x="93" y="96" width="3.5" height="78"/></g>
+      <rect x="64" y="88" width="38" height="16" rx="3" fill="#33414d"/>
+      <g id="dFunken" class="stage" fill="#fff" stroke="#f39c12" stroke-width="1.2"><circle class="ke-funk" cx="73" cy="190" r="2.6"/><circle class="ke-funk" cx="90" cy="168" r="2.6" style="animation-delay:.4s"/><circle class="ke-funk" cx="84" cy="204" r="2.6" style="animation-delay:.8s"/></g>
+    </g>
+    <!-- Dampferzeuger -->
+    <g id="dSG" class="teil">
+      <rect x="142" y="92" width="34" height="122" rx="17" fill="#fff" stroke="#1f6aa5" stroke-width="3"/>
+      <rect x="145" y="150" width="28" height="61" rx="12" fill="#bcdcf3"/>
+      <g id="dBlasen" class="stage" fill="#fff"><circle class="rise" cx="152" cy="200" r="2.5"/><circle class="rise" cx="166" cy="190" r="2.5" style="animation-delay:.9s"/><circle class="rise" cx="159" cy="205" r="2" style="animation-delay:1.6s"/></g>
+    </g>
+    <!-- Kreisläufe (Fluss) -->
+    <path id="dPrim" class="stage flow" d="${PRIM}" fill="none" stroke="#e8731c" stroke-width="3.5" stroke-linejoin="round"/>
+    <circle cx="128" cy="234" r="7" fill="#fff" stroke="#e8731c" stroke-width="2.5"/>
+    <path id="dDampf" class="stage flow" d="${DAMPF} M300 132 V186" fill="none" stroke="#2f8fd8" stroke-width="4" stroke-linejoin="round"/>
+    <path id="dSpeise" class="stage flow" d="${SPEISE}" fill="none" stroke="#5fa8d3" stroke-width="3" stroke-linejoin="round"/>
+    <circle cx="240" cy="262" r="7" fill="#fff" stroke="#5fa8d3" stroke-width="2.5"/>
+    <path id="dKuehl" class="stage flow" d="${KUEHL}" fill="none" stroke="#1d5f8a" stroke-width="3" stroke-linejoin="round"/>
+    <!-- Turbine, Welle, Generator -->
+    <g id="dTurb" class="teil"><polygon points="262,102 322,86 322,138 262,122" fill="#dfe5ea" stroke="#8e98a1" stroke-width="3" stroke-linejoin="round"/>
+      <g id="dTurbR" class="ke-dreh"><circle cx="292" cy="112" r="12" fill="#fff" stroke="#8e98a1" stroke-width="1.5"/>${blades(292, 112, 10, 6, "#566674", 2.5)}</g></g>
+    <line x1="322" y1="112" x2="346" y2="112" stroke="#566674" stroke-width="6"/>
+    <g id="dGen" class="teil"><rect x="346" y="92" width="50" height="40" rx="8" fill="#dbe6f7" stroke="#2f6fdb" stroke-width="3"/>
+      <g id="dGenR" class="ke-dreh"><circle cx="371" cy="112" r="13" fill="none" stroke="#2f6fdb" stroke-width="1.2" stroke-dasharray="3 3"/><rect x="360" y="108" width="11" height="8" rx="2" fill="#e05252"/><rect x="371" y="108" width="11" height="8" rx="2" fill="#4a6fa5"/></g></g>
+    <text id="dStrom" class="stage" x="371" y="84" text-anchor="middle" font-size="13" font-weight="800" fill="#b8860b">⚡ Strom</text>
+    <!-- Kondensator -->
+    <g id="dKond" class="teil"><rect x="262" y="186" width="70" height="44" rx="8" fill="#e6f2fa" stroke="#5fa8d3" stroke-width="3"/>
+      <g stroke="#1d5f8a" stroke-width="2.5"><line x1="268" y1="198" x2="326" y2="198"/><line x1="268" y1="208" x2="326" y2="208"/><line x1="268" y1="218" x2="326" y2="218"/></g></g>
+    <!-- Kühlturm -->
+    <g id="dTurm" class="teil"><path d="M432 270 Q450 170 440 76 L496 76 Q486 170 508 270 Z" fill="#d9dcd6" stroke="#9aa5ad" stroke-width="2"/>
+      <g id="dRegen" class="stage" stroke="#7fb3d9" stroke-width="2"><line class="flow" x1="452" y1="206" x2="452" y2="262"/><line class="flow" x1="468" y1="206" x2="468" y2="262"/><line class="flow" x1="484" y1="206" x2="484" y2="262"/></g></g>
+    <g id="dWolke" class="stage" fill="#fff" stroke="#cfd6dc" stroke-width="1.5"><ellipse cx="456" cy="66" rx="16" ry="10"/><ellipse cx="478" cy="60" rx="18" ry="12"/><ellipse cx="468" cy="70" rx="20" ry="8"/>
+      <ellipse class="rise" cx="470" cy="54" rx="12" ry="8" stroke="none" fill="#f3f6f8"/><ellipse class="rise" cx="486" cy="58" rx="9" ry="6" stroke="none" fill="#f3f6f8" style="animation-delay:1.2s"/></g>
+    <!-- Beschriftung der Kreisläufe -->
+    <text id="dPrimT" class="stage" x="120" y="273" text-anchor="middle" font-size="11.5" font-weight="800" fill="#c4561a">Primärkreislauf: radioaktiv</text>
+    <text id="dSekT" class="stage" x="368" y="172" text-anchor="middle" font-size="11.5" font-weight="800" fill="#1f6aa5">Sekundärkreislauf</text>
+    <text id="dKuehlT" class="stage" x="394" y="222" text-anchor="middle" font-size="11.5" font-weight="800" fill="#1d5f8a"><tspan x="394">Kühlwasser-</tspan><tspan x="394" dy="15">kreislauf</tspan></text>
+    <!-- Nummern -->
+    ${badge(1, 44, 132, 58, 132)}${badge(2, 40, 170, 66, 188)}${badge(3, 44, 98, 64, 96)}${badge(4, 30, 238, 51, 222)}${badge(5, 196, 104, 176, 110)}
+    ${badge(6, 292, 76)}${badge(7, 371, 148)}${badge(8, 310, 247)}${badge(9, 470, 150)}`;
+  const TEILE = ["dRDG", "dSG", "dTurb", "dGen", "dKond", "dTurm", "dSB"];
+  const HL = [["dRDG"], ["dRDG"], ["dSG"], ["dTurb", "dGen"], ["dKond"], ["dTurm"], ["dSB"]];
+  Modul.makeSchritte($("#dwrSim"), {
+    start: "Ein Kernkraftwerk mit Druckwasserreaktor im Schnitt. Tippe auf „Start“ oder gehe Schritt für Schritt.",
+    steps: [
+      "Im <strong>Reaktordruckgefäß</strong> ① stecken etwa 200 <strong>Brennelemente</strong> ② mit Uran. Hier läuft die gesteuerte Kettenreaktion. Die <strong>Regelstäbe</strong> ③ stecken zum Teil dazwischen.",
+      "Wasser umströmt die Brennelemente. Es bremst die Neutronen ab und nimmt die Wärme auf. Es wird bis 300 °C heiß, verdampft aber nicht – es steht unter sehr hohem Druck. Eine Pumpe treibt es durch den ersten Kreislauf, den <strong>Primärkreislauf</strong> (orange). Dieses Wasser fließt durch den Reaktor – es ist <strong>radioaktiv</strong>.",
+      "Im <strong>Dampferzeuger</strong> ⑤ fließt das heiße Wasser durch viele Rohre. Es gibt nur seine Wärme an das Wasser des zweiten Kreislaufs ab, des <strong>Sekundärkreislaufs</strong> (blau). Dieses Wasser verdampft.",
+      "Der Dampf strömt aus dem Reaktorgebäude zur <strong>Turbine</strong> ⑥ und dreht sie. Die Turbine treibt den <strong>Generator</strong> ⑦ an – er erzeugt Strom.",
+      "Im <strong>Kondensator</strong> ⑧ kühlt kaltes Wasser aus dem dritten Kreislauf, dem <strong>Kühlwasserkreislauf</strong> (dunkelblau), den Dampf ab. Er wird wieder zu Wasser und wird zurück zum Dampferzeuger gepumpt. Der Sekundärkreislauf ist geschlossen.",
+      "Das erwärmte Kühlwasser gibt seine Wärme im <strong>Kühlturm</strong> ⑨ an die Luft ab. Die weiße Wolke darüber ist Wasserdampf – kein Rauch. Was verdunstet, wird mit Wasser aus dem Fluss ersetzt.",
+      "Reaktor und Dampferzeuger stehen im <strong>Sicherheitsbehälter</strong> ④, einer dicken Hülle aus Stahl im Reaktorgebäude. Die drei Wasserkreisläufe sind getrennt, ihr Wasser vermischt sich nie – nur die Wärme wird weitergegeben. So bleibt das <strong>radioaktive Wasser</strong> aus dem Reaktor im Sicherheitsbehälter. Es kommt nie zur Turbine oder in den Fluss."
+    ],
+    zeige(i){
+      an($("#dGlow", svg), i >= 0); an($("#dFunken", svg), i >= 0);
+      an($("#dPrim", svg), i >= 1); an($("#dPrimT", svg), i >= 1);
+      an($("#dBlasen", svg), i >= 2);
+      an($("#dDampf", svg), i >= 3); an($("#dTurbR", svg), i >= 3); an($("#dGenR", svg), i >= 3); an($("#dStrom", svg), i >= 3); an($("#dSekT", svg), i >= 3);
+      an($("#dSpeise", svg), i >= 4); an($("#dKuehl", svg), i >= 4); an($("#dKuehlT", svg), i >= 4); an($("#dRegen", svg), i >= 4);
+      an($("#dWolke", svg), i >= 5);
+      $("#dSB", svg).classList.toggle("puls", i === 6);
+      TEILE.forEach(id => $("#" + id, svg).classList.toggle("hl", i >= 0 && HL[i].includes(id)));
+    }
+  }, "dwrSchritte");
+})();
+
+/* ---------- Station 2: Beschriften (Zeichnung als Bild) ---------- */
+(function(){
+  const bild = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 460">
+    <rect width="400" height="460" fill="#f7fbfe"/>
+    <circle cx="200" cy="240" r="165" fill="#f3f5f7" stroke="#7d8f9b" stroke-width="8"/>
+    <path d="M190 182 H214 V362 H256 V175 Q271 148 286 175 V372 H147 V340" fill="none" stroke="#e8731c" stroke-width="7" stroke-linejoin="round"/>
+    <circle cx="200" cy="372" r="10" fill="#fff" stroke="#e8731c" stroke-width="4"/>
+    <path d="M271 130 V96 H392" fill="none" stroke="#2f8fd8" stroke-width="9" stroke-linejoin="round"/>
+    <path d="M392 300 H302" fill="none" stroke="#5fa8d3" stroke-width="6"/>
+    <rect x="105" y="150" width="85" height="190" rx="32" fill="#fde3c9" stroke="#d84a3a" stroke-width="7"/>
+    <g fill="#f2b632" stroke="#b9860b" stroke-width="2"><rect x="116" y="240" width="11" height="85" rx="2"/><rect x="134" y="240" width="11" height="85" rx="2"/><rect x="152" y="240" width="11" height="85" rx="2"/><rect x="170" y="240" width="11" height="85" rx="2"/></g>
+    <g fill="#33414d"><rect x="128.5" y="128" width="5" height="135"/><rect x="146.5" y="128" width="5" height="135"/><rect x="164.5" y="128" width="5" height="135"/></g>
+    <rect x="114" y="114" width="68" height="28" rx="5" fill="#33414d"/>
+    <rect x="240" y="130" width="62" height="220" rx="31" fill="#fff" stroke="#1f6aa5" stroke-width="6"/>
+    <rect x="245" y="235" width="52" height="110" rx="22" fill="#bcdcf3"/>
+    <path d="M256 340 V180 Q271 156 286 180 V340" fill="none" stroke="#e8731c" stroke-width="5"/>
+  </svg>`;
+  Modul.makeLabel($("#labelReaktor"), {
+    img: "data:image/svg+xml;charset=utf-8," + encodeURIComponent(bild), w: 400, h: 460,
+    alt: "Zeichnung des Reaktorgebäudes im Schnitt: ein großer Kreis, darin links ein Behälter mit gelben Stäben und dunklen Stäben von oben, rechts ein hoher Behälter mit einem orangefarbenen Rohr. Fünf Kästchen sind leer.",
+    hint: "Tippe zuerst auf einen Begriff und dann auf das passende Kästchen. Zwei Begriffe gehören nicht in das Reaktorgebäude.",
+    slots: [
+      {x: 17, y: 5.6, px: 32.8, py: 33, a: "Regelstäbe"},
+      {x: 50, y: 5.6, px: 47.5, py: 47, a: "Reaktordruckgefäß"},
+      {x: 83, y: 5.6, px: 75.5, py: 43.5, a: "Dampferzeuger"},
+      {x: 18, y: 94.4, px: 20.8, py: 76.5, a: "Sicherheitsbehälter"},
+      {x: 52, y: 94.4, px: 39.4, py: 65.2, a: "Brennelemente"}
+    ],
+    extra: ["Turbine", "Generator"]
+  }, "labelReaktor");
+})();
+
+/* ---------- Station 2: Übungen ---------- */
+Modul.makeGap($("#gapReaktor"), [
+  ["Im ", {g: "Reaktordruckgefäß"}, " aus 20 bis 25 cm dickem Stahl steckt der Reaktorkern aus etwa 200 ", {g: "Brennelementen"}, " mit angereichertem Uran."],
+  ["Zwischen den Brennelementen fließt Wasser. Es bremst die Neutronen ab – es ist der ", {g: "Moderator"}, "."],
+  ["Das Wasser im Primärkreislauf wird bis ", {g: "300"}, " °C heiß. Es verdampft nicht, weil es unter sehr hohem ", {g: "Druck"}, " steht."],
+  ["Im ", {g: "Dampferzeuger"}, " gibt es seine Wärme an den Sekundärkreislauf ab. Dort entsteht Dampf, der die ", {g: "Turbine"}, " antreibt."]
+], "gapReaktor", ["100", "Kühlturm"]);
+Modul.makeOpen($("#open2"), [
+  {q: "Beschreibe den Weg der Energie im Kernkraftwerk: vom Reaktorkern bis zum Strom. Nenne dabei Primär- und Sekundärkreislauf.",
+   m: "Im Reaktorkern werden Urankerne gespalten, dabei entsteht Wärme. Das Wasser im Primärkreislauf wird bis 300 °C heiß und bleibt wegen des hohen Drucks flüssig. Im Dampferzeuger gibt es seine Wärme an den Sekundärkreislauf ab. Dort verdampft Wasser. Der Dampf treibt die Turbine an, die Turbine treibt den Generator an, und der Generator erzeugt Strom. Im Kondensator wird der Dampf wieder zu Wasser.",
+   k: ["spalt|uran|kernenergie", "wärme|heiß|300", "primär", "dampferzeuger|sekundär", "dampf|verdampf", "turbine", "generator|strom|elektrisch"], min: 5}
+], "open2-", "Geh die Animation zum Druckwasserreaktor noch einmal Schritt für Schritt durch.");
+
+/* ---------- Station 3: Reaktor-Simulation ---------- */
+(function(){
+  const svg = $("#reaktorSvg"), range = $("#rRange"), chip = $("#rChip"), obs = $("#rObs"), tb = $("#rTab tbody");
+  const knoepfe = ["tRein", "tHalb", "tRaus", "tKuehl"].map(id => $("#" + id));
+
+  /* REAKTOR-REGELN: dieselben Zahlen und Regeln wie ar-kernkraftwerk/reaktor.js (AR-Seite) – bei Änderungen beide anpassen */
+  const LEISTUNG_MW = 1400;
+  const leistungsanteil = regel => { const r = Math.min(1, Math.max(0, Number(regel) || 0)); return r >= .98 ? 0 : Math.round((1 - r) * 100) / 100; };
+  const zustand = regel => { const p = leistungsanteil(regel); if (p === 0) return "aus"; if (p < .35) return "wenig"; return p < .85 ? "teil" : "voll"; };
+  const zahl = n => Math.round(n).toLocaleString("de-DE");
+  const leistungMW = regel => Math.round(LEISTUNG_MW * leistungsanteil(regel));
+  function beobachtung(regel){
+    const z = zustand(regel), p = leistungsanteil(regel);
+    if (z === "aus") return "Die Regelstäbe sind ganz eingefahren. Sie fangen die Neutronen ein – die Kettenreaktion kommt zum Erliegen, der Reaktor ist abgeschaltet. Kein Dampf, kein Strom.";
+    const satz = "Von den zwei oder drei Neutronen jeder Spaltung löst " + (p >= .85 ? "genau eines" : "weniger als eines") + " eine neue Spaltung aus. ";
+    if (z === "wenig") return "Die Regelstäbe stecken tief im Reaktorkern: nur wenige Spaltungen je Sekunde. Das Wasser wird kaum heiß, die Turbine dreht langsam. " + "Leistung etwa " + zahl(leistungMW(regel)) + " MW.";
+    if (z === "teil") return "Teillast: Je weiter die Regelstäbe herausgezogen werden, desto mehr Kernspaltungen je Sekunde – mehr Wärme, mehr Dampf, mehr Strom. Leistung etwa " + zahl(leistungMW(regel)) + " MW.";
+    return "Volle Leistung: " + satz + "Die Zahl der Spaltungen bleibt konstant, das Wasser wird bis 300 °C heiß und bleibt unter hohem Druck flüssig. Leistung etwa " + zahl(leistungMW(regel)) + " MW.";
+  }
+  /* Ende REAKTOR-REGELN */
+  // Wassertemperatur im Modell (vereinfacht): abgeschaltet und gekühlt etwa 30 °C, volle Leistung bis 300 °C
+  const tempModell = p => 30 + 270 * p;
+  const runde10 = t => Math.round(t / 10) * 10;
+
+  const FX = [60, 89, 118, 147, 176, 205], SX = FX.slice(0, 5).map(x => x + 17.5), HUB = 152;
+  svg.innerHTML = `<rect width="520" height="300" fill="#f7fbfe"/>
+    <!-- Kühlmittel: Pumpe und Leitungen -->
+    <path d="M0 246 H40" stroke="#f4c49c" stroke-width="10"/><path id="rRohrEin" class="flow" d="M0 246 H40" stroke="#e8731c" stroke-width="4"/>
+    <path d="M230 76 H262" stroke="#f4c49c" stroke-width="10"/><path id="rRohrAus" class="flow" d="M230 76 H262" stroke="#e8731c" stroke-width="4"/>
+    <!-- Druckgefäß -->
+    <rect id="rWasser" x="40" y="52" width="190" height="228" rx="40" fill="#cfe9f7" stroke="#d84a3a" stroke-width="6"/>
+    <g id="rFlash"></g>
+    <g fill="#f2b632" stroke="#b9860b" stroke-width="1.5">${FX.map(x => `<rect x="${x}" y="120" width="14" height="142" rx="3"/>`).join("")}</g>
+    <g id="rNeutr" fill="#4a6fa5" stroke="#fff" stroke-width="1"></g>
+    <defs><clipPath id="rClip"><rect x="40" y="40" width="190" height="240"/></clipPath></defs>
+    <g clip-path="url(#rClip)"><g id="rStaebe" class="stab" fill="#33414d">${SX.map(x => `<rect x="${x - 4}" y="${110 - HUB - 40}" width="8" height="${HUB + 40}" rx="2"/>`).join("")}</g></g>
+    <rect x="58" y="20" width="154" height="28" rx="6" fill="#33414d"/>
+    <text x="135" y="39" text-anchor="middle" font-size="11.5" font-weight="700" fill="#fff">Antrieb der Regelstäbe</text>
+    <g id="rPumpe"><circle cx="20" cy="246" r="13" fill="#fff" stroke="#e8731c" stroke-width="3"/><g id="rRad" class="ke-dreh">${[0, 1, 2, 3].map(k => `<line x1="20" y1="246" x2="${(20 + 9 * Math.cos(k * Math.PI / 2)).toFixed(1)}" y2="${(246 + 9 * Math.sin(k * Math.PI / 2)).toFixed(1)}" stroke="#e8731c" stroke-width="2.5"/>`).join("")}<circle cx="20" cy="246" r="9" fill="none"/></g>
+      <g id="rPumpeX" class="stage" stroke="#c0392b" stroke-width="4" stroke-linecap="round"><line x1="9" y1="235" x2="31" y2="257"/><line x1="31" y1="235" x2="9" y2="257"/></g></g>
+    <text id="rPumpeT" x="4" y="294" font-size="11.5" font-weight="800" fill="#566674">Pumpe läuft</text>
+    <!-- Anzeigen -->
+    <g font-weight="800" fill="#15212b">
+      <text x="275" y="30" font-size="12.5">Spaltungen pro Sekunde</text>
+      <rect x="275" y="38" width="230" height="16" rx="8" fill="#e8eef2"/><rect id="rBarS" x="275" y="38" width="0" height="16" rx="8" fill="#f2b632"/>
+      <text id="rTxtS" x="275" y="72" font-size="12" font-weight="700" fill="#566674"></text>
+      <text x="275" y="100" font-size="12.5">Wassertemperatur (Modell)</text>
+      <rect x="275" y="108" width="230" height="16" rx="8" fill="#e8eef2"/><rect id="rBarT" x="275" y="108" width="0" height="16" rx="8" fill="#e8731c"/>
+      <line x1="447.5" y1="103" x2="447.5" y2="129" stroke="#6b1f3d" stroke-width="2" stroke-dasharray="3 2"/>
+      <text x="447.5" y="142" text-anchor="middle" font-size="10.5" font-weight="700" fill="#6b1f3d">300 °C</text>
+      <text id="rTxtT" x="275" y="142" font-size="12" font-weight="700" fill="#566674"></text>
+      <text x="275" y="172" font-size="12.5">Elektrische Leistung</text>
+      <text id="rTxtP" x="275" y="204" font-size="28" fill="#6b1f3d">0 MW</text>
+      <text x="275" y="222" font-size="11" font-weight="700" fill="#566674">höchstens etwa 1.400 MW (wie Isar 2)</text>
+      <g id="rStatus"><rect x="275" y="240" width="230" height="34" rx="17" fill="#566674"/><text id="rStatusT" x="390" y="262" text-anchor="middle" font-size="13" fill="#fff">abgeschaltet</text></g>
+    </g>`;
+  const staebe = $("#rStaebe", svg), wasser = $("#rWasser", svg), nG = $("#rNeutr", svg), fG = $("#rFlash", svg);
+  const NEUTR = Array.from({length: 18}, () => ({c: svgEl("circle", {r: 3.2, cx: -10, cy: -10}, nG), x: 60 + Math.random() * 160, y: 125 + Math.random() * 135, vx: 0, vy: 0, an: false}));
+  NEUTR.forEach(n => { const a = Math.random() * 6.28; n.vx = Math.cos(a) * 70; n.vy = Math.sin(a) * 70; });
+  const BLITZE = Array.from({length: 10}, () => ({c: svgEl("circle", {r: 7, cx: -20, cy: -20, fill: "#fff7c2", stroke: "#f39c12", "stroke-width": 2, opacity: 0}, fG), t: 0}));
+
+  let regel = 1, pumpe = true, modus = "normal", T = tempModell(0), lauf = false;
+  const erledigt = new Set();
+  const ZEILEN = {
+    rein: ["ganz eingefahren (100 %)", "keine – die Kettenreaktion ist erloschen", "kühlt ab", "0 MW", "abgeschaltet"],
+    halb: ["halb eingefahren (50 %)", "halb so viele wie bei voller Leistung", "etwa 170 °C", "700 MW", "Teillast"],
+    raus: ["ganz herausgezogen (0 %)", "sehr viele – die Zahl bleibt gleich", "bis 300 °C, bleibt flüssig", "1.400 MW", "volle Leistung, gleichmäßig"],
+    kuehl: ["Kühlung fällt aus", "erst sehr viele, nach der Notabschaltung keine", "steigt über 300 °C – Überhitzung!", "1.400 MW → 0 MW", "Notabschaltung, trotzdem weiter kühlen"]
+  };
+  const REIHE = ["rein", "halb", "raus", "kuehl"];
+  tb.innerHTML = REIHE.map(k => `<tr><th>${ZEILEN[k][0]}</th><td></td><td></td><td></td><td></td></tr>`).join("");
+  register("reaktor", "#reaktorSvg", "Simulation: Regelstäbe steuern den Reaktor (ganz eingefahren, halb, herausgezogen, Kühlung fällt aus)");
+  function eintragen(k){
+    const tr = $$("tr", tb)[REIHE.indexOf(k)];
+    ZEILEN[k].slice(1).forEach((t, i) => { const td = tr.children[i + 1]; td.textContent = t; td.classList.remove("neu"); void td.offsetWidth; td.classList.add("neu"); });
+    erledigt.add(k);
+    if (erledigt.size === 4 && !Modul.isSolved("reaktor")) { solve("reaktor"); if (!lauf) obs.textContent += " ✅ Alles ausprobiert – die Tabelle ist voll."; }
+  }
+  const SPALT = {aus: "keine", wenig: "wenige", teil: "mittel – je weiter heraus, desto mehr", voll: "sehr viele – gleichbleibend"};
+  const STATUS = {aus: ["abgeschaltet", "#566674"], wenig: ["wenig Leistung", "#b8860b"], teil: ["Teillast", "#1f6aa5"], voll: ["volle Leistung – gleichmäßig", "#1b8a4b"]};
+  const mischen = (a, b, k) => { const h = s => [1, 3, 5].map(i => parseInt(s.slice(i, i + 2), 16)); const A = h(a), B = h(b); return "rgb(" + A.map((v, i) => Math.round(v + (B[i] - v) * k)).join(",") + ")"; };
+  function wasserFarbe(t){ return t <= 300 ? mischen("#cfe9f7", "#fde3c9", clamp((t - 30) / 270, 0, 1)) : mischen("#fde3c9", "#f19a7f", clamp((t - 300) / 70, 0, 1)); }
+  function anzeigen(){
+    const p = leistungsanteil(regel), z = zustand(regel);
+    $("#rBarS", svg).setAttribute("width", (230 * p).toFixed(1));
+    $("#rTxtS", svg).textContent = SPALT[z];
+    $("#rBarT", svg).setAttribute("width", (230 * clamp(T / 400, 0, 1)).toFixed(1));
+    $("#rBarT", svg).setAttribute("fill", T > 305 ? "#c0392b" : "#e8731c");
+    $("#rTxtT", svg).textContent = T > 305 ? "über 300 °C!" : "etwa " + runde10(T) + " °C";
+    wasser.setAttribute("fill", wasserFarbe(T));
+    $("#rTxtP", svg).textContent = zahl(leistungMW(regel)) + " MW";
+    const [txt, col] = modus === "heiss" ? ["ÜBERHITZUNG!", "#c0392b"] : modus === "nach" ? ["Notabschaltung: weiter kühlen!", "#d35400"] : STATUS[z];
+    $("#rStatus rect", svg).setAttribute("fill", col); $("#rStatusT", svg).textContent = txt;
+    $("#rStatusT", svg).setAttribute("font-size", txt.length > 24 ? 12 : 13);
+    $("#rStatus", svg).classList.toggle("blink", modus === "heiss");
+    an($("#rRad", svg), pumpe); an($("#rPumpeX", svg), !pumpe);
+    an($("#rRohrEin", svg), pumpe); an($("#rRohrAus", svg), pumpe);
+    $("#rRohrEin", svg).style.opacity = $("#rRohrAus", svg).style.opacity = pumpe ? 1 : 0;
+    $("#rPumpeT", svg).textContent = pumpe ? "Pumpe läuft" : "Pumpe aus!";
+    $("#rPumpeT", svg).setAttribute("fill", pumpe ? "#566674" : "#c0392b");
+    chip.textContent = Math.round(regel * 100) + " %";
+  }
+  function setRegel(r, schnell){
+    regel = clamp(r, 0, 1); range.value = Math.round(regel * 100);
+    staebe.classList.toggle("schnell", !!schnell);
+    staebe.style.transform = `translateY(${(regel * HUB).toFixed(1)}px)`;
+    if (reduced || !sichtbar) T = modus === "normal" ? tempModell(leistungsanteil(regel)) : T;
+    anzeigen();
+  }
+  // Neutronen und Spaltungen: kleine Bewegung, nur solange die Simulation zu sehen ist
+  let sichtbar = false, t0 = 0, rafId = 0;
+  function schritt(t){
+    const dt = Math.min(.05, (t - (t0 || t)) / 1000); t0 = t;
+    const p = leistungsanteil(regel);
+    const ziel = modus === "heiss" ? 370 : modus === "nach" ? T : tempModell(p);
+    T += (ziel - T) * Math.min(1, dt * (modus === "heiss" ? 1.1 : 2.2));
+    const soll = p > 0 ? Math.round(3 + 15 * p) : 0;
+    NEUTR.forEach((n, k) => {
+      n.an = k < soll;
+      if (!n.an) { n.c.setAttribute("cx", -10); return; }
+      n.x += n.vx * dt; n.y += n.vy * dt;
+      if (n.x < 52 || n.x > 220) { n.vx = -n.vx; n.x = clamp(n.x, 52, 220); }
+      if (n.y < 118 || n.y > 268) { n.vy = -n.vy; n.y = clamp(n.y, 118, 268); }
+      n.c.setAttribute("cx", n.x.toFixed(1)); n.c.setAttribute("cy", n.y.toFixed(1));
+    });
+    if (p > 0 && Math.random() < dt * 9 * p) {
+      const b = BLITZE.find(b => b.t <= 0); if (b) { b.t = .35; b.c.setAttribute("cx", FX[Math.floor(Math.random() * 6)] + 7); b.c.setAttribute("cy", 130 + Math.random() * 125); }
+    }
+    BLITZE.forEach(b => { if (b.t > 0) { b.t -= dt; b.c.setAttribute("opacity", clamp(b.t / .35, 0, 1).toFixed(2)); b.c.setAttribute("r", (7 + (1 - b.t / .35) * 6).toFixed(1)); } else b.c.setAttribute("opacity", 0); });
+    anzeigen();
+    rafId = sichtbar ? requestAnimationFrame(schritt) : 0;
+  }
+  if (reduced) {
+    // ohne Bewegung: Neutronen fest verteilt, Werte springen sofort
+    NEUTR.forEach(n => { n.c.setAttribute("cx", n.x.toFixed(1)); n.c.setAttribute("cy", n.y.toFixed(1)); });
+  } else Modul.onVisible(svg, v => { sichtbar = v; if (v && !rafId) { t0 = 0; rafId = requestAnimationFrame(schritt); } });
+  function zeigeStatisch(){ if (!reduced) return; const soll = leistungsanteil(regel) > 0 ? Math.round(3 + 15 * leistungsanteil(regel)) : 0; NEUTR.forEach((n, k) => n.c.setAttribute("opacity", k < soll ? 1 : 0)); }
+
+  function sperren(an){ lauf = an; knoepfe.forEach(b => b.disabled = an); range.disabled = an; }
+  function stellung(r, key){
+    if (lauf) return;
+    modus = "normal"; pumpe = true;
+    setRegel(r); zeigeStatisch();
+    obs.textContent = beobachtung(regel);
+    if (key) eintragen(key);
+  }
+  range.addEventListener("input", () => {
+    const v = +range.value;
+    stellung(v / 100, v === 100 ? "rein" : v === 50 ? "halb" : v === 0 ? "raus" : null);
+  });
+  $("#tRein").addEventListener("click", () => stellung(1, "rein"));
+  $("#tHalb").addEventListener("click", () => stellung(.5, "halb"));
+  $("#tRaus").addEventListener("click", () => stellung(0, "raus"));
+  $("#tKuehl").addEventListener("click", async () => {
+    if (lauf) return;
+    sperren(true);
+    try {
+      modus = "normal"; pumpe = true; setRegel(0); zeigeStatisch();
+      obs.textContent = "Volle Leistung: 1.400 MW, das Wasser ist etwa 300 °C heiß. Achtung – jetzt fällt die Kühlmittelpumpe aus!";
+      await wait(1300);
+      pumpe = false; modus = "heiss"; if (reduced || !sichtbar) T = 370; anzeigen();
+      obs.textContent = "⚠️ Die Pumpe steht still. Das heiße Wasser fließt nicht mehr zum Dampferzeuger – die Wärme kann nicht weg. Die Temperatur steigt über 300 °C: Überhitzung!";
+      await wait(2400);
+      setRegel(1, true); modus = "nach"; zeigeStatisch(); anzeigen();
+      obs.textContent = "Notabschaltung: Die Regelstäbe fahren von selbst ganz in den Reaktorkern. Die Kettenreaktion bricht ab, die Leistung fällt auf 0 MW. Aber die Brennelemente sind noch sehr heiß und geben weiter Wärme ab!";
+      await wait(2400);
+      pumpe = true; modus = "normal"; if (reduced || !sichtbar) T = tempModell(0); anzeigen();
+      obs.textContent = "Die Notkühlung springt an: Kühlwasser wird wieder durch den Reaktor gepumpt, die Temperatur sinkt. Ohne Kühlung könnten die Brennelemente schmelzen – das geschah 2011 in Fukushima (Modul 4).";
+      eintragen("kuehl");
+      if (Modul.isSolved("reaktor") && erledigt.size === 4) obs.textContent += " ✅ Alles ausprobiert – die Tabelle ist voll.";
+    } finally { sperren(false); }
+  });
+  setRegel(1); zeigeStatisch();
+  // für Prüfskripte: Abgleich mit ar-kernkraftwerk/reaktor.js (gleiche Ergebnisse für 0 … 100 %)
+  window.ke3Reaktor = {leistungsanteil, zustand, leistungMW, beobachtung};
+})();
+
+/* ---------- Station 3: Übungen ---------- */
+Modul.makeSort($("#sortLeistung"), {
+  buckets: ["⬆️ mehr Leistung", "⬇️ weniger Leistung"], cols: 220,
+  items: [
+    {t: "Regelstäbe herausziehen", b: 0}, {t: "Regelstäbe fangen weniger Neutronen ein", b: 0}, {t: "mehr Spaltungen pro Sekunde", b: 0}, {t: "mehr Dampf für die Turbine", b: 0},
+    {t: "Regelstäbe tiefer einfahren", b: 1}, {t: "Bor und Cadmium fangen mehr Neutronen ein", b: 1}, {t: "weniger Spaltungen pro Sekunde", b: 1}, {t: "die Kettenreaktion kommt zum Erliegen", b: 1}
+  ]
+}, "sortLeistung");
+Modul.makeTF($("#tfRegel"), [
+  ["Regelstäbe enthalten Bor und Cadmium, die Neutronen einfangen.", true],
+  ["Je weiter die Regelstäbe herausgezogen sind, desto kleiner ist die Leistung.", false],
+  ["Sind die Regelstäbe ganz eingefahren, ist der Reaktor abgeschaltet.", true],
+  ["Für eine gleichbleibende Leistung löst von den neuen Neutronen jeder Spaltung genau eines eine neue Spaltung aus.", true],
+  ["Ein abgeschalteter Reaktor muss nicht mehr gekühlt werden.", false]
+], "tfRegel");
+Modul.makeOpen($("#open3"), [
+  {q: "Erkläre, wie man mit den Regelstäben die Leistung eines Reaktors steuert.",
+   m: "Die Regelstäbe enthalten Bor und Cadmium. Diese Stoffe fangen Neutronen ein. Fährt man die Regelstäbe tiefer in den Reaktorkern, werden mehr Neutronen eingefangen. Dann gibt es weniger Kernspaltungen pro Sekunde, und die Leistung sinkt. Zieht man sie heraus, steigt die Leistung. Ganz eingefahren kommt die Kettenreaktion zum Erliegen – der Reaktor ist abgeschaltet.",
+   k: ["bor|cadmium", "neutron", "einfang|fangen|fängt|schluck|aufnehm|absorb", "spaltung", "einfahr|hinein|tiefer|herauszieh|rausz|herausgez", "leistung|abgeschaltet|weniger strom|mehr strom"], min: 4}
+], "open3-", "Lies noch einmal, was Bor und Cadmium mit den Neutronen machen.");
+
+/* ---------- Station 4: Karte der Kernkraftwerke ---------- */
+(function(){
+  const svg = $("#karteSvg"), range = $("#kRange"), chip = $("#kChip"), obs = $("#kObs"), play = $("#kPlay");
+  // Länge/Breite → Bildpunkte (einfache Projektion, Karte stark vereinfacht)
+  const P = (lon, lat) => [14 + (lon - 5.8) * 26, 10 + (55.1 - lat) * 41];
+  const RAND = [[8.66,54.91],[9.43,54.83],[9.95,54.78],[10.03,54.55],[10.17,54.43],[10.87,54.35],[11.15,54.47],[10.9,54.1],[10.9,53.95],[11.45,53.95],[12.1,54.18],[12.45,54.45],[13.1,54.48],[13.4,54.68],[13.72,54.42],[13.6,54.15],[14.22,53.93],[14.41,53.33],[14.14,52.87],[14.63,52.57],[14.55,52.24],[14.72,51.95],[15.04,51.27],[14.82,50.87],[14.28,50.97],[14.0,50.82],[13.55,50.7],[12.97,50.42],[12.24,50.28],[12.1,50.32],[12.4,50.0],[12.43,49.75],[12.85,49.33],[13.2,49.12],[13.84,48.77],[13.46,48.57],[13.02,48.27],[12.76,48.12],[12.93,47.94],[12.97,47.8],[13.08,47.6],[12.8,47.68],[12.2,47.62],[11.65,47.58],[10.98,47.42],[10.6,47.56],[10.18,47.28],[9.95,47.54],[9.56,47.53],[9.17,47.66],[8.7,47.72],[8.57,47.62],[8.23,47.6],[7.6,47.58],[7.58,48.03],[7.81,48.58],[8.23,48.97],[7.65,49.05],[7.0,49.2],[6.73,49.17],[6.36,49.47],[6.5,49.75],[6.13,50.13],[6.3,50.5],[6.02,50.75],[5.87,51.04],[6.08,51.18],[6.17,51.4],[5.96,51.81],[6.25,51.85],[6.75,51.92],[7.03,52.22],[6.7,52.45],[7.05,52.65],[7.2,53.24],[7.0,53.45],[7.05,53.62],[7.6,53.7],[8.12,53.53],[8.25,53.4],[8.5,53.6],[8.7,53.87],[9.14,53.9],[8.85,54.12],[8.6,54.33],[8.85,54.5],[8.8,54.65]];
+  const AKW = [
+    {n: "Brunsbüttel", lon: 9.1, lat: 53.97, land: "Schleswig-Holstein", b: [["Brunsbüttel", 2011]]},
+    {n: "Brokdorf", lon: 9.42, lat: 53.83, land: "Schleswig-Holstein", b: [["Brokdorf", 2021]]},
+    {n: "Krümmel", lon: 10.41, lat: 53.41, land: "Schleswig-Holstein", b: [["Krümmel", 2011]]},
+    {n: "Unterweser", lon: 8.48, lat: 53.43, land: "Niedersachsen", b: [["Unterweser", 2011]]},
+    {n: "Emsland", lon: 7.32, lat: 52.47, land: "Niedersachsen", b: [["Emsland", 2023]]},
+    {n: "Grohnde", lon: 9.41, lat: 52.04, land: "Niedersachsen", b: [["Grohnde", 2021]]},
+    {n: "Biblis", lon: 8.42, lat: 49.71, land: "Hessen", b: [["Biblis A", 2011], ["Biblis B", 2011]]},
+    {n: "Philippsburg", lon: 8.44, lat: 49.25, land: "Baden-Württemberg", b: [["Philippsburg 1", 2011], ["Philippsburg 2", 2019]]},
+    {n: "Neckarwestheim", lon: 9.18, lat: 49.04, land: "Baden-Württemberg", b: [["Neckarwestheim 1", 2011], ["Neckarwestheim 2", 2023]]},
+    {n: "Grafenrheinfeld", lon: 10.18, lat: 49.98, land: "Bayern", b: [["Grafenrheinfeld", 2015]]},
+    {n: "Gundremmingen", lon: 10.4, lat: 48.51, land: "Bayern", b: [["Gundremmingen B", 2017], ["Gundremmingen C", 2021]]},
+    {n: "Isar", lon: 12.29, lat: 48.61, land: "Bayern", ort: "Essenbach bei Landshut", b: [["Isar 1", 2011], ["Isar 2", 2023]]}
+  ];
+  const BLOECKE = AKW.flatMap(a => a.b.map(b => ({name: b[0], aus: b[1]})));
+  const NOTIZ = [
+    [2010, ["Vor dem Unfall in Fukushima:", "17 Kraftwerksblöcke an 12 Orten."]],
+    [2011, ["Nach dem Unfall in Fukushima", "beschließt Deutschland den", "Atomausstieg: 8 Blöcke gehen", "vom Netz."]],
+    [2015, ["Grafenrheinfeld (Bayern)", "geht vom Netz."]],
+    [2017, ["Gundremmingen B (Bayern)", "geht vom Netz."]],
+    [2019, ["Philippsburg 2 (Baden-", "Württemberg) geht vom Netz."]],
+    [2021, ["Brokdorf, Grohnde und", "Gundremmingen C gehen vom", "Netz. Noch 3 Blöcke laufen."]],
+    [2023, ["15. April 2023: Isar 2, Emsland", "und Neckarwestheim 2 gehen", "vom Netz. Seitdem liefert kein", "Kernkraftwerk in Deutschland", "mehr Strom."]]
+  ];
+  const pfad = "M" + RAND.map(([lo, la]) => P(lo, la).map(v => v.toFixed(1)).join(" ")).join(" L") + " Z";
+  const [mx, my] = P(11.58, 48.14), [bx, by] = P(13.4, 52.52);
+  svg.innerHTML = `<rect width="520" height="340" fill="#f7fbfe"/>
+    <path d="${pfad}" fill="#eef3e6" stroke="#8a9a7b" stroke-width="2" stroke-linejoin="round"/>
+    <g fill="#7d8a94" font-size="11" font-weight="700"><rect x="${(mx - 3).toFixed(1)}" y="${(my - 3).toFixed(1)}" width="6" height="6"/><text x="${(mx - 6).toFixed(1)}" y="${(my + 14).toFixed(1)}" text-anchor="end">München</text>
+      <rect x="${(bx - 3).toFixed(1)}" y="${(by - 3).toFixed(1)}" width="6" height="6"/><text x="${(bx - 6).toFixed(1)}" y="${(by + 4).toFixed(1)}" text-anchor="end">Berlin</text></g>
+    <g id="kAkw"></g>
+    <text x="214" y="334" font-size="10" font-weight="700" fill="#9aa5ad">Karte vereinfacht</text>
+    <text x="275" y="30" font-size="12.5" font-weight="700" fill="#566674">Stand:</text>
+    <text id="kJahr" x="275" y="64" font-size="30" font-weight="800" fill="#6b1f3d">Anfang 2011</text>
+    <text x="275" y="94" font-size="12.5" font-weight="700" fill="#566674">Kraftwerksblöcke in Betrieb:</text>
+    <text id="kZahl" x="275" y="128" font-size="32" font-weight="800" fill="#1b8a4b">17</text>
+    <g id="kBloecke"></g>
+    <g font-size="11.5" font-weight="700" fill="#15212b"><circle cx="281" cy="186" r="6" fill="#1b8a4b" stroke="#fff" stroke-width="1.5"/><text x="292" y="190">in Betrieb</text><circle cx="380" cy="186" r="6" fill="#b9c3cb" stroke="#fff" stroke-width="1.5"/><text x="391" y="190">abgeschaltet</text></g>
+    <text id="kNotiz" x="275" y="220" font-size="12.5" font-weight="700" fill="#15212b"></text>`;
+  const kb = $("#kBloecke", svg);
+  const kaestchen = BLOECKE.map((b, i) => svgEl("rect", {class: "blk", x: 275 + i * 13.4, y: 140, width: 11, height: 18, rx: 2, fill: "#1b8a4b"}, kb));
+  const kA = $("#kAkw", svg);
+  const punkte = AKW.map(a => {
+    const [x, y] = P(a.lon, a.lat), g = svgEl("g", {class: "akw", tabindex: 0, role: "button", "aria-label": "Kraftwerk " + a.n}, kA);
+    svgEl("circle", {cx: x.toFixed(1), cy: y.toFixed(1), r: 12, fill: "transparent"}, g);
+    const c = svgEl("circle", {cx: x.toFixed(1), cy: y.toFixed(1), r: 5.5, fill: "#1b8a4b", stroke: "#fff", "stroke-width": 1.5}, g);
+    if (a.n === "Isar") { const t = svgEl("text", {x: (x - 4).toFixed(1), y: (y - 10).toFixed(1), "text-anchor": "end", "font-size": 12, "font-weight": 800, fill: "#6b1f3d"}, g); t.textContent = "Isar 2"; }
+    const info = () => {
+      const bl = a.b.map(b => b[1] === 2023 ? `${b[0]} am 15. April 2023` : `${b[0]} ${b[1]}`).join(", ");
+      obs.textContent = `${a.n}${a.ort ? " (" + a.ort + ")" : ""}, ${a.land}: ${a.b.length > 1 ? "zwei Blöcke" : "ein Block"}. Abgeschaltet: ${bl}.` + (a.n === "Isar" ? " Isar 2 gehörte zu den letzten drei Kernkraftwerken Deutschlands." : "");
+    };
+    g.addEventListener("click", info);
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); info(); } });
+    return {a, c};
+  });
+  register("karte", "#karteSvg", "Karte: Kernkraftwerke in Deutschland bis zum Atomausstieg 2023");
+  function zeige(jahr){
+    const jt = jahr === 2010 ? "Anfang 2011" : "Ende " + jahr;
+    chip.textContent = jt; $("#kJahr", svg).textContent = jt;
+    const laufen = BLOECKE.filter(b => b.aus > jahr).length;
+    $("#kZahl", svg).textContent = laufen; $("#kZahl", svg).setAttribute("fill", laufen ? "#1b8a4b" : "#c0392b");
+    kaestchen.forEach((k, i) => k.setAttribute("fill", i < laufen ? "#1b8a4b" : "#b9c3cb"));
+    punkte.forEach(p => p.c.setAttribute("fill", p.a.b.some(b => b[1] > jahr) ? "#1b8a4b" : "#b9c3cb"));
+    const notiz = NOTIZ.filter(n => n[0] <= jahr).pop()[1], nt = $("#kNotiz", svg);
+    nt.textContent = ""; notiz.forEach((z, j) => { const ts = svgEl("tspan", {x: 275, dy: j ? 17 : 0}, nt); ts.textContent = z; });
+    if (jahr >= 2023) solve("karte");
+  }
+  range.addEventListener("input", () => zeige(+range.value));
+  let spielt = false;
+  play.addEventListener("click", async () => {
+    if (spielt) return; spielt = true; play.disabled = true;
+    try { for (let j = 2010; j <= 2024; j++) { range.value = j; zeige(j); await wait(j === 2011 || j === 2023 ? 1300 : 600); } }
+    finally { spielt = false; play.disabled = false; }
+  });
+  zeige(2010);
+})();
+
+/* ---------- Station 4: Übungen ---------- */
+Modul.makeGap($("#gapIsar"), [
+  ["Das Kernkraftwerk Isar 2 stand bei ", {g: "Landshut"}, " in Niederbayern. Sein Kühlturm ist ", {g: "165"}, " m hoch."],
+  ["Nach dem Unfall in ", {g: "Fukushima"}, " im Jahr 2011 beschloss Deutschland den ", {g: "Atomausstieg"}, "."],
+  ["Am 15. April ", {g: "2023"}, " wurden Isar 2, Emsland und Neckarwestheim 2 abgeschaltet. Seitdem liefert in Deutschland ", {g: "kein"}, " Kernkraftwerk mehr Strom."]
+], "gapIsar", ["Nürnberg", "1986"]);
+
+/* ---------- Regelheft: Skizze ---------- */
+$("#rhSkizze").innerHTML = `<g font-size="11" font-weight="700" fill="#15212b">
+  <circle cx="150" cy="112" r="72" fill="#f6f7f8" stroke="#7d8f9b" stroke-width="3"/>
+  <path d="M142 84 H182 V146 H142" fill="none" stroke="#e8731c" stroke-width="2.5"/>
+  <circle cx="158" cy="146" r="4.5" fill="#fff" stroke="#e8731c" stroke-width="2"/>
+  <rect x="106" y="72" width="36" height="86" rx="14" fill="#fde3c9" stroke="#d84a3a" stroke-width="2.5"/>
+  <g fill="#f2b632" stroke="#b9860b" stroke-width=".8"><rect x="111" y="112" width="6" height="38" rx="1"/><rect x="120" y="112" width="6" height="38" rx="1"/><rect x="129" y="112" width="6" height="38" rx="1"/></g>
+  <g fill="#33414d"><rect x="117.5" y="62" width="2.5" height="62"/><rect x="126.5" y="62" width="2.5" height="62"/><rect x="110" y="58" width="28" height="9" rx="2"/></g>
+  <rect x="170" y="64" width="24" height="96" rx="12" fill="#eaf3fb" stroke="#1f6aa5" stroke-width="2.5"/>
+  <path d="M182 84 V146" fill="none" stroke="#e8731c" stroke-width="2.5"/>
+  <path d="M182 64 V22 H282 V58 H296" fill="none" stroke="#2f8fd8" stroke-width="3" stroke-linejoin="round"/>
+  <polygon points="296,44 340,32 340,86 296,74" fill="#dfe5ea" stroke="#8e98a1" stroke-width="2" stroke-linejoin="round"/>
+  <line x1="340" y1="59" x2="356" y2="59" stroke="#566674" stroke-width="4"/>
+  <rect x="356" y="44" width="44" height="30" rx="6" fill="#dbe6f7" stroke="#2f6fdb" stroke-width="2"/>
+  <path d="M402 59 H420 M414 53 l7 6 l-7 6" fill="none" stroke="#b8860b" stroke-width="2.5"/><text x="426" y="63" fill="#b8860b">Strom</text>
+  <path d="M318 82 V122" fill="none" stroke="#2f8fd8" stroke-width="2.5" stroke-dasharray="4 3"/>
+  <rect x="294" y="122" width="50" height="30" rx="5" fill="#e6f2fa" stroke="#5fa8d3" stroke-width="2"/>
+  <path d="M294 142 H194" fill="none" stroke="#5fa8d3" stroke-width="2.5"/>
+  <path d="M344 130 H474 M469 172 H356 V146 H344" fill="none" stroke="#1d5f8a" stroke-width="2.5"/>
+  <path d="M466 190 Q480 124 472 64 H512 Q506 124 520 190 Z" fill="#e5e7e4" stroke="#7d8a94" stroke-width="2"/>
+  <g fill="#fff" stroke="#b9c3cb" stroke-width="1.2"><ellipse cx="484" cy="54" rx="12" ry="8"/><ellipse cx="502" cy="50" rx="13" ry="9"/></g>
+  <g stroke="#15212b" stroke-width="1"><line x1="74" y1="62" x2="110" y2="62"/><line x1="74" y1="103" x2="106" y2="103"/><line x1="74" y1="141" x2="113" y2="141"/><line x1="74" y1="184" x2="99" y2="163"/><line x1="208" y1="190" x2="192" y2="156"/></g>
+  <g text-anchor="end"><text x="72" y="66">Regelstäbe</text><text x="72" y="98">Reaktor-</text><text x="72" y="111">druckgefäß</text><text x="72" y="137">Brenn-</text><text x="72" y="150">elemente</text><text x="72" y="180">Sicherheits-</text><text x="72" y="193">behälter</text></g>
+  <text x="200" y="202">Dampferzeuger</text>
+  <g text-anchor="middle"><text x="318" y="24">Turbine</text><text x="378" y="36">Generator</text><text x="319" y="168">Kondensator</text><text x="493" y="206">Kühlturm</text></g>
+  <g font-size="10.5"><line x1="10" y1="224" x2="28" y2="224" stroke="#e8731c" stroke-width="3"/><text x="32" y="228">1. Primärkreislauf: bis 300 °C, hoher Druck, radioaktiv – bleibt im Sicherheitsbehälter</text>
+    <line x1="10" y1="242" x2="28" y2="242" stroke="#2f8fd8" stroke-width="3"/><text x="32" y="246">2. Sekundärkreislauf: Wasser und Dampf</text>
+    <line x1="270" y1="242" x2="288" y2="242" stroke="#1d5f8a" stroke-width="3"/><text x="292" y="246">3. Kühlwasserkreislauf: zum Kühlturm</text></g>
+</g>`;
+
+/* ---------- Training: Kreuzworträtsel mit Tipps ---------- */
+Modul.makeCrossword($("#cw"), {
+  tipps: true,
+  words: [
+    {w: "CADMIUM", r: 0, c: 5, d: "a", q: "Metall in den Regelstäben, das Neutronen einfängt (neben Bor)", tip: "Beginnt mit C und endet auf -ium."},
+    {w: "TURBINE", r: 0, c: 2, d: "d", q: "Der Dampf strömt gegen ihre Schaufeln und dreht sie.", tip: "Ein Rad mit vielen Schaufeln – ähnlich wie ein Windrad im Rohr."},
+    {w: "DAMPF", r: 0, c: 7, d: "d", q: "Er treibt die Turbine an.", tip: "So heißt Wasser, das durch Hitze zu Gas geworden ist."},
+    {w: "ISAR", r: 0, c: 9, d: "d", q: "An diesem Fluss bei Landshut stand das Kraftwerk Isar 2.", tip: "Der Fluss fließt auch durch München."},
+    {w: "MODERATOR", r: 0, c: 11, d: "d", q: "Das Wasser zwischen den Brennelementen bremst als … die Neutronen.", tip: "So heißt auch jemand, der durch eine Fernsehsendung führt."},
+    {w: "DRUCK", r: 2, c: 1, d: "a", q: "Unter sehr hohem … verdampft das Wasser im Reaktor nicht.", tip: "Steckt im Namen Druckwasserreaktor."},
+    {w: "KONDENSATOR", r: 2, c: 5, d: "d", q: "Hier wird der Dampf hinter der Turbine wieder zu Wasser.", tip: "Kondensieren heißt: Dampf wird wieder flüssig."},
+    {w: "BRENNELEMENT", r: 6, c: 0, d: "a", q: "Darin steckt das Uran im Reaktorkern (Einzahl).", tip: "Man sagt auch Brennstab. Es „brennt“ aber nicht wie Feuer."},
+    {w: "REGELSTAB", r: 8, c: 0, d: "a", q: "Fährt man ihn tiefer ein, sinkt die Leistung.", tip: "Man sagt auch Steuerstab (Einzahl). Er enthält Bor und Cadmium.", zeig: "Regelstab"},
+    {w: "KUEHLTURM", r: 10, c: 0, d: "a", q: "Aus ihm steigt eine weiße Wolke aus Wasserdampf.", tip: "Ü wird zu UE. Bei Isar 2 ist er 165 m hoch.", zeig: "Kühlturm"},
+    {w: "GENERATOR", r: 12, c: 1, d: "a", q: "Er wandelt Bewegungsenergie in elektrische Energie um.", tip: "Am Fahrrad gibt es einen kleinen davon: den Dynamo."}
+  ],
+  sol: [[6, 1], [6, 7], [12, 6], [2, 5], [8, 6], [12, 8], [4, 11]], solWord: "REAKTOR"
+}, "cw");
+
+/* ---------- Profi-Check, Lernkarten ---------- */
+Modul.makeQuiz($("#quiz"), [...MC.s1, ...MC.s2, ...MC.s3, ...MC.s4, ...MC.train,
+  {q: "Was ist die weiße Wolke über dem Kühlturm?", o: ["Wasserdampf", "Rauch aus verbranntem Uran", "radioaktives Gas aus dem Reaktor", "Staub vom Kraftwerksgelände"], a: 0, e: "Das Kühlwasser gibt seine Wärme an die Luft ab, dabei verdunstet ein Teil davon."},
+  {q: "Was geschieht im Kondensator?", o: ["Der Dampf wird abgekühlt und wieder zu Wasser.", "Urankerne werden gespalten.", "Der Strom wird gespeichert.", "Wasser wird zu Dampf."], a: 0, e: "Das Wasser wird dann zurück zum Dampferzeuger gepumpt."},
+  {q: "Worin unterscheidet sich ein Kernkraftwerk von einem Kohlekraftwerk?", o: ["nur in der Wärmequelle: Kernspaltung statt Kohlefeuer", "Es braucht keine Turbine, weil der Reaktor selbst Strom erzeugt.", "Es hat keinen Generator, weil das Uran den Strom liefert.", "Es erzeugt Strom ganz ohne Wärme und ohne Dampf."], a: 0, e: "Dampf, Turbine und Generator gibt es in beiden Kraftwerken."},
+  {q: "Welche Aufgaben hat das Wasser zwischen den Brennelementen?", o: ["Es bremst die Neutronen ab und nimmt die Wärme auf.", "Es spaltet die Urankerne und erzeugt so die Wärme.", "Es leitet den Strom vom Generator zu den Häusern.", "Es fängt alle Neutronen ein und stoppt die Kettenreaktion."], a: 0, e: "Als Moderator bremst es die Neutronen, als Kühlmittel nimmt es die Wärme mit."},
+  {q: "Was passiert bei einer Notabschaltung?", o: ["Alle Regelstäbe fahren ganz in den Reaktorkern – die Kettenreaktion bricht ab.", "Alle Regelstäbe werden ganz herausgezogen – die Leistung steigt.", "Die Turbine wird abgekoppelt, der Reaktor läuft aber weiter.", "Der Kühlturm wird geschlossen, damit kein Dampf mehr austritt."], a: 0, e: "Danach muss der Reaktor trotzdem weiter gekühlt werden."}
+], "quiz", "Kraftwerks-Profi");
+if (window.NT8Karten) NT8Karten.trainer($("#lernkarten"), {module: ["ke-kraftwerk"], titel: "Lernkarten zu diesem Modul", zug: "M", druck: false});
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

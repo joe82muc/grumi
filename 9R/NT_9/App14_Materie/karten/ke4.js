@@ -1,0 +1,33 @@
+/* Lernkarten zum Modul „Risiken und Folgen der Kernenergie“ (NT 9, Kernenergie 4, Modul-id ke-risiken). Trainer: 8M/NT/karten.js.
+   Kennungen k1 … nie neu vergeben – daran hängt der Lernstand. */
+NT8Karten.satz("ke-risiken", [
+  { id: "k1", art: "begriff", v: "Was bedeutet GAU – und was ist ein Super-GAU?", h: "GAU = größter anzunehmender Unfall: der schlimmste Unfall, mit dem man bei der Planung eines Kraftwerks rechnet. Ein Super-GAU ist noch schlimmer – wie 1986 in Tschernobyl." },
+  { id: "k2", art: "ursache", v: "Wie kam es am 26. April 1986 in Tschernobyl zum Super-GAU?", h: "Bei einem Test wurde die Notabschaltung blockiert. Das Kühlwasser begann zu sieden, die Brennstäbe wurden immer heißer, die Kettenreaktion geriet außer Kontrolle. Durch die Hitze entstand Knallgas, das explodierte." },
+  { id: "k3", art: "ursache", v: "Welche Folgen hat Tschernobyl bis heute – auch bei uns?", h: "Eine radioaktive Wolke zog über ganz Europa. Um das Kraftwerk gibt es eine Sperrzone, die Stadt Prypjat (auch Pripjat) ist verlassen. Radioaktives Iod belastete die Milch, viele Kinder erkrankten an Schilddrüsenkrebs. In Bayern sind manche Pilze und Wildschweine noch belastet." },
+  { id: "k4", art: "ursache", v: "Wie kam es am 11. März 2011 in Fukushima zur Kernschmelze?", h: "Ein Seebeben löste einen etwa 15 m hohen Tsunami aus. Er zerstörte Pumpen, Notstrom und Schaltschränke. Ohne Kühlung wurden die Brennelemente zu heiß, die Reaktorkerne schmolzen, Knallgas explodierte." },
+  { id: "k5", art: "transfer", v: "Warum musste in Fukushima gekühlt werden, obwohl sich die Reaktoren abgeschaltet hatten?", h: "Die Brennelemente geben auch nach dem Abschalten weiter viel Wärme ab. Ohne Kühlung werden sie so heiß, dass sie schmelzen." },
+  { id: "k6", art: "fehler", v: "„In Fukushima starben 18 000 Menschen an der Strahlung.“ Was stimmt daran nicht?", h: "Die meisten der rund 18 000 Todesopfer starben durch das Erdbeben und den Tsunami. Der Kraftwerksunfall führte dazu, dass rund 160 000 Menschen ihre Heimat verlassen mussten (Sperrzone etwa 30 km)." },
+  { id: "k7", art: "begriff", v: "Was ist Knallgas?", h: "Ein Gemisch aus Wasserstoff und Sauerstoff. Es explodiert heftig. In Tschernobyl und in Fukushima zerstörten Knallgas-Explosionen die Reaktorgebäude." },
+  { id: "k8", art: "bild", v: "Beschreibe den Weg des radioaktiven Abfalls (Stationen 1 bis 4).",
+    bild: '<svg viewBox="0 0 300 70" xmlns="http://www.w3.org/2000/svg"><defs><marker id="k4pf" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="#15212b"/></marker></defs>' +
+      '<rect x="4" y="10" width="58" height="34" rx="4" fill="#8fc4ea" stroke="#1f6aa5" stroke-width="2"/>' +
+      '<rect x="92" y="6" width="22" height="40" rx="4" fill="#5d6b75" stroke="#2f3a42" stroke-width="2"/>' +
+      '<polygon points="142,22 176,8 210,22" fill="#c8d0d6" stroke="#6b7a86" stroke-width="2"/><rect x="146" y="22" width="60" height="24" fill="#e8eef2" stroke="#6b7a86" stroke-width="2"/>' +
+      '<rect x="236" y="28" width="58" height="22" rx="3" fill="#a99272" stroke="#3c474f" stroke-width="2" stroke-dasharray="4 3"/><path d="M226 24 H296" stroke="#8db36b" stroke-width="3"/>' +
+      '<g stroke="#15212b" stroke-width="2" marker-end="url(#k4pf)"><path d="M64 27 H86"/><path d="M116 27 H138"/><path d="M208 34 H230"/></g>' +
+      '<g font-family="Arial" font-size="13" font-weight="700" fill="#15212b" text-anchor="middle"><text x="33" y="64">1</text><text x="103" y="64">2</text><text x="176" y="64">3</text><text x="265" y="64">4</text></g></svg>',
+    h: "1. Abklingbecken (ein Jahr oder länger unter Wasser) → 2. Castor-Behälter → 3. Zwischenlager (trocken, auf dem Kraftwerksgelände) → 4. Endlager tief unter der Erde (300 bis 1 000 m)." },
+  { id: "k9", art: "versuch", v: "Was ist ein Castor – und welche Tests muss jeder Behältertyp bestehen?", h: "Ein dickwandiger Spezialbehälter für Lagerung und Transport radioaktiver Abfälle, nur durch Luft gekühlt. Tests: Fall aus 9 m Höhe und Feuer 30 Minuten bei mindestens 800 °C." },
+  { id: "k10", art: "formel", v: "Plutonium-239 hat eine Halbwertszeit von 24 000 Jahren. Wie viel ist nach 48 000 Jahren noch da?", h: "Nach 24 000 Jahren die Hälfte, nach 48 000 Jahren noch ein Viertel (25 %). Der Abfall muss Zehntausende Jahre sicher lagern." },
+  { id: "k11", art: "vergleich", v: "Vergleiche Salz, Granit und Ton als Gestein für ein Endlager.", h: "Salz: dicht, schließt Hohlräume von selbst – löst sich aber in Wasser. Granit: sehr fest – hat aber Risse, durch die Wasser fließen kann. Ton: fast wasserdicht, hält Stoffe fest – ist aber weicher." },
+  { id: "k12", art: "ursache", v: "Welche Gefahren drohen einem Endlager?", h: "Wasser kann eindringen, und Verwerfungen können das Gestein verschieben. Dann könnten radioaktive Stoffe frei werden." },
+  { id: "k13", art: "anwendung", v: "Gibt es in Deutschland schon ein Endlager?", h: "Nein. Der Abfall steht in Castoren in Zwischenlagern. Die Suche läuft; geprüft werden Salz, Ton und Granit." },
+  { id: "k14", art: "vergleich", v: "Nenne Argumente für und gegen die Kernenergie.", h: "Dafür: viel Energie aus wenig Brennstoff, bei der Stromerzeugung kein CO₂, Arbeitsplätze. Dagegen: Unfälle möglich, Abfall strahlt sehr lange, kein Endlager, Uranabbau verwüstet Landstriche, erneuerbare Energien können Kernkraftwerke ersetzen." },
+  { id: "k15", art: "bild", v: "Mehrbarrierenprinzip: Welche drei Schutzschichten (1, 2, 3) schließen den Abfall im Endlager ein?",
+    bild: '<svg viewBox="0 0 300 110" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="160" height="102" rx="6" fill="#c9cfd5" stroke="#8e98a1" stroke-width="2"/>' +
+      '<circle cx="84" cy="55" r="45" fill="#e8d6a8" stroke="#b89a5a" stroke-width="2"/><circle cx="84" cy="55" r="26" fill="#6b7a86" stroke="#33414d" stroke-width="2"/>' +
+      '<circle cx="84" cy="55" r="14" fill="#f2c832" stroke="#8a6d00" stroke-width="1.5"/><text x="84" y="61" text-anchor="middle" font-family="Arial" font-size="15" fill="#5a4700">☢</text>' +
+      '<g stroke="#15212b" stroke-width="1.5"><path d="M104 40 L196 22"/><path d="M118 70 L196 56"/><path d="M152 92 L196 90"/></g>' +
+      '<g font-family="Arial" font-size="15" font-weight="700" fill="#15212b"><text x="202" y="27">1</text><text x="202" y="61">2</text><text x="202" y="95">3</text></g></svg>',
+    h: "1. innen ein dichter Behälter aus Stahl, 2. darum eine Verfüllung aus Ton (Bentonit) – sie quillt bei Nässe auf und dichtet ab, 3. außen das Gestein (Salz, Ton oder Granit). Wird eine Schicht undicht, halten die anderen den Abfall noch fest." }
+]);

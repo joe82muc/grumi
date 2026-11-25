@@ -53,43 +53,44 @@ GrumiKursliste.bauen({
           text: "Alle Fragen der Probe und weitere wichtige Fragen aus den Modulen 1 bis 7 – deine Antworten werden gespeichert." }
       ]
     },
+    // Radioaktivität (neu gebaut 19.11.2026): eigene Lernseiten in App14_Materie (ra-1 … ra-6) auf den NT-7-Bausteinen, Kennungen und
+    // Kürzel R1–R6 bleiben (daran hängen die Proben nt9m-/nt9r-radioaktivitaet). Die alten Seiten unter 9/NT_9/App3…App8 bleiben im
+    // Repo (Links aus früheren Rückgaben), sind aber nirgends mehr verlinkt. Wunsch der Lehrkraft (24.11.2026): alle Module für 9M und 9R gleich, auch der 9M-Stoff des
+    // Schulbuchs (R4, N4, N5, T4) – nur die Proben haben verschiedene Notenschlüssel.
     {
       id: "radioaktivitaet", nr: "02", titel: "Radioaktivität", kurz: "Radioaktivität", icon: "☢️",
       text: "Woher Strahlung kommt, wie man sie nachweist, was sie im Körper bewirkt und wofür man sie nutzt.",
+      lernmaterial: { titel: "Lernen für die Probe: Arbeitsblätter und Regelheft", text: "Zu jedem Modul ein kurzer Regelhefteintrag zum Abschreiben, ein einfaches Arbeitsblatt und die Lösung zum Selbst-Kontrollieren." },
       module: [
-        { id: "ra-nachweis", kz: "R1", titel: "Radioaktivität und ihr Nachweis", href: "../../9/NT_9/App3_Radioaktivität und ihr Nachweis/uebersich_gruppenarbeit.html", art: "Gruppenarbeit", offen: true,
-          auch: ["../../9/NT_9/App3_Radioaktivität und ihr Nachweis/radioaktivitaet-ueberall.html", "../../9/NT_9/App3_Radioaktivität und ihr Nachweis/nachweis-radioaktiver-strahlung.html",
-            "../../9/NT_9/App3_Radioaktivität und ihr Nachweis/arbeitsauftraege-text1.html", "../../9/NT_9/App3_Radioaktivität und ihr Nachweis/arbeitsauftraege-text2.html",
-            "../../9/NT_9/App3_Radioaktivität und ihr Nachweis/quiz.html"],
-          text: "Woher Radioaktivität kommt und wie man sie nachweist – zwei Texte, Arbeitsaufträge und ein Quiz." },
-        { id: "ra-strahlungsarten", kz: "R2", titel: "Die Strahlungsarten", href: "../../9/NT_9/App4_Strahlungsarten/strahlungsarten.html", art: "Modul", offen: true,
-          text: "Alpha-, Beta- und Gammastrahlung: Eigenschaften und Abschirmung." },
-        { id: "ra-halbwertszeit", kz: "R3", titel: "Die Halbwertszeit", href: "../../9/NT_9/App5_Halbwertszeit/halbwertszeit.html", art: "Modul", offen: true,
-          text: "Wie schnell radioaktive Stoffe zerfallen – mit Diagrammen." },
-        { id: "ra-c14", kz: "R4", titel: "Die C-14-Methode", href: "../../9/NT_9/App6_C14_Methode/c14methode_neu.html", art: "Modul", offen: true,
-          text: "Wie man mit Radioaktivität das Alter von Funden bestimmt." },
-        { id: "ra-folgen", kz: "R5", titel: "Biologische Folgen von Strahlung", href: "../../9/NT_9/App7_Folgen/folgen_strahlung.html", art: "Modul", offen: true,
-          text: "Was Strahlung in Zellen und im Körper anrichtet – und wie man sich schützt." },
-        { id: "ra-anwendung", kz: "R6", titel: "Anwendung radioaktiver Strahlung", href: "../../9/NT_9/App8_Anwendung radioaktiver Strahlung/anwendung_radioaktiver_strahlung.html", art: "Übung", offen: true,
-          text: "Wofür radioaktive Strahlung genutzt wird." }
+        { id: "ra-nachweis", kz: "R1", titel: "Radioaktivität: überall – und wie man sie nachweist", href: "App14_Materie/ra-1.html", art: "Modul", offen: true, ls: "nt9-ra-1", blatt: "R1",
+          text: "Boden-, Höhen- und Eigenstrahlung, Becquerels Entdeckung, Fotoplatte, Nebelkammer und Geiger-Müller-Zähler mit Zählrate und Nullrate." },
+        { id: "ra-strahlungsarten", kz: "R2", titel: "Alpha, Beta, Gamma – die Strahlungsarten", href: "App14_Materie/ra-2.html", art: "Modul", offen: true, ls: "nt9-ra-2", blatt: "R2",
+          text: "Abschirmung mit Papier, Aluminium und Blei, Ablenkung im elektrischen Feld, Isotope und der Zerfall von Atomkernen." },
+        { id: "ra-halbwertszeit", kz: "R3", titel: "Die Halbwertszeit", href: "App14_Materie/ra-3.html", art: "Modul", offen: true, ls: "nt9-ra-3", blatt: "R3",
+          text: "Das Münzexperiment, die Zerfallskurve und die Halbwertszeiten verschiedener Isotope." },
+        { id: "ra-c14", kz: "R4", titel: "Altersbestimmung mit der C-14-Methode", href: "App14_Materie/ra-4.html", art: "Modul", offen: true, ls: "nt9-ra-4", blatt: "R4",
+          text: "Aktivität in Becquerel, woher C-14 kommt, die Zerfallskurve und das Alter von Ötzi." },
+        { id: "ra-folgen", kz: "R5", titel: "Was Strahlung im Körper anrichtet", href: "App14_Materie/ra-5.html", art: "Modul", offen: true, ls: "nt9-ra-5", blatt: "R5",
+          text: "Strahlendosis in Sievert, Früh- und Spätschäden, genetische Schäden und die Strahlenbelastung im Alltag." },
+        { id: "ra-anwendung", kz: "R6", titel: "Radioaktivität in Medizin und Technik", href: "App14_Materie/ra-6.html", art: "Modul", offen: true, ls: "nt9-ra-6", blatt: "R6",
+          text: "Szintigramm, Strahlentherapie und Leckstellensuche – Nutzen und Risiko." }
       ]
     },
+    // Kernenergie (neu gebaut 19.11.2026): App14_Materie/ke-1 … ke-4, Kennungen und Kürzel K1–K4 bleiben (Proben nt9m-/nt9r-kernenergie).
+    // Dazu das Kernkraftwerk in echter Größe (AR): App14_Materie/ar-kernkraftwerk/, verlinkt aus K3.
     {
       id: "kernenergie", nr: "03", titel: "Kernenergie", kurz: "Kernenergie", icon: "⚛️",
       text: "Von der Kernspaltung zum Kraftwerk – und welche Risiken damit verbunden sind.",
+      lernmaterial: { titel: "Lernen für die Probe: Arbeitsblätter und Regelheft", text: "Zu jedem Modul ein kurzer Regelhefteintrag zum Abschreiben, ein einfaches Arbeitsblatt und die Lösung zum Selbst-Kontrollieren." },
       module: [
-        { id: "ke-kernspaltung", kz: "K1", titel: "Die Kernspaltung", href: "../../9/NT_9/App9_Die Kernspaltung/kernspaltung.html", art: "Modul", offen: true,
-          text: "Was passiert, wenn ein Neutron einen Uran-Kern trifft." },
-        { id: "ke-kettenreaktion", kz: "K2", titel: "Die Kettenreaktion", href: "../../9/NT_9/App10_Die Kettenreaktion/kettenreaktion.html", art: "Modul", offen: true,
-          text: "Wie aus einer Spaltung viele werden – und wie man das steuert." },
-        { id: "ke-kraftwerk", kz: "K3", titel: "Arbeitsweise eines Kernkraftwerks", href: "../../9/NT_9/App11_Druckwasser/kernkraftwerk.html", art: "Modul", offen: true,
-          auch: ["../../9/NT_9/App11_Druckwasser/app11_druckwasser_quiz.html"],
-          text: "Druckwasserreaktor: von der Kernspaltung über Turbine und Generator zum Strom – mit Filmquiz." },
-        { id: "ke-risiken", kz: "K4", titel: "Risiken und Folgen der Kernenergie", href: "../../9/NT_9/App2_Risiken und Gefahren der Kernenergie/übersicht_gruppenarbeit.html", art: "Gruppenarbeit", offen: true,
-          auch: ["../../9/NT_9/App2_Risiken und Gefahren der Kernenergie/Tschernobyl/kernenergie-tschernobyl.html", "../../9/NT_9/App2_Risiken und Gefahren der Kernenergie/Fukushima/kernenergie-fukushima.html",
-            "../../9/NT_9/App2_Risiken und Gefahren der Kernenergie/Radioaktiver_Abfall/kernenergie-radioaktiver-abfall.html", "../../9/NT_9/App2_Risiken und Gefahren der Kernenergie/quiz2.html",
-            "../../9/NT_9/App2_Risiken und Gefahren der Kernenergie/40_jahre_tschernobyl.html"],
-          text: "Tschernobyl, Fukushima und radioaktiver Abfall – Gruppenarbeit mit Quiz." }
+        { id: "ke-kernspaltung", kz: "K1", titel: "Die Entdeckung der Kernspaltung", href: "App14_Materie/ke-1.html", art: "Modul", offen: true, ls: "nt9-ke-1", blatt: "K1",
+          text: "Hahn, Strassmann und Meitner, wie ein Urankern zerbricht und wie viel Energie dabei frei wird." },
+        { id: "ke-kettenreaktion", kz: "K2", titel: "Die Kettenreaktion", href: "App14_Materie/ke-2.html", art: "Modul", offen: true, ls: "nt9-ke-2", blatt: "K2",
+          text: "Von einer Spaltung zu vielen: Modellversuche, gesteuert oder ungesteuert, die Atombombe." },
+        { id: "ke-kraftwerk", kz: "K3", titel: "So arbeitet ein Kernkraftwerk", href: "App14_Materie/ke-3.html", art: "Modul", offen: true, ls: "nt9-ke-3", blatt: "K3",
+          text: "Druckwasserreaktor, Regelstäbe und Energiekette – mit dem Kraftwerk in echter Größe (AR)." },
+        { id: "ke-risiken", kz: "K4", titel: "Risiken und Folgen der Kernenergie", href: "App14_Materie/ke-4.html", art: "Modul", offen: true, ls: "nt9-ke-4", blatt: "K4",
+          text: "Tschernobyl, Fukushima, radioaktiver Abfall und die Frage: Kernenergie – ja oder nein?" }
       ]
     },
     // Kunststoffe (seit 22.10.2026 auch 9R): dieselben Lernseiten wie 9M im eigenen Ordner App13_Kunststoffe (gleiche Dateien,
@@ -129,12 +130,40 @@ GrumiKursliste.bauen({
         { id: "mg-genetik", titel: "Angewandte Genetik" }
       ]
     },
+    // Grundlagen der Kommunikation (neu 19.11.2026): das Nervensystem, App14_Materie/ns-1 … ns-6, Kürzel N1–N6.
     {
-      id: "kommunikation", nr: "07", titel: "Kommunikation und Informationstechnik", kurz: "Kommunikation", icon: "📡",
-      text: "Wie Informationen übertragen werden.",
+      id: "nervensystem", nr: "07", titel: "Grundlagen der Kommunikation: das Nervensystem", kurz: "Nervensystem", icon: "🧠",
+      text: "Vom Reiz zur Reaktion: wie Sinnesorgane, Nerven und Gehirn zusammenarbeiten, wie wir lernen und wie man das Nervensystem schützt.",
+      lernmaterial: { titel: "Lernen für die Probe: Arbeitsblätter und Regelheft", text: "Zu jedem Modul ein kurzer Regelhefteintrag zum Abschreiben, ein einfaches Arbeitsblatt und die Lösung zum Selbst-Kontrollieren." },
       module: [
-        { id: "ko-grundlagen", titel: "Grundlagen der Kommunikation" },
-        { id: "ko-technik", titel: "Kommunikations- und Informationstechnik" }
+        { id: "ns-reiz", kz: "N1", titel: "Vom Reiz zur Reaktion", href: "App14_Materie/ns-1.html", art: "Modul", offen: true, ls: "nt9-ns-1", blatt: "N1",
+          text: "Reize, Sinnesorgane, der Weg zum Gehirn und zurück zum Muskel – mit Reaktionstest." },
+        { id: "ns-aufbau", kz: "N2", titel: "Der Aufbau des Nervensystems", href: "App14_Materie/ns-2.html", art: "Modul", offen: true, ls: "nt9-ns-2", blatt: "N2",
+          text: "Zentrales und peripheres Nervensystem, die Teile des Gehirns, Rückenmark, Nervenzelle und Synapse." },
+        { id: "ns-gedaechtnis", kz: "N3", titel: "Gedächtnis und Lernen", href: "App14_Materie/ns-3.html", art: "Modul", offen: true, ls: "nt9-ns-3", blatt: "N3",
+          text: "Ultrakurzzeit-, Kurzzeit- und Langzeitgedächtnis, Lernkanäle, Vergessenskurve und Lerntipps." },
+        { id: "ns-reflexe", kz: "N4", titel: "Reflexe schützen", href: "App14_Materie/ns-4.html", art: "Modul", offen: true, ls: "nt9-ns-4", blatt: "N4",
+          text: "Der Reflexbogen über das Rückenmark, Kniesehnen- und Lidschlussreflex, Reflex oder bewusste Handlung?" },
+        { id: "ns-vegetativ", kz: "N5", titel: "Das vegetative Nervensystem", href: "App14_Materie/ns-5.html", art: "Modul", offen: true, ls: "nt9-ns-5", blatt: "N5",
+          text: "Sympathikus und Parasympathikus als Gegenspieler: Leistung oder Erholung." },
+        { id: "ns-schutz", kz: "N6", titel: "Das Nervensystem braucht Schutz", href: "App14_Materie/ns-6.html", art: "Modul", offen: true, ls: "nt9-ns-6", blatt: "N6",
+          text: "Schädel und Hirnhäute, Gehirnerschütterung, Schlaganfall, Querschnittslähmung und Stress." }
+      ]
+    },
+    // Kommunikations- und Informationstechnik (neu 19.11.2026): App14_Materie/kt-1 … kt-4, Kürzel T1–T4.
+    {
+      id: "kommunikationstechnik", nr: "08", titel: "Kommunikations- und Informationstechnik", kurz: "Kommunikationstechnik", icon: "📡",
+      text: "Mikrofon und Lautsprecher, Sensoren, Dioden und Transistoren: wie Technik Informationen aufnimmt, verarbeitet und ausgibt.",
+      lernmaterial: { titel: "Lernen für die Probe: Arbeitsblätter und Regelheft", text: "Zu jedem Modul ein kurzer Regelhefteintrag zum Abschreiben, ein einfaches Arbeitsblatt und die Lösung zum Selbst-Kontrollieren." },
+      module: [
+        { id: "kt-mikrofon", kz: "T1", titel: "Mikrofon und Lautsprecher", href: "App14_Materie/kt-1.html", art: "Modul", offen: true, ls: "nt9-kt-1", blatt: "T1",
+          text: "Wie Schall zu Strom wird und Strom zu Schall – und die Erfindung des Telefons." },
+        { id: "kt-sensoren", kz: "T2", titel: "Sensoren – elektronische Umweltfühler", href: "App14_Materie/kt-2.html", art: "Modul", offen: true, ls: "nt9-kt-2", blatt: "T2",
+          text: "Heißleiter und Kaltleiter, Lichtsensoren, Rauchmelder, Reed-Kontakt und die Sensoren im Smartphone." },
+        { id: "kt-diode", kz: "T3", titel: "Diode und Leuchtdiode", href: "App14_Materie/kt-3.html", art: "Modul", offen: true, ls: "nt9-kt-3", blatt: "T3",
+          text: "LEDs richtig anschließen, Dioden als Einbahnstraße für den Strom, aus Wechselstrom wird Gleichstrom." },
+        { id: "kt-transistor", kz: "T4", titel: "Transistoren – Schalter und Verstärker", href: "App14_Materie/kt-4.html", art: "Modul", offen: true, ls: "nt9-kt-4", blatt: "T4",
+          text: "Das Wassermodell, Steuer- und Arbeitsstromkreis, eine Lichtschranke bauen." }
       ]
     }
   ]

@@ -1,0 +1,971 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#7a4b05">
+<title>Altersbestimmung mit der C-14-Methode | NT 9</title>
+<link rel="stylesheet" href="../../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="materie.css">
+<style>
+/* Station 1: Aktivitäts-Labor */
+#akSvg .ak-probe{transition:opacity .4s}
+#akSvg .blitz{opacity:0}
+#akSvg .blitz.an{opacity:1}
+#akSvg .anzeige{font-family:ui-monospace,Consolas,"Courier New",monospace}
+#akSvg .rk{transition:opacity .5s}
+.ra4-zahl{width:7.5em;font:inherit;font-weight:700;padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:#fff;color:inherit}
+.ra4-ctrl2{border-top:0;padding-top:0}
+.ra4-hinweis{margin:0;padding:0 14px 12px;font-size:.88rem;color:var(--muted);background:#fff}
+/* Station 2: C-14-Kreislauf */
+#kxSvg .mv{transition:transform 1.4s cubic-bezier(.3,.7,.3,1),opacity .6s}
+#kxSvg .farb{transition:fill .6s}
+/* Station 3: Zerfallskurve */
+#zkSvg .zkA{transition:fill .7s,stroke .7s}
+.ra4-mini{display:block;width:100%;max-width:460px;height:auto;margin:6px auto 2px}
+/* Station 4: Altersrechner */
+#arSvg{cursor:crosshair;touch-action:manipulation}
+.sim-ctrl .btn.teal.gewaehlt{background:var(--sky);color:#fff;box-shadow:0 0 0 3px #f2b632}
+#arSvg .zone.blink{animation:ra4Blink .5s ease-in-out 3 alternate}
+@keyframes ra4Blink{from{opacity:1}to{opacity:.35}}
+.legende b.kugel{display:inline-block;width:13px;height:13px;border-radius:50%;vertical-align:-2px;margin-right:6px}
+@media (prefers-reduced-motion:reduce){#akSvg *,#kxSvg *,#zkSvg *,#arSvg *{transition:none!important;animation:none!important}}
+</style>
+<script src="../../../js/kursliste.js"></script>
+<script src="../themen.js"></script>
+<!-- 9M und 9R nutzen dieselben Seiten: die Kursliste kommt aus dem Ordner (../themen.js = NT9M oder NT9R) -->
+<script>window.GRUMI_KURS = window.NT9M || window.NT9R; window.GRUMI_KURS.KARTEN = "../../" + window.GRUMI_KURS.ORDNER + "App14_Materie/";</script>
+<script src="materie.js"></script>
+</head>
+<body data-bereich="ra">
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="../%C3%BCbersicht_themen.html">GRUMI<small>NT <span class="mt-zug">9M</span> · Radioaktivität 4</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Aktivität</a>
+      <a href="#s2"><b>2</b>Kreislauf</a>
+      <a href="#s3"><b>3</b>Kurve</a>
+      <a href="#s4"><b>4</b>Funde</a>
+      <a href="#s5"><b>5</b>Training</a>
+      <a href="#abschluss"><b>6</b>Abschluss</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse <span class="mt-zug">9M</span> · Radioaktivität · Modul 4</div>
+    <h1>Altersbestimmung mit der C-14-Methode</h1>
+    <p>Wie alt ist ein Knochen, ein Holzbalken oder die Gletschermumie Ötzi? In jedem Lebewesen steckt eine winzige Uhr: radioaktiver Kohlenstoff, kurz C-14. Hier lernst du, wie man misst, wie stark ein Stoff strahlt, woher das C-14 kommt und wie man an einer Kurve das Alter eines Fundes abliest.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s5">Direkt zum Training</a>
+    </div>
+    <div class="goals">
+      <div>⏱️ Ich weiß, was die Aktivität angibt, und rechne Zählraten in Becquerel um.</div>
+      <div>🌍 Ich beschreibe, wie C-14 entsteht und in Pflanzen, Tiere und Menschen gelangt.</div>
+      <div>📉 Ich lese an der Zerfallskurve von C-14 ab, wie viel nach einer Zeit übrig ist.</div>
+      <div>🔍 Ich bestimme das Alter eines Fundes und kenne die Grenzen der Methode.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg · Probenstoff</div><h2>Aktivität und Becquerel</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <figure style="margin:0 0 12px"><img class="zoomable" src="bilder/ra-4.jpg" width="1280" height="853" loading="lazy" decoding="async" alt="Eine junge Forscherin im weißen Kittel untersucht unter einer Lupenlampe einen alten, rissigen Holzbalken. Vor ihr liegen ein alter Knochen, ein Pinsel und kleine Probendosen, rechts steht ein Messgerät mit Sonde. An einer Pinnwand hängen Fotos einer Ausgrabung in den Bergen." style="width:100%;height:auto"><figcaption class="hint" style="margin:4px 0 0">Bild: GRUMI (mit KI erstellt)</figcaption></figure>
+      <p class="hint" style="margin:0 0 10px"><strong>Denk mal nach:</strong> Ein Holzbalken und ein Knochen aus einer Ausgrabung. Kein Kalender, keine Inschrift. Wie kann man trotzdem herausfinden, wie alt sie sind?</p>
+      <p class="lead">Eine <button class="term" data-t="archaeologe">Archäologin</button> untersucht Funde aus alten Zeiten. Um ihr Alter zu bestimmen, misst sie die radioaktive Strahlung der Funde. Dafür muss man zuerst wissen, wie man Strahlung genau angibt.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead">In einem radioaktiven Stoff zerfallen ständig Atomkerne. Bei jedem <button class="term" data-t="kernzerfall">Kernzerfall</button> wird Strahlung frei. Je mehr Kerne in einer Sekunde zerfallen, desto stärker strahlt der Stoff.</p>
+      <p>Die Zahl der Kernzerfälle pro Sekunde heißt <button class="term" data-t="aktivitaet">Aktivität</button> (Formelzeichen A). Ihre Einheit ist das <button class="term" data-t="becquerel">Becquerel</button> (Bq): <strong>1 Bq = 1 Kernzerfall pro Sekunde.</strong></p>
+      <p style="margin:0">Aus Modul 1 kennst du die <button class="term" data-t="zaehlrate">Zählrate</button>: die Impulse in einer <strong>Minute</strong>. Eine Minute hat 60 Sekunden. Also rechnest du: <strong>Impulse pro Minute : 60 = Becquerel.</strong></p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="akSim">
+    <svg viewBox="0 0 520 290" id="akSvg" role="img" aria-label="Aktivitäts-Labor: Eine Probe liegt vor einem Zählrohr. Der Zähler zählt eine Minute lang die Impulse. Darunter wird die Zahl durch 60 geteilt: Impulse pro Minute werden zu Zerfällen pro Sekunde, also Becquerel."></svg>
+    <div class="sim-ctrl"><label>Probe:</label><button class="btn small teal" id="tBanane" type="button">🍌 Banane</button><button class="btn small teal" id="tHolzNeu" type="button">🌳 Holz von heute</button><button class="btn small teal" id="tHolzAlt" type="button">⏳ uralter Holzpfahl</button><button class="btn small teal" id="tErz" type="button">⛏️ Uranerz</button></div>
+    <div class="sim-ctrl ra4-ctrl2"><label for="akEigen">Selbst rechnen:</label><input class="ra4-zahl" type="number" id="akEigen" min="0" max="10000000" step="1" value="600" inputmode="numeric" aria-label="Impulse pro Minute"><span>Impulse pro Minute</span><span class="chip" id="akEigenErg">600 : 60 = 10 Bq</span></div>
+    <p class="obs" id="akObs">Wähle eine Probe. Der Zähler zählt eine Minute lang (im Zeitraffer in 3 Sekunden). Dann wird umgerechnet. Miss alle vier Proben – deine Werte landen in der Tabelle.</p>
+    <div class="tab-wrap" style="padding:0 14px 8px"><table class="beob" id="akTab">
+      <thead><tr><th>Probe</th><th>Impulse in 1 Minute</th><th>Rechnung</th><th>Aktivität</th></tr></thead>
+      <tbody>
+        <tr data-p="banane"><th>Banane</th><td></td><td></td><td></td></tr>
+        <tr data-p="neu"><th>Holz von heute</th><td></td><td></td><td></td></tr>
+        <tr data-p="alt"><th>uralter Holzpfahl (gleich viel Holz)</th><td></td><td></td><td></td></tr>
+        <tr data-p="erz"><th>Uranerz</th><td></td><td></td><td></td></tr>
+      </tbody>
+    </table></div>
+    <p class="ra4-hinweis">Vereinfacht: In diesem Labor erfasst der Zähler jeden Kernzerfall. Ein echter Zähler erwischt nur einen Teil davon.</p>
+  </div>
+
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Die Aktivität A gibt an, wie viele Atomkerne eines Stoffes in einer Sekunde zerfallen.</li><li>Einheit: 1 Becquerel (Bq) = 1 Kernzerfall pro Sekunde.</li><li>Umrechnen: Impulse pro Minute : 60 = Aktivität in Bq. Beispiel: 3 000 pro Minute : 60 = 50 Bq.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Lückentext · Probenstoff</span>
+    <h3 style="margin-top:4px">Was ist die Aktivität?</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapAkt"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Rechnen · Probenstoff</span>
+    <h3 style="margin-top:4px">Impulse pro Minute → Becquerel</h3>
+    <p class="hint">Teile durch 60. Tippe links eine Zählrate an und dann rechts die passende Aktivität.</p>
+    <div id="paareBq"></div>
+  </div>
+  <div class="card reveal" id="mc-s1"></div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Woher C-14 kommt</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Kohlenstoff steckt in jedem Lebewesen: in Holz, Blättern, Fleisch und Knochen. In der Natur gibt es drei <button class="term" data-t="isotop">Isotope</button> des Kohlenstoffs: C-12, C-13 und <button class="term" data-t="c14">C-14</button>. Nur C-14 ist radioaktiv.</p>
+      <p style="margin:0">C-14 ist sehr selten: Nur etwa eines von einer Billion Kohlenstoff-Atomen ist C-14. Trotzdem kann man seine Strahlung messen.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead">C-14 entsteht ständig neu – hoch oben in der <button class="term" data-t="atmosphaere">Atmosphäre</button>. Dort trifft die <button class="term" data-t="kosmisch">kosmische Strahlung</button> auf <button class="term" data-t="stickstoff">Stickstoff</button>. Dabei wird aus Stickstoff-14 Kohlenstoff-14.</p>
+      <p style="margin:0">Das C-14 wird Teil von <button class="term" data-t="co2">Kohlenstoffdioxid</button> (CO₂). Pflanzen nehmen es bei der <button class="term" data-t="fotosynthese">Fotosynthese</button> auf, Tiere und Menschen über die Nahrung. Wie es weitergeht, zeigt die Animation.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="kxSim">
+    <svg viewBox="0 0 520 300" id="kxSvg" role="img" aria-label="Animation C-14-Kreislauf: Kosmische Strahlung trifft hoch oben auf Stickstoff. Aus Stickstoff-14 wird Kohlenstoff-14. Es bildet mit Sauerstoff Kohlenstoffdioxid. Ein Baum nimmt es auf, eine Kuh frisst Pflanzen, ein Mensch isst. Solange sie leben, bleibt der C-14-Anteil gleich. Nach dem Tod der Kuh zerfällt das C-14 in ihren Knochen: nach 5 730 Jahren ist noch die Hälfte da."></svg>
+    <div class="legende"><span><b class="kugel" style="background:#2a7de1"></b>Stickstoff-Atom (N)</span><span><b class="kugel" style="background:#e05252"></b>Sauerstoff-Atom (O)</span><span><b class="kugel" style="background:#8a97a2"></b>Kohlenstoff C-12</span><span><b class="kugel" style="background:#f2a33a"></b>Kohlenstoff C-14</span><span>Im Kern: Proton rot, Neutron blau</span></div>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>C-14 ist ein radioaktives Isotop des Kohlenstoffs. Es entsteht in der Atmosphäre: Die Höhenstrahlung (kosmische Strahlung) verwandelt Stickstoff-14 in C-14.</li><li>C-14 gelangt mit CO₂ in die Pflanzen und über die Nahrung in Tiere und Menschen.</li><li>Solange ein Lebewesen lebt, hat es denselben C-14-Anteil wie die Luft. Nach dem Tod kommt kein C-14 mehr dazu – es zerfällt.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Reihenfolge · Probenstoff</span>
+    <h3 style="margin-top:4px">Der Weg des C-14</h3>
+    <p class="hint">Bringe die Schritte mit den Pfeilen in die richtige Reihenfolge.</p>
+    <div id="orderWeg"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Richtig oder falsch? · Probenstoff</span>
+    <h3 style="margin-top:4px">Was stimmt?</h3>
+    <div id="tfC14"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung.</p>
+    <div id="open2"></div>
+  </div>
+  <div class="card reveal" id="mc-s2"></div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>Die Zerfallskurve von C-14</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Aus Modul 3 kennst du die <button class="term" data-t="halbwertszeit">Halbwertszeit</button>: Nach dieser Zeit ist die Hälfte der radioaktiven Kerne zerfallen. Bei C-14 sind das <strong>5 730 Jahre</strong>.</p>
+      <p style="margin:0">C-14 zerfällt durch einen <button class="term" data-t="betazerfall">β-Zerfall</button> – und wird dabei wieder zu Stickstoff-14.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Nach 5 730 Jahren sind noch 50 % des C-14 da, nach 11 460 Jahren 25 %, nach 17 190 Jahren 12,5 % – in jeder Halbwertszeit halbiert sich der Rest.</p>
+      <p style="margin:0">Trägt man das in ein Schaubild ein, entsteht die <button class="term" data-t="zerfallskurve">Zerfallskurve</button>. Die Animation zeigt, wie sie entsteht.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="zkSim">
+    <svg viewBox="0 0 520 290" id="zkSvg" role="img" aria-label="Animation: Links ein Modell mit 64 C-14-Kernen, rechts ein Schaubild. In jeder Halbwertszeit von 5 730 Jahren zerfällt die Hälfte der übrigen Kerne zu Stickstoff-14: 64, 32, 16, 8, 4, 2, 1. Die Punkte im Schaubild ergeben die Zerfallskurve: erst steil, dann immer flacher."></svg>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Halbwertszeit von C-14: 5 730 Jahre.</li><li>Nach 1 Halbwertszeit ist noch die Hälfte (50 %) übrig, nach 2 ein Viertel (25 %), nach 3 ein Achtel (12,5 %).</li><li>Die Zerfallskurve ist keine gerade Linie: Sie fällt erst steil, dann immer flacher. An ihr kann man ablesen, wie viel C-14 nach einer Zeit noch da ist.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Lückentext · Probenstoff</span>
+    <h3 style="margin-top:4px">Immer die Hälfte vom Rest</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapKurve"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Kurve ablesen · Probenstoff</span>
+    <h3 style="margin-top:4px">Lies an der Zerfallskurve ab</h3>
+    <div id="miniKurve"></div>
+    <div id="mc-ablesen"></div>
+  </div>
+  <div class="card reveal" id="mc-s3"></div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Probenstoff</div><h2>Ötzi und andere Funde</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <figure style="margin:0 0 12px"><img class="zoomable" src="bilder/ra-4b.jpg" width="1280" height="853" loading="lazy" decoding="async" alt="Drei junge Forschende knien im nassen, dunklen Boden eines Moores. Vor ihnen liegt ein langes, dunkles Holzboot aus einem einzigen Baumstamm. Eine Forscherin legt es mit einer Kelle frei, ein Forscher reinigt es mit einem Pinsel, ein dritter steckt mit einer Pinzette ein kleines Stück Holz in ein Glasröhrchen." style="width:100%;height:auto"><figcaption class="hint" style="margin:4px 0 0">Bild: GRUMI (mit KI erstellt)</figcaption></figure>
+      <p class="hint" style="margin:0 0 10px"><strong>Denk mal nach:</strong> Ein Boot aus einem Baumstamm liegt seit langer Zeit im Moor. Wie kann ein winziges Stück Holz verraten, wann der Baum dafür gefällt wurde?</p>
+      <p class="lead">Je weniger C-14 ein Fund noch enthält, desto älter ist er. Forscher messen die Strahlung einer Probe und vergleichen sie mit einem lebenden Wesen. So erhalten sie den C-14-Anteil in Prozent. An der Zerfallskurve lesen sie das Alter ab. Man sagt: Sie <button class="term" data-t="datieren">datieren</button> den Fund.</p>
+      <p style="margin:0">Berühmtes Beispiel: <strong>Ötzi</strong>. Wanderer fanden die <button class="term" data-t="mumie">Gletschermumie</button> im September 1991 in den Ötztaler Alpen. Sein Körper enthält noch gut die Hälfte des C-14 eines lebenden Menschen. Er lebte vor etwa 5 300 Jahren.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Die Methode hat Grenzen:</strong></p>
+      <ul class="schritt-liste" style="margin-bottom:6px">
+        <li>Sie klappt nur bei Resten von <button class="term" data-t="organismus">Lebewesen</button>: Holz, Knochen, Leder, Stoff, Holzkohle. Stein und Metall haben nie C-14 aus der Luft aufgenommen.</li>
+        <li>Sie reicht nur bis etwa <strong>50 000 Jahre</strong>. Danach ist so wenig C-14 übrig, dass man es nicht mehr messen kann.</li>
+        <li>Das Ergebnis ist immer <strong>ungefähr</strong>: Messungen sind nie ganz genau, und das Ablesen an der Kurve auch nicht.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="arSim">
+    <svg viewBox="0 0 520 300" id="arSvg" role="img" aria-label="Altersrechner: Zerfallskurve von C-14 von 0 bis 60 000 Jahren. Ab etwa 50 000 Jahren ist der Bereich markiert: zu wenig C-14. Wählt man einen Fund, tippt auf die Kurve oder gibt eine Prozentzahl ein, zeigt ein Punkt mit Hilfslinien das Alter."></svg>
+    <div class="sim-ctrl"><label>Fund:</label><button class="btn small teal" id="tOetzi" type="button">❄️ Ötzi</button><button class="btn small teal" id="tBoot" type="button">🛶 Einbaum (Boot)</button><button class="btn small teal" id="tMammut" type="button">🐘 Mammut-Knochen</button><button class="btn small teal" id="tKohle" type="button">🔥 Holzkohle</button><button class="btn small teal" id="tDino" type="button">🦕 Dinosaurier-Knochen</button></div>
+    <div class="sim-ctrl ra4-ctrl2"><label for="arProzent">Selbst ablesen:</label><input class="ra4-zahl" type="text" id="arProzent" inputmode="decimal" placeholder="z. B. 40" aria-label="C-14 übrig in Prozent"><span>% C-14 übrig</span><button class="btn small ghost" id="arRechne" type="button">Alter ablesen</button><span class="hint" style="margin:0">… oder tippe auf die Kurve.</span></div>
+    <p class="obs" id="arObs">Wähle einen Fund. Der Punkt zeigt, wie viel C-14 er noch enthält, und die Hilfslinie führt zum Alter. Probiere alle fünf Funde und lies einmal selbst ab – tippe dazu auf die Kurve oder gib eine Prozentzahl ein.</p>
+    <div class="tab-wrap" style="padding:0 14px 14px"><table class="beob" id="arTab">
+      <thead><tr><th>Fund</th><th>C-14 übrig</th><th>Alter (abgelesen)</th></tr></thead>
+      <tbody>
+        <tr data-p="oetzi"><th>Ötzi (Gletschermumie)</th><td></td><td></td></tr>
+        <tr data-p="boot"><th>Einbaum aus einem Moor</th><td></td><td></td></tr>
+        <tr data-p="mammut"><th>Mammut-Knochen</th><td></td><td></td></tr>
+        <tr data-p="kohle"><th>Holzkohle aus einer Höhle</th><td></td><td></td></tr>
+        <tr data-p="dino"><th>Dinosaurier-Knochen</th><td></td><td></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Je weniger C-14 ein Fund enthält, desto älter ist er. Das Alter liest man an der Zerfallskurve ab.</li><li>Ötzi enthält noch etwa 53 % C-14 – er lebte vor rund 5 300 Jahren.</li><li>Die C-14-Methode klappt nur bei Resten von Lebewesen und nur bis etwa 50 000 Jahre. Das Ergebnis ist immer ungefähr.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Zuordnen · Probenstoff</span>
+    <h3 style="margin-top:4px">Welche Funde kann man mit C-14 datieren?</h3>
+    <p class="hint">Tippe eine Karte an und dann den passenden Bereich.</p>
+    <div id="sortFunde"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung.</p>
+    <div id="open4"></div>
+  </div>
+  <div class="card reveal" id="mc-s4"></div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Wiederholung · so kommt es in der Probe</div><h2>Training</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Kreuzworträtsel</span>
+    <h3 style="margin-top:4px">Löse das Kreuzworträtsel</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Ä und Ö schreibst du als AE und OE. Hängst du fest? Bei jeder Frage hilft <strong>💡 Tipp</strong> – erst ein Hinweis, dann der Anfangsbuchstabe. Mit <strong>📋 Wörter zeigen</strong> siehst du alle Lösungswörter.</p>
+    <div id="cw"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Ankreuzen</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="abschluss">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Abschluss</div><h2>Profi-Check, Lernkarten und Regelheft</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <div class="card reveal">
+    <span class="task-tag">Lernkarten</span>
+    <div id="lernkarten"></div>
+  </div>
+  <div class="regelheft reveal" id="regelheft">
+    <h3>Altersbestimmung mit der C-14-Methode</h3>
+    <p><strong>Aktivität A</strong> = Anzahl der Kernzerfälle in einer Sekunde. Einheit: <strong>1 Becquerel (Bq) = 1 Kernzerfall pro Sekunde</strong>. Impulse pro Minute : 60 = Aktivität in Bq (3 000 pro Minute : 60 = 50 Bq).</p>
+    <p><strong>So entsteht C-14</strong> (radioaktives Isotop des Kohlenstoffs): Die Höhenstrahlung verwandelt in der Atmosphäre Stickstoff-14 in Kohlenstoff-14. Weg: C-14 → CO₂ → Pflanzen (Fotosynthese) → Tiere und Menschen (Nahrung).</p>
+    <p><strong>Lebewesen</strong> haben denselben C-14-Anteil wie die Luft. <strong>Nach dem Tod</strong> kommt kein C-14 mehr dazu. Es zerfällt mit der <strong>Halbwertszeit 5 730 Jahre</strong>.</p>
+    <table class="rh-tab">
+      <tr><th>Jahre nach dem Tod</th><td>0</td><td>5 730</td><td>11 460</td><td>17 190</td><td>22 920</td></tr>
+      <tr><th>C-14 übrig</th><td>100 %</td><td>50 %</td><td>25 %</td><td>12,5 %</td><td>6,25 %</td></tr>
+    </table>
+    <svg class="rh-skizze" viewBox="0 0 430 172" role="img" aria-label="Skizze: Zerfallskurve von C-14. Nach 5 730 Jahren noch 50 %, nach 11 460 Jahren 25 %, nach 17 190 Jahren 12,5 %.">
+      <g stroke="#c9d4de" stroke-width="1"><line x1="50" y1="80" x2="404" y2="80"/><line x1="50" y1="110" x2="404" y2="110"/><line x1="50" y1="125" x2="404" y2="125"/></g>
+      <path d="M50 14 V140 H410" fill="none" stroke="#15212b" stroke-width="2"/>
+      <path d="M50.0 20.0 L58.8 33.7 L67.5 45.8 L76.3 56.5 L85.0 66.0 L93.8 74.5 L102.5 81.9 L111.3 88.5 L120.0 94.4 L128.8 99.6 L137.5 104.2 L146.3 108.3 L155.0 111.9 L163.8 115.1 L172.5 117.9 L181.3 120.5 L190.0 122.7 L198.8 124.7 L207.5 126.4 L216.3 127.9 L225.0 129.3 L233.8 130.5 L242.5 131.6 L251.3 132.6 L260.0 133.4 L268.8 134.2 L277.5 134.8 L286.3 135.4 L295.0 135.9 L303.8 136.4 L312.5 136.8 L321.3 137.2 L330.0 137.5 L338.8 137.8 L347.5 138.0 L356.3 138.3 L365.0 138.5 L373.8 138.6 L382.5 138.8 L391.3 138.9 L400.0 139.0" fill="none" stroke="#b8720a" stroke-width="3"/>
+      <g stroke="#7a4b05" stroke-width="1.3" stroke-dasharray="4 3" fill="none"><path d="M50 80 H100.1 V140"/><path d="M50 110 H150.3 V140"/><path d="M50 125 H200.4 V140"/></g>
+      <g fill="#b8720a"><circle cx="50" cy="20" r="4"/><circle cx="100.1" cy="80" r="4"/><circle cx="150.3" cy="110" r="4"/><circle cx="200.4" cy="125" r="4"/></g>
+      <g font-size="11" font-weight="700" fill="#15212b" text-anchor="end"><text x="45" y="24">100 %</text><text x="45" y="84">50 %</text><text x="45" y="114">25 %</text><text x="45" y="129">12,5 %</text></g>
+      <g font-size="10.5" font-weight="700" fill="#15212b" text-anchor="middle"><text x="50" y="154">0</text><text x="100" y="154">5 730</text><text x="150" y="154">11 460</text><text x="200" y="154">17 190</text></g>
+      <text x="320" y="167" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">Jahre nach dem Tod</text>
+      <text x="58" y="12" font-size="11" font-weight="700" fill="#566674">C-14 übrig</text>
+      <text x="300" y="66" text-anchor="middle" font-size="12" font-weight="800" fill="#b8720a">Zerfallskurve von C-14</text>
+    </svg>
+    <p><strong>Je weniger C-14, desto älter der Fund.</strong> Das Alter liest man an der Zerfallskurve ab: Ötzi hat noch etwa 53 % C-14 → er lebte vor rund 5 300 Jahren. Das Ergebnis ist nur ungefähr.</p>
+    <p><strong>Grenzen:</strong> nur Reste von Lebewesen (Holz, Knochen, Leder, Stoff, Holzkohle), kein Stein oder Metall; nur bis etwa 50 000 Jahre.</p>
+  </div>
+  <div class="rh-knoepfe reveal"><button class="btn small ghost" type="button" onclick="window.print()">🖨️ Regelheft drucken</button><a class="btn small ghost" href="arbeitsblaetter/R4-regelheft.pdf" download="NT9-R4-Regelheft.pdf">📥 Regelheft als PDF</a></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Radioaktive Strahlung ist nützlich – sie kann aber auch schaden. In Modul 5 erfährst du, was Strahlung im Körper anrichtet und wie man die Strahlendosis angibt.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="ra-3.html">⬅️ Modul 3: Die Halbwertszeit</a>
+      <a href="ra-5.html">➡️ Modul 5: Was Strahlung im Körper anrichtet</a>
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik <span class="mt-zug">9M</span> · Radioaktivität · Modul 4 · Texte, Zeichnungen und Animationen sind eigenständig erstellt. Die Funde im Altersrechner außer Ötzi sind ausgedachte Beispiele, die Messwerte im Labor vereinfacht. Mit deinem Code wird dein Lernstand gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="../../../7M/NT/modul-basis.js"></script>
+<script src="../../../8M/NT/karten.js"></script>
+<script src="karten/ra4.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, clamp, reduced, register, solve} = Modul;
+const NS = "http://www.w3.org/2000/svg";
+const svgEl = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+// Zahlen wie im Schulbuch: 5 730 (Leerzeichen statt Punkt), Komma als Dezimalzeichen
+const de = (n, d = 0) => Number(n).toLocaleString("de-DE", {minimumFractionDigits: d, maximumFractionDigits: d}).replace(/\./g, " ");
+const HWZ = 5730;
+const rest = t => 100 * Math.pow(.5, t / HWZ);          // Prozent C-14 nach t Jahren
+const alter = p => HWZ * Math.log2(100 / p);              // Jahre für p Prozent C-14
+const rund = t => t < 1000 ? Math.round(t / 10) * 10 : Math.round(t / 100) * 100;
+const proz = p => de(p, Number.isInteger(p) ? 0 : Math.abs(p * 10 - Math.round(p * 10)) < 1e-9 ? 1 : 2) + " %";
+const warte = ms => new Promise(r => setTimeout(r, reduced ? 0 : ms));
+
+Modul.init({
+  key: "grumi-nt9-ra-4-v1",
+  hero: "funken",
+  api: "/api/nt9/uebung/feedback",
+  thema: "Radioaktivität, Klasse 9: Altersbestimmung mit der C-14-Methode – Aktivität A = Anzahl der Kernzerfälle pro Sekunde, Einheit Becquerel (1 Bq = 1 Kernzerfall pro Sekunde), Impulse pro Minute geteilt durch 60 ergibt Becquerel; Kohlenstoff-Isotope C-12, C-13 und radioaktives C-14; C-14 entsteht in der Atmosphäre durch die Höhenstrahlung (kosmische Strahlung) aus Stickstoff-14; C-14 bildet mit Sauerstoff Kohlenstoffdioxid (CO₂), Pflanzen nehmen es bei der Fotosynthese auf, Tiere und Menschen über die Nahrung; lebende Organismen haben denselben C-14-Anteil wie die Luft, weil zerfallenes C-14 ständig ersetzt wird; nach dem Tod keine Aufnahme mehr, C-14 zerfällt (β-Zerfall zu Stickstoff-14) mit der Halbwertszeit 5 730 Jahre; Zerfallskurve nicht linear: nach 5 730 Jahren 50 %, nach 11 460 Jahren 25 %, nach 17 190 Jahren 12,5 %; je weniger C-14, desto älter der Fund; Alter an der Zerfallskurve ablesen, Ergebnis nur ungefähr; Ötzi (1991 in den Ötztaler Alpen gefunden) enthält etwa 53 % C-14 und lebte vor etwa 5 300 Jahren; Methode nur für Reste von Lebewesen (Holz, Knochen, Leder, Stoff, Holzkohle), nicht für Stein oder Metall, und nur bis etwa 50 000 Jahre",
+  glossary: {
+    archaeologe: ["Archäologin, Archäologe", "Forscherin oder Forscher, die Dinge aus alten Zeiten ausgraben und untersuchen – zum Beispiel Knochen, Werkzeuge und Reste von Häusern."],
+    kernzerfall: ["Kernzerfall (radioaktiver Zerfall)", "Ein instabiler Atomkern wandelt sich um und sendet dabei radioaktive Strahlung aus."],
+    aktivitaet: ["Aktivität (A)", "Anzahl der Kernzerfälle in einer Sekunde. Je größer die Aktivität, desto stärker strahlt ein Stoff. Einheit: Becquerel (Bq)."],
+    becquerel: ["Becquerel (Bq)", "Einheit der Aktivität: 1 Bq = 1 Kernzerfall pro Sekunde. Benannt nach Henri Becquerel, der 1896 die radioaktive Strahlung entdeckte."],
+    zaehlrate: ["Zählrate", "Anzahl der Impulse (Stromstöße), die ein Geiger-Müller-Zähler in einer Minute zählt."],
+    isotop: ["Isotop", "Atome desselben Elements mit verschieden vielen Neutronen. Kohlenstoff hat die Isotope C-12, C-13 und C-14 – alle mit 6 Protonen."],
+    c14: ["C-14 (Kohlenstoff-14)", "Radioaktives Isotop des Kohlenstoffs mit 6 Protonen und 8 Neutronen im Kern. Seine Halbwertszeit beträgt 5 730 Jahre."],
+    atmosphaere: ["Atmosphäre", "Die Lufthülle der Erde. Sie besteht vor allem aus Stickstoff und Sauerstoff."],
+    kosmisch: ["kosmische Strahlung (Höhenstrahlung)", "Strahlung aus dem Weltall. Sie trifft ständig auf die Lufthülle der Erde. Die Luft schwächt sie ab."],
+    stickstoff: ["Stickstoff", "Gas, aus dem der größte Teil der Luft besteht. Zeichen N. Stickstoff-14 hat 7 Protonen und 7 Neutronen im Kern."],
+    co2: ["Kohlenstoffdioxid (CO₂)", "Gas aus einem Kohlenstoff-Atom und zwei Sauerstoff-Atomen. Es ist in der Luft. Pflanzen nehmen es auf."],
+    fotosynthese: ["Fotosynthese", "So stellen Pflanzen mit Sonnenlicht ihre Nahrung her: Aus CO₂ und Wasser bauen sie Zucker – und daraus Blätter und Holz."],
+    halbwertszeit: ["Halbwertszeit", "Zeit, nach der die Hälfte der Kerne eines radioaktiven Isotops zerfallen ist. Bei C-14 sind es 5 730 Jahre."],
+    betazerfall: ["β-Zerfall (Beta-Zerfall)", "Im Kern wird ein Neutron zu einem Proton und einem Elektron. Das Elektron fliegt heraus. So wird aus C-14 wieder Stickstoff-14."],
+    zerfallskurve: ["Zerfallskurve", "Schaubild, das zeigt, wie viel von einem radioaktiven Stoff nach einer bestimmten Zeit noch übrig ist. Sie fällt erst steil, dann immer flacher."],
+    datieren: ["datieren", "Das Alter von etwas bestimmen. Man sagt: Ein Fund wird datiert."],
+    mumie: ["Gletschermumie", "Ein toter Körper, der lange im Eis eines Gletschers lag und deshalb nicht verwest ist – so wie Ötzi."],
+    organismus: ["Lebewesen (Organismus)", "Alles, was lebt oder einmal gelebt hat: Pflanzen, Tiere und Menschen."]
+  }
+});
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Was gibt die Aktivität eines radioaktiven Stoffes an?", o: ["wie viele Kerne in einer Sekunde zerfallen", "wie viele Kerne in einer Minute zerfallen", "wie schwer die radioaktive Probe ist", "wie weit die Strahlung in der Luft reicht"], a: 0, e: "Die Aktivität zählt die Kernzerfälle pro Sekunde. Die Impulse pro Minute sind die Zählrate."},
+    {q: "Ein Zähler misst 2 400 Impulse in einer Minute. Wie groß ist die Aktivität?", o: ["40 Bq", "2 400 Bq", "144 000 Bq", "24 Bq"], a: 0, e: "2 400 : 60 = 40 Zerfälle pro Sekunde = 40 Bq."}
+  ],
+  s2: [
+    {q: "Wo entsteht C-14?", o: ["hoch oben in der Lufthülle aus Stickstoff", "tief im Erdinneren aus Uran", "in den Blättern der Pflanzen aus Wasser", "im Kernkraftwerk aus Kohle"], a: 0, e: "Die kosmische Strahlung verwandelt in der Atmosphäre Stickstoff-14 in Kohlenstoff-14."},
+    {q: "Warum bleibt der C-14-Anteil in einem lebenden Baum gleich?", o: ["Er nimmt ständig neues CO₂ mit C-14 aus der Luft auf.", "In einem lebenden Baum zerfällt C-14 überhaupt nicht.", "Die Rinde schirmt das C-14 im Holz vollständig ab.", "Der Baum stellt C-14 selbst aus Wasser her."], a: 0, e: "Was zerfällt, wird ständig ersetzt. Erst nach dem Tod kommt nichts mehr nach."}
+  ],
+  s3: [
+    {q: "Nach wie vielen Jahren ist von C-14 nur noch die Hälfte übrig?", o: ["nach etwa 5 730 Jahren", "nach etwa 1 000 Jahren", "nach etwa 50 000 Jahren", "nach etwa 4,4 Milliarden Jahren"], a: 0, e: "Die Halbwertszeit von C-14 beträgt 5 730 Jahre."},
+    {q: "Wie viel C-14 ist nach zwei Halbwertszeiten (11 460 Jahren) noch übrig?", o: ["ein Viertel (25 %)", "gar nichts mehr (0 %)", "die Hälfte (50 %)", "ein Drittel (33 %)"], a: 0, e: "In jeder Halbwertszeit halbiert sich der Rest: 100 % → 50 % → 25 %."}
+  ],
+  ablesen: [
+    {q: "Ein Knochen enthält noch 25 % C-14. Wie alt ist er etwa?", o: ["etwa 11 500 Jahre", "etwa 5 700 Jahre", "etwa 17 200 Jahre", "etwa 25 000 Jahre"], a: 0, e: "25 % ist ein Viertel: 2 Halbwertszeiten, also 2 · 5 730 = 11 460 Jahre."},
+    {q: "Ein Holzstück ist 17 190 Jahre alt. Wie viel C-14 steckt noch darin?", o: ["etwa 12,5 %", "etwa 25 %", "etwa 50 %", "etwa 6 %"], a: 0, e: "17 190 Jahre sind 3 Halbwertszeiten: 100 → 50 → 25 → 12,5 %."}
+  ],
+  s4: [
+    {q: "Ötzi enthält noch etwa 53 % des C-14 eines lebenden Menschen. Was folgt daraus?", o: ["Er lebte vor knapp einer Halbwertszeit, vor etwa 5 300 Jahren.", "Er lebte vor zwei Halbwertszeiten, vor etwa 11 500 Jahren.", "Er lebte vor etwa 530 Jahren, also im späten Mittelalter.", "Sein Alter lässt sich mit der C-14-Methode nicht bestimmen."], a: 0, e: "Etwas mehr als die Hälfte ist noch da – also ist etwas weniger als eine Halbwertszeit vergangen."},
+    {q: "Warum kann man einen Dinosaurier-Knochen nicht mit der C-14-Methode datieren?", o: ["Nach so langer Zeit ist kein messbares C-14 mehr übrig.", "Dinosaurier haben zu Lebzeiten kein C-14 aufgenommen.", "Knochen enthalten grundsätzlich keinen Kohlenstoff.", "In Knochen zerfällt das C-14 überhaupt nicht."], a: 0, e: "Die Methode reicht nur bis etwa 50 000 Jahre. Dinosaurier lebten vor mehr als 66 Millionen Jahren."}
+  ],
+  train: [
+    {q: "In welcher Einheit gibt man die Aktivität an?", o: ["Becquerel (Bq)", "Sievert (Sv)", "Kilogramm (kg)", "Grad Celsius (°C)"], a: 0, e: "1 Becquerel = 1 Kernzerfall pro Sekunde."},
+    {q: "Woraus entsteht C-14 in der Lufthülle?", o: ["aus Stickstoff-14", "aus Sauerstoff-16", "aus Kohlenstoff-12", "aus Helium-4"], a: 0, e: "Die Höhenstrahlung verwandelt Stickstoff-14 in Kohlenstoff-14."},
+    {q: "Wie gelangt C-14 in den Körper eines Rehs?", o: ["über die Pflanzen, die es frisst", "durch die Haut aus dem Sonnenlicht", "durch die Bodenstrahlung aus Granit", "erst nach seinem Tod aus der Erde"], a: 0, e: "Pflanzen nehmen C-14 mit CO₂ auf, Tiere fressen die Pflanzen."},
+    {q: "Welcher Fund lässt sich mit der C-14-Methode datieren?", o: ["ein Holzpfahl aus einer alten Siedlung", "ein Faustkeil aus Feuerstein", "ein Schwert aus Bronze", "ein Ring aus Gold"], a: 0, e: "Nur Reste von Lebewesen enthalten C-14 aus der Luft – Holz ja, Stein und Metall nein."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-ablesen"), MC.ablesen, "mcab");
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Station 1: Aktivitäts-Labor ---------- */
+(function(){
+  const svg = $("#akSvg"), obs = $("#akObs"), tb = $("#akTab tbody");
+  const PROBEN = {
+    tBanane: {k: "banane", name: "Banane", proMin: 900,
+      txt: "Banane: 900 Zerfälle in einer Minute. 900 : 60 = 15 Zerfälle pro Sekunde – die Aktivität der Banane ist 15 Bq. Die Strahlung kommt von radioaktivem Kalium, das in jeder Banane steckt."},
+    tHolzNeu: {k: "neu", name: "Holz von heute", proMin: 240,
+      txt: "Holz von heute: 240 : 60 = 4 Bq. Im Holz steckt radioaktiver Kohlenstoff, das C-14. Um ihn geht es in diesem Modul."},
+    tHolzAlt: {k: "alt", name: "uralter Holzpfahl", proMin: 120,
+      txt: "Uralter Holzpfahl, genauso viel Holz: 120 : 60 = 2 Bq – nur halb so viel wie beim Holz von heute! Woran das liegt, erfährst du in den Stationen 2 und 3."},
+    tErz: {k: "erz", name: "Uranerz", proMin: 4500,
+      txt: "Uranerz: 4 500 : 60 = 75 Bq. Das Erz strahlt viel stärker als Banane und Holz."}
+  };
+  const DAUER = 3000;
+  svg.innerHTML = `<rect width="520" height="290" fill="#f7fbfe"/>
+    <text id="akTitel" x="260" y="24" text-anchor="middle" font-size="14" font-weight="800" fill="#7a4b05">Aktivität messen</text>
+    <text x="16" y="46" font-size="11" font-weight="700" fill="#566674">Zeitraffer: 1 Minute in 3 Sekunden · Nullrate schon abgezogen</text>
+    <rect x="10" y="160" width="296" height="10" rx="3" fill="#b8956a"/>
+    <rect x="36" y="152" width="88" height="8" rx="2" fill="#cdd5db" stroke="#8a97a2" stroke-width="1.5"/>
+    <g class="ak-probe" data-p="leer"><rect x="50" y="112" width="60" height="38" rx="8" fill="none" stroke="#9aa5ad" stroke-width="2" stroke-dasharray="5 4"/><text x="80" y="135" text-anchor="middle" font-size="11" font-weight="700" fill="#7d8a94">Probe?</text></g>
+    <g class="ak-probe" data-p="banane" opacity="0">
+      <path d="M44 128 C56 154 100 158 120 122 C118 118 114 117 112 119 C98 142 64 144 50 124 C47 122 44 124 44 128 Z" fill="#f6d441" stroke="#a88a12" stroke-width="2"/>
+      <path d="M112 119 L116 110 L121 112 L118 121 Z" fill="#7a5a1c"/><circle cx="46" cy="127" r="2.6" fill="#5b4a1a"/>
+      <path d="M58 136 C72 146 94 146 108 132" fill="none" stroke="#e2bd2a" stroke-width="2"/></g>
+    <g class="ak-probe" data-p="neu" opacity="0">
+      <path d="M62 118 Q60 104 70 96" fill="none" stroke="#5d7f2a" stroke-width="3" stroke-linecap="round"/>
+      <ellipse cx="74" cy="94" rx="8" ry="4.5" transform="rotate(-30 74 94)" fill="#5cb85c"/><ellipse cx="60" cy="104" rx="7" ry="4" transform="rotate(25 60 104)" fill="#4caf50"/>
+      <rect x="44" y="118" width="64" height="34" rx="5" fill="#d9a86c" stroke="#8a5a2b" stroke-width="2"/>
+      <g stroke="#a8743c" stroke-width="1.5"><line x1="50" y1="128" x2="98" y2="128"/><line x1="52" y1="140" x2="96" y2="140"/></g>
+      <ellipse cx="108" cy="135" rx="9" ry="17" fill="#f3dcae" stroke="#8a5a2b" stroke-width="2"/>
+      <ellipse cx="108" cy="135" rx="5" ry="10" fill="none" stroke="#c89a5a" stroke-width="1.3"/><ellipse cx="108" cy="135" rx="2" ry="4" fill="none" stroke="#c89a5a" stroke-width="1.3"/></g>
+    <g class="ak-probe" data-p="alt" opacity="0">
+      <rect x="44" y="114" width="64" height="38" rx="3" fill="#6e4a2c" stroke="#3f2a18" stroke-width="2"/>
+      <ellipse cx="108" cy="133" rx="8" ry="19" fill="#8a6440" stroke="#3f2a18" stroke-width="2"/>
+      <g fill="none" stroke="#3f2a18" stroke-width="1.6" stroke-linecap="round"><path d="M52 124 L64 128 L76 123 L90 127"/><path d="M50 142 L66 138 L80 144 L96 139"/><path d="M104 126 L110 134 L105 142"/></g>
+      <g fill="#2f1f12"><circle cx="70" cy="134" r="2"/><circle cx="88" cy="118" r="1.6"/></g></g>
+    <g class="ak-probe" data-p="erz" opacity="0">
+      <path d="M56 152 Q52 132 64 124 Q72 110 88 114 Q104 116 106 132 Q110 148 100 152 Z" fill="#3d4038" stroke="#22251f" stroke-width="2"/>
+      <g fill="#e8d44d"><circle cx="70" cy="134" r="2.5"/><circle cx="84" cy="124" r="2.5"/><circle cx="94" cy="140" r="2.5"/><circle cx="78" cy="144" r="2"/><circle cx="98" cy="128" r="2"/></g></g>
+    <text id="akName" x="80" y="190" text-anchor="middle" font-size="12.5" font-weight="800" fill="#15212b">noch keine Probe</text>
+    <g id="akStrahl" class="blitz" stroke="#f2b632" stroke-width="2.5" stroke-linecap="round"><line x1="121" y1="124" x2="134" y2="130"/><line x1="122" y1="136" x2="134" y2="135"/><line x1="121" y1="148" x2="134" y2="140"/></g>
+    <rect x="140" y="124" width="140" height="22" rx="11" fill="#dbe7f0" stroke="#566674" stroke-width="2.5"/>
+    <rect x="136" y="127" width="7" height="16" rx="2" fill="#e74c3c"/>
+    <line x1="152" y1="135" x2="276" y2="135" stroke="#c0392b" stroke-width="1.8"/>
+    <rect x="206" y="146" width="8" height="14" fill="#6b7a86"/>
+    <text x="210" y="116" text-anchor="middle" font-size="12.5" font-weight="800" fill="#15212b">Zählrohr</text>
+    <path d="M280 135 C300 135 298 112 318 112" fill="none" stroke="#33414d" stroke-width="3"/>
+    <rect x="318" y="58" width="190" height="118" rx="12" fill="#33414d"/>
+    <rect x="330" y="70" width="166" height="46" rx="6" fill="#d7f2d0"/>
+    <text id="akZahl" class="anzeige" x="486" y="104" text-anchor="end" font-size="30" font-weight="800" fill="#15212b">0</text>
+    <text x="413" y="134" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">Impulse (Kernzerfälle)</text>
+    <rect x="330" y="142" width="166" height="9" rx="4.5" fill="#566674"/><rect id="akBar" x="330" y="142" width="0" height="9" rx="4.5" fill="#f2b632"/>
+    <text id="akZeit" x="413" y="168" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">Zeit: 0 s von 60 s</text>
+    <rect x="12" y="204" width="496" height="78" rx="10" fill="#fff" stroke="#d8e2ea" stroke-width="1.5"/>
+    <text x="24" y="222" font-size="11.5" font-weight="700" fill="#566674">Umrechnen: Impulse in 1 Minute → Kernzerfälle in 1 Sekunde</text>
+    <g id="akR1" class="rk" style="opacity:.25"><rect x="22" y="232" width="140" height="38" rx="8" fill="#eef4f8" stroke="#9aa5ad" stroke-width="1.5"/><text id="akR1t" x="92" y="257" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">? pro Minute</text></g>
+    <g id="akR2" class="rk" style="opacity:.25"><text x="197" y="243" text-anchor="middle" font-size="10" font-weight="700" fill="#566674">1 min = 60 s</text><text x="197" y="263" text-anchor="middle" font-size="17" font-weight="900" fill="#7a4b05">: 60</text></g>
+    <g id="akR3" class="rk" style="opacity:.25"><rect x="232" y="232" width="140" height="38" rx="8" fill="#eef4f8" stroke="#9aa5ad" stroke-width="1.5"/><text id="akR3t" x="302" y="257" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">? pro Sekunde</text></g>
+    <g id="akR4" class="rk" style="opacity:.25"><text x="387" y="258" text-anchor="middle" font-size="18" font-weight="900" fill="#15212b">=</text><rect x="402" y="232" width="96" height="38" rx="8" fill="#fff3c4" stroke="#f2b632" stroke-width="2"/><text id="akR4t" x="450" y="257" text-anchor="middle" font-size="16" font-weight="900" fill="#7a4b05">? Bq</text></g>`;
+  const zahl = $("#akZahl", svg), bar = $("#akBar", svg), zeit = $("#akZeit", svg), strahl = $("#akStrahl", svg);
+  const R = [1, 2, 3, 4].map(i => $("#akR" + i, svg));
+  const knoepfe = Object.keys(PROBEN).map(id => $("#" + id));
+  const fertig = new Set();
+  let laeuft = false, bt = 0;
+  register("akLabor", "#akSvg", "Aktivitäts-Labor: alle vier Proben gemessen und in Becquerel umgerechnet");
+  const zeigeR = n => R.forEach((g, i) => g.style.opacity = i < n ? 1 : .25);
+  async function messen(id){
+    if (laeuft) return;
+    const P = PROBEN[id], N = P.proMin, bq = N / 60;
+    laeuft = true; knoepfe.forEach(b => b.disabled = true);
+    $$(".ak-probe", svg).forEach(g => g.setAttribute("opacity", g.dataset.p === P.k ? 1 : 0));
+    $("#akName", svg).textContent = P.name; $("#akTitel", svg).textContent = "Aktivität messen: " + P.name;
+    ["#akR1t", "#akR3t", "#akR4t"].forEach((s, i) => $(s, svg).textContent = ["? pro Minute", "? pro Sekunde", "? Bq"][i]);
+    zeigeR(0);
+    obs.textContent = `Messung läuft: ${P.name} … Der Zähler zählt eine Minute lang jeden Kernzerfall.`;
+    try {
+      await new Promise(fertigP => {
+        const t0 = performance.now();
+        (function f(now){
+          const el = reduced ? DAUER : clamp(now - t0, 0, DAUER);
+          zahl.textContent = de(Math.round(N * el / DAUER));
+          bar.setAttribute("width", (166 * el / DAUER).toFixed(1));
+          zeit.textContent = `Zeit: ${Math.floor(el / DAUER * 60)} s von 60 s`;
+          if (!reduced && Math.random() < .45) { strahl.classList.add("an"); clearTimeout(bt); bt = setTimeout(() => strahl.classList.remove("an"), 60); }
+          if (el < DAUER) requestAnimationFrame(f); else fertigP();
+        })(t0);
+      });
+      zahl.textContent = de(N); zeit.textContent = "60 s vorbei – Messung fertig";
+      $("#akR1t", svg).textContent = `${de(N)} pro Minute`; zeigeR(1); await warte(450);
+      zeigeR(2); await warte(450);
+      $("#akR3t", svg).textContent = `${de(bq)} pro Sekunde`; zeigeR(3); await warte(450);
+      $("#akR4t", svg).textContent = `${de(bq)} Bq`; zeigeR(4);
+      const td = $(`tr[data-p="${P.k}"]`, tb).children;
+      [de(N), `${de(N)} : 60 = ${de(bq)}`, `${de(bq)} Bq`].forEach((t, i) => { const c = td[i + 1]; c.textContent = t; c.classList.remove("neu"); void c.offsetWidth; c.classList.add("neu"); });
+      fertig.add(P.k);
+      obs.textContent = P.txt + (fertig.size < 4 ? ` (${fertig.size} von 4 Proben)` : "");
+      if (fertig.size === 4) { solve("akLabor"); obs.textContent += " ✅ Tabelle voll! Je größer die Aktivität, desto mehr Kerne zerfallen in jeder Sekunde – desto stärker strahlt der Stoff."; }
+    } finally { laeuft = false; knoepfe.forEach(b => b.disabled = false); }
+  }
+  knoepfe.forEach(b => b.addEventListener("click", () => messen(b.id)));
+  // Selbst rechnen: beliebige Zählrate in Becquerel
+  const eingabe = $("#akEigen"), erg = $("#akEigenErg");
+  function eigen(){
+    const v = parseFloat(String(eingabe.value).replace(",", "."));
+    if (!(v >= 0)) { erg.textContent = "Gib eine Zahl ein."; return; }
+    const bq = v / 60, d = Number.isInteger(Math.round(bq * 100) / 100) ? 0 : 2;
+    erg.textContent = `${de(v)} : 60 = ${de(bq, d)} Bq`;
+  }
+  eingabe.addEventListener("input", eigen); eigen();
+})();
+
+/* ---------- Station 1: Übungen ---------- */
+Modul.makeGap($("#gapAkt"), [
+  ["Die ", {g: "Aktivität"}, " gibt an, wie viele Atomkerne eines Stoffes in einer Sekunde zerfallen."],
+  ["Ihre Einheit heißt ", {g: "Becquerel"}, ", abgekürzt Bq. 1 Bq bedeutet: 1 Kernzerfall pro ", {g: "Sekunde"}, "."],
+  ["Der Zähler zählt die Impulse in einer Minute. Für die Aktivität teilt man diese Zahl durch ", {g: "60"}, "."]
+], "gapAkt", ["Minute", "100"]);
+Modul.makePaare($("#paareBq"), [
+  ["600 Impulse pro Minute", "10 Bq"],
+  ["1 200 Impulse pro Minute", "20 Bq"],
+  ["3 000 Impulse pro Minute", "50 Bq"],
+  ["60 Impulse pro Minute", "1 Bq"],
+  ["6 000 Impulse pro Minute", "100 Bq"],
+  ["300 Impulse pro Minute", "5 Bq"]
+], "paareBq");
+
+/* ---------- Station 2: C-14-Kreislauf in Schritten ---------- */
+(function(){
+  const svg = $("#kxSvg");
+  const FN = "#2a7de1", FO = "#e05252", FC = "#8a97a2", F14 = "#f2a33a", FP = "#e05252", FNeu = "#4a6fa5";
+  const atom = (x, y, r, f, ch) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${f}" stroke="#fff" stroke-width="1.2"/><text x="${x}" y="${(y + r * .42).toFixed(1)}" text-anchor="middle" font-size="${(r * 1.2).toFixed(1)}" font-weight="800" fill="#fff">${ch}</text>`;
+  const n2 = (x, y) => atom(x - 5.5, y, 6, FN, "N") + atom(x + 5.5, y, 6, FN, "N");
+  const co2 = (x, y) => atom(x - 12, y, 6.5, FO, "O") + atom(x + 12, y, 6.5, FO, "O") + atom(x, y, 7, FC, "C");
+  // Zickzack-Linie für die kosmische Strahlung
+  const zick = (x1, y1, x2, y2) => {
+    const n = 6, dx = (x2 - x1) / n, dy = (y2 - y1) / n, l = Math.hypot(dx, dy), nx = -dy / l * 5, ny = dx / l * 5;
+    let d = `M${x1} ${y1}`;
+    for (let i = 1; i < n; i++) d += ` L${(x1 + dx * i + (i % 2 ? nx : -nx)).toFixed(1)} ${(y1 + dy * i + (i % 2 ? ny : -ny)).toFixed(1)}`;
+    return d + ` L${x2} ${y2}`;
+  };
+  // Atomkern aus 14 Kugeln (Protonen rot, Neutronen blau)
+  const kern = (cx, cy, protonen) => { let s = ""; for (let k = 0; k < 14; k++) { const d = 14 * Math.sqrt((k + .5) / 14), a = k * 2.3999;
+    s += `<circle cx="${(cx + d * Math.cos(a)).toFixed(1)}" cy="${(cy + d * Math.sin(a)).toFixed(1)}" r="5.2" fill="${protonen.includes(k) ? FP : FNeu}" stroke="#fff" stroke-width="1"/>`; } return s; };
+  const plakette = (id, x, y, w, t, farbe) => `<g id="${id}" class="stage"><rect x="${x - w / 2}" y="${y - 9}" width="${w}" height="18" rx="9" fill="#fff" stroke="${farbe}" stroke-width="1.5"/><text x="${x}" y="${y + 4}" text-anchor="middle" font-size="10.5" font-weight="800" fill="${farbe}">${t}</text></g>`;
+  const sterne = [[30, 12], [96, 28], [170, 10], [214, 30], [300, 14], [356, 30], [430, 9], [488, 26], [470, 34], [60, 33]];
+  svg.innerHTML = `<defs><linearGradient id="kxLuft" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfe6f7"/><stop offset="1" stop-color="#f1f8fd"/></linearGradient>
+      <marker id="kxPf" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#566674"/></marker>
+      <marker id="kxPfG" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="8" refY="5.5" orient="auto"><path d="M0 0 L11 5.5 L0 11 Z" fill="#c98a10"/></marker></defs>
+    <rect width="520" height="300" fill="#f7fbfe"/>
+    <rect x="0" y="40" width="520" height="192" fill="url(#kxLuft)"/>
+    <rect x="0" y="0" width="520" height="40" fill="#1d2b4a"/>
+    <g fill="#fff" opacity=".7">${sterne.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.3"/>`).join("")}</g>
+    <text id="kxTitel" x="260" y="25" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">Der Weg des C-14</text>
+    <text x="16" y="100" transform="rotate(-90 16 100)" text-anchor="middle" font-size="11" font-weight="700" fill="#3c6e91">Lufthülle</text>
+    <rect x="0" y="232" width="520" height="14" fill="#7cb342"/>
+    <rect x="0" y="246" width="520" height="54" fill="#c9a77c"/>
+    <g fill="#b08c60"><ellipse cx="60" cy="270" rx="6" ry="3"/><ellipse cx="150" cy="286" rx="5" ry="2.5"/><ellipse cx="330" cy="268" rx="6" ry="3"/><ellipse cx="380" cy="290" rx="4" ry="2"/><ellipse cx="480" cy="276" rx="6" ry="3"/></g>
+    <!-- kosmische Strahlung -->
+    <g id="kxKosmos" fill="none" stroke="#f2b632" stroke-width="2.5" stroke-linejoin="round">
+      <path d="${zick(66, 36, 80, 74)}" marker-end="url(#kxPfG)"/>
+      <path d="${zick(128, 36, 145, 82)}" marker-end="url(#kxPfG)"/></g>
+    <text x="172" y="58" font-size="12" font-weight="800" fill="#a06a00">kosmische Strahlung</text>
+    <!-- Luft: Stickstoff und gewöhnliches CO₂ -->
+    ${n2(38, 92)}${n2(100, 64)}${n2(292, 98)}${n2(232, 150)}
+    ${co2(262, 122)}
+    <!-- Baum, Kuh, Mensch -->
+    <g id="kxBaum"><rect x="80" y="196" width="16" height="38" rx="2" fill="#7a5230"/>
+      <circle cx="66" cy="194" r="20" fill="#4f9a3e"/><circle cx="112" cy="194" r="20" fill="#4f9a3e"/><circle cx="88" cy="178" r="30" fill="#5cae48"/></g>
+    <g id="kxKuh" class="mv">
+      <g stroke="#3c474f" stroke-width="3" stroke-linecap="round"><line x1="208" y1="219" x2="208" y2="232"/><line x1="218" y1="221" x2="218" y2="232"/><line x1="240" y1="221" x2="240" y2="232"/><line x1="250" y1="219" x2="250" y2="232"/></g>
+      <path d="M200 206 q-8 6 -6 16" fill="none" stroke="#3c474f" stroke-width="2"/>
+      <ellipse cx="229" cy="209" rx="29" ry="14" fill="#fff" stroke="#3c474f" stroke-width="2"/>
+      <path d="M212 200 q9 -4 13 4 q-2 8 -13 6 z" fill="#3c474f"/><path d="M238 212 q10 -6 14 2 q-4 8 -14 4 z" fill="#3c474f"/>
+      <path d="M258 195 l-3 -6 M268 194 l2 -6" stroke="#b8956a" stroke-width="2.5" stroke-linecap="round"/>
+      <ellipse cx="264" cy="202" rx="10" ry="8" fill="#fff" stroke="#3c474f" stroke-width="2"/>
+      <ellipse cx="270" cy="206" rx="5" ry="4" fill="#f0b7b0"/><circle cx="263" cy="199" r="1.4" fill="#15212b"/>
+      <circle id="kxKuhC" class="stage" cx="229" cy="212" r="4.5" fill="${F14}" stroke="#fff" stroke-width="1.2"/></g>
+    <g id="kxMensch">
+      <circle cx="314" cy="171" r="9" fill="#f0c8a0" stroke="#8a5a2b" stroke-width="1.5"/>
+      <g stroke="#f0c8a0" stroke-width="4" stroke-linecap="round"><line x1="306" y1="186" x2="298" y2="204"/><line x1="322" y1="186" x2="330" y2="204"/></g>
+      <rect x="305" y="182" width="18" height="28" rx="6" fill="#2a7de1"/>
+      <g stroke="#3c474f" stroke-width="4" stroke-linecap="round"><line x1="309" y1="210" x2="307" y2="231"/><line x1="319" y1="210" x2="321" y2="231"/></g>
+      <circle id="kxMenschC" class="stage" cx="314" cy="195" r="4.5" fill="${F14}" stroke="#fff" stroke-width="1.2"/></g>
+    <!-- Nahrungswege -->
+    <g id="kxNahrung" class="stage" font-size="11" font-weight="700" fill="#566674">
+      <path d="M134 208 Q162 190 192 204" fill="none" stroke="#566674" stroke-width="2" marker-end="url(#kxPf)"/><text x="162" y="188" text-anchor="middle">frisst</text>
+      <path d="M278 196 Q290 184 300 192" fill="none" stroke="#566674" stroke-width="2" marker-end="url(#kxPf)"/><text x="288" y="178" text-anchor="middle">isst</text></g>
+    <!-- Fotosynthese -->
+    <g id="kxFoto" class="stage"><path d="M140 104 Q120 132 104 160" fill="none" stroke="#2e7d32" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#kxPf)"/>
+      <text x="128" y="134" font-size="11.5" font-weight="800" fill="#2e7d32">Fotosynthese</text></g>
+    <!-- das besondere Atom: N → C-14 → CO₂ → Baum -->
+    <g id="kxBlitz" class="stage"><polygon points="150,74 155,85 167,85 158,93 162,105 150,98 138,105 142,93 133,85 145,85" fill="#fff3a0" stroke="#f2b632" stroke-width="1.5"/></g>
+    <g id="kxMol" class="mv">
+      <g id="kxO" class="stage">${atom(137, 92, 6.5, FO, "O")}${atom(163, 92, 6.5, FO, "O")}</g>
+      <circle id="kxAtomK" class="farb" cx="150" cy="92" r="7.5" fill="${FN}" stroke="#fff" stroke-width="1.2"/>
+      <text id="kxAtomT" x="150" y="95.5" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">N</text>
+      <text id="kxLbl" class="stage" x="174" y="97" font-size="12" font-weight="800" fill="#b8720a">C-14</text></g>
+    <!-- Lupe: im Atomkern -->
+    <g id="kxKern" class="stage">
+      <rect x="324" y="44" width="186" height="92" rx="10" fill="#fff" stroke="#d8e2ea" stroke-width="1.5"/>
+      ${kern(362, 84, [0, 2, 4, 6, 8, 10, 12])}
+      <circle cx="336" cy="60" r="5" fill="${FNeu}" stroke="#fff" stroke-width="1"/><path d="M340 64 L349 72" stroke="${FNeu}" stroke-width="1.5" stroke-dasharray="3 2"/>
+      <text x="343" y="55" font-size="9.5" font-weight="700" fill="${FNeu}">Neutron</text>
+      <path d="M386 84 H424" stroke="#15212b" stroke-width="2" marker-end="url(#kxPf)"/>
+      ${kern(450, 84, [0, 3, 5, 8, 10, 12])}
+      <circle cx="490" cy="60" r="5" fill="${FP}" stroke="#fff" stroke-width="1"/><path d="M466 75 L485 64" stroke="${FP}" stroke-width="1.5" stroke-dasharray="3 2"/>
+      <text x="476" y="55" font-size="9.5" font-weight="700" fill="${FP}">Proton</text>
+      <g text-anchor="middle"><text x="362" y="116" font-size="11" font-weight="800" fill="#1f5fae">Stickstoff-14</text><text x="362" y="129" font-size="10" font-weight="700" fill="#566674">7 p + 7 n</text>
+      <text x="450" y="116" font-size="11" font-weight="800" fill="#b8720a">Kohlenstoff-14</text><text x="450" y="129" font-size="10" font-weight="700" fill="#566674">6 p + 8 n</text></g></g>
+    <!-- Plaketten: Anteil wie in der Luft -->
+    ${plakette("kxPB", 70, 135, 68, "100 % C-14", "#1b8a4b")}${plakette("kxPK", 229, 178, 68, "100 % C-14", "#1b8a4b")}${plakette("kxPM", 314, 150, 68, "100 % C-14", "#1b8a4b")}
+    ${plakette("kxPT", 229, 178, 96, "keine Aufnahme", "#c0392b")}
+    <!-- Knochen im Boden -->
+    <g id="kxKnochen" class="stage">
+      <g fill="#f4ecd8" stroke="#a89a78" stroke-width="1.5"><circle cx="204" cy="266" r="6"/><circle cx="204" cy="276" r="6"/><circle cx="252" cy="266" r="6"/><circle cx="252" cy="276" r="6"/></g>
+      <rect x="203" y="265" width="50" height="12" rx="5" fill="#f4ecd8"/>
+      ${[216, 224, 232, 240].map((x, i) => `<circle class="farb kxKD" cx="${x}" cy="271" r="2.8" fill="${F14}"/>`).join("")}
+      <text x="228" y="295" text-anchor="middle" font-size="10.5" font-weight="700" fill="#5b4a2e">Knochen im Boden</text></g>
+    <path id="kxVerb" class="stage" d="M390 220 L262 266" fill="none" stroke="#33414d" stroke-width="1.5" stroke-dasharray="4 4"/>
+    <g id="kxUhr" class="stage">
+      <rect x="388" y="150" width="120" height="74" rx="10" fill="#33414d"/>
+      <text id="kxUhrT" x="448" y="168" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">C-14 in der Kuh</text>
+      <text id="kxProz" x="448" y="197" text-anchor="middle" font-size="24" font-weight="800" fill="#7df29b" font-family="Consolas, 'Courier New', monospace">100 %</text>
+      <text id="kxSub" x="448" y="216" text-anchor="middle" font-size="10.5" font-weight="700" fill="#cfd8df">Kuh lebt noch</text></g>`;
+  const TITEL = ["Kosmische Strahlung trifft auf die Lufthülle", "Aus Stickstoff-14 wird Kohlenstoff-14", "C-14 wird Teil von Kohlenstoffdioxid (CO₂)", "Pflanzen nehmen CO₂ auf",
+    "Über die Nahrung in Tiere und Menschen", "Lebewesen: Der C-14-Anteil bleibt gleich", "Nach dem Tod: C-14 zerfällt, nichts kommt nach"];
+  const on = (sel, an) => $(sel, svg).classList.toggle("on", !!an);
+  let zaehlNr = 0;
+  function zaehlen(){
+    const nr = ++zaehlNr, t0 = performance.now(), dauer = reduced ? 0 : 2600, kd = $$(".kxKD", svg);
+    (function f(now){
+      if (nr !== zaehlNr) return;
+      const k = dauer ? clamp((now - t0) / dauer, 0, 1) : 1, t = HWZ * k;
+      $("#kxProz", svg).textContent = Math.round(rest(t)) + " %";
+      $("#kxSub", svg).textContent = k < 1 ? `nach ${de(Math.round(t / 10) * 10)} Jahren` : "nach 5 730 Jahren";
+      kd.forEach((c, i) => c.setAttribute("fill", k >= 1 && i % 2 ? FN : F14));
+      if (k < 1) requestAnimationFrame(f);
+    })(t0);
+  }
+  Modul.makeSchritte($("#kxSim"), {
+    start: "So kommt C-14 in Lebewesen – und so verschwindet es wieder. Tippe auf „Start“.",
+    steps: [
+      "Aus dem Weltall trifft ständig <strong>kosmische Strahlung</strong> (Höhenstrahlung) auf die Lufthülle der Erde. Die Luft besteht vor allem aus <strong>Stickstoff</strong>.",
+      "Hoch oben trifft ein Teilchen der Strahlung – ein <strong>Neutron</strong> – einen Stickstoff-Kern. Ein Proton fliegt heraus. Aus <strong>Stickstoff-14</strong> (7 Protonen, 7 Neutronen) wird <strong>Kohlenstoff-14</strong> (6 Protonen, 8 Neutronen).",
+      "Das C-14 verbindet sich mit Sauerstoff zu <strong>Kohlenstoffdioxid (CO₂)</strong> – genau wie gewöhnlicher Kohlenstoff. Der Wind verteilt es in der ganzen Luft.",
+      "Pflanzen nehmen CO₂ aus der Luft auf (<strong>Fotosynthese</strong>). So gelangt C-14 in Blätter und Holz.",
+      "Die Kuh frisst Pflanzen, der Mensch isst Pflanzen und Fleisch. So gelangt C-14 über die <strong>Nahrung</strong> in jeden Körper – auch in die Knochen.",
+      "Solange ein Lebewesen lebt, nimmt es ständig neuen Kohlenstoff auf. Zerfallenes C-14 wird so immer ersetzt: Der <strong>C-14-Anteil bleibt gleich</strong> – genauso groß wie in der Luft.",
+      "Die Kuh stirbt. Sie nimmt <strong>kein C-14 mehr auf</strong>. Das C-14 in ihren Knochen zerfällt weiter zu Stickstoff-14 – und nichts kommt nach. Nach <strong>5 730 Jahren</strong> ist nur noch die Hälfte da."
+    ],
+    ms: 3600,
+    zeige(i){
+      $("#kxTitel", svg).textContent = i < 0 ? "Der Weg des C-14" : TITEL[i];
+      on("#kxBlitz", i === 0 || i === 1);
+      $("#kxAtomK", svg).setAttribute("fill", i >= 1 ? F14 : FN); $("#kxAtomT", svg).textContent = i >= 1 ? "C" : "N";
+      on("#kxKern", i >= 1);
+      on("#kxO", i >= 2);
+      $("#kxLbl", svg).textContent = i === 2 ? "CO₂ mit C-14" : "C-14"; on("#kxLbl", i === 1 || i === 2);
+      $("#kxMol", svg).style.transform = i >= 3 ? "translate(-54px,82px)" : "";
+      on("#kxFoto", i >= 3);
+      on("#kxNahrung", i >= 4); on("#kxKuhC", i >= 4); on("#kxMenschC", i >= 4);
+      on("#kxPB", i >= 5); on("#kxPM", i >= 5); on("#kxPK", i === 5); on("#kxPT", i >= 6);
+      on("#kxUhr", i >= 5); on("#kxKnochen", i >= 6); on("#kxVerb", i >= 6);
+      $("#kxKuh", svg).style.opacity = i >= 6 ? .3 : 1;
+      $("#kxUhrT", svg).textContent = i >= 6 ? "C-14 im Knochen" : "C-14 in der Kuh";
+      if (i >= 6) zaehlen();
+      else { zaehlNr++; $("#kxProz", svg).textContent = "100 %"; $("#kxSub", svg).textContent = "Kuh lebt noch"; $$(".kxKD", svg).forEach(c => c.setAttribute("fill", F14)); }
+    }
+  }, "kxSchritte");
+})();
+
+/* ---------- Station 2: Übungen ---------- */
+Modul.makeOrder($("#orderWeg"), [
+  "Kosmische Strahlung trifft hoch oben auf die Lufthülle.",
+  "Aus Stickstoff-14 entsteht Kohlenstoff-14.",
+  "C-14 verbindet sich mit Sauerstoff zu CO₂.",
+  "Eine Pflanze nimmt das CO₂ bei der Fotosynthese auf.",
+  "Ein Reh frisst die Pflanze – das C-14 kommt in seine Knochen.",
+  "Das Reh stirbt. Das C-14 in den Knochen zerfällt, neues kommt nicht nach."
+], "orderWeg");
+Modul.makeTF($("#tfC14"), [
+  ["C-14 ist ein radioaktives Isotop des Kohlenstoffs.", true],
+  ["C-14 entsteht in der Atmosphäre aus Stickstoff.", true],
+  ["Pflanzen nehmen C-14 über ihre Wurzeln aus dem Gestein auf.", false],
+  ["In einem lebenden Tier ist der C-14-Anteil genauso groß wie in der Luft.", true],
+  ["Nach dem Tod eines Lebewesens zerfällt das C-14 nicht mehr.", false],
+  ["In der Natur gibt es drei Isotope des Kohlenstoffs: C-12, C-13 und C-14.", true]
+], "tfC14");
+Modul.makeOpen($("#open2"), [
+  {q: "Erkläre, warum ein lebender Baum immer gleich viel C-14 enthält, ein gefällter Baumstamm aber mit der Zeit immer weniger.",
+   m: "Solange der Baum lebt, nimmt er bei der Fotosynthese ständig CO₂ aus der Luft auf – auch CO₂ mit C-14. Das C-14, das in ihm zerfällt, wird so immer wieder ersetzt. Deshalb bleibt der Anteil gleich wie in der Luft. Nach dem Fällen nimmt das Holz kein CO₂ mehr auf. Das C-14 zerfällt weiter, aber es kommt keines mehr nach. Deshalb wird es immer weniger – nach 5 730 Jahren ist nur noch die Hälfte da.",
+   k: ["co2|kohlenstoffdioxid|kohlendioxid|luft", "aufnehm|nimmt|aufnahme|fotosynthese|photosynthese", "ersetzt|nachgeliefert|nachschub|ständig|immer wieder|neu", "zerfällt|zerfall|zerfallen", "kein|nicht mehr|nichts mehr|keine"], min: 4}
+], "open2-", "Schau dir die Schritte 5 und 6 der Animation noch einmal an: Was passiert mit dem C-14, solange der Baum lebt – und danach?");
+
+/* ---------- Station 3: Die Zerfallskurve entsteht (64 Kerne im Modell) ---------- */
+(function(){
+  const svg = $("#zkSvg");
+  const X = t => 230 + t * 270 / 40000, Y = p => 236 - p * 1.8;
+  const reihe = Modul.shuffle([...Array(64).keys()]), rang = [];
+  reihe.forEach((k, r) => rang[k] = r);   // welcher Kern zuerst zerfällt, ist Zufall
+  const REST = [64, 32, 16, 8, 4, 2, 1], PROZ = ["100 %", "50 %", "25 %", "12,5 %", "6,25 %", "3,1 %", "1,6 %"];
+  const kurve = tEnde => { let d = ""; for (let t = 0; t <= tEnde + 1; t += 250) d += (d ? " L" : "M") + X(Math.min(t, tEnde)).toFixed(1) + " " + Y(rest(Math.min(t, tEnde))).toFixed(1); return d; };
+  let s = `<rect width="520" height="290" fill="#f7fbfe"/>
+    <text id="zkTitel" x="260" y="24" text-anchor="middle" font-size="14" font-weight="800" fill="#7a4b05"></text>
+    <text x="88" y="46" text-anchor="middle" font-size="11.5" font-weight="700" fill="#566674">Modell: 64 C-14-Kerne</text>
+    <rect x="14" y="52" width="148" height="148" rx="10" fill="#fff" stroke="#d8e2ea" stroke-width="1.5"/>`;
+  for (let k = 0; k < 64; k++) s += `<circle class="zkA" id="zkA${k}" cx="${28.5 + (k % 8) * 17}" cy="${66.5 + Math.floor(k / 8) * 17}" r="6.5" stroke-width="1.5"/>`;
+  s += `<text id="zkRest" x="88" y="218" text-anchor="middle" font-size="12.5" font-weight="800" fill="#15212b"></text>
+    <circle cx="24" cy="238" r="5.5" fill="#f2a33a" stroke="#b8720a" stroke-width="1.5"/><text x="34" y="242" font-size="11" font-weight="700" fill="#15212b">C-14 (radioaktiv)</text>
+    <circle cx="24" cy="258" r="5.5" fill="#bcd3ea" stroke="#7d9cc0" stroke-width="1.5"/><text x="34" y="262" font-size="11" font-weight="700" fill="#15212b">zu Stickstoff-14 zerfallen</text>
+    <g stroke="#e3eaf0" stroke-width="1">${[100, 50, 25, 12.5].map(p => `<line x1="230" y1="${Y(p)}" x2="500" y2="${Y(p)}"/>`).join("")}</g>
+    <g font-size="10.5" font-weight="700" fill="#566674" text-anchor="end">${[[100, "100 %"], [50, "50 %"], [25, "25 %"], [12.5, "12,5 %"], [0, "0 %"]].map(([p, t]) => `<text x="224" y="${Y(p) + 4}">${t}</text>`).join("")}</g>
+    <path d="M230 50 V236 H504" fill="none" stroke="#566674" stroke-width="2"/>
+    <g stroke="#566674" stroke-width="1.5">${[0, 1, 2, 3, 4, 5, 6].map(k => `<line x1="${X(k * HWZ).toFixed(1)}" y1="236" x2="${X(k * HWZ).toFixed(1)}" y2="241"/>`).join("")}</g>
+    <g font-size="10" font-weight="700" fill="#566674" text-anchor="middle">${[0, 1, 2, 3, 4, 5, 6].map(k => `<text x="${X(k * HWZ).toFixed(1)}" y="252">${k ? de(k * HWZ) : "0"}</text>`).join("")}</g>
+    <text x="365" y="274" text-anchor="middle" font-size="11.5" font-weight="700" fill="#15212b">Jahre nach dem Tod</text>
+    <text x="236" y="44" font-size="11.5" font-weight="700" fill="#15212b">C-14 übrig</text>
+    <path id="zkKurve" d="" fill="none" stroke="#b8720a" stroke-width="3" stroke-linecap="round"/>
+    <g id="zkPunkte">${[0, 1, 2, 3, 4, 5, 6].map(k => `<circle class="stage" cx="${X(k * HWZ).toFixed(1)}" cy="${Y(100 / 2 ** k).toFixed(1)}" r="4.5" fill="#b8720a"/>`).join("")}</g>
+    <g id="zkHilfe" class="stage"><path id="zkGuide" d="" fill="none" stroke="#7a4b05" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <circle id="zkM" cx="0" cy="0" r="7" fill="#f2b632" stroke="#7a4b05" stroke-width="2.5"/>
+      <text id="zkML" x="0" y="0" font-size="12.5" font-weight="800" fill="#7a4b05"></text></g>
+    <g id="zkNote" class="stage" text-anchor="middle" font-size="12.5" font-weight="800" fill="#7a4b05"><text x="395" y="112">erst steil, dann flach –</text><text x="395" y="129">nie ganz auf null</text></g>`;
+  svg.innerHTML = s;
+  const atome = [...Array(64).keys()].map(k => $("#zkA" + k, svg)), punkte = $$("#zkPunkte circle", svg);
+  const TITEL = ["Das Lebewesen stirbt: 100 % C-14", "Nach 1 Halbwertszeit (5 730 Jahre): 50 %", "Nach 2 Halbwertszeiten (11 460 Jahre): 25 %", "Nach 3 Halbwertszeiten (17 190 Jahre): 12,5 %",
+    "Nach 4 Halbwertszeiten (22 920 Jahre): 6,25 %", "Nach 5 Halbwertszeiten (28 650 Jahre): etwa 3 %", "Nach 6 Halbwertszeiten (34 380 Jahre): etwa 1,6 %", "Die Zerfallskurve von C-14"];
+  function bild(i){
+    const j = i < 0 ? 0 : Math.min(i, 6);
+    atome.forEach((c, k) => { const da = rang[k] < REST[j]; c.setAttribute("fill", da ? "#f2a33a" : "#bcd3ea"); c.setAttribute("stroke", da ? "#b8720a" : "#7d9cc0"); });
+    $("#zkRest", svg).textContent = `C-14: ${REST[j]} von 64 (${PROZ[j]})`;
+    $("#zkTitel", svg).textContent = i < 0 ? "So entsteht die Zerfallskurve von C-14" : TITEL[i];
+    $("#zkKurve", svg).setAttribute("d", i < 1 ? "" : kurve(i >= 7 ? 40000 : j * HWZ));
+    punkte.forEach((p, k) => p.classList.toggle("on", i >= 0 && k <= j));
+    const x = X(j * HWZ), y = Y(100 / 2 ** j);
+    $("#zkGuide", svg).setAttribute("d", `M230 ${y.toFixed(1)} H${x.toFixed(1)} V236`);
+    $("#zkM", svg).setAttribute("cx", x.toFixed(1)); $("#zkM", svg).setAttribute("cy", y.toFixed(1));
+    const ml = $("#zkML", svg); ml.textContent = PROZ[j];
+    ml.setAttribute("x", (j ? x + 9 : x + 12).toFixed(1)); ml.setAttribute("y", (j ? y - 9 : y + 8).toFixed(1));
+    $("#zkHilfe", svg).classList.toggle("on", i >= 0 && i < 7);
+    $("#zkNote", svg).classList.toggle("on", i >= 7);
+  }
+  Modul.makeSchritte($("#zkSim"), {
+    start: "So entsteht die Zerfallskurve von C-14. Tippe auf „Start“.",
+    steps: [
+      "Ein Baum stirbt. In unserem Modell stecken in einem Stück Holz <strong>64 C-14-Kerne</strong> – das sind 100 %. (Ein echtes Holzstück enthält viele Milliarden.)",
+      "<strong>5 730 Jahre</strong> später ist die Hälfte der C-14-Kerne zerfallen – zu Stickstoff-14. Noch <strong>32 Kerne = 50 %</strong>. Diese Zeit ist die <strong>Halbwertszeit</strong> von C-14.",
+      "Weitere 5 730 Jahre: Wieder zerfällt die Hälfte – aber nur die Hälfte vom <strong>Rest</strong>. Noch <strong>16 Kerne = 25 %</strong>, ein Viertel. Es ist also noch lange nicht alles weg!",
+      "Nach 3 Halbwertszeiten (17 190 Jahre): noch <strong>8 Kerne = 12,5 %</strong>, ein Achtel.",
+      "Nach 4 Halbwertszeiten (22 920 Jahre): noch <strong>4 Kerne, etwa 6 %</strong>.",
+      "Nach 5 Halbwertszeiten (28 650 Jahre): noch <strong>2 Kerne, etwa 3 %</strong>.",
+      "Nach 6 Halbwertszeiten (34 380 Jahre): noch <strong>1 Kern, etwa 1,6 %</strong>. Welcher Kern gerade zerfällt, ist Zufall – wie viele zerfallen, folgt aber der Regel.",
+      "Verbinde die Punkte: Das ist die <strong>Zerfallskurve</strong>. Sie fällt erst steil, dann immer flacher und erreicht nie ganz null. Sie ist <strong>keine gerade Linie</strong>."
+    ],
+    ms: 3000,
+    zeige: bild
+  }, "zkSchritte");
+})();
+
+/* ---------- Station 3: Übungen ---------- */
+Modul.makeGap($("#gapKurve"), [
+  ["Ein Holzstück enthält beim Fällen 80 000 C-14-Kerne. Nach 5 730 Jahren sind davon noch ", {g: "40 000"}, " übrig."],
+  ["Nach 11 460 Jahren sind es noch ", {g: "20 000"}, " – ein ", {g: "Viertel"}, "."],
+  ["Nach 17 190 Jahren sind es noch ", {g: "10 000"}, " – ein ", {g: "Achtel"}, "."],
+  ["Die Zeit, in der jeweils die Hälfte zerfällt, heißt ", {g: "Halbwertszeit"}, "."]
+], "gapKurve", ["0", "Drittel"]);
+// kleine Zerfallskurve zum Ablesen (ohne Hilfslinien)
+(function(){
+  const X = t => 56 + t * 290 / 40000, Y = p => 150 - p * 1.3;
+  let d = ""; for (let t = 0; t <= 40000; t += 250) d += (d ? " L" : "M") + X(t).toFixed(1) + " " + Y(rest(t)).toFixed(1);
+  $("#miniKurve").innerHTML = `<svg class="ra4-mini" viewBox="0 0 360 186" role="img" aria-label="Zerfallskurve von C-14 zum Ablesen: Gitterlinien bei 100, 50, 25 und 12,5 Prozent, Marken bei 5 730, 11 460, 17 190, 22 920, 28 650 und 34 380 Jahren.">
+    <rect width="360" height="186" fill="#f7fbfe"/>
+    <g stroke="#dfe7ee" stroke-width="1">${[100, 50, 25, 12.5].map(p => `<line x1="56" y1="${Y(p)}" x2="350" y2="${Y(p)}"/>`).join("")}${[1, 2, 3, 4, 5, 6].map(k => `<line x1="${X(k * HWZ).toFixed(1)}" y1="20" x2="${X(k * HWZ).toFixed(1)}" y2="150"/>`).join("")}</g>
+    <path d="M56 14 V150 H354" fill="none" stroke="#566674" stroke-width="2"/>
+    <path d="${d}" fill="none" stroke="#b8720a" stroke-width="3"/>
+    <g font-size="10" font-weight="700" fill="#566674" text-anchor="end">${[[100, "100 %"], [50, "50 %"], [25, "25 %"], [12.5, "12,5 %"]].map(([p, t]) => `<text x="51" y="${Y(p) + 4}">${t}</text>`).join("")}</g>
+    <g font-size="9.5" font-weight="700" fill="#566674" text-anchor="middle">${[0, 1, 2, 3, 4, 5, 6].map(k => `<text x="${X(k * HWZ).toFixed(1)}" y="163">${k ? de(k * HWZ) : "0"}</text>`).join("")}</g>
+    <text x="200" y="181" text-anchor="middle" font-size="10.5" font-weight="700" fill="#15212b">Jahre nach dem Tod</text>
+    <text x="62" y="12" font-size="10.5" font-weight="700" fill="#15212b">C-14 übrig</text></svg>`;
+})();
+
+/* ---------- Station 4: Altersrechner ---------- */
+(function(){
+  const svg = $("#arSvg"), obs = $("#arObs"), tb = $("#arTab tbody");
+  const X = t => 70 + t * 7 / 1000, Y = p => 250 - p * 2, TMAX = 60000, GRENZE = 50000;
+  const FUNDE = {
+    tOetzi: {k: "oetzi", name: "Ötzi", p: 52.7,
+      txt: "Ötzi: Wanderer fanden die Gletschermumie 1991 in den Ötztaler Alpen. Sein Körper enthält noch etwa 52,7 % des C-14 eines lebenden Menschen – etwas mehr als die Hälfte. Also ist knapp eine Halbwertszeit vergangen: Ötzi lebte vor etwa 5 300 Jahren."},
+    tBoot: {k: "boot", name: "Einbaum (Boot)", p: 75,
+      txt: "Einbaum – ein Boot aus einem einzigen Baumstamm, gefunden in einem Moor: noch 75 % C-14. Gemessen wird, wann der Baum starb, also gefällt wurde: vor etwa 2 400 Jahren."},
+    tMammut: {k: "mammut", name: "Mammut-Knochen", p: 12.5,
+      txt: "Mammut-Knochen aus einer Kiesgrube: noch 12,5 % – ein Achtel. Das sind genau 3 Halbwertszeiten: etwa 17 200 Jahre. Damals war in Mitteleuropa Eiszeit."},
+    tKohle: {k: "kohle", name: "Holzkohle", p: 3,
+      txt: "Holzkohle aus einer Feuerstelle in einer Höhle: nur noch 3 %. Das Feuer brannte vor etwa 29 000 Jahren. Hier ist die Kurve schon sehr flach: Ein kleiner Messfehler verschiebt das Alter um Tausende Jahre."},
+    tDino: {k: "dino", name: "Dinosaurier-Knochen", p: 0,
+      txt: "Dinosaurier-Knochen: Hier ist kein C-14 mehr messbar. Dinosaurier lebten vor mehr als 66 Millionen Jahren. Nach etwa 50 000 Jahren ist so wenig C-14 übrig, dass man es nicht mehr messen kann – für so alte Funde braucht man andere Methoden."}
+  };
+  const ICON = {
+    oetzi: `<rect x="226" y="94" width="38" height="12" rx="3" fill="#cfe8f7" stroke="#7fb3d5" stroke-width="1.5"/><ellipse cx="247" cy="91" rx="14" ry="4.5" fill="#8a6440"/><circle cx="231" cy="89" r="4.5" fill="#8a6440"/>`,
+    boot: `<path d="M224 104 H266" stroke="#7fb3d5" stroke-width="2.5"/><path d="M226 88 Q245 106 264 88 Z" fill="#8a5a2b" stroke="#5a3a1a" stroke-width="1.5"/>`,
+    mammut: `<g fill="#f4ecd8" stroke="#a89a78" stroke-width="1.5"><circle cx="228" cy="86" r="5"/><circle cx="228" cy="95" r="5"/><circle cx="262" cy="86" r="5"/><circle cx="262" cy="95" r="5"/></g><rect x="227" y="85" width="36" height="11" rx="4" fill="#f4ecd8"/>`,
+    kohle: `<path d="M240 78 Q250 86 244 94 Q256 90 252 78 Q262 88 254 100 H236 Q228 90 240 78 Z" fill="#f2a33a"/><g fill="#2b2b2b"><ellipse cx="236" cy="102" rx="8" ry="5"/><ellipse cx="252" cy="103" rx="9" ry="5"/></g>`,
+    dino: `<g fill="#b9b2a0" stroke="#7a7466" stroke-width="1.5"><circle cx="228" cy="86" r="5"/><circle cx="228" cy="95" r="5"/><circle cx="262" cy="86" r="5"/><circle cx="262" cy="95" r="5"/></g><rect x="227" y="85" width="36" height="11" rx="4" fill="#b9b2a0"/><path d="M232 90 H258" stroke="#7a7466" stroke-width="1" stroke-dasharray="3 2"/>`,
+    eigen: `<circle cx="245" cy="91" r="15" fill="#fff3c4" stroke="#f2b632" stroke-width="2"/><text x="245" y="98" text-anchor="middle" font-size="19" font-weight="900" fill="#7a4b05">?</text>`
+  };
+  let d = ""; for (let t = 0; t <= TMAX; t += 250) d += (d ? " L" : "M") + X(t).toFixed(1) + " " + Y(rest(t)).toFixed(1);
+  svg.innerHTML = `<rect width="520" height="300" fill="#f7fbfe"/>
+    <text id="arTitel" x="260" y="22" text-anchor="middle" font-size="14" font-weight="800" fill="#7a4b05">Altersrechner: Wähle einen Fund</text>
+    <g class="zone"><rect x="${X(GRENZE)}" y="50" width="${X(TMAX) - X(GRENZE)}" height="200" fill="#f6e1e1"/>
+      <g text-anchor="middle" font-size="11" font-weight="800" fill="#9c2f2f"><text x="${(X(GRENZE) + X(TMAX)) / 2}" y="98">Grenze:</text><text x="${(X(GRENZE) + X(TMAX)) / 2}" y="113">zu wenig</text><text x="${(X(GRENZE) + X(TMAX)) / 2}" y="128">C-14</text></g></g>
+    <g stroke="#e3eaf0" stroke-width="1">${[100, 75, 50, 25].map(p => `<line x1="70" y1="${Y(p)}" x2="490" y2="${Y(p)}"/>`).join("")}${[10, 20, 30, 40, 50, 60].map(k => `<line x1="${X(k * 1000)}" y1="50" x2="${X(k * 1000)}" y2="250"/>`).join("")}</g>
+    <g font-size="10.5" font-weight="700" fill="#566674" text-anchor="end">${[100, 75, 50, 25, 0].map(p => `<text x="64" y="${Y(p) + 4}">${p} %</text>`).join("")}</g>
+    <g font-size="10.5" font-weight="700" fill="#566674" text-anchor="middle">${[0, 10, 20, 30, 40, 50, 60].map(k => `<text x="${X(k * 1000)}" y="265">${k ? de(k * 1000) : "0"}</text>`).join("")}</g>
+    <text x="280" y="290" text-anchor="middle" font-size="11.5" font-weight="700" fill="#15212b">Alter in Jahren</text>
+    <text x="16" y="150" transform="rotate(-90 16 150)" text-anchor="middle" font-size="11.5" font-weight="700" fill="#15212b">C-14 übrig</text>
+    <path d="M70 44 V250 H494" fill="none" stroke="#566674" stroke-width="2"/>
+    <g fill="#b8720a">${[1, 2, 3, 4, 5, 6, 7, 8].map(k => `<circle cx="${X(k * HWZ).toFixed(1)}" cy="${Y(100 / 2 ** k).toFixed(1)}" r="3"/>`).join("")}</g>
+    <path d="${d}" fill="none" stroke="#b8720a" stroke-width="3"/>
+    <g id="arKarte"><rect x="222" y="46" width="196" height="86" rx="10" fill="#fff" stroke="#d8e2ea" stroke-width="1.5"/>
+      <g id="arIcon">${ICON.eigen}</g>
+      <text id="arK1" x="270" y="70" font-size="12.5" font-weight="800" fill="#15212b">noch kein Fund</text>
+      <text id="arK2" x="270" y="92" font-size="12" font-weight="700" fill="#566674">C-14 übrig: ?</text>
+      <text id="arK3" x="270" y="114" font-size="12" font-weight="800" fill="#7a4b05">Alter: ?</text></g>
+    <g id="arMarke" style="display:none">
+      <path id="arGuide" d="" fill="none" stroke="#7a4b05" stroke-width="1.6" stroke-dasharray="5 4"/>
+      <g id="arPY"><rect x="20" y="-9" width="46" height="18" rx="9" fill="#fff" stroke="#f2b632" stroke-width="2"/><text id="arPYt" x="43" y="4" text-anchor="middle" font-size="11" font-weight="800" fill="#7a4b05"></text></g>
+      <g id="arPX"><rect x="-48" y="256" width="96" height="18" rx="9" fill="#fff" stroke="#f2b632" stroke-width="2"/><text id="arPXt" x="0" y="269" text-anchor="middle" font-size="11" font-weight="800" fill="#7a4b05"></text></g>
+      <circle id="arPunkt" cx="0" cy="0" r="7" fill="#f2b632" stroke="#7a4b05" stroke-width="2.5"/></g>`;
+  const marke = $("#arMarke", svg), knoepfe = Object.keys(FUNDE).map(id => $("#" + id));
+  const fertig = new Set();
+  let eigenGemacht = false, tJetzt = 0, laufNr = 0;
+  register("arRechner", "#arSvg", "Altersrechner: alle fünf Funde und einmal selbst abgelesen");
+  function setze(t, pZeige, tZeige){
+    const p = rest(t), x = X(t), y = Y(p);
+    $("#arGuide", svg).setAttribute("d", `M70 ${y.toFixed(1)} H${x.toFixed(1)} V250`);
+    $("#arPunkt", svg).setAttribute("cx", x.toFixed(1)); $("#arPunkt", svg).setAttribute("cy", y.toFixed(1));
+    $("#arPY", svg).setAttribute("transform", `translate(0 ${y.toFixed(1)})`);
+    $("#arPX", svg).setAttribute("transform", `translate(${clamp(x, 118, 442).toFixed(1)} 0)`);
+    $("#arPYt", svg).textContent = pZeige; $("#arPXt", svg).textContent = tZeige;
+  }
+  // Punkt gleitet auf der Kurve zum neuen Alter
+  function fahre(tZiel, pZeige, tZeige){
+    const nr = ++laufNr, t0 = tJetzt, start = performance.now(), dauer = reduced || marke.style.display === "none" ? 0 : 700;
+    marke.style.display = "";
+    (function f(now){
+      if (nr !== laufNr) return;
+      const k = dauer ? clamp((now - start) / dauer, 0, 1) : 1, e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+      tJetzt = t0 + (tZiel - t0) * e; setze(tJetzt, pZeige, tZeige);
+      if (k < 1) requestAnimationFrame(f);
+    })(start);
+  }
+  function karte(icon, name, pText, aText){
+    $("#arIcon", svg).innerHTML = ICON[icon]; $("#arK1", svg).textContent = name; $("#arK2", svg).textContent = "C-14 übrig: " + pText; $("#arK3", svg).textContent = "Alter: " + aText;
+  }
+  function pruefe(){
+    const fehlt = 5 - fertig.size;
+    if (!fehlt && eigenGemacht && !Modul.isSolved("arRechner")) { solve("arRechner"); obs.textContent += " ✅ Geschafft: Du hast alle Funde datiert und selbst abgelesen."; }
+    else if (!fehlt && !eigenGemacht) obs.textContent += " Noch ein Schritt: Lies selbst ab – tippe auf die Kurve oder gib eine Prozentzahl ein.";
+    else if (fehlt) obs.textContent += ` (${5 - fehlt} von 5 Funden)`;
+  }
+  function fund(id){
+    const F = FUNDE[id];
+    knoepfe.forEach(b => { b.classList.toggle("gewaehlt", b.id === id); b.setAttribute("aria-pressed", b.id === id); });
+    $("#arTitel", svg).textContent = F.p ? `${F.name}: ${proz(F.p)} C-14 → etwa ${de(rund(alter(F.p)))} Jahre` : `${F.name}: kein C-14 mehr messbar`;
+    const td = $(`tr[data-p="${F.k}"]`, tb).children;
+    let werte;
+    if (F.p) {
+      const t = alter(F.p), aT = "≈ " + de(rund(t)) + " Jahre";
+      karte(F.k, F.name, proz(F.p), aT); fahre(t, proz(F.p), aT);
+      werte = [proz(F.p), aT];
+    } else {
+      laufNr++; marke.style.display = "none";
+      karte("dino", F.name, "0 %", "nicht messbar");
+      const z = $(".zone", svg); z.classList.remove("blink"); void z.getBoundingClientRect(); z.classList.add("blink");
+      werte = ["0 % (nichts messbar)", "viel zu alt – über 50 000 Jahre"];
+    }
+    werte.forEach((t, i) => { const c = td[i + 1]; c.textContent = t; c.classList.remove("neu"); void c.offsetWidth; c.classList.add("neu"); });
+    fertig.add(F.k);
+    obs.textContent = F.txt;
+    pruefe();
+  }
+  function eigen(p, angetippt){
+    knoepfe.forEach(b => { b.classList.remove("gewaehlt"); b.setAttribute("aria-pressed", "false"); });
+    if (!(p > 0)) { laufNr++; marke.style.display = "none"; karte("eigen", "Deine Probe", "0 %", "nicht messbar"); $("#arTitel", svg).textContent = "0 % C-14: nicht mehr messbar";
+      obs.textContent = "0 % C-14: Es ist kein C-14 mehr messbar. Der Fund ist älter als etwa 50 000 Jahre – oder er stammt nicht von einem Lebewesen. Die C-14-Methode hilft hier nicht."; return; }
+    if (p > 100) { obs.textContent = "Mehr als 100 % geht nicht: Ein Fund kann nicht mehr C-14 enthalten als ein lebendes Wesen."; return; }
+    const t = alter(p), pT = proz(Math.round(p * 10) / 10), zuAlt = t > GRENZE;
+    const aT = t < 1 ? "0 Jahre" : zuAlt ? "über 50 000 J." : "≈ " + de(rund(t)) + " Jahre";
+    karte("eigen", angetippt ? "Kurve angetippt" : "Deine Probe", pT, aT);
+    $("#arTitel", svg).textContent = zuAlt ? `${pT} C-14: zu wenig zum Messen` : `${pT} C-14 → etwa ${de(rund(t))} Jahre`;
+    fahre(Math.min(t, TMAX), pT, zuAlt ? "über 50 000" : aT);
+    eigenGemacht = true;
+    obs.textContent = p >= 100 ? "100 % C-14: Das Lebewesen lebt noch oder ist gerade erst gestorben."
+      : zuAlt ? `${pT} C-14: Hier ist so wenig C-14 übrig, dass man es nicht mehr zuverlässig messen kann. Ab etwa 50 000 Jahren ist die Grenze der C-14-Methode erreicht.`
+      : `${pT} C-14 → etwa ${de(rund(t))} Jahre. ` + (angetippt ? "Du hast die Kurve angetippt: Die Hilfslinie führt von der Kurve nach unten zum Alter." : "Von der Prozentzahl geht die Hilfslinie waagrecht zur Kurve und dann senkrecht nach unten zum Alter.");
+    pruefe();
+  }
+  knoepfe.forEach(b => b.addEventListener("click", () => fund(b.id)));
+  const feld = $("#arProzent");
+  const rechne = () => { const v = parseFloat(String(feld.value).replace(",", ".")); if (isNaN(v)) { obs.textContent = "Gib eine Prozentzahl zwischen 0 und 100 ein, zum Beispiel 40."; return; } eigen(v, false); };
+  $("#arRechne").addEventListener("click", rechne);
+  feld.addEventListener("keydown", e => { if (e.key === "Enter") rechne(); });
+  // Kurve antippen: nächster Punkt auf der Kurve
+  svg.addEventListener("click", e => {
+    const m = svg.getScreenCTM(); if (!m) return;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());
+    if (q.x < 62 || q.x > 498 || q.y < 40 || q.y > 256) return;
+    if (q.x > 220 && q.x < 420 && q.y < 134) return;   // auf die Fundkarte getippt
+    let best = 0, bd = Infinity;
+    for (let t = 0; t <= TMAX; t += 50) { const dx = X(t) - q.x, dy = Y(rest(t)) - q.y, dd = dx * dx + dy * dy; if (dd < bd) { bd = dd; best = t; } }
+    eigen(rest(best), true);
+  });
+})();
+
+/* ---------- Station 4: Übungen ---------- */
+Modul.makeSort($("#sortFunde"), {
+  buckets: ["mit der C-14-Methode datierbar", "nicht mit C-14 datierbar"], cols: 220,
+  items: [
+    {t: "Holzpfahl einer Pfahlbau-Siedlung", b: 0}, {t: "Knochen eines Rentiers aus der Eiszeit", b: 0}, {t: "Schuh aus Leder", b: 0},
+    {t: "verkohlte Getreidekörner", b: 0}, {t: "Stoffrest aus Wolle", b: 0}, {t: "Holzkohle aus einer Feuerstelle", b: 0},
+    {t: "Klinge aus Feuerstein", b: 1}, {t: "Schwert aus Bronze", b: 1}, {t: "Münze aus Gold", b: 1}, {t: "Dinosaurier-Knochen", b: 1}
+  ]
+}, "sortFunde");
+Modul.makeOpen($("#open4"), [
+  {q: "Bei einer Ausgrabung findet man ein Steinbeil mit einem Holzstiel. Erkläre, was man davon mit der C-14-Methode datieren kann – und was nicht.",
+   m: "Datieren kann man nur den Holzstiel. Holz stammt von einem Lebewesen: Der Baum hat zu Lebzeiten C-14 aus der Luft aufgenommen. Man misst, wie viel C-14 noch übrig ist, und liest das Alter an der Zerfallskurve ab. Den Stein kann man so nicht datieren: Er war nie lebendig und hat kein C-14 aufgenommen. Der Stiel verrät aber ungefähr, wann das Beil gebaut wurde.",
+   k: ["holz|stiel", "stein|klinge", "lebewesen|lebendig|gelebt|baum|pflanze", "c-14|c14|kohlenstoff", "nie|nicht|kein"], min: 4}
+], "open4-", "Lies noch einmal die Karte „Die Methode hat Grenzen“: Welche Funde haben einmal C-14 aus der Luft aufgenommen?");
+
+/* ---------- Training: Kreuzworträtsel mit Tipps ---------- */
+Modul.makeCrossword($("#cw"), {
+  tipps: true,
+  words: [
+    {w: "HALBWERTSZEIT", r: 2, c: 7, d: "d", q: "Nach dieser Zeit ist die Hälfte der C-14-Kerne zerfallen – bei C-14 sind es 5 730 Jahre.", tip: "Halb … Wert … Zeit."},
+    {w: "BECQUEREL", r: 12, c: 0, d: "a", q: "Einheit der Aktivität: 1 … = 1 Kernzerfall pro Sekunde.", tip: "So hieß der Forscher, der 1896 die radioaktive Strahlung entdeckte."},
+    {w: "STICKSTOFF", r: 9, c: 1, d: "a", q: "Aus diesem Gas der Luft entsteht C-14.", tip: "Das häufigste Gas der Luft. Sein Zeichen ist N."},
+    {w: "AKTIVITAET", r: 14, c: 1, d: "a", q: "Anzahl der Kernzerfälle pro Sekunde.", tip: "Ä wird zu AE. Das Wort steckt auch in „aktiv“.", zeig: "Aktivität"},
+    {w: "GLETSCHER", r: 7, c: 0, d: "a", q: "In seinem Eis lag Ötzi mehr als 5 000 Jahre lang.", tip: "Ein Strom aus Eis im Hochgebirge."},
+    {w: "PFLANZEN", r: 3, c: 4, d: "a", q: "Sie nehmen CO₂ mit C-14 bei der Fotosynthese auf (Mehrzahl).", tip: "Bäume, Gräser und Blumen gehören dazu."},
+    {w: "SEKUNDE", r: 1, c: 2, d: "d", q: "Die Aktivität zählt die Kernzerfälle pro …", tip: "Eine Minute hat 60 davon."},
+    {w: "KNOCHEN", r: 2, c: 11, d: "d", q: "Diesen Rest eines toten Tieres kann man mit der C-14-Methode datieren.", tip: "Daraus besteht ein Skelett."},
+    {w: "NAHRUNG", r: 1, c: 0, d: "d", q: "Über sie gelangt C-14 in Tiere und Menschen.", tip: "Alles, was wir essen."},
+    {w: "OETZI", r: 0, c: 9, d: "d", q: "Die Gletschermumie aus den Ötztaler Alpen.", tip: "Ö wird zu OE. Sein Spitzname kommt vom Ötztal.", zeig: "Ötzi"},
+    {w: "ISOTOP", r: 0, c: 5, d: "a", q: "C-14 ist ein radioaktives … des Kohlenstoffs.", tip: "Fängt mit I an. Gleiches Element, andere Zahl der Neutronen."}
+  ],
+  sol: [[6, 2], [14, 8], [0, 8], [9, 3], [12, 5], [12, 6], [12, 4], [3, 11], [7, 0]], solWord: "DATIERUNG"
+}, "cw");
+
+/* ---------- Profi-Check, Lernkarten ---------- */
+Modul.makeQuiz($("#quiz"), [...MC.s1, ...MC.s2, ...MC.s3, ...MC.s4, ...MC.train,
+  {q: "Ein Zähler misst an einer Probe 4 800 Impulse in einer Minute. Wie groß ist die Aktivität?", o: ["80 Bq", "4 800 Bq", "288 000 Bq", "8 Bq"], a: 0, e: "4 800 : 60 = 80 Kernzerfälle pro Sekunde = 80 Bq."},
+  {q: "Warum ist eine Altersangabe mit der C-14-Methode nur ungefähr?", o: ["Messungen und das Ablesen an der Kurve sind nie ganz genau.", "C-14 zerfällt jedes Jahr unterschiedlich schnell.", "Jeder Fund hat eine andere Halbwertszeit von C-14.", "Die Methode schätzt das Alter nach dem Aussehen."], a: 0, e: "Die Halbwertszeit bleibt immer gleich – ungenau sind Messung und Ablesen."},
+  {q: "Bis zu welchem Alter etwa funktioniert die C-14-Methode?", o: ["bis etwa 50 000 Jahre", "bis etwa 500 Jahre", "bis etwa 5 Millionen Jahre", "ohne jede Grenze"], a: 0, e: "Danach ist zu wenig C-14 übrig, um es zu messen."},
+  {q: "Was wird aus C-14, wenn es zerfällt?", o: ["durch β-Zerfall wieder Stickstoff-14", "durch α-Zerfall Helium-4", "gewöhnlicher Kohlenstoff-12", "gar nichts – es verschwindet"], a: 0, e: "Ein Neutron wird zum Proton: 7 Protonen sind Stickstoff."}
+], "quiz", "C-14-Profi");
+if (window.NT8Karten) NT8Karten.trainer($("#lernkarten"), {module: ["ra-c14"], titel: "Lernkarten zu diesem Modul", zug: "M", druck: false});
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,974 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#7a4b05">
+<title>Alpha, Beta, Gamma – die Strahlungsarten | NT 9</title>
+<link rel="stylesheet" href="../../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="materie.css">
+<style>
+/* Abschirm-Labor */
+#abSvg .hind{transition:transform .6s cubic-bezier(.3,.7,.3,1),opacity .4s}
+#abSvg #abBar{transition:width .8s,fill .3s}
+.rs-ctrl2{border-top:0;padding-top:0}
+.rs-liste{margin:0;padding-left:20px}
+.rs-liste li{margin:0 0 8px}
+.rs-a{color:#c0392b}.rs-b{color:#1f5fae}.rs-g{color:#17804a}
+.legende i{display:inline-block;width:20px;height:6px;border-radius:3px;vertical-align:middle;margin-right:6px}
+.legende b.kugel{display:inline-block;width:13px;height:13px;border-radius:50%;vertical-align:-2px;margin-right:6px}
+/* Ablenkung im elektrischen Feld */
+#feldSvg rect.platte{transition:fill .6s}
+/* Isotope */
+#isoSvg .nuk{transition:transform .8s cubic-bezier(.3,.7,.3,1),opacity .5s}
+#isoSvg .orbit{transform-box:view-box;transform-origin:140px 128px;animation:rsDreh 5s linear infinite}
+@keyframes rsDreh{to{transform:rotate(360deg)}}
+#isoSvg .balken{transition:fill .5s,stroke .5s}
+/* Zerfall */
+#alphaSvg .mv,#betaSvg .mv{transition:transform 1.3s cubic-bezier(.3,.7,.3,1),opacity .5s}
+#alphaSvg .kern{transform-box:fill-box;transform-origin:center}
+#alphaSvg .kern.wobble{animation:rsWobble .45s ease-in-out infinite alternate}
+@keyframes rsWobble{from{transform:scale(1.05,.95)}to{transform:scale(.95,1.05)}}
+#betaSvg .nb{transition:fill .6s}
+/* Zerfallsgleichungen */
+.nk{display:inline-flex;align-items:center;gap:2px;font-weight:800;white-space:nowrap;vertical-align:middle}
+.nk .z{display:inline-flex;flex-direction:column;align-items:flex-end;font-size:.6em;line-height:1.05;font-weight:700}
+.nk .s{font-size:1.2em}
+.gl{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px 10px;font-size:1.15rem;padding:6px 14px;background:var(--sky-l);border-radius:10px;margin:2px 0}
+.nk-leer{display:inline-block;min-width:2.4em;text-align:center;border:2px dashed var(--sky);border-radius:8px;padding:2px 6px;color:var(--sky-d);font-weight:800}
+.ps-reihe{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 4px}
+.ps{width:76px;border:1.5px solid var(--line);border-radius:8px;padding:4px 3px 3px;text-align:center;background:#fff;line-height:1.15}
+.ps small{display:block;font-weight:700;color:var(--muted);font-size:.75rem}
+.ps b{display:block;font-size:1.25rem;color:var(--sky-d)}
+.ps span{display:block;font-size:.7rem;color:var(--muted);overflow-wrap:anywhere}
+.regelheft .rh-tab td,.regelheft .rh-tab th{overflow-wrap:anywhere;hyphens:auto}
+#glSvg .feld{transition:fill .5s}
+@media (prefers-reduced-motion:reduce){#abSvg *,#feldSvg *,#isoSvg *,#alphaSvg *,#betaSvg *,#glSvg *{transition:none!important;animation:none!important}}
+</style>
+<script src="../../../js/kursliste.js"></script>
+<script src="../themen.js"></script>
+<!-- 9M und 9R nutzen dieselben Seiten: die Kursliste kommt aus dem Ordner (../themen.js = NT9M oder NT9R) -->
+<script>window.GRUMI_KURS = window.NT9M || window.NT9R; window.GRUMI_KURS.KARTEN = "../../" + window.GRUMI_KURS.ORDNER + "App14_Materie/";</script>
+<script src="materie.js"></script>
+</head>
+<body data-bereich="ra">
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="../%C3%BCbersicht_themen.html">GRUMI<small>NT <span class="mt-zug">9M</span> · Radioaktivität 2</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Abschirmen</a>
+      <a href="#s2"><b>2</b>Feld</a>
+      <a href="#s3"><b>3</b>Isotope</a>
+      <a href="#s4"><b>4</b>Zerfall</a>
+      <a href="#s5"><b>5</b>Gleichungen</a>
+      <a href="#s6"><b>6</b>Training</a>
+      <a href="#abschluss"><b>7</b>Abschluss</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse <span class="mt-zug">9M</span> · Radioaktivität · Modul 2</div>
+    <h1>Alpha, Beta, Gamma – die Strahlungsarten</h1>
+    <p>Radioaktive Stoffe senden Strahlung aus – aber nicht nur eine Sorte. Mit Papier, Aluminium und Blei und mit zwei geladenen Platten haben Forscher drei Arten unterschieden: α, β und γ. Hier findest du heraus, wie sie sich unterscheiden, was Isotope sind und was im Atomkern passiert, wenn er Strahlung aussendet.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s6">Direkt zum Training</a>
+    </div>
+    <div class="goals">
+      <div>🛡️ Ich weiß, was α-, β- und γ-Strahlung aufhält.</div>
+      <div>⚡ Ich erkläre, wie die drei Strahlungsarten im elektrischen Feld abgelenkt werden.</div>
+      <div>⚛️ Ich erkläre, was Isotope sind – am Beispiel des Wasserstoffs.</div>
+      <div>💥 Ich beschreibe den α- und den β-Zerfall und schreibe ihn als Zerfallsgleichung.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg · Probenstoff</div><h2>Drei Arten im Abschirmversuch</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <figure style="margin:0 0 12px"><img class="zoomable" src="bilder/ra-2.jpg" width="1280" height="853" loading="lazy" decoding="async" alt="Vier Jugendliche schauen gespannt auf einen Labortisch. Aus einem Behälter mit dem Warnzeichen für Strahlung kommen drei farbige Strahlen: Der rote endet an einem Blatt Papier, der blaue an einer Metallplatte, der grüne erst an einem dicken Metallblock." style="width:100%;height:auto"><figcaption class="hint" style="margin:4px 0 0">Bild: GRUMI (mit KI erstellt)</figcaption></figure>
+      <p class="hint" style="margin:0 0 10px"><strong>Denk mal nach:</strong> Drei Strahlen, drei Hindernisse: ein Blatt Papier, eine dünne Metallplatte, ein dicker Block. Welcher Strahl kommt wohl am weitesten?</p>
+      <p class="lead">Radioaktive Stoffe senden unsichtbare Strahlung aus. Forscher stellten verschiedene Materialien in den Weg und maßen mit einem Zähler, wie viel Strahlung noch durchkommt. Sie haben die Strahlung <button class="term" data-t="abschirmen">abgeschirmt</button>.</p>
+      <p style="margin:0">Dabei kam heraus: Es gibt nicht nur eine Strahlung, sondern drei Arten. Sie heißen nach den ersten drei Buchstaben des griechischen Alphabets: <button class="term" data-t="alpha">α (Alpha)</button>, <button class="term" data-t="beta">β (Beta)</button> und <button class="term" data-t="gamma">γ (Gamma)</button>.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>So verschieden sind die drei:</strong></p>
+      <ul class="rs-liste">
+        <li><b class="rs-a">α-Strahlung</b> bleibt schon in einem Blatt Papier oder einer Postkarte stecken. Ihre Reichweite ist sehr kurz – in der Luft nur wenige Zentimeter.</li>
+        <li><b class="rs-b">β-Strahlung</b> geht durch Papier hindurch. Eine Aluminiumplatte von 1 mm Dicke hält sie aber auf.</li>
+        <li><b class="rs-g">γ-Strahlung</b> geht durch Papier und Aluminium. Selbst 13 mm Blei lassen noch die Hälfte durch. Um sie ganz abzuschirmen, braucht man mindestens 20 cm Blei. In der Luft reicht sie mehrere Kilometer weit.</li>
+      </ul>
+      <p class="hint" style="margin:8px 0 0">Probiere es im Labor unten selbst aus.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="abSim">
+    <svg viewBox="0 0 520 270" id="abSvg" role="img" aria-label="Abschirm-Labor: Links ein Strahler, in der Mitte ein Hindernis, rechts ein Zählrohr mit Zähler. Man wählt α-, β- oder γ-Strahlung und schiebt Papier, 1 mm Aluminium, 13 mm Blei oder 20 cm Blei in den Strahl. Der Zähler zeigt, wie viel Strahlung durchkommt."></svg>
+    <div class="sim-ctrl"><label>Strahler:</label><button class="btn small" id="abA" type="button">α-Strahler</button><button class="btn small ghost" id="abB" type="button">β-Strahler</button><button class="btn small ghost" id="abG" type="button">γ-Strahler</button></div>
+    <div class="sim-ctrl rs-ctrl2"><label>Hindernis:</label><button class="btn small" id="abH0" type="button">keins</button><button class="btn small ghost" id="abH1" type="button">Papier</button><button class="btn small ghost" id="abH2" type="button">1 mm Aluminium</button><button class="btn small ghost" id="abH3" type="button">13 mm Blei</button><button class="btn small ghost" id="abH4" type="button">20 cm Blei</button></div>
+    <p class="obs" id="abObs">Wähle einen Strahler und schiebe ein Hindernis in den Strahl. Der Zähler zeigt, wie viele Impulse pro Minute ankommen (die Nullrate ist schon abgezogen). Teste jeden Strahler mit allen vier Hindernissen – deine Messwerte landen in der Tabelle.</p>
+    <div class="tab-wrap" style="padding:0 14px 14px"><table class="beob" id="abTab">
+      <thead><tr><th>Strahler</th><th>Papier</th><th>1 mm Aluminium</th><th>13 mm Blei</th><th>20 cm Blei</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <figure style="margin:0 0 12px"><img class="zoomable" src="bilder/ra-2b.jpg" width="1280" height="853" loading="lazy" decoding="async" alt="Ein Jugendlicher sitzt beim Zahnarzt im Behandlungsstuhl und trägt eine schwere graue Schürze über Brust und Bauch. Ein kleines Röntgengerät ist an seine Wange gerichtet. Die Zahnärztin steht hinter einer Wand mit Glasfenster und drückt einen Knopf."><figcaption class="hint" style="margin:4px 0 0">Bild: GRUMI (mit KI erstellt)</figcaption></figure>
+    <p class="hint" style="margin:0"><strong>Denk mal nach:</strong> Beim Röntgen beim Zahnarzt bekommst du eine schwere Schürze umgelegt – sie enthält Blei. Und warum geht die Zahnärztin hinter die Wand, bevor sie den Knopf drückt? Röntgenstrahlen sind keine radioaktive Strahlung, werden aber genauso abgeschirmt wie γ-Strahlung.</p>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Es gibt drei Strahlungsarten: α-, β- und γ-Strahlung.</li><li>α-Strahlung: Schon Papier hält sie auf. β-Strahlung: 1 mm Aluminium schirmt sie ab.</li><li>γ-Strahlung: 13 mm Blei halbieren sie nur. Ganz abgeschirmt wird sie erst von mindestens 20 cm Blei.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Lückentext · Probenstoff</span>
+    <h3 style="margin-top:4px">Was hält welche Strahlung auf?</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapAbschirm"></div>
+  </div>
+  <div class="card reveal" id="mc-s1"></div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Im elektrischen Feld</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Ein zweiter Versuch: Die Strahlung fliegt zwischen zwei Metallplatten hindurch. Eine Platte ist positiv geladen (Pluspol +), die andere negativ (Minuspol −). Zwischen den Platten herrscht ein <button class="term" data-t="feld">elektrisches Feld</button>.</p>
+      <p style="margin:0">Du kennst die Regel: Gegensätzliche Ladungen ziehen sich an, gleiche Ladungen stoßen sich ab. Ein geladenes Teilchen wird im Feld also zu einer Platte hingezogen – es wird <strong>abgelenkt</strong>. Was keine Ladung hat, fliegt geradeaus.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Das Ergebnis:</strong> α-Strahlung wird leicht zum Minuspol abgelenkt – sie ist positiv. β-Strahlung wird stark zum Pluspol abgelenkt – sie ist negativ. γ-Strahlung fliegt geradeaus – sie ist ungeladen.</p>
+      <p style="margin:0">α-Teilchen sind <button class="term" data-t="heliumkern">Heliumkerne</button> aus 2 <button class="term" data-t="proton">Protonen</button> und 2 <button class="term" data-t="neutron">Neutronen</button>. Sie sind schwer und werden deshalb nur wenig abgelenkt. β-Teilchen sind schnelle <button class="term" data-t="elektron">Elektronen</button>: winzig und fast ohne Masse. α und β sind also <strong>Teilchenstrahlung</strong>. γ-Strahlung dagegen ist eine <button class="term" data-t="elektromagnetisch">elektromagnetische Welle</button> wie Licht, aber mit viel mehr Energie.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="feldSim">
+    <svg viewBox="0 0 520 290" id="feldSvg" role="img" aria-label="Animation: Ein Strahler schickt α-, β- und γ-Strahlung zwischen zwei Metallplatten hindurch auf einen Schirm. Ohne Spannung fliegen alle geradeaus. Mit Spannung ist die obere Platte der Pluspol, die untere der Minuspol: γ fliegt weiter geradeaus, α wird leicht nach unten zum Minuspol abgelenkt, β stark nach oben zum Pluspol."></svg>
+    <div class="legende"><span><i style="background:#e0453a"></i>α-Strahlung</span><span><i style="background:#2a7de1"></i>β-Strahlung</span><span><i style="background:#1fa35a"></i>γ-Strahlung</span></div>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Im elektrischen Feld wird α-Strahlung leicht zum Minuspol abgelenkt (positiv geladen), β-Strahlung stark zum Pluspol (negativ geladen). γ-Strahlung wird nicht abgelenkt (ungeladen).</li><li>α = Heliumkerne (2 Protonen + 2 Neutronen), β = schnelle Elektronen. Beide sind Teilchenstrahlung.</li><li>γ = elektromagnetische Welle wie Licht, aber mit viel mehr Energie.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Richtig oder falsch? · Probenstoff</span>
+    <h3 style="margin-top:4px">Was stimmt?</h3>
+    <div id="tfFeld"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Zuordnen · Probenstoff</span>
+    <h3 style="margin-top:4px">Steckbriefe der drei Strahlungsarten</h3>
+    <p class="hint">Tippe eine Karte an und dann die passende Strahlungsart.</p>
+    <div id="sortArten"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung.</p>
+    <div id="open2"></div>
+  </div>
+  <div class="card reveal" id="mc-s2"></div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>Isotope</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Jeder Atomkern besteht aus Protonen (rot) und Neutronen (blau). Die Zahl der Protonen legt fest, welches <button class="term" data-t="element">Element</button> es ist: Wasserstoff hat 1 Proton, Helium 2, Kohlenstoff immer 6. Diese Zahl heißt <button class="term" data-t="kernladungszahl">Kernladungszahl</button>.</p>
+      <p style="margin:0">Zählt man Protonen und Neutronen zusammen, erhält man die <button class="term" data-t="massenzahl">Massenzahl</button>. Sie steht hinter dem Namen: Kohlenstoff-14 hat 14 Kernbausteine, nämlich 6 Protonen und 8 Neutronen.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Bei einem Element kann die Zahl der Neutronen verschieden sein. Atome eines Elements mit verschieden vielen Neutronen heißen <button class="term" data-t="isotop">Isotope</button>.</p>
+      <p style="margin:0">Isotope reagieren chemisch genau gleich, sind aber verschieden schwer. Beim Wasserstoff gibt es drei: den normalen Wasserstoff H-1, <button class="term" data-t="deuterium">Deuterium</button> H-2 und <button class="term" data-t="tritium">Tritium</button> H-3.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="isoSim">
+    <svg viewBox="0 0 520 272" id="isoSvg" role="img" aria-label="Kugelmodell der drei Wasserstoff-Isotope: Im Kern sitzt immer 1 Proton, dazu 0, 1 oder 2 Neutronen; außen kreist 1 Elektron. Rechts zeigen Säulen die Masse: H-2 ist etwa doppelt, H-3 etwa dreimal so schwer wie H-1."></svg>
+    <div class="legende"><span><b class="kugel" style="background:#e05252"></b>Proton (+)</span><span><b class="kugel" style="background:#4a6fa5"></b>Neutron</span><span><b class="kugel" style="background:#2a7de1;width:9px;height:9px"></b>Elektron (−)</span></div>
+    <div class="sim-ctrl"><label>Isotop:</label><button class="btn small" id="isoB0" type="button">H-1 Wasserstoff</button><button class="btn small ghost" id="isoB1" type="button">H-2 Deuterium</button><button class="btn small ghost" id="isoB2" type="button">H-3 Tritium</button></div>
+    <p class="obs" id="isoObs">Tippe nacheinander auf die drei Wasserstoff-Isotope. Vergleiche ihre Kerne und ihre Masse.</p>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Die Zahl der Protonen (Kernladungszahl) bestimmt das Element. Massenzahl = Protonen + Neutronen.</li><li>Isotope = Atome desselben Elements mit verschieden vielen Neutronen. Sie reagieren chemisch gleich, sind aber verschieden schwer.</li><li>Wasserstoff: H-1 (1 Proton), Deuterium H-2 (1 Proton + 1 Neutron, etwa doppelt so schwer), Tritium H-3 (1 Proton + 2 Neutronen, etwa dreimal so schwer).</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag">Paare finden</span>
+    <h3 style="margin-top:4px">Begriff und Erklärung</h3>
+    <p class="hint">Tippe links einen Begriff an und dann rechts die passende Erklärung.</p>
+    <div id="paareIso"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Rechnen · Probenstoff</span>
+    <h3 style="margin-top:4px">Wie viele Neutronen?</h3>
+    <p class="hint">Neutronen = Massenzahl − Protonen. Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapNeutronen"></div>
+  </div>
+  <div class="card reveal" id="mc-s3"></div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Probenstoff</div><h2>α- und β-Zerfall</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Woher kommt die radioaktive Strahlung? Aus dem Atomkern! Manche Kerne sind <button class="term" data-t="instabil">instabil</button>. Irgendwann wandeln sie sich um und schleudern dabei ein Teilchen heraus. Das nennt man <button class="term" data-t="zerfall">radioaktiven Zerfall</button> oder Kernumwandlung.</p>
+      <p style="margin:0"><strong>α-Zerfall:</strong> Vor allem schwere Kerne schleudern einen Heliumkern heraus. Der Kern verliert 2 Protonen und 2 Neutronen. Mit 2 Protonen weniger ist er ein anderes Element: Aus Radon-222, einem radioaktiven Gas, wird Polonium-218.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>β-Zerfall:</strong> Im Kern verwandelt sich ein Neutron in ein Proton und ein Elektron. Das Elektron wird herausgeschleudert – das ist die β-Strahlung. Der Kern hat jetzt ein Proton mehr: Er ist ein neues Element. Aus Kohlenstoff-14 wird Stickstoff-14. Die Massenzahl bleibt gleich.</p>
+      <p style="margin:0"><strong>γ-Strahlung</strong> entsteht bei fast jeder Kernumwandlung zusätzlich. Sie trägt keine Teilchen weg. Element und Massenzahl ändern sich durch sie nicht.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="alphaSim">
+    <svg viewBox="0 0 520 280" id="alphaSvg" role="img" aria-label="Animation α-Zerfall: Ein Radon-222-Kern wird unruhig. 2 Protonen und 2 Neutronen lösen sich als Heliumkern und fliegen heraus, dazu γ-Strahlung. Zurück bleibt Polonium-218. Massenzahl 222 = 218 + 4, Protonen 86 = 84 + 2."></svg>
+  </div>
+  <div class="sim reveal" style="margin-top:18px" id="betaSim">
+    <svg viewBox="0 0 520 280" id="betaSvg" role="img" aria-label="Animation β-Zerfall: Ein Kohlenstoff-14-Kern mit 6 Protonen und 8 Neutronen. Ein Neutron verwandelt sich in ein Proton und ein Elektron. Das Elektron fliegt heraus. Der Kern hat jetzt 7 Protonen und 7 Neutronen: Stickstoff-14. Die Massenzahl bleibt 14."></svg>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Radioaktive Strahlung entsteht, wenn sich instabile Atomkerne umwandeln (radioaktiver Zerfall).</li><li>α-Zerfall: Der Kern schleudert einen Heliumkern heraus (2 Protonen + 2 Neutronen). Massenzahl − 4, Protonen − 2 → neues Element (Radon-222 → Polonium-218).</li><li>β-Zerfall: Ein Neutron wird zu Proton + Elektron, das Elektron fliegt heraus. Protonen + 1, Massenzahl bleibt → neues Element (Kohlenstoff-14 → Stickstoff-14).</li><li>γ-Strahlung: Element und Massenzahl bleiben gleich.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Zuordnen · Probenstoff</span>
+    <h3 style="margin-top:4px">α-Zerfall, β-Zerfall oder γ-Strahlung?</h3>
+    <p class="hint">Tippe eine Karte an und dann den passenden Bereich.</p>
+    <div id="sortZerfall"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung.</p>
+    <div id="open4"></div>
+  </div>
+  <div class="card reveal" id="mc-s4"></div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Probenstoff</div><h2>Die Zerfallsgleichungen</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Einen Zerfall kann man kurz als <button class="term" data-t="zerfallsgleichung">Zerfallsgleichung</button> aufschreiben. Jeder Kern bekommt sein Zeichen aus dem <button class="term" data-t="periodensystem">Periodensystem</button> und zwei Zahlen davor:</p>
+      <p><span class="gl"><span class="nk"><span class="z"><b>226</b><b>88</b></span><span class="s">Ra</span></span></span> oben die <strong>Massenzahl</strong> (Protonen + Neutronen), unten die <strong>Kernladungszahl</strong> (Protonen). Radium-226 hat also 88 Protonen.</p>
+      <p style="margin:0">Das α-Teilchen ist ein Heliumkern: <span class="nk"><span class="z"><b>4</b><b>2</b></span><span class="s">He</span></span>. Das Elektron schreibt man <span class="nk"><span class="z"><b>0</b><b>−1</b></span><span class="s">e</span></span>: Es hat fast keine Masse (oben 0) und ist negativ geladen (unten −1).</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Die Regel:</strong> Kein Kernbaustein geht verloren. Die Zahlen oben sind links und rechts vom Pfeil zusammen gleich groß – die Zahlen unten auch.</p>
+      <ol class="schritt-liste" style="margin-bottom:6px">
+        <li>Ausgangskern hinschreiben, dann Pfeil.</li>
+        <li>Teilchen dazuschreiben: α → <span class="nk"><span class="z"><b>4</b><b>2</b></span><span class="s">He</span></span>, β → <span class="nk"><span class="z"><b>0</b><b>−1</b></span><span class="s">e</span></span></li>
+        <li>Massenzahl (oben) des neuen Kerns ausrechnen.</li>
+        <li>Kernladungszahl (unten) ausrechnen.</li>
+        <li>Im Periodensystem das Element zu dieser Zahl suchen.</li>
+        <li>Probe: oben und unten zusammenzählen.</li>
+      </ol>
+      <p class="hint" style="margin:0"><strong>Kurz:</strong> α-Zerfall: oben − 4, unten − 2. β-Zerfall: oben bleibt gleich, unten + 1.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="glSim">
+    <svg viewBox="0 0 520 250" id="glSvg" role="img" aria-label="Animation: Die Zerfallsgleichung für den α-Zerfall von Radium-226 entsteht Schritt für Schritt. Massenzahl 226 − 4 = 222, Kernladungszahl 88 − 2 = 86, im Periodensystem ist 86 Radon. Probe: 222 + 4 = 226 und 86 + 2 = 88."></svg>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <h3 style="margin-top:0">Zum Nachschlagen: Ausschnitt aus dem Periodensystem</h3>
+    <p class="hint" style="margin:0">Die kleine Zahl ist die Kernladungszahl (Zahl der Protonen).</p>
+    <div class="ps-reihe" id="psReihe"></div>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>In der Zerfallsgleichung steht oben die Massenzahl, unten die Kernladungszahl.</li><li>Links und rechts vom Pfeil sind die Summen oben und unten gleich.</li><li>α-Zerfall: Massenzahl − 4, Kernladungszahl − 2. β-Zerfall: Massenzahl bleibt, Kernladungszahl + 1. Beispiel β: <span class="nk"><span class="z"><b>14</b><b>6</b></span><span class="s">C</span></span> → <span class="nk"><span class="z"><b>14</b><b>7</b></span><span class="s">N</span></span> + <span class="nk"><span class="z"><b>0</b><b>−1</b></span><span class="s">e</span></span>, denn 6 = 7 + (−1).</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Lücken-Gleichung · Probenstoff</span>
+    <h3 style="margin-top:4px">α-Zerfall von Uran-238</h3>
+    <p class="hint">Gehe die Schritte durch. Tippe zuerst auf eine Lücke, dann auf das passende Wort. Drei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapGlAlpha"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Lücken-Gleichung · Probenstoff</span>
+    <h3 style="margin-top:4px">β-Zerfall von Cäsium-137 und Tritium</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Drei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapGlBeta"></div>
+  </div>
+  <div class="card reveal" id="mc-s5"></div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="s6">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Wiederholung · so kommt es in der Probe</div><h2>Training</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Kreuzworträtsel</span>
+    <h3 style="margin-top:4px">Löse das Kreuzworträtsel</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Hängst du fest? Bei jeder Frage hilft <strong>💡 Tipp</strong> – erst ein Hinweis, dann der Anfangsbuchstabe. Mit <strong>📋 Wörter zeigen</strong> siehst du alle Lösungswörter.</p>
+    <div id="cw"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Ankreuzen</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 7 ============ -->
+<section class="station" id="abschluss">
+  <div class="st-head reveal"><div class="st-num">7</div><div><div class="eyebrow">Abschluss</div><h2>Profi-Check, Lernkarten und Regelheft</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <div class="card reveal">
+    <span class="task-tag">Lernkarten</span>
+    <div id="lernkarten"></div>
+  </div>
+  <div class="regelheft reveal" id="regelheft">
+    <h3>Alpha, Beta, Gamma – die Strahlungsarten</h3>
+    <p>Radioaktive Stoffe senden drei Strahlungsarten aus: <strong>α</strong>, <strong>β</strong> und <strong>γ</strong>. Man unterscheidet sie durch <strong>Abschirmen</strong> und durch <strong>Ablenken im elektrischen Feld</strong>.</p>
+    <table class="rh-tab">
+      <tr><th></th><th>α-Strahlung</th><th>β-Strahlung</th><th>γ-Strahlung</th></tr>
+      <tr><th>Was ist das?</th><td>Heliumkerne (2 p + 2 n)</td><td>schnelle Elektronen</td><td>elektro&shy;magnetische Welle (wie Licht, viel mehr Energie)</td></tr>
+      <tr><th>Ladung</th><td>positiv</td><td>negativ</td><td>ungeladen</td></tr>
+      <tr><th>im elektrischen Feld</th><td>leicht zum Minuspol</td><td>stark zum Pluspol</td><td>nicht abgelenkt</td></tr>
+      <tr><th>abgeschirmt von</th><td>Papier</td><td>1 mm Aluminium</td><td>13 mm Blei: nur Hälfte; ganz erst ab 20 cm Blei</td></tr>
+    </table>
+    <p>α und β sind <strong>Teilchenstrahlung</strong>, γ ist eine <strong>elektromagnetische Welle</strong>.</p>
+    <svg class="rh-skizze" viewBox="0 0 462 120" role="img" aria-label="Skizze: Zwischen einer Plusplatte oben und einer Minusplatte unten wird β stark nach oben, α leicht nach unten abgelenkt, γ fliegt gerade.">
+      <rect x="110" y="12" width="180" height="9" rx="2" fill="#e05252"/><rect x="110" y="99" width="180" height="9" rx="2" fill="#4a6fa5"/>
+      <text x="100" y="21" text-anchor="end" font-size="12" font-weight="700" fill="#c0392b">Pluspol +</text><text x="100" y="108" text-anchor="end" font-size="12" font-weight="700" fill="#1f4f8f">Minuspol −</text>
+      <rect x="8" y="48" width="34" height="24" rx="4" fill="#6b7a86"/>
+      <path d="M42 60 H110 Q200 60 290 32 L340 16" fill="none" stroke="#2a7de1" stroke-width="2.5"/>
+      <path d="M42 60 H340" fill="none" stroke="#1fa35a" stroke-width="2.5"/>
+      <path d="M42 60 H110 Q200 60 290 70 L340 76" fill="none" stroke="#e0453a" stroke-width="2.5"/>
+      <g font-size="14" font-weight="800"><text x="348" y="20" fill="#1f5fae">β (negativ)</text><text x="348" y="64" fill="#17804a">γ (ungeladen)</text><text x="348" y="86" fill="#c0392b">α (positiv)</text></g>
+    </svg>
+    <p><strong>Isotope</strong> = Atome desselben Elements (gleich viele Protonen) mit verschieden vielen Neutronen. Chemisch gleich, aber verschieden schwer: H-1, H-2 (Deuterium), H-3 (Tritium).</p>
+    <p><strong>Massenzahl</strong> = Protonen + Neutronen · <strong>Kernladungszahl</strong> = Zahl der Protonen (bestimmt das Element)</p>
+    <p><strong>α-Zerfall:</strong> Der Kern schleudert einen Heliumkern heraus → 2 Protonen und 2 Neutronen weniger → neues Element. Radon-222 → Polonium-218 + Helium-4.</p>
+    <p><strong>β-Zerfall:</strong> Ein Neutron wird zu Proton + Elektron, das Elektron fliegt heraus → 1 Proton mehr, Massenzahl bleibt → neues Element. Kohlenstoff-14 → Stickstoff-14 + Elektron.</p>
+    <p><strong>γ-Strahlung</strong> entsteht bei fast jeder Kernumwandlung. Element und Massenzahl bleiben gleich.</p>
+    <p><strong>Zerfallsgleichung:</strong> oben Massenzahl, unten Kernladungszahl; links und rechts gleiche Summen. <span class="nk"><span class="z"><b>226</b><b>88</b></span><span class="s">Ra</span></span> → <span class="nk"><span class="z"><b>222</b><b>86</b></span><span class="s">Rn</span></span> + <span class="nk"><span class="z"><b>4</b><b>2</b></span><span class="s">He</span></span></p>
+  </div>
+  <div class="rh-knoepfe reveal"><button class="btn small ghost" type="button" onclick="window.print()">🖨️ Regelheft drucken</button><a class="btn small ghost" href="arbeitsblaetter/R2-regelheft.pdf" download="NT9-R2-Regelheft.pdf">📥 Regelheft als PDF</a></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Ein instabiler Kern zerfällt irgendwann – aber wann? Bei einem einzelnen Kern ist das reiner Zufall. Bei sehr vielen Kernen gibt es aber eine feste Regel. In Modul 3 lernst du die Halbwertszeit kennen.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="ra-1.html">⬅️ Modul 1: Radioaktivität überall – Nachweis</a>
+      <a href="ra-3.html">➡️ Modul 3: Die Halbwertszeit</a>
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik <span class="mt-zug">9M</span> · Radioaktivität · Modul 2 · Texte, Zeichnungen und Animationen sind eigenständig erstellt. Mit deinem Code wird dein Lernstand gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="../../../7M/NT/modul-basis.js"></script>
+<script src="../../../8M/NT/karten.js"></script>
+<script src="karten/ra2.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, clamp, reduced, register, solve} = Modul;
+const NS = "http://www.w3.org/2000/svg";
+const svgEl = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const FARBE = {a: "#e0453a", b: "#2a7de1", g: "#1fa35a", p: "#e05252", n: "#4a6fa5", e: "#2a7de1"};
+// Kern in Zerfallsgleichungen: oben Massenzahl, unten Kernladungszahl
+const nk = (m, z, s) => `<span class="nk"><span class="z"><b>${m}</b><b>${z}</b></span><span class="s">${s}</span></span>`;
+
+Modul.init({
+  key: "grumi-nt9-ra-2-v1",
+  hero: "funken",
+  api: "/api/nt9/uebung/feedback",
+  thema: "Radioaktivität, Klasse 9: Die Strahlungsarten – Abschirmung (α: Papier hält sie auf, sehr kurze Reichweite; β: 1 mm Aluminium; γ: 13 mm Blei halbieren sie, mindestens 20 cm Blei zum vollständigen Abschirmen, Reichweite mehrere Kilometer); Ablenkung im elektrischen Feld zwischen zwei geladenen Platten (α leicht zum Minuspol, also positiv und schwer: Heliumkerne aus 2 Protonen und 2 Neutronen; β stark zum Pluspol, also negativ: schnelle Elektronen fast ohne Masse; γ nicht abgelenkt, ungeladen: elektromagnetische Welle wie Licht mit viel mehr Energie); α und β Teilchenstrahlung, γ elektromagnetische Welle; Isotope: gleiches Element (gleiche Protonenzahl), verschiedene Neutronenzahl, chemisch gleich, verschieden schwer (H-1, Deuterium H-2, Tritium H-3); Massenzahl = Protonen + Neutronen, Kernladungszahl = Protonen; α-Zerfall: Kern schleudert einen Heliumkern heraus, verliert 2 Protonen und 2 Neutronen, z. B. Radon-222 wird Polonium-218; β-Zerfall: ein Neutron wird zu Proton und Elektron, das Elektron wird herausgeschleudert, Protonenzahl + 1, Massenzahl bleibt, z. B. Kohlenstoff-14 wird Stickstoff-14; γ-Strahlung ändert Element und Massenzahl nicht; Zerfallsgleichungen mit Massenzahl oben und Kernladungszahl unten, Summen links und rechts gleich",
+  glossary: {
+    abschirmen: ["abschirmen", "Etwas in den Weg stellen, das die Strahlung aufhält oder schwächt – zum Beispiel Papier, Aluminium oder Blei."],
+    alpha: ["α-Strahlung (Alpha-Strahlung)", "Strahlung aus Heliumkernen (2 Protonen + 2 Neutronen). Positiv geladen, sehr kurze Reichweite – schon Papier hält sie auf. α ist der erste Buchstabe des griechischen Alphabets."],
+    beta: ["β-Strahlung (Beta-Strahlung)", "Strahlung aus schnellen Elektronen. Negativ geladen. 1 mm Aluminium schirmt sie ab. β ist der zweite griechische Buchstabe."],
+    gamma: ["γ-Strahlung (Gamma-Strahlung)", "Elektromagnetische Welle wie Licht, aber mit viel mehr Energie. Ungeladen und sehr durchdringend: 13 mm Blei halbieren sie nur."],
+    feld: ["elektrisches Feld", "Bereich zwischen zwei elektrisch geladenen Platten (Pluspol und Minuspol). Geladene Teilchen werden darin abgelenkt: Gegensätzliche Ladungen ziehen sich an."],
+    heliumkern: ["Heliumkern", "Der Kern eines Helium-Atoms: 2 Protonen und 2 Neutronen (Helium-4). Genau solche Kerne fliegen als α-Strahlung heraus."],
+    proton: ["Proton", "Positiv geladenes Teilchen im Atomkern. Die Zahl der Protonen bestimmt das Element."],
+    neutron: ["Neutron", "Teilchen im Atomkern ohne elektrische Ladung, etwa so schwer wie ein Proton."],
+    elektron: ["Elektron", "Winziges, negativ geladenes Teilchen mit fast keiner Masse. Normalerweise ist es in der Atomhülle. Schnelle Elektronen aus dem Kern sind die β-Strahlung."],
+    elektromagnetisch: ["elektromagnetische Welle", "Strahlung ohne Teilchen und ohne Ladung, die sich wie Licht ausbreitet – zum Beispiel Licht, Radiowellen, Röntgenstrahlung und γ-Strahlung."],
+    element: ["Element", "Grundstoff. Alle Atome eines Elements haben gleich viele Protonen, z. B. Wasserstoff 1, Kohlenstoff 6, Uran 92."],
+    kernladungszahl: ["Kernladungszahl", "Anzahl der Protonen im Kern. Sie bestimmt das Element und heißt auch Ordnungszahl."],
+    massenzahl: ["Massenzahl", "Anzahl aller Kernbausteine: Protonen + Neutronen. Sie steht hinter dem Namen, z. B. Kohlenstoff-14."],
+    isotop: ["Isotop", "Atome desselben Elements (gleich viele Protonen) mit verschieden vielen Neutronen. Sie reagieren chemisch gleich, sind aber verschieden schwer."],
+    deuterium: ["Deuterium", "„Schwerer Wasserstoff“ (H-2): 1 Proton und 1 Neutron im Kern – etwa doppelt so schwer wie normaler Wasserstoff."],
+    tritium: ["Tritium", "„Überschwerer Wasserstoff“ (H-3): 1 Proton und 2 Neutronen im Kern – etwa dreimal so schwer. Tritium ist radioaktiv."],
+    instabil: ["instabil", "Nicht dauerhaft, unbeständig. Ein instabiler Atomkern wandelt sich irgendwann um und sendet dabei Strahlung aus."],
+    zerfall: ["radioaktiver Zerfall (Kernumwandlung)", "Ein instabiler Atomkern schleudert ein Teilchen heraus und wird dabei zu einem anderen Kern. Dabei entsteht radioaktive Strahlung."],
+    zerfallsgleichung: ["Zerfallsgleichung", "Kurze Schreibweise für einen Zerfall: Ausgangskern → neuer Kern + Teilchen. Oben stehen die Massenzahlen, unten die Kernladungszahlen."],
+    periodensystem: ["Periodensystem", "Tabelle aller Elemente, geordnet nach der Zahl der Protonen (Kernladungszahl). Daran liest man ab, welches Element zu einer Zahl gehört."]
+  }
+});
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Was hält α-Strahlung schon auf?", o: ["ein Blatt Papier", "erst 1 mm Aluminium", "erst 13 mm Blei", "erst 20 cm Blei"], a: 0, e: "α-Strahlung hat eine sehr kurze Reichweite. Schon Papier oder eine Postkarte fängt sie fast ganz ab."},
+    {q: "Eine Strahlung geht durch Papier und durch 1 mm Aluminium. 13 mm Blei halbieren sie. Welche ist es?", o: ["γ-Strahlung", "α-Strahlung", "β-Strahlung", "keine der drei"], a: 0, e: "Nur γ-Strahlung kommt so weit. Ganz abschirmen kann man sie erst mit mindestens 20 cm Blei."}
+  ],
+  s2: [
+    {q: "Im elektrischen Feld wird β-Strahlung stark zum Pluspol abgelenkt. Was folgt daraus?", o: ["β-Strahlung ist negativ geladen.", "β-Strahlung ist positiv geladen.", "β-Strahlung ist gar nicht geladen.", "β-Strahlung ist besonders schwer."], a: 0, e: "Gegensätzliche Ladungen ziehen sich an: Was zum Pluspol fliegt, ist negativ."}
+  ],
+  s3: [
+    {q: "Was unterscheidet die Isotope H-1, H-2 und H-3?", o: ["die Zahl der Neutronen", "die Zahl der Protonen", "die Zahl der Elektronen", "ihr chemisches Verhalten"], a: 0, e: "Alle drei haben 1 Proton und 1 Elektron. Nur die Zahl der Neutronen ist verschieden."},
+    {q: "Wie viele Neutronen hat ein Kern von Kohlenstoff-14? (Kohlenstoff hat 6 Protonen.)", o: ["8", "6", "14", "20"], a: 0, e: "Massenzahl 14 − 6 Protonen = 8 Neutronen."}
+  ],
+  s4: [
+    {q: "Was passiert beim α-Zerfall mit dem Kern?", o: ["Er verliert 2 Protonen und 2 Neutronen.", "Er verliert 1 Elektron aus seiner Hülle.", "Er bekommt 2 Protonen und 2 Neutronen dazu.", "Er bleibt gleich und sendet nur Licht aus."], a: 0, e: "Die 2 Protonen und 2 Neutronen fliegen als Heliumkern heraus – das α-Teilchen."},
+    {q: "Kohlenstoff-14 zerfällt durch β-Zerfall. Welcher Kern entsteht?", o: ["Stickstoff-14", "Kohlenstoff-13", "Bor-10", "Sauerstoff-18"], a: 0, e: "Ein Neutron wird zum Proton: 7 Protonen = Stickstoff. Die Massenzahl 14 bleibt."}
+  ],
+  s5: [
+    {q: "Was steht in der Schreibweise des Radon-Kerns (oben 222, unten 86) unten?", o: ["die Kernladungszahl (Zahl der Protonen)", "die Massenzahl (Protonen + Neutronen)", "die Zahl der Neutronen im Kern", "die Zahl der Elektronen in der Hülle"], a: 0, e: "Oben steht die Massenzahl, unten die Kernladungszahl. 86 Protonen hat Radon."}
+  ],
+  train: [
+    {q: "Welche Strahlungsart ist eine elektromagnetische Welle?", o: ["γ-Strahlung", "α-Strahlung", "β-Strahlung", "alle drei"], a: 0, e: "α und β bestehen aus Teilchen, γ ist eine Welle wie Licht – nur viel energiereicher."},
+    {q: "Woraus besteht β-Strahlung?", o: ["aus schnellen Elektronen", "aus Heliumkernen", "aus langsamen Neutronen", "aus sichtbarem Licht"], a: 0, e: "Die Elektronen entstehen im Kern, wenn sich ein Neutron umwandelt."},
+    {q: "Wie heißt Wasserstoff mit 1 Proton und 2 Neutronen?", o: ["Tritium", "Deuterium", "Helium", "Radon"], a: 0, e: "H-3 heißt Tritium, H-2 heißt Deuterium."},
+    {q: "Welche Strahlung wird im elektrischen Feld gar nicht abgelenkt?", o: ["γ-Strahlung", "α-Strahlung", "β-Strahlung", "α- und β-Strahlung"], a: 0, e: "γ-Strahlung ist ungeladen und fliegt geradeaus."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Zeichenhilfen ---------- */
+// Strahlen-Warnzeichen (drei Flügel, einer zeigt nach unten)
+function warnZeichen(cx, cy, R){
+  const r1 = R * .24, r2 = R * .88, p = (r, a) => `${(cx + r * Math.cos(a)).toFixed(1)} ${(cy + r * Math.sin(a)).toFixed(1)}`;
+  let d = "";
+  [90, 210, 330].forEach(m => { const a1 = (m - 30) * Math.PI / 180, a2 = (m + 30) * Math.PI / 180;
+    d += `M${p(r1, a1)} L${p(r2, a1)} A${r2} ${r2} 0 0 1 ${p(r2, a2)} L${p(r1, a2)} A${r1} ${r1} 0 0 0 ${p(r1, a1)} Z `; });
+  return `<circle cx="${cx}" cy="${cy}" r="${R}" fill="#f2c14e" stroke="#a87808" stroke-width="1.5"/><path d="${d}" fill="#15212b"/><circle cx="${cx}" cy="${cy}" r="${(R * .15).toFixed(1)}" fill="#15212b"/>`;
+}
+// Atomkern als Haufen aus Protonen (rot) und Neutronen (blau); farbe(k) entscheidet je Kugel
+function kernHaufen(parent, cx, cy, n, radius, r, farbe){
+  const liste = [];
+  for (let k = 0; k < n; k++) {
+    const d = radius * Math.sqrt((k + .5) / n), a = k * 2.3999;
+    liste.push(svgEl("circle", {cx: (cx + d * Math.cos(a)).toFixed(1), cy: (cy + d * Math.sin(a)).toFixed(1), r, fill: farbe(k), stroke: "#fff", "stroke-width": 1}, parent));
+  }
+  return liste;
+}
+
+/* ---------- Station 1: Abschirm-Labor ---------- */
+(function(){
+  const svg = $("#abSvg"), obs = $("#abObs"), tb = $("#abTab tbody");
+  const ART = {
+    a: {name: "α-Strahlung", sym: "α", v: 1.7, tr: [1, 0, 0, 0, 0], form: `<circle r="5.5" fill="${FARBE.a}" stroke="#fff" stroke-width="1"/>`},
+    b: {name: "β-Strahlung", sym: "β", v: 3.2, tr: [1, 1, 0, 0, 0], form: `<circle r="3.4" fill="${FARBE.b}"/>`},
+    g: {name: "γ-Strahlung", sym: "γ", v: 4.4, tr: [1, 1, 1, .5, 0], form: `<path d="M-9 0 q2.25 -5 4.5 0 t4.5 0 t4.5 0 t4.5 0" fill="none" stroke="${FARBE.g}" stroke-width="2.4" stroke-linecap="round"/>`}
+  };
+  const HIND = [
+    {name: "kein Hindernis"},
+    {name: "Papier", x: 248, w: 5, y: 80, h: 120, fill: "#fff", stroke: "#9aa5ad"},
+    {name: "1 mm Aluminium", x: 246, w: 9, y: 80, h: 120, fill: "url(#abAlu)", stroke: "#7d8a94"},
+    {name: "13 mm Blei", x: 238, w: 25, y: 80, h: 120, fill: "#6b7a86", stroke: "#3c474f"},
+    {name: "20 cm Blei", x: 196, w: 108, y: 76, h: 128, fill: "#59656e", stroke: "#2f383f"}
+  ];
+  const TXT = {
+    a1: "α-Strahlung und Papier: Der Zähler bleibt stumm. Schon ein dünnes Blatt Papier hält α-Strahlung auf.",
+    a2: "α-Strahlung und 1 mm Aluminium: Nichts kommt durch – wenn schon Papier reicht, dann erst recht Aluminium.",
+    a3: "α-Strahlung und 13 mm Blei: Nichts kommt durch. Für α-Strahlung hätte schon Papier gereicht.",
+    a4: "α-Strahlung und 20 cm Blei: Nichts kommt durch. So eine dicke Wand braucht man für α-Strahlung nicht.",
+    b1: "β-Strahlung und Papier: Fast alles kommt durch. Papier hält β-Strahlung nicht auf.",
+    b2: "β-Strahlung und 1 mm Aluminium: Der Zähler bleibt stumm. Eine dünne Aluminiumplatte schirmt β-Strahlung ab.",
+    b3: "β-Strahlung und 13 mm Blei: Nichts kommt durch – schon 1 mm Aluminium hätte gereicht.",
+    b4: "β-Strahlung und 20 cm Blei: Nichts kommt durch.",
+    g1: "γ-Strahlung und Papier: Alles kommt durch. Papier ist für γ-Strahlung kein Hindernis.",
+    g2: "γ-Strahlung und 1 mm Aluminium: Auch hier kommt fast alles durch.",
+    g3: "γ-Strahlung und 13 mm Blei: Nur noch etwa die Hälfte kommt an (rund 500 Impulse pro Minute). Blei schwächt γ-Strahlung, hält sie aber nicht ganz auf.",
+    g4: "γ-Strahlung und 20 cm Blei: Erst jetzt bleibt der Zähler stumm. Gegen γ-Strahlung braucht man sehr dicke Bleiwände."
+  };
+  svg.innerHTML = `<rect width="520" height="270" fill="#f7fbfe"/>
+    <defs><linearGradient id="abAlu" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e3e8ec"/><stop offset=".5" stop-color="#aab5bd"/><stop offset="1" stop-color="#dfe5e9"/></linearGradient></defs>
+    <text id="abTitel" x="260" y="24" text-anchor="middle" font-size="14" font-weight="800" fill="#7a4b05"></text>
+    <line id="abStrahl1" x1="96" y1="140" x2="392" y2="140" stroke-width="9" stroke-linecap="round" opacity=".22"/>
+    <line id="abStrahl2" x1="260" y1="140" x2="392" y2="140" stroke-width="9" stroke-linecap="round" opacity="0"/>
+    <g id="abTeilchen"></g>
+    <g id="abHind">${HIND.slice(1).map((h, i) => `<g class="hind" style="transform:translateY(-250px);opacity:0"><rect x="${h.x}" y="${h.y}" width="${h.w}" height="${h.h}" rx="${i === 3 ? 6 : 1.5}" fill="${h.fill}" stroke="${h.stroke}" stroke-width="2"/><text x="250" y="224" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">${h.name}</text></g>`).join("")}</g>
+    <rect x="24" y="110" width="68" height="60" rx="8" fill="#6b7a86" stroke="#3c474f" stroke-width="2"/>
+    <rect x="88" y="133" width="8" height="14" fill="#2f383f"/>
+    ${warnZeichen(56, 140, 17)}
+    <circle id="abBadge" cx="58" cy="88" r="15" fill="${FARBE.a}"/><text id="abSym" x="58" y="94" text-anchor="middle" font-size="18" font-weight="900" fill="#fff">α</text>
+    <text x="58" y="190" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">Strahler</text>
+    <path d="M466 140 H490 V108" fill="none" stroke="#3c474f" stroke-width="2.5"/>
+    <rect x="392" y="128" width="74" height="24" rx="12" fill="#dfe9f1" stroke="#566674" stroke-width="2"/>
+    <ellipse id="abBlitz" cx="396" cy="140" rx="9" ry="15" fill="#ffd84d" opacity="0"/>
+    <ellipse cx="393" cy="140" rx="3" ry="10" fill="#3c474f"/>
+    <text x="429" y="172" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">Zählrohr</text>
+    <rect x="420" y="36" width="92" height="72" rx="8" fill="#3c474f"/>
+    <rect x="428" y="44" width="76" height="34" rx="4" fill="#12261c"/>
+    <text id="abZahl" x="466" y="69" text-anchor="middle" font-size="20" font-weight="800" fill="#7df29b" font-family="Consolas, 'Courier New', monospace">0</text>
+    <text x="466" y="95" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">Impulse/Minute</text>
+    <rect x="392" y="192" width="120" height="14" rx="7" fill="#e8eef2"/>
+    <rect id="abBar" x="392" y="192" width="0" height="14" rx="7" fill="${FARBE.a}"/>
+    <text id="abProz" x="452" y="226" text-anchor="middle" font-size="12" font-weight="800" fill="#15212b"></text>
+    <text x="14" y="258" font-size="10.5" font-weight="700" fill="#566674">Hindernisse nicht maßstabsgetreu · Zählrate ohne Nullrate</text>`;
+  tb.innerHTML = ["α-Strahler", "β-Strahler", "γ-Strahler"].map(n => `<tr><th>${n}</th><td></td><td></td><td></td><td></td></tr>`).join("");
+  const lay = $("#abTeilchen", svg), hindG = $$(".hind", svg), zahl = $("#abZahl", svg), blitzEl = $("#abBlitz", svg);
+  const s1 = $("#abStrahl1", svg), s2 = $("#abStrahl2", svg);
+  const knA = {a: $("#abA"), b: $("#abB"), g: $("#abG")}, knH = [0, 1, 2, 3, 4].map(i => $("#abH" + i));
+  const fertig = new Set();
+  let art = "a", hind = 0, messNr = 0;
+  register("abschirm", "#abSvg", "Abschirm-Labor: alle drei Strahler mit allen vier Hindernissen gemessen");
+
+  // Teilchen: kleine Kugeln (α, β) oder Wellenpakete (γ); was abgeschirmt wird, bleibt vor dem Hindernis stehen und verblasst
+  const pool = Array.from({length: 30}, () => ({g: svgEl("g", {opacity: 0}, lay), aktiv: false}));
+  let raf = 0, letzt = 0, bt = 0;
+  function blitz(){ blitzEl.setAttribute("opacity", .9); clearTimeout(bt); bt = setTimeout(() => blitzEl.setAttribute("opacity", 0), 70); }
+  function spawn(){
+    const p = pool.find(q => !q.aktiv); if (!p) return;
+    const A = ART[art];
+    p.aktiv = true; p.x = 98; p.y = 140 + (Math.random() * 2 - 1) * 8; p.v = A.v * (.85 + Math.random() * .3); p.a = 1;
+    p.ende = hind && Math.random() >= A.tr[hind] ? HIND[hind].x - 4 : 390;
+    p.g.innerHTML = A.form; p.g.setAttribute("opacity", 1);
+  }
+  function lauf(t){
+    raf = requestAnimationFrame(lauf);
+    if (t - letzt > (art === "a" ? 150 : 105)) { letzt = t; spawn(); }
+    pool.forEach(p => {
+      if (!p.aktiv) return;
+      if (p.x < p.ende) p.x = Math.min(p.ende, p.x + p.v);
+      else if (p.ende >= 390) { p.aktiv = false; p.g.setAttribute("opacity", 0); blitz(); return; }
+      else { p.a -= .05; if (p.a <= 0) { p.aktiv = false; p.g.setAttribute("opacity", 0); return; } p.g.setAttribute("opacity", p.a.toFixed(2)); }
+      p.g.setAttribute("transform", `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})`);
+    });
+  }
+  const leeren = () => pool.forEach(p => { p.aktiv = false; p.g.setAttribute("opacity", 0); });
+  if (!reduced) Modul.onVisible($("#abSim"), v => { if (v && !raf) raf = requestAnimationFrame(lauf); else if (!v) { cancelAnimationFrame(raf); raf = 0; } });
+
+  function bild(){
+    const A = ART[art], tr = A.tr[hind], H = HIND[hind];
+    Object.keys(knA).forEach(k => { knA[k].classList.toggle("ghost", k !== art); knA[k].setAttribute("aria-pressed", k === art); });
+    knH.forEach((b, i) => { b.classList.toggle("ghost", i !== hind); b.setAttribute("aria-pressed", i === hind); });
+    $("#abTitel", svg).textContent = `${A.sym}-Strahler · ${H.name}`;
+    $("#abBadge", svg).setAttribute("fill", FARBE[art]); $("#abSym", svg).textContent = A.sym;
+    hindG.forEach((g, i) => { const an = i + 1 === hind; g.style.transform = an ? "translateY(0)" : "translateY(-250px)"; g.style.opacity = an ? 1 : 0; });
+    [s1, s2].forEach(l => l.setAttribute("stroke", FARBE[art]));
+    s1.setAttribute("x2", hind ? H.x : 392);
+    s2.setAttribute("x1", hind ? H.x + H.w : 392); s2.setAttribute("opacity", hind ? (.22 * tr).toFixed(2) : 0);
+    $("#abBar", svg).setAttribute("fill", FARBE[art]); $("#abBar", svg).setAttribute("width", 120 * tr);
+    $("#abProz", svg).textContent = `kommt durch: ${Math.round(tr * 100)} %`;
+    leeren();
+  }
+  // Messung: der Zähler zählt eine Minute lang (im Zeitraffer) – danach steht der Wert in der Tabelle
+  function messen(){
+    const nr = ++messNr, A = ART[art], tr = A.tr[hind], soll = Math.round(1000 * tr), h = hind, a = art;
+    const ziel = soll ? Math.round(soll * (1 + (Math.random() * 2 - 1) * .025)) : 0;
+    bild();
+    obs.textContent = "Messung läuft …";
+    const t0 = performance.now(), dauer = reduced ? 0 : 1300;
+    (function f(t){
+      if (nr !== messNr) return;
+      const k = dauer ? clamp((t - t0) / dauer, 0, 1) : 1;
+      zahl.textContent = String(Math.round(ziel * k));
+      if (k < 1) requestAnimationFrame(f); else ende(a, h, soll);
+    })(t0);
+  }
+  function ende(a, h, soll){
+    const A = ART[a];
+    if (!h) { obs.textContent = `${A.name} ohne Hindernis: Der Zähler misst etwa 1 000 Impulse pro Minute – das ist der Vergleichswert. Schiebe jetzt ein Hindernis in den Strahl.`; return; }
+    const key = a + h, td = $$("tr", tb)["abg".indexOf(a)].children[h];
+    td.textContent = soll === 1000 ? "✅ durch (≈ 1 000)" : soll ? "½ die Hälfte (≈ 500)" : "⛔ gestoppt (0)";
+    td.classList.remove("neu"); void td.offsetWidth; td.classList.add("neu");
+    fertig.add(key);
+    obs.textContent = TXT[key] + (fertig.size < 12 ? ` (${fertig.size} von 12 Messungen)` : "");
+    if (fertig.size === 12 && !Modul.isSolved("abschirm")) { solve("abschirm"); }
+    if (fertig.size === 12) obs.textContent += " ✅ Tabelle vollständig! α: Papier reicht. β: 1 mm Aluminium reicht. γ: 13 mm Blei halbieren sie nur – ganz weg ist sie erst hinter 20 cm Blei.";
+  }
+  Object.keys(knA).forEach(k => knA[k].addEventListener("click", () => { art = k; messen(); }));
+  knH.forEach((b, i) => b.addEventListener("click", () => { hind = i; messen(); }));
+  messen();
+})();
+
+/* ---------- Station 1: Übungen ---------- */
+Modul.makeGap($("#gapAbschirm"), [
+  ["Radioaktive Strahlung lässt sich mit Materialien ", {g: "abschirmen"}, ". So fand man drei Strahlungsarten."],
+  ["α-Strahlung wird schon von einem Blatt ", {g: "Papier"}, " aufgehalten. β-Strahlung geht durch Papier, aber nicht durch 1 mm ", {g: "Aluminium"}, "."],
+  ["γ-Strahlung ist am durchdringendsten: 13 mm Blei lassen noch die ", {g: "Hälfte"}, " durch. Zum vollständigen Abschirmen braucht man mindestens 20 cm ", {g: "Blei"}, "."]
+], "gapAbschirm", ["Glas", "Viertel"]);
+
+/* ---------- Station 2: Ablenkung im elektrischen Feld ---------- */
+(function(){
+  const svg = $("#feldSvg");
+  const BAHN = {
+    g: "M82 145 H468",
+    a: "M82 145 H150 Q260 145 370 161 L468 175.3",
+    b: "M82 145 H150 Q260 145 370 97 L468 54.3"
+  };
+  const ZIEL = {g: 145, a: 175.3, b: 54.3}, DAUER = {a: 2.3, b: 1.5, g: 1.2};
+  const teil = k => k === "g" ? `<path d="M-8 0 q2 -5 4 0 t4 0 t4 0 t4 0" fill="none" stroke="${FARBE.g}" stroke-width="2.6" stroke-linecap="round"/>` :
+    `<circle r="${k === "a" ? 5.5 : 3.4}" fill="${FARBE[k]}" stroke="#fff" stroke-width="1"/>`;
+  const bewegt = k => reduced ? "" : [0, 1, 2].map(j => `<g>${teil(k)}<animateMotion dur="${DAUER[k]}s" begin="${(-j * DAUER[k] / 3).toFixed(2)}s" repeatCount="indefinite" rotate="auto" path="${BAHN[k]}"/></g>`).join("");
+  const spur = (k, sym, ty) => `<g id="fl_${k}" class="stage"><path d="${BAHN[k]}" fill="none" stroke="${FARBE[k]}" stroke-width="3" opacity=".75"/>${bewegt(k)}
+    <circle cx="468" cy="${ZIEL[k]}" r="7" fill="${FARBE[k]}" opacity=".85"/><text x="492" y="${ty}" text-anchor="middle" font-size="17" font-weight="900" fill="${FARBE[k]}">${sym}</text></g>`;
+  svg.innerHTML = `<rect width="520" height="290" fill="#f7fbfe"/>
+    <defs><marker id="flPf" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="#9aa5ad"/></marker></defs>
+    <text id="flTitel" x="250" y="24" text-anchor="middle" font-size="14" font-weight="800" fill="#7a4b05">Versuchsaufbau</text>
+    <g id="flFeld" class="stage" stroke="#b9c3cb" stroke-width="1.5" stroke-dasharray="4 4">${[175, 215, 255, 295, 335].map(x => `<line x1="${x}" y1="86" x2="${x}" y2="200" marker-end="url(#flPf)"/>`).join("")}</g>
+    <rect id="flPlus" class="platte" x="150" y="66" width="220" height="14" rx="3" fill="#b9c3cb"/>
+    <rect id="flMinus" class="platte" x="150" y="210" width="220" height="14" rx="3" fill="#b9c3cb"/>
+    <g id="flZeichen" class="stage" font-size="15" font-weight="900" fill="#fff" text-anchor="middle">${[172, 207, 242, 277, 312, 347].map(x => `<text x="${x}" y="78">+</text><text x="${x}" y="222">−</text>`).join("")}</g>
+    <g id="flPole" class="stage" font-size="12" font-weight="800" text-anchor="end"><text x="142" y="78" fill="#c0392b">Pluspol</text><text x="142" y="222" fill="#1f4f8f">Minuspol</text></g>
+    <rect x="22" y="124" width="56" height="42" rx="6" fill="#6b7a86" stroke="#3c474f" stroke-width="2"/><rect x="74" y="140" width="8" height="10" fill="#2f383f"/>
+    ${warnZeichen(48, 145, 12)}
+    <text x="50" y="186" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">Strahler</text>
+    <rect x="468" y="40" width="10" height="210" rx="2" fill="#e8eef2" stroke="#566674" stroke-width="1.5"/>
+    <text x="473" y="33" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">Schirm</text>
+    <g id="fl_alle" class="stage"><path d="M82 142 H468" stroke="${FARBE.a}" stroke-width="2.5"/><path d="M82 145 H468" stroke="${FARBE.b}" stroke-width="2.5"/><path d="M82 148 H468" stroke="${FARBE.g}" stroke-width="2.5"/>
+      ${reduced ? "" : ["a", "b", "g"].map(k => `<g>${teil(k)}<animateMotion dur="1.6s" begin="${({a: 0, b: -.55, g: -1.1})[k]}s" repeatCount="indefinite" path="M82 ${({a: 142, b: 145, g: 148})[k]} H468"/></g>`).join("")}
+      <circle cx="468" cy="145" r="8" fill="#8a6d4b" opacity=".8"/><text x="498" y="149" text-anchor="middle" font-size="12" font-weight="900" fill="#566674">αβγ</text></g>
+    ${spur("g", "γ", 151)}${spur("a", "α", 182)}${spur("b", "β", 60)}
+    <g id="flInfo" class="stage" font-size="11.5" font-weight="700" fill="#15212b">
+      <circle cx="106" cy="249" r="5" fill="${FARBE.p}"/><circle cx="116" cy="249" r="5" fill="${FARBE.n}"/><circle cx="106" cy="259" r="5" fill="${FARBE.n}"/><circle cx="116" cy="259" r="5" fill="${FARBE.p}"/>
+      <text x="128" y="251">α: Heliumkern</text><text x="128" y="266">schwer, positiv</text>
+      <circle cx="240" cy="254" r="3.4" fill="${FARBE.e}"/><text x="250" y="251">β: Elektron</text><text x="250" y="266">winzig, negativ</text>
+      <path d="M346 254 q2.5 -6 5 0 t5 0 t5 0 t5 0" fill="none" stroke="${FARBE.g}" stroke-width="2.4"/><text x="372" y="251">γ: Welle</text><text x="372" y="266">ungeladen</text>
+    </g>`;
+  const TITEL = ["Spannung aus: alle fliegen geradeaus", "Spannung an: oben Pluspol, unten Minuspol", "γ-Strahlung: keine Ablenkung → ungeladen", "α-Strahlung: leicht zum Minuspol → positiv", "β-Strahlung: stark zum Pluspol → negativ", "Wenig abgelenkt = schwer, stark abgelenkt = leicht"];
+  Modul.makeSchritte($("#feldSim"), {
+    start: "Ein Strahler sendet α-, β- und γ-Strahlung aus. Sie fliegt zwischen zwei Metallplatten hindurch auf einen Schirm. Tippe auf „Start“.",
+    steps: [
+      "Noch liegt keine Spannung an den Platten. Alle drei Strahlungsarten fliegen <strong>geradeaus</strong> und treffen dieselbe Stelle am Schirm.",
+      "Jetzt wird Spannung angelegt: Die obere Platte wird zum <strong>Pluspol (+)</strong>, die untere zum <strong>Minuspol (−)</strong>. Dazwischen entsteht ein <strong>elektrisches Feld</strong>.",
+      "Die <strong>γ-Strahlung</strong> fliegt weiter geradeaus. Sie wird nicht abgelenkt – sie ist <strong>ungeladen</strong>.",
+      "Die <strong>α-Strahlung</strong> wird <strong>leicht zum Minuspol</strong> abgelenkt. Gegensätzliche Ladungen ziehen sich an – α ist also <strong>positiv</strong> geladen.",
+      "Die <strong>β-Strahlung</strong> wird <strong>stark zum Pluspol</strong> abgelenkt. Sie ist also <strong>negativ</strong> geladen.",
+      "Warum wird α so wenig abgelenkt? α-Teilchen sind <strong>schwere</strong> Heliumkerne aus 2 Protonen und 2 Neutronen. β-Teilchen sind winzige <strong>Elektronen</strong> fast ohne Masse – sie lassen sich leicht ablenken."
+    ],
+    ms: 3000,
+    zeige(i){
+      $("#flTitel", svg).textContent = i < 0 ? "Versuchsaufbau" : TITEL[i];
+      $("#fl_alle", svg).classList.toggle("on", i === 0);
+      const an = i >= 1;
+      $("#flPlus", svg).setAttribute("fill", an ? "#e05252" : "#b9c3cb"); $("#flMinus", svg).setAttribute("fill", an ? "#4a6fa5" : "#b9c3cb");
+      ["#flFeld", "#flZeichen", "#flPole"].forEach(s => $(s, svg).classList.toggle("on", an));
+      $("#fl_g", svg).classList.toggle("on", i >= 2); $("#fl_a", svg).classList.toggle("on", i >= 3); $("#fl_b", svg).classList.toggle("on", i >= 4);
+      $("#flInfo", svg).classList.toggle("on", i >= 5);
+    }
+  }, "feldSchritte");
+})();
+
+/* ---------- Station 2: Übungen ---------- */
+Modul.makeTF($("#tfFeld"), [
+  ["Zwischen zwei geladenen Platten herrscht ein elektrisches Feld.", true],
+  ["α-Strahlung wird zum Pluspol abgelenkt.", false],
+  ["γ-Strahlung fliegt im elektrischen Feld geradeaus.", true],
+  ["β-Strahlung wird stärker abgelenkt als α-Strahlung.", true],
+  ["α-Teilchen sind leichter als Elektronen.", false],
+  ["α- und β-Strahlung bestehen aus Teilchen.", true]
+], "tfFeld");
+Modul.makeSort($("#sortArten"), {
+  buckets: ["α-Strahlung", "β-Strahlung", "γ-Strahlung"], cols: 170,
+  items: [
+    {t: "Heliumkerne (2 p + 2 n)", b: 0}, {t: "positiv geladen", b: 0}, {t: "Papier hält sie auf", b: 0}, {t: "leicht zum Minuspol", b: 0},
+    {t: "schnelle Elektronen", b: 1}, {t: "negativ geladen", b: 1}, {t: "1 mm Aluminium hält sie auf", b: 1}, {t: "stark zum Pluspol", b: 1},
+    {t: "elektromagnetische Welle", b: 2}, {t: "ungeladen", b: 2}, {t: "erst 20 cm Blei halten sie auf", b: 2}, {t: "wird nicht abgelenkt", b: 2}
+  ]
+}, "sortArten");
+Modul.makeOpen($("#open2"), [
+  {q: "Erkläre, woran man im elektrischen Feld erkennt, dass α-Strahlung positiv geladen und schwerer als β-Strahlung ist.",
+   m: "α-Strahlung wird zum Minuspol abgelenkt. Weil sich gegensätzliche Ladungen anziehen, ist sie positiv geladen. Sie wird aber nur leicht abgelenkt, β-Strahlung dagegen stark. Daran erkennt man, dass α-Teilchen viel schwerer sind: Es sind Heliumkerne, β-Teilchen sind leichte Elektronen.",
+   k: ["minuspol|minus|negative platte", "anzieh|gegensätzlich|ungleich|positiv", "leicht|wenig|schwach|kaum", "stark|mehr|weiter", "schwer|masse|heliumkern"], min: 4}
+], "open2-", "Schau dir die Animation noch einmal an: Wohin fliegt α, und wie stark wird es abgelenkt – im Vergleich zu β?");
+
+/* ---------- Station 3: Isotope des Wasserstoffs ---------- */
+(function(){
+  const svg = $("#isoSvg"), obs = $("#isoObs");
+  const CX = 140, CY = 128, VERSTECK = "translate(150px,-90px)";
+  const ISO = [
+    {name: "Wasserstoff (H-1)", p: [0, 0], n: [], daten: ["1 Proton + 0 Neutronen", "→ Massenzahl 1"],
+     txt: "Normaler Wasserstoff H-1: 1 Proton, kein Neutron, außen 1 Elektron. Das ist der häufigste Wasserstoff – zum Beispiel im Wasser."},
+    {name: "Deuterium (H-2)", p: [-12, 0], n: [[12, 0]], daten: ["1 Proton + 1 Neutron", "→ Massenzahl 2"],
+     txt: "Deuterium H-2: 1 Proton und 1 Neutron. Es ist etwa doppelt so schwer wie H-1. Chemisch verhält es sich genauso, denn es hat auch nur 1 Proton und 1 Elektron."},
+    {name: "Tritium (H-3)", p: [0, -11], n: [[-12, 10], [12, 10]], daten: ["1 Proton + 2 Neutronen", "→ Massenzahl 3"],
+     txt: "Tritium H-3: 1 Proton und 2 Neutronen – etwa dreimal so schwer wie H-1. Sein Kern ist instabil: Tritium ist radioaktiv."}
+  ];
+  const BX = [305, 370, 435], BH = [45, 90, 135], BASIS = 200;
+  svg.innerHTML = `<rect width="520" height="272" fill="#f7fbfe"/>
+    <circle cx="${CX}" cy="${CY}" r="80" fill="none" stroke="#b9c3cb" stroke-width="2" stroke-dasharray="5 5"/>
+    <g class="orbit"><circle cx="${CX + 80}" cy="${CY}" r="6" fill="${FARBE.e}" stroke="#fff" stroke-width="1.5"/></g>
+    <circle id="isoN1" class="nuk" cx="${CX}" cy="${CY}" r="13" fill="${FARBE.n}" stroke="#fff" stroke-width="1.5" style="transform:${VERSTECK};opacity:0"/>
+    <circle id="isoN2" class="nuk" cx="${CX}" cy="${CY}" r="13" fill="${FARBE.n}" stroke="#fff" stroke-width="1.5" style="transform:${VERSTECK};opacity:0"/>
+    <g id="isoP" class="nuk"><circle cx="${CX}" cy="${CY}" r="13" fill="${FARBE.p}" stroke="#fff" stroke-width="1.5"/><text x="${CX}" y="${CY + 5}" text-anchor="middle" font-size="15" font-weight="900" fill="#fff">+</text></g>
+    <text id="isoName" x="${CX}" y="240" text-anchor="middle" font-size="15" font-weight="800" fill="#7a4b05"></text>
+    <text x="400" y="30" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">Masse im Vergleich</text>
+    ${BX.map((x, k) => `<rect id="isoBar${k}" class="balken" x="${x}" y="${BASIS - BH[k]}" width="50" height="${BH[k]}" rx="4" fill="#fff" stroke="#b9c3cb" stroke-width="2" stroke-dasharray="5 4"/>
+      <text id="isoMal${k}" class="stage" x="${x + 25}" y="${BASIS - BH[k] - 8}" text-anchor="middle" font-size="14" font-weight="900" fill="#15212b">${k + 1}×</text>
+      <text x="${x + 25}" y="218" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">H-${k + 1}</text>`).join("")}
+    <line x1="292" y1="${BASIS}" x2="498" y2="${BASIS}" stroke="#566674" stroke-width="2"/>
+    <text x="400" y="242" text-anchor="middle" font-size="12.5" font-weight="800" fill="#15212b"><tspan id="isoDaten1" x="400"></tspan><tspan id="isoDaten2" x="400" dy="17"></tspan></text>`;
+  const gesehen = new Set();
+  register("iso", "#isoSvg", "Isotope des Wasserstoffs: H-1, H-2 und H-3 verglichen");
+  const kn = [0, 1, 2].map(k => $("#isoB" + k));
+  function zeige(k, still){
+    const I = ISO[k];
+    kn.forEach((b, j) => { b.classList.toggle("ghost", j !== k); b.setAttribute("aria-pressed", j === k); });
+    $("#isoP", svg).style.transform = `translate(${I.p[0]}px,${I.p[1]}px)`;
+    ["#isoN1", "#isoN2"].forEach((s, j) => { const el = $(s, svg), pos = I.n[j]; el.style.transform = pos ? `translate(${pos[0]}px,${pos[1]}px)` : VERSTECK; el.style.opacity = pos ? 1 : 0; });
+    $("#isoName", svg).textContent = I.name; $("#isoDaten1", svg).textContent = I.daten[0]; $("#isoDaten2", svg).textContent = I.daten[1];
+    gesehen.add(k);
+    BX.forEach((_, j) => { const b = $("#isoBar" + j, svg), da = gesehen.has(j);
+      b.setAttribute("fill", j === k ? "#f2c14e" : da ? "#fbf0dc" : "#fff"); b.setAttribute("stroke", da ? "#b8720a" : "#b9c3cb"); b.setAttribute("stroke-dasharray", da ? "0" : "5 4");
+      $("#isoMal" + j, svg).classList.toggle("on", da); });
+    if (still) return;
+    obs.textContent = I.txt;
+    if (gesehen.size === 3) { solve("iso"); obs.textContent += " ✅ Alle drei sind Wasserstoff, denn alle haben genau 1 Proton. Sie unterscheiden sich nur in der Zahl der Neutronen – das sind Isotope."; }
+  }
+  kn.forEach((b, k) => b.addEventListener("click", () => zeige(k)));
+  zeige(0, true);
+})();
+
+/* ---------- Station 3: Übungen ---------- */
+Modul.makePaare($("#paareIso"), [
+  ["H-1 (Wasserstoff)", "1 Proton, kein Neutron"],
+  ["H-2 (Deuterium)", "1 Proton und 1 Neutron"],
+  ["H-3 (Tritium)", "1 Proton und 2 Neutronen"],
+  ["Isotope", "gleiches Element, verschieden viele Neutronen"],
+  ["Massenzahl", "Protonen und Neutronen zusammen"],
+  ["Kernladungszahl", "Zahl der Protonen – sie bestimmt das Element"]
+], "paareIso");
+Modul.makeGap($("#gapNeutronen"), [
+  ["Kohlenstoff hat immer 6 Protonen. Kohlenstoff-12 hat 12 − 6 = ", {g: "6"}, " Neutronen, Kohlenstoff-14 hat 14 − 6 = ", {g: "8"}, " Neutronen."],
+  ["Beide gehören zum selben Element. Sie sind ", {g: "Isotope"}, " des Kohlenstoffs."],
+  ["Uran hat 92 Protonen. Uran-238 hat 238 − 92 = ", {g: "146"}, " Neutronen, Uran-235 hat 235 − 92 = ", {g: "143"}, " Neutronen."]
+], "gapNeutronen", ["14", "Elemente"]);
+
+/* ---------- Station 4: α-Zerfall (Radon-222 → Polonium-218) ---------- */
+(function(){
+  const svg = $("#alphaSvg"), CX = 170, CY = 145;
+  svg.innerHTML = `<rect width="520" height="280" fill="#f7fbfe"/>
+    <text id="azTitel" x="260" y="24" text-anchor="middle" font-size="14" font-weight="800" fill="#7a4b05"></text>
+    <circle id="azRing" cx="${CX}" cy="${CY}" r="56" fill="none" stroke="#b8720a" stroke-width="3" stroke-dasharray="6 5" opacity=".7"/>
+    <g id="azGamma" class="stage"><path d="M206 184 q6 -8 12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0" transform="rotate(27 206 184)" fill="none" stroke="${FARBE.g}" stroke-width="3" stroke-linecap="round"/><text x="300" y="240" font-size="13" font-weight="800" fill="${FARBE.g}">γ-Strahlung</text></g>
+    <g id="azKern" class="kern"></g>
+    <g id="azAlpha" class="mv"><circle id="azGlow" cx="226" cy="${CY}" r="17" fill="#fff3c4" stroke="#f2b632" stroke-width="2.5" stroke-dasharray="4 3" opacity="0"/></g>
+    <text id="azName" x="${CX}" y="222" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">Radon-222</text>
+    <text id="azSub" x="${CX}" y="242" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">86 Protonen + 136 Neutronen</text>
+    <g id="azLbl" class="stage" font-weight="800" text-anchor="middle"><text x="410" y="132" font-size="13" fill="#c0392b">α-Teilchen = Heliumkern</text><text x="410" y="149" font-size="12" fill="#15212b">2 Protonen + 2 Neutronen</text></g>
+    <text id="azBilanz" class="stage" x="260" y="271" text-anchor="middle" font-size="14" font-weight="800" fill="#7a4b05">Massenzahl: 222 = 218 + 4  ·  Protonen: 86 = 84 + 2</text>`;
+  kernHaufen($("#azKern", svg), CX, CY, 72, 46, 6.2, k => k % 5 < 2 ? FARBE.p : FARBE.n);
+  const alpha = $("#azAlpha", svg);
+  [[-6, -6, "p"], [6, -6, "n"], [-6, 6, "n"], [6, 6, "p"]].forEach(([dx, dy, t]) => svgEl("circle", {cx: 226 + dx, cy: CY + dy, r: 6.5, fill: FARBE[t], stroke: "#fff", "stroke-width": 1}, alpha));
+  const TITEL = ["Radon-222: ein instabiler Kern", "Instabil: 2 Protonen + 2 Neutronen lösen sich", "α-Zerfall: Ein Heliumkern wird herausgeschleudert", "Übrig bleibt Polonium-218 – ein neues Element", "Kein Kernbaustein geht verloren"];
+  Modul.makeSchritte($("#alphaSim"), {
+    start: "α-Zerfall: Ein Radon-Kern wandelt sich um. Tippe auf „Start“.",
+    steps: [
+      "Ein <strong>Radon-222</strong>-Kern: 86 Protonen und 136 Neutronen. Radon ist ein radioaktives Gas. Sein Kern ist <strong>instabil</strong>.",
+      "Der schwere Kern ist unruhig. Am Rand finden sich <strong>2 Protonen und 2 Neutronen</strong> zu einem kleinen Paket zusammen.",
+      "Das Paket wird mit hoher Geschwindigkeit <strong>herausgeschleudert</strong>. Es ist ein <strong>Heliumkern</strong> – das α-Teilchen. Meist wird dabei auch γ-Strahlung frei.",
+      "Zurück bleibt ein Kern mit nur noch 84 Protonen und 134 Neutronen. 84 Protonen hat das Element <strong>Polonium</strong>: Aus Radon-222 ist <strong>Polonium-218</strong> geworden – ein neues Element!",
+      "Rechne nach: Massenzahl 222 = 218 + 4, Protonen 86 = 84 + 2. Kein Kernbaustein geht verloren."
+    ],
+    ms: 3000,
+    zeige(i){
+      $("#azTitel", svg).textContent = TITEL[Math.max(0, i)];
+      $("#azKern", svg).classList.toggle("wobble", i === 1);
+      $("#azGlow", svg).setAttribute("opacity", i === 1 ? 1 : 0);
+      alpha.style.transform = i >= 2 ? "translate(184px,-56px)" : "";
+      $("#azLbl", svg).classList.toggle("on", i >= 2); $("#azGamma", svg).classList.toggle("on", i >= 2);
+      const po = i >= 3;
+      $("#azName", svg).textContent = po ? "Polonium-218" : "Radon-222";
+      $("#azSub", svg).textContent = po ? "84 Protonen + 134 Neutronen" : "86 Protonen + 136 Neutronen";
+      $("#azName", svg).setAttribute("fill", po ? "#6a3fb0" : "#15212b");
+      $("#azRing", svg).setAttribute("stroke", po ? "#6a3fb0" : "#b8720a");
+      $("#azBilanz", svg).classList.toggle("on", i >= 4);
+    }
+  }, "alphaSchritte");
+})();
+
+/* ---------- Station 4: β-Zerfall (Kohlenstoff-14 → Stickstoff-14) ---------- */
+(function(){
+  const svg = $("#betaSvg"), CX = 170, CY = 140, ZIEL = [440, 74];
+  svg.innerHTML = `<rect width="520" height="280" fill="#f7fbfe"/>
+    <text id="bzTitel" x="260" y="24" text-anchor="middle" font-size="14" font-weight="800" fill="#7a4b05"></text>
+    <g id="bzKern"></g>
+    <line id="bzBahn" class="stage" x1="0" y1="0" x2="${ZIEL[0]}" y2="${ZIEL[1]}" stroke="${FARBE.b}" stroke-width="2.5" stroke-dasharray="6 5"/>
+    <circle id="bzRing" class="stage" cx="0" cy="0" r="16" fill="none" stroke="#f2b632" stroke-width="3"/>
+    <g id="bzE" class="mv" opacity="0"><circle cx="0" cy="0" r="5" fill="${FARBE.e}" stroke="#0b4f8a" stroke-width="1.5"/></g>
+    <g id="bzELbl" class="stage" text-anchor="middle" font-weight="800"><text x="${ZIEL[0]}" y="56" font-size="13" fill="#1f5fae">Elektron = β-Teilchen</text></g>
+    <text id="bzName" x="${CX}" y="212" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">Kohlenstoff-14</text>
+    <text id="bzSub" x="${CX}" y="232" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">6 Protonen + 8 Neutronen</text>
+    <rect x="318" y="150" width="190" height="86" rx="10" fill="#fff" stroke="#d8e2ea" stroke-width="1.5"/>
+    <g font-size="13" font-weight="800"><text id="bzP" x="332" y="176" fill="#15212b">Protonen: 6</text><text id="bzN" x="332" y="200" fill="#15212b">Neutronen: 8</text><text id="bzM" x="332" y="224" fill="#15212b">Massenzahl: 14</text></g>
+    <text id="bzBilanz" class="stage" x="260" y="268" text-anchor="middle" font-size="13.5" font-weight="800" fill="#7a4b05">Massenzahl bleibt 14 · Protonen 6 → 7: ein neues Element</text>`;
+  const rot = new Set([0, 3, 5, 8, 10, 12]);
+  const kugeln = kernHaufen($("#bzKern", svg), CX, CY, 14, 33, 11, k => rot.has(k) ? FARBE.p : FARBE.n);
+  kugeln.forEach(c => c.classList.add("nb"));
+  // das Neutron, das sich umwandelt: das blaue ganz rechts
+  const wandler = kugeln.filter((_, k) => !rot.has(k)).sort((a, b) => b.getAttribute("cx") - a.getAttribute("cx"))[0];
+  const WX = +wandler.getAttribute("cx"), WY = +wandler.getAttribute("cy");
+  $("#bzKern", svg).appendChild(wandler);
+  const bahn = $("#bzBahn", svg), ring = $("#bzRing", svg), el = $("#bzE", svg);
+  bahn.setAttribute("x1", WX + 14); bahn.setAttribute("y1", WY - 4);
+  ring.setAttribute("cx", WX); ring.setAttribute("cy", WY);
+  // Startpunkt am Kreis selbst (cx/cy), damit die CSS-Verschiebung der Gruppe nichts überschreibt
+  const ek = $("circle", el); ek.setAttribute("cx", WX + 15); ek.setAttribute("cy", WY - 6);
+  const TITEL = ["Kohlenstoff-14: ein instabiler Kern", "Neutron → Proton + Elektron", "Das Elektron fliegt heraus: β-Strahlung", "7 Protonen: Aus Kohlenstoff wird Stickstoff", "Die Massenzahl bleibt gleich"];
+  Modul.makeSchritte($("#betaSim"), {
+    start: "β-Zerfall: Ein Kohlenstoff-Kern wandelt sich um. Tippe auf „Start“.",
+    steps: [
+      "Ein <strong>Kohlenstoff-14</strong>-Kern: 6 Protonen und 8 Neutronen. Er hat ein Neutron zu viel und ist <strong>instabil</strong>.",
+      "Ein Neutron im Kern <strong>verwandelt sich</strong>: Aus dem Neutron werden ein <strong>Proton</strong> und ein <strong>Elektron</strong>.",
+      "Das Elektron wird mit hoher Geschwindigkeit <strong>herausgeschleudert</strong>. Diese schnellen Elektronen sind die <strong>β-Strahlung</strong>.",
+      "Der Kern hat jetzt <strong>7 Protonen</strong> und 7 Neutronen. 7 Protonen hat <strong>Stickstoff</strong>: Aus Kohlenstoff-14 ist <strong>Stickstoff-14</strong> geworden.",
+      "Die Zahl der Kernbausteine bleibt 14 (6 + 8 = 7 + 7) – die <strong>Massenzahl ändert sich nicht</strong>. Weil aber ein Proton dazukam, ist ein neues Element entstanden."
+    ],
+    ms: 3000,
+    zeige(i){
+      $("#bzTitel", svg).textContent = TITEL[Math.max(0, i)];
+      wandler.setAttribute("fill", i >= 1 ? FARBE.p : FARBE.n);
+      ring.classList.toggle("on", i === 1);
+      el.setAttribute("opacity", i >= 1 ? 1 : 0);
+      el.style.transform = i >= 2 ? `translate(${ZIEL[0] - WX - 15}px,${ZIEL[1] - WY + 6}px)` : "";
+      bahn.classList.toggle("on", i >= 2); $("#bzELbl", svg).classList.toggle("on", i >= 2);
+      const n = i >= 3;
+      $("#bzName", svg).textContent = n ? "Stickstoff-14" : "Kohlenstoff-14";
+      $("#bzName", svg).setAttribute("fill", n ? "#1f6aa5" : "#15212b");
+      $("#bzSub", svg).textContent = n ? "7 Protonen + 7 Neutronen" : "6 Protonen + 8 Neutronen";
+      $("#bzP", svg).textContent = n ? "Protonen: 6 → 7 (+1)" : "Protonen: 6"; $("#bzP", svg).setAttribute("fill", n ? "#c0392b" : "#15212b");
+      $("#bzN", svg).textContent = n ? "Neutronen: 8 → 7 (−1)" : "Neutronen: 8"; $("#bzN", svg).setAttribute("fill", n ? "#1f4f8f" : "#15212b");
+      $("#bzM", svg).textContent = n ? "Massenzahl: 14 (gleich)" : "Massenzahl: 14";
+      $("#bzBilanz", svg).classList.toggle("on", i >= 4);
+    }
+  }, "betaSchritte");
+})();
+
+/* ---------- Station 4: Übungen ---------- */
+Modul.makeSort($("#sortZerfall"), {
+  buckets: ["α-Zerfall", "β-Zerfall", "γ-Strahlung"], cols: 170,
+  items: [
+    {t: "ein Heliumkern fliegt heraus", b: 0}, {t: "Massenzahl sinkt um 4", b: 0}, {t: "Radon-222 wird zu Polonium-218", b: 0},
+    {t: "ein Neutron wird zu Proton und Elektron", b: 1}, {t: "Protonenzahl steigt um 1", b: 1}, {t: "Kohlenstoff-14 wird zu Stickstoff-14", b: 1},
+    {t: "es fliegt kein Teilchen heraus", b: 2}, {t: "Element und Massenzahl bleiben gleich", b: 2}, {t: "eine energiereiche Welle wird ausgesandt", b: 2}
+  ]
+}, "sortZerfall");
+Modul.makeOpen($("#open4"), [
+  {q: "Erkläre, warum beim β-Zerfall ein neues Element entsteht, obwohl die Massenzahl gleich bleibt.",
+   m: "Beim β-Zerfall verwandelt sich im Kern ein Neutron in ein Proton und ein Elektron. Das Elektron wird herausgeschleudert. Der Kern hat jetzt ein Proton mehr und ein Neutron weniger. Die Zahl der Kernbausteine bleibt gleich, deshalb ändert sich die Massenzahl nicht. Die Zahl der Protonen bestimmt aber das Element – also ist ein neues Element entstanden, zum Beispiel wird aus Kohlenstoff-14 Stickstoff-14.",
+   k: ["neutron", "proton", "elektron", "heraus|fliegt|ausgesandt|abgegeben|geschleudert", "mehr|steigt|erhöht|größer|dazu", "bestimmt|element"], min: 4}
+], "open4-", "Schau dir die β-Animation noch einmal an: Was wird aus dem Neutron, und was zählt für das Element?");
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+
+/* ---------- Station 5: Zerfallsgleichungen ---------- */
+const PS =[[1, "H", "Wasserstoff"], [2, "He", "Helium"], [6, "C", "Kohlenstoff"], [7, "N", "Stickstoff"], [54, "Xe", "Xenon"], [55, "Cs", "Cäsium"], [56, "Ba", "Barium"],
+  [82, "Pb", "Blei"], [84, "Po", "Polonium"], [86, "Rn", "Radon"], [88, "Ra", "Radium"], [90, "Th", "Thorium"], [92, "U", "Uran"], [94, "Pu", "Plutonium"]];
+$("#psReihe").innerHTML = PS.map(([z, s, n]) => `<div class="ps"><small>${z}</small><b>${s}</b><span>${n}</span></div>`).join("");
+(function(){
+  const svg = $("#glSvg");
+  const kern = (x, m, z, s, ids) => `<text ${ids ? `id="${ids[0]}"` : ""} x="${x}" y="70" text-anchor="end" font-size="17" font-weight="800" fill="#15212b">${m}</text>
+    <text ${ids ? `id="${ids[1]}"` : ""} x="${x}" y="98" text-anchor="end" font-size="17" font-weight="800" fill="#15212b">${z}</text>
+    <text ${ids ? `id="${ids[2]}"` : ""} x="${x + 4}" y="96" font-size="36" font-weight="900" fill="#15212b">${s}</text>`;
+  const ELE = [[82, "Pb"], [83, "Bi"], [84, "Po"], [85, "At"], [86, "Rn"], [87, "Fr"], [88, "Ra"], [89, "Ac"], [90, "Th"], [91, "Pa"], [92, "U"]];
+  svg.innerHTML = `<rect width="520" height="250" fill="#f7fbfe"/>
+    <defs><marker id="glPf" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 Z" fill="#15212b"/></marker></defs>
+    <text x="260" y="22" text-anchor="middle" font-size="14" font-weight="800" fill="#7a4b05">α-Zerfall von Radium-226 als Gleichung</text>
+    <rect id="glBM" class="stage" x="220" y="54" width="46" height="21" rx="4" fill="#fff3c4" stroke="#f2b632" stroke-width="1.5"/>
+    <rect id="glBZ" class="stage" x="220" y="82" width="46" height="21" rx="4" fill="#fff3c4" stroke="#f2b632" stroke-width="1.5"/>
+    <rect id="glBS" class="stage" x="266" y="60" width="54" height="44" rx="5" fill="#fff3c4" stroke="#f2b632" stroke-width="1.5"/>
+    ${kern(86, 226, 88, "Ra")}
+    <path d="M140 84 H190" stroke="#15212b" stroke-width="2.5" marker-end="url(#glPf)"/>
+    ${kern(262, "?", "?", "?", ["glM", "glZ", "glS"])}
+    <g id="glHe" class="stage"><text x="334" y="94" text-anchor="middle" font-size="28" font-weight="800" fill="#15212b">+</text>${kern(372, 4, 2, "He")}<text x="398" y="124" text-anchor="middle" font-size="11.5" font-weight="700" fill="#566674">α-Teilchen</text></g>
+    <text x="108" y="124" text-anchor="middle" font-size="11.5" font-weight="700" fill="#566674">Radium-226</text>
+    <text id="glKind" x="288" y="124" text-anchor="middle" font-size="11.5" font-weight="700" fill="#566674">neuer Kern</text>
+    <text id="glRech" x="260" y="160" text-anchor="middle" font-size="15" font-weight="800" fill="#7a4b05"></text>
+    <text x="28" y="184" font-size="11" font-weight="700" fill="#566674">Elemente nach Kernladungszahl (Ausschnitt aus dem Periodensystem)</text>
+    ${ELE.map(([z, s], k) => `<g><rect id="glPS${z}" class="feld" x="${28 + k * 42}" y="190" width="40" height="44" rx="5" fill="#fff" stroke="#b9c3cb" stroke-width="1.5"/>
+      <text x="${48 + k * 42}" y="204" text-anchor="middle" font-size="10.5" font-weight="700" fill="#566674">${z}</text><text x="${48 + k * 42}" y="226" text-anchor="middle" font-size="16" font-weight="900" fill="#15212b">${s}</text></g>`).join("")}`;
+  const RECH = ["", "", "Massenzahl (oben): 226 − 4 = 222", "Kernladungszahl (unten): 88 − 2 = 86", "86 Protonen → Radon (Rn)", "Probe: oben 222 + 4 = 226 ✓  ·  unten 86 + 2 = 88 ✓"];
+  Modul.makeSchritte($("#glSim"), {
+    start: "So schreibst du den α-Zerfall von Radium-226 als Gleichung. Tippe auf „Start“.",
+    steps: [
+      "Schreibe den Ausgangskern auf: <strong>Radium-226</strong>. Oben steht die Massenzahl 226, unten die Kernladungszahl 88 – Radium hat 88 Protonen.",
+      "Pfeil und α-Teilchen dazu. Beim α-Zerfall fliegt ein Heliumkern heraus: oben 4, unten 2.",
+      "Massenzahl des neuen Kerns (oben): 226 − 4 = <strong>222</strong>.",
+      "Kernladungszahl des neuen Kerns (unten): 88 − 2 = <strong>86</strong>.",
+      "Im Periodensystem nachsehen: Das Element mit 86 Protonen ist <strong>Radon (Rn)</strong>. Aus Radium-226 wird Radon-222.",
+      "Probe: oben 222 + 4 = 226, unten 86 + 2 = 88. Links und rechts gleich – die Gleichung stimmt!"
+    ],
+    ms: 3000,
+    zeige(i){
+      $("#glHe", svg).classList.toggle("on", i >= 1);
+      $("#glM", svg).textContent = i >= 2 ? "222" : "?"; $("#glZ", svg).textContent = i >= 3 ? "86" : "?"; $("#glS", svg).textContent = i >= 4 ? "Rn" : "?";
+      ["glM", "glZ", "glS"].forEach((id, k) => $("#" + id, svg).setAttribute("fill", i >= k + 2 ? "#15212b" : "#9aa5ad"));
+      $("#glBM", svg).classList.toggle("on", i === 2); $("#glBZ", svg).classList.toggle("on", i === 3); $("#glBS", svg).classList.toggle("on", i === 4);
+      $("#glKind", svg).textContent = i >= 4 ? "Radon-222" : "neuer Kern";
+      $("#glRech", svg).textContent = RECH[Math.max(0, i)] || "";
+      $("#glRech", svg).setAttribute("fill", i >= 5 ? "#1b8a4b" : "#7a4b05");
+      $("#glPS88", svg).setAttribute("fill", i >= 0 && i < 4 ? "#fbf0dc" : "#fff");
+      $("#glPS86", svg).setAttribute("fill", i >= 4 ? "#fff3c4" : "#fff");
+      $("#glPS86", svg).setAttribute("stroke", i >= 4 ? "#f2b632" : "#b9c3cb");
+    }
+  }, "glSchritte");
+})();
+Modul.makeGap($("#gapGlAlpha"), [
+  [`<span class="gl">${nk(238, 92, "U")} → <span class="nk-leer">?</span> + ${nk(4, 2, "He")}</span>`],
+  ["1. Massenzahl (oben): 238 − 4 = ", {g: "234"}],
+  ["2. Kernladungszahl (unten): 92 − 2 = ", {g: "90"}],
+  ["3. Das Element mit dieser Kernladungszahl ist ", {g: "Thorium (Th)"}, "."]
+], "gapGlAlpha", ["242", "94", "Plutonium (Pu)"]);
+Modul.makeGap($("#gapGlBeta"), [
+  [`<span class="gl">${nk(137, 55, "Cs")} → <span class="nk-leer">?</span> + ${nk(0, "−1", "e")}</span>`],
+  ["1. Massenzahl: Das Elektron hat oben eine 0. Die Massenzahl bleibt also ", {g: "137"}, "."],
+  ["2. Kernladungszahl: Ein Neutron wird zum Proton, also 55 + 1 = ", {g: "56"}, "."],
+  ["3. Das Element mit dieser Kernladungszahl ist ", {g: "Barium (Ba)"}, "."],
+  ["4. Tritium (H-3) zerfällt genauso durch β-Zerfall. Es entsteht ", {g: "Helium-3"}, "."]
+], "gapGlBeta", ["54", "Xenon (Xe)", "Helium-4"]);
+Modul.makeMC($("#mc-s5"), MC.s5, "mc5", {t: "Kurz-Check · Probenstoff", probe: true});
+
+/* ---------- Training: Kreuzworträtsel mit Tipps ---------- */
+Modul.makeCrossword($("#cw"), {
+  tipps: true,
+  words: [
+    {w: "HELIUMKERN", r: 0, c: 4, d: "d", q: "Daraus besteht α-Strahlung: 2 Protonen und 2 Neutronen.", tip: "Der Kern des Gases, mit dem man Luftballons füllt."},
+    {w: "ELEKTRON", r: 7, c: 2, d: "a", q: "Daraus besteht β-Strahlung.", tip: "Winziges, negativ geladenes Teilchen, sonst in der Atomhülle."},
+    {w: "ALUMINIUM", r: 2, c: 9, d: "d", q: "Eine 1 mm dicke Platte aus diesem Metall schirmt β-Strahlung ab.", tip: "Leichtes Metall, aus dem auch Getränkedosen sind."},
+    {w: "ZERFALL", r: 5, c: 7, d: "d", q: "Ein instabiler Kern wandelt sich um: radioaktiver …", tip: "Fängt mit Z an. Auch ein altes Haus kann das tun."},
+    {w: "PLUSPOL", r: 11, c: 1, d: "a", q: "Dorthin wird β-Strahlung im elektrischen Feld stark abgelenkt.", tip: "Die positiv geladene Platte."},
+    {w: "TRITIUM", r: 3, c: 0, d: "a", q: "Wasserstoff mit 1 Proton und 2 Neutronen.", tip: "Klingt nach „drei“ – H-3."},
+    {w: "ISOTOP", r: 0, c: 0, d: "d", q: "Gleiches Element, aber andere Zahl der Neutronen (Einzahl).", tip: "Fängt mit I an. Deuterium ist eines des Wasserstoffs."},
+    {w: "ALPHA", r: 9, c: 1, d: "d", q: "Diese Strahlung hält schon ein Blatt Papier auf.", tip: "Der erste Buchstabe des griechischen Alphabets."},
+    {w: "PAPIER", r: 13, c: 0, d: "a", q: "Dieses Material stoppt α-Strahlung.", tip: "Darauf schreibst du in dein Heft."},
+    {w: "BLEI", r: 5, c: 2, d: "d", q: "Mindestens 20 cm davon braucht man gegen γ-Strahlung.", tip: "Sehr schweres, graues Metall."},
+    {w: "GAMMA", r: 0, c: 6, d: "d", q: "Diese Strahlung ist eine elektromagnetische Welle.", tip: "Der dritte griechische Buchstabe: Alpha, Beta, …"},
+    {w: "BETA", r: 1, c: 3, d: "a", q: "Diese Strahlung besteht aus schnellen Elektronen.", tip: "Der zweite griechische Buchstabe."}
+  ],
+  sol: [[1, 0], [3, 0], [7, 7], [13, 1], [0, 4], [10, 7], [11, 3], [9, 4], [0, 6]], solWord: "STRAHLUNG"
+}, "cw");
+
+/* ---------- Profi-Check, Lernkarten ---------- */
+Modul.makeQuiz($("#quiz"), [...MC.s1, ...MC.s2, ...MC.s3, ...MC.s4, ...MC.s5, ...MC.train,
+  {q: "Was bestimmt, um welches Element es sich handelt?", o: ["die Zahl der Protonen im Kern", "die Zahl der Neutronen im Kern", "die Zahl aller Kernbausteine", "die Art der Strahlung des Kerns"], a: 0, e: "Wasserstoff hat 1 Proton, Kohlenstoff 6, Uran 92 – die Neutronenzahl kann verschieden sein."},
+  {q: "Was ändert sich am Kern, wenn er nur γ-Strahlung aussendet?", o: ["Element und Massenzahl bleiben gleich.", "Es entsteht immer ein neues Element.", "Der Kern verliert 2 Protonen.", "Ein Neutron wird zum Proton."], a: 0, e: "γ-Strahlung trägt keine Teilchen weg, nur Energie."},
+  {q: "Wie viel γ-Strahlung kommt durch 13 mm Blei?", o: ["etwa die Hälfte", "gar nichts", "fast alles", "etwa ein Zehntel"], a: 0, e: "Ganz abgeschirmt ist γ-Strahlung erst hinter mindestens 20 cm Blei."},
+  {q: "Welche Strahlungsarten nennt man Teilchenstrahlung?", o: ["α- und β-Strahlung", "nur γ-Strahlung", "β- und γ-Strahlung", "α- und γ-Strahlung"], a: 0, e: "α sind Heliumkerne, β Elektronen – beides Teilchen. γ ist eine Welle."},
+  {q: "Beim α-Zerfall: Wie ändert sich die Massenzahl?", o: ["Sie sinkt um 4.", "Sie sinkt um 2.", "Sie steigt um 1.", "Sie bleibt gleich."], a: 0, e: "Der Heliumkern nimmt 4 Kernbausteine mit (oben 4, unten 2)."}
+], "quiz", "Strahlungs-Profi");
+if (window.NT8Karten) NT8Karten.trainer($("#lernkarten"), {module: ["ra-strahlungsarten"], titel: "Lernkarten zu diesem Modul", zug: "M", druck: false});
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,983 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#144a74">
+<title>Diode und Leuchtdiode | NT 9</title>
+<link rel="stylesheet" href="../../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="materie.css">
+<style>
+/* Elektronen als wandernde Punkte auf der Leitung */
+.kt3-fluss{stroke-dasharray:0 14;stroke-linecap:round;animation:kt3Fluss 1s linear infinite;transition:opacity .4s}
+@keyframes kt3Fluss{to{stroke-dashoffset:-28}}
+/* Station 1: Glühlampe gegen LED */
+#enSvg .en-lampe{transition:opacity .45s}
+#enSvg #enGlow{transition:opacity .9s}
+#enSvg #enFaden{transition:stroke .6s}
+#enSvg .en-chip{transition:fill .6s}
+/* Station 2: LED-Labor */
+#ledSvg #ledLed{transition:opacity .3s}
+#ledSvg #ledWid{transition:transform .8s,opacity .8s}
+#ledSvg #ledBruecke{transition:opacity .6s}
+#ledSvg #ledGlow{transform-box:fill-box;transform-origin:center;transition:opacity .5s,transform .7s}
+#ledSvg .led-farbe{transition:fill .5s}
+/* Station 3: Diode im Stromkreis */
+#dioSvg #dioBatt{transform-box:view-box;transform-origin:90px 165px;transition:transform .8s cubic-bezier(.4,0,.3,1)}
+#dioSvg #dioDio{transform-box:view-box;transform-origin:260px 60px;transition:transform .8s cubic-bezier(.4,0,.3,1)}
+#dioSvg #dioSym{transform-box:view-box;transform-origin:260px 138px;transition:transform .8s cubic-bezier(.4,0,.3,1)}
+#dioSvg #dioGlow,#dioSvg #dioRahmen{transition:opacity .5s,stroke .5s}
+#dioSvg .dio-pol{transition:stroke .5s}
+#dioSvg #dioRingTxt,#dioSvg #dioRingLinie{transition:opacity .4s}
+/* Station 3: Wecker mit Schutzdiode */
+#swSvg #swZellen{transform-box:view-box;transform-origin:401px 84px;transition:transform .7s ease-in-out}
+#swSvg #swZeit{transition:opacity .5s}
+#swSvg #swDio{transition:opacity .5s}
+#swSvg #swRahmen{transition:stroke .5s,opacity .5s}
+/* Station 4: Oszilloskop */
+#oszSvg #oszDio{transition:transform .7s cubic-bezier(.3,.7,.3,1),opacity .5s}
+#oszSvg #oszDraht{transition:opacity .4s}
+.kt3-mini{display:block;width:100%;max-width:340px;height:auto;margin:6px 0 2px;background:#f7fbfe;border:1px solid var(--line);border-radius:10px}
+.kt3-fig{display:block;width:100%;height:auto;max-width:640px;margin:4px auto 0}
+@media (prefers-reduced-motion:reduce){.kt3-fluss{animation:none}#enSvg *,#ledSvg *,#dioSvg *,#swSvg *,#oszSvg *{transition:none!important}}
+</style>
+<script src="../../../js/kursliste.js"></script>
+<script src="../themen.js"></script>
+<!-- 9M und 9R nutzen dieselben Seiten: die Kursliste kommt aus dem Ordner (../themen.js = NT9M oder NT9R) -->
+<script>window.GRUMI_KURS = window.NT9M || window.NT9R; window.GRUMI_KURS.KARTEN = "../../" + window.GRUMI_KURS.ORDNER + "App14_Materie/";</script>
+<script src="materie.js"></script>
+</head>
+<body data-bereich="kt">
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="../%C3%BCbersicht_themen.html">GRUMI<small>NT <span class="mt-zug">9M</span> · Kommunikationstechnik 3</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>LEDs überall</a>
+      <a href="#s2"><b>2</b>Anschließen</a>
+      <a href="#s3"><b>3</b>Einbahnstraße</a>
+      <a href="#s4"><b>4</b>Gleichstrom</a>
+      <a href="#s5"><b>5</b>Training</a>
+      <a href="#abschluss"><b>6</b>Abschluss</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse <span class="mt-zug">9M</span> · Kommunikationstechnik · Modul 3</div>
+    <h1>Diode und Leuchtdiode</h1>
+    <p>Straßenlampe, Fahrradlicht, Handy-Display – überall leuchten LEDs. Doch eine LED ist kein kleines Lämpchen: Schließt du sie verkehrt herum an, bleibt sie dunkel. In sechs Stationen erfährst du, warum LEDs die Glühlampe verdrängt haben, wie man sie richtig anschließt, warum eine Diode eine Einbahnstraße für den Strom ist und wie Dioden aus Wechselstrom Gleichstrom machen.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s5">Direkt zum Training</a>
+    </div>
+    <div class="goals">
+      <div>💡 Ich nenne Vorteile von LEDs gegenüber Glühlampen.</div>
+      <div>🔌 Ich schließe eine LED richtig an: langer Draht an Plus, mit Schutzwiderstand.</div>
+      <div>➡️ Ich erkläre Durchlassrichtung und Sperrrichtung einer Diode.</div>
+      <div>⚡ Ich beschreibe, wie Dioden aus Wechselstrom Gleichstrom machen.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg · Probenstoff</div><h2>LEDs überall</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <figure style="margin:0 0 12px"><img class="zoomable" src="bilder/kt-3.jpg" width="1280" height="853" loading="lazy" decoding="async" alt="Vor dunkelblauem Hintergrund leuchten drei Lampen: links der Kopf einer Straßenlampe mit vielen kleinen hellen Lichtpunkten, in der Mitte eine Lampe in Birnenform mit vier leuchtenden Stäben im Glas, rechts eine Palme aus grün und orange leuchtenden Schläuchen auf einem runden Sockel." style="width:100%;height:auto"><figcaption class="hint" style="margin:4px 0 0">Bild: GRUMI (mit KI erstellt)</figcaption></figure>
+      <p class="hint" style="margin:0 0 10px"><strong>Denk mal nach:</strong> Straßenlampe, „Glühbirne“ und leuchtende Palme sehen ganz verschieden aus. Was haben die drei gemeinsam?</p>
+      <p class="lead">In allen drei Lampen leuchten <button class="term" data-t="led">Leuchtdioden</button>, kurz LEDs. Der Lampenkopf der Straßenlampe trägt Dutzende kleine LEDs. Die leuchtenden Stäbe in der „Birne“ bestehen aus vielen winzigen LEDs. Auch die Palme leuchtet mit LEDs.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Früher sah man LEDs nur als winzige Kontrolllämpchen, zum Beispiel am Fernseher. Heute ersetzen sie <button class="term" data-t="gluehlampe">Glühlampen</button> und Energiesparlampen.</p>
+      <p>LEDs stecken in Taschenlampen, Fahrradlichtern, Partylichtern, Autoscheinwerfern und Straßenlampen – und in den <button class="term" data-t="display">Displays</button> von Smartphones, Fernsehern und Monitoren.</p>
+      <p style="margin:0">Warum hat die LED die Glühlampe verdrängt? Das zeigt der Vergleich unten. Achte auf die <button class="term" data-t="leistung">Leistung</button>: Sie sagt, wie viel Energie eine Lampe in jeder Sekunde braucht.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <svg viewBox="0 0 520 280" id="enSvg" role="img" aria-label="Vergleich: Eine Glühlampe und eine LED-Lampe leuchten gleich hell. Ein Messgerät zeigt die Leistung, ein Thermometer die Wärme am Glas. Balken zeigen, wie viel der Energie zu Licht und wie viel zu Wärme wird."></svg>
+    <div class="sim-ctrl"><label>Lampe einschalten:</label><button class="btn small teal" id="tGlueh" type="button">💡 Glühlampe</button><button class="btn small teal" id="tLed" type="button">🔆 LED-Lampe</button></div>
+    <p class="obs" id="enObs">Schalte nacheinander beide Lampen ein. Sie leuchten gleich hell. Vergleiche Leistung, Wärme und Lebensdauer.</p>
+    <div class="tab-wrap" style="padding:0 14px 14px"><table class="beob" id="enTab">
+      <thead><tr><th>Lampe</th><th>Helligkeit</th><th>Leistung</th><th>Wärme am Glas</th><th>Lebensdauer</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </div>
+
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>LEDs (Leuchtdioden) findest du heute fast überall: in Lampen, Displays, Taschenlampen, Autoscheinwerfern und Straßenlampen.</li><li>Vorteile gegenüber Glühlampen: LEDs brauchen viel weniger Energie, werden nicht so heiß, halten viel länger und es gibt sie in allen Bauformen, Lichtstärken und Lichtfarben.</li><li>Glühlampen machen den größten Teil der Energie zu Wärme. Für den Haushalt dürfen sie in Europa nicht mehr hergestellt werden.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Zuordnen · Probenstoff</span>
+    <h3 style="margin-top:4px">Glühlampe oder LED?</h3>
+    <p class="hint">Tippe eine Karte an und dann die passende Lampe.</p>
+    <div id="sortLampe"></div>
+  </div>
+  <div class="card reveal" id="mc-s1"></div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Die LED richtig anschließen</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Eine LED ist kein kleines Glühlämpchen, sondern ein <button class="term" data-t="bauteil">elektronisches Bauteil</button>. Sie leuchtet nur, wenn sie richtig <button class="term" data-t="gepolt">gepolt</button> ist.</p>
+      <p style="margin:0">Schau dir die beiden Drähte an: Einer ist länger. Der <strong>lange Draht</strong> kommt an den <strong>Pluspol</strong> der Batterie, der <strong>kurze Draht</strong> an den <strong>Minuspol</strong>. Fachleute nennen die Plus-Seite <button class="term" data-t="anode">Anode</button> und die Minus-Seite <button class="term" data-t="kathode">Kathode</button>. Ist die LED andersherum angeschlossen, bleibt sie dunkel. Sie lässt den Strom nur in einer Richtung durch.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Nie ohne Schutzwiderstand!</strong> Eine LED verträgt nur wenig Strom. Deshalb baut man vor sie einen <button class="term" data-t="schutzwiderstand">Schutzwiderstand</button> ein. Er begrenzt die <button class="term" data-t="stromstaerke">Stromstärke</button>.</p>
+      <p style="margin:0">Für eine rote LED an einer 4,5-V-Batterie passt zum Beispiel ein Widerstand mit 220 Ω (Ohm). Im Schaltplan zeichnet man die LED mit ihrem <button class="term" data-t="schaltzeichen">Schaltzeichen</button>: ein Dreieck mit einem Strich und zwei kleinen Pfeilen. Die Pfeile zeigen vom Bauteil weg – sie stehen für das Licht.</p>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag">So sieht es aus</span>
+    <svg class="kt3-fig" viewBox="0 0 520 170" role="img" aria-label="Links eine rote LED mit zwei Drähten: Der lange Draht ist die Plus-Seite (Anode), der kurze Draht die Minus-Seite (Kathode). Rechts der Schaltplan: Batterie mit 4,5 Volt, Schutzwiderstand mit 220 Ohm und das Schaltzeichen der LED, ein Dreieck mit Strich und zwei Pfeilen. Der Strich zeigt zum Minuspol.">
+      <rect width="520" height="170" fill="#f7fbfe"/>
+      <g font-size="13" font-weight="800" fill="#144a74" text-anchor="middle"><text x="110" y="18">Bauteil</text><text x="385" y="18">Schaltplan</text></g>
+      <line x1="100" y1="86" x2="100" y2="152" stroke="#8e98a1" stroke-width="3.5"/><line x1="120" y1="86" x2="120" y2="132" stroke="#8e98a1" stroke-width="3.5"/>
+      <rect x="87" y="78" width="46" height="9" rx="2" fill="#e05247" stroke="#a52a23" stroke-width="1.5"/>
+      <path d="M92 80 V52 A18 18 0 0 1 128 52 V80 Z" fill="#ef6a5e" stroke="#a52a23" stroke-width="2"/>
+      <g font-size="12" font-weight="700"><text x="92" y="132" text-anchor="end" fill="#15212b">langer Draht</text><text x="92" y="148" text-anchor="end" fill="#c0392b">Plus (Anode)</text>
+        <text x="128" y="114" fill="#15212b">kurzer Draht</text><text x="128" y="130" fill="#1f6aa5">Minus (Kathode)</text></g>
+      <line x1="250" y1="30" x2="250" y2="150" stroke="#d9e1e8" stroke-width="2"/>
+      <g fill="none" stroke="#15212b" stroke-width="2.5"><path d="M300 86 V40 H350"/><path d="M400 40 H470 V78"/><path d="M470 98 V140 H300 V96"/></g>
+      <line x1="288" y1="86" x2="312" y2="86" stroke="#15212b" stroke-width="2"/><line x1="294" y1="96" x2="306" y2="96" stroke="#15212b" stroke-width="5"/>
+      <rect x="350" y="32" width="50" height="16" fill="#fff" stroke="#15212b" stroke-width="2"/>
+      <path d="M458 78 H482 L470 98 Z" fill="#15212b"/><line x1="457" y1="98" x2="483" y2="98" stroke="#15212b" stroke-width="3"/>
+      <g stroke="#15212b" stroke-width="1.8"><line x1="480" y1="86" x2="492" y2="76"/><line x1="484" y1="94" x2="496" y2="84"/></g>
+      <g fill="#15212b"><path d="M494 74 L487 76 L491 81 Z"/><path d="M498 82 L491 84 L495 89 Z"/></g>
+      <g font-size="12" font-weight="700" fill="#15212b"><text x="282" y="84" text-anchor="end" fill="#c0392b">+</text><text x="282" y="104" text-anchor="end" fill="#1f6aa5">−</text>
+        <text x="375" y="66" text-anchor="middle">Schutzwiderstand 220 Ω</text><text x="452" y="93" text-anchor="end">LED</text><text x="300" y="162" text-anchor="middle">Batterie 4,5 V</text></g>
+    </svg>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <svg viewBox="0 0 520 280" id="ledSvg" role="img" aria-label="Virtuelles Labor: eine Batterie mit 4,5 Volt, ein Schutzwiderstand und eine rote LED mit einem langen und einem kurzen Draht. Blaue Punkte zeigen die Elektronen, wenn Strom fließt. Je nach Versuch ist der lange Draht am Pluspol oder am Minuspol angeschlossen, oder der Schutzwiderstand fehlt."></svg>
+    <div class="sim-ctrl"><label>Versuch:</label><button class="btn small teal" id="tRichtig" type="button">➕ Langer Draht an Plus</button><button class="btn small teal" id="tFalsch" type="button">➖ Langer Draht an Minus</button><button class="btn small teal" id="tOhneWid" type="button">⚠️ Ohne Schutzwiderstand</button></div>
+    <p class="obs" id="ledObs">Probiere alle drei Versuche aus. Bei jedem Versuch kommt eine neue LED in die Schaltung.</p>
+    <div class="tab-wrap" style="padding:0 14px 14px"><table class="beob" id="ledTab">
+      <thead><tr><th>Versuch</th><th>Beobachtung</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </div>
+
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>LEDs sind elektronische Bauteile. Sie leuchten nur, wenn sie richtig gepolt sind: langer Draht (Anode) an den Pluspol, kurzer Draht (Kathode) an den Minuspol.</li><li>Andersherum leuchtet die LED nicht. Sie lässt den Strom nur in einer Richtung durch.</li><li>Eine LED braucht immer einen Schutzwiderstand. Er begrenzt die Stromstärke. Ohne ihn wird die LED zu heiß und geht kaputt.</li><li>Schaltzeichen der LED: Dreieck mit Strich und zwei Pfeilen nach außen.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Lückentext · Probenstoff</span>
+    <h3 style="margin-top:4px">So schließt du eine LED an</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapLed"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Polung-Übung · Probenstoff</span>
+    <h3 style="margin-top:4px">Was passiert mit der LED?</h3>
+    <p class="hint">Schau genau hin: Ist der lange Draht mit dem Pluspol oder mit dem Minuspol verbunden? Gibt es einen Schutzwiderstand?</p>
+    <div id="mc-polung"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Versuch · Probenstoff</div><h2>Dioden – eine Einbahnstraße für Strom</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Nicht jede <button class="term" data-t="diode">Diode</button> leuchtet. In fast jedem elektronischen Gerät stecken Dioden ohne Licht, die <button class="term" data-t="universaldiode">Universaldioden</button>. Meist sind es kleine schwarze Zylinder mit zwei Drähten.</p>
+      <p style="margin:0">Ein heller <strong>Ring</strong> markiert die <strong>Minus-Seite</strong> der Diode, also ihre Kathode. Im Schaltzeichen steht dafür der Strich.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Wie eine Einbahnstraße:</strong> Eine Diode lässt den Strom nur in einer Richtung durch.</p>
+      <p style="margin:0">Ist die Minus-Seite der Diode (der Ring) mit dem Minuspol der Batterie verbunden, fließt Strom. Die Diode steht in <button class="term" data-t="durchlass">Durchlassrichtung</button>. Dreht man die Batterie oder die Diode um, fließt kein Strom. Die Diode steht in <button class="term" data-t="sperr">Sperrrichtung</button>.</p>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag">So sieht es aus</span>
+    <svg class="kt3-fig" viewBox="0 0 520 110" role="img" aria-label="Links eine Universaldiode: ein schwarzer Zylinder mit zwei Drähten und einem hellen Ring nahe dem rechten Ende. Der Ring ist die Minus-Seite, die Kathode. Rechts das Schaltzeichen der Diode: ein Dreieck, das auf einen Strich zeigt. Der Strich ist die Minus-Seite.">
+      <rect width="520" height="110" fill="#f7fbfe"/>
+      <g stroke="#8e98a1" stroke-width="3"><line x1="30" y1="55" x2="70" y2="55"/><line x1="170" y1="55" x2="210" y2="55"/></g>
+      <rect x="70" y="42" width="100" height="26" rx="7" fill="#1f1f22"/><rect x="146" y="42" width="10" height="26" fill="#dfe3e6"/>
+      <line x1="320" y1="55" x2="450" y2="55" stroke="#15212b" stroke-width="3"/><path d="M368 39 L368 71 L396 55 Z" fill="#15212b"/><line x1="396" y1="38" x2="396" y2="72" stroke="#15212b" stroke-width="4"/>
+      <text x="262" y="62" text-anchor="middle" font-size="24" font-weight="800" fill="#8e98a1">→</text>
+      <g font-size="12" font-weight="700" text-anchor="middle"><text x="151" y="28" fill="#1f6aa5">Ring = Minus-Seite (Kathode)</text><text x="396" y="28" fill="#1f6aa5">Strich = Minus-Seite</text>
+        <text x="120" y="96" fill="#15212b">Universaldiode</text><text x="385" y="96" fill="#15212b">Schaltzeichen der Diode</text></g>
+    </svg>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <svg viewBox="0 0 520 280" id="dioSvg" role="img" aria-label="Stromkreis aus Batterie, Universaldiode und Lämpchen. Die Batterie und die Diode lassen sich umdrehen. Steht die Diode in Durchlassrichtung, wandern Elektronen als blaue Punkte durch den Stromkreis und das Lämpchen leuchtet. In Sperrrichtung bleibt es dunkel. Unter der Diode dreht sich ihr Schaltzeichen mit."></svg>
+    <div class="sim-ctrl"><button class="btn small teal" id="tBatt" type="button">🔄 Batterie umdrehen</button><button class="btn small teal" id="tDiode" type="button">🔄 Diode umdrehen</button></div>
+    <p class="obs" id="dioObs">Das Lämpchen leuchtet. Drehe die Batterie oder die Diode um und beobachte das Lämpchen. Probiere beide Knöpfe aus.</p>
+    <div class="tab-wrap" style="padding:0 14px 14px"><table class="beob" id="dioTab">
+      <thead><tr><th>Lämpchen</th><th>Der Ring (Minus-Seite der Diode) ist verbunden mit dem …</th><th>So heißt das</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag probe">Richtig oder falsch? · Probenstoff</span>
+    <h3 style="margin-top:4px">Was weißt du über Dioden?</h3>
+    <div id="tfDiode"></div>
+  </div>
+
+  <div class="card reveal">
+    <h3 style="margin-top:0">Dioden schützen Geräte</h3>
+    <p style="margin:0">Smartphones, Uhren, Kopfhörer oder Blutdruckmessgeräte laufen mit Batterien oder Akkus. Legt jemand die Batterien falsch herum ein, könnte der Strom verkehrt herum durch die Elektronik fließen und sie beschädigen. Eine Diode verhindert das: Sie lässt den Strom nur in der richtigen Richtung durch.</p>
+  </div>
+  <div class="sim reveal" id="swSim">
+    <svg viewBox="0 0 520 250" id="swSvg" role="img" aria-label="Animation: Ein Wecker mit zwei Batterien. Zwischen Batteriefach und Elektronik sitzt eine Diode. Liegen die Batterien richtig, fließt Strom und die Uhr zeigt die Zeit. Liegen sie falsch herum, sperrt die Diode – die Uhr bleibt dunkel, aber die Elektronik bleibt heil."></svg>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Dioden lassen den Strom nur in einer Richtung durch – wie eine Einbahnstraße.</li><li>Der Ring markiert die Minus-Seite (Kathode) der Diode, im Schaltzeichen ist es der Strich.</li><li><strong>Durchlassrichtung:</strong> Minus-Seite der Diode zum Minuspol der Batterie → Strom fließt. <strong>Sperrrichtung:</strong> andersherum → kein Strom.</li><li>Dioden schützen Geräte vor falsch eingelegten Batterien.</li></ul></div>
+  <div class="card reveal" id="mc-s3"></div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung.</p>
+    <div id="open3"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Probenstoff</div><h2>Aus Wechselstrom wird Gleichstrom</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Eine Batterie liefert <button class="term" data-t="gleichstrom">Gleichstrom</button>: Die Elektronen fließen immer in dieselbe Richtung – vom Minuspol durch den Stromkreis zum Pluspol.</p>
+      <p style="margin:0">Die Steckdose liefert <button class="term" data-t="wechselstrom">Wechselstrom</button>: Die Elektronen ändern ständig ihre Richtung. Sie schwingen 50-mal in der Sekunde hin und her.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Smartphones, Computer und Fernseher arbeiten aber nur mit Gleichstrom. Darum stecken in ihrem <button class="term" data-t="netzteil">Netzteil</button> oder Ladegerät Dioden.</p>
+      <p style="margin:0">Die Dioden lassen nur den Teil des Wechselstroms durch, der in Durchlassrichtung fließt. Den anderen Teil sperren sie. Sichtbar wird das mit einem <button class="term" data-t="oszilloskop">Oszilloskop</button>. Hinter der Diode bleibt nur eine Hälfte der Welle übrig: die positiven <button class="term" data-t="halbwelle">Halbwellen</button>.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="oszSim">
+    <svg viewBox="0 0 520 290" id="oszSvg" role="img" aria-label="Stromkreis aus einer Wechselspannungsquelle und einem Lämpchen, daneben ein Oszilloskop. Ohne Diode zeigt der Bildschirm eine Welle mit Bergen und Tälern, die Elektronen schwingen hin und her. Mit Diode bleiben nur die Berge übrig, unten ist eine gerade Linie, die Elektronen fließen nur noch in eine Richtung."></svg>
+    <div class="sim-ctrl"><label>Versuch:</label><button class="btn small teal" id="tOszOhne" type="button">↔️ Ohne Diode</button><button class="btn small teal" id="tOszMit" type="button">➡️ Mit Diode</button><span class="chip">🐢 Zeitlupe – in Wirklichkeit 50-mal pro Sekunde</span></div>
+    <p class="obs" id="oszObs">Wähle einen Versuch. Das Oszilloskop zeigt die Spannung am Lämpchen.</p>
+    <div class="tab-wrap" style="padding:0 14px 14px"><table class="beob" id="oszTab">
+      <thead><tr><th>Versuch</th><th>Bild auf dem Oszilloskop</th><th>Der Strom fließt …</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </div>
+
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Batterien und Akkus liefern Gleichstrom (immer dieselbe Richtung). Die Steckdose liefert Wechselstrom (die Richtung wechselt ständig).</li><li>Smartphones, Computer und Fernseher brauchen Gleichstrom.</li><li>Dioden lassen nur den Teil des Wechselstroms durch, der in Durchlassrichtung fließt. So wird aus Wechselstrom Gleichstrom – im Netzteil oder Ladegerät.</li><li>Oszilloskop: Vor der Diode zeigt es eine Welle mit Bergen und Tälern, hinter der Diode nur noch die positiven Halbwellen.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Reihenfolge · Probenstoff</span>
+    <h3 style="margin-top:4px">Von der Steckdose in den Akku</h3>
+    <p class="hint">Mia lädt ihr Smartphone. Bringe die Schritte mit den Pfeilen in die richtige Reihenfolge.</p>
+    <div id="orderLaden"></div>
+  </div>
+  <div class="card reveal" id="mc-s4"></div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung.</p>
+    <div id="open4"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Wiederholung · so kommt es in der Probe</div><h2>Training</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Kreuzworträtsel</span>
+    <h3 style="margin-top:4px">Löse das Kreuzworträtsel</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Ä schreibst du als AE. Hängst du fest? Bei jeder Frage hilft <strong>💡 Tipp</strong> – erst ein Hinweis, dann der Anfangsbuchstabe. Mit <strong>📋 Wörter zeigen</strong> siehst du alle Lösungswörter.</p>
+    <div id="cw"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Ankreuzen</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="abschluss">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Abschluss</div><h2>Profi-Check, Lernkarten und Regelheft</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <div class="card reveal">
+    <span class="task-tag">Lernkarten</span>
+    <div id="lernkarten"></div>
+  </div>
+  <div class="regelheft reveal" id="regelheft">
+    <h3>Diode und Leuchtdiode</h3>
+    <p><strong>LED</strong> = Leuchtdiode. Vorteile gegenüber der Glühlampe: viel weniger Energie · wird nicht so heiß · viel längere Lebensdauer · alle Bauformen, Lichtstärken und Lichtfarben.</p>
+    <p><strong>LED richtig anschließen:</strong> langer Draht (Anode) an den Pluspol, kurzer Draht (Kathode) an den Minuspol – andersherum leuchtet sie nicht. Immer mit <strong>Schutzwiderstand</strong>: Er begrenzt die Stromstärke.</p>
+    <svg class="rh-skizze" viewBox="0 0 420 130" role="img" aria-label="Skizze: links eine LED mit langem Draht (Plus) und kurzem Draht (Minus), in der Mitte die Schaltzeichen der Diode und der LED, rechts zwei Oszilloskop-Bilder: vor der Diode eine Welle mit Bergen und Tälern, hinter der Diode nur noch die Berge.">
+      <rect width="420" height="130" fill="#fff"/>
+      <line x1="40" y1="62" x2="40" y2="110" stroke="#8e98a1" stroke-width="3"/><line x1="56" y1="62" x2="56" y2="98" stroke="#8e98a1" stroke-width="3"/>
+      <rect x="30" y="56" width="36" height="7" rx="2" fill="#e05247" stroke="#a52a23"/><path d="M34 58 V36 A14 14 0 0 1 62 36 V58 Z" fill="#ef6a5e" stroke="#a52a23" stroke-width="1.5"/>
+      <g font-size="10.5" font-weight="700"><text x="40" y="124" text-anchor="middle" fill="#c0392b">lang: +</text><text x="62" y="106" fill="#1f6aa5">kurz: −</text></g>
+      <g stroke="#15212b" stroke-width="2"><line x1="120" y1="40" x2="190" y2="40"/><line x1="120" y1="95" x2="190" y2="95"/></g>
+      <path d="M144 30 L144 50 L162 40 Z" fill="#15212b"/><line x1="162" y1="29" x2="162" y2="51" stroke="#15212b" stroke-width="3"/>
+      <path d="M144 85 L144 105 L162 95 Z" fill="#15212b"/><line x1="162" y1="84" x2="162" y2="106" stroke="#15212b" stroke-width="3"/>
+      <g stroke="#15212b" stroke-width="1.5"><line x1="160" y1="82" x2="170" y2="73"/><line x1="166" y1="86" x2="176" y2="77"/></g>
+      <g font-size="10.5" font-weight="700" fill="#15212b" text-anchor="middle"><text x="155" y="20">Diode</text><text x="155" y="68">LED</text><text x="162" y="124" fill="#1f6aa5">Strich = Minus</text></g>
+      <rect x="215" y="14" width="92" height="76" rx="6" fill="#0c1d15"/><rect x="318" y="14" width="92" height="76" rx="6" fill="#0c1d15"/>
+      <g stroke="#2f7a55" stroke-width="1"><line x1="219" y1="52" x2="303" y2="52"/><line x1="322" y1="52" x2="406" y2="52"/></g>
+      <path d="M219 52 Q229 22 240 52 T261 52 T282 52 T303 52" fill="none" stroke="#5dff9e" stroke-width="2.2"/>
+      <path d="M322 52 Q332 22 343 52 L364 52 Q374 22 385 52 L406 52" fill="none" stroke="#5dff9e" stroke-width="2.2"/>
+      <g font-size="10.5" font-weight="700" fill="#15212b" text-anchor="middle"><text x="261" y="104">ohne Diode:</text><text x="261" y="118">Wechselstrom</text><text x="364" y="104">mit Diode:</text><text x="364" y="118">Gleichstrom</text></g>
+    </svg>
+    <table class="rh-tab"><tr><th>Begriff</th><th>Bedeutung</th></tr><tr><td>Diode</td><td>lässt Strom nur in einer Richtung durch (Einbahnstraße); Ring = Minus-Seite (Kathode)</td></tr><tr><td>Durchlassrichtung</td><td>Minus-Seite der Diode zum Minuspol → Strom fließt</td></tr><tr><td>Sperrrichtung</td><td>andersherum → kein Strom</td></tr><tr><td>Gleichrichten</td><td>Dioden machen aus Wechselstrom Gleichstrom (Netzteil, Ladegerät)</td></tr></table>
+    <p>Dioden <strong>schützen</strong> Geräte vor falsch eingelegten Batterien. Auf dem Oszilloskop bleiben hinter der Diode nur die positiven Halbwellen.</p>
+  </div>
+  <div class="rh-knoepfe reveal"><button class="btn small ghost" type="button" onclick="window.print()">🖨️ Regelheft drucken</button><a class="btn small ghost" href="arbeitsblaetter/T3-regelheft.pdf" download="NT9-T3-Regelheft.pdf">📥 Regelheft als PDF</a></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Eine Diode kann den Strom durchlassen oder sperren – mehr nicht. Ein Transistor kann mehr: Mit einem kleinen Strom steuert er einen großen. So wird er zum Schalter oder zum Verstärker. Das erfährst du in Modul 4.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="kt-2.html">⬅️ Modul 2: Sensoren – elektronische Umweltfühler</a>
+      <a href="kt-4.html">➡️ Modul 4: Transistoren – Schalter und Verstärker</a>
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik <span class="mt-zug">9M</span> · Kommunikationstechnik · Modul 3 · Texte, Zeichnungen und Animationen sind eigenständig erstellt. Mit deinem Code wird dein Lernstand gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="../../../7M/NT/modul-basis.js"></script>
+<script src="../../../8M/NT/karten.js"></script>
+<script src="karten/kt3.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, reduced, register, solve} = Modul;
+const wait = ms => new Promise(r => setTimeout(r, reduced ? Math.min(ms, 60) : ms));
+// sanfter Übergang für Zahlen und Balken; endet sicher, auch wenn der Browser keine Bilder zeichnet
+const tween = (ms, fn) => new Promise(res => {
+  if (reduced) { fn(1); res(); return; }
+  const t0 = Date.now(); let fertig = false;
+  const ende = () => { if (!fertig) { fertig = true; fn(1); res(); } };
+  const schritt = () => { if (fertig) return; const t = Math.min(1, (Date.now() - t0) / ms); fn(1 - Math.pow(1 - t, 3)); if (t < 1) requestAnimationFrame(schritt); else ende(); };
+  requestAnimationFrame(schritt); setTimeout(ende, ms + 400);
+});
+// Knöpfe eines Versuchs sperren, solange er läuft
+const sperre = (svg, an) => $$(".sim-ctrl button", svg.parentNode).forEach(b => { b.disabled = an; });
+const neuMarkieren = td => { td.classList.remove("neu"); void td.offsetWidth; td.classList.add("neu"); };
+const ROT = "#c0392b", BLAU = "#1f6aa5", GRUEN = "#1b8a4b", GRAU = "#566674", DRAHT = "#566674", ELEKTRON = "#2f8fd8";
+
+Modul.init({
+  key: "grumi-nt9-kt-3-v1",
+  hero: "funken",
+  api: "/api/nt9/uebung/feedback",
+  thema: "Kommunikationstechnik, Klasse 9: Diode und Leuchtdiode – LED = Light Emitting Diode (Licht ausstrahlende Diode, Leuchtdiode); früher Kontrollanzeigen, heute fast überall (Lampen, Displays von Smartphones, Fernsehern und Monitoren, Taschenlampen, Partylichter, Straßenbeleuchtung, Autoscheinwerfer); Vorteile gegenüber Glühlampen: deutlich weniger Energie, werden nicht so heiß, viel längere Lebensdauer, alle Bauformen, Lichtstärken und Lichtfarben; Glühlampen für den Haushalt dürfen in Europa nicht mehr hergestellt werden (Energieverschwendung, das meiste wird Wärme); LEDs sind elektronische Bauteile und leuchten nur richtig gepolt: längerer Draht (Anode) an den Pluspol, kürzerer Draht (Kathode) an den Minuspol, andersherum leuchten sie nicht, sie lassen den Strom nur in einer Richtung durch; Schutzwiderstand (Vorwiderstand) begrenzt die Stromstärke, z. B. 220 Ohm für eine rote LED an 4,5 V, ohne ihn geht die LED kaputt; Schaltzeichen LED: Dreieck mit Strich und zwei Pfeilen nach außen; Universaldioden ohne Licht in sehr vielen Geräten lassen Strom nur in einer Richtung durch (Einbahnstraße für Elektronen); der Ring markiert die Minus-Seite (Kathode), im Schaltzeichen der Strich; Durchlassrichtung: Minuspol der Batterie an der Minus-Seite der Diode → Strom fließt; Sperrrichtung: kein Strom; Versuch: Universaldiode und Lämpchen an 4,5 V, Batterie umdrehen → das Lämpchen leuchtet nur in einer Richtung; Dioden schützen Geräte (Handys, Uhren, Kopfhörer, Blutdruckmessgeräte) vor falsch eingelegten Batterien; Dioden lassen nur den Teil des Wechselstroms durch, der in Durchlassrichtung fließt, und machen so aus Wechselstrom Gleichstrom (Netzteil, Ladegerät), weil Smartphones, Computer und Fernseher Gleichstrom brauchen, die Steckdose aber Wechselstrom liefert; Oszilloskop: Wechselspannung als Welle (Sinus), hinter der Diode nur noch die positiven Halbwellen",
+  glossary: {
+    led: ["LED (Leuchtdiode)", "Abkürzung für „Light Emitting Diode“, englisch für „Licht ausstrahlende Diode“. Ein elektronisches Bauteil, das leuchtet, wenn Strom hindurchfließt."],
+    gluehlampe: ["Glühlampe", "Lampe mit einem dünnen Draht in einem Glaskolben. Der Strom macht den Draht so heiß, dass er glüht und leuchtet."],
+    display: ["Display", "Englisch für „Anzeige“: der Bildschirm, zum Beispiel von Smartphone, Fernseher oder Monitor."],
+    leistung: ["Leistung", "Sagt, wie viel Energie ein Gerät in jeder Sekunde braucht. Die Einheit ist Watt (W). Eine Lampe mit 60 W braucht mehr Energie als eine mit 8 W."],
+    bauteil: ["elektronisches Bauteil", "Kleines Teil einer elektrischen Schaltung mit einer bestimmten Aufgabe, zum Beispiel eine Diode oder ein Widerstand."],
+    gepolt: ["gepolt", "So angeschlossen, dass die Plus-Seite des Bauteils am Pluspol liegt und die Minus-Seite am Minuspol. „Falsch gepolt“ heißt: verkehrt herum angeschlossen."],
+    anode: ["Anode", "Fachwort für die Plus-Seite einer Diode. Bei der LED ist es der längere Draht."],
+    kathode: ["Kathode", "Fachwort für die Minus-Seite einer Diode. Bei der LED ist es der kürzere Draht, bei der Universaldiode die Seite mit dem Ring."],
+    schutzwiderstand: ["Schutzwiderstand", "Auch Vorwiderstand genannt. Ein Bauteil, das die Stromstärke begrenzt. So bekommt die LED nicht zu viel Strom."],
+    stromstaerke: ["Stromstärke", "Sagt, wie viel Strom durch eine Leitung fließt. Die Einheit ist Ampere (A)."],
+    schaltzeichen: ["Schaltzeichen", "Einfaches Zeichen für ein Bauteil im Schaltplan. Fachleute auf der ganzen Welt verstehen es."],
+    diode: ["Diode", "Elektronisches Bauteil mit zwei Anschlüssen. Es lässt den Strom nur in einer Richtung durch – wie eine Einbahnstraße."],
+    universaldiode: ["Universaldiode", "Diode ohne Licht, die in sehr vielen Geräten steckt. Meist ein kleiner schwarzer Zylinder mit einem hellen Ring."],
+    durchlass: ["Durchlassrichtung", "Die Diode ist so eingebaut, dass Strom fließt: Ihre Minus-Seite (der Ring) ist mit dem Minuspol verbunden."],
+    sperr: ["Sperrrichtung", "Die Diode ist verkehrt herum eingebaut. Sie sperrt: Es fließt kein Strom."],
+    gleichstrom: ["Gleichstrom", "Strom, der immer in dieselbe Richtung fließt – zum Beispiel aus einer Batterie oder einem Akku."],
+    wechselstrom: ["Wechselstrom", "Strom, der ständig seine Richtung wechselt. Aus der Steckdose kommt er und schwingt 50-mal in der Sekunde hin und her."],
+    netzteil: ["Netzteil", "Gerät zwischen Steckdose und Elektronik, zum Beispiel das Ladegerät eines Smartphones. Es macht aus Wechselstrom Gleichstrom."],
+    oszilloskop: ["Oszilloskop", "Messgerät, das eine Spannung als Linie auf einen Bildschirm zeichnet. So sieht man, wie sie sich mit der Zeit ändert."],
+    halbwelle: ["Halbwelle", "Eine Hälfte der Welle auf dem Oszilloskop: der „Berg“ über der Mittellinie (positive Halbwelle) oder das „Tal“ darunter (negative Halbwelle)."]
+  }
+});
+
+/* ---------- kleine Zeichnungen für Aufgaben ---------- */
+// Schaltung mit Batterie, (Schutz-)Widerstand und LED – für die Polung-Übung
+function miniLed(buchstabe, o){
+  const yL = o.langLinks ? 108 : 94, yR = o.langLinks ? 94 : 108;
+  const pOben = o.plusOben ? "+" : "−", pUnten = o.plusOben ? "−" : "+";
+  const farbe = z => z === "+" ? "#ff9e94" : "#9cc9f2";
+  const wid = o.wid
+    ? '<rect x="95" y="7" width="50" height="14" rx="5" fill="#e9d3a3" stroke="#a8875a" stroke-width="1.5"/><rect x="104" y="7" width="4" height="14" fill="#c0392b"/><rect x="112" y="7" width="4" height="14" fill="#c0392b"/><rect x="120" y="7" width="4" height="14" fill="#7a4a1c"/><rect x="135" y="7" width="4" height="14" fill="#c9a227"/><text x="120" y="36" text-anchor="middle" font-size="11" font-weight="700" fill="#33414d">Widerstand</text>'
+    : '<line x1="95" y1="14" x2="145" y2="14" stroke="#566674" stroke-width="3"/>';
+  const beschr = `Schaltung ${buchstabe}: Batterie mit dem Pluspol ${o.plusOben ? "oben" : "unten"}, ${o.wid ? "mit Widerstand" : "ohne Widerstand"}; der lange Draht der LED ist ${o.langLinks ? "links" : "rechts"}.`;
+  return `<svg class="kt3-mini" viewBox="0 0 300 140" role="img" aria-label="${beschr}">
+    <g fill="none" stroke="#566674" stroke-width="3" stroke-linejoin="round"><path d="M42 30 V14 H95"/><path d="M145 14 H190 V${yL} H214"/><path d="M236 ${yR} H262 V128 H42 V112"/></g>
+    ${wid}
+    <rect x="22" y="36" width="40" height="76" rx="6" fill="#33414d"/>
+    <rect x="34" y="${o.plusOben ? 30 : 112}" width="16" height="6" rx="1.5" fill="#9aa5ad"/>
+    <text x="42" y="60" text-anchor="middle" font-size="22" font-weight="800" fill="${farbe(pOben)}">${pOben}</text>
+    <text x="42" y="104" text-anchor="middle" font-size="22" font-weight="800" fill="${farbe(pUnten)}">${pUnten}</text>
+    <line x1="214" y1="74" x2="214" y2="${yL}" stroke="#8e98a1" stroke-width="3"/><line x1="236" y1="74" x2="236" y2="${yR}" stroke="#8e98a1" stroke-width="3"/>
+    <rect x="208" y="68" width="34" height="7" rx="2" fill="#e05247" stroke="#a52a23" stroke-width="1.2"/>
+    <path d="M211 70 V52 A14 14 0 0 1 239 52 V70 Z" fill="#ef6a5e" stroke="#a52a23" stroke-width="1.5"/>
+    <text x="288" y="26" text-anchor="end" font-size="20" font-weight="800" fill="#144a74">${buchstabe}</text>
+  </svg>`;
+}
+// Schaltzeichen A (Diode), B (LED), C (Widerstand)
+const ZEICHEN = `<svg class="kt3-mini" viewBox="0 0 300 80" role="img" aria-label="Drei Schaltzeichen: A ein Dreieck mit Strich, B ein Dreieck mit Strich und zwei Pfeilen nach außen, C ein Rechteck.">
+  <g stroke="#15212b" stroke-width="2.5"><line x1="15" y1="40" x2="85" y2="40"/><line x1="115" y1="40" x2="185" y2="40"/><line x1="215" y1="40" x2="235" y2="40"/><line x1="265" y1="40" x2="285" y2="40"/></g>
+  <path d="M40 28 L40 52 L58 40 Z" fill="#15212b"/><line x1="58" y1="27" x2="58" y2="53" stroke="#15212b" stroke-width="3"/>
+  <path d="M140 28 L140 52 L158 40 Z" fill="#15212b"/><line x1="158" y1="27" x2="158" y2="53" stroke="#15212b" stroke-width="3"/>
+  <g stroke="#15212b" stroke-width="1.6"><line x1="154" y1="25" x2="164" y2="15"/><line x1="160" y1="29" x2="170" y2="19"/></g><g fill="#15212b"><path d="M166 13 L159 14 L164 19 Z"/><path d="M172 17 L165 18 L170 23 Z"/></g>
+  <rect x="235" y="32" width="30" height="16" fill="#fff" stroke="#15212b" stroke-width="2.5"/>
+  <g font-size="16" font-weight="800" fill="#144a74" text-anchor="middle"><text x="50" y="74">A</text><text x="150" y="74">B</text><text x="250" y="74">C</text></g>
+</svg>`;
+
+/* ---------- Kurz-Checks und Übungen zum Ankreuzen ---------- */
+const MC = {
+  s1: [
+    {q: "Wofür steht die Abkürzung LED?", o: ["Light Emitting Diode – Licht ausstrahlende Diode", "Low Energy Display – Bildschirm mit wenig Energie", "Lange Elektrische Drähte – für Lampen", "Licht-Energie-Dose – ein kleiner Akku"], a: 0, e: "LED ist englisch: Light Emitting Diode. Auf Deutsch sagt man Leuchtdiode."},
+    {q: "Warum dürfen Glühlampen für den Haushalt in Europa nicht mehr hergestellt werden?", o: ["Sie verschwenden Energie – das meiste wird zu Wärme.", "Sie sind zu hell und blenden in kleinen Zimmern.", "Es gibt sie nur in einer einzigen Lichtfarbe.", "Sie lassen den Strom nur in einer Richtung durch."], a: 0, e: "Eine Glühlampe macht nur einen kleinen Teil der Energie zu Licht. Der Rest wird Wärme."},
+    {q: "Wo findest du heute LEDs?", o: ["in Straßenlampen", "in den Displays von Smartphones und Fernsehern", "in Autoscheinwerfern", "in einer Wachskerze", "in einem Holzlöffel"], a: [0, 1, 2], e: "Kerze und Holzlöffel haben keine Elektronik – LEDs findest du dort nicht."}
+  ],
+  polung: [
+    {q: "Schaltung A: Was passiert mit der LED?", h: miniLed("A", {plusOben: true, langLinks: true, wid: true}), o: ["Die LED leuchtet.", "Die LED bleibt dunkel.", "Die LED geht kaputt."], a: 0, e: "Der lange Draht ist (über den Widerstand) mit dem Pluspol verbunden, der Schutzwiderstand ist da – die LED leuchtet."},
+    {q: "Schaltung B: Was passiert mit der LED?", h: miniLed("B", {plusOben: true, langLinks: false, wid: true}), o: ["Die LED leuchtet.", "Die LED bleibt dunkel.", "Die LED geht kaputt."], a: 1, e: "Hier ist der lange Draht mit dem Minuspol verbunden. Die LED ist falsch gepolt und lässt keinen Strom durch."},
+    {q: "Schaltung C: Was passiert mit der LED?", h: miniLed("C", {plusOben: true, langLinks: true, wid: false}), o: ["Die LED leuchtet.", "Die LED bleibt dunkel.", "Die LED geht kaputt."], a: 2, e: "Richtig gepolt – aber der Schutzwiderstand fehlt. Die Stromstärke wird zu groß, die LED wird zu heiß und geht kaputt."},
+    {q: "Schaltung D: Was passiert mit der LED?", h: miniLed("D", {plusOben: false, langLinks: false, wid: true}), o: ["Die LED leuchtet.", "Die LED bleibt dunkel.", "Die LED geht kaputt."], a: 0, e: "Achtung, die Batterie steht auf dem Kopf: Der Pluspol ist unten. Der lange Draht rechts ist mit dem Pluspol verbunden – die LED leuchtet."}
+  ],
+  s3: [
+    {q: "Woran erkennst du bei einer Universaldiode die Minus-Seite (Kathode)?", o: ["am hellen Ring", "am längeren Draht", "an der roten Farbe", "an einem Pfeil auf dem Draht"], a: 0, e: "Der Ring markiert die Minus-Seite. Im Schaltzeichen ist es der Strich."},
+    {q: "In einem Stromkreis mit Batterie, Diode und Lämpchen bleibt das Lämpchen dunkel. Was hilft?", o: ["die Batterie oder die Diode umdrehen", "einen längeren Draht verwenden", "eine zweite Diode in gleicher Richtung einbauen", "den Stromkreis an einer Stelle öffnen"], a: 0, e: "Die Diode steht in Sperrrichtung. Dreht man Batterie oder Diode um, steht sie in Durchlassrichtung."},
+    {q: "Welches Schaltzeichen gehört zur Leuchtdiode (LED)?", h: ZEICHEN, o: ["A", "B", "C"], a: 1, e: "B: Dreieck mit Strich und zwei Pfeilen für das Licht. A ist eine Diode ohne Licht, C ein Widerstand."}
+  ],
+  s4: [
+    {q: "Welchen Strom liefert die Steckdose?", o: ["Wechselstrom – die Richtung wechselt ständig.", "Gleichstrom – immer dieselbe Richtung.", "Strom, der nur mit einer Diode fließt.", "Strom, der nur in Sperrrichtung fließt."], a: 0, e: "Aus der Steckdose kommt Wechselstrom. Er schwingt 50-mal in der Sekunde hin und her."},
+    {q: "Was zeigt das Oszilloskop hinter der Diode?", o: ["nur noch die Berge – unten eine gerade Linie", "die ganze Welle mit Bergen und Tälern", "nur noch die Täler unter der Mittellinie", "eine Welle, die doppelt so hoch ist"], a: 0, e: "Die Diode sperrt die eine Richtung. Übrig bleiben die positiven Halbwellen."}
+  ],
+  train: [
+    {q: "Ben schließt eine LED mit Schutzwiderstand an eine volle 4,5-V-Batterie an. Sie bleibt dunkel. Was ist der wahrscheinlichste Grund?", o: ["Die LED ist falsch herum angeschlossen.", "Der Schutzwiderstand macht jede LED dunkel.", "LEDs leuchten nur an der Steckdose.", "Die Batterie liefert Wechselstrom."], a: 0, e: "Ist der lange Draht am Minuspol, sperrt die LED. Umdrehen – dann leuchtet sie."},
+    {q: "Welche Aussagen über Dioden stimmen?", o: ["Sie lassen den Strom nur in einer Richtung durch.", "Sie schützen Geräte vor falsch eingelegten Batterien.", "Sie helfen, aus Wechselstrom Gleichstrom zu machen.", "Jede Diode leuchtet, wenn Strom fließt.", "Sie lassen den Strom in beiden Richtungen gleich gut durch."], a: [0, 1, 2], e: "Nur Leuchtdioden leuchten. Und keine Diode lässt den Strom in beide Richtungen gleich gut durch."},
+    {q: "Wozu dient der Schutzwiderstand vor einer LED?", o: ["Er begrenzt die Stromstärke, damit die LED nicht kaputtgeht.", "Er macht aus Gleichstrom einen Wechselstrom.", "Er färbt das Licht der LED rot.", "Er schaltet die LED bei Tag von selbst aus."], a: 0, e: "Ohne Schutzwiderstand fließt zu viel Strom – die LED wird zu heiß."},
+    {q: "Eine Diode steht in Durchlassrichtung. Was bedeutet das?", o: ["Ihre Minus-Seite (Ring) ist mit dem Minuspol verbunden – Strom fließt.", "Ihre Minus-Seite (Ring) ist mit dem Pluspol verbunden – Strom fließt.", "Sie ist kaputt und lässt keinen Strom mehr durch.", "Sie leuchtet besonders hell und wird heiß."], a: 0, e: "Minus-Seite der Diode zum Minuspol: Durchlassrichtung."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-polung"), MC.polung, "mcpol");
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Station 1: Glühlampe gegen LED-Lampe ---------- */
+(function(){
+  const svg = $("#enSvg"), obs = $("#enObs"), tb = $("#enTab tbody");
+  // Leistung bei gleicher Helligkeit; Lichtanteil bei beiden gleich groß (gleich hell), der Rest wird Wärme
+  const LAMPEN = {
+    glueh: {name: "Glühlampe", watt: 60, licht: 3, therm: .9, g: "enGl", werte: ["hell", "60 Watt", "sehr heiß", "etwa 1 000 Stunden"], dauer: "etwa 1 000 Stunden",
+      text: "Die Glühlampe leuchtet hell. Das Messgerät zeigt 60 Watt. Der Glaskolben wird sehr heiß: Den größten Teil der Energie macht die Glühlampe zu Wärme, nur ein kleiner Teil wird Licht."},
+    led: {name: "LED-Lampe", watt: 8, licht: 3, therm: .22, g: "enLe", werte: ["genauso hell", "etwa 8 Watt", "nur handwarm", "etwa 15 000 Stunden"], dauer: "etwa 15 000 Stunden",
+      text: "Die LED-Lampe leuchtet genauso hell. Das Messgerät zeigt aber nur etwa 8 Watt. Sie wird nur handwarm: Viel weniger Energie geht als Wärme verloren."}
+  };
+  const REIHE = ["glueh", "led"], PX = 2.85;   // Balken: 2,85 px je Watt
+  tb.innerHTML = REIHE.map(k => `<tr><th>${LAMPEN[k].name}</th><td></td><td></td><td></td><td></td></tr>`).join("");
+  const BIRNE = "M113 88 H137 V98 C137 106 159 114 159 142 A34 34 0 1 1 91 142 C91 114 113 106 113 98 Z";
+  svg.innerHTML = `<defs><radialGradient id="enGlowG"><stop offset="0" stop-color="#fff6c8"/><stop offset=".45" stop-color="#ffe27a" stop-opacity=".7"/><stop offset="1" stop-color="#ffe27a" stop-opacity="0"/></radialGradient></defs>
+    <rect width="520" height="280" fill="#f7fbfe"/>
+    <rect width="250" height="12" fill="#dfe7ee"/><line x1="125" y1="12" x2="125" y2="56" stroke="#33414d" stroke-width="3"/>
+    <circle id="enGlow" cx="125" cy="140" r="88" fill="url(#enGlowG)" opacity="0"/>
+    <g id="enHitze" class="stage" fill="none" stroke="#e8731c" stroke-width="2.5" stroke-linecap="round">
+      <path class="rise" d="M74 180 q5 -7 0 -14 q-5 -7 0 -14 q5 -7 0 -14"/><path class="rise" style="animation-delay:.8s" d="M64 160 q5 -7 0 -14 q-5 -7 0 -14"/>
+      <path class="rise" style="animation-delay:.4s" d="M176 180 q5 -7 0 -14 q-5 -7 0 -14 q5 -7 0 -14"/><path class="rise" style="animation-delay:1.2s" d="M125 200 q5 -7 0 -14 q-5 -7 0 -14"/>
+    </g>
+    <rect x="110" y="54" width="30" height="36" rx="4" fill="#8e98a1" stroke="#5f6c75" stroke-width="2"/>
+    <g stroke="#6f7b85" stroke-width="2"><line x1="111" y1="64" x2="139" y2="68"/><line x1="111" y1="72" x2="139" y2="76"/><line x1="111" y1="80" x2="139" y2="84"/></g>
+    <g id="enGl" class="en-lampe" opacity="0">
+      <path d="${BIRNE}" fill="#fffdf3" fill-opacity=".85" stroke="#9aa5ad" stroke-width="2"/>
+      <path d="M119 98 L117 136 M131 98 L133 136" stroke="#8e98a1" stroke-width="1.5" fill="none"/>
+      <polyline id="enFaden" points="117,136 119,130 121,136 123,130 125,136 127,130 129,136 131,130 133,136" fill="none" stroke="#b9860b" stroke-width="2"/>
+    </g>
+    <g id="enLe" class="en-lampe" opacity="0">
+      <path d="${BIRNE}" fill="#f4f6f8" stroke="#9aa5ad" stroke-width="2"/>
+      <path d="M109 88 H141 V102 L133 114 H117 L109 102 Z" fill="#ffffff" stroke="#b9c3cb" stroke-width="1.5"/>
+      <g stroke="#d9e1e8" stroke-width="1.5"><line x1="112" y1="94" x2="138" y2="94"/><line x1="112" y1="100" x2="138" y2="100"/></g>
+      <rect x="112" y="130" width="26" height="8" rx="2" fill="#dfe5ea"/>
+      <rect class="en-chip" x="115" y="131.5" width="5" height="5" fill="#e8d9a0"/><rect class="en-chip" x="122.5" y="131.5" width="5" height="5" fill="#e8d9a0"/><rect class="en-chip" x="130" y="131.5" width="5" height="5" fill="#e8d9a0"/>
+      <text x="125" y="111" text-anchor="middle" font-size="9" font-weight="800" fill="#8e98a1">LED</text>
+    </g>
+    <text x="205" y="62" text-anchor="middle" font-size="11" font-weight="800" fill="#33414d">Wärme</text>
+    <rect x="199" y="70" width="12" height="112" rx="6" fill="#fff" stroke="#566674" stroke-width="1.5"/>
+    <rect id="enTherm" x="202" y="172" width="6" height="6" fill="#c0392b"/>
+    <circle cx="205" cy="190" r="10" fill="#c0392b" stroke="#566674" stroke-width="1.5"/>
+    <g font-size="10" font-weight="700" fill="#566674"><text x="216" y="82">heiß</text><text x="216" y="178">kalt</text></g>
+    <text id="enDauer" x="125" y="240" text-anchor="middle" font-size="12.5" font-weight="700" fill="#33414d"></text>
+    <text id="enDauer2" x="125" y="257" text-anchor="middle" font-size="12.5" font-weight="700" fill="#33414d"></text>
+    <rect x="280" y="22" width="225" height="74" rx="10" fill="#2a3640"/>
+    <text x="296" y="42" font-size="11" font-weight="800" fill="#b8c6d1">Leistungsmessgerät</text>
+    <text id="enWatt" x="490" y="84" text-anchor="end" font-size="34" font-weight="800" fill="#7cf0a6" font-family="ui-monospace,Consolas,monospace">0 W</text>
+    <text x="280" y="124" font-size="12" font-weight="800" fill="#33414d">Energie, die die Lampe braucht:</text>
+    <text x="280" y="146" font-size="12" font-weight="700" fill="#33414d">Glühlampe</text>
+    <rect id="enGlL" x="280" y="152" width="0" height="18" fill="#f2c94c"/><rect id="enGlW" x="280" y="152" width="0" height="18" fill="#e8731c"/>
+    <text id="enGlV" x="290" y="166" font-size="12" font-weight="800" fill="#33414d"></text>
+    <text x="280" y="196" font-size="12" font-weight="700" fill="#33414d">LED-Lampe</text>
+    <rect id="enLeL" x="280" y="202" width="0" height="18" fill="#f2c94c"/><rect id="enLeW" x="280" y="202" width="0" height="18" fill="#e8731c"/>
+    <text id="enLeV" x="290" y="216" font-size="12" font-weight="800" fill="#33414d"></text>
+    <rect x="280" y="236" width="12" height="12" fill="#f2c94c"/><text x="297" y="246" font-size="12" font-weight="700" fill="#33414d">Licht</text>
+    <rect x="345" y="236" width="12" height="12" fill="#e8731c"/><text x="362" y="246" font-size="12" font-weight="700" fill="#33414d">Wärme</text>
+    <text x="280" y="268" font-size="11" fill="#566674">Beide Lampen sind gleich hell.</text>`;
+  const watt = $("#enWatt", svg), therm = $("#enTherm", svg);
+  let w0 = 0, t0 = .05;
+  const setzeTherm = k => { const h = 6 + 98 * k; therm.setAttribute("y", (178 - h).toFixed(1)); therm.setAttribute("height", h.toFixed(1)); };
+  function balken(k, f){
+    const L = LAMPEN[k], p = k === "glueh" ? "enGl" : "enLe";
+    const wl = L.licht * PX * f, ww = (L.watt - L.licht) * PX * f;
+    $("#" + p + "L", svg).setAttribute("width", wl.toFixed(1));
+    $("#" + p + "W", svg).setAttribute("x", (280 + wl).toFixed(1)); $("#" + p + "W", svg).setAttribute("width", ww.toFixed(1));
+    const v = $("#" + p + "V", svg); v.setAttribute("x", (286 + wl + ww).toFixed(1)); v.textContent = f >= 1 ? L.watt + " W" : "";
+  }
+  const fertig = new Set();
+  register("energie", "#enSvg", "Vergleich: Glühlampe und LED-Lampe (beide einschalten)");
+  async function an(k){
+    const L = LAMPEN[k];
+    $("#enGlow", svg).setAttribute("opacity", 0); $("#enHitze", svg).classList.remove("on");
+    $("#enDauer", svg).textContent = ""; $("#enDauer2", svg).textContent = "";
+    $("#enFaden", svg).setAttribute("stroke", "#b9860b"); $$(".en-chip", svg).forEach(c => c.setAttribute("fill", "#e8d9a0"));
+    const wa = w0, ta = t0;
+    await tween(450, f => { watt.textContent = Math.round(wa * (1 - f)) + " W"; setzeTherm(ta + (.05 - ta) * f); });
+    ["enGl", "enLe"].forEach(id => $("#" + id, svg).setAttribute("opacity", 0));
+    await wait(380);
+    $("#" + L.g, svg).setAttribute("opacity", 1);
+    await wait(450);
+    $("#enGlow", svg).setAttribute("opacity", .95);
+    if (k === "glueh") { $("#enFaden", svg).setAttribute("stroke", "#ff9f1a"); $("#enHitze", svg).classList.add("on"); }
+    else $$(".en-chip", svg).forEach(c => c.setAttribute("fill", "#fff8d8"));
+    await tween(1400, f => { watt.textContent = Math.round(L.watt * f) + " W"; setzeTherm(.05 + (L.therm - .05) * f); balken(k, f); });
+    w0 = L.watt; t0 = L.therm;
+    $("#enDauer", svg).textContent = "Auf der Packung steht:";
+    $("#enDauer2", svg).textContent = "hält " + L.dauer;
+    const tr = tb.children[REIHE.indexOf(k)];
+    L.werte.forEach((w, i) => { const td = tr.children[i + 1]; td.textContent = w; neuMarkieren(td); });
+    fertig.add(k); obs.textContent = L.text;
+    if (fertig.size === 2) { solve("energie"); obs.textContent += " ✅ Vergleich fertig: gleich hell – aber die LED braucht nur etwa 8 statt 60 Watt, bleibt kühl und hält viel länger."; }
+  }
+  let laeuft = false;
+  [["tGlueh", "glueh"], ["tLed", "led"]].forEach(([id, k]) => $("#" + id).addEventListener("click", async () => {
+    if (laeuft) return; laeuft = true; sperre(svg, true); obs.textContent = "Die Lampe wird eingeschaltet …";
+    try { await an(k); } finally { laeuft = false; sperre(svg, false); }
+  }));
+})();
+
+Modul.makeSort($("#sortLampe"), {
+  buckets: ["💡 Glühlampe", "🔆 LED-Lampe"], cols: 220,
+  items: [
+    {t: "braucht für helles Licht etwa 60 Watt", b: 0}, {t: "wird beim Leuchten sehr heiß", b: 0}, {t: "hält nur etwa 1 000 Stunden", b: 0}, {t: "darf für den Haushalt in Europa nicht mehr hergestellt werden", b: 0},
+    {t: "braucht für dasselbe Licht nur etwa 8 Watt", b: 1}, {t: "wird beim Leuchten nur handwarm", b: 1}, {t: "hält etwa 15 000 Stunden", b: 1}, {t: "gibt es in allen Bauformen und Lichtfarben", b: 1}, {t: "leuchtet im Display eines Smartphones", b: 1}
+  ]
+}, "sortLampe");
+
+/* ---------- Station 2: LED-Labor ---------- */
+(function(){
+  const svg = $("#ledSvg"), obs = $("#ledObs"), tb = $("#ledTab tbody");
+  const VERSUCHE = {
+    richtig: {zeile: 0, flip: false, wid: true, name: "Langer Draht am Pluspol, mit Schutzwiderstand", erg: "Die LED leuchtet.",
+      text: "Der lange Draht ist mit dem Pluspol verbunden, der Schutzwiderstand ist eingebaut. Die Elektronen fließen vom Minuspol durch die LED zum Pluspol – die LED leuchtet."},
+    falsch: {zeile: 1, flip: true, wid: true, name: "Langer Draht am Minuspol, mit Schutzwiderstand", erg: "Die LED bleibt dunkel – es fließt kein Strom.",
+      text: "Jetzt ist die LED umgedreht: Der lange Draht hängt am Minuspol. Die LED sperrt, es fließt kein Strom – sie bleibt dunkel. Kaputt ist sie aber nicht."},
+    ohne: {zeile: 2, flip: false, wid: false, name: "Langer Draht am Pluspol, ohne Schutzwiderstand", erg: "Die LED leuchtet kurz sehr hell – dann ist sie kaputt.",
+      text: "Ohne Schutzwiderstand fließt viel zu viel Strom. Die LED leuchtet kurz grell auf, wird zu heiß und geht kaputt. Eine LED braucht immer einen Schutzwiderstand!"}
+  };
+  const REIHE = ["richtig", "falsch", "ohne"];
+  tb.innerHTML = REIHE.map(k => `<tr><th>${VERSUCHE[k].name}</th><td></td></tr>`).join("");
+  svg.innerHTML = `<defs><radialGradient id="ledGlowG"><stop offset="0" stop-color="#fff3b0"/><stop offset=".35" stop-color="#ff5a4a" stop-opacity=".75"/><stop offset="1" stop-color="#ff5a4a" stop-opacity="0"/></radialGradient></defs>
+    <rect width="520" height="280" fill="#f7fbfe"/>
+    <g fill="none" stroke="${DRAHT}" stroke-width="3.5" stroke-linejoin="round">
+      <path d="M80 90 V40 H175"/><path id="ledDrahtL" d=""/><path id="ledDrahtR" d=""/>
+      <line id="ledBruecke" x1="175" y1="40" x2="255" y2="40" opacity="0"/>
+    </g>
+    <path id="ledFluss" class="kt3-fluss" fill="none" stroke="${ELEKTRON}" stroke-width="6" opacity="0" d=""/>
+    <g id="ledWid">
+      <rect x="175" y="29" width="80" height="22" rx="9" fill="#e9d3a3" stroke="#a8875a" stroke-width="2"/>
+      <rect x="190" y="29" width="6" height="22" fill="#c0392b"/><rect x="203" y="29" width="6" height="22" fill="#c0392b"/><rect x="216" y="29" width="6" height="22" fill="#7a4a1c"/><rect x="238" y="29" width="6" height="22" fill="#c9a227"/>
+      <text x="215" y="20" text-anchor="middle" font-size="12" font-weight="800" fill="#33414d">Schutzwiderstand 220 Ω</text>
+    </g>
+    <rect x="40" y="95" width="80" height="120" rx="10" fill="#33414d"/><rect x="68" y="86" width="24" height="9" rx="2" fill="#9aa5ad"/>
+    <text x="80" y="126" text-anchor="middle" font-size="26" font-weight="800" fill="#ff9e94">+</text>
+    <text x="80" y="160" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">4,5 V</text>
+    <text x="80" y="204" text-anchor="middle" font-size="26" font-weight="800" fill="#9cc9f2">−</text>
+    <circle id="ledGlow" cx="360" cy="118" r="62" fill="url(#ledGlowG)" opacity="0"/>
+    <g id="ledLed">
+      <line x1="345" y1="155" x2="345" y2="226" stroke="#8e98a1" stroke-width="3.5"/><line x1="375" y1="155" x2="375" y2="206" stroke="#8e98a1" stroke-width="3.5"/>
+      <rect class="led-farbe" id="ledRand" x="335" y="146" width="50" height="10" rx="2" fill="#e05247" stroke="#a52a23" stroke-width="1.5"/>
+      <path class="led-farbe" id="ledKuppel" d="M340 148 V112 A20 20 0 0 1 380 112 V148 Z" fill="#ef6a5e" stroke="#a52a23" stroke-width="2"/>
+      <path id="ledRiss" class="stage" d="M354 100 l7 11 l-6 8 l8 11 l-5 9" fill="none" stroke="#15212b" stroke-width="2"/>
+    </g>
+    <g id="ledRauch" class="stage" fill="#8e98a1"><circle class="rise" cx="352" cy="80" r="9" opacity=".7"/><circle class="rise" style="animation-delay:.6s" cx="368" cy="66" r="12" opacity=".6"/><circle class="rise" style="animation-delay:1.2s" cx="356" cy="50" r="10" opacity=".5"/></g>
+    <g font-size="12" font-weight="800" fill="#33414d"><text id="ledLang" y="184">lang</text><text id="ledKurz" y="184">kurz</text></g>
+    <text id="ledStatus" x="455" y="40" text-anchor="middle" font-size="15" font-weight="800"></text>`;
+  const led = $("#ledLed", svg), fluss = $("#ledFluss", svg), glow = $("#ledGlow", svg), status = $("#ledStatus", svg);
+  function lege(flip){
+    const yL = flip ? 206 : 226, yR = flip ? 226 : 206;
+    if (flip) led.setAttribute("transform", "translate(720 0) scale(-1 1)"); else led.removeAttribute("transform");
+    $("#ledDrahtL", svg).setAttribute("d", `M255 40 H300 V${yL} H345`);
+    $("#ledDrahtR", svg).setAttribute("d", `M375 ${yR} H420 V258 H80 V215`);
+    fluss.setAttribute("d", `M80 215 V258 H420 V${yR} H375 V155 H345 V${yL} H300 V40 H80 V95`);
+    const links = {x: 338, a: "end"}, rechts = {x: 382, a: "start"};
+    [["ledLang", flip ? rechts : links], ["ledKurz", flip ? links : rechts]].forEach(([id, p]) => { const t = $("#" + id, svg); t.setAttribute("x", p.x); t.setAttribute("text-anchor", p.a); });
+  }
+  function neueLed(){
+    fluss.setAttribute("opacity", 0); fluss.style.animationDuration = "";
+    glow.setAttribute("opacity", 0); glow.style.transform = "";
+    $("#ledKuppel", svg).setAttribute("fill", "#ef6a5e"); $("#ledRand", svg).setAttribute("fill", "#e05247");
+    $("#ledRiss", svg).classList.remove("on"); $("#ledRauch", svg).classList.remove("on");
+    status.textContent = "";
+  }
+  const setzeStatus = (t, f) => { status.textContent = t; status.setAttribute("fill", f); };
+  lege(false);
+  const fertig = new Set();
+  register("ledlabor", "#ledSvg", "Versuche: LED richtig anschließen (alle drei Versuche)");
+  async function versuch(k){
+    const V = VERSUCHE[k];
+    neueLed(); led.style.opacity = .15;
+    await wait(320);
+    lege(V.flip);
+    $("#ledWid", svg).style.transform = V.wid ? "" : "translateY(-34px)"; $("#ledWid", svg).style.opacity = V.wid ? 1 : 0;
+    $("#ledBruecke", svg).setAttribute("opacity", V.wid ? 0 : 1);
+    led.style.opacity = 1;
+    await wait(800);
+    if (k === "falsch") { setzeStatus("bleibt dunkel", GRAU); await wait(900); }
+    else if (k === "richtig") { fluss.setAttribute("opacity", 1); glow.setAttribute("opacity", .9); setzeStatus("leuchtet ✔", GRUEN); await wait(1300); }
+    else {
+      fluss.style.animationDuration = ".3s"; fluss.setAttribute("opacity", 1);
+      glow.setAttribute("opacity", 1); glow.style.transform = "scale(1.5)"; setzeStatus("viel zu hell!", ROT);
+      await wait(1400);
+      glow.setAttribute("opacity", 0); glow.style.transform = ""; fluss.setAttribute("opacity", 0);
+      $("#ledKuppel", svg).setAttribute("fill", "#5b4c4a"); $("#ledRand", svg).setAttribute("fill", "#4a3e3c");
+      $("#ledRiss", svg).classList.add("on"); $("#ledRauch", svg).classList.add("on"); setzeStatus("kaputt ✖", ROT);
+      await wait(1000);
+    }
+    const td = tb.children[V.zeile].children[1]; td.textContent = V.erg; neuMarkieren(td);
+    fertig.add(k); obs.textContent = V.text;
+    if (fertig.size === 3) { solve("ledlabor"); obs.textContent += " ✅ Alle drei Versuche erledigt: langer Draht an Plus – und nie ohne Schutzwiderstand!"; }
+  }
+  let laeuft = false;
+  [["tRichtig", "richtig"], ["tFalsch", "falsch"], ["tOhneWid", "ohne"]].forEach(([id, k]) => $("#" + id).addEventListener("click", async () => {
+    if (laeuft) return; laeuft = true; sperre(svg, true); obs.textContent = "Eine neue LED kommt in die Schaltung …";
+    try { await versuch(k); } finally { laeuft = false; sperre(svg, false); }
+  }));
+})();
+
+Modul.makeGap($("#gapLed"), [
+  ["Eine LED ist kein kleines Glühlämpchen, sondern ein elektronisches ", {g: "Bauteil"}, ". Sie leuchtet nur, wenn sie richtig gepolt ist."],
+  ["Der längere Draht kommt an den ", {g: "Pluspol"}, ", der kürzere an den ", {g: "Minuspol"}, ". Andersherum bleibt die LED ", {g: "dunkel"}, ", denn sie lässt den Strom nur in ", {g: "einer"}, " Richtung durch."],
+  ["Vor die LED gehört immer ein ", {g: "Schutzwiderstand"}, ". Er begrenzt die ", {g: "Stromstärke"}, ". Ohne ihn wird die LED zu heiß und geht kaputt."]
+], "gapLed", ["beiden", "Wechselstrom"]);
+
+/* ---------- Station 3: Diode im Stromkreis ---------- */
+(function(){
+  const svg = $("#dioSvg"), obs = $("#dioObs"), tb = $("#dioTab tbody");
+  tb.innerHTML = `<tr><th>💡 leuchtet</th><td></td><td></td></tr><tr><th>⚫ bleibt aus</th><td></td><td></td></tr>`;
+  svg.innerHTML = `<defs><radialGradient id="dioGlowG"><stop offset="0" stop-color="#fff6c8"/><stop offset=".45" stop-color="#ffe27a" stop-opacity=".75"/><stop offset="1" stop-color="#ffe27a" stop-opacity="0"/></radialGradient></defs>
+    <rect width="520" height="280" fill="#f7fbfe"/>
+    <g fill="none" stroke-width="4" stroke-linejoin="round">
+      <path id="dioOben" class="dio-pol" d="M90 104 V60 H230"/>
+      <path d="M290 60 H470 V185 H444" stroke="${DRAHT}"/>
+      <path id="dioUnten" class="dio-pol" d="M430 198 V250 H90 V226"/>
+    </g>
+    <path id="dioFluss" class="kt3-fluss" fill="none" stroke="${ELEKTRON}" stroke-width="6" opacity="0" d=""/>
+    <g id="dioBatt">
+      <rect x="50" y="110" width="80" height="110" rx="10" fill="#33414d"/><rect x="78" y="101" width="24" height="9" rx="2" fill="#9aa5ad"/>
+      <text x="90" y="142" text-anchor="middle" font-size="26" font-weight="800" fill="#ff9e94">+</text>
+      <text x="90" y="210" text-anchor="middle" font-size="26" font-weight="800" fill="#9cc9f2">−</text>
+    </g>
+    <text x="140" y="170" font-size="13" font-weight="800" fill="#33414d">4,5 V</text>
+    <text x="260" y="34" text-anchor="middle" font-size="13" font-weight="800" fill="#33414d">Diode</text>
+    <rect id="dioRahmen" x="224" y="43" width="72" height="34" rx="9" fill="none" stroke="${GRUEN}" stroke-width="3"/>
+    <g id="dioDio"><rect x="230" y="49" width="60" height="22" rx="6" fill="#1f1f22"/><rect x="272" y="49" width="8" height="22" fill="#dfe3e6"/></g>
+    <line id="dioRingLinie" x1="276" y1="74" x2="276" y2="84" stroke="#566674" stroke-width="1.5"/>
+    <text id="dioRingTxt" x="276" y="96" text-anchor="middle" font-size="11" font-weight="800" fill="#566674">Ring</text>
+    <text x="260" y="116" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">Schaltzeichen:</text>
+    <g id="dioSym"><line x1="225" y1="138" x2="295" y2="138" stroke="#15212b" stroke-width="2.5"/><path d="M250 126 L250 150 L270 138 Z" fill="#15212b"/><line x1="270" y1="125" x2="270" y2="151" stroke="#15212b" stroke-width="3.5"/></g>
+    <text x="260" y="168" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">Strich = Ring = Minus-Seite</text>
+    <circle id="dioGlow" cx="430" cy="150" r="50" fill="url(#dioGlowG)" opacity="0"/>
+    <circle cx="430" cy="150" r="22" fill="#fffdf3" stroke="#9aa5ad" stroke-width="2"/>
+    <polyline id="dioFaden" points="422,162 424,148 427,156 430,146 433,156 436,148 438,162" fill="none" stroke="#b9860b" stroke-width="2"/>
+    <rect x="416" y="170" width="28" height="28" rx="3" fill="#9aa5ad" stroke="#5f6c75" stroke-width="1.5"/>
+    <text x="440" y="226" font-size="12" font-weight="800" fill="#33414d">Lämpchen</text>
+    <text id="dioStatus" x="290" y="210" text-anchor="middle" font-size="18" font-weight="800"></text>
+    <text id="dioStatus2" x="290" y="231" text-anchor="middle" font-size="12.5" font-weight="700" fill="#33414d"></text>
+    <text x="260" y="272" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">rot = Leitung zum Pluspol · blau = Leitung zum Minuspol</text>`;
+  let battNormal = true, ringRechts = true;
+  const benutzt = new Set(), gesehen = new Set();
+  const durch = () => battNormal === ringRechts;
+  function zeichne(){
+    const d = durch();
+    $("#dioOben", svg).setAttribute("stroke", battNormal ? ROT : BLAU);
+    $("#dioUnten", svg).setAttribute("stroke", battNormal ? BLAU : ROT);
+    $("#dioFluss", svg).setAttribute("d", battNormal ? "M90 226 V250 H430 V185 H470 V60 H90 V104" : "M90 104 V60 H470 V185 H430 V250 H90 V226");
+    $("#dioFluss", svg).setAttribute("opacity", d ? 1 : 0);
+    $("#dioGlow", svg).setAttribute("opacity", d ? .95 : 0);
+    $("#dioFaden", svg).setAttribute("stroke", d ? "#ff9f1a" : "#b9860b");
+    $("#dioRahmen", svg).setAttribute("stroke", d ? GRUEN : ROT);
+    const st = $("#dioStatus", svg); st.textContent = d ? "Durchlassrichtung" : "Sperrrichtung"; st.setAttribute("fill", d ? GRUEN : ROT);
+    $("#dioStatus2", svg).textContent = d ? "Strom fließt – das Lämpchen leuchtet." : "Kein Strom – das Lämpchen bleibt aus.";
+    const x = ringRechts ? 276 : 244; $("#dioRingTxt", svg).setAttribute("x", x); $("#dioRingLinie", svg).setAttribute("x1", x); $("#dioRingLinie", svg).setAttribute("x2", x);
+  }
+  zeichne();
+  register("diodenkreis", "#dioSvg", "Versuch: Diode im Stromkreis (Batterie und Diode umdrehen)");
+  function eintragen(){
+    const d = durch(), tr = tb.children[d ? 0 : 1];
+    [d ? "Minuspol der Batterie" : "Pluspol der Batterie", d ? "Durchlassrichtung" : "Sperrrichtung"].forEach((w, i) => { const td = tr.children[i + 1]; td.textContent = w; neuMarkieren(td); });
+    gesehen.add(d);
+    obs.textContent = d
+      ? "Das Lämpchen leuchtet. Der Ring – die Minus-Seite der Diode – ist über das Lämpchen mit dem Minuspol der Batterie verbunden. Die Elektronen kommen durch: Durchlassrichtung."
+      : "Das Lämpchen bleibt aus. Jetzt ist der Ring mit dem Pluspol der Batterie verbunden. Die Diode sperrt, es fließt kein Strom: Sperrrichtung.";
+    if (gesehen.size === 2 && benutzt.size === 2) { solve("diodenkreis"); obs.textContent += " ✅ Batterie umdrehen oder Diode umdrehen – beides wirkt gleich. Die Diode lässt den Strom nur in einer Richtung durch."; }
+    else if (gesehen.size === 2) obs.textContent += " Probiere jetzt auch den anderen Knopf aus.";
+  }
+  let laeuft = false;
+  const knopf = (id, fn) => $("#" + id).addEventListener("click", async () => {
+    if (laeuft) return; laeuft = true; sperre(svg, true);
+    $("#dioFluss", svg).setAttribute("opacity", 0); $("#dioGlow", svg).setAttribute("opacity", 0);
+    $("#dioStatus", svg).textContent = ""; $("#dioStatus2", svg).textContent = "";
+    $("#dioRingTxt", svg).setAttribute("opacity", 0); $("#dioRingLinie", svg).setAttribute("opacity", 0);
+    try { fn(); await wait(900); zeichne(); $("#dioRingTxt", svg).setAttribute("opacity", 1); $("#dioRingLinie", svg).setAttribute("opacity", 1); await wait(250); eintragen(); }
+    finally { laeuft = false; sperre(svg, false); }
+  });
+  knopf("tBatt", () => { battNormal = !battNormal; benutzt.add("batt"); $("#dioBatt", svg).style.transform = battNormal ? "" : "rotate(180deg)"; });
+  knopf("tDiode", () => { ringRechts = !ringRechts; benutzt.add("diode"); const r = ringRechts ? "" : "rotate(180deg)"; $("#dioDio", svg).style.transform = r; $("#dioSym", svg).style.transform = r; });
+})();
+
+Modul.makeTF($("#tfDiode"), [
+  ["Eine Diode lässt den Strom in beiden Richtungen gleich gut durch.", false],
+  ["Der helle Ring auf einer Universaldiode markiert ihre Minus-Seite.", true],
+  ["In Sperrrichtung leuchtet das Lämpchen im Stromkreis hell auf.", false],
+  ["Dreht man die Batterie um, wird aus der Durchlassrichtung die Sperrrichtung.", true],
+  ["Im Schaltzeichen der Diode steht der Strich für die Minus-Seite.", true],
+  ["Jede Diode leuchtet, wenn Strom durch sie fließt.", false]
+], "tfDiode");
+
+/* ---------- Station 3: Wecker mit Schutzdiode ---------- */
+(function(){
+  const svg = $("#swSvg");
+  svg.innerHTML = `<rect width="520" height="250" fill="#f7fbfe"/>
+    <text x="150" y="32" text-anchor="middle" font-size="13" font-weight="800" fill="#33414d">Wecker</text>
+    <rect x="30" y="42" width="240" height="150" rx="24" fill="#2f3b46"/>
+    <rect id="swDisplay" x="52" y="66" width="196" height="84" rx="10" fill="#0d1a14"/>
+    <text id="swZeit" x="150" y="125" text-anchor="middle" font-size="46" font-weight="800" fill="#39ff88" font-family="ui-monospace,Consolas,monospace" opacity="0">07:30</text>
+    <g fill="#566674"><circle cx="82" cy="172" r="8"/><circle cx="150" cy="172" r="8"/><circle cx="218" cy="172" r="8"/></g>
+    <g id="swBlase" class="stage"><rect x="30" y="202" width="240" height="44" rx="10" fill="#fde8e6" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="5 4"/>
+      <text x="150" y="220" text-anchor="middle" font-size="12" font-weight="800" fill="#c0392b">Ohne Diode: Strom verkehrt herum</text>
+      <text x="150" y="237" text-anchor="middle" font-size="12" font-weight="800" fill="#c0392b">durch die Elektronik → kaputt!</text></g>
+    <text id="swStatus" x="150" y="226" text-anchor="middle" font-size="14" font-weight="800"></text>
+    <rect x="292" y="18" width="218" height="224" rx="14" fill="#eef3f7" stroke="#9aa5ad" stroke-width="2"/>
+    <text x="401" y="38" text-anchor="middle" font-size="12" font-weight="800" fill="#33414d">Blick ins Innere</text>
+    <text x="401" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">Batteriefach</text>
+    <g fill="none" stroke="${DRAHT}" stroke-width="3" stroke-linejoin="round"><path d="M318 84 H304 V200 H340"/><path d="M446 200 H496 V84 H484"/></g>
+    <path id="swFluss" class="kt3-fluss" fill="none" stroke="${ELEKTRON}" stroke-width="5" opacity="0" d="M318 84 H304 V200 H496 V84 H484"/>
+    <rect x="318" y="68" width="166" height="32" rx="6" fill="#dfe5ea" stroke="#8e98a1" stroke-width="1.5"/>
+    <g id="swZellen">
+      <rect x="324" y="72" width="68" height="24" rx="5" fill="#c98a1c"/><rect x="392" y="79" width="5" height="10" rx="1" fill="#9aa5ad"/>
+      <rect x="404" y="72" width="68" height="24" rx="5" fill="#c98a1c"/><rect x="472" y="79" width="5" height="10" rx="1" fill="#9aa5ad"/>
+      <g font-size="15" font-weight="800" fill="#fff" text-anchor="middle"><text x="383" y="89">+</text><text x="334" y="89">−</text><text x="463" y="89">+</text><text x="414" y="89">−</text></g>
+    </g>
+    <g id="swDio"><rect x="486" y="118" width="20" height="40" rx="5" fill="#1f1f22"/><rect x="486" y="146" width="20" height="7" fill="#dfe3e6"/></g>
+    <rect id="swRahmen" x="481" y="113" width="30" height="50" rx="8" fill="none" stroke="#f2b632" stroke-width="3" opacity="0"/>
+    <text x="476" y="140" text-anchor="end" font-size="12" font-weight="800" fill="#33414d">Diode</text>
+    <rect x="340" y="182" width="106" height="40" rx="5" fill="#2e8b57" stroke="#1e5e3a" stroke-width="1.5"/>
+    <rect x="376" y="192" width="34" height="20" rx="2" fill="#1f1f22"/>
+    <g stroke="#cfe9d9" stroke-width="1.5"><line x1="350" y1="190" x2="370" y2="190"/><line x1="350" y1="214" x2="370" y2="214"/><line x1="416" y1="190" x2="436" y2="190"/><line x1="416" y1="214" x2="436" y2="214"/></g>
+    <text x="393" y="236" text-anchor="middle" font-size="11" font-weight="800" fill="#33414d">Elektronik</text>
+    <g id="swBlitz" class="stage"><rect x="336" y="178" width="114" height="48" rx="7" fill="none" stroke="#c0392b" stroke-width="2.5" stroke-dasharray="5 4"/>
+      <path d="M380 150 L392 172 L384 174 L398 198" fill="none" stroke="#f2b632" stroke-width="4" stroke-linejoin="round"/></g>
+    <text id="swHeil" class="stage" x="393" y="172" text-anchor="middle" font-size="13" font-weight="800" fill="${GRUEN}">✔ heil</text>`;
+  const S = [
+    {flip: false, fluss: false, an: false, rahmen: "#f2b632", dio: 1, status: ["Hier sitzt die Diode.", "#33414d"]},
+    {flip: false, fluss: true, an: true, rahmen: GRUEN, dio: 1, status: ["Durchlassrichtung", GRUEN]},
+    {flip: true, fluss: false, an: false, rahmen: "", dio: .2, blase: true, blitz: true},
+    {flip: true, fluss: false, an: false, rahmen: ROT, dio: 1, heil: true, status: ["Sperrrichtung: kein Strom", ROT]},
+    {flip: false, fluss: true, an: true, rahmen: GRUEN, dio: 1, heil: true, status: ["Die Uhr läuft wieder ✔", GRUEN]}
+  ];
+  Modul.makeSchritte($("#swSim"), {
+    start: "Ein Wecker mit zwei Batterien – tippe auf „Start“.",
+    steps: [
+      "Im Wecker stecken zwei Batterien. Zwischen dem Batteriefach und der Elektronik ist eine <strong>Diode</strong> eingebaut.",
+      "Die Batterien liegen richtig herum. Die Diode steht in <strong>Durchlassrichtung</strong>: Der Strom fließt, die Uhr zeigt die Zeit.",
+      "Beim Batteriewechsel legt Mia die Batterien falsch herum ein. <strong>Ohne Diode</strong> würde der Strom jetzt verkehrt herum durch die Elektronik fließen – sie könnte kaputtgehen.",
+      "Doch die Diode steht jetzt in <strong>Sperrrichtung</strong>. Sie lässt keinen Strom durch. Die Uhr bleibt dunkel – aber die Elektronik bleibt heil.",
+      "Mia dreht die Batterien um. Die Diode lässt den Strom wieder durch, die Uhr läuft. <strong>Die Diode hat das Gerät geschützt.</strong>"
+    ],
+    zeige(i){
+      const s = i < 0 ? {flip: false, fluss: false, an: false, rahmen: "", dio: 1} : S[i];
+      $("#swZellen", svg).style.transform = s.flip ? "scaleX(-1)" : "";
+      $("#swFluss", svg).setAttribute("opacity", s.fluss ? 1 : 0);
+      $("#swZeit", svg).setAttribute("opacity", s.an ? 1 : 0);
+      $("#swDisplay", svg).setAttribute("fill", s.an ? "#12301f" : "#0d1a14");
+      const r = $("#swRahmen", svg); r.setAttribute("opacity", s.rahmen ? 1 : 0); if (s.rahmen) r.setAttribute("stroke", s.rahmen);
+      $("#swDio", svg).setAttribute("opacity", s.dio);
+      $("#swBlase", svg).classList.toggle("on", !!s.blase);
+      $("#swBlitz", svg).classList.toggle("on", !!s.blitz);
+      $("#swHeil", svg).classList.toggle("on", !!s.heil);
+      const st = $("#swStatus", svg); st.textContent = s.status ? s.status[0] : ""; if (s.status) st.setAttribute("fill", s.status[1]);
+    }
+  }, "schutzdiode");
+})();
+
+Modul.makeOpen($("#open3"), [
+  {q: "In vielen Geräten mit Batterien steckt eine Diode. Erkläre, wie sie das Gerät schützt, wenn jemand die Batterien falsch herum einlegt.",
+   m: "Die Diode lässt den Strom nur in einer Richtung durch. Liegen die Batterien richtig, steht sie in Durchlassrichtung und das Gerät läuft. Liegen die Batterien falsch herum, steht die Diode in Sperrrichtung: Es fließt kein Strom durch die Elektronik. Deshalb kann sie nicht beschädigt werden.",
+   k: ["eine richtung|einer richtung|einbahn|nur in die richtige", "sperr|kein strom|keinen strom|fließt nicht|blockiert|lässt nicht durch|lässt nichts durch", "elektronik|gerät|kaputt|beschädig|schaden|heil"], min: 2}
+], "open3-", "Schau dir die Animation mit dem Wecker noch einmal an.");
+
+/* ---------- Station 4: Oszilloskop ---------- */
+(function(){
+  const svg = $("#oszSvg"), obs = $("#oszObs"), tb = $("#oszTab tbody");
+  const VERSUCHE = {
+    ohne: {zeile: 0, werte: ["Welle mit Bergen (+) und Tälern (−)", "hin und her: Wechselstrom"], modus: "ohne Diode",
+      text: "Ohne Diode zeichnet das Oszilloskop eine gleichmäßige Welle: oben die Berge, unten die Täler. Die Elektronen schwingen hin und her – das ist Wechselstrom."},
+    mit: {zeile: 1, werte: ["nur noch die Berge – unten eine gerade Linie", "nur in eine Richtung: Gleichstrom"], modus: "mit Diode",
+      text: "Mit Diode bleiben nur die Berge übrig, die positiven Halbwellen. Wo vorher die Täler waren, ist eine gerade Linie: Diese Richtung sperrt die Diode. Die Elektronen fließen nur noch in eine Richtung – aus Wechselstrom ist Gleichstrom geworden. Noch kommt er in Stößen; im Ladegerät glätten ihn weitere Bauteile."}
+  };
+  tb.innerHTML = `<tr><th>ohne Diode</th><td></td><td></td></tr><tr><th>mit Diode</th><td></td><td></td></tr>`;
+  const X0 = 254, X1 = 490, Y0 = 129, A = 66, P = 104;
+  let gitter = "";
+  for (let x = X0; x <= X1 + 1; x += 25.4) gitter += `<line x1="${x.toFixed(1)}" y1="48" x2="${x.toFixed(1)}" y2="210"/>`;
+  for (let y = Y0 - 80; y <= Y0 + 80; y += 20) if (y !== Y0) gitter += `<line x1="${X0}" y1="${y}" x2="${X1}" y2="${y}"/>`;
+  svg.innerHTML = `<defs><radialGradient id="oszGlowG"><stop offset="0" stop-color="#fff6c8"/><stop offset=".45" stop-color="#ffe27a" stop-opacity=".75"/><stop offset="1" stop-color="#ffe27a" stop-opacity="0"/></radialGradient></defs>
+    <rect width="520" height="290" fill="#f7fbfe"/>
+    <g fill="none" stroke="${DRAHT}" stroke-width="3.5" stroke-linejoin="round"><path d="M70 126 V60 H95"/><path d="M145 60 H175 V132"/><path d="M175 168 V245 H70 V174"/></g>
+    <line id="oszDraht" x1="95" y1="60" x2="145" y2="60" stroke="${DRAHT}" stroke-width="3.5"/>
+    <path id="oszFluss" fill="none" stroke="${ELEKTRON}" stroke-width="6" stroke-linecap="round" stroke-dasharray="0 14" opacity="0" d="M70 174 V245 H175 V60 H70 V126"/>
+    <g id="oszDio" style="opacity:0;transform:translateY(-36px)">
+      <line x1="95" y1="60" x2="145" y2="60" stroke="${DRAHT}" stroke-width="3.5"/>
+      <rect x="100" y="50" width="40" height="20" rx="5" fill="#1f1f22"/><rect x="127" y="50" width="6" height="20" fill="#dfe3e6"/>
+      <text x="120" y="40" text-anchor="middle" font-size="12" font-weight="800" fill="#33414d">Diode</text>
+    </g>
+    <circle cx="70" cy="150" r="24" fill="#fff" stroke="#33414d" stroke-width="3"/>
+    <text x="70" y="161" text-anchor="middle" font-size="32" font-weight="800" fill="#33414d">~</text>
+    <circle id="oszGlow" cx="175" cy="150" r="40" fill="url(#oszGlowG)" opacity="0"/>
+    <circle cx="175" cy="150" r="18" fill="#fffdf3" stroke="#9aa5ad" stroke-width="2"/>
+    <polyline points="169,159 171,147 173,154 175,145 177,154 179,147 181,159" fill="none" stroke="#b9860b" stroke-width="1.8"/>
+    <g font-size="11" font-weight="800" fill="#33414d" text-anchor="middle"><text x="70" y="266">Wechselspannung</text><text x="175" y="266">Lämpchen</text></g>
+    <path d="M193 150 C204 150 206 132 215 132" fill="none" stroke="#8e98a1" stroke-width="2" stroke-dasharray="4 3"/>
+    <rect x="215" y="14" width="297" height="262" rx="14" fill="#dde3e8" stroke="#8e98a1" stroke-width="2"/>
+    <text x="363" y="33" text-anchor="middle" font-size="13" font-weight="800" fill="#33414d">Oszilloskop</text>
+    <rect x="230" y="42" width="267" height="174" rx="8" fill="#0c1d15" stroke="#33414d" stroke-width="2"/>
+    <g stroke="#1d4632" stroke-width="1">${gitter}</g>
+    <line x1="${X0}" y1="${Y0}" x2="${X1}" y2="${Y0}" stroke="#2f7a55" stroke-width="1.5"/>
+    <g font-size="14" font-weight="800" fill="#8fe3b5"><text x="240" y="64">+</text><text x="240" y="204">−</text></g>
+    <path id="oszGeist" fill="none" stroke="#5dff9e" stroke-width="2" stroke-dasharray="5 5" opacity="0" d=""/>
+    <path id="oszWelle" fill="none" stroke="#5dff9e" stroke-width="3" stroke-linejoin="round" d="M${X0} ${Y0} H${X1}"/>
+    <text id="oszMeldung" x="363" y="112" text-anchor="middle" font-size="13" font-weight="700" fill="#8fe3b5">Wähle einen Versuch.</text>
+    <g fill="#8e98a1"><circle cx="258" cy="246" r="10"/><circle cx="292" cy="246" r="10"/></g>
+    <text id="oszModus" x="494" y="251" text-anchor="end" font-size="13" font-weight="800" fill="#33414d"></text>`;
+  const welle = $("#oszWelle", svg), geist = $("#oszGeist", svg), fluss = $("#oszFluss", svg), glow = $("#oszGlow", svg);
+  let modus = "", phi = 0, versatz = 0, letzte = 0, sichtbar = false, laeuftSchleife = false;
+  function zeichne(){
+    let d = "", g = "";
+    for (let x = X0; x <= X1; x += 3) {
+      const s = Math.sin(2 * Math.PI * (x - X0) / P + phi), y = modus === "mit" ? Math.max(0, s) : s;
+      d += (x === X0 ? "M" : "L") + x + " " + (Y0 - A * y).toFixed(1);
+      g += (x === X0 ? "M" : "L") + x + " " + (Y0 - A * s).toFixed(1);
+    }
+    welle.setAttribute("d", d); geist.setAttribute("d", g);
+    geist.setAttribute("opacity", modus === "mit" ? .3 : 0);
+  }
+  // Strom „jetzt“ = Wert am rechten Rand; positiv = Richtung, in der die Diode durchlässt
+  const stromJetzt = () => { const s = Math.sin(2 * Math.PI * (X1 - X0) / P + phi); return modus === "mit" ? Math.max(0, s) : s; };
+  function bild(dt){
+    phi += dt * 2 * Math.PI * .55;
+    const I = stromJetzt();
+    versatz -= I * 46 * dt;
+    fluss.style.strokeDashoffset = versatz.toFixed(1);
+    glow.setAttribute("opacity", (.9 * I * I).toFixed(2));
+    zeichne();
+  }
+  function schleife(t){
+    if (!sichtbar || !modus || reduced) { laeuftSchleife = false; return; }
+    const dt = letzte ? Math.min(.05, (t - letzte) / 1000) : 0; letzte = t;
+    bild(dt); requestAnimationFrame(schleife);
+  }
+  function starte(){
+    if (reduced) { if (modus) { zeichne(); glow.setAttribute("opacity", modus === "mit" ? .6 : .8); } return; }
+    if (!laeuftSchleife && sichtbar && modus) { laeuftSchleife = true; letzte = 0; requestAnimationFrame(schleife); }
+  }
+  Modul.onVisible($("#oszSim"), v => { sichtbar = v; starte(); });
+  const fertig = new Set();
+  register("oszilloskop", "#oszSvg", "Versuch: Oszilloskop ohne und mit Diode");
+  async function versuch(k){
+    const V = VERSUCHE[k];
+    const dio = $("#oszDio", svg);
+    if (k === "mit") { dio.style.opacity = 1; dio.style.transform = ""; $("#oszDraht", svg).setAttribute("opacity", 0); }
+    else { dio.style.opacity = 0; dio.style.transform = "translateY(-36px)"; $("#oszDraht", svg).setAttribute("opacity", 1); }
+    await wait(500);
+    modus = k; $("#oszMeldung", svg).textContent = ""; fluss.setAttribute("opacity", 1);
+    $("#oszModus", svg).textContent = "Messung: " + V.modus;
+    zeichne(); starte();
+    await wait(1500);
+    const tr = tb.children[V.zeile];
+    V.werte.forEach((w, i) => { const td = tr.children[i + 1]; td.textContent = w; neuMarkieren(td); });
+    fertig.add(k); obs.textContent = V.text;
+    if (fertig.size === 2) { solve("oszilloskop"); obs.textContent += " ✅ Beide Versuche erledigt – so arbeiten die Dioden im Ladegerät."; }
+  }
+  let laeuft = false;
+  [["tOszOhne", "ohne"], ["tOszMit", "mit"]].forEach(([id, k]) => $("#" + id).addEventListener("click", async () => {
+    if (laeuft) return; laeuft = true; sperre(svg, true); obs.textContent = "Die Messung läuft …";
+    try { await versuch(k); } finally { laeuft = false; sperre(svg, false); }
+  }));
+})();
+
+Modul.makeOrder($("#orderLaden"), [
+  "Mia steckt das Ladegerät in die Steckdose.",
+  "Aus der Steckdose kommt Wechselstrom: Er ändert ständig seine Richtung.",
+  "Im Ladegerät lassen Dioden nur eine Stromrichtung durch.",
+  "Aus dem Ladegerät kommt Gleichstrom: Er fließt nur noch in eine Richtung.",
+  "Der Gleichstrom lädt den Akku des Smartphones."
+], "orderLaden");
+
+Modul.makeOpen($("#open4"), [
+  {q: "Erkläre, warum im Ladegerät eines Smartphones Dioden stecken.",
+   m: "Die Steckdose liefert Wechselstrom, das Smartphone braucht aber Gleichstrom. Dioden lassen den Strom nur in einer Richtung durch: Den Teil des Wechselstroms in Durchlassrichtung lassen sie durch, den anderen Teil sperren sie. So machen sie aus Wechselstrom Gleichstrom.",
+   k: ["wechselstrom|steckdose", "gleichstrom", "eine richtung|einer richtung|einbahn|durchlass|sperr"], min: 2}
+], "open4-", "Schau dir das Oszilloskop ohne und mit Diode noch einmal an.");
+
+/* ---------- Training: Kreuzworträtsel mit Tipps ---------- */
+Modul.makeCrossword($("#cw"), {
+  tipps: true,
+  words: [
+    {w: "WECHSELSTROM", r: 2, c: 4, d: "d", q: "Diesen Strom liefert die Steckdose.", tip: "Seine Richtung wechselt ständig hin und her."},
+    {w: "GLEICHSTROM", r: 4, c: 0, d: "a", q: "Diesen Strom brauchen Smartphones, Computer und Fernseher.", tip: "Er fließt immer in dieselbe Richtung – wie aus einer Batterie."},
+    {w: "LEUCHTDIODE", r: 3, c: 2, d: "d", q: "Deutsches Wort für LED", tip: "Eine Diode, die leuchtet."},
+    {w: "OSZILLOSKOP", r: 3, c: 6, d: "d", q: "Messgerät, das eine Spannung als Linie auf einen Bildschirm zeichnet", tip: "Damit sieht man die Welle vor und hinter der Diode."},
+    {w: "WIDERSTAND", r: 0, c: 8, d: "d", q: "Ein Schutz… begrenzt die Stromstärke der LED.", tip: "Ohne ihn wird die LED zu heiß. Beispiel: 220 Ohm."},
+    {w: "PLUSPOL", r: 13, c: 6, d: "a", q: "Hier schließt man den langen Draht der LED an.", tip: "Der Pol mit dem Zeichen +."},
+    {w: "KATHODE", r: 11, c: 6, d: "a", q: "Fachwort für die Minus-Seite einer Diode", tip: "Bei der Universaldiode ist sie mit einem Ring markiert."},
+    {w: "NETZTEIL", r: 6, c: 12, d: "d", q: "Darin machen Dioden aus Wechselstrom Gleichstrom.", tip: "Ein Ladegerät ist so ein Gerät – es hängt am Stromnetz."},
+    {w: "WAERME", r: 0, c: 10, d: "d", q: "Eine Glühlampe macht den größten Teil der Energie nicht zu Licht, sondern zu …", tip: "Darum wird die Glühlampe so heiß. Ä wird zu AE.", zeig: "Wärme"},
+    {w: "ANODE", r: 7, c: 8, d: "a", q: "Fachwort für die Plus-Seite einer Diode", tip: "Bei der LED ist es der längere Draht."},
+    {w: "RING", r: 1, c: 0, d: "d", q: "Er markiert auf der Universaldiode die Minus-Seite.", tip: "Ein heller Streifen rund um das kleine schwarze Bauteil."}
+  ],
+  sol: [[7, 6], [10, 2], [4, 4], [5, 4], [8, 2]], solWord: "LICHT"
+}, "cw");
+
+/* ---------- Profi-Check, Lernkarten ---------- */
+// Fragen mit Zeichnung (h) bleiben im Quiz weg – dort gibt es kein Bild
+Modul.makeQuiz($("#quiz"), [...MC.s1, ...MC.s3.filter(q => !q.h), ...MC.s4, ...MC.train,
+  {q: "Was passiert mit einer LED, wenn der Schutzwiderstand fehlt?", o: ["Der Strom wird zu groß – sie wird zu heiß und geht kaputt.", "Sie leuchtet in einer anderen Farbe.", "Sie wird zur Universaldiode.", "Sie leuchtet nur noch halb so hell."], a: 0, e: "Der Schutzwiderstand begrenzt die Stromstärke. Ohne ihn geht die LED kaputt."},
+  {q: "Welcher Draht einer LED kommt an den Pluspol?", o: ["der längere Draht (Anode)", "der kürzere Draht (Kathode)", "egal – eine LED leuchtet in beide Richtungen", "keiner – eine LED braucht Wechselstrom"], a: 0, e: "Langer Draht an Plus, kurzer Draht an Minus."},
+  {q: "Was macht eine Diode in Sperrrichtung?", o: ["Sie lässt keinen Strom durch.", "Sie lässt besonders viel Strom durch.", "Sie macht aus Gleichstrom Wechselstrom.", "Sie leuchtet rot auf."], a: 0, e: "In Sperrrichtung sperrt die Diode: Es fließt kein Strom."},
+  {q: "Warum wird eine LED-Lampe beim Leuchten nur handwarm?", o: ["Sie macht viel weniger Energie zu Wärme als eine Glühlampe.", "Sie wird mit Wasser gekühlt.", "Sie leuchtet nur halb so hell.", "Sie läuft nur mit Wechselstrom."], a: 0, e: "Die LED braucht für dasselbe Licht viel weniger Energie – darum entsteht viel weniger Wärme."},
+  {q: "Welchen Strom liefert eine Batterie?", o: ["Gleichstrom", "Wechselstrom", "abwechselnd Gleich- und Wechselstrom", "gar keinen, nur Wärme"], a: 0, e: "Bei der Batterie fließen die Elektronen immer in dieselbe Richtung: vom Minuspol zum Pluspol."}
+], "quiz", "Dioden-Profi");
+if (window.NT8Karten) NT8Karten.trainer($("#lernkarten"), {module: ["kt-diode"], titel: "Lernkarten zu diesem Modul", zug: "M", druck: false});
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

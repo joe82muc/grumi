@@ -1,0 +1,896 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#7a4b05">
+<title>Radioaktivität: überall – und wie man sie nachweist | NT 9</title>
+<link rel="stylesheet" href="../../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="materie.css">
+<style>
+/* Karte mit Hotspots */
+#karteBild svg{display:block;width:100%;height:auto}
+/* Becquerel */
+#bqSvg .erz{transition:transform 1.1s cubic-bezier(.4,0,.3,1)}
+#bqSvg .glimm{animation:bqGlimm 1.4s ease-in-out infinite alternate}
+@keyframes bqGlimm{from{opacity:.35}to{opacity:.95}}
+#bqSvg .welle{stroke-dasharray:6 6;animation:flow .9s linear infinite}
+/* Nebelkammer */
+#nkSvg .nebel{animation:nkNebel 6s ease-in-out infinite alternate}
+@keyframes nkNebel{from{transform:translateX(0)}to{transform:translateX(16px)}}
+#nkSvg .spur{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100;animation:nkSpur 2.4s ease-out forwards}
+@keyframes nkSpur{0%{stroke-dashoffset:100;opacity:1}16%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:0}}
+#nkSvg .halter{transition:transform .8s cubic-bezier(.4,0,.3,1)}
+/* Geiger-Müller-Zähler */
+#gmSvg .probe-bild{transition:opacity .4s}
+#gmSvg .blitz,#gmSvg .knack{opacity:0}
+#gmSvg .blitz.an,#gmSvg .knack.an{opacity:1}
+#gmSvg .anzeige{font-family:ui-monospace,Consolas,"Courier New",monospace}
+.nk-haken{display:flex;flex-wrap:wrap;gap:6px 10px;padding:0 14px 12px;background:#fff}
+.nk-haken .chip.ok::before{content:"✓"}
+@media (prefers-reduced-motion:reduce){#bqSvg *,#nkSvg *,#gmSvg *{transition:none!important;animation:none!important}}
+</style>
+<script src="../../../js/kursliste.js"></script>
+<script src="../themen.js"></script>
+<!-- 9M und 9R nutzen dieselben Seiten: die Kursliste kommt aus dem Ordner (../themen.js = NT9M oder NT9R) -->
+<script>window.GRUMI_KURS = window.NT9M || window.NT9R; window.GRUMI_KURS.KARTEN = "../../" + window.GRUMI_KURS.ORDNER + "App14_Materie/";</script>
+<script src="materie.js"></script>
+</head>
+<body data-bereich="ra">
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="../%C3%BCbersicht_themen.html">GRUMI<small>NT <span class="mt-zug">9M</span> · Radioaktivität 1</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Überall</a>
+      <a href="#s2"><b>2</b>Entdeckung</a>
+      <a href="#s3"><b>3</b>Nachweis</a>
+      <a href="#s4"><b>4</b>Zählrate</a>
+      <a href="#s5"><b>5</b>Training</a>
+      <a href="#abschluss"><b>6</b>Abschluss</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse <span class="mt-zug">9M</span> · Radioaktivität · Modul 1</div>
+    <h1>Radioaktivität: überall – und wie man sie nachweist</h1>
+    <p>Gerade jetzt trifft dich radioaktive Strahlung – aus dem Boden, aus dem Weltraum und aus deinem eigenen Körper. Du merkst nichts davon. In sechs Stationen erfährst du, woher die Strahlung kommt, wie sie durch Zufall entdeckt wurde und mit welchen Geräten man sie sichtbar und hörbar macht.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s5">Direkt zum Training</a>
+    </div>
+    <div class="goals">
+      <div>🌍 Ich nenne die drei Quellen der natürlichen Strahlung und Beispiele für künstliche Radioaktivität.</div>
+      <div>🔬 Ich erkläre, wie Becquerel 1896 die radioaktive Strahlung entdeckt hat.</div>
+      <div>📟 Ich beschreibe Fotoplatte, Nebelkammer und Geiger-Müller-Zähler.</div>
+      <div>🔢 Ich weiß, was Zählrate und Nullrate sind, und rechne damit.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg · Probenstoff</div><h2>Strahlung überall</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <figure style="margin:0 0 12px"><img class="zoomable" src="bilder/ra-1.jpg" width="1280" height="853" loading="lazy" decoding="async" alt="Eine Schülerin hält im NT-Raum ein Messrohr an einem Kabel an einen rosa-grau gesprenkelten Granitstein, in der anderen Hand das Messgerät mit Zeiger. Auf dem Tisch liegen außerdem eine orange Kachel und ein Glühstrumpf. Ein Mitschüler schaut zu." style="width:100%;height:auto"><figcaption class="hint" style="margin:4px 0 0">Bild: GRUMI (mit KI erstellt)</figcaption></figure>
+      <p class="hint" style="margin:0 0 10px"><strong>Denk mal nach:</strong> Neben dem Stein liegen noch eine Kachel und ein Glühstrumpf. Warum hat Mia wohl genau diese Dinge mitgebracht?</p>
+      <p class="lead">Mia hält im NT-Raum ein Messgerät an einen Granitstein. Es knackt – leise, aber ständig. Sie nimmt das Gerät vom Stein weg. Es knackt weiter. Woher kommt das?</p>
+      <p style="margin:0">Überall um uns herum gibt es <button class="term" data-t="radioaktiv">radioaktive</button> <button class="term" data-t="strahlung">Strahlung</button> – an jedem Ort, zu jeder Zeit, auch gerade jetzt. Man nennt sie <button class="term" data-t="umgebungsstrahlung">Umgebungsstrahlung</button>. Wir können sie nicht sehen, hören, riechen oder fühlen. Nur Messgeräte zeigen sie an.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Woher kommt die Strahlung?</strong> Die natürliche Strahlung hat drei Quellen – von unten, von oben und aus dir selbst. Dazu kommt Strahlung, die der Mensch erzeugt.</p>
+      <div class="info-karten">
+        <div class="info-karte"><div class="big">⛰️</div><h4>Bodenstrahlung</h4><p>Aus Böden und Gesteinen, in denen radioaktive Stoffe stecken. Besonders hoch dort, wo <button class="term" data-t="granit">Granit</button> liegt: Bayerischer Wald, Schwarzwald, Erzgebirge.</p></div>
+        <div class="info-karte"><div class="big">🌌</div><h4>Höhenstrahlung</h4><p>Aus dem Weltraum. Die <button class="term" data-t="atmosphaere">Atmosphäre</button> schwächt sie stark ab. Je höher du bist, desto stärker ist sie – auf der Zugspitze oder im Flugzeug.</p></div>
+        <div class="info-karte"><div class="big">🧍</div><h4>Eigenstrahlung</h4><p>Aus deinem eigenen Körper. Winzige Mengen radioaktiver Stoffe nimmst du mit Nahrung, Wasser und Atemluft auf.</p></div>
+        <div class="info-karte"><div class="big">🏥</div><h4>Künstliche Radioaktivität</h4><p>Strahlung, die der Mensch erzeugt: in <button class="term" data-t="kernkraftwerk">Kernkraftwerken</button> und in der Medizin, zum Beispiel beim <button class="term" data-t="roentgen">Röntgen</button> oder bei der Strahlentherapie gegen Krebs. Dabei achtet man genau auf die nötige Strahlenmenge.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="sim reveal" id="karteSim">
+      <div class="hotimg" id="karteBild">
+        <svg id="karteSvg" viewBox="0 0 520 300" role="img" aria-label="Vereinfachte Karte von Deutschland. Die Farbe zeigt, wie stark die Strahlung aus dem Boden ist: hell im Norden, dunkelrot im Erzgebirge, im Bayerischen Wald und im Schwarzwald. Fünf Stellen sind nummeriert.">
+          <defs>
+            <clipPath id="deClip"><polygon points="91,20 107,23 119,24 121,34 123,39 137,41 144,34 146,39 139,52 152,52 166,46 175,35 185,37 194,28 201,41 203,50 212,54 216,76 211,92 220,100 222,118 224,135 230,147 225,160 214,156 205,164 192,170 184,177 171,184 166,179 175,192 172,199 184,213 194,224 204,233 195,240 185,250 180,256 185,265 184,277 180,271 168,272 155,275 142,281 130,276 124,284 119,276 110,276 98,271 90,271 76,275 68,275 67,260 72,241 81,226 66,223 55,220 41,209 44,199 35,185 42,179 33,165 31,154 37,142 32,128 48,125 56,113 49,105 56,99 59,86 59,76 55,67 63,62 76,61 81,67 87,73 88,66 92,56 98,52 95,43 90,40 96,34 90,27"/></clipPath>
+            <radialGradient id="deHot"><stop offset="0" stop-color="#9a1c0c"/><stop offset=".55" stop-color="#d9480f" stop-opacity=".9"/><stop offset="1" stop-color="#d9480f" stop-opacity="0"/></radialGradient>
+            <radialGradient id="deMittel"><stop offset="0" stop-color="#f08c2e" stop-opacity=".85"/><stop offset="1" stop-color="#f08c2e" stop-opacity="0"/></radialGradient>
+            <linearGradient id="deSkala" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9a1c0c"/><stop offset=".5" stop-color="#f08c2e"/><stop offset="1" stop-color="#fdf0c2"/></linearGradient>
+          </defs>
+          <rect width="520" height="300" fill="#f7fbfe"/>
+          <text x="22" y="50" font-size="11" font-style="italic" fill="#7d9bb0">Nordsee</text>
+          <text x="140" y="22" font-size="11" font-style="italic" fill="#7d9bb0">Ostsee</text>
+          <g clip-path="url(#deClip)">
+            <rect width="520" height="300" fill="#fdf0c2"/>
+            <ellipse cx="135" cy="205" rx="125" ry="85" fill="url(#deMittel)"/>
+            <ellipse cx="134" cy="130" rx="22" ry="14" fill="url(#deMittel)"/>
+            <ellipse cx="186" cy="172" rx="36" ry="13" fill="url(#deHot)" transform="rotate(-25 186 172)"/>
+            <ellipse cx="138" cy="168" rx="26" ry="10" fill="url(#deHot)" opacity=".8" transform="rotate(-30 138 168)"/>
+            <ellipse cx="161" cy="189" rx="13" ry="13" fill="url(#deHot)" opacity=".8"/>
+            <ellipse cx="189" cy="219" rx="36" ry="13" fill="url(#deHot)" transform="rotate(55 189 219)"/>
+            <ellipse cx="80" cy="250" rx="13" ry="28" fill="url(#deHot)"/>
+          </g>
+          <polygon points="91,20 107,23 119,24 121,34 123,39 137,41 144,34 146,39 139,52 152,52 166,46 175,35 185,37 194,28 201,41 203,50 212,54 216,76 211,92 220,100 222,118 224,135 230,147 225,160 214,156 205,164 192,170 184,177 171,184 166,179 175,192 172,199 184,213 194,224 204,233 195,240 185,250 180,256 185,265 184,277 180,271 168,272 155,275 142,281 130,276 124,284 119,276 110,276 98,271 90,271 76,275 68,275 67,260 72,241 81,226 66,223 55,220 41,209 44,199 35,185 42,179 33,165 31,154 37,142 32,128 48,125 56,113 49,105 56,99 59,86 59,76 55,67 63,62 76,61 81,67 87,73 88,66 92,56 98,52 95,43 90,40 96,34 90,27" fill="none" stroke="#7a4b05" stroke-width="2.5" stroke-linejoin="round"/>
+          <text x="160" y="295" font-size="11" font-style="italic" fill="#566674">Alpen</text>
+          <!-- Legende -->
+          <text x="290" y="66" font-size="14" font-weight="800" fill="#15212b">Strahlung aus dem Boden</text>
+          <rect x="296" y="82" width="18" height="110" rx="4" fill="url(#deSkala)" stroke="#566674" stroke-width="1"/>
+          <text x="322" y="92" font-size="12" font-weight="700" fill="#15212b">viel</text>
+          <text x="322" y="190" font-size="12" font-weight="700" fill="#15212b">wenig</text>
+          <text x="290" y="222" font-size="11.5" fill="#15212b">Alte Gesteine wie Granit enthalten</text>
+          <text x="290" y="238" font-size="11.5" fill="#15212b">winzige Mengen radioaktiver Stoffe.</text>
+          <text x="290" y="254" font-size="11.5" fill="#15212b">Darum strahlt der Boden in den</text>
+          <text x="290" y="270" font-size="11.5" fill="#15212b">Mittelgebirgen stärker als im Norden.</text>
+          <text x="290" y="292" font-size="10" fill="#566674">Karte vereinfacht</text>
+        </svg>
+      </div>
+      <div class="sim-ctrl"><span class="hs-count chip" id="karteZahl">0 von 5 entdeckt</span><span class="hint" style="margin:0">Tippe auf die Zahlen in der Karte.</span></div>
+    </div>
+    <div class="card reveal hs-info" id="karteInfo"><div class="big">🗺️</div><h3 style="margin:.3em 0 .2em">Wo strahlt der Boden stärker?</h3><p class="lead" style="margin:0">Die Karte zeigt die natürliche Strahlung aus dem Boden. Tippe auf die Zahlen und finde heraus, warum sie nicht überall gleich stark ist.</p></div>
+  </div>
+
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Überall gibt es radioaktive Strahlung. Wir können sie mit unseren Sinnen nicht wahrnehmen.</li><li>Natürliche Strahlung: Bodenstrahlung (aus Gestein und Boden), Höhenstrahlung (aus dem Weltraum), Eigenstrahlung (aus dem eigenen Körper).</li><li>Künstliche Radioaktivität erzeugt der Mensch – vor allem in Kernkraftwerken und in der Medizin.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Zuordnen · Probenstoff</span>
+    <h3 style="margin-top:4px">Welche Quelle ist das?</h3>
+    <p class="hint">Tippe eine Karte an und dann die passende Quelle.</p>
+    <div id="sortQuellen"></div>
+  </div>
+  <div class="card reveal" id="mc-s1"></div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung.</p>
+    <div id="open1"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Geschichte · Probenstoff</div><h2>Die Entdeckung</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Paris, 1896. Der Physiker <strong>Henri Becquerel</strong> untersucht Stoffe, die nach einem Sonnenbad im Dunkeln nachleuchten. Darunter ist ein Stück <button class="term" data-t="uranerz">Uranerz</button>.</p>
+      <p style="margin:0">Seine Frage: Geht dieses Nachleuchten durch <button class="term" data-t="lichtdicht">lichtdichtes</button> Papier? Dafür wickelt er eine <button class="term" data-t="fotoplatte">Fotoplatte</button> in schwarzes Papier und legt das Uranerz darauf. Die Sonne soll das Erz zum Leuchten bringen.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Ein Zufall hilft.</strong> Tagelang ist es wolkig. Becquerel legt das Päckchen in eine dunkle Schublade – ganz ohne Sonne.</p>
+      <p style="margin:0">Als er die Platte trotzdem <button class="term" data-t="entwickeln">entwickelt</button>, ist sie genau dort geschwärzt, wo das Erz lag. Uran sendet also von selbst eine unsichtbare Strahlung aus, die durch Papier geht – ganz ohne Licht. Becquerel hat die radioaktive Strahlung entdeckt.</p>
+    </div>
+  </div>
+  <div class="sim reveal" style="margin-top:18px" id="bqSim">
+    <svg viewBox="0 0 520 270" id="bqSvg" role="img" aria-label="Animation: Becquerels Versuch. Eine Fotoplatte wird in schwarzes Papier gewickelt, ein Stück Uranerz kommt darauf, das Päckchen liegt tagelang in einer dunklen Schublade. Nach dem Entwickeln ist die Platte dort geschwärzt, wo das Erz lag."></svg>
+  </div>
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag" style="background:#6b3fa0">Extra-Wissen</span>
+    <h3 style="margin-top:4px">Marie und Pierre Curie</h3>
+    <p>Marie Curie (1867–1934) und ihr Mann Pierre Curie (1859–1906) untersuchten uranhaltige Gesteine weiter. Sie fanden darin ein Element, das noch viel stärker strahlt als Uran, und nannten es <button class="term" data-t="radium">Radium</button> – „das Strahlende“. Von Marie Curie stammt auch das Wort <strong>Radioaktivität</strong>.</p>
+    <p>1903 bekamen die Curies zusammen mit Becquerel den <button class="term" data-t="nobelpreis">Nobelpreis</button> für Physik. 1911 erhielt Marie Curie einen zweiten Nobelpreis, diesmal für Chemie. Damals wusste niemand, wie gefährlich die Strahlung ist. Marie Curie arbeitete jahrzehntelang ungeschützt damit. Sie starb 1934 an einer schweren Krankheit des Blutes – sehr wahrscheinlich eine Folge der Strahlung. Ihre Tochter Irène bekam 1935 ebenfalls einen Nobelpreis für Chemie.</p>
+    <div id="mc-curie"></div>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Henri Becquerel entdeckte 1896 die radioaktive Strahlung – durch Zufall.</li><li>Uranerz schwärzte eine lichtdicht verpackte Fotoplatte: Uran sendet von selbst eine unsichtbare Strahlung aus, die durch Papier geht.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Reihenfolge · Probenstoff</span>
+    <h3 style="margin-top:4px">Becquerels Versuch</h3>
+    <p class="hint">Bringe die Schritte mit den Pfeilen in die richtige Reihenfolge.</p>
+    <div id="orderBq"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Lückentext · Probenstoff</span>
+    <h3 style="margin-top:4px">Die Entdeckung</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort oder die passende Zahl. Zwei bleiben übrig.</p>
+    <div class="gaptext" id="gapBq"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>Nachweis: Fotoplatte, Nebelkammer, Geiger-Müller-Zähler</h2></div></div>
+  <div class="card reveal">
+    <p class="lead">Kein Sinnesorgan bemerkt radioaktive Strahlung. Um sie <button class="term" data-t="nachweisen">nachzuweisen</button>, braucht man Geräte. Drei davon lernst du kennen.</p>
+    <div class="info-karten">
+      <div class="info-karte"><div class="big">🎞️</div><h4>Fotoplatte oder Fotopapier</h4><p>Lichtdicht verpackt, radioaktiven Gegenstand darauflegen. Die Strahlung geht durch die Hülle und schwärzt die Platte. Zeigt: Hier ist Strahlung.</p></div>
+      <div class="info-karte"><div class="big">🌫️</div><h4>Nebelkammer</h4><p>Luftdichte Kammer voller Alkoholdampf. Jedes Strahlungsteilchen hinterlässt eine Nebelspur – wie ein Kondensstreifen am Himmel. Zeigt: wie viel Strahlung in welche Richtung fliegt. Mit Magnet zeigt sie: Es gibt verschiedene Arten.</p></div>
+      <div class="info-karte"><div class="big">📟</div><h4>Geiger-Müller-Zähler</h4><p>Ein Zählrohr mit Gas. Jedes Teilchen löst einen kurzen Stromstoß aus – einen <button class="term" data-t="impuls">Impuls</button>. Jeder Impuls gibt ein Klicken (Knacken). Zeigt: genau, wie viel Strahlung ankommt.</p></div>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:18px">
+      <figure style="margin:0 0 12px"><img class="zoomable" src="bilder/ra-1b.jpg" width="1280" height="853" loading="lazy" decoding="async" alt="Zwei Jugendliche beugen sich in einem dunklen Museumsraum über einen flachen Glaskasten. Darin erscheinen auf schwarzem Grund viele dünne und einige dicke weiße Nebelspuren."><figcaption class="hint" style="margin:4px 0 0">Bild: GRUMI (mit KI erstellt)</figcaption></figure>
+      <p class="hint" style="margin:0 0 10px"><strong>Denk mal nach:</strong> In manchen Museen steht eine echte Nebelkammer. Woher kommen die Spuren, obwohl niemand eine Probe hineingelegt hat?</p>
+  </div>
+  <div class="sim reveal" style="margin-top:18px" id="nkSim">
+    <svg viewBox="0 0 520 260" id="nkSvg" role="img" aria-label="Simulation einer Nebelkammer, von oben gesehen: In der dunklen Kammer mit Alkoholdampf erscheinen helle Nebelspuren. Ohne Probe nur selten, mit radioaktiver Probe viele. Mit einem Magneten unter der Kammer bleiben die dicken, kurzen Spuren fast gerade, die dünnen werden stark gekrümmt."></svg>
+    <div class="sim-ctrl"><button class="btn small teal" id="tNkProbe">☢️ Probe hineinlegen</button><button class="btn small teal" id="tNkMagnet">🧲 Magnet einschalten</button><span class="chip" id="nkZahl">0 Spuren in 10 s</span></div>
+    <p class="obs" id="nkObs">Schau zuerst in die Kammer ohne Probe. Lege dann die Probe hinein und schalte danach den Magneten ein.</p>
+    <div class="nk-haken"><span class="chip" id="nkH0">ohne Probe beobachtet</span><span class="chip" id="nkH1">mit Probe beobachtet</span><span class="chip" id="nkH2">mit Probe und Magnet beobachtet</span></div>
+  </div>
+  <div class="card reveal" style="margin-top:18px">
+    <h3 style="margin-top:0">So funktioniert der Geiger-Müller-Zähler</h3>
+    <p>Hans Geiger und Walther Müller haben dieses Messgerät erfunden – deshalb trägt es ihre Namen. Sein Herz ist das <button class="term" data-t="zaehlrohr">Zählrohr</button>: ein luftdicht verschlossenes Rohr mit Gas. Zwischen Rohr und Draht liegt eine elektrische Spannung.</p>
+    <svg class="fig" viewBox="0 0 520 190" role="img" aria-label="Schnitt durch ein Zählrohr: ein Rohr mit Gas, in der Mitte ein Draht, an der Spitze ein sehr dünnes Fenster. Ein Strahlungsteilchen kommt durch das Fenster und löst einen kurzen Stromstoß aus, einen Impuls. Ein Zähler zählt ihn, ein Lautsprecher knackt.">
+      <rect width="520" height="190" fill="#f7fbfe"/>
+      <g transform="translate(22 78)"><path d="M-14 22 Q-18 2 -4 -6 Q10 -16 22 -4 Q32 6 26 22 Z" fill="#6b7b63" stroke="#3f4a3a" stroke-width="2"/><circle cx="4" cy="6" r="2.5" fill="#d4e157"/><circle cx="16" cy="12" r="2" fill="#d4e157"/></g>
+      <text x="30" y="124" text-anchor="middle" font-size="11" font-weight="700" fill="#15212b">Probe</text>
+      <line x1="52" y1="96" x2="118" y2="96" stroke="#f2b632" stroke-width="2.5" stroke-dasharray="6 5"/>
+      <polygon points="118,96 108,90 108,102" fill="#f2b632"/>
+      <circle cx="17" cy="38" r="11" fill="#b8720a"/><text x="17" y="42" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">1</text>
+      <text x="34" y="36" font-size="11.5" font-weight="700" fill="#15212b">Strahlung kommt durch</text><text x="34" y="50" font-size="11.5" font-weight="700" fill="#15212b">das dünne Fenster</text>
+      <rect x="126" y="60" width="250" height="72" rx="14" fill="#dbe7f0" stroke="#566674" stroke-width="3"/>
+      <rect x="122" y="66" width="8" height="60" rx="2" fill="#e74c3c"/>
+      <line x1="150" y1="96" x2="372" y2="96" stroke="#c0392b" stroke-width="2.5"/>
+      <text x="300" y="80" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">Gas</text>
+      <text x="300" y="118" text-anchor="middle" font-size="11" font-weight="700" fill="#c0392b">Draht</text>
+      <g transform="translate(176 96)"><polygon points="0,-16 4,-5 16,-4 6,3 9,15 0,8 -9,15 -6,3 -16,-4 -4,-5" fill="#f6c343" stroke="#c0392b" stroke-width="1.5"/></g>
+      <circle cx="176" cy="152" r="11" fill="#b8720a"/><text x="176" y="156" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">2</text>
+      <text x="196" y="150" font-size="11.5" font-weight="700" fill="#15212b">im Gas entsteht ein kurzer</text><text x="196" y="164" font-size="11.5" font-weight="700" fill="#15212b">Stromstoß: ein Impuls</text>
+      <path d="M376 96 H400 V56 H424" fill="none" stroke="#c0392b" stroke-width="3"/>
+      <rect x="424" y="36" width="86" height="42" rx="6" fill="#33414d"/><rect x="432" y="44" width="70" height="26" rx="3" fill="#d7f2d0"/>
+      <text x="496" y="63" text-anchor="end" font-size="16" font-weight="800" fill="#15212b">+1</text>
+      <circle cx="412" cy="32" r="11" fill="#b8720a"/><text x="412" y="36" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">3</text>
+      <text x="424" y="92" font-size="11.5" font-weight="700" fill="#15212b">Zähler zählt mit</text>
+      <path d="M400 96 V136 H424" fill="none" stroke="#c0392b" stroke-width="3"/>
+      <g fill="none" stroke="#33414d" stroke-width="2.5"><polygon points="424,126 436,126 450,114 450,158 436,146 424,146" fill="#9aa7b2"/><path d="M458 126 q6 10 0 20"/><path d="M466 118 q12 18 0 36"/></g>
+      <text x="470" y="178" text-anchor="middle" font-size="11.5" font-weight="800" fill="#c0392b">Knack!</text>
+      <circle cx="412" cy="156" r="11" fill="#b8720a"/><text x="412" y="160" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">4</text>
+    </svg>
+    <ol style="margin:8px 0 0;padding-left:20px">
+      <li>Ein Strahlungsteilchen kommt durch das sehr dünne Fenster ins Rohr.</li>
+      <li>Im Gas entsteht ein kurzer <button class="term" data-t="stromstoss">Stromstoß</button>. Man nennt ihn <strong>Impuls</strong>.</li>
+      <li>Der Zähler zählt jeden Impuls mit.</li>
+      <li>Im Lautsprecher ist jeder Impuls als <strong>Klicken</strong> (Knacken) zu hören.</li>
+    </ol>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Radioaktive Strahlung weist man mit Geräten nach: Fotoplatte oder Fotopapier (wird geschwärzt), Nebelkammer (Nebelspuren) und Geiger-Müller-Zähler.</li><li>Die Nebelkammer zeigt, wie viel Strahlung in welche Richtung fliegt. Mit Magnet: gerade und gekrümmte Spuren – es gibt verschiedene Strahlungsarten.</li><li>Im Geiger-Müller-Zähler löst jedes Strahlungsteilchen einen kurzen Stromstoß aus – einen <strong>Impuls</strong>. Jeder Impuls gibt ein Klicken (Knacken). Er misst genau, wie viel Strahlung ankommt.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Paare finden · Probenstoff</span>
+    <h3 style="margin-top:4px">Welches Gerät zeigt was?</h3>
+    <p class="hint">Tippe links ein Gerät an und dann rechts, was es zeigt.</p>
+    <div id="paareGeraet"></div>
+  </div>
+  <div class="card reveal" id="mc-s3"></div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Versuch · Probenstoff</div><h2>Zählrate und Nullrate</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead"><strong>Zählrate.</strong> Man hält das Zählrohr eine Minute lang vor eine Probe und zählt die Impulse. Diese Zahl heißt <button class="term" data-t="zaehlrate">Zählrate</button>: Impulse pro Minute.</p>
+      <p style="margin:0">Je stärker eine Probe strahlt, desto höher ist die Zählrate. Ein alter <button class="term" data-t="gluehstrumpf">Glühstrumpf</button> aus einer Campinglampe oder eine Vase aus <button class="term" data-t="uranglas">Uranglas</button> bringen es auf etwa 30 bis 500 Impulse pro Minute. Andere radioaktive Stoffe auf bis zu 100 000.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Nullrate.</strong> Nimm die Probe weg – und der Zähler knackt trotzdem weiter: etwa 20-mal pro Minute. Das ist die <button class="term" data-t="nullrate">Nullrate</button>. Sie kommt von der Umgebungsstrahlung aus Boden, Luft und Weltraum.</p>
+      <p style="margin:0">Willst du wissen, wie viel Strahlung von der Probe selbst kommt, musst du die Nullrate <strong>abziehen</strong>: Zählrate − Nullrate = Strahlung der Probe.</p>
+    </div>
+  </div>
+  <div class="sim reveal" style="margin-top:18px">
+    <svg viewBox="0 0 520 280" id="gmSvg" role="img" aria-label="Virtuelles Labor mit einem Geiger-Müller-Zähler: Vor dem Zählrohr liegt eine Probe. Der Zähler zählt eine Minute lang die Impulse, der Lautsprecher knackt."></svg>
+    <div class="sim-ctrl"><button class="btn small teal" id="tKeine">⬜ keine Probe</button><button class="btn small teal" id="tGlueh">🏕️ Glühstrumpf</button><button class="btn small teal" id="tUranglas">🟢 Uranglas</button><button class="btn small teal" id="tErz">⛏️ Uranerz</button><label style="margin-left:auto"><input type="checkbox" id="gmTon" checked> 🔊 Knacken hören</label></div>
+    <p class="obs" id="gmObs">Wähle eine Probe. Der Zähler misst dann eine Minute lang – im Zeitraffer in fünf Sekunden. Miss alle vier, dann ist die Tabelle voll.</p>
+    <div class="tab-wrap" style="padding:0 14px 14px"><table class="beob" id="gmTab">
+      <thead><tr><th>Probe</th><th>Zählrate (Impulse in 1 Minute)</th><th>Zählrate − Nullrate = Strahlung der Probe</th></tr></thead>
+      <tbody>
+        <tr data-p="keine"><th>keine Probe</th><td></td><td></td></tr>
+        <tr data-p="glueh"><th>Glühstrumpf</th><td></td><td></td></tr>
+        <tr data-p="uranglas"><th>Uranglas</th><td></td><td></td></tr>
+        <tr data-p="erz"><th>Uranerz</th><td></td><td></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Zählrate = Anzahl der Impulse (Stromstöße) in einer Minute.</li><li>Nullrate = Zählrate ohne Probe, etwa 20 pro Minute. Sie kommt von der natürlichen Umgebungsstrahlung.</li><li>Bei Messungen zieht man die Nullrate ab: Zählrate − Nullrate = Strahlung der Probe.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Rechnen · Probenstoff</span>
+    <h3 style="margin-top:4px">Nullrate abziehen</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort oder die passende Zahl. Zwei bleiben übrig.</p>
+    <div class="gaptext" id="gapRate"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Richtig oder falsch? · Probenstoff</span>
+    <h3 style="margin-top:4px">Messen mit dem Zähler</h3>
+    <div id="tfRate"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung.</p>
+    <div id="open4"></div>
+  </div>
+  <div class="card reveal" id="mc-s4"></div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Wiederholung · so kommt es in der Probe</div><h2>Training</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Kreuzworträtsel</span>
+    <h3 style="margin-top:4px">Löse das Kreuzworträtsel</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Ä schreibst du als AE. Hängst du fest? Bei jeder Frage hilft <strong>💡 Tipp</strong> – erst ein Hinweis, dann der Anfangsbuchstabe. Mit <strong>📋 Wörter zeigen</strong> siehst du alle Lösungswörter.</p>
+    <div id="cw"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Ankreuzen</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="abschluss">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Abschluss</div><h2>Profi-Check, Lernkarten und Regelheft</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <div class="card reveal">
+    <span class="task-tag">Lernkarten</span>
+    <div id="lernkarten"></div>
+  </div>
+  <div class="regelheft reveal" id="regelheft">
+    <h3>Radioaktivität: überall – und wie man sie nachweist</h3>
+    <p>Überall gibt es radioaktive Strahlung (Umgebungsstrahlung). Wir können sie nicht sehen, hören, riechen oder fühlen.</p>
+    <p><strong>Natürliche Strahlung:</strong> Bodenstrahlung (aus Böden und Gesteinen, z. B. Bayerischer Wald) · Höhenstrahlung (aus dem Weltraum, in den Bergen stärker) · Eigenstrahlung (aus dem eigenen Körper, durch Nahrung, Wasser und Atemluft)</p>
+    <p><strong>Künstliche Radioaktivität:</strong> vom Menschen erzeugt – in Kernkraftwerken und in der Medizin (Röntgen, Strahlentherapie).</p>
+    <p><strong>Entdeckung:</strong> Henri Becquerel, 1896. Uranerz schwärzte eine lichtdicht verpackte Fotoplatte → Uran sendet von selbst eine unsichtbare Strahlung aus.</p>
+    <table class="rh-tab">
+      <tr><th>Nachweisgerät</th><th>Das zeigt es</th></tr>
+      <tr><td>Fotoplatte / Fotopapier</td><td>wird dort schwarz, wo Strahlung auftrifft</td></tr>
+      <tr><td>Nebelkammer</td><td>Nebelspuren: wie viel Strahlung, in welche Richtung; mit Magnet: verschiedene Arten</td></tr>
+      <tr><td>Geiger-Müller-Zähler</td><td>jedes Teilchen → kurzer Stromstoß im Zählrohr = <strong>Impuls</strong> → Klicken (Knacken); misst genau, wie viel Strahlung ankommt</td></tr>
+    </table>
+    <svg class="rh-skizze" viewBox="0 0 420 112" role="img" aria-label="Skizze des Geiger-Müller-Zählers: Probe, Strahlung, Zählrohr mit dünnem Fenster, Kabel zum Zähler und zum Lautsprecher.">
+      <defs><marker id="rhPf" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 Z" fill="#b8720a"/></marker></defs>
+      <path d="M8 70 Q3 58 13 52 Q18 42 31 45 Q45 43 47 56 Q52 68 42 72 Z" fill="#6b7b63" stroke="#3f4a3a" stroke-width="2"/><g fill="#d4e157"><circle cx="22" cy="58" r="2"/><circle cx="35" cy="52" r="2"/><circle cx="38" cy="64" r="2"/></g>
+      <text x="28" y="90" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">Probe</text>
+      <path d="M54 58 H94" stroke="#b8720a" stroke-width="2.5" stroke-dasharray="5 4" marker-end="url(#rhPf)"/>
+      <rect x="104" y="40" width="150" height="36" rx="10" fill="#dbe7f0" stroke="#566674" stroke-width="2.5"/>
+      <rect x="100" y="44" width="7" height="28" rx="2" fill="#e74c3c"/>
+      <line x1="118" y1="58" x2="250" y2="58" stroke="#c0392b" stroke-width="2"/>
+      <text x="180" y="96" text-anchor="middle" font-size="12" font-weight="700" fill="#15212b">Zählrohr mit Gas</text>
+      <text x="104" y="30" text-anchor="middle" font-size="11" font-weight="700" fill="#c0392b">dünnes Fenster</text>
+      <path d="M254 58 H284 V30 H300 M284 58 V84 H300" fill="none" stroke="#c0392b" stroke-width="2.5"/>
+      <rect x="300" y="12" width="70" height="36" rx="5" fill="#33414d"/><rect x="306" y="18" width="58" height="24" rx="3" fill="#d7f2d0"/>
+      <text x="358" y="36" text-anchor="end" font-size="14" font-weight="800" fill="#15212b">0021</text>
+      <text x="380" y="34" font-size="12" font-weight="700" fill="#15212b">Zähler</text>
+      <polygon points="300,76 310,76 322,66 322,102 310,92 300,92" fill="#9aa7b2" stroke="#33414d" stroke-width="2"/>
+      <path d="M330 74 q5 10 0 20 M338 68 q10 16 0 32" fill="none" stroke="#33414d" stroke-width="2"/>
+      <text x="352" y="90" font-size="12" font-weight="700" fill="#15212b">Knacken</text>
+    </svg>
+    <p><strong>Zählrate</strong> = Impulse in einer Minute. <strong>Nullrate</strong> = Zählrate ohne Probe, etwa 20 (Umgebungsstrahlung) → abziehen: Zählrate − Nullrate = Strahlung der Probe.</p>
+    <p><strong>Extra:</strong> Marie und Pierre Curie entdeckten das stark strahlende Element Radium. Marie Curie prägte das Wort „Radioaktivität“ (Nobelpreise 1903 und 1911).</p>
+  </div>
+  <div class="rh-knoepfe reveal"><button class="btn small ghost" type="button" onclick="window.print()">🖨️ Regelheft drucken</button><a class="btn small ghost" href="arbeitsblaetter/R1-regelheft.pdf" download="NT9-R1-Regelheft.pdf">📥 Regelheft als PDF</a></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>In der Nebelkammer hast du gesehen: Manche Spuren bleiben gerade, andere werden gekrümmt. Es gibt also verschiedene Arten von Strahlung. In Modul 2 lernst du Alpha-, Beta- und Gammastrahlung kennen.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="ra-2.html">➡️ Modul 2: Alpha, Beta, Gamma</a>
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik <span class="mt-zug">9M</span> · Radioaktivität · Modul 1 · Texte, Zeichnungen und Animationen sind eigenständig erstellt. Mit deinem Code wird dein Lernstand gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="../../../7M/NT/modul-basis.js"></script>
+<script src="../../../8M/NT/karten.js"></script>
+<script src="karten/ra1.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, clamp, reduced, register, solve, onVisible} = Modul;
+const NS = "http://www.w3.org/2000/svg";
+const svgEl = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const de = n => Number(n).toLocaleString("de-DE");
+
+Modul.init({
+  key: "grumi-nt9-ra-1-v1",
+  hero: "funken",
+  api: "/api/nt9/uebung/feedback",
+  thema: "Radioaktivität, Klasse 9: Radioaktive Strahlung gibt es überall (Umgebungsstrahlung), man kann sie mit den Sinnen nicht wahrnehmen; natürliche Strahlung: Bodenstrahlung (aus Böden und Gesteinen wie Granit, hoch im Bayerischen Wald, Schwarzwald, Erzgebirge, niedrig in Norddeutschland), Höhenstrahlung (aus dem Weltraum, von der Atmosphäre abgeschwächt, je höher desto stärker, z. B. Zugspitze, Flugzeug), Eigenstrahlung (aus dem eigenen Körper durch Nahrung, Wasser und Atemluft); künstliche Radioaktivität vor allem in Kernkraftwerken und in der Medizin (Röntgen, Strahlentherapie); Entdeckung durch Henri Becquerel 1896: Uranerz schwärzte ohne Sonnenlicht eine lichtdicht verpackte Fotoplatte, Uran sendet also von selbst eine unsichtbare Strahlung aus; Nachweis mit Fotoplatte oder Fotopapier (wird geschwärzt), Nebelkammer (Nebelspuren zeigen Menge und Richtung, mit Magnet fast gerade und gekrümmte Spuren, also verschiedene Strahlungsarten) und Geiger-Müller-Zähler (Zählrohr mit Gas, jedes Teilchen löst einen kurzen Stromstoß aus, einen Impuls, jeder Impuls gibt ein Klicken oder Knacken im Lautsprecher, misst die Menge genau); Zählrate = Impulse (Stromstöße) in einer Minute; Nullrate etwa 20 pro Minute durch die Umgebungsstrahlung, wird abgezogen: Zählrate minus Nullrate = Strahlung der Probe",
+  glossary: {
+    radioaktiv: ["radioaktiv", "Ein Stoff ist radioaktiv, wenn sich seine Atomkerne von selbst umwandeln und dabei eine unsichtbare Strahlung aussenden – zum Beispiel Uran."],
+    strahlung: ["Strahlung", "Energie, die sich von einer Quelle aus in alle Richtungen ausbreitet – als winzige Teilchen oder als Wellen wie Licht. Radioaktive Strahlung ist unsichtbar."],
+    umgebungsstrahlung: ["Umgebungsstrahlung", "Die natürliche radioaktive Strahlung, die es überall und immer gibt: aus dem Boden, aus dem Weltraum und aus dem eigenen Körper."],
+    granit: ["Granit", "Sehr hartes, gesprenkeltes Gestein, oft grau oder rosa. Es enthält winzige Mengen radioaktiver Stoffe wie Uran."],
+    atmosphaere: ["Atmosphäre", "Die Lufthülle um die Erde. Sie schwächt einen großen Teil der Strahlung aus dem Weltraum ab und schützt uns so."],
+    kernkraftwerk: ["Kernkraftwerk", "Kraftwerk, in dem Atomkerne gespalten werden. Die Wärme, die dabei frei wird, erzeugt elektrischen Strom (mehr dazu im Bereich Kernenergie)."],
+    roentgen: ["Röntgen", "Untersuchung mit unsichtbaren Strahlen, die durch den Körper gehen. Knochen halten mehr davon auf – so entsteht ein Bild. Die Strahlen kommen aus einer Röntgenröhre, nicht aus einem radioaktiven Stoff. Sie wirken aber ähnlich."],
+    uranerz: ["Uranerz", "Gestein, in dem das Metall Uran steckt. Uran ist radioaktiv."],
+    lichtdicht: ["lichtdicht", "Lässt kein Licht durch. In lichtdichtem schwarzem Papier bleibt eine Fotoplatte im Dunkeln."],
+    fotoplatte: ["Fotoplatte", "Glasplatte mit einer lichtempfindlichen Schicht. Früher hat man damit fotografiert. Wo Licht – oder Strahlung – auftrifft, wird sie nach dem Entwickeln schwarz. Heute nimmt man dafür meist Fotopapier."],
+    entwickeln: ["entwickeln (Fotoplatte)", "Eine Fotoplatte oder einen Film mit Chemikalien behandeln. Erst danach sieht man, wo sie belichtet – also geschwärzt – wurde."],
+    radium: ["Radium", "Ein Element, das sehr stark strahlt. Marie und Pierre Curie fanden es in uranhaltigem Gestein. Der Name bedeutet „das Strahlende“."],
+    nobelpreis: ["Nobelpreis", "Die bekannteste Auszeichnung für Forschung. Sie wird seit 1901 jedes Jahr vergeben."],
+    nachweisen: ["nachweisen", "Zeigen, dass etwas da ist – zum Beispiel mit einem Messgerät, wenn man es selbst nicht sehen kann."],
+    zaehlrohr: ["Zählrohr", "Das Herzstück des Geiger-Müller-Zählers: ein luftdicht verschlossenes Rohr mit Gas und einem Draht in der Mitte. Jedes Strahlungsteilchen löst darin einen kurzen Stromstoß aus, einen Impuls."],
+    stromstoss: ["Stromstoß", "Ein ganz kurzer elektrischer Strom – nur einen winzigen Augenblick lang. Im Zählrohr nennt man ihn Impuls. Im Lautsprecher klingt er wie ein Knacken."],
+    impuls: ["Impuls", "Ein ganz kurzer Stromstoß im Zählrohr. Jedes Strahlungsteilchen löst einen Impuls aus. Der Zähler zählt die Impulse, im Lautsprecher hört man jeden als Klicken (Knacken)."],
+    zaehlrate: ["Zählrate", "Die Anzahl der Impulse (Stromstöße), die der Zähler in einer Minute zählt. Je stärker eine Probe strahlt, desto höher ist sie."],
+    gluehstrumpf: ["Glühstrumpf", "Kleines Netz in Gas-Campinglampen. Es glüht hell, wenn die Flamme es erhitzt. Ältere Glühstrümpfe enthalten einen schwach radioaktiven Stoff."],
+    uranglas: ["Uranglas", "Glas, dem etwas Uran beigemischt wurde. Es ist gelb-grün gefärbt. Früher machte man daraus Vasen und Schalen. Es strahlt schwach."],
+    nullrate: ["Nullrate", "Die Zählrate ohne Probe – etwa 20 Impulse in einer Minute. Sie kommt von der Umgebungsstrahlung und wird bei Messungen abgezogen."]
+  }
+});
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Woher kommt die Höhenstrahlung?", o: ["aus dem Weltraum", "aus Granit und anderen Gesteinen", "aus dem eigenen Körper", "aus Kernkraftwerken"], a: 0, e: "Die Atmosphäre schwächt sie ab. Je höher du bist, desto weniger Luft ist über dir – und desto stärker ist sie."},
+    {q: "Wo ist die Strahlung aus dem Boden in Deutschland besonders hoch?", o: ["im Bayerischen Wald und im Erzgebirge", "an der Nordsee und an der Ostsee", "im Norden, wo viel Sand liegt", "überall in Deutschland gleich hoch"], a: 0, e: "Dort liegen alte Gesteine wie Granit. Sie enthalten winzige Mengen radioaktiver Stoffe."}
+  ],
+  s3: [
+    {q: "Was passiert im Zählrohr, wenn ein Strahlungsteilchen hineinkommt?", o: ["Im Gas entsteht ein kurzer Stromstoß.", "Das Gas fängt an, hell zu brennen.", "Das Rohr wird dabei sehr heiß.", "Der Draht im Rohr schmilzt sofort."], a: 0, e: "Diesen Stromstoß nennt man Impuls. Der Zähler zählt ihn, im Lautsprecher klickt (knackt) es."},
+    {q: "Was zeigt die Nebelkammer mit einem Magneten?", o: ["Manche Spuren bleiben fast gerade, andere werden gekrümmt.", "Alle Spuren verschwinden sofort aus der Kammer.", "Alle Spuren fliegen genau auf den Magneten zu.", "Alle Spuren werden länger, bleiben aber gerade."], a: 0, e: "Daraus folgt: Es gibt verschiedene Arten von radioaktiver Strahlung (Modul 2)."}
+  ],
+  s4: [
+    {q: "Was ist die Zählrate?", o: ["die Zahl der Impulse in einer Minute", "die Zahl der Impulse in einer Stunde", "die Lautstärke des Knackens", "die Länge der Spuren in der Nebelkammer"], a: 0, e: "Zählrate = Impulse pro Minute."},
+    {q: "Vor einer Uranglas-Vase zählt der Zähler 95 Impulse in einer Minute. Die Nullrate ist 20. Wie viele Impulse pro Minute kommen von der Vase?", o: ["75", "95", "115", "20"], a: 0, e: "Zählrate − Nullrate = 95 − 20 = 75."}
+  ],
+  train: [
+    {q: "In welchem Jahr entdeckte Henri Becquerel die radioaktive Strahlung?", o: ["1896", "1903", "1938", "1986"], a: 0, e: "1896 in Paris – durch einen Zufall."},
+    {q: "Welches Gerät misst am genauesten, wie viel Strahlung ankommt?", o: ["der Geiger-Müller-Zähler", "die Fotoplatte", "die Nebelkammer", "ein Thermometer"], a: 0, e: "Er zählt jedes einzelne Teilchen, das ins Zählrohr kommt."},
+    {q: "Warum zählt der Zähler auch ohne Probe etwa 20 Impulse pro Minute?", o: ["Die natürliche Umgebungsstrahlung trifft das Rohr.", "Das Gerät ist kaputt und zählt falsch.", "Das Gas im Rohr knackt einfach von selbst.", "Der Lautsprecher ist zu laut eingestellt."], a: 0, e: "Das ist die Nullrate. Sie kommt aus dem Boden, aus dem Weltraum und aus der Luft."},
+    {q: "Welche Strahlung gehört zur künstlichen Radioaktivität?", o: ["Strahlung aus einem Kernkraftwerk", "Strahlung aus Granit im Bayerischen Wald", "Strahlung aus dem Weltraum", "Strahlung aus dem eigenen Körper"], a: 0, e: "Künstliche Radioaktivität erzeugt der Mensch – in Kernkraftwerken und in der Medizin."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Station 1: Deutschlandkarte mit Hotspots ---------- */
+Modul.makeHotspots($("#karteBild"), $("#karteInfo"), $("#karteZahl"), [
+  {x: 21.5, y: 23.3, i: "🏖️", t: "Norddeutschland: wenig Bodenstrahlung", s: "Im Norden liegen vor allem Sand und Lehm. Darin stecken nur sehr wenige radioaktive Stoffe. Deshalb ist die Strahlung aus dem Boden hier gering – auf der Karte hellgelb."},
+  {x: 35.2, y: 57.2, i: "⛏️", t: "Erzgebirge: viel Bodenstrahlung", s: "Im Gestein des Erzgebirges steckt besonders viel Uran. Früher wurde hier sogar Uranerz abgebaut. Die Strahlung aus dem Boden ist hoch – auf der Karte dunkelrot."},
+  {x: 36.5, y: 75.7, i: "🌲", t: "Bayerischer Wald: viel Bodenstrahlung", s: "Der Boden besteht hier aus altem <strong>Granit</strong> und ähnlichen Gesteinen. Sie enthalten winzige Mengen radioaktiver Stoffe. Deshalb strahlt der Boden stärker als im Norden."},
+  {x: 15.2, y: 85, i: "🌲", t: "Schwarzwald: viel Bodenstrahlung", s: "Auch im Schwarzwald liegt viel Granit. Darum ist die Strahlung aus dem Boden hier ebenfalls erhöht."},
+  {x: 27.1, y: 91.3, i: "🏔️", t: "Zugspitze: viel Höhenstrahlung", s: "Diese Strahlung zeigt die Karte nicht – sie kommt von oben. Auf dem höchsten Berg Deutschlands (fast 3 000 m) ist weniger Luft über dir, die die Strahlung aus dem Weltraum abschwächt. Deshalb ist die <strong>Höhenstrahlung</strong> dort viel stärker als im Flachland. Im Flugzeug ist sie noch stärker."}
+], "karte");
+
+/* ---------- Station 1: Übungen ---------- */
+Modul.makeSort($("#sortQuellen"), {
+  buckets: ["⛰️ Bodenstrahlung", "🌌 Höhenstrahlung", "🧍 Eigenstrahlung", "🏥 künstlich"], cols: 150,
+  items: [
+    {t: "Granitfelsen im Bayerischen Wald", b: 0}, {t: "Gestein im Erzgebirge", b: 0}, {t: "Pflastersteine aus Granit", b: 0},
+    {t: "Flug in den Urlaub in 10 km Höhe", b: 1}, {t: "Wanderung auf der Zugspitze", b: 1}, {t: "Teilchen aus dem Weltraum", b: 1},
+    {t: "radioaktive Stoffe aus Essen und Trinkwasser im Körper", b: 2}, {t: "radioaktive Stoffe, die du mit der Atemluft aufnimmst", b: 2},
+    {t: "Röntgenbild beim Zahnarzt", b: 3}, {t: "Kernkraftwerk", b: 3}, {t: "Strahlentherapie im Krankenhaus", b: 3}
+  ]
+}, "sortQuellen");
+Modul.makeOpen($("#open1"), [
+  {q: "Mia nimmt das Messgerät vom Granitstein weg. Es knackt trotzdem weiter. Erkläre, woher diese Strahlung kommt.",
+   m: "Überall gibt es natürliche radioaktive Strahlung, die Umgebungsstrahlung. Sie kommt aus dem Boden und aus Gesteinen (Bodenstrahlung), aus dem Weltraum (Höhenstrahlung) und aus unserem eigenen Körper (Eigenstrahlung). Deshalb knackt das Gerät auch ohne den Stein.",
+   k: ["umgebung|überall|natürlich", "boden|gestein|erde", "weltraum|weltall|höhe|kosmisch|himmel", "körper|eigen|mensch", "strahlung"], min: 3}
+], "open1-", "Lies noch einmal die Karten zu Bodenstrahlung, Höhenstrahlung und Eigenstrahlung.");
+
+/* ---------- Station 2: Becquerels Versuch in Schritten ---------- */
+(function(){
+  const svg = $("#bqSvg");
+  const ERZ = "M-28 -6 Q-27 -22 -10 -25 Q6 -31 20 -21 Q32 -11 29 5 Q26 21 7 23 Q-12 27 -24 16 Q-34 7 -28 -6 Z";
+  const EX = 78, EY = 158, PX = 236, PY = 158;   // Erz am Anfang / auf dem Päckchen
+  const sprenkel = [[-12, -8], [4, -14], [14, 2], [-4, 8], [-18, 6], [8, 14]].map(([x, y]) => `<circle cx="${EX + x}" cy="${EY + y}" r="2.3" fill="#e8d44d"/>`).join("");
+  svg.innerHTML = `<rect width="520" height="270" fill="#f7fbfe"/>
+    <defs>
+      <radialGradient id="bqGl"><stop offset="0" stop-color="#e6ff7a" stop-opacity=".95"/><stop offset=".55" stop-color="#b6e35a" stop-opacity=".5"/><stop offset="1" stop-color="#b6e35a" stop-opacity="0"/></radialGradient>
+      <radialGradient id="bqFl"><stop offset="0" stop-color="#151515"/><stop offset=".72" stop-color="#262626" stop-opacity=".85"/><stop offset="1" stop-color="#262626" stop-opacity="0"/></radialGradient>
+      <marker id="bqPf" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#b8720a"/></marker>
+    </defs>
+    <text id="bqTitel" x="208" y="27" text-anchor="middle" font-size="15" font-weight="800" fill="#7a4b05">Paris, 1896: Becquerels Versuch</text>
+    <!-- Sonne und Wolken -->
+    <g id="bqSonne"><g stroke="#f2b632" stroke-width="3" stroke-linecap="round">${[0, 45, 90, 135, 180, 225, 270, 315].map(a => { const r = a * Math.PI / 180; return `<line x1="${(462 + 28 * Math.cos(r)).toFixed(1)}" y1="${(70 + 28 * Math.sin(r)).toFixed(1)}" x2="${(462 + 38 * Math.cos(r)).toFixed(1)}" y2="${(70 + 38 * Math.sin(r)).toFixed(1)}"/>`; }).join("")}</g><circle cx="462" cy="70" r="21" fill="#f6c343" stroke="#e0a21a" stroke-width="2"/></g>
+    <g id="bqWolken" class="stage"><path d="M424 86 Q420 66 440 64 Q446 46 466 50 Q480 40 494 54 Q512 54 510 72 Q520 86 504 92 H432 Q418 92 424 86 Z" fill="#c9d1d8" stroke="#8a97a2" stroke-width="2"/><path d="M432 104 q4 8 0 14 M450 104 q4 8 0 14 M468 104 q4 8 0 14" stroke="#7d9bb0" stroke-width="2" fill="none"/></g>
+    <!-- Draufsicht: Tisch, Platte, Papier, Erz -->
+    <g id="bqOben" class="stage on">
+      <rect x="16" y="44" width="384" height="214" rx="12" fill="#ecdcc0" stroke="#b8956a" stroke-width="2"/>
+      <rect x="150" y="98" width="172" height="120" rx="4" fill="#eef2ec" stroke="#8a9a8f" stroke-width="2"/>
+      <g id="bqFleck" class="stage"><path transform="translate(${PX} ${PY}) scale(1.15)" d="${ERZ}" fill="url(#bqFl)"/></g>
+      <g id="bqUmriss" class="stage"><path transform="translate(${PX} ${PY}) scale(1.03)" d="${ERZ}" fill="none" stroke="#c0392b" stroke-width="2" stroke-dasharray="5 4"/><text x="${PX}" y="${PY - 38}" text-anchor="middle" font-size="12" font-weight="800" fill="#c0392b">hier lag das Erz</text></g>
+      <g id="bqPapier" class="stage"><rect x="142" y="90" width="188" height="136" rx="5" fill="#1f2226" stroke="#0d0f11" stroke-width="2"/><path d="M142 90 L190 138 M330 90 L282 138 M142 226 L190 178 M330 226 L282 178" stroke="#454b53" stroke-width="2"/></g>
+      <text id="bqLblPl" x="${PX}" y="246" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">Fotoplatte</text>
+      <g id="bqErz" class="erz">
+        <g id="bqGlow" class="stage"><circle class="glimm" cx="${EX}" cy="${EY}" r="50" fill="url(#bqGl)"/></g>
+        <path transform="translate(${EX} ${EY})" d="${ERZ}" fill="#4b5248" stroke="#2c312a" stroke-width="2"/>${sprenkel}
+        <rect x="${EX - 34}" y="${EY + 30}" width="68" height="20" rx="6" fill="#fff" stroke="#b8956a" stroke-width="1.5"/>
+        <text x="${EX}" y="${EY + 44}" text-anchor="middle" font-size="12" font-weight="800" fill="#15212b">Uranerz</text>
+      </g>
+    </g>
+    <!-- Schublade: tagelang dunkel -->
+    <g id="bqDunkel" class="stage"><rect x="0" y="40" width="520" height="230" fill="#0b1016" fill-opacity=".9"/>
+      <path d="M244 112 a22 22 0 1 0 22 30 a17 17 0 1 1 -22 -30 Z" fill="#f2e6b3"/>
+      <text x="260" y="186" text-anchor="middle" font-size="15" font-weight="800" fill="#fff">In der Schublade – kein Licht</text>
+      <text id="bqTag" x="260" y="212" text-anchor="middle" font-size="14" font-weight="700" fill="#f2c14e">Tag 1</text></g>
+    <!-- Seitenansicht: Erklärung -->
+    <g id="bqSeite" class="stage">
+      <rect x="16" y="44" width="384" height="214" rx="12" fill="#fff" stroke="#b9c3cb" stroke-width="2"/>
+      <text x="208" y="66" text-anchor="middle" font-size="12" font-weight="700" fill="#566674">von der Seite gesehen (auseinandergezogen)</text>
+      <path d="M196 124 Q190 98 212 88 Q236 76 260 86 Q284 98 278 124 Z" fill="#4b5248" stroke="#2c312a" stroke-width="2"/>
+      <g fill="#e8d44d"><circle cx="220" cy="104" r="2.3"/><circle cx="246" cy="96" r="2.3"/><circle cx="258" cy="112" r="2.3"/><circle cx="232" cy="116" r="2.3"/></g>
+      <rect x="146" y="146" width="180" height="8" rx="2" fill="#1f2226"/>
+      <g fill="none" stroke="#e08e0b" stroke-width="2.5" marker-end="url(#bqPf)">
+        <path class="welle" d="M214 128 q5 5 0 10 t0 10 t0 10 t0 6"/><path class="welle" d="M237 128 q5 5 0 10 t0 10 t0 10 t0 6"/><path class="welle" d="M260 128 q5 5 0 10 t0 10 t0 10 t0 6"/>
+      </g>
+      <rect x="152" y="172" width="168" height="14" rx="2" fill="#eef2ec" stroke="#8a9a8f" stroke-width="2"/>
+      <rect x="198" y="172" width="78" height="6" fill="#262626"/>
+      <g font-size="12" font-weight="700" fill="#15212b" text-anchor="end"><text x="186" y="106">Uranerz</text><text x="140" y="154">schwarzes Papier</text><text x="146" y="184">Fotoplatte</text></g>
+      <g font-size="12" font-weight="800" fill="#b8720a"><text x="290" y="128">unsichtbare</text><text x="290" y="143">Strahlung</text></g>
+      <text x="237" y="204" text-anchor="middle" font-size="12" font-weight="800" fill="#c0392b">hier geschwärzt</text>
+      <text x="208" y="238" text-anchor="middle" font-size="14" font-weight="800" fill="#7a4b05">Uran strahlt von selbst – auch ohne Licht.</text>
+    </g>`;
+  const erz = $("#bqErz", svg), on = (id, b) => $("#" + id, svg).classList.toggle("on", b);
+  const TITEL = ["Paris, 1896: Becquerels Versuch", "Uranerz leuchtet nach dem Sonnenbad", "Die Fotoplatte wird lichtdicht verpackt", "Das Uranerz liegt auf dem Päckchen", "Kein Sonnenlicht: tagelang im Dunkeln", "Die Platte ist geschwärzt!", "Uran strahlt von selbst"];
+  let tagUhr = null;
+  Modul.makeSchritte($("#bqSim"), {
+    start: "Henri Becquerel untersucht Uranerz. Tippe auf „Start“.",
+    steps: [
+      "Becquerel hat ein Stück <strong>Uranerz</strong>. Nach einem Sonnenbad <strong>leuchtet</strong> es im Dunkeln noch eine Weile nach. Seine Frage: Geht dieses Leuchten durch <strong>lichtdichtes Papier</strong>?",
+      "Er wickelt eine <strong>Fotoplatte</strong> in schwarzes, lichtdichtes Papier. Kein Licht kann sie jetzt erreichen.",
+      "Er legt das Uranerz auf das Päckchen. Sein Plan: Die Sonne bringt das Erz zum Leuchten – vielleicht dringt das Leuchten bis zur Platte.",
+      "Doch der Himmel bleibt tagelang <strong>bewölkt</strong>. Becquerel legt alles in eine <strong>dunkle Schublade</strong>. Das Erz bekommt kein Sonnenlicht und leuchtet nicht.",
+      "Trotzdem <strong>entwickelt</strong> er die Platte. Überraschung: Sie ist genau dort <strong>geschwärzt</strong>, wo das Erz lag!",
+      "Die Erklärung: Das Uran sendet <strong>von selbst</strong> eine <strong>unsichtbare Strahlung</strong> aus – ganz ohne Licht. Sie geht durch das Papier und schwärzt die Platte. Becquerel hat die <strong>radioaktive Strahlung</strong> entdeckt."
+    ],
+    ms: 3200,
+    zeige(i){
+      $("#bqTitel", svg).textContent = TITEL[i + 1];
+      on("bqGlow", i >= 0 && i <= 2);
+      on("bqPapier", i >= 1 && i <= 3);
+      erz.style.transform = i >= 2 && i <= 3 ? `translate(${PX - EX}px,${PY - EY}px)` : "";
+      on("bqWolken", i >= 3);
+      $("#bqSonne", svg).style.opacity = i >= 3 ? .35 : 1;
+      on("bqDunkel", i === 3);
+      on("bqFleck", i >= 4); on("bqUmriss", i === 4);
+      $("#bqLblPl", svg).textContent = i >= 4 ? "entwickelte Fotoplatte" : i >= 1 ? "Fotoplatte in schwarzem Papier" : "Fotoplatte";
+      on("bqOben", i <= 4); on("bqSeite", i >= 5);
+      clearInterval(tagUhr); tagUhr = null;
+      if (i === 3) {
+        let tag = 1; $("#bqTag", svg).textContent = "Tag 1";
+        if (!reduced) tagUhr = setInterval(() => { tag = tag % 5 + 1; $("#bqTag", svg).textContent = "Tag " + tag; }, 550);
+        else $("#bqTag", svg).textContent = "mehrere Tage";
+      }
+    }
+  }, "bqSchritte");
+})();
+
+/* ---------- Station 2: Übungen ---------- */
+Modul.makeOrder($("#orderBq"), [
+  "Becquerel untersucht Uranerz, das nach einem Sonnenbad im Dunkeln nachleuchtet.",
+  "Er wickelt eine Fotoplatte in lichtdichtes schwarzes Papier.",
+  "Er legt das Uranerz auf das Päckchen.",
+  "Weil die Sonne nicht scheint, legt er alles in eine dunkle Schublade.",
+  "Nach einigen Tagen entwickelt er die Fotoplatte.",
+  "Die Platte ist dort schwarz, wo das Erz lag: Uran strahlt von selbst."
+], "orderBq");
+Modul.makeGap($("#gapBq"), [
+  ["Im Jahr ", {g: "1896"}, " untersuchte Henri ", {g: "Becquerel"}, " in Paris ein Erz, in dem ", {g: "Uran"}, " steckt."],
+  ["Er wickelte eine ", {g: "Fotoplatte"}, " in lichtdichtes Papier und legte das Erz darauf."],
+  ["Ohne ", {g: "Sonnenlicht"}, " lag das Päckchen tagelang in einer Schublade. Trotzdem war die Platte danach ", {g: "geschwärzt"}, "."],
+  ["Das Uran sendet also von selbst eine ", {g: "unsichtbare"}, " Strahlung aus. Die Entdeckung war ein ", {g: "Zufall"}, "."]
+], "gapBq", ["1938", "sichtbare"]);
+/* Extra-Wissen: Marie und Pierre Curie */
+Modul.makeMC($("#mc-curie"), [
+    {q: "Welches Element entdeckten Marie und Pierre Curie?", o: ["Radium – „das Strahlende“", "Uran – das Metall im Erz", "Krypton – ein Edelgas", "Barium – ein Leichtmetall"], a: 0, e: "Radium strahlt viel stärker als Uran."},
+    {q: "Welches Wort stammt von Marie Curie?", o: ["Radioaktivität", "Kernspaltung", "Nullrate", "Zählrohr"], a: 0, e: "„Kernspaltung“ prägte später Lise Meitner (Bereich Kernenergie)."}
+  ], "mcc", {t: "Kurz-Check · Extra-Wissen"});
+
+/* ---------- Station 3: Nebelkammer ---------- */
+(function(){
+  const svg = $("#nkSvg"), obs = $("#nkObs"), zahl = $("#nkZahl"), bP = $("#tNkProbe"), bM = $("#tNkMagnet");
+  const K = {x: 18, y: 18, w: 344, h: 224}, QX = 176, QY = 132;
+  const nebel = [[70, 60, 60, 16], [210, 48, 80, 14], [300, 120, 52, 18], [110, 200, 74, 16], [260, 214, 66, 14], [60, 140, 40, 12]]
+    .map(([x, y, rx, ry]) => `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="#fff"/>`).join("");
+  svg.innerHTML = `<rect width="520" height="260" fill="#f7fbfe"/>
+    <defs>
+      <radialGradient id="nkMag"><stop offset="0" stop-color="#e05252" stop-opacity=".5"/><stop offset=".7" stop-color="#e05252" stop-opacity=".18"/><stop offset="1" stop-color="#e05252" stop-opacity="0"/></radialGradient>
+      <radialGradient id="nkQ"><stop offset="0" stop-color="#e6ff7a" stop-opacity=".8"/><stop offset="1" stop-color="#e6ff7a" stop-opacity="0"/></radialGradient>
+      <clipPath id="nkClip"><rect x="${K.x}" y="${K.y}" width="${K.w}" height="${K.h}" rx="16"/></clipPath>
+    </defs>
+    <rect x="${K.x}" y="${K.y}" width="${K.w}" height="${K.h}" rx="16" fill="#0e1620"/>
+    <g clip-path="url(#nkClip)">
+      <g id="nkFeld" class="stage"><circle cx="${K.x + K.w / 2}" cy="${K.y + K.h / 2}" r="190" fill="url(#nkMag)"/></g>
+      <g class="nebel" opacity=".035">${nebel}</g>
+      <g id="nkSpuren"></g>
+      <g id="nkHalter" class="halter">
+        <rect x="${QX - 260}" y="${QY - 2.5}" width="252" height="5" rx="2.5" fill="#4d5a66" stroke="#2c353e" stroke-width="1"/>
+        <circle cx="${QX}" cy="${QY}" r="16" fill="url(#nkQ)"/>
+        <circle cx="${QX}" cy="${QY}" r="7" fill="#d4e157" stroke="#7c8f1f" stroke-width="2"/>
+        <text x="${QX - 34}" y="${QY + 22}" text-anchor="middle" font-size="11" font-weight="700" fill="#cfd8df">Probe</text>
+      </g>
+    </g>
+    <rect x="${K.x}" y="${K.y}" width="${K.w}" height="${K.h}" rx="16" fill="none" stroke="#566674" stroke-width="4"/>
+    <text x="446" y="38" text-anchor="middle" font-size="15" font-weight="800" fill="#7a4b05">Nebelkammer</text>
+    <text x="446" y="55" text-anchor="middle" font-size="11.5" font-weight="700" fill="#566674">von oben gesehen</text>
+    <g font-size="12.5" font-weight="700" fill="#15212b"><text x="378" y="86">Probe:</text><text x="378" y="108">Magnet:</text></g>
+    <g font-size="12.5" font-weight="800"><text id="nkSP" x="430" y="86" fill="#566674">draußen</text><text id="nkSM" x="430" y="108" fill="#566674">aus</text></g>
+    <text x="378" y="138" font-size="11.5" font-weight="700" fill="#566674">Spuren:</text>
+    <rect x="378" y="146" width="44" height="20" rx="5" fill="#0e1620"/><line x1="386" y1="156" x2="414" y2="156" stroke="#e8f0f5" stroke-width="5.5" stroke-linecap="round"/>
+    <text x="430" y="160" font-size="12" font-weight="700" fill="#15212b">dick, kurz</text>
+    <rect x="378" y="172" width="44" height="20" rx="5" fill="#0e1620"/><path d="M384 186 q6 -8 10 -4 t10 -4 t10 -2" fill="none" stroke="#e8f0f5" stroke-width="1.6" stroke-linecap="round"/>
+    <text x="430" y="186" font-size="12" font-weight="700" fill="#15212b">dünn, lang</text>
+    <g id="nkMagnetBild" class="stage"><rect x="384" y="206" width="30" height="18" rx="3" fill="#e05252"/><rect x="414" y="206" width="30" height="18" rx="3" fill="#2e8b57"/><g font-size="12" font-weight="800" fill="#fff" text-anchor="middle"><text x="399" y="220">N</text><text x="429" y="220">S</text></g>
+      <text x="446" y="242" text-anchor="middle" font-size="11" font-weight="700" fill="#15212b">Magnet unter der Kammer</text></g>`;
+  const spuren = $("#nkSpuren", svg), halter = $("#nkHalter", svg);
+  let probe = false, magnet = false, sichtbar = false, letzte = 0;
+  const zeiten = [], gesehen = [0, 0, 0];   // Beobachtungszeit (ms): ohne Probe, mit Probe, mit Probe und Magnet
+  let fertig = false;
+  register("nebelkammer", "#nkSvg", "Simulation: Nebelkammer (ohne Probe, mit Probe, mit Magnet beobachtet)");
+  halter.style.transform = `translate(${-(QX - K.x + 14)}px,0)`;
+  const innen = (x, y) => x > K.x + 4 && x < K.x + K.w - 4 && y > K.y + 4 && y < K.y + K.h - 4;
+  // eine Spur: Start, Richtung, Länge, Krümmung (1/Radius, mit Vorzeichen), Zittern, Breite, Dauer
+  function spur(x, y, w, L, kr, zit, breite, dauer, warm){
+    if (spuren.childElementCount > 70) return;
+    const pts = [[x, y]];
+    for (let s = 0; s < L; s += 3) {
+      w += kr * 3 + (zit ? (Math.random() - .5) * zit : 0);
+      x += Math.cos(w) * 3; y += Math.sin(w) * 3;
+      if (!innen(x, y)) break;
+      pts.push([x, y]);
+    }
+    if (pts.length < 3) return;
+    const p = svgEl("path", {d: "M" + pts.map(q => q[0].toFixed(1) + " " + q[1].toFixed(1)).join(" L"), class: "spur", stroke: "#e8f0f5", "stroke-width": breite, "stroke-opacity": breite > 3 ? .9 : .85, pathLength: 100}, spuren);
+    p.style.animationDuration = dauer + "s";
+    let rest = dauer;
+    if (warm) { const d = Math.random() * dauer * .9; p.style.animationDelay = -d + "s"; rest -= d; }
+    setTimeout(() => p.remove(), rest * 1000 + 60);
+    if (!warm) zeiten.push(performance.now());
+  }
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  function aus_probe(art, warm){
+    const w = rnd(0, Math.PI * 2), x = QX + Math.cos(w) * 7, y = QY + Math.sin(w) * 7;
+    if (art === "dick") spur(x, y, w, rnd(38, 62), magnet ? 1 / 240 : 0, 0, 5.5, 1.8, warm);
+    else spur(x, y, w, rnd(130, 220), magnet ? -1 / rnd(34, 58) : 0, .09, 1.6, 2.4, warm);
+  }
+  function aus_umgebung(warm){
+    if (Math.random() < .75) {   // lange, dünne Spur quer durch die Kammer (aus dem Weltraum)
+      const seite = Math.floor(Math.random() * 4);
+      const x = seite === 0 ? K.x + 6 : seite === 1 ? K.x + K.w - 6 : rnd(K.x + 20, K.x + K.w - 20);
+      const y = seite === 2 ? K.y + 6 : seite === 3 ? K.y + K.h - 6 : rnd(K.y + 20, K.y + K.h - 20);
+      const zurMitte = Math.atan2(K.y + K.h / 2 - y, K.x + K.w / 2 - x) + rnd(-.6, .6);
+      spur(x, y, zurMitte, 600, magnet ? 1 / 900 : 0, .01, 1.4, 2.2, warm);
+    } else spur(rnd(K.x + 30, K.x + K.w - 30), rnd(K.y + 30, K.y + K.h - 30), rnd(0, 6.3), rnd(28, 46), magnet ? 1 / 240 : 0, 0, 5, 1.8, warm);   // kurze, dicke Spur aus der Luft
+  }
+  const RATE = {umgebung: .7, dick: 3, duenn: 1.7};
+  function vorwaermen(){
+    for (let k = 0; k < 2; k++) aus_umgebung(true);
+    if (probe) { for (let k = 0; k < 6; k++) aus_probe("dick", true); for (let k = 0; k < 4; k++) aus_probe("duenn", true); }
+  }
+  function zustand(){ return !probe ? 0 : magnet ? 2 : 1; }
+  const TEXT = [
+    "Ohne Probe: Nur ab und zu zieht eine Spur durch die Kammer – meist eine lange, dünne. Das ist die Umgebungsstrahlung, zum Beispiel aus dem Weltraum. Lege jetzt die Probe hinein.",
+    "Mit Probe: Vom radioaktiven Stoff schießen viele Spuren in alle Richtungen. Manche sind dick und kurz, andere dünn und lang. Schalte jetzt den Magneten ein.",
+    "Mit Magnet: Die dicken, kurzen Spuren bleiben fast gerade. Die dünnen Spuren werden stark gekrümmt. Also gibt es verschiedene Arten von radioaktiver Strahlung."
+  ];
+  function anzeigen(){
+    $("#nkSP", svg).textContent = probe ? "drin" : "draußen"; $("#nkSP", svg).setAttribute("fill", probe ? "#7c8f1f" : "#566674");
+    $("#nkSM", svg).textContent = magnet ? "an" : "aus"; $("#nkSM", svg).setAttribute("fill", magnet ? "#c0392b" : "#566674");
+    $("#nkFeld", svg).classList.toggle("on", magnet); $("#nkMagnetBild", svg).classList.toggle("on", magnet);
+    halter.style.transform = probe ? "" : `translate(${-(QX - K.x + 14)}px,0)`;
+    bP.textContent = probe ? "☢️ Probe herausnehmen" : "☢️ Probe hineinlegen";
+    bM.textContent = magnet ? "🧲 Magnet ausschalten" : "🧲 Magnet einschalten";
+    obs.textContent = !probe && magnet ? "Der Magnet ist an, aber es liegt keine Probe in der Kammer: nur selten eine Spur. Lege die Probe hinein." : TEXT[zustand()];
+    if (fertig) obs.textContent += " ✅ Alles beobachtet.";
+  }
+  bP.addEventListener("click", () => { probe = !probe; anzeigen(); });
+  bM.addEventListener("click", () => { magnet = !magnet; anzeigen(); });
+  function haken(){
+    ["nkH0", "nkH1", "nkH2"].forEach((id, k) => $("#" + id).classList.toggle("ok", gesehen[k] >= (k ? 3000 : 4000)));
+    if (!fertig && gesehen[0] >= 4000 && gesehen[1] >= 3000 && gesehen[2] >= 3000) { fertig = true; solve("nebelkammer"); anzeigen(); }
+  }
+  function tick(t){
+    if (!sichtbar) return;
+    const dt = Math.min(.1, (t - (letzte || t)) / 1000); letzte = t;
+    if (Math.random() < RATE.umgebung * dt) aus_umgebung(false);
+    if (probe) { if (Math.random() < RATE.dick * dt) aus_probe("dick", false); if (Math.random() < RATE.duenn * dt) aus_probe("duenn", false); }
+    if (!(!probe && magnet)) gesehen[zustand()] += dt * 1000;
+    while (zeiten.length && zeiten[0] < t - 10000) zeiten.shift();
+    zahl.textContent = `${zeiten.length} Spuren in 10 s`;
+    haken();
+    requestAnimationFrame(tick);
+  }
+  onVisible($("#nkSim"), v => { const war = sichtbar; sichtbar = v; if (v && !war) { letzte = 0; vorwaermen(); requestAnimationFrame(tick); } });
+  anzeigen();
+})();
+
+/* ---------- Station 3: Übungen ---------- */
+Modul.makePaare($("#paareGeraet"), [
+  ["Fotopapier", "wird dort schwarz, wo Strahlung auftrifft"],
+  ["Nebelkammer", "Nebelspuren zeigen, wie viel Strahlung in welche Richtung fliegt"],
+  ["Nebelkammer mit Magnet", "gerade und gekrümmte Spuren: Es gibt verschiedene Arten"],
+  ["Zählrohr", "Rohr mit Gas: Jedes Teilchen löst einen Impuls aus"],
+  ["Zähler", "zählt die Impulse und zeigt die Zahl an"],
+  ["Lautsprecher", "macht jeden Impuls als Klicken (Knacken) hörbar"]
+], "paareGeraet");
+
+/* ---------- Station 4: Labor mit dem Geiger-Müller-Zähler ---------- */
+(function(){
+  const svg = $("#gmSvg"), obs = $("#gmObs"), ton = $("#gmTon"), tb = $("#gmTab tbody");
+  const PROBEN = {
+    tKeine: {k: "keine", name: "keine Probe", mittel: 20},
+    tGlueh: {k: "glueh", name: "Glühstrumpf", mittel: 260},
+    tUranglas: {k: "uranglas", name: "Uranglas", mittel: 70},
+    tErz: {k: "erz", name: "Uranerz", mittel: 4500}
+  };
+  const DAUER = 5000, PX = 80, PY = 198, FX = 152;   // Probe, Fenster des Zählrohrs
+  svg.innerHTML = `<rect width="520" height="280" fill="#f7fbfe"/>
+    <text x="16" y="26" font-size="12" font-weight="700" fill="#566674">Zeitraffer: 1 Minute in 5 Sekunden</text>
+    <!-- Tisch und Halter -->
+    <rect x="10" y="232" width="500" height="12" rx="3" fill="#b8956a"/>
+    <rect x="44" y="220" width="72" height="12" rx="2" fill="#cdd5db" stroke="#8a97a2" stroke-width="1.5"/>
+    <rect x="227" y="208" width="8" height="24" fill="#6b7a86"/><rect x="200" y="228" width="62" height="6" rx="2" fill="#566674"/>
+    <!-- Proben -->
+    <g class="probe-bild" data-p="keine"><rect x="54" y="176" width="52" height="42" rx="8" fill="none" stroke="#9aa5ad" stroke-width="2" stroke-dasharray="5 4"/><text x="${PX}" y="202" text-anchor="middle" font-size="11" font-weight="700" fill="#7d8a94">leer</text></g>
+    <g class="probe-bild" data-p="glueh" opacity="0"><path d="M64 218 L70 180 H90 L96 218 Z" fill="#fbf7ee" stroke="#c9b89a" stroke-width="1.5"/>
+      <g stroke="#d8c9ab" stroke-width="1">${[0, 1, 2, 3, 4, 5].map(k => `<line x1="${66 + k * 6}" y1="218" x2="${71 + k * 3.6}" y2="180"/>`).join("")}${[188, 196, 204, 212].map(y => `<line x1="${68 - (y - 180) * .1}" y1="${y}" x2="${92 + (y - 180) * .1}" y2="${y}"/>`).join("")}</g>
+      <ellipse cx="80" cy="180" rx="10" ry="3" fill="#e7a6b8" stroke="#b8637a" stroke-width="1.5"/></g>
+    <g class="probe-bild" data-p="uranglas" opacity="0"><circle cx="80" cy="200" r="24" fill="#e6ff7a" opacity=".35"/><path d="M70 176 H90 L88 186 Q102 196 96 210 Q92 218 80 218 Q68 218 64 210 Q58 196 72 186 Z" fill="#c8e64c" stroke="#7d9a1e" stroke-width="2"/><path d="M70 196 Q68 206 74 212" stroke="#f4ffc4" stroke-width="3" fill="none" stroke-linecap="round"/></g>
+    <g class="probe-bild" data-p="erz" opacity="0"><path d="M56 218 Q52 198 64 190 Q72 176 88 180 Q104 182 106 198 Q110 214 100 218 Z" fill="#3d4038" stroke="#22251f" stroke-width="2"/><g fill="#e8d44d"><circle cx="70" cy="200" r="2.5"/><circle cx="84" cy="190" r="2.5"/><circle cx="94" cy="206" r="2.5"/><circle cx="78" cy="210" r="2"/><circle cx="98" cy="194" r="2"/></g></g>
+    <text id="gmProbeName" x="${PX}" y="262" text-anchor="middle" font-size="12.5" font-weight="800" fill="#15212b">keine Probe</text>
+    <!-- Strahlung zum Fenster -->
+    <g id="gmTeilchen" class="blitz" stroke="#f2b632" stroke-width="2.5" stroke-linecap="round"><line x1="108" y1="188" x2="146" y2="194"/><line x1="110" y1="200" x2="146" y2="199"/><line x1="108" y1="212" x2="146" y2="204"/></g>
+    <!-- Zählrohr -->
+    <rect x="${FX}" y="186" width="150" height="24" rx="12" fill="#dbe7f0" stroke="#566674" stroke-width="2.5"/>
+    <rect x="${FX - 4}" y="189" width="7" height="18" rx="2" fill="#e74c3c"/>
+    <line x1="${FX + 14}" y1="198" x2="${FX + 146}" y2="198" stroke="#c0392b" stroke-width="1.8"/>
+    <rect x="222" y="182" width="18" height="32" rx="3" fill="none" stroke="#6b7a86" stroke-width="3"/>
+    <g id="gmBlitz" class="blitz"><polygon points="${FX + 16},184 ${FX + 20},194 ${FX + 31},195 ${FX + 22},201 ${FX + 25},212 ${FX + 16},205 ${FX + 7},212 ${FX + 10},201 ${FX + 1},195 ${FX + 12},194" fill="#f6c343" stroke="#c0392b" stroke-width="1.2"/></g>
+    <text x="227" y="174" text-anchor="middle" font-size="12.5" font-weight="800" fill="#15212b">Zählrohr</text>
+    <!-- Kabel und Zähler -->
+    <path d="M302 198 C326 198 312 130 336 130" fill="none" stroke="#33414d" stroke-width="3"/>
+    <rect x="334" y="44" width="174" height="152" rx="12" fill="#33414d"/>
+    <rect x="346" y="56" width="150" height="52" rx="6" fill="#d7f2d0"/>
+    <text id="gmZahl" class="anzeige" x="488" y="96" text-anchor="end" font-size="34" font-weight="800" fill="#15212b">0</text>
+    <text x="421" y="126" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">Impulse</text>
+    <rect x="346" y="136" width="150" height="10" rx="5" fill="#566674"/><rect id="gmBar" x="346" y="136" width="0" height="10" rx="5" fill="#f2b632"/>
+    <text id="gmZeit" x="421" y="166" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">Zeit: 0 s von 60 s</text>
+    <g transform="translate(470 182)"><circle r="9" fill="#9aa7b2"/><g stroke="#33414d" stroke-width="1.5"><line x1="-5" y1="-3" x2="5" y2="-3"/><line x1="-6" y1="0" x2="6" y2="0"/><line x1="-5" y1="3" x2="5" y2="3"/></g></g>
+    <text x="400" y="186" text-anchor="middle" font-size="11" font-weight="700" fill="#cfd8df">Lautsprecher →</text>
+    <text id="gmKnack" class="knack" x="470" y="218" text-anchor="middle" font-size="15" font-weight="900" fill="#c0392b">Knack!</text>`;
+  const zahl = $("#gmZahl", svg), bar = $("#gmBar", svg), zeit = $("#gmZeit", svg), knack = $("#gmKnack", svg), blitz = $$(".blitz", svg);
+  const knoepfe = Object.keys(PROBEN).map(id => $("#" + id));
+  const res = {};
+  let laeuft = false, quelle = null, aus = null;
+  register("gmLabor", "#gmSvg", "Versuch: Geiger-Müller-Zähler (alle vier Proben gemessen)");
+  // Ton über WebAudio; ohne WebAudio: Hinweis statt Fehler
+  const AC = window.AudioContext || window.webkitAudioContext;
+  let actx = null;
+  if (!AC) { ton.checked = false; ton.disabled = true; ton.parentNode.insertAdjacentHTML("beforeend", ' <span class="hint" style="margin:0">(Ton geht auf diesem Gerät nicht)</span>'); }
+  function audio(){ if (!actx && AC) { try { actx = new AC(); } catch (_) { actx = null; } } return actx; }
+  function knackPuffer(ctx, zeiten){
+    const sr = ctx.sampleRate, n = Math.ceil(sr * DAUER / 1000) + 400, buf = ctx.createBuffer(1, n, sr), d = buf.getChannelData(0);
+    zeiten.forEach(t => { const s0 = Math.floor(t / 1000 * sr); for (let j = 0; j < 110 && s0 + j < n; j++) d[s0 + j] += (Math.random() * 2 - 1) * Math.exp(-j / 16) * .6; });
+    for (let i = 0; i < n; i++) d[i] = Math.max(-1, Math.min(1, d[i]));
+    return buf;
+  }
+  ton.addEventListener("change", () => { if (!ton.checked && quelle) { try { quelle.stop(); } catch (_) {} quelle = null; } });
+  // Zufällige Zählrate um den Mittelwert (wie bei echten Messungen schwankt sie etwas)
+  function zufallsRate(m){
+    let n;
+    if (m <= 60) { const L = Math.exp(-m); let p = 1; n = -1; do { n++; p *= Math.random(); } while (p > L); }
+    else { const g = Math.sqrt(-2 * Math.log(1 - Math.random())) * Math.cos(2 * Math.PI * Math.random()); n = Math.round(m + g * Math.sqrt(m)); }
+    const s = Math.max(2, Math.round(Math.sqrt(m)));
+    return clamp(n, m - s, m + s);
+  }
+  function tabelle(){
+    $$("tr", tb).forEach(tr => {
+      const k = tr.dataset.p, N = res[k], td = tr.children;
+      if (N === undefined) return;
+      const t1 = de(N), t2 = k === "keine" ? `Nullrate: ${N} – wird bei den anderen abgezogen` : res.keine === undefined ? "erst ohne Probe messen (Nullrate)" : `${de(N)} − ${res.keine} = ${de(N - res.keine)}`;
+      [t1, t2].forEach((t, i) => { const c = td[i + 1]; if (c.textContent !== t) { c.textContent = t; c.classList.remove("neu"); void c.offsetWidth; c.classList.add("neu"); } });
+    });
+  }
+  function aufblitzen(){ blitz.forEach(b => b.classList.add("an")); knack.classList.add("an"); clearTimeout(aus); aus = setTimeout(() => { blitz.forEach(b => b.classList.remove("an")); knack.classList.remove("an"); }, 70); }
+  async function messen(id){
+    if (laeuft) return;
+    const p = PROBEN[id];
+    // Ton zuerst (noch im Tipp-Ereignis, sonst bleibt er auf dem iPad stumm)
+    const ctx = ton.checked ? audio() : null;
+    if (ctx && ctx.state === "suspended") ctx.resume().catch(() => {});
+    laeuft = true; knoepfe.forEach(b => b.disabled = true);
+    $$(".probe-bild", svg).forEach(g => g.setAttribute("opacity", g.dataset.p === p.k ? 1 : 0));
+    $("#gmProbeName", svg).textContent = p.name;
+    obs.textContent = `Messung läuft: ${p.name} … Der Zähler zählt eine Minute lang jeden Impuls.`;
+    const N = zufallsRate(p.mittel);
+    const zeiten = Array.from({length: N}, () => Math.random() * DAUER).sort((a, b) => a - b);
+    if (ctx) { try { const src = ctx.createBufferSource(); src.buffer = knackPuffer(ctx, zeiten); src.connect(ctx.destination); src.start(); quelle = src; } catch (_) { quelle = null; } }
+    try {
+      await new Promise(fertig => {
+        const t0 = performance.now(); let gezeigt = 0;
+        (function f(now){
+          const el = clamp(now - t0, 0, DAUER);
+          let c = gezeigt; while (c < N && zeiten[c] <= el) c++;
+          if (c > gezeigt && !reduced) aufblitzen();
+          gezeigt = c; zahl.textContent = de(c);
+          bar.setAttribute("width", (150 * el / DAUER).toFixed(1));
+          zeit.textContent = `Zeit: ${Math.floor(el / DAUER * 60)} s von 60 s`;
+          if (el < DAUER) requestAnimationFrame(f); else fertig();
+        })(t0);
+      });
+      zahl.textContent = de(N); zeit.textContent = `Zählrate: ${de(N)} pro Minute`;
+      res[p.k] = N; tabelle();
+      const fertigAlle = Object.keys(PROBEN).every(i => res[PROBEN[i].k] !== undefined);
+      obs.textContent = p.k === "keine"
+        ? `Ohne Probe zählt der Zähler ${N} Impulse in einer Minute. Das ist die Nullrate – sie kommt von der Umgebungsstrahlung aus Boden, Luft und Weltraum.`
+        : `${p.name}: Zählrate ${de(N)} pro Minute. ` + (res.keine === undefined ? "Miss auch einmal ohne Probe – dann weißt du, wie viel du abziehen musst." : `Ziehst du die Nullrate ab, bleiben ${de(N)} − ${res.keine} = ${de(N - res.keine)} Impulse pro Minute, die wirklich von der Probe kommen.`);
+      if (fertigAlle) { solve("gmLabor"); obs.textContent += " ✅ Die Tabelle ist voll: Je stärker eine Probe strahlt, desto höher ist die Zählrate. Das Uranerz strahlt viel stärker als Glühstrumpf und Uranglas."; }
+    } finally { laeuft = false; quelle = null; knoepfe.forEach(b => b.disabled = false); }
+  }
+  knoepfe.forEach(b => b.addEventListener("click", () => messen(b.id)));
+})();
+
+/* ---------- Station 4: Übungen ---------- */
+Modul.makeGap($("#gapRate"), [
+  ["Ohne Probe zählt der Zähler in einer Minute 20 Impulse. Das ist die ", {g: "Nullrate"}, "."],
+  ["Vor einem Glühstrumpf zählt er 340 Impulse in einer Minute. Das ist die ", {g: "Zählrate"}, "."],
+  ["Strahlung des Glühstrumpfs: 340 − 20 = ", {g: "320"}, " Impulse pro Minute."],
+  ["Vor einer Vase aus Uranglas zählt er 85 Impulse. Davon kommen 85 − 20 = ", {g: "65"}, " von der Vase."],
+  ["Die Nullrate kommt von der ", {g: "Umgebungsstrahlung"}, "."]
+], "gapRate", ["360", "105"]);
+Modul.makeTF($("#tfRate"), [
+  ["Die Zählrate gibt an, wie viele Impulse der Zähler in einer Minute zählt.", true],
+  ["Ohne Probe zeigt der Zähler immer genau 0 an.", false],
+  ["Die Nullrate kommt von der natürlichen Umgebungsstrahlung.", true],
+  ["Um die Strahlung einer Probe zu bestimmen, zählt man die Nullrate dazu.", false],
+  ["Je stärker eine Probe strahlt, desto höher ist die Zählrate.", true],
+  ["Ein Glühstrumpf strahlt stärker als alle anderen radioaktiven Stoffe.", false]
+], "tfRate");
+Modul.makeOpen($("#open4"), [
+  {q: "Erkläre, warum man bei einer Messung mit dem Geiger-Müller-Zähler die Nullrate abziehen muss.",
+   m: "Der Zähler zählt auch ohne Probe etwa 20 Impulse pro Minute – das ist die Nullrate. Sie kommt von der natürlichen Umgebungsstrahlung, nicht von der Probe. Damit man nur die Strahlung der Probe erhält, rechnet man: Zählrate − Nullrate.",
+   k: ["nullrate|ohne probe", "umgebung|natürlich|boden|weltraum|überall", "20|zwanzig", "probe", "abzieh|zieht|minus|weniger|subtrah|−"], min: 3}
+], "open4-", "Lies noch einmal die Karte „Nullrate“ und den Merke-Kasten.");
+
+/* ---------- Training: Kreuzworträtsel mit Tipps ---------- */
+Modul.makeCrossword($("#cw"), {
+  tipps: true,
+  words: [
+    {w: "NEBELKAMMER", r: 0, c: 0, d: "a", q: "In diesem Gerät hinterlässt jedes Strahlungsteilchen eine Spur aus Nebel.", tip: "Eine luftdichte Kammer voller Alkoholdampf."},
+    {w: "NULLRATE", r: 0, c: 0, d: "d", q: "So heißt die Zählrate ohne Probe – etwa 20 pro Minute.", tip: "Die Zählrate bei „null“ Proben."},
+    {w: "EIGENSTRAHLUNG", r: 0, c: 3, d: "d", q: "Diese Strahlung kommt aus deinem eigenen Körper.", tip: "Sie kommt von Stoffen aus Nahrung, Wasser und Atemluft – also aus dir selbst."},
+    {w: "URAN", r: 2, c: 8, d: "d", q: "Dieses radioaktive Metall steckte in Becquerels Erz.", tip: "Vier Buchstaben, beginnt mit U."},
+    {w: "BECQUEREL", r: 3, c: 2, d: "a", q: "Dieser Forscher entdeckte 1896 die radioaktive Strahlung.", tip: "Sein Vorname ist Henri. Er lebte in Paris."},
+    {w: "ZAEHLROHR", r: 5, c: 5, d: "d", q: "Das Herzstück des Geiger-Müller-Zählers: ein Rohr mit Gas.", tip: "Ä wird zu AE. Ein Rohr, das jedes Teilchen zählt.", zeig: "Zählrohr"},
+    {w: "FOTOPLATTE", r: 6, c: 9, d: "d", q: "Sie war bei Becquerel dort geschwärzt, wo das Erz lag.", tip: "Früher fotografierte man damit. Heute nimmt man meist Fotopapier."},
+    {w: "GRANIT", r: 7, c: 7, d: "d", q: "Hartes Gestein, aus dem der Boden etwas stärker strahlt – zum Beispiel im Bayerischen Wald.", tip: "Gesprenkeltes Gestein, oft für Küchenplatten und Pflastersteine."},
+    {w: "ZAEHLRATE", r: 8, c: 2, d: "a", q: "Die Anzahl der Impulse in einer Minute.", tip: "Ä wird zu AE. Was der Zähler in einer Minute zählt: die Zähl…", zeig: "Zählrate"},
+    {w: "MAGNET", r: 9, c: 1, d: "d", q: "Damit werden manche Spuren in der Nebelkammer gekrümmt.", tip: "Er zieht Eisen an."},
+    {w: "GEIGER", r: 13, c: 0, d: "a", q: "Hans … erfand mit Walther Müller den Zähler für Strahlung.", tip: "Klingt wie jemand, der Geige spielt."},
+    {w: "KNACKEN", r: 15, c: 4, d: "a", q: "Das hört man im Lautsprecher bei jedem Impuls.", tip: "Ein kurzes Geräusch – wie wenn ein trockener Zweig bricht."}
+  ],
+  sol: [[5, 3], [6, 0], [13, 5], [9, 7], [12, 5], [3, 10], [2, 8], [0, 0], [7, 7]], solWord: "STRAHLUNG"
+}, "cw");
+
+/* ---------- Profi-Check, Lernkarten ---------- */
+Modul.makeQuiz($("#quiz"), [...MC.s1, ...MC.s3, ...MC.s4, ...MC.train,
+  {q: "Wie bemerken wir radioaktive Strahlung mit unseren Sinnen?", o: ["gar nicht – nur Messgeräte zeigen sie an", "an einem leichten, süßlichen Geruch", "an einem schwachen, bläulichen Leuchten", "an einem Kribbeln auf der Haut"], a: 0, e: "Wir können sie nicht sehen, hören, riechen oder fühlen."},
+  {q: "Was wollte Becquerel mit seinem Versuch eigentlich prüfen?", o: ["ob das Nachleuchten durch lichtdichtes Papier geht", "ob Uran im Dunkeln warm wird", "ob man Uran mit Sonnenlicht schmelzen kann", "ob Fotoplatten auch im Regen funktionieren"], a: 0, e: "Die Entdeckung der radioaktiven Strahlung war ein Zufall."},
+  {q: "Warum war Becquerels Fotoplatte geschwärzt, obwohl kein Sonnenlicht auf das Erz fiel?", o: ["Das Uran sendet von selbst eine unsichtbare Strahlung aus.", "In der Schublade war doch noch etwas Licht.", "Das schwarze Papier hat auf die Platte abgefärbt.", "Die Platte war schon vorher beschädigt."], a: 0, e: "Diese Strahlung geht durch das Papier – ganz ohne Licht."},
+  {q: "Warum ist die Strahlung auf der Zugspitze höher als im Flachland?", o: ["Weniger Luft schwächt dort die Höhenstrahlung ab.", "Auf der Zugspitze steht ein Kernkraftwerk.", "Im Schnee stecken viele radioaktive Stoffe.", "Die Menschen dort haben mehr Eigenstrahlung."], a: 0, e: "Die Atmosphäre schwächt die Strahlung aus dem Weltraum ab – oben ist weniger Luft über dir."},
+  {q: "Ein Zähler misst ohne Probe 22 Impulse in einer Minute. Wie nennt man diesen Wert?", o: ["Nullrate", "Höhenstrahlung", "Eigenstrahlung", "Strahlendosis"], a: 0, e: "Die Nullrate kommt von der Umgebungsstrahlung – sie liegt bei etwa 20."}
+], "quiz", "Strahlungs-Profi");
+if (window.NT8Karten) NT8Karten.trainer($("#lernkarten"), {module: ["ra-nachweis"], titel: "Lernkarten zu diesem Modul", zug: "M", druck: false});
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

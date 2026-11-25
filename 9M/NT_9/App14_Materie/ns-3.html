@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1e5e3a">
+<title>Gedächtnis und Lernen | NT 9</title>
+<link rel="stylesheet" href="../../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="materie.css">
+<style>
+/* Nervennetz beim Üben */
+#nnSvg .nn-v{fill:none;stroke-linecap:round;transition:stroke-width .8s,stroke .8s,opacity .6s}
+#nnSvg .nn-z circle:first-of-type{transition:fill .6s}
+.btn.gross{font-size:1.05rem;padding:11px 20px;min-height:48px}
+/* Gedächtnismodell */
+#gmSvg .gm-tok{transition:transform .9s cubic-bezier(.4,.1,.3,1),opacity .7s}
+#gmSvg .gm-in{transform-box:fill-box}
+#gmSvg .gm-tok.zappel .gm-in{animation:gmZappel .45s ease-in-out infinite alternate}
+#gmSvg .gm-tok.zappel:nth-child(2n) .gm-in{animation-delay:.2s}
+@keyframes gmZappel{from{transform:translate(-2px,-1.5px)}to{transform:translate(2px,1.5px)}}
+#gmSvg .gm-tok.puls .gm-in{animation:gmPuls .6s ease-in-out 3}
+@keyframes gmPuls{50%{transform:scale(1.12)}}
+#gmSvg .gm-in{transform-origin:center}
+#gmSvg .gm-box{transition:stroke-width .4s}
+#gmSvg .gm-box.an{stroke-width:4.5}
+#gmSvg .gm-gate path{transition:stroke .4s,stroke-width .4s}
+#gmSvg .gm-gate.an path{stroke:#2e8b57;stroke-width:5}
+#gmSvg #gmFilter{transition:fill .4s}
+#gmSvg #gmFilter.an{fill:#2e8b57}
+/* Merktest */
+.mk-buehne{padding:14px;background:#f7fbfe;min-height:200px}
+.mk-kopf{display:flex;justify-content:space-between;align-items:center;gap:6px 12px;flex-wrap:wrap;margin-bottom:10px;font-weight:800;color:var(--sky-d)}
+.mk-rest{font-size:1.3rem;font-variant-numeric:tabular-nums}
+.mk-tipp{margin:0 0 10px;font-weight:600}
+.mk-gitter{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:8px}
+.mk-karte{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:76px;border:2px solid var(--line);border-radius:12px;background:#fff;color:var(--ink,#15212b);font:inherit;font-weight:700;font-size:.92rem;padding:6px 4px;text-align:center;transition:transform .25s,background .25s,border-color .25s}
+.mk-karte .e{font-size:2rem;line-height:1.1}
+.mk-karte span:last-child{max-width:100%;overflow-wrap:anywhere;hyphens:auto}
+.mk-karte.an{border-color:var(--sky);background:var(--sky-l);transform:scale(1.07)}
+button.mk-karte{cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;min-height:80px}
+button.mk-karte.gew{border-color:#1f6aa5;background:#e3eef8;box-shadow:inset 0 0 0 2px #1f6aa5}
+button.mk-karte.ok{border-color:var(--ok);background:var(--ok-l);box-shadow:none}
+button.mk-karte.falsch{border-color:var(--bad);background:var(--bad-l);box-shadow:none}
+button.mk-karte.fehlt{border-style:dashed;border-color:#b77a06;background:#fff8e6}
+button.mk-karte:disabled{opacity:1;cursor:default}
+.mk-gruppen{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}
+.mk-gruppe{border:2px dashed #8fd4a8;border-radius:12px;padding:8px;background:#fff}
+.mk-gruppe h5{margin:0 0 6px;color:var(--sky-d);font-size:.98rem}
+.mk-gruppe .mk-gitter{grid-template-columns:repeat(3,1fr)}
+.mk-zeit{height:10px;background:var(--line)}
+.mk-zeit i{display:block;height:100%;width:0;background:var(--sky)}
+.mk-legende{margin:10px 0 0;font-size:.9rem;font-weight:600;color:var(--muted)}
+.mk-erg{padding:10px 14px 12px;background:#fbfdff;border-top:1px solid var(--line)}
+.mk-zeile{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin:4px 0}
+.mk-zeile > b{min-width:190px}
+.mk-zeile > span{font-weight:800;color:var(--sky-d)}
+.mk-balken{display:grid;gap:6px;margin-top:8px}
+.mk-balken > div{display:flex;align-items:center;gap:8px;font-size:.92rem;font-weight:700}
+.mk-balken > div > span:first-child{flex:none;width:120px}
+.mk-balken i{display:block;height:18px;border-radius:6px;background:#8a99a6;transition:width .6s;min-width:2px}
+.mk-balken .mit i{background:var(--sky)}
+/* Lernkanäle */
+#knSvg .kn-bar{transform-box:fill-box;transform-origin:50% 100%;transform:scaleY(0);transition:transform .8s cubic-bezier(.3,.7,.3,1)}
+#knSvg .kn-bar.on{transform:scaleY(1)}
+#knSvg .kn-wert{opacity:0;transition:opacity .4s .4s}
+#knSvg .kn-wert.on{opacity:1}
+#knSvg .kn-karte rect,#knSvg .kn-karte text{transition:fill .4s,stroke .4s}
+/* Lernplan-Beispiel */
+.lp-tab{width:100%;border-collapse:collapse;font-size:.95rem;margin:6px 0 0}
+.lp-tab th,.lp-tab td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+.lp-tab th{background:var(--sky-l);color:var(--sky-d);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){#nnSvg *,#gmSvg *,#knSvg *,#vkSvg *{transition:none!important;animation:none!important}.mk-karte,.mk-balken i{transition:none}}
+</style>
+<script src="../../../js/kursliste.js"></script>
+<script src="../themen.js"></script>
+<!-- 9M und 9R nutzen dieselben Seiten: die Kursliste kommt aus dem Ordner (../themen.js = NT9M oder NT9R) -->
+<script>window.GRUMI_KURS = window.NT9M || window.NT9R; window.GRUMI_KURS.KARTEN = "../../" + window.GRUMI_KURS.ORDNER + "App14_Materie/";</script>
+<script src="materie.js"></script>
+</head>
+<body data-bereich="ns">
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="../%C3%BCbersicht_themen.html">GRUMI<small>NT <span class="mt-zug">9M</span> · Nervensystem 3</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Lernen</a>
+      <a href="#s2"><b>2</b>Gedächtnis</a>
+      <a href="#s3"><b>3</b>Lerntipps</a>
+      <a href="#s4"><b>4</b>Lernplan</a>
+      <a href="#s5"><b>5</b>Training</a>
+      <a href="#abschluss"><b>6</b>Abschluss</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse <span class="mt-zug">9M</span> · Nervensystem · Modul 3</div>
+    <h1>Gedächtnis und Lernen</h1>
+    <p>Den Text deines Lieblingslieds kannst du nach zweimal Hören mitsingen – aber die Englisch-Vokabeln sind am nächsten Tag schon wieder weg? In diesem Modul erfährst du, was beim Lernen im Gehirn passiert und wie dein Gedächtnis arbeitet. Du testest dein eigenes Gedächtnis – und planst dein Lernen so, dass das Wissen bis zur Probe bleibt.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s5">Direkt zum Training</a>
+    </div>
+    <div class="goals">
+      <div>🧠 Ich erkläre, was beim Lernen im Gehirn passiert.</div>
+      <div>🗂️ Ich beschreibe das Gedächtnismodell mit drei Gedächtnissen.</div>
+      <div>📚 Ich weiß, was das Lernen fördert und was es erschwert.</div>
+      <div>📅 Ich plane mein Lernen mit Wiederholungen.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg · Probenstoff</div><h2>Lernen verändert das Gehirn</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <figure style="margin:0 0 12px"><img class="zoomable" src="bilder/ns-3.jpg" width="1280" height="853" loading="lazy" decoding="async" alt="Eine Jugendliche sitzt in einem hellen, ruhigen Zimmer am Schreibtisch und fragt sich mit Karteikarten ab. Vor ihr liegen ein Stapel Karteikarten, ein Block mit Stift und ein Glas Wasser. Ihr Handy liegt weit weg im Regal." style="width:100%;height:auto"><figcaption class="hint" style="margin:4px 0 0">Bild: GRUMI (mit KI erstellt)</figcaption></figure>
+      <p class="hint" style="margin:0 0 10px"><strong>Denk mal nach:</strong> Selin lernt für die Probe. Was macht sie richtig? Achte auf den Platz, das Handy und die Karteikarten.</p>
+      <p class="lead" style="margin:0">Du lernst jeden Tag – nicht nur in der Schule. <strong>Lernen</strong> heißt: neues Wissen speichern, Zusammenhänge erkennen, Fähigkeiten erwerben und das eigene Verhalten ändern. Was du gelernt hast, bewahrt dein <button class="term" data-t="gedaechtnis">Gedächtnis</button> auf.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Dein Gehirn besteht aus etwa 90 Milliarden <button class="term" data-t="nervenzelle">Nervenzellen</button>. Sie sind miteinander verbunden und schicken sich Signale. Lernst du etwas Neues, bilden die Nervenzellen neue <button class="term" data-t="verknuepfung">Verknüpfungen</button> – oder vorhandene Verknüpfungen werden kräftiger. So entsteht ein immer größeres, dichteres Netz.</p>
+      <p style="margin:0">Dieses Netz sieht bei jedem Menschen anders aus. Lernen ist deshalb <button class="term" data-t="individuell">individuell</button>: Jeder lernt auf seine eigene Weise – und zwar ein Leben lang.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="nnSim">
+    <svg viewBox="0 0 520 270" id="nnSvg" role="img" aria-label="Simulation: Ausschnitt aus dem Gehirn mit 15 Nervenzellen. Am Anfang gibt es nur wenige, dünne Verknüpfungen, die Signale von den Augen kommen nicht bis zu den Händen durch. Mit jeder Übungsrunde entstehen neue Verknüpfungen, die alten werden dicker, und die Signale laufen schneller bis ans Ziel."></svg>
+    <div class="sim-ctrl"><button class="btn gross teal" id="nnUeben" type="button">🤹 Üben</button><button class="btn small ghost" id="nnNeu" type="button">↺ Von vorn</button><span class="chip" id="nnChip">Runde 0 von 5</span></div>
+    <p class="obs" id="nnObs">Du willst lernen, mit drei Bällen zu jonglieren. Noch hast du es nie geübt: Für diese Bewegung gibt es im Gehirn erst wenige, dünne Verknüpfungen. Die Signale von den Augen kommen nicht bis zu den Händen durch – die Bälle fallen. Tippe auf „Üben“.</p>
+  </div>
+
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Lernen heißt: neues Wissen speichern, Zusammenhänge erkennen, Fähigkeiten erwerben und das Verhalten ändern. Wir lernen ein Leben lang.</li><li>Beim Lernen bilden Nervenzellen neue oder veränderte Verknüpfungen. Je mehr man übt, desto größer und dichter wird das Netz.</li><li>Jeder Mensch lernt anders: Lernen ist individuell.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Paare finden · Probenstoff</span>
+    <h3 style="margin-top:4px">Lernen hat viele Seiten</h3>
+    <p class="hint">Tippe links eine Seite des Lernens an und dann rechts das passende Beispiel.</p>
+    <div id="paareLernen"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Richtig oder falsch? · Probenstoff</span>
+    <h3 style="margin-top:4px">Was passiert beim Lernen?</h3>
+    <div id="tfLernen"></div>
+  </div>
+  <div class="card reveal" id="mc-s1"></div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Drei Gedächtnisse</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">In jeder Sekunde melden deine Sinnesorgane viele <button class="term" data-t="eindruck">Sinneseindrücke</button>: Bilder, Geräusche, Gerüche, Berührungen. Würde das Gehirn alles speichern, wäre es völlig überfordert.</p>
+      <p style="margin:0">Deshalb arbeitet es wie ein <button class="term" data-t="filter">Filter</button>: Vieles nimmst du gar nicht wahr. Nur ein Teil gelangt ins Gedächtnis. Fachleute beschreiben das Gedächtnis mit einem Modell aus drei Teilen – rechts und in der Animation unten.</p>
+    </div>
+    <div class="card reveal">
+      <ol class="schritt-liste">
+        <li><strong><button class="term" data-t="ultrakurz">Ultrakurzzeit-Gedächtnis</button></strong> (auch <button class="term" data-t="sensorisch">sensorisches Gedächtnis</button>): hält Sinneseindrücke wenige Sekunden. Vieles wird gelöscht oder überschrieben.</li>
+        <li><strong><button class="term" data-t="kurzzeit">Kurzzeit-Gedächtnis</button>:</strong> hält wichtige Informationen etwa 20 Minuten. Es hat wenig Platz – Neues <button class="term" data-t="verdraengen">verdrängt</button> Altes.</li>
+        <li><strong><button class="term" data-t="langzeit">Langzeit-Gedächtnis</button>:</strong> speichert lange, manches ein Leben lang.</li>
+      </ol>
+      <p style="margin:0">Weiter kommt nur, was <button class="term" data-t="aufmerksamkeit">Aufmerksamkeit</button> bekommt, Gefühle weckt, zu Bekanntem passt – oder durch <button class="term" data-t="wiederholung">Wiederholung</button> und Übung gefestigt wird.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="gmSim">
+    <svg viewBox="0 0 520 290" id="gmSvg" role="img" aria-label="Animation zum Gedächtnismodell: Im Unterricht kommen sechs Eindrücke an. Zwei bleiben im Filter hängen. Vier gelangen ins Ultrakurzzeit-Gedächtnis, einer wird nach Sekunden gelöscht. Drei kommen durch Aufmerksamkeit, Gefühle und Verknüpfung ins Kurzzeit-Gedächtnis, dort verdrängt eine neue Information eine alte. Nur die wiederholte Vokabel kommt ins Langzeit-Gedächtnis und wird dort mit Bekanntem verknüpft."></svg>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <span class="task-tag">Ausprobieren</span>
+    <h3 style="margin-top:4px">Merktest: Wie viel behältst du?</h3>
+    <p style="margin:0">Du siehst 20 Sekunden lang 12 Bilder. Danach tippst du an, welche dabei waren. Im zweiten Durchgang nutzt du eine <button class="term" data-t="strategie">Merkstrategie</button>: Die Bilder sind geordnet, du sprichst leise mit und wiederholst. Vergleiche die Ergebnisse! Es zählt das Mitmachen, nicht die Punktzahl.</p>
+  </div>
+  <div class="sim reveal" id="mkSim">
+    <div class="mk-buehne" id="mkBuehne" aria-live="polite"><p class="lead" style="margin:0">Tippe auf „Durchgang 1“. Halte dein Gerät so, dass du alle Bilder gut siehst. Am Ende hast du zwei Ergebnisse zum Vergleichen.</p></div>
+    <div class="mk-zeit" aria-hidden="true"><i id="mkBar"></i></div>
+    <div class="sim-ctrl"><button class="btn small" id="mkStart1" type="button">▶ Durchgang 1: nur anschauen</button><button class="btn small teal" id="mkStart2" type="button">🧠 Durchgang 2: mit Merkstrategie</button><span class="chip" id="mkChip">noch kein Durchgang</span></div>
+    <div class="mk-erg">
+      <div class="mk-zeile"><b>Durchgang 1 (nur anschauen):</b><span id="mkE1">noch nicht gemacht</span></div>
+      <div class="mk-zeile"><b>Durchgang 2 (mit Strategie):</b><span id="mkE2">noch nicht gemacht</span></div>
+      <div class="mk-balken" id="mkBalken" hidden><div><span>nur anschauen</span><i id="mkB1" style="width:0"></i><span id="mkB1T"></span></div><div class="mit"><span>mit Strategie</span><i id="mkB2" style="width:0"></i><span id="mkB2T"></span></div></div>
+    </div>
+    <p class="obs" id="mkObs">Punkte: Jedes richtig erkannte Bild bringt einen Punkt, jedes falsch angetippte kostet einen.</p>
+  </div>
+
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Das Gehirn filtert die Sinneseindrücke. Nur ein Teil gelangt ins Gedächtnis.</li><li>Ultrakurzzeit-Gedächtnis: wenige Sekunden. Kurzzeit-Gedächtnis: etwa 20 Minuten, wenig Platz. Langzeit-Gedächtnis: lange, manches ein Leben lang.</li><li>Ins Kurzzeit-Gedächtnis kommt, was Aufmerksamkeit bekommt, positive Gefühle weckt oder mit Bekanntem verknüpft ist. Ins Langzeit-Gedächtnis kommt es durch Interesse, Wiederholung, Übung und Erinnern.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Zuordnen · Probenstoff</span>
+    <h3 style="margin-top:4px">In welchem Gedächtnis landet das?</h3>
+    <p class="hint">Tippe eine Karte an und dann das passende Gedächtnis.</p>
+    <div id="sortGed"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Lückentext · Probenstoff</span>
+    <h3 style="margin-top:4px">Was kommt weiter?</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapWeiter"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Erkläre mit dem Modell <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung.</p>
+    <div id="open2"></div>
+  </div>
+  <div class="card reveal" id="mc-s2"></div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Methode · Probenstoff</div><h2>Lernen will gelernt sein</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Ob das Lernen klappt, hängt auch davon ab, <em>wo</em> und <em>wie</em> du lernst. Gut geht es an einem ruhigen Platz, mit Interesse und <button class="term" data-t="konzentration">Konzentration</button> – und ohne <button class="term" data-t="zeitdruck">Zeitdruck</button>. Nach dem Essen wartest du besser ein bisschen. Es hilft auch, über das Gelernte zu sprechen.</p>
+      <p style="margin:0">Schwer wird es bei Lärm und Unruhe, wenn Handy, Fernseher oder Musik ablenken, bei Stress, wenn du dich nicht wohlfühlst, wenn deine Gedanken abschweifen, dich Probleme beschäftigen oder du keine Lust hast.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Wissen kommt auf verschiedenen Wegen ins Gehirn: Wir lesen, hören, sehen, sprechen und handeln. Diese Wege heißen <button class="term" data-t="lernkanal">Lernkanäle</button>.</p>
+      <p style="margin:0">Eine bekannte <button class="term" data-t="faustregel">Faustregel</button> sagt, wie viel davon hängen bleibt. Die Zahlen sind keine genauen Messwerte. Aber sie zeigen: Je mehr du selbst machst und je mehr Kanäle du kombinierst, desto mehr behältst du. Probiere es unten aus.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <svg viewBox="0 0 520 272" id="knSvg" role="img" aria-label="Säulendiagramm Lernkanäle nach einer Faustregel: lesen 10 Prozent, hören 20 Prozent, sehen 30 Prozent, hören und sehen 50 Prozent, selbst sagen 70 Prozent, selbst tun 90 Prozent. Oben zeigen zehn Vokabel-Kärtchen, wie viele davon hängen bleiben."></svg>
+    <div class="sim-ctrl"><label>So lernst du die Vokabeln:</label><button class="btn small teal" id="tLesen" type="button">📖 lesen</button><button class="btn small teal" id="tHoeren" type="button">👂 hören</button><button class="btn small teal" id="tSehen" type="button">👀 sehen</button><button class="btn small teal" id="tHoerSehen" type="button">🎬 hören + sehen</button><button class="btn small teal" id="tSagen" type="button">🗣️ selbst sagen</button><button class="btn small teal" id="tTun" type="button">✋ selbst tun</button></div>
+    <p class="obs" id="knObs">Du willst 10 neue Englisch-Vokabeln lernen. Wähle einen Lernkanal und sieh, wie viele Vokabeln nach der Faustregel hängen bleiben. Probiere alle sechs aus.</p>
+    <div class="tab-wrap" style="padding:0 14px 14px"><table class="beob" id="knTab">
+      <thead><tr><th>Lernkanal</th><th>So lernst du die Vokabeln</th><th>Es bleibt hängen (Faustregel)</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </div>
+
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Das Lernen fördern: ruhiger Platz, Interesse, Konzentration, kein Zeitdruck, nach dem Essen kurz warten, den Stoff einteilen, wiederholen, über das Gelernte sprechen.</li><li>Das Lernen erschweren: Lärm und Unruhe, Ablenkung durch Handy, Fernseher oder Musik, Stress und Zeitdruck, Unwohlsein, abschweifende Gedanken, Probleme, keine Lust.</li><li>Lernkanäle (Faustregel): lesen 10 %, hören 20 %, sehen 30 %, hören und sehen 50 %, selbst sagen 70 %, selbst tun 90 %. Am besten mehrere Kanäle kombinieren.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Zuordnen · Probenstoff</span>
+    <h3 style="margin-top:4px">Lerntipps sortieren</h3>
+    <p class="hint">Hilft das beim Lernen – oder stört es? Tippe eine Karte an und dann die passende Spalte.</p>
+    <div id="sortTipps"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Lückentext · Probenstoff</span>
+    <h3 style="margin-top:4px">Lernkanäle</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapKanal"></div>
+  </div>
+  <div class="card reveal" id="mc-s3"></div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Probenstoff</div><h2>Vergessen, wiederholen – dein Lernplan</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Was du nur einmal lernst, vergisst du schnell wieder. Das zeigt die <button class="term" data-t="vergessenskurve">Vergessenskurve</button>: Ohne Wiederholung ist schon nach einem Tag ein großer Teil weg.</p>
+      <p style="margin:0">Wiederholst du den Stoff nach einem Tag, nach ein paar Tagen und nach einer Woche, bleibt viel mehr erhalten. Mit jeder Wiederholung vergisst du langsamer – das Wissen wandert ins Langzeit-Gedächtnis.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Deshalb lohnt sich ein <button class="term" data-t="lernplan">Lernplan</button>: Du teilst den Stoff in kleine Portionen und verteilst sie auf mehrere Tage. Jeden Tag wiederholst du kurz, was du schon gelernt hast. So hast du am Ende keinen Zeitdruck.</p>
+      <p style="margin:0">Ein Beispiel für die Probe zum Nervensystem steht unter dem Diagramm.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px">
+    <svg viewBox="0 0 520 290" id="vkSvg" role="img" aria-label="Diagramm Vergessenskurve: Waagrecht die Tage nach dem ersten Lernen von 0 bis 14, senkrecht, wie viel Prozent man noch weiß. Die graue gestrichelte Kurve ohne Wiederholung fällt schnell auf etwa 20 Prozent. Mit dem Schieberegler kommen Wiederholungen nach 1, 3 und 7 Tagen dazu: Die grüne Kurve springt jedes Mal auf 100 Prozent und fällt danach langsamer. Am Probentag, Tag 10, weiß man dann etwa 35, 70 oder 95 Prozent."></svg>
+    <div class="sim-ctrl"><label for="vkRange">Wiederholungen:</label><input type="range" id="vkRange" min="0" max="3" step="1" value="0" aria-label="Anzahl der Wiederholungen von 0 bis 3"><span class="chip" id="vkChip">keine Wiederholung</span></div>
+    <p class="obs" id="vkObs">Ohne Wiederholung fällt die Kurve steil ab. Schiebe den Regler nach rechts: Was passiert mit 1, 2 und 3 Wiederholungen?</p>
+  </div>
+
+  <div class="card reveal">
+    <h3 style="margin-top:0">Beispiel: Lernplan für die Probe zum Nervensystem</h3>
+    <div class="tab-wrap"><table class="lp-tab">
+      <tr><th>Montag</th><td>Modul 1 lernen: Lernkarten durchgehen, die Schritte vom Reiz zur Reaktion laut aufsagen.</td></tr>
+      <tr><th>Dienstag</th><td>Modul 1 kurz wiederholen. Modul 2 lernen: das Gehirn selbst zeichnen und beschriften.</td></tr>
+      <tr><th>Mittwoch</th><td>Module 1 und 2 wiederholen. Modul 3 lernen: das Gedächtnismodell jemandem erklären.</td></tr>
+      <tr><th>Donnerstag</th><td>Alles wiederholen: Lernkarten, Kreuzworträtsel, Profi-Checks. Nichts Neues mehr.</td></tr>
+      <tr><th>Freitag</th><td>Probe – du bist vorbereitet. 💪</td></tr>
+    </table></div>
+    <p class="hint" style="margin:8px 0 0">Jeden Tag etwa 20 bis 30 Minuten, an einem ruhigen Platz, das Handy in einem anderen Zimmer.</p>
+  </div>
+
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Ohne Wiederholung vergisst man das Gelernte schnell (Vergessenskurve).</li><li>Nach jeder Wiederholung bleibt mehr erhalten, und man vergisst langsamer.</li><li>Ein Lernplan teilt den Stoff in Portionen, verteilt ihn auf mehrere Tage und plant Wiederholungen ein.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Reihenfolge · Probenstoff</span>
+    <h3 style="margin-top:4px">So entsteht ein guter Lernplan</h3>
+    <p class="hint">Die Probe ist in einer Woche. Bringe die Schritte mit den Pfeilen in eine sinnvolle Reihenfolge.</p>
+    <div id="orderPlan"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Gib gute Tipps <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung.</p>
+    <div id="open4"></div>
+  </div>
+  <div class="card reveal" id="mc-s4"></div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Wiederholung · so kommt es in der Probe</div><h2>Training</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Kreuzworträtsel</span>
+    <h3 style="margin-top:4px">Löse das Kreuzworträtsel</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Ä schreibst du als AE, Ü als UE. Hängst du fest? Bei jeder Frage hilft <strong>💡 Tipp</strong> – erst ein Hinweis, dann der Anfangsbuchstabe. Mit <strong>📋 Wörter zeigen</strong> siehst du alle Lösungswörter.</p>
+    <div id="cw"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Ankreuzen</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="abschluss">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Abschluss</div><h2>Profi-Check, Lernkarten und Regelheft</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <div class="card reveal">
+    <span class="task-tag">Lernkarten</span>
+    <div id="lernkarten"></div>
+  </div>
+  <div class="regelheft reveal" id="regelheft">
+    <h3>Gedächtnis und Lernen</h3>
+    <p><strong>Lernen</strong> heißt: neues Wissen speichern, Zusammenhänge erkennen, Fähigkeiten erwerben, das Verhalten ändern. Dabei bilden <strong>Nervenzellen</strong> neue oder veränderte <strong>Verknüpfungen</strong>. Jeder lernt anders.</p>
+    <p><strong>Gedächtnismodell:</strong> Das Gehirn <strong>filtert</strong> die Eindrücke. Nur ein Teil kommt ins Gedächtnis:</p>
+    <svg class="rh-skizze" viewBox="0 0 420 126" role="img" aria-label="Skizze Gedächtnismodell: Eindrücke, Filter, Ultrakurzzeit-Gedächtnis (Sekunden), Kurzzeit-Gedächtnis (etwa 20 Minuten), Langzeit-Gedächtnis (lange). Unter den Pfeilen: Aufmerksamkeit, Gefühle, Bekanntes sowie Wiederholung, Übung, Interesse.">
+      <defs><marker id="rhPf" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 Z" fill="#15212b"/></marker></defs>
+      <rect x="1" y="26" width="57" height="34" rx="7" fill="#f2f2f2" stroke="#7d8a94" stroke-width="1.6"/>
+      <line x1="66" y1="16" x2="66" y2="72" stroke="#566674" stroke-width="3" stroke-dasharray="4 4"/>
+      <rect x="76" y="14" width="96" height="58" rx="8" fill="#e3eef8" stroke="#1f6aa5" stroke-width="1.6"/>
+      <rect x="202" y="14" width="96" height="58" rx="8" fill="#fff6dd" stroke="#b77a06" stroke-width="1.6"/>
+      <rect x="322" y="14" width="96" height="58" rx="8" fill="#e3f5ea" stroke="#2e8b57" stroke-width="1.6"/>
+      <g stroke="#15212b" stroke-width="2" fill="none" marker-end="url(#rhPf)"><path d="M59 43 H74"/><path d="M174 43 H200"/><path d="M300 43 H320"/></g>
+      <g font-size="11" font-weight="700" fill="#15212b" text-anchor="middle">
+        <text x="29.5" y="47" font-size="10">Eindrücke</text><text x="66" y="10" fill="#566674">Filter</text>
+        <text x="124" y="32">Ultrakurzzeit-</text><text x="124" y="45">Gedächtnis</text><text x="250" y="32">Kurzzeit-</text><text x="250" y="45">Gedächtnis</text><text x="370" y="32">Langzeit-</text><text x="370" y="45">Gedächtnis</text>
+      </g>
+      <g font-size="10.5" font-weight="700" fill="#566674" text-anchor="middle"><text x="124" y="64">Sekunden</text><text x="250" y="64">etwa 20 Minuten</text><text x="370" y="64">sehr lange</text></g>
+      <g stroke="#566674" stroke-width="1.3" stroke-dasharray="3 3"><line x1="187" y1="50" x2="187" y2="84"/><line x1="310" y1="50" x2="310" y2="84"/></g>
+      <g font-size="10.5" font-weight="700" fill="#1e5e3a" text-anchor="middle"><text x="187" y="96">Aufmerksamkeit,</text><text x="187" y="108">Gefühle,</text><text x="187" y="120">Bekanntes</text><text x="310" y="96">Wiederholung,</text><text x="310" y="108">Übung,</text><text x="310" y="120">Interesse</text></g>
+    </svg>
+    <table class="rh-tab"><tr><th>lesen</th><td>10 %</td><th>hören und sehen</th><td>50 %</td></tr><tr><th>hören</th><td>20 %</td><th>selbst sagen</th><td>70 %</td></tr><tr><th>sehen</th><td>30 %</td><th>selbst tun</th><td>90 %</td></tr></table>
+    <p><strong>Lernkanäle</strong> (Faustregel): Je mehr Kanäle man kombiniert und je mehr man selbst macht, desto mehr bleibt hängen.</p>
+    <p><strong>Gut lernen:</strong> ruhiger Platz, kein Handy, Interesse, Konzentration, kein Zeitdruck, den Stoff einteilen (<strong>Lernplan</strong>) und regelmäßig wiederholen. Ohne Wiederholung vergisst man schnell (<strong>Vergessenskurve</strong>).</p>
+  </div>
+  <div class="rh-knoepfe reveal"><button class="btn small ghost" type="button" onclick="window.print()">🖨️ Regelheft drucken</button><a class="btn small ghost" href="arbeitsblaetter/N3-regelheft.pdf" download="NT9-N3-Regelheft.pdf">📥 Regelheft als PDF</a></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Jetzt weißt du, wie dein Gedächtnis arbeitet und wie du gut lernst. Manche Reaktionen laufen aber ganz ohne Nachdenken ab – blitzschnell, bevor das Gehirn überhaupt Bescheid weiß. Wie uns solche Reflexe schützen, erfährst du in Modul 4.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="ns-2.html">⬅️ Modul 2: Der Aufbau des Nervensystems</a>
+      <a href="ns-4.html">➡️ Modul 4: Reflexe schützen</a>
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik <span class="mt-zug">9M</span> · Nervensystem · Modul 3 · Texte, Zeichnungen und Animationen sind eigenständig erstellt. Mit deinem Code wird dein Lernstand gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="../../../7M/NT/modul-basis.js"></script>
+<script src="../../../8M/NT/karten.js"></script>
+<script src="karten/ns3.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, reduced, register, solve} = Modul;
+const wait = ms => new Promise(r => setTimeout(r, reduced ? Math.min(ms, 60) : ms));
+const jetzt = () => (window.performance && performance.now) ? performance.now() : Date.now();
+
+Modul.init({
+  key: "grumi-nt9-ns-3-v1",
+  hero: "funken",
+  api: "/api/nt9/uebung/feedback",
+  thema: "Nervensystem, Klasse 9: Gedächtnis und Lernen – Lernen heißt neues Wissen speichern, Zusammenhänge erkennen, Fähigkeiten erwerben, Verhalten ändern, lebenslang und individuell; beim Lernen bilden Nervenzellen neue oder veränderte Verknüpfungen, das Netz wird größer und dichter; das Gehirn filtert die Sinneseindrücke (sonst Überforderung); Gedächtnismodell: Ultrakurzzeit-Gedächtnis (sensorisches Gedächtnis, wenige Sekunden, vieles gelöscht oder überschrieben), Kurzzeit-Gedächtnis (etwa 20 Minuten, wenig Platz, Neues verdrängt Altes), Langzeit-Gedächtnis (lange, manches lebenslang); ins Kurzzeit-Gedächtnis durch Aufmerksamkeit, positive Gefühle, Verknüpfung mit Bekanntem; ins Langzeit-Gedächtnis durch Interesse, Wiederholung, Übung, Erinnern; Lernen fördern: ruhiger Platz, Interesse, Konzentration, kein Zeitdruck, nach dem Essen warten, Stoff einteilen, Lernplan, wiederholen, über Gelerntes sprechen; Lernen erschweren: Lärm, Unruhe, Ablenkung durch Smartphone, Fernsehen, Musik, Stress, Zeitdruck, Unwohlsein, abschweifende Gedanken, Probleme, Lustlosigkeit; Lernkanäle (Faustregel): lesen 10 %, hören 20 %, sehen 30 %, hören und sehen 50 %, selbst sagen 70 %, selbst tun 90 %, mehrere Kanäle kombinieren (Vokabeln lesen, laut sprechen, aufschreiben); Vergessenskurve: ohne Wiederholung vergisst man schnell, nach jeder Wiederholung bleibt mehr erhalten; Lernplan: Stoff in Portionen auf mehrere Tage verteilen und wiederholen",
+  glossary: {
+    gedaechtnis: ["Gedächtnis", "Die Fähigkeit des Gehirns, Informationen zu speichern und sich später wieder daran zu erinnern."],
+    nervenzelle: ["Nervenzelle", "Eine Zelle, die Signale aufnimmt und weiterleitet. Das Gehirn besteht aus etwa 90 Milliarden Nervenzellen."],
+    verknuepfung: ["Verknüpfung", "Eine Verbindung zwischen zwei Nervenzellen. Über sie laufen die Signale von Zelle zu Zelle."],
+    individuell: ["individuell", "Bei jedem Menschen anders, ganz persönlich."],
+    eindruck: ["Sinneseindruck", "Alles, was die Sinnesorgane gerade melden: ein Bild, ein Geräusch, ein Geruch, eine Berührung."],
+    filter: ["Filter", "Wie ein Sieb: Er lässt nur einen Teil durch. Das Gehirn lässt nur einen Teil der Eindrücke ins Gedächtnis."],
+    ultrakurz: ["Ultrakurzzeit-Gedächtnis", "Es hält Sinneseindrücke nur wenige Sekunden fest. „Ultra“ heißt: ganz besonders."],
+    sensorisch: ["sensorisches Gedächtnis", "Anderer Name für das Ultrakurzzeit-Gedächtnis. „Sensorisch“ heißt: die Sinne betreffend."],
+    kurzzeit: ["Kurzzeit-Gedächtnis", "Es hält wichtige Informationen etwa 20 Minuten fest. Es hat nur wenig Platz."],
+    langzeit: ["Langzeit-Gedächtnis", "Es speichert Wissen und Fähigkeiten lange, manches ein Leben lang."],
+    verdraengen: ["verdrängen", "Wegschieben. Kommt etwas Neues ins volle Kurzzeit-Gedächtnis, fliegt etwas Altes hinaus."],
+    aufmerksamkeit: ["Aufmerksamkeit", "Man wendet sich einer Sache bewusst zu und schaut oder hört genau hin."],
+    wiederholung: ["Wiederholung", "Etwas noch einmal lernen oder üben – am besten nach einem Tag und dann wieder nach ein paar Tagen."],
+    strategie: ["Merkstrategie", "Ein Trick, mit dem man sich etwas besser merkt, zum Beispiel ordnen, laut sagen und wiederholen."],
+    konzentration: ["Konzentration", "Man ist mit allen Gedanken bei einer Sache und lässt sich nicht ablenken."],
+    zeitdruck: ["Zeitdruck", "Für eine Aufgabe bleibt zu wenig Zeit, und man muss sich hetzen."],
+    lernkanal: ["Lernkanal", "Der Weg, auf dem Wissen ins Gehirn kommt: lesen, hören, sehen, selbst sagen oder selbst tun."],
+    faustregel: ["Faustregel", "Eine einfache Regel, die ungefähr stimmt. Ihre Zahlen sind keine genauen Messwerte."],
+    vergessenskurve: ["Vergessenskurve", "Ein Diagramm. Es zeigt, wie schnell man Gelerntes ohne Wiederholung wieder vergisst."],
+    lernplan: ["Lernplan", "Ein Plan, der den Lernstoff in kleine Portionen einteilt und auf mehrere Tage verteilt – mit Wiederholungen."]
+  }
+});
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Was passiert im Gehirn, wenn du etwas Neues lernst?", o: ["Nervenzellen bilden neue oder veränderte Verknüpfungen.", "Für jedes neue Wort wächst eine neue Hirnhälfte nach.", "Die Nervenzellen bauen ihre Verbindungen langsam ab.", "Dafür wird jedes Mal eine alte Erinnerung gelöscht."], a: 0, e: "Je mehr du übst, desto größer und dichter wird das Netz."},
+    {q: "Welche Aussagen über das Lernen stimmen?", o: ["Man lernt ein Leben lang.", "Jeder Mensch lernt auf seine eigene Weise.", "Man lernt ausschließlich in der Schule.", "Mit 15 Jahren ist das Gehirn fertig."], a: [0, 1], e: "Lernen ist lebenslang und individuell – auch Radfahren oder Kochen lernt man."}
+  ],
+  s2: [
+    {q: "Wie lange hält das Kurzzeit-Gedächtnis Informationen ungefähr fest?", o: ["etwa 20 Minuten", "wenige Sekunden", "ein ganzes Leben", "genau eine Woche"], a: 0, e: "Danach sind sie weg – außer man wiederholt sie."},
+    {q: "Was hilft, damit eine Information vom Kurzzeit- ins Langzeit-Gedächtnis kommt?", o: ["Wiederholung", "Übung", "Interesse", "Ablenkung durch das Handy", "Zeitdruck"], a: [0, 1, 2], e: "Wiederholung, Übung und Interesse festigen das Wissen."}
+  ],
+  s3: [
+    {q: "Wie viel bleibt nach der Faustregel hängen, wenn man etwas nur liest?", o: ["etwa 10 %", "etwa 50 %", "etwa 70 %", "etwa 90 %"], a: 0, e: "Lesen allein bringt am wenigsten – kombiniere mehrere Kanäle."},
+    {q: "Wie lernst du Vokabeln nach der Faustregel am besten?", o: ["lesen, laut aussprechen und aufschreiben", "die Liste mehrmals still durchlesen", "sie dir ein paarmal vorlesen lassen", "die Bilder im Buch genau ansehen"], a: 0, e: "Mehrere Kanäle zusammen – und selbst sagen und tun bringt am meisten."}
+  ],
+  s4: [
+    {q: "Was zeigt die Vergessenskurve?", o: ["Ohne Wiederholung vergisst man das Gelernte schnell.", "Was man einmal gelernt hat, bleibt immer gleich gut.", "Wer öfter wiederholt, vergisst alles noch schneller.", "Man vergisst nur dann etwas, wenn man krank ist."], a: 0, e: "Jede Wiederholung lässt die Kurve langsamer fallen."},
+    {q: "Welcher Lernplan ist für eine Probe in einer Woche am besten?", o: ["den Stoff auf mehrere Tage verteilen und wiederholen", "alles am Abend vor der Probe auf einmal lernen", "am ersten Tag lernen und danach nichts mehr tun", "am Morgen der Probe schnell alles durchlesen"], a: 0, e: "Kleine Portionen und Wiederholungen – dann gibt es keinen Zeitdruck."}
+  ],
+  train: [
+    {q: "Ein Vogel fliegt kurz am Fenster vorbei. In welchem Gedächtnis landet dieser Eindruck?", o: ["im Ultrakurzzeit-Gedächtnis", "im Kurzzeit-Gedächtnis", "im Langzeit-Gedächtnis", "im Rückenmark"], a: 0, e: "Nach wenigen Sekunden ist er wieder gelöscht."},
+    {q: "Warum filtert das Gehirn die Sinneseindrücke?", o: ["Sonst wäre es von den vielen Eindrücken überfordert.", "Weil die Sinnesorgane tagsüber gar keine Reize melden.", "Damit die Muskeln für den Sport mehr Kraft bekommen.", "Weil die Nervenzellen überhaupt keine Signale leiten."], a: 0, e: "Vieles nehmen wir deshalb gar nicht wahr."},
+    {q: "Tom kann seit der Grundschule schwimmen. Wo ist diese Fähigkeit gespeichert?", o: ["im Langzeit-Gedächtnis", "im Kurzzeit-Gedächtnis", "im Ultrakurzzeit-Gedächtnis", "im Filter"], a: 0, e: "Fähigkeiten, die man oft geübt hat, bleiben ein Leben lang."},
+    {q: "Was erschwert das Lernen?", o: ["das Handy neben dem Heft", "Lärm im Zimmer", "Stress und Zeitdruck", "ein ruhiger Platz", "Interesse am Thema"], a: [0, 1, 2], e: "Ablenkung, Lärm und Stress stören – Ruhe und Interesse helfen."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Hilfe: Punkte, die einen Pfad entlanglaufen (Signale) ---------- */
+function laeufer(pfad, farbe, gruppe, anzahl, dauer, sichtbar){
+  const len = pfad.getTotalLength(), punkte = [];
+  if (len < 1) return () => {};
+  for (let k = 0; k < anzahl; k++) punkte.push(svgEl("circle", {r: 5, fill: farbe, stroke: "#fff", "stroke-width": 1.5}, gruppe));
+  const setze = (c, f) => { const p = pfad.getPointAtLength(len * f); c.setAttribute("cx", p.x.toFixed(1)); c.setAttribute("cy", p.y.toFixed(1)); };
+  if (reduced) { punkte.forEach((c, k) => setze(c, (k + 1) / (anzahl + 1))); return () => punkte.forEach(c => c.remove()); }
+  let an = true; const t0 = jetzt();
+  (function f(){
+    if (!an) return;
+    if (sichtbar()) {
+      const t = jetzt();
+      punkte.forEach((c, k) => { const ph = ((t - t0) / dauer + k / anzahl) % 1; setze(c, ph); c.setAttribute("opacity", ph < .08 ? ph / .08 : ph > .88 ? (1 - ph) / .12 : 1); });
+    }
+    requestAnimationFrame(f);
+  })();
+  return () => { an = false; punkte.forEach(c => c.remove()); };
+}
+const NS = "http://www.w3.org/2000/svg";
+function svgEl(tag, attrs, parent){ const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+
+/* ---------- Station 1: Nervennetz beim Üben ---------- */
+(function(){
+  const svg = $("#nnSvg"), obs = $("#nnObs"), chip = $("#nnChip"), knopf = $("#nnUeben");
+  const P = [[36, 140], [104, 66], [112, 146], [100, 212], [188, 100], [196, 186], [270, 58], [278, 140], [262, 214], [356, 94], [352, 186], [428, 60], [436, 144], [426, 214], [490, 140]];
+  const KETTE = [0, 2, 4, 7, 9, 12, 14];
+  // Verknüpfungen [Zelle a, Zelle b, ab Übungsrunde]
+  const V = [[0, 2, 0], [2, 4, 0], [4, 7, 0], [1, 4, 0], [3, 5, 0], [6, 9, 0], [10, 13, 0], [8, 10, 0],
+    [7, 9, 1], [2, 5, 1], [11, 12, 1], [9, 12, 2], [1, 6, 2], [5, 8, 2], [12, 14, 3], [4, 6, 3], [10, 12, 3],
+    [0, 1, 4], [5, 7, 4], [9, 11, 4], [13, 14, 4], [2, 3, 4], [6, 7, 5], [7, 8, 5], [12, 13, 5], [1, 2, 5], [9, 10, 5]];
+  const kette = (a, b) => KETTE.some((k, i) => i > 0 && ((KETTE[i - 1] === a && k === b) || (KETTE[i - 1] === b && k === a)));
+  const STAND = ["klappt nie", "klappt selten", "klappt manchmal", "klappt oft", "klappt fast immer", "klappt sicher"];
+  const KOPF = ["Noch nicht geübt", "1. Übungsrunde", "2. Übungsrunde", "3. Übungsrunde", "4. Übungsrunde", "5. Übungsrunde"];
+  const TEXT = [
+    "Du willst lernen, mit drei Bällen zu jonglieren. Noch hast du es nie geübt: Für diese Bewegung gibt es im Gehirn erst wenige, dünne Verknüpfungen. Die Signale von den Augen kommen nicht bis zu den Händen durch – die Bälle fallen. Tippe auf „Üben“.",
+    "1. Übungsrunde: Eine neue Verknüpfung ist entstanden (sie wird gerade gezeichnet). Die Signale kommen schon ein Stück weiter – aber noch nicht bis zu den Händen.",
+    "2. Übungsrunde: Wieder sind neue Verknüpfungen entstanden. Die Verknüpfungen, die du benutzt, werden dicker und kräftiger.",
+    "3. Übungsrunde: Jetzt gibt es einen durchgehenden Weg von den Augen bis zu den Händen. Die Signale kommen an – der Trick klappt oft.",
+    "4. Übungsrunde: Das Netz wird immer dichter. Die Signale laufen schneller und sicherer.",
+    "5. Übungsrunde: Ein großes, dichtes Netz! Der Trick klappt fast von selbst. Dein Gehirn hat sich durch das Üben verändert – genau das ist Lernen. ✅"
+  ];
+  let linien = "", zellen = "";
+  V.forEach(([a, b], i) => {
+    const [x1, y1] = P[a], [x2, y2] = P[b], dx = x2 - x1, dy = y2 - y1, l = Math.hypot(dx, dy), s = kette(a, b) ? 0 : (i % 2 ? 12 : -12);
+    const mx = (x1 + x2) / 2 - dy / l * s, my = (y1 + y2) / 2 + dx / l * s;
+    linien += `<path class="nn-v" id="nnV${i}" d="M${x1} ${y1} Q${mx.toFixed(1)} ${my.toFixed(1)} ${x2} ${y2}"/>`;
+  });
+  P.forEach(([x, y], i) => {
+    let d = "";
+    for (let k = 0; k < 4; k++) { const w = (i * 1.9 + k * 1.57) % (2 * Math.PI); d += `M${x} ${y} l${(Math.cos(w) * 15).toFixed(1)} ${(Math.sin(w) * 15).toFixed(1)} `; }
+    zellen += `<g class="nn-z"><path d="${d}" stroke="#c56a7d" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="${x}" cy="${y}" r="9" fill="#f6c6cf" stroke="#c56a7d" stroke-width="2"/><circle cx="${x}" cy="${y}" r="3" fill="#8a3446"/></g>`;
+  });
+  const T = (x, y, s, a = "middle", f = 12, c = "#566674") => `<text x="${x}" y="${y}" text-anchor="${a}" font-size="${f}" font-weight="800" fill="${c}">${s}</text>`;
+  svg.innerHTML = `<rect width="520" height="270" fill="#f7fbfe"/>
+    <text id="nnKopf" x="10" y="22" font-size="14" font-weight="800" fill="#1e5e3a">Noch nicht geübt</text>${T(510, 22, "Ausschnitt aus dem Gehirn", "end")}
+    <g>${linien}</g>${zellen}<path id="nnWeg" d="" fill="none" stroke="none"/><g id="nnPunkte"></g>
+    ${T(36, 172, "von den")}${T(36, 186, "Augen")}${T(490, 172, "zu den")}${T(490, 186, "Händen")}
+    <text id="nnZahl" x="10" y="258" font-size="13" font-weight="800" fill="#15212b">Verknüpfungen: 8</text>
+    ${T(250, 258, "Jonglieren:", "end", 13, "#15212b")}<rect x="258" y="246" width="120" height="14" rx="7" fill="#dfe6ec"/><rect id="nnMeter" x="258" y="246" width="0" height="14" rx="7" fill="#2e8b57" style="transition:width .8s"/>
+    <text id="nnStand" x="386" y="258" font-size="13" font-weight="800" fill="#1e5e3a">klappt nie</text>`;
+  const weg = $("#nnWeg", svg), punkte = $("#nnPunkte", svg);
+  let runde = 0, stopp = null, sichtbar = true;
+  Modul.onVisible(svg, v => sichtbar = v);
+  register("netz", "#nnSvg", "Nervennetz: fünf Übungsrunden ausprobiert");
+  function mische(a, b, f){ const h = s => [1, 3, 5].map(i => parseInt(s.slice(i, i + 2), 16)); const A = h(a), B = h(b); return "rgb(" + A.map((v, i) => Math.round(v + (B[i] - v) * f)).join(",") + ")"; }
+  function zeichne(neu){
+    V.forEach(([a, b, ab], i) => {
+      const p = $("#nnV" + i, svg), da = ab <= runde, alter = runde - ab, k = kette(a, b);
+      p.style.opacity = da ? 1 : 0;
+      p.style.strokeWidth = da ? (k ? Math.min(6.5, 2 + alter * 1.1) : Math.min(3.6, 1.6 + alter * .4)) : 1;
+      p.style.stroke = k ? mische("#aab8c3", "#1e7a47", Math.min(1, alter / 3)) : mische("#b9c6cf", "#6fb68a", Math.min(1, alter / 4));
+      if (neu && ab === runde && runde > 0 && !reduced) {
+        const L = p.getTotalLength();
+        p.style.transition = "none"; p.style.strokeDasharray = L; p.style.strokeDashoffset = L; void p.getBoundingClientRect();
+        p.style.transition = "stroke-dashoffset 1.1s ease-out, stroke-width .8s, stroke .8s, opacity .3s"; p.style.strokeDashoffset = 0;
+        setTimeout(() => { p.style.strokeDasharray = ""; p.style.strokeDashoffset = ""; p.style.transition = ""; }, 1250);
+      }
+    });
+    // Weg der Signale: so weit die Kette schon verbunden ist, dann ein Stück ins Leere
+    let d = `M${P[KETTE[0]][0]} ${P[KETTE[0]][1]}`, ende = 0;
+    for (let i = 1; i < KETTE.length; i++) {
+      const v = V.find(([a, b]) => (a === KETTE[i - 1] && b === KETTE[i]) || (b === KETTE[i - 1] && a === KETTE[i]));
+      if (v && v[2] <= runde) { d += ` L${P[KETTE[i]][0]} ${P[KETTE[i]][1]}`; ende = i; }
+      else { const [x1, y1] = P[KETTE[i - 1]], [x2, y2] = P[KETTE[i]]; d += ` L${(x1 + (x2 - x1) * .35).toFixed(1)} ${(y1 + (y2 - y1) * .35).toFixed(1)}`; break; }
+    }
+    weg.setAttribute("d", d);
+    if (stopp) stopp();
+    stopp = laeufer(weg, ende === KETTE.length - 1 ? "#2e8b57" : "#e0a800", punkte, [1, 1, 2, 2, 3, 3][runde], [3000, 2800, 2500, 2000, 1500, 1100][runde], () => sichtbar);
+    $("#nnKopf", svg).textContent = KOPF[runde];
+    $("#nnZahl", svg).textContent = "Verknüpfungen: " + V.filter(v => v[2] <= runde).length;
+    $("#nnStand", svg).textContent = STAND[runde];
+    $("#nnMeter", svg).setAttribute("width", runde * 24);
+    chip.textContent = `Runde ${runde} von 5`;
+    obs.textContent = TEXT[runde];
+    knopf.disabled = runde >= 5;
+  }
+  knopf.addEventListener("click", () => { if (runde >= 5) return; runde++; zeichne(true); if (runde === 5) solve("netz"); });
+  $("#nnNeu").addEventListener("click", () => { runde = 0; zeichne(false); });
+  zeichne(false);
+})();
+
+/* ---------- Station 1: Übungen ---------- */
+Modul.makePaare($("#paareLernen"), [
+  ["neues Wissen speichern", "sich merken, dass Paris die Hauptstadt von Frankreich ist"],
+  ["eine Fähigkeit erwerben", "Radfahren oder Jonglieren lernen"],
+  ["Zusammenhänge erkennen", "verstehen, warum Eis in der Sonne schmilzt"],
+  ["das Verhalten ändern", "nach einem Sonnenbrand immer Sonnencreme benutzen"]
+], "paareLernen");
+Modul.makeTF($("#tfLernen"), [
+  ["Beim Lernen bilden Nervenzellen neue Verknüpfungen.", true],
+  ["Je öfter man übt, desto dichter wird das Netz der Nervenzellen.", true],
+  ["Erwachsene können nichts Neues mehr lernen.", false],
+  ["Alle Menschen lernen auf genau dieselbe Weise.", false],
+  ["Wer Radfahren übt, lernt auch.", true]
+], "tfLernen");
+
+/* ---------- Station 2: Gedächtnismodell (Animation in Schritten) ---------- */
+(function(){
+  const svg = $("#gmSvg");
+  const QY = [66, 92, 118, 144, 170, 196], UY = [68, 96, 124, 152, 180], KY = [74, 110, 146], LY = [68, 102, 136, 170];
+  const ORT = {Q: [6, QY], U: [115, UY], K: [235, KY], L: [356, LY]};
+  const TOK = {
+    vok: ["📘 Vokabel", "#e3eef8", "#1f6aa5"], vogel: ["🐦 Vogel", "#e3f5ea", "#2e8b57"], brumm: ["🔊 Brummen", "#eef1f4", "#7d8a94"],
+    handy: ["📱 Handy", "#fdecec", "#c0392b"], schritt: ["👣 Schritte", "#f3e8fb", "#8e55c7"], witz: ["😂 Witz", "#fff6dd", "#b77a06"],
+    aufg: ["📝 Aufgabe", "#e8f6f3", "#176b62"]
+  };
+  // Zustand je Schritt: [Ort, Platz, Deckkraft, vergessen?]
+  const START = {vok: ["Q", 0], vogel: ["Q", 1], brumm: ["Q", 2], handy: ["Q", 3], schritt: ["Q", 4], witz: ["Q", 5], aufg: ["U", 4, 0]};
+  const Z = [
+    START,
+    {vok: ["U", 0], vogel: ["U", 1], handy: ["U", 2], witz: ["U", 3], brumm: ["Q", 2, .2], schritt: ["Q", 4, .2], aufg: ["U", 4, 0]},
+    {vok: ["U", 0], vogel: ["U", 1, 0, 1], handy: ["U", 2], witz: ["U", 3], brumm: ["Q", 2, 0], schritt: ["Q", 4, 0], aufg: ["U", 4, 0]},
+    {vok: ["K", 0], vogel: ["U", 1, 0, 1], handy: ["K", 1], witz: ["K", 2], brumm: ["Q", 2, 0], schritt: ["Q", 4, 0], aufg: ["U", 4, 0]},
+    {vok: ["K", 0], vogel: ["U", 1, 0, 1], handy: ["K", 1, 0, 1], witz: ["K", 2], brumm: ["Q", 2, 0], schritt: ["Q", 4, 0], aufg: ["K", 1]},
+    {vok: ["L", 3], vogel: ["U", 1, 0, 1], handy: ["K", 1, 0, 1], witz: ["K", 2], brumm: ["Q", 2, 0], schritt: ["Q", 4, 0], aufg: ["K", 1]},
+    {vok: ["L", 3], vogel: ["U", 1, 0, 1], handy: ["K", 1, 0, 1], witz: ["K", 2, 0, 1], brumm: ["Q", 2, 0], schritt: ["Q", 4, 0], aufg: ["K", 1, 0, 1]}
+  ];
+  const KOPF = ["Im Unterricht: viele Eindrücke auf einmal", "1 Viele Sinneseindrücke", "2 Der Filter", "3 Ultrakurzzeit-Gedächtnis", "4 Weiter ins Kurzzeit-Gedächtnis", "5 Kurzzeit-Gedächtnis: wenig Platz", "6 Wiederholen und üben", "7 Langzeit-Gedächtnis"];
+  const BAN = ["", "Augen · Ohren · Nase · Haut melden ständig Neues", "Vieles wird gar nicht wahrgenommen.", "Nach wenigen Sekunden gelöscht oder überschrieben", "Aufmerksamkeit · positive Gefühle · Verknüpfung mit Bekanntem", "Etwa 20 Minuten – Neues verdrängt Altes", "Interesse · Wiederholung · Übung · Erinnern", "Lange gespeichert – manches ein Leben lang"];
+  const tok = (id, t, f, s, x = 0, y = 0) => `<g class="gm-tok" id="gmT-${id}" style="transform:translate(${x}px,${y}px)"><g class="gm-in"><rect width="88" height="24" rx="7" fill="${f}" stroke="${s}" stroke-width="2"/><text x="44" y="16.5" text-anchor="middle" font-size="12" font-weight="800" fill="#15212b">${t}</text></g></g>`;
+  const T = (x, y, s, f = 12, c = "#15212b", a = "middle") => `<text x="${x}" y="${y}" text-anchor="${a}" font-size="${f}" font-weight="800" fill="${c}">${s}</text>`;
+  let loecher = "";
+  for (let y = 68; y <= 218; y += 12) loecher += `<circle cx="100" cy="${y}" r="2.2" fill="#f7fbfe"/>`;
+  let schlitze = "";
+  KY.forEach(y => schlitze += `<rect x="235" y="${y}" width="88" height="24" rx="7" fill="none" stroke="#d9b25c" stroke-width="1.5" stroke-dasharray="4 3"/>`);
+  let regal = "";
+  LY.forEach(y => regal += `<line x1="354" y1="${y + 28}" x2="508" y2="${y + 28}" stroke="#9fcfb0" stroke-width="2"/>`);
+  svg.innerHTML = `<rect width="520" height="290" fill="#f7fbfe"/>
+    <defs><marker id="gmPf" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#566674"/></marker></defs>
+    <text id="gmKopf" x="8" y="18" font-size="14" font-weight="800" fill="#1e5e3a">${KOPF[0]}</text>
+    ${T(50, 52, "Eindrücke")}
+    ${T(159, 38, "Ultrakurzzeit-")}${T(159, 52, "Gedächtnis")}${T(279, 38, "Kurzzeit-")}${T(279, 52, "Gedächtnis")}${T(432, 38, "Langzeit-")}${T(432, 52, "Gedächtnis")}
+    <rect id="gmFilter" x="96" y="60" width="8" height="166" rx="3" fill="#aab8c3"/>${loecher}${T(100, 240, "Filter", 12, "#566674")}
+    <rect id="gmBoxU" class="gm-box" x="110" y="60" width="98" height="166" rx="10" fill="#eef4fb" stroke="#1f6aa5" stroke-width="2"/>
+    <rect id="gmBoxK" class="gm-box" x="230" y="60" width="98" height="166" rx="10" fill="#fdf6e8" stroke="#b77a06" stroke-width="2"/>
+    <rect id="gmBoxL" class="gm-box" x="350" y="60" width="164" height="166" rx="10" fill="#edf8f1" stroke="#2e8b57" stroke-width="2"/>
+    ${schlitze}${regal}
+    ${T(159, 218, "Sekunden", 11.5, "#566674")}${T(279, 218, "ca. 20 Minuten", 11.5, "#566674")}${T(432, 218, "lange, oft lebenslang", 11.5, "#566674")}
+    <g id="gmG1" class="gm-gate"><path d="M209 132 H228" stroke="#566674" stroke-width="2.5" marker-end="url(#gmPf)"/></g>
+    <g id="gmG2" class="gm-gate"><path d="M329 132 H348" stroke="#566674" stroke-width="2.5" marker-end="url(#gmPf)"/></g>
+    ${tok("rad", "🚲 Radfahren", "#ffffff", "#2e8b57", 356, LY[0])}${tok("geb", "🎂 Geburtstag", "#ffffff", "#2e8b57", 356, LY[1])}${tok("engl", "🔤 Englisch", "#ffffff", "#2e8b57", 356, LY[2])}
+    <g id="gmLink" class="stage"><path d="M444 182 Q460 166 444 148" fill="none" stroke="#1e7a47" stroke-width="3" stroke-dasharray="5 3"/>${T(456, 169, "verknüpft", 10.5, "#1e5e3a", "start")}</g>
+    <g id="gmWdh" class="stage">${T(476, 187, "↺ ↺ ↺", 14, "#1e5e3a")}</g>
+    ${Object.keys(TOK).map(k => tok(k, ...TOK[k])).join("")}
+    <g id="gmBan" class="stage"><rect x="6" y="248" width="508" height="36" rx="10" fill="#fff" stroke="#2e8b57" stroke-width="2"/><text id="gmBanT" x="260" y="271" text-anchor="middle" font-size="13" font-weight="800" fill="#1e5e3a"></text></g>`;
+  const setze = (i) => {
+    const z = Z[Math.max(0, i)];
+    Object.keys(TOK).forEach(k => {
+      const [o, p, op = 1, weg = 0] = z[k], [x, ys] = ORT[o], el = $("#gmT-" + k, svg);
+      el.style.transform = `translate(${x}px,${ys[p] + (weg ? 26 : 0)}px)`;
+      el.style.opacity = op;
+      el.classList.toggle("zappel", i === 0 && o === "Q");
+      el.classList.toggle("puls", i === 5 && k === "vok");
+    });
+    $("#gmKopf", svg).textContent = KOPF[i + 1];
+    $("#gmBanT", svg).textContent = BAN[i + 1];
+    $("#gmBan", svg).classList.toggle("on", i >= 0);
+    $("#gmFilter", svg).classList.toggle("an", i === 1);
+    $("#gmBoxU", svg).classList.toggle("an", i === 2);
+    $("#gmG1", svg).classList.toggle("an", i === 3);
+    $("#gmBoxK", svg).classList.toggle("an", i === 4);
+    $("#gmG2", svg).classList.toggle("an", i === 5);
+    $("#gmBoxL", svg).classList.toggle("an", i === 6);
+    $("#gmWdh", svg).classList.toggle("on", i === 5);
+    $("#gmLink", svg).classList.toggle("on", i === 6);
+  };
+  Modul.makeSchritte($("#gmSim"), {
+    start: "Stell dir eine Englischstunde vor. Tippe auf „Start“ und verfolge, welche Eindrücke es bis ins Langzeit-Gedächtnis schaffen.",
+    ms: 3600,
+    steps: [
+      "<strong>Viele Eindrücke:</strong> Die Lehrerin nennt eine neue Vokabel, dein Handy vibriert in der Tasche, ein Vogel fliegt am Fenster vorbei, der Beamer brummt, auf dem Gang sind Schritte zu hören, dein Nachbar flüstert einen Witz. Alles gleichzeitig!",
+      "<strong>Filter:</strong> Das Brummen und die Schritte nimmst du gar nicht wahr – sie bleiben im Filter hängen. Ohne Filter wäre das Gehirn überfordert.",
+      "<strong>Ultrakurzzeit-Gedächtnis:</strong> Die übrigen Eindrücke bleiben nur wenige Sekunden. Den Vogel hast du gleich wieder vergessen: Er wird gelöscht oder von neuen Eindrücken überschrieben.",
+      "<strong>Ins Kurzzeit-Gedächtnis</strong> kommt, was <strong>Aufmerksamkeit</strong> bekommt (die Lehrerin sagt „Wichtig!“, das Handy vibriert), <strong>positive Gefühle</strong> weckt (der Witz) oder mit <strong>Bekanntem verknüpft</strong> ist (die Vokabel passt zu Wörtern, die du schon kennst).",
+      "<strong>Kurzzeit-Gedächtnis:</strong> Hier bleibt etwas etwa 20 Minuten. Der Platz ist knapp. Die Lehrerin nennt die Hausaufgabe – sie verdrängt das Handy-Vibrieren.",
+      "<strong>Ins Langzeit-Gedächtnis:</strong> Du sprichst die Vokabel laut nach, schreibst sie auf und wiederholst sie am nächsten Tag. Durch <strong>Wiederholung, Übung und Interesse</strong> wandert sie ins Langzeit-Gedächtnis.",
+      "<strong>Langzeit-Gedächtnis:</strong> Die Vokabel ist jetzt lange gespeichert und mit deinem Englisch-Wissen verknüpft. Witz und Hausaufgabe hast du nicht wiederholt – nach etwa 20 Minuten sind sie weg. (Gut, dass die Hausaufgabe im Heft steht!) Jedes Erinnern macht die Vokabel noch fester."
+    ],
+    zeige: setze
+  }, "modell");
+})();
+
+/* ---------- Station 2: Merktest ---------- */
+(function(){
+  const B = $("#mkBuehne"), bar = $("#mkBar"), chip = $("#mkChip"), obs = $("#mkObs"), s1 = $("#mkStart1"), s2 = $("#mkStart2");
+  const ZEIT = 20;
+  const SATZ = {
+    1: {ziel: [["🍎", "Apfel"], ["🐶", "Hund"], ["✂️", "Schere"], ["🚲", "Fahrrad"], ["⚽", "Fußball"], ["🎸", "Gitarre"], ["🌂", "Schirm"], ["🔑", "Schlüssel"], ["🕯️", "Kerze"], ["🐟", "Fisch"], ["👟", "Turnschuh"], ["⏰", "Wecker"]],
+      ablenk: [["🍐", "Birne"], ["🐱", "Katze"], ["🔨", "Hammer"], ["🛴", "Roller"], ["🏀", "Basketball"], ["🎺", "Trompete"], ["🎩", "Hut"], ["🔒", "Schloss"], ["💡", "Glühbirne"], ["🐢", "Schildkröte"], ["🧦", "Socken"], ["⌚", "Armbanduhr"]]},
+    2: {gruppen: [["🍓 Obst", [["🍌", "Banane"], ["🍒", "Kirschen"], ["🍓", "Erdbeere"]]], ["🐾 Tiere", [["🐴", "Pferd"], ["🐸", "Frosch"], ["🐧", "Pinguin"]]],
+        ["🎵 Musik", [["🥁", "Trommel"], ["🎻", "Geige"], ["🎹", "Klavier"]]], ["🚦 Fahrzeuge", [["🚂", "Lok"], ["🚁", "Hubschrauber"], ["⛵", "Segelboot"]]]],
+      ablenk: [["🍇", "Trauben"], ["🍋", "Zitrone"], ["🍑", "Pfirsich"], ["🐮", "Kuh"], ["🐭", "Maus"], ["🦆", "Ente"], ["🎷", "Saxofon"], ["🎤", "Mikrofon"], ["🔔", "Glocke"], ["🚌", "Bus"], ["🚀", "Rakete"], ["🚜", "Traktor"]]}
+  };
+  const erg = {1: null, 2: null};
+  let laeuft = false, timer = null, licht = null;
+  register("merktest", "#mkSim", "Merktest: beide Durchgänge durchgeführt");
+  const karte = (z, knopf) => knopf
+    ? `<button type="button" class="mk-karte" data-w="${z[1]}" aria-pressed="false"><span class="e" aria-hidden="true">${z[0]}</span><span>${z[1]}</span></button>`
+    : `<div class="mk-karte"><span class="e" aria-hidden="true">${z[0]}</span><span>${z[1]}</span></div>`;
+  const knoepfe = an => { s1.disabled = s2.disabled = !an; };
+  function start(n){
+    if (laeuft) return;
+    laeuft = true; knoepfe(false);
+    const S = SATZ[n], ziel = n === 1 ? S.ziel : S.gruppen.reduce((a, g) => a.concat(g[1]), []);
+    B.innerHTML = n === 1
+      ? `<div class="mk-kopf"><span>Durchgang 1: Präge dir die 12 Bilder ein!</span><span class="mk-rest" id="mkRest">${ZEIT} s</span></div><div class="mk-gitter">${Modul.shuffle(ziel).map(z => karte(z)).join("")}</div>`
+      : `<div class="mk-kopf"><span>Durchgang 2: ordnen – mitsprechen – wiederholen</span><span class="mk-rest" id="mkRest">${ZEIT} s</span></div><p class="mk-tipp">Sprich leise mit, was aufleuchtet: „Obst: Banane, Kirschen, Erdbeere …“. Am Ende sagst du nur noch die Gruppen auf.</p><div class="mk-gruppen">${S.gruppen.map(g => `<div class="mk-gruppe"><h5>${g[0]}</h5><div class="mk-gitter">${g[1].map(z => karte(z)).join("")}</div></div>`).join("")}</div>`;
+    chip.textContent = `Durchgang ${n}: einprägen`;
+    obs.textContent = n === 1 ? "Schau dir die Bilder genau an. Nach 20 Sekunden verschwinden sie." : "Die Bilder sind in vier Gruppen geordnet. Lies leise mit, was aufleuchtet, und wiederhole die Gruppen im Kopf.";
+    if (n === 2) { const k = $$(".mk-karte", B); let i = 0; licht = setInterval(() => { k.forEach((x, j) => x.classList.toggle("an", j === i % k.length)); i++; }, 750); }
+    const t0 = jetzt();
+    bar.style.width = "0";
+    timer = setInterval(() => {
+      const s = (jetzt() - t0) / 1000, r = $("#mkRest");
+      bar.style.width = Math.min(100, s / ZEIT * 100) + "%";
+      if (r) r.textContent = Math.max(0, Math.ceil(ZEIT - s)) + " s";
+      if (s >= ZEIT) { clearInterval(timer); clearInterval(licht); abfrage(n, ziel); }
+    }, 200);
+  }
+  function abfrage(n, ziel){
+    bar.style.width = "0";
+    const zielW = new Set(ziel.map(z => z[1])), alle = Modul.shuffle(ziel.concat(SATZ[n].ablenk));
+    B.innerHTML = `<div class="mk-kopf"><span>Welche 12 Bilder waren dabei? Tippe sie an.</span><span id="mkGew">0 gewählt</span></div><div class="mk-gitter">${alle.map(z => karte(z, true)).join("")}</div><div class="row-btns"><button class="btn small" type="button" id="mkFertig">✔ Fertig – auswerten</button></div>`;
+    chip.textContent = `Durchgang ${n}: Abfrage`;
+    obs.textContent = "Tippe alle Bilder an, die du gerade gesehen hast. Noch einmal tippen nimmt die Wahl zurück. Rate nicht wild – ein falsches Bild kostet einen Punkt.";
+    const ks = $$("button.mk-karte", B), gew = $("#mkGew");
+    ks.forEach(k => k.addEventListener("click", () => {
+      if (k.disabled) return;
+      const an = k.classList.toggle("gew"); k.setAttribute("aria-pressed", an);
+      gew.textContent = ks.filter(x => x.classList.contains("gew")).length + " gewählt";
+    }));
+    $("#mkFertig").addEventListener("click", () => {
+      let treffer = 0, falsch = 0;
+      ks.forEach(k => {
+        const z = zielW.has(k.dataset.w), g = k.classList.contains("gew");
+        k.disabled = true; k.classList.remove("gew");
+        if (g && z) { treffer++; k.classList.add("ok"); } else if (g) { falsch++; k.classList.add("falsch"); } else if (z) k.classList.add("fehlt");
+      });
+      erg[n] = {treffer, falsch, p: Math.max(0, treffer - falsch)};
+      $("#mkFertig").parentNode.outerHTML = '<p class="mk-legende">Grün: richtig erkannt · Rot: falsch angetippt · Gestrichelt: war dabei, aber übersehen</p>';
+      laeuft = false; knoepfe(true);
+      auswerten(n);
+    });
+  }
+  function auswerten(n){
+    const e = erg[n];
+    $("#mkE" + n).textContent = `${e.treffer} von 12 erkannt, ${e.falsch} falsch → ${e.p} Punkte`;
+    chip.textContent = `Durchgang ${n}: ${e.p} Punkte`;
+    $("#mkBalken").hidden = false;
+    [1, 2].forEach(m => { const w = erg[m]; $("#mkB" + m).style.width = w ? (w.p / 12 * 62) + "%" : "0"; $("#mkB" + m + "T").textContent = w ? w.p + " P." : "–"; });
+    if (erg[1] && erg[2]) {
+      solve("merktest");
+      const d = erg[2].p - erg[1].p;
+      obs.textContent = d > 0
+        ? `Mit Merkstrategie hattest du ${d} ${d === 1 ? "Punkt" : "Punkte"} mehr. Ordnen, Mitsprechen und Wiederholen helfen: Die Bilder werden miteinander verknüpft und mehrmals wiederholt – so bleiben sie besser hängen.`
+        : "Diesmal hat die Strategie bei dir nicht mehr gebracht. Vielleicht warst du schon im ersten Durchgang sehr gut – oder du hast im zweiten nicht laut mitgesprochen. Bei den meisten Menschen helfen Ordnen, Mitsprechen und Wiederholen deutlich. Probiere es ruhig noch einmal.";
+    } else obs.textContent = n === 1
+      ? `Durchgang 1: ${e.p} Punkte. Starte jetzt Durchgang 2 mit Merkstrategie und vergleiche!`
+      : `Durchgang 2: ${e.p} Punkte. Mache jetzt auch Durchgang 1 (nur anschauen) und vergleiche!`;
+  }
+  s1.addEventListener("click", () => start(1));
+  s2.addEventListener("click", () => start(2));
+})();
+
+/* ---------- Station 2: Übungen ---------- */
+Modul.makeSort($("#sortGed"), {
+  buckets: ["⚡ Ultrakurzzeit", "⏱️ Kurzzeit", "🗄️ Langzeit"], cols: 170,
+  items: [
+    {t: "Ein Vogel fliegt am Fenster vorbei.", b: 0}, {t: "Du weichst auf dem Gehweg kurz einem Radfahrer aus.", b: 0}, {t: "Ein Auto hupt irgendwo in der Ferne.", b: 0},
+    {t: "Du liest fünf Minuten vor der Stunde schnell den Hefteintrag.", b: 1}, {t: "Du merkst dir eine Zahl, bis du sie eingetippt hast.", b: 1}, {t: "Du behältst die Seitenzahl, bis das Buch aufgeschlagen ist.", b: 1},
+    {t: "Du kannst seit der Grundschule schreiben.", b: 2}, {t: "Du lernst Vokabeln regelmäßig mit der Lernkartei.", b: 2}, {t: "Du erinnerst dich an die Ferien bei deinen Großeltern.", b: 2}
+  ]
+}, "sortGed");
+Modul.makeGap($("#gapWeiter"), [
+  ["Ins Kurzzeit-Gedächtnis kommt, was unsere ", {g: "Aufmerksamkeit"}, " bekommt, ", {g: "positive"}, " Gefühle weckt oder mit ", {g: "Bekanntem"}, " verknüpft ist."],
+  ["Ins Langzeit-Gedächtnis kommt, was uns ", {g: "interessiert"}, " und was wir oft ", {g: "wiederholen"}, " und ", {g: "üben"}, "."],
+  ["Das Kurzzeit-Gedächtnis hat nur wenig ", {g: "Platz"}, ": Neues verdrängt Altes."]
+], "gapWeiter", ["Langeweile", "Sekunden"]);
+Modul.makeOpen($("#open2"), [
+  {q: "Tim möchte sich die neuen Englisch-Vokabeln bis zur Probe merken. Erkläre mit dem Gedächtnismodell, was er tun muss, damit sie ins Langzeit-Gedächtnis kommen.",
+   m: "Zuerst muss Tim im Unterricht aufmerksam sein, damit die Vokabeln vom Ultrakurzzeit- ins Kurzzeit-Gedächtnis kommen. Dort bleiben sie nur etwa 20 Minuten. Damit sie ins Langzeit-Gedächtnis kommen, muss er sie mehrmals wiederholen und üben, am besten an verschiedenen Tagen. Es hilft auch, sie mit Wörtern zu verknüpfen, die er schon kennt.",
+   k: ["wiederhol", "üb|uebe|trainier|lernkart|karteikart", "kurzzeit", "langzeit", "aufmerksam|konzentr|interess|verknüpf|bekannt"], min: 3}
+], "open2-", "Schau dir die Schritte 4 bis 7 der Animation noch einmal an: Was bringt die Vokabel weiter?");
+
+/* ---------- Station 3: Lernkanäle ---------- */
+(function(){
+  const svg = $("#knSvg"), obs = $("#knObs"), tb = $("#knTab tbody");
+  const K = [
+    {id: "tLesen", n: "📖 lesen", z: ["📖 lesen"], p: 10, f: "#a9c2d6", bsp: "die Vokabelliste still durchlesen", satz: "Du liest die Vokabelliste still durch."},
+    {id: "tHoeren", n: "👂 hören", z: ["👂 hören"], p: 20, f: "#86afcf", bsp: "sich die Wörter vorlesen lassen", satz: "Du lässt dir die Wörter vorlesen."},
+    {id: "tSehen", n: "👀 sehen", z: ["👀 sehen"], p: 30, f: "#5f97c4", bsp: "Bilder zu den Wörtern ansehen", satz: "Du siehst dir Bilder zu den Wörtern an."},
+    {id: "tHoerSehen", n: "🎬 hören und sehen", z: ["🎬 hören", "+ sehen"], p: 50, f: "#3d7fb4", bsp: "ein Lernvideo mit Bild und Ton ansehen", satz: "Du schaust ein Lernvideo mit Bild und Ton."},
+    {id: "tSagen", n: "🗣️ selbst sagen", z: ["🗣️ selbst", "sagen"], p: 70, f: "#3a9a63", bsp: "die Wörter laut aussprechen und jemandem erklären", satz: "Du sprichst die Wörter laut aus und erklärst sie jemandem."},
+    {id: "tTun", n: "✋ selbst tun", z: ["✋ selbst", "tun"], p: 90, f: "#1e7a47", bsp: "die Wörter aufschreiben und in einem Gespräch benutzen", satz: "Du schreibst die Wörter auf und benutzt sie in einem Gespräch."}
+  ];
+  const C = [88, 167, 246, 325, 404, 483], YB = 222, H = 1.5;
+  let s = `<rect width="520" height="272" fill="#f7fbfe"/>
+    <text x="10" y="25" font-size="13" font-weight="800" fill="#15212b">Von 10 Vokabeln</text><text id="knZahl" x="10" y="42" font-size="13" font-weight="800" fill="#1e5e3a">bleiben hängen:</text>`;
+  for (let k = 0; k < 10; k++) s += `<g class="kn-karte" id="knK${k}"><rect x="${144 + k * 36}" y="13" width="30" height="32" rx="5" fill="#fff" stroke="#c9d3db" stroke-width="2"/><text x="${159 + k * 36}" y="35" text-anchor="middle" font-size="15" font-weight="800" fill="#8a99a6">?</text></g>`;
+  [0, 25, 50, 75, 100].forEach(p => { const y = YB - p * H; s += `<line x1="52" y1="${y}" x2="512" y2="${y}" stroke="#dfe6ec" stroke-width="1.5"/><text x="46" y="${y + 4}" text-anchor="end" font-size="11" font-weight="700" fill="#566674">${p} %</text>`; });
+  K.forEach((k, i) => {
+    const x = C[i] - 24, h = k.p * H;
+    s += `<rect id="knA${i}" class="stage" x="${x - 5}" y="${YB - 155}" width="58" height="160" rx="8" fill="#fff3c4" stroke="#f2b632" stroke-width="2.5"/>
+      <rect x="${x}" y="${YB - 150}" width="48" height="150" rx="6" fill="#eef2f5"/>
+      <rect id="knB${i}" class="kn-bar" x="${x}" y="${YB - h}" width="48" height="${h}" rx="6" fill="${k.f}"/>
+      <text id="knW${i}" class="kn-wert" x="${C[i]}" y="${YB - h - 7}" text-anchor="middle" font-size="14" font-weight="800" fill="#15212b">${k.p} %</text>
+      ${k.z.map((z, j) => `<text x="${C[i]}" y="${242 + j * 16}" text-anchor="middle" font-size="12" font-weight="800" fill="#15212b">${z}</text>`).join("")}`;
+  });
+  svg.innerHTML = s + `<line x1="52" y1="${YB}" x2="512" y2="${YB}" stroke="#566674" stroke-width="2"/>`;
+  tb.innerHTML = K.map(k => `<tr><th>${k.n}</th><td></td><td></td></tr>`).join("");
+  const fertig = new Set();
+  let laeuft = false;
+  register("kanaele", "#knSvg", "Lernkanäle: alle sechs ausprobiert");
+  const knoepfe = () => K.map(k => $("#" + k.id));
+  function karten(n){
+    for (let k = 0; k < 10; k++) {
+      const g = $("#knK" + k, svg), ja = k < n;
+      $("rect", g).setAttribute("fill", ja ? "#e3f5ea" : "#fff"); $("rect", g).setAttribute("stroke", ja ? "#2e8b57" : "#c9d3db");
+      $("text", g).textContent = ja ? "✓" : "?"; $("text", g).setAttribute("fill", ja ? "#1e5e3a" : "#8a99a6");
+    }
+    $("#knZahl", svg).textContent = `bleiben hängen: ${n}`;
+  }
+  async function zeige(i){
+    if (laeuft) return;
+    laeuft = true; knoepfe().forEach(b => b.disabled = true);
+    try {
+      const k = K[i];
+      K.forEach((_, j) => $("#knA" + j, svg).classList.toggle("on", j === i));
+      $("#knB" + i, svg).classList.add("on");
+      await wait(650);
+      $("#knW" + i, svg).classList.add("on");
+      karten(k.p / 10);
+      const tr = $$("tr", tb)[i];
+      [k.bsp, `etwa ${k.p} % – ${k.p / 10} von 10 Vokabeln`].forEach((t, j) => { const td = tr.children[j + 1]; td.textContent = t; td.classList.remove("neu"); void td.offsetWidth; td.classList.add("neu"); });
+      fertig.add(i);
+      obs.textContent = `${k.satz} Nach der Faustregel bleiben etwa ${k.p} % hängen – ${k.p / 10} von 10 Vokabeln.`;
+      if (fertig.size === K.length) { solve("kanaele"); obs.textContent += " ✅ Alle sechs Lernkanäle ausprobiert: Je mehr du selbst machst, desto mehr bleibt hängen. Am besten kombinierst du mehrere Kanäle – lesen, laut sagen, aufschreiben, benutzen."; }
+    } finally { laeuft = false; knoepfe().forEach(b => b.disabled = false); }
+  }
+  K.forEach((k, i) => $("#" + k.id).addEventListener("click", () => zeige(i)));
+})();
+
+/* ---------- Station 3: Übungen ---------- */
+Modul.makeSort($("#sortTipps"), {
+  buckets: ["👍 fördert das Lernen", "👎 erschwert das Lernen"], cols: 200,
+  items: [
+    {t: "ein ruhiger Platz am Schreibtisch", b: 0}, {t: "Interesse am Thema", b: 0}, {t: "nach dem Mittagessen kurz warten", b: 0},
+    {t: "den Stoff in Portionen einteilen", b: 0}, {t: "einer Freundin das Gelernte erklären", b: 0}, {t: "regelmäßig wiederholen", b: 0},
+    {t: "das Handy liegt neben dem Heft", b: 1}, {t: "der Fernseher läuft nebenbei", b: 1}, {t: "alles kurz vor der Probe in Eile", b: 1},
+    {t: "lernen mit Kopfweh und Bauchweh", b: 1}, {t: "die Gedanken sind beim Streit von gestern", b: 1}, {t: "Lärm aus dem Nebenzimmer", b: 1}
+  ]
+}, "sortTipps");
+Modul.makeGap($("#gapKanal"), [
+  ["Nach einer bekannten Faustregel behalten wir etwa ", {g: "10 %"}, " von dem, was wir lesen, und etwa 20 % von dem, was wir hören."],
+  ["Hören und sehen wir gleichzeitig, bleiben etwa ", {g: "50 %"}, " hängen."],
+  ["Am meisten behalten wir, wenn wir etwas selbst ", {g: "sagen"}, " (70 %) oder selbst ", {g: "tun"}, " (90 %)."],
+  ["Deshalb lohnt es sich, mehrere ", {g: "Lernkanäle"}, " zu kombinieren."]
+], "gapKanal", ["30 %", "lesen"]);
+
+/* ---------- Station 4: Vergessenskurve ---------- */
+(function(){
+  const svg = $("#vkSvg"), rng = $("#vkRange"), chip = $("#vkChip"), obs = $("#vkObs");
+  const X0 = 64, X1 = 500, Y0 = 226, Y1 = 72, TMAX = 14, PROBE = 10;
+  const xp = t => X0 + t / TMAX * (X1 - X0), yp = r => Y0 - r * (Y0 - Y1);
+  // Modell: nach n Wiederholungen fällt die Kurve langsamer (S) und nicht mehr so tief (A)
+  const WDH = [1, 3, 7], S = [1.5, 3.5, 8, 18], A = [0.2, 0.3, 0.45, 0.6];
+  const R = (t, k) => { let n = 0, ab = 0; for (let j = 0; j < k; j++) if (t >= WDH[j]) { n = j + 1; ab = WDH[j]; } return A[n] + (1 - A[n]) * Math.exp(-(t - ab) / S[n]); };
+  const wert = k => Math.round(R(PROBE, k) * 20) * 5;
+  function pfad(k){
+    const g = [0, ...WDH.slice(0, k), TMAX];
+    let d = "";
+    for (let s = 0; s < g.length - 1; s++) {
+      const a = g[s], b = g[s + 1], n = Math.max(2, Math.round((b - a) / .1));
+      for (let j = 0; j <= n; j++) { const t = a + (b - a) * j / n, r = A[s] + (1 - A[s]) * Math.exp(-(t - a) / S[s]); d += (d ? " L" : "M") + xp(t).toFixed(1) + " " + yp(r).toFixed(1); }
+      if (s < g.length - 2) d += " L" + xp(b).toFixed(1) + " " + yp(1).toFixed(1);
+    }
+    return d;
+  }
+  let s = `<rect width="520" height="290" fill="#f7fbfe"/>
+    <text id="vkKopf" x="282" y="22" text-anchor="middle" font-size="15" font-weight="800" fill="#1e5e3a"></text>
+    <text id="vkUnter" x="282" y="41" text-anchor="middle" font-size="12" font-weight="700" fill="#566674"></text>
+    <text x="8" y="58" font-size="12" font-weight="800" fill="#566674">behalten</text>`;
+  [0, 25, 50, 75, 100].forEach(p => { const y = yp(p / 100); s += `<line x1="${X0}" y1="${y}" x2="${X1}" y2="${y}" stroke="#dfe6ec" stroke-width="1.5"/><text x="${X0 - 6}" y="${y + 4}" text-anchor="end" font-size="11" font-weight="700" fill="#566674">${p} %</text>`; });
+  for (let t = 0; t <= TMAX; t += 2) s += `<line x1="${xp(t)}" y1="${Y0}" x2="${xp(t)}" y2="${Y0 + 5}" stroke="#566674" stroke-width="2"/><text x="${xp(t)}" y="${Y0 + 19}" text-anchor="middle" font-size="11.5" font-weight="700" fill="#566674">${t}</text>`;
+  s += `<text x="${(X0 + X1) / 2}" y="${Y0 + 38}" text-anchor="middle" font-size="12" font-weight="800" fill="#566674">Tage nach dem ersten Lernen</text>
+    <line x1="${xp(PROBE)}" y1="${Y1 - 4}" x2="${xp(PROBE)}" y2="${Y0}" stroke="#9c2f5a" stroke-width="2" stroke-dasharray="5 4"/>
+    <text x="${xp(PROBE) - 6}" y="${Y1 - 9}" text-anchor="end" font-size="12" font-weight="800" fill="#9c2f5a">📝 Probe</text>
+    <path d="${pfad(0)}" fill="none" stroke="#8a99a6" stroke-width="3" stroke-dasharray="7 5"/>
+    <text x="${xp(4.2)}" y="${yp(.2) - 10}" font-size="11.5" font-weight="700" fill="#6b7a86">ohne Wiederholung</text>
+    <path id="vkMit" d="" fill="none" stroke="#2e8b57" stroke-width="4" stroke-linejoin="round"/>
+    ${WDH.map((t, j) => `<g id="vkW${j}" class="stage"><circle cx="${xp(t)}" cy="${Y1 - 12}" r="10" fill="#e3f5ea" stroke="#2e8b57" stroke-width="2"/><text x="${xp(t)}" y="${Y1 - 7.5}" text-anchor="middle" font-size="13" font-weight="800" fill="#1e5e3a">↺</text></g>`).join("")}
+    <circle cx="${xp(PROBE)}" cy="${yp(R(PROBE, 0))}" r="5" fill="#8a99a6"/>
+    <circle id="vkPunkt" cx="${xp(PROBE)}" cy="0" r="7" fill="#c0392b" stroke="#fff" stroke-width="2"/>
+    <text id="vkWert" x="${xp(PROBE) + 9}" y="0" font-size="14" font-weight="900" fill="#c0392b" stroke="#f7fbfe" stroke-width="4" paint-order="stroke"></text>
+    <line x1="${X0}" y1="${Y0}" x2="${X1}" y2="${Y0}" stroke="#566674" stroke-width="2"/><line x1="${X0}" y1="${Y1 - 2}" x2="${X0}" y2="${Y0}" stroke="#566674" stroke-width="2"/>`;
+  svg.innerHTML = s;
+  const mit = $("#vkMit", svg), gesehen = new Set();
+  const CHIP = ["keine Wiederholung", "1 Wiederholung: nach 1 Tag", "2 Wiederholungen: nach 1 und 3 Tagen", "3 Wiederholungen: nach 1, 3 und 7 Tagen"];
+  const TEXT = [
+    "Ohne Wiederholung fällt die Kurve steil ab: Schon nach einem Tag ist ein großer Teil vergessen. Am Probentag weißt du nur noch etwa 20 %. Schiebe den Regler nach rechts!",
+    "Eine Wiederholung nach einem Tag hebt die Kurve wieder auf 100 %. Danach fällt sie langsamer. Am Probentag weißt du noch etwa 35 %.",
+    "Zwei Wiederholungen (nach 1 und nach 3 Tagen): Die Kurve fällt jedes Mal langsamer. Am Probentag weißt du noch etwa 70 %.",
+    "Drei Wiederholungen (nach 1, 3 und 7 Tagen): Am Probentag ist fast alles noch da – etwa 95 %. Mit jeder Wiederholung wandert das Wissen fester ins Langzeit-Gedächtnis."
+  ];
+  register("vergessen", "#vkSvg", "Vergessenskurve: 0 bis 3 Wiederholungen angesehen");
+  function zeige(k){
+    mit.setAttribute("d", pfad(k));
+    mit.style.opacity = k ? 1 : 0;
+    if (k && !reduced) {
+      const L = mit.getTotalLength();
+      mit.style.transition = "none"; mit.style.strokeDasharray = L; mit.style.strokeDashoffset = L; void mit.getBoundingClientRect();
+      mit.style.transition = "stroke-dashoffset 1.2s ease-in-out"; mit.style.strokeDashoffset = 0;
+    }
+    WDH.forEach((_, j) => $("#vkW" + j, svg).classList.toggle("on", j < k));
+    const w = wert(k), y = yp(R(PROBE, k));
+    $("#vkPunkt", svg).setAttribute("cy", y.toFixed(1));
+    $("#vkWert", svg).setAttribute("y", (y - 10).toFixed(1)); $("#vkWert", svg).textContent = w + " %";
+    $("#vkKopf", svg).textContent = `Probe an Tag 10: Du weißt noch etwa ${w} %`;
+    $("#vkUnter", svg).textContent = k ? `ohne Wiederholung wären es nur etwa ${wert(0)} %` : "So viel bleibt ohne jede Wiederholung.";
+    chip.textContent = CHIP[k];
+    obs.textContent = TEXT[k];
+    gesehen.add(k);
+    if (gesehen.size === 4) { solve("vergessen"); obs.textContent += " ✅ Alle vier Fälle angesehen. (Das Diagramm ist ein Modell: Die genauen Zahlen sind bei jedem Menschen anders, die Form der Kurve stimmt.)"; }
+  }
+  rng.addEventListener("input", () => zeige(+rng.value));
+  zeige(0);
+})();
+
+/* ---------- Station 4: Übungen ---------- */
+Modul.makeOrder($("#orderPlan"), [
+  "Klären, was in der Probe drankommt.",
+  "Den Stoff in kleine Portionen einteilen und auf die Tage verteilen.",
+  "Die erste Portion lernen – lesen, laut sagen, aufschreiben.",
+  "Am nächsten Tag die erste Portion wiederholen und die zweite lernen.",
+  "Alles noch einmal wiederholen, zum Beispiel mit Lernkarten.",
+  "Am Tag vor der Probe nichts Neues mehr lernen, nur kurz wiederholen."
+], "orderPlan");
+Modul.makeOpen($("#open4"), [
+  {q: "Ben lernt für die Probe erst am Abend davor – mit dem Handy neben sich und laufendem Fernseher. Gib ihm drei Tipps für besseres Lernen und begründe sie.",
+   m: "Ben sollte früher anfangen und den Stoff mit einem Lernplan auf mehrere Tage verteilen, dann hat er keinen Zeitdruck. Er sollte das Gelernte wiederholen, weil man ohne Wiederholung schnell vergisst. Und er sollte an einem ruhigen Platz ohne Handy und Fernseher lernen, damit er sich konzentrieren kann und nicht abgelenkt wird.",
+   k: ["früher|mehrere tage|verteil|einteil|portion|lernplan|zeitdruck|rechtzeitig", "wiederhol", "handy|fernseh|ablenk|ruhig|konzentr|leise"], min: 3}
+], "open4-", "Denk an die Vergessenskurve, den Lernplan und an das, was beim Lernen stört.");
+
+/* ---------- Training: Kreuzworträtsel mit Tipps ---------- */
+Modul.makeCrossword($("#cw"), {
+  tipps: true,
+  words: [
+    {w: "LERNPLAN", r: 0, c: 2, d: "a", q: "Er verteilt den Lernstoff auf mehrere Tage.", tip: "Zusammengesetzt aus „lernen“ und „Plan“."},
+    {w: "LANGZEIT", r: 0, c: 2, d: "d", q: "…-Gedächtnis: Es speichert manches ein Leben lang.", tip: "Das Gegenteil von „Kurzzeit“."},
+    {w: "HANDY", r: 2, c: 0, d: "a", q: "Es lenkt beim Lernen ab – leg es weit weg!", tip: "Ein kleines Telefon für die Hosentasche."},
+    {w: "UEBUNG", r: 2, c: 9, d: "d", q: "Sie macht den Meister (Sprichwort).", tip: "Ü wird zu UE. Das Nomen zu „üben“.", zeig: "Übung"},
+    {w: "VERGESSEN", r: 2, c: 11, d: "d", q: "Das passiert ohne Wiederholung ziemlich schnell.", tip: "Das Gegenteil von „sich erinnern“."},
+    {w: "RUHE", r: 3, c: 6, d: "d", q: "Die braucht ein guter Lernplatz: kein Lärm.", tip: "Vier Buchstaben, das Gegenteil von Unruhe."},
+    {w: "NERVENZELLE", r: 4, c: 4, d: "d", q: "Davon hat das Gehirn etwa 90 Milliarden.", tip: "Zusammengesetzt aus „Nerven“ und „Zelle“."},
+    {w: "WIEDERHOLUNG", r: 5, c: 0, d: "a", q: "Noch einmal lernen – so kommt Wissen ins Langzeit-Gedächtnis.", tip: "Das Nomen zu „wiederholen“."},
+    {w: "KURZZEIT", r: 7, c: 7, d: "d", q: "…-Gedächtnis: Es hält Informationen etwa 20 Minuten.", tip: "Das Gegenteil von „Langzeit“."},
+    {w: "INTERESSE", r: 9, c: 3, d: "a", q: "Wer es für ein Thema hat, lernt leichter.", tip: "Das Gegenteil von Langeweile."},
+    {w: "FILTER", r: 11, c: 0, d: "a", q: "Er sortiert Eindrücke aus, damit das Gehirn nicht überfordert ist.", tip: "Wie ein Sieb – sechs Buchstaben."},
+    {w: "GEDAECHTNIS", r: 14, c: 0, d: "a", q: "Es bewahrt auf, was wir gelernt haben.", tip: "Ä wird zu AE. Im Modell gibt es drei davon.", zeig: "Gedächtnis"}
+  ],
+  sol: [[9, 9], [0, 6], [0, 3], [9, 3], [14, 5], [14, 6], [11, 4], [9, 7], [2, 2]], solWord: "SPEICHERN"
+}, "cw");
+
+/* ---------- Profi-Check, Lernkarten ---------- */
+Modul.makeQuiz($("#quiz"), [...MC.s1, ...MC.s2, ...MC.s3, ...MC.s4, ...MC.train,
+  {q: "Welcher Lernkanal bringt nach der Faustregel am meisten?", o: ["selbst tun", "lesen", "hören", "sehen"], a: 0, e: "Selbst tun: etwa 90 %."},
+  {q: "Was bedeutet: „Das Kurzzeit-Gedächtnis hat wenig Platz“?", o: ["Neues kann Altes verdrängen.", "Es kann gar nichts speichern.", "Es speichert alles für immer.", "Es arbeitet bloß im Schlaf."], a: 0, e: "Kommt etwas Neues dazu, fliegt etwas Altes hinaus."},
+  {q: "Was ist ein Lernplan?", o: ["Der Stoff wird in Portionen auf mehrere Tage verteilt.", "Eine Liste mit allen Noten der letzten Proben.", "Ein Stundenplan mit allen Fächern der Woche.", "Ein Zettel mit den Lösungen für die Probe."], a: 0, e: "Mit eingeplanten Wiederholungen – dann gibt es keinen Zeitdruck."},
+  {q: "Was hilft, damit ein Eindruck ins Kurzzeit-Gedächtnis kommt?", o: ["Aufmerksamkeit", "Müdigkeit", "Lärm", "Ablenkung"], a: 0, e: "Auch positive Gefühle und Verknüpfung mit Bekanntem helfen."},
+  {q: "Wie viele Gedächtnisse unterscheidet das Gedächtnismodell?", o: ["drei", "zwei", "vier", "fünf"], a: 0, e: "Ultrakurzzeit-, Kurzzeit- und Langzeit-Gedächtnis."}
+], "quiz", "Gedächtnis-Profi");
+if (window.NT8Karten) NT8Karten.trainer($("#lernkarten"), {module: ["ns-gedaechtnis"], titel: "Lernkarten zu diesem Modul", zug: "M", druck: false});
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

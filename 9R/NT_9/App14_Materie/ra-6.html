@@ -1,0 +1,1101 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#7a4b05">
+<title>Radioaktivität in Medizin und Technik | NT 9</title>
+<link rel="stylesheet" href="../../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="materie.css">
+<style>
+/* Station 1: Szintigramm-Labor */
+#szSvg .gamma{opacity:0;transition:opacity .12s}
+#szSvg .gamma.an{opacity:1}
+#szSvg #szDruese{transition:fill .8s}
+#szSvg #szSpritze{transition:opacity .4s}
+.sim-ctrl .btn.teal.gewaehlt{background:var(--sky);color:#fff;box-shadow:0 0 0 3px #f2b632}
+/* Station 2: Strahlentherapie */
+#thSvg .zelle{transition:fill .6s}
+#thSvg #thTumor{transform-box:fill-box;transform-origin:center;transition:transform 1.2s}
+#thSvg .tz{transition:fill .8s}
+#thSvg .tz.teilt{transform-box:fill-box;transform-origin:center;animation:ra6Teil 1.4s ease-in-out infinite alternate}
+@keyframes ra6Teil{from{transform:scale(.9)}to{transform:scale(1.15)}}
+#thSvg .bar{transition:width .7s}
+/* Station 3: Leckstellensuche und Werkstoffprüfung */
+#lkSvg .xe{animation:ra6Xe 7s linear infinite}
+@keyframes ra6Xe{from{transform:translateX(0)}to{transform:translateX(500px)}}
+#lkSvg .klick{opacity:0}
+#lkSvg .klick.an{opacity:1}
+#lkSvg #lkMann{transition:transform .25s}
+.ra6-ctrl2{border-top:0;padding-top:0}
+.ra6-ton{margin-left:auto;font-weight:600}
+#wpSvg .wp-bild{transition:opacity .8s}
+#wpSvg .wp-teil{transition:opacity .5s}
+#wpSvg .wp-mark{transition:opacity .5s}
+.ra6-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 12px;background:#fff}
+/* Station 4: Nutzen-Risiko-Waage */
+.ra6-fall{margin:0;padding:12px 14px;background:var(--sky-l);border-bottom:1px solid var(--line);font-size:1.02rem}
+.ra6-fall b{color:var(--sky-d)}
+#nrSvg .gw{opacity:0;transform:translateY(-26px);transition:opacity .4s,transform .5s}
+#nrSvg .gw.da{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){#szSvg *,#thSvg *,#lkSvg *,#wpSvg *,#nrSvg *{transition:none!important;animation:none!important}}
+</style>
+<script src="../../../js/kursliste.js"></script>
+<script src="../themen.js"></script>
+<!-- 9M und 9R nutzen dieselben Seiten: die Kursliste kommt aus dem Ordner (../themen.js = NT9M oder NT9R) -->
+<script>window.GRUMI_KURS = window.NT9M || window.NT9R; window.GRUMI_KURS.KARTEN = "../../" + window.GRUMI_KURS.ORDNER + "App14_Materie/";</script>
+<script src="materie.js"></script>
+</head>
+<body data-bereich="ra">
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="../%C3%BCbersicht_themen.html">GRUMI<small>NT <span class="mt-zug">9M</span> · Radioaktivität 6</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Szintigramm</a>
+      <a href="#s2"><b>2</b>Therapie</a>
+      <a href="#s3"><b>3</b>Technik</a>
+      <a href="#s4"><b>4</b>Nutzen und Risiko</a>
+      <a href="#s5"><b>5</b>Training</a>
+      <a href="#abschluss"><b>6</b>Abschluss</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse <span class="mt-zug">9M</span> · Radioaktivität · Modul 6</div>
+    <h1>Radioaktivität in Medizin und Technik</h1>
+    <p>Radioaktive Strahlung kann schaden – das weißt du schon. Richtig eingesetzt, kann sie aber auch helfen: Ärztinnen und Ärzte machen mit ihr kranke Stellen in der Schilddrüse sichtbar und bekämpfen Krebs. Technikerinnen und Techniker finden mit ihr Lecks in Gasleitungen und Risse in Schweißnähten. Hier lernst du, wie das geht – und wie man Nutzen und Risiko abwägt.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s5">Direkt zum Training</a>
+    </div>
+    <div class="goals">
+      <div>🏥 Ich erkläre, wie ein Szintigramm der Schilddrüse entsteht.</div>
+      <div>🎯 Ich beschreibe, wie eine Strahlentherapie Krebszellen zerstört.</div>
+      <div>🔧 Ich erkläre, wie man mit Strahlung Lecks und Fehler in Werkstoffen findet.</div>
+      <div>⚖️ Ich wäge Nutzen und Risiko der Strahlung ab.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg · Probenstoff</div><h2>Ein Bild aus dem Hals: das Szintigramm</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <figure style="margin:0 0 12px"><img class="zoomable" src="bilder/ra-6.jpg" width="1280" height="853" loading="lazy" decoding="async" alt="Ein junger Techniker in Warnweste geht über eine Straße in einer Wohnsiedlung. Er führt ein Messgerät an einem langen Stab knapp über dem Boden entlang. Der Schnitt durch den Boden zeigt darunter eine gelbe Gasleitung mit einem Riss, aus dem Gasblasen nach oben steigen." style="width:100%;height:auto"><figcaption class="hint" style="margin:4px 0 0">Bild: GRUMI (mit KI erstellt)</figcaption></figure>
+      <p class="hint" style="margin:0 0 10px"><strong>Denk mal nach:</strong> Unter der Straße ist eine Gasleitung undicht. Wie findet der Techniker die undichte Stelle, ohne die ganze Straße aufzureißen? Die Antwort bekommst du in Station 3.</p>
+      <p class="lead">Radioaktive Strahlung ist gefährlich. Sie hat aber zwei Eigenschaften, die sehr nützlich sind: Man kann sie <strong>messen</strong> – sogar durch Haut, Erde und Metall hindurch. Und sie kann <strong>Zellen zerstören</strong>.</p>
+      <p style="margin:0">Darum nutzt man sie in der Medizin: zum Erkennen von Krankheiten, der <button class="term" data-t="diagnose">Diagnose</button>, und zum Behandeln. Und in der Technik: zum Suchen von Fehlern, die man von außen nicht sieht.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Die <button class="term" data-t="schilddruese">Schilddrüse</button> sitzt vorn am Hals, unter dem Kehlkopf. Sie sieht aus wie ein kleiner Schmetterling. Sie stellt <button class="term" data-t="hormon">Hormone</button> her, zum Beispiel für das Wachstum.</p>
+      <p>Für diese Hormone braucht sie <button class="term" data-t="iod">Iod</button>. Das nimmt sie aus der Nahrung und dem Trinkwasser auf – darum gibt es Speisesalz mit Iod. Die Schilddrüse holt das Iod aus dem Blut und speichert es.</p>
+      <p style="margin:0 0 6px"><strong>So entsteht ein Bild der Schilddrüse:</strong></p>
+      <ol class="schritt-liste" style="margin:0">
+        <li>Die Ärztin spritzt eine winzige Menge radioaktives Iod in eine Vene. Es ist ein radioaktives <button class="term" data-t="isotop">Isotop</button> des Iods.</li>
+        <li>Es verhält sich chemisch genau wie normales Iod: Mit dem Blut gelangt es in die Schilddrüse und reichert sich dort an.</li>
+        <li>Die Kerne zerfallen und senden γ-Strahlung aus. Sie dringt durch den Hals nach außen.</li>
+        <li>Eine <button class="term" data-t="gammakamera">Gammakamera</button> misst die Strahlung. Ein Computer macht daraus ein Bild: das <button class="term" data-t="szintigramm">Szintigramm</button>.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="szSim">
+    <svg viewBox="0 0 520 300" id="szSvg" role="img" aria-label="Szintigramm-Labor: Eine Person liegt unter einer Gammakamera. Radioaktives Iod wird in den Arm gespritzt und wandert mit dem Blut zur Schilddrüse am Hals. Die Kamera zählt die γ-Strahlung, auf dem Bildschirm entsteht Punkt für Punkt ein Bild der Schilddrüse in Form eines Schmetterlings. Gesundes Gewebe leuchtet gleichmäßig, eine kranke Stelle bleibt dunkel, ein Knoten, der zu stark arbeitet, leuchtet sehr hell."></svg>
+    <div class="sim-ctrl"><label>Untersuchen:</label><button class="btn small teal" id="tKaya" type="button">👩 Frau Kaya</button><button class="btn small teal" id="tLindner" type="button">👨 Herr Lindner</button><button class="btn small teal" id="tBerg" type="button">👩 Frau Berg</button></div>
+    <p class="obs" id="szObs">Tippe auf eine Person. Sie bekommt radioaktives Iod gespritzt, dann misst die Gammakamera (im Zeitraffer – in Wirklichkeit dauert es länger). Untersuche alle drei und vergleiche die Bilder.</p>
+    <div class="tab-wrap" style="padding:0 14px 14px"><table class="beob" id="szTab">
+      <thead><tr><th>Person</th><th>Szintigramm</th><th>Was bedeutet das?</th></tr></thead>
+      <tbody>
+        <tr data-p="kaya"><th>Frau Kaya</th><td></td><td></td></tr>
+        <tr data-p="lindner"><th>Herr Lindner</th><td></td><td></td></tr>
+        <tr data-p="berg"><th>Frau Berg</th><td></td><td></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <p class="lead" style="margin-top:0"><strong>Warum eine kurze Halbwertszeit?</strong> Für das Szintigramm nimmt man ein Iod-Isotop mit kurzer <button class="term" data-t="halbwertszeit">Halbwertszeit</button>, zum Beispiel Iod-123: Nach etwa 13 Stunden ist die Hälfte zerfallen, nach drei Tagen fast alles. So ist der Körper nur kurz belastet.</p>
+    <p style="margin:0">Mit der Menge ist man sehr sparsam: Die Ärztin nimmt nur so viel, wie für ein gutes Bild nötig ist.</p>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Die Schilddrüse nimmt Iod aus Nahrung und Wasser auf und speichert es.</li><li>Für ein Szintigramm spritzt man winzige Mengen radioaktives Iod in die Blutbahn. Es reichert sich in der Schilddrüse an und zerfällt.</li><li>Eine Gammakamera misst die Strahlung, ein Computer macht daraus ein Bild: das Szintigramm. Krankes Gewebe nimmt meist weniger Iod auf als gesundes – es erscheint dunkler.</li><li>Der Stoff hat eine kurze Halbwertszeit. So ist der Körper nur kurz belastet.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Reihenfolge · Probenstoff</span>
+    <h3 style="margin-top:4px">Der Weg des radioaktiven Iods</h3>
+    <p class="hint">Bringe die Schritte mit den Pfeilen in die richtige Reihenfolge.</p>
+    <div id="orderSzinti"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Lückentext · Probenstoff</span>
+    <h3 style="margin-top:4px">So funktioniert das Szintigramm</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapSzinti"></div>
+  </div>
+  <div class="card reveal" id="mc-s1"></div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Strahlentherapie gegen Krebs</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Bei Krebs teilen sich Zellen ohne Halt. Es entsteht ein <button class="term" data-t="tumor">Tumor</button>, auch Krebsgeschwür genannt. Er wächst und kann gesundes Gewebe zerstören.</p>
+      <p style="margin:0">Bei der <button class="term" data-t="strahlentherapie">Strahlentherapie</button> bestrahlt man den Tumor mit sehr energiereicher Strahlung. Man nennt sie <button class="term" data-t="ionisierend">ionisierende Strahlung</button>: Sie kann Atome und Moleküle in den Zellen verändern – genau wie die radioaktive Strahlung.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Warum gerade Krebszellen?</strong> Krebszellen teilen sich sehr schnell. Deshalb reagieren sie besonders empfindlich auf Strahlung und werden zerstört. Gesunde Zellen können kleine Schäden oft wieder reparieren.</p>
+      <p>Das Ziel: möglichst nur das kranke Gewebe zerstören. Dazu berechnet das Ärzteteam genau, wie viel Strahlung nötig ist – die <button class="term" data-t="dosis">Strahlendosis</button>. Wie man das gesunde Gewebe schont, zeigt die Animation.</p>
+      <p class="hint" style="margin:0">⚠️ <strong>Risiko:</strong> Auch gesundes Gewebe bekommt etwas Strahlung ab. Selten löst die Strahlung Jahre später selbst Krebs aus.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="thSim">
+    <svg viewBox="0 0 520 300" id="thSvg" role="img" aria-label="Animation Strahlentherapie: Schnitt durch einen Körper mit einem lila Tumor, ringsum grüne gesunde Zellen. Ein einzelner starker Strahl würde alle Zellen auf seinem Weg schädigen. Besser: Ein Gerät dreht sich um den Körper und sendet aus fünf Richtungen schwache Strahlen. Nur im Tumor treffen sich alle fünf. Dort ist die Dosis hoch, im gesunden Gewebe nur gering. Der Tumor stirbt ab."></svg>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Bei der Strahlentherapie bestrahlt man Krebsgeschwüre (Tumore) mit energiereicher Strahlung.</li><li>Krebszellen teilen sich schnell. Deshalb sind sie besonders empfindlich gegen Strahlung und werden zerstört.</li><li>Man will möglichst nur das kranke Gewebe zerstören: Die Strahlenmenge wird genau berechnet, Strahlen aus vielen Richtungen treffen sich im Tumor.</li><li>Risiko: Auch gesundes Gewebe wird belastet. Strahlung kann selbst Krebs erzeugen.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Richtig oder falsch? · Probenstoff</span>
+    <h3 style="margin-top:4px">Was stimmt bei der Strahlentherapie?</h3>
+    <div id="tfTherapie"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung.</p>
+    <div id="open2"></div>
+  </div>
+  <div class="card reveal" id="mc-s2"></div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>Technik: Lecks und Risse finden</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead"><strong>Die Leckstellensuche.</strong> Unter vielen Straßen liegen Leitungen für Erdgas. Ist eine Leitung undicht, strömt Gas aus. Die undichte Stelle, das <button class="term" data-t="leck">Leck</button>, kann irgendwo auf vielen hundert Metern liegen. Ohne Hilfe müsste man die Straße auf der ganzen Länge aufgraben.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Der Trick:</strong> Man gibt dem Erdgas eine kleine Menge des radioaktiven Gases <button class="term" data-t="xenon">Xenon</button> bei. Am Leck strömt es mit dem Erdgas aus und steigt durch den Boden nach oben.</p>
+      <p style="margin:0">Mit einem <button class="term" data-t="gmz">Geiger-Müller-Zähler</button> geht man die Straße ab. Wo die Zählrate am höchsten ist, liegt das Leck. Nur dort wird gegraben.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="lkSim">
+    <svg viewBox="0 0 520 290" id="lkSvg" role="img" aria-label="Simulation Leckstellensuche: Schnitt durch eine Straße, darunter eine gelbe Gasleitung. Ein Techniker schiebt einen Geiger-Müller-Zähler an der Straße entlang. Oben wächst ein Schaubild der Zählrate. Ohne Xenon zeigt der Zähler überall nur die Nullrate. Mit Xenon im Erdgas steigt die Zählrate über dem Leck steil an. Dort gräbt man und findet den Riss."></svg>
+    <div class="sim-ctrl"><button class="btn small teal" id="tXenon" type="button">💨 Xenon zugeben</button><button class="btn small ghost" id="lkGraben" type="button">⛏️ Hier aufgraben</button><button class="btn small ghost" id="lkNeu" type="button">🔄 Neue Straße</button><label class="ra6-ton"><input type="checkbox" id="lkTon" checked> 🔊 Knacken hören</label></div>
+    <div class="sim-ctrl ra6-ctrl2"><label for="lkPos">Messgerät:</label><input type="range" id="lkPos" min="0" max="100" step="1" value="0" aria-label="Position des Messgeräts entlang der Straße in Metern"><span class="chip" id="lkPosChip">0 m</span><span class="chip" id="lkRate">20 pro Minute</span></div>
+    <p class="obs" id="lkObs">Irgendwo unter dieser Straße ist die Gasleitung undicht. Schiebe das Messgerät mit dem Regler an der Straße entlang. Was zeigt der Zähler? Gib dann Xenon zu und suche noch einmal.</p>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <figure style="margin:0 0 12px"><img class="zoomable" src="bilder/ra-6b.jpg" width="1280" height="853" loading="lazy" decoding="async" alt="Auf einer Baustelle auf dem Land liegt eine dicke Stahlleitung auf Holzbalken. Eine Prüferin mit Helm und Schutzbrille befestigt ein gelbes Prüfgerät an einem Metallring um die Schweißnaht. Vorn hält ein Prüfer ein Tablet: Es zeigt ein graues Durchstrahlungsbild der Naht mit einem dunklen Fleck. Ein rot-weißes Band sperrt den Bereich ab." style="width:100%;height:auto"><figcaption class="hint" style="margin:4px 0 0">Bild: GRUMI (mit KI erstellt)</figcaption></figure>
+    <p class="hint" style="margin:0 0 10px"><strong>Denk mal nach:</strong> Von außen sieht die Schweißnaht glatt aus. Was zeigt das Bild auf dem Tablet, das man von außen nicht sehen kann?</p>
+    <h3 style="margin:0 0 6px">Fehler in Werkstoffen finden</h3>
+    <p class="lead">Rohrleitungen, Brücken, Kessel in Fabriken und Flugzeuge bestehen aus Metallteilen. Oft sind sie verschweißt. In einer <button class="term" data-t="schweissnaht">Schweißnaht</button> können Gasblasen oder feine Risse versteckt sein. Von außen sieht man sie nicht – aber sie machen das Teil schwach, bis es bricht.</p>
+    <p style="margin:0">Bei der <button class="term" data-t="werkstoffpruefung">Werkstoffprüfung</button> durchstrahlt man das Teil mit γ-Strahlung (oder Röntgenstrahlung). Dahinter liegt ein Film oder ein Bildsensor. Wo viel Metall ist, kommt wenig Strahlung durch: Das Bild bleibt <strong>hell</strong>. Wo eine Gasblase oder ein Riss ist, fehlt Metall. Dort kommt mehr Strahlung durch: Es entsteht eine <strong>dunkle Stelle</strong>. Das Teil wird dabei nicht beschädigt.</p>
+  </div>
+  <div class="sim reveal" style="margin-top:18px" id="wpSim">
+    <svg viewBox="0 0 520 290" id="wpSvg" role="img" aria-label="Simulation Werkstoffprüfung: Links strahlt ein γ-Strahler von oben durch ein Prüfteil auf einen Film. Rechts zeigt ein Tablet das Durchstrahlungsbild: Viel Metall ist hell, Gasblasen und Risse sind dunkel. Geprüft werden zwei Schweißnähte an Rohren und ein Bauteil eines Flugzeugs."></svg>
+    <div class="sim-ctrl"><label>Prüfen:</label><button class="btn small teal" id="tNahtA" type="button">🔩 Naht A</button><button class="btn small teal" id="tNahtB" type="button">🔩 Naht B</button><button class="btn small teal" id="tFlug" type="button">✈️ Flugzeugteil</button></div>
+    <div class="sim-ctrl ra6-ctrl2"><label>Dein Urteil:</label><button class="btn small ghost" id="wpOk" type="button" disabled>✅ in Ordnung</button><button class="btn small ghost" id="wpFehler" type="button" disabled>❌ Fehler gefunden</button></div>
+    <p class="obs" id="wpObs">Wähle ein Teil. Es wird durchstrahlt, dann erscheint das Bild auf dem Tablet. Entscheide: Ist das Teil in Ordnung oder hat es einen Fehler?</p>
+    <div class="ra6-chips" id="wpChips"></div>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Leckstellensuche: Man gibt dem Erdgas das radioaktive Gas Xenon bei. Am Leck tritt es aus. Über dem Leck misst der Geiger-Müller-Zähler die höchste Zählrate – nur dort muss man graben.</li><li>Werkstoffprüfung: Man durchstrahlt Schweißnähte, Rohre oder Flugzeugteile. Gasblasen und Risse zeigen sich auf dem Bild als dunkle Stellen – ohne dass man das Teil zerstört.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Lückentext · Probenstoff</span>
+    <h3 style="margin-top:4px">Strahlung in der Technik</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapTechnik"></div>
+  </div>
+  <div class="card reveal" id="mc-s3"></div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Probenstoff</div><h2>Nutzen und Risiko abwägen</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Strahlung hilft – sie kann aber auch schaden: Sie kann Zellen und das Erbgut verändern und Krebs auslösen. Darum gilt eine Regel: Strahlung setzt man nur ein, wenn der <strong>Nutzen größer ist als das Risiko</strong>. Und dann so wenig wie möglich.</p>
+      <ul style="margin:0;padding-left:20px">
+        <li>Nur so viel Strahlung wie nötig – die Menge wird genau berechnet.</li>
+        <li>In der Medizin Stoffe mit kurzer Halbwertszeit – sie sind schnell zerfallen.</li>
+        <li><button class="term" data-t="strahlenschutz">Strahlenschutz</button> für alle, die damit arbeiten: <strong>Abstand</strong> halten, <strong>abschirmen</strong> (zum Beispiel mit Blei) und nur <strong>kurz</strong> in der Nähe bleiben.</li>
+      </ul>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Nicht jede Untersuchung strahlt.</strong> Röntgen, die <button class="term" data-t="ct">Computertomographie (CT)</button> und das Szintigramm arbeiten mit ionisierender Strahlung. Ultraschall dagegen nicht.</p>
+      <p style="margin:0">Achtung: Auch das <button class="term" data-t="mrt">MRT</button> (Kernspintomographie) arbeitet <strong>nicht</strong> mit radioaktiver Strahlung – obwohl „Kern“ im Namen steckt. Es nutzt ein starkes Magnetfeld und Radiowellen.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="nrSim">
+    <p class="ra6-fall" id="nrFall"></p>
+    <svg viewBox="0 0 520 250" id="nrSvg" role="img" aria-label="Eine Waage zum Abwägen: Links liegen die Gründe für den Nutzen, rechts die Risiken. Die schwerere Seite sinkt nach unten. Fünf Fälle aus Medizin und Technik werden nacheinander gewogen."></svg>
+    <div class="sim-ctrl"><button class="btn small teal" id="nrJa" type="button">👍 Einsetzen – der Nutzen überwiegt</button><button class="btn small teal" id="nrNein" type="button">✋ Lieber nicht – das Risiko überwiegt</button><button class="btn small ghost" id="nrWeiter" type="button">Nächster Fall →</button><span class="chip" id="nrStand">0 von 5 Fällen richtig</span></div>
+    <p class="obs" id="nrObs">Lies den Fall. Ist der Nutzen größer als das Risiko? Tippe auf deine Entscheidung. Dann legt die Waage die Gründe auf und zeigt, ob du richtig liegst.</p>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Radioaktive Strahlung hat großen Nutzen: Krankheiten erkennen und behandeln, Lecks und Fehler in Werkstoffen finden, das Alter von Funden bestimmen (C-14-Methode).</li><li>Sie hat aber auch Risiken: Sie kann Zellen und Erbgut schädigen und Krebs auslösen.</li><li>Deshalb setzt man sie nur ein, wenn der Nutzen größer ist als das Risiko – so wenig wie möglich und mit Strahlenschutz: Abstand, Abschirmung, kurze Zeit.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Paare finden · Probenstoff</span>
+    <h3 style="margin-top:4px">Wofür nutzt man die Strahlung?</h3>
+    <p class="hint">Tippe links eine Anwendung an und dann rechts, was die Strahlung dabei tut.</p>
+    <div id="paareAnw"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Zuordnen</span>
+    <h3 style="margin-top:4px">Mit oder ohne ionisierende Strahlung?</h3>
+    <p class="hint">Tippe eine Karte an und dann den passenden Bereich.</p>
+    <div id="sortStrahl"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Nimm Stellung <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung.</p>
+    <div id="open4"></div>
+  </div>
+  <div class="card reveal" id="mc-s4"></div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Wiederholung · so kommt es in der Probe</div><h2>Training</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Kreuzworträtsel</span>
+    <h3 style="margin-top:4px">Löse das Kreuzworträtsel</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Ü schreibst du als UE, ß als SS. Hängst du fest? Bei jeder Frage hilft <strong>💡 Tipp</strong> – erst ein Hinweis, dann der Anfangsbuchstabe. Mit <strong>📋 Wörter zeigen</strong> siehst du alle Lösungswörter.</p>
+    <div id="cw"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Ankreuzen</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="abschluss">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Abschluss</div><h2>Profi-Check, Lernkarten und Regelheft</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <div class="card reveal">
+    <span class="task-tag">Lernkarten</span>
+    <div id="lernkarten"></div>
+  </div>
+  <div class="regelheft reveal" id="regelheft">
+    <h3>Radioaktivität in Medizin und Technik</h3>
+    <p><strong>Medizin – Diagnose (Szintigramm):</strong> Radioaktives Iod wird in die Blutbahn gespritzt. Es reichert sich in der Schilddrüse an und zerfällt. Eine Gammakamera misst die Strahlung, der Computer macht daraus ein Bild: das Szintigramm. Krankes Gewebe nimmt meist weniger Iod auf → dunkle Stelle. Der Stoff hat eine kurze Halbwertszeit → nur kurze Belastung.</p>
+    <p><strong>Medizin – Behandlung (Strahlentherapie):</strong> Krebszellen teilen sich schnell und sind deshalb empfindlich gegen Strahlung. Strahlen aus vielen Richtungen treffen sich im Tumor – möglichst nur das kranke Gewebe wird zerstört.</p>
+    <p><strong>Technik:</strong> Leckstellensuche: radioaktives Xenon im Erdgas → über dem Leck die höchste Zählrate (Geiger-Müller-Zähler) → nur dort graben. Werkstoffprüfung: Schweißnähte, Rohre, Flugzeugteile durchstrahlen → Gasblasen und Risse sind dunkle Stellen im Bild.</p>
+    <svg class="rh-skizze" viewBox="0 0 430 160" role="img" aria-label="Skizze: Links zwei Szintigramme der Schilddrüse, eines gleichmäßig hell, eines mit dunkler Stelle. Rechts eine Gasleitung unter der Straße mit Leck, darüber ein Schaubild: Die Zählrate ist über dem Leck am höchsten."></svg>
+    <table class="rh-tab">
+      <tr><th>Nutzen</th><td>Krankheiten erkennen und behandeln · Lecks und Materialfehler finden, ohne alles aufzureißen oder zu zerstören · Alter von Funden bestimmen (C-14)</td></tr>
+      <tr><th>Risiko</th><td>Strahlung kann Zellen und Erbgut schädigen und Krebs auslösen.</td></tr>
+    </table>
+    <p><strong>Regel:</strong> Strahlung nur, wenn der Nutzen größer ist als das Risiko – so wenig wie möglich. Strahlenschutz: Abstand, Abschirmung, kurze Zeit. Das MRT arbeitet ohne radioaktive Strahlung (Magnetfeld).</p>
+  </div>
+  <div class="rh-knoepfe reveal"><button class="btn small ghost" type="button" onclick="window.print()">🖨️ Regelheft drucken</button><a class="btn small ghost" href="arbeitsblaetter/R6-regelheft.pdf" download="NT9-R6-Regelheft.pdf">📥 Regelheft als PDF</a></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Das war das letzte Modul zur Radioaktivität. Wiederhole mit den Lernkarten und den Regelhefteinträgen aller sechs Module – dann bist du gut vorbereitet für die Probe „Radioaktivität“, sobald deine Lehrkraft sie freischaltet.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="ra-5.html">⬅️ Modul 5: Was Strahlung im Körper anrichtet</a>
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik <span class="mt-zug">9M</span> · Radioaktivität · Modul 6 · Texte, Zeichnungen und Animationen sind eigenständig erstellt. Die Personen und Fälle sind ausgedacht, die Messwerte in den Simulationen vereinfacht. Mit deinem Code wird dein Lernstand gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="../../../7M/NT/modul-basis.js"></script>
+<script src="../../../8M/NT/karten.js"></script>
+<script src="karten/ra6.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, clamp, reduced, register, solve} = Modul;
+const NS = "http://www.w3.org/2000/svg";
+const svgEl = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const wait = ms => new Promise(r => setTimeout(r, reduced ? Math.min(ms, 60) : ms));
+const neu = c => { c.classList.remove("neu"); void c.offsetWidth; c.classList.add("neu"); };
+// Ton (Knacken) über WebAudio – ohne WebAudio: Hinweis statt Fehler
+const AC = window.AudioContext || window.webkitAudioContext;
+let actx = null, knackBuf = null;
+function audio(){ if (!actx && AC) { try { actx = new AC(); } catch (_) { actx = null; } } if (actx && actx.state === "suspended") actx.resume().catch(() => {}); return actx; }
+function knacken(){
+  const ctx = actx; if (!ctx || ctx.state !== "running") return;   // nur nach einer Berührung (Regler, Knopf) – sonst bleibt es still
+  try {
+    if (!knackBuf) { const n = Math.ceil(ctx.sampleRate * .012); knackBuf = ctx.createBuffer(1, n, ctx.sampleRate); const d = knackBuf.getChannelData(0); for (let j = 0; j < n; j++) d[j] = (Math.random() * 2 - 1) * Math.exp(-j / 18) * .7; }
+    const s = ctx.createBufferSource(); s.buffer = knackBuf; s.connect(ctx.destination); s.start();
+  } catch (_) {}
+}
+
+Modul.init({
+  key: "grumi-nt9-ra-6-v1",
+  hero: "funken",
+  api: "/api/nt9/uebung/feedback",
+  thema: "Radioaktivität, Klasse 9: Anwendung radioaktiver Strahlung in Medizin und Technik – Diagnose mit dem Szintigramm: Die Schilddrüse nimmt Iod aus Nahrung und Wasser auf (für Hormone); man spritzt winzige Mengen radioaktiver Iod-Isotope in die Blutbahn, sie verhalten sich chemisch wie normales Iod, reichern sich in der Schilddrüse an und zerfallen (γ-Strahlung); eine Gammakamera misst die Strahlung, ein Computer macht daraus ein Bild (Szintigramm); krankes Gewebe lagert meist weniger Iod ein und erscheint dunkler, ein zu stark arbeitender Knoten heller; der Stoff soll eine kurze Halbwertszeit haben (Iod-123 etwa 13 Stunden), damit der Körper nur kurz belastet ist. Strahlentherapie: Bestrahlung von Krebsgeschwüren (Tumoren) mit ionisierender Strahlung; sich schnell teilende Krebszellen sind besonders empfindlich und werden zerstört; möglichst nur krankes Gewebe zerstören: Strahlenmenge genau berechnen, Strahlen aus vielen Richtungen treffen sich im Tumor, Behandlung auf viele Termine verteilt; Risiko: gesundes Gewebe wird belastet, Strahlung kann selbst Krebs erzeugen. Technik: Leckstellensuche – man versetzt das Erdgas in unterirdischen Leitungen mit dem radioaktiven Gas Xenon, am Leck tritt es aus, mit dem Geiger-Müller-Zähler findet man die Stelle mit der höchsten Zählrate, nur dort graben statt die ganze Straße aufzureißen; Werkstoffprüfung – Schweißnähte, Rohre, Flugzeugteile und Anlagenteile mit γ-Strahlung durchstrahlen, dahinter ein Film, viel Metall = hell, Gasblasen und Risse = dunkle Stellen, das Teil wird nicht zerstört und auch nicht radioaktiv. Nutzen und Risiko abwägen: Strahlung nur einsetzen, wenn der Nutzen größer ist als das Risiko, so wenig wie möglich, Strahlenschutz durch Abstand, Abschirmung (Blei) und kurze Aufenthaltsdauer; Röntgen, CT und Szintigramm nutzen ionisierende Strahlung, Ultraschall und MRT (Kernspintomographie, Magnetfeld und Radiowellen) nicht",
+  glossary: {
+    diagnose: ["Diagnose", "Das Erkennen einer Krankheit. Ärztinnen und Ärzte untersuchen dafür den Körper, zum Beispiel mit Bildern aus dem Inneren."],
+    schilddruese: ["Schilddrüse", "Kleines Organ vorn am Hals, unter dem Kehlkopf. Sie sieht aus wie ein Schmetterling und stellt mit Iod wichtige Hormone her."],
+    hormon: ["Hormon", "Botenstoff im Blut. Hormone steuern Vorgänge im Körper, zum Beispiel Wachstum, Herzschlag und Verdauung."],
+    iod: ["Iod (auch Jod)", "Chemisches Element. Der Körper braucht es in sehr kleinen Mengen für die Schilddrüse. Es steckt z. B. in Seefisch und in Speisesalz mit Iod."],
+    isotop: ["Isotop", "Atome desselben Elements mit verschieden vielen Neutronen. Radioaktives Iod ist ein Isotop des Iods: chemisch gleich, aber sein Kern zerfällt."],
+    gammakamera: ["Gammakamera", "Messgerät, das die γ-Strahlung aus dem Körper auffängt und zählt. Ein Computer macht aus den Messwerten ein Bild."],
+    szintigramm: ["Szintigramm", "Bild, das zeigt, wie sich ein radioaktiver Stoff in einem Organ verteilt hat. Helle Stellen: viel Stoff. Dunkle Stellen: wenig Stoff."],
+    halbwertszeit: ["Halbwertszeit", "Zeit, nach der die Hälfte der Kerne eines radioaktiven Stoffes zerfallen ist. Bei Iod-123 sind es etwa 13 Stunden."],
+    tumor: ["Tumor", "Wucherung aus Zellen, die sich ohne Halt teilen. Ein bösartiger Tumor heißt auch Krebsgeschwür."],
+    strahlentherapie: ["Strahlentherapie", "Behandlung von Krebs mit energiereicher Strahlung. Sie soll die Krebszellen zerstören und das gesunde Gewebe möglichst schonen."],
+    ionisierend: ["ionisierende Strahlung", "Sehr energiereiche Strahlung, die Atome und Moleküle verändern kann – zum Beispiel α-, β-, γ- und Röntgenstrahlung. Sie kann Zellen schädigen."],
+    dosis: ["Strahlendosis", "Wie viel Strahlung ein Körper oder ein Gewebe aufnimmt. Einheit: Sievert (Sv), oft Millisievert (mSv)."],
+    leck: ["Leck", "Undichte Stelle, zum Beispiel ein Riss in einer Leitung, durch den Gas oder Wasser austritt."],
+    xenon: ["Xenon", "Edelgas, das nur in winzigen Mengen in der Luft vorkommt. Für die Leckstellensuche nimmt man ein radioaktives Isotop des Xenons."],
+    gmz: ["Geiger-Müller-Zähler", "Messgerät für radioaktive Strahlung. Jedes Teilchen im Zählrohr löst einen Stromstoß aus – es knackt. Die Zählrate gibt die Stromstöße pro Minute an."],
+    schweissnaht: ["Schweißnaht", "Stelle, an der zwei Metallteile durch Schmelzen fest miteinander verbunden sind. Darin können Gasblasen oder Risse versteckt sein."],
+    werkstoffpruefung: ["Werkstoffprüfung", "Prüfen, ob ein Bauteil fehlerfrei ist. Mit Strahlung schaut man in das Teil hinein, ohne es zu zerstören."],
+    strahlenschutz: ["Strahlenschutz", "Alles, was Menschen vor zu viel Strahlung schützt: Abstand halten, abschirmen (z. B. mit Blei) und nur kurz in der Nähe bleiben."],
+    ct: ["CT (Computertomographie)", "Röntgenuntersuchung: Das Gerät macht viele Röntgenbilder aus allen Richtungen. Der Computer setzt sie zu Schnittbildern des Körpers zusammen."],
+    mrt: ["MRT (Kernspintomographie)", "Untersuchung mit einem starken Magnetfeld und Radiowellen. Sie liefert Bilder aus dem Körper – ohne radioaktive Strahlung und ohne Röntgenstrahlung."]
+  }
+});
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Warum sammelt sich das radioaktive Iod in der Schilddrüse?", o: ["Die Schilddrüse braucht Iod und holt es sich aus dem Blut.", "Die Strahlung zieht das Iod wie ein Magnet zum Hals.", "Die Ärztin spritzt das Iod direkt in die Schilddrüse.", "Das Iod ist schwerer als Blut und sinkt im Hals ab."], a: 0, e: "Radioaktives Iod verhält sich chemisch wie normales Iod. Die Schilddrüse nimmt es auf wie das Iod aus der Nahrung."},
+    {q: "Im Szintigramm von Herrn Lindner bleibt eine Stelle dunkel. Was bedeutet das?", o: ["Dort nimmt das Gewebe wenig Iod auf – es ist wohl krank.", "Dort nimmt das Gewebe besonders viel Iod auf.", "Dort hat die Gammakamera einen Messfehler gemacht.", "Dort ist die Schilddrüse ganz besonders gesund."], a: 0, e: "Krankes Gewebe lagert weniger Iod ein. Es sendet weniger Strahlung aus und bleibt im Bild dunkel."},
+    {q: "Warum nimmt man für ein Szintigramm einen Stoff mit kurzer Halbwertszeit?", o: ["Er zerfällt schnell, der Körper ist nur kurz belastet.", "Er strahlt dann viele Jahre lang gleich stark.", "Er ist dann überhaupt nicht mehr radioaktiv.", "Er bleibt dann für immer in der Schilddrüse."], a: 0, e: "Nach wenigen Tagen ist fast alles zerfallen. Ein Stoff mit langer Halbwertszeit würde den Körper unnötig lange bestrahlen."}
+  ],
+  s2: [
+    {q: "Warum bestrahlt man einen Tumor aus vielen Richtungen?", o: ["Im Tumor treffen sich alle Strahlen, gesundes Gewebe bekommt wenig ab.", "Dann ist die Bestrahlung schneller vorbei als mit einem Strahl.", "So wird das gesunde Gewebe ringsum gleich stark mitbestrahlt.", "Das Gerät kann aus einer Richtung nicht genug Strahlung erzeugen."], a: 0, e: "Jeder Strahl ist schwach. Nur im Tumor addieren sich alle – dort ist die Dosis hoch."},
+    {q: "Was ist ein Tumor?", o: ["eine Wucherung aus Zellen, die sich ohne Halt teilen", "ein Gerät, das die Strahlung im Körper misst", "ein radioaktiver Stoff, den man einspritzt", "ein Bild, das der Computer aus Messwerten macht"], a: 0, e: "Ein bösartiger Tumor heißt auch Krebsgeschwür."}
+  ],
+  s3: [
+    {q: "Warum gibt man bei der Leckstellensuche radioaktives Xenon ins Erdgas?", o: ["Am Leck tritt es aus, und der Zähler findet die Stelle.", "Es dichtet das Loch in der Leitung von selbst ab.", "Es lässt das Erdgas leuchten, sodass man es sieht.", "Es verhindert, dass sich das Erdgas entzünden kann."], a: 0, e: "Das Xenon strömt mit dem Erdgas aus dem Leck und steigt durch den Boden. Darüber steigt die Zählrate."},
+    {q: "Auf dem Durchstrahlungsbild einer Schweißnaht ist ein dunkler Fleck. Was bedeutet das?", o: ["Dort fehlt Metall – eine Gasblase oder ein Riss.", "Dort ist die Naht besonders dick und stabil.", "Dort ist das Metall selbst radioaktiv geworden.", "Dort hat der Film gar keine Strahlung bekommen."], a: 0, e: "Wo Metall fehlt, kommt mehr Strahlung durch – das Bild wird dort dunkler."}
+  ],
+  s4: [
+    {q: "Wann setzt man radioaktive Strahlung in der Medizin ein?", o: ["nur, wenn der Nutzen größer ist als das Risiko", "immer, denn richtig eingesetzt ist sie völlig harmlos", "nie, denn sie ist in Deutschland ganz verboten", "nur dann, wenn der Patient es ausdrücklich wünscht"], a: 0, e: "Dann nimmt man so wenig Strahlung wie möglich."},
+    {q: "Welche Untersuchung arbeitet ohne radioaktive Strahlung und ohne Röntgenstrahlung?", o: ["MRT (Kernspintomographie)", "Szintigramm der Schilddrüse", "Computertomographie (CT)", "Röntgenbild vom Arm"], a: 0, e: "Das MRT nutzt ein starkes Magnetfeld und Radiowellen – trotz „Kern“ im Namen."}
+  ],
+  train: [
+    {q: "Welche Strahlung misst die Gammakamera beim Szintigramm?", o: ["γ-Strahlung, denn sie durchdringt Haut und Gewebe", "α-Strahlung, denn sie fliegt besonders weit", "β-Strahlung, denn der Hals bremst sie gar nicht", "sichtbares Licht, das aus dem Hals leuchtet"], a: 0, e: "γ-Strahlung kommt durch den Hals nach außen. α-Strahlung käme nicht einmal durch ein Blatt Papier."},
+    {q: "Warum ist die Leckstellensuche mit Xenon besser als einfach aufzugraben?", o: ["Man gräbt nur an einer Stelle statt die ganze Straße auf.", "Man braucht dafür überhaupt kein Messgerät.", "Das Xenon repariert das Leck gleich mit.", "Das Erdgas strömt danach nie mehr aus."], a: 0, e: "Die Messung zeigt, wo das Leck ist. Nur dort muss die Straße geöffnet werden."},
+    {q: "Welche Aussagen zum Strahlenschutz stimmen?", o: ["Abstand halten verringert die Strahlung.", "Blei schirmt γ-Strahlung gut ab.", "Man bleibt nur kurz in der Nähe der Quelle.", "Eine Sonnenbrille schützt vor γ-Strahlung.", "Je länger man bleibt, desto sicherer ist es."], a: [0, 1, 2], e: "Die drei Regeln: Abstand, Abschirmung, kurze Zeit."},
+    {q: "Ein Rohr wurde mit γ-Strahlung durchstrahlt. Ist es danach radioaktiv?", o: ["Nein, es sendet danach keine Strahlung aus.", "Ja, es strahlt danach jahrelang weiter.", "Ja, aber nur an der Schweißnaht.", "Nur, wenn es aus Kupfer besteht."], a: 0, e: "Die γ-Strahlung geht durch das Rohr hindurch. Das Rohr wird dadurch nicht radioaktiv."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Station 1: Szintigramm-Labor ---------- */
+(function(){
+  const svg = $("#szSvg"), obs = $("#szObs"), tb = $("#szTab tbody");
+  // Schilddrüse auf dem Bildschirm: zwei schräge Lappen und die Brücke dazwischen
+  const LAPPEN = [[386, 114, -12], [444, 114, 12]], LRX = 25, LRY = 52;
+  const umriss = fill => LAPPEN.map(([x, y, w]) => `<ellipse cx="${x}" cy="${y}" rx="${LRX}" ry="${LRY}" transform="rotate(${w} ${x} ${y})" fill="${fill}"/>`).join("") + `<rect x="398" y="128" width="34" height="22" rx="8" fill="${fill}"/>`;
+  const welle = (x, s) => `M${x} 180` + ` q${s} -8 0 -16 q${-s} -8 0 -16`.repeat(3);
+  svg.innerHTML = `<rect width="520" height="300" fill="#f7fbfe"/>
+    <defs><linearGradient id="szSkala" x1="0" x2="1"><stop offset="0" stop-color="#0c1420"/><stop offset=".55" stop-color="#9a7a1e"/><stop offset="1" stop-color="#ffe27a"/></linearGradient></defs>
+    <rect x="16" y="22" width="10" height="192" fill="#9aa5ad"/><rect x="16" y="22" width="44" height="10" fill="#9aa5ad"/>
+    <rect x="50" y="28" width="128" height="46" rx="7" fill="#4b5a66" stroke="#2d3943" stroke-width="2"/>
+    <rect x="56" y="74" width="116" height="7" rx="2" fill="#2d3943"/>
+    <text x="114" y="56" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">Gammakamera</text>
+    <path d="M178 50 C 250 50, 262 112, 322 112" fill="none" stroke="#566674" stroke-width="3"/>
+    <g fill="none" stroke="#e0a21a" stroke-width="2.4">
+      <path class="gamma" d="${welle(87, 5)}"/><path class="gamma" d="${welle(95, -5)}"/><path class="gamma" d="${welle(103, 5)}"/>
+    </g>
+    <text class="gamma" x="114" y="134" font-size="17" font-weight="800" fill="#b8720a">γ</text>
+    <rect x="14" y="214" width="300" height="9" rx="3" fill="#8a97a2"/>
+    <rect x="40" y="223" width="8" height="22" fill="#8a97a2"/><rect x="280" y="223" width="8" height="22" fill="#8a97a2"/>
+    <path d="M108 176 Q114 168 132 168 H294 Q306 168 306 180 V202 Q306 213 294 213 H122 Q108 213 106 200 Z" fill="#9cc3e6" stroke="#4f86b8" stroke-width="2"/>
+    <rect x="78" y="180" width="34" height="26" rx="4" fill="#f1c9a5" stroke="#b98a66" stroke-width="2"/>
+    <ellipse cx="60" cy="193" rx="23" ry="20" fill="#f1c9a5" stroke="#b98a66" stroke-width="2"/>
+    <path d="M55 174.5 Q57 166 63 167 Q66 168 66 174" fill="#f1c9a5" stroke="#b98a66" stroke-width="2"/>
+    <circle cx="51" cy="182" r="2" fill="#33414d"/>
+    <path d="M38 198 Q40 214 58 213 Q72 212 78 205" fill="none" stroke="#5b3a24" stroke-width="6" stroke-linecap="round"/>
+    <ellipse id="szDruese" cx="95" cy="184" rx="10" ry="4.5" fill="#e9a3a3" stroke="#b45b5b" stroke-width="1.5"/>
+    <rect x="124" y="194" width="150" height="13" rx="6.5" fill="#f1c9a5" stroke="#b98a66" stroke-width="2"/>
+    <path id="szAder" d="M198 200 C 170 200, 140 198, 124 192 S 104 186, 96 185" fill="none" stroke="#c94a55" stroke-width="2.5" opacity=".75"/>
+    <text x="234" y="190" font-size="11" font-weight="700" fill="#c94a55">Vene</text>
+    <g id="szIod"></g>
+    <g id="szSpritze" transform="translate(199 201) rotate(32)" opacity="0">
+      <line x1="0" y1="0" x2="13" y2="0" stroke="#566674" stroke-width="1.6"/>
+      <rect x="13" y="-5" width="34" height="10" rx="2" fill="#eef3f6" stroke="#566674" stroke-width="1.5"/>
+      <rect id="szInhalt" x="14" y="-3.5" width="32" height="7" fill="#f2b632"/>
+      <g id="szKolben"><rect x="46" y="-2" width="16" height="4" fill="#566674"/><rect x="61" y="-6" width="3" height="12" fill="#566674"/></g>
+    </g>
+    <rect x="322" y="16" width="188" height="200" rx="10" fill="#33414d"/>
+    <rect x="331" y="25" width="170" height="172" rx="4" fill="#0c1420"/>
+    <g>${umriss("#16222f")}</g>
+    <g id="szPunkte"></g>
+    <text x="338" y="40" font-size="11" font-weight="700" fill="#9fb3c4">Szintigramm</text>
+    <text id="szZahl" x="494" y="190" text-anchor="end" font-size="11" font-weight="700" fill="#cfe0ee"></text>
+    <rect x="406" y="216" width="20" height="10" fill="#33414d"/><rect x="388" y="226" width="56" height="6" rx="2" fill="#33414d"/>
+    <rect x="340" y="246" width="152" height="10" rx="3" fill="url(#szSkala)" stroke="#8a97a2"/>
+    <text x="340" y="272" font-size="11.5" font-weight="700" fill="#15212b">wenig Iod</text>
+    <text x="492" y="272" text-anchor="end" font-size="11.5" font-weight="700" fill="#15212b">viel Iod</text>
+    <text id="szName" x="160" y="264" text-anchor="middle" font-size="14" font-weight="800" fill="#7a4b05">Wähle unten eine Person.</text>
+    <text id="szStatus" x="160" y="285" text-anchor="middle" font-size="12" font-weight="600" fill="#566674"></text>`;
+  const punkte = $("#szPunkte", svg), iod = $("#szIod", svg), druese = $("#szDruese", svg), spritze = $("#szSpritze", svg), ader = $("#szAder", svg);
+  const gammas = $$(".gamma", svg), zahl = $("#szZahl", svg), nameT = $("#szName", svg), statusT = $("#szStatus", svg);
+  const im = (x, y, cx, cy, r) => (x - cx) ** 2 + (y - cy) ** 2 < r * r;
+  const PAT = {
+    tKaya: {k: "kaya", name: "Frau Kaya", dichte: () => 1, farbe: "#f2b632",
+      bild: "überall gleichmäßig hell", bed: "gesund: Das Iod verteilt sich gleichmäßig in der ganzen Schilddrüse.",
+      txt: "Frau Kaya: Das Bild ist überall gleichmäßig hell. Das ganze Gewebe hat gleich viel Iod aufgenommen – die Schilddrüse ist gesund."},
+    tLindner: {k: "lindner", name: "Herr Lindner", dichte: (x, y) => im(x, y, 385, 124, 15) ? .06 : 1, farbe: "#e9b347",
+      bild: "eine dunkle Stelle, sonst hell", bed: "krank: Dort nimmt das Gewebe kaum Iod auf. Die Ärztin untersucht die Stelle genauer.",
+      txt: "Herr Lindner: Im linken Teil des Bildes bleibt eine Stelle dunkel. Dort hat das Gewebe kaum Iod aufgenommen – so sieht krankes Gewebe meist aus. Die Ärztin untersucht die Stelle genauer, zum Beispiel mit Ultraschall."},
+    tBerg: {k: "berg", name: "Frau Berg", dichte: (x, y) => im(x, y, 448, 96, 14) ? 1 : .14, farbe: "#d9a441",
+      bild: "eine sehr helle Stelle, der Rest blass", bed: "krank: Ein Knoten arbeitet zu stark und nimmt sehr viel Iod auf.",
+      txt: "Frau Berg: Eine Stelle leuchtet sehr hell, der Rest ist blass. Dort sitzt ein Knoten, der zu viel arbeitet und sehr viel Iod aufnimmt. Auch das ist eine Krankheit – nur andersherum."}
+  };
+  const knoepfe = Object.keys(PAT).map(id => $("#" + id));
+  const fertig = new Set();
+  let laeuft = false;
+  register("szLabor", "#szSvg", "Simulation: Szintigramm (alle drei Personen untersucht)");
+  function inDruese(x, y){
+    if (x >= 400 && x <= 430 && y >= 128 && y <= 150) return true;
+    return LAPPEN.some(([cx, cy, w]) => { const a = w * Math.PI / 180, dx = x - cx, dy = y - cy, u = dx * Math.cos(a) + dy * Math.sin(a), v = -dx * Math.sin(a) + dy * Math.cos(a); return (u / LRX) ** 2 + (v / LRY) ** 2 <= 1; });
+  }
+  function stichprobe(P, n){
+    const out = []; let schutz = 0;
+    while (out.length < n && schutz++ < 300000) { const x = 356 + Math.random() * 120, y = 58 + Math.random() * 112; if (inDruese(x, y) && Math.random() < P.dichte(x, y)) out.push([x, y]); }
+    return out;
+  }
+  function spritzen(){
+    return new Promise(res => {
+      const t0 = performance.now(), D = reduced ? 0 : 700, inhalt = $("#szInhalt", svg), kolben = $("#szKolben", svg);
+      (function f(now){
+        const p = D ? clamp((now - t0) / D, 0, 1) : 1;
+        inhalt.setAttribute("width", (32 * (1 - p)).toFixed(1)); kolben.setAttribute("transform", `translate(${(-32 * p).toFixed(1)} 0)`);
+        if (p < 1) requestAnimationFrame(f); else res();
+      })(t0);
+    });
+  }
+  function wandern(){
+    const L = ader.getTotalLength(), N = 12, D = 1300, V = 85;
+    const dots = Array.from({length: N}, () => svgEl("circle", {r: 3.2, fill: "#f2b632", stroke: "#a86f00", "stroke-width": 1, cx: -20, cy: -20, opacity: 0}, iod));
+    return new Promise(res => {
+      const t0 = performance.now();
+      (function f(now){
+        let da = 0;
+        dots.forEach((d, i) => {
+          const p = reduced ? 1 : clamp((now - t0 - i * V) / D, 0, 1);
+          if (p >= 1) { da++; if (!d.dataset.da) { d.dataset.da = 1; d.setAttribute("cx", (88 + Math.random() * 14).toFixed(1)); d.setAttribute("cy", (182 + Math.random() * 4).toFixed(1)); d.setAttribute("r", 2); d.setAttribute("opacity", 1); } return; }
+          const pt = ader.getPointAtLength(L * p); d.setAttribute("cx", pt.x.toFixed(1)); d.setAttribute("cy", pt.y.toFixed(1)); d.setAttribute("opacity", p > 0 ? 1 : 0);
+        });
+        if (da < N) requestAnimationFrame(f); else res();
+      })(t0);
+    });
+  }
+  function messen(pts){
+    const D = 2600;
+    return new Promise(res => {
+      const t0 = performance.now(); let n = 0, zuletzt = 0;
+      (function f(now){
+        const k = reduced ? pts.length : Math.min(pts.length, Math.floor(pts.length * (now - t0) / D));
+        for (; n < k; n++) svgEl("circle", {cx: pts[n][0].toFixed(1), cy: pts[n][1].toFixed(1), r: 1.8, fill: "#ffd84d", opacity: .5}, punkte);
+        zahl.textContent = n + " Punkte";
+        if (!reduced && now - zuletzt > 90) { zuletzt = now; gammas.forEach(g => g.classList.toggle("an", Math.random() < .55)); }
+        if (n < pts.length) requestAnimationFrame(f); else { gammas.forEach(g => g.classList.remove("an")); res(); }
+      })(t0);
+    });
+  }
+  async function untersuche(id){
+    if (laeuft) return;
+    const P = PAT[id];
+    laeuft = true; knoepfe.forEach(b => { b.disabled = true; b.classList.toggle("gewaehlt", b.id === id); });
+    punkte.innerHTML = ""; iod.innerHTML = ""; zahl.textContent = ""; druese.setAttribute("fill", "#e9a3a3");
+    $("#szInhalt", svg).setAttribute("width", 32); $("#szKolben", svg).removeAttribute("transform");
+    nameT.textContent = P.name;
+    obs.textContent = `${P.name} wird untersucht …`;
+    try {
+      statusT.textContent = "Iod wird in eine Vene gespritzt …";
+      spritze.setAttribute("opacity", 1); await wait(300); await spritzen();
+      statusT.textContent = "Das Blut trägt das Iod zum Hals …";
+      await wandern();
+      spritze.setAttribute("opacity", 0); druese.setAttribute("fill", P.farbe);
+      statusT.textContent = "Die Schilddrüse speichert das Iod.";
+      await wait(600);
+      statusT.textContent = "Messung: Die Kamera zählt γ-Strahlung …";
+      await messen(stichprobe(P, 900));
+      statusT.textContent = "Fertig – das Szintigramm ist da.";
+      const td = $(`tr[data-p="${P.k}"]`, tb).children;
+      [P.bild, P.bed].forEach((t, i) => { td[i + 1].textContent = t; neu(td[i + 1]); });
+      fertig.add(P.k);
+      obs.textContent = P.txt + " Jeder Punkt auf dem Bildschirm steht für viele gemessene γ-Strahlen.";
+      if (fertig.size === 3) { solve("szLabor"); obs.textContent += " ✅ Alle drei untersucht: Gesundes Gewebe ist gleichmäßig hell. Krankes Gewebe nimmt meist weniger Iod auf und bleibt dunkel."; }
+      else obs.textContent += ` (${fertig.size} von 3 untersucht)`;
+    } finally { laeuft = false; knoepfe.forEach(b => b.disabled = false); }
+  }
+  knoepfe.forEach(b => b.addEventListener("click", () => untersuche(b.id)));
+})();
+
+/* ---------- Station 1: Übungen ---------- */
+Modul.makeOrder($("#orderSzinti"), [
+  "Die Ärztin spritzt eine winzige Menge radioaktives Iod in eine Vene.",
+  "Das Blut trägt das Iod durch den Körper.",
+  "Die Schilddrüse holt sich das Iod und speichert es.",
+  "Die Iod-Kerne zerfallen und senden γ-Strahlung aus.",
+  "Die Gammakamera misst die Strahlung am Hals.",
+  "Der Computer macht daraus ein Bild: das Szintigramm."
+], "orderSzinti");
+Modul.makeGap($("#gapSzinti"), [
+  ["Die Schilddrüse braucht ", {g: "Iod"}, ", um Hormone herzustellen. Für ein Szintigramm spritzt man eine winzige Menge ", {g: "radioaktives"}, " Iod in die Blutbahn."],
+  ["Es verhält sich chemisch wie normales Iod und ", {g: "reichert"}, " sich in der Schilddrüse an. Eine Gammakamera misst die ", {g: "Strahlung"}, "."],
+  ["Krankes Gewebe nimmt meist ", {g: "weniger"}, " Iod auf als gesundes. Im Bild erscheint es ", {g: "dunkler"}, "."],
+  ["Der Stoff hat eine ", {g: "kurze"}, " Halbwertszeit. So ist der Körper nur kurz belastet."]
+], "gapSzinti", ["mehr", "lange"]);
+
+/* ---------- Station 2: Strahlentherapie (Animation in Schritten) ---------- */
+(function(){
+  const svg = $("#thSvg");
+  const CX = 185, CY = 150, RX = 118, RY = 86, TX = 205, TY = 138, OX = 160, OY = 126, BW = 17;
+  const WINKEL = [-90, -18, 54, 126, 198];
+  svg.innerHTML = `<rect width="520" height="300" fill="#f7fbfe"/>
+    <ellipse cx="${CX}" cy="${CY}" rx="${OX}" ry="${OY}" fill="none" stroke="#c9d4de" stroke-width="2" stroke-dasharray="6 6"/>
+    <ellipse cx="${CX}" cy="${CY}" rx="${RX}" ry="${RY}" fill="#fbe3d3" stroke="#c89a7a" stroke-width="3"/>
+    <g id="thStrahlen"></g><g id="thZellen"></g>
+    <g id="thTumor"><path d="M205 120 Q221 121 222 134 Q225 150 209 155 Q193 158 188 145 Q183 128 196 122 Z" fill="#dcb3da" stroke="#8e3b8a" stroke-width="2"/></g>
+    <circle id="thGlut" cx="${TX}" cy="${TY}" r="24" fill="none" stroke="#f2a33a" stroke-width="4" opacity="0"/>
+    <g id="thGeraete"></g>
+    <text x="${CX}" y="294" text-anchor="middle" font-size="11.5" font-weight="700" fill="#566674">Schnitt durch den Körper · gestrichelt: Bahn des Geräts</text>
+    <text x="436" y="30" text-anchor="middle" font-size="13.5" font-weight="800" fill="#7a4b05">Strahlendosis</text>
+    <text x="366" y="56" font-size="11.5" font-weight="700" fill="#15212b">im Tumor</text><text id="thWT" x="506" y="56" text-anchor="end" font-size="11.5" font-weight="800" fill="#8e3b8a">0 %</text>
+    <rect x="366" y="62" width="140" height="14" rx="4" fill="#e6ecf1"/><rect class="bar" id="thBT" x="366" y="62" width="0" height="14" rx="4" fill="#8e3b8a"/>
+    <text x="366" y="98" font-size="11.5" font-weight="700" fill="#15212b">Gewebe ringsum</text><rect x="366" y="104" width="140" height="14" rx="4" fill="#e6ecf1"/><rect class="bar" id="thBG" x="366" y="104" width="0" height="14" rx="4" fill="#e0a21a"/>
+    <text id="thWG" x="502" y="115" text-anchor="end" font-size="11" font-weight="800" fill="#33414d">0 %</text>
+    <g font-size="11.5" font-weight="700" fill="#15212b">
+      <circle cx="372" cy="142" r="5.5" fill="#7cc68a"/><text x="384" y="146">gesunde Zelle</text>
+      <circle cx="372" cy="160" r="5.5" fill="#f3d55b"/><text x="384" y="164">wenig Strahlung</text>
+      <circle cx="372" cy="178" r="5.5" fill="#f0a040"/><text x="384" y="182">etwas mehr</text>
+      <circle cx="372" cy="196" r="5.5" fill="#d9534f"/><text x="384" y="200">viel: geschädigt</text>
+      <circle cx="372" cy="214" r="5.5" fill="#8e3b8a"/><text x="384" y="218">Krebszelle</text>
+      <circle cx="372" cy="232" r="5.5" fill="#9aa5ad"/><text x="384" y="236">abgestorben</text>
+      <rect x="366" y="245" width="12" height="10" rx="2" fill="#8a97a2"/><text x="384" y="254">Bestrahlungsgerät</text>
+    </g>
+    <text id="thHinweis" x="436" y="282" text-anchor="middle" font-size="12" font-weight="800" fill="#7a4b05"></text>`;
+  const zG = $("#thZellen", svg), tG = $("#thTumor", svg), sG = $("#thStrahlen", svg), gG = $("#thGeraete", svg), glut = $("#thGlut", svg), hinweis = $("#thHinweis", svg);
+  const zellen = [];
+  for (let r = 0, y = CY - RY + 10; y <= CY + RY - 10; r++, y += 13)
+    for (let x = CX - RX + 10 + (r % 2 ? 7.5 : 0); x <= CX + RX - 10; x += 15) {
+      if (((x - CX) / (RX - 8)) ** 2 + ((y - CY) / (RY - 8)) ** 2 > 1 || Math.hypot(x - TX, y - TY) < 25) continue;
+      zellen.push({x, y, el: svgEl("circle", {class: "zelle", cx: x.toFixed(1), cy: y.toFixed(1), r: 5, fill: "#7cc68a", stroke: "#fff", "stroke-width": 1}, zG)});
+    }
+  const tumorZellen = [[0, 0], [-9, -5], [9, -5], [-9, 6], [9, 6], [0, -11], [0, 11]].map(([dx, dy]) => svgEl("circle", {class: "tz teilt", cx: TX + dx, cy: TY + dy, r: 5, fill: "#8e3b8a", stroke: "#fff", "stroke-width": 1}, tG));
+  // Punkt auf der Bahn des Geräts in Richtung a (vom Tumor aus gesehen)
+  function aussen(a){
+    const ux = Math.cos(a) / OX, uy = Math.sin(a) / OY, px = (TX - CX) / OX, py = (TY - CY) / OY;
+    const A = ux * ux + uy * uy, B = px * ux + py * uy, C = px * px + py * py - 1, t = (-B + Math.sqrt(B * B - A * C)) / A;
+    return [TX + t * Math.cos(a), TY + t * Math.sin(a)];
+  }
+  const farbe = d => d <= 0 ? "#7cc68a" : d < 40 ? "#f3d55b" : d < 100 ? "#f0a040" : "#d9534f";
+  const STUFEN = [
+    {b: [], g: [-90], aktiv: -1, t: 0, gz: 0, h: ""},
+    {b: [-90], stark: true, g: [-90], aktiv: 0, t: 100, gz: 100, h: "Gewebe geschädigt!", hf: "#c0392b"},
+    {b: [-90], g: [-90], aktiv: 0, t: 20, gz: 20, h: "1 schwacher Strahl: 20 %"},
+    {b: [-90, -18, 54], g: [-90, -18, 54], aktiv: 2, t: 60, gz: 20, h: "3 · 20 % = 60 %"},
+    {b: WINKEL, g: WINKEL, aktiv: 4, t: 100, gz: 20, h: "5 · 20 % = 100 %", glut: true},
+    {b: [], g: WINKEL, aktiv: -1, t: 100, gz: 20, h: "auf viele Termine verteilt", tot: true}
+  ];
+  function zeige(i){
+    const S = STUFEN[Math.max(0, i)];
+    sG.innerHTML = ""; gG.innerHTML = "";
+    S.b.forEach(w => {
+      const a = w * Math.PI / 180, [x1, y1] = aussen(a), [x2, y2] = aussen(a + Math.PI);
+      svgEl("line", {x1: x1.toFixed(1), y1: y1.toFixed(1), x2: x2.toFixed(1), y2: y2.toFixed(1), stroke: "#f2a33a", "stroke-width": BW * 2, opacity: S.stark ? .6 : .3}, sG);
+    });
+    S.g.forEach((w, k) => {
+      const [x, y] = aussen(w * Math.PI / 180), g = svgEl("g", {transform: `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${w + 90})`}, gG);
+      svgEl("rect", {x: -17, y: -9, width: 34, height: 18, rx: 4, fill: k === S.aktiv ? "#7a4b05" : "#8a97a2", stroke: "#33414d", "stroke-width": 1.5}, g);
+    });
+    zellen.forEach(z => {
+      let d = 0;
+      S.b.forEach(w => { const a = w * Math.PI / 180; if (Math.abs((z.x - TX) * Math.sin(a) - (z.y - TY) * Math.cos(a)) < BW) d += S.stark ? 100 : 20; });
+      z.el.setAttribute("fill", farbe(d));
+    });
+    tumorZellen.forEach(c => { c.setAttribute("fill", S.tot ? "#9aa5ad" : "#8e3b8a"); c.classList.toggle("teilt", !S.tot && !reduced); });
+    tG.style.transform = S.tot ? "scale(.5)" : "";
+    glut.setAttribute("opacity", S.glut ? .9 : 0);
+    $("#thBT", svg).setAttribute("width", (140 * S.t / 100).toFixed(1)); $("#thWT", svg).textContent = S.t + " %";
+    $("#thBG", svg).setAttribute("width", (140 * S.gz / 100).toFixed(1)); $("#thWG", svg).textContent = (S.b.length > 1 || S.tot ? "meist " : "") + S.gz + " %";
+    hinweis.textContent = S.h; hinweis.setAttribute("fill", S.hf || "#7a4b05");
+  }
+  Modul.makeSchritte($("#thSim"), {
+    start: "Wie bestrahlt man einen Tumor, ohne das gesunde Gewebe zu zerstören? Tippe auf „Start“.",
+    ms: 3400,
+    steps: [
+      "Im Körper wächst ein <strong>Tumor</strong> (lila). Seine Zellen teilen sich sehr schnell. Ringsum liegt gesundes Gewebe (grün).",
+      "Ein einziger <strong>starker Strahl</strong> würde den Tumor zerstören – aber auch alles gesunde Gewebe auf seinem Weg (rot). Das wäre schlecht.",
+      "Besser: Das Bestrahlungsgerät dreht sich um den Körper. Aus der ersten Richtung kommt nur ein <strong>schwacher Strahl</strong>. Das Gewebe darin bekommt wenig ab (gelb).",
+      "Dann folgen weitere Richtungen. Jeder Strahl ist schwach – aber alle zielen genau auf den Tumor.",
+      "Im Tumor treffen sich alle fünf Strahlen: Dort ist die Dosis am höchsten. Das gesunde Gewebe bekommt meist nur einen schwachen Strahl ab – nahe am Tumor etwas mehr (orange).",
+      "Die Krebszellen sterben ab, der Tumor schrumpft. Die Bestrahlung verteilt man auf <strong>viele kurze Termine</strong>. Dazwischen erholt sich das gesunde Gewebe."
+    ],
+    zeige
+  }, "thSchritte");
+})();
+
+/* ---------- Station 2: Übungen ---------- */
+Modul.makeTF($("#tfTherapie"), [
+  ["Krebszellen teilen sich schnell und sind deshalb besonders empfindlich gegen Strahlung.", true],
+  ["Bei der Strahlentherapie soll möglichst nur das kranke Gewebe zerstört werden.", true],
+  ["Am besten bestrahlt man den Tumor mit einem einzigen, sehr starken Strahl.", false],
+  ["Für gesundes Gewebe ist die Strahlung bei der Therapie völlig ungefährlich.", false],
+  ["Strahlung kann selbst Krebs auslösen – deshalb wird die Strahlenmenge genau berechnet.", true]
+], "tfTherapie");
+Modul.makeOpen($("#open2"), [
+  {q: "Erkläre, warum die Strahlentherapie Krebszellen stärker schadet als gesunden Zellen – und wie man das gesunde Gewebe schont.",
+   m: "Krebszellen teilen sich sehr schnell. Deshalb sind sie besonders empfindlich gegen Strahlung und werden zerstört. Gesunde Zellen können kleine Schäden oft reparieren. Um das gesunde Gewebe zu schonen, bestrahlt man den Tumor aus vielen Richtungen mit schwachen Strahlen. Nur im Tumor treffen sich alle Strahlen, dort ist die Dosis hoch. Außerdem berechnet man die Strahlenmenge genau und verteilt sie auf viele Termine.",
+   k: ["teil|vermehr|wachs", "empfindlich|zerstör|sterben|kaputt", "richtung|seiten|dreh|winkel", "treffen|zusammen|addier|überlag|im tumor", "reparier|erhol|genau|berechn|termin|dosis|menge"], min: 3}
+], "open2-", "Schau dir die Animation noch einmal an: Was passiert mit dem gesunden Gewebe bei einem einzigen starken Strahl – und was bei fünf schwachen?");
+
+/* ---------- Station 3: Leckstellensuche ---------- */
+(function(){
+  const svg = $("#lkSvg"), obs = $("#lkObs"), regler = $("#lkPos"), posChip = $("#lkPosChip"), rateChip = $("#lkRate"), ton = $("#lkTon");
+  const X = m => 66 + m * 4.24;   // Meter an der Straße → x im Bild (links steht der Xenon-Kasten)
+  svg.innerHTML = `<rect width="520" height="290" fill="#f7fbfe"/>
+    <rect x="14" y="6" width="492" height="80" rx="8" fill="#fff" stroke="#d8e2ea"/>
+    <text x="24" y="22" font-size="11.5" font-weight="800" fill="#566674">Zählrate entlang der Straße</text>
+    <text id="lkMax" x="496" y="22" text-anchor="end" font-size="11" font-weight="700" fill="#7a4b05"></text>
+    <line x1="62" y1="78" x2="494" y2="78" stroke="#8a97a2" stroke-width="1.5"/>
+    <g id="lkBalken"></g>
+    <g fill="#e3ebf1" stroke="#c9d4de" stroke-width="1.5">
+      <path d="M60 150 V114 L88 96 L116 114 V150 Z"/><path d="M290 150 V118 L320 100 L350 118 V150 Z"/><path d="M420 150 V112 L448 94 L476 112 V150 Z"/>
+    </g>
+    <rect y="150" width="520" height="12" fill="#6b7680"/>
+    <line x1="0" y1="156" x2="520" y2="156" stroke="#fff" stroke-width="1.5" stroke-dasharray="14 12"/>
+    <rect y="162" width="520" height="128" fill="#a47448"/>
+    <g id="lkSteine" fill="#8a5f39"></g>
+    <g id="lkGruben"></g>
+    <rect x="0" y="234" width="520" height="18" fill="#f2c230" stroke="#b48a1c" stroke-width="2"/>
+    <line x1="0" y1="239" x2="520" y2="239" stroke="#fbe08a" stroke-width="3"/>
+    <rect x="96" y="230" width="9" height="26" rx="2" fill="#d8a81e" stroke="#a87808"/><rect x="380" y="230" width="9" height="26" rx="2" fill="#d8a81e" stroke="#a87808"/>
+    <text x="510" y="274" text-anchor="end" font-size="11.5" font-weight="800" fill="#fbe8c8">Gasleitung mit Erdgas</text>
+    <g id="lkXe" class="stage">
+      <rect x="2" y="122" width="32" height="28" rx="4" fill="#8e55c7" stroke="#5b2f86" stroke-width="1.5"/>
+      <text x="18" y="141" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">Xe</text>
+      <line x1="18" y1="150" x2="18" y2="234" stroke="#8e55c7" stroke-width="4"/>
+      <text x="18" y="116" text-anchor="middle" font-size="11" font-weight="800" fill="#5b2f86">Xenon</text>
+      <g id="lkXeFluss"></g>
+    </g>
+    <g id="lkRiss" class="stage"></g>
+    <g id="lkMann">
+      <line x1="-26" y1="150" x2="-23" y2="126" stroke="#2d4f7a" stroke-width="4" stroke-linecap="round"/><line x1="-17" y1="150" x2="-20" y2="126" stroke="#2d4f7a" stroke-width="4" stroke-linecap="round"/>
+      <rect x="-30" y="104" width="17" height="24" rx="4" fill="#e6f24a" stroke="#9aa52a" stroke-width="1.5"/>
+      <circle cx="-21.5" cy="96" r="7" fill="#f1c9a5" stroke="#b98a66" stroke-width="1.5"/>
+      <path d="M-28 93 Q-22 84 -15 93" fill="#5b3a24"/>
+      <line x1="-15" y1="110" x2="-6" y2="117" stroke="#e6f24a" stroke-width="4" stroke-linecap="round"/>
+      <line x1="-6" y1="116" x2="0" y2="146" stroke="#33414d" stroke-width="3"/>
+      <rect x="-5" y="144" width="10" height="5" rx="1.5" fill="#33414d"/>
+      <circle class="klick" cx="0" cy="146" r="7" fill="none" stroke="#e0a21a" stroke-width="2.5"/>
+      <g id="lkBlase"><rect x="8" y="98" width="66" height="22" rx="6" fill="#fff" stroke="#7a4b05" stroke-width="1.5"/><text id="lkZahl" x="41" y="114" text-anchor="middle" font-size="12.5" font-weight="800" fill="#7a4b05" font-family="ui-monospace,Consolas,monospace">20/min</text></g>
+    </g>`;
+  const steine = $("#lkSteine", svg);
+  for (let i = 0; i < 46; i++) svgEl("circle", {cx: (Math.random() * 520).toFixed(1), cy: (168 + Math.random() * 116).toFixed(1), r: (1.5 + Math.random() * 2.5).toFixed(1)}, steine);
+  const fluss = $("#lkXeFluss", svg);
+  for (let i = 0; i < 16; i++) svgEl("circle", {class: reduced ? "" : "xe", cx: (18 - (reduced ? -i * 31 : 0)).toFixed(1), cy: 240 + (i % 3) * 3.5, r: 2.6, fill: "#8e55c7", style: reduced ? "" : `animation-delay:${(-i * 7 / 16).toFixed(2)}s`}, fluss);
+  const mann = $("#lkMann", svg), blase = $("#lkBlase", svg), zahlT = $("#lkZahl", svg), balkenG = $("#lkBalken", svg), gruben = $("#lkGruben", svg), riss = $("#lkRiss", svg), klickRing = $(".klick", svg);
+  let leck = 50, xenon = false, gefunden = false, grabungen = 0, werte = {}, anzeige = 20, sichtbar = false, laufend = false, naechster = null, klickAus = null;
+  register("leck", "#lkSvg", "Simulation: Leckstellensuche (Leck gefunden)");
+  if (!AC) { ton.checked = false; ton.disabled = true; ton.parentNode.insertAdjacentHTML("beforeend", ' <span class="hint" style="margin:0">(Ton geht auf diesem Gerät nicht)</span>'); }
+  const meter = () => +regler.value;
+  const rate = m => 20 + (xenon ? 520 * Math.exp(-(((m - leck) / 6) ** 2)) : 0);
+  const zufall = r => Math.max(0, Math.round(r + (Math.random() + Math.random() + Math.random() - 1.5) * 1.4 * Math.sqrt(r)));
+  function zeichneBalken(){
+    balkenG.innerHTML = ""; let max = 0;
+    Object.keys(werte).forEach(k => {
+      const m = +k * 2, r = werte[k], h = clamp(r / 540 * 52, 2, 54); max = Math.max(max, r);
+      svgEl("rect", {x: (X(m) - 3.5).toFixed(1), y: (78 - h).toFixed(1), width: 7, height: h.toFixed(1), rx: 1.5, fill: r > 90 ? "#c0392b" : "#b8720a"}, balkenG);
+    });
+    $("#lkMax", svg).textContent = max ? `höchster Wert: ${max} pro Minute` : "";
+  }
+  function stelle(){
+    const m = meter();
+    mann.setAttribute("transform", `translate(${X(m).toFixed(1)} 0)`);
+    blase.setAttribute("transform", X(m) > 420 ? "translate(-104 0)" : "");
+    posChip.textContent = m + " m";
+    anzeige = zufall(rate(m));
+    zahlT.textContent = anzeige + "/min"; rateChip.textContent = anzeige + " pro Minute";
+    werte[Math.round(m / 2)] = Math.round(rate(m) + (Math.random() - .5) * 6);
+    zeichneBalken();
+  }
+  // Knacken: zufällige Abstände wie bei echten Zerfällen – im Mittel so oft, wie die Zählrate angibt
+  function plane(){
+    clearTimeout(naechster);
+    if (!sichtbar || !laufend) return;
+    const proSek = rate(meter()) / 60, t = -Math.log(1 - Math.random()) / proSek * 1000;
+    naechster = setTimeout(() => {
+      if (!reduced) { klickRing.classList.add("an"); clearTimeout(klickAus); klickAus = setTimeout(() => klickRing.classList.remove("an"), 60); }
+      if (ton.checked) knacken();
+      plane();
+    }, Math.min(t, 8000));
+  }
+  Modul.onVisible($("#lkSim"), v => { sichtbar = v; plane(); });
+  setInterval(() => { if (sichtbar && laufend) { anzeige = zufall(rate(meter())); zahlT.textContent = anzeige + "/min"; rateChip.textContent = anzeige + " pro Minute"; } }, 900);
+  const los = () => { if (ton.checked) audio(); if (!laufend) { laufend = true; plane(); } };
+  regler.addEventListener("pointerdown", los);
+  regler.addEventListener("input", () => {
+    los(); stelle(); plane();
+    if (gefunden) return;
+    const r = rate(meter());
+    if (!xenon) obs.textContent = `Bei ${meter()} m zählt das Messgerät etwa ${Math.round(r)} pro Minute – das ist nur die Nullrate. Überall gleich! Ohne Hilfe weißt du nicht, wo das Leck ist. Tippe auf „Xenon zugeben“.`;
+    else obs.textContent = r > 300 ? `Bei ${meter()} m schnellt die Zählrate hoch: etwa ${Math.round(r)} pro Minute! Hier tritt Xenon aus dem Boden. Tippe auf „Hier aufgraben“.`
+      : r > 60 ? `Bei ${meter()} m steigt die Zählrate (etwa ${Math.round(r)} pro Minute). Du kommst dem Leck näher …` : `Bei ${meter()} m: etwa ${Math.round(r)} pro Minute – nur die Nullrate. Hier ist kein Leck. Such weiter.`;
+  });
+  ton.addEventListener("change", () => { if (ton.checked) audio(); });
+  $("#tXenon").addEventListener("click", () => {
+    if (ton.checked) audio();
+    if (xenon) { obs.textContent = "Das Xenon ist schon im Erdgas. Schiebe das Messgerät an der Straße entlang und beobachte die Zählrate."; return; }
+    xenon = true; werte = {}; zeichneBalken(); $("#lkXe", svg).classList.add("on");
+    if (!laufend) { laufend = true; } plane(); stelle();
+    obs.textContent = "Das radioaktive Xenon strömt jetzt mit dem Erdgas durch die Leitung. Im Boden kannst du es nicht sehen – nur das Messgerät merkt es. Schiebe das Messgerät an der Straße entlang und achte auf die Zählrate.";
+  });
+  function grube(m, treffer){
+    const x = X(m), g = svgEl("g", {}, gruben);
+    svgEl("path", {d: `M${(x - 22).toFixed(1)} 150 L${(x - 14).toFixed(1)} 232 H${(x + 14).toFixed(1)} L${(x + 22).toFixed(1)} 150 Z`, fill: "#5e3b1c", stroke: "#3f2812", "stroke-width": 1.5}, g);
+    svgEl("path", {d: `M${(x + 24).toFixed(1)} 150 Q${(x + 36).toFixed(1)} 136 ${(x + 48).toFixed(1)} 150 Z`, fill: "#8a5f39"}, g);
+    svgEl("text", {x: (x + 36).toFixed(1), y: 133, "text-anchor": "middle", "font-size": 16, "font-weight": 900, fill: treffer ? "#1b8a4b" : "#c0392b"}, g).textContent = treffer ? "✓" : "✗";
+  }
+  $("#lkGraben").addEventListener("click", () => {
+    if (gefunden) { obs.textContent = "Das Leck ist schon gefunden. Tippe auf „Neue Straße“ für eine neue Suche."; return; }
+    const m = meter(), treffer = xenon && Math.abs(m - leck) <= 4.5;
+    grabungen++;
+    grube(m, treffer);
+    if (treffer) {
+      gefunden = true;
+      const x = X(leck);
+      riss.innerHTML = `<path d="M${(x - 5).toFixed(1)} 234 l3 6 l-3 4 l4 7" fill="none" stroke="#3f2812" stroke-width="2"/>`;
+      for (let i = 0; i < 7; i++) svgEl("circle", {class: reduced ? "" : "rise", cx: (x - 8 + Math.random() * 16).toFixed(1), cy: (228 - i * 9).toFixed(1), r: 2.6, fill: "#8e55c7", style: reduced ? "" : `animation-delay:${(i * .3).toFixed(1)}s`}, riss);
+      riss.classList.add("on");
+      solve("leck");
+      obs.textContent = `✅ Gefunden! Bei ${leck} m ist die Leitung gerissen – genau dort, wo die Zählrate am höchsten war. ` + (grabungen === 1 ? "Gleich beim ersten Loch. " : `Du hast ${grabungen}-mal gegraben. `) + "Ohne Xenon und Messgerät hätte man die Straße auf der ganzen Länge aufreißen müssen.";
+    } else if (!xenon) obs.textContent = "Hier ist die Leitung dicht – umsonst gegraben! Ohne Xenon zeigt der Zähler überall nur die Nullrate, du gräbst blind. Tippe zuerst auf „Xenon zugeben“.";
+    else obs.textContent = `Bei ${m} m ist die Leitung dicht – umsonst gegraben. Die Zählrate ist hier nur etwa ${Math.round(rate(m))} pro Minute. Such die Stelle, an der sie am höchsten ist.`;
+  });
+  function neueStrasse(){
+    leck = 14 + Math.round(Math.random() * 78); xenon = false; gefunden = false; grabungen = 0; werte = {};
+    gruben.innerHTML = ""; riss.innerHTML = ""; riss.classList.remove("on"); $("#lkXe", svg).classList.remove("on");
+    regler.value = 0; stelle(); werte = {}; zeichneBalken();
+  }
+  $("#lkNeu").addEventListener("click", () => { neueStrasse(); plane(); obs.textContent = "Neue Straße, neues Leck: Irgendwo ist die Leitung undicht. Gib Xenon zu und such mit dem Messgerät."; });
+  neueStrasse();
+})();
+
+/* ---------- Station 3: Werkstoffprüfung ---------- */
+(function(){
+  const svg = $("#wpSvg"), obs = $("#wpObs"), chips = $("#wpChips"), okB = $("#wpOk"), fehlerB = $("#wpFehler");
+  // Schweißnaht von oben: heller Streifen mit Schuppen
+  const schuppen = Array.from({length: 18}, (_, i) => `<path d="M374 ${36 + i * 8} q14 5 28 0" fill="none" stroke="#d6dbdf" stroke-width="1.4"/>`).join("");
+  const nahtBild = (extra) => `<rect x="282" y="32" width="212" height="146" fill="#565f68"/><rect x="282" y="32" width="212" height="12" fill="#6e7780"/><rect x="282" y="166" width="212" height="12" fill="#6e7780"/>
+      <path d="M372 32 L374 70 L371 110 L373 150 L372 178 H404 L406 140 L403 100 L405 60 L404 32 Z" fill="#b9c0c6"/>${schuppen}${extra || ""}`;
+  svg.innerHTML = `<rect width="520" height="290" fill="#f7fbfe"/>
+    <text x="84" y="28" text-anchor="end" font-size="12" font-weight="800" fill="#7a4b05">γ-Strahler</text>
+    <rect x="96" y="12" width="48" height="34" rx="5" fill="#f2c230" stroke="#a87808" stroke-width="2"/>
+    <text x="120" y="35" text-anchor="middle" font-size="16" fill="#33414d">☢</text>
+    <g id="wpStrahlen" class="stage" stroke="#e0a21a" stroke-width="2" fill="none">
+      ${[40, 72, 104, 136, 168, 200].map(x => `<line class="flow" x1="120" y1="48" x2="${x}" y2="188"/>`).join("")}
+    </g>
+    <g id="wpRohr" class="wp-teil" opacity="0">
+      <rect x="30" y="96" width="180" height="54" rx="8" fill="#4b5560" stroke="#2d3943" stroke-width="2"/>
+      <rect x="34" y="102" width="172" height="7" rx="3" fill="#6d7883"/>
+      <rect x="112" y="94" width="16" height="58" rx="3" fill="#8a95a0" stroke="#2d3943" stroke-width="1.5"/>
+      <g stroke="#b3bcc4" stroke-width="1.2">${[100, 108, 116, 124, 132, 140].map(y => `<path d="M113 ${y} q7 3 14 0" fill="none"/>`).join("")}</g>
+      <text x="120" y="86" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">Rohr mit Schweißnaht</text>
+    </g>
+    <g id="wpFlugTeil" class="wp-teil" opacity="0">
+      <rect x="30" y="114" width="180" height="20" rx="4" fill="#aab3ba" stroke="#6d7883" stroke-width="2"/>
+      <g fill="#7d8a94"><rect x="56" y="106" width="14" height="8" rx="2"/><rect x="113" y="106" width="14" height="8" rx="2"/><rect x="170" y="106" width="14" height="8" rx="2"/></g>
+      <text x="120" y="96" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">Halterung aus einem Flugzeugflügel</text>
+    </g>
+    <rect id="wpFilm" x="30" y="188" width="180" height="12" rx="2" fill="#2a3440"/>
+    <text x="120" y="218" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">Film / Bildsensor</text>
+    <text id="wpName" x="120" y="240" text-anchor="middle" font-size="13" font-weight="800" fill="#7a4b05">Wähle ein Teil.</text>
+    <line x1="8" y1="258" x2="250" y2="258" stroke="#fff" stroke-width="6"/><line x1="8" y1="258" x2="250" y2="258" stroke="#c0392b" stroke-width="6" stroke-dasharray="12 12"/>
+    <text x="129" y="280" text-anchor="middle" font-size="11" font-weight="800" fill="#c0392b">Sperrbereich – Strahlenschutz!</text>
+    <rect x="268" y="20" width="240" height="170" rx="12" fill="#1d252d"/>
+    <rect x="282" y="32" width="212" height="146" fill="#3a434c"/>
+    <text id="wpLeer" x="388" y="110" text-anchor="middle" font-size="12" font-weight="700" fill="#9fb3c4">noch kein Bild</text>
+    <g id="wpBildA" class="wp-bild" opacity="0">${nahtBild()}</g>
+    <g id="wpBildB" class="wp-bild" opacity="0">${nahtBild(`<ellipse cx="390" cy="92" rx="6" ry="5" fill="#1c2228"/><ellipse cx="385" cy="134" rx="3.6" ry="3" fill="#262d34"/>`)}</g>
+    <g id="wpBildC" class="wp-bild" opacity="0">
+      <rect x="282" y="32" width="212" height="146" fill="#2e353c"/>
+      <rect x="298" y="56" width="180" height="98" rx="10" fill="#aab3ba"/>
+      <g fill="#2e353c"><circle cx="338" cy="105" r="9"/><circle cx="388" cy="105" r="9"/><circle cx="438" cy="105" r="9"/></g>
+      <path d="M397 102 l9 -6 l5 3 l10 -8" fill="none" stroke="#2e353c" stroke-width="2.2" stroke-linejoin="round"/>
+    </g>
+    <g id="wpMarkB" class="wp-mark" opacity="0" fill="none" stroke="#f2b632" stroke-width="2.5" stroke-dasharray="5 3">
+      <circle cx="390" cy="92" r="13"/><circle cx="385" cy="134" r="10"/>
+      <text x="410" y="88" font-size="12" font-weight="800" fill="#f2b632" stroke="none">Gasblasen</text>
+    </g>
+    <g id="wpMarkC" class="wp-mark" opacity="0" fill="none" stroke="#f2b632" stroke-width="2.5" stroke-dasharray="5 3">
+      <ellipse cx="410" cy="97" rx="17" ry="11"/>
+      <text x="410" y="78" text-anchor="middle" font-size="12" font-weight="800" fill="#f2b632" stroke="none">Riss</text>
+    </g>
+    <text x="388" y="210" text-anchor="middle" font-size="13" font-weight="800" fill="#7a4b05">Durchstrahlungsbild</text>
+    <text x="388" y="228" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">hell = viel Metall · dunkel = Metall fehlt</text>`;
+  const TEILE = {
+    tNahtA: {k: "a", name: "Naht A", teil: "wpRohr", bild: "wpBildA", fehler: false,
+      frage: "Naht A: Der helle Streifen in der Mitte ist die Schweißnaht – dort ist das Metall am dicksten. Ist die Naht in Ordnung?",
+      ok: "Richtig: Der helle Streifen ist überall gleichmäßig, es gibt keine dunklen Flecken. Die Naht ist in Ordnung.",
+      falsch: "Schau genau hin: Der Streifen ist überall gleich hell. Nirgends fehlt Metall – die Naht ist in Ordnung."},
+    tNahtB: {k: "b", name: "Naht B", teil: "wpRohr", bild: "wpBildB", mark: "wpMarkB", fehler: true,
+      frage: "Naht B: Sieh dir den hellen Streifen der Naht genau an. Ist sie in Ordnung?",
+      ok: "Richtig: Die dunklen Flecken sind Gasblasen in der Naht. Dort fehlt Metall, darum kam mehr Strahlung durch. Die Naht muss neu geschweißt werden.",
+      falsch: "Schau genau hin: In der Naht sind zwei dunkle Flecken. Dort kam mehr Strahlung durch – es fehlt Metall. Das sind Gasblasen."},
+    tFlug: {k: "c", name: "Flugzeugteil", teil: "wpFlugTeil", bild: "wpBildC", mark: "wpMarkC", fehler: true,
+      frage: "Flugzeugteil: Die drei runden Löcher gehören dazu – dort kommen Schrauben hinein. Ist das Teil in Ordnung?",
+      ok: "Richtig: Vom mittleren Loch geht eine feine dunkle Linie aus – ein Riss. Das Teil wird ausgetauscht, bevor es bricht.",
+      falsch: "Schau genau hin: Neben dem mittleren Loch ist eine feine dunkle Linie. Das ist ein Riss! So ein Teil könnte im Flug brechen."}
+  };
+  const knoepfe = Object.keys(TEILE).map(id => $("#" + id));
+  const richtig = new Set(), versucht = {};
+  let laeuft = false, aktuell = null;
+  register("werkstoff", "#wpSvg", "Simulation: Werkstoffprüfung (alle drei Teile richtig beurteilt)");
+  function zeigeChips(){
+    chips.innerHTML = Object.keys(TEILE).map(id => { const T = TEILE[id], ok = richtig.has(T.k), v = versucht[T.k];
+      return `<span class="chip ${ok ? "ok" : v ? "bad" : ""}">${ok ? "✓" : v ? "✗" : "○"} ${T.name}${ok ? (T.fehler ? ": Fehler" : ": in Ordnung") : ""}</span>`; }).join("");
+  }
+  async function pruefe(id){
+    if (laeuft) return;
+    const T = TEILE[id];
+    laeuft = true; aktuell = null; okB.disabled = fehlerB.disabled = true;
+    knoepfe.forEach(b => { b.disabled = true; b.classList.toggle("gewaehlt", b.id === id); });
+    try {
+      $$(".wp-bild, .wp-mark", svg).forEach(g => g.setAttribute("opacity", 0)); $("#wpLeer", svg).textContent = "Prüfung läuft …";
+      $$(".wp-teil", svg).forEach(g => g.setAttribute("opacity", g.id === T.teil ? 1 : 0));
+      $("#wpName", svg).textContent = "Prüfteil: " + T.name;
+      obs.textContent = `${T.name} wird durchstrahlt. Niemand darf jetzt in den abgesperrten Bereich.`;
+      await wait(500);
+      $("#wpStrahlen", svg).classList.add("on"); $("#wpFilm", svg).setAttribute("fill", "#4a5560");
+      await wait(1500);
+      $("#wpStrahlen", svg).classList.remove("on"); $("#wpFilm", svg).setAttribute("fill", "#2a3440");
+      $("#wpLeer", svg).textContent = ""; $("#" + T.bild, svg).setAttribute("opacity", 1);
+      await wait(700);
+      aktuell = id; obs.textContent = T.frage;
+    } finally { laeuft = false; knoepfe.forEach(b => b.disabled = false); okB.disabled = fehlerB.disabled = !aktuell; }
+  }
+  function urteil(sagtFehler){
+    if (!aktuell || laeuft) return;
+    const T = TEILE[aktuell], ok = sagtFehler === T.fehler;
+    versucht[T.k] = true;
+    Modul.versuch && Modul.versuch("werkstoff", ok);
+    if (ok) { richtig.add(T.k); if (T.mark) $("#" + T.mark, svg).setAttribute("opacity", 1); obs.textContent = "✅ " + T.ok; }
+    else obs.textContent = "❌ " + T.falsch;
+    zeigeChips();
+    if (richtig.size === 3 && !Modul.isSolved("werkstoff")) { solve("werkstoff"); obs.textContent += " Alle drei Teile richtig beurteilt!"; }
+    else if (ok) obs.textContent += ` (${richtig.size} von 3 richtig)`;
+  }
+  knoepfe.forEach(b => b.addEventListener("click", () => pruefe(b.id)));
+  okB.addEventListener("click", () => urteil(false));
+  fehlerB.addEventListener("click", () => urteil(true));
+  zeigeChips();
+})();
+
+/* ---------- Station 3: Übungen ---------- */
+Modul.makeGap($("#gapTechnik"), [
+  ["Bei der Leckstellensuche gibt man dem Erdgas das radioaktive Gas ", {g: "Xenon"}, " bei. Am Leck strömt es aus. Über dem Leck misst der Geiger-Müller-Zähler die höchste ", {g: "Zählrate"}, ". Nur dort muss man ", {g: "graben"}, "."],
+  ["Bei der Werkstoffprüfung wird eine Schweißnaht ", {g: "durchstrahlt"}, ". Eine Gasblase oder ein Riss erscheint im Bild als ", {g: "dunkle"}, " Stelle. Das Teil wird dabei nicht ", {g: "zerstört"}, "."]
+], "gapTechnik", ["Sauerstoff", "helle"]);
+
+/* ---------- Station 4: Nutzen-Risiko-Waage ---------- */
+(function(){
+  const svg = $("#nrSvg"), obs = $("#nrObs"), fallP = $("#nrFall"), stand = $("#nrStand"), jaB = $("#nrJa"), neinB = $("#nrNein");
+  const PX = 260, PY = 66, ARM = 165;
+  const schale = (id, name, farbe) => `<g id="${id}">
+      <line x1="0" y1="0" x2="-80" y2="92" stroke="#8a97a2" stroke-width="2"/><line x1="0" y1="0" x2="80" y2="92" stroke="#8a97a2" stroke-width="2"/>
+      <g class="gewichte"></g>
+      <path d="M-88 92 H88 Q82 108 0 108 Q-82 108 -88 92 Z" fill="#c9d4de" stroke="#8a97a2" stroke-width="2"/>
+      <text x="0" y="126" text-anchor="middle" font-size="13" font-weight="800" fill="${farbe}">${name}</text></g>`;
+  svg.innerHTML = `<rect width="520" height="250" fill="#f7fbfe"/>
+    <text id="nrUrteil" x="260" y="26" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b"></text>
+    <rect x="255" y="66" width="10" height="170" fill="#8a97a2"/><rect x="222" y="234" width="76" height="10" rx="4" fill="#566674"/>
+    ${schale("nrL", "NUTZEN", "#1e7a46")}${schale("nrR", "RISIKO", "#c0392b")}
+    <g id="nrBalken"><rect x="95" y="61" width="330" height="10" rx="5" fill="#33414d"/></g>
+    <circle cx="260" cy="66" r="8" fill="#f2b632" stroke="#7a4b05" stroke-width="2"/>`;
+  const balken = $("#nrBalken", svg), sL = $("#nrL", svg), sR = $("#nrR", svg), urteilT = $("#nrUrteil", svg);
+  const FAELLE = [
+    {t: "Frau Kaya hat einen Knoten am Hals. Die Ärztin möchte mit einem Szintigramm nachsehen, ob er krank ist.", ja: true,
+     n: [["Krankheit früh erkennen", 3], ["richtig behandeln", 2]], r: [["kleine Strahlenmenge", 1]],
+     e: "Das Szintigramm zeigt, ob der Knoten krank ist. Die Strahlenmenge ist klein, und das Iod zerfällt schnell. Der Nutzen ist viel größer."},
+    {t: "Herr Lindner hat einen Tumor in der Lunge. Das Ärzteteam schlägt eine Strahlentherapie vor.", ja: true,
+     n: [["Tumor wird zerstört", 3], ["kann Leben retten", 3]], r: [["gesundes Gewebe belastet", 1], ["selten später Krebs", 1]],
+     e: "Ohne Behandlung wächst der Tumor weiter. Die Therapie kann sein Leben retten – dafür nimmt man die Nebenwirkungen in Kauf."},
+    {t: "Tim ist 15 und völlig gesund. Er möchte „zur Sicherheit“ jedes Jahr eine Computertomographie (CT) vom ganzen Körper.", ja: false,
+     n: [["kaum Nutzen (gesund)", .5]], r: [["unnötige Strahlung", 2], ["Erbgut kann leiden", 2]],
+     e: "Tim hat keine Beschwerden – die Untersuchung bringt ihm kaum etwas. Eine CT belastet den Körper mit Strahlung. Ohne Grund lässt man das."},
+    {t: "Unter der Hauptstraße ist eine zwei Kilometer lange Gasleitung undicht. Man könnte die Straße aufreißen – oder mit Xenon suchen.", ja: true,
+     n: [["Leck schnell gefunden", 2], ["nur ein kleines Loch", 2], ["Explosionsgefahr weg", 2]], r: [["wenig radioaktives Gas", .5]],
+     e: "Mit Xenon findet man das Leck schnell und gräbt nur ein kleines Loch. Es wird nur eine kleine Menge des Gases gebraucht."},
+    {t: "Früher standen in manchen Schuhgeschäften Röntgengeräte. Kinder konnten damit sehen, wie ihre Füße im neuen Schuh sitzen.", ja: false,
+     n: [["sehen, ob er passt", 1]], r: [["Strahlung ohne Not", 2], ["Verkäufer bestrahlt", 2]],
+     e: "Ob ein Schuh passt, merkt man auch ohne Strahlung. Kunden und Verkäufer bekamen ständig Strahlung ab – heute sind solche Geräte verboten."}
+  ];
+  const richtig = new Set();
+  let i = 0, winkel = 0, laufNr = 0, busy = false;
+  register("waage", "#nrSvg", "Simulation: Nutzen-Risiko-Waage (alle fünf Fälle richtig entschieden)");
+  function setze(w){
+    const a = w * Math.PI / 180;
+    balken.setAttribute("transform", `rotate(${w.toFixed(2)} ${PX} ${PY})`);
+    sL.setAttribute("transform", `translate(${(PX - ARM * Math.cos(a)).toFixed(1)} ${(PY - ARM * Math.sin(a)).toFixed(1)})`);
+    sR.setAttribute("transform", `translate(${(PX + ARM * Math.cos(a)).toFixed(1)} ${(PY + ARM * Math.sin(a)).toFixed(1)})`);
+  }
+  function kippe(ziel){
+    const nr = ++laufNr, w0 = winkel, t0 = performance.now(), D = reduced || Math.abs(ziel - w0) < .05 ? 0 : 900;
+    return new Promise(res => {
+      (function f(now){
+        if (nr !== laufNr) return res();
+        const k = D ? clamp((now - t0) / D, 0, 1) : 1, e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+        winkel = w0 + (ziel - w0) * e; setze(winkel);
+        if (k < 1) requestAnimationFrame(f); else res();
+      })(t0);
+    });
+  }
+  function leeren(){ $$(".gewichte", svg).forEach(g => g.innerHTML = ""); urteilT.textContent = ""; }
+  function gewicht(schaleG, k, text, farbe){
+    const y = 92 - 25 * (k + 1) + 1, g = svgEl("g", {class: "gw"}, $(".gewichte", schaleG));
+    svgEl("rect", {x: -82, y, width: 164, height: 22, rx: 5, fill: farbe}, g);
+    svgEl("text", {x: 0, y: y + 15, "text-anchor": "middle", "font-size": 11.5, "font-weight": 700, fill: "#fff"}, g).textContent = text;
+    return g;
+  }
+  function zeigeFall(){
+    const F = FAELLE[i];
+    fallP.innerHTML = `<b>Fall ${i + 1} von ${FAELLE.length}:</b> ${F.t}`;
+    leeren(); kippe(0);
+    obs.textContent = richtig.has(i) ? "Diesen Fall hast du schon richtig entschieden. Du kannst ihn noch einmal wiegen." : "Ist der Nutzen größer als das Risiko? Tippe auf deine Entscheidung.";
+  }
+  async function entscheide(ja){
+    if (busy) return;
+    busy = true; jaB.disabled = neinB.disabled = true;
+    const F = FAELLE[i], ok = ja === F.ja;
+    try {
+      leeren(); await kippe(0);
+      const alle = [...F.n.map((x, k) => gewicht(sL, k, x[0], "#2e8b57")), ...F.r.map((x, k) => gewicht(sR, k, x[0], "#c0392b"))];
+      for (const g of alle) { void g.getBoundingClientRect(); g.classList.add("da"); await wait(380); }
+      const sn = F.n.reduce((s, x) => s + x[1], 0), sr = F.r.reduce((s, x) => s + x[1], 0);
+      await kippe(clamp((sr - sn) * 5, -15, 15));
+      urteilT.textContent = sn > sr ? "Der Nutzen ist größer." : "Das Risiko ist größer.";
+      urteilT.setAttribute("fill", sn > sr ? "#1e7a46" : "#c0392b");
+      Modul.versuch && Modul.versuch("waage", ok);
+      if (ok) richtig.add(i);
+      obs.textContent = (ok ? "✅ Richtig! " : "❌ Nicht ganz – schau auf die Waage. ") + F.e;
+      stand.textContent = `${richtig.size} von ${FAELLE.length} Fällen richtig`;
+      if (richtig.size === FAELLE.length && !Modul.isSolved("waage")) { solve("waage"); obs.textContent += " 🎉 Alle fünf Fälle richtig entschieden!"; }
+      else if (ok) obs.textContent += " Tippe auf „Nächster Fall“.";
+    } finally { busy = false; jaB.disabled = neinB.disabled = false; }
+  }
+  jaB.addEventListener("click", () => entscheide(true));
+  neinB.addEventListener("click", () => entscheide(false));
+  $("#nrWeiter").addEventListener("click", () => {
+    if (busy) return;
+    let k = (i + 1) % FAELLE.length;
+    for (let n = 0; n < FAELLE.length && richtig.has(k) && richtig.size < FAELLE.length; n++) k = (k + 1) % FAELLE.length;
+    i = k; zeigeFall();
+  });
+  setze(0); zeigeFall();
+})();
+
+/* ---------- Station 4: Übungen ---------- */
+Modul.makePaare($("#paareAnw"), [
+  ["Szintigramm", "Strahlung aus dem Körper wird gemessen und zu einem Bild"],
+  ["Strahlentherapie", "Strahlung zerstört Krebszellen"],
+  ["Leckstellensuche", "radioaktives Gas verrät die undichte Stelle"],
+  ["Werkstoffprüfung", "Strahlung durchdringt Metall und zeigt Risse"],
+  ["C-14-Methode", "der Zerfall von Kohlenstoff verrät das Alter"]
+], "paareAnw");
+Modul.makeSort($("#sortStrahl"), {
+  buckets: ["☢️ mit ionisierender Strahlung", "🧲 ohne ionisierende Strahlung"], cols: 220,
+  items: [
+    {t: "Szintigramm der Schilddrüse", b: 0}, {t: "Strahlentherapie gegen Krebs", b: 0}, {t: "Röntgenbild vom Arm", b: 0}, {t: "Computertomographie (CT)", b: 0}, {t: "Prüfung einer Schweißnaht", b: 0},
+    {t: "MRT (Kernspintomographie)", b: 1}, {t: "Ultraschall vom Bauch", b: 1}, {t: "Blutdruck messen", b: 1}
+  ]
+}, "sortStrahl");
+Modul.makeOpen($("#open4"), [
+  {q: "Lena sagt: „Radioaktive Strahlung ist gefährlich. Man sollte sie überall verbieten.“ Nimm Stellung: Nenne einen Nutzen, ein Risiko und wie man das Risiko klein hält.",
+   m: "Ein Verbot wäre nicht gut, denn Strahlung hat großen Nutzen: Mit einem Szintigramm erkennt man Krankheiten der Schilddrüse, mit der Strahlentherapie bekämpft man Krebs, und in der Technik findet man Lecks in Gasleitungen und Risse in Schweißnähten. Lena hat aber recht, dass Strahlung Risiken hat: Sie kann Zellen und das Erbgut schädigen und Krebs auslösen. Deshalb setzt man sie nur ein, wenn der Nutzen größer ist als das Risiko, nimmt so wenig wie möglich und Stoffe mit kurzer Halbwertszeit und schützt sich durch Abstand, Abschirmung und kurze Zeit.",
+   k: ["szintigramm|krankheit|erkenn|therapie|tumor|krebs bekämpf|leck|riss|naht|werkstoff|medizin|technik|c-14|alter", "schad|schäd|erbgut|zelle|gefähr|risiko|krebs auslös|krebs erzeug", "wenig|kurz|abstand|abschirm|blei|schutz|nötig|größer|halbwertszeit|berechn"], min: 3}
+], "open4-", "Lies die Karte „Nutzen größer als das Risiko“ noch einmal: Was bringt die Strahlung, was kann sie anrichten – und wie schützt man sich?");
+
+/* ---------- Training: Kreuzworträtsel mit Tipps ---------- */
+Modul.makeCrossword($("#cw"), {
+  tipps: true,
+  words: [
+    {w: "HALBWERTSZEIT", r: 2, c: 8, d: "d", q: "Sie sollte beim Stoff für ein Szintigramm kurz sein.", tip: "Nach dieser Zeit ist die Hälfte der Kerne zerfallen."},
+    {w: "SCHWEISSNAHT", r: 10, c: 1, d: "a", q: "Hier sind zwei Rohre verbunden – bei der Werkstoffprüfung wird sie durchstrahlt.", tip: "Entsteht beim Schweißen. ß wird zu SS.", zeig: "Schweißnaht"},
+    {w: "SCHILDDRUESE", r: 8, c: 1, d: "a", q: "Organ vorn am Hals, das Iod speichert", tip: "Sie sieht aus wie ein kleiner Schmetterling. Ü wird zu UE.", zeig: "Schilddrüse"},
+    {w: "SZINTIGRAMM", r: 3, c: 0, d: "a", q: "Bild der Schilddrüse, das mit radioaktivem Iod entsteht", tip: "Fängt mit SZ an. Der Computer macht es aus den Messwerten der Gammakamera."},
+    {w: "KREBSZELLEN", r: 12, c: 2, d: "a", q: "Sie teilen sich schnell und sind deshalb empfindlich gegen Strahlung (Mehrzahl).", tip: "Aus ihnen besteht ein Tumor."},
+    {w: "LECKSTELLE", r: 14, c: 3, d: "a", q: "Undichte Stelle in einer Gasleitung", tip: "Leck + Stelle."},
+    {w: "DIAGNOSE", r: 1, c: 12, d: "d", q: "Das Erkennen einer Krankheit – das Szintigramm hilft dabei.", tip: "Fremdwort, fängt mit D an."},
+    {w: "ABSTAND", r: 1, c: 0, d: "d", q: "Eine Regel des Strahlenschutzes: … halten", tip: "Je weiter weg, desto weniger Strahlung."},
+    {w: "ERDGAS", r: 0, c: 6, d: "d", q: "Es strömt durch die Leitung unter der Straße.", tip: "Damit heizen viele Häuser."},
+    {w: "XENON", r: 0, c: 5, d: "a", q: "Radioaktives Gas, das man bei der Leckstellensuche ins Erdgas gibt", tip: "Ein Edelgas, fängt mit X an."},
+    {w: "TUMOR", r: 1, c: 10, d: "d", q: "Anderes Wort für Krebsgeschwür", tip: "Fängt mit T an, fünf Buchstaben."},
+    {w: "IOD", r: 3, c: 2, d: "d", q: "Die Schilddrüse braucht diesen Stoff für ihre Hormone.", tip: "Steckt auch in manchem Speisesalz. Drei Buchstaben."}
+  ],
+  sol: [[3, 12], [0, 7], [10, 4], [14, 12], [6, 0], [7, 0], [2, 10], [0, 9], [3, 6]], solWord: "ANWENDUNG"
+}, "cw");
+
+/* ---------- Skizze im Regelheft ---------- */
+(function(){
+  const lap = (cx, cy, fill, stroke) => [[-13, -12], [13, 12]].map(([dx, w]) => `<ellipse cx="${cx + dx}" cy="${cy}" rx="12" ry="27" transform="rotate(${w} ${cx + dx} ${cy})" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>`).join("") + `<rect x="${cx - 8}" y="${cy + 6}" width="16" height="11" rx="4" fill="${fill}"/>`;
+  $("#regelheft .rh-skizze").innerHTML = `<rect x="2" y="4" width="196" height="150" rx="8" fill="#fff" stroke="#c9d4de" stroke-width="1.5"/>
+    <text x="100" y="22" text-anchor="middle" font-size="12" font-weight="800" fill="#7a4b05">Szintigramm</text>
+    ${lap(52, 72, "#f2c94c", "#b8720a")}${lap(148, 72, "#f2c94c", "#b8720a")}
+    <circle cx="139" cy="84" r="8" fill="#33414d"/>
+    <text x="52" y="126" text-anchor="middle" font-size="11" font-weight="700" fill="#15212b">gesund:</text><text x="52" y="141" text-anchor="middle" font-size="11" font-weight="700" fill="#15212b">gleichmäßig</text>
+    <text x="148" y="126" text-anchor="middle" font-size="11" font-weight="700" fill="#15212b">dunkle Stelle:</text><text x="148" y="141" text-anchor="middle" font-size="11" font-weight="700" fill="#15212b">wenig Iod</text>
+    <text x="218" y="16" font-size="11" font-weight="800" fill="#7a4b05">Zählrate</text>
+    <path d="M218 66 H300 C318 66 320 24 330 24 C340 24 342 66 360 66 H426" fill="none" stroke="#c0392b" stroke-width="2.5"/>
+    <line x1="218" y1="66" x2="426" y2="66" stroke="#8a97a2" stroke-width="1"/>
+    <rect x="212" y="84" width="216" height="8" fill="#6b7680"/>
+    <rect x="212" y="92" width="216" height="62" fill="#d9bf9c"/>
+    <rect x="212" y="124" width="216" height="12" fill="#f2c230" stroke="#b48a1c"/>
+    <path d="M327 124 l3 5 l-3 4 l3 3" fill="none" stroke="#3f2812" stroke-width="2"/>
+    <g fill="#8e55c7"><circle cx="326" cy="116" r="2.5"/><circle cx="333" cy="108" r="2.5"/><circle cx="327" cy="100" r="2.5"/></g>
+    <text x="330" y="150" text-anchor="middle" font-size="11" font-weight="800" fill="#15212b">Leck: Xenon tritt aus</text>
+    <text x="262" y="120" text-anchor="middle" font-size="10.5" font-weight="700" fill="#566674">Gasleitung</text>`;
+})();
+
+/* ---------- Profi-Check, Lernkarten ---------- */
+Modul.makeQuiz($("#quiz"), [...MC.s1, ...MC.s2, ...MC.s3, ...MC.s4, ...MC.train,
+  {q: "Wo liegt die Schilddrüse?", o: ["vorn am Hals, unter dem Kehlkopf", "im Bauch, gleich neben dem Magen", "im Kopf, direkt hinter den Augen", "im Rücken, neben der Wirbelsäule"], a: 0, e: "Sie sieht aus wie ein kleiner Schmetterling."},
+  {q: "Was zeigt ein Szintigramm?", o: ["wo sich der radioaktive Stoff im Organ verteilt hat", "wie die Knochen im Hals genau aussehen", "wie schnell das Herz gerade schlägt", "wie alt ein Mensch ungefähr ist"], a: 0, e: "Helle Stellen: viel Stoff. Dunkle Stellen: wenig Stoff."},
+  {q: "Womit sucht der Techniker über der Gasleitung nach dem Leck?", o: ["mit einem Geiger-Müller-Zähler", "mit einem Thermometer", "mit einer Taschenlampe", "mit einem Kompass"], a: 0, e: "Über dem Leck ist die Zählrate am höchsten."},
+  {q: "Warum wird der Bereich bei der Werkstoffprüfung abgesperrt?", o: ["Niemand soll unnötig Strahlung abbekommen.", "Damit das Rohr nicht wegrollen kann.", "Weil die Schweißnaht noch sehr heiß ist.", "Damit der Film nicht nass werden kann."], a: 0, e: "Das ist Strahlenschutz: Abstand halten."},
+  {q: "Welche Eigenschaft der Krebszellen nutzt die Strahlentherapie?", o: ["Sie teilen sich schnell und sind deshalb empfindlich.", "Sie sind besonders groß und leicht zu treffen.", "Sie leuchten und sind darum gut zu sehen.", "Sie ziehen die Strahlung magnetisch an."], a: 0, e: "Schnell teilende Zellen werden von der Strahlung besonders leicht zerstört."}
+], "quiz", "Strahlen-Profi");
+if (window.NT8Karten) NT8Karten.trainer($("#lernkarten"), {module: ["ra-anwendung"], titel: "Lernkarten zu diesem Modul", zug: "M", druck: false});
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

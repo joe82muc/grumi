@@ -1,0 +1,1041 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#7a4b05">
+<title>Die Halbwertszeit | NT 9</title>
+<link rel="stylesheet" href="../../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="materie.css">
+<style>
+/* Münzexperiment */
+#mzSvg .mz-pos{transition:transform .45s cubic-bezier(.3,.7,.3,1),opacity .35s}
+#mzSvg .mz-flip{transform-box:fill-box;transform-origin:center}
+#mzSvg .mz-flip.dreh{animation:mzDreh .16s ease-in-out 4 alternate}
+@keyframes mzDreh{from{transform:scaleX(1)}to{transform:scaleX(.08)}}
+#mzSvg .mz-c{fill:#cd7f32;stroke:#8a4a1c;stroke-width:1.5;transition:stroke .2s}
+#mzSvg .mz-c.zahl{stroke:#c0392b;stroke-width:3.2}
+#mzSvg .mz-bar{fill:#cd7f32;transform-box:fill-box;transform-origin:50% 100%;transition:transform .5s cubic-bezier(.3,.7,.3,1)}
+#mzTab tr.mz-jetzt th{background:#fff3c4}
+#mzTab td{text-align:center}
+#mzTab tr.mz-mittel td,#mzTab tr.mz-mittel th{font-weight:800}
+#mzTab tr.mz-halb td,#mzTab tr.mz-halb th{color:#1b6e3e}
+.btn.puls{animation:mzPuls .5s 3 alternate}
+@keyframes mzPuls{to{transform:scale(1.08);box-shadow:0 0 0 4px #f2c14e}}
+.legende i{display:inline-block;width:20px;height:6px;border-radius:3px;vertical-align:middle;margin-right:6px}
+.legende i.strich{height:3px}
+.legende i.gestr{height:0;border-top:3px dashed #1b8a4b;background:none!important;border-radius:0}
+/* Zerfallskurve mit Regler */
+#hwSvg .hw-k{fill:#f2b632;stroke:#b8720a;stroke-width:1.5;transform-box:fill-box;transform-origin:center;transition:fill .5s,stroke .5s,transform .5s}
+#hwSvg .hw-k.weg{fill:#dfe5ea;stroke:#b9c3cb;transform:scale(.6)}
+#hwSvg .hw-k.blitz{animation:hwBlitz .8s}
+@keyframes hwBlitz{0%{fill:#fff3c4;stroke:#e0453a;stroke-width:6}100%{stroke-width:1.5}}
+/* Kurve selbst zeichnen */
+#kzSvg{touch-action:none;cursor:crosshair;outline:none}
+#kzSvg:focus-visible{box-shadow:inset 0 0 0 3px var(--sky)}
+#kzSvg .kz-p circle{fill:#b8720a;stroke:#fff;stroke-width:2}
+#kzSvg .kz-p.ok circle{fill:#1b8a4b}
+#kzSvg .kz-p.falsch circle{fill:#c93b3b}
+#kzSvg #kzKurve path{transition:stroke-dashoffset 1.4s ease-out}
+/* Zeitleiste */
+#zlSvg .zl-flag{cursor:pointer}
+#zlSvg .zl-flag .zl-m{fill:#b9c3cb;stroke:#fff;stroke-width:2;transition:fill .3s}
+#zlSvg .zl-flag .zl-l{stroke:#b9c3cb;transition:stroke .3s}
+#zlSvg .zl-flag .zl-n{fill:#566674;transition:fill .3s}
+#zlSvg .zl-flag.da .zl-m{fill:#f2b632}
+#zlSvg .zl-flag.da .zl-l{stroke:#d9a441}
+#zlSvg .zl-flag.da .zl-n{fill:#15212b}
+#zlSvg .zl-flag.an .zl-m{fill:#e0453a}
+#zlSvg .zl-flag.an .zl-l{stroke:#e0453a}
+#zlSvg .zl-flag.an .zl-n{fill:#c0392b}
+#zlSvg #zlBar{transform-box:fill-box;transform-origin:left center;transition:transform 1.4s ease-in-out}
+/* Iod-128 im Zeitraffer */
+#iodSvg .zeiger{transform-box:view-box;transform-origin:80px 118px;transition:transform 1.6s cubic-bezier(.4,.1,.3,1)}
+/* Rechentrainer */
+.rt-kopf{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;margin:0 0 10px}
+.rt-punkte{display:inline-flex;gap:6px}
+.rt-punkte span{width:18px;height:18px;border-radius:50%;border:2px solid var(--sky);background:#fff}
+.rt-punkte span.ok{background:var(--ok);border-color:var(--ok)}
+.rt-aufgabe{font-size:1.05rem;font-weight:600;background:var(--sky-l);border-radius:12px;padding:12px 14px;margin:0 0 10px}
+.rt-zeile{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.rt-zeile input{width:9em;max-width:100%;border:2px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;font-weight:700}
+.rt-zeile input:focus{outline:none;border-color:var(--sky)}
+.rt-zeile input.right{border-color:var(--ok);background:var(--ok-l)}
+.rt-zeile input.wrong{border-color:var(--bad);background:var(--bad-l)}
+.rt-einheit{font-weight:700}
+.rt-weg{margin:10px 0 0;padding:10px 12px;border:1.5px dashed var(--line);border-radius:12px;background:#fbfdff}
+.rt-kette{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;margin:6px 0}
+.rt-kette b{background:#fff3c4;border-radius:8px;padding:2px 8px}
+.regelheft .rh-tab td,.regelheft .rh-tab th{text-align:center;overflow-wrap:anywhere;hyphens:auto}
+@media (prefers-reduced-motion:reduce){#mzSvg *,#hwSvg *,#kzSvg *,#zlSvg *,#iodSvg *{transition:none!important;animation:none!important}}
+</style>
+<script src="../../../js/kursliste.js"></script>
+<script src="../themen.js"></script>
+<!-- 9M und 9R nutzen dieselben Seiten: die Kursliste kommt aus dem Ordner (../themen.js = NT9M oder NT9R) -->
+<script>window.GRUMI_KURS = window.NT9M || window.NT9R; window.GRUMI_KURS.KARTEN = "../../" + window.GRUMI_KURS.ORDNER + "App14_Materie/";</script>
+<script src="materie.js"></script>
+</head>
+<body data-bereich="ra">
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="../%C3%BCbersicht_themen.html">GRUMI<small>NT <span class="mt-zug">9M</span> · Radioaktivität 3</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Münzen</a>
+      <a href="#s2"><b>2</b>Kurve</a>
+      <a href="#s3"><b>3</b>Isotope</a>
+      <a href="#s4"><b>4</b>Rechnen</a>
+      <a href="#s5"><b>5</b>Training</a>
+      <a href="#abschluss"><b>6</b>Abschluss</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse <span class="mt-zug">9M</span> · Radioaktivität · Modul 3</div>
+    <h1>Die Halbwertszeit</h1>
+    <p>Ein instabiler Atomkern zerfällt irgendwann – aber niemand weiß, wann genau. Trotzdem kann man sicher sagen, wie viel von einem radioaktiven Stoff nach einer Stunde oder nach tausend Jahren noch übrig ist. Das Geheimnis heißt Halbwertszeit. Du kommst ihm mit einem Spiel mit Münzen auf die Spur.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s5">Direkt zum Training</a>
+    </div>
+    <div class="goals">
+      <div>🎲 Ich erkläre mit dem Münzspiel, warum nach jedem Schritt etwa die Hälfte übrig bleibt.</div>
+      <div>📉 Ich zeichne eine Zerfallskurve und lese Werte daraus ab.</div>
+      <div>⏳ Ich vergleiche Halbwertszeiten – von Minuten bis Milliarden Jahre.</div>
+      <div>🔢 Ich rechne aus, wie viel von einem radioaktiven Stoff nach einer bestimmten Zeit noch da ist.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg · Probenstoff</div><h2>Ein Spiel mit Münzen</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <figure style="margin:0 0 12px"><img class="zoomable" src="bilder/ra-3.jpg" width="1280" height="853" loading="lazy" decoding="async" alt="Zwei Jugendliche sitzen im Fachraum an einem Tisch. Der Junge lässt viele Kupfermünzen aus beiden Händen auf den Tisch fallen. Das Mädchen schiebt einzelne Münzen zur Seite. Daneben liegen zwei kleinere Münzhaufen, ein Blatt mit einer leeren Tabelle und ein Bleistift." style="width:100%;height:auto"><figcaption class="hint" style="margin:4px 0 0">Bild: GRUMI (mit KI erstellt)</figcaption></figure>
+      <p class="hint" style="margin:0 0 10px"><strong>Denk mal nach:</strong> 100 Münzen fallen auf den Tisch. Alle mit der Zahl nach oben kommen weg. Wie viele bleiben wohl liegen? Und wie viele nach dem nächsten Wurf?</p>
+      <p class="lead">Ein radioaktiver Stoff besteht aus unvorstellbar vielen Atomkernen. Seine Kerne sind <button class="term" data-t="instabil">instabil</button>: Irgendwann zerfallen sie und senden dabei Strahlung aus. Das ist der <button class="term" data-t="zerfall">radioaktive Zerfall</button>.</p>
+      <p style="margin:0">Wann ein bestimmter Kern zerfällt, kann niemand vorhersagen. Es ist reiner <button class="term" data-t="zufall">Zufall</button> – wie bei einem Münzwurf.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>So geht das Münzspiel:</strong></p>
+      <ol class="schritt-liste">
+        <li>100 Münzen in einen Becher füllen und auf den Tisch schütten.</li>
+        <li>Alle Münzen mit der Zahl nach oben aussortieren. Sie sind „zerfallen“.</li>
+        <li>Die übrigen Münzen zählen und in eine Tabelle schreiben.</li>
+        <li>Mit dem Rest wieder werfen – immer wieder.</li>
+      </ol>
+      <p style="margin:0">Jede Münze steht für einen Atomkern. Ob eine Münze die Zahl zeigt, weiß vorher niemand. Doch von vielen Münzen zeigt ungefähr die Hälfte die Zahl. Spiel mehrere Runden und vergleiche. Aus allen Runden bildest du den <button class="term" data-t="mittelwert">Mittelwert</button>.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="mzSim">
+    <svg viewBox="0 0 520 300" id="mzSvg" role="img" aria-label="Münzexperiment: Links liegen 100 Münzen auf einem Tisch. Bei jedem Wurf zeigen manche Münzen die Zahl. Sie werden aussortiert, die übrigen rücken zusammen. Rechts wächst ein Säulendiagramm mit den Münzen, die nach jedem Wurf übrig sind. Graue Punkte zeigen frühere Runden, eine braune Linie den Mittelwert, eine grüne gestrichelte Linie genau die Hälfte."></svg>
+    <div class="legende"><span><i style="background:#cd7f32;height:12px;width:12px"></i>diese Runde</span><span><b class="kugel" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#9aa5ad;margin-right:6px"></b>frühere Runden</span><span><i class="strich" style="background:#7a4b05"></i>Mittelwert</span><span><i class="gestr"></i>genau die Hälfte</span></div>
+    <div class="sim-ctrl"><button class="btn small teal" id="tWurf" type="button">🎲 Werfen</button><button class="btn small teal" id="tRunde" type="button">⏩ Runde zu Ende werfen</button><button class="btn small ghost" id="mzNeu" type="button">🔁 Neue Runde</button><span class="chip" id="mzChip">Runde 1</span></div>
+    <p class="obs" id="mzObs">100 Münzen liegen bereit. Jede Münze steht für einen Atomkern. Tippe auf „Werfen“: Alle Münzen mit der Zahl nach oben sind „zerfallen“ und kommen weg. Spiele mindestens 3 Runden.</p>
+    <div class="tab-wrap" style="padding:0 14px 14px"><table class="beob" id="mzTab">
+      <thead><tr><th>Münzen übrig</th><th>Start</th><th>1. Wurf</th><th>2. Wurf</th><th>3. Wurf</th><th>4. Wurf</th><th>5. Wurf</th><th>6. Wurf</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </div>
+
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Jede Münze steht für einen Atomkern. Ob eine Münze die Zahl zeigt, ist Zufall – genauso wie der Zerfall eines einzelnen Kerns.</li><li>Nach jedem Wurf bleibt etwa die Hälfte übrig: 100 → 50 → 25 → 12,5 → …</li><li>Bei wenigen Münzen weichen die Werte durch Zufall stark ab. Der Mittelwert aus vielen Runden kommt der Hälfte sehr nahe. Ein radioaktiver Stoff hat unvorstellbar viele Kerne – dort gilt die Regel sehr genau.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Zuordnen · Probenstoff</span>
+    <h3 style="margin-top:4px">Modell und Wirklichkeit</h3>
+    <p class="hint">Das Münzspiel ist ein Modell für den radioaktiven Zerfall. Tippe eine Karte an und dann das passende Feld.</p>
+    <div id="sortModell"></div>
+  </div>
+  <div class="card reveal" id="mc-s1"></div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Die Zerfallskurve</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Mit radioaktiven Kernen ist es wie mit den Münzen – nur sind es unvorstellbar viele. Nach einer bestimmten Zeit ist die Hälfte der Kerne zerfallen. Diese Zeit heißt <button class="term" data-t="halbwertszeit">Halbwertszeit</button>.</p>
+      <p style="margin:0">Danach zerfällt wieder die Hälfte – aber die Hälfte vom Rest. Nach der doppelten Zeit ist noch ein <strong>Viertel</strong> da, nach der dreifachen Zeit ein <strong>Achtel</strong>. Mit den Kernen nimmt auch die Strahlung ab: Der Geiger-Müller-Zähler misst nach einer Halbwertszeit nur noch die halbe <button class="term" data-t="zaehlrate">Zählrate</button>.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Die Zahl der Kerne kann man in ein <button class="term" data-t="diagramm">Diagramm</button> eintragen. Auf der waagrechten <button class="term" data-t="achse">Achse</button> steht die Zeit, auf der senkrechten die Zahl der Kerne. Verbindet man die Punkte, entsteht die <button class="term" data-t="zerfallskurve">Zerfallskurve</button>.</p>
+      <p style="margin:0">Sie fällt am Anfang steil ab, dann wird sie immer flacher. Sie ist keine gerade Linie – der Zerfall ist nicht <button class="term" data-t="linear">linear</button>. Ganz auf null kommt sie erst nach sehr langer Zeit.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="hwSim">
+    <svg viewBox="0 0 520 290" id="hwSvg" role="img" aria-label="Zerfallskurve mit Schieberegler: Links ein Präparat mit 64 radioaktiven Kernen. Rechts ein Diagramm. Schiebt man den Regler um eine Halbwertszeit weiter, zerfällt die Hälfte der übrigen Kerne: 64, 32, 16, 8, 4, 2, 1. Die Kurve wächst mit und wird immer flacher."></svg>
+    <div class="legende"><span><b class="kugel" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f2b632;margin-right:6px"></b>radioaktiver Kern (noch nicht zerfallen)</span><span><b class="kugel" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#dfe5ea;border:1px solid #b9c3cb;margin-right:6px"></b>zerfallener Kern</span></div>
+    <div class="sim-ctrl"><label for="hwRange">Zeit:</label><input type="range" id="hwRange" min="0" max="6" step="1" value="0" aria-label="Vergangene Zeit in Halbwertszeiten"><span class="chip" id="hwChip">0 Halbwertszeiten</span><button class="btn small ghost" id="hwPlay" type="button">▶ Abspielen</button></div>
+    <p class="obs" id="hwObs">Am Anfang sind alle 64 Kerne radioaktiv. Schiebe den Regler Schritt für Schritt nach rechts bis 6 – oder tippe auf „Abspielen“.</p>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li><strong>Halbwertszeit</strong> = die Zeit, nach der die Hälfte der Kerne eines radioaktiven Stoffs zerfallen ist. Dann ist auch die Strahlung nur noch halb so groß.</li><li>Nach 1 Halbwertszeit ist noch die Hälfte (1/2) da, nach 2 noch ein Viertel (1/4), nach 3 noch ein Achtel (1/8), nach 4 noch ein Sechzehntel (1/16).</li><li>Die Zerfallskurve fällt erst steil, dann immer flacher ab. Sie ist keine gerade Linie.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Zeichnen · Probenstoff</span>
+    <h3 style="margin-top:4px">Zeichne die Zerfallskurve selbst</h3>
+    <p class="hint">Ein <button class="term" data-t="praeparat">Präparat</button> enthält 800 Kerne <button class="term" data-t="iod">Iod</button>-128. Die Halbwertszeit ist 30 Minuten. Tippe für jede halbe Stunde an die passende Stelle im Diagramm. Mit ▲ und ▼ verschiebst du den gewählten Punkt genau. Dann tippe auf „Prüfen“.</p>
+    <div class="sim" id="kzSim">
+      <svg viewBox="0 0 520 300" id="kzSvg" tabindex="0" role="img" aria-label="Leeres Diagramm zum Zeichnen: waagrecht die Zeit von 0 bis 150 Minuten, senkrecht die Zahl der Kerne von 0 bis 800. Bei 0 Minuten ist der Punkt 800 schon gesetzt. Für 30, 60, 90, 120 und 150 Minuten setzt man selbst einen Punkt."></svg>
+      <div class="sim-ctrl"><button class="btn small ghost" id="kzHoch" type="button" aria-label="Gewählten Punkt höher setzen">▲ höher</button><button class="btn small ghost" id="kzRunter" type="button" aria-label="Gewählten Punkt tiefer setzen">▼ tiefer</button><span class="chip" id="kzChip">Punkt bei 30 Minuten: noch nicht gesetzt</span><button class="btn small" id="kzPruefen" type="button">Prüfen</button><button class="btn small ghost" id="kzNeu" type="button">Neu beginnen</button></div>
+      <p class="obs" id="kzObs">Tipp: Überlege bei jedem Punkt, wie viel vom Wert davor übrig bleibt.</p>
+    </div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Lückentext · Probenstoff</span>
+    <h3 style="margin-top:4px">Was ist die Halbwertszeit?</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapHWZ"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Richtig oder falsch? · Probenstoff</span>
+    <h3 style="margin-top:4px">Was stimmt?</h3>
+    <div id="tfKurve"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung.</p>
+    <div id="open2"></div>
+  </div>
+  <div class="card reveal" id="mc-s2"></div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>Halbwertszeiten von Isotopen</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Jedes radioaktive <button class="term" data-t="isotop">Isotop</button> hat seine eigene Halbwertszeit. Sie bleibt immer gleich. Man kann sie nicht verkürzen und nicht verlängern.</p>
+      <p style="margin:0">Die Halbwertszeiten sind sehr unterschiedlich: <strong>Iod-128</strong> etwa 30 Minuten, <button class="term" data-t="radium">Radium</button>-226 etwa 1 600 Jahre, <button class="term" data-t="uran">Uran</button>-238 sogar 4,4 <button class="term" data-t="milliarde">Milliarden</button> Jahre.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Was bedeutet das? Von Iod-128 ist nach wenigen Stunden fast nichts mehr da. Uran-238 dagegen gibt es seit der Entstehung der Erde vor etwa 4,6 Milliarden Jahren. Bis heute ist erst etwa die Hälfte davon zerfallen.</p>
+      <p style="margin:0">Für Untersuchungen im Krankenhaus, zum Beispiel der <button class="term" data-t="schilddruese">Schilddrüse</button>, nimmt man Stoffe mit kurzer Halbwertszeit. Sie helfen bei der <button class="term" data-t="diagnose">Diagnose</button> und zerfallen danach schnell.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="zlSim">
+    <svg viewBox="0 0 520 275" id="zlSvg" role="img" aria-label="Zeitleiste der Halbwertszeiten von 1 Minute bis 1 Milliarde Jahre. Darauf sieben Isotope: Iod-128 etwa 30 Minuten, Radon-222 etwa 3,8 Tage, Iod-131 etwa 8 Tage, Cäsium-137 etwa 30 Jahre, Radium-226 etwa 1 600 Jahre, Kohlenstoff-14 5 730 Jahre, Uran-238 4,4 Milliarden Jahre. Jeder Abschnitt der Zeitleiste ist viel länger als der davor."></svg>
+    <div class="sim-ctrl"><label>Isotop:</label><button class="btn small teal" id="tI128" type="button">Iod-128</button><button class="btn small teal" id="tRn222" type="button">Radon-222</button><button class="btn small teal" id="tI131" type="button">Iod-131</button><button class="btn small teal" id="tCs137" type="button">Cäsium-137</button><button class="btn small teal" id="tRa226" type="button">Radium-226</button><button class="btn small teal" id="tC14" type="button">Kohlenstoff-14</button><button class="btn small teal" id="tU238" type="button">Uran-238</button></div>
+    <p class="obs" id="zlObs">Tippe nacheinander auf alle sieben Isotope – auf die Knöpfe oder in der Zeitleiste. Achtung: Die Zeitleiste macht Riesensprünge. Jeder Abschnitt ist viel länger als der davor.</p>
+    <div class="tab-wrap" style="padding:0 14px 14px"><table class="beob" id="zlTab">
+      <thead><tr><th>Isotop</th><th>Halbwertszeit</th><th>Zeitraum</th><th>Wo kommt es vor?</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Jedes radioaktive Isotop hat seine eigene Halbwertszeit. Sie bleibt immer gleich.</li><li>Die Halbwertszeiten sind sehr unterschiedlich: Iod-128 etwa 30 Minuten, Radium-226 etwa 1 600 Jahre, Uran-238 4,4 Milliarden Jahre.</li><li>Kurze Halbwertszeit: Der Stoff zerfällt schnell und strahlt bald kaum noch. Lange Halbwertszeit: Der Stoff ist noch nach sehr langer Zeit da und strahlt.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Paare finden · Probenstoff</span>
+    <h3 style="margin-top:4px">Isotop und Halbwertszeit</h3>
+    <p class="hint">Tippe links ein Isotop an und dann rechts seine Halbwertszeit.</p>
+    <div id="paareHWZ"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung.</p>
+    <div id="open3"></div>
+  </div>
+  <div class="card reveal" id="mc-s3"></div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Probenstoff</div><h2>Rechnen mit der Halbwertszeit</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Mit der Halbwertszeit rechnest du aus, wie viel von einem radioaktiven Stoff nach einer bestimmten Zeit noch da ist. So gehst du vor:</p>
+      <ol class="schritt-liste">
+        <li>Wie viele Halbwertszeiten passen in die Zeit? Rechne: Zeit : Halbwertszeit.</li>
+        <li>Halbiere den Anfangswert so oft.</li>
+        <li>Schreibe einen Antwortsatz.</li>
+      </ol>
+      <p style="margin:0"><strong>Beispiel:</strong> 10 000 Kerne Iod-128, Halbwertszeit 30 Minuten. Wie viele sind nach 2 Stunden noch da? 2 Stunden = 120 Minuten. 120 : 30 = 4 Halbwertszeiten. 10 000 → 5 000 → 2 500 → 1 250 → 625. Nach 2 Stunden sind noch 625 Kerne da.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead"><strong>Rückwärts geht es auch:</strong> Nach 2 Stunden ist von einem Stoff nur noch ein Viertel da. Ein Viertel heißt: 2-mal halbiert. In 2 Stunden passen also 2 Halbwertszeiten. Die Halbwertszeit ist 1 Stunde.</p>
+      <p style="margin:0"><strong>Aus der Kurve ablesen:</strong> Suche auf der senkrechten Achse die Hälfte des Anfangswerts. Gehe waagrecht bis zur Kurve. Gehe dann senkrecht hinunter zur Zeitachse. Dort liest du die Halbwertszeit ab.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="iodSim">
+    <svg viewBox="0 0 520 265" id="iodSvg" role="img" aria-label="Animation: Eine Uhr zeigt 8 Uhr. Dann 10 000 Kerne Iod-128. Alle 30 Minuten halbiert sich die Zahl: 5 000, 2 500, 1 250, 625. Nach 5 Stunden, also 10 Halbwertszeiten, sind nur noch etwa 10 Kerne übrig. Säulen zeigen die Zahlen."></svg>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Zuerst ausrechnen, wie viele Halbwertszeiten vergangen sind: Zeit : Halbwertszeit.</li><li>Dann den Anfangswert so oft halbieren. Beispiel: 10 000 Kerne Iod-128 nach 2 Stunden (4 Halbwertszeiten): 10 000 → 5 000 → 2 500 → 1 250 → 625.</li><li>Halbwertszeit aus der Kurve: Hälfte des Anfangswerts suchen → waagrecht zur Kurve → senkrecht hinunter zur Zeitachse.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Rechentrainer · Probenstoff</span>
+    <h3 style="margin-top:4px">Rechne mit der Halbwertszeit</h3>
+    <p class="hint">Löse 4 Aufgaben richtig. Ein Taschenrechner ist erlaubt. Schreibe nur die Zahl in das Feld. Nach einem Fehler bekommst du einen Tipp.</p>
+    <div id="rechner"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Lückentext · Probenstoff</span>
+    <h3 style="margin-top:4px">Eine Zerfallsreihe von Radium-226</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapReihe"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Kurve ablesen · Probenstoff</span>
+    <h3 style="margin-top:4px">Die Zerfallskurve von Stoff X</h3>
+    <p class="hint">Ein Geiger-Müller-Zähler misst jeden Tag die Zählrate eines radioaktiven Stoffs X (ohne Nullrate). Lies an der Kurve ab.</p>
+    <svg viewBox="0 0 520 262" id="kaSvg" class="fig" role="img" aria-label="Zerfallskurve von Stoff X: Am Anfang 800 Impulse pro Minute. Nach 8 Tagen 400, nach 16 Tagen 200, nach 24 Tagen 100, nach 32 Tagen 50. Die Zeitachse geht bis 40 Tage."></svg>
+    <div id="mcKurve"></div>
+  </div>
+  <div class="card reveal" id="mc-s4"></div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Wiederholung · so kommt es in der Probe</div><h2>Training</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Kreuzworträtsel</span>
+    <h3 style="margin-top:4px">Löse das Kreuzworträtsel</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Ä schreibst du als AE, Ü als UE. Hängst du fest? Bei jeder Frage hilft <strong>💡 Tipp</strong> – erst ein Hinweis, dann der Anfangsbuchstabe. Mit <strong>📋 Wörter zeigen</strong> siehst du alle Lösungswörter.</p>
+    <div id="cw"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Ankreuzen</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="abschluss">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Abschluss</div><h2>Profi-Check, Lernkarten und Regelheft</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <div class="card reveal">
+    <span class="task-tag">Lernkarten</span>
+    <div id="lernkarten"></div>
+  </div>
+  <div class="regelheft reveal" id="regelheft">
+    <h3>Die Halbwertszeit</h3>
+    <p>Ein instabiler Atomkern zerfällt irgendwann. Wann genau, ist <strong>Zufall</strong> – wie beim Münzwurf. Bei sehr vielen Kernen gilt aber eine feste Regel.</p>
+    <p><strong>Halbwertszeit</strong> = die Zeit, nach der die Hälfte der Kerne eines radioaktiven Isotops zerfallen ist. Dann ist auch die Strahlung nur noch halb so groß.</p>
+    <table class="rh-tab" style="max-width:380px">
+      <tr><th>vergangene Halbwertszeiten</th><th>noch da</th></tr>
+      <tr><td>0</td><td>alles (100 %)</td></tr>
+      <tr><td>1</td><td>1/2 (50 %)</td></tr>
+      <tr><td>2</td><td>1/4 (25 %)</td></tr>
+      <tr><td>3</td><td>1/8 (12,5 %)</td></tr>
+      <tr><td>4</td><td>1/16 (6,25 %)</td></tr>
+    </table>
+    <svg class="rh-skizze" viewBox="0 0 440 160" role="img" aria-label="Skizze einer Zerfallskurve: Sie beginnt oben bei allen Kernen und fällt nach jeder Halbwertszeit auf die Hälfte: 1/2, 1/4, 1/8. Erst steil, dann immer flacher.">
+      <g stroke="#15212b" stroke-width="2" fill="none"><path d="M60 12 V132 H420"/></g>
+      <g stroke="#b9c3cb" stroke-width="1.2" stroke-dasharray="4 4" fill="none"><path d="M60 72 H140 V132"/><path d="M60 102 H220 V132"/><path d="M60 117 H300 V132"/></g>
+      <path id="rhKurve" fill="none" stroke="#c0392b" stroke-width="3"/>
+      <g fill="#c0392b"><circle cx="60" cy="12" r="4"/><circle cx="140" cy="72" r="4"/><circle cx="220" cy="102" r="4"/><circle cx="300" cy="117" r="4"/></g>
+      <g font-size="12" font-weight="700" fill="#15212b" text-anchor="end"><text x="54" y="16">alle</text><text x="54" y="76">1/2</text><text x="54" y="106">1/4</text><text x="54" y="121">1/8</text></g>
+      <g font-size="11.5" font-weight="700" fill="#15212b" text-anchor="middle"><text x="140" y="148">1 HWZ</text><text x="220" y="148">2 HWZ</text><text x="300" y="148">3 HWZ</text></g>
+      <text x="420" y="148" text-anchor="end" font-size="12" font-weight="700" fill="#566674">Zeit →</text>
+      <text x="150" y="40" font-size="12.5" font-weight="700" fill="#c0392b">Zerfallskurve: erst steil, dann flach</text>
+    </svg>
+    <p>Jedes Isotop hat seine eigene Halbwertszeit. Sie bleibt immer gleich: <strong>Iod-128</strong> etwa 30 Minuten · <strong>Radium-226</strong> etwa 1 600 Jahre · <strong>Uran-238</strong> 4,4 Milliarden Jahre.</p>
+    <p><strong>Rechnen:</strong> Zeit : Halbwertszeit = Zahl der Halbwertszeiten → so oft halbieren. 10 000 Kerne Iod-128 nach 2 Stunden (4 HWZ): 10 000 → 5 000 → 2 500 → 1 250 → 625.</p>
+  </div>
+  <div class="rh-knoepfe reveal"><button class="btn small ghost" type="button" onclick="window.print()">🖨️ Regelheft drucken</button><a class="btn small ghost" href="arbeitsblaetter/R3-regelheft.pdf" download="NT9-R3-Regelheft.pdf">📥 Regelheft als PDF</a></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Mit der Halbwertszeit kann man sogar das Alter von Funden bestimmen. Kohlenstoff-14 zerfällt mit einer Halbwertszeit von 5 730 Jahren. In Modul 4 erfährst du, wie man damit herausfand, wann Ötzi gelebt hat.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="ra-2.html">⬅️ Modul 2: Alpha, Beta, Gamma – die Strahlungsarten</a>
+      <a href="ra-4.html">➡️ Modul 4: Altersbestimmung mit der C-14-Methode</a>
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik <span class="mt-zug">9M</span> · Radioaktivität · Modul 3 · Texte, Zeichnungen und Animationen sind eigenständig erstellt. Mit deinem Code wird dein Lernstand gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="../../../7M/NT/modul-basis.js"></script>
+<script src="../../../8M/NT/karten.js"></script>
+<script src="karten/ra3.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, clamp, reduced, register, solve, shuffle} = Modul;
+const NS = "http://www.w3.org/2000/svg";
+const svgEl = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const wait = ms => new Promise(r => setTimeout(r, reduced ? Math.min(ms, 60) : ms));
+// Zahlen wie im Schulbuch: 10 000 (geschütztes Leerzeichen), Dezimalkomma
+const zahl = n => { const s = String(Math.round(n * 100) / 100).split("."); return s[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ") + (s[1] ? "," + s[1] : ""); };
+// Kurve als Pfad: f(t) liefert [x, y], t von a bis b
+const pfad = (f, a, b, n) => { let d = ""; for (let i = 0; i <= n; i++) { const [x, y] = f(a + (b - a) * i / n); d += (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1); } return d; };
+
+Modul.init({
+  key: "grumi-nt9-ra-3-v1",
+  hero: "funken",
+  api: "/api/nt9/uebung/feedback",
+  thema: "Radioaktivität, Klasse 9: Die Halbwertszeit – Münzspiel als Modell (100 Münzen werfen, Münzen mit der Zahl oben aussortieren = zerfallene Kerne, nach jedem Wurf bleibt etwa die Hälfte, bei kleinen Zahlen große Abweichungen durch Zufall, Mittelwert aus mehreren Runden); der Zerfall eines einzelnen Kerns ist Zufall, bei sehr vielen Kernen gilt eine feste Regel; Halbwertszeit = Zeit, nach der die Hälfte der Kerne eines radioaktiven Isotops zerfallen ist, dann ist auch die Strahlung (Zählrate) nur noch halb so groß; nach 2 Halbwertszeiten ein Viertel, nach 3 ein Achtel, nach 4 ein Sechzehntel – in jeder Halbwertszeit zerfällt die Hälfte vom Rest, nicht die Hälfte vom Anfang, deshalb ist nach 2 Halbwertszeiten nicht alles zerfallen; Zerfallskurve erst steil, dann flach, nicht linear; jedes Isotop hat eine eigene, gleichbleibende Halbwertszeit: Iod-128 etwa 30 Minuten, Radium-226 etwa 1 600 Jahre, Uran-238 4,4 Milliarden Jahre; für Untersuchungen in der Medizin (Schilddrüse) nimmt man Isotope mit kurzer Halbwertszeit, weil sie schnell zerfallen und den Körper nur kurz mit Strahlung belasten; Rechnen: Zeit geteilt durch Halbwertszeit = Zahl der Halbwertszeiten, dann so oft halbieren (10 000 Kerne Iod-128 nach 2 Stunden: 625)",
+  glossary: {
+    instabil: ["instabil", "Nicht dauerhaft, unbeständig. Ein instabiler Atomkern zerfällt irgendwann und sendet dabei Strahlung aus."],
+    zerfall: ["radioaktiver Zerfall", "Ein instabiler Atomkern wandelt sich um und sendet dabei Strahlung aus. Danach ist er ein anderer Kern (siehe Modul 2)."],
+    zufall: ["Zufall", "Etwas, das man nicht vorhersagen kann – wie beim Münzwurf oder beim Würfeln. Wann ein einzelner Kern zerfällt, ist Zufall."],
+    mittelwert: ["Mittelwert", "Alle Messwerte zusammenzählen und durch ihre Anzahl teilen. Beispiel: (48 + 53 + 49) : 3 = 50."],
+    halbwertszeit: ["Halbwertszeit", "Die Zeit, nach der die Hälfte der Kerne eines radioaktiven Stoffs zerfallen ist. Dann ist auch die Strahlung nur noch halb so groß. Jedes Isotop hat seine eigene Halbwertszeit."],
+    zaehlrate: ["Zählrate", "Anzahl der Impulse, die der Geiger-Müller-Zähler in einer Minute zählt. Je stärker ein Stoff strahlt, desto höher ist sie."],
+    diagramm: ["Diagramm", "Eine Zeichnung, die Zahlen als Säulen, Punkte oder Linien zeigt. So sieht man auf einen Blick, wie sich etwas verändert."],
+    achse: ["Achse", "Eine der beiden Linien eines Diagramms. Die waagrechte Achse (x-Achse) zeigt hier die Zeit, die senkrechte Achse (y-Achse) die Zahl der Kerne."],
+    zerfallskurve: ["Zerfallskurve", "Diagramm, das zeigt, wie die Zahl der radioaktiven Kerne mit der Zeit abnimmt. Die Kurve fällt erst steil, dann immer flacher."],
+    linear: ["linear", "Wie eine gerade Linie: In gleichen Zeiten kommt immer gleich viel dazu oder weg. Der radioaktive Zerfall ist nicht linear."],
+    praeparat: ["Präparat", "Eine kleine Menge eines Stoffs, die für einen Versuch oder eine Untersuchung vorbereitet ist – hier ein radioaktiver Stoff."],
+    iod: ["Iod (auch Jod)", "Ein Element. Unsere Schilddrüse braucht Iod. Iod-128 ist ein radioaktives Isotop mit einer Halbwertszeit von etwa 30 Minuten."],
+    isotop: ["Isotop", "Atome desselben Elements mit verschieden vielen Neutronen, zum Beispiel Iod-128 und Iod-131. Viele Isotope sind radioaktiv."],
+    radium: ["Radium", "Ein stark strahlendes Element im Uranerz. Marie und Pierre Curie haben es entdeckt. Radium-226 hat eine Halbwertszeit von etwa 1 600 Jahren."],
+    uran: ["Uran", "Ein schweres, radioaktives Metall aus dem Gestein der Erde. Uran-238 hat eine Halbwertszeit von 4,4 Milliarden Jahren."],
+    milliarde: ["Milliarde", "Tausend Millionen: 1 000 000 000. Eine Zahl mit neun Nullen."],
+    schilddruese: ["Schilddrüse", "Kleines Organ vorn am Hals. Sie nimmt Iod aus der Nahrung auf und bildet daraus wichtige Hormone."],
+    diagnose: ["Diagnose", "Die Ärztin oder der Arzt stellt fest, welche Krankheit jemand hat – zum Beispiel mit einer Untersuchung."]
+  }
+});
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "Du wirfst 200 Münzen. Wie viele bleiben nach dem ersten Wurf ungefähr liegen?", o: ["etwa 100", "etwa 50", "etwa 150", "etwa 200"], a: 0, e: "Etwa die Hälfte zeigt die Zahl und kommt weg. Genau 100 sind es selten – das ist Zufall."},
+    {q: "Warum spielt man das Münzspiel mehrmals und bildet den Mittelwert?", o: ["Weil eine einzelne Runde durch Zufall stark abweichen kann.", "Weil die Münzen beim ersten Wurf noch zu neu sind.", "Weil man nur so Münzen mit der Zahl oben bekommt.", "Weil nach der ersten Runde alle Münzen verbraucht sind."], a: 0, e: "Der Mittelwert aus vielen Runden gleicht den Zufall aus. Er liegt sehr nah an der Hälfte."}
+  ],
+  s2: [
+    {q: "Welcher Anteil der Kerne ist nach drei Halbwertszeiten noch da?", o: ["ein Achtel", "ein Drittel", "ein Sechstel", "gar nichts mehr"], a: 0, e: "1/2 von 1/2 von 1/2 = 1/8. Nach drei Halbwertszeiten sind noch 12,5 % da."},
+    {q: "Was zeigt eine Zerfallskurve?", o: ["wie die Zahl der Kerne mit der Zeit abnimmt", "wie schnell ein Kern durch die Luft fliegt", "welche Strahlungsart ein Stoff aussendet", "wie schwer ein einzelner Atomkern ist"], a: 0, e: "Waagrecht steht die Zeit, senkrecht die Zahl der Kerne. Die Kurve fällt erst steil, dann flach."}
+  ],
+  s3: [
+    {q: "Welches Isotop hat die längste Halbwertszeit?", o: ["Uran-238", "Iod-128", "Radium-226", "Kohlenstoff-14"], a: 0, e: "4,4 Milliarden Jahre – etwa so alt ist die Erde."},
+    {q: "Heute sind 2 g Radium-226 da (Halbwertszeit etwa 1 600 Jahre). Wie viel ist in 1 600 Jahren noch übrig?", o: ["1 g", "2 g", "0 g", "0,5 g"], a: 0, e: "Nach einer Halbwertszeit ist die Hälfte zerfallen: 2 g → 1 g."}
+  ],
+  s4: [
+    {q: "Iod-128 hat eine Halbwertszeit von etwa 30 Minuten. Wie viele Halbwertszeiten sind nach 2 Stunden vergangen?", o: ["4", "2", "60", "120"], a: 0, e: "2 Stunden = 120 Minuten. 120 : 30 = 4."},
+    {q: "Am Anfang sind 6 400 Kerne da. Wie viele sind nach 3 Halbwertszeiten noch übrig?", o: ["800", "3 200", "1 600", "2 133"], a: 0, e: "6 400 → 3 200 → 1 600 → 800. Dreimal halbieren!"}
+  ],
+  train: [
+    {q: "Was ist die Halbwertszeit?", o: ["die Zeit, nach der die Hälfte der Kerne zerfallen ist", "die Hälfte der Zeit, bis alle Kerne zerfallen sind", "die Zeit, in der ein einzelner Kern genau zerfällt", "die Zeit, bis die Strahlung ganz aufgehört hat"], a: 0, e: "Nach einer Halbwertszeit ist die Hälfte der Kerne zerfallen – und die Strahlung halb so groß."},
+    {q: "Was entspricht im Münzspiel einem zerfallenen Kern?", o: ["einer Münze mit der Zahl oben", "einer Münze mit dem Bild oben", "dem Becher mit den Münzen", "der Tabelle mit den Zahlen"], a: 0, e: "Münzen mit der Zahl oben werden aussortiert – wie Kerne, die zerfallen sind."},
+    {q: "Wie viel Prozent der Kerne sind nach 4 Halbwertszeiten noch da?", o: ["6,25 %", "12,5 %", "25 %", "0 %"], a: 0, e: "100 % → 50 % → 25 % → 12,5 % → 6,25 %."},
+    {q: "Welche Halbwertszeit hat Radium-226?", o: ["etwa 1 600 Jahre", "etwa 30 Minuten", "4,4 Milliarden Jahre", "etwa 5 730 Jahre"], a: 0, e: "Iod-128: etwa 30 Minuten · Radium-226: etwa 1 600 Jahre · Uran-238: 4,4 Milliarden Jahre."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Station 1: Münzexperiment ---------- */
+(function(){
+  const svg = $("#mzSvg"), obs = $("#mzObs"), tb = $("#mzTab tbody"), chip = $("#mzChip");
+  const bW = $("#tWurf"), bR = $("#tRunde"), bN = $("#mzNeu");
+  const N = 100, WUERFE = 6, MAX_RUNDEN = 10;
+  const HALB = ["100", "50", "25", "12,5", "6,25", "3,1", "1,6"];
+  const slot = i => [30 + (i % 10) * 22, 62 + Math.floor(i / 10) * 22];
+  const GX = k => 310 + k * 30, GY = v => 252 - v * 1.9;
+  // Vorder- und Rückseite einer Münze: Zahl („1“) oder Bild (Stern)
+  const STERN = (() => { let d = ""; for (let k = 0; k < 10; k++) { const r = k % 2 ? 2.1 : 5, a = -Math.PI / 2 + k * Math.PI / 5; d += (k ? "L" : "M") + (r * Math.cos(a)).toFixed(2) + " " + (r * Math.sin(a)).toFixed(2); } return d + "Z"; })();
+  const ZAHL = `<text y="4.2" text-anchor="middle" font-size="12" font-weight="900" fill="#4a2206">1</text>`, BILD = `<path d="${STERN}" fill="#6b3510"/>`;
+  svg.innerHTML = `<rect width="520" height="300" fill="#f7fbfe"/>
+    <rect x="8" y="40" width="244" height="240" rx="14" fill="#ead9bb" stroke="#c9ab7a" stroke-width="2"/>
+    <text id="mzTitel" x="130" y="27" text-anchor="middle" font-size="14" font-weight="800" fill="#7a4b05">100 Münzen liegen bereit</text>
+    <g id="mzMuenzen"></g>
+    <text x="398" y="27" text-anchor="middle" font-size="13" font-weight="800" fill="#15212b">Münzen übrig nach jedem Wurf</text>
+    <g font-size="11" font-weight="700" fill="#566674" text-anchor="end">${[0, 25, 50, 75, 100].map(v => `<text x="288" y="${GY(v) + 4}">${v}</text><line x1="292" y1="${GY(v)}" x2="500" y2="${GY(v)}" stroke="#e3e9ee" stroke-width="1"/>`).join("")}</g>
+    <g id="mzBalken"></g>
+    <polyline id="mzHalb" points="${[0, 1, 2, 3, 4, 5, 6].map(k => GX(k) + "," + GY(N / 2 ** k).toFixed(1)).join(" ")}" fill="none" stroke="#1b8a4b" stroke-width="2.2" stroke-dasharray="5 4" opacity="0"/>
+    <g id="mzAlt"></g>
+    <g id="mzMittel"></g>
+    <line x1="292" y1="${GY(0)}" x2="500" y2="${GY(0)}" stroke="#566674" stroke-width="2"/><line x1="292" y1="${GY(0)}" x2="292" y2="${GY(100) - 6}" stroke="#566674" stroke-width="2"/>
+    <g font-size="11" font-weight="700" fill="#15212b" text-anchor="middle">${[0, 1, 2, 3, 4, 5, 6].map(k => `<text x="${GX(k)}" y="267">${k ? k : "Start"}</text>`).join("")}</g>
+    <text x="400" y="286" text-anchor="middle" font-size="11.5" font-weight="700" fill="#566674">Wurf</text>`;
+  const gM = $("#mzMuenzen", svg), gB = $("#mzBalken", svg), gAlt = $("#mzAlt", svg), gMit = $("#mzMittel", svg);
+  const muenzen = [];
+  for (let i = 0; i < N; i++) {
+    const g = svgEl("g", {class: "mz-pos"}, gM), f = svgEl("g", {class: "mz-flip"}, g);
+    const c = svgEl("circle", {r: 9.6, class: "mz-c"}, f);
+    svgEl("circle", {r: 7, fill: "none", stroke: "#e8b07a", "stroke-width": 1}, f);
+    const face = svgEl("g", {}, f);
+    muenzen.push({g, f, c, face, aktiv: true});
+  }
+  const balken = [], werte = [];
+  for (let k = 0; k <= WUERFE; k++) {
+    balken.push(svgEl("rect", {x: GX(k) - 10, y: GY(100), width: 20, height: GY(0) - GY(100), rx: 3, class: "mz-bar"}, gB));
+    werte.push(svgEl("text", {x: GX(k), y: GY(0) - 4, "text-anchor": "middle", "font-size": 11, "font-weight": 800, fill: "#15212b", stroke: "#f7fbfe", "stroke-width": 3, "paint-order": "stroke"}, gB));
+  }
+  const laeufe = [[N]];
+  let laeuft = false;
+  register("muenzen", "#mzSvg", "Münzexperiment: mindestens 3 Runden geworfen, Mittelwert gebildet");
+  const jetzt = () => laeufe[laeufe.length - 1];
+  const fertig = r => r.length === WUERFE + 1;
+  const fertige = () => laeufe.filter(fertig);
+  function legen(sofort){
+    let j = 0;
+    muenzen.forEach(m => { if (!m.aktiv) return; const [x, y] = slot(j++); if (sofort) m.g.style.transition = "none"; m.g.style.transform = `translate(${x}px,${y}px)`; });
+    if (sofort) { void svg.getBoundingClientRect(); muenzen.forEach(m => { m.g.style.transition = ""; }); }
+  }
+  function mittel(){
+    const f = fertige(); if (f.length < 2) return null;
+    return [0, 1, 2, 3, 4, 5, 6].map(k => f.reduce((s, r) => s + r[k], 0) / f.length);
+  }
+  function diagramm(){
+    const r = jetzt();
+    // Zahl in die Säule schreiben, wenn sie hoch genug ist – sonst darüber
+    balken.forEach((b, k) => { const v = r[k], innen = v != null && v >= 12, w = werte[k]; b.style.transform = `scaleY(${v == null ? 0 : v / N})`;
+      w.textContent = v == null ? "" : String(v); w.setAttribute("y", (GY(v == null ? 0 : v) + (innen ? 15 : -5)).toFixed(1));
+      w.setAttribute("fill", innen ? "#fff" : "#15212b"); w.setAttribute("stroke", innen ? "none" : "#f7fbfe"); });
+    // frühere Runden als graue Punkte, Mittelwert als Linie
+    gAlt.innerHTML = laeufe.slice(0, -1).map(a => a.map((v, k) => `<circle cx="${GX(k) + 6}" cy="${GY(v).toFixed(1)}" r="3" fill="#9aa5ad" opacity=".85"/>`).join("")).join("");
+    const m = mittel();
+    gMit.innerHTML = m ? `<polyline points="${m.map((v, k) => GX(k) + "," + GY(v).toFixed(1)).join(" ")}" fill="none" stroke="#7a4b05" stroke-width="2.6"/>` + m.map((v, k) => `<circle cx="${GX(k)}" cy="${GY(v).toFixed(1)}" r="3.6" fill="#7a4b05"/>`).join("") : "";
+    $("#mzHalb", svg).setAttribute("opacity", fertige().length ? 1 : 0);
+  }
+  function tabelle(){
+    const r = jetzt(), m = mittel(), f = fertige().length;
+    const spalten = fn => [0, 1, 2, 3, 4, 5, 6].map(k => `<td>${fn(k)}</td>`).join("");
+    tb.innerHTML = laeufe.map((a, i) => `<tr${a === r && !fertig(a) ? ' class="mz-jetzt"' : ""}><th>Runde ${i + 1}</th>${spalten(k => a[k] == null ? "" : a[k])}</tr>`).join("") +
+      `<tr class="mz-mittel"><th>Mittelwert${f >= 2 ? ` (${f} Runden)` : ""}</th>${spalten(k => m ? zahl(Math.round(m[k] * 10) / 10) : "–")}</tr>` +
+      (f ? `<tr class="mz-halb"><th>genau die Hälfte</th>${spalten(k => HALB[k])}</tr>` : "");
+    if (!fertig(r) || r.length > 1) { const zeile = $$("tr", tb)[laeufe.length - 1], td = zeile && zeile.children[r.length]; if (td) td.classList.add("neu"); }
+  }
+  function anzeigen(){
+    const r = jetzt(), k = r.length - 1;
+    chip.textContent = `Runde ${laeufe.length}` + (k ? ` · ${k}. Wurf` : "");
+    $("#mzTitel", svg).textContent = k ? `Runde ${laeufe.length} · noch ${r[k]} Münze${r[k] === 1 ? "" : "n"}` : `Runde ${laeufe.length} · 100 Münzen liegen bereit`;
+    diagramm(); tabelle();
+  }
+  async function einWurf(tempo){
+    const r = jetzt(), vorher = r[r.length - 1];
+    const aktiv = muenzen.filter(m => m.aktiv);
+    aktiv.forEach(m => { m.face.innerHTML = ""; m.c.classList.remove("zahl"); m.f.classList.remove("dreh"); });
+    void svg.getBoundingClientRect();
+    aktiv.forEach(m => { m.f.style.animationDelay = (Math.random() * .12).toFixed(2) + "s"; m.f.classList.add("dreh"); });
+    await wait(780 * tempo);
+    const weg = [];
+    aktiv.forEach(m => { m.f.classList.remove("dreh"); const z = Math.random() < .5; m.face.innerHTML = z ? ZAHL : BILD; if (z) { m.c.classList.add("zahl"); weg.push(m); } });
+    await wait(650 * tempo);
+    weg.forEach(m => { m.aktiv = false; m.g.style.opacity = 0; });
+    await wait(330 * tempo);
+    legen();
+    const rest = vorher - weg.length, nr = r.length;
+    r.push(rest);
+    if (rest === 0) while (r.length < WUERFE + 1) r.push(0);
+    anzeigen();
+    const zeigen = `${weg.length} Münze${weg.length === 1 ? " zeigt" : "n zeigen"} die Zahl`;
+    let satz = rest === 0 ? `${nr}. Wurf: ${zeigen}. Jetzt ist keine Münze mehr übrig!` :
+      `${nr}. Wurf: ${zeigen} und ${weg.length === 1 ? "kommt" : "kommen"} weg. ${rest} ${rest === 1 ? "bleibt" : "bleiben"} liegen – `;
+    if (rest > 0) {
+      const h = vorher / 2;
+      satz += Math.abs(rest - h) <= Math.max(1, vorher * .1) ? `etwa die Hälfte von ${vorher}.` : rest > h ? `diesmal mehr als die Hälfte von ${vorher}. Zufall!` : `diesmal weniger als die Hälfte von ${vorher}. Zufall!`;
+      if (vorher <= 12) satz += " Bei so wenigen Münzen spielt der Zufall eine große Rolle.";
+    }
+    obs.textContent = satz;
+    await wait(300 * tempo);
+  }
+  function rundeFertig(){
+    const f = fertige().length;
+    chip.textContent = `Runde ${laeufe.length} fertig`;
+    if (f >= 3) {
+      if (!Modul.isSolved("muenzen")) solve("muenzen");
+      obs.textContent = `✅ ${f} Runden geschafft! Jede Runde verläuft etwas anders – das ist Zufall. Der Mittelwert liegt aber nah an der Hälfte: 100 → 50 → 25 → 12,5 … Je mehr Runden (oder je mehr Münzen), desto genauer passt die Regel. Ein radioaktiver Stoff hat unvorstellbar viele Kerne – dort gilt sie sehr genau.`;
+    } else obs.textContent += ` Runde ${f} ist fertig. Tippe auf „🔁 Neue Runde“ und wirf noch einmal – mindestens 3 Runden. Danach siehst du den Mittelwert.`;
+  }
+  const sperren = an => [bW, bR, bN].forEach(b => { b.disabled = an; });
+  async function los(serie){
+    if (laeuft) return;
+    if (fertig(jetzt())) { obs.textContent = "Diese Runde ist schon fertig. Tippe auf „🔁 Neue Runde“ und wirf noch einmal."; bN.classList.remove("puls"); void bN.offsetWidth; bN.classList.add("puls"); return; }
+    laeuft = true; sperren(true);
+    try { do { await einWurf(serie ? .7 : 1); } while (serie && !fertig(jetzt())); }
+    finally { laeuft = false; sperren(false); }
+    if (fertig(jetzt())) rundeFertig();
+  }
+  function neueRunde(){
+    if (laeuft) return;
+    if (!fertig(jetzt())) { obs.textContent = "Wirf diese Runde zuerst zu Ende – tippe auf „Werfen“ oder „Runde zu Ende werfen“."; return; }
+    if (laeufe.length >= MAX_RUNDEN) { obs.textContent = `Du hast schon ${MAX_RUNDEN} Runden geworfen – das reicht für einen guten Mittelwert. Schau dir die Tabelle an!`; return; }
+    laeufe.push([N]);
+    muenzen.forEach(m => { m.aktiv = true; m.face.innerHTML = ""; m.c.classList.remove("zahl"); m.g.style.opacity = 1; });
+    legen(); anzeigen();
+    obs.textContent = `Runde ${laeufe.length}: Wieder liegen 100 Münzen bereit. Tippe auf „Werfen“. Die grauen Punkte im Diagramm zeigen deine früheren Runden.`;
+  }
+  bW.addEventListener("click", () => los(false));
+  bR.addEventListener("click", () => los(true));
+  bN.addEventListener("click", neueRunde);
+  legen(true); anzeigen();
+})();
+
+/* ---------- Station 1: Übungen ---------- */
+Modul.makeSort($("#sortModell"), {pairs: true, cols: 280,
+  buckets: ["eine Münze", "Die Münze zeigt die Zahl.", "die Münzen, die liegen bleiben", "Welche Münze zeigt die Zahl?", "ein Wurf"],
+  items: [
+    {t: "ein instabiler Atomkern", b: 0}, {t: "Der Kern zerfällt und sendet Strahlung aus.", b: 1}, {t: "die Kerne, die noch nicht zerfallen sind", b: 2},
+    {t: "Zufall: Welcher Kern zerfällt als Nächstes?", b: 3}, {t: "Es vergeht eine bestimmte Zeit.", b: 4}
+  ]
+}, "sortModell");
+
+/* ---------- Station 2: Zerfallskurve mit Schieberegler ---------- */
+(function(){
+  const svg = $("#hwSvg"), rng = $("#hwRange"), chip = $("#hwChip"), obs = $("#hwObs"), play = $("#hwPlay");
+  const N = 64, X0 = 268, DX = 36, Y0 = 232, H = 172;
+  const px = t => X0 + t * DX, py = a => Y0 - a * H;
+  const ord = shuffle([...Array(N).keys()]);
+  const BRUCH = ["alle", "1/2", "1/4", "1/8", "1/16", "1/32", "1/64"];
+  const TXT = [
+    "Am Anfang sind alle 64 Kerne radioaktiv (100 %). Schiebe den Regler Schritt für Schritt nach rechts.",
+    "Nach 1 Halbwertszeit ist die Hälfte zerfallen: noch 32 von 64 Kernen. Das ist 1/2 = 50 %.",
+    "Nach 2 Halbwertszeiten sind noch 16 Kerne da – ein Viertel (25 %). Nicht alles! Wieder ist nur die Hälfte vom Rest zerfallen.",
+    "Nach 3 Halbwertszeiten: noch 8 Kerne – ein Achtel (12,5 %).",
+    "Nach 4 Halbwertszeiten: noch 4 Kerne – ein Sechzehntel (6,25 %). Die Kurve wird immer flacher.",
+    "Nach 5 Halbwertszeiten: noch 2 Kerne – etwa 3 %.",
+    "Nach 6 Halbwertszeiten: noch 1 Kern – etwa 1,6 %. Am Anfang zerfallen in einer Halbwertszeit 32 Kerne, jetzt nur noch einer."
+  ];
+  svg.innerHTML = `<rect width="520" height="290" fill="#f7fbfe"/>
+    <text x="120" y="27" text-anchor="middle" font-size="14" font-weight="800" fill="#7a4b05">Präparat mit 64 Kernen</text>
+    <text x="382" y="27" text-anchor="middle" font-size="14" font-weight="800" fill="#7a4b05">Zerfallskurve</text>
+    <rect x="14" y="38" width="212" height="216" rx="12" fill="#fff" stroke="#d8e2ea" stroke-width="1.5"/>
+    <g id="hwKerne"></g>
+    <text id="hwRest" x="120" y="246" text-anchor="middle" font-size="12.5" font-weight="800" fill="#15212b"></text>
+    <g stroke="#cfd8df" stroke-width="1.2" stroke-dasharray="4 4">${[1, .5, .25, .125].map(a => `<line x1="${X0}" y1="${py(a)}" x2="${px(6) + 8}" y2="${py(a)}"/>`).join("")}</g>
+    <g font-size="11.5" font-weight="800" fill="#566674" text-anchor="end">${[1, .5, .25, .125].map((a, i) => `<text x="${X0 - 11}" y="${py(a) + 4}">${BRUCH[i]}</text>`).join("")}</g>
+    <path d="M${X0} ${py(1) - 8} V${Y0} H${px(6) + 12}" fill="none" stroke="#566674" stroke-width="2"/>
+    <g font-size="11.5" font-weight="700" fill="#15212b" text-anchor="middle">${[0, 1, 2, 3, 4, 5, 6].map(t => `<text x="${px(t)}" y="${Y0 + 16}">${t}</text>`).join("")}</g>
+    <text x="${px(3)}" y="${Y0 + 34}" text-anchor="middle" font-size="11.5" font-weight="700" fill="#566674">Zeit in Halbwertszeiten</text>
+    <g id="hwHilf" stroke="#b8720a" stroke-width="1.5" stroke-dasharray="3 3" fill="none"><line id="hwHx"/><line id="hwHy"/></g>
+    <path id="hwKurve" fill="none" stroke="#c0392b" stroke-width="3" stroke-linecap="round"/>
+    <g id="hwPunkte"></g>
+    <circle id="hwJetzt" r="6.5" fill="#c0392b" stroke="#fff" stroke-width="2"/>
+    <rect x="344" y="48" width="158" height="50" rx="9" fill="#fff" stroke="#e3c48f" stroke-width="1.5"/>
+    <text id="hwWann" x="423" y="67" text-anchor="middle" font-size="11.5" font-weight="700" fill="#566674"></text>
+    <text id="hwLabel" x="423" y="88" text-anchor="middle" font-size="14" font-weight="800" fill="#c0392b"></text>`;
+  const gK = $("#hwKerne", svg), kerne = [];
+  for (let i = 0; i < N; i++) kerne.push(svgEl("circle", {cx: (39.5 + (i % 8) * 23).toFixed(1), cy: 62 + Math.floor(i / 8) * 21, r: 8.5, class: "hw-k"}, gK));
+  const gesehen = new Set();
+  register("hwRegler", "#hwSvg", "Zerfallskurve mit Schieberegler: 0 bis 6 Halbwertszeiten angesehen");
+  let tJetzt = 0, raf = 0, spielt = null;
+  function kurve(tc){
+    $("#hwKurve", svg).setAttribute("d", tc > 0 ? pfad(t => [px(t), py(2 ** -t)], 0, tc, Math.max(2, Math.round(tc * 20))) : "");
+    const n = Math.floor(tc + 1e-6);
+    $("#hwPunkte", svg).innerHTML = [...Array(n + 1).keys()].map(t => `<circle cx="${px(t)}" cy="${py(2 ** -t).toFixed(1)}" r="4" fill="#c0392b"/>`).join("");
+  }
+  function setze(t, still){
+    const weg = N - N / 2 ** t;
+    ord.forEach((k, j) => { const c = kerne[k], z = j < weg;
+      if (z && !c.classList.contains("weg") && !still && !reduced) { c.classList.add("blitz"); setTimeout(() => c.classList.remove("blitz"), 800); }
+      c.classList.toggle("weg", z); });
+    const rest = N / 2 ** t, x = px(t), y = py(2 ** -t);
+    $("#hwRest", svg).textContent = `noch radioaktiv: ${rest} von 64`;
+    chip.textContent = `${t} Halbwertszeit${t === 1 ? "" : "en"}`;
+    const J = $("#hwJetzt", svg), L = $("#hwLabel", svg);
+    J.setAttribute("cx", x); J.setAttribute("cy", y.toFixed(1));
+    const hx = $("#hwHx", svg), hy = $("#hwHy", svg);
+    hx.setAttribute("x1", X0); hx.setAttribute("x2", x); hx.setAttribute("y1", y); hx.setAttribute("y2", y);
+    hy.setAttribute("x1", x); hy.setAttribute("x2", x); hy.setAttribute("y1", y); hy.setAttribute("y2", Y0);
+    $("#hwHilf", svg).setAttribute("opacity", t ? 1 : 0);
+    $("#hwWann", svg).textContent = t === 0 ? "am Anfang" : `nach ${t} Halbwertszeit${t === 1 ? "" : "en"}`;
+    L.textContent = t === 0 ? "alle 64 Kerne" : `noch ${BRUCH[t]} · ${rest} Kern${rest === 1 ? "" : "e"}`;
+    // Kurve wächst bis zum neuen Zeitpunkt
+    cancelAnimationFrame(raf);
+    const t0 = tJetzt, start = performance.now(), dauer = reduced || still ? 0 : 600;
+    (function f(now){ const k = dauer ? clamp((now - start) / dauer, 0, 1) : 1; kurve(t0 + (t - t0) * k); if (k < 1) raf = requestAnimationFrame(f); })(start);
+    tJetzt = t;
+    if (still) return;
+    obs.textContent = TXT[t];
+    gesehen.add(t);
+    if (gesehen.size === 7 && !Modul.isSolved("hwRegler")) { solve("hwRegler"); }
+    if (gesehen.size === 7) obs.textContent += " ✅ Du hast alle Schritte gesehen: Nach jeder Halbwertszeit halbiert sich der Rest – 64, 32, 16, 8, 4, 2, 1.";
+  }
+  rng.addEventListener("input", () => { stopp(); setze(+rng.value); });
+  function stopp(){ clearInterval(spielt); spielt = null; play.textContent = "▶ Abspielen"; }
+  play.addEventListener("click", () => {
+    if (spielt) { stopp(); return; }
+    if (+rng.value >= 6) { rng.value = 0; setze(0); }
+    play.textContent = "⏸ Pause";
+    spielt = setInterval(() => { const t = +rng.value + 1; rng.value = t; setze(t); if (t >= 6) stopp(); }, reduced ? 700 : 1500);
+  });
+  setze(0, true);
+})();
+
+/* ---------- Station 2: Kurve selbst zeichnen ---------- */
+(function(){
+  const svg = $("#kzSvg"), obs = $("#kzObs"), chip = $("#kzChip");
+  const SOLL = [800, 400, 200, 100, 50, 25], X = i => 96 + i * 76, Y = v => 250 - v / 4;
+  const werte = [800, null, null, null, null, null];
+  let sel = 1, fertig = false, zieht = 0;
+  register("kurveZeichnen", "#kzSvg", "Zerfallskurve selbst gezeichnet (Iod-128, 800 Kerne)");
+  svg.innerHTML = `<rect width="520" height="300" fill="#f7fbfe"/>
+    <text x="270" y="22" text-anchor="middle" font-size="13.5" font-weight="800" fill="#7a4b05">Iod-128: 800 Kerne am Anfang, Halbwertszeit 30 Minuten</text>
+    <rect id="kzBand" y="42" width="72" height="212" rx="6" fill="#fbf0dc"/>
+    <g stroke="#e1e8ee" stroke-width="1">${[...Array(9).keys()].map(k => `<line x1="92" y1="${Y(k * 100)}" x2="${X(5) + 30}" y2="${Y(k * 100)}"/>`).join("")}</g>
+    <g stroke="#e8edf1" stroke-width="1">${[...Array(16).keys()].map(k => `<line x1="92" y1="${Y(k * 50 + 25)}" x2="${X(5) + 30}" y2="${Y(k * 50 + 25)}" stroke-dasharray="2 4"/>`).join("")}</g>
+    <g font-size="11" font-weight="700" fill="#566674" text-anchor="end">${[...Array(9).keys()].map(k => `<text x="86" y="${Y(k * 100) + 4}">${k * 100}</text>`).join("")}</g>
+    <text x="14" y="38" font-size="11.5" font-weight="800" fill="#566674">Kerne</text>
+    <path d="M92 44 V250 H${X(5) + 30}" fill="none" stroke="#566674" stroke-width="2"/>
+    <g font-size="11.5" font-weight="700" fill="#15212b" text-anchor="middle">${SOLL.map((_, i) => `<text x="${X(i)}" y="268">${i * 30}</text>`).join("")}</g>
+    <text x="290" y="290" text-anchor="middle" font-size="11.5" font-weight="700" fill="#566674">Zeit in Minuten</text>
+    <g id="kzKurve"></g>
+    <g id="kzFragen" font-size="15" font-weight="900" fill="#b9c3cb" text-anchor="middle"></g>
+    <g id="kzPunkte"></g>`;
+  const band = $("#kzBand", svg), gP = $("#kzPunkte", svg), gF = $("#kzFragen", svg);
+  function zeichne(){
+    band.setAttribute("x", X(sel) - 36);
+    band.setAttribute("opacity", fertig ? 0 : 1);
+    gF.innerHTML = werte.map((v, i) => i && v == null ? `<text x="${X(i)}" y="242">?</text>` : "").join("");
+    gP.innerHTML = werte.map((v, i) => v == null ? "" : `<g class="kz-p" data-i="${i}"><circle cx="${X(i)}" cy="${Y(v)}" r="${i ? 7.5 : 6.5}"/><text x="${X(i) + (i === 0 ? 10 : 0)}" y="${Y(v) - 12}" text-anchor="${i === 0 ? "start" : "middle"}" font-size="12" font-weight="800" fill="#15212b">${v}</text></g>`).join("");
+    const v = werte[sel];
+    chip.textContent = `Punkt bei ${sel * 30} Minuten: ` + (v == null ? "noch nicht gesetzt" : `${v} Kerne`);
+  }
+  function stelle(v){ if (fertig) return; werte[sel] = clamp(Math.round(v / 25) * 25, 0, 800); zeichne(); obs.textContent = "Tipp: Überlege bei jedem Punkt, wie viel vom Wert davor übrig bleibt."; }
+  const punkt = e => { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); };
+  svg.addEventListener("pointerdown", e => {
+    if (fertig) return;
+    const p = punkt(e), i = Math.round((p.x - X(0)) / 76);
+    if (i < 1 || i > 5 || p.y < 30 || p.y > 262) return;
+    e.preventDefault(); zieht = i; sel = i;
+    try { svg.setPointerCapture(e.pointerId); } catch (_) {}
+    stelle((250 - p.y) * 4);
+  });
+  svg.addEventListener("pointermove", e => { if (zieht) { sel = zieht; stelle((250 - punkt(e).y) * 4); } });
+  ["pointerup", "pointercancel", "lostpointercapture"].forEach(t => svg.addEventListener(t, () => { zieht = 0; }));
+  svg.addEventListener("keydown", e => {
+    if (fertig) return;
+    if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault(); sel = clamp(sel + (e.key === "ArrowRight" ? 1 : -1), 1, 5); zeichne(); }
+    if (e.key === "ArrowUp" || e.key === "ArrowDown") { e.preventDefault(); stelle((werte[sel] == null ? 0 : werte[sel]) + (e.key === "ArrowUp" ? 25 : -25)); }
+  });
+  $("#kzHoch").addEventListener("click", () => stelle((werte[sel] == null ? 0 : werte[sel]) + 25));
+  $("#kzRunter").addEventListener("click", () => stelle((werte[sel] == null ? 0 : werte[sel]) - 25));
+  $("#kzNeu").addEventListener("click", () => {
+    if (fertig) return;
+    for (let i = 1; i < 6; i++) werte[i] = null;
+    sel = 1; zeichne(); obs.textContent = "Alle Punkte sind wieder weg. Beginne bei 30 Minuten.";
+  });
+  $("#kzPruefen").addEventListener("click", () => {
+    if (fertig) return;
+    const offen = werte.filter(v => v == null).length;
+    if (offen) { obs.textContent = `Setze zuerst alle Punkte – es fehlen noch ${offen}. Tippe bei 30, 60, 90, 120 und 150 Minuten in das Diagramm.`; return; }
+    let ok = 0;
+    $$(".kz-p", gP).forEach(g => { const i = +g.dataset.i; if (!i) return; const r = werte[i] === SOLL[i]; g.classList.toggle("ok", r); g.classList.toggle("falsch", !r); if (r) ok++; });
+    Modul.versuch("kurveZeichnen", ok === 5);
+    if (ok < 5) { obs.textContent = `${ok} von 5 Punkten stimmen. Die roten Punkte musst du noch verschieben. Tipp: Nach jeder halben Stunde ist die Hälfte vom Wert davor übrig.`; return; }
+    fertig = true; zeichne(); $$(".kz-p", gP).forEach(g => g.classList.add("ok"));
+    const k = $("#kzKurve", svg);
+    k.innerHTML = `<path d="${pfad(t => [X(t / 30), Y(800 * 2 ** (-t / 30))], 0, 150, 60)}" fill="none" stroke="#c0392b" stroke-width="3" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/>`;
+    const p = $("path", k); void p.getBoundingClientRect(); p.style.strokeDashoffset = 0;
+    solve("kurveZeichnen");
+    obs.textContent = "✅ Alle Punkte stimmen: 800 → 400 → 200 → 100 → 50 → 25. So sieht die Zerfallskurve aus: erst steil, dann immer flacher.";
+  });
+  zeichne();
+})();
+
+/* ---------- Station 2: Übungen ---------- */
+Modul.makeGap($("#gapHWZ"), [
+  ["Die ", {g: "Strahlung"}, " eines radioaktiven Stoffs nimmt nach einer festen Regel ab."],
+  ["Nach einer bestimmten ", {g: "Zeitspanne"}, " ist sie nur noch ", {g: "halb"}, " so groß. Diese Zeit heißt ", {g: "Halbwertszeit"}, "."],
+  ["Nach der doppelten Zeit ist nur noch ein ", {g: "Viertel"}, " übrig, nach der dreifachen Zeit ein ", {g: "Achtel"}, "."],
+  ["Die Halbwertszeiten der Isotope sind sehr ", {g: "unterschiedlich"}, ". Für ein bestimmtes Isotop bleibt sie aber immer ", {g: "gleich"}, "."]
+], "gapHWZ", ["Drittel", "doppelt"]);
+Modul.makeTF($("#tfKurve"), [
+  ["Nach zwei Halbwertszeiten ist alles zerfallen.", false],
+  ["Nach drei Halbwertszeiten ist noch ein Achtel der Kerne da.", true],
+  ["Die Zerfallskurve ist eine gerade Linie.", false],
+  ["In der ersten Halbwertszeit zerfallen mehr Kerne als in der zweiten.", true],
+  ["Wann ein einzelner Kern zerfällt, kann man genau vorhersagen.", false],
+  ["Mit der Zahl der Kerne halbiert sich auch die Strahlung.", true]
+], "tfKurve");
+Modul.makeOpen($("#open2"), [
+  {q: "Lena sagt: „Nach einer Halbwertszeit ist die Hälfte zerfallen. Nach zwei Halbwertszeiten ist also alles weg.“ Erkläre, warum das falsch ist.",
+   m: "Das ist falsch. In jeder Halbwertszeit zerfällt die Hälfte vom Rest, nicht die Hälfte vom Anfang. Nach der ersten Halbwertszeit ist noch die Hälfte da. Davon zerfällt in der zweiten Halbwertszeit wieder die Hälfte. Es bleibt also ein Viertel übrig, zum Beispiel 800 → 400 → 200 Kerne.",
+   k: ["hälfte|halb|halbiert|50", "rest|übrig|übrigen|noch da|davon|verbleib|restlich", "viertel|1/4|25"], min: 2}
+], "open2-", "Schau dir den Schieberegler noch einmal an: Wie viele Kerne sind nach 2 Halbwertszeiten noch da?");
+
+/* ---------- Station 3: Zeitleiste der Halbwertszeiten ---------- */
+(function(){
+  const svg = $("#zlSvg"), obs = $("#zlObs"), tb = $("#zlTab tbody");
+  const JAHR = 525960, LMAX = 15.6, xv = min => 30 + Math.log10(min) / LMAX * 470, ACHSE = 212;
+  const ISO = [
+    {id: "tI128", name: "Iod-128", min: 30, hwz: "etwa 30 Minuten", kurz: "≈ 30 Min.", zeit: "nach 30 Minuten", raum: "Minuten", reihe: 1, wo: "wird im Labor künstlich hergestellt", vgl: "Zum Vergleich: kürzer als eine Schulstunde."},
+    {id: "tRn222", name: "Radon-222", min: 3.8 * 1440, hwz: "etwa 3,8 Tage", kurz: "≈ 3,8 Tage", zeit: "nach 3,8 Tagen", raum: "Tage", reihe: 3, links: true, wo: "radioaktives Gas aus dem Boden; es kann sich in Kellern sammeln", vgl: "Zum Vergleich: etwa eine halbe Woche."},
+    {id: "tI131", name: "Iod-131", min: 8 * 1440, hwz: "etwa 8 Tage", kurz: "≈ 8 Tage", zeit: "nach 8 Tagen", raum: "Tage", reihe: 2, wo: "Medizin: zur Behandlung der Schilddrüse", vgl: "Zum Vergleich: etwas mehr als eine Woche."},
+    {id: "tCs137", name: "Cäsium-137", min: 30 * JAHR, hwz: "etwa 30 Jahre", kurz: "≈ 30 Jahre", zeit: "nach 30 Jahren", raum: "Jahrzehnte", reihe: 1, links: true, wo: "kam 1986 nach dem Unfall von Tschernobyl bis nach Bayern; manche Pilze und Wildschweine sind dort heute noch belastet", vgl: "Zum Vergleich: etwa eine Generation."},
+    {id: "tRa226", name: "Radium-226", min: 1600 * JAHR, hwz: "etwa 1 600 Jahre", kurz: "≈ 1 600 Jahre", zeit: "nach 1 600 Jahren", raum: "Jahrhunderte", reihe: 3, links: true, wo: "im Uranerz; Marie und Pierre Curie haben Radium entdeckt", vgl: "Zum Vergleich: Vor 1 600 Jahren gab es noch das Römische Reich."},
+    {id: "tC14", name: "Kohlenstoff-14", min: 5730 * JAHR, hwz: "5 730 Jahre", kurz: "5 730 Jahre", zeit: "nach 5 730 Jahren", raum: "Jahrtausende", reihe: 2, wo: "in jedem Lebewesen; damit bestimmt man das Alter von Funden (Modul 4)", vgl: "Zum Vergleich: Vor 5 730 Jahren lebten die Menschen in der Jungsteinzeit."},
+    {id: "tU238", name: "Uran-238", min: 4.4e9 * JAHR, hwz: "4,4 Milliarden Jahre", kurz: "4,4 Mrd. Jahre", zeit: "nach 4,4 Milliarden Jahren", raum: "Milliarden Jahre", reihe: 1, links: true, wo: "im Gestein der Erde, zum Beispiel im Uranerz", vgl: "Zum Vergleich: Etwa so alt ist die Erde (4,6 Milliarden Jahre)."}
+  ];
+  const ZEILE = [0, 184, 156, 128];
+  const TICKS = [[1, "1 Minute"], [60, "1 Stunde"], [1440, "1 Tag"], [JAHR, "1 Jahr"], [100 * JAHR, "100 Jahre"], [1e4 * JAHR, "10 000 J."], [1e6 * JAHR, "1 Mio. J."], [1e9 * JAHR, "1 Mrd. J."]];
+  svg.innerHTML = `<rect width="520" height="275" fill="#f7fbfe"/>
+    <rect x="10" y="8" width="500" height="104" rx="10" fill="#fff" stroke="#d8e2ea" stroke-width="1.5"/>
+    <text id="zlT1" x="24" y="34" font-size="15" font-weight="800" fill="#7a4b05">Halbwertszeiten im Vergleich</text>
+    <text id="zlT2" x="24" y="56" font-size="12.5" font-weight="600" fill="#15212b">Tippe auf ein Isotop – in der Zeitleiste oder auf die Knöpfe.</text>
+    <g id="zlBalken" class="stage"><rect x="24" y="68" width="240" height="16" rx="8" fill="#e8eef2"/><rect id="zlBar" x="24" y="68" width="240" height="16" rx="8" fill="#f2b632"/>
+      <text id="zlBarTxt" x="276" y="81" font-size="12" font-weight="800" fill="#15212b"></text>
+      <text id="zlT3" x="24" y="104" font-size="11.5" font-weight="700" fill="#566674"></text></g>
+    <defs><linearGradient id="zlVerlauf" x1="0" x2="1"><stop offset="0" stop-color="#fbe3b0"/><stop offset="1" stop-color="#b8720a"/></linearGradient></defs>
+    <rect x="26" y="${ACHSE - 3}" width="${xv(1e9 * JAHR * 5) - 26}" height="6" rx="3" fill="url(#zlVerlauf)"/>
+    <g font-size="10.5" font-weight="700" fill="#566674" text-anchor="middle">${TICKS.map(([m, t]) => `<line x1="${xv(m).toFixed(1)}" y1="${ACHSE + 4}" x2="${xv(m).toFixed(1)}" y2="${ACHSE + 10}" stroke="#566674" stroke-width="1.5"/><text x="${Math.max(24, xv(m)).toFixed(1)}" y="${ACHSE + 23}">${t}</text>`).join("")}</g>
+    <g id="zlFlags">${ISO.map((s, i) => { const x = xv(s.min), y = ZEILE[s.reihe], rechts = !!s.links, tx = rechts ? x - 6 : x + 6, a = rechts ? "end" : "start";
+      return `<g class="zl-flag" data-i="${i}"><line class="zl-l" x1="${x.toFixed(1)}" y1="${ACHSE - 6}" x2="${x.toFixed(1)}" y2="${y - 12}" stroke-width="2"/>
+        <circle class="zl-m" cx="${x.toFixed(1)}" cy="${ACHSE}" r="6.5"/>
+        <text class="zl-n" x="${tx.toFixed(1)}" y="${y}" text-anchor="${a}" font-size="12" font-weight="800">${s.name}</text>
+        <text class="stage zl-h" x="${tx.toFixed(1)}" y="${y + 13}" text-anchor="${a}" font-size="10.5" font-weight="700" fill="#7a4b05">${s.kurz}</text></g>`; }).join("")}</g>
+    <text x="260" y="268" text-anchor="middle" font-size="11" font-weight="700" fill="#566674">Jeder Abschnitt der Zeitleiste ist viel länger als der davor.</text>`;
+  tb.innerHTML = ISO.map(s => `<tr><th>${s.name}</th><td></td><td></td><td></td></tr>`).join("");
+  const flags = $$(".zl-flag", svg), bar = $("#zlBar", svg), da = new Set();
+  register("zeitleiste", "#zlSvg", "Zeitleiste: Halbwertszeiten von sieben Isotopen verglichen");
+  function waehle(i){
+    const s = ISO[i];
+    flags.forEach((f, j) => { f.classList.toggle("an", j === i); });
+    flags[i].classList.add("da"); $(".zl-h", flags[i]).classList.add("on");
+    $("#zlT1", svg).textContent = `${s.name} · Halbwertszeit ${s.hwz}`;
+    $("#zlT2", svg).textContent = s.vgl;
+    $("#zlBalken", svg).classList.add("on");
+    $("#zlBarTxt", svg).textContent = `1 000 Kerne → 500`;
+    $("#zlT3", svg).textContent = s.zeit.replace("nach", "Nach") + " ist die Hälfte zerfallen.";
+    bar.style.transition = "none"; bar.style.transform = "scaleX(1)"; void bar.getBoundingClientRect(); bar.style.transition = ""; bar.style.transform = "scaleX(.5)";
+    const td = $$("tr", tb)[i].children;
+    if (!td[1].textContent) { td[1].textContent = s.hwz; td[2].textContent = s.raum; td[3].textContent = s.wo; [1, 2, 3].forEach(k => { td[k].classList.remove("neu"); void td[k].offsetWidth; td[k].classList.add("neu"); }); }
+    da.add(i);
+    obs.textContent = `${s.name}: Halbwertszeit ${s.hwz}. Vorkommen: ${s.wo}.` + (da.size < ISO.length ? ` (${da.size} von ${ISO.length} Isotopen)` : "");
+    if (da.size === ISO.length) {
+      if (!Modul.isSolved("zeitleiste")) solve("zeitleiste");
+      obs.textContent += " ✅ Alle sieben verglichen: Von etwa 30 Minuten (Iod-128) bis 4,4 Milliarden Jahre (Uran-238) – die Halbwertszeiten sind riesig verschieden.";
+    }
+  }
+  ISO.forEach((s, i) => $("#" + s.id).addEventListener("click", () => waehle(i)));
+  flags.forEach((f, i) => f.addEventListener("click", () => waehle(i)));
+})();
+
+/* ---------- Station 3: Übungen ---------- */
+Modul.makePaare($("#paareHWZ"), [
+  ["Iod-128", "etwa 30 Minuten"],
+  ["Iod-131", "etwa 8 Tage"],
+  ["Cäsium-137", "etwa 30 Jahre"],
+  ["Radium-226", "etwa 1 600 Jahre"],
+  ["Kohlenstoff-14", "5 730 Jahre"],
+  ["Uran-238", "4,4 Milliarden Jahre"]
+], "paareHWZ");
+Modul.makeOpen($("#open3"), [
+  {q: "Für eine Untersuchung der Schilddrüse bekommt ein Patient eine winzige Menge eines radioaktiven Iod-Isotops. Erkläre, warum man dafür ein Isotop mit kurzer Halbwertszeit wählt.",
+   m: "Ein Isotop mit kurzer Halbwertszeit zerfällt schnell. Nach wenigen Halbwertszeiten ist fast nichts mehr davon im Körper. So wird der Körper nur kurze Zeit durch Strahlung belastet. Ein Isotop mit langer Halbwertszeit würde noch sehr lange im Körper strahlen.",
+   k: ["schnell|rasch|bald|kurz|wenig zeit", "zerf|weniger|nichts mehr|weg|nimmt ab|abnimmt|halbiert|verschwindet|nicht lange", "belast|schad|schäd|strahl|gefahr|gesund|körper"], min: 3}
+], "open3-", "Lies den Merke-Kasten noch einmal: Was bedeutet eine kurze Halbwertszeit für den Körper?");
+
+/* ---------- Station 4: Iod-128 im Zeitraffer ---------- */
+(function(){
+  const svg = $("#iodSvg"), CX = 80, CY = 118, BASIS = 222;
+  const W = [10000, 5000, 2500, 1250, 625, 10], BX = [196, 246, 296, 346, 396, 478];
+  const UHR = ["8:00", "8:30", "9:00", "9:30", "10:00", "13:00"], HWZ = [0, 1, 2, 3, 4, 10], MIN = [0, 30, 60, 90, 120, 300];
+  const hoehe = v => Math.max(2, v / 10000 * 150);
+  svg.innerHTML = `<rect width="520" height="265" fill="#f7fbfe"/>
+    <text id="ioTitel" x="260" y="24" text-anchor="middle" font-size="14" font-weight="800" fill="#7a4b05"></text>
+    <circle cx="${CX}" cy="${CY}" r="54" fill="#fff" stroke="#566674" stroke-width="3"/>
+    ${[...Array(12).keys()].map(k => { const a = k * Math.PI / 6, r1 = k % 3 ? 47 : 42; return `<line x1="${(CX + r1 * Math.sin(a)).toFixed(1)}" y1="${(CY - r1 * Math.cos(a)).toFixed(1)}" x2="${(CX + 51 * Math.sin(a)).toFixed(1)}" y2="${(CY - 51 * Math.cos(a)).toFixed(1)}" stroke="#566674" stroke-width="${k % 3 ? 1.5 : 3}"/>`; }).join("")}
+    <line id="ioStd" class="zeiger" x1="${CX}" y1="${CY}" x2="${CX}" y2="${CY - 27}" stroke="#15212b" stroke-width="5" stroke-linecap="round"/>
+    <line id="ioMin" class="zeiger" x1="${CX}" y1="${CY}" x2="${CX}" y2="${CY - 42}" stroke="#c0392b" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="${CX}" cy="${CY}" r="4" fill="#15212b"/>
+    <text id="ioUhr" x="${CX}" y="196" text-anchor="middle" font-size="15" font-weight="800" fill="#15212b">8:00 Uhr</text>
+    <text id="ioNach" x="${CX}" y="214" text-anchor="middle" font-size="11.5" font-weight="700" fill="#566674"></text>
+    <line x1="170" y1="${BASIS}" x2="505" y2="${BASIS}" stroke="#566674" stroke-width="2"/>
+    ${W.map((v, k) => `<g id="ioB${k}" class="stage"><rect x="${BX[k] - 17}" y="${(BASIS - hoehe(v)).toFixed(1)}" width="34" height="${hoehe(v).toFixed(1)}" rx="3" fill="${k ? "#f2b632" : "#b8720a"}" stroke="#b8720a" stroke-width="1"/>
+      <text x="${BX[k]}" y="${(BASIS - hoehe(v) - 6).toFixed(1)}" text-anchor="middle" font-size="11.5" font-weight="800" fill="#15212b">${k === 5 ? "≈ 10" : zahl(v)}</text>
+      <text x="${BX[k]}" y="${BASIS + 16}" text-anchor="middle" font-size="11" font-weight="700" fill="#15212b">${UHR[k]}</text>
+      <text x="${BX[k]}" y="${BASIS + 31}" text-anchor="middle" font-size="11" font-weight="800" fill="#7a4b05">${HWZ[k]}</text></g>`).join("")}
+    <text id="ioPunkte" class="stage" x="437" y="${BASIS - 6}" text-anchor="middle" font-size="16" font-weight="900" fill="#566674">…</text>
+    <g font-size="10.5" font-weight="700" fill="#566674" text-anchor="end"><text x="172" y="${BASIS + 16}">Uhrzeit</text><text x="172" y="${BASIS + 31}">HWZ</text></g>`;
+  const TITEL = ["8:00 Uhr: 10 000 Kerne Iod-128", "8:30 Uhr: noch 5 000 Kerne", "9:00 Uhr: noch 2 500 – ein Viertel", "9:30 Uhr: noch 1 250 – ein Achtel", "10:00 Uhr: noch 625 Kerne", "13:00 Uhr: nur noch etwa 10 Kerne"];
+  Modul.makeSchritte($("#iodSim"), {
+    start: "Wie viele Kerne Iod-128 sind nach 2 Stunden noch da? Die Uhr läuft im Zeitraffer. Tippe auf „Start“.",
+    steps: [
+      "8:00 Uhr: In einem Labor liegen <strong>10 000 Kerne Iod-128</strong> bereit. Die Halbwertszeit ist etwa <strong>30 Minuten</strong>.",
+      "8:30 Uhr – nach 1 Halbwertszeit: Die Hälfte ist zerfallen. Noch <strong>5 000</strong> Kerne.",
+      "9:00 Uhr – nach 2 Halbwertszeiten (1 Stunde): Wieder ist die Hälfte vom Rest zerfallen. Noch <strong>2 500</strong> Kerne – ein Viertel.",
+      "9:30 Uhr – nach 3 Halbwertszeiten: noch <strong>1 250</strong> Kerne – ein Achtel.",
+      "10:00 Uhr – nach 2 Stunden sind 4 Halbwertszeiten vergangen: noch <strong>625</strong> Kerne.",
+      "13:00 Uhr – nach 5 Stunden sind 10 Halbwertszeiten vergangen. Es sind nur noch etwa <strong>10</strong> Kerne übrig. Fast alles ist zerfallen."
+    ],
+    ms: 3000,
+    zeige(i){
+      const s = Math.max(0, i);
+      $("#ioTitel", svg).textContent = TITEL[s];
+      $("#ioMin", svg).style.transform = `rotate(${MIN[s] * 6}deg)`;
+      $("#ioStd", svg).style.transform = `rotate(${240 + MIN[s] * .5}deg)`;
+      $("#ioUhr", svg).textContent = UHR[s] + " Uhr";
+      $("#ioNach", svg).textContent = s ? `nach ${HWZ[s]} Halbwertszeit${HWZ[s] === 1 ? "" : "en"}` : "Start";
+      W.forEach((_, k) => $("#ioB" + k, svg).classList.toggle("on", i >= 0 && (k <= s && k < 5 || k === 5 && s === 5)));
+      $("#ioPunkte", svg).classList.toggle("on", s === 5);
+    }
+  }, "iodSchritte");
+})();
+
+/* ---------- Station 4: Rechentrainer ---------- */
+(function(){
+  const box = $("#rechner"), ZIEL = 4;
+  register("rechner", "#rechner", "Rechentrainer: 4 Aufgaben zur Halbwertszeit richtig gelöst");
+  const zufall = a => a[Math.floor(Math.random() * a.length)];
+  const START = [800, 1600, 2000, 3200, 4000, 4800, 6400, 8000, 10000, 12000, 16000, 24000];
+  const TEIL = ["alles", "die Hälfte", "ein Viertel", "ein Achtel", "ein Sechzehntel"];
+  const ISO = [
+    {name: "Iod-128", hwz: 30, hwzText: "etwa 30 Minuten", einheit: "Minuten",
+     nach: k => ["", "30 Minuten", "1 Stunde", "1,5 Stunden", "2 Stunden"][k],
+     rechnung: k => (k > 1 ? `${["", "", "1 Stunde", "1,5 Stunden", "2 Stunden"][k]} = ${k * 30} Minuten. ` : "") + `${k * 30} Minuten : 30 Minuten = ${k}`},
+    {name: "Iod-131", hwz: 8, hwzText: "etwa 8 Tage", einheit: "Tage", nach: k => `${k * 8} Tagen`, rechnung: k => `${k * 8} Tage : 8 Tage = ${k}`},
+    {name: "Radium-226", hwz: 1600, hwzText: "etwa 1 600 Jahre", einheit: "Jahre", nach: k => `${zahl(k * 1600)} Jahren`, rechnung: k => `${zahl(k * 1600)} Jahre : 1 600 Jahre = ${k}`}
+  ];
+  const RUECK = [
+    {T: "60 Minuten", Tn: "60 Minuten", k: 2, soll: 30, einheit: "Minuten"}, {T: "90 Minuten", Tn: "90 Minuten", k: 3, soll: 30, einheit: "Minuten"},
+    {T: "3 Stunden", Tn: "3 Stunden = 180 Minuten. 180 Minuten", k: 3, soll: 60, einheit: "Minuten"}, {T: "12 Tagen", Tn: "12 Tage", k: 2, soll: 6, einheit: "Tage"},
+    {T: "24 Tagen", Tn: "24 Tage", k: 3, soll: 8, einheit: "Tage"}, {T: "40 Jahren", Tn: "40 Jahre", k: 2, soll: 20, einheit: "Jahre"},
+    {T: "6 400 Jahren", Tn: "6 400 Jahre", k: 4, soll: 1600, einheit: "Jahre"}
+  ];
+  const hz = k => `${k} Halbwertszeit${k === 1 ? "" : "en"}`;
+  const kette = a => `<div class="rt-kette">${a.map(x => `<b>${x}</b>`).join("<span>→</span>")}</div>`;
+  function neu(typ){
+    if (typ === 0) {
+      const iso = zufall(ISO), k = 1 + Math.floor(Math.random() * 4), N = zufall(START.filter(n => n % 2 ** k === 0)), e = N / 2 ** k;
+      return {text: `Ein Präparat enthält ${zahl(N)} Kerne ${iso.name}. Die Halbwertszeit ist ${iso.hwzText}. Wie viele Kerne sind nach ${iso.nach(k)} noch da?`, soll: e, einheit: "Kerne",
+        tipp: `Rechne zuerst aus, wie viele Halbwertszeiten in ${iso.nach(k)} passen. Halbiere dann ${zahl(N)} so oft.`,
+        weg: `<p style="margin:0">${iso.rechnung(k)} Halbwertszeit${k === 1 ? "" : "en"}. ${k}-mal halbieren:</p>` + kette([...Array(k + 1).keys()].map(j => zahl(N / 2 ** j))) + `<p style="margin:0"><strong>Antwort:</strong> Nach ${iso.nach(k)} sind noch ${zahl(e)} Kerne da.</p>`};
+    }
+    if (typ === 1) {
+      const k = 1 + Math.floor(Math.random() * 4), e = 100 / 2 ** k;
+      return {text: `Wie viel Prozent der Kerne eines radioaktiven Stoffs sind nach ${hz(k)} noch da?`, soll: e, einheit: "%", tol: .06,
+        tipp: `Beginne bei 100 % und halbiere ${k}-mal.`,
+        weg: kette([...Array(k + 1).keys()].map(j => zahl(100 / 2 ** j) + " %")) + `<p style="margin:0"><strong>Antwort:</strong> Nach ${hz(k)} sind noch ${zahl(e)} % da (${TEIL[k]}).</p>`};
+    }
+    if (typ === 2) {
+      const iso = zufall(ISO), k = 2 + Math.floor(Math.random() * 3), N = zufall(START.filter(n => n % 2 ** k === 0)), e = k * iso.hwz;
+      return {text: `Von ${zahl(N)} Kernen ${iso.name} (Halbwertszeit ${iso.hwzText}) sind nur noch ${zahl(N / 2 ** k)} übrig. Wie viel Zeit ist vergangen?`, soll: e, einheit: iso.einheit,
+        tipp: `Halbiere ${zahl(N)} so lange, bis du bei ${zahl(N / 2 ** k)} bist. Zähle, wie oft du halbiert hast. Jedes Mal vergeht eine Halbwertszeit.`,
+        weg: kette([...Array(k + 1).keys()].map(j => zahl(N / 2 ** j))) + `<p style="margin:0">${k}-mal halbiert = ${hz(k)}. ${k} · ${zahl(iso.hwz)} ${iso.einheit} = ${zahl(e)} ${iso.einheit}.</p><p style="margin:0"><strong>Antwort:</strong> Es sind ${zahl(e)} ${iso.einheit} vergangen.</p>`};
+    }
+    const r = zufall(RUECK);
+    return {text: `Bei einem radioaktiven Stoff ist nach ${r.T} nur noch ${TEIL[r.k]} der Kerne da. Wie lang ist seine Halbwertszeit?`, soll: r.soll, einheit: r.einheit,
+      tipp: `Wie oft musst du halbieren, bis nur noch ${TEIL[r.k]} da ist? So viele Halbwertszeiten passen in ${r.T}.`,
+      weg: kette(["alles", "1/2", "1/4", "1/8", "1/16"].slice(0, r.k + 1)) + `<p style="margin:0">${TEIL[r.k].replace(/^e/, "E")} = ${hz(r.k)}. ${r.Tn} : ${r.k} = ${zahl(r.soll)} ${r.einheit}.</p><p style="margin:0"><strong>Antwort:</strong> Die Halbwertszeit ist ${zahl(r.soll)} ${r.einheit}.</p>`};
+  }
+  // Zahl lesen: „2 500“, „2.500“, „12,5“ und „12.5“ gehen
+  function lesen(s){
+    s = String(s).trim().replace(/[\s  ]/g, "").replace(/%|kerne|minuten|tage|jahre/gi, "");
+    if (s.includes(",")) s = s.replace(/\./g, "").replace(",", ".");
+    else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, "");
+    return /^-?\d+(\.\d+)?$/.test(s) ? parseFloat(s) : NaN;
+  }
+  box.innerHTML = `<div class="rt-kopf"><strong id="rtNr">Aufgabe 1</strong><span><span class="hint" style="margin:0 6px 0 0">richtig:</span><span class="rt-punkte">${"<span></span>".repeat(ZIEL)}</span></span></div>
+    <p class="rt-aufgabe" id="rtText"></p>
+    <div class="rt-zeile"><label for="rtIn" style="font-weight:600">Deine Antwort:</label><input id="rtIn" type="text" inputmode="decimal" autocomplete="off" spellcheck="false"><span class="rt-einheit" id="rtEinheit"></span>
+      <button class="btn small" id="rtPruefen" type="button">Prüfen</button><button class="btn small ghost" id="rtWeiter" type="button" hidden>Nächste Aufgabe →</button></div>
+    <div class="fb" id="rtFb"></div>
+    <div class="rt-weg" id="rtWeg" hidden></div>`;
+  const inp = $("#rtIn", box), fb = $("#rtFb", box), wegBox = $("#rtWeg", box), weiter = $("#rtWeiter", box);
+  const REIHE = [0, 1, 2, 3];
+  let nr = 0, richtig = 0, A = null, versuche = 0;
+  function naechste(){
+    A = neu(nr < REIHE.length ? REIHE[nr] : Math.floor(Math.random() * 4)); nr++; versuche = 0;
+    $("#rtNr", box).textContent = `Aufgabe ${nr}`;
+    $("#rtText", box).textContent = A.text; $("#rtEinheit", box).textContent = A.einheit;
+    inp.value = ""; inp.classList.remove("right", "wrong"); inp.disabled = false;
+    fb.className = "fb"; wegBox.hidden = true; weiter.hidden = true; $("#rtPruefen", box).hidden = false;
+  }
+  function pruefen(){
+    if (!A || A.erledigt) return;
+    const v = lesen(inp.value);
+    if (isNaN(v)) { fb.className = "fb show mid"; fb.textContent = "Schreib eine Zahl in das Feld, zum Beispiel 2 500 oder 12,5."; return; }
+    const ok = Math.abs(v - A.soll) <= (A.tol || .001);
+    versuche++;
+    inp.classList.toggle("right", ok); inp.classList.toggle("wrong", !ok);
+    if (!ok && versuche < 2) { fb.className = "fb show bad"; fb.innerHTML = "❌ Noch nicht. <strong>Tipp:</strong> " + A.tipp; return; }
+    A.erledigt = true; inp.disabled = true; $("#rtPruefen", box).hidden = true; weiter.hidden = false;
+    wegBox.innerHTML = "<strong>So geht es:</strong>" + A.weg; wegBox.hidden = false;
+    if (ok) {
+      richtig++;
+      $$(".rt-punkte span", box).forEach((p, j) => p.classList.toggle("ok", j < richtig));
+      fb.className = "fb show ok";
+      fb.textContent = richtig >= ZIEL ? (richtig === ZIEL ? "✅ Richtig! Du hast 4 Aufgaben geschafft – super gerechnet! Du kannst weiter üben." : "✅ Richtig!") : `✅ Richtig! Noch ${ZIEL - richtig} Aufgabe${ZIEL - richtig === 1 ? "" : "n"}.`;
+      if (richtig >= ZIEL && !Modul.isSolved("rechner")) { solve("rechner"); }
+    } else { fb.className = "fb show bad"; fb.textContent = `❌ Leider nicht. Richtig ist ${zahl(A.soll)} ${A.einheit}. Schau dir den Rechenweg an und probiere die nächste Aufgabe.`; }
+  }
+  $("#rtPruefen", box).addEventListener("click", pruefen);
+  inp.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); if (A && A.erledigt) naechste(); else pruefen(); } });
+  weiter.addEventListener("click", () => { naechste(); inp.focus(); });
+  naechste();
+})();
+
+/* ---------- Station 4: Übungen ---------- */
+Modul.makeGap($("#gapReihe"), [
+  ["Ein Gesteinsstück enthält <strong>120 Millionen</strong> Kerne Radium-226. Die Halbwertszeit ist etwa 1 600 Jahre."],
+  ["Nach 1 600 Jahren sind noch ", {g: "60"}, " Millionen Kerne da, nach 3 200 Jahren noch ", {g: "30"}, " Millionen."],
+  ["Nach ", {g: "4 800"}, " Jahren sind es 15 Millionen, nach 6 400 Jahren nur noch ", {g: "7,5"}, " Millionen."],
+  ["6 400 Jahre sind ", {g: "4"}, " Halbwertszeiten. Übrig ist also ein ", {g: "Sechzehntel"}, " der Kerne."]
+], "gapReihe", ["40", "Zwölftel"]);
+(function(){
+  const svg = $("#kaSvg"), X = t => 70 + t * 10.5, Y = v => 222 - v * .2375;
+  svg.innerHTML = `<rect width="520" height="262" fill="#f7fbfe"/>
+    <text x="14" y="18" font-size="11.5" font-weight="800" fill="#566674">Zählrate (Impulse pro Minute)</text>
+    <text x="490" y="18" text-anchor="end" font-size="13" font-weight="800" fill="#7a4b05">Stoff X</text>
+    <g stroke="#e1e8ee" stroke-width="1">${[...Array(9).keys()].map(k => `<line x1="70" y1="${Y(k * 100).toFixed(1)}" x2="490" y2="${Y(k * 100).toFixed(1)}"/>`).join("")}${[...Array(11).keys()].map(k => `<line x1="${X(k * 4)}" y1="${Y(0)}" x2="${X(k * 4)}" y2="${Y(800).toFixed(1)}"/>`).join("")}</g>
+    <g font-size="11" font-weight="700" fill="#566674" text-anchor="end">${[...Array(9).keys()].map(k => `<text x="64" y="${(Y(k * 100) + 4).toFixed(1)}">${k * 100}</text>`).join("")}</g>
+    <path d="M70 ${Y(800) - 8} V${Y(0)} H496" fill="none" stroke="#566674" stroke-width="2"/>
+    <g font-size="11" font-weight="700" fill="#15212b" text-anchor="middle">${[0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40].map(t => `<text x="${X(t)}" y="${Y(0) + 15}">${t}</text>`).join("")}</g>
+    <text x="280" y="256" text-anchor="middle" font-size="11.5" font-weight="700" fill="#566674">Zeit in Tagen</text>
+    <path d="${pfad(t => [X(t), Y(800 * 2 ** (-t / 8))], 0, 40, 80)}" fill="none" stroke="#c0392b" stroke-width="3"/>`;
+})();
+Modul.makeMC($("#mcKurve"), [
+  {q: "Lies ab: Wie groß ist die Halbwertszeit von Stoff X?", o: ["8 Tage", "4 Tage", "16 Tage", "40 Tage"], a: 0, e: "Die Zählrate fällt in 8 Tagen von 800 auf 400 Impulse pro Minute – auf die Hälfte."},
+  {q: "Wie groß ist die Zählrate nach 24 Tagen?", o: ["100 Impulse pro Minute", "200 Impulse pro Minute", "300 Impulse pro Minute", "0 Impulse pro Minute"], a: 0, e: "24 Tage sind 3 Halbwertszeiten: 800 → 400 → 200 → 100."}
+], "mcka");
+
+/* ---------- Regelheft: Skizze der Zerfallskurve ---------- */
+$("#rhKurve").setAttribute("d", pfad(t => [60 + t * 80, 132 - 120 * 2 ** -t], 0, 4.5, 60));
+
+/* ---------- Training: Kreuzworträtsel mit Tipps ---------- */
+Modul.makeCrossword($("#cw"), {
+  tipps: true,
+  words: [
+    {w: "HALBWERTSZEIT", r: 0, c: 9, d: "d", q: "Zeit, nach der die Hälfte der Kerne zerfallen ist.", tip: "Halb + Wert + Zeit."},
+    {w: "MITTELWERT", r: 6, c: 1, d: "a", q: "Ihn bildet man aus mehreren Runden des Münzspiels.", tip: "Alle Werte zusammenzählen und durch ihre Anzahl teilen."},
+    {w: "VIERTEL", r: 0, c: 6, d: "d", q: "So viel ist nach zwei Halbwertszeiten noch da.", tip: "Die Hälfte von der Hälfte."},
+    {w: "RADIUM", r: 1, c: 1, d: "d", q: "Element mit dem Isotop …-226 (Halbwertszeit etwa 1 600 Jahre).", tip: "Marie und Pierre Curie haben es entdeckt."},
+    {w: "MUENZE", r: 9, c: 5, d: "a", q: "Sie steht im Spiel für einen Atomkern.", tip: "Ein Cent ist so eine. Ü schreibst du als UE.", zeig: "Münze"},
+    {w: "HAELFTE", r: 2, c: 0, d: "a", q: "So viel vom Rest zerfällt in jeder Halbwertszeit.", tip: "50 %. Ä schreibst du als AE.", zeig: "Hälfte"},
+    {w: "ZUFALL", r: 8, c: 6, d: "d", q: "Wann ein einzelner Kern zerfällt, ist reiner …", tip: "Wie beim Münzwurf: Niemand kann es vorhersagen."},
+    {w: "ISOTOP", r: 6, c: 2, d: "d", q: "Jedes radioaktive … hat seine eigene Halbwertszeit (Einzahl).", tip: "Zum Beispiel Iod-128 oder Uran-238."},
+    {w: "KURVE", r: 0, c: 3, d: "a", q: "Zerfalls…: erst steil, dann immer flacher.", tip: "Eine gebogene Linie im Diagramm."},
+    {w: "ACHTEL", r: 13, c: 1, d: "a", q: "So viel ist nach drei Halbwertszeiten noch da.", tip: "Ein Viertel noch einmal halbiert."},
+    {w: "URAN", r: 11, c: 4, d: "a", q: "Das Isotop …-238 hat eine Halbwertszeit von 4,4 Milliarden Jahren.", tip: "Schweres, radioaktives Metall aus dem Gestein."},
+    {w: "IOD", r: 4, c: 1, d: "a", q: "Das Isotop …-128 hat eine Halbwertszeit von etwa 30 Minuten.", tip: "Die Schilddrüse braucht dieses Element."}
+  ],
+  sol: [[9, 9], [10, 9], [11, 5], [2, 4], [13, 1], [2, 3], [2, 9]], solWord: "ZERFALL"
+}, "cw");
+
+/* ---------- Profi-Check, Lernkarten ---------- */
+Modul.makeQuiz($("#quiz"), [...MC.s1, ...MC.s2, ...MC.s3, ...MC.s4, ...MC.train,
+  {q: "Warum kann man nicht sagen, wann ein bestimmter Kern zerfällt?", o: ["Weil der Zerfall eines einzelnen Kerns Zufall ist.", "Weil Atomkerne zu klein zum Zählen sind.", "Weil jeder Kern genau eine Halbwertszeit lebt.", "Weil Kerne nur im Dunkeln zerfallen."], a: 0, e: "Wie beim Münzwurf: Für einen einzelnen Kern gibt es keine Vorhersage – für sehr viele Kerne schon."},
+  {q: "Wie verläuft eine Zerfallskurve?", o: ["erst steil, dann immer flacher", "als gerade Linie nach unten", "erst flach, dann immer steiler", "waagrecht ohne Änderung"], a: 0, e: "Am Anfang sind viele Kerne da, also zerfallen viele. Später sind es immer weniger."},
+  {q: "Was passiert mit der Zählrate eines radioaktiven Stoffs nach einer Halbwertszeit?", o: ["Sie ist nur noch halb so groß.", "Sie ist doppelt so groß.", "Sie bleibt genau gleich.", "Sie fällt sofort auf null."], a: 0, e: "Mit der Zahl der Kerne halbiert sich auch die Strahlung."},
+  {q: "Nach 2 Stunden ist von einem Stoff nur noch ein Viertel da. Wie groß ist seine Halbwertszeit?", o: ["1 Stunde", "2 Stunden", "30 Minuten", "4 Stunden"], a: 0, e: "Ein Viertel = 2 Halbwertszeiten. 2 Stunden : 2 = 1 Stunde."},
+  {q: "Wie viele Kerne sind von 10 000 Kernen Iod-128 nach 1 Stunde noch da?", o: ["2 500", "5 000", "1 250", "0"], a: 0, e: "1 Stunde = 2 Halbwertszeiten: 10 000 → 5 000 → 2 500."}
+], "quiz", "Halbwertszeit-Profi");
+if (window.NT8Karten) NT8Karten.trainer($("#lernkarten"), {module: ["ra-halbwertszeit"], titel: "Lernkarten zu diesem Modul", zug: "M", druck: false});
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>

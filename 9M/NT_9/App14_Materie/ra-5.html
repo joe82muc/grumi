@@ -1,0 +1,922 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#7a4b05">
+<title>Was Strahlung im Körper anrichtet | NT 9</title>
+<link rel="stylesheet" href="../../../7M/NT/modul-basis.css">
+<link rel="stylesheet" href="materie.css">
+<style>
+/* Station 1: Dosis-Skala */
+#dsSvg .ds-p{transition:fill .5s}
+#dsSvg #dsZeiger{transition:transform .45s cubic-bezier(.3,.7,.3,1)}
+.ra5-hinweis{margin:0;padding:0 14px 12px;font-size:.88rem;color:var(--muted);background:#fff}
+/* Station 2: Schema Strahlung → Schäden */
+#scSvg .sc-box rect{fill:#eef2f5;stroke:#c9d4de;transition:fill .5s,stroke .5s,stroke-width .3s}
+#scSvg .sc-box text{fill:#9aa5ad;transition:fill .5s}
+#scSvg .sc-box.an rect{fill:var(--f);stroke:var(--s)}
+#scSvg .sc-box.an text{fill:#15212b}
+#scSvg .sc-box.an text.sub{fill:#4a5866}
+#scSvg .sc-box.jetzt rect{stroke-width:3.2}
+#scSvg .mv{transition:transform .8s cubic-bezier(.3,.7,.3,1)}
+#scSvg .funke{transform-box:fill-box;transform-origin:center;animation:ra5Funke .5s ease-in-out infinite alternate}
+@keyframes ra5Funke{from{transform:scale(.75)}to{transform:scale(1.2)}}
+/* Station 3: Jahresdosis-Rechner */
+.sim-ctrl .btn .ra5-n{display:inline-block;min-width:1.6em;margin-left:4px;padding:0 5px;border-radius:99px;background:rgba(255,255,255,.3);font-size:.85em}
+.sim-ctrl .btn .ra5-n:empty{display:none}
+.sim-ctrl .btn.teal.gewaehlt{background:var(--sky);color:#fff;box-shadow:0 0 0 3px #f2b632}
+/* Station 4: Dosis-Rechner */
+#edSvg .rk{transition:opacity .45s}
+#edSvg .ed-dot{transition:transform .9s cubic-bezier(.3,.7,.3,1),opacity .4s}
+#edSvg .glow{transition:opacity .5s}
+#edSvg .tf-zelle rect{fill:#fff;stroke:#d8e2ea;stroke-width:1.5;transition:fill .4s,stroke .4s,stroke-width .4s}
+#edSvg .tf-zelle.an rect{fill:#fff8e1;stroke:#15212b;stroke-width:3}
+.ra5-formel{margin:10px 0;padding:10px 14px;border-radius:10px;background:var(--sky-l);border-left:4px solid var(--sky);font-weight:700}
+@media (prefers-reduced-motion:reduce){#dsSvg *,#scSvg *,#jdSvg *,#edSvg *{transition:none!important;animation:none!important}}
+</style>
+<script src="../../../js/kursliste.js"></script>
+<script src="../themen.js"></script>
+<!-- 9M und 9R nutzen dieselben Seiten: die Kursliste kommt aus dem Ordner (../themen.js = NT9M oder NT9R) -->
+<script>window.GRUMI_KURS = window.NT9M || window.NT9R; window.GRUMI_KURS.KARTEN = "../../" + window.GRUMI_KURS.ORDNER + "App14_Materie/";</script>
+<script src="materie.js"></script>
+</head>
+<body data-bereich="ra">
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="../%C3%BCbersicht_themen.html">GRUMI<small>NT <span class="mt-zug">9M</span> · Radioaktivität 5</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Sievert</a>
+      <a href="#s2"><b>2</b>Schäden</a>
+      <a href="#s3"><b>3</b>Alltag</a>
+      <a href="#s4"><b>4</b>Rechnen</a>
+      <a href="#s5"><b>5</b>Training</a>
+      <a href="#abschluss"><b>6</b>Abschluss</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Natur und Technik · Klasse <span class="mt-zug">9M</span> · Radioaktivität · Modul 5</div>
+    <h1>Was Strahlung im Körper anrichtet</h1>
+    <p>Radioaktive Strahlung sieht man nicht, man hört sie nicht und man spürt sie nicht. Trotzdem kann sie im Körper Schaden anrichten. Hier erfährst du, wie man die Strahlendosis in Sievert angibt, welche Schäden Strahlung auslösen kann und wie viel Strahlung du selbst in einem Jahr abbekommst.</p>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s5">Direkt zum Training</a>
+    </div>
+    <div class="goals">
+      <div>☢️ Ich weiß, wovon die Wirkung von Strahlung abhängt, und kenne die Einheit Sievert.</div>
+      <div>🧬 Ich unterscheide Frühschäden, Spätschäden und genetische Schäden.</div>
+      <div>✈️ Ich schätze meine Strahlendosis in einem Jahr ab und kenne die Grenzwerte.</div>
+      <div>🧮 Ich berechne die Energiedosis und die Strahlendosis.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in diesem Modul"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Einstieg · Probenstoff</div><h2>Strahlendosis und Sievert</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <figure style="margin:0 0 12px"><img class="zoomable" src="bilder/ra-5.jpg" width="1280" height="853" loading="lazy" decoding="async" alt="Ein Jugendlicher mit lockigen Haaren sitzt in einem Untersuchungsraum auf einer Liege, über ihm hängt ein großes weißes Röntgengerät. Hinter einer Glasscheibe sitzt eine Radiologin im blauen Kittel an einem Bildschirm und lächelt ihm zu." style="width:100%;height:auto"><figcaption class="hint" style="margin:4px 0 0">Bild: GRUMI (mit KI erstellt)</figcaption></figure>
+      <p class="hint" style="margin:0 0 10px"><strong>Denk mal nach:</strong> Der Junge bleibt am Röntgengerät sitzen. Die Radiologin geht hinter eine Glasscheibe, bevor sie das Gerät einschaltet. Warum wohl?</p>
+      <p class="lead">Jonas wird geröntgt. Für ihn ist eine Aufnahme kein Problem. Die <button class="term" data-t="radiologin">Radiologin</button> macht aber jeden Tag viele Aufnahmen. Deshalb schützt sie sich hinter der Scheibe.</p>
+      <p style="margin:0"><button class="term" data-t="roentgen">Röntgenstrahlen</button> sind keine radioaktive Strahlung. Im Körper wirken sie aber ganz ähnlich. In diesem Modul erfährst du, was Strahlung im Körper anrichtet – und ab wann sie gefährlich wird.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Radioaktive Strahlung hat sehr viel Energie. Trifft sie auf den Körper, nimmt er diese Energie auf. Man sagt: Der Körper <button class="term" data-t="absorbieren">absorbiert</button> die Strahlung. Dabei kann die Strahlung <button class="term" data-t="molekuel">Moleküle</button> in den Zellen verändern oder zerbrechen.</p>
+      <p style="margin:0 0 6px">Wie stark sie wirkt, hängt von drei Dingen ab:</p>
+      <ul class="schritt-liste" style="margin-bottom:8px">
+        <li><strong>Wie viel</strong> Strahlung (Energie) der Körper aufnimmt.</li>
+        <li><strong>Wie viel Masse</strong> bestrahlt wird: Trifft dieselbe Strahlung nur eine Hand, bekommt jedes Gramm viel mehr ab, als wenn sie sich auf den ganzen Körper verteilt.</li>
+        <li><strong>Welche Art</strong> von Strahlung es ist: α-Strahlung schadet mehr als β- und γ-Strahlung.</li>
+      </ul>
+      <p style="margin:0">Das alles fasst die <button class="term" data-t="strahlendosis">Strahlendosis</button> zusammen. Ihre Einheit ist das <button class="term" data-t="sievert">Sievert</button> (Sv). Es ist nach dem schwedischen Strahlenforscher <strong>Rolf Sievert</strong> benannt. Kleine Werte gibt man in Millisievert (mSv) an: <strong>1 Sv = 1 000 mSv</strong>.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="dsSim">
+    <svg viewBox="0 0 520 300" id="dsSvg" role="img" aria-label="Dosis-Skala von 0 bis 6 Sievert für eine kurze Bestrahlung des ganzen Körpers. Ein Regler wählt eine Stufe. 100 Punkte stehen für 100 Menschen: grau ohne Beschwerden, orange mit Übelkeit und Erbrechen, dunkel gestorben. Bis 0,5 Sievert keine spürbaren Beschwerden, von 0,8 bis 1,2 Sievert 5 bis 10 von 100 einen Tag lang müde mit Erbrechen, ab 2,7 Sievert fast alle krank und etwa 20 von 100 sterben, ab 5,5 Sievert überlebt kaum jemand. Die Strahlung im Alltag, etwa 0,004 Sievert im Jahr, liegt ganz links am Rand."></svg>
+    <div class="sim-ctrl"><label for="dsRange">Dosis:</label><input type="range" id="dsRange" min="0" max="6" step="1" value="0" aria-label="Strahlendosis in Stufen von 0 bis 6 Sievert"><span class="chip" id="dsChip">bis 0,5 Sv</span></div>
+    <p class="obs" id="dsObs">Schiebe den Regler Stufe für Stufe nach rechts. Jede Stufe zeigt, was eine kurze Bestrahlung des ganzen Körpers bei 100 Menschen auslöst. Schau dir alle 7 Stufen an.</p>
+    <p class="ra5-hinweis">Die Werte gelten, wenn der ganze Körper auf einmal (innerhalb kurzer Zeit) bestrahlt wird.</p>
+  </div>
+
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Radioaktive Strahlung hat viel Energie. Der Körper absorbiert sie. Dabei können Moleküle in den Zellen zerbrechen.</li><li>Die Wirkung hängt ab von der Energie der Strahlung, von der bestrahlten Masse und von der Strahlungsart.</li><li>Einheit der Strahlendosis: 1 Sievert (Sv) = 1 000 Millisievert (mSv). Benannt nach Rolf Sievert, einem schwedischen Strahlenforscher.</li><li>Je höher die Dosis, desto schwerer die Folgen. Ab etwa 0,8 Sv auf einmal werden die ersten Menschen krank, ab etwa 5,5 Sv überlebt kaum jemand.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Lückentext · Probenstoff</span>
+    <h3 style="margin-top:4px">Wie wirkt Strahlung im Körper?</h3>
+    <p class="hint">Tippe zuerst auf eine Lücke, dann auf das passende Wort. Zwei Wörter bleiben übrig.</p>
+    <div class="gaptext" id="gapDosis"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Umrechnen · Probenstoff</span>
+    <h3 style="margin-top:4px">Sievert und Millisievert</h3>
+    <p class="hint">1 Sv = 1 000 mSv. Tippe links einen Wert an und dann rechts den gleich großen Wert.</p>
+    <div id="paareMsv"></div>
+  </div>
+  <div class="card reveal" id="mc-s1"></div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Probenstoff</div><h2>Früh-, Spät- und genetische Schäden</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Dein Körper besteht aus Billionen winziger Zellen. In jedem Zellkern liegt das Erbgut, die <button class="term" data-t="dns">DNS</button>. Sie ist der Bauplan des Körpers.</p>
+      <p style="margin:0">Trifft Strahlung eine Zelle, löst sie <button class="term" data-t="biochemisch">biochemische Effekte</button> aus: Moleküle zerbrechen, es entstehen Gifte, und die DNS kann verändert werden. Eine solche Veränderung heißt <button class="term" data-t="mutation">Mutation</button>.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Viele dieser Schäden kann der Körper selbst reparieren. Wird er aber zu stark belastet, bleiben Schäden zurück. Man unterscheidet:</p>
+      <ul class="schritt-liste" style="margin:0">
+        <li><button class="term" data-t="fruehschaden">Frühschäden</button>: Sie zeigen sich nach Stunden bis Wochen.</li>
+        <li><button class="term" data-t="spaetschaden">Spätschäden</button>: Sie zeigen sich erst nach Jahren, zum Beispiel <button class="term" data-t="leukaemie">Leukämie</button>.</li>
+        <li><button class="term" data-t="genetisch">genetische Schäden</button>: Sie treffen die <button class="term" data-t="keimzelle">Keimzellen</button> – und damit die Kinder.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="scSim">
+    <svg viewBox="0 0 520 310" id="scSvg" role="img" aria-label="Animation in sieben Schritten. Links ein Blick in eine Zelle mit Zellkern und DNS, rechts ein Schema. Strahlung trifft die Zelle. Biochemische Effekte: Moleküle zerbrechen, Gifte entstehen, die DNS wird verändert. Reparatur- und Abwehrsysteme des Körpers flicken die Schäden: keine Folgen. Bei zu viel Strahlung sind sie überlastet. Dann gibt es Frühschäden nach Stunden bis Wochen (Strahlenkrankheit), Spätschäden nach Jahren (Krebs, Leukämie) und genetische Schäden bei den Nachkommen."></svg>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Strahlung löst in den Zellen biochemische Effekte aus: Moleküle zerbrechen, Gifte entstehen, das Erbgut (DNS) wird verändert (Mutation).</li><li>Reparatur- und Abwehrsysteme des Körpers beheben geringe Schäden. Sind sie überlastet, bleiben die Schäden.</li><li>Frühschäden (nach Stunden bis Wochen): Strahlenkrankheit mit Übelkeit, Erbrechen, Haarausfall und Entzündungen, bei viel Strahlung hohes Fieber und innere Blutungen.</li><li>Spätschäden (nach Jahren): Krebs, zum Beispiel Leukämie – nach einer kurzen starken oder einer langen schwachen Bestrahlung.</li><li>Genetische Schäden: verändertes Erbgut in Eizellen oder Spermien → Missbildungen bei den Nachkommen, Unfruchtbarkeit.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Zuordnen · Probenstoff</span>
+    <h3 style="margin-top:4px">Welcher Schaden ist das?</h3>
+    <p class="hint">Tippe eine Karte an und dann den passenden Bereich.</p>
+    <div id="sortSchaden"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Reihenfolge · Probenstoff</span>
+    <h3 style="margin-top:4px">Von der Strahlung zum Spätschaden</h3>
+    <p class="hint">Bringe die Schritte mit den Pfeilen in die richtige Reihenfolge.</p>
+    <div id="orderWeg"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung.</p>
+    <div id="open2"></div>
+  </div>
+  <div class="card reveal" id="mc-s2"></div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Probenstoff</div><h2>Strahlung im Alltag</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <figure style="margin:0 0 12px"><img class="zoomable" src="bilder/ra-5b.jpg" width="1280" height="853" loading="lazy" decoding="async" alt="Ein Flugzeug fliegt hoch über den Wolken in der Sonne. Durch eine aufgeschnittene Wand sieht man in die Kabine: Reisende lesen, unterhalten sich und schauen aus dem Fenster, eine Flugbegleiterin schenkt Kaffee aus." style="width:100%;height:auto"><figcaption class="hint" style="margin:4px 0 0">Bild: GRUMI (mit KI erstellt)</figcaption></figure>
+      <p class="hint" style="margin:0 0 10px"><strong>Denk mal nach:</strong> Über den Wolken scheint immer die Sonne. Aber die Reisenden bekommen hier oben noch etwas anderes ab als am Boden. Was?</p>
+      <p class="lead" style="margin:0">Strahlung trifft uns jeden Tag – meistens aus der Natur: aus dem Boden, aus dem Weltall (Höhenstrahlung), aus der Nahrung und mit dem Gas <button class="term" data-t="radon">Radon</button> aus der Atemluft. Dazu kommt Strahlung, die der Mensch erzeugt: vor allem bei Untersuchungen beim Arzt, nur ganz wenig aus Kraftwerken.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Im Durchschnitt bekommt jeder Mensch in Deutschland etwa <strong>4 mSv im Jahr</strong> ab: etwa die Hälfte aus der Natur, fast die Hälfte aus der Medizin. Wer viel fliegt oder in den Bergen Urlaub macht, bekommt mehr Höhenstrahlung ab: Dort oben schützt weniger Luft.</p>
+      <p style="margin:0 0 6px">Zum Schutz gelten <button class="term" data-t="grenzwert">Grenzwerte</button>:</p>
+      <ul class="schritt-liste" style="margin:0">
+        <li><strong>Bevölkerung:</strong> höchstens <strong>1 mSv im Jahr</strong> zusätzlich aus künstlichen Quellen wie Kraftwerken. Untersuchungen beim Arzt zählen nicht mit – dort gilt: so wenig Strahlung wie möglich, nur wenn nötig.</li>
+        <li><strong>Beruflich <button class="term" data-t="strahlenexponiert">strahlenexponierte</button> Personen</strong> wie die Radiologin: höchstens <strong>20 mSv im Jahr</strong>. Ein kleines Messgerät am Kittel zeichnet ihre Dosis auf.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="jdSim">
+    <svg viewBox="0 0 520 300" id="jdSvg" role="img" aria-label="Jahresdosis-Rechner: zwei Säulen in Millisievert. Links der Durchschnitt in Deutschland mit 4 mSv aus Natur, Technik und Medizin. Rechts dein Jahr: Es beginnt mit der Strahlung, die immer dabei ist, etwa 2,1 mSv. Mit den Knöpfen kommen Fernflüge, Bergurlaub, Röntgen beim Zahnarzt, Untersuchungen beim Arzt und Zigaretten dazu. Ein Zettel daneben listet alle Teile und die Summe auf."></svg>
+    <div class="sim-ctrl"><label>Dein Jahr:</label><button class="btn small teal" id="tFlug" type="button">✈️ Fernflug<span class="ra5-n" id="nFlug"></span></button><button class="btn small teal" id="tBerge" type="button">🏔️ Bergurlaub<span class="ra5-n" id="nBerge"></span></button><button class="btn small teal" id="tZahn" type="button">🦷 Röntgen beim Zahnarzt<span class="ra5-n" id="nZahn"></span></button><button class="btn small teal" id="tArzt" type="button" aria-pressed="false">🏥 Untersuchungen beim Arzt</button><button class="btn small teal" id="tRauch" type="button">🚬 Zigarette pro Tag<span class="ra5-n" id="nRauch"></span></button><button class="btn small ghost" id="jdNeu" type="button">↺ Neu</button></div>
+    <p class="obs" id="jdObs">Stelle dein Jahr zusammen. Tippe so oft auf einen Knopf, wie es zu dir passt – zum Beispiel zweimal auf „Fernflug“ für zwei Fernflüge. Probiere jeden Knopf mindestens einmal aus und vergleiche deine Säule mit dem Durchschnitt.</p>
+    <p class="ra5-hinweis">Gerundete Durchschnittswerte. Am Wohnort, im Haus und bei jeder Untersuchung kann die Dosis anders sein.</p>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Jeder Mensch in Deutschland bekommt im Durchschnitt etwa 4 mSv im Jahr ab – etwa die Hälfte aus der Natur (Boden, Weltall, Nahrung, Radon), fast die Hälfte aus der Medizin.</li><li>Fliegen und Urlaub in den Bergen erhöhen die Dosis: In der Höhe schützt weniger Luft vor der Höhenstrahlung.</li><li>Grenzwerte: Bevölkerung höchstens 1 mSv im Jahr zusätzlich aus künstlichen Quellen (ohne Medizin); beruflich strahlenexponierte Personen höchstens 20 mSv im Jahr.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Richtig oder falsch? · Probenstoff</span>
+    <h3 style="margin-top:4px">Was stimmt?</h3>
+    <div id="tfAlltag"></div>
+  </div>
+  <div class="card reveal" id="mc-s3"></div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Probenstoff</div><h2>Energiedosis und Strahlendosis</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <p class="lead">Wie berechnet man die Strahlendosis? Zuerst zählt, wie viel Energie der Körper aufnimmt – und auf wie viel Masse sie sich verteilt. Das ist die <button class="term" data-t="energiedosis">Energiedosis</button>:</p>
+      <p class="ra5-formel">Energiedosis = aufgenommene Energie : bestrahlte Masse<br>Einheit: J/kg (<button class="term" data-t="joule">Joule</button> pro Kilogramm)</p>
+      <p style="margin:0">Beispiel: Eine Hand (0,4 kg) nimmt 0,8 J auf: 0,8 : 0,4 = 2 J/kg. Verteilen sich dieselben 0,8 J auf den ganzen Körper (80 kg), sind es nur 0,01 J/kg.</p>
+    </div>
+    <div class="card reveal">
+      <p class="lead">Nicht jede Strahlung schadet gleich stark. α-Teilchen sind schwer. Sie geben ihre ganze Energie auf einem winzigen Stück Weg ab und richten dort viele Schäden auf einmal an. Deshalb rechnet man:</p>
+      <p class="ra5-formel">Strahlendosis = Energiedosis × Faktor<br>Faktor: α-Strahlung 20 · β- und γ-Strahlung 1 · Einheit: Sievert (Sv)</p>
+      <p style="margin:0">Besonders gefährlich ist es, wenn radioaktive Stoffe mit der Nahrung oder der Atemluft in den Körper gelangen. Dann wirkt die Strahlung direkt an den Zellen.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal" style="margin-top:18px" id="edSim">
+    <svg viewBox="0 0 520 300" id="edSvg" role="img" aria-label="Dosis-Rechner: Links ein Mensch. Energie-Punkte fliegen in den ganzen Körper oder nur in eine Hand. Rechts wird gerechnet: Energie geteilt durch Masse ergibt die Energiedosis in Joule pro Kilogramm, mal Faktor der Strahlungsart ergibt die Strahlendosis in Sievert. Faktor-Tafel: α 20, β 1, γ 1."></svg>
+    <div class="sim-ctrl"><label>Fall:</label><button class="btn small teal" id="tGanz" type="button">γ von außen · ganzer Körper</button><button class="btn small teal" id="tHand" type="button">γ von außen · nur eine Hand</button><button class="btn small teal" id="tBeta" type="button">β-Strahler in der Nahrung</button><button class="btn small teal" id="tAlpha" type="button">α-Strahler in der Nahrung</button></div>
+    <p class="obs" id="edObs">Wähle einen Fall. In allen vier Fällen nimmt der Körper gleich viel Energie auf: 0,8 J. Rechne mit und vergleiche – deine Ergebnisse landen in der Tabelle.</p>
+    <div class="tab-wrap" style="padding:0 14px 8px"><table class="beob" id="edTab">
+      <thead><tr><th>Fall</th><th>Energie : Masse</th><th>Energiedosis</th><th>Faktor</th><th>Strahlendosis</th></tr></thead>
+      <tbody>
+        <tr data-p="ganz"><th>γ von außen, ganzer Körper</th><td></td><td></td><td></td><td></td></tr>
+        <tr data-p="hand"><th>γ von außen, nur eine Hand</th><td></td><td></td><td></td><td></td></tr>
+        <tr data-p="beta"><th>β-Strahler in der Nahrung</th><td></td><td></td><td></td><td></td></tr>
+        <tr data-p="alpha"><th>α-Strahler in der Nahrung</th><td></td><td></td><td></td><td></td></tr>
+      </tbody>
+    </table></div>
+    <p class="ra5-hinweis">Ausgedachte Fälle mit runden Zahlen. In Wirklichkeit verteilen sich radioaktive Stoffe im Körper nicht immer gleichmäßig.</p>
+  </div>
+  <div class="merke reveal"><h4>MERKE</h4><ul><li>Energiedosis = aufgenommene Energie : bestrahlte Masse. Einheit: J/kg.</li><li>Strahlendosis = Energiedosis × Faktor der Strahlungsart. Einheit: Sievert (Sv). Faktor: α = 20, β = 1, γ = 1.</li><li>Bei gleicher Energiedosis schadet α-Strahlung 20-mal so stark wie β- oder γ-Strahlung.</li><li>Besonders gefährlich: radioaktive Stoffe in Nahrung oder Atemluft – die Strahlung wirkt dann direkt an den Zellen.</li></ul></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Rechnen · Probenstoff</span>
+    <h3 style="margin-top:4px">Energiedosis und Strahlendosis</h3>
+    <p class="hint">Energiedosis = Energie : Masse. Strahlendosis = Energiedosis × Faktor (α: 20, β und γ: 1). Tippe links eine Aufgabe an und dann rechts das Ergebnis.</p>
+    <div id="paareDosis"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag probe">Richtig oder falsch? · Probenstoff</span>
+    <h3 style="margin-top:4px">Was stimmt?</h3>
+    <div id="tfFaktor"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Nachdenken</span>
+    <h3 style="margin-top:4px">Erkläre in eigenen Worten <span class="ki-badge">✨ KI prüft</span></h3>
+    <p class="hint">Schreibe ganze Sätze oder Stichpunkte. Die KI achtet nur auf den Inhalt, nicht auf die Rechtschreibung.</p>
+    <div id="open4"></div>
+  </div>
+  <div class="card reveal" id="mc-s4"></div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Wiederholung · so kommt es in der Probe</div><h2>Training</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag probe">Kreuzworträtsel</span>
+    <h3 style="margin-top:4px">Löse das Kreuzworträtsel</h3>
+    <p class="hint">Tippe in ein Kästchen und schreibe. Tippst du ein Kästchen zweimal an, wechselt die Richtung. Ä schreibst du als AE. Hängst du fest? Bei jeder Frage hilft <strong>💡 Tipp</strong> – erst ein Hinweis, dann der Anfangsbuchstabe. Mit <strong>📋 Wörter zeigen</strong> siehst du alle Lösungswörter.</p>
+    <div id="cw"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Ankreuzen</span>
+    <h3 style="margin-top:4px">Kreuze an</h3>
+    <div id="mc-train"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="abschluss">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Abschluss</div><h2>Profi-Check, Lernkarten und Regelheft</h2></div></div>
+  <div class="card reveal" id="quiz"></div>
+  <div class="card reveal">
+    <span class="task-tag">Lernkarten</span>
+    <div id="lernkarten"></div>
+  </div>
+  <div class="regelheft reveal" id="regelheft">
+    <h3>Was Strahlung im Körper anrichtet</h3>
+    <p>Radioaktive Strahlung hat viel Energie. Der Körper <strong>absorbiert</strong> sie. <strong>Biochemische Effekte:</strong> Moleküle zerbrechen, Gifte entstehen, das Erbgut (DNS) wird verändert (<strong>Mutation</strong>). Kleine Schäden repariert der Körper selbst.</p>
+    <p>Die Wirkung hängt ab von der <strong>Energie</strong>, der <strong>bestrahlten Masse</strong> und der <strong>Strahlungsart</strong>.</p>
+    <p><strong>Energiedosis</strong> = Energie : Masse (J/kg) · <strong>Strahlendosis</strong> = Energiedosis × Faktor (α: 20, β und γ: 1). Einheit: <strong>1 Sievert (Sv) = 1 000 mSv</strong>, benannt nach Rolf Sievert (schwedischer Strahlenforscher).</p>
+    <svg class="rh-skizze" viewBox="0 0 430 152" role="img" aria-label="Skizze: Strahlung führt zu biochemischen Effekten. Der Körper repariert: bei wenig Strahlung keine Folgen. Bei zu viel Strahlung ist die Reparatur überlastet: Frühschäden, Spätschäden, genetische Schäden.">
+      <defs><marker id="rhPf" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#566674"/></marker></defs>
+      <g fill="#fff" stroke="#566674" stroke-width="1.5"><rect x="4" y="8" width="88" height="36" rx="7"/><rect x="114" y="8" width="148" height="36" rx="7"/><rect x="284" y="8" width="142" height="36" rx="7"/></g>
+      <g stroke="#566674" stroke-width="1.6" fill="none"><path d="M355 45 V86 M70 86 H360"/></g><g stroke="#566674" stroke-width="1.6" marker-end="url(#rhPf)" fill="none"><line x1="93" y1="26" x2="111" y2="26"/><line x1="263" y1="26" x2="281" y2="26"/><line x1="70" y1="86" x2="70" y2="99"/><line x1="215" y1="86" x2="215" y2="99"/><line x1="360" y1="86" x2="360" y2="99"/></g>
+      <g font-size="12" font-weight="700" fill="#15212b" text-anchor="middle"><text x="48" y="30">Strahlung</text><text x="188" y="24">biochemische</text><text x="188" y="39">Effekte</text><text x="355" y="24">Reparatur durch</text><text x="355" y="39">den Körper</text></g>
+      <text x="188" y="62" text-anchor="middle" font-size="10.5" font-weight="700" fill="#1b8a4b">wenig Strahlung → repariert, keine Folgen</text>
+      <text x="348" y="76" text-anchor="end" font-size="10.5" font-weight="700" fill="#c0392b">zu viel Strahlung → überlastet</text>
+      <g stroke-width="1.5"><rect x="6" y="102" width="128" height="46" rx="7" fill="#ffe8cc" stroke="#e8663a"/><rect x="151" y="102" width="128" height="46" rx="7" fill="#f9e0e0" stroke="#c0392b"/><rect x="296" y="102" width="128" height="46" rx="7" fill="#efe3f7" stroke="#8e44ad"/></g>
+      <g text-anchor="middle"><g font-size="12" font-weight="800" fill="#15212b"><text x="70" y="121">Frühschäden</text><text x="215" y="121">Spätschäden</text><text x="360" y="121">genetische Schäden</text></g>
+        <g font-size="10.5" font-weight="700" fill="#566674"><text x="70" y="139">Stunden bis Wochen</text><text x="215" y="139">nach Jahren</text><text x="360" y="139">bei den Nachkommen</text></g></g>
+    </svg>
+    <table class="rh-tab">
+      <tr><th>Frühschäden</th><td>nach Stunden bis Wochen: Strahlenkrankheit – Übelkeit, Erbrechen, Haarausfall, Entzündungen, Fieber, innere Blutungen</td></tr>
+      <tr><th>Spätschäden</th><td>nach Jahren: Krebs, z. B. Leukämie (Blutkrebs)</td></tr>
+      <tr><th>genetische Schäden</th><td>Erbgut in Eizellen oder Spermien verändert: Missbildungen bei Nachkommen, Unfruchtbarkeit</td></tr>
+    </table>
+    <p><strong>Jahresdosis</strong> in Deutschland: etwa <strong>4 mSv</strong> (etwa die Hälfte Natur, fast die Hälfte Medizin). <strong>Grenzwerte:</strong> Bevölkerung höchstens <strong>1 mSv</strong> im Jahr zusätzlich (ohne Medizin), beruflich höchstens <strong>20 mSv</strong> im Jahr.</p>
+  </div>
+  <div class="rh-knoepfe reveal"><button class="btn small ghost" type="button" onclick="window.print()">🖨️ Regelheft drucken</button><a class="btn small ghost" href="arbeitsblaetter/R5-regelheft.pdf" download="NT9-R5-Regelheft.pdf">📥 Regelheft als PDF</a></div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieses Moduls auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Strahlung kann schaden – sie kann aber auch helfen und sogar heilen. In Modul 6 erfährst du, wie man Radioaktivität in Medizin und Technik nutzt und Nutzen und Risiko abwägt.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="ra-4.html">⬅️ Modul 4: Altersbestimmung mit der C-14-Methode</a>
+      <a href="ra-6.html">➡️ Modul 6: Radioaktivität in Medizin und Technik</a>
+      <a href="../%C3%BCbersicht_themen.html">🧭 NT-Themen</a>
+      <a href="../../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Natur und Technik <span class="mt-zug">9M</span> · Radioaktivität · Modul 5 · Texte, Zeichnungen und Animationen sind eigenständig erstellt. Die Fälle im Dosis-Rechner sind ausgedachte Beispiele mit runden Zahlen, die Werte im Jahresdosis-Rechner gerundete Durchschnittswerte. Mit deinem Code wird dein Lernstand gespeichert.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="../../../7M/NT/modul-basis.js"></script>
+<script src="../../../8M/NT/karten.js"></script>
+<script src="karten/ra5.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, clamp, reduced, register, solve} = Modul;
+const NS = "http://www.w3.org/2000/svg";
+const svgEl = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+// Zahlen wie im Schulbuch: 2 000 (Leerzeichen statt Punkt), Komma als Dezimalzeichen
+const de = (n, d = 0) => Number(n).toLocaleString("de-DE", {minimumFractionDigits: d, maximumFractionDigits: d}).replace(/\./g, " ");
+const zl = n => Number(n).toLocaleString("de-DE", {maximumFractionDigits: 3}).replace(/\./g, " ");
+const warte = ms => new Promise(r => setTimeout(r, reduced ? 0 : ms));
+// Zickzack-Linie für einen Strahl
+const zick = (x1, y1, x2, y2, n = 6, a = 5) => {
+  const dx = (x2 - x1) / n, dy = (y2 - y1) / n, l = Math.hypot(dx, dy), nx = -dy / l * a, ny = dx / l * a;
+  let d = `M${x1} ${y1}`;
+  for (let i = 1; i < n; i++) d += ` L${(x1 + dx * i + (i % 2 ? nx : -nx)).toFixed(1)} ${(y1 + dy * i + (i % 2 ? ny : -ny)).toFixed(1)}`;
+  return d + ` L${x2} ${y2}`;
+};
+
+Modul.init({
+  key: "grumi-nt9-ra-5-v1",
+  hero: "funken",
+  api: "/api/nt9/uebung/feedback",
+  thema: "Radioaktivität, Klasse 9: Was Strahlung im Körper anrichtet – radioaktive Strahlung hat viel Energie, der Körper absorbiert (nimmt auf) sie; sie verändert oder zerbricht Moleküle; die Wirkung hängt ab von der Strahlungsmenge (Energie), von der bestrahlten Masse und von der Strahlungsart (α schädlicher als β und γ); Strahlendosis in Sievert (Sv), 1 Sv = 1 000 Millisievert (mSv), benannt nach dem schwedischen Strahlenforscher Rolf Sievert; Wirkung einer kurzen Ganzkörperbestrahlung: bis 0,5 Sv keine spürbaren Beschwerden, 0,8–1,2 Sv bei 5–10 % etwa einen Tag Müdigkeit und Erbrechen, 1,3–1,7 Sv bei etwa 25 %, 1,8–2,6 Sv etwa 25 % und einzelne Todesfälle, 2,7–3,3 Sv fast alle Übelkeit und Erbrechen und etwa 20 % Todesfälle in einigen Wochen, 3,4–5,4 Sv Erbrechen am ersten Tag und etwa 50 % Todesfälle in einem Monat, ab 5,5 Sv kaum Überlebende; biochemische Effekte: Zerbrechen von Molekülen, Bildung von Giften, Veränderung der DNS (Mutation); körpereigene Reparatur- und Abwehrsysteme beheben geringe Schäden, bei Überlastung oder Ausfall bleiben Schäden; Frühschäden nach Stunden bis Wochen (Strahlenkrankheit: Übelkeit, Erbrechen, Haarausfall, Entzündungen der Atem- und Verdauungswege, Zerstörung von Gewebe, bei starker Strahlung hohes Fieber und innere Blutungen, sehr hohe Dosis meist tödlich); Spätschäden nach Jahren (Krebs, Leukämie = Blutkrebs) nach kurzer starker oder langer schwacher Bestrahlung; genetische Schäden: Erbgut in Keimzellen (Eizellen, Spermien) verändert, Missbildungen bei Nachkommen, Unfruchtbarkeit, Schäden in Folgegenerationen; Strahlung im Alltag: mittlere Jahresdosis in Deutschland etwa 4 mSv, etwa die Hälfte natürlich (Boden 0,3 mSv, Höhenstrahlung 0,3 mSv, Nahrung 0,35 mSv, Radon in der Atemluft), fast die Hälfte Medizin (1,9 mSv), Kraftwerke und Tschernobyl nur Hundertstel mSv; Fernflug Frankfurt–New York und zurück 0,1 mSv (Höhenstrahlung, in großer Höhe schützt weniger Luft), 2 Wochen Urlaub in 2 000 m Höhe 0,03 mSv, 1 Zigarette pro Tag 0,07 mSv im Jahr; Grenzwerte: Bevölkerung höchstens 1 mSv pro Jahr zusätzlich aus künstlichen Quellen ohne Medizin, beruflich strahlenexponierte Personen höchstens 20 mSv pro Jahr; Energiedosis = aufgenommene Energie geteilt durch bestrahlte Masse in J/kg; Strahlendosis = Energiedosis mal Faktor der Strahlungsart (α 20, β und γ 1), Einheit Sievert; α-Strahlung schadet bei gleicher Energiedosis 20-mal so stark; besonders gefährlich sind radioaktive Stoffe in Nahrung und Atemluft, weil die Strahlung direkt an den Zellen wirkt",
+  glossary: {
+    radiologin: ["Radiologin, Radiologe", "Ärztin oder Arzt für Untersuchungen mit Strahlen, zum Beispiel mit Röntgenstrahlen. Sie oder er arbeitet jeden Tag in der Nähe von Strahlung."],
+    roentgen: ["Röntgenstrahlen", "Unsichtbare, energiereiche Strahlen aus einem Röntgengerät. Sie sind keine radioaktive Strahlung, wirken im Körper aber ähnlich wie γ-Strahlung."],
+    absorbieren: ["absorbieren", "Aufnehmen, „aufsaugen“. Der Körper absorbiert die Strahlung: Er nimmt ihre Energie auf."],
+    molekuel: ["Molekül", "Teilchen aus mehreren Atomen, die fest miteinander verbunden sind. Ein Wasser-Molekül besteht zum Beispiel aus zwei Wasserstoff-Atomen und einem Sauerstoff-Atom."],
+    strahlendosis: ["Strahlendosis", "Gibt an, wie stark Strahlung im Körper wirkt. Dabei zählen die aufgenommene Energie pro Kilogramm und die Art der Strahlung. Einheit: Sievert (Sv)."],
+    sievert: ["Sievert (Sv)", "Einheit der Strahlendosis. 1 Sv = 1 000 Millisievert (mSv). Benannt nach Rolf Sievert (1896–1966), einem schwedischen Strahlenforscher."],
+    dns: ["DNS (Erbgut)", "Ein sehr langes Molekül im Zellkern. Es enthält den Bauplan für den ganzen Körper. Auf Englisch heißt es DNA."],
+    biochemisch: ["biochemische Effekte", "Veränderungen der Stoffe in lebenden Zellen: Moleküle zerbrechen, Gifte entstehen, das Erbgut wird verändert."],
+    mutation: ["Mutation", "Eine Veränderung des Erbguts (der DNS). Strahlung kann Mutationen auslösen."],
+    fruehschaden: ["Frühschäden", "Schäden, die sich schon nach Stunden bis Wochen zeigen, zum Beispiel Übelkeit, Erbrechen, Haarausfall, Fieber. Man nennt das Strahlenkrankheit."],
+    spaetschaden: ["Spätschäden", "Schäden, die sich erst nach Jahren zeigen – vor allem Krebs, zum Beispiel Leukämie."],
+    leukaemie: ["Leukämie", "Blutkrebs. Der Körper bildet sehr viele kranke weiße Blutkörperchen."],
+    genetisch: ["genetische Schäden", "Schäden am Erbgut, die an Kinder und Enkel weitergegeben werden können. „Genetisch“ heißt: das Erbgut betreffend."],
+    keimzelle: ["Keimzellen", "Die Zellen, aus denen ein neuer Mensch entsteht: Eizellen bei der Frau, Spermien (Samenzellen) beim Mann."],
+    radon: ["Radon", "Radioaktives Gas. Es entsteht im Boden und im Gestein, zum Beispiel im Granit, und kann in Häuser gelangen. Wir atmen es mit der Luft ein."],
+    grenzwert: ["Grenzwert", "Höchstwert, der nicht überschritten werden darf. Grenzwerte für Strahlung stehen im Gesetz."],
+    strahlenexponiert: ["beruflich strahlenexponiert", "So nennt man Menschen, die bei der Arbeit Strahlung ausgesetzt sind, zum Beispiel in einer Röntgenpraxis. Ihre Dosis wird ständig gemessen."],
+    energiedosis: ["Energiedosis", "Aufgenommene Energie geteilt durch die bestrahlte Masse. Einheit: Joule pro Kilogramm (J/kg)."],
+    joule: ["Joule (J)", "Einheit der Energie. Man spricht es „Dschuul“ aus."]
+  }
+});
+
+/* ---------- Kurz-Checks ---------- */
+const MC = {
+  s1: [
+    {q: "In welcher Einheit gibt man die Strahlendosis an?", o: ["Sievert (Sv)", "Becquerel (Bq)", "Joule (J)", "Kilogramm (kg)"], a: 0, e: "Sievert – benannt nach dem schwedischen Strahlenforscher Rolf Sievert. Becquerel ist die Einheit der Aktivität."},
+    {q: "Dieselbe Strahlung trifft einmal nur eine Hand und einmal den ganzen Körper. Wann bekommt jedes Kilogramm mehr Energie ab?", o: ["wenn nur die Hand getroffen wird", "wenn der ganze Körper getroffen wird", "in beiden Fällen gleich viel", "das hängt nur von der Uhrzeit ab"], a: 0, e: "Die Energie verteilt sich auf weniger Masse – auf jedes Kilogramm kommt mehr."}
+  ],
+  s2: [
+    {q: "Welche Folge gehört zu den Spätschäden?", o: ["Leukämie (Blutkrebs) nach einigen Jahren", "Erbrechen am Tag nach der Bestrahlung", "Haarausfall nach zwei Wochen", "Missbildungen bei den Kindern"], a: 0, e: "Spätschäden zeigen sich erst nach Jahren, zum Beispiel Krebs wie Leukämie. Missbildungen bei Kindern sind genetische Schäden."},
+    {q: "Wann können genetische Schäden entstehen?", o: ["wenn das Erbgut in Eizellen oder Spermien verändert wird", "wenn nach der Bestrahlung die Haare büschelweise ausfallen", "wenn man nach der Bestrahlung tagelang hohes Fieber hat", "wenn die Strahlung nur die Haut an einer Hand trifft"], a: 0, e: "Nur verändertes Erbgut in den Keimzellen wird an die Kinder weitergegeben."}
+  ],
+  s3: [
+    {q: "Wie viel Strahlung bekommt ein Mensch in Deutschland im Durchschnitt in einem Jahr ab?", o: ["etwa 4 mSv", "etwa 4 Sv", "etwa 0,04 mSv", "etwa 400 mSv"], a: 0, e: "Etwa 4 Millisievert – davon etwa die Hälfte aus der Natur und fast die Hälfte aus der Medizin."},
+    {q: "Welcher Grenzwert gilt für eine Radiologin, die beruflich mit Strahlung arbeitet?", o: ["höchstens 20 mSv im Jahr", "höchstens 1 mSv im Jahr", "höchstens 6 Sv im Jahr", "Für sie gilt kein Grenzwert."], a: 0, e: "Beruflich strahlenexponierte Personen: höchstens 20 mSv im Jahr. Für alle anderen: höchstens 1 mSv zusätzlich aus künstlichen Quellen, ohne Medizin."}
+  ],
+  s4: [
+    {q: "Ein Körperteil mit 2 kg Masse nimmt 1 J Energie auf. Wie groß ist die Energiedosis?", o: ["0,5 J/kg", "2 J/kg", "1 J/kg", "3 J/kg"], a: 0, e: "Energie : Masse = 1 J : 2 kg = 0,5 J/kg."},
+    {q: "Die Energiedosis beträgt 0,1 J/kg. Es ist α-Strahlung. Wie groß ist die Strahlendosis?", o: ["2 Sv", "0,1 Sv", "20 Sv", "0,005 Sv"], a: 0, e: "α-Strahlung hat den Faktor 20: 0,1 × 20 = 2 Sv."}
+  ],
+  train: [
+    {q: "Wer war Rolf Sievert?", o: ["ein schwedischer Strahlenforscher", "ein französischer Forscher, der die Radioaktivität entdeckte", "ein deutscher Physiker, der die Röntgenstrahlen entdeckte", "ein Arzt, der das Fieberthermometer erfand"], a: 0, e: "Nach ihm ist die Einheit der Strahlendosis benannt. Die Radioaktivität entdeckte der Franzose Henri Becquerel."},
+    {q: "Was bedeutet: „Der Körper absorbiert die Strahlung“?", o: ["Er nimmt die Energie der Strahlung auf.", "Er hält die Strahlung vollständig ab.", "Er sendet selbst Strahlung aus.", "Er misst die Strahlung."], a: 0, e: "Absorbieren heißt aufnehmen – die Energie bleibt im Körper."},
+    {q: "Welcher Schaden kann an die Kinder weitergegeben werden?", o: ["eine Veränderung des Erbguts in einer Eizelle", "Übelkeit nach der Bestrahlung", "Haarausfall nach der Bestrahlung", "hohes Fieber nach der Bestrahlung"], a: 0, e: "Genetische Schäden entstehen, wenn das Erbgut in Eizellen oder Spermien verändert wird."},
+    {q: "Warum bekommt eine Flugbegleiterin mehr Strahlung ab als ein Verkäufer?", o: ["In großer Höhe schützt weniger Luft vor der Höhenstrahlung.", "Die Triebwerke des Flugzeugs sind radioaktiv.", "Im Flugzeug wird das Gepäck geröntgt.", "Flugzeuge fliegen nah an Kernkraftwerken vorbei."], a: 0, e: "Die Lufthülle schwächt die Höhenstrahlung ab. In 10 km Höhe ist viel weniger Luft darüber."}
+  ]
+};
+Modul.makeMC($("#mc-s1"), MC.s1, "mc1", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s2"), MC.s2, "mc2", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s3"), MC.s3, "mc3", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-s4"), MC.s4, "mc4", {t: "Kurz-Check · Probenstoff", probe: true});
+Modul.makeMC($("#mc-train"), MC.train, "mct");
+
+/* ---------- Station 1: Dosis-Skala (Wirkung einer kurzen Ganzkörperbestrahlung) ---------- */
+(function(){
+  const svg = $("#dsSvg"), rng = $("#dsRange"), chip = $("#dsChip"), obs = $("#dsObs");
+  const X = s => 40 + s * 72;
+  const GRAU = "#b9c4cc", ORANGE = "#f29a3a", DUNKEL = "#3c474f";
+  // je Stufe: Bereich in Sv, Farbe, Textfarbe, gestorben / nur krank (von 100), Texte
+  const B = [
+    {von: 0, bis: .5, f: "#7cc576", tf: "#2e7d32", name: "bis 0,5 Sv", tot: 0, krank: 0, kr: "keine", tt: "keine",
+     z: ["Keine spürbaren Beschwerden.", "Der Körper repariert die meisten Schäden.", "Spätschäden wie Krebs sind aber möglich."]},
+    {von: .8, bis: 1.2, f: "#d9cf3f", tf: "#6f6700", name: "0,8 bis 1,2 Sv", tot: 0, krank: 8, kr: "5 bis 10 von 100", tt: "keine",
+     z: ["5 bis 10 von 100 Menschen sind etwa einen", "Tag lang müde, ihnen ist übel, und sie", "müssen sich übergeben."]},
+    {von: 1.3, bis: 1.7, f: "#f2c14e", tf: "#9a6400", name: "1,3 bis 1,7 Sv", tot: 0, krank: 25, kr: "etwa 25 von 100", tt: "keine",
+     z: ["Etwa jeder Vierte ist müde, ihm ist übel,", "und er muss sich übergeben."]},
+    {von: 1.8, bis: 2.6, f: "#f29a3a", tf: "#b35a00", name: "1,8 bis 2,6 Sv", tot: 2, krank: 23, kr: "etwa 25 von 100", tt: "einzelne",
+     z: ["Etwa jeder Vierte hat Übelkeit und", "Erbrechen. Einzelne Menschen sterben."]},
+    {von: 2.7, bis: 3.3, f: "#e8663a", tf: "#c0392b", name: "2,7 bis 3,3 Sv", tot: 20, krank: 75, kr: "fast alle", tt: "etwa 20 von 100",
+     z: ["Fast alle haben Übelkeit und Erbrechen.", "Etwa 20 von 100 Menschen sterben", "innerhalb von einigen Wochen."]},
+    {von: 3.4, bis: 5.4, f: "#c0392b", tf: "#a02c20", name: "3,4 bis 5,4 Sv", tot: 50, krank: 50, kr: "alle (am 1. Tag)", tt: "etwa 50 von 100",
+     z: ["Alle müssen sich schon am ersten Tag", "übergeben. Etwa die Hälfte stirbt", "innerhalb eines Monats."]},
+    {von: 5.5, bis: 6.2, f: "#7a1f1f", tf: "#6b1a1a", name: "ab 5,5 Sv", tot: 98, krank: 2, kr: "alle, sehr schnell", tt: "fast alle",
+     z: ["Sehr schnell Übelkeit und Erbrechen.", "Kaum jemand überlebt."]}
+  ];
+  const ord = Modul.shuffle([...Array(100).keys()]);   // wer zuerst erkrankt, ist Zufall
+  svg.innerHTML = `<rect width="520" height="300" fill="#f7fbfe"/>
+    <text x="260" y="22" text-anchor="middle" font-size="14" font-weight="800" fill="#7a4b05">Kurze Bestrahlung des ganzen Körpers: Was passiert?</text>
+    <rect x="${X(0)}" y="52" width="${X(6.2) - X(0)}" height="22" fill="#e3e9ee"/>
+    ${B.map(b => `<rect x="${X(b.von).toFixed(1)}" y="52" width="${(X(b.bis) - X(b.von)).toFixed(1)}" height="22" fill="${b.f}"/>`).join("")}
+    <path d="M${X(6.2)} 52 L${X(6.2) + 12} 63 L${X(6.2)} 74 Z" fill="#7a1f1f"/>
+    <rect id="dsRahmen" y="48.5" height="29" rx="4" fill="none" stroke="#15212b" stroke-width="2.5"/>
+    <g id="dsZeiger"><path d="M0 46 L-8 34 L8 34 Z" fill="#15212b"/></g>
+    <g stroke="#566674" stroke-width="1.5">${[0, 1, 2, 3, 4, 5, 6].map(s => `<line x1="${X(s)}" y1="74" x2="${X(s)}" y2="80"/>`).join("")}</g>
+    <g font-size="12" font-weight="700" fill="#15212b" text-anchor="middle">${[0, 1, 2, 3, 4, 5, 6].map(s => `<text x="${X(s)}" y="93">${s}${s === 6 ? " Sv" : ""}</text>`).join("")}</g>
+    <text x="34" y="111" font-size="11.5" font-weight="700" fill="#566674">▲ Alltag: etwa 0,004 Sv (4 mSv) im ganzen Jahr – ganz links am Rand</text>
+    <text x="97" y="133" text-anchor="middle" font-size="11.5" font-weight="800" fill="#566674">So geht es 100 Menschen:</text>
+    <g id="dsMenschen"></g>
+    <rect x="186" y="122" width="322" height="168" rx="10" fill="#fff" stroke="#d8e2ea" stroke-width="1.5"/>
+    <text id="dsName" x="200" y="147" font-size="16" font-weight="900"></text>
+    <text x="494" y="146" text-anchor="end" font-size="10.5" font-weight="700" fill="#8a97a2">ganzer Körper, kurz</text>
+    <g font-size="12.5" font-weight="600" fill="#15212b"><text id="dsZ0" x="200" y="171"></text><text id="dsZ1" x="200" y="189"></text><text id="dsZ2" x="200" y="207"></text></g>
+    <g font-size="11.5" font-weight="700" fill="#15212b">
+      <circle cx="206" cy="229" r="5.5" fill="${GRAU}"/><text x="218" y="233">keine Beschwerden</text>
+      <circle cx="206" cy="250" r="5.5" fill="${ORANGE}"/><text x="218" y="254">Übelkeit und Erbrechen: <tspan id="dsKr" font-weight="800"></tspan></text>
+      <circle cx="206" cy="271" r="5.5" fill="${DUNKEL}"/><text x="218" y="275">gestorben: <tspan id="dsTot" font-weight="800"></tspan></text></g>`;
+  const gM = $("#dsMenschen", svg), leute = [];
+  for (let i = 0; i < 100; i++) leute.push(svgEl("circle", {cx: 30 + (i % 10) * 15, cy: (148 + Math.floor(i / 10) * 14.6).toFixed(1), r: 5.6, class: "ds-p", fill: GRAU}, gM));
+  const gesehen = new Set([0]);
+  register("dsSkala", "#dsSvg", "Dosis-Skala: alle 7 Stufen von 0 bis 6 Sievert angesehen");
+  function setze(k, still){
+    const b = B[k], x1 = X(b.von), x2 = X(Math.min(b.bis, 6.2));
+    $("#dsZeiger", svg).style.transform = `translate(${((x1 + x2) / 2).toFixed(1)}px,0)`;
+    const r = $("#dsRahmen", svg); r.setAttribute("x", (x1 - 2.5).toFixed(1)); r.setAttribute("width", (x2 - x1 + 5).toFixed(1));
+    const n = $("#dsName", svg); n.textContent = b.name; n.setAttribute("fill", b.tf);
+    [0, 1, 2].forEach(i => $("#dsZ" + i, svg).textContent = b.z[i] || "");
+    $("#dsKr", svg).textContent = b.kr; $("#dsTot", svg).textContent = b.tt;
+    ord.forEach((p, j) => {
+      const c = leute[p];
+      c.style.transitionDelay = still || reduced ? "0s" : (j * 5) + "ms";
+      c.setAttribute("fill", j < b.tot ? DUNKEL : j < b.tot + b.krank ? ORANGE : GRAU);
+    });
+    chip.textContent = b.name;
+    if (still) return;
+    gesehen.add(k);
+    obs.textContent = `${b.name}: ${b.z.join(" ")}` + (gesehen.size < 7 ? ` (${gesehen.size} von 7 Stufen angesehen)` : "");
+    if (gesehen.size === 7) {
+      if (!Modul.isSolved("dsSkala")) solve("dsSkala");
+      obs.textContent += " ✅ Alle Stufen angesehen: Je höher die Dosis, desto schwerer die Folgen. Die Strahlung im Alltag (etwa 0,004 Sv im Jahr) ist mehr als hundertmal kleiner als die kleinste Stufe.";
+    }
+  }
+  rng.addEventListener("input", () => setze(+rng.value));
+  setze(0, true);
+})();
+
+/* ---------- Station 1: Übungen ---------- */
+Modul.makeGap($("#gapDosis"), [
+  ["Radioaktive Strahlung hat sehr viel ", {g: "Energie"}, ". Trifft sie auf den Körper, nimmt er sie auf: Er ", {g: "absorbiert"}, " die Strahlung."],
+  ["Dabei kann die Strahlung ", {g: "Moleküle"}, " in den Zellen verändern oder zerbrechen."],
+  ["Wie stark sie wirkt, hängt von der Menge der Strahlung, von der bestrahlten ", {g: "Masse"}, " und von der Art der Strahlung ab."],
+  ["Die Strahlendosis gibt man in ", {g: "Sievert"}, " an, kleine Werte in ", {g: "Millisievert"}, "."]
+], "gapDosis", ["Becquerel", "Sekunde"]);
+Modul.makePaare($("#paareMsv"), [
+  ["1 Sv", "1 000 mSv"],
+  ["0,5 Sv", "500 mSv"],
+  ["2 Sv", "2 000 mSv"],
+  ["0,1 Sv", "100 mSv"],
+  ["0,02 Sv", "20 mSv"],
+  ["0,004 Sv", "4 mSv"]
+], "paareMsv");
+
+/* ---------- Station 2: Schema in Schritten (Strahlung → biochemische Effekte → Reparatur → Schäden) ---------- */
+(function(){
+  const svg = $("#scSvg");
+  const box = (id, x, y, w, h, f, s, inhalt) => `<g id="${id}" class="sc-box" style="--f:${f};--s:${s}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="9" stroke-width="1.5"/>${inhalt}</g>`;
+  const t = (x, y, txt, gr = 12, cls = "") => `<text ${cls ? `class="${cls}" ` : ""}x="${x}" y="${y}" text-anchor="middle" font-size="${gr}" font-weight="${cls ? 700 : 800}">${txt}</text>`;
+  const pf = (id, x1, y1, x2, y2) => `<line id="${id}" class="stage" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#8a97a2" stroke-width="2" marker-end="url(#scPf)"/>`;
+  // DNS-Leiter: zwei Stränge mit Sprossen
+  const dna = (x0, x1) => { let s = `<line x1="${x0}" y1="188" x2="${x1}" y2="188" stroke="#6b3f8a" stroke-width="3" stroke-linecap="round"/><line x1="${x0}" y1="204" x2="${x1}" y2="204" stroke="#6b3f8a" stroke-width="3" stroke-linecap="round"/>`;
+    const F = ["#2a7de1", "#f2a33a", "#1fa35a", "#e0453a"];
+    for (let x = x0 + 3, i = 0; x < x1; x += 6, i++) s += `<line x1="${x}" y1="189" x2="${x}" y2="196" stroke="${F[i % 4]}" stroke-width="3"/><line x1="${x}" y1="196" x2="${x}" y2="203" stroke="${F[(i + 2) % 4]}" stroke-width="3"/>`;
+    return s; };
+  // Molekül aus drei Atomen; die beiden äußeren können abbrechen
+  const mol = (id, x, y) => `<circle cx="${x}" cy="${y}" r="6.5" fill="#8a97a2" stroke="#fff" stroke-width="1.2"/>
+    <circle id="${id}1" class="mv" cx="${x - 9}" cy="${y - 6}" r="4.5" fill="#e05252" stroke="#fff" stroke-width="1"/>
+    <circle id="${id}2" class="mv" cx="${x + 9}" cy="${y - 6}" r="4.5" fill="#e05252" stroke="#fff" stroke-width="1"/>`;
+  const bruch = (id, x) => `<path id="${id}" class="stage" d="M${x - 4} 182 L${x + 4} 188 L${x - 4} 194 L${x + 4} 200 L${x - 4} 206 L${x + 4} 212" fill="none" stroke="#e0453a" stroke-width="2.6" stroke-linejoin="round"/>`;
+  const mensch = (x, y, g) => `<circle cx="${x}" cy="${y}" r="${(9 * g).toFixed(1)}" fill="#f0c8a0" stroke="#8a5a2b" stroke-width="1.3"/><rect x="${(x - 10 * g).toFixed(1)}" y="${(y + 11 * g).toFixed(1)}" width="${(20 * g).toFixed(1)}" height="${(28 * g).toFixed(1)}" rx="${(7 * g).toFixed(1)}" fill="#6b9bd1"/>`;
+  const erbStreifen = (x) => `<rect x="${x - 15}" y="152" width="30" height="9" rx="2" fill="#efe3f7" stroke="#8e44ad" stroke-width="1"/><rect x="${x - 3}" y="152" width="6" height="9" fill="#e0453a"/>`;
+  svg.innerHTML = `<defs>
+      <marker id="scPf" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 Z" fill="#8a97a2"/></marker>
+      <marker id="scPfG" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="8" refY="5.5" orient="auto"><path d="M0 0 L11 5.5 L0 11 Z" fill="#d99a0b"/></marker></defs>
+    <rect width="520" height="310" fill="#f7fbfe"/>
+    <text id="scTitel" x="260" y="21" text-anchor="middle" font-size="14" font-weight="800" fill="#7a4b05">Was Strahlung im Körper anrichtet</text>
+    <rect x="10" y="32" width="196" height="270" rx="12" fill="#fff" stroke="#d8e2ea" stroke-width="1.5"/>
+    <text id="scLinks" x="108" y="52" text-anchor="middle" font-size="12.5" font-weight="800" fill="#566674">Blick in eine Zelle</text>
+    <!-- Zelle -->
+    <g id="scZelle" class="stage on">
+      <ellipse cx="108" cy="180" rx="88" ry="98" fill="#fdebe2" stroke="#e0a890" stroke-width="2"/>
+      <circle cx="122" cy="196" r="46" fill="#f6d6e6" stroke="#c07aa0" stroke-width="2"/>
+      <text x="136" y="170" text-anchor="middle" font-size="10.5" font-weight="700" fill="#8a3f68">Zellkern</text>
+      <g id="scDnaL">${dna(94, 120)}</g>
+      <g id="scDnaR" class="mv">${dna(124, 150)}</g>
+      <text x="122" y="224" text-anchor="middle" font-size="10.5" font-weight="700" fill="#6b3f8a">DNS (Erbgut)</text>
+      ${bruch("scBruch", 122)}${bruch("scBruch2", 141)}
+      <g id="scFlick" class="stage"><rect x="116" y="183" width="12" height="26" rx="3" fill="#7cc576" stroke="#2e7d32" stroke-width="1.2"/><text x="122" y="260" text-anchor="middle" font-size="11" font-weight="800" fill="#2e7d32">✔ repariert</text></g>
+      ${mol("scMa", 52, 120)}${mol("scMb", 64, 246)}
+      <path id="scMBruch" class="stage" d="M44 104 l4 4 l-4 4 M60 104 l-4 4 l4 4" fill="none" stroke="#e0453a" stroke-width="2"/>
+      <g id="scGift" class="stage"><path d="M40 158 C34 168 32 174 40 178 C48 174 46 168 40 158 Z" fill="#8e44ad"/><text x="50" y="175" font-size="10.5" font-weight="800" fill="#6c3483">Gift</text></g>
+      <path id="scStrahl" class="stage" d="${zick(16, 62, 116, 192, 7, 5)}" fill="none" stroke="#f2b632" stroke-width="3" stroke-linejoin="round" marker-end="url(#scPfG)"/>
+      <path id="scStrahl2" class="stage" d="${zick(196, 66, 146, 184, 6, 5)}" fill="none" stroke="#f2b632" stroke-width="3" stroke-linejoin="round" marker-end="url(#scPfG)"/>
+      <path id="scStrahl3" class="stage" d="${zick(14, 268, 56, 250, 4, 4)}" fill="none" stroke="#f2b632" stroke-width="3" stroke-linejoin="round" marker-end="url(#scPfG)"/>
+      <g id="scFunke" class="stage"><polygon class="funke" points="122,184 125,192 134,192 127,197 130,206 122,201 114,206 117,197 110,192 119,192" fill="#fff3a0" stroke="#f2b632" stroke-width="1.5"/></g>
+      <text id="scViel" class="stage" x="108" y="294" text-anchor="middle" font-size="12" font-weight="800" fill="#c0392b">zu viele Schäden auf einmal!</text>
+    </g>
+    <!-- Frühschäden -->
+    <g id="scFrueh" class="stage">
+      <circle cx="108" cy="98" r="30" fill="#fff" stroke="#c0392b" stroke-width="3"/>
+      ${[...Array(12).keys()].map(i => { const a = i * Math.PI / 6; return `<line x1="${(108 + 24 * Math.sin(a)).toFixed(1)}" y1="${(98 - 24 * Math.cos(a)).toFixed(1)}" x2="${(108 + 27 * Math.sin(a)).toFixed(1)}" y2="${(98 - 27 * Math.cos(a)).toFixed(1)}" stroke="#566674" stroke-width="2"/>`; }).join("")}
+      <line x1="108" y1="98" x2="108" y2="80" stroke="#15212b" stroke-width="3" stroke-linecap="round"/><line x1="108" y1="98" x2="121" y2="105" stroke="#15212b" stroke-width="3" stroke-linecap="round"/>
+      <text x="108" y="150" text-anchor="middle" font-size="12.5" font-weight="800" fill="#c0392b">nach Stunden bis Wochen</text>
+      <g font-size="11.5" font-weight="700" fill="#15212b" text-anchor="middle"><text x="108" y="176">Übelkeit und Erbrechen</text><text x="108" y="194">Haarausfall</text><text x="108" y="212">Entzündungen</text><text x="108" y="230">hohes Fieber</text><text x="108" y="248">innere Blutungen</text></g>
+      <text x="108" y="278" text-anchor="middle" font-size="12.5" font-weight="800" fill="#c0392b">= Strahlenkrankheit</text>
+    </g>
+    <!-- Spätschäden -->
+    <g id="scSpaet" class="stage">
+      <rect x="80" y="72" width="56" height="54" rx="6" fill="#fff" stroke="#7a4b05" stroke-width="2.5"/>
+      <rect x="80" y="72" width="56" height="15" rx="6" fill="#b8720a"/><rect x="80" y="80" width="56" height="7" fill="#b8720a"/>
+      <g fill="#7a4b05"><rect x="91" y="66" width="5" height="11" rx="2"/><rect x="120" y="66" width="5" height="11" rx="2"/></g>
+      <g fill="#d8c4a4">${[0, 1, 2].map(r => [0, 1, 2, 3].map(c => `<rect x="${87 + c * 11}" y="${93 + r * 10}" width="7" height="6" rx="1"/>`).join("")).join("")}</g>
+      <text x="108" y="152" text-anchor="middle" font-size="13" font-weight="800" fill="#7a4b05">nach Jahren</text>
+      <g font-size="11.5" font-weight="700" fill="#15212b" text-anchor="middle"><text x="108" y="180">Krebs, zum Beispiel</text><text x="108" y="198">Leukämie (Blutkrebs)</text></g>
+      <g font-size="11" font-weight="700" fill="#566674" text-anchor="middle"><text x="108" y="230">nach einer kurzen starken</text><text x="108" y="246">oder einer langen schwachen</text><text x="108" y="262">Bestrahlung</text></g>
+    </g>
+    <!-- genetische Schäden -->
+    <g id="scGen" class="stage">
+      ${mensch(44, 88, 1.15)}${mensch(108, 98, .9)}${mensch(170, 104, .72)}
+      <g stroke="#8e44ad" stroke-width="2" marker-end="url(#scPf)"><line x1="64" y1="118" x2="88" y2="118"/><line x1="124" y1="118" x2="150" y2="118"/></g>
+      ${erbStreifen(44)}${erbStreifen(108)}${erbStreifen(170)}
+      <g font-size="11" font-weight="800" fill="#15212b" text-anchor="middle"><text x="44" y="178">Eltern</text><text x="108" y="178">Kind</text><text x="170" y="178">Enkel</text></g>
+      <g font-size="11.5" font-weight="700" fill="#15212b" text-anchor="middle"><text x="108" y="206">Erbgut in Eizelle oder</text><text x="108" y="222">Spermium verändert:</text></g>
+      <g font-size="11.5" font-weight="800" fill="#6b3f8a" text-anchor="middle"><text x="108" y="248">Missbildungen,</text><text x="108" y="264">Unfruchtbarkeit,</text><text x="108" y="280">Schäden bei Enkeln</text></g>
+    </g>
+    <!-- Schema rechts -->
+    ${box("scB1", 300, 30, 130, 26, "#fff3c4", "#f2b632", t(365, 48, "Strahlung", 13))}
+    ${pf("scP1", 365, 57, 365, 70)}
+    ${box("scB2", 222, 72, 286, 56, "#fde2d4", "#e8663a", t(365, 90, "biochemische Effekte", 12.5) + t(365, 106, "Moleküle zerbrechen · Gifte entstehen", 11, "sub") + t(365, 121, "Erbgut (DNS) wird verändert: Mutation", 11, "sub"))}
+    ${pf("scP2", 365, 129, 365, 140)}
+    ${box("scB3", 222, 142, 286, 26, "#e3f5ea", "#2e8b57", t(365, 159, "Reparatur- und Abwehrsysteme des Körpers", 11.5))}
+    ${pf("scP3a", 300, 169, 288, 185)}${pf("scP3b", 430, 169, 442, 185)}
+    ${box("scB4a", 222, 188, 128, 24, "#d6f0dc", "#1b8a4b", t(286, 204, "klappt: keine Folgen", 10.5))}
+    ${box("scB4b", 380, 188, 128, 24, "#fbd9d3", "#c0392b", t(444, 205, "überlastet!", 11.5))}
+    ${pf("scP5", 430, 213, 274, 236)}${pf("scP6", 440, 213, 366, 236)}${pf("scP7", 452, 213, 458, 236)}
+    ${box("scB5", 222, 238, 92, 58, "#ffe8cc", "#e8663a", t(268, 257, "Frühschäden", 12) + t(268, 273, "Strahlen-", 10.5, "sub") + t(268, 287, "krankheit", 10.5, "sub"))}
+    ${box("scB6", 318, 238, 92, 58, "#f9e0e0", "#c0392b", t(364, 257, "Spätschäden", 12) + t(364, 273, "Krebs, z. B.", 10.5, "sub") + t(364, 287, "Leukämie", 10.5, "sub"))}
+    ${box("scB7", 414, 238, 94, 58, "#efe3f7", "#8e44ad", t(461, 255, "genetische", 12) + t(461, 269, "Schäden", 12) + t(461, 287, "bei Nachkommen", 10.5, "sub"))}`;
+  const on = (sel, an) => $(sel, svg).classList.toggle("on", !!an);
+  const an = (sel, a) => $(sel, svg).classList.toggle("an", !!a);
+  const TITEL = ["Strahlung trifft eine Zelle", "Biochemische Effekte", "Der Körper repariert", "Zu viel Strahlung: Reparatur überlastet", "Körperliche Frühschäden", "Körperliche Spätschäden", "Genetische Schäden"];
+  const LINKS = ["Blick in eine Zelle", "Blick in eine Zelle", "Blick in eine Zelle", "Blick in eine Zelle", "Frühschäden", "Spätschäden", "genetische Schäden"];
+  const JETZT = ["#scB1", "#scB2", "#scB4a", "#scB4b", "#scB5", "#scB6", "#scB7"];
+  const kaputt = (id, ja) => { $("#" + id + "1", svg).style.transform = ja ? "translate(-9px,-9px)" : ""; $("#" + id + "2", svg).style.transform = ja ? "translate(10px,-7px)" : ""; };
+  Modul.makeSchritte($("#scSim"), {
+    start: "Was passiert, wenn Strahlung den Körper trifft? Tippe auf „Start“.",
+    steps: [
+      "Radioaktive Strahlung trifft den Körper. Sie bringt viel <strong>Energie</strong> mit. Der Körper <strong>absorbiert</strong> sie – in seinen winzigen Bausteinen, den <strong>Zellen</strong>.",
+      "<strong>Biochemische Effekte:</strong> Die Energie zerbricht <strong>Moleküle</strong>. Aus den Bruchstücken können <strong>Gifte</strong> entstehen. Trifft die Strahlung das Erbgut, wird die <strong>DNS</strong> verändert – eine <strong>Mutation</strong>.",
+      "Der Körper hat <strong>Reparatur- und Abwehrsysteme</strong>. Sie erkennen viele Schäden, flicken die DNS und machen Gifte unschädlich. Bei wenig Strahlung schaffen sie das: <strong>keine Folgen</strong>.",
+      "Viel Strahlung auf einmal – oder lange Zeit immer wieder: Dann gibt es <strong>zu viele Schäden</strong>. Die Reparatursysteme sind <strong>überlastet</strong> oder fallen aus. Die Schäden bleiben.",
+      "<strong>Frühschäden</strong> zeigen sich nach Stunden bis Wochen: Übelkeit, Erbrechen, Haarausfall, Entzündungen in den Atemwegen und in der Speiseröhre, Gewebe wird zerstört. Bei sehr viel Strahlung kommen hohes Fieber und innere Blutungen dazu. Das ist die <strong>Strahlenkrankheit</strong> – bei sehr hoher Dosis meist tödlich.",
+      "<strong>Spätschäden</strong> zeigen sich erst nach Jahren: <strong>Krebs</strong>, zum Beispiel <strong>Leukämie</strong> (Blutkrebs). Sie können nach einer kurzen, starken Bestrahlung entstehen – aber auch, wenn jemand lange Zeit schwache Strahlung abbekommt.",
+      "<strong>Genetische Schäden:</strong> Trifft die Strahlung die <strong>Keimzellen</strong> (Eizellen oder Spermien), wird das veränderte Erbgut an die Kinder weitergegeben. Mögliche Folgen: <strong>Missbildungen</strong> bei den Nachkommen, Unfruchtbarkeit, Schäden auch noch bei den Enkeln."
+    ],
+    ms: 4200,
+    zeige(i){
+      $("#scTitel", svg).textContent = i < 0 ? "Was Strahlung im Körper anrichtet" : TITEL[i];
+      $("#scLinks", svg).textContent = i < 0 ? LINKS[0] : LINKS[i];
+      on("#scZelle", i <= 3); on("#scFrueh", i === 4); on("#scSpaet", i === 5); on("#scGen", i === 6);
+      const schaden = i === 1 || i === 3;
+      on("#scStrahl", i === 0 || i === 1 || i === 3); on("#scFunke", i === 0);
+      on("#scBruch", schaden); $("#scDnaR", svg).style.transform = schaden ? "translate(5px,7px)" : "";
+      on("#scMBruch", schaden); kaputt("scMa", schaden); on("#scGift", schaden);
+      on("#scFlick", i === 2);
+      on("#scStrahl2", i === 3); on("#scStrahl3", i === 3); on("#scBruch2", i === 3); kaputt("scMb", i === 3); on("#scViel", i === 3);
+      an("#scB1", i >= 0); an("#scB2", i >= 1); an("#scB3", i >= 2); an("#scB4a", i === 2); an("#scB4b", i >= 3);
+      an("#scB5", i >= 4); an("#scB6", i >= 5); an("#scB7", i >= 6);
+      $$(".sc-box", svg).forEach(g => g.classList.remove("jetzt"));
+      if (i >= 0) { $(JETZT[i], svg).classList.add("jetzt"); if (i === 2) $("#scB3", svg).classList.add("jetzt"); }
+      on("#scP1", i >= 1); on("#scP2", i >= 2); on("#scP3a", i === 2); on("#scP3b", i >= 3);
+      on("#scP5", i >= 4); on("#scP6", i >= 5); on("#scP7", i >= 6);
+    }
+  }, "scSchritte");
+})();
+
+/* ---------- Station 2: Übungen ---------- */
+Modul.makeSort($("#sortSchaden"), {
+  buckets: ["Frühschäden (nach Stunden bis Wochen)", "Spätschäden (nach Jahren)", "genetische Schäden (bei Nachkommen)"], cols: 170,
+  items: [
+    {t: "Übelkeit und Erbrechen", b: 0}, {t: "Haarausfall", b: 0}, {t: "hohes Fieber", b: 0}, {t: "innere Blutungen", b: 0},
+    {t: "Leukämie (Blutkrebs)", b: 1}, {t: "Krebs viele Jahre später", b: 1},
+    {t: "Missbildungen bei Kindern", b: 2}, {t: "Unfruchtbarkeit", b: 2}, {t: "Schäden bei den Enkeln", b: 2}
+  ]
+}, "sortSchaden");
+Modul.makeOrder($("#orderWeg"), [
+  "Strahlung trifft eine Zelle und gibt dort Energie ab.",
+  "Moleküle zerbrechen, das Erbgut (DNS) wird verändert.",
+  "Reparatur- und Abwehrsysteme versuchen, die Schäden zu beheben.",
+  "Es sind zu viele Schäden – die Reparatur ist überlastet.",
+  "Zellen mit verändertem Erbgut bleiben im Körper.",
+  "Jahre später entsteht Krebs, zum Beispiel Leukämie."
+], "orderWeg");
+Modul.makeOpen($("#open2"), [
+  {q: "Erkläre, warum eine kleine Strahlendosis meist keine Folgen hat, eine große Strahlendosis aber krank machen kann.",
+   m: "Strahlung zerbricht Moleküle in den Zellen und verändert das Erbgut (DNS). Der Körper hat Reparatur- und Abwehrsysteme. Bei einer kleinen Dosis entstehen nur wenige Schäden – der Körper erkennt und repariert sie. Bei einer großen Dosis entstehen so viele Schäden, dass die Reparatursysteme überlastet sind oder ausfallen. Dann bleiben die Schäden: Es kommt zu Frühschäden wie der Strahlenkrankheit oder Jahre später zu Krebs.",
+   k: ["repar|abwehr|flick|beheb|heil", "wenig|klein|gering", "viel|groß|gross|zu viele|stark|hoch", "überlastet|ueberlastet|schafft|nicht mehr|ausfall|fällt aus|faellt aus|zu viel", "molekül|molekuel|dns|erbgut|zelle|schäden|schaden"], min: 4}
+], "open2-", "Schau dir die Schritte 3 und 4 der Animation noch einmal an: Was machen die Reparatursysteme – und wann schaffen sie es nicht mehr?");
+
+/* ---------- Station 3: Jahresdosis-Rechner ---------- */
+(function(){
+  const svg = $("#jdSvg"), obs = $("#jdObs");
+  const Y0 = 268, PX = 30, X0 = 48;
+  const yv = v => Y0 - v * PX;
+  // immer dabei: Natur (Boden, Weltall, Nahrung, Radon) und Technik
+  const FEST = [
+    {k: "boden", name: "Boden (Gestein)", v: .30, f: "#3f8f3a"},
+    {k: "hoehe", name: "Höhenstrahlung", v: .30, f: "#5cae48"},
+    {k: "nahrung", name: "Nahrung", v: .35, f: "#7cc576"},
+    {k: "radon", name: "Radon in der Atemluft", v: 1.10, f: "#a8d08d"},
+    {k: "technik", name: "Technik (Kraftwerke …)", v: .05, f: "#8a97a2"}
+  ];
+  const WAHL = {
+    tArzt: {k: "arzt", v: 1.9, max: 1, f: "#2a7de1", name: () => "Arzt (wie im Durchschnitt)",
+      txt: "🏥 Untersuchungen beim Arzt (Röntgen, Computertomografie …): Im Durchschnitt sind das 1,9 mSv pro Person und Jahr – fast die Hälfte der ganzen Strahlendosis! Manche Menschen bekommen viel mehr, andere gar nichts."},
+    tZahn: {k: "zahn", v: .01, max: 10, f: "#74b9ff", n: "#nZahn", name: n => n === 1 ? "1 Zahn-Röntgenbild" : `${n} Zahn-Röntgenbilder`,
+      txt: "🦷 Ein Röntgenbild beim Zahnarzt: etwa 0,01 mSv – sehr wenig. Geröntgt wird trotzdem nur, wenn es nötig ist."},
+    tFlug: {k: "flug", v: .1, max: 10, f: "#f2b632", n: "#nFlug", name: n => n === 1 ? "1 Fernflug" : `${n} Fernflüge`,
+      txt: "✈️ Ein Fernflug hin und zurück, zum Beispiel Frankfurt – New York – Frankfurt: etwa 0,1 mSv. In 10 km Höhe ist viel weniger Luft über dir, die die Höhenstrahlung abschwächt."},
+    tBerge: {k: "berge", v: .03, max: 4, f: "#a1887f", n: "#nBerge", name: n => `${n}× Bergurlaub (2 Wochen)`,
+      txt: "🏔️ Zwei Wochen Urlaub auf 2 000 m Höhe: etwa 0,03 mSv mehr. Auch auf dem Berg ist die Höhenstrahlung stärker als im Tal."},
+    tRauch: {k: "rauch", v: .07, max: 20, f: "#4e5a63", n: "#nRauch", name: n => n === 1 ? "1 Zigarette pro Tag" : `${n} Zigaretten pro Tag`,
+      txt: "🚬 Tabak enthält winzige Mengen radioaktiver Stoffe. Eine Zigarette pro Tag, ein ganzes Jahr lang: etwa 0,07 mSv – jede weitere Zigarette am Tag noch einmal so viel."}
+  };
+  const REIHE = ["tArzt", "tZahn", "tFlug", "tBerge", "tRauch"];
+  const SEG = FEST.map(s => s.k).concat(REIHE.map(id => WAHL[id].k));
+  const FARBE = {}; FEST.forEach(s => FARBE[s.k] = s.f); REIHE.forEach(id => FARBE[WAHL[id].k] = WAHL[id].f);
+  const basis = {}; FEST.forEach(s => basis[s.k] = s.v);
+  const schnitt = Object.assign({}, basis, {arzt: 1.9});
+  const anzahl = {}; REIHE.forEach(id => anzahl[id] = 0);
+  svg.innerHTML = `<rect width="520" height="300" fill="#f7fbfe"/>
+    <text x="260" y="22" text-anchor="middle" font-size="14" font-weight="800" fill="#7a4b05">Deine Strahlendosis in einem Jahr</text>
+    <g stroke="#e3e9ee" stroke-width="1">${[1, 2, 3, 4, 5, 6, 7].map(v => `<line x1="${X0}" y1="${yv(v)}" x2="236" y2="${yv(v)}"/>`).join("")}</g>
+    <g font-size="11" font-weight="700" fill="#566674" text-anchor="end">${[0, 1, 2, 3, 4, 5, 6, 7].map(v => `<text x="${X0 - 6}" y="${yv(v) + 4}">${v}</text>`).join("")}<text x="${X0 - 6}" y="42">mSv</text></g>
+    <path d="M${X0} 50 V${Y0} H238" fill="none" stroke="#566674" stroke-width="2"/>
+    <g id="jdSchnitt"></g><g id="jdMein"></g>
+    <line x1="60" y1="${yv(4)}" x2="222" y2="${yv(4)}" stroke="#7a4b05" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <text x="97" y="${yv(4) - 7}" text-anchor="middle" font-size="12" font-weight="800" fill="#15212b">4,0 mSv</text>
+    <text id="jdSumme" x="181" text-anchor="middle" font-size="12" font-weight="800" fill="#7a4b05"></text>
+    <g font-size="12" font-weight="800" fill="#15212b" text-anchor="middle"><text x="97" y="285">Durchschnitt</text><text x="181" y="285">Dein Jahr</text></g>
+    <rect x="252" y="36" width="256" height="256" rx="10" fill="#fff" stroke="#d8e2ea" stroke-width="1.5"/>
+    <text x="266" y="56" font-size="12.5" font-weight="800" fill="#7a4b05">Dein Strahlen-Zettel (in mSv)</text>
+    <text x="266" y="73" font-size="10.5" font-weight="700" fill="#566674">immer dabei:</text>
+    ${FEST.map((s, i) => `<rect x="266" y="${80 + i * 16}" width="10" height="10" rx="2" fill="${s.f}"/><text x="282" y="${89 + i * 16}" font-size="11.5" font-weight="600" fill="#15212b">${s.name}</text><text x="496" y="${89 + i * 16}" text-anchor="end" font-size="11.5" font-weight="700" fill="#15212b">${de(s.v, 2)}</text>`).join("")}
+    <text x="266" y="174" font-size="10.5" font-weight="700" fill="#566674">deine Auswahl:</text>
+    <g id="jdBon"></g>
+    <line x1="266" y1="264" x2="496" y2="264" stroke="#15212b" stroke-width="1.5"/>
+    <text x="266" y="282" font-size="13" font-weight="900" fill="#15212b">Summe</text>
+    <text id="jdBonSumme" x="496" y="282" text-anchor="end" font-size="13" font-weight="900" fill="#7a4b05"></text>`;
+  const saeule = (g, x) => { const r = {}; SEG.forEach(k => r[k] = svgEl("rect", {x, width: 62, fill: FARBE[k], stroke: "#fff", "stroke-width": .8}, g)); return r; };
+  const rS = saeule($("#jdSchnitt", svg), 66), rM = saeule($("#jdMein", svg), 150);
+  const summe = w => SEG.reduce((s, k) => s + (w[k] || 0), 0);
+  function zeichne(r, w){ let y = Y0; SEG.forEach(k => { const h = (w[k] || 0) * PX; y -= h; r[k].setAttribute("y", y.toFixed(2)); r[k].setAttribute("height", Math.max(0, h).toFixed(2)); }); return y; }
+  zeichne(rS, schnitt);
+  let jetzt = Object.assign({}, basis), raf = 0;
+  function ziel(){ const w = Object.assign({}, basis); REIHE.forEach(id => w[WAHL[id].k] = anzahl[id] * WAHL[id].v); return w; }
+  function animiere(){
+    const z = ziel(), von = Object.assign({}, jetzt), t0 = performance.now(), D = reduced ? 0 : 450;
+    cancelAnimationFrame(raf);
+    (function f(now){
+      const k = D ? clamp((now - t0) / D, 0, 1) : 1;
+      SEG.forEach(s => jetzt[s] = (von[s] || 0) + ((z[s] || 0) - (von[s] || 0)) * k);
+      const top = zeichne(rM, jetzt), sm = $("#jdSumme", svg);
+      sm.setAttribute("y", (top - 7).toFixed(1)); sm.textContent = de(summe(jetzt), 1) + " mSv";
+      if (k < 1) raf = requestAnimationFrame(f);
+    })(t0);
+  }
+  function zettel(){
+    const g = $("#jdBon", svg), gew = REIHE.filter(id => anzahl[id] > 0);
+    g.innerHTML = gew.length ? gew.map((id, i) => { const W = WAHL[id], y = 182 + i * 16;
+      return `<rect x="266" y="${y}" width="10" height="10" rx="2" fill="${W.f}"/><text x="282" y="${y + 9}" font-size="11.5" font-weight="600" fill="#15212b">${W.name(anzahl[id])}</text><text x="496" y="${y + 9}" text-anchor="end" font-size="11.5" font-weight="700" fill="#15212b">${de(anzahl[id] * W.v, 2)}</text>`; }).join("")
+      : `<text x="282" y="191" font-size="11" font-style="italic" fill="#8a97a2">noch nichts – tippe unten auf die Knöpfe</text>`;
+    $("#jdBonSumme", svg).textContent = de(summe(ziel()), 2) + " mSv";
+    REIHE.forEach(id => { const W = WAHL[id]; if (W.n) $(W.n).textContent = anzahl[id] ? "×" + anzahl[id] : ""; });
+    const a = $("#tArzt"); a.classList.toggle("gewaehlt", anzahl.tArzt > 0); a.setAttribute("aria-pressed", anzahl.tArzt > 0 ? "true" : "false");
+  }
+  const probiert = new Set();
+  register("jdRechner", "#jdSvg", "Jahresdosis-Rechner: alle fünf Strahlenquellen ausprobiert und mit dem Durchschnitt verglichen");
+  function vergleich(){
+    const s = summe(ziel());
+    return `Dein Jahr: ${de(s, 2)} mSv – ` + (s < 3.9 ? "weniger als der Durchschnitt (4 mSv)." : s <= 4.1 ? "etwa so viel wie der Durchschnitt (4 mSv)." : "mehr als der Durchschnitt (4 mSv).");
+  }
+  REIHE.forEach(id => $("#" + id).addEventListener("click", () => {
+    const W = WAHL[id];
+    let txt = W.txt;
+    if (W.max === 1) { anzahl[id] = anzahl[id] ? 0 : 1; if (!anzahl[id]) txt = "Die Untersuchungen beim Arzt sind wieder weg."; }
+    else if (anzahl[id] < W.max) anzahl[id]++;
+    else txt = `Mehr als ${W.max} geht hier nicht. Mit „↺ Neu“ fängst du von vorn an.`;
+    probiert.add(id);
+    zettel(); animiere();
+    obs.textContent = txt + " " + vergleich();
+    if (probiert.size === REIHE.length) {
+      if (!Modul.isSolved("jdRechner")) solve("jdRechner");
+      obs.textContent += " ✅ Alle Quellen ausprobiert! Den größten Teil liefern fast immer die Natur und die Medizin.";
+    } else obs.textContent += ` (${probiert.size} von ${REIHE.length} Quellen ausprobiert)`;
+  }));
+  $("#jdNeu").addEventListener("click", () => { REIHE.forEach(id => anzahl[id] = 0); zettel(); animiere(); obs.textContent = "Neues Jahr: Nur die Strahlung, die immer dabei ist – etwa 2,1 mSv. " + vergleich(); });
+  zettel(); animiere();
+})();
+
+/* ---------- Station 3: Übungen ---------- */
+Modul.makeTF($("#tfAlltag"), [
+  ["Den größten Teil unserer Strahlendosis bekommen wir aus Kernkraftwerken.", false],
+  ["Bei einem Fernflug bekommt man mehr Höhenstrahlung ab als am Boden.", true],
+  ["Untersuchungen beim Arzt machen fast die Hälfte unserer Strahlendosis aus.", true],
+  ["Radioaktive Stoffe nehmen wir auch mit der Nahrung und der Atemluft auf.", true],
+  ["Für die Bevölkerung gilt: höchstens 1 mSv im Jahr zusätzlich aus künstlichen Quellen (ohne Medizin).", true],
+  ["Wer beruflich mit Strahlung arbeitet, darf beliebig viel Strahlung abbekommen.", false]
+], "tfAlltag");
+
+/* ---------- Station 4: Dosis-Rechner (Energiedosis und Strahlendosis) ---------- */
+(function(){
+  const svg = $("#edSvg"), obs = $("#edObs"), tb = $("#edTab tbody");
+  const FARBE = {a: "#e0453a", b: "#2a7de1", g: "#1fa35a"};
+  const FAELLE = {
+    tGanz: {k: "ganz", titel: "γ-Strahlung von außen – ganzer Körper", art: "g", wo: "ganz", innen: false, E: .8, m: 80, f: 1, masse: "ganzer Körper: 80 kg",
+      txt: "γ-Strahlung von außen gibt 0,8 J an den ganzen Körper (80 kg) ab. Auf jedes Kilogramm kommt nur wenig: 0,8 : 80 = 0,01 J/kg. γ-Strahlung hat den Faktor 1 – die Strahlendosis ist 0,01 Sv = 10 mSv."},
+    tHand: {k: "hand", titel: "γ-Strahlung von außen – nur eine Hand", art: "g", wo: "hand", innen: false, E: .8, m: .4, f: 1, masse: "eine Hand: 0,4 kg",
+      txt: "Gleiche Energie, aber nur eine Hand (0,4 kg) wird bestrahlt. Die 0,8 J verteilen sich auf viel weniger Masse: 0,8 : 0,4 = 2 J/kg – 200-mal so viel wie beim ganzen Körper! Für die Hand sind das 2 Sv."},
+    tBeta: {k: "beta", titel: "β-Strahler in der Nahrung – im ganzen Körper", art: "b", wo: "ganz", innen: true, E: .8, m: 80, f: 1, masse: "ganzer Körper: 80 kg",
+      txt: "Ein β-Strahler kam mit der Nahrung in den Körper und hat sich überall verteilt. 0,8 J : 80 kg = 0,01 J/kg. β-Strahlung hat den Faktor 1: 0,01 Sv = 10 mSv – genauso viel wie bei γ-Strahlung."},
+    tAlpha: {k: "alpha", titel: "α-Strahler in der Nahrung – im ganzen Körper", art: "a", wo: "ganz", innen: true, E: .8, m: 80, f: 20, masse: "ganzer Körper: 80 kg",
+      txt: "Jetzt ein α-Strahler in der Nahrung: gleiche Energie, gleiche Masse – also die gleiche Energiedosis von 0,01 J/kg. Aber α-Strahlung hat den Faktor 20: 0,01 × 20 = 0,2 Sv = 200 mSv. α-Strahlung schadet 20-mal so stark!"}
+  };
+  // Mensch: Formen mit Rand p (für den Leuchtrand dahinter)
+  const figur = (p, f) => `<circle cx="100" cy="66" r="${17 + p}" fill="${f}"/><rect x="${94 - p}" y="80" width="${12 + 2 * p}" height="12" fill="${f}"/>
+    <rect x="${76 - p}" y="${90 - p}" width="${48 + 2 * p}" height="${80 + 2 * p}" rx="${13 + p}" fill="${f}"/>
+    <g stroke="${f}" stroke-linecap="round"><line x1="74" y1="98" x2="56" y2="160" stroke-width="${15 + 2 * p}"/><line x1="126" y1="98" x2="144" y2="160" stroke-width="${15 + 2 * p}"/>
+    <line x1="89" y1="166" x2="86" y2="244" stroke-width="${17 + 2 * p}"/><line x1="111" y1="166" x2="114" y2="244" stroke-width="${17 + 2 * p}"/></g>
+    <circle cx="54" cy="170" r="${9 + p}" fill="${f}"/><circle cx="146" cy="170" r="${9 + p}" fill="${f}"/>
+    <ellipse cx="82" cy="252" rx="${12 + p}" ry="${6 + p}" fill="${f}"/><ellipse cx="118" cy="252" rx="${12 + p}" ry="${6 + p}" fill="${f}"/>`;
+  const ZIEL = {
+    ganz: [[100, 62], [90, 106], [110, 126], [94, 152], [62, 138], [138, 138], [87, 212], [113, 226]],
+    hand: [[142, 166], [150, 166], [146, 161], [141, 174], [151, 174], [146, 178], [139, 170], [153, 170]]
+  };
+  const START = [180, 56];
+  const kasten = (id, x, y, w, ph) => `<rect x="${x}" y="${y}" width="${w}" height="34" rx="8" fill="#eef4f8" stroke="#9aa5ad" stroke-width="1.5"/><text id="${id}" x="${x + w / 2}" y="${y + 23}" text-anchor="middle" font-size="14.5" font-weight="800" fill="#15212b">${ph}</text>`;
+  svg.innerHTML = `<rect width="520" height="300" fill="#f7fbfe"/>
+    <text id="edTitel" x="260" y="22" text-anchor="middle" font-size="14" font-weight="800" fill="#7a4b05">Dosis-Rechner: Wähle einen Fall</text>
+    <g id="edGlowGanz" class="glow" opacity="0">${figur(4, "#f2b632")}</g>
+    <circle id="edGlowHand" class="glow" opacity="0" cx="146" cy="170" r="16" fill="#f2b632"/>
+    <g id="edKoerper">${figur(0, "#d5dde3")}</g>
+    <g id="edAussen" class="glow" opacity="0">
+      <rect x="164" y="36" width="34" height="28" rx="6" fill="#33414d"/><text id="edQArt" x="181" y="56" text-anchor="middle" font-size="15" font-weight="900" fill="#7df29b">γ</text>
+      <text x="160" y="50" text-anchor="end" font-size="10" font-weight="700" fill="#566674">Strahler</text>
+      <g id="edStrGanz" fill="none" stroke="#1fa35a" stroke-width="2" opacity=".75"><path d="${zick(166, 60, 120, 104, 5, 3)}"/><path d="${zick(166, 64, 112, 150, 6, 3)}"/><path d="${zick(170, 66, 118, 216, 7, 3)}"/></g>
+      <g id="edStrHand" fill="none" stroke="#1fa35a" stroke-width="2" opacity=".75"><path d="${zick(176, 66, 150, 156, 6, 3)}"/><path d="${zick(186, 66, 156, 160, 6, 3)}"/></g>
+    </g>
+    <g id="edInnen" class="glow" opacity="0">
+      <circle cx="181" cy="52" r="11" fill="#e0453a"/><path d="M181 41 q2 -6 7 -7" fill="none" stroke="#5d7f2a" stroke-width="2"/><ellipse cx="186" cy="38" rx="4" ry="2.2" fill="#5cae48"/>
+      <text x="181" y="78" text-anchor="middle" font-size="10" font-weight="700" fill="#566674">Nahrung</text>
+      <path d="M168 56 Q140 50 120 64" fill="none" stroke="#566674" stroke-width="1.6" stroke-dasharray="4 3"/>
+    </g>
+    <g id="edPunkte"></g>
+    <text id="edMasse" x="100" y="284" text-anchor="middle" font-size="12" font-weight="800" fill="#15212b"></text>
+    <g font-size="11" font-weight="700" fill="#566674" text-anchor="middle"><text x="248" y="60">Energie</text><text x="358" y="60">Masse</text><text x="467" y="60">Energiedosis</text>
+      <text x="252" y="134">Energiedosis</text><text x="358" y="134">Faktor</text><text x="467" y="134">Strahlendosis</text></g>
+    <g id="edR1" class="rk" style="opacity:.25">${kasten("edE", 210, 68, 76, "? J")}</g>
+    <g id="edR2" class="rk" style="opacity:.25"><text x="304" y="91" text-anchor="middle" font-size="18" font-weight="900" fill="#7a4b05">:</text>${kasten("edM", 322, 68, 72, "? kg")}</g>
+    <g id="edR3" class="rk" style="opacity:.25"><text x="410" y="91" text-anchor="middle" font-size="18" font-weight="900" fill="#15212b">=</text>${kasten("edD", 426, 68, 82, "? J/kg")}</g>
+    <g id="edR4" class="rk" style="opacity:.25">${kasten("edD2", 210, 142, 84, "? J/kg")}<text x="308" y="165" text-anchor="middle" font-size="17" font-weight="900" fill="#7a4b05">×</text></g>
+    <g id="edR5" class="rk" style="opacity:.25">${kasten("edF", 322, 142, 72, "?")}</g>
+    <g id="edR6" class="rk" style="opacity:.25"><text x="410" y="165" text-anchor="middle" font-size="18" font-weight="900" fill="#15212b">=</text><rect x="426" y="142" width="82" height="34" rx="8" fill="#fff3c4" stroke="#f2b632" stroke-width="2"/><text id="edH" x="467" y="165" text-anchor="middle" font-size="14.5" font-weight="900" fill="#7a4b05">? Sv</text>
+      <text id="edMsv" x="467" y="195" text-anchor="middle" font-size="12.5" font-weight="800" fill="#7a4b05"></text></g>
+    <rect x="210" y="210" width="298" height="78" rx="10" fill="#fff" stroke="#d8e2ea" stroke-width="1.5"/>
+    <text x="222" y="228" font-size="11.5" font-weight="800" fill="#566674">Faktor je Strahlungsart</text>
+    ${[["a", "α-Strahlung", "× 20", 222], ["b", "β-Strahlung", "× 1", 318], ["g", "γ-Strahlung", "× 1", 414]].map(([k, n, f, x]) =>
+      `<g id="edT${k}" class="tf-zelle"><rect x="${x}" y="236" width="86" height="44" rx="8"/><text x="${x + 43}" y="253" text-anchor="middle" font-size="11.5" font-weight="800" fill="${FARBE[k]}">${n}</text><text x="${x + 43}" y="272" text-anchor="middle" font-size="15" font-weight="900" fill="#15212b">${f}</text></g>`).join("")}`;
+  const gP = $("#edPunkte", svg);
+  const punkte = [...Array(8).keys()].map(() => svgEl("circle", {class: "ed-dot", r: 4, fill: FARBE.g, stroke: "#fff", "stroke-width": 1, opacity: 0}, gP));
+  const R = [1, 2, 3, 4, 5, 6].map(i => $("#edR" + i, svg));
+  const zeigeR = n => R.forEach((g, i) => g.style.opacity = i < n ? 1 : .25);
+  const knoepfe = Object.keys(FAELLE).map(id => $("#" + id));
+  const fertig = new Set();
+  let laeuft = false;
+  register("edRechner", "#edSvg", "Dosis-Rechner: alle vier Fälle berechnet (Energiedosis und Strahlendosis)");
+  async function rechne(id){
+    if (laeuft) return;
+    const F = FAELLE[id], D = F.E / F.m, H = D * F.f;
+    laeuft = true; knoepfe.forEach(b => b.disabled = true);
+    try {
+      $("#edTitel", svg).textContent = F.titel;
+      $("#edMasse", svg).textContent = F.masse;
+      $("#edGlowGanz", svg).setAttribute("opacity", F.wo === "ganz" ? .55 : 0);
+      $("#edGlowHand", svg).setAttribute("opacity", F.wo === "hand" ? .7 : 0);
+      $("#edAussen", svg).setAttribute("opacity", F.innen ? 0 : 1);
+      $("#edInnen", svg).setAttribute("opacity", F.innen ? 1 : 0);
+      $("#edStrGanz", svg).style.display = F.wo === "ganz" ? "" : "none";
+      $("#edStrHand", svg).style.display = F.wo === "hand" ? "" : "none";
+      ["a", "b", "g"].forEach(k => $("#edT" + k, svg).classList.remove("an"));
+      [["#edE", "? J"], ["#edM", "? kg"], ["#edD", "? J/kg"], ["#edD2", "? J/kg"], ["#edF", "?"], ["#edH", "? Sv"], ["#edMsv", ""]].forEach(([s, v]) => $(s, svg).textContent = v);
+      zeigeR(0);
+      obs.textContent = `${F.titel}: Der Körper nimmt 0,8 J Energie auf …`;
+      // Energie-Punkte fliegen hinein (jeder Punkt = 0,1 J)
+      const ziel = ZIEL[F.wo], klein = F.wo === "hand";
+      punkte.forEach((p, i) => {
+        p.style.transition = "none"; p.setAttribute("cx", ziel[i][0]); p.setAttribute("cy", ziel[i][1]);
+        p.setAttribute("r", F.art === "a" ? (klein ? 3.2 : 5.2) : (klein ? 2.6 : 4));
+        p.setAttribute("fill", FARBE[F.art]); p.setAttribute("opacity", 1);
+        p.style.transform = `translate(${START[0] - ziel[i][0]}px,${START[1] - ziel[i][1]}px)`;
+      });
+      void gP.getBoundingClientRect();
+      punkte.forEach((p, i) => { p.style.transition = ""; p.style.transitionDelay = reduced ? "0s" : (i * 70) + "ms"; p.style.transform = ""; });
+      await warte(1500);
+      $("#edE", svg).textContent = zl(F.E) + " J"; zeigeR(1); await warte(450);
+      $("#edM", svg).textContent = zl(F.m) + " kg"; zeigeR(2); await warte(450);
+      $("#edD", svg).textContent = zl(D) + " J/kg"; zeigeR(3); await warte(600);
+      $("#edD2", svg).textContent = zl(D) + " J/kg"; zeigeR(4); await warte(400);
+      $("#edF", svg).textContent = String(F.f); $("#edT" + F.art, svg).classList.add("an"); zeigeR(5); await warte(500);
+      $("#edH", svg).textContent = zl(H) + " Sv"; $("#edMsv", svg).textContent = "= " + zl(H * 1000) + " mSv"; zeigeR(6);
+      const td = $(`tr[data-p="${F.k}"]`, tb).children;
+      [`${zl(F.E)} J : ${zl(F.m)} kg`, `${zl(D)} J/kg`, `× ${F.f}`, `${zl(H)} Sv = ${zl(H * 1000)} mSv`].forEach((t, i) => { const c = td[i + 1]; c.textContent = t; c.classList.remove("neu"); void c.offsetWidth; c.classList.add("neu"); });
+      fertig.add(F.k);
+      obs.textContent = F.txt + (fertig.size < 4 ? ` (${fertig.size} von 4 Fällen)` : "");
+      if (fertig.size === 4) { if (!Modul.isSolved("edRechner")) solve("edRechner"); obs.textContent += " ✅ Tabelle voll! Gleiche Energie auf weniger Masse ergibt eine größere Energiedosis. Und bei gleicher Energiedosis schadet α-Strahlung 20-mal so stark."; }
+    } finally { laeuft = false; knoepfe.forEach(b => b.disabled = false); }
+  }
+  knoepfe.forEach(b => b.addEventListener("click", () => rechne(b.id)));
+})();
+
+/* ---------- Station 4: Übungen ---------- */
+Modul.makePaare($("#paareDosis"), [
+  ["6 J auf 3 kg", "2 J/kg"],
+  ["1,6 J auf 80 kg", "0,02 J/kg"],
+  ["0,5 J auf 0,1 kg", "5 J/kg"],
+  ["0,1 J/kg β-Strahlung", "0,1 Sv"],
+  ["0,1 J/kg α-Strahlung", "2 Sv"],
+  ["0,005 J/kg γ-Strahlung", "5 mSv"]
+], "paareDosis");
+Modul.makeTF($("#tfFaktor"), [
+  ["Die Energiedosis gibt an, wie viel Energie jedes Kilogramm des bestrahlten Körpers aufnimmt.", true],
+  ["Die Energiedosis hat die Einheit J/kg (Joule pro Kilogramm).", true],
+  ["β- und γ-Strahlung haben den Faktor 20.", false],
+  ["Bei gleicher Energiedosis schadet α-Strahlung 20-mal so stark wie γ-Strahlung.", true],
+  ["Je größer die bestrahlte Masse, desto größer ist bei gleicher Energie die Energiedosis.", false]
+], "tfFaktor");
+Modul.makeOpen($("#open4"), [
+  {q: "Schon ein Blatt Papier hält α-Strahlung auf. Erkläre trotzdem, warum es sehr gefährlich ist, Staub mit einem α-Strahler einzuatmen.",
+   m: "Von außen hält schon die oberste Hautschicht die α-Strahlung auf – so wie ein Blatt Papier. Atmet man den Staub aber ein, sitzt der α-Strahler direkt an den Zellen der Lunge. Seine ganze Energie wird dort von wenigen Zellen aufgenommen. Außerdem schadet α-Strahlung bei gleicher Energiedosis 20-mal so stark wie β- oder γ-Strahlung (Faktor 20). Deshalb wird die Strahlendosis in der Lunge sehr hoch.",
+   k: ["haut|papier|außen|aussen|von außen", "lunge|innen|im körper|direkt|zellen|eingeatmet|einatmen", "20|zwanzig|faktor|stärker|schädlicher|gefährlicher", "energie|dosis|schaden|schäden"], min: 3}
+], "open4-", "Lies noch einmal die zweite Karte dieser Station: Was gilt für Stoffe in der Atemluft – und welchen Faktor hat α-Strahlung?");
+
+/* ---------- Training: Kreuzworträtsel mit Tipps ---------- */
+Modul.makeCrossword($("#cw"), {
+  tipps: true,
+  words: [
+    {w: "FLUGZEUG", r: 0, c: 0, d: "d", q: "Darin bekommt man in 10 km Höhe mehr Höhenstrahlung ab.", tip: "Damit reist man über den Wolken."},
+    {w: "MUTATION", r: 0, c: 10, d: "d", q: "Eine Veränderung des Erbguts (der DNS).", tip: "Fängt mit M an und endet auf -tion."},
+    {w: "LEUKAEMIE", r: 1, c: 0, d: "a", q: "Blutkrebs – ein möglicher Spätschaden.", tip: "Ä wird zu AE. Fängt mit L an.", zeig: "Leukämie"},
+    {w: "GRENZWERT", r: 3, c: 2, d: "d", q: "Höchstwert, der nicht überschritten werden darf – für die Bevölkerung 1 mSv im Jahr zusätzlich.", tip: "Eine Grenze, die als Zahl festgelegt ist."},
+    {w: "ALPHA", r: 3, c: 6, d: "a", q: "Diese Strahlungsart hat den Faktor 20.", tip: "Der erste Buchstabe des griechischen Alphabets."},
+    {w: "SIEVERT", r: 4, c: 5, d: "d", q: "Einheit der Strahlendosis.", tip: "Benannt nach einem schwedischen Strahlenforscher."},
+    {w: "ENERGIEDOSIS", r: 5, c: 0, d: "a", q: "Aufgenommene Energie geteilt durch die bestrahlte Masse.", tip: "Energie … Dosis – zusammen ein Wort."},
+    {w: "ERBGUT", r: 8, c: 9, d: "d", q: "Anderes Wort für die DNS in jeder Zelle.", tip: "Das, was Eltern an ihre Kinder vererben."},
+    {w: "ZELLE", r: 8, c: 11, d: "d", q: "Kleinster lebender Baustein des Körpers.", tip: "Dein Körper besteht aus Billionen davon."},
+    {w: "REPARATUR", r: 9, c: 1, d: "a", q: "Kleine Schäden behebt der Körper selbst – durch …", tip: "Das macht eine Werkstatt mit einem kaputten Fahrrad."},
+    {w: "JOULE", r: 12, c: 7, d: "a", q: "Einheit der Energie (Abkürzung J).", tip: "Man spricht es „Dschuul“ aus."}
+  ],
+  sol: [[4, 5], [11, 2], [10, 2], [9, 4], [3, 9], [11, 11], [2, 0], [7, 10], [11, 9]], solWord: "STRAHLUNG"
+}, "cw");
+
+/* ---------- Profi-Check, Lernkarten ---------- */
+Modul.makeQuiz($("#quiz"), [...MC.s1, ...MC.s2, ...MC.s3, ...MC.s4, ...MC.train,
+  {q: "Was gibt die Strahlendosis an?", o: ["wie stark Strahlung im Körper wirkt – mit Faktor für die Strahlungsart", "wie viele Kerne in einer Sekunde zerfallen", "wie lange ein radioaktiver Stoff strahlt", "wie weit die Strahlung in der Luft fliegt"], a: 0, e: "Strahlendosis = Energiedosis × Faktor der Strahlungsart, Einheit Sievert. Zerfälle pro Sekunde: Das ist die Aktivität in Becquerel."},
+  {q: "Woher stammt fast die Hälfte unserer Strahlendosis in einem Jahr?", o: ["aus Untersuchungen beim Arzt", "aus Kernkraftwerken", "aus Handys und WLAN", "aus Kohlekraftwerken"], a: 0, e: "Etwa 1,9 von 4 mSv kommen aus Röntgen- und CT-Untersuchungen. Kraftwerke liefern nur winzige Mengen."},
+  {q: "Wie viele Millisievert sind 0,25 Sv?", o: ["250 mSv", "25 mSv", "2 500 mSv", "0,025 mSv"], a: 0, e: "1 Sv = 1 000 mSv, also 0,25 · 1 000 = 250 mSv."},
+  {q: "Was passiert, wenn die Reparatursysteme des Körpers überlastet sind?", o: ["Die Schäden bleiben, man kann krank werden.", "Die Strahlung wird sofort abgeschirmt.", "Der Körper sendet die Strahlung wieder aus.", "Die Zellen werden dadurch widerstandsfähiger."], a: 0, e: "Dann bleiben Schäden zurück: Frühschäden, Spätschäden oder genetische Schäden."}
+], "quiz", "Strahlenschutz-Profi");
+if (window.NT8Karten) NT8Karten.trainer($("#lernkarten"), {module: ["ra-folgen"], titel: "Lernkarten zu diesem Modul", zug: "M", druck: false});
+
+Modul.ready();
+})();
+</script>
+</body>
+</html>
