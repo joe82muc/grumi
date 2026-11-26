@@ -28,7 +28,10 @@ GrumiKursliste.bauen({
     "nt9r-kunststoffe": "kunststoffe",
     // Probe 2 Kunststoffe (seit 18.11.2026): dieselben Aufgaben wie in 9M (P1 bis P5, also auch P3 und der 9M-Stoff
     // Polymerisation und Ökobilanz), 58 Punkte, 45 Minuten, übliche Testregeln, R-Schlüssel
-    "nt9r-kunststoffe2": "kunststoffe" },
+    "nt9r-kunststoffe2": "kunststoffe",
+    // Nervensystem und Kommunikationstechnik (seit 26.11.2026): je eine Probe über alle Module N1 bis N6 bzw. T1 bis T4,
+    // Animationen, offene Fragen, 45 Minuten, übliche Testregeln – dieselben Aufgaben wie in 9M, R-Schlüssel
+    "nt9r-nervensystem": "nervensystem", "nt9r-kommunikationstechnik": "kommunikationstechnik" },
   themen: [
     {
       id: "rohstoffe", nr: "01", titel: "Organische Rohstoffe", kurz: "Organische Rohstoffe", icon: "🛢️",
