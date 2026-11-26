@@ -1,0 +1,928 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Objekte kombinieren | Informatik 7</title>
+<link rel="stylesheet" href="../NT/modul-basis.css">
+<link rel="stylesheet" href="einheit.css">
+<style>
+/* V3 „Objekte kombinieren“: eigene Klassen mit Präfix v3- */
+.v3-buehne{background:#e8edf2;padding:6px}
+.sim svg.v3-flaeche{max-width:620px;margin:0 auto;background:transparent}
+.v3-nb{white-space:nowrap}
+.v3-k,.v3-o{cursor:pointer}
+.v3-k{touch-action:none}
+.sim svg.v3-ico,svg.v3-ico{display:inline-block;flex:none;width:22px;height:22px;background:none}
+.v3-status{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;padding:8px 14px;border-top:1px solid var(--line);background:#f1f4f7;font-size:.92rem}
+.v3-status-l{font-weight:800;color:var(--muted)}
+.v3-statustext{font-family:ui-monospace,Consolas,"Courier New",monospace;font-size:.88rem;overflow-wrap:anywhere}
+.v3-farben{display:inline-flex;flex-wrap:wrap;align-items:center;gap:6px}
+.v3-farbe{width:40px;height:40px;border-radius:8px;border:3px solid #fff;box-shadow:0 0 0 1px #9fb2c1;padding:0;cursor:pointer}
+.v3-farbe:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+.btn.v3-toggle[aria-pressed="true"]{background:var(--sky);color:#fff}
+.v3-simhint{margin:0;padding:0 14px 12px;background:#fbfdff}
+/* Stapel-Versuch */
+.v3-stapel{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) minmax(0,1fr);gap:14px;padding:14px;align-items:start;background:#f7fbfe}
+.v3-stapel figure{margin:0}
+.v3-stapel figcaption{margin:0 0 4px;font-weight:800;font-size:.9rem;color:var(--muted)}
+.sim .v3-stapel svg{background:#fff;border:1px solid var(--line);border-radius:10px}
+.sim .v3-stapel svg:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+.v3-stapelsim:focus{outline:none}
+.v3-liste > b{display:block;font-size:.9rem;color:var(--muted)}
+.v3-liste .hint{display:block;font-size:.8rem}
+.v3-liste ol{list-style:none;margin:4px 0;padding:0;display:grid;gap:6px}
+.v3-obj{width:100%;display:flex;align-items:center;gap:8px;border:2px solid var(--line);background:#fff;border-radius:10px;padding:6px 10px;font-weight:700;text-align:left;min-height:44px;color:var(--ink);cursor:pointer}
+.v3-obj.sel{border-color:var(--sky);background:var(--sky-l);color:var(--sky-d)}
+.v3-fleck{flex:none;width:18px;height:18px;border-radius:4px;border:1px solid rgba(0,0,0,.4)}
+.v3-ordnen button,.v3-knopf{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px 6px;max-width:100%;border:2px solid var(--line);background:#fff;border-radius:10px;padding:6px 10px;font-weight:700;font-size:.92rem;min-height:44px;color:var(--ink);text-align:left;cursor:pointer}
+.v3-ordnen button:hover,.v3-knopf:hover{border-color:var(--sky)}
+.v3-knopf small{font-weight:600;color:var(--muted)}
+@media (max-width:700px){.v3-stapel{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-auto-flow:dense}.v3-arbeit{grid-column:1 / -1}}
+/* Ausrichten-Versuch */
+.v3-panel{display:grid;gap:10px;padding:12px 14px;border-top:1px solid var(--line);background:#fbfdff}
+.v3-zeile{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.v3-zeile > b{min-width:6.6rem;font-size:.9rem;color:var(--muted)}
+.v3-rel{font-size:.9rem;padding:4px 10px;border:1px solid var(--line);border-radius:8px;background:#fff}
+/* Bild und Text nebeneinander */
+.v3-bildtext{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:18px;align-items:start;margin:12px 0}
+.v3-bildtext p{margin-top:0}
+@media (max-width:820px){.v3-bildtext{grid-template-columns:minmax(0,1fr)}}
+.v3-tim{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:flex-start}
+.v3-tim > div{flex:1 1 260px}
+.v3-tim figure{flex:none;margin:0}
+.v3-tim img{display:block;width:200px;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px}
+.v3-befehle{list-style:none;margin:10px 0;padding:0;display:grid;gap:8px}
+.v3-befehle li{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:8px 12px;background:#fff}
+.v3-befehle li span:last-child{color:var(--muted);font-size:.93rem}
+/* Text-Leiste und Objektkarten */
+.v3-leiste{margin:10px 0 0}
+.v3-leiste svg{display:block;width:100%;max-width:640px;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
+.v3-legende{display:flex;flex-wrap:wrap;gap:6px 8px;list-style:none;margin:8px 0 12px;padding:0}
+.v3-legende li{border:1px solid var(--line);border-radius:8px;padding:3px 10px;background:#fff;font-size:.93rem}
+.v3-okarten{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:10px 0}
+.v3-okarte{border:2px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
+.v3-okarte h4{margin:0;padding:6px 12px;background:var(--sky-l);color:var(--sky-d);font-size:1rem;display:flex;justify-content:space-between;gap:8px}
+.v3-okarte h4 span{font-weight:600;color:var(--muted);font-size:.85rem}
+.v3-okarte svg{display:block;width:100%;height:auto;background:#fbfdff;border-bottom:1px solid var(--line)}
+.v3-okarte ul{list-style:none;margin:0;padding:8px 12px;font:600 .92rem/1.7 ui-monospace,Consolas,"Courier New",monospace}
+.v3-fehlerbild svg{display:block;width:100%;max-width:520px;height:auto;margin:0 auto 10px;background:#f7fbfe;border:1px solid var(--line);border-radius:10px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 7</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Kopieren</a>
+      <a href="#s2"><b>2</b>Stapeln</a>
+      <a href="#s3"><b>3</b>Ausrichten</a>
+      <a href="#s4"><b>4</b>Text</a>
+      <a href="#s5"><b>5</b>Ampel</a>
+      <a href="#s6"><b>6</b>Sichern</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">💻 Übersicht Informatik 7M</a>
+      <a href="../../7R/Informatik/index.html">💻 Übersicht Informatik 7R</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 7M / 7R · Modul 4: Vektorgrafik mit Inkscape · Einheit 3</div>
+    <h1>Objekte kombinieren</h1>
+    <p>Ein Rechteck, drei Kreise und ein Wort – mehr braucht eine Ampel nicht. Heute lernst du, wie du einfache Formen kopierst, übereinanderlegst, ausrichtest und zusammenfasst. Am Ende baust du die Ampel in Inkscape.</p>
+    <div class="zeit">⏱ etwa 40 Minuten · Praxis am Windows-PC</div>
+    <div><span class="pc-tag" title="Diese Einheit machst du am Windows-PC">🖥 Windows-PC mit Inkscape erforderlich</span></div>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s5">🛠 Direkt zum Auftrag</a>
+    </div>
+    <div class="goals">
+      <div>📋 Ich kopiere ein Objekt mit Strg + D und ziehe die Kopie an ihren Platz.</div>
+      <div>📚 Ich bestimme, welches Objekt oben liegt.</div>
+      <div>📐 Ich richte Objekte aus und fasse sie zu einer Gruppe zusammen.</div>
+      <div>🔤 Ich setze einen Text und beschreibe ihn mit Attributen.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div class="pc-banner"><span class="big">🖥</span><div><b>Windows-PC erforderlich.</b> Den Auftrag in Station 5 machst du im Programm Inkscape. Die Stationen 1 bis 4 und 6 gehen auch am Tablet.</div></div>
+<div id="modulStand" aria-label="Dein Lernfortschritt in dieser Einheit"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Kopieren</div><h2>Einmal zeichnen – mehrmals benutzen</h2></div></div>
+  <div class="card reveal" id="duplKarte">
+    <span class="task-tag">Versuch</span>
+    <p class="lead" style="margin-top:0">Eine Ampel braucht drei gleich große Kreise. Musst du dreimal zeichnen? Nein – du <button class="term" data-t="duplizieren">duplizierst</button>. Der rote Kreis ist schon ausgewählt. Tippe auf <b>Strg + D</b> und schau genau hin.</p>
+    <p><b>Dein Ziel:</b> drei Kreise genau untereinander – oben rot, in der Mitte gelb, unten grün.</p>
+    <div class="sim" id="duplSim">
+      <div class="v3-buehne"><svg class="v3-flaeche" id="duplSvg" viewBox="0 0 360 240" role="img" aria-label="Eine weiße Seite mit Kreisen. Der ausgewählte Kreis hat einen gestrichelten Rahmen mit Pfeilen."></svg></div>
+      <div class="v3-status"><span class="v3-status-l">Statusleiste:</span> <span class="v3-statustext" id="duplStatus"></span> <span class="chip" id="duplZahl"></span></div>
+      <div class="sim-ctrl">
+        <button type="button" class="btn small" id="duplD">Strg + D</button>
+        <button type="button" class="btn small ghost" id="duplRunter">⬇ mit Strg nach unten ziehen</button>
+        <button type="button" class="btn small ghost v3-toggle" id="duplStrg" aria-pressed="false">Strg gedrückt halten</button>
+        <span class="v3-farben" role="group" aria-label="Farbpalette"><span class="hint">Palette:</span><button type="button" class="v3-farbe" data-f="rot" aria-label="rot" title="rot" style="background:#f02a1d"></button><button type="button" class="v3-farbe" data-f="gelb" aria-label="gelb" title="gelb" style="background:#ffd21a"></button><button type="button" class="v3-farbe" data-f="gruen" aria-label="grün" title="grün" style="background:#22b35e"></button></span>
+        <button type="button" class="btn small ghost" id="duplNeu">↺ Von vorn</button>
+      </div>
+      <p class="hint v3-simhint">Du kannst den ausgewählten Kreis auch mit der Maus oder dem Finger ziehen. Ist „Strg gedrückt halten“ an, geht das nur genau senkrecht oder waagrecht.</p>
+    </div>
+    <div class="fb" id="duplFb"></div>
+  </div>
+  <div class="card reveal">
+    <h3 style="margin-top:0">So geht es in Inkscape</h3>
+    <div class="v3-bildtext">
+      <div>
+        <figure class="prog-bild" style="margin-top:0"><img class="zoomable" src="assets/inkscape/duplizieren.png" width="1280" height="800" loading="lazy" decoding="async" alt="Inkscape-Fenster: links ein schwarzes Rechteck, rechts daneben drei Kreise rot, gelb und grün untereinander. Der grüne Kreis ist ausgewählt."></figure>
+        <p class="hint">Bild: Inkscape, eigene Aufnahme</p>
+        <p class="hint">Bei dir sieht Inkscape vielleicht dunkel aus. Die Knöpfe sind dieselben.</p>
+      </div>
+      <div>
+        <p>Wähle das <button class="term" data-t="objekt">Objekt</button> mit dem Auswahlwerkzeug (Pfeil oben links) aus. Drücke <kbd class="taste">Strg</kbd> + <kbd class="taste">D</kbd> – das ist <span class="menue">Bearbeiten</span> → <span class="menue">Duplizieren</span>.</p>
+        <p>Die Kopie liegt genau auf dem Original und ist ausgewählt. Ziehe sie mit gedrückter Maustaste weg. Hältst du dabei <kbd class="taste">Strg</kbd> gedrückt, bewegt sie sich nur genau senkrecht oder waagrecht.</p>
+        <p>Kopieren und Einfügen geht auch: <kbd class="taste">Strg</kbd> + <kbd class="taste">C</kbd>, dann <kbd class="taste">Strg</kbd> + <kbd class="taste">V</kbd>.</p>
+      </div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card reveal">
+      <div class="merke" style="margin:0">
+        <h4>MERKE</h4>
+        <ul>
+          <li><kbd class="taste">Strg</kbd> + <kbd class="taste">D</kbd> legt eine Kopie genau auf das Original. Du siehst sie erst, wenn du sie wegziehst.</li>
+          <li>Mit gedrückter <kbd class="taste">Strg</kbd>-Taste ziehst du genau senkrecht oder waagrecht.</li>
+          <li>Die Kopie hat zuerst dieselben <button class="term" data-t="attributwert">Attributwerte</button> wie das Original: denselben Radius, dieselbe <button class="term" data-t="fuellung">Füllung</button> – und auch dieselbe Position. Ziehst du sie weg, ändert sich nur die Position.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card reveal" id="mc-s1"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Stapeln</div><h2>Was liegt oben?</h2></div></div>
+  <div class="card reveal" id="stapel1Karte">
+    <span class="task-tag">Versuch</span>
+    <div class="v3-tim">
+      <div>
+        <p class="lead" style="margin-top:0">Tim hat seine Ampel aus Versehen kaputt gemacht: Er hat das Gehäuse angeklickt und die Taste <kbd class="taste">Pos1</kbd> gedrückt. Jetzt sieht er nur noch ein schwarzes Rechteck.</p>
+        <p>Keine Sorge – die Kreise sind nicht gelöscht, sie liegen nur darunter. Bring die Ampel in Ordnung: Wähle das richtige Objekt aus und nimm den passenden Knopf.</p>
+      </div>
+      <figure><img src="assets/inkscape/ganz-oben.png" width="240" height="200" loading="lazy" decoding="async" alt="Ausschnitt aus Inkscape: ein ausgewähltes schwarzes Rechteck mit Pfeilen ringsum. Von den Kreisen ist nichts zu sehen."><p class="hint" style="margin:4px 0 0">Bild: Inkscape, eigene Aufnahme</p></figure>
+    </div>
+    <div id="stapel1"></div>
+  </div>
+  <div class="card reveal">
+    <h3 style="margin-top:0">Objekte liegen übereinander</h3>
+    <p>Stell dir Papierschnipsel auf dem Tisch vor: Was du zuletzt hinlegst, liegt oben und verdeckt die anderen. In Inkscape ist es genauso – das zuletzt gezeichnete Objekt liegt oben. Diese Reihenfolge heißt <button class="term" data-t="stapel">Stapelreihenfolge</button>. Du änderst sie im Menü <span class="menue">Objekt</span> – oder mit denselben vier Knöpfen in der Leiste des Auswahlwerkzeugs:</p>
+    <ul class="v3-befehle">
+      <li><span class="menue">Nach ganz oben anheben</span> <kbd class="taste">Pos1</kbd><span>ganz nach oben</span></li>
+      <li><span class="menue">Anheben</span><span>eine Stufe höher</span></li>
+      <li><span class="menue">Absenken</span><span>eine Stufe tiefer</span></li>
+      <li><span class="menue">Nach ganz unten absenken</span> <kbd class="taste">Ende</kbd><span>ganz nach unten</span></li>
+    </ul>
+    <div class="merke" style="margin-bottom:0">
+      <h4>MERKE</h4>
+      <ul>
+        <li>Was zuletzt gezeichnet wurde, liegt oben.</li>
+        <li><kbd class="taste">Pos1</kbd> = nach ganz oben anheben, <kbd class="taste">Ende</kbd> = nach ganz unten absenken.</li>
+        <li>Verdeckt heißt nicht gelöscht: Das Objekt liegt nur darunter.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card reveal" id="stapel2Karte">
+    <span class="task-tag">Versuch</span>
+    <p class="lead" style="margin-top:0">Jetzt drei Papierschnipsel, die sich alle überlappen. Stapel sie so wie in der Vorlage. Schaffst du es mit zwei Klicks auf die Knöpfe?</p>
+    <div id="stapel2"></div>
+  </div>
+  <div class="card reveal" id="mc-s2"></div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Ausrichten und gruppieren</div><h2>Alles an seinen Platz – und zusammen</h2></div></div>
+  <div class="card reveal" id="ausrKarte">
+    <span class="task-tag">Versuch</span>
+    <p class="lead" style="margin-top:0">Lenas Ampel ist schief: Die Kreise stehen nicht in der Mitte des Gehäuses. Von Hand wird das nie ganz genau. Inkscape kann es <button class="term" data-t="ausrichten">ausrichten</button> – auf den Bruchteil eines Millimeters.</p>
+    <p><b>Dein Ziel:</b> Die Kreise stehen genau mittig im Gehäuse, und alle vier Teile sind eine <button class="term" data-t="gruppe">Gruppe</button>.</p>
+    <div class="sim" id="ausrSim">
+      <div class="v3-buehne"><svg class="v3-flaeche" id="ausrSvg" viewBox="0 0 360 240" role="img" aria-label="Eine Ampel aus einem schwarzen Gehäuse und drei Kreisen rot, gelb und grün. Tippe ein Teil an, um es auszuwählen."></svg></div>
+      <div class="v3-status"><span class="v3-status-l">Statusleiste:</span> <span class="v3-statustext" id="ausrStatus"></span></div>
+      <div class="v3-panel">
+        <div class="v3-zeile"><b>Auswählen</b><button type="button" class="v3-knopf" id="ausrA">Strg + A <small>alles auswählen</small></button><span class="hint">oder ein Teil antippen</span></div>
+        <div class="v3-zeile"><b>Ausrichten</b><span class="v3-rel">Relativ zu: <b id="ausrRel">Auswahlbereich</b></span>
+          <button type="button" class="v3-knopf" data-a="links"><svg class="v3-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="14" height="5" fill="#1b8a4b"/><rect x="6" y="14" width="8" height="5" fill="#1b8a4b"/><path d="M4 2v20" stroke="currentColor" stroke-width="2"/></svg>Linke Kanten ausrichten</button>
+          <button type="button" class="v3-knopf" data-a="mitte"><svg class="v3-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="5" width="14" height="5" fill="#1b8a4b"/><rect x="8" y="14" width="8" height="5" fill="#1b8a4b"/><path d="M12 2v20" stroke="currentColor" stroke-width="2"/></svg>Vertikal zentrieren</button>
+          <button type="button" class="v3-knopf" data-a="rechts"><svg class="v3-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="14" height="5" fill="#1b8a4b"/><rect x="10" y="14" width="8" height="5" fill="#1b8a4b"/><path d="M20 2v20" stroke="currentColor" stroke-width="2"/></svg>Rechte Kanten ausrichten</button>
+        </div>
+        <div class="v3-zeile"><b>Gruppe</b><button type="button" class="v3-knopf" id="ausrG">Strg + G <small>Gruppieren</small></button><button type="button" class="v3-knopf" id="ausrU">Umschalt + Strg + G <small>Gruppierung aufheben</small></button></div>
+        <div class="v3-zeile"><b>Verschieben</b><button type="button" class="v3-knopf" id="ausrL">← nach links</button><button type="button" class="v3-knopf" id="ausrR">nach rechts →</button><button type="button" class="v3-knopf" id="ausrNeu">↺ Von vorn</button></div>
+      </div>
+    </div>
+    <div class="fb" id="ausrFb"></div>
+  </div>
+  <div class="card reveal">
+    <h3 style="margin-top:0">So geht es in Inkscape</h3>
+    <div class="v3-bildtext">
+      <div>
+        <figure class="prog-bild" style="margin-top:0"><img class="zoomable" src="assets/inkscape/ausrichten.png" width="1280" height="800" loading="lazy" decoding="async" alt="Inkscape mit der fertigen Ampel. Rechts das Fenster Ausrichten und verteilen mit Relativ zu: Auswahlbereich und den Knöpfen zum Ausrichten."></figure>
+        <p class="hint">Bild: Inkscape, eigene Aufnahme</p>
+      </div>
+      <p><b>Ausrichten:</b> Wähle mit <kbd class="taste">Strg</kbd> + <kbd class="taste">A</kbd> alle Teile aus. Öffne <span class="menue">Objekt</span> → <span class="menue">Ausrichten und verteilen…</span> <span class="v3-nb">(<kbd class="taste">Umschalt</kbd> + <kbd class="taste">Strg</kbd> + <kbd class="taste">A</kbd>)</span>. Bei „Relativ zu“ steht <span class="menue">Auswahlbereich</span>. Der dritte Knopf der ersten Reihe heißt <span class="menue">Vertikal zentrieren</span>: Er stellt alle Mitten genau untereinander.</p>
+    </div>
+    <div class="v3-bildtext">
+      <div>
+        <figure class="prog-bild" style="margin-top:0"><img class="zoomable" src="assets/inkscape/gruppe.png" width="1280" height="800" loading="lazy" decoding="async" alt="Inkscape: Die Ampel ist als Ganzes ausgewählt. In der Statusleiste unten steht: Gruppe aus 4 Objekten in Ebene Ebene 1."></figure>
+        <p class="hint">Bild: Inkscape, eigene Aufnahme</p>
+      </div>
+      <p><b>Gruppieren:</b> Sind alle Teile ausgewählt, drücke <kbd class="taste">Strg</kbd> + <kbd class="taste">G</kbd> (<span class="menue">Objekt</span> → <span class="menue">Gruppieren</span>). Die <button class="term" data-t="statusleiste">Statusleiste</button> unten meldet „Gruppe aus 4 Objekten“. Jetzt ist die Ampel ein einziges Objekt. Zum Lösen: <span class="menue">Objekt</span> → <span class="menue">Gruppierung aufheben</span> <span class="v3-nb">(<kbd class="taste">Umschalt</kbd> + <kbd class="taste">Strg</kbd> + <kbd class="taste">G</kbd>)</span>.</p>
+    </div>
+    <div class="merke" style="margin-bottom:0">
+      <h4>MERKE</h4>
+      <ul>
+        <li>Erst alles auswählen, dann ausrichten.</li>
+        <li>Erst ausrichten, dann gruppieren.</li>
+        <li>Eine Gruppe verhält sich wie ein einziges Objekt: Ein Klick wählt alles aus, und beim Verschieben verrutscht nichts.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card reveal" id="mc-s3"></div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Text</div><h2>Die Ampel bekommt einen Namen</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag">Reihenfolge</span>
+    <p class="lead" style="margin-top:0">Unter die Ampel soll das Wort AMPEL. Dafür hat <button class="term" data-t="inkscape">Inkscape</button> das <b>Text-Werkzeug</b> – das Symbol „A“ in der Werkzeugleiste links. In welcher Reihenfolge gehst du vor?</p>
+    <div id="ordText"></div>
+  </div>
+  <div class="card reveal">
+    <h3 style="margin-top:0">Die Leiste des Text-Werkzeugs</h3>
+    <p>Ist das Text-Werkzeug aktiv, zeigt die Leiste oben die <button class="term" data-t="attribut">Attribute</button> des Textes:</p>
+    <figure class="v3-leiste"><svg viewBox="88 0 512 42" role="img" aria-label="Die Leiste des Text-Werkzeugs: Feld mit sans-serif, Feld mit Normal, Feld mit der Zahl 9, dahinter pt."><image href="assets/inkscape/text-leiste.png" x="0" y="0" width="1280" height="42"/></svg></figure>
+    <p class="hint">Bild: Inkscape, eigene Aufnahme (Ausschnitt)</p>
+    <ul class="v3-legende">
+      <li><b>sans-serif</b> – Schriftart</li>
+      <li><b>Normal</b> – Stil</li>
+      <li><b>9</b> – <button class="term" data-t="schriftgroesse">Schriftgröße</button> (hier trägst du 24 ein)</li>
+      <li><b>pt</b> – Einheit der Schriftgröße</li>
+    </ul>
+    <div class="v3-bildtext">
+      <div>
+        <figure class="prog-bild" style="margin-top:0"><img class="zoomable" src="assets/inkscape/text.png" width="1280" height="800" loading="lazy" decoding="async" alt="Inkscape: Unter der Ampel steht der ausgewählte Text AMPEL. In der Statusleiste steht: Text (sans-serif, 24.00 pt) in Ebene Ebene 1."></figure>
+        <p class="hint">Bild: Inkscape, eigene Aufnahme</p>
+      </div>
+      <div>
+        <p>Ein neuer Text übernimmt oft den Stil des zuletzt benutzten Objekts – zum Beispiel grün mit schwarzer <button class="term" data-t="kontur">Kontur</button>. Dann wählst du ihn mit dem Auswahlwerkzeug aus und klickst in der Palette auf Schwarz.</p>
+        <p>Die Kontur nimmst du mit <kbd class="taste">Umschalt</kbd> + Klick auf das rote X (ganz links in der Palette) weg.</p>
+        <div class="merke" style="margin:0">
+          <h4>MERKE</h4>
+          <ul>
+            <li>Auch ein Text ist ein Objekt. Seine Attribute sind zum Beispiel Schriftart, Schriftgröße und Füllfarbe.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Vorher – nachher</span>
+    <p class="lead" style="margin-top:0">So sah Lenas Text gleich nach dem Tippen aus – und so nach ihren Änderungen:</p>
+    <div class="v3-okarten">
+      <div class="v3-okarte">
+        <h4>Text1 <span>vorher</span></h4>
+        <svg viewBox="0 0 200 54" role="img" aria-label="Das Wort AMPEL, klein, grün mit schwarzem Rand"><text x="100" y="33" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#22b35e" stroke="#000" stroke-width=".7">AMPEL</text></svg>
+        <ul><li>Schriftart = sans-serif</li><li>Schriftgröße = 9 pt</li><li>Füllfarbe = grün</li><li>Konturfarbe = schwarz</li></ul>
+      </div>
+      <div class="v3-okarte">
+        <h4>Text1 <span>nachher</span></h4>
+        <svg viewBox="0 0 200 54" role="img" aria-label="Das Wort AMPEL, groß und schwarz, ohne Rand"><text x="100" y="40" text-anchor="middle" font-family="sans-serif" font-size="32" fill="#000">AMPEL</text></svg>
+        <ul><li>Schriftart = sans-serif</li><li>Schriftgröße = 24 pt</li><li>Füllfarbe = schwarz</li><li>Konturfarbe = keine</li></ul>
+      </div>
+    </div>
+    <div id="mc-s4"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Selber bauen · am PC</div><h2>Deine Ampel in Inkscape</h2></div></div>
+  <div class="reveal" id="ampel"></div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <p class="m7-hinweis">Ein zweites Bild – diesmal planst du die Schritte mehr selbst. Wichtig ist, dass alles ganz genau ausgerichtet ist.</p>
+    <div id="wuerfel"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span> <span class="ki-badge">✨ KI prüft</span>
+    <p class="m7-hinweis">Hier ist etwas schiefgegangen. Erkläre in eigenen Worten. Die KI gibt dir einen kurzen Hinweis – nicht die Lösung.</p>
+    <div class="v3-fehlerbild">
+      <svg viewBox="0 0 360 180" role="img" aria-label="Links: Tims fertige Ampel. Rechts: Das Gehäuse ist nach rechts gewandert, die drei Kreise stehen allein an der alten Stelle.">
+        <text x="90" y="22" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="700" fill="#15212b">vorher</text>
+        <rect x="70" y="34" width="40" height="104" rx="3" fill="#1f1f1f"/>
+        <circle cx="90" cy="54" r="13" fill="#f02a1d" stroke="#111"/><circle cx="90" cy="86" r="13" fill="#ffd21a" stroke="#111"/><circle cx="90" cy="118" r="13" fill="#22b35e" stroke="#111"/>
+        <path d="M180 14v152" stroke="#b9c6d2" stroke-width="2" stroke-dasharray="5 5"/>
+        <text x="270" y="22" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="700" fill="#15212b">nachher</text>
+        <rect x="282" y="34" width="40" height="104" rx="3" fill="#1f1f1f"/>
+        <circle cx="222" cy="54" r="13" fill="#f02a1d" stroke="#111"/><circle cx="222" cy="86" r="13" fill="#ffd21a" stroke="#111"/><circle cx="222" cy="118" r="13" fill="#22b35e" stroke="#111"/>
+        <path d="M238 156h70m-8-6 8 6-8 6" fill="none" stroke="#c93b3b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="272" y="174" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#8f2525">Tim zieht das Gehäuse</text>
+      </svg>
+    </div>
+    <div id="openTim"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 6 ============ -->
+<section class="station" id="s6">
+  <div class="st-head reveal"><div class="st-num">6</div><div><div class="eyebrow">Kurz sichern</div><h2>Das nimmst du mit</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag">Zuordnen</span>
+    <p class="lead">Welches Tastenkürzel macht was? Lege jede Karte zum passenden Kürzel.</p>
+    <div id="sortKurz"></div>
+  </div>
+  <div class="grid2">
+    <div class="card reveal"><span class="task-tag">Richtig oder falsch?</span><div id="tf"></div></div>
+    <div class="card reveal"><span class="task-tag">Lückentext</span><div class="gaptext" id="gap"></div></div>
+  </div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieser Einheit auf einen Blick. Mehr dazu: <button class="term" data-t="vektorgrafik">Vektorgrafik</button> und <button class="term" data-t="svg">SVG</button>.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Kopieren, stapeln, ausrichten, gruppieren, Text setzen – damit hast du alle Werkzeuge für ein eigenes Bild. In der nächsten Einheit planst und zeichnest du ein eigenes Symbol oder Logo.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="logo.html">➡️ Nächste Einheit: Eigenes Symbol oder Logo</a>
+      <a href="index.html">💻 Übersicht Informatik 7M</a>
+      <a href="../../7R/Informatik/index.html">💻 Übersicht Informatik 7R</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Informatik 7 · Einheit „Objekte kombinieren“ · Dein Fortschritt wird auf diesem Gerät gespeichert. · Inkscape ist ein freies Programm; die Bilder des Programms sind eigene Aufnahmen.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../NT/modul-basis.js"></script>
+<script src="praxis.js"></script>
+<script src="svg-datei.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, esc, register, solve} = Modul;
+const KEY = "grumi-i7-objekte-v1";
+const warte = ms => new Promise(r => setTimeout(r, ms));
+const begrenze = (v, a, b) => Math.max(a, Math.min(b, v));
+
+Modul.init({
+  key: KEY,
+  api: "/api/inf7/uebung/feedback",
+  thema: "Vektorgrafik mit Inkscape, Klasse 7: Objekte duplizieren (Strg + D) und kopieren, Stapelreihenfolge (nach ganz oben anheben mit Pos1, anheben, absenken, nach ganz unten absenken mit Ende), Objekte ausrichten (Ausrichten und verteilen, Vertikal zentrieren), gruppieren (Strg + G), Text als Objekt mit Attributen (Schriftart, Schriftgröße, Füllfarbe); aus Rechteck, Kreisen und Text eine Ampel zusammensetzen",
+  glossary: {
+    vektorgrafik: ["Vektorgrafik", "Ein Bild aus Formen wie Linien, Rechtecken und Kreisen. Gespeichert ist, wie jede Form aussieht – darum bleibt das Bild beim Vergrößern scharf."],
+    objekt: ["Objekt", "Ein einzelnes Teil einer Vektorgrafik, zum Beispiel ein Rechteck, ein Kreis oder ein Text."],
+    attribut: ["Attribut", "Eine Eigenschaft eines Objekts, zum Beispiel Breite, Radius oder Füllfarbe."],
+    attributwert: ["Attributwert", "Der Wert, den ein Attribut gerade hat, zum Beispiel 40 mm oder rot."],
+    svg: ["SVG", "Ein Dateiformat für Vektorgrafiken. Inkscape speichert seine Bilder als SVG-Datei (Endung .svg)."],
+    fuellung: ["Füllung", "Die Farbe innen in einer Form."],
+    kontur: ["Kontur", "Der Rand einer Form. Er hat eine Farbe und eine Breite."],
+    inkscape: ["Inkscape", "Ein kostenloses Programm zum Zeichnen von Vektorgrafiken."],
+    duplizieren: ["Duplizieren", "Ein Objekt verdoppeln. In Inkscape mit Strg + D: Die Kopie liegt genau auf dem Original."],
+    stapel: ["Stapelreihenfolge", "Die Reihenfolge, in der Objekte übereinanderliegen. Was zuletzt gezeichnet wurde, liegt oben und kann andere verdecken."],
+    ausrichten: ["Ausrichten", "Objekte an einer gemeinsamen Linie anordnen – zum Beispiel so, dass ihre Mitten genau untereinander stehen."],
+    gruppe: ["Gruppe", "Mehrere Objekte, die zu einem Objekt zusammengefasst sind (Strg + G). Eine Gruppe verschiebst du als Ganzes."],
+    statusleiste: ["Statusleiste", "Die Zeile unten in der Mitte des Inkscape-Fensters. Dort steht, was gerade ausgewählt ist."],
+    schriftgroesse: ["Schriftgröße", "Ein Attribut eines Textes: wie groß die Buchstaben sind. Inkscape gibt sie in pt (Punkt) an, zum Beispiel 24 pt."]
+  }
+});
+
+/* ---------- Zeichenhilfen ---------- */
+const FARBE = {rot: "#f02a1d", gelb: "#ffd21a", gruen: "#22b35e"};
+// Auswahlrahmen wie in Inkscape: gestrichelter Rahmen mit Doppelpfeilen
+function pfeil(x, y, w) {
+  return `<path d="M-6 0H6M-6 0l3-3M-6 0l3 3M6 0l-3-3M6 0l-3 3" transform="translate(${x} ${y}) rotate(${w})" stroke="#111" stroke-width="1.7" fill="none" stroke-linecap="round"/>`;
+}
+function rahmen(x1, y1, x2, y2) {
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2, d = 9;
+  return `<g pointer-events="none"><rect x="${x1}" y="${y1}" width="${x2 - x1}" height="${y2 - y1}" fill="none" stroke="#2856c7" stroke-width="1" stroke-dasharray="4 3"/>` +
+    pfeil(x1 - d, y1 - d, 45) + pfeil(mx, y1 - d, 90) + pfeil(x2 + d, y1 - d, -45) + pfeil(x1 - d, my, 0) + pfeil(x2 + d, my, 0) +
+    pfeil(x1 - d, y2 + d, -45) + pfeil(mx, y2 + d, 90) + pfeil(x2 + d, y2 + d, 45) + `</g>`;
+}
+function sternPfad(cx, cy, R, r) {
+  let d = "";
+  for (let i = 0; i < 10; i++) { const w = -Math.PI / 2 + i * Math.PI / 5, q = i % 2 ? r : R; d += (i ? "L" : "M") + (cx + q * Math.cos(w)).toFixed(1) + " " + (cy + q * Math.sin(w)).toFixed(1); }
+  return d + "Z";
+}
+const ico = d => `<svg class="v3-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const ICO = {oben: ico("M5 4h14M12 21V9M7 14l5-5 5 5"), hoch: ico("M12 20V5M7 10l5-5 5 5"), runter: ico("M12 4v15M7 14l5 5 5-5"), unten: ico("M5 20h14M12 3v12M7 10l5 5 5-5")};
+
+/* ---------- Station 1: Duplizieren ---------- */
+(function () {
+  const box = $("#duplKarte"), svg = $("#duplSvg"), fb = $("#duplFb");
+  const R = 24, X0 = 180, Y0 = 46, SCHRITT = 2 * R + 6;
+  let kreise = [], sel = 0, strg = false, zug = null;
+  register("dupl", box, "Versuch: mit Strg + D drei Kreise genau untereinander");
+  const start = () => { kreise = [{x: X0, y: Y0, f: "rot"}]; sel = 0; };
+  function zeichne() {
+    let h = `<rect x="8" y="8" width="344" height="224" rx="3" fill="#fff" stroke="#b9c6d2"/>`;
+    kreise.forEach((k, i) => { h += `<circle class="v3-k" data-i="${i}" cx="${k.x}" cy="${k.y}" r="${R}" fill="${FARBE[k.f]}" stroke="#1d1d1d" stroke-width="1.2"/>`; });
+    if (sel >= 0 && kreise[sel]) { const k = kreise[sel]; h += rahmen(k.x - R - 1, k.y - R - 1, k.x + R + 1, k.y + R + 1); }
+    svg.innerHTML = h;
+    $("#duplZahl").textContent = "Kreise auf der Seite: " + kreise.length;
+    $("#duplStatus").textContent = sel >= 0 ? "Kreis in Ebene Ebene 1." : "(nichts ausgewählt)";
+  }
+  const melde = (art, text) => { fb.className = "fb show " + art; fb.innerHTML = text; };
+  function pruefe(nachD) {
+    const n = kreise.length, abst = [];
+    kreise.forEach((a, i) => kreise.forEach((b, j) => { if (j > i) abst.push(Math.hypot(a.x - b.x, a.y - b.y)); }));
+    const verdeckt = abst.some(d => d < 3), ueber = abst.some(d => d < 2 * R - 1);
+    if (n > 3) return melde("bad", `Jetzt sind es ${n} Kreise – mindestens einer zu viel. Die Statusleiste verrät es. Tippe auf „Von vorn“.`);
+    if (nachD && verdeckt) return melde("mid", `🤔 Siehst du einen neuen Kreis? Nein! Aber die Statusleiste zählt jetzt <b>${n} Kreise</b>. Die Kopie liegt genau auf dem Original – und sie ist ausgewählt. Zieh sie nach unten.`);
+    if (verdeckt) return melde("mid", "Achtung: Ein Kreis liegt noch genau auf einem anderen – du siehst nur einen. Zieh ihn weg.");
+    if (n < 3) return melde("mid", `👍 Gut! Noch ${n === 2 ? "ein Kreis" : "zwei Kreise"}: wieder Strg + D und die Kopie wegziehen.`);
+    if (ueber) return melde("mid", "Die Kreise überdecken sich noch. Zieh sie weiter auseinander.");
+    const xs = kreise.map(k => k.x);
+    if (Math.max(...xs) - Math.min(...xs) > 2) return melde("mid", "Die Kreise stehen nicht genau untereinander. Halte beim Ziehen Strg gedrückt – dann bewegt sich der Kreis nur senkrecht.");
+    const reihe = kreise.slice().sort((a, b) => a.y - b.y).map(k => k.f).join(",");
+    if (reihe !== "rot,gelb,gruen") return melde("mid", "👍 Drei Kreise genau untereinander – super! Jetzt noch die Farben: oben rot, in der Mitte gelb, unten grün. Tippe einen Kreis an und dann eine Farbe.");
+    melde("ok", "✅ Genau so! Drei Kopien desselben Kreises: gleich groß, genau untereinander – fast schon eine Ampel.");
+    solve("dupl");
+  }
+  $("#duplD").addEventListener("click", () => {
+    if (sel < 0) return melde("mid", "Es ist kein Kreis ausgewählt. Tippe zuerst einen Kreis an.");
+    kreise.push(Object.assign({}, kreise[sel])); sel = kreise.length - 1; zeichne(); pruefe(true);
+  });
+  $("#duplRunter").addEventListener("click", () => {
+    if (sel < 0) return melde("mid", "Tippe zuerst einen Kreis an.");
+    const k = kreise[sel];
+    if (k.y + SCHRITT > 232 - R) return melde("mid", "Weiter nach unten passt der Kreis nicht auf die Seite.");
+    k.y += SCHRITT; zeichne(); pruefe(false);
+  });
+  $("#duplStrg").addEventListener("click", e => { strg = !strg; e.currentTarget.setAttribute("aria-pressed", String(strg)); });
+  $$("#duplSim .v3-farbe").forEach(b => b.addEventListener("click", () => {
+    if (sel < 0) return melde("mid", "Tippe zuerst einen Kreis an, dann die Farbe.");
+    kreise[sel].f = b.dataset.f; zeichne(); pruefe(false);
+  }));
+  $("#duplNeu").addEventListener("click", () => { start(); zeichne(); fb.className = "fb"; fb.textContent = ""; });
+  // Ziehen mit Maus oder Finger; mit Strg (Taste oder Knopf) nur senkrecht oder waagrecht
+  const punkt = e => { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); };
+  svg.addEventListener("pointerdown", e => {
+    const c = e.target.closest(".v3-k");
+    if (!c) { sel = -1; zeichne(); return; }
+    sel = +c.dataset.i; const p = punkt(e);
+    zug = {id: e.pointerId, x: p.x, y: p.y, kx: kreise[sel].x, ky: kreise[sel].y, weg: false};
+    try { svg.setPointerCapture(e.pointerId); } catch (_e) { /* egal */ }
+    e.preventDefault(); zeichne();
+  });
+  svg.addEventListener("pointermove", e => {
+    if (!zug || e.pointerId !== zug.id) return;
+    const p = punkt(e); let dx = p.x - zug.x, dy = p.y - zug.y;
+    if (strg || e.ctrlKey) { if (Math.abs(dx) > Math.abs(dy)) dy = 0; else dx = 0; }
+    if (Math.abs(dx) + Math.abs(dy) > 1) zug.weg = true;
+    const k = kreise[sel];
+    k.x = Math.round(begrenze(zug.kx + dx, 8 + R, 352 - R)); k.y = Math.round(begrenze(zug.ky + dy, 8 + R, 232 - R));
+    zeichne();
+  });
+  const los = e => { if (!zug || e.pointerId !== zug.id) return; const weg = zug.weg; zug = null; if (weg) pruefe(false); };
+  svg.addEventListener("pointerup", los); svg.addEventListener("pointercancel", los);
+  if (Modul.isSolved("dupl")) {
+    kreise = [{x: X0, y: Y0, f: "rot"}, {x: X0, y: Y0 + SCHRITT, f: "gelb"}, {x: X0, y: Y0 + 2 * SCHRITT, f: "gruen"}]; sel = -1;
+    zeichne(); melde("ok", "✅ Diesen Versuch hast du schon geschafft. Mit „Von vorn“ kannst du ihn wiederholen.");
+  } else { start(); zeichne(); }
+  Modul.loeser.dupl = async () => {
+    if (Modul.isSolved("dupl")) return;
+    $("#duplNeu").click(); $("#duplD").click(); $("#duplRunter").click(); $('#duplSim .v3-farbe[data-f="gelb"]').click();
+    $("#duplD").click(); $("#duplRunter").click(); $('#duplSim .v3-farbe[data-f="gruen"]').click();
+    await warte(20);
+  };
+})();
+
+Modul.makeMC($("#mc-s1"), [
+  {q: "Du drückst Strg + D. Warum siehst du keinen zweiten Kreis?",
+   o: ["Die Kopie liegt genau auf dem Original.", "Strg + D hat nicht geklappt.", "Die Kopie erscheint erst nach dem Speichern.", "Die Kopie liegt auf einer anderen Seite."], a: 0,
+   e: "Die Kopie liegt deckungsgleich auf dem Original und ist ausgewählt. Ziehst du sie weg, siehst du beide."},
+  {q: "Kreis1 hat die Attributwerte Radius = 10 mm und Füllfarbe = rot. Du duplizierst ihn. Welche Attributwerte hat die Kopie?",
+   o: ["Radius = 10 mm, Füllfarbe = rot", "Radius = 5 mm, Füllfarbe = rot", "Radius = 10 mm, Füllfarbe = keine", "Radius = 20 mm, Füllfarbe = rot"], a: 0,
+   e: "Die Kopie hat zuerst dieselben Attributwerte wie das Original – sogar dieselbe Position. Ziehst du sie weg, ändert sich nur die Position. Danach kannst du zum Beispiel die Füllfarbe ändern."}
+], "mc1", {t: "Kurz-Check"});
+
+/* ---------- Station 2: Stapelreihenfolge ---------- */
+// cfg: {name, vb, alt, objekte: {key: {name, wer, farbe, svg, box: [x1, y1, x2, y2]}}, start/ziel: Schlüssel von unten nach oben,
+//       passt(reihe) (Standard: genau wie ziel), loesung: [[key, aktion]], fertig}
+function makeStapel(box, cfg, id) {
+  register(id, box.closest(".card") || box, cfg.name);
+  const O = cfg.objekte, passt = cfg.passt || (r => r.join() === cfg.ziel.join());
+  let reihe = cfg.start.slice(), sel = null;
+  const bild = (r, auswahl) => r.map(k => `<g class="v3-o" data-o="${k}">${O[k].svg}</g>`).join("") + (auswahl && sel ? rahmen(...O[sel].box) : "");
+  box.innerHTML = `<div class="sim v3-stapelsim" tabindex="-1">
+    <div class="v3-stapel">
+      <figure class="v3-vorlage"><figcaption>Vorlage</figcaption><svg viewBox="${cfg.vb}" role="img" aria-label="${esc(cfg.alt)}">${bild(cfg.ziel, false)}</svg></figure>
+      <figure class="v3-arbeit"><figcaption>Deine Zeichnung – tippe ein Objekt an</figcaption><svg class="v3-arbeit-svg" viewBox="${cfg.vb}" tabindex="0" role="img" aria-label="Deine Zeichnung. Tippe ein Objekt an, um es auszuwählen."></svg></figure>
+      <div class="v3-liste"><b>Stapel</b><span class="hint">▲ oben</span><ol></ol><span class="hint">▼ unten</span></div>
+    </div>
+    <div class="sim-ctrl v3-ordnen">
+      <button type="button" data-a="oben">${ICO.oben}Nach ganz oben anheben <kbd class="taste">Pos1</kbd></button>
+      <button type="button" data-a="hoch">${ICO.hoch}Anheben</button>
+      <button type="button" data-a="runter">${ICO.runter}Absenken</button>
+      <button type="button" data-a="unten">${ICO.unten}Nach ganz unten absenken <kbd class="taste">Ende</kbd></button>
+    </div>
+  </div><div class="fb"></div>`;
+  const arbeit = $(".v3-arbeit-svg", box), liste = $(".v3-liste ol", box), fb = box.querySelector(":scope > .fb"), simEl = $(".v3-stapelsim", box);
+  const melde = (art, text) => { fb.className = "fb show " + art; fb.textContent = text; };
+  function zeichne() {
+    arbeit.innerHTML = bild(reihe, true);
+    liste.innerHTML = reihe.slice().reverse().map(k => `<li><button type="button" class="v3-obj${k === sel ? " sel" : ""}" data-o="${k}" aria-pressed="${k === sel}"><span class="v3-fleck" style="background:${O[k].farbe}"></span>${esc(O[k].name)}</button></li>`).join("");
+  }
+  function tu(a) {
+    if (!sel) return melde("mid", "Wähle zuerst ein Objekt aus: Tippe es in der Zeichnung oder in der Liste an.");
+    const i = reihe.indexOf(sel), n = reihe.length;
+    const j = a === "oben" ? n - 1 : a === "unten" ? 0 : a === "hoch" ? Math.min(n - 1, i + 1) : Math.max(0, i - 1);
+    if (j === i) return melde("mid", `${O[sel].wer} liegt schon ganz ${j === 0 ? "unten" : "oben"}.`);
+    reihe.splice(i, 1); reihe.splice(j, 0, sel); zeichne();
+    if (passt(reihe)) { melde("ok", cfg.fertig); solve(id); return; }
+    melde("mid", `${O[sel].wer} liegt jetzt ${j === n - 1 ? "ganz oben" : j === 0 ? "ganz unten" : "eine Stufe " + (j > i ? "höher" : "tiefer")}. Vergleiche mit der Vorlage.`);
+  }
+  arbeit.addEventListener("click", e => { const g = e.target.closest("[data-o]"); sel = g ? g.dataset.o : null; zeichne(); });
+  arbeit.addEventListener("pointerdown", () => { try { arbeit.focus({preventScroll: true}); } catch (_e) { /* egal */ } });
+  // Safari setzt beim Klick auf einen Knopf keinen Fokus: dann den Versuch selbst fokussieren, damit Pos1 und Ende hier ankommen
+  simEl.addEventListener("pointerdown", () => { if (!simEl.contains(document.activeElement)) { try { simEl.focus({preventScroll: true}); } catch (_e) { /* egal */ } } });
+  liste.addEventListener("click", e => { const b = e.target.closest(".v3-obj"); if (b) { sel = b.dataset.o; zeichne(); const neu = $(`.v3-obj[data-o="${sel}"]`, liste); if (neu) neu.focus(); } });
+  $$(".v3-ordnen button", box).forEach(b => b.addEventListener("click", () => tu(b.dataset.a)));
+  box.addEventListener("keydown", e => { if (e.key === "Home" || e.key === "End") { e.preventDefault(); tu(e.key === "Home" ? "oben" : "unten"); } });
+  if (Modul.isSolved(id)) { reihe = cfg.ziel.slice(); melde("ok", "✅ Diesen Versuch hast du schon geschafft."); }
+  zeichne();
+  Modul.loeser[id] = async () => {
+    if (Modul.isSolved(id)) return;
+    for (const [k, a] of cfg.loesung) { $(`.v3-obj[data-o="${k}"]`, box).click(); $(`.v3-ordnen [data-a="${a}"]`, box).click(); await warte(5); }
+  };
+}
+
+const kreisSvg = (cy, f) => `<circle cx="100" cy="${cy}" r="21" fill="${FARBE[f]}" stroke="#111" stroke-width="1"/>`;
+makeStapel($("#stapel1"), {
+  name: "Versuch: Tims Ampel – das Gehäuse nach ganz unten",
+  vb: "0 0 200 200", alt: "Vorlage: Ampel mit schwarzem Gehäuse, darüber drei Kreise rot, gelb und grün.",
+  objekte: {
+    gehaeuse: {name: "Gehäuse", wer: "Das Gehäuse", farbe: "#1f1f1f", svg: `<rect x="70" y="20" width="60" height="160" rx="3" fill="#1f1f1f" stroke="#000" stroke-width="1"/>`, box: [68, 18, 132, 182]},
+    rot: {name: "Kreis rot", wer: "Der rote Kreis", farbe: FARBE.rot, svg: kreisSvg(56, "rot"), box: [78, 34, 122, 78]},
+    gelb: {name: "Kreis gelb", wer: "Der gelbe Kreis", farbe: FARBE.gelb, svg: kreisSvg(100, "gelb"), box: [78, 78, 122, 122]},
+    gruen: {name: "Kreis grün", wer: "Der grüne Kreis", farbe: FARBE.gruen, svg: kreisSvg(144, "gruen"), box: [78, 122, 122, 166]}
+  },
+  start: ["rot", "gelb", "gruen", "gehaeuse"], ziel: ["gehaeuse", "rot", "gelb", "gruen"],
+  passt: r => r[0] === "gehaeuse",
+  loesung: [["gehaeuse", "unten"]],
+  fertig: "✅ Die Ampel ist wieder da! Das Gehäuse liegt ganz unten, die Kreise darüber. Am schnellsten geht es mit der Taste Ende: nach ganz unten absenken."
+}, "stapel1");
+
+makeStapel($("#stapel2"), {
+  name: "Versuch: drei Formen stapeln wie in der Vorlage",
+  vb: "0 0 240 200", alt: "Vorlage: Der Stern liegt ganz oben, darunter der Kreis, ganz unten das Rechteck.",
+  objekte: {
+    rechteck: {name: "Rechteck", wer: "Das Rechteck", farbe: "#3b82f6", svg: `<rect x="28" y="22" width="122" height="90" fill="#3b82f6" stroke="#1e3a8a" stroke-width="1.5"/>`, box: [26, 20, 152, 114]},
+    kreis: {name: "Kreis", wer: "Der Kreis", farbe: "#facc15", svg: `<circle cx="152" cy="110" r="52" fill="#facc15" stroke="#854d0e" stroke-width="1.5"/>`, box: [98, 56, 206, 164]},
+    stern: {name: "Stern", wer: "Der Stern", farbe: "#ef4444", svg: `<path d="${sternPfad(92, 132, 56, 24)}" fill="#ef4444" stroke="#7f1d1d" stroke-width="1.5" stroke-linejoin="round"/>`, box: [36, 74, 148, 180]}
+  },
+  start: ["stern", "kreis", "rechteck"], ziel: ["rechteck", "kreis", "stern"],
+  loesung: [["rechteck", "unten"], ["stern", "oben"]],
+  fertig: "✅ Genau wie die Vorlage! Du hast nur die Stapelreihenfolge geändert – Größe, Farbe und Position der Formen sind gleich geblieben."
+}, "stapel2");
+
+Modul.makeMC($("#mc-s2"), [
+  {q: "Du zeichnest zuerst ein blaues Rechteck und danach einen gelben Kreis, der halb darauf liegt. Was siehst du?",
+   o: ["Der Kreis liegt über dem Rechteck.", "Das Rechteck liegt über dem Kreis.", "Beide werden durchsichtig.", "Der Kreis verschwindet."], a: 0,
+   e: "Was zuletzt gezeichnet wurde, liegt oben – wie das letzte Papierschnipsel auf dem Stapel."},
+  {q: "Drei Formen liegen übereinander. Der Stern liegt ganz unten. Du wählst ihn aus und klickst einmal auf „Anheben“. Wo liegt er jetzt?",
+   o: ["In der Mitte", "Ganz oben", "Immer noch ganz unten", "Er ist verschwunden."], a: 0,
+   e: "„Anheben“ bewegt ein Objekt nur eine Stufe nach oben. Ganz nach oben kommt es mit „Nach ganz oben anheben“ (Pos1)."}
+], "mc2", {t: "Kurz-Check"});
+
+/* ---------- Station 3: Ausrichten und gruppieren ---------- */
+(function () {
+  const box = $("#ausrKarte"), svg = $("#ausrSvg"), fb = $("#ausrFb");
+  const R = 22, KREISE = ["rot", "gelb", "gruen"], ALLE = ["gehaeuse"].concat(KREISE), Y = {rot: 72, gelb: 120, gruen: 168}, SEITE = {l: 8, r: 352};
+  let o, gruppe, sel;
+  register("ausr", box, "Versuch: Ampel ausrichten (Vertikal zentrieren) und gruppieren");
+  function start() { o = {gehaeuse: {x: 150, w: 60}, rot: {x: 160 - R, w: 2 * R}, gelb: {x: 214 - R, w: 2 * R}, gruen: {x: 190 - R, w: 2 * R}}; gruppe = false; sel = []; }
+  const glieder = it => it === "gruppe" ? ALLE : [it];
+  const yb = k => k === "gehaeuse" ? [30, 210] : [Y[k] - R, Y[k] + R];
+  const kasten = its => { const g = [].concat(...its.map(glieder));
+    return [Math.min(...g.map(k => o[k].x)), Math.min(...g.map(k => yb(k)[0])), Math.max(...g.map(k => o[k].x + o[k].w)), Math.max(...g.map(k => yb(k)[1]))]; };
+  const mitte = k => o[k].x + o[k].w / 2;
+  const zentriert = () => KREISE.every(k => Math.abs(mitte(k) - mitte("gehaeuse")) < 0.5);
+  const melde = (art, text) => { fb.className = "fb show " + art; fb.textContent = text; };
+  function zeichne() {
+    let h = `<rect x="8" y="8" width="344" height="224" rx="3" fill="#fff" stroke="#b9c6d2"/>`;
+    h += `<rect class="v3-o" data-o="gehaeuse" x="${o.gehaeuse.x}" y="30" width="60" height="180" rx="3" fill="#1f1f1f"/>`;
+    KREISE.forEach(k => { h += `<circle class="v3-o" data-o="${k}" cx="${mitte(k)}" cy="${Y[k]}" r="${R}" fill="${FARBE[k]}" stroke="#111" stroke-width="1"/>`; });
+    if (sel.length > 1) sel.forEach(it => { const [x1, y1, x2, y2] = kasten([it]); h += `<rect x="${x1 - 1}" y="${y1 - 1}" width="${x2 - x1 + 2}" height="${y2 - y1 + 2}" fill="none" stroke="#2856c7" stroke-width="1" stroke-dasharray="3 3" pointer-events="none"/>`; });
+    if (sel.length) { const [x1, y1, x2, y2] = kasten(sel); h += rahmen(x1 - 2, y1 - 2, x2 + 2, y2 + 2); }
+    svg.innerHTML = h;
+    $("#ausrStatus").textContent = !sel.length ? "(nichts ausgewählt)" : sel[0] === "gruppe" ? "Gruppe aus 4 Objekten in Ebene Ebene 1." : sel.length > 1 ? "4 Objekte der Typen Kreis, Rechteck ausgewählt in Ebene Ebene 1." : (sel[0] === "gehaeuse" ? "Rechteck" : "Kreis") + " in Ebene Ebene 1.";
+    $("#ausrRel").textContent = sel.length === 1 ? "Seite" : "Auswahlbereich";
+  }
+  function pruefe() {
+    if (zentriert() && gruppe) { melde("ok", "✅ Ausgerichtet und gruppiert! Die Statusleiste meldet „Gruppe aus 4 Objekten“. Probiere es: Tippe die Ampel an und schiebe sie – alles bleibt zusammen."); solve("ausr"); return; }
+    if (zentriert()) return melde("mid", "👍 Die Mitten stehen genau untereinander. Jetzt fasse die vier Teile zu einer Gruppe zusammen: Strg + G.");
+    if (gruppe) return melde("mid", "Die vier Teile sind jetzt eine Gruppe – aber die Kreise stehen noch schief. Löse die Gruppe (Umschalt + Strg + G), richte erst aus und gruppiere danach.");
+  }
+  function richte(a) {
+    if (!sel.length) return melde("mid", "Es ist nichts ausgewählt. Wähle zuerst alle vier Teile aus: Strg + A.");
+    const seite = sel.length === 1, ref = seite ? SEITE : (([l, , r]) => ({l, r}))(kasten(sel));
+    sel.forEach(it => { const [l, , r] = kasten([it]); const dx = a === "links" ? ref.l - l : a === "rechts" ? ref.r - r : (ref.l + ref.r) / 2 - (l + r) / 2; glieder(it).forEach(k => { o[k].x += dx; }); });
+    zeichne();
+    if (seite) return melde("mid", sel[0] === "gruppe"
+      ? "Die Gruppe ist ein einziges Objekt. Darum ist „Relativ zu“ auf „Seite“ gesprungen: Die ganze Ampel wurde an der Seite ausgerichtet – die Kreise darin haben sich nicht bewegt. Musst du noch ausrichten, löse zuerst die Gruppe (Umschalt + Strg + G)."
+      : "Nur ein Objekt ist ausgewählt. Darum ist „Relativ zu“ auf „Seite“ gesprungen, und es wurde an der Seite ausgerichtet. Für die Ampel brauchst du alle vier Teile: Strg + A.");
+    if (a !== "mitte") return melde("mid", `Jetzt stehen alle ${a === "links" ? "linken" : "rechten"} Ränder auf einer Linie. Die Kreise sind aber schmaler als das Gehäuse – sie kleben am ${a === "links" ? "linken" : "rechten"} Rand. Probiere einen anderen Knopf.`);
+    pruefe();
+  }
+  function schiebe(d) {
+    if (!sel.length) return melde("mid", "Wähle zuerst etwas aus: Tippe ein Teil an oder drücke Strg + A.");
+    const [l, , r] = kasten(sel), dx = begrenze(d, SEITE.l - l, SEITE.r - r);
+    if (!dx) return melde("mid", "Weiter geht es nicht – dort ist der Rand der Seite.");
+    sel.forEach(it => glieder(it).forEach(k => { o[k].x += dx; })); zeichne();
+    if (gruppe) return zentriert() ? (melde("ok", "✅ Die ganze Ampel wandert mit – nichts verrutscht. Genau dafür gruppierst du."), solve("ausr")) : melde("mid", "Die Gruppe wandert als Ganzes – aber die Kreise stehen darin noch schief.");
+    if (sel.length === 1) return melde("bad", sel[0] === "gehaeuse" ? "Hoppla! Nur das Gehäuse ist gewandert – die Kreise sind eigene Objekte und bleiben stehen. Mit einer Gruppe wäre das nicht passiert." : "Nur dieser Kreis ist gewandert. Die anderen Teile bleiben stehen, weil sie eigene Objekte sind.");
+    melde("mid", "Alle ausgewählten Teile wandern mit. Klickst du später aber nur ein Teil an, wandert nur dieses – darum gruppierst du.");
+  }
+  $("#ausrA").addEventListener("click", () => { sel = gruppe ? ["gruppe"] : ALLE.slice(); zeichne(); fb.className = "fb"; });
+  $$("#ausrSim [data-a]").forEach(b => b.addEventListener("click", () => richte(b.dataset.a)));
+  $("#ausrG").addEventListener("click", () => {
+    if (gruppe) return melde("mid", "Die Ampel ist schon eine Gruppe.");
+    if (sel.length < 2) return melde("mid", "Zum Gruppieren müssen mehrere Objekte ausgewählt sein. Drücke zuerst Strg + A.");
+    gruppe = true; sel = ["gruppe"]; zeichne(); pruefe();
+  });
+  $("#ausrU").addEventListener("click", () => {
+    if (!gruppe) return melde("mid", "Hier gibt es keine Gruppe, die du aufheben kannst.");
+    if (!sel.length) return melde("mid", "Wähle die Gruppe zuerst aus: Tippe die Ampel an.");
+    gruppe = false; sel = ALLE.slice(); zeichne(); melde("mid", "Die Gruppe ist aufgelöst. Die vier Teile sind wieder einzelne Objekte – und noch alle ausgewählt.");
+  });
+  $("#ausrL").addEventListener("click", () => schiebe(-24));
+  $("#ausrR").addEventListener("click", () => schiebe(24));
+  $("#ausrNeu").addEventListener("click", () => { start(); zeichne(); fb.className = "fb"; fb.textContent = ""; });
+  svg.addEventListener("click", e => { const t = e.target.closest("[data-o]"); sel = !t ? [] : gruppe ? ["gruppe"] : [t.dataset.o]; zeichne(); });
+  start();
+  if (Modul.isSolved("ausr")) { KREISE.forEach(k => { o[k].x = mitte("gehaeuse") - R; }); gruppe = true; melde("ok", "✅ Diesen Versuch hast du schon geschafft. Mit „Von vorn“ kannst du ihn wiederholen."); }
+  zeichne();
+  Modul.loeser.ausr = async () => {
+    if (Modul.isSolved("ausr")) return;
+    $("#ausrNeu").click(); $("#ausrA").click(); $('#ausrSim [data-a="mitte"]').click(); $("#ausrG").click();
+    await warte(10);
+  };
+})();
+
+Modul.makeMC($("#mc-s3"), [
+  {q: "Warum gruppierst du die fertige Ampel?",
+   o: ["Damit sie beim Verschieben zusammenbleibt.", "Damit die Farben kräftiger leuchten.", "Weil man sie sonst nicht speichern kann.", "Damit sie beim Vergrößern scharf bleibt."], a: 0,
+   e: "Eine Gruppe verhält sich wie ein einziges Objekt. Ein Klick wählt alles aus, und beim Verschieben bleibt alles an seinem Platz."},
+  {q: "Die Kreise der Ampel stehen schief. Du klickst auf „Vertikal zentrieren“. Welches Attribut bekommt einen neuen Wert?",
+   o: ["die Position", "der Radius", "die Füllfarbe", "die Konturbreite"], a: 0,
+   e: "Die Kreise werden nur verschoben. Radius und Farbe bleiben gleich – geändert wird nur ihre Position."}
+], "mc3", {t: "Kurz-Check"});
+
+/* ---------- Station 4: Text ---------- */
+Modul.makeOrder($("#ordText"), [
+  "Text-Werkzeug („A“) in der Werkzeugleiste links wählen",
+  "Unter die Ampel in die Seite klicken",
+  "AMPEL tippen",
+  "Strg + A drücken: Der ganze Text ist markiert",
+  "Bei der Schriftgröße 24 eintragen und die Eingabetaste drücken",
+  "Esc drücken – der Text ist fertig"
+], "ordText");
+
+Modul.makeMC($("#mc-s4"), [
+  {q: "Vergleiche die beiden Objektkarten von Text1. Welche Attribute haben einen neuen Wert bekommen?",
+   o: ["Schriftgröße", "Füllfarbe", "Konturfarbe", "Schriftart"], a: [0, 1, 2],
+   e: "Schriftgröße (9 pt → 24 pt), Füllfarbe (grün → schwarz) und Konturfarbe (schwarz → keine) haben sich geändert. Die Schriftart ist sans-serif geblieben."},
+  {q: "Dein Text hat eine schwarze Kontur und sieht verschmiert aus. Wie wird er sauber?",
+   o: ["Text auswählen, Umschalt + Klick auf das rote X", "Text auswählen, einfacher Klick auf das rote X", "Text auswählen und Strg + D drücken", "Text auswählen und Strg + G drücken"], a: 0,
+   e: "Umschalt + Klick in der Palette ändert die Kontur. Das rote X heißt „keine Farbe“ – also keine Kontur. Ein einfacher Klick auf das X würde die Füllung entfernen, und nur der Rand der Buchstaben bliebe übrig."}
+], "mc4", {t: "Kurz-Check"});
+
+/* ---------- Station 5: Prüfung der gespeicherten Dateien ---------- */
+const zahl = x => String(Math.round(x * 10) / 10).replace(".", ",");
+const naechstes = (liste, b, h) => liste.slice().sort((p, q) => (Math.abs(p.breite - b) + Math.abs(p.hoehe - h)) - (Math.abs(q.breite - b) + Math.abs(q.hoehe - h)))[0];
+const kreiseIn = info => info.objekte.filter(x => x.art === "kreis" || x.art === "ellipse");
+const radiusText = k => Math.abs(k.rx - k.ry) < 0.05 ? zahl(k.rx) + " mm" : "Rx " + zahl(k.rx) + " mm, Ry " + zahl(k.ry) + " mm";
+const farbText = f => f === "keine" ? "keine Füllfarbe" : f || "eine andere Farbe";
+
+function pruefeAmpel(info) {
+  const r = naechstes(info.mit("rechteck"), 30, 70), kreise = kreiseIn(info);
+  const texte = info.mit("text").filter(t => t.text), t = texte.find(x => /ampel/i.test(x.text)) || texte[0];
+  const p = [];
+  if (!r) p.push({ok: false, text: "Es fehlt das Gehäuse: ein Rechteck, 30 mm breit und 70 mm hoch."});
+  else {
+    const gross = Math.abs(r.breite - 30) <= 0.6 && Math.abs(r.hoehe - 70) <= 0.6;
+    p.push({ok: gross, text: gross ? "Das Gehäuse ist 30 mm breit und 70 mm hoch." : `Das Gehäuse soll 30 mm breit und 70 mm hoch sein. Gefunden: ${zahl(r.breite)} mm breit, ${zahl(r.hoehe)} mm hoch.`});
+    const dunkel = r.farbe === "schwarz" || r.farbe === "grau";
+    p.push({ok: dunkel, text: dunkel ? `Das Gehäuse ist ${r.farbe}.` : `Das Gehäuse soll schwarz oder dunkelgrau sein. Gefunden: ${farbText(r.farbe)}.`});
+  }
+  const drei = kreise.length === 3, farben = ["rot", "gelb", "grün"].every(f => kreise.some(k => k.farbe === f));
+  p.push({ok: drei && farben, text: drei && farben ? "Drei Kreise: rot, gelb und grün."
+    : kreise.length > 3 ? `Es sollen genau drei Kreise sein. Gefunden: ${kreise.length}. Vielleicht liegt eine Kopie unsichtbar genau auf einem anderen Kreis.`
+    : !drei ? `Es sollen drei Kreise sein (rot, gelb, grün). Gefunden: ${kreise.length}.`
+    : `Die drei Kreise sollen rot, gelb und grün sein. Gefunden: ${kreise.map(k => farbText(k.farbe)).join(", ")}.`});
+  if (kreise.length) {
+    const falsch = kreise.find(k => Math.abs(k.rx - 10) > 0.6 || Math.abs(k.ry - 10) > 0.6);
+    p.push({ok: !falsch, text: !falsch ? "Alle Kreise haben den Radius 10 mm." : `Jeder Kreis soll den Radius 10 mm haben (Rx = Ry = 10). Gefunden: ${radiusText(falsch)}.`});
+  }
+  const gr = r && kreise.length ? info.gruppen.find(g => g.objekte.includes(r.nr) && kreise.every(k => g.objekte.includes(k.nr))) : null;
+  p.push({ok: !!gr, text: gr ? "Gehäuse und Kreise bilden eine Gruppe."
+    : info.gruppen.length ? "Es gibt eine Gruppe – aber nicht alle Teile der Ampel sind darin. Gehäuse und alle Kreise gehören in eine Gruppe."
+    : "Gehäuse und Kreise sollen eine Gruppe sein (Strg + G). Gefunden: keine Gruppe."});
+  if (r && kreise.length) {
+    // ganz im Gehäuse: Rahmen des Kreises innerhalb des Gehäuse-Rahmens (1 mm Spielraum), nicht nur die Mitte
+    const ganz = k => info.liegtIn(k, r) && k.box && k.box[0] >= r.box[0] - 1 && k.box[1] >= r.box[1] - 1 && k.box[2] <= r.box[2] + 1 && k.box[3] <= r.box[3] + 1;
+    const drin = kreise.every(ganz), mittig = kreise.every(k => Math.abs(k.mitte[0] - r.mitte[0]) <= 0.6);
+    p.push({ok: drin && mittig, text: drin && mittig ? "Die Kreise stehen genau mittig untereinander und ganz im Gehäuse."
+      : !mittig ? "Die Kreise stehen noch nicht genau in der Mitte des Gehäuses. Wähle alles aus (Strg + A) und klicke auf „Vertikal zentrieren“."
+      : "Ein Kreis ragt oben oder unten aus dem Gehäuse heraus. Hebe die Gruppierung auf, schiebe die Kreise mit gedrückter Strg-Taste ganz ins Gehäuse und gruppiere wieder."});
+    const oben = kreise.every(k => info.ueber(k, r));
+    p.push({ok: oben, text: oben ? "Die Kreise liegen über dem Gehäuse – man sieht sie."
+      : "Das Gehäuse liegt über Kreisen und verdeckt sie. Klicke das Gehäuse an und drücke Ende (nach ganz unten absenken). Ist die Ampel schon gruppiert, hebe die Gruppierung vorher auf."});
+  }
+  if (!t) p.push({ok: false, text: "Es fehlt noch der Text „AMPEL“ unter der Ampel."});
+  else {
+    const unter = !r || t.mitte[1] > r.box[3], groesse = Math.abs(t.schrift - 24) <= 0.5;
+    p.push({ok: unter && groesse, text: !unter ? "Der Text soll unter dem Gehäuse stehen." : groesse ? "Unter der Ampel steht ein Text in 24 pt." : `Der Text soll 24 pt groß sein. Gefunden: ${zahl(t.schrift)} pt.`});
+  }
+  return p;
+}
+
+function pruefeWuerfel(info) {
+  const q = naechstes(info.mit("rechteck"), 40, 40), punkte = kreiseIn(info);
+  const p = [];
+  if (!q) p.push({ok: false, text: "Es fehlt das Quadrat: ein Rechteck, 40 mm breit und 40 mm hoch."});
+  else {
+    const gross = Math.abs(q.breite - 40) <= 0.6 && Math.abs(q.hoehe - 40) <= 0.6, weiss = q.farbe === "weiß", rand = q.kontur !== "keine";
+    p.push({ok: gross && weiss && rand, text: gross && weiss && rand ? "Das Quadrat ist 40 mm × 40 mm groß, weiß und hat eine Kontur."
+      : !gross ? `Das Quadrat soll 40 mm breit und 40 mm hoch sein. Gefunden: ${zahl(q.breite)} mm × ${zahl(q.hoehe)} mm.`
+      : !weiss ? `Das Quadrat soll weiß sein. Gefunden: ${farbText(q.farbe)}.` : "Das Quadrat braucht eine Kontur: Umschalt + Klick auf Schwarz."});
+  }
+  const fuenf = punkte.length === 5, schwarz = punkte.length > 0 && punkte.every(k => k.farbe === "schwarz");
+  p.push({ok: fuenf && schwarz, text: fuenf && schwarz ? "Fünf schwarze Punkte."
+    : !fuenf ? `Es sollen genau fünf Punkte sein. Gefunden: ${punkte.length}.` + (punkte.length > 5 ? " Liegt eine Kopie unsichtbar auf einem anderen Punkt – oder ist die Ampel noch auf der Seite?" : "")
+    : `Alle Punkte sollen schwarz sein. Gefunden: ${punkte.map(k => farbText(k.farbe)).join(", ")}.`});
+  if (punkte.length) {
+    const falsch = punkte.find(k => Math.abs(k.rx - 4) > 0.6 || Math.abs(k.ry - 4) > 0.6);
+    p.push({ok: !falsch, text: !falsch ? "Alle Punkte haben den Radius 4 mm." : `Jeder Punkt soll den Radius 4 mm haben (Rx = Ry = 4). Gefunden: ${radiusText(falsch)}.`});
+  }
+  if (q && punkte.length) {
+    const drauf = punkte.every(k => info.liegtIn(k, q) && info.ueber(k, q));
+    p.push({ok: drauf, text: drauf ? "Alle Punkte liegen auf dem Quadrat – und darüber." : "Alle Punkte sollen auf dem Quadrat liegen – und darüber, nicht verdeckt."});
+    const [mx, my] = q.mitte, mitte = punkte.find(k => Math.abs(k.mitte[0] - mx) <= 0.6 && Math.abs(k.mitte[1] - my) <= 0.6);
+    p.push({ok: !!mitte, text: mitte ? "Ein Punkt sitzt genau in der Mitte." : "Ein Punkt soll genau in der Mitte des Quadrats sitzen. Nutze „Vertikal zentrieren“ und „Horizontal zentrieren“."});
+    const ecken = punkte.filter(k => k !== mitte);
+    let sauber = false;
+    if (mitte && ecken.length === 4) {
+      const nachY = ecken.slice().sort((a, b) => a.mitte[1] - b.mitte[1]);
+      const ob = nachY.slice(0, 2).sort((a, b) => a.mitte[0] - b.mitte[0]), un = nachY.slice(2).sort((a, b) => a.mitte[0] - b.mitte[0]);
+      const gl = (a, b) => Math.abs(a - b) <= 0.6;
+      sauber = gl(ob[0].mitte[1], ob[1].mitte[1]) && gl(un[0].mitte[1], un[1].mitte[1]) && gl(ob[0].mitte[0], un[0].mitte[0]) && gl(ob[1].mitte[0], un[1].mitte[0])
+        && ob[1].mitte[0] - ob[0].mitte[0] > 8 && un[0].mitte[1] - ob[0].mitte[1] > 8
+        && Math.abs((ob[0].mitte[0] + ob[1].mitte[0]) / 2 - mx) <= 1 && Math.abs((ob[0].mitte[1] + un[0].mitte[1]) / 2 - my) <= 1;
+    }
+    p.push({ok: sauber, text: sauber ? "Die vier Eckpunkte stehen genau ausgerichtet um die Mitte – wie auf einem Würfel."
+      : "Die vier Eckpunkte sollen ein genaues Quadrat um die Mitte bilden: je zwei genau untereinander und je zwei genau nebeneinander."});
+  }
+  const gr = q && punkte.length ? info.gruppen.find(g => g.objekte.includes(q.nr) && punkte.every(k => g.objekte.includes(k.nr))) : null;
+  p.push({ok: !!gr, text: gr ? "Quadrat und Punkte bilden eine Gruppe." : "Quadrat und alle Punkte sollen zusammen eine Gruppe sein (Strg + A, Strg + G)."});
+  return p;
+}
+
+/* ---------- Station 5: Auftrag Ampel ---------- */
+Modul.makeAuftrag($("#ampel"), {
+  titel: "Eine Ampel bauen", pc: "Inkscape", zeit: "etwa 15 Minuten",
+  ziel: "Eine Ampel aus einem Rechteck und drei Kreisen: genau untereinander, die Kreise über dem Gehäuse, alles gruppiert. Darunter steht „AMPEL“. Gespeichert als <b>ampel.svg</b>.",
+  schritte: [
+    `Öffne <b>Inkscape</b>. Erscheint das Startfenster, klicke auf <span class="menue">Neues Dokument</span>.`,
+    `<b>Gehäuse:</b> Wähle links das Rechteck-Werkzeug und ziehe auf der Seite ein Rechteck auf. Trage oben in der Leiste bei <span class="menue">B</span> <b>30</b> und bei <span class="menue">H</span> <b>70</b> ein – jeweils mit der Eingabetaste. Klicke unten in der Palette auf <b>Schwarz</b> oder ein dunkles Grau.`,
+    `<b>Erster Kreis:</b> Wähle das Kreis-Werkzeug und ziehe mit gedrückter <kbd>Strg</kbd>-Taste einen Kreis auf – rechts neben dem Gehäuse, knapp unter seinem oberen Ende. Der ganze Kreis soll in der Höhe des Gehäuses liegen, nicht darüber hinaus. Trage oben <span class="menue">Rx</span> <b>10</b> und <span class="menue">Ry</span> <b>10</b> ein. Klicke in der Palette auf <b>Rot</b>.`,
+    {t: `<b>Zweiter und dritter Kreis:</b> Wechsle zum Auswahlwerkzeug (Pfeil oben links). Der rote Kreis ist noch ausgewählt. Drücke <kbd>Strg</kbd> + <kbd>D</kbd> – du siehst nichts Neues, die Kopie liegt genau auf dem Original. Ziehe sie mit gedrückter <kbd>Strg</kbd>-Taste nach unten, bis sie knapp unter dem roten Kreis liegt, und färbe sie <b>gelb</b>. Mach dasselbe noch einmal für den <b>grünen</b> Kreis.`,
+     bild: "assets/inkscape/duplizieren.png", alt: "Inkscape: neben dem schwarzen Gehäuse stehen drei Kreise rot, gelb und grün untereinander"},
+    {t: `<b>Ausrichten:</b> Drücke <kbd>Strg</kbd> + <kbd>A</kbd> – alle vier Teile sind ausgewählt. Öffne <span class="menue">Objekt</span> → <span class="menue">Ausrichten und verteilen…</span>. Bei „Relativ zu“ muss <span class="menue">Auswahlbereich</span> stehen. Klicke auf <span class="menue">Vertikal zentrieren</span> (dritter Knopf in der ersten Reihe). Siehst du die Kreise nicht mehr? Dann liegt das Gehäuse oben: Klicke es an und drücke <kbd>Ende</kbd>.`,
+     bild: "assets/inkscape/ausrichten.png", alt: "Inkscape: Die Kreise stehen mittig im Gehäuse, rechts das Fenster Ausrichten und verteilen"},
+    {t: `<b>Gruppieren:</b> Drücke <kbd>Strg</kbd> + <kbd>A</kbd> und dann <kbd>Strg</kbd> + <kbd>G</kbd>. In der Statusleiste steht jetzt „Gruppe aus 4 Objekten“.`,
+     bild: "assets/inkscape/gruppe.png", alt: "Inkscape: Die Ampel ist ausgewählt, die Statusleiste meldet Gruppe aus 4 Objekten"},
+    {t: `<b>Text:</b> Wähle das Text-Werkzeug („A“), klicke unter die Ampel und tippe <b>AMPEL</b>. Drücke <kbd>Strg</kbd> + <kbd>A</kbd>, trage oben bei der Schriftgröße <b>24</b> ein und drücke die Eingabetaste. Drücke <kbd>Esc</kbd>. Wechsle zum Auswahlwerkzeug, klicke den Text an und klicke in der Palette auf <b>Schwarz</b>. Hat er eine Kontur? <kbd>Umschalt</kbd> + Klick auf das rote X nimmt sie weg.`,
+     bild: "assets/inkscape/text.png", alt: "Inkscape: Unter der Ampel steht AMPEL, die Statusleiste meldet Text sans-serif 24.00 pt"},
+    `<b>Speichern:</b> Drücke <kbd>Strg</kbd> + <kbd>S</kbd>. Gib als Dateiname <b>ampel</b> ein, lass bei „Dateityp“ <span class="menue">Inkscape-SVG (*.svg)</span> stehen und klicke auf <span class="menue">Speichern</span>.`
+  ],
+  kurz: [
+    "Neues Dokument. Gehäuse: Rechteck <b>B 30</b>, <b>H 70</b>, schwarz oder dunkelgrau.",
+    "Ein Kreis neben dem Gehäuse, knapp unter dessen oberem Ende (ganz in der Höhe des Gehäuses): <b>Rx = Ry = 10</b>, rot.",
+    "Zwei Kopien mit <kbd>Strg</kbd> + <kbd>D</kbd>, mit <kbd>Strg</kbd> senkrecht nach unten ziehen, gelb und grün färben.",
+    "Alles auswählen und <span class=\"menue\">Vertikal zentrieren</span>. Die Kreise müssen über dem Gehäuse liegen.",
+    "Alles gruppieren. Darunter der Text <b>AMPEL</b>: 24 pt, schwarz, ohne Kontur.",
+    "Speichern als <b>ampel.svg</b>."
+  ],
+  hilfen: [
+    "Du siehst nach <kbd class=\"taste\">Strg</kbd> + <kbd class=\"taste\">D</kbd> keinen neuen Kreis? Das ist richtig so – die Kopie liegt genau auf dem Original. Zieh sie einfach weg. Hast du zweimal gedrückt, liegt noch eine unsichtbare Kopie da: <kbd class=\"taste\">Strg</kbd> + <kbd class=\"taste\">Z</kbd> macht den letzten Schritt rückgängig.",
+    "Die Kreise sind verschwunden? Dann liegt das Gehäuse oben. Klicke das Gehäuse an und drücke <kbd class=\"taste\">Ende</kbd> (nach ganz unten absenken).",
+    "„Vertikal zentrieren“ wirkt nur richtig, wenn alle vier Teile ausgewählt sind (<kbd class=\"taste\">Strg</kbd> + <kbd class=\"taste\">A</kbd>). Die Statusleiste zeigt dann „4 Objekte der Typen Kreis, Rechteck“. Erst ausrichten, dann gruppieren."
+  ],
+  loesung: "Die Datei ampel.svg enthält eine Gruppe aus einem dunklen Rechteck (30 mm × 70 mm) und drei Kreisen mit dem Radius 10 mm in Rot, Gelb und Grün. Die Kreise stehen mittig untereinander über dem Gehäuse. Darunter steht der Text AMPEL in 24 pt.",
+  pruefung: {
+    art: "datei", accept: ".svg", lies: Modul.liesSvg, pruefe: pruefeAmpel,
+    text: "Wähle deine gespeicherte Datei <b>ampel.svg</b> aus. Sie wird nur hier auf dem Gerät geprüft und nicht hochgeladen.",
+    ersatz: {art: "wort", frage: "Klicke deine fertige Ampel einmal mit dem Auswahlwerkzeug an. Die Statusleiste meldet „Gruppe aus … Objekten“. Welche Zahl steht dort?",
+      antworten: ["4", "vier"], tipp: "Lies unten in der Mitte des Inkscape-Fensters, während die Ampel ausgewählt ist.", erfolg: "Deine Ampel ist eine Gruppe."}
+  }
+}, "ampel");
+
+/* ---------- M7: Würfelseite und Fehlersuche ---------- */
+Modul.plus(() => {
+  Modul.makeAuftrag($("#wuerfel"), {
+    titel: "Würfelseite „5“", pc: "Inkscape", zeit: "etwa 12 Minuten",
+    ziel: "Ein weißes Quadrat (40 mm × 40 mm) mit schwarzer Kontur und fünf schwarzen Punkten wie auf einem Würfel – genau ausgerichtet und gruppiert. Gespeichert als <b>wuerfel.svg</b>.",
+    schritte: [
+      `Speichere deine Ampel (<kbd>Strg</kbd> + <kbd>S</kbd>). Speichere sie dann mit <span class="menue">Datei</span> → <span class="menue">Speichern unter…</span> unter dem neuen Namen <b>wuerfel</b>. Wechsle zum Auswahlwerkzeug, wähle mit <kbd>Strg</kbd> + <kbd>A</kbd> alles aus und lösche es mit der Taste <kbd>Entf</kbd>.`,
+      `<b>Quadrat:</b> Rechteck-Werkzeug, aufziehen, oben <span class="menue">B</span> <b>40</b> und <span class="menue">H</span> <b>40</b>. Klicke in der Palette auf <b>Weiß</b> (Füllung) und mit <kbd>Umschalt</kbd> + Klick auf <b>Schwarz</b> (Kontur).`,
+      `<b>Ein Punkt:</b> Kreis-Werkzeug, mit <kbd>Strg</kbd> einen Kreis auf das Quadrat ziehen, oben <span class="menue">Rx</span> <b>4</b> und <span class="menue">Ry</span> <b>4</b>, Füllung <b>Schwarz</b>.`,
+      `<b>Punkt in die Mitte:</b> Auswahlwerkzeug, <kbd>Strg</kbd> + <kbd>A</kbd>. Im Fenster <span class="menue">Ausrichten und verteilen</span> (Relativ zu: Auswahlbereich) auf <span class="menue">Vertikal zentrieren</span> und auf <span class="menue">Horizontal zentrieren</span> (zweite Reihe) klicken.`,
+      `<b>Eckpunkt oben links:</b> Klicke den Punkt an und drücke <kbd>Strg</kbd> + <kbd>D</kbd>. Ziehe die Kopie mit gedrückter <kbd>Strg</kbd>-Taste etwa 10 mm nach links und dann mit <kbd>Strg</kbd> etwa 10 mm nach oben.`,
+      `<b>Oben rechts:</b> <kbd>Strg</kbd> + <kbd>D</kbd> und die Kopie mit <kbd>Strg</kbd> nach rechts ziehen – genauso weit rechts von der Mitte wie der erste links davon.`,
+      `<b>Die zwei unteren Punkte:</b> Der Punkt oben rechts ist ausgewählt. Halte <kbd>Umschalt</kbd> gedrückt und klicke den Punkt oben links an – jetzt sind beide ausgewählt. <kbd>Strg</kbd> + <kbd>D</kbd> und beide Kopien zusammen mit <kbd>Strg</kbd> nach unten ziehen.`,
+      `<b>Muster in die Mitte:</b> Wähle die vier Eckpunkte aus (den ersten anklicken, die anderen mit <kbd>Umschalt</kbd> + Klick) und gruppiere sie mit <kbd>Strg</kbd> + <kbd>G</kbd>. Dann <kbd>Strg</kbd> + <kbd>A</kbd> und noch einmal <span class="menue">Vertikal zentrieren</span> und <span class="menue">Horizontal zentrieren</span>.`,
+      `<b>Fertig:</b> <kbd>Strg</kbd> + <kbd>A</kbd>, <kbd>Strg</kbd> + <kbd>G</kbd> – und mit <kbd>Strg</kbd> + <kbd>S</kbd> speichern.`
+    ],
+    kurz: [
+      "Ampel speichern, dann mit <span class=\"menue\">Datei</span> → <span class=\"menue\">Speichern unter…</span> als <b>wuerfel</b> speichern und die Seite leeren.",
+      "Quadrat <b>40 mm × 40 mm</b>, weiß, mit schwarzer Kontur.",
+      "Fünf schwarze Punkte mit <b>Rx = Ry = 4</b>: einer genau in der Mitte, vier in den Ecken wie auf einem Würfel.",
+      "Alles genau ausrichten, gruppieren und speichern."
+    ],
+    hilfen: [
+      "Die Mitte: Quadrat und Punkt mit <kbd class=\"taste\">Strg</kbd> + <kbd class=\"taste\">A</kbd> auswählen, dann „Vertikal zentrieren“ und „Horizontal zentrieren“.",
+      "Genau auf einer Linie: Kopie mit <kbd class=\"taste\">Strg</kbd> + <kbd class=\"taste\">D</kbd>, dann mit gedrückter <kbd class=\"taste\">Strg</kbd>-Taste ziehen. Zwei Punkte auf einmal: den ersten anklicken, den zweiten mit <kbd class=\"taste\">Umschalt</kbd> + Klick dazunehmen.",
+      "Damit die vier Eckpunkte genau in die Mitte des Quadrats kommen: Gruppiere sie, drücke dann <kbd class=\"taste\">Strg</kbd> + <kbd class=\"taste\">A</kbd> und nimm beide Zentrieren-Knöpfe. Die Gruppe wird dabei wie ein einziges Objekt behandelt."
+    ],
+    loesung: "Die Datei wuerfel.svg enthält eine Gruppe: ein weißes Quadrat (40 mm × 40 mm) mit schwarzer Kontur und fünf schwarze Punkte mit dem Radius 4 mm. Ein Punkt sitzt genau in der Mitte, die vier anderen bilden ein genaues Quadrat um die Mitte.",
+    pruefung: {
+      art: "datei", accept: ".svg", lies: Modul.liesSvg, pruefe: pruefeWuerfel,
+      text: "Wähle deine gespeicherte Datei <b>wuerfel.svg</b> aus. Sie wird nur hier auf dem Gerät geprüft und nicht hochgeladen.",
+      ersatz: {art: "wort", frage: "Mit welchem Knopf im Fenster „Ausrichten und verteilen“ bringst du den Mittelpunkt auch in der Höhe genau in die Mitte des Quadrats?",
+        antworten: ["Horizontal zentrieren"], tipp: "Lies die Schritte des Auftrags noch einmal genau."}
+    }
+  }, "wuerfel");
+
+  Modul.makeOpen($("#openTim"), [
+    {q: "Tim hat seine Ampel fertig, aber nicht gruppiert. Er klickt auf das Gehäuse und zieht es nach rechts. Jetzt stehen die drei Kreise allein da (Bild oben). Erkläre: Warum ist das passiert, und wie hätte Tim es verhindern können?",
+     m: "Tim hat nur das Gehäuse angeklickt. Die Kreise sind eigene Objekte und sind deshalb stehen geblieben. Hätte er Gehäuse und Kreise vorher mit Strg + G gruppiert, wäre die Ampel ein einziges Objekt, und alles wäre zusammen verschoben worden.",
+     k: ["gehäuse|rechteck|nur", "eigene|einzeln|getrennt|allein|stehen|nicht ausgewählt|nicht mit", "gruppier|gruppe|strg + g|strg+g"]}
+  ], "openTim", "Denk an den Versuch in Station 3: Was passiert, wenn nur ein Teil ausgewählt ist – und was ändert eine Gruppe?");
+});
+
+/* ---------- Station 6: Kurz sichern ---------- */
+Modul.makeSort($("#sortKurz"), {
+  buckets: ["Strg + D", "Pos1", "Ende", "Strg + G", "Umschalt + Strg + G", "Umschalt + Strg + A"], pairs: true, cols: 190,
+  items: [
+    {t: "Kopie genau auf das Original legen", b: 0},
+    {t: "nach ganz oben anheben", b: 1},
+    {t: "nach ganz unten absenken", b: 2},
+    {t: "gruppieren", b: 3},
+    {t: "Gruppierung aufheben", b: 4},
+    {t: "„Ausrichten und verteilen“ öffnen", b: 5}
+  ],
+  done: "✅ Alles richtig! Diese Tastenkürzel sparen dir in Inkscape viel Zeit."
+}, "sortKurz");
+
+Modul.makeTF($("#tf"), [
+  ["Nach Strg + D liegt die Kopie genau auf dem Original.", true],
+  ["Was zuletzt gezeichnet wurde, liegt ganz unten.", false],
+  ["Mit der Taste Pos1 holst du ein Objekt nach ganz oben.", true],
+  ["„Vertikal zentrieren“ stellt die Mitten der ausgewählten Objekte genau untereinander.", true],
+  ["Eine Gruppe zerfällt, sobald du sie verschiebst.", false],
+  ["Ein Text ist kein Objekt und hat keine Attribute.", false]
+], "tf");
+
+Modul.makeGap($("#gap"), [
+  ["Mit Strg + D legst du eine ", {g: "Kopie"}, " genau auf das Original."],
+  ["Was zuletzt gezeichnet wurde, liegt ", {g: "oben"}, ". Mit der Taste ", {g: "Ende"}, " schickst du ein Objekt nach ganz unten."],
+  ["Mit Strg + G fasst du mehrere Objekte zu einer ", {g: "Gruppe"}, " zusammen."],
+  ["Auch ein Text hat Attribute, zum Beispiel die ", {g: "Schriftgröße"}, "."]
+], "gap", ["unten", "Pos1"]);
+
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

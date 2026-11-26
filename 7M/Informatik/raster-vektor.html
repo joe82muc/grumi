@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Raster oder Vektor? | Informatik 7</title>
+<link rel="stylesheet" href="../NT/modul-basis.css">
+<link rel="stylesheet" href="einheit.css">
+<style>
+/* Einheit V1 „Raster oder Vektor?“ – eigene Klassen mit Präfix v1- */
+.v1-zoom{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:14px;max-width:660px;margin:0 auto}
+.v1-zoom figure{margin:0}
+.sim .v1-zoom canvas,.sim .v1-zoom svg{border:1px solid var(--line);border-radius:10px;background:#fff;aspect-ratio:1/1}
+#zoomRaster{image-rendering:pixelated}
+.v1-zoom figcaption,.v1-ani figcaption{text-align:center;font-weight:800;font-size:.95rem;margin-top:6px;line-height:1.3}
+.v1-zoom figcaption small,.v1-ani figcaption small{display:block;font-weight:600;color:var(--muted);font-size:.85rem}
+.v1-ausschnitt{display:flex;flex-wrap:wrap;align-items:center;gap:0 10px;padding:2px 14px 10px;background:#fbfdff}
+.v1-ausschnitt > b{font-size:.95rem}
+.v1-ausschnitt .wahl{margin:6px 0}
+.v1-ausschnitt .hint{flex-basis:100%}
+.v1-zoomwert{min-width:3.6rem;justify-content:center}
+/* Pixel malen */
+.v1-pixel{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:start}
+@media (max-width:760px){.v1-pixel{grid-template-columns:1fr}.v1-pixel > .v1-datei{order:-1}}
+.v1-pinsel{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+.v1-pinsel button{display:inline-flex;align-items:center;gap:8px;border:2px solid var(--line);background:#fff;border-radius:12px;padding:6px 12px;font-weight:700;min-height:44px}
+.v1-pinsel button.sel{border-color:var(--sky);background:var(--sky-l);color:var(--sky-d)}
+.v1-farbe{display:inline-block;width:20px;height:20px;border-radius:5px;border:1px solid #8aa0b3;flex:none}
+.v1-gitter-rahmen{display:flex;gap:6px;align-items:flex-start}
+.v1-zeilennr{display:grid;grid-auto-rows:36px;gap:2px;padding-top:2px;font-size:.8rem;font-weight:700;color:var(--muted);text-align:right}
+.v1-zeilennr span{display:flex;align-items:center;justify-content:flex-end}
+.v1-gitter{display:grid;grid-template-columns:repeat(8,36px);grid-auto-rows:36px;gap:2px;width:max-content;background:#b9cbd8;border:2px solid #b9cbd8;border-radius:6px}
+.v1-gitter button{border:0;padding:0;margin:0;border-radius:0;width:36px;height:36px}
+.v1-gitter button:disabled{cursor:default}
+.v1-gitter button.v1-offen{box-shadow:inset 0 0 0 2px var(--sky)}
+.v1-echt{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:.9rem;color:var(--muted)}
+.v1-echt canvas{width:8px;height:8px;image-rendering:pixelated;outline:1px solid #b9cbd8}
+@media (max-width:420px){.v1-gitter{grid-template-columns:repeat(8,32px);grid-auto-rows:32px}.v1-gitter button{width:32px;height:32px}.v1-zeilennr{grid-auto-rows:32px}}
+.v1-datei{border-radius:12px;background:#15212b;color:#e7f3fc;overflow:hidden}
+.v1-datei-kopf{padding:8px 12px;background:#24323f;font-weight:700;font-size:.92rem}
+.v1-datei-zeilen{padding:8px 12px 10px;font:600 .95rem/1.7 ui-monospace,Consolas,"Courier New",monospace}
+.v1-dz{display:flex;flex-wrap:wrap;gap:0 12px;border-left:4px solid transparent;padding-left:8px}
+.v1-dz span{color:#9fb2c1;min-width:4.8rem}
+.v1-dz.v1-fehlt{border-left-color:#ffd23f;background:rgba(255,210,63,.12)}
+.v1-dz.v1-fehlt i{font-style:normal;color:#ffd27a;font-family:system-ui,sans-serif;font-size:.85rem}
+.v1-legende{display:flex;flex-wrap:wrap;gap:4px 14px;padding:8px 12px;border-top:1px solid #2c3b49;font-size:.9rem}
+/* Animation: zwei Bilder nebeneinander */
+.v1-ani{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:14px;max-width:720px;margin:0 auto}
+@media (max-width:640px){.v1-ani{gap:10px;padding:10px}.v1-info{font-size:.82rem;padding:6px 8px}}
+.v1-ani figure{margin:0}
+.sim .v1-ani svg{border:1px solid var(--line);border-radius:10px;background:#fff}
+#aniRasterBild,#aniVektorBild{transform-origin:0 0;transform-box:view-box;transition:transform .8s ease}
+#aniGitter,#aniTreppe{transition:opacity .4s}
+.v1-info{margin:8px 0 0;font-size:.92rem;background:var(--sky-l);border-radius:10px;padding:8px 10px;line-height:1.45}
+.v1-info code{font:600 .88rem ui-monospace,Consolas,monospace;overflow-wrap:anywhere}
+.v1-info b.v1-neu{background:#ffe9a8;border-radius:4px;padding:0 3px}
+/* Objektkarten */
+.v1-ok{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:760px){.v1-ok{grid-template-columns:1fr}}
+.v1-ok-bilder{position:sticky;top:63px;z-index:3;display:grid;grid-template-columns:1fr 1fr;gap:10px;background:#fff;padding:6px 0}
+.v1-ok-bilder figure{margin:0}
+.v1-ok-bilder svg,.v1-bild{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#eef4f9}
+.v1-ok-bilder figcaption{text-align:center;font-weight:800;font-size:.92rem;margin-top:4px}
+.v1-ok-karten{display:grid;gap:10px}
+.v1-okarte{border:2px solid #b9cbd8;border-radius:12px;background:#fbfdff;overflow:hidden}
+.v1-okarte-kopf{background:#e7f0fb;padding:6px 12px;font-weight:800;color:var(--sky-d)}
+.v1-okarte-kopf small{font-weight:600;color:var(--muted);margin-left:6px}
+.v1-attr{display:flex;flex-wrap:wrap;align-items:center;gap:0 10px;padding:2px 12px;border-top:1px dashed var(--line)}
+.v1-okarte-kopf + .v1-attr{border-top:0}
+.v1-attr-name{font-weight:700;min-width:7.4rem}
+.v1-attr .wahl{margin:6px 0;gap:6px}
+.v1-attr .wahl button{min-height:40px;padding:5px 10px;display:inline-flex;align-items:center;gap:6px}
+.v1-beispiel{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}
+@media (max-width:520px){.v1-beispiel{grid-template-columns:1fr}}
+.v1-beispiel .v1-okarte{min-width:210px}
+.v1-beispiel .v1-attr{padding:6px 12px}
+.v1-o,.v1-a,.v1-w{border-radius:5px;padding:0 4px;font-weight:800}
+.v1-o{background:#dbe8fb;color:#1d3f8a}
+.v1-a{background:#dff3e6;color:#135c33}
+.v1-w{background:#ffeccc;color:#7a4a00}
+.v1-legende-liste{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+#lenaKarte .mark-fuss .hint{display:none}
+#lenaKarte .mark-text{font-size:1.05rem}
+/* Fälle */
+.v1-fall{display:flex;gap:14px;align-items:center;background:var(--sky-l);border-radius:12px;padding:14px 16px}
+.v1-fall-ic{font-size:2.3rem;line-height:1;flex:none}
+.v1-fall p{margin:0;font-size:1.08rem;font-weight:600}
+.karten.v1-formate{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+.v1-endung{font-family:ui-monospace,Consolas,monospace;font-weight:700;color:var(--sky-d)}
+.v1-teaser{max-width:520px}
+.v1-teaser img{border:1px solid var(--line);border-radius:10px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 7</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Zoomen</a>
+      <a href="#s2"><b>2</b>Gespeichert</a>
+      <a href="#s3"><b>3</b>Objekte</a>
+      <a href="#s4"><b>4</b>Wofür?</a>
+      <a href="#s5"><b>5</b>Sichern</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">💻 Übersicht Informatik 7M</a>
+      <a href="../../7R/Informatik/index.html">💻 Übersicht Informatik 7R</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 7M / 7R · Modul 4: Vektorgrafik mit Inkscape · Einheit 1</div>
+    <h1>Raster oder Vektor?</h1>
+    <p>Ein Foto wird beim Vergrößern unscharf und pixelig – ein Vereinslogo auf dem Riesenplakat nicht. Heute findest du heraus, warum: Bilder können ganz verschieden gespeichert sein.</p>
+    <div class="zeit">⏱ etwa 40 Minuten · am Tablet oder am PC</div>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s3">📐 Direkt zu den Objekten</a>
+    </div>
+    <div class="goals">
+      <div>🔍 Ich erkläre, warum ein Foto beim Vergrößern pixelig wird und eine Vektorgrafik scharf bleibt.</div>
+      <div>💾 Ich beschreibe, wie Raster- und Vektorgrafiken gespeichert sind.</div>
+      <div>📐 Ich beschreibe ein Objekt mit Attributen und Attributwerten.</div>
+      <div>📁 Ich wähle für ein Bild die passende Grafikart und das passende Dateiformat.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div id="modulStand" aria-label="Dein Lernfortschritt in dieser Einheit"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Ausprobieren</div><h2>Der Zoom-Versuch</h2></div></div>
+  <div class="card reveal" id="zoomKarte">
+    <span class="task-tag">Versuch</span>
+    <p class="lead">Zweimal dieselbe Sonne. Sie sieht gleich aus – ist aber verschieden gespeichert. Zieh den Regler nach rechts und vergrößere beide Bilder. Was passiert?</p>
+    <div class="sim" id="zoomSim">
+      <div class="v1-zoom">
+        <figure><canvas id="zoomRaster" width="480" height="480" role="img" aria-label="Die Sonne als Rastergrafik aus 32 mal 32 Pixeln"></canvas><figcaption>Bild A<small>32 × 32 Pixel</small></figcaption></figure>
+        <figure><svg id="zoomVektor" viewBox="-48 -48 120 120" role="img" aria-label="Die Sonne als Vektorgrafik aus Kreisen, Dreiecken und einer Linie"></svg><figcaption>Bild B<small>Kreise, Dreiecke, eine Linie</small></figcaption></figure>
+      </div>
+      <div class="sim-ctrl"><label for="zoomRegler">🔍 Vergrößern</label><input type="range" id="zoomRegler" min="1" max="16" step="1" value="1" aria-label="Vergrößerung von 1-fach bis 16-fach"><span class="chip v1-zoomwert" id="zoomWert">1×</span></div>
+      <div class="v1-ausschnitt"><b>Ausschnitt:</b><div class="wahl" id="zoomWahl"><button type="button" data-f="auge" class="sel">Auge</button><button type="button" data-f="mund">Mund</button><button type="button" data-f="strahl">Strahl</button></div><span class="hint">Der Ausschnitt zeigt, wohin du hineinzoomst – das wirkt erst bei starker Vergrößerung.</span></div>
+    </div>
+    <div class="fb" id="zoomFb"></div>
+  </div>
+  <div class="grid2">
+    <div class="card reveal">
+      <h3 style="margin-top:0">Zwei Arten von Bildern</h3>
+      <div class="karten">
+        <div class="karte"><span class="ic">🔲</span><h4>Bild A: <button class="term" data-t="rastergrafik">Rastergrafik</button></h4><p>Ein Gitter aus winzigen Quadraten, den <button class="term" data-t="pixel">Pixeln</button>. Fotos sind Rastergrafiken.</p></div>
+        <div class="karte"><span class="ic">📐</span><h4>Bild B: <button class="term" data-t="vektorgrafik">Vektorgrafik</button></h4><p>Ein Bild aus Formen wie Kreisen, Dreiecken und Linien. Logos und Schriften sind oft Vektorgrafiken.</p></div>
+      </div>
+    </div>
+    <div class="card reveal" id="mc-s1"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Verstehen</div><h2>Wie ist das Bild gespeichert?</h2></div></div>
+  <div class="card reveal" id="pixelKarte">
+    <span class="task-tag">Pixel malen</span>
+    <p class="lead">Eine Rastergrafik steht als Zahlen in der Datei: Jede Zahl ist die Farbe eines Pixels. In diesem Bild fehlen noch zwei Zeilen. Wähle eine Farbe und tippe die Pixel an – genau so, wie es in der Datei steht.</p>
+    <div class="v1-pixel">
+      <div>
+        <div class="v1-pinsel" id="pixelPinsel" role="group" aria-label="Farbe wählen">
+          <button type="button" data-c="0"><span class="v1-farbe" style="background:#ffffff"></span>0 = weiß</button>
+          <button type="button" data-c="1" class="sel"><span class="v1-farbe" style="background:#ffd23f"></span>1 = gelb</button>
+          <button type="button" data-c="2"><span class="v1-farbe" style="background:#15212b"></span>2 = schwarz</button>
+        </div>
+        <div class="v1-gitter-rahmen"><div class="v1-zeilennr" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span></div><div class="v1-gitter" id="pixelGitter" role="group" aria-label="Pixelgitter mit 8 mal 8 Pixeln"></div></div>
+        <div class="v1-echt"><canvas id="pixelEcht" width="8" height="8" aria-hidden="true"></canvas><span>← so klein ist das Bild in echt: 8 × 8 Pixel</span></div>
+      </div>
+      <div class="v1-datei">
+        <div class="v1-datei-kopf">📄 So steht das Bild in der Datei (vereinfacht)</div>
+        <div class="v1-datei-zeilen" id="pixelDatei"></div>
+        <div class="v1-legende"><span>0 = weiß</span><span>1 = gelb</span><span>2 = schwarz</span></div>
+      </div>
+    </div>
+    <div class="fb" id="pixelFb"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag">Animation</span>
+    <p class="lead" style="margin-top:0">Was passiert beim Vergrößern im Inneren des Computers? Schau es dir Schritt für Schritt an.</p>
+    <div class="sim" id="aniSim">
+      <div class="v1-ani">
+        <figure>
+          <svg id="aniRaster" viewBox="0 0 300 300" role="img" aria-label="Das Gesicht als Rastergrafik aus 8 mal 8 Pixeln">
+            <rect width="300" height="300" fill="#ffffff"/>
+            <g id="aniRasterBild"></g>
+          </svg>
+          <figcaption>Rastergrafik</figcaption>
+          <p class="v1-info" id="aniRasterInfo">📄 <b>In der Datei:</b> 64 Zahlen – für jedes Pixel eine Farbe<br><code>0 0 1 1 1 1 0 0 · 0 1 1 1 1 1 1 0 · 1 1 2 1 1 2 1 1 · …</code></p>
+        </figure>
+        <figure>
+          <svg id="aniVektor" viewBox="0 0 300 300" role="img" aria-label="Das Gesicht als Vektorgrafik: ein gelber Kreis, zwei kleine schwarze Kreise und eine gebogene Linie">
+            <rect width="300" height="300" fill="#ffffff"/>
+            <g id="aniVektorBild">
+              <circle cx="4" cy="4" r="4" fill="#ffd23f"/>
+              <circle cx="2.5" cy="2.5" r=".6" fill="#15212b"/><circle cx="5.5" cy="2.5" r=".6" fill="#15212b"/>
+              <path d="M1.6 4.5Q4 7 6.4 4.5" fill="none" stroke="#15212b" stroke-width=".8" stroke-linecap="round"/>
+            </g>
+          </svg>
+          <figcaption>Vektorgrafik</figcaption>
+          <p class="v1-info" id="aniVektorInfo">📄 <b>In der Datei:</b> Kreis1 · Radius = <b id="aniRadius">10 mm</b> · Füllfarbe = gelb – dazu Kreis2 und Kreis3 (die Augen) und eine Linie (der Mund)</p>
+        </figure>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card reveal">
+      <div class="merke" style="margin:0">
+        <h4>MERKE</h4>
+        <ul>
+          <li><b>Rastergrafik:</b> Gespeichert ist die Farbe jedes Pixels. Beim Vergrößern wird jedes Pixel zu einem großen Quadrat – das Bild wird pixelig.</li>
+          <li><b>Vektorgrafik:</b> Gespeichert ist eine Beschreibung der Formen, zum Beispiel „Kreis, Radius = 10 mm, Füllfarbe = gelb“. Beim Vergrößern zeichnet der Computer die Formen nach dieser Beschreibung neu – das Bild bleibt scharf. In der Datei ändert sich dabei nichts.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card reveal" id="mc-s2"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Objekte untersuchen</div><h2>Objekte, Attribute, Attributwerte</h2></div></div>
+  <div class="card reveal" id="okKarte">
+    <span class="task-tag">Objektkarten</span>
+    <p class="lead">Dieses Bild ist eine Vektorgrafik aus drei <button class="term" data-t="objekt">Objekten</button>: Rechteck1 (die Hauswand), Dreieck1 (das Dach) und Kreis1 (die Sonne). Die Objekte haben <button class="term" data-t="attribut">Attribute</button>, zum Beispiel Breite, Radius oder Füllfarbe. Stell die <button class="term" data-t="attributwert">Attributwerte</button> so ein, dass dein Bild genau so aussieht wie die Vorlage.</p>
+    <div class="v1-ok">
+      <div class="v1-ok-bilder">
+        <figure><svg id="okDein" viewBox="0 0 150 110" role="img" aria-label="Dein Bild: ein Haus mit Dach und eine Sonne"></svg><figcaption>Dein Bild</figcaption></figure>
+        <figure><svg id="okVorlage" viewBox="0 0 150 110" role="img" aria-label="Die Vorlage: ein hellblaues Haus mit dickem schwarzem Rand, einem roten Dach und einer gelben Sonne"></svg><figcaption>Vorlage</figcaption></figure>
+      </div>
+      <div class="v1-ok-karten" id="okKarten"></div>
+    </div>
+    <p class="hint">Ein Kästchen im Hintergrund ist 10 mm breit und 10 mm hoch. Die <button class="term" data-t="kontur">Kontur</button> ist der Rand einer Form, die Füllfarbe ist die Farbe der <button class="term" data-t="fuellung">Füllung</button>.</p>
+    <div class="fb" id="okFb"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card reveal">
+      <h3 style="margin-top:0">So schreibst du ein Objekt auf</h3>
+      <div class="v1-beispiel">
+        <div class="v1-okarte" aria-label="Beispiel einer Objektkarte">
+          <div class="v1-okarte-kopf"><span class="v1-o">Kreis1</span></div>
+          <div class="v1-attr"><span><span class="v1-a">Radius</span> = <span class="v1-w">15 mm</span></span></div>
+          <div class="v1-attr"><span><span class="v1-a">Füllfarbe</span> = <span class="v1-w">gelb</span></span></div>
+          <div class="v1-attr"><span><span class="v1-a">Konturfarbe</span> = <span class="v1-w">keine</span></span></div>
+        </div>
+        <ul class="v1-legende-liste">
+          <li><span class="v1-o">Objekt</span> – ein Teil des Bildes</li>
+          <li><span class="v1-a">Attribut</span> – eine Eigenschaft des Objekts</li>
+          <li><span class="v1-w">Attributwert</span> – was die Eigenschaft gerade ist</li>
+        </ul>
+      </div>
+      <div class="merke">
+        <h4>MERKE</h4>
+        <ul>
+          <li>Eine Vektorgrafik besteht aus Objekten.</li>
+          <li>Objekte haben Attribute, zum Beispiel Breite, Höhe, Radius, Füllfarbe, Konturfarbe, Konturbreite, Drehwinkel, Position.</li>
+          <li>Ändert sich ein Attributwert, ändert sich das Bild – das Objekt bleibt dasselbe.</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card reveal">
+        <span class="task-tag">Zuordnen</span>
+        <p>Objekt, Attribut oder Attributwert? Sortiere.</p>
+        <div id="sortOAW"></div>
+      </div>
+      <div class="card reveal" id="mc-s3"></div>
+    </div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <p class="m7-hinweis">Hier suchst du Fehler – mit dem, was du über Objekte und Attributwerte weißt.</p>
+    <div class="grid2">
+      <div>
+        <svg class="v1-bild" viewBox="0 0 100 60" role="img" aria-label="Ein grünes Rechteck mit schwarzem Rand auf Kästchenpapier, 5 Kästchen breit und 3 Kästchen hoch">
+          <g id="lenaGitter"></g>
+          <rect x="20" y="15" width="50" height="30" fill="#3fae5a" stroke="#15212b" stroke-width="1.2"/>
+        </svg>
+        <p class="hint">Ein Kästchen ist 10 mm breit und 10 mm hoch.</p>
+      </div>
+      <div>
+        <p style="margin-top:0"><b>Lena hat zu diesem Bild eine Objektkarte geschrieben. Zwei Attributwerte sind falsch. Tippe sie an.</b></p>
+        <div id="lenaKarte"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Anwenden</div><h2>Was passt wofür?</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag">Fälle entscheiden</span>
+    <p class="lead">Acht Bilder aus dem Alltag. Ist das eine Rastergrafik – oder passt eine Vektorgrafik besser?</p>
+    <div id="entFaelle"></div>
+  </div>
+  <div class="grid2">
+    <div class="card reveal">
+      <h3 style="margin-top:0">Die Endung zeigt das Dateiformat an</h3>
+      <div class="karten v1-formate">
+        <div class="karte"><span class="ic">📷</span><h4><button class="term" data-t="jpg">JPG</button> <span class="v1-endung">.jpg</span></h4><p>Rastergrafik. Vor allem für Fotos.</p></div>
+        <div class="karte"><span class="ic">🖥</span><h4><button class="term" data-t="png">PNG</button> <span class="v1-endung">.png</span></h4><p>Rastergrafik. Zum Beispiel Bildschirmfotos, auch mit durchsichtigem Hintergrund.</p></div>
+        <div class="karte"><span class="ic">🎬</span><h4><button class="term" data-t="gif">GIF</button> <span class="v1-endung">.gif</span></h4><p>Rastergrafik. Kleine Bilder mit wenigen Farben, auch kurze bewegte Bilder.</p></div>
+        <div class="karte"><span class="ic">📐</span><h4><button class="term" data-t="svg">SVG</button> <span class="v1-endung">.svg</span></h4><p>Vektorgrafik. Zum Beispiel Logos, Symbole und Pläne.</p></div>
+      </div>
+      <p class="hint" style="margin:10px 0 0">Die Endung hinter dem Punkt im Dateinamen zeigt das <button class="term" data-t="dateiformat">Dateiformat</button> an. Umbenennen ändert das Format nicht.</p>
+    </div>
+    <div class="card reveal">
+      <span class="task-tag">Zuordnen</span>
+      <p>Welche Dateien sind Rastergrafiken, welche Vektorgrafiken?</p>
+      <div id="sortFormate"></div>
+    </div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span> <span class="ki-badge">✨ KI prüft</span>
+    <p class="m7-hinweis">Hier begründest du in eigenen Worten. Die KI gibt dir einen kurzen Hinweis – nicht die Lösung.</p>
+    <div id="openM"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Kurz sichern</div><h2>Das nimmst du mit</h2></div></div>
+  <div class="grid2">
+    <div class="card reveal"><span class="task-tag">Richtig oder falsch?</span><div id="tf"></div></div>
+    <div class="card reveal"><span class="task-tag">Lückentext</span><div class="gaptext" id="gap"></div></div>
+  </div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieser Einheit auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Jetzt weißt du, woraus eine Vektorgrafik besteht. In der nächsten Einheit zeichnest du selbst – im Programm <button class="term" data-t="inkscape">Inkscape</button>. Dort baust du Rechtecke und Kreise und änderst ihre Attributwerte.</p>
+    <figure class="prog-bild v1-teaser">
+      <img src="assets/inkscape/fenster.png" width="1280" height="800" loading="lazy" decoding="async" alt="Das Fenster von Inkscape mit einem roten Rechteck. Oben in der Leiste stehen B: 40,000 und H: 20,000.">
+      <p class="hint" style="margin:4px 0 0">Bild: Inkscape, eigene Aufnahme</p>
+    </figure>
+    <p>Schau oben in die Leiste: Dort stehen die Attributwerte des Rechtecks – <b>B</b> (Breite) = 40 und <b>H</b> (Höhe) = 20, gemessen in mm.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="inkscape-start.html">➡️ Nächste Einheit: Inkscape – die ersten Formen</a>
+      <a href="index.html">💻 Übersicht Informatik 7M</a>
+      <a href="../../7R/Informatik/index.html">💻 Übersicht Informatik 7R</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Informatik 7 · Einheit „Raster oder Vektor?“ · Dein Fortschritt wird auf diesem Gerät gespeichert. · Inkscape ist ein freies Programm; die Bilder des Programms sind eigene Aufnahmen.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../NT/modul-basis.js"></script>
+<script src="praxis.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, register, solve} = Modul;
+const KEY = "grumi-i7-raster-vektor-v1";
+
+Modul.init({
+  key: KEY,
+  api: "/api/inf7/uebung/feedback",
+  thema: "Rastergrafik und Vektorgrafik, Informatik Klasse 7 Mittelschule: Pixel, Vergrößern (Rastergrafik wird pixelig, Vektorgrafik bleibt scharf), Speicherung als Pixelgitter mit Farben oder als Beschreibung der Formen, Objekte mit Attributen und Attributwerten (z. B. Kreis1, Radius = 15 mm, Füllfarbe = gelb), Anwendungen (Fotos, Scans und Bildschirmfotos als Rastergrafik; Logos, Computerschriften, Karten und Piktogramme als Vektorgrafik), Dateiformate JPG, PNG und GIF (Raster) und SVG (Vektor)",
+  glossary: {
+    rastergrafik: ["Rastergrafik", "Ein Bild aus vielen kleinen farbigen Quadraten (Pixeln) in einem Gitter. Stark vergrößert wird es pixelig."],
+    pixel: ["Pixel", "Ein Bildpunkt – das kleinste Quadrat einer Rastergrafik. Jedes Pixel hat genau eine Farbe."],
+    vektorgrafik: ["Vektorgrafik", "Ein Bild aus Formen wie Linien, Rechtecken und Kreisen. Gespeichert ist, wie jede Form aussieht – darum bleibt das Bild beim Vergrößern scharf."],
+    objekt: ["Objekt", "Ein einzelnes Teil einer Vektorgrafik, zum Beispiel ein Rechteck, ein Kreis oder ein Text."],
+    attribut: ["Attribut", "Eine Eigenschaft eines Objekts, zum Beispiel Breite, Radius oder Füllfarbe."],
+    attributwert: ["Attributwert", "Der Wert, den ein Attribut gerade hat, zum Beispiel 40 mm oder rot."],
+    svg: ["SVG", "Ein Dateiformat für Vektorgrafiken. Inkscape speichert seine Bilder als SVG-Datei (Endung .svg)."],
+    fuellung: ["Füllung", "Die Farbe innen in einer Form."],
+    kontur: ["Kontur", "Der Rand einer Form. Er hat eine Farbe und eine Breite."],
+    inkscape: ["Inkscape", "Ein kostenloses Programm zum Zeichnen von Vektorgrafiken."],
+    dateiformat: ["Dateiformat", "Die Art, wie eine Datei aufgebaut ist. Die Endung des Dateinamens zeigt es an, zum Beispiel .jpg oder .svg. Umbenennen ändert das Format nicht."],
+    jpg: ["JPG", "Ein Dateiformat für Rastergrafiken, vor allem für Fotos (Endung .jpg)."],
+    png: ["PNG", "Ein Dateiformat für Rastergrafiken, zum Beispiel für Bildschirmfotos. Ein PNG kann einen durchsichtigen Hintergrund haben (Endung .png)."],
+    gif: ["GIF", "Ein Dateiformat für kleine Rastergrafiken mit wenigen Farben, auch für kurze bewegte Bilder (Endung .gif)."]
+  }
+});
+
+// Das kleine Gesicht (8 × 8 Pixel) für Station 2: 0 = weiß, 1 = gelb, 2 = schwarz
+const SMILEY = ["00111100", "01111110", "11211211", "11111111", "12111121", "11222211", "01111110", "00111100"].map(z => [...z].map(Number));
+const PIXFARBE = ["#ffffff", "#ffd23f", "#15212b"], PIXNAME = ["weiß", "gelb", "schwarz"];
+// Kästchenpapier (10 mm) für die Objekt-Bilder
+const kaestchen = (b, h) => { let s = ""; for (let x = 10; x < b; x += 10) s += `<line x1="${x}" y1="0" x2="${x}" y2="${h}"/>`; for (let y = 10; y < h; y += 10) s += `<line x1="0" y1="${y}" x2="${b}" y2="${y}"/>`; return `<g stroke="#cfdce8" stroke-width=".5">${s}</g>`; };
+
+/* ---------- Station 1: Zoom-Versuch ---------- */
+(function () {
+  const N = 32, E = 24, MITTE = [12, 12];   // N Pixel; gezeichnet wird in E × E Einheiten
+  const punkt = (r, w) => [12 + r * Math.cos(w), 12 + r * Math.sin(w)];
+  const STRAHLEN = Array.from({length: 8}, (_, k) => { const a = k * Math.PI / 4; return [punkt(11.3, a), punkt(7.5, a - .21), punkt(7.5, a + .21)]; });
+  const ZIELE = {auge: [9.7, 10.6], mund: [12, 15.2], strahl: punkt(9.6, 7 * Math.PI / 4)};
+  // Vektorgrafik: Formen mit Zahlen
+  const svg = $("#zoomVektor");
+  svg.innerHTML = `<rect x="-300" y="-300" width="624" height="624" fill="#ffffff"/>` +
+    STRAHLEN.map(t => `<polygon points="${t.map(p => p[0].toFixed(2) + "," + p[1].toFixed(2)).join(" ")}" fill="#ff9f1c"/>`).join("") +
+    `<circle cx="12" cy="12" r="6.6" fill="#ffd23f" stroke="#e8930c" stroke-width=".6"/>` +
+    `<circle cx="9.7" cy="10.6" r="1.05" fill="#3b2a12"/><circle cx="14.3" cy="10.6" r="1.05" fill="#3b2a12"/>` +
+    `<path d="M8.9 13.5Q12 16.9 15.1 13.5" fill="none" stroke="#3b2a12" stroke-width="1.1" stroke-linecap="round"/>`;
+  // Rastergrafik: dieselben Formen einmal in 32 × 32 Pixel gemalt
+  const klein = document.createElement("canvas"); klein.width = klein.height = N;
+  const k = klein.getContext("2d");
+  k.fillStyle = "#ffffff"; k.fillRect(0, 0, N, N); k.scale(N / E, N / E);
+  k.fillStyle = "#ff9f1c";
+  STRAHLEN.forEach(t => { k.beginPath(); k.moveTo(t[0][0], t[0][1]); k.lineTo(t[1][0], t[1][1]); k.lineTo(t[2][0], t[2][1]); k.closePath(); k.fill(); });
+  k.beginPath(); k.arc(12, 12, 6.6, 0, 2 * Math.PI); k.fillStyle = "#ffd23f"; k.fill(); k.lineWidth = .6; k.strokeStyle = "#e8930c"; k.stroke();
+  k.fillStyle = "#3b2a12"; [[9.7, 10.6], [14.3, 10.6]].forEach(([x, y]) => { k.beginPath(); k.arc(x, y, 1.05, 0, 2 * Math.PI); k.fill(); });
+  k.beginPath(); k.moveTo(8.9, 13.5); k.quadraticCurveTo(12, 16.9, 15.1, 13.5); k.lineWidth = 1.1; k.lineCap = "round"; k.strokeStyle = "#3b2a12"; k.stroke();
+
+  const leinwand = $("#zoomRaster"), regler = $("#zoomRegler"), wert = $("#zoomWert"), fb = $("#zoomFb");
+  let ziel = "auge", z = 1;
+  register("zoom", "#zoomKarte", "Versuch: Rastergrafik und Vektorgrafik stark vergrößern");
+  function zeichne() {
+    // 1×: das Bild ist 48 px breit (1,5 px je Pixel); ab 3× wird zum gewählten Ausschnitt hingezoomt (ab 8× ganz)
+    const t = Math.max(0, Math.min(1, (z - 3) / 5)), f = ZIELE[ziel], P = leinwand.clientWidth || 240;
+    const cx = MITTE[0] + (f[0] - MITTE[0]) * t, cy = MITTE[1] + (f[1] - MITTE[1]) * t, vw = P / (2 * z);
+    const W = Math.max(120, Math.round(P * (window.devicePixelRatio || 1)));
+    if (leinwand.width !== W) { leinwand.width = W; leinwand.height = W; }
+    const x = leinwand.getContext("2d"), m = W / vw;
+    x.imageSmoothingEnabled = false;
+    x.fillStyle = "#ffffff"; x.fillRect(0, 0, W, W);
+    x.drawImage(klein, W / 2 - cx * m, W / 2 - cy * m, E * m, E * m);
+    svg.setAttribute("viewBox", [cx - vw / 2, cy - vw / 2, vw, vw].map(v => v.toFixed(3)).join(" "));
+    wert.textContent = z + "×";
+  }
+  const zeigFertig = () => { fb.className = "fb show ok"; fb.innerHTML = "🔍 Gut beobachtet? Bild A zeigt jetzt Kästchen und Treppen – das sind die einzelnen Pixel. Bild B bleibt glatt und scharf, egal wie stark du vergrößerst."; };
+  regler.addEventListener("input", () => {
+    z = Math.round(+regler.value) || 1; zeichne();
+    if (z >= 8 && !Modul.isSolved("zoom")) { solve("zoom"); zeigFertig(); }
+  });
+  $$("#zoomWahl button").forEach(b => b.addEventListener("click", () => {
+    ziel = b.dataset.f; $$("#zoomWahl button").forEach(x => x.classList.toggle("sel", x === b)); zeichne();
+  }));
+  if ("ResizeObserver" in window) new ResizeObserver(() => zeichne()).observe(leinwand); else addEventListener("resize", zeichne);
+  zeichne();
+  if (Modul.isSolved("zoom")) zeigFertig();
+  Modul.loeser.zoom = async () => { regler.value = 16; regler.dispatchEvent(new Event("input", {bubbles: true})); };
+})();
+
+Modul.makeMC($("#mc-s1"), [
+  {q: "Was hast du beim Vergrößern beobachtet?",
+   o: ["Bild A wird treppig und pixelig, Bild B bleibt scharf.", "Bild B wird treppig und pixelig, Bild A bleibt scharf.", "Beide Bilder werden gleich treppig und pixelig.", "Beide Bilder bleiben beim Vergrößern gleich scharf."], a: 0,
+   e: "Bild A ist eine Rastergrafik aus 32 × 32 Pixeln. Beim Vergrößern wird jedes Pixel zu einem großen Quadrat. Bild B ist eine Vektorgrafik – sie wird in jeder Größe neu gezeichnet."}
+], "mc1", {t: "Kurz-Check"});
+
+/* ---------- Station 2: Pixel malen ---------- */
+(function () {
+  const OFFEN = [4, 5];
+  const gitter = $("#pixelGitter"), fb = $("#pixelFb"), echt = $("#pixelEcht").getContext("2d");
+  let pinsel = 1;
+  register("pixel", "#pixelKarte", "Pixel malen: zwei Zeilen einer Rastergrafik nach der Datei färben");
+  $("#pixelDatei").innerHTML = SMILEY.map((z, r) => `<div class="v1-dz${OFFEN.includes(r) ? " v1-fehlt" : ""}"><span>Zeile ${r + 1}:</span>${z.join(" ")}${OFFEN.includes(r) ? " <i>← fehlt noch</i>" : ""}</div>`).join("");
+  const zellen = [];
+  SMILEY.forEach((zeile, r) => zeile.forEach((soll, c) => {
+    const b = document.createElement("button"); b.type = "button";
+    const offen = OFFEN.includes(r);
+    b.dataset.r = r; b.dataset.c = c; b.dataset.v = offen ? 0 : soll;
+    if (offen) b.classList.add("v1-offen"); else b.disabled = true;
+    gitter.appendChild(b); zellen.push({b, r, c, soll, offen});
+  }));
+  function farbe(z) {
+    const v = +z.b.dataset.v;
+    z.b.style.background = PIXFARBE[v];
+    z.b.setAttribute("aria-label", `Zeile ${z.r + 1}, Pixel ${z.c + 1}: ${PIXNAME[v]}`);
+    echt.fillStyle = PIXFARBE[v]; echt.fillRect(z.c, z.r, 1, 1);
+  }
+  const falsch = () => zellen.filter(z => z.offen && +z.b.dataset.v !== z.soll).length;
+  const geschafft = () => { fb.className = "fb show ok"; fb.textContent = "✅ Geschafft! Du hast jedes Pixel genau nach der Datei gefärbt – so baut auch der Computer eine Rastergrafik auf: Pixel für Pixel."; };
+  zellen.forEach(z => {
+    farbe(z);
+    if (!z.offen) return;
+    z.b.addEventListener("click", () => {
+      z.b.dataset.v = pinsel; farbe(z);
+      const n = falsch();
+      if (!n) { solve("pixel"); geschafft(); }
+      else { fb.className = "fb show mid"; fb.textContent = n === 1 ? "Noch 1 Pixel passt nicht zur Datei." : `Noch ${n} Pixel passen nicht zur Datei.`; }
+    });
+  });
+  const pinselKnoepfe = $$("#pixelPinsel button");
+  pinselKnoepfe.forEach(b => b.addEventListener("click", () => { pinsel = +b.dataset.c; pinselKnoepfe.forEach(x => x.classList.toggle("sel", x === b)); }));
+  if (Modul.isSolved("pixel")) { zellen.forEach(z => { z.b.dataset.v = z.soll; farbe(z); }); geschafft(); }
+  Modul.loeser.pixel = async () => {
+    for (const z of zellen) if (z.offen && +z.b.dataset.v !== z.soll) { pinselKnoepfe[z.soll].click(); z.b.click(); }
+  };
+})();
+
+/* ---------- Station 2: Animation „Was passiert beim Vergrößern?“ ---------- */
+(function () {
+  const sim = $("#aniSim"), rBild = $("#aniRasterBild"), vBild = $("#aniVektorBild");
+  let pix = "", linien = "";
+  SMILEY.forEach((zeile, r) => zeile.forEach((v, c) => { pix += `<rect x="${c}" y="${r}" width="1" height="1" fill="${PIXFARBE[v]}"/>`; }));
+  for (let i = 0; i <= 8; i++) linien += `<line x1="${i}" y1="0" x2="${i}" y2="8"/><line x1="0" y1="${i}" x2="8" y2="${i}"/>`;
+  rBild.innerHTML = `<g shape-rendering="crispEdges">${pix}</g>` +
+    `<rect width="8" height="8" fill="none" stroke="#b9cbd8" stroke-width="1" vector-effect="non-scaling-stroke"/>` +
+    `<g id="aniGitter" stroke="#566674" stroke-width="1" vector-effect="non-scaling-stroke" style="opacity:0">${linien.replace(/\/>/g, ' vector-effect="non-scaling-stroke"/>')}</g>` +
+    `<path id="aniTreppe" d="M0 6V2H1V1H2V0H6V1H7V2H8V6H7V7H6V8H2V7H1V6Z" fill="none" stroke="#e0453a" stroke-width="4" stroke-dasharray="8 5" vector-effect="non-scaling-stroke" style="opacity:0"/>`;
+  const gitter = $("#aniGitter"), treppe = $("#aniTreppe"), infoR = $("#aniRasterInfo"), infoV = $("#aniVektorInfo"), radius = $("#aniRadius");
+  const setze = (g, s) => { g.style.transform = `translate(${150 - 4 * s}px,${150 - 4 * s}px) scale(${s})`; };
+  Modul.makeSchritte(sim, {
+    start: "Tippe auf „Start“ oder gehe Schritt für Schritt. Links die Rastergrafik, rechts die Vektorgrafik.",
+    steps: [
+      "Links und rechts siehst du dasselbe Gesicht, beide noch klein. Klein sehen sie fast gleich aus.",
+      "Unter der Lupe: Die Rastergrafik ist ein Gitter aus 8 × 8 = 64 Pixeln. In der Datei steht für jedes Pixel eine Zahl für seine Farbe.",
+      "Jetzt wird die Rastergrafik vergrößert: Jedes Pixel wird zu einem großen Quadrat. Neue Einzelheiten kommen nicht dazu.",
+      "Darum wird der Rand treppig – das Bild sieht <b>pixelig</b> aus.",
+      "Die Vektorgrafik ist anders gespeichert – als <b>Beschreibung</b>: ein Kreis mit Radius = 10 mm und Füllfarbe = gelb, dazu zwei kleine Kreise und eine Linie.",
+      "Beim Vergrößern rechnet der Computer aus, wie groß der Kreis jetzt auf dem Bildschirm ist, und zeichnet ihn neu. In der Datei bleibt Radius = 10 mm. Der Rand bleibt glatt und <b>scharf</b>."
+    ],
+    zeige(i) {
+      setze(rBild, i < 1 ? 6 : i === 1 ? 12 : 30);
+      setze(vBild, i < 5 ? 6 : 30);
+      gitter.style.opacity = i === 1 ? 1 : 0;
+      treppe.style.opacity = i >= 3 ? 1 : 0;
+      infoR.style.visibility = i >= 1 ? "visible" : "hidden";
+      infoV.style.visibility = i >= 4 ? "visible" : "hidden";
+      radius.classList.toggle("v1-neu", i >= 5);   // In der Datei bleibt Radius = 10 mm – nur die Anzeige wird größer
+    }
+  }, "anim-speicher");
+})();
+
+Modul.makeMC($("#mc-s2"), [
+  {q: "Was steht in der Datei einer Rastergrafik?",
+   o: ["Für jedes Pixel im Gitter seine Farbe", "Für jede Form ihre Maße und ihre Farbe", "Nur die Umrisse der Formen ohne Farben", "Nur die Breite und Höhe des ganzen Bildes"], a: 0,
+   e: "Eine Rastergrafik ist ein Gitter aus Pixeln. Gespeichert ist die Farbe jedes einzelnen Pixels."},
+  {q: "Warum bleibt eine Vektorgrafik beim Vergrößern scharf?",
+   o: ["Der Computer zeichnet die Formen nach ihrer Beschreibung neu.", "Die Datei hat so viele Pixel, dass man keines sieht.", "Der Computer teilt jedes Pixel in kleinere Pixel auf.", "Der Computer glättet die Treppen am Rand mit Farbe."], a: 0,
+   e: "In der Vektorgrafik stehen Formen mit Zahlen, zum Beispiel ein Radius. Beim Vergrößern zeichnet der Computer die Formen nach dieser Beschreibung in der neuen Größe neu – in der Datei ändert sich nichts."}
+], "mc2", {t: "Kurz-Check"});
+
+/* ---------- Station 3: Objektkarten ---------- */
+(function () {
+  const FARBEN = {"weiß": "#ffffff", "gelb": "#ffd23f", "hellblau": "#9fd3f5", "rot": "#e0453a", "grün": "#3fae5a", "braun": "#9a6233", "orange": "#f39c1f", "schwarz": "#15212b"};
+  const OBJEKTE = [["Rechteck1", "die Hauswand"], ["Dreieck1", "das Dach"], ["Kreis1", "die Sonne"]];
+  const ATTR = [
+    {o: 0, a: "Breite", werte: ["60 mm", "80 mm", "100 mm"], ziel: 1},
+    {o: 0, a: "Füllfarbe", werte: ["weiß", "gelb", "hellblau"], ziel: 2},
+    {o: 0, a: "Konturfarbe", werte: ["keine", "rot", "schwarz"], ziel: 2},
+    {o: 0, a: "Konturbreite", werte: ["1 mm", "3 mm"], ziel: 1},
+    {o: 1, a: "Füllfarbe", werte: ["grün", "rot", "braun"], ziel: 1},
+    {o: 2, a: "Radius", werte: ["10 mm", "15 mm", "20 mm"], ziel: 1},
+    {o: 2, a: "Füllfarbe", werte: ["rot", "orange", "gelb"], ziel: 2}
+  ];
+  const fb = $("#okFb"), wahl = ATTR.map(() => 0);
+  register("objektkarte", "#okKarte", "Objektkarten: Attributwerte so einstellen, dass das Bild wie die Vorlage aussieht");
+  function bild(w) {
+    // Konturfarbe = keine: kein Rand – die Konturbreite ist dann nicht zu sehen
+    const wert = i => ATTR[i].werte[w[i]], kf = FARBEN[wert(2)], kb = parseFloat(wert(3));
+    return `<rect width="150" height="110" fill="#eef4f9"/>${kaestchen(150, 110)}` +
+      `<rect x="20" y="50" width="${parseInt(wert(0), 10)}" height="50" fill="${FARBEN[wert(1)]}"${kf ? ` stroke="${kf}" stroke-width="${kb}"` : ""}/>` +
+      `<polygon points="20,50 100,50 60,18" fill="${FARBEN[wert(4)]}"/>` +
+      `<circle cx="125" cy="25" r="${parseInt(wert(5), 10)}" fill="${FARBEN[wert(6)]}"/>`;
+  }
+  $("#okVorlage").innerHTML = bild(ATTR.map(x => x.ziel));
+  const knopf = (w, i, k) => `<button type="button" data-i="${i}" data-k="${k}">${FARBEN[w] ? `<span class="v1-farbe" style="background:${FARBEN[w]}"></span>` : ""}${w}</button>`;
+  $("#okKarten").innerHTML = OBJEKTE.map((o, oi) => `<div class="v1-okarte"><div class="v1-okarte-kopf">${o[0]}<small>${o[1]}</small></div>` +
+    ATTR.map((x, i) => x.o !== oi ? "" : `<div class="v1-attr"><span class="v1-attr-name">${x.a} =</span><div class="wahl" role="group" aria-label="${o[0]}: ${x.a}">${x.werte.map((w, k) => knopf(w, i, k)).join("")}</div></div>`).join("") + "</div>").join("");
+  const knoepfe = $$("#okKarten button");
+  function zeichne() {
+    $("#okDein").innerHTML = bild(wahl);
+    knoepfe.forEach(b => b.classList.toggle("sel", wahl[+b.dataset.i] === +b.dataset.k));
+  }
+  const passend = () => ATTR.filter((x, i) => wahl[i] === x.ziel).length;
+  const fertig = () => { fb.className = "fb show ok"; fb.textContent = "✅ Genau wie die Vorlage! Du hast nur Attributwerte geändert – die drei Objekte sind dieselben geblieben."; };
+  knoepfe.forEach(b => b.addEventListener("click", () => {
+    wahl[+b.dataset.i] = +b.dataset.k; zeichne();
+    if (Modul.isSolved("objektkarte") && passend() === ATTR.length) { fertig(); return; }
+    const n = passend();
+    if (n === ATTR.length) { solve("objektkarte"); fertig(); }
+    else { fb.className = "fb show mid"; fb.textContent = `${n} von ${ATTR.length} Attributwerten passen schon zur Vorlage.`; }
+  }));
+  if (Modul.isSolved("objektkarte")) { ATTR.forEach((x, i) => { wahl[i] = x.ziel; }); fertig(); }
+  zeichne();
+  Modul.loeser.objektkarte = async () => { ATTR.forEach((x, i) => { const b = knoepfe.find(b => +b.dataset.i === i && +b.dataset.k === x.ziel); if (wahl[i] !== x.ziel) b.click(); }); };
+})();
+
+Modul.makeSort($("#sortOAW"), {
+  buckets: ["Objekt", "Attribut", "Attributwert"], cols: 150,
+  items: [
+    {t: "Kreis1", b: 0}, {t: "Rechteck2", b: 0}, {t: "Text1", b: 0},
+    {t: "Radius", b: 1}, {t: "Füllfarbe", b: 1}, {t: "Konturbreite", b: 1},
+    {t: "15 mm", b: 2}, {t: "blau", b: 2}, {t: "45°", b: 2}
+  ],
+  done: "✅ Richtig! Objekte sind die Teile des Bildes, Attribute ihre Eigenschaften, Attributwerte die Werte der Eigenschaften."
+}, "sortOAW");
+
+Modul.makeMC($("#mc-s3"), [
+  {q: "Mia macht in ihrer Vektorgrafik die Sonne größer. Was ändert sich?",
+   o: ["Der Attributwert beim Radius, zum Beispiel 20 mm statt 10 mm", "Kreis1 wird gelöscht, und ein neues Objekt entsteht", "Das Attribut Radius wird durch ein Attribut Größe ersetzt", "Jedes Pixel der Sonne wird zu einem großen Quadrat"], a: 0,
+   e: "Das Objekt bleibt dasselbe. Nur der Attributwert des Attributs Radius ändert sich."}
+], "mc3", {t: "Kurz-Check"});
+
+/* ---------- M7: Fehler in einer Objektkarte finden ---------- */
+$("#lenaGitter").innerHTML = `<rect width="100" height="60" fill="#eef4f9"/>${kaestchen(100, 60)}`;
+Modul.plus(() => {
+  Modul.makeMarkieren($("#lenaKarte"), {
+    kopf: "📝 <b>Lenas Objektkarte</b>",
+    teile: [
+      {t: "Rechteck1", w: false, e: "Der Name passt: Das Bild zeigt ein Rechteck."}, "\n",
+      "Breite = ", {t: "50 mm", w: false, e: "Das stimmt: Das Rechteck ist 5 Kästchen breit, also 50 mm."}, "\n",
+      "Höhe = ", {t: "40 mm", w: true, e: "Fehler gefunden: Das Rechteck ist nur 3 Kästchen hoch – richtig ist Höhe = 30 mm."}, "\n",
+      "Füllfarbe = ", {t: "grün", w: false, e: "Das stimmt: Innen ist das Rechteck grün."}, "\n",
+      "Konturfarbe = ", {t: "rot", w: true, e: "Fehler gefunden: Der Rand ist schwarz – richtig ist Konturfarbe = schwarz."}, "\n",
+      "Drehwinkel = ", {t: "0°", w: false, e: "Das stimmt: Das Rechteck ist nicht gedreht."}
+    ],
+    finde: "Fehler", name: "Fehler finden: Objektkarte zu einem Bild prüfen",
+    fertig: "Beide Fehler gefunden! Richtig ist: Höhe = 30 mm und Konturfarbe = schwarz."
+  }, "fehlerKarte");
+});
+
+/* ---------- Station 4: Was passt wofür? ---------- */
+const fall = (ic, t) => `<div class="v1-fall"><span class="v1-fall-ic" aria-hidden="true">${ic}</span><p>${t}</p></div>`;
+Modul.makeEntscheiden($("#entFaelle"), {
+  optionen: ["🔲 Rastergrafik", "📐 Vektorgrafik"], frage: "Was passt hier: Rastergrafik oder Vektorgrafik?",
+  faelle: [
+    {kurz: "Urlaubsfoto vom Strand", html: fall("📷", "Du fotografierst im Urlaub den Strand mit dem Handy."), a: 0,
+     e: "Eine Kamera speichert für jeden Bildpunkt eine Farbe. Fotos sind Rastergrafiken."},
+    {kurz: "Vereinslogo auf T-Shirt und Riesenplakat", html: fall("⚽", "Der Sportverein „FC Sonnenberg“ braucht sein Logo klein auf dem T-Shirt und riesig auf einem Plakat am Sportplatz."), a: 1,
+     e: "Ein Logo braucht man in vielen Größen. Als Vektorgrafik bleibt es auf dem T-Shirt und auf dem Riesenplakat scharf."},
+    {kurz: "Bildschirmfoto vom Spielstand", html: fall("🖥", "Du machst ein Bildschirmfoto von deinem Spielstand."), a: 0,
+     e: "Ein Bildschirmfoto speichert die Farben der Pixel, die gerade auf dem Bildschirm leuchten."},
+    {kurz: "Schrift am Computer", html: fall("🔤", "Du schreibst am Computer eine Überschrift und stellst die Schrift riesig groß."), a: 1,
+     e: "Computerschriften sind als Formen gespeichert. Darum ist ein Buchstabe in jeder Schriftgröße scharf."},
+    {kurz: "Eingescanntes Zeitungsbild", html: fall("📄", "Du scannst ein altes Bild aus der Zeitung mit dem Scanner ein."), a: 0,
+     e: "Der Scanner tastet das Blatt Punkt für Punkt ab und speichert für jeden Punkt eine Farbe."},
+    {kurz: "Stadtplan in einer App", html: fall("🗺", "In einer Stadtplan-App zoomst du weit in die Karte hinein."), a: 1,
+     e: "In Stadtplan-Apps sind Straßen, Flüsse und Häuser meist als Linien und Flächen gespeichert. Beim Zoomen zeichnet die App sie neu."},
+    {kurz: "Piktogramm Notausgang", html: fall("⚠️", "Für das Schulhaus braucht ihr ein Piktogramm „Notausgang“ – als kleinen Aufkleber und als großes Schild."), a: 1,
+     e: "Piktogramme bestehen aus wenigen klaren Formen. Als Vektorgrafik passen sie scharf auf jedes Schild."},
+    {kurz: "Bild aus einer Mal-App", html: fall("🎨", "In einer Mal-App malst du mit dem Finger und weichen Pinseln ein buntes Bild."), a: 0,
+     e: "Mal-Apps mit Pinseln färben meist Pixel ein. Das Bild ist dann eine Rastergrafik – wie ein Foto."}
+  ],
+  fertig: "Alle Fälle richtig! Logos, Schriften, Karten und Piktogramme werden meist als Vektorgrafik gespeichert. Fotos, Scans, Bildschirmfotos und Bilder aus Mal-Apps sind Rastergrafiken."
+}, "ent");
+
+Modul.makeSort($("#sortFormate"), {
+  buckets: ["🔲 Rastergrafik", "📐 Vektorgrafik"], cols: 200,
+  items: [
+    {t: "strand.jpg", b: 0}, {t: "bildschirmfoto.png", b: 0}, {t: "winkender-roboter.gif", b: 0},
+    {t: "vereinslogo.svg", b: 1}, {t: "piktogramm-notausgang.svg", b: 1}, {t: "stadtplan.svg", b: 1}
+  ],
+  done: "✅ Richtig! JPG, PNG und GIF sind Rastergrafiken, SVG ist eine Vektorgrafik."
+}, "sortFormate");
+
+Modul.plus(() => {
+  Modul.makeOpen($("#openM"), [
+    {q: "Warum speichert der FC Sonnenberg sein Logo als Vektorgrafik und nicht als Foto? Erkläre in zwei bis drei Sätzen.",
+     m: "Das Logo wird in vielen Größen gebraucht, zum Beispiel klein auf dem T-Shirt und riesig auf dem Plakat. Eine Vektorgrafik bleibt beim Vergrößern scharf, weil die Formen neu gezeichnet werden. Ein Foto besteht aus Pixeln und würde groß pixelig.",
+     k: ["groß|größe|vergröß|plakat|riesig", "scharf|glatt|neu gezeichnet|neu berechnet|umgerechnet", "pixel|unscharf|treppig|verschwommen"]},
+    {q: "Warum speichert man ein Foto kaum als Vektorgrafik? Erkläre in zwei bis drei Sätzen.",
+     m: "Ein Foto hat sehr viele Farben, feine Einzelheiten und weiche Übergänge. Als Vektorgrafik müsste man jede winzige Fläche als eigene Form beschreiben – das wären unglaublich viele Objekte. Darum speichert man Fotos als Rastergrafik aus Pixeln.",
+     k: ["farb|einzelheit|detail|übergang|verlauf|fein", "form|objekt|beschreib", "viel|unzählig|unglaublich|tausend|million|kompliziert|aufwendig"]}
+  ], "openM", "Denk an Station 2: Was steht in der Datei einer Vektorgrafik – und wie viel müsste man bei einem Foto beschreiben?");
+});
+
+/* ---------- Station 5 ---------- */
+Modul.makeTF($("#tf"), [
+  ["Eine Rastergrafik besteht aus vielen kleinen Pixeln.", true],
+  ["Eine Vektorgrafik wird beim Vergrößern pixelig.", false],
+  ["In einer Vektorgrafik ist gespeichert, wie jede Form aussieht – zum Beispiel ihr Radius und ihre Füllfarbe.", true],
+  ["Fotos von der Handykamera sind Vektorgrafiken.", false],
+  ["„Füllfarbe“ ist ein Attribut, „gelb“ ist ein Attributwert.", true],
+  ["Eine Datei mit der Endung .png ist eine Vektorgrafik.", false]
+], "tf");
+
+Modul.makeGap($("#gap"), [
+  ["Ein Foto ist eine ", {g: "Rastergrafik"}, ". Es besteht aus vielen ", {g: "Pixeln"}, "."],
+  ["Ein Logo speichert man am besten als ", {g: "Vektorgrafik"}, " im Format ", {g: "SVG"}, "."],
+  ["Kreis1 ist ein ", {g: "Objekt"}, ". Sein Radius ist ein ", {g: "Attribut"}, ", 15 mm ist der ", {g: "Attributwert"}, "."]
+], "gap", ["JPG", "Kontur"]);
+
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

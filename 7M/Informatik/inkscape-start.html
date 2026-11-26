@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3a8f">
+<title>Inkscape: die ersten Formen | Informatik 7</title>
+<link rel="stylesheet" href="../NT/modul-basis.css">
+<link rel="stylesheet" href="einheit.css">
+<style>
+/* Einheit V2 „Inkscape: die ersten Formen“ – eigene Klassen mit Präfix v2- */
+kbd{display:inline-block;border:1px solid #9fb2c1;border-bottom-width:3px;border-radius:6px;padding:0 6px;background:#fff;font-family:inherit;font-weight:600;font-size:.9em;line-height:1.5;white-space:nowrap}
+.v2-erkunden{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,3fr);gap:18px;align-items:start}
+@media (max-width:980px){.v2-erkunden{grid-template-columns:minmax(0,1fr)}}
+.v2-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;border-radius:14px}
+.v2-scroll .hotimg{min-width:680px;border:1px solid var(--line)}
+.v2-scroll .hotimg img{display:block;width:100%;height:auto;animation:none}
+.v2-erkunden .hs{width:26px;height:26px;margin:-13px 0 0 -13px;border-width:2px;font-size:.8rem}
+.v2-erkunden .hs::after{inset:-5px;border-width:2px}
+#fensterInfo{min-height:170px}
+@media (max-width:980px){#fensterInfo{min-height:110px}}
+.v2-wisch{display:none}
+@media (max-width:720px){.v2-wisch{display:block}}
+.v2-start{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:10px 0 4px;padding:0;list-style:none}
+.v2-start li{border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:#fbfdff;font-size:.95rem}
+.v2-start b{display:block;color:var(--sky-d)}
+/* Objektkarten: oben der Objektname, darunter Attribut = Attributwert */
+.v2-okarten{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;align-items:start}
+.v2-okarte{border:2px solid #c9d9e6;border-radius:14px;background:#fff;overflow:hidden}
+.v2-okopf{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#eef5fb;border-bottom:1px solid #c9d9e6;font-size:1.05rem}
+.v2-okopf svg{flex:none;width:44px;height:28px}
+.v2-okarte ul{list-style:none;margin:0;padding:8px 12px 10px}
+.v2-okarte li{padding:3px 0;font-weight:600;border-bottom:1px dashed #e1e9f0}
+.v2-okarte li:last-child{border-bottom:0}
+.v2-okarte li.v2-neu{background:#fff4dc;border-radius:6px;padding:3px 6px;margin:0 -6px}
+.v2-okarte li .v2-attr{color:var(--sky-d)}
+.v2-okarte .gaptext{padding:8px 12px 10px}
+.v2-okarte .gaptext p{margin:.15em 0;font-weight:600;line-height:2.1}
+.v2-xml{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:18px;align-items:start}
+@media (max-width:820px){.v2-xml{grid-template-columns:minmax(0,1fr)}}
+.v2-xml img{display:block;width:100%;max-width:400px;height:auto;border:1px solid var(--line);border-radius:12px;cursor:zoom-in}
+.v2-tabelle{border-collapse:collapse;width:100%;margin:8px 0;font-size:.95rem}
+.v2-tabelle th,.v2-tabelle td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+.v2-tabelle th{background:#eef5fb}
+.v2-tabelle code{font-weight:700;color:#7a2c8f;overflow-wrap:anywhere}
+/* Ausprobieren: Rechteck nach Objektkarte einstellen */
+.v2-sim{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px;align-items:start}
+.v2-simkarten{grid-template-columns:minmax(0,1fr)}
+@media (max-width:820px){.v2-sim{grid-template-columns:minmax(0,1fr)}.v2-sim > .v2-simkarten{order:-1;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.v2-simkarten .v2-okopf{font-size:.95rem}.v2-simkarten li{font-size:.92rem}}
+.v2-buehne{border:1px solid var(--line);border-radius:14px;background:#f7fbfe;overflow:hidden}
+.v2-buehne svg{display:block;width:100%;height:auto}
+.v2-regler{display:grid;gap:10px;margin-top:12px}
+.v2-regler label{display:grid;grid-template-columns:6.5rem minmax(0,1fr) 4.2rem;gap:8px;align-items:center;font-weight:700}
+.v2-regler input[type=range]{width:100%;accent-color:var(--sky);height:28px}
+.v2-regler output{font-weight:800;color:var(--sky-d);text-align:right}
+.v2-farben{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.v2-farben > span{font-weight:700;width:6.5rem}
+.v2-farben button{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--line);background:#fff;border-radius:99px;padding:5px 12px;font:inherit;font-weight:700;cursor:pointer}
+.v2-farben button i{width:16px;height:16px;border-radius:50%;border:1px solid rgba(0,0,0,.3)}
+.v2-farben button.sel{border-color:var(--sky);background:var(--sky-l);color:var(--sky-d)}
+.v2-okarte li.v2-passt::after{content:" ✓";color:var(--ok)}
+.v2-ziel{border-color:#e6c46a}
+.v2-ziel .v2-okopf{background:#fff4dc;border-color:#e6c46a}
+.v2-vergleich{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="index.html">GRUMI<small>Informatik 7</small></a>
+    <nav class="stations" id="stations">
+      <a href="#s1"><b>1</b>Kennenlernen</a>
+      <a href="#s2"><b>2</b>Formen</a>
+      <a href="#s3"><b>3</b>Attribute</a>
+      <a href="#s4"><b>4</b>Drehen</a>
+      <a href="#s5"><b>5</b>Sichern</a>
+    </nav>
+    <span class="stars" id="stars" title="Gelöste Aufgaben">⭐ 0</span>
+  </div>
+  <div class="readbar" id="readbar"></div>
+</header>
+
+<div class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav class="navlinks" aria-label="Zu den Übersichtsseiten" style="margin-bottom:22px">
+      <a href="index.html">💻 Übersicht Informatik 7M</a>
+      <a href="../../7R/Informatik/index.html">💻 Übersicht Informatik 7R</a>
+      <a href="../../index.html#lernen">🏫 Alle Klassen &amp; Fächer</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+    <div class="eyebrow">Informatik · Klasse 7M / 7R · Modul 4: Vektorgrafik mit Inkscape · Einheit 2</div>
+    <h1>Inkscape: die ersten Formen</h1>
+    <p>Heute zeichnest du am PC deine erste Vektorgrafik: ein Rechteck und einen Kreis – auf den Millimeter genau. Dann beschreibst du, was du gebaut hast, wie ein Profi: mit Attributen und Attributwerten.</p>
+    <div class="zeit">⏱ etwa 40 Minuten · Praxis am Windows-PC</div>
+    <div><span class="pc-tag" title="Diese Einheit machst du am Windows-PC">🖥 Windows-PC mit Inkscape erforderlich</span></div>
+    <div class="hero-cta">
+      <a class="btn light" href="#s1">Los geht's ↓</a>
+      <a class="btn ghost" href="#s2">🛠 Direkt zum Auftrag</a>
+    </div>
+    <div class="goals">
+      <div>🖥 Ich finde mich im Fenster von Inkscape zurecht.</div>
+      <div>✏️ Ich zeichne ein Rechteck und einen Kreis mit genauen Maßen und Farben.</div>
+      <div>🏷 Ich beschreibe meine Objekte mit Attributen und Attributwerten.</div>
+      <div>🔄 Ich verschiebe und drehe ein Objekt und speichere eine SVG-Datei.</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+<div class="pc-banner"><span class="big">🖥</span><div><b>Windows-PC erforderlich.</b> Die Aufträge in den Stationen 2 und 4 machst du im Programm Inkscape. Die Stationen 1, 3 und 5 gehen auch am Tablet.</div></div>
+<div id="modulStand" aria-label="Dein Lernfortschritt in dieser Einheit"></div>
+
+<!-- ============ STATION 1 ============ -->
+<section class="station" id="s1">
+  <div class="st-head reveal"><div class="st-num">1</div><div><div class="eyebrow">Kennenlernen</div><h2>Inkscape starten und das Fenster entdecken</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag">Reihenfolge</span>
+    <p class="lead" style="margin-top:0">Du zeichnest heute mit <button class="term" data-t="inkscape">Inkscape</button>. Damit entsteht eine <button class="term" data-t="vektorgrafik">Vektorgrafik</button>. Beim allerersten Start fragt Inkscape ein paar Dinge. Bring die Schritte in die richtige Reihenfolge – dann klappt es gleich am PC.</p>
+    <div id="orderStart"></div>
+    <p class="hint" id="startReiter" hidden>✅ Genau so: Das Startfenster hat drei Reiter – „Schnelleinrichtung“, „Unterstützt von Euch“ und „Dokument“ –, und du gehst sie der Reihe nach durch.</p>
+    <p class="hint">Kommt das Fenster bei dir nicht, ist Inkscape schon eingerichtet. Bei dir sieht Inkscape vielleicht dunkel aus. Die Knöpfe sind dieselben.</p>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Bild erkunden</span>
+    <p class="lead" style="margin-top:0">So sieht Inkscape mit einem neuen Dokument aus. Tippe auf die Punkte.</p>
+    <div class="v2-erkunden">
+      <div>
+        <div class="v2-scroll"><div class="hotimg" id="fensterBild"><img src="assets/inkscape/fenster.png" width="1280" height="800" decoding="async" alt="Das Fenster von Inkscape: oben Menü und eine Leiste mit B 40 und H 20, links die Werkzeugleiste, in der Mitte eine weiße Seite mit einem roten Rechteck, rechts das Feld Füllung und Kontur, unten die Farbpalette"></div></div>
+        <p class="hint">Bild: Inkscape, eigene Aufnahme</p>
+        <p class="hint v2-wisch">Auf dem Handy: Wische im Bild zur Seite, dann siehst du alle Punkte.</p>
+      </div>
+      <div>
+        <div class="hs-info" id="fensterInfo">
+          <div class="big">👆</div>
+          <p class="lead" style="margin:8px 0 0">Tippe auf einen Punkt im Bild.</p>
+        </div>
+        <p class="hs-count" id="fensterCount">0 von 9 entdeckt</p>
+      </div>
+    </div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Paare finden</span>
+    <p>Was brauchst du wofür? Vier davon sind <button class="term" data-t="werkzeug">Werkzeuge</button> aus der Leiste links.</p>
+    <div id="paareWerkzeug"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 2 ============ -->
+<section class="station" id="s2">
+  <div class="st-head reveal"><div class="st-num">2</div><div><div class="eyebrow">Selber zeichnen · am PC</div><h2>Rechteck und Kreis</h2></div></div>
+  <div class="card reveal">
+    <p class="lead" style="margin-top:0">Jede Form in Inkscape ist ein <button class="term" data-t="objekt">Objekt</button>. Es hat eine <button class="term" data-t="fuellung">Füllung</button> (innen) und eine <button class="term" data-t="kontur">Kontur</button> (den Rand). Die Farben holst du aus der <button class="term" data-t="palette">Farbpalette</button>, die Maße tippst du oben in die Leiste.</p>
+  </div>
+  <div class="reveal" id="auf1"></div>
+  <div class="card reveal" id="mc-s2"></div>
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <p class="m7-hinweis">Fehler finden: Du suchst die Ursache selbst – mit dem, was du im Auftrag gelernt hast.</p>
+    <div id="mcMia"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 3 ============ -->
+<section class="station" id="s3">
+  <div class="st-head reveal"><div class="st-num">3</div><div><div class="eyebrow">Beschreiben</div><h2>Objekt, Attribut, Attributwert</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag">Objektkarte</span>
+    <p class="lead" style="margin-top:0">Du hast in Inkscape Zahlen und Farben eingestellt. In Informatik schreibt man das so auf eine Objektkarte. Die Karte deines Rechtecks ist fertig. Schreib die Karte deines Kreises fertig: Tippe eine Lücke an, dann ein Wort.</p>
+    <div class="v2-okarten">
+      <div class="v2-okarte">
+        <div class="v2-okopf"><svg viewBox="0 0 44 28" aria-hidden="true"><rect x="4" y="6" width="36" height="17" fill="#ff0000"/></svg><b>Rechteck1</b></div>
+        <ul>
+          <li><span class="v2-attr">Breite</span> = 40 mm</li>
+          <li><span class="v2-attr">Höhe</span> = 20 mm</li>
+          <li><span class="v2-attr">Füllfarbe</span> = rot</li>
+          <li><span class="v2-attr">Konturfarbe</span> = keine</li>
+          <li><span class="v2-attr">Drehwinkel</span> = 0°</li>
+        </ul>
+      </div>
+      <div class="v2-okarte">
+        <div class="v2-okopf"><svg viewBox="0 0 44 28" aria-hidden="true"><circle cx="22" cy="14" r="11" fill="#ffff00" stroke="#000" stroke-width="1.6"/></svg><b>Kreis1</b></div>
+        <div class="gaptext" id="gapKarte"></div>
+      </div>
+    </div>
+    <div class="merke">
+      <h4>MERKE</h4>
+      <ul>
+        <li>Ein <button class="term" data-t="objekt">Objekt</button> ist ein Teil der Grafik, zum Beispiel Rechteck1 oder Kreis1.</li>
+        <li>Objekte haben <button class="term" data-t="attribut">Attribute</button>, das sind Eigenschaften – zum Beispiel Breite, Höhe, <button class="term" data-t="radius">Radius</button>, Füllfarbe, Konturfarbe, Konturbreite, <button class="term" data-t="drehwinkel">Drehwinkel</button> oder Position.</li>
+        <li>Ein <button class="term" data-t="attributwert">Attributwert</button> ist der Wert, den das Attribut gerade hat: 40 mm, rot, 45°.</li>
+        <li>So schreibst du es auf: <b>Attribut = Attributwert</b>, zum Beispiel Radius = 15 mm.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card reveal" id="simKarte">
+    <span class="task-tag">Ausprobieren</span>
+    <p class="lead" style="margin-top:0">Ändere die Attributwerte, bis dein Rechteck genau zur gelben Zielkarte passt.</p>
+    <div class="v2-sim">
+      <div>
+        <div class="v2-buehne" id="simBuehne"></div>
+        <div class="v2-regler">
+          <label>Breite <input type="range" id="simB" min="10" max="60" step="5" value="20" aria-label="Breite in mm"><output id="simBo">20 mm</output></label>
+          <label>Höhe <input type="range" id="simH" min="10" max="40" step="5" value="30" aria-label="Höhe in mm"><output id="simHo">30 mm</output></label>
+          <label>Drehwinkel <input type="range" id="simD" min="0" max="90" step="15" value="0" aria-label="Drehwinkel in Grad"><output id="simDo">0°</output></label>
+          <div class="v2-farben wahl"><span>Füllfarbe</span>
+            <button type="button" data-f="rot"><i style="background:#e53935"></i>rot</button>
+            <button type="button" data-f="gelb"><i style="background:#fdd835"></i>gelb</button>
+            <button type="button" data-f="blau"><i style="background:#1e63d6"></i>blau</button>
+            <button type="button" data-f="grün"><i style="background:#2e9d4f"></i>grün</button>
+          </div>
+        </div>
+      </div>
+      <div class="v2-okarten v2-simkarten">
+        <div class="v2-okarte v2-ziel">
+          <div class="v2-okopf">🎯 <b>Zielkarte: Rechteck2</b></div>
+          <ul>
+            <li><span class="v2-attr">Breite</span> = 50 mm</li>
+            <li><span class="v2-attr">Höhe</span> = 15 mm</li>
+            <li><span class="v2-attr">Füllfarbe</span> = blau</li>
+            <li><span class="v2-attr">Drehwinkel</span> = 30°</li>
+          </ul>
+        </div>
+        <div class="v2-okarte">
+          <div class="v2-okopf">✏️ <b>Dein Rechteck2</b></div>
+          <ul id="simKarteDein"></ul>
+        </div>
+      </div>
+    </div>
+    <div class="fb" id="simFb"></div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag">Zuordnen</span>
+    <p class="lead" style="margin-top:0">Attribut oder Attributwert? Tippe eine Karte an und dann das passende Feld.</p>
+    <div id="sortAttr"></div>
+  </div>
+
+  <div class="card reveal">
+    <h3 style="margin-top:0">So steht es in der Datei: der XML-Editor</h3>
+    <p>Inkscape speichert dein Bild als <button class="term" data-t="svg">SVG</button>-Datei. Darin steht jedes Objekt mit seinen Attributen. Das zeigt der <button class="term" data-t="xml">XML-Editor</button>: <span class="menue">Bearbeiten</span> → <span class="menue">XML-Editor…</span> (<kbd>Umschalt</kbd> + <kbd>Strg</kbd> + <kbd>X</kbd>). Oben steht für jedes Objekt eine Zeile, unten die Tabelle „Name | Wert“ des gewählten Objekts.</p>
+    <div class="v2-xml">
+      <figure style="margin:0">
+        <img class="zoomable" src="assets/inkscape/xml-editor.png" width="520" height="640" loading="lazy" alt="Der XML-Editor von Inkscape: oben der Baum mit svg, defs, g Ebene 1, rect und circle; die Zeile circle ist gewählt. Unten die Tabelle Name und Wert: r 15, cy 59.867714, cx 136.10551, id path1, style fill:#ffff00;stroke-width:0.264583;stroke:#000000">
+        <figcaption>Bild: Inkscape, eigene Aufnahme · 🔍 Zum Vergrößern antippen</figcaption>
+      </figure>
+      <div>
+        <p style="margin-top:0">Die Namen in der Datei sind kurz und englisch:</p>
+        <table class="v2-tabelle">
+          <tr><th>In der Datei</th><th>Attribut</th></tr>
+          <tr><td><code>r</code></td><td>Radius</td></tr>
+          <tr><td><code>cx</code>, <code>cy</code></td><td>Position der Mitte</td></tr>
+          <tr><td><code>fill</code></td><td>Füllfarbe (<code>#ffff00</code> = gelb)</td></tr>
+          <tr><td><code>stroke</code></td><td>Konturfarbe (<code>#000000</code> = schwarz)</td></tr>
+          <tr><td><code>stroke-width</code></td><td>Konturbreite</td></tr>
+        </table>
+        <p class="hint" style="margin-top:0">In Inkscape stehen <code>fill</code>, <code>stroke</code> und <code>stroke-width</code> zusammen in der Zeile <code>style</code>.</p>
+        <div id="mc-xml"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span>
+    <p class="m7-hinweis">Sieh in deiner eigenen Datei nach – im XML-Editor von Inkscape.</p>
+    <div id="aufXml"></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag m7">M7 · für 7R freiwillig</span> <span class="ki-badge">✨ KI prüft</span>
+    <p class="m7-hinweis">Erkläre in eigenen Worten. Die KI gibt dir einen kurzen Hinweis – nicht die Lösung.</p>
+    <div id="openR"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 4 ============ -->
+<section class="station" id="s4">
+  <div class="st-head reveal"><div class="st-num">4</div><div><div class="eyebrow">Verändern · am PC</div><h2>Verschieben und drehen</h2></div></div>
+  <div class="card reveal">
+    <p class="lead" style="margin-top:0">Mit dem <b>Auswahlwerkzeug</b> (dem Pfeil oben links) packst du ein Objekt an. Ziehst du es weg, änderst du seine <b>Position</b>. Drehst du es, änderst du seinen <button class="term" data-t="drehwinkel">Drehwinkel</button>. Beides sind Attribute.</p>
+  </div>
+  <div class="reveal" id="auf2"></div>
+  <div class="grid2">
+    <div class="card reveal">
+      <h3 style="margin-top:0">Was hat sich geändert?</h3>
+      <div class="v2-vergleich">
+        <div class="v2-okarte">
+          <div class="v2-okopf"><svg viewBox="0 0 44 28" aria-hidden="true"><rect x="4" y="6" width="36" height="17" fill="#ff0000"/></svg><b>Rechteck1 vorher</b></div>
+          <ul>
+            <li><span class="v2-attr">Breite</span> = 40 mm</li>
+            <li><span class="v2-attr">Höhe</span> = 20 mm</li>
+            <li><span class="v2-attr">Füllfarbe</span> = rot</li>
+            <li><span class="v2-attr">Konturfarbe</span> = keine</li>
+            <li><span class="v2-attr">Position</span> = oben links</li>
+            <li><span class="v2-attr">Drehwinkel</span> = 0°</li>
+          </ul>
+        </div>
+        <div class="v2-okarte">
+          <div class="v2-okopf"><svg viewBox="0 0 44 28" aria-hidden="true"><rect x="12" y="6" width="20" height="10" fill="#ff0000" transform="rotate(45 22 14)"/></svg><b>Rechteck1 nachher</b></div>
+          <ul>
+            <li><span class="v2-attr">Breite</span> = 40 mm</li>
+            <li><span class="v2-attr">Höhe</span> = 20 mm</li>
+            <li><span class="v2-attr">Füllfarbe</span> = rot</li>
+            <li><span class="v2-attr">Konturfarbe</span> = keine</li>
+            <li class="v2-neu"><span class="v2-attr">Position</span> = unterhalb des Kreises</li>
+            <li class="v2-neu"><span class="v2-attr">Drehwinkel</span> = 45°</li>
+          </ul>
+        </div>
+      </div>
+      <p class="hint">Gelb markiert: Diese Attributwerte hast du geändert. Das Objekt und seine anderen Attributwerte bleiben gleich.</p>
+    </div>
+    <div class="card reveal" id="mc-s4"></div>
+  </div>
+</section>
+
+<!-- ============ STATION 5 ============ -->
+<section class="station" id="s5">
+  <div class="st-head reveal"><div class="st-num">5</div><div><div class="eyebrow">Kurz sichern</div><h2>Das nimmst du mit</h2></div></div>
+  <div class="card reveal">
+    <span class="task-tag">Zuordnen</span>
+    <p class="lead" style="margin-top:0">Werkzeug oder Attribut?</p>
+    <div id="sortWerkzeug"></div>
+  </div>
+  <div class="grid2">
+    <div class="card reveal"><span class="task-tag">Richtig oder falsch?</span><div id="tf"></div></div>
+    <div class="card reveal"><span class="task-tag">Lückentext</span><div class="gaptext" id="gap"></div></div>
+  </div>
+  <div class="card reveal">
+    <span class="task-tag">Paare finden</span>
+    <p>Welches <button class="term" data-t="kuerzel">Tastenkürzel</button> macht was?</p>
+    <div id="paareTasten"></div>
+  </div>
+  <h3 class="reveal">Wortspeicher</h3>
+  <p class="hint reveal">Alle Fachbegriffe dieser Einheit auf einen Blick.</p>
+  <div class="words reveal" id="words"></div>
+</section>
+  <div class="card reveal" style="margin-top:26px">
+    <h3 style="margin-top:0">Wie geht es weiter?</h3>
+    <p>Du kannst einzelne Formen zeichnen, färben, drehen und mit Attributen beschreiben. In der nächsten Einheit kopierst, ordnest und gruppierst du Formen und setzt Text dazu – aus einfachen Formen wird ein Bild.</p>
+    <nav class="navlinks light" aria-label="Weiter">
+      <a href="objekte.html">➡️ Nächste Einheit: Objekte kombinieren</a>
+      <a href="index.html">💻 Übersicht Informatik 7M</a>
+      <a href="../../7R/Informatik/index.html">💻 Übersicht Informatik 7R</a>
+      <a href="../../index.html">🏠 Startseite Lernplattform</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="wrap">Informatik 7 · Einheit „Inkscape: die ersten Formen“ · Dein Fortschritt wird auf diesem Gerät gespeichert. · Inkscape ist ein freies Programm; die Bilder des Programms sind eigene Aufnahmen.</footer>
+
+<div id="pop" role="dialog" aria-live="polite"><button class="x" aria-label="Schließen">×</button><h5></h5><p></p></div>
+<div id="lb"><img alt=""></div>
+<canvas id="confetti"></canvas>
+
+<script src="themen.js"></script>
+<script src="../NT/modul-basis.js"></script>
+<script src="praxis.js"></script>
+<script src="svg-datei.js"></script>
+<script>
+(function(){
+"use strict";
+const {$, $$, esc, register, solve} = Modul;
+const KEY = "grumi-i7-inkscape-start-v1";
+const BILD = "Bild: Inkscape, eigene Aufnahme";
+
+Modul.init({
+  key: KEY,
+  api: "/api/inf7/uebung/feedback",
+  thema: "Vektorgrafik mit dem Programm Inkscape, Klasse 7: erste Formen zeichnen (Rechteck und Kreis), Füllung und Kontur aus der Farbpalette färben, Breite, Höhe und Radius in mm eintragen, ein Objekt verschieben und drehen, als SVG-Datei speichern; Objekte mit Attributen und Attributwerten beschreiben (zum Beispiel Radius = 15 mm), der XML-Editor zeigt die Attribute in der Datei (r = Radius)",
+  glossary: {
+    inkscape: ["Inkscape", "Ein kostenloses Programm zum Zeichnen von Vektorgrafiken."],
+    vektorgrafik: ["Vektorgrafik", "Ein Bild aus Formen wie Linien, Rechtecken und Kreisen. Gespeichert ist, wie jede Form aussieht – darum bleibt das Bild beim Vergrößern scharf."],
+    objekt: ["Objekt", "Ein einzelnes Teil einer Vektorgrafik, zum Beispiel ein Rechteck, ein Kreis oder ein Text."],
+    attribut: ["Attribut", "Eine Eigenschaft eines Objekts, zum Beispiel Breite, Radius oder Füllfarbe."],
+    attributwert: ["Attributwert", "Der Wert, den ein Attribut gerade hat, zum Beispiel 40 mm oder rot."],
+    svg: ["SVG", "Ein Dateiformat für Vektorgrafiken. Inkscape speichert seine Bilder als SVG-Datei (Endung .svg)."],
+    fuellung: ["Füllung", "Die Farbe innen in einer Form."],
+    kontur: ["Kontur", "Der Rand einer Form. Er hat eine Farbe und eine Breite."],
+    werkzeug: ["Werkzeug", "Ein Knopf in der Werkzeugleiste links in Inkscape. Das gewählte Werkzeug bestimmt, was ein Klick oder Ziehen auf der Seite macht – zum Beispiel ein Rechteck aufziehen."],
+    palette: ["Farbpalette", "Die Leiste mit Farben unten im Fenster von Inkscape. Klick auf eine Farbe = Füllung, Umschalt + Klick = Kontur."],
+    radius: ["Radius", "Der Abstand von der Mitte eines Kreises bis zu seinem Rand. Ein Kreis ist doppelt so breit wie sein Radius."],
+    drehwinkel: ["Drehwinkel", "Um wie viel Grad ein Objekt gedreht ist. 0° heißt: nicht gedreht."],
+    xml: ["XML-Editor", "Ein Fenster in Inkscape. Es zeigt, wie dein Bild in der SVG-Datei steht: jedes Objekt mit seinen Attributen und Attributwerten."],
+    kuerzel: ["Tastenkürzel", "Eine Taste oder mehrere Tasten zusammen, die einen Befehl auslösen – zum Beispiel Strg + S zum Speichern."]
+  }
+});
+
+/* ---------- Station 1: erster Start, Fenster, Werkzeuge ---------- */
+Modul.makeOrder($("#orderStart"), [
+  "Inkscape öffnen",
+  "Im Reiter „Schnelleinrichtung“ auf „Speichern“ klicken",
+  "Im Reiter „Unterstützt von Euch“ auf „Danke!“ klicken",
+  "Im Reiter „Dokument“ auf „Neues Dokument“ klicken"
+], "orderStart");
+// Die Namen der drei Reiter verraten die Reihenfolge – darum erst nach dem Lösen zeigen
+(function () {
+  const zeig = () => { if (Modul.isSolved("orderStart")) $("#startReiter").hidden = false; };
+  $("#orderStart").addEventListener("click", () => setTimeout(zeig, 0));
+  zeig();
+})();
+
+Modul.makeHotspots($("#fensterBild"), $("#fensterInfo"), $("#fensterCount"), [
+  {x: 1.7, y: 14.1, i: "🖱", t: "Auswahlwerkzeug", s: "Der Pfeil ganz oben. Damit wählst du ein Objekt aus, verschiebst es und drehst es."},
+  {x: 1.7, y: 25.2, i: "⬛", t: "Rechteck-Werkzeug", s: "Damit ziehst du Rechtecke und Quadrate auf. Im Bild ist es gerade gewählt."},
+  {x: 1.7, y: 31.6, i: "⚪", t: "Kreis-Werkzeug", s: "Damit ziehst du Kreise und Ellipsen auf. Hältst du dabei <kbd>Strg</kbd> gedrückt, wird es ein genauer Kreis."},
+  {x: 1.7, y: 59, i: "🔤", t: "Text-Werkzeug", s: "Das „A“. Damit schreibst du Text auf die Seite. Das brauchst du in einer späteren Einheit."},
+  {x: 8.8, y: 9.5, i: "📏", t: "Leiste oben", s: "Hier stehen die Einstellungen des gewählten Werkzeugs. Beim Rechteck: <b>B</b> (Breite) und <b>H</b> (Höhe) in mm. Zahl eintippen, dann die <kbd>Eingabetaste</kbd> drücken."},
+  {x: 43.8, y: 92.5, i: "🎨", t: "Farbpalette", s: "Klick auf eine Farbe = Füllung des gewählten Objekts. <kbd>Umschalt</kbd> + Klick = Kontur (der Rand). Das rote X ganz links heißt: keine Farbe."},
+  {x: 79.3, y: 37.5, i: "🖌", t: "Füllung und Kontur", s: "Hier siehst du die Farbe ganz genau. Oben gibt es drei Reiter: „Füllung“, „Farbe der Kontur“ und „Muster der Kontur“. Unten steht der Farbcode – bei Rot: ff0000ff. Die ersten sechs Stellen sind die Farbe (ff0000 = rot), die letzten zwei (ff) heißen: ganz sichtbar."},
+  {x: 7.7, y: 96.5, i: "🔎", t: "Anzeige Füllung und Kontur", s: "Hier steht immer, welche Füllung und welche Kontur das gewählte Objekt hat. „Ungesetzt“ heißt hier: Konturfarbe = keine."},
+  {x: 32.8, y: 56, i: "📄", t: "Seite", s: "Die weiße Fläche ist deine Seite – ein A4-Blatt. Gemessen wird in Millimetern (mm)."}
+], "hsFenster");
+
+Modul.makePaare($("#paareWerkzeug"), [
+  ["Auswahlwerkzeug", "ein Objekt anklicken, verschieben, drehen"],
+  ["Rechteck-Werkzeug", "Rechtecke und Quadrate aufziehen"],
+  ["Kreis-Werkzeug", "Kreise und Ellipsen aufziehen"],
+  ["Text-Werkzeug", "Text auf die Seite schreiben"],
+  ["Farbpalette", "mit einem Klick die Füllfarbe wählen"]
+], "paareWerkzeug");
+
+/* ---------- Prüfung der gespeicherten Datei formen.svg ---------- */
+const zahl = x => String(Math.round(x * 10) / 10).replace(".", ",");
+const nah = (a, b) => Math.abs(a - b) <= 0.6;
+const farbText = f => !f || f === "keine" ? "keine Füllung" : f;
+// Das passendste Objekt einer Art (falls jemand mehrere gezeichnet hat)
+function bestes(liste, punkte) { return liste.slice().sort((a, b) => punkte(b) - punkte(a))[0] || null; }
+const rechteckVon = info => bestes(info.objekte.filter(o => o.art === "rechteck"), o => (o.farbe === "rot" ? 2 : 0) + (nah(o.breite, 40) && nah(o.hoehe, 20) ? 1 : 0));
+const kreisVon = info => bestes(info.objekte.filter(o => o.art === "kreis" || o.art === "ellipse" || o.art === "bogen"),
+  o => (o.art === "kreis" ? 2 : 0) + (o.farbe === "gelb" ? 2 : 0) + (nah(o.r || 0, 15) ? 1 : 0) + (o.konturFarbe === "schwarz" ? 1 : 0));
+function rechteckPunkte(r) {
+  if (!r) return [{ok: false, text: "In deiner Datei ist kein Rechteck. Zeichne es mit dem Rechteck-Werkzeug."}];
+  const mass = nah(r.breite, 40) && nah(r.hoehe, 20);
+  return [
+    {ok: mass, text: mass ? "Das Rechteck ist 40 mm breit und 20 mm hoch." : "Das Rechteck soll 40 mm breit und 20 mm hoch sein. Gefunden: " + zahl(r.breite) + " mm breit, " + zahl(r.hoehe) + " mm hoch."},
+    {ok: r.farbe === "rot", text: r.farbe === "rot" ? "Das Rechteck ist rot." : "Das Rechteck soll rot sein. Gefunden: " + farbText(r.farbe) + "."}
+  ];
+}
+function kreisPunkte(k) {
+  if (!k) return [{ok: false, text: "In deiner Datei ist kein Kreis. Zeichne ihn mit dem Kreis-Werkzeug."}];
+  const rund = k.art === "kreis", r15 = rund && nah(k.r, 15);
+  return [
+    {ok: r15, text: r15 ? "Der Kreis hat den Radius 15 mm." : rund ? "Der Kreis soll den Radius 15 mm haben. Gefunden: " + zahl(k.r) + " mm."
+      : "Dein Kreis ist eine Ellipse: Rx = " + zahl(k.rx) + " mm, Ry = " + zahl(k.ry) + " mm. Beide sollen 15 mm sein."},
+    {ok: k.farbe === "gelb", text: k.farbe === "gelb" ? "Der Kreis ist gelb." : "Der Kreis soll gelb sein. Gefunden: " + farbText(k.farbe) + "."},
+    {ok: k.konturFarbe === "schwarz", text: k.konturFarbe === "schwarz" ? "Der Kreis hat eine schwarze Kontur." : "Der Kreis soll eine schwarze Kontur (Rand) haben. Gefunden: Konturfarbe = " + (k.kontur === "keine" ? "keine" : k.konturFarbe) + "."}
+  ];
+}
+function pruefeFormen(info) { return rechteckPunkte(rechteckVon(info)).concat(kreisPunkte(kreisVon(info))); }
+function pruefeDrehung(info) {
+  const r = rechteckVon(info), k = kreisVon(info);
+  if (!r || r.farbe !== "rot") return [{ok: false, text: "In deiner Datei ist kein rotes Rechteck. Öffne deine Datei formen.svg aus Station 2."}];
+  const mass = nah(r.breite, 40) && nah(r.hoehe, 20);
+  const d = r.drehung, rest = d % 90, schraeg = Math.abs(rest - 45) <= 1, w = Math.min(d % 180, 180 - d % 180);
+  const out = [
+    {ok: mass, text: mass ? "Das rote Rechteck ist noch 40 mm breit und 20 mm hoch." : "Das Rechteck soll 40 mm breit und 20 mm hoch bleiben. Gefunden: " + zahl(r.breite) + " mm breit, " + zahl(r.hoehe) + " mm hoch. Hast du an den kleinen Pfeilen gezogen? Mit Strg + Z geht es zurück."},
+    {ok: schraeg, text: schraeg ? "Das Rechteck steht schräg: Es ist um 45° gedreht."
+      : d === 0 ? "Das Rechteck ist noch nicht gedreht. Es soll um 45° gedreht sein."
+      : rest === 0 ? "Das Rechteck ist gedreht, steht aber wieder gerade (Drehwinkel " + d + "°). Es soll schräg stehen: um 45° gedreht. Klicke nur einmal auf „Anwenden“."
+      : "Das Rechteck ist um " + w + "° gedreht. Es soll um 45° gedreht sein."}
+  ];
+  if (!k) { out.push({ok: false, text: "Der Kreis fehlt. Mit Strg + Z holst du ihn zurück – oder zeichne ihn neu."}); return out; }
+  const unten = r.mitte && k.mitte && r.mitte[1] > k.mitte[1] + (k.r || k.ry || 0);
+  out.push({ok: unten, text: unten ? "Das Rechteck liegt unterhalb des Kreises." : "Das Rechteck soll unterhalb des Kreises liegen. Schiebe es mit dem Auswahlwerkzeug nach unten."});
+  out.push({ok: true, text: "Der Kreis ist noch da."});
+  return out;
+}
+
+/* ---------- Station 2: Auftrag 1 ---------- */
+Modul.makeAuftrag($("#auf1"), {
+  titel: "Rechteck und Kreis", pc: "Inkscape", zeit: "etwa 12 Minuten",
+  ziel: "Auf deiner Seite liegen ein rotes Rechteck (40 mm breit, 20 mm hoch) und ein gelber Kreis mit 15 mm Radius und schwarzem Rand. Die Datei heißt <b>formen.svg</b>.",
+  schritte: [
+    "Starte Inkscape und klicke auf <span class=\"menue\">Neues Dokument</span>. Du siehst eine weiße Seite (A4).",
+    "Klicke links in der Werkzeugleiste auf das <b>Rechteck-Werkzeug</b> (das Quadrat). Ziehe auf der Seite mit <b>gedrückter</b> Maustaste ein Rechteck auf.",
+    {t: "Oben in der Leiste stehen <span class=\"menue\">B:</span> und <span class=\"menue\">H:</span>. Klicke in das Feld hinter B, lösche die Zahl, tippe <b>40</b> und drücke die <kbd>Eingabetaste</kbd>. Mache es bei H genauso mit <b>20</b>.", bild: "assets/inkscape/fenster.png", alt: "Inkscape mit gewähltem Rechteck-Werkzeug: oben in der Leiste B 40,000 und H 20,000, auf der Seite ein rotes Rechteck", quelle: BILD},
+    "Das Rechteck ist noch ausgewählt. Ein neues Rechteck ist oft schwarz. Klicke unten in der Farbpalette auf <b>Rot</b>. Jetzt ist die Füllung rot.",
+    "Klicke auf das <b>Kreis-Werkzeug</b> (unter dem Rechteck-Werkzeug). Halte <kbd>Strg</kbd> gedrückt und ziehe neben dem Rechteck einen Kreis auf.",
+    {t: "Tippe oben bei <span class=\"menue\">Rx:</span> <b>15</b> ein und drücke die <kbd>Eingabetaste</kbd>. Mache es bei <span class=\"menue\">Ry:</span> genauso. Klicke in der Palette auf <b>Gelb</b>. Halte dann <kbd>Umschalt</kbd> gedrückt und klicke auf <b>Schwarz</b> – das färbt die Kontur, also den Rand.", bild: "assets/inkscape/kreis.png", alt: "Inkscape mit gewähltem Kreis-Werkzeug: oben Rx 15,000 und Ry 15,000, auf der Seite ein gelber Kreis mit schwarzem Rand neben dem roten Rechteck", quelle: BILD},
+    "Speichere: Klicke auf <span class=\"menue\">Datei</span> → <span class=\"menue\">Speichern unter…</span> und wähle deinen Ordner. Schreibe bei <span class=\"menue\">Dateiname:</span> <b>formen</b>. Bei <span class=\"menue\">Dateityp:</span> steht <span class=\"menue\">Inkscape-SVG (*.svg)</span>. Klicke auf <span class=\"menue\">Speichern</span>."
+  ],
+  kurz: [
+    "Starte Inkscape mit einem <span class=\"menue\">Neuen Dokument</span>.",
+    "Zeichne ein Rechteck mit B = 40 mm und H = 20 mm. Füllung: rot.",
+    {t: "Zeichne einen genauen Kreis mit Rx = Ry = 15 mm. Füllung: gelb, Kontur: schwarz.", bild: "assets/inkscape/kreis.png", alt: "Inkscape mit gewähltem Kreis-Werkzeug: oben Rx 15,000 und Ry 15,000, auf der Seite ein gelber Kreis mit schwarzem Rand neben dem roten Rechteck", quelle: BILD},
+    "Speichere mit <span class=\"menue\">Datei</span> → <span class=\"menue\">Speichern unter…</span> als <b>formen.svg</b> (Dateityp <span class=\"menue\">Inkscape-SVG (*.svg)</span>)."
+  ],
+  hilfen: [
+    "Eine Zahl in der Leiste oben gilt erst, wenn du danach die <kbd>Eingabetaste</kbd> drückst.",
+    "Klick auf eine Farbe in der Palette = Füllung. <kbd>Umschalt</kbd> + Klick auf eine Farbe = Kontur (Rand). Das Objekt muss dabei ausgewählt sein.",
+    "Für einen genauen Kreis: Kreis-Werkzeug wählen, mit gedrückter <kbd>Strg</kbd>-Taste ziehen, dann oben Rx und Ry auf 15 stellen. Ist etwas schiefgegangen? <kbd>Strg</kbd> + <kbd>Z</kbd> macht den letzten Schritt rückgängig."
+  ],
+  loesung: "Rechteck: B = 40, H = 20, Füllung rot. Kreis: Rx = 15, Ry = 15, Füllung gelb, Kontur schwarz. Gespeichert mit Datei → Speichern unter… als formen.svg.",
+  pruefung: {
+    art: "datei", accept: ".svg", lies: Modul.liesSvg, pruefe: pruefeFormen,
+    text: "Wähle deine gespeicherte Datei <b>formen.svg</b> aus. Sie wird nur hier auf dem Gerät geprüft und nicht hochgeladen.",
+    ersatz: {art: "zahl", frage: "Wie breit ist ein Kreis mit Rx = 15 mm (ohne Rand)?", wert: 30, einheit: "mm",
+      tipp: "Rx ist der Abstand von der Mitte bis zum Rand. Wie oft passt diese Strecke quer durch den Kreis?"}
+  }
+}, "auf1");
+
+Modul.makeMC($("#mc-s2"), [
+  {q: "Du tippst bei B die Zahl 40 ein. Das Rechteck bleibt aber so breit wie vorher. Was fehlt noch?",
+   o: ["die Eingabetaste", "Strg + S", "ein Klick auf das rote X in der Palette", "Umschalt + Klick auf das Rechteck"], a: 0,
+   e: "Eine Zahl in der Leiste gilt erst nach der Eingabetaste. Vorher ist sie nur eingetippt."},
+  {q: "Der Kreis ist ausgewählt. Wie bekommt er einen schwarzen Rand?",
+   o: ["Umschalt gedrückt halten und in der Palette auf Schwarz klicken", "Umschalt gedrückt halten und in der Palette auf das rote X klicken", "ohne eine Taste zu drücken in der Palette auf Schwarz klicken", "oben in der Leiste bei Rx eine 0 eintippen und Eingabetaste"], a: 0,
+   e: "Klick = Füllung, Umschalt + Klick = Kontur. Ohne Umschalt würde der ganze Kreis schwarz. Umschalt + Klick auf das rote X nimmt die Kontur weg."}
+], "mcs2", {t: "Kurz-Check"});
+
+/* ---------- Station 3: Objektkarte, Ausprobieren, Zuordnen, XML-Editor ---------- */
+Modul.makeGap($("#gapKarte"), [
+  ["Radius = ", {g: "15 mm"}],
+  ["Füllfarbe = ", {g: "gelb"}],
+  ["Konturfarbe = ", {g: "schwarz"}],
+  ["Konturbreite = 0,265 mm"]
+], "gapKarte", ["30 mm", "rot"]);
+
+(function () {
+  const ZIEL = {b: 50, h: 15, f: "blau", d: 30};
+  const FARBE = {rot: "#e53935", gelb: "#fdd835", blau: "#1e63d6", "grün": "#2e9d4f"};
+  const st = {b: 20, h: 30, f: "rot", d: 0};
+  const bB = $("#simB"), bH = $("#simH"), bD = $("#simD"), fb = $("#simFb"), dein = $("#simKarteDein");
+  register("sim", "#simKarte", "Ausprobieren: Attributwerte einstellen, bis Rechteck2 zur Zielkarte passt");
+  // Bühne 120 × 80 (mm), Raster alle 10 mm
+  let raster = "";
+  for (let x = 10; x < 120; x += 10) raster += `<line x1="${x}" y1="0" x2="${x}" y2="80"/>`;
+  for (let y = 10; y < 80; y += 10) raster += `<line x1="0" y1="${y}" x2="120" y2="${y}"/>`;
+  $("#simBuehne").innerHTML = `<svg viewBox="0 0 120 80" role="img" aria-label="Rechteck2 auf einer Fläche mit Raster"><g stroke="#dde8f1" stroke-width=".4">${raster}</g><rect id="simRect" stroke="#15212b" stroke-width=".5"/></svg>`;
+  const rect = $("#simRect");
+  function zeichne() {
+    rect.setAttribute("x", 60 - st.b / 2); rect.setAttribute("y", 40 - st.h / 2);
+    rect.setAttribute("width", st.b); rect.setAttribute("height", st.h);
+    rect.setAttribute("fill", FARBE[st.f]); rect.setAttribute("transform", `rotate(${st.d} 60 40)`);
+    $("#simBo").textContent = st.b + " mm"; $("#simHo").textContent = st.h + " mm"; $("#simDo").textContent = st.d + "°";
+    $$(".v2-farben button").forEach(b => b.classList.toggle("sel", b.dataset.f === st.f));
+    const zeilen = [["Breite", st.b + " mm", st.b === ZIEL.b], ["Höhe", st.h + " mm", st.h === ZIEL.h], ["Füllfarbe", st.f, st.f === ZIEL.f], ["Drehwinkel", st.d + "°", st.d === ZIEL.d]];
+    dein.innerHTML = zeilen.map(z => `<li class="${z[2] ? "v2-passt" : ""}"><span class="v2-attr">${z[0]}</span> = ${esc(z[1])}</li>`).join("");
+    const passt = zeilen.filter(z => z[2]).length;
+    if (passt === 4) {
+      fb.className = "fb show ok"; fb.textContent = "✅ Passt! Rechteck2 hat jetzt genau die Attributwerte der Zielkarte. Gleiche Attributwerte – gleiches Aussehen.";
+      solve("sim");
+    } else if (fb.classList.contains("ok") || passt) {
+      fb.className = "fb show mid"; fb.textContent = passt + " von 4 Attributwerten passen schon.";
+    }
+  }
+  [[bB, "b"], [bH, "h"], [bD, "d"]].forEach(([r, k]) => r.addEventListener("input", () => { st[k] = +r.value; zeichne(); }));
+  $$(".v2-farben button").forEach(b => b.addEventListener("click", () => { st.f = b.dataset.f; zeichne(); }));
+  zeichne();
+  Modul.loeser.sim = async () => {
+    [[bB, ZIEL.b], [bH, ZIEL.h], [bD, ZIEL.d]].forEach(([r, v]) => { r.value = v; r.dispatchEvent(new Event("input", {bubbles: true})); });
+    $(`.v2-farben button[data-f="${ZIEL.f}"]`).click();
+  };
+})();
+
+Modul.makeSort($("#sortAttr"), {
+  buckets: ["🏷 Attribut", "🔢 Attributwert"], cols: 240,
+  items: [
+    {t: "Breite", b: 0}, {t: "Radius", b: 0}, {t: "Füllfarbe", b: 0}, {t: "Drehwinkel", b: 0},
+    {t: "40 mm", b: 1}, {t: "gelb", b: 1}, {t: "45°", b: 1}, {t: "15 mm", b: 1}
+  ],
+  done: "✅ Richtig! Das Attribut ist die Eigenschaft (Breite), der Attributwert ihr Wert (40 mm)."
+}, "sortAttr");
+
+Modul.makeMC($("#mc-xml"), [
+  {q: "Beim Kreis steht in der Spalte Name „r“ und in der Spalte Wert „15“. Was ist „r“?",
+   o: ["das Attribut Radius", "der Attributwert", "der Name des Objekts", "ein Werkzeug"], a: 0,
+   e: "r ist das Attribut (Radius), 15 ist sein Attributwert – in mm."},
+  {q: "In welcher Zeile steht die Füllfarbe des Kreises?",
+   o: ["style: fill:#ffff00;…", "r: 15", "cx: 136.10551", "id: path1"], a: 0,
+   e: "fill heißt Füllung. #ffff00 ist der Farbcode für Gelb."}
+], "mcxml", {t: "Kurz-Check"});
+
+/* ---------- M7: im XML-Editor nachsehen und erklären ---------- */
+Modul.plus(() => {
+  Modul.makeAuftrag($("#aufXml"), {
+    titel: "Im XML-Editor nachsehen", pc: "Inkscape", zeit: "etwa 4 Minuten",
+    ziel: "Du liest in deiner eigenen Datei ab, welchen Attributwert dein Kreis beim Attribut r hat.",
+    schritte: [
+      "Ist deine Datei <b>formen.svg</b> noch offen? Sonst öffne sie wieder in Inkscape.",
+      "Klicke auf <span class=\"menue\">Bearbeiten</span> → <span class=\"menue\">XML-Editor…</span> (oder <kbd>Umschalt</kbd> + <kbd>Strg</kbd> + <kbd>X</kbd>).",
+      "Klicke im Baum oben auf die Zeile mit <b>&lt;circle</b>. Lies unten in der Tabelle ab, was in der Spalte <span class=\"menue\">Wert</span> neben <b>r</b> steht."
+    ],
+    hilfen: [
+      "Der XML-Editor steckt im Menü <span class=\"menue\">Bearbeiten</span>.",
+      "Im Baum steht für jedes Objekt eine Zeile: <b>&lt;rect …&gt;</b> ist das Rechteck, <b>&lt;circle …&gt;</b> der Kreis.",
+      "Klicke auf <b>&lt;circle id=…&gt;</b>. In der Tabelle unten steht links der Name (r, cy, cx, id, style), rechts der Wert. Neben r steht der Radius."
+    ],
+    loesung: "Neben r steht 15 – der Radius deines Kreises in mm.",
+    pruefung: {art: "zahl", frage: "Welcher Attributwert steht bei deinem Kreis neben r?", wert: 15,
+      tipp: "Klicke im Baum auf die Zeile mit „circle“. Steht dort eine andere Zahl, hat dein Kreis einen anderen Radius. Stell ihn mit dem Kreis-Werkzeug auf Rx = Ry = 15.",
+      erfolg: "Genau so steht es auch auf deiner Objektkarte: Radius = 15 mm."}
+  }, "aufXml");
+
+  Modul.makeOpen($("#openR"), [
+    {q: "Erkläre in ein bis zwei Sätzen: Was bedeutet r beim Kreis – und warum steht dort bei dir 15?",
+     m: "r ist das Attribut Radius. Der Radius ist der Abstand von der Mitte des Kreises bis zum Rand. Dort steht 15, weil ich Rx und Ry auf 15 mm gestellt habe – 15 ist der Attributwert.",
+     k: ["radius", "mitte|mittelpunkt|zentrum|halb|durchmesser", "rand|kreislinie|aussen|außen|15"], min: 2}
+  ], "openR", "Sieh dir die Tabelle unter dem Bild des XML-Editors an: Welches Attribut steckt hinter r?");
+
+  Modul.makeMC($("#mcMia"), [
+    {q: "Mia sollte ein rotes Rechteck mit B = 40 und H = 20 zeichnen. Ihr Rechteck ist aber schwarz und 75 mm breit. Was hat Mia vergessen?",
+     o: ["nach dem Eintippen von 40 die Eingabetaste zu drücken", "bei ausgewähltem Rechteck in der Palette auf Rot zu klicken", "die Datei zu speichern", "das Rechteck mit gedrückter Strg-Taste aufzuziehen"], a: [0, 1],
+     e: "Ohne Eingabetaste bleibt die Breite so, wie Mia das Rechteck aufgezogen hat: 75 mm. Und ein neues Rechteck ist oft schwarz, bis man eine Farbe in der Palette anklickt. Speichern ändert am Aussehen nichts."}
+  ], "mcMia", {t: "Fehler finden"});
+});
+
+/* ---------- Station 4: Auftrag 2 ---------- */
+Modul.makeAuftrag($("#auf2"), {
+  titel: "Verschieben und drehen", pc: "Inkscape", zeit: "etwa 8 Minuten",
+  ziel: "Das rote Rechteck liegt <b>unterhalb</b> des Kreises und steht schräg: um <b>45°</b> gedreht. Deine Datei formen.svg ist gespeichert.",
+  schritte: [
+    "Deine Datei <b>formen.svg</b> ist offen. Klicke links oben auf das <b>Auswahlwerkzeug</b> (den Pfeil).",
+    "Klicke auf das rote Rechteck. Halte die Maustaste gedrückt und schiebe es nach unten, bis es <b>unterhalb des Kreises</b> liegt. Fasse es in der Mitte an – nicht an den kleinen Pfeilen am Rand.",
+    {t: "Das Rechteck ist ausgewählt. Klicke im Menü auf <span class=\"menue\">Objekt</span> → <span class=\"menue\">Transformation…</span> (oder <kbd>Umschalt</kbd> + <kbd>Strg</kbd> + <kbd>M</kbd>). Rechts erscheint das Fenster „Transformationen“. Klicke auf den Reiter <span class=\"menue\">Drehen</span>.", bild: "assets/inkscape/drehen.png", alt: "Inkscape: das rote Rechteck ist ausgewählt und hochkant gedreht. Rechts das Fenster Transformationen mit dem Reiter Drehen, dem Feld Winkel und dem Knopf Anwenden. Oben in der Leiste B 20,000 und H 40,000", quelle: BILD},
+    "Tippe bei <span class=\"menue\">Winkel:</span> <b>45</b> ein und klicke <b>einmal</b> auf <span class=\"menue\">Anwenden</span>. Das Rechteck steht jetzt schräg.",
+    "Es gibt noch einen zweiten Weg: Klicke das ausgewählte Rechteck noch einmal an. An den Ecken erscheinen jetzt Pfeile zum Drehen. Ziehe an einem Eckpfeil – und mache es danach mit <kbd>Strg</kbd> + <kbd>Z</kbd> rückgängig.",
+    "Speichere mit <kbd>Strg</kbd> + <kbd>S</kbd>. Deine Datei formen.svg wird dabei überschrieben."
+  ],
+  kurz: [
+    "Schiebe das rote Rechteck mit dem Auswahlwerkzeug nach unten, bis es <b>unterhalb des Kreises</b> liegt.",
+    {t: "Drehe es über <span class=\"menue\">Objekt</span> → <span class=\"menue\">Transformation…</span> (Reiter <span class=\"menue\">Drehen</span>) um 45°.", bild: "assets/inkscape/drehen.png", alt: "Inkscape: das rote Rechteck ist ausgewählt und hochkant gedreht. Rechts das Fenster Transformationen mit dem Reiter Drehen, dem Feld Winkel und dem Knopf Anwenden. Oben in der Leiste B 20,000 und H 40,000", quelle: BILD},
+    "Probiere auch die Drehpfeile aus (gewähltes Rechteck noch einmal anklicken) und mache das mit <kbd>Strg</kbd> + <kbd>Z</kbd> rückgängig.",
+    "Speichere mit <kbd>Strg</kbd> + <kbd>S</kbd>."
+  ],
+  hilfen: [
+    "Verschieben geht mit dem Auswahlwerkzeug (Pfeil oben links). Die kleinen Pfeile am Rand ändern die Größe – fasse das Rechteck in der Mitte an.",
+    "Im Fenster „Transformationen“ gibt es mehrere Reiter. Gedreht wird nur im Reiter „Drehen“. Klicke nur <b>einmal</b> auf „Anwenden“ – jeder Klick dreht um weitere 45°.",
+    "Ist das Rechteck falsch gedreht oder zu groß geworden? Drücke <kbd>Strg</kbd> + <kbd>Z</kbd>, bis es wieder stimmt. Achtung: Das Feld „D:“ rechts unten dreht nur die Ansicht, nicht das Rechteck."
+  ],
+  loesung: "Das Rechteck liegt unterhalb des Kreises und ist um 45° gedreht. In der Datei steht beim Rechteck jetzt zum Beispiel transform=\"rotate(45)\" – das ist der Drehwinkel. Breite und Höhe bleiben 40 und 20.",
+  pruefung: {
+    art: "datei", accept: ".svg", lies: Modul.liesSvg, pruefe: pruefeDrehung,
+    text: "Wähle deine gespeicherte Datei <b>formen.svg</b> noch einmal aus. Sie wird nur hier auf dem Gerät geprüft und nicht hochgeladen.",
+    ersatz: {art: "zahl", frage: "Nach einer Drehung um 90° steht das Rechteck (B = 40, H = 20) hochkant. Welche Zahl zeigt die Leiste des Auswahlwerkzeugs dann bei B?", wert: 20, tol: 0.3, einheit: "mm",
+      tipp: "Sieh dir das Bild mit dem Fenster „Transformationen“ genau an – oder probiere es in Inkscape aus."}
+  }
+}, "auf2");
+
+Modul.makeMC($("#mc-s4"), [
+  {q: "Rechts unten im Fenster steht „D: 0,00°“. Du stellst dort 45 ein. Was passiert?",
+   o: ["Nur die Ansicht dreht sich – das Rechteck selbst bleibt, wie es ist.", "Das Rechteck dreht sich um 45° – die Seite bleibt, wie sie ist.", "Das Rechteck wird 45 mm breit – seine Höhe bleibt gleich.", "Die ganze Seite wird um 45 Prozent größer angezeigt."], a: 0,
+   e: "„D:“ dreht nur, wie du auf die Seite schaust. Gedreht wird ein Objekt über Objekt → Transformation… oder mit den Drehpfeilen."},
+  {q: "Du klickst ein Rechteck an, das schon ausgewählt ist. Was ändert sich?",
+   o: ["Statt der Pfeile zum Größe-Ändern erscheinen Pfeile zum Drehen.", "Eine Kopie des Rechtecks entsteht und liegt genau auf dem Original.", "Das Rechteck wird abgewählt, und die Pfeile am Rand verschwinden.", "Das Rechteck bekommt die Farbe, die zuletzt in der Palette gewählt war."], a: 0,
+   e: "Jeder weitere Klick schaltet um: Pfeile zum Größe-Ändern oder Pfeile zum Drehen."},
+  {q: "Du schiebst das Rechteck mit der Maus an eine andere Stelle. Welches Attribut bekommt einen neuen Wert?",
+   o: ["die Position", "die Breite", "die Füllfarbe", "der Drehwinkel"], a: 0,
+   e: "Beim Verschieben ändert sich nur, wo das Objekt liegt: Die Position bekommt einen neuen Attributwert. Breite, Füllfarbe und Drehwinkel behalten ihre Werte."}
+], "mcs4", {t: "Kurz-Check"});
+
+/* ---------- Station 5 ---------- */
+Modul.makeSort($("#sortWerkzeug"), {
+  buckets: ["🛠 Werkzeug – damit arbeitest du", "🏷 Attribut – Eigenschaft eines Objekts"], cols: 260,
+  items: [
+    {t: "Rechteck-Werkzeug", b: 0}, {t: "Kreis-Werkzeug", b: 0}, {t: "Auswahlwerkzeug", b: 0}, {t: "Text-Werkzeug", b: 0},
+    {t: "Höhe", b: 1}, {t: "Radius", b: 1}, {t: "Konturfarbe", b: 1}, {t: "Drehwinkel", b: 1}, {t: "Position", b: 1}
+  ],
+  done: "✅ Richtig! Mit Werkzeugen zeichnest und bearbeitest du. Attribute beschreiben das fertige Objekt."
+}, "sortWerkzeug");
+
+Modul.makeTF($("#tf"), [
+  ["Mit Umschalt + Klick auf eine Farbe färbst du die Kontur.", true],
+  ["Das Feld „D:“ rechts unten dreht das ausgewählte Objekt.", false],
+  ["Strg + Z macht den letzten Schritt rückgängig.", true],
+  ["Strg + S speichert die Datei.", true],
+  ["Ein Kreis mit Rx = 15 mm ist 15 mm breit.", false],
+  ["Breite und Füllfarbe sind Attribute.", true],
+  ["Inkscape speichert seine Bilder als SVG-Datei.", true]
+], "tf");
+
+Modul.makeGap($("#gap"), [
+  ["Ein Rechteck oder ein Kreis ist ein ", {g: "Objekt"}, ". Seine Eigenschaften, zum Beispiel die Breite, heißen ", {g: "Attribute"}, "."],
+  ["Was gerade im Feld steht, zum Beispiel 40 mm, ist der ", {g: "Attributwert"}, "."],
+  ["Eine eingetippte Zahl gilt erst nach der ", {g: "Eingabetaste"}, "."],
+  ["Inkscape speichert dein Bild als ", {g: "SVG"}, "-Datei."]
+], "gap", ["Pixel", "Werkzeug"]);
+
+Modul.makePaare($("#paareTasten"), [
+  ["Strg + Z", "letzten Schritt rückgängig machen"],
+  ["Strg + S", "Datei speichern"],
+  ["Umschalt + Strg + X", "XML-Editor öffnen"],
+  ["Umschalt + Strg + M", "Fenster „Transformationen“ öffnen"],
+  ["Eingabetaste", "eingetippte Zahl übernehmen"],
+  ["Umschalt + Klick auf eine Farbe", "Kontur färben"]
+], "paareTasten");
+
+Modul.ready();
+})();
+</script>
+<script src="../../js/uebersetzen.js"></script>
+</body>
+</html>

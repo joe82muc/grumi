@@ -89,16 +89,16 @@
       text: "Grafiken aus Formen statt aus Pixeln: vergrößern ohne Unschärfe, Objekte und ihre Eigenschaften, ein eigenes Symbol.",
       proben: [{ R: "inf7-p4-r", M: "inf7-p4-m" }],
       module: [
-        { id: "raster-vektor", kz: "V1", titel: "Raster oder Vektor?", key: "grumi-i7-raster-vektor-v1",
+        { id: "raster-vektor", kz: "V1", titel: "Raster oder Vektor?", href: "raster-vektor.html", key: "grumi-i7-raster-vektor-v1",
           text: "Ein Foto wird beim Vergrößern unscharf, eine Vektorgrafik nicht. Du findest heraus, warum.",
           tags: ["Animation", "Tablet geeignet"] },
-        { id: "inkscape-start", kz: "V2", titel: "Inkscape: die ersten Formen", key: "grumi-i7-inkscape-start-v1", pc: "Inkscape",
+        { id: "inkscape-start", kz: "V2", titel: "Inkscape: die ersten Formen", href: "inkscape-start.html", key: "grumi-i7-inkscape-start-v1", pc: "Inkscape",
           text: "Rechteck, Kreis, Farbe, Größe, Position, Drehen – jedes Objekt hat Eigenschaften.",
           tags: ["Inkscape"] },
-        { id: "objekte", kz: "V3", titel: "Objekte kombinieren", key: "grumi-i7-objekte-v1", pc: "Inkscape",
+        { id: "objekte", kz: "V3", titel: "Objekte kombinieren", href: "objekte.html", key: "grumi-i7-objekte-v1", pc: "Inkscape",
           text: "Kopieren, gruppieren, anordnen und Text setzen: Aus einfachen Formen wird ein Bild.",
           tags: ["Inkscape"] },
-        { id: "logo", kz: "V4", titel: "Eigenes Symbol oder Logo", key: "grumi-i7-logo-v1", pc: "Inkscape",
+        { id: "logo", kz: "V4", titel: "Eigenes Symbol oder Logo", href: "logo.html", key: "grumi-i7-logo-v1", pc: "Inkscape",
           text: "Du planst und zeichnest ein eigenes Symbol – ein App-Zeichen, ein Piktogramm oder ein Logo.",
           tags: ["Inkscape", "Mini-Projekt"] }
       ]
